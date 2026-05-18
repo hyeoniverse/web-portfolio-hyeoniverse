@@ -1,12 +1,22 @@
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { emailLayout, escapeHtml } from "@/lib/mail/template";
 
 async function sendSecurityAlert(to: string, action: string, detail?: string) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return;
 
   const time = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+  const title = `Account ${action}`;
+  const body = `
+    <h1 class="title">${escapeHtml(title)}</h1>
+    ${detail ? `<p class="body">${escapeHtml(detail)}</p>` : ""}
+    <table class="meta">
+      <tr><td class="label">Time</td><td>${escapeHtml(time)}</td></tr>
+    </table>
+  `;
+  const footer = "If you did not make this change, please secure your account immediately.";
   try {
     await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -18,15 +28,7 @@ async function sendSecurityAlert(to: string, action: string, detail?: string) {
         from: "Portfolio <onboarding@resend.dev>",
         to,
         subject: `[Security] ${action}`,
-        html: `
-          <div style="font-family: sans-serif; max-width: 480px;">
-            <h3 style="margin: 0 0 8px;">Account ${action}</h3>
-            ${detail ? `<p style="color: #555;">${detail}</p>` : ""}
-            <p style="color: #555;">Time: ${time}</p>
-            <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0;" />
-            <p style="font-size: 12px; color: #999;">If you did not make this change, please secure your account immediately.</p>
-          </div>
-        `,
+        html: emailLayout({ title, body, footer }),
       }),
     });
   } catch {
