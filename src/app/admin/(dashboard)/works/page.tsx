@@ -622,6 +622,7 @@ role: 풀스택 개발
             search={search}
             onSearchChange={(v) => { setSearch(v); setPage(1); }}
             placeholder={t("admin.works.search")}
+            align="left"
             className={shell.filterSearch}
           />
         </div>

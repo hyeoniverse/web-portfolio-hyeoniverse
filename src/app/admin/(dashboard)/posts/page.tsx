@@ -709,6 +709,7 @@ tags: React`}</code></pre>
             search={search}
             onSearchChange={(v) => { setSearch(v); setPage(1); }}
             placeholder={t("admin.posts.search")}
+            align="left"
             className={shell.filterSearch}
           />
         </div>

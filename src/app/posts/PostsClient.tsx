@@ -241,12 +241,13 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   }, [showTags, catExpanded]);
 
   // tags/categories close-on-scroll — 의도적 스크롤만 닫도록 threshold 크게.
-  // 300ms cooldown 으로 expand 직후 layout-shift scroll 무시.
+  // 500ms cooldown 으로 expand 직후 layout-shift scroll 충분히 무시.
   useEffect(() => {
     if (!showTags && !catExpanded) return;
     let startY = -1;
-    const CLOSE_THRESHOLD = 140; // px — casual 스크롤은 유지, 명확한 스크롤만 닫힘
-    const armTimer = setTimeout(() => { startY = window.scrollY; }, 300);
+    // 약 1 화면 viewport 분 — 명확한 의도 스크롤만 닫힘
+    const CLOSE_THRESHOLD = Math.max(400, window.innerHeight * 0.6);
+    const armTimer = setTimeout(() => { startY = window.scrollY; }, 500);
     const handleScroll = () => {
       if (startY < 0) return;
       if (Math.abs(window.scrollY - startY) > CLOSE_THRESHOLD) {
