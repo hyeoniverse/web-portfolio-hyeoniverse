@@ -1,0 +1,61 @@
+.wrap {
+  margin-top: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.label {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* sphere container — perspective 로 3D depth 표현. height 는 inline style. */
+.sphere {
+  position: relative;
+  width: 100%;
+  cursor: grab;
+  user-select: none;
+  perspective: 600px;
+  touch-action: none;
+}
+
+.sphere:active {
+  cursor: grabbing;
+}
+
+/* scene — 중앙(0,0) 기준 좌표로 tag 배치 */
+.scene {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+
+.tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  font-family: var(--font-space-grotesk);
+  color: var(--text-primary);
+  text-decoration: none;
+  will-change: transform, opacity;
+  transform-origin: center;
+  /* tag 안에 따로 transition 주면 rAF transform 과 충돌 — opacity 만 부드럽게 */
+  transition: color 0.15s ease;
+}
+
+.tag:hover {
+  color: var(--text-accent);
+}
+
+.tagActive {
+  color: var(--text-accent);
+  font-weight: var(--font-weight-bold);
+}
