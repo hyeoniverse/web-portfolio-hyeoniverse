@@ -123,6 +123,18 @@
   border: var(--border-default);
 }
 
+/* popular sub-options — variant="outline" 이 색/외형 처리. 여기는 size 만 줄임. */
+.popularSubSort button {
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  font-size: var(--font-size-2xs);
+}
+
+/* 메인 SortGroup 과 sub 사이 화살표 — "이 옵션의 세부 선택" 의미 */
+.popularSubArrow {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
 .sortBtn {
   position: relative;
   display: flex;

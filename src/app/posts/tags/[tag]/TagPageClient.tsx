@@ -8,7 +8,7 @@ import type { TagPageData } from "@/lib/posts";
 import { useLenis } from "@/providers/LenisProvider";
 import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
 import PostCard from "../../_components/PostCard";
-import SortGroup from "@/components/ui/SortGroup";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import Select from "@/components/ui/Select";
 import Tooltip from "@/components/ui/Tooltip";
 import Pagination from "@/components/ui/Pagination";
@@ -176,7 +176,7 @@ export default function TagPageClient({ tag, initialData }: Props) {
             }}
           />
           <div className={styles.toolbarRight}>
-            <SortGroup<Sort>
+            <SegmentedControl<Sort>
               items={[
                 { value: "newest", label: "최신순" },
                 { value: "popular", label: "인기순" },
