@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.5.0...v1.6.0) (2026-05-18)
+
+
+### Features
+
+* **auth:** Settings 보안 section 에 등록된 기기 목록 + revoke ([8b6e744](https://github.com/hyeoniverse/web-portfolio-oval/commit/8b6e74494ad415d19e7bb948002176d7db3d083c))
+* **posts-tags:** 서버 사이드 다중 태그 필터링 (교집합) ([1d48122](https://github.com/hyeoniverse/web-portfolio-oval/commit/1d48122296ebadb17cdf9314be1dc8fe507d806f))
+* TagPage sticky filter bar + Settings/posts sidebar polish ([d5dd02a](https://github.com/hyeoniverse/web-portfolio-oval/commit/d5dd02a8f249781ef7c09f8a9fb849071b826d54))
+
 ## [1.5.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.4.0...v1.5.0) (2026-05-18)
 
 
