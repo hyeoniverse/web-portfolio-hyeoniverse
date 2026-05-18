@@ -11,8 +11,8 @@ import SortGroup from "@/components/ui/SortGroup";
 import Select from "@/components/ui/Select";
 import Tooltip from "@/components/ui/Tooltip";
 import Pagination from "@/components/ui/Pagination";
+import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
-import TagPill from "@/components/ui/TagPill";
 import styles from "./TagPage.module.css";
 
 type Sort = "newest" | "popular" | "title";
@@ -38,6 +38,23 @@ export default function TagPageClient({ tag, initialData }: Props) {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [searchType, setSearchType] = useState<"all" | "title" | "content">("all");
+  // 추가 태그 필터 — selectMode 켤 때 관련 태그 클릭으로 토글. client-side 교집합 필터.
+  const [extraTags, setExtraTags] = useState<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
+  const toggleExtraTag = (t: string) => {
+    setExtraTags((prev) => {
+      const next = new Set(prev);
+      if (next.has(t)) next.delete(t); else next.add(t);
+      return next;
+    });
+  };
+  const toggleSelectMode = () => {
+    setSelectMode((m) => {
+      if (m) setExtraTags(new Set()); // 끄면 선택 클리어
+      return !m;
+    });
+  };
 
   // ── Sticky filter bar (heroTopRow) — posts 페이지와 동일 패턴 ──
   const [isStuck, setIsStuck] = useState(false);
@@ -142,16 +159,32 @@ export default function TagPageClient({ tag, initialData }: Props) {
     fetchPosts();
   }, [fetchPosts, isInitial]);
 
-  // 검색 — 현재 로드된 페이지 posts 안에서 title/title_en 매칭 (간단 client-side filter)
+  // 검색 + 추가 태그 교집합 — client-side filter.
+  // 페이지네이션은 서버의 단일 tag 결과 기준 — extraTags 적용 시 현 페이지 내 매치만 보임.
   const filteredPosts = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return posts;
+    const matchTitle = (p: Post) =>
+      (p.title?.toLowerCase() ?? "").includes(q) ||
+      (p.title_en?.toLowerCase() ?? "").includes(q);
+    const matchContent = (p: Post) =>
+      (p.content?.toLowerCase() ?? "").includes(q) ||
+      (p.content_en?.toLowerCase() ?? "").includes(q) ||
+      (p.excerpt?.toLowerCase() ?? "").includes(q) ||
+      (p.excerpt_en?.toLowerCase() ?? "").includes(q);
+    const extraArr = Array.from(extraTags);
     return posts.filter((p) => {
-      const ko = p.title?.toLowerCase() ?? "";
-      const en = p.title_en?.toLowerCase() ?? "";
-      return ko.includes(q) || en.includes(q);
+      // 추가 태그 — 모두 포함된 post 만 (교집합)
+      if (extraArr.length > 0) {
+        const postTags = (p.tags ?? []) as string[];
+        if (!extraArr.every((t) => postTags.includes(t))) return false;
+      }
+      // 검색어
+      if (!q) return true;
+      if (searchType === "title") return matchTitle(p);
+      if (searchType === "content") return matchContent(p);
+      return matchTitle(p) || matchContent(p);
     });
-  }, [posts, search]);
+  }, [posts, search, searchType, extraTags]);
 
   return (
     <div className={styles.container}>
@@ -173,25 +206,37 @@ export default function TagPageClient({ tag, initialData }: Props) {
           <SearchCapsule
             search={search}
             onSearchChange={setSearch}
+            align="left"
             placeholder="이 태그 안에서 검색…"
             className={styles.heroSearch}
+            typeSelector={{
+              value: searchType,
+              options: [
+                { value: "all", label: "제목+내용" },
+                { value: "title", label: "제목" },
+                { value: "content", label: "내용" },
+              ],
+              onChange: (v) => setSearchType(v as "all" | "title" | "content"),
+            }}
           />
-          <SortGroup<Sort>
-            items={[
-              { value: "newest", label: "최신순" },
-              { value: "popular", label: "인기순" },
-              { value: "title", label: "제목순" },
-            ]}
-            value={sort}
-            onChange={handleSortChange}
-            sortDir={sortDir}
-          />
-          <Select
-            className={styles.perPageSelect}
-            value={String(perPage)}
-            options={PER_PAGE_OPTIONS}
-            onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
-          />
+          <div className={styles.toolbarRight}>
+            <SortGroup<Sort>
+              items={[
+                { value: "newest", label: "최신순" },
+                { value: "popular", label: "인기순" },
+                { value: "title", label: "제목순" },
+              ]}
+              value={sort}
+              onChange={handleSortChange}
+              sortDir={sortDir}
+            />
+            <Select
+              className={styles.perPageSelect}
+              value={String(perPage)}
+              options={PER_PAGE_OPTIONS}
+              onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+            />
+          </div>
         </div>
       </div>
 
@@ -206,24 +251,64 @@ export default function TagPageClient({ tag, initialData }: Props) {
         </p>
         {initialData.relatedTags.length > 0 && (
           <div className={styles.relatedRow}>
-            <Tooltip
-              placement="top"
-              delay={200}
-              content={
-                <div className={styles.relatedLabelTooltip}>
-                  <div className={styles.relatedLabelTooltipMain}>Related Tags</div>
-                  <div className={styles.relatedLabelTooltipDesc}>
-                    이 태그와 같은 게시물에 함께 쓰인 다른 태그 — 같이 등장한 빈도순 정렬
+            <div className={styles.relatedHeader}>
+              <Tooltip
+                placement="top"
+                delay={200}
+                content={
+                  <div className={styles.relatedLabelTooltip}>
+                    <div className={styles.relatedLabelTooltipMain}>Related Tags</div>
+                    <div className={styles.relatedLabelTooltipDesc}>
+                      이 태그와 같은 게시물에 함께 쓰인 다른 태그 — 같이 등장한 빈도순 정렬.
+                      &lsquo;다중 선택&rsquo; 켜면 클릭으로 추가 필터, 끄면 클릭으로 해당 태그 페이지 이동.
+                    </div>
                   </div>
-                </div>
-              }
-            >
-              <span className={styles.relatedLabel}>관련 태그</span>
-            </Tooltip>
+                }
+              >
+                <span className={styles.relatedLabel}>관련 태그</span>
+              </Tooltip>
+              <Button
+                variant="outline"
+                size="2xs"
+                active={selectMode}
+                className={styles.selectModeBtn}
+                onClick={toggleSelectMode}
+                title={selectMode ? "다중 선택 끄기" : "다중 선택 켜기 — 여러 태그로 추가 필터"}
+              >
+                다중 선택
+              </Button>
+            </div>
             <div className={styles.relatedTags}>
-              {initialData.relatedTags.map(({ tag: rt, count }) => (
-                <TagPill key={rt} tag={rt} count={count} />
-              ))}
+              {initialData.relatedTags.map(({ tag: rt, count }) => {
+                const active = extraTags.has(rt);
+                const inner = (
+                  <>
+                    <span>#{rt}</span>
+                    <span className={styles.relatedPillCount}>{count}</span>
+                  </>
+                );
+                if (selectMode) {
+                  return (
+                    <button
+                      key={rt}
+                      type="button"
+                      className={`${styles.relatedPill} ${styles.relatedPillSelectable} ${active ? styles.relatedPillActive : ""}`}
+                      onClick={() => toggleExtraTag(rt)}
+                    >
+                      {inner}
+                    </button>
+                  );
+                }
+                return (
+                  <Link
+                    key={rt}
+                    href={`/posts/tags/${encodeURIComponent(rt)}`}
+                    className={styles.relatedPill}
+                  >
+                    {inner}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}

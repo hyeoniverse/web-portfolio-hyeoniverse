@@ -130,15 +130,24 @@
 .metaGroup {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-2xs);
   white-space: nowrap;
+}
+
+/* 그룹 사이 세로 라인 separator — border shorthand 토큰만 사용 */
+.metaGroup + .metaGroup::before {
+  content: "";
+  display: inline-block;
+  height: var(--font-size-sm);
+  margin-right: var(--spacing-xs);
+  border-left: var(--border-default);
 }
 
 /* 아이콘 + 숫자 inline 묶음 */
 .metaItem {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2xs);
 }
 
 .dot {

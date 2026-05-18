@@ -26,18 +26,32 @@
   position: sticky;
   top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl));
   z-index: 51;
-  padding: var(--spacing-sm) 0;
-  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
   background: transparent;
   transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
 }
 
-/* stuck 상태 — backdrop blur 로 뒤 콘텐츠 살짝 흐리게 + border-bottom */
+/* stuck 상태 — 콘텐츠 영역만 backdrop blur 면 좁아 보이니까 ::before pseudo 로
+   viewport 좌우 끝 + nav 영역까지 확장. heroTopRow 가 sticky 라 stick 시
+   pseudo 도 viewport top 으로 같이 따라감. */
 .heroTopRowStuck {
-  backdrop-filter: blur(12px);
   border-bottom: var(--border-light);
+}
+
+.heroTopRowStuck::before {
+  content: "";
+  position: absolute;
+  /* 위로 stickyTop 만큼 확장 → nav 영역 포함 */
+  top: calc(-1 * (var(--spacing-2xl) * 2 + var(--font-size-3xl)));
+  /* viewport 좌우 끝까지 */
+  left: calc(50% - 50vw);
+  right: calc(50% - 50vw);
+  bottom: 0;
+  backdrop-filter: blur(12px);
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* scroll-down 시 위로 숨김 — (0,2,0) compound 로 global theme transition 우회 */
@@ -52,11 +66,10 @@
   transition: transform 0.3s ease, opacity 0.2s ease;
 }
 
-/* 검색창 — heroTopRow 중간, flex grow 로 양쪽 요소 사이 공간 채움 */
+/* 검색창 — toolbar 안 왼쪽 (grow X). 오른쪽 정렬은 .toolbarRight 의 margin-left: auto 로 처리 */
 .heroSearch {
-  flex: 1 1 200px;
-  min-width: 0;
-  max-width: 320px;
+  flex: 0 0 auto;
+  max-width: 360px;
 }
 
 .heroBadge {
@@ -107,22 +120,39 @@
   color: var(--text-primary);
 }
 
-/* ── Toolbar — search + sort + perPage 한 줄 (heroTopRow 안에 위치) ── */
+/* ── Toolbar — 검색은 왼쪽, sort + perPage 는 오른쪽 ── */
 .toolbar {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
   gap: var(--spacing-sm);
   flex: 1;
   min-width: 0;
 }
 
-/* perPage Select — width fit-content + SortGroup btn 과 동일 padding/font (height 통일) */
+/* heroSearch 내부 input + selectWrap button — SortGroup btn 과 동일 padding/font
+   로 row 높이 통일 (selectWrap button 이 input-p + font xs 라 capsule 이 더 커지던 문제) */
+.toolbar .heroSearch input,
+.toolbar .heroSearch button {
+  padding: var(--box-sm) !important;
+  font-size: var(--font-size-2xs) !important;
+}
+
+/* sort + perPage 묶음 — toolbar 의 오른쪽 끝으로 밀어냄 */
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-left: auto;
+}
+
+/* perPage Select — fit-content (콘텐츠 너비) + SortGroup btn 과 동일 padding/font */
 .perPageSelect {
   flex: 0 0 auto;
-  width: auto;
+  width: fit-content;
+  min-width: 0;
 }
 .perPageSelect > button {
+  width: fit-content;
   padding: var(--box-sm);
   font-size: var(--font-size-2xs);
 }
@@ -182,11 +212,24 @@
 
 /* ── Related tags — "관련 태그" label + pills 한 row ── */
 .relatedRow {
-  margin-top: var(--spacing-sm);
+  width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-sm);
-  flex-wrap: wrap;
+}
+
+/* 첫 줄 — "관련 태그" label + 다중 선택 toggle */
+.relatedHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 다중 선택 Button — outline variant 의 border-strong 을 border-light 로.
+   compound (0,2,0) 로 .variant-outline (0,1,0) 이김 */
+.selectModeBtn.selectModeBtn {
+  border: var(--border-light);
 }
 
 .relatedLabel {
@@ -225,6 +268,51 @@
   background: var(--bg-accent-light);
   color: var(--text-accent);
 }
+
+/* relatedPill — selectMode off: Link (페이지 이동) / on: button (필터 토글) — 같은 외형 */
+.relatedPill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.relatedPill:hover {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+/* selectMode 켰을 때 — dashed border 로 "선택 가능" 시각 신호 */
+.relatedPillSelectable {
+  border: 1px dashed var(--border-default-color);
+  padding-block: calc(var(--spacing-2xs) - 1px);
+  padding-inline: calc(var(--spacing-sm) - 1px);
+}
+
+.relatedPillActive {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  border-color: transparent;
+}
+
+.relatedPillActive:hover {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.relatedPillCount {
+  font-family: var(--font-jetbrains);
+  font-size: var(--font-size-2xs);
+  opacity: 0.7;
+}
+
 
 /* 관련 태그 label hover tooltip — 번역 + 기준 설명 */
 .relatedLabelTooltip {
