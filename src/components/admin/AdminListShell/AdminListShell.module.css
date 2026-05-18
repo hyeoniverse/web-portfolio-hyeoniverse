@@ -98,9 +98,9 @@
 
 
 .filterItem {
-  flex: 0 1 auto;
-  min-width: 100px;
-  max-width: 160px;
+  flex: 0 0 auto;
+  width: fit-content;
+  min-width: 0;
 }
 
 .filterItem button {
@@ -137,9 +137,8 @@
 }
 
 .filterSearch {
-  flex: 0 1 auto;
-  min-width: 240px;
-  max-width: 320px;
+  flex: 0 0 auto;
+  width: 200px;
 }
 
 /* ── Preview Backdrop (mobile dismiss) ── */

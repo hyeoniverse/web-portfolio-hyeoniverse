@@ -296,29 +296,25 @@ export default function AdminWorksPage() {
   const handleDragReorder = async (fromIdx: number, toIdx: number) => {
     if (fromIdx === toIdx) return;
 
-    // 영향 범위 내 sort_order 값들을 정렬해서 새 슬롯에 재배치
+    // page-position 기반 dense sort_order 재할당 — 기존 값에 0/duplicate 가 있어도 자동 정리.
+    // 페이지 N (1-indexed) 의 row idx 의 global sort_order = (N-1)*perPage + idx + 1
+    const pageOffset = (page - 1) * perPage;
     const lo = Math.min(fromIdx, toIdx);
     const hi = Math.max(fromIdx, toIdx);
-    const sortOrders = works
-      .slice(lo, hi + 1)
-      .map((w) => w.sort_order)
-      .sort((a, b) => a - b);
 
-    // 1) 순서 재배치
     const reordered = [...works];
     const [moved] = reordered.splice(fromIdx, 1);
     reordered.splice(toIdx, 0, moved);
 
-    // 2) immutable 하게 sort_order 재할당 (객체 새로 복제) → React 가 정상 reconcile
     const next = reordered.map((w, idx) => {
       if (idx >= lo && idx <= hi) {
-        return { ...w, sort_order: sortOrders[idx - lo] };
+        return { ...w, sort_order: pageOffset + idx + 1 };
       }
       return w;
     });
     setWorks(next);
 
-    // 서버 동기화 — 실패 시에만 reload. skipShift=true 로 client-batch 모드 알림 (서버 자동 shift 비활성)
+    // 서버 동기화 — skipShift=true 로 batch (각 PATCH 가 normalize 안 함). 마지막에 fetchWorks 로 refresh.
     try {
       await Promise.all(
         next.slice(lo, hi + 1).map((w) =>
@@ -329,6 +325,7 @@ export default function AdminWorksPage() {
           }),
         ),
       );
+      fetchWorks();
     } catch {
       fetchWorks();
     }
