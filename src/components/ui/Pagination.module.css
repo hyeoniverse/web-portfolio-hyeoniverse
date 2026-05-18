@@ -1,9 +1,17 @@
+/* 외부 wrapper — pagination + 아래 jump-to input 묶음 */
+.paginationWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: var(--spacing-sm);
-  margin-top: var(--spacing-md);
 }
 
 .pageBtn {
@@ -47,4 +55,51 @@
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
   padding: 0 var(--spacing-2xs);
+}
+
+/* Jump-to input — "Go to [n] / N" */
+.jumpRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.jumpLabel {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: var(--font-weight-medium);
+}
+
+.jumpInput {
+  width: 56px;
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-jetbrains);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  /* spinner 제거 — Firefox + WebKit */
+  -moz-appearance: textfield;
+}
+
+.jumpInput::-webkit-inner-spin-button,
+.jumpInput::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.jumpInput:focus {
+  outline: none;
+  border-color: var(--text-primary);
+}
+
+.jumpTotal {
+  font-family: var(--font-jetbrains);
+  font-variant-numeric: tabular-nums;
 }
