@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Tags } from "lucide-react";
+import { Tags, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import styles from "./TagCloud3D.module.css";
@@ -14,7 +14,8 @@ interface TagItem {
 
 interface TagCloud3DProps {
   tags: TagItem[];
-  activeTag?: string | null;
+  /** 활성 태그 set — 다중 선택 지원. 단일 사용처는 1개짜리 Set 전달. */
+  activeTags?: ReadonlySet<string> | null;
   /** 주어지면 클릭 시 호출(필터링용) — 안 주면 default 로 `/posts/tags/[tag]` 페이지 이동 */
   onTagClick?: (tag: string) => void;
   /** 구 반지름 (px). sidebar 가 좁으니 기본 90 */
@@ -23,7 +24,7 @@ interface TagCloud3DProps {
 
 /** 태그를 구체 표면에 Fibonacci 분포 + rAF 회전. CSS 3D translate3d + scale/opacity 로 depth 표현.
  *  hover 시 자동 회전 일시정지, drag 로 수동 회전. */
-export default function TagCloud3D({ tags, activeTag, onTagClick, size = 90 }: TagCloud3DProps) {
+export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90 }: TagCloud3DProps) {
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -168,10 +169,11 @@ export default function TagCloud3D({ tags, activeTag, onTagClick, size = 90 }: T
 
   return (
     <div className={styles.wrap}>
-      <h3 className={styles.label}>
+      <Link href="/posts/tags" className={styles.label}>
         <Tags size={14} aria-hidden />
         <T k="postsPage.tags" tooltip={t("postsPage.tagCloudHint")} />
-      </h3>
+        <ChevronRight size={14} aria-hidden className={styles.labelArrow} />
+      </Link>
       <div ref={containerRef} className={styles.sphere} style={{ height: size * 2.2 }}>
         <div className={styles.scene}>
           {points.map((p, i) => (
@@ -186,7 +188,7 @@ export default function TagCloud3D({ tags, activeTag, onTagClick, size = 90 }: T
                   onTagClick(p.tag);
                 }
               }}
-              className={`${styles.tag} ${activeTag === p.tag ? styles.tagActive : ""}`}
+              className={`${styles.tag} ${activeTags?.has(p.tag) ? styles.tagActive : ""}`}
               style={{ fontSize: `${fontFor(p.count)}px` }}
             >
               {p.tag}

@@ -143,6 +143,11 @@
   border-left: var(--border-default);
 }
 
+/* meta 가 줄바꿈된 경우 separator + 양옆 gap 제거 — 새 줄 시작 부분이 깔끔해짐 */
+.meta[data-meta-wrapped] .metaGroup + .metaGroup::before {
+  content: none;
+}
+
 /* 아이콘 + 숫자 inline 묶음 */
 .metaItem {
   display: inline-flex;

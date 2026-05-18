@@ -74,7 +74,6 @@ export default function DesignSystemClient() {
     snapRef.current = snapshotVars(document.documentElement);
     return () => {
       clearTimeout(timer);
-      setInfinite(true);
       if (snapRef.current) restoreVars(document.documentElement, snapRef.current);
     };
   }, [setInfinite, lenis, stop, start]);

@@ -56,6 +56,9 @@ export default function PostCard({
   const [tagsExpanded, setTagsExpanded] = useState(false);
   const [tagsOverflow, setTagsOverflow] = useState(false);
   const tagsRef = useRef<HTMLDivElement>(null);
+  // meta 줄바꿈 감지 — wrap 시 그룹 사이 separator(+gap) 숨김
+  const metaRef = useRef<HTMLDivElement>(null);
+  const [metaWrapped, setMetaWrapped] = useState(false);
 
   useLayoutEffect(() => {
     const el = tagsRef.current;
@@ -69,6 +72,25 @@ export default function PostCard({
     ro.observe(el);
     return () => ro.disconnect();
   }, [post.tags, tagsExpanded]);
+
+  useLayoutEffect(() => {
+    const el = metaRef.current;
+    if (!el) return;
+    const check = () => {
+      const groups = el.querySelectorAll<HTMLElement>(`.${styles.metaGroup}`);
+      if (groups.length < 2) { setMetaWrapped(false); return; }
+      const firstTop = groups[0].offsetTop;
+      let wrapped = false;
+      for (let i = 1; i < groups.length; i++) {
+        if (groups[i].offsetTop !== firstTop) { wrapped = true; break; }
+      }
+      setMetaWrapped(wrapped);
+    };
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const category = post.category || null;
   const prefetchedRef = useRef(false);
   /* hover 시 다음 페이지 chunk 를 미리 로딩 — 클릭 후 navigate 가 즉시 mount 되도록.
@@ -256,7 +278,7 @@ export default function PostCard({
           </div>
         )}
 
-        <div className={styles.meta}>
+        <div ref={metaRef} className={styles.meta} data-meta-wrapped={metaWrapped || undefined}>
           <span className={styles.metaGroup}>
             <span>{date}</span>
             <span className={styles.dot}>&middot;</span>

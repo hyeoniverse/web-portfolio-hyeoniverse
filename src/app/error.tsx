@@ -18,7 +18,6 @@ export default function Error({ error, reset }: ErrorProps) {
   useEffect(() => {
     setInfinite(false);
     console.error("Application Error:", error);
-    return () => setInfinite(true);
   }, [error, setInfinite]);
 
   return (

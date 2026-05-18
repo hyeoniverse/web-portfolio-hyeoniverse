@@ -128,9 +128,6 @@ export default function AdminEditorShell({
     setInfinite(false);
     window.scrollTo(0, 0);
     if (lenis) lenis.scrollTo(0, { immediate: true });
-    return () => {
-      setInfinite(true);
-    };
   }, [setInfinite, lenis]);
 
   // 리비전 상세 비동기 로딩

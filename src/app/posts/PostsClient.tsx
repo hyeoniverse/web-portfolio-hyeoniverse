@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
@@ -15,7 +16,7 @@ import PopularPosts from "./_components/PopularPosts";
 import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
 import TagCloud3D from "./_components/TagCloud3D";
-import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
+import { SkeletonLine, SkeletonPill, SkeletonBlock } from "@/components/ui/Skeleton";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { ChevronDown, ChevronUp, ChevronRight, BookOpen, LayoutGrid, ArrowUp, Shuffle } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -75,70 +76,36 @@ const PAGE_SIZE_OPTIONS = [
   { value: "50", label: "50" },
 ];
 
-// Bento variants — masonry row-span 으로 height 변동 packing → aspect 변주 자유
+// Bento variants — 1-col (square/portrait/standard) + 2-col span (wide/banner).
+// 그리드는 auto-fit 으로 col 수가 viewport 따라 변동 (각 col 약 220-300px 고정) → wide 도 절대 폭이 일정.
 type CardType = "wide" | "banner" | "square" | "portrait" | "standard";
 
-// 손수 디자인한 3개 템플릿 — 10 items / 12 cells (3·4·6 컬럼 모두 정수 row).
-// PC(4·6col) 빈공간 최소화 원칙:
-//  · banner(21:9) 는 height 가 가장 짧아 인접 1-col 아이템과 큰 격차 → 사이클 앞쪽에 배치해
-//    이후 standard 들이 dense packing 으로 backfill 할 수 있게 함
-//  · wide(2col 16:10) 와 portrait(1col 3:4) 는 height 가 비슷 → 같은 row 에 배치
-//  · standard 비중 확대(5 per cycle), square 1개로 축소 → 평균 height 변주 줄여 packing 안정
+// 10 items / 12 cells — 1 wide(2) + 1 banner(2) + 8 singles. dense packing 으로 backfill.
 const TEMPLATE_A: CardType[] = [
-  "banner",   "standard",                 // 2+1
-  "portrait", "wide",                     // 1+2 (wide·portrait height 매치)
-  "standard", "square",   "standard",     // 1+1+1
-  "standard", "portrait", "standard",     // 1+1+1
+  "banner",   "standard",
+  "standard", "wide",
+  "portrait", "square",   "standard",
+  "standard", "portrait", "standard",
 ];
 const TEMPLATE_B: CardType[] = [
-  "wide",     "portrait",                 // 2+1 (height 매치)
-  "standard", "standard", "square",       // 1+1+1
-  "banner",   "standard",                 // 2+1 (banner mid, 이후 4 items 가 backfill)
-  "portrait", "standard", "standard",     // 1+1+1
+  "wide",     "portrait",
+  "standard", "standard", "square",
+  "banner",   "standard",
+  "portrait", "standard", "standard",
 ];
 const TEMPLATE_C: CardType[] = [
-  "standard", "square",   "portrait",     // 1+1+1
-  "wide",     "standard",                 // 2+1
-  "banner",   "standard",                 // 2+1
-  "portrait", "standard", "standard",     // 1+1+1
+  "standard", "square",   "portrait",
+  "wide",     "standard",
+  "banner",   "standard",
+  "portrait", "standard", "standard",
 ];
 const TEMPLATES = [TEMPLATE_A, TEMPLATE_B, TEMPLATE_C];
 
 function getCardType(idx: number): CardType {
-  const cycleLen = 10; // 모든 템플릿은 10 아이템 = 12 셀
+  const cycleLen = 10;
   const cycle = Math.floor(idx / cycleLen);
   const pos = idx % cycleLen;
   return TEMPLATES[cycle % TEMPLATES.length][pos];
-}
-
-// 그리드 셀 합계를 3의 배수로 맞춰 마지막 행 빈 칸 제거.
-function adjustForGrid(variants: CardType[]): CardType[] {
-  const isWide = (v: CardType) => v === "wide" || v === "banner";
-  const cellOf = (v: CardType) => (isWide(v) ? 2 : 1);
-  const result = [...variants];
-  let total = result.reduce((sum, v) => sum + cellOf(v), 0);
-  let safety = 4;
-  while (total % 3 !== 0 && safety-- > 0) {
-    const r = total % 3;
-    if (r === 1) {
-      for (let i = result.length - 1; i >= 0; i--) {
-        if (isWide(result[i])) {
-          result[i] = "standard";
-          total -= 1;
-          break;
-        }
-      }
-    } else {
-      for (let i = result.length - 1; i >= 0; i--) {
-        if (!isWide(result[i])) {
-          result[i] = "wide";
-          total += 1;
-          break;
-        }
-      }
-    }
-  }
-  return result;
 }
 
 interface PostsClientProps {
@@ -155,9 +122,24 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [search, setSearch] = useState("");
   const [searchType, setSearchType] = useState<"all" | "title" | "content">("all");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  // URL query (?tag=xxx) 도착 시 초기값 sync — 일반 진입 케이스
+  // URL query (?tag=foo 또는 ?tag=foo,bar CSV) 도착 시 초기값 sync — 다중 선택 지원
   const urlSearchParams = useSearchParams();
-  const [activeTag, setActiveTag] = useState<string | null>(() => urlSearchParams?.get("tag") ?? null);
+  const [activeTags, setActiveTags] = useState<Set<string>>(() => {
+    const raw = urlSearchParams?.get("tag");
+    return new Set(raw ? raw.split(",").map((t) => t.trim()).filter(Boolean) : []);
+  });
+  const activeTagsKey = useMemo(
+    () => Array.from(activeTags).sort().join(","),
+    [activeTags],
+  );
+  const toggleActiveTag = useCallback((tag: string) => {
+    setActiveTags((prev) => {
+      const next = new Set(prev);
+      if (next.has(tag)) next.delete(tag); else next.add(tag);
+      return next;
+    });
+  }, []);
+  const clearActiveTags = useCallback(() => setActiveTags(new Set()), []);
   const [allTags] = useState(initialData.allTags);
   const [extraCategories] = useState(initialData.extraCategories);
   const [sortBy, setSortBy] = useState<"date" | "popular" | "title" | "random">("date");
@@ -191,6 +173,11 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const [popularIds] = useState<Set<string>>(new Set(initialData.popularIds));
   const [showTags, setShowTags] = useState(false);
+  // 태그 무한 스크롤 — 초기 N 개만 렌더, sentinel 보이면 N 더 추가
+  const TAG_PAGE_SIZE = 40;
+  const [visibleTagCount, setVisibleTagCount] = useState(TAG_PAGE_SIZE);
+  const tagRowRef = useRef<HTMLDivElement>(null);
+  const tagSentinelRef = useRef<HTMLDivElement>(null);
   const [catExpanded, setCatExpanded] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -204,13 +191,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     cooldownRef: scrollCooldown,
   });
 
-  // bar 가 숨겨질 때 tags/categories 도 닫음 (스크롤 다운으로 정리)
-  useEffect(() => {
-    if (barHidden) {
-      setCatExpanded(false);
-      setShowTags(false);
-    }
-  }, [barHidden]);
+  // tags/categories close-on-scroll 은 별도 effect 에서 처리 (threshold 큼) — bar hide 와는 분리
 
   // Apply blur to content area when expanded in stuck state (same technique as ContactDrawer)
   useEffect(() => {
@@ -227,6 +208,30 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     }
   }, [isStuck, showTags, catExpanded]);
 
+  // 태그 dropdown 닫힐 때 visible count 초기화 — 다시 열면 처음부터
+  useEffect(() => {
+    if (!showTags) setVisibleTagCount(TAG_PAGE_SIZE);
+  }, [showTags]);
+
+  // 태그 무한 스크롤 — sentinel 이 보이면 N 더 로드. allTags.length 도달하면 정지
+  useEffect(() => {
+    if (!showTags) return;
+    const sentinel = tagSentinelRef.current;
+    const root = tagRowRef.current;
+    if (!sentinel || !root) return;
+    if (visibleTagCount >= allTags.length) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisibleTagCount((c) => Math.min(c + TAG_PAGE_SIZE, allTags.length));
+        }
+      },
+      { root, rootMargin: "60px" },
+    );
+    obs.observe(sentinel);
+    return () => obs.disconnect();
+  }, [showTags, visibleTagCount, allTags.length]);
+
   // Cooldown: skip scroll-collapse briefly after expanding tags/categories
   useEffect(() => {
     if (!showTags && !catExpanded) return;
@@ -235,17 +240,18 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     return () => clearTimeout(id);
   }, [showTags, catExpanded]);
 
-  // Close tags on scroll — ignore layout-shift scroll, only close on real user scroll
+  // tags/categories close-on-scroll — 의도적 스크롤만 닫도록 threshold 크게.
+  // 300ms cooldown 으로 expand 직후 layout-shift scroll 무시.
   useEffect(() => {
-    if (!showTags) return;
+    if (!showTags && !catExpanded) return;
     let startY = -1;
-    const armTimer = setTimeout(() => {
-      startY = window.scrollY;
-    }, 300);
+    const CLOSE_THRESHOLD = 140; // px — casual 스크롤은 유지, 명확한 스크롤만 닫힘
+    const armTimer = setTimeout(() => { startY = window.scrollY; }, 300);
     const handleScroll = () => {
       if (startY < 0) return;
-      if (Math.abs(window.scrollY - startY) > 30) {
+      if (Math.abs(window.scrollY - startY) > CLOSE_THRESHOLD) {
         setShowTags(false);
+        setCatExpanded(false);
       }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -253,7 +259,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       clearTimeout(armTimer);
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [showTags]);
+  }, [showTags, catExpanded]);
 
   useEffect(() => {
     stop();
@@ -267,7 +273,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
     return () => {
       clearTimeout(timer);
-      setInfinite(true);
     };
   }, [setInfinite, lenis, stop, start]);
 
@@ -279,7 +284,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       params.set("searchType", searchType);
     }
     if (activeCategory) params.set("category", activeCategory);
-    if (activeTag) params.set("tag", activeTag);
+    if (activeTagsKey) params.set("tags", activeTagsKey);
     if (activeSeries) params.set("series_id", activeSeries);
     params.set("sort", sort);
     params.set("sortDir", sortDir);
@@ -292,7 +297,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [search, searchType, activeCategory, activeTag, activeSeries, sort, sortDir, randomSeed, page, perPage]);
+  }, [search, searchType, activeCategory, activeTagsKey, activeSeries, sort, sortDir, randomSeed, page, perPage]);
 
   // 시리즈 fetch 공통 파라미터 빌더
   const buildSeriesParams = useCallback((page: number) => {
@@ -371,7 +376,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
   useEffect(() => {
     setPage(1);
-  }, [search, searchType, activeCategory, activeTag, activeSeries, sort, sortDir]);
+  }, [search, searchType, activeCategory, activeTagsKey, activeSeries, sort, sortDir]);
 
   const handleImgError = useCallback((id: string) => {
     setImgErrors((prev) => new Set(prev).add(id));
@@ -387,10 +392,12 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     const cs = window.getComputedStyle(grid);
     const rowGap = parseFloat(cs.rowGap) || 0;
     const baseUnit = 1; // grid-auto-rows: 1px
-    itemRefs.current.forEach((el) => {
-      if (!el) return;
+    // gridRef 의 모든 자식 (real post + skeleton) 에 대해 span 적용 — 로딩 중에도 height 매칭
+    Array.from(grid.children).forEach((node) => {
+      const el = node as HTMLElement;
       const inner = el.firstElementChild as HTMLElement | null;
       const h = inner?.scrollHeight ?? el.scrollHeight;
+      if (!h) return;
       const span = Math.ceil((h + rowGap) / (baseUnit + rowGap));
       el.style.gridRow = `span ${span}`;
     });
@@ -399,22 +406,21 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   useEffect(() => {
     if (activeSeries) return;
     recomputeRowSpans();
-    // 이미지 로드 시점마다 재측정
     const grid = gridRef.current;
     if (!grid) return;
     const imgs = grid.querySelectorAll("img");
     const onLoad = () => recomputeRowSpans();
     imgs.forEach((img) => img.addEventListener("load", onLoad));
 
-    // 카드 자체의 size 변화 (font load, content shift) 도 감지
+    // 모든 자식 (real post + skeleton) 의 size 변화 감지
     const ro = new ResizeObserver(recomputeRowSpans);
-    itemRefs.current.forEach((el) => ro.observe(el));
+    Array.from(grid.children).forEach((el) => ro.observe(el as Element));
 
     return () => {
       imgs.forEach((img) => img.removeEventListener("load", onLoad));
       ro.disconnect();
     };
-  }, [posts, activeSeries, recomputeRowSpans]);
+  }, [posts, loading, activeSeries, recomputeRowSpans]);
 
   // window resize 시에도 재측정 (column 폭 변하면 카드 height 도 변함)
   useEffect(() => {
@@ -552,6 +558,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
   return (
     <div className={styles.page}>
+      {loading && <div className={styles.topProgress} aria-hidden />}
       {/* ── Header ── */}
       <div className={styles.header}>
         <h1 className={styles.title}>Posts.</h1>
@@ -745,27 +752,42 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               initial={isStuck ? { opacity: 0, y: -8 } : { height: 0, opacity: 0 }}
               animate={isStuck ? { opacity: 1, y: 0 } : { height: "auto", opacity: 1 }}
               exit={isStuck ? { opacity: 0, y: -8 } : { height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+              transition={{
+                height: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                opacity: { duration: 0.25, ease: [0.4, 0, 0.2, 1] },
+                y: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+              }}
             >
-              <div className={styles.tagRow}>
+              <div ref={tagRowRef} className={styles.tagRow} data-lenis-prevent>
                 <button
-                  className={`${styles.tagBtn} ${!activeTag ? styles.tagBtnActive : ""}`}
-                  onClick={() => setActiveTag(null)}
+                  className={`${styles.tagBtn} ${activeTags.size === 0 ? styles.tagBtnActive : ""}`}
+                  onClick={clearActiveTags}
                   data-clickable="true"
                 >
                   <T k="postsPage.allTags" />
                 </button>
-                {allTags.map(({ tag, count }) => (
+                {allTags.slice(0, visibleTagCount).map(({ tag, count }) => (
                   <button
                     key={tag}
-                    className={`${styles.tagBtn} ${activeTag === tag ? styles.tagBtnActive : ""}`}
-                    onClick={() => setActiveTag(tag === activeTag ? null : tag)}
+                    className={`${styles.tagBtn} ${activeTags.has(tag) ? styles.tagBtnActive : ""}`}
+                    onClick={() => toggleActiveTag(tag)}
                     data-clickable="true"
                   >
                     {tag}
                     <span className={styles.tagCount}>{count}</span>
                   </button>
                 ))}
+                {visibleTagCount < allTags.length && (
+                  <div ref={tagSentinelRef} className={styles.tagSentinel} aria-hidden />
+                )}
+                <Link
+                  href="/posts/tags"
+                  className={styles.tagAllLink}
+                  data-clickable="true"
+                >
+                  <T k="postsPage.tagsAllLink" />
+                  <ChevronRight size={12} aria-hidden />
+                </Link>
               </div>
             </motion.div>
           )}
@@ -825,9 +847,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
 
           {/* Posts */}
-          {loading ? (
-            <PostsSkeleton />
-          ) : posts.length === 0 && !showBanner ? (
+          {!loading && posts.length === 0 && !showBanner ? (
             <div className={styles.emptyState}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8" />
@@ -837,25 +857,25 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               <p className={styles.emptyTitle}>
                 {search
                   ? `${t("postsPage.noResultsFor")} "${search}"`
-                  : activeTag
-                    ? `${t("postsPage.noPostsTagged")} "${activeTag}"`
+                  : activeTags.size > 0
+                    ? `${t("postsPage.noPostsTagged")} "${Array.from(activeTags).join(", ")}"`
                     : activeSeries && activeSeriesTitle
                       ? `${t("postsPage.noPostsInSeries")} "${activeSeriesTitle}"`
                       : activeCategory
                         ? `${t("postsPage.noPostsInCategory")} ${activeCategory}`
                         : t("postsPage.noPostsYet")}
               </p>
-              {(search || activeTag || activeSeries || activeCategory) && (
+              {(search || activeTags.size > 0 || activeSeries || activeCategory) && (
                 <button
                   className={styles.emptyResetBtn}
-                  onClick={() => { setSearch(""); setSearchType("all"); setActiveTag(null); setActiveSeries(null); setActiveCategory(null); }}
+                  onClick={() => { setSearch(""); setSearchType("all"); clearActiveTags(); setActiveSeries(null); setActiveCategory(null); }}
                   data-clickable="true"
                 >
                   <T k="postsPage.clearFilters" tooltip={t("postsPage.clearFiltersTooltip")} />
                 </button>
               )}
             </div>
-          ) : posts.length > 0 ? (
+          ) : loading || posts.length > 0 ? (
             <>
               <div className={styles.postsLabel}>
                 <LayoutGrid size={14} />
@@ -867,13 +887,16 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   className={styles.pageSizeSelect}
                 />
               </div>
-              <div ref={gridRef} className={`${styles.grid} ${activeSeries ? styles.gridSeries : ""}`}>
-                {(() => {
-                  // bento variants 를 일괄 계산하고 그리드 셀 합계가 3 의 배수가 되도록 보정
-                  const rawVariants: CardType[] = posts.map((p, i) =>
-                    activeSeries ? "standard" : getCardType(i)
+              <div
+                ref={gridRef}
+                className={`${styles.grid} ${activeSeries ? styles.gridSeries : ""} ${loading ? styles.gridLoading : ""}`}
+              >
+                {posts.length === 0 ? (
+                  <PostsSkeletonCards count={perPage} activeSeries={!!activeSeries} />
+                ) : (() => {
+                  const variants: CardType[] = posts.map((p, i) =>
+                    activeSeries ? "standard" : getCardType(i),
                   );
-                  const variants = activeSeries ? rawVariants : adjustForGrid(rawVariants);
                   return posts.map((post, idx) => {
                   const type: CardType = variants[idx];
                   const cls = !activeSeries && (type === "wide" || type === "banner")
@@ -959,10 +982,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
         {/* ── Sidebar ── */}
         <SidebarWrap barHidden={barHidden}>
+          <TagCloud3D tags={allTags} activeTags={activeTags} />
           <PopularPosts />
           <RandomPosts />
-          {/* 인기글 바로 아래 — 클릭 시 해당 태그 페이지로 이동 */}
-          <TagCloud3D tags={allTags} activeTag={activeTag} />
           <RecentComments />
         </SidebarWrap>
       </div>
@@ -970,21 +992,60 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   );
 }
 
-/* ── Skeleton ── */
-function PostsSkeleton() {
+/* ── Skeleton ──
+ * bento 카드와 동일한 variants (banner/wide/portrait/square/standard) 를 적용해
+ * fetch 전후 레이아웃 height 가 같아지도록 한다. count = perPage.
+ * ghost=true: visibility hidden 로 layout 공간만 차지 (마지막 페이지 underfill 패딩용). */
+function PostsSkeletonCards({
+  count,
+  activeSeries,
+  startIdx = 0,
+  ghost = false,
+}: { count: number; activeSeries: boolean; startIdx?: number; ghost?: boolean }) {
+  const variants: CardType[] = Array.from({ length: count }, (_, i) =>
+    activeSeries ? "standard" : getCardType(startIdx + i),
+  );
   return (
-    <div className={styles.grid}>
-      {Array.from({ length: 6 }, (_, i) => (
-        <div key={i} className={styles.skeletonCard} style={i === 0 ? { gridColumn: "1 / -1" } : undefined}>
-          <Skeleton height={0} borderRadius="0" />
-          <div className={styles.skeletonCardBody}>
-            <SkeletonLine width={60} height={14} />
-            <SkeletonLine width="90%" height={20} />
-            <SkeletonLine width="100%" />
-            <SkeletonLine width="40%" height={12} />
+    <>
+      {variants.map((type, i) => {
+        const cls = !activeSeries && (type === "wide" || type === "banner")
+          ? styles.gridWide
+          : "";
+        const aspectClass =
+          type === "banner" ? styles.skeletonAspectBanner
+            : type === "square" ? styles.skeletonAspectSquare
+              : type === "portrait" ? styles.skeletonAspectPortrait
+                : styles.skeletonAspectDefault;
+        return (
+          <div
+            key={i}
+            className={`${styles.gridItem} ${cls} ${activeSeries ? styles.seriesStep : ""} ${ghost ? styles.gridItemGhost : ""}`}
+            aria-hidden={ghost || undefined}
+          >
+            <div className={`${styles.skeletonCard} ${activeSeries ? styles.seriesStepBody : ""}`}>
+              <SkeletonBlock className={`${styles.skeletonImage} ${aspectClass}`} />
+              <div className={styles.skeletonCardBody}>
+                {/* badge row */}
+                <SkeletonPill width={60} height={20} />
+                {/* title — 2 lines */}
+                <SkeletonLine width="92%" height={26} />
+                <SkeletonLine width="64%" height={26} />
+                {/* excerpt — 2 lines */}
+                <SkeletonLine width="100%" height={14} />
+                <SkeletonLine width="84%" height={14} />
+                {/* tags row */}
+                <div className={styles.skeletonTagsRow}>
+                  <SkeletonPill width={50} height={20} />
+                  <SkeletonPill width={66} height={20} />
+                  <SkeletonPill width={44} height={20} />
+                </div>
+                {/* meta row */}
+                <SkeletonLine width="80%" height={14} />
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        );
+      })}
+    </>
   );
 }
