@@ -1,9 +1,15 @@
-/* 검색 + sort 윗줄 — 오른쪽 정렬 + 둘 사이 gap 0 (딱붙임) */
+/* 검색 윗줄 — 다음 filter row 와 간격 줄임 */
 .searchRow {
   margin-bottom: 0;
   padding-bottom: 0;
-  justify-content: flex-end;
+}
+
+/* sort group + 검색 묶음 — 오른쪽 끝으로 push, 둘 사이 딱붙임 */
+.sortSearchGroup {
+  display: flex;
+  align-items: center;
   gap: 0;
+  margin-left: auto;
 }
 
 /* ── Trash Section ── */

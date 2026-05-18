@@ -693,45 +693,47 @@ tags: React`}</code></pre>
       beforeTable={!loading ? seriesSection : undefined}
       afterTable={!loading ? trashSection : undefined}
     >
-      {/* 윗줄: sort group (왼쪽) + 검색 (오른쪽으로 push) */}
+      {/* 윗줄: sort group + 검색 (둘이 한 묶음, 오른쪽 끝으로 push, 사이 gap 0) */}
       <div className={`${shell.filterBar} ${styles.searchRow}`}>
-        <SegmentedControl
-          items={[
-            { value: "date", label: t("admin.posts.sortDate") },
-            { value: "popular", label: t("admin.posts.sortPopular") },
-          ]}
-          // 매핑: sort 가 "popular" 면 popular 그룹, 아니면 "date" 그룹 (newest/oldest)
-          value={sort === "popular" ? "popular" : "date"}
-          // dir 화살표 — date 만 의미 (newest=desc, oldest=asc)
-          sortDir={sort === "oldest" ? "asc" : "desc"}
-          onChange={(v) => {
-            if (v === "date") {
-              // popular → date 면 default newest, date 안에서 다시 클릭이면 dir toggle
-              if (sort === "newest") setSort("oldest");
-              else if (sort === "oldest") setSort("newest");
-              else setSort("newest");
-            } else {
-              setSort("popular");
-            }
-            setPage(1);
-          }}
-        />
-        <SearchCapsule
-          typeSelector={{
-            value: searchType,
-            options: [
-              { value: "all", label: t("admin.posts.searchAll") },
-              { value: "title", label: t("admin.posts.searchTitle") },
-              { value: "content", label: t("admin.posts.searchContent") },
-            ],
-            onChange: (v) => { setSearchType(v); setPage(1); },
-          }}
-          search={search}
-          onSearchChange={(v) => { setSearch(v); setPage(1); }}
-          placeholder={t("admin.posts.search")}
-          align="right"
-          className={shell.filterSearch}
-        />
+        <div className={styles.sortSearchGroup}>
+          <SegmentedControl
+            items={[
+              { value: "date", label: t("admin.posts.sortDate") },
+              { value: "popular", label: t("admin.posts.sortPopular") },
+            ]}
+            // 매핑: sort 가 "popular" 면 popular 그룹, 아니면 "date" 그룹 (newest/oldest)
+            value={sort === "popular" ? "popular" : "date"}
+            // dir 화살표 — date 만 의미 (newest=desc, oldest=asc)
+            sortDir={sort === "oldest" ? "asc" : "desc"}
+            onChange={(v) => {
+              if (v === "date") {
+                // popular → date 면 default newest, date 안에서 다시 클릭이면 dir toggle
+                if (sort === "newest") setSort("oldest");
+                else if (sort === "oldest") setSort("newest");
+                else setSort("newest");
+              } else {
+                setSort("popular");
+              }
+              setPage(1);
+            }}
+          />
+          <SearchCapsule
+            typeSelector={{
+              value: searchType,
+              options: [
+                { value: "all", label: t("admin.posts.searchAll") },
+                { value: "title", label: t("admin.posts.searchTitle") },
+                { value: "content", label: t("admin.posts.searchContent") },
+              ],
+              onChange: (v) => { setSearchType(v); setPage(1); },
+            }}
+            search={search}
+            onSearchChange={(v) => { setSearch(v); setPage(1); }}
+            placeholder={t("admin.posts.search")}
+            align="right"
+            className={shell.filterSearch}
+          />
+        </div>
       </div>
       {/* 아랫줄: filter + perPage */}
       <div className={shell.filterBar}>

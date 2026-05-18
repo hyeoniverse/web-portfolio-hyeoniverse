@@ -606,44 +606,46 @@ role: 풀스택 개발
         </>
       }
     >
-      {/* 윗줄: sort group (왼쪽) + 검색 (오른쪽으로 push) */}
+      {/* 윗줄: sort group + 검색 (둘이 한 묶음, 오른쪽 끝으로 push, 사이 gap 0) */}
       <div className={`${shell.filterBar} ${styles.searchRow ?? ""}`}>
-        <SegmentedControl
-          items={[
-            { value: "order", label: t("admin.works.sortOrder") },
-            { value: "date", label: t("admin.works.sortDate") },
-            { value: "name", label: t("admin.works.sortName") },
-          ]}
-          // 매핑: newest/oldest → date, 나머지 그대로
-          value={sort === "newest" || sort === "oldest" ? "date" : sort}
-          sortDir={sort === "oldest" ? "asc" : "desc"}
-          onChange={(v) => {
-            if (v === "date") {
-              if (sort === "newest") setSort("oldest");
-              else if (sort === "oldest") setSort("newest");
-              else setSort("newest");
-            } else {
-              setSort(v);
-            }
-            setPage(1);
-          }}
-        />
-        <SearchCapsule
-          typeSelector={{
-            value: searchType,
-            options: [
-              { value: "all", label: t("admin.works.searchAll") },
-              { value: "title", label: t("admin.works.searchTitle") },
-              { value: "content", label: t("admin.works.searchContent") },
-            ],
-            onChange: (v) => { setSearchType(v); setPage(1); },
-          }}
-          search={search}
-          onSearchChange={(v) => { setSearch(v); setPage(1); }}
-          placeholder={t("admin.works.search")}
-          align="right"
-          className={shell.filterSearch}
-        />
+        <div className={styles.sortSearchGroup}>
+          <SegmentedControl
+            items={[
+              { value: "order", label: t("admin.works.sortOrder") },
+              { value: "date", label: t("admin.works.sortDate") },
+              { value: "name", label: t("admin.works.sortName") },
+            ]}
+            // 매핑: newest/oldest → date, 나머지 그대로
+            value={sort === "newest" || sort === "oldest" ? "date" : sort}
+            sortDir={sort === "oldest" ? "asc" : "desc"}
+            onChange={(v) => {
+              if (v === "date") {
+                if (sort === "newest") setSort("oldest");
+                else if (sort === "oldest") setSort("newest");
+                else setSort("newest");
+              } else {
+                setSort(v);
+              }
+              setPage(1);
+            }}
+          />
+          <SearchCapsule
+            typeSelector={{
+              value: searchType,
+              options: [
+                { value: "all", label: t("admin.works.searchAll") },
+                { value: "title", label: t("admin.works.searchTitle") },
+                { value: "content", label: t("admin.works.searchContent") },
+              ],
+              onChange: (v) => { setSearchType(v); setPage(1); },
+            }}
+            search={search}
+            onSearchChange={(v) => { setSearch(v); setPage(1); }}
+            placeholder={t("admin.works.search")}
+            align="right"
+            className={shell.filterSearch}
+          />
+        </div>
       </div>
       {/* 아랫줄: filter + perPage */}
       <div className={shell.filterBar}>
