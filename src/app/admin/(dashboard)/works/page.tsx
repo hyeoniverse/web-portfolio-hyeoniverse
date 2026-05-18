@@ -606,24 +606,8 @@ role: 풀스택 개발
         </>
       }
     >
-      {/* Filter bar */}
-      <div className={shell.filterBar}>
-        <SearchCapsule
-          typeSelector={{
-            value: searchType,
-            options: [
-              { value: "all", label: t("admin.works.searchAll") },
-              { value: "title", label: t("admin.works.searchTitle") },
-              { value: "content", label: t("admin.works.searchContent") },
-            ],
-            onChange: (v) => { setSearchType(v); setPage(1); },
-          }}
-          search={search}
-          onSearchChange={(v) => { setSearch(v); setPage(1); }}
-          placeholder={t("admin.works.search")}
-          align="left"
-          className={shell.filterSearch}
-        />
+      {/* 윗줄: sort group (왼쪽) + 검색 (오른쪽으로 push) */}
+      <div className={`${shell.filterBar} ${styles.searchRow ?? ""}`}>
         <SegmentedControl
           items={[
             { value: "order", label: t("admin.works.sortOrder") },
@@ -644,6 +628,25 @@ role: 풀스택 개발
             setPage(1);
           }}
         />
+        <SearchCapsule
+          typeSelector={{
+            value: searchType,
+            options: [
+              { value: "all", label: t("admin.works.searchAll") },
+              { value: "title", label: t("admin.works.searchTitle") },
+              { value: "content", label: t("admin.works.searchContent") },
+            ],
+            onChange: (v) => { setSearchType(v); setPage(1); },
+          }}
+          search={search}
+          onSearchChange={(v) => { setSearch(v); setPage(1); }}
+          placeholder={t("admin.works.search")}
+          align="right"
+          className={shell.filterSearch}
+        />
+      </div>
+      {/* 아랫줄: filter + perPage */}
+      <div className={shell.filterBar}>
         {yearOptions.length > 1 && (
           <Select
             value={filterYear}

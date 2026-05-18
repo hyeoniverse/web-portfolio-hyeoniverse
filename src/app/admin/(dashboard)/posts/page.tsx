@@ -693,32 +693,8 @@ tags: React`}</code></pre>
       beforeTable={!loading ? seriesSection : undefined}
       afterTable={!loading ? trashSection : undefined}
     >
-      {/* 검색 — 윗줄 단독 */}
+      {/* 윗줄: sort group (왼쪽) + 검색 (오른쪽으로 push) */}
       <div className={`${shell.filterBar} ${styles.searchRow}`}>
-        <SearchCapsule
-          typeSelector={{
-            value: searchType,
-            options: [
-              { value: "all", label: t("admin.posts.searchAll") },
-              { value: "title", label: t("admin.posts.searchTitle") },
-              { value: "content", label: t("admin.posts.searchContent") },
-            ],
-            onChange: (v) => { setSearchType(v); setPage(1); },
-          }}
-          search={search}
-          onSearchChange={(v) => { setSearch(v); setPage(1); }}
-          placeholder={t("admin.posts.search")}
-          className={shell.filterSearch}
-        />
-      </div>
-      {/* Filter bar */}
-      <div className={shell.filterBar}>
-        <Select
-          value={String(perPage)}
-          options={PAGE_SIZE_OPTIONS}
-          onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
-          className={`${shell.filterPageSize} ${styles.filterPageSizeLeft}`}
-        />
         <SegmentedControl
           items={[
             { value: "date", label: t("admin.posts.sortDate") },
@@ -740,6 +716,25 @@ tags: React`}</code></pre>
             setPage(1);
           }}
         />
+        <SearchCapsule
+          typeSelector={{
+            value: searchType,
+            options: [
+              { value: "all", label: t("admin.posts.searchAll") },
+              { value: "title", label: t("admin.posts.searchTitle") },
+              { value: "content", label: t("admin.posts.searchContent") },
+            ],
+            onChange: (v) => { setSearchType(v); setPage(1); },
+          }}
+          search={search}
+          onSearchChange={(v) => { setSearch(v); setPage(1); }}
+          placeholder={t("admin.posts.search")}
+          align="right"
+          className={shell.filterSearch}
+        />
+      </div>
+      {/* 아랫줄: filter + perPage */}
+      <div className={shell.filterBar}>
         <Select
           value={filterCategory}
           options={[
@@ -772,6 +767,12 @@ tags: React`}</code></pre>
             {t("admin.posts.resetFilters")}
           </button>
         )}
+        <Select
+          value={String(perPage)}
+          options={PAGE_SIZE_OPTIONS}
+          onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+          className={shell.filterPageSize}
+        />
       </div>
 
       <AdminTable<Post>

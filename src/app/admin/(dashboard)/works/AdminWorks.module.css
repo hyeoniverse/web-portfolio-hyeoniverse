@@ -1,3 +1,9 @@
+/* 검색 단독 row — 다음 filter row 와의 간격 줄임 (posts 와 동일) */
+.searchRow {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
 /* ── Trash Section ── */
 .trashSection {
   margin-top: var(--spacing-2xl);
