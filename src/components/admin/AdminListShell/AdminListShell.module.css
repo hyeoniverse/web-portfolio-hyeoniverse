@@ -238,6 +238,11 @@
 }
 
 @media (max-width: 768px) {
+  /* 모바일: 검색창 full width */
+  .filterBar .filterSearch {
+    width: 100%;
+  }
+
   .header {
     flex-wrap: wrap;
     gap: var(--spacing-sm);
