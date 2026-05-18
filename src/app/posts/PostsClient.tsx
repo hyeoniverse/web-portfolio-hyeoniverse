@@ -144,7 +144,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [allTags] = useState(() => {
     const real = initialData.allTags;
     if (real.length >= 50) return real;
-    const dummies = Array.from({ length: 100 }, (_, i) => ({
+    const dummies = Array.from({ length: 200 }, (_, i) => ({
       tag: `dummy-tag-${i + 1}`,
       count: Math.floor(Math.random() * 20) + 1,
     }));
@@ -183,7 +183,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [popularIds] = useState<Set<string>>(new Set(initialData.popularIds));
   const [showTags, setShowTags] = useState(false);
   // 태그 무한 스크롤 — 초기 N 개만 렌더, sentinel 보이면 N 더 추가
-  const TAG_PAGE_SIZE = 40;
+  const TAG_PAGE_SIZE = 20;
   const [visibleTagCount, setVisibleTagCount] = useState(TAG_PAGE_SIZE);
   const tagRowRef = useRef<HTMLDivElement>(null);
   const tagSentinelRef = useRef<HTMLDivElement>(null);
@@ -232,6 +232,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          // dev 로그 — 무한 스크롤 동작 확인용
+          // eslint-disable-next-line no-console
+          console.log("[tag-infinite-scroll] loading more", { current: visibleTagCount, total: allTags.length });
           setVisibleTagCount((c) => Math.min(c + TAG_PAGE_SIZE, allTags.length));
         }
       },
@@ -789,6 +792,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 {visibleTagCount < allTags.length && (
                   <div ref={tagSentinelRef} className={styles.tagSentinel} aria-hidden />
                 )}
+                {/* dev — 무한 스크롤 동작 확인용 카운터 */}
+                <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>
+                  {visibleTagCount} / {allTags.length}
+                </span>
                 <Link
                   href="/posts/tags"
                   className={styles.tagAllLink}
