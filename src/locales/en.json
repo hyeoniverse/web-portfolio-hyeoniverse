@@ -1228,6 +1228,7 @@
     "searchTitle": "Title",
     "searchContent": "Content",
     "tags": "Tags",
+    "tagsAllLink": "All tags",
     "postsCount": "posts",
     "sortNewest": "Latest",
     "sortOldest": "Oldest",

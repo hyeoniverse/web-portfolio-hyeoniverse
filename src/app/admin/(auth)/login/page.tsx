@@ -17,7 +17,6 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     setInfinite(false);
-    return () => setInfinite(true);
   }, [setInfinite]);
 
   const [email, setEmail] = useState("");

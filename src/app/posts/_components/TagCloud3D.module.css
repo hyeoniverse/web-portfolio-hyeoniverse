@@ -16,6 +16,24 @@
   margin: 0;
   padding-bottom: var(--spacing-sm);
   border-bottom: var(--border-light);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.label:hover {
+  color: var(--text-primary);
+}
+
+/* 화살표 — label 오른쪽 끝으로 push, hover 시 살짝 오른쪽으로 이동 */
+.labelArrow {
+  margin-left: auto;
+  color: var(--text-tertiary);
+  transition: transform 0.2s ease, color 0.15s ease;
+}
+
+.label:hover .labelArrow {
+  color: var(--text-primary);
+  transform: translateX(2px);
 }
 
 /* sphere container — perspective 로 3D depth 표현. height 는 inline style. */

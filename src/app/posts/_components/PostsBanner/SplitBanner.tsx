@@ -94,7 +94,7 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
       </div>
 
       <div className={styles.splitControls}>
-        <button className={styles.splitArrowBtn} onClick={prev} aria-label="Previous slide">
+        <button className={styles.splitArrowBtn} onClick={prev} aria-label="Previous slide" data-cursor="prev">
           <ChevronLeft size={14} />
         </button>
         <div className={styles.splitDots}>
@@ -102,7 +102,7 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
             <button key={p.id} className={`${styles.splitDot} ${i === index ? styles.splitDotActive : ""}`} onClick={() => go(i)} aria-label={`Slide ${i + 1}`} />
           ))}
         </div>
-        <button className={styles.splitArrowBtn} onClick={next} aria-label="Next slide">
+        <button className={styles.splitArrowBtn} onClick={next} aria-label="Next slide" data-cursor="next">
           <ChevronRight size={14} />
         </button>
         <button className={styles.splitPlayBtn} onClick={togglePause} aria-label={isPaused ? "Play" : "Pause"}>
