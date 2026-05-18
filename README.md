@@ -76,7 +76,7 @@
 | **Blog** | SSR + ISR, 시리즈, 배너 슬라이더, 게스트 댓글 (비번 단일 인증) |
 | **Admin** | Plate.js 에디터, `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리 |
 | **성능** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic 카운터 + AbortController + bulk Promise.all |
-| **보안** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin 체크 (production fail-closed), middleware admin 다층 가드 |
+| **보안** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin 체크 (production fail-closed), middleware admin 다층 가드, 5회 실패 잠금 + 새 기기 이메일 승인 + 전기기 로그아웃 |
 | **디자인 시스템** | 4-tier 토큰 (Raw → Semantic → Component → Context) + 라이브 프리뷰 |
 
 ---
@@ -149,6 +149,8 @@
 - **IP 기반 좋아요**: Posts/Works/댓글에서 단일 `likes` 테이블 + `target_type` 구분, IP 기반 UNIQUE 제약으로 중복 방지, 연타 방지(ref lock + busy disabled), formatCount(1k/1.2m) 숫자 축약
 - **댓글 시스템**: 게스트 대댓글(threaded) 지원 — 이중 인증(commenter_hash + bcrypt), 닉네임 셔플, 이메일 답글 알림, 관리자 댓글, 관리자 tombstone 2회 삭제로 완전 제거, 닉네임 보존 tombstone
 - **첫 댓글 축하**: 첫 댓글 등록 시 confetti 효과 + 카드 플립 축하 메시지 (sparkle 별 장식 + accent 라인), 관리자 댓글 전체 선택 / 드래그 선택 / tombstone 일괄 완전 삭제
+- **댓글 신고**: 댓글마다 신고 버튼 + 사유 입력 모달, 신고 즉시 `/admin/notifications` 의 "신고" 탭에 누적 — 관리자에서 resolve / dismiss / 완전 삭제 인라인 처리
+- **Posts 태그 스위트**: ① **TagCloud3D** — Posts 사이드바 3D 회전 워드 클라우드, 피보나치 구면 분포 + rAF 루프에서 DOM transform 을 직접 갱신해 React 리렌더 0회, hover 시 자동 회전 정지 / drag 로 수동 회전, 클릭 시 `/posts/tags/[tag]` 이동 (`setPointerCapture` 는 자식 Link click 을 흡수해 제거하고 document-level pointer listener 로 drag-after-threshold click 차단). ② `/posts/tags` 인덱스 — 전체 태그 그리드 + 무한 스크롤 + 검색 + admin 전용 태그 설정 바로가기. ③ `/posts/tags/[tag]` 상세 — 서버사이드 fetch, Lenis `setInfinite(false)` 로 무한 스크롤 OFF, 상/하단 검색바(420px cap), 공통 `Pagination`, 라벨 hover 시 관련 태그 툴팁. ④ 공통 `TagPill` 컴포넌트 (`src/components/ui/TagPill.tsx`) 로 통일
 
 <p align="center">
   <img src="public/images/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
@@ -180,6 +182,10 @@
 - **ImageViewer 방향 슬라이드**: 이전/다음 이동 시 반대 방향에서 slide-in (mode wait), 좌/우 영역 hover로 화살표 노출
 - **Select 드롭다운 애니메이션**: portal 기반 드롭다운에서 mount 후 rAF 2회 대기로 CSS transition 보장 (compound selector로 글로벌 theme transition 우회). **외부 스크롤 시 dropdown 위치 재계산이 아니라 dropdown 자체를 닫음** — trigger 따라 이동해 산만해지는 걸 방지(내부 옵션 list overflow 스크롤은 유지)
 - **LanguageToggle 동적 측정**: EN 버튼 위치를 useLayoutEffect로 실측해 indicator 정확한 정렬
+- **Navigation 폴리시**: 햄버거 점 9개를 `<span>` → SVG `<circle>` 로 교체(2~3px 에서 sub-pixel 렌더링 차이로 타원처럼 보이던 문제 해결). Space Grotesk 폰트 로딩을 `display: optional + preload: false` → `display: swap + preload: true` 로 변경 — optional 은 100ms 윈도우를 놓치면 fallback(시스템 sans) 이 영구 고착되어 늦게 열리는 메뉴 드로어에 적용. 로그아웃 버튼에 관리자 이메일 Tooltip, 드로어 open 시 알림 드롭다운 자동 닫힘, ActionBtn circle radius + 모바일 size md 유지(기존엔 모바일에서 sm 으로 축소되던 회귀 수정)
+- **Tooltip 동적 max-width**: 콘텐츠 natural width 를 측정해(max-width 제거 후 재측정) 최대 720px / vw-16 까지 동적 적용 — 긴 텍스트가 세로로 쌓이지 않고 가로로 자연스럽게 퍼짐. z-index 도 인라인 `10001` → `var(--z-tooltip)` (700) 로 낮춰 drawer / modal overlay 가 Tooltip 위로 올라오도록 정정
+- **Pagination 정비**: 버튼 size `button-h-sm → button-h-md`, font `xs → sm`, gap `xs → sm` 으로 통일 — 다른 컨트롤 톤과 동일하게
+- **Checkbox 히트영역 정리**: wrapper padding+margin (히트영역 트릭) 제거 — 시각 레이아웃은 동일하지만(서로 상쇄됐던 값들) 더 이상 상위 row 높이를 부풀리지 않음
 
 <p align="center">
   <img src="public/images/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
@@ -206,6 +212,12 @@
 - **AI 번역/요약**: DeepL/Google/Gemini/Claude fallback chain, 발행 시 자동 요약 생성
 - **카테고리 일괄 재할당**: `BulkCategoryModal` — 선택한 게시물들의 카테고리를 한 번에 변경, 시리즈 매핑 보존
 - **댓글 관리**: `/admin/comments` 통합 패널 — Posts/Works 댓글 동시 표시, 일괄 tombstone/완전 삭제, 신고 필터
+- **알림 + 신고 통합 (`/admin/notifications`)**: 4탭(전체 / 댓글 / 시스템 / 신고) — "신고" 탭에 `ReportsList` 컴포넌트(기존 `/admin/reports` 에서 추출)를 임베드해 resolve / dismiss / 완전 삭제 인라인 처리. 제목 우측 아이콘(LayoutDashboard / Bell / Settings), `SearchCapsule` 로 제목·메시지 클라이언트 필터(신고 탭에서는 숨김), 로딩 중 RefreshCw 회전 새로고침 버튼. `navigationData.ts` 의 `admin-reports` 메뉴는 `admin-notifications` 로 교체
+- **Settings 충돌 리스트 리디자인**: 양옆 트인 flat list(border-top + 행별 border-bottom, 좌·우 border 없음, capsule row 제거) 로 통일
+- **Admin 로그인 잠금**: 5회 실패 → 15분 잠금 (`admin_login_attempts` 테이블 기반 서버 사이드 체크). 로그인 UI 는 남은 시도 횟수 + 잠금 카운트다운 메시지 표시. `/api/admin/auth` 와 `/api/admin/auth/approve-device` 는 middleware public-paths 에 추가해 인증 전 호출 허용
+- **모든 기기에서 로그아웃**: Settings → Account → Security 의 신규 버튼 — Supabase `signOut({ scope: "global" })` 호출로 모든 디바이스 세션 일괄 무효화
+- **새 기기 인증**: UA 지문(SHA-256) 을 `admin_known_devices` 테이블과 비교 — 미등록 기기는 자동 signOut + 승인 토큰(24h TTL) 이메일 발송. 링크 클릭 시 기기 승인 → 로그인 페이지에서 비밀번호 재입력. 승인 응답 HTML 페이지는 `error.tsx` 패턴(원형 border 아이콘 + Instrument Serif 헤딩 + 캡슐 버튼 + 데코 ovals) 으로 리디자인, Accept-Language 헤더 ko/en 자동 감지
+- **이메일 템플릿 헬퍼**: `src/lib/mail/template.ts` — 새 기기 알림 + 보안 알림 메일이 공유하는 레이아웃(Space Grotesk + Instrument Serif Google Fonts, 캡슐 CTA, prefers-color-scheme dark/light)
 - **Settings 5탭**: General/Content/Appearance/Services/Account — 브랜드, SEO, 이중언어 편집
 - **Cover Image Picker 고도화**: 4탭 구조(프리셋 / Unsplash / AI 생성 / 이력) + 클라이언트 이미지 WebP 압축. **프리셋 = Adobe Color 스타일 그라데이션 에디터** — base color + 8 scheme(유사 / 단색 / 삼각형 / 보색 / 분할 보색 / 정사각형 / 혼합 / 음영) + linear/radial 토글 + 각도/크기/속도 슬라이더 + drag-to-reposition stop bar(2~4 stop, capsule bar + 핸들 아래 아이콘), **이미지 업로드 → 색 추출** 또는 **클립보드 색상표 붙여넣기**(`#rrggbb` / `#rgb` 둘 다 인식, 모달 prompt fallback)로 stop seed, **완전 랜덤 버튼**(pattern/크기/속도/색/개수/위치 모두 random) + presets[0] 자동 시드 — picker 첫 진입 시 현재 cover 이미지에서 palette 추출해 stops seed (사용자가 preset 클릭/수동 편집하면 seed 비활성). **이력 탭** 은 ai/unsplash/preset 통합, Supabase 영구 저장(cover_image_history 테이블, RLS) — 선택/삭제/키워드 복사/색상표 복사/다운로드 버튼이 좌상단에 cluster, active 체크는 우상단
 - **CoverImageField 공용 컴포넌트**: `src/components/admin/CoverImageField` — 라벨 + inline 액션(Upload / Choose / Remove) + 썸네일 + 추출 팔레트 swatch row. 깨진 이미지 placeholder fallback, 클릭으로 picker open. PostEditor / WorkEditor / SeriesEditor 가 동일 UI 공유
@@ -317,7 +329,7 @@ ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (번역 + A
 
 Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
 
-**생성되는 테이블 (13개) + RPC 함수 (3개):**
+**생성되는 테이블 (15개) + RPC 함수 (3개):**
 
 | 테이블 | 용도 |
 |--------|------|
@@ -334,6 +346,8 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | `revisions` | 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot) |
 | `post_work_relations` | posts ↔ works 양방향 다대다 (Notion Relation 스타일) |
 | `cover_image_history` | Cover Image Picker 통합 이력 (admin user 별, ai/unsplash/preset 구분, RLS) |
+| `admin_login_attempts` | 관리자 로그인 실패 카운터 (5회 실패 → 15분 잠금) |
+| `admin_known_devices` | 승인된 관리자 기기 UA 지문 (SHA-256, 미등록 기기는 이메일 승인 24h TTL) |
 
 **RPC 함수**: `sum_post_views()` (누적 조회수 합계), `daily_post_views(start, end)` (일별 시계열), `publish_scheduled()` (예약 시간 도달한 게시물/작품을 cron이 호출해서 발행)
 
@@ -405,6 +419,8 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 1. `/admin/login` 접속
 2. Supabase에서 생성한 이메일/비밀번호 입력
 3. 로그인 성공 → `/admin/settings` (설정)으로 리다이렉트
+
+> 로그인 폼: 에러/정보 메시지를 submit 버튼 아래 전용 행으로 분리(기존엔 "이메일 기억" 체크박스 옆에 끼어 있음) + `min-height` 예약으로 메시지 표시/숨김 시 레이아웃 시프트 없음. 이메일·비밀번호 input 은 `.inputGroup` 으로 묶어 form gap (`xl → md`) 축소. 5회 실패 시 잠금 안내가 같은 행에 표시됨
 
 **로그인 후 사용 가능한 기능:**
 
@@ -559,7 +575,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 49건의 이슈 중 핵심 16건만 추려 About 페이지에서 노출 (난이도 + 일반화 가능성 기준, `HIDDEN_PROBLEMS` Set 으로 필터 — 데이터는 보존되어 언제든 다시 노출 가능). 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트) + 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 50+ 건의 이슈 중 핵심 16건만 추려 About 페이지에서 노출 (난이도 + 일반화 가능성 기준, `HIDDEN_PROBLEMS` Set 으로 필터 — 데이터는 보존되어 언제든 다시 노출 가능). 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트) + 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
 
 | # | 이슈 | 핵심 |
 |:---:|:---|:---|
@@ -588,6 +604,9 @@ npm run test:watch
 | 50 ★ | 익명 댓글 수정·삭제 — 클라가 비번 강제, 서버는 hash 경로로 우회 허용 | 폼은 비번을 받지 않으면 제출 차단 → 사용자는 "비번이 유일한 인증" 으로 인식. 그러나 서버는 `password OR commenter_hash` OR 분기로 짜여 있어 `curl` 로 비번 없이 PATCH/DELETE 호출하면 hash 경로로 통과. `commenter_hash` 는 31-bit 비암호 해시 + public GET 응답에 노출 → 단일 코어 ~30분 brute-force 가능. 해결: 서버 분기를 비번 단일 경로로 통일 + `validatePassword` 빈 값 거절. **클라가 강제한다고 서버가 강제하는 것은 아니다** + **OR 분기는 시스템 보안 강도를 가장 약한 경로로 떨어뜨린다** |
 | 51 | 공개 API 의 `?all=true` 가 service-role 로 비공개 글까지 반환 | `/api/posts` · `/api/works` 가 admin 화면과 라우트를 공유하면서 `?all=true` / `?trash=true` 시 `createAdminClient()` (RLS 우회) 를 사용. 인증 게이트가 빠져 있어 `curl …/api/posts?all=true` 한 줄이면 모든 draft 노출. 해결: 두 쿼리에 `requireAuth()` 게이트 + 단일 row GET (`/api/posts/[id]`, `/api/works/[id]`) 도 admin only (공개는 slug 기반 read 만 사용) + middleware fail-closed 가드를 다층으로. **service-role 을 쓰는 순간 인증 책임은 라우트 코드로 옮겨진다** |
 | 52 ★ | Supabase auth subscription cleanup — `.then()` 안의 `return` 은 useEffect cleanup 이 아니다 | Footer / Nav 에서 `loadSupabaseClient().then(supabase => { ...; return () => sub.unsubscribe(); })` 패턴이 cleanup 처럼 보이지만 React 는 effect 콜백이 **직접** return 한 함수만 인식 — `.then()` 의 return 은 promise 체인으로 흘러갈 뿐. 결과: subscription 영구 생존, remount 마다 listener 누적. 해결: `subscription` 변수를 effect scope 에 두고 `.then()` 안에서 assign + `cancelled` flag 로 늦게 도착한 promise 즉시 unsubscribe. 같은 패턴이 4 곳에 있어 `useIsAuthenticated({ subscribe? })` 헬퍼로 통합 |
+| 53 | TagCloud3D — `setPointerCapture` 가 내부 Link 의 click 을 흡수해 태그 페이지 이동 안 됨 | 회전 컨테이너에서 `setPointerCapture(e.pointerId)` 를 잡으면 모든 후속 pointer event 가 부모로 redirect 되어 자식 `<Link>` 의 click 이 발화하지 않음. drag-vs-click 구분은 필요해서 capture 자체는 포기할 수 없는 구조. 해결: capture 제거 + document-level `pointermove`/`pointerup` 추적, threshold(5px) 넘긴 경우에만 다음 click 한 번을 capture-phase listener 로 막아 drag 종료 시점의 의도치 않은 navigate 차단. 일반 클릭은 그대로 통과 |
+| 54 | Space Grotesk `display: optional` 이 늦게 열리는 메뉴 드로어에 폴백 폰트로 영구 고착 | `optional` 모드는 폰트 로드가 100ms 윈도우를 놓치면 폴백(시스템 sans) 으로 잠겨 같은 세션 내내 swap 안 함 — 햄버거를 클릭해 메뉴 드로어가 열리는 시점이 그 윈도우 밖이라 모바일 메뉴만 시스템 폰트로 깜빡임. 해결: `display: swap + preload: true` 로 전환 — FOIT 짧게 잡는 대신 swap 보장으로 늦게 mount 되는 UI 도 정상 폰트 적용 |
+| 55 | Tooltip 의 inline z-index `10001` 이 drawer / modal overlay 위로 떠 모달 닫을 때까지 가림 | 컴포넌트 안에서 인라인 스타일로 z-index 를 박아 두면 토큰 시스템(`--z-tooltip` 700, `--z-drawer` 800 …) 의 stacking 컨텍스트와 어긋남 — drawer 가 열려도 tooltip 이 그 위에 머물러 UI 가 깨짐. 해결: 인라인 제거하고 `var(--z-tooltip)` 로 환원, drawer / modal 토큰을 그 위로 두어 stacking 일관성 회복 |
 
 
 ## 배포
