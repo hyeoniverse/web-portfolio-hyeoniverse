@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Admin",
+    template: "Admin | %s",
     default: "Admin",
   },
 };
