@@ -45,6 +45,7 @@ const itemMeta: Record<
   "Three.js LatheGeometry 컵에 Canvas 2D 라떼아트 텍스처 합성 — 두 개 평면이 만나는 부분의 자연스러운 블렌딩": { section: "P", difficulty: 3 },
   "GSAP ScrollTrigger 수평 무한 스크롤 — 양방향 무한 wrapping": { section: "P", difficulty: 3 },
   "LoadingScreen이 SSR에 포함되지 않아 콘텐츠 flash 발생": { section: "P", difficulty: 2 },
+  "Menu drawer 폰트가 fallback 으로 굳음 — `display: optional` + `preload: false` 부작용": { section: "P", difficulty: 1 },
   // Layout & CSS
   "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐": { section: "L", difficulty: 2 },
   "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀": {
@@ -62,6 +63,7 @@ const itemMeta: Record<
   "sticky filterBar IntersectionObserver — 인기글 사이드바와 1px 어긋남": { section: "L", difficulty: 2 },
   "Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치를 못 따라감": { section: "L", difficulty: 2 },
   "커버 이미지 팔레트 등 grid 자식이 viewport 밖으로 잘려 나감 — `.row { grid-template-columns: 1fr 1fr }` 의 함정": { section: "L", difficulty: 2 },
+  "Tooltip 이 drawer 위로 튀어나옴 — inline zIndex 가 토큰을 무시": { section: "L", difficulty: 1 },
   // Plate Editor
   "Richtext 게시물에서 코드 하이라이팅·줄바꿈 버튼이 사라짐": { section: "E", difficulty: 2 },
   "Plate 에디터에서 컨텍스트 툴바 표시 시 커서가 멋대로 튐": { section: "E", difficulty: 3 },
@@ -86,6 +88,7 @@ const itemMeta: Record<
   "Series Deck — hover 펼침이 \"사라졌다 나타나는\" 느낌": { section: "I", difficulty: 3 },
   "Series Deck spread — `setPointerCapture` 가 자식 click 차단 + hit-area 공백으로 flicker": { section: "I", difficulty: 3 },
   "HTML5 drag 가 pointermove 를 막아 커스텀 커서가 멈추고 type 도 계속 바뀜": { section: "I", difficulty: 3 },
+  "TagCloud3D 클릭이 안 먹힘 — `setPointerCapture` 가 자식 Link click 을 가로챔": { section: "I", difficulty: 2 },
   "HTML5 D&D 의 quirks 회피 — chip 드래그 정렬을 pointer 기반으로 전환": {
     section: "I", difficulty: 3, recommended: true,
     recommendReason: { ko: "\"표준 API 라서 옳다\" 는 가정을 깨고 도구를 다시 고른 경험을 보여드리고 싶었습니다.", en: "Questioned the \"standard API is best\" assumption and re-picked the tool." },
@@ -1937,6 +1940,101 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       ko: "**`useEffect` cleanup 은 effect 콜백이 \"직접\" return 한 함수만 인식합니다.** 그 안의 `.then()` / async / Promise 체인이 return 하는 함수는 React 가 보지 못합니다.\n\nasync effect 에서 cleanup 하려면 보통:\n- 외부 변수 + assign 패턴 (위 예시)\n- AbortController 로 fetch 자체를 취소\n- `cancelled` flag 로 setState 무력화\n\n셋 중 하나는 필요하다고 기억해 두는 게 좋습니다. \"return 만 하면 정리되겠지\" 가 보이지 않는 leak 의 가장 흔한 원인입니다.",
       en: "**`useEffect` cleanup only sees a function the effect callback returns directly.** Anything returned from a `.then()` / async chain inside doesn't reach React.\n\nFor cleanup in an async effect you typically need one of:\n- Outer-scope variable + assign pattern (above)\n- AbortController to cancel the fetch itself\n- A `cancelled` flag to no-op setState\n\nKeeping that triplet in mind avoids the most common invisible leak — the one where \"returning a function looked like cleanup\".",
     },
+  },
+
+  /* ── Frontend / Interaction — TagCloud3D pointer ── */
+  {
+    section: { ko: "인터랙션 / 포인터", en: "Interaction / Pointer" },
+    problem: {
+      ko: "TagCloud3D 클릭이 안 먹힘 — `setPointerCapture` 가 자식 Link click 을 가로챔",
+      en: "TagCloud3D Clicks Don't Register — `setPointerCapture` Swallows Child Link Clicks",
+    },
+    definition: {
+      ko: "Posts 사이드바의 3D 태그 구체(TagCloud3D)는 드래그로 빙글빙글 돌릴 수 있고, 각 태그는 클릭하면 해당 태그 페이지로 이동하는 `<Link>` 입니다.\n\n드래그 회전은 의도대로 잘 되는데, **마우스를 가만히 두고 태그를 클릭하면 아무 일도 일어나지 않았습니다.** 같은 태그를 사이드바의 다른 리스트에서 누르면 정상 이동하는데, 3D 구체 안에서만 navigation 이 막힌 상태였습니다.",
+      en: "The 3D tag sphere (TagCloud3D) in the Posts sidebar can be dragged to rotate, and each tag is a `<Link>` that navigates to its tag page.\n\nDrag-to-rotate worked fine, but **clicking a tag while holding the mouse still did nothing** — the same tag clicked from another sidebar list navigated correctly, only the sphere swallowed clicks.",
+    },
+    cause: {
+      ko: "원인은 두 겹으로 쌓여 있었습니다.\n\n**① `setPointerCapture` 가 자식 click 을 통째로 가로챔** — 드래그 시작 시 sphere container 의 `onPointerDown` 에서 `e.currentTarget.setPointerCapture(e.pointerId)` 를 호출해 두었습니다. capture API 는 이후 그 pointer 의 모든 이벤트를 capture 받은 요소로 라우팅하기 때문에, 마우스를 떼는 순간 발생하는 click 도 sphere container 가 받습니다. 그 click 은 자식 `<Link>` 의 onClick (= Next router push) 까지 내려가지 못하고 sphere 에서 끝납니다.\n\n**② drag 임계값이 너무 작음** — \"움직임이 4px (Manhattan 거리) 이상일 때만 drag 로 판정한다\" 는 가드를 두긴 했는데, 4px 은 마우스 자체의 미세한 jitter 만으로도 쉽게 넘는 값입니다. 사용자가 클릭하려고 정지 상태로 누른 순간에도 한두 픽셀씩 흔들리면서 drag flag 가 켜지고, 그게 click 차단 조건과 맞물려 모든 클릭이 \"이건 drag 였어\" 로 분류되었습니다.\n\n같은 함정은 Series Deck (`Series Deck spread`) 과 RelationPicker 의 chip 드래그에서 이미 한 번씩 밟은 적이 있습니다 — capture API + 작은 threshold 조합은 클릭을 죽이는 단골 조합입니다.",
+      en: "Two layers stacked.\n\n**① `setPointerCapture` hijacks child clicks wholesale.** On drag start, the sphere container's `onPointerDown` called `e.currentTarget.setPointerCapture(e.pointerId)`. From that point on, the capture API routes every event for that pointer — including the upcoming `click` on mouse release — to the capturing element. That click never reaches the child `<Link>`'s `onClick` (Next's router push); it terminates on the sphere.\n\n**② The drag threshold was too small.** A \"≥4px Manhattan distance counts as a drag\" guard was in place, but 4px is well within the natural jitter of a held mouse. Even when the user clearly intended to click (mouse stationary), one or two pixels of jitter flipped the `dragging` flag, which in turn told the click handler \"this was a drag, suppress it\" — so every click was misclassified.\n\nThe same trap was hit before in Series Deck (`Series Deck spread`) and the RelationPicker chip drag — `setPointerCapture` + tiny threshold is a recurring click-killer.",
+    },
+    solution: {
+      ko: "두 가지를 함께 고쳤습니다.\n\n**① `setPointerCapture` 제거 + document-level listener 패턴으로 전환** — `onPointerDown` 안에서 sphere 에 capture 를 걸지 않고, 대신 그 핸들러 안에서 `document.addEventListener(\"pointermove\", …)` / `pointerup` 을 등록합니다. pointer 가 sphere 밖으로 나가도 회전은 그대로 추적되고, 동시에 sphere container 는 자식 click 의 propagation 을 막지 않습니다. PostsClient 의 series row 드래그가 이미 같은 패턴을 쓰고 있어서 그 구현을 그대로 따라갔습니다.\n\n**② `DRAG_THRESHOLD` 를 4 → 10px 로 상향** — 일반적인 jitter 범위 (1~3px) 와 의도된 드래그 (보통 15px 이상) 사이의 여유 구간입니다. 마우스를 누른 채로 살짝 흔들려도 click 으로 인식되고, 진짜 회전 의도는 그대로 picked up 됩니다.\n\nclick 차단 조건은 `dragging` flag 단일 기준으로 정리해, \"실제로 drag 가 발동한 경우에만 다음 click 을 무시\" 하도록 단순화했습니다.",
+      en: "Two changes together.\n\n**① Removed `setPointerCapture`, switched to document-level listeners.** Instead of capturing on the sphere, the `onPointerDown` handler registers `document.addEventListener(\"pointermove\", …)` and `pointerup` listeners. Rotation still tracks correctly even when the pointer leaves the sphere, and crucially the sphere no longer intercepts child clicks. PostsClient's series row drag already uses this pattern — I just followed it.\n\n**② Raised `DRAG_THRESHOLD` from 4px to 10px** — the comfortable gap between mouse jitter (~1-3px) and an intentional drag (usually 15px+). Slight tremor during a held click no longer flips the drag flag; intentional rotation still gets picked up immediately.\n\nThe click-suppression check was simplified to a single `dragging` flag — only suppress the next click when a drag actually fired.",
+    },
+    keyInsight: {
+      ko: "**`setPointerCapture` 는 자식 click 을 통째로 가로채는 API 입니다.** 드래그 동작과 자식 click 을 둘 다 살려야 하는 컴포넌트에서는 capture 대신 **document-level `pointermove` / `pointerup` listener + 명확한 drag threshold** 조합이 표준 패턴입니다.\n\n그리고 drag threshold 는 **사용자의 \"가만히 클릭\" 의도를 보호할 수 있을 만큼** 커야 합니다. 4px 은 마우스 jitter 만으로도 넘기 쉬워서 \"클릭한 줄 알았는데 drag 로 분류\" 라는 사용자 보고의 단골 원인이 됩니다. 10px 정도가 jitter 면역과 반응성의 균형점입니다.\n\n같은 패턴이 이 프로젝트에서만 Series Deck → RelationPicker → TagCloud3D 로 세 번 반복되었습니다 — 한 번 발견하면 같은 모양의 코드를 grep 으로 한 번 더 훑는 게 시간을 아낍니다.",
+      en: "**`setPointerCapture` swallows child clicks wholesale.** Components that need both a drag gesture and clickable children should use the standard pattern: **document-level `pointermove` / `pointerup` listeners + a meaningful drag threshold** — not pointer capture.\n\nAnd the threshold needs to be **big enough to protect the user's \"hold-still click\" intent**. 4px is well within mouse jitter, which is why \"I clicked but it was classified as a drag\" is such a common bug report. ~10px is the sweet spot between jitter immunity and responsiveness.\n\nThis project has hit the same pattern three times now — Series Deck → RelationPicker → TagCloud3D. Once you spot it, a quick grep for the same shape pays for itself.",
+    },
+    tags: ["pointer events", "setPointerCapture", "drag threshold", "TagCloud3D"],
+  },
+
+  /* ── Frontend / Performance — Font display ── */
+  {
+    section: { ko: "성능 / 폰트", en: "Performance / Fonts" },
+    problem: {
+      ko: "Menu drawer 폰트가 fallback 으로 굳음 — `display: optional` + `preload: false` 부작용",
+      en: "Menu Drawer Font Stuck on Fallback — `display: optional` + `preload: false` Side Effect",
+    },
+    definition: {
+      ko: "사이트가 로드된 뒤 햄버거 메뉴를 눌러 drawer 를 열면, 헤딩에 적용되어 있어야 할 Space Grotesk 가 아니라 **시스템 sans-serif 가 그대로 노출** 되었습니다.\n\n사용자가 \"메뉴 폰트 모양이 다른 페이지랑 다르다 / 장평이 다르게 보인다\" 고 알려와서 확인했고, 실제로 drawer 내부의 텍스트만 fallback 폰트로 굳어 있었습니다. 본문이나 다른 영역의 Space Grotesk 는 정상이었습니다.",
+      en: "After the site loaded, opening the hamburger drawer showed **system sans-serif text** where Space Grotesk should have been applied to the menu headings.\n\nA user pointed out \"the menu font looks different from the rest of the site — the letter widths are off\". Only the drawer's text was stuck on the fallback; body text and other Space Grotesk surfaces rendered correctly.",
+    },
+    cause: {
+      ko: "직전 perf 커밋에서 LCP (Largest Contentful Paint) 가 폰트 swap 으로 다시 트리거되는 걸 막으려고 Space Grotesk 의 next/font 설정을 **`display: \"optional\"` + `preload: false`** 로 바꿔 두었습니다.\n\n`display: optional` 의 동작 규칙은 \"브라우저가 페이지 로드 시작 후 약 **100ms 안에 폰트 파일을 받지 못하면, 그 페이지 lifetime 동안 영원히 fallback 폰트를 사용한다**\" 입니다. swap 처럼 \"늦게 도착하면 그제서야 교체\" 가 일어나지 않습니다. perf 관점에서는 좋은 동작입니다 — late font swap 으로 인한 layout shift / LCP 재계산이 없습니다.\n\n문제는 drawer 가 **유저 클릭 후에야 마운트되는 lazy 영역** 이라는 점이었습니다. 사용자가 햄버거를 누르는 시점에는 이미 \"100ms 윈도우\" 가 한참 지난 뒤이고, optional 룰에 따라 그 페이지에서는 끝까지 fallback 만 보입니다. 처음부터 DOM 에 있던 본문 등의 Space Grotesk 도 fallback 으로 그려졌지만, 그쪽은 본문이라 사용자가 \"원래 그런가\" 로 넘겼던 거고, drawer 만 평소 보이지 않다가 클릭으로 노출되면서 차이가 확 드러났습니다.",
+      en: "A recent perf commit had switched Space Grotesk's `next/font` config to **`display: \"optional\"` + `preload: false`** to avoid retriggering LCP via late font swap.\n\n`display: optional` rules: \"if the browser hasn't received the font within roughly **100ms after page-load start, the fallback is used for the rest of that page's lifetime**\". There's no \"swap in when it eventually arrives\" — that's the whole point performance-wise (no late layout shift, no LCP recalculation).\n\nBut the drawer is **a lazy region that only mounts on user click**. By the time someone hits the hamburger, the 100ms window is long gone, and the optional rule means the page is locked to the fallback. The Space Grotesk visible on first paint was technically fallback-rendered too, but users read it as \"that's how the body looks\". The drawer only appeared on demand, so the contrast against the rest of the now-familiar fallback became immediately obvious as wrong.",
+    },
+    solution: {
+      ko: "Space Grotesk 만 **`display: \"swap\"` + `preload: true`** 로 되돌렸습니다. 다른 폰트들은 그대로 `display: \"optional\"` 을 유지해 LCP 영향은 최소화한 상태입니다.\n\n`swap` 은 \"폰트 도착 즉시 자동 교체\" 라 100ms 윈도우와 무관하게 동작합니다. drawer 처럼 늦게 마운트되는 영역도 폰트가 적용된 채로 보이고, 초기 LCP 는 fallback 으로 측정되되 도착 시 한 번의 swap 이 발생합니다 — perf 비용은 약간 늘지만 UI 일관성이 회복됩니다.\n\n결정 기준은 \"이 폰트가 사용자 첫 화면에 노출되는가\" 였습니다. Space Grotesk 는 nav · drawer · 페이지 헤딩 등 사용자가 매번 보는 surface 에 쓰이므로 swap 의 안정성이 더 중요하고, 본문 전용 폰트는 첫 화면 비중이 낮아 optional 의 perf 이점을 더 살릴 수 있습니다.",
+      en: "Reverted Space Grotesk only to **`display: \"swap\"` + `preload: true`**. Other fonts kept `display: \"optional\"`, so LCP impact stays minimal overall.\n\n`swap` means \"replace as soon as the font arrives\", independent of the 100ms window. Late-mounted regions like the drawer get the proper font, and initial LCP is measured against the fallback with one swap when the font lands — slightly higher perf cost, but UI consistency restored.\n\nThe decision rule was \"is this font visible on the user's first-impression surface?\". Space Grotesk is used on nav, drawer, page headings — surfaces the user sees every time — so swap's reliability matters more. Body-only fonts hit first paint less, so the optional perf win is worth keeping there.",
+    },
+    keyInsight: {
+      ko: "**`font-display: optional` 은 \"100ms 안에 못 받으면 그 페이지에서는 영원히 fallback\"** 이라는 강한 규칙입니다. perf 측면에서는 \"늦은 swap 으로 LCP 재계산 / layout shift 없음\" 이라는 큰 장점이 있지만, 그 대가로 **UI 일관성을 한 페이지 lifetime 단위로 포기** 합니다.\n\n특히 drawer / modal / lazy 패널처럼 **사용자 첫 화면에 안 보이는 영역** 에서는 optional 의 perf 이점은 거의 없고 (어차피 첫 paint 대상이 아님), UI 손실 비용만 그대로 떠안게 됩니다. 이런 영역에 쓰이는 폰트는 **`swap` + `preload: true`** 가 안전한 기본값입니다.\n\n폰트 display 전략은 \"전역으로 한 값\" 보다 **\"이 폰트가 어디에 쓰이는가\" 단위로 폰트별로 결정** 하는 것이 합리적입니다.",
+      en: "**`font-display: optional` enforces a hard rule — \"if the font isn't here in ~100ms, use fallback forever on this page\".** The perf upside is real (no late swap, no LCP recalculation, no layout shift), but you pay for it by **forfeiting UI consistency for the entire page lifetime**.\n\nFor surfaces that **don't appear on the user's first frame** — drawers, modals, lazy panels — `optional` buys almost nothing perf-wise (they're not on the critical path anyway) while keeping the full UI-degradation cost. Fonts used in those surfaces are safer with **`swap` + `preload: true`**.\n\nFont display strategy should be **per-font, decided by where the font appears**, not a global \"one setting fits all\".",
+    },
+    comparisons: [
+      {
+        label: { ko: "`display: optional` vs `display: swap`", en: "`display: optional` vs `display: swap`" },
+        headers: [
+          { ko: "비교 항목", en: "Aspect" },
+          { ko: "optional", en: "optional" },
+          { ko: "swap (적용)", en: "swap (adopted for Space Grotesk)" },
+        ],
+        rows: [
+          { cells: [{ ko: "100ms 초과 시 동작", en: "After 100ms timeout" }, { ko: "fallback 영구 고정", en: "Locked to fallback" }, { ko: "도착 즉시 swap", en: "Swaps in on arrival" }] },
+          { cells: [{ ko: "LCP 재계산", en: "LCP recalculation" }, { ko: "없음", en: "None" }, { ko: "swap 시 1회 가능", en: "Possible once on swap" }] },
+          { cells: [{ ko: "Layout shift 위험", en: "Layout shift risk" }, { ko: "없음", en: "None" }, { ko: "fallback ↔ 본 폰트 metric 차이만큼", en: "Equal to fallback↔real metric delta" }] },
+          { cells: [{ ko: "Lazy 영역 (drawer/modal)", en: "Lazy region (drawer/modal)" }, { ko: "거의 항상 fallback", en: "Almost always fallback" }, { ko: "정상 폰트 적용", en: "Proper font applied" }], highlight: true },
+          { cells: [{ ko: "권장 용도", en: "Recommended for" }, { ko: "본문/secondary 폰트", en: "Body / secondary fonts" }, { ko: "nav/heading/lazy 영역 폰트", en: "Nav / heading / lazy-region fonts" }] },
+        ],
+      } satisfies ComparisonTable,
+    ],
+    tags: ["next/font", "font-display", "performance", "LCP"],
+  },
+
+  /* ── Frontend / Layout — Tooltip zIndex ── */
+  {
+    section: { ko: "레이아웃 / Z-Index", en: "Layout / Z-Index" },
+    problem: {
+      ko: "Tooltip 이 drawer 위로 튀어나옴 — inline zIndex 가 토큰을 무시",
+      en: "Tooltip Punches Through Drawer — Inline `zIndex` Ignores Design Tokens",
+    },
+    definition: {
+      ko: "모바일에서 메뉴 drawer 를 연 상태에서, 다른 위치에 떠 있던 alert tooltip 이 **drawer 위에 그대로 보이는 현상** 이 발생했습니다.\n\n원래 의도는 drawer 같은 overlay 가 떠 있을 때는 tooltip 이 그 아래에 가려져야 자연스럽습니다 (overlay 가 \"위에 떠 있다\" 는 시각적 약속). 그런데 drawer slide-in 애니메이션이 끝난 뒤에도 hover/closing race condition 으로 살아 있던 tooltip 이 drawer 영역을 뚫고 위로 올라와 보였습니다.",
+      en: "On mobile, opening the menu drawer while an alert tooltip was visible elsewhere caused the tooltip to **render on top of the drawer**.\n\nThe expectation: when overlays like a drawer are open, tooltips should sit beneath them (the overlay is visually \"on top\" — that's its whole job). Instead, tooltips that lingered through a hover/close race condition punched through the drawer's z-stack and stayed visible above it.",
+    },
+    cause: {
+      ko: "Tooltip 컴포넌트가 portal 로 렌더링하는 wrapper `<div>` 에 **`style={{ zIndex: 10001 }}` 라는 inline value** 를 박아 두고 있었습니다.\n\n반면 사이트 z-index 토큰은 `src/styles/tokens/_z-index.css` 에 \"layer 의 의도\" 까지 코멘트로 적어 두면서 정렬해 두었습니다 — `--z-tooltip: 700` (\"툴팁: 일반 콘텐츠보다 위, overlay 보다 아래\") / `--z-overlay: 9000` (drawer / sheet / 큰 modal layer). 의도는 \"tooltip 은 overlay 아래에 깔린다\" 입니다.\n\nInline `10001` 은 이 모든 토큰 위에 자리잡습니다. drawer 가 9000 이든 그보다 더 위든 상관없이 tooltip 이 항상 이깁니다. \"디자인 토큰을 만들어 둔 의도\" 가 inline value 하나로 wholesale 무효화되는 패턴 — 토큰 시스템이 도입된 코드베이스에서 silent regression 의 단골 케이스입니다.\n\nzIndex 만의 문제도 아닙니다. 한 번 inline value 가 코드에 박히면 토큰을 옮기거나 layer 를 재정렬하는 변경이 그 inline 만 정확히 비껴 가게 됩니다. 검색·grep 으로도 의도가 드러나지 않습니다.",
+      en: "The Tooltip component's portal wrapper `<div>` had **`style={{ zIndex: 10001 }}` hardcoded inline**.\n\nMeanwhile, the site's z-index tokens in `src/styles/tokens/_z-index.css` are organized by layer intent, with comments — `--z-tooltip: 700` (\"tooltip: above normal content, below overlays\") and `--z-overlay: 9000` (drawer / sheet / large modal layer). The deliberate ordering: tooltips render *beneath* overlays.\n\nInline `10001` sits above all of them. Whether the drawer was at 9000 or higher, the tooltip always won. The whole point of the design token was wholesale ignored by one inline value — a classic silent-regression pattern in token-driven codebases.\n\nIt's not specific to z-index either. Once an inline value lands in code, future changes that move tokens or reshuffle layers cleanly miss that one inline. Even search and grep don't surface the intent.",
+    },
+    solution: {
+      ko: "Tooltip portal `<div>` 의 inline zIndex 를 **`zIndex: \"var(--z-tooltip)\"`** 로 변경했습니다. 변경 후 drawer (`--z-overlay: 9000`) 가 열려 있는 동안에는 tooltip (700) 이 자연스럽게 가려지고, 일반 콘텐츠 위에서는 평소처럼 위에 뜹니다.\n\n\"modal 안에서 hover 했을 때만 modal 위에 tooltip 이 보여야 한다\" 같은 케이스는 별도 prop (예: `elevate?: boolean`) 으로 다음 단계에서 처리할 예정입니다 — 그 prop 이 들어와도 inline 숫자 대신 `--z-tooltip-elevated` 같은 토큰을 만들어 매핑하는 방향이 일관됩니다.\n\n같은 모양의 inline zIndex 가 다른 컴포넌트에도 남아 있을 가능성이 있어, 후속으로 `zIndex:\\s*\\d` grep 으로 일괄 점검 후 토큰 치환을 계획해 두었습니다.",
+      en: "Changed the Tooltip portal `<div>` to **`zIndex: \"var(--z-tooltip)\"`**. With that, an open drawer (`--z-overlay: 9000`) properly hides tooltips (700), while tooltips still sit above normal content as before.\n\nCases like \"tooltip should appear above a modal when hovered from inside it\" will be handled later with a dedicated prop (e.g. `elevate?: boolean`) — and even that should map to a new token like `--z-tooltip-elevated`, not a raw inline number, to stay consistent.\n\nThere may be similar inline `zIndex` numbers in other components. A follow-up grep for `zIndex:\\s*\\d` is queued to audit and migrate them in one pass.",
+    },
+    keyInsight: {
+      ko: "**디자인 토큰을 만들어 둔 의도(layer 순서, 색 계조, spacing scale) 는 inline value 하나로 wholesale 무효화됩니다.** 토큰 시스템이 존재하는 코드베이스에서 inline value 는 silent regression 의 시작입니다 — \"이건 빠르게 한 줄로 해결\" 이라는 판단이 한 번 통과되면, 토큰이 갱신되어도 그 inline 만 따로 살아남습니다.\n\n특히 z-index 처럼 **layer 관계가 의미를 가지는 값** 은 직접 숫자를 쓰는 순간 다른 layer 와의 관계가 깨집니다. \"이 값보다 더 위\" 같은 결정은 항상 토큰 이름 (`--z-tooltip`, `--z-overlay`, `--z-modal-elevated`) 으로 표현해, 의도가 코드에 그대로 남도록 강제하는 게 안전합니다.\n\n팀 / 솔로 무관하게, 토큰 도입의 진짜 이득은 \"한 번에 바꾸기 쉬워서\" 가 아니라 **\"의도가 코드에 남아 다음 변경이 그 의도를 자동으로 따르게\"** 강제하는 데 있습니다. inline value 는 그 메커니즘을 그 자리에서 끊습니다.",
+      en: "**Design-token intent (layer ordering, color steps, spacing scale) is wholesale invalidated by a single inline value.** In token-driven codebases, inline numbers are where silent regressions start — once a \"quick one-liner\" lands, future token changes flow past it untouched.\n\nThis matters most for values like z-index where **layering relationships carry meaning**. The moment you hardcode a number, its relationship to other layers is broken. Decisions like \"this should sit above X\" should always be expressed in token names (`--z-tooltip`, `--z-overlay`, `--z-modal-elevated`) so the intent stays in the code.\n\nThe real payoff of a token system isn't \"easy to change in one place\" — it's that **intent stays embedded in the code so future changes follow it automatically**. Inline values sever that mechanism at the spot they appear.",
+    },
+    tags: ["z-index", "design tokens", "Tooltip", "portal"],
   },
 ];
 

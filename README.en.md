@@ -76,7 +76,7 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 | **Blog** | SSR + ISR, series, banner slider, guest comments (password-only auth) |
 | **Admin** | Plate.js editor, `.md` sync + export, AI translation/summary, revision history |
 | **Performance** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic counters + AbortController + bulk Promise.all |
-| **Security** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin check (production fail-closed), middleware admin multi-layer gate |
+| **Security** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin check (production fail-closed), middleware admin multi-layer gate, 5-fails lockout + new-device email approval + sign-out all devices |
 | **Design System** | 3-layer tokens (Raw → Semantic → Context) + live preview |
 
 ---
@@ -149,6 +149,8 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 - **IP-based Likes**: Single `likes` table with `target_type` discrimination for Posts/Works/comments, IP-based UNIQUE constraint to prevent duplicates, rapid-click prevention (ref lock + busy disabled), formatCount (1k/1.2m) number abbreviation
 - **Comment System**: Guest threaded replies — dual authentication (commenter_hash + bcrypt), nickname shuffle, email reply notifications, admin comments, admin tombstone double-delete for permanent removal, nickname-preserved tombstone
 - **First Comment Celebration**: Confetti effect + card flip celebration message (sparkle stars + accent lines) on first comment, admin select-all / drag selection / tombstone bulk permanent deletion
+- **Comment Reporting**: Per-comment report button + reason modal — reports accumulate into the "Reports" tab of `/admin/notifications` for inline resolve / dismiss / permanent delete
+- **Posts Tags Suite**: ① **TagCloud3D** — 3D rotating word cloud in the Posts sidebar, Fibonacci-sphere distribution + an rAF loop that updates DOM transforms directly (zero React re-render per frame), hover pauses auto-rotation while drag rotates manually, click navigates to `/posts/tags/[tag]` (`setPointerCapture` was removed because it absorbed child `<Link>` clicks; drag-after-threshold clicks are blocked via document-level pointer listeners). ② `/posts/tags` index — all-tags grid + infinite scroll + search + admin-only quick link to tag settings. ③ `/posts/tags/[tag]` detail — server-side fetch, infinite scroll OFF (Lenis `setInfinite(false)`), top/bottom search bars (420px cap), shared `Pagination`, related-tags tooltip on the label. ④ Shared `TagPill` component (`src/components/ui/TagPill.tsx`) unifying the visual across all tags pages
 
 <p align="center">
   <img src="public/images/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
@@ -180,6 +182,10 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 - **ImageViewer Directional Slide**: Previous/next slides in from opposite direction (mode wait), zone-based arrow reveal on hover
 - **Select Dropdown Animation**: Portal-based dropdown uses rAF×2 delay after mount for CSS transition guarantee (compound selector to bypass global theme transition). **On outer scroll the dropdown closes instead of repositioning** — chasing the trigger feels distracting (inner option-list overflow scroll still works as expected)
 - **LanguageToggle Dynamic Measurement**: EN button position measured via useLayoutEffect for accurate indicator alignment
+- **Navigation polish**: Hamburger's 9 dots swapped from `<span>` to SVG `<circle>` (sub-pixel rendering at 2–3px was making them look elliptical; SVG guarantees identical circles at any size). Space Grotesk font config flipped from `display: optional + preload: false` to `display: swap + preload: true` — `optional` mode locks to the fallback (system sans-serif) if loading misses the 100ms window, which broke the mobile menu drawer since users click it well outside that window. Logout button wrapped in a Tooltip showing the admin email, drawer-open closes the notification dropdown, ActionBtn got a circle radius for consistency, and the mobile ActionBtn now stays at `md` size (was incorrectly shrinking to `sm`)
+- **Tooltip dynamic max-width**: Measures the bubble's natural width (with max-width temporarily removed) and caps at 720px or vw-16 — long text spreads horizontally instead of stacking vertically. z-index lowered from inline `10001` to `var(--z-tooltip)` (700) so drawers / modals properly stack above tooltips
+- **Pagination tweaks**: Button size `button-h-sm → button-h-md`, font `xs → sm`, gap `xs → sm` for parity with other controls
+- **Checkbox hit-area cleanup**: Removed wrapper padding + margin (the hit-area trick) — visually identical (the two were self-cancelling) but no longer inflates ancestor row height
 
 <p align="center">
   <img src="public/images/screenshots/pc/about-dark.png" width="49%" alt="About — Dark" />
@@ -208,6 +214,12 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 - **AI Translation/Summary**: DeepL/Google/Gemini/Claude fallback chain, auto-summary on publish
 - **Bulk Category Reassignment**: `BulkCategoryModal` — change categories for selected posts in one shot, preserves series mapping
 - **Comment Management**: `/admin/comments` unified panel — Posts/Works comments together, bulk tombstone/permanent delete, report filter
+- **Notifications + Reports consolidation (`/admin/notifications`)**: 4 tabs (All / Comments / System / Reports) — the "Reports" tab embeds the `ReportsList` component (extracted from the old `/admin/reports`) so resolve / dismiss / permanent delete happen inline. Title-row icons (LayoutDashboard / Bell / Settings), `SearchCapsule` for client-side title/message filtering (hidden on the Reports tab), and a refresh button that spins a `RefreshCw` icon while loading. `navigationData.ts` replaces the `admin-reports` menu item with `admin-notifications`
+- **Settings conflict-list redesign**: Flattened to a single open-sided list (border-top + per-row border-bottom, no left/right border, no capsule rows)
+- **Admin login lockout**: 5 failed attempts → 15-minute lockout via server-side check against the `admin_login_attempts` table. The login UI surfaces remaining attempts and a lockout countdown. `/api/admin/auth` and `/api/admin/auth/approve-device` are added to middleware public-paths so pre-auth calls aren't blocked
+- **Sign-out all devices**: New button in Settings → Account → Security — calls Supabase `signOut({ scope: "global" })` to invalidate every session on every device
+- **New-device authentication**: A SHA-256 UA fingerprint is compared against the `admin_known_devices` table — unknown devices trigger an automatic `signOut` plus an approval email (24h TTL token). Clicking the link approves the device, then the user re-enters password on the login page. The approval HTML response page mirrors the site's `error.tsx` pattern (circle border icon + Instrument Serif heading + capsule button + decorative ovals) and auto-detects ko/en from the Accept-Language header
+- **Email template helper**: `src/lib/mail/template.ts` — shared layout for the new-device and security-alert emails (Space Grotesk + Instrument Serif via Google Fonts, capsule CTA button, prefers-color-scheme dark/light)
 - **Settings 5 Tabs**: General/Content/Appearance/Services/Account — brand, SEO, bilingual editing
 - **Cover Image Picker overhaul**: 4-tab structure (Presets / Unsplash / AI / History) + client-side WebP compression. **Presets = Adobe Color–style gradient editor** — base color + 8 schemes (analogous / monochromatic / triad / complementary / split-complementary / square / compound / shades) + linear/radial toggle + angle/size/speed sliders + drag-to-reposition stop bar (2–4 stops, capsule bar with handles below). Stops can be seeded by **uploading an image** (canvas palette extraction) or **pasting a clipboard palette** (matches both `#rrggbb` and `#rgb`, with a modal prompt fallback). A **fully randomize button** (pattern, size, speed, colors, count, positions) plus an auto-seed on first open — when there's already a cover image, the editor extracts its palette and seeds stops so users start from the current image's colors (seeding is disabled the moment they click a preset or edit manually). The **History tab** unifies AI/Unsplash/Preset sources, persisted server-side in Supabase (`cover_image_history` with RLS) — pick / remove / copy keyword / copy palette / download buttons cluster top-left, the active check sits top-right
 - **CoverImageField shared component**: `src/components/admin/CoverImageField` — label + inline actions (Upload / Choose / Remove) + thumbnail + extracted-palette swatch row. Includes broken-image placeholder fallback and click-to-open-picker. PostEditor / WorkEditor / SeriesEditor share the exact same UI
@@ -317,7 +329,7 @@ The [`supabase/setup.sql`](supabase/setup.sql) file contains all table creation 
 
 Copy the file contents and run them at once in Supabase Dashboard -> **SQL Editor**.
 
-**Tables created (13) + RPC functions (3):**
+**Tables created (15) + RPC functions (3):**
 
 | Table | Purpose |
 |--------|------|
@@ -334,6 +346,8 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 | `revisions` | Editor revision history (shared for posts/works, JSONB snapshot) |
 | `post_work_relations` | Posts ↔ works many-to-many bidirectional (Notion Relation–style) |
 | `cover_image_history` | Cover Image Picker unified history (per admin user, AI/Unsplash/Preset, RLS) |
+| `admin_login_attempts` | Admin login failure counter (5 fails → 15-minute lockout) |
+| `admin_known_devices` | Approved admin device UA fingerprints (SHA-256; unknown devices require email approval, 24h TTL) |
 
 **RPC functions**: `sum_post_views()` (cumulative view total), `daily_post_views(start, end)` (daily time series), `publish_scheduled()` (cron flips posts/works whose scheduled time has arrived)
 
@@ -405,6 +419,8 @@ There is no login button on the site. Only the admin accesses it by entering the
 1. Go to `/admin/login`
 2. Enter the email/password created in Supabase
 3. Login success -> Redirect to `/admin/settings`
+
+> Login form: the error/info message moved into its own row below the submit button (previously wedged next to "remember email"), with a reserved `min-height` so layout doesn't shift when the message appears/disappears. Email + password inputs are grouped under `.inputGroup` with a tighter gap (form gap `xl → md`). The 5-fails-then-15-min-lockout warning surfaces in the same row
 
 **Features available after login:**
 
@@ -559,7 +575,7 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 
 ## Trouble Shooting
 
-> 49 issues encountered during development, with the top 16 surfaced on the About page (filtered by difficulty + generalizability via a `HIDDEN_PROBLEMS` Set — data is preserved and can be unhidden anytime). 6 sections (Architecture / Performance / Layout / Plate Editor / Animation·Interaction / Component) + difficulty (1–3) + recommended (★) badges. Highlights below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)** or the About page.
+> 50+ issues encountered during development, with the top 16 surfaced on the About page (filtered by difficulty + generalizability via a `HIDDEN_PROBLEMS` Set — data is preserved and can be unhidden anytime). 6 sections (Architecture / Performance / Layout / Plate Editor / Animation·Interaction / Component) + difficulty (1–3) + recommended (★) badges. Highlights below — full list at **[docs/troubleshooting.en.md](./docs/troubleshooting.en.md)** or the About page.
 
 | # | Issue | Key takeaway |
 |:---:|:---|:---|
@@ -588,6 +604,9 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 | 50 ★ | Anonymous comment edit/delete — client required password, server allowed bypass | The form blocks submission without a password, so users perceive password as the only auth. But the server's auth path was `password OR commenter_hash` — `curl`ing PATCH/DELETE with an empty password fell through to the hash path. `commenter_hash` was a 31-bit non-crypto hash AND included in public GET responses → ~30 min single-core brute-force to find a colliding `commenter_id` and impersonate. Fix: collapsed server-side auth to a single password path + `validatePassword` now rejects empty values. **Client-side enforcement is not server-side enforcement** + **OR-ing auth paths collapses your security floor to the weakest path** |
 | 51 | Public `?all=true` returned all drafts via service-role bypass | `/api/posts` and `/api/works` shared the same route between admin and public traffic; on `?all=true` / `?trash=true` they swapped to `createAdminClient()` (RLS-bypass) without any auth gate. `curl …/api/posts?all=true` returned every draft. Fix: gated those flags behind `requireAuth()` + made single-row GET (`/api/posts/[id]`, `/api/works/[id]`) admin-only (public uses slug-based reads) + added a fail-closed admin gate in middleware as an extra layer. **Once you reach for the service-role client, RLS no longer protects you — auth is now route-code's job** |
 | 52 ★ | Supabase auth subscription cleanup — returning from `.then()` is not a useEffect cleanup | Footer/Nav had `loadSupabaseClient().then(supabase => { ...; return () => sub.unsubscribe(); })` — looks like cleanup, isn't. React only sees a function the effect callback **directly** returns; the `.then()` return flows into the promise chain. Result: subscription lives forever, every remount stacks another listener. Fix: lift `subscription` to the effect's outer scope and assign inside `.then()`; add a `cancelled` flag so promises that resolve after unmount unsubscribe immediately. Same pattern existed in 4 files → extracted into `useIsAuthenticated({ subscribe? })` |
+| 53 | TagCloud3D — `setPointerCapture` absorbs inner `<Link>` clicks so tag navigation never fires | Capturing the pointer on the rotating container redirects every subsequent pointer event to the parent, so child `<Link>` `click`s never reach the anchor. Drag-vs-click discrimination is still required, so the capture pattern can't simply be removed. Fix: drop `setPointerCapture` + track `pointermove`/`pointerup` on `document`; if the drag passed a 5px threshold, swallow the next `click` once via a capture-phase listener (`{ once: true, capture: true }`). Normal taps fall straight through |
+| 54 | Space Grotesk `display: optional` permanently sticks to the fallback in the menu drawer that opens late | `optional` locks to the fallback (system sans) if the font misses a ~100ms post-render window — so the same session keeps showing fallback for any UI that mounts later. The mobile menu drawer is clicked open well outside that window, so it visibly differed from the rest of the page. Fix: switch to `display: swap + preload: true` — accept a brief FOIT in exchange for guaranteed swap on late-mounting UI |
+| 55 | Tooltip's inline `z-index: 10001` floats above drawer/modal overlays | Hard-coding the z-index inline diverges from the token system (`--z-tooltip` 700, `--z-drawer` 800, etc.) — so opening a drawer didn't cover the tooltip, breaking the visual hierarchy. Fix: remove the inline value and let CSS resolve to `var(--z-tooltip)`; drawer/modal tokens stack above it, restoring correct layering |
 
 ## Deployment
 
