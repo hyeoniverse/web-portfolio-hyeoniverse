@@ -95,20 +95,6 @@
    shell.filterPageSize / shell.filterItem / shell.filterSearch 클래스를
    재사용. 별도 sub* 클래스 정의 안 함. */
 
-/* 검색 윗줄 — 다음 filter row 와 간격 줄임 */
-.searchRow {
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
-/* sort group + 검색 묶음 — 오른쪽 끝으로 push */
-.sortSearchGroup {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  margin-left: auto;
-}
-
 /* ── Upload Guide Modal ── */
 .uploadGuide {
   padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);

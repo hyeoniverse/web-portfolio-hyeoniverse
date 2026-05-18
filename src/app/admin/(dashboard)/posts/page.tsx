@@ -693,9 +693,9 @@ tags: React`}</code></pre>
       beforeTable={!loading ? seriesSection : undefined}
       afterTable={!loading ? trashSection : undefined}
     >
-      {/* 윗줄: sort group + 검색 (둘이 한 묶음, 오른쪽 끝으로 push, 사이 gap 0) */}
-      <div className={`${shell.filterBar} ${styles.searchRow}`}>
-        <div className={styles.sortSearchGroup}>
+      {/* 윗줄: sort group + 검색 (오른쪽 끝으로 push) */}
+      <div className={`${shell.filterBar} ${shell.searchRow}`}>
+        <div className={shell.sortSearchGroup}>
           <SegmentedControl
             items={[
               { value: "date", label: t("admin.posts.sortDate") },
