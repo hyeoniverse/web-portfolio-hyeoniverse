@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import Link from "next/link";
 import { Hash } from "lucide-react";
 import type { Post } from "@/types/post";
 import type { TagPageData } from "@/lib/posts";
@@ -38,11 +39,66 @@ export default function TagPageClient({ tag, initialData }: Props) {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
 
+  // ── Sticky filter bar (heroTopRow) — posts 페이지와 동일 패턴 ──
+  const [isStuck, setIsStuck] = useState(false);
+  const [barHidden, setBarHidden] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const filterBarRef = useRef<HTMLDivElement>(null);
+  const isStuckRef = useRef(false);
+  const lastScrollY = useRef(0);
+
   // Lenis infinite scroll 끄기 — 이 페이지에선 자연스러운 끝(페이지네이션) 도달 필요
   useEffect(() => {
     setInfinite(false);
     return () => setInfinite(true);
   }, [setInfinite]);
+
+  // sentinel 이 stickyTop 라인을 넘는 순간 = stuck
+  useEffect(() => {
+    const el = sentinelRef.current;
+    const fb = filterBarRef.current;
+    if (!el || !fb) return;
+    let observer: IntersectionObserver | null = null;
+    const setup = () => {
+      observer?.disconnect();
+      const stickyTop = parseFloat(window.getComputedStyle(fb).top) || 0;
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          const stuck = !entry.isIntersecting;
+          isStuckRef.current = stuck;
+          setIsStuck(stuck);
+          if (!stuck) setBarHidden(false);
+        },
+        { rootMargin: `-${stickyTop + 1}px 0px 0px 0px`, threshold: 0 },
+      );
+      observer.observe(el);
+    };
+    setup();
+    window.addEventListener("resize", setup);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", setup);
+    };
+  }, []);
+
+  // scroll-down → bar hide / scroll-up → show (stuck 일 때만)
+  useEffect(() => {
+    const threshold = 3;
+    let accumulated = 0;
+    const triggerDist = 15;
+    const handleScroll = () => {
+      const y = window.scrollY;
+      const delta = y - lastScrollY.current;
+      lastScrollY.current = y;
+      if (!isStuckRef.current) { accumulated = 0; return; }
+      if ((accumulated > 0 && delta < -threshold) || (accumulated < 0 && delta > threshold)) accumulated = 0;
+      accumulated += delta;
+      if (accumulated > triggerDist) { setBarHidden(true); accumulated = 0; }
+      else if (accumulated < -triggerDist) { setBarHidden(false); accumulated = 0; }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // 같은 sort 다시 클릭 → dir toggle, 다른 sort → default desc
   const handleSortChange = (v: Sort) => {
@@ -99,33 +155,48 @@ export default function TagPageClient({ tag, initialData }: Props) {
 
   return (
     <div className={styles.container}>
-      {/* Hero — title + count + related tags 통합 */}
-      <header className={styles.hero}>
-        {/* Top row: TAG badge 좌측, Sort + perPage 우측 */}
-        <div className={styles.heroTopRow}>
-          <div className={styles.heroBadge}>
-            <Hash size={18} strokeWidth={1.8} />
-            <span>TAG</span>
-          </div>
-          <div className={styles.toolbar}>
-            <SortGroup<Sort>
-              items={[
-                { value: "newest", label: "최신순" },
-                { value: "popular", label: "인기순" },
-                { value: "title", label: "제목순" },
-              ]}
-              value={sort}
-              onChange={handleSortChange}
-              sortDir={sortDir}
-            />
-            <Select
-              className={styles.perPageSelect}
-              value={String(perPage)}
-              options={PER_PAGE_OPTIONS}
-              onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
-            />
-          </div>
+      {/* Sticky 감지용 sentinel — heroTopRow 바로 위에 0-height 로 두고
+         viewport top 라인을 넘는 순간 stuck = true */}
+      <div ref={sentinelRef} style={{ height: 0 }} />
+
+      {/* heroTopRow — TAG badge · 검색 · sort · perPage. position: sticky.
+         scroll-down 시 hide, scroll-up 시 show */}
+      <div
+        ref={filterBarRef}
+        className={`${styles.heroTopRow} ${isStuck ? styles.heroTopRowStuck : ""} ${barHidden ? styles.heroTopRowHidden : ""}`}
+      >
+        <Link href="/posts/tags" className={styles.heroBadge} title="전체 태그 보기">
+          <Hash size={18} strokeWidth={1.8} />
+          <span>TAG</span>
+        </Link>
+        <SearchCapsule
+          search={search}
+          onSearchChange={setSearch}
+          placeholder="이 태그 안에서 검색…"
+          className={styles.heroSearch}
+        />
+        <div className={styles.toolbar}>
+          <SortGroup<Sort>
+            items={[
+              { value: "newest", label: "최신순" },
+              { value: "popular", label: "인기순" },
+              { value: "title", label: "제목순" },
+            ]}
+            value={sort}
+            onChange={handleSortChange}
+            sortDir={sortDir}
+          />
+          <Select
+            className={styles.perPageSelect}
+            value={String(perPage)}
+            options={PER_PAGE_OPTIONS}
+            onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+          />
         </div>
+      </div>
+
+      {/* Hero — title + count + related tags */}
+      <header className={styles.hero}>
         <h1 className={styles.heroTitle}>{tag}</h1>
         {initialData.description && (
           <p className={styles.heroDescription}>{initialData.description}</p>
@@ -156,15 +227,8 @@ export default function TagPageClient({ tag, initialData }: Props) {
             </div>
           </div>
         )}
-      </header>
 
-      {/* Top search */}
-      <SearchCapsule
-        search={search}
-        onSearchChange={setSearch}
-        placeholder="이 태그 안에서 검색…"
-        className={styles.searchBarTop}
-      />
+      </header>
 
       {/* Grid */}
       <div className={`${styles.grid} ${loading ? styles.gridLoading : ""}`}>
@@ -172,14 +236,6 @@ export default function TagPageClient({ tag, initialData }: Props) {
           <PostCard key={p.id} post={p} variant="standard" />
         ))}
       </div>
-
-      {/* Bottom search */}
-      <SearchCapsule
-        search={search}
-        onSearchChange={setSearch}
-        placeholder="이 태그 안에서 검색…"
-        className={styles.searchBarBottom}
-      />
 
       {/* Pagination — 항상 표시 (1페이지여도) */}
       <Pagination
