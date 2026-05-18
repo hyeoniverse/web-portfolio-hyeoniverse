@@ -12,6 +12,8 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get("page") ?? "1");
   const limit = parseInt(searchParams.get("limit") ?? "12");
   const tag = searchParams.get("tag");
+  // 다중 태그 CSV — tags=a,b,c → 모두 포함된 게시물만 (교집합)
+  const tagsParam = searchParams.get("tags");
   const category = searchParams.get("category");
   const search = searchParams.get("search");
   const searchType = searchParams.get("searchType") ?? "title"; // title | all
@@ -46,8 +48,14 @@ export async function GET(request: Request) {
     query = query.is("deleted_at", null);
   }
 
-  if (tag) {
-    query = query.contains("tags", [tag]);
+  // 다중 태그 우선 — tags=a,b,c → contains 로 모두 포함 매치 (PG @>)
+  const tagList = tagsParam
+    ? tagsParam.split(",").map((t) => t.trim()).filter(Boolean)
+    : tag
+      ? [tag]
+      : [];
+  if (tagList.length > 0) {
+    query = query.contains("tags", tagList);
   }
 
   if (category) {
