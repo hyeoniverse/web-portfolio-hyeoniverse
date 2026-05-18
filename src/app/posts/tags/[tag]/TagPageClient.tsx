@@ -1,13 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
-import { ChevronLeft, ChevronRight, Hash } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Hash } from "lucide-react";
 import type { Post } from "@/types/post";
 import type { TagPageData } from "@/lib/posts";
+import { useLenis } from "@/providers/LenisProvider";
 import PostCard from "../../_components/PostCard";
 import SortGroup from "@/components/ui/SortGroup";
 import Select from "@/components/ui/Select";
+import Tooltip from "@/components/ui/Tooltip";
+import Pagination from "@/components/ui/Pagination";
+import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import TagPill from "@/components/ui/TagPill";
 import styles from "./TagPage.module.css";
 
 type Sort = "newest" | "popular" | "title";
@@ -24,6 +28,7 @@ const PER_PAGE_OPTIONS = [
 ];
 
 export default function TagPageClient({ tag, initialData }: Props) {
+  const { setInfinite } = useLenis();
   const [posts, setPosts] = useState<Post[]>(initialData.posts);
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
   const [page, setPage] = useState(1);
@@ -31,6 +36,13 @@ export default function TagPageClient({ tag, initialData }: Props) {
   const [sort, setSort] = useState<Sort>("newest");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+
+  // Lenis infinite scroll 끄기 — 이 페이지에선 자연스러운 끝(페이지네이션) 도달 필요
+  useEffect(() => {
+    setInfinite(false);
+    return () => setInfinite(true);
+  }, [setInfinite]);
 
   // 같은 sort 다시 클릭 → dir toggle, 다른 sort → default desc
   const handleSortChange = (v: Sort) => {
@@ -74,7 +86,16 @@ export default function TagPageClient({ tag, initialData }: Props) {
     fetchPosts();
   }, [fetchPosts, isInitial]);
 
-  const pageNumbers = getPageNumbers(page, totalPages);
+  // 검색 — 현재 로드된 페이지 posts 안에서 title/title_en 매칭 (간단 client-side filter)
+  const filteredPosts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return posts;
+    return posts.filter((p) => {
+      const ko = p.title?.toLowerCase() ?? "";
+      const en = p.title_en?.toLowerCase() ?? "";
+      return ko.includes(q) || en.includes(q);
+    });
+  }, [posts, search]);
 
   return (
     <div className={styles.container}>
@@ -114,78 +135,59 @@ export default function TagPageClient({ tag, initialData }: Props) {
         </p>
         {initialData.relatedTags.length > 0 && (
           <div className={styles.relatedRow}>
-            <span className={styles.relatedLabel}>관련 태그</span>
+            <Tooltip
+              placement="top"
+              delay={200}
+              content={
+                <div className={styles.relatedLabelTooltip}>
+                  <div className={styles.relatedLabelTooltipMain}>Related Tags</div>
+                  <div className={styles.relatedLabelTooltipDesc}>
+                    이 태그와 같은 게시물에 함께 쓰인 다른 태그 — 같이 등장한 빈도순 정렬
+                  </div>
+                </div>
+              }
+            >
+              <span className={styles.relatedLabel}>관련 태그</span>
+            </Tooltip>
             <div className={styles.relatedTags}>
               {initialData.relatedTags.map(({ tag: rt, count }) => (
-                <Link
-                  key={rt}
-                  href={`/posts/tags/${encodeURIComponent(rt)}`}
-                  className={styles.relatedTag}
-                  title={`${count}개 게시물`}
-                >
-                  #{rt}
-                  <span className={styles.relatedTagCount}>{count}</span>
-                </Link>
+                <TagPill key={rt} tag={rt} count={count} />
               ))}
             </div>
           </div>
         )}
       </header>
 
+      {/* Top search */}
+      <SearchCapsule
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="이 태그 안에서 검색…"
+        className={styles.searchBarTop}
+      />
+
       {/* Grid */}
       <div className={`${styles.grid} ${loading ? styles.gridLoading : ""}`}>
-        {posts.map((p) => (
+        {filteredPosts.map((p) => (
           <PostCard key={p.id} post={p} variant="standard" />
         ))}
       </div>
 
+      {/* Bottom search */}
+      <SearchCapsule
+        search={search}
+        onSearchChange={setSearch}
+        placeholder="이 태그 안에서 검색…"
+        className={styles.searchBarBottom}
+      />
+
       {/* Pagination — 항상 표시 (1페이지여도) */}
-      <div className={styles.pagination}>
-        <button
-          type="button"
-          disabled={page <= 1}
-          onClick={() => setPage((p) => p - 1)}
-          className={styles.pageBtn}
-          aria-label="이전"
-        >
-          <ChevronLeft size={16} />
-        </button>
-        {pageNumbers.map((p, i) =>
-          p === -1 ? (
-            <span key={`ellipsis-${i}`} className={styles.ellipsis}>…</span>
-          ) : (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setPage(p)}
-              className={`${styles.pageBtn} ${page === p ? styles.pageBtnActive : ""}`}
-            >
-              {p}
-            </button>
-          ),
-        )}
-        <button
-          type="button"
-          disabled={page >= totalPages}
-          onClick={() => setPage((p) => p + 1)}
-          className={styles.pageBtn}
-          aria-label="다음"
-        >
-          <ChevronRight size={16} />
-        </button>
-      </div>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onChange={setPage}
+        className={styles.pagination}
+      />
     </div>
   );
-}
-
-/** pagination — 현재 페이지 주변 + 처음/마지막 + ellipsis */
-function getPageNumbers(current: number, total: number): number[] {
-  if (total <= 1) return [1];
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-  const pages: number[] = [1];
-  if (current > 3) pages.push(-1);
-  for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) pages.push(p);
-  if (current < total - 2) pages.push(-1);
-  pages.push(total);
-  return pages;
 }

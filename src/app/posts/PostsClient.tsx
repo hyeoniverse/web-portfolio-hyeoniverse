@@ -12,6 +12,7 @@ import SeriesCard from "./_components/SeriesCard";
 import PostsBanner from "./_components/PostsBanner/PostsBanner";
 import PopularPosts from "./_components/PopularPosts";
 import RecentComments from "./_components/RecentComments";
+import TagCloud3D from "./_components/TagCloud3D";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import SortGroup from "@/components/ui/SortGroup";
 import { ChevronDown, ChevronUp, BookOpen, LayoutGrid, ArrowUp, Shuffle } from "lucide-react";
@@ -997,6 +998,8 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         {/* ── Sidebar ── */}
         <SidebarWrap barHidden={barHidden}>
           <PopularPosts />
+          {/* 인기글 바로 아래 — 클릭 시 해당 태그 페이지로 이동 */}
+          <TagCloud3D tags={allTags} activeTag={activeTag} />
           <RecentComments />
         </SidebarWrap>
       </div>

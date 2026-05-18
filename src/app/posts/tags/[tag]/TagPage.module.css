@@ -4,13 +4,12 @@
   padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
 }
 
-/* ── Hero ── */
+/* ── Hero — container padding-top 으로 위 spacing 충분, 자체 padding-top 없음 ── */
 .hero {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-sm);
-  padding-top: var(--spacing-3xl);
   padding-bottom: var(--spacing-2xl);
   border-bottom: var(--border-light);
   margin-bottom: var(--spacing-2xl);
@@ -98,11 +97,21 @@
 
 /* ── Pagination ── */
 .pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-3xs);
   margin-top: var(--spacing-2xl);
+}
+
+/* 검색창 너비 제한 — 100% (페이지 전체 폭) 은 과해서 cap 적용 */
+.searchBarTop,
+.searchBarBottom {
+  max-width: 420px;
+}
+
+.searchBarTop {
+  margin-bottom: var(--spacing-md);
+}
+
+.searchBarBottom {
+  margin-top: var(--spacing-xl);
 }
 
 .pageBtn {
@@ -160,6 +169,7 @@
   font-weight: 600;
   color: var(--text-tertiary);
   text-transform: uppercase;
+  cursor: help;
   letter-spacing: 0.04em;
 }
 
@@ -186,6 +196,29 @@
 .relatedTag:hover {
   background: var(--bg-accent-light);
   color: var(--text-accent);
+}
+
+/* 관련 태그 label hover tooltip — 번역 + 기준 설명 */
+.relatedLabelTooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 280px;
+}
+
+.relatedLabelTooltipMain {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
+.relatedLabelTooltipDesc {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-snug);
 }
 
 .relatedTagCount {

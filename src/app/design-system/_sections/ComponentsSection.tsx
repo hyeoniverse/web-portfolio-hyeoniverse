@@ -22,6 +22,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import TextLink from "@/components/ui/TextLink";
 import Pagination from "@/components/ui/Pagination";
 import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
+import TagPill from "@/components/ui/TagPill";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
 
@@ -490,6 +491,26 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               {...tagItemProps(i)}
             />
           ))}
+        </motion.div>
+      </motion.div>
+
+      {/* TagPill */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>TagPill</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "캡슐 모양 태그 — `# + 태그명` + 선택적 카운트. 클릭 시 `/posts/tags/[tag]` 로 이동."
+            : "Capsule-shaped tag — `# + name` + optional count. Navigates to `/posts/tags/[tag]` on click."}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
+          <Tooltip content="basic — name only"><TagPill tag="React" /></Tooltip>
+          <Tooltip content="basic — name only"><TagPill tag="Next.js" /></Tooltip>
+          <Tooltip content="basic — name only"><TagPill tag="TypeScript" /></Tooltip>
+        </motion.div>
+        <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
+          <Tooltip content="with count badge"><TagPill tag="GSAP" count={12} /></Tooltip>
+          <Tooltip content="with count badge"><TagPill tag="CSS" count={47} /></Tooltip>
+          <Tooltip content="with count badge"><TagPill tag="Plate" count={3} /></Tooltip>
         </motion.div>
       </motion.div>
 

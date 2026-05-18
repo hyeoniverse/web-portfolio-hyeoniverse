@@ -225,6 +225,37 @@ export async function getTagPageData(tag: string, perPage: number = TAG_PER_PAGE
 
 export type TagPageData = Awaited<ReturnType<typeof getTagPageData>>;
 
+/** /posts/tags 인덱스 페이지용 — published 글의 모든 distinct tags + 개수 + 설명 */
+export async function getAllTagsData() {
+  const admin = createAdminClient();
+  const cfg = await getSiteConfig();
+  const descriptions = cfg.tagDescriptions ?? {};
+
+  const { data: tagRows } = await admin
+    .from("posts")
+    .select("tags")
+    .eq("published", true)
+    .limit(2000);
+
+  const counts = new Map<string, number>();
+  for (const row of (tagRows ?? []) as Pick<Post, "tags">[]) {
+    if (!row.tags) continue;
+    for (const t of row.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+  }
+
+  const tags = Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([tag, count]) => ({
+      tag,
+      count,
+      description: descriptions[tag] ?? "",
+    }));
+
+  return { tags };
+}
+
+export type AllTagsData = Awaited<ReturnType<typeof getAllTagsData>>;
+
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   const admin = createAdminClient();
   const { data } = await admin
