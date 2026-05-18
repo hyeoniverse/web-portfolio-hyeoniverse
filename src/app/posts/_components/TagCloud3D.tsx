@@ -116,7 +116,11 @@ export default function TagCloud3D({ tags, activeTag, onTagClick, size = 90 }: T
 
       const onMove = (ev: PointerEvent) => {
         const totalMoved = Math.abs(ev.clientX - startX) + Math.abs(ev.clientY - startY);
-        if (!dragging && totalMoved > DRAG_THRESHOLD) dragging = true;
+        if (!dragging && totalMoved > DRAG_THRESHOLD) {
+          dragging = true;
+          // 커스텀 커서 시스템 (CursorTrail) 에 drag 모양 신호 — TroubleshootingPanel 패턴
+          el.setAttribute("data-cursor", "grab");
+        }
         if (dragging) {
           const dx = ev.clientX - lastX;
           const dy = ev.clientY - lastY;
@@ -132,6 +136,7 @@ export default function TagCloud3D({ tags, activeTag, onTagClick, size = 90 }: T
         document.removeEventListener("pointermove", onMove);
         document.removeEventListener("pointerup", onUp);
         document.removeEventListener("pointercancel", onUp);
+        el.removeAttribute("data-cursor");
         // 실제로 drag 가 일어났을 때만 click 1회 차단 — 단순 클릭은 그대로 통과
         if (dragging) {
           const block = (cev: MouseEvent) => {
