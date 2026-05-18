@@ -142,6 +142,9 @@
 - **Posts Bento Masonry**: 3/4/6 column CSS Grid + `grid-auto-rows: 1px` + JS 가 각 카드 `scrollHeight` 측정 후 `grid-row: span N` 적용 → 진정한 masonry. wide / banner(21:9) / square(1:1) / portrait(3:4) / standard 5종 variant 가 `grid-auto-flow: dense` 로 빈틈 없이 packing. 모바일은 변형 비활성화 + 16:10 통일. **PC(4·6col) 빈공간 최소화 템플릿 재배열** — banner(21:9, 가장 짧음)는 사이클 앞쪽에 두어 이후 standard 들이 dense backfill 가능, wide(2col 16:10)와 portrait(1col 3:4)는 height 가 비슷해 같은 row 매칭, standard 비중 확대(5/cycle) + square 1개로 축소해 평균 height 변주 줄여 packing 안정화
 - **PopularPosts/RecentComments hover 효과**: 사이드 위젯 항목 hover 시 `translateX(var(--spacing-2xs))` 로 부드럽게 들여쓰기 — compound selector `(0,2,0)` 로 글로벌 theme transition `(0,1,1)` 우회 (transform 은 글로벌 규칙에 없어 일반 선택자로는 덮어쓸 수 없음)
 - **Posts Sort Capsule**: 최신순(↑/↓) · 인기순(↑/↓) · 제목순(↑/↓) 3-way capsule + 별도 Shuffle(랜덤) 버튼. 방향 화살표는 transform: rotate 로 트위닝, hover indicator(Framer Motion `layoutId`) + 화살표 줄바꿈 방지(`white-space: nowrap`). 랜덤 정렬은 mulberry32 시드 셔플로 페이지네이션 일관성 유지
+- **Popular 정렬 sub-option**: 인기순 활성 시 그 옆에 별도 SegmentedControl(종합 / 조회 / 댓글 / 좋아요) 노출 — API 는 `sort=views|likes|comments` 분기(`comments` 는 댓글 join 후 서버 JS 정렬). HOT 배지 · admin 삭제 보호 · TTL 90일 대상은 `src/lib/popularity.ts` 의 `scoreOf({view, like, comments})` + `getPopularPostIds(limit=5)` 한 함수가 산정해 PostsClient · admin · trash 자동삭제 셋 모두 동일 기준
+- **RandomPosts 사이드바 위젯**: 사이드바에 신규 추가 — `/api/posts?sort=random&seed=` + Shuffle 버튼(180° 회전 hover) 로 즉시 재추첨
+- **TagCloud3D 라벨 + drag cursor**: 라벨에 Tags 아이콘 추가 + 회전 드래그 중 `data-cursor="grab"` 으로 CursorTrail 과 통합
 - **Posts Tooltip-everywhere**: 모든 필터·정렬·태그·카테고리·SearchCapsule 트리거에 `<T>` 컴포넌트 + Tooltip(번역 + 설명) 적용 — long hover(600ms) 로 반대 언어 + 짧은 설명 동시 노출, 모바일은 터치 토글
 - **SearchCapsule 공통 컴포넌트**: `components/admin/SearchCapsule` → `components/ui/SearchCapsule` 이동. `searchType` prop optional, padding 을 태그/정렬 캡슐 톤에 맞춰 슬림화 (`var(--spacing-2xs) var(--spacing-sm)`). PostsClient · `/admin/comments` 등 모든 인라인 검색 input 을 일괄 교체
 - **Seeded Color Generator**: `src/utils/seededColor.ts` — FNV-1a 해시 + 8 hue 앵커(주황/앰버/라임/그린/시안/블루/퍼플/마젠타) × 3 톤 스타일(vivid / pastel / muted) = 24가지 결정적 HSL 조합. 같은 seed 는 항상 같은 색, 인접 카드는 anchor + tone 둘 다 cycle 되어 시각적 분리 보장. OKLCH 의 sRGB gamut 클리핑 회피용으로 HSL 채택
@@ -180,7 +183,7 @@
 - **PostCard hover prefetch**: 카드에 마우스가 올라가는 순간 `router.prefetch(href)` 호출(production-only) — 클릭 시점엔 chunk + 데이터 모두 캐시 → 즉시 mount. dev 에선 compile 미완료된 route 의 prefetch 가 "Failed to fetch RSC payload" + hard reload fallback 을 유발해 의도적으로 skip
 - **LoadingScreen 세션 영속**: 초기 로딩 완료 플래그를 `sessionStorage` 에 저장 — dev 모드에서 RSC payload fetch 실패로 hard reload fallback 이 일어나도 같은 세션 안에선 LoadingScreen 이 다시 풀로 노출되지 않음. sessionStorage 읽기는 `useEffect` 안에서만(모듈 로드 시 읽으면 server=false / client=true 로 hydration mismatch)
 - **ImageViewer 방향 슬라이드**: 이전/다음 이동 시 반대 방향에서 slide-in (mode wait), 좌/우 영역 hover로 화살표 노출
-- **Select 드롭다운 애니메이션**: portal 기반 드롭다운에서 mount 후 rAF 2회 대기로 CSS transition 보장 (compound selector로 글로벌 theme transition 우회). **외부 스크롤 시 dropdown 위치 재계산이 아니라 dropdown 자체를 닫음** — trigger 따라 이동해 산만해지는 걸 방지(내부 옵션 list overflow 스크롤은 유지)
+- **Select 드롭다운 애니메이션**: portal 기반 드롭다운에서 mount 후 rAF 2회 대기로 CSS transition 보장 (compound selector로 글로벌 theme transition 우회). **외부 스크롤 시 dropdown 위치 재계산이 아니라 dropdown 자체를 닫음** — trigger 따라 이동해 산만해지는 걸 방지(내부 옵션 list overflow 스크롤은 유지). `Select.option` 에 `white-space: nowrap + overflow hidden + text-overflow ellipsis` — 옵션 한 줄 + 잘림. `SearchCapsule .selectWrap` + 자식 모두 `width: fit-content` 강제로 옵션 라벨 길이 적응
 - **LanguageToggle 동적 측정**: EN 버튼 위치를 useLayoutEffect로 실측해 indicator 정확한 정렬
 - **Navigation 폴리시**: 햄버거 점 9개를 `<span>` → SVG `<circle>` 로 교체(2~3px 에서 sub-pixel 렌더링 차이로 타원처럼 보이던 문제 해결). Space Grotesk 폰트 로딩을 `display: optional + preload: false` → `display: swap + preload: true` 로 변경 — optional 은 100ms 윈도우를 놓치면 fallback(시스템 sans) 이 영구 고착되어 늦게 열리는 메뉴 드로어에 적용. 로그아웃 버튼에 관리자 이메일 Tooltip, 드로어 open 시 알림 드롭다운 자동 닫힘, ActionBtn circle radius + 모바일 size md 유지(기존엔 모바일에서 sm 으로 축소되던 회귀 수정)
 - **Tooltip 동적 max-width**: 콘텐츠 natural width 를 측정해(max-width 제거 후 재측정) 최대 720px / vw-16 까지 동적 적용 — 긴 텍스트가 세로로 쌓이지 않고 가로로 자연스럽게 퍼짐. z-index 도 인라인 `10001` → `var(--z-tooltip)` (700) 로 낮춰 drawer / modal overlay 가 Tooltip 위로 올라오도록 정정
@@ -196,6 +199,10 @@
 
 - **Admin Dashboard**: `/admin` 홈 — 누적 게시물 조회수, 좋아요, 방문자, 댓글 카운트 + 일별 조회 추세 차트(Recharts), 최근 활동 피드, 예약 발행 대기 목록
 - **CRUD & 일괄 관리**: Posts/Works CRUD, 드래그 일괄 선택 + 발행/삭제, 시리즈 관리, 휴지통(soft delete + 복원)
+- **휴지통 자동 영구삭제 + 인기글 보호**: posts/works `purge_after` 컬럼 + partial index(`deleted_at NOT NULL`) — soft delete 시 일반은 30일, **인기글(score top 5)** 은 90일 retention. `/api/cron/purge-trash` 가 매일 03:00 (vercel.json) 로 `purge_after < NOW()` hard delete. 휴지통 row 마다 "연장" 버튼 + 만료일 표시(`getTrashDaysLeft`), `/api/posts/[id]/extend-retention` · `/api/works/[id]/extend-retention` 가 +30일 연장. 본문 삭제 시점에 인기글이면 ModalConfirm 한 번 더 띄워 실수 방지
+- **SegmentedControl (구 SortGroup) 범용화**: `src/components/ui/SortGroup.tsx` → `SegmentedControl.tsx` (`git mv`) — type (`SortItem` → `SegmentedControlItem`) · CSS 모듈 · 9개 사용처(PostsClient / TagPageClient / admin dashboard·posts·works·notifications·reports·settings) 일괄 마이그레이션. sort 외에 admin 탭 / filter / segmented 등 범용 사용처가 많아 iOS 표준 명칭으로 rename. `.btn` padding `box-sm → 2xs md`, font `2xs → xs` 로 Select / SearchCapsule 와 동일 높이
+- **Admin posts/works 필터 통합**: sort `Select` → `SegmentedControl` 일괄 교체(main/series/trash 영역 모두), newest/oldest 두 옵션 → date 한 그룹 + dir 토글로 통합. `subFilterBar` / `subPageSize` / `subFilterSelect` / `subFilterSearch` 별도 클래스 제거 → main 의 `shell.filterBar` / `filterPageSize` / `filterItem` / `filterSearch` 재사용. `filterItem button` / `filterPageSize button` padding `0 → 2xs` + `border-color: var(--border-default-color)` → SearchCapsule 과 높이/색 통일
+- **Pagination jump input**: `showJump?: boolean` prop (default true, totalPages ≤ 5 자동 숨김) — "Go to [n]" capsule input 추가, Enter/blur 시 onChange (clamp), 외부 page 변경 시 sync. number input spinner 는 Firefox + WebKit 모두 제거
 - **예약 발행**: `scheduled_at` 컬럼 + Vercel cron(`/api/cron/publish-scheduled`, 5분 주기) — 미래 시간 설정 시 자동 `published=true` flip, DateTimePicker UI(날짜 + 시간 분리, 12h/24h 토글)
 - **Posts ↔ Works 양방향 연결**: Notion Relation 스타일 — `post_work_relations` 다대다 테이블, 양쪽 어디서 추가하든 detail 페이지에 자동 노출, `RelationPicker` 검색·썸네일·발행 상태 표시
 - **SEO 체크리스트**: 에디터 하단 위젯 — title/slug/excerpt(30자+)/cover/category/tags 6항목 점검, score 진행 바, 항목 클릭 시 해당 필드로 스크롤 + label accent 강조 (다음 인터랙션 전까지 유지)
@@ -335,10 +342,10 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 |--------|------|
 | `site_settings` | 사이트 설정 + 프로필 데이터 + secrets/API 키 (JSONB) |
 | `series` | 블로그 시리즈 (sort_order — admin 정렬, auto_cover_url — Unsplash 캐시) |
-| `posts` | 블로그 포스트 (post_number 시퀀스 + `scheduled_at` 예약 발행) |
+| `posts` | 블로그 포스트 (post_number 시퀀스 + `scheduled_at` 예약 발행 + `purge_after` 휴지통 TTL) |
 | `comments` | 포스트 댓글 (대댓글, 이중 인증: commenter_hash + password) |
 | `likes` | 좋아요 (포스트/작업물/댓글 통합, target_type으로 구분, IP 중복 방지) |
-| `works` | 포트폴리오 작업물 (team_members jsonb + `scheduled_at` 예약 발행) |
+| `works` | 포트폴리오 작업물 (team_members jsonb + `scheduled_at` 예약 발행 + `purge_after` 휴지통 TTL) |
 | `site_visits` | 방문자 통계 (IP+날짜 1회) |
 | `post_views` | 게시물별 시계열 조회 기록 (대시보드 일별 추세 차트) |
 | `work_comments` | Works 댓글 (대댓글, 이중 인증) |
@@ -607,6 +614,8 @@ npm run test:watch
 | 53 | TagCloud3D — `setPointerCapture` 가 내부 Link 의 click 을 흡수해 태그 페이지 이동 안 됨 | 회전 컨테이너에서 `setPointerCapture(e.pointerId)` 를 잡으면 모든 후속 pointer event 가 부모로 redirect 되어 자식 `<Link>` 의 click 이 발화하지 않음. drag-vs-click 구분은 필요해서 capture 자체는 포기할 수 없는 구조. 해결: capture 제거 + document-level `pointermove`/`pointerup` 추적, threshold(5px) 넘긴 경우에만 다음 click 한 번을 capture-phase listener 로 막아 drag 종료 시점의 의도치 않은 navigate 차단. 일반 클릭은 그대로 통과 |
 | 54 | Space Grotesk `display: optional` 이 늦게 열리는 메뉴 드로어에 폴백 폰트로 영구 고착 | `optional` 모드는 폰트 로드가 100ms 윈도우를 놓치면 폴백(시스템 sans) 으로 잠겨 같은 세션 내내 swap 안 함 — 햄버거를 클릭해 메뉴 드로어가 열리는 시점이 그 윈도우 밖이라 모바일 메뉴만 시스템 폰트로 깜빡임. 해결: `display: swap + preload: true` 로 전환 — FOIT 짧게 잡는 대신 swap 보장으로 늦게 mount 되는 UI 도 정상 폰트 적용 |
 | 55 | Tooltip 의 inline z-index `10001` 이 drawer / modal overlay 위로 떠 모달 닫을 때까지 가림 | 컴포넌트 안에서 인라인 스타일로 z-index 를 박아 두면 토큰 시스템(`--z-tooltip` 700, `--z-drawer` 800 …) 의 stacking 컨텍스트와 어긋남 — drawer 가 열려도 tooltip 이 그 위에 머물러 UI 가 깨짐. 해결: 인라인 제거하고 `var(--z-tooltip)` 로 환원, drawer / modal 토큰을 그 위로 두어 stacking 일관성 회복 |
+| 56 ★ | 인기글 기준이 3곳에 흩어져 PostsClient HOT 배지 · admin 삭제 보호 · 휴지통 TTL 90일이 서로 다른 글을 가리킴 | `lib/posts.ts` 의 `popularIds`, admin 삭제 가드, trash retention 코드가 각자 score 식(`view + like*N + comment*M`)을 갖고 있어 가중치 한 번 바뀌면 일부만 동기화되어 보호 대상이 어긋남. 해결: `src/lib/popularity.ts` 로 `scoreOf({view, like, comments})` + `getPopularPostIds(supabase, limit=5)` 단일 함수 추출 → `/api/posts/popular-ids` endpoint 로 admin 페이지가 mount 시 fetch, server 코드 셋 모두 같은 함수 호출. **"한 가지 사실은 한 곳에서만 산정한다"** — 동일 의미인데 식이 코드에 흩어져 있으면 그 식은 사실상 N개의 다른 정의다 |
+| 57 | SortGroup 컴포넌트 이름이 sort 외 사용처(admin 탭/filter/segmented)를 가두던 문제 | 처음엔 sort 캡슐로만 썼지만 admin 페이지에서 탭·필터·세그먼티드 컨트롤로 9곳에 확산. 이름이 의미를 좁히면 사용처마다 "sort 인 척하는 tab" 같이 부자연스러운 코드 + 새 컴포넌트 만들고 싶은 충동이 생긴다. 해결: `git mv SortGroup.tsx → SegmentedControl.tsx` + type (`SortItem` → `SegmentedControlItem`) + CSS 모듈 + 9개 사용처 일괄 마이그레이션, iOS 표준 명칭으로 통일. **컴포넌트 이름은 "지금 어디 쓰이는지"가 아니라 "what it is"로 — 사용처가 늘면 이름이 먼저 좁아진다** |
 
 
 ## 배포

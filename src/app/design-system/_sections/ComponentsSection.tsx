@@ -473,7 +473,8 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Pagination</div>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
-          <Pagination page={paginationPage} totalPages={12} onChange={setPaginationPage} />
+          <Tooltip content="default — `showJump` auto-enables when totalPages > 5"><div><Pagination page={paginationPage} totalPages={12} onChange={setPaginationPage} /></div></Tooltip>
+          <Tooltip content="showJump={false} — hide the Go-to input"><div><Pagination page={paginationPage} totalPages={12} onChange={setPaginationPage} showJump={false} /></div></Tooltip>
           <Pagination page={1} totalPages={1} onChange={() => {}} />
         </motion.div>
       </motion.div>
