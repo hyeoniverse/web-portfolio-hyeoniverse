@@ -426,7 +426,18 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                   />
                 </span>
               )}
-              <span className={styles.colCheck} onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}>
+              <span
+                className={styles.colCheck}
+                draggable={false}
+                onMouseDown={(e) => {
+                  // onReorder 켜진 상태에서도 체크박스 영역 drag 는 다중 선택 (reorder 대신)
+                  if (e.button === 0 && onReorder) {
+                    e.stopPropagation();
+                    handleSelectMouseDown(i);
+                  }
+                }}
+                onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}
+              >
                 <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
               </span>
               {hasNumCol && (
