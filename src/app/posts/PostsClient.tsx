@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
+import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
 import type { Post, Series } from "@/types/post";
 import type { InitialPostsData } from "@/lib/posts";
 import PostCard from "./_components/PostCard";
@@ -189,51 +190,24 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [showTags, setShowTags] = useState(false);
   const [catExpanded, setCatExpanded] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
-  const [isStuck, setIsStuck] = useState(false);
-  const [barHidden, setBarHidden] = useState(false);
-  const sentinelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const filterBarRef = useRef<HTMLDivElement>(null);
   const seriesRowRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  const lastScrollY = useRef(0);
   const scrollCooldown = useRef(false);
-  const isStuckRef = useRef(false);
 
-  // Detect if filterBar is in sticky (stuck) state.
-  // sentinel(0-height, filterBar 바로 위)이 viewport top - stickyTop 라인을 넘어가는 순간 = 정확한 sticking 시점.
-  // rootMargin 음수 top 으로 그 라인을 IntersectionObserver 의 root edge 로 끌어올림.
+  // Sticky filter bar — 공통 hook. cooldownRef 로 expand 직후 layout shift scroll 흡수
+  const { sentinelRef, filterBarRef, isStuck, barHidden } = useStickyFilterBar({
+    cooldownRef: scrollCooldown,
+  });
+
+  // bar 가 숨겨질 때 tags/categories 도 닫음 (스크롤 다운으로 정리)
   useEffect(() => {
-    const el = sentinelRef.current;
-    const fb = filterBarRef.current;
-    if (!el || !fb) return;
-    let observer: IntersectionObserver | null = null;
-    const setup = () => {
-      observer?.disconnect();
-      const stickyTop = parseFloat(window.getComputedStyle(fb).top) || 0;
-      observer = new IntersectionObserver(
-        ([entry]) => {
-          const stuck = !entry.isIntersecting;
-          isStuckRef.current = stuck;
-          setIsStuck(stuck);
-          if (!stuck) setBarHidden(false);
-        },
-        {
-          rootMargin: `-${stickyTop + 1}px 0px 0px 0px`,
-          threshold: 0,
-        },
-      );
-      observer.observe(el);
-    };
-    setup();
-    // 뷰포트/폰트 크기 변경 시 stickyTop 도 변할 수 있어 재설정
-    window.addEventListener("resize", setup);
-    return () => {
-      observer?.disconnect();
-      window.removeEventListener("resize", setup);
-    };
-  }, []);
+    if (barHidden) {
+      setCatExpanded(false);
+      setShowTags(false);
+    }
+  }, [barHidden]);
 
   // Apply blur to content area when expanded in stuck state (same technique as ContactDrawer)
   useEffect(() => {
@@ -257,39 +231,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     const id = setTimeout(() => { scrollCooldown.current = false; }, 400);
     return () => clearTimeout(id);
   }, [showTags, catExpanded]);
-
-  // Scroll-down: hide bar + collapse expansions / Scroll-up: show bar
-  useEffect(() => {
-    const threshold = 3;
-    let accumulated = 0;
-    const triggerDist = 15;
-    const handleScroll = () => {
-      const y = window.scrollY;
-      const delta = y - lastScrollY.current;
-      lastScrollY.current = y;
-      if (scrollCooldown.current) return;
-      if (!isStuckRef.current) {
-        accumulated = 0;
-        return;
-      }
-      // 방향 전환 시 누적값 리셋
-      if ((accumulated > 0 && delta < -threshold) || (accumulated < 0 && delta > threshold)) {
-        accumulated = 0;
-      }
-      accumulated += delta;
-      if (accumulated > triggerDist) {
-        setBarHidden(true);
-        setCatExpanded(false);
-        setShowTags(false);
-        accumulated = 0;
-      } else if (accumulated < -triggerDist) {
-        setBarHidden(false);
-        accumulated = 0;
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []); // no deps — uses refs only
 
   // Close tags on scroll — ignore layout-shift scroll, only close on real user scroll
   useEffect(() => {
