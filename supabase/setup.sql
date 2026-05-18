@@ -664,6 +664,71 @@ CREATE POLICY "Users manage own cover history"
 --   Admin API(service_role)로 업로드, 공개 읽기
 -- ────────────────────────────────────────────────────────────
 
+-- ────────────────────────────────────────────────────────────
+-- admin_login_attempts — admin 로그인 실패 횟수 추적 + lockout
+-- ────────────────────────────────────────────────────────────
+-- email 기준 (admin 1명 또는 소수라 sufficient. IP 기준 추가는 후속 마이그레이션).
+-- API route 에서 service role 로만 접근.
+CREATE TABLE IF NOT EXISTS admin_login_attempts (
+  email           text PRIMARY KEY,
+  failed_count    int NOT NULL DEFAULT 0,
+  locked_until    timestamptz,
+  last_attempt_at timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE admin_login_attempts ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'admin_login_attempts' AND policyname = 'admin_login_attempts_service_only'
+  ) THEN
+    CREATE POLICY "admin_login_attempts_service_only"
+      ON admin_login_attempts FOR ALL
+      USING (true)
+      WITH CHECK (true);
+  END IF;
+END $$;
+
+
+-- ────────────────────────────────────────────────────────────
+-- admin_known_devices — 새 기기 로그인 이메일 인증
+-- ────────────────────────────────────────────────────────────
+-- 로그인 시점에 user-agent fingerprint 조회. 처음 보는 fingerprint 면 이메일로
+-- approve 토큰 발송 → 클릭 후 trusted. service role 만 접근.
+CREATE TABLE IF NOT EXISTS admin_known_devices (
+  id                         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id                    uuid NOT NULL,
+  fingerprint                text NOT NULL,
+  user_agent                 text NOT NULL DEFAULT '',
+  ip_address                 text NOT NULL DEFAULT '',
+  approved                   boolean NOT NULL DEFAULT false,
+  approve_token              text,
+  approve_token_expires_at   timestamptz,
+  first_seen_at              timestamptz NOT NULL DEFAULT now(),
+  last_seen_at               timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (user_id, fingerprint)
+);
+
+CREATE INDEX IF NOT EXISTS admin_known_devices_token_idx
+  ON admin_known_devices (approve_token);
+
+ALTER TABLE admin_known_devices ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'admin_known_devices' AND policyname = 'admin_known_devices_service_only'
+  ) THEN
+    CREATE POLICY "admin_known_devices_service_only"
+      ON admin_known_devices FOR ALL
+      USING (true)
+      WITH CHECK (true);
+  END IF;
+END $$;
+
+
 -- 버킷 자동 생성
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('uploads', 'uploads', true)
@@ -691,7 +756,7 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 13개 테이블 + 4개 RPC 함수가 생성되었습니다.
+-- 완료! 총 15개 테이블 + 4개 RPC 함수가 생성되었습니다.
 --
 -- site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
 -- series               : 블로그 시리즈 (sort_order, auto_cover_url 포함)
@@ -707,6 +772,8 @@ END $$;
 -- revisions            : 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot)
 -- post_work_relations  : posts ↔ works many-to-many 양방향 (Notion Relation)
 -- cover_image_history  : Cover Image Picker 통합 이력 (admin user 별, RLS)
+-- admin_login_attempts : admin 로그인 실패 횟수 추적 + lockout (5회 → 15분)
+-- admin_known_devices  : 새 기기 인증 (UA fingerprint + 이메일 approve 토큰)
 --
 -- RPC:
 --   increment_post_view_count(p_post_id)          : 조회수 atomic +1 (race-free)

@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useModalStore } from "@/stores/modalStore";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import TextLink from "@/components/ui/TextLink";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import type { AccountTabProps } from "../_types";
 import Field from "./SettingsFormFields";
 import styles from "../Settings.module.css";
@@ -34,8 +37,44 @@ export default function AccountTab({
   onPasswordPolicyChange,
 }: AccountTabProps) {
   const { t } = useLanguage();
+  const router = useRouter();
+  const { openModal } = useModalStore();
   const [resending, setResending] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [signingOutAll, setSigningOutAll] = useState(false);
+
+  const handleSignOutAll = useCallback(() => {
+    openModal(
+      <ModalConfirm
+        desc={t("admin.settings.signOutAllConfirmDesc")}
+        cancelText={t("admin.settings.cancel")}
+        confirmText={t("admin.settings.signOutAllConfirm")}
+        danger
+        onConfirm={async () => {
+          setSigningOutAll(true);
+          try {
+            const res = await fetch("/api/admin/auth/logout-all", { method: "POST" });
+            if (!res.ok) {
+              const data = await res.json().catch(() => ({}));
+              throw new Error(data.error || "Failed");
+            }
+            // 현재 세션도 무효화됨 → login 페이지로
+            router.push("/admin/login");
+            router.refresh();
+          } catch (err) {
+            setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
+            setSigningOutAll(false);
+          }
+        }}
+      />,
+      {
+        id: "signout-all",
+        header: { title: t("admin.settings.signOutAllTitle") },
+        closeButton: true,
+        width: "420px",
+      },
+    );
+  }, [t, openModal, router, setAccountMessage]);
 
   const handleResend = useCallback(async () => {
     setResending(true);
@@ -218,6 +257,28 @@ export default function AccountTab({
                 placeholder={t("admin.settings.confirmPlaceholder")}
               />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Security — sessions / devices */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}><T k="admin.settings.securityTitle" /></h2>
+        <ul className={styles.sectionHintList}>
+          <li><T k="admin.settings.signOutAllHint" /></li>
+        </ul>
+        <div className={styles.fields}>
+          <div className={styles.fieldRow}>
+            <label className={styles.fieldLabel}><T k="admin.settings.signOutAllLabel" /></label>
+            <Button
+              variant="outline"
+              size="xs"
+              tone="danger"
+              onClick={handleSignOutAll}
+              disabled={signingOutAll}
+            >
+              {signingOutAll ? <T k="admin.settings.saving" /> : <T k="admin.settings.signOutAllAction" />}
+            </Button>
           </div>
         </div>
       </section>
