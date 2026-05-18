@@ -107,13 +107,14 @@
   color: var(--text-primary);
 }
 
-/* ── Toolbar — sort + perPage select 같은 row ── */
+/* ── Toolbar — search + sort + perPage 한 줄 (heroTopRow 안에 위치) ── */
 .toolbar {
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
 }
 
 /* perPage Select — width fit-content + SortGroup btn 과 동일 padding/font (height 통일) */
