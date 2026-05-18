@@ -92,7 +92,7 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
       </div>
 
       <div className={styles.splitControls}>
-        <button className={styles.splitArrowBtn} onClick={prev} aria-label="Previous slide">
+        <button className={styles.splitArrowBtn} onClick={prev} aria-label="Previous slide" data-cursor="prev">
           <ChevronLeft size={14} />
         </button>
         <div className={styles.splitDots}>
@@ -105,7 +105,7 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
             />
           ))}
         </div>
-        <button className={styles.splitArrowBtn} onClick={next} aria-label="Next slide">
+        <button className={styles.splitArrowBtn} onClick={next} aria-label="Next slide" data-cursor="next">
           <ChevronRight size={14} />
         </button>
         <button className={styles.splitPlayBtn} onClick={togglePause} aria-label={isPaused ? "Play" : "Pause"}>

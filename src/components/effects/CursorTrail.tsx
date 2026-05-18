@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./CursorTrail.module.css";
 
-type CursorType = "big" | "text" | "grab" | "resize" | "resizeH" | "resizeV" | "resizeDiag" | "disabled" | "stop" | "zoom" | "";
+type CursorType = "big" | "text" | "grab" | "resize" | "resizeH" | "resizeV" | "resizeDiag" | "disabled" | "stop" | "zoom" | "next" | "prev" | "";
 
 /* ---------------- 헬퍼 함수 ---------------- */
 
@@ -303,7 +303,13 @@ export default function CursorTrail() {
     >
       <div className={styles.cursorInner}>
         <span className={styles.cursorText}>
-          {cursorType === "grab" ? "Drag" : cursorType === "stop" ? "Stop" : cursorType === "zoom" ? "View" : isMore ? "More" : "Click"}
+          {cursorType === "grab" ? "Drag"
+            : cursorType === "stop" ? "Stop"
+            : cursorType === "zoom" ? "View"
+            : cursorType === "next" ? "Next"
+            : cursorType === "prev" ? "Prev"
+            : isMore ? "More"
+            : "Click"}
         </span>
         {cursorType === "zoom" && (
           <svg className={styles.zoomIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
