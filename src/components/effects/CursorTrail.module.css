@@ -132,6 +132,26 @@
   animation: none;
 }
 
+/* next/prev — 배너 슬라이드 화살표 hover. big 과 동일 스타일 */
+.next .cursorInner,
+.prev .cursorInner {
+  width: var(--cursor-big-width);
+  height: var(--cursor-big-width);
+  backdrop-filter: var(--blur-sm);
+}
+.next .cursorText,
+.prev .cursorText {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  opacity: 1;
+}
+.next .cursorInner::before,
+.prev .cursorInner::before {
+  inset: 0px;
+  opacity: 0;
+  filter: none;
+}
+
 /* zoom 커서 — 이미지 뷰어 오픈 힌트 (배경은 big/grab과 동일) */
 .zoom .cursorInner {
   width: var(--cursor-big-width);
