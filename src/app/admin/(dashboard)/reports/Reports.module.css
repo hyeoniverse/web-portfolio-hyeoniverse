@@ -40,11 +40,29 @@
 }
 
 .empty {
-  padding: var(--spacing-4xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-4xl) var(--spacing-md);
+  margin: 0;
   text-align: center;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
+}
+
+/* Notifications 의 빈 상태 illustration 과 동일 — 일관성 */
+.empty::before {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-secondary);
+  border: var(--border-light);
+  background-image: linear-gradient(135deg, transparent 50%, var(--bg-accent-subtle) 50%);
 }
 
 /* Skeleton — .item 과 동일 dimension/spacing 으로 layout shift 방지 */
@@ -159,5 +177,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2xs);
+}
+
+/* Notifications 페이지의 "신고" 탭에서 사용되는 내부 status 필터 행 */
+.reportsFilterRow {
+  margin-bottom: var(--spacing-md);
 }
 

@@ -1,16 +1,21 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Reply, Heart, Bell, Flag } from "lucide-react";
+import { MessageCircle, Reply, Heart, Bell, Flag, RefreshCw } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { SkeletonLine, SkeletonCircle } from "@/components/ui/Skeleton";
 import Tooltip from "@/components/ui/Tooltip";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
+import SortGroup from "@/components/ui/SortGroup";
+import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import ReportsList from "./_components/ReportsList";
 import styles from "./Notifications.module.css";
+
+type TabKey = "all" | "comment" | "system" | "report";
 
 interface Notification {
   id: string;
@@ -37,8 +42,41 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<TabKey>("all");
+  const [search, setSearch] = useState("");
+
+  // 탭 필터 + 검색 — comment 탭은 comment/reply/like 묶음, system 은 기타, report 는 report
+  const filteredNotifs = useMemo(() => {
+    let result = notifications;
+    if (tab === "comment") {
+      result = notifications.filter((n) => ["comment", "reply", "like"].includes(n.type));
+    } else if (tab === "report") {
+      result = notifications.filter((n) => n.type === "report");
+    } else if (tab === "system") {
+      result = notifications.filter((n) => !["comment", "reply", "like", "report"].includes(n.type));
+    }
+    const q = search.trim().toLowerCase();
+    if (!q) return result;
+    return result.filter(
+      (n) =>
+        n.title?.toLowerCase().includes(q) ||
+        n.message?.toLowerCase().includes(q),
+    );
+  }, [notifications, tab, search]);
+
+  const tabCounts = useMemo(() => {
+    const counts: Record<TabKey, number> = { all: 0, comment: 0, system: 0, report: 0 };
+    for (const n of notifications) {
+      counts.all += 1;
+      if (["comment", "reply", "like"].includes(n.type)) counts.comment += 1;
+      else if (n.type === "report") counts.report += 1;
+      else counts.system += 1;
+    }
+    return counts;
+  }, [notifications]);
 
   const fetchNotifications = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/admin/notifications");
       if (res.ok) {
@@ -151,6 +189,7 @@ export default function NotificationsPage() {
         transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
       >
         <h1 className={styles.title}>
+          <Bell size={26} strokeWidth={1.6} aria-hidden className={styles.titleIcon} />
           <T k="admin.notifications.title" />
           {!loading && unreadCount > 0 && (
             <Tooltip content={t("admin.notifications.tipUnread")} placement="bottom" delay={250}>
@@ -167,6 +206,17 @@ export default function NotificationsPage() {
           )}
         </h1>
         <div className={styles.headerActions}>
+          <Tooltip content={t("admin.notifications.tipRefresh")} placement="bottom" delay={250}>
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={fetchNotifications}
+              disabled={loading}
+              icon={<RefreshCw size={13} strokeWidth={1.8} className={loading ? styles.refreshSpinning : undefined} />}
+            >
+              <T k="admin.notifications.refresh" />
+            </Button>
+          </Tooltip>
           {!loading && unreadCount > 0 && (
             <Tooltip content={t("admin.notifications.tipMarkAllRead")} placement="bottom" delay={250}>
               <Button variant="outline" size="xs" onClick={handleMarkAllRead}>
@@ -184,7 +234,33 @@ export default function NotificationsPage() {
         </div>
       </motion.div>
 
-      {loading ? (
+      {/* Tabs — 전체 / 댓글 / 시스템 / 신고. 신고 탭은 ReportsList 컴포넌트로 위임.
+         SortGroup button 내부에 Tooltip wrapper (T 컴포넌트) 넣으면 hover 이벤트 충돌 — t() 직접 사용 */}
+      <div className={styles.tabsRow}>
+        <SortGroup<TabKey>
+          items={[
+            { value: "all", label: <>{t("admin.notifications.tab.all")} <span className={styles.tabCount}>{tabCounts.all}</span></> },
+            { value: "comment", label: <>{t("admin.notifications.tab.comment")} <span className={styles.tabCount}>{tabCounts.comment}</span></> },
+            { value: "system", label: <>{t("admin.notifications.tab.system")} <span className={styles.tabCount}>{tabCounts.system}</span></> },
+            { value: "report", label: <>{t("admin.notifications.tab.report")} <span className={styles.tabCount}>{tabCounts.report}</span></> },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
+        {tab !== "report" && (
+          <div className={styles.searchWrap}>
+            <SearchCapsule
+              search={search}
+              onSearchChange={setSearch}
+              placeholder={t("admin.notifications.searchPlaceholder")}
+            />
+          </div>
+        )}
+      </div>
+
+      {tab === "report" ? (
+        <ReportsList />
+      ) : loading ? (
         <div className={styles.list} aria-busy="true">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className={styles.item}>
@@ -197,15 +273,17 @@ export default function NotificationsPage() {
             </div>
           ))}
         </div>
-      ) : notifications.length === 0 ? (
+      ) : filteredNotifs.length === 0 ? (
         <motion.p
           className={styles.empty}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <span className={styles.emptyTitle}><T k="admin.notifications.empty" /></span>
-          <span className={styles.emptyHint}><T k="admin.notifications.emptyHint" /></span>
+          <span className={styles.emptyTitle}>
+            <T k={search ? "admin.notifications.searchEmpty" : "admin.notifications.empty"} />
+          </span>
+          {!search && <span className={styles.emptyHint}><T k="admin.notifications.emptyHint" /></span>}
         </motion.p>
       ) : (
         <motion.div
@@ -218,7 +296,7 @@ export default function NotificationsPage() {
           }}
         >
           <AnimatePresence initial={false}>
-            {notifications.map((n) => {
+            {filteredNotifs.map((n) => {
               const hasLink = !!n.metadata?.url;
               const tipContent = hasLink
                 ? t("admin.notifications.tipItemClick")

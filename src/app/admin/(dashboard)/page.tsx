@@ -26,6 +26,7 @@ import {
   ChevronRight,
   LineChart,
   CalendarDays,
+  LayoutDashboard,
 } from "lucide-react";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -208,6 +209,7 @@ export default function AdminDashboard() {
     return (
       <div className={styles.container}>
         <h1 className={styles.title}>
+          <LayoutDashboard size={26} strokeWidth={1.6} aria-hidden className={styles.titleIcon} />
           <T k="admin.dashboard.title" />
         </h1>
         <p className={styles.error}>
@@ -244,6 +246,7 @@ export default function AdminDashboard() {
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>
+          <LayoutDashboard size={26} strokeWidth={1.6} aria-hidden className={styles.titleIcon} />
           <T k="admin.dashboard.title" />
         </h1>
         <Tooltip

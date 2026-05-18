@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
+import { Settings as SettingsIcon } from "lucide-react";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { siteConfig } from "@/config/site.config";
 import type { SiteConfigData } from "@/config/site.config";
@@ -455,7 +456,10 @@ export default function SettingsPage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}><T k="admin.settings.title" /></h1>
+        <h1 className={styles.title}>
+          <SettingsIcon size={26} strokeWidth={1.6} aria-hidden className={styles.titleIcon} />
+          <T k="admin.settings.title" />
+        </h1>
         <div className={styles.headerRight}>
           {activeTab === "account" ? (
             <>

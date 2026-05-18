@@ -22,10 +22,18 @@
 }
 
 .title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
   font-family: var(--font-instrument);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
+}
+
+.titleIcon {
+  color: var(--text-secondary);
 }
 
 .headerRight {
@@ -88,7 +96,6 @@
 .conflictListClip {
   max-height: var(--_clip-h, 200px);
   overflow: hidden;
-  margin-bottom: var(--spacing-sm);
 }
 
 /* compound (0,2,0) to beat global theme transition */
@@ -100,31 +107,33 @@
   max-height: var(--_list-height, 1000px);
 }
 
+/* 양옆이 트인 flat list — 좌우 border 없음, 위/각 row 아래에만 border.
+   notifications 페이지의 list 와 같은 패턴. */
 .conflictList {
   display: flex;
   flex-direction: column;
+  border-top: var(--border-light);
 }
 
 .conflictPreviewItem {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs)
-    var(--spacing-md);
+  padding: var(--spacing-xs) 0;
   font-size: var(--font-size-xs);
-  border-radius: var(--radius-capsule);
+  border-bottom: var(--border-light);
+  border-radius: 0;
 }
 
 .conflictPreviewItem:hover {
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
 }
 
 .conflictSelectAll {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs)
-    var(--spacing-md);
+  padding: var(--spacing-xs) 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
@@ -162,8 +171,7 @@
   text-overflow: ellipsis;
   flex: 1;
   min-width: 0;
-  border-radius: var(--radius-capsule);
-  padding: var(--box-2xs-md);
+  padding: 0;
   border: 1px solid transparent;
   background: transparent;
 }
@@ -390,7 +398,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-xs);
+  padding: var(--box-xs);
   border: none;
   border-bottom: var(--border-light);
   border-radius: 0;
