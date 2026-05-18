@@ -4,16 +4,16 @@ import { useId, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/utils/cn";
-import styles from "./SortGroup.module.css";
+import styles from "./SegmentedControl.module.css";
 
-export interface SortItem<T extends string> {
+export interface SegmentedControlItem<T extends string> {
   value: T;
   /** label — string 또는 icon 같은 ReactNode 지원 */
   label: ReactNode;
 }
 
 interface Props<T extends string> {
-  items: readonly SortItem<T>[];
+  items: readonly SegmentedControlItem<T>[];
   value: T;
   onChange: (v: T) => void;
   /** 선택된 item 옆 dir arrow (asc/desc) — onChange 가 dir 도 결정 (부모 책임) */
@@ -21,8 +21,9 @@ interface Props<T extends string> {
   className?: string;
 }
 
-/** Capsule pill 그룹 — sort/filter 단일 선택. framer-motion 으로 active background sliding + hover preview. */
-export default function SortGroup<T extends string>({
+/** Capsule pill segmented control — single-select. framer-motion active background sliding + hover preview.
+ *  sort/filter/tab 등에 범용 사용. */
+export default function SegmentedControl<T extends string>({
   items,
   value,
   onChange,

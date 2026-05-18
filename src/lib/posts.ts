@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { Post, Series } from "@/types/post";
 import { fetchUnsplashCover } from "@/lib/unsplash";
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import { getPopularPostIds } from "@/lib/popularity";
 
 const POSTS_PER_PAGE = 12;
 const SERIES_PER_PAGE = 12;
@@ -137,11 +138,8 @@ export async function getInitialPostsData() {
 
   const extraCategories = Array.from(categorySet);
 
-  const popularIds = [...allPosts]
-    .filter((p) => p.view_count > 0)
-    .sort((a, b) => b.view_count - a.view_count)
-    .slice(0, 5)
-    .map((p) => p.id);
+  // 인기글 — score (view + like*3 + comments*5) top 5. lib/popularity 단일 소스.
+  const popularIds = Array.from(await getPopularPostIds(admin, 5));
 
   // 배너용: pinned가 3개 미만이면 인기 게시물로 채움
   const MIN_BANNER = 3;

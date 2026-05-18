@@ -33,7 +33,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import CloseButton from "@/components/ui/CloseButton";
-import SortGroup from "@/components/ui/SortGroup";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import Tooltip from "@/components/ui/Tooltip";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { ModalAlert } from "@/components/ui/ModalTemplates";
@@ -1601,7 +1601,7 @@ function DailyViewsChart({
             </div>
           );
         })()}
-        <SortGroup<"line" | "calendar">
+        <SegmentedControl<"line" | "calendar">
           items={[
             { value: "line", label: <LineChart size={13} strokeWidth={2} /> },
             {

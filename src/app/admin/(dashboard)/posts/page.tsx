@@ -15,6 +15,7 @@ import { downloadBlob, downloadFiles } from "@/utils/download";
 import { useCategories, translateCategory } from "@/hooks/useCategories";
 import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import Select from "@/components/ui/Select";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
@@ -279,10 +280,41 @@ export default function AdminPostsPage() {
   useEffect(() => { setTrashPage(1); }, [trashSearch, trashSearchType, trashSort]);
 
   /* ── Handlers ── */
+  // 인기글 — score top 5 (view + like*3 + comments*5). lib/popularity 단일 소스.
+  // mount 시 fetch + 삭제 후 갱신.
+  const [popularIds, setPopularIds] = useState<Set<string>>(new Set());
+  const fetchPopularIds = useCallback(async () => {
+    const res = await fetch("/api/posts/popular-ids?limit=5");
+    if (!res.ok) return;
+    const { ids } = await res.json();
+    setPopularIds(new Set(ids ?? []));
+  }, []);
+  useEffect(() => { fetchPopularIds(); }, [fetchPopularIds]);
+
   const handleDelete = async (id: string) => {
-    await fetch(`/api/posts/${id}`, { method: "DELETE" });
-    fetchPosts();
-    if (trashOpen) fetchTrash();
+    const post = posts.find((p) => p.id === id);
+    const doDelete = async () => {
+      await fetch(`/api/posts/${id}`, { method: "DELETE" });
+      fetchPosts();
+      if (trashOpen) fetchTrash();
+      fetchPopularIds();
+    };
+    if (popularIds.has(id)) {
+      openModal(
+        <ModalConfirm
+          desc={t("admin.posts.popularDeleteDesc")
+            .replace("{{views}}", String(post?.view_count ?? 0))
+            .replace("{{likes}}", String(post?.like_count ?? 0))}
+          cancelText={t("admin.posts.cancel")}
+          confirmText={t("admin.posts.delete")}
+          danger
+          onConfirm={doDelete}
+        />,
+        { id: "popular-delete-confirm", header: { title: t("admin.posts.popularDeleteTitle") }, closeButton: true, width: "440px" },
+      );
+      return;
+    }
+    await doDelete();
   };
 
   const handleRestore = async (id: string) => {
@@ -296,6 +328,12 @@ export default function AdminPostsPage() {
       <PurgeModal title={title} onConfirm={async () => { await fetch(`/api/posts/${id}/purge`, { method: "DELETE" }); fetchTrash(); }} />,
       { id: "purge-confirm", header: { title: `"${title}"` }, closeButton: true, width: "400px" },
     );
+  };
+
+  // 휴지통 보관 +30일 연장
+  const handleExtend = async (id: string) => {
+    await fetch(`/api/posts/${id}/extend-retention`, { method: "POST" });
+    fetchTrash();
   };
 
 
@@ -339,7 +377,7 @@ export default function AdminPostsPage() {
   const trashIcon = <Trash2 size={13} />;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const trashColumns = useMemo(() => createTrashColumns(t, getTrashDaysLeft, handleRestore, handlePurge), [t]);
+  const trashColumns = useMemo(() => createTrashColumns(t, getTrashDaysLeft, handleRestore, handlePurge, handleExtend), [t]);
 
   const trashSection = (
     <div className={styles.trashSection}>
@@ -413,21 +451,18 @@ export default function AdminPostsPage() {
           window.open("/admin/posts/preview", "_blank");
         }}
         filterBar={
-          <div className={styles.subFilterBar}>
+          <div className={shell.filterBar}>
             <Select
               value={String(trashPerPage)}
               options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
               onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
-              className={styles.subPageSize}
+              className={`${shell.filterPageSize} ${styles.filterPageSizeLeft}`}
             />
-            <Select
-              value={trashSort}
-              options={[
-                { value: "newest", label: t("admin.posts.sortNewestDeleted") },
-                { value: "oldest", label: t("admin.posts.sortOldestDeleted") },
-              ]}
-              onChange={(v) => setTrashSort(v as "newest" | "oldest")}
-              className={styles.subFilterSelect}
+            <SegmentedControl
+              items={[{ value: "date", label: t("admin.posts.sortDeletedAt") }]}
+              value="date"
+              sortDir={trashSort === "oldest" ? "asc" : "desc"}
+              onChange={() => setTrashSort((p) => p === "newest" ? "oldest" : "newest")}
             />
             <SearchCapsule
               typeSelector={{
@@ -442,7 +477,7 @@ export default function AdminPostsPage() {
               search={trashSearch}
               onSearchChange={setTrashSearch}
               placeholder={t("admin.posts.trashSearch")}
-              className={styles.subFilterSearch}
+              className={shell.filterSearch}
             />
           </div>
         }
@@ -521,22 +556,26 @@ export default function AdminPostsPage() {
         emptyMessage={t("admin.posts.noSeriesYet")}
         loading={seriesLoading}
         filterBar={
-          <div className={styles.subFilterBar}>
+          <div className={shell.filterBar}>
             <Select
               value={String(seriesPerPage)}
               options={[{ value: "5", label: "5" }, { value: "10", label: "10" }, { value: "20", label: "20" }]}
               onChange={(v) => { setSeriesPerPage(Number(v)); setSeriesPage(1); }}
-              className={styles.subPageSize}
+              className={`${shell.filterPageSize} ${styles.filterPageSizeLeft}`}
             />
-            <Select
-              value={seriesSort}
-              options={[
-                { value: "newest", label: t("admin.posts.sortNewest") },
-                { value: "oldest", label: t("admin.posts.sortOldest") },
+            <SegmentedControl
+              items={[
+                { value: "date", label: t("admin.posts.sortDate") },
                 { value: "name", label: t("admin.posts.sortName") },
               ]}
-              onChange={(v) => setSeriesSort(v as "newest" | "oldest" | "name")}
-              className={styles.subFilterSelect}
+              value={seriesSort === "name" ? "name" : "date"}
+              sortDir={seriesSort === "oldest" ? "asc" : "desc"}
+              onChange={(v) => {
+                if (v === "name") setSeriesSort("name");
+                else if (seriesSort === "newest") setSeriesSort("oldest");
+                else if (seriesSort === "oldest") setSeriesSort("newest");
+                else setSeriesSort("newest");
+              }}
             />
             <Select
               value={seriesFilter}
@@ -546,7 +585,7 @@ export default function AdminPostsPage() {
                 { value: "draft", label: t("admin.posts.filterDraft") },
               ]}
               onChange={(v) => setSeriesFilter(v as "" | "published" | "draft")}
-              className={styles.subFilterSelect}
+              className={shell.filterItem}
             />
             <SearchCapsule
               typeSelector={{
@@ -561,7 +600,7 @@ export default function AdminPostsPage() {
               search={seriesSearch}
               onSearchChange={setSeriesSearch}
               placeholder={t("admin.posts.seriesSearch")}
-              className={styles.subFilterSearch}
+              className={shell.filterSearch}
             />
           </div>
         }
@@ -662,15 +701,26 @@ tags: React`}</code></pre>
           onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
           className={`${shell.filterPageSize} ${styles.filterPageSizeLeft}`}
         />
-        <Select
-          value={sort}
-          options={[
-            { value: "newest", label: t("admin.posts.sortNewest") },
-            { value: "oldest", label: t("admin.posts.sortOldest") },
+        <SegmentedControl
+          items={[
+            { value: "date", label: t("admin.posts.sortDate") },
             { value: "popular", label: t("admin.posts.sortPopular") },
           ]}
-          onChange={(v) => { setSort(v); setPage(1); }}
-          className={shell.filterItem}
+          // 매핑: sort 가 "popular" 면 popular 그룹, 아니면 "date" 그룹 (newest/oldest)
+          value={sort === "popular" ? "popular" : "date"}
+          // dir 화살표 — date 만 의미 (newest=desc, oldest=asc)
+          sortDir={sort === "oldest" ? "asc" : "desc"}
+          onChange={(v) => {
+            if (v === "date") {
+              // popular → date 면 default newest, date 안에서 다시 클릭이면 dir toggle
+              if (sort === "newest") setSort("oldest");
+              else if (sort === "oldest") setSort("newest");
+              else setSort("newest");
+            } else {
+              setSort("popular");
+            }
+            setPage(1);
+          }}
         />
         <Select
           value={filterCategory}

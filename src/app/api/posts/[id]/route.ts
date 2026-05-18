@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensurePostCategory } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
+import { getPopularPostIds } from "@/lib/popularity";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -59,20 +60,30 @@ export async function PATCH(request: Request, context: RouteContext) {
 }
 
 // DELETE /api/posts/[id] — 휴지통으로 이동 (소프트 삭제, admin only)
+// 인기글 (score top 5 — lib/popularity) 은 90일, 일반은 30일 후 자동 영구삭제
 export async function DELETE(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   const { error: authError } = await requireAuth();
   if (authError) return authError;
 
   const admin = createAdminClient();
+  const popularIds = await getPopularPostIds(admin, 5);
+  const isPopular = popularIds.has(id);
+  const retentionDays = isPopular ? 90 : 30;
+  const purgeAfter = new Date(Date.now() + retentionDays * 24 * 60 * 60 * 1000).toISOString();
+
   const { error } = await admin
     .from("posts")
-    .update({ deleted_at: new Date().toISOString(), published: false })
+    .update({
+      deleted_at: new Date().toISOString(),
+      purge_after: purgeAfter,
+      published: false,
+    })
     .eq("id", id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, retentionDays });
 }

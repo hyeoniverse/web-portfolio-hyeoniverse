@@ -26,6 +26,8 @@ export interface Post {
   summary_en: string;
   github_url: string;
   deleted_at?: string | null;
+  /** 휴지통 자동 영구삭제 ISO timestamp — cron 이 도달 시 hard delete */
+  purge_after?: string | null;
   /** ISO timestamp — null/없음=즉시 발행, 미래=cron 이 도달 시 published=true */
   scheduled_at?: string | null;
   related_work_ids?: string[];

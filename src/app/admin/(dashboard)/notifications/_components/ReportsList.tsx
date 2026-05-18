@@ -9,7 +9,7 @@ import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import Button from "@/components/ui/Button";
 import { SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
-import SortGroup from "@/components/ui/SortGroup";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import styles from "../../reports/Reports.module.css";
 
 interface Report {
@@ -145,7 +145,7 @@ export default function ReportsList() {
     <>
       {/* 신고 상태 필터 — pending / resolved / dismissed / all */}
       <div className={styles.reportsFilterRow}>
-        <SortGroup<StatusFilter>
+        <SegmentedControl<StatusFilter>
           items={[
             { value: "pending", label: <T k="admin.reports.filter.pending" /> },
             { value: "resolved", label: <T k="admin.reports.filter.resolved" /> },

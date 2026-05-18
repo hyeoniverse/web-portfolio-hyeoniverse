@@ -115,6 +115,10 @@
   text-align: left;
   width: 100%;
   flex-shrink: 0;
+  /* 한 줄 + ellipsis — 긴 label 잘림 처리 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dropdown .option:hover {

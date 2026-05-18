@@ -104,14 +104,17 @@ export async function GET(request: Request) {
   } else if (sort === "random") {
     // random — 서버에서 정렬은 created_at desc 로 뽑고 JS 가 시드 기반으로 셔플
     query = query.order("created_at", { ascending: false });
-  } else if (sort !== "popular") {
+  } else if (sort === "views") {
+    query = query.order("view_count", { ascending: sortDir === "asc" });
+  } else if (sort === "likes") {
+    query = query.order("like_count", { ascending: sortDir === "asc" });
+  } else if (sort !== "popular" && sort !== "comments") {
     query = query.order("created_at", { ascending: false });
   }
 
-  // popular: 복합 점수 (views + likes*3 + comments*5) → JS 정렬
-  // — 단, 시리즈 필터링 중에는 series_order 가 이미 우선 적용되어 위에서 처리됨
-  if (sort === "popular" && !seriesId) {
-    // Supabase 쿼리 빌더는 .select() chain 호출의 반환 타입을 추론 못 해 unknown 으로 처리 → 좁은 row shape 로 캐스팅
+  // popular / comments: 둘 다 comments(count) join 후 JS 정렬
+  // — 시리즈 필터링 중엔 series_order 가 이미 우선 적용 (위에서 처리)
+  if ((sort === "popular" || sort === "comments") && !seriesId) {
     const selectWithComments = (query as unknown as { select: (cols: string, opts: { count: "exact" }) => unknown })
       .select("*, series:series_id(title, title_en), comments(count)", { count: "exact" });
     const { data: rawData, count: totalCount, error: popError } = (await selectWithComments) as {
@@ -126,7 +129,10 @@ export async function GET(request: Request) {
 
     const scored = (rawData ?? []).map((p) => {
       const commentCount = Array.isArray(p.comments) ? (p.comments[0]?.count ?? 0) : 0;
-      return { ...p, _score: p.view_count + p.like_count * 3 + commentCount * 5, comments: undefined };
+      const score = sort === "comments"
+        ? commentCount
+        : p.view_count + p.like_count * 3 + commentCount * 5;
+      return { ...p, _score: score, comments: undefined };
     });
     scored.sort((a, b) => sortDir === "asc" ? a._score - b._score : b._score - a._score);
 
