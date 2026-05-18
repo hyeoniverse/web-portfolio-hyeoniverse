@@ -15,13 +15,48 @@
   margin-bottom: var(--spacing-2xl);
 }
 
-/* Top row — TAG badge 좌측, toolbar (sort + select) 우측 */
+/* Top row — TAG badge · 검색 · toolbar 한 줄. sticky 로 스크롤 시 filter bar 효과.
+   posts 페이지 filterBar 와 동일 — top, z-index 가 nav 보다 낮아 nav 가 위로 오게 됨. */
 .heroTopRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   gap: var(--spacing-sm);
+  position: sticky;
+  top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl));
+  z-index: 51;
+  padding: var(--spacing-sm) 0;
+  margin-bottom: var(--spacing-md);
+  background: transparent;
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* stuck 상태 — backdrop blur 로 뒤 콘텐츠 살짝 흐리게 + border-bottom */
+.heroTopRowStuck {
+  backdrop-filter: blur(12px);
+  border-bottom: var(--border-light);
+}
+
+/* scroll-down 시 위로 숨김 — (0,2,0) compound 로 global theme transition 우회 */
+.container .heroTopRowHidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+.container .heroTopRow:not(.heroTopRowHidden) {
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+/* 검색창 — heroTopRow 중간, flex grow 로 양쪽 요소 사이 공간 채움 */
+.heroSearch {
+  flex: 1 1 200px;
+  min-width: 0;
+  max-width: 320px;
 }
 
 .heroBadge {
@@ -34,6 +69,12 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.heroBadge:hover {
+  color: var(--text-accent);
 }
 
 .heroTitle {
@@ -98,20 +139,6 @@
 /* ── Pagination ── */
 .pagination {
   margin-top: var(--spacing-2xl);
-}
-
-/* 검색창 너비 제한 — 100% (페이지 전체 폭) 은 과해서 cap 적용 */
-.searchBarTop,
-.searchBarBottom {
-  max-width: 420px;
-}
-
-.searchBarTop {
-  margin-bottom: var(--spacing-md);
-}
-
-.searchBarBottom {
-  margin-top: var(--spacing-xl);
 }
 
 .pageBtn {
