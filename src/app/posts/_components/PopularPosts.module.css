@@ -23,6 +23,28 @@
   flex-shrink: 0;
 }
 
+/* RandomPosts 재섞기 버튼 — label 우측 */
+.shuffleBtn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.2s ease;
+}
+
+.shuffleBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+  transform: rotate(180deg);
+}
+
 .list {
   display: flex;
   flex-direction: column;

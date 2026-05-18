@@ -12,11 +12,12 @@ import CategoryNav from "./_components/CategoryNav";
 import SeriesCard from "./_components/SeriesCard";
 import PostsBanner from "./_components/PostsBanner/PostsBanner";
 import PopularPosts from "./_components/PopularPosts";
+import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
 import TagCloud3D from "./_components/TagCloud3D";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
-import SortGroup from "@/components/ui/SortGroup";
-import { ChevronDown, ChevronUp, BookOpen, LayoutGrid, ArrowUp, Shuffle } from "lucide-react";
+import SegmentedControl from "@/components/ui/SegmentedControl";
+import { ChevronDown, ChevronUp, ChevronRight, BookOpen, LayoutGrid, ArrowUp, Shuffle } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -161,11 +162,13 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [extraCategories] = useState(initialData.extraCategories);
   const [sortBy, setSortBy] = useState<"date" | "popular" | "title" | "random">("date");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  // popular 그룹 안 세부 메트릭 — 종합 / 조회 / 댓글 / 좋아요
+  const [popularSort, setPopularSort] = useState<"score" | "views" | "comments" | "likes">("score");
   const [randomSeed, setRandomSeed] = useState(() => Math.floor(Math.random() * 1e9));
-  // API 호환용 — sortBy + sortDir 를 기존 "newest"/"oldest"/"popular"/"title"/"random" 로 매핑
-  const sort: "newest" | "oldest" | "popular" | "title" | "random" =
+  // API 호환 — sortBy=popular 면 popularSort 메트릭 매핑 (score/views/likes/comments)
+  const sort: "newest" | "oldest" | "popular" | "title" | "random" | "views" | "likes" | "comments" =
     sortBy === "popular"
-      ? "popular"
+      ? (popularSort === "score" ? "popular" : popularSort)
       : sortBy === "title"
         ? "title"
         : sortBy === "random"
@@ -685,6 +688,24 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               })}
             </div>
 
+            {/* popular 활성 시 세부 메트릭 — 사이 화살표 + outline variant (transparent indicator) */}
+            {sortBy === "popular" && (
+              <>
+                <ChevronRight size={14} aria-hidden className={styles.popularSubArrow} />
+                <SegmentedControl<"score" | "views" | "comments" | "likes">
+                  items={[
+                    { value: "score", label: <T k="postsPage.popularScore" /> },
+                    { value: "views", label: <T k="postsPage.popularViews" /> },
+                    { value: "comments", label: <T k="postsPage.popularComments" /> },
+                    { value: "likes", label: <T k="postsPage.popularLikes" /> },
+                  ]}
+                  value={popularSort}
+                  onChange={setPopularSort}
+                  className={styles.popularSubSort}
+                />
+              </>
+            )}
+
             {/* 랜덤 셔플 — sortBy 와 별도 토글 버튼. 누를 때마다 새 시드로 셔플 */}
             <Tooltip
               content={
@@ -764,7 +785,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 {activeCategory && (
                   <span className={styles.seriesCategoryTag}>{activeCategory}</span>
                 )}
-                <SortGroup
+                <SegmentedControl
                   className={styles.seriesSortAlignEnd}
                   items={[
                     { value: "default", label: t("postsPage.seriesSortDefault") },
@@ -939,6 +960,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         {/* ── Sidebar ── */}
         <SidebarWrap barHidden={barHidden}>
           <PopularPosts />
+          <RandomPosts />
           {/* 인기글 바로 아래 — 클릭 시 해당 태그 페이지로 이동 */}
           <TagCloud3D tags={allTags} activeTag={activeTag} />
           <RecentComments />
