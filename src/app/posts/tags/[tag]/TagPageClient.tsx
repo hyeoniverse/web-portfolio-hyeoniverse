@@ -77,17 +77,27 @@ export default function TagPageClient({ tag, initialData }: Props) {
     setPage(1);
   };
 
-  // sort/page/perPage 변경 시 fetch
+  // extraTags 정렬+CSV — Set 자체는 deps 비교 안 됨, key 로 변환
+  const extraTagsKey = useMemo(
+    () => Array.from(extraTags).sort().join(","),
+    [extraTags],
+  );
+
+  // sort/page/perPage/extraTags 변경 시 fetch. 다중 태그면 tags= CSV 사용 (교집합)
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
-        tag,
         sort,
         sortDir,
         page: String(page),
         limit: String(perPage),
       });
+      if (extraTagsKey) {
+        params.set("tags", `${tag},${extraTagsKey}`);
+      } else {
+        params.set("tag", tag);
+      }
       const res = await fetch(`/api/posts?${params}`);
       if (res.ok) {
         const data = await res.json();
@@ -98,20 +108,25 @@ export default function TagPageClient({ tag, initialData }: Props) {
       // noop
     }
     setLoading(false);
-  }, [tag, sort, sortDir, page, perPage]);
+  }, [tag, sort, sortDir, page, perPage, extraTagsKey]);
 
-  // initial data 외 변경 시만 fetch
+  // initial data 외 변경 시만 fetch (extraTags 도 0 일 때만 initial)
   const isInitial =
-    page === 1 && sort === "newest" && sortDir === "desc" && perPage === initialData.perPage;
+    page === 1 && sort === "newest" && sortDir === "desc" && perPage === initialData.perPage && extraTagsKey === "";
   useEffect(() => {
     if (isInitial) return;
     fetchPosts();
   }, [fetchPosts, isInitial]);
 
-  // 검색 + 추가 태그 교집합 — client-side filter.
-  // 페이지네이션은 서버의 단일 tag 결과 기준 — extraTags 적용 시 현 페이지 내 매치만 보임.
+  // extraTags 변경 시 page 1 로 reset (totalPages 재계산 위해)
+  useEffect(() => {
+    setPage(1);
+  }, [extraTagsKey]);
+
+  // 검색 client-side filter (다중 태그 교집합은 서버가 처리)
   const filteredPosts = useMemo(() => {
     const q = search.trim().toLowerCase();
+    if (!q) return posts;
     const matchTitle = (p: Post) =>
       (p.title?.toLowerCase() ?? "").includes(q) ||
       (p.title_en?.toLowerCase() ?? "").includes(q);
@@ -120,20 +135,12 @@ export default function TagPageClient({ tag, initialData }: Props) {
       (p.content_en?.toLowerCase() ?? "").includes(q) ||
       (p.excerpt?.toLowerCase() ?? "").includes(q) ||
       (p.excerpt_en?.toLowerCase() ?? "").includes(q);
-    const extraArr = Array.from(extraTags);
     return posts.filter((p) => {
-      // 추가 태그 — 모두 포함된 post 만 (교집합)
-      if (extraArr.length > 0) {
-        const postTags = (p.tags ?? []) as string[];
-        if (!extraArr.every((t) => postTags.includes(t))) return false;
-      }
-      // 검색어
-      if (!q) return true;
       if (searchType === "title") return matchTitle(p);
       if (searchType === "content") return matchContent(p);
       return matchTitle(p) || matchContent(p);
     });
-  }, [posts, search, searchType, extraTags]);
+  }, [posts, search, searchType]);
 
   return (
     <div className={styles.container}>
