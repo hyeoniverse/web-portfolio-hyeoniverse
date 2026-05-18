@@ -606,29 +606,9 @@ role: 풀스택 개발
         </>
       }
     >
-      {/* Filter bar — 윗줄(sortSearchGroup) + 아랫줄(filter/perPage) wrap */}
+      {/* Filter bar — 윗줄(검색 단독 left) + 아랫줄(sort + filters + perPage) wrap */}
       <div className={shell.filterBar}>
-        <div className={shell.sortSearchGroup}>
-          <SegmentedControl
-            items={[
-              { value: "order", label: t("admin.works.sortOrder") },
-              { value: "date", label: t("admin.works.sortDate") },
-              { value: "name", label: t("admin.works.sortName") },
-            ]}
-            // 매핑: newest/oldest → date, 나머지 그대로
-            value={sort === "newest" || sort === "oldest" ? "date" : sort}
-            sortDir={sort === "oldest" ? "asc" : "desc"}
-            onChange={(v) => {
-              if (v === "date") {
-                if (sort === "newest") setSort("oldest");
-                else if (sort === "oldest") setSort("newest");
-                else setSort("newest");
-              } else {
-                setSort(v);
-              }
-              setPage(1);
-            }}
-          />
+        <div className={shell.searchRow}>
           <SearchCapsule
             typeSelector={{
               value: searchType,
@@ -642,10 +622,29 @@ role: 풀스택 개발
             search={search}
             onSearchChange={(v) => { setSearch(v); setPage(1); }}
             placeholder={t("admin.works.search")}
-            align="right"
             className={shell.filterSearch}
           />
         </div>
+        <SegmentedControl
+          items={[
+            { value: "order", label: t("admin.works.sortOrder") },
+            { value: "date", label: t("admin.works.sortDate") },
+            { value: "name", label: t("admin.works.sortName") },
+          ]}
+          // 매핑: newest/oldest → date, 나머지 그대로
+          value={sort === "newest" || sort === "oldest" ? "date" : sort}
+          sortDir={sort === "oldest" ? "asc" : "desc"}
+          onChange={(v) => {
+            if (v === "date") {
+              if (sort === "newest") setSort("oldest");
+              else if (sort === "oldest") setSort("newest");
+              else setSort("newest");
+            } else {
+              setSort(v);
+            }
+            setPage(1);
+          }}
+        />
         {yearOptions.length > 1 && (
           <Select
             value={filterYear}

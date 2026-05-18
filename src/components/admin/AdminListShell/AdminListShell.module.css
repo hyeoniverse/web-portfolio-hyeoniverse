@@ -144,13 +144,10 @@
   width: 280px;
 }
 
-/* sort group + 검색 묶음 — filterBar 안에서 별도 줄(flex-basis 100%), 오른쪽 정렬 */
-.sortSearchGroup {
+/* 검색 단독 윗줄 — filterBar 안에서 자체 row (flex-basis 100%), 왼쪽 정렬 */
+.searchRow {
   display: flex;
-  align-items: center;
   flex-basis: 100%;
-  justify-content: flex-end;
-  gap: var(--spacing-xs);
 }
 
 /* ── Preview Backdrop (mobile dismiss) ── */

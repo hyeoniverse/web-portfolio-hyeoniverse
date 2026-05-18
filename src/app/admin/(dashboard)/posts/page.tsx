@@ -693,30 +693,9 @@ tags: React`}</code></pre>
       beforeTable={!loading ? seriesSection : undefined}
       afterTable={!loading ? trashSection : undefined}
     >
-      {/* Filter bar — 윗줄(sortSearchGroup) + 아랫줄(filter/perPage) wrap */}
+      {/* Filter bar — 윗줄(검색 단독 left) + 아랫줄(sort + filters + perPage) wrap */}
       <div className={shell.filterBar}>
-        <div className={shell.sortSearchGroup}>
-          <SegmentedControl
-            items={[
-              { value: "date", label: t("admin.posts.sortDate") },
-              { value: "popular", label: t("admin.posts.sortPopular") },
-            ]}
-            // 매핑: sort 가 "popular" 면 popular 그룹, 아니면 "date" 그룹 (newest/oldest)
-            value={sort === "popular" ? "popular" : "date"}
-            // dir 화살표 — date 만 의미 (newest=desc, oldest=asc)
-            sortDir={sort === "oldest" ? "asc" : "desc"}
-            onChange={(v) => {
-              if (v === "date") {
-                // popular → date 면 default newest, date 안에서 다시 클릭이면 dir toggle
-                if (sort === "newest") setSort("oldest");
-                else if (sort === "oldest") setSort("newest");
-                else setSort("newest");
-              } else {
-                setSort("popular");
-              }
-              setPage(1);
-            }}
-          />
+        <div className={shell.searchRow}>
           <SearchCapsule
             typeSelector={{
               value: searchType,
@@ -730,10 +709,30 @@ tags: React`}</code></pre>
             search={search}
             onSearchChange={(v) => { setSearch(v); setPage(1); }}
             placeholder={t("admin.posts.search")}
-            align="right"
             className={shell.filterSearch}
           />
         </div>
+        <SegmentedControl
+          items={[
+            { value: "date", label: t("admin.posts.sortDate") },
+            { value: "popular", label: t("admin.posts.sortPopular") },
+          ]}
+          // 매핑: sort 가 "popular" 면 popular 그룹, 아니면 "date" 그룹 (newest/oldest)
+          value={sort === "popular" ? "popular" : "date"}
+          // dir 화살표 — date 만 의미 (newest=desc, oldest=asc)
+          sortDir={sort === "oldest" ? "asc" : "desc"}
+          onChange={(v) => {
+            if (v === "date") {
+              // popular → date 면 default newest, date 안에서 다시 클릭이면 dir toggle
+              if (sort === "newest") setSort("oldest");
+              else if (sort === "oldest") setSort("newest");
+              else setSort("newest");
+            } else {
+              setSort("popular");
+            }
+            setPage(1);
+          }}
+        />
         <Select
           value={filterCategory}
           options={[
