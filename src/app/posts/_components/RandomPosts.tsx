@@ -54,12 +54,10 @@ export default function RandomPosts() {
               <div className={styles.titleRow}>
                 <span className={styles.itemTitle}>{post.title}</span>
               </div>
-              {(post.view_count > 0 || post.like_count > 0) && (
-                <span className={styles.itemMeta}>
-                  {post.view_count} <T k="postsPage.views" />
-                  {post.like_count > 0 && <> &middot; {post.like_count} <T k="postsPage.likes" /></>}
-                </span>
-              )}
+              <span className={styles.itemMeta}>
+                {post.view_count} <T k="postsPage.views" />
+                {post.like_count > 0 && <> &middot; {post.like_count} <T k="postsPage.likes" /></>}
+              </span>
             </div>
           </div>
         ))}

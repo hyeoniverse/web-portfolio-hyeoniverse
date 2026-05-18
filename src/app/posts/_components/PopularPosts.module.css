@@ -23,25 +23,22 @@
   flex-shrink: 0;
 }
 
-/* RandomPosts 재섞기 버튼 — label 우측 */
+/* RandomPosts 재섞기 버튼 — label 우측. 아이콘만 (border 제거) — label 높이에 영향 X */
 .shuffleBtn {
   margin-left: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
+  padding: 0;
+  border: 0;
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, transform 0.2s ease;
+  transition: color 0.15s ease, transform 0.2s ease;
 }
 
 .shuffleBtn:hover {
   color: var(--text-primary);
-  border-color: var(--text-primary);
   transform: rotate(180deg);
 }
 
