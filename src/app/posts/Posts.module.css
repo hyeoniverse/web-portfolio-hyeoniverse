@@ -953,9 +953,9 @@
     display: none;
   }
 
-  /* 태블릿 — 2 col (12 셀 / 2 = 6행 정확히 떨어짐) */
+  /* 태블릿 — 3 col 고정 (auto-fit 이 좁은 폭에서 4 col 잡는 거 방지) */
   .grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
