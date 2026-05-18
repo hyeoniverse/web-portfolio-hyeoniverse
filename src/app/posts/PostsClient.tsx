@@ -140,7 +140,16 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     });
   }, []);
   const clearActiveTags = useCallback(() => setActiveTags(new Set()), []);
-  const [allTags] = useState(initialData.allTags);
+  // dev 전용 — 무한 스크롤 테스트용 더미 태그. allTags 가 충분히 많은 환경이면 제거.
+  const [allTags] = useState(() => {
+    const real = initialData.allTags;
+    if (real.length >= 50) return real;
+    const dummies = Array.from({ length: 100 }, (_, i) => ({
+      tag: `dummy-tag-${i + 1}`,
+      count: Math.floor(Math.random() * 20) + 1,
+    }));
+    return [...real, ...dummies];
+  });
   const [extraCategories] = useState(initialData.extraCategories);
   const [sortBy, setSortBy] = useState<"date" | "popular" | "title" | "random">("date");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
@@ -597,9 +606,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       </AnimatePresence>
 
       {/* ── Filter Bar (Category tabs + Search + Sort) ── */}
+      {/* tags/categories 펼친 상태에선 filter bar 안 숨김 (사용자 인터랙션 중) */}
       <div
         ref={filterBarRef}
-        className={`${styles.filterBar} ${barHidden ? styles.filterBarHidden : ""}`}
+        className={`${styles.filterBar} ${barHidden && !showTags && !catExpanded ? styles.filterBarHidden : ""}`}
       >
         {/* 검색 capsule — 별도 윗줄에 우측 정렬 (공통 SearchCapsule 사용) */}
         <div className={styles.filterBarSearchRow}>
