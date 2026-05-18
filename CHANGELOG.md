@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.7.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.6.0...v1.7.0) (2026-05-18)
+
+
+### Features
+
+* **admin:** SegmentedControl rename + 휴지통 TTL + 인기 통합 ([142b6ac](https://github.com/hyeoniverse/web-portfolio-oval/commit/142b6acf60fc62499a3fb08c85b8b8554c54360a)), closes [#83](https://github.com/hyeoniverse/web-portfolio-oval/issues/83)
+* **posts:** 사이드바 랜덤 글 + 인기 sub-sort (조회/댓글/좋아요) ([f3e02d3](https://github.com/hyeoniverse/web-portfolio-oval/commit/f3e02d352cc69257e603b09ffd9fa4f878368b93)), closes [#85](https://github.com/hyeoniverse/web-portfolio-oval/issues/85)
+* **ui:** Pagination 에 jump-to input 추가 (showJump prop, default on) + capsule ([d13717d](https://github.com/hyeoniverse/web-portfolio-oval/commit/d13717d9bd2e4922dbb364163d5de72531eeaefb))
+
 ## [1.6.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.5.0...v1.6.0) (2026-05-18)
 
 
