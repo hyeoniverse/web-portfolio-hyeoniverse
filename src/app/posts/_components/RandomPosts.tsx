@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Post } from "@/types/post";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
-import { Shuffle } from "lucide-react";
+import { Shuffle, RefreshCw } from "lucide-react";
 import T from "@/components/ui/T";
 import styles from "./PopularPosts.module.css";
 
@@ -33,10 +33,10 @@ export default function RandomPosts() {
           type="button"
           className={styles.shuffleBtn}
           onClick={(e) => { e.stopPropagation(); setSeed(Math.floor(Math.random() * 1e9)); }}
-          aria-label="Shuffle"
+          aria-label="Refresh"
           title="다시 섞기"
         >
-          <Shuffle size={11} strokeWidth={2} />
+          <RefreshCw size={11} strokeWidth={2} />
         </button>
       </div>
       <div className={styles.list} data-more="true" data-clickable="true">

@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tag } = await params;
   const decoded = decodeURIComponent(tag);
   return {
-    title: `#${decoded} — 태그 게시물`,
+    title: { absolute: `Hyeoniverse | #${decoded}` },
     description: `"${decoded}" 태그가 달린 게시물 모음`,
   };
 }
