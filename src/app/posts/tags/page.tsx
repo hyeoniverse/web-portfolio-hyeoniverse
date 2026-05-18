@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "태그 모음",
+  title: { absolute: "Hyeoniverse | Tags" },
   description: "모든 태그 목록",
 };
 

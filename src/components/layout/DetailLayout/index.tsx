@@ -93,7 +93,6 @@ export default function DetailLayout({
 
     return () => {
       clearTimeout(timer);
-      setInfinite(true);
     };
   }, [setInfinite, lenis, stop, start]);
 

@@ -105,7 +105,6 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
     const timer = setTimeout(() => ScrollTrigger.refresh(), 100);
     return () => {
       clearTimeout(timer);
-      setInfinite(true);
     };
   }, [setInfinite]);
 

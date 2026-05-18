@@ -258,11 +258,13 @@
   padding: var(--spacing-sm) 0 var(--spacing-md);
 }
 
-/* Tag filter row */
+/* Tag filter row — 태그 많을 때 max-height + 내부 scroll. viewport 짤림 방지. */
 .tagRow {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
+  max-height: 220px;
+  overflow-y: auto;
 }
 
 .tagBtn {
@@ -305,6 +307,31 @@
   background: var(--bg-inverse);
   border-color: var(--bg-inverse);
   color: var(--text-inverse);
+}
+
+/* "전체 태그" 페이지 이동 링크 — tag pill 들 가장 끝 오른쪽. border 없이 옅게, hover 시 강조 */
+.tagAllLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--box-2xs-md);
+  margin-left: auto;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.tagAllLink:hover {
+  color: var(--text-primary);
+  transform: translateX(2px);
+}
+
+/* 무한 스크롤 sentinel — IntersectionObserver target. 시각적으로 표시 안 됨 */
+.tagSentinel {
+  flex: 0 0 1px;
+  height: 1px;
 }
 
 /* ── Content Area (2-column) ── */
@@ -471,9 +498,14 @@
   transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* series sort 는 seriesLabel flex row 의 우측 끝으로 push */
+/* series sort 는 seriesLabel flex row 의 우측 끝으로 push.
+   size 는 filter bar 의 sortGroup 과 동일 (font-2xs + box-sm) — SegmentedControl 의 기본보다 작음. */
 .seriesSortAlignEnd {
   margin-left: auto;
+}
+.seriesSortAlignEnd button {
+  padding: var(--box-sm);
+  font-size: var(--font-size-2xs);
 }
 
 /* 책 표지를 가로로 나열 — 좌우 끝에 mask gradient 로 스크롤 가능 표시.
@@ -635,26 +667,52 @@
 
 /* ── Grid masonry ── grid-auto-rows: 1px + JS 가 각 아이템의 height 를 측정해
    grid-row: span N 을 inline style 로 부여. 너비 변주(wide span 2) + 세로 packing 둘 다 된다.
-   GAP 은 --bento-gap 변수로 통일 (JS 도 동일 값 참조). */
+   GAP 은 --bento-gap 변수로 통일 (JS 도 동일 값 참조).
+   columns 는 auto-fit + minmax 로 viewport 따라 fluid — col 폭이 220-300px 범위 유지 →
+   wide 가 2-col span 해도 절대 폭이 절대 폭이 일정. */
 .grid {
   --bento-gap: var(--spacing-lg);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   grid-auto-rows: 1px;
   grid-auto-flow: dense;
   gap: var(--bento-gap);
 }
 
-@media (min-width: 1280px) {
-  .grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+/* fetch 중 — 기존 카드 그대로 두고 dim 만. height 변화 없음 → 완전 고정 레이아웃 */
+.grid.gridLoading {
+  opacity: 0.55;
+  transition: opacity var(--duration-base) var(--ease-material);
+  pointer-events: none;
 }
 
-@media (min-width: 1680px) {
-  .grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
+/* 상단 indeterminate progress bar — fetch 시 시각적 신호 (NProgress 패턴) */
+.topProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 9999;
+  background: transparent;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.topProgress::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 35%;
+  background: var(--text-accent);
+  animation: topProgressSlide 1.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes topProgressSlide {
+  0% { left: -35%; }
+  50% { left: 50%; }
+  100% { left: 100%; }
 }
 
 /* 시리즈 필터링 중 — 단일 컬럼 timeline 레이아웃. 큰 step 번호 + 연결선 + 좌측 작은 썸네일 */
@@ -728,21 +786,26 @@
   padding-top: 0 !important;
 }
 
-/* gridSeries 안의 .gridItem 은 flex 자식이라 기존 grid-column/row 룰 무시 */
-.gridSeries .gridWide,
-.gridSeries .gridTall {
-  grid-column: auto !important;
-  grid-row: auto !important;
-}
-
 .gridItem {
   animation: cardFadeIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) both;
   /* grid-row: span N 은 JS 에서 inline style 로 동적 부여 */
 }
 
-/* wide — 가로 2칸 span. 세로 height 는 JS 측정값으로 자동 packing */
+/* wide / banner — 가로 2 col span. auto-fit 으로 col 폭이 ~220-300px 라 wide 도 항상 적당한 크기 (440-600px). */
 .gridWide {
   grid-column: span 2;
+}
+
+/* gridSeries 안의 .gridItem 은 flex 자식이라 기존 grid-column/row 룰 무시 */
+.gridSeries .gridWide {
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+
+/* ghost — 마지막 페이지 underfill 패딩용. layout 공간만 차지 (shimmer 등 invisible) */
+.gridItemGhost {
+  visibility: hidden;
+  animation: none !important;
 }
 
 .gridItem:nth-child(1) { animation-delay: 0s; }
@@ -826,16 +889,42 @@
   padding-bottom: var(--spacing-lg);
 }
 
-.skeletonCard > :first-child {
-  width: 100%;
+/* image area — SkeletonBlock 의 radius-md 를 0 으로, height 는 aspect-ratio 가 결정.
+   SkeletonBlock 이 inline style 로 width:100% 만 주고 height 미지정 → CSS aspect-ratio 가 height 계산 */
+.skeletonImage.skeletonImage {
+  border-radius: 0;
+}
+
+/* PostCard variants 와 동일한 aspect-ratio — height 매칭 */
+.skeletonAspectDefault {
   aspect-ratio: 16 / 10;
 }
 
+.skeletonAspectBanner {
+  aspect-ratio: 21 / 9;
+}
+
+.skeletonAspectSquare {
+  aspect-ratio: 1 / 1;
+}
+
+.skeletonAspectPortrait {
+  aspect-ratio: 3 / 4;
+}
+
+/* body — PostCard .body 와 동일 (gap-xs, padding-md top, flex column) */
 .skeletonCardBody {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
   padding: var(--spacing-md) 0 0;
+}
+
+/* tags row — pill 들 가로 배치 */
+.skeletonTagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
 }
 
 /* ── Responsive ── */
@@ -906,18 +995,10 @@
 }
 
 @media (max-width: 640px) {
-  /* 모바일 — 2 col, 좁은 gap. wide/banner 모두 1셀 → 모양 통일 */
+  /* 모바일 — 2 col, 좁은 gap */
   .grid {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-sm);
-  }
-
-  .gridWide {
-    grid-column: span 1;
-  }
-
-  .gridWide [class*="imageWrap"] {
-    aspect-ratio: 16 / 10 !important;
   }
 
   /* 시리즈 timeline — 모바일에선 번호 영역 좁게 + 썸네일도 더 작게 */

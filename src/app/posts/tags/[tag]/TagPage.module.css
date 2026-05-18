@@ -66,10 +66,11 @@
   transition: transform 0.3s ease, opacity 0.2s ease;
 }
 
-/* 검색창 — toolbar 안 왼쪽 (grow X). 오른쪽 정렬은 .toolbarRight 의 margin-left: auto 로 처리 */
+/* 검색창 — toolbar 안 오른쪽 끝으로 push */
 .heroSearch {
   flex: 0 0 auto;
   max-width: 360px;
+  margin-left: auto;
 }
 
 .heroBadge {
@@ -137,12 +138,18 @@
   font-size: var(--font-size-2xs) !important;
 }
 
-/* sort + perPage 묶음 — toolbar 의 오른쪽 끝으로 밀어냄 */
-.toolbarRight {
+/* sort + perPage 묶음 — toolbar 왼쪽 */
+.toolbarLeft {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  margin-left: auto;
+}
+
+/* SegmentedControl 의 기본 height (font-xs + padding-2xs/md) 가 search/select 보다 큼 →
+   filter bar size 와 통일 (font-2xs + box-sm) */
+.toolbarLeft button {
+  padding: var(--box-sm);
+  font-size: var(--font-size-2xs);
 }
 
 /* perPage Select — fit-content (콘텐츠 너비) + SortGroup btn 과 동일 padding/font */

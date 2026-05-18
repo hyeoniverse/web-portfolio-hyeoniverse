@@ -63,7 +63,6 @@ export default function TagPageClient({ tag, initialData }: Props) {
   // Lenis infinite scroll 끄기 — 이 페이지에선 자연스러운 끝(페이지네이션) 도달 필요
   useEffect(() => {
     setInfinite(false);
-    return () => setInfinite(true);
   }, [setInfinite]);
 
   // 같은 sort 다시 클릭 → dir toggle, 다른 sort → default desc
@@ -159,23 +158,7 @@ export default function TagPageClient({ tag, initialData }: Props) {
           <span>TAG</span>
         </Link>
         <div className={styles.toolbar}>
-          <SearchCapsule
-            search={search}
-            onSearchChange={setSearch}
-            align="left"
-            placeholder="이 태그 안에서 검색…"
-            className={styles.heroSearch}
-            typeSelector={{
-              value: searchType,
-              options: [
-                { value: "all", label: "제목+내용" },
-                { value: "title", label: "제목" },
-                { value: "content", label: "내용" },
-              ],
-              onChange: (v) => setSearchType(v as "all" | "title" | "content"),
-            }}
-          />
-          <div className={styles.toolbarRight}>
+          <div className={styles.toolbarLeft}>
             <SegmentedControl<Sort>
               items={[
                 { value: "newest", label: "최신순" },
@@ -193,6 +176,22 @@ export default function TagPageClient({ tag, initialData }: Props) {
               onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
             />
           </div>
+          <SearchCapsule
+            search={search}
+            onSearchChange={setSearch}
+            align="right"
+            placeholder="이 태그 안에서 검색…"
+            className={styles.heroSearch}
+            typeSelector={{
+              value: searchType,
+              options: [
+                { value: "all", label: "제목+내용" },
+                { value: "title", label: "제목" },
+                { value: "content", label: "내용" },
+              ],
+              onChange: (v) => setSearchType(v as "all" | "title" | "content"),
+            }}
+          />
         </div>
       </div>
 

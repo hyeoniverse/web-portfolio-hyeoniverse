@@ -12,7 +12,6 @@ export default function AccessDeniedPage() {
 
   useEffect(() => {
     setInfinite(false);
-    return () => setInfinite(true);
   }, [setInfinite]);
 
   return (

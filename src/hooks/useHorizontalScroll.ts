@@ -125,11 +125,9 @@ export function useHorizontalScroll(
   );
 
   // ── Lenis 무한 스크롤 비활성화 ──
-  // BreakpointGuard 리마운트 시 old cleanup(setInfinite(true)) 이후
-  // paint 전에 즉시 infinite=false 복원
+  // 무한 스크롤은 기본 OFF — opt-in 방식이라 cleanup 복원 불필요
   useLayoutEffect(() => {
     setInfinite(false);
-    return () => setInfinite(true);
   }, [setInfinite]);
 
   // 리사이즈 시 infinite=false 재적용 — LenisProvider의 resize 핸들러가

@@ -48,7 +48,6 @@ export default function AdminListShell({
     }, 50);
     return () => {
       clearTimeout(timer);
-      setInfinite(true);
     };
   }, [setInfinite, lenis, stop, start]);
 

@@ -32,7 +32,6 @@ export default function CinematicLayout({ projects, onProjectClick }: WorksLayou
 
   useEffect(() => {
     setInfinite(false);
-    return () => setInfinite(true);
   }, [setInfinite]);
 
   useLayoutEffect(() => {

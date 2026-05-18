@@ -18,7 +18,6 @@ export default function EditPostPage() {
 
   useEffect(() => {
     setInfinite(false);
-    return () => { setInfinite(true); };
   }, [setInfinite]);
 
   useEffect(() => {

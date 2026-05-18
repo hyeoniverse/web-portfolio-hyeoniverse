@@ -85,7 +85,6 @@ export default function EditWorkPage() {
 
   useEffect(() => {
     setInfinite(false);
-    return () => { setInfinite(true); };
   }, [setInfinite]);
 
   useEffect(() => {
