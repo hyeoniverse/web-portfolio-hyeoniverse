@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Monitor, Smartphone, Tablet, Check, Trash2 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import T from "@/components/ui/T";
@@ -10,9 +11,20 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import TextLink from "@/components/ui/TextLink";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import { parseUA } from "@/lib/auth/uaParser";
 import type { AccountTabProps } from "../_types";
 import Field from "./SettingsFormFields";
 import styles from "../Settings.module.css";
+
+interface DeviceRow {
+  id: string;
+  user_agent: string;
+  ip_address: string;
+  approved: boolean;
+  first_seen_at: string;
+  last_seen_at: string;
+  isCurrent: boolean;
+}
 
 export default function AccountTab({
   accountEmail,
@@ -36,12 +48,74 @@ export default function AccountTab({
   passwordPolicy,
   onPasswordPolicyChange,
 }: AccountTabProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const router = useRouter();
   const { openModal } = useModalStore();
   const [resending, setResending] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [signingOutAll, setSigningOutAll] = useState(false);
+  const [devices, setDevices] = useState<DeviceRow[]>([]);
+  const [devicesLoading, setDevicesLoading] = useState(true);
+
+  const fetchDevices = useCallback(async () => {
+    setDevicesLoading(true);
+    try {
+      const res = await fetch("/api/admin/auth/devices");
+      const data = await res.json();
+      if (res.ok) setDevices(data.devices ?? []);
+    } catch {
+      setDevices([]);
+    }
+    setDevicesLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchDevices();
+  }, [fetchDevices]);
+
+  const handleRevokeDevice = useCallback(
+    (device: DeviceRow) => {
+      openModal(
+        <ModalConfirm
+          desc={t(device.isCurrent ? "admin.settings.revokeCurrentDeviceDesc" : "admin.settings.revokeDeviceDesc")}
+          cancelText={t("admin.settings.cancel")}
+          confirmText={t("admin.settings.revokeDevice")}
+          danger
+          onConfirm={async () => {
+            await fetch(`/api/admin/auth/devices/${device.id}`, { method: "DELETE" });
+            fetchDevices();
+          }}
+        />,
+        {
+          id: "revoke-device",
+          header: { title: t("admin.settings.revokeDeviceTitle") },
+          closeButton: true,
+          width: "420px",
+        },
+      );
+    },
+    [t, openModal, fetchDevices],
+  );
+
+  const formatRelative = (iso: string) => {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diffMs / 60_000);
+    if (mins < 1) return language === "ko" ? "방금 전" : "just now";
+    if (mins < 60) return language === "ko" ? `${mins}분 전` : `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return language === "ko" ? `${hours}시간 전` : `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return language === "ko" ? `${days}일 전` : `${days}d ago`;
+    return new Date(iso).toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", {
+      year: "numeric", month: "short", day: "numeric",
+    });
+  };
+
+  const deviceIcon = (kind: "mobile" | "tablet" | "desktop") => {
+    if (kind === "mobile") return <Smartphone size={16} strokeWidth={1.6} />;
+    if (kind === "tablet") return <Tablet size={16} strokeWidth={1.6} />;
+    return <Monitor size={16} strokeWidth={1.6} />;
+  };
 
   const handleSignOutAll = useCallback(() => {
     openModal(
@@ -267,6 +341,64 @@ export default function AccountTab({
         <ul className={styles.sectionHintList}>
           <li><T k="admin.settings.signOutAllHint" /></li>
         </ul>
+
+        {/* 등록된 기기 목록 — admin_known_devices */}
+        <div className={styles.devicesWrap}>
+          <div className={styles.devicesHeader}>
+            <span className={styles.devicesTitle}>
+              <T k="admin.settings.devicesTitle" />
+            </span>
+            <span className={styles.devicesCount}>{devices.length}</span>
+          </div>
+          {devicesLoading ? (
+            <div className={styles.devicesEmpty}><T k="admin.settings.devicesLoading" /></div>
+          ) : devices.length === 0 ? (
+            <div className={styles.devicesEmpty}><T k="admin.settings.devicesEmpty" /></div>
+          ) : (
+            <ul className={styles.devicesList}>
+              {devices.map((d) => {
+                const p = parseUA(d.user_agent);
+                return (
+                  <li
+                    key={d.id}
+                    className={`${styles.deviceRow} ${d.isCurrent ? styles.deviceCurrent : ""} ${!d.approved ? styles.devicePending : ""}`}
+                  >
+                    <span className={styles.deviceIcon}>{deviceIcon(p.device)}</span>
+                    <div className={styles.deviceInfo}>
+                      <div className={styles.deviceName}>
+                        {p.browser} · {p.os}
+                        {d.isCurrent && (
+                          <span className={styles.deviceCurrentBadge}>
+                            <Check size={10} strokeWidth={2.5} />
+                            <T k="admin.settings.deviceCurrentBadge" />
+                          </span>
+                        )}
+                        {!d.approved && (
+                          <span className={styles.devicePendingBadge}>
+                            <T k="admin.settings.devicePendingBadge" />
+                          </span>
+                        )}
+                      </div>
+                      <div className={styles.deviceMeta}>
+                        {d.ip_address && <span>{d.ip_address}</span>}
+                        <span>{formatRelative(d.last_seen_at)}</span>
+                      </div>
+                    </div>
+                    <button
+                      className={styles.deviceRevokeBtn}
+                      onClick={() => handleRevokeDevice(d)}
+                      aria-label={t("admin.settings.revokeDevice")}
+                      title={t("admin.settings.revokeDevice")}
+                    >
+                      <Trash2 size={13} strokeWidth={1.6} />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
         <div className={styles.fields}>
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}><T k="admin.settings.signOutAllLabel" /></label>

@@ -574,6 +574,149 @@
   }
 }
 
+/* ── Devices list — 보안 section, admin_known_devices 표시 ── */
+.devicesWrap {
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.devicesHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+}
+
+.devicesTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.devicesCount {
+  padding: 0 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-jetbrains);
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.devicesEmpty {
+  padding: var(--spacing-md) 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.devicesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: var(--border-light);
+}
+
+.deviceRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+  border-bottom: var(--border-light);
+}
+
+.deviceIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-circle);
+  border: var(--border-light);
+  color: var(--text-secondary);
+}
+
+.deviceCurrent .deviceIcon {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}
+
+.deviceInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.deviceName {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.deviceCurrentBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-light);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.devicePendingBadge {
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.deviceMeta {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: 2px;
+  font-family: var(--font-jetbrains);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+.deviceRevokeBtn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.deviceRevokeBtn:hover {
+  color: var(--text-danger, var(--text-accent));
+  background: var(--bg-secondary);
+}
+
 /* ── Field Row (label / input — label 위, input 아래) ── */
 .fieldRow {
   display: flex;
