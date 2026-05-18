@@ -9,7 +9,7 @@ import type { SettingsTabProps } from "../_types";
 import { ColorField } from "./SettingsFormFields";
 import FontSelect from "./FontSelect";
 import SectionHeader from "./SectionHeader";
-import SortGroup from "@/components/ui/SortGroup";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import { THEME_PRESETS } from "../_data/settingsConstants";
 import styles from "../Settings.module.css";
 
@@ -100,7 +100,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
       {/* Date Picker Style */}
       <section className={styles.section}>
         <SectionHeader title={t("admin.settings.datePickerStyle")} paths={["datePickerStyle"]} {...sh} />
-        <SortGroup<"spinner" | "calendar">
+        <SegmentedControl<"spinner" | "calendar">
           items={[
             { value: "spinner", label: <T k="admin.settings.datePickerSpinner" /> },
             { value: "calendar", label: <T k="admin.settings.datePickerCalendar" /> },

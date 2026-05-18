@@ -1,13 +1,18 @@
 /**
  * Soft-delete 후 자동 영구삭제까지 보관 기간 (일).
- * cron/publish-scheduled 와 동기화 필요.
+ * Default fallback — purge_after column 이 NULL 인 legacy row 용.
+ * 실제 cron 은 row 의 purge_after 를 직접 비교 (인기글 90일 / 일반 30일 / 연장 가변).
  */
 const TRASH_RETENTION_DAYS = 30;
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-/** deleted_at ISO 문자열로부터 자동 영구삭제까지 남은 일수 (음수가 되면 0 으로 clamp) */
-export function getTrashDaysLeft(deletedAt: string): number {
+/** purge_after (우선) 또는 deleted_at + 30일 (legacy) 기준 남은 일수 */
+export function getTrashDaysLeft(deletedAt: string, purgeAfter?: string | null): number {
+  if (purgeAfter) {
+    const remain = new Date(purgeAfter).getTime() - Date.now();
+    return Math.max(0, Math.ceil(remain / MS_PER_DAY));
+  }
   const deleted = new Date(deletedAt).getTime();
   const expiresAt = deleted + TRASH_RETENTION_DAYS * MS_PER_DAY;
   return Math.max(0, Math.ceil((expiresAt - Date.now()) / MS_PER_DAY));

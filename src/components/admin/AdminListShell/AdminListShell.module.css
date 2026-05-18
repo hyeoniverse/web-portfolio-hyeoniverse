@@ -104,8 +104,9 @@
 }
 
 .filterItem button {
-  padding: 0 var(--spacing-md);
+  padding: var(--spacing-2xs) var(--spacing-md);
   font-size: var(--font-size-xs);
+  border-color: var(--border-default-color);
 }
 
 .filterPageSize {
@@ -116,8 +117,9 @@
 }
 
 .filterPageSize button {
-  padding: 0 var(--spacing-md);
+  padding: var(--spacing-2xs) var(--spacing-md);
   font-size: var(--font-size-xs);
+  border-color: var(--border-default-color);
 }
 
 .filterReset {

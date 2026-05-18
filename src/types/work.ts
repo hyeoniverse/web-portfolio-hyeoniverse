@@ -47,6 +47,8 @@ export interface Work {
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
+  /** 휴지통 자동 영구삭제 ISO timestamp */
+  purge_after?: string | null;
   summary_ko: string;
   summary_en: string;
   /** ISO timestamp — null/없음=즉시 발행, 미래=cron 이 도달 시 published=true */

@@ -131,15 +131,22 @@ export async function PATCH(request: Request, context: RouteContext) {
 }
 
 // DELETE /api/works/[id] — 휴지통으로 이동 (소프트 삭제, admin only)
+// works 는 view/like 카운터 없음 → 일률 30일 후 자동 영구삭제
 export async function DELETE(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   const { error: authError } = await requireAuth();
   if (authError) return authError;
 
   const admin = createAdminClient();
+  const purgeAfter = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
   const { error } = await admin
     .from("works")
-    .update({ deleted_at: new Date().toISOString(), published: false })
+    .update({
+      deleted_at: new Date().toISOString(),
+      purge_after: purgeAfter,
+      published: false,
+    })
     .eq("id", id);
 
   if (error) {

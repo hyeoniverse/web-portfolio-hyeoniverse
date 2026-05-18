@@ -91,54 +91,9 @@
 
 
 
-/* ── Sub-filter bar (series / trash) — main filterBar 와 동일한 spacing 으로 통일 ── */
-.subFilterBar {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: var(--spacing-md);
-  padding: var(--spacing-sm) 0;
-}
-
-.subFilterSearch {
-  flex: 0 1 auto;
-  min-width: 240px;
-  max-width: 320px;
-}
-
-@media (max-width: 1024px) {
-  .subFilterBar {
-    flex-wrap: wrap;
-  }
-  .subFilterBar .subFilterSearch {
-    flex-basis: 100%;
-    max-width: none;
-    margin-top: var(--spacing-xs);
-  }
-}
-
-.subPageSize {
-  flex: 0 0 auto;
-  min-width: 60px;
-  max-width: 80px;
-}
-
-.subPageSize button {
-  padding: 0 var(--spacing-md);
-  font-size: var(--font-size-xs);
-}
-
-.subFilterSelect {
-  flex: 0 1 auto;
-  min-width: 100px;
-  max-width: 160px;
-}
-
-.subFilterSelect button {
-  padding: 0 var(--spacing-md);
-  font-size: var(--font-size-xs);
-}
+/* sub-filter bar (series / trash) — main 과 동일한 shell.filterBar /
+   shell.filterPageSize / shell.filterItem / shell.filterSearch 클래스를
+   재사용. 별도 sub* 클래스 정의 안 함. */
 
 /* ── Upload Guide Modal ── */
 .uploadGuide {
