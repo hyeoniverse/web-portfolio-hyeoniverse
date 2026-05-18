@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { Hash } from "lucide-react";
 import type { Post } from "@/types/post";
 import type { TagPageData } from "@/lib/posts";
 import { useLenis } from "@/providers/LenisProvider";
+import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
 import PostCard from "../../_components/PostCard";
 import SortGroup from "@/components/ui/SortGroup";
 import Select from "@/components/ui/Select";
@@ -56,66 +57,14 @@ export default function TagPageClient({ tag, initialData }: Props) {
     });
   };
 
-  // ── Sticky filter bar (heroTopRow) — posts 페이지와 동일 패턴 ──
-  const [isStuck, setIsStuck] = useState(false);
-  const [barHidden, setBarHidden] = useState(false);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const filterBarRef = useRef<HTMLDivElement>(null);
-  const isStuckRef = useRef(false);
-  const lastScrollY = useRef(0);
+  // Sticky filter bar — 공통 hook
+  const { sentinelRef, filterBarRef, isStuck, barHidden } = useStickyFilterBar();
 
   // Lenis infinite scroll 끄기 — 이 페이지에선 자연스러운 끝(페이지네이션) 도달 필요
   useEffect(() => {
     setInfinite(false);
     return () => setInfinite(true);
   }, [setInfinite]);
-
-  // sentinel 이 stickyTop 라인을 넘는 순간 = stuck
-  useEffect(() => {
-    const el = sentinelRef.current;
-    const fb = filterBarRef.current;
-    if (!el || !fb) return;
-    let observer: IntersectionObserver | null = null;
-    const setup = () => {
-      observer?.disconnect();
-      const stickyTop = parseFloat(window.getComputedStyle(fb).top) || 0;
-      observer = new IntersectionObserver(
-        ([entry]) => {
-          const stuck = !entry.isIntersecting;
-          isStuckRef.current = stuck;
-          setIsStuck(stuck);
-          if (!stuck) setBarHidden(false);
-        },
-        { rootMargin: `-${stickyTop + 1}px 0px 0px 0px`, threshold: 0 },
-      );
-      observer.observe(el);
-    };
-    setup();
-    window.addEventListener("resize", setup);
-    return () => {
-      observer?.disconnect();
-      window.removeEventListener("resize", setup);
-    };
-  }, []);
-
-  // scroll-down → bar hide / scroll-up → show (stuck 일 때만)
-  useEffect(() => {
-    const threshold = 3;
-    let accumulated = 0;
-    const triggerDist = 15;
-    const handleScroll = () => {
-      const y = window.scrollY;
-      const delta = y - lastScrollY.current;
-      lastScrollY.current = y;
-      if (!isStuckRef.current) { accumulated = 0; return; }
-      if ((accumulated > 0 && delta < -threshold) || (accumulated < 0 && delta > threshold)) accumulated = 0;
-      accumulated += delta;
-      if (accumulated > triggerDist) { setBarHidden(true); accumulated = 0; }
-      else if (accumulated < -triggerDist) { setBarHidden(false); accumulated = 0; }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // 같은 sort 다시 클릭 → dir toggle, 다른 sort → default desc
   const handleSortChange = (v: Sort) => {
