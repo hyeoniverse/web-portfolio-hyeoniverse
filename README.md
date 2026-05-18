@@ -100,7 +100,7 @@
 
 ### Animation & Interaction
 
-- **Infinite Scroll Loop**: Lenis smooth scroll + Bridge Section 기반 무한 순환 스크롤
+- **Infinite Scroll Loop**: Lenis smooth scroll + Bridge Section 기반 무한 순환 스크롤 — **default OFF** opt-in 패턴. 기존엔 모든 페이지가 mount 시 `setInfinite(false)` / unmount 시 `(true)` 로 되돌리는 opt-out 방식이라 페이지 간 navigation 도중 잠깐 무한 스크롤이 켜져 의도치 않은 점프가 일어났음. HomeClient 만 mount 시 `setInfinite(true)` 호출하도록 반전 — 그 외 모든 라우트는 기본값 false 로 안전
 - **Mouse Parallax**: Framer Motion useSpring/useTransform 기반 마우스 반응형 패럴랙스
 - **Scroll-Triggered Animations**: GSAP ScrollTrigger를 활용한 스크롤 기반 등장 애니메이션
 - **Scroll Velocity Parallax**: Lenis velocity 기반 스크롤 속도 연동 이미지 패럴랙스 (Works 이미지 160% buffer로 원 밖으로 새지 않도록 보정)
@@ -137,7 +137,7 @@
 - **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행 — `/series` 별도 페이지 폐지 후 `/posts` 안으로 통합, 카테고리 필터 후 타임라인(스텝 번호 + 세로 connector) 형태로 노출, 상세 페이지 이전/다음 네비게이션
 - **Series Deck Cards**: 가로 스크롤 row — 카드를 hover 하면 0.8s 후 deck 형태로 펼쳐지며 소속 글 4개의 미리보기 layer가 0.4s 간격 stagger로 순차 등장 (transform 기반 stack offset, JS state 기반 timer 로 CSS transition-delay snap 회피), 펼침 상태에서 우측으로 next 카드를 밀어내고 `::after` pseudo 로 hit-area 확장해 flicker 없이 hover 유지. **deck 가 가로 스크롤 컨테이너 우측 밖으로 넘치면 rAF 루프로 매 프레임 `scrollLeft` 직접 증가** — 카드 `margin-right` 가 transition 으로 점차 늘어나면서 `scrollWidth` 도 함께 커지므로 단발 `scrollBy` 는 시작 시점 `maxScrollLeft` 에 즉시 clamp 되어 부족함. auto-scroll 종료 후 `card.matches(":hover")` 한번 더 확인해 cursor 가 떠나 있으면 deck 닫음(스크롤로 카드가 cursor 밑에서 빠져나간 false-positive mouseleave 방지)
 - **Series Auto Cover**: cover/소속 글 cover 둘 다 없는 시리즈는 SSR 시점에 Unsplash 에서 자동으로 cover 1장 fetch → `series.auto_cover_url` 컬럼에 영구 캐시 (다음 요청부터 외부 호출 0회)
-- **Posts 배너 슬라이더**: 피닝된 포스트를 배너로 표시 — 4가지 레이아웃 x 4가지 오버레이 x 2가지 전환 모드, Admin에서 선택
+- **Posts 배너 슬라이더**: 피닝된 포스트를 배너로 표시 — 4가지 레이아웃 x 4가지 오버레이 x 2가지 전환 모드, Admin에서 선택. 좌·우 화살표 버튼에 `data-cursor="prev"` / `"next"` 부여 → CursorTrail 의 `CursorType` 에 `next` / `prev` variant 추가해 hover 시 "Prev" / "Next" 라벨 커스텀 커서로 표시
 - **Posts 필터 바**: 카테고리 접기/펼치기(+N more), hover indicator(layoutId), sticky + 스크롤 방향 감지, 콘텐츠 blur 효과 — sticky 진입 anchor 시점은 IntersectionObserver `rootMargin` 을 컴포넌트의 실제 sticky `top` 값으로 동기화해 인기글 등 사이드 위젯과 1px 도 안 어긋나게 보정
 - **Posts Bento Masonry**: 3/4/6 column CSS Grid + `grid-auto-rows: 1px` + JS 가 각 카드 `scrollHeight` 측정 후 `grid-row: span N` 적용 → 진정한 masonry. wide / banner(21:9) / square(1:1) / portrait(3:4) / standard 5종 variant 가 `grid-auto-flow: dense` 로 빈틈 없이 packing. 모바일은 변형 비활성화 + 16:10 통일. **PC(4·6col) 빈공간 최소화 템플릿 재배열** — banner(21:9, 가장 짧음)는 사이클 앞쪽에 두어 이후 standard 들이 dense backfill 가능, wide(2col 16:10)와 portrait(1col 3:4)는 height 가 비슷해 같은 row 매칭, standard 비중 확대(5/cycle) + square 1개로 축소해 평균 height 변주 줄여 packing 안정화
 - **PopularPosts/RecentComments hover 효과**: 사이드 위젯 항목 hover 시 `translateX(var(--spacing-2xs))` 로 부드럽게 들여쓰기 — compound selector `(0,2,0)` 로 글로벌 theme transition `(0,1,1)` 우회 (transform 은 글로벌 규칙에 없어 일반 선택자로는 덮어쓸 수 없음)
@@ -149,11 +149,17 @@
 - **SearchCapsule 공통 컴포넌트**: `components/admin/SearchCapsule` → `components/ui/SearchCapsule` 이동. `searchType` prop optional, padding 을 태그/정렬 캡슐 톤에 맞춰 슬림화 (`var(--spacing-2xs) var(--spacing-sm)`). PostsClient · `/admin/comments` 등 모든 인라인 검색 input 을 일괄 교체
 - **Seeded Color Generator**: `src/utils/seededColor.ts` — FNV-1a 해시 + 8 hue 앵커(주황/앰버/라임/그린/시안/블루/퍼플/마젠타) × 3 톤 스타일(vivid / pastel / muted) = 24가지 결정적 HSL 조합. 같은 seed 는 항상 같은 색, 인접 카드는 anchor + tone 둘 다 cycle 되어 시각적 분리 보장. OKLCH 의 sRGB gamut 클리핑 회피용으로 HSL 채택
 - **PostCard 메타 i18n**: 날짜는 `language === "ko" ? ko-KR : en-US` 로 locale-aware 포맷, min read / views / likes 는 번역 키 사용, Eye/Heart 아이콘 + 0 도 항상 표시, `metaGroup` span 으로 그룹별 줄바꿈 단위 통일
+- **PostCard 메타 wrap 시 separator 자동 숨김**: 좁은 카드에서 metaGroup 이 두 줄로 wrap 되면 줄 첫머리 항목의 `::before` separator(`·`) 가 어색하게 떠 있던 문제 — `useLayoutEffect` 로 각 metaGroup 의 `offsetTop` 을 첫 그룹과 비교해 wrap 된 그룹에 `data-meta-wrapped` 부여, CSS 가 해당 그룹의 `::before` 를 숨김. ResizeObserver 로 카드 폭 변화에도 재계산
 - **IP 기반 좋아요**: Posts/Works/댓글에서 단일 `likes` 테이블 + `target_type` 구분, IP 기반 UNIQUE 제약으로 중복 방지, 연타 방지(ref lock + busy disabled), formatCount(1k/1.2m) 숫자 축약
 - **댓글 시스템**: 게스트 대댓글(threaded) 지원 — 이중 인증(commenter_hash + bcrypt), 닉네임 셔플, 이메일 답글 알림, 관리자 댓글, 관리자 tombstone 2회 삭제로 완전 제거, 닉네임 보존 tombstone
 - **첫 댓글 축하**: 첫 댓글 등록 시 confetti 효과 + 카드 플립 축하 메시지 (sparkle 별 장식 + accent 라인), 관리자 댓글 전체 선택 / 드래그 선택 / tombstone 일괄 완전 삭제
 - **댓글 신고**: 댓글마다 신고 버튼 + 사유 입력 모달, 신고 즉시 `/admin/notifications` 의 "신고" 탭에 누적 — 관리자에서 resolve / dismiss / 완전 삭제 인라인 처리
 - **Posts 태그 스위트**: ① **TagCloud3D** — Posts 사이드바 3D 회전 워드 클라우드, 피보나치 구면 분포 + rAF 루프에서 DOM transform 을 직접 갱신해 React 리렌더 0회, hover 시 자동 회전 정지 / drag 로 수동 회전, 클릭 시 `/posts/tags/[tag]` 이동 (`setPointerCapture` 는 자식 Link click 을 흡수해 제거하고 document-level pointer listener 로 drag-after-threshold click 차단). ② `/posts/tags` 인덱스 — 전체 태그 그리드 + 무한 스크롤 + 검색 + admin 전용 태그 설정 바로가기. ③ `/posts/tags/[tag]` 상세 — 서버사이드 fetch, Lenis `setInfinite(false)` 로 무한 스크롤 OFF, 상/하단 검색바(420px cap), 공통 `Pagination`, 라벨 hover 시 관련 태그 툴팁. ④ 공통 `TagPill` 컴포넌트 (`src/components/ui/TagPill.tsx`) 로 통일
+- **Posts 그리드 fluid 컬럼**: bento masonry 가 고정 3/4/6 col → `auto-fit minmax(220px, 1fr)` 기반 fluid 로 전환. viewport 폭에 따라 컬럼 개수가 자연스럽게 변하면서 카드 폭이 220~300px 범위에 머무름 — wide/banner 처럼 2col span 카드도 절대 폭이 안정. 모바일은 명시적 2-col(`grid-template-columns: 1fr 1fr`) 로 분기해 너무 잘게 쪼개지지 않게 가드
+- **Posts skeleton vs dim hybrid loading**: 초기 페이지 로드는 각 카드 variant(wide/banner/square/portrait/standard) 에 맞춰 height 가 정확히 매칭되는 skeleton 렌더 — 카드 mount 시점에 layout shift 없음. 페이지/필터/정렬 변경 등 이미 카드가 그려진 상태에서의 재요청은 기존 카드를 그대로 유지하면서 `opacity: 0.5 + pointer-events: none` 으로 dim 처리해 jump 방지. 상단에 indeterminate progress bar 추가해 "지금 로딩 중" 시그널 분리
+- **Posts 태그 다중 선택**: `activeTag` (단일 문자열) → `activeTags` (Set<string>) 로 전환. 태그 칩 클릭 시 toggle add/remove, URL 도 `?tags=a,b,c` 로 직렬화. 필터 바에 "전체 태그 →" 링크(`/posts/tags`) 도 추가 — 사이드바 태그 클라우드 + 다중 선택 + 전체 인덱스 세 진입점 통합
+- **Posts 태그 dropdown 무한 스크롤**: 태그 수가 많아져도(수백 개) 한 번에 다 렌더 안 하도록 40개씩 batch 로딩. dropdown 내부 sentinel 에 `IntersectionObserver` 붙여 bottom 근처 도달 시 다음 40개 append. `tagRow max-height: 220px` + 내부 스크롤로 dropdown 높이 폭주 방지
+- **Posts 사이드바 Tags 위치 + 링크화**: 사이드바 위젯 순서에서 Tags(TagCloud3D) 를 최상단으로 이동. 위젯 label 자체를 `/posts/tags` 로 가는 `<Link>` 로 만들고 `ChevronRight` 화살표 아이콘 추가 — 클라우드 인터랙션 외에도 인덱스 페이지로 명시적 진입 가능
 
 <p align="center">
   <img src="public/images/screenshots/pc/posts-dark.png" width="49%" alt="Posts — Dark" />
@@ -582,7 +588,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 50+ 건의 이슈 중 핵심 16건만 추려 About 페이지에서 노출 (난이도 + 일반화 가능성 기준, `HIDDEN_PROBLEMS` Set 으로 필터 — 데이터는 보존되어 언제든 다시 노출 가능). 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트) + 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 50+ 건의 이슈 중 핵심 18건만 추려 About 페이지에서 노출 (난이도 + 일반화 가능성 기준, `HIDDEN_PROBLEMS` Set 으로 필터 — 데이터는 보존되어 언제든 다시 노출 가능). 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트) + 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
 
 | # | 이슈 | 핵심 |
 |:---:|:---|:---|
