@@ -179,6 +179,7 @@ export default function Carousel({
               onClick={goPrev}
               aria-label="Previous slide"
               data-clickable="true"
+              data-cursor="prev"
             >
               <ChevronLeft size={16} />
             </button>
@@ -187,6 +188,7 @@ export default function Carousel({
               onClick={goNext}
               aria-label="Next slide"
               data-clickable="true"
+              data-cursor="next"
             >
               <ChevronRight size={16} />
             </button>
