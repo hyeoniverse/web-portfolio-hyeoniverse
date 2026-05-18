@@ -606,8 +606,8 @@ role: 풀스택 개발
         </>
       }
     >
-      {/* 윗줄: sort group + 검색 (오른쪽 끝으로 push) */}
-      <div className={`${shell.filterBar} ${shell.searchRow}`}>
+      {/* Filter bar — 윗줄(sortSearchGroup) + 아랫줄(filter/perPage) wrap */}
+      <div className={shell.filterBar}>
         <div className={shell.sortSearchGroup}>
           <SegmentedControl
             items={[
@@ -646,9 +646,6 @@ role: 풀스택 개발
             className={shell.filterSearch}
           />
         </div>
-      </div>
-      {/* 아랫줄: filter + perPage */}
-      <div className={shell.filterBar}>
         {yearOptions.length > 1 && (
           <Select
             value={filterYear}
