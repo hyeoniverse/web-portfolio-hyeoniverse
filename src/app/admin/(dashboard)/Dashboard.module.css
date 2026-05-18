@@ -17,11 +17,18 @@
 }
 
 .title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   font-family: var(--font-instrument);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   margin: 0;
+}
+
+.titleIcon {
+  color: var(--text-secondary);
 }
 
 /* Stagger fade-in for dashboard sections — tag selector 라 Section/twoCol React 컴포넌트의

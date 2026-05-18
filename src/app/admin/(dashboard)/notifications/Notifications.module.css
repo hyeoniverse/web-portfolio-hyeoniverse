@@ -31,6 +31,20 @@
   gap: var(--spacing-sm);
 }
 
+.titleIcon {
+  color: var(--text-secondary);
+}
+
+/* loading 중 새로고침 아이콘 회전 */
+.refreshSpinning {
+  animation: refreshSpin 0.9s linear infinite;
+}
+
+@keyframes refreshSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 
 .badge {
   display: inline-flex;
@@ -216,4 +230,30 @@
   gap: var(--spacing-2xs);
   flex: 1;
   min-width: 0;
+}
+
+/* Tabs row — SortGroup + 우측 검색창 */
+.tabsRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.searchWrap {
+  margin-left: auto;
+  flex: 0 1 280px;
+  min-width: 200px;
+}
+
+.tabCount {
+  margin-left: var(--spacing-2xs);
+  padding: 0 4px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-jetbrains);
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
