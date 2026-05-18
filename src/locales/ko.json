@@ -218,7 +218,17 @@
       "typeReply": "답글",
       "typeLike": "좋아요",
       "typeReport": "댓글 신고",
-      "typeSystem": "시스템 알림"
+      "typeSystem": "시스템 알림",
+      "tab": {
+        "all": "전체",
+        "comment": "댓글",
+        "system": "시스템",
+        "report": "신고"
+      },
+      "searchPlaceholder": "제목·메시지 검색",
+      "searchEmpty": "검색 결과가 없습니다",
+      "refresh": "새로고침",
+      "tipRefresh": "알림 다시 불러오기"
     },
     "reports": {
       "title": "댓글 신고",
@@ -253,7 +263,11 @@
       "rememberEmail": "아이디 저장",
       "invalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다",
       "loginFailed": "로그인에 실패했습니다",
-      "errorOccurred": "오류가 발생했습니다"
+      "errorOccurred": "오류가 발생했습니다",
+      "attemptsLeft": "(남은 시도 {{n}}회)",
+      "lockedMinutes": "로그인 시도가 너무 많습니다. 약 {{n}}분 후 다시 시도해주세요.",
+      "lockedSeconds": "로그인 시도가 너무 많습니다. {{n}}초 후 다시 시도해주세요.",
+      "devicePending": "처음 보는 기기입니다. 이메일로 보낸 승인 링크를 클릭한 뒤 다시 로그인해주세요."
     },
     "common": {
       "noContent": "내용 없음",
@@ -504,6 +518,13 @@
       "passwordPolicyDefault": "기본 (6자 이상)",
       "passwordRuleSecure": "비밀번호는 8자 이상이며, 대문자·소문자·숫자·특수문자를 각 1개 이상 포함해야 합니다.",
       "passwordRuleDefault": "비밀번호는 6자 이상이어야 합니다. (Supabase 기본 설정)",
+      "securityTitle": "보안 / 세션",
+      "signOutAllLabel": "모든 기기 로그아웃",
+      "signOutAllHint": "현재 admin 계정으로 로그인된 모든 브라우저·기기 세션을 즉시 무효화합니다. 비밀번호 유출이 의심되거나 공용 기기에 로그인된 게 신경 쓰일 때 사용하세요.",
+      "signOutAllAction": "지금 로그아웃",
+      "signOutAllTitle": "모든 기기 로그아웃",
+      "signOutAllConfirmDesc": "현재 기기를 포함해 모든 기기에서 로그아웃됩니다. 비밀번호로 다시 로그인해야 합니다. 계속하시겠습니까?",
+      "signOutAllConfirm": "모든 기기 로그아웃",
       "authSettingsTitle": "인증 설정",
       "authSettingsDesc": "아래 설정은 Supabase 대시보드에서 변경할 수 있습니다.",
       "authSettingsPath1": "Authentication > [Configuration] Sign In / Providers > [Auth Providers] Email",
@@ -1197,6 +1218,7 @@
     "sortTitleTooltip": "제목 가나다 순, 다시 누르면 역순",
     "sortRandomTooltip": "임의 순서로 섞기, 누를 때마다 새로 셔플",
     "tagsTooltip": "태그로 글 필터링",
+    "tagCloudHint": "회전하는 3D 태그 구체 — 드래그로 직접 돌리거나 hover 로 잠시 멈출 수 있어요. 태그 클릭 시 해당 태그로 필터링",
     "seriesTooltip": "주제별로 묶인 글 모음",
     "postsTooltip": "전체 게시물 목록",
     "clearFiltersTooltip": "모든 필터 해제",

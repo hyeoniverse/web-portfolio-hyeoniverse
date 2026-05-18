@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
-import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Checkbox from "@/components/ui/Checkbox";
@@ -25,6 +24,7 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [rememberEmail, setRememberEmail] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -35,9 +35,18 @@ export default function AdminLoginPage() {
     }
   }, []);
 
+  const formatRemaining = (sec: number) => {
+    if (sec >= 60) {
+      const m = Math.ceil(sec / 60);
+      return t("admin.login.lockedMinutes").replace("{{n}}", String(m));
+    }
+    return t("admin.login.lockedSeconds").replace("{{n}}", String(sec));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setInfo("");
     setLoading(true);
 
     if (rememberEmail) {
@@ -47,14 +56,30 @@ export default function AdminLoginPage() {
     }
 
     try {
-      const supabase = createClient();
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      // /api/admin/auth — server-side 인증 + lockout 적용
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
 
-      if (authError) {
-        const key = authError.message?.includes("Invalid")
-          ? "admin.login.invalidCredentials"
-          : "admin.login.loginFailed";
-        setError(t(key));
+      if (!res.ok) {
+        if (data.code === "locked" && typeof data.remainingSeconds === "number") {
+          setError(formatRemaining(data.remainingSeconds));
+        } else if (typeof data.attemptsLeft === "number") {
+          setError(
+            `${t("admin.login.invalidCredentials")} ${t("admin.login.attemptsLeft").replace("{{n}}", String(data.attemptsLeft))}`,
+          );
+        } else {
+          setError(t("admin.login.loginFailed"));
+        }
+        return;
+      }
+
+      // 새 기기 — 이메일 승인 필요 (status 202)
+      if (data.status === "device_pending") {
+        setInfo(t("admin.login.devicePending"));
         return;
       }
 
@@ -72,25 +97,27 @@ export default function AdminLoginPage() {
       <form className={styles.form} onSubmit={handleSubmit}>
         <h1 className={styles.title}><T k="admin.login.title" /></h1>
 
-        <Input
-          id="email"
-          type="email"
-          label={t("admin.login.email")}
-          value={email}
-          onChange={setEmail}
-          required
-          autoComplete="email"
-        />
+        <div className={styles.inputGroup}>
+          <Input
+            id="email"
+            type="email"
+            label={t("admin.login.email")}
+            value={email}
+            onChange={setEmail}
+            required
+            autoComplete="email"
+          />
 
-        <Input
-          id="password"
-          type="password"
-          label={t("admin.login.password")}
-          value={password}
-          onChange={setPassword}
-          required
-          autoComplete="current-password"
-        />
+          <Input
+            id="password"
+            type="password"
+            label={t("admin.login.password")}
+            value={password}
+            onChange={setPassword}
+            required
+            autoComplete="current-password"
+          />
+        </div>
 
         <div className={styles.bottomRow}>
           <Checkbox
@@ -99,7 +126,6 @@ export default function AdminLoginPage() {
             shape="square"
             label={t("admin.login.rememberEmail")}
           />
-          {error && <p className={styles.error}>{error}</p>}
         </div>
 
         <Button type="submit" fullWidth disabled={loading} soundDisabled>
@@ -119,6 +145,12 @@ export default function AdminLoginPage() {
             <T k="admin.login.signIn" />
           )}
         </Button>
+
+        {/* 메시지 — 버튼 아래. 비어있어도 자리 차지해서 form 높이 안 흔들리게 */}
+        <div className={styles.messageRow}>
+          {error && <p className={styles.error}>{error}</p>}
+          {!error && info && <p className={styles.info}>{info}</p>}
+        </div>
       </form>
     </div>
   );

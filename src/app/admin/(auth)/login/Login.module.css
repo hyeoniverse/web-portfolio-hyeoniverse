@@ -9,7 +9,7 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-md);
   width: 100%;
   max-width: 380px;
 }
@@ -23,16 +23,43 @@
   text-align: center;
 }
 
+/* email + password 두 input 묶음 — 서로 가깝게 (form 전체 gap 보다 좁게) */
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* bottomRow 는 아이디 저장만 — 메시지는 별도 줄(.messageRow) 로 분리 */
 .bottomRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
+/* 메시지 줄 — 비어있어도 min-height 유지해서 button 위치 변동 없게.
+   3줄 텍스트 (한국어 안내문 길이) 정도 확보. */
+.messageRow {
+  min-height: calc(var(--line-height-snug) * var(--font-size-sm) * 3);
+  display: flex;
+  align-items: flex-start;
+}
+
 .error {
+  margin: 0;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
   color: var(--text-accent);
+  line-height: var(--line-height-snug);
+}
+
+/* device_pending 같은 안내성 메시지 — 에러 아님 */
+.info {
+  margin: 0;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-snug);
 }
 
 /* Wave animation */

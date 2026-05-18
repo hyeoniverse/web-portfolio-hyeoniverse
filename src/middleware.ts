@@ -27,13 +27,18 @@ function isAdminPath(pathname: string): boolean {
   return pathname.startsWith("/admin") || pathname.startsWith("/api/admin");
 }
 
-/** 인증 가드 제외 경로 — 비로그인 사용자가 접근 가능해야 하는 admin 영역 (login / denied).
- *  이걸 제외 안 하면 /admin/login 자체가 가드에 막혀 자기 자신으로 무한 리다이렉트 됨. */
+/** 인증 가드 제외 경로 — 비로그인 사용자가 접근 가능해야 하는 admin 영역.
+ *  /admin/login: 로그인 페이지 (자기 자신으로 무한 리다이렉트 방지)
+ *  /api/admin/auth: 로그인/로그아웃 endpoint (비인증 상태에서 호출됨)
+ *  /api/admin/auth/approve-device: 이메일 링크 — 비인증 상태에서 token 으로 새 기기 승인
+ *  /admin/denied: 거부 페이지 */
 function isAdminAuthPublic(pathname: string): boolean {
   return pathname === "/admin/login"
     || pathname.startsWith("/admin/login/")
     || pathname === "/admin/denied"
-    || pathname.startsWith("/admin/denied/");
+    || pathname.startsWith("/admin/denied/")
+    || pathname === "/api/admin/auth"
+    || pathname === "/api/admin/auth/approve-device";
 }
 
 function isAdminApi(pathname: string): boolean {

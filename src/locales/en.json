@@ -216,7 +216,17 @@
       "typeReply": "Reply",
       "typeLike": "Like",
       "typeReport": "Comment report",
-      "typeSystem": "System"
+      "typeSystem": "System",
+      "tab": {
+        "all": "All",
+        "comment": "Comments",
+        "system": "System",
+        "report": "Reports"
+      },
+      "searchPlaceholder": "Search title / message",
+      "searchEmpty": "No matching notifications",
+      "refresh": "Refresh",
+      "tipRefresh": "Reload notifications"
     },
     "reports": {
       "title": "Comment Reports",
@@ -251,7 +261,11 @@
       "rememberEmail": "Remember email",
       "invalidCredentials": "Invalid email or password",
       "loginFailed": "Login failed",
-      "errorOccurred": "An error occurred"
+      "errorOccurred": "An error occurred",
+      "attemptsLeft": "({{n}} attempts left)",
+      "lockedMinutes": "Too many login attempts. Try again in about {{n}} min.",
+      "lockedSeconds": "Too many login attempts. Try again in {{n}}s.",
+      "devicePending": "New device — check your email for the approval link, then sign in again."
     },
     "common": {
       "noContent": "No content",
@@ -502,6 +516,13 @@
       "passwordPolicyDefault": "Default (6+ chars)",
       "passwordRuleSecure": "Password must be at least 8 characters and include an uppercase letter, lowercase letter, number, and special character.",
       "passwordRuleDefault": "Password must be at least 6 characters. (Supabase default)",
+      "securityTitle": "Security / Sessions",
+      "signOutAllLabel": "Sign out all devices",
+      "signOutAllHint": "Immediately invalidate every browser and device currently signed in to this admin account. Use when you suspect a leak or want to clear sessions on shared machines.",
+      "signOutAllAction": "Sign out now",
+      "signOutAllTitle": "Sign out all devices",
+      "signOutAllConfirmDesc": "You will be signed out from every device including this one. You'll need to log in again with your password. Continue?",
+      "signOutAllConfirm": "Sign out everywhere",
       "authSettingsTitle": "Authentication Settings",
       "authSettingsDesc": "The following settings can be changed in the Supabase dashboard.",
       "authSettingsPath1": "Authentication > [Configuration] Sign In / Providers > [Auth Providers] Email",
@@ -1196,6 +1217,7 @@
     "sortTitleTooltip": "Alphabetical order — click again to reverse",
     "sortRandomTooltip": "Shuffle randomly — click to re-shuffle",
     "tagsTooltip": "Filter posts by tag",
+    "tagCloudHint": "Rotating 3D tag sphere — drag to spin manually, hover to pause. Click a tag to filter.",
     "seriesTooltip": "Posts grouped by topic",
     "postsTooltip": "All posts",
     "clearFiltersTooltip": "Reset all filters",
