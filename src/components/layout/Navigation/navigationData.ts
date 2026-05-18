@@ -29,7 +29,7 @@ export const adminNavItems = [
 
 export const adminMenuItems = [
   ...adminNavItems,
-  { key: "admin-reports", href: "/admin/reports", label: "Reports" },
+  { key: "admin-notifications", href: "/admin/notifications", label: "Notifications" },
   { key: "logout", href: null as string | null, label: "Logout" },
 ];
 
