@@ -744,7 +744,7 @@ tags: React`}</code></pre>
             })),
           ]}
           onChange={(v) => { setFilterSeries(v); setPage(1); }}
-          className={`${shell.filterItem} ${styles.seriesFilterItem}`}
+          className={shell.filterItem}
         />
         {hasFilters && (
           <button
