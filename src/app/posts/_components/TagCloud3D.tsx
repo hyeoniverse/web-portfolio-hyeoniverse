@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { Tags } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import styles from "./TagCloud3D.module.css";
@@ -168,6 +169,7 @@ export default function TagCloud3D({ tags, activeTag, onTagClick, size = 90 }: T
   return (
     <div className={styles.wrap}>
       <h3 className={styles.label}>
+        <Tags size={14} aria-hidden />
         <T k="postsPage.tags" tooltip={t("postsPage.tagCloudHint")} />
       </h3>
       <div ref={containerRef} className={styles.sphere} style={{ height: size * 2.2 }}>
