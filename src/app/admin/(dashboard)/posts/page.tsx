@@ -693,6 +693,24 @@ tags: React`}</code></pre>
       beforeTable={!loading ? seriesSection : undefined}
       afterTable={!loading ? trashSection : undefined}
     >
+      {/* 검색 — 윗줄 단독 */}
+      <div className={`${shell.filterBar} ${styles.searchRow}`}>
+        <SearchCapsule
+          typeSelector={{
+            value: searchType,
+            options: [
+              { value: "all", label: t("admin.posts.searchAll") },
+              { value: "title", label: t("admin.posts.searchTitle") },
+              { value: "content", label: t("admin.posts.searchContent") },
+            ],
+            onChange: (v) => { setSearchType(v); setPage(1); },
+          }}
+          search={search}
+          onSearchChange={(v) => { setSearch(v); setPage(1); }}
+          placeholder={t("admin.posts.search")}
+          className={shell.filterSearch}
+        />
+      </div>
       {/* Filter bar */}
       <div className={shell.filterBar}>
         <Select
@@ -754,21 +772,6 @@ tags: React`}</code></pre>
             {t("admin.posts.resetFilters")}
           </button>
         )}
-        <SearchCapsule
-          typeSelector={{
-            value: searchType,
-            options: [
-              { value: "all", label: t("admin.posts.searchAll") },
-              { value: "title", label: t("admin.posts.searchTitle") },
-              { value: "content", label: t("admin.posts.searchContent") },
-            ],
-            onChange: (v) => { setSearchType(v); setPage(1); },
-          }}
-          search={search}
-          onSearchChange={(v) => { setSearch(v); setPage(1); }}
-          placeholder={t("admin.posts.search")}
-          className={shell.filterSearch}
-        />
       </div>
 
       <AdminTable<Post>
