@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.7.0...v1.8.0) (2026-05-18)
+
+
+### Features
+
+* **cursor:** 배너 화살표 hover 시 커스텀 커서 Next/Prev ([a0ca015](https://github.com/hyeoniverse/web-portfolio-oval/commit/a0ca015b158f6cd7679a0449e090282cfb638bed)), closes [#92](https://github.com/hyeoniverse/web-portfolio-oval/issues/92)
+* **posts:** Posts UX 전반 개선 + Lenis 무한스크롤 opt-in 패턴 ([21532f2](https://github.com/hyeoniverse/web-portfolio-oval/commit/21532f26512cff9b3101b2b53697beaab5df5088)), closes [#90](https://github.com/hyeoniverse/web-portfolio-oval/issues/90)
+
 ## [1.7.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.6.0...v1.7.0) (2026-05-18)
 
 
