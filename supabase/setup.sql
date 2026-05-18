@@ -107,6 +107,8 @@ CREATE TABLE IF NOT EXISTS posts (
   github_url   text DEFAULT '',
   -- 휴지통(소프트 삭제)
   deleted_at   timestamptz DEFAULT NULL,
+  -- 휴지통 자동 영구삭제 (TTL) — cron 이 NOW() > purge_after 면 hard delete
+  purge_after  timestamptz DEFAULT NULL,
   -- AI 요약
   summary_ko   text NOT NULL DEFAULT '',
   summary_en   text NOT NULL DEFAULT '',
@@ -124,6 +126,10 @@ CREATE TABLE IF NOT EXISTS posts (
   -- 예약 발행: NULL=즉시, 미래 시간 설정 시 cron이 published=true 로 flip
   scheduled_at timestamptz DEFAULT NULL
 );
+
+-- purge_after cron 스캔용 — deleted_at IS NOT NULL 인 row 만 인덱스
+CREATE INDEX IF NOT EXISTS posts_purge_after_idx
+  ON posts (purge_after) WHERE deleted_at IS NOT NULL;
 
 -- slug 검색용 인덱스
 CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts (slug);
@@ -270,9 +276,14 @@ CREATE TABLE IF NOT EXISTS works (
   created_at     timestamptz DEFAULT now(),
   updated_at     timestamptz DEFAULT now(),
   deleted_at     timestamptz DEFAULT NULL,
+  -- 휴지통 자동 영구삭제 (TTL)
+  purge_after    timestamptz DEFAULT NULL,
   -- 예약 발행: NULL=즉시, 미래 시간 설정 시 cron이 published=true 로 flip
   scheduled_at   timestamptz DEFAULT NULL
 );
+
+CREATE INDEX IF NOT EXISTS works_purge_after_idx
+  ON works (purge_after) WHERE deleted_at IS NOT NULL;
 
 ALTER TABLE works ENABLE ROW LEVEL SECURITY;
 

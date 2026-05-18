@@ -11,6 +11,7 @@ import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Work } from "@/types/work";
 import Select from "@/components/ui/Select";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import Button from "@/components/ui/Button";
 import ButtonGroup from "@/components/ui/ButtonGroup";
 import AdminListShell, {
@@ -281,6 +282,11 @@ export default function AdminWorksPage() {
     fetchWorks();
   };
 
+  const handleExtend = async (id: string) => {
+    await fetch(`/api/works/${id}/extend-retention`, { method: "POST" });
+    fetchTrash();
+  };
+
   const handlePurge = async (id: string, title: string) => {
     if (!confirm(`"${title}" — ${t("admin.works.trashPurgeConfirm")}`)) return;
     await fetch(`/api/works/${id}/purge`, { method: "DELETE" });
@@ -447,7 +453,7 @@ export default function AdminWorksPage() {
       label: t("admin.works.trashDaysLeftLabel") ?? "",
       className: st.colMeta,
       render: (work) => {
-        const daysLeft = work.deleted_at ? getTrashDaysLeft(work.deleted_at) : 30;
+        const daysLeft = work.deleted_at ? getTrashDaysLeft(work.deleted_at, work.purge_after) : 30;
         return (
           <span className={st.colDaysLeft}>
             <span className={daysLeft <= 7 ? st.accentText : ""}>{daysLeft}<T k="admin.works.trashDaysLeftUnit" /></span>
@@ -464,6 +470,9 @@ export default function AdminWorksPage() {
         <>
           <button type="button" className={st.actionBtn} onClick={() => handleRestore(work.id)}>
             <T k="admin.works.trashRestore" />
+          </button>
+          <button type="button" className={st.actionBtn} onClick={() => handleExtend(work.id)} title={t("admin.works.trashExtendTip")}>
+            <T k="admin.works.trashExtend" />
           </button>
           <button type="button" className={st.dangerBtn} onClick={() => handlePurge(work.id, work.title || t("admin.works.untitled"))}>
             <T k="admin.works.trashPurge" />
@@ -493,21 +502,18 @@ export default function AdminWorksPage() {
         onPageChange={setTrashPage}
         emptyMessage={t("admin.works.trashEmpty")}
         filterBar={
-          <div className={styles.subFilterBar}>
+          <div className={shell.filterBar}>
             <Select
               value={String(trashPerPage)}
               options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
               onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
-              className={styles.subPageSize}
+              className={`${shell.filterPageSize} ${styles.filterPageSizeLeft ?? ""}`}
             />
-            <Select
-              value={trashSort}
-              options={[
-                { value: "newest", label: t("admin.works.sortNewestDeleted") },
-                { value: "oldest", label: t("admin.works.sortOldestDeleted") },
-              ]}
-              onChange={(v) => setTrashSort(v as "newest" | "oldest")}
-              className={styles.subFilterSelect}
+            <SegmentedControl
+              items={[{ value: "date", label: t("admin.works.sortDeletedAt") }]}
+              value="date"
+              sortDir={trashSort === "oldest" ? "asc" : "desc"}
+              onChange={() => setTrashSort((p) => p === "newest" ? "oldest" : "newest")}
             />
             <SearchCapsule
               typeSelector={{
@@ -522,7 +528,7 @@ export default function AdminWorksPage() {
               search={trashSearch}
               onSearchChange={setTrashSearch}
               placeholder={t("admin.works.trashSearch")}
-              className={styles.subFilterSearch}
+              className={shell.filterSearch}
             />
           </div>
         }
@@ -621,16 +627,25 @@ role: 풀스택 개발
           align="left"
           className={shell.filterSearch}
         />
-        <Select
-          value={sort}
-          options={[
+        <SegmentedControl
+          items={[
             { value: "order", label: t("admin.works.sortOrder") },
-            { value: "newest", label: t("admin.works.sortNewest") },
-            { value: "oldest", label: t("admin.works.sortOldest") },
+            { value: "date", label: t("admin.works.sortDate") },
             { value: "name", label: t("admin.works.sortName") },
           ]}
-          onChange={(v) => { setSort(v); setPage(1); }}
-          className={shell.filterItem}
+          // 매핑: newest/oldest → date, 나머지 그대로
+          value={sort === "newest" || sort === "oldest" ? "date" : sort}
+          sortDir={sort === "oldest" ? "asc" : "desc"}
+          onChange={(v) => {
+            if (v === "date") {
+              if (sort === "newest") setSort("oldest");
+              else if (sort === "oldest") setSort("newest");
+              else setSort("newest");
+            } else {
+              setSort(v);
+            }
+            setPage(1);
+          }}
         />
         {yearOptions.length > 1 && (
           <Select

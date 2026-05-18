@@ -9,7 +9,7 @@ import { SkeletonLine, SkeletonCircle } from "@/components/ui/Skeleton";
 import Tooltip from "@/components/ui/Tooltip";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
-import SortGroup from "@/components/ui/SortGroup";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import ReportsList from "./_components/ReportsList";
@@ -237,7 +237,7 @@ export default function NotificationsPage() {
       {/* Tabs — 전체 / 댓글 / 시스템 / 신고. 신고 탭은 ReportsList 컴포넌트로 위임.
          SortGroup button 내부에 Tooltip wrapper (T 컴포넌트) 넣으면 hover 이벤트 충돌 — t() 직접 사용 */}
       <div className={styles.tabsRow}>
-        <SortGroup<TabKey>
+        <SegmentedControl<TabKey>
           items={[
             { value: "all", label: <>{t("admin.notifications.tab.all")} <span className={styles.tabCount}>{tabCounts.all}</span></> },
             { value: "comment", label: <>{t("admin.notifications.tab.comment")} <span className={styles.tabCount}>{tabCounts.comment}</span></> },

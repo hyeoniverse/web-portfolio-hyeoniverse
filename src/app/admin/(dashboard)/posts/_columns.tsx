@@ -87,9 +87,10 @@ export function createPostColumns(t: TFn): AdminTableColumn<Post>[] {
 
 export function createTrashColumns(
   t: TFn,
-  getDaysLeft: (deletedAt: string) => number,
+  getDaysLeft: (deletedAt: string, purgeAfter?: string | null) => number,
   handleRestore: (id: string) => void,
   handlePurge: (id: string, title: string) => void,
+  handleExtend: (id: string) => void,
 ): SubTableColumn<Post>[] {
   return [
     {
@@ -128,7 +129,7 @@ export function createTrashColumns(
       label: t("admin.posts.trashDaysLeftLabel"),
       className: st.colMeta,
       render: (post) => {
-        const daysLeft = getDaysLeft(post.deleted_at!);
+        const daysLeft = getDaysLeft(post.deleted_at!, post.purge_after);
         return (
           <span className={st.colDaysLeft}>
             <span className={daysLeft <= 7 ? st.accentText : ""}>{daysLeft}<T k="admin.posts.trashDaysLeftUnit" /></span>
@@ -145,6 +146,9 @@ export function createTrashColumns(
         <>
           <button type="button" className={st.actionBtn} onClick={() => handleRestore(post.id)}>
             <T k="admin.posts.trashRestore" />
+          </button>
+          <button type="button" className={st.actionBtn} onClick={() => handleExtend(post.id)} title={t("admin.posts.trashExtendTip")}>
+            <T k="admin.posts.trashExtend" />
           </button>
           <button type="button" className={st.dangerBtn} onClick={() => handlePurge(post.id, formatPostTitle(post) || t("admin.posts.untitled"))}>
             <T k="admin.posts.trashPurge" />

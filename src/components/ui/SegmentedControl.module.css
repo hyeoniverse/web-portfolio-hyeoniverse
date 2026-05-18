@@ -10,11 +10,11 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: var(--box-sm);
+  padding: var(--spacing-2xs) var(--spacing-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   white-space: nowrap;
   cursor: pointer;
