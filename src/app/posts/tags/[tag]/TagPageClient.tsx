@@ -169,13 +169,13 @@ export default function TagPageClient({ tag, initialData }: Props) {
           <Hash size={18} strokeWidth={1.8} />
           <span>TAG</span>
         </Link>
-        <SearchCapsule
-          search={search}
-          onSearchChange={setSearch}
-          placeholder="이 태그 안에서 검색…"
-          className={styles.heroSearch}
-        />
         <div className={styles.toolbar}>
+          <SearchCapsule
+            search={search}
+            onSearchChange={setSearch}
+            placeholder="이 태그 안에서 검색…"
+            className={styles.heroSearch}
+          />
           <SortGroup<Sort>
             items={[
               { value: "newest", label: "최신순" },
