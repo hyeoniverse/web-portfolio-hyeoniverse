@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.5.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.4.0...v1.5.0) (2026-05-18)
+
+
+### Features
+
+* **admin:** notifications + reports 통합 + dashboard/settings 타이틀 아이콘 ([3f7baef](https://github.com/hyeoniverse/web-portfolio-oval/commit/3f7baefc21e488714aaa940986cf2de001642d5b))
+* **auth:** admin 보안 강화 — login lockout · 모든 기기 로그아웃 · 새 기기 인증 ([dbc85e7](https://github.com/hyeoniverse/web-portfolio-oval/commit/dbc85e7e5c1cf665a7bf912dcf0a5e6322490d8d))
+* **posts:** 3D tag cloud + posts tags 페이지 + 공통 TagPill ([3f77efb](https://github.com/hyeoniverse/web-portfolio-oval/commit/3f77efba34bff6d138ffdf8fef3518fe9e098fd8))
+
 ## [1.4.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.3.0...v1.4.0) (2026-05-17)
 
 
