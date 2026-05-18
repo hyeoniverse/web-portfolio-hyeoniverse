@@ -209,6 +209,10 @@ export default function Navigation() {
 
   useEffect(() => setMenuMounted(true), []);
   useEffect(() => setIsMenuOpen(false), [pathname]);
+  // drawer 열릴 때 notification dropdown 도 같이 닫음 (위로 겹쳐 보이는 거 방지)
+  useEffect(() => {
+    if (isMenuOpen) setNotifOpen(false);
+  }, [isMenuOpen]);
 
   useEffect(() => {
     let rafId: number;
@@ -835,15 +839,21 @@ export default function Navigation() {
           document.body,
         )}
         {adminEmail ? (
-          <Button
-            variant="outline"
-            size="xs"
-            className={styles.logoutBtn}
-            onClick={handleLogout}
-            soundDisabled
+          <Tooltip
+            content={adminEmail}
+            placement="bottom"
+            delay={200}
           >
-            Logout
-          </Button>
+            <Button
+              variant="outline"
+              size="xs"
+              className={styles.logoutBtn}
+              onClick={handleLogout}
+              soundDisabled
+            >
+              Logout
+            </Button>
+          </Tooltip>
         ) : !isAdminPage ? (
           <Button
             variant="outline"
@@ -864,17 +874,24 @@ export default function Navigation() {
             aria-label="Menu"
             aria-expanded={isMenuOpen}
           >
-            <span className={`${styles.menuDots} ${isMenuOpen ? styles.menuDotsOpen : ""} ${showMenu && !isMenuOpen ? styles.menuDotsClosing : ""}`}>
-              <span className={styles.menuDot} />
-              <span className={styles.menuDot} />
-              <span className={styles.menuDot} />
-              <span className={styles.menuDot} />
-              <span className={styles.menuDot} />
-              <span className={styles.menuDot} />
-              <span className={styles.menuDot} />
-              <span className={styles.menuDot} />
-              <span className={styles.menuDot} />
-            </span>
+            {/* SVG 9개 circle — span 작은 사이즈 (2~3px) 에서 subpixel 안티앨리어싱이
+               dot 마다 달라 타원처럼 보이던 문제를 vector circle 로 해결. viewBox 8x8,
+               각 circle r=1 + cx/cy 정수 → 어떤 픽셀 크기에서도 일관된 원. */}
+            <svg
+              className={`${styles.menuDots} ${isMenuOpen ? styles.menuDotsOpen : ""} ${showMenu && !isMenuOpen ? styles.menuDotsClosing : ""}`}
+              viewBox="0 0 8 8"
+              aria-hidden
+            >
+              <circle className={styles.menuDot} cx="1" cy="1" r="1" />
+              <circle className={styles.menuDot} cx="4" cy="1" r="1" />
+              <circle className={styles.menuDot} cx="7" cy="1" r="1" />
+              <circle className={styles.menuDot} cx="1" cy="4" r="1" />
+              <circle className={styles.menuDot} cx="4" cy="4" r="1" />
+              <circle className={styles.menuDot} cx="7" cy="4" r="1" />
+              <circle className={styles.menuDot} cx="1" cy="7" r="1" />
+              <circle className={styles.menuDot} cx="4" cy="7" r="1" />
+              <circle className={styles.menuDot} cx="7" cy="7" r="1" />
+            </svg>
           </button>
         </MagneticWrapper>
       </div>
