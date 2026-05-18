@@ -101,11 +101,11 @@
   padding-bottom: 0;
 }
 
-/* sort group + 검색 묶음 — 오른쪽 끝으로 push, 둘 사이 딱붙임 */
+/* sort group + 검색 묶음 — 오른쪽 끝으로 push */
 .sortSearchGroup {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: var(--spacing-xs);
   margin-left: auto;
 }
 
