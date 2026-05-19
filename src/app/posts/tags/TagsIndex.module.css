@@ -156,3 +156,55 @@
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
 }
+
+/* ── 모바일 (≤768px) ── pill 마다 description + 연관 인라인 노출 */
+.listMobile {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-md);
+}
+
+.listMobile .tagItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-2xs);
+  padding-bottom: var(--spacing-md);
+  border-bottom: var(--border-light);
+}
+
+.tagItemMobileExtra {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding-left: var(--spacing-xs);
+}
+
+.tagItemMobileDesc {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-snug);
+  color: var(--text-secondary);
+}
+
+.tagItemMobileRelated {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.tagItemMobileRelLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-right: var(--spacing-2xs);
+}
+
+.tagItemMobileRelPill {
+  font-size: var(--font-size-2xs);
+}

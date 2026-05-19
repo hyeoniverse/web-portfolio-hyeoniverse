@@ -6,6 +6,7 @@ import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import Button from "@/components/ui/Button";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import TagPill from "@/components/ui/TagPill";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./TagsIndex.module.css";
 
 interface TagEntry {
@@ -53,6 +54,7 @@ export default function TagsIndexClient({ tags }: Props) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [isAdmin, setIsAdmin] = useState(false);
   const [hoveredTag, setHoveredTag] = useState<string | null>(null);
+  const { isMobile } = useIsMobile(768);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   // hover 한 태그의 related Set — 연관 pill 들 시각적으로 강조
@@ -214,14 +216,14 @@ export default function TagsIndexClient({ tags }: Props) {
         </div>
       </div>
 
-      <ul className={styles.list}>
+      <ul className={`${styles.list} ${isMobile ? styles.listMobile : ""}`}>
         {slice.map((t) => {
           const isRelated = relatedToHovered.has(t.tag);
           return (
             <li
               key={t.tag}
               className={styles.tagItem}
-              title={t.description || undefined}
+              title={!isMobile && t.description ? t.description : undefined}
               onMouseEnter={() => setHoveredTag(t.tag)}
               onMouseLeave={() => setHoveredTag(null)}
             >
@@ -231,6 +233,25 @@ export default function TagsIndexClient({ tags }: Props) {
                 className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""} ${isRelated ? styles.tagItemRelated : ""}`}
                 style={{ fontSize: `${fontFor(t.count)}px` }}
               />
+              {isMobile && (t.description || t.related.length > 0) && (
+                <div className={styles.tagItemMobileExtra}>
+                  {t.description && (
+                    <p className={styles.tagItemMobileDesc}>{t.description}</p>
+                  )}
+                  {t.related.length > 0 && (
+                    <div className={styles.tagItemMobileRelated}>
+                      <span className={styles.tagItemMobileRelLabel}>연관</span>
+                      {t.related.map((r) => (
+                        <TagPill
+                          key={r}
+                          tag={r}
+                          className={styles.tagItemMobileRelPill}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </li>
           );
         })}
