@@ -7,15 +7,17 @@ interface TagPillProps {
   /** 우측 카운트 배지 (옵션) */
   count?: number;
   className?: string;
+  style?: React.CSSProperties;
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 /** 공통 태그 pill — # 접두 + 캡슐 모양. /posts/tags/[tag] 로 이동. */
-export default function TagPill({ tag, count, className, onClick }: TagPillProps) {
+export default function TagPill({ tag, count, className, style, onClick }: TagPillProps) {
   return (
     <Link
       href={`/posts/tags/${encodeURIComponent(tag)}`}
       className={cn(styles.pill, className)}
+      style={style}
       onClick={onClick}
     >
       <span className={styles.name}>#{tag}</span>

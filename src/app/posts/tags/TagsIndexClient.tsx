@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Settings, Tags } from "lucide-react";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import Button from "@/components/ui/Button";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import TagPill from "@/components/ui/TagPill";
 import styles from "./TagsIndex.module.css";
 
@@ -17,13 +18,37 @@ interface Props {
   tags: TagEntry[];
 }
 
-const PAGE_SIZE = 30;
+const PAGE_SIZE = 60;
+const FEATURED_COUNT = 8;
+
+// 한글 초성 분리 — 쌍자음은 기본형으로 묶음
+const CHOSUNG_GROUPED = [
+  "ㄱ", "ㄱ", "ㄴ", "ㄷ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅂ", "ㅅ",
+  "ㅅ", "ㅇ", "ㅈ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ",
+];
+const KOREAN_ORDER = ["ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+const ENGLISH_ORDER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const ETC = "#";
+const ALL_LETTERS = [...KOREAN_ORDER, ...ENGLISH_ORDER, ETC];
+
+function getInitial(s: string): string {
+  const c = s.charAt(0);
+  const code = c.charCodeAt(0);
+  if (code >= 0xac00 && code <= 0xd7a3) {
+    const idx = Math.floor((code - 0xac00) / 588);
+    return CHOSUNG_GROUPED[idx];
+  }
+  if (/[A-Za-z]/.test(c)) return c.toUpperCase();
+  return ETC;
+}
 
 const loadSupabaseClient = () =>
   import("@/lib/supabase/client").then((m) => m.createClient());
 
 export default function TagsIndexClient({ tags }: Props) {
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"popular" | "alphabetical">("popular");
+  const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [isAdmin, setIsAdmin] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -36,28 +61,60 @@ export default function TagsIndexClient({ tags }: Props) {
         if (!cancelled) setIsAdmin(!!data.user);
       });
     });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  // 검색 — tag 명/설명 부분 일치
+  // count 기반 font-size scale — tag cloud 효과. linear 보간 12px ~ 22px.
+  const fontFor = useMemo(() => {
+    if (!tags.length) return () => 12;
+    const counts = tags.map((t) => t.count);
+    const max = Math.max(...counts);
+    const min = Math.min(...counts);
+    return (c: number) => {
+      const ratio = max === min ? 0.5 : (c - min) / (max - min);
+      return 12 + ratio * 10;
+    };
+  }, [tags]);
+
+  // 인기 top N — 정렬/필터와 무관. 검색/letter 활성 시 숨김
+  const featured = useMemo(() => {
+    return tags.slice().sort((a, b) => b.count - a.count).slice(0, FEATURED_COUNT);
+  }, [tags]);
+
+  // 초성/알파벳 bucket count — index 에서 비활성 letter 회색 처리
+  const letterBuckets = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const t of tags) {
+      const k = getInitial(t.tag);
+      map.set(k, (map.get(k) ?? 0) + 1);
+    }
+    return map;
+  }, [tags]);
+
+  // 검색 + letter 필터 + 정렬
   const filtered = useMemo(() => {
+    let list = tags;
     const q = search.trim().toLowerCase();
-    if (!q) return tags;
-    return tags.filter(
-      (t) =>
-        t.tag.toLowerCase().includes(q) ||
-        t.description.toLowerCase().includes(q),
-    );
-  }, [search, tags]);
+    if (q) {
+      list = list.filter(
+        (t) =>
+          t.tag.toLowerCase().includes(q) ||
+          t.description.toLowerCase().includes(q),
+      );
+    }
+    if (activeLetter) {
+      list = list.filter((t) => getInitial(t.tag) === activeLetter);
+    }
+    if (sortBy === "alphabetical") {
+      list = list.slice().sort((a, b) => a.tag.localeCompare(b.tag));
+    } else {
+      list = list.slice().sort((a, b) => b.count - a.count);
+    }
+    return list;
+  }, [tags, search, activeLetter, sortBy]);
 
-  // search 바뀌면 visible reset
-  useEffect(() => {
-    setVisible(PAGE_SIZE);
-  }, [search]);
+  useEffect(() => { setVisible(PAGE_SIZE); }, [search, activeLetter, sortBy]);
 
-  // IntersectionObserver — sentinel 보이면 다음 페이지
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el) return;
@@ -75,6 +132,7 @@ export default function TagsIndexClient({ tags }: Props) {
 
   const slice = filtered.slice(0, visible);
   const hasMore = visible < filtered.length;
+  const showFeatured = !search && !activeLetter;
 
   return (
     <div className={styles.container}>
@@ -106,10 +164,79 @@ export default function TagsIndexClient({ tags }: Props) {
         />
       </header>
 
+      {/* 인기 태그 — 검색/letter 안 걸렸을 때만 노출 */}
+      {showFeatured && (
+        <section className={styles.featuredSection}>
+          <h2 className={styles.sectionLabel}>인기 태그</h2>
+          <ul className={styles.featuredList}>
+            {featured.map((t) => (
+              <li
+                key={t.tag}
+                className={styles.tagItem}
+                title={t.description || undefined}
+              >
+                <TagPill
+                  tag={t.tag}
+                  count={t.count}
+                  className={styles.featuredPill}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* 컨트롤 row — 정렬 + 알파벳 인덱스 */}
+      <div className={styles.controlRow}>
+        <SegmentedControl<"popular" | "alphabetical">
+          items={[
+            { value: "popular", label: "인기순" },
+            { value: "alphabetical", label: "가나다" },
+          ]}
+          value={sortBy}
+          onChange={(v) => setSortBy(v)}
+        />
+        <div className={styles.letterIndex}>
+          <button
+            type="button"
+            className={`${styles.letterBtn} ${activeLetter === null ? styles.letterBtnActive : ""}`}
+            onClick={() => setActiveLetter(null)}
+            data-clickable="true"
+          >
+            전체
+          </button>
+          {ALL_LETTERS.map((l) => {
+            const has = (letterBuckets.get(l) ?? 0) > 0;
+            const active = activeLetter === l;
+            return (
+              <button
+                key={l}
+                type="button"
+                className={`${styles.letterBtn} ${active ? styles.letterBtnActive : ""} ${!has ? styles.letterBtnDisabled : ""}`}
+                onClick={() => has && setActiveLetter(active ? null : l)}
+                disabled={!has}
+                data-clickable={has ? "true" : undefined}
+              >
+                {l}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <ul className={styles.list}>
         {slice.map((t) => (
-          <li key={t.tag} className={styles.tagItem} title={t.description || undefined}>
-            <TagPill tag={t.tag} count={t.count} className={styles.tagItemPill} />
+          <li
+            key={t.tag}
+            className={styles.tagItem}
+            title={t.description || undefined}
+          >
+            <TagPill
+              tag={t.tag}
+              count={t.count}
+              className={styles.tagItemPill}
+              style={{ fontSize: `${fontFor(t.count)}px` }}
+            />
           </li>
         ))}
       </ul>

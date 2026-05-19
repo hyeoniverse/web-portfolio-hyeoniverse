@@ -47,10 +47,90 @@
   width: 100%;
 }
 
-/* 일반 태그 나열 — 인라인 pill flex-wrap. 설명은 title 속성으로 tooltip 처리. */
+/* ── 인기 태그 section ── */
+.featuredSection {
+  margin-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-2xl);
+  border-bottom: var(--border-light);
+}
+
+.sectionLabel {
+  margin: 0 0 var(--spacing-md);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.featuredList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.featuredPill {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ── 컨트롤 row — 정렬 + 알파벳 인덱스 ── */
+.controlRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.letterIndex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3xs);
+}
+
+.letterBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.letterBtn:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--bg-tertiary-alt);
+}
+
+.letterBtnActive,
+.letterBtnActive:hover {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.letterBtnDisabled {
+  color: var(--text-muted);
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* 일반 태그 나열 — pill flex-wrap, font-size 는 inline (count 기반 scale) */
 .list {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--spacing-xs);
   list-style: none;
   padding: 0;
@@ -63,7 +143,7 @@
 
 .tagItemPill {
   padding: var(--spacing-2xs) var(--spacing-sm);
-  font-size: var(--font-size-xs);
+  /* font-size 는 inline style 로 부여 (tag cloud scale) */
 }
 
 
