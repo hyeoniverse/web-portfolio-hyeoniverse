@@ -2,9 +2,6 @@
   max-width: var(--page-max-width);
   margin: 0 auto;
   padding: var(--spacing-5xl) var(--page-px) var(--spacing-3xl);
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
 }
 
 .header {
@@ -77,8 +74,7 @@
 
 .endNote,
 .empty {
-  margin: auto 0 0;
-  padding-top: var(--spacing-2xl);
+  margin: var(--spacing-2xl) 0 0;
   text-align: center;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
