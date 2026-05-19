@@ -953,15 +953,14 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 y: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
               }}
             >
-              {/* 상단 헤더 — 검색 input + 전체 태그 링크 */}
+              {/* 상단 헤더 — 검색 (공통 SearchCapsule) + 전체 태그 링크 */}
               <div className={styles.tagSearchHeader}>
-                <input
-                  type="search"
-                  className={styles.tagSearchInput}
+                <SearchCapsule
+                  search={tagSearch}
+                  onSearchChange={setTagSearch}
                   placeholder="태그 검색…"
-                  value={tagSearch}
-                  onChange={(e) => setTagSearch(e.target.value)}
-                  data-clickable="true"
+                  align="left"
+                  className={styles.tagSearchInput}
                 />
                 <Link
                   href="/posts/tags"
