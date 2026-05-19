@@ -258,14 +258,19 @@
   padding: var(--spacing-sm) 0 var(--spacing-md);
 }
 
-/* Tag filter row — viewport 거의 100% 까지 (하단 200px 여백) but 600px 최대.
-   너무 키우면 큰 viewport 에서 모든 태그가 한번에 보여 무한 스크롤 의미 없어짐 */
+/* Tag filter row — viewport 100% 까지 (하단 120px 여백), scroll 시 상단 fade mask */
 .tagRow {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
-  max-height: min(600px, calc(100vh - 200px));
+  max-height: calc(100vh - 120px);
   overflow-y: auto;
+}
+
+/* scrollTop > 0 일 때만 mask — JS 가 .tagRowScrolled 추가 */
+.tagRowScrolled {
+  mask-image: linear-gradient(to bottom, transparent 0, #000 32px, #000 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 32px, #000 100%);
 }
 
 .tagBtn {

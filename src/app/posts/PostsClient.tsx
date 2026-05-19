@@ -144,7 +144,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [allTags] = useState(() => {
     const real = initialData.allTags;
     if (real.length >= 50) return real;
-    const dummies = Array.from({ length: 200 }, (_, i) => ({
+    const dummies = Array.from({ length: 500 }, (_, i) => ({
       tag: `dummy-tag-${i + 1}`,
       count: Math.floor(Math.random() * 20) + 1,
     }));
@@ -217,41 +217,39 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     }
   }, [isStuck, showTags, catExpanded]);
 
-  // 태그 dropdown 닫힐 때 visible count 초기화 — 다시 열면 처음부터
+  // 태그 dropdown 닫힐 때 visible count + 스크롤 mask 초기화
+  const [tagScrolled, setTagScrolled] = useState(false);
   useEffect(() => {
-    if (!showTags) setVisibleTagCount(TAG_PAGE_SIZE);
+    if (!showTags) { setVisibleTagCount(TAG_PAGE_SIZE); setTagScrolled(false); }
   }, [showTags]);
 
-  // 태그 무한 스크롤 — scroll event 로 root 내 scrollTop 추적.
+  // 태그 무한 스크롤 — scroll + wheel 둘 다 listener (Lenis 우회 보장)
   useEffect(() => {
     if (!showTags) return;
-    if (visibleTagCount >= allTags.length) return;
-    // ref 가 mount 후 다음 tick 에 ready — small delay
-    const t = setTimeout(() => {
-      const root = tagRowRef.current;
-      if (!root) return;
-      // eslint-disable-next-line no-console
-      console.log("[tag-scroll] attached", { scrollHeight: root.scrollHeight, clientHeight: root.clientHeight });
-      const onScroll = () => {
-        // eslint-disable-next-line no-console
-        console.log("[tag-scroll]", { scrollTop: root.scrollTop, clientHeight: root.clientHeight, scrollHeight: root.scrollHeight });
-        if (root.scrollTop + root.clientHeight >= root.scrollHeight - 80) {
-          // eslint-disable-next-line no-console
-          console.log("[tag-infinite-scroll] loading more", { current: visibleTagCount, total: allTags.length });
-          setVisibleTagCount((c) => Math.min(c + TAG_PAGE_SIZE, allTags.length));
-        }
-      };
-      root.addEventListener("scroll", onScroll, { passive: true });
-      // store cleanup
-      (root as HTMLDivElement & { _tagScrollCleanup?: () => void })._tagScrollCleanup = () =>
-        root.removeEventListener("scroll", onScroll);
-    }, 50);
-    return () => {
-      clearTimeout(t);
-      const root = tagRowRef.current as (HTMLDivElement & { _tagScrollCleanup?: () => void }) | null;
-      if (root?._tagScrollCleanup) root._tagScrollCleanup();
+    const root = tagRowRef.current;
+    if (!root) return;
+    const loadMore = () => {
+      setVisibleTagCount((c) => Math.min(c + TAG_PAGE_SIZE, allTags.length));
     };
-  }, [showTags, visibleTagCount, allTags.length]);
+    const onScroll = () => {
+      setTagScrolled(root.scrollTop > 4);
+      if (root.scrollTop + root.clientHeight >= root.scrollHeight - 80) {
+        loadMore();
+      }
+    };
+    // wheel fallback — Lenis 가 wheel 을 잡아 native scroll 안 일어나는 경우 대비
+    const onWheel = (e: WheelEvent) => {
+      e.stopPropagation();
+      root.scrollTop += e.deltaY;
+      onScroll();
+    };
+    root.addEventListener("scroll", onScroll, { passive: true });
+    root.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      root.removeEventListener("scroll", onScroll);
+      root.removeEventListener("wheel", onWheel);
+    };
+  }, [showTags, allTags.length]);
 
   // Cooldown: skip scroll-collapse briefly after expanding tags/categories
   useEffect(() => {
@@ -779,7 +777,11 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 y: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
               }}
             >
-              <div ref={tagRowRef} className={styles.tagRow} data-lenis-prevent>
+              <div
+                ref={tagRowRef}
+                className={`${styles.tagRow} ${tagScrolled ? styles.tagRowScrolled : ""}`}
+                data-lenis-prevent
+              >
                 <button
                   className={`${styles.tagBtn} ${activeTags.size === 0 ? styles.tagBtnActive : ""}`}
                   onClick={clearActiveTags}
