@@ -226,7 +226,7 @@ export async function getTagPageData(tag: string, perPage: number = TAG_PER_PAGE
 
 export type TagPageData = Awaited<ReturnType<typeof getTagPageData>>;
 
-/** /posts/tags 인덱스 페이지용 — published 글의 모든 distinct tags + 개수 + 설명 */
+/** /posts/tags 인덱스 페이지용 — published 글의 모든 distinct tags + 개수 + 설명 + 연관 태그 */
 export async function getAllTagsData() {
   const admin = createAdminClient();
   const cfg = await getSiteConfig();
@@ -238,11 +238,39 @@ export async function getAllTagsData() {
     .eq("published", true)
     .limit(2000);
 
+  const rows = (tagRows ?? []) as Pick<Post, "tags">[];
+
+  // count + co-occurrence — 같은 글에 함께 쓰인 태그 쌍 카운트
   const counts = new Map<string, number>();
-  for (const row of (tagRows ?? []) as Pick<Post, "tags">[]) {
+  const cooc = new Map<string, Map<string, number>>();
+  for (const row of rows) {
     if (!row.tags) continue;
-    for (const t of row.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+    const ts = Array.from(new Set(row.tags));
+    for (const t of ts) counts.set(t, (counts.get(t) ?? 0) + 1);
+    for (let i = 0; i < ts.length; i++) {
+      for (let j = i + 1; j < ts.length; j++) {
+        const a = ts[i];
+        const b = ts[j];
+        if (!cooc.has(a)) cooc.set(a, new Map());
+        if (!cooc.has(b)) cooc.set(b, new Map());
+        const ma = cooc.get(a)!;
+        const mb = cooc.get(b)!;
+        ma.set(b, (ma.get(b) ?? 0) + 1);
+        mb.set(a, (mb.get(a) ?? 0) + 1);
+      }
+    }
   }
+
+  // 각 태그의 related — co-occurrence 상위 5개
+  const RELATED_LIMIT = 5;
+  const getRelated = (tag: string): string[] => {
+    const m = cooc.get(tag);
+    if (!m) return [];
+    return Array.from(m.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, RELATED_LIMIT)
+      .map(([t]) => t);
+  };
 
   const tags = Array.from(counts.entries())
     .sort((a, b) => b[1] - a[1])
@@ -250,6 +278,7 @@ export async function getAllTagsData() {
       tag,
       count,
       description: descriptions[tag] ?? "",
+      related: getRelated(tag),
     }));
 
   return { tags };
