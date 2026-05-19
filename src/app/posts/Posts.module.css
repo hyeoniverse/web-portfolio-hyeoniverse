@@ -258,13 +258,39 @@
   padding: var(--spacing-sm) 0 var(--spacing-md);
 }
 
-/* Tag filter row — 태그 많을 때 max-height + 내부 scroll. viewport 짤림 방지. */
+/* Tag filter row — 70vh 까지 (하단 여유), top/bottom fade mask 로 스크롤 가능 표시 */
 .tagRow {
+  --top-fade: 0px;
+  --bot-fade: 64px;
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
-  max-height: 220px;
+  max-height: 70vh;
   overflow-y: auto;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--top-fade),
+    #000 calc(100% - var(--bot-fade)),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--top-fade),
+    #000 calc(100% - var(--bot-fade)),
+    transparent 100%
+  );
+}
+
+/* 스크롤 내려와 있음 → 상단 fade 활성 */
+.tagRowScrolled {
+  --top-fade: 64px;
+}
+
+/* 바닥 도달 → 하단 fade 비활성 */
+.tagRowAtBottom {
+  --bot-fade: 0px;
 }
 
 .tagBtn {
@@ -309,13 +335,27 @@
   color: var(--text-inverse);
 }
 
-/* "전체 태그" 페이지 이동 링크 — tag pill 들 가장 끝 오른쪽. border 없이 옅게, hover 시 강조 */
+/* 태그 dropdown 상단 헤더 — 검색 input + 전체 태그 링크 */
+.tagSearchHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0 0 var(--spacing-sm);
+  border-bottom: var(--border-light);
+  margin-bottom: var(--spacing-sm);
+}
+
+.tagSearchInput {
+  flex: 1;
+  min-width: 0;
+}
+
+/* "전체 태그" 페이지 이동 링크 — tagSearchHeader 안 오른쪽. border 없이 옅게, hover 시 강조 */
 .tagAllLink {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
   padding: var(--box-2xs-md);
-  margin-left: auto;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
@@ -328,11 +368,18 @@
   transform: translateX(2px);
 }
 
-/* 무한 스크롤 sentinel — IntersectionObserver target. 시각적으로 표시 안 됨 */
-.tagSentinel {
-  flex: 0 0 1px;
-  height: 1px;
+/* 모든 태그 로드 완료 메시지 — tagRow 의 마지막 줄 단독 (flex-basis 100%) */
+.tagAllLoaded {
+  flex-basis: 100%;
+  text-align: center;
+  margin: var(--spacing-sm) 0 0;
+  padding: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
 }
+
 
 /* ── Content Area (2-column) ── */
 .contentArea {
@@ -953,9 +1000,9 @@
     display: none;
   }
 
-  /* 태블릿 — 2 col (12 셀 / 2 = 6행 정확히 떨어짐) */
+  /* 태블릿 — 3 col 고정 (auto-fit 이 좁은 폭에서 4 col 잡는 거 방지) */
   .grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
