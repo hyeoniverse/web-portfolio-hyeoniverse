@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
+import BackLink from "@/components/ui/BackLink";
 import Checkbox from "@/components/ui/Checkbox";
 import Tooltip from "@/components/ui/Tooltip";
 import LanguageToggle from "@/components/ui/LanguageToggle";
@@ -176,10 +176,7 @@ export default function AdminEditorShell({
         <div className={styles.topBarRow}>
         {/* ── 왼쪽: 네비게이션 + 언어 ── */}
         <div className={styles.topLeft}>
-          <Link href={backHref} className={styles.backLink}>
-            <ArrowLeft size={14} strokeWidth={1.8} className={styles.backArrow} aria-hidden />
-            <span>{backLabel}</span>
-          </Link>
+          <BackLink href={backHref} label={backLabel} />
           {topBarFirstRowExtra && (
             <>
               <div className={styles.actionsDivider} />
