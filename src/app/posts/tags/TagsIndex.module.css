@@ -73,27 +73,42 @@
   background: var(--bg-accent-light);
 }
 
-/* ── 연관 태그 Tooltip ── */
-.relatedBubble {
-  max-width: 320px;
+/* ── 인라인 expand — 클릭한 태그 바로 아래 row 단독 (flex-basis 100%) ── */
+.tagItemExpanded.tagItemExpanded {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
-.relatedContent {
+.tagDetailRow {
+  flex-basis: 100%;
+  margin: var(--spacing-2xs) 0;
+}
+
+.tagDetail {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
 }
 
-.relatedDesc {
+.tagDetailDesc {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-snug);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
 }
 
-.relatedLabel {
-  margin: 0;
+.tagDetailRelated {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.tagDetailLabel {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
@@ -102,14 +117,32 @@
   letter-spacing: 0.06em;
 }
 
-.relatedList {
+.tagDetailPills {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2xs);
 }
 
-.relatedPill {
-  font-size: var(--font-size-2xs);
+.tagDetailPill {
+  font-size: var(--font-size-xs);
+}
+
+.tagDetailViewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  align-self: flex-start;
+  padding: var(--spacing-2xs) 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-accent);
+  text-decoration: none;
+  transition: gap 0.15s ease;
+}
+
+.tagDetailViewAll:hover {
+  gap: var(--spacing-xs);
 }
 
 .letterIndex {
