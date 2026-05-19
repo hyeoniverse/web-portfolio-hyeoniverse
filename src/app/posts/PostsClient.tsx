@@ -248,12 +248,8 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const [popularIds] = useState<Set<string>>(new Set(initialData.popularIds));
   const [showTags, setShowTags] = useState(false);
-  // 태그 dropdown 검색 + 일정량 이상 시 무한 스크롤 (hybrid).
-  // 1000+ 이면 DOM 폭주 방지용 페이징. 이하는 다 렌더 (검색만으로 충분).
-  const TAG_INFINITE_THRESHOLD = 1000;
-  const TAG_PAGE_SIZE = 200;
+  // 태그 dropdown 검색 — name 또는 description 매칭. 무한 스크롤 X (현실에서 1000+ 안 됨).
   const [tagSearch, setTagSearch] = useState("");
-  const [tagVisibleCount, setTagVisibleCount] = useState(TAG_PAGE_SIZE);
   const tagRowRef = useRef<HTMLDivElement>(null);
   const filteredTags = useMemo(() => {
     const q = tagSearch.trim().toLowerCase();
@@ -264,10 +260,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       return false;
     });
   }, [allTags, tagSearch]);
-  const needsPaging = filteredTags.length > TAG_INFINITE_THRESHOLD;
-  const displayedTags = needsPaging ? filteredTags.slice(0, tagVisibleCount) : filteredTags;
-  // 검색어 변경 시 visible count 초기화
-  useEffect(() => { setTagVisibleCount(TAG_PAGE_SIZE); }, [tagSearch]);
   const [catExpanded, setCatExpanded] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -311,7 +303,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     }
   }, [showTags]);
 
-  // 태그 dropdown scroll mask + wheel fallback (Lenis 우회) + 무한 스크롤 load more
+  // 태그 dropdown scroll mask + wheel fallback (Lenis 우회)
   useEffect(() => {
     if (!showTags) return;
     const root = tagRowRef.current;
@@ -319,10 +311,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     const updateState = () => {
       setTagScrolled(root.scrollTop > 4);
       setTagAtBottom(root.scrollTop + root.clientHeight >= root.scrollHeight - 4);
-      // hybrid 무한 스크롤 — 200+ 일 때만, 바닥 근처 도달 시 batch 추가
-      if (needsPaging && root.scrollTop + root.clientHeight >= root.scrollHeight - 80) {
-        setTagVisibleCount((c) => Math.min(c + TAG_PAGE_SIZE, filteredTags.length));
-      }
     };
     const onWheel = (e: WheelEvent) => {
       e.stopPropagation();
@@ -336,7 +324,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       root.removeEventListener("scroll", updateState);
       root.removeEventListener("wheel", onWheel);
     };
-  }, [showTags, filteredTags.length, needsPaging, tagVisibleCount]);
+  }, [showTags, filteredTags.length]);
 
   // Cooldown: skip scroll-collapse briefly after expanding tags/categories
   useEffect(() => {
@@ -999,7 +987,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 >
                   <T k="postsPage.allTags" />
                 </button>
-                {displayedTags.map(({ tag, count }) => (
+                {filteredTags.map(({ tag, count }) => (
                   <button
                     key={tag}
                     className={`${styles.tagBtn} ${activeTags.has(tag) ? styles.tagBtnActive : ""}`}
@@ -1013,11 +1001,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 {filteredTags.length === 0 && (
                   <p className={styles.tagAllLoaded}>
                     — &ldquo;{tagSearch}&rdquo; 와 일치하는 태그 없음 —
-                  </p>
-                )}
-                {needsPaging && tagVisibleCount >= filteredTags.length && filteredTags.length > 0 && (
-                  <p className={styles.tagAllLoaded}>
-                    — 모든 태그를 다 표시했습니다. ({filteredTags.length}개) —
                   </p>
                 )}
               </div>
