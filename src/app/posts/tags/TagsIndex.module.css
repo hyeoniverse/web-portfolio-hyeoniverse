@@ -56,9 +56,10 @@
   margin-bottom: var(--spacing-lg);
 }
 
-/* 인기 태그 — 별도 섹션 대신 inline accent. 가장 많이 쓰인 top N 의 # 만 accent 컬러. */
-.tagItemPopular {
-  color: var(--text-accent);
+/* 인기 태그 — 별도 섹션 대신 inline accent. top N 에 light accent 배경.
+   compound (0,2,0) 로 TagPill 의 .pill 기본 background 를 override */
+.tagItemPopular.tagItemPopular {
+  background: var(--bg-accent-light);
 }
 
 .letterIndex {
