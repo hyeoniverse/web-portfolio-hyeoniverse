@@ -820,10 +820,11 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 {visibleTagCount < allTags.length && (
                   <div ref={tagSentinelRef} className={styles.tagSentinel} aria-hidden />
                 )}
-                {/* dev — 무한 스크롤 동작 확인용 카운터 */}
-                <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>
-                  {visibleTagCount} / {allTags.length}
-                </span>
+                {visibleTagCount >= allTags.length && (
+                  <p className={styles.tagAllLoaded}>
+                    — 모든 태그를 다 표시했습니다 ({allTags.length}개) —
+                  </p>
+                )}
               </div>
             </motion.div>
           )}
