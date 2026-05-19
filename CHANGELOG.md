@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.9.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.8.0...v1.9.0) (2026-05-19)
+
+
+### Features
+
+* **admin:** works/posts 수동 정렬 + 필터바 일관성 + BackLink 공통화 ([f6fe885](https://github.com/hyeoniverse/web-portfolio-oval/commit/f6fe8859bcf3c7f7379ee817a1bfe0e058784740)), closes [#106](https://github.com/hyeoniverse/web-portfolio-oval/issues/106)
+* **tags:** /posts/tags 인덱스 페이지 전면 개편 ([8b5ab03](https://github.com/hyeoniverse/web-portfolio-oval/commit/8b5ab03a605fa0699c50b897eb381a48b4f42943)), closes [#110](https://github.com/hyeoniverse/web-portfolio-oval/issues/110)
+
+
+### Bug Fixes
+
+* **deps:** Next.js 16 + eslint-config-next 16 마이그레이션 ([a4b2824](https://github.com/hyeoniverse/web-portfolio-oval/commit/a4b2824cbf509586d23ac97a1c0636f3c984d480))
+* **deps:** regenerate lock file (dependabot's was out of sync with package.json) ([5ffef71](https://github.com/hyeoniverse/web-portfolio-oval/commit/5ffef7197bdd4f249ebdd779fdbf505712f6f112))
+* **plate:** isSelectingCell 가 useTableElement 에서 API 로 이동 (v53 호환) ([f2200bf](https://github.com/hyeoniverse/web-portfolio-oval/commit/f2200bffc214f06f30a6aaaa77e69c94c7c7679f))
+
 ## [1.8.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.7.0...v1.8.0) (2026-05-18)
 
 
