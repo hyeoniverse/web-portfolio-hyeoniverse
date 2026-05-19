@@ -54,7 +54,7 @@ export default function TagsIndexClient({ tags }: Props) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [isAdmin, setIsAdmin] = useState(false);
   const [hoveredTag, setHoveredTag] = useState<string | null>(null);
-  const { isMobile } = useIsMobile(768);
+  const { isTouch } = useIsMobile();
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   // hover 한 태그의 related Set — 연관 pill 들 시각적으로 강조
@@ -216,14 +216,14 @@ export default function TagsIndexClient({ tags }: Props) {
         </div>
       </div>
 
-      <ul className={`${styles.list} ${isMobile ? styles.listMobile : ""}`}>
+      <ul className={`${styles.list} ${isTouch ? styles.listTouch : ""}`}>
         {slice.map((t) => {
           const isRelated = relatedToHovered.has(t.tag);
           return (
             <li
               key={t.tag}
               className={styles.tagItem}
-              title={!isMobile && t.description ? t.description : undefined}
+              title={!isTouch && t.description ? t.description : undefined}
               onMouseEnter={() => setHoveredTag(t.tag)}
               onMouseLeave={() => setHoveredTag(null)}
             >
@@ -233,19 +233,19 @@ export default function TagsIndexClient({ tags }: Props) {
                 className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""} ${isRelated ? styles.tagItemRelated : ""}`}
                 style={{ fontSize: `${fontFor(t.count)}px` }}
               />
-              {isMobile && (t.description || t.related.length > 0) && (
-                <div className={styles.tagItemMobileExtra}>
+              {isTouch && (t.description || t.related.length > 0) && (
+                <div className={styles.tagItemTouchExtra}>
                   {t.description && (
-                    <p className={styles.tagItemMobileDesc}>{t.description}</p>
+                    <p className={styles.tagItemTouchDesc}>{t.description}</p>
                   )}
                   {t.related.length > 0 && (
-                    <div className={styles.tagItemMobileRelated}>
-                      <span className={styles.tagItemMobileRelLabel}>연관</span>
+                    <div className={styles.tagItemTouchRelated}>
+                      <span className={styles.tagItemTouchRelLabel}>연관</span>
                       {t.related.map((r) => (
                         <TagPill
                           key={r}
                           tag={r}
-                          className={styles.tagItemMobileRelPill}
+                          className={styles.tagItemTouchRelPill}
                         />
                       ))}
                     </div>
