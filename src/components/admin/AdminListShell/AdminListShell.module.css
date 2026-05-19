@@ -116,7 +116,6 @@
   flex: 0 0 auto;
   min-width: 60px;
   max-width: 80px;
-  margin-left: auto;
 }
 
 .filterPageSize button {
@@ -142,12 +141,7 @@
 .filterSearch {
   flex: 0 0 auto;
   width: 280px;
-}
-
-/* 검색 단독 윗줄 — filterBar 안에서 자체 row (flex-basis 100%), 왼쪽 정렬 */
-.searchRow {
-  display: flex;
-  flex-basis: 100%;
+  margin-left: auto;
 }
 
 /* ── Preview Backdrop (mobile dismiss) ── */

@@ -500,17 +500,17 @@ export default function AdminWorksPage() {
         emptyMessage={t("admin.works.trashEmpty")}
         filterBar={
           <div className={shell.filterBar}>
-            <Select
-              value={String(trashPerPage)}
-              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
-              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
-              className={`${shell.filterPageSize} ${styles.filterPageSizeLeft ?? ""}`}
-            />
             <SegmentedControl
               items={[{ value: "date", label: t("admin.works.sortDeletedAt") }]}
               value="date"
               sortDir={trashSort === "oldest" ? "asc" : "desc"}
               onChange={() => setTrashSort((p) => p === "newest" ? "oldest" : "newest")}
+            />
+            <Select
+              value={String(trashPerPage)}
+              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
+              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
+              className={shell.filterPageSize}
             />
             <SearchCapsule
               typeSelector={{
@@ -606,33 +606,14 @@ role: 풀스택 개발
         </>
       }
     >
-      {/* Filter bar — 윗줄(검색 단독 left) + 아랫줄(sort + filters + perPage) wrap */}
+      {/* Filter bar — sort + filters + perPage 좌측, 검색은 우측 끝 (margin-left:auto) */}
       <div className={shell.filterBar}>
-        <div className={shell.searchRow}>
-          <SearchCapsule
-            typeSelector={{
-              value: searchType,
-              options: [
-                { value: "all", label: t("admin.works.searchAll") },
-                { value: "title", label: t("admin.works.searchTitle") },
-                { value: "content", label: t("admin.works.searchContent") },
-              ],
-              onChange: (v) => { setSearchType(v); setPage(1); },
-            }}
-            search={search}
-            onSearchChange={(v) => { setSearch(v); setPage(1); }}
-            placeholder={t("admin.works.search")}
-            align="left"
-            className={shell.filterSearch}
-          />
-        </div>
         <SegmentedControl
           items={[
             { value: "order", label: t("admin.works.sortOrder") },
             { value: "date", label: t("admin.works.sortDate") },
             { value: "name", label: t("admin.works.sortName") },
           ]}
-          // 매핑: newest/oldest → date, 나머지 그대로
           value={sort === "newest" || sort === "oldest" ? "date" : sort}
           sortDir={sort === "oldest" ? "asc" : "desc"}
           onChange={(v) => {
@@ -684,6 +665,22 @@ role: 풀스택 개발
           options={PAGE_SIZE_OPTIONS}
           onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
           className={shell.filterPageSize}
+        />
+        <SearchCapsule
+          typeSelector={{
+            value: searchType,
+            options: [
+              { value: "all", label: t("admin.works.searchAll") },
+              { value: "title", label: t("admin.works.searchTitle") },
+              { value: "content", label: t("admin.works.searchContent") },
+            ],
+            onChange: (v) => { setSearchType(v); setPage(1); },
+          }}
+          search={search}
+          onSearchChange={(v) => { setSearch(v); setPage(1); }}
+          placeholder={t("admin.works.search")}
+          align="left"
+          className={shell.filterSearch}
         />
       </div>
 
