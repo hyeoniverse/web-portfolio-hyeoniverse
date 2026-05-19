@@ -258,19 +258,39 @@
   padding: var(--spacing-sm) 0 var(--spacing-md);
 }
 
-/* Tag filter row — viewport 100% 까지 (하단 120px 여백), scroll 시 상단 fade mask */
+/* Tag filter row — 70vh 까지 (하단 여유), top/bottom fade mask 로 스크롤 가능 표시 */
 .tagRow {
+  --top-fade: 0px;
+  --bot-fade: 64px;
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
-  max-height: calc(100vh - 120px);
+  max-height: 70vh;
   overflow-y: auto;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--top-fade),
+    #000 calc(100% - var(--bot-fade)),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--top-fade),
+    #000 calc(100% - var(--bot-fade)),
+    transparent 100%
+  );
 }
 
-/* scrollTop > 0 일 때만 mask — JS 가 .tagRowScrolled 추가 */
+/* 스크롤 내려와 있음 → 상단 fade 활성 */
 .tagRowScrolled {
-  mask-image: linear-gradient(to bottom, transparent 0, #000 32px, #000 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 32px, #000 100%);
+  --top-fade: 64px;
+}
+
+/* 바닥 도달 → 하단 fade 비활성 */
+.tagRowAtBottom {
+  --bot-fade: 0px;
 }
 
 .tagBtn {
@@ -315,13 +335,12 @@
   color: var(--text-inverse);
 }
 
-/* "전체 태그" 페이지 이동 링크 — tag pill 들 가장 끝 오른쪽. border 없이 옅게, hover 시 강조 */
+/* "전체 태그" 페이지 이동 링크 — tagRow 맨 앞. border 없이 옅게, hover 시 강조 */
 .tagAllLink {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
   padding: var(--box-2xs-md);
-  margin-left: auto;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);

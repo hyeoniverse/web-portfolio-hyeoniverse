@@ -219,8 +219,13 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
   // 태그 dropdown 닫힐 때 visible count + 스크롤 mask 초기화
   const [tagScrolled, setTagScrolled] = useState(false);
+  const [tagAtBottom, setTagAtBottom] = useState(false);
   useEffect(() => {
-    if (!showTags) { setVisibleTagCount(TAG_PAGE_SIZE); setTagScrolled(false); }
+    if (!showTags) {
+      setVisibleTagCount(TAG_PAGE_SIZE);
+      setTagScrolled(false);
+      setTagAtBottom(false);
+    }
   }, [showTags]);
 
   // 태그 무한 스크롤 — scroll + wheel 둘 다 listener (Lenis 우회 보장)
@@ -231,8 +236,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     const loadMore = () => {
       setVisibleTagCount((c) => Math.min(c + TAG_PAGE_SIZE, allTags.length));
     };
-    const onScroll = () => {
+    const updateState = () => {
       setTagScrolled(root.scrollTop > 4);
+      const atBottom = root.scrollTop + root.clientHeight >= root.scrollHeight - 4;
+      setTagAtBottom(atBottom);
       if (root.scrollTop + root.clientHeight >= root.scrollHeight - 80) {
         loadMore();
       }
@@ -241,15 +248,17 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     const onWheel = (e: WheelEvent) => {
       e.stopPropagation();
       root.scrollTop += e.deltaY;
-      onScroll();
+      updateState();
     };
-    root.addEventListener("scroll", onScroll, { passive: true });
+    root.addEventListener("scroll", updateState, { passive: true });
     root.addEventListener("wheel", onWheel, { passive: false });
+    // 초기 상태 — 콘텐츠가 안 넘치면 즉시 atBottom true
+    updateState();
     return () => {
-      root.removeEventListener("scroll", onScroll);
+      root.removeEventListener("scroll", updateState);
       root.removeEventListener("wheel", onWheel);
     };
-  }, [showTags, allTags.length]);
+  }, [showTags, visibleTagCount, allTags.length]);
 
   // Cooldown: skip scroll-collapse briefly after expanding tags/categories
   useEffect(() => {
@@ -779,9 +788,17 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             >
               <div
                 ref={tagRowRef}
-                className={`${styles.tagRow} ${tagScrolled ? styles.tagRowScrolled : ""}`}
+                className={`${styles.tagRow} ${tagScrolled ? styles.tagRowScrolled : ""} ${tagAtBottom ? styles.tagRowAtBottom : ""}`}
                 data-lenis-prevent
               >
+                <Link
+                  href="/posts/tags"
+                  className={styles.tagAllLink}
+                  data-clickable="true"
+                >
+                  <T k="postsPage.tagsAllLink" />
+                  <ChevronRight size={12} aria-hidden />
+                </Link>
                 <button
                   className={`${styles.tagBtn} ${activeTags.size === 0 ? styles.tagBtnActive : ""}`}
                   onClick={clearActiveTags}
@@ -807,14 +824,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>
                   {visibleTagCount} / {allTags.length}
                 </span>
-                <Link
-                  href="/posts/tags"
-                  className={styles.tagAllLink}
-                  data-clickable="true"
-                >
-                  <T k="postsPage.tagsAllLink" />
-                  <ChevronRight size={12} aria-hidden />
-                </Link>
               </div>
             </motion.div>
           )}
