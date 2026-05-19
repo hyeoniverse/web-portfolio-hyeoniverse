@@ -73,13 +73,13 @@
   background: var(--bg-accent-light);
 }
 
-/* hover 한 태그의 연관 태그 glow — 부드러운 흰빛 halo */
+/* hover 한 태그의 연관 태그 glow — accent 톤 부드러운 halo (color-mix 로 투명도 조절) */
 .tagItemRelated.tagItemRelated {
   position: relative;
   z-index: 1;
   box-shadow:
-    0 0 8px rgba(255, 255, 255, 0.55),
-    0 0 16px rgba(255, 255, 255, 0.3);
+    0 0 6px color-mix(in srgb, var(--text-accent) 60%, transparent),
+    0 0 14px color-mix(in srgb, var(--text-accent) 30%, transparent);
   transition: box-shadow 0.18s ease;
 }
 
