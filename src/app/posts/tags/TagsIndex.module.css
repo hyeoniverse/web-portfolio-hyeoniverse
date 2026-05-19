@@ -73,16 +73,14 @@
   background: var(--bg-accent-light);
 }
 
-/* hover 한 태그의 연관 태그 glow — 다중 box-shadow + 살짝 scale up */
+/* hover 한 태그의 연관 태그 glow — 부드러운 흰빛 halo */
 .tagItemRelated.tagItemRelated {
   position: relative;
   z-index: 1;
   box-shadow:
-    0 0 0 1px var(--text-accent),
-    0 0 8px var(--text-accent),
-    0 0 20px var(--text-accent);
-  transform: translateY(-1px) scale(1.03);
-  transition: box-shadow 0.18s ease, transform 0.18s ease;
+    0 0 8px rgba(255, 255, 255, 0.55),
+    0 0 16px rgba(255, 255, 255, 0.3);
+  transition: box-shadow 0.18s ease;
 }
 
 .letterIndex {
