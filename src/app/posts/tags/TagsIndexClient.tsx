@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Settings, Tags } from "lucide-react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Settings, Tags, X, ArrowRight } from "lucide-react";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import Button from "@/components/ui/Button";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -54,8 +56,22 @@ export default function TagsIndexClient({ tags }: Props) {
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [isAdmin, setIsAdmin] = useState(false);
   const [hoveredTag, setHoveredTag] = useState<string | null>(null);
+  const [sheetTag, setSheetTag] = useState<TagEntry | null>(null);
   const { isTouch } = useIsMobile();
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // 시트 열려 있을 때 ESC 닫기 + body scroll 잠금
+  useEffect(() => {
+    if (!sheetTag) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSheetTag(null); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [sheetTag]);
 
   // hover 한 태그의 related Set — 연관 pill 들 시각적으로 강조
   const relatedToHovered = useMemo(() => {
@@ -216,9 +232,10 @@ export default function TagsIndexClient({ tags }: Props) {
         </div>
       </div>
 
-      <ul className={`${styles.list} ${isTouch ? styles.listTouch : ""}`}>
+      <ul className={styles.list}>
         {slice.map((t) => {
           const isRelated = relatedToHovered.has(t.tag);
+          const hasExtras = !!t.description || t.related.length > 0;
           return (
             <li
               key={t.tag}
@@ -232,22 +249,11 @@ export default function TagsIndexClient({ tags }: Props) {
                 count={t.count}
                 className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""} ${isRelated ? styles.tagItemRelated : ""}`}
                 style={{ fontSize: `${fontFor(t.count)}px` }}
+                onClick={isTouch && hasExtras ? (e) => {
+                  e.preventDefault();
+                  setSheetTag(t);
+                } : undefined}
               />
-              {isTouch && t.description && (
-                <span className={styles.touchDesc}>— {t.description}</span>
-              )}
-              {isTouch && t.related.length > 0 && (
-                <>
-                  <span className={styles.touchRelLabel}> · 연관:</span>
-                  {t.related.map((r) => (
-                    <TagPill
-                      key={r}
-                      tag={r}
-                      className={styles.touchRelPill}
-                    />
-                  ))}
-                </>
-              )}
             </li>
           );
         })}
@@ -260,6 +266,65 @@ export default function TagsIndexClient({ tags }: Props) {
       {filtered.length === 0 && (
         <p className={styles.empty}>일치하는 태그가 없습니다.</p>
       )}
+
+      {/* 터치 디바이스 — 탭 시 바텀 시트로 detail */}
+      <AnimatePresence>
+        {sheetTag && (
+          <>
+            <motion.div
+              className={styles.sheetBackdrop}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setSheetTag(null)}
+            />
+            <motion.div
+              className={styles.sheet}
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 280 }}
+              role="dialog"
+              aria-modal="true"
+            >
+              <button
+                type="button"
+                className={styles.sheetClose}
+                onClick={() => setSheetTag(null)}
+                aria-label="닫기"
+              >
+                <X size={18} aria-hidden />
+              </button>
+              <div className={styles.sheetHeader}>
+                <h2 className={styles.sheetTitle}>#{sheetTag.tag}</h2>
+                <span className={styles.sheetCount}>{sheetTag.count}개의 글</span>
+              </div>
+              {sheetTag.description && (
+                <p className={styles.sheetDesc}>{sheetTag.description}</p>
+              )}
+              {sheetTag.related.length > 0 && (
+                <div className={styles.sheetRelated}>
+                  <span className={styles.sheetSectionLabel}>연관 태그</span>
+                  <div className={styles.sheetRelatedPills}>
+                    {sheetTag.related.map((r) => (
+                      <TagPill key={r} tag={r} onClick={() => setSheetTag(null)} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <Link
+                href={`/posts/tags/${encodeURIComponent(sheetTag.tag)}`}
+                className={styles.sheetCta}
+                onClick={() => setSheetTag(null)}
+              >
+                이 태그의 글 보기
+                <ArrowRight size={14} aria-hidden />
+              </Link>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
