@@ -85,7 +85,7 @@
   min-width: 24px;
   padding: var(--spacing-3xs) var(--spacing-2xs);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
