@@ -88,6 +88,7 @@
 .filterBar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--spacing-xs);
   margin-bottom: var(--spacing-md);
   padding-top: var(--spacing-sm);
@@ -98,9 +99,11 @@
 
 
 .filterItem {
-  flex: 0 1 auto;
-  min-width: 100px;
-  max-width: 160px;
+  flex: 0 0 auto;
+  width: fit-content;
+  min-width: 0;
+  /* 12자 정도 + padding + chevron 만큼만. ch 단위는 font "0" 너비 기준 — 한글/영문 평균에 근사 */
+  max-width: calc(12ch + var(--spacing-md) * 2 + 20px);
 }
 
 .filterItem button {
@@ -113,7 +116,6 @@
   flex: 0 0 auto;
   min-width: 60px;
   max-width: 80px;
-  margin-left: auto;
 }
 
 .filterPageSize button {
@@ -137,9 +139,9 @@
 }
 
 .filterSearch {
-  flex: 0 1 auto;
-  min-width: 240px;
-  max-width: 320px;
+  flex: 0 0 auto;
+  width: 280px;
+  margin-left: auto;
 }
 
 /* ── Preview Backdrop (mobile dismiss) ── */
@@ -231,20 +233,12 @@
   color: var(--text-tertiary);
 }
 
-/* 태블릿 이하: 검색창이 한 줄에 들어갈 너비가 부족하면 다음 행으로 wrap, 100% 너비 */
-@media (max-width: 1024px) {
-  .filterBar {
-    flex-wrap: wrap;
-  }
-
-  .filterBar .filterSearch {
-    flex-basis: 100%;
-    max-width: none;
-    margin-top: var(--spacing-xs);
-  }
-}
-
 @media (max-width: 768px) {
+  /* 모바일: 검색창 full width */
+  .filterBar .filterSearch {
+    width: 100%;
+  }
+
   .header {
     flex-wrap: wrap;
     gap: var(--spacing-sm);

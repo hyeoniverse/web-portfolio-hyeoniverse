@@ -30,30 +30,6 @@
   flex-shrink: 0;
 }
 
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  text-decoration: none;
-}
-
-.topBar .backLink:hover {
-  color: var(--text-primary);
-}
-
-/* compound selector (0,2,0) — 글로벌 theme transition (0,1,1) 이김. transform 은 글로벌 규칙에 없음 */
-.backLink .backArrow {
-  flex-shrink: 0;
-  transition: transform var(--duration-base) var(--ease-material);
-}
-
-.backLink:hover .backArrow {
-  transform: translateX(-3px);
-}
-
 .topBarRow:last-child {
   justify-content: flex-end;
 }

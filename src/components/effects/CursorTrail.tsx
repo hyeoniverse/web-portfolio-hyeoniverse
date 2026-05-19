@@ -137,7 +137,16 @@ export default function CursorTrail() {
       );
 
       const draggableEl = !isDisabled && target?.closest("[data-draggable], [draggable]");
-      const isDraggable = !!draggableEl && draggableEl.getAttribute("draggable") !== "false";
+      // 클릭 가능 요소가 draggable 의 자손이면 (e.g., 드래그 가능한 row 안의 버튼) → 클릭 우선
+      const clickableInsideDrag = draggableEl && target && (
+        target.closest("button, a, [data-clickable]")
+      );
+      const clickInsideDrag = !!clickableInsideDrag
+        && draggableEl !== clickableInsideDrag
+        && draggableEl.contains(clickableInsideDrag);
+      const isDraggable = !!draggableEl
+        && draggableEl.getAttribute("draggable") !== "false"
+        && !clickInsideDrag;
 
       // clickable 판별 시, 매칭된 interactive 요소 자체가 disabled이면 제외
       const clickableEl = !isDraggable && !isDisabled && target && (

@@ -74,45 +74,56 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const admin = createAdminClient();
 
-  // sort_order 변경 시 — 다른 work 들 충돌 방지를 위해 shift (skipShift 모드 제외)
-  // 1) 기존 sort_order 조회 → 새 값과 다를 때만 동작
-  // 2) 새 값으로 이동 시: [old, new] 사이의 다른 항목들을 1 만큼 shift (방향에 따라)
+  // sort_order 변경 시 — 전체 dense 1..N normalize (skipShift=true 인 batch 모드 제외)
+  // 기존 0/duplicate 도 자동 정리. 단일 PATCH 마다 호출돼도 OK (N=수십개 수준).
   if (!skipShift && filtered.sort_order !== undefined) {
-    const { data: cur } = await admin
-      .from("works")
-      .select("sort_order")
-      .eq("id", id)
-      .maybeSingle();
-    const oldOrder = cur?.sort_order;
     const newOrder = filtered.sort_order as number;
+    // sort_order 만 빼고 나머지 필드는 그대로 (normalize 단계에서 target 만 추가 필드 포함)
+    const targetOtherFields = { ...filtered };
+    delete targetOtherFields.sort_order;
 
-    if (typeof oldOrder === "number" && oldOrder !== newOrder) {
-      // 가져올 다른 work 의 범위 계산
-      const lo = Math.min(oldOrder, newOrder);
-      const hi = Math.max(oldOrder, newOrder);
-      const movingDown = newOrder > oldOrder; // 큰 값으로 이동 → 사이 항목들 -1
-      const movingUp = newOrder < oldOrder; // 작은 값으로 이동 → 사이 항목들 +1
+    const { data: all } = await admin
+      .from("works")
+      .select("id, sort_order, created_at")
+      .is("deleted_at", null)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
 
-      const { data: affected } = await admin
-        .from("works")
-        .select("id, sort_order")
-        .neq("id", id)
-        .gte("sort_order", lo)
-        .lte("sort_order", hi)
-        .is("deleted_at", null);
+    if (all && all.length > 0) {
+      // target 을 desired position 에 삽입한 새 ordering
+      const without = all.filter((w) => w.id !== id);
+      const desiredIdx = Math.max(0, Math.min(newOrder - 1, without.length));
+      const reordered = [
+        ...without.slice(0, desiredIdx),
+        { id, sort_order: 0, created_at: "" },
+        ...without.slice(desiredIdx),
+      ];
 
-      if (affected && affected.length > 0) {
-        await Promise.all(
-          affected.map((w) =>
-            admin
-              .from("works")
-              .update({ sort_order: movingDown ? w.sort_order - 1 : w.sort_order + 1 })
-              .eq("id", w.id),
-          ),
-        );
-      }
-      // movingUp/movingDown 둘 다 처리됨; 변수는 가독성용
-      void movingUp;
+      // 변경 필요한 항목만 update — sort_order 가 expected (idx+1) 와 다른 row + target
+      const updates: Array<{ id: string; payload: Record<string, unknown> }> = [];
+      reordered.forEach((w, idx) => {
+        const expected = idx + 1;
+        if (w.id === id) {
+          updates.push({ id: w.id, payload: { ...targetOtherFields, sort_order: expected } });
+        } else {
+          const orig = all.find((x) => x.id === w.id);
+          if (orig?.sort_order !== expected) {
+            updates.push({ id: w.id, payload: { sort_order: expected } });
+          }
+        }
+      });
+
+      await Promise.all(
+        updates.map((u) =>
+          admin.from("works").update(u.payload).eq("id", u.id),
+        ),
+      );
+
+      // 이미 target update 완료 → 아래 simple update 단계는 skip
+      const { data, error } = await admin
+        .from("works").select("*").eq("id", id).single();
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json(data);
     }
   }
 
