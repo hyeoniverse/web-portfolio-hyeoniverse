@@ -73,6 +73,45 @@
   background: var(--bg-accent-light);
 }
 
+/* ── 연관 태그 Tooltip ── */
+.relatedBubble {
+  max-width: 320px;
+}
+
+.relatedContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.relatedDesc {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-snug);
+  color: var(--text-secondary);
+}
+
+.relatedLabel {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.relatedList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+
+.relatedPill {
+  font-size: var(--font-size-2xs);
+}
+
 .letterIndex {
   display: flex;
   flex-wrap: wrap;

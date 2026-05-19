@@ -5,6 +5,7 @@ import { Settings, Tags } from "lucide-react";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import Button from "@/components/ui/Button";
 import SegmentedControl from "@/components/ui/SegmentedControl";
+import Tooltip from "@/components/ui/Tooltip";
 import TagPill from "@/components/ui/TagPill";
 import styles from "./TagsIndex.module.css";
 
@@ -12,6 +13,7 @@ interface TagEntry {
   tag: string;
   count: number;
   description: string;
+  related: string[];
 }
 
 interface Props {
@@ -206,20 +208,53 @@ export default function TagsIndexClient({ tags }: Props) {
       </div>
 
       <ul className={styles.list}>
-        {slice.map((t) => (
-          <li
-            key={t.tag}
-            className={styles.tagItem}
-            title={t.description || undefined}
-          >
+        {slice.map((t) => {
+          const pill = (
             <TagPill
               tag={t.tag}
               count={t.count}
               className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""}`}
               style={{ fontSize: `${fontFor(t.count)}px` }}
             />
-          </li>
-        ))}
+          );
+          const hasExtras = !!t.description || t.related.length > 0;
+          return (
+            <li key={t.tag} className={styles.tagItem}>
+              {hasExtras ? (
+                <Tooltip
+                  placement="auto"
+                  delay={150}
+                  bubbleClassName={styles.relatedBubble}
+                  content={
+                    <div className={styles.relatedContent}>
+                      {t.description && (
+                        <p className={styles.relatedDesc}>{t.description}</p>
+                      )}
+                      {t.related.length > 0 && (
+                        <>
+                          <p className={styles.relatedLabel}>연관 태그</p>
+                          <div className={styles.relatedList}>
+                            {t.related.map((r) => (
+                              <TagPill
+                                key={r}
+                                tag={r}
+                                className={styles.relatedPill}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  }
+                >
+                  {pill}
+                </Tooltip>
+              ) : (
+                pill
+              )}
+            </li>
+          );
+        })}
       </ul>
 
       {hasMore && <div ref={sentinelRef} className={styles.sentinel} aria-hidden />}
