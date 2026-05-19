@@ -132,9 +132,12 @@ export async function getInitialPostsData() {
     if (p.category) categorySet.add(p.category);
   }
 
+  // tagDescriptions 도 함께 (검색에서 활용)
+  const cfgForTags = await getSiteConfig();
+  const tagDescriptions = cfgForTags.tagDescriptions ?? {};
   const allTags = Array.from(tagCounts.entries())
     .sort((a, b) => b[1] - a[1])
-    .map(([tag, count]) => ({ tag, count }));
+    .map(([tag, count]) => ({ tag, count, description: tagDescriptions[tag] ?? "" }));
 
   const extraCategories = Array.from(categorySet);
 
