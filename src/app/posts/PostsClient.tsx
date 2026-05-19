@@ -16,9 +16,21 @@ import PopularPosts from "./_components/PopularPosts";
 import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
 import TagCloud3D from "./_components/TagCloud3D";
-import { SkeletonLine, SkeletonPill, SkeletonBlock } from "@/components/ui/Skeleton";
+import {
+  SkeletonLine,
+  SkeletonPill,
+  SkeletonBlock,
+} from "@/components/ui/Skeleton";
 import SegmentedControl from "@/components/ui/SegmentedControl";
-import { ChevronDown, ChevronUp, ChevronRight, BookOpen, LayoutGrid, ArrowUp, Shuffle } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  ChevronRight,
+  BookOpen,
+  LayoutGrid,
+  ArrowUp,
+  Shuffle,
+} from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -28,7 +40,13 @@ import Select from "@/components/ui/Select";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import styles from "./Posts.module.css";
 
-function SidebarWrap({ barHidden, children }: { barHidden: boolean; children: React.ReactNode }) {
+function SidebarWrap({
+  barHidden,
+  children,
+}: {
+  barHidden: boolean;
+  children: React.ReactNode;
+}) {
   const { isMobile: isCollapsed } = useIsMobile(1024);
   const ref = useRef<HTMLElement>(null);
   const [canUp, setCanUp] = useState(false);
@@ -48,17 +66,26 @@ function SidebarWrap({ barHidden, children }: { barHidden: boolean; children: Re
     el.addEventListener("scroll", check, { passive: true });
     const ro = new ResizeObserver(check);
     ro.observe(el);
-    return () => { el.removeEventListener("scroll", check); ro.disconnect(); };
+    return () => {
+      el.removeEventListener("scroll", check);
+      ro.disconnect();
+    };
   }, [check]);
 
   return (
-    <div className={`${styles.sidebarWrap} ${barHidden ? styles.sidebarUp : ""}`}>
+    <div
+      className={`${styles.sidebarWrap} ${barHidden ? styles.sidebarUp : ""}`}
+    >
       {canUp && (
         <div className={styles.sidebarFadeTop}>
           <ChevronUp size={14} />
         </div>
       )}
-      <aside ref={ref} className={styles.sidebar} {...(!isCollapsed && { "data-lenis-prevent": true })}>
+      <aside
+        ref={ref}
+        className={styles.sidebar}
+        {...(!isCollapsed && { "data-lenis-prevent": true })}
+      >
         {children}
       </aside>
       {canDown && (
@@ -82,22 +109,40 @@ type CardType = "wide" | "banner" | "square" | "portrait" | "standard";
 
 // 10 items / 12 cells — 1 wide(2) + 1 banner(2) + 8 singles. dense packing 으로 backfill.
 const TEMPLATE_A: CardType[] = [
-  "banner",   "standard",
-  "standard", "wide",
-  "portrait", "square",   "standard",
-  "standard", "portrait", "standard",
+  "banner",
+  "standard",
+  "standard",
+  "wide",
+  "portrait",
+  "square",
+  "standard",
+  "standard",
+  "portrait",
+  "standard",
 ];
 const TEMPLATE_B: CardType[] = [
-  "wide",     "portrait",
-  "standard", "standard", "square",
-  "banner",   "standard",
-  "portrait", "standard", "standard",
+  "wide",
+  "portrait",
+  "standard",
+  "standard",
+  "square",
+  "banner",
+  "standard",
+  "portrait",
+  "standard",
+  "standard",
 ];
 const TEMPLATE_C: CardType[] = [
-  "standard", "square",   "portrait",
-  "wide",     "standard",
-  "banner",   "standard",
-  "portrait", "standard", "standard",
+  "standard",
+  "square",
+  "portrait",
+  "wide",
+  "standard",
+  "banner",
+  "standard",
+  "portrait",
+  "standard",
+  "standard",
 ];
 const TEMPLATES = [TEMPLATE_A, TEMPLATE_B, TEMPLATE_C];
 
@@ -120,13 +165,22 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [pinnedPosts] = useState<Post[]>(initialData.pinnedPosts);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
-  const [searchType, setSearchType] = useState<"all" | "title" | "content">("all");
+  const [searchType, setSearchType] = useState<"all" | "title" | "content">(
+    "all",
+  );
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   // URL query (?tag=foo 또는 ?tag=foo,bar CSV) 도착 시 초기값 sync — 다중 선택 지원
   const urlSearchParams = useSearchParams();
   const [activeTags, setActiveTags] = useState<Set<string>>(() => {
     const raw = urlSearchParams?.get("tag");
-    return new Set(raw ? raw.split(",").map((t) => t.trim()).filter(Boolean) : []);
+    return new Set(
+      raw
+        ? raw
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : [],
+    );
   });
   const activeTagsKey = useMemo(
     () => Array.from(activeTags).sort().join(","),
@@ -135,31 +189,39 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const toggleActiveTag = useCallback((tag: string) => {
     setActiveTags((prev) => {
       const next = new Set(prev);
-      if (next.has(tag)) next.delete(tag); else next.add(tag);
+      if (next.has(tag)) next.delete(tag);
+      else next.add(tag);
       return next;
     });
   }, []);
   const clearActiveTags = useCallback(() => setActiveTags(new Set()), []);
-  // dev 전용 — 무한 스크롤 테스트용 더미 태그. allTags 가 충분히 많은 환경이면 제거.
-  const [allTags] = useState(() => {
-    const real = initialData.allTags;
-    if (real.length >= 50) return real;
-    const dummies = Array.from({ length: 500 }, (_, i) => ({
-      tag: `dummy-tag-${i + 1}`,
-      count: Math.floor(Math.random() * 20) + 1,
-    }));
-    return [...real, ...dummies];
-  });
+  const [allTags] = useState(initialData.allTags);
   const [extraCategories] = useState(initialData.extraCategories);
-  const [sortBy, setSortBy] = useState<"date" | "popular" | "title" | "random">("date");
+  const [sortBy, setSortBy] = useState<"date" | "popular" | "title" | "random">(
+    "date",
+  );
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   // popular 그룹 안 세부 메트릭 — 종합 / 조회 / 댓글 / 좋아요
-  const [popularSort, setPopularSort] = useState<"score" | "views" | "comments" | "likes">("score");
-  const [randomSeed, setRandomSeed] = useState(() => Math.floor(Math.random() * 1e9));
+  const [popularSort, setPopularSort] = useState<
+    "score" | "views" | "comments" | "likes"
+  >("score");
+  const [randomSeed, setRandomSeed] = useState(() =>
+    Math.floor(Math.random() * 1e9),
+  );
   // API 호환 — sortBy=popular 면 popularSort 메트릭 매핑 (score/views/likes/comments)
-  const sort: "newest" | "oldest" | "popular" | "title" | "random" | "views" | "likes" | "comments" =
+  const sort:
+    | "newest"
+    | "oldest"
+    | "popular"
+    | "title"
+    | "random"
+    | "views"
+    | "likes"
+    | "comments" =
     sortBy === "popular"
-      ? (popularSort === "score" ? "popular" : popularSort)
+      ? popularSort === "score"
+        ? "popular"
+        : popularSort
       : sortBy === "title"
         ? "title"
         : sortBy === "random"
@@ -170,11 +232,15 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [hoveredSort, setHoveredSort] = useState<string | null>(null);
   const [perPage, setPerPage] = useState(siteConf.posts.perPage ?? 10);
   const [activeSeries, setActiveSeries] = useState<string | null>(null);
-  const [seriesList, setSeriesList] = useState<Series[]>(initialData.seriesList);
+  const [seriesList, setSeriesList] = useState<Series[]>(
+    initialData.seriesList,
+  );
   const [seriesPage, setSeriesPage] = useState(0);
   const [seriesTotal, setSeriesTotal] = useState(initialData.seriesTotal);
   const [seriesLoading, setSeriesLoading] = useState(false);
-  const [seriesSortBy, setSeriesSortBy] = useState<"default" | "newest" | "title">("default");
+  const [seriesSortBy, setSeriesSortBy] = useState<
+    "default" | "newest" | "title"
+  >("default");
   const [seriesSortDir, setSeriesSortDir] = useState<"asc" | "desc">("asc");
   const seriesPerPage = initialData.seriesPerPage;
   const [page, setPage] = useState(1);
@@ -182,11 +248,14 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const [popularIds] = useState<Set<string>>(new Set(initialData.popularIds));
   const [showTags, setShowTags] = useState(false);
-  // 태그 무한 스크롤 — 초기 N 개만 렌더, sentinel 보이면 N 더 추가
-  const TAG_PAGE_SIZE = 20;
-  const [visibleTagCount, setVisibleTagCount] = useState(TAG_PAGE_SIZE);
+  // 태그 dropdown 검색 — 많은 태그 중 빠른 lookup. 무한 스크롤 대신 client-side filter.
+  const [tagSearch, setTagSearch] = useState("");
   const tagRowRef = useRef<HTMLDivElement>(null);
-  const tagSentinelRef = useRef<HTMLDivElement>(null);
+  const filteredTags = useMemo(() => {
+    const q = tagSearch.trim().toLowerCase();
+    if (!q) return allTags;
+    return allTags.filter(({ tag }) => tag.toLowerCase().includes(q));
+  }, [allTags, tagSearch]);
   const [catExpanded, setCatExpanded] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -213,38 +282,32 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     } else {
       el.style.filter = "";
       // keep transition so the un-blur also animates
-      setTimeout(() => { el.style.transition = ""; }, 300);
+      setTimeout(() => {
+        el.style.transition = "";
+      }, 300);
     }
   }, [isStuck, showTags, catExpanded]);
 
-  // 태그 dropdown 닫힐 때 visible count + 스크롤 mask 초기화
+  // 태그 dropdown 닫힐 때 검색어 + 스크롤 mask 초기화
   const [tagScrolled, setTagScrolled] = useState(false);
   const [tagAtBottom, setTagAtBottom] = useState(false);
   useEffect(() => {
     if (!showTags) {
-      setVisibleTagCount(TAG_PAGE_SIZE);
+      setTagSearch("");
       setTagScrolled(false);
       setTagAtBottom(false);
     }
   }, [showTags]);
 
-  // 태그 무한 스크롤 — scroll + wheel 둘 다 listener (Lenis 우회 보장)
+  // 태그 dropdown scroll mask + wheel fallback (Lenis 우회)
   useEffect(() => {
     if (!showTags) return;
     const root = tagRowRef.current;
     if (!root) return;
-    const loadMore = () => {
-      setVisibleTagCount((c) => Math.min(c + TAG_PAGE_SIZE, allTags.length));
-    };
     const updateState = () => {
       setTagScrolled(root.scrollTop > 4);
-      const atBottom = root.scrollTop + root.clientHeight >= root.scrollHeight - 4;
-      setTagAtBottom(atBottom);
-      if (root.scrollTop + root.clientHeight >= root.scrollHeight - 80) {
-        loadMore();
-      }
+      setTagAtBottom(root.scrollTop + root.clientHeight >= root.scrollHeight - 4);
     };
-    // wheel fallback — Lenis 가 wheel 을 잡아 native scroll 안 일어나는 경우 대비
     const onWheel = (e: WheelEvent) => {
       e.stopPropagation();
       root.scrollTop += e.deltaY;
@@ -252,19 +315,20 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     };
     root.addEventListener("scroll", updateState, { passive: true });
     root.addEventListener("wheel", onWheel, { passive: false });
-    // 초기 상태 — 콘텐츠가 안 넘치면 즉시 atBottom true
     updateState();
     return () => {
       root.removeEventListener("scroll", updateState);
       root.removeEventListener("wheel", onWheel);
     };
-  }, [showTags, visibleTagCount, allTags.length]);
+  }, [showTags, filteredTags.length]);
 
   // Cooldown: skip scroll-collapse briefly after expanding tags/categories
   useEffect(() => {
     if (!showTags && !catExpanded) return;
     scrollCooldown.current = true;
-    const id = setTimeout(() => { scrollCooldown.current = false; }, 400);
+    const id = setTimeout(() => {
+      scrollCooldown.current = false;
+    }, 400);
     return () => clearTimeout(id);
   }, [showTags, catExpanded]);
 
@@ -273,7 +337,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     if (!showTags && !catExpanded) return;
     let startY = -1;
     const CLOSE_THRESHOLD = 80; // px — 짧은 스크롤은 유지, moderate 스크롤이면 닫힘
-    const armTimer = setTimeout(() => { startY = window.scrollY; }, 300);
+    const armTimer = setTimeout(() => {
+      startY = window.scrollY;
+    }, 300);
     const handleScroll = () => {
       if (startY < 0) return;
       if (Math.abs(window.scrollY - startY) > CLOSE_THRESHOLD) {
@@ -324,20 +390,34 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [search, searchType, activeCategory, activeTagsKey, activeSeries, sort, sortDir, randomSeed, page, perPage]);
+  }, [
+    search,
+    searchType,
+    activeCategory,
+    activeTagsKey,
+    activeSeries,
+    sort,
+    sortDir,
+    randomSeed,
+    page,
+    perPage,
+  ]);
 
   // 시리즈 fetch 공통 파라미터 빌더
-  const buildSeriesParams = useCallback((page: number) => {
-    const params = new URLSearchParams();
-    if (activeCategory) params.set("category", activeCategory);
-    params.set("page", String(page));
-    params.set("limit", String(seriesPerPage));
-    if (seriesSortBy !== "default") {
-      params.set("sortBy", seriesSortBy);
-      params.set("sortDir", seriesSortDir);
-    }
-    return params;
-  }, [activeCategory, seriesPerPage, seriesSortBy, seriesSortDir]);
+  const buildSeriesParams = useCallback(
+    (page: number) => {
+      const params = new URLSearchParams();
+      if (activeCategory) params.set("category", activeCategory);
+      params.set("page", String(page));
+      params.set("limit", String(seriesPerPage));
+      if (seriesSortBy !== "default") {
+        params.set("sortBy", seriesSortBy);
+        params.set("sortDir", seriesSortDir);
+      }
+      return params;
+    },
+    [activeCategory, seriesPerPage, seriesSortBy, seriesSortDir],
+  );
 
   // Fetch series when category/sort changes — initial mount 은 skip (SSR 의 auto_cover_url 보존)
   const isFirstSeriesFetch = useRef(true);
@@ -376,18 +456,27 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     } finally {
       setSeriesLoading(false);
     }
-  }, [seriesLoading, seriesList.length, seriesTotal, seriesPage, buildSeriesParams]);
+  }, [
+    seriesLoading,
+    seriesList.length,
+    seriesTotal,
+    seriesPage,
+    buildSeriesParams,
+  ]);
 
   // 정렬 버튼 클릭 — 같은 기준 누르면 방향 토글, 다른 기준이면 기본 방향으로 전환
-  const handleSeriesSortClick = useCallback((by: typeof seriesSortBy) => {
-    if (seriesSortBy === by) {
-      setSeriesSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSeriesSortBy(by);
-      // newest 의 직관적 기본은 desc (최신이 먼저), title/default 는 asc
-      setSeriesSortDir(by === "newest" ? "desc" : "asc");
-    }
-  }, [seriesSortBy]);
+  const handleSeriesSortClick = useCallback(
+    (by: typeof seriesSortBy) => {
+      if (seriesSortBy === by) {
+        setSeriesSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+      } else {
+        setSeriesSortBy(by);
+        // newest 의 직관적 기본은 desc (최신이 먼저), title/default 는 asc
+        setSeriesSortDir(by === "newest" ? "desc" : "asc");
+      }
+    },
+    [seriesSortBy],
+  );
 
   // Fetch posts when filters change (skip initial — we have SSR data)
   // 필터 변경 즉시 loading=true 로 — debounce 동안 옛 데이터 보이는 깜빡임 방지
@@ -403,7 +492,15 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
   useEffect(() => {
     setPage(1);
-  }, [search, searchType, activeCategory, activeTagsKey, activeSeries, sort, sortDir]);
+  }, [
+    search,
+    searchType,
+    activeCategory,
+    activeTagsKey,
+    activeSeries,
+    sort,
+    sortDir,
+  ]);
 
   const handleImgError = useCallback((id: string) => {
     setImgErrors((prev) => new Set(prev).add(id));
@@ -460,7 +557,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const handleSeriesClick = useCallback((seriesId: string) => {
     setActiveSeries((prev) => (prev === seriesId ? null : seriesId));
   }, []);
-
 
   const activeSeriesTitle = useMemo(() => {
     if (!activeSeries) return null;
@@ -554,7 +650,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       document.addEventListener("pointercancel", onUp);
     };
 
-    el.addEventListener("wheel", handleWheel, { passive: false, capture: true });
+    el.addEventListener("wheel", handleWheel, {
+      passive: false,
+      capture: true,
+    });
     el.addEventListener("pointerdown", handlePointerDown);
     el.addEventListener("scroll", maybeLoadMore, { passive: true });
 
@@ -567,7 +666,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
     return () => {
       ro.disconnect();
-      el.removeEventListener("wheel", handleWheel, { capture: true } as EventListenerOptions);
+      el.removeEventListener("wheel", handleWheel, {
+        capture: true,
+      } as EventListenerOptions);
       el.removeEventListener("pointerdown", handlePointerDown);
       el.removeEventListener("scroll", maybeLoadMore);
     };
@@ -576,10 +677,19 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const showBanner = pinnedPosts.length >= 1 && page === 1;
 
   const pageNumbers = useMemo(() => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    if (totalPages <= 7)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     if (page <= 3) return [1, 2, 3, 4, 5, -1, totalPages];
     if (page >= totalPages - 2)
-      return [1, -1, totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+      return [
+        1,
+        -1,
+        totalPages - 4,
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
     return [1, -1, page - 1, page, page + 1, -1, totalPages];
   }, [page, totalPages]);
 
@@ -617,7 +727,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            onClick={() => { setShowTags(false); setCatExpanded(false); }}
+            onClick={() => {
+              setShowTags(false);
+              setCatExpanded(false);
+            }}
           />
         )}
       </AnimatePresence>
@@ -650,126 +763,176 @@ export default function PostsClient({ initialData }: PostsClientProps) {
           <CategoryNav
             extraCategories={extraCategories}
             activeCategory={activeCategory}
-            onCategoryChange={(cat) => { setActiveCategory(cat); setCatExpanded(false); }}
+            onCategoryChange={(cat) => {
+              setActiveCategory(cat);
+              setCatExpanded(false);
+            }}
             expanded={catExpanded}
-            onExpandChange={(v) => { setCatExpanded(v); if (v) setShowTags(false); }}
+            onExpandChange={(v) => {
+              setCatExpanded(v);
+              if (v) setShowTags(false);
+            }}
           />
 
           <AnimatePresence>
-          {!catExpanded && (
-            <motion.div
-              className={styles.filterBarRight}
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: "auto", overflow: "visible" }}
-              exit={{ opacity: 0, width: 0, overflow: "hidden" }}
-              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-              style={{ overflow: "hidden" }}
-            >
-            {allTags.length > 0 && (
-              <button
-                className={`${styles.tagToggleBtn} ${showTags ? styles.tagToggleBtnOpen : ""}`}
-                onClick={() => setShowTags((v) => !v)}
-                data-clickable="true"
+            {!catExpanded && (
+              <motion.div
+                className={styles.filterBarRight}
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto", overflow: "visible" }}
+                exit={{ opacity: 0, width: 0, overflow: "hidden" }}
+                transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                style={{ overflow: "hidden" }}
               >
-                <T k="postsPage.tags" tooltip={t("postsPage.tagsTooltip")} />
-                <ChevronDown size={10} />
-              </button>
-            )}
-
-            <div className={styles.sortGroup} onMouseLeave={() => setHoveredSort(null)}>
-              {([
-                { value: "date" as const, k: "postsPage.sortDate", tipK: "postsPage.sortDateTooltip" },
-                { value: "popular" as const, k: "postsPage.sortPopular", tipK: "postsPage.sortPopularTooltip" },
-                { value: "title" as const, k: "postsPage.sortTitle", tipK: "postsPage.sortTitleTooltip" },
-              ]).map((opt) => {
-                const indicatorTarget = hoveredSort ?? sortBy;
-                const showIndicator = opt.value === indicatorTarget;
-                const isActive = opt.value === sortBy;
-                return (
+                {allTags.length > 0 && (
                   <button
-                    key={opt.value}
-                    className={`${styles.sortBtn} ${isActive && showIndicator ? styles.sortBtnActive : ""}`}
-                    onClick={() => {
-                      if (sortBy === opt.value) {
-                        setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
-                      } else {
-                        setSortBy(opt.value);
-                        // 직관적 기본 방향: title 은 asc(가나다/A-Z), 나머지는 desc
-                        setSortDir(opt.value === "title" ? "asc" : "desc");
-                      }
-                    }}
-                    onMouseEnter={() => setHoveredSort(opt.value)}
+                    className={`${styles.tagToggleBtn} ${showTags ? styles.tagToggleBtnOpen : ""}`}
+                    onClick={() => setShowTags((v) => !v)}
                     data-clickable="true"
                   >
-                    {showIndicator && (
-                      <motion.span
-                        className={`${styles.sortIndicator} ${isActive ? styles.sortIndicatorActive : ""}`}
-                        layoutId="sortIndicator"
-                        transition={{ type: "spring", stiffness: 500, damping: 32 }}
-                      />
-                    )}
-                    <span className={styles.sortBtnText}>
-                      <T k={opt.k} tooltip={t(opt.tipK)} />
-                      {isActive && (
-                        <ArrowUp
-                          size={10}
-                          className={styles.sortDirIcon}
-                          style={{ transform: sortDir === "desc" ? "rotate(180deg)" : "rotate(0deg)" }}
-                        />
-                      )}
-                    </span>
+                    <T
+                      k="postsPage.tags"
+                      tooltip={t("postsPage.tagsTooltip")}
+                    />
+                    <ChevronDown size={10} />
                   </button>
-                );
-              })}
-            </div>
+                )}
 
-            {/* popular 활성 시 세부 메트릭 — 사이 화살표 + outline variant (transparent indicator) */}
-            {sortBy === "popular" && (
-              <>
-                <ChevronRight size={14} aria-hidden className={styles.popularSubArrow} />
-                <SegmentedControl<"score" | "views" | "comments" | "likes">
-                  items={[
-                    { value: "score", label: <T k="postsPage.popularScore" /> },
-                    { value: "views", label: <T k="postsPage.popularViews" /> },
-                    { value: "comments", label: <T k="postsPage.popularComments" /> },
-                    { value: "likes", label: <T k="postsPage.popularLikes" /> },
-                  ]}
-                  value={popularSort}
-                  onChange={setPopularSort}
-                  className={styles.popularSubSort}
-                />
-              </>
-            )}
+                <div
+                  className={styles.sortGroup}
+                  onMouseLeave={() => setHoveredSort(null)}
+                >
+                  {[
+                    {
+                      value: "date" as const,
+                      k: "postsPage.sortDate",
+                      tipK: "postsPage.sortDateTooltip",
+                    },
+                    {
+                      value: "popular" as const,
+                      k: "postsPage.sortPopular",
+                      tipK: "postsPage.sortPopularTooltip",
+                    },
+                    {
+                      value: "title" as const,
+                      k: "postsPage.sortTitle",
+                      tipK: "postsPage.sortTitleTooltip",
+                    },
+                  ].map((opt) => {
+                    const indicatorTarget = hoveredSort ?? sortBy;
+                    const showIndicator = opt.value === indicatorTarget;
+                    const isActive = opt.value === sortBy;
+                    return (
+                      <button
+                        key={opt.value}
+                        className={`${styles.sortBtn} ${isActive && showIndicator ? styles.sortBtnActive : ""}`}
+                        onClick={() => {
+                          if (sortBy === opt.value) {
+                            setSortDir((prev) =>
+                              prev === "asc" ? "desc" : "asc",
+                            );
+                          } else {
+                            setSortBy(opt.value);
+                            // 직관적 기본 방향: title 은 asc(가나다/A-Z), 나머지는 desc
+                            setSortDir(opt.value === "title" ? "asc" : "desc");
+                          }
+                        }}
+                        onMouseEnter={() => setHoveredSort(opt.value)}
+                        data-clickable="true"
+                      >
+                        {showIndicator && (
+                          <motion.span
+                            className={`${styles.sortIndicator} ${isActive ? styles.sortIndicatorActive : ""}`}
+                            layoutId="sortIndicator"
+                            transition={{
+                              type: "spring",
+                              stiffness: 500,
+                              damping: 32,
+                            }}
+                          />
+                        )}
+                        <span className={styles.sortBtnText}>
+                          <T k={opt.k} tooltip={t(opt.tipK)} />
+                          {isActive && (
+                            <ArrowUp
+                              size={10}
+                              className={styles.sortDirIcon}
+                              style={{
+                                transform:
+                                  sortDir === "desc"
+                                    ? "rotate(180deg)"
+                                    : "rotate(0deg)",
+                              }}
+                            />
+                          )}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-            {/* 랜덤 셔플 — sortBy 와 별도 토글 버튼. 누를 때마다 새 시드로 셔플 */}
-            <Tooltip
-              content={
-                <>
-                  <div>{t("postsPage.sortRandom")}</div>
-                  <div>{t("postsPage.sortRandomTooltip")}</div>
-                </>
-              }
-            >
-              <button
-                type="button"
-                className={`${styles.shuffleBtn} ${sortBy === "random" ? styles.shuffleBtnActive : ""}`}
-                onClick={() => {
-                  if (sortBy === "random") {
-                    setRandomSeed(Math.floor(Math.random() * 1e9));
-                  } else {
-                    setSortBy("random");
-                    setRandomSeed(Math.floor(Math.random() * 1e9));
+                {/* popular 활성 시 세부 메트릭 — 사이 화살표 + outline variant (transparent indicator) */}
+                {sortBy === "popular" && (
+                  <>
+                    <ChevronRight
+                      size={14}
+                      aria-hidden
+                      className={styles.popularSubArrow}
+                    />
+                    <SegmentedControl<"score" | "views" | "comments" | "likes">
+                      items={[
+                        {
+                          value: "score",
+                          label: <T k="postsPage.popularScore" />,
+                        },
+                        {
+                          value: "views",
+                          label: <T k="postsPage.popularViews" />,
+                        },
+                        {
+                          value: "comments",
+                          label: <T k="postsPage.popularComments" />,
+                        },
+                        {
+                          value: "likes",
+                          label: <T k="postsPage.popularLikes" />,
+                        },
+                      ]}
+                      value={popularSort}
+                      onChange={setPopularSort}
+                      className={styles.popularSubSort}
+                    />
+                  </>
+                )}
+
+                {/* 랜덤 셔플 — sortBy 와 별도 토글 버튼. 누를 때마다 새 시드로 셔플 */}
+                <Tooltip
+                  content={
+                    <>
+                      <div>{t("postsPage.sortRandom")}</div>
+                      <div>{t("postsPage.sortRandomTooltip")}</div>
+                    </>
                   }
-                }}
-                data-clickable="true"
-                aria-label={t("postsPage.sortRandom")}
-              >
-                <Shuffle size={12} />
-              </button>
-            </Tooltip>
-
-          </motion.div>
-          )}
+                >
+                  <button
+                    type="button"
+                    className={`${styles.shuffleBtn} ${sortBy === "random" ? styles.shuffleBtnActive : ""}`}
+                    onClick={() => {
+                      if (sortBy === "random") {
+                        setRandomSeed(Math.floor(Math.random() * 1e9));
+                      } else {
+                        setSortBy("random");
+                        setRandomSeed(Math.floor(Math.random() * 1e9));
+                      }
+                    }}
+                    data-clickable="true"
+                    aria-label={t("postsPage.sortRandom")}
+                  >
+                    <Shuffle size={12} />
+                  </button>
+                </Tooltip>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
 
@@ -777,8 +940,12 @@ export default function PostsClient({ initialData }: PostsClientProps) {
           {showTags && allTags.length > 0 && (
             <motion.div
               className={isStuck ? styles.tagDropdown : styles.tagInline}
-              initial={isStuck ? { opacity: 0, y: -8 } : { height: 0, opacity: 0 }}
-              animate={isStuck ? { opacity: 1, y: 0 } : { height: "auto", opacity: 1 }}
+              initial={
+                isStuck ? { opacity: 0, y: -8 } : { height: 0, opacity: 0 }
+              }
+              animate={
+                isStuck ? { opacity: 1, y: 0 } : { height: "auto", opacity: 1 }
+              }
               exit={isStuck ? { opacity: 0, y: -8 } : { height: 0, opacity: 0 }}
               transition={{
                 height: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
@@ -786,11 +953,16 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 y: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
               }}
             >
-              <div
-                ref={tagRowRef}
-                className={`${styles.tagRow} ${tagScrolled ? styles.tagRowScrolled : ""} ${tagAtBottom ? styles.tagRowAtBottom : ""}`}
-                data-lenis-prevent
-              >
+              {/* 상단 헤더 — 검색 input + 전체 태그 링크 */}
+              <div className={styles.tagSearchHeader}>
+                <input
+                  type="search"
+                  className={styles.tagSearchInput}
+                  placeholder="태그 검색…"
+                  value={tagSearch}
+                  onChange={(e) => setTagSearch(e.target.value)}
+                  data-clickable="true"
+                />
                 <Link
                   href="/posts/tags"
                   className={styles.tagAllLink}
@@ -799,6 +971,12 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   <T k="postsPage.tagsAllLink" />
                   <ChevronRight size={12} aria-hidden />
                 </Link>
+              </div>
+              <div
+                ref={tagRowRef}
+                className={`${styles.tagRow} ${tagScrolled ? styles.tagRowScrolled : ""} ${tagAtBottom ? styles.tagRowAtBottom : ""}`}
+                data-lenis-prevent
+              >
                 <button
                   className={`${styles.tagBtn} ${activeTags.size === 0 ? styles.tagBtnActive : ""}`}
                   onClick={clearActiveTags}
@@ -806,7 +984,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 >
                   <T k="postsPage.allTags" />
                 </button>
-                {allTags.slice(0, visibleTagCount).map(({ tag, count }) => (
+                {filteredTags.map(({ tag, count }) => (
                   <button
                     key={tag}
                     className={`${styles.tagBtn} ${activeTags.has(tag) ? styles.tagBtnActive : ""}`}
@@ -817,12 +995,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                     <span className={styles.tagCount}>{count}</span>
                   </button>
                 ))}
-                {visibleTagCount < allTags.length && (
-                  <div ref={tagSentinelRef} className={styles.tagSentinel} aria-hidden />
-                )}
-                {visibleTagCount >= allTags.length && (
+                {filteredTags.length === 0 && (
                   <p className={styles.tagAllLoaded}>
-                    — 모든 태그를 다 표시했습니다 ({allTags.length}개) —
+                    — &ldquo;{tagSearch}&rdquo; 와 일치하는 태그 없음 —
                   </p>
                 )}
               </div>
@@ -836,57 +1011,72 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         <div className={styles.mainColumn}>
           {/* Series Row — posts loading 과 무관하게 항상 표시 */}
           <div className={styles.seriesSection}>
-              <div className={styles.seriesLabel}>
-                <span className={styles.seriesLabelLink}>
-                  <BookOpen size={14} />
-                  <T k="postsPage.series" tooltip={t("postsPage.seriesTooltip")} />
-                </span>
-                {activeCategory && (
-                  <span className={styles.seriesCategoryTag}>{activeCategory}</span>
-                )}
-                <SegmentedControl
-                  className={styles.seriesSortAlignEnd}
-                  items={[
-                    { value: "default", label: t("postsPage.seriesSortDefault") },
-                    { value: "newest", label: t("postsPage.seriesSortNewest") },
-                    { value: "title", label: t("postsPage.seriesSortTitle") },
-                  ]}
-                  value={seriesSortBy}
-                  onChange={(v) => handleSeriesSortClick(v as typeof seriesSortBy)}
-                  sortDir={seriesSortDir}
+            <div className={styles.seriesLabel}>
+              <span className={styles.seriesLabelLink}>
+                <BookOpen size={14} />
+                <T
+                  k="postsPage.series"
+                  tooltip={t("postsPage.seriesTooltip")}
                 />
-              </div>
-              {seriesList.length > 0 ? (
-                <div
-                  ref={seriesRowRef}
-                  className={styles.seriesRow}
-                  data-lenis-prevent
-                >
-                  {seriesList.map((series, idx) => (
-                    <SeriesCard
-                      key={series.id}
-                      series={series}
-                      onClick={handleSeriesClick}
-                      active={activeSeries === series.id}
-                      index={idx}
-                      scrollContainerRef={seriesRowRef}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className={styles.seriesEmpty}>
-                  {activeCategory
-                    ? `${t("postsPage.noSeriesYet")} — ${activeCategory}`
-                    : t("postsPage.noSeriesYet")}
-                </p>
+              </span>
+              {activeCategory && (
+                <span className={styles.seriesCategoryTag}>
+                  {activeCategory}
+                </span>
               )}
+              <SegmentedControl
+                className={styles.seriesSortAlignEnd}
+                items={[
+                  { value: "default", label: t("postsPage.seriesSortDefault") },
+                  { value: "newest", label: t("postsPage.seriesSortNewest") },
+                  { value: "title", label: t("postsPage.seriesSortTitle") },
+                ]}
+                value={seriesSortBy}
+                onChange={(v) =>
+                  handleSeriesSortClick(v as typeof seriesSortBy)
+                }
+                sortDir={seriesSortDir}
+              />
             </div>
-
+            {seriesList.length > 0 ? (
+              <div
+                ref={seriesRowRef}
+                className={styles.seriesRow}
+                data-lenis-prevent
+              >
+                {seriesList.map((series, idx) => (
+                  <SeriesCard
+                    key={series.id}
+                    series={series}
+                    onClick={handleSeriesClick}
+                    active={activeSeries === series.id}
+                    index={idx}
+                    scrollContainerRef={seriesRowRef}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className={styles.seriesEmpty}>
+                {activeCategory
+                  ? `${t("postsPage.noSeriesYet")} — ${activeCategory}`
+                  : t("postsPage.noSeriesYet")}
+              </p>
+            )}
+          </div>
 
           {/* Posts */}
           {!loading && posts.length === 0 && !showBanner ? (
             <div className={styles.emptyState}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 <line x1="8" y1="11" x2="14" y2="11" />
@@ -902,13 +1092,25 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                         ? `${t("postsPage.noPostsInCategory")} ${activeCategory}`
                         : t("postsPage.noPostsYet")}
               </p>
-              {(search || activeTags.size > 0 || activeSeries || activeCategory) && (
+              {(search ||
+                activeTags.size > 0 ||
+                activeSeries ||
+                activeCategory) && (
                 <button
                   className={styles.emptyResetBtn}
-                  onClick={() => { setSearch(""); setSearchType("all"); clearActiveTags(); setActiveSeries(null); setActiveCategory(null); }}
+                  onClick={() => {
+                    setSearch("");
+                    setSearchType("all");
+                    clearActiveTags();
+                    setActiveSeries(null);
+                    setActiveCategory(null);
+                  }}
                   data-clickable="true"
                 >
-                  <T k="postsPage.clearFilters" tooltip={t("postsPage.clearFiltersTooltip")} />
+                  <T
+                    k="postsPage.clearFilters"
+                    tooltip={t("postsPage.clearFiltersTooltip")}
+                  />
                 </button>
               )}
             </div>
@@ -920,7 +1122,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 <Select
                   value={String(perPage)}
                   options={PAGE_SIZE_OPTIONS}
-                  onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+                  onChange={(v) => {
+                    setPerPage(Number(v));
+                    setPage(1);
+                  }}
                   className={styles.pageSizeSelect}
                 />
               </div>
@@ -929,51 +1134,64 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 className={`${styles.grid} ${activeSeries ? styles.gridSeries : ""} ${loading ? styles.gridLoading : ""}`}
               >
                 {posts.length === 0 ? (
-                  <PostsSkeletonCards count={perPage} activeSeries={!!activeSeries} />
-                ) : (() => {
-                  const variants: CardType[] = posts.map((p, i) =>
-                    activeSeries ? "standard" : getCardType(i),
-                  );
-                  return posts.map((post, idx) => {
-                  const type: CardType = variants[idx];
-                  const cls = !activeSeries && (type === "wide" || type === "banner")
-                    ? styles.gridWide
-                    : "";
-                  // 시리즈 필터링 시 — 각 글의 series_order 를 step 번호로 (없으면 idx+1)
-                  const stepNumber = activeSeries
-                    ? String(post.series_order ?? idx + 1).padStart(2, "0")
-                    : null;
-                  return (
-                  <div
-                    key={post.id}
-                    ref={(el) => {
-                      if (el) itemRefs.current.set(post.id, el);
-                      else itemRefs.current.delete(post.id);
-                    }}
-                    className={`${styles.gridItem} ${cls} ${activeSeries ? styles.seriesStep : ""}`}
-                  >
-                    {stepNumber && (
-                      <div className={styles.seriesStepNumber} aria-hidden="true">
-                        {stepNumber}
-                      </div>
-                    )}
-                    <div className={activeSeries ? styles.seriesStepBody : ""}>
-                      <PostCard
-                        post={post}
-                        variant="standard"
-                        banner={!activeSeries && type === "banner"}
-                        square={!activeSeries && type === "square"}
-                        portrait={!activeSeries && type === "portrait"}
-                        compact={!!activeSeries}
-                        isHot={popularIds.has(post.id)}
-                        onImgError={handleImgError}
-                        imgError={imgErrors.has(post.id)}
-                      />
-                    </div>
-                  </div>
-                  );
-                });
-                })()}
+                  <PostsSkeletonCards
+                    count={perPage}
+                    activeSeries={!!activeSeries}
+                  />
+                ) : (
+                  (() => {
+                    const variants: CardType[] = posts.map((p, i) =>
+                      activeSeries ? "standard" : getCardType(i),
+                    );
+                    return posts.map((post, idx) => {
+                      const type: CardType = variants[idx];
+                      const cls =
+                        !activeSeries && (type === "wide" || type === "banner")
+                          ? styles.gridWide
+                          : "";
+                      // 시리즈 필터링 시 — 각 글의 series_order 를 step 번호로 (없으면 idx+1)
+                      const stepNumber = activeSeries
+                        ? String(post.series_order ?? idx + 1).padStart(2, "0")
+                        : null;
+                      return (
+                        <div
+                          key={post.id}
+                          ref={(el) => {
+                            if (el) itemRefs.current.set(post.id, el);
+                            else itemRefs.current.delete(post.id);
+                          }}
+                          className={`${styles.gridItem} ${cls} ${activeSeries ? styles.seriesStep : ""}`}
+                        >
+                          {stepNumber && (
+                            <div
+                              className={styles.seriesStepNumber}
+                              aria-hidden="true"
+                            >
+                              {stepNumber}
+                            </div>
+                          )}
+                          <div
+                            className={
+                              activeSeries ? styles.seriesStepBody : ""
+                            }
+                          >
+                            <PostCard
+                              post={post}
+                              variant="standard"
+                              banner={!activeSeries && type === "banner"}
+                              square={!activeSeries && type === "square"}
+                              portrait={!activeSeries && type === "portrait"}
+                              compact={!!activeSeries}
+                              isHot={popularIds.has(post.id)}
+                              onImgError={handleImgError}
+                              imgError={imgErrors.has(post.id)}
+                            />
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()
+                )}
               </div>
 
               {/* Pagination */}
@@ -1001,7 +1219,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                       >
                         {p}
                       </button>
-                    )
+                    ),
                   )}
                   <button
                     disabled={page >= totalPages}
@@ -1038,20 +1256,29 @@ function PostsSkeletonCards({
   activeSeries,
   startIdx = 0,
   ghost = false,
-}: { count: number; activeSeries: boolean; startIdx?: number; ghost?: boolean }) {
+}: {
+  count: number;
+  activeSeries: boolean;
+  startIdx?: number;
+  ghost?: boolean;
+}) {
   const variants: CardType[] = Array.from({ length: count }, (_, i) =>
     activeSeries ? "standard" : getCardType(startIdx + i),
   );
   return (
     <>
       {variants.map((type, i) => {
-        const cls = !activeSeries && (type === "wide" || type === "banner")
-          ? styles.gridWide
-          : "";
+        const cls =
+          !activeSeries && (type === "wide" || type === "banner")
+            ? styles.gridWide
+            : "";
         const aspectClass =
-          type === "banner" ? styles.skeletonAspectBanner
-            : type === "square" ? styles.skeletonAspectSquare
-              : type === "portrait" ? styles.skeletonAspectPortrait
+          type === "banner"
+            ? styles.skeletonAspectBanner
+            : type === "square"
+              ? styles.skeletonAspectSquare
+              : type === "portrait"
+                ? styles.skeletonAspectPortrait
                 : styles.skeletonAspectDefault;
         return (
           <div
@@ -1059,8 +1286,12 @@ function PostsSkeletonCards({
             className={`${styles.gridItem} ${cls} ${activeSeries ? styles.seriesStep : ""} ${ghost ? styles.gridItemGhost : ""}`}
             aria-hidden={ghost || undefined}
           >
-            <div className={`${styles.skeletonCard} ${activeSeries ? styles.seriesStepBody : ""}`}>
-              <SkeletonBlock className={`${styles.skeletonImage} ${aspectClass}`} />
+            <div
+              className={`${styles.skeletonCard} ${activeSeries ? styles.seriesStepBody : ""}`}
+            >
+              <SkeletonBlock
+                className={`${styles.skeletonImage} ${aspectClass}`}
+              />
               <div className={styles.skeletonCardBody}>
                 {/* badge row */}
                 <SkeletonPill width={60} height={20} />

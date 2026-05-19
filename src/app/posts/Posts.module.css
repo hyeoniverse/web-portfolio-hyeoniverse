@@ -335,7 +335,38 @@
   color: var(--text-inverse);
 }
 
-/* "전체 태그" 페이지 이동 링크 — tagRow 맨 앞. border 없이 옅게, hover 시 강조 */
+/* 태그 dropdown 상단 헤더 — 검색 input + 전체 태그 링크 */
+.tagSearchHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0 0 var(--spacing-sm);
+  border-bottom: var(--border-light);
+  margin-bottom: var(--spacing-sm);
+}
+
+.tagSearchInput {
+  flex: 1;
+  min-width: 0;
+  padding: var(--box-2xs-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.tagSearchInput:focus {
+  border-color: var(--text-primary);
+}
+
+.tagSearchInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* "전체 태그" 페이지 이동 링크 — tagSearchHeader 안 오른쪽. border 없이 옅게, hover 시 강조 */
 .tagAllLink {
   display: inline-flex;
   align-items: center;
@@ -365,11 +396,6 @@
   letter-spacing: 0.02em;
 }
 
-/* 무한 스크롤 sentinel — IntersectionObserver target. 시각적으로 표시 안 됨 */
-.tagSentinel {
-  flex: 0 0 1px;
-  height: 1px;
-}
 
 /* ── Content Area (2-column) ── */
 .contentArea {
