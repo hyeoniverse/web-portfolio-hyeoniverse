@@ -157,13 +157,6 @@ export default function TagsIndexClient({ tags }: Props) {
           <strong>{filtered.length.toLocaleString()}</strong>개의 태그
         </p>
         <div className={styles.searchSortRow}>
-          <SearchCapsule
-            search={search}
-            onSearchChange={setSearch}
-            placeholder="태그 또는 설명으로 검색…"
-            align="left"
-            className={styles.searchBar}
-          />
           <SegmentedControl<"popular" | "alphabetical">
             items={[
               { value: "popular", label: "인기순" },
@@ -171,6 +164,13 @@ export default function TagsIndexClient({ tags }: Props) {
             ]}
             value={sortBy}
             onChange={(v) => setSortBy(v)}
+          />
+          <SearchCapsule
+            search={search}
+            onSearchChange={setSearch}
+            placeholder="태그 또는 설명으로 검색…"
+            align="left"
+            className={styles.searchBar}
           />
         </div>
       </header>

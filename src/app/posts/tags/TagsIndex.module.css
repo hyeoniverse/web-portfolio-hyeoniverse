@@ -47,6 +47,7 @@
   flex: 0 0 auto;
   width: 320px;
   max-width: 100%;
+  margin-left: auto;
 }
 
 /* 검색 + 정렬 같은 줄 */
