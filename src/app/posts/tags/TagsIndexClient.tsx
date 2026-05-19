@@ -233,24 +233,20 @@ export default function TagsIndexClient({ tags }: Props) {
                 className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""} ${isRelated ? styles.tagItemRelated : ""}`}
                 style={{ fontSize: `${fontFor(t.count)}px` }}
               />
-              {isTouch && (t.description || t.related.length > 0) && (
-                <div className={styles.tagItemTouchExtra}>
-                  {t.description && (
-                    <p className={styles.tagItemTouchDesc}>{t.description}</p>
-                  )}
-                  {t.related.length > 0 && (
-                    <div className={styles.tagItemTouchRelated}>
-                      <span className={styles.tagItemTouchRelLabel}>연관</span>
-                      {t.related.map((r) => (
-                        <TagPill
-                          key={r}
-                          tag={r}
-                          className={styles.tagItemTouchRelPill}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
+              {isTouch && t.description && (
+                <span className={styles.touchDesc}>— {t.description}</span>
+              )}
+              {isTouch && t.related.length > 0 && (
+                <>
+                  <span className={styles.touchRelLabel}> · 연관:</span>
+                  {t.related.map((r) => (
+                    <TagPill
+                      key={r}
+                      tag={r}
+                      className={styles.touchRelPill}
+                    />
+                  ))}
+                </>
               )}
             </li>
           );
