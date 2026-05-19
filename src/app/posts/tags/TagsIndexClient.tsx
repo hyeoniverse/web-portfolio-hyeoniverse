@@ -1,8 +1,7 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { Settings, Tags, ArrowRight } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Settings, Tags } from "lucide-react";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import Button from "@/components/ui/Button";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -53,11 +52,15 @@ export default function TagsIndexClient({ tags }: Props) {
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [expandedTag, setExpandedTag] = useState<string | null>(null);
+  const [hoveredTag, setHoveredTag] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // 필터/정렬 변경 시 expand 자동 해제 (해당 태그가 보이지 않을 수 있음)
-  useEffect(() => { setExpandedTag(null); }, [search, activeLetter, sortBy]);
+  // hover 한 태그의 related Set — 연관 pill 들 시각적으로 강조
+  const relatedToHovered = useMemo(() => {
+    if (!hoveredTag) return new Set<string>();
+    const t = tags.find((x) => x.tag === hoveredTag);
+    return new Set(t?.related ?? []);
+  }, [hoveredTag, tags]);
 
   // 로그인 사용자 = admin (단일 운영자 가정)
   useEffect(() => {
@@ -213,49 +216,22 @@ export default function TagsIndexClient({ tags }: Props) {
 
       <ul className={styles.list}>
         {slice.map((t) => {
-          const isExpanded = expandedTag === t.tag;
-          const hasExtras = !!t.description || t.related.length > 0;
+          const isRelated = relatedToHovered.has(t.tag);
           return (
-            <Fragment key={t.tag}>
-              <li className={styles.tagItem}>
-                <TagPill
-                  tag={t.tag}
-                  count={t.count}
-                  className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""} ${isExpanded ? styles.tagItemExpanded : ""}`}
-                  style={{ fontSize: `${fontFor(t.count)}px` }}
-                  onClick={hasExtras ? (e) => {
-                    e.preventDefault();
-                    setExpandedTag((prev) => (prev === t.tag ? null : t.tag));
-                  } : undefined}
-                />
-              </li>
-              {isExpanded && hasExtras && (
-                <li className={styles.tagDetailRow}>
-                  <div className={styles.tagDetail}>
-                    {t.description && (
-                      <p className={styles.tagDetailDesc}>{t.description}</p>
-                    )}
-                    {t.related.length > 0 && (
-                      <div className={styles.tagDetailRelated}>
-                        <span className={styles.tagDetailLabel}>연관 태그</span>
-                        <div className={styles.tagDetailPills}>
-                          {t.related.map((r) => (
-                            <TagPill key={r} tag={r} className={styles.tagDetailPill} />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    <Link
-                      href={`/posts/tags/${encodeURIComponent(t.tag)}`}
-                      className={styles.tagDetailViewAll}
-                    >
-                      이 태그의 글 보기
-                      <ArrowRight size={12} aria-hidden />
-                    </Link>
-                  </div>
-                </li>
-              )}
-            </Fragment>
+            <li
+              key={t.tag}
+              className={styles.tagItem}
+              title={t.description || undefined}
+              onMouseEnter={() => setHoveredTag(t.tag)}
+              onMouseLeave={() => setHoveredTag(null)}
+            >
+              <TagPill
+                tag={t.tag}
+                count={t.count}
+                className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""} ${isRelated ? styles.tagItemRelated : ""}`}
+                style={{ fontSize: `${fontFor(t.count)}px` }}
+              />
+            </li>
           );
         })}
       </ul>

@@ -73,76 +73,10 @@
   background: var(--bg-accent-light);
 }
 
-/* ── 인라인 expand — 클릭한 태그 바로 아래 row 단독 (flex-basis 100%) ── */
-.tagItemExpanded.tagItemExpanded {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
-.tagDetailRow {
-  flex-basis: 100%;
-  margin: var(--spacing-2xs) 0;
-}
-
-.tagDetail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-}
-
-.tagDetailDesc {
-  margin: 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-relaxed);
-  color: var(--text-secondary);
-}
-
-.tagDetailRelated {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.tagDetailLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.tagDetailPills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
-
-.tagDetailPill {
-  font-size: var(--font-size-xs);
-}
-
-.tagDetailViewAll {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  align-self: flex-start;
-  padding: var(--spacing-2xs) 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-accent);
-  text-decoration: none;
-  transition: gap 0.15s ease;
-}
-
-.tagDetailViewAll:hover {
-  gap: var(--spacing-xs);
+/* hover 한 태그의 연관 태그 glow — accent box-shadow ring */
+.tagItemRelated.tagItemRelated {
+  box-shadow: 0 0 0 2px var(--text-accent);
+  transition: box-shadow 0.18s ease;
 }
 
 .letterIndex {
