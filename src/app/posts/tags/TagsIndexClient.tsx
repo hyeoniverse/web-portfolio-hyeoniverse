@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { Settings, Tags } from "lucide-react";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import Button from "@/components/ui/Button";
 import TagPill from "@/components/ui/TagPill";
 import styles from "./TagsIndex.module.css";
 
@@ -85,14 +85,14 @@ export default function TagsIndexClient({ tags }: Props) {
             태그 모음
           </h1>
           {isAdmin && (
-            <Link
+            <Button
               href="/admin/settings?tab=content&section=tags"
-              className={styles.adminBtn}
+              size="xs"
+              icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
               title="태그 관리"
             >
-              <Settings size={14} strokeWidth={1.8} aria-hidden />
-              <span>태그 관리</span>
-            </Link>
+              태그 관리
+            </Button>
           )}
         </div>
         <p className={styles.meta}>
@@ -108,18 +108,15 @@ export default function TagsIndexClient({ tags }: Props) {
 
       <ul className={styles.list}>
         {slice.map((t) => (
-          <li key={t.tag} className={styles.tagItem}>
+          <li key={t.tag} className={styles.tagItem} title={t.description || undefined}>
             <TagPill tag={t.tag} count={t.count} className={styles.tagItemPill} />
-            {t.description && (
-              <p className={styles.tagItemDesc}>{t.description}</p>
-            )}
           </li>
         ))}
       </ul>
 
       {hasMore && <div ref={sentinelRef} className={styles.sentinel} aria-hidden />}
       {!hasMore && filtered.length > 0 && (
-        <p className={styles.endNote}>— 모든 태그를 다 봤습니다 —</p>
+        <p className={styles.endNote}>— 모든 태그를 다 표시했습니다. ({filtered.length}개) —</p>
       )}
       {filtered.length === 0 && (
         <p className={styles.empty}>일치하는 태그가 없습니다.</p>
