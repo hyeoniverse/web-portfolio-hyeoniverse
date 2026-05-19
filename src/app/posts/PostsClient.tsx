@@ -248,9 +248,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const [popularIds] = useState<Set<string>>(new Set(initialData.popularIds));
   const [showTags, setShowTags] = useState(false);
-  // 태그 dropdown 검색 + 일정량 이상 시 무한 스크롤 (hybrid)
-  const TAG_INFINITE_THRESHOLD = 200;
-  const TAG_PAGE_SIZE = 60;
+  // 태그 dropdown 검색 + 일정량 이상 시 무한 스크롤 (hybrid).
+  // 1000+ 이면 DOM 폭주 방지용 페이징. 이하는 다 렌더 (검색만으로 충분).
+  const TAG_INFINITE_THRESHOLD = 1000;
+  const TAG_PAGE_SIZE = 200;
   const [tagSearch, setTagSearch] = useState("");
   const [tagVisibleCount, setTagVisibleCount] = useState(TAG_PAGE_SIZE);
   const tagRowRef = useRef<HTMLDivElement>(null);
