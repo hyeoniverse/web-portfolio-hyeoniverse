@@ -222,26 +222,22 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     if (!showTags) setVisibleTagCount(TAG_PAGE_SIZE);
   }, [showTags]);
 
-  // 태그 무한 스크롤 — sentinel 이 보이면 N 더 로드. allTags.length 도달하면 정지
+  // 태그 무한 스크롤 — scroll event 로 root 내 scrollTop 추적. 사용자가 직접 스크롤 해야만 트리거.
   useEffect(() => {
     if (!showTags) return;
-    const sentinel = tagSentinelRef.current;
     const root = tagRowRef.current;
-    if (!sentinel || !root) return;
+    if (!root) return;
     if (visibleTagCount >= allTags.length) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          // dev 로그 — 무한 스크롤 동작 확인용
-          // eslint-disable-next-line no-console
-          console.log("[tag-infinite-scroll] loading more", { current: visibleTagCount, total: allTags.length });
-          setVisibleTagCount((c) => Math.min(c + TAG_PAGE_SIZE, allTags.length));
-        }
-      },
-      { root, rootMargin: "60px" },
-    );
-    obs.observe(sentinel);
-    return () => obs.disconnect();
+    const onScroll = () => {
+      // 바닥 80px 이내 도달 → 다음 batch 로드
+      if (root.scrollTop + root.clientHeight >= root.scrollHeight - 80) {
+        // eslint-disable-next-line no-console
+        console.log("[tag-infinite-scroll] loading more", { current: visibleTagCount, total: allTags.length });
+        setVisibleTagCount((c) => Math.min(c + TAG_PAGE_SIZE, allTags.length));
+      }
+    };
+    root.addEventListener("scroll", onScroll, { passive: true });
+    return () => root.removeEventListener("scroll", onScroll);
   }, [showTags, visibleTagCount, allTags.length]);
 
   // Cooldown: skip scroll-collapse briefly after expanding tags/categories
