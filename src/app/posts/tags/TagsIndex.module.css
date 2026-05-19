@@ -157,11 +157,11 @@
   color: var(--text-tertiary);
 }
 
-/* ── 터치 디바이스 (pointer: coarse) — pill 마다 description + 연관 인라인 노출 ── */
+/* ── 터치 디바이스 (pointer: coarse) — pill + description + 연관 카드, inline flex-wrap ── */
 .listTouch {
-  flex-direction: column;
-  align-items: stretch;
+  /* 기본 row + flex-wrap 유지, gap 더 넓게 */
   gap: var(--spacing-md);
+  align-items: flex-start;
 }
 
 .listTouch .tagItem {
@@ -169,8 +169,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-2xs);
-  padding-bottom: var(--spacing-md);
-  border-bottom: var(--border-light);
+  max-width: 240px;
 }
 
 .tagItemTouchExtra {
