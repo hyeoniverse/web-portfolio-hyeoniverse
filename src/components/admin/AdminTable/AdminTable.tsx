@@ -15,6 +15,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import Pagination from "@/components/ui/Pagination";
+import EditableRowNumber from "./EditableRowNumber";
 import styles from "./AdminTable.module.css";
 
 /* ── Types ── */
@@ -70,6 +71,10 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onReorder?: (fromIdx: number, toIdx: number) => void;
   /** 항목 위치 이동 — 클릭 시 부모가 dialog 등으로 위치 선택 처리 */
   onMove?: (item: T) => void;
+  /** 행 번호 cell 클릭으로 인라인 편집 — getRowLabel 과 함께 사용 시 활성화 */
+  onRowLabelEdit?: (item: T, newValue: number) => void | Promise<void>;
+  /** 인라인 편집 시 max 값 — 보통 totalCount */
+  rowLabelMax?: number;
   showRowNumbers?: boolean;
   getRowLabel?: (item: T, index: number) => string | number;
   highlightId?: string | null;
@@ -100,6 +105,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   onRowClick,
   onReorder,
   onMove,
+  onRowLabelEdit,
+  rowLabelMax,
   showRowNumbers = false,
   getRowLabel,
   highlightId,
@@ -133,6 +140,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   // 드래그 선택
   const dragSelectStart = useRef<number | null>(null);
   const dragSelectAdding = useRef(true);
+  // mousedown origin — onReorder 모드에서 체크박스 영역에서 시작된 drag 는 reorder 대신 다중 선택
+  const dragOriginRef = useRef<HTMLElement | null>(null);
 
   const toggleSelect = useCallback((id: string) => {
     setSelected((prev) => {
@@ -336,13 +345,27 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               className={`${styles.row} ${selected.has(item.id) ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""} ${highlightId === item.id ? styles.rowHighlight : ""}`}
               data-clickable="true"
               draggable={!!onReorder}
-              onMouseDown={(e) => { if (e.button === 0 && !onReorder) { e.preventDefault(); handleSelectMouseDown(i); } }}
+              onMouseDown={(e) => {
+                if (e.button !== 0) return;
+                const target = e.target as HTMLElement;
+                dragOriginRef.current = target;
+                const inCheck = !!target.closest(`.${styles.colCheck}`);
+                // onReorder OFF → 행 전체에서 다중 선택. ON → 체크박스 영역만 다중 선택.
+                if (!onReorder || inCheck) {
+                  if (!onReorder) e.preventDefault();
+                  handleSelectMouseDown(i);
+                }
+              }}
               onClick={(e) => { if (dragSelected.current) return; if (onRowClick) onRowClick(item, e); else handleRowClick(item); }}
               onDragStart={
                 onReorder
                   ? (e) => {
+                      // 체크박스 영역에서 시작된 drag → reorder 가 아니라 다중 선택. abort.
+                      if (dragOriginRef.current?.closest(`.${styles.colCheck}`)) {
+                        (e as unknown as React.DragEvent).preventDefault();
+                        return;
+                      }
                       // 행 전체 어디서든 drag 시작 가능 (handle 없어도 OK)
-                      // motion.div 은 onDragStart 가 더 넓은 이벤트 union 이라 cast 필요
                       setDragIdx(i);
                       (e as unknown as React.DragEvent).dataTransfer.effectAllowed = "move";
                     }
@@ -419,12 +442,23 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                   />
                 </span>
               )}
-              <span className={styles.colCheck} onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}>
+              <span
+                className={styles.colCheck}
+                onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}
+              >
                 <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
               </span>
               {hasNumCol && (
                 <span className={styles.rowNum}>
-                  <span className={styles.rowNumText}>{getRowLabel ? getRowLabel(item, i) : i + 1}</span>
+                  {onRowLabelEdit && getRowLabel ? (
+                    <EditableRowNumber
+                      value={getRowLabel(item, i)}
+                      max={rowLabelMax}
+                      onSave={(v) => onRowLabelEdit(item, v)}
+                    />
+                  ) : (
+                    <span className={styles.rowNumText}>{getRowLabel ? getRowLabel(item, i) : i + 1}</span>
+                  )}
                 </span>
               )}
               {columns.map((col) => (

@@ -296,29 +296,25 @@ export default function AdminWorksPage() {
   const handleDragReorder = async (fromIdx: number, toIdx: number) => {
     if (fromIdx === toIdx) return;
 
-    // 영향 범위 내 sort_order 값들을 정렬해서 새 슬롯에 재배치
+    // page-position 기반 dense sort_order 재할당 — 기존 값에 0/duplicate 가 있어도 자동 정리.
+    // 페이지 N (1-indexed) 의 row idx 의 global sort_order = (N-1)*perPage + idx + 1
+    const pageOffset = (page - 1) * perPage;
     const lo = Math.min(fromIdx, toIdx);
     const hi = Math.max(fromIdx, toIdx);
-    const sortOrders = works
-      .slice(lo, hi + 1)
-      .map((w) => w.sort_order)
-      .sort((a, b) => a - b);
 
-    // 1) 순서 재배치
     const reordered = [...works];
     const [moved] = reordered.splice(fromIdx, 1);
     reordered.splice(toIdx, 0, moved);
 
-    // 2) immutable 하게 sort_order 재할당 (객체 새로 복제) → React 가 정상 reconcile
     const next = reordered.map((w, idx) => {
       if (idx >= lo && idx <= hi) {
-        return { ...w, sort_order: sortOrders[idx - lo] };
+        return { ...w, sort_order: pageOffset + idx + 1 };
       }
       return w;
     });
     setWorks(next);
 
-    // 서버 동기화 — 실패 시에만 reload. skipShift=true 로 client-batch 모드 알림 (서버 자동 shift 비활성)
+    // 서버 동기화 — skipShift=true 로 batch (각 PATCH 가 normalize 안 함). 마지막에 fetchWorks 로 refresh.
     try {
       await Promise.all(
         next.slice(lo, hi + 1).map((w) =>
@@ -329,6 +325,7 @@ export default function AdminWorksPage() {
           }),
         ),
       );
+      fetchWorks();
     } catch {
       fetchWorks();
     }
@@ -503,17 +500,17 @@ export default function AdminWorksPage() {
         emptyMessage={t("admin.works.trashEmpty")}
         filterBar={
           <div className={shell.filterBar}>
-            <Select
-              value={String(trashPerPage)}
-              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
-              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
-              className={`${shell.filterPageSize} ${styles.filterPageSizeLeft ?? ""}`}
-            />
             <SegmentedControl
               items={[{ value: "date", label: t("admin.works.sortDeletedAt") }]}
               value="date"
               sortDir={trashSort === "oldest" ? "asc" : "desc"}
               onChange={() => setTrashSort((p) => p === "newest" ? "oldest" : "newest")}
+            />
+            <Select
+              value={String(trashPerPage)}
+              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
+              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
+              className={shell.filterPageSize}
             />
             <SearchCapsule
               typeSelector={{
@@ -609,31 +606,14 @@ role: 풀스택 개발
         </>
       }
     >
-      {/* Filter bar */}
+      {/* Filter bar — sort + filters + perPage 좌측, 검색은 우측 끝 (margin-left:auto) */}
       <div className={shell.filterBar}>
-        <SearchCapsule
-          typeSelector={{
-            value: searchType,
-            options: [
-              { value: "all", label: t("admin.works.searchAll") },
-              { value: "title", label: t("admin.works.searchTitle") },
-              { value: "content", label: t("admin.works.searchContent") },
-            ],
-            onChange: (v) => { setSearchType(v); setPage(1); },
-          }}
-          search={search}
-          onSearchChange={(v) => { setSearch(v); setPage(1); }}
-          placeholder={t("admin.works.search")}
-          align="left"
-          className={shell.filterSearch}
-        />
         <SegmentedControl
           items={[
             { value: "order", label: t("admin.works.sortOrder") },
             { value: "date", label: t("admin.works.sortDate") },
             { value: "name", label: t("admin.works.sortName") },
           ]}
-          // 매핑: newest/oldest → date, 나머지 그대로
           value={sort === "newest" || sort === "oldest" ? "date" : sort}
           sortDir={sort === "oldest" ? "asc" : "desc"}
           onChange={(v) => {
@@ -685,6 +665,22 @@ role: 풀스택 개발
           options={PAGE_SIZE_OPTIONS}
           onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
           className={shell.filterPageSize}
+        />
+        <SearchCapsule
+          typeSelector={{
+            value: searchType,
+            options: [
+              { value: "all", label: t("admin.works.searchAll") },
+              { value: "title", label: t("admin.works.searchTitle") },
+              { value: "content", label: t("admin.works.searchContent") },
+            ],
+            onChange: (v) => { setSearchType(v); setPage(1); },
+          }}
+          search={search}
+          onSearchChange={(v) => { setSearch(v); setPage(1); }}
+          placeholder={t("admin.works.search")}
+          align="left"
+          className={shell.filterSearch}
         />
       </div>
 
@@ -745,6 +741,16 @@ role: 풀스택 개발
         ]}
         onReorder={sort === "order" && !filterYear && !filterCategory ? handleDragReorder : undefined}
         onMove={sort === "order" && !filterYear && !filterCategory ? handleMove : undefined}
+        onRowLabelEdit={sort === "order" && !filterYear && !filterCategory ? async (target, newOrder) => {
+          if (newOrder === target.sort_order) return;
+          await fetch(`/api/works/${target.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sort_order: newOrder }),
+          });
+          fetchWorks();
+        } : undefined}
+        rowLabelMax={totalCount || works.length}
         gridTemplate="64px 1fr 100px 180px"
         showRowNumbers
         getRowLabel={(w) => String(w.sort_order)}

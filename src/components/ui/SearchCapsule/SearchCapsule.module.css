@@ -44,7 +44,6 @@
 .input {
   flex: 1;
   min-width: 80px;
-  max-width: 180px;
   padding: var(--input-p);
   border: none;
   background: transparent;

@@ -23,11 +23,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* filterPageSize는 왼쪽에 배치 — 검색이 오른쪽이므로 auto margin 해제 */
-.filterPageSizeLeft {
-  margin-left: 0;
-}
-
 /* ── Series Section ── */
 .seriesSection {
   margin-bottom: var(--spacing-2xl);

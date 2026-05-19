@@ -452,17 +452,17 @@ export default function AdminPostsPage() {
         }}
         filterBar={
           <div className={shell.filterBar}>
-            <Select
-              value={String(trashPerPage)}
-              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
-              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
-              className={`${shell.filterPageSize} ${styles.filterPageSizeLeft}`}
-            />
             <SegmentedControl
               items={[{ value: "date", label: t("admin.posts.sortDeletedAt") }]}
               value="date"
               sortDir={trashSort === "oldest" ? "asc" : "desc"}
               onChange={() => setTrashSort((p) => p === "newest" ? "oldest" : "newest")}
+            />
+            <Select
+              value={String(trashPerPage)}
+              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
+              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
+              className={shell.filterPageSize}
             />
             <SearchCapsule
               typeSelector={{
@@ -557,12 +557,6 @@ export default function AdminPostsPage() {
         loading={seriesLoading}
         filterBar={
           <div className={shell.filterBar}>
-            <Select
-              value={String(seriesPerPage)}
-              options={[{ value: "5", label: "5" }, { value: "10", label: "10" }, { value: "20", label: "20" }]}
-              onChange={(v) => { setSeriesPerPage(Number(v)); setSeriesPage(1); }}
-              className={`${shell.filterPageSize} ${styles.filterPageSizeLeft}`}
-            />
             <SegmentedControl
               items={[
                 { value: "date", label: t("admin.posts.sortDate") },
@@ -586,6 +580,12 @@ export default function AdminPostsPage() {
               ]}
               onChange={(v) => setSeriesFilter(v as "" | "published" | "draft")}
               className={shell.filterItem}
+            />
+            <Select
+              value={String(seriesPerPage)}
+              options={[{ value: "5", label: "5" }, { value: "10", label: "10" }, { value: "20", label: "20" }]}
+              onChange={(v) => { setSeriesPerPage(Number(v)); setSeriesPage(1); }}
+              className={shell.filterPageSize}
             />
             <SearchCapsule
               typeSelector={{
@@ -693,26 +693,17 @@ tags: React`}</code></pre>
       beforeTable={!loading ? seriesSection : undefined}
       afterTable={!loading ? trashSection : undefined}
     >
-      {/* Filter bar */}
+      {/* Filter bar — sort + filters + perPage 좌측, 검색은 우측 끝 (margin-left:auto) */}
       <div className={shell.filterBar}>
-        <Select
-          value={String(perPage)}
-          options={PAGE_SIZE_OPTIONS}
-          onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
-          className={`${shell.filterPageSize} ${styles.filterPageSizeLeft}`}
-        />
         <SegmentedControl
           items={[
             { value: "date", label: t("admin.posts.sortDate") },
             { value: "popular", label: t("admin.posts.sortPopular") },
           ]}
-          // 매핑: sort 가 "popular" 면 popular 그룹, 아니면 "date" 그룹 (newest/oldest)
           value={sort === "popular" ? "popular" : "date"}
-          // dir 화살표 — date 만 의미 (newest=desc, oldest=asc)
           sortDir={sort === "oldest" ? "asc" : "desc"}
           onChange={(v) => {
             if (v === "date") {
-              // popular → date 면 default newest, date 안에서 다시 클릭이면 dir toggle
               if (sort === "newest") setSort("oldest");
               else if (sort === "oldest") setSort("newest");
               else setSort("newest");
@@ -754,6 +745,12 @@ tags: React`}</code></pre>
             {t("admin.posts.resetFilters")}
           </button>
         )}
+        <Select
+          value={String(perPage)}
+          options={PAGE_SIZE_OPTIONS}
+          onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+          className={shell.filterPageSize}
+        />
         <SearchCapsule
           typeSelector={{
             value: searchType,
@@ -767,6 +764,7 @@ tags: React`}</code></pre>
           search={search}
           onSearchChange={(v) => { setSearch(v); setPage(1); }}
           placeholder={t("admin.posts.search")}
+          align="left"
           className={shell.filterSearch}
         />
       </div>
