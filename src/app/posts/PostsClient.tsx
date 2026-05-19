@@ -222,22 +222,35 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     if (!showTags) setVisibleTagCount(TAG_PAGE_SIZE);
   }, [showTags]);
 
-  // 태그 무한 스크롤 — scroll event 로 root 내 scrollTop 추적. 사용자가 직접 스크롤 해야만 트리거.
+  // 태그 무한 스크롤 — scroll event 로 root 내 scrollTop 추적.
   useEffect(() => {
     if (!showTags) return;
-    const root = tagRowRef.current;
-    if (!root) return;
     if (visibleTagCount >= allTags.length) return;
-    const onScroll = () => {
-      // 바닥 80px 이내 도달 → 다음 batch 로드
-      if (root.scrollTop + root.clientHeight >= root.scrollHeight - 80) {
+    // ref 가 mount 후 다음 tick 에 ready — small delay
+    const t = setTimeout(() => {
+      const root = tagRowRef.current;
+      if (!root) return;
+      // eslint-disable-next-line no-console
+      console.log("[tag-scroll] attached", { scrollHeight: root.scrollHeight, clientHeight: root.clientHeight });
+      const onScroll = () => {
         // eslint-disable-next-line no-console
-        console.log("[tag-infinite-scroll] loading more", { current: visibleTagCount, total: allTags.length });
-        setVisibleTagCount((c) => Math.min(c + TAG_PAGE_SIZE, allTags.length));
-      }
+        console.log("[tag-scroll]", { scrollTop: root.scrollTop, clientHeight: root.clientHeight, scrollHeight: root.scrollHeight });
+        if (root.scrollTop + root.clientHeight >= root.scrollHeight - 80) {
+          // eslint-disable-next-line no-console
+          console.log("[tag-infinite-scroll] loading more", { current: visibleTagCount, total: allTags.length });
+          setVisibleTagCount((c) => Math.min(c + TAG_PAGE_SIZE, allTags.length));
+        }
+      };
+      root.addEventListener("scroll", onScroll, { passive: true });
+      // store cleanup
+      (root as HTMLDivElement & { _tagScrollCleanup?: () => void })._tagScrollCleanup = () =>
+        root.removeEventListener("scroll", onScroll);
+    }, 50);
+    return () => {
+      clearTimeout(t);
+      const root = tagRowRef.current as (HTMLDivElement & { _tagScrollCleanup?: () => void }) | null;
+      if (root?._tagScrollCleanup) root._tagScrollCleanup();
     };
-    root.addEventListener("scroll", onScroll, { passive: true });
-    return () => root.removeEventListener("scroll", onScroll);
   }, [showTags, visibleTagCount, allTags.length]);
 
   // Cooldown: skip scroll-collapse briefly after expanding tags/categories

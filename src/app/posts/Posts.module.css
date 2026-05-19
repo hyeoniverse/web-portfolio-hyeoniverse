@@ -258,12 +258,13 @@
   padding: var(--spacing-sm) 0 var(--spacing-md);
 }
 
-/* Tag filter row — 태그 많을 때 max-height + 내부 scroll. viewport 짤림 방지. */
+/* Tag filter row — viewport 거의 100% 까지 (하단 200px 여백) but 600px 최대.
+   너무 키우면 큰 viewport 에서 모든 태그가 한번에 보여 무한 스크롤 의미 없어짐 */
 .tagRow {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
-  max-height: 220px;
+  max-height: min(600px, calc(100vh - 200px));
   overflow-y: auto;
 }
 
