@@ -76,9 +76,10 @@ export default function TagsIndexClient({ tags }: Props) {
     };
   }, [tags]);
 
-  // 인기 top N — 정렬/필터와 무관. 검색/letter 활성 시 숨김
-  const featured = useMemo(() => {
-    return tags.slice().sort((a, b) => b.count - a.count).slice(0, FEATURED_COUNT);
+  // 인기 top N — accent 색으로 강조 (별도 섹션 X). count desc 기준 top N 의 tag Set.
+  const popularSet = useMemo(() => {
+    const sorted = tags.slice().sort((a, b) => b.count - a.count).slice(0, FEATURED_COUNT);
+    return new Set(sorted.map((t) => t.tag));
   }, [tags]);
 
   // 초성/알파벳 bucket count — index 에서 비활성 letter 회색 처리
@@ -132,7 +133,6 @@ export default function TagsIndexClient({ tags }: Props) {
 
   const slice = filtered.slice(0, visible);
   const hasMore = visible < filtered.length;
-  const showFeatured = !search && !activeLetter;
 
   return (
     <div className={styles.container}>
@@ -163,28 +163,6 @@ export default function TagsIndexClient({ tags }: Props) {
           className={styles.searchBar}
         />
       </header>
-
-      {/* 인기 태그 — 검색/letter 안 걸렸을 때만 노출 */}
-      {showFeatured && (
-        <section className={styles.featuredSection}>
-          <h2 className={styles.sectionLabel}>인기 태그</h2>
-          <ul className={styles.featuredList}>
-            {featured.map((t) => (
-              <li
-                key={t.tag}
-                className={styles.tagItem}
-                title={t.description || undefined}
-              >
-                <TagPill
-                  tag={t.tag}
-                  count={t.count}
-                  className={styles.featuredPill}
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       {/* 컨트롤 row — 정렬 + 알파벳 인덱스 */}
       <div className={styles.controlRow}>
@@ -234,7 +212,7 @@ export default function TagsIndexClient({ tags }: Props) {
             <TagPill
               tag={t.tag}
               count={t.count}
-              className={styles.tagItemPill}
+              className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""}`}
               style={{ fontSize: `${fontFor(t.count)}px` }}
             />
           </li>
