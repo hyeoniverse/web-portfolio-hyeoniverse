@@ -160,7 +160,7 @@ export default function TagsIndexClient({ tags }: Props) {
           <SegmentedControl<"popular" | "alphabetical">
             items={[
               { value: "popular", label: "인기순" },
-              { value: "alphabetical", label: "가나다" },
+              { value: "alphabetical", label: "제목순" },
             ]}
             value={sortBy}
             onChange={(v) => setSortBy(v)}
