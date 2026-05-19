@@ -95,7 +95,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
     "husky": "^9.1.7",
-    "jsdom": "^27.0.1",
+    "jsdom": "^29.1.1",
     "knip": "^6.14.1",
     "lint-staged": "^17.0.5",
     "playwright": "^1.60.0",
