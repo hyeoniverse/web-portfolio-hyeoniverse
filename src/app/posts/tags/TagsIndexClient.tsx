@@ -156,24 +156,27 @@ export default function TagsIndexClient({ tags }: Props) {
         <p className={styles.meta}>
           <strong>{filtered.length.toLocaleString()}</strong>개의 태그
         </p>
-        <SearchCapsule
-          search={search}
-          onSearchChange={setSearch}
-          placeholder="태그 또는 설명으로 검색…"
-          className={styles.searchBar}
-        />
+        <div className={styles.searchSortRow}>
+          <SearchCapsule
+            search={search}
+            onSearchChange={setSearch}
+            placeholder="태그 또는 설명으로 검색…"
+            align="left"
+            className={styles.searchBar}
+          />
+          <SegmentedControl<"popular" | "alphabetical">
+            items={[
+              { value: "popular", label: "인기순" },
+              { value: "alphabetical", label: "가나다" },
+            ]}
+            value={sortBy}
+            onChange={(v) => setSortBy(v)}
+          />
+        </div>
       </header>
 
-      {/* 컨트롤 row — 정렬 + 알파벳 인덱스 */}
+      {/* 알파벳 인덱스 */}
       <div className={styles.controlRow}>
-        <SegmentedControl<"popular" | "alphabetical">
-          items={[
-            { value: "popular", label: "인기순" },
-            { value: "alphabetical", label: "가나다" },
-          ]}
-          value={sortBy}
-          onChange={(v) => setSortBy(v)}
-        />
         <div className={styles.letterIndex}>
           <button
             type="button"

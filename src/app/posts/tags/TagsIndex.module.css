@@ -44,7 +44,17 @@
 }
 
 .searchBar {
-  width: 100%;
+  flex: 0 0 auto;
+  width: 320px;
+  max-width: 100%;
+}
+
+/* 검색 + 정렬 같은 줄 */
+.searchSortRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 /* ── 컨트롤 row — 정렬 + 알파벳 인덱스 ── */
