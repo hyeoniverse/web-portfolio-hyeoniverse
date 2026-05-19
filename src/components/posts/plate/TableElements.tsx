@@ -3,10 +3,12 @@ import {
   PlateElement,
   type PlateElementProps,
   useEditorRef,
+  useEditorSelector,
   useElement,
 } from "platejs/react";
 import {
   TableProvider,
+  TablePlugin,
   useTableCellElement,
   useTableColSizes,
   useTableElement,
@@ -165,7 +167,13 @@ function AddRowBtn({ editor, tableElement, disabled, hovered, onHoverChange }: {
 
 function TableElementInner({ children, attributes, style, element }: PlateElementProps) {
   const editor = useEditorRef();
-  const { props: tableProps, isSelectingCell } = useTableElement();
+  const { props: tableProps } = useTableElement();
+  // Plate v53: useTableElement 반환에서 isSelectingCell 가 빠지고 plugin API 로 이동.
+  // 타입 정의 상 isSelectingCell 이 intersection 의 한쪽에만 있어서 unknown 으로 우회 cast.
+  const isSelectingCell = useEditorSelector(
+    (e) => (e.getApi(TablePlugin).table as unknown as { isSelectingCell: () => boolean }).isSelectingCell(),
+    [],
+  );
   const rawColSizes = useTableColSizes();
   const colSizes = Array.isArray(rawColSizes) ? rawColSizes : [];
   useSelectedCells();
