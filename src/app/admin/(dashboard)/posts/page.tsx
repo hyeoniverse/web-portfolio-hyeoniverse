@@ -369,6 +369,7 @@ export default function AdminPostsPage() {
       publishLabel: t("admin.posts.publishLabel"),
       publishedTooltip: t("admin.posts.publishedTooltip"),
       unpublishedTooltip: t("admin.posts.unpublishedTooltip"),
+      exportItem: t("admin.posts.exportMd"),
     }),
     [t],
   );
@@ -458,12 +459,6 @@ export default function AdminPostsPage() {
               sortDir={trashSort === "oldest" ? "asc" : "desc"}
               onChange={() => setTrashSort((p) => p === "newest" ? "oldest" : "newest")}
             />
-            <Select
-              value={String(trashPerPage)}
-              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
-              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
-              className={shell.filterPageSize}
-            />
             <SearchCapsule
               typeSelector={{
                 value: trashSearchType,
@@ -478,6 +473,12 @@ export default function AdminPostsPage() {
               onSearchChange={setTrashSearch}
               placeholder={t("admin.posts.trashSearch")}
               className={shell.filterSearch}
+            />
+            <Select
+              value={String(trashPerPage)}
+              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
+              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
+              className={shell.filterPageSize}
             />
           </div>
         }
@@ -581,12 +582,6 @@ export default function AdminPostsPage() {
               onChange={(v) => setSeriesFilter(v as "" | "published" | "draft")}
               className={shell.filterItem}
             />
-            <Select
-              value={String(seriesPerPage)}
-              options={[{ value: "5", label: "5" }, { value: "10", label: "10" }, { value: "20", label: "20" }]}
-              onChange={(v) => { setSeriesPerPage(Number(v)); setSeriesPage(1); }}
-              className={shell.filterPageSize}
-            />
             <SearchCapsule
               typeSelector={{
                 value: seriesSearchType,
@@ -601,6 +596,12 @@ export default function AdminPostsPage() {
               onSearchChange={setSeriesSearch}
               placeholder={t("admin.posts.seriesSearch")}
               className={shell.filterSearch}
+            />
+            <Select
+              value={String(seriesPerPage)}
+              options={[{ value: "5", label: "5" }, { value: "10", label: "10" }, { value: "20", label: "20" }]}
+              onChange={(v) => { setSeriesPerPage(Number(v)); setSeriesPage(1); }}
+              className={shell.filterPageSize}
             />
           </div>
         }
@@ -745,12 +746,6 @@ tags: React`}</code></pre>
             {t("admin.posts.resetFilters")}
           </button>
         )}
-        <Select
-          value={String(perPage)}
-          options={PAGE_SIZE_OPTIONS}
-          onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
-          className={shell.filterPageSize}
-        />
         <SearchCapsule
           typeSelector={{
             value: searchType,
@@ -766,6 +761,12 @@ tags: React`}</code></pre>
           placeholder={t("admin.posts.search")}
           align="left"
           className={shell.filterSearch}
+        />
+        <Select
+          value={String(perPage)}
+          options={PAGE_SIZE_OPTIONS}
+          onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+          className={shell.filterPageSize}
         />
       </div>
 

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
 import BackLink from "@/components/ui/BackLink";
 import Checkbox from "@/components/ui/Checkbox";
+import Popover from "@/components/ui/Popover";
 import Tooltip from "@/components/ui/Tooltip";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
@@ -71,7 +71,6 @@ export default function AdminEditorShell({
     window.addEventListener("mouseup", onUp);
     return () => window.removeEventListener("mouseup", onUp);
   }, []);
-  const revisionRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const prevHeightRef = useRef<number>(0);
 
@@ -112,7 +111,6 @@ export default function AdminEditorShell({
     }
     prevHeightRef.current = newHeight;
   }, [viewingRevision, detailLoading]);
-  const retranslateRef = useRef<HTMLDivElement>(null);
   const revisionsRef = useRef(revisions);
   revisionsRef.current = revisions;
   const onLoadRevisionDetailRef = useRef(onLoadRevisionDetail);
@@ -156,20 +154,6 @@ export default function AdminEditorShell({
     }
   }, [viewingRevision]);
 
-  useEffect(() => {
-    if (!showRevisions && !showRetranslate) return;
-    const handle = (e: MouseEvent) => {
-      if (showRevisions && revisionRef.current && !revisionRef.current.contains(e.target as Node)) {
-        setShowRevisions(false);
-      }
-      if (showRetranslate && retranslateRef.current && !retranslateRef.current.contains(e.target as Node)) {
-        setShowRetranslate(false);
-      }
-    };
-    document.addEventListener("mousedown", handle);
-    return () => document.removeEventListener("mousedown", handle);
-  }, [showRevisions, showRetranslate]);
-
   return (
     <div className={styles.container}>
       <div className={styles.topBar}>
@@ -186,27 +170,35 @@ export default function AdminEditorShell({
           <div className={styles.actionsDivider} />
           <LanguageToggle lang={editorLang} onLangChange={onEditorLangChange} />
           {(onRetranslate || retranslateDisabled) && retranslateOptions && (
-            <div className={styles.retranslateWrap} ref={retranslateRef}>
-              <Tooltip content={retranslateDisabled ? (labels.retranslateDisabled ?? "API key not configured") : (labels.retranslate ?? "Retranslate")} placement="bottom">
-                <Button
-                  variant="outline"
-                  shape="circle"
-                  size="xs"
-                  className={styles.retranslateBtn}
-                  onClick={retranslateDisabled ? undefined : () => setShowRetranslate((v) => !v)}
-                  disabled={saving || retranslateDisabled}
-                  soundDisabled
-                  icon={<Languages size={14} />}
-                />
-              </Tooltip>
-              {showRetranslate && (
-                <div className={styles.retranslateDropdown}>
+            <Popover
+              open={showRetranslate}
+              onOpenChange={setShowRetranslate}
+              placement="bottom-start"
+              contentClassName={styles.retranslateDropdown}
+              sheetTitle={labels.retranslate ?? "Retranslate"}
+              trigger={
+                <Tooltip content={retranslateDisabled ? (labels.retranslateDisabled ?? "API key not configured") : (labels.retranslate ?? "Retranslate")} placement="bottom">
+                  <Button
+                    variant="outline"
+                    shape="circle"
+                    size="xs"
+                    className={styles.retranslateBtn}
+                    onClick={retranslateDisabled ? undefined : () => { /* Popover toggle */ }}
+                    disabled={saving || retranslateDisabled}
+                    soundDisabled
+                    icon={<Languages size={14} />}
+                  />
+                </Tooltip>
+              }
+            >
+              {({ close }) => (
+                <>
                   <button
                     type="button"
                     className={styles.retranslateItem}
                     onClick={() => {
                       onRetranslate?.();
-                      setShowRetranslate(false);
+                      close();
                     }}
                   >
                     {labels.retranslateAll ?? "All"}
@@ -218,15 +210,15 @@ export default function AdminEditorShell({
                       className={styles.retranslateItem}
                       onClick={() => {
                         onRetranslate?.([opt.key]);
-                        setShowRetranslate(false);
+                        close();
                       }}
                     >
                       {opt.label}
                     </button>
                   ))}
-                </div>
+                </>
               )}
-            </div>
+            </Popover>
           )}
           {(onGenerateSummary || aiSummaryDisabled) && (
             <Tooltip content={aiSummaryDisabled ? (labels.generateSummaryDisabled ?? "API key not configured") : (labels.generateSummary ?? "Generate AI Summary")} placement="bottom">
@@ -266,54 +258,35 @@ export default function AdminEditorShell({
               </Tooltip>
             )}
             {revisions && (
-              <div className={styles.revisionWrap} ref={revisionRef}>
-                <Tooltip content={labels.revisionHistory ?? "History"} placement="bottom">
-                  <Button
-                    variant="outline"
-                    size="xs"
-                    className={styles.revisionBtn}
-                    onClick={() => {
-                      setShowRevisions((v) => !v);
-                      setViewingRevision(null);
-                      setIsSelectMode(false);
-                      setSelectedRevisions(new Set());
-                    }}
-                    soundDisabled
-                  >
-                    <Clock size={14} />
-                    <span className={styles.revisionBadge}>{revisions.length}</span>
-                  </Button>
-                </Tooltip>
-                <AnimatePresence>
-                {showRevisions && (
-                  <motion.div
-                    ref={dropdownRef}
-                    className={`${styles.revisionDropdown} ${viewingRevision !== null ? styles.revisionDropdownWide : ""}`}
-                    data-lenis-prevent
-                    initial={{ opacity: 0, scale: 0.7, y: -8 }}
-                    animate={{
-                      opacity: 1,
-                      scale: 1,
-                      y: 0,
-                      transition: {
-                        scale: { duration: 0.22, ease: [0.4, 0, 0.2, 1] },
-                        y: { duration: 0.22, ease: [0.4, 0, 0.2, 1] },
-                        opacity: { duration: 0.14, ease: "easeOut" },
-                      },
-                    }}
-                    exit={{
-                      opacity: 0,
-                      scale: 0.7,
-                      y: -8,
-                      // 종료 시 scale 축소가 충분히 보이도록 opacity 는 마지막에 페이드아웃
-                      transition: {
-                        scale: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
-                        y: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
-                        opacity: { duration: 0.14, delay: 0.18, ease: "easeIn" },
-                      },
-                    }}
-                    style={{ transformOrigin: "top right" }}
-                  >
+              <Popover
+                open={showRevisions}
+                onOpenChange={(next) => {
+                  setShowRevisions(next);
+                  if (next) {
+                    setViewingRevision(null);
+                    setIsSelectMode(false);
+                    setSelectedRevisions(new Set());
+                  }
+                }}
+                placement="bottom-end"
+                contentRef={dropdownRef}
+                contentClassName={`${styles.revisionDropdown} ${viewingRevision !== null ? styles.revisionDropdownWide : ""}`}
+                sheetTitle={labels.revisionHistory ?? "History"}
+                trigger={
+                  <Tooltip content={labels.revisionHistory ?? "History"} placement="bottom">
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      className={styles.revisionBtn}
+                      soundDisabled
+                    >
+                      <Clock size={14} />
+                      <span className={styles.revisionBadge}>{revisions.length}</span>
+                    </Button>
+                  </Tooltip>
+                }
+              >
+                <div data-lenis-prevent>
                     {revisions.length === 0 ? (
                       <div className={styles.revisionEmpty}>저장된 기록이 없습니다.</div>
                     ) : viewingRevision !== null && revisions[viewingRevision] ? (
@@ -606,10 +579,8 @@ export default function AdminEditorShell({
                         ))}
                       </div>
                     )}
-                  </motion.div>
-                )}
-                </AnimatePresence>
-              </div>
+                </div>
+              </Popover>
             )}
           </div>
           {isEdit && onDelete && (
