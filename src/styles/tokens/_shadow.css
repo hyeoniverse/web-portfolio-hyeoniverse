@@ -4,22 +4,22 @@
 
 :root {
   /* Elevation Shadows */
-  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
-  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.14), 0 8px 16px rgba(0, 0, 0, 0.08);
-  --shadow-2xl: 0 28px 56px rgba(0, 0, 0, 0.28);
+  --shadow-xs: 0 1px 3px oklch(0.00% 0.0000 0.00 / 0.1), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.06);
+  --shadow-sm: 0 2px 6px oklch(0.00% 0.0000 0.00 / 0.12), 0 1px 3px oklch(0.00% 0.0000 0.00 / 0.08);
+  --shadow-md: 0 4px 12px oklch(0.00% 0.0000 0.00 / 0.12), 0 2px 4px oklch(0.00% 0.0000 0.00 / 0.08);
+  --shadow-lg: 0 10px 24px oklch(0.00% 0.0000 0.00 / 0.12), 0 4px 8px oklch(0.00% 0.0000 0.00 / 0.08);
+  --shadow-xl: 0 20px 40px oklch(0.00% 0.0000 0.00 / 0.14), 0 8px 16px oklch(0.00% 0.0000 0.00 / 0.08);
+  --shadow-2xl: 0 28px 56px oklch(0.00% 0.0000 0.00 / 0.28);
 
   /* Special Shadows */
-  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.3);
+  --shadow-inner: inset 0 2px 4px oklch(0.00% 0.0000 0.00 / 0.06);
+  --shadow-glow: 0 0 20px oklch(100.00% 0.0000 0.00 / 0.3);
 
   /* Text legibility shadow — 이미지 위 텍스트 가독성용. text-shadow 전용. */
-  --shadow-text-xs: 0 1px 2px rgba(0, 0, 0, 0.15);   /* 약한 contrast — 명도 차이가 거의 없는 배경 */
-  --shadow-text-sm: 0 1px 2px rgba(0, 0, 0, 0.5);    /* 보통 — 이미지 위 텍스트 */
-  --shadow-text-md: 0 1px 4px rgba(0, 0, 0, 0.5);    /* 강한 — 큰 제목 */
-  --shadow-text-strong: 0 1px 3px rgba(0, 0, 0, 0.4); /* 어두운 배경의 흰 텍스트 강조 */
+  --shadow-text-xs: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.15);   /* 약한 contrast — 명도 차이가 거의 없는 배경 */
+  --shadow-text-sm: 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.5);    /* 보통 — 이미지 위 텍스트 */
+  --shadow-text-md: 0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5);    /* 강한 — 큰 제목 */
+  --shadow-text-strong: 0 1px 3px oklch(0.00% 0.0000 0.00 / 0.4); /* 어두운 배경의 흰 텍스트 강조 */
 
   /* Blur Effects */
   --blur-xs: blur(2px);
@@ -37,11 +37,11 @@
   ========================================================================== */
 
 [data-theme="dark"] {
-  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.45), 0 4px 8px rgba(0, 0, 0, 0.35);
-  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.45), 0 8px 16px rgba(0, 0, 0, 0.35);
-  --shadow-glow: 0 0 30px rgba(255, 255, 255, 0.15);
-  --shadow-inner: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-xs: 0 1px 3px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.3);
+  --shadow-sm: 0 2px 6px oklch(0.00% 0.0000 0.00 / 0.45), 0 1px 3px oklch(0.00% 0.0000 0.00 / 0.35);
+  --shadow-md: 0 4px 12px oklch(0.00% 0.0000 0.00 / 0.45), 0 2px 4px oklch(0.00% 0.0000 0.00 / 0.35);
+  --shadow-lg: 0 10px 24px oklch(0.00% 0.0000 0.00 / 0.45), 0 4px 8px oklch(0.00% 0.0000 0.00 / 0.35);
+  --shadow-xl: 0 20px 40px oklch(0.00% 0.0000 0.00 / 0.45), 0 8px 16px oklch(0.00% 0.0000 0.00 / 0.35);
+  --shadow-glow: 0 0 30px oklch(100.00% 0.0000 0.00 / 0.15);
+  --shadow-inner: inset 0 2px 6px oklch(0.00% 0.0000 0.00 / 0.3);
 }

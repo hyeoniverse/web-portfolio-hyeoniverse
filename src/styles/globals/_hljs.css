@@ -4,160 +4,160 @@
 [data-theme="dark"] pre code .hljs-keyword,
 [data-theme="dark"] pre code .hljs-selector-tag,
 [data-theme="dark"] pre code .hljs-built_in {
-  color: #c792ea;
+  color: oklch(74.27% 0.1348 311.06);
 }
 
 [data-theme="dark"] pre code .hljs-string,
 [data-theme="dark"] pre code .hljs-attr {
-  color: #ecc48d;
+  color: oklch(84.25% 0.0844 75.06);
 }
 
 [data-theme="dark"] pre code .hljs-number,
 [data-theme="dark"] pre code .hljs-literal {
-  color: #f78c6c;
+  color: oklch(74.86% 0.1381 37.46);
 }
 
 [data-theme="dark"] pre code .hljs-comment,
 [data-theme="dark"] pre code .hljs-quote {
-  color: #637777;
+  color: oklch(55.31% 0.0236 196.49);
   font-style: italic;
 }
 
 [data-theme="dark"] pre code .hljs-title,
 [data-theme="dark"] pre code .hljs-title.function_ {
-  color: #82aaff;
+  color: oklch(74.41% 0.1311 264.28);
 }
 
 [data-theme="dark"] pre code .hljs-variable,
 [data-theme="dark"] pre code .hljs-template-variable {
-  color: #addb67;
+  color: oklch(83.44% 0.1534 127.38);
 }
 
 [data-theme="dark"] pre code .hljs-type,
 [data-theme="dark"] pre code .hljs-tag {
-  color: #f07178;
+  color: oklch(70.09% 0.1567 18.62);
 }
 
 [data-theme="dark"] pre code .hljs-name {
-  color: #f07178;
+  color: oklch(70.09% 0.1567 18.62);
 }
 
 [data-theme="dark"] pre code .hljs-attribute {
-  color: #c792ea;
+  color: oklch(74.27% 0.1348 311.06);
 }
 
 [data-theme="dark"] pre code .hljs-symbol,
 [data-theme="dark"] pre code .hljs-bullet {
-  color: #addb67;
+  color: oklch(83.44% 0.1534 127.38);
 }
 
 [data-theme="dark"] pre code .hljs-params {
-  color: #d6deeb;
+  color: oklch(89.84% 0.0198 260.17);
 }
 
 [data-theme="dark"] pre code .hljs-meta {
-  color: #82aaff;
+  color: oklch(74.41% 0.1311 264.28);
 }
 
 [data-theme="dark"] pre code .hljs-operator,
 [data-theme="dark"] pre code .hljs-punctuation {
-  color: #89ddff;
+  color: oklch(85.61% 0.0943 225.87);
 }
 
 [data-theme="dark"] pre code .hljs-property {
-  color: #7fdbca;
+  color: oklch(82.92% 0.0920 180.70);
 }
 
 [data-theme="dark"] pre code .hljs-regexp {
-  color: #5ca7e4;
+  color: oklch(70.53% 0.1170 245.09);
 }
 
 [data-theme="dark"] pre code .hljs-deletion {
-  color: #ef5350;
+  color: oklch(65.39% 0.1926 25.14);
 }
 
 [data-theme="dark"] pre code .hljs-addition {
-  color: #addb67;
+  color: oklch(83.44% 0.1534 127.38);
 }
 
 /* Light mode — Day Owl inspired */
 [data-theme="light"] pre code .hljs-keyword,
 [data-theme="light"] pre code .hljs-selector-tag,
 [data-theme="light"] pre code .hljs-built_in {
-  color: #994cc3;
+  color: oklch(56.39% 0.1860 311.73);
 }
 
 [data-theme="light"] pre code .hljs-string,
 [data-theme="light"] pre code .hljs-attr {
-  color: #c96765;
+  color: oklch(62.80% 0.1251 22.49);
 }
 
 [data-theme="light"] pre code .hljs-number,
 [data-theme="light"] pre code .hljs-literal {
-  color: #aa0982;
+  color: oklch(49.77% 0.2095 342.46);
 }
 
 [data-theme="light"] pre code .hljs-comment,
 [data-theme="light"] pre code .hljs-quote {
-  color: #93a1a1;
+  color: oklch(69.79% 0.0159 196.79);
   font-style: italic;
 }
 
 [data-theme="light"] pre code .hljs-title,
 [data-theme="light"] pre code .hljs-title.function_ {
-  color: #4876d6;
+  color: oklch(58.19% 0.1557 263.15);
 }
 
 [data-theme="light"] pre code .hljs-variable,
 [data-theme="light"] pre code .hljs-template-variable {
-  color: #0c969b;
+  color: oklch(61.22% 0.1023 199.06);
 }
 
 [data-theme="light"] pre code .hljs-type,
 [data-theme="light"] pre code .hljs-tag {
-  color: #994cc3;
+  color: oklch(56.39% 0.1860 311.73);
 }
 
 [data-theme="light"] pre code .hljs-name {
-  color: #994cc3;
+  color: oklch(56.39% 0.1860 311.73);
 }
 
 [data-theme="light"] pre code .hljs-attribute {
-  color: #0c969b;
+  color: oklch(61.22% 0.1023 199.06);
 }
 
 [data-theme="light"] pre code .hljs-symbol,
 [data-theme="light"] pre code .hljs-bullet {
-  color: #0c969b;
+  color: oklch(61.22% 0.1023 199.06);
 }
 
 [data-theme="light"] pre code .hljs-params {
-  color: #403f53;
+  color: oklch(37.69% 0.0339 286.94);
 }
 
 [data-theme="light"] pre code .hljs-meta {
-  color: #4876d6;
+  color: oklch(58.19% 0.1557 263.15);
 }
 
 [data-theme="light"] pre code .hljs-operator,
 [data-theme="light"] pre code .hljs-punctuation {
-  color: #0431fa;
+  color: oklch(47.72% 0.2870 264.37);
 }
 
 [data-theme="light"] pre code .hljs-property {
-  color: #0c969b;
+  color: oklch(61.22% 0.1023 199.06);
 }
 
 [data-theme="light"] pre code .hljs-regexp {
-  color: #4876d6;
+  color: oklch(58.19% 0.1557 263.15);
 }
 
 [data-theme="light"] pre code .hljs-deletion {
-  color: #de3d3b;
+  color: oklch(60.05% 0.1983 26.06);
 }
 
 [data-theme="light"] pre code .hljs-addition {
-  color: #0c969b;
+  color: oklch(61.22% 0.1023 199.06);
 }
 
 /* Code block wrapper */

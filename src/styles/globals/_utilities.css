@@ -86,7 +86,7 @@
     135deg,
     var(--color-white-alpha-30) 0%,
     var(--color-white-alpha-10) 40%,
-    rgba(0, 0, 0, 0.15) 100%
+    oklch(0.00% 0.0000 0.00 / 0.15) 100%
   );
   text-shadow:
     0 0 6px var(--color-white-alpha-60),
@@ -106,8 +106,8 @@
   background-image: linear-gradient(
     135deg,
     var(--color-white-alpha-10) 0%,
-    /* 위쪽 하이라이트 */ rgba(255, 255, 255, 0.04) 30%,
-    rgba(0, 0, 0, 0.5) 100% /* 아래쪽 음영 */
+    /* 위쪽 하이라이트 */ oklch(100.00% 0.0000 0.00 / 0.04) 30%,
+    oklch(0.00% 0.0000 0.00 / 0.5) 100% /* 아래쪽 음영 */
   );
 }
 
@@ -118,7 +118,7 @@
   background-image: linear-gradient(
     135deg,
     var(--color-white-alpha-20) 0%,
-    rgba(255, 255, 255, 0.06) 40%,
+    oklch(100.00% 0.0000 0.00 / 0.06) 40%,
     var(--color-gray-alpha-60) 100%
   );
 }
