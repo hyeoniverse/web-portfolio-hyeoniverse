@@ -306,9 +306,9 @@
   z-index: 1;
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.82) 0%,
-    rgba(0, 0, 0, 0.45) 40%,
-    rgba(0, 0, 0, 0.1) 70%,
+    oklch(0.00% 0.0000 0.00 / 0.82) 0%,
+    oklch(0.00% 0.0000 0.00 / 0.45) 40%,
+    oklch(0.00% 0.0000 0.00 / 0.1) 70%,
     transparent 100%
   );
 }

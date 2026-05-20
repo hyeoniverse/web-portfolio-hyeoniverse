@@ -458,7 +458,7 @@
   background: var(--bg-primary);
   border: var(--border-default);
   border-radius: var(--radius-2xl);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px oklch(0.00% 0.0000 0.00 / 0.15);
   padding: var(--spacing-xs);
   display: flex;
   flex-direction: column;
