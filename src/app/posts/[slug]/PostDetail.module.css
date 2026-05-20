@@ -50,6 +50,13 @@
   color: var(--text-tertiary);
 }
 
+.metaDivider {
+  display: inline-block;
+  width: 1px;
+  height: 12px;
+  background: var(--border-light-color);
+}
+
 .articleTitle {
   font-family: var(--font-instrument);
   font-size: clamp(2rem, 6vw, 3rem);
@@ -471,12 +478,12 @@
   display: flex;
   color: var(--text-tertiary);
   flex-shrink: 0;
-  transform: rotate(-180deg);
+  transform: rotate(0deg);
   transition: transform 0.3s ease-out;
 }
 
 .seriesChevronOpen {
-  transform: rotate(0deg);
+  transform: rotate(90deg);
 }
 
 .seriesListWrap {
@@ -734,19 +741,17 @@
   color: var(--text-muted);
 }
 
-/* ── Related posts (series) ── */
-.relatedSection {
-  max-width: var(--page-max-width);
-  margin: 0 auto;
-  padding: var(--spacing-2xl) 0;
-  border-top: var(--border-light);
+/* ── Related / Recommended sections — 동일 layout (max-width 는 DetailLayout 의 afterContent / content 가 처리) ── */
+.relatedSection,
+.recommendedSection {
+  padding: var(--spacing-2xl) 0 0;
 }
 
 .relatedHeader {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
 }
 
 .relatedLabel {
@@ -764,43 +769,41 @@
   color: var(--text-muted);
 }
 
+/* 가로 캐러셀 (HorizontalCarousel 공통 컴포넌트) — 위아래 border + 카드 사이 vertical separator. gap 없음 */
 .relatedGrid {
-  display: flex;
-  gap: var(--spacing-md);
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
 }
 
-.relatedGrid::-webkit-scrollbar {
-  display: none;
+/* scroll 가능 상태일 때만 마지막 카드 border-right 제거 (끝까지 스크롤 시 자연스럽게 잘림) */
+.relatedGrid[data-scrollable="true"] > .relatedCard:last-child {
+  border-right: none;
 }
 
 .relatedCard {
   display: flex;
-  flex-direction: column;
-  border: var(--border-light);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  align-items: stretch;
   text-decoration: none;
   color: inherit;
-  min-width: 220px;
-  max-width: 260px;
+  min-width: 380px;
+  max-width: 480px;
+  /* card height 고정 → image stretch + 1:1 의 cyclic 회피. body content (title + meta + excerpt 2-line + date + padding) 가 안에 fit. */
+  height: 124px;
   flex-shrink: 0;
   scroll-snap-align: start;
-}
-
-.relatedSection .relatedCard:hover {
-  border-color: var(--text-primary);
+  cursor: pointer;
+  border-right: var(--border-light);
 }
 
 .relatedCardImage {
   position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 10;
+  /* card height 고정이라 align-self: stretch 가 image height = card height 강제 →
+     aspect-ratio 1/1 로 width 자동 = height. cyclic 없음, 여백 없음. */
+  aspect-ratio: 1 / 1;
+  align-self: stretch;
+  flex-shrink: 0;
   background: var(--bg-tertiary);
+  overflow: hidden;
 }
 
 .relatedCardImg {
@@ -817,46 +820,62 @@
 }
 
 .relatedCardBody {
-  padding: var(--box-sm-md);
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-md);
 }
 
+/* Minimal Library — 모두 mono + 흑백 톤. accent 색 없음, divider 없음, 단순 stack */
 .relatedCardMeta {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  align-items: baseline;
+  gap: var(--spacing-2xs);
 }
 
 .relatedCardOrder {
   font-family: var(--font-mono);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+/* 두 메타 사이 "/" 구분자 — 둘 다 있을 때만 */
+.relatedCardMeta > span:not(:last-child)::after {
+  content: " /";
   color: var(--text-muted);
+  margin-left: var(--spacing-2xs);
 }
 
 .relatedCardCategory {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
-  color: var(--text-accent);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .relatedCardTitle {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   line-height: var(--line-height-tight);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .relatedCardExcerpt {
+  font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-  line-height: var(--line-height-normal);
+  line-height: var(--line-height-relaxed);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -865,25 +884,38 @@
 
 .relatedCardDate {
   font-family: var(--font-mono);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-top: auto;
+  padding-top: var(--spacing-xs);
 }
 
 .relatedSection .relatedCard:hover .relatedCardTitle {
   color: var(--text-accent);
 }
 
-/* ── Recommended posts ── */
-.recommendedSection {
-  padding: var(--spacing-lg) 0 0;
+/* hover image scale — placeholder 도 동일하게. placeholder 는 translate 유지하면서 scale 추가 */
+.relatedSection .relatedCard .relatedCardImg,
+.relatedSection .relatedCard .relatedCardPlaceholder {
+  transition: transform var(--duration-base) var(--ease-material);
 }
 
+.relatedSection .relatedCard:hover .relatedCardImg {
+  transform: scale(1.08);
+}
+
+.relatedSection .relatedCard:hover .relatedCardPlaceholder {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+/* ── Recommended posts header — relatedHeader 와 base 동일, 우측 moreBtn 위해 space-between ── */
 .recommendedHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
 }
 
 .recommendedLabel {
@@ -903,15 +935,18 @@
 .recommendedItem {
   display: flex;
   align-items: stretch;
-  min-height: 88px;
+  /* AdjacentNav.card 와 동일 고정 높이 — body 가 grid (title + meta + excerpt) 안에 fit */
+  height: 100px;
   border-top: var(--border-light);
   text-decoration: none;
   color: inherit;
+  overflow: hidden;
 }
 
 .recommendedItemThumb {
   position: relative;
-  width: 100px;
+  /* 16:9 톤 — 컨테이너 높이에 맞춰 stretch, width 만 고정. Image fill objectFit cover 가 비율 차이 흡수 */
+  width: 128px;
   flex-shrink: 0;
   overflow: hidden;
   background: var(--bg-tertiary);
@@ -920,10 +955,17 @@
 .recommendedItemBody {
   flex: 1;
   min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--box-xl-lg);
+  /* title + excerpt 왼쪽 column, category 는 오른쪽 vertical center (두 row span) */
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "title    category"
+    "excerpt  category";
+  column-gap: var(--spacing-md);
+  row-gap: var(--spacing-2xs);
+  align-items: start;
+  align-content: center;
+  padding: var(--box-lg);
 }
 
 .recommendedItemImg {
@@ -937,9 +979,23 @@
   color: var(--text-muted);
 }
 
+.recommendedItemExcerpt {
+  grid-area: excerpt;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: var(--line-height-normal);
+  /* 1줄 content 라도 항상 2줄 만큼 차지 → layout 안정 */
+  min-height: 2lh;
+}
+
 
 .recommendedItemTitle {
-  flex: 1;
+  grid-area: title;
   min-width: 0;
   font-family: var(--font-instrument);
   font-size: var(--font-size-md);
@@ -947,7 +1003,7 @@
   color: var(--text-primary);
   line-height: var(--line-height-tight);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -956,14 +1012,26 @@
   color: var(--text-accent);
 }
 
+/* hover image scale — placeholder 도 같이 */
+.recommendedSection .recommendedItem .recommendedItemImg,
+.recommendedSection .recommendedItem .recommendedItemPlaceholder {
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.recommendedSection .recommendedItem:hover .recommendedItemImg,
+.recommendedSection .recommendedItem:hover .recommendedItemPlaceholder {
+  transform: scale(1.08);
+}
+
 .recommendedItemCategory {
+  grid-area: category;
+  align-self: center;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .recommendedMoreBtn {
@@ -995,7 +1063,7 @@
 }
 
 .recommendedMoreChevronOpen {
-  transform: rotate(180deg);
+  transform: rotate(90deg);
 }
 
 /* ── Loading / Not found ── */
@@ -1097,8 +1165,7 @@
 
 /* ── Comments section ── */
 .commentSection {
-  padding: var(--spacing-2xl) 0 var(--spacing-3xl);
-  border-top: var(--border-light);
+  padding: 0 0 var(--spacing-3xl);
 }
 
 /* ── Footer nav ── */
@@ -1146,7 +1213,7 @@
   z-index: var(--z-float);
   width: 300px;
   border: var(--border-default);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   background: var(--bg-primary);
   overflow: hidden;
 }
@@ -1159,7 +1226,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--box-sm-md);
+  padding: var(--box-md);
   border-bottom: var(--border-light);
   color: var(--text-tertiary);
 }
@@ -1223,7 +1290,7 @@
 
 .toastItem {
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
   gap: 0;
   padding: 0;
   text-decoration: none;
@@ -1232,8 +1299,9 @@
 
 .toastThumb {
   position: relative;
-  width: 100px;
-  min-height: 80px;
+  /* 16:9 강제 — toast 는 title 짧을 때 stretch 패턴이면 thumb 가 얇아져 보임. ratio 명시 */
+  width: 120px;
+  aspect-ratio: 16 / 9;
   flex-shrink: 0;
   overflow: hidden;
   background: var(--bg-tertiary);
@@ -1253,7 +1321,7 @@
 .toastTitle {
   flex: 1;
   min-width: 0;
-  padding: var(--box-sm-md);
+  padding: var(--box-lg);
   font-family: var(--font-instrument);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-regular);
@@ -1267,6 +1335,17 @@
 
 .toast .toastItem:hover .toastTitle {
   color: var(--text-accent);
+}
+
+/* hover image scale — placeholder 도 같이 */
+.toast .toastItem .toastThumbImg,
+.toast .toastItem .toastThumbPlaceholder {
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.toast .toastItem:hover .toastThumbImg,
+.toast .toastItem:hover .toastThumbPlaceholder {
+  transform: scale(1.08);
 }
 
 @media (max-width: 768px) {
@@ -1290,8 +1369,7 @@
   }
 
   .relatedCard {
-    min-width: 180px;
-    max-width: 220px;
+    min-width: 300px;
+    max-width: 340px;
   }
-
 }

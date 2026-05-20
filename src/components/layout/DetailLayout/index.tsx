@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef, useId, type ReactNode } from "react";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion } from "framer-motion";
-import { ArrowLeft, Heart } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import TOC from "@/components/ui/TOC/TOC";
@@ -69,6 +69,29 @@ export default function DetailLayout({
   const { setInfinite, lenis, stop, start } = useLenis();
   const { endTransition, isTransitioning } = usePageTransition();
   const pageRef = useRef<HTMLDivElement>(null);
+  const heartClipId = useId();
+
+  /* 좋아요 wave 애니메이션 최소 시간 보장 — DB 응답이 빨라도 animation 이 끝까지 재생되도록 busy state 를 wrap */
+  const [animBusy, setAnimBusy] = useState(false);
+  const busyStartRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (likeConfig?.busy) {
+      // 매 toggle 시작마다 startRef 갱신 — 빠른 연속 toggle 시에도 마지막 toggle 기준 minDuration 보장
+      busyStartRef.current = Date.now();
+      setAnimBusy(true);
+      return;
+    }
+    if (busyStartRef.current === null) return;
+    const elapsed = Date.now() - busyStartRef.current;
+    const minDuration = 2000; // heartFillX (1.8s) + delay (0.2s)
+    const remaining = Math.max(0, minDuration - elapsed);
+    const id = setTimeout(() => {
+      setAnimBusy(false);
+      busyStartRef.current = null;
+    }, remaining);
+    return () => clearTimeout(id);
+  }, [likeConfig?.busy]);
 
   // 새 페이지가 마운트되면 오버레이 morph 블록을 fade out.
   // 80ms 대기 — real hero/heroSpacer 가 페인트된 다음 morph 블록이 사라지게 (paint 직전에 닫으면 깜빡임).
@@ -199,13 +222,40 @@ export default function DetailLayout({
         >
           <button
             type="button"
-            className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""} ${likeConfig.busy ? styles.likeBtnBusy : ""}`}
+            className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""} ${animBusy ? styles.likeBtnBusy : ""}`}
             onClick={likeConfig.onToggle}
-            disabled={likeConfig.busy}
             title={t("common.like")}
             data-clickable="true"
           >
-            <Heart size={20} fill={likeConfig.liked ? "currentColor" : "none"} />
+            <svg
+              className={styles.heartIcon}
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              aria-hidden="true"
+            >
+              <defs>
+                <clipPath id={heartClipId}>
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </clipPath>
+              </defs>
+              {/* Heart outline — stroke only, fill 은 wave 가 담당 */}
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              {/* Wave fill — Heart 모양 clip 안에서 3 layer path 의 d 자체를 CSS keyframes 로 변화.
+                  cubic bezier 곡선이라 부드러운 wave. rise + swell 동시 진행, 끝나면 fully filled */}
+              <g clipPath={`url(#${heartClipId})`}>
+                <path className={styles.heartWaveBack} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
+                <path className={styles.heartWaveMid} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
+                <path className={styles.heartWaveFront} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
+              </g>
+            </svg>
             <span className={styles.likeCount}>{formatCount(likeConfig.count)}</span>
           </button>
         </motion.div>
@@ -226,12 +276,39 @@ export default function DetailLayout({
         >
           <button
             type="button"
-            className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""} ${likeConfig.busy ? styles.likeBtnBusy : ""}`}
+            className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""} ${animBusy ? styles.likeBtnBusy : ""}`}
             onClick={likeConfig.onToggle}
-            disabled={likeConfig.busy}
             data-clickable="true"
           >
-            <Heart size={20} fill={likeConfig.liked ? "currentColor" : "none"} />
+            <svg
+              className={styles.heartIcon}
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              aria-hidden="true"
+            >
+              <defs>
+                <clipPath id={heartClipId}>
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </clipPath>
+              </defs>
+              {/* Heart outline — stroke only, fill 은 wave 가 담당 */}
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              {/* Wave fill — Heart 모양 clip 안에서 3 layer path 의 d 자체를 CSS keyframes 로 변화.
+                  cubic bezier 곡선이라 부드러운 wave. rise + swell 동시 진행, 끝나면 fully filled */}
+              <g clipPath={`url(#${heartClipId})`}>
+                <path className={styles.heartWaveBack} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
+                <path className={styles.heartWaveMid} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
+                <path className={styles.heartWaveFront} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
+              </g>
+            </svg>
             <span className={styles.likeCount}>{formatCount(likeConfig.count)}</span>
           </button>
         </motion.div>

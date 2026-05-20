@@ -12,6 +12,13 @@
   gap: var(--spacing-lg);
 }
 
+.metaDivider {
+  display: inline-block;
+  width: 1px;
+  height: 12px;
+  background: var(--border-light-color);
+}
+
 .projectNumber {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xs);
