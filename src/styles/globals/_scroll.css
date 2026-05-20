@@ -59,7 +59,7 @@ html.lenis body {
   transform: translateX(-50%);
   width: 200px;
   height: 2px;
-  background: var(--color-border, rgba(255, 255, 255, 0.1));
+  background: var(--color-border, oklch(100.00% 0.0000 0.00 / 0.1));
   border-radius: 1px;
   z-index: var(--z-nav);
   opacity: 0;

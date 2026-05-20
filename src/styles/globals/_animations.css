@@ -101,7 +101,7 @@
   50% {
     box-shadow:
       0 0 14px var(--color-success-alpha-40),
-      0 0 20px rgba(34, 197, 94, 0.2);
+      0 0 20px oklch(72.27% 0.1920 149.58 / 0.2);
     opacity: 0.5;
   }
   100% {
