@@ -363,8 +363,8 @@
 }
 
 .card:hover .cardBorder {
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.05), inset 0 0 30px rgba(255, 255, 255, 0.02);
+  border: 1px solid oklch(100.00% 0.0000 0.00 / 0.15);
+  box-shadow: 0 0 30px oklch(100.00% 0.0000 0.00 / 0.05), inset 0 0 30px oklch(100.00% 0.0000 0.00 / 0.02);
 }
 
 .cardActive {
@@ -459,7 +459,7 @@
   color: transparent;
   letter-spacing: -0.02em;
   -webkit-text-stroke: 1px var(--text-primary);
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 2px 8px oklch(0.00% 0.0000 0.00 / 0.5));
 }
 
 .metaTech {
@@ -977,7 +977,7 @@
     color: var(--text-white) !important;
     mix-blend-mode: normal;
     will-change: auto;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5);
     font-size: var(--font-size-5xl) !important;
     line-height: 1;
   }
@@ -1005,7 +1005,7 @@
     left: 0;
     right: 0;
     height: 50%;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+    background: linear-gradient(to bottom, oklch(0.00% 0.0000 0.00 / 0.7), transparent);
     z-index: 1;
     pointer-events: none;
     border-radius: inherit;
@@ -1022,7 +1022,7 @@
     z-index: 2;
     color: var(--text-white);
     pointer-events: none;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5);
   }
 
   .project .metaTitle {
@@ -1051,7 +1051,7 @@
     letter-spacing: 0.05em;
     color: var(--text-white) !important;
     margin: 0;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5);
     mix-blend-mode: normal;
     opacity: 0.8 !important;
   }

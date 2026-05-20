@@ -289,15 +289,15 @@
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
-    #000 var(--top-fade),
-    #000 calc(100% - var(--bot-fade)),
+    oklch(0.00% 0.0000 0.00) var(--top-fade),
+    oklch(0.00% 0.0000 0.00) calc(100% - var(--bot-fade)),
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0,
-    #000 var(--top-fade),
-    #000 calc(100% - var(--bot-fade)),
+    oklch(0.00% 0.0000 0.00) var(--top-fade),
+    oklch(0.00% 0.0000 0.00) calc(100% - var(--bot-fade)),
     transparent 100%
   );
 }
@@ -796,15 +796,15 @@
   mask-image: linear-gradient(
     90deg,
     transparent 0,
-    #000 var(--_mask-l),
-    #000 calc(100% - var(--_mask-r)),
+    oklch(0.00% 0.0000 0.00) var(--_mask-l),
+    oklch(0.00% 0.0000 0.00) calc(100% - var(--_mask-r)),
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent 0,
-    #000 var(--_mask-l),
-    #000 calc(100% - var(--_mask-r)),
+    oklch(0.00% 0.0000 0.00) var(--_mask-l),
+    oklch(0.00% 0.0000 0.00) calc(100% - var(--_mask-r)),
     transparent 100%
   );
 }

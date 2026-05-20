@@ -155,7 +155,7 @@
   border: var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-primary);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.15);
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -255,7 +255,7 @@
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   background: var(--bg-primary);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 12px 32px oklch(0.00% 0.0000 0.00 / 0.18);
   overflow: hidden;
 }
 
@@ -272,8 +272,8 @@
   overflow: hidden;
   border-radius: var(--radius-lg);
   /* 위/아래 가장자리 페이드 — 가운데 활성 항목에 시선 집중 */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, oklch(0.00% 0.0000 0.00) 22%, oklch(0.00% 0.0000 0.00) 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, oklch(0.00% 0.0000 0.00) 22%, oklch(0.00% 0.0000 0.00) 78%, transparent 100%);
 }
 
 /* 전역 theme transition(background-color 0.3s) 을 빠른 스크롤 피드백 속도로 덮어씀 — 컴파운드 선택자(0,2,0)로 (0,1,1) 글로벌 규칙 이김 */

@@ -19,7 +19,7 @@
   position: fixed;
   inset: 0;
   z-index: calc(var(--z-dropdown) - 1);
-  background: rgba(0, 0, 0, 0.5);
+  background: oklch(0.00% 0.0000 0.00 / 0.5);
   backdrop-filter: blur(2px);
 }
 
@@ -37,7 +37,7 @@
     calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0));
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background: var(--bg-primary);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 -8px 24px oklch(0.00% 0.0000 0.00 / 0.18);
   overflow-y: auto;
 }
 
