@@ -169,12 +169,6 @@ export default function TagPageClient({ tag, initialData }: Props) {
               onChange={handleSortChange}
               sortDir={sortDir}
             />
-            <Select
-              className={styles.perPageSelect}
-              value={String(perPage)}
-              options={PER_PAGE_OPTIONS}
-              onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
-            />
           </div>
           <SearchCapsule
             search={search}
@@ -191,6 +185,12 @@ export default function TagPageClient({ tag, initialData }: Props) {
               ],
               onChange: (v) => setSearchType(v as "all" | "title" | "content"),
             }}
+          />
+          <Select
+            className={styles.perPageSelect}
+            value={String(perPage)}
+            options={PER_PAGE_OPTIONS}
+            onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
           />
         </div>
       </div>

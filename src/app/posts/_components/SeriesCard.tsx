@@ -1,9 +1,11 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type RefObject } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
+import { usePageTransition } from "@/providers/PageTransitionProvider";
 import T from "@/components/ui/T";
 import type { Series } from "@/types/post";
 import { generateSeededColor } from "@/utils/seededColor";
@@ -32,13 +34,14 @@ interface SeriesCardProps {
 export default function SeriesCard({ series, onClick, active, index = 0, scrollContainerRef }: SeriesCardProps) {
   const { language } = useLanguage();
   const { theme } = useTheme();
+  const { navigateWithTransition } = usePageTransition();
   const [open, setOpen] = useState(false);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollRafRef = useRef<number | null>(null);
   // auto-scroll 이 진행되는 동안 카드가 cursor 밑에서 빠져나가 mouseleave 가 false-positive 로 fire 되어도 무시.
   // 스크롤이 끝난 뒤 :hover 상태를 한번 더 확인해 cursor 가 진짜로 떠났으면 닫음.
   const autoScrollingRef = useRef(false);
-  const cardRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   /**
    * deck 펼침 시 우측이 scroll container 밖이면 자동 스크롤.
@@ -84,6 +87,25 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
     };
     scrollRafRef.current = requestAnimationFrame(tick);
   };
+
+  // 활성(선택된) 시리즈가 부분적으로라도 가려져 있으면 부드럽게 scroll into view
+  // mask gradient 영역 (28px) 도 고려해서 visible 판정
+  useEffect(() => {
+    if (!active) return;
+    const card = cardRef.current;
+    const container = scrollContainerRef?.current;
+    if (!card || !container) return;
+    const cardRect = card.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const MASK = 28; // .seriesRow --_mask-l / --_mask-r
+    const leftHidden = (containerRect.left + MASK) - cardRect.left;
+    const rightHidden = cardRect.right - (containerRect.right - MASK);
+    if (leftHidden <= 0 && rightHidden <= 0) return; // 이미 다 보임
+    let delta = 0;
+    if (leftHidden > 0) delta = -leftHidden;
+    else if (rightHidden > 0) delta = rightHidden;
+    container.scrollBy({ left: delta, behavior: "smooth" });
+  }, [active, scrollContainerRef]);
 
   const handleEnter = () => {
     if (openTimer.current) clearTimeout(openTimer.current);
@@ -131,10 +153,23 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
   const deckCount = Math.min(postCount, MAX_DECK_LAYERS);
 
   return (
-    <button
+    <div
       ref={cardRef}
+      role="button"
+      tabIndex={0}
       className={`${styles.card} ${active ? styles.active : ""} ${useTypoCover ? styles.typoCover : ""} ${open ? styles.deckOpen : ""}`}
-      onClick={() => onClick(series.id)}
+      onClick={(e) => {
+        // deck Link 의 onClick 에서 stopPropagation 으로 처리되므로 여기서는 deck 외 영역만 도달.
+        // (cover thumb / label / 빈 영역) → series filter
+        void e;
+        onClick(series.id);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick(series.id);
+        }
+      }}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
       title={title}
@@ -158,16 +193,8 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
           const layerBg = !previewCover
             ? generateSeededColor(preview?.id ?? `${series.id}:${postIndex}`, theme === "dark", index + postIndex + 1)
             : undefined;
-          return (
-            <span
-              key={postIndex}
-              className={`${styles.deckLayer} ${!previewCover ? styles.deckLayerNoCover : ""}`}
-              style={{
-                "--deck-i": deckI,
-                ...(layerBg ? { "--_layer-bg": layerBg } : {}),
-              } as CSSProperties}
-              aria-hidden="true"
-            >
+          const layerContent = (
+            <>
               <span className={styles.deckLayerLabel}>
                 <span className={styles.deckLayerNumber}>
                   {String(postIndex + 1).padStart(2, "0")}
@@ -189,6 +216,45 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
               <span className={styles.deckLayerInfo}>
                 <span className={styles.deckLayerTitle}>{previewTitle}</span>
               </span>
+            </>
+          );
+          const className = `${styles.deckLayer} ${!previewCover ? styles.deckLayerNoCover : ""}`;
+          const layerStyle = {
+            "--deck-i": deckI,
+            ...(layerBg ? { "--_layer-bg": layerBg } : {}),
+          } as CSSProperties;
+          // preview + slug 있으면 Link 로 — onClick 에서 navigateWithTransition 으로 가로채서
+          // cover 이미지(있으면) 또는 layerBg 색을 morph 시드로 전달. preventDefault 로 native nav 차단.
+          if (preview?.slug) {
+            const slug = preview.slug;
+            return (
+              <Link
+                key={postIndex}
+                href={`/posts/${slug}`}
+                className={className}
+                style={layerStyle}
+                data-deck-layer="true"
+                data-deck-slug={slug}
+                data-clickable="true"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  navigateWithTransition(`/posts/${slug}`, previewCover || "", rect, layerBg || "");
+                }}
+              >
+                {layerContent}
+              </Link>
+            );
+          }
+          return (
+            <span
+              key={postIndex}
+              className={className}
+              style={layerStyle}
+              data-deck-layer="true"
+            >
+              {layerContent}
             </span>
           );
         })}
@@ -233,6 +299,6 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
         )}
       </span>
       </span>
-    </button>
+    </div>
   );
 }

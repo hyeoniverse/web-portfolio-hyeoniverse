@@ -121,7 +121,7 @@
   color: var(--text-primary);
 }
 
-/* ── Toolbar — 검색은 왼쪽, sort + perPage 는 오른쪽 ── */
+/* ── Toolbar — sort 왼쪽, 검색 + perPage 오른쪽 끝 ── */
 .toolbar {
   display: flex;
   align-items: center;
@@ -130,15 +130,16 @@
   min-width: 0;
 }
 
-/* heroSearch 내부 input + selectWrap button — SortGroup btn 과 동일 padding/font
+/* heroSearch 내부 input + selectWrap button + perPage Select button — 동일 padding/font
    로 row 높이 통일 (selectWrap button 이 input-p + font xs 라 capsule 이 더 커지던 문제) */
 .toolbar .heroSearch input,
-.toolbar .heroSearch button {
+.toolbar .heroSearch button,
+.toolbar .perPageSelect button {
   padding: var(--box-sm) !important;
   font-size: var(--font-size-2xs) !important;
 }
 
-/* sort + perPage 묶음 — toolbar 왼쪽 */
+/* sort 묶음 — toolbar 왼쪽 */
 .toolbarLeft {
   display: flex;
   align-items: center;

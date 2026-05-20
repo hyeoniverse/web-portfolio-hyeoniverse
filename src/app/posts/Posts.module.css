@@ -69,7 +69,7 @@
   top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl));
   z-index: 51;
   background: transparent;
-  padding: var(--spacing-sm) 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -531,12 +531,28 @@
   margin-bottom: var(--spacing-md);
 }
 
-/* 시리즈 라벨 — BookOpen 아이콘 + "Series" 텍스트 (정적) */
+/* 시리즈 라벨 — BookOpen 아이콘 + "Series" 텍스트 + chevron. /posts/series 페이지로 이동 */
 .seriesLabelLink {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
   color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--duration-base) ease;
+}
+
+.seriesLabelLink:hover {
+  color: var(--text-primary);
+}
+
+/* compound (0,2,0) — 글로벌 theme transition 이김. transform 은 글로벌 규칙에 없음 */
+.seriesLabelLink .seriesLabelChevron {
+  flex-shrink: 0;
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.seriesLabelLink:hover .seriesLabelChevron {
+  transform: translateX(3px);
 }
 
 .sortDirIcon {
@@ -545,25 +561,237 @@
   transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* series sort 는 seriesLabel flex row 의 우측 끝으로 push.
-   size 는 filter bar 의 sortGroup 과 동일 (font-2xs + box-sm) — SegmentedControl 의 기본보다 작음. */
-.seriesSortAlignEnd {
-  margin-left: auto;
-}
+/* series sort — label 바로 오른쪽 옆에 배치 (gap 으로 자연스럽게 떨어짐).
+   size 는 filter bar 의 sortGroup 과 동일 (font-2xs + box-sm). */
 .seriesSortAlignEnd button {
   padding: var(--box-sm);
   font-size: var(--font-size-2xs);
 }
 
+/* series 검색 — seriesLabel 행 우측 끝으로. width 는 filter bar 의 SearchCapsule 과 동일 */
+.seriesSearchInput {
+  margin-left: auto;
+}
+
+/* collapsible 검색 — 같은 element 가 closed(circle 32px) ↔ open(capsule 280px) 으로 morph.
+   comments NotifyCapsule 패턴과 동일 (단일 DOM 노드의 width / border-radius transition) */
+.seriesSearchMorph {
+  position: relative;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-secondary);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* compound (0,2,0) — 글로벌 theme transition override */
+.seriesLabel .seriesSearchMorph {
+  transition: width 0.25s ease, border-radius 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.seriesLabel .seriesSearchMorph:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong-color);
+}
+
+.seriesSearchMorphOpen {
+  width: 280px;
+  border-radius: var(--radius-capsule);
+  color: var(--text-primary);
+  cursor: text;
+}
+
+.seriesLabel .seriesSearchMorphOpen:focus-within {
+  border-color: var(--border-strong-color);
+}
+
+/* icon — closed 시 center, open 시 좌측 padding 내. flex-shrink 0 으로 줄어들지 않음 */
+.seriesSearchMorphIcon {
+  flex-shrink: 0;
+  margin-left: var(--spacing-md);
+  color: inherit;
+}
+
+.seriesSearchMorph:not(.seriesSearchMorphOpen) .seriesSearchMorphIcon {
+  /* closed 시 icon 만 보이게 중앙 정렬 */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.seriesSearchMorphInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 var(--spacing-md) 0 var(--spacing-xs);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.seriesSearchMorph:not(.seriesSearchMorphOpen) .seriesSearchMorphInput {
+  /* closed 시 input 안 보이게 */
+  opacity: 0;
+  pointer-events: none;
+}
+
+.seriesSearchMorph .seriesSearchMorphInput {
+  transition: opacity 0.2s ease 0.05s;
+}
+
+.seriesSearchMorphInput::placeholder {
+  color: var(--text-tertiary);
+}
+
 /* 책 표지를 가로로 나열 — 좌우 끝에 mask gradient 로 스크롤 가능 표시.
    --_mask-l / --_mask-r 컨텍스트 토큰으로 좌/우 fade 너비를 제어 (atStart/atEnd 시 0 으로) */
+/* 시리즈 row + 양옆 화살표 버튼 컨테이너 */
+.seriesRowWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* 좌/우 화살표 — hit-area 는 세로 전체 + 가로는 row 의 mask gradient 영역 (28px) 까지 포함.
+   .seriesRow 가 negative margin (-spacing-md) 로 부모 밖까지 확장돼 있으므로 button 도 같은 만큼
+   negative offset. padding 으로 badge 의 시각 위치는 유지. */
+.seriesScrollBtn {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  width: calc(56px + var(--spacing-md));
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.seriesScrollBtnLeft {
+  left: calc(var(--spacing-md) * -1);
+  justify-content: flex-start;
+  padding-left: calc(var(--spacing-md) + var(--spacing-2xs));
+}
+
+.seriesScrollBtnRight {
+  right: calc(var(--spacing-md) * -1);
+  justify-content: flex-end;
+  padding-right: calc(var(--spacing-md) + var(--spacing-2xs));
+}
+
+/* 내부 시각적 badge — 32px 원, hover 시 blur backdrop. mix-blend-mode: difference 로 배경 무관 대비 */
+.seriesScrollBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-white);
+  mix-blend-mode: difference;
+  transition: background-color var(--duration-base) ease, backdrop-filter var(--duration-base) ease;
+}
+
+.seriesScrollBtn:hover .seriesScrollBadge {
+  background: color-mix(in srgb, var(--bg-primary) 70%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+/* ── 활성 시리즈 메타 정보 ── */
+.activeSeriesMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+  border: var(--border-light);
+}
+
+.activeSeriesMetaTop {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.activeSeriesMetaTitle {
+  margin: 0;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+}
+
+.activeSeriesMetaInfo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.activeSeriesMetaCategory {
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  border: var(--border-light);
+  color: var(--text-secondary);
+}
+
+.activeSeriesMetaCount {
+  font-variant-numeric: tabular-nums;
+}
+
+.activeSeriesMetaClear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color var(--duration-base) ease, background-color var(--duration-base) ease;
+}
+
+.activeSeriesMetaClear:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.activeSeriesMetaDesc {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-secondary);
+}
+
 .seriesRow {
   --_mask-l: 28px;
   --_mask-r: 28px;
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-md);
   overflow-x: auto;
+  /* 카드 없을 때도 동일한 높이 유지 — exit 애니메이션 동안 row 가 무너지지 않게 */
+  min-height: 240px;
   padding: var(--spacing-md) var(--spacing-md) var(--spacing-2xl);
   margin: 0 calc(var(--spacing-md) * -1);
   scrollbar-width: none;
@@ -650,12 +878,18 @@
   font-weight: var(--font-weight-semibold);
 }
 
+/* .seriesRow 내부 absolute overlay — 카드 exit 애니메이션 동안 row 자리 유지하면서 텍스트만 fade in */
 .seriesEmpty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
-  padding: var(--spacing-sm) 0;
   font-style: italic;
+  pointer-events: none;
 }
 
 /* ── Posts Label ── */

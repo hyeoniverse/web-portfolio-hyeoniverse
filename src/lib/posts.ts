@@ -58,6 +58,7 @@ export async function getInitialPostsData() {
   const thumbsBySeriesId = new Map<string, string[]>();
   type PreviewRow = {
     id: string;
+    slug: string;
     title: string;
     title_en: string | null;
     cover_image: string | null;
@@ -66,17 +67,20 @@ export async function getInitialPostsData() {
     excerpt_en: string | null;
   };
   const previewsBySeriesId = new Map<string, PreviewRow[]>();
+  const postCountBySeriesId = new Map<string, number>();
   if (seriesIds.length > 0) {
     const { data: previewPosts } = await admin
       .from("posts")
-      .select("id, series_id, title, title_en, cover_image, series_order, created_at, excerpt, excerpt_en")
+      .select("id, slug, series_id, title, title_en, cover_image, series_order, created_at, excerpt, excerpt_en")
       .eq("published", true)
       .in("series_id", seriesIds)
       .order("series_order", { ascending: true });
     for (const row of (previewPosts ?? []) as (PreviewRow & { series_id: string })[]) {
+      postCountBySeriesId.set(row.series_id, (postCountBySeriesId.get(row.series_id) ?? 0) + 1);
       const arr = previewsBySeriesId.get(row.series_id) ?? [];
       if (arr.length < 4) arr.push({
         id: row.id,
+        slug: row.slug,
         title: row.title,
         title_en: row.title_en,
         cover_image: row.cover_image,
@@ -118,7 +122,13 @@ export async function getInitialPostsData() {
             });
         }
       }
-      return { ...s, thumbs, previews: previewsBySeriesId.get(s.id) ?? [], auto_cover_url };
+      return {
+        ...s,
+        thumbs,
+        previews: previewsBySeriesId.get(s.id) ?? [],
+        post_count: postCountBySeriesId.get(s.id) ?? 0,
+        auto_cover_url,
+      };
     }),
   );
 
@@ -305,3 +315,74 @@ export async function getAllPostSlugs(): Promise<string[]> {
     .eq("published", true);
   return (data ?? []).map((p: { slug: string }) => p.slug);
 }
+
+/** /posts/series 인덱스 페이지용 — 모든 시리즈 + 글 수 + 카테고리 + 첫 글 cover (preview) */
+export async function getAllSeriesData() {
+  const admin = createAdminClient();
+  const { data: seriesRaw } = await admin
+    .from("series")
+    .select("*")
+    .eq("published", true)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  const seriesList = (seriesRaw ?? []) as Series[];
+  const ids = seriesList.map((s) => s.id);
+
+  const postCounts: Record<string, number> = {};
+  const firstCoverBySeriesId: Record<string, string | null> = {};
+
+  if (ids.length > 0) {
+    const { data: postsRaw } = await admin
+      .from("posts")
+      .select("series_id, cover_image, series_order")
+      .eq("published", true)
+      .in("series_id", ids)
+      .order("series_order", { ascending: true });
+    for (const row of (postsRaw ?? []) as { series_id: string; cover_image: string | null; series_order: number }[]) {
+      postCounts[row.series_id] = (postCounts[row.series_id] ?? 0) + 1;
+      if (!(row.series_id in firstCoverBySeriesId)) {
+        firstCoverBySeriesId[row.series_id] = row.cover_image;
+      }
+    }
+  }
+
+  return {
+    series: seriesList.map((s) => ({
+      ...s,
+      post_count: postCounts[s.id] ?? 0,
+      first_cover: firstCoverBySeriesId[s.id] ?? null,
+    })),
+  };
+}
+
+export type AllSeriesData = Awaited<ReturnType<typeof getAllSeriesData>>;
+
+/** /posts/categories 인덱스 페이지용 — published posts 의 모든 distinct 카테고리 + 글 수 + 첫 글 cover */
+export async function getAllCategoriesData() {
+  const admin = createAdminClient();
+  const { data: postsRaw } = await admin
+    .from("posts")
+    .select("category, cover_image, created_at")
+    .eq("published", true)
+    .order("created_at", { ascending: false });
+
+  const cats = new Map<string, { count: number; firstCover: string | null }>();
+  for (const row of (postsRaw ?? []) as { category: string | null; cover_image: string | null }[]) {
+    if (!row.category) continue;
+    const entry = cats.get(row.category);
+    if (entry) {
+      entry.count++;
+    } else {
+      cats.set(row.category, { count: 1, firstCover: row.cover_image });
+    }
+  }
+
+  return {
+    categories: Array.from(cats.entries())
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([name, v]) => ({ name, count: v.count, first_cover: v.firstCover })),
+  };
+}
+
+export type AllCategoriesData = Awaited<ReturnType<typeof getAllCategoriesData>>;

@@ -26,10 +26,13 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronRight,
+  ChevronLeft,
   BookOpen,
   LayoutGrid,
   ArrowUp,
   Shuffle,
+  Search as SearchIcon,
+  X,
 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -159,7 +162,7 @@ interface PostsClientProps {
 
 export default function PostsClient({ initialData }: PostsClientProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const siteConf = useSiteConfig();
   const [posts, setPosts] = useState<Post[]>(initialData.posts);
   const [pinnedPosts] = useState<Post[]>(initialData.pinnedPosts);
@@ -238,10 +241,43 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [seriesPage, setSeriesPage] = useState(0);
   const [seriesTotal, setSeriesTotal] = useState(initialData.seriesTotal);
   const [seriesLoading, setSeriesLoading] = useState(false);
+  const [seriesSearch, setSeriesSearch] = useState("");
+  const [seriesSearchOpen, setSeriesSearchOpen] = useState(false);
+  const seriesSearchInputRef = useRef<HTMLInputElement>(null);
+  // 시리즈 좌/우 화살표 long-press 스크롤 — 누르고 있을수록 가속
+  const seriesScrollRafRef = useRef<number | null>(null);
+  const seriesScrollStartRef = useRef<number>(0);
+  const startSeriesScroll = (direction: 1 | -1) => {
+    seriesScrollStartRef.current = performance.now();
+    const tick = () => {
+      const el = seriesRowRef.current;
+      if (!el) return;
+      const elapsed = performance.now() - seriesScrollStartRef.current;
+      // base 4px / frame, 누른 시간만큼 가속 (max 30px / frame, ≈1.8s 후 도달)
+      const speed = Math.min(4 + elapsed / 50, 30);
+      el.scrollLeft += speed * direction;
+      seriesScrollRafRef.current = requestAnimationFrame(tick);
+    };
+    seriesScrollRafRef.current = requestAnimationFrame(tick);
+  };
+  const stopSeriesScroll = () => {
+    if (seriesScrollRafRef.current != null) {
+      cancelAnimationFrame(seriesScrollRafRef.current);
+      seriesScrollRafRef.current = null;
+    }
+  };
+  useEffect(() => {
+    if (seriesSearchOpen) {
+      // morph 펼침 transition 길이 (0.25s) 와 비슷한 타이밍에 focus
+      const t = setTimeout(() => seriesSearchInputRef.current?.focus(), 180);
+      return () => clearTimeout(t);
+    }
+  }, [seriesSearchOpen]);
   const [seriesSortBy, setSeriesSortBy] = useState<
-    "default" | "newest" | "title"
+    "default" | "newest" | "title" | "random"
   >("default");
   const [seriesSortDir, setSeriesSortDir] = useState<"asc" | "desc">("asc");
+  const [seriesRandomSeed, setSeriesRandomSeed] = useState(0);
   const seriesPerPage = initialData.seriesPerPage;
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
@@ -412,15 +448,17 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     (page: number) => {
       const params = new URLSearchParams();
       if (activeCategory) params.set("category", activeCategory);
+      if (activeTagsKey) params.set("tags", activeTagsKey);
       params.set("page", String(page));
       params.set("limit", String(seriesPerPage));
-      if (seriesSortBy !== "default") {
+      // random 은 client-side 셔플이라 API 에 안 보냄 — default 와 같이 처리
+      if (seriesSortBy !== "default" && seriesSortBy !== "random") {
         params.set("sortBy", seriesSortBy);
         params.set("sortDir", seriesSortDir);
       }
       return params;
     },
-    [activeCategory, seriesPerPage, seriesSortBy, seriesSortDir],
+    [activeCategory, activeTagsKey, seriesPerPage, seriesSortBy, seriesSortDir],
   );
 
   // Fetch series when category/sort changes — initial mount 은 skip (SSR 의 auto_cover_url 보존)
@@ -562,10 +600,11 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     setActiveSeries((prev) => (prev === seriesId ? null : seriesId));
   }, []);
 
-  const activeSeriesTitle = useMemo(() => {
+  const activeSeriesObj = useMemo(() => {
     if (!activeSeries) return null;
-    return seriesList.find((s) => s.id === activeSeries)?.title ?? null;
+    return seriesList.find((s) => s.id === activeSeries) ?? null;
   }, [activeSeries, seriesList]);
+  const activeSeriesTitle = activeSeriesObj?.title ?? null;
 
   /* 시리즈 row 는 모두 가로로 펼쳐서 native overflow-x 스크롤
      + Windows 마우스 휠을 가로로 변환 + 데스크톱 드래그 swipe (모바일 터치는 native 사용)
@@ -802,139 +841,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   </button>
                 )}
 
-                <div
-                  className={styles.sortGroup}
-                  onMouseLeave={() => setHoveredSort(null)}
-                >
-                  {[
-                    {
-                      value: "date" as const,
-                      k: "postsPage.sortDate",
-                      tipK: "postsPage.sortDateTooltip",
-                    },
-                    {
-                      value: "popular" as const,
-                      k: "postsPage.sortPopular",
-                      tipK: "postsPage.sortPopularTooltip",
-                    },
-                    {
-                      value: "title" as const,
-                      k: "postsPage.sortTitle",
-                      tipK: "postsPage.sortTitleTooltip",
-                    },
-                  ].map((opt) => {
-                    const indicatorTarget = hoveredSort ?? sortBy;
-                    const showIndicator = opt.value === indicatorTarget;
-                    const isActive = opt.value === sortBy;
-                    return (
-                      <button
-                        key={opt.value}
-                        className={`${styles.sortBtn} ${isActive && showIndicator ? styles.sortBtnActive : ""}`}
-                        onClick={() => {
-                          if (sortBy === opt.value) {
-                            setSortDir((prev) =>
-                              prev === "asc" ? "desc" : "asc",
-                            );
-                          } else {
-                            setSortBy(opt.value);
-                            // 직관적 기본 방향: title 은 asc(가나다/A-Z), 나머지는 desc
-                            setSortDir(opt.value === "title" ? "asc" : "desc");
-                          }
-                        }}
-                        onMouseEnter={() => setHoveredSort(opt.value)}
-                        data-clickable="true"
-                      >
-                        {showIndicator && (
-                          <motion.span
-                            className={`${styles.sortIndicator} ${isActive ? styles.sortIndicatorActive : ""}`}
-                            layoutId="sortIndicator"
-                            transition={{
-                              type: "spring",
-                              stiffness: 500,
-                              damping: 32,
-                            }}
-                          />
-                        )}
-                        <span className={styles.sortBtnText}>
-                          <T k={opt.k} tooltip={t(opt.tipK)} />
-                          {isActive && (
-                            <ArrowUp
-                              size={10}
-                              className={styles.sortDirIcon}
-                              style={{
-                                transform:
-                                  sortDir === "desc"
-                                    ? "rotate(180deg)"
-                                    : "rotate(0deg)",
-                              }}
-                            />
-                          )}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* popular 활성 시 세부 메트릭 — 사이 화살표 + outline variant (transparent indicator) */}
-                {sortBy === "popular" && (
-                  <>
-                    <ChevronRight
-                      size={14}
-                      aria-hidden
-                      className={styles.popularSubArrow}
-                    />
-                    <SegmentedControl<"score" | "views" | "comments" | "likes">
-                      items={[
-                        {
-                          value: "score",
-                          label: <T k="postsPage.popularScore" />,
-                        },
-                        {
-                          value: "views",
-                          label: <T k="postsPage.popularViews" />,
-                        },
-                        {
-                          value: "comments",
-                          label: <T k="postsPage.popularComments" />,
-                        },
-                        {
-                          value: "likes",
-                          label: <T k="postsPage.popularLikes" />,
-                        },
-                      ]}
-                      value={popularSort}
-                      onChange={setPopularSort}
-                      className={styles.popularSubSort}
-                    />
-                  </>
-                )}
-
-                {/* 랜덤 셔플 — sortBy 와 별도 토글 버튼. 누를 때마다 새 시드로 셔플 */}
-                <Tooltip
-                  content={
-                    <>
-                      <div>{t("postsPage.sortRandom")}</div>
-                      <div>{t("postsPage.sortRandomTooltip")}</div>
-                    </>
-                  }
-                >
-                  <button
-                    type="button"
-                    className={`${styles.shuffleBtn} ${sortBy === "random" ? styles.shuffleBtnActive : ""}`}
-                    onClick={() => {
-                      if (sortBy === "random") {
-                        setRandomSeed(Math.floor(Math.random() * 1e9));
-                      } else {
-                        setSortBy("random");
-                        setRandomSeed(Math.floor(Math.random() * 1e9));
-                      }
-                    }}
-                    data-clickable="true"
-                    aria-label={t("postsPage.sortRandom")}
-                  >
-                    <Shuffle size={12} />
-                  </button>
-                </Tooltip>
               </motion.div>
             )}
           </AnimatePresence>
@@ -1015,13 +921,14 @@ export default function PostsClient({ initialData }: PostsClientProps) {
           {/* Series Row — posts loading 과 무관하게 항상 표시 */}
           <div className={styles.seriesSection}>
             <div className={styles.seriesLabel}>
-              <span className={styles.seriesLabelLink}>
+              <Link href="/posts/series" className={styles.seriesLabelLink}>
                 <BookOpen size={14} />
                 <T
                   k="postsPage.series"
                   tooltip={t("postsPage.seriesTooltip")}
                 />
-              </span>
+                <ChevronRight size={12} className={styles.seriesLabelChevron} aria-hidden />
+              </Link>
               {activeCategory && (
                 <span className={styles.seriesCategoryTag}>
                   {activeCategory}
@@ -1034,37 +941,199 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   { value: "newest", label: t("postsPage.seriesSortNewest") },
                   { value: "title", label: t("postsPage.seriesSortTitle") },
                 ]}
-                value={seriesSortBy}
+                value={seriesSortBy === "random" ? "default" : seriesSortBy}
                 onChange={(v) =>
-                  handleSeriesSortClick(v as typeof seriesSortBy)
+                  handleSeriesSortClick(v as "default" | "newest" | "title")
                 }
                 sortDir={seriesSortDir}
               />
-            </div>
-            {seriesList.length > 0 ? (
-              <div
-                ref={seriesRowRef}
-                className={styles.seriesRow}
-                data-lenis-prevent
+              <Tooltip
+                content={
+                  <>
+                    <div>{t("postsPage.sortRandom")}</div>
+                    <div>{t("postsPage.sortRandomTooltip")}</div>
+                  </>
+                }
               >
-                {seriesList.map((series, idx) => (
-                  <SeriesCard
-                    key={series.id}
-                    series={series}
-                    onClick={handleSeriesClick}
-                    active={activeSeries === series.id}
-                    index={idx}
-                    scrollContainerRef={seriesRowRef}
-                  />
-                ))}
+                <button
+                  type="button"
+                  className={`${styles.shuffleBtn} ${seriesSortBy === "random" ? styles.shuffleBtnActive : ""}`}
+                  onClick={() => {
+                    if (seriesSortBy === "random") {
+                      setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
+                    } else {
+                      setSeriesSortBy("random");
+                      setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
+                    }
+                  }}
+                  data-clickable="true"
+                  aria-label={t("postsPage.sortRandom")}
+                >
+                  <Shuffle size={12} />
+                </button>
+              </Tooltip>
+              <div
+                className={`${styles.seriesSearchMorph} ${seriesSearchOpen ? styles.seriesSearchMorphOpen : ""}`}
+                onClick={() => { if (!seriesSearchOpen) setSeriesSearchOpen(true); }}
+                data-clickable="true"
+                title={!seriesSearchOpen ? t("postsPage.searchPlaceholder") : undefined}
+              >
+                <SearchIcon className={styles.seriesSearchMorphIcon} size={14} />
+                <input
+                  ref={seriesSearchInputRef}
+                  className={styles.seriesSearchMorphInput}
+                  type="text"
+                  value={seriesSearch}
+                  onChange={(e) => setSeriesSearch(e.target.value)}
+                  placeholder={t("postsPage.searchPlaceholder")}
+                  tabIndex={seriesSearchOpen ? 0 : -1}
+                  onClick={(e) => e.stopPropagation()}
+                  onBlur={() => { if (!seriesSearch.trim()) setSeriesSearchOpen(false); }}
+                />
               </div>
-            ) : (
-              <p className={styles.seriesEmpty}>
-                {activeCategory
-                  ? `${t("postsPage.noSeriesYet")} — ${activeCategory}`
-                  : t("postsPage.noSeriesYet")}
-              </p>
-            )}
+            </div>
+            {(() => {
+              const q = seriesSearch.trim().toLowerCase();
+              const baseFiltered = q
+                ? seriesList.filter((s) =>
+                    [s.title, s.title_en, s.description, s.description_en]
+                      .filter(Boolean)
+                      .some((v) => (v as string).toLowerCase().includes(q)),
+                  )
+                : seriesList;
+              // seriesSortBy="random" 이면 seed 기반 client-side 셔플
+              const filtered =
+                seriesSortBy === "random"
+                  ? baseFiltered
+                      .map((s, i) => ({ s, k: ((seriesRandomSeed + i * 9301) * 49297) % 233280 }))
+                      .sort((a, b) => a.k - b.k)
+                      .map(({ s }) => s)
+                  : baseFiltered;
+              return (
+                <div className={styles.seriesRowWrap}>
+                  <button
+                    type="button"
+                    className={`${styles.seriesScrollBtn} ${styles.seriesScrollBtnLeft}`}
+                    onMouseDown={(e) => { e.preventDefault(); startSeriesScroll(-1); }}
+                    onMouseUp={stopSeriesScroll}
+                    onMouseLeave={stopSeriesScroll}
+                    onTouchStart={(e) => { e.preventDefault(); startSeriesScroll(-1); }}
+                    onTouchEnd={stopSeriesScroll}
+                    aria-label="이전"
+                    data-clickable="true"
+                    data-cursor="prev"
+                  >
+                    <span className={styles.seriesScrollBadge}>
+                      <ChevronLeft size={16} />
+                    </span>
+                  </button>
+                <div
+                  ref={seriesRowRef}
+                  className={styles.seriesRow}
+                  data-lenis-prevent
+                >
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    {filtered.map((series, idx) => (
+                      <motion.div
+                        key={series.id}
+                        layout
+                        initial={{ opacity: 0, x: 40, scale: 0.92 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: -80, scale: 0.9 }}
+                        transition={{
+                          layout: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
+                          opacity: { duration: 0.28 },
+                          x: { duration: 0.35, ease: [0.4, 0, 0.6, 1] },
+                          scale: { duration: 0.28 },
+                        }}
+                        style={{ display: "flex" }}
+                      >
+                        <SeriesCard
+                          series={series}
+                          onClick={handleSeriesClick}
+                          active={activeSeries === series.id}
+                          index={idx}
+                          scrollContainerRef={seriesRowRef}
+                        />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  <AnimatePresence>
+                    {filtered.length === 0 && (
+                      <motion.p
+                        key="empty"
+                        className={styles.seriesEmpty}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ delay: 0.35, duration: 0.25 }}
+                      >
+                        {q
+                          ? `${t("postsPage.noSeriesYet")} — "${seriesSearch.trim()}"`
+                          : activeCategory
+                          ? `${t("postsPage.noSeriesYet")} — ${activeCategory}`
+                          : t("postsPage.noSeriesYet")}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </div>
+                  <button
+                    type="button"
+                    className={`${styles.seriesScrollBtn} ${styles.seriesScrollBtnRight}`}
+                    onMouseDown={(e) => { e.preventDefault(); startSeriesScroll(1); }}
+                    onMouseUp={stopSeriesScroll}
+                    onMouseLeave={stopSeriesScroll}
+                    onTouchStart={(e) => { e.preventDefault(); startSeriesScroll(1); }}
+                    onTouchEnd={stopSeriesScroll}
+                    aria-label="다음"
+                    data-clickable="true"
+                    data-cursor="next"
+                  >
+                    <span className={styles.seriesScrollBadge}>
+                      <ChevronRight size={16} />
+                    </span>
+                  </button>
+                </div>
+              );
+            })()}
+            <AnimatePresence>
+              {activeSeriesObj && (
+                <motion.div
+                  className={styles.activeSeriesMeta}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div className={styles.activeSeriesMetaTop}>
+                    <h3 className={styles.activeSeriesMetaTitle}>
+                      {language === "en" ? (activeSeriesObj.title_en || activeSeriesObj.title) : activeSeriesObj.title}
+                    </h3>
+                    <div className={styles.activeSeriesMetaInfo}>
+                      {activeSeriesObj.category && (
+                        <span className={styles.activeSeriesMetaCategory}>{activeSeriesObj.category}</span>
+                      )}
+                      <span className={styles.activeSeriesMetaCount}>{activeSeriesObj.post_count ?? 0}개의 글</span>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.activeSeriesMetaClear}
+                      onClick={() => setActiveSeries(null)}
+                      aria-label="시리즈 해제"
+                      data-clickable="true"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  {(() => {
+                    const d = language === "en"
+                      ? (activeSeriesObj.description_en || activeSeriesObj.description)
+                      : activeSeriesObj.description;
+                    return d ? <p className={styles.activeSeriesMetaDesc}>{d}</p> : null;
+                  })()}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Posts */}
@@ -1122,6 +1191,126 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               <div className={styles.postsLabel}>
                 <LayoutGrid size={14} />
                 <T k="postsPage.posts" tooltip={t("postsPage.postsTooltip")} />
+
+                <div
+                  className={styles.sortGroup}
+                  onMouseLeave={() => setHoveredSort(null)}
+                >
+                  {[
+                    {
+                      value: "date" as const,
+                      k: "postsPage.sortDate",
+                      tipK: "postsPage.sortDateTooltip",
+                    },
+                    {
+                      value: "popular" as const,
+                      k: "postsPage.sortPopular",
+                      tipK: "postsPage.sortPopularTooltip",
+                    },
+                    {
+                      value: "title" as const,
+                      k: "postsPage.sortTitle",
+                      tipK: "postsPage.sortTitleTooltip",
+                    },
+                  ].map((opt) => {
+                    const indicatorTarget = hoveredSort ?? sortBy;
+                    const showIndicator = opt.value === indicatorTarget;
+                    const isActive = opt.value === sortBy;
+                    return (
+                      <button
+                        key={opt.value}
+                        className={`${styles.sortBtn} ${isActive && showIndicator ? styles.sortBtnActive : ""}`}
+                        onClick={() => {
+                          if (sortBy === opt.value) {
+                            setSortDir((prev) =>
+                              prev === "asc" ? "desc" : "asc",
+                            );
+                          } else {
+                            setSortBy(opt.value);
+                            setSortDir(opt.value === "title" ? "asc" : "desc");
+                          }
+                        }}
+                        onMouseEnter={() => setHoveredSort(opt.value)}
+                        data-clickable="true"
+                      >
+                        {showIndicator && (
+                          <motion.span
+                            className={`${styles.sortIndicator} ${isActive ? styles.sortIndicatorActive : ""}`}
+                            layoutId="sortIndicator"
+                            transition={{
+                              type: "spring",
+                              stiffness: 500,
+                              damping: 32,
+                            }}
+                          />
+                        )}
+                        <span className={styles.sortBtnText}>
+                          <T k={opt.k} tooltip={t(opt.tipK)} />
+                          {isActive && (
+                            <ArrowUp
+                              size={10}
+                              className={styles.sortDirIcon}
+                              style={{
+                                transform:
+                                  sortDir === "desc"
+                                    ? "rotate(180deg)"
+                                    : "rotate(0deg)",
+                              }}
+                            />
+                          )}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {sortBy === "popular" && (
+                  <>
+                    <ChevronRight
+                      size={14}
+                      aria-hidden
+                      className={styles.popularSubArrow}
+                    />
+                    <SegmentedControl<"score" | "views" | "comments" | "likes">
+                      items={[
+                        { value: "score", label: <T k="postsPage.popularScore" /> },
+                        { value: "views", label: <T k="postsPage.popularViews" /> },
+                        { value: "comments", label: <T k="postsPage.popularComments" /> },
+                        { value: "likes", label: <T k="postsPage.popularLikes" /> },
+                      ]}
+                      value={popularSort}
+                      onChange={setPopularSort}
+                      className={styles.popularSubSort}
+                    />
+                  </>
+                )}
+
+                <Tooltip
+                  content={
+                    <>
+                      <div>{t("postsPage.sortRandom")}</div>
+                      <div>{t("postsPage.sortRandomTooltip")}</div>
+                    </>
+                  }
+                >
+                  <button
+                    type="button"
+                    className={`${styles.shuffleBtn} ${sortBy === "random" ? styles.shuffleBtnActive : ""}`}
+                    onClick={() => {
+                      if (sortBy === "random") {
+                        setRandomSeed(Math.floor(Math.random() * 1e9));
+                      } else {
+                        setSortBy("random");
+                        setRandomSeed(Math.floor(Math.random() * 1e9));
+                      }
+                    }}
+                    data-clickable="true"
+                    aria-label={t("postsPage.sortRandom")}
+                  >
+                    <Shuffle size={12} />
+                  </button>
+                </Tooltip>
+
                 <Select
                   value={String(perPage)}
                   options={PAGE_SIZE_OPTIONS}
@@ -1143,7 +1332,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   />
                 ) : (
                   (() => {
-                    const variants: CardType[] = posts.map((p, i) =>
+                    const variants: CardType[] = posts.map((_, i) =>
                       activeSeries ? "standard" : getCardType(i),
                     );
                     return posts.map((post, idx) => {

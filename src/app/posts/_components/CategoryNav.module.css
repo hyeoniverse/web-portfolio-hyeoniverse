@@ -1,4 +1,5 @@
-/* Wrapper — fills available width, keeps moreBtn inline at top */
+/* Wrapper — fills available width. 기본 center 정렬 (collapsed 시 moreBtn / tags / sort
+   와 수직 중심 일치). expanded 일 때만 moreBtn 만 따로 top 정렬 (.moreBtnOpen align-self). */
 .wrapper {
   flex: 1 1 0;
   min-width: 0;
@@ -27,12 +28,15 @@
   overflow: visible;
 }
 
+/* padding 줄여 slim, 같은 줄의 tagToggleBtn / sortGroup btn 과 row 높이 가까워지게.
+   border-bottom 2px 가 박스 하단에 추가되어 텍스트가 시각적으로 위로 1-2px 치우치므로
+   padding-top 을 그만큼 더 줘서 텍스트 광학 중심이 박스 중심과 일치. moreBtn (사방 border) 과 정렬. */
 .btn {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--box-lg);
+  padding: calc(var(--spacing-xs) + 2px) var(--spacing-md) var(--spacing-xs);
   border: none;
   border-bottom: 2px solid transparent;
   border-radius: 0;
@@ -57,7 +61,8 @@
   color: var(--text-primary);
 }
 
-/* "+N more" / "Close" toggle */
+/* "+N more" / "Close" toggle — nav .btn 과 동일 사이즈 (box-sm + font-2xs) 라
+   wrapper flex-start 시 자연스럽게 첫 줄에 안착. */
 .moreBtn {
   display: flex;
   align-items: center;
@@ -74,15 +79,25 @@
   margin-left: var(--spacing-xs);
 }
 
-.wrapper .moreBtn:hover {
+/* compound (0,2,0) — .moreBtnOpen 보다 specificity 낮아 hover state 가 open state 를 안 덮음 */
+.wrapper .moreBtn:not(.moreBtnOpen):hover {
   border-color: var(--text-primary);
   color: var(--text-primary);
 }
 
+/* expanded — moreBtn 만 따로 top 정렬해서 multi-row 가운데가 아닌 첫 줄에 박히게.
+   nav 첫 줄 버튼보다 짧으니 margin-top 으로 첫 줄 내 수직 가운데에 맞춤. */
 .moreBtnOpen {
+  align-self: flex-start;
+  margin-top: var(--spacing-2xs);
   background: var(--text-primary);
   border-color: var(--text-primary);
   color: var(--bg-primary);
+}
+
+/* expanded hover — 텍스트/배경 그대로, 살짝만 강조 */
+.wrapper .moreBtnOpen:hover {
+  opacity: 0.85;
 }
 
 /* Animated indicator */

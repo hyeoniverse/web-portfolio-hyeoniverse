@@ -16,6 +16,9 @@ export async function GET(request: Request) {
   const category = searchParams.get("category");
   const q = (searchParams.get("q") || "").trim();
   const searchType = (searchParams.get("searchType") || "all") as "all" | "title";
+  // tags=tag1,tag2,... — 모든 태그를 포함한 글이 있는 시리즈만 (AND semantic, main posts 와 동일)
+  const tagsParam = (searchParams.get("tags") || "").trim();
+  const tags = tagsParam ? tagsParam.split(",").map((t) => t.trim()).filter(Boolean) : [];
   const findPageId = searchParams.get("findPage");
   const pageParam = searchParams.get("page");
   const limitParam = searchParams.get("limit");
@@ -53,6 +56,22 @@ export async function GET(request: Request) {
 
   if (!showAll) query = query.eq("published", true);
   if (category) query = query.eq("category", category);
+
+  // tags 필터 — posts 테이블에서 tags 모두 포함한 글의 series_id 만 추림
+  if (tags.length > 0) {
+    const { data: taggedPosts } = await admin
+      .from("posts")
+      .select("series_id")
+      .eq("published", true)
+      .contains("tags", tags)
+      .not("series_id", "is", null);
+    const taggedSeriesIds = Array.from(new Set((taggedPosts ?? []).map((p) => p.series_id))).filter(Boolean) as string[];
+    if (taggedSeriesIds.length === 0) {
+      // 매칭 없음 — 빈 결과
+      return jsonOk(isPaginated ? { items: [], total: 0 } : []);
+    }
+    query = query.in("id", taggedSeriesIds);
+  }
   if (q) {
     const esc = q.replace(/[%_]/g, (m) => `\\${m}`);
     if (searchType === "title") {
@@ -76,6 +95,7 @@ export async function GET(request: Request) {
   let postCounts: Record<string, number> = {};
   type PreviewRow = {
     id: string;
+    slug: string;
     title: string;
     title_en: string | null;
     cover_image: string | null;
@@ -90,7 +110,7 @@ export async function GET(request: Request) {
       admin.from("posts").select("series_id").in("series_id", ids).eq("published", true),
       admin
         .from("posts")
-        .select("id, series_id, title, title_en, cover_image, series_order, created_at, excerpt, excerpt_en")
+        .select("id, slug, series_id, title, title_en, cover_image, series_order, created_at, excerpt, excerpt_en")
         .eq("published", true)
         .in("series_id", ids)
         .order("series_order", { ascending: true }),
@@ -107,6 +127,7 @@ export async function GET(request: Request) {
       const arr = previewsBySeriesId.get(row.series_id) ?? [];
       if (arr.length < 4) arr.push({
         id: row.id,
+        slug: row.slug,
         title: row.title,
         title_en: row.title_en,
         cover_image: row.cover_image,
