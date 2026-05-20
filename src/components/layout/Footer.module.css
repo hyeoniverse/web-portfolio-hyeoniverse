@@ -3,7 +3,9 @@
   ========================================================================== */
 
 .footer {
-  margin-top: var(--spacing-6xl);
+  /* sticky-footer — body 가 flex column + main flex:1 이므로 auto 가 짧은 페이지에서 footer 를
+     viewport 하단으로 밀어줌. padding-top 으로 콘텐츠와의 시각적 여백 확보. */
+  margin-top: auto;
   padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
   background: transparent;
 }
@@ -34,6 +36,9 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   text-decoration: none;
+  /* 좁은 폭에서 "Design System" · "Privacy Policy" 같은 다단어 메뉴가 단어 단위로 줄바꿈되는 것 방지.
+     row 자체는 .links 의 flex-wrap: wrap 으로 다음 줄로 흘러갈 수 있음. */
+  white-space: nowrap;
 }
 
 .links .activeLink {
