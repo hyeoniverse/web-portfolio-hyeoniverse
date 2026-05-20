@@ -153,6 +153,68 @@ CREATE POLICY "posts_service_all"
 
 
 -- ────────────────────────────────────────────────────────────
+-- 3-1. posts.series_order 자동 정합화 trigger
+--      INSERT/UPDATE/DELETE 시 해당 series 의 모든 post 를 0-based sequential 로 재정렬.
+--      admin reorder / 글 삭제 / 시리즈 이동 등 어떤 경로로 변경되어도 자동 정합.
+--      pg_trigger_depth() 로 재귀 호출 차단.
+-- ────────────────────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION normalize_series_order(p_series_id uuid)
+RETURNS void AS $$
+BEGIN
+  IF p_series_id IS NULL THEN
+    RETURN;
+  END IF;
+
+  WITH ranked AS (
+    SELECT id,
+           (ROW_NUMBER() OVER (
+             ORDER BY series_order ASC, created_at ASC, id ASC
+           ) - 1)::int AS new_order
+    FROM posts
+    WHERE series_id = p_series_id
+  )
+  UPDATE posts p
+  SET series_order = r.new_order
+  FROM ranked r
+  WHERE p.id = r.id
+    AND p.series_order IS DISTINCT FROM r.new_order;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION trg_normalize_series_order()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF pg_trigger_depth() > 1 THEN
+    RETURN NULL;
+  END IF;
+
+  IF TG_OP = 'INSERT' AND NEW.series_id IS NOT NULL THEN
+    PERFORM normalize_series_order(NEW.series_id);
+  ELSIF TG_OP = 'UPDATE' AND NEW.series_id IS NOT NULL THEN
+    PERFORM normalize_series_order(NEW.series_id);
+  END IF;
+
+  IF TG_OP = 'UPDATE'
+     AND OLD.series_id IS NOT NULL
+     AND OLD.series_id IS DISTINCT FROM NEW.series_id THEN
+    PERFORM normalize_series_order(OLD.series_id);
+  ELSIF TG_OP = 'DELETE' AND OLD.series_id IS NOT NULL THEN
+    PERFORM normalize_series_order(OLD.series_id);
+  END IF;
+
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS posts_normalize_series_order ON posts;
+CREATE TRIGGER posts_normalize_series_order
+AFTER INSERT OR UPDATE OF series_id, series_order OR DELETE
+ON posts
+FOR EACH ROW
+EXECUTE FUNCTION trg_normalize_series_order();
+
+
+-- ────────────────────────────────────────────────────────────
 -- 4. comments — 포스트 댓글
 --    비회원 댓글: nickname + password_hash(bcrypt) 사용
 --    대댓글: parent_id로 트리 구조
