@@ -46,7 +46,7 @@ interface PostDetailClientProps {
 
 export default function PostDetailClient({ post: initialPost }: PostDetailClientProps) {
   const { t, language } = useLanguage();
-  const { navigateWithTransition } = usePageTransition();
+  const { navigateWithTransition, isTransitioning } = usePageTransition();
   const siteConfig = useSiteConfig();
   /* translation 활성 여부는 client context 에서 — server 의 getSecret 호출 제거됨.
    * 키 부재 시엔 client 가 호출한 API 가 error 응답 → UI 에서 "번역 실패" 표시. */
@@ -278,7 +278,10 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       header={
         <motion.div
           className={styles.articleHeader}
-          initial={{ opacity: 0, y: 30 }}
+          /* 페이지 트랜지션으로 진입 시엔 morph 가 hero 만 덮고 fade out 되므로
+             articleHeader 가 mount 직후 opacity 0 면 morph 사라진 자리에 빈 영역 노출 →
+             skeleton 처럼 보임. 트랜지션 중이면 즉시 visible. 직접 진입은 기존 fade-in 유지. */
+          initial={isTransitioning ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
         >

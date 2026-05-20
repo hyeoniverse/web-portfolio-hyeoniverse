@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -21,7 +23,16 @@ interface CardsBannerProps {
 export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBannerProps) {
   const { language } = useLanguage();
   const { navigateWithTransition } = usePageTransition();
+  const router = useRouter();
+  const prefetchedRef = useRef<Set<string>>(new Set());
   const { index, go, prev, next, pause, resume, isPaused, togglePause } = useAutoSlide(posts.length, 4000);
+
+  const handlePrefetch = (slug: string) => {
+    if (prefetchedRef.current.has(slug)) return;
+    if (process.env.NODE_ENV !== "production") return;
+    prefetchedRef.current.add(slug);
+    router.prefetch(`/posts/${slug}`);
+  };
 
   const getOffset = (i: number) => {
     const diff = i - index;
@@ -60,6 +71,8 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
               <div
                 className={styles.cardLink}
                 style={{ cursor: isCenter ? "pointer" : "default" }}
+                onMouseEnter={() => isCenter && handlePrefetch(post.slug)}
+                onFocus={() => isCenter && handlePrefetch(post.slug)}
                 onClick={(e) => {
                   if (!isCenter) return;
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();

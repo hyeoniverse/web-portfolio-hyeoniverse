@@ -140,6 +140,7 @@
 
 .prose img {
   max-width: 100%;
+  height: auto;
   border-radius: 0;
   margin: var(--spacing-xl) 0;
   display: block;

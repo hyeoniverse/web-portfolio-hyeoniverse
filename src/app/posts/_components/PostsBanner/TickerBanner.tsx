@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { formatPostTitle } from "@/utils/post";
@@ -21,8 +22,17 @@ interface TickerBannerProps {
 export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBannerProps) {
   const { language } = useLanguage();
   const { navigateWithTransition } = usePageTransition();
+  const router = useRouter();
+  const prefetchedRef = useRef<Set<string>>(new Set());
   const { index, go, prev, next, pause, resume, isPaused, togglePause } = useAutoSlide(posts.length, 3000);
   const len = posts.length;
+
+  const handlePrefetch = (slug: string) => {
+    if (prefetchedRef.current.has(slug)) return;
+    if (process.env.NODE_ENV !== "production") return;
+    prefetchedRef.current.add(slug);
+    router.prefetch(`/posts/${slug}`);
+  };
 
   const [pos, setPos] = useState(0);
   const [animate, setAnimate] = useState(true);
@@ -53,6 +63,8 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
         <div
           className={styles.tickerLink}
           style={{ cursor: "pointer" }}
+          onMouseEnter={() => handlePrefetch(post.slug)}
+          onFocus={() => handlePrefetch(post.slug)}
           onClick={(e) => {
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
             navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect);

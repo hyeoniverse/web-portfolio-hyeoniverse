@@ -70,15 +70,13 @@ export default function DetailLayout({
   const { endTransition, isTransitioning } = usePageTransition();
   const pageRef = useRef<HTMLDivElement>(null);
 
-  // 새 페이지가 마운트되면 곧장 오버레이를 닫음. heroImage 가 있으면 hero 가
-  // 그려질 시간을 잠깐 주고 닫는다. (이전엔 onAnimationStart 에 endTransition 을
-  // 묶어 두었는데, framer-motion 은 initial===animate 인 경우 콜백을 안 부르는
-  // 일이 있어 hold phase 에서 멈추는 버그가 있었음.)
+  // 새 페이지가 마운트되면 오버레이 morph 블록을 fade out.
+  // 80ms 대기 — real hero/heroSpacer 가 페인트된 다음 morph 블록이 사라지게 (paint 직전에 닫으면 깜빡임).
   useEffect(() => {
     if (!isTransitioning) return;
-    const t = setTimeout(() => endTransition(), heroImage ? 80 : 0);
+    const t = setTimeout(() => endTransition(), 80);
     return () => clearTimeout(t);
-  }, [isTransitioning, heroImage, endTransition]);
+  }, [isTransitioning, endTransition]);
 
   // Lenis setup
   useEffect(() => {
