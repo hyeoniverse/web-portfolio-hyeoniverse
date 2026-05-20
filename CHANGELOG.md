@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.11.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.10.0...v1.11.0) (2026-05-20)
+
+
+### Features
+
+* **seo:** 전체 페이지 title 통일 — root template + Hyeoniverse fallback + admin 별도 ([d6d0d4b](https://github.com/hyeoniverse/web-portfolio-oval/commit/d6d0d4b44710cc655fd7f44d6d4fedfe2bab2264))
+* **ui:** Button difference variant + button branch rest props pass-through ([d851587](https://github.com/hyeoniverse/web-portfolio-oval/commit/d8515879cdc8773783df804444b8faf86a9a3ae7))
+* **ui:** HorizontalCarousel 공통 컴포넌트 추가 ([2d5b418](https://github.com/hyeoniverse/web-portfolio-oval/commit/2d5b418a6dce8781c61ec5b70a71e5cc3b60e77b)), closes [#125](https://github.com/hyeoniverse/web-portfolio-oval/issues/125)
+* **ui:** SegmentedControl nested/inline sub variant ([2ad0dd1](https://github.com/hyeoniverse/web-portfolio-oval/commit/2ad0dd1cf88e5515a634ffddf8203a63fd48b776))
+
+
+### Bug Fixes
+
+* **api:** posts 정렬 stable tie-break + visit/view 필터 + like Optimistic ([27fdabb](https://github.com/hyeoniverse/web-portfolio-oval/commit/27fdabbb0946643488e912c216816595199d9ab3))
+* **ui:** Button onDrag/onAnimation* spread 분리 (motion.button 타입 충돌) ([4cc47b0](https://github.com/hyeoniverse/web-portfolio-oval/commit/4cc47b0a24cd7c1a0830c57e260c1a3e4a4abaab))
+
 ## [1.10.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.9.0...v1.10.0) (2026-05-20)
 
 
