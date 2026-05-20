@@ -14,6 +14,9 @@ import Image from "next/image";
 /* ── Types ── */
 interface TransitionState {
   image: string;
+  /* image 가 없을 때 morph 블록의 background — caller 에서 카드 cover 색을 넘기면 그걸,
+     안 넘기면 빈 문자열 (placeholder 적용) */
+  color: string;
   rect: DOMRect;
   targetId: string;
   phase: "init" | "expand" | "morph" | "hold" | "done";
@@ -21,8 +24,6 @@ interface TransitionState {
 
 interface PageTransitionContextValue {
   startTransition: (image: string, rect: DOMRect, targetId: string, color?: string) => void;
-  /** color: image 가 없을 때 caller 가 카드 cover 색을 넘기면 morph 블록 background 로 사용.
-   *  현재는 시그니처만 받아두고 PLACEHOLDER_IMAGE 폴백 — 본격 morph 재설계는 별도 PR. */
   navigateWithTransition: (href: string, image: string, rect: DOMRect, color?: string) => void;
   endTransition: () => void;
   isTransitioning: boolean;
@@ -40,18 +41,18 @@ export function usePageTransition() {
 }
 
 /* ── Timing ──
- * 흐름: init → expand → morph → hold → done
- *  - expand (600ms, auto): rect → fullscreen
- *  - morph  (400ms, auto): fullscreen → hero 크기
- *  - hold   (가변): backdrop 으로 화면 전체 덮은 채 새 페이지 mount 대기
- *  - done   (350ms): backdrop + image 함께 fade out
- *  - SAFETY_MS: DetailLayout 이 mount 안 되어 endTransition 이 호출 안 될 때의 backstop */
-const EXPAND_MS = 600;
-const MORPH_MS = 400;
-const FADE_MS = 350;
+ * 흐름: init → expand → morph → hold → done (image/color/placeholder 모두 동일)
+ *  - expand (auto): rect → fullscreen, backdrop opacity 1
+ *  - morph  (auto): fullscreen → hero 크기 (35vh). backdrop 동시에 opacity 1 → 0
+ *                  → loading.tsx 의 header/content skeleton 이 morph 아래로 노출됨
+ *  - hold   (가변): morph 블록만 hero 위치에 떠있고, 그 아래로 loading.tsx/real page 보임
+ *  - done   (fade): morph 블록만 opacity 0 — backdrop 은 morph 끝에서 이미 사라짐
+ *  - SAFETY_MS: DetailLayout mount 안 되어 endTransition 호출 안 될 때의 backstop */
+const EXPAND_MS = 380;
+const MORPH_MS = 260;
+const FADE_MS = 170;
 const SAFETY_MS = 5000;
 const NAV_DELAY = EXPAND_MS;
-const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 
 export function PageTransitionProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<TransitionState | null>(null);
@@ -79,20 +80,19 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     });
   }, []);
 
-  const startTransition = useCallback((image: string, rect: DOMRect, targetId: string, _color?: string) => {
-    void _color;
+  const startTransition = useCallback((image: string, rect: DOMRect, targetId: string, color: string = "") => {
     clearTimers();
     endRequestedRef.current = false;
-    setState({ image: image || PLACEHOLDER_IMAGE, rect, targetId, phase: "init" });
+    setState({ image, color, rect, targetId, phase: "init" });
     const safety = setTimeout(() => endTransition(), SAFETY_MS);
     timerRef.current.push(safety);
   }, [endTransition]);
 
-  const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect, _color?: string) => {
-    void _color;
+  const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect, color: string = "") => {
     clearTimers();
     endRequestedRef.current = false;
-    setState({ image: image || PLACEHOLDER_IMAGE, rect, targetId: href, phase: "init" });
+    setState({ image, color, rect, targetId: href, phase: "init" });
+    /* expand 끝난 후 navigate — image/color/placeholder 모두 동일하게 morph 통과 */
     const t = setTimeout(() => router.push(href), NAV_DELAY);
     timerRef.current.push(t);
     const safety = setTimeout(() => endTransition(), NAV_DELAY + SAFETY_MS);
@@ -142,12 +142,18 @@ function TransitionOverlay({
   const elRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
-  const { phase, rect, image } = state;
+  const { phase, rect, image, color } = state;
 
   useEffect(() => {
     if (phase !== "init") return;
     const el = elRef.current;
     if (!el) return;
+
+    /* backdrop 즉시 불투명 — 출발 페이지 위에 깜빡 없이 cover */
+    if (backdropRef.current) {
+      backdropRef.current.style.transition = "none";
+      backdropRef.current.style.opacity = "1";
+    }
 
     el.style.top = `${rect.top}px`;
     el.style.left = `${rect.left}px`;
@@ -176,10 +182,6 @@ function TransitionOverlay({
     el.style.height = "100vh";
     el.style.borderRadius = "0";
 
-    if (backdropRef.current) {
-      backdropRef.current.style.transition = `opacity ${EXPAND_MS * 0.3}ms ease`;
-      backdropRef.current.style.opacity = "1";
-    }
     if (overlayRef.current) {
       overlayRef.current.style.transition = `opacity ${EXPAND_MS}ms ease`;
       overlayRef.current.style.opacity = "1";
@@ -194,9 +196,16 @@ function TransitionOverlay({
     const el = elRef.current;
     if (!el) return;
 
+    /* morph: fullscreen → hero(35vh). 동시에 backdrop fade 1→0 —
+       끝나는 시점에 morph 블록만 hero 위치에 떠있고, 그 아래로 loading.tsx 보임 */
     const heroH = Math.max(240, window.innerHeight * 0.35);
     el.style.transition = `height ${MORPH_MS}ms cubic-bezier(0.4,0,0.2,1)`;
     el.style.height = `${heroH}px`;
+
+    if (backdropRef.current) {
+      backdropRef.current.style.transition = `opacity ${MORPH_MS}ms ease`;
+      backdropRef.current.style.opacity = "0";
+    }
 
     /* morph 끝났을 때 endTransition 이 이미 호출됐다면 hold 건너뛰고 즉시 done */
     const t = setTimeout(() => {
@@ -215,14 +224,13 @@ function TransitionOverlay({
     const el = elRef.current;
     if (!el) return;
 
+    /* backdrop 은 morph 단계에서 이미 0 — 여기서는 morph 블록만 fade out */
     el.style.transition = `opacity ${FADE_MS}ms ease`;
     el.style.opacity = "0";
-
-    if (backdropRef.current) {
-      backdropRef.current.style.transition = `opacity ${FADE_MS}ms ease`;
-      backdropRef.current.style.opacity = "0";
-    }
   }, [phase]);
+
+  /* image > color > placeholder(--bg-tertiary) 순으로 morph 블록 채움 */
+  const fillBg = color || "var(--bg-tertiary)";
 
   return (
     <>
@@ -233,7 +241,7 @@ function TransitionOverlay({
         inset: 0,
         zIndex: 9998,
         background: "var(--bg-primary)",
-        opacity: 0,
+        opacity: 1,
         pointerEvents: "none",
       }}
     />
@@ -251,14 +259,24 @@ function TransitionOverlay({
         borderRadius: 8,
       }}
     >
-      <Image
-        src={image}
-        alt=""
-        fill
-        sizes="100vw"
-        style={{ objectFit: "cover" }}
-        priority
-      />
+      {image ? (
+        <Image
+          src={image}
+          alt=""
+          fill
+          sizes="100vw"
+          style={{ objectFit: "cover" }}
+          priority
+        />
+      ) : (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: fillBg,
+          }}
+        />
+      )}
       <div
         ref={overlayRef}
         style={{

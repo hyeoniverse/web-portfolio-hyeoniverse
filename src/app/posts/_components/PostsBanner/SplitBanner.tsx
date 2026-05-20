@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -27,11 +29,21 @@ const imgVariants = {
 export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBannerProps) {
   const { language } = useLanguage();
   const { navigateWithTransition } = usePageTransition();
+  const router = useRouter();
+  const prefetchedRef = useRef<Set<string>>(new Set());
   const { index, go, prev, next, pause, resume, isPaused, togglePause } = useAutoSlide(posts.length, 5000);
 
   const post = posts[index];
   const title = formatPostTitle(post, language);
   const excerpt = getPostExcerpt(post, language);
+
+  /* split 은 한 번에 1개 슬라이드만 보여줌 → 현재 슬라이드는 항상 prefetch (hover 없어도) */
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production") return;
+    if (prefetchedRef.current.has(post.slug)) return;
+    prefetchedRef.current.add(post.slug);
+    router.prefetch(`/posts/${post.slug}`);
+  }, [post.slug, router]);
 
   const handleNav = (e: React.MouseEvent) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
