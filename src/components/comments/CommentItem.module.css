@@ -396,21 +396,7 @@
 }
 
 .editTextarea {
-  padding: var(--box-sm-md);
   border: var(--border-light);
-  border-radius: var(--radius-lg);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  outline: none;
-  resize: vertical;
-  min-height: 60px;
-  line-height: var(--line-height-relaxed);
-}
-
-.comment .editTextarea:focus {
-  border-color: var(--text-primary);
 }
 
 .editActions {
