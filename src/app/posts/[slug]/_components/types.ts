@@ -5,4 +5,6 @@ export type RecommendedPost = {
   cover_image: string;
   title_en: string;
   category: string;
+  excerpt: string;
+  excerpt_en: string;
 };

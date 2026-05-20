@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion } from "framer-motion";
-import { Heart, FileText, ImageIcon, Pencil } from "lucide-react";
+import { Heart, FileText, ImageIcon, Pencil, ArrowLeft } from "lucide-react";
 import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -107,16 +107,19 @@ export default function WorkDetailClient({
               <span className={styles.projectNumber}>#{project.number}</span>
               <span className={styles.category}><T ko={project.category.ko} en={project.category.en} /></span>
               {isAdmin && (
-                <Tooltip content={t("workDetail.editWork")} placement="top" delay={200}>
-                  <a
-                    href={`/admin/works/${project.id}/edit`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
-                  >
-                    <Pencil size={13} />
-                  </a>
-                </Tooltip>
+                <>
+                  <span className={styles.metaDivider} />
+                  <Tooltip content={t("workDetail.editWork")} placement="top" delay={200}>
+                    <a
+                      href={`/admin/works/${project.id}/edit`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
+                    >
+                      <Pencil size={13} />
+                    </a>
+                  </Tooltip>
+                </>
               )}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -318,7 +321,7 @@ export default function WorkDetailClient({
 
           <div className={styles.footerNav}>
             <Link href="/works" className={styles.footerLink}>
-              <span className={styles.footerArrow}>&larr;</span> <T k="workDetail.viewAll" />
+              <ArrowLeft size={16} className={styles.footerArrow} /> <T k="workDetail.viewAll" />
             </Link>
           </div>
         </>

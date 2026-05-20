@@ -152,8 +152,129 @@
 }
 
 .likeBtnBusy {
-  opacity: 0.5;
   pointer-events: none;
+}
+
+/* ── Heart icon + wave fill ── */
+.heartIcon {
+  flex-shrink: 0;
+}
+
+/* Wave fill — 3 layer SVG path 의 d 자체를 CSS keyframes 로 변화. cubic bezier 곡선 → 부드러운 wave.
+   Rise: 단계별로 surface y 가 위로 + control points 가 부드러운 sine curve. 끝나면 fully filled (y=0 또는 음수).
+   Sink: 반대로 내려감. liked 최종 상태에서는 path 가 viewBox 전체 fill (모두 0 또는 음수). */
+.heartWaveBack,
+.heartWaveMid,
+.heartWaveFront {
+  fill: currentColor;
+}
+
+/* default empty — path 가 bottom edge 만 (Heart 안 보임) */
+.heartWaveBack {
+  opacity: 0.45;
+}
+.heartWaveMid {
+  opacity: 0.7;
+}
+.heartWaveFront {
+  opacity: 0.95;
+}
+
+/* liked 최종 상태 — Heart 전체가 fully filled (path 가 viewBox 위쪽까지 cover) */
+.likeBtnActive:not(.likeBtnBusy) .heartWaveBack {
+  d: path("M-2 -4 C 6 -8 18 0 30 -4 L 30 28 L -2 28 Z");
+}
+.likeBtnActive:not(.likeBtnBusy) .heartWaveMid {
+  d: path("M-2 -4 C 8 0 16 -8 30 -4 L 30 28 L -2 28 Z");
+}
+.likeBtnActive:not(.likeBtnBusy) .heartWaveFront {
+  d: path("M-2 -4 C 6 0 18 -8 30 -4 L 30 28 L -2 28 Z");
+}
+
+/* 좋아요 추가 (busy + liked) — 차오름 + 출렁임 */
+.likeBtnBusy.likeBtnActive .heartWaveBack {
+  animation: heartFillBack 1.8s cubic-bezier(0.33, 0.1, 0.4, 1) forwards;
+}
+.likeBtnBusy.likeBtnActive .heartWaveMid {
+  animation: heartFillMid 1.6s cubic-bezier(0.33, 0.1, 0.4, 1) 0.1s forwards;
+}
+.likeBtnBusy.likeBtnActive .heartWaveFront {
+  animation: heartFillFront 1.5s cubic-bezier(0.33, 0.1, 0.4, 1) 0.2s forwards;
+}
+
+/* 좋아요 취소 (busy + !liked) — 가라앉음. 시작점은 fully filled state */
+.likeBtnBusy:not(.likeBtnActive) .heartWaveBack {
+  animation: heartDrainBack 1.4s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+.likeBtnBusy:not(.likeBtnActive) .heartWaveMid {
+  animation: heartDrainMid 1.5s cubic-bezier(0.4, 0, 0.6, 1) 0.05s forwards;
+}
+.likeBtnBusy:not(.likeBtnActive) .heartWaveFront {
+  animation: heartDrainFront 1.6s cubic-bezier(0.4, 0, 0.6, 1) 0.1s forwards;
+}
+
+/* ── 차오름 — cubic bezier control point 가 step 마다 위로 + peak/valley phase 토글 (출렁이며 상승).
+   마지막 frame 은 .likeBtnActive 의 stable d 와 동일해서 selector 변경 시 jump 없음 ── */
+@keyframes heartFillBack {
+  0%   { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
+  20%  { d: path("M-2 22 C 6 18 18 26 30 22 L 30 28 L -2 28 Z"); }
+  40%  { d: path("M-2 16 C 6 22 18 10 30 16 L 30 28 L -2 28 Z"); }
+  60%  { d: path("M-2 10 C 6 4 18 16 30 10 L 30 28 L -2 28 Z"); }
+  80%  { d: path("M-2 2 C 6 8 18 -4 30 2 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 -4 C 6 -8 18 0 30 -4 L 30 28 L -2 28 Z"); }
+}
+@keyframes heartFillMid {
+  0%   { d: path("M-2 28 C 8 28 16 28 30 28 L 30 28 L -2 28 Z"); }
+  20%  { d: path("M-2 24 C 8 28 16 20 30 24 L 30 28 L -2 28 Z"); }
+  40%  { d: path("M-2 18 C 8 12 16 24 30 18 L 30 28 L -2 28 Z"); }
+  60%  { d: path("M-2 10 C 8 16 16 4 30 10 L 30 28 L -2 28 Z"); }
+  80%  { d: path("M-2 2 C 8 -4 16 8 30 2 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 -4 C 8 0 16 -8 30 -4 L 30 28 L -2 28 Z"); }
+}
+@keyframes heartFillFront {
+  0%   { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
+  20%  { d: path("M-2 26 C 6 22 18 28 30 24 L 30 28 L -2 28 Z"); }
+  40%  { d: path("M-2 20 C 6 26 18 14 30 20 L 30 28 L -2 28 Z"); }
+  60%  { d: path("M-2 12 C 6 6 18 18 30 12 L 30 28 L -2 28 Z"); }
+  80%  { d: path("M-2 4 C 6 10 18 -2 30 4 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 -4 C 6 0 18 -8 30 -4 L 30 28 L -2 28 Z"); }
+}
+
+/* ── 가라앉음 ── */
+@keyframes heartDrainBack {
+  0%   { d: path("M-2 -4 C 6 -8 18 0 30 -4 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
+}
+@keyframes heartDrainMid {
+  0%   { d: path("M-2 -4 C 8 0 16 -8 30 -4 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 28 C 8 28 16 28 30 28 L 30 28 L -2 28 Z"); }
+}
+@keyframes heartDrainFront {
+  0%   { d: path("M-2 -4 C 6 0 18 -8 30 -4 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
+}
+
+/* 하트 인터랙션 — hover heartbeat pulse + press scale up */
+.likeWrapper .likeBtn svg {
+  transition: transform 0.15s ease;
+}
+
+.likeWrapper .likeBtn:hover:not(:disabled) svg {
+  animation: heartbeat 0.9s infinite ease-in-out;
+}
+
+.likeWrapper .likeBtn:active:not(:disabled) svg {
+  animation: none;
+  transform: scale(1.25);
+  transition: transform 0.1s ease;
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.18); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.12); }
+  70%, 100% { transform: scale(1); }
 }
 
 .likeCount {
