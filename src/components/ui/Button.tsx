@@ -12,7 +12,7 @@ import styles from "./Button.module.css";
    Types
    -------------------------------------------------------------------------- */
 
-type ButtonVariant = "primary" | "outline" | "subtle" | "ghost" | "link";
+type ButtonVariant = "primary" | "outline" | "subtle" | "ghost" | "link" | "difference";
 type ButtonShape = "capsule" | "circle" | "square";
 type ButtonSize = "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
 type ButtonTone = "default" | "danger";
@@ -148,7 +148,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
     }
 
     /* ---- Button (기본) ---- */
-    const { onClick, type } = rest as ButtonAsButton;
+    const { onClick, type, ...buttonRest } = rest as ButtonAsButton;
 
     const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
       if (!soundDisabled && !isDisabled) playSound("click");
@@ -158,6 +158,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
     return (
       <motion.button
         ref={ref as React.Ref<HTMLButtonElement>}
+        {...buttonRest}
         type={type ?? "button"}
         className={classes}
         disabled={isDisabled}
