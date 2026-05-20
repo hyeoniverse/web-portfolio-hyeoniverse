@@ -5,7 +5,6 @@ import HomeClient from "./HomeClient";
 export async function generateMetadata(): Promise<Metadata> {
   const cfg = await getSiteConfig();
   return {
-    title: cfg.metadata.title,
     description: cfg.metadata.description,
     openGraph: {
       title: cfg.metadata.title,

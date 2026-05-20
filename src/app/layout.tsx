@@ -27,7 +27,7 @@ import { PageTransitionProvider } from "@/providers/PageTransitionProvider";
 
 export async function generateMetadata(): Promise<Metadata> {
   const cfg = await getSiteConfig();
-  const siteName = cfg.metadata.title;
+  const siteName = cfg.metadata.title || "Hyeoniverse";
   return {
     title: {
       default: siteName,

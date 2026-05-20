@@ -1,6 +1,9 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { getInitialPostsData } from "@/lib/posts";
 import PostsClient from "./PostsClient";
+
+export const metadata: Metadata = { title: "Posts" };
 
 export const revalidate = 60;
 
