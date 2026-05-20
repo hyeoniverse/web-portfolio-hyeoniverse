@@ -1825,8 +1825,8 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.2) 0%,
-    rgba(0, 0, 0, 0.5) 100%
+    oklch(0.00% 0.0000 0.00 / 0.2) 0%,
+    oklch(0.00% 0.0000 0.00 / 0.5) 100%
   );
   z-index: 0;
   pointer-events: none;
@@ -3247,7 +3247,7 @@
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-md);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.12);
   z-index: var(--z-dropdown);
   display: flex;
   flex-direction: column;

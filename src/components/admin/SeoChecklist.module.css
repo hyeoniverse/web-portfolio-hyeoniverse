@@ -25,7 +25,7 @@
   border: var(--border-light);
   background: transparent;
   backdrop-filter: blur(8px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px oklch(0.00% 0.0000 0.00 / 0.08);
   overflow: hidden;
   color: var(--text-white);
   font-family: var(--font-space-grotesk);
@@ -38,7 +38,7 @@
   backdrop-filter: blur(10px);
   color: var(--text-primary);
   border-color: var(--text-primary);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 24px oklch(0.00% 0.0000 0.00 / 0.08);
 }
 
 /* ── Pill (collapsed) — shell 안의 trigger button ── */
@@ -65,7 +65,7 @@
   backdrop-filter: none;
   color: var(--text-primary);
   border-color: var(--text-primary);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 14px 28px oklch(0.00% 0.0000 0.00 / 0.18);
 }
 
 .pillIcon {

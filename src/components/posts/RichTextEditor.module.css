@@ -266,7 +266,7 @@
   backdrop-filter: blur(4px);
   border: var(--border-light);
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px oklch(0.00% 0.0000 0.00 / 0.15);
   padding: var(--box-y-xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -2472,53 +2472,53 @@
 /* Code syntax highlighting — VSCode Dark+ / Light+ inspired */
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-keyword),
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-selector-tag),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-built_in) { color: #c792ea; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-built_in) { color: oklch(74.27% 0.1348 311.06); }
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-string),
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-attr),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-addition) { color: #ecc48d; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-addition) { color: oklch(84.25% 0.0844 75.06); }
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-comment),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-quote) { color: #637777; font-style: italic; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-quote) { color: oklch(55.31% 0.0236 196.49); font-style: italic; }
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-number),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-literal) { color: #f78c6c; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-literal) { color: oklch(74.86% 0.1381 37.46); }
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-title),
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-section),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-title.function_) { color: #82aaff; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-title.function_) { color: oklch(74.41% 0.1311 264.28); }
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-type),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-name) { color: #f07178; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-name) { color: oklch(70.09% 0.1567 18.62); }
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-variable),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-template-variable) { color: #addb67; }
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-property) { color: #7fdbca; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-template-variable) { color: oklch(83.44% 0.1534 127.38); }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-property) { color: oklch(82.92% 0.0920 180.70); }
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-operator),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-punctuation) { color: #89ddff; }
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-regexp) { color: #5ca7e4; }
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-deletion) { color: #ef5350; }
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-meta) { color: #82aaff; }
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-params) { color: #d6deeb; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-punctuation) { color: oklch(85.61% 0.0943 225.87); }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-regexp) { color: oklch(70.53% 0.1170 245.09); }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-deletion) { color: oklch(65.39% 0.1926 25.14); }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-meta) { color: oklch(74.41% 0.1311 264.28); }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-params) { color: oklch(89.84% 0.0198 260.17); }
 
 :global([data-theme="light"]) .editorContent pre :global(.hljs-keyword),
 :global([data-theme="light"]) .editorContent pre :global(.hljs-selector-tag),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-built_in) { color: #994cc3; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-built_in) { color: oklch(56.39% 0.1860 311.73); }
 :global([data-theme="light"]) .editorContent pre :global(.hljs-string),
 :global([data-theme="light"]) .editorContent pre :global(.hljs-attr),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-addition) { color: #c96765; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-addition) { color: oklch(62.80% 0.1251 22.49); }
 :global([data-theme="light"]) .editorContent pre :global(.hljs-comment),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-quote) { color: #93a1a1; font-style: italic; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-quote) { color: oklch(69.79% 0.0159 196.79); font-style: italic; }
 :global([data-theme="light"]) .editorContent pre :global(.hljs-number),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-literal) { color: #aa0982; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-literal) { color: oklch(49.77% 0.2095 342.46); }
 :global([data-theme="light"]) .editorContent pre :global(.hljs-title),
 :global([data-theme="light"]) .editorContent pre :global(.hljs-section),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-title.function_) { color: #4876d6; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-title.function_) { color: oklch(58.19% 0.1557 263.15); }
 :global([data-theme="light"]) .editorContent pre :global(.hljs-type),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-name) { color: #994cc3; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-name) { color: oklch(56.39% 0.1860 311.73); }
 :global([data-theme="light"]) .editorContent pre :global(.hljs-variable),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-template-variable) { color: #0c969b; }
-:global([data-theme="light"]) .editorContent pre :global(.hljs-property) { color: #0c969b; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-template-variable) { color: oklch(61.22% 0.1023 199.06); }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-property) { color: oklch(61.22% 0.1023 199.06); }
 :global([data-theme="light"]) .editorContent pre :global(.hljs-operator),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-punctuation) { color: #0431fa; }
-:global([data-theme="light"]) .editorContent pre :global(.hljs-regexp) { color: #4876d6; }
-:global([data-theme="light"]) .editorContent pre :global(.hljs-deletion) { color: #de3d3b; }
-:global([data-theme="light"]) .editorContent pre :global(.hljs-meta) { color: #4876d6; }
-:global([data-theme="light"]) .editorContent pre :global(.hljs-params) { color: #403f53; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-punctuation) { color: oklch(47.72% 0.2870 264.37); }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-regexp) { color: oklch(58.19% 0.1557 263.15); }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-deletion) { color: oklch(60.05% 0.1983 26.06); }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-meta) { color: oklch(58.19% 0.1557 263.15); }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-params) { color: oklch(37.69% 0.0339 286.94); }
 
 .editorContent img {
   max-width: 100%;

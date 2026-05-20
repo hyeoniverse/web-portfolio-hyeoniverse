@@ -18,7 +18,7 @@
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-lg);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 48px oklch(0.00% 0.0000 0.00 / 0.2);
 }
 
 .header {

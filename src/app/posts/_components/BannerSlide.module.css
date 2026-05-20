@@ -94,8 +94,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(135deg, rgba(0, 0, 0, 0.65) 0%, transparent 50%),
-    linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, transparent 55%);
+    linear-gradient(135deg, oklch(0.00% 0.0000 0.00 / 0.65) 0%, transparent 50%),
+    linear-gradient(to top, oklch(0.00% 0.0000 0.00 / 0.75) 0%, transparent 55%);
   pointer-events: none;
 }
 
@@ -118,7 +118,7 @@
 .overlayMinimal {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 50%);
+  background: linear-gradient(to top, oklch(0.00% 0.0000 0.00 / 0.65) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -227,7 +227,7 @@
 .overlayMagazine {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.35) 0%, transparent 55%);
+  background: linear-gradient(to right, oklch(0.00% 0.0000 0.00 / 0.35) 0%, transparent 55%);
   pointer-events: none;
 }
 

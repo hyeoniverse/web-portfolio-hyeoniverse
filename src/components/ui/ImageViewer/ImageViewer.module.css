@@ -287,7 +287,7 @@
   transition: opacity 0.2s ease;
   transform-origin: center center;
   will-change: transform;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 40px oklch(0.00% 0.0000 0.00 / 0.3);
 }
 
 .imageLoading {
@@ -313,7 +313,7 @@
   border-radius: var(--radius-lg);
   background: var(--bg-primary);
   border: var(--border-light);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 40px oklch(0.00% 0.0000 0.00 / 0.15);
   min-width: 240px;
 }
 
@@ -391,7 +391,7 @@
   border-radius: var(--radius-md);
   background: var(--bg-primary);
   border: var(--border-light);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.25);
   z-index: 20;
   min-width: 160px;
 }
@@ -513,7 +513,7 @@
 .fullscreen .navBtn { color: var(--text-primary); }
 .fullscreen .navBtn:hover { color: var(--text-inverse); }
 .fullscreen .loaderSpinner { border-color: var(--border-ghost-light); border-top-color: var(--text-white-muted); }
-.fullscreen .shortcutsPanel { --_panel-bg: rgba(30, 30, 30, 0.95); background: var(--_panel-bg); border-color: var(--border-ghost-light); }
+.fullscreen .shortcutsPanel { --_panel-bg: oklch(23.50% 0.0000 0.00 / 0.95); background: var(--_panel-bg); border-color: var(--border-ghost-light); }
 .fullscreen .shortcutsTitle { color: var(--text-white); }
 .fullscreen .shortcutsSection { color: var(--text-white-muted); }
 .fullscreen .shortcutsItem { color: var(--text-white-muted); }
@@ -723,7 +723,7 @@
   border-radius: var(--radius-md);
   background: var(--bg-primary);
   border: var(--border-light);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.18);
   z-index: 20;
   min-width: 180px;
 }

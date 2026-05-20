@@ -10,7 +10,7 @@
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.15);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
@@ -38,8 +38,8 @@
   cursor: crosshair;
   /* 두 개의 그라데이션 겹침 — 가로:white→hueColor, 세로:transparent→black */
   background:
-    linear-gradient(to top, #000, transparent),
-    linear-gradient(to right, #fff, var(--_hue-color, #f00));
+    linear-gradient(to top, oklch(0.00% 0.0000 0.00), transparent),
+    linear-gradient(to right, oklch(100.00% 0.0000 0.00), var(--_hue-color, oklch(62.80% 0.2577 29.23)));
   touch-action: none;
 }
 
@@ -49,7 +49,7 @@
   height: 14px;
   border-radius: var(--radius-circle);
   border: 2px solid #fff;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
   pointer-events: none;
   background: var(--_thumb-color, transparent);
@@ -65,13 +65,13 @@
   cursor: ew-resize;
   background: linear-gradient(
     to right,
-    #f00 0%,
-    #ff0 17%,
-    #0f0 33%,
-    #0ff 50%,
-    #00f 67%,
-    #f0f 83%,
-    #f00 100%
+    oklch(62.80% 0.2577 29.23) 0%,
+    oklch(96.80% 0.2110 109.77) 17%,
+    oklch(86.64% 0.2948 142.50) 33%,
+    oklch(90.54% 0.1546 194.77) 50%,
+    oklch(45.20% 0.3132 264.05) 67%,
+    oklch(70.17% 0.3225 328.36) 83%,
+    oklch(62.80% 0.2577 29.23) 100%
   );
   touch-action: none;
 }
@@ -83,10 +83,10 @@
   height: 14px;
   border-radius: var(--radius-circle);
   border: 2px solid #fff;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
   transform: translate(-50%, -50%);
   pointer-events: none;
-  background: var(--_hue-color, #f00);
+  background: var(--_hue-color, oklch(62.80% 0.2577 29.23));
 }
 
 /* ── Inputs row ── */

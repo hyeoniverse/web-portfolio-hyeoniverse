@@ -313,9 +313,9 @@
   color: var(--text-secondary);
 }
 
-.dbMethodGET { --_method: #16a34a; }
-.dbMethodPOST { --_method: #3b82f6; }
-.dbMethodPATCH { --_method: #f59e0b; }
+.dbMethodGET { --_method: oklch(62.71% 0.1699 149.21); }
+.dbMethodPOST { --_method: oklch(62.31% 0.1880 259.81); }
+.dbMethodPATCH { --_method: oklch(76.86% 0.1647 70.08); }
 .dbMethodDELETE { --_method: var(--color-error); }
 
 .dbMethodGET,
