@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.10.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.9.0...v1.10.0) (2026-05-20)
+
+
+### Features
+
+* **posts:** 시리즈/카테고리 인덱스 페이지 + SeriesCard 확장 + filter bar UX 통합 ([9be6ab9](https://github.com/hyeoniverse/web-portfolio-oval/commit/9be6ab9550e2995af0abf305cb6f6094da08a6e5)), closes [#118](https://github.com/hyeoniverse/web-portfolio-oval/issues/118)
+* **transition:** morph + skeleton 통합 + prefetch + isTransitioning gating ([bc55e78](https://github.com/hyeoniverse/web-portfolio-oval/commit/bc55e78063394fe60d239c3bf33cb2c974fb40cf)), closes [#120](https://github.com/hyeoniverse/web-portfolio-oval/issues/120)
+
+
+### Bug Fixes
+
+* **transition:** navigateWithTransition · startTransition 에 color? 4번째 인자 추가 ([ac21abe](https://github.com/hyeoniverse/web-portfolio-oval/commit/ac21abeb7d9697c55ab4264e360c3f5cfa76fbc2))
+
 ## [1.9.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.8.0...v1.9.0) (2026-05-19)
 
 
