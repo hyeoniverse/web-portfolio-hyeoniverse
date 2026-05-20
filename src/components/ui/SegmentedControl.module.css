@@ -30,6 +30,45 @@
   color: var(--text-inverse);
 }
 
+/* nested 모드 — back chevron, active main label, divider chevron.
+   compound (.btn.btnNav) 로 외부 .sortWrap button (specificity 0,1,1) override */
+.btn.btnNav {
+  padding-left: var(--spacing-xs);
+  padding-right: var(--spacing-xs);
+  color: var(--text-tertiary);
+}
+
+/* Button variant="primary" 가 background/color 처리. 여기선 padding override만 — onBack click 으로 toggle */
+.btnNestedLabel.btnNestedLabel {
+  padding: var(--spacing-2xs) var(--spacing-md);
+}
+
+/* nested 모드 outer wrapper — 자체에 vertical padding 으로 border 와 자식 사이 상하 여백.
+   자식 사이 horizontal 간격은 label / inner group 의 margin 으로. */
+.nestedGroup {
+  padding: var(--spacing-3xs) 0;
+}
+
+.nestedGroup > .group {
+  margin: 0;
+  border: none;
+}
+
+/* divider — chevron 대신 가는 vertical line. align-self stretch 로 outer group height 만큼 자동 */
+.nestedDivider {
+  align-self: stretch;
+  width: 1px;
+  margin: 0 var(--spacing-xs);
+  background: var(--border-light-color);
+}
+
+/* inline 모드 — main group + chevron + sub group 같은 row */
+.subInlineWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
 /* framer-motion indicator — hover 시 bg-tertiary-alt, active 시 bg-inverse */
 .indicator {
   position: absolute;
