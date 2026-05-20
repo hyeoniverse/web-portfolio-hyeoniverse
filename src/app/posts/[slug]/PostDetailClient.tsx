@@ -20,6 +20,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import AISummary from "@/components/ui/AISummary";
 import dynamic from "next/dynamic";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
+import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import RecommendedToast from "./_components/RecommendedToast";
 import RecommendedSection from "./_components/RecommendedSection";
 const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
@@ -28,7 +29,7 @@ import ShareButton from "@/components/ui/ShareButton";
 import Button from "@/components/ui/Button";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
-import { ImageIcon, SquarePen, Monitor, BookOpen, ChevronDown, ChevronRight, ArrowLeft, ArrowRight, Languages } from "lucide-react";
+import { ImageIcon, SquarePen, Monitor, BookOpen, ChevronRight, ArrowLeft, ArrowRight, Languages } from "lucide-react";
 import { GithubIcon } from "@/components/icons";
 import styles from "./PostDetail.module.css";
 
@@ -293,16 +294,19 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
               <span className={styles.dot}>&middot;</span>
               <span>{post.view_count} <T k="postDetail.views" /></span>
               {isAdmin && (
-                <Tooltip content={t("postDetail.editPost")} placement="top" delay={200}>
-                  <a
-                    href={`/admin/posts/${post.id}/edit`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
-                  >
-                    <SquarePen size={13} />
-                  </a>
-                </Tooltip>
+                <>
+                  <span className={styles.metaDivider} />
+                  <Tooltip content={t("postDetail.editPost")} placement="top" delay={200}>
+                    <a
+                      href={`/admin/posts/${post.id}/edit`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
+                    >
+                      <SquarePen size={13} />
+                    </a>
+                  </Tooltip>
+                </>
               )}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -357,7 +361,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
                 <Monitor size={16} />
                 <span className={styles.relatedLabel}>{viewLang === "en" ? "Related Works" : "관련 프로젝트"}</span>
               </div>
-              <div className={styles.relatedGrid}>
+              <HorizontalCarousel className={styles.relatedGrid}>
                 {relatedWorks.map((w) => {
                   const subtitle = viewLang === "en" ? (w.subtitle_en || w.subtitle_ko) : (w.subtitle_ko || w.subtitle_en);
                   const category = viewLang === "en" ? (w.category_en || w.category_ko) : (w.category_ko || w.category_en);
@@ -387,7 +391,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
                     </div>
                   );
                 })}
-              </div>
+              </HorizontalCarousel>
             </section>
           )}
 
@@ -400,7 +404,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
                   &mdash; {viewLang === "en" && seriesData.title_en ? seriesData.title_en : seriesData.title}
                 </span>
               </div>
-              <div className={styles.relatedGrid}>
+              <HorizontalCarousel className={styles.relatedGrid}>
                 {relatedSeriesPosts.map((sp, idx) => (
                   <div key={sp.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${sp.slug}`, sp.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.relatedCard}>
                     <div className={styles.relatedCardImage}>
@@ -418,7 +422,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
                     </div>
                     <div className={styles.relatedCardBody}>
                       <div className={styles.relatedCardMeta}>
-                        <span className={styles.relatedCardOrder}>#{(sp.series_order ?? idx) + 1}</span>
+                        <span className={styles.relatedCardOrder}>#{idx + 1}</span>
                         {sp.category && <span className={styles.relatedCardCategory}>{sp.category}</span>}
                       </div>
                       <span className={styles.relatedCardTitle}>
@@ -435,7 +439,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
                     </div>
                   </div>
                 ))}
-              </div>
+              </HorizontalCarousel>
             </section>
           )}
 
@@ -451,7 +455,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
 
           <div className={styles.footerNav}>
             <Link href="/posts" className={styles.footerLink}>
-              <span className={styles.footerArrow}>&larr;</span> <T k="postDetail.backToList" />
+              <ArrowLeft size={16} className={styles.footerArrow} /> <T k="postDetail.backToList" />
             </Link>
           </div>
         </>
@@ -479,7 +483,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
               {currentSeriesIdx + 1} / {seriesPosts.length}
             </span>
             <span className={`${styles.seriesChevron} ${seriesOpen ? styles.seriesChevronOpen : ""}`}>
-              <ChevronDown size={14} strokeWidth={1.5} />
+              <ChevronRight size={14} strokeWidth={1.5} />
             </span>
           </button>
 
@@ -494,7 +498,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
                     onMouseLeave={handleSeriesLeave}
                   >
                     <span className={`${styles.seriesIndicator} ${sp.id === post.id ? styles.seriesIndicatorActive : ""}`}><ChevronRight size={16} strokeWidth={2.5} /></span>
-                    <span className={styles.seriesNum}>#{(sp.series_order ?? idx) + 1}</span>
+                    <span className={styles.seriesNum}>#{idx + 1}</span>
                     {sp.id === post.id ? (
                       <span>{viewLang === "en" && sp.title_en ? sp.title_en : sp.title}</span>
                     ) : (
