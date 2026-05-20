@@ -148,7 +148,20 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
     }
 
     /* ---- Button (기본) ---- */
-    const { onClick, type, ...buttonRest } = rest as ButtonAsButton;
+    // onDrag/onDragStart/onDragEnd/onAnimation* — framer-motion 의 motion.button 이 이름 같지만 다른 시그니처라 spread 시 타입 충돌
+    const {
+      onClick,
+      type,
+      onDrag: _onDrag,
+      onDragStart: _onDragStart,
+      onDragEnd: _onDragEnd,
+      onAnimationStart: _onAnimationStart,
+      onAnimationEnd: _onAnimationEnd,
+      onAnimationIteration: _onAnimationIteration,
+      ...buttonRest
+    } = rest as ButtonAsButton;
+    void _onDrag; void _onDragStart; void _onDragEnd;
+    void _onAnimationStart; void _onAnimationEnd; void _onAnimationIteration;
 
     const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
       if (!soundDisabled && !isDisabled) playSound("click");
