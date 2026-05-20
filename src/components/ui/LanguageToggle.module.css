@@ -1,8 +1,9 @@
-/* Language Toggle Container */
+/* Language Toggle Container — 옆에 놓이는 ShareButton / Button size="xs" 와 동일 높이 (28px).
+   border-strong (2px) + font-xs 기준 padding 으로 자연 28px 가 되는 다른 버튼들과 align. */
 .toggle {
   display: flex;
   align-items: center;
-  height: var(--button-h-sm);
+  height: 28px;
   padding: 0;
   border: var(--border-strong);
   position: relative;

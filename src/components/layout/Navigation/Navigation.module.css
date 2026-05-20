@@ -151,20 +151,28 @@
 .navActions {
   position: relative;
   display: flex;
-  gap: 0;
   align-items: center;
-  transition:
-    gap var(--duration-moderate) var(--ease-material),
-    opacity 0.4s ease;
+  /* gap 제거 — actionBtn 의 내부 padding(spacing-xs) 이 인접 버튼의 아이콘 사이를 2*padding 만큼
+     자동으로 띄워줘서 추가 gap 불필요. */
+  gap: 0;
+  /* Optical alignment — 원형 버튼(size-sm = 32px) 안의 아이콘(12px) 이 페이지 콘텐츠 우측 edge 와
+     같은 위치에서 끝나도록 (32 - 12) / 2 = 10px 만큼 음수 margin.
+     hit area 는 그대로, 시각적 위치만 페이지 edge 와 정렬.
+     logo 는 텍스트라 visual edge = 글자 시작점이 이미 page-px 와 일치 → 좌측은 조정 불필요. */
+  margin-right: calc((var(--size-sm) - 12px) / -2);
+  transition: opacity 0.4s ease;
 }
 
 .actionBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-xs);
-  width: var(--button-h-md);
-  height: var(--button-h-md);
+  /* size-md(38px) → size-sm(32px) — 좀 더 컴팩트하고 좌우 spacing 부담 감소.
+     icon 12px + padding 4px = 20px → 32px 원 안에서 충분히 호흡. */
+  padding: var(--spacing-2xs);
+  width: var(--size-sm);
+  height: var(--size-sm);
+  flex-shrink: 0;
   border-radius: var(--radius-circle);
   color: var(--text-white);
   transition: opacity var(--duration-base) ease;
@@ -1369,7 +1377,7 @@
   }
 
   .navActions {
-    gap: var(--spacing-3xs);
+    gap: 0;
   }
 
   /* actionBtn size 는 base (button-h-md) 유지 — 모바일에서 갑자기 작아지지 않게 (사용자 요구사항).
@@ -1392,7 +1400,7 @@
   }
 
   .navActions {
-    gap: var(--spacing-3xs);
+    gap: 0;
   }
 
   .actionBtn {
