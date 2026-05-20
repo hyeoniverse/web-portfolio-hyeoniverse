@@ -42,6 +42,16 @@
   transform: rotate(180deg);
 }
 
+/* metric selector — label 우측에 inline. slim capsule (위아래 padding 작게, font 적당) */
+.metricControl {
+  margin-left: auto;
+}
+
+.metricControl button {
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  font-size: var(--font-size-2xs);
+}
+
 .list {
   display: flex;
   flex-direction: column;

@@ -29,11 +29,11 @@ import {
   ChevronLeft,
   BookOpen,
   LayoutGrid,
-  ArrowUp,
   Shuffle,
   Search as SearchIcon,
-  X,
+  Sparkles,
 } from "lucide-react";
+import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -232,7 +232,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
           : sortDir === "desc"
             ? "newest"
             : "oldest";
-  const [hoveredSort, setHoveredSort] = useState<string | null>(null);
   const [perPage, setPerPage] = useState(siteConf.posts.perPage ?? 10);
   const [activeSeries, setActiveSeries] = useState<string | null>(null);
   const [seriesList, setSeriesList] = useState<Series[]>(
@@ -394,6 +393,26 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     };
   }, [showTags, catExpanded]);
 
+  // catExpanded / showTags 일 때 filter bar 바깥 클릭 시 닫기 — non-stuck 상태에서도 동작.
+  // (sticky backdrop 은 isStuck 일 때만 렌더되므로 그 외 케이스 보완)
+  useEffect(() => {
+    if (!showTags && !catExpanded) return;
+    const handle = (e: MouseEvent) => {
+      const fb = filterBarRef.current;
+      if (!fb) return;
+      if (!fb.contains(e.target as Node)) {
+        setShowTags(false);
+        setCatExpanded(false);
+      }
+    };
+    // open 트리거 click 자체가 잡히지 않도록 다음 tick 에 등록
+    const t = setTimeout(() => document.addEventListener("mousedown", handle), 0);
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("mousedown", handle);
+    };
+  }, [showTags, catExpanded, filterBarRef]);
+
   useEffect(() => {
     stop();
     setInfinite(false);
@@ -409,6 +428,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     };
   }, [setInfinite, lenis, stop, start]);
 
+  const fetchAbortRef = useRef<AbortController | null>(null);
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
@@ -425,11 +445,24 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     params.set("page", String(page));
     params.set("limit", String(perPage));
 
-    const res = await fetch(`/api/posts?${params}`);
-    const data = await res.json();
-    setPosts(data.posts ?? []);
-    setTotalPages(data.totalPages ?? 1);
-    setLoading(false);
+    // 이전 pending 요청 cancel — 빠른 sort/필터 변경 시 race condition + 중복 카드 방지
+    fetchAbortRef.current?.abort();
+    const ac = new AbortController();
+    fetchAbortRef.current = ac;
+
+    try {
+      const res = await fetch(`/api/posts?${params}`, { signal: ac.signal });
+      const data = await res.json();
+      // 응답 도착 시점에 이미 새 요청이 시작됐다면 무시 (stale write 방지)
+      if (fetchAbortRef.current !== ac) return;
+      setPosts(data.posts ?? []);
+      setTotalPages(data.totalPages ?? 1);
+      setLoading(false);
+      fetchAbortRef.current = null;
+    } catch (err) {
+      if ((err as { name?: string }).name === "AbortError") return;
+      setLoading(false);
+    }
   }, [
     search,
     searchType,
@@ -604,7 +637,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     if (!activeSeries) return null;
     return seriesList.find((s) => s.id === activeSeries) ?? null;
   }, [activeSeries, seriesList]);
-  const activeSeriesTitle = activeSeriesObj?.title ?? null;
 
   /* 시리즈 row 는 모두 가로로 펼쳐서 native overflow-x 스크롤
      + Windows 마우스 휠을 가로로 변환 + 데스크톱 드래그 swipe (모바일 터치는 native 사용)
@@ -717,7 +749,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     };
   }, [seriesList.length, loadMoreSeries]);
 
-  const showBanner = pinnedPosts.length >= 1 && page === 1;
+  // 필터 활성 시 banner 숨김 — pinned 글이 현재 필터와 무관하게 노출돼 사용자가 혼란 받지 않게 +
+  // posts 가 0개일 때 empty 메시지 가려지는 문제 방지.
+  const hasActiveFilter = !!search || activeTags.size > 0 || !!activeSeries || !!activeCategory;
+  const showBanner = pinnedPosts.length >= 1 && page === 1 && !hasActiveFilter;
 
   const pageNumbers = useMemo(() => {
     if (totalPages <= 7)
@@ -808,7 +843,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             activeCategory={activeCategory}
             onCategoryChange={(cat) => {
               setActiveCategory(cat);
-              setCatExpanded(false);
+              // 카테고리 선택 시 자동으로 닫지 않음 — close 버튼 / filter bar 바깥 클릭 / 스크롤로만 닫힘
             }}
             expanded={catExpanded}
             onExpandChange={(v) => {
@@ -920,75 +955,75 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         <div className={styles.mainColumn}>
           {/* Series Row — posts loading 과 무관하게 항상 표시 */}
           <div className={styles.seriesSection}>
-            <div className={styles.seriesLabel}>
-              <Link href="/posts/series" className={styles.seriesLabelLink}>
-                <BookOpen size={14} />
-                <T
-                  k="postsPage.series"
-                  tooltip={t("postsPage.seriesTooltip")}
-                />
-                <ChevronRight size={12} className={styles.seriesLabelChevron} aria-hidden />
-              </Link>
-              {activeCategory && (
-                <span className={styles.seriesCategoryTag}>
-                  {activeCategory}
-                </span>
-              )}
-              <SegmentedControl
-                className={styles.seriesSortAlignEnd}
-                items={[
-                  { value: "default", label: t("postsPage.seriesSortDefault") },
-                  { value: "newest", label: t("postsPage.seriesSortNewest") },
-                  { value: "title", label: t("postsPage.seriesSortTitle") },
-                ]}
-                value={seriesSortBy === "random" ? "default" : seriesSortBy}
-                onChange={(v) =>
-                  handleSeriesSortClick(v as "default" | "newest" | "title")
-                }
-                sortDir={seriesSortDir}
-              />
-              <Tooltip
-                content={
-                  <>
-                    <div>{t("postsPage.sortRandom")}</div>
-                    <div>{t("postsPage.sortRandomTooltip")}</div>
-                  </>
-                }
-              >
-                <button
-                  type="button"
-                  className={`${styles.shuffleBtn} ${seriesSortBy === "random" ? styles.shuffleBtnActive : ""}`}
-                  onClick={() => {
-                    if (seriesSortBy === "random") {
-                      setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
-                    } else {
-                      setSeriesSortBy("random");
-                      setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
-                    }
-                  }}
-                  data-clickable="true"
-                  aria-label={t("postsPage.sortRandom")}
+            <div className={styles.sectionHeader}>
+              <div className={styles.sectionHeaderMain}>
+                <Link href="/posts/series" className={`${styles.sectionHeaderTitle} ${styles.sectionHeaderTitleLink}`}>
+                  <BookOpen size={14} />
+                  <span className={styles.sectionHeaderText}>
+                    <T
+                      k="postsPage.series"
+                      tooltip={t("postsPage.seriesTooltip")}
+                    />
+                  </span>
+                  <ChevronRight size={12} className={styles.sectionHeaderChevron} aria-hidden />
+                </Link>
+                <Tooltip
+                  content={
+                    <>
+                      <div>{t("postsPage.sortRandom")}</div>
+                      <div>{t("postsPage.sortRandomTooltip")}</div>
+                    </>
+                  }
                 >
-                  <Shuffle size={12} />
-                </button>
-              </Tooltip>
-              <div
-                className={`${styles.seriesSearchMorph} ${seriesSearchOpen ? styles.seriesSearchMorphOpen : ""}`}
-                onClick={() => { if (!seriesSearchOpen) setSeriesSearchOpen(true); }}
-                data-clickable="true"
-                title={!seriesSearchOpen ? t("postsPage.searchPlaceholder") : undefined}
-              >
-                <SearchIcon className={styles.seriesSearchMorphIcon} size={14} />
-                <input
-                  ref={seriesSearchInputRef}
-                  className={styles.seriesSearchMorphInput}
-                  type="text"
-                  value={seriesSearch}
-                  onChange={(e) => setSeriesSearch(e.target.value)}
-                  placeholder={t("postsPage.searchPlaceholder")}
-                  tabIndex={seriesSearchOpen ? 0 : -1}
-                  onClick={(e) => e.stopPropagation()}
-                  onBlur={() => { if (!seriesSearch.trim()) setSeriesSearchOpen(false); }}
+                  <button
+                    type="button"
+                    className={`${styles.shuffleBtn} ${seriesSortBy === "random" ? styles.shuffleBtnActive : ""}`}
+                    onClick={() => {
+                      if (seriesSortBy === "random") {
+                        setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
+                      } else {
+                        setSeriesSortBy("random");
+                        setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
+                      }
+                    }}
+                    data-clickable="true"
+                    aria-label={t("postsPage.sortRandom")}
+                  >
+                    <Shuffle size={12} />
+                  </button>
+                </Tooltip>
+                <div
+                  className={`${styles.seriesSearchMorph} ${seriesSearchOpen ? styles.seriesSearchMorphOpen : ""}`}
+                  onClick={() => { if (!seriesSearchOpen) setSeriesSearchOpen(true); }}
+                  data-clickable="true"
+                  title={!seriesSearchOpen ? t("postsPage.searchPlaceholder") : undefined}
+                >
+                  <SearchIcon className={styles.seriesSearchMorphIcon} size={14} />
+                  <input
+                    ref={seriesSearchInputRef}
+                    className={styles.seriesSearchMorphInput}
+                    type="text"
+                    value={seriesSearch}
+                    onChange={(e) => setSeriesSearch(e.target.value)}
+                    placeholder={t("postsPage.searchPlaceholder")}
+                    tabIndex={seriesSearchOpen ? 0 : -1}
+                    onClick={(e) => e.stopPropagation()}
+                    onBlur={() => { if (!seriesSearch.trim()) setSeriesSearchOpen(false); }}
+                  />
+                </div>
+              </div>
+              <div className={styles.sortWrap}>
+                <SegmentedControl
+                  items={[
+                    { value: "default", label: t("postsPage.seriesSortDefault") },
+                    { value: "newest", label: t("postsPage.seriesSortNewest") },
+                    { value: "title", label: t("postsPage.seriesSortTitle") },
+                  ]}
+                  value={seriesSortBy === "random" ? "default" : seriesSortBy}
+                  onChange={(v) =>
+                    handleSeriesSortClick(v as "default" | "newest" | "title")
+                  }
+                  sortDir={seriesSortDir}
                 />
               </div>
             </div>
@@ -1058,25 +1093,22 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                       </motion.div>
                     ))}
                   </AnimatePresence>
-                  <AnimatePresence>
-                    {filtered.length === 0 && (
-                      <motion.p
-                        key="empty"
-                        className={styles.seriesEmpty}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ delay: 0.35, duration: 0.25 }}
-                      >
-                        {q
-                          ? `${t("postsPage.noSeriesYet")} — "${seriesSearch.trim()}"`
-                          : activeCategory
-                          ? `${t("postsPage.noSeriesYet")} — ${activeCategory}`
-                          : t("postsPage.noSeriesYet")}
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
                 </div>
+                {/* Empty state — seriesRow 밖에 두어 mask-image / overflow 영향 없이 가운데 표시 */}
+                <AnimatePresence>
+                  {filtered.length === 0 && (
+                    <motion.p
+                      key="empty"
+                      className={styles.seriesEmpty}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ delay: 0.35, duration: 0.25 }}
+                    >
+                      {t("postsPage.noSeriesYet")}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
                   <button
                     type="button"
                     className={`${styles.seriesScrollBtn} ${styles.seriesScrollBtnRight}`}
@@ -1113,17 +1145,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                       {activeSeriesObj.category && (
                         <span className={styles.activeSeriesMetaCategory}>{activeSeriesObj.category}</span>
                       )}
-                      <span className={styles.activeSeriesMetaCount}>{activeSeriesObj.post_count ?? 0}개의 글</span>
+                      <span className={styles.activeSeriesMetaCount}>
+                        {activeSeriesObj.post_count ?? 0} {t("postsPage.postsCount")}
+                      </span>
                     </div>
-                    <button
-                      type="button"
-                      className={styles.activeSeriesMetaClear}
-                      onClick={() => setActiveSeries(null)}
-                      aria-label="시리즈 해제"
-                      data-clickable="true"
-                    >
-                      <X size={14} />
-                    </button>
                   </div>
                   {(() => {
                     const d = language === "en"
@@ -1136,155 +1161,17 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             </AnimatePresence>
           </div>
 
-          {/* Posts */}
-          {!loading && posts.length === 0 && !showBanner ? (
-            <div className={styles.emptyState}>
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                <line x1="8" y1="11" x2="14" y2="11" />
-              </svg>
-              <p className={styles.emptyTitle}>
-                {search
-                  ? `${t("postsPage.noResultsFor")} "${search}"`
-                  : activeTags.size > 0
-                    ? `${t("postsPage.noPostsTagged")} "${Array.from(activeTags).join(", ")}"`
-                    : activeSeries && activeSeriesTitle
-                      ? `${t("postsPage.noPostsInSeries")} "${activeSeriesTitle}"`
-                      : activeCategory
-                        ? `${t("postsPage.noPostsInCategory")} ${activeCategory}`
-                        : t("postsPage.noPostsYet")}
-              </p>
-              {(search ||
-                activeTags.size > 0 ||
-                activeSeries ||
-                activeCategory) && (
-                <button
-                  className={styles.emptyResetBtn}
-                  onClick={() => {
-                    setSearch("");
-                    setSearchType("all");
-                    clearActiveTags();
-                    setActiveSeries(null);
-                    setActiveCategory(null);
-                  }}
-                  data-clickable="true"
-                >
-                  <T
-                    k="postsPage.clearFilters"
-                    tooltip={t("postsPage.clearFiltersTooltip")}
-                  />
-                </button>
-              )}
-            </div>
-          ) : loading || posts.length > 0 ? (
-            <>
-              <div className={styles.postsLabel}>
-                <LayoutGrid size={14} />
-                <T k="postsPage.posts" tooltip={t("postsPage.postsTooltip")} />
-
-                <div
-                  className={styles.sortGroup}
-                  onMouseLeave={() => setHoveredSort(null)}
-                >
-                  {[
-                    {
-                      value: "date" as const,
-                      k: "postsPage.sortDate",
-                      tipK: "postsPage.sortDateTooltip",
-                    },
-                    {
-                      value: "popular" as const,
-                      k: "postsPage.sortPopular",
-                      tipK: "postsPage.sortPopularTooltip",
-                    },
-                    {
-                      value: "title" as const,
-                      k: "postsPage.sortTitle",
-                      tipK: "postsPage.sortTitleTooltip",
-                    },
-                  ].map((opt) => {
-                    const indicatorTarget = hoveredSort ?? sortBy;
-                    const showIndicator = opt.value === indicatorTarget;
-                    const isActive = opt.value === sortBy;
-                    return (
-                      <button
-                        key={opt.value}
-                        className={`${styles.sortBtn} ${isActive && showIndicator ? styles.sortBtnActive : ""}`}
-                        onClick={() => {
-                          if (sortBy === opt.value) {
-                            setSortDir((prev) =>
-                              prev === "asc" ? "desc" : "asc",
-                            );
-                          } else {
-                            setSortBy(opt.value);
-                            setSortDir(opt.value === "title" ? "asc" : "desc");
-                          }
-                        }}
-                        onMouseEnter={() => setHoveredSort(opt.value)}
-                        data-clickable="true"
-                      >
-                        {showIndicator && (
-                          <motion.span
-                            className={`${styles.sortIndicator} ${isActive ? styles.sortIndicatorActive : ""}`}
-                            layoutId="sortIndicator"
-                            transition={{
-                              type: "spring",
-                              stiffness: 500,
-                              damping: 32,
-                            }}
-                          />
-                        )}
-                        <span className={styles.sortBtnText}>
-                          <T k={opt.k} tooltip={t(opt.tipK)} />
-                          {isActive && (
-                            <ArrowUp
-                              size={10}
-                              className={styles.sortDirIcon}
-                              style={{
-                                transform:
-                                  sortDir === "desc"
-                                    ? "rotate(180deg)"
-                                    : "rotate(0deg)",
-                              }}
-                            />
-                          )}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {sortBy === "popular" && (
-                  <>
-                    <ChevronRight
-                      size={14}
-                      aria-hidden
-                      className={styles.popularSubArrow}
-                    />
-                    <SegmentedControl<"score" | "views" | "comments" | "likes">
-                      items={[
-                        { value: "score", label: <T k="postsPage.popularScore" /> },
-                        { value: "views", label: <T k="postsPage.popularViews" /> },
-                        { value: "comments", label: <T k="postsPage.popularComments" /> },
-                        { value: "likes", label: <T k="postsPage.popularLikes" /> },
-                      ]}
-                      value={popularSort}
-                      onChange={setPopularSort}
-                      className={styles.popularSubSort}
-                    />
-                  </>
-                )}
-
+          {/* Posts — sectionHeader 는 빈 상태에서도 항상 노출 (sort / perPage 등 컨트롤 접근 유지) */}
+          <>
+            <div className={styles.sectionHeader}>
+              <div className={styles.sectionHeaderMain}>
+                <span className={styles.sectionHeaderTitle}>
+                  <LayoutGrid size={14} />
+                  <span className={styles.sectionHeaderText}>
+                    <T k="postsPage.posts" tooltip={t("postsPage.postsTooltip")} />
+                  </span>
+                </span>
+                {/* shuffle + pageSize → postsLabelMain 끝 (4 element 한 묶음, mobile width 100%) */}
                 <Tooltip
                   content={
                     <>
@@ -1310,7 +1197,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                     <Shuffle size={12} />
                   </button>
                 </Tooltip>
-
                 <Select
                   value={String(perPage)}
                   options={PAGE_SIZE_OPTIONS}
@@ -1321,6 +1207,103 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   className={styles.pageSizeSelect}
                 />
               </div>
+                <div className={styles.sortWrap}>
+                  <SegmentedControl<"date" | "popular" | "title", "score" | "views" | "comments" | "likes">
+                    items={[
+                      { value: "date", label: <T k="postsPage.sortDate" tooltip={t("postsPage.sortDateTooltip")} /> },
+                      {
+                        value: "popular",
+                        label: <T k="postsPage.sortPopular" tooltip={t("postsPage.sortPopularTooltip")} />,
+                        subItems: [
+                          { value: "score", label: <T k="postsPage.popularScore" /> },
+                          { value: "views", label: <T k="postsPage.popularViews" /> },
+                          { value: "comments", label: <T k="postsPage.popularComments" /> },
+                          { value: "likes", label: <T k="postsPage.popularLikes" /> },
+                        ],
+                      },
+                      { value: "title", label: <T k="postsPage.sortTitle" tooltip={t("postsPage.sortTitleTooltip")} /> },
+                    ]}
+                    value={(sortBy === "random" ? "date" : sortBy) as "date" | "popular" | "title"}
+                    onChange={(v) => {
+                      if (sortBy === v) {
+                        setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+                      } else {
+                        setSortBy(v);
+                        setSortDir(v === "title" ? "asc" : "desc");
+                      }
+                    }}
+                    sortDir={sortBy !== "popular" && sortBy !== "random" ? sortDir : undefined}
+                    subValue={popularSort}
+                    onSubChange={setPopularSort}
+                    subVariant="nested"
+                    onBack={() => {
+                      setSortBy("date");
+                      setSortDir("desc");
+                    }}
+                  />
+                </div>
+              </div>
+              {!loading && posts.length === 0 ? (
+                activeSeries ? (
+                  /* 시리즈 선택 + posts 0개 — "Coming Soon" 톤. 시리즈가 존재하지만 콘텐츠 준비중인 케이스. */
+                  <div className={`${styles.emptyState} ${styles.emptyStateComingSoon}`}>
+                    <span className={styles.comingSoonIconWrap} aria-hidden>
+                      <Sparkles size={28} className={styles.comingSoonIconA} />
+                      <Sparkles size={16} className={styles.comingSoonIconB} />
+                      <Sparkles size={12} className={styles.comingSoonIconC} />
+                    </span>
+                    <p className={styles.comingSoonTitle}>{t("postsPage.comingSoon")}</p>
+                    <p className={styles.comingSoonSub}>
+                      {t("postsPage.noPostsInSeriesYet")} {t("postsPage.comingSoonSub")}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      onClick={() => setActiveSeries(null)}
+                    >
+                      <T k="postsPage.clearSeries" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className={styles.emptyState}>
+                    <svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      <line x1="8" y1="11" x2="14" y2="11" />
+                    </svg>
+                    <p className={styles.emptyTitle}>{t("postsPage.noPostsYet")}</p>
+                    {(search ||
+                      activeTags.size > 0 ||
+                      activeCategory) && (
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        onClick={() => {
+                          setSearch("");
+                          setSearchType("all");
+                          clearActiveTags();
+                          setActiveCategory(null);
+                        }}
+                      >
+                        <T
+                          k="postsPage.clearFilters"
+                          tooltip={t("postsPage.clearFiltersTooltip")}
+                        />
+                      </Button>
+                    )}
+                  </div>
+                )
+              ) : (
+                <>
               <div
                 ref={gridRef}
                 className={`${styles.grid} ${activeSeries ? styles.gridSeries : ""} ${loading ? styles.gridLoading : ""}`}
@@ -1341,9 +1324,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                         !activeSeries && (type === "wide" || type === "banner")
                           ? styles.gridWide
                           : "";
-                      // 시리즈 필터링 시 — 각 글의 series_order 를 step 번호로 (없으면 idx+1)
+                      // 시리즈 필터링 시 — DB 의 series_order 값이 비연속/중복일 수 있어 sort 후 idx+1 로 1-based 일관 표시
                       const stepNumber = activeSeries
-                        ? String(post.series_order ?? idx + 1).padStart(2, "0")
+                        ? String(idx + 1).padStart(2, "0")
                         : null;
                       return (
                         <div
@@ -1423,8 +1406,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   </button>
                 </div>
               )}
-            </>
-          ) : null}
+                </>
+              )}
+          </>
         </div>
 
         {/* ── Sidebar ── */}

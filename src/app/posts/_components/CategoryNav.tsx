@@ -72,6 +72,21 @@ export default function CategoryNav({
     [categories, extraBilingual],
   );
 
+  // 활성 카테고리를 "All" 다음 첫 자리로 pin — collapsed (1 row) 일 때 항상 visible 보장.
+  // active 가 +N 안에 가려져있는 경우를 방지. framer-motion layout 으로 reorder 부드럽게 처리.
+  const orderedCategories = useMemo(() => {
+    if (!activeCategory) return allCategories;
+    const idx = allCategories.findIndex(
+      (c) => c.ko === activeCategory || c.en === activeCategory,
+    );
+    if (idx < 0) return allCategories;
+    return [
+      allCategories[idx],
+      ...allCategories.slice(0, idx),
+      ...allCategories.slice(idx + 1),
+    ];
+  }, [allCategories, activeCategory]);
+
   // ko 또는 en 값으로 매칭
   const isActive = (cat: BilingualCategory) =>
     activeCategory === cat.ko || activeCategory === cat.en;
@@ -107,13 +122,31 @@ export default function CategoryNav({
     prevExpandedRef.current = expanded;
   }, [expanded, rowHeight, fullHeight]);
 
-  // 초기 렌더 시 maxHeight 설정
+  // 초기 렌더 + rowHeight 가 ResizeObserver 측정으로 갱신될 때마다 maxHeight 동기화.
+  // (default rowHeight 46 → 측정 후 28 로 바뀌어도 maxHeight 가 안 따라가면 두 번째 row 잔여가 노출됨)
+  // expanded 중엔 useLayoutEffect 의 transition 로직이 처리하므로 collapsed 일 때만 동기화.
   useEffect(() => {
     const el = navRef.current;
     if (el && !expanded) {
       el.style.maxHeight = `${rowHeight}px`;
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [rowHeight, expanded]);
+
+  // orderedCategories 변경 (active pin 으로 reorder) 시 overflow count 재계산.
+  // ResizeObserver 는 nav 크기 변화에만 fire — 순서 바뀜만으론 트리거 안 되어 +N 값이 stale 됨.
+  useLayoutEffect(() => {
+    const el = navRef.current;
+    if (!el || expanded) return;
+    const buttons = el.querySelectorAll<HTMLButtonElement>("button");
+    if (buttons.length === 0) return;
+    const firstTop = buttons[0].offsetTop;
+    let hidden = 0;
+    buttons.forEach((btn) => {
+      if (btn.offsetTop > firstTop) hidden++;
+    });
+    setOverflowCount(hidden);
+    setFullHeight(el.scrollHeight);
+  }, [orderedCategories, expanded]);
 
   const handleTransitionEnd = () => {
     setSettled(true);
@@ -151,9 +184,11 @@ export default function CategoryNav({
           All
           {indicatorId === "__all__" && indicatorEl}
         </button>
-        {allCategories.map((cat) => (
-          <button
+        {orderedCategories.map((cat) => (
+          <motion.button
             key={cat.ko}
+            layout="position"
+            transition={{ type: "spring", stiffness: 400, damping: 32 }}
             className={`${styles.btn} ${isActive(cat) ? styles.btnActive : ""}`}
             onClick={() => onCategoryChange(isActive(cat) ? null : cat.ko)}
             onMouseEnter={() => setHoveredId(cat.ko)}
@@ -161,7 +196,7 @@ export default function CategoryNav({
           >
             <T ko={cat.ko} en={cat.en} delay={0} alwaysTooltip />
             {indicatorId === cat.ko && indicatorEl}
-          </button>
+          </motion.button>
         ))}
       </div>
       {(overflowCount > 0 || expanded) && (
