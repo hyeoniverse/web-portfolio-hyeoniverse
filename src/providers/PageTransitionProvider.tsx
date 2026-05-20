@@ -20,8 +20,10 @@ interface TransitionState {
 }
 
 interface PageTransitionContextValue {
-  startTransition: (image: string, rect: DOMRect, targetId: string) => void;
-  navigateWithTransition: (href: string, image: string, rect: DOMRect) => void;
+  startTransition: (image: string, rect: DOMRect, targetId: string, color?: string) => void;
+  /** color: image 가 없을 때 caller 가 카드 cover 색을 넘기면 morph 블록 background 로 사용.
+   *  현재는 시그니처만 받아두고 PLACEHOLDER_IMAGE 폴백 — 본격 morph 재설계는 별도 PR. */
+  navigateWithTransition: (href: string, image: string, rect: DOMRect, color?: string) => void;
   endTransition: () => void;
   isTransitioning: boolean;
 }
@@ -77,7 +79,8 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     });
   }, []);
 
-  const startTransition = useCallback((image: string, rect: DOMRect, targetId: string) => {
+  const startTransition = useCallback((image: string, rect: DOMRect, targetId: string, _color?: string) => {
+    void _color;
     clearTimers();
     endRequestedRef.current = false;
     setState({ image: image || PLACEHOLDER_IMAGE, rect, targetId, phase: "init" });
@@ -85,7 +88,8 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
     timerRef.current.push(safety);
   }, [endTransition]);
 
-  const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect) => {
+  const navigateWithTransition = useCallback((href: string, image: string, rect: DOMRect, _color?: string) => {
+    void _color;
     clearTimers();
     endRequestedRef.current = false;
     setState({ image: image || PLACEHOLDER_IMAGE, rect, targetId: href, phase: "init" });
