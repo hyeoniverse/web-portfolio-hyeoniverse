@@ -40,29 +40,40 @@ function fnv1a(s: string): number {
   return hash >>> 0;
 }
 
-/** 5가지 톤 스타일 — 인접 색이 같은 톤으로만 안 나오게 cycle.
+/** 5가지 톤 스타일 — 인접 색이 같은 톤으로만 안 나오게 cycle (default).
+ *  특정 tone 강제 시 (tone prop) 페이지 전체 톤 일관성 유지하며 hue 만 다양화 가능.
  *  값은 OKLCH 의 L (lightness 0~1) + chroma 의 안전 anchor.safeChroma 대비 비율 */
-const TONE_STYLES = [
+const TONE_STYLES = {
   // vivid: 진한 채도 + 중간 명도 (선명한 강조 톤)
-  { lBase: 0.62, lRange: 0.06, cRatioBase: 0.90, cRatioRange: 0.10 },
+  vivid:  { lBase: 0.62, lRange: 0.06, cRatioBase: 0.90, cRatioRange: 0.10 },
   // pastel: 낮은 채도 + 높은 명도 (부드러운 파스텔)
-  { lBase: 0.86, lRange: 0.06, cRatioBase: 0.30, cRatioRange: 0.15 },
+  pastel: { lBase: 0.86, lRange: 0.06, cRatioBase: 0.30, cRatioRange: 0.15 },
   // muted: 중간 채도 + 살짝 낮은 명도 (얼리 / 차분)
-  { lBase: 0.58, lRange: 0.08, cRatioBase: 0.40, cRatioRange: 0.15 },
+  muted:  { lBase: 0.58, lRange: 0.08, cRatioBase: 0.40, cRatioRange: 0.15 },
   // deep: 진한 채도 + 낮은 명도 (어두운 jewel 톤)
-  { lBase: 0.48, lRange: 0.06, cRatioBase: 0.80, cRatioRange: 0.15 },
+  deep:   { lBase: 0.48, lRange: 0.06, cRatioBase: 0.80, cRatioRange: 0.15 },
   // soft: 중상 채도 + 중상 명도 (밝지만 채도 있는 톤)
-  { lBase: 0.74, lRange: 0.06, cRatioBase: 0.55, cRatioRange: 0.15 },
-] as const;
+  soft:   { lBase: 0.74, lRange: 0.06, cRatioBase: 0.55, cRatioRange: 0.15 },
+} as const;
+
+const TONE_KEYS = Object.keys(TONE_STYLES) as Array<keyof typeof TONE_STYLES>;
+export type SeededColorTone = keyof typeof TONE_STYLES;
 
 /**
  * seed (+ optional index) 기반 결정적 OKLCH 색 생성 (sRGB gamut 안전)
  * @param seed  같은 객체엔 같은 색이 나오도록 묶을 키 (예: id, slug)
  * @param isDark 다크 모드 여부 — lightness 미세 조정
  * @param index  주어지면 anchor cycle 로 hue 분포 (가장 균등)
+ * @param tone   특정 tone 강제. 미지정 시 index/hash 로 cycle.
+ *               여러 객체의 톤을 통일하면서 hue 만 다양하게 하려면 사용
  * @returns `oklch(L C H)` CSS 함수 문자열
  */
-export function generateSeededColor(seed: string, isDark: boolean, index?: number): string {
+export function generateSeededColor(
+  seed: string,
+  isDark: boolean,
+  index?: number,
+  tone?: SeededColorTone,
+): string {
   const h = fnv1a(seed);
 
   // hue: 12 anchor cycle + ±12° jitter
@@ -73,21 +84,22 @@ export function generateSeededColor(seed: string, isDark: boolean, index?: numbe
   const jitterPct = (((h >>> 5) & 0xff) / 0xff - 0.5) * 2;
   const hue = (anchor.hue + jitterPct * 12 + 360) % 360;
 
-  // 톤: index % 3 으로 vivid → pastel → muted 순환 (index 없으면 hash)
-  const toneIdx = index !== undefined
-    ? index % TONE_STYLES.length
-    : (h >>> 13) % TONE_STYLES.length;
-  const tone = TONE_STYLES[toneIdx];
+  // 톤: tone prop 명시 시 강제, 없으면 index/hash 로 cycle
+  const toneKey: SeededColorTone = tone
+    ?? (index !== undefined
+      ? TONE_KEYS[index % TONE_KEYS.length]
+      : TONE_KEYS[(h >>> 13) % TONE_KEYS.length]);
+  const toneStyle = TONE_STYLES[toneKey];
 
   // chroma: anchor 의 safeChroma 에 톤 ratio 적용 → 어떤 hue 든 sRGB gamut 안전
   const cJitter = (((h >>> 9) & 0x1f) / 31);
-  const chromaRatio = tone.cRatioBase + cJitter * tone.cRatioRange;
+  const chromaRatio = toneStyle.cRatioBase + cJitter * toneStyle.cRatioRange;
   const chroma = anchor.safeChroma * chromaRatio;
 
   // lightness: 다크 모드에서 살짝 낮게 (-0.04)
   const lShift = isDark ? -0.04 : 0;
   const lJitter = (((h >>> 17) & 0x1f) / 31);
-  const lightness = tone.lBase + lShift + lJitter * tone.lRange;
+  const lightness = toneStyle.lBase + lShift + lJitter * toneStyle.lRange;
 
   return `oklch(${(lightness * 100).toFixed(1)}% ${chroma.toFixed(3)} ${hue.toFixed(1)})`;
 }
