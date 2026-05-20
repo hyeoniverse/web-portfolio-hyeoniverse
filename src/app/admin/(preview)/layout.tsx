@@ -4,7 +4,10 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Preview",
+  title: {
+    template: "Admin | %s",
+    default: "Admin",
+  },
 };
 
 export default async function PreviewLayout({

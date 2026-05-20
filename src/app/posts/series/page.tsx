@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: { absolute: "Hyeoniverse | Series" },
+  title: "Series",
   description: "모든 시리즈 목록",
 };
 
