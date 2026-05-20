@@ -190,9 +190,12 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
           const preview = previews[postIndex];
           const previewTitle = preview ? (language === "ko" ? preview.title : (preview.title_en || preview.title)) : `Post ${postIndex + 1}`;
           const previewCover = preview?.cover_image;
-          // cover 없는 layer 는 seeded color bg. tone "soft" 통일 + hue 만 다양 (postIndex 기반 anchor cycle)
+          // cover 없는 layer 는 seeded color bg. tone "soft" 통일.
+          // anchor 12개 중 postIndex × 3 step 으로 멀리 분산 → 같은 시리즈 안 layer 들이 빨강/파랑/보라 처럼 spectrum 전체 cover
+          // (index 더해 시리즈마다 starting anchor 도 다름)
+          const layerAnchorIdx = postIndex * 3 + index;
           const layerBg = !previewCover
-            ? generateSeededColor(preview?.id ?? `${series.id}:${postIndex}`, theme === "dark", index + postIndex + 1, "soft")
+            ? generateSeededColor(preview?.id ?? `${series.id}:${postIndex}`, theme === "dark", layerAnchorIdx, "soft")
             : undefined;
           const layerContent = (
             <>
