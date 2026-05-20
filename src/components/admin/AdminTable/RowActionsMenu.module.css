@@ -1,0 +1,130 @@
+/* trigger — kebab 아이콘 */
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-base) ease;
+}
+
+.trigger:hover,
+.triggerOpen {
+  color: var(--text-accent);
+}
+
+/* dropdown / sheet 안쪽 body — radius-2xl 에 맞춰 padding 2xs */
+.body {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: var(--spacing-2xs);
+}
+
+/* touch sheet 에서는 width 자동, 외부 padding 은 sheet 가 처리 */
+@media (pointer: coarse) {
+  .body {
+    width: auto;
+    padding: 0;
+  }
+}
+
+/* ── Move panel (이동 메뉴 항목 inline 펼침) ── */
+.movePanel {
+  overflow: hidden;
+}
+
+.moveBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+}
+
+.meta {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.meta strong {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.quickRow {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.quickBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+  height: var(--size-sm);
+  padding: 0 var(--spacing-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.moveBody .quickBtn:hover {
+  border-color: var(--border-strong-color);
+  color: var(--text-primary);
+}
+
+.posRow {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.posInput {
+  flex: 1;
+  min-width: 0;
+  height: var(--size-sm);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.posInput::-webkit-inner-spin-button,
+.posInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.applyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--size-sm);
+  padding: 0 var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.moveBody .applyBtn:hover {
+  opacity: 0.85;
+}

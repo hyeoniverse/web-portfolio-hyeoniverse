@@ -1,0 +1,57 @@
+/* ── MenuItem — Popover 안 메뉴 항목 (아이콘 + 라벨 + 옵션 trailing) ── */
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover,
+.itemActive {
+  background: var(--bg-tertiary);
+}
+
+.itemIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+
+.item:hover .itemIcon,
+.itemActive .itemIcon {
+  color: var(--text-primary);
+}
+
+.itemLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+/* trailing — chevron 등. compound (0,2,0) — 글로벌 theme transition 이김 */
+.item .itemTrailing {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  transition: transform 0.18s var(--ease-material);
+}
+
+.itemTrailingOpen {
+  transform: rotate(90deg);
+}
+
+/* ── MenuDivider — 1px border-top (sub-pixel rounding 회피) ── */
+.divider {
+  height: 0;
+  margin: var(--spacing-2xs) var(--spacing-sm);
+  border-top: 1px solid var(--border-light-color);
+}

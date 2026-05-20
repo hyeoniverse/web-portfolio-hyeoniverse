@@ -23,7 +23,6 @@ import AdminTable, {
   type AdminTableColumn,
 } from "@/components/admin/AdminTable/AdminTable";
 import SubTable, { subTableStyles as st, type SubTableColumn } from "@/components/admin/SubTable/SubTable";
-import MoveDialog from "@/components/admin/MoveDialog";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { useModalStore } from "@/stores/modalStore";
 import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
@@ -122,7 +121,8 @@ export default function AdminWorksPage() {
   const [trashOpen, setTrashOpen] = useState(false);
   const [trashSearch, setTrashSearch] = useState("");
   const [trashSearchType, setTrashSearchType] = useState<"all" | "title" | "content">("all");
-  const [trashSort, setTrashSort] = useState<"newest" | "oldest">("newest");
+  const [trashSortBy, setTrashSortBy] = useState<"deleted" | "created" | "name">("deleted");
+  const [trashSortDir, setTrashSortDir] = useState<"asc" | "desc">("desc");
   const [trashPage, setTrashPage] = useState(1);
   const [trashPerPage, setTrashPerPage] = useState(10);
 
@@ -261,14 +261,20 @@ export default function AdminWorksPage() {
       });
     }
     list.sort((a, b) => {
-      const da = new Date(a.deleted_at!).getTime();
-      const db = new Date(b.deleted_at!).getTime();
-      return trashSort === "newest" ? db - da : da - db;
+      if (trashSortBy === "name") {
+        const r = (a.title || "").localeCompare(b.title || "");
+        return trashSortDir === "asc" ? r : -r;
+      }
+      const field = trashSortBy === "created" ? a.created_at : a.deleted_at;
+      const fieldB = trashSortBy === "created" ? b.created_at : b.deleted_at;
+      const da = field ? new Date(field).getTime() : 0;
+      const db = fieldB ? new Date(fieldB).getTime() : 0;
+      return trashSortDir === "asc" ? da - db : db - da;
     });
     return list;
-  }, [trashWorks, trashSearch, trashSearchType, trashSort]);
+  }, [trashWorks, trashSearch, trashSearchType, trashSortBy, trashSortDir]);
 
-  useEffect(() => { setTrashPage(1); }, [trashSearch, trashSearchType, trashSort]);
+  useEffect(() => { setTrashPage(1); }, [trashSearch, trashSearchType, trashSortBy, trashSortDir]);
 
   const handleDelete = async (id: string) => {
     await fetch(`/api/works/${id}`, { method: "DELETE" });
@@ -331,26 +337,17 @@ export default function AdminWorksPage() {
     }
   };
 
-  /** 위치 이동 dialog 핸들러 — 맨 앞 / 맨 뒤 / 특정 위치로 이동.
-      서버 PATCH 가 자동으로 다른 work 들 shift 처리 (skipShift=false) */
-  const handleMove = useCallback((target: Work) => {
-    openModal(
-      <MoveDialog
-        currentOrder={target.sort_order}
-        totalCount={totalCount || works.length}
-        onMove={async (newOrder) => {
-          if (newOrder === target.sort_order) return;
-          await fetch(`/api/works/${target.id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sort_order: newOrder }),
-          });
-          fetchWorks();
-        }}
-      />,
-      { id: "work-move", header: { title: t("admin.works.moveTitle") }, closeButton: true, width: "360px" },
-    );
-  }, [openModal, totalCount, works.length, fetchWorks, t]);
+  /** 위치 이동 — popover 에서 선택한 newOrder 로 PATCH.
+      서버가 다른 work 들 shift 처리 (skipShift=false) */
+  const handleMove = useCallback(async (target: Work, newOrder: number) => {
+    if (newOrder === target.sort_order) return;
+    await fetch(`/api/works/${target.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sort_order: newOrder }),
+    });
+    fetchWorks();
+  }, [fetchWorks]);
 
 
   const columns: AdminTableColumn<Work>[] = useMemo(
@@ -407,6 +404,11 @@ export default function AdminWorksPage() {
       publishedTooltip: t("admin.works.publishedTooltip"),
       unpublishedTooltip: t("admin.works.unpublishedTooltip"),
       move: t("admin.common.moveToPosition"),
+      moveCurrent: t("admin.common.moveCurrent"),
+      moveToTop: t("admin.common.moveToTop"),
+      moveToBottom: t("admin.common.moveToBottom"),
+      apply: t("admin.common.apply"),
+      exportItem: t("admin.works.exportMd"),
     }),
     [t],
   );
@@ -500,17 +502,22 @@ export default function AdminWorksPage() {
         emptyMessage={t("admin.works.trashEmpty")}
         filterBar={
           <div className={shell.filterBar}>
-            <SegmentedControl
-              items={[{ value: "date", label: t("admin.works.sortDeletedAt") }]}
-              value="date"
-              sortDir={trashSort === "oldest" ? "asc" : "desc"}
-              onChange={() => setTrashSort((p) => p === "newest" ? "oldest" : "newest")}
-            />
-            <Select
-              value={String(trashPerPage)}
-              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
-              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
-              className={shell.filterPageSize}
+            <SegmentedControl<"deleted" | "created" | "name">
+              items={[
+                { value: "deleted", label: t("admin.works.sortDeletedAt") },
+                { value: "created", label: t("admin.works.sortCreatedAt") },
+                { value: "name", label: t("admin.works.sortName") },
+              ]}
+              value={trashSortBy}
+              sortDir={trashSortDir}
+              onChange={(v) => {
+                if (v === trashSortBy) {
+                  setTrashSortDir((d) => d === "asc" ? "desc" : "asc");
+                } else {
+                  setTrashSortBy(v);
+                  setTrashSortDir("desc");
+                }
+              }}
             />
             <SearchCapsule
               typeSelector={{
@@ -526,6 +533,12 @@ export default function AdminWorksPage() {
               onSearchChange={setTrashSearch}
               placeholder={t("admin.works.trashSearch")}
               className={shell.filterSearch}
+            />
+            <Select
+              value={String(trashPerPage)}
+              options={[{ value: "10", label: "10" }, { value: "20", label: "20" }, { value: "50", label: "50" }]}
+              onChange={(v) => { setTrashPerPage(Number(v)); setTrashPage(1); }}
+              className={shell.filterPageSize}
             />
           </div>
         }
@@ -660,12 +673,6 @@ role: 풀스택 개발
             {t("admin.works.resetFilters")}
           </button>
         )}
-        <Select
-          value={String(perPage)}
-          options={PAGE_SIZE_OPTIONS}
-          onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
-          className={shell.filterPageSize}
-        />
         <SearchCapsule
           typeSelector={{
             value: searchType,
@@ -681,6 +688,12 @@ role: 풀스택 개발
           placeholder={t("admin.works.search")}
           align="left"
           className={shell.filterSearch}
+        />
+        <Select
+          value={String(perPage)}
+          options={PAGE_SIZE_OPTIONS}
+          onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+          className={shell.filterPageSize}
         />
       </div>
 
