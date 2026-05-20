@@ -8,6 +8,7 @@ import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Textarea from "@/components/ui/Textarea";
+import Button from "@/components/ui/Button";
 import styles from "./CommentForm.module.css";
 
 const Fireworks = dynamic(() => import("@/components/effects/Fireworks"), {
@@ -289,21 +290,13 @@ export default function CommentForm({
 
       <div className={styles.actions}>
         {formHint && <span className={styles.formHint}>{formHint}</span>}
-        <button
-          type="submit"
-          className={styles.submitBtn}
-          disabled={submitting}
-        >
+        <Button type="submit" variant="primary" size="xs" disabled={submitting}>
           {submitting ? <T k="comments.posting" /> : parentId ? <T k="comments.reply" /> : <T k="comments.submit" />}
-        </button>
+        </Button>
         {onCancel && (
-          <button
-            type="button"
-            className={styles.cancelBtn}
-            onClick={onCancel}
-          >
+          <Button type="button" variant="outline" size="xs" onClick={onCancel}>
             <T k="comments.cancel" />
-          </button>
+          </Button>
         )}
       </div>
     </form>
