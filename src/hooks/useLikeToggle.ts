@@ -11,22 +11,23 @@ interface UseLikeToggleResult {
   count: number;
   liked: boolean;
   busy: boolean;
-  toggle: () => Promise<void>;
+  toggle: () => void;
 }
 
 /**
- * post/work like 카운트 + 토글 — 두 컴포넌트가 동일 패턴(낙관적 update + likeRef 디바운스 + busy state)을
- * 복붙하고 있던 걸 한 곳으로.
+ * post/work like 카운트 + 토글 — Optimistic UI (SNS 표준 패턴).
  *
  * - mount 시 endpoint GET 으로 초기값 fetch
- * - toggle() 은 progress 중 재호출을 likeRef 로 차단, 낙관적 변경 후 응답 데이터로 정합성 보정
+ * - toggle() 은 즉시 UI 변경 + 백그라운드 sync. disabled / inFlight 차단 없음 → 빠른 연속 toggle 가능.
+ * - 진행 중인 request 가 있으면 AbortController 로 cancel 후 새 request — last-write-wins.
+ * - busy state 는 wave animation 시각화용. UI 차단 X.
  * - endpoint 가 null 이면 fetch 없이 idle 상태 유지
  */
 export function useLikeToggle({ endpoint }: UseLikeToggleOptions): UseLikeToggleResult {
   const [count, setCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [busy, setBusy] = useState(false);
-  const inFlightRef = useRef(false);
+  const pendingRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!endpoint) return;
@@ -41,22 +42,37 @@ export function useLikeToggle({ endpoint }: UseLikeToggleOptions): UseLikeToggle
     return () => ac.abort();
   }, [endpoint]);
 
-  const toggle = useCallback(async () => {
-    if (!endpoint || inFlightRef.current) return;
-    inFlightRef.current = true;
-    setBusy(true);
-    // 낙관적 update
+  const toggle = useCallback(() => {
+    if (!endpoint) return;
+
+    // 즉시 UI 변경 (낙관적)
     setLiked((prev) => !prev);
     setCount((c) => (liked ? Math.max(0, c - 1) : c + 1));
-    try {
-      const res = await fetch(endpoint, { method: "POST" });
-      const data = await res.json();
-      setCount(data.count);
-      setLiked(data.liked);
-    } finally {
-      inFlightRef.current = false;
-      setBusy(false);
-    }
+    setBusy(true);
+
+    // 이전 pending request cancel — race condition 방지
+    pendingRef.current?.abort();
+    const ac = new AbortController();
+    pendingRef.current = ac;
+
+    fetch(endpoint, { method: "POST", signal: ac.signal })
+      .then((r) => r.json())
+      .then((data) => {
+        // 이 응답이 가장 최신 request 인 경우만 적용 (cancel 안 된 경우)
+        if (pendingRef.current === ac) {
+          setCount(data.count);
+          setLiked(data.liked);
+          setBusy(false);
+          pendingRef.current = null;
+        }
+      })
+      .catch(() => {
+        // abort 된 경우 — 새 toggle 이 이미 진행 중이라 busy 유지. network error 면 busy 종료
+        if (pendingRef.current === ac) {
+          setBusy(false);
+          pendingRef.current = null;
+        }
+      });
   }, [endpoint, liked]);
 
   return { count, liked, busy, toggle };

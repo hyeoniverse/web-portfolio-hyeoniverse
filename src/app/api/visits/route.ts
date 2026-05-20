@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getIp } from "@/utils/getIp";
 import { jsonOk } from "@/lib/api/response";
 import { parseUserAgent } from "@/utils/uaParser";
@@ -20,7 +21,17 @@ export async function GET() {
 }
 
 // POST /api/visits — 방문 기록 (IP + date upsert) + UA / referrer 메타 저장
+// 정책:
+//   - admin (로그인한 본인) 의 방문은 카운트 제외 — /api/posts/[id]/view 와 동일 정책 통일
+//   - bot 의 방문도 카운트 제외 — 크롤러 노이즈 차단
 export async function POST(request: Request) {
+  // admin 인지 확인 (cookie 기반) — 본인 방문은 skip
+  const server = await createServerClient();
+  const { data: { user } } = await server.auth.getUser();
+  if (user) {
+    return jsonOk({ success: true, skipped: "admin" });
+  }
+
   const ip = getIp(request);
   const admin = createAdminClient();
   const today = new Date().toISOString().slice(0, 10);
