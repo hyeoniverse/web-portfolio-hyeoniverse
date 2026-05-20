@@ -1,4 +1,8 @@
 .page {
+  /* 필터 바 / posts·series label 행의 모든 컨트롤 (sort capsule, shuffle, search morph,
+     category btn, more btn, tag toggle, segmented control 등) 의 통일 높이.
+     자식 어디서나 var(--filter-row-h) 로 참조. */
+  --filter-row-h: 28px;
   min-height: 100vh;
   padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
 }
@@ -61,15 +65,17 @@
   background: transparent;
 }
 
-/* ── Filter Bar (sticky, below fixed Nav) ── */
+/* ── Filter Bar (sticky, below fixed Nav) ──
+   같은 행 컨트롤들의 통일 높이는 .page 의 --filter-row-h (28px) 로 cascade. */
 .filterBar {
   max-width: var(--page-max-width);
   margin: 0 auto;
   position: sticky;
   top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl));
   z-index: 51;
-  background: transparent;
-  padding: 0;
+  /* 콘텐츠와 border-bottom (divider) 사이 breathing — 이전엔 .btn 의 border-bottom 2px 가 암묵적 여백
+     역할했는데 제거 후 콘텐츠가 divider 에 딱 붙음. */
+  padding: 0 0 var(--spacing-sm);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -97,7 +103,9 @@
 
 .filterBarTop {
   display: flex;
-  align-items: center;
+  /* CategoryNav 가 다중 row 로 wrap 되어도 filterBarRight(Tags 버튼) 가 첫 번째 row 와 같은 레벨 유지.
+     모든 항목 min-height: var(--filter-row-h) 라 single-row 일 땐 center 와 시각적 동일. */
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-md);
 }
@@ -116,9 +124,16 @@
   justify-content: flex-end;
 }
 
+/* filter bar 의 SearchCapsule 도 다른 컨트롤과 통일 높이로 */
+.filterBarSearchRow > * {
+  min-height: var(--filter-row-h);
+}
+
 /* Sort capsule group */
 .sortGroup {
   display: flex;
+  /* 통일 높이 — filter-row-h */
+  min-height: var(--filter-row-h);
   border-radius: var(--radius-capsule);
   border: var(--border-default);
 }
@@ -178,7 +193,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--box-sm);
+  /* 통일 높이 — filter-row-h */
+  min-height: var(--filter-row-h);
+  padding: 0 var(--spacing-sm);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -207,7 +224,9 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--box-sm);
+  /* .btn / .moreBtn 과 동일 행 수직 중심 정렬 */
+  min-height: var(--filter-row-h);
+  padding: 0 var(--spacing-sm);
   border: var(--border-default);
   cursor: pointer;
   border-radius: var(--radius-capsule);
@@ -518,40 +537,23 @@
   margin-bottom: var(--spacing-2xl);
 }
 
-.seriesLabel {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: var(--spacing-md);
-}
-
-/* 시리즈 라벨 — BookOpen 아이콘 + "Series" 텍스트 + chevron. /posts/series 페이지로 이동 */
-.seriesLabelLink {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  color: var(--text-secondary);
+/* sectionHeader 가 postsLabel / seriesLabel 양쪽 base. seriesLabelLink 의 hover 패턴은 별도 추가 */
+.sectionHeaderTitleLink {
   text-decoration: none;
+  color: inherit;
   transition: color var(--duration-base) ease;
 }
 
-.seriesLabelLink:hover {
+.sectionHeaderTitleLink:hover {
   color: var(--text-primary);
 }
 
-/* compound (0,2,0) — 글로벌 theme transition 이김. transform 은 글로벌 규칙에 없음 */
-.seriesLabelLink .seriesLabelChevron {
+.sectionHeaderTitleLink .sectionHeaderChevron {
   flex-shrink: 0;
   transition: transform var(--duration-base) var(--ease-material);
 }
 
-.seriesLabelLink:hover .seriesLabelChevron {
+.sectionHeaderTitleLink:hover .sectionHeaderChevron {
   transform: translateX(3px);
 }
 
@@ -562,9 +564,13 @@
 }
 
 /* series sort — label 바로 오른쪽 옆에 배치 (gap 으로 자연스럽게 떨어짐).
-   size 는 filter bar 의 sortGroup 과 동일 (font-2xs + box-sm). */
+   size 는 filter bar 의 sortGroup 과 동일 (font-2xs + filter-row-h 통일 높이). */
+.seriesSortAlignEnd {
+  min-height: var(--filter-row-h);
+}
+
 .seriesSortAlignEnd button {
-  padding: var(--box-sm);
+  padding: 0 var(--spacing-sm);
   font-size: var(--font-size-2xs);
 }
 
@@ -580,8 +586,9 @@
   margin-left: auto;
   display: flex;
   align-items: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  /* 통일 높이 — filter-row-h. closed 상태는 원 (width = height = filter-row-h). */
+  width: var(--filter-row-h);
+  height: var(--filter-row-h);
   border: var(--border-default);
   border-radius: var(--radius-circle);
   background: transparent;
@@ -591,11 +598,11 @@
 }
 
 /* compound (0,2,0) — 글로벌 theme transition override */
-.seriesLabel .seriesSearchMorph {
+.sectionHeader .seriesSearchMorph {
   transition: width 0.25s ease, border-radius 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
-.seriesLabel .seriesSearchMorph:hover {
+.sectionHeader .seriesSearchMorph:hover {
   color: var(--text-primary);
   border-color: var(--border-strong-color);
 }
@@ -607,7 +614,7 @@
   cursor: text;
 }
 
-.seriesLabel .seriesSearchMorphOpen:focus-within {
+.sectionHeader .seriesSearchMorphOpen:focus-within {
   border-color: var(--border-strong-color);
 }
 
@@ -618,10 +625,11 @@
   color: inherit;
 }
 
+/* closed 상태 — icon 을 absolute 로 컨테이너 정중앙. flex layout 영향 완전 배제. */
 .seriesSearchMorph:not(.seriesSearchMorphOpen) .seriesSearchMorphIcon {
-  /* closed 시 icon 만 보이게 중앙 정렬 */
-  margin-left: auto;
-  margin-right: auto;
+  position: absolute;
+  inset: 0;
+  margin: auto;
 }
 
 .seriesSearchMorphInput {
@@ -638,7 +646,7 @@
 }
 
 .seriesSearchMorph:not(.seriesSearchMorphOpen) .seriesSearchMorphInput {
-  /* closed 시 input 안 보이게 */
+  /* closed 시 input 안 보이게 — icon 은 absolute 라 input 이 flex 자리 차지해도 무관 */
   opacity: 0;
   pointer-events: none;
 }
@@ -707,21 +715,22 @@
   backdrop-filter: blur(8px);
 }
 
-/* ── 활성 시리즈 메타 정보 ── */
+/* ── 활성 시리즈 메타 정보 ──
+   filter bar 안의 다른 요소들 (label / category chip / search capsule) 과 톤 일치 —
+   카드 surface(bg-tertiary) 대신 transparent + 얇은 border 로 sandwich separator. */
 .activeSeriesMeta {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-md);
-  margin-top: var(--spacing-sm);
-  border-radius: var(--radius-lg);
-  background: var(--bg-tertiary);
-  border: var(--border-light);
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-md) 0;
+  margin-top: var(--spacing-xs);
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
 }
 
 .activeSeriesMetaTop {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
 }
@@ -729,21 +738,24 @@
 .activeSeriesMetaTitle {
   margin: 0;
   font-family: var(--font-instrument);
-  font-size: var(--font-size-2xl);
+  /* 2xl → xl 로 축소 — filter bar 컨텍스트 내에서 적절한 크기 */
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
+  line-height: var(--line-height-tight);
 }
 
 .activeSeriesMetaInfo {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
 }
 
 .activeSeriesMetaCategory {
+  /* filter bar 의 다른 capsule (tagToggleBtn / moreBtn) 과 동일 패턴 */
   padding: var(--spacing-3xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   border: var(--border-light);
@@ -754,32 +766,14 @@
   font-variant-numeric: tabular-nums;
 }
 
-.activeSeriesMetaClear {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  margin-left: auto;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: color var(--duration-base) ease, background-color var(--duration-base) ease;
-}
-
-.activeSeriesMetaClear:hover {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
-
 .activeSeriesMetaDesc {
   margin: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
+  /* 가독성 한계 — 너무 긴 줄 방지 */
+  max-width: 70ch;
 }
 
 .seriesRow {
@@ -831,17 +825,6 @@
   cursor: grabbing;
 }
 
-.seriesCategoryTag {
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-size: var(--font-size-3xs);
-  color: var(--text-tertiary);
-  text-transform: none;
-  letter-spacing: 0;
-}
-
 /* + N more → /series 로 이동 */
 .seriesMoreBtn {
   display: flex;
@@ -878,10 +861,15 @@
   font-weight: var(--font-weight-semibold);
 }
 
-/* .seriesRow 내부 absolute overlay — 카드 exit 애니메이션 동안 row 자리 유지하면서 텍스트만 fade in */
+/* Empty state — .seriesRow 의 sibling 으로 .seriesRowWrap 안에 absolute.
+   .seriesRow 의 mask-image / overflow-x 영향을 받지 않도록 밖으로 빼냄.
+   .seriesRow padding (md md 2xl) 을 inset 으로 그대로 적용해 카드 영역의 시각 center 와 일치. */
 .seriesEmpty {
   position: absolute;
-  inset: 0;
+  top: var(--spacing-md);
+  right: 0;
+  bottom: var(--spacing-2xl);
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -890,12 +878,14 @@
   color: var(--text-tertiary);
   font-style: italic;
   pointer-events: none;
+  z-index: 1;
 }
 
 /* ── Posts Label ── */
-.postsLabel {
+.sectionHeader {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -904,6 +894,50 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: var(--spacing-md);
+}
+
+/* LayoutGrid icon + 글목록 text 묶음 — 둘 사이 줄바꿈 X */
+.sectionHeaderTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  white-space: nowrap;
+}
+
+/* "글목록" 텍스트만 nowrap — 좁은 모바일에서 두 글자 사이 줄바꿈 방지 */
+.sectionHeaderText {
+  white-space: nowrap;
+}
+
+/* postsLabelMain — LayoutGrid + 글목록text + shuffleBtn + Select 묶음. mobile 에서 width 100% 차지 → sortWrap 만 다음 줄로 자연 wrap */
+.sectionHeaderMain {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* sortWrap — SegmentedControl (nested 포함) 단위. 슬림하게 — shuffleBtn / pageSizeSelect 와 동일 높이 */
+.sortWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-wrap: nowrap;
+}
+
+/* sortWrap 안 SegmentedControl 의 .group height 통일 + 내부 button 컴팩트 */
+.sortWrap > div {
+  min-height: var(--filter-row-h);
+}
+
+.sortWrap button {
+  padding: 0 var(--spacing-md);
+  font-size: var(--font-size-2xs);
+}
+
+/* seriesLabel 의 ChevronRight (12px) + 내부 gap (spacing-xs = 8px) 만큼 sortGroup 시작점을
+   오른쪽으로 밀어, 두 라벨의 sort 컨트롤 left edge 가 동일 x 위치로 정렬되도록. */
+.sectionHeader .sortWrap {
+  margin-left: calc(12px + var(--spacing-xs));
 }
 
 .postsCount {
@@ -931,19 +965,84 @@
   color: var(--text-secondary);
 }
 
-.emptyResetBtn {
-  padding: var(--box-xs-lg);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
+/* ── Coming Soon variant — 시리즈 선택 + posts 0개 ──
+   기본 emptyState 보다 살짝 화려한 톤. Sparkles 3 개 클러스터 + 부드러운 pulse / float 애니메이션. */
+.emptyStateComingSoon {
+  gap: var(--spacing-sm);
 }
 
-.emptyState .emptyResetBtn:hover {
-  border-color: var(--text-primary);
+.comingSoonIconWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  color: var(--text-accent);
+}
+
+.comingSoonIconA,
+.comingSoonIconB,
+.comingSoonIconC {
+  position: absolute;
+}
+
+.comingSoonIconA {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: comingSoonPulse 2.4s var(--ease-material) infinite;
+}
+
+.comingSoonIconB {
+  top: 4px;
+  right: 6px;
+  opacity: 0.7;
+  animation: comingSoonFloat 3.2s var(--ease-material) infinite;
+}
+
+.comingSoonIconC {
+  bottom: 8px;
+  left: 6px;
+  opacity: 0.55;
+  animation: comingSoonFloat 2.8s var(--ease-material) infinite 0.6s;
+}
+
+@keyframes comingSoonPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.12); opacity: 0.85; }
+}
+
+@keyframes comingSoonFloat {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-4px) rotate(8deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comingSoonIconA,
+  .comingSoonIconB,
+  .comingSoonIconC {
+    animation: none;
+  }
+}
+
+.comingSoonTitle {
+  margin: 0;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-regular);
   color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.comingSoonSub {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  text-align: center;
+  max-width: 36ch;
+  line-height: var(--line-height-relaxed);
 }
 
 /* ── Grid masonry ── grid-auto-rows: 1px + JS 가 각 아이템의 height 를 측정해
@@ -1159,7 +1258,9 @@
 }
 
 .pageSizeSelect button {
-  padding: var(--box-sm);
+  /* sortGroup / shuffleBtn 과 동일 통일 높이 */
+  min-height: var(--filter-row-h);
+  padding: 0 var(--spacing-sm);
   font-size: var(--font-size-2xs);
 }
 
@@ -1215,18 +1316,30 @@
     gap: var(--spacing-2xl);
   }
 
-  .sidebarWrap {
+  /* sidebarUp 컴파운드 (0,2,0) 가 자체 max-height 를 갖고 있어 media 의 단일 .sidebarWrap (0,1,0)
+     선언만으론 cascade 에서 못 이김 → 두 변종 모두 명시적으로 해제. */
+  .sidebarWrap,
+  .sidebarWrap.sidebarUp {
     position: static;
     max-height: none;
     overflow: visible;
   }
 
+  /* 2-col grid 는 row 가 가장 큰 자식 높이로 stretch 돼 위젯마다 빈 공간이 생김
+     (TagCloud3D 스피어가 ~200px 인데 옆 PopularPosts 가 400px 이라 sphere 아래 200px 빈공간).
+     CSS multi-column 으로 변경 — 신문 칼럼처럼 위젯이 자연스럽게 packing, equal-row 제약 없음. */
   .sidebar {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-2xl);
+    display: block;
+    columns: 2;
+    column-gap: var(--spacing-2xl);
     overflow: visible;
     overscroll-behavior: auto;
+  }
+
+  .sidebar > * {
+    /* 칼럼 중간에 위젯이 잘리지 않게 */
+    break-inside: avoid;
+    margin-bottom: var(--spacing-2xl);
   }
 
   .sidebarFadeTop,
@@ -1249,19 +1362,32 @@
     font-size: clamp(2rem, 10vw, 3rem);
   }
 
+  /* mobile 에서도 row 레이아웃 유지 + 폭 부족할 때만 wrap.
+     column 으로 강제하면 CategoryNav 가 전체 너비 → Tags 버튼만 있는 row 가 또 따로 노출돼 어색. */
   .filterBarTop {
-    flex-direction: column;
-    align-items: stretch;
+    flex-wrap: wrap;
+    /* multi-row 시 첫 row 기준 정렬 — 데스크탑과 동일 패턴 */
+    align-items: flex-start;
     gap: var(--spacing-sm);
   }
 
   .filterBarRight {
     flex-wrap: wrap;
     gap: var(--spacing-sm);
+    margin-left: auto;
   }
 
   .sortGroup {
     margin-left: auto;
+  }
+
+  /* 모바일 — postsLabelMain (icon+text+shuffle+select 묶음) 이 width 100% 차지 → sortWrap 만 자연스럽게 다음 줄 */
+  .sectionHeaderMain {
+    width: 100%;
+  }
+  .sectionHeader .sortWrap {
+    margin-left: 0;
+    margin-right: auto;
   }
 
   .seriesRow {
@@ -1269,8 +1395,12 @@
   }
 
   .sidebar {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-xl);
+    /* small mobile — 1 칼럼으로 자연 stack (column gap 은 의미 없으니 마진으로 처리) */
+    columns: 1;
+  }
+
+  .sidebar > * {
+    margin-bottom: var(--spacing-xl);
   }
 
 }
