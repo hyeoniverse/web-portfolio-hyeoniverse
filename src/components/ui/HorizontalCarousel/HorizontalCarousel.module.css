@@ -1,0 +1,73 @@
+/* 가로 스크롤 캐러셀 — overflow-x scroll + scroll-snap, scrollbar hidden.
+   wrapper 안에 carousel + 좌우 mask + 좌우 arrow. scroll 가능 + 끝까지 안 갔을 때만 표시. */
+.wrapper {
+  position: relative;
+}
+
+.carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.carousel:active {
+  cursor: grabbing;
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+/* Edge fade — 가려지는 쪽 컨텐츠가 배경에 자연스럽게 페이드. pointer-events none 으로 scroll 방해 X */
+.mask {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 56px;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity var(--duration-base) ease;
+}
+
+.maskLeft {
+  left: 0;
+  background: linear-gradient(to right, var(--bg-primary), transparent);
+}
+
+.maskRight {
+  right: 0;
+  background: linear-gradient(to left, var(--bg-primary), transparent);
+}
+
+/* Arrow wrapper — carousel full height 차지 (hit box 자연 확장) + visible 원은 flex 로 vertical center.
+   외형은 자식 Button variant="difference" + shape="circle" 가 담당.
+   z-index 사용하면 stacking context 가 생겨 자식 button 의 mix-blend-mode 가 carousel 외부 배경과 blend 안 됨 (밝은 배경에서 흰색이 흰색 위 → 안 보임). source order (carousel + mask 다음) 로 stacking. */
+.arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* visible button (36px) + 좌우 호흡 */
+  width: 60px;
+  cursor: pointer;
+  transition: opacity var(--duration-base) ease;
+}
+
+.arrowLeft {
+  left: 0;
+}
+
+.arrowRight {
+  right: 0;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
