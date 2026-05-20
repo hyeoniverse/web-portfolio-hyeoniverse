@@ -19,6 +19,8 @@ import ColorPicker from "@/components/ui/ColorPicker";
 import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
 import Tooltip from "@/components/ui/Tooltip";
+import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
+import { MoreVertical, ChevronsLeft, ChevronsRight, Pencil, Trash2 } from "lucide-react";
 import TextLink from "@/components/ui/TextLink";
 import Pagination from "@/components/ui/Pagination";
 import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
@@ -622,6 +624,34 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           onClose={() => setIvOpen(false)}
           title="Design System Preview"
         />
+      </motion.div>
+
+      {/* Popover */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Popover</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center" }}>
+          <Popover
+            trigger={
+              <button type="button" aria-label="Row actions" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, border: "var(--border-light)", borderRadius: "var(--radius-capsule)", background: "transparent", color: "var(--text-secondary)", cursor: "pointer" }}>
+                <MoreVertical size={16} />
+              </button>
+            }
+            sheetTitle="Row actions"
+          >
+            {({ close }) => (
+              <div style={{ minWidth: 180 }}>
+                <MenuItem icon={<ChevronsLeft size={14} />} label="맨앞으로" onClick={close} />
+                <MenuItem icon={<ChevronsRight size={14} />} label="맨뒤로" onClick={close} />
+                <MenuDivider />
+                <MenuItem icon={<Pencil size={14} />} label="수정" onClick={close} />
+                <MenuItem icon={<Trash2 size={14} />} label="삭제" onClick={close} />
+              </div>
+            )}
+          </Popover>
+          <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
+            anchor + portal · outside click / ESC 자동 닫힘 · 터치 디바이스에선 bottom sheet 로 자동 분기
+          </span>
+        </motion.div>
       </motion.div>
 
       {/* TypeWriter */}

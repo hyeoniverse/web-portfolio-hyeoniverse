@@ -767,17 +767,17 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 15개 테이블 + 4개 RPC 함수가 생성되었습니다.
+-- 완료! 총 16개 테이블 + 5개 RPC 함수가 생성되었습니다.
 --
 -- site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
 -- series               : 블로그 시리즈 (sort_order, auto_cover_url 포함)
--- posts                : 블로그 포스트 (post_number 시퀀스 + scheduled_at)
--- comments             : 포스트 댓글 (대댓글, password 기반 인증)
+-- posts                : 블로그 포스트 (post_number 시퀀스 + scheduled_at + soft delete)
+-- comments             : 포스트 댓글 (대댓글, password 기반 인증, tombstone)
 -- likes                : 좋아요 (target_type 으로 posts/works/comments 통합, IP 중복 방지)
--- works                : 포트폴리오 작업물 (team_members jsonb + scheduled_at)
--- site_visits          : 방문자 통계 (IP + date 로 1일 1회)
--- post_views           : 게시물별 시계열 조회 기록 (ip 포함, dashboard 차트용)
--- work_comments        : Works 댓글 (대댓글, password 기반 인증)
+-- works                : 포트폴리오 작업물 (team_members jsonb + scheduled_at + soft delete)
+-- site_visits          : 방문자 통계 (IP + date 로 1일 1회 + UA 메타)
+-- post_views           : 게시물별 시계열 조회 기록 (KST date generated column)
+-- work_comments        : Works 댓글 (대댓글, password 기반 인증, tombstone)
 -- admin_notifications  : 관리자 알림 로그
 -- comment_reports      : 댓글 신고 누적 (posts/works 공용, status: pending/resolved/dismissed)
 -- revisions            : 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot)
@@ -788,7 +788,8 @@ END $$;
 --
 -- RPC:
 --   increment_post_view_count(p_post_id)          : 조회수 atomic +1 (race-free)
+--   record_post_view(p_post_id, p_ip)             : dedup (KST 일자) + post_views insert + view_count +1 한 트랜잭션
 --   sum_post_views()                              : 누적 조회수 합계
---   daily_post_views(p_start date, p_end date)    : 일별 조회수 시계열
+--   daily_post_views(p_start date, p_end date)    : 일별 조회수 시계열 (KST)
 --   publish_scheduled()                           : 예약 시간 도달한 게시물/작품 발행 (cron 호출)
 -- ============================================================
