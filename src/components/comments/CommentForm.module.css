@@ -66,24 +66,7 @@
 }
 
 .textarea {
-  padding: var(--box-sm-md);
   border: var(--border-light);
-  border-radius: var(--radius-lg);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  outline: none;
-  resize: vertical;
-  min-height: 80px;
-}
-
-.form .textarea:focus {
-  border-color: var(--text-primary);
-}
-
-.textarea::placeholder {
-  color: var(--text-tertiary);
 }
 
 .passwordInput {
@@ -111,40 +94,6 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--spacing-sm);
-}
-
-.submitBtn {
-  padding: var(--box-xs-xl);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: var(--text-primary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  color: var(--bg-primary);
-  text-transform: uppercase;
-  transition:
-    background-color var(--duration-base) ease,
-    color var(--duration-base) ease;
-}
-
-.actions .submitBtn:hover:not(:disabled) {
-  background: transparent;
-  color: var(--text-primary);
-}
-
-.submitBtn:disabled {
-  opacity: 0.5;
-}
-
-.cancelBtn {
-  padding: var(--box-md);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
 }
 
 .notifyWrap {
