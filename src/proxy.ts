@@ -61,12 +61,28 @@ function rejectApi(status: number, message: string): NextResponse {
 }
 
 function isSameOrigin(request: NextRequest): boolean {
-  if (!SITE_ORIGIN) {
-    // production 에서 env 미설정은 fail-closed — 모든 mutation 차단해서 잘못된 배포가 즉시 드러나게
-    // dev 는 localhost 포트 / IP 변동 때문에 skip (편의)
-    return process.env.NODE_ENV !== "production";
-  }
   const source = request.headers.get("origin") ?? request.headers.get("referer");
+
+  // localhost 요청은 무조건 통과 — 외부에서 localhost 로 CSRF 도달 불가능.
+  // dev (next dev) 든 local prod (next build && start) 든, 또 SITE_ORIGIN 이 배포 도메인으로 박혀있어도 동작.
+  if (source) {
+    try {
+      const host = new URL(source).hostname;
+      if (host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0" || host.endsWith(".localhost")) {
+        return true;
+      }
+    } catch {
+      /* URL parse 실패 → 아래 로직으로 fallthrough */
+    }
+  }
+
+  // dev 모드는 무조건 통과 (편의)
+  if (process.env.NODE_ENV !== "production") return true;
+
+  if (!SITE_ORIGIN) {
+    // prod 에서 env 미설정은 fail-closed — 모든 mutation 차단해서 잘못된 배포가 즉시 드러나게
+    return false;
+  }
   if (!source) return false;
   try {
     return new URL(source).origin === SITE_ORIGIN;
@@ -79,7 +95,7 @@ function hasSupabaseCookie(request: NextRequest): boolean {
   return request.cookies.getAll().some((c) => c.name.startsWith("sb-"));
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
