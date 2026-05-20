@@ -3,7 +3,12 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-export const metadata: Metadata = { title: "Login | Admin" };
+export const metadata: Metadata = {
+  title: {
+    template: "Admin | %s",
+    default: "Admin",
+  },
+};
 
 export default async function AuthLayout({
   children,
