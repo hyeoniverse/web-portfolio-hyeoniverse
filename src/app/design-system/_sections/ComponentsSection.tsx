@@ -111,10 +111,11 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Button — Variants</div>
         <div className={styles.componentRow}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><Tooltip content="variant: primary"><Button variant="primary">Primary</Button></Tooltip></motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}><Tooltip content="variant: outline"><Button variant="outline">Outline</Button></Tooltip></motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}><Tooltip content="variant: ghost"><Button variant="ghost">Ghost</Button></Tooltip></motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}><Tooltip content="disabled"><Button disabled>Disabled</Button></Tooltip></motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 5)}><Tooltip content="variant: primary"><Button variant="primary">Primary</Button></Tooltip></motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 5)}><Tooltip content="variant: outline"><Button variant="outline">Outline</Button></Tooltip></motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(2, 5)}><Tooltip content="variant: ghost"><Button variant="ghost">Ghost</Button></Tooltip></motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(3, 5)}><Tooltip content="variant: difference — mix-blend-mode + hover backdrop blur"><Button variant="difference">Difference</Button></Tooltip></motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(4, 5)}><Tooltip content="disabled"><Button disabled>Disabled</Button></Tooltip></motion.div>
         </div>
       </motion.div>
 
