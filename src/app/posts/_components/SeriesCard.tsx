@@ -133,7 +133,8 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
   const number = String(index + 1).padStart(2, "0");
   const title = language === "ko" ? series.title : (series.title_en || series.title);
   const tag = series.category || "SERIES";
-  const placeholderBg = generateSeededColor(series.id, theme === "dark", index);
+  // tone "soft" 강제 — 페이지 전체 시리즈 카드들 사이 톤 통일 (hue 만 anchor cycle 로 다양)
+  const placeholderBg = generateSeededColor(series.id, theme === "dark", index, "soft");
 
   const hasCover = !!series.cover_image;
   const thumbs = series.thumbs ?? [];
@@ -189,9 +190,9 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
           const preview = previews[postIndex];
           const previewTitle = preview ? (language === "ko" ? preview.title : (preview.title_en || preview.title)) : `Post ${postIndex + 1}`;
           const previewCover = preview?.cover_image;
-          // cover 없는 layer 는 seeded color bg — 단색 회색 방지
+          // cover 없는 layer 는 seeded color bg. tone "soft" 통일 + hue 만 다양 (postIndex 기반 anchor cycle)
           const layerBg = !previewCover
-            ? generateSeededColor(preview?.id ?? `${series.id}:${postIndex}`, theme === "dark", index + postIndex + 1)
+            ? generateSeededColor(preview?.id ?? `${series.id}:${postIndex}`, theme === "dark", index + postIndex + 1, "soft")
             : undefined;
           const layerContent = (
             <>
