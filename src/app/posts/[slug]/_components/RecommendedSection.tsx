@@ -6,7 +6,7 @@ import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import T from "@/components/ui/T";
 import CategoryLabel from "@/components/ui/CategoryLabel";
-import { BookOpen, ImageIcon, ChevronDown } from "lucide-react";
+import { BookOpen, ImageIcon, ChevronRight } from "lucide-react";
 import type { RecommendedPost } from "./types";
 import styles from "../PostDetail.module.css";
 
@@ -41,6 +41,11 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
           {viewLang === "en" && rp.title_en ? rp.title_en : rp.title}
         </span>
         {rp.category && <span className={styles.recommendedItemCategory}><CategoryLabel category={rp.category} /></span>}
+        {(viewLang === "en" ? rp.excerpt_en || rp.excerpt : rp.excerpt) && (
+          <span className={styles.recommendedItemExcerpt}>
+            {viewLang === "en" ? rp.excerpt_en || rp.excerpt : rp.excerpt}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -57,7 +62,7 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
             data-clickable="true"
           >
             {expanded ? <T k="common.close" /> : <>+{rest.length} <T k="postDetail.more" /></>}
-            <ChevronDown
+            <ChevronRight
               className={`${styles.recommendedMoreChevron} ${expanded ? styles.recommendedMoreChevronOpen : ""}`}
               size={12}
               strokeWidth={1.5}
