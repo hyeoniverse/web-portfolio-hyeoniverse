@@ -5,7 +5,9 @@
   min-width: 0;
   max-width: 100%;
   display: flex;
-  align-items: center;
+  /* nav 가 wrap 으로 multi-row 가 되어도 moreBtn 이 항상 첫 번째 row 와 같은 레벨에 위치하도록 top 정렬.
+     모든 요소가 동일 min-height (filter-row-h) 라 single-row 일 땐 center 와 시각적으로 동일. */
+  align-items: flex-start;
 }
 
 /* Nav — flex-wrap, clips via inline maxHeight */
@@ -15,7 +17,10 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0;
+  /* row-gap: expanded 시 wrap 된 row 들 사이 breathing. column-gap 은 0 (버튼 자체 padding 으로 충분).
+     collapsed (single-row) 일 땐 row-gap 이 효과 없으므로 항상 켜둬도 안전. */
+  column-gap: 0;
+  row-gap: var(--spacing-xs);
   overflow: hidden;
 }
 
@@ -28,17 +33,17 @@
   overflow: visible;
 }
 
-/* padding 줄여 slim, 같은 줄의 tagToggleBtn / sortGroup btn 과 row 높이 가까워지게.
-   border-bottom 2px 가 박스 하단에 추가되어 텍스트가 시각적으로 위로 1-2px 치우치므로
-   padding-top 을 그만큼 더 줘서 텍스트 광학 중심이 박스 중심과 일치. moreBtn (사방 border) 과 정렬. */
+/* 같은 행에 놓이는 moreBtn / filterBarRight.tagToggleBtn 과 수직 중심 정렬을 위해
+   고정 min-height + 좌우 padding 만 + flex 텍스트 센터링. font-size 와 border-bottom 차이가 있어도
+   element height 가 동일해야 align-items: center 시 텍스트 baseline 이 어긋나지 않음. */
 .btn {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: calc(var(--spacing-xs) + 2px) var(--spacing-md) var(--spacing-xs);
+  min-height: var(--filter-row-h);
+  padding: 0 var(--spacing-md);
   border: none;
-  border-bottom: 2px solid transparent;
   border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -54,20 +59,19 @@
 
 .btnActive {
   color: var(--text-primary);
-  border-bottom-color: transparent;
 }
 
 .nav .btnActive:hover {
   color: var(--text-primary);
 }
 
-/* "+N more" / "Close" toggle — nav .btn 과 동일 사이즈 (box-sm + font-2xs) 라
-   wrapper flex-start 시 자연스럽게 첫 줄에 안착. */
+/* "+N more" / "Close" toggle — .btn 과 같은 행 수직 중심 정렬 (filter-row-h). */
 .moreBtn {
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--box-sm);
+  min-height: var(--filter-row-h);
+  padding: 0 var(--spacing-sm);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -85,11 +89,9 @@
   color: var(--text-primary);
 }
 
-/* expanded — moreBtn 만 따로 top 정렬해서 multi-row 가운데가 아닌 첫 줄에 박히게.
-   nav 첫 줄 버튼보다 짧으니 margin-top 으로 첫 줄 내 수직 가운데에 맞춤. */
+/* expanded "Close" 상태 — wrapper 가 align-items: flex-start 라 별도 align-self / margin-top 불필요.
+   배경/색상만 강조. */
 .moreBtnOpen {
-  align-self: flex-start;
-  margin-top: var(--spacing-2xs);
   background: var(--text-primary);
   border-color: var(--text-primary);
   color: var(--bg-primary);
