@@ -1,5 +1,6 @@
 /* ── 정사각 이미지 + 위에 라벨(번호 + #태그) ── */
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -11,6 +12,12 @@
   cursor: pointer;
   text-align: left;
   gap: var(--spacing-xs);
+}
+
+/* deck 펼쳐졌을 때 z-index 끌어올림 — 펼쳐진 deck 레이어가 옆 카드 영역으로 침범해도
+   옆 카드(DOM 뒤 sibling)가 stacking 으로 가리지 않도록. 클릭 hit-test 정확히 deck 에 가게 */
+.card.deckOpen {
+  z-index: 5;
 }
 
 /* 이미지 위 라벨 — 번호(좌) + #카테고리(우) */
@@ -55,6 +62,8 @@
   /* 라벨이 박스 위쪽으로 빠져나가도록 visible (이미지는 deckLayerMedia 가 자체적으로 hidden) */
   overflow: visible;
   z-index: 0;
+  /* deckOpen 시 클릭으로 글 이동 — 부모(card button) onClick 과 분리되도록 직계 child 가 stopPropagation 처리 */
+  cursor: pointer;
   /* i 가 클수록 더 깊이(우하단) — 3px 우측 + 2px 하단 per layer (촘촘한 stack) */
   transform: translate(calc(var(--deck-i, 1) * 3px), calc(var(--deck-i, 1) * 2px));
   /* 각 layer 의 좌상단 모서리에 살짝 그림자 — 겹침 가시성 ↑ */
@@ -66,8 +75,10 @@
 }
 
 /* deckOpen 클래스가 붙으면(JS 가 hover 시간 측정 후 토글) layer 가 stagger 로 펼쳐짐.
-   transition-delay 는 stagger 만 — 펼침 trigger 자체는 JS 가 담당하므로 base delay 불필요 */
+   transition-delay 는 stagger 만 — 펼침 trigger 자체는 JS 가 담당하므로 base delay 불필요.
+   z-index 끌어올림 — 펼쳐진 deck 가 thumb (z:1) 보다 위에 hit-test 되도록. */
 .card.deckOpen .deckLayer {
+  z-index: 2;
   transform: translateX(calc(var(--deck-i, 1) * 176px));
   box-shadow: var(--shadow-lg);
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) calc((var(--deck-i, 1) - 1) * 0.18s),
@@ -274,8 +285,11 @@
   transform: scale(1.05);
 }
 
+/* active — 살짝 기울이는 tilt 효과 (책 표지가 비스듬히 꽂힌 듯). compound (0,2,0) 로
+   글로벌 theme transition 이김. transform 은 글로벌 규칙에 없으므로 안전. */
 .card.active .thumb {
-  outline: 2px solid var(--color-accent);
+  transform: rotate(-2.5deg);
+  transition: transform 0.35s var(--ease-material);
 }
 
 /* ── 타이포그래픽 cover (cover 도 thumbs 도 없는 마지막 fallback) ──

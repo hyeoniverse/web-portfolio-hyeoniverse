@@ -72,9 +72,10 @@ export interface Series {
   post_count?: number;
   /** 소속 글들의 cover 이미지 (모자이크 미리보기 용, 최대 4개) */
   thumbs?: string[];
-  /** 소속 글들의 미리보기 (deck hover 용, 최대 4개) — title + cover + 메타 */
+  /** 소속 글들의 미리보기 (deck hover 용, 최대 4개) — title + cover + 메타 + slug (deck 클릭 시 글로 이동) */
   previews?: {
     id: string;
+    slug: string;
     title: string;
     title_en: string | null;
     cover_image: string | null;

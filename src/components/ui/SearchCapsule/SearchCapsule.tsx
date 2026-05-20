@@ -16,6 +16,8 @@ export interface SearchCapsuleProps {
   };
   align?: "left" | "right";
   className?: string;
+  autoFocus?: boolean;
+  onBlur?: () => void;
 }
 
 /** 공통 검색 capsule — Select(옵션) + 아이콘 + input. tag/sort capsule 과 동일 높이 */
@@ -26,6 +28,8 @@ export default function SearchCapsule({
   typeSelector,
   align = "right",
   className,
+  autoFocus,
+  onBlur,
 }: SearchCapsuleProps) {
   return (
     <div className={`${styles.capsule} ${align === "right" ? styles.right : ""} ${className ?? ""}`}>
@@ -43,6 +47,8 @@ export default function SearchCapsule({
         placeholder={placeholder}
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
+        onBlur={onBlur}
+        autoFocus={autoFocus}
         className={styles.input}
       />
     </div>
