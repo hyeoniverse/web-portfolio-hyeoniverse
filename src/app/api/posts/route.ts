@@ -105,9 +105,14 @@ export async function GET(request: Request) {
     // random — 서버에서 정렬은 created_at desc 로 뽑고 JS 가 시드 기반으로 셔플
     query = query.order("created_at", { ascending: false });
   } else if (sort === "views") {
-    query = query.order("view_count", { ascending: sortDir === "asc" });
+    query = query
+      .order("view_count", { ascending: sortDir === "asc" })
+      .order("created_at", { ascending: false });
   } else if (sort === "likes") {
-    query = query.order("like_count", { ascending: sortDir === "asc" });
+    // tied like_count 인 post 들이 매 응답마다 다른 순서 → 페이징 시 중복/누락 가능 → created_at 으로 stable tie-break
+    query = query
+      .order("like_count", { ascending: sortDir === "asc" })
+      .order("created_at", { ascending: false });
   } else if (sort !== "popular" && sort !== "comments") {
     query = query.order("created_at", { ascending: false });
   }
