@@ -195,7 +195,7 @@ export default function TagsIndexClient({ tags }: Props) {
           <SearchCapsule
             search={search}
             onSearchChange={setSearch}
-            placeholder="태그 또는 설명으로 검색…"
+            placeholder="태그 이름 또는 설명으로 검색…"
             align="left"
             className={styles.searchBar}
           />
