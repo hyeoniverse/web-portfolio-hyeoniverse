@@ -363,3 +363,23 @@
 .variant-ghost.tone-danger.btn:hover:not(:disabled) {
   color: var(--text-error);
 }
+
+/* ---------------------------------------------------------------------------
+   Variant: difference — transparent + mix-blend-mode (텍스트/아이콘이 배경 색에 따라 자동 반전).
+   hover 시 backdrop-filter blur 로 뒤 컨텐츠 살짝 흐려짐. border/background 없음.
+   carousel arrow, image overlay 버튼 등 contrast 가변 영역에서 가독성 자동 보장.
+   --------------------------------------------------------------------------- */
+.variant-difference {
+  background: transparent;
+  border: none;
+  color: var(--text-white);
+  mix-blend-mode: difference;
+}
+
+.variant-difference.btn {
+  transition: backdrop-filter var(--duration-base) ease;
+}
+
+.variant-difference.btn:hover:not(:disabled) {
+  backdrop-filter: blur(8px);
+}
