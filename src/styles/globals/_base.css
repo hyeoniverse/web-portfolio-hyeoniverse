@@ -15,14 +15,25 @@ html.custom-cursor * {
   cursor: none !important;
 }
 
-html,
-body {
+html {
   height: 100%;
+}
+
+body {
+  /* sticky-footer 패턴 — 짧은 페이지에서도 footer 가 viewport 하단에 붙도록.
+     main { flex: 1 } 가 main 을 늘려 footer 를 밀어내고, 긴 페이지에선 자연스럽게 content 아래로 흐름. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   background: var(--bg-primary);
   font-family: var(--font-sans);
   line-height: var(--line-height-normal);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+}
+
+body > main {
+  flex: 1;
 }
 
 /* Theme transition - only active during theme switch (350ms window) */
@@ -55,6 +66,12 @@ svg {
   max-width: 100%;
 }
 
+/* Next.js Image warning 근본 해결 — width/height attr 중 한 쪽만 CSS 로 override 해도 나머지 자동 aspect ratio 유지 */
+img,
+picture {
+  height: auto;
+}
+
 button,
 input,
 textarea,
@@ -83,6 +100,7 @@ body {
     "Apple SD Gothic Neo",
     sans-serif;
   color: var(--text-primary);
+  /* 위 첫 번째 body 룰의 flex 설정 유지 — 여기선 font/overflow 만 보강 */
 }
 
 kbd {
