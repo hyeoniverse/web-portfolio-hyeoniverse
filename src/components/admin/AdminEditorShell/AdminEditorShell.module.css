@@ -120,11 +120,6 @@
 }
 
 /* ── Revision History ── */
-.revisionWrap {
-  position: relative;
-  flex-shrink: 0;
-}
-
 .revisionBtn.revisionBtn {
   color: var(--text-secondary);
 }
@@ -146,17 +141,8 @@
 }
 
 .revisionDropdown {
-  position: absolute;
-  top: calc(100% + var(--spacing-xs));
-  right: 0;
   width: 360px;
   max-height: 360px;
-  overflow: hidden;
-  background: var(--bg-primary);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-  z-index: var(--z-dropdown);
 }
 
 .revisionHeader {
@@ -730,11 +716,6 @@
 }
 
 /* ── Retranslate ── */
-.retranslateWrap {
-  position: relative;
-  flex-shrink: 0;
-}
-
 .retranslateBtn {
   color: var(--text-secondary);
 }
@@ -745,16 +726,7 @@
 }
 
 .retranslateDropdown {
-  position: absolute;
-  top: calc(100% + var(--spacing-xs));
-  left: 0;
   min-width: 120px;
-  background: var(--bg-primary);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-  z-index: var(--z-dropdown);
-  overflow: hidden;
 }
 
 .retranslateItem {

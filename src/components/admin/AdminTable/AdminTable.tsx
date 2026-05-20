@@ -9,13 +9,14 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 function ConditionalLayoutGroup({ enabled, children }: { enabled: boolean; children: ReactNode }) {
   return enabled ? <LayoutGroup>{children}</LayoutGroup> : <>{children}</>;
 }
-import { GripVertical, Download, ArrowUpDown } from "lucide-react";
+import { GripVertical } from "lucide-react";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import Pagination from "@/components/ui/Pagination";
 import EditableRowNumber from "./EditableRowNumber";
+import RowActionsMenu from "./RowActionsMenu";
 import styles from "./AdminTable.module.css";
 
 /* ── Types ── */
@@ -38,6 +39,11 @@ interface AdminTableLabels {
   publishedTooltip: string;
   unpublishedTooltip: string;
   move?: string;
+  moveCurrent?: string;
+  moveToTop?: string;
+  moveToBottom?: string;
+  apply?: string;
+  exportItem?: string;
 }
 
 export interface AdminTableProps<T extends { id: string; published: boolean }> {
@@ -69,8 +75,8 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onRowLeave?: () => void;
   onRowClick?: (item: T, e: React.MouseEvent) => void;
   onReorder?: (fromIdx: number, toIdx: number) => void;
-  /** 항목 위치 이동 — 클릭 시 부모가 dialog 등으로 위치 선택 처리 */
-  onMove?: (item: T) => void;
+  /** 항목 위치 이동 — popover 에서 선택한 newOrder 로 직접 호출 */
+  onMove?: (item: T, newOrder: number) => void | Promise<void>;
   /** 행 번호 cell 클릭으로 인라인 편집 — getRowLabel 과 함께 사용 시 활성화 */
   onRowLabelEdit?: (item: T, newValue: number) => void | Promise<void>;
   /** 인라인 편집 시 max 값 — 보통 totalCount */
@@ -470,16 +476,6 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                 className={styles.colActions}
                 onClick={(e) => e.stopPropagation()}
               >
-                {onMove && (
-                  <button
-                    className={styles.moveBtn}
-                    onClick={(e) => { e.stopPropagation(); onMove(item); }}
-                    title={labels.move ?? "이동"}
-                    aria-label={labels.move ?? "이동"}
-                  >
-                    <ArrowUpDown size={14} />
-                  </button>
-                )}
                 <Link
                   href={`${editBasePath}/${item.id}/edit`}
                   className={styles.actionBtn}
@@ -492,15 +488,21 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                 >
                   {labels.delete}
                 </button>
-                {onBulkExport && (
-                  <button
-                    className={styles.exportIconBtn}
-                    title=".md 내보내기"
-                    onClick={(e) => { e.stopPropagation(); onBulkExport([item.id]); }}
-                  >
-                    <Download size={14} />
-                  </button>
-                )}
+                <RowActionsMenu
+                  onMove={onMove && getRowLabel ? (newOrder) => onMove(item, newOrder) : undefined}
+                  currentOrder={getRowLabel ? Number(getRowLabel(item, i)) || 0 : 0}
+                  totalCount={rowLabelMax ?? items.length}
+                  onExport={onBulkExport ? () => onBulkExport([item.id]) : undefined}
+                  labels={{
+                    menuTitle: labels.actions,
+                    move: labels.move,
+                    moveCurrent: labels.moveCurrent,
+                    moveToTop: labels.moveToTop,
+                    moveToBottom: labels.moveToBottom,
+                    apply: labels.apply,
+                    export: labels.exportItem,
+                  }}
+                />
               </span>
             </motion.div>
           );

@@ -265,12 +265,15 @@
   50% { opacity: 0.4; }
 }
 
-/* ── Actions column ── */
+/* ── Actions column ── [Edit] [Delete] ····· [⋯ kebab] */
 .colActions {
   display: flex;
   gap: var(--spacing-xs);
   white-space: nowrap;
+  align-items: center;
 }
+/* kebab 메뉴 trigger 는 오른쪽 끝으로 */
+.colActions > span { margin-left: auto; }
 
 .actionBtn {
   padding: var(--box-2xs-md);
@@ -309,46 +312,6 @@
 .colActions .deleteBtn:hover {
   background: var(--bg-accent-solid);
   color: var(--text-white);
-}
-
-/* Ghost 스타일 — 테두리/배경 없이 아이콘 색만, hover 시 accent */
-.exportIconBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  margin-left: auto;
-  transition: color var(--duration-base) ease;
-}
-
-.colActions .exportIconBtn:hover {
-  color: var(--text-accent);
-}
-
-/* 위치 이동 — icon-only round button (exportIconBtn 와 동일 스타일) */
-/* Ghost 스타일 — exportIconBtn 과 동일 톤. 테두리/배경 없이 아이콘 색만, hover accent */
-.moveBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: color var(--duration-base) ease;
-}
-
-.colActions .moveBtn:hover {
-  color: var(--text-accent);
 }
 
 /* ── Drag & Drop — 표 바깥(왼쪽)에 absolute 로 배치, 체크박스 더 왼쪽 ── */
@@ -452,8 +415,12 @@
 /* ── Footer extra (export etc.) ── */
 .footerExtra {
   display: flex;
-  justify-content: flex-end;
   margin-top: var(--spacing-sm);
+}
+
+/* 직계 자식 (export 버튼 등) 자동으로 우측으로 — 향후 좌측 항목 추가 시 자연스럽게 분리 */
+.footerExtra > * {
+  margin-left: auto;
 }
 
 /* ── Pagination ── */
