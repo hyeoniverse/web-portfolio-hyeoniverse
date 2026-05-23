@@ -37,6 +37,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  color: var(--text-accent);
 }
 
 .message {
@@ -52,9 +53,9 @@
 }
 
 .error {
-  color: var(--text-accent);
+  color: var(--text-error);
 }
 
 .info {
-  color: var(--text-secondary);
+  color: var(--text-info);
 }

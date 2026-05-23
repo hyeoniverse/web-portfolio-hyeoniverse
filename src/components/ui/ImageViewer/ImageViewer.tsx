@@ -52,6 +52,13 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const [hoveredInterval, setHoveredInterval] = useState<(typeof AUTOPLAY_INTERVALS)[number] | null>(null);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
+  const PLACEHOLDER_SRC = "/images/placeholder.svg";
+  const resolveSrc = (src: string) => (src && !imgErrors.has(src) ? src : PLACEHOLDER_SRC);
+  const markError = (src: string) => {
+    if (!src) return;
+    setImgErrors((prev) => (prev.has(src) ? prev : new Set(prev).add(src)));
+  };
 
   const viewerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -748,7 +755,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   ref={imgRef}
-                  src={images[current]}
+                  src={resolveSrc(images[current])}
                   alt=""
                   className={`${styles.image} ${loading ? styles.imageLoading : ""}`}
                   onClick={(e) => e.stopPropagation()}
@@ -762,6 +769,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                   onPointerUp={handlePanEnd}
                   onPointerCancel={handlePanEnd}
                   onLoad={() => setLoading(false)}
+                  onError={() => { markError(images[current]); setLoading(false); }}
                   draggable={false}
                 />
               </motion.div>
@@ -846,7 +854,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                         onClick={(e) => { e.stopPropagation(); goTo(i); }}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={src} alt="" className={styles.thumbImg} draggable={false} />
+                        <img src={resolveSrc(src)} alt="" className={styles.thumbImg} draggable={false} onError={() => markError(src)} />
                         {i === current && (
                           <motion.span
                             className={styles.thumbIndicator}
@@ -889,7 +897,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                       onClick={() => goTo(i)}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt="" className={styles.thumbListImg} draggable={false} />
+                      <img src={resolveSrc(src)} alt="" className={styles.thumbListImg} draggable={false} onError={() => markError(src)} />
                       <span className={styles.thumbListLabel}>{i + 1}</span>
                     </button>
                   ))}
