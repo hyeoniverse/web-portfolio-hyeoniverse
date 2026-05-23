@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.11.0...v1.11.1) (2026-05-23)
+
+
+### Bug Fixes
+
+* **design-system:** ColorPicker onChange — master 의 hex string API 와 호환 ([2e0a903](https://github.com/hyeoniverse/web-portfolio-oval/commit/2e0a9034824fe53c8c09dc413068c3b433c5c124))
+* **posts:** SeriesCard layer 색 anchor stride 3 으로 분산 ([ef8668c](https://github.com/hyeoniverse/web-portfolio-oval/commit/ef8668c1f5b1a8077dfae45801abbdec86e5fa45))
+
 ## [1.11.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.10.0...v1.11.0) (2026-05-20)
 
 
