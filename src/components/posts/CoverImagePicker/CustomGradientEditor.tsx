@@ -446,10 +446,9 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
       <div className={styles.customGradientPreview}>
         <canvas ref={canvasRef} />
       </div>
-      <div className={styles.customGradientControls}>
         {/* Adobe Color 스타일 scheme selector — base color + 8가지 조합 */}
         <div className={styles.schemeRow}>
-          <ColorPicker value={baseColor} onChange={onBaseColorChange}>
+          <ColorPicker value={baseColor} onChange={(c) => onBaseColorChange(c.hex)}>
             {({ toggle }) => (
               <Tooltip content={tc("baseColor")} placement="top">
                 <button
@@ -543,7 +542,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
             title="Drag handles to reposition. Double-click bar to add a stop."
           >
             {stops.map((s, i) => (
-              <ColorPicker key={i} value={s.color} onChange={(c) => updateColor(i, c)}>
+              <ColorPicker key={i} value={s.color} onChange={(c) => updateColor(i, c.hex)}>
                 {({ toggle }) => (
                   <span
                     className={styles.stopHandle}
@@ -557,6 +556,17 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
                     <span className={styles.stopHandleSwatch} style={{ background: s.color }} data-cursor="grab">
                       <span className={styles.stopHandleGrip} aria-hidden />
                     </span>
+                    {stops.length > 2 && (
+                      <button
+                        type="button"
+                        className={styles.stopHandleRemove}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); removeColor(i); }}
+                        aria-label="Remove stop"
+                      >
+                        ×
+                      </button>
+                    )}
                   </span>
                 )}
               </ColorPicker>
@@ -574,6 +584,8 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
             </button>
           </Tooltip>
         </div>
+        {/* customRow + customSliders 를 하나의 그룹으로 묶음 — 모바일 layout 분기/정렬 단위 */}
+        <div className={styles.customGroup}>
         {/* 줄1: 타입 토글 + 사용 버튼 */}
         <div className={styles.customRow}>
           <div className={styles.customTypeToggle}>

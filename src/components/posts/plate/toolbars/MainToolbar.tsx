@@ -551,7 +551,7 @@ export default React.memo(function MainToolbar({
               <div className={styles.divider} />
               <div className={styles.colorGroup}>
                 <div className={styles.colorIndicator} style={{ width: 14, height: 14, borderRadius: "50%", background: activeColor || "var(--bg-primary)", border: "1px solid var(--border-light-color)" }} />
-                <ColorPicker value={activeColor || "#000000"} onChange={apply} triggerClassName={styles.colorInput} />
+                <ColorPicker value={activeColor || "#000000"} onChange={(c) => apply(c.oklch)} triggerClassName={styles.colorInput} />
               </div>
               {/* 제거 */}
               {activeColor && (

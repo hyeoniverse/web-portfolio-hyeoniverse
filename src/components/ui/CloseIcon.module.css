@@ -14,6 +14,10 @@
 
 .line {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: calc(var(--close-weight, 1.5px) / -2);
+  margin-left: calc(var(--close-size, 14px) / -2);
   width: var(--close-size, 14px);
   height: var(--close-weight, 1.5px);
   background: currentColor;
@@ -22,10 +26,16 @@
 
 /* compound (0,2,0) to beat global theme transition (0,1,1) */
 .root .line {
-  transition: transform var(--duration-base) var(--ease-material);
+  transition: transform var(--duration-base) var(--ease-material),
+              opacity var(--duration-base) var(--ease-material);
 }
 
-/* Hover on any ancestor with data-close-trigger */
+/* minus 상태 — 두번째 line 숨김 (두 line stacked 으로 인한 subpixel 두꺼움 방지) */
+.root .line:last-child {
+  opacity: 0;
+}
+
+/* Hover on any ancestor with data-close-trigger → X 로 morph */
 [data-close-trigger]:hover .line:first-child,
 .root[data-active] .line:first-child {
   transform: rotate(45deg);
@@ -33,5 +43,6 @@
 
 [data-close-trigger]:hover .line:last-child,
 .root[data-active] .line:last-child {
+  opacity: 1;
   transform: rotate(-45deg);
 }

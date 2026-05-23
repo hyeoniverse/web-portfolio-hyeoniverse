@@ -11,15 +11,18 @@ interface TimePickerPopoverProps {
   onSelect: (hour: string, minute: string) => void;
   onClose: () => void;
   minuteStep?: number;
+  /** trigger 아래 inline 으로 펼침 (absolute popover 대신). */
+  inline?: boolean;
 }
 
 /** 시:분 picker popover — DatePickerPopover와 동일 패턴 */
 export default function TimePickerPopover({
-  hour, minute, onSelect, onClose, minuteStep,
+  hour, minute, onSelect, onClose, minuteStep, inline = false,
 }: TimePickerPopoverProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (inline) return;
     const handler = (e: MouseEvent) => {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
         onClose();
@@ -27,16 +30,20 @@ export default function TimePickerPopover({
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [onClose]);
+  }, [onClose, inline]);
 
   useEffect(() => {
+    if (inline) return;
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [onClose]);
+  }, [onClose, inline]);
 
   return (
-    <div ref={popoverRef} className={styles.popover}>
+    <div
+      ref={popoverRef}
+      className={`${styles.popover}${inline ? ` ${styles.popoverInline}` : ""}`}
+    >
       <motion.div
         className={styles.popoverChrome}
         layout
