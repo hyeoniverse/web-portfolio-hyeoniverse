@@ -438,7 +438,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <div className={styles.componentGroupTitle}>ColorPicker</div>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-md)", flexWrap: "wrap" }}>
           <Tooltip content="render-prop trigger + portal popover">
-            <ColorPicker value={pickerColor} onChange={(c) => setPickerColor(c.oklch)}>
+            <ColorPicker value={pickerColor} onChange={setPickerColor}>
               {({ toggle }) => (
                 <button
                   type="button"
