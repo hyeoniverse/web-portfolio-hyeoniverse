@@ -66,7 +66,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const [seriesPreview, setSeriesPreview] = useState<{ post: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at" | "excerpt" | "excerpt_en" | "tags">; top: number; left: number } | null>(null);
   const [adjacentPosts, setAdjacentPosts] = useState<{ prev: AdjacentPost | null; next: AdjacentPost | null }>({ prev: null, next: null });
   const [recommendedPosts, setRecommendedPosts] = useState<{ id: string; title: string; slug: string; cover_image: string; title_en: string; excerpt: string; excerpt_en: string; category: string; tags: string[] }[]>([]);
-  const [relatedWorks, setRelatedWorks] = useState<{ id: string; title: string; subtitle_ko: string; subtitle_en: string; image: string; year: string; category_ko: string; category_en: string }[]>([]);
+  const [relatedWorks, setRelatedWorks] = useState<{ id: string; slug?: string; title: string; subtitle_ko: string; subtitle_en: string; image: string; year: string; categories_ko?: string[]; categories_en?: string[] }[]>([]);
   const richtextRef = useRef<HTMLDivElement>(null);
   const { containerRef: proseViewerRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const isAdmin = useIsAuthenticated();
@@ -364,9 +364,12 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
               <HorizontalCarousel className={styles.relatedGrid}>
                 {relatedWorks.map((w) => {
                   const subtitle = viewLang === "en" ? (w.subtitle_en || w.subtitle_ko) : (w.subtitle_ko || w.subtitle_en);
-                  const category = viewLang === "en" ? (w.category_en || w.category_ko) : (w.category_ko || w.category_en);
+                  const cats = viewLang === "en"
+                    ? (w.categories_en?.length ? w.categories_en : w.categories_ko ?? [])
+                    : (w.categories_ko?.length ? w.categories_ko : w.categories_en ?? []);
+                  const category = cats[0] || "";
                   return (
-                    <div key={w.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/works/${w.id}`, w.image || "", rect); }} style={{ cursor: "pointer" }} className={styles.relatedCard}>
+                    <div key={w.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/works/${w.slug || w.id}`, w.image || "", rect); }} style={{ cursor: "pointer" }} className={styles.relatedCard}>
                       <div className={styles.relatedCardImage}>
                         {w.image ? (
                           <Image

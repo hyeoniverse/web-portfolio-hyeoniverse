@@ -2,7 +2,7 @@
 .wrapper {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
   user-select: none;
 }
 

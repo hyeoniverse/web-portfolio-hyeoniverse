@@ -29,7 +29,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-md);
 }
 
 .headingRow {

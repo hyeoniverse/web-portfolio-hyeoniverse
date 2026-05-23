@@ -92,16 +92,22 @@
   border-radius: var(--radius-capsule);
 }
 
+/* circle/square — 항상 정사각. flex 컨테이너 안에서 가로로 찌그러지는 것 방지:
+ *   - flex-shrink: 0 (압축 금지)
+ *   - flex-grow: 0 (늘어남도 금지)
+ *   - min-width: width (flex item 의 min-content 가 0 이 되어 줄어드는 케이스 방지) */
 .shape-circle {
   border-radius: var(--radius-circle);
   padding: 0;
   aspect-ratio: 1;
+  flex: 0 0 auto;
 }
 
 .shape-square {
   border-radius: var(--radius-sm);
   padding: 0;
   aspect-ratio: 1;
+  flex: 0 0 auto;
 }
 
 /* circle / square — size 별 고정 width/height. capsule .size-* 의 height 와 동일 semantic 토큰 */
@@ -109,36 +115,42 @@
 .shape-square.size-2xs {
   width: var(--button-h-xs);
   height: var(--button-h-xs);
+  min-width: var(--button-h-xs);
 }
 
 .shape-circle.size-xs,
 .shape-square.size-xs {
   width: var(--button-h-sm);
   height: var(--button-h-sm);
+  min-width: var(--button-h-sm);
 }
 
 .shape-circle.size-sm,
 .shape-square.size-sm {
   width: var(--button-h-md);
   height: var(--button-h-md);
+  min-width: var(--button-h-md);
 }
 
 .shape-circle.size-md,
 .shape-square.size-md {
   width: var(--button-h-lg);
   height: var(--button-h-lg);
+  min-width: var(--button-h-lg);
 }
 
 .shape-circle.size-lg,
 .shape-square.size-lg {
   width: 52px;
   height: 52px;
+  min-width: 52px;
 }
 
 .shape-circle.size-xl,
 .shape-square.size-xl {
   width: 60px;
   height: 60px;
+  min-width: 60px;
 }
 
 /* ---------------------------------------------------------------------------
