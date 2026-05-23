@@ -59,6 +59,28 @@
   border-color: var(--text-primary);
 }
 
+/* ── Size: xs — ColorPicker 등 좁은 popover 안 압축 input ── */
+.wrapperXs {
+  gap: var(--spacing-3xs);
+}
+
+.wrapperXs .label {
+  font-size: var(--font-size-2xs);
+  font-weight: 400;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.xs {
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border-color: var(--border-light-color);
+  font-size: var(--font-size-xs);
+}
+
+.xs:focus {
+  border-color: var(--text-primary);
+}
+
 /* ── Underline variant ── */
 .underline {
   border: none;

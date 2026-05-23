@@ -4,8 +4,8 @@
    ────────────────────────────────────────────────────────────────── */
 .popover {
   position: fixed;
-  z-index: var(--z-tooltip);
-  width: 240px;
+  z-index: var(--z-dropdown);
+  width: 260px;
   padding: var(--spacing-sm);
   background: var(--bg-primary);
   border: var(--border-light);
@@ -55,13 +55,201 @@
   background: var(--_thumb-color, transparent);
 }
 
+/* ── Pad/thumb 의 background/border 등 immediate update (글로벌 theme transition 0.3s 차단)
+ *    drag 중 thumb 색·hue 색이 0.3s 보간되어 "움찔"거리지 않도록 compound (0,2,0) override */
+.popover .svThumb,
+.popover .hueThumb,
+.popover .hsvHueThumb,
+.popover .gradThumb,
+.popover .svPad,
+.popover .slPad,
+.popover .lcPad,
+.popover .hueSlider,
+.popover .gradSlider,
+.popover .hsvSquare,
+.popover .hsvRing {
+  transition: none;
+}
+
+/* ── HSV/HSB wheel — 원형 Hue ring + 안쪽 SV pad (Material 패턴) ── */
+.hsvWheel {
+  position: relative;
+  /* 작은 정사각형 — popover 안 가운데 정렬, max 200px 까지 */
+  width: 200px;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  /* 살짝 padding 으로 ring 이 popover 바깥에 안 닿게 */
+  border-radius: var(--radius-2xl);
+  background: transparent;
+}
+
+/* 외곽 Hue ring — conic-gradient 로 색상환. from -90deg 면 12시=red 시작 */
+.hsvRing {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  background: conic-gradient(from -90deg,
+    hsl(0, 100%, 50%) 0%,
+    hsl(60, 100%, 50%) 16.67%,
+    hsl(120, 100%, 50%) 33.33%,
+    hsl(180, 100%, 50%) 50%,
+    hsl(240, 100%, 50%) 66.67%,
+    hsl(300, 100%, 50%) 83.33%,
+    hsl(360, 100%, 50%) 100%);
+  /* 안쪽 hole — closest-side 명시. default farthest-corner 면 % 가 element 의 대각선 기준이라
+   * ring 두께가 너무 얇게 계산됨. closest-side 면 element radius (size/2) 의 65% = inner radius. */
+  mask: radial-gradient(circle closest-side, transparent 65%, black 66%);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 65%, black 66%);
+  cursor: pointer;
+  touch-action: none;
+}
+
+/* ring 위 hue thumb — 외곽 원주 위 점 */
+.hsvHueThumb {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-circle);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: var(--_hue-color, oklch(62.80% 0.2577 29.23));
+  z-index: 2;
+}
+
+/* 안쪽 square SV pad — ring inner hole 안의 inscribed square.
+ * ring inset 4% + mask 65% 기준 inscribed square 의 inset ≈ 32% (안전 margin 포함) */
+.hsvSquare {
+  position: absolute;
+  inset: 32%;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: crosshair;
+  touch-action: none;
+  background:
+    linear-gradient(to top, oklch(0.00% 0.0000 0.00), transparent),
+    linear-gradient(to right, oklch(100.00% 0.0000 0.00), var(--_hue-color, oklch(62.80% 0.2577 29.23)));
+}
+
+/* ── 2D pad 공통 — 좌상단을 popover 외곽까지 flush ── */
+.svPad, .slPad, .lcPad {
+  position: relative;
+  width: calc(100% + var(--spacing-sm) * 2);
+  margin: calc(var(--spacing-sm) * -1) calc(var(--spacing-sm) * -1) 0;
+  height: 140px;
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  overflow: hidden;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+/* ── SV pad (HEX/RGB/HSV/CMYK) — x=Saturation, y=Value (역방향)
+     가장 전통적 picker UI. 우상단 = pure hue, 좌상단 = white, 하단 전체 = black */
+.svPad {
+  background:
+    linear-gradient(to top, oklch(0.00% 0.0000 0.00), transparent),
+    linear-gradient(to right, oklch(100.00% 0.0000 0.00), var(--_hue-color, oklch(70.00% 0.2000 30.00)));
+}
+
+/* ── SL pad (HSL) — x=Saturation, y=Lightness (역방향)
+     상단 = white, 중간 = pure hue, 하단 = black, 좌측 = gray (HSL gamut 시각화) */
+.slPad {
+  background:
+    linear-gradient(to bottom,
+      oklch(100.00% 0.0000 0.00) 0%,
+      transparent 50%,
+      oklch(0.00% 0.0000 0.00) 100%),
+    linear-gradient(to right,
+      oklch(50.00% 0.0000 0.00),
+      var(--_hue-color, oklch(70.00% 0.2000 30.00)));
+}
+
+/* ── LC pad (OKLCH) — canvas 가 sRGB gamut 안의 OKLCH 영역만 dome 모양으로 그림
+     OK Palette 패턴: x=Lightness 0→100, y=Chroma top=max → 0
+     out-of-gamut 영역은 canvas alpha=0 → 아래 pad 배경 (--bg-secondary) 비침 */
+.lcPad {
+  background: var(--bg-secondary);
+}
+
+.lcCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* sample 해상도가 작으니 부드럽게 보간 */
+  image-rendering: auto;
+}
+
+/* ── OKLCH 채널 stack — 각 채널 [label + input + slider] 가 한 row ── */
+.oklchStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.oklchRow {
+  display: flex;
+  align-items: center;
+  /* thumb 가 0%/100% 일 때 translateX(-50%) 로 slider 좌/우 7px 침범 +
+   * input/popover 와 시각적 여유까지 위해 thumb 반경보다 넉넉히 */
+  gap: var(--spacing-sm);
+}
+
+.oklchChLabel {
+  flex-shrink: 0;
+  width: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.oklchChInput {
+  flex-shrink: 0;
+  width: 56px;
+}
+
+.oklchChSlider {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── OKLCH 모드의 L / C 독립 gradient slider — Hue slider 와 같은 lineup ── */
+.gradSlider {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  margin: 3px 0;
+  border-radius: var(--radius-capsule);
+  cursor: ew-resize;
+  touch-action: none;
+  /* background 은 inline style 로 동적 gradient — L, C, H 값 따라 매번 다름 */
+}
+
+.gradThumb {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-circle);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px oklch(0.00% 0.0000 0.00 / 0.4), 0 1px 2px oklch(0.00% 0.0000 0.00 / 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: var(--_thumb-color, transparent);
+}
+
 /* ── Hue slider ── */
 .hueSlider {
   position: relative;
   width: 100%;
   height: 12px;
+  margin: 3px 0;
   border-radius: var(--radius-capsule);
-  overflow: hidden;
   cursor: ew-resize;
   background: linear-gradient(
     to right,
@@ -100,28 +288,9 @@
   flex-shrink: 0;
   width: var(--button-h-sm);
   height: var(--button-h-sm);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-circle);
   border: 1px solid var(--border-light-color);
   background: var(--_preview-color, transparent);
-}
-
-.hexInput {
-  flex: 1;
-  min-width: 0;
-  height: var(--size-2xs);
-  padding: 0 var(--spacing-xs);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  text-transform: uppercase;
-  outline: none;
-}
-
-.hexInput:focus {
-  border-color: var(--text-primary);
 }
 
 .rgbRow {
@@ -129,38 +298,69 @@
   gap: var(--spacing-2xs);
 }
 
-.rgbField {
+/* row 직속 자식은 모두 균등 분할 — Input wrapper (HEX) 든 .rgbField (channels) 든 동일 폭 */
+.rgbRow > * {
   flex: 1;
+  min-width: 0;
+}
+
+.rgbField {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  /* stretch 로 자식 Input wrapper 가 field 폭 100% 채워 채널 input 균등 분할 */
+  align-items: stretch;
   gap: 2px;
 }
-
-.rgbInput {
-  width: 100%;
-  height: var(--size-2xs);
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-primary);
-  text-align: center;
-  outline: none;
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-
-.rgbInput::-webkit-outer-spin-button,
-.rgbInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
-.rgbInput:focus { border-color: var(--text-primary); }
 
 .rgbLabel {
   font-family: var(--font-mono);
   font-size: 9px;
   color: var(--text-tertiary);
   text-transform: uppercase;
+  text-align: center;
+}
+
+/* ── 공통 Input 컴포넌트 override — ColorPicker 안 좁은 input 전용 ── */
+.pickerInput input {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.pickerInputCenter input {
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.pickerInputCenter input::-webkit-outer-spin-button,
+.pickerInputCenter input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ── Format select — preview 옆 Select 가 남은 폭 채움 ── */
+.formatSelect {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── i info button — Select 오른쪽, Tooltip 으로 format 설명 ── */
+.infoButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: help;
+}
+
+.infoButton:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }

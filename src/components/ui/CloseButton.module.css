@@ -22,9 +22,11 @@
   width: 24px;
   height: 24px;
   --close-size: 12px;
+  --close-weight: 1px;
 }
 
 .md {
   width: var(--button-h-sm);
   height: var(--button-h-sm);
+  --close-weight: 1px;
 }

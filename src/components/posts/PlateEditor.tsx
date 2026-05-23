@@ -1791,12 +1791,13 @@ export default function PlateEditor({
                       <ColorPicker
                         value={colBg || "#ffffff"}
                         onChange={(c) => {
-                          editor.tf.setNodes({ columnBg: c }, { at: activePath });
+                          const v = c.oklch;
+                          editor.tf.setNodes({ columnBg: v }, { at: activePath });
                           const list = colBgRecentColors.current;
-                          if (list[0] !== c) {
-                            const idx = list.indexOf(c);
+                          if (list[0] !== v) {
+                            const idx = list.indexOf(v);
                             if (idx !== -1) list.splice(idx, 1);
-                            list.unshift(c);
+                            list.unshift(v);
                             if (list.length > 5) list.pop();
                             localStorage.setItem("col-bg-recent", JSON.stringify(list));
                             forceColorUpdate((v) => v + 1);
@@ -1841,12 +1842,13 @@ export default function PlateEditor({
                       <ColorPicker
                         value={colDiv && colDiv !== "transparent" ? colDiv : "#d1d5db"}
                         onChange={(c) => {
-                          editor.tf.setNodes({ columnDivider: c }, { at: activePath });
+                          const v = c.oklch;
+                          editor.tf.setNodes({ columnDivider: v }, { at: activePath });
                           const list = colLineRecentColors.current;
-                          if (list[0] !== c) {
-                            const idx = list.indexOf(c);
+                          if (list[0] !== v) {
+                            const idx = list.indexOf(v);
                             if (idx !== -1) list.splice(idx, 1);
-                            list.unshift(c);
+                            list.unshift(v);
                             if (list.length > 5) list.pop();
                             localStorage.setItem("col-line-recent", JSON.stringify(list));
                             forceColorUpdate((v) => v + 1);
@@ -2099,18 +2101,19 @@ export default function PlateEditor({
                     {/* 컬러피커 + 현재색 + 최근 피커색 */}
                     <div className={styles.colorGroup} style={{ gap: 2 }}>
                       <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
-                      <div className={styles.presetDotInline} style={{ background: cBg.startsWith("#") ? cBg : CHECKER_BG, margin: "0 2px" }} />
+                      <div className={styles.presetDotInline} style={{ background: (cBg.startsWith("#") || cBg.startsWith("oklch")) ? cBg : CHECKER_BG, margin: "0 2px" }} />
                       <span style={{ width: 1, alignSelf: "stretch", background: "var(--border-light-color)", flexShrink: 0 }} />
                       <ColorPicker
-                        value={cBg.startsWith("#") ? cBg : "#ffffff"}
+                        value={(cBg.startsWith("#") || cBg.startsWith("oklch")) ? cBg : "#ffffff"}
                         onChange={(c) => {
-                          editor.tf.setNodes({ bg: c }, { at: calloutNode.path });
+                          const v = c.oklch;
+                          editor.tf.setNodes({ bg: v }, { at: calloutNode.path });
                           // 최근색 — 우리 ColorPicker 의 commit 시점에 1회 호출
                           const list = calloutRecentColors.current;
-                          if (list[0] !== c) {
-                            const idx = list.indexOf(c);
+                          if (list[0] !== v) {
+                            const idx = list.indexOf(v);
                             if (idx !== -1) list.splice(idx, 1);
-                            list.unshift(c);
+                            list.unshift(v);
                             if (list.length > 5) list.pop();
                             localStorage.setItem("callout-recent-colors", JSON.stringify(list));
                             forceColorUpdate((v) => v + 1);

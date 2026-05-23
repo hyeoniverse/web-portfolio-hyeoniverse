@@ -38,14 +38,14 @@
   transition: border-radius 0.2s ease 0s, border-color 0.15s ease;
 }
 
-/* 상단 row — 칩 + 트리거 (항상 보임). 다른 form control 들과 같은 높이 (--size-sm 32px) */
+/* 상단 row — 칩 + 트리거 (항상 보임). 다른 form control 과 동일 28px */
 .inputAreaTop {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-xs);
   padding: 0 var(--spacing-md);
-  min-height: var(--input-h);
+  min-height: 28px;
   cursor: text;
 }
 
@@ -145,10 +145,12 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: 4px 4px 4px 4px;
+  padding: 0 6px;
+  height: 28px;
+  box-sizing: border-box;
   border-radius: var(--radius-capsule);
-  background: var(--bg-secondary);
-  border: var(--border-light);
+  background: var(--bg-tertiary);
+  border: none;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-primary);
@@ -189,8 +191,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   color: var(--text-tertiary);
   cursor: move;
   flex-shrink: 0;
@@ -207,8 +209,8 @@
 }
 
 .chipThumb {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -219,8 +221,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
@@ -228,10 +230,19 @@
 }
 
 .chipLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.chipLabelText {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 180px;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .chipRemove {
@@ -303,10 +314,19 @@
 .optionTitle {
   flex: 1;
   min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
   color: var(--text-primary);
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.optionTitleText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .optionMeta {
@@ -325,6 +345,26 @@
   font-size: var(--font-size-2xs);
   font-weight: 600;
   flex-shrink: 0;
+}
+
+/* 글 번호 (인덱스) — 옵션/칩 둘 다 좌측에 # 1, # 2 형태로 표시 */
+.optionIndex,
+.chipIndex {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+/* chip 안 index 만 min-width 제거 — option 의 인덱스는 정렬 위해 24px 유지 */
+.chipIndex {
+  min-width: 0;
 }
 
 .noResults {

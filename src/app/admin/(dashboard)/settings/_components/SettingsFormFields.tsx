@@ -63,7 +63,7 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
     <div className={styles.fieldRow}>
       <label className={styles.fieldLabel}>{label}</label>
       <div className={styles.colorField}>
-        <ColorPicker value={value} onChange={onChange} triggerClassName={styles.colorPicker} />
+        <ColorPicker value={value} onChange={(c) => onChange(c.hex)} triggerClassName={styles.colorPicker} />
         <input
           type="text"
           className={styles.colorText}

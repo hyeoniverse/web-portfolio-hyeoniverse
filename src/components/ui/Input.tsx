@@ -4,7 +4,7 @@ import type { InputHTMLAttributes } from "react";
 import styles from "./Input.module.css";
 
 type Variant = "capsule" | "underline";
-type Size = "sm" | "md";
+type Size = "xs" | "sm" | "md";
 
 interface InputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "size"> {
@@ -32,11 +32,12 @@ export default function Input({
     styles.input,
     variant === "underline" ? styles.underline : "",
     size === "sm" ? styles.sm : "",
+    size === "xs" ? styles.xs : "",
     inlineLabel ? styles.hasInlineLabel : "",
   ].filter(Boolean).join(" ");
 
   return (
-    <div className={`${styles.wrapper} ${size === "sm" ? styles.wrapperSm : ""} ${className ?? ""}`}>
+    <div className={`${styles.wrapper} ${size === "sm" ? styles.wrapperSm : ""} ${size === "xs" ? styles.wrapperXs : ""} ${className ?? ""}`}>
       {label && (
         <label className={styles.label} htmlFor={id}>
           {label}

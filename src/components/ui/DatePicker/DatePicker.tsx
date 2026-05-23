@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import styles from "./DatePicker.module.css";
 
 type Format = "year" | "yearMonth" | "date";
@@ -13,6 +14,10 @@ export interface DatePickerProps {
   mode: "spinner" | "calendar";
   language: "ko" | "en";
   onSelect: (year: string, month: string, day: string) => void;
+  /** 이 시점 이전 cell 은 비활성 */
+  minDate?: Date;
+  /** 이 시점 이후 cell 은 비활성 */
+  maxDate?: Date;
 }
 
 function daysInMonthCount(y: number, m: number): number {
@@ -27,7 +32,7 @@ const WEEKDAYS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 const WEEKDAYS_EN = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 /* ── Spinner Column ── */
-export const SPINNER_ITEM_H = 40;
+export const SPINNER_ITEM_H = 28;
 export const SPINNER_VISIBLE = 5;
 const ITEM_H = SPINNER_ITEM_H;
 const VISIBLE = SPINNER_VISIBLE;
@@ -150,6 +155,8 @@ function SpinnerView({
   format: Format;
   onSelect: (y: string, m: string, d: string) => void;
   language: "ko" | "en";
+  minDate?: Date;  /* spinner mode 에선 visual disable 미구현 — calendar mode 만 적용 */
+  maxDate?: Date;
 }) {
   const now = new Date().getFullYear();
   const yearItems = Array.from({ length: 50 }, (_, i) => {
@@ -194,13 +201,22 @@ function SpinnerView({
 
 /* ── Calendar View ── */
 function CalendarView({
-  year, month, day, format, onSelect, language,
+  year, month, day, format, onSelect, language, minDate, maxDate,
 }: {
   year: string; month: string; day: string;
   format: Format;
   onSelect: (y: string, m: string, d: string) => void;
   language: "ko" | "en";
+  minDate?: Date;
+  maxDate?: Date;
 }) {
+  // min/max 의 date-only (자정) — 비교 시 시간 무시
+  const minDay = minDate
+    ? new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate()).getTime()
+    : null;
+  const maxDay = maxDate
+    ? new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate()).getTime()
+    : null;
   const now = new Date().getFullYear();
   const [viewYear, setViewYear] = useState(Number(year) || now);
   const [viewMonth, setViewMonth] = useState(Number(month) || new Date().getMonth() + 1);
@@ -219,9 +235,9 @@ function CalendarView({
     return (
       <div className={styles.calView}>
         <div className={styles.calNav}>
-          <button type="button" onClick={() => setViewYear(viewYear - 12)}>‹</button>
+          <button type="button" onClick={() => setViewYear(viewYear - 12)} aria-label="Previous"><ChevronLeft size={14} strokeWidth={2} /></button>
           <span>{years[0]}–{years[11]}</span>
-          <button type="button" onClick={() => setViewYear(viewYear + 12)}>›</button>
+          <button type="button" onClick={() => setViewYear(viewYear + 12)} aria-label="Next"><ChevronRight size={14} strokeWidth={2} /></button>
         </div>
         <div className={styles.calYearGrid}>
           {years.map((y) => (
@@ -241,9 +257,9 @@ function CalendarView({
     return (
       <div className={styles.calView}>
         <div className={styles.calNav}>
-          <button type="button" onClick={() => setViewYear(viewYear - 1)}>‹</button>
+          <button type="button" onClick={() => setViewYear(viewYear - 1)} aria-label="Previous year"><ChevronLeft size={14} strokeWidth={2} /></button>
           <span>{viewYear}</span>
-          <button type="button" onClick={() => setViewYear(viewYear + 1)}>›</button>
+          <button type="button" onClick={() => setViewYear(viewYear + 1)} aria-label="Next year"><ChevronRight size={14} strokeWidth={2} /></button>
         </div>
         <div className={styles.calMonthGrid}>
           {mLabels.map((label, i) => {
@@ -286,11 +302,11 @@ function CalendarView({
   return (
     <div className={styles.calView}>
       <div className={styles.calNav}>
-        <button type="button" onClick={() => setViewYear(viewYear - 1)}>«</button>
-        <button type="button" onClick={prevMonth}>‹</button>
+        <button type="button" onClick={() => setViewYear(viewYear - 1)} aria-label="Previous year"><ChevronsLeft size={14} strokeWidth={2} /></button>
+        <button type="button" onClick={prevMonth} aria-label="Previous month"><ChevronLeft size={14} strokeWidth={2} /></button>
         <span>{monthLabel}</span>
-        <button type="button" onClick={nextMonth}>›</button>
-        <button type="button" onClick={() => setViewYear(viewYear + 1)}>»</button>
+        <button type="button" onClick={nextMonth} aria-label="Next month"><ChevronRight size={14} strokeWidth={2} /></button>
+        <button type="button" onClick={() => setViewYear(viewYear + 1)} aria-label="Next year"><ChevronsRight size={14} strokeWidth={2} /></button>
       </div>
       <div className={styles.calDayGrid}>
         {weekdays.map((wd) => (
@@ -301,11 +317,14 @@ function CalendarView({
           const dv = String(d).padStart(2, "0");
           const mv = String(viewMonth).padStart(2, "0");
           const active = String(viewYear) === year && mv === month && dv === day;
+          const cellTime = new Date(viewYear, viewMonth - 1, d).getTime();
+          const outOfRange = (minDay !== null && cellTime < minDay) || (maxDay !== null && cellTime > maxDay);
           return (
             <button
               key={d} type="button"
-              className={`${styles.calDayCell} ${active ? styles.calCellActive : ""}`}
-              onClick={() => onSelect(String(viewYear), mv, dv)}
+              className={`${styles.calDayCell} ${active ? styles.calCellActive : ""} ${outOfRange ? styles.calCellDisabled : ""}`}
+              onClick={() => { if (!outOfRange) onSelect(String(viewYear), mv, dv); }}
+              disabled={outOfRange}
             >{d}</button>
           );
         })}
@@ -316,11 +335,11 @@ function CalendarView({
 
 /* ── Main ── */
 export default function DatePicker({
-  year, month, day, format, mode, language, onSelect,
+  year, month, day, format, mode, language, onSelect, minDate, maxDate,
 }: DatePickerProps) {
   return mode === "spinner" ? (
-    <SpinnerView year={year} month={month} day={day} format={format} onSelect={onSelect} language={language} />
+    <SpinnerView year={year} month={month} day={day} format={format} onSelect={onSelect} language={language} minDate={minDate} maxDate={maxDate} />
   ) : (
-    <CalendarView year={year} month={month} day={day} format={format} onSelect={onSelect} language={language} />
+    <CalendarView year={year} month={month} day={day} format={format} onSelect={onSelect} language={language} minDate={minDate} maxDate={maxDate} />
   );
 }
