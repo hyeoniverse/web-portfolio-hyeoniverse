@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { ChevronRight, GripVertical, ImageIcon, Search } from "lucide-react";
 import { motion, LayoutGroup } from "framer-motion";
+import CloseButton from "@/components/ui/CloseButton";
 import styles from "./RelationPicker.module.css";
 
 interface RelationPickerProps<T> {
@@ -159,12 +160,12 @@ export default function RelationPicker<T>({
         </div>
 
         {/* 항상 렌더 — 닫힘 시 CSS 로 숨김. 열림 시 radius transition 먼저, 그 후 expand */}
-        <div className={styles.inputAreaExpand} role="listbox" aria-hidden={!open}>
+        <div className={styles.inputAreaExpand} role="listbox" aria-hidden={!open} data-lenis-prevent>
           <div className={styles.dropdownList}>
             {candidates.length === 0 ? (
               <div className={styles.noResults}>{noResultsText || "No matches"}</div>
             ) : (
-              candidates.map((it) => {
+              candidates.map((it, idx) => {
                 const id = getId(it);
                 const status = getStatus?.(it);
                 const thumb = getThumb?.(it);
@@ -179,6 +180,7 @@ export default function RelationPicker<T>({
                     onClick={() => add(id)}
                     tabIndex={open ? 0 : -1}
                   >
+                    <span className={styles.optionIndex}>#{idx + 1}</span>
                     {thumb && !thumbBroken ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
@@ -192,12 +194,14 @@ export default function RelationPicker<T>({
                         <ImageIcon size={14} strokeWidth={1.5} />
                       </span>
                     ) : null}
-                    <span className={styles.optionTitle}>{getTitle(it)}</span>
+                    <span className={styles.optionTitle}>
+                      <span className={styles.optionTitleText}>{getTitle(it)}</span>
+                      {status === "draft" && (
+                        <span className={styles.statusDraft}>Draft</span>
+                      )}
+                    </span>
                     {getMeta && (
                       <span className={styles.optionMeta}>{getMeta(it)}</span>
-                    )}
-                    {status === "draft" && (
-                      <span className={styles.statusDraft}>Draft</span>
                     )}
                   </button>
                 );
@@ -212,11 +216,12 @@ export default function RelationPicker<T>({
       {selected.length > 0 && (
         <LayoutGroup>
           <div className={styles.chipRow}>
-            {selected.map((it) => {
+            {selected.map((it, idx) => {
               const id = getId(it);
               const status = getStatus?.(it);
               const thumb = getThumb?.(it);
               const thumbBroken = !!thumb && thumbErrors.has(`chip:${id}`);
+              const chipIndex = idx + 1;
               const isDragging = dragId === id;
               // 삽입 위치 = drag 방향에 따라 target chip 의 왼쪽 / 오른쪽
               // dragIdx > targetIdx → 우→좌 이동, target 앞에 삽입 → 왼쪽 indicator
@@ -288,6 +293,7 @@ export default function RelationPicker<T>({
                   >
                     <GripVertical size={12} strokeWidth={1.8} />
                   </span>
+                  <span className={styles.chipIndex}>#{chipIndex}</span>
                   {thumb && !thumbBroken ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
@@ -301,15 +307,18 @@ export default function RelationPicker<T>({
                       <ImageIcon size={10} strokeWidth={1.6} />
                     </span>
                   ) : null}
-                  <span className={styles.chipLabel}>{getTitle(it)}</span>
-                  <button
-                    type="button"
+                  <span className={styles.chipLabel}>
+                    <span className={styles.chipLabelText}>{getTitle(it)}</span>
+                    {status === "draft" && (
+                      <span className={styles.statusDraft}>Draft</span>
+                    )}
+                  </span>
+                  <CloseButton
+                    size="sm"
                     className={styles.chipRemove}
                     onClick={(e) => { e.stopPropagation(); remove(id); }}
-                    aria-label="Remove"
-                  >
-                    ✕
-                  </button>
+                    ariaLabel="Remove"
+                  />
                 </motion.span>
               );
             })}

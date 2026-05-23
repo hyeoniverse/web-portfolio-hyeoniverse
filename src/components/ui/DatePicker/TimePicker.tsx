@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import { SpinnerColumn } from "./DatePicker";
 import styles from "./DatePicker.module.css";
 
@@ -75,26 +76,14 @@ export default function TimePicker({
   return (
     <div>
       <div className={styles.timeFormatBar}>
-        <div className={styles.timeFormatToggle} role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={format === "24"}
-            className={`${styles.timeFormatBtn} ${format === "24" ? styles.timeFormatBtnActive : ""}`}
-            onClick={() => setFormat("24")}
-          >
-            24h
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={format === "12"}
-            className={`${styles.timeFormatBtn} ${format === "12" ? styles.timeFormatBtnActive : ""}`}
-            onClick={() => setFormat("12")}
-          >
-            12h
-          </button>
-        </div>
+        <SegmentedControl<"24" | "12">
+          items={[
+            { value: "24", label: "24h" },
+            { value: "12", label: "12h" },
+          ]}
+          value={format}
+          onChange={setFormat}
+        />
       </div>
 
       <div className={styles.spinnerView}>

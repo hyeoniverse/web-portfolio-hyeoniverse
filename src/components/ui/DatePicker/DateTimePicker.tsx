@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import DatePickerPopover from "./DatePickerPopover";
 import TimePickerPopover from "./TimePickerPopover";
@@ -11,13 +12,19 @@ interface DateTimePickerProps {
   value: string | null;
   onChange: (iso: string | null) => void;
   disabled?: boolean;
+  /** 이 시점 이전은 선택 불가 (예: 예약 발행 — 현재 이전 disable). Date 객체 */
+  minDate?: Date;
+  /** 이 시점 이후는 선택 불가 (예: 미래 시점 차단). Date 객체 */
+  maxDate?: Date;
+  /** 날짜/시간 picker 가 absolute popover 대신 trigger 아래에 inline 으로 펼쳐짐. */
+  inline?: boolean;
 }
 
 /** 날짜 + 시간(시:분) picker — 예약 발행 등에 사용
  *  - 날짜 부분: 기존 DatePickerPopover 재사용
  *  - 시간 부분: 24h HH:mm 입력
  *  - 출력: ISO timestamp (UTC) — `value` 가 ISO 면 로컬로 표시 */
-export default function DateTimePicker({ value, onChange, disabled }: DateTimePickerProps) {
+export default function DateTimePicker({ value, onChange, disabled, minDate, maxDate, inline = false }: DateTimePickerProps) {
   const { language } = useLanguage();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [timeOpen, setTimeOpen] = useState(false);
@@ -89,19 +96,26 @@ export default function DateTimePicker({ value, onChange, disabled }: DateTimePi
     : language === "ko" ? "날짜 선택" : "Select date";
 
   return (
-    <div className={styles.dateRow}>
+    <div className={`${styles.dateRow}${inline ? ` ${styles.dateRowInline}` : ""}`}>
       <div className={styles.dateInputs}>
         <div className={styles.pickerAnchor} style={{ position: "relative" }}>
           <button
             type="button"
-            onClick={() => !disabled && setPickerOpen((v) => !v)}
+            onClick={() => {
+              if (disabled) return;
+              setPickerOpen((v) => {
+                const next = !v;
+                if (next && inline) setTimeOpen(false);
+                return next;
+              });
+            }}
             disabled={disabled}
             className={styles.yearInput}
             style={{ width: "auto", minWidth: 110, textAlign: "left", padding: "var(--box-xs)" }}
           >
             {dateLabel}
           </button>
-          {pickerOpen && (
+          {pickerOpen && !inline && (
             <DatePickerPopover
               year={year || String(new Date().getFullYear())}
               month={month || String(new Date().getMonth() + 1).padStart(2, "0")}
@@ -109,6 +123,8 @@ export default function DateTimePicker({ value, onChange, disabled }: DateTimePi
               format="date"
               onSelect={handleDateSelect}
               onClose={() => setPickerOpen(false)}
+              minDate={minDate}
+              maxDate={maxDate}
             />
           )}
         </div>
@@ -116,14 +132,21 @@ export default function DateTimePicker({ value, onChange, disabled }: DateTimePi
         <div className={styles.pickerAnchor} style={{ position: "relative" }}>
           <button
             type="button"
-            onClick={() => !disabled && setTimeOpen((v) => !v)}
+            onClick={() => {
+              if (disabled) return;
+              setTimeOpen((v) => {
+                const next = !v;
+                if (next && inline) setPickerOpen(false);
+                return next;
+              });
+            }}
             disabled={disabled}
             className={styles.yearInput}
             style={{ width: "auto", minWidth: 90, textAlign: "left", padding: "var(--box-xs)" }}
           >
             {validLocal ? time : (language === "ko" ? "시간" : "Time")}
           </button>
-          {timeOpen && (
+          {timeOpen && !inline && (
             <TimePickerPopover
               hour={hourPart || "09"}
               minute={minPart || "00"}
@@ -135,6 +158,52 @@ export default function DateTimePicker({ value, onChange, disabled }: DateTimePi
           )}
         </div>
       </div>
+      {inline && (
+        <div className={styles.dateRowInlinePanels}>
+          <AnimatePresence initial={false}>
+            {pickerOpen && (
+              <motion.div
+                key="date-inline-panel"
+                initial={{ clipPath: "inset(0 0 100% 0)", maxHeight: 0, opacity: 0 }}
+                animate={{ clipPath: "inset(0 0 0 0)", maxHeight: 600, opacity: 1 }}
+                exit={{ clipPath: "inset(0 0 100% 0)", maxHeight: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                style={{ overflow: "hidden" }}
+              >
+                <DatePickerPopover
+                  year={year || String(new Date().getFullYear())}
+                  month={month || String(new Date().getMonth() + 1).padStart(2, "0")}
+                  day={day || String(new Date().getDate()).padStart(2, "0")}
+                  format="date"
+                  onSelect={handleDateSelect}
+                  onClose={() => setPickerOpen(false)}
+                  minDate={minDate}
+                  maxDate={maxDate}
+                  inline
+                />
+              </motion.div>
+            )}
+            {timeOpen && (
+              <motion.div
+                key="time-inline-panel"
+                initial={{ clipPath: "inset(0 0 100% 0)", maxHeight: 0, opacity: 0 }}
+                animate={{ clipPath: "inset(0 0 0 0)", maxHeight: 600, opacity: 1 }}
+                exit={{ clipPath: "inset(0 0 100% 0)", maxHeight: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                style={{ overflow: "hidden" }}
+              >
+                <TimePickerPopover
+                  hour={hourPart || "09"}
+                  minute={minPart || "00"}
+                  onSelect={handleTimeSelect}
+                  onClose={() => setTimeOpen(false)}
+                  inline
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }

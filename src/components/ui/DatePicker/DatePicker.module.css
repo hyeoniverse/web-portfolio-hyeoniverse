@@ -1,9 +1,18 @@
 .wrapper {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: var(--spacing-sm);
-  row-gap: var(--spacing-sm);
+  /* flex row wrap — 표시형식 / 미리보기 / 날짜 옵션이 가로로 packing.
+   * formatRow / preview 의 display:contents 가 자식을 wrapper 의 직접 flex item 으로 통과시킴.
+   * dateRows 는 flex-basis 100% 로 다음 줄로 떨어짐.
+   * min-width:0 — flex item 의 min-content 가 0 이라야 너비 부족 시 줄바꿈 발생 */
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: var(--spacing-sm) var(--spacing-md);
+  min-width: 0;
+}
+
+/* wrapper 자식들이 너무 wide 해서 줄바꿈을 막는 경우 방지 */
+.wrapper > * {
+  min-width: 0;
 }
 
 /* ── Format segment ── */
@@ -21,7 +30,6 @@
 
 .formatSegment {
   display: flex;
-  grid-column: 2;
   width: fit-content;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
@@ -52,7 +60,8 @@
    .dateRow 는 .dateRows 안에서는 자체 flex container 가 되고, wrapper 그리드
    직속이 아닌 상태가 되므로 display:contents 트릭을 쓰지 않는다. */
 .dateRows {
-  grid-column: 1 / -1;
+  /* flex item 이 다음 줄로 떨어지도록 width 100% */
+  flex-basis: 100%;
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-sm) var(--spacing-md);
@@ -62,8 +71,10 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  flex: 1 1 240px;
-  min-width: 0;
+  /* basis 240 은 실제 콘텐츠 (label + year/month/day select + sep + calendar btn) ~320px 보다 작아
+   * 부모가 ~500px 일 때 둘 다 한 줄에 우겨져 들어가서 wrap 이 트리거 안 됨. basis 를 실제 콘텐츠 폭에 맞춤. */
+  flex: 1 1 320px;
+  min-width: 280px;
 }
 
 .dateLabel {
@@ -77,6 +88,7 @@
 .dateInputs {
   display: flex;
   align-items: center;
+  align-self: flex-start;
   gap: var(--spacing-2xs);
   flex: 1;
   min-width: 0;
@@ -104,6 +116,11 @@
 }
 
 .dateSep {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  line-height: 1;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
@@ -128,6 +145,24 @@
   color: var(--text-primary);
   white-space: nowrap;
   justify-content: center;
+}
+
+/* 더블클릭 시 자유 입력 input — dropdown trigger 와 같은 visual */
+.partInput {
+  width: 48px;
+  padding: var(--box-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  text-align: center;
+  outline: none;
+}
+
+.partInput:focus {
+  border-color: var(--text-primary);
 }
 
 .dropdownTrigger:hover {
@@ -194,9 +229,12 @@
   gap: var(--spacing-sm);
 }
 
-/* ── Preview ── */
+/* ── Preview ── 자체 wrapper 로 다음 줄에 떨어짐 (label + text 묶음 유지) */
 .preview {
-  display: contents;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-basis: 100%;
 }
 
 .previewLabel {
@@ -240,13 +278,57 @@
   opacity: 0.4;
 }
 
-/* ── Popover anchor (positioning만) ── */
+/* ── Popover anchor (positioning만) ── trigger 바로 아래 붙도록 gap 0 */
 .popover {
   position: absolute;
-  top: calc(100% + 6px);
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   z-index: var(--z-nav);
+}
+
+/* inline 모드 — absolute popover 대신 trigger 아래에 일반 block 으로 펼침.
+ * 애니메이션은 호출부 (DateTimePicker) 의 framer-motion 으로 처리. */
+.popoverInline {
+  position: static;
+  transform: none;
+  z-index: auto;
+}
+
+/* inline 모드에서는 부모 popover 안에 들어가므로 chrome shadow/border 불필요 — 부모 곡률만 살림 */
+.popoverInline .popoverChrome {
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  width: 100%;
+}
+
+/* dateRow 가 inline 패널을 column 으로 쌓아야 하므로 flex-direction 전환.
+ * flex: 1 1 240px 가 column 컨테이너 안에서는 flex-basis=240px(높이) 로 잡혀
+ * 부모 popup 을 강제로 키우는 부작용 → inline 일 땐 height-auto.
+ * gap 도 0 — panel 의 motion clip-path 가 자체적으로 위쪽 간격을 0 으로 collapse 해야 자연스러움 */
+.dateRowInline {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  flex: 0 0 auto;
+}
+
+.dateRowInlinePanels {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--spacing-sm);
+  /* clip-path 마스크 시 chrome 잘림 방지 + 부드러운 펼침. motion overflow 컨트롤은 inline 으로 */
+}
+
+/* inline popover 패널들 사이 (date 닫히고 time 열릴 때) 간격 */
+.popoverInline + .popoverInline {
+  margin-top: var(--spacing-sm);
+}
+
+/* panels 가 비어있을 때 (둘 다 닫힘) dateRowInline 아래 잔여 공간 발생 방지 */
+.dateRowInline > .dateRowInlinePanels:empty {
+  display: none;
 }
 
 /* Popover chrome — 너비/높이 transition 을 위해 분리 (motion 가능) */
@@ -259,12 +341,12 @@
   overflow: hidden;
 }
 
-/* ── Spinner ── */
+/* ── Spinner ── slim 화. 위 timeFormatBar 와 간격 0 (label 이 자체 margin 으로 띄움) */
 .spinnerView {
   display: flex;
   justify-content: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-md) var(--spacing-sm) var(--spacing-2xs);
+  gap: var(--spacing-2xs);
+  padding: 0 var(--spacing-xs) var(--spacing-2xs);
 }
 
 .spinnerCol {
@@ -298,12 +380,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* slim — height/font 작게. 너비는 약간 여유 있게 유지 */
   min-width: 56px;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
-  padding: 0 var(--spacing-xs);
+  padding: 0 var(--spacing-sm);
   white-space: nowrap;
   user-select: none;
   border-radius: var(--radius-capsule);
@@ -366,15 +449,15 @@
   color: var(--text-primary);
 }
 
-/* ── 컬럼 라벨 (년/월/일, 시/분, 오전/오후) — 컬럼 위에 표시 ── */
+/* ── 컬럼 라벨 (년/월/일, 시/분, 오전/오후) — 컬럼 위에 표시, slim 화 ── */
 .spinnerLabel {
   display: block;
   text-align: center;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: 10px;
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   text-transform: uppercase;
   user-select: none;
 }
@@ -383,6 +466,8 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  /* 위 timeFormatBar 와 간격 확보 */
+  margin-top: var(--spacing-sm);
 }
 
 /* ── Time spinner separator ":" ──
@@ -396,12 +481,14 @@
 }
 
 .timeSepGlyph {
-  height: 200px; /* SPINNER_ITEM_H * SPINNER_VISIBLE = 40 * 5 */
+  /* SPINNER_ITEM_H * SPINNER_VISIBLE = 28 * 5 = 140 — spinner 전체 height 와 동일,
+   * flex center 라 ":" 가 가운데 행 (= spinnerHighlight) 와 수직 정렬 */
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--text-primary);
   padding: 0 2px;
@@ -411,7 +498,7 @@
 .timeFormatBar {
   display: flex;
   justify-content: center;
-  padding: var(--spacing-sm) var(--spacing-sm) 0;
+  padding: var(--spacing-xs) var(--spacing-xs) 0;
 }
 
 .timeFormatToggle {
@@ -447,27 +534,30 @@
 
 /* ── Calendar shared ── */
 .calView {
-  padding: var(--spacing-sm);
+  padding: var(--spacing-xs);
 }
 
 .calNav {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--spacing-2xs);
   margin-bottom: var(--spacing-sm);
 }
 
 .calNav button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: var(--button-h-sm);
   height: var(--button-h-sm);
+  padding: 0;
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  /* icon-only 라 정확한 원형 */
+  border-radius: var(--radius-circle);
   background: transparent;
-  font-size: var(--font-size-md);
   color: var(--text-secondary);
+  cursor: pointer;
 }
 
 .calNav button:hover {
@@ -476,6 +566,8 @@
 }
 
 .calNav span {
+  /* 화살표 button 과 사이 간격 확보 */
+  padding: 0 var(--spacing-md);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -566,6 +658,15 @@
   color: var(--text-primary);
 }
 
+.calDayCell.calCellDisabled,
+.calDayCell.calCellDisabled:hover {
+  color: var(--text-muted);
+  background: transparent;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
 .calDayCell.calCellActive:hover {
   background: var(--text-primary);
   color: var(--bg-primary);
@@ -576,8 +677,6 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  grid-column: 2;
-  padding-left: var(--spacing-2xs);
 }
 
 /* ── Responsive ── */
