@@ -4,30 +4,24 @@
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   overflow: hidden;
-  /* 펼칠 때 — height + opacity + 살짝 위에서 내려오는 미세한 translate
-     ease-out-expo 곡선으로 자연스럽게 settle */
+  /* 펼칠 때 — clip-path 로 위→아래 reveal + max-height 로 아래 layout 도 함께 push down */
   animation: coverPickerExpand 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   transform-origin: top;
-  will-change: max-height, opacity, transform;
+  will-change: clip-path, max-height;
 }
 
 @keyframes coverPickerExpand {
   0% {
+    clip-path: inset(0 0 100% 0);
     max-height: 0;
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  60% {
-    opacity: 1;
   }
   100% {
+    clip-path: inset(0 0 0 0);
     max-height: 1200px;
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
-/* 닫힐 때 — 역방향 애니메이션. consumer 가 closing 상태를 관리하고
+/* 닫힐 때 — 위→아래 collapse. consumer 가 closing 상태를 관리하고
    언마운트를 지연시키는 동안 이 클래스가 적용됨 */
 .pickerClosing {
   animation: coverPickerCollapse 0.45s cubic-bezier(0.4, 0, 0.6, 1) forwards;
@@ -35,17 +29,12 @@
 
 @keyframes coverPickerCollapse {
   0% {
+    clip-path: inset(0 0 0 0);
     max-height: 1200px;
-    opacity: 1;
-    transform: translateY(0);
-  }
-  40% {
-    opacity: 0;
   }
   100% {
+    clip-path: inset(0 0 100% 0);
     max-height: 0;
-    opacity: 0;
-    transform: translateY(-6px);
   }
 }
 
@@ -66,8 +55,10 @@
   background: var(--bg-tertiary);
 }
 
-/* close 버튼은 가장 우측 — 그 사이 가용 공간을 history 버튼 등 다음 형제가 차지 */
-.header .closeBtn {
+/* close 버튼은 가장 우측 — Tooltip 이 .closeBtn 을 <span> 으로 감싸서
+ * .closeBtn 자체에 margin-left:auto 는 효과 없음 (flex item 은 wrapping span).
+ * .header 의 마지막 직접 자식 (= Tooltip span) 에 적용해야 우측 push 됨 */
+.header > :last-child {
   margin-left: auto;
 }
 
@@ -193,12 +184,34 @@
 }
 
 /* ── Custom Gradient Editor — preset 위, 가로 배치로 컴팩트하게 ── */
+/* CustomGradient — CSS Grid layout 으로 데스크탑/모바일 area 분기.
+ * 데스크탑: preview 가 좌측 column 3 row 차지 + 우측 column 에 scheme/stops/group 세로 stack
+ * 모바일: preview + group 가로 (위), scheme/stops 풀폭 (아래) */
 .customGradient {
-  display: flex;
-  align-items: stretch;
-  gap: var(--spacing-xl);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "preview scheme"
+    "preview stops"
+    "preview group";
+  column-gap: var(--spacing-xl);
+  row-gap: var(--spacing-md);
   padding: var(--spacing-sm);
   border-bottom: var(--border-light);
+  align-items: start;
+}
+
+.customGradientPreview {
+  grid-area: preview;
+}
+.schemeRow {
+  grid-area: scheme;
+}
+.stopBarWrap {
+  grid-area: stops;
+}
+.customGroup {
+  grid-area: group;
 }
 
 /* preview — 컴팩트 사이즈 (작은 16:9 카드) + radius 2xl */
@@ -217,19 +230,10 @@
   display: block;
 }
 
-/* 컨트롤 — 우측 column, 색 row + type/angle/apply row */
-.customGradientControls {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  flex: 1;
-  min-width: 0;
-}
-
 /* ── Adobe Color 스타일 scheme selector — base color + 조합 chip 들 ── */
 .schemeRow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacing-xs);
   flex-wrap: wrap;
 }
@@ -250,7 +254,7 @@
   border: 2px solid var(--bg-primary);
   box-shadow:
     0 0 0 1px var(--border-light-color),
-    0 1px 4px oklch(0.00% 0.0000 0.00 / 0.15);
+    0 1px 4px oklch(0% 0 0 / 0.15);
   pointer-events: none;
 }
 
@@ -318,7 +322,10 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .schemeRow .schemeImageBtn:hover:not(:disabled) {
@@ -327,7 +334,10 @@
   color: var(--bg-primary);
 }
 
-.schemeImageBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.schemeImageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* 추출된 palette row — 라벨 + 5개 swatch */
 .extractedRow {
@@ -401,6 +411,48 @@
   cursor: grabbing;
 }
 
+/* ── stop 제거 버튼 — hover 시 swatch 아래에 표시 (stops.length > 2 일 때만 render) ── */
+.stopHandleRemove {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  /* compound (0,2,0) — global theme transition 의 background-color 0.3s override */
+}
+
+.stopHandle .stopHandleRemove {
+  transition:
+    opacity 0.12s,
+    background-color 0.12s,
+    color 0.12s;
+}
+
+.stopHandle:hover .stopHandleRemove,
+.stopHandle:focus-within .stopHandleRemove {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.stopHandle .stopHandleRemove:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
 /* 위쪽 화살표 — handle 이 bar 아래에 있으므로 화살표는 위(bar 쪽)를 가리킴 */
 .stopHandleArrow {
   width: 0;
@@ -408,7 +460,7 @@
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-bottom: 6px solid var(--bg-primary);
-  filter: drop-shadow(0 -1px 1px oklch(0.00% 0.0000 0.00 / 0.2));
+  filter: drop-shadow(0 -1px 1px oklch(0% 0 0 / 0.2));
   margin-bottom: -1px;
 }
 
@@ -422,7 +474,7 @@
   height: 18px;
   border-radius: 4px;
   border: 2px solid var(--bg-primary);
-  box-shadow: 0 1px 3px oklch(0.00% 0.0000 0.00 / 0.2);
+  box-shadow: 0 1px 3px oklch(0% 0 0 / 0.2);
 }
 
 /* drag grip — swatch 가운데 가로 두 줄 (옅은 흰색 + 옅은 검정 outline 으로 어떤 색 위에서도 보이게) */
@@ -434,15 +486,15 @@
     to bottom,
     transparent 0,
     transparent 1px,
-    oklch(100.00% 0.0000 0.00 / 0.85) 1px,
-    oklch(100.00% 0.0000 0.00 / 0.85) 2px,
+    oklch(100% 0 0 / 0.85) 1px,
+    oklch(100% 0 0 / 0.85) 2px,
     transparent 2px,
     transparent 4px,
-    oklch(100.00% 0.0000 0.00 / 0.85) 4px,
-    oklch(100.00% 0.0000 0.00 / 0.85) 5px,
+    oklch(100% 0 0 / 0.85) 4px,
+    oklch(100% 0 0 / 0.85) 5px,
     transparent 5px
   );
-  filter: drop-shadow(0 0 1px oklch(0.00% 0.0000 0.00 / 0.4));
+  filter: drop-shadow(0 0 1px oklch(0% 0 0 / 0.4));
   pointer-events: none;
 }
 
@@ -634,6 +686,7 @@
 .customRow {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
 }
@@ -684,6 +737,13 @@
 
 /* 슬라이더 그룹 — 각도/크기/속도 가로 wrap */
 .customSliders {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+/* customRow + customSliders 를 묶는 wrapper — 모바일 layout 분기 단위 */
+.customGroup {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2xs);
@@ -753,7 +813,7 @@
     transform 0.2s ease;
 }
 
-.customGradientControls .customRandomBtn:hover {
+.customGradient .customRandomBtn:hover {
   border-color: var(--text-primary);
   color: var(--text-primary);
   transform: rotate(180deg);
@@ -765,6 +825,8 @@
   gap: 6px;
   height: var(--size-2xs);
   padding: 0 var(--spacing-md);
+  /* customRow flex 안 마지막 item 을 오른쪽 끝으로 push */
+  margin-left: auto;
   border: none;
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
@@ -1420,7 +1482,9 @@
   color: var(--text-inverse);
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 
 .historyGridItem:hover .historyOverlayBtn,
@@ -1565,22 +1629,40 @@
 }
 
 @media (max-width: 768px) {
+  /* CustomGradient — 모바일에선 preview + group 가로 한 row, scheme/stops 풀폭 */
+  .customGradient {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "preview group"
+      "scheme  scheme"
+      "stops   stops";
+    column-gap: var(--spacing-md);
+    row-gap: var(--spacing-md);
+  }
+
+  /* preset / unsplash grid — 모바일에선 3열 (이전엔 2열) */
   .presetGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .unsplashGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* 모바일 — 2-col 이라 nth-child(2n) 가 우측 열. 우측 border 제거 + 4n 룰
-     (PC 용) 이 우측을 비우려고 적용해놓은 것 다시 켜기 */
-  .presetGrid .presetItem,
+  /* 3-col 이라 nth-child(3n) 가 우측 열. 우측 border 제거 (4n PC 룰 무력화) */
+  .presetGrid .presetItem {
+    border-right: var(--border-light);
+  }
+
+  .presetGrid .presetItem:nth-child(3n) {
+    border-right: none;
+  }
+
+  /* unsplash 는 여전히 2열 */
   .unsplashGrid .unsplashItem {
     border-right: var(--border-light);
   }
 
-  .presetGrid .presetItem:nth-child(2n),
   .unsplashGrid .unsplashItem:nth-child(2n) {
     border-right: none;
   }

@@ -6,6 +6,7 @@ import { Upload, ImageIcon, X, Palette, Copy } from "lucide-react";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
+import Button from "@/components/ui/Button";
 import { extractPalette } from "./extractPalette";
 import styles from "./CoverImageField.module.css";
 
@@ -104,48 +105,57 @@ export default function CoverImageField({
   const buttonText = isInteractive ? closeLabel : chooseLabel;
   const displaySrc = enablePlaceholderFallback && imgErrored ? "/images/placeholder.svg" : value;
 
-  // 라벨 라인의 inline 액션 버튼들 — border 없이 컴팩트
+  // 라벨 라인의 inline 액션 버튼들 — 공통 Button (ghost) + className 으로 현재 크기 유지
   const inlineActions = (
     <div className={styles.inlineActions}>
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="xs"
         className={styles.inlineBtn}
         onClick={onUpload}
         title={uploadLabel}
+        icon={<Upload size={12} strokeWidth={2} />}
       >
-        <Upload size={12} strokeWidth={2} />
-        <span>{uploadLabel}</span>
-      </button>
-      <button
-        type="button"
-        className={styles.inlineBtn}
-        onClick={onPickerToggle}
-        title={buttonText}
+        {uploadLabel}
+      </Button>
+      <motion.div
+        layout
+        transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+        style={{ display: "inline-flex" }}
       >
-        <ImageIcon size={12} strokeWidth={2} />
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span
-            key={isInteractive ? "close" : "open"}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-            className={styles.toggleBtnText}
-          >
-            {buttonText}
-          </motion.span>
-        </AnimatePresence>
-      </button>
+        <Button
+          variant="ghost"
+          size="xs"
+          className={styles.inlineBtn}
+          onClick={onPickerToggle}
+          title={buttonText}
+          icon={<ImageIcon size={12} strokeWidth={2} />}
+        >
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.span
+              key={isInteractive ? "close" : "open"}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+              className={styles.toggleBtnText}
+            >
+              {buttonText}
+            </motion.span>
+          </AnimatePresence>
+        </Button>
+      </motion.div>
       {value && (
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="xs"
           className={`${styles.inlineBtn} ${styles.inlineBtnRemove}`}
           onClick={() => { onChange(""); setImgErrored(false); }}
           title={removeLabel}
+          icon={<X size={12} strokeWidth={2.2} />}
         >
-          <X size={12} strokeWidth={2.2} />
-          <span>{removeLabel}</span>
-        </button>
+          {removeLabel}
+        </Button>
       )}
     </div>
   );

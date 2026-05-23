@@ -11,9 +11,29 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-2xl);
-  padding-bottom: var(--spacing-lg);
+  /* padding + margin 같은 token 으로 통일 — section divider 의 위/아래 균등 spacing */
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl);
   border-bottom: var(--border-light);
+}
+
+/* topBar 안의 모든 control (Button / BackLink / LanguageToggle 등) height 통일 —
+ * 다양한 size variant (xs/sm) 무시하고 28px 로 일치 */
+.topBar button,
+.topBar .saveBtn,
+.topBar .publishBtn {
+  height: 28px;
+  min-height: 28px;
+}
+
+/* icon-only button (Button shape="circle" / "square") 은 정사각 비례 유지 —
+ * CSS Modules hash 된 class 가 `*__shape-circle` 패턴이라 attribute selector 로 매칭 */
+.topBar button[class*="shape-circle"],
+.topBar button[class*="shape-square"] {
+  width: 28px;
+  min-width: 28px;
+  aspect-ratio: 1 / 1;
+  padding: 0;
 }
 
 .topBarRow {
@@ -21,14 +41,27 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
+  /* 좁은 viewport 에서 겹침 방지 — wrap 으로 자동 줄바꿈 */
+  flex-wrap: wrap;
 }
 
-.topLeft {
-  display: flex;
+/* nav 묶음 — BackLink + extra (Checkbox) + LanguageToggle 한 group, no wrap */
+.navGroup {
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-md);
-  flex-shrink: 0;
+  flex-wrap: nowrap;
+  gap: var(--spacing-sm);
 }
+
+/* save 묶음 — Preview / SaveDraft / Publish 한 group, no wrap (작은 화면에서도 한 줄 유지) */
+.saveGroup {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: var(--spacing-sm);
+}
+
+
 
 .topBarRow:last-child {
   justify-content: flex-end;
@@ -38,8 +71,10 @@
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
-  min-width: 0;
+  /* flex:1 로 row 의 우측 영역 차지 → 안쪽 .actionGroup 의 space-between 가 작동.
+   * (모바일에선 .navGroup width:100% 가 wrap 트리거 → .topBarActions 다음 줄로 떨어짐) */
   flex: 1;
+  min-width: 0;
   justify-content: flex-end;
 }
 
@@ -53,11 +88,92 @@
    Button 컴포넌트의 size-sm(36px) override 위해 specificity 높임. */
 .saveBtn.saveBtn,
 .publishBtn.publishBtn {
-  height: var(--input-h);
+  height: 28px;
   padding: 0 var(--spacing-md);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.02em;
+}
+
+/* ── Split publish button — 발행 + chevron(예약 발행 popover) ── */
+.splitPublish {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 1px;
+}
+
+.splitPublish .publishMainBtn.publishMainBtn {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.splitPublish .publishChevronBtn.publishChevronBtn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  padding: 0;
+  width: 28px;
+  min-width: 28px;
+  aspect-ratio: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Schedule popover content ── */
+.scheduleDropdown {
+  padding: var(--spacing-md);
+  min-width: 280px;
+  max-width: 320px;
+}
+
+.scheduleMenu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.scheduleMenuHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.scheduleMenuHint {
+  margin: 0;
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+.scheduleClearBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  height: 24px;
+  background: transparent;
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.scheduleClearBtn:hover {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
 }
 
 .deleteBtn {
@@ -73,6 +189,16 @@
 /* ── Action Group (icon buttons grouped together) ── */
 .actionGroup {
   display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  /* 안쪽 두 subgroup (Ai / Edit) 사이 자동 spread — 좌(번역/요약) / 우(되돌리기/저장 기록/삭제) */
+  justify-content: space-between;
+  flex: 1;
+}
+
+.actionGroupAi,
+.actionGroupEdit {
+  display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
 }
@@ -507,18 +633,39 @@
   margin-left: var(--spacing-2xs);
 }
 
+/* 필수 입력 표시 — 라벨 끝에 accent dot. error 가 아닐 때도 부착 (error 가 같은 dot 으로 색만 강조) */
+.fieldLabelRequired::after {
+  content: "•";
+  margin-left: var(--spacing-2xs);
+  color: var(--text-accent);
+}
+
+/* error 일 때 dot 이 중복되지 않게 — error 가 우선, required 는 hidden */
+.fieldLabelRequired.fieldLabelError::after {
+  content: "•";
+}
+
 .titleInput::placeholder {
   color: var(--text-tertiary);
 }
 
 .row {
   display: grid;
-  /* minmax(0, 1fr) — grid track 의 default min-width:auto 가 컨텐츠 폭 따라 부풀어
-     좁은 viewport 에서 가로 overflow 발생하는 문제 방지 (palette/긴 URL input 등) */
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  /* auto-fit + minmax(260px, 1fr) — viewport 너비에 따라 자동 1/2/3 컬럼.
+     280px 미만 → 1 col, 280~560 → 2 col, 560+ → 3+ col.
+     min-width: 0 가 minmax 의 첫 값으로 들어가 contents 따른 overflow 방지 */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--spacing-xl);
   align-items: start;
   min-width: 0;
+}
+
+/* .row 안 input — 다른 폼 컨트롤 (Select trigger / + 버튼) 과 동일한 28px 라인 */
+.row input {
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
+  line-height: 1;
 }
 
 .field {
@@ -673,7 +820,9 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--box-xs);
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 var(--spacing-xs);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
@@ -685,13 +834,25 @@
   border: none;
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-md);
   padding: 0;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .tags .tagRemove:hover {
   color: var(--text-accent);
+}
+
+/* tagRemove 에 hover 하면 chip 라벨에 취소선 + accent 배경 (제거 의도 시각 단서) */
+.tag:has(.tagRemove:hover) {
+  background: var(--bg-accent-subtle);
+  text-decoration: line-through;
+  text-decoration-color: var(--text-accent);
+  text-decoration-thickness: 1px;
 }
 
 /* ── Upload Button ── */
@@ -699,7 +860,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--input-h);
+  min-height: 28px;
   padding: 0 var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
@@ -755,9 +916,22 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-md);
-  margin-top: var(--spacing-2xl);
-  padding-top: var(--spacing-lg);
-  border-top: var(--border-light);
+}
+
+/* bottomBar 안 button height 도 topBar 와 동일 — 페이지 전체에서 control height 일관 */
+.bottomBar button,
+.bottomBar .saveBtn,
+.bottomBar .publishBtn {
+  height: 28px;
+  min-height: 28px;
+}
+
+.bottomBar button[class*="shape-circle"],
+.bottomBar button[class*="shape-square"] {
+  width: 28px;
+  min-width: 28px;
+  aspect-ratio: 1 / 1;
+  padding: 0;
 }
 
 /* ── Editor Header ── */
@@ -767,6 +941,25 @@
   justify-content: space-between;
 }
 
+/* ── Tablet (max-width: 1024px) — gap/spacing 소폭 축소, divider 유지 ── */
+@media (max-width: 1024px) {
+  .topBar {
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+  }
+
+  .topBarRow {
+    gap: var(--spacing-sm);
+  }
+
+  .topBarActions {
+    gap: var(--spacing-xs);
+  }
+
+}
+
+/* ── Mobile (max-width: 768px) — divider 숨김, action group 압축, bottomBar 균등 분할 ── */
 @media (max-width: 768px) {
   .row {
     grid-template-columns: minmax(0, 1fr);
@@ -778,34 +971,55 @@
 
   .topBar {
     gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
   }
 
   .actionsDivider {
     display: none;
   }
 
-  /* 1줄: 뒤로가기(왼) + 액션버튼들(오) */
+  /* 1줄: 뒤로가기(왼) + 액션버튼들(우)
+   * wrap 되어 다음 줄로 떨어져도 topBarActions 는 항상 row 끝에 stick (margin-left: auto).
+   * 각 group 내부도 wrap 으로 좁아질 때 자연 stack */
   .topBarRow:first-child {
     gap: var(--spacing-xs);
   }
 
-  .topLeft {
-    flex: 1;
+  /* navGroup 이 row 의 전폭 차지 → 안쪽 LanguageToggle 의 margin-left:auto 가 우측 push.
+   * width:100% 는 다른 sibling (.topBarActions) 을 자연스레 다음 줄로 wrap 시킴 */
+  .navGroup {
+    width: 100%;
     min-width: 0;
-    gap: var(--spacing-xs);
   }
 
   .topBarActions {
+    flex-wrap: nowrap;
+    min-width: 0;
     gap: var(--spacing-2xs);
+    margin-left: auto;
   }
 
-  /* 2줄: 저장/발행 균등 배치 */
+  /* 2줄: 저장/발행 — 우측 정렬 + 버튼 width fit (content 만큼만) */
   .topBarRow:last-child {
     gap: var(--spacing-xs);
+    justify-content: flex-end;
   }
 
+  .topBarRow:last-child .saveBtn,
+  .topBarRow:last-child .publishBtn {
+    flex: 0 0 auto;
+  }
 
+  /* Bottom bar — 우측 정렬 + width fit */
   .bottomBar {
-    justify-content: flex-start;
+    justify-content: flex-end;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+  }
+
+  .bottomBar .saveBtn,
+  .bottomBar .publishBtn {
+    flex: 0 0 auto;
   }
 }
