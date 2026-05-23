@@ -10,9 +10,9 @@ import {
 } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import styles from "./Carousel.module.css";
+import styles from "./Banner.module.css";
 
-export interface CarouselProps {
+export interface BannerProps {
   children: ReactNode;
   mode?: "default" | "cylinder";
   autoPlay?: boolean;
@@ -29,7 +29,7 @@ function wrap(index: number, length: number) {
   return ((index % length) + length) % length;
 }
 
-export default function Carousel({
+export default function Banner({
   children,
   mode = "default",
   autoPlay = true,
@@ -40,7 +40,7 @@ export default function Carousel({
   loop = true,
   height,
   className,
-}: CarouselProps) {
+}: BannerProps) {
   const slides = Children.toArray(children);
   const count = slides.length;
   const isSingle = count <= 1;
@@ -99,7 +99,7 @@ export default function Carousel({
   /* ── Single slide ── */
   if (isSingle) {
     return (
-      <div className={`${styles.carousel} ${className ?? ""}`}>
+      <div className={`${styles.banner} ${className ?? ""}`}>
         <div className={styles.viewport} style={viewportStyle}>
           <div className={styles.slideWrapper}>
             <div className={styles.slideInner}>{slides[0] ?? null}</div>
@@ -111,7 +111,7 @@ export default function Carousel({
 
   return (
     <div
-      className={`${styles.carousel} ${className ?? ""}`}
+      className={`${styles.banner} ${className ?? ""}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

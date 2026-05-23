@@ -1,5 +1,5 @@
-/* ── Carousel Container ── */
-.carousel {
+/* ── Banner Container — 한 슬라이드씩 표시 (autoPlay 가능, dots/arrows) ── */
+.banner {
   position: relative;
   width: 100%;
 }
