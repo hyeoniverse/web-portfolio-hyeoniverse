@@ -8,19 +8,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion } from "framer-motion";
-import { Heart, FileText, ImageIcon, Pencil, ArrowLeft } from "lucide-react";
+import { FileText, ImageIcon, Pencil, ArrowLeft, Globe, User, Users } from "lucide-react";
 import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
 import type { Project } from "@/data/projects";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
+import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import { extractHeadings, getBentoClass } from "../_utils";
 import Button from "@/components/ui/Button";
-import { formatCount } from "@/utils/format";
 import dynamic from "next/dynamic";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
+import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import AISummary from "@/components/ui/AISummary";
@@ -105,7 +106,26 @@ export default function WorkDetailClient({
           >
             <div className={styles.metaLeft}>
               <span className={styles.projectNumber}>#{project.number}</span>
-              <span className={styles.category}><T ko={project.category.ko} en={project.category.en} /></span>
+              {/* 팀/개인 + 성격 배지는 한 묶음 (좁은 gap) — metaLeft 의 lg gap 영향 안 받게 */}
+              <div className={styles.tagGroup}>
+                {(() => {
+                  const teamCount = project.teamMembers?.length ?? 0;
+                  return teamCount > 0 ? (
+                    <span className={`${styles.tag} ${styles.tagTeam}`}>
+                      <Users size={11} strokeWidth={1.8} />
+                      <T ko={`팀 · ${teamCount}`} en={`Team · ${teamCount}`} />
+                    </span>
+                  ) : (
+                    <span className={`${styles.tag} ${styles.tagSolo}`}>
+                      <User size={11} strokeWidth={1.8} />
+                      <T ko="개인" en="Solo" />
+                    </span>
+                  );
+                })()}
+                {project.nature && (
+                  <span className={`${styles.tag} ${styles.tagNature}`}><T ko={project.nature.ko} en={project.nature.en} /></span>
+                )}
+              </div>
               {isAdmin && (
                 <>
                   <span className={styles.metaDivider} />
@@ -123,13 +143,6 @@ export default function WorkDetailClient({
               )}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {project.githubUrl && (
-                <Button variant="outline" size="xs" href={project.githubUrl} external>
-                  <GithubIcon size={14} />
-                  GitHub
-                </Button>
-              )}
-              <ShareButton />
               <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
             </div>
           </motion.div>
@@ -154,6 +167,28 @@ export default function WorkDetailClient({
             <T ko={project.description.ko} en={project.description.en} />
           </motion.p>
 
+          {/* ── Header action row — Visit Site / GitHub / Share 묶음 (description 아래, 오른쪽 정렬) ── */}
+          <motion.div
+            className={styles.headerActions}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.42, duration: 0.5 }}
+          >
+            {project.liveUrl && (
+              <Button variant="outline" size="xs" href={project.liveUrl} external>
+                <Globe size={14} />
+                <T k="workDetail.visitSite" tooltip={t("tooltip.visitSite")} />
+              </Button>
+            )}
+            {project.githubUrl && (
+              <Button variant="outline" size="xs" href={project.githubUrl} external>
+                <GithubIcon size={14} />
+                GitHub
+              </Button>
+            )}
+            <ShareButton />
+          </motion.div>
+
           {/* ── Info grid ── */}
           <motion.div
             className={styles.infoGrid}
@@ -165,30 +200,83 @@ export default function WorkDetailClient({
               <span className={styles.infoLabel}>Year</span>
               <span className={styles.infoValue}>{project.year}</span>
             </div>
+            {(() => {
+              const catsKo = project.categories?.ko ?? (project.category.ko ? [project.category.ko] : []);
+              const catsEn = project.categories?.en ?? (project.category.en ? [project.category.en] : []);
+              if (catsKo.length === 0) return null;
+              return (
+                <div className={styles.infoBlock}>
+                  <span className={styles.infoLabel}><T k="workDetail.category" /></span>
+                  <span className={styles.infoValue}>
+                    <T
+                      ko={catsKo.join(", ")}
+                      en={catsKo.map((k, i) => catsEn[i] || k).join(", ")}
+                    />
+                  </span>
+                </div>
+              );
+            })()}
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}><T k="workDetail.role" /></span>
-              <span className={styles.infoValue}><T ko={project.role.ko} en={project.role.en} /></span>
+              <span className={`${styles.infoValue} ${styles.infoValueMultiline}`}>
+                <T ko={project.role.ko} en={project.role.en} />
+              </span>
             </div>
-            <div className={styles.infoBlock}>
+            <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
               <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
-              <span className={styles.infoValue}>{project.tech.join(", ")}</span>
+              <div className={styles.techTags}>
+                {project.tech.map((t, i) => (
+                  <span key={`tech-${i}`} className={styles.techTag}>{t}</span>
+                ))}
+              </div>
             </div>
             {project.teamMembers && project.teamMembers.length > 0 && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}><T k="workDetail.team" /></span>
                 <div className={styles.teamList}>
-                  {project.teamMembers.map((member, i) => (
-                    <span key={i} className={styles.teamMember}>
-                      {member.url ? (
-                        <a href={member.url} target="_blank" rel="noopener noreferrer" className={styles.teamLink}>
-                          {member.name}
-                        </a>
-                      ) : (
-                        member.name
-                      )}
-                      <span className={styles.teamRole}> — <T ko={member.role.ko} en={member.role.en} /></span>
-                    </span>
-                  ))}
+                  {project.teamMembers.map((member, i) => {
+                    const avatarUrl = deriveTeamMemberAvatar(member);
+                    const contribsMap = member.contributions
+                      ? (language === "ko" ? member.contributions.ko : member.contributions.en)
+                      : {};
+                    const contribsEntries = Object.entries(contribsMap).filter(([, items]) => items.length > 0);
+                    return (
+                      <div key={i} className={styles.teamMember}>
+                        <div className={styles.teamMemberHeader}>
+                          <span className={styles.teamAvatar} aria-hidden>
+                            {avatarUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={avatarUrl} alt="" className={styles.teamAvatarImg} loading="lazy" />
+                            ) : (
+                              <span className={styles.teamAvatarInitial}>{getMemberInitial(member.name)}</span>
+                            )}
+                          </span>
+                          {member.url ? (
+                            <a href={member.url} target="_blank" rel="noopener noreferrer" className={styles.teamLink}>
+                              {member.name}
+                            </a>
+                          ) : (
+                            member.name
+                          )}
+                          <span className={styles.teamRole}> — <T ko={member.role.ko} en={member.role.en} /></span>
+                        </div>
+                        {contribsEntries.length > 0 && (
+                          <div className={styles.teamContribsGroups}>
+                            {contribsEntries.map(([role, items]) => (
+                              <div key={role} className={styles.teamContribsGroup}>
+                                <div className={styles.teamContribsRoleLabel}>{role}</div>
+                                <ul className={styles.teamContribs}>
+                                  {items.map((c, ci) => (
+                                    <li key={ci}>{c}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -209,27 +297,9 @@ export default function WorkDetailClient({
           />
         </>
       }
+      likeConfig={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
       afterContent={
         <>
-          <motion.div
-            className={styles.likeWrapper}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.68, duration: 0.5 }}
-          >
-            <button
-              type="button"
-              className={`${styles.likeBtn} ${liked ? styles.likeBtnActive : ""} ${likeBusy ? styles.likeBtnBusy : ""}`}
-              onClick={handleLikeToggle}
-              disabled={likeBusy}
-              title={t("common.like")}
-              data-clickable="true"
-            >
-              <Heart size={20} fill={liked ? "currentColor" : "none"} />
-              <span className={styles.likeCount}>{formatCount(likeCount)}</span>
-            </button>
-          </motion.div>
-
           <motion.div
             className={styles.actions}
             initial={{ opacity: 0, y: 20 }}
@@ -238,6 +308,7 @@ export default function WorkDetailClient({
           >
             {project.liveUrl && (
               <Button variant="outline" size="lg" href={project.liveUrl} external>
+                <Globe size={16} />
                 <T k="workDetail.visitSite" tooltip={t("tooltip.visitSite")} />
               </Button>
             )}
@@ -256,14 +327,13 @@ export default function WorkDetailClient({
                 <FileText size={16} />
                 <span className={styles.relatedLabel}>{viewLang === "en" ? "Related Posts" : "관련 글"}</span>
               </div>
-              <div className={styles.relatedGrid}>
-                {relatedPosts.map((p) => {
+              <HorizontalCarousel className={styles.relatedGrid}>
+                {relatedPosts.map((p, idx) => {
                   const title = viewLang === "en" && p.title_en ? p.title_en : p.title;
                   return (
                     <div
                       key={p.id}
                       onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${p.slug}`, p.cover_image || "", rect); }}
-                      style={{ cursor: "pointer" }}
                       className={styles.relatedCard}
                     >
                       <div className={styles.relatedCardImage}>
@@ -281,27 +351,33 @@ export default function WorkDetailClient({
                       </div>
                       <div className={styles.relatedCardBody}>
                         <div className={styles.relatedCardMeta}>
+                          <span className={styles.relatedCardOrder}>#{idx + 1}</span>
                           {p.category && <span className={styles.relatedCardCategory}>{p.category}</span>}
                         </div>
                         <span className={styles.relatedCardTitle}>{title}</span>
                         {p.excerpt && <span className={styles.relatedCardExcerpt}>{p.excerpt}</span>}
+                        {p.created_at && (
+                          <span className={styles.relatedCardDate}>
+                            {new Date(p.created_at).toLocaleDateString(viewLang === "en" ? "en-US" : "ko-KR", { year: "numeric", month: "short", day: "numeric" })}
+                          </span>
+                        )}
                       </div>
                     </div>
                   );
                 })}
-              </div>
+              </HorizontalCarousel>
             </section>
           )}
 
           {/* 이전/다음 프로젝트 */}
           <AdjacentNav
             prev={prevProject ? {
-              href: `/works/${prevProject.id}`,
+              href: `/works/${prevProject.slug || prevProject.id}`,
               title: prevProject.title,
               image: prevProject.image,
             } : null}
             next={nextProject ? {
-              href: `/works/${nextProject.id}`,
+              href: `/works/${nextProject.slug || nextProject.id}`,
               title: nextProject.title,
               image: nextProject.image,
             } : null}
@@ -312,6 +388,7 @@ export default function WorkDetailClient({
           {/* Comments */}
           <motion.div
             className={styles.commentWrap}
+            id="comments"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.75 }}

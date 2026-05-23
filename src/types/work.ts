@@ -5,23 +5,39 @@ export interface TeamMember {
   role_ko: string;
   role_en: string;
   url?: string;
+  email?: string;
+  /** 명시적으로 지정한 프사 URL. 없으면 url/email 에서 자동 derive */
+  avatar_url?: string;
+  /** 기여 항목 — 역할별로 그룹화 (key: 역할 이름, value: 작업 항목 배열). ko/en 독립 */
+  contributions_ko?: Record<string, string[]>;
+  contributions_en?: Record<string, string[]>;
 }
 
 /** DB row shape — flat columns for ko/en */
 export interface Work {
   id: string;
+  slug: string;
   number: string;
   title: string;
   subtitle_ko: string;
   subtitle_en: string;
-  category_ko: string;
-  category_en: string;
+  /** 결과물 형태 — 웹앱·라이브러리·도구 등. 여러 개 가능 (multi-select) */
+  categories_ko: string[];
+  categories_en: string[];
+  /** 제작 동기 — 토이 프로젝트 / 클론 코딩 / 사이드 / 학교 / 공모전 / 오픈소스 / 스터디 등 (단일) */
+  nature_ko: string;
+  nature_en: string;
   year: string;
   description_ko: string;
   description_en: string;
   role_ko: string;
   role_en: string;
+  /** 작업 내용 — 본인의 역할별 그룹. key: 역할 이름, value: 작업 항목 배열. ko/en 독립 */
+  contributions_ko?: Record<string, string[]>;
+  contributions_en?: Record<string, string[]>;
   tech: string[];
+  /** 기술별 메모 — 왜 사용했는지, 어떤 걸 구현했는지 등. key: 기술 이름, value: 항목 배열 */
+  tech_notes?: Record<string, string[]>;
   image: string;
   size: CardSize;
   /* ── Detail content (single content field) ── */
@@ -59,17 +75,23 @@ export interface Work {
 /** Editor form — uses content_ko/en only (no legacy fields) */
 export interface WorkFormData {
   number: string;
+  slug: string;
   title: string;
   subtitle_ko: string;
   subtitle_en: string;
-  category_ko: string;
-  category_en: string;
+  categories_ko: string[];
+  categories_en: string[];
+  nature_ko: string;
+  nature_en: string;
   year: string;
   description_ko: string;
   description_en: string;
   role_ko: string;
   role_en: string;
+  contributions_ko: Record<string, string[]>;
+  contributions_en: Record<string, string[]>;
   tech: string[];
+  tech_notes: Record<string, string[]>;
   image: string;
   size: CardSize;
   content_ko: string;
@@ -130,14 +152,27 @@ export function workToProject(w: Work): Project {
     name: m.name,
     role: loc(m.role_ko, m.role_en),
     url: m.url || undefined,
+    email: m.email || undefined,
+    avatar_url: m.avatar_url || undefined,
+    contributions: {
+      ko: m.contributions_ko ?? {},
+      en: m.contributions_en ?? {},
+    },
   }));
 
   return {
     id: w.id,
+    slug: w.slug || "",
     number: w.number,
     title: w.title,
     subtitle: loc(w.subtitle_ko, w.subtitle_en),
-    category: loc(w.category_ko, w.category_en),
+    categories: {
+      ko: w.categories_ko ?? [],
+      en: w.categories_en ?? [],
+    },
+    // legacy 단일 category — categories[0] 으로 fallback. 신규 호출부는 categories 사용 권장
+    category: loc(w.categories_ko?.[0] ?? "", w.categories_en?.[0] ?? ""),
+    nature: (w.nature_ko || w.nature_en) ? loc(w.nature_ko, w.nature_en) : undefined,
     year: w.year,
     description: loc(w.description_ko, w.description_en),
     role: loc(w.role_ko, w.role_en),
