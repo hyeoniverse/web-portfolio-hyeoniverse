@@ -16,6 +16,24 @@
   margin-top: var(--spacing-lg);
 }
 
+/* contribRoleGroup 들을 너비 따라 multi-col 로 분배.
+   auto-fill: 빈 track 유지 → 1 개일 때도 stretch 하지 않고 일정 너비.
+   280px 미만 → 1 col, 280~560 → 2 col, 560+ → 3+ col */
+.contribRoleGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  align-items: start;
+  min-width: 0;
+}
+
+/* title + 예약 발행 묶음 — section 의 spacing-lg gap 보다 작게 (관련 필드라 가까이) */
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
 .sectionTitle {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-base);
@@ -75,10 +93,11 @@
   align-items: start;
 }
 
-
-.fieldTextarea {
+/* Textarea 공통 컴포넌트의 .textarea base style (border-strong) 보다 specificity 높아야
+ * override 됨 → compound selector (0,2,0) 사용 */
+.section .fieldTextarea {
   padding: var(--spacing-sm);
-  border: var(--border-default);
+  border: var(--border-light);
   border-radius: var(--radius-2xl);
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -87,10 +106,11 @@
   outline: none;
   resize: vertical;
   min-height: 100px;
+  transition: border-color 0.15s ease;
 }
 
 .section .fieldTextarea:focus {
-  border-color: var(--text-primary);
+  border: var(--border-strong);
 }
 
 .fieldTextarea::placeholder {
@@ -114,41 +134,83 @@
   border-color: var(--text-primary);
 }
 
-/* ── Tech input row ── */
+/* ── Tech input row — Select + + 버튼 캡슐 그룹 (contribAddRow 동일 패턴).
+ * overflow: hidden 안 함 → Select dropdown (portal 이지만 positioning 영향) 정상 표시 */
 .techInputRow {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  align-items: stretch;
+  gap: 0;
+  height: 28px;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  transition: border-color 0.15s ease;
+}
+
+.techInputRow:focus-within {
+  border-color: var(--text-primary);
+}
+
+/* Select root — flex 1 채우기 + 개별 border 제거 */
+.techInputRow > :global(*):first-child {
+  flex: 1;
+  min-width: 0;
 }
 
 .techInputRow input {
-  flex: 1;
+  width: 100%;
+  min-width: 140px;
+  height: 100%;
+  box-sizing: border-box;
+  border: none !important;
+  border-radius: 0 !important;
 }
 
-.techAddBtn {
-  width: var(--input-h);
-  height: var(--input-h);
-  flex-shrink: 0;
-  border: var(--border-default);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
-  color: var(--text-secondary);
-  line-height: 1;
-  display: flex;
+/* + 버튼 — 우측, 좌측 separator */
+.techInputRow > button {
+  border: none !important;
+  border-radius: 0 !important;
+  border-left: var(--border-light) !important;
+  min-width: 28px;
+  width: 28px;
+  height: 26px;
+}
+
+/* tech chip 안 brand 아이콘 — 라벨 왼쪽 inline */
+.techTagIcon {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
+  margin-right: 6px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
-.techInputRow .techAddBtn:hover:not(:disabled) {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
+/* 기술별 메모 list — tech tag 아래, 각 기술마다 [라벨 + input] row */
+.techNotesList {
+  list-style: none;
+  margin: var(--spacing-md) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
-.techAddBtn:disabled {
-  opacity: 0.5;
+.techNoteRow {
+  display: grid;
+  grid-template-columns: minmax(120px, auto) 1fr;
+  gap: var(--spacing-sm);
+  align-items: center;
 }
+
+.techNoteLabel {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* + 버튼은 공통 Button (shape="circle") 사용 — Button.module.css 가 정사각 강제 */
 
 /* ── Editor header ── */
 .editorHeader {
@@ -182,7 +244,6 @@
   color: var(--text-primary);
 }
 
-
 /* ── Optional fields (collapsible) — Posts editor 와 동일 패턴 ── */
 .optionalSection {
   display: flex;
@@ -196,7 +257,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -218,8 +279,10 @@
   overflow: hidden;
   max-height: 0;
   clip-path: inset(0 0 100% 0);
-  padding: 0 var(--spacing-sm);
-  transition: max-height 0.3s ease, clip-path 0.3s ease;
+  padding: 0 var(--spacing-md);
+  transition:
+    max-height 0.3s ease,
+    clip-path 0.3s ease;
 }
 
 .optionalContentOpen {
@@ -246,13 +309,20 @@
   max-height: 0;
   clip-path: inset(0 0 100% 0);
   padding: 0 var(--spacing-md);
-  transition: max-height 0.4s ease, clip-path 0.4s ease;
+  transition:
+    max-height 0.4s ease,
+    clip-path 0.4s ease;
 }
 
 .extraSectionsContentOpen {
   max-height: var(--_extra-height, 3000px);
   clip-path: inset(0);
   padding-bottom: var(--spacing-md);
+}
+
+/* 첫 자식 section 은 toggle 라인 바로 아래라 위쪽 여백 제거 */
+.extraSectionsContent > :first-child {
+  margin-top: 0;
 }
 
 /* Posts 의 .editorWrap 과 동일 — vertical resizable, 60vh 시작 높이 */
@@ -279,58 +349,108 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
 }
 
-.galleryAddInline {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-secondary);
+/* 카테고리 picker — 위쪽 Select + 아래쪽 chip 리스트 (column) */
+.categoryPicker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* RoleMultiPicker 안 Select — 기본 fit-content 대신 부모 너비 채우기.
+ * .root 자체 (0,1,0) 보다 (0,2,0) 으로 우선순위 확보 */
+.categoryPicker > .roleSelect.roleSelect {
+  width: 100%;
+}
+.categoryPicker > .roleSelect > input,
+.categoryPicker > .roleSelect > button {
+  width: 100%;
+}
+
+/* Select + 직접 입력 (custom KO/EN inputs + 추가 버튼) 한 줄 — nature 도 같은 패턴 사용 */
+.categoryAddRow,
+.customCategoryRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--spacing-xs);
+}
+
+/* 선택된 chip 들 — DraggableTag 공통 컴포넌트 wrap */
+.categoryChipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+/* + 버튼은 공통 Button (shape="circle") 사용 */
+
+/* ── Template modal (posts editor 와 동일 패턴) ── */
+.templateModal {
+  padding: 0 var(--spacing-2xl) var(--spacing-2xl);
+}
+
+.templateModalDesc {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-md);
 }
 
-.galleryAddInline:hover {
+.templateList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.templateItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  padding: var(--box-sm-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  text-align: left;
+  font-family: var(--font-space-grotesk);
+}
+
+.templateItem:hover {
   border-color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.templateItemLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
   color: var(--text-primary);
 }
 
-/* 직접 입력 카테고리 — KO/EN 두 input 을 캡슐 안에 lang tag 와 함께 inline */
-.customCategoryGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-xs);
+.templateItemDesc {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
 }
 
-.customCategoryField {
+/* 직접 입력 wrap — Select 와 동일 높이 (capsule 형태 fieldInput 자체 padding 기반) */
+.customCategoryInputWrap {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: 0 0 0 var(--spacing-2xs);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  transition: border-color 0.15s ease;
+  flex: 1 1 140px;
+  min-width: 0;
 }
 
-.customCategoryField:focus-within {
-  border-color: var(--text-primary);
-}
-
-.customCategoryLangTag {
+/* 배지 — input 안쪽 좌측, 절대 위치. input 높이에 영향 안 줌 (height 작게) */
+.customCategoryBadge {
+  position: absolute;
+  left: var(--spacing-xs);
+  top: 50%;
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  height: 16px;
+  padding: 0 6px;
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
@@ -338,14 +458,26 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--text-tertiary);
-  flex-shrink: 0;
+  pointer-events: none;
 }
 
+/* 직접 입력 input — Select trigger / + Button 과 동일한 28px (디테일 페이지 통일 높이) */
 .customCategoryInput {
   flex: 1;
-  border: none !important;
-  background: transparent;
-  padding-left: 0 !important;
+  min-width: 0;
+  height: 28px;
+  box-sizing: border-box;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 42px;
+}
+
+/* 직접 입력 + Button override — common Button shape=circle 의 38px 대신 28x28 정사각.
+ * 같은 specificity 더 자세히 — 같은 클래스 2번 (0,2,0) */
+.categoryAddBtnSized.categoryAddBtnSized {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
 }
 
 /* Optional 섹션 split — 좌: 정렬순서 (세로 1열 전체), 우: 다른 필드들 stack */
@@ -419,7 +551,10 @@
   font-weight: 500;
   line-height: 1.4;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 /* hover — "이 chip 을 누르면 제거됨" 을 시각적으로: accent 톤 + ×아이콘 강조 */
@@ -498,14 +633,20 @@
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
-  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.08);
+  box-shadow: 0 8px 24px oklch(0% 0 0 / 0.08);
   overflow: hidden;
   animation: roleMSPopoverIn 0.16s ease-out;
 }
 
 @keyframes roleMSPopoverIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .roleMSList {
@@ -581,99 +722,60 @@
 
 /* 가로 스크롤 strip — gap 없이 양옆이 트인 filmstrip 디자인.
    상하 hairline 만 두어 한 줄로 이어지는 리스트로 보임. */
-.galleryGrid {
+/* ── Gallery — HorizontalCarousel 기반 가로 strip (썸네일들 옆으로 늘어선 형태) ── */
+.galleryCarousel {
   display: flex;
   gap: 0;
-  margin-top: var(--spacing-xs);
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x proximity;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-strong-color) transparent;
   border-top: var(--border-light);
   border-bottom: var(--border-light);
 }
 
-.galleryGrid::-webkit-scrollbar {
-  height: 8px;
-}
-
-.galleryGrid::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.galleryGrid::-webkit-scrollbar-thumb {
-  background: var(--border-strong-color);
-  border-radius: var(--radius-capsule);
-}
-
 .galleryItem {
   position: relative;
-  flex: 0 0 180px;
-  width: 180px;
+  flex: 0 0 220px;
+  width: 220px;
   aspect-ratio: 3 / 2;
   overflow: hidden;
   background: var(--bg-secondary);
-  scroll-snap-align: start;
-  /* 인접 item 사이의 세로 divider (마지막 제외) */
   border-right: var(--border-light);
-  transition: background-color 0.15s ease;
+  cursor: zoom-in;
 }
 
-.galleryItem:last-child,
-.galleryItem:has(+ .galleryAddTile) {
+.galleryItem:last-child {
   border-right: none;
 }
 
-.galleryItem:hover {
-  background: var(--bg-tertiary);
-}
-
-/* 메인 이미지로 사용 중인 thumbnail — accent 위/아래 stripe 로 강조 (border-radius 없는 strip 에 어울리게) */
 .galleryItemMain {
-  box-shadow: inset 0 2px 0 var(--text-accent), inset 0 -2px 0 var(--text-accent);
-}
-
-.galleryThumb {
-  position: absolute;
-  inset: 0;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: zoom-in;
+  box-shadow:
+    inset 0 2px 0 var(--text-accent),
+    inset 0 -2px 0 var(--text-accent);
 }
 
 .galleryImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition:
+    filter 0.2s ease,
+    transform 0.3s ease;
 }
 
-.galleryItem:hover .galleryImg {
-  transform: scale(1.04);
+.galleryItem:hover .galleryImg,
+.galleryItem:focus-within .galleryImg {
+  filter: brightness(0.75) blur(3px);
+  transform: scale(1.03);
 }
 
-/* 갤러리 썸네일 로드 실패 — 동일 사이즈 placeholder */
-.galleryImgPlaceholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-tertiary-alt);
-  color: var(--text-tertiary);
-}
-
-/* "현재 메인" 배지 — 좌상단 */
+/* "현재 메인" 배지 — 좌상단 (항상 표시). actions 와 동일 top 오프셋 + 동일 높이로 수직 중심 일치 */
 .galleryMainBadge {
   position: absolute;
-  top: 6px;
-  left: 6px;
+  top: var(--spacing-xs);
+  left: var(--spacing-xs);
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  height: var(--button-h-xs);
+  padding: 0 var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--text-accent);
   color: var(--text-inverse);
@@ -682,79 +784,82 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
 }
 
-/* hover 시 우상단에 액션 버튼 그룹 노출 */
-.galleryActions {
+/* hover 시 활성되는 overlay — actions(상단) + meta(하단) */
+.galleryOverlay {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  inset: 0;
   display: flex;
-  gap: 4px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--spacing-xs);
   opacity: 0;
-  transform: translateY(-2px);
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity 0.2s ease;
   z-index: 2;
+  pointer-events: none;
 }
 
-.galleryItem:hover .galleryActions,
-.galleryItem:focus-within .galleryActions {
+.galleryItem:hover .galleryOverlay,
+.galleryItem:focus-within .galleryOverlay {
   opacity: 1;
-  transform: translateY(0);
+  pointer-events: auto;
 }
 
-.galleryActionBtn {
+.galleryActions {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  cursor: pointer;
-  box-shadow: 0 2px 6px oklch(0.00% 0.0000 0.00 / 0.18);
-  transition: background-color 0.15s ease, color 0.15s ease;
-  --close-size: 9px;
+  align-self: flex-end;
+  gap: var(--spacing-2xs);
 }
 
-.galleryActionBtn:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
+.galleryMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  margin: 0 calc(-1 * var(--spacing-xs)) calc(-1 * var(--spacing-xs));
+  max-width: none;
 }
 
-.galleryActions .galleryActionDanger:hover {
-  background: var(--text-accent);
-  color: var(--text-inverse);
+.galleryMetaIndex {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: oklch(1 0 0 / 0.9);
+  text-transform: uppercase;
 }
 
-/* "추가" 빈 칸 — strip 디자인에 맞춰 좌측만 hairline divider (다른 item 과 동일한 실선), 둥근 모서리 없음 */
+.galleryMetaName {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: oklch(1 0 0 / 0.78);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+/* "추가" 빈 칸 — gallery empty state */
 .galleryAddTile {
   display: flex;
-  flex: 0 0 180px;
-  width: 180px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-2xs);
-  aspect-ratio: 3 / 2;
-  border: none;
-  border-left: var(--border-light);
+  width: 100%;
+  height: 200px;
+  margin-top: var(--spacing-xs);
+  border: var(--border-light);
   background: transparent;
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   cursor: pointer;
-  scroll-snap-align: start;
-  transition: color 0.15s ease, background-color 0.15s ease;
-}
-
-/* 갤러리가 비어있을 때만 add tile 의 좌측 divider 제거 — 첫 번째 위치라서 */
-.galleryGrid > .galleryAddTile:first-child {
-  border-left: none;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .galleryAddTile:hover {
@@ -763,58 +868,273 @@
 }
 
 /* ── Team Members ── */
+/* form / list 위의 작은 sub label — section 안 sub-section 구분용 */
+.memberSubLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* label + 추가 버튼 한 줄 — label 좌측, 버튼 우측 */
+.memberSubLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+/* label row + form 묶음 — section gap 보다 작은 gap 으로 그룹 형성 */
+.memberFormBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* list label + list 묶음 — formBlock 과 동일 패턴 */
+.memberListBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* form — 카드와 통합된 외형 (border + radius + padding). 입력 가능한 빈 카드 형태 */
 .memberForm {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+
+/* form 첫 row — [avatar | name input | role select]. memberCard 의 chip-row 와 동일 구조 */
+.memberFormHeaderRow {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* avatar 가 더블클릭 가능할 때 — cursor + hover overlay.
+ * overflow: visible 은 (0,2,0) compound 로 .memberAvatar 의 hidden 보다 우선 적용 (+ 뱃지가 밖으로 나가야 함) */
+.memberAvatarUploadable.memberAvatarUploadable {
+  cursor: pointer;
+  position: relative;
+  overflow: visible;
+}
+
+.memberAvatarUploadable:hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: oklch(0% 0 0 / 0.3);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* placeholder 사람 icon — tertiary 톤 */
+.memberAvatarPlaceholder {
+  color: var(--text-tertiary);
+}
+
+/* + 뱃지 — avatar 우하단 겹침. 작은 원형 버튼 */
+.memberAvatarAddBadge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+  cursor: pointer;
+  /* hover 시 avatar 의 dim overlay (::after) 위에 위치 — z-index 로 stacking 우선 */
+  z-index: 1;
+}
+
+.memberAvatarAddBadge:hover {
+  background: var(--bg-accent-light);
 }
 
 .memberFormRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--spacing-xs);
   align-items: center;
+}
+
+.memberFormField {
+  flex: 1;
+  min-width: 0;
 }
 
 .memberFormRow input {
   flex: 1;
+  /* Select trigger 와 동일 28px 로 맞추기 — 기본 .fieldInput 은 ~32px 라 role select 와 미스매치 */
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
+  line-height: 1;
 }
 
-.memberList {
+/* Select (RoleMultiPicker.selectNode) 가 .memberFormRow 의 직계 flex item — input 과 1:1 */
+.memberFormRow .roleSelect.roleSelect {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+
+/* combobox input 도 root 너비 채우기 — 안 그러면 chevron (root 기준 absolute) 이 input border 밖에 표시됨 */
+.memberFormRow .roleSelect > input {
+  width: 100%;
+}
+
+/* List — 위/아래 hairline 으로 list 영역 구분, gap 없이 카드 자체 padding + hairline divider 가 처리 */
+.memberList.memberList {
+  height: auto;
+  gap: 0;
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
+}
+
+/* add-mode card — saved card 와 같은 외형이지만 inputs/버튼 포함. header row 가 4-칸 grid */
+/* add-mode card — 단독 카드 (saved list 의 hairline / padding 영향 없음). 컴팩트 column stack.
+ * .memberCard.memberCard 가 CSS 에서 나중에 정의되어 padding 덮어쓰는 거 (0,3,0) 으로 override */
+.memberCard.memberCardAdd.memberCardAdd {
+  padding: 0;
+  gap: var(--spacing-sm);
+}
+
+/* 헤더 row — [avatar | name input] (role 빠짐) */
+.memberCardAdd .memberHeaderRow {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+/* role select — 자체 row (full-width). Select.root 의 fit-content override */
+.memberRoleRow > .roleSelect.roleSelect {
+  width: 100%;
+}
+.memberRoleRow > .roleSelect > input,
+.memberRoleRow > .roleSelect > button {
+  width: 100%;
+}
+
+/* add-card 안 모든 fieldInput — Select trigger / + 버튼과 동일 28px 라인 (file input 은 hidden 이라 제외) */
+.memberCardAdd input:not([type="file"]) {
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
+  line-height: 1;
+}
+
+/* ListItem 의 base .item 은 hairline divider (border-bottom) 패턴.
+/* 미사용 .memberItem 클래스 제거됨 — visual container 는 .memberHeader 가 담당 */
+
+/* avatar — Instagram-스타일: 큰 원형 (44px). 좌측 시각 anchor */
+.memberAvatar {
+  flex-shrink: 0;
+  align-self: flex-start;
+  aspect-ratio: 1;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+}
+
+.memberAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.memberAvatarInitial {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* 정보 영역 — stacked: name / role / email / url 각각 한 줄씩 세로 stack */
+.memberInfo {
+  flex: 1;
+  min-width: 0;
+  align-self: flex-start;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-sm);
+  gap: var(--spacing-3xs);
 }
 
-.memberItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-  padding: var(--box-md);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
+/* display 요소 (span / anchor) 는 full-width — 더블클릭 hit area 넓어짐 */
+.memberInfo > span,
+.memberInfo > a {
+  display: block;
+  width: 100%;
+  max-width: 100%;
 }
 
-.memberInfo {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--box-md);
-  min-width: 0;
+/* input 은 fit-content — display 영역과 다르게 컴팩트 */
+.memberInfo > input {
+  align-self: flex-start;
+  max-width: 100%;
 }
 
+/* inline edit input — fit-to-content 너비 (display 영역은 full-width, input 만 컴팩트).
+ * memberItemName/Role/Url 보다 CSS 에서 먼저 정의 → 함께 적용 시 typography class 가 font 속성 override.
+ * input 의 기본 brower font 만 reset 하고 font 자체는 typography class 가 담당. */
+.memberInlineEdit {
+  appearance: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  background: var(--bg-accent-subtle);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  line-height: 1.3;
+  width: auto;
+  min-width: 80px;
+  max-width: 100%;
+  box-sizing: content-box;
+  field-sizing: content;
+}
+
+.memberInlineEdit:focus {
+  background: var(--bg-accent-light);
+}
+
+/* Instagram-style: name 강조 (md, weight 600) */
 .memberItemName {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--text-primary);
+  line-height: 1.3;
 }
 
+/* role — subtitle 같은 톤 (작고 muted) */
 .memberItemRole {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
+  line-height: 1.3;
 }
 
 .memberItemUrl {
@@ -826,6 +1146,385 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 200px;
+  line-height: 1.3;
+}
+
+/* 사진 첨부 버튼 — 28px 로 input/+ 버튼 라인 맞춤. (0,2,0) 으로 Button base 보다 우선 */
+.avatarUploadBtn.avatarUploadBtn {
+  height: 28px;
+  min-height: 28px;
+  padding: 0 var(--spacing-md);
+  font-size: var(--font-size-xs);
+  border: var(--border-light);
+}
+
+/* ── Team Member Card — Instagram followers-list 스타일.
+ * Border 없음, 자체 카드보다 list-row 느낌. 마지막 아이템 빼고 hairline divider */
+.memberCard.memberCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+  border: none;
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+/* hairline divider — 마지막 카드 제외. spacing-xs 보다 깔끔한 list 느낌 */
+.memberList.memberList .memberCard.memberCard:not(:last-child) {
+  border-bottom: var(--border-light);
+}
+
+/* 작업 표시 (read-only) — memberHeaderRow 의 sibling, memberHeader 안에서 full-width.
+ * 각 역할별 그룹: [memberItemRole 스타일 label] + [ul]. */
+.memberContribsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+/* 작업 ul — 들여쓰기 + 좌측 vertical hairline 으로 role 과 시각적 grouping (카드 없이) */
+.memberContribsList {
+  list-style: disc;
+  margin: 0 0 0 var(--spacing-sm);
+  padding-left: var(--spacing-lg);
+  border-left: var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* header 액션 버튼 (edit / close / toggle) — chip-row 의 다른 항목이 wrap 되어도 항상 top 에 고정 */
+.memberHeaderActionBtn {
+  align-self: flex-start;
+}
+
+/* contribs wrap — role group 들 column stack */
+.memberContribsWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* role 마다 토글 버튼 — chevron + role label. 클릭 시 해당 role 의 작업 ul 펼침/접힘.
+ * width: 100% 로 row 전체 클릭 가능하게 */
+.memberContribsToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.memberContribsChevron {
+  color: var(--text-tertiary);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.memberContribsToggleOpen .memberContribsChevron {
+  transform: rotate(90deg);
+}
+
+.memberContribsToggle:hover .memberContribsChevron {
+  color: var(--text-secondary);
+}
+
+/* role label — text cursor + flex: 1 로 chevron 옆 남은 공간 모두 차지 (더블클릭 hit area 확장) */
+.memberContribsToggle .memberItemRole {
+  flex: 1;
+  text-align: left;
+}
+
+/* role 편집 모드 input — display 의 flex: 1 stretch 차단, fit-content */
+.memberContribsToggle .memberInlineEdit {
+  flex: 0 0 auto;
+}
+
+/* 작업 item span (display) — full width 로 더블클릭 hit area 확장.
+ * input (편집 모드) 은 memberInlineEdit 의 field-sizing: content 로 fit */
+.memberContribsList li > span {
+  display: block;
+  width: 100%;
+}
+
+/* memberHeader — 카드 본체 (border + radius + padding 으로 시각 컨테이너).
+ * 안에 chip-row (.memberHeaderRow) + role 별 contrib groups 가 column 으로 stack */
+/* chip-row — 카드 안 top row (avatar + info + edit + remove) */
+.memberHeaderRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* 한 역할 그룹 — column stack. padding/border 없이 부모 gap 으로 sibling 간격 처리 */
+.contribRoleGroup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* dragging 시 opacity 낮춤 */
+.contribRoleGroupDragging {
+  opacity: 0.4;
+}
+
+/* drop indicator — group 위/아래에 accent 막대 */
+.contribRoleGroupDropTop::before,
+.contribRoleGroupDropBottom::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--text-accent);
+  border-radius: 1px;
+}
+
+.contribRoleGroupDropTop::before {
+  top: calc(var(--spacing-sm) * -0.5);
+}
+
+.contribRoleGroupDropBottom::after {
+  bottom: calc(var(--spacing-sm) * -0.5);
+}
+
+/* role section header — tag chip 스타일 (capsule + bg-tertiary).
+ * 자체 너비만 차지 (inline-flex), align-self: flex-start 로 부모의 stretch 차단 */
+.contribRoleHeader {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--box-xs);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+/* role drag handle — chip 안 좌측, grab cursor */
+.contribRoleDragHandle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-tertiary);
+  cursor: grab;
+}
+
+.contribRoleDragHandle:hover {
+  color: var(--text-secondary);
+}
+
+.contribRoleDragHandle:active {
+  cursor: grabbing;
+}
+
+.contribRoleLabel {
+  /* chip 안 본문 텍스트 — header 의 font 상속 */
+  letter-spacing: 0;
+}
+
+/* + 추가 버튼 — chip 안 X 옆. text-accent 톤으로 구분 (action 의미) */
+.contribRoleHeader .contribRoleAdd {
+  margin-left: var(--spacing-2xs);
+  background: transparent;
+  color: var(--text-accent);
+}
+
+.contribRoleHeader .contribRoleAdd:disabled {
+  color: var(--text-tertiary);
+  cursor: default;
+}
+
+/* X 제거 — chip 안 우측 끝. button 16px + line 8px (50% 비율, contrib item 12px/24px 와 동일) */
+.contribRoleHeader .contribRoleRemove {
+  width: 16px;
+  height: 16px;
+  background: transparent;
+  --close-size: 8px;
+}
+
+.contribRoleHeader:has(.contribRoleRemove:hover) {
+  background: var(--bg-accent-subtle);
+  text-decoration: line-through;
+  text-decoration-color: var(--text-accent);
+  text-decoration-thickness: 1px;
+}
+
+/* role 제거 X 에 hover 시 — 해당 role 의 ul 에 line-through 만 표시 (bg 변화 X) */
+.contribRoleGroup:has(.contribRoleRemove:hover) .memberContribs {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-accent);
+  text-decoration-thickness: 1px;
+}
+
+/* 기여 항목 ul — form 과 card 양쪽에서 공용. 왼쪽 padding 0 (form 에는 avatar 없음). */
+/* add-card 의 작업 ul — role chip 과 시각적 grouping (좌측 hairline + 들여쓰기), 카드 없이 */
+.memberContribs {
+  list-style: none;
+  margin: 0 0 0 var(--spacing-sm);
+  padding-left: var(--spacing-md);
+  border-left: var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.contribItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 0;
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+}
+
+/* bullet dot — CSS 원형 (• char 는 font baseline 때문에 시각적으로 아래로 쳐짐) */
+.contribItem::before {
+  content: "";
+  flex-shrink: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  order: 1;
+}
+
+/* drag handle — 좌측, bullet 보다 더 앞 */
+.contribDragHandle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-tertiary);
+  cursor: grab;
+  order: 0;
+}
+
+.contribDragHandle:hover {
+  color: var(--text-secondary);
+}
+
+.contribDragHandle:active {
+  cursor: grabbing;
+}
+
+/* text 는 bullet 다음 */
+.contribText {
+  order: 2;
+}
+
+/* X 제거 (CloseButton 공통) — 우측 끝으로 push */
+.contribItemRemove {
+  margin-left: auto;
+  order: 3;
+  flex-shrink: 0;
+}
+
+/* X hover 시 — chip 패턴과 동일 (line-through + 옅은 accent 배경) */
+.contribItem:has(.contribItemRemove:hover) {
+  background: var(--bg-accent-subtle);
+  text-decoration: line-through;
+  text-decoration-color: var(--text-accent);
+  text-decoration-thickness: 1px;
+}
+
+/* dragging 상태 — opacity 낮춰서 시각적 피드백 */
+.contribItemDragging {
+  opacity: 0.4;
+}
+
+/* drop indicator — 위/아래에 accent 막대 표시.
+ * ::before 는 bullet (.contribItem::before, width: 4px) 과 같은 pseudo 공유 →
+ * width/border-radius/flex 속성 명시적으로 override 해야 full-width 막대로 표시됨 */
+.contribItemDropTop::before,
+.contribItemDropBottom::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: auto;
+  height: 2px;
+  background: var(--text-accent);
+  border-radius: 1px;
+  flex-shrink: 1;
+  order: 0;
+}
+
+.contribItemDropTop::before {
+  top: -1px;
+}
+
+.contribItemDropBottom::after {
+  bottom: -1px;
+}
+
+.contribText {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* 기여 항목 입력 row — input + 추가 버튼. bullet 없음 */
+/* input + + 버튼 묶음 — 캡슐 그룹 형태 (개별 border/radius 제거 + 외곽 한 줄) */
+.contribAddRow {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  height: 28px;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.contribAddRow:focus-within {
+  border-color: var(--text-primary);
+}
+
+.contribInput {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+  line-height: 1;
+}
+
+.contribInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* + 버튼 — 그룹 내부에 합쳐짐. 좌측에 separator 라인 */
+.contribAddRow > button {
+  border: none !important;
+  border-radius: 0 !important;
+  border-left: var(--border-light) !important;
+  min-width: 28px;
+  width: 28px;
+  height: 26px;
 }
 
 @media (max-width: 768px) {

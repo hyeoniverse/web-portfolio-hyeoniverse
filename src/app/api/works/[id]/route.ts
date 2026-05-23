@@ -31,13 +31,15 @@ export async function GET(_request: Request, context: RouteContext) {
 
 // PATCH /api/works/[id] — work 수정 (admin only)
 const ALLOWED_FIELDS = new Set([
-  "number", "title",
+  "number", "slug", "title",
   "subtitle_ko", "subtitle_en",
-  "category_ko", "category_en",
+  "categories_ko", "categories_en",
+  "nature_ko", "nature_en",
   "year",
   "description_ko", "description_en",
   "role_ko", "role_en",
-  "tech", "image", "size",
+  "contributions_ko", "contributions_en",
+  "tech", "tech_notes", "image", "size",
   "content_ko", "content_en", "content_type",
   "overview_ko", "overview_en", "overview_image",
   "challenge_ko", "challenge_en", "challenge_image",
@@ -62,12 +64,13 @@ export async function PATCH(request: Request, context: RouteContext) {
   for (const key of Object.keys(body)) {
     if (ALLOWED_FIELDS.has(key)) filtered[key] = body[key];
   }
-  // 카테고리 직접 입력 시 자동 등록 (기존 목록에 없으면)
-  if (filtered.category_ko || filtered.category_en) {
-    await ensureWorksCategory(
-      (filtered.category_ko as string) ?? "",
-      (filtered.category_en as string) ?? "",
-    );
+  // 카테고리 직접 입력 시 자동 등록 — array 안의 각 항목을 ensure
+  const newCatsKo = Array.isArray(filtered.categories_ko) ? filtered.categories_ko as string[] : [];
+  const newCatsEn = Array.isArray(filtered.categories_en) ? filtered.categories_en as string[] : [];
+  for (let i = 0; i < newCatsKo.length; i++) {
+    const ko = newCatsKo[i] || "";
+    const en = newCatsEn[i] || "";
+    if (ko || en) await ensureWorksCategory(ko, en);
   }
 
   filtered.updated_at = new Date().toISOString();

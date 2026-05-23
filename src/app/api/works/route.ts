@@ -12,6 +12,7 @@ export async function GET(request: Request) {
   const limit = parseInt(searchParams.get("limit") ?? "0");
   const sort = searchParams.get("sort") ?? "order";
   const category = searchParams.get("category");
+  const nature = searchParams.get("nature");
   const year = searchParams.get("year");
   const search = searchParams.get("search") ?? "";
   const searchType = searchParams.get("searchType") ?? "title";
@@ -35,7 +36,11 @@ export async function GET(request: Request) {
   }
 
   if (category) {
-    query = query.eq("category_ko", category);
+    // categories_ko 배열에 해당 값을 포함하는 row 만 (array containment)
+    query = query.contains("categories_ko", [category]);
+  }
+  if (nature) {
+    query = query.eq("nature_ko", nature);
   }
   if (year) {
     query = query.eq("year", year);
@@ -74,7 +79,8 @@ export async function GET(request: Request) {
   if (error?.message?.includes("deleted_at")) {
     let fallback = supabase.from("works").select("*", { count: "exact" });
     if (!showAll && !showTrash) fallback = fallback.eq("published", true);
-    if (category) fallback = fallback.eq("category_ko", category);
+    if (category) fallback = fallback.contains("categories_ko", [category]);
+    if (nature) fallback = fallback.eq("nature_ko", nature);
     if (year) fallback = fallback.eq("year", year);
     if (search) {
       const s = escapeOrSearch(search);
@@ -116,13 +122,15 @@ export async function GET(request: Request) {
 
 // POST /api/works — 새 work 생성 (admin only)
 const ALLOWED_FIELDS = new Set([
-  "number", "title",
+  "number", "slug", "title",
   "subtitle_ko", "subtitle_en",
-  "category_ko", "category_en",
+  "categories_ko", "categories_en",
+  "nature_ko", "nature_en",
   "year",
   "description_ko", "description_en",
   "role_ko", "role_en",
-  "tech", "image", "size",
+  "contributions_ko", "contributions_en",
+  "tech", "tech_notes", "image", "size",
   "content_ko", "content_en", "content_type",
   "overview_ko", "overview_en", "overview_image",
   "challenge_ko", "challenge_en", "challenge_image",
@@ -142,12 +150,13 @@ export async function POST(request: Request) {
     if (ALLOWED_FIELDS.has(key)) filtered[key] = body[key];
   }
 
-  // 카테고리 직접 입력 시 자동 등록 (기존 목록에 없으면)
-  if (filtered.category_ko || filtered.category_en) {
-    await ensureWorksCategory(
-      (filtered.category_ko as string) ?? "",
-      (filtered.category_en as string) ?? "",
-    );
+  // 카테고리 직접 입력 시 자동 등록 — array 안의 각 항목을 ensure
+  const newCatsKo = Array.isArray(filtered.categories_ko) ? filtered.categories_ko as string[] : [];
+  const newCatsEn = Array.isArray(filtered.categories_en) ? filtered.categories_en as string[] : [];
+  for (let i = 0; i < newCatsKo.length; i++) {
+    const ko = newCatsKo[i] || "";
+    const en = newCatsEn[i] || "";
+    if (ko || en) await ensureWorksCategory(ko, en);
   }
 
   const admin = createAdminClient();

@@ -7,7 +7,7 @@ import MarkdownRenderer, { slugify } from "@/components/posts/MarkdownRenderer";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import type { WorkFormData } from "@/types/work";
 import T from "@/components/ui/T";
-import styles from "@/app/works/[id]/WorkDetail.module.css";
+import styles from "@/app/works/[slug]/WorkDetail.module.css";
 
 function extractHeadings(content: string, isRichtext: boolean): TocHeading[] {
   const headings: TocHeading[] = [];
@@ -73,7 +73,8 @@ export default function WorkPreviewPage() {
 
   const description = form[`description${suf}`];
   const role = form[`role${suf}`];
-  const category = form[`category${suf}`];
+  const categoriesArr = (form[`categories${suf}` as `categories_ko` | `categories_en`] as string[]) ?? [];
+  const category = categoriesArr.join(", ");
 
   return (
     <DetailLayout
