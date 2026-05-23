@@ -77,7 +77,7 @@
 | **Admin** | Plate.js 에디터, `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리 |
 | **성능** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic 카운터 + AbortController + bulk Promise.all |
 | **보안** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin 체크 (production fail-closed), middleware admin 다층 가드, 5회 실패 잠금 + 새 기기 이메일 승인 + 전기기 로그아웃 |
-| **디자인 시스템** | 4-tier 토큰 (Raw → Semantic → Component → Context) + 라이브 프리뷰 |
+| **디자인 시스템** | 4-tier 토큰 (Raw → Semantic → Component → Context) + 라이브 프리뷰, **전체 색 토큰 OKLCH 전환** (culori 정확 변환, hue 무관 균일한 지각 밝기) |
 
 ---
 
@@ -147,7 +147,7 @@
 - **TagCloud3D 라벨 + drag cursor**: 라벨에 Tags 아이콘 추가 + 회전 드래그 중 `data-cursor="grab"` 으로 CursorTrail 과 통합
 - **Posts Tooltip-everywhere**: 모든 필터·정렬·태그·카테고리·SearchCapsule 트리거에 `<T>` 컴포넌트 + Tooltip(번역 + 설명) 적용 — long hover(600ms) 로 반대 언어 + 짧은 설명 동시 노출, 모바일은 터치 토글
 - **SearchCapsule 공통 컴포넌트**: `components/admin/SearchCapsule` → `components/ui/SearchCapsule` 이동. `searchType` prop optional, padding 을 태그/정렬 캡슐 톤에 맞춰 슬림화 (`var(--spacing-2xs) var(--spacing-sm)`). PostsClient · `/admin/comments` 등 모든 인라인 검색 input 을 일괄 교체
-- **Seeded Color Generator**: `src/utils/seededColor.ts` — FNV-1a 해시 + 8 hue 앵커(주황/앰버/라임/그린/시안/블루/퍼플/마젠타) × 3 톤 스타일(vivid / pastel / muted) = 24가지 결정적 HSL 조합. 같은 seed 는 항상 같은 색, 인접 카드는 anchor + tone 둘 다 cycle 되어 시각적 분리 보장. OKLCH 의 sRGB gamut 클리핑 회피용으로 HSL 채택
+- **Seeded Color Generator (OKLCH)**: `src/utils/seededColor.ts` — FNV-1a 해시 + **12 hue 앵커**(orange/amber/yellow/lime/green/teal/cyan/sky/blue/purple/magenta/pink, 모두 brand accent hue 0–30° 배제) × **5 tone 프리셋**(vivid / pastel / muted / deep / soft) = **60가지 결정적 OKLCH 조합**. 같은 seed 는 항상 같은 색, 인접 카드는 anchor + tone 둘 다 cycle 되어 시각적 분리 보장. **HSL → OKLCH 로 전환** — 동일 lightness 가 hue 와 무관하게 동일한 지각 밝기를 보장해 어떤 hue 든 균일한 톤. 각 anchor 마다 `safeChroma` 를 정의해 sRGB gamut clipping 회피. 옵션 `tone` 으로 페이지 단위 톤 통일 가능(예: SeriesCard 가 페이지 안의 카드들 톤을 같이 통일하면서 hue 만 랜덤)
 - **PostCard 메타 i18n**: 날짜는 `language === "ko" ? ko-KR : en-US` 로 locale-aware 포맷, min read / views / likes 는 번역 키 사용, Eye/Heart 아이콘 + 0 도 항상 표시, `metaGroup` span 으로 그룹별 줄바꿈 단위 통일
 - **PostCard 메타 wrap 시 separator 자동 숨김**: 좁은 카드에서 metaGroup 이 두 줄로 wrap 되면 줄 첫머리 항목의 `::before` separator(`·`) 가 어색하게 떠 있던 문제 — `useLayoutEffect` 로 각 metaGroup 의 `offsetTop` 을 첫 그룹과 비교해 wrap 된 그룹에 `data-meta-wrapped` 부여, CSS 가 해당 그룹의 `::before` 를 숨김. ResizeObserver 로 카드 폭 변화에도 재계산
 - **IP 기반 좋아요**: Posts/Works/댓글에서 단일 `likes` 테이블 + `target_type` 구분, IP 기반 UNIQUE 제약으로 중복 방지, 연타 방지(ref lock + busy disabled), formatCount(1k/1.2m) 숫자 축약
@@ -184,8 +184,8 @@
 
 ### Works Detail & Project Pages
 
-- **Works Admin CRUD**: Supabase DB 기반 작업물 관리 — 단일 에디터(MD/Rich Text) + 8섹션 템플릿, TOC 자동 생성, 한/영 이중언어, 갤러리/팀멤버
-- **Work Detail**: 프로젝트 상세 페이지 — 콘텐츠 내 `##` 헤딩 파싱 TOC, 갤러리 이미지, 좋아요/댓글, GitHub 링크 버튼, DB 미연결 시 정적 데이터 fallback
+- **Works Admin CRUD**: Supabase DB 기반 작업물 관리 — 단일 에디터(MD/Rich Text) + 8섹션 템플릿, TOC 자동 생성, 한/영 이중언어, 갤러리/팀멤버. **다중 카테고리** (`categories_ko/en text[]` + GIN index, `?category=foo → categories @> ARRAY['foo']`), **nature** (제작 동기 — 토이/사이드/실무/학습/클론), **slug 기반 라우팅** (`/works/[slug]`, JS · SQL 양쪽 `generateSlug` / `_sql_slugify` 동기), **역할별 작업 내용** (`contributions_ko/en jsonb` — `{ "Frontend": ["페이지 구현"] }`), **기술별 메모** (`tech_notes jsonb` — `{ "React": "왜 / 어떻게" }`), 팀멤버 **GitHub/SNS 자동 아바타 추론** (`avatar_url > github.com/{user}.png > unavatar.io > favicon`)
+- **Work Detail**: 프로젝트 상세 페이지 — `/works/[slug]` 라우팅, 콘텐츠 내 `##` 헤딩 파싱 TOC, 갤러리 이미지, 좋아요/댓글, GitHub 링크 버튼, DB 미연결 시 정적 데이터 fallback
 
 <p align="center">
   <img src="public/images/screenshots/pc/work-detail-dark.png" width="49%" alt="Work Detail — Dark" />
@@ -197,7 +197,7 @@
 - **Mix-Blend Navigation**: mix-blend-mode: difference 자동 반전 네비게이션 — 이미지 로고(숏/풀/다크 전용), 글리치 효과 Admin 제어. **메뉴는 좌측 로고와 우측 actions 사이 남는 공간의 가운데로 자동 정렬**(`flex: 1; justify-content: center`)되어 어떤 viewport 너비에서도 actions 와 겹치지 않음. **active link 의 sliding indicator** 는 일반 hover/이동 시 부드러운 transition, **창 너비 resize 중에는 `transition: none` 인라인으로 즉시 snap** 되어 메뉴 위치를 1프레임 단위로 따라감(120ms 디바운스 후 transition 복원)
 - **Tooltip & Translation Tooltip**: 범용 Tooltip + 번역 `<T>` 컴포넌트 — long hover(600ms)로 반대 언어 표시, createPortal 기반, 모바일 터치 토글
 - **Footer Sliding Indicator**: Navigation과 동일한 슬라이딩 인디케이터 — hover 시 화살표 이동, ResizeObserver + fonts.ready 정확도
-- **Carousel (default / cylinder)**: 공통 Carousel — default(CSS opacity) / cylinder(3D perspective) 모드, autoPlay/loop/dots/arrows
+- **Banner (default / cylinder)**: 공통 Banner (구 Carousel rename) — default(CSS opacity) / cylinder(3D perspective) 모드, autoPlay/loop/dots/arrows
 - **About 가로 스크롤**: `useHorizontalScroll` 훅으로 GSAP 기반 가로 스크롤(데스크톱), 모바일 자동 세로 스택
 - **About 모바일 IDE 패널**: 모바일/태블릿 Troubleshooting 패널을 VSCode 스타일 IDE 로 — 가로 스크롤 탭바 + line-numbered 에디터 + breadcrumb + status bar. 탭 전환은 (a) edge 도달 후 release & 재스크롤 (b) 손 안 떼고 누적 push (c) 가로 swipe 세 가지로 발화, fling 으로 edge 에 닿기만 한 케이스는 300ms grace 동안 흡수 → 의도치 않은 cascade 차단. 탭바 마우스 드래그 시 5px 임계 넘으면 cursor 가 `grab` 으로 전환되어 "Drag" 라벨로 시각화. 추천 항목은 별표 + recommendReason 한 줄 (왜 추천하는지 면접자 1인칭) 노출
 - **About 핀스크롤 throttle**: `useMobilePinScroll` 의 onUpdate 가 progress 차이를 ±1 step 으로 잘라 200ms throttle — 강한 fling 으로 progress 가 한 번에 여러 칸 점프해도 한 윈도우당 1탭만 전환, 패널 통과는 그대로 허용
@@ -231,13 +231,13 @@
 - **체크박스 컬럼 — drag 와 multi-select 분리**: row 전체가 `draggable` 이지만, 체크박스 컬럼 (`.colCheck`) 위에서 시작한 drag 는 \"reorder 의도\" 가 아니라 \"여러 row 선택\" 의도. `onDragStart` 에서 `e.target.closest('.colCheck')` 면 `e.preventDefault()` 로 reorder 를 캔슬, 이후 pointer 추적은 multi-select drag logic 으로 분기. 같은 row 의 다른 영역에서 시작하면 기존대로 reorder
 - **CursorTrail — draggable 자손 button hover 보강**: 행 전체가 draggable 인 admin 테이블에서 작은 액션 버튼 (preview / edit / delete) 위에 마우스를 올려도 cursor 가 `grab` 으로 박혀 \"Click\" 라벨이 안 나타나던 문제. `runHitTest` 에 \"button 이 draggable 의 자손이면 button 의 click 이 이긴다\" 분기 추가 (`hitDraggable.contains(hitButton) → click`) — 사용자 mental model 인 \"가장 가까운 컨텍스트 우선\" 과 일치. 행 빈 공간에서는 여전히 grab
 - **Pagination jump input**: `showJump?: boolean` prop (default true, totalPages ≤ 5 자동 숨김) — "Go to [n]" capsule input 추가, Enter/blur 시 onChange (clamp), 외부 page 변경 시 sync. number input spinner 는 Firefox + WebKit 모두 제거
-- **예약 발행**: `scheduled_at` 컬럼 + Vercel cron(`/api/cron/publish-scheduled`, 5분 주기) — 미래 시간 설정 시 자동 `published=true` flip, DateTimePicker UI(날짜 + 시간 분리, 12h/24h 토글)
+- **예약 발행 + 휴지통 자동 영구삭제 (pg_cron)**: `scheduled_at` / `purge_after` 컬럼 + **Supabase pg_cron 직접 실행** (기존 Vercel cron 의존 제거). `publish_scheduled()` 가 매분, `purge_trash_scheduled()` 가 매일 UTC 18:00 (KST 03:00) 실행. **pg_net** 으로 Vault 의 `resend_api_key`/`admin_email`/`notify_from` secret 읽어 Resend API 호출 → 발행/삭제 건수를 `admin_notifications` insert + 이메일 발송. Vault 미등록 시 DB 작업은 정상, 이메일만 skip (fail-soft). DateTimePicker UI(날짜 + 시간 분리, 12h/24h 토글)
 - **Posts ↔ Works 양방향 연결**: Notion Relation 스타일 — `post_work_relations` 다대다 테이블, 양쪽 어디서 추가하든 detail 페이지에 자동 노출, `RelationPicker` 검색·썸네일·발행 상태 표시
 - **SEO 체크리스트**: 에디터 하단 위젯 — title/slug/excerpt(30자+)/cover/category/tags 6항목 점검, score 진행 바, 항목 클릭 시 해당 필드로 스크롤 + label accent 강조 (다음 인터랙션 전까지 유지)
 - **`.md` 동기화**: `content/posts/` · `content/works/` 폴더 → DB 단방향 싱크 (Jekyll-style, `pnpm sync-all`)
 - **`.md` 내보내기**: 전체/선택/개별/시리즈 단위로 frontmatter 포함 `.md` 다운로드
 - **Plate.js 에디터**: Markdown ↔ Rich Text 양방향 변환 (파일/오디오 첨부 포함), 커스텀 각주, 5종 템플릿, 에디터 전환 skeleton, 직접입력 font size/line height
-- **WorkEditor 정비**: ① **연도 → PeriodPicker** — 단순 연도가 아닌 시작/종료/진행중 까지 표현, JSON 직렬화로 기존 단순 year 문자열과 back-compat. ② **역할 multi-select** — combobox 캡슐 안에서 chip + 검색 input + portal'd dropdown(`position: fixed`), preset 10종 + 커스텀 직접입력, 한글 IME composition Enter 시 마지막 글자 중복 방지(`isComposing`/keyCode 229 가드). ③ **정렬 순서 drag list** — 다른 작품들과 같은 list 에서 grip handle 로 drag, 페이지네이션(5개씩) + 위치 input + 맨앞/맨뒤 jump 버튼, 드래그 중 list edge(60px) hover 시 `apply()` 로 인접 페이지 첫/끝 위치로 reorder 자체 수행해 source 가 unmount 되지 않게 보존. ④ **카테고리 직접입력** — KO/EN inline 캡슐(언어 태그 + input), 자동완성/생성. ⑤ subtitle 은 chip row 의 높이에 맞춰 textarea-like 로 stretch, 2줄 이상이면 radius 자동 morph
+- **WorkEditor 정비**: ① **연도 → PeriodPicker** — 단순 연도가 아닌 시작/종료/진행중 까지 표현, JSON 직렬화로 기존 단순 year 문자열과 back-compat. ② **역할 multi-select + 역할별 작업 내용** — combobox 캡슐 + chip (preset 10종 + 직접입력, IME composition Enter 가드), 선택된 각 역할 아래에 `TeamContribsByRole` (`contributions_ko/en jsonb` — role → string[]) 펼침, 작업 항목은 add row + 드래그 reorder + 더블클릭 inline 편집. ③ **기술 스택 + 기술별 메모** — Select combobox 에 100+ tech preset (`src/data/techIcons.tsx`, SimpleIcons + FontAwesome) + 한글 alias 검색 ("리액트" → React), 추가된 각 기술 아래에 `tech_notes jsonb` 메모 펼침 (역할/작업 패턴 재사용). ④ **다중 카테고리** — `categories_ko/en text[]` 로 한 작품이 여러 형태 가질 수 있음 ("웹앱 + 라이브러리"), KO/EN inline 캡슐. ⑤ **nature** — 별도 축으로 제작 동기 single select (토이 / 사이드 / 실무 / 클론 / 학습). ⑥ **팀 멤버 add-card** — 아바타 (GitHub/SNS 자동 추론) + 이름/이메일/URL inline 편집 (더블클릭 → input, `field-sizing: content` 로 폭 자동), 역할 select + 역할별 작업 내용 (멤버에도 동일 contribs 패턴). ⑦ **slug 입력 + 자동 생성** — title 변경 시 generateSlug 자동 채움 + 수동 override, SQL `_sql_slugify` 와 동일 로직 (마이그레이션 backfill 호환). ⑧ **정렬 순서 drag list** — 다른 작품들과 같은 list 에서 grip handle drag, 페이지네이션(5개씩) + 위치 input + 맨앞/맨뒤 jump, edge(60px) hover 시 `apply()` 로 인접 페이지 첫/끝 reorder 자체 수행해 source unmount 방지. ⑨ **capsule button group** — add input + add button 을 outer border + inner `border: none` 으로 캡슐 한 덩어리로 묶음 (Select dropdown portal 충돌 회피 위해 `overflow: hidden` 미사용)
 - **RelationPicker 강화**: chip 좌측 grip handle 로 **pointer-based drag-reorder**(HTML5 D&D 의 source-unmount cancel / 자식 click 흡수 / state-driven `draggable` 토글 등 quirks 회피), `framer-motion` `layout` prop 으로 재정렬 시 FLIP spring 자동 애니메이션, drag 위치에 따라 chip 좌/우 가장자리에 `::before/::after` 삽입 indicator. 입력 영역 닫힘 시 안내 placeholder("+ Add" / "No more items"), 화살표는 `ChevronRight` + 열림 시 90° 회전. 썸네일 로드 실패 시 동일 사이즈 ImageIcon placeholder 로 fallback
 - **PostEditor 커버 picker 애니메이션**: ① 닫기 버튼 텍스트 "선택 ↔ 닫기" 가 `AnimatePresence mode="wait"` 로 부드럽게 swap. ② picker 펼친 상태에선 같은 row 의 excerpt textarea 가 picker 높이만큼 함께 stretch(`align-items: stretch` + `flex-direction: column`). ③ 닫기 시 `closingCoverPicker` state 로 ~450ms collapse 애니메이션 끝난 뒤 unmount(즉시 unmount 면 닫는 모션이 안 보임). 시리즈 순서 list 는 grip 핸들 가장 앞 + framer `layout` 으로 drop indicator + spring reorder
 - **CursorTrail HTML5 drag 지원**: HTML5 native drag 가 활성이면 브라우저가 `pointermove` 를 시스템 차원에서 억제 → CursorTrail 이 freeze + 다른 요소 hover 마다 cursor type 흔들림. `dragover` 를 `handleMouseMove` 로 forward 해 좌표 stream 복원 + `dragstart` 시점에 `cursorType="grab"` lock + `runHitTest` 진입부 early-return 으로 "내가 잡고 있는 것" 의 cursor 를 끝까지 유지
@@ -286,7 +286,8 @@
 
 ### Design System
 
-- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown), Pagination(smart ellipsis), PeriodPicker, ButtonGroup(캡슐형 합체 버튼), Gradient Tokens, 3-phase scroll 애니메이션
+- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown + combobox toggle), Pagination(smart ellipsis), DatePicker / PeriodPicker, CloseButton(X ↔ minus morph), ModalTemplates(Confirm/Alert/Prompt — 28px action 버튼), Banner (구 Carousel), Gradient Tokens, 3-phase scroll 애니메이션
+- **OKLCH 색 토큰 전체 전환**: 모든 raw color token + module CSS 의 산발 hex/rgba 가 [culori](https://culori.js.org) 를 통해 `oklch(L% C H)` 로 일괄 변환됨. **`oklch(L C H / α)` alpha syntax**, hue 무관 균일한 지각 밝기. fallback 없이 `var(--color-*)` 만 참조 (component CSS hex 직접 사용 금지). 신규 색 추가 시 culori 의 동일 정밀도(5 dp L/C, 2 dp H) 유지
 
 <p align="center">
   <img src="public/images/screenshots/pc/design-system-dark.png" width="49%" alt="Design System — Dark" />
@@ -373,7 +374,7 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | `posts` | 블로그 포스트 (post_number 시퀀스 + `scheduled_at` 예약 발행 + `purge_after` 휴지통 TTL) |
 | `comments` | 포스트 댓글 (대댓글, 이중 인증: commenter_hash + password) |
 | `likes` | 좋아요 (포스트/작업물/댓글 통합, target_type으로 구분, IP 중복 방지) |
-| `works` | 포트폴리오 작업물 (team_members jsonb + `scheduled_at` 예약 발행 + `purge_after` 휴지통 TTL) |
+| `works` | 포트폴리오 작업물 (slug, `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `scheduled_at`, `purge_after`) |
 | `site_visits` | 방문자 통계 (IP+날짜 1회) |
 | `post_views` | 게시물별 시계열 조회 기록 (대시보드 일별 추세 차트) |
 | `work_comments` | Works 댓글 (대댓글, 이중 인증) |
@@ -384,7 +385,14 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | `admin_login_attempts` | 관리자 로그인 실패 카운터 (5회 실패 → 15분 잠금) |
 | `admin_known_devices` | 승인된 관리자 기기 UA 지문 (SHA-256, 미등록 기기는 이메일 승인 24h TTL) |
 
-**RPC 함수**: `sum_post_views()` (누적 조회수 합계), `daily_post_views(start, end)` (일별 시계열), `publish_scheduled()` (예약 시간 도달한 게시물/작품을 cron이 호출해서 발행)
+**RPC 함수**: `sum_post_views()` (누적 조회수 합계), `daily_post_views(start, end)` (일별 시계열), `publish_scheduled()` (예약 시간 도달한 게시물/작품 발행 + 알림 + 이메일 — **pg_cron 매분**), `purge_trash_scheduled()` (`purge_after` 지난 휴지통 hard delete + 알림 — **pg_cron 매일 KST 03:00**)
+
+**pg_cron 자동화 — Vault Secret (선택)**: `publish_scheduled()` 와 `purge_trash_scheduled()` 의 Resend 이메일 알림은 Supabase **Vault > Secrets** 에 아래 3개 등록 시 동작 (미등록 시 DB 작업은 정상, 이메일만 skip):
+- `resend_api_key` : Resend API key ([resend.com/api-keys](https://resend.com/api-keys))
+- `admin_email` : 알림 수신 이메일
+- `notify_from` : 발신 이메일 (Resend 인증된 도메인)
+
+`Database > Extensions` 에서 `pg_cron` + `pg_net` 활성화도 필요 (setup.sql 의 `CREATE EXTENSION` 이 시도하지만 dashboard 권한이 필요한 환경도 있음).
 
 > `IF NOT EXISTS`를 사용하므로 이미 존재하는 테이블은 건너뜁니다. 기존 배포 DB에 누락된 컬럼(commenter_hash, updated_at 등)은 파일 하단의 마이그레이션 섹션에서 `ALTER TABLE ADD COLUMN IF NOT EXISTS`로 안전하게 추가됩니다.
 
