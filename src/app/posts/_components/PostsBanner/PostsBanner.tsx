@@ -1,7 +1,7 @@
 "use client";
 
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import Carousel from "@/components/ui/Carousel/Carousel";
+import Banner from "@/components/ui/Banner/Banner";
 import BannerSlide from "../BannerSlide";
 import type { BannerStyle } from "../BannerSlide";
 import type { Post } from "@/types/post";
@@ -47,7 +47,7 @@ function FullwidthBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
   const siteConfig = useSiteConfig();
   return (
     <div className={styles.fullwidth} data-cursor="stop">
-      <Carousel
+      <Banner
         mode={siteConfig.posts.bannerTransition as "default" | "cylinder"}
         height="clamp(320px, 56vh, 640px)"
         showDots
@@ -63,7 +63,7 @@ function FullwidthBanner({ posts, imgErrors, onImgError }: PostsBannerProps) {
             onImgError={onImgError}
           />
         ))}
-      </Carousel>
+      </Banner>
     </div>
   );
 }
