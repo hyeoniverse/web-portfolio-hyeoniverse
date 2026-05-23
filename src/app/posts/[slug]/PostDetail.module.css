@@ -930,6 +930,7 @@
 .recommendedList {
   display: flex;
   flex-direction: column;
+  border-bottom: var(--border-light);
 }
 
 .recommendedItem {

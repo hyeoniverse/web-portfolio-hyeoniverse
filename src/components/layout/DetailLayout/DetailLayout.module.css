@@ -125,7 +125,7 @@
 .likeWrapper {
   display: flex;
   justify-content: center;
-  margin-top: var(--spacing-3xl);
+  margin-bottom: var(--spacing-2xl);
 }
 
 .likeBtn {
