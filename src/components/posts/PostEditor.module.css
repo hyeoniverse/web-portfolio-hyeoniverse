@@ -8,7 +8,16 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
-  margin-bottom: var(--spacing-3xl);
+  padding-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  border-bottom: var(--border-light);
+}
+
+/* title + slug + 예약 발행 묶음 — meta 의 spacing-xl gap 보다 작게 (관련 필드라 가까이) */
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
 .excerptInput {
@@ -236,9 +245,22 @@
   border-radius: 0;
 }
 
+/* tagInputRow wrapper 가 capsule border 담당이므로 안쪽 input focus 시 browser default
+ * outline (파란 ring) 은 제거. wrapper 의 :focus-within 으로 강조 처리 */
+.tagInputRow > div > input:focus,
+.tagInputRow > div > input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.tagInputRow:focus-within {
+  border-color: var(--text-primary);
+}
+
 .tagAddBtn {
-  padding: var(--input-p);
-  aspect-ratio: 1 / 1;
+  /* 세로 padding 0 — row 의 align-items: stretch 가 input 의 자연 높이까지만 늘리도록.
+   * 가로 padding 만 유지해 충분한 클릭 영역 + 정사각형 비슷한 비율 */
+  padding: 0 var(--spacing-md);
   flex-shrink: 0;
   border: none;
   border-left: var(--border-light);
@@ -322,8 +344,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding-top: var(--spacing-xl);
-  border-top: var(--border-light);
+  margin-bottom: var(--spacing-xl);
 }
 
 /* ── Editor wrap (resizable) ── */
@@ -406,7 +427,9 @@
 
 /* 첨부 이미지 패널 — 에디터 섹션 아래 별개 영역 */
 .attachedImagesSection {
-  padding-top: var(--spacing-lg);
+  padding-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  border-bottom: var(--border-light);
 }
 
 /* SEO 체크리스트 [data-seo] label 스타일은 PostEditor.global.css 로 이동

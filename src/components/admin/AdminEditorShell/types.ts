@@ -20,6 +20,11 @@ interface EditorLabels {
   retranslateDisabled?: string;
   generateSummary?: string;
   generateSummaryDisabled?: string;
+  scheduledAt?: string;
+  scheduledHint?: string;
+  scheduledClear?: string;
+  publishScheduled?: string;
+  publishOptions?: string;
 }
 
 interface RetranslateOption {
@@ -68,5 +73,11 @@ export interface AdminEditorShellProps {
   currentSnapshot?: { title: string; excerpt?: string; content?: string; meta?: Record<string, string> };
   topBarSecondRowLeft?: ReactNode;
   topBarFirstRowExtra?: ReactNode;
+  /** 예약 발행 값 — ISO string 또는 null. */
+  scheduledAt?: string | null;
+  /** 예약 발행 변경 — null 이면 해제. */
+  onScheduledChange?: (iso: string | null) => void;
+  /** 예약 발행 선택 가능 최소 시점. 기본 현재 시각. */
+  minScheduledDate?: Date;
   children: ReactNode;
 }
