@@ -59,7 +59,11 @@ export function parseMdWork(raw: string, fileName: string): Record<string, unkno
     published: false,
   };
   if (meta.subtitle) body.subtitle_ko = meta.subtitle;
-  if (meta.category) body.category_ko = meta.category;
+  if (meta.category) {
+    const cats = String(meta.category).split(",").map((s) => s.trim()).filter(Boolean);
+    body.categories_ko = cats;
+  }
+  if (meta.nature) body.nature_ko = String(meta.nature);
   if (meta.year) body.year = meta.year;
   if (meta.tech) body.tech = Array.isArray(meta.tech) ? meta.tech : [meta.tech];
   if (meta.description) body.description_ko = meta.description;

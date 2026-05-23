@@ -113,8 +113,9 @@ export default function AdminWorksPage() {
   const [sort, setSort] = useState("order");
   const [filterYear, setFilterYear] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
+  const [filterNature, _setFilterNature] = useState("");
   const [perPage, setPerPage] = useState(siteConf.works.adminPerPage ?? 20);
-  const hasFilters = sort !== "order" || filterYear !== "" || filterCategory !== "" || search;
+  const hasFilters = sort !== "order" || filterYear !== "" || filterCategory !== "" || filterNature !== "" || search;
 
   /* Trash */
   const [trashWorks, setTrashWorks] = useState<Work[]>([]);
@@ -149,9 +150,21 @@ export default function AdminWorksPage() {
   const categoryOptions = useMemo(() => {
     const cats = new Map<string, string>();
     for (const w of works) {
-      if (w.category_ko) cats.set(w.category_ko, w.category_en || w.category_ko);
+      const ks = w.categories_ko ?? [];
+      const es = w.categories_en ?? [];
+      ks.forEach((k, i) => {
+        if (k) cats.set(k, es[i] || k);
+      });
     }
     return [...cats.entries()];
+  }, [works]);
+
+  const _natureOptions = useMemo(() => {
+    const ns = new Map<string, string>();
+    for (const w of works) {
+      if (w.nature_ko) ns.set(w.nature_ko, w.nature_en || w.nature_ko);
+    }
+    return [...ns.entries()];
   }, [works]);
 
   // 일괄 카테고리 변경 모달용 — site.config + DB delta 머지된 전체 카테고리 목록
@@ -172,6 +185,7 @@ export default function AdminWorksPage() {
       sort,
     });
     if (filterCategory) params.set("category", filterCategory);
+    if (filterNature) params.set("nature", filterNature);
     if (filterYear) params.set("year", filterYear);
     if (search) {
       params.set("search", search);
@@ -183,7 +197,7 @@ export default function AdminWorksPage() {
     setTotalPages(data.totalPages ?? 1);
     setTotalCount(data.total ?? data.works?.length ?? 0);
     setLoading(false);
-  }, [page, perPage, sort, filterCategory, filterYear, search, searchType]);
+  }, [page, perPage, sort, filterCategory, filterNature, filterYear, search, searchType]);
 
   const fetchTrash = useCallback(async () => {
     const res = await fetch("/api/works?trash=true&limit=100");
@@ -739,8 +753,9 @@ role: 풀스택 개발
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                          category_ko: cat?.ko ?? null,
-                          category_en: cat?.en ?? null,
+                          // bulk 변경은 단일 카테고리로 통째로 교체 (덮어쓰기)
+                          categories_ko: cat?.ko ? [cat.ko] : [],
+                          categories_en: cat?.en ? [cat.en] : [],
                         }),
                       })
                     ));

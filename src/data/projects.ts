@@ -9,14 +9,25 @@ interface ProjectTeamMember {
   name: string;
   role: LocalizedText;
   url?: string;
+  email?: string;
+  avatar_url?: string;
+  /** 기여 항목 — 역할별 그룹 (key: 역할 이름, value: 항목 배열). ko/en 독립 */
+  contributions?: { ko: Record<string, string[]>; en: Record<string, string[]> };
 }
 
 export interface Project {
   id: string;
+  /** URL slug — DB 의 works.slug 와 동일. 정적 fallback 에선 optional (없으면 id fallback) */
+  slug?: string;
   number: string;
   title: string;
   subtitle: LocalizedText;
+  /** legacy 단일 카테고리 — categories[0] 미러. 신규 호출부는 categories 사용 권장 */
   category: LocalizedText;
+  /** 결과물 형태 (multi) — 웹앱·라이브러리·도구 등 (DB categories_ko/en) */
+  categories?: { ko: string[]; en: string[] };
+  /** 제작 동기 — 토이/클론/사이드/학교/공모전/오픈소스/스터디 (DB nature_ko/en) */
+  nature?: LocalizedText;
   year: string;
   description: LocalizedText;
   role: LocalizedText;

@@ -1,36 +1,38 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from "react";
-import { createPortal } from "react-dom";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
-import { ChevronRight, Plus, Star, Eye } from "lucide-react";
-import CloseIcon from "@/components/ui/CloseIcon";
+import { ChevronRight, Plus, Star, Check, X, GripVertical, User } from "lucide-react";
+import Button from "@/components/ui/Button";
 import CloseButton from "@/components/ui/CloseButton";
+import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import { ImageViewer } from "@/components/ui/ImageViewer";
-import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
+import { generateSlug, validateSlug } from "@/utils/postSlug";
+import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
 import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
 import EditorToggle from "@/components/posts/EditorToggle";
 import MarkdownEditor from "@/components/posts/MarkdownEditor";
 import SeoChecklist, { type SeoCheckId } from "@/components/admin/SeoChecklist";
-import type { Work, WorkFormData } from "@/types/work";
+import type { Work, WorkFormData, TeamMember } from "@/types/work";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useTagInput } from "@/hooks/useTagInput";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { autoTranslate } from "@/utils/autoTranslate";
-import { SIZES, TEMPLATE_KO, TEMPLATE_EN } from "@/data/workTemplates";
+import { SIZES, WORK_TEMPLATES, TECH_PRESETS, type WorkTemplate } from "@/data/workTemplates";
+import { getTechIcon, normalizeTechName, getTechAliases } from "@/data/techIcons";
+import { showToast } from "@/stores/toastStore";
 import { workToFormData, defaultForm } from "@/utils/workFormUtils";
 import { stripHtml } from "@/utils/htmlUtils";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
-import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
 import type { DatePeriod } from "@/data/profile";
 import RelationPicker from "@/components/admin/RelationPicker";
@@ -39,6 +41,8 @@ import CoverImageField from "@/components/admin/CoverImageField";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import { List, ListItem } from "@/app/admin/(dashboard)/components";
+import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
 import styles from "./WorkEditor.module.css";
 
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
@@ -73,198 +77,892 @@ function serializePeriodAsYear(p: DatePeriod): string {
   return JSON.stringify(p);
 }
 
-// 역할 프리셋 — RoleMultiSelect 가 popover 안에서 사용
+// 역할 프리셋 — Select combobox 의 옵션. 직접 입력으로 자유로운 텍스트도 가능
 const ROLE_PRESETS_KO = ["기획", "디자인", "프론트엔드", "백엔드", "풀스택", "데이터", "PM", "QA", "DevOps", "모바일"];
 const ROLE_PRESETS_EN = ["Planning", "Design", "Frontend", "Backend", "Full-stack", "Data", "PM", "QA", "DevOps", "Mobile"];
 
-/** comma-separated 문자열 → trim 된 token 배열 */
-function parseRoles(value: string): string[] {
-  return value.split(",").map((s) => s.trim()).filter(Boolean);
-}
-/** token 배열 → ", " join */
-function joinRoles(tokens: string[]): string {
-  return tokens.join(", ");
-}
-
-/**
- * Combobox-style multi-select.
- * - 한 줄 capsule 안에 선택된 chip + 검색 input 이 inline 으로 들어감
- * - 입력 / 포커스 시 아래 dropdown 펼쳐짐 — 미선택 preset 들 + "추가: <query>" 후보
- * - chip ×, Backspace, Enter 모두 지원
- */
-function RoleMultiSelect({
+/* ──────────────────────────────────────────────────────────────────────────
+ * useRoleMultiPicker — 역할 multi-select 의 state + 렌더 node 분리.
+ * select 와 chip 을 다른 위치에 배치하고 싶을 때 사용 (예: 팀원 폼 → chip 을 URL row 아래로). */
+function useRoleMultiPicker({
   value,
   onChange,
   presets,
   placeholder,
+  lang,
 }: {
   value: string;
   onChange: (v: string) => void;
   presets: string[];
   placeholder: string;
+  lang: "ko" | "en";
 }) {
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const comboRef = useRef<HTMLDivElement>(null);
-  // dropdown 을 body 로 portal — 부모 (optionalContent) 의 overflow: hidden 으로 잘리지 않게
-  const [popPos, setPopPos] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [input, setInput] = useState("");
+  const tokens = value
+    ? value.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+  const setTokens = (next: string[]) => onChange(next.join(", "));
+  const add = (v: string) => {
+    const t = v.trim().replace(/,/g, "");
+    if (!t) return;
+    if (tokens.includes(t)) {
+      showToast(lang === "ko" ? `이미 추가됨: ${t}` : `Already added: ${t}`, "info");
+      setInput("");
+      return;
+    }
+    setTokens([...tokens, t]);
+    setInput("");
+  };
+  const remove = (idx: number) => setTokens(tokens.filter((_, i) => i !== idx));
+  const { itemProps } = useTagDrag((from, to) => {
+    const next = [...tokens];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setTokens(next);
+  });
+  const selectNode = (
+    <Select
+      combobox
+      className={styles.roleSelect}
+      value=""
+      onChange={() => {}}
+      inputValue={input}
+      onInputChange={setInput}
+      onAdd={(v) => add(v)}
+      options={presets.map((p) => {
+        const added = tokens.includes(p);
+        return {
+          value: p,
+          label: p,
+          selected: added,
+          trailing: added ? <Check size={12} strokeWidth={2.5} /> : undefined,
+        };
+      })}
+      placeholder={placeholder}
+    />
+  );
+  const chipsNode = tokens.length > 0 ? (
+    <div className={styles.categoryChipList}>
+      {tokens.map((t, i) => (
+        <DraggableTag key={`${t}-${i}`} label={t} onRemove={() => remove(i)} {...itemProps(i)} />
+      ))}
+    </div>
+  ) : null;
+  return { selectNode, chipsNode };
+}
 
-  const measurePop = useCallback(() => {
-    const el = comboRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    setPopPos({ top: r.bottom + 4, left: r.left, width: r.width });
-  }, []);
 
-  useLayoutEffect(() => {
-    if (!open) return;
-    measurePop();
-    const onScroll = () => measurePop();
-    window.addEventListener("scroll", onScroll, true);
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll, true);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [open, measurePop]);
+/* ──────────────────────────────────────────────────────────────────────────
+ * TeamMemberCard — 팀원 1명. 상단 chip-row (avatar + 이름/역할 + remove) + 하단 contributions ul.
+ * contributions 는 editorLang 기준 단일 배열만 보여줌 — 다른 lang 은 그대로 유지. */
+function TeamMemberCard({
+  member,
+  editorLang,
+  onChange,
+  onRemove,
+}: {
+  member: TeamMember;
+  editorLang: "ko" | "en";
+  onChange: (next: TeamMember) => void;
+  onRemove: () => void;
+}) {
+  type EditField = "name" | "role" | "email" | "url";
+  const [expandedRoles, setExpandedRoles] = useState<Set<string>>(new Set());
+  const [editingFields, setEditingFields] = useState<Set<EditField>>(new Set());
+  // 작업 item 인라인 편집 — { role, index } 한 개만
+  const [editingContrib, setEditingContrib] = useState<{ role: string; idx: number } | null>(null);
+  // 작업 섹션의 역할 label 인라인 rename — 어느 role 을 편집 중인지
+  const [editingContribRole, setEditingContribRole] = useState<string | null>(null);
+  // toggle 클릭 지연 — dblclick 가능성 대비. 250ms 내 두번째 click 오면 toggle 취소 → dblclick 핸들러가 처리
+  const toggleClickTimerRef = useRef<number | null>(null);
 
-  const current = parseRoles(value);
-  // 미선택 preset + (query 검색 포함) custom 으로 추가한 후보 표시
-  const candidates = presets.filter((p) => !current.includes(p));
-  const q = query.trim().toLowerCase();
-  const filtered = q ? candidates.filter((o) => o.toLowerCase().includes(q)) : candidates;
-  const trimmedQuery = query.trim();
-  // "추가: <query>" — query 있고, 기존(선택+preset) 어디에도 정확히 일치 없을 때만
-  const canAddCustom = trimmedQuery !== "" &&
-    !current.some((c) => c.toLowerCase() === trimmedQuery.toLowerCase()) &&
-    !presets.some((p) => p.toLowerCase() === trimmedQuery.toLowerCase());
-
-  const remove = (role: string) => onChange(joinRoles(current.filter((r) => r !== role)));
-  const add = (role: string) => {
-    const trimmed = role.trim();
-    if (!trimmed || current.includes(trimmed)) return;
-    onChange(joinRoles([...current, trimmed]));
+  // avatar 파일 업로드 (더블클릭 / + 뱃지)
+  const avatarFileRef = useRef<HTMLInputElement>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const handleAvatarFile = async (file: File) => {
+    setAvatarUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "avatars");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      if (data.url) onChange({ ...member, avatar_url: data.url });
+    } catch {
+      showToast("Avatar upload failed", "error");
+    } finally {
+      setAvatarUploading(false);
+      if (avatarFileRef.current) avatarFileRef.current.value = "";
+    }
   };
 
-  // 외부 클릭 / Escape 시 닫기 — capsule 과 portal'd dropdown 둘 다 "안" 으로 인정
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: PointerEvent) => {
-      const t = e.target as Node;
-      const insideCombo = comboRef.current?.contains(t);
-      const insidePop = wrapRef.current?.contains(t);
-      if (!insideCombo && !insidePop) {
-        setOpen(false);
-        setQuery("");
-      }
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setOpen(false); setQuery(""); }
-    };
-    document.addEventListener("pointerdown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("pointerdown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+  const toggleRole = (role: string) => {
+    setExpandedRoles((prev) => {
+      const next = new Set(prev);
+      if (next.has(role)) next.delete(role);
+      else next.add(role);
+      return next;
+    });
+  };
+  const startEdit = (field: EditField) => setEditingFields((p) => new Set(p).add(field));
+  const stopEdit = (field: EditField) =>
+    setEditingFields((p) => {
+      const n = new Set(p);
+      n.delete(field);
+      return n;
+    });
 
-  const showDropdown = open && (filtered.length > 0 || canAddCustom);
-  const dropdown = showDropdown && popPos && typeof window !== "undefined" ? createPortal(
-    <div
-      ref={wrapRef}
-      className={styles.roleMSPopover}
-      // capsule 폭을 minWidth 로 — capsule 이 좁아도 dropdown 은 자연스럽게 펼쳐짐 (CSS min-width 280px)
-      style={{ position: "fixed", top: popPos.top, left: popPos.left, minWidth: popPos.width }}
-    >
-      <div className={styles.roleMSList}>
-        {filtered.map((role) => (
-          <button
-            key={role}
-            type="button"
-            className={styles.roleMSItem}
-            onClick={() => { add(role); setQuery(""); inputRef.current?.focus(); }}
-          >
-            <Plus size={11} strokeWidth={2.5} className={styles.roleMSItemIcon} aria-hidden />
-            <span className={styles.roleMSItemLabel}>{role}</span>
-          </button>
-        ))}
-        {canAddCustom && (
-          <button
-            type="button"
-            className={`${styles.roleMSItem} ${styles.roleMSItemAdd}`}
-            onClick={() => { add(trimmedQuery); setQuery(""); inputRef.current?.focus(); }}
-          >
-            <Plus size={11} strokeWidth={2.5} className={styles.roleMSItemIcon} aria-hidden />
-            <span className={styles.roleMSItemLabel}>
-              추가: <strong>{trimmedQuery}</strong>
-            </span>
-          </button>
-        )}
-      </div>
-    </div>,
-    document.body,
-  ) : null;
+  const avatarUrl = deriveTeamMemberAvatar(member);
+  const roleField = editorLang === "ko" ? member.role_ko : member.role_en;
+  const roles = roleField.split(",").map((r) => r.trim()).filter(Boolean);
+  const contribsMap = (editorLang === "ko" ? member.contributions_ko : member.contributions_en) ?? {};
+  // 역할 있으면 항상 표시 (작업 0개여도 toggle 펼치고 추가 가능)
+  const contribsToShow = roles.map((role) => ({ role, items: contribsMap[role] ?? [] }));
+
+  // 인라인 편집 commit helper — 필드 값을 member 에 반영하고 편집 모드 해제
+  const commitField = (field: EditField, value: string) => {
+    if (field === "role") {
+      const key = editorLang === "ko" ? "role_ko" : "role_en";
+      onChange({ ...member, [key]: value });
+    } else {
+      onChange({ ...member, [field]: value || undefined });
+    }
+    stopEdit(field);
+  };
+
+  // 작업 item commit — contribsMap 의 해당 role 배열 인덱스 갱신
+  const commitContrib = (role: string, idx: number, value: string) => {
+    const key = editorLang === "ko" ? "contributions_ko" : "contributions_en";
+    const current = (member[key] ?? {}) as Record<string, string[]>;
+    const items = [...(current[role] ?? [])];
+    const trimmed = value.trim();
+    if (trimmed) items[idx] = trimmed;
+    else items.splice(idx, 1);
+    onChange({ ...member, [key]: { ...current, [role]: items } });
+    setEditingContrib(null);
+  };
+
+  // 작업 추가 — 빈 값이면 무시, 있으면 해당 role 의 배열에 append
+  const appendContrib = (role: string, value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    const key = editorLang === "ko" ? "contributions_ko" : "contributions_en";
+    const current = (member[key] ?? {}) as Record<string, string[]>;
+    onChange({ ...member, [key]: { ...current, [role]: [...(current[role] ?? []), trimmed] } });
+  };
+
+  // 역할 rename — role 문자열의 해당 항목 + contribs map 의 key 둘 다 update
+  const commitContribRole = (oldRole: string, newName: string) => {
+    const trimmed = newName.trim();
+    setEditingContribRole(null);
+    if (!trimmed || trimmed === oldRole) return;
+    const roleKey = editorLang === "ko" ? "role_ko" : "role_en";
+    const newRoleField = roleField
+      .split(",")
+      .map((r) => r.trim())
+      .filter(Boolean)
+      .map((r) => (r === oldRole ? trimmed : r))
+      .join(", ");
+    const contribKey = editorLang === "ko" ? "contributions_ko" : "contributions_en";
+    const next = { ...contribsMap };
+    if (oldRole in next) {
+      next[trimmed] = next[oldRole];
+      delete next[oldRole];
+    }
+    onChange({ ...member, [roleKey]: newRoleField, [contribKey]: next });
+  };
+
+  // input 공통 props — blur 시 저장, Enter 저장 / Escape 취소.
+  // typographyClass: display 요소와 동일 폰트 적용해 layout shift 최소화
+  // data-cursor="text": CursorTrail 이 부모의 clickable 모드 대신 text cursor 강제 표시
+  const inlineEditProps = (field: EditField, typographyClass?: string) => ({
+    autoFocus: true,
+    className: `${styles.memberInlineEdit} ${typographyClass ?? ""}`.trim(),
+    "data-cursor": "text",
+    onBlur: (e: React.FocusEvent<HTMLInputElement>) => commitField(field, e.target.value),
+    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+      if (e.key === "Enter") {
+        e.preventDefault();
+        e.currentTarget.blur();
+      } else if (e.key === "Escape") {
+        stopEdit(field);
+      }
+    },
+  });
+
+  // 더블클릭 시 텍스트 선택 차단 (text selection 이 click 핸들러보다 우선되는 문제 방지)
+  const dblClickGuard = (e: React.MouseEvent) => {
+    if (e.detail > 1) e.preventDefault();
+  };
+
+  // 250ms 지연 click — 그 안에 두번째 click 이 오면 single-click 취소 (dblclick 핸들러 가 처리)
+  const delayedClick = (handler: () => void) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (toggleClickTimerRef.current !== null) {
+      window.clearTimeout(toggleClickTimerRef.current);
+      toggleClickTimerRef.current = null;
+      return;
+    }
+    toggleClickTimerRef.current = window.setTimeout(() => {
+      toggleClickTimerRef.current = null;
+      handler();
+    }, 250);
+  };
+  const cancelDelayed = () => {
+    if (toggleClickTimerRef.current !== null) {
+      window.clearTimeout(toggleClickTimerRef.current);
+      toggleClickTimerRef.current = null;
+    }
+  };
+
 
   return (
-    <div className={styles.roleMS}>
-      {/* 선택된 chip row — chip 전체를 클릭 가능한 버튼으로 → 어디 눌러도 제거 */}
-      {current.length > 0 && (
-        <div className={styles.roleMSChips}>
-          {current.map((role) => (
+    <ListItem layout="column" className={styles.memberCard}>
+      <div className={styles.memberHeaderRow}>
+          <input
+            ref={avatarFileRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleAvatarFile(file);
+            }}
+          />
+          <span
+            className={`${styles.memberAvatar} ${styles.memberAvatarUploadable}`}
+            onDoubleClick={() => !avatarUploading && avatarFileRef.current?.click()}
+            role="button"
+            tabIndex={0}
+            aria-label="사진 변경"
+            title="더블클릭으로 사진 변경"
+          >
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt="" className={styles.memberAvatarImg} loading="lazy" />
+            ) : member.name.trim() ? (
+              <span className={styles.memberAvatarInitial}>{getMemberInitial(member.name)}</span>
+            ) : (
+              <User size={20} strokeWidth={1.5} className={styles.memberAvatarPlaceholder} />
+            )}
             <button
-              key={role}
               type="button"
-              className={styles.roleMSChip}
-              onClick={() => remove(role)}
-              aria-label={`Remove ${role}`}
-              title="클릭하여 제거"
+              className={styles.memberAvatarAddBadge}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!avatarUploading) avatarFileRef.current?.click();
+              }}
+              aria-label="사진 변경"
+              tabIndex={-1}
             >
-              <span className={styles.roleMSChipLabel}>{role}</span>
-              <span className={styles.roleMSChipRemove} aria-hidden>×</span>
+              <Plus size={10} strokeWidth={2.5} />
             </button>
-          ))}
+          </span>
+          <div className={styles.memberInfo}>
+            {/* name — 첫 줄 */}
+            {editingFields.has("name") ? (
+              <input type="text" defaultValue={member.name} {...inlineEditProps("name", styles.memberItemName)} />
+            ) : (
+              <span
+                className={styles.memberItemName}
+                onMouseDown={dblClickGuard}
+                onDoubleClick={() => startEdit("name")}
+                title="더블클릭으로 편집"
+              >
+                {member.name}
+              </span>
+            )}
+            {/* role — 두번째 줄 (subtitle). contribs 있으면 각 contrib group label 이 role 표시 담당 → 중복 숨김 */}
+            {editingFields.has("role") ? (
+              <input
+                type="text"
+                defaultValue={roleField}
+                placeholder="역할 (쉼표로 구분)"
+                {...inlineEditProps("role", styles.memberItemRole)}
+              />
+            ) : contribsToShow.length === 0 && (member.role_ko || member.role_en) ? (
+              <span
+                className={styles.memberItemRole}
+                onMouseDown={dblClickGuard}
+                onDoubleClick={() => startEdit("role")}
+                title="더블클릭으로 편집"
+              >
+                {[member.role_ko, member.role_en].filter(Boolean).join(" / ")}
+              </span>
+            ) : null}
+            {/* email — editor 에선 navigate 없음. 더블클릭으로 편집만 */}
+            {editingFields.has("email") ? (
+              <input type="email" defaultValue={member.email ?? ""} placeholder="email" {...inlineEditProps("email", styles.memberItemUrl)} />
+            ) : member.email ? (
+              <span
+                className={styles.memberItemUrl}
+                onMouseDown={dblClickGuard}
+                onDoubleClick={() => startEdit("email")}
+                title="더블클릭으로 편집"
+                data-cursor="text"
+              >
+                {member.email}
+              </span>
+            ) : null}
+            {/* url — editor 에선 navigate 없음. 더블클릭으로 편집만 */}
+            {editingFields.has("url") ? (
+              <input type="url" defaultValue={member.url ?? ""} placeholder="url" {...inlineEditProps("url", styles.memberItemUrl)} />
+            ) : member.url ? (
+              <span
+                className={styles.memberItemUrl}
+                onMouseDown={dblClickGuard}
+                onDoubleClick={() => startEdit("url")}
+                title="더블클릭으로 편집"
+                data-cursor="text"
+              >
+                {member.url}
+              </span>
+            ) : null}
+          </div>
+          <CloseButton
+            size="md"
+            className={styles.memberHeaderActionBtn}
+            onClick={onRemove}
+            ariaLabel="Remove member"
+          />
         </div>
-      )}
-      {/* input — 검색 / 직접 입력 */}
-      <div
-        ref={comboRef}
-        className={`${styles.roleMSInputWrap} ${open ? styles.roleMSInputWrapOpen : ""}`}
-        onClick={() => { setOpen(true); inputRef.current?.focus(); }}
-      >
-        <input
-          ref={inputRef}
-          type="text"
-          className={styles.roleMSInput}
-          value={query}
-          onChange={(e) => { setQuery(e.target.value); if (!open) setOpen(true); }}
-          onFocus={() => setOpen(true)}
-          onKeyDown={(e) => {
-            // 한글 IME 조합 중 Enter — 마지막 글자가 중복 추가되는 현상 방지
-            if (e.nativeEvent.isComposing || e.keyCode === 229) return;
-            if (e.key === "Enter") {
-              e.preventDefault();
-              if (canAddCustom) {
-                add(trimmedQuery);
-                setQuery("");
-              } else if (filtered.length > 0) {
-                add(filtered[0]);
-                setQuery("");
-              }
-            } else if (e.key === "Backspace" && query === "" && current.length > 0) {
-              remove(current[current.length - 1]);
-            }
-          }}
-          placeholder={placeholder}
-        />
+        {/* contribs — 역할 label 마다 개별 토글. 기본 접힘 → 클릭하면 해당 역할의 작업만 펼침 */}
+        {contribsToShow.length > 0 && (
+          <div className={styles.memberContribsWrap}>
+            {contribsToShow.map(({ role, items }) => {
+              const open = expandedRoles.has(role);
+              return (
+                <div key={role} className={styles.memberContribsGroup}>
+                  <button
+                    type="button"
+                    className={`${styles.memberContribsToggle} ${open ? styles.memberContribsToggleOpen : ""}`}
+                    onClick={editingContribRole === role ? (e) => e.preventDefault() : delayedClick(() => toggleRole(role))}
+                    aria-expanded={open}
+                  >
+                    <ChevronRight size={12} strokeWidth={2} className={styles.memberContribsChevron} />
+                    {editingContribRole === role ? (
+                      <input
+                        type="text"
+                        autoFocus
+                        defaultValue={role}
+                        className={`${styles.memberInlineEdit} ${styles.memberItemRole}`}
+                        data-cursor="text"
+                        onClick={(e) => e.stopPropagation()}
+                        onBlur={(e) => commitContribRole(role, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            e.currentTarget.blur();
+                          } else if (e.key === "Escape") {
+                            setEditingContribRole(null);
+                          }
+                        }}
+                      />
+                    ) : (
+                      <span
+                        className={styles.memberItemRole}
+                        onMouseDown={dblClickGuard}
+                        onDoubleClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          cancelDelayed();
+                          setEditingContribRole(role);
+                        }}
+                        title="더블클릭으로 편집"
+                        data-cursor="text"
+                      >
+                        {role}
+                      </span>
+                    )}
+                  </button>
+                  {open && (
+                    <ul className={styles.memberContribsList}>
+                      {items.map((c, ci) => {
+                        const isEditing = editingContrib?.role === role && editingContrib.idx === ci;
+                        return (
+                          <li key={ci}>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                autoFocus
+                                defaultValue={c}
+                                className={styles.memberInlineEdit}
+                                data-cursor="text"
+                                onBlur={(e) => commitContrib(role, ci, e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    e.currentTarget.blur();
+                                  } else if (e.key === "Escape") {
+                                    setEditingContrib(null);
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <span
+                                onMouseDown={dblClickGuard}
+                                onDoubleClick={() => setEditingContrib({ role, idx: ci })}
+                                title="더블클릭으로 편집"
+                              >
+                                {c}
+                              </span>
+                            )}
+                          </li>
+                        );
+                      })}
+                      {/* 새 작업 추가 — Enter: append + clear + 포커스 유지 (연속 입력), Blur: 동일 동작 + 포커스 해제 */}
+                      <li className={styles.memberContribsAddItem}>
+                        <input
+                          type="text"
+                          placeholder="새 작업 추가..."
+                          className={styles.memberInlineEdit}
+                          data-cursor="text"
+                          onBlur={(e) => {
+                            appendContrib(role, e.target.value);
+                            e.target.value = "";
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              appendContrib(role, e.currentTarget.value);
+                              e.currentTarget.value = "";
+                              // blur 안 함 → 같은 input 에 포커스 유지 → 연속 추가 가능
+                            }
+                          }}
+                        />
+                      </li>
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+    </ListItem>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * TeamRoleContribsSection — 한 역할에 대한 기여 항목 ul.
+ * 자체 input state + drag-reorder state 보유. role 헤더 + items + 추가 row. */
+function TeamRoleContribsSection({
+  role,
+  value,
+  onChange,
+  onRemoveRole,
+  placeholder,
+  showAddInput = true,
+  dragHandleEnabled,
+  dragging,
+  dropSide,
+  onRoleDragStart,
+  onRoleDragOver,
+  onRoleDrop,
+  onRoleDragEnd,
+}: {
+  role: string;
+  value: string[];
+  onChange: (next: string[]) => void;
+  onRemoveRole?: () => void;
+  placeholder: string;
+  showAddInput?: boolean;
+  dragHandleEnabled?: boolean;
+  dragging?: boolean;
+  dropSide?: "top" | "bottom" | null;
+  onRoleDragStart?: () => void;
+  onRoleDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onRoleDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onRoleDragEnd?: () => void;
+}) {
+  const [input, setInput] = useState("");
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dropIdx, setDropIdx] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
+
+  const add = () => {
+    const t = input.trim();
+    if (!t) return;
+    onChange([...value, t]);
+    setInput("");
+  };
+  const remove = (idx: number) => onChange(value.filter((_, i) => i !== idx));
+
+  const reorder = (from: number, to: number) => {
+    const next = [...value];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    onChange(next);
+  };
+
+  const resetDrag = () => {
+    setDragIdx(null);
+    setDropIdx(null);
+  };
+
+  return (
+    <div
+      className={`${styles.contribRoleGroup} ${dragging ? styles.contribRoleGroupDragging : ""} ${dropSide === "top" ? styles.contribRoleGroupDropTop : ""} ${dropSide === "bottom" ? styles.contribRoleGroupDropBottom : ""}`}
+      onDragOver={onRoleDragOver}
+      onDrop={onRoleDrop}
+    >
+      <div className={styles.contribRoleHeader}>
+        {dragHandleEnabled && (
+          <span
+            className={styles.contribRoleDragHandle}
+            draggable
+            onDragStart={(e) => {
+              onRoleDragStart?.();
+              e.dataTransfer.effectAllowed = "move";
+            }}
+            onDragEnd={onRoleDragEnd}
+            aria-label="Reorder role"
+          >
+            <GripVertical size={12} strokeWidth={2} />
+          </span>
+        )}
+        <span className={styles.contribRoleLabel}>{role}</span>
+        {onRemoveRole && (
+          <CloseButton
+            size="sm"
+            className={styles.contribRoleRemove}
+            onClick={onRemoveRole}
+            ariaLabel="Remove role"
+          />
+        )}
       </div>
-      {dropdown}
+      <ul className={styles.memberContribs}>
+        {value.map((c, ci) => {
+          const isDragging = dragIdx === ci;
+          // splice 보정 후의 최종 to 가 dragIdx 와 같으면 no-op → indicator 숨김
+          const effectiveTo = (side: "top" | "bottom") => {
+            let to = ci + (side === "bottom" ? 1 : 0);
+            if (dragIdx !== null && dragIdx < to) to -= 1;
+            return to;
+          };
+          const showTopBar =
+            dragIdx !== null &&
+            dropIdx?.idx === ci &&
+            dropIdx.side === "top" &&
+            effectiveTo("top") !== dragIdx;
+          const showBottomBar =
+            dragIdx !== null &&
+            dropIdx?.idx === ci &&
+            dropIdx.side === "bottom" &&
+            effectiveTo("bottom") !== dragIdx;
+          return (
+            <li
+              key={ci}
+              className={`${styles.contribItem} ${isDragging ? styles.contribItemDragging : ""} ${showTopBar ? styles.contribItemDropTop : ""} ${showBottomBar ? styles.contribItemDropBottom : ""}`}
+              onDragOver={(e) => {
+                if (dragIdx === null) return;
+                e.preventDefault();
+                const rect = e.currentTarget.getBoundingClientRect();
+                const mid = rect.top + rect.height / 2;
+                setDropIdx({ idx: ci, side: e.clientY < mid ? "top" : "bottom" });
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (dragIdx === null || dropIdx === null) {
+                  resetDrag();
+                  return;
+                }
+                let to = dropIdx.idx + (dropIdx.side === "bottom" ? 1 : 0);
+                if (dragIdx < to) to -= 1;
+                if (to !== dragIdx) reorder(dragIdx, to);
+                resetDrag();
+              }}
+            >
+              <span
+                className={styles.contribDragHandle}
+                draggable
+                onDragStart={(e) => {
+                  setDragIdx(ci);
+                  e.dataTransfer.effectAllowed = "move";
+                }}
+                onDragEnd={resetDrag}
+                aria-label="Reorder"
+              >
+                <GripVertical size={12} strokeWidth={2} />
+              </span>
+              <span className={styles.contribText}>{c}</span>
+              <CloseButton
+                size="sm"
+                className={styles.contribItemRemove}
+                onClick={() => remove(ci)}
+                ariaLabel="Remove contribution"
+              />
+            </li>
+          );
+        })}
+        {showAddInput && (
+          <li className={styles.contribAddRow}>
+            <input
+              className={styles.contribInput}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  add();
+                }
+              }}
+              placeholder={placeholder}
+            />
+            <Button
+              variant="outline"
+              shape="circle"
+              size="sm"
+              className={styles.categoryAddBtnSized}
+              onClick={add}
+              disabled={!input.trim()}
+              aria-label="Add contribution"
+              icon={<Plus size={11} strokeWidth={2} />}
+            />
+          </li>
+        )}
+      </ul>
     </div>
   );
 }
 
+/* TeamContribsByRole — 역할 목록을 받아서 각 역할별 contribs 섹션 렌더.
+ * + 역할 자체도 drag handle 로 순서 변경 가능. onReorderRoles 제공 시 활성화. */
+function TeamContribsByRole({
+  roles,
+  contribsMap,
+  onChange,
+  onRemoveRole,
+  onReorderRoles,
+  placeholder,
+  showAddInput = true,
+}: {
+  roles: string[];
+  contribsMap: Record<string, string[]>;
+  onChange: (next: Record<string, string[]>) => void;
+  onRemoveRole?: (role: string) => void;
+  onReorderRoles?: (next: string[]) => void;
+  placeholder: string;
+  showAddInput?: boolean;
+}) {
+  // role-level drag state — contrib-level state (TeamRoleContribsSection 내부) 와 분리
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dropPos, setDropPos] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
+
+  const resetDrag = () => {
+    setDragIdx(null);
+    setDropPos(null);
+  };
+
+  const handleDrop = (_targetIdx: number) => {
+    if (dragIdx === null || dropPos === null || !onReorderRoles) {
+      resetDrag();
+      return;
+    }
+    let to = dropPos.idx + (dropPos.side === "bottom" ? 1 : 0);
+    if (dragIdx < to) to -= 1;
+    if (to !== dragIdx) {
+      const next = [...roles];
+      const [moved] = next.splice(dragIdx, 1);
+      next.splice(to, 0, moved);
+      onReorderRoles(next);
+    }
+    resetDrag();
+  };
+
+  if (roles.length === 0) return null;
+  // splice 보정 후 to === dragIdx 면 no-op → indicator 숨김
+  const effectiveTo = (idx: number, side: "top" | "bottom") => {
+    let to = idx + (side === "bottom" ? 1 : 0);
+    if (dragIdx !== null && dragIdx < to) to -= 1;
+    return to;
+  };
+  return (
+    <div className={styles.contribRoleGrid}>
+      {roles.map((role, idx) => (
+        <TeamRoleContribsSection
+          key={role}
+          role={role}
+          value={contribsMap[role] ?? []}
+          onChange={(next) => onChange({ ...contribsMap, [role]: next })}
+          onRemoveRole={onRemoveRole ? () => onRemoveRole(role) : undefined}
+          placeholder={placeholder}
+          showAddInput={showAddInput}
+          // role-level drag wiring
+          dragHandleEnabled={!!onReorderRoles}
+          dragging={dragIdx === idx}
+          dropSide={
+            dragIdx !== null &&
+            dropPos?.idx === idx &&
+            effectiveTo(idx, dropPos.side) !== dragIdx
+              ? dropPos.side
+              : null
+          }
+          onRoleDragStart={() => setDragIdx(idx)}
+          onRoleDragOver={(e) => {
+            if (dragIdx === null) return;
+            e.preventDefault();
+            const rect = e.currentTarget.getBoundingClientRect();
+            const mid = rect.top + rect.height / 2;
+            setDropPos({ idx, side: e.clientY < mid ? "top" : "bottom" });
+          }}
+          onRoleDrop={(e) => {
+            e.preventDefault();
+            handleDrop(idx);
+          }}
+          onRoleDragEnd={resetDrag}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * CategoryMultiPicker — 카테고리 multi-select. Select 위, chip 아래.
+ * 공통 DraggableTag 로 chip 렌더 + 드래그로 순서 변경 (ko/en 배열 동기 유지). */
+function CategoryMultiPicker({
+  selectedKos,
+  selectedEns,
+  presets,
+  editorLang,
+  customMode,
+  setCustomMode,
+  labels,
+  onChange,
+}: {
+  selectedKos: string[];
+  selectedEns: string[];
+  presets: { ko: string; en: string }[];
+  editorLang: "ko" | "en";
+  customMode: boolean;
+  setCustomMode: (v: boolean) => void;
+  labels: { placeholder: string; custom: string };
+  onChange: (ko: string[], en: string[]) => void;
+}) {
+  const remaining = presets.filter((c) => !selectedKos.includes(c.ko));
+  const add = (ko: string, en: string) => {
+    const k = ko.trim();
+    const e = en.trim();
+    if (!k && !e) return;
+    if (selectedKos.includes(k)) return;
+    onChange([...selectedKos, k], [...selectedEns, e || k]);
+    setCustomMode(false);
+  };
+  const remove = (idx: number) => {
+    onChange(
+      selectedKos.filter((_, i) => i !== idx),
+      selectedEns.filter((_, i) => i !== idx),
+    );
+  };
+  const { itemProps } = useTagDrag((from, to) => {
+    const ko = [...selectedKos];
+    const en = [...selectedEns];
+    const [movedKo] = ko.splice(from, 1);
+    const [movedEn] = en.splice(from, 1);
+    ko.splice(to, 0, movedKo);
+    en.splice(to, 0, movedEn);
+    onChange(ko, en);
+  });
+
+  return (
+    <div className={styles.categoryPicker}>
+      {/* 위쪽 — Select + (custom 모드면) 직접 입력 row */}
+      <div className={styles.categoryAddRow}>
+        <Select
+          value=""
+          placeholder={labels.placeholder}
+          options={[
+            { value: "__custom__", label: labels.custom },
+            ...remaining.map((cat, i) => ({
+              value: `preset:${i}`,
+              label: editorLang === "ko" ? cat.ko : cat.en,
+            })),
+          ]}
+          onChange={(v) => {
+            if (v === "__custom__") {
+              setCustomMode(true);
+            } else if (v.startsWith("preset:")) {
+              const idx = parseInt(v.slice("preset:".length));
+              const cat = remaining[idx];
+              if (cat) add(cat.ko, cat.en);
+            }
+          }}
+        />
+        {customMode && (
+          <CategoryCustomAdder onAdd={add} onCancel={() => setCustomMode(false)} koPh={labels.placeholder} enPh={labels.placeholder} />
+        )}
+      </div>
+      {/* 아래쪽 — 선택된 chip 들 (DraggableTag 공통 컴포넌트) */}
+      {selectedKos.length > 0 && (
+        <div className={styles.categoryChipList}>
+          {selectedKos.map((k, i) => (
+            <DraggableTag
+              key={`${k}-${i}`}
+              label={editorLang === "en" ? (selectedEns[i] || k) : k}
+              onRemove={() => remove(i)}
+              {...itemProps(i)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** 카테고리 직접 입력 — KO/EN 두 input + 추가 버튼. Enter 로 submit 가능 */
+function CategoryCustomAdder({ onAdd, onCancel, koPh, enPh }: { onAdd: (ko: string, en: string) => void; onCancel: () => void; koPh: string; enPh: string }) {
+  const [ko, setKo] = useState("");
+  const [en, setEn] = useState("");
+  const handleAdd = () => {
+    if (!ko.trim() && !en.trim()) return;
+    onAdd(ko, en);
+    setKo("");
+    setEn("");
+  };
+  return (
+    <>
+      <div className={styles.customCategoryInputWrap}>
+        <span className={styles.customCategoryBadge}>KO</span>
+        <input
+          className={`${es.fieldInput} ${styles.customCategoryInput}`}
+          type="text"
+          value={ko}
+          onChange={(e) => setKo(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAdd(); } else if (e.key === "Escape") onCancel(); }}
+          placeholder={koPh}
+          autoFocus
+        />
+      </div>
+      <div className={styles.customCategoryInputWrap}>
+        <span className={styles.customCategoryBadge}>EN</span>
+        <input
+          className={`${es.fieldInput} ${styles.customCategoryInput}`}
+          type="text"
+          value={en}
+          onChange={(e) => setEn(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAdd(); } else if (e.key === "Escape") onCancel(); }}
+          placeholder={enPh}
+        />
+      </div>
+      <Button
+        variant="outline"
+        shape="circle"
+        size="sm"
+        className={styles.categoryAddBtnSized}
+        onClick={handleAdd}
+        disabled={!ko.trim() && !en.trim()}
+        aria-label="Add"
+        icon={<Plus size={12} strokeWidth={2} />}
+      />
+    </>
+  );
+}
 
 /**
  * 부제목 input — role 영역 높이에 맞춰 stretch 되며,
@@ -319,7 +1017,7 @@ interface WorksCategory {
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
   const { tLang, language } = useLanguage();
-  const { openModal } = useModalStore();
+  const { openModal, closeAll } = useModalStore();
   const isEdit = !!work;
   const serviceStatus = useServiceStatus();
 
@@ -327,6 +1025,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   // 필수/선택 그룹 토글 — Posts editor 와 동일 패턴
   const [optionalOpen, setOptionalOpen] = useState(false);
   const [extraOpen, setExtraOpen] = useState(false);
+  // slug — 사용자가 직접 수정한 적 있으면 manual 모드로 (제목 변경 시 auto-regenerate 안 함)
+  const [slugManual, setSlugManual] = useState(!!work?.slug);
 
   const tw = useCallback(
     (key: string) => tLang(`admin.works.editor.${key}`, editorLang),
@@ -338,6 +1038,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     if (!work) return defaultForm;
     return workToFormData(work);
   });
+
+  // title 변경 시 slug auto-generate (manual 모드 아닐 때만). form 선언 이후에 위치
+  useEffect(() => {
+    if (!slugManual && form.title) {
+      setForm((prev) => ({ ...prev, slug: generateSlug(prev.title) }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.title, slugManual]);
 
   const initialFormRef = useRef(form);
   const formRef = useRef(form);
@@ -418,8 +1126,20 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [work?.id]);
 
   const [worksCategories, setWorksCategories] = useState<WorksCategory[]>([]);
-  // 직접 입력 모드 — 사용자가 "직접 입력" 선택 시 활성화. category_ko/en 비어도 input 유지
+  // 직접 입력 모드 — 사용자가 "직접 입력" 선택 시 활성화. categories_ko/en 비어도 input 유지
   const [categoryCustomMode, setCategoryCustomMode] = useState(false);
+  const [natureCustomMode, setNatureCustomMode] = useState(false);
+
+  // 성격(Nature) preset — i18n 로부터 ko/en 동시 로드 (category 와 동일하게 ko/en 두 컬럼 사용)
+  const NATURE_PRESET_KEYS = useMemo(() => ["toy", "clone", "side", "academic", "contest", "opensource", "study"] as const, []);
+  const naturePresets = useMemo(
+    () => NATURE_PRESET_KEYS.map((key) => ({
+      key,
+      ko: tLang(`admin.works.editor.naturePresets.${key}`, "ko"),
+      en: tLang(`admin.works.editor.naturePresets.${key}`, "en"),
+    })),
+    [NATURE_PRESET_KEYS, tLang],
+  );
 
   useEffect(() => {
     fetch("/api/works-categories")
@@ -456,26 +1176,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [galleryViewerIdx, setGalleryViewerIdx] = useState<number | null>(null);
-  const galleryGridRef = useRef<HTMLDivElement | null>(null);
-
-  // 세로 wheel → 가로 스크롤 변환 (가로 strip UX). passive: false 로 등록해야 preventDefault 가능
-  useEffect(() => {
-    const el = galleryGridRef.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      // shift 누르면 native 가로 스크롤 그대로 사용
-      if (e.shiftKey) return;
-      const dy = e.deltaY;
-      const dx = e.deltaX;
-      // 세로 우세할 때만 가로로 변환 (trackpad 가로 스와이프는 그대로)
-      if (Math.abs(dy) > Math.abs(dx)) {
-        e.preventDefault();
-        el.scrollLeft += dy;
-      }
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, []);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [status, setStatus] = useState("");
@@ -609,6 +1309,50 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   const team = useTeamMembers(form.team_members, (members) => updateField("team_members", members));
 
+  // 팀원 역할 multi-picker — select 와 chip 을 분리 배치 (chip 은 URL row 아래) */
+  const teamRole = useRoleMultiPicker({
+    value: editorLang === "ko" ? team.memberRoleKo : team.memberRoleEn,
+    onChange: editorLang === "ko" ? team.setMemberRoleKo : team.setMemberRoleEn,
+    presets: editorLang === "ko" ? ROLE_PRESETS_KO : ROLE_PRESETS_EN,
+    placeholder: tw("memberRole"),
+    lang: editorLang,
+  });
+
+  // 본인 역할 multi-picker — chip 은 TeamContribsByRole 의 group header 가 담당 → selectNode 만 사용 */
+  const ownRole = useRoleMultiPicker({
+    value: editorLang === "ko" ? form.role_ko : form.role_en,
+    onChange: (v) => updateField(editorLang === "ko" ? "role_ko" : "role_en", v),
+    presets: editorLang === "ko" ? ROLE_PRESETS_KO : ROLE_PRESETS_EN,
+    placeholder: tw("rolePlaceholder"),
+    lang: editorLang,
+  });
+
+  // form 의 avatar preview — 사용자 입력 기준 derive (avatar_url 우선, 없으면 url 에서)
+  const teamAvatarPreview = deriveTeamMemberAvatar({
+    avatar_url: team.memberAvatarUrl,
+    url: team.memberUrl,
+  });
+  // avatar 더블클릭 → 파일 picker
+  const teamAvatarFileRef = useRef<HTMLInputElement>(null);
+  const [teamAvatarUploading, setTeamAvatarUploading] = useState(false);
+  const handleTeamAvatarFile = async (file: File) => {
+    setTeamAvatarUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "avatars");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      if (data.url) team.setMemberAvatarUrl(data.url);
+    } catch {
+      showToast("Avatar upload failed", "error");
+    } finally {
+      setTeamAvatarUploading(false);
+      if (teamAvatarFileRef.current) teamAvatarFileRef.current.value = "";
+    }
+  };
+
   const handleContentTypeChange = useCallback(
     async (newType: "markdown" | "richtext") => {
       if (newType === form.content_type) return;
@@ -642,17 +1386,54 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   );
 
   const handleInsertTemplate = useCallback(() => {
-    const contentKey = editorLang === "ko" ? "content_ko" : "content_en";
-    const template = editorLang === "ko" ? TEMPLATE_KO : TEMPLATE_EN;
+    const lang = editorLang;
+    const contentKey = lang === "ko" ? "content_ko" : "content_en";
     const current = form[contentKey];
 
-    if (current.trim()) {
-      if (!confirm(tw("templateConfirm"))) return;
-      updateField(contentKey, current + "\n\n" + template);
-    } else {
-      updateField(contentKey, template);
-    }
-  }, [editorLang, form, updateField, tw]);
+    const applyTemplate = (tmpl: WorkTemplate) => {
+      const md = lang === "ko" ? tmpl.content.ko : tmpl.content.en;
+      if (current.trim()) {
+        updateField(contentKey, current + "\n\n---\n\n" + md);
+      } else {
+        updateField(contentKey, md);
+      }
+    };
+
+    openModal(
+      <div className={styles.templateModal}>
+        <p className={styles.templateModalDesc}>{tw("templateDesc") || (lang === "ko" ? "삽입할 템플릿을 선택하세요. 기존 내용이 있으면 아래에 추가됩니다." : "Choose a template. If content exists, it will be appended below.")}</p>
+        <div className={styles.templateList}>
+          {WORK_TEMPLATES.map((tmpl) => (
+            <button
+              key={tmpl.id}
+              type="button"
+              className={styles.templateItem}
+              onClick={() => {
+                if (current.trim()) {
+                  openModal(
+                    <ModalConfirm
+                      desc={tw("templateConfirm")}
+                      cancelText={tw("cancel") || "취소"}
+                      confirmText={tw("insertTemplate")}
+                      onConfirm={() => { applyTemplate(tmpl); closeAll(); }}
+                    />,
+                    { header: { title: tw("insertTemplate") }, closeButton: true, width: "360px" },
+                  );
+                } else {
+                  applyTemplate(tmpl);
+                  closeAll();
+                }
+              }}
+            >
+              <span className={styles.templateItemLabel}>{lang === "ko" ? tmpl.label.ko : tmpl.label.en}</span>
+              <span className={styles.templateItemDesc}>{lang === "ko" ? tmpl.desc.ko : tmpl.desc.en}</span>
+            </button>
+          ))}
+        </div>
+      </div>,
+      { header: { title: tw("insertTemplate") }, closeButton: true, width: "420px" },
+    );
+  }, [editorLang, form, updateField, tw, openModal, closeAll]);
 
   const handleContentImageUpload = useCallback(async (file: File): Promise<string> => {
     const { compressImage, validateFileSize } = await import("@/lib/compressImage");
@@ -717,7 +1498,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if (willPublish) {
         const missing: string[] = [];
         if (!form.title.trim()) missing.push(tw("title"));
-        if (!form.category_ko.trim()) missing.push(tw("category"));
+        if (!form.categories_ko || form.categories_ko.length === 0) missing.push(tw("category"));
+        if (!form.nature_ko.trim()) missing.push(tw("nature") || "성격");
         if (!form.year.trim()) missing.push(tw("year"));
         if (!form.image.trim()) missing.push(tw("mainImage"));
         if (!form.content_ko.trim() && !form.content_en.trim()) missing.push(tw("description"));
@@ -834,7 +1616,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         excerpt: s.description_ko || s.description_en || "",
         content: stripHtml(s.content_ko || s.content_en || ""),
         meta: {
-          Category: s.category_ko || s.category_en || "",
+          Category: (s.categories_ko ?? []).join(", ") || (s.categories_en ?? []).join(", ") || "",
           Year: s.year || "",
           Tech: s.tech?.join(", ") || "",
           Size: s.size || "",
@@ -906,6 +1688,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       retranslateDisabled: tw("retranslateDisabled"),
       generateSummary: tw("generateSummary"),
       generateSummaryDisabled: tw("generateSummaryDisabled"),
+      scheduledAt: tw("scheduledAt"),
+      scheduledHint: tw("scheduledHint"),
+      scheduledClear: tw("scheduledClear"),
+      publishScheduled: tw("publishScheduled"),
+      publishOptions: tw("publishOptions"),
     }),
     [tw],
   );
@@ -939,6 +1726,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       deleteTargetName={work?.title}
       onSaveDraft={() => handleSave()}
       onPublish={() => handleSave(true)}
+      scheduledAt={form.scheduled_at}
+      onScheduledChange={(iso) => updateField("scheduled_at", iso)}
       onPreview={handlePreview}
       status={status}
       statusType={statusType}
@@ -964,7 +1753,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           excerpt: form.description_ko || form.description_en || "",
           content: stripHtml(form.content_ko || form.content_en || ""),
           meta: {
-            Category: form.category_ko || form.category_en || "",
+            Category: (form.categories_ko ?? []).join(", ") || (form.categories_en ?? []).join(", ") || "",
             Year: form.year || "",
             Tech: form.tech?.join(", ") || "",
             Size: form.size || "",
@@ -972,45 +1761,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           },
         };
       })()}
-      topBarSecondRowLeft={
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)", flexWrap: "nowrap" }}>
-          <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", whiteSpace: "nowrap", flexShrink: 0, marginRight: "var(--spacing-2xs)" }}>{tw("scheduledAt")}</span>
-          <DateTimePicker
-            value={form.scheduled_at ?? null}
-            onChange={(iso) => updateField("scheduled_at", iso)}
-          />
-          <AnimatePresence>
-            {form.scheduled_at && (
-              <motion.button
-                key="clear"
-                type="button"
-                className={es.scheduledClearBtn}
-                onClick={() => updateField("scheduled_at", null)}
-                title={tw("scheduledClear")}
-                aria-label={tw("scheduledClear")}
-                data-close-trigger
-                initial={{ opacity: 0, scale: 0.5, width: 0 }}
-                animate={{ opacity: 1, scale: 1, width: 24 }}
-                exit={{ opacity: 0, scale: 0.5, width: 0 }}
-                transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-              >
-                <CloseIcon />
-              </motion.button>
-            )}
-          </AnimatePresence>
-          {form.scheduled_at && !form.published && (
-            <span style={{ fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>{tw("scheduledHint")}</span>
-          )}
-        </div>
-      }
     >
       {/* Basic Info — 필수 (title, year, category) + 선택 (collapsible) */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>{tw("basicInfo")}</h2>
 
-        {/* ── 필수 ── */}
+        {/* ── 필수 ── 제목 + 부제목 + slug 묶음 */}
         <div className={es.field}>
-          <label className={`${es.fieldLabel}${showErrors && !form.title.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("title")}</label>
+          <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.title.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("title")}</label>
           <input
             className={`${es.titleInput}${showErrors && !form.title.trim() ? ` ${es.titleInputError}` : ""}`}
             type="text"
@@ -1020,76 +1778,134 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           />
         </div>
 
+        {/* 부제목 — 제목 바로 아래 */}
+        <div className={es.field}>
+          <label className={es.fieldLabel}>{tw("subtitle")}</label>
+          <SubtitleInput
+            value={form[`subtitle${suf}`]}
+            onChange={(v) => updateField(`subtitle${suf}`, v)}
+            placeholder={tw("subtitlePlaceholder")}
+          />
+        </div>
+
+        {/* slug — title 자동 생성. 사용자 수정 시 manual 모드 */}
+        <div className={es.field}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{tw("slug") || "Slug"}</label>
+            {form.slug.trim() && validateSlug(form.slug) && (
+              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-accent)" }}>{tw(`slugError.${validateSlug(form.slug)}`) || validateSlug(form.slug)}</span>
+            )}
+          </div>
+          <input
+            className={`${es.fieldInput}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldInputError}` : ""}`}
+            type="text"
+            value={form.slug}
+            onChange={(e) => {
+              setSlugManual(true);
+              updateField("slug", e.target.value);
+            }}
+            placeholder="work-url-slug"
+          />
+        </div>
+
+        {/* year — 단독 row */}
         <div className={es.row}>
-          <div className={es.field}>
-            <label className={`${es.fieldLabel}${showErrors && !form.year.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("year")}</label>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }}>
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.year.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("year")}</label>
             <PeriodPicker
               value={parseYearAsPeriod(form.year)}
               onChange={(p) => updateField("year", serializePeriodAsYear(p))}
+              maxDate={new Date()}
             />
           </div>
-          <div className={es.field}>
-            <label className={`${es.fieldLabel}${showErrors && !form.category_ko.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("category")}</label>
+        </div>
+
+        {/* category — multi-select. 선택된 chip 위에, 추가 Select 아래에. 직접 입력 가능 */}
+        <div className={es.row}>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }}>
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (form.categories_ko ?? []).length === 0 ? ` ${es.fieldLabelError}` : ""}`}>{tw("category")}</label>
+            <CategoryMultiPicker
+              selectedKos={form.categories_ko ?? []}
+              selectedEns={form.categories_en ?? []}
+              presets={worksCategories}
+              editorLang={editorLang}
+              customMode={categoryCustomMode}
+              setCustomMode={setCategoryCustomMode}
+              labels={{
+                placeholder: tw("categoryPlaceholder"),
+                custom: tw("customCategory"),
+              }}
+              onChange={(ko, en) => {
+                setForm((prev) => ({ ...prev, categories_ko: ko, categories_en: en }));
+                setStatus("");
+                setError("");
+              }}
+            />
+          </div>
+        </div>
+
+        {/* nature (성격) — 제작 동기 축. category 와 별도. 필수 입력 */}
+        <div className={es.row}>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }}>
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.nature_ko.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("nature") || "성격"}</label>
             {(() => {
-              // 현재 form 값이 카테고리 목록 안에 있는지 확인 → 없거나 직접 입력 모드면 input 표시
-              const matchedIdx = worksCategories.findIndex(
-                (c) => c.ko === form.category_ko && c.en === form.category_en,
+              const matchedIdx = naturePresets.findIndex(
+                (n) => n.ko === form.nature_ko && n.en === form.nature_en,
               );
-              const isCustom = categoryCustomMode || (form.category_ko.trim() !== "" && matchedIdx === -1);
-              const selectValue = isCustom ? "__custom__" : String(matchedIdx);
+              const isCustom = natureCustomMode || (form.nature_ko.trim() !== "" && matchedIdx === -1);
+              const selectValue = isCustom ? "__custom__" : (matchedIdx >= 0 ? String(matchedIdx) : "");
               return (
-                <>
+                <div className={styles.categoryAddRow}>
                   <Select
                     value={selectValue}
+                    placeholder={tw("naturePlaceholder") || "성격"}
                     options={[
-                      { value: "__custom__", label: tw("customCategory") },
-                      ...worksCategories.map((cat, i) => ({
+                      { value: "__custom__", label: tw("customNature") || "직접 입력" },
+                      ...naturePresets.map((n, i) => ({
                         value: String(i),
-                        label: editorLang === "ko" ? cat.ko : cat.en,
+                        label: editorLang === "ko" ? n.ko : n.en,
                       })),
                     ]}
                     onChange={(v) => {
                       if (v === "__custom__") {
-                        setCategoryCustomMode(true);
-                        setForm((prev) => ({ ...prev, category_ko: "", category_en: "" }));
+                        setNatureCustomMode(true);
+                        setForm((prev) => ({ ...prev, nature_ko: "", nature_en: "" }));
                       } else {
-                        setCategoryCustomMode(false);
+                        setNatureCustomMode(false);
                         const idx = parseInt(v);
-                        const cat = worksCategories[idx];
-                        if (cat) {
-                          setForm((prev) => ({ ...prev, category_ko: cat.ko, category_en: cat.en }));
-                        }
+                        const n = naturePresets[idx];
+                        if (n) setForm((prev) => ({ ...prev, nature_ko: n.ko, nature_en: n.en }));
                       }
                       setStatus("");
                       setError("");
                     }}
                   />
                   {isCustom && (
-                    <div className={styles.customCategoryGrid}>
-                      <div className={styles.customCategoryField}>
-                        <span className={styles.customCategoryLangTag}>KO</span>
+                    <>
+                      <div className={styles.customCategoryInputWrap}>
+                        <span className={styles.customCategoryBadge}>KO</span>
                         <input
                           className={`${es.fieldInput} ${styles.customCategoryInput}`}
                           type="text"
-                          value={form.category_ko}
-                          onChange={(e) => updateField("category_ko", e.target.value)}
-                          placeholder={tw("categoryPlaceholder")}
+                          value={form.nature_ko}
+                          onChange={(e) => updateField("nature_ko", e.target.value)}
+                          placeholder={tw("naturePlaceholder") || "성격"}
                           autoFocus
                         />
                       </div>
-                      <div className={styles.customCategoryField}>
-                        <span className={styles.customCategoryLangTag}>EN</span>
+                      <div className={styles.customCategoryInputWrap}>
+                        <span className={styles.customCategoryBadge}>EN</span>
                         <input
                           className={`${es.fieldInput} ${styles.customCategoryInput}`}
                           type="text"
-                          value={form.category_en}
-                          onChange={(e) => updateField("category_en", e.target.value)}
-                          placeholder={tw("categoryPlaceholder")}
+                          value={form.nature_en}
+                          onChange={(e) => updateField("nature_en", e.target.value)}
+                          placeholder={tw("naturePlaceholder") || "성격"}
                         />
                       </div>
-                    </div>
+                    </>
                   )}
-                </>
+                </div>
               );
             })()}
           </div>
@@ -1148,21 +1964,37 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 />
               </div>
               <div className={styles.optionalSplitRight}>
-                <div className={es.field}>
-                  <label className={es.fieldLabel}>{tw("subtitle")}</label>
-                  <SubtitleInput
-                    value={form[`subtitle${suf}`]}
-                    onChange={(v) => updateField(`subtitle${suf}`, v)}
-                    placeholder={tw("subtitlePlaceholder")}
-                  />
-                </div>
-                <div className={es.field}>
-                  <label className={es.fieldLabel}>{tw("role")}</label>
-                  <RoleMultiSelect
-                    value={form[`role${suf}`] || ""}
-                    onChange={(v) => updateField(`role${suf}`, v)}
-                    presets={editorLang === "ko" ? ROLE_PRESETS_KO : ROLE_PRESETS_EN}
-                    placeholder={tw("rolePlaceholder")}
+                <div className={styles.memberFormBlock}>
+                  <div className={styles.memberSubLabelRow}>
+                    <span className={styles.memberSubLabel}>{tw("role")}</span>
+                  </div>
+                  {/* multi-select — chip 은 아래 TeamContribsByRole 가 담당 (selectNode 만 사용) */}
+                  {ownRole.selectNode}
+                  {/* 역할별 작업 내용 — add-card 와 동일 패턴 */}
+                  <TeamContribsByRole
+                    roles={(form[`role${suf}`] || "")
+                      .split(",")
+                      .map((r) => r.trim())
+                      .filter(Boolean)}
+                    contribsMap={form[`contributions${suf}`] ?? {}}
+                    onChange={(next) => updateField(`contributions${suf}`, next)}
+                    onRemoveRole={(role) => {
+                      const currentRole = form[`role${suf}`] || "";
+                      const nextRole = currentRole
+                        .split(",")
+                        .map((r) => r.trim())
+                        .filter((r) => r && r !== role)
+                        .join(", ");
+                      updateField(`role${suf}`, nextRole);
+                      const map = form[`contributions${suf}`] ?? {};
+                      const next = { ...map };
+                      delete next[role];
+                      updateField(`contributions${suf}`, next);
+                    }}
+                    onReorderRoles={(next) => {
+                      updateField(`role${suf}`, next.join(", "));
+                    }}
+                    placeholder={tw("memberContributionPlaceholder")}
                   />
                 </div>
                 <div className={es.field}>
@@ -1262,34 +2094,41 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 <span className={styles.galleryCount}>{form.gallery.length}</span>
               )}
             </label>
-            <button
-              type="button"
-              className={styles.galleryAddInline}
+            <Button
+              variant="outline"
+              size="xs"
+              shape="capsule"
               onClick={() => handleImageUpload("gallery")}
+              soundDisabled
             >
               <Plus size={12} strokeWidth={2} />
-              <span>{tw("addMore")}</span>
-            </button>
+              {tw("addMore")}
+            </Button>
           </div>
-          <div
-            ref={galleryGridRef}
-            className={styles.galleryGrid}
-            data-lenis-prevent
-          >
-            {form.gallery.map((src, i) => {
-              const isMain = src === form.image && !!src;
-              return (
-                <div
-                  key={i}
-                  className={`${styles.galleryItem} ${isMain ? styles.galleryItemMain : ""}`}
-                >
-                  <button
-                    type="button"
-                    className={styles.galleryThumb}
+          {form.gallery.length === 0 ? (
+            <button
+              type="button"
+              className={styles.galleryAddTile}
+              onClick={() => handleImageUpload("gallery")}
+            >
+              <Plus size={20} strokeWidth={1.5} />
+              <span>{tw("addGallery")}</span>
+            </button>
+          ) : (
+            <HorizontalCarousel className={styles.galleryCarousel}>
+              {form.gallery.map((src, i) => {
+                const isMain = src === form.image && !!src;
+                const filename = src.split("/").pop() ?? src;
+                return (
+                  <div
+                    key={i}
+                    className={`${styles.galleryItem} ${isMain ? styles.galleryItemMain : ""}`}
                     onClick={() => setGalleryViewerIdx(i)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setGalleryViewerIdx(i); } }}
                     aria-label={tw("viewImage")}
                   >
-                    {/* 깨진 이미지면 public/images/placeholder.svg 로 대체 */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={galleryImgErrors.has(src) ? "/images/placeholder.svg" : src}
@@ -1302,53 +2141,50 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                         return next;
                       })}
                     />
-                  </button>
-                  {isMain && (
-                    <span className={styles.galleryMainBadge}>
-                      <Star size={10} strokeWidth={2.5} fill="currentColor" />
-                      {tw("currentMain")}
-                    </span>
-                  )}
-                  <div className={styles.galleryActions}>
-                    {!isMain && (
-                      <button
-                        type="button"
-                        className={styles.galleryActionBtn}
-                        onClick={() => updateField("image", src)}
-                        title={tw("setAsMain")}
-                        aria-label={tw("setAsMain")}
-                      >
-                        <Star size={12} strokeWidth={2} />
-                      </button>
+                    {isMain && (
+                      <span className={styles.galleryMainBadge}>
+                        <Star size={10} strokeWidth={2.5} fill="currentColor" />
+                        {tw("currentMain")}
+                      </span>
                     )}
-                    <button
-                      type="button"
-                      className={styles.galleryActionBtn}
-                      onClick={() => setGalleryViewerIdx(i)}
-                      title={tw("viewImage")}
-                      aria-label={tw("viewImage")}
+                    <div
+                      className={styles.galleryOverlay}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <Eye size={12} strokeWidth={2} />
-                    </button>
-                    <CloseButton
-                      className={`${styles.galleryActionBtn} ${styles.galleryActionDanger}`}
-                      onClick={() => removeGalleryItem(i)}
-                      title={tw("remove")}
-                      ariaLabel={tw("remove")}
-                    />
+                      <div className={styles.galleryActions}>
+                        <Button
+                          variant="difference"
+                          size="xs"
+                          shape="circle"
+                          active={isMain}
+                          onClick={() => { if (!isMain) updateField("image", src); }}
+                          aria-label={tw("setAsMain")}
+                          title={tw("setAsMain")}
+                          soundDisabled
+                          icon={<Star size={12} strokeWidth={2} fill={isMain ? "currentColor" : "none"} />}
+                        />
+                        <Button
+                          variant="difference"
+                          size="xs"
+                          shape="circle"
+                          onClick={() => removeGalleryItem(i)}
+                          aria-label={tw("remove")}
+                          title={tw("remove")}
+                          soundDisabled
+                          icon={<X size={12} strokeWidth={2} />}
+                        />
+                      </div>
+                      <div className={styles.galleryMeta}>
+                        <span className={styles.galleryMetaIndex}>{i + 1} / {form.gallery.length}</span>
+                        <span className={styles.galleryMetaName}>{filename}</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-            <button
-              type="button"
-              className={styles.galleryAddTile}
-              onClick={() => handleImageUpload("gallery")}
-            >
-              <Plus size={20} strokeWidth={1.5} />
-              <span>{form.gallery.length === 0 ? tw("addGallery") : tw("addMore")}</span>
-            </button>
-          </div>
+                );
+              })}
+            </HorizontalCarousel>
+          )}
         </div>
       </div>
 
@@ -1373,112 +2209,220 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <h2 className={styles.sectionTitle}>{tw("techStack")}</h2>
         <div className={es.field}>
           <div className={styles.techInputRow}>
-            <input
-              className={es.fieldInput}
-              type="text"
-              value={tech.input}
-              onChange={(e) => tech.setInput(e.target.value)}
-              onKeyDown={tech.handleKeyDown}
+            {/* combobox 형태 — input 에 타이핑 시 프리셋 추천 dropdown.
+             *  - 그룹 + 아이콘 표시, 이미 추가된 항목은 옅은 accent 배경 + ✓
+             *  - Enter 또는 dropdown 클릭 시 추가 (alias 정규화 + 중복 toast) */}
+            <Select
+              combobox
+              value=""
+              onChange={() => {}}
+              inputValue={tech.input}
+              onInputChange={tech.setInput}
+              onAdd={(v) => {
+                const raw = v.trim();
+                if (!raw) return;
+                const canonical = normalizeTechName(raw);
+                if (form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === canonical.toLowerCase())) {
+                  showToast(editorLang === "ko" ? `이미 추가됨: ${canonical}` : `Already added: ${canonical}`, "info");
+                  tech.setInput("");
+                  return;
+                }
+                tech.add(canonical);
+                tech.setInput("");
+              }}
+              options={TECH_PRESETS.map((p) => {
+                const added = form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === p.name.toLowerCase());
+                return {
+                  value: p.name,
+                  label: p.name,
+                  group: p.group,
+                  icon: getTechIcon(p.name),
+                  selected: added,
+                  trailing: added ? <Check size={12} strokeWidth={2.5} /> : undefined,
+                  // 한국어 alias 도 매칭 (예: "리액트" 입력 시 React 추천)
+                  searchTerms: getTechAliases(p.name),
+                };
+              })}
               placeholder={tw("techPlaceholder")}
             />
-            <button
-              type="button"
-              className={styles.techAddBtn}
-              onClick={() => tech.add()}
+            <Button
+              variant="outline"
+              shape="circle"
+              size="sm"
+              className={styles.categoryAddBtnSized}
+              onClick={() => {
+                const raw = tech.input.trim();
+                if (!raw) return;
+                const canonical = normalizeTechName(raw);
+                if (form.tech.some((tg) => normalizeTechName(tg).toLowerCase() === canonical.toLowerCase())) {
+                  showToast(editorLang === "ko" ? `이미 추가됨: ${canonical}` : `Already added: ${canonical}`, "info");
+                  tech.setInput("");
+                  return;
+                }
+                tech.add(canonical);
+                tech.setInput("");
+              }}
               disabled={!tech.input.trim()}
-            >
-              +
-            </button>
+              aria-label="Add"
+              icon={<Plus size={12} strokeWidth={2} />}
+            />
           </div>
-          {form.tech.length > 0 && (
-            <div className={es.tags}>
-              {form.tech.map((t) => (
-                <span key={t} className={es.tag}>
-                  {t}
-                  <button type="button" className={es.tagRemove} onClick={() => tech.remove(t)}>
-                    &times;
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
+          {/* 기술별 — 태그 + (펼치면) 메모 목록. role/contribs 와 동일 패턴 */}
+          <TeamContribsByRole
+            roles={form.tech}
+            contribsMap={form.tech_notes ?? {}}
+            onChange={(next) => updateField("tech_notes", next)}
+            onRemoveRole={(t) => {
+              tech.remove(t);
+              const next = { ...(form.tech_notes ?? {}) };
+              delete next[t];
+              updateField("tech_notes", next);
+            }}
+            onReorderRoles={(next) => updateField("tech", next)}
+            placeholder={tw("techNotePlaceholder") || "이 기술을 왜 선택했고, 무엇을 어떻게 구현했는지 적어주세요."}
+          />
         </div>
       </div>
 
       {/* Team Members */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>{tw("teamMembers")}</h2>
-        <div className={styles.memberForm}>
-          <div className={styles.memberFormRow}>
-            <input
-              className={es.fieldInput}
-              type="text"
-              value={team.memberName}
-              onChange={(e) => team.setMemberName(e.target.value)}
-              placeholder={tw("memberName")}
-            />
-            {editorLang === "ko" ? (
-              <input
-                className={es.fieldInput}
-                type="text"
-                value={team.memberRoleKo}
-                onChange={(e) => team.setMemberRoleKo(e.target.value)}
-                placeholder={tw("memberRole")}
-              />
-            ) : (
-              <input
-                className={es.fieldInput}
-                type="text"
-                value={team.memberRoleEn}
-                onChange={(e) => team.setMemberRoleEn(e.target.value)}
-                placeholder={tw("memberRole")}
-              />
-            )}
-          </div>
-          <div className={styles.memberFormRow}>
-            <input
-              className={es.fieldInput}
-              type="url"
-              value={team.memberUrl}
-              onChange={(e) => team.setMemberUrl(e.target.value)}
-              placeholder={tw("memberUrl")}
-            />
-            <button
-              type="button"
-              className={styles.techAddBtn}
-              onClick={team.addMember}
-              disabled={!team.memberName.trim()}
-            >
-              +
-            </button>
-          </div>
-        </div>
+        {/* 추가된 팀원 — 저장된 멤버가 있을 때만 */}
         {form.team_members.length > 0 && (
-          <div className={styles.memberList}>
-            {form.team_members.map((m, i) => (
-              <div key={i} className={styles.memberItem}>
-                <div className={styles.memberInfo}>
-                  <span className={styles.memberItemName}>{m.name}</span>
-                  <span className={styles.memberItemRole}>
-                    {[m.role_ko, m.role_en].filter(Boolean).join(" / ")}
-                  </span>
-                  {m.url && (
-                    <a href={m.url} target="_blank" rel="noopener noreferrer" className={styles.memberItemUrl}>
-                      {m.url}
-                    </a>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  className={es.tagRemove}
-                  onClick={() => team.removeMember(i)}
-                >
-                  &times;
-                </button>
-              </div>
-            ))}
+          <div className={styles.memberListBlock}>
+            <div className={styles.memberSubLabel}>{tw("memberListLabel")}</div>
+            <List className={styles.memberList}>
+              {form.team_members.map((m, i) => (
+                <TeamMemberCard
+                  key={i}
+                  member={m}
+                  editorLang={editorLang}
+                  onChange={(next) => {
+                    const newMembers = form.team_members.map((mm, idx) => (idx === i ? next : mm));
+                    updateField("team_members", newMembers);
+                  }}
+                  onRemove={() => team.removeMember(i)}
+                />
+              ))}
+            </List>
           </div>
         )}
+        {/* 새 팀원 추가 — add-mode 카드 */}
+        <div className={styles.memberFormBlock}>
+          <div className={styles.memberSubLabelRow}>
+            <span className={styles.memberSubLabel}>{tw("memberFormLabel")}</span>
+            <Button
+              variant="outline"
+              size="xs"
+              className={styles.avatarUploadBtn}
+              onClick={team.addMember}
+              disabled={!team.memberName.trim()}
+              aria-label="Add member"
+              icon={<Plus size={12} strokeWidth={2} />}
+            >
+              {tw("memberAddButton")}
+            </Button>
+          </div>
+          <div className={`${styles.memberCard} ${styles.memberCardAdd}`}>
+            <input
+              ref={teamAvatarFileRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleTeamAvatarFile(file);
+              }}
+            />
+            <div className={styles.memberHeaderRow}>
+              <span
+                className={`${styles.memberAvatar} ${styles.memberAvatarUploadable}`}
+                onDoubleClick={() => !teamAvatarUploading && teamAvatarFileRef.current?.click()}
+                role="button"
+                tabIndex={0}
+                aria-label={tw("memberAvatarUpload")}
+                title={tw("memberAvatarUpload")}
+              >
+                {teamAvatarPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={teamAvatarPreview} alt="" className={styles.memberAvatarImg} loading="lazy" />
+                ) : team.memberName.trim() ? (
+                  <span className={styles.memberAvatarInitial}>{getMemberInitial(team.memberName)}</span>
+                ) : (
+                  <User size={20} strokeWidth={1.5} className={styles.memberAvatarPlaceholder} />
+                )}
+                <button
+                  type="button"
+                  className={styles.memberAvatarAddBadge}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!teamAvatarUploading) teamAvatarFileRef.current?.click();
+                  }}
+                  aria-label={tw("memberAvatarUpload")}
+                  tabIndex={-1}
+                >
+                  <Plus size={10} strokeWidth={2.5} />
+                </button>
+              </span>
+              <input
+                className={es.fieldInput}
+                type="text"
+                value={team.memberName}
+                onChange={(e) => team.setMemberName(e.target.value)}
+                placeholder={tw("memberName")}
+              />
+            </div>
+            {/* email + url — name 아래 row */}
+            <div className={styles.memberFormRow}>
+              <input
+                className={es.fieldInput}
+                type="email"
+                value={team.memberEmail}
+                onChange={(e) => team.setMemberEmail(e.target.value)}
+                placeholder={tw("memberEmail")}
+              />
+              <input
+                className={es.fieldInput}
+                type="url"
+                value={team.memberUrl}
+                onChange={(e) => team.setMemberUrl(e.target.value)}
+                placeholder={tw("memberUrl")}
+              />
+            </div>
+            {/* role select — 별도 row (full width) */}
+            <div className={styles.memberRoleRow}>
+              {teamRole.selectNode}
+            </div>
+            <TeamContribsByRole
+              roles={(editorLang === "ko" ? team.memberRoleKo : team.memberRoleEn)
+                .split(",")
+                .map((r) => r.trim())
+                .filter(Boolean)}
+              contribsMap={editorLang === "ko" ? team.memberContribsKo : team.memberContribsEn}
+              onChange={editorLang === "ko" ? team.setMemberContribsKo : team.setMemberContribsEn}
+              onRemoveRole={(role) => {
+                const setRole = editorLang === "ko" ? team.setMemberRoleKo : team.setMemberRoleEn;
+                const currentRole = editorLang === "ko" ? team.memberRoleKo : team.memberRoleEn;
+                const nextRole = currentRole
+                  .split(",")
+                  .map((r) => r.trim())
+                  .filter((r) => r && r !== role)
+                  .join(", ");
+                setRole(nextRole);
+                const setContribs = editorLang === "ko" ? team.setMemberContribsKo : team.setMemberContribsEn;
+                const map = editorLang === "ko" ? team.memberContribsKo : team.memberContribsEn;
+                const next = { ...map };
+                delete next[role];
+                setContribs(next);
+              }}
+              onReorderRoles={(next) => {
+                const setRole = editorLang === "ko" ? team.setMemberRoleKo : team.setMemberRoleEn;
+                setRole(next.join(", "));
+              }}
+              placeholder={tw("memberContributionPlaceholder")}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Links */}
@@ -1540,7 +2484,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           title: form.title,
           excerpt: editorLang === "ko" ? form.description_ko : form.description_en,
           cover: form.image,
-          category: editorLang === "ko" ? form.category_ko : form.category_en,
+          category: (editorLang === "ko" ? form.categories_ko : form.categories_en)?.join(", ") ?? "",
           tagsCount: form.tech?.length ?? 0,
         }}
         onItemClick={(id: SeoCheckId) => {

@@ -67,7 +67,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
           const rect = target.getBoundingClientRect();
           setExpandingWork({ id: work.id, rect, image: work.main });
 
-          navigateWithTransition(`/works/${work.projectId}`, work.main, rect);
+          navigateWithTransition(`/works/${work.projectSlug || work.projectId}`, work.main, rect);
           return;
         }
 
@@ -94,7 +94,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
       hasNavigatedRef.current = true;
       setExpandingWork({ id: work.id, rect, image: work.main });
 
-      navigateWithTransition(`/works/${work.projectId}`, work.main, rect);
+      navigateWithTransition(`/works/${work.projectSlug || work.projectId}`, work.main, rect);
     },
     [navigateWithTransition]
   );
@@ -131,7 +131,7 @@ export function useWorkInteraction(): UseWorkInteractionReturn {
           setExpandingWork({ id: work.id, rect, image: work.main });
 
           // 전역 페이지 전환 시작
-          navigateWithTransition(`/works/${work.projectId}`, work.main, rect);
+          navigateWithTransition(`/works/${work.projectSlug || work.projectId}`, work.main, rect);
           return;
         }
 

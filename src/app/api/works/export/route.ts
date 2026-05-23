@@ -6,7 +6,9 @@ function toFrontmatter(work: Record<string, unknown>): string {
   const lines: string[] = ["---"];
   if (work.title) lines.push(`title: "${work.title}"`);
   if (work.subtitle_ko) lines.push(`subtitle: "${work.subtitle_ko}"`);
-  if (work.category_ko) lines.push(`category: ${work.category_ko}`);
+  const catsKo = Array.isArray(work.categories_ko) ? work.categories_ko as string[] : [];
+  if (catsKo.length > 0) lines.push(`category: ${catsKo.join(", ")}`);
+  if (work.nature_ko) lines.push(`nature: ${work.nature_ko}`);
   if (work.year) lines.push(`year: ${work.year}`);
   const tech = work.tech as string[] | undefined;
   if (tech && tech.length > 0) lines.push(`tech: [${tech.join(", ")}]`);
