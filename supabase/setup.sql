@@ -1,8 +1,23 @@
 -- ============================================================
--- 포트폴리오 사이트 — Supabase 전체 DB 설정
+-- 포트폴리오 사이트 — Supabase 전체 DB 설정 (fresh install)
 -- ============================================================
--- Supabase SQL Editor에서 한 번에 실행하면 됩니다.
--- 이미 테이블이 있으면 건너뛰도록 IF NOT EXISTS를 사용합니다.
+-- 처음 프로젝트 세팅 시 이 파일 하나만 Supabase SQL Editor 에 붙여 실행하면
+-- 모든 테이블 · 인덱스 · RLS 정책 · RPC 함수 · trigger · pg_cron job ·
+-- storage bucket 까지 한 번에 생성됩니다. 이미 있으면 건너뜁니다 (IF NOT EXISTS).
+--
+-- 사전 준비:
+--   1. Database > Extensions 에서 다음을 활성화:
+--        - pg_cron  (예약 발행 + 휴지통 자동 영구삭제 cron)
+--        - pg_net   (cron job 안에서 Resend HTTP 호출)
+--      (아래 CREATE EXTENSION 이 함께 시도하지만, dashboard 활성화가 필요한 환경도 있음)
+--
+--   2. Vault > Secrets 에 등록 (optional — 미등록 시 이메일 알림만 skip):
+--        - resend_api_key : re_xxx... (https://resend.com/api-keys)
+--        - admin_email    : 관리자 이메일 (알림 수신)
+--        - notify_from    : 발신 이메일 (Resend 인증된 도메인)
+--
+-- 기존 DB 에서 마이그레이션 중이라면 supabase/migrations/ 의 .sql 파일을
+-- 날짜순으로 실행하세요. 이 파일은 \"fresh install\" 기준입니다.
 -- ============================================================
 
 
@@ -294,58 +309,80 @@ CREATE POLICY "likes_service_all"
 -- ────────────────────────────────────────────────────────────
 -- 6. works — 포트폴리오 작업물
 --    ko/en 컬럼 분리 (LocalizedText 변환은 앱에서 처리)
+--    categories_ko/en : text[] 다중 선택 (예: ["웹앱", "라이브러리"])
+--    nature_ko/en     : 제작 동기 (토이 / 사이드 / 실무 / 학습 등)
+--    slug             : /works/[slug] 라우팅용
+--    contributions_*  : 역할별 작업 내용 jsonb (예: { "Frontend": ["페이지 구현"] })
+--    tech_notes       : 기술별 메모 jsonb (예: { "React": "컴포넌트 기반 UI" })
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS works (
-  id             uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  number         text NOT NULL DEFAULT '01',
-  title          text NOT NULL DEFAULT '',
-  subtitle_ko    text NOT NULL DEFAULT '',
-  subtitle_en    text NOT NULL DEFAULT '',
-  category_ko    text NOT NULL DEFAULT '',
-  category_en    text NOT NULL DEFAULT '',
-  year           text NOT NULL DEFAULT '',
-  description_ko text NOT NULL DEFAULT '',
-  description_en text NOT NULL DEFAULT '',
-  role_ko        text NOT NULL DEFAULT '',
-  role_en        text NOT NULL DEFAULT '',
-  tech           text[] NOT NULL DEFAULT '{}',
-  image          text NOT NULL DEFAULT '',
-  size           text NOT NULL DEFAULT 'medium'
+  id               uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  number           text NOT NULL DEFAULT '01',
+  title            text NOT NULL DEFAULT '',
+  slug             text NOT NULL DEFAULT '',
+  subtitle_ko      text NOT NULL DEFAULT '',
+  subtitle_en      text NOT NULL DEFAULT '',
+  -- 결과물 형태 (웹앱·라이브러리 등) — 다중 선택. ?category=foo 필터는 categories_ko @> ARRAY['foo']
+  categories_ko    text[] NOT NULL DEFAULT ARRAY[]::text[],
+  categories_en    text[] NOT NULL DEFAULT ARRAY[]::text[],
+  -- 제작 동기 / 성격 (토이 프로젝트 / 사이드 프로젝트 / 실무 / 클론코딩 / 학습 / 기타)
+  nature_ko        text NOT NULL DEFAULT '',
+  nature_en        text NOT NULL DEFAULT '',
+  year             text NOT NULL DEFAULT '',
+  description_ko   text NOT NULL DEFAULT '',
+  description_en   text NOT NULL DEFAULT '',
+  role_ko          text NOT NULL DEFAULT '',
+  role_en          text NOT NULL DEFAULT '',
+  tech             text[] NOT NULL DEFAULT '{}',
+  image            text NOT NULL DEFAULT '',
+  size             text NOT NULL DEFAULT 'medium'
     CHECK (size IN ('large', 'small', 'medium', 'tall', 'wide')),
-  content_ko     text NOT NULL DEFAULT '',
-  content_en     text NOT NULL DEFAULT '',
-  content_type   text NOT NULL DEFAULT 'markdown'
+  content_ko       text NOT NULL DEFAULT '',
+  content_en       text NOT NULL DEFAULT '',
+  content_type     text NOT NULL DEFAULT 'markdown'
     CHECK (content_type IN ('markdown', 'richtext')),
   -- legacy separate sections (backward compat)
-  overview_ko    text NOT NULL DEFAULT '',
-  overview_en    text NOT NULL DEFAULT '',
-  overview_image text NOT NULL DEFAULT '',
-  challenge_ko   text NOT NULL DEFAULT '',
-  challenge_en   text NOT NULL DEFAULT '',
-  challenge_image text NOT NULL DEFAULT '',
-  solution_ko    text NOT NULL DEFAULT '',
-  solution_en    text NOT NULL DEFAULT '',
-  solution_image text NOT NULL DEFAULT '',
-  team_members   jsonb NOT NULL DEFAULT '[]',
-  gallery        text[] NOT NULL DEFAULT '{}',
-  live_url       text DEFAULT '',
-  github_url     text DEFAULT '',
-  published      boolean NOT NULL DEFAULT false,
-  sort_order     int NOT NULL DEFAULT 0,
+  overview_ko      text NOT NULL DEFAULT '',
+  overview_en      text NOT NULL DEFAULT '',
+  overview_image   text NOT NULL DEFAULT '',
+  challenge_ko     text NOT NULL DEFAULT '',
+  challenge_en     text NOT NULL DEFAULT '',
+  challenge_image  text NOT NULL DEFAULT '',
+  solution_ko      text NOT NULL DEFAULT '',
+  solution_en      text NOT NULL DEFAULT '',
+  solution_image   text NOT NULL DEFAULT '',
+  team_members     jsonb NOT NULL DEFAULT '[]',
+  -- 본인 역할별 작업 내용 (예: { "Frontend": ["페이지 구현", "라우팅"], "Backend": ["API"] })
+  contributions_ko jsonb NOT NULL DEFAULT '{}'::jsonb,
+  contributions_en jsonb NOT NULL DEFAULT '{}'::jsonb,
+  -- 기술별 메모 (예: { "React": "컴포넌트 기반 UI", "TypeScript": "타입 안전성" })
+  tech_notes       jsonb NOT NULL DEFAULT '{}'::jsonb,
+  gallery          text[] NOT NULL DEFAULT '{}',
+  live_url         text DEFAULT '',
+  github_url       text DEFAULT '',
+  published        boolean NOT NULL DEFAULT false,
+  sort_order       int NOT NULL DEFAULT 0,
   -- AI 요약
-  summary_ko     text NOT NULL DEFAULT '',
-  summary_en     text NOT NULL DEFAULT '',
-  created_at     timestamptz DEFAULT now(),
-  updated_at     timestamptz DEFAULT now(),
-  deleted_at     timestamptz DEFAULT NULL,
+  summary_ko       text NOT NULL DEFAULT '',
+  summary_en       text NOT NULL DEFAULT '',
+  created_at       timestamptz DEFAULT now(),
+  updated_at       timestamptz DEFAULT now(),
+  deleted_at       timestamptz DEFAULT NULL,
   -- 휴지통 자동 영구삭제 (TTL)
-  purge_after    timestamptz DEFAULT NULL,
+  purge_after      timestamptz DEFAULT NULL,
   -- 예약 발행: NULL=즉시, 미래 시간 설정 시 cron이 published=true 로 flip
-  scheduled_at   timestamptz DEFAULT NULL
+  scheduled_at     timestamptz DEFAULT NULL
 );
 
 CREATE INDEX IF NOT EXISTS works_purge_after_idx
   ON works (purge_after) WHERE deleted_at IS NOT NULL;
+-- slug 조회용
+CREATE INDEX IF NOT EXISTS idx_works_slug ON works (slug);
+-- nature 필터링/groupby 용 (작은 카디널리티 — btree 충분)
+CREATE INDEX IF NOT EXISTS idx_works_nature_ko ON works (nature_ko);
+-- categories array containment 필터 (?category=foo → categories_ko @> ARRAY['foo'])
+CREATE INDEX IF NOT EXISTS idx_works_categories_ko_gin ON works USING GIN (categories_ko);
+CREATE INDEX IF NOT EXISTS idx_works_categories_en_gin ON works USING GIN (categories_en);
 
 ALTER TABLE works ENABLE ROW LEVEL SECURITY;
 
@@ -668,39 +705,215 @@ AS $$
   ORDER BY viewed_date ASC;
 $$;
 
--- 예약 발행 cron 용 — 시간이 도달한 예약 게시물/작품을 발행 처리
--- Vercel cron 이나 Supabase scheduled task 가 정기적으로 호출
--- UPDATE...RETURNING 은 CTE(WITH) 안에서만 가능하므로 두 UPDATE 를 모두 CTE 로 묶음
-CREATE OR REPLACE FUNCTION publish_scheduled()
-RETURNS TABLE(table_name text, id uuid, was_scheduled_at timestamptz)
+-- slug 자동 생성 — JS 의 generateSlug 와 동일 로직 (a-z, 0-9, 한글, 공백→하이픈, 80자 cap).
+-- 마이그레이션에서 빈 slug 채울 때 사용. 클라이언트는 별도 generateSlug() 함수 사용.
+CREATE OR REPLACE FUNCTION _sql_slugify(t text)
+RETURNS text
 LANGUAGE plpgsql
-AS $$
+IMMUTABLE AS $$
+DECLARE
+  v text;
 BEGIN
-  RETURN QUERY
-  WITH
-    posts_pub AS (
-      UPDATE posts
-      SET published = true, scheduled_at = NULL, updated_at = now()
-      WHERE published = false
-        AND deleted_at IS NULL
-        AND scheduled_at IS NOT NULL
-        AND scheduled_at <= now()
-      RETURNING posts.id AS pid, posts.scheduled_at AS pat
-    ),
-    works_pub AS (
-      UPDATE works
-      SET published = true, scheduled_at = NULL, updated_at = now()
-      WHERE published = false
-        AND deleted_at IS NULL
-        AND scheduled_at IS NOT NULL
-        AND scheduled_at <= now()
-      RETURNING works.id AS wid, works.scheduled_at AS wat
-    )
-  SELECT 'posts'::text, pid, pat FROM posts_pub
-  UNION ALL
-  SELECT 'works'::text, wid, wat FROM works_pub;
+  v := lower(coalesce(t, ''));
+  v := regexp_replace(v, '[^a-z0-9가-힣\s-]', '', 'g');
+  v := regexp_replace(v, '\s+', '-', 'g');
+  v := regexp_replace(v, '--+', '-', 'g');
+  v := regexp_replace(v, '^-+|-+$', '', 'g');
+  v := substring(v from 1 for 80);
+  RETURN v;
 END;
 $$;
+
+
+-- ────────────────────────────────────────────────────────────
+-- 예약 발행 + 휴지통 영구삭제 자동화 — pg_cron + pg_net + Vault
+-- ────────────────────────────────────────────────────────────
+-- 매분 publish_scheduled() / 매일 03:00 KST purge_trash_scheduled() 실행.
+-- Vault 에 resend_api_key / admin_email / notify_from 등록되어 있으면
+-- 처리 결과를 admin_notifications + Resend 이메일로 알림.
+-- Vault 미등록 시 DB 작업은 정상, 이메일만 skip.
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+CREATE EXTENSION IF NOT EXISTS pg_net;
+
+-- 유틸: Vault secret 안전 조회 (없으면 NULL)
+CREATE OR REPLACE FUNCTION _get_vault_secret(secret_name text)
+RETURNS text
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE v text;
+BEGIN
+  SELECT decrypted_secret INTO v FROM vault.decrypted_secrets WHERE name = secret_name LIMIT 1;
+  RETURN v;
+EXCEPTION WHEN OTHERS THEN
+  RETURN NULL;
+END;
+$$;
+
+-- 유틸: Resend 이메일 발송 (Vault 비어있으면 skip, 실패는 무시 — DB 본 작업은 성공해야)
+CREATE OR REPLACE FUNCTION _send_admin_email(subject text, html text)
+RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  api_key text := _get_vault_secret('resend_api_key');
+  to_email text := _get_vault_secret('admin_email');
+  from_email text := _get_vault_secret('notify_from');
+BEGIN
+  IF api_key IS NULL OR to_email IS NULL OR from_email IS NULL THEN
+    RETURN;
+  END IF;
+  PERFORM net.http_post(
+    url := 'https://api.resend.com/emails',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer ' || api_key
+    ),
+    body := jsonb_build_object(
+      'from', from_email,
+      'to', to_email,
+      'subject', subject,
+      'html', html
+    )::text
+  );
+EXCEPTION WHEN OTHERS THEN
+  NULL;
+END;
+$$;
+
+-- 예약 발행 — 시간이 도달한 예약 게시물/작품을 발행 + admin_notifications + 이메일.
+-- pg_cron 이 매분 호출 (idempotent). RETURN QUERY 가 caller 에 stream 하고 별도 LOOP 로 알림 처리.
+CREATE OR REPLACE FUNCTION publish_scheduled()
+RETURNS TABLE(table_name text, id uuid, title text, was_scheduled_at timestamptz)
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  r RECORD;
+  total int := 0;
+  html_body text := '';
+BEGIN
+  RETURN QUERY
+  WITH posts_pub AS (
+    UPDATE posts SET published = true, scheduled_at = NULL, updated_at = now()
+    WHERE published = false
+      AND deleted_at IS NULL
+      AND scheduled_at IS NOT NULL
+      AND scheduled_at <= now()
+    RETURNING id, title, scheduled_at
+  ),
+  works_pub AS (
+    UPDATE works SET published = true, scheduled_at = NULL, updated_at = now()
+    WHERE published = false
+      AND deleted_at IS NULL
+      AND scheduled_at IS NOT NULL
+      AND scheduled_at <= now()
+    RETURNING id, title, scheduled_at
+  ),
+  all_pub AS (
+    SELECT 'posts'::text AS table_name, id, title, scheduled_at AS was_scheduled_at FROM posts_pub
+    UNION ALL
+    SELECT 'works'::text, id, title, scheduled_at FROM works_pub
+  )
+  SELECT * FROM all_pub;
+
+  -- 알림 — 위 RETURN QUERY 와 별개로 fetch (RETURN QUERY 는 caller stream)
+  FOR r IN
+    SELECT 'posts'::text AS t, id, title FROM posts WHERE published = true AND updated_at > now() - interval '5 seconds' AND scheduled_at IS NULL
+    UNION ALL
+    SELECT 'works'::text, id, title FROM works WHERE published = true AND updated_at > now() - interval '5 seconds' AND scheduled_at IS NULL
+  LOOP
+    INSERT INTO admin_notifications (type, title, message, metadata)
+    VALUES (
+      'publish',
+      '📝 예약 발행 완료',
+      r.t || ' "' || COALESCE(r.title, '(no title)') || '" 가 발행되었습니다.',
+      jsonb_build_object('table', r.t, 'id', r.id)
+    );
+    total := total + 1;
+    html_body := html_body || '<li><strong>' || r.t || '</strong>: ' || COALESCE(r.title, '(no title)') || '</li>';
+  END LOOP;
+
+  IF total > 0 THEN
+    PERFORM _send_admin_email(
+      '📝 예약 발행 ' || total || '건 완료',
+      '<p>다음 항목이 발행되었습니다:</p><ul>' || html_body || '</ul>'
+    );
+  END IF;
+END;
+$$;
+
+-- 휴지통 영구삭제 — purge_after 가 지난 posts/works hard delete + 알림.
+-- pg_cron 이 매일 UTC 18:00 (= KST 03:00) 호출.
+CREATE OR REPLACE FUNCTION purge_trash_scheduled()
+RETURNS int
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  posts_count int := 0;
+  works_count int := 0;
+  total int;
+BEGIN
+  WITH del AS (
+    DELETE FROM posts
+    WHERE deleted_at IS NOT NULL
+      AND purge_after IS NOT NULL
+      AND purge_after < now()
+    RETURNING id
+  )
+  SELECT COUNT(*) INTO posts_count FROM del;
+
+  WITH del AS (
+    DELETE FROM works
+    WHERE deleted_at IS NOT NULL
+      AND purge_after IS NOT NULL
+      AND purge_after < now()
+    RETURNING id
+  )
+  SELECT COUNT(*) INTO works_count FROM del;
+
+  total := posts_count + works_count;
+
+  IF total > 0 THEN
+    INSERT INTO admin_notifications (type, title, message, metadata)
+    VALUES (
+      'purge',
+      '🗑️ 휴지통 영구삭제',
+      'posts ' || posts_count || '건, works ' || works_count || '건 영구삭제됨',
+      jsonb_build_object('posts', posts_count, 'works', works_count)
+    );
+
+    PERFORM _send_admin_email(
+      '🗑️ 휴지통 영구삭제 ' || total || '건',
+      '<p>아래 항목이 영구삭제되었습니다:</p><ul>'
+        || '<li>posts: ' || posts_count || '건</li>'
+        || '<li>works: ' || works_count || '건</li>'
+        || '</ul>'
+    );
+  END IF;
+
+  RETURN total;
+END;
+$$;
+
+-- pg_cron 등록 — 재실행 안전 (기존 unschedule 후 등록)
+DO $$
+BEGIN PERFORM cron.unschedule('publish-scheduled'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$
+BEGIN PERFORM cron.unschedule('purge-trash-scheduled'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
+
+-- 발행: 매분
+SELECT cron.schedule(
+  'publish-scheduled',
+  '* * * * *',
+  $cron$ SELECT publish_scheduled(); $cron$
+);
+
+-- 삭제: 매일 UTC 18:00 (= KST 03:00)
+SELECT cron.schedule(
+  'purge-trash-scheduled',
+  '0 18 * * *',
+  $cron$ SELECT purge_trash_scheduled(); $cron$
+);
+
+-- cron 확인 / 해제 참고:
+--   SELECT jobname, schedule, active FROM cron.job;
+--   SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 20;
+--   SELECT cron.unschedule('publish-scheduled');
 
 
 -- ────────────────────────────────────────────────────────────
@@ -829,29 +1042,49 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 16개 테이블 + 5개 RPC 함수가 생성되었습니다.
+-- 완료! 총 16개 테이블 + 5개 RPC 함수 + 2개 pg_cron job 생성됨.
 --
--- site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
--- series               : 블로그 시리즈 (sort_order, auto_cover_url 포함)
--- posts                : 블로그 포스트 (post_number 시퀀스 + scheduled_at + soft delete)
--- comments             : 포스트 댓글 (대댓글, password 기반 인증, tombstone)
--- likes                : 좋아요 (target_type 으로 posts/works/comments 통합, IP 중복 방지)
--- works                : 포트폴리오 작업물 (team_members jsonb + scheduled_at + soft delete)
--- site_visits          : 방문자 통계 (IP + date 로 1일 1회 + UA 메타)
--- post_views           : 게시물별 시계열 조회 기록 (KST date generated column)
--- work_comments        : Works 댓글 (대댓글, password 기반 인증, tombstone)
--- admin_notifications  : 관리자 알림 로그
--- comment_reports      : 댓글 신고 누적 (posts/works 공용, status: pending/resolved/dismissed)
--- revisions            : 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot)
--- post_work_relations  : posts ↔ works many-to-many 양방향 (Notion Relation)
--- cover_image_history  : Cover Image Picker 통합 이력 (admin user 별, RLS)
--- admin_login_attempts : admin 로그인 실패 횟수 추적 + lockout (5회 → 15분)
--- admin_known_devices  : 새 기기 인증 (UA fingerprint + 이메일 approve 토큰)
+-- 테이블:
+--   site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
+--   series               : 블로그 시리즈 (sort_order, auto_cover_url)
+--   posts                : 블로그 포스트 (post_number 시퀀스 + scheduled_at + soft delete)
+--   comments             : 포스트 댓글 (대댓글, password 인증, tombstone)
+--   likes                : 좋아요 (target_type 으로 posts/works/comments 통합, IP 중복 방지)
+--   works                : 포트폴리오 작업물 (slug, categories_ko/en text[], nature_ko/en,
+--                          contributions_ko/en jsonb, tech_notes jsonb,
+--                          team_members jsonb, scheduled_at, soft delete)
+--   site_visits          : 방문자 통계 (IP + date 로 1일 1회 + UA 메타)
+--   post_views           : 게시물별 시계열 조회 기록 (KST date generated column)
+--   work_comments        : Works 댓글 (대댓글, password 인증, tombstone)
+--   admin_notifications  : 관리자 알림 로그 (comment / publish / purge / report 등)
+--   comment_reports      : 댓글 신고 누적 (posts/works 공용, status: pending/resolved/dismissed)
+--   revisions            : 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot)
+--   post_work_relations  : posts ↔ works many-to-many 양방향 (Notion Relation)
+--   cover_image_history  : Cover Image Picker 통합 이력 (admin user 별, RLS)
+--   admin_login_attempts : admin 로그인 실패 횟수 추적 + lockout (5회 → 15분)
+--   admin_known_devices  : 새 기기 인증 (UA fingerprint + 이메일 approve 토큰)
 --
 -- RPC:
 --   increment_post_view_count(p_post_id)          : 조회수 atomic +1 (race-free)
 --   record_post_view(p_post_id, p_ip)             : dedup (KST 일자) + post_views insert + view_count +1 한 트랜잭션
 --   sum_post_views()                              : 누적 조회수 합계
 --   daily_post_views(p_start date, p_end date)    : 일별 조회수 시계열 (KST)
---   publish_scheduled()                           : 예약 시간 도달한 게시물/작품 발행 (cron 호출)
+--   publish_scheduled()                           : 예약 시간 도달한 게시물/작품 발행 + 알림 (cron 매분)
+--   purge_trash_scheduled()                       : purge_after 지난 휴지통 hard delete + 알림 (cron 매일 KST 03:00)
+--
+-- 유틸 함수:
+--   _sql_slugify(t)                               : title → slug 변환 (마이그레이션 backfill 용)
+--   _get_vault_secret(name)                       : Vault secret 안전 조회 (없으면 NULL)
+--   _send_admin_email(subject, html)              : Resend 이메일 발송 (Vault 비어있으면 skip)
+--   normalize_series_order(p_series_id)           : series_order 0-based sequential 재정렬 (trigger 호출)
+--
+-- Trigger:
+--   posts_normalize_series_order                  : posts INSERT/UPDATE/DELETE 시 series_order 자동 정합화
+--
+-- pg_cron Jobs:
+--   publish-scheduled       (* * * * *)           : 매분 publish_scheduled() 호출
+--   purge-trash-scheduled   (0 18 * * *)          : 매일 UTC 18:00 (KST 03:00) purge_trash_scheduled() 호출
+--
+-- Storage:
+--   uploads (public)                              : logos/, resume/, bgm/, covers/, images/, posts/ ...
 -- ============================================================
