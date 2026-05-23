@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.11.1...v1.12.0) (2026-05-23)
+
+
+### Features
+
+* **works:** 도메인 전면 확장 — slug 라우팅, multi-category, nature, contributions, tech_notes ([0e81ab1](https://github.com/hyeoniverse/web-portfolio-oval/commit/0e81ab12e740406996855d3b8c4f38b080a59f29)), closes [#150](https://github.com/hyeoniverse/web-portfolio-oval/issues/150)
+
 ## [1.11.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.11.0...v1.11.1) (2026-05-23)
 
 
