@@ -16,6 +16,10 @@ import { useModalStore } from "@/stores/modalStore";
 import { showToast } from "@/stores/toastStore";
 import { ModalConfirm, ModalAlert } from "@/components/ui/ModalTemplates";
 import ColorPicker from "@/components/ui/ColorPicker";
+import CloseButton from "@/components/ui/CloseButton";
+import CloseIcon from "@/components/ui/CloseIcon";
+import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
+import type { DatePeriod } from "@/data/profile";
 import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
 import Tooltip from "@/components/ui/Tooltip";
@@ -62,6 +66,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [selectEmpty, setSelectEmpty] = useState("");
   const [dpFormat, setDpFormat] = useState<"year" | "yearMonth" | "date">("date");
   const [dpDate, setDpDate] = useState({ year: "2024", month: "03", day: "15" });
+  const [period, setPeriod] = useState<DatePeriod>({ start: "2024-03", end: "2024-12", format: "yearMonth" });
   const [twReplay, setTwReplay] = useState(0);
   const [paginationPage, setPaginationPage] = useState(3);
   const [pickerColor, setPickerColor] = useState("#d01046");
@@ -433,7 +438,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <div className={styles.componentGroupTitle}>ColorPicker</div>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-md)", flexWrap: "wrap" }}>
           <Tooltip content="render-prop trigger + portal popover">
-            <ColorPicker value={pickerColor} onChange={setPickerColor}>
+            <ColorPicker value={pickerColor} onChange={(c) => setPickerColor(c.oklch)}>
               {({ toggle }) => (
                 <button
                   type="button"
@@ -580,6 +585,40 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               </div>
             </div>
           </div>
+        </motion.div>
+      </motion.div>
+
+      {/* PeriodPicker */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>PeriodPicker</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)", maxWidth: 540 }}>
+          <PeriodPicker value={period} onChange={setPeriod} />
+        </motion.div>
+      </motion.div>
+
+      {/* CloseButton */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>CloseButton</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
+          <div style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) var(--spacing-md)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>
+              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>sm (24px)</span>
+              <CloseButton size="sm" onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
+            </div>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) var(--spacing-md)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>
+              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>md (button-h-sm)</span>
+              <CloseButton size="md" onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center" }}>
+            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>X ↔ minus morph (hover):</span>
+            <div data-close-trigger style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, borderRadius: "50%", border: "var(--border-light)" }}>
+              <CloseIcon />
+            </div>
+          </div>
+          <span style={{ fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)" }}>
+            기본 상태는 minus(하단 line 만), hover/`[data-active]` 시 두 line 이 X 로 morph. stacking 회피 위해 line 위치는 `top: 50%; left: 50%` + negative margin 으로 sub-pixel 정렬.
+          </span>
         </motion.div>
       </motion.div>
 
