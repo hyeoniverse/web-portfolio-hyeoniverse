@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
-import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX } from "lucide-react";
+import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
@@ -52,8 +53,126 @@ export default function AdminEditorShell({
   currentSnapshot,
   topBarSecondRowLeft,
   topBarFirstRowExtra,
+  scheduledAt,
+  onScheduledChange,
+  minScheduledDate,
   children,
 }: AdminEditorShellProps) {
+  const [showScheduleTop, setShowScheduleTop] = useState(false);
+  const [showScheduleBottom, setShowScheduleBottom] = useState(false);
+  const hasSchedule = !!scheduledAt;
+  const canSchedule = !!onScheduledChange;
+  const publishLabel = hasSchedule
+    ? (labels.publishScheduled ?? labels.publish)
+    : (published ? labels.update : labels.publish);
+
+  const renderScheduleContent = (close: () => void) => (
+    <div className={styles.scheduleMenu}>
+      <div className={styles.scheduleMenuHeader}>
+        <CalendarClock size={12} />
+        <span>{labels.scheduledAt ?? "Schedule"}</span>
+      </div>
+      {labels.scheduledHint && (
+        <p className={styles.scheduleMenuHint}>{labels.scheduledHint}</p>
+      )}
+      <DateTimePicker
+        value={scheduledAt ?? null}
+        onChange={(iso) => onScheduledChange?.(iso)}
+        minDate={minScheduledDate ?? new Date()}
+        inline
+      />
+      {hasSchedule && (
+        <button
+          type="button"
+          className={styles.scheduleClearBtn}
+          onClick={() => {
+            onScheduledChange?.(null);
+            close();
+          }}
+        >
+          <CalendarX size={12} />
+          {labels.scheduledClear ?? "Clear"}
+        </button>
+      )}
+    </div>
+  );
+
+  const renderSaveGroup = (
+    isOpen: boolean,
+    setOpen: (open: boolean) => void,
+  ) => (
+    <>
+      {onPreview && (
+        <Button
+          variant="outline"
+          size="sm"
+          className={styles.saveBtn}
+          onClick={onPreview}
+          soundDisabled
+        >
+          {labels.preview ?? "Preview"}
+        </Button>
+      )}
+      <Button
+        variant="outline"
+        size="sm"
+        className={styles.saveBtn}
+        onClick={onSaveDraft}
+        disabled={saving || !isDirty}
+        soundDisabled
+      >
+        {saving ? labels.saving : labels.saveDraft}
+      </Button>
+      {canSchedule ? (
+        <div className={`${styles.splitPublish}${hasSchedule ? ` ${styles.splitPublishScheduled}` : ""}`}>
+          <Button
+            variant="primary"
+            size="sm"
+            className={`${styles.publishBtn} ${styles.publishMainBtn}`}
+            onClick={onPublish}
+            disabled={saving || (isEdit && published && !isDirty && !hasSchedule)}
+            soundDisabled
+          >
+            {hasSchedule && <CalendarClock size={12} />}
+            {publishLabel}
+          </Button>
+          <Popover
+            open={isOpen}
+            onOpenChange={setOpen}
+            placement="bottom-end"
+            contentClassName={styles.scheduleDropdown}
+            sheetTitle={labels.scheduledAt ?? "Schedule"}
+            trigger={
+              <Tooltip content={labels.publishOptions ?? labels.scheduledAt ?? "Schedule"} placement="bottom">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className={`${styles.publishBtn} ${styles.publishChevronBtn}`}
+                  disabled={saving}
+                  soundDisabled
+                  aria-label={labels.publishOptions ?? labels.scheduledAt ?? "Schedule"}
+                  icon={<ChevronDown size={14} />}
+                />
+              </Tooltip>
+            }
+          >
+            {({ close }) => renderScheduleContent(close)}
+          </Popover>
+        </div>
+      ) : (
+        <Button
+          variant="primary"
+          size="sm"
+          className={styles.publishBtn}
+          onClick={onPublish}
+          disabled={saving || (isEdit && published && !isDirty)}
+          soundDisabled
+        >
+          {published ? labels.update : labels.publish}
+        </Button>
+      )}
+    </>
+  );
   const { setInfinite, lenis } = useLenis();
   const { openModal } = useModalStore();
   const [showRevisions, setShowRevisions] = useState(false);
@@ -158,84 +277,14 @@ export default function AdminEditorShell({
     <div className={styles.container}>
       <div className={styles.topBar}>
         <div className={styles.topBarRow}>
-        {/* ── 왼쪽: 네비게이션 + 언어 ── */}
-        <div className={styles.topLeft}>
+        {/* ── 왼쪽: BackLink + extra(Checkbox) + LanguageToggle 한 묶음 ── */}
+        <div className={styles.navGroup}>
           <BackLink href={backHref} label={backLabel} />
-          {topBarFirstRowExtra && (
-            <>
-              <div className={styles.actionsDivider} />
-              {topBarFirstRowExtra}
-            </>
-          )}
-          <div className={styles.actionsDivider} />
+          {topBarFirstRowExtra}
           <LanguageToggle lang={editorLang} onLangChange={onEditorLangChange} />
-          {(onRetranslate || retranslateDisabled) && retranslateOptions && (
-            <Popover
-              open={showRetranslate}
-              onOpenChange={setShowRetranslate}
-              placement="bottom-start"
-              contentClassName={styles.retranslateDropdown}
-              sheetTitle={labels.retranslate ?? "Retranslate"}
-              trigger={
-                <Tooltip content={retranslateDisabled ? (labels.retranslateDisabled ?? "API key not configured") : (labels.retranslate ?? "Retranslate")} placement="bottom">
-                  <Button
-                    variant="outline"
-                    shape="circle"
-                    size="xs"
-                    className={styles.retranslateBtn}
-                    onClick={retranslateDisabled ? undefined : () => { /* Popover toggle */ }}
-                    disabled={saving || retranslateDisabled}
-                    soundDisabled
-                    icon={<Languages size={14} />}
-                  />
-                </Tooltip>
-              }
-            >
-              {({ close }) => (
-                <>
-                  <button
-                    type="button"
-                    className={styles.retranslateItem}
-                    onClick={() => {
-                      onRetranslate?.();
-                      close();
-                    }}
-                  >
-                    {labels.retranslateAll ?? "All"}
-                  </button>
-                  {retranslateOptions.map((opt) => (
-                    <button
-                      key={opt.key}
-                      type="button"
-                      className={styles.retranslateItem}
-                      onClick={() => {
-                        onRetranslate?.([opt.key]);
-                        close();
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </>
-              )}
-            </Popover>
-          )}
-          {(onGenerateSummary || aiSummaryDisabled) && (
-            <Tooltip content={aiSummaryDisabled ? (labels.generateSummaryDisabled ?? "API key not configured") : (labels.generateSummary ?? "Generate AI Summary")} placement="bottom">
-              <Button
-                variant="outline"
-                shape="circle"
-                size="xs"
-                onClick={aiSummaryDisabled ? undefined : onGenerateSummary}
-                disabled={saving || generatingSummary || aiSummaryDisabled}
-                soundDisabled
-                icon={<MessageSquareMore size={14} />}
-              />
-            </Tooltip>
-          )}
         </div>
 
-        {/* ── 첫 줄 오른쪽: 상태 + 히스토리 ── */}
+        {/* ── 오른쪽: 상태 banner + icon action group (retranslate / summary / revert / revisions / delete) ── */}
         <div className={styles.topBarActions}>
           {(status || error) && (
             <span className={error ? styles.errorBanner : statusType === "success" ? styles.successBanner : styles.statusBanner}>
@@ -243,6 +292,73 @@ export default function AdminEditorShell({
             </span>
           )}
           <div className={styles.actionGroup}>
+            <div className={styles.actionGroupAi}>
+            {(onRetranslate || retranslateDisabled) && retranslateOptions && (
+              <Popover
+                open={showRetranslate}
+                onOpenChange={setShowRetranslate}
+                placement="bottom-start"
+                contentClassName={styles.retranslateDropdown}
+                sheetTitle={labels.retranslate ?? "Retranslate"}
+                trigger={
+                  <Tooltip content={retranslateDisabled ? (labels.retranslateDisabled ?? "API key not configured") : (labels.retranslate ?? "Retranslate")} placement="bottom">
+                    <Button
+                      variant="outline"
+                      shape="circle"
+                      size="xs"
+                      className={styles.retranslateBtn}
+                      onClick={retranslateDisabled ? undefined : () => { /* Popover toggle */ }}
+                      disabled={saving || retranslateDisabled}
+                      soundDisabled
+                      icon={<Languages size={14} />}
+                    />
+                  </Tooltip>
+                }
+              >
+                {({ close }) => (
+                  <>
+                    <button
+                      type="button"
+                      className={styles.retranslateItem}
+                      onClick={() => {
+                        onRetranslate?.();
+                        close();
+                      }}
+                    >
+                      {labels.retranslateAll ?? "All"}
+                    </button>
+                    {retranslateOptions.map((opt) => (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        className={styles.retranslateItem}
+                        onClick={() => {
+                          onRetranslate?.([opt.key]);
+                          close();
+                        }}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </>
+                )}
+              </Popover>
+            )}
+            {(onGenerateSummary || aiSummaryDisabled) && (
+              <Tooltip content={aiSummaryDisabled ? (labels.generateSummaryDisabled ?? "API key not configured") : (labels.generateSummary ?? "Generate AI Summary")} placement="bottom">
+                <Button
+                  variant="outline"
+                  shape="circle"
+                  size="xs"
+                  onClick={aiSummaryDisabled ? undefined : onGenerateSummary}
+                  disabled={saving || generatingSummary || aiSummaryDisabled}
+                  soundDisabled
+                  icon={<MessageSquareMore size={14} />}
+                />
+              </Tooltip>
+            )}
+            </div>
+            <div className={styles.actionGroupEdit}>
             {onRevert && (
               <Tooltip content={labels.revert ?? "Revert"} placement="bottom">
                 <Button
@@ -582,84 +698,57 @@ export default function AdminEditorShell({
                 </div>
               </Popover>
             )}
+            {isEdit && onDelete && (
+              <>
+                <div className={styles.actionsDivider} />
+                <Tooltip content={labels.delete} placement="bottom">
+                  <Button
+                    variant="outline"
+                    shape="circle"
+                    size="xs"
+                    className={styles.deleteBtn}
+                    onClick={() => {
+                      if (!deleteTargetName) {
+                        onDelete?.();
+                        return;
+                      }
+                      openModal(
+                        <ModalPrompt
+                          hint={labels.deleteConfirmInput}
+                          placeholder={deleteTargetName}
+                          validate={(v) => v === deleteTargetName}
+                          cancelText={labels.deleteCancel}
+                          confirmText={labels.delete}
+                          danger
+                          onConfirm={() => onDelete?.()}
+                        />,
+                        {
+                          id: "delete-confirm",
+                          closeButton: false,
+                          width: "400px",
+                          header: { title: `\u201C${deleteTargetName}\u201D` },
+                        },
+                      );
+                    }}
+                    disabled={deleting}
+                    aria-label={labels.delete}
+                    soundDisabled
+                    icon={<Trash2 size={14} />}
+                  />
+                </Tooltip>
+              </>
+            )}
+            </div>
           </div>
-          {isEdit && onDelete && (
-            <>
-              <div className={styles.actionsDivider} />
-              <Tooltip content={labels.delete} placement="bottom">
-                <Button
-                  variant="outline"
-                  shape="circle"
-                  size="xs"
-                  className={styles.deleteBtn}
-                  onClick={() => {
-                    if (!deleteTargetName) {
-                      onDelete?.();
-                      return;
-                    }
-                    openModal(
-                      <ModalPrompt
-                        hint={labels.deleteConfirmInput}
-                        placeholder={deleteTargetName}
-                        validate={(v) => v === deleteTargetName}
-                        cancelText={labels.deleteCancel}
-                        confirmText={labels.delete}
-                        danger
-                        onConfirm={() => onDelete?.()}
-                      />,
-                      {
-                        id: "delete-confirm",
-                        closeButton: false,
-                        width: "400px",
-                        header: { title: `\u201C${deleteTargetName}\u201D` },
-                      },
-                    );
-                  }}
-                  disabled={deleting}
-                  aria-label={labels.delete}
-                  soundDisabled
-                  icon={<Trash2 size={14} />}
-                />
-              </Tooltip>
-            </>
-          )}
         </div>
         </div>
 
         {/* ── 둘째 줄: 저장 그룹 ── */}
         <div className={styles.topBarRow}>
           {topBarSecondRowLeft && <div style={{ marginRight: "auto", display: "flex", alignItems: "flex-end" }}>{topBarSecondRowLeft}</div>}
-          {onPreview && (
-            <Button
-              variant="outline"
-              size="sm"
-              className={styles.saveBtn}
-              onClick={onPreview}
-              soundDisabled
-            >
-              {labels.preview ?? "Preview"}
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            className={styles.saveBtn}
-            onClick={onSaveDraft}
-            disabled={saving || !isDirty}
-            soundDisabled
-          >
-            {saving ? labels.saving : labels.saveDraft}
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            className={styles.publishBtn}
-            onClick={onPublish}
-            disabled={saving || (isEdit && published && !isDirty)}
-            soundDisabled
-          >
-            {published ? labels.update : labels.publish}
-          </Button>
+          <div className={styles.saveGroup}>
+            {renderSaveGroup(showScheduleTop, setShowScheduleTop)}
+          </div>
         </div>
       </div>
 
@@ -667,37 +756,9 @@ export default function AdminEditorShell({
 
       {/* ── Bottom Bar: 미리보기 / 임시저장 / 저장 ── */}
       <div className={styles.bottomBar}>
-        {onPreview && (
-          <Button
-            variant="outline"
-            size="sm"
-            className={styles.saveBtn}
-            onClick={onPreview}
-            soundDisabled
-          >
-            {labels.preview ?? "Preview"}
-          </Button>
-        )}
-        <Button
-          variant="outline"
-          size="sm"
-          className={styles.saveBtn}
-          onClick={onSaveDraft}
-          disabled={saving || !isDirty}
-          soundDisabled
-        >
-          {saving ? labels.saving : labels.saveDraft}
-        </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          className={styles.publishBtn}
-          onClick={onPublish}
-          disabled={saving || (isEdit && published && !isDirty)}
-          soundDisabled
-        >
-          {published ? labels.update : labels.publish}
-        </Button>
+        <div className={styles.saveGroup}>
+          {renderSaveGroup(showScheduleBottom, setShowScheduleBottom)}
+        </div>
       </div>
     </div>
   );

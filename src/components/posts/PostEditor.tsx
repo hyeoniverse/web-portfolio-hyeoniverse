@@ -30,8 +30,6 @@ import SeoChecklist from "@/components/admin/SeoChecklist";
 import RelationPicker from "@/components/admin/RelationPicker";
 import SortOrderDragList from "@/components/admin/SortOrderDragList";
 import CoverImageField from "@/components/admin/CoverImageField";
-import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
-import CloseIcon from "@/components/ui/CloseIcon";
 import { motion, AnimatePresence } from "framer-motion";
 import { postProcessMarkedHtml } from "./postProcessMarkedHtml";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
@@ -133,7 +131,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [categoryCustomMode, setCategoryCustomMode] = useState(false);
 
   /** 연결된 works 목록 — 편집기 진입 시 한 번 fetch */
-  const [allWorks, setAllWorks] = useState<Array<{ id: string; title: string; year: string; image: string; published: boolean; category_ko?: string }>>([]);
+  const [allWorks, setAllWorks] = useState<Array<{ id: string; title: string; year: string; image: string; published: boolean; categories_ko?: string[] }>>([]);
   useEffect(() => {
     fetch("/api/works?all=true&limit=200")
       .then((r) => r.json())
@@ -225,7 +223,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, []);
 
   const handleSeoItemClick = useCallback((id: "title" | "slug" | "excerpt" | "cover" | "category" | "tags") => {
-    // category 는 시리즈와 같은 always-visible row 로 옮겨졌으므로 optional 펼침 불필요
+    // category 는 titleGroup 으로 옮겨졌으므로 optional 펼침 불필요
     const inOptional = id === "excerpt" || id === "cover" || id === "tags";
     if (inOptional) setOptionalOpen(true);
     const scrollAndHighlight = () => {
@@ -735,6 +733,24 @@ export default function PostEditor({ post }: PostEditorProps) {
           setError(`${te("securityWarning")}: ${security.warnings.join(", ")}`);
           return;
         }
+
+        // scheduled_at 이 이미 과거면 — confirm dialog. 확인 시 scheduled_at clear + 즉시 publish 진행
+        if (form.scheduled_at && new Date(form.scheduled_at).getTime() <= Date.now()) {
+          openModal(
+            <ModalConfirm
+              desc={te("scheduledPastConfirm") || "예약 시점이 이미 지났습니다. 지금 바로 발행할까요?"}
+              cancelText={te("cancel") || "취소"}
+              confirmText={te("publishNow") || "지금 발행"}
+              onConfirm={async () => {
+                updateField("scheduled_at", null);
+                // 새 form 값으로 retry — state 업데이트 후 다음 tick
+                setTimeout(() => handleSave(publish), 0);
+              }}
+            />,
+            { id: "scheduled-past-confirm", header: { title: te("scheduledAt") } },
+          );
+          return;
+        }
       }
 
       setSaving(true);
@@ -925,6 +941,11 @@ export default function PostEditor({ post }: PostEditorProps) {
       retranslateDisabled: te("retranslateDisabled"),
       generateSummary: te("generateSummary"),
       generateSummaryDisabled: te("generateSummaryDisabled"),
+      scheduledAt: te("scheduledAt"),
+      scheduledHint: te("scheduledHint"),
+      scheduledClear: te("scheduledClear"),
+      publishScheduled: te("publishScheduled"),
+      publishOptions: te("publishOptions"),
     }),
     [te]
   );
@@ -1025,6 +1046,8 @@ export default function PostEditor({ post }: PostEditorProps) {
       onSaveDraft={() => handleSave()}
       onPublish={() => handleSave(true)}
       onPreview={handlePreview}
+      scheduledAt={form.scheduled_at}
+      onScheduledChange={(iso) => updateField("scheduled_at", iso)}
       status={status}
       statusType={statusType}
       statusTimestamp={statusTimestamp}
@@ -1065,72 +1088,89 @@ export default function PostEditor({ post }: PostEditorProps) {
           label={te("pinLabel")}
         />
       }
-      topBarSecondRowLeft={
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-md)", flexWrap: "nowrap" }}>
-          {/* 예약 발행 — Works editor 와 동일 스타일 */}
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)", flexWrap: "nowrap" }}>
-            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", whiteSpace: "nowrap", flexShrink: 0, marginRight: "var(--spacing-2xs)" }}>{te("scheduledAt")}</span>
-            <DateTimePicker
-              value={form.scheduled_at ?? null}
-              onChange={(iso) => updateField("scheduled_at", iso)}
-            />
-            <AnimatePresence>
-              {form.scheduled_at && (
-                <motion.button
-                  key="clear"
-                  type="button"
-                  className={es.scheduledClearBtn}
-                  onClick={() => updateField("scheduled_at", null)}
-                  title={te("scheduledClear")}
-                  aria-label={te("scheduledClear")}
-                  data-close-trigger
-                  initial={{ opacity: 0, scale: 0.5, width: 0 }}
-                  animate={{ opacity: 1, scale: 1, width: 24 }}
-                  exit={{ opacity: 0, scale: 0.5, width: 0 }}
-                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                >
-                  <CloseIcon />
-                </motion.button>
-              )}
-            </AnimatePresence>
-            {form.scheduled_at && !form.published && (
-              <span style={{ fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>{te("scheduledHint")}</span>
-            )}
-          </div>
-        </div>
-      }
     >
       <div className={styles.meta}>
-        {/* ── 필수 입력 ── */}
-        <div className={es.field} data-seo="title">
-          <label className={`${es.fieldLabel}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
-          <input
-            className={`${es.titleInput}${titleFieldError ? ` ${es.titleInputError}` : ""}`}
-            type="text"
-            value={form[titleKey]}
-            onChange={(e) => updateField(titleKey, e.target.value)}
-            placeholder={te("titlePlaceholder")}
-          />
-        </div>
-
-        <div className={es.row}>
-          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="slug">
-            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
-              <label className={`${es.fieldLabel}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{te("slug")}</label>
-              {form.slug.trim() && validateSlug(form.slug) && (
-                <span className={styles.slugHint}>{te(`slugError.${validateSlug(form.slug)}`)}</span>
-              )}
-            </div>
+        {/* title + slug + 예약 발행 — 컴팩트 그룹 (gap 작게) */}
+        <div className={styles.titleGroup}>
+          <div className={es.field} data-seo="title">
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
             <input
-              className={`${es.fieldInput}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldInputError}` : ""}`}
+              className={`${es.titleInput}${titleFieldError ? ` ${es.titleInputError}` : ""}`}
               type="text"
-              value={form.slug}
-              onChange={(e) => {
-                setSlugManual(true);
-                updateField("slug", e.target.value);
-              }}
-              placeholder="post-url-slug"
+              value={form[titleKey]}
+              onChange={(e) => updateField(titleKey, e.target.value)}
+              placeholder={te("titlePlaceholder")}
             />
+          </div>
+
+          <div className={es.row}>
+            <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="slug">
+              <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
+                <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{te("slug")}</label>
+                {form.slug.trim() && validateSlug(form.slug) && (
+                  <span className={styles.slugHint}>{te(`slugError.${validateSlug(form.slug)}`)}</span>
+                )}
+              </div>
+              <input
+                className={`${es.fieldInput}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldInputError}` : ""}`}
+                type="text"
+                value={form.slug}
+                onChange={(e) => {
+                  setSlugManual(true);
+                  updateField("slug", e.target.value);
+                }}
+                placeholder="post-url-slug"
+              />
+            </div>
+          </div>
+
+          {/* slug 아래 — 카테고리 (필수 입력) */}
+          <div className={es.row}>
+            <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="category">
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
+                {form.series_id && (
+                  <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>{te("categoryFromSeries")}</span>
+                )}
+              </div>
+              {(() => {
+                const matched = isManagedCat(form.category);
+                const isCustom = categoryCustomMode || (!!form.category && !matched);
+                const selectValue = isCustom ? "__custom__" : (matched ? (findCat(form.category)?.ko ?? form.category) : (categories[0]?.ko ?? ""));
+                return (
+                  <>
+                    <Select
+                      value={selectValue}
+                      options={[
+                        { value: "__custom__", label: te("customCategory") },
+                        ...categories.map((cat) => ({ value: cat.ko, label: language === "ko" ? cat.ko : cat.en })),
+                      ]}
+                      onChange={(v) => {
+                        if (v === "__custom__") {
+                          setCategoryCustomMode(true);
+                          updateField("category", "");
+                        } else {
+                          setCategoryCustomMode(false);
+                          updateField("category", v);
+                        }
+                      }}
+                      disabled={!!form.series_id}
+                    />
+                    {isCustom && !form.series_id && (
+                      <input
+                        className={es.fieldInput}
+                        type="text"
+                        value={form.category}
+                        onChange={(e) => updateField("category", e.target.value)}
+                        placeholder={te("category")}
+                        style={{ marginTop: "var(--spacing-xs)" }}
+                        autoFocus
+                      />
+                    )}
+                  </>
+                );
+              })()}
+            </div>
           </div>
 
         </div>
@@ -1150,11 +1190,10 @@ export default function PostEditor({ post }: PostEditorProps) {
             />
           </button>
 
-          {/* 시리즈 + 카테고리 — 같은 row, 항상 표시 (optionalContent 바깥이라 직접 padding 부여) */}
+          {/* 시리즈 — 항상 표시 (optionalContent 바깥이라 직접 padding 부여) */}
           <div style={{ padding: "0 var(--spacing-md) var(--spacing-md)" }}>
             <div className={es.row}>
-              {/* 1열: 시리즈 */}
-              <div className={es.field} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
+              <div className={es.field} style={{ gridColumn: "1 / -1" }} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
                   <label className={es.fieldLabel}>{te("series")}</label>
                   <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
@@ -1212,52 +1251,6 @@ export default function PostEditor({ post }: PostEditorProps) {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
-              {/* 2열: 카테고리 */}
-              <div className={es.field} data-seo="category">
-                <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                  <label className={`${es.fieldLabel}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
-                  {form.series_id && (
-                    <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>{te("categoryFromSeries")}</span>
-                  )}
-                </div>
-                {(() => {
-                  const matched = isManagedCat(form.category);
-                  const isCustom = categoryCustomMode || (!!form.category && !matched);
-                  const selectValue = isCustom ? "__custom__" : (matched ? (findCat(form.category)?.ko ?? form.category) : (categories[0]?.ko ?? ""));
-                  return (
-                    <>
-                      <Select
-                        value={selectValue}
-                        options={[
-                          { value: "__custom__", label: te("customCategory") },
-                          ...categories.map((cat) => ({ value: cat.ko, label: language === "ko" ? cat.ko : cat.en })),
-                        ]}
-                        onChange={(v) => {
-                          if (v === "__custom__") {
-                            setCategoryCustomMode(true);
-                            updateField("category", "");
-                          } else {
-                            setCategoryCustomMode(false);
-                            updateField("category", v);
-                          }
-                        }}
-                        disabled={!!form.series_id}
-                      />
-                      {isCustom && !form.series_id && (
-                        <input
-                          className={es.fieldInput}
-                          type="text"
-                          value={form.category}
-                          onChange={(e) => updateField("category", e.target.value)}
-                          placeholder={te("category")}
-                          style={{ marginTop: "var(--spacing-xs)" }}
-                          autoFocus
-                        />
-                      )}
-                    </>
-                  );
-                })()}
               </div>
             </div>
           </div>
