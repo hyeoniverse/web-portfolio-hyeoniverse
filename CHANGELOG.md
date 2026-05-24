@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.13.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.12.0...v1.13.0) (2026-05-24)
+
+
+### Features
+
+* **admin:** BilingualInputPair + TagNotesEditor 공통 컴포넌트 ([8537f4d](https://github.com/hyeoniverse/web-portfolio-oval/commit/8537f4d86dfd664adff372549d49b44472dd4a10)), closes [#155](https://github.com/hyeoniverse/web-portfolio-oval/issues/155)
+* **posts:** tag_notes — 태그별 KO/EN 설명 ([60bf2d0](https://github.com/hyeoniverse/web-portfolio-oval/commit/60bf2d05929666f295bb0f17bc41a99207803830)), closes [#156](https://github.com/hyeoniverse/web-portfolio-oval/issues/156)
+
 ## [1.12.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.11.1...v1.12.0) (2026-05-23)
 
 
