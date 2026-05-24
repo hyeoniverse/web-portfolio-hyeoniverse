@@ -275,8 +275,37 @@ export default function WorkDetailClient({
               const memberCards = project.teamMembers.map((member, i) => {
                 const avatarUrl = deriveTeamMemberAvatar(member);
                 const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
-                return (
-                  <article key={i} className={styles.teamMarqueeCard}>
+                // contribs en→ko fallback
+                const ko = member.contributions?.ko ?? {};
+                const en = member.contributions?.en ?? {};
+                const enHas = Object.values(en).some((items) => items.length > 0);
+                const koHas = Object.values(ko).some((items) => items.length > 0);
+                const contribsMap = viewLang === "en"
+                  ? (enHas ? en : ko)
+                  : (koHas ? ko : en);
+                const contribsEntries = Object.entries(contribsMap).filter(([, items]) => items.length > 0);
+                const memberRoleLabel = viewLang === "en" ? member.role.en : member.role.ko;
+                const tooltipContent = contribsEntries.length > 0 ? (
+                  <div className={styles.teamMarqueeTooltip}>
+                    {contribsEntries.map(([role, items]) => {
+                      const showRoleLabel = role !== memberRoleLabel;
+                      return (
+                        <div key={role} className={styles.teamMarqueeTooltipGroup}>
+                          {showRoleLabel && (
+                            <div className={styles.teamMarqueeTooltipRole}>{role}</div>
+                          )}
+                          <ul className={styles.teamMarqueeTooltipList}>
+                            {items.map((c, ci) => (
+                              <li key={ci}>{c}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null;
+                const card = (
+                  <article className={styles.teamMarqueeCard}>
                     <div className={styles.teamMarqueeAvatar}>
                       {avatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -318,6 +347,19 @@ export default function WorkDetailClient({
                       </div>
                     )}
                   </article>
+                );
+                return tooltipContent ? (
+                  <Tooltip
+                    key={i}
+                    content={tooltipContent}
+                    placement="top"
+                    delay={120}
+                    bubbleClassName={styles.teamMarqueeTooltipBubble}
+                  >
+                    {card}
+                  </Tooltip>
+                ) : (
+                  <span key={i}>{card}</span>
                 );
               });
               return (
