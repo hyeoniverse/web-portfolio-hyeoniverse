@@ -148,6 +148,20 @@ export default function TagNotesEditor({
   const sectionRef = useRef<HTMLDivElement>(null);
   const groupRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
+  // 새 설명 pair 추가 직후 마지막 KO input 으로 focus.
+  // setEntry → parent rerender → editingItem effect → input mount 까지 보장 위해 50ms delay.
+  const focusLastPairInput = useCallback((item: string) => {
+    setTimeout(() => {
+      const groupEl = groupRefs.current.get(item);
+      if (!groupEl) return;
+      const textInputs = groupEl.querySelectorAll<HTMLInputElement>('input[type="text"]');
+      if (textInputs.length === 0) return;
+      // 마지막 pair = KO + EN 두 input. KO 가 먼저 mount → index length-2
+      const target = textInputs[textInputs.length - 2] ?? textInputs[textInputs.length - 1];
+      target?.focus();
+    }, 50);
+  }, []);
+
   // 편집 중인 group 밖 클릭 시 편집 모드 해제 (blur 와 동일 정책)
   useEffect(() => {
     if (!editingItem) return;
@@ -337,7 +351,10 @@ export default function TagNotesEditor({
                   addLabel={addLabel}
                   cancelLabel={cancelLabel}
                   editLabel={editLabel}
-                  onClick={() => setEntry({ ko: "", en: "" })}
+                  onClick={() => {
+                    setEntry({ ko: "", en: "" });
+                    focusLastPairInput(item);
+                  }}
                 />
               ) : (
                 <div className={styles.headerActions}>
@@ -407,6 +424,7 @@ export default function TagNotesEditor({
                           setEditMode("newest");
                           setEditingItem(item);
                         }
+                        focusLastPairInput(item);
                       }}
                     >
                       <Plus size={10} strokeWidth={2.5} />
