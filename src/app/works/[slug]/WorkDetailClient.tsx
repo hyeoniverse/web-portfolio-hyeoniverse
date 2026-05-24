@@ -248,40 +248,23 @@ export default function WorkDetailClient({
             })()}
             <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
               <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
-              <div className={styles.techTags}>
-                {project.tech.map((t, i) => (
-                  <span key={`tech-${i}`} className={styles.techTag}>{t}</span>
-                ))}
-              </div>
-            </div>
-            {project.tech_notes && (() => {
-              const items = project.tech.filter((t) => {
-                const note = project.tech_notes![t];
-                return note && (note.ko.trim() || note.en.trim());
-              });
-              if (items.length === 0) return null;
-              return (
-                <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-                  <span className={styles.infoLabel}>
-                    <T ko="기술별 메모" en="Tech Notes" />
-                  </span>
-                  <ul className={styles.techNotesList}>
-                    {items.map((t) => {
-                      const note = project.tech_notes![t];
-                      const text = viewLang === "en"
+              <ul className={styles.techNotesList}>
+                {project.tech.map((t) => {
+                  const note = project.tech_notes?.[t];
+                  const text = note
+                    ? (viewLang === "en"
                         ? (note.en.trim() || note.ko.trim())
-                        : (note.ko.trim() || note.en.trim());
-                      return (
-                        <li key={t} className={styles.techNoteItem}>
-                          <span className={styles.techNoteTag}>{t}</span>
-                          <span className={styles.techNoteText}>{text}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              );
-            })()}
+                        : (note.ko.trim() || note.en.trim()))
+                    : "";
+                  return (
+                    <li key={t} className={styles.techNoteItem}>
+                      <span className={styles.techNoteTag}>{t}</span>
+                      {text && <span className={styles.techNoteText}>{text}</span>}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
             {project.teamMembers && project.teamMembers.length > 0 && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}><T k="workDetail.team" /></span>
