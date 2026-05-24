@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
-import { ChevronRight, Plus, Star, Check, X, GripVertical, User } from "lucide-react";
+import { ChevronRight, Plus, Star, Check, X, User } from "lucide-react";
 import Button from "@/components/ui/Button";
 import CloseButton from "@/components/ui/CloseButton";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
@@ -36,6 +36,8 @@ import Textarea from "@/components/ui/Textarea";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
 import type { DatePeriod } from "@/data/profile";
 import RelationPicker from "@/components/admin/RelationPicker";
+import TagNotesEditor from "@/components/admin/TagNotesEditor";
+import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import SortOrderDragList from "@/components/admin/SortOrderDragList";
 import CoverImageField from "@/components/admin/CoverImageField";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
@@ -548,280 +550,6 @@ function TeamMemberCard({
   );
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
- * TeamRoleContribsSection — 한 역할에 대한 기여 항목 ul.
- * 자체 input state + drag-reorder state 보유. role 헤더 + items + 추가 row. */
-function TeamRoleContribsSection({
-  role,
-  value,
-  onChange,
-  onRemoveRole,
-  placeholder,
-  showAddInput = true,
-  dragHandleEnabled,
-  dragging,
-  dropSide,
-  onRoleDragStart,
-  onRoleDragOver,
-  onRoleDrop,
-  onRoleDragEnd,
-}: {
-  role: string;
-  value: string[];
-  onChange: (next: string[]) => void;
-  onRemoveRole?: () => void;
-  placeholder: string;
-  showAddInput?: boolean;
-  dragHandleEnabled?: boolean;
-  dragging?: boolean;
-  dropSide?: "top" | "bottom" | null;
-  onRoleDragStart?: () => void;
-  onRoleDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
-  onRoleDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
-  onRoleDragEnd?: () => void;
-}) {
-  const [input, setInput] = useState("");
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const [dropIdx, setDropIdx] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
-
-  const add = () => {
-    const t = input.trim();
-    if (!t) return;
-    onChange([...value, t]);
-    setInput("");
-  };
-  const remove = (idx: number) => onChange(value.filter((_, i) => i !== idx));
-
-  const reorder = (from: number, to: number) => {
-    const next = [...value];
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
-    onChange(next);
-  };
-
-  const resetDrag = () => {
-    setDragIdx(null);
-    setDropIdx(null);
-  };
-
-  return (
-    <div
-      className={`${styles.contribRoleGroup} ${dragging ? styles.contribRoleGroupDragging : ""} ${dropSide === "top" ? styles.contribRoleGroupDropTop : ""} ${dropSide === "bottom" ? styles.contribRoleGroupDropBottom : ""}`}
-      onDragOver={onRoleDragOver}
-      onDrop={onRoleDrop}
-    >
-      <div className={styles.contribRoleHeader}>
-        {dragHandleEnabled && (
-          <span
-            className={styles.contribRoleDragHandle}
-            draggable
-            onDragStart={(e) => {
-              onRoleDragStart?.();
-              e.dataTransfer.effectAllowed = "move";
-            }}
-            onDragEnd={onRoleDragEnd}
-            aria-label="Reorder role"
-          >
-            <GripVertical size={12} strokeWidth={2} />
-          </span>
-        )}
-        <span className={styles.contribRoleLabel}>{role}</span>
-        {onRemoveRole && (
-          <CloseButton
-            size="sm"
-            className={styles.contribRoleRemove}
-            onClick={onRemoveRole}
-            ariaLabel="Remove role"
-          />
-        )}
-      </div>
-      <ul className={styles.memberContribs}>
-        {value.map((c, ci) => {
-          const isDragging = dragIdx === ci;
-          // splice 보정 후의 최종 to 가 dragIdx 와 같으면 no-op → indicator 숨김
-          const effectiveTo = (side: "top" | "bottom") => {
-            let to = ci + (side === "bottom" ? 1 : 0);
-            if (dragIdx !== null && dragIdx < to) to -= 1;
-            return to;
-          };
-          const showTopBar =
-            dragIdx !== null &&
-            dropIdx?.idx === ci &&
-            dropIdx.side === "top" &&
-            effectiveTo("top") !== dragIdx;
-          const showBottomBar =
-            dragIdx !== null &&
-            dropIdx?.idx === ci &&
-            dropIdx.side === "bottom" &&
-            effectiveTo("bottom") !== dragIdx;
-          return (
-            <li
-              key={ci}
-              className={`${styles.contribItem} ${isDragging ? styles.contribItemDragging : ""} ${showTopBar ? styles.contribItemDropTop : ""} ${showBottomBar ? styles.contribItemDropBottom : ""}`}
-              onDragOver={(e) => {
-                if (dragIdx === null) return;
-                e.preventDefault();
-                const rect = e.currentTarget.getBoundingClientRect();
-                const mid = rect.top + rect.height / 2;
-                setDropIdx({ idx: ci, side: e.clientY < mid ? "top" : "bottom" });
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                if (dragIdx === null || dropIdx === null) {
-                  resetDrag();
-                  return;
-                }
-                let to = dropIdx.idx + (dropIdx.side === "bottom" ? 1 : 0);
-                if (dragIdx < to) to -= 1;
-                if (to !== dragIdx) reorder(dragIdx, to);
-                resetDrag();
-              }}
-            >
-              <span
-                className={styles.contribDragHandle}
-                draggable
-                onDragStart={(e) => {
-                  setDragIdx(ci);
-                  e.dataTransfer.effectAllowed = "move";
-                }}
-                onDragEnd={resetDrag}
-                aria-label="Reorder"
-              >
-                <GripVertical size={12} strokeWidth={2} />
-              </span>
-              <span className={styles.contribText}>{c}</span>
-              <CloseButton
-                size="sm"
-                className={styles.contribItemRemove}
-                onClick={() => remove(ci)}
-                ariaLabel="Remove contribution"
-              />
-            </li>
-          );
-        })}
-        {showAddInput && (
-          <li className={styles.contribAddRow}>
-            <input
-              className={styles.contribInput}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.nativeEvent.isComposing || e.keyCode === 229) return;
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  add();
-                }
-              }}
-              placeholder={placeholder}
-            />
-            <Button
-              variant="outline"
-              shape="circle"
-              size="sm"
-              className={styles.categoryAddBtnSized}
-              onClick={add}
-              disabled={!input.trim()}
-              aria-label="Add contribution"
-              icon={<Plus size={11} strokeWidth={2} />}
-            />
-          </li>
-        )}
-      </ul>
-    </div>
-  );
-}
-
-/* TeamContribsByRole — 역할 목록을 받아서 각 역할별 contribs 섹션 렌더.
- * + 역할 자체도 drag handle 로 순서 변경 가능. onReorderRoles 제공 시 활성화. */
-function TeamContribsByRole({
-  roles,
-  contribsMap,
-  onChange,
-  onRemoveRole,
-  onReorderRoles,
-  placeholder,
-  showAddInput = true,
-}: {
-  roles: string[];
-  contribsMap: Record<string, string[]>;
-  onChange: (next: Record<string, string[]>) => void;
-  onRemoveRole?: (role: string) => void;
-  onReorderRoles?: (next: string[]) => void;
-  placeholder: string;
-  showAddInput?: boolean;
-}) {
-  // role-level drag state — contrib-level state (TeamRoleContribsSection 내부) 와 분리
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const [dropPos, setDropPos] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
-
-  const resetDrag = () => {
-    setDragIdx(null);
-    setDropPos(null);
-  };
-
-  const handleDrop = (_targetIdx: number) => {
-    if (dragIdx === null || dropPos === null || !onReorderRoles) {
-      resetDrag();
-      return;
-    }
-    let to = dropPos.idx + (dropPos.side === "bottom" ? 1 : 0);
-    if (dragIdx < to) to -= 1;
-    if (to !== dragIdx) {
-      const next = [...roles];
-      const [moved] = next.splice(dragIdx, 1);
-      next.splice(to, 0, moved);
-      onReorderRoles(next);
-    }
-    resetDrag();
-  };
-
-  if (roles.length === 0) return null;
-  // splice 보정 후 to === dragIdx 면 no-op → indicator 숨김
-  const effectiveTo = (idx: number, side: "top" | "bottom") => {
-    let to = idx + (side === "bottom" ? 1 : 0);
-    if (dragIdx !== null && dragIdx < to) to -= 1;
-    return to;
-  };
-  return (
-    <div className={styles.contribRoleGrid}>
-      {roles.map((role, idx) => (
-        <TeamRoleContribsSection
-          key={role}
-          role={role}
-          value={contribsMap[role] ?? []}
-          onChange={(next) => onChange({ ...contribsMap, [role]: next })}
-          onRemoveRole={onRemoveRole ? () => onRemoveRole(role) : undefined}
-          placeholder={placeholder}
-          showAddInput={showAddInput}
-          // role-level drag wiring
-          dragHandleEnabled={!!onReorderRoles}
-          dragging={dragIdx === idx}
-          dropSide={
-            dragIdx !== null &&
-            dropPos?.idx === idx &&
-            effectiveTo(idx, dropPos.side) !== dragIdx
-              ? dropPos.side
-              : null
-          }
-          onRoleDragStart={() => setDragIdx(idx)}
-          onRoleDragOver={(e) => {
-            if (dragIdx === null) return;
-            e.preventDefault();
-            const rect = e.currentTarget.getBoundingClientRect();
-            const mid = rect.top + rect.height / 2;
-            setDropPos({ idx, side: e.clientY < mid ? "top" : "bottom" });
-          }}
-          onRoleDrop={(e) => {
-            e.preventDefault();
-            handleDrop(idx);
-          }}
-          onRoleDragEnd={resetDrag}
-        />
-      ))}
-    </div>
-  );
-}
 
 /* ──────────────────────────────────────────────────────────────────────────
  * CategoryMultiPicker — 카테고리 multi-select. Select 위, chip 아래.
@@ -1970,32 +1698,51 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                   </div>
                   {/* multi-select — chip 은 아래 TeamContribsByRole 가 담당 (selectNode 만 사용) */}
                   {ownRole.selectNode}
-                  {/* 역할별 작업 내용 — add-card 와 동일 패턴 */}
-                  <TeamContribsByRole
-                    roles={(form[`role${suf}`] || "")
+                  {/* 역할별 작업 내용 — 공통 TagNotesEditor (ko/en 동시) */}
+                  {(() => {
+                    const rolesArr = (form[`role${suf}`] || "")
                       .split(",")
                       .map((r) => r.trim())
-                      .filter(Boolean)}
-                    contribsMap={form[`contributions${suf}`] ?? {}}
-                    onChange={(next) => updateField(`contributions${suf}`, next)}
-                    onRemoveRole={(role) => {
-                      const currentRole = form[`role${suf}`] || "";
-                      const nextRole = currentRole
-                        .split(",")
-                        .map((r) => r.trim())
-                        .filter((r) => r && r !== role)
-                        .join(", ");
-                      updateField(`role${suf}`, nextRole);
-                      const map = form[`contributions${suf}`] ?? {};
-                      const next = { ...map };
-                      delete next[role];
-                      updateField(`contributions${suf}`, next);
-                    }}
-                    onReorderRoles={(next) => {
-                      updateField(`role${suf}`, next.join(", "));
-                    }}
-                    placeholder={tw("memberContributionPlaceholder")}
-                  />
+                      .filter(Boolean);
+                    const koMap = (form.contributions_ko ?? {}) as Record<string, string[]>;
+                    const enMap = (form.contributions_en ?? {}) as Record<string, string[]>;
+                    const notesMap: Record<string, { ko: string; en: string }> = {};
+                    // entry 존재 여부 보존 — 둘 중 한 쪽에라도 key 가 있으면 (빈 문자열이라도) entry 유지
+                    for (const r of rolesArr) {
+                      if (r in koMap || r in enMap) {
+                        notesMap[r] = {
+                          ko: (koMap[r] ?? []).join("\n"),
+                          en: (enMap[r] ?? []).join("\n"),
+                        };
+                      }
+                    }
+                    return (
+                      <TagNotesEditor
+                        items={rolesArr}
+                        notes={notesMap}
+                        onItemsChange={(next) => updateField(`role${suf}`, next.join(", "))}
+                        onNotesChange={(next) => {
+                          // 빈 문자열도 split 후 [] 로 저장 — entry 존재 여부 (= key in map) 유지
+                          const nextKo: Record<string, string[]> = {};
+                          const nextEn: Record<string, string[]> = {};
+                          for (const [r, v] of Object.entries(next)) {
+                            // filter 안 함 — 빈 pair 도 유지해야 + Add 가 작동
+                            nextKo[r] = v.ko !== undefined ? v.ko.split("\n") : [];
+                            nextEn[r] = v.en !== undefined ? v.en.split("\n") : [];
+                          }
+                          updateField("contributions_ko", nextKo);
+                          updateField("contributions_en", nextEn);
+                        }}
+                        prefix=""
+                        notePlaceholder={tw("memberContributionPlaceholder") || "이 역할로 무엇을 했는지 적어주세요."}
+                        addLabel="설명 추가"
+                        cancelLabel="취소"
+                        editLabel="편집"
+                        removeTitle="역할 제거"
+                        multiLine
+                      />
+                    );
+                  })()}
                 </div>
                 <div className={es.field}>
                   <label className={es.fieldLabel}>{tw("cardSize")}</label>
@@ -2267,19 +2014,19 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               icon={<Plus size={12} strokeWidth={2} />}
             />
           </div>
-          {/* 기술별 — 태그 + (펼치면) 메모 목록. role/contribs 와 동일 패턴 */}
-          <TeamContribsByRole
-            roles={form.tech}
-            contribsMap={form.tech_notes ?? {}}
-            onChange={(next) => updateField("tech_notes", next)}
-            onRemoveRole={(t) => {
-              tech.remove(t);
-              const next = { ...(form.tech_notes ?? {}) };
-              delete next[t];
-              updateField("tech_notes", next);
-            }}
-            onReorderRoles={(next) => updateField("tech", next)}
-            placeholder={tw("techNotePlaceholder") || "이 기술을 왜 선택했고, 무엇을 어떻게 구현했는지 적어주세요."}
+          {/* 기술별 — 공통 TagNotesEditor (drag-reorder + ko/en + multiLine add/cancel) */}
+          <TagNotesEditor
+            items={form.tech}
+            notes={form.tech_notes ?? {}}
+            onItemsChange={(next) => updateField("tech", next)}
+            onNotesChange={(next) => updateField("tech_notes", next)}
+            prefix=""
+            notePlaceholder="이 기술을 왜 선택했고, 무엇을 어떻게 구현했는지 적어주세요."
+            addLabel="설명 추가"
+            cancelLabel="취소"
+            editLabel="편집"
+            removeTitle="기술 제거"
+            multiLine
           />
         </div>
       </div>
@@ -2364,11 +2111,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                   <Plus size={10} strokeWidth={2.5} />
                 </button>
               </span>
-              <input
-                className={es.fieldInput}
-                type="text"
-                value={team.memberName}
-                onChange={(e) => team.setMemberName(e.target.value)}
+              <BilingualInputPair
+                value={{ ko: team.memberName, en: team.memberNameEn }}
+                onChange={(next) => { team.setMemberName(next.ko); team.setMemberNameEn(next.en); }}
                 placeholder={tw("memberName")}
               />
             </div>
@@ -2393,34 +2138,51 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             <div className={styles.memberRoleRow}>
               {teamRole.selectNode}
             </div>
-            <TeamContribsByRole
-              roles={(editorLang === "ko" ? team.memberRoleKo : team.memberRoleEn)
+            {/* 신규 멤버 add-card 역할별 작업 내용 — 공통 TagNotesEditor (ko/en 동시) */}
+            {(() => {
+              const rolesArr = (editorLang === "ko" ? team.memberRoleKo : team.memberRoleEn)
                 .split(",")
                 .map((r) => r.trim())
-                .filter(Boolean)}
-              contribsMap={editorLang === "ko" ? team.memberContribsKo : team.memberContribsEn}
-              onChange={editorLang === "ko" ? team.setMemberContribsKo : team.setMemberContribsEn}
-              onRemoveRole={(role) => {
-                const setRole = editorLang === "ko" ? team.setMemberRoleKo : team.setMemberRoleEn;
-                const currentRole = editorLang === "ko" ? team.memberRoleKo : team.memberRoleEn;
-                const nextRole = currentRole
-                  .split(",")
-                  .map((r) => r.trim())
-                  .filter((r) => r && r !== role)
-                  .join(", ");
-                setRole(nextRole);
-                const setContribs = editorLang === "ko" ? team.setMemberContribsKo : team.setMemberContribsEn;
-                const map = editorLang === "ko" ? team.memberContribsKo : team.memberContribsEn;
-                const next = { ...map };
-                delete next[role];
-                setContribs(next);
-              }}
-              onReorderRoles={(next) => {
-                const setRole = editorLang === "ko" ? team.setMemberRoleKo : team.setMemberRoleEn;
-                setRole(next.join(", "));
-              }}
-              placeholder={tw("memberContributionPlaceholder")}
-            />
+                .filter(Boolean);
+              const koMap = team.memberContribsKo as Record<string, string[]>;
+              const enMap = team.memberContribsEn as Record<string, string[]>;
+              const notesMap: Record<string, { ko: string; en: string }> = {};
+              for (const r of rolesArr) {
+                if (r in koMap || r in enMap) {
+                  notesMap[r] = {
+                    ko: (koMap[r] ?? []).join("\n"),
+                    en: (enMap[r] ?? []).join("\n"),
+                  };
+                }
+              }
+              return (
+                <TagNotesEditor
+                  items={rolesArr}
+                  notes={notesMap}
+                  onItemsChange={(next) => {
+                    const setRole = editorLang === "ko" ? team.setMemberRoleKo : team.setMemberRoleEn;
+                    setRole(next.join(", "));
+                  }}
+                  onNotesChange={(next) => {
+                    const nextKo: Record<string, string[]> = {};
+                    const nextEn: Record<string, string[]> = {};
+                    for (const [r, v] of Object.entries(next)) {
+                      nextKo[r] = v.ko !== undefined ? v.ko.split("\n") : [];
+                      nextEn[r] = v.en !== undefined ? v.en.split("\n") : [];
+                    }
+                    team.setMemberContribsKo(nextKo);
+                    team.setMemberContribsEn(nextEn);
+                  }}
+                  prefix=""
+                  notePlaceholder={tw("memberContributionPlaceholder") || "이 역할로 무엇을 했는지 적어주세요."}
+                  addLabel="설명 추가"
+                  cancelLabel="취소"
+                        editLabel="편집"
+                  removeTitle="역할 제거"
+                        multiLine
+                />
+              );
+            })()}
           </div>
         </div>
       </div>
