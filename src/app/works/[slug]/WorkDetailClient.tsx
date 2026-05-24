@@ -357,14 +357,11 @@ export default function WorkDetailClient({
                           aria-pressed={hasBack ? isFlipped : undefined}
                         >
                           <div className={styles.polaroidCardInner}>
-                            {/* 앞면 — image + caption (link/email 은 hover/click 후 뒷면) */}
+                            {/* 앞면 — image + 이름 만 (역할은 뒷면 contribs group label 로 통합) */}
                             <div className={styles.polaroidFront}>
                               {renderAvatar(m, styles.polaroidAvatar, styles.polaroidAvatarImg, styles.polaroidAvatarInitial)}
                               <div className={styles.polaroidCaption}>
                                 <span className={styles.polaroidName}>{getDisplayName(m)}</span>
-                                <span className={styles.polaroidRole}>
-                                  <T ko={m.role.ko} en={m.role.en} />
-                                </span>
                               </div>
                             </div>
                             {/* 뒷면 — 이름 + contribs + link/email (앞면은 hover 시 뒤집혀서 클릭 불가) */}
@@ -402,12 +399,23 @@ export default function WorkDetailClient({
                                     </div>
                                   )}
                                 </div>
-                                {renderContribs(
-                                  m,
-                                  styles.polaroidBackContribs,
-                                  styles.polaroidBackContribGroup,
-                                  styles.polaroidBackContribRole,
-                                  styles.polaroidBackContribList,
+                                {hasContribs ? (
+                                  renderContribs(
+                                    m,
+                                    styles.polaroidBackContribs,
+                                    styles.polaroidBackContribGroup,
+                                    styles.polaroidBackContribRole,
+                                    styles.polaroidBackContribList,
+                                  )
+                                ) : (
+                                  // contribs 없으면 role 만 단독 표시 (group label 패턴 유지)
+                                  <div className={styles.polaroidBackContribs}>
+                                    <div className={styles.polaroidBackContribGroup}>
+                                      <div className={styles.polaroidBackContribRole}>
+                                        <T ko={m.role.ko} en={m.role.en} />
+                                      </div>
+                                    </div>
+                                  </div>
                                 )}
                               </div>
                             )}

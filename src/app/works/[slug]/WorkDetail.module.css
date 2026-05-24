@@ -337,12 +337,6 @@
   line-height: 1.2;
 }
 
-.polaroidRole {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
 
 /* ── 뒷면 (이름 + link/email + contribs) ── role 은 contrib group label 로 표시 */
 .polaroidBackHeader {
