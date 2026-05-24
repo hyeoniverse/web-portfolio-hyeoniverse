@@ -1010,9 +1010,11 @@
   outline-offset: -2px;
 }
 
-/* 편집 button (Pencil / X) — header 우측 */
+/* 편집 button (Pencil / X) — close 와 함께 우측 cluster, 위쪽 정렬 */
 .memberHeaderEditBtn {
   flex-shrink: 0;
+  align-self: flex-start;
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1248,9 +1250,9 @@
   line-height: 1.5;
 }
 
-/* header 액션 버튼 — chip-row 안 center 정렬 (편집 / close 둘 다 일관) */
+/* close 버튼 — 위쪽 정렬. edit 가 이미 margin-left: auto 로 cluster 시작 → close 는 그 옆 */
 .memberHeaderActionBtn {
-  align-self: center;
+  align-self: flex-start;
 }
 
 /* contribs wrap — role group 들 column stack */
