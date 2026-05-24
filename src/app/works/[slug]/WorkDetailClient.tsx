@@ -340,9 +340,11 @@ export default function WorkDetailClient({
                                     {showRoleLabel && (
                                       <span className={styles.teamCardContribRole}>{role}</span>
                                     )}
-                                    <span className={styles.teamCardContribItems}>
-                                      {items.join(" · ")}
-                                    </span>
+                                    <ul className={styles.teamCardContribItems}>
+                                      {items.map((c, ci) => (
+                                        <li key={ci}>{c}</li>
+                                      ))}
+                                    </ul>
                                   </div>
                                 );
                               })}

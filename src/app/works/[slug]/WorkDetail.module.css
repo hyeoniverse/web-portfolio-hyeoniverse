@@ -222,20 +222,20 @@
   word-break: break-word;
 }
 
-/* ── Team Members ── Asymmetric Editorial — 한 멤버당 row 전체. alternating image 좌/우, huge serif name */
+/* ── Team Members ── Asymmetric Editorial 컴팩트 — alternating image, 원형 avatar */
 .teamCardList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xl);
+  gap: var(--spacing-2xl);
   width: 100%;
 }
 
-/* 멤버 row — flex with alternating direction. desktop: image 좌/우 swap. mobile: 항상 stack */
+/* 멤버 row — alternating image 좌/우 */
 .teamCard {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: var(--spacing-3xl);
+  gap: var(--spacing-xl);
 }
 
 .teamCard:nth-child(even) {
@@ -245,18 +245,18 @@
 @media (max-width: 768px) {
   .teamCard,
   .teamCard:nth-child(even) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-lg);
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--spacing-md);
   }
 }
 
-/* 큰 정사각 image (또는 살짝 portrait). magazine cover 느낌, radius-md 살짝 round */
+/* 원형 avatar, 컴팩트 사이즈 */
 .teamCardAvatar {
   flex-shrink: 0;
-  width: 240px;
-  height: 240px;
-  border-radius: var(--radius-md);
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
   overflow: hidden;
   background: var(--bg-tertiary);
   display: flex;
@@ -266,10 +266,8 @@
 
 @media (max-width: 768px) {
   .teamCardAvatar {
-    width: 100%;
-    max-width: 320px;
-    aspect-ratio: 1 / 1;
-    height: auto;
+    width: 80px;
+    height: 80px;
   }
 }
 
@@ -282,17 +280,17 @@
 
 .teamCardAvatarInitial {
   font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-5xl);
+  font-size: var(--font-size-3xl);
   color: var(--text-tertiary);
 }
 
-/* 텍스트 영역 — name huge serif + role + contribs */
+/* 텍스트 영역 */
 .teamCardInfo {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-sm);
   font-family: var(--font-space-grotesk), sans-serif;
 }
 
@@ -302,16 +300,16 @@
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
 }
 
-/* 이름 — magazine 헤드라인 같은 huge serif */
+/* 이름 — serif headline, 컴팩트 사이즈 */
 .teamCardName {
   font-family: var(--font-instrument), serif;
-  font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-4xl));
+  font-size: clamp(var(--font-size-lg), 2.5vw, var(--font-size-2xl));
   font-weight: var(--font-weight-regular);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
   color: var(--text-primary);
   text-decoration: none;
 }
@@ -326,28 +324,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   color: var(--text-tertiary);
-  border: var(--border-light);
-  transition: color 0.18s ease, border-color 0.18s ease;
+  transition: color 0.18s ease, background 0.18s ease;
 }
 
 .teamCardLink:hover {
   color: var(--text-accent);
-  border-color: var(--text-accent);
+  background: var(--bg-tertiary);
 }
 
-/* 역할 — uppercase, accent dash marker */
+/* 역할 — uppercase + accent dash marker (16px) */
 .teamCardRole {
   position: relative;
   display: inline-block;
-  padding-left: calc(24px + var(--spacing-xs));
-  font-size: var(--font-size-xs);
+  padding-left: calc(16px + var(--spacing-xs));
+  font-size: var(--font-size-2xs);
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   line-height: 1.4;
 }
 
@@ -356,37 +353,60 @@
   position: absolute;
   left: 0;
   top: 0.55em;
-  width: 24px;
+  width: 16px;
   height: 1px;
   background: var(--text-accent);
 }
 
-/* contribs — group 별 stack, role 좌측 label + items 아래 */
+/* contribs — 컴팩트 stack */
 .teamCardContribs {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-xs);
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-2xs);
 }
 
 .teamCardContribGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-3xs);
 }
 
 .teamCardContribRole {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-3xs);
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-tertiary);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
+/* contribs items — 각 줄 단위 list (문장 가독성). 작은 dot bullet */
 .teamCardContribItems {
-  font-size: var(--font-size-sm);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  line-height: 1.7;
+  line-height: 1.6;
+}
+
+.teamCardContribItems li {
+  position: relative;
+  padding-left: var(--spacing-sm);
+}
+
+.teamCardContribItems li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 3px;
+  height: 3px;
+  background: var(--text-muted);
+  border-radius: 50%;
 }
 
 /* 본인 contributions (ownContribsGroups) 안에서 공유. 팀원 카드는 .teamCardContrib* 별도 사용 */
