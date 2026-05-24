@@ -44,7 +44,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: 0 var(--spacing-md);
+  padding: 0 0 0 var(--spacing-md);
   min-height: 28px;
   cursor: text;
 }
@@ -93,12 +93,17 @@
   flex: 1;
   min-width: 0;
   padding: 4px 0;
+  padding-inline-start: 0 !important;
+  padding-inline-end: 0 !important;
+  margin: 0;
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .triggerInput::placeholder {
@@ -112,6 +117,7 @@
   width: 20px;
   height: 20px;
   padding: 0;
+  margin-right: var(--spacing-xs);
   border: none;
   background: transparent;
   color: var(--text-tertiary);
@@ -156,7 +162,17 @@
   color: var(--text-primary);
   max-width: 240px;
   user-select: none;
-  transition: opacity 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+/* X 버튼 hover 시 — \"지워질 것\" 시각 예고: 옅은 accent 배경 + label 취소선 */
+.chip:has([data-close-trigger]:hover) {
+  background: var(--bg-accent-light);
+}
+
+.chip:has([data-close-trigger]:hover) .chipLabelText {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-accent);
 }
 
 /* 드래그 중 — 본인은 살짝 흐릿하게 */
