@@ -11,6 +11,8 @@ import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import { ImageViewer } from "@/components/ui/ImageViewer";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
+import { showToast } from "@/stores/toastStore";
+import { focusFirstMissingField } from "@/utils/focusFirstMissing";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
 import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
 import AdminEditorShell, {
@@ -1224,16 +1226,19 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const willPublish = publish !== undefined ? publish : form.published;
 
       if (willPublish) {
-        const missing: string[] = [];
-        if (!form.title.trim()) missing.push(tw("title"));
-        if (!form.categories_ko || form.categories_ko.length === 0) missing.push(tw("category"));
-        if (!form.nature_ko.trim()) missing.push(tw("nature") || "성격");
-        if (!form.year.trim()) missing.push(tw("year"));
-        if (!form.image.trim()) missing.push(tw("mainImage"));
-        if (!form.content_ko.trim() && !form.content_en.trim()) missing.push(tw("description"));
+        const missing: Array<{ label: string; field: string }> = [];
+        if (!form.title.trim()) missing.push({ label: tw("title"), field: "title" });
+        if (!form.categories_ko || form.categories_ko.length === 0) missing.push({ label: tw("category"), field: "category" });
+        if (!form.nature_ko.trim()) missing.push({ label: tw("nature") || "성격", field: "nature" });
+        if (!form.year.trim()) missing.push({ label: tw("year"), field: "year" });
+        if (!form.image.trim()) missing.push({ label: tw("mainImage"), field: "image" });
+        if (!form.content_ko.trim() && !form.content_en.trim()) missing.push({ label: tw("content"), field: "content" });
         if (missing.length > 0) {
-          setError(`${missing.join(" · ")} ${tw("requiredFields")}`);
+          const msg = `${missing.map((m) => m.label).join(" · ")} ${tw("requiredFields")}`;
+          setError(msg);
           setShowErrors(true);
+          showToast(msg, "error", 3500);
+          focusFirstMissingField(missing[0].field);
           return;
         }
 
@@ -1495,7 +1500,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <h2 className={styles.sectionTitle}>{tw("basicInfo")}</h2>
 
         {/* ── 필수 ── 제목 + 부제목 + slug 묶음 */}
-        <div className={es.field}>
+        <div className={es.field} data-required="title">
           <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.title.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("title")}</label>
           <input
             className={`${es.titleInput}${showErrors && !form.title.trim() ? ` ${es.titleInputError}` : ""}`}
@@ -1538,7 +1543,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
         {/* year — 단독 row */}
         <div className={es.row}>
-          <div className={es.field} style={{ gridColumn: "1 / -1" }}>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="year">
             <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.year.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("year")}</label>
             <PeriodPicker
               value={parseYearAsPeriod(form.year)}
@@ -1550,7 +1555,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
         {/* category — multi-select. 선택된 chip 위에, 추가 Select 아래에. 직접 입력 가능 */}
         <div className={es.row}>
-          <div className={es.field} style={{ gridColumn: "1 / -1" }}>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="category">
             <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (form.categories_ko ?? []).length === 0 ? ` ${es.fieldLabelError}` : ""}`}>{tw("category")}</label>
             <CategoryMultiPicker
               selectedKos={form.categories_ko ?? []}
@@ -1574,7 +1579,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
         {/* nature (성격) — 제작 동기 축. category 와 별도. 필수 입력 */}
         <div className={es.row}>
-          <div className={es.field} style={{ gridColumn: "1 / -1" }}>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="nature">
             <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.nature_ko.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("nature") || "성격"}</label>
             {(() => {
               const matchedIdx = naturePresets.findIndex(
@@ -1759,7 +1764,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       </div>
 
       {/* Detail Content */}
-      <div className={styles.section}>
+      <div className={styles.section} data-required="content">
         <div className={styles.editorHeader}>
           <div className={styles.editorHeaderLeft}>
             <h2 className={`${styles.sectionTitle}${showErrors && !form.content_ko.trim() && !form.content_en.trim() ? ` ${styles.sectionTitleError}` : ""}`} style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>
@@ -1805,7 +1810,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>{tw("images")}</h2>
 
-        <div style={{ marginBottom: "var(--spacing-lg)" }}>
+        <div style={{ marginBottom: "var(--spacing-lg)" }} data-required="image">
           <CoverImageField
             value={form.image}
             onChange={(url) => updateField("image", url)}
