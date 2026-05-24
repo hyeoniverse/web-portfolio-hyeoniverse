@@ -467,9 +467,12 @@
   min-width: 0;
   height: 28px;
   box-sizing: border-box;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 42px;
+}
+
+/* padding 은 부모 wrap 컨텍스트로 specificity (0,2,0) 올려서 .fieldInput shorthand 를 확실히 이김.
+   42px = badge (left 8px + width ~26px) 클리어 위해 필요한 좌측 여백 */
+.customCategoryInputWrap .customCategoryInput {
+  padding: 0 var(--spacing-md) 0 42px;
 }
 
 /* 직접 입력 + Button override — common Button shape=circle 의 38px 대신 28x28 정사각.

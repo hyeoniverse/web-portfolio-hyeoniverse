@@ -1,7 +1,10 @@
 import type { Project, CardSize, LocalizedText } from "@/data/projects";
 
 export interface TeamMember {
+  /** ko display name (필수) */
   name: string;
+  /** en display name (선택 — 없으면 name 으로 fallback) */
+  name_en?: string;
   role_ko: string;
   role_en: string;
   url?: string;
@@ -36,8 +39,8 @@ export interface Work {
   contributions_ko?: Record<string, string[]>;
   contributions_en?: Record<string, string[]>;
   tech: string[];
-  /** 기술별 메모 — 왜 사용했는지, 어떤 걸 구현했는지 등. key: 기술 이름, value: 항목 배열 */
-  tech_notes?: Record<string, string[]>;
+  /** 기술별 메모 — 기술마다 ko/en 단일 설명 (TagNotesEditor 와 동일 패턴) */
+  tech_notes?: Record<string, { ko: string; en: string }>;
   image: string;
   size: CardSize;
   /* ── Detail content (single content field) ── */
@@ -91,7 +94,7 @@ export interface WorkFormData {
   contributions_ko: Record<string, string[]>;
   contributions_en: Record<string, string[]>;
   tech: string[];
-  tech_notes: Record<string, string[]>;
+  tech_notes: Record<string, { ko: string; en: string }>;
   image: string;
   size: CardSize;
   content_ko: string;

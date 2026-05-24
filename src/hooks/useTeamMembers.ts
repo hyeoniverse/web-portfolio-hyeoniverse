@@ -6,6 +6,7 @@ export function useTeamMembers(
   onUpdate: (members: TeamMember[]) => void,
 ) {
   const [memberName, setMemberName] = useState("");
+  const [memberNameEn, setMemberNameEn] = useState("");
   const [memberRoleKo, setMemberRoleKo] = useState("");
   const [memberRoleEn, setMemberRoleEn] = useState("");
   const [memberUrl, setMemberUrl] = useState("");
@@ -27,6 +28,7 @@ export function useTeamMembers(
     );
     const member: TeamMember = {
       name: memberName.trim(),
+      name_en: memberNameEn.trim() || undefined,
       role_ko: memberRoleKo.trim(),
       role_en: memberRoleEn.trim(),
       url: memberUrl.trim() || undefined,
@@ -37,6 +39,7 @@ export function useTeamMembers(
     };
     onUpdate([...currentMembers, member]);
     setMemberName("");
+    setMemberNameEn("");
     setMemberRoleKo("");
     setMemberRoleEn("");
     setMemberUrl("");
@@ -44,7 +47,7 @@ export function useTeamMembers(
     setMemberAvatarUrl("");
     setMemberContribsKo({});
     setMemberContribsEn({});
-  }, [memberName, memberRoleKo, memberRoleEn, memberUrl, memberEmail, memberAvatarUrl, memberContribsKo, memberContribsEn, currentMembers, onUpdate]);
+  }, [memberName, memberNameEn, memberRoleKo, memberRoleEn, memberUrl, memberEmail, memberAvatarUrl, memberContribsKo, memberContribsEn, currentMembers, onUpdate]);
 
   const removeMember = useCallback(
     (index: number) => {
@@ -56,6 +59,8 @@ export function useTeamMembers(
   return {
     memberName,
     setMemberName,
+    memberNameEn,
+    setMemberNameEn,
     memberRoleKo,
     setMemberRoleKo,
     memberRoleEn,
