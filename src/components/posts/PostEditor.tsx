@@ -9,6 +9,8 @@ import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
+import { showToast } from "@/stores/toastStore";
+import { focusFirstMissingField } from "@/utils/focusFirstMissing";
 import { stripHtml } from "@/utils/htmlUtils";
 import type { Post, PostFormData, Series } from "@/types/post";
 import SeriesInlineEditor from "@/app/admin/(dashboard)/settings/_components/SeriesInlineEditor";
@@ -710,32 +712,35 @@ export default function PostEditor({ post }: PostEditorProps) {
       const willPublish = publish !== undefined ? publish : form.published;
 
       if (willPublish) {
-        const missing: string[] = [];
+        const missing: Array<{ label: string; field: string }> = [];
         const _koStarted = !!(form.title.trim() || form.content.trim());
         const _enStarted = !!(form.title_en.trim() || form.content_en.trim());
 
         if (!form.slug.trim()) {
-          missing.push(te("slug"));
+          missing.push({ label: te("slug"), field: "slug" });
         }
-        if (!form.category.trim()) missing.push(te("category"));
+        if (!form.category.trim()) missing.push({ label: te("category"), field: "category" });
 
         if (!_koStarted && !_enStarted) {
-          missing.push(te("title"));
-          missing.push(te("content"));
+          missing.push({ label: te("title"), field: "title" });
+          missing.push({ label: te("content"), field: "content" });
         } else {
           if (_koStarted) {
-            if (!form.title.trim()) missing.push(`${te("title")} (KO)`);
-            if (!form.content.trim()) missing.push(`${te("content")} (KO)`);
+            if (!form.title.trim()) missing.push({ label: `${te("title")} (KO)`, field: "title" });
+            if (!form.content.trim()) missing.push({ label: `${te("content")} (KO)`, field: "content" });
           }
           if (_enStarted) {
-            if (!form.title_en.trim()) missing.push(`${te("title")} (EN)`);
-            if (!form.content_en.trim()) missing.push(`${te("content")} (EN)`);
+            if (!form.title_en.trim()) missing.push({ label: `${te("title")} (EN)`, field: "title" });
+            if (!form.content_en.trim()) missing.push({ label: `${te("content")} (EN)`, field: "content" });
           }
         }
 
         if (missing.length > 0) {
-          setError(`${missing.join(" · ")} ${te("requiredFields")}`);
+          const msg = `${missing.map((m) => m.label).join(" · ")} ${te("requiredFields")}`;
+          setError(msg);
           setShowErrors(true);
+          showToast(msg, "error", 3500);
+          focusFirstMissingField(missing[0].field);
           return;
         }
 
@@ -1110,7 +1115,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       <div className={styles.meta}>
         {/* title + slug + 예약 발행 — 컴팩트 그룹 (gap 작게) */}
         <div className={styles.titleGroup}>
-          <div className={es.field} data-seo="title">
+          <div className={es.field} data-seo="title" data-required="title">
             <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
             <input
               className={`${es.titleInput}${titleFieldError ? ` ${es.titleInputError}` : ""}`}
@@ -1122,7 +1127,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           </div>
 
           <div className={es.row}>
-            <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="slug">
+            <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="slug" data-required="slug">
               <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
                 <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{te("slug")}</label>
                 {form.slug.trim() && validateSlug(form.slug) && (
@@ -1144,7 +1149,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
           {/* slug 아래 — 카테고리 (필수 입력) */}
           <div className={es.row}>
-            <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="category">
+            <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="category" data-required="category">
               <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                 <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
                 {form.series_id && (
@@ -1497,7 +1502,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           />
         </div>
 
-        <div className={`${styles.editorWrap} ${converting ? styles.editorWrapConverting : ""}`}>
+        <div className={`${styles.editorWrap} ${converting ? styles.editorWrapConverting : ""}`} data-required="content">
         {converting && (
           <div className={styles.editorSkeletonOverlay}>
             <div className={styles.editorSkeletonToolbar}>
