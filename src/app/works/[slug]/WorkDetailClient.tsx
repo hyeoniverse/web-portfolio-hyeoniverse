@@ -283,9 +283,9 @@ export default function WorkDetailClient({
               );
             })()}
             {project.teamMembers && project.teamMembers.length > 0 && (
-              <div className={styles.infoBlock}>
+              <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
                 <span className={styles.infoLabel}><T k="workDetail.team" /></span>
-                <div className={styles.teamList}>
+                <div className={styles.teamCardList}>
                   {project.teamMembers.map((member, i) => {
                     const avatarUrl = deriveTeamMemberAvatar(member);
                     const contribsMap = member.contributions
@@ -294,32 +294,39 @@ export default function WorkDetailClient({
                     const contribsEntries = Object.entries(contribsMap).filter(([, items]) => items.length > 0);
                     const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
                     return (
-                      <div key={i} className={styles.teamMember}>
-                        <span className={styles.teamAvatar} aria-hidden>
+                      <article key={i} className={styles.teamCard}>
+                        <div className={styles.teamCardAvatar}>
                           {avatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={avatarUrl} alt="" className={styles.teamAvatarImg} loading="lazy" />
+                            <img src={avatarUrl} alt={displayName} className={styles.teamCardAvatarImg} loading="lazy" />
                           ) : (
-                            <span className={styles.teamAvatarInitial}>{getMemberInitial(displayName)}</span>
+                            <span className={styles.teamCardAvatarInitial}>{getMemberInitial(displayName)}</span>
                           )}
-                        </span>
-                        <div className={styles.teamCardBody}>
-                          <div className={styles.teamMemberHeader}>
+                        </div>
+                        <div className={styles.teamCardInfo}>
+                          <div className={styles.teamCardHeader}>
                             {member.url ? (
-                              <a href={member.url} target="_blank" rel="noopener noreferrer" className={styles.teamLink}>
+                              <a
+                                href={member.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.teamCardName}
+                              >
                                 {displayName}
                               </a>
                             ) : (
-                              <span>{displayName}</span>
+                              <span className={styles.teamCardName}>{displayName}</span>
                             )}
-                            <span className={styles.teamRole}><T ko={member.role.ko} en={member.role.en} /></span>
+                            <span className={styles.teamCardRole}>
+                              <T ko={member.role.ko} en={member.role.en} />
+                            </span>
                           </div>
                           {contribsEntries.length > 0 && (
-                            <div className={styles.teamContribsGroups}>
+                            <div className={styles.teamCardContribs}>
                               {contribsEntries.map(([role, items]) => (
-                                <div key={role} className={styles.teamContribsGroup}>
-                                  <div className={styles.teamContribsRoleLabel}>{role}</div>
-                                  <ul className={styles.teamContribs}>
+                                <div key={role} className={styles.teamCardContribGroup}>
+                                  <div className={styles.teamCardContribRole}>{role}</div>
+                                  <ul className={styles.teamCardContribList}>
                                     {items.map((c, ci) => (
                                       <li key={ci}>{c}</li>
                                     ))}
@@ -329,7 +336,7 @@ export default function WorkDetailClient({
                             </div>
                           )}
                         </div>
-                      </div>
+                      </article>
                     );
                   })}
                 </div>
