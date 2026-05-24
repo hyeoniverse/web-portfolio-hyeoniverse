@@ -222,30 +222,30 @@
   word-break: break-word;
 }
 
-/* ── Team Members ── 가로 카드 (landscape) — 이미지 좌측, 텍스트 우측 */
+/* ── Team Members ── 가로 카드 grid (auto-fill 로 여러 카드 자동 wrap) */
 .teamCardList {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--spacing-md);
   width: 100%;
 }
 
+/* 카드 — 가로 (좌측 큰 이미지 + 우측 텍스트). border 만, background 없음 */
 .teamCard {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-md);
-  background: var(--bg-secondary);
 }
 
-/* 좌측 정사각 이미지 영역 — 고정 크기. round square */
+/* 좌측 정사각 이미지 영역 — 카드 안에서 시각 weight 차지 */
 .teamCardAvatar {
   flex-shrink: 0;
-  width: 96px;
-  height: 96px;
+  width: 112px;
+  height: 112px;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--bg-tertiary);
