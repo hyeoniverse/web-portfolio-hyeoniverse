@@ -268,12 +268,12 @@
 .polaroidCard:nth-child(3n+2) .polaroidCardInner { transform: rotate(0.8deg); }
 .polaroidCard:nth-child(3n+3) .polaroidCardInner { transform: rotate(-0.5deg); }
 
-/* hover 시 — 살짝 뒤집어서 peek (-20deg rotateY) */
+/* hover 시 — 완전 flip (back 보임). leave 시 다시 front (default rotate 으로) */
 .polaroidCard:hover .polaroidCardInner {
-  transform: rotateY(-20deg) scale(1.03);
+  transform: rotateY(180deg);
 }
 
-/* 완전 flipped — click 시 180도 회전 (back 보임) */
+/* click — flipped state. leave 해도 back 계속 보임 (hover 와 동일 결과, state 유지) */
 .polaroidCardFlipped .polaroidCardInner,
 .polaroidCardFlipped:hover .polaroidCardInner {
   transform: rotateY(180deg);
