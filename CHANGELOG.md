@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.14.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.13.0...v1.14.0) (2026-05-24)
+
+
+### Features
+
+* **works:** detail 페이지에 editor 추가 정보 표시 ([a3910fb](https://github.com/hyeoniverse/web-portfolio-oval/commit/a3910fb36dd4659b53201e2aad74a0f5a5451b30)), closes [#166](https://github.com/hyeoniverse/web-portfolio-oval/issues/166)
+
+
+### Bug Fixes
+
+* **admin:** TagNotesEditor 설명 추가 시 새 input 자동 focus ([e3f916d](https://github.com/hyeoniverse/web-portfolio-oval/commit/e3f916d867b90b1b46b3b99119ecc079ef2f7b9e)), closes [#170](https://github.com/hyeoniverse/web-portfolio-oval/issues/170)
+* **editor:** 발행 시 필수 항목 비어있으면 첫 빠진 필드로 scroll + focus + toast ([3e55cee](https://github.com/hyeoniverse/web-portfolio-oval/commit/3e55cee55fa7f887d5aca8848f72da8ba19a1f02)), closes [#168](https://github.com/hyeoniverse/web-portfolio-oval/issues/168)
+* **works:** WorkEditor showToast 중복 import 제거 ([ee2f599](https://github.com/hyeoniverse/web-portfolio-oval/commit/ee2f59983adb0582c382bdad1a7704cc28b68629))
+
 ## [1.13.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.12.0...v1.13.0) (2026-05-24)
 
 
