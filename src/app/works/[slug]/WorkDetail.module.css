@@ -239,17 +239,18 @@
   background: var(--bg-tertiary);
 }
 
-.polaroidGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--spacing-xl) var(--spacing-lg);
+/* HorizontalCarousel 안 children layout — gap, padding, perspective */
+.polaroidCarousel {
+  gap: var(--spacing-lg);
   padding: var(--spacing-md) 0;
   perspective: 1200px;
 }
 
-/* card 자체는 frame 없이, inner 가 3D 회전. card 가 사이즈 (aspect ratio) 결정 */
+/* carousel 안에서 카드는 고정 width + flex-shrink 0 */
 .polaroidCard {
   position: relative;
+  flex-shrink: 0;
+  width: 200px;
   aspect-ratio: 3 / 4;
   font-family: var(--font-space-grotesk), sans-serif;
   cursor: pointer;

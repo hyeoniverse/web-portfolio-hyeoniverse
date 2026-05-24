@@ -325,7 +325,7 @@ export default function WorkDetailClient({
               return (
                 <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
                   <span className={styles.infoLabel}><T k="workDetail.team" /></span>
-                  <div className={styles.polaroidGrid}>
+                  <HorizontalCarousel className={styles.polaroidCarousel}>
                     {members.map((m, i) => {
                       const isFlipped = flippedMembers.has(i);
                       const isHovered = hoveredMemberIdx === i;
@@ -413,7 +413,7 @@ export default function WorkDetailClient({
                         </article>
                       );
                     })}
-                  </div>
+                  </HorizontalCarousel>
                 </div>
               );
             })()}
