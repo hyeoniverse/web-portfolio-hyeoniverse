@@ -243,9 +243,9 @@
 
 .teamMarqueeTrack {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
   width: max-content;
-  animation: teamMarqueeScroll 40s linear infinite;
+  animation: teamMarqueeScroll 50s linear infinite;
 }
 
 .teamMarquee:hover .teamMarqueeTrack {
@@ -268,8 +268,8 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-md) var(--spacing-xs) var(--spacing-xs);
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-sm) var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -287,11 +287,11 @@
   background: var(--bg-secondary);
 }
 
-/* 작은 원형 avatar (chip 안 leading) */
+/* 원형 avatar (chip 안 leading) */
 .teamMarqueeAvatar {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   overflow: hidden;
   background: var(--bg-tertiary);
@@ -309,20 +309,20 @@
 
 .teamMarqueeAvatarInitial {
   font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xl);
   color: var(--text-tertiary);
 }
 
-/* 이름 + 역할 stack — 컴팩트 */
+/* 이름 + 역할 stack */
 .teamMarqueeInfo {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
 }
 
 .teamMarqueeName {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
@@ -330,10 +330,10 @@
 }
 
 .teamMarqueeRole {
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   white-space: nowrap;
   line-height: 1.3;
 }
