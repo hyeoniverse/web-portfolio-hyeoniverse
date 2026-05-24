@@ -225,10 +225,13 @@
 }
 
 /* Tag input row */
-/* Select + button capsule group — 외부 wrapper 가 border + capsule, 내부는 border 제거 */
+/* Select + button capsule group — 외부 wrapper 가 border + capsule, 내부는 border 제거.
+   width: fit-content — Select 의 자연 폭 + + 버튼 28px 만큼만 차지해 박스 자체가 컴팩트 */
 .tagInputRow {
-  display: flex;
+  display: inline-flex;
   align-items: stretch;
+  width: fit-content;
+  max-width: 100%;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   overflow: hidden;
@@ -258,9 +261,10 @@
 }
 
 .tagAddBtn {
-  /* 세로 padding 0 — row 의 align-items: stretch 가 input 의 자연 높이까지만 늘리도록.
-   * 가로 padding 만 유지해 충분한 클릭 영역 + 정사각형 비슷한 비율 */
-  padding: 0 var(--spacing-md);
+  /* WorkEditor 의 techAddBtn 과 동일 폭 — fixed 28px (--input-h 토큰 미정의 회피) */
+  width: 28px;
+  min-width: 28px;
+  padding: 0;
   flex-shrink: 0;
   border: none;
   border-left: var(--border-light);
@@ -283,6 +287,252 @@
 
 .tagAddBtn:disabled {
   opacity: 0.5;
+}
+
+/* ── Tag notes (per-tag description) — 태그당 단일 ko/en 쌍 ── */
+.tagNotesSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.tagNoteGroup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding-left: var(--spacing-sm);
+  border-left: var(--border-light);
+  transition: opacity 0.15s ease;
+}
+
+/* 드래그 중인 group — 흐릿하게 */
+.tagNoteGroupDragging {
+  opacity: 0.4;
+}
+
+/* drop indicator — group 위/아래에 accent 막대 */
+.tagNoteGroupDropTop::before,
+.tagNoteGroupDropBottom::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--text-accent);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.tagNoteGroupDropTop::before {
+  top: calc(var(--spacing-md) * -0.5);
+}
+
+.tagNoteGroupDropBottom::after {
+  bottom: calc(var(--spacing-md) * -0.5);
+}
+
+/* grip handle — header 좌측, drag cursor */
+.tagNoteGrip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--text-tertiary);
+  cursor: move;
+  flex-shrink: 0;
+}
+
+.tagNoteGrip:hover {
+  color: var(--text-primary);
+}
+
+/* [#tagname ×] ────────── [+ Add description] — 좌측 묶음 + 우측 add 버튼 */
+.tagNoteHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  min-height: 28px;
+}
+
+/* #tagname 과 × 버튼 한 덩어리 */
+.tagNoteTagGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-shrink: 0;
+}
+
+.tagNoteTag {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color 0.15s ease;
+}
+
+/* × hover 시 — "지워질 것" 예고: accent 색 취소선 */
+.tagNoteTagGroup:has([data-close-trigger]:hover) .tagNoteTag {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-accent);
+  color: var(--text-accent);
+}
+
+/* + Add / × Cancel 버튼 — ghost capsule, slim, fit content */
+.tagNoteAdd {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  width: fit-content;
+  padding: 0 var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 아이콘 슬롯 — 고정 10x10 위치, 내부 motion 은 position:absolute 로 자리 떨림 방지 */
+.tagNoteAddIconSlot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.tagNoteAddIconInner {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 라벨 슬롯 — 현재 라벨 폭 기준 (sizer) — fit content 면서 motion swap 중 자리 유지 */
+.tagNoteAddLabelSlot {
+  position: relative;
+  display: inline-grid;
+  align-items: center;
+  height: 1em;
+  line-height: 1;
+}
+
+/* sizer — 화면엔 안 보이지만 슬롯 폭 결정 (현재 활성 라벨 텍스트) */
+.tagNoteAddLabelSizer {
+  visibility: hidden;
+  white-space: nowrap;
+  grid-area: 1 / 1;
+}
+
+.tagNoteAddLabelInner {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.tagNoteAdd:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.tagNoteRemove {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-md);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tagNoteRemove:hover {
+  color: var(--text-accent);
+}
+
+/* KO / EN input 두 줄 (또는 좁으면 wrap) — clip-path 애니메이션은 framer-motion 으로 */
+.tagNoteInputs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  overflow: hidden;
+}
+
+/* 공통 input 라인 (capsule + border-light, height 28) — KO/EN 배지 + input bare 를 내부에 포함 */
+.tagNoteInputWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  height: 28px;
+  padding-left: var(--spacing-2xs);
+  padding-right: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.tagNoteInputWrap:focus-within {
+  border-color: var(--text-primary);
+}
+
+/* KO / EN 배지 — input 안쪽 좌측 inline pill */
+.tagNoteBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.tagNoteInputBare {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  padding: 0;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* 브라우저 default input padding 강하게 override */
+.tagNoteInputWrap > .tagNoteInputBare {
+  padding-inline: 0;
+  padding-block: 0;
+}
+
+.tagNoteInputBare::placeholder {
+  color: var(--text-tertiary);
 }
 
 /* ── Template modal ── */
