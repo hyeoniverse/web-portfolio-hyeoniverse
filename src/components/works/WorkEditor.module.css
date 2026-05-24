@@ -1003,6 +1003,41 @@
   width: 100%;
 }
 
+/* 편집 모드 — 해당 카드 시각 강조 */
+.memberCardEditing {
+  background: var(--bg-tertiary);
+  outline: 2px solid var(--text-accent);
+  outline-offset: -2px;
+}
+
+/* 편집 button (Pencil / X) — header 우측 */
+.memberHeaderEditBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.memberHeaderEditBtn:hover {
+  color: var(--text-accent);
+  background: var(--bg-tertiary);
+}
+
+/* edit 모드 일 때 — Save + Cancel 버튼 묶음 */
+.memberFormActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
 /* List — 너비 충분하면 multi-col grid (auto-fill minmax). border 는 wrap 단위로 only. */
 .memberList.memberList {
   display: grid;

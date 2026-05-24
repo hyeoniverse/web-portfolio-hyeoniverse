@@ -14,10 +14,24 @@ export function useTeamMembers(
   const [memberAvatarUrl, setMemberAvatarUrl] = useState("");
   const [memberContribsKo, setMemberContribsKo] = useState<Record<string, string[]>>({});
   const [memberContribsEn, setMemberContribsEn] = useState<Record<string, string[]>>({});
+  // null = add 모드, number = 해당 index 의 멤버 편집 모드
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
 
-  const addMember = useCallback(() => {
-    if (!memberName.trim()) return;
-    // role 목록에 없는 키는 prune (역할 제거 후 남은 orphan contribs 제거)
+  const clearForm = useCallback(() => {
+    setMemberName("");
+    setMemberNameEn("");
+    setMemberRoleKo("");
+    setMemberRoleEn("");
+    setMemberUrl("");
+    setMemberEmail("");
+    setMemberAvatarUrl("");
+    setMemberContribsKo({});
+    setMemberContribsEn({});
+  }, []);
+
+  // form state → TeamMember 객체 (add / save 둘 다 공용)
+  const buildMember = useCallback((): TeamMember | null => {
+    if (!memberName.trim()) return null;
     const koRoles = memberRoleKo.split(",").map((r) => r.trim()).filter(Boolean);
     const enRoles = memberRoleEn.split(",").map((r) => r.trim()).filter(Boolean);
     const prunedKo = Object.fromEntries(
@@ -26,7 +40,7 @@ export function useTeamMembers(
     const prunedEn = Object.fromEntries(
       Object.entries(memberContribsEn).filter(([k, v]) => enRoles.includes(k) && v.length > 0),
     );
-    const member: TeamMember = {
+    return {
       name: memberName.trim(),
       name_en: memberNameEn.trim() || undefined,
       role_ko: memberRoleKo.trim(),
@@ -37,24 +51,56 @@ export function useTeamMembers(
       contributions_ko: Object.keys(prunedKo).length > 0 ? prunedKo : undefined,
       contributions_en: Object.keys(prunedEn).length > 0 ? prunedEn : undefined,
     };
+  }, [memberName, memberNameEn, memberRoleKo, memberRoleEn, memberUrl, memberEmail, memberAvatarUrl, memberContribsKo, memberContribsEn]);
+
+  const addMember = useCallback(() => {
+    const member = buildMember();
+    if (!member) return;
     onUpdate([...currentMembers, member]);
-    setMemberName("");
-    setMemberNameEn("");
-    setMemberRoleKo("");
-    setMemberRoleEn("");
-    setMemberUrl("");
-    setMemberEmail("");
-    setMemberAvatarUrl("");
-    setMemberContribsKo({});
-    setMemberContribsEn({});
-  }, [memberName, memberNameEn, memberRoleKo, memberRoleEn, memberUrl, memberEmail, memberAvatarUrl, memberContribsKo, memberContribsEn, currentMembers, onUpdate]);
+    clearForm();
+  }, [buildMember, currentMembers, onUpdate, clearForm]);
 
   const removeMember = useCallback(
     (index: number) => {
       onUpdate(currentMembers.filter((_, i) => i !== index));
+      if (editingIdx === index) {
+        setEditingIdx(null);
+        clearForm();
+      }
     },
-    [currentMembers, onUpdate],
+    [currentMembers, onUpdate, editingIdx, clearForm],
   );
+
+  // 편집 모드 진입 — 해당 멤버 데이터를 form state 에 prefill
+  const startEdit = useCallback((index: number) => {
+    const m = currentMembers[index];
+    if (!m) return;
+    setMemberName(m.name);
+    setMemberNameEn(m.name_en ?? "");
+    setMemberRoleKo(m.role_ko ?? "");
+    setMemberRoleEn(m.role_en ?? "");
+    setMemberUrl(m.url ?? "");
+    setMemberEmail(m.email ?? "");
+    setMemberAvatarUrl(m.avatar_url ?? "");
+    setMemberContribsKo(m.contributions_ko ?? {});
+    setMemberContribsEn(m.contributions_en ?? {});
+    setEditingIdx(index);
+  }, [currentMembers]);
+
+  const cancelEdit = useCallback(() => {
+    setEditingIdx(null);
+    clearForm();
+  }, [clearForm]);
+
+  // 편집 저장 — form state → members[editingIdx] 으로 commit
+  const saveEdit = useCallback(() => {
+    if (editingIdx === null) return;
+    const member = buildMember();
+    if (!member) return;
+    onUpdate(currentMembers.map((mm, i) => (i === editingIdx ? member : mm)));
+    setEditingIdx(null);
+    clearForm();
+  }, [editingIdx, buildMember, currentMembers, onUpdate, clearForm]);
 
   return {
     memberName,
@@ -77,5 +123,9 @@ export function useTeamMembers(
     setMemberContribsEn,
     addMember,
     removeMember,
+    editingIdx,
+    startEdit,
+    cancelEdit,
+    saveEdit,
   };
 }
