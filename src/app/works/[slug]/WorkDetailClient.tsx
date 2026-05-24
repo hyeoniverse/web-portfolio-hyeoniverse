@@ -57,6 +57,7 @@ export default function WorkDetailClient({
     endpoint: `/api/works/${project.id}/like`,
   });
   const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
+  const [activeMemberIdx, setActiveMemberIdx] = useState<number | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<{ id: string; title: string; title_en?: string; slug: string; cover_image: string; excerpt: string; category: string; created_at: string }[]>([]);
   const { containerRef: proseRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const richtextRef = useRef<HTMLDivElement>(null);
@@ -275,37 +276,15 @@ export default function WorkDetailClient({
               const memberCards = project.teamMembers.map((member, i) => {
                 const avatarUrl = deriveTeamMemberAvatar(member);
                 const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
-                // contribs en→ko fallback
-                const ko = member.contributions?.ko ?? {};
-                const en = member.contributions?.en ?? {};
-                const enHas = Object.values(en).some((items) => items.length > 0);
-                const koHas = Object.values(ko).some((items) => items.length > 0);
-                const contribsMap = viewLang === "en"
-                  ? (enHas ? en : ko)
-                  : (koHas ? ko : en);
-                const contribsEntries = Object.entries(contribsMap).filter(([, items]) => items.length > 0);
-                const memberRoleLabel = viewLang === "en" ? member.role.en : member.role.ko;
-                const tooltipContent = contribsEntries.length > 0 ? (
-                  <div className={styles.teamMarqueeTooltip}>
-                    {contribsEntries.map(([role, items]) => {
-                      const showRoleLabel = role !== memberRoleLabel;
-                      return (
-                        <div key={role} className={styles.teamMarqueeTooltipGroup}>
-                          {showRoleLabel && (
-                            <div className={styles.teamMarqueeTooltipRole}>{role}</div>
-                          )}
-                          <ul className={styles.teamMarqueeTooltipList}>
-                            {items.map((c, ci) => (
-                              <li key={ci}>{c}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : null;
-                const card = (
-                  <article className={styles.teamMarqueeCard}>
+                const isActive = activeMemberIdx === i;
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`${styles.teamMarqueeCard} ${isActive ? styles.teamMarqueeCardActive : ""}`}
+                    onClick={() => setActiveMemberIdx(isActive ? null : i)}
+                    aria-pressed={isActive}
+                  >
                     <div className={styles.teamMarqueeAvatar}>
                       {avatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -320,60 +299,121 @@ export default function WorkDetailClient({
                         <T ko={member.role.ko} en={member.role.en} />
                       </span>
                     </div>
-                    {(member.url || member.email) && (
-                      <div className={styles.teamMarqueeLinks}>
-                        {member.url && (
-                          <a
-                            href={member.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.teamMarqueeLink}
-                            title={member.url}
-                            aria-label="link"
-                          >
-                            <Link2 size={12} />
-                          </a>
-                        )}
-                        {member.email && (
-                          <a
-                            href={`mailto:${member.email}`}
-                            className={styles.teamMarqueeLink}
-                            title={member.email}
-                            aria-label="email"
-                          >
-                            <Mail size={12} />
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </article>
-                );
-                return tooltipContent ? (
-                  <Tooltip
-                    key={i}
-                    content={tooltipContent}
-                    placement="top"
-                    delay={120}
-                    bubbleClassName={styles.teamMarqueeTooltipBubble}
-                  >
-                    {card}
-                  </Tooltip>
-                ) : (
-                  <span key={i}>{card}</span>
+                  </button>
                 );
               });
+
+              // active 멤버 detail
+              const activeMember = activeMemberIdx !== null ? project.teamMembers[activeMemberIdx] : null;
+              let detailNode: React.ReactNode = null;
+              if (activeMember) {
+                const ko = activeMember.contributions?.ko ?? {};
+                const en = activeMember.contributions?.en ?? {};
+                const enHas = Object.values(en).some((items) => items.length > 0);
+                const koHas = Object.values(ko).some((items) => items.length > 0);
+                const contribsMap = viewLang === "en"
+                  ? (enHas ? en : ko)
+                  : (koHas ? ko : en);
+                const contribsEntries = Object.entries(contribsMap).filter(([, items]) => items.length > 0);
+                const activeDisplayName = viewLang === "en" && activeMember.name_en ? activeMember.name_en : activeMember.name;
+                const memberRoleLabel = viewLang === "en" ? activeMember.role.en : activeMember.role.ko;
+                detailNode = (
+                  <div className={styles.teamDetailPanel}>
+                    <div className={styles.teamDetailHeader}>
+                      <span className={styles.teamDetailName}>{activeDisplayName}</span>
+                      <span className={styles.teamDetailRole}>
+                        <T ko={activeMember.role.ko} en={activeMember.role.en} />
+                      </span>
+                      {(activeMember.url || activeMember.email) && (
+                        <div className={styles.teamDetailLinks}>
+                          {activeMember.url && (
+                            <a
+                              href={activeMember.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.teamDetailLink}
+                              title={activeMember.url}
+                              aria-label="link"
+                            >
+                              <Link2 size={14} />
+                            </a>
+                          )}
+                          {activeMember.email && (
+                            <a
+                              href={`mailto:${activeMember.email}`}
+                              className={styles.teamDetailLink}
+                              title={activeMember.email}
+                              aria-label="email"
+                            >
+                              <Mail size={14} />
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {contribsEntries.length > 0 && (
+                      <div className={styles.teamDetailContribs}>
+                        {contribsEntries.map(([role, items]) => {
+                          const showRoleLabel = role !== memberRoleLabel;
+                          return (
+                            <div key={role} className={styles.teamDetailContribGroup}>
+                              {showRoleLabel && (
+                                <div className={styles.teamDetailContribRole}>{role}</div>
+                              )}
+                              <ul className={styles.teamDetailContribList}>
+                                {items.map((c, ci) => (
+                                  <li key={ci}>{c}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               return (
                 <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
                   <span className={styles.infoLabel}><T k="workDetail.team" /></span>
                   <div className={styles.teamMarquee} aria-label="team members marquee">
                     <div className={styles.teamMarqueeTrack}>
                       {memberCards}
-                      {/* 무한 스크롤용 duplicate */}
-                      {memberCards.map((card, i) => (
-                        <div key={`dup-${i}`} aria-hidden>{card}</div>
-                      ))}
+                      {/* 무한 스크롤용 duplicate (aria-hidden) */}
+                      {project.teamMembers.map((member, i) => {
+                        const avatarUrl = deriveTeamMemberAvatar(member);
+                        const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
+                        const isActive = activeMemberIdx === i;
+                        return (
+                          <button
+                            key={`dup-${i}`}
+                            type="button"
+                            aria-hidden
+                            tabIndex={-1}
+                            className={`${styles.teamMarqueeCard} ${isActive ? styles.teamMarqueeCardActive : ""}`}
+                            onClick={() => setActiveMemberIdx(isActive ? null : i)}
+                          >
+                            <div className={styles.teamMarqueeAvatar}>
+                              {avatarUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={avatarUrl} alt="" className={styles.teamMarqueeAvatarImg} loading="lazy" />
+                              ) : (
+                                <span className={styles.teamMarqueeAvatarInitial}>{getMemberInitial(displayName)}</span>
+                              )}
+                            </div>
+                            <div className={styles.teamMarqueeInfo}>
+                              <span className={styles.teamMarqueeName}>{displayName}</span>
+                              <span className={styles.teamMarqueeRole}>
+                                <T ko={member.role.ko} en={member.role.en} />
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
+                  {detailNode}
                 </div>
               );
             })()}
