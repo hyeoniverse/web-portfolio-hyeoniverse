@@ -139,8 +139,11 @@
 .techInputRow {
   display: flex;
   align-items: stretch;
+  align-self: flex-start;
   gap: 0;
   height: 28px;
+  width: fit-content;
+  max-width: 100%;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   transition: border-color 0.15s ease;
@@ -1000,10 +1003,12 @@
   width: 100%;
 }
 
-/* List — 위/아래 hairline 으로 list 영역 구분, gap 없이 카드 자체 padding + hairline divider 가 처리 */
+/* List — 너비 충분하면 multi-col grid (auto-fill minmax). border 는 wrap 단위로 only. */
 .memberList.memberList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   height: auto;
-  gap: 0;
+  gap: 0 var(--spacing-xl);
   border-top: var(--border-light);
   border-bottom: var(--border-light);
 }
