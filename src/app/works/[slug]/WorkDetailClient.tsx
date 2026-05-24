@@ -271,92 +271,70 @@ export default function WorkDetailClient({
                 </div>
               );
             })()}
-            {project.teamMembers && project.teamMembers.length > 0 && (
-              <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-                <span className={styles.infoLabel}><T k="workDetail.team" /></span>
-                <div className={styles.teamCardList}>
-                  {project.teamMembers.map((member, i) => {
-                    const avatarUrl = deriveTeamMemberAvatar(member);
-                    // viewLang 의 contribs 가 비면 반대 언어 fallback (전체 entry 단위)
-                    const ko = member.contributions?.ko ?? {};
-                    const en = member.contributions?.en ?? {};
-                    const enHas = Object.values(en).some((items) => items.length > 0);
-                    const koHas = Object.values(ko).some((items) => items.length > 0);
-                    const contribsMap = viewLang === "en"
-                      ? (enHas ? en : ko)
-                      : (koHas ? ko : en);
-                    const contribsEntries = Object.entries(contribsMap).filter(([, items]) => items.length > 0);
-                    const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
-                    return (
-                      <article key={i} className={styles.teamCard}>
-                        <div className={styles.teamCardAvatar}>
-                          {avatarUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={avatarUrl} alt={displayName} className={styles.teamCardAvatarImg} loading="lazy" />
-                          ) : (
-                            <span className={styles.teamCardAvatarInitial}>{getMemberInitial(displayName)}</span>
-                          )}
-                        </div>
-                        <div className={styles.teamCardInfo}>
-                          <div className={styles.teamCardHeader}>
-                            <span className={styles.teamCardName}>{displayName}</span>
-                            {(member.url || member.email) && (
-                              <div className={styles.teamCardLinks}>
-                                {member.url && (
-                                  <a
-                                    href={member.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={styles.teamCardLink}
-                                    title={member.url}
-                                    aria-label="link"
-                                  >
-                                    <Link2 size={14} />
-                                  </a>
-                                )}
-                                {member.email && (
-                                  <a
-                                    href={`mailto:${member.email}`}
-                                    className={styles.teamCardLink}
-                                    title={member.email}
-                                    aria-label="email"
-                                  >
-                                    <Mail size={14} />
-                                  </a>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          <div className={styles.teamCardRole}>
-                            <T ko={member.role.ko} en={member.role.en} />
-                          </div>
-                          {contribsEntries.length > 0 && (
-                            <div className={styles.teamCardContribs}>
-                              {contribsEntries.map(([role, items]) => {
-                                const memberRoleLabel = viewLang === "en" ? member.role.en : member.role.ko;
-                                const showRoleLabel = role !== memberRoleLabel;
-                                return (
-                                  <div key={role} className={styles.teamCardContribGroup}>
-                                    {showRoleLabel && (
-                                      <span className={styles.teamCardContribRole}>{role}</span>
-                                    )}
-                                    <ul className={styles.teamCardContribItems}>
-                                      {items.map((c, ci) => (
-                                        <li key={ci}>{c}</li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      </article>
-                    );
-                  })}
+            {project.teamMembers && project.teamMembers.length > 0 && (() => {
+              const memberCards = project.teamMembers.map((member, i) => {
+                const avatarUrl = deriveTeamMemberAvatar(member);
+                const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
+                return (
+                  <article key={i} className={styles.teamMarqueeCard}>
+                    <div className={styles.teamMarqueeAvatar}>
+                      {avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={avatarUrl} alt={displayName} className={styles.teamMarqueeAvatarImg} loading="lazy" />
+                      ) : (
+                        <span className={styles.teamMarqueeAvatarInitial}>{getMemberInitial(displayName)}</span>
+                      )}
+                    </div>
+                    <div className={styles.teamMarqueeInfo}>
+                      <span className={styles.teamMarqueeName}>{displayName}</span>
+                      <span className={styles.teamMarqueeRole}>
+                        <T ko={member.role.ko} en={member.role.en} />
+                      </span>
+                    </div>
+                    {(member.url || member.email) && (
+                      <div className={styles.teamMarqueeLinks}>
+                        {member.url && (
+                          <a
+                            href={member.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.teamMarqueeLink}
+                            title={member.url}
+                            aria-label="link"
+                          >
+                            <Link2 size={12} />
+                          </a>
+                        )}
+                        {member.email && (
+                          <a
+                            href={`mailto:${member.email}`}
+                            className={styles.teamMarqueeLink}
+                            title={member.email}
+                            aria-label="email"
+                          >
+                            <Mail size={12} />
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </article>
+                );
+              });
+              return (
+                <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+                  <span className={styles.infoLabel}><T k="workDetail.team" /></span>
+                  <div className={styles.teamMarquee} aria-label="team members marquee">
+                    <div className={styles.teamMarqueeTrack}>
+                      {memberCards}
+                      {/* 무한 스크롤용 duplicate */}
+                      {memberCards.map((card, i) => (
+                        <div key={`dup-${i}`} aria-hidden>{card}</div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </motion.div>
 
           {needsTranslation && translationEnabled && (
