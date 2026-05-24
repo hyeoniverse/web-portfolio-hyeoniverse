@@ -223,6 +223,12 @@
 .pagination {
   padding-top: var(--spacing-xs);
   margin-top: 0 !important;
+  gap: var(--spacing-xs);
+}
+
+/* inner pagination row (페이지 버튼 묶음) — 버튼 간 간격도 컴팩트 */
+.pagination [class*="pagination"] {
+  gap: var(--spacing-xs);
 }
 
 /* Pagination 의 button 클래스가 hashed 라 attribute selector 로 매칭. width/height 만 override */

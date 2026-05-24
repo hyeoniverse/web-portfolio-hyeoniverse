@@ -15,7 +15,7 @@
 .textarea {
   width: 100%;
   padding: var(--textarea-p);
-  border: var(--border-strong);
+  border: var(--border-light);
   border-radius: var(--radius-2xl);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
