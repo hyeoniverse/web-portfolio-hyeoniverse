@@ -169,11 +169,39 @@
   white-space: pre-line;
 }
 
-/* ── 본인 역할별 작업 (Contributions) ── 컴팩트 */
-.ownContribsGroups {
+/* ── 본인 역할별 작업 (Contributions) ── items 있는 grid + 없는 한 줄 */
+.ownContribsWrap {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
+}
+
+/* items 있는 role 그룹 — grid auto-fill 로 좁으면 1열, 넓으면 2-3 열 */
+.ownContribsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-md) var(--spacing-xl);
+}
+
+/* items 없는 role 들 — 한 줄에 chip · chip · chip */
+.ownContribsPlain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--spacing-2xs);
+}
+
+.ownContribsRoleChip {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ownContribsSep {
+  color: var(--text-muted);
+  margin: 0 var(--spacing-2xs);
 }
 
 /* ── Tech ── 설명 있는 list + 설명 없는 chip wrap 두 그룹 */

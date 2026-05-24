@@ -264,8 +264,7 @@ export default function WorkDetailClient({
                 </div>
               );
             })()}
-            {/* Role + Contributions 통합 — group label 로 role 표시, items 가 contribs.
-                items 비어있는 role 도 label 은 표시. contributions 자체가 비면 project.role fallback */}
+            {/* Role + Contributions 통합 — items 있는 role 은 grid col, 없는 role 은 · 으로 한 줄 */}
             {(() => {
               const ko = project.contributions?.ko ?? {};
               const en = project.contributions?.en ?? {};
@@ -273,29 +272,46 @@ export default function WorkDetailClient({
               const koHas = Object.keys(ko).length > 0;
               const map = viewLang === "en" ? (enHas ? en : ko) : (koHas ? ko : en);
               const entries = Object.entries(map);
+              const withItems = entries.filter(([, items]) => items.length > 0);
+              const plainRoles = entries.filter(([, items]) => items.length === 0).map(([role]) => role);
               return (
                 <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
                   <span className={styles.infoLabel}><T k="workDetail.role" /></span>
-                  <div className={styles.ownContribsGroups}>
-                    {entries.length > 0 ? (
-                      entries.map(([role, items]) => (
-                        <div key={role} className={styles.teamContribsGroup}>
-                          <div className={styles.teamContribsRoleLabel}>{role}</div>
-                          {items.length > 0 && (
-                            <ul className={styles.teamContribs}>
-                              {items.map((c, ci) => (
-                                <li key={ci}>{c}</li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <div className={styles.teamContribsGroup}>
-                        <div className={styles.teamContribsRoleLabel}>
+                  <div className={styles.ownContribsWrap}>
+                    {entries.length === 0 ? (
+                      // contributions 아예 없으면 project.role 단독 표시
+                      <div className={styles.ownContribsPlain}>
+                        <span className={styles.ownContribsRoleChip}>
                           <T ko={project.role.ko} en={project.role.en} />
-                        </div>
+                        </span>
                       </div>
+                    ) : (
+                      <>
+                        {withItems.length > 0 && (
+                          <div className={styles.ownContribsGrid}>
+                            {withItems.map(([role, items]) => (
+                              <div key={role} className={styles.teamContribsGroup}>
+                                <div className={styles.teamContribsRoleLabel}>{role}</div>
+                                <ul className={styles.teamContribs}>
+                                  {items.map((c, ci) => (
+                                    <li key={ci}>{c}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {plainRoles.length > 0 && (
+                          <div className={styles.ownContribsPlain}>
+                            {plainRoles.map((role, i) => (
+                              <span key={role} className={styles.ownContribsRoleChip}>
+                                {i > 0 && <span className={styles.ownContribsSep} aria-hidden> · </span>}
+                                {role}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
