@@ -273,9 +273,10 @@
   transform: rotateY(180deg);
 }
 
-/* click — flipped state. leave 해도 back 계속 보임 (hover 와 동일 결과, state 유지) */
-.polaroidCardFlipped .polaroidCardInner,
-.polaroidCardFlipped:hover .polaroidCardInner {
+/* click — flipped state. leave 해도 back 계속 보임.
+   nth-child rotate selector 의 specificity (0,2,2) 를 이기도록 .polaroidCard.polaroidCardFlipped (0,3,1) 으로 */
+.polaroidCard.polaroidCardFlipped .polaroidCardInner,
+.polaroidCard.polaroidCardFlipped:hover .polaroidCardInner {
   transform: rotateY(180deg);
 }
 
