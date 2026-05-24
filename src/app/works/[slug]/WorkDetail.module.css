@@ -377,9 +377,9 @@
 }
 
 .polaroidBackContribRole {
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-xs);
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
