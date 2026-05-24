@@ -222,20 +222,28 @@
   word-break: break-word;
 }
 
-/* ── Team Members ── 심플 minimal grid — border / background 없이 spacing 만으로 구분 */
+/* ── Team Members ── 가로 카드 grid (auto-fill) */
 .teamCardList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: var(--spacing-2xl) var(--spacing-xl);
+  gap: var(--spacing-lg);
   width: 100%;
 }
 
-/* 카드 — 가로 (좌측 큰 image + 우측 text). border / background 없음, spacing 만 */
+/* 카드 — 좌측 image + 우측 text. border + padding 으로 멤버 간 구분 (background 없음) */
 .teamCard {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.18s ease;
+}
+
+.teamCard:hover {
+  border-color: var(--border-default-color);
 }
 
 /* 좌측 image — 큰 원형 (round 강조). image 자체가 카드의 시각적 anchor */
@@ -341,7 +349,7 @@ a.teamCardName:hover {
   line-height: 1.4;
 }
 
-/* 카드 안 역할별 작업 — 작은 글씨 */
+/* 카드 안 역할별 작업 — 여러 역할 stack. 역할 사이 hairline divider 로 시각 구분 */
 .teamCardContribs {
   display: flex;
   flex-direction: column;
@@ -351,7 +359,13 @@ a.teamCardName:hover {
 .teamCardContribGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2xs);
+}
+
+/* 두 번째 group 부터는 위에 hairline divider — 역할 여러 개일 때 시각 구분 */
+.teamCardContribGroup + .teamCardContribGroup {
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-light);
 }
 
 .teamCardContribRole {
