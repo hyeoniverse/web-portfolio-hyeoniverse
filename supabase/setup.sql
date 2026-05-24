@@ -114,6 +114,8 @@ CREATE TABLE IF NOT EXISTS posts (
   excerpt      text NOT NULL DEFAULT '',
   cover_image  text NOT NULL DEFAULT '',
   tags         text[] NOT NULL DEFAULT '{}',
+  -- 태그별 설명 (works.tech_notes 와 동일 패턴 — { tag: items[] })
+  tag_notes    jsonb NOT NULL DEFAULT '{}'::jsonb,
   category     text NOT NULL DEFAULT '',
   is_pinned    boolean NOT NULL DEFAULT false,
   published    boolean NOT NULL DEFAULT false,

@@ -7,6 +7,8 @@ export interface Post {
   excerpt: string;
   cover_image: string;
   tags: string[];
+  /** 태그별 설명 — 태그당 단일 ko/en 쌍 (Record<tag, {ko,en}>) */
+  tag_notes?: Record<string, { ko: string; en: string }>;
   category: string;
   is_pinned: boolean;
   published: boolean;
@@ -41,6 +43,8 @@ export interface PostFormData {
   excerpt: string;
   cover_image: string;
   tags: string[];
+  /** 태그별 설명 — 태그당 단일 ko/en 쌍 */
+  tag_notes: Record<string, { ko: string; en: string }>;
   category: string;
   is_pinned: boolean;
   published: boolean;
