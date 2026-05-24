@@ -510,6 +510,7 @@ export default function WorkDetailClient({
           role: { ko: project.role.ko, en: project.role.en },
           url: githubLink?.url || undefined,
           email: siteConfig?.contact?.email || undefined,
+          avatar_url: personal.profileImage || undefined,
           contributions: project.contributions,
         } : null;
         const teamArr = project.teamMembers ?? [];
