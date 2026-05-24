@@ -245,37 +245,38 @@ export default function WorkDetailClient({
                 })}
               </ul>
             </div>
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}><T k="workDetail.role" /></span>
-              <span className={`${styles.infoValue} ${styles.infoValueMultiline}`}>
-                <T ko={project.role.ko} en={project.role.en} />
-              </span>
-            </div>
-            {project.contributions && (() => {
-              // viewLang 의 contribs 가 비면 반대 언어 fallback
-              const ko = project.contributions.ko ?? {};
-              const en = project.contributions.en ?? {};
+            {/* Role + Contributions 통합 — group label 로 role 표시, items 가 contribs.
+                contribs 가 비면 role 만 단독 group label 로 표시 */}
+            {(() => {
+              const ko = project.contributions?.ko ?? {};
+              const en = project.contributions?.en ?? {};
               const enHas = Object.values(en).some((items) => items.length > 0);
               const koHas = Object.values(ko).some((items) => items.length > 0);
               const map = viewLang === "en" ? (enHas ? en : ko) : (koHas ? ko : en);
               const entries = Object.entries(map).filter(([, items]) => items.length > 0);
-              if (entries.length === 0) return null;
+              const hasContribs = entries.length > 0;
               return (
                 <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-                  <span className={styles.infoLabel}>
-                    <T ko="역할별 작업" en="Contributions" />
-                  </span>
+                  <span className={styles.infoLabel}><T k="workDetail.role" /></span>
                   <div className={styles.ownContribsGroups}>
-                    {entries.map(([role, items]) => (
-                      <div key={role} className={styles.teamContribsGroup}>
-                        <div className={styles.teamContribsRoleLabel}>{role}</div>
-                        <ul className={styles.teamContribs}>
-                          {items.map((c, ci) => (
-                            <li key={ci}>{c}</li>
-                          ))}
-                        </ul>
+                    {hasContribs ? (
+                      entries.map(([role, items]) => (
+                        <div key={role} className={styles.teamContribsGroup}>
+                          <div className={styles.teamContribsRoleLabel}>{role}</div>
+                          <ul className={styles.teamContribs}>
+                            {items.map((c, ci) => (
+                              <li key={ci}>{c}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))
+                    ) : (
+                      <div className={styles.teamContribsGroup}>
+                        <div className={styles.teamContribsRoleLabel}>
+                          <T ko={project.role.ko} en={project.role.en} />
+                        </div>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               );
