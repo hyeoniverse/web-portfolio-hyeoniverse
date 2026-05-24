@@ -1248,9 +1248,9 @@
   line-height: 1.5;
 }
 
-/* header 액션 버튼 (edit / close / toggle) — chip-row 의 다른 항목이 wrap 되어도 항상 top 에 고정 */
+/* header 액션 버튼 — chip-row 안 center 정렬 (편집 / close 둘 다 일관) */
 .memberHeaderActionBtn {
-  align-self: flex-start;
+  align-self: center;
 }
 
 /* contribs wrap — role group 들 column stack */
