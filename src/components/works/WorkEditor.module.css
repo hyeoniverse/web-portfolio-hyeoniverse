@@ -1003,10 +1003,13 @@
   width: 100%;
 }
 
-/* 편집 모드 — 카드 옅은 accent 배경, border 제거 */
+/* 편집 모드 — 카드 옅은 accent 배경, border 제거, 좌우 padding 으로 background 영역 확보 */
 .memberCardEditing {
   background: color-mix(in oklch, var(--text-accent) 8%, transparent);
   border: none;
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
+  border-radius: var(--radius-md);
 }
 
 /* 편집 + close 묶음 — 우측 cluster, 위쪽 정렬 */
