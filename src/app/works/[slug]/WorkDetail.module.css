@@ -280,10 +280,37 @@
   font-family: var(--font-space-grotesk), sans-serif;
 }
 
+/* 이름 + link/email icon inline row */
 .teamCardHeader {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+/* 이름 우측 icon 영역 */
+.teamCardLinks {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-left: var(--spacing-2xs);
+}
+
+.teamCardLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: var(--text-tertiary);
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.teamCardLink:hover {
+  color: var(--text-accent);
+  background: var(--bg-tertiary);
 }
 
 /* 이름 — serif 큰 글씨로 시선 끌기 (typography 대조) */
@@ -328,10 +355,10 @@ a.teamCardName:hover {
 }
 
 .teamCardContribRole {
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-xs);
   font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 

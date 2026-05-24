@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion } from "framer-motion";
-import { FileText, ImageIcon, Pencil, ArrowLeft, Globe, User, Users } from "lucide-react";
+import { FileText, ImageIcon, Pencil, ArrowLeft, Globe, User, Users, Link2, Mail } from "lucide-react";
 import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -216,6 +216,26 @@ export default function WorkDetailClient({
                 </div>
               );
             })()}
+            {/* Tech — 단일 list (chip + 메모 있으면 옆에 KO/EN 설명). Role 보다 위에 표시 */}
+            <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+              <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
+              <ul className={styles.techNotesList}>
+                {project.tech.map((t) => {
+                  const note = project.tech_notes?.[t];
+                  const text = note
+                    ? (viewLang === "en"
+                        ? (note.en.trim() || note.ko.trim())
+                        : (note.ko.trim() || note.en.trim()))
+                    : "";
+                  return (
+                    <li key={t} className={styles.techNoteItem}>
+                      <span className={styles.techNoteTag}>{t}</span>
+                      {text && <span className={styles.techNoteText}>{text}</span>}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
             <div className={styles.infoBlock}>
               <span className={styles.infoLabel}><T k="workDetail.role" /></span>
               <span className={`${styles.infoValue} ${styles.infoValueMultiline}`}>
@@ -223,7 +243,12 @@ export default function WorkDetailClient({
               </span>
             </div>
             {project.contributions && (() => {
-              const map = viewLang === "en" ? project.contributions.en : project.contributions.ko;
+              // viewLang 의 contribs 가 비면 반대 언어 fallback
+              const ko = project.contributions.ko ?? {};
+              const en = project.contributions.en ?? {};
+              const enHas = Object.values(en).some((items) => items.length > 0);
+              const koHas = Object.values(ko).some((items) => items.length > 0);
+              const map = viewLang === "en" ? (enHas ? en : ko) : (koHas ? ko : en);
               const entries = Object.entries(map).filter(([, items]) => items.length > 0);
               if (entries.length === 0) return null;
               return (
@@ -246,51 +271,20 @@ export default function WorkDetailClient({
                 </div>
               );
             })()}
-            <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-              <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
-              <div className={styles.techTags}>
-                {project.tech.map((t, i) => (
-                  <span key={`tech-${i}`} className={styles.techTag}>{t}</span>
-                ))}
-              </div>
-            </div>
-            {project.tech_notes && (() => {
-              const items = project.tech.filter((t) => {
-                const note = project.tech_notes![t];
-                return note && (note.ko.trim() || note.en.trim());
-              });
-              if (items.length === 0) return null;
-              return (
-                <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-                  <span className={styles.infoLabel}>
-                    <T ko="기술별 메모" en="Tech Notes" />
-                  </span>
-                  <ul className={styles.techNotesList}>
-                    {items.map((t) => {
-                      const note = project.tech_notes![t];
-                      const text = viewLang === "en"
-                        ? (note.en.trim() || note.ko.trim())
-                        : (note.ko.trim() || note.en.trim());
-                      return (
-                        <li key={t} className={styles.techNoteItem}>
-                          <span className={styles.techNoteTag}>{t}</span>
-                          <span className={styles.techNoteText}>{text}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              );
-            })()}
             {project.teamMembers && project.teamMembers.length > 0 && (
               <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
                 <span className={styles.infoLabel}><T k="workDetail.team" /></span>
                 <div className={styles.teamCardList}>
                   {project.teamMembers.map((member, i) => {
                     const avatarUrl = deriveTeamMemberAvatar(member);
-                    const contribsMap = member.contributions
-                      ? (viewLang === "ko" ? member.contributions.ko : member.contributions.en)
-                      : {};
+                    // viewLang 의 contribs 가 비면 반대 언어 fallback (전체 entry 단위)
+                    const ko = member.contributions?.ko ?? {};
+                    const en = member.contributions?.en ?? {};
+                    const enHas = Object.values(en).some((items) => items.length > 0);
+                    const koHas = Object.values(ko).some((items) => items.length > 0);
+                    const contribsMap = viewLang === "en"
+                      ? (enHas ? en : ko)
+                      : (koHas ? ko : en);
                     const contribsEntries = Object.entries(contribsMap).filter(([, items]) => items.length > 0);
                     const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
                     return (
@@ -305,45 +299,52 @@ export default function WorkDetailClient({
                         </div>
                         <div className={styles.teamCardInfo}>
                           <div className={styles.teamCardHeader}>
-                            {member.url ? (
-                              <a
-                                href={member.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.teamCardName}
-                              >
-                                {displayName}
-                              </a>
-                            ) : (
-                              <span className={styles.teamCardName}>{displayName}</span>
-                            )}
-                            <span className={styles.teamCardRole}>
-                              <T ko={member.role.ko} en={member.role.en} />
-                            </span>
-                          </div>
-                          {contribsEntries.length > 0 && (() => {
-                            const memberRoleLabel = viewLang === "en" ? member.role.en : member.role.ko;
-                            return (
-                              <div className={styles.teamCardContribs}>
-                                {contribsEntries.map(([role, items]) => {
-                                  // group role 이 멤버 role 과 같으면 group label 생략 (header 의 role 과 중복)
-                                  const showRoleLabel = role !== memberRoleLabel;
-                                  return (
-                                    <div key={role} className={styles.teamCardContribGroup}>
-                                      {showRoleLabel && (
-                                        <div className={styles.teamCardContribRole}>{role}</div>
-                                      )}
-                                      <ul className={styles.teamCardContribList}>
-                                        {items.map((c, ci) => (
-                                          <li key={ci}>{c}</li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  );
-                                })}
+                            <span className={styles.teamCardName}>{displayName}</span>
+                            {(member.url || member.email) && (
+                              <div className={styles.teamCardLinks}>
+                                {member.url && (
+                                  <a
+                                    href={member.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={styles.teamCardLink}
+                                    title={member.url}
+                                    aria-label="link"
+                                  >
+                                    <Link2 size={14} />
+                                  </a>
+                                )}
+                                {member.email && (
+                                  <a
+                                    href={`mailto:${member.email}`}
+                                    className={styles.teamCardLink}
+                                    title={member.email}
+                                    aria-label="email"
+                                  >
+                                    <Mail size={14} />
+                                  </a>
+                                )}
                               </div>
-                            );
-                          })()}
+                            )}
+                          </div>
+                          {contribsEntries.length > 0 ? (
+                            <div className={styles.teamCardContribs}>
+                              {contribsEntries.map(([role, items]) => (
+                                <div key={role} className={styles.teamCardContribGroup}>
+                                  <div className={styles.teamCardContribRole}>{role}</div>
+                                  <ul className={styles.teamCardContribList}>
+                                    {items.map((c, ci) => (
+                                      <li key={ci}>{c}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className={styles.teamCardRole}>
+                              <T ko={member.role.ko} en={member.role.en} />
+                            </div>
+                          )}
                         </div>
                       </article>
                     );
