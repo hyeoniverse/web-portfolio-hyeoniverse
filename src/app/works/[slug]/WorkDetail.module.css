@@ -262,36 +262,26 @@
   display: contents;
 }
 
-/* 카드 — button. avatar + name/role chip. flex-shrink 0. click 으로 detail panel 토글 */
+/* 카드 — avatar 좌측 + body (이름/role/contribs) 우측. 크게 만들어 카드 안에 모든 정보 표시 */
 .teamMarqueeCard {
   flex-shrink: 0;
+  width: 360px;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-sm) var(--spacing-sm);
+  padding: var(--spacing-lg);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-lg);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
-  cursor: pointer;
-  transition: border-color 0.18s ease, background 0.18s ease;
-}
-
-.teamMarqueeCard:hover {
-  border-color: var(--border-default-color);
-}
-
-.teamMarqueeCardActive {
-  border-color: var(--text-accent);
-  background: var(--bg-secondary);
 }
 
 /* 원형 avatar (chip 안 leading) */
 .teamMarqueeAvatar {
   flex-shrink: 0;
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   overflow: hidden;
   background: var(--bg-tertiary);
@@ -309,143 +299,119 @@
 
 .teamMarqueeAvatarInitial {
   font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
   color: var(--text-tertiary);
 }
 
-/* 이름 + 역할 stack */
-.teamMarqueeInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+/* body — 이름·역할·contribs stack */
+.teamMarqueeBody {
+  flex: 1;
   min-width: 0;
-}
-
-.teamMarqueeName {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-  line-height: 1.3;
-}
-
-.teamMarqueeRole {
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-  line-height: 1.3;
-}
-
-/* ── Detail Panel — marquee 아래에 active 멤버 detail 표시. click 시 expand */
-.teamDetailPanel {
-  margin-top: var(--spacing-lg);
-  padding: var(--spacing-lg);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  font-family: var(--font-space-grotesk), sans-serif;
-}
-
-.teamDetailHeader {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm) var(--spacing-md);
-}
-
-.teamDetailName {
-  font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-xl);
-  line-height: 1.2;
-  color: var(--text-primary);
-}
-
-.teamDetailRole {
-  position: relative;
-  display: inline-block;
-  padding-left: calc(16px + var(--spacing-xs));
-  font-size: var(--font-size-2xs);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-
-.teamDetailRole::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 16px;
-  height: 1px;
-  background: var(--text-accent);
-}
-
-.teamDetailLinks {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  margin-left: auto;
-}
-
-.teamDetailLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  color: var(--text-tertiary);
-  transition: color 0.18s ease, background 0.18s ease;
-}
-
-.teamDetailLink:hover {
-  color: var(--text-accent);
-  background: var(--bg-tertiary);
-}
-
-.teamDetailContribs {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.teamDetailContribGroup {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2xs);
 }
 
-.teamDetailContribRole {
+/* 이름 row — name + link/email icons */
+.teamMarqueeHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.teamMarqueeName {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.teamMarqueeLinks {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.teamMarqueeLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: var(--text-tertiary);
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.teamMarqueeLink:hover {
+  color: var(--text-accent);
+  background: var(--bg-tertiary);
+}
+
+.teamMarqueeRole {
+  position: relative;
+  display: inline-block;
+  padding-left: calc(14px + var(--spacing-xs));
   font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+}
+
+.teamMarqueeRole::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 14px;
+  height: 1px;
+  background: var(--text-accent);
+}
+
+/* contribs — group stack 카드 안 */
+.teamMarqueeContribs {
+  margin-top: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.teamMarqueeContribGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.teamMarqueeContribRole {
+  font-size: var(--font-size-3xs);
   font-weight: 600;
   color: var(--text-tertiary);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.teamDetailContribList {
+.teamMarqueeContribList {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
-.teamDetailContribList li {
+.teamMarqueeContribList li {
   position: relative;
   padding-left: var(--spacing-sm);
 }
 
-.teamDetailContribList li::before {
+.teamMarqueeContribList li::before {
   content: "";
   position: absolute;
   left: 0;
