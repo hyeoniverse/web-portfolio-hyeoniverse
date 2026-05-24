@@ -121,11 +121,12 @@
   overflow-y: auto;
 }
 
-/* ── Like button ── */
+/* ── Like button ── content 흐름 안에 자연스럽게 (위 margin 없이, 아래만 약간) */
 .likeWrapper {
   display: flex;
   justify-content: center;
-  margin-bottom: var(--spacing-2xl);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
 }
 
 .likeBtn {

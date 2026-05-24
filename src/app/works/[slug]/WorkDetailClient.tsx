@@ -357,9 +357,22 @@ export default function WorkDetailClient({
             )}
           </motion.div>
 
-          {/* Team Members — Credits 영역. content 다음에 표시 (메타 컴팩트화) */}
-          {project.teamMembers && project.teamMembers.length > 0 && (() => {
-            const members = project.teamMembers;
+          {/* Team Members — Credits 영역. content 다음에 표시 (메타 컴팩트화).
+              본인 프로필을 멤버 맨 앞에 prepend (siteConfig 의 personal + project 의 role/contribs) */}
+          {(() => {
+            // 본인 멤버 카드 — siteConfig 의 personal + socialLinks + project 의 role/contributions
+            const personal = siteConfig?.personal;
+            const githubLink = siteConfig?.socialLinks?.find((l) => l.platform === "github");
+            const ownerMember = personal ? {
+              name: personal.name,
+              role: { ko: project.role.ko, en: project.role.en },
+              url: githubLink?.url || undefined,
+              email: siteConfig?.contact?.email || undefined,
+              contributions: project.contributions,
+            } : null;
+            const teamArr = project.teamMembers ?? [];
+            const members = ownerMember ? [ownerMember, ...teamArr] : teamArr;
+            if (members.length === 0) return null;
             const getContribsEntries = (m: typeof members[number]) => {
               const ko = m.contributions?.ko ?? {};
               const en = m.contributions?.en ?? {};
