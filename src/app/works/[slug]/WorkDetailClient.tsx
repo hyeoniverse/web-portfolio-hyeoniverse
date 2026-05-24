@@ -246,28 +246,29 @@ export default function WorkDetailClient({
               </ul>
             </div>
             {/* Role + Contributions 통합 — group label 로 role 표시, items 가 contribs.
-                contribs 가 비면 role 만 단독 group label 로 표시 */}
+                items 비어있는 role 도 label 은 표시. contributions 자체가 비면 project.role fallback */}
             {(() => {
               const ko = project.contributions?.ko ?? {};
               const en = project.contributions?.en ?? {};
-              const enHas = Object.values(en).some((items) => items.length > 0);
-              const koHas = Object.values(ko).some((items) => items.length > 0);
+              const enHas = Object.keys(en).length > 0;
+              const koHas = Object.keys(ko).length > 0;
               const map = viewLang === "en" ? (enHas ? en : ko) : (koHas ? ko : en);
-              const entries = Object.entries(map).filter(([, items]) => items.length > 0);
-              const hasContribs = entries.length > 0;
+              const entries = Object.entries(map);
               return (
                 <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
                   <span className={styles.infoLabel}><T k="workDetail.role" /></span>
                   <div className={styles.ownContribsGroups}>
-                    {hasContribs ? (
+                    {entries.length > 0 ? (
                       entries.map(([role, items]) => (
                         <div key={role} className={styles.teamContribsGroup}>
                           <div className={styles.teamContribsRoleLabel}>{role}</div>
-                          <ul className={styles.teamContribs}>
-                            {items.map((c, ci) => (
-                              <li key={ci}>{c}</li>
-                            ))}
-                          </ul>
+                          {items.length > 0 && (
+                            <ul className={styles.teamContribs}>
+                              {items.map((c, ci) => (
+                                <li key={ci}>{c}</li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
                       ))
                     ) : (
@@ -358,11 +359,14 @@ export default function WorkDetailClient({
                           aria-pressed={hasBack ? isFlipped : undefined}
                         >
                           <div className={styles.polaroidCardInner}>
-                            {/* 앞면 — image + 이름 만 (역할은 뒷면 contribs group label 로 통합) */}
+                            {/* 앞면 — image + 이름 + role */}
                             <div className={styles.polaroidFront}>
                               {renderAvatar(m, styles.polaroidAvatar, styles.polaroidAvatarImg, styles.polaroidAvatarInitial)}
                               <div className={styles.polaroidCaption}>
                                 <span className={styles.polaroidName}>{getDisplayName(m)}</span>
+                                <span className={styles.polaroidRole}>
+                                  <T ko={m.role.ko} en={m.role.en} />
+                                </span>
                               </div>
                             </div>
                             {/* 뒷면 — 이름 + contribs + link/email (앞면은 hover 시 뒤집혀서 클릭 불가) */}
