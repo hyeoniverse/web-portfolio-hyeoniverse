@@ -272,7 +272,8 @@ export default function WorkDetailClient({
               );
             })()}
             {project.teamMembers && project.teamMembers.length > 0 && (() => {
-              const renderCard = (member: typeof project.teamMembers![number], key: string, hidden?: boolean) => {
+              const members = project.teamMembers;
+              const renderCard = (member: typeof members[number], key: string, hidden?: boolean) => {
                 const avatarUrl = deriveTeamMemberAvatar(member);
                 const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
                 const ko = member.contributions?.ko ?? {};
@@ -361,9 +362,9 @@ export default function WorkDetailClient({
                   <span className={styles.infoLabel}><T k="workDetail.team" /></span>
                   <div className={styles.teamMarquee} aria-label="team members marquee">
                     <div className={styles.teamMarqueeTrack}>
-                      {project.teamMembers.map((m, i) => renderCard(m, `m-${i}`, false))}
+                      {members.map((m, i) => renderCard(m, `m-${i}`, false))}
                       {/* 무한 스크롤용 duplicate */}
-                      {project.teamMembers.map((m, i) => renderCard(m, `dup-${i}`, true))}
+                      {members.map((m, i) => renderCard(m, `dup-${i}`, true))}
                     </div>
                   </div>
                 </div>
