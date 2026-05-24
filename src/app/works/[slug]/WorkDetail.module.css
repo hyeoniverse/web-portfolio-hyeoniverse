@@ -222,17 +222,18 @@
   word-break: break-word;
 }
 
-/* ── Team Members ── 이미지 강조 카드 grid */
+/* ── Team Members ── 이미지 강조 가로 카드 stack */
 .teamList {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--spacing-lg);
-}
-
-/* 카드 — 상단 정사각 이미지 + 하단 텍스트 영역. border + radius + overflow hidden */
-.teamMember {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* 가로 카드 — 좌측 정사각 이미지 + 우측 텍스트 영역. border + radius + overflow hidden */
+.teamMember {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
   border: var(--border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -242,12 +243,15 @@
   line-height: 1.6;
 }
 
-/* 카드 body — 이미지 아래 padding 영역 */
+/* 카드 body — 이미지 우측 텍스트 영역. flex: 1 로 남은 공간 채움 */
 .teamCardBody {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
 }
 
 /* 이름 / 역할 두 줄 stack */
@@ -294,13 +298,14 @@
   line-height: 1.5;
 }
 
-/* 카드 상단 — 정사각 이미지 영역 (1:1 aspect) */
+/* 카드 좌측 — 정사각 이미지 영역 (가로 카드 height 와 맞춤) */
 .teamAvatar {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  aspect-ratio: 1 / 1;
+  width: 120px;
+  height: 120px;
   background: var(--bg-tertiary);
   overflow: hidden;
 }
