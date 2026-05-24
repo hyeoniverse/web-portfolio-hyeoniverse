@@ -222,6 +222,30 @@ export default function WorkDetailClient({
                 <T ko={project.role.ko} en={project.role.en} />
               </span>
             </div>
+            {project.contributions && (() => {
+              const map = viewLang === "en" ? project.contributions.en : project.contributions.ko;
+              const entries = Object.entries(map).filter(([, items]) => items.length > 0);
+              if (entries.length === 0) return null;
+              return (
+                <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+                  <span className={styles.infoLabel}>
+                    <T ko="역할별 작업" en="Contributions" />
+                  </span>
+                  <div className={styles.ownContribsGroups}>
+                    {entries.map(([role, items]) => (
+                      <div key={role} className={styles.teamContribsGroup}>
+                        <div className={styles.teamContribsRoleLabel}>{role}</div>
+                        <ul className={styles.teamContribs}>
+                          {items.map((c, ci) => (
+                            <li key={ci}>{c}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
             <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
               <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
               <div className={styles.techTags}>
@@ -230,6 +254,34 @@ export default function WorkDetailClient({
                 ))}
               </div>
             </div>
+            {project.tech_notes && (() => {
+              const items = project.tech.filter((t) => {
+                const note = project.tech_notes![t];
+                return note && (note.ko.trim() || note.en.trim());
+              });
+              if (items.length === 0) return null;
+              return (
+                <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+                  <span className={styles.infoLabel}>
+                    <T ko="기술별 메모" en="Tech Notes" />
+                  </span>
+                  <ul className={styles.techNotesList}>
+                    {items.map((t) => {
+                      const note = project.tech_notes![t];
+                      const text = viewLang === "en"
+                        ? (note.en.trim() || note.ko.trim())
+                        : (note.ko.trim() || note.en.trim());
+                      return (
+                        <li key={t} className={styles.techNoteItem}>
+                          <span className={styles.techNoteTag}>{t}</span>
+                          <span className={styles.techNoteText}>{text}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })()}
             {project.teamMembers && project.teamMembers.length > 0 && (
               <div className={styles.infoBlock}>
                 <span className={styles.infoLabel}><T k="workDetail.team" /></span>
@@ -237,9 +289,10 @@ export default function WorkDetailClient({
                   {project.teamMembers.map((member, i) => {
                     const avatarUrl = deriveTeamMemberAvatar(member);
                     const contribsMap = member.contributions
-                      ? (language === "ko" ? member.contributions.ko : member.contributions.en)
+                      ? (viewLang === "ko" ? member.contributions.ko : member.contributions.en)
                       : {};
                     const contribsEntries = Object.entries(contribsMap).filter(([, items]) => items.length > 0);
+                    const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
                     return (
                       <div key={i} className={styles.teamMember}>
                         <div className={styles.teamMemberHeader}>
@@ -248,15 +301,15 @@ export default function WorkDetailClient({
                               // eslint-disable-next-line @next/next/no-img-element
                               <img src={avatarUrl} alt="" className={styles.teamAvatarImg} loading="lazy" />
                             ) : (
-                              <span className={styles.teamAvatarInitial}>{getMemberInitial(member.name)}</span>
+                              <span className={styles.teamAvatarInitial}>{getMemberInitial(displayName)}</span>
                             )}
                           </span>
                           {member.url ? (
                             <a href={member.url} target="_blank" rel="noopener noreferrer" className={styles.teamLink}>
-                              {member.name}
+                              {displayName}
                             </a>
                           ) : (
-                            member.name
+                            displayName
                           )}
                           <span className={styles.teamRole}> — <T ko={member.role.ko} en={member.role.en} /></span>
                         </div>

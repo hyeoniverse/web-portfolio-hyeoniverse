@@ -6,7 +6,10 @@ export type { LocalizedText };
 export type CardSize = "large" | "small" | "medium" | "tall" | "wide";
 
 interface ProjectTeamMember {
+  /** KO display name (필수) */
   name: string;
+  /** EN display name (선택 — 없으면 name 으로 fallback) */
+  name_en?: string;
   role: LocalizedText;
   url?: string;
   email?: string;
@@ -31,7 +34,11 @@ export interface Project {
   year: string;
   description: LocalizedText;
   role: LocalizedText;
+  /** 본인의 역할별 작업 내용 — role 별 group (key: 역할 이름, value: 항목 배열). ko/en 독립 (DB contributions_ko/en) */
+  contributions?: { ko: Record<string, string[]>; en: Record<string, string[]> };
   tech: string[];
+  /** 기술별 KO/EN 설명 (DB tech_notes) */
+  tech_notes?: Record<string, { ko: string; en: string }>;
   image: string;
   size: CardSize;
   /* ── Detail page content (single field with sections as headings) ── */

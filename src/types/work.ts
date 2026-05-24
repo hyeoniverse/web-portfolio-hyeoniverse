@@ -153,6 +153,7 @@ export function workToProject(w: Work): Project {
 
   const teamMembers = (w.team_members ?? []).map((m) => ({
     name: m.name,
+    name_en: m.name_en || undefined,
     role: loc(m.role_ko, m.role_en),
     url: m.url || undefined,
     email: m.email || undefined,
@@ -162,6 +163,10 @@ export function workToProject(w: Work): Project {
       en: m.contributions_en ?? {},
     },
   }));
+
+  const hasContributions =
+    (w.contributions_ko && Object.keys(w.contributions_ko).length > 0) ||
+    (w.contributions_en && Object.keys(w.contributions_en).length > 0);
 
   return {
     id: w.id,
@@ -179,7 +184,14 @@ export function workToProject(w: Work): Project {
     year: w.year,
     description: loc(w.description_ko, w.description_en),
     role: loc(w.role_ko, w.role_en),
+    contributions: hasContributions
+      ? {
+          ko: w.contributions_ko ?? {},
+          en: w.contributions_en ?? {},
+        }
+      : undefined,
     tech: w.tech,
+    tech_notes: w.tech_notes && Object.keys(w.tech_notes).length > 0 ? w.tech_notes : undefined,
     image: w.image,
     size: w.size,
     content: loc(contentKo, contentEn),
