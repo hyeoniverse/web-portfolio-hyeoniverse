@@ -30,6 +30,7 @@ import SeoChecklist from "@/components/admin/SeoChecklist";
 import RelationPicker from "@/components/admin/RelationPicker";
 import SortOrderDragList from "@/components/admin/SortOrderDragList";
 import CoverImageField from "@/components/admin/CoverImageField";
+import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import { motion, AnimatePresence } from "framer-motion";
 import { postProcessMarkedHtml } from "./postProcessMarkedHtml";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
@@ -37,7 +38,6 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { useTagInput } from "@/hooks/useTagInput";
 import { usePostSeries } from "@/hooks/usePostSeries";
-import TagsList from "@/components/ui/TagsList";
 import ShortcutsModalContent from "./ShortcutsModal";
 import styles from "./PostEditor.module.css";
 import "./PostEditor.global.css";
@@ -113,6 +113,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     excerpt: post?.excerpt ?? "",
     cover_image: post?.cover_image ?? "",
     tags: post?.tags ?? [],
+    tag_notes: post?.tag_notes ?? {},
     category: post?.category || "",
     is_pinned: post?.is_pinned ?? false,
     published: post?.published ?? false,
@@ -439,6 +440,23 @@ export default function PostEditor({ post }: PostEditorProps) {
   );
 
   const tag = useTagInput(form.tags, (tags) => updateField("tags", tags));
+  // 태그 추가 시 site.config 의 tagDescriptions 프리셋 자동 채움 (ko 만, en 은 빈값)
+  const addTagWithPreset = useCallback((value?: string) => {
+    const raw = (value ?? tag.input).trim().replace(/,/g, "");
+    if (!raw || form.tags.includes(raw)) {
+      tag.setInput("");
+      return;
+    }
+    const preset = config.tagDescriptions?.[raw];
+    setForm((prev) => ({
+      ...prev,
+      tags: [...prev.tags, raw],
+      tag_notes: preset
+        ? { ...(prev.tag_notes ?? {}), [raw]: { ko: preset, en: "" } }
+        : prev.tag_notes,
+    }));
+    tag.setInput("");
+  }, [tag, form.tags, config.tagDescriptions]);
   // 기존 태그 autocomplete suggestions — 모든 post 의 distinct tag
   const [allTagSuggestions, setAllTagSuggestions] = useState<string[]>([]);
   useEffect(() => {
@@ -1353,15 +1371,27 @@ export default function PostEditor({ post }: PostEditorProps) {
                         onChange={() => {}}
                         inputValue={tag.input}
                         onInputChange={tag.setInput}
-                        onAdd={(v) => tag.add(v)}
+                        onAdd={(v) => addTagWithPreset(v)}
                         options={allTagSuggestions
                           .filter((t) => !form.tags.includes(t))
                           .map((t) => ({ value: t, label: t }))}
                         placeholder={te("tagsPlaceholder")}
                       />
-                      <button type="button" className={styles.tagAddBtn} onClick={() => tag.add()} disabled={!tag.input.trim()}>+</button>
+                      <button type="button" className={styles.tagAddBtn} onClick={() => addTagWithPreset()} disabled={!tag.input.trim()}>+</button>
                     </div>
-                    {form.tags.length > 0 && <TagsList tags={form.tags} onRemove={tag.remove} />}
+                    {/* 태그별 설명 — 공통 TagNotesEditor (drag-reorder + ko/en + add/cancel 애니메이션) */}
+                    <TagNotesEditor
+                      items={form.tags}
+                      notes={form.tag_notes ?? {}}
+                      onItemsChange={(next) => updateField("tags", next)}
+                      onNotesChange={(next) => updateField("tag_notes", next)}
+                      prefix="#"
+                      notePlaceholder={te("tagNotePlaceholder")}
+                      addLabel={te("tagNoteAddPlaceholder")}
+                      cancelLabel={te("tagNoteCancel")}
+                      editLabel="편집"
+                      removeTitle="태그 제거"
+                    />
                   </div>
                 </div>
               </div>
