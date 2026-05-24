@@ -222,33 +222,43 @@
   word-break: break-word;
 }
 
-/* ── Team Members ── */
+/* ── Team Members ── 이미지 강조 카드 grid */
 .teamList {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: var(--spacing-lg);
 }
 
+/* 카드 — 상단 정사각 이미지 + 하단 텍스트 영역. border + radius + overflow hidden */
 .teamMember {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   line-height: 1.6;
 }
 
-/* avatar + 이름·역할 inline row */
-.teamMemberHeader {
+/* 카드 body — 이미지 아래 padding 영역 */
+.teamCardBody {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
 }
 
-/* 역할별 기여 그룹들 (avatar 폭만큼 indent — 이름과 vertical line 맞춤) */
+/* 이름 / 역할 두 줄 stack */
+.teamMemberHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* 역할별 기여 그룹들 — 카드 안이라 indent 제거 */
 .teamContribsGroups {
-  padding-left: calc(48px + var(--spacing-md));
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
@@ -284,16 +294,15 @@
   line-height: 1.5;
 }
 
+/* 카드 상단 — 정사각 이미지 영역 (1:1 aspect) */
 .teamAvatar {
-  flex-shrink: 0;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   background: var(--bg-tertiary);
+  overflow: hidden;
 }
 
 .teamAvatarImg {
@@ -302,11 +311,12 @@
   object-fit: cover;
 }
 
+/* 이미지 없을 때 — 큰 이니셜 placeholder */
 .teamAvatarInitial {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-tertiary);
 }
 
 .teamLink {

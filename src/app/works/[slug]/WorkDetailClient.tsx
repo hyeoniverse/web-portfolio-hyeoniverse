@@ -295,38 +295,40 @@ export default function WorkDetailClient({
                     const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
                     return (
                       <div key={i} className={styles.teamMember}>
-                        <div className={styles.teamMemberHeader}>
-                          <span className={styles.teamAvatar} aria-hidden>
-                            {avatarUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={avatarUrl} alt="" className={styles.teamAvatarImg} loading="lazy" />
-                            ) : (
-                              <span className={styles.teamAvatarInitial}>{getMemberInitial(displayName)}</span>
-                            )}
-                          </span>
-                          {member.url ? (
-                            <a href={member.url} target="_blank" rel="noopener noreferrer" className={styles.teamLink}>
-                              {displayName}
-                            </a>
+                        <span className={styles.teamAvatar} aria-hidden>
+                          {avatarUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={avatarUrl} alt="" className={styles.teamAvatarImg} loading="lazy" />
                           ) : (
-                            displayName
+                            <span className={styles.teamAvatarInitial}>{getMemberInitial(displayName)}</span>
                           )}
-                          <span className={styles.teamRole}> — <T ko={member.role.ko} en={member.role.en} /></span>
-                        </div>
-                        {contribsEntries.length > 0 && (
-                          <div className={styles.teamContribsGroups}>
-                            {contribsEntries.map(([role, items]) => (
-                              <div key={role} className={styles.teamContribsGroup}>
-                                <div className={styles.teamContribsRoleLabel}>{role}</div>
-                                <ul className={styles.teamContribs}>
-                                  {items.map((c, ci) => (
-                                    <li key={ci}>{c}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            ))}
+                        </span>
+                        <div className={styles.teamCardBody}>
+                          <div className={styles.teamMemberHeader}>
+                            {member.url ? (
+                              <a href={member.url} target="_blank" rel="noopener noreferrer" className={styles.teamLink}>
+                                {displayName}
+                              </a>
+                            ) : (
+                              <span>{displayName}</span>
+                            )}
+                            <span className={styles.teamRole}><T ko={member.role.ko} en={member.role.en} /></span>
                           </div>
-                        )}
+                          {contribsEntries.length > 0 && (
+                            <div className={styles.teamContribsGroups}>
+                              {contribsEntries.map(([role, items]) => (
+                                <div key={role} className={styles.teamContribsGroup}>
+                                  <div className={styles.teamContribsRoleLabel}>{role}</div>
+                                  <ul className={styles.teamContribs}>
+                                    {items.map((c, ci) => (
+                                      <li key={ci}>{c}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
