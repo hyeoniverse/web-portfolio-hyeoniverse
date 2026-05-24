@@ -11,7 +11,6 @@ import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import { ImageViewer } from "@/components/ui/ImageViewer";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
-import { showToast } from "@/stores/toastStore";
 import { focusFirstMissingField } from "@/utils/focusFirstMissing";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
 import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
