@@ -327,22 +327,25 @@ export default function WorkDetailClient({
                               </div>
                             )}
                           </div>
-                          {contribsEntries.length > 0 ? (
+                          <div className={styles.teamCardRole}>
+                            <T ko={member.role.ko} en={member.role.en} />
+                          </div>
+                          {contribsEntries.length > 0 && (
                             <div className={styles.teamCardContribs}>
-                              {contribsEntries.map(([role, items]) => (
-                                <div key={role} className={styles.teamCardContribGroup}>
-                                  <div className={styles.teamCardContribRole}>{role}</div>
-                                  <ul className={styles.teamCardContribList}>
-                                    {items.map((c, ci) => (
-                                      <li key={ci}>{c}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className={styles.teamCardRole}>
-                              <T ko={member.role.ko} en={member.role.en} />
+                              {contribsEntries.map(([role, items]) => {
+                                const memberRoleLabel = viewLang === "en" ? member.role.en : member.role.ko;
+                                const showRoleLabel = role !== memberRoleLabel;
+                                return (
+                                  <div key={role} className={styles.teamCardContribGroup}>
+                                    {showRoleLabel && (
+                                      <span className={styles.teamCardContribRole}>{role}</span>
+                                    )}
+                                    <span className={styles.teamCardContribItems}>
+                                      {items.join(" · ")}
+                                    </span>
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
                         </div>
