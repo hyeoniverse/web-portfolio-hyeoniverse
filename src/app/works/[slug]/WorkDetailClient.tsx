@@ -317,156 +317,6 @@ export default function WorkDetailClient({
                 </div>
               );
             })()}
-            {project.teamMembers && project.teamMembers.length > 0 && (() => {
-              const members = project.teamMembers;
-              const getContribsEntries = (m: typeof members[number]) => {
-                const ko = m.contributions?.ko ?? {};
-                const en = m.contributions?.en ?? {};
-                const enHas = Object.values(en).some((items) => items.length > 0);
-                const koHas = Object.values(ko).some((items) => items.length > 0);
-                const map = viewLang === "en" ? (enHas ? en : ko) : (koHas ? ko : en);
-                return Object.entries(map).filter(([, items]) => items.length > 0);
-              };
-              const getDisplayName = (m: typeof members[number]) =>
-                viewLang === "en" && m.name_en ? m.name_en : m.name;
-              const renderContribs = (m: typeof members[number], wrapperClass: string, groupClass: string, roleClass: string, listClass: string) => {
-                const entries = getContribsEntries(m);
-                if (entries.length === 0) return null;
-                return (
-                  <div className={wrapperClass}>
-                    {entries.map(([role, items]) => (
-                      <div key={role} className={groupClass}>
-                        <div className={roleClass}>{role}</div>
-                        <ul className={listClass}>
-                          {items.map((c, ci) => <li key={ci}>{c}</li>)}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                );
-              };
-              const renderAvatar = (m: typeof members[number], wrapperClass: string, imgClass: string, initialClass: string) => {
-                const avatarUrl = deriveTeamMemberAvatar(m);
-                const name = getDisplayName(m);
-                return (
-                  <div className={wrapperClass}>
-                    {avatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={avatarUrl} alt={name} className={imgClass} loading="lazy" />
-                    ) : (
-                      <span className={initialClass}>{getMemberInitial(name)}</span>
-                    )}
-                  </div>
-                );
-              };
-              return (
-                <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-                  <span className={styles.infoLabel}><T k="workDetail.team" /></span>
-                  <HorizontalCarousel className={styles.polaroidCarousel}>
-                    {members.map((m, i) => {
-                      const isFlipped = flippedMembers.has(i);
-                      const isHovered = hoveredMemberIdx === i;
-                      const hasContribs = getContribsEntries(m).length > 0;
-                      const hasLinks = !!(m.url || m.email);
-                      // 뒷면 보이는 조건 — contribs 또는 link/email 중 하나라도 있어야
-                      const hasBack = hasContribs || hasLinks;
-                      const showBack = hasBack && (isFlipped || isHovered);
-                      return (
-                        <article
-                          key={i}
-                          className={`${styles.polaroidCard} ${showBack ? styles.polaroidCardShowBack : ""}`}
-                          data-cursor={hasBack ? "big" : undefined}
-                          onClick={hasBack ? () => {
-                            toggleFlipped(i);
-                            setHoveredMemberIdx(null);
-                          } : undefined}
-                          onMouseEnter={hasBack ? () => setHoveredMemberIdx(i) : undefined}
-                          onMouseLeave={hasBack ? () => setHoveredMemberIdx(null) : undefined}
-                          role={hasBack ? "button" : undefined}
-                          tabIndex={hasBack ? 0 : undefined}
-                          onKeyDown={hasBack ? (e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              toggleFlipped(i);
-                              setHoveredMemberIdx(null);
-                            }
-                          } : undefined}
-                          aria-pressed={hasBack ? isFlipped : undefined}
-                        >
-                          <div className={styles.polaroidCardInner}>
-                            {/* 앞면 — image + 이름 + role */}
-                            <div className={styles.polaroidFront}>
-                              {renderAvatar(m, styles.polaroidAvatar, styles.polaroidAvatarImg, styles.polaroidAvatarInitial)}
-                              <div className={styles.polaroidCaption}>
-                                <span className={styles.polaroidName}>{getDisplayName(m)}</span>
-                                <span className={styles.polaroidRole}>
-                                  <T ko={m.role.ko} en={m.role.en} />
-                                </span>
-                              </div>
-                            </div>
-                            {/* 뒷면 — 이름 + contribs + link/email (앞면은 hover 시 뒤집혀서 클릭 불가) */}
-                            {hasBack && (
-                              <div className={styles.polaroidBack}>
-                                <div className={styles.polaroidBackHeader}>
-                                  <span className={styles.polaroidBackName}>{getDisplayName(m)}</span>
-                                  {(m.url || m.email) && (
-                                    <div
-                                      className={styles.polaroidBackLinks}
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      {m.url && (
-                                        <a
-                                          href={m.url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className={styles.teamLinkIcon}
-                                          title={m.url}
-                                          aria-label="link"
-                                        >
-                                          <Link2 size={13} />
-                                        </a>
-                                      )}
-                                      {m.email && (
-                                        <a
-                                          href={`mailto:${m.email}`}
-                                          className={styles.teamLinkIcon}
-                                          title={m.email}
-                                          aria-label="email"
-                                        >
-                                          <Mail size={13} />
-                                        </a>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                                {hasContribs ? (
-                                  renderContribs(
-                                    m,
-                                    styles.polaroidBackContribs,
-                                    styles.polaroidBackContribGroup,
-                                    styles.polaroidBackContribRole,
-                                    styles.polaroidBackContribList,
-                                  )
-                                ) : (
-                                  // contribs 없으면 role 만 단독 표시 (group label 패턴 유지)
-                                  <div className={styles.polaroidBackContribs}>
-                                    <div className={styles.polaroidBackContribGroup}>
-                                      <div className={styles.polaroidBackContribRole}>
-                                        <T ko={m.role.ko} en={m.role.en} />
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </HorizontalCarousel>
-                </div>
-              );
-            })()}
           </motion.div>
 
           {needsTranslation && translationEnabled && (
@@ -506,6 +356,159 @@ export default function WorkDetailClient({
               </Button>
             )}
           </motion.div>
+
+          {/* Team Members — Credits 영역. content 다음에 표시 (메타 컴팩트화) */}
+          {project.teamMembers && project.teamMembers.length > 0 && (() => {
+            const members = project.teamMembers;
+            const getContribsEntries = (m: typeof members[number]) => {
+              const ko = m.contributions?.ko ?? {};
+              const en = m.contributions?.en ?? {};
+              const enHas = Object.values(en).some((items) => items.length > 0);
+              const koHas = Object.values(ko).some((items) => items.length > 0);
+              const map = viewLang === "en" ? (enHas ? en : ko) : (koHas ? ko : en);
+              return Object.entries(map).filter(([, items]) => items.length > 0);
+            };
+            const getDisplayName = (m: typeof members[number]) =>
+              viewLang === "en" && m.name_en ? m.name_en : m.name;
+            const renderContribs = (m: typeof members[number], wrapperClass: string, groupClass: string, roleClass: string, listClass: string) => {
+              const entries = getContribsEntries(m);
+              if (entries.length === 0) return null;
+              return (
+                <div className={wrapperClass}>
+                  {entries.map(([role, items]) => (
+                    <div key={role} className={groupClass}>
+                      <div className={roleClass}>{role}</div>
+                      <ul className={listClass}>
+                        {items.map((c, ci) => <li key={ci}>{c}</li>)}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              );
+            };
+            const renderAvatar = (m: typeof members[number], wrapperClass: string, imgClass: string, initialClass: string) => {
+              const avatarUrl = deriveTeamMemberAvatar(m);
+              const name = getDisplayName(m);
+              return (
+                <div className={wrapperClass}>
+                  {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatarUrl} alt={name} className={imgClass} loading="lazy" />
+                  ) : (
+                    <span className={initialClass}>{getMemberInitial(name)}</span>
+                  )}
+                </div>
+              );
+            };
+            return (
+              <section className={styles.teamCreditsSection}>
+                <div className={styles.teamCreditsHeader}>
+                  <Users size={16} />
+                  <span className={styles.teamCreditsLabel}><T k="workDetail.team" /></span>
+                </div>
+                <HorizontalCarousel className={styles.polaroidCarousel}>
+                  {members.map((m, i) => {
+                    const isFlipped = flippedMembers.has(i);
+                    const isHovered = hoveredMemberIdx === i;
+                    const hasContribs = getContribsEntries(m).length > 0;
+                    const hasLinks = !!(m.url || m.email);
+                    const hasBack = hasContribs || hasLinks;
+                    const showBack = hasBack && (isFlipped || isHovered);
+                    return (
+                      <article
+                        key={i}
+                        className={`${styles.polaroidCard} ${showBack ? styles.polaroidCardShowBack : ""}`}
+                        data-cursor={hasBack ? "big" : undefined}
+                        onClick={hasBack ? () => {
+                          toggleFlipped(i);
+                          setHoveredMemberIdx(null);
+                        } : undefined}
+                        onMouseEnter={hasBack ? () => setHoveredMemberIdx(i) : undefined}
+                        onMouseLeave={hasBack ? () => setHoveredMemberIdx(null) : undefined}
+                        role={hasBack ? "button" : undefined}
+                        tabIndex={hasBack ? 0 : undefined}
+                        onKeyDown={hasBack ? (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            toggleFlipped(i);
+                            setHoveredMemberIdx(null);
+                          }
+                        } : undefined}
+                        aria-pressed={hasBack ? isFlipped : undefined}
+                      >
+                        <div className={styles.polaroidCardInner}>
+                          {/* 앞면 — image + 이름 + role */}
+                          <div className={styles.polaroidFront}>
+                            {renderAvatar(m, styles.polaroidAvatar, styles.polaroidAvatarImg, styles.polaroidAvatarInitial)}
+                            <div className={styles.polaroidCaption}>
+                              <span className={styles.polaroidName}>{getDisplayName(m)}</span>
+                              <span className={styles.polaroidRole}>
+                                <T ko={m.role.ko} en={m.role.en} />
+                              </span>
+                            </div>
+                          </div>
+                          {/* 뒷면 — 이름 + contribs + link/email */}
+                          {hasBack && (
+                            <div className={styles.polaroidBack}>
+                              <div className={styles.polaroidBackHeader}>
+                                <span className={styles.polaroidBackName}>{getDisplayName(m)}</span>
+                                {(m.url || m.email) && (
+                                  <div
+                                    className={styles.polaroidBackLinks}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {m.url && (
+                                      <a
+                                        href={m.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={styles.teamLinkIcon}
+                                        title={m.url}
+                                        aria-label="link"
+                                      >
+                                        <Link2 size={13} />
+                                      </a>
+                                    )}
+                                    {m.email && (
+                                      <a
+                                        href={`mailto:${m.email}`}
+                                        className={styles.teamLinkIcon}
+                                        title={m.email}
+                                        aria-label="email"
+                                      >
+                                        <Mail size={13} />
+                                      </a>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              {hasContribs ? (
+                                renderContribs(
+                                  m,
+                                  styles.polaroidBackContribs,
+                                  styles.polaroidBackContribGroup,
+                                  styles.polaroidBackContribRole,
+                                  styles.polaroidBackContribList,
+                                )
+                              ) : (
+                                <div className={styles.polaroidBackContribs}>
+                                  <div className={styles.polaroidBackContribGroup}>
+                                    <div className={styles.polaroidBackContribRole}>
+                                      <T ko={m.role.ko} en={m.role.en} />
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </article>
+                    );
+                  })}
+                </HorizontalCarousel>
+              </section>
+            );
+          })()}
 
           {/* 관련 글 */}
           {relatedPosts.length > 0 && (
