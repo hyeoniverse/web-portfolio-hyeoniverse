@@ -58,6 +58,7 @@ export default function WorkDetailClient({
   });
   const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
   const [flippedMembers, setFlippedMembers] = useState<Set<number>>(new Set());
+  const [hoveredMemberIdx, setHoveredMemberIdx] = useState<number | null>(null);
   const toggleFlipped = (i: number) => setFlippedMembers((prev) => {
     const next = new Set(prev);
     if (next.has(i)) next.delete(i);
@@ -291,25 +292,19 @@ export default function WorkDetailClient({
               };
               const getDisplayName = (m: typeof members[number]) =>
                 viewLang === "en" && m.name_en ? m.name_en : m.name;
-              const getMemberRoleLabel = (m: typeof members[number]) =>
-                viewLang === "en" ? m.role.en : m.role.ko;
               const renderContribs = (m: typeof members[number], wrapperClass: string, groupClass: string, roleClass: string, listClass: string) => {
                 const entries = getContribsEntries(m);
                 if (entries.length === 0) return null;
-                const memberRole = getMemberRoleLabel(m);
                 return (
                   <div className={wrapperClass}>
-                    {entries.map(([role, items]) => {
-                      const showRoleLabel = role !== memberRole;
-                      return (
-                        <div key={role} className={groupClass}>
-                          {showRoleLabel && <div className={roleClass}>{role}</div>}
-                          <ul className={listClass}>
-                            {items.map((c, ci) => <li key={ci}>{c}</li>)}
-                          </ul>
-                        </div>
-                      );
-                    })}
+                    {entries.map(([role, items]) => (
+                      <div key={role} className={groupClass}>
+                        <div className={roleClass}>{role}</div>
+                        <ul className={listClass}>
+                          {items.map((c, ci) => <li key={ci}>{c}</li>)}
+                        </ul>
+                      </div>
+                    ))}
                   </div>
                 );
               };
@@ -333,18 +328,30 @@ export default function WorkDetailClient({
                   <div className={styles.polaroidGrid}>
                     {members.map((m, i) => {
                       const isFlipped = flippedMembers.has(i);
+                      const isHovered = hoveredMemberIdx === i;
                       const hasContribs = getContribsEntries(m).length > 0;
+                      // back 보임 조건: click 으로 flip 됐거나, hover 중인데 아직 click 안 됐을 때
+                      // (flipped 상태에서 click 으로 unflip 시 hoveredMemberIdx 도 reset → 즉시 front)
+                      const showBack = hasContribs && (isFlipped || isHovered);
                       return (
                         <article
                           key={i}
-                          className={`${styles.polaroidCard} ${isFlipped ? styles.polaroidCardFlipped : ""}`}
-                          onClick={hasContribs ? () => toggleFlipped(i) : undefined}
+                          className={`${styles.polaroidCard} ${showBack ? styles.polaroidCardShowBack : ""}`}
+                          data-cursor={hasContribs ? "big" : undefined}
+                          onClick={hasContribs ? () => {
+                            toggleFlipped(i);
+                            // click 후 hover state reset — mouse 가 위에 있어도 즉시 새 state 반영
+                            setHoveredMemberIdx(null);
+                          } : undefined}
+                          onMouseEnter={hasContribs ? () => setHoveredMemberIdx(i) : undefined}
+                          onMouseLeave={hasContribs ? () => setHoveredMemberIdx(null) : undefined}
                           role={hasContribs ? "button" : undefined}
                           tabIndex={hasContribs ? 0 : undefined}
                           onKeyDown={hasContribs ? (e) => {
                             if (e.key === "Enter" || e.key === " ") {
                               e.preventDefault();
                               toggleFlipped(i);
+                              setHoveredMemberIdx(null);
                             }
                           } : undefined}
                           aria-pressed={hasContribs ? isFlipped : undefined}
@@ -389,15 +396,10 @@ export default function WorkDetailClient({
                                 )}
                               </div>
                             </div>
-                            {/* 뒷면 — contribs detail */}
+                            {/* 뒷면 — 이름 + contribs (role 은 contrib group 안 label 로 표시) */}
                             {hasContribs && (
                               <div className={styles.polaroidBack}>
-                                <div className={styles.polaroidBackHeader}>
-                                  <span className={styles.polaroidBackName}>{getDisplayName(m)}</span>
-                                  <span className={styles.polaroidBackRole}>
-                                    <T ko={m.role.ko} en={m.role.en} />
-                                  </span>
-                                </div>
+                                <span className={styles.polaroidBackName}>{getDisplayName(m)}</span>
                                 {renderContribs(
                                   m,
                                   styles.polaroidBackContribs,
