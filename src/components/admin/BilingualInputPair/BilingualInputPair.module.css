@@ -1,0 +1,87 @@
+/* ── BilingualInputPair — KO / EN 배지 in-input ── */
+.pair {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.pairFit {
+  width: fit-content;
+}
+
+/* capsule + border-light, height 28 — TagNotesEditor 와 동일 라인 */
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  height: 28px;
+  padding-left: var(--spacing-2xs);
+  padding-right: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  box-sizing: border-box;
+}
+
+/* multiLine prop 은 BilingualInputPair 외부 (TagNotesEditor) 에서 pair 여러 개 렌더링 시 사용.
+   여기 자체 wrap 변형은 없음 — 단일 line input 유지 */
+
+.wrap:focus-within {
+  border-color: var(--text-primary);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  padding-inline: 0 !important;
+  padding-block: 0;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+/* input 우측 clear X 버튼 — value 있을 때만 렌더 */
+.clearBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.clearBtn:hover {
+  color: var(--text-accent);
+}

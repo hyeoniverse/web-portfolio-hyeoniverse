@@ -29,6 +29,8 @@ import TextLink from "@/components/ui/TextLink";
 import Pagination from "@/components/ui/Pagination";
 import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
 import TagPill from "@/components/ui/TagPill";
+import BilingualInputPair, { type BilingualValue } from "@/components/admin/BilingualInputPair";
+import TagNotesEditor, { type TagNote } from "@/components/admin/TagNotesEditor";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
 
@@ -71,6 +73,11 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [paginationPage, setPaginationPage] = useState(3);
   const [pickerColor, setPickerColor] = useState("#d01046");
   const [dragTags, setDragTags] = useState(["React", "Next.js", "TypeScript", "GSAP"]);
+  const [bilingualValue, setBilingualValue] = useState<BilingualValue>({ ko: "", en: "" });
+  const [tagItems, setTagItems] = useState(["react", "typescript", "framer-motion"]);
+  const [tagNotes, setTagNotes] = useState<Record<string, TagNote>>({
+    react: { ko: "서버 컴포넌트로 초기 페이로드 절감", en: "Reduced initial payload via server components" },
+  });
   const { itemProps: tagItemProps } = useTagDrag((from, to) => {
     setDragTags((prev) => {
       const next = [...prev];
@@ -703,6 +710,44 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             <RotateCcw size={14} />
           </button>
         </motion.div>
+      </motion.div>
+
+      {/* BilingualInputPair */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>BilingualInputPair</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ maxWidth: 360 }}>
+          <BilingualInputPair
+            value={bilingualValue}
+            onChange={setBilingualValue}
+            placeholder="값을 입력하세요"
+          />
+        </motion.div>
+        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
+          KO / EN 배지 in-input · 값 있을 때 X 클리어 · IME composition 안전 onEnter
+        </span>
+      </motion.div>
+
+      {/* TagNotesEditor */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>TagNotesEditor</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ maxWidth: 480 }}>
+          <TagNotesEditor
+            items={tagItems}
+            notes={tagNotes}
+            onItemsChange={setTagItems}
+            onNotesChange={setTagNotes}
+            prefix="#"
+            notePlaceholder="이 태그에 대한 설명"
+            addLabel="설명 추가"
+            cancelLabel="취소"
+            editLabel="편집"
+            removeTitle="태그 제거"
+            multiLine
+          />
+        </motion.div>
+        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
+          item drag-reorder · KO / EN bilingual notes · multiLine 모드 (항목 추가 / 체크박스 일괄 삭제 / 항목별 drag)
+        </span>
       </motion.div>
     </section>
   );
