@@ -724,6 +724,11 @@
   padding: 0 0 var(--spacing-3xl);
 }
 
+/* AdjacentNav 위에 team / related 둘 다 없을 때 — 윗부분과 분리되도록 border-top 추가 */
+.adjacentNavTopBorder {
+  border-top: var(--border-light);
+}
+
 /* ── Team Credits — actions 다음 / related posts 전. relatedSection 패턴 재사용 */
 .teamCreditsSection {
   max-width: var(--page-max-width);

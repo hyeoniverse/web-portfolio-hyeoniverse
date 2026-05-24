@@ -559,21 +559,29 @@ export default function WorkDetailClient({
             </section>
           )}
 
-          {/* 이전/다음 프로젝트 */}
-          <AdjacentNav
-            prev={prevProject ? {
-              href: `/works/${prevProject.slug || prevProject.id}`,
-              title: prevProject.title,
-              image: prevProject.image,
-            } : null}
-            next={nextProject ? {
-              href: `/works/${nextProject.slug || nextProject.id}`,
-              title: nextProject.title,
-              image: nextProject.image,
-            } : null}
-            prevLabelKey="workDetail.previous"
-            nextLabelKey="workDetail.next"
-          />
+          {/* 이전/다음 프로젝트 — 위에 team / related 둘 다 없을 때만 border-top */}
+          {(() => {
+            const hasTeam = !!(project.teamMembers && project.teamMembers.length > 0);
+            const hasRelated = relatedPosts.length > 0;
+            const needsTopBorder = !hasTeam && !hasRelated;
+            return (
+              <AdjacentNav
+                prev={prevProject ? {
+                  href: `/works/${prevProject.slug || prevProject.id}`,
+                  title: prevProject.title,
+                  image: prevProject.image,
+                } : null}
+                next={nextProject ? {
+                  href: `/works/${nextProject.slug || nextProject.id}`,
+                  title: nextProject.title,
+                  image: nextProject.image,
+                } : null}
+                prevLabelKey="workDetail.previous"
+                nextLabelKey="workDetail.next"
+                className={needsTopBorder ? styles.adjacentNavTopBorder : undefined}
+              />
+            );
+          })()}
 
           {/* Comments */}
           <motion.div
