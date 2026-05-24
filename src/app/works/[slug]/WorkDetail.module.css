@@ -240,10 +240,10 @@
 }
 
 /* HorizontalCarousel 안 children layout — gap, padding, perspective.
-   카드가 살짝 rotate + hover scale 되므로 좌우/상하 padding 충분히 줘서 edge 잘림 방지 */
+   카드가 살짝 rotate + hover shadow 까지 안 잘리도록 padding 넉넉히 */
 .polaroidCarousel {
   gap: var(--spacing-lg);
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--spacing-2xl) var(--spacing-2xl);
   perspective: 1200px;
 }
 
@@ -293,7 +293,7 @@
 
 .polaroidCardShowBack .polaroidFront,
 .polaroidCardShowBack .polaroidBack {
-  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.22);
 }
 
 /* back 은 180도 회전 상태 (정상 보기엔 뒤로 가려져 있음) */
@@ -338,29 +338,36 @@
 }
 
 .polaroidRole {
-  font-size: var(--font-size-3xs);
-  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
-.polaroidLinks {
-  display: inline-flex;
+/* ── 뒷면 (이름 + link/email + contribs) ── role 은 contrib group label 로 표시 */
+.polaroidBackHeader {
+  display: flex;
   align-items: center;
-  gap: 2px;
-  margin-top: var(--spacing-2xs);
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  border-bottom: var(--border-light);
 }
 
-/* ── 뒷면 (이름 + contribs) ── role 은 contrib group 안 label 로 표시 */
 .polaroidBackName {
-  display: block;
   font-family: var(--font-instrument), serif;
   font-size: var(--font-size-md);
   color: var(--text-primary);
   line-height: 1.2;
-  padding-bottom: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
-  border-bottom: var(--border-light);
+  min-width: 0;
+}
+
+.polaroidBackLinks {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
 .polaroidBackContribs {

@@ -330,34 +330,34 @@ export default function WorkDetailClient({
                       const isFlipped = flippedMembers.has(i);
                       const isHovered = hoveredMemberIdx === i;
                       const hasContribs = getContribsEntries(m).length > 0;
-                      // back 보임 조건: click 으로 flip 됐거나, hover 중인데 아직 click 안 됐을 때
-                      // (flipped 상태에서 click 으로 unflip 시 hoveredMemberIdx 도 reset → 즉시 front)
-                      const showBack = hasContribs && (isFlipped || isHovered);
+                      const hasLinks = !!(m.url || m.email);
+                      // 뒷면 보이는 조건 — contribs 또는 link/email 중 하나라도 있어야
+                      const hasBack = hasContribs || hasLinks;
+                      const showBack = hasBack && (isFlipped || isHovered);
                       return (
                         <article
                           key={i}
                           className={`${styles.polaroidCard} ${showBack ? styles.polaroidCardShowBack : ""}`}
-                          data-cursor={hasContribs ? "big" : undefined}
-                          onClick={hasContribs ? () => {
+                          data-cursor={hasBack ? "big" : undefined}
+                          onClick={hasBack ? () => {
                             toggleFlipped(i);
-                            // click 후 hover state reset — mouse 가 위에 있어도 즉시 새 state 반영
                             setHoveredMemberIdx(null);
                           } : undefined}
-                          onMouseEnter={hasContribs ? () => setHoveredMemberIdx(i) : undefined}
-                          onMouseLeave={hasContribs ? () => setHoveredMemberIdx(null) : undefined}
-                          role={hasContribs ? "button" : undefined}
-                          tabIndex={hasContribs ? 0 : undefined}
-                          onKeyDown={hasContribs ? (e) => {
+                          onMouseEnter={hasBack ? () => setHoveredMemberIdx(i) : undefined}
+                          onMouseLeave={hasBack ? () => setHoveredMemberIdx(null) : undefined}
+                          role={hasBack ? "button" : undefined}
+                          tabIndex={hasBack ? 0 : undefined}
+                          onKeyDown={hasBack ? (e) => {
                             if (e.key === "Enter" || e.key === " ") {
                               e.preventDefault();
                               toggleFlipped(i);
                               setHoveredMemberIdx(null);
                             }
                           } : undefined}
-                          aria-pressed={hasContribs ? isFlipped : undefined}
+                          aria-pressed={hasBack ? isFlipped : undefined}
                         >
                           <div className={styles.polaroidCardInner}>
-                            {/* 앞면 — image + caption + link/email */}
+                            {/* 앞면 — image + caption (link/email 은 hover/click 후 뒷면) */}
                             <div className={styles.polaroidFront}>
                               {renderAvatar(m, styles.polaroidAvatar, styles.polaroidAvatarImg, styles.polaroidAvatarInitial)}
                               <div className={styles.polaroidCaption}>
@@ -365,41 +365,43 @@ export default function WorkDetailClient({
                                 <span className={styles.polaroidRole}>
                                   <T ko={m.role.ko} en={m.role.en} />
                                 </span>
-                                {(m.url || m.email) && (
-                                  <div
-                                    className={styles.polaroidLinks}
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    {m.url && (
-                                      <a
-                                        href={m.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={styles.teamLinkIcon}
-                                        title={m.url}
-                                        aria-label="link"
-                                      >
-                                        <Link2 size={13} />
-                                      </a>
-                                    )}
-                                    {m.email && (
-                                      <a
-                                        href={`mailto:${m.email}`}
-                                        className={styles.teamLinkIcon}
-                                        title={m.email}
-                                        aria-label="email"
-                                      >
-                                        <Mail size={13} />
-                                      </a>
-                                    )}
-                                  </div>
-                                )}
                               </div>
                             </div>
-                            {/* 뒷면 — 이름 + contribs (role 은 contrib group 안 label 로 표시) */}
-                            {hasContribs && (
+                            {/* 뒷면 — 이름 + contribs + link/email (앞면은 hover 시 뒤집혀서 클릭 불가) */}
+                            {hasBack && (
                               <div className={styles.polaroidBack}>
-                                <span className={styles.polaroidBackName}>{getDisplayName(m)}</span>
+                                <div className={styles.polaroidBackHeader}>
+                                  <span className={styles.polaroidBackName}>{getDisplayName(m)}</span>
+                                  {(m.url || m.email) && (
+                                    <div
+                                      className={styles.polaroidBackLinks}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      {m.url && (
+                                        <a
+                                          href={m.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className={styles.teamLinkIcon}
+                                          title={m.url}
+                                          aria-label="link"
+                                        >
+                                          <Link2 size={13} />
+                                        </a>
+                                      )}
+                                      {m.email && (
+                                        <a
+                                          href={`mailto:${m.email}`}
+                                          className={styles.teamLinkIcon}
+                                          title={m.email}
+                                          aria-label="email"
+                                        >
+                                          <Mail size={13} />
+                                        </a>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
                                 {renderContribs(
                                   m,
                                   styles.polaroidBackContribs,
