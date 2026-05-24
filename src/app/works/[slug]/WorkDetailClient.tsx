@@ -225,26 +225,45 @@ export default function WorkDetailClient({
                 </div>
               );
             })()}
-            {/* Tech — 단일 list (chip + 메모 있으면 옆에 KO/EN 설명). Role 보다 위에 표시 */}
-            <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-              <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
-              <ul className={styles.techNotesList}>
-                {project.tech.map((t) => {
-                  const note = project.tech_notes?.[t];
-                  const text = note
-                    ? (viewLang === "en"
-                        ? (note.en.trim() || note.ko.trim())
-                        : (note.ko.trim() || note.en.trim()))
-                    : "";
-                  return (
-                    <li key={t} className={styles.techNoteItem}>
-                      <span className={styles.techNoteTag}>{t}</span>
-                      {text && <span className={styles.techNoteText}>{text}</span>}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+            {/* Tech — 설명 있는 것 위에 한 줄씩 (chip + text), 없는 것 아래에 wrap 으로 한 묶음 */}
+            {(() => {
+              const withText: Array<{ tech: string; text: string }> = [];
+              const plain: string[] = [];
+              project.tech.forEach((t) => {
+                const note = project.tech_notes?.[t];
+                const text = note
+                  ? (viewLang === "en"
+                      ? (note.en.trim() || note.ko.trim())
+                      : (note.ko.trim() || note.en.trim()))
+                  : "";
+                if (text) withText.push({ tech: t, text });
+                else plain.push(t);
+              });
+              return (
+                <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+                  <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
+                  <div className={styles.techSection}>
+                    {withText.length > 0 && (
+                      <ul className={styles.techNotesList}>
+                        {withText.map(({ tech, text }) => (
+                          <li key={tech} className={styles.techNoteItem}>
+                            <span className={styles.techNoteTag}>{tech}</span>
+                            <span className={styles.techNoteText}>{text}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {plain.length > 0 && (
+                      <div className={styles.techPlainGroup}>
+                        {plain.map((t) => (
+                          <span key={t} className={styles.techNoteTag}>{t}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
             {/* Role + Contributions 통합 — group label 로 role 표시, items 가 contribs.
                 items 비어있는 role 도 label 은 표시. contributions 자체가 비면 project.role fallback */}
             {(() => {

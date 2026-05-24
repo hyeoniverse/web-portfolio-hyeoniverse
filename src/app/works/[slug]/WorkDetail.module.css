@@ -176,6 +176,19 @@
   gap: var(--spacing-sm);
 }
 
+/* ── Tech ── 설명 있는 list + 설명 없는 chip wrap 두 그룹 */
+.techSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.techPlainGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+
 /* ── Tech Notes ── tech chip + KO/EN 설명 inline row */
 .techNotesList {
   list-style: none;
