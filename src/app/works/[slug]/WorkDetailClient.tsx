@@ -273,101 +273,195 @@ export default function WorkDetailClient({
             })()}
             {project.teamMembers && project.teamMembers.length > 0 && (() => {
               const members = project.teamMembers;
-              const renderCard = (member: typeof members[number], key: string, hidden?: boolean) => {
-                const avatarUrl = deriveTeamMemberAvatar(member);
-                const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
-                const ko = member.contributions?.ko ?? {};
-                const en = member.contributions?.en ?? {};
+              const getContribsEntries = (m: typeof members[number]) => {
+                const ko = m.contributions?.ko ?? {};
+                const en = m.contributions?.en ?? {};
                 const enHas = Object.values(en).some((items) => items.length > 0);
                 const koHas = Object.values(ko).some((items) => items.length > 0);
-                const contribsMap = viewLang === "en"
-                  ? (enHas ? en : ko)
-                  : (koHas ? ko : en);
-                const contribsEntries = Object.entries(contribsMap).filter(([, items]) => items.length > 0);
-                const memberRoleLabel = viewLang === "en" ? member.role.en : member.role.ko;
+                const map = viewLang === "en" ? (enHas ? en : ko) : (koHas ? ko : en);
+                return Object.entries(map).filter(([, items]) => items.length > 0);
+              };
+              const getDisplayName = (m: typeof members[number]) =>
+                viewLang === "en" && m.name_en ? m.name_en : m.name;
+              const getMemberRoleLabel = (m: typeof members[number]) =>
+                viewLang === "en" ? m.role.en : m.role.ko;
+              const renderLinks = (m: typeof members[number], className: string) =>
+                (m.url || m.email) ? (
+                  <div className={className}>
+                    {m.url && (
+                      <a
+                        href={m.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.teamLinkIcon}
+                        title={m.url}
+                        aria-label="link"
+                      >
+                        <Link2 size={14} />
+                      </a>
+                    )}
+                    {m.email && (
+                      <a
+                        href={`mailto:${m.email}`}
+                        className={styles.teamLinkIcon}
+                        title={m.email}
+                        aria-label="email"
+                      >
+                        <Mail size={14} />
+                      </a>
+                    )}
+                  </div>
+                ) : null;
+              const renderContribs = (m: typeof members[number], wrapperClass: string, groupClass: string, roleClass: string, listClass: string) => {
+                const entries = getContribsEntries(m);
+                if (entries.length === 0) return null;
+                const memberRole = getMemberRoleLabel(m);
                 return (
-                  <article
-                    key={key}
-                    className={styles.teamMarqueeCard}
-                    aria-hidden={hidden ? true : undefined}
-                  >
-                    <div className={styles.teamMarqueeAvatar}>
-                      {avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={avatarUrl} alt={hidden ? "" : displayName} className={styles.teamMarqueeAvatarImg} loading="lazy" />
-                      ) : (
-                        <span className={styles.teamMarqueeAvatarInitial}>{getMemberInitial(displayName)}</span>
-                      )}
-                    </div>
-                    <div className={styles.teamMarqueeBody}>
-                      <div className={styles.teamMarqueeHeader}>
-                        <span className={styles.teamMarqueeName}>{displayName}</span>
-                        {(member.url || member.email) && (
-                          <div className={styles.teamMarqueeLinks}>
-                            {member.url && (
-                              <a
-                                href={member.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.teamMarqueeLink}
-                                title={member.url}
-                                aria-label="link"
-                                tabIndex={hidden ? -1 : 0}
-                              >
-                                <Link2 size={14} />
-                              </a>
-                            )}
-                            {member.email && (
-                              <a
-                                href={`mailto:${member.email}`}
-                                className={styles.teamMarqueeLink}
-                                title={member.email}
-                                aria-label="email"
-                                tabIndex={hidden ? -1 : 0}
-                              >
-                                <Mail size={14} />
-                              </a>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      <span className={styles.teamMarqueeRole}>
-                        <T ko={member.role.ko} en={member.role.en} />
-                      </span>
-                      {contribsEntries.length > 0 && (
-                        <div className={styles.teamMarqueeContribs}>
-                          {contribsEntries.map(([role, items]) => {
-                            const showRoleLabel = role !== memberRoleLabel;
-                            return (
-                              <div key={role} className={styles.teamMarqueeContribGroup}>
-                                {showRoleLabel && (
-                                  <div className={styles.teamMarqueeContribRole}>{role}</div>
-                                )}
-                                <ul className={styles.teamMarqueeContribList}>
-                                  {items.map((c, ci) => (
-                                    <li key={ci}>{c}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            );
-                          })}
+                  <div className={wrapperClass}>
+                    {entries.map(([role, items]) => {
+                      const showRoleLabel = role !== memberRole;
+                      return (
+                        <div key={role} className={groupClass}>
+                          {showRoleLabel && <div className={roleClass}>{role}</div>}
+                          <ul className={listClass}>
+                            {items.map((c, ci) => <li key={ci}>{c}</li>)}
+                          </ul>
                         </div>
-                      )}
-                    </div>
-                  </article>
+                      );
+                    })}
+                  </div>
+                );
+              };
+              const renderAvatar = (m: typeof members[number], wrapperClass: string, imgClass: string, initialClass: string) => {
+                const avatarUrl = deriveTeamMemberAvatar(m);
+                const name = getDisplayName(m);
+                return (
+                  <div className={wrapperClass}>
+                    {avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={avatarUrl} alt={name} className={imgClass} loading="lazy" />
+                    ) : (
+                      <span className={initialClass}>{getMemberInitial(name)}</span>
+                    )}
+                  </div>
                 );
               };
               return (
-                <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-                  <span className={styles.infoLabel}><T k="workDetail.team" /></span>
-                  <div className={styles.teamMarquee} aria-label="team members marquee">
-                    <div className={styles.teamMarqueeTrack}>
-                      {members.map((m, i) => renderCard(m, `m-${i}`, false))}
-                      {/* 무한 스크롤용 duplicate */}
-                      {members.map((m, i) => renderCard(m, `dup-${i}`, true))}
+                <>
+                  {/* ── 1. Bento Grid ── 첫 멤버 큰 카드, 나머지 작은 카드 mix */}
+                  <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+                    <span className={styles.infoLabel}>Team — Bento</span>
+                    <div className={styles.bentoGrid}>
+                      {members.map((m, i) => {
+                        const isMain = i === 0;
+                        return (
+                          <article key={i} className={`${styles.bentoCard} ${isMain ? styles.bentoCardMain : styles.bentoCardSmall}`}>
+                            {renderAvatar(
+                              m,
+                              isMain ? styles.bentoAvatarMain : styles.bentoAvatar,
+                              styles.bentoAvatarImg,
+                              styles.bentoAvatarInitial,
+                            )}
+                            <div className={styles.bentoBody}>
+                              <div className={styles.bentoHeader}>
+                                <span className={styles.bentoName}>{getDisplayName(m)}</span>
+                                {renderLinks(m, styles.bentoLinks)}
+                              </div>
+                              <span className={styles.bentoRole}>
+                                <T ko={m.role.ko} en={m.role.en} />
+                              </span>
+                              {isMain && renderContribs(
+                                m,
+                                styles.bentoContribs,
+                                styles.bentoContribGroup,
+                                styles.bentoContribRole,
+                                styles.bentoContribList,
+                              )}
+                            </div>
+                          </article>
+                        );
+                      })}
                     </div>
                   </div>
-                </div>
+
+                  {/* ── 2. Polaroid Stack ── 사진 카드, 살짝 rotate */}
+                  <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+                    <span className={styles.infoLabel}>Team — Polaroid</span>
+                    <div className={styles.polaroidGrid}>
+                      {members.map((m, i) => (
+                        <article key={i} className={styles.polaroidCard}>
+                          {renderAvatar(m, styles.polaroidAvatar, styles.polaroidAvatarImg, styles.polaroidAvatarInitial)}
+                          <div className={styles.polaroidCaption}>
+                            <span className={styles.polaroidName}>{getDisplayName(m)}</span>
+                            <span className={styles.polaroidRole}>
+                              <T ko={m.role.ko} en={m.role.en} />
+                            </span>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* ── 3. 3D Tilt Card ── grid + hover tilt (CSS only, mouse-follow JS 없음 — perspective + scale) */}
+                  <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+                    <span className={styles.infoLabel}>Team — 3D Tilt</span>
+                    <div className={styles.tiltGrid}>
+                      {members.map((m, i) => (
+                        <article key={i} className={styles.tiltCard}>
+                          <div className={styles.tiltCardInner}>
+                            {renderAvatar(m, styles.tiltAvatar, styles.tiltAvatarImg, styles.tiltAvatarInitial)}
+                            <div className={styles.tiltBody}>
+                              <div className={styles.tiltHeader}>
+                                <span className={styles.tiltName}>{getDisplayName(m)}</span>
+                                {renderLinks(m, styles.tiltLinks)}
+                              </div>
+                              <span className={styles.tiltRole}>
+                                <T ko={m.role.ko} en={m.role.en} />
+                              </span>
+                              {renderContribs(
+                                m,
+                                styles.tiltContribs,
+                                styles.tiltContribGroup,
+                                styles.tiltContribRole,
+                                styles.tiltContribList,
+                              )}
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* ── 4. Glassmorphism ── frosted glass + gradient bg */}
+                  <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+                    <span className={styles.infoLabel}>Team — Glass</span>
+                    <div className={styles.glassWrap}>
+                      <div className={styles.glassGrid}>
+                        {members.map((m, i) => (
+                          <article key={i} className={styles.glassCard}>
+                            {renderAvatar(m, styles.glassAvatar, styles.glassAvatarImg, styles.glassAvatarInitial)}
+                            <div className={styles.glassBody}>
+                              <div className={styles.glassHeader}>
+                                <span className={styles.glassName}>{getDisplayName(m)}</span>
+                                {renderLinks(m, styles.glassLinks)}
+                              </div>
+                              <span className={styles.glassRole}>
+                                <T ko={m.role.ko} en={m.role.en} />
+                              </span>
+                              {renderContribs(
+                                m,
+                                styles.glassContribs,
+                                styles.glassContribGroup,
+                                styles.glassContribRole,
+                                styles.glassContribList,
+                              )}
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </>
               );
             })()}
           </motion.div>
