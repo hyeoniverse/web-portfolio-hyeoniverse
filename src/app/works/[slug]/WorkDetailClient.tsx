@@ -321,20 +321,29 @@ export default function WorkDetailClient({
                               <T ko={member.role.ko} en={member.role.en} />
                             </span>
                           </div>
-                          {contribsEntries.length > 0 && (
-                            <div className={styles.teamCardContribs}>
-                              {contribsEntries.map(([role, items]) => (
-                                <div key={role} className={styles.teamCardContribGroup}>
-                                  <div className={styles.teamCardContribRole}>{role}</div>
-                                  <ul className={styles.teamCardContribList}>
-                                    {items.map((c, ci) => (
-                                      <li key={ci}>{c}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                          {contribsEntries.length > 0 && (() => {
+                            const memberRoleLabel = viewLang === "en" ? member.role.en : member.role.ko;
+                            return (
+                              <div className={styles.teamCardContribs}>
+                                {contribsEntries.map(([role, items]) => {
+                                  // group role 이 멤버 role 과 같으면 group label 생략 (header 의 role 과 중복)
+                                  const showRoleLabel = role !== memberRoleLabel;
+                                  return (
+                                    <div key={role} className={styles.teamCardContribGroup}>
+                                      {showRoleLabel && (
+                                        <div className={styles.teamCardContribRole}>{role}</div>
+                                      )}
+                                      <ul className={styles.teamCardContribList}>
+                                        {items.map((c, ci) => (
+                                          <li key={ci}>{c}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })()}
                         </div>
                       </article>
                     );

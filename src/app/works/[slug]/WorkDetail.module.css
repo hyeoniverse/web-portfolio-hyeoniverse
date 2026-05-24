@@ -238,12 +238,12 @@
   gap: var(--spacing-lg);
 }
 
-/* 좌측 image — 큰 정사각, radius-lg, image 자체가 카드의 시각적 anchor */
+/* 좌측 image — 큰 원형 (round 강조). image 자체가 카드의 시각적 anchor */
 .teamCardAvatar {
   flex-shrink: 0;
   width: 128px;
   height: 128px;
-  border-radius: var(--radius-lg);
+  border-radius: 50%;
   overflow: hidden;
   background: var(--bg-tertiary);
   display: flex;
