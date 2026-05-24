@@ -431,24 +431,26 @@ function TeamMemberCard({
               </span>
             ) : null}
           </div>
-          {onEdit && (
-            <button
-              type="button"
-              className={styles.memberHeaderEditBtn}
-              onClick={onEdit}
-              aria-label={isEditingFull ? "Cancel edit" : "Edit member"}
-              title={isEditingFull ? "편집 취소" : "전체 편집"}
-              data-cursor="big"
-            >
-              {isEditingFull ? <X size={14} strokeWidth={2.4} /> : <Pencil size={12} strokeWidth={2.2} />}
-            </button>
-          )}
-          <CloseButton
-            size="md"
-            className={styles.memberHeaderActionBtn}
-            onClick={onRemove}
-            ariaLabel="Remove member"
-          />
+          <div className={styles.memberHeaderActions}>
+            {onEdit && (
+              <button
+                type="button"
+                className={styles.memberHeaderEditBtn}
+                onClick={onEdit}
+                aria-label={isEditingFull ? "Cancel edit" : "Edit member"}
+                title={isEditingFull ? "편집 취소" : "전체 편집"}
+                data-cursor="big"
+              >
+                {isEditingFull ? <X size={14} strokeWidth={2.4} /> : <Pencil size={14} strokeWidth={2.2} />}
+              </button>
+            )}
+            <CloseButton
+              size="md"
+              className={styles.memberHeaderActionBtn}
+              onClick={onRemove}
+              ariaLabel="Remove member"
+            />
+          </div>
         </div>
         {/* contribs — 역할 label 마다 개별 토글. 기본 접힘 → 클릭하면 해당 역할의 작업만 펼침 */}
         {contribsToShow.length > 0 && (
