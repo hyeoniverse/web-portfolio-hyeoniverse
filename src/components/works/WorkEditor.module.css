@@ -1030,11 +1030,11 @@
 }
 
 /* role select — 자체 row (full-width). Select.root 의 fit-content override */
-/* role row — 부모 grid 안에서 한 행 전체 차지 (1열 full-width) */
+/* role row — TagNotesEditor section 의 1 column 너비 만큼 (minmax(320px, 1fr) 한 칸) */
 .memberRoleRow {
   display: block;
-  grid-column: 1 / -1;
   width: 100%;
+  max-width: 320px;
 }
 
 .memberRoleRow > .roleSelect.roleSelect {
