@@ -57,6 +57,13 @@ export default function WorkDetailClient({
     endpoint: `/api/works/${project.id}/like`,
   });
   const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
+  const [flippedMembers, setFlippedMembers] = useState<Set<number>>(new Set());
+  const toggleFlipped = (i: number) => setFlippedMembers((prev) => {
+    const next = new Set(prev);
+    if (next.has(i)) next.delete(i);
+    else next.add(i);
+    return next;
+  });
   const [relatedPosts, setRelatedPosts] = useState<{ id: string; title: string; title_en?: string; slug: string; cover_image: string; excerpt: string; category: string; created_at: string }[]>([]);
   const { containerRef: proseRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const richtextRef = useRef<HTMLDivElement>(null);
@@ -110,10 +117,11 @@ export default function WorkDetailClient({
               <div className={styles.tagGroup}>
                 {(() => {
                   const teamCount = project.teamMembers?.length ?? 0;
+                  // 본인 포함 = teamCount + 1
                   return teamCount > 0 ? (
                     <span className={`${styles.tag} ${styles.tagTeam}`}>
                       <Users size={11} strokeWidth={1.8} />
-                      <T ko={`팀 · ${teamCount}`} en={`Team · ${teamCount}`} />
+                      <T ko={`팀 · ${teamCount + 1}`} en={`Team · ${teamCount + 1}`} />
                     </span>
                   ) : (
                     <span className={`${styles.tag} ${styles.tagSolo}`}>
@@ -285,33 +293,6 @@ export default function WorkDetailClient({
                 viewLang === "en" && m.name_en ? m.name_en : m.name;
               const getMemberRoleLabel = (m: typeof members[number]) =>
                 viewLang === "en" ? m.role.en : m.role.ko;
-              const renderLinks = (m: typeof members[number], className: string) =>
-                (m.url || m.email) ? (
-                  <div className={className}>
-                    {m.url && (
-                      <a
-                        href={m.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.teamLinkIcon}
-                        title={m.url}
-                        aria-label="link"
-                      >
-                        <Link2 size={14} />
-                      </a>
-                    )}
-                    {m.email && (
-                      <a
-                        href={`mailto:${m.email}`}
-                        className={styles.teamLinkIcon}
-                        title={m.email}
-                        aria-label="email"
-                      >
-                        <Mail size={14} />
-                      </a>
-                    )}
-                  </div>
-                ) : null;
               const renderContribs = (m: typeof members[number], wrapperClass: string, groupClass: string, roleClass: string, listClass: string) => {
                 const entries = getContribsEntries(m);
                 if (entries.length === 0) return null;
@@ -347,121 +328,91 @@ export default function WorkDetailClient({
                 );
               };
               return (
-                <>
-                  {/* ── 1. Bento Grid ── 첫 멤버 큰 카드, 나머지 작은 카드 mix */}
-                  <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-                    <span className={styles.infoLabel}>Team — Bento</span>
-                    <div className={styles.bentoGrid}>
-                      {members.map((m, i) => {
-                        const isMain = i === 0;
-                        return (
-                          <article key={i} className={`${styles.bentoCard} ${isMain ? styles.bentoCardMain : styles.bentoCardSmall}`}>
-                            {renderAvatar(
-                              m,
-                              isMain ? styles.bentoAvatarMain : styles.bentoAvatar,
-                              styles.bentoAvatarImg,
-                              styles.bentoAvatarInitial,
+                <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+                  <span className={styles.infoLabel}><T k="workDetail.team" /></span>
+                  <div className={styles.polaroidGrid}>
+                    {members.map((m, i) => {
+                      const isFlipped = flippedMembers.has(i);
+                      const hasContribs = getContribsEntries(m).length > 0;
+                      return (
+                        <article
+                          key={i}
+                          className={`${styles.polaroidCard} ${isFlipped ? styles.polaroidCardFlipped : ""}`}
+                          onClick={hasContribs ? () => toggleFlipped(i) : undefined}
+                          role={hasContribs ? "button" : undefined}
+                          tabIndex={hasContribs ? 0 : undefined}
+                          onKeyDown={hasContribs ? (e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              toggleFlipped(i);
+                            }
+                          } : undefined}
+                          aria-pressed={hasContribs ? isFlipped : undefined}
+                        >
+                          <div className={styles.polaroidCardInner}>
+                            {/* 앞면 — image + caption + link/email */}
+                            <div className={styles.polaroidFront}>
+                              {renderAvatar(m, styles.polaroidAvatar, styles.polaroidAvatarImg, styles.polaroidAvatarInitial)}
+                              <div className={styles.polaroidCaption}>
+                                <span className={styles.polaroidName}>{getDisplayName(m)}</span>
+                                <span className={styles.polaroidRole}>
+                                  <T ko={m.role.ko} en={m.role.en} />
+                                </span>
+                                {(m.url || m.email) && (
+                                  <div
+                                    className={styles.polaroidLinks}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {m.url && (
+                                      <a
+                                        href={m.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={styles.teamLinkIcon}
+                                        title={m.url}
+                                        aria-label="link"
+                                      >
+                                        <Link2 size={13} />
+                                      </a>
+                                    )}
+                                    {m.email && (
+                                      <a
+                                        href={`mailto:${m.email}`}
+                                        className={styles.teamLinkIcon}
+                                        title={m.email}
+                                        aria-label="email"
+                                      >
+                                        <Mail size={13} />
+                                      </a>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            {/* 뒷면 — contribs detail */}
+                            {hasContribs && (
+                              <div className={styles.polaroidBack}>
+                                <div className={styles.polaroidBackHeader}>
+                                  <span className={styles.polaroidBackName}>{getDisplayName(m)}</span>
+                                  <span className={styles.polaroidBackRole}>
+                                    <T ko={m.role.ko} en={m.role.en} />
+                                  </span>
+                                </div>
+                                {renderContribs(
+                                  m,
+                                  styles.polaroidBackContribs,
+                                  styles.polaroidBackContribGroup,
+                                  styles.polaroidBackContribRole,
+                                  styles.polaroidBackContribList,
+                                )}
+                              </div>
                             )}
-                            <div className={styles.bentoBody}>
-                              <div className={styles.bentoHeader}>
-                                <span className={styles.bentoName}>{getDisplayName(m)}</span>
-                                {renderLinks(m, styles.bentoLinks)}
-                              </div>
-                              <span className={styles.bentoRole}>
-                                <T ko={m.role.ko} en={m.role.en} />
-                              </span>
-                              {isMain && renderContribs(
-                                m,
-                                styles.bentoContribs,
-                                styles.bentoContribGroup,
-                                styles.bentoContribRole,
-                                styles.bentoContribList,
-                              )}
-                            </div>
-                          </article>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* ── 2. Polaroid Stack ── 사진 카드, 살짝 rotate */}
-                  <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-                    <span className={styles.infoLabel}>Team — Polaroid</span>
-                    <div className={styles.polaroidGrid}>
-                      {members.map((m, i) => (
-                        <article key={i} className={styles.polaroidCard}>
-                          {renderAvatar(m, styles.polaroidAvatar, styles.polaroidAvatarImg, styles.polaroidAvatarInitial)}
-                          <div className={styles.polaroidCaption}>
-                            <span className={styles.polaroidName}>{getDisplayName(m)}</span>
-                            <span className={styles.polaroidRole}>
-                              <T ko={m.role.ko} en={m.role.en} />
-                            </span>
                           </div>
                         </article>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
-
-                  {/* ── 3. 3D Tilt Card ── grid + hover tilt (CSS only, mouse-follow JS 없음 — perspective + scale) */}
-                  <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-                    <span className={styles.infoLabel}>Team — 3D Tilt</span>
-                    <div className={styles.tiltGrid}>
-                      {members.map((m, i) => (
-                        <article key={i} className={styles.tiltCard}>
-                          <div className={styles.tiltCardInner}>
-                            {renderAvatar(m, styles.tiltAvatar, styles.tiltAvatarImg, styles.tiltAvatarInitial)}
-                            <div className={styles.tiltBody}>
-                              <div className={styles.tiltHeader}>
-                                <span className={styles.tiltName}>{getDisplayName(m)}</span>
-                                {renderLinks(m, styles.tiltLinks)}
-                              </div>
-                              <span className={styles.tiltRole}>
-                                <T ko={m.role.ko} en={m.role.en} />
-                              </span>
-                              {renderContribs(
-                                m,
-                                styles.tiltContribs,
-                                styles.tiltContribGroup,
-                                styles.tiltContribRole,
-                                styles.tiltContribList,
-                              )}
-                            </div>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* ── 4. Glassmorphism ── frosted glass + gradient bg */}
-                  <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-                    <span className={styles.infoLabel}>Team — Glass</span>
-                    <div className={styles.glassWrap}>
-                      <div className={styles.glassGrid}>
-                        {members.map((m, i) => (
-                          <article key={i} className={styles.glassCard}>
-                            {renderAvatar(m, styles.glassAvatar, styles.glassAvatarImg, styles.glassAvatarInitial)}
-                            <div className={styles.glassBody}>
-                              <div className={styles.glassHeader}>
-                                <span className={styles.glassName}>{getDisplayName(m)}</span>
-                                {renderLinks(m, styles.glassLinks)}
-                              </div>
-                              <span className={styles.glassRole}>
-                                <T ko={m.role.ko} en={m.role.en} />
-                              </span>
-                              {renderContribs(
-                                m,
-                                styles.glassContribs,
-                                styles.glassContribGroup,
-                                styles.glassContribRole,
-                                styles.glassContribList,
-                              )}
-                            </div>
-                          </article>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </>
+                </div>
               );
             })()}
           </motion.div>
