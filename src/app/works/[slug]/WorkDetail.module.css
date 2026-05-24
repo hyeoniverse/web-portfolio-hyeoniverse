@@ -239,10 +239,11 @@
   background: var(--bg-tertiary);
 }
 
-/* HorizontalCarousel 안 children layout — gap, padding, perspective */
+/* HorizontalCarousel 안 children layout — gap, padding, perspective.
+   카드가 살짝 rotate + hover scale 되므로 좌우/상하 padding 충분히 줘서 edge 잘림 방지 */
 .polaroidCarousel {
   gap: var(--spacing-lg);
-  padding: var(--spacing-md) 0;
+  padding: var(--spacing-lg) var(--spacing-xl);
   perspective: 1200px;
 }
 
