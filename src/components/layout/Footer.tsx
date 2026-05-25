@@ -183,7 +183,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                 {isAuthenticated && (
                   <>
                     <span className={styles.divider}>✧</span>
-                    <Link href="/admin/settings" target="_blank" className={styles.adminLink}>Admin</Link>
+                    <Link href="/admin" target="_blank" className={styles.adminLink}>Admin</Link>
                   </>
                 )}
                 {visits && (
@@ -227,7 +227,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                   <Link href="/design-system" target="_blank" ref={setLinkRef("/design-system")} onMouseEnter={() => setHoveredLink("/design-system")} className={pathname === "/design-system" ? styles.activeLink : ""}>Design System</Link>
                   <span className={styles.divider}>✧</span>
                   {isAuthenticated ? (
-                    <Link href="/admin/settings" target="_blank" ref={setLinkRef("/admin/settings")} onMouseEnter={() => setHoveredLink("/admin/settings")}>Admin</Link>
+                    <Link href="/admin" target="_blank" ref={setLinkRef("/admin")} onMouseEnter={() => setHoveredLink("/admin")}>Admin</Link>
                   ) : (
                     <Link href="/admin/login" target="_blank" ref={setLinkRef("/admin/login")} onMouseEnter={() => setHoveredLink("/admin/login")}>Login</Link>
                   )}
