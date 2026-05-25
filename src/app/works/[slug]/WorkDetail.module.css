@@ -659,6 +659,16 @@
   padding: var(--spacing-2xl) 0;
 }
 
+/* item 정확히 2개 — 2-col grid 으로 (각 item full width 의 1/2) */
+.gallery:has(> .galleryItem:nth-child(2):last-child) {
+  grid-template-columns: 1fr 1fr;
+}
+
+.gallery:has(> .galleryItem:nth-child(2):last-child) > .galleryItem {
+  grid-column: auto !important;
+  grid-row: span 2;
+}
+
 .galleryItem {
   position: relative;
   width: 100%;
@@ -729,11 +739,11 @@
   border-top: var(--border-light);
 }
 
-/* ── Team Credits — actions 다음 / related posts 전. relatedSection 패턴 재사용 */
+/* ── Team Credits — likeWrapper 처럼 content 흐름 안 단순 배치 (full width = content width) */
 .teamCreditsSection {
-  max-width: var(--page-max-width);
-  margin: 0 auto;
-  padding: var(--spacing-2xl) 0 0;
+  width: 100%;
+  padding-top: var(--spacing-2xl);
+  margin-top: var(--spacing-md);
   border-top: var(--border-light);
 }
 

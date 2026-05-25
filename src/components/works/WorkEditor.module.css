@@ -1004,11 +1004,11 @@
 }
 
 /* 편집 모드 — 카드 옅은 accent 배경, border 제거, 좌우 padding 으로 background 영역 확보.
-   .memberCard.memberCard (0,2,0) 의 padding: sm 0 를 이기려면 동일 specificity 필요 */
-.memberCard.memberCardEditing {
+   .memberCard.memberCard (0,2,0) 가 뒤에 정의되어 cascade 로 이기므로,
+   (0,3,0) 로 격상 (같은 클래스 한 번 더) */
+.memberCard.memberCard.memberCardEditing {
   background: color-mix(in oklch, var(--text-accent) 8%, transparent);
   border: none;
-  border-radius: var(--radius-md);
   padding: var(--spacing-sm) var(--spacing-md);
 }
 
@@ -1050,14 +1050,14 @@
   gap: var(--spacing-2xs);
 }
 
-/* List — 너비 충분하면 multi-col grid (auto-fill minmax). border 는 wrap 단위로 only. */
+/* List — 너비 충분하면 multi-col grid (auto-fill minmax). border 없음 */
 .memberList.memberList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   height: auto;
   gap: 0 var(--spacing-xl);
-  border-top: var(--border-light);
-  border-bottom: var(--border-light);
+  border-top: none;
+  border-bottom: none;
 }
 
 /* add-mode card — saved card 와 같은 외형이지만 inputs/버튼 포함. header row 가 4-칸 grid */
@@ -1226,7 +1226,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: none;
   border-radius: 0;
   box-sizing: border-box;

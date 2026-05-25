@@ -1,15 +1,9 @@
 /* ── BilingualInputPair — KO / EN 배지 in-input ── */
-/* KO + EN 인풋 2열 배치 (좁으면 wrap 으로 1열) */
+/* KO + EN 인풋 — 너비 충분하면 2열, 부족하면 자동 줄바꿈 (auto-fit minmax) */
 .pair {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--spacing-2xs);
-}
-
-@media (max-width: 480px) {
-  .pair {
-    grid-template-columns: 1fr;
-  }
 }
 
 .pairFit {
