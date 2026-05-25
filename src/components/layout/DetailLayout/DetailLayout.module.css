@@ -121,11 +121,10 @@
   overflow-y: auto;
 }
 
-/* ── Like button ── content 흐름 안에 자연스럽게 (위 margin 없이, 아래만 약간) */
 .likeWrapper {
   display: flex;
   justify-content: center;
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-4xl);
   margin-bottom: var(--spacing-lg);
 }
 
@@ -255,27 +254,70 @@
   100% { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
 }
 
-/* 하트 인터랙션 — hover heartbeat pulse + press scale up */
+/* 하트 인터랙션 — hover 단순 scale + press 더 크게 */
 .likeWrapper .likeBtn svg {
-  transition: transform 0.15s ease;
+  transition: transform var(--duration-base) var(--ease-material);
 }
 
 .likeWrapper .likeBtn:hover:not(:disabled) svg {
-  animation: heartbeat 0.9s infinite ease-in-out;
+  transform: scale(1.1);
 }
 
 .likeWrapper .likeBtn:active:not(:disabled) svg {
-  animation: none;
   transform: scale(1.25);
   transition: transform 0.1s ease;
 }
 
-@keyframes heartbeat {
-  0% { transform: scale(1); }
-  14% { transform: scale(1.18); }
-  28% { transform: scale(1); }
-  42% { transform: scale(1.12); }
-  70%, 100% { transform: scale(1); }
+/* ── Heart burst — 채우기 완료 시 1회 사방으로 mini 하트 흩뿌리기 ── */
+.heartHolder {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.burstParticle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--size, 10px);
+  height: var(--size, 10px);
+  margin: calc(var(--size, 10px) / -2) 0 0 calc(var(--size, 10px) / -2);
+  background-color: var(--color-accent);
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/></svg>");
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  opacity: 0;
+  /* expo-out ease — 처음엔 빠르게 떠올라 후반부 길게 흩어짐 */
+  animation: burstRise var(--duration, 1400ms) cubic-bezier(0.16, 1, 0.3, 1) var(--delay, 0ms) both;
+}
+
+/* 위쪽으로 방울 떠오르기 — 한 방향 곡선 (sway 없음) + opacity 부드러운 in/out */
+@keyframes burstRise {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  15% {
+    opacity: var(--opacity-peak, 1);
+    transform: translate(calc(var(--drift-x) * 0.12), calc(var(--rise) * -0.1)) scale(var(--scale));
+  }
+  70% {
+    opacity: calc(var(--opacity-peak, 1) * 0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--drift-x), calc(var(--rise) * -1)) scale(calc(var(--scale) * 0.85));
+  }
 }
 
 .likeCount {
@@ -289,6 +331,52 @@
   max-width: var(--page-max-width);
   margin: 0 auto;
   padding: 0 var(--page-px);
+}
+
+/* ── Comments wrapper ── */
+.commentWrap {
+  padding: 0 0 var(--spacing-3xl);
+}
+
+/* ── Bottom back-to-list link ── */
+.footerNav {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-xl) 0 var(--spacing-3xl);
+  border-top: var(--border-light);
+}
+
+.footerLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.footerArrow {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Compound selector — beats global theme transition */
+.footerNav .footerLink {
+  transition: color var(--duration-base) var(--ease-material);
+}
+
+.footerNav .footerArrow {
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.footerNav .footerLink:hover {
+  color: var(--text-accent);
+}
+
+.footerNav .footerLink:hover .footerArrow {
+  transform: translateX(-4px);
 }
 
 
