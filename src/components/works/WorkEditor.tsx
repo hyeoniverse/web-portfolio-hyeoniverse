@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
-import { ChevronRight, Plus, Star, Check, X, User } from "lucide-react";
+import { ChevronRight, Plus, Star, Check, X, User, Pencil } from "lucide-react";
 import Button from "@/components/ui/Button";
 import CloseButton from "@/components/ui/CloseButton";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
@@ -163,11 +163,17 @@ function TeamMemberCard({
   editorLang,
   onChange,
   onRemove,
+  onEdit,
+  isEditingFull,
 }: {
   member: TeamMember;
   editorLang: "ko" | "en";
   onChange: (next: TeamMember) => void;
   onRemove: () => void;
+  /** 전체 편집 모드 진입 (KO/EN 분리·역할·작업 내용 등 add-card form 으로) */
+  onEdit?: () => void;
+  /** 현재 이 카드가 전체 편집 중인지 — 시각 강조 */
+  isEditingFull?: boolean;
 }) {
   type EditField = "name" | "role" | "email" | "url";
   const [expandedRoles, setExpandedRoles] = useState<Set<string>>(new Set());
@@ -323,7 +329,7 @@ function TeamMemberCard({
 
 
   return (
-    <ListItem layout="column" className={styles.memberCard}>
+    <ListItem layout="column" className={`${styles.memberCard} ${isEditingFull ? styles.memberCardEditing : ""}`}>
       <div className={styles.memberHeaderRow}>
           <input
             ref={avatarFileRef}
@@ -425,12 +431,26 @@ function TeamMemberCard({
               </span>
             ) : null}
           </div>
-          <CloseButton
-            size="md"
-            className={styles.memberHeaderActionBtn}
-            onClick={onRemove}
-            ariaLabel="Remove member"
-          />
+          <div className={styles.memberHeaderActions}>
+            {onEdit && (
+              <button
+                type="button"
+                className={styles.memberHeaderEditBtn}
+                onClick={onEdit}
+                aria-label={isEditingFull ? "Cancel edit" : "Edit member"}
+                title={isEditingFull ? "편집 취소" : "전체 편집"}
+                data-cursor="big"
+              >
+                {isEditingFull ? <X size={14} strokeWidth={2.4} /> : <Pencil size={14} strokeWidth={2.2} />}
+              </button>
+            )}
+            <CloseButton
+              size="md"
+              className={styles.memberHeaderActionBtn}
+              onClick={onRemove}
+              ariaLabel="Remove member"
+            />
+          </div>
         </div>
         {/* contribs — 역할 label 마다 개별 토글. 기본 접힘 → 클릭하면 해당 역할의 작업만 펼침 */}
         {contribsToShow.length > 0 && (
@@ -2053,6 +2073,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                     updateField("team_members", newMembers);
                   }}
                   onRemove={() => team.removeMember(i)}
+                  onEdit={() => team.editingIdx === i ? team.cancelEdit() : team.startEdit(i)}
+                  isEditingFull={team.editingIdx === i}
                 />
               ))}
             </List>
@@ -2061,18 +2083,48 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         {/* 새 팀원 추가 — add-mode 카드 */}
         <div className={styles.memberFormBlock}>
           <div className={styles.memberSubLabelRow}>
-            <span className={styles.memberSubLabel}>{tw("memberFormLabel")}</span>
-            <Button
-              variant="outline"
-              size="xs"
-              className={styles.avatarUploadBtn}
-              onClick={team.addMember}
-              disabled={!team.memberName.trim()}
-              aria-label="Add member"
-              icon={<Plus size={12} strokeWidth={2} />}
-            >
-              {tw("memberAddButton")}
-            </Button>
+            <span className={styles.memberSubLabel}>
+              {team.editingIdx !== null
+                ? (editorLang === "ko" ? "팀원 편집" : "Edit member")
+                : tw("memberFormLabel")}
+            </span>
+            {team.editingIdx !== null ? (
+              <div className={styles.memberFormActions}>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  className={styles.avatarUploadBtn}
+                  onClick={team.cancelEdit}
+                  aria-label="Cancel edit"
+                  icon={<X size={12} strokeWidth={2} />}
+                >
+                  {editorLang === "ko" ? "취소" : "Cancel"}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  className={styles.avatarUploadBtn}
+                  onClick={team.saveEdit}
+                  disabled={!team.memberName.trim()}
+                  aria-label="Save edit"
+                  icon={<Check size={12} strokeWidth={2} />}
+                >
+                  {editorLang === "ko" ? "저장" : "Save"}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="xs"
+                className={styles.avatarUploadBtn}
+                onClick={team.addMember}
+                disabled={!team.memberName.trim()}
+                aria-label="Add member"
+                icon={<Plus size={12} strokeWidth={2} />}
+              >
+                {tw("memberAddButton")}
+              </Button>
+            )}
           </div>
           <div className={`${styles.memberCard} ${styles.memberCardAdd}`}>
             <input

@@ -5,10 +5,9 @@ import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import "katex/dist/katex.min.css";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import Image from "next/image";
-import Link from "next/link";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion } from "framer-motion";
-import { FileText, ImageIcon, Pencil, ArrowLeft, Globe, User, Users } from "lucide-react";
+import { FileText, ImageIcon, Pencil, Globe, User, Users, Link2, Mail } from "lucide-react";
 import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -19,10 +18,7 @@ import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvat
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import { extractHeadings, getBentoClass } from "../_utils";
 import Button from "@/components/ui/Button";
-import dynamic from "next/dynamic";
-import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
-const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import AISummary from "@/components/ui/AISummary";
 import ShareButton from "@/components/ui/ShareButton";
@@ -57,6 +53,14 @@ export default function WorkDetailClient({
     endpoint: `/api/works/${project.id}/like`,
   });
   const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
+  const [flippedMembers, setFlippedMembers] = useState<Set<number>>(new Set());
+  const [hoveredMemberIdx, setHoveredMemberIdx] = useState<number | null>(null);
+  const toggleFlipped = (i: number) => setFlippedMembers((prev) => {
+    const next = new Set(prev);
+    if (next.has(i)) next.delete(i);
+    else next.add(i);
+    return next;
+  });
   const [relatedPosts, setRelatedPosts] = useState<{ id: string; title: string; title_en?: string; slug: string; cover_image: string; excerpt: string; category: string; created_at: string }[]>([]);
   const { containerRef: proseRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const richtextRef = useRef<HTMLDivElement>(null);
@@ -110,10 +114,11 @@ export default function WorkDetailClient({
               <div className={styles.tagGroup}>
                 {(() => {
                   const teamCount = project.teamMembers?.length ?? 0;
+                  // 본인 포함 = teamCount + 1
                   return teamCount > 0 ? (
                     <span className={`${styles.tag} ${styles.tagTeam}`}>
                       <Users size={11} strokeWidth={1.8} />
-                      <T ko={`팀 · ${teamCount}`} en={`Team · ${teamCount}`} />
+                      <T ko={`팀 · ${teamCount + 1}`} en={`Team · ${teamCount + 1}`} />
                     </span>
                   ) : (
                     <span className={`${styles.tag} ${styles.tagSolo}`}>
@@ -216,89 +221,71 @@ export default function WorkDetailClient({
                 </div>
               );
             })()}
-            <div className={styles.infoBlock}>
-              <span className={styles.infoLabel}><T k="workDetail.role" /></span>
-              <span className={`${styles.infoValue} ${styles.infoValueMultiline}`}>
-                <T ko={project.role.ko} en={project.role.en} />
-              </span>
-            </div>
-            {project.contributions && (() => {
-              const map = viewLang === "en" ? project.contributions.en : project.contributions.ko;
-              const entries = Object.entries(map).filter(([, items]) => items.length > 0);
-              if (entries.length === 0) return null;
+            {/* Tech — 설명 있는 것 위에 한 줄씩 (chip + text), 없는 것 아래에 wrap 으로 한 묶음 */}
+            {(() => {
+              const withText: Array<{ tech: string; text: string }> = [];
+              const plain: string[] = [];
+              project.tech.forEach((t) => {
+                const note = project.tech_notes?.[t];
+                const text = note
+                  ? (viewLang === "en"
+                      ? (note.en.trim() || note.ko.trim())
+                      : (note.ko.trim() || note.en.trim()))
+                  : "";
+                if (text) withText.push({ tech: t, text });
+                else plain.push(t);
+              });
               return (
                 <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-                  <span className={styles.infoLabel}>
-                    <T ko="역할별 작업" en="Contributions" />
-                  </span>
-                  <div className={styles.ownContribsGroups}>
-                    {entries.map(([role, items]) => (
-                      <div key={role} className={styles.teamContribsGroup}>
-                        <div className={styles.teamContribsRoleLabel}>{role}</div>
-                        <ul className={styles.teamContribs}>
-                          {items.map((c, ci) => (
-                            <li key={ci}>{c}</li>
-                          ))}
-                        </ul>
+                  <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
+                  <div className={styles.techSection}>
+                    {withText.length > 0 && (
+                      <ul className={styles.techNotesList}>
+                        {withText.map(({ tech, text }) => (
+                          <li key={tech} className={styles.techNoteItem}>
+                            <span className={styles.techNoteTag}>{tech}</span>
+                            <span className={styles.techNoteText}>{text}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {plain.length > 0 && (
+                      <div className={styles.techPlainGroup}>
+                        {plain.map((t) => (
+                          <span key={t} className={styles.techNoteTag}>{t}</span>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               );
             })()}
-            <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
-              <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
-              <ul className={styles.techNotesList}>
-                {project.tech.map((t) => {
-                  const note = project.tech_notes?.[t];
-                  const text = note
-                    ? (viewLang === "en"
-                        ? (note.en.trim() || note.ko.trim())
-                        : (note.ko.trim() || note.en.trim()))
-                    : "";
-                  return (
-                    <li key={t} className={styles.techNoteItem}>
-                      <span className={styles.techNoteTag}>{t}</span>
-                      {text && <span className={styles.techNoteText}>{text}</span>}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-            {project.teamMembers && project.teamMembers.length > 0 && (
-              <div className={styles.infoBlock}>
-                <span className={styles.infoLabel}><T k="workDetail.team" /></span>
-                <div className={styles.teamList}>
-                  {project.teamMembers.map((member, i) => {
-                    const avatarUrl = deriveTeamMemberAvatar(member);
-                    const contribsMap = member.contributions
-                      ? (viewLang === "ko" ? member.contributions.ko : member.contributions.en)
-                      : {};
-                    const contribsEntries = Object.entries(contribsMap).filter(([, items]) => items.length > 0);
-                    const displayName = viewLang === "en" && member.name_en ? member.name_en : member.name;
-                    return (
-                      <div key={i} className={styles.teamMember}>
-                        <div className={styles.teamMemberHeader}>
-                          <span className={styles.teamAvatar} aria-hidden>
-                            {avatarUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={avatarUrl} alt="" className={styles.teamAvatarImg} loading="lazy" />
-                            ) : (
-                              <span className={styles.teamAvatarInitial}>{getMemberInitial(displayName)}</span>
-                            )}
-                          </span>
-                          {member.url ? (
-                            <a href={member.url} target="_blank" rel="noopener noreferrer" className={styles.teamLink}>
-                              {displayName}
-                            </a>
-                          ) : (
-                            displayName
-                          )}
-                          <span className={styles.teamRole}> — <T ko={member.role.ko} en={member.role.en} /></span>
-                        </div>
-                        {contribsEntries.length > 0 && (
-                          <div className={styles.teamContribsGroups}>
-                            {contribsEntries.map(([role, items]) => (
+            {/* Role + Contributions 통합 — items 있는 role 은 grid col, 없는 role 은 · 으로 한 줄 */}
+            {(() => {
+              const ko = project.contributions?.ko ?? {};
+              const en = project.contributions?.en ?? {};
+              const enHas = Object.keys(en).length > 0;
+              const koHas = Object.keys(ko).length > 0;
+              const map = viewLang === "en" ? (enHas ? en : ko) : (koHas ? ko : en);
+              const entries = Object.entries(map);
+              const withItems = entries.filter(([, items]) => items.length > 0);
+              const plainRoles = entries.filter(([, items]) => items.length === 0).map(([role]) => role);
+              return (
+                <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+                  <span className={styles.infoLabel}><T k="workDetail.role" /></span>
+                  <div className={styles.ownContribsWrap}>
+                    {entries.length === 0 ? (
+                      // contributions 아예 없으면 project.role 단독 표시
+                      <div className={styles.ownContribsPlain}>
+                        <span className={styles.ownContribsRoleChip}>
+                          <T ko={project.role.ko} en={project.role.en} />
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        {withItems.length > 0 && (
+                          <div className={styles.ownContribsGrid}>
+                            {withItems.map(([role, items]) => (
                               <div key={role} className={styles.teamContribsGroup}>
                                 <div className={styles.teamContribsRoleLabel}>{role}</div>
                                 <ul className={styles.teamContribs}>
@@ -310,12 +297,22 @@ export default function WorkDetailClient({
                             ))}
                           </div>
                         )}
-                      </div>
-                    );
-                  })}
+                        {plainRoles.length > 0 && (
+                          <div className={styles.ownContribsPlain}>
+                            {plainRoles.map((role, i) => (
+                              <span key={role} className={styles.ownContribsRoleChip}>
+                                {i > 0 && <span className={styles.ownContribsSep} aria-hidden> · </span>}
+                                {role}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </motion.div>
 
           {needsTranslation && translationEnabled && (
@@ -333,8 +330,175 @@ export default function WorkDetailClient({
           />
         </>
       }
-      likeConfig={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
       afterContent={
+        <>
+          {/* Team Members — 좋아요 위 (page-specific). contentRow 밖 */}
+          {(() => {
+            const personal = siteConfig?.personal;
+            const githubLink = siteConfig?.socialLinks?.find((l) => l.platform === "github");
+            const ownerMember = personal ? {
+              name: personal.name,
+              role: { ko: project.role.ko, en: project.role.en },
+              url: githubLink?.url || undefined,
+              email: siteConfig?.contact?.email || undefined,
+              avatar_url: personal.profileImage || undefined,
+              contributions: project.contributions,
+            } : null;
+            const teamArr = project.teamMembers ?? [];
+            const members = ownerMember ? [ownerMember, ...teamArr] : teamArr;
+            if (members.length === 0) return null;
+            const getContribsEntries = (m: typeof members[number]) => {
+              const ko = m.contributions?.ko ?? {};
+              const en = m.contributions?.en ?? {};
+              const enHas = Object.values(en).some((items) => items.length > 0);
+              const koHas = Object.values(ko).some((items) => items.length > 0);
+              const map = viewLang === "en" ? (enHas ? en : ko) : (koHas ? ko : en);
+              return Object.entries(map).filter(([, items]) => items.length > 0);
+            };
+            const getDisplayName = (m: typeof members[number]) =>
+              viewLang === "en" && m.name_en ? m.name_en : m.name;
+            const renderContribs = (m: typeof members[number], wrapperClass: string, groupClass: string, roleClass: string, listClass: string) => {
+              const entries = getContribsEntries(m);
+              if (entries.length === 0) return null;
+              return (
+                <div className={wrapperClass}>
+                  {entries.map(([role, items]) => (
+                    <div key={role} className={groupClass}>
+                      <div className={roleClass}>{role}</div>
+                      <ul className={listClass}>
+                        {items.map((c, ci) => <li key={ci}>{c}</li>)}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              );
+            };
+            const renderAvatar = (m: typeof members[number], wrapperClass: string, imgClass: string, initialClass: string) => {
+              const avatarUrl = deriveTeamMemberAvatar(m);
+              const name = getDisplayName(m);
+              return (
+                <div className={wrapperClass}>
+                  {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatarUrl} alt={name} className={imgClass} loading="lazy" />
+                  ) : (
+                    <span className={initialClass}>{getMemberInitial(name)}</span>
+                  )}
+                </div>
+              );
+            };
+            return (
+              <section className={styles.teamCreditsSection}>
+                <div className={styles.teamCreditsHeader}>
+                  <Users size={16} />
+                  <span className={styles.teamCreditsLabel}><T k="workDetail.team" /></span>
+                </div>
+                <HorizontalCarousel className={styles.polaroidCarousel}>
+                  {members.map((m, i) => {
+                    const isFlipped = flippedMembers.has(i);
+                    const isHovered = hoveredMemberIdx === i;
+                    const hasContribs = getContribsEntries(m).length > 0;
+                    const hasLinks = !!(m.url || m.email);
+                    const hasBack = hasContribs || hasLinks;
+                    const showBack = hasBack && (isFlipped || isHovered);
+                    return (
+                      <article
+                        key={i}
+                        className={`${styles.polaroidCard} ${showBack ? styles.polaroidCardShowBack : ""}`}
+                        data-cursor={hasBack ? "big" : undefined}
+                        onClick={hasBack ? () => {
+                          toggleFlipped(i);
+                          setHoveredMemberIdx(null);
+                        } : undefined}
+                        onMouseEnter={hasBack ? () => setHoveredMemberIdx(i) : undefined}
+                        onMouseLeave={hasBack ? () => setHoveredMemberIdx(null) : undefined}
+                        role={hasBack ? "button" : undefined}
+                        tabIndex={hasBack ? 0 : undefined}
+                        onKeyDown={hasBack ? (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            toggleFlipped(i);
+                            setHoveredMemberIdx(null);
+                          }
+                        } : undefined}
+                        aria-pressed={hasBack ? isFlipped : undefined}
+                      >
+                        <div className={styles.polaroidCardInner}>
+                          <div className={styles.polaroidFront}>
+                            {renderAvatar(m, styles.polaroidAvatar, styles.polaroidAvatarImg, styles.polaroidAvatarInitial)}
+                            <div className={styles.polaroidCaption}>
+                              <span className={styles.polaroidName}>{getDisplayName(m)}</span>
+                              <span className={styles.polaroidRole}>
+                                <T ko={m.role.ko} en={m.role.en} />
+                              </span>
+                            </div>
+                          </div>
+                          {hasBack && (
+                            <div className={styles.polaroidBack}>
+                              <div className={styles.polaroidBackHeader}>
+                                <span className={styles.polaroidBackName}>{getDisplayName(m)}</span>
+                                {(m.url || m.email) && (
+                                  <div
+                                    className={styles.polaroidBackLinks}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {m.url && (
+                                      <a
+                                        href={m.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={styles.teamLinkIcon}
+                                        title={m.url}
+                                        aria-label="link"
+                                      >
+                                        <Link2 size={13} />
+                                      </a>
+                                    )}
+                                    {m.email && (
+                                      <a
+                                        href={`mailto:${m.email}`}
+                                        className={styles.teamLinkIcon}
+                                        title={m.email}
+                                        aria-label="email"
+                                      >
+                                        <Mail size={13} />
+                                      </a>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              {hasContribs ? (
+                                renderContribs(
+                                  m,
+                                  styles.polaroidBackContribs,
+                                  styles.polaroidBackContribGroup,
+                                  styles.polaroidBackContribRole,
+                                  styles.polaroidBackContribList,
+                                )
+                              ) : (
+                                <div className={styles.polaroidBackContribs}>
+                                  <div className={styles.polaroidBackContribGroup}>
+                                    <div className={styles.polaroidBackContribRole}>
+                                      <T ko={m.role.ko} en={m.role.en} />
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </article>
+                    );
+                  })}
+                </HorizontalCarousel>
+              </section>
+            );
+          })()}
+
+        </>
+      }
+      likeConfig={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
+      relatedContent={
         <>
           <motion.div
             className={styles.actions}
@@ -355,90 +519,72 @@ export default function WorkDetailClient({
               </Button>
             )}
           </motion.div>
-
-          {/* 관련 글 */}
           {relatedPosts.length > 0 && (
-            <section className={styles.relatedSection}>
-              <div className={styles.relatedHeader}>
-                <FileText size={16} />
-                <span className={styles.relatedLabel}>{viewLang === "en" ? "Related Posts" : "관련 글"}</span>
-              </div>
-              <HorizontalCarousel className={styles.relatedGrid}>
-                {relatedPosts.map((p, idx) => {
-                  const title = viewLang === "en" && p.title_en ? p.title_en : p.title;
-                  return (
-                    <div
-                      key={p.id}
-                      onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${p.slug}`, p.cover_image || "", rect); }}
-                      className={styles.relatedCard}
-                    >
-                      <div className={styles.relatedCardImage}>
-                        {p.cover_image ? (
-                          <Image
-                            src={p.cover_image}
-                            alt={title}
-                            fill
-                            sizes="(max-width: 768px) 50vw, 220px"
-                            className={styles.relatedCardImg}
-                          />
-                        ) : (
-                          <ImageIcon className={styles.relatedCardPlaceholder} size={32} strokeWidth={1.5} />
-                        )}
-                      </div>
-                      <div className={styles.relatedCardBody}>
-                        <div className={styles.relatedCardMeta}>
-                          <span className={styles.relatedCardOrder}>#{idx + 1}</span>
-                          {p.category && <span className={styles.relatedCardCategory}>{p.category}</span>}
-                        </div>
-                        <span className={styles.relatedCardTitle}>{title}</span>
-                        {p.excerpt && <span className={styles.relatedCardExcerpt}>{p.excerpt}</span>}
-                        {p.created_at && (
-                          <span className={styles.relatedCardDate}>
-                            {new Date(p.created_at).toLocaleDateString(viewLang === "en" ? "en-US" : "ko-KR", { year: "numeric", month: "short", day: "numeric" })}
-                          </span>
-                        )}
-                      </div>
+          <section className={styles.relatedSection}>
+            <div className={styles.relatedHeader}>
+              <FileText size={16} />
+              <span className={styles.relatedLabel}>{viewLang === "en" ? "Related Posts" : "관련 글"}</span>
+            </div>
+            <HorizontalCarousel className={styles.relatedGrid}>
+              {relatedPosts.map((p, idx) => {
+                const title = viewLang === "en" && p.title_en ? p.title_en : p.title;
+                return (
+                  <div
+                    key={p.id}
+                    onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${p.slug}`, p.cover_image || "", rect); }}
+                    className={styles.relatedCard}
+                  >
+                    <div className={styles.relatedCardImage}>
+                      {p.cover_image ? (
+                        <Image
+                          src={p.cover_image}
+                          alt={title}
+                          fill
+                          sizes="(max-width: 768px) 50vw, 220px"
+                          className={styles.relatedCardImg}
+                        />
+                      ) : (
+                        <ImageIcon className={styles.relatedCardPlaceholder} size={32} strokeWidth={1.5} />
+                      )}
                     </div>
-                  );
-                })}
-              </HorizontalCarousel>
-            </section>
+                    <div className={styles.relatedCardBody}>
+                      <div className={styles.relatedCardMeta}>
+                        <span className={styles.relatedCardOrder}>#{idx + 1}</span>
+                        {p.category && <span className={styles.relatedCardCategory}>{p.category}</span>}
+                      </div>
+                      <span className={styles.relatedCardTitle}>{title}</span>
+                      {p.excerpt && <span className={styles.relatedCardExcerpt}>{p.excerpt}</span>}
+                      {p.created_at && (
+                        <span className={styles.relatedCardDate}>
+                          {new Date(p.created_at).toLocaleDateString(viewLang === "en" ? "en-US" : "ko-KR", { year: "numeric", month: "short", day: "numeric" })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </HorizontalCarousel>
+          </section>
           )}
-
-          {/* 이전/다음 프로젝트 */}
-          <AdjacentNav
-            prev={prevProject ? {
-              href: `/works/${prevProject.slug || prevProject.id}`,
-              title: prevProject.title,
-              image: prevProject.image,
-            } : null}
-            next={nextProject ? {
-              href: `/works/${nextProject.slug || nextProject.id}`,
-              title: nextProject.title,
-              image: nextProject.image,
-            } : null}
-            prevLabelKey="workDetail.previous"
-            nextLabelKey="workDetail.next"
-          />
-
-          {/* Comments */}
-          <motion.div
-            className={styles.commentWrap}
-            id="comments"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.75 }}
-          >
-            <CommentSection commentType="work" targetId={project.id} translationEnabled={translationEnabled} />
-          </motion.div>
-
-          <div className={styles.footerNav}>
-            <Link href="/works" className={styles.footerLink}>
-              <ArrowLeft size={16} className={styles.footerArrow} /> <T k="workDetail.viewAll" />
-            </Link>
-          </div>
         </>
       }
+      adjacentConfig={{
+        prev: prevProject ? {
+          href: `/works/${prevProject.slug || prevProject.id}`,
+          title: prevProject.title,
+          image: prevProject.image,
+        } : null,
+        next: nextProject ? {
+          href: `/works/${nextProject.slug || nextProject.id}`,
+          title: nextProject.title,
+          image: nextProject.image,
+        } : null,
+        prevLabelKey: "workDetail.previous",
+        nextLabelKey: "workDetail.next",
+        className: relatedPosts.length === 0 ? styles.adjacentNavTopBorder : undefined,
+      }}
+      commentsConfig={{ commentType: "work", targetId: project.id, translationEnabled }}
+      backLink={{ href: "/works", labelKey: "workDetail.viewAll" }}
     >
       {/* Content */}
       {content && (

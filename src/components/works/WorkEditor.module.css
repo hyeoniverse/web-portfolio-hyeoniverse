@@ -139,8 +139,11 @@
 .techInputRow {
   display: flex;
   align-items: stretch;
+  align-self: flex-start;
   gap: 0;
   height: 28px;
+  width: fit-content;
+  max-width: 100%;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   transition: border-color 0.15s ease;
@@ -1000,12 +1003,61 @@
   width: 100%;
 }
 
-/* List — 위/아래 hairline 으로 list 영역 구분, gap 없이 카드 자체 padding + hairline divider 가 처리 */
+/* 편집 모드 — 카드 옅은 accent 배경, border 제거, 좌우 padding 으로 background 영역 확보.
+   .memberCard.memberCard (0,2,0) 가 뒤에 정의되어 cascade 로 이기므로,
+   (0,3,0) 로 격상 (같은 클래스 한 번 더) */
+.memberCard.memberCard.memberCardEditing {
+  background: color-mix(in oklch, var(--text-accent) 8%, transparent);
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+/* 편집 + close 묶음 — 우측 cluster, 위쪽 정렬 */
+.memberHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-left: auto;
+}
+
+/* 편집 button (Pencil / X) — CloseButton md 와 동일 사이즈 (button-h-sm = 28px) */
+.memberHeaderEditBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.memberHeaderEditBtn:hover {
+  color: var(--text-accent);
+  background: var(--bg-tertiary);
+}
+
+/* edit 모드 일 때 — Save + Cancel 버튼 묶음 */
+.memberFormActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+/* List — 너비 충분하면 multi-col grid (auto-fill minmax). border 없음 */
 .memberList.memberList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   height: auto;
-  gap: 0;
-  border-top: var(--border-light);
-  border-bottom: var(--border-light);
+  gap: 0 var(--spacing-xl);
+  border-top: none;
+  border-bottom: none;
 }
 
 /* add-mode card — saved card 와 같은 외형이지만 inputs/버튼 포함. header row 가 4-칸 grid */
@@ -1025,6 +1077,13 @@
 }
 
 /* role select — 자체 row (full-width). Select.root 의 fit-content override */
+/* role row — TagNotesEditor section 의 1 column 너비 만큼 (minmax(320px, 1fr) 한 칸) */
+.memberRoleRow {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+}
+
 .memberRoleRow > .roleSelect.roleSelect {
   width: 100%;
 }
@@ -1167,7 +1226,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) 0;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: none;
   border-radius: 0;
   box-sizing: border-box;
@@ -1201,9 +1260,9 @@
   line-height: 1.5;
 }
 
-/* header 액션 버튼 (edit / close / toggle) — chip-row 의 다른 항목이 wrap 되어도 항상 top 에 고정 */
+/* close 버튼 — actions wrapper 안. align 은 wrapper 가 담당 */
 .memberHeaderActionBtn {
-  align-self: flex-start;
+  /* nothing — wrapper 가 flex-start + margin-left: auto 처리 */
 }
 
 /* contribs wrap — role group 들 column stack */

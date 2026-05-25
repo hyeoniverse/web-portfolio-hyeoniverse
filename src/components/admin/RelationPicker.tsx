@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState, useEffect } from "react";
 import { ChevronRight, GripVertical, ImageIcon, Search } from "lucide-react";
-import { motion, LayoutGroup } from "framer-motion";
+import { motion, LayoutGroup, AnimatePresence } from "framer-motion";
 import CloseButton from "@/components/ui/CloseButton";
 import styles from "./RelationPicker.module.css";
 
@@ -215,7 +215,12 @@ export default function RelationPicker<T>({
           motion.span + layout prop 으로 순서 변경 시 FLIP 애니메이션 자동 적용 */}
       {selected.length > 0 && (
         <LayoutGroup>
-          <div className={styles.chipRow}>
+          <motion.div
+            layout
+            transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.6 }}
+            className={styles.chipRow}
+          >
+            <AnimatePresence initial={false}>
             {selected.map((it, idx) => {
               const id = getId(it);
               const status = getStatus?.(it);
@@ -234,6 +239,9 @@ export default function RelationPicker<T>({
                 <motion.span
                   key={id}
                   layout
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85 }}
                   transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.6 }}
                   className={`${styles.chip} ${status === "draft" ? styles.chipDraft : ""} ${isDragging ? styles.chipDragging : ""} ${showInsertBefore ? styles.chipInsertBefore : ""} ${showInsertAfter ? styles.chipInsertAfter : ""}`}
                   // pointer-based drag 가 좌표에서 chip 찾을 때 사용
@@ -322,7 +330,8 @@ export default function RelationPicker<T>({
                 </motion.span>
               );
             })}
-          </div>
+            </AnimatePresence>
+          </motion.div>
         </LayoutGroup>
       )}
 
