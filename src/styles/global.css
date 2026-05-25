@@ -1,5 +1,7 @@
+/* Reset stack — sanitize.css (normalize 의 후속, opinionated defaults) 단독 사용.
+   Tailwind preflight 는 제거 (sanitize.css 와 중복 + heading 등 공격적 reset 회피).
+   Tailwind utility class (`@tailwind utilities`) 는 그대로 사용. */
 @import "sanitize.css";
-@import "tailwindcss/preflight";
 @tailwind utilities;
 
 @import "./tokens/_index.css";
