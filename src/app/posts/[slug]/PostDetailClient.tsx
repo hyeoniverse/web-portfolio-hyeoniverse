@@ -12,6 +12,7 @@ import DetailLayout from "@/components/layout/DetailLayout";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import { extractHeadings, addIdsToHtml } from "@/utils/headingUtils";
 import { fixEmbedUrls } from "@/utils/htmlUtils";
+import { formatCount } from "@/utils/format";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import "katex/dist/katex.min.css";
 import LanguageToggle from "@/components/ui/LanguageToggle";
@@ -288,7 +289,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
               <span className={styles.dot}>&middot;</span>
               <span>{readTime} <T k="postDetail.minRead" /></span>
               <span className={styles.dot}>&middot;</span>
-              <span>{post.view_count} <T k="postDetail.views" /></span>
+              <span>{formatCount(post.view_count)} <T k="postDetail.views" /></span>
               {isAdmin && (
                 <>
                   <span className={styles.metaDivider} />

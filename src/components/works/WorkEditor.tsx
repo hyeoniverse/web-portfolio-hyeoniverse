@@ -1672,7 +1672,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             onChange={(v) => updateField(`description${suf}`, v)}
             placeholder={tw("descPlaceholder")}
             rows={3}
-            maxHint={200}
+            maxHint="basic"
           />
         </div>
 

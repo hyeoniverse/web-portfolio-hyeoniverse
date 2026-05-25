@@ -6,6 +6,7 @@ import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { Flame } from "lucide-react";
 import T from "@/components/ui/T";
 import SegmentedControl from "@/components/ui/SegmentedControl";
+import { formatCount } from "@/utils/format";
 import styles from "./PopularPosts.module.css";
 
 type Metric = "score" | "views" | "comments" | "likes";
@@ -58,7 +59,7 @@ export default function PopularPosts() {
                 <span className={styles.itemTitle}>{post.title}</span>
               </div>
               <span className={styles.itemMeta}>
-                {post.view_count} <T k="postsPage.views" />
+                {formatCount(post.view_count)} <T k="postsPage.views" />
                 {post.like_count > 0 && <> &middot; {post.like_count} <T k="postsPage.likes" /></>}
               </span>
             </div>
