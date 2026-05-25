@@ -3,7 +3,15 @@
 -- ============================================================
 -- 처음 프로젝트 세팅 시 이 파일 하나만 Supabase SQL Editor 에 붙여 실행하면
 -- 모든 테이블 · 인덱스 · RLS 정책 · RPC 함수 · trigger · pg_cron job ·
--- storage bucket 까지 한 번에 생성됩니다. 이미 있으면 건너뜁니다 (IF NOT EXISTS).
+-- storage bucket 까지 한 번에 생성됩니다.
+--
+-- **재실행 안전 (idempotent)** — 여러 번 실행해도 안전합니다:
+--   - 테이블: IF NOT EXISTS
+--   - 정책:   DROP POLICY IF EXISTS + CREATE POLICY (또는 DO $$ + IF NOT EXISTS)
+--   - 함수:   CREATE OR REPLACE FUNCTION
+--   - trigger: DROP TRIGGER IF EXISTS + CREATE TRIGGER
+--   - pg_cron: cron.unschedule (예외 swallow) + cron.schedule
+--   - storage: ON CONFLICT DO NOTHING + DO $$ + IF NOT EXISTS
 --
 -- 사전 준비:
 --   1. Database > Extensions 에서 다음을 활성화:
@@ -48,11 +56,13 @@ ON CONFLICT (id) DO NOTHING;
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 
 -- 누구나 설정 읽기 가능
+DROP POLICY IF EXISTS "site_settings_public_read" ON site_settings;
 CREATE POLICY "site_settings_public_read"
   ON site_settings FOR SELECT
   USING (true);
 
 -- service_role만 쓰기 가능 (API에서 service role key 사용)
+DROP POLICY IF EXISTS "site_settings_service_write" ON site_settings;
 CREATE POLICY "site_settings_service_write"
   ON site_settings FOR ALL
   USING (true)
@@ -88,11 +98,13 @@ CREATE INDEX IF NOT EXISTS idx_series_sort_order ON series (sort_order);
 ALTER TABLE series ENABLE ROW LEVEL SECURITY;
 
 -- 공개된 시리즈만 읽기
+DROP POLICY IF EXISTS "series_public_read" ON series;
 CREATE POLICY "series_public_read"
   ON series FOR SELECT
   USING (published = true);
 
 -- service_role 전체 접근
+DROP POLICY IF EXISTS "series_service_all" ON series;
 CREATE POLICY "series_service_all"
   ON series FOR ALL
   USING (true)
@@ -158,11 +170,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_posts_post_number ON posts (post_number);
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 
 -- 공개된 포스트만 읽기
+DROP POLICY IF EXISTS "posts_public_read" ON posts;
 CREATE POLICY "posts_public_read"
   ON posts FOR SELECT
   USING (published = true);
 
 -- service_role 전체 접근
+DROP POLICY IF EXISTS "posts_service_all" ON posts;
 CREATE POLICY "posts_service_all"
   ON posts FOR ALL
   USING (true)
@@ -261,16 +275,19 @@ CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments (post_id);
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 
 -- 누구나 댓글 읽기 가능
+DROP POLICY IF EXISTS "comments_public_read" ON comments;
 CREATE POLICY "comments_public_read"
   ON comments FOR SELECT
   USING (true);
 
 -- 누구나 댓글 작성 가능 (비회원 댓글 지원)
+DROP POLICY IF EXISTS "comments_public_insert" ON comments;
 CREATE POLICY "comments_public_insert"
   ON comments FOR INSERT
   WITH CHECK (true);
 
 -- service_role 전체 접근 (관리자 삭제 등)
+DROP POLICY IF EXISTS "comments_service_all" ON comments;
 CREATE POLICY "comments_service_all"
   ON comments FOR ALL
   USING (true)
@@ -297,11 +314,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_likes_unique
 ALTER TABLE likes ENABLE ROW LEVEL SECURITY;
 
 -- 누구나 좋아요 수 조회 가능
+DROP POLICY IF EXISTS "likes_public_read" ON likes;
 CREATE POLICY "likes_public_read"
   ON likes FOR SELECT
   USING (true);
 
 -- service_role 전체 접근
+DROP POLICY IF EXISTS "likes_service_all" ON likes;
 CREATE POLICY "likes_service_all"
   ON likes FOR ALL
   USING (true)
@@ -389,11 +408,13 @@ CREATE INDEX IF NOT EXISTS idx_works_categories_en_gin ON works USING GIN (categ
 ALTER TABLE works ENABLE ROW LEVEL SECURITY;
 
 -- 공개된 작업물만 읽기 (삭제되지 않은 것만)
+DROP POLICY IF EXISTS "works_public_read" ON works;
 CREATE POLICY "works_public_read"
   ON works FOR SELECT
   USING (published = true AND deleted_at IS NULL);
 
 -- service_role 전체 접근
+DROP POLICY IF EXISTS "works_service_all" ON works;
 CREATE POLICY "works_service_all"
   ON works FOR ALL
   USING (true)
@@ -428,11 +449,13 @@ CREATE INDEX IF NOT EXISTS idx_site_visits_referrer    ON site_visits (referrer)
 ALTER TABLE site_visits ENABLE ROW LEVEL SECURITY;
 
 -- 누구나 방문자 수 조회 가능
+DROP POLICY IF EXISTS "site_visits_public_read" ON site_visits;
 CREATE POLICY "site_visits_public_read"
   ON site_visits FOR SELECT
   USING (true);
 
 -- service_role 전체 접근
+DROP POLICY IF EXISTS "site_visits_service_all" ON site_visits;
 CREATE POLICY "site_visits_service_all"
   ON site_visits FOR ALL
   USING (true)
@@ -465,10 +488,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS uniq_post_views_post_ip_date
 
 ALTER TABLE post_views ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "post_views_public_insert" ON post_views;
 CREATE POLICY "post_views_public_insert"
   ON post_views FOR INSERT
   WITH CHECK (true);
 
+DROP POLICY IF EXISTS "post_views_service_all" ON post_views;
 CREATE POLICY "post_views_service_all"
   ON post_views FOR ALL
   USING (true)
@@ -502,14 +527,17 @@ CREATE INDEX IF NOT EXISTS idx_work_comments_work_id ON work_comments (work_id);
 
 ALTER TABLE work_comments ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "work_comments_public_read" ON work_comments;
 CREATE POLICY "work_comments_public_read"
   ON work_comments FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "work_comments_public_insert" ON work_comments;
 CREATE POLICY "work_comments_public_insert"
   ON work_comments FOR INSERT
   WITH CHECK (true);
 
+DROP POLICY IF EXISTS "work_comments_service_all" ON work_comments;
 CREATE POLICY "work_comments_service_all"
   ON work_comments FOR ALL
   USING (true)
@@ -535,6 +563,7 @@ CREATE INDEX IF NOT EXISTS idx_admin_notifications_created
 
 ALTER TABLE admin_notifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "admin_notifications_service_all" ON admin_notifications;
 CREATE POLICY "admin_notifications_service_all"
   ON admin_notifications FOR ALL
   USING (true)
@@ -569,6 +598,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uniq_comment_reports_pending
 
 ALTER TABLE comment_reports ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "comment_reports_service_all" ON comment_reports;
 CREATE POLICY "comment_reports_service_all"
   ON comment_reports FOR ALL
   USING (true)
@@ -624,10 +654,12 @@ CREATE INDEX IF NOT EXISTS idx_post_work_relations_work ON post_work_relations (
 ALTER TABLE post_work_relations ENABLE ROW LEVEL SECURITY;
 
 -- 누구나 읽기 가능 (공개 detail 페이지에서 사용)
+DROP POLICY IF EXISTS "post_work_relations_public_read" ON post_work_relations;
 CREATE POLICY "post_work_relations_public_read"
   ON post_work_relations FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "post_work_relations_service_all" ON post_work_relations;
 CREATE POLICY "post_work_relations_service_all"
   ON post_work_relations FOR ALL
   USING (true)
@@ -940,6 +972,7 @@ CREATE INDEX IF NOT EXISTS cover_image_history_user_created_idx
 
 ALTER TABLE cover_image_history ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users manage own cover history" ON cover_image_history;
 CREATE POLICY "Users manage own cover history"
   ON cover_image_history FOR ALL
   USING (auth.uid() = user_id)
