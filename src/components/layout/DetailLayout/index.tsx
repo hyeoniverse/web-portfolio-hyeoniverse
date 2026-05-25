@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useId, type ReactNode, type CSSProperties } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
@@ -12,16 +12,12 @@ import TOC from "@/components/ui/TOC/TOC";
 import { useLanguage } from "@/providers/LanguageProvider";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
+import HeartIcon from "@/components/ui/HeartIcon";
 import T from "@/components/ui/T";
+import { formatCount } from "@/utils/format";
 import styles from "./DetailLayout.module.css";
 
 const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
-
-function formatCount(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}m`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}k`;
-  return String(n);
-}
 
 export interface TocHeading {
   id: string;
@@ -42,50 +38,6 @@ export interface LikeConfig {
  */
 export function LikeButton({ config }: { config: LikeConfig }) {
   const { t } = useLanguage();
-  const heartClipId = useId();
-  const [animBusy, setAnimBusy] = useState(false);
-  const busyStartRef = useRef<number | null>(null);
-  const [burstKey, setBurstKey] = useState(0);
-  const prevAnimBusyRef = useRef(false);
-
-  useEffect(() => {
-    if (config.busy) {
-      busyStartRef.current = Date.now();
-      setAnimBusy(true);
-      return;
-    }
-    if (busyStartRef.current === null) return;
-    const elapsed = Date.now() - busyStartRef.current;
-    const minDuration = 2000;
-    const remaining = Math.max(0, minDuration - elapsed);
-    const id = setTimeout(() => {
-      setAnimBusy(false);
-      busyStartRef.current = null;
-    }, remaining);
-    return () => clearTimeout(id);
-  }, [config.busy]);
-
-  // 채우기 완료 직후 (animBusy false 로 전환 + liked 상태일 때) → burst 1회 트리거
-  useEffect(() => {
-    if (prevAnimBusyRef.current && !animBusy && config.liked) {
-      setBurstKey((k) => k + 1);
-    }
-    prevAnimBusyRef.current = animBusy;
-  }, [animBusy, config.liked]);
-
-  // burst 마다 새 random 파티클 — 위쪽으로 방울 떠오르는 느낌 (수직 dominant + 약간 좌우 흔들림)
-  const burstParticles = useMemo(() => {
-    if (burstKey === 0) return [];
-    return Array.from({ length: 10 }, () => ({
-      driftX: (Math.random() - 0.5) * 90,    // -45 ~ +45px (좌우 흔들림)
-      rise: 45 + Math.random() * 55,         // 45–100px 상승 (높이 편차 큼)
-      scale: 0.7 + Math.random() * 0.6,      // 0.7–1.3
-      opacityPeak: 0.5 + Math.random() * 0.5, // 0.5–1.0 peak
-      delay: Math.random() * 280,            // 0–280ms 스태거
-      duration: 1100 + Math.random() * 600,  // 1100–1700ms (느긋)
-      size: 6 + Math.random() * 7,           // 6–13px
-    }));
-  }, [burstKey]);
 
   return (
     <motion.div
@@ -96,58 +48,12 @@ export function LikeButton({ config }: { config: LikeConfig }) {
     >
       <button
         type="button"
-        className={`${styles.likeBtn} ${config.liked ? styles.likeBtnActive : ""} ${animBusy ? styles.likeBtnBusy : ""}`}
+        className={`${styles.likeBtn} ${config.liked ? styles.likeBtnActive : ""}`}
         onClick={config.onToggle}
         title={t("common.like")}
         data-clickable="true"
       >
-        <span className={styles.heartHolder}>
-          <svg
-            className={styles.heartIcon}
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            aria-hidden="true"
-          >
-            <defs>
-              <clipPath id={heartClipId}>
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </clipPath>
-            </defs>
-            <path
-              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <g clipPath={`url(#${heartClipId})`}>
-              <path className={styles.heartWaveBack} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
-              <path className={styles.heartWaveMid} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
-              <path className={styles.heartWaveFront} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
-            </g>
-          </svg>
-          {burstKey > 0 && (
-            <span key={burstKey} className={styles.burst} aria-hidden>
-              {burstParticles.map((p, i) => (
-                <span
-                  key={i}
-                  className={styles.burstParticle}
-                  style={{
-                    "--drift-x": `${p.driftX}px`,
-                    "--rise": `${p.rise}px`,
-                    "--scale": p.scale,
-                    "--opacity-peak": p.opacityPeak,
-                    "--delay": `${p.delay}ms`,
-                    "--duration": `${p.duration}ms`,
-                    "--size": `${p.size}px`,
-                  } as CSSProperties}
-                />
-              ))}
-            </span>
-          )}
-        </span>
+        <HeartIcon liked={config.liked} busy={config.busy} size={20} />
         <span className={styles.likeCount}>{formatCount(config.count)}</span>
       </button>
     </motion.div>

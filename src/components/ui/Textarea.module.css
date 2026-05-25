@@ -20,6 +20,7 @@
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
+  line-height: 1.5;
   color: var(--text-primary);
   outline: none;
   resize: vertical;
@@ -62,6 +63,60 @@
 
 .sm:focus {
   border-color: var(--text-primary);
+}
+
+/* ── Editable wrapper — overlay 포지셔닝 위해 relative ── */
+.editableWrap {
+  position: relative;
+}
+
+/* ── Editable (contenteditable div, maxHint 모드) ── */
+/* .textarea base 위에 div 전용 보정만 추가 — native resize 핸들 사용 */
+.editable {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: normal;
+  resize: vertical;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Native resize 핸들 위 투명 overlay ──
+   native grip 비주얼은 그대로 보임 (CSS resize: vertical 가 그려줌)
+   overlay 가 pointer 이벤트 가로채서 — (1) data-cursor="resizeV" 로 CursorTrail 커스텀 커서 표시
+   (2) 우리 JS 가 drag 처리해서 native cursor 가 발화될 일 없음 */
+.resizeOverlay {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  z-index: 2;
+  background: transparent;
+  touch-action: none;
+}
+
+/* placeholder — contenteditable 은 native placeholder 없음 → empty 일 때 ::before 로 표시 */
+.editable[data-empty]::before {
+  content: attr(data-placeholder);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+/* contenteditable focus outline */
+.editable:focus {
+  outline: none;
+  border-color: var(--text-primary);
+}
+
+/* ── Over highlight — contenteditable 안 <mark> ── */
+.over {
+  background: color-mix(in oklch, var(--text-accent) 22%, transparent);
+  color: inherit;
+  border-radius: 2px;
+  /* native browser <mark> default (yellow bg, black text) 무효화 */
+  -webkit-text-fill-color: inherit;
 }
 
 /* ── Soft 글자수 카운터 ── */

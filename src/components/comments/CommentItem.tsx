@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect, memo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Globe } from "lucide-react";
+import { Globe } from "lucide-react";
+import HeartIcon from "@/components/ui/HeartIcon";
 import type { Comment } from "@/types/post";
 import { getCommenterId, identityFromHash } from "@/utils/commenterIdentity";
 import { formatCount } from "@/utils/format";
@@ -159,7 +160,23 @@ function CommentItem({
     }
   }, [comment.content, targetLang, translatedText]);
 
+  const [likeBusy, setLikeBusy] = useState(false);
+  // wave 애니메이션 동안 count 숨김 — 애니메이션 끝난 후 새 값으로 fade-in
+  const [countVisible, setCountVisible] = useState(true);
+  const countTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (countTimerRef.current) clearTimeout(countTimerRef.current);
+  }, []);
   const handleLike = useCallback(async () => {
+    if (likeBusy) return;
+    setLikeBusy(true);
+    setCountVisible(false);
+    if (countTimerRef.current) clearTimeout(countTimerRef.current);
+    // wave (1.8s + 0.2s delay = 2s) 끝나는 시점 직후 count 재표시
+    countTimerRef.current = setTimeout(() => setCountVisible(true), 2200);
+    // optimistic toggle — HeartIcon wave 애니메이션이 즉시 시작되게
+    setLiked((prev) => !prev);
+    setLikeCount((prev) => prev + (liked ? -1 : 1));
     try {
       const res = await fetch("/api/comment-likes", {
         method: "POST",
@@ -173,11 +190,18 @@ function CommentItem({
         const data = await res.json();
         setLiked(data.liked);
         setLikeCount(data.count);
+      } else {
+        // 실패 시 원상복구
+        setLiked((prev) => !prev);
+        setLikeCount((prev) => prev + (liked ? 1 : -1));
       }
     } catch {
-      // silent fail
+      setLiked((prev) => !prev);
+      setLikeCount((prev) => prev + (liked ? 1 : -1));
+    } finally {
+      setLikeBusy(false);
     }
-  }, [commentType, comment.id]);
+  }, [commentType, comment.id, likeBusy, liked]);
 
   const handleDelete = useCallback(async () => {
     if (!isAdmin && !deletePassword.trim()) {
@@ -429,8 +453,21 @@ function CommentItem({
           className={`${styles.likeBtn} ${liked ? styles.likeBtnLiked : ""}`}
           onClick={handleLike}
         >
-          {likeCount > 0 && <span className={styles.likeCount}>{formatCount(likeCount)}</span>}
-          <Heart size={12} fill={liked ? "currentColor" : "none"} />
+          <AnimatePresence mode="wait" initial={false}>
+            {countVisible && likeCount > 0 && (
+              <motion.span
+                key={likeCount}
+                className={styles.likeCount}
+                initial={{ opacity: 0, y: -2 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 2 }}
+                transition={{ duration: 0.25 }}
+              >
+                {formatCount(likeCount)}
+              </motion.span>
+            )}
+          </AnimatePresence>
+          <HeartIcon liked={liked} busy={likeBusy} size={14} />
         </button>
       </div>
 
@@ -449,6 +486,7 @@ function CommentItem({
               value={editContent}
               onChange={setEditContent}
               rows={3}
+              maxHint="long"
             />
             <div className={styles.editActions}>
               {!isAdmin && (

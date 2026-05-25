@@ -8,6 +8,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import type { Post } from "@/types/post";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
+import { formatCount } from "@/utils/format";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import T from "@/components/ui/T";
 import { ImageIcon, Flame, Pin, Eye, Heart } from "lucide-react";
@@ -183,12 +184,12 @@ export default function PostCard({
             <span className={styles.metaGroup}>
               <span className={styles.metaItem}>
                 <Eye size={11} strokeWidth={1.75} />
-                {post.view_count ?? 0} {t("postDetail.views")}
+                {formatCount(post.view_count ?? 0)} {t("postDetail.views")}
               </span>
               <span className={styles.heroDot}>&middot;</span>
               <span className={styles.metaItem}>
                 <Heart size={11} strokeWidth={1.75} />
-                {post.like_count ?? 0} {t("postDetail.likes")}
+                {formatCount(post.like_count ?? 0)} {t("postDetail.likes")}
               </span>
             </span>
           </div>

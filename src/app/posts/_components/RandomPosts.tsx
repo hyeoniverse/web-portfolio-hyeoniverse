@@ -5,6 +5,7 @@ import type { Post } from "@/types/post";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { Shuffle, RefreshCw } from "lucide-react";
 import T from "@/components/ui/T";
+import { formatCount } from "@/utils/format";
 import styles from "./PopularPosts.module.css";
 
 /** 랜덤 게시글 — sidebar 보조. mount 시 1회 fetch + 사용자가 shuffle 버튼 누르면 새 seed 로 재요청. */
@@ -55,7 +56,7 @@ export default function RandomPosts() {
                 <span className={styles.itemTitle}>{post.title}</span>
               </div>
               <span className={styles.itemMeta}>
-                {post.view_count} <T k="postsPage.views" />
+                {formatCount(post.view_count)} <T k="postsPage.views" />
                 {post.like_count > 0 && <> &middot; {post.like_count} <T k="postsPage.likes" /></>}
               </span>
             </div>

@@ -183,7 +183,7 @@ export default function CommentForm({
         onChange={(v) => { setContent(v); setFormHint(""); }}
         placeholder={parentId ? t("comments.replyPlaceholder") : t("comments.placeholder")}
         rows={3}
-        maxLength={2000}
+        maxHint="long"
       />
 
       {!isAdmin && (
