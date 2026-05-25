@@ -16,6 +16,8 @@ interface TextareaProps
   className?: string;
   /** textarea 자체 className override */
   textareaClassName?: string;
+  /** Soft 글자수 권장 한도 — 카운터 표시 + 80% 부터 warning, 100% 초과 시 over (입력은 계속 허용) */
+  maxHint?: number;
 }
 
 export default function Textarea({
@@ -28,6 +30,7 @@ export default function Textarea({
   textareaClassName,
   id,
   rows = 3,
+  maxHint,
   ...rest
 }: TextareaProps) {
   const inputCls = [
@@ -35,6 +38,14 @@ export default function Textarea({
     variant === "underline" ? styles.underline : "",
     size === "sm" ? styles.sm : "",
     textareaClassName,
+  ].filter(Boolean).join(" ");
+
+  const len = value.length;
+  const ratio = maxHint ? len / maxHint : 0;
+  const counterCls = [
+    styles.counter,
+    maxHint && ratio >= 1 ? styles.counterOver : "",
+    maxHint && ratio >= 0.8 && ratio < 1 ? styles.counterWarn : "",
   ].filter(Boolean).join(" ");
 
   return (
@@ -53,6 +64,11 @@ export default function Textarea({
         data-lenis-prevent
         {...rest}
       />
+      {maxHint != null && (
+        <span className={counterCls} aria-live="polite">
+          {len} / {maxHint}
+        </span>
+      )}
     </div>
   );
 }
