@@ -31,6 +31,7 @@ import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
 import TagPill from "@/components/ui/TagPill";
 import BilingualInputPair, { type BilingualValue } from "@/components/admin/BilingualInputPair";
 import TagNotesEditor, { type TagNote } from "@/components/admin/TagNotesEditor";
+import { LikeButton } from "@/components/layout/DetailLayout";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
 
@@ -78,6 +79,20 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [tagNotes, setTagNotes] = useState<Record<string, TagNote>>({
     react: { ko: "서버 컴포넌트로 초기 페이로드 절감", en: "Reduced initial payload via server components" },
   });
+  // LikeButton demo state — 좋아요 toggle + busy (wave 채우기 / 비우기) 시뮬레이션
+  const [likeCount, setLikeCount] = useState(42);
+  const [liked, setLiked] = useState(false);
+  const [likeBusy, setLikeBusy] = useState(false);
+  const handleLikeToggle = useCallback(() => {
+    setLikeBusy(true);
+    setLiked((prev) => {
+      const next = !prev;
+      setLikeCount((c) => c + (next ? 1 : -1));
+      return next;
+    });
+    // 데모용 — 실제 페이지에선 API 응답까지 busy 유지. 여기선 200ms 후 해제 → LikeButton 안의 minDuration(2s) 로직이 wave 완료까지 유지
+    setTimeout(() => setLikeBusy(false), 200);
+  }, []);
   const { itemProps: tagItemProps } = useTagDrag((from, to) => {
     setDragTags((prev) => {
       const next = [...prev];
@@ -724,6 +739,17 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </motion.div>
         <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
           KO / EN 배지 in-input · 값 있을 때 X 클리어 · IME composition 안전 onEnter
+        </span>
+      </motion.div>
+
+      {/* LikeButton — detail 페이지 좋아요 (wave fill + burst) */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>LikeButton</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
+          <LikeButton config={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }} />
+        </motion.div>
+        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
+          하트 채우기 wave 애니메이션 (3-layer clip-path) · hover 단순 scale · 채우기 완료 시 하트 burst 1회 (10 파티클이 위쪽으로 방울처럼 상승, drift / rise / scale / opacity / delay / size 각자 random)
         </span>
       </motion.div>
 
