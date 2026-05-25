@@ -89,26 +89,6 @@
   border-color: var(--border-strong-color);
 }
 
-/* ── Tech 태그 ── infoBlock 안에서 wrap 되며 chip 형태로 표시 */
-.techTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
-
-.techTag {
-  display: inline-flex;
-  align-items: center;
-  height: var(--button-h-sm);
-  padding: 0 var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-2xs);
-  color: var(--text-secondary);
-  letter-spacing: 0.04em;
-}
-
 /* ── Title ── */
 .title {
   margin-bottom: var(--spacing-xl);
