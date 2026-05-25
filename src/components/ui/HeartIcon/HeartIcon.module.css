@@ -1,0 +1,144 @@
+/* ── HeartIcon — wave fill + burst 효과 ──
+   상태 머신: data-state="empty" | "filling" | "filled" | "draining" */
+
+.heartHolder {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.heartIcon {
+  flex-shrink: 0;
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+/* ── 3 layer wave fill — d 자체를 keyframes 로 변화. cubic bezier 곡선으로 부드러운 wave ── */
+.heartWaveBack,
+.heartWaveMid,
+.heartWaveFront {
+  fill: currentColor;
+}
+
+.heartWaveBack  { opacity: 0.45; }
+.heartWaveMid   { opacity: 0.7; }
+.heartWaveFront { opacity: 0.95; }
+
+/* filled — Heart 전체가 fully filled (stable state) */
+.heartIcon[data-state="filled"] .heartWaveBack {
+  d: path("M-2 -4 C 6 -8 18 0 30 -4 L 30 28 L -2 28 Z");
+}
+.heartIcon[data-state="filled"] .heartWaveMid {
+  d: path("M-2 -4 C 8 0 16 -8 30 -4 L 30 28 L -2 28 Z");
+}
+.heartIcon[data-state="filled"] .heartWaveFront {
+  d: path("M-2 -4 C 6 0 18 -8 30 -4 L 30 28 L -2 28 Z");
+}
+
+/* filling — 차오름 + 출렁임 */
+.heartIcon[data-state="filling"] .heartWaveBack {
+  animation: heartFillBack 1.8s cubic-bezier(0.33, 0.1, 0.4, 1) forwards;
+}
+.heartIcon[data-state="filling"] .heartWaveMid {
+  animation: heartFillMid 1.6s cubic-bezier(0.33, 0.1, 0.4, 1) 0.1s forwards;
+}
+.heartIcon[data-state="filling"] .heartWaveFront {
+  animation: heartFillFront 1.5s cubic-bezier(0.33, 0.1, 0.4, 1) 0.2s forwards;
+}
+
+/* draining — 가라앉음 (좋아요 취소). 시작점은 fully filled */
+.heartIcon[data-state="draining"] .heartWaveBack {
+  animation: heartDrainBack 1.4s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+.heartIcon[data-state="draining"] .heartWaveMid {
+  animation: heartDrainMid 1.5s cubic-bezier(0.4, 0, 0.6, 1) 0.05s forwards;
+}
+.heartIcon[data-state="draining"] .heartWaveFront {
+  animation: heartDrainFront 1.6s cubic-bezier(0.4, 0, 0.6, 1) 0.1s forwards;
+}
+
+/* ── 차오름 keyframes — control point 가 step 마다 위로 + peak/valley phase 토글 ──
+   마지막 frame 은 [data-state="filled"] 의 stable d 와 동일 → state 전환 시 jump 없음 */
+@keyframes heartFillBack {
+  0%   { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
+  20%  { d: path("M-2 22 C 6 18 18 26 30 22 L 30 28 L -2 28 Z"); }
+  40%  { d: path("M-2 16 C 6 22 18 10 30 16 L 30 28 L -2 28 Z"); }
+  60%  { d: path("M-2 10 C 6 4 18 16 30 10 L 30 28 L -2 28 Z"); }
+  80%  { d: path("M-2 2 C 6 8 18 -4 30 2 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 -4 C 6 -8 18 0 30 -4 L 30 28 L -2 28 Z"); }
+}
+@keyframes heartFillMid {
+  0%   { d: path("M-2 28 C 8 28 16 28 30 28 L 30 28 L -2 28 Z"); }
+  20%  { d: path("M-2 24 C 8 28 16 20 30 24 L 30 28 L -2 28 Z"); }
+  40%  { d: path("M-2 18 C 8 12 16 24 30 18 L 30 28 L -2 28 Z"); }
+  60%  { d: path("M-2 10 C 8 16 16 4 30 10 L 30 28 L -2 28 Z"); }
+  80%  { d: path("M-2 2 C 8 -4 16 8 30 2 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 -4 C 8 0 16 -8 30 -4 L 30 28 L -2 28 Z"); }
+}
+@keyframes heartFillFront {
+  0%   { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
+  20%  { d: path("M-2 26 C 6 22 18 28 30 24 L 30 28 L -2 28 Z"); }
+  40%  { d: path("M-2 20 C 6 26 18 14 30 20 L 30 28 L -2 28 Z"); }
+  60%  { d: path("M-2 12 C 6 6 18 18 30 12 L 30 28 L -2 28 Z"); }
+  80%  { d: path("M-2 4 C 6 10 18 -2 30 4 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 -4 C 6 0 18 -8 30 -4 L 30 28 L -2 28 Z"); }
+}
+
+/* ── 가라앉음 keyframes ── */
+@keyframes heartDrainBack {
+  0%   { d: path("M-2 -4 C 6 -8 18 0 30 -4 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
+}
+@keyframes heartDrainMid {
+  0%   { d: path("M-2 -4 C 8 0 16 -8 30 -4 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 28 C 8 28 16 28 30 28 L 30 28 L -2 28 Z"); }
+}
+@keyframes heartDrainFront {
+  0%   { d: path("M-2 -4 C 6 0 18 -8 30 -4 L 30 28 L -2 28 Z"); }
+  100% { d: path("M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z"); }
+}
+
+/* ── Heart burst — 채우기 완료 시 1회 위쪽으로 mini 하트 방울 ── */
+.burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.burstParticle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--size, 10px);
+  height: var(--size, 10px);
+  margin: calc(var(--size, 10px) / -2) 0 0 calc(var(--size, 10px) / -2);
+  background-color: var(--color-accent);
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/></svg>");
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  opacity: 0;
+  animation: burstRise var(--duration, 1400ms) cubic-bezier(0.16, 1, 0.3, 1) var(--delay, 0ms) both;
+}
+
+/* 위쪽으로 방울 떠오르기 — 한 방향 곡선 + opacity 부드러운 in/out */
+@keyframes burstRise {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  15% {
+    opacity: var(--opacity-peak, 1);
+    transform: translate(calc(var(--drift-x) * 0.12), calc(var(--rise) * -0.1)) scale(var(--scale));
+  }
+  70% {
+    opacity: calc(var(--opacity-peak, 1) * 0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--drift-x), calc(var(--rise) * -1)) scale(calc(var(--scale) * 0.85));
+  }
+}
