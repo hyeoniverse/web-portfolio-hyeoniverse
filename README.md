@@ -620,7 +620,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 60+ 건의 이슈 중 핵심 21건만 추려 About 페이지에서 노출 (난이도 + 일반화 가능성 기준, `HIDDEN_PROBLEMS` Set 으로 필터 — 데이터는 보존되어 언제든 다시 노출 가능). 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트) + 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 60+ 건의 이슈 중 핵심 23건만 추려 About 페이지에서 노출 (난이도 + 일반화 가능성 기준, `HIDDEN_PROBLEMS` Set 으로 필터 — 데이터는 보존되어 언제든 다시 노출 가능). 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트) + 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
 
 | # | 이슈 | 핵심 |
 |:---:|:---|:---|
@@ -657,6 +657,8 @@ npm run test:watch
 | 58 ★ | Admin works `sort_order` 정렬 — 부분 shift 가 DB 의 0·중복 잔재를 못 정리 | 기존 PATCH 는 \"내가 만진 위치 ≥ N 영역만 +1 shift\" 라 마이그레이션 잔재 (`0`), 동시 편집으로 생긴 중복, 과거 빈자리는 영원히 그대로. \"맨 앞으로 이동\" 한 행이 새로고침 후 두 번째에 떠 있는 식의 잡음 반복. 해결: 모든 reorder mutation 을 **\"새 위치 반영한 id 배열 → `sort_order` 를 `1, 2, …, N` 으로 전체 재발급\"** 로 통일. N 이 작은 (≤ 수백) 도메인 에선 partial shift 가 코드 양 비슷한데 \"이미 깨져 있던 row 는?\" 에 답이 없음. **invariant (dense 1..N) 를 mutation 책임 안에 포함** 하면 cleanup script 별도로 필요 없고 DB 가 어떤 상태로 들어와도 한 번에 정리됨 |
 | 59 | 터치 디바이스 hover 없음 — 데스크탑 hover glow / tooltip 이 모바일에서 사라짐 | `/posts/tags` 의 연관 태그 halo + tooltip 같은 hover 인터랙션이 터치에선 \"발화 자체가 없다\". `@media (hover: none)` 로 CSS 만 끄면 정보는 사라지고 대안이 없음. **\"hover 가 없다\" 와 \"viewport 가 작다\" 는 독립된 차원**: iPad (large + touch), 외부 모니터 mirrored phone (small + mouse). 해결: `useIsMobile` 훅에 `isTouch` (`pointer:coarse`) 추가, **컴포넌트가 모드를 명시적으로 선택** — 데스크탑은 mouseenter/leave hover, 터치는 탭 시 바텀 시트 슬라이드 업 (description + 연관 pill + \"이 태그의 글 보기\" CTA, ESC/backdrop/X 닫기, body scroll lock). 발견과 결정을 한 탭에 욱여넣지 않고 시트로 한 단계 분리 |
 | 60 | draggable row 안 button 위에 cursor 가 grab 으로 박힘 — innermost intent 우선 규칙 누락 | admin 테이블 행 전체가 `draggable` 이고, 그 안에 \"미리보기 / 편집 / 삭제\" 액션 버튼이 들어 있음. `CursorTrail.runHitTest` 가 `closest('[draggable]')` 을 먼저 매치해 button 위에서도 `grab` 으로 박힘 → \"Click\" 라벨이 안 나타나 클릭 가능 여부 시각적으로 부정. 해결: `hitDraggable.contains(hitButton) → click` 한 줄 추가 — 두 매치가 nested 구조면 더 안쪽 (innermost) 의 의도가 이긴다. 사용자 mental model (\"가장 가까운 컨텍스트 우선\") 과 일치, 같은 규칙이 link-in-draggable / button-in-link 등 다른 nested 케이스에도 자연스럽게 적용됨 |
+| 61 ★ | 페이지 보일러플레이트를 layout 으로 흡수 후 일부 영역 (footer 링크) 의 스타일이 통째로 사라짐 — 오류 없음 | LikeButton / AdjacentNav / CommentSection / footer link / related content 를 `DetailLayout` 의 config props 로 흡수 → footer 영역이 stylesheet 없이 렌더. JSX 는 `className={styles.footerNav}` 였지만 렌더된 HTML 엔 class 속성 없음. 원인: `.footerNav` CSS 가 page module 에만 정의돼 있어 `DetailLayout` 의 `styles.footerNav` 가 `undefined` → React 는 `className={undefined}` 을 silent drop → 스타일 안 먹고 에러도 없음. 해결: CSS 클래스도 layout module 로 동행 이전. **CSS Module 의 dot 접근은 \"없으면 undefined\" + React 의 silent drop** 두 가지가 합쳐져 silent failure 가 되는 함정 — shared component 추출 리팩토링에서 가장 흔함 |
+| 62 | TSX 안에서 `typeof obj!.field[number]` non-null assertion 이 JSX close tag 로 오해석 | `typeof project.teamMembers![number]` 작성 시 \"JSX element X has no closing tag\" 에러. parser 가 `<` 와 `!` 조합 lookahead 에서 generic vs JSX 모호성에 빠짐. .ts 는 통과, .tsx 만 실패. 해결: local const 분리 (`const members = project.teamMembers ?? []; type X = typeof members[number]`) — `<` 없는 형태로 풀어 두기. **\"JSX element X has no closing tag\" 에러인데 코드에 JSX 가 없으면** 거의 항상 parser 가 non-JSX 표현을 JSX 로 오해석한 것 |
 
 
 ## 배포
