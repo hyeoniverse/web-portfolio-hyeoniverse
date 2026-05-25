@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useId, type ReactNode } from "react";
+import { useState, useEffect, useMemo, useRef, useId, type ReactNode, type CSSProperties } from "react";
+import dynamic from "next/dynamic";
+import Link from "next/link";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
@@ -9,7 +11,11 @@ import { usePageTransition } from "@/providers/PageTransitionProvider";
 import TOC from "@/components/ui/TOC/TOC";
 import { useLanguage } from "@/providers/LanguageProvider";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
+import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
+import T from "@/components/ui/T";
 import styles from "./DetailLayout.module.css";
+
+const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
 
 function formatCount(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}m`;
@@ -23,11 +29,129 @@ export interface TocHeading {
   level: number;
 }
 
-interface LikeConfig {
+export interface LikeConfig {
   count: number;
   liked: boolean;
   busy?: boolean;
   onToggle: () => void;
+}
+
+/**
+ * Like button — heart icon + wave fill animation. config 만 props 로.
+ * DetailLayout 외부에서 직접 사용 가능 — DetailLayout 에 likeConfig 안 넘기면 자동 render 안 됨.
+ */
+export function LikeButton({ config }: { config: LikeConfig }) {
+  const { t } = useLanguage();
+  const heartClipId = useId();
+  const [animBusy, setAnimBusy] = useState(false);
+  const busyStartRef = useRef<number | null>(null);
+  const [burstKey, setBurstKey] = useState(0);
+  const prevAnimBusyRef = useRef(false);
+
+  useEffect(() => {
+    if (config.busy) {
+      busyStartRef.current = Date.now();
+      setAnimBusy(true);
+      return;
+    }
+    if (busyStartRef.current === null) return;
+    const elapsed = Date.now() - busyStartRef.current;
+    const minDuration = 2000;
+    const remaining = Math.max(0, minDuration - elapsed);
+    const id = setTimeout(() => {
+      setAnimBusy(false);
+      busyStartRef.current = null;
+    }, remaining);
+    return () => clearTimeout(id);
+  }, [config.busy]);
+
+  // 채우기 완료 직후 (animBusy false 로 전환 + liked 상태일 때) → burst 1회 트리거
+  useEffect(() => {
+    if (prevAnimBusyRef.current && !animBusy && config.liked) {
+      setBurstKey((k) => k + 1);
+    }
+    prevAnimBusyRef.current = animBusy;
+  }, [animBusy, config.liked]);
+
+  // burst 마다 새 random 파티클 — 위쪽으로 방울 떠오르는 느낌 (수직 dominant + 약간 좌우 흔들림)
+  const burstParticles = useMemo(() => {
+    if (burstKey === 0) return [];
+    return Array.from({ length: 10 }, () => ({
+      driftX: (Math.random() - 0.5) * 90,    // -45 ~ +45px (좌우 흔들림)
+      rise: 45 + Math.random() * 55,         // 45–100px 상승 (높이 편차 큼)
+      scale: 0.7 + Math.random() * 0.6,      // 0.7–1.3
+      opacityPeak: 0.5 + Math.random() * 0.5, // 0.5–1.0 peak
+      delay: Math.random() * 280,            // 0–280ms 스태거
+      duration: 1100 + Math.random() * 600,  // 1100–1700ms (느긋)
+      size: 6 + Math.random() * 7,           // 6–13px
+    }));
+  }, [burstKey]);
+
+  return (
+    <motion.div
+      className={styles.likeWrapper}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.5, duration: 0.5 }}
+    >
+      <button
+        type="button"
+        className={`${styles.likeBtn} ${config.liked ? styles.likeBtnActive : ""} ${animBusy ? styles.likeBtnBusy : ""}`}
+        onClick={config.onToggle}
+        title={t("common.like")}
+        data-clickable="true"
+      >
+        <span className={styles.heartHolder}>
+          <svg
+            className={styles.heartIcon}
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            aria-hidden="true"
+          >
+            <defs>
+              <clipPath id={heartClipId}>
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </clipPath>
+            </defs>
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <g clipPath={`url(#${heartClipId})`}>
+              <path className={styles.heartWaveBack} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
+              <path className={styles.heartWaveMid} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
+              <path className={styles.heartWaveFront} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
+            </g>
+          </svg>
+          {burstKey > 0 && (
+            <span key={burstKey} className={styles.burst} aria-hidden>
+              {burstParticles.map((p, i) => (
+                <span
+                  key={i}
+                  className={styles.burstParticle}
+                  style={{
+                    "--drift-x": `${p.driftX}px`,
+                    "--rise": `${p.rise}px`,
+                    "--scale": p.scale,
+                    "--opacity-peak": p.opacityPeak,
+                    "--delay": `${p.delay}ms`,
+                    "--duration": `${p.duration}ms`,
+                    "--size": `${p.size}px`,
+                  } as CSSProperties}
+                />
+              ))}
+            </span>
+          )}
+        </span>
+        <span className={styles.likeCount}>{formatCount(config.count)}</span>
+      </button>
+    </motion.div>
+  );
 }
 
 interface DetailLayoutProps {
@@ -39,14 +163,34 @@ interface DetailLayoutProps {
   onHeroError?: () => void;
   heroFallback?: ReactNode;
   headings?: TocHeading[];
-  likeConfig?: LikeConfig;
-  /** Where to render the like button: "content" (after children, default) or "bottom" (after afterContent) */
-  likePosition?: "content" | "bottom";
   contentClassName?: string;
   /** Full-width header slot (title, meta) rendered above content+TOC row */
   header?: ReactNode;
   children: ReactNode;
+  /** Page-specific extra content (e.g., work actions, team carousel). children 다음, like 전 */
   afterContent?: ReactNode;
+
+  // ── 공통 detail page 요소들 — config 만 넘기면 DetailLayout 이 자동 render ──
+  /** 좋아요 — afterContent 다음 */
+  likeConfig?: LikeConfig;
+  /** 관련 글/작품/시리즈 등 — page 가 직접 ReactNode 로 (다양한 source). 좋아요 다음 */
+  relatedContent?: ReactNode;
+  /** 이전/다음 — relatedContent 다음 */
+  adjacentConfig?: {
+    prev?: { href: string; title: string; image?: string } | null;
+    next?: { href: string; title: string; image?: string } | null;
+    prevLabelKey?: string;
+    nextLabelKey?: string;
+    className?: string;
+  };
+  /** 댓글 — adjacentNav 다음. type / id 만 넘기면 동작 */
+  commentsConfig?: {
+    commentType: "post" | "work";
+    targetId: string;
+    translationEnabled?: boolean;
+  };
+  /** 하단 back-to-list 링크 — comments 다음 */
+  backLink?: { href: string; labelKey: string };
 }
 
 export default function DetailLayout({
@@ -58,40 +202,21 @@ export default function DetailLayout({
   onHeroError,
   heroFallback,
   headings = [],
-  likeConfig,
-  likePosition = "content",
   contentClassName,
   header,
   children,
   afterContent,
+  likeConfig,
+  relatedContent,
+  adjacentConfig,
+  commentsConfig,
+  backLink,
 }: DetailLayoutProps) {
-  const { t } = useLanguage();
   const { setInfinite, lenis, stop, start } = useLenis();
   const { endTransition, isTransitioning } = usePageTransition();
   const pageRef = useRef<HTMLDivElement>(null);
-  const heartClipId = useId();
 
-  /* 좋아요 wave 애니메이션 최소 시간 보장 — DB 응답이 빨라도 animation 이 끝까지 재생되도록 busy state 를 wrap */
-  const [animBusy, setAnimBusy] = useState(false);
-  const busyStartRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (likeConfig?.busy) {
-      // 매 toggle 시작마다 startRef 갱신 — 빠른 연속 toggle 시에도 마지막 toggle 기준 minDuration 보장
-      busyStartRef.current = Date.now();
-      setAnimBusy(true);
-      return;
-    }
-    if (busyStartRef.current === null) return;
-    const elapsed = Date.now() - busyStartRef.current;
-    const minDuration = 2000; // heartFillX (1.8s) + delay (0.2s)
-    const remaining = Math.max(0, minDuration - elapsed);
-    const id = setTimeout(() => {
-      setAnimBusy(false);
-      busyStartRef.current = null;
-    }, remaining);
-    return () => clearTimeout(id);
-  }, [likeConfig?.busy]);
+  // (animBusy / busyStartRef / heartClipId — LikeButton 컴포넌트 안으로 이동)
 
   // 새 페이지가 마운트되면 오버레이 morph 블록을 fade out.
   // 80ms 대기 — real hero/heroSpacer 가 페인트된 다음 morph 블록이 사라지게 (paint 직전에 닫으면 깜빡임).
@@ -212,106 +337,52 @@ export default function DetailLayout({
         )}
       </div>
 
-      {/* Like button (content position — full width) */}
-      {likeConfig && likePosition === "content" && (
-        <motion.div
-          className={styles.likeWrapper}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          <button
-            type="button"
-            className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""} ${animBusy ? styles.likeBtnBusy : ""}`}
-            onClick={likeConfig.onToggle}
-            title={t("common.like")}
-            data-clickable="true"
-          >
-            <svg
-              className={styles.heartIcon}
-              viewBox="0 0 24 24"
-              width="20"
-              height="20"
-              aria-hidden="true"
-            >
-              <defs>
-                <clipPath id={heartClipId}>
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </clipPath>
-              </defs>
-              {/* Heart outline — stroke only, fill 은 wave 가 담당 */}
-              <path
-                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {/* Wave fill — Heart 모양 clip 안에서 3 layer path 의 d 자체를 CSS keyframes 로 변화.
-                  cubic bezier 곡선이라 부드러운 wave. rise + swell 동시 진행, 끝나면 fully filled */}
-              <g clipPath={`url(#${heartClipId})`}>
-                <path className={styles.heartWaveBack} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
-                <path className={styles.heartWaveMid} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
-                <path className={styles.heartWaveFront} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
-              </g>
-            </svg>
-            <span className={styles.likeCount}>{formatCount(likeConfig.count)}</span>
-          </button>
-        </motion.div>
-      )}
-
-      {/* After content (gallery, adjacent nav, comments, etc.) */}
+      {/* After content (page-specific: work actions / team, post extras 등) */}
       {afterContent && (
         <div className={styles.afterContent}>{afterContent}</div>
       )}
 
-      {/* Like button (bottom position) */}
-      {likeConfig && likePosition === "bottom" && (
-        <motion.div
-          className={styles.likeWrapper}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          <button
-            type="button"
-            className={`${styles.likeBtn} ${likeConfig.liked ? styles.likeBtnActive : ""} ${animBusy ? styles.likeBtnBusy : ""}`}
-            onClick={likeConfig.onToggle}
-            data-clickable="true"
-          >
-            <svg
-              className={styles.heartIcon}
-              viewBox="0 0 24 24"
-              width="20"
-              height="20"
-              aria-hidden="true"
+      {/* ── 공통 detail 요소들 ─ afterContent 다음 자동 render ── */}
+      {(likeConfig || relatedContent || adjacentConfig || commentsConfig || backLink) && (
+        <div className={styles.afterContent}>
+          {likeConfig && <LikeButton config={likeConfig} />}
+
+          {relatedContent}
+
+          {adjacentConfig && (
+            <AdjacentNav
+              prev={adjacentConfig.prev ?? null}
+              next={adjacentConfig.next ?? null}
+              prevLabelKey={adjacentConfig.prevLabelKey}
+              nextLabelKey={adjacentConfig.nextLabelKey}
+              className={adjacentConfig.className}
+            />
+          )}
+
+          {commentsConfig && (
+            <motion.div
+              className={styles.commentWrap}
+              id="comments"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
             >
-              <defs>
-                <clipPath id={heartClipId}>
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </clipPath>
-              </defs>
-              {/* Heart outline — stroke only, fill 은 wave 가 담당 */}
-              <path
-                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              <CommentSection
+                commentType={commentsConfig.commentType}
+                targetId={commentsConfig.targetId}
+                translationEnabled={commentsConfig.translationEnabled !== false}
               />
-              {/* Wave fill — Heart 모양 clip 안에서 3 layer path 의 d 자체를 CSS keyframes 로 변화.
-                  cubic bezier 곡선이라 부드러운 wave. rise + swell 동시 진행, 끝나면 fully filled */}
-              <g clipPath={`url(#${heartClipId})`}>
-                <path className={styles.heartWaveBack} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
-                <path className={styles.heartWaveMid} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
-                <path className={styles.heartWaveFront} d="M-2 28 C 6 28 18 28 30 28 L 30 28 L -2 28 Z" />
-              </g>
-            </svg>
-            <span className={styles.likeCount}>{formatCount(likeConfig.count)}</span>
-          </button>
-        </motion.div>
+            </motion.div>
+          )}
+
+          {backLink && (
+            <div className={styles.footerNav}>
+              <Link href={backLink.href} className={styles.footerLink}>
+                <ArrowLeft size={16} className={styles.footerArrow} /> <T k={backLink.labelKey} />
+              </Link>
+            </div>
+          )}
+        </div>
       )}
 
       <ScrollButtons />

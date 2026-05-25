@@ -45,6 +45,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: 0 0 0 var(--spacing-md);
+  height: 28px;
   min-height: 28px;
   cursor: text;
 }

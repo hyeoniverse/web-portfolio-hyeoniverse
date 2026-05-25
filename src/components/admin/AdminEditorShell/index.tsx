@@ -8,7 +8,7 @@ import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
 import BackLink from "@/components/ui/BackLink";
 import Checkbox from "@/components/ui/Checkbox";
-import Popover from "@/components/ui/Popover";
+import Popover, { type PopoverPlacement } from "@/components/ui/Popover";
 import Tooltip from "@/components/ui/Tooltip";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
@@ -100,6 +100,7 @@ export default function AdminEditorShell({
   const renderSaveGroup = (
     isOpen: boolean,
     setOpen: (open: boolean) => void,
+    schedulePlacement: PopoverPlacement = "bottom-end",
   ) => (
     <>
       {onPreview && (
@@ -139,7 +140,7 @@ export default function AdminEditorShell({
           <Popover
             open={isOpen}
             onOpenChange={setOpen}
-            placement="bottom-end"
+            placement={schedulePlacement}
             contentClassName={styles.scheduleDropdown}
             sheetTitle={labels.scheduledAt ?? "Schedule"}
             trigger={
@@ -757,7 +758,7 @@ export default function AdminEditorShell({
       {/* ── Bottom Bar: 미리보기 / 임시저장 / 저장 ── */}
       <div className={styles.bottomBar}>
         <div className={styles.saveGroup}>
-          {renderSaveGroup(showScheduleBottom, setShowScheduleBottom)}
+          {renderSaveGroup(showScheduleBottom, setShowScheduleBottom, "top-end")}
         </div>
       </div>
     </div>

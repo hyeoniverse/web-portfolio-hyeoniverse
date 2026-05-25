@@ -331,13 +331,12 @@
   display: none;
 }
 
-/* Popover chrome — 너비/높이 transition 을 위해 분리 (motion 가능) */
+/* Popover chrome — 너비/높이 transition 을 위해 분리 (motion 가능). 배경/shadow 없이 contents 자체 */
 .popoverChrome {
   width: max-content;
   border: var(--border-light);
   border-radius: var(--radius-2xl);
-  background: var(--bg-primary);
-  box-shadow: 0 12px 32px oklch(0.00% 0.0000 0.00 / 0.18);
+  background: transparent;
   overflow: hidden;
 }
 
@@ -506,7 +505,7 @@
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   padding: 2px;
-  background: var(--bg-primary);
+  background: transparent;
 }
 
 .timeFormatBtn {

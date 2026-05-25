@@ -20,6 +20,7 @@ export const siteConfig = {
     role: "Frontend Focused Fullstack Developer", // 직함
     location: "Seoul, KR", // 위치
     status: "Open to Opportunities", // 현재 상태 (예: "채용 가능", "구직 중")
+    profileImage: "/images/profile_pic.webp", // 프로필 사진 경로 (works detail TEAM 등에 사용)
   },
 
   // ---------------------------------------------------------------------------
