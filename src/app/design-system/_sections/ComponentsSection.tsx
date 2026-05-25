@@ -32,6 +32,8 @@ import TagPill from "@/components/ui/TagPill";
 import BilingualInputPair, { type BilingualValue } from "@/components/admin/BilingualInputPair";
 import TagNotesEditor, { type TagNote } from "@/components/admin/TagNotesEditor";
 import { LikeButton } from "@/components/layout/DetailLayout";
+import HeartIcon from "@/components/ui/HeartIcon";
+import Textarea from "@/components/ui/Textarea";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
 
@@ -83,6 +85,16 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [likeCount, setLikeCount] = useState(42);
   const [liked, setLiked] = useState(false);
   const [likeBusy, setLikeBusy] = useState(false);
+  // HeartIcon 단독 데모 (size 별)
+  const [iconLiked, setIconLiked] = useState(false);
+  const [iconBusy, setIconBusy] = useState(false);
+  const toggleIcon = useCallback(() => {
+    setIconBusy(true);
+    setIconLiked((prev) => !prev);
+    setTimeout(() => setIconBusy(false), 200);
+  }, []);
+  // Textarea (with maxHint) 데모
+  const [excerptDemo, setExcerptDemo] = useState("");
   const handleLikeToggle = useCallback(() => {
     setLikeBusy(true);
     setLiked((prev) => {
@@ -742,14 +754,53 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </span>
       </motion.div>
 
-      {/* LikeButton — detail 페이지 좋아요 (wave fill + burst) */}
+      {/* HeartIcon — wave fill + burst (size 별 단독 데모) */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>HeartIcon</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-2xl)", cursor: "pointer", color: iconLiked ? "var(--text-accent)" : "var(--text-secondary)" }} onClick={toggleIcon}>
+          <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            <HeartIcon liked={iconLiked} busy={iconBusy} size={14} />
+            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>size 14</span>
+          </span>
+          <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            <HeartIcon liked={iconLiked} busy={iconBusy} size={20} />
+            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>size 20</span>
+          </span>
+          <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            <HeartIcon liked={iconLiked} busy={iconBusy} size={32} />
+            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>size 32</span>
+          </span>
+        </motion.div>
+        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
+          state machine (empty / filling / filled / draining) · 3-layer wave fill (SVG path d 애니메이션) · 채우기 완료 시 burst 1회 · burst 거리/크기 size 비례 스케일 · stroke / fill 모두 currentColor 상속 (부모 color 따라감)
+        </span>
+      </motion.div>
+
+      {/* LikeButton — HeartIcon + count + button wrapper (detail 페이지 패턴) */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>LikeButton</div>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
           <LikeButton config={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }} />
         </motion.div>
         <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
-          하트 채우기 wave 애니메이션 (3-layer clip-path) · hover 단순 scale · 채우기 완료 시 하트 burst 1회 (10 파티클이 위쪽으로 방울처럼 상승, drift / rise / scale / opacity / delay / size 각자 random)
+          HeartIcon (size=20) 를 wrap — count + outline button + hover scale. config props (count / liked / busy / onToggle) 만 받음
+        </span>
+      </motion.div>
+
+      {/* Textarea (with maxHint) — contenteditable 모드 + inline highlight */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Textarea — maxHint (contenteditable highlight)</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ maxWidth: 480 }}>
+          <Textarea
+            value={excerptDemo}
+            onChange={setExcerptDemo}
+            placeholder="200자 (short) 넘게 입력하면 초과 portion 만 accent bg highlight"
+            rows={3}
+            maxHint="short"
+          />
+        </motion.div>
+        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
+          maxHint 설정 시 contenteditable=&quot;plaintext-only&quot; 모드로 자동 전환 — 초과 글자에 inline &lt;mark&gt; highlight · preset (short 200 / basic 500 / long 2000) 또는 숫자 · 카운터 80% 부터 warning, 100% 부터 over · native resize 핸들 위 투명 overlay 로 커스텀 cursor 표시
         </span>
       </motion.div>
 
