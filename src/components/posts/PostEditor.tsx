@@ -1364,6 +1364,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                     onChange={(v) => updateField(excerptKey, v)}
                     placeholder={te("excerptPlaceholder")}
                     rows={2}
+                    maxHint={200}
                   />
                 </div>
                 <div className={es.field} data-seo="tags">

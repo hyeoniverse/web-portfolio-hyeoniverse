@@ -64,6 +64,30 @@
   border-color: var(--text-primary);
 }
 
+/* ── Soft 글자수 카운터 ── */
+.counter {
+  align-self: flex-end;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+/* (0,2,0) — 전역 theme transition 오버라이드 */
+.wrapper .counter {
+  transition: color var(--duration-base) ease;
+}
+
+.counterWarn {
+  color: var(--text-warning);
+}
+
+.counterOver {
+  color: var(--text-accent);
+  font-weight: 500;
+}
+
 /* ── Underline variant ── */
 .underline {
   border: none;
