@@ -18,12 +18,9 @@ import LanguageToggle from "@/components/ui/LanguageToggle";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import AISummary from "@/components/ui/AISummary";
-import dynamic from "next/dynamic";
-import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import RecommendedToast from "./_components/RecommendedToast";
 import RecommendedSection from "./_components/RecommendedSection";
-const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import ShareButton from "@/components/ui/ShareButton";
 import Button from "@/components/ui/Button";
@@ -275,7 +272,6 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       onHeroError={() => setHeroImgError(true)}
       heroFallback={heroErrorFallback}
       headings={[...headings, { id: "comments", text: t("comments.heading"), level: 1 }]}
-      likeConfig={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
       header={
         <motion.div
           className={styles.articleHeader}
@@ -334,27 +330,28 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
           <div className={styles.headerDivider} />
         </motion.div>
       }
-      afterContent={
+      likeConfig={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
+      adjacentConfig={{
+        prev: adjacentPosts.prev ? {
+          href: `/posts/${adjacentPosts.prev.slug}`,
+          title: viewLang === "en" && adjacentPosts.prev.title_en ? adjacentPosts.prev.title_en : adjacentPosts.prev.title,
+          image: adjacentPosts.prev.cover_image,
+        } : null,
+        next: adjacentPosts.next ? {
+          href: `/posts/${adjacentPosts.next.slug}`,
+          title: viewLang === "en" && adjacentPosts.next.title_en ? adjacentPosts.next.title_en : adjacentPosts.next.title,
+          image: adjacentPosts.next.cover_image,
+        } : null,
+        prevLabelKey: "postDetail.previous",
+        nextLabelKey: "postDetail.next",
+      }}
+      commentsConfig={{ commentType: "post", targetId: post.id, translationEnabled }}
+      backLink={{ href: "/posts", labelKey: "postDetail.backToList" }}
+      relatedContent={
         <>
           {recommendedPosts.length > 0 && (
             <RecommendedSection posts={recommendedPosts} viewLang={viewLang} />
           )}
-
-          <AdjacentNav
-            prev={adjacentPosts.prev ? {
-              href: `/posts/${adjacentPosts.prev.slug}`,
-              title: viewLang === "en" && adjacentPosts.prev.title_en ? adjacentPosts.prev.title_en : adjacentPosts.prev.title,
-              image: adjacentPosts.prev.cover_image,
-            } : null}
-            next={adjacentPosts.next ? {
-              href: `/posts/${adjacentPosts.next.slug}`,
-              title: viewLang === "en" && adjacentPosts.next.title_en ? adjacentPosts.next.title_en : adjacentPosts.next.title,
-              image: adjacentPosts.next.cover_image,
-            } : null}
-            prevLabelKey="postDetail.previous"
-            nextLabelKey="postDetail.next"
-          />
-
           {relatedWorks.length > 0 && (
             <section className={styles.relatedSection}>
               <div className={styles.relatedHeader}>
@@ -446,21 +443,6 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
             </section>
           )}
 
-          <motion.div
-            className={styles.commentSection}
-            id="comments"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <CommentSection commentType="post" targetId={post.id} translationEnabled={translationEnabled} />
-          </motion.div>
-
-          <div className={styles.footerNav}>
-            <Link href="/posts" className={styles.footerLink}>
-              <ArrowLeft size={16} className={styles.footerArrow} /> <T k="postDetail.backToList" />
-            </Link>
-          </div>
         </>
       }
     >

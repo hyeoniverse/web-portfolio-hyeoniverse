@@ -125,9 +125,13 @@ export default function Popover({
     const onResize = () => recompute();
     window.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", onResize);
+    // content 자체 크기 변화 (예: tab/section 전환) 시에도 recompute — placement 'top-*' 에서 height 변화하면 위치 어긋남
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => recompute()) : null;
+    if (ro && contentRef.current) ro.observe(contentRef.current);
     return () => {
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", onResize);
+      ro?.disconnect();
     };
     // recompute 는 의존성 추적 안 함 — placement/offset 변경 시 effect 재실행
     // eslint-disable-next-line react-hooks/exhaustive-deps
