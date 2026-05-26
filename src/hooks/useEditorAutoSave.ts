@@ -1,156 +1,189 @@
 "use client";
 
-import { useRef, useCallback, useEffect } from "react";
+/**
+ * useEditorAutoSave — 단순화 재작성.
+ *
+ * 책임:
+ *   1. snapshot 변경 → debounce 후 POST /api/revisions
+ *   2. 페이지 이탈 (visibility / beforeunload / SPA cleanup) → sendBeacon 으로 마지막 저장
+ *   3. 변경이 너무 작으면 (minCharDiff 미만) skip — "유의미한 단위" 만 revision
+ *   4. 동시 fire 방지 (mutex) — race 로 인한 중복 revision 차단
+ *   5. baseline 명시적 갱신 (markBaseline) — restore / async-load 직후 사용
+ *
+ * 호출 패턴:
+ *   const { markBaseline, flush, lastSavedAt } = useEditorAutoSave({
+ *     entityType, entityId, snapshot: form, getTitle, ignoredKeys, block,
+ *   });
+ *   - snapshot 이 form 자체. 매 render 마다 hook 이 자체 dirty check.
+ *   - markBaseline() 을 restore / async-load 직후 호출.
+ *   - flush() 는 명시적 즉시 저장.
+ */
 
-interface UseEditorAutoSaveOptions<T> {
+import { useCallback, useEffect, useRef, useState } from "react";
+
+interface UseAutosaveOptions<T> {
   entityType: "post" | "work";
+  /** Real entity ID. undefined 면 draftEntityId 로 fallback (새 글 임시 저장용). */
   entityId: string | undefined;
-  /** For new entities that don't yet have a real ID */
+  /** New 글 일 때 사용할 임시 ID (e.g. "draft-new-post"). */
   draftEntityId?: string;
-  formRef: { current: T };
-  saveRevision: (snapshot: T, title: string) => Promise<boolean>;
+  /** 현재 form 상태 (매 render 마다 새 값). dep tracking 자동. */
+  snapshot: T;
   getTitle: () => string;
-  busyFlags: { saving: boolean; translating: boolean };
+  /** In-app save callback (useRevisions.saveRevision). debounce save 가 호출 — list state 동기화 위해.
+   *  Leave save (beforeunload/cleanup) 는 sendBeacon 으로 직접 (list 동기화 불필요 — 어차피 떠남). */
+  saveRevision: (snapshot: T, title: string) => Promise<boolean>;
+  /** baseline 비교에서 제외할 키 (저장은 됨, dirty 판정만 제외). */
+  ignoredKeys?: (keyof T)[];
+  /** Debounce window — 마지막 키 누른 후 N ms 지나면 save. Default 60s. */
   debounceMs?: number;
-  onSaved?: () => void;
-  /** Top-level field names whose changes should NOT trigger autosave (still saved in snapshot). */
-  ignoredFields?: string[];
+  /** baseline 대비 글자수 차이가 이거 미만이면 save skip — typo / 한두 글자 변경 무시. Default 10. */
+  minCharDiff?: number;
+  /** true 면 save 차단 (실제 publish / translate 진행 중 등). */
+  block?: boolean;
+  onSaved?: (savedAt: Date) => void;
 }
 
-/**
- * Shared auto-save logic for PostEditor and WorkEditor.
- *
- * Handles:
- * - 30s debounce timer on form changes
- * - Skip first change (initial mount)
- * - JSON comparison to avoid duplicate saves
- * - Save on visibility change (document.hidden)
- * - Save on beforeunload via navigator.sendBeacon
- * - Save on SPA navigation (cleanup fetch with keepalive)
- */
+function computeHash<T>(snapshot: T, ignoredKeys?: readonly (keyof T)[]): string {
+  if (snapshot == null || typeof snapshot !== "object") return JSON.stringify(snapshot);
+  if (!ignoredKeys?.length) return JSON.stringify(snapshot);
+  const copy = { ...(snapshot as object) } as Record<string, unknown>;
+  for (const k of ignoredKeys) delete copy[k as string];
+  return JSON.stringify(copy);
+}
+
 export function useEditorAutoSave<T>({
   entityType,
   entityId,
   draftEntityId,
-  formRef,
-  saveRevision,
+  snapshot,
   getTitle,
-  busyFlags,
-  debounceMs = 30000,
+  saveRevision,
+  ignoredKeys,
+  debounceMs = 60_000,
+  minCharDiff = 10,
+  block = false,
   onSaved,
-  ignoredFields,
-}: UseEditorAutoSaveOptions<T>) {
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const autoSaveSkip = useRef(true);
-  const autoSaveBusy = useRef(false);
-  const savedId = useRef<string | undefined>(entityId);
+}: UseAutosaveOptions<T>) {
+  // baseline = 마지막으로 "저장된 상태" 의 hash. null 이면 아직 초기화 안 됨.
+  const baselineRef = useRef<string | null>(null);
+  const savingRef = useRef(false); // mutex
+  const blockRef = useRef(block);
+  const snapshotRef = useRef(snapshot);
+  const onSavedRef = useRef(onSaved);
+  const getTitleRef = useRef(getTitle);
+  const saveRevisionRef = useRef(saveRevision);
+  const ignoredKeysRef = useRef(ignoredKeys);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
-  /** Stable JSON of the snapshot with ignored fields stripped — used for dirty comparison only.
-      Full snapshot (including ignored fields) is still what gets persisted. */
-  const comparableJson = useCallback(
-    (snapshot: unknown) => {
-      if (!ignoredFields?.length || typeof snapshot !== "object" || snapshot === null) {
-        return JSON.stringify(snapshot);
-      }
-      const copy: Record<string, unknown> = { ...(snapshot as Record<string, unknown>) };
-      for (const f of ignoredFields) delete copy[f];
-      return JSON.stringify(copy);
-    },
-    [ignoredFields],
-  );
+  // ref sync — 매 render
+  blockRef.current = block;
+  snapshotRef.current = snapshot;
+  onSavedRef.current = onSaved;
+  getTitleRef.current = getTitle;
+  saveRevisionRef.current = saveRevision;
+  ignoredKeysRef.current = ignoredKeys;
 
-  const lastAutoSaveJson = useRef<string>(comparableJson(formRef.current));
+  const effectiveId = entityId ?? draftEntityId;
 
-  // Keep busy flag in sync
-  autoSaveBusy.current = busyFlags.saving || busyFlags.translating;
+  /** baseline 을 현재 snapshot 으로 정합화. restore / async-load 직후 호출. */
+  const markBaseline = useCallback(() => {
+    baselineRef.current = computeHash(snapshotRef.current, ignoredKeysRef.current);
+  }, []);
 
-  // Keep savedId in sync when entityId changes (e.g. after first save)
-  useEffect(() => {
-    if (entityId) savedId.current = entityId;
-  }, [entityId]);
-
-  const flushSave = useCallback(async () => {
-    const current = comparableJson(formRef.current);
-    if (!current || current === lastAutoSaveJson.current) return;
-    if (autoSaveBusy.current) return;
-    lastAutoSaveJson.current = current;
-    const title = getTitle();
-    const saved = await saveRevision(formRef.current, title || "(untitled)");
-    if (saved) {
-      onSaved?.();
+  /** 명시적 즉시 저장. minor change 도 저장 (사용자 의도). */
+  const flush = useCallback(async (): Promise<boolean> => {
+    if (savingRef.current || blockRef.current || !effectiveId) return false;
+    const current = computeHash(snapshotRef.current, ignoredKeysRef.current);
+    if (baselineRef.current !== null && current === baselineRef.current) return false;
+    savingRef.current = true;
+    try {
+      const ok = await saveRevisionRef.current(
+        snapshotRef.current,
+        getTitleRef.current() || "(untitled)",
+      );
+      if (!ok) return false;
+      baselineRef.current = current;
+      const now = new Date();
+      setLastSavedAt(now);
+      onSavedRef.current?.(now);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      savingRef.current = false;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [saveRevision, getTitle, onSaved, comparableJson]);
+  }, [effectiveId]);
 
-  /** Debounce effect — must be triggered by passing `form` as a dep from the caller via a wrapper useEffect */
-  const scheduleAutoSave = useCallback(() => {
-    if (autoSaveSkip.current) {
-      autoSaveSkip.current = false;
-      return;
-    }
-    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(flushSave, debounceMs);
-  }, [flushSave, debounceMs]);
+  /** baseline 대비 글자수 차이 충분한가? */
+  const isMeaningfulDiff = useCallback((current: string): boolean => {
+    if (baselineRef.current === null) return false;
+    return Math.abs(current.length - baselineRef.current.length) >= minCharDiff;
+  }, [minCharDiff]);
 
-  /** Save on leave: visibility change + beforeunload + SPA nav (cleanup) */
+  // Initial baseline — entityId 가 처음 valid 해질 때 한 번
   useEffect(() => {
-    const onVisChange = () => {
-      if (document.hidden) flushSave();
+    if (effectiveId && baselineRef.current === null) {
+      baselineRef.current = computeHash(snapshotRef.current, ignoredKeysRef.current);
+    }
+  }, [effectiveId]);
+
+  // Debounced save — snapshot 변경 시 N ms 후 save (유의미한 diff 일 때만)
+  useEffect(() => {
+    if (!effectiveId || baselineRef.current === null) return;
+    const current = computeHash(snapshot, ignoredKeysRef.current);
+    if (current === baselineRef.current) return;
+    if (!isMeaningfulDiff(current)) return; // 변경 너무 작음
+
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => { flush(); }, debounceMs);
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
+  }, [snapshot, effectiveId, debounceMs, flush, isMeaningfulDiff]);
 
-    const onBeforeUnload = () => {
-      const id = savedId.current || draftEntityId;
-      if (!id) return;
-      const current = comparableJson(formRef.current);
-      if (!current || current === lastAutoSaveJson.current) return;
+  // Leave handlers — visibility / beforeunload / SPA cleanup
+  useEffect(() => {
+    if (!effectiveId) return;
+    const id = effectiveId;
+
+    /** sendBeacon 으로 즉시 save (sync; fetch 와 달리 unload 중에도 보장).
+     *  변경 있으면 무조건 저장 — leave 시점은 minCharDiff 무시 (마지막 내용 하나는 보존).
+     *  debounce 만 임계값 적용 (background 저장 — 너무 잦은 revision 방지). */
+    const beaconSave = () => {
+      if (savingRef.current) return; // mutex
+      const current = computeHash(snapshotRef.current, ignoredKeysRef.current);
+      if (baselineRef.current !== null && current === baselineRef.current) return;
+      // baseline 미리 갱신 — 같은 인스턴스 내 다른 leave handler 가 또 POST 못 하게
+      baselineRef.current = current;
       const body = JSON.stringify({
         entity_type: entityType,
         entity_id: id,
-        snapshot: formRef.current,
-        title: getTitle() || "(untitled)",
+        snapshot: snapshotRef.current,
+        title: getTitleRef.current() || "(untitled)",
       });
-      navigator.sendBeacon(
-        "/api/revisions",
-        new Blob([body], { type: "application/json" }),
-      );
+      navigator.sendBeacon("/api/revisions", new Blob([body], { type: "application/json" }));
     };
+
+    const onVisChange = () => { if (document.hidden) beaconSave(); };
+    const onBeforeUnload = () => beaconSave();
 
     document.addEventListener("visibilitychange", onVisChange);
     window.addEventListener("beforeunload", onBeforeUnload);
-
     return () => {
       document.removeEventListener("visibilitychange", onVisChange);
       window.removeEventListener("beforeunload", onBeforeUnload);
-
-      // SPA navigation — keepalive fetch (best-effort; ignore errors)
-      const id = savedId.current || draftEntityId;
-      if (!id) return;
-      // cleanup 시점에 최신 form 을 읽고 싶음 — react-hooks/exhaustive-deps 의
-      // "ref 가 effect 사이에 바뀔 수 있다" 경고는 의도된 동작이라 suppress
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      const snapshot = formRef.current;
-      const current = comparableJson(snapshot);
-      if (!current || current === lastAutoSaveJson.current) return;
-      fetch("/api/revisions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          entity_type: entityType,
-          entity_id: id,
-          snapshot,
-          title: getTitle() || "(untitled)",
-        }),
-        keepalive: true,
-      }).catch(() => {});
+      // unmount 후에도 debounce timer 가 따로 fire 하는 거 차단
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      // SPA navigation cleanup — 변경 있으면 무조건 저장 (마지막 내용 보존)
+      beaconSave();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flushSave]);
+  }, [entityType, effectiveId]);
 
   return {
-    savedId,
-    flushSave,
-    autoSaveSkip,
-    lastAutoSaveJson,
-    scheduleAutoSave,
+    lastSavedAt,
+    markBaseline,
+    flush,
   };
 }
