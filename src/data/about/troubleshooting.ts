@@ -131,6 +131,12 @@ const itemMeta: Record<
     section: "L", difficulty: 2,
   },
 
+  // Architecture — autosave / draft / revision overhaul (v2)
+  "자동저장 v2 — 글자 단위 draft + 리비전을 명시적 save point 로 재정의": {
+    section: "A", difficulty: 3, recommended: true,
+    recommendReason: { ko: "한 번 리팩토링한 시스템이라도 사용해 보면 새 결함이 보인다는 걸 보여드리고 싶어 골랐습니다 — 같은 도메인을 두 번째로 다시 설계한 과정입니다.", en: "Picked this because even a 'refactored' system shows new flaws once it's lived in — a second pass at the same domain." },
+  },
+
   // Architecture — Admin works sort_order normalize
   "Admin works sort_order 정렬 — 부분 shift 가 DB 의 0·중복 잔재를 못 정리": {
     section: "A", difficulty: 2, recommended: true,
@@ -1230,6 +1236,44 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         alt: { ko: "리비전 복원 prompt — 다른 기기 / 새로고침 시 \"이전 임시본 불러올까요?\" 확인 모달", en: "Restore prompt — \"Resume previous draft?\" modal on cross-device / refresh" },
         placeholderKeyword: "글 편집 페이지 진입 시 \"미저장 임시본이 있습니다\" 복원 prompt 모달",
       },
+    ],
+  },
+  {
+    section: { ko: "에디터 / 자동저장 (v2)", en: "Editor / Auto-save (v2)" },
+    problem: { ko: "자동저장 v2 — 글자 단위 draft + 리비전을 명시적 save point 로 재정의", en: "Auto-save v2 — character-level draft + revisions as explicit save points" },
+    definition: {
+      ko: "v1 (이전 항목) 에서 자동저장을 서버 DB 로 옮기고 \"불러오기 모달\" 까지 정리했지만, 실제 사용 중 다시 두 가지 결함이 드러났습니다.\n\n**① 한 글자만 입력해도 리비전이 폭증** — 한 글자 입력 → 30s 타이머 → 리비전 생성 → 또 한 글자 → 또 리비전. 여기에 페이지 이탈 시 강제 저장 + 마지막 debounce 까지 동시에 호출되어 **같은 변경이 1~3개의 동일 row 로 중복 저장**되는 race 가 있었습니다.\n\n**② \"불러올까요?\" 모달이 여전히 거슬림** — v1 에서 \"무시 추적\" 으로 반복 노출은 막았지만, 모달 자체가 작성 흐름을 끊었습니다. Notion / Linear 처럼 **모달 없이 마지막 작성 상태가 자연스럽게 따라오는 경험** 이 더 좋겠다는 결론에 도달했습니다.",
+      en: "v1 (previous entry) moved auto-save to the server DB and tamed the \"restore?\" modal, but two more flaws surfaced once the editor was actually used.\n\n**① Revision explosion on every keystroke** — single character → 30s timer → revision created → another character → another revision. Add the page-leave forced save + the last debounce firing together, and the **same change got saved 1–3 times as duplicate rows** (race condition).\n\n**② The \"Restore draft?\" modal still got in the way** — v1's \"dismissed tracking\" stopped re-prompts, but the modal itself broke the writing flow. Notion / Linear deliver a smoother experience by **silently resuming the last state with no modal at all**.",
+    },
+    cause: {
+      ko: "**①** 의 본질은 \"draft (실시간 작업 보호)\" 와 \"revision (되돌릴 수 있는 시점)\" 이 같은 저장소를 공유한 것입니다. draft 는 한 글자마다 보호되어야 하는데 revision 까지 한 글자마다 만들어졌습니다. 게다가 cleanup + beforeunload + 늦게 도착한 debounce 타이머가 모두 stale `lastSavedJson` 으로 동시에 POST 하는 race 가 있었습니다.\n\n**②** 는 v1 에서 \"draft 가 있으면 사용자가 결정\" 으로 풀었지만, **\"사용자에게 매번 묻지 않는 것\"** 자체가 더 나은 UX 였습니다. 자동 복원이 의도하지 않은 행동일까 걱정했지만, 실제로는 \"어제 작성하던 글 그대로 이어 쓰기\" 가 자연스러운 기대치였습니다.",
+      en: "**①** boils down to \"draft (live work protection)\" and \"revision (restorable checkpoint)\" sharing the same storage. Draft must be guarded per character — but revisions were also being created per character. On top of that, cleanup + beforeunload + a late-arriving debounce timer all POSTed with stale `lastSavedJson` concurrently, a textbook race.\n\n**②** got reasoned away in v1 with \"let the user decide if a draft exists\", but **not prompting at all** turned out to be the better UX. The worry was that silent restore might surprise users, but in practice \"keep writing where I left off yesterday\" is the natural expectation.",
+    },
+    solution: {
+      ko: "**draft 와 revision 을 두 개의 다른 저장소로 명확히 분리**했습니다.\n\n- **continuous draft (localStorage)** — 폼이 바뀔 때마다 매번 즉시 저장. 페이지에 다시 진입하면 모달 없이 silent 하게 마지막 상태로 setForm. 사용자는 \"이어서 작성\" 만 경험합니다.\n- **DB revision (save point)** — 30s debounce + **10자 이상 변경분** 일 때만 생성. 이제 revision 은 \"되돌릴 만한 시점\" 이라는 의도가 명확해졌습니다. 페이지 이탈 시점에는 임계값과 무관하게 마지막 1개를 강제 저장 (sendBeacon / keepalive fetch) 해서 마지막 작업도 안전합니다.\n- **race 방지** — `savingRef` mutex 로 in-flight 저장 단일화, leave 핸들러는 POST 전에 baseline 을 선갱신해 중복 진입 시 \"변경 없음\" 으로 즉시 종료. cleanup 시 pending debounce 타이머도 clear.\n\n실제 저장 (publish / draft 저장) 후에는 더 이상 \"dismissed\" 추적이 필요 없어 v1 의 Set 기반 코드도 함께 삭제했습니다.",
+      en: "**Split draft and revision into two distinct stores.**\n\n- **Continuous draft (localStorage)** — saves on every form change. On re-entry, silent `setForm` with the last state — no modal. The user just experiences \"keep writing\".\n- **DB revision (save point)** — only created when 30s debounce passes **AND** the diff is ≥ 10 characters. \"Revision\" now means \"a checkpoint worth restoring\". On page leave, force one final save regardless of threshold (sendBeacon / keepalive fetch) — final edit is safe.\n- **Race prevention** — `savingRef` mutex serializes in-flight saves; leave handlers update the baseline BEFORE POSTing so re-entries short-circuit on \"no change\". Pending debounce timers are cleared on cleanup.\n\nAfter a real save (publish / draft), the v1 \"dismissed tracking\" Set is no longer needed — that code was removed too.",
+    },
+    keyInsight: {
+      ko: "**한 번 리팩토링한 시스템이라도 정작 써 보면 다시 결함이 보입니다.**\n\nv1 의 핵심 교훈이 \"의미 있는 변경 시점만 저장하기\" 였다면, v2 는 **\"저장의 목적이 다르면 저장소도 다르게\"** 입니다. \"실시간 보호\" 와 \"되돌릴 시점\" 은 같은 도메인 같지만 요구하는 빈도 · 영속성 · 접근 방식이 다릅니다. 한 곳에 묶으면 둘 중 하나는 반드시 어색해집니다.\n\n그리고 \"사용자에게 선택을 주는 것 = 친절\" 이라는 기본 가정도 다시 점검할 필요가 있습니다. **자연스러운 기본 동작이 모달보다 친절할 때가 많습니다.**",
+      en: "**Even a 'refactored' system shows new flaws once you actually live in it.**\n\nIf v1's lesson was \"save only meaningful moments\", v2's is **\"if the purpose differs, the store should differ\"**. \"Live protection\" and \"restorable checkpoint\" sound like the same domain, but their required frequency, durability, and access patterns differ. Bundle them, and one of the two ends up awkward.\n\nIt's also worth rechecking the default assumption that \"giving users a choice = kindness\". **A natural default is often kinder than a modal.**",
+    },
+    comparisons: [
+      {
+        label: { ko: "v1 (이전 항목) / v2 (현재)", en: "v1 (previous) / v2 (now)" },
+        headers: [
+          { ko: "관점", en: "Aspect" },
+          { ko: "v1", en: "v1" },
+          { ko: "v2", en: "v2" },
+        ],
+        rows: [
+          { cells: [{ ko: "draft 저장소", en: "Draft storage" }, { ko: "Supabase revisions 테이블", en: "Supabase revisions" }, { ko: "localStorage (글자 단위)", en: "localStorage (per char)" }] },
+          { cells: [{ ko: "revision 저장 빈도", en: "Revision frequency" }, { ko: "변경 감지 시마다", en: "On every detected change" }, { ko: "30s + 10자 이상", en: "30s + ≥10 char delta" }] },
+          { cells: [{ ko: "revision 의 의미", en: "Revision semantics" }, { ko: "임시본", en: "Temp save" }, { ko: "되돌릴 수 있는 save point", en: "Restorable checkpoint" }] },
+          { cells: [{ ko: "재진입 시 UX", en: "Re-entry UX" }, { ko: "\"불러올까요?\" 모달", en: "\"Restore?\" modal" }, { ko: "silent 자동 복원", en: "Silent auto-restore" }] },
+          { cells: [{ ko: "한 글자 입력 시 row 수", en: "Rows per keystroke" }, { ko: "1~3 (race)", en: "1–3 (race)" }, { ko: "0 (글자별로는 만들지 않음)", en: "0 (not per char)" }], highlight: true },
+          { cells: [{ ko: "마지막 편집 보장", en: "Final-edit guarantee" }, { ko: "sendBeacon", en: "sendBeacon" }, { ko: "sendBeacon + baseline 선갱신 mutex", en: "sendBeacon + pre-baselined mutex" }] },
+        ],
+      } satisfies ComparisonTable,
     ],
   },
   {
