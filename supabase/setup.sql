@@ -356,8 +356,7 @@ CREATE TABLE IF NOT EXISTS works (
   role_en          text NOT NULL DEFAULT '',
   tech             text[] NOT NULL DEFAULT '{}',
   image            text NOT NULL DEFAULT '',
-  size             text NOT NULL DEFAULT 'medium'
-    CHECK (size IN ('large', 'small', 'medium', 'tall', 'wide')),
+  -- Flow 레이아웃 카드 사이즈는 sort_order 에서 cycle derive — 별도 컬럼 없음 (single source of truth)
   content_ko       text NOT NULL DEFAULT '',
   content_en       text NOT NULL DEFAULT '',
   content_type     text NOT NULL DEFAULT 'markdown'
@@ -397,8 +396,9 @@ CREATE TABLE IF NOT EXISTS works (
 
 CREATE INDEX IF NOT EXISTS works_purge_after_idx
   ON works (purge_after) WHERE deleted_at IS NOT NULL;
--- 기존 DB 호환 — number 컬럼 (deprecated, sort_order 에서 derive) 제거
+-- 기존 DB 호환 — number / size 컬럼 (deprecated, sort_order 에서 derive) 제거
 ALTER TABLE works DROP COLUMN IF EXISTS number;
+ALTER TABLE works DROP COLUMN IF EXISTS size;
 
 -- slug 조회용
 CREATE INDEX IF NOT EXISTS idx_works_slug ON works (slug);
