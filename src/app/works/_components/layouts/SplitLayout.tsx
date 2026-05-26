@@ -127,7 +127,7 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
               <div className={styles.category}>
                 <T ko={p.category.ko} en={p.category.en} />
               </div>
-              <h2 className={styles.title}>{p.title}</h2>
+              {/* 제목은 우측 imageCard 중앙 큰 타이포로 이동 */}
               <p className={styles.subtitle}>
                 <T ko={p.subtitle.ko} en={p.subtitle.en} />
               </p>
@@ -174,6 +174,7 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
             key={`${proj.id}-${i}`}
             ref={(el) => { cardRefs.current[i] = el; }}
             data-idx={i}
+            data-clickable="true"
             className={styles.imageCard}
             onClick={() => handleCardClick(i, proj.id, proj.image)}
           >
@@ -185,6 +186,7 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
               priority={i === 0}
               loading={i === 0 ? "eager" : "lazy"}
             />
+            <h2 className={styles.imageCardTitle}>{proj.title}</h2>
             <div className={styles.imageOverlay}>
               <div className={styles.imageYear}>{proj.year}</div>
             </div>
