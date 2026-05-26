@@ -1,0 +1,22 @@
+/* Wave loading — 텍스트 글자가 순차적으로 위로 bob.
+   각 글자마다 50ms delay 로 wave 효과. 텍스트 자체가 indicator 라 width 보존됨 (button 크기 변형 X). */
+.wave {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.waveChar {
+  display: inline-block;
+  animation: waveBob 1.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes waveBob {
+  0%,
+  100% { transform: translateY(0); }
+  50%  { transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waveChar { animation: none; }
+}

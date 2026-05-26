@@ -6,6 +6,7 @@ import Link from "next/link";
 import { cn } from "@/utils";
 import { useSoundManager } from "@/hooks/useSoundManager";
 import LoadingDots from "./LoadingDots";
+import LoadingWave from "./LoadingWave";
 import styles from "./Button.module.css";
 
 /* --------------------------------------------------------------------------
@@ -25,6 +26,9 @@ interface ButtonBaseProps {
   fullWidth?: boolean;
   disabled?: boolean;
   loading?: boolean;
+  /** loading indicator 종류. "wave" 면 children (string) 을 글자별로 wave bob 시켜
+   *  button width 가 보존됨 (text 자체가 indicator). 기본 "dots". */
+  loadingVariant?: "dots" | "wave";
   active?: boolean;
   icon?: ReactNode;
   iconPosition?: "left" | "right";
@@ -61,6 +65,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
       fullWidth,
       disabled,
       loading,
+      loadingVariant = "dots",
       active,
       icon,
       iconPosition = "left",
@@ -91,8 +96,16 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
       if (!soundDisabled && !isDisabled) playSound("hover");
     };
 
+    // loading 시: wave variant 는 children (string) 을 글자별 wave 로 → width 보존.
+    //   string 이 아니면 자동 fallback 으로 dots 사용.
     const content = loading ? (
-      <LoadingDots />
+      loadingVariant === "wave" && typeof children === "string" ? (
+        <span className={styles.label}>
+          <LoadingWave text={children} />
+        </span>
+      ) : (
+        <LoadingDots />
+      )
     ) : (
       <>
         {icon && iconPosition === "left" && (
