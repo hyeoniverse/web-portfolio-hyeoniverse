@@ -14,7 +14,6 @@ async function seedWorksFromStatic(supabase: ReturnType<typeof import("@/lib/sup
   if (count && count > 0) return;
 
   const rows = projects.map((p, i) => ({
-    number: p.number,
     title: p.title,
     subtitle_ko: p.subtitle.ko,
     subtitle_en: p.subtitle.en,
@@ -34,7 +33,7 @@ async function seedWorksFromStatic(supabase: ReturnType<typeof import("@/lib/sup
     live_url: p.liveUrl ?? "",
     github_url: p.githubUrl ?? "",
     published: true,
-    sort_order: i,
+    sort_order: i + 1,
   }));
 
   await supabase.from("works").insert(rows);

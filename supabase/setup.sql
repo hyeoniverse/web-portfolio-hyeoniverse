@@ -338,7 +338,7 @@ CREATE POLICY "likes_service_all"
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS works (
   id               uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  number           text NOT NULL DEFAULT '01',
+  -- 표시 번호 (#01) 는 sort_order 에서 derive — 별도 컬럼 없음 (single source of truth)
   title            text NOT NULL DEFAULT '',
   slug             text NOT NULL DEFAULT '',
   subtitle_ko      text NOT NULL DEFAULT '',
@@ -397,6 +397,9 @@ CREATE TABLE IF NOT EXISTS works (
 
 CREATE INDEX IF NOT EXISTS works_purge_after_idx
   ON works (purge_after) WHERE deleted_at IS NOT NULL;
+-- 기존 DB 호환 — number 컬럼 (deprecated, sort_order 에서 derive) 제거
+ALTER TABLE works DROP COLUMN IF EXISTS number;
+
 -- slug 조회용
 CREATE INDEX IF NOT EXISTS idx_works_slug ON works (slug);
 -- nature 필터링/groupby 용 (작은 카디널리티 — btree 충분)

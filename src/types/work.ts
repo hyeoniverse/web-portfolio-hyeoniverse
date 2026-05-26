@@ -1,4 +1,5 @@
 import type { Project, CardSize, LocalizedText } from "@/data/projects";
+import { formatProjectNumber } from "@/utils/formatProjectNumber";
 
 export interface TeamMember {
   /** ko display name (필수) */
@@ -16,11 +17,11 @@ export interface TeamMember {
   contributions_en?: Record<string, string[]>;
 }
 
-/** DB row shape — flat columns for ko/en */
+/** DB row shape — flat columns for ko/en.
+ *  표시 번호 (#01 등) 는 sort_order 에서 derive — 별도 number 컬럼 없음 (single source of truth). */
 export interface Work {
   id: string;
   slug: string;
-  number: string;
   title: string;
   subtitle_ko: string;
   subtitle_en: string;
@@ -75,9 +76,9 @@ export interface Work {
   related_post_ids?: string[];
 }
 
-/** Editor form — uses content_ko/en only (no legacy fields) */
+/** Editor form — uses content_ko/en only (no legacy fields).
+ *  표시 번호는 sort_order 에서 derive, 별도 number 필드 없음. */
 export interface WorkFormData {
-  number: string;
   slug: string;
   title: string;
   subtitle_ko: string;
@@ -171,7 +172,8 @@ export function workToProject(w: Work): Project {
   return {
     id: w.id,
     slug: w.slug || "",
-    number: w.number,
+    // display number — DB sort_order 에서 derive (단일 source of truth, 화면 표시 번호 = 정렬 순서)
+    number: formatProjectNumber(w.sort_order),
     title: w.title,
     subtitle: loc(w.subtitle_ko, w.subtitle_en),
     categories: {
