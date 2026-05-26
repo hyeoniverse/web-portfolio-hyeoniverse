@@ -134,6 +134,38 @@ export async function POST(request: Request) {
   return NextResponse.json(data);
 }
 
+// PATCH /api/revisions — 엔티티의 모든 리비전 bulk dismissed 처리
+//   body: { entity_type, entity_id, dismissed: true }
+//   주 use case: 실제 save (publish / draft 저장) 후 모든 autosave revision 을 dismiss
+//   → 다음 편집 진입 시 "draft 복원" 모달 안 뜸 (DB 가 진실의 원천)
+export async function PATCH(request: Request) {
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
+
+  const body = await request.json();
+  const { entity_type, entity_id, dismissed } = body;
+
+  if (!entity_type || !entity_id) {
+    return NextResponse.json(
+      { error: "entity_type and entity_id required" },
+      { status: 400 },
+    );
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("revisions")
+    .update({ dismissed: !!dismissed })
+    .eq("entity_type", entity_type)
+    .eq("entity_id", entity_id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
+}
+
 // DELETE /api/revisions?entity_type=post&entity_id=xxx — 엔티티의 전체 리비전 삭제
 export async function DELETE(request: Request) {
   const { error: authError } = await requireAuth();

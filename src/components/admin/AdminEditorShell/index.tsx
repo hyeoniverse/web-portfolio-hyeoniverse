@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX } from "lucide-react";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import { useLenis } from "@/providers/LenisProvider";
@@ -15,7 +15,7 @@ import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./AdminEditorShell.module.css";
 import type { AdminEditorShellProps } from "./types";
-import { formatTime, formatStatusTime, lineDiff } from "./utils";
+import { formatTime, formatStatusTime, lineDiff, wordDiff, isImageUrl, isUrl } from "./utils";
 
 export { default as adminEditorStyles } from "./AdminEditorShell.module.css";
 
@@ -50,7 +50,7 @@ export default function AdminEditorShell({
   onGenerateSummary,
   generatingSummary = false,
   aiSummaryDisabled = false,
-  currentSnapshot,
+  getCurrentSnapshot,
   topBarSecondRowLeft,
   topBarFirstRowExtra,
   scheduledAt,
@@ -178,8 +178,12 @@ export default function AdminEditorShell({
   const { openModal } = useModalStore();
   const [showRevisions, setShowRevisions] = useState(false);
   const [viewingRevision, setViewingRevision] = useState<number | null>(null);
-  const [revisionDetail, setRevisionDetail] = useState<{ excerpt?: string; content?: string; meta?: Record<string, string> } | null>(null);
+  const [revisionDetail, setRevisionDetail] = useState<{ title?: string; subtitle?: string; excerpt?: string; content?: string; meta?: import("./types").RevisionMetaGroup[]; headerLabels?: { title?: string; subtitle?: string; excerpt?: string } } | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  /** revision panel 전용 lang — 기본 editorLang sync, header 토글로 독립 전환 가능. */
+  const [revisionLang, setRevisionLang] = useState<"ko" | "en">(editorLang);
+  useEffect(() => { setRevisionLang(editorLang); }, [editorLang]);
+  const currentSnapshot = getCurrentSnapshot?.(revisionLang);
   const [statusTime, setStatusTime] = useState("");
   const [showRetranslate, setShowRetranslate] = useState(false);
   const [isSelectMode, setIsSelectMode] = useState(false);
@@ -265,14 +269,166 @@ export default function AdminEditorShell({
       return;
     }
 
-    // DB 방식: onLoadRevisionDetail 콜백으로 비동기 로드
+    // DB 방식: onLoadRevisionDetail 콜백으로 비동기 로드 — revisionLang 바뀌면 재호출
     if (onLoadRevisionDetailRef.current) {
       setDetailLoading(true);
-      onLoadRevisionDetailRef.current(viewingRevision)
+      onLoadRevisionDetailRef.current(viewingRevision, revisionLang)
         .then((detail) => setRevisionDetail(detail))
         .finally(() => setDetailLoading(false));
     }
-  }, [viewingRevision]);
+  }, [viewingRevision, revisionLang]);
+
+  /** revision meta group 한 개 렌더 — items 모드 vs fields 모드 분기. */
+  const renderMetaGroup = (group: import("./types").RevisionMetaGroup) => {
+    const curGroup = currentSnapshot?.meta?.find((g) => g.label === group.label);
+    const emptyLabel = revisionLang === "ko" ? "없음" : "None";
+    if (group.items && group.items.length > 0) {
+      return (
+        <div key={group.label} className={styles.revisionMetaGroup}>
+          <div className={styles.revisionMetaGroupLabel}>{group.label}</div>
+          <ul className={styles.revisionMetaList}>
+            {group.items.map((item, itemIdx) => {
+              const curItem = curGroup?.items?.[itemIdx];
+              const isLast = itemIdx === group.items!.length - 1;
+              return (
+                <React.Fragment key={`${item.title ?? ""}-${itemIdx}`}>
+                  {item.title !== undefined && (
+                    <li className={styles.revisionMetaSubHeaderItem}>
+                      <span className={styles.revisionMetaSubHeader}>{item.title || emptyLabel}</span>
+                      <span />
+                    </li>
+                  )}
+                  {item.rows.map((row, rowIdx) => {
+                    const curVal = curItem?.rows?.[rowIdx]?.value ?? "";
+                    const val = row.value;
+                    const changed = !!currentSnapshot && val !== curVal;
+                    return (
+                      <li key={rowIdx} className={styles.revisionMetaItem}>
+                        <span className={styles.revisionMetaKey}>{row.label}</span>
+                        {changed ? (
+                          <span className={styles.revisionMetaVal}>
+                            {wordDiff(curVal || "", val || "").map((p, i) => (
+                              <span key={i} className={p.type === "add" ? styles.diffAddInline : p.type === "del" ? styles.diffDelInline : ""}>{p.text}</span>
+                            ))}
+                          </span>
+                        ) : (
+                          <span className={styles.revisionMetaVal}>{val || emptyLabel}</span>
+                        )}
+                      </li>
+                    );
+                  })}
+                  {!isLast && (
+                    <li className={styles.revisionMetaSeparator}>
+                      <span /><span />
+                    </li>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </ul>
+        </div>
+      );
+    }
+    if (!group.fields) return null;
+    const entries = Object.entries(group.fields);
+    if (entries.length === 0) return null;
+    return (
+      <div key={group.label} className={styles.revisionMetaGroup}>
+        <div className={styles.revisionMetaGroupLabel}>{group.label}</div>
+        <ul className={`${styles.revisionMetaList}${group.separateRows ? ` ${styles.revisionMetaListSeparated}` : ""}`}>
+          {entries.map(([key, val]) => {
+            const curVal = curGroup?.fields?.[key] ?? "";
+            const changed = !!currentSnapshot && val !== curVal;
+            const isMulti = (val || "").includes("\n") || (curVal || "").includes("\n") || (!!group.bulletValues && !!(val || curVal));
+            if (!isMulti && (isImageUrl(val) || isImageUrl(curVal))) {
+              const imgSrc = isImageUrl(val) ? val : curVal;
+              return (
+                <li key={key} className={styles.revisionMetaItem}>
+                  <span className={styles.revisionMetaKey}>{key}</span>
+                  <span className={styles.revisionMetaVal}>
+                    {imgSrc && (
+                      <a href={imgSrc} target="_blank" rel="noopener noreferrer" className={styles.revisionMetaImgLink}>
+                        <img src={imgSrc} alt="" className={styles.revisionMetaImg} />
+                      </a>
+                    )}
+                    {changed
+                      ? wordDiff(curVal || "", val || "").map((p, i) => (
+                          <span key={i} className={p.type === "add" ? styles.diffAddInline : p.type === "del" ? styles.diffDelInline : ""}>{p.text}</span>
+                        ))
+                      : val ? (
+                        <a href={val} target="_blank" rel="noopener noreferrer" className={styles.revisionMetaLink}>{val}</a>
+                      ) : emptyLabel}
+                  </span>
+                </li>
+              );
+            }
+            if (isMulti) {
+              const lines = changed
+                ? lineDiff(curVal || "", val || "")
+                : (val || "").split("\n").map((t) => ({ type: "same" as const, text: t }));
+              // indent (2+ leading spaces) 는 직전 top-level li 의 nested ul 로 묶음
+              const tree: { line: typeof lines[number]; children: typeof lines }[] = [];
+              for (const ln of lines) {
+                if (/^\s{2,}/.test(ln.text) && tree.length > 0) {
+                  tree[tree.length - 1].children.push({ ...ln, text: ln.text.replace(/^\s+/, "") });
+                } else {
+                  tree.push({ line: ln, children: [] });
+                }
+              }
+              // multi-line 안에서는 thumbnail 없이 단순 링크로만 — gallery 처럼 많을 때 가독성
+              const renderLineContent = (text: string) => {
+                if (isUrl(text)) {
+                  return <a href={text} target="_blank" rel="noopener noreferrer" className={styles.revisionMetaLink}>{text}</a>;
+                }
+                return text || "—";
+              };
+              return (
+                <li key={key} className={styles.revisionMetaItem}>
+                  <span className={styles.revisionMetaKey}>{key}</span>
+                  <ul className={styles.revisionMetaValList}>
+                    {tree.map((node, i) => (
+                      <li key={i} className={node.line.type === "add" ? styles.diffAddInline : node.line.type === "del" ? styles.diffDelInline : ""}>
+                        {renderLineContent(node.line.text)}
+                        {node.children.length > 0 && (
+                          <ul className={styles.revisionMetaValSubList}>
+                            {node.children.map((c, j) => (
+                              <li key={j} className={c.type === "add" ? styles.diffAddInline : c.type === "del" ? styles.diffDelInline : ""}>
+                                {renderLineContent(c.text)}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              );
+            }
+            return (
+              <li key={key} className={styles.revisionMetaItem}>
+                <span className={styles.revisionMetaKey}>{key}</span>
+                {changed ? (
+                  <span className={styles.revisionMetaVal}>
+                    {wordDiff(curVal || "", val || "").map((p, i) => (
+                      <span key={i} className={p.type === "add" ? styles.diffAddInline : p.type === "del" ? styles.diffDelInline : ""}>{p.text}</span>
+                    ))}
+                  </span>
+                ) : (
+                  <span className={styles.revisionMetaVal}>
+                    {val ? (
+                      isUrl(val) ? (
+                        <a href={val} target="_blank" rel="noopener noreferrer" className={styles.revisionMetaLink}>{val}</a>
+                      ) : val
+                    ) : emptyLabel}
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  };
 
   return (
     <div className={styles.container}>
@@ -410,56 +566,88 @@ export default function AdminEditorShell({
                       /* ── Detail view (clip-path reveal) ── */
                       <div className={styles.revisionDetail}>
                         <div className={styles.revisionDetailHeader}>
-                          <button
-                            type="button"
-                            className={styles.revisionBackBtn}
-                            onClick={() => setViewingRevision(null)}
-                          >
-                            <ChevronLeft size={14} />
-                            {labels.revisionHistory ?? "History"}
-                          </button>
-                          <div className={styles.revisionDetailActions}>
-                            <button
-                              type="button"
-                              className={styles.revisionRestoreBtn}
-                              onClick={() => {
-                                onRestoreRevision?.(viewingRevision);
-                                setShowRevisions(false);
-                                setViewingRevision(null);
-                              }}
-                            >
-                              {labels.restore ?? "Restore"}
-                            </button>
-                            {onDeleteRevision && (
-                              <Tooltip content={labels.delete} placement="bottom">
+                          {/* Row 1 (sticky) — back + timestamp | restore/delete */}
+                          <div className={`${styles.revisionDetailHeaderRow} ${styles.revisionDetailHeaderRowSticky}`}>
+                            <div className={styles.revisionDetailHeaderLeft}>
+                              <button
+                                type="button"
+                                className={styles.revisionBackBtn}
+                                onClick={() => setViewingRevision(null)}
+                              >
+                                <ChevronLeft size={14} />
+                                {labels.revisionHistory ?? "History"}
+                              </button>
+                              <span className={styles.revisionTime}>
+                                {formatTime(revisions[viewingRevision].timestamp)}
+                              </span>
+                            </div>
+                            <div className={styles.revisionDetailActions}>
+                              <Tooltip content={labels.restore ?? "Restore"} placement="bottom">
                                 <button
                                   type="button"
-                                  className={styles.revisionDeleteBtn}
-                                  onClick={async () => {
-                                    openModal(
-                                      <ModalPrompt
-                                        hint="이 로그를 삭제하려면 &quot;삭제&quot;를 입력하세요."
-                                        placeholder="삭제"
-                                        validate={(v) => v === "삭제"}
-                                        cancelText="취소"
-                                        confirmText="삭제"
-                                        danger
-                                        onConfirm={async () => {
-                                          const ok = await onDeleteRevision(viewingRevision);
-                                          if (ok) {
-                                            setViewingRevision(null);
-                                            if (revisions && revisions.length <= 1) setShowRevisions(false);
-                                          }
-                                        }}
-                                      />,
-                                      { id: "rev-delete", header: { title: "로그 삭제" }, closeButton: true, width: "400px" },
-                                    );
+                                  className={styles.revisionIconBtn}
+                                  onClick={() => {
+                                    onRestoreRevision?.(viewingRevision);
+                                    setShowRevisions(false);
+                                    setViewingRevision(null);
                                   }}
+                                  aria-label={labels.restore ?? "Restore"}
                                 >
-                                  <Trash2 size={12} />
+                                  <RotateCcw size={12} />
                                 </button>
                               </Tooltip>
-                            )}
+                              {onDeleteRevision && (
+                                <Tooltip content={labels.delete} placement="bottom">
+                                  <button
+                                    type="button"
+                                    className={styles.revisionIconBtn}
+                                    aria-label={labels.delete}
+                                    onClick={async () => {
+                                      openModal(
+                                        <ModalPrompt
+                                          hint="이 로그를 삭제하려면 &quot;삭제&quot;를 입력하세요."
+                                          placeholder="삭제"
+                                          validate={(v) => v === "삭제"}
+                                          cancelText="취소"
+                                          confirmText="삭제"
+                                          danger
+                                          onConfirm={async () => {
+                                            const ok = await onDeleteRevision(viewingRevision);
+                                            if (ok) {
+                                              setViewingRevision(null);
+                                              if (revisions && revisions.length <= 1) setShowRevisions(false);
+                                            }
+                                          }}
+                                        />,
+                                        { id: "rev-delete", header: { title: "로그 삭제" }, closeButton: true, width: "400px" },
+                                      );
+                                    }}
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </div>
+                          {/* Row 2 — 동일 배지 | lang toggle */}
+                          <div className={styles.revisionDetailHeaderRow}>
+                            {(() => {
+                              if (detailLoading || !currentSnapshot || !revisionDetail) return <span />;
+                              const revTitle = revisionDetail.title ?? revisions[viewingRevision].title ?? "";
+                              const sameTitle = revTitle === currentSnapshot.title;
+                              const sameSubtitle = (revisionDetail.subtitle ?? "") === (currentSnapshot.subtitle ?? "");
+                              const sameExcerpt = (revisionDetail.excerpt ?? "") === (currentSnapshot.excerpt ?? "");
+                              const sameContent = (revisionDetail.content ?? "") === (currentSnapshot.content ?? "");
+                              const sameMeta = JSON.stringify(revisionDetail.meta ?? {}) === JSON.stringify(currentSnapshot.meta ?? {});
+                              if (!(sameTitle && sameSubtitle && sameExcerpt && sameContent && sameMeta)) return <span />;
+                              return (
+                                <div className={styles.revisionCurrentBadge}>
+                                  <span className={styles.revisionCurrentDot} />
+                                  현재 편집 내용과 동일
+                                </div>
+                              );
+                            })()}
+                            <LanguageToggle lang={revisionLang} onLangChange={setRevisionLang} size="sm" />
                           </div>
                         </div>
                         {detailLoading ? (
@@ -472,55 +660,60 @@ export default function AdminEditorShell({
                           </div>
                         ) : (
                         <>
-                        <div className={styles.revisionDetailMeta}>
-                          <span className={styles.revisionTime}>
-                            {formatTime(revisions[viewingRevision].timestamp)}
-                          </span>
-                          <strong className={`${styles.revisionDetailTitle} ${
-                            currentSnapshot && revisions[viewingRevision].title !== currentSnapshot.title ? styles.diffAdd : ""
-                          }`}>
-                            {revisions[viewingRevision].title || "(untitled)"}
-                          </strong>
-                          {currentSnapshot && revisions[viewingRevision].title !== currentSnapshot.title && (
-                            <strong className={`${styles.revisionDetailTitle} ${styles.diffDel}`}>
-                              {currentSnapshot.title || "(untitled)"}
-                            </strong>
-                          )}
-                        </div>
-                        {revisionDetail?.excerpt && (
-                          <p className={`${styles.revisionDetailExcerpt} ${
-                            currentSnapshot && revisionDetail.excerpt !== (currentSnapshot.excerpt ?? "") ? styles.diffAdd : ""
-                          }`}>
-                            {revisionDetail.excerpt}
-                          </p>
-                        )}
-                        {currentSnapshot && revisionDetail?.excerpt !== (currentSnapshot.excerpt ?? "") && currentSnapshot.excerpt && (
-                          <p className={`${styles.revisionDetailExcerpt} ${styles.diffDel}`}>
-                            {currentSnapshot.excerpt}
-                          </p>
-                        )}
-                        {revisionDetail?.meta && Object.keys(revisionDetail.meta).length > 0 && (
-                          <div className={styles.revisionMetaSection}>
-                            {Object.entries(revisionDetail.meta).map(([key, val]) => {
-                              const curVal = currentSnapshot?.meta?.[key] ?? "";
-                              if (!val && !curVal) return null;
-                              const changed = !!currentSnapshot && val !== curVal;
-                              return (
-                                <div key={key} className={styles.revisionMetaRow}>
-                                  <span className={styles.revisionMetaKey}>{key}</span>
-                                  <span className={`${styles.revisionMetaVal} ${changed ? styles.diffAdd : ""}`}>
-                                    {val || "—"}
-                                  </span>
-                                  {changed && (
-                                    <span className={`${styles.revisionMetaVal} ${styles.diffDel}`}>
-                                      {curVal || "—"}
+                        {/* Title + 부제목 + 설명 — label | value grid (meta groups 와 동일 패턴) */}
+                        {(() => {
+                          const labels = revisionDetail?.headerLabels ?? currentSnapshot?.headerLabels ?? {};
+                          const isKo = revisionLang === "ko";
+                          const titleLabel = labels.title ?? (isKo ? "제목" : "Title");
+                          const subtitleLabel = labels.subtitle ?? (isKo ? "부제목" : "Subtitle");
+                          const excerptLabel = labels.excerpt ?? (isKo ? "설명" : "Description");
+                          const oldT = currentSnapshot?.title ?? "";
+                          const newT = revisionDetail?.title ?? revisions[viewingRevision].title ?? "";
+                          const oldS = currentSnapshot?.subtitle ?? "";
+                          const newS = revisionDetail?.subtitle ?? "";
+                          const oldE = currentSnapshot?.excerpt ?? "";
+                          const newE = revisionDetail?.excerpt ?? "";
+                          const rows: { label: string; old: string; new: string; valueClass: string; emphasize?: boolean }[] = [
+                            { label: titleLabel, old: oldT, new: newT || "(untitled)", valueClass: styles.revisionDetailTitle, emphasize: true },
+                          ];
+                          if (oldS || newS) rows.push({ label: subtitleLabel, old: oldS, new: newS, valueClass: styles.revisionDetailSubtitle });
+                          if (oldE || newE) rows.push({ label: excerptLabel, old: oldE, new: newE, valueClass: styles.revisionDetailExcerpt });
+                          return (
+                            <ul className={styles.revisionDetailMeta}>
+                              {rows.map((row) => {
+                                const same = !currentSnapshot || row.old === row.new;
+                                return (
+                                  <li key={row.label} className={styles.revisionMetaItem}>
+                                    <span className={styles.revisionMetaKey}>{row.label}</span>
+                                    <span className={row.valueClass}>
+                                      {row.emphasize ? (
+                                        <strong>
+                                          {same ? row.new : wordDiff(row.old, row.new).map((p, i) => (
+                                            <span key={i} className={p.type === "add" ? styles.diffAddInline : p.type === "del" ? styles.diffDelInline : ""}>{p.text}</span>
+                                          ))}
+                                        </strong>
+                                      ) : (
+                                        same ? row.new : wordDiff(row.old, row.new).map((p, i) => (
+                                          <span key={i} className={p.type === "add" ? styles.diffAddInline : p.type === "del" ? styles.diffDelInline : ""}>{p.text}</span>
+                                        ))
+                                      )}
                                     </span>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          );
+                        })()}
+                        {(() => {
+                          // primary meta — content 위, 중요 정보
+                          const primary = (revisionDetail?.meta ?? []).filter((g) => !g.secondary);
+                          if (primary.length === 0) return null;
+                          return (
+                            <div className={styles.revisionMetaSection}>
+                              {primary.map(renderMetaGroup)}
+                            </div>
+                          );
+                        })()}
                         {(() => {
                           const revContent = revisionDetail?.content ?? "";
                           const curContent = currentSnapshot?.content ?? "";
@@ -547,6 +740,16 @@ export default function AdminEditorShell({
                                   {line.text || "\u00A0"}
                                 </div>
                               ))}
+                            </div>
+                          );
+                        })()}
+                        {(() => {
+                          // secondary meta — content 아래, 중요도 낮은 보조 정보
+                          const secondary = (revisionDetail?.meta ?? []).filter((g) => g.secondary);
+                          if (secondary.length === 0) return null;
+                          return (
+                            <div className={`${styles.revisionMetaSection} ${styles.revisionMetaSecondary}`}>
+                              {secondary.map(renderMetaGroup)}
                             </div>
                           );
                         })()}
@@ -707,7 +910,6 @@ export default function AdminEditorShell({
                     variant="outline"
                     shape="circle"
                     size="xs"
-                    className={styles.deleteBtn}
                     onClick={() => {
                       if (!deleteTargetName) {
                         onDelete?.();
