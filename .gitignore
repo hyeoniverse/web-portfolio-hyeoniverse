@@ -44,3 +44,7 @@ src/config/hyeon.config.ts
 
 # claude code — 개인 환경 설정 (permissions, hooks, worktrees) — 공유 X
 .claude/
+
+# works 인트로 배경 영상 — GitHub 100MB 제한 회피.
+# 로컬 dev 는 public/intro-bg.mp4 드롭, 배포는 siteConfig.works.introVideoUrl 로 외부 CDN 지정.
+/public/intro-bg.mp4

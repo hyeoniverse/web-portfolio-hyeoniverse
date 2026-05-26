@@ -12,6 +12,7 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
   const [active, setActive] = useState(-1);
   const siteConfig = useSiteConfig();
   const w = siteConfig.works;
+  const introVideoSrc = w.introVideoUrl || "/intro-bg.mp4";
   const introRef = useRef<HTMLDivElement>(null);
   const [sets, setSets] = useState(2);
   const rightRef = useRef<HTMLDivElement>(null);
@@ -76,6 +77,18 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
 
   return (
     <div className={styles.wrap}>
+      {/* 전체 배경 — fixed video. 오른쪽 panel 에서만 backdrop blur 로 흐림 */}
+      <video
+        className={styles.bgVideo}
+        src={introVideoSrc}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+      />
+
       {/* Left — fixed meta / intro */}
       <div className={styles.left}>
         <AnimatePresence mode="wait">
@@ -142,14 +155,19 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
 
       {/* Right — scrolling images */}
       <div ref={rightRef} className={styles.right}>
-        {/* Intro card */}
+        {/* Intro card — 우측. 거대 quote mark 데코 + scroll 힌트 */}
         <div ref={introRef} className={styles.introCard}>
+          <span className={styles.introQuoteMark} aria-hidden="true">&ldquo;</span>
           <blockquote className={styles.introQuote}>
             <T ko={w.introQuote_ko} en={w.introQuote} />
           </blockquote>
           <p className={styles.introDetail}>
             <T ko={w.introDetail_ko} en={w.introDetail} />
           </p>
+          <div className={styles.introScrollHint} aria-hidden="true">
+            <span>scroll</span>
+            <span className={styles.introScrollLine} />
+          </div>
         </div>
         {allProjects.map((proj, i) => (
           <div

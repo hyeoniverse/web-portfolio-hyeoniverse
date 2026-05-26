@@ -322,6 +322,9 @@ export const siteConfig = {
     introQuote_ko: "매일 한 줄의 코드가 내일의 나를 만든다",
     introScope: "React · Next.js · TypeScript · GSAP · Framer Motion",
     introScope_ko: "React · Next.js · TypeScript · GSAP · Framer Motion",
+    // Fullscreen / Split / Grid 레이아웃 인트로 배경 영상 URL.
+    // 빈 문자열 = "/intro-bg.mp4" (로컬 public/) fallback. 100MB 초과 자산은 외부 CDN 권장.
+    introVideoUrl: "",
     statsProjects: "Projects",
     statsProjects_ko: "프로젝트",
     statsClients: "Tech Stack",

@@ -89,6 +89,7 @@
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
   letter-spacing: 0.05em;
+  text-decoration: none;
 }
 
 /* Sliding indicator — ►◀︎ markers positioned inside .navCenter */
@@ -715,6 +716,7 @@
   letter-spacing: -0.02em;
   text-transform: uppercase;
   line-height: 1.2;
+  text-decoration: none;
 }
 
 .menuLinkActive {
