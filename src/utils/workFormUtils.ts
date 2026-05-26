@@ -28,7 +28,6 @@ export function workToFormData(work: Work): WorkFormData {
   const contentEn = work.content_en || assembleContent(work, "en");
 
   return {
-    number: work.number,
     slug: work.slug || "",
     title: work.title,
     subtitle_ko: work.subtitle_ko,
@@ -63,7 +62,6 @@ export function workToFormData(work: Work): WorkFormData {
 }
 
 export const defaultForm: WorkFormData = {
-  number: "",
   slug: "",
   title: "",
   subtitle_ko: "",

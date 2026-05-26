@@ -122,7 +122,7 @@ export async function GET(request: Request) {
 
 // POST /api/works — 새 work 생성 (admin only)
 const ALLOWED_FIELDS = new Set([
-  "number", "slug", "title",
+  "slug", "title",
   "subtitle_ko", "subtitle_en",
   "categories_ko", "categories_en",
   "nature_ko", "nature_en",
