@@ -14,7 +14,7 @@
 }
 
 [data-theme="dark"] .wrap {
-  background-color: oklch(14.16% 0.0178 296.10);
+  background-color: #000000;
 }
 
 /* ── Canvas (fixed, full-screen) ── */
@@ -61,20 +61,20 @@
   pointer-events: auto;
 }
 
-
 .metaWord {
   display: inline-block;
   --stagger: calc(var(--word-idx, 0) * 0.12);
   --progress: clamp(0, calc((var(--reveal, 0) - var(--stagger)) * 4), 1);
   transform: translateY(calc((1 - var(--progress)) * 120%));
   opacity: var(--progress);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease-out;
+  transition:
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.6s ease-out;
 }
 
 .metaWord + .metaWord {
   margin-left: 0.25em;
 }
-
 
 .metaCategory {
   font-family: var(--font-mono);
@@ -86,7 +86,10 @@
   opacity: calc(var(--reveal, 0) * 0.5);
   transform: translateY(calc((1 - var(--reveal, 0)) * 20px));
   filter: blur(calc((1 - var(--reveal, 0)) * 4px));
-  transition: transform 0.5s ease-out, opacity 0.5s ease-out, filter 0.5s ease-out;
+  transition:
+    transform 0.5s ease-out,
+    opacity 0.5s ease-out,
+    filter 0.5s ease-out;
 }
 
 .metaTitle {
@@ -118,7 +121,9 @@
   display: inline-block;
   opacity: 0;
   transform: translateY(12px);
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
 }
 
 .metaItem:hover .metaDescWord,
@@ -145,7 +150,10 @@
   opacity: 0;
   visibility: hidden;
   transform: translateY(8px);
-  transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.35s ease;
+  transition:
+    opacity 0.35s ease,
+    visibility 0.35s ease,
+    transform 0.35s ease;
 }
 
 .metaItem:hover .ctaInline,
@@ -197,7 +205,9 @@
   margin-top: var(--spacing-xs);
   opacity: 0;
   transform: translateY(12px);
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
 }
 
 /* 윗줄 — 연도 · 카테고리 · 역할 (고정) */
@@ -212,8 +222,20 @@
   width: 100%;
   max-width: 360px;
   overflow: hidden;
-  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
 }
 
 /* 아랫줄 — 기술 marquee track */
@@ -230,7 +252,9 @@
 }
 
 @keyframes metaMarquee {
-  to { transform: translateX(-50%); }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .metaItem:hover .metaDetails,
@@ -282,8 +306,15 @@
 }
 
 @keyframes introStarTwinkle {
-  0%, 100% { opacity: 0.1; transform: scale(0.8); }
-  50% { opacity: 0.6; transform: scale(1.2); }
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
 }
 
 /* Intro decorations — ovals */
@@ -328,7 +359,9 @@
 }
 
 @keyframes introOvalSpin {
-  to { transform: translate(-50%, -50%) rotate(348deg); }
+  to {
+    transform: translate(-50%, -50%) rotate(348deg);
+  }
 }
 
 .introRule {
@@ -398,8 +431,15 @@
 }
 
 @keyframes introScrollBounce {
-  0%, 100% { transform: translateY(0); opacity: 0.4; }
-  50% { transform: translateY(8px); opacity: 1; }
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
 }
 
 /* ── 떠다니는 최신 댓글 버블 ── */
@@ -475,7 +515,6 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-
 
 /* ── 좌하단 고정 정보 ── */
 .fixedInfo {

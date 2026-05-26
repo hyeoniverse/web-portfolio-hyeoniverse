@@ -216,6 +216,9 @@ export default function DynamicFrameLayout({
           const isHoveredCell =
             hovered?.row === row && hovered?.col === col;
 
+          // w/h 가 4 보다 크면 grid span 으로 여러 cell 차지 (bento 지원)
+          const colSpan = Math.max(1, Math.round(frame.defaultPos.w / 4));
+          const rowSpan = Math.max(1, Math.round(frame.defaultPos.h / 4));
           return (
             <motion.div
               key={frame.id}
@@ -224,6 +227,8 @@ export default function DynamicFrameLayout({
                 overflow: "hidden",
                 transformOrigin,
                 transition: "transform 0.4s ease",
+                gridColumn: colSpan > 1 ? `span ${colSpan}` : undefined,
+                gridRow: rowSpan > 1 ? `span ${rowSpan}` : undefined,
               }}
               onMouseEnter={() => setHovered({ row, col })}
               onMouseLeave={() => setHovered(null)}

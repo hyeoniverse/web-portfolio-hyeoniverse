@@ -1,82 +1,184 @@
 "use client";
 
-import { useRef, useCallback } from "react";
-import Image from "next/image";
-import { motion } from "framer-motion";
+import { useRef, useCallback, useMemo } from "react";
+import DynamicFrameLayout, {
+  type Frame,
+} from "@/components/common/DynamicFrame/DynamicFrameLayout";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
 import type { WorksLayoutProps } from "./shared";
 import styles from "./GridLayout.module.css";
 
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-};
+/** Bento layout — intro + projects 가 항상 12×12 (3×3) 그리드를 빈 공간 없이 채움.
+ *  projects 개수에 따라 intro 크기 + project 배치 adaptive. 12-grid 좌표 (x: 0/4/8, y: 0/4/8). */
+function buildPositions(count: number): { x: number; y: number; w: number; h: number }[] {
+  // count = projects 수. intro 가 index 0, 나머지가 projects
+  if (count >= 6) {
+    // intro 12×4 + 6 projects (2 rows × 3 cols)
+    return [
+      { x: 0, y: 0, w: 12, h: 4 },
+      { x: 0, y: 4, w: 4, h: 4 }, { x: 4, y: 4, w: 4, h: 4 }, { x: 8, y: 4, w: 4, h: 4 },
+      { x: 0, y: 8, w: 4, h: 4 }, { x: 4, y: 8, w: 4, h: 4 }, { x: 8, y: 8, w: 4, h: 4 },
+    ];
+  }
+  if (count === 5) {
+    // intro 12×4 + row2 (4+4+4) + row3 (8+4)
+    return [
+      { x: 0, y: 0, w: 12, h: 4 },
+      { x: 0, y: 4, w: 4, h: 4 }, { x: 4, y: 4, w: 4, h: 4 }, { x: 8, y: 4, w: 4, h: 4 },
+      { x: 0, y: 8, w: 8, h: 4 }, { x: 8, y: 8, w: 4, h: 4 },
+    ];
+  }
+  if (count === 4) {
+    // intro 12×4 + row2 (8+4) + row3 (4+8)
+    return [
+      { x: 0, y: 0, w: 12, h: 4 },
+      { x: 0, y: 4, w: 8, h: 4 }, { x: 8, y: 4, w: 4, h: 4 },
+      { x: 0, y: 8, w: 4, h: 4 }, { x: 4, y: 8, w: 8, h: 4 },
+    ];
+  }
+  if (count === 3) {
+    // intro 12×8 + row3 (4+4+4)
+    return [
+      { x: 0, y: 0, w: 12, h: 8 },
+      { x: 0, y: 8, w: 4, h: 4 }, { x: 4, y: 8, w: 4, h: 4 }, { x: 8, y: 8, w: 4, h: 4 },
+    ];
+  }
+  if (count === 2) {
+    // intro 12×8 + row3 (8+4)
+    return [
+      { x: 0, y: 0, w: 12, h: 8 },
+      { x: 0, y: 8, w: 8, h: 4 }, { x: 8, y: 8, w: 4, h: 4 },
+    ];
+  }
+  if (count === 1) {
+    // intro 12×8 + 1 project 12×4
+    return [
+      { x: 0, y: 0, w: 12, h: 8 },
+      { x: 0, y: 8, w: 12, h: 4 },
+    ];
+  }
+  // 0 projects — intro 가 전체
+  return [{ x: 0, y: 0, w: 12, h: 12 }];
+}
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] as const } },
-};
+function buildFrames(projectCount: number): Frame[] {
+  const projectShown = Math.min(6, projectCount);
+  return buildPositions(projectShown).map((pos, i) => ({
+    id: i + 1,
+    defaultPos: pos,
+    mediaSize: 1,
+    borderThickness: 0,
+    borderSize: 0,
+    autoplayMode: "hover" as const,
+    isHovered: false,
+  }));
+}
 
 export default function GridLayout({ projects, onProjectClick }: WorksLayoutProps) {
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const cellRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const frames = useMemo(() => buildFrames(projects.length), [projects.length]);
+  const siteConfig = useSiteConfig();
+  const w = siteConfig.works;
+  const introVideoSrc = w.introVideoUrl || "/intro-bg.mp4";
 
-  const handleClick = useCallback(
-    (i: number, id: string, image: string) => {
-      const el = cardRefs.current[i];
-      if (el) onProjectClick(id, el.getBoundingClientRect(), image);
+  /** index 0 = intro (텍스트만), 1+ = 프로젝트 (이미지 bg + meta overlay). renderCell 로 전체 cell 직접 그림 */
+  const renderCell = useCallback(
+    ({ frame, index, isHovered }: { frame: Frame; index: number; isHovered: boolean }) => {
+      // intro cell — video bg + overlay tint + 텍스트 panel
+      if (index === 0) {
+        return (
+          <div
+            ref={(el) => { cellRefs.current[index] = el; }}
+            className={styles.introCell}
+            data-clickable="true"
+          >
+            <video
+              className={styles.introVideo}
+              src={introVideoSrc}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              aria-hidden="true"
+            />
+            <div className={styles.introOverlay} aria-hidden="true" />
+            <div className={styles.introInner}>
+              <span className={styles.introLabel}>
+                <T ko={w.introLabel_ko} en={w.introLabel} />
+              </span>
+              <h2 className={styles.introTitle}>
+                <T ko={w.introTitle_ko} en={w.introTitle} />
+              </h2>
+              <p className={styles.introTagline}>
+                <T ko={w.introTagline_ko} en={w.introTagline} />
+              </p>
+            </div>
+            <div className={styles.introMeta}>
+              <span>{String(projects.length).padStart(2, "0")} projects</span>
+              <span>scroll · click</span>
+            </div>
+          </div>
+        );
+      }
+      // project cell — projects index = frame index - 1
+      const p = projects[index - 1];
+      if (!p) return null;
+      return (
+        <div
+          ref={(el) => { cellRefs.current[index] = el; }}
+          className={styles.projectCell}
+          data-clickable="true"
+          onClick={() => {
+            const el = cellRefs.current[index];
+            if (el) onProjectClick(p.id, el.getBoundingClientRect(), p.image);
+          }}
+        >
+          <div
+            className={styles.projectImage}
+            style={{ backgroundImage: `url(${p.image})` }}
+          />
+          <div className={styles.projectGradient} />
+          <span className={styles.projectYear}>{p.year}</span>
+          <div className={styles.projectMeta}>
+            {/* hover-only: project number — title 위로 slide-in */}
+            <div className={`${styles.projectNumber} ${isHovered ? styles.projectExtraOn : ""}`}>
+              PROJECT {p.number}
+            </div>
+            {/* 항상 표시: title + subtitle */}
+            <h3 className={styles.projectTitle}>{p.title}</h3>
+            <p className={styles.projectSub}>
+              <T ko={p.subtitle.ko} en={p.subtitle.en} />
+            </p>
+            {/* hover-only: description */}
+            <p className={`${styles.projectDesc} ${isHovered ? styles.projectExtraOn : ""}`}>
+              <T ko={p.description.ko} en={p.description.en} />
+            </p>
+            {/* hover-only: tech */}
+            <div className={`${styles.projectTech} ${isHovered ? styles.projectExtraOn : ""}`}>
+              {p.tech.slice(0, 3).map((tech, j) => (
+                <span key={j}>{tech}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+      // suppress unused warning
+      void frame;
     },
-    [onProjectClick],
+    [projects, onProjectClick, w.introLabel, w.introLabel_ko, w.introTitle, w.introTitle_ko, w.introTagline, w.introTagline_ko],
   );
 
   return (
     <div className={styles.wrap}>
-      <div className={styles.header}>
-        <h1 className={styles.headerTitle}>Selected Works</h1>
-        <p className={styles.headerSub}>
-          {String(projects.length).padStart(2, "0")} Projects
-        </p>
-      </div>
-
-      <motion.div
-        className={styles.grid}
-        initial="hidden"
-        animate="visible"
-        variants={stagger}
-      >
-        {projects.map((p, i) => (
-          <motion.div
-            key={p.id}
-            ref={(el) => { cardRefs.current[i] = el; }}
-            className={styles.item}
-            variants={fadeUp}
-            onClick={() => handleClick(i, p.id, p.image)}
-          >
-            <div className={styles.itemImage}>
-              <Image
-                src={p.image}
-                alt={p.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                loading={i < 3 ? "eager" : "lazy"}
-              />
-            </div>
-            <div className={styles.itemOverlay} />
-            <span className={styles.itemYear}>{p.year}</span>
-            <div className={styles.itemMeta}>
-              <div className={styles.itemNumber}>PROJECT {p.number}</div>
-              <h3 className={styles.itemTitle}>{p.title}</h3>
-              <p className={styles.itemSub}>
-                <T ko={p.subtitle.ko} en={p.subtitle.en} />
-              </p>
-              <div className={styles.itemTech}>
-                {p.tech.slice(0, 3).map((tech: string, j: number) => (
-                  <span key={j}>{tech}</span>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
+      <DynamicFrameLayout
+        initialFrames={frames}
+        initialGapSize={0}
+        initialHoverSize={6}
+        initialAutoplayMode="hover"
+        renderCell={renderCell}
+      />
     </div>
   );
 }
