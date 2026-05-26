@@ -113,7 +113,7 @@ function makeCurvedPlane(
 }
 
 /* ── 3D Vertical Cylinder ── */
-function VerticalCylinder({ allImages, segAngle, arc, scrollRef, mouseRef, actualRotRef, screenPosRef, dimRef, onMeshHover, onMeshLeave }: {
+function VerticalCylinder({ allImages, segAngle, arc, scrollRef, mouseRef, actualRotRef, screenPosRef, dimRef, onMeshHover, onMeshLeave, onMeshClick }: {
   allImages: string[];
   segAngle: number;
   arc: number;
@@ -124,6 +124,7 @@ function VerticalCylinder({ allImages, segAngle, arc, scrollRef, mouseRef, actua
   dimRef: React.RefObject<number>;
   onMeshHover: (slotIdx: number) => void;
   onMeshLeave: (slotIdx: number) => void;
+  onMeshClick: (slotIdx: number) => void;
 }) {
   const tiltGroupRef = useRef<THREE.Group>(null);
   const scrollGroupRef = useRef<THREE.Group>(null);
@@ -219,10 +220,16 @@ function VerticalCylinder({ allImages, segAngle, arc, scrollRef, mouseRef, actua
             onPointerEnter={() => {
               dimRef.current = i + 1;
               onMeshHover(i);
+              if (i > 0) document.body.style.cursor = "pointer";
             }}
             onPointerLeave={() => {
               if (dimRef.current === i + 1) dimRef.current = 0;
               onMeshLeave(i);
+              document.body.style.cursor = "";
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMeshClick(i);
             }}
           >
             <meshBasicMaterial map={tex} side={THREE.DoubleSide} />
@@ -564,6 +571,10 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
             slotRefs.current.get(idx)?.classList.remove(styles.metaItemHovered);
             overlayRefs.current.get(idx)?.classList.remove(styles.metaOverlayHovered);
           }}
+          onMeshClick={(idx) => {
+            // idx 0 = intro slot (no click), 1+ = projects
+            if (idx > 0) handleClick(idx - 1);
+          }}
         />
         <IntroBunny screenPosRef={screenPosRef} arc={arc} actualRotRef={actualRotRef} />
       </Canvas>
@@ -622,7 +633,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
         </div>
       )}
 
-      {/* Slot 1~N — 제목·카테고리만 difference */}
+      {/* Slot 1~N — 제목·카테고리만 difference. 클릭은 3D 이미지 panel 자체가 받음 (pointer-events: none) */}
       {projects.map((proj, i) => {
         const slotIndex = i + 1;
         return (
@@ -630,24 +641,12 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
             key={proj.id}
             ref={(el) => { if (el) slotRefs.current.set(slotIndex, el); }}
             className={styles.metaItem}
-            style={{ visibility: "hidden", opacity: 0 }}
+            style={{ visibility: "hidden", opacity: 0, pointerEvents: "none" }}
           >
             <span className={styles.metaCategory}>
               <T ko={proj.category.ko} en={proj.category.en} />
             </span>
-            <h2
-              className={styles.metaTitle}
-              onClick={() => handleClick(i)}
-              data-clickable="true"
-              onMouseEnter={() => {
-                hoverDimRef.current = i + 2;
-                overlayRefs.current.get(i + 1)?.classList.add(styles.metaOverlayHovered);
-              }}
-              onMouseLeave={() => {
-                if (hoverDimRef.current === i + 2) hoverDimRef.current = 0;
-                overlayRefs.current.get(i + 1)?.classList.remove(styles.metaOverlayHovered);
-              }}
-            >
+            <h2 className={styles.metaTitle}>
               {proj.title.split(" ").map((word, wi) => (
                 <span
                   key={wi}
@@ -676,7 +675,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
             key={`ov-${proj.id}`}
             ref={(el) => { if (el) overlayRefs.current.set(slotIndex, el); }}
             className={styles.metaOverlay}
-            style={{ visibility: "hidden", opacity: 0 }}
+            style={{ visibility: "hidden", opacity: 0, pointerEvents: "none" }}
           >
             <Tooltip content={descAlt} delay={600} placement="bottom">
               <p className={styles.metaDesc}>
@@ -708,10 +707,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
             <div
               className={styles.ctaInline}
               style={{ transitionDelay: ctaDelay }}
-              onClick={() => handleClick(i)}
-              data-clickable="true"
-              onMouseEnter={() => { hoverDimRef.current = i + 2; }}
-              onMouseLeave={() => { if (hoverDimRef.current === i + 2) hoverDimRef.current = 0; }}
+              aria-hidden="true"
             >
               <span className={styles.ctaBg} />
               <span className={styles.ctaArrow}>→</span>

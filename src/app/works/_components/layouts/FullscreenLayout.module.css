@@ -54,6 +54,202 @@
   cursor: pointer;
 }
 
+/* intro section — Live HUD (코너 monospace 데이터) + scroll-driven editorial 타이틀.
+   theme-aware bg + faint grid 오버레이, exit 시 opacity 1→0 으로 다음 프로젝트로 매끄러운 전환. */
+.introSection {
+  cursor: default;
+  isolation: isolate;
+  background: var(--bg-primary);
+  animation: introFadeOut linear both;
+  animation-timeline: view();
+  animation-range: exit 0% exit 80%;
+}
+
+@keyframes introFadeOut {
+  to { opacity: 0; }
+}
+
+/* (D) Flow video — 무료 stock 영상으로 흐르는 motion 채움. 영상 없으면 transparent (errored 자동 hide).
+   overlay 로 색감 tint + 텍스트 가독성 확보. */
+.flowVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  /* 영상이 너무 dominant 하지 않게 살짝 누름 */
+  opacity: 0.7;
+  filter: saturate(1.1);
+}
+
+/* error / empty 시 video 자체가 안 보이도록 */
+.flowVideo:not([src]),
+.flowVideo[src=""] {
+  display: none;
+}
+
+/* overlay — 텍스트 가독성용 가벼운 tint + 부드러운 vignette */
+.flowVideoOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 60% at 50% 50%, transparent 0%, color-mix(in oklch, var(--bg-primary) 40%, transparent) 100%),
+    linear-gradient(180deg, color-mix(in oklch, var(--bg-primary) 30%, transparent) 0%, transparent 30%, transparent 70%, color-mix(in oklch, var(--bg-primary) 30%, transparent) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* 영상 자체는 sustainable — 멈추진 않지만 saturate 빼서 강도 ↓ */
+  .flowVideo { filter: saturate(0.7); opacity: 0.5; }
+}
+
+
+/* ── Intro 중앙 콘텐츠 ── */
+.introInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-2xl);
+  max-width: 1000px;
+  z-index: 1;
+}
+
+/* label — 상단 작은 metadata. dot + uppercase mono */
+.introLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  opacity: 0.55;
+}
+
+.introLabelDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--color-accent);
+  box-shadow: 0 0 12px var(--color-accent);
+  animation: introDotPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes introDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* 타이틀 — scroll-driven morph (letter-spacing + opacity + translate).
+   variable axis 없어도 충분히 dramatic */
+.introTitle {
+  font-family: var(--font-instrument), serif;
+  font-size: clamp(3rem, 11vw, 11rem);
+  font-weight: var(--font-weight-light);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin: 0;
+  animation: introTitleMorph linear both;
+  animation-timeline: view();
+  animation-range: cover 0% cover 60%;
+}
+
+@keyframes introTitleMorph {
+  from {
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+  }
+  to {
+    letter-spacing: -0.03em;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.introTagline {
+  font-family: var(--font-instrument), serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  color: var(--text-primary);
+  opacity: 0.6;
+  max-width: 540px;
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+/* ── HUD — 4 코너 monospace 라이브 데이터 ── */
+.hud {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-primary);
+  z-index: 1;
+  pointer-events: none;
+  animation: introHudReveal 0.8s ease both 0.3s;
+}
+
+/* TL / TR 은 nav (top ~80px) 영역 피해서 충분히 아래로. */
+.hudTL { top: var(--spacing-5xl-plus); left: var(--spacing-xl); align-items: flex-start; text-align: left; }
+.hudTR { top: var(--spacing-5xl-plus); right: var(--spacing-xl); align-items: flex-end; text-align: right; }
+.hudBL { bottom: var(--spacing-xl); left: var(--spacing-xl); align-items: flex-start; text-align: left; }
+.hudBR { bottom: var(--spacing-xl); right: var(--spacing-xl); align-items: flex-end; text-align: right; }
+
+.hudKey {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  opacity: 0.4;
+  text-transform: uppercase;
+}
+
+.hudVal {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+.hudMeta {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  opacity: 0.4;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes introHudReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .introTitle,
+  .hud,
+  .introLabelDot {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hudTR,
+  .hudBL { display: none; }
+  .hudTL { top: var(--spacing-4xl); left: var(--spacing-md); }
+  .hudBR { bottom: var(--spacing-md); right: var(--spacing-md); }
+  .hudKey { font-size: 8px; }
+  .hudVal,
+  .hudMeta { font-size: 9px; }
+}
+
 /* ── Inner content ── */
 .inner {
   display: flex;
@@ -215,10 +411,10 @@
 
 .tech span {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
   letter-spacing: 0.06em;
   color: var(--text-white);
-  opacity: 0.2;
+  opacity: 0.45;
 }
 
 /* ── Fixed counter ── */

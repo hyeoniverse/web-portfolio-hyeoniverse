@@ -96,7 +96,8 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   const { isMobile: isVerticalLayout } = useIsMobile(1024, 700);
   const { navigateWithTransition, isTransitioning } = usePageTransition();
 
-  // 마운트 시 Lenis 무한 스크롤 비활성화
+  // 마운트 시 Lenis 무한 스크롤 비활성화 — Lenis 단독 infinite 는 깜빡임 발생.
+  // fullscreen 의 vertical loop 는 FullscreenLayout 내부에서 DOM 복제 + scrollTo 로 자체 처리
   // useLayoutEffect 사용: cleanup이 다음 페이지의 useLayoutEffect 전에 실행되어
   // ScrollTrigger가 올바른 Lenis 상태에서 생성되도록 보장
   useLayoutEffect(() => {
@@ -565,7 +566,8 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
 
     return (
       <>
-        {layout !== "split" && layout !== "cylinder" && (
+        {/* fullscreen / split / cylinder / grid 는 layout 내부에 자체 intro 보유. cinematic 만 wrapper intro 사용 */}
+        {layout === "cinematic" && (
           <div className={styles.altIntro}>
             {introBlock}
           </div>
