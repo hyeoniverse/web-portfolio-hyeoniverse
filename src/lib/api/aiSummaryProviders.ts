@@ -79,6 +79,7 @@ export async function generateSummary(
 ): Promise<SummaryResult> {
   const providerList = await buildProviderList();
   let lastError = "Unknown error";
+  const failed: { provider: string; error: string }[] = [];
 
   for (const provider of providerList) {
     try {
@@ -87,9 +88,21 @@ export async function generateSummary(
       return await callGemini(prompt);
     } catch (e) {
       lastError = e instanceof Error ? e.message : "Unknown error";
+      failed.push({ provider, error: lastError });
       console.error(`[${logPrefix}]`, provider, lastError);
     }
   }
+
+  // fallback chain 전부 실패 — admin 알림 (운영 신호)
+  try {
+    const { notifyAdmin } = await import("@/lib/adminNotify");
+    await notifyAdmin({
+      type: "ai_failure",
+      title: "AI 요약 chain 전부 실패",
+      message: `${logPrefix} — 시도한 provider: ${failed.map((f) => `${f.provider}(${f.error})`).join(" → ")}`,
+      metadata: { context: logPrefix, failed },
+    });
+  } catch { /* notify 실패도 swallow */ }
 
   throw new AiSummaryError(lastError);
 }
