@@ -574,6 +574,50 @@ CREATE POLICY "admin_notifications_service_all"
 
 
 -- ────────────────────────────────────────────────────────────
+-- 9-b. applied_migrations — schema migration 적용 추적 + 알림
+--      각 migration 파일 마지막에 SELECT log_migration_applied('name', 'desc');
+--      재실행 안전 (ON CONFLICT DO NOTHING). 처음 적용 시에만 admin_notifications insert.
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS applied_migrations (
+  name        text PRIMARY KEY,
+  description text NOT NULL DEFAULT '',
+  applied_at  timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE applied_migrations ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "applied_migrations_service_all" ON applied_migrations;
+CREATE POLICY "applied_migrations_service_all"
+  ON applied_migrations FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+CREATE OR REPLACE FUNCTION log_migration_applied(p_name text, p_description text DEFAULT '')
+RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  was_new boolean;
+BEGIN
+  INSERT INTO applied_migrations (name, description)
+  VALUES (p_name, p_description)
+  ON CONFLICT (name) DO NOTHING;
+
+  GET DIAGNOSTICS was_new = ROW_COUNT;
+
+  IF was_new THEN
+    INSERT INTO admin_notifications (type, title, message, metadata)
+    VALUES (
+      'migration_applied',
+      '🛠 schema migration 적용',
+      p_name || (CASE WHEN p_description <> '' THEN E'\n' || p_description ELSE '' END),
+      jsonb_build_object('migration', p_name, 'description', p_description)
+    );
+  END IF;
+END;
+$$;
+
+
+-- ────────────────────────────────────────────────────────────
 -- 10. comment_reports — 댓글 신고 누적 (posts + works 공용)
 --     comment_type: 'post' | 'work'  → 어느 댓글 테이블의 id 인지 구분
 --     reporter_hash: IP + UA 해시로 동일 사용자 중복 신고 방지
@@ -927,24 +971,58 @@ BEGIN
 END;
 $$;
 
+-- safe_* wrapper — cron 실행 실패 시 admin_notifications(type='cron_error') insert.
+-- 원본 함수가 throw 하면 cron 이 silent 실패하므로 관리자 알 길 없음 → wrapper 가 catch
+CREATE OR REPLACE FUNCTION safe_publish_scheduled()
+RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  PERFORM publish_scheduled();
+EXCEPTION WHEN OTHERS THEN
+  INSERT INTO admin_notifications (type, title, message, metadata)
+  VALUES (
+    'cron_error',
+    '⚠️ publish_scheduled cron 에러',
+    'publish_scheduled() 실행 중 예외 발생: ' || SQLERRM,
+    jsonb_build_object('function', 'publish_scheduled', 'sqlstate', SQLSTATE, 'message', SQLERRM)
+  );
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION safe_purge_trash_scheduled()
+RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  PERFORM purge_trash_scheduled();
+EXCEPTION WHEN OTHERS THEN
+  INSERT INTO admin_notifications (type, title, message, metadata)
+  VALUES (
+    'cron_error',
+    '⚠️ purge_trash_scheduled cron 에러',
+    'purge_trash_scheduled() 실행 중 예외 발생: ' || SQLERRM,
+    jsonb_build_object('function', 'purge_trash_scheduled', 'sqlstate', SQLSTATE, 'message', SQLERRM)
+  );
+END;
+$$;
+
 -- pg_cron 등록 — 재실행 안전 (기존 unschedule 후 등록)
 DO $$
 BEGIN PERFORM cron.unschedule('publish-scheduled'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
 DO $$
 BEGIN PERFORM cron.unschedule('purge-trash-scheduled'); EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
--- 발행: 매분
+-- 발행: 매분 (safe wrapper 호출 — 실패 시 cron_error 알림 자동)
 SELECT cron.schedule(
   'publish-scheduled',
   '* * * * *',
-  $cron$ SELECT publish_scheduled(); $cron$
+  $cron$ SELECT safe_publish_scheduled(); $cron$
 );
 
 -- 삭제: 매일 UTC 18:00 (= KST 03:00)
 SELECT cron.schedule(
   'purge-trash-scheduled',
   '0 18 * * *',
-  $cron$ SELECT purge_trash_scheduled(); $cron$
+  $cron$ SELECT safe_purge_trash_scheduled(); $cron$
 );
 
 -- cron 확인 / 해제 참고:
