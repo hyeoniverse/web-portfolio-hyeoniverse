@@ -34,6 +34,7 @@ import TagNotesEditor, { type TagNote } from "@/components/admin/TagNotesEditor"
 import { LikeButton } from "@/components/layout/DetailLayout";
 import HeartIcon from "@/components/ui/HeartIcon";
 import Textarea from "@/components/ui/Textarea";
+import LanguageToggle from "@/components/ui/LanguageToggle";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
 
@@ -88,6 +89,9 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   // HeartIcon 단독 데모 (size 별)
   const [iconLiked, setIconLiked] = useState(false);
   const [iconBusy, setIconBusy] = useState(false);
+  // LanguageToggle 데모 (size md / sm)
+  const [langMd, setLangMd] = useState<"ko" | "en">("ko");
+  const [langSm, setLangSm] = useState<"ko" | "en">("ko");
   const toggleIcon = useCallback(() => {
     setIconBusy(true);
     setIconLiked((prev) => !prev);
@@ -285,6 +289,21 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           </motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ minWidth: 220 }}>
             <Switch size="md" label="With label" checked={switchLabeled} onCheckedChange={setSwitchLabeled} />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* LanguageToggle — 사이즈 md / sm */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>LanguageToggle</div>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+            <LanguageToggle lang={langMd} onLangChange={setLangMd} />
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Default (md, 28px)</span>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+            <LanguageToggle lang={langSm} onLangChange={setLangSm} size="sm" />
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>size=&quot;sm&quot; (22px)</span>
           </motion.div>
         </div>
       </motion.div>
