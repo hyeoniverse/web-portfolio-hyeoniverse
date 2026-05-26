@@ -31,7 +31,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
 // PATCH /api/works/[id] — work 수정 (admin only)
 const ALLOWED_FIELDS = new Set([
-  "number", "slug", "title",
+  "slug", "title",
   "subtitle_ko", "subtitle_en",
   "categories_ko", "categories_en",
   "nature_ko", "nature_en",
