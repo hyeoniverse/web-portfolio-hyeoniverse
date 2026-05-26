@@ -23,6 +23,7 @@ import SeoChecklist, { type SeoCheckId } from "@/components/admin/SeoChecklist";
 import type { Work, WorkFormData, TeamMember } from "@/types/work";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
+import { useEditorDraft } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useTagInput } from "@/hooks/useTagInput";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -762,6 +763,121 @@ interface WorksCategory {
   en: string;
 }
 
+/** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
+function workSnapshotMeta(s: WorkFormData, lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
+  const isKo = lang === "ko";
+  const L = (ko: string, en: string) => (isKo ? ko : en);
+  const categories = isKo ? (s.categories_ko ?? []) : (s.categories_en ?? []);
+  const nature = isKo ? s.nature_ko : s.nature_en;
+  const role = isKo ? s.role_ko : s.role_en;
+  const contribs = isKo ? s.contributions_ko : s.contributions_en;
+  const roleLabel = L("역할", "Role");
+  /** Role fields — 각 역할명을 key, 그 역할의 기여 내용을 value 로 (flat key|value) */
+  const roleList = (role || "").split(",").map((r) => r.trim()).filter(Boolean);
+  const contribKeys = Object.keys(contribs ?? {});
+  const allRoles = Array.from(new Set([...roleList, ...contribKeys]));
+  const roleFields = Object.fromEntries(
+    allRoles.map((r) => [r || roleLabel, (contribs?.[r] ?? []).filter(Boolean).join(", ")]),
+  );
+  /** Tech fields — 각 기술명을 key, 노트 설명을 value 로 (flat key|value) */
+  const techList = s.tech ?? [];
+  const noteKeys = Object.keys(s.tech_notes ?? {});
+  const allTech = Array.from(new Set([...techList, ...noteKeys]));
+  const techFields = Object.fromEntries(
+    allTech.map((t) => {
+      const note = s.tech_notes?.[t];
+      return [t || L("기술", "Tech"), (isKo ? note?.ko : note?.en) || ""];
+    }),
+  );
+  /** Team fields — 멤버별 한 entry, key = 이름, value = multi-line bullet (이메일/링크/역할별).
+   *  역할에 기여 여러 개면 "역할명" 줄 + 들여쓰기로 sub-bullet 표현 (renderer 가 indent 파싱). */
+  const emailLabel = L("이메일", "Email");
+  const linkLabel = L("링크", "Link");
+  const teamFields: Record<string, string> = {};
+  (s.team_members ?? []).forEach((m, idx) => {
+    const name = (isKo ? (m.name || m.name_en) : (m.name_en || m.name)) || `${L("팀원", "Member")} ${idx + 1}`;
+    const mRole = isKo ? m.role_ko : m.role_en;
+    const mContribs = isKo ? m.contributions_ko : m.contributions_en;
+    const mRoleList = (mRole || "").split(",").map((r) => r.trim()).filter(Boolean);
+    const mContribKeys = Object.keys(mContribs ?? {});
+    const mAllRoles = Array.from(new Set([...mRoleList, ...mContribKeys]));
+    const lines: string[] = [
+      `${emailLabel}: ${m.email || ""}`,
+      `${linkLabel}: ${m.url || ""}`,
+    ];
+    mAllRoles.forEach((r) => {
+      const items = (mContribs?.[r] ?? []).filter(Boolean);
+      if (items.length <= 1) {
+        lines.push(items.length === 1 ? `${r}: ${items[0]}` : r);
+      } else {
+        lines.push(r);
+        items.forEach((c) => lines.push(`  ${c}`));
+      }
+    });
+    teamFields[name] = lines.join("\n");
+  });
+  return [
+    {
+      label: L("기본", "Basic"),
+      fields: {
+        Slug: s.slug || "",
+        [L("연도", "Year")]: s.year || "",
+        [L("크기", "Size")]: s.size || "",
+        [L("콘텐츠 타입", "Content Type")]: s.content_type || "",
+      },
+    },
+    {
+      label: L("분류", "Categories"),
+      fields: {
+        [L("성격", "Nature")]: nature || "",
+        [L("카테고리", "Category")]: categories.join(", "),
+      },
+    },
+    {
+      label: L("역할", "Role"),
+      fields: roleFields,
+    },
+    {
+      label: L("기술", "Tech"),
+      fields: techFields,
+      bulletValues: true,
+    },
+    {
+      label: L("미디어", "Media"),
+      secondary: true,
+      fields: {
+        [L("커버 이미지", "Cover Image")]: s.image || "",
+        [L("갤러리", "Gallery")]: (s.gallery ?? []).filter(Boolean).join("\n"),
+      },
+    },
+    {
+      label: L("팀", "Team"),
+      fields: teamFields,
+      bulletValues: true,
+      separateRows: true,
+      secondary: true,
+    },
+    {
+      label: L("연결", "Links"),
+      secondary: true,
+      fields: {
+        [L("라이브 URL", "Live URL")]: s.live_url || "",
+        "GitHub URL": s.github_url || "",
+        [L("관련 게시물", "Related Posts")]: s.related_post_ids?.length ? L(`${s.related_post_ids.length}개`, `${s.related_post_ids.length}`) : "",
+      },
+    },
+    {
+      label: L("발행", "Publishing"),
+      secondary: true,
+      fields: {
+        [L("게시", "Published")]: s.published ? L("예", "Yes") : "",
+        [L("정렬 순서", "Sort Order")]: String(s.sort_order ?? 0),
+        [L("예약 발행", "Scheduled")]: s.scheduled_at || "",
+      },
+    },
+  ];
+}
+
 
 export default function WorkEditor({ work }: WorkEditorProps) {
   const router = useRouter();
@@ -797,68 +913,20 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [form.title, slugManual]);
 
   const initialFormRef = useRef(form);
-  const formRef = useRef(form);
-  formRef.current = form;
   const isDirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(initialFormRef.current),
     [form],
   );
 
-  const { revisions: dbRevisions, loaded: revisionsLoaded, latestUndismissedSnapshot, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision } = useRevisions<WorkFormData>({
+  const { revisions: dbRevisions, loaded: revisionsLoaded, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions<WorkFormData>({
     entityType: "work",
     entityId: work?.id,
   });
 
-  // 편집기 진입 시 DB revision 복원 확인
-  // 최신 non-dismissed revision(B)이 저장된 데이터(A)와 다르면 한 번만 물어봄
-  // 무시 → B dismissed, A 유지 / 불러오기 → B dismissed, B 적용
-  const draftAsked = useRef(false);
-  // 비동기 fetch 중 unmount/navigation 발생 시 모달이 다른 페이지에 뜨는 문제 방지
-  const mountedRef = useRef(true);
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
-
-  useEffect(() => {
-    if (draftAsked.current) return;
-    if (!revisionsLoaded) return;
-    if (!latestUndismissedSnapshot) return;
-    const snapshot = latestUndismissedSnapshot.snapshot;
-    const latestId = latestUndismissedSnapshot.id;
-    const initialJson = JSON.stringify(initialFormRef.current);
-    if (JSON.stringify(snapshot) === initialJson) {
-      draftAsked.current = true;
-      return;
-    }
-    if (!mountedRef.current) return;
-    if (JSON.stringify(formRef.current) !== initialJson) {
-      draftAsked.current = true;
-      dismissRevision(latestId);
-      return;
-    }
-    draftAsked.current = true;
-
-    openModal(
-      <ModalConfirm
-        desc={tw("draftFoundDesc")}
-        cancelText={tw("draftFoundDiscard")}
-        confirmText={tw("draftFoundLoad")}
-        onConfirm={() => {
-          autoSaveSkip.current = true;
-          setForm(snapshot);
-          setStatus(tw("draftRestored"));
-          setStatusType("info");
-          dismissRevision(latestId);
-        }}
-        onCancel={() => {
-          dismissRevision(latestId);
-        }}
-      />,
-      { id: "draft-restore", header: { title: tw("draftFoundTitle") }, width: "360px", closeButton: false },
-    );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [revisionsLoaded, latestUndismissedSnapshot]);
+  // draft 복원 모달 제거 — autosave background 동작.
+  // 복원은 revision history 패널에서 명시적으로 (markBaseline 으로 baseline 정합화).
+  // 새 작품 (work.id 없음) 은 async fetch 없음 → 즉시 ready. 기존은 fetch 완료 시 true.
+  const [initialLoadsReady, setInitialLoadsReady] = useState(!work?.id);
 
   // 정렬 list — 다른 작품들 (현재 편집중인 작품 제외)
   const [otherWorks, setOtherWorks] = useState<Array<{ id: string; title: string; sort_order: number }>>([]);
@@ -913,14 +981,26 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   useEffect(() => {
     if (!work?.id) return;
+    let cancelled = false;
     fetch(`/api/admin/works/${work.id}/related-posts`)
       .then((r) => r.json())
       .then((d) => {
+        if (cancelled) return;
         if (Array.isArray(d?.items)) {
           setForm((prev) => ({ ...prev, related_post_ids: d.items.map((p: { id: string }) => p.id) }));
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (cancelled) return;
+        // async load 된 related_post_ids 가 form 에 반영된 다음 frame 에 baseline 정합화 + draft restore 활성화
+        requestAnimationFrame(() => {
+          markBaseline();
+          setInitialLoadsReady(true);
+        });
+      });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [work?.id]);
 
   const [showCoverPicker, setShowCoverPicker] = useState(false);
@@ -947,29 +1027,38 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [form.gallery]);
 
   /* ── Auto-save ── */
-  const getWorkTitle = useCallback(
-    () => formRef.current.title || "(untitled)",
-    [],
-  );
+  const savedIdRef = useRef<string | undefined>(work?.id);
+  useEffect(() => { if (work?.id) savedIdRef.current = work.id; }, [work?.id]);
+  const savedId = savedIdRef;
+
   const onAutoSaved = useCallback(() => {
     setStatus(tw("autoSaved"));
     setStatusType("success");
   }, [tw]);
 
-  const { savedId, autoSaveSkip, scheduleAutoSave } =
-    useEditorAutoSave<WorkFormData>({
-      entityType: "work",
-      entityId: work?.id,
-      formRef,
-      saveRevision,
-      getTitle: getWorkTitle,
-      busyFlags: { saving, translating },
-      onSaved: onAutoSaved,
-      ignoredFields: ["scheduled_at"],
-    });
+  const { markBaseline } = useEditorAutoSave<WorkFormData>({
+    entityType: "work",
+    entityId: work?.id,
+    snapshot: form,
+    getTitle: () => form.title || "(untitled)",
+    saveRevision,
+    ignoredKeys: ["scheduled_at"],
+    block: saving || translating,
+    onSaved: onAutoSaved,
+  });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(scheduleAutoSave, [form]);
+  // 글자 단위 continuous draft (localStorage) — mount 시 silent restore
+  const { clearDraft } = useEditorDraft<WorkFormData>({
+    entityType: "work",
+    entityId: work?.id,
+    snapshot: form,
+    ready: initialLoadsReady,
+    applyDraft: (draft) => {
+      setForm(draft);
+      requestAnimationFrame(markBaseline);
+    },
+    ignoredKeys: ["scheduled_at"],
+  });
 
   const updateField = useCallback(
     <K extends keyof WorkFormData>(key: K, value: WorkFormData[K]) => {
@@ -1314,6 +1403,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           fetch(`/api/works/${savedId.current}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }).catch(() => {});
         }
 
+        // 실제 save 성공 — localStorage draft 정리
+        clearDraft();
         router.push("/admin/works");
       } catch {
         setError(tw("networkError"));
@@ -1350,30 +1441,28 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (snapshot) {
         setForm(snapshot);
+        requestAnimationFrame(() => markBaseline());
         setStatus(tw("restored"));
         setStatusType("success");
       }
     },
-    [dbRevisions, loadRevisionSnapshot, tw],
+    [dbRevisions, loadRevisionSnapshot, markBaseline, tw],
   );
 
   const handleLoadRevisionDetail = useCallback(
-    async (index: number) => {
+    async (index: number, lang: "ko" | "en") => {
       const rev = dbRevisions[index];
       if (!rev) return null;
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (!snapshot) return null;
       const s = snapshot;
+      const isKo = lang === "ko";
       return {
-        excerpt: s.description_ko || s.description_en || "",
-        content: stripHtml(s.content_ko || s.content_en || ""),
-        meta: {
-          Category: (s.categories_ko ?? []).join(", ") || (s.categories_en ?? []).join(", ") || "",
-          Year: s.year || "",
-          Tech: s.tech?.join(", ") || "",
-          Size: s.size || "",
-          Role: s.role_ko || s.role_en || "",
-        },
+        title: s.title || "",
+        subtitle: (isKo ? s.subtitle_ko : s.subtitle_en) || "",
+        excerpt: (isKo ? s.description_ko : s.description_en) || "",
+        content: stripHtml((isKo ? s.content_ko : s.content_en) || ""),
+        meta: workSnapshotMeta(s, lang),
       };
     },
     [dbRevisions, loadRevisionSnapshot],
@@ -1499,20 +1588,16 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleGenerateSummary : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       generatingSummary={generatingSummary}
-      currentSnapshot={(() => {
+      getCurrentSnapshot={(lang) => {
+        const isKo = lang === "ko";
         return {
           title: form.title,
-          excerpt: form.description_ko || form.description_en || "",
-          content: stripHtml(form.content_ko || form.content_en || ""),
-          meta: {
-            Category: (form.categories_ko ?? []).join(", ") || (form.categories_en ?? []).join(", ") || "",
-            Year: form.year || "",
-            Tech: form.tech?.join(", ") || "",
-            Size: form.size || "",
-            Role: form.role_ko || form.role_en || "",
-          },
+          subtitle: (isKo ? form.subtitle_ko : form.subtitle_en) || "",
+          excerpt: (isKo ? form.description_ko : form.description_en) || "",
+          content: stripHtml((isKo ? form.content_ko : form.content_en) || ""),
+          meta: workSnapshotMeta(form, lang),
         };
-      })()}
+      }}
     >
       {/* Basic Info — 필수 (title, year, category) + 선택 (collapsible) */}
       <div className={styles.section}>
@@ -1568,30 +1653,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               value={parseYearAsPeriod(form.year)}
               onChange={(p) => updateField("year", serializePeriodAsYear(p))}
               maxDate={new Date()}
-            />
-          </div>
-        </div>
-
-        {/* category — multi-select. 선택된 chip 위에, 추가 Select 아래에. 직접 입력 가능 */}
-        <div className={es.row}>
-          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="category">
-            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (form.categories_ko ?? []).length === 0 ? ` ${es.fieldLabelError}` : ""}`}>{tw("category")}</label>
-            <CategoryMultiPicker
-              selectedKos={form.categories_ko ?? []}
-              selectedEns={form.categories_en ?? []}
-              presets={worksCategories}
-              editorLang={editorLang}
-              customMode={categoryCustomMode}
-              setCustomMode={setCategoryCustomMode}
-              labels={{
-                placeholder: tw("categoryPlaceholder"),
-                custom: tw("customCategory"),
-              }}
-              onChange={(ko, en) => {
-                setForm((prev) => ({ ...prev, categories_ko: ko, categories_en: en }));
-                setStatus("");
-                setError("");
-              }}
             />
           </div>
         </div>
@@ -1660,6 +1721,30 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 </div>
               );
             })()}
+          </div>
+        </div>
+
+        {/* category — multi-select. 선택된 chip 위에, 추가 Select 아래에. 직접 입력 가능 */}
+        <div className={es.row}>
+          <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="category">
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (form.categories_ko ?? []).length === 0 ? ` ${es.fieldLabelError}` : ""}`}>{tw("category")}</label>
+            <CategoryMultiPicker
+              selectedKos={form.categories_ko ?? []}
+              selectedEns={form.categories_en ?? []}
+              presets={worksCategories}
+              editorLang={editorLang}
+              customMode={categoryCustomMode}
+              setCustomMode={setCategoryCustomMode}
+              labels={{
+                placeholder: tw("categoryPlaceholder"),
+                custom: tw("customCategory"),
+              }}
+              onChange={(ko, en) => {
+                setForm((prev) => ({ ...prev, categories_ko: ko, categories_en: en }));
+                setStatus("");
+                setError("");
+              }}
+            />
           </div>
         </div>
 
