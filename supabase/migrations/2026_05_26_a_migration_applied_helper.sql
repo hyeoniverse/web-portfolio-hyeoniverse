@@ -1,6 +1,10 @@
 -- ============================================================
 -- migration_applied 알림 인프라
 -- ------------------------------------------------------------
+-- ※ 파일명 prefix 의 `_a_` 는 의도된 정렬용 — 다른 모든 마이그레이션이
+--    이 파일의 log_migration_applied() 헬퍼에 의존하므로 알파벳 순으로
+--    가장 먼저 실행되어야 함. 파일 추가 시 헬퍼 호출 전제 + 알파벳 순서 유지.
+--
 -- applied_migrations 테이블: 적용된 migration 이름 (= 파일명) 추적.
 -- log_migration_applied(name, description) helper:
 --   - applied_migrations 에 이미 있으면 NOOP (idempotent — 재실행 안전)
@@ -50,6 +54,6 @@ $$;
 
 -- 자기 자신도 알림 (헬퍼 처음 도입)
 SELECT log_migration_applied(
-  '2026_05_26_migration_applied_helper',
+  '2026_05_26_a_migration_applied_helper',
   'applied_migrations 테이블 + log_migration_applied() helper 추가'
 );
