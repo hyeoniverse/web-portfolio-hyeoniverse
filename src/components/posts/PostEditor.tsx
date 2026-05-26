@@ -23,6 +23,7 @@ import AdminEditorShell, {
 } from "@/components/admin/AdminEditorShell";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
+import { useEditorDraft } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useEditorTranslation } from "@/hooks/useEditorTranslation";
 import EditorToggle from "./EditorToggle";
@@ -79,6 +80,64 @@ interface PostEditorProps {
 
 import { POST_TEMPLATES } from "@/data/postTemplates";
 import type { PostTemplate } from "@/data/postTemplates";
+
+/** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
+function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: string }[], lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
+  const isKo = lang === "ko";
+  const L = (ko: string, en: string) => (isKo ? ko : en);
+  const seriesTitle = seriesList.find((x) => x.id === s.series_id)?.title || "";
+  const tagNotesCount = Object.keys(s.tag_notes ?? {}).length;
+  return [
+    {
+      label: L("기본", "Basic"),
+      fields: {
+        Slug: s.slug || "",
+        [L("언어", "Language")]: s.language || "",
+        [L("콘텐츠 타입", "Content Type")]: s.content_type || "",
+      },
+    },
+    {
+      label: L("미디어", "Media"),
+      secondary: true,
+      fields: {
+        [L("커버 이미지", "Cover Image")]: s.cover_image || "",
+      },
+    },
+    {
+      label: L("분류", "Categories"),
+      fields: {
+        [L("카테고리", "Category")]: s.category || "",
+        [L("태그", "Tags")]: (s.tags ?? []).join(", "),
+        [L("태그 노트", "Tag Notes")]: tagNotesCount > 0 ? L(`${tagNotesCount}개`, `${tagNotesCount}`) : "",
+      },
+    },
+    {
+      label: L("시리즈", "Series"),
+      secondary: true,
+      fields: {
+        [L("시리즈", "Series")]: seriesTitle,
+        [L("시리즈 순서", "Series Order")]: s.series_id ? String(s.series_order ?? 0) : "",
+      },
+    },
+    {
+      label: L("연결", "Links"),
+      secondary: true,
+      fields: {
+        "GitHub URL": s.github_url || "",
+        [L("관련 프로젝트", "Related Works")]: s.related_work_ids?.length ? L(`${s.related_work_ids.length}개`, `${s.related_work_ids.length}`) : "",
+      },
+    },
+    {
+      label: L("발행", "Publishing"),
+      secondary: true,
+      fields: {
+        [L("게시", "Published")]: s.published ? L("예", "Yes") : "",
+        [L("고정", "Pinned")]: s.is_pinned ? L("예", "Yes") : "",
+        [L("예약 발행", "Scheduled")]: s.scheduled_at || "",
+      },
+    },
+  ];
+}
 
 export default function PostEditor({ post }: PostEditorProps) {
   const router = useRouter();
@@ -144,18 +203,8 @@ export default function PostEditor({ post }: PostEditorProps) {
       .catch(() => {});
   }, []);
 
-  // 편집 모드일 때 기존 관계 불러오기
-  useEffect(() => {
-    if (!post?.id) return;
-    fetch(`/api/admin/posts/${post.id}/related-works`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (Array.isArray(d?.items)) {
-          setForm((prev) => ({ ...prev, related_work_ids: d.items.map((w: { id: string }) => w.id) }));
-        }
-      })
-      .catch(() => {});
-  }, [post?.id]);
+  // 새 글 (post.id 없음) 은 async fetch 없음 → 즉시 ready. 기존 글은 fetch 완료 시 true.
+  const [initialLoadsReady, setInitialLoadsReady] = useState(!post?.id);
 
   // Auto-correct ONLY when category is empty — 직접 입력한 커스텀 카테고리/모드는 유지
   useEffect(() => {
@@ -328,8 +377,6 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, []);
   const [showMdHelp, setShowMdHelp] = useState(false);
   const initialFormRef = useRef(form);
-  const formRef = useRef(form);
-  formRef.current = form;
   const isDirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(initialFormRef.current),
     [form],
@@ -337,65 +384,14 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   // 새 글도 DB revision 저장을 위해 임시 ID 사용
   const draftEntityId = post?.id ?? "draft-new-post";
-  const { revisions: dbRevisions, loaded: revisionsLoaded, latestUndismissedSnapshot, saveRevision, loadRevisionSnapshot, deleteRevision, dismissRevision } = useRevisions<PostFormData>({
+  const { revisions: dbRevisions, loaded: revisionsLoaded, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions<PostFormData>({
     entityType: "post",
     entityId: draftEntityId,
   });
 
-  // 편집기 진입 시 DB revision 복원 확인
-  // 최신 non-dismissed revision(B)이 저장된 데이터(A)와 다르면 한 번만 물어봄
-  // 무시 → B dismissed, A 유지 / 불러오기 → B dismissed, B 적용
-  const draftAsked = useRef(false);
-  // 비동기 fetch 중에 unmount/navigation 발생하면 모달이 다른 페이지에 뜨는 문제 방지
-  const mountedRef = useRef(true);
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
-
-  useEffect(() => {
-    if (draftAsked.current) return;
-    if (!revisionsLoaded) return; // 아직 fetch 안 끝남 — 끝나면 다시 실행
-    if (!latestUndismissedSnapshot) return; // non-dismissed 없음
-    const snapshot = latestUndismissedSnapshot.snapshot;
-    const latestId = latestUndismissedSnapshot.id;
-    const initialJson = JSON.stringify(initialFormRef.current);
-    if (JSON.stringify(snapshot) === initialJson) {
-      draftAsked.current = true;
-      return;
-    }
-    if (!mountedRef.current) return;
-    // 사용자가 이미 폼을 수정했다면 (자동으로 무시 의도) 모달 띄우지 않음
-    if (JSON.stringify(formRef.current) !== initialJson) {
-      draftAsked.current = true;
-      dismissRevision(latestId);
-      return;
-    }
-    draftAsked.current = true;
-
-    openModal(
-      <ModalConfirm
-        desc={te("draftFoundDesc")}
-        cancelText={te("draftFoundDiscard")}
-        confirmText={te("draftFoundLoad")}
-        onConfirm={() => {
-          // 불러오기: B 적용 + dismissed 처리
-          autoSaveSkip.current = true;
-          setForm(snapshot);
-          lastAutoSaveJson.current = JSON.stringify(snapshot);
-          setStatus(te("draftRestored"));
-          setStatusType("info");
-          dismissRevision(latestId);
-        }}
-        onCancel={() => {
-          // 무시: dismissed 처리만
-          dismissRevision(latestId);
-        }}
-      />,
-      { id: "draft-restore", header: { title: te("draftFoundTitle") }, width: "360px", closeButton: false },
-    );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [revisionsLoaded, latestUndismissedSnapshot]);
+  // draft 복원 모달은 제거 — autosave 가 background 에서 조용히 동작.
+  // 사용자가 복원하고 싶으면 revision history 패널에서 명시적으로 비교/복원.
+  // (Notion / Linear / Vercel admin 등 현대 에디터 표준 패턴)
 
   useEffect(() => {
     if (!slugManual && form.title) {
@@ -406,30 +402,67 @@ export default function PostEditor({ post }: PostEditorProps) {
   // status 메시지는 다음 액션까지 유지
 
   /* ── Auto-save ── */
-  const getPostTitle = useCallback(
-    () => formRef.current.title || formRef.current.title_en || "(untitled)",
-    [],
-  );
+  const savedIdRef = useRef<string | undefined>(post?.id);
+  useEffect(() => { if (post?.id) savedIdRef.current = post.id; }, [post?.id]);
+  const savedId = savedIdRef; // backward-compat — handleSave 가 .current 로 접근
+
   const onAutoSaved = useCallback(() => {
     setStatus(te("autoSaved"));
     setStatusType("success");
   }, [te, setStatus]);
 
-  const { savedId, autoSaveSkip, lastAutoSaveJson, scheduleAutoSave } =
-    useEditorAutoSave<PostFormData>({
-      entityType: "post",
-      entityId: post?.id,
-      draftEntityId,
-      formRef,
-      saveRevision,
-      getTitle: getPostTitle,
-      busyFlags: { saving, translating },
-      onSaved: onAutoSaved,
-      ignoredFields: ["scheduled_at"],
-    });
+  const { markBaseline } = useEditorAutoSave<PostFormData>({
+    entityType: "post",
+    entityId: post?.id,
+    draftEntityId,
+    snapshot: form,
+    getTitle: () => form.title || form.title_en || "(untitled)",
+    saveRevision,
+    ignoredKeys: ["scheduled_at"],
+    block: saving || translating,
+    onSaved: onAutoSaved,
+  });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(scheduleAutoSave, [form]);
+  // 글자 단위 continuous draft (localStorage) — mount 시 silent restore.
+  // Revision (DB save point) 와 분리: draft 는 "예상치 못한 종료 복구" 용, revision 은 "돌아갈 수 있는 save point".
+  const { clearDraft } = useEditorDraft<PostFormData>({
+    entityType: "post",
+    entityId: post?.id,
+    draftEntityId,
+    snapshot: form,
+    ready: initialLoadsReady,
+    applyDraft: (draft) => {
+      setForm(draft);
+      // restored 가 baseline 이 되도록 — 즉시 autosave 가 또 fire 하는 거 방지
+      requestAnimationFrame(markBaseline);
+    },
+    ignoredKeys: ["scheduled_at"],
+  });
+
+  // related_work_ids fetch 완료 시 baseline 정합화 + draft restore 활성화
+  useEffect(() => {
+    if (!post?.id) return;
+    let cancelled = false;
+    fetch(`/api/admin/posts/${post.id}/related-works`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return;
+        if (Array.isArray(d?.items)) {
+          setForm((prev) => ({ ...prev, related_work_ids: d.items.map((w: { id: string }) => w.id) }));
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (cancelled) return;
+        requestAnimationFrame(() => {
+          markBaseline();
+          // initial loads 완료 → draft restore 가능
+          setInitialLoadsReady(true);
+        });
+      });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post?.id]);
 
   const updateField = useCallback(
     <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => {
@@ -832,6 +865,8 @@ export default function PostEditor({ post }: PostEditorProps) {
         if (!isEdit) {
           fetch(`/api/revisions?entity_type=post&entity_id=draft-new-post`, { method: "DELETE" }).catch(() => {});
         }
+        // 실제 save 성공 — localStorage draft 정리 (DB 가 진실의 원천)
+        clearDraft();
         router.push("/admin/posts");
       } catch {
         setError(te("networkError"));
@@ -868,30 +903,31 @@ export default function PostEditor({ post }: PostEditorProps) {
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (snapshot) {
         setForm(snapshot);
+        // restore 직후 autosave 가 또 fire 해서 중복 revision 생성하는 거 방지
+        // form 이 snapshot 으로 설정되면 baseline 도 그 값으로 정합화 — 사용자가 추가 편집 시에만 autosave
+        requestAnimationFrame(() => markBaseline());
         setStatus(te("restored"));
         setStatusType("success");
         setStatusTimestamp(rev.timestamp);
       }
     },
-    [dbRevisions, loadRevisionSnapshot, te], // eslint-disable-line react-hooks/exhaustive-deps
+    [dbRevisions, loadRevisionSnapshot, markBaseline, te], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const handleLoadRevisionDetail = useCallback(
-    async (index: number) => {
+    async (index: number, lang: "ko" | "en") => {
       const rev = dbRevisions[index];
       if (!rev) return null;
       const snapshot = await loadRevisionSnapshot(rev.id);
       if (!snapshot) return null;
       const s = snapshot;
+      const isKo = lang === "ko";
       return {
-        excerpt: s.excerpt || s.excerpt_en || "",
-        content: stripHtml(s.content || s.content_en || ""),
-        meta: {
-          Category: s.category || "",
-          Tags: s.tags?.join(", ") || "",
-          Series: seriesList.find((x) => x.id === s.series_id)?.title || "",
-          Pinned: s.is_pinned ? "Yes" : "",
-        },
+        title: (isKo ? s.title : s.title_en) || s.title || s.title_en || "",
+        excerpt: (isKo ? s.excerpt : s.excerpt_en) || "",
+        content: stripHtml((isKo ? s.content : s.content_en) || ""),
+        meta: postSnapshotMeta(s, seriesList, lang),
+        headerLabels: { title: isKo ? "제목" : "Title", excerpt: isKo ? "요약" : "Excerpt" },
       };
     },
     [dbRevisions, loadRevisionSnapshot, seriesList],
@@ -1090,19 +1126,16 @@ export default function PostEditor({ post }: PostEditorProps) {
       onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleGenerateSummary : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       generatingSummary={generatingSummary}
-      currentSnapshot={(() => {
+      getCurrentSnapshot={(lang) => {
+        const isKo = lang === "ko";
         return {
-          title: form.title || form.title_en,
-          excerpt: form.excerpt || form.excerpt_en || "",
-          content: stripHtml(form.content || form.content_en || ""),
-          meta: {
-            Category: form.category || "",
-            Tags: form.tags?.join(", ") || "",
-            Series: seriesList.find((x) => x.id === form.series_id)?.title || "",
-            Pinned: form.is_pinned ? "Yes" : "",
-          },
+          title: (isKo ? form.title : form.title_en) || form.title || form.title_en || "",
+          excerpt: (isKo ? form.excerpt : form.excerpt_en) || "",
+          content: stripHtml((isKo ? form.content : form.content_en) || ""),
+          meta: postSnapshotMeta(form, seriesList, lang),
+          headerLabels: { title: isKo ? "제목" : "Title", excerpt: isKo ? "요약" : "Excerpt" },
         };
-      })()}
+      }}
       topBarFirstRowExtra={
         <Checkbox
           checked={form.is_pinned}
