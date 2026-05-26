@@ -40,7 +40,7 @@
   max-width: 420px;
 }
 
-/* 좌측 텍스트 — 기본 white. 강조 요소 (category 라벨, number 워터마크) 는 accent */
+/* 좌측 텍스트 — 모두 white 톤 통일 (opacity 로 위계). 강조색 없음. */
 .number {
   font-family: var(--font-instrument), serif;
   font-size: var(--fluid-font-size-8xl);
@@ -48,17 +48,18 @@
   line-height: 0.8;
   letter-spacing: -0.06em;
   color: transparent;
-  -webkit-text-stroke: 1px color-mix(in oklch, var(--color-accent) 70%, transparent);
+  -webkit-text-stroke: 1px var(--color-white-alpha-40);
   margin-bottom: var(--spacing-xl);
   transition: all 0.5s ease;
 }
 
 .category {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
   letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--text-white);
+  opacity: 0.85;
   margin-bottom: var(--spacing-md);
   transition: all 0.5s ease;
 }
@@ -75,7 +76,7 @@
 }
 
 .subtitle {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   color: var(--text-white);
   opacity: 0.8;
   line-height: var(--line-height-relaxed);
@@ -84,7 +85,7 @@
 }
 
 .desc {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   color: var(--text-white);
   opacity: 0.65;
   line-height: var(--line-height-loose);
@@ -105,7 +106,7 @@
   border: 1px solid var(--color-white-alpha-30);
   border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
   color: var(--text-white);
   opacity: 0.85;
   letter-spacing: 0.06em;
@@ -113,7 +114,7 @@
 
 .role {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-white);
@@ -124,7 +125,7 @@
 .counter {
   margin-top: var(--spacing-3xl);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--text-white);
   opacity: 0.55;
   letter-spacing: 0.15em;
@@ -261,6 +262,21 @@
   cursor: pointer;
 }
 
+/* 우측 카드 우하단 다크 vignette — year 텍스트 backdrop. radial 로 자연스럽게 fade */
+.imageCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 50% at 100% 100%,
+    oklch(0% 0 0 / 0.55) 0%,
+    oklch(0% 0 0 / 0.2) 50%,
+    transparent 80%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
 .imageCard img {
   width: 100%;
   height: 100%;
@@ -270,6 +286,27 @@
 
 .imageCard:hover img {
   transform: scale(1.03);
+}
+
+/* 우측 카드 중앙 큰 타이포 — project 제목, editorial serif. */
+.imageCardTitle {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 var(--spacing-3xl);
+  font-family: var(--font-instrument), serif;
+  font-size: var(--fluid-font-size-6xl);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.03em;
+  color: var(--text-white);
+  text-align: center;
+  text-wrap: balance;
+  pointer-events: none;
 }
 
 /* ── Image overlay (year + number) ── */
@@ -288,7 +325,7 @@
   font-weight: 200;
   line-height: 0.9;
   color: transparent;
-  -webkit-text-stroke: 1px var(--color-white-alpha-20);
+  -webkit-text-stroke: 1px var(--color-white-alpha-40);
 }
 
 /* ── Mobile meta overlay (hidden on desktop) ── */
