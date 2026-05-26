@@ -28,7 +28,7 @@ import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useTagInput } from "@/hooks/useTagInput";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { autoTranslate } from "@/utils/autoTranslate";
-import { SIZES, WORK_TEMPLATES, TECH_PRESETS, type WorkTemplate } from "@/data/workTemplates";
+import { WORK_TEMPLATES, TECH_PRESETS, type WorkTemplate } from "@/data/workTemplates";
 import { getTechIcon, normalizeTechName, getTechAliases } from "@/data/techIcons";
 import { showToast } from "@/stores/toastStore";
 import { workToFormData, defaultForm } from "@/utils/workFormUtils";
@@ -822,7 +822,6 @@ function workSnapshotMeta(s: WorkFormData, lang: "ko" | "en"): import("@/compone
       fields: {
         Slug: s.slug || "",
         [L("연도", "Year")]: s.year || "",
-        [L("크기", "Size")]: s.size || "",
         [L("콘텐츠 타입", "Content Type")]: s.content_type || "",
       },
     },
@@ -1777,7 +1776,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           </button>
 
           <div className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
-            {/* 좌: 정렬순서 (세로 1열 전체)  |  우: subtitle / role / cardSize (세로 stack) */}
+            {/* 좌: 정렬순서 (세로 1열 전체)  |  우: subtitle / role (세로 stack) */}
             <div className={styles.optionalSplit}>
               <div className={`${es.field} ${styles.optionalSplitLeft}`}>
                 <SortOrderDragList
@@ -1853,14 +1852,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                       />
                     );
                   })()}
-                </div>
-                <div className={es.field}>
-                  <label className={es.fieldLabel}>{tw("cardSize")}</label>
-                  <Select
-                    value={form.size}
-                    options={SIZES.map((s) => ({ value: s, label: s }))}
-                    onChange={(v) => updateField("size", v as WorkFormData["size"])}
-                  />
                 </div>
               </div>
             </div>

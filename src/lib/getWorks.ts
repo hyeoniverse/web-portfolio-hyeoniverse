@@ -26,7 +26,6 @@ async function seedWorksFromStatic(supabase: ReturnType<typeof import("@/lib/sup
     role_en: p.role.en,
     tech: p.tech,
     image: p.image,
-    size: p.size,
     content_ko: p.content.ko,
     content_en: p.content.en,
     gallery: p.gallery,

@@ -39,7 +39,7 @@ const ALLOWED_FIELDS = new Set([
   "description_ko", "description_en",
   "role_ko", "role_en",
   "contributions_ko", "contributions_en",
-  "tech", "tech_notes", "image", "size",
+  "tech", "tech_notes", "image",
   "content_ko", "content_en", "content_type",
   "overview_ko", "overview_en", "overview_image",
   "challenge_ko", "challenge_en", "challenge_image",
