@@ -7,6 +7,7 @@ import { ImageIcon, Trash2, Upload, Plus, Download } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { getTrashDaysLeft } from "@/utils/trash";
 import { downloadBlob, downloadFiles } from "@/utils/download";
+import { formatProjectNumber } from "@/utils/formatProjectNumber";
 import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Work } from "@/types/work";
@@ -436,7 +437,7 @@ export default function AdminWorksPage() {
       key: "num",
       label: "#",
       className: st.colMeta,
-      render: (work) => <span>{work.number || "—"}</span>,
+      render: (work) => <span>{formatProjectNumber(work.sort_order) || "—"}</span>,
       skeletonWidth: "24px",
     },
     {
