@@ -9,6 +9,7 @@ type Lang = "ko" | "en";
 interface LanguageToggleProps {
   lang: Lang;
   onLangChange: (lang: Lang) => void;
+  size?: "sm" | "md";
 }
 
 const THRESHOLD = 0.95;
@@ -19,7 +20,7 @@ const animationConfig = {
   ease: [0.85, 0, 1, 1] as [number, number, number, number],
 };
 
-export default function LanguageToggle({ lang, onLangChange }: LanguageToggleProps) {
+export default function LanguageToggle({ lang, onLangChange, size = "md" }: LanguageToggleProps) {
   const [hoveredBtn, setHoveredBtn] = useState<Lang | null>(null);
   const [indicatorAt, setIndicatorAt] = useState<Lang>(lang);
   const [locked, setLocked] = useState(false);
@@ -76,7 +77,7 @@ export default function LanguageToggle({ lang, onLangChange }: LanguageTogglePro
 
   return (
     <div
-      className={styles.toggle}
+      className={`${styles.toggle} ${size === "sm" ? styles.toggleSm : ""}`}
       data-clickable="true"
       role="switch"
       tabIndex={0}
