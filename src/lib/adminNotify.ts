@@ -6,8 +6,18 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 
+/** 알림 type 분류
+ *  - 댓글계: comment / reply / like / report
+ *  - 보안:   device_login (새 기기 시도) / device_approved (승인 완료) / login_lockout (5회 실패)
+ *            / signout_all (전체 로그아웃 실행)
+ *  - 운영:   ai_failure (AI fallback chain 전부 실패) / email_failure (Resend 발송 실패)
+ *            / cron_error (cron job exception). UI 시스템 탭 (= 댓글/신고 외 모든 type) 에 자동 표시. */
 interface NotifyOptions {
-  type: "comment" | "reply" | "like" | "report";
+  type:
+    | "comment" | "reply" | "like" | "report"
+    | "device_login" | "device_approved" | "login_lockout" | "signout_all"
+    | "ai_failure" | "email_failure" | "cron_error"
+    | "config_changed" | "migration_applied";
   title: string;
   message: string;
   metadata?: Record<string, unknown>;
@@ -37,8 +47,22 @@ async function sendEmail(opts: NotifyOptions) {
   const toEmail = cfg.contact?.email || process.env.ADMIN_EMAIL;
   if (!toEmail) return;
 
+  // 이메일 발송 실패는 이메일 자체 알림 무한 루프 막기 위해 DB log 만 (notifyAdmin 재호출 X)
+  const logEmailFailure = async (reason: string) => {
+    if (opts.type === "email_failure") return; // 자기 자신은 skip
+    try {
+      const admin = createAdminClient();
+      await admin.from("admin_notifications").insert({
+        type: "email_failure",
+        title: "이메일 발송 실패",
+        message: `"${opts.title}" 알림 메일 전송 중 오류: ${reason}`,
+        metadata: { original_type: opts.type, reason },
+      });
+    } catch { /* swallow — DB 도 안 되면 어쩔 수 없음 */ }
+  };
+
   try {
-    await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -59,8 +83,9 @@ async function sendEmail(opts: NotifyOptions) {
         `,
       }),
     });
-  } catch {
-    // 이메일 실패는 무시 (알림 로그는 이미 DB에 저장됨)
+    if (!res.ok) await logEmailFailure(`HTTP ${res.status}`);
+  } catch (e) {
+    await logEmailFailure(e instanceof Error ? e.message : "unknown");
   }
 }
 

@@ -309,8 +309,17 @@ export async function translateWithFallback(
     }
   }
 
-  // 모든 provider 시도가 throw 만 발생시켰고 한 항목도 못 얻은 경우 → 전체 에러
+  // 모든 provider 시도가 throw 만 발생시켰고 한 항목도 못 얻은 경우 → 전체 에러 + admin 알림
   if (!anyProviderTried && collected.size === 0) {
+    try {
+      const { notifyAdmin } = await import("@/lib/adminNotify");
+      await notifyAdmin({
+        type: "ai_failure",
+        title: "번역 chain 전부 실패",
+        message: `${logPrefix} — providers: ${providerList.join(" → ")}, 마지막 에러: ${lastError}`,
+        metadata: { context: logPrefix, providers: providerList, lastError, source: sourceLang, target: targetLang },
+      });
+    } catch { /* swallow */ }
     return { error: lastError };
   }
 

@@ -45,6 +45,15 @@ export async function checkOrRegisterDevice(args: {
     return { kind: "trusted" };
   }
 
+  // 새 기기 (또는 미승인 재시도) — 보안 알림
+  const { notifyAdmin } = await import("@/lib/adminNotify");
+  await notifyAdmin({
+    type: "device_login",
+    title: "새 기기에서 로그인 시도",
+    message: `미등록 기기에서 admin 로그인 시도 — 승인 메일 발송됨.\nUA: ${args.userAgent}\nIP: ${args.ip}`,
+    metadata: { user_id: args.userId, ip: args.ip, user_agent: args.userAgent },
+  });
+
   // pending 상태 — 새로 만들거나 기존 token 갱신
   const token = randomBytes(24).toString("base64url");
   const expiresAt = new Date(now.getTime() + APPROVE_TOKEN_TTL_HOURS * 3600_000).toISOString();
@@ -102,6 +111,15 @@ export async function approveDeviceByToken(token: string): Promise<{ ok: boolean
       last_seen_at: new Date().toISOString(),
     })
     .eq("id", data.id);
+
+  // 기기 승인 완료 알림
+  const { notifyAdmin } = await import("@/lib/adminNotify");
+  await notifyAdmin({
+    type: "device_approved",
+    title: "기기 승인 완료",
+    message: "이메일 링크로 새 기기 승인이 완료되었습니다.",
+    metadata: { device_id: data.id },
+  });
 
   return { ok: true };
 }

@@ -81,6 +81,14 @@ export async function recordFailure(email: string): Promise<LockoutCheckResult> 
   );
 
   if (shouldLock) {
+    // 5회 연속 실패 → 잠금 발생. 비정상 시도 신호
+    const { notifyAdmin } = await import("@/lib/adminNotify");
+    await notifyAdmin({
+      type: "login_lockout",
+      title: "로그인 잠금 발생",
+      message: `${email} 계정이 ${MAX_ATTEMPTS}회 연속 로그인 실패로 ${LOCKOUT_MINUTES}분간 잠겼습니다.`,
+      metadata: { email, lockout_minutes: LOCKOUT_MINUTES, locked_until: lockedUntil },
+    });
     return { locked: true, remainingSeconds: LOCKOUT_MINUTES * 60 };
   }
   return { locked: false, attemptsLeft: MAX_ATTEMPTS - nextCount };
