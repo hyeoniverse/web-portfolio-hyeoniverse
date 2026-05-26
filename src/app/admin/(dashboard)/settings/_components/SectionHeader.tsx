@@ -52,6 +52,7 @@ export default function SectionHeader({
             size="2xs"
             disabled={!dirty || isSavingOther}
             loading={isSavingThis}
+            loadingVariant="wave"
             onClick={() => saveSection(paths)}
           >
             {t("admin.settings.saveSection")}

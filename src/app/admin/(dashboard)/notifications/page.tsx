@@ -318,6 +318,7 @@ export default function NotificationsPage() {
                     exit={{ opacity: 0, x: -16 }}
                     transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
                     className={`${styles.item} ${!n.read ? styles.itemUnread : ""} ${hasLink ? styles.itemClickable : ""}`}
+                    data-clickable="true"
                     onClick={() => handleItemClick(n)}
                     role={hasLink ? "link" : undefined}
                     tabIndex={hasLink ? 0 : undefined}
