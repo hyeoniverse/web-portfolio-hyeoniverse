@@ -42,6 +42,17 @@
   border-radius: var(--radius-capsule);
 }
 
+/* sm size — 작은 폼/패널용 컴팩트 변형 */
+.toggleSm {
+  height: 22px;
+  border: var(--border-light);
+}
+
+.toggleSm .btn {
+  padding: 0 var(--spacing-xs);
+  font-size: var(--font-size-2xs);
+}
+
 /* Text Layers */
 .textPrimary {
   color: var(--text-primary);
