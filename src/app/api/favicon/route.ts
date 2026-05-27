@@ -35,11 +35,11 @@ export async function GET(request: Request) {
   const lightFg = config?.brand?.logoColor || "#0a0a0a";
   const darkFg = config?.brand?.logoColorDark || "#f5f5f0";
 
-  // 색 매핑 — variant 가 \"light user\" 면 페이지와 반대인 darkBg 사용
-  //   light user → bg=darkBg, text=darkFg (dark 테마용 텍스트색 — bg 와 대비)
-  //   dark user → bg=lightBg, text=lightFg
-  const bg = variant === "light" ? darkBg : lightBg;
-  const fg = variant === "light" ? darkFg : lightFg;
+  // 색 매핑 — favicon 은 페이지 테마와 같은 변형 (페이지의 미니 로고).
+  //   light variant → bg=lightBg, text=logoColor (dark text on light bg)
+  //   dark variant → bg=darkBg, text=logoColorDark (light text on dark bg)
+  const bg = variant === "light" ? lightBg : darkBg;
+  const fg = variant === "light" ? lightFg : darkFg;
   const finalBg = shape === "none" ? "transparent" : bg;
 
   const fontFamily = font === "serif" ? "Georgia, serif" : font === "mono" ? "Menlo, monospace" : "system-ui, sans-serif";

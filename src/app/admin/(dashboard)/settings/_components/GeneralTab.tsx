@@ -214,13 +214,15 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                   const shape = config.brand.faviconShape ?? "circle";
                   const font = config.brand.faviconFont ?? "serif";
                   const fontFamily = font === "serif" ? "Georgia, serif" : font === "mono" ? "Menlo, monospace" : "system-ui, sans-serif";
-                  // light user → bg = darkBg, dark user → bg = lightBg (페이지와 반대)
+                  // favicon = 페이지 테마와 같은 변형 (페이지 미니 로고)
+                  //   light → bg = lightBg, text = logoColor
+                  //   dark → bg = darkBg, text = logoColorDark
                   const bgColor = variant === "light"
-                    ? (config.theme.darkBg || "#0a0a0a")
-                    : (config.theme.lightBg || "#f5f5f0");
+                    ? (config.theme.lightBg || "#f5f5f0")
+                    : (config.theme.darkBg || "#0a0a0a");
                   const fgColor = variant === "light"
-                    ? (config.brand.logoColorDark || "#f5f5f0")
-                    : (config.brand.logoColor || "#0a0a0a");
+                    ? (config.brand.logoColor || "#0a0a0a")
+                    : (config.brand.logoColorDark || "#f5f5f0");
                   return (
                     <div key={variant} className={styles.faviconPreviewCell}>
                       <span
