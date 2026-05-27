@@ -102,6 +102,8 @@ export interface TagNotesEditorProps {
   /** 편집 / "+ 설명 추가" 버튼 클릭 핸들러 — 외부 편집 패널로 위임.
    *  제공 시 TagNotesEditor 의 내부 drawer 열림 로직 대신 이 콜백만 발화. */
   onEditClick?: (item: string) => void;
+  /** 외부 편집 패널에서 현재 active 인 item — 해당 chip 강조 표시 (active class). */
+  activeItem?: string | null;
 }
 
 /**
@@ -125,6 +127,7 @@ export default function TagNotesEditor({
   renderDrawerExtra,
   onItemClick,
   onEditClick,
+  activeItem,
 }: TagNotesEditorProps) {
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dropPos, setDropPos] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
@@ -352,7 +355,7 @@ export default function TagNotesEditor({
                 {onItemClick ? (
                   <button
                     type="button"
-                    className={styles.tag}
+                    className={`${styles.tag} ${activeItem === item ? styles.tagActive : ""}`}
                     data-cursor="big"
                     onMouseDown={(e) => e.stopPropagation()}
                     onPointerDown={(e) => e.stopPropagation()}
@@ -361,7 +364,7 @@ export default function TagNotesEditor({
                     {renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}
                   </button>
                 ) : (
-                  <span className={styles.tag}>{renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}</span>
+                  <span className={`${styles.tag} ${activeItem === item ? styles.tagActive : ""}`}>{renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}</span>
                 )}
                 <CloseButton
                   size="sm"
