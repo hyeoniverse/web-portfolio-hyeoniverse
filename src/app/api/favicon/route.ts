@@ -29,6 +29,8 @@ export async function GET(request: Request) {
   const logoUrl = config?.brand?.logoShortUrl || config?.brand?.logoShortDarkUrl || "";
   const shape = config?.brand?.faviconShape ?? "circle";
   const font = config?.brand?.faviconFont ?? "serif";
+  const weight = config?.brand?.faviconWeight ?? "bold";
+  const fontWeight = weight === "regular" ? 400 : weight === "medium" ? 500 : 700;
 
   const lightBg = config?.theme?.lightBg || "#f5f5f0";
   const darkBg = config?.theme?.darkBg || "#0a0a0a";
@@ -48,7 +50,7 @@ export async function GET(request: Request) {
   // 이미지 업로드된 경우 — SVG <image> (변형 없이 그대로)
   const inner = logoUrl
     ? `<image href="${esc(logoUrl)}" x="0" y="0" width="32" height="32" preserveAspectRatio="xMidYMid meet" />`
-    : `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="${esc(fontFamily)}" font-size="20" font-weight="700" fill="${esc(fg)}">${esc(logoText)}</text>`;
+    : `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="${esc(fontFamily)}" font-size="20" font-weight="${fontWeight}" fill="${esc(fg)}">${esc(logoText)}</text>`;
 
   const bgShape = shape === "none"
     ? ""

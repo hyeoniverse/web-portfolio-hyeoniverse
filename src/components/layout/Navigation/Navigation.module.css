@@ -23,35 +23,31 @@
   pointer-events: auto;
 }
 
-/* 로고 + admin 배지 anchor — nav 와 별도 fixed flex 컨테이너. 자체 blend 없음 (자식 각자 처리) */
-.logoNavBar {
+/* 로고 anchor — 독립 top-level fixed. nav / admin 배지와 stacking context 완전 분리 */
+.logoAnchor {
   position: fixed;
   top: var(--spacing-2xl);
   left: var(--page-px);
   z-index: var(--z-nav);
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  pointer-events: none;
-}
-
-/* 로고 anchor — flex 자식, logoDifference 토글에 독립 반응 */
-.logoAnchor {
-  display: flex;
-  align-items: center;
   pointer-events: auto;
   mix-blend-mode: difference;
 }
 
-/* logoDifference=false — 로고만 blend 끔. admin 배지 / nav (메뉴 / actions) 는 그대로 difference */
 .logoAnchorNoDifference {
   mix-blend-mode: normal;
 }
 
-/* Admin 배지 — flex sibling, logoNavBar gap 으로 자연스러운 간격, 항상 difference */
+/* Admin 배지 — 별도 top-level fixed. logoAnchor 의 blend 토글과 완전히 독립.
+   로고 좌측 + 폭 (image 32px 또는 short text) 의 우측 offset — 짧은 logoText 가정해 44px (32 + gap) */
 .adminBadgeFixed {
-  mix-blend-mode: difference;
+  position: fixed;
+  top: calc(var(--spacing-2xl) + 4px);
+  left: calc(var(--page-px) + 44px);
+  z-index: var(--z-nav);
   pointer-events: auto;
+  mix-blend-mode: difference;
 }
 
 .logoGroup {

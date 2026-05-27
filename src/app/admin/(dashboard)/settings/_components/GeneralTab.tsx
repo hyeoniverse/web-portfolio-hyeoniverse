@@ -213,7 +213,9 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                 {(["light", "dark"] as const).map((variant) => {
                   const shape = config.brand.faviconShape ?? "circle";
                   const font = config.brand.faviconFont ?? "serif";
+                  const weight = config.brand.faviconWeight ?? "bold";
                   const fontFamily = font === "serif" ? "Georgia, serif" : font === "mono" ? "Menlo, monospace" : "system-ui, sans-serif";
+                  const fontWeight = weight === "regular" ? 400 : weight === "medium" ? 500 : 700;
                   // favicon = 페이지 테마와 같은 변형 (페이지 미니 로고)
                   //   light → bg = lightBg, text = logoColor
                   //   dark → bg = darkBg, text = logoColorDark
@@ -233,6 +235,7 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                           color: fgColor,
                           border: shape === "none" ? "1px dashed var(--border-light-color)" : "none",
                           fontFamily,
+                          fontWeight,
                         }}
                       >
                         {(config.brand.logoText || "H").charAt(0)}
@@ -265,6 +268,18 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                       { value: "serif", label: "Serif" },
                       { value: "sans", label: "Sans" },
                       { value: "mono", label: "Mono" },
+                    ]}
+                  />
+                </div>
+                <div className={styles.fieldRow}>
+                  <label className={styles.fieldLabel}>{t("admin.settings.faviconWeight")}</label>
+                  <RadioGroup<"regular" | "medium" | "bold">
+                    value={(config.brand.faviconWeight ?? "bold") as "regular" | "medium" | "bold"}
+                    onChange={(v) => update("brand", "faviconWeight", v)}
+                    options={[
+                      { value: "regular", label: "Regular" },
+                      { value: "medium", label: "Medium" },
+                      { value: "bold", label: "Bold" },
                     ]}
                   />
                 </div>

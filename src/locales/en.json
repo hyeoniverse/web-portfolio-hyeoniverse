@@ -462,6 +462,7 @@
       "faviconSection": "Favicon",
       "faviconShape": "Favicon shape",
       "faviconFont": "Favicon font",
+      "faviconWeight": "Favicon weight",
       "reassignModal": {
         "title": "Reassign Category",
         "description": "Move posts to another category before deleting.",
