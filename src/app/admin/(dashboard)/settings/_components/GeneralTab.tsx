@@ -1,5 +1,6 @@
 "use client";
 
+import { Eraser } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { SettingsTabProps } from "../_types";
 import Checkbox from "@/components/ui/Checkbox";
@@ -94,16 +95,24 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, s
               <label className={styles.fieldLabel}>{t("admin.settings.logoColor")}</label>
               <div className={styles.colorField}>
                 <ColorPicker value={config.brand.logoColor || "#000000"} onChange={(c) => update("brand", "logoColor", c.hex)} triggerClassName={styles.colorPicker} />
-                <input type="text" className={styles.colorText} value={config.brand.logoColor} onChange={(e) => update("brand", "logoColor", e.target.value)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
-                {config.brand.logoColor && <button type="button" className={styles.envCancelBtn} onClick={() => update("brand", "logoColor", "")}>&times;</button>}
+                <input type="text" className={styles.colorText} value={config.brand.logoColor || "#000000"} onChange={(e) => update("brand", "logoColor", e.target.value)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
+                {config.brand.logoColor && (
+                  <button type="button" className={styles.colorClearBtn} onClick={() => update("brand", "logoColor", "")} aria-label="clear" title="지우기">
+                    <Eraser size={11} strokeWidth={2} />
+                  </button>
+                )}
               </div>
             </div>
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}>{t("admin.settings.logoColorDark")}</label>
               <div className={styles.colorField}>
                 <ColorPicker value={config.brand.logoColorDark || "#ffffff"} onChange={(c) => update("brand", "logoColorDark", c.hex)} triggerClassName={styles.colorPicker} />
-                <input type="text" className={styles.colorText} value={config.brand.logoColorDark} onChange={(e) => update("brand", "logoColorDark", e.target.value)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
-                {config.brand.logoColorDark && <button type="button" className={styles.envCancelBtn} onClick={() => update("brand", "logoColorDark", "")}>&times;</button>}
+                <input type="text" className={styles.colorText} value={config.brand.logoColorDark || "#ffffff"} onChange={(e) => update("brand", "logoColorDark", e.target.value)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
+                {config.brand.logoColorDark && (
+                  <button type="button" className={styles.colorClearBtn} onClick={() => update("brand", "logoColorDark", "")} aria-label="clear" title="지우기">
+                    <Eraser size={11} strokeWidth={2} />
+                  </button>
+                )}
               </div>
             </div>
           </div>
