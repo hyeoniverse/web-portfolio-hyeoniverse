@@ -1060,49 +1060,45 @@
   flex: 0 0 160px;
 }
 
-/* Favicon shape — circle / square / none 세 가지 미리보기 버튼 */
-.faviconShapeGroup {
+/* Favicon — 좌측 미리보기 + 우측 모양/폰트 RadioGroup 2개 */
+.faviconLayout {
   display: flex;
-  gap: var(--spacing-sm);
-}
-
-.faviconShapeBtn {
-  display: inline-flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  background: transparent;
-  cursor: pointer;
-  transition: border-color var(--duration-base) ease;
+  gap: var(--spacing-xl);
 }
 
-.faviconShapeBtn:hover {
-  border-color: var(--text-primary);
+.faviconPreviewSlot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
 }
 
-.faviconShapeBtnActive {
-  border-color: var(--color-accent);
-}
-
-.faviconShapePreview {
+.faviconPreview {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  font-size: 18px;
+  width: 48px;
+  height: 48px;
+  font-size: 28px;
   font-weight: 700;
+  letter-spacing: -0.04em;
 }
 
-.faviconShapeLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.faviconControls {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+@media (max-width: 640px) {
+  .faviconLayout {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 /* 토글 그룹 — sectionTitleRow 우측 여러 toggle 같이 묶음 */

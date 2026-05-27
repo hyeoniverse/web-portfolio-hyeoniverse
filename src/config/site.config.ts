@@ -34,7 +34,7 @@ export const siteConfig = {
     logoGlitch: true, // 로고 글리치 효과 on/off
     logoDifference: true, // 네비 mix-blend-mode: difference on/off (배경에 따라 자동 반전)
     faviconShape: "circle" as "circle" | "square" | "none", // 브라우저 탭 favicon 배경 모양
-    faviconFont: "sans" as "sans" | "serif" | "mono", // favicon 텍스트 폰트 family (이미지 업로드 시 무시)
+    faviconFont: "serif" as "sans" | "serif" | "mono", // favicon 텍스트 폰트 family (이미지 업로드 시 무시)
     logoShortUrl: "", // 빈 문자열 = 텍스트 로고(logoText) 사용
     logoShortDarkUrl: "", // 다크 모드 숏 로고 (빈 문자열 = logoShortUrl 사용)
     logoFullUrl: "", // 빈 문자열 = 텍스트 로고(displayName) 사용

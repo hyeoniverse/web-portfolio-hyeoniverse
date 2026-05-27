@@ -17,7 +17,7 @@ export default async function Icon() {
   const logoColor = config?.brand?.logoColor || "#0a0a0a";
   const bgColor = config?.theme?.lightBg || "#ffffff";
   const shape = config?.brand?.faviconShape ?? "circle";
-  const font = config?.brand?.faviconFont ?? "sans";
+  const font = config?.brand?.faviconFont ?? "serif";
   // 로고 이미지 업로드되어 있으면 그 이미지를 favicon 으로 사용 (short 우선, 없으면 dark short)
   const logoUrl = config?.brand?.logoShortUrl || config?.brand?.logoShortDarkUrl || "";
 

@@ -8,6 +8,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import RadioGroup from "@/components/ui/RadioGroup";
 import Field, { AudioUpload, LogoUpload, TagField } from "./SettingsFormFields";
 import SectionHeader from "./SectionHeader";
 import styles from "../Settings.module.css";
@@ -202,68 +203,59 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
           </div>
         </div>
 
-        {/* Sub: Favicon — 브라우저 탭 아이콘 모양 + 폰트 */}
+        {/* Sub: Favicon — 모양 / 폰트 RadioGroup + 단일 미리보기 */}
         <div className={styles.subSection}>
           <h3 className={styles.sectionSubTitle}>{t("admin.settings.faviconSection")}</h3>
           <div className={styles.fields}>
-            <div className={styles.fieldRow}>
-              <label className={styles.fieldLabel}>{t("admin.settings.faviconShape")}</label>
-              <div className={styles.faviconShapeGroup}>
-                {(["circle", "square", "none"] as const).map((shape) => {
-                  const active = (config.brand.faviconShape ?? "circle") === shape;
-                  return (
-                    <button
-                      key={shape}
-                      type="button"
-                      className={`${styles.faviconShapeBtn} ${active ? styles.faviconShapeBtnActive : ""}`}
-                      onClick={() => update("brand", "faviconShape", shape)}
-                    >
-                      <span
-                        className={styles.faviconShapePreview}
-                        style={{
-                          borderRadius: shape === "circle" ? "50%" : shape === "square" ? "4px" : 0,
-                          background: shape === "none" ? "transparent" : (config.theme.lightBg || "#fff"),
-                          color: config.brand.logoColor || "#0a0a0a",
-                          border: shape === "none" ? "1px dashed var(--border-light-color)" : "none",
-                        }}
-                      >
-                        {(config.brand.logoText || "H").charAt(0)}
-                      </span>
-                      <span className={styles.faviconShapeLabel}>{shape}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            <div className={styles.fieldRow}>
-              <label className={styles.fieldLabel}>{t("admin.settings.faviconFont")}</label>
-              <div className={styles.faviconShapeGroup}>
-                {(["sans", "serif", "mono"] as const).map((font) => {
-                  const active = (config.brand.faviconFont ?? "sans") === font;
-                  const fontFamily = font === "serif" ? "serif" : font === "mono" ? "monospace" : "sans-serif";
+            <div className={styles.faviconLayout}>
+              {/* 좌측 — 현재 설정 미리보기 한 개 */}
+              <div className={styles.faviconPreviewSlot}>
+                {(() => {
                   const shape = config.brand.faviconShape ?? "circle";
+                  const font = config.brand.faviconFont ?? "serif";
+                  const fontFamily = font === "serif" ? "serif" : font === "mono" ? "monospace" : "sans-serif";
                   return (
-                    <button
-                      key={font}
-                      type="button"
-                      className={`${styles.faviconShapeBtn} ${active ? styles.faviconShapeBtnActive : ""}`}
-                      onClick={() => update("brand", "faviconFont", font)}
+                    <span
+                      className={styles.faviconPreview}
+                      style={{
+                        borderRadius: shape === "circle" ? "50%" : shape === "square" ? "8px" : 0,
+                        background: shape === "none" ? "transparent" : (config.theme.lightBg || "#fff"),
+                        color: config.brand.logoColor || "#0a0a0a",
+                        border: shape === "none" ? "1px dashed var(--border-light-color)" : "none",
+                        fontFamily,
+                      }}
                     >
-                      <span
-                        className={styles.faviconShapePreview}
-                        style={{
-                          borderRadius: shape === "circle" ? "50%" : shape === "square" ? "4px" : 0,
-                          background: shape === "none" ? "transparent" : (config.theme.lightBg || "#fff"),
-                          color: config.brand.logoColor || "#0a0a0a",
-                          fontFamily,
-                        }}
-                      >
-                        {(config.brand.logoText || "H").charAt(0)}
-                      </span>
-                      <span className={styles.faviconShapeLabel}>{font}</span>
-                    </button>
+                      {(config.brand.logoText || "H").charAt(0)}
+                    </span>
                   );
-                })}
+                })()}
+              </div>
+              {/* 우측 — 모양 / 폰트 RadioGroup */}
+              <div className={styles.faviconControls}>
+                <div className={styles.fieldRow}>
+                  <label className={styles.fieldLabel}>{t("admin.settings.faviconShape")}</label>
+                  <RadioGroup<"circle" | "square" | "none">
+                    value={(config.brand.faviconShape ?? "circle") as "circle" | "square" | "none"}
+                    onChange={(v) => update("brand", "faviconShape", v)}
+                    options={[
+                      { value: "circle", label: "Circle" },
+                      { value: "square", label: "Square" },
+                      { value: "none", label: "None" },
+                    ]}
+                  />
+                </div>
+                <div className={styles.fieldRow}>
+                  <label className={styles.fieldLabel}>{t("admin.settings.faviconFont")}</label>
+                  <RadioGroup<"sans" | "serif" | "mono">
+                    value={(config.brand.faviconFont ?? "serif") as "sans" | "serif" | "mono"}
+                    onChange={(v) => update("brand", "faviconFont", v)}
+                    options={[
+                      { value: "sans", label: "Sans" },
+                      { value: "serif", label: "Serif" },
+                      { value: "mono", label: "Mono" },
+                    ]}
+                  />
+                </div>
               </div>
             </div>
           </div>
