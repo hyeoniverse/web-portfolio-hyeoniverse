@@ -202,7 +202,7 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
           </div>
         </div>
 
-        {/* Sub: Favicon — 브라우저 탭 아이콘 배경 모양 */}
+        {/* Sub: Favicon — 브라우저 탭 아이콘 모양 + 폰트 */}
         <div className={styles.subSection}>
           <h3 className={styles.sectionSubTitle}>{t("admin.settings.faviconSection")}</h3>
           <div className={styles.fields}>
@@ -230,6 +230,37 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                         {(config.brand.logoText || "H").charAt(0)}
                       </span>
                       <span className={styles.faviconShapeLabel}>{shape}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className={styles.fieldRow}>
+              <label className={styles.fieldLabel}>{t("admin.settings.faviconFont")}</label>
+              <div className={styles.faviconShapeGroup}>
+                {(["sans", "serif", "mono"] as const).map((font) => {
+                  const active = (config.brand.faviconFont ?? "sans") === font;
+                  const fontFamily = font === "serif" ? "serif" : font === "mono" ? "monospace" : "sans-serif";
+                  const shape = config.brand.faviconShape ?? "circle";
+                  return (
+                    <button
+                      key={font}
+                      type="button"
+                      className={`${styles.faviconShapeBtn} ${active ? styles.faviconShapeBtnActive : ""}`}
+                      onClick={() => update("brand", "faviconFont", font)}
+                    >
+                      <span
+                        className={styles.faviconShapePreview}
+                        style={{
+                          borderRadius: shape === "circle" ? "50%" : shape === "square" ? "4px" : 0,
+                          background: shape === "none" ? "transparent" : (config.theme.lightBg || "#fff"),
+                          color: config.brand.logoColor || "#0a0a0a",
+                          fontFamily,
+                        }}
+                      >
+                        {(config.brand.logoText || "H").charAt(0)}
+                      </span>
+                      <span className={styles.faviconShapeLabel}>{font}</span>
                     </button>
                   );
                 })}

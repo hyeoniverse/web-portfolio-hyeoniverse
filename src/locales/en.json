@@ -461,6 +461,7 @@
       "presetNamePlaceholder": "Preset name",
       "faviconSection": "Favicon",
       "faviconShape": "Favicon shape",
+      "faviconFont": "Favicon font",
       "reassignModal": {
         "title": "Reassign Category",
         "description": "Move posts to another category before deleting.",

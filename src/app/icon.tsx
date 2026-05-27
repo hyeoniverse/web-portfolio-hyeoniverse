@@ -17,12 +17,16 @@ export default async function Icon() {
   const logoColor = config?.brand?.logoColor || "#0a0a0a";
   const bgColor = config?.theme?.lightBg || "#ffffff";
   const shape = config?.brand?.faviconShape ?? "circle";
+  const font = config?.brand?.faviconFont ?? "sans";
   // 로고 이미지 업로드되어 있으면 그 이미지를 favicon 으로 사용 (short 우선, 없으면 dark short)
   const logoUrl = config?.brand?.logoShortUrl || config?.brand?.logoShortDarkUrl || "";
 
   // shape 별 background / borderRadius. none = bg 투명 (배경 없음)
   const bg = shape === "none" ? "transparent" : bgColor;
   const borderRadius = shape === "circle" ? "50%" : shape === "square" ? "6px" : 0;
+
+  // font family — ImageResponse default sans 외엔 별도 폰트 fetch 필요. 우선 generic family 매핑
+  const fontFamily = font === "serif" ? "serif" : font === "mono" ? "monospace" : "sans-serif";
 
   return new ImageResponse(
     (
@@ -38,6 +42,7 @@ export default async function Icon() {
           fontSize: 26,
           fontWeight: 700,
           letterSpacing: "-0.04em",
+          fontFamily,
           borderRadius,
           overflow: "hidden",
         }}
