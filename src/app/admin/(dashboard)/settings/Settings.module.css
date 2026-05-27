@@ -3801,16 +3801,32 @@
   gap: var(--spacing-lg);
 }
 
-/* chip 라벨 — KO 이름 + separator + EN 이름 둘 다 표시 */
+/* chip 라벨 — [KO] 이름 [EN] 이름 (BilingualInputPair 배지와 동일 톤) */
 .worksCatChipLabel {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
 }
 
-.worksCatChipSep {
+.worksCatChipBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+  padding: 0 5px;
+  background: var(--bg-tertiary);
   color: var(--text-tertiary);
-  opacity: 0.6;
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+/* 배지 직후 이름 텍스트와의 추가 간격 (배지 다음에 라벨 직접 옴) */
+.worksCatChipLabel > .worksCatChipBadge + span {
+  margin-right: var(--spacing-2xs);
 }
 
 /* 새 카테고리 추가 영역 — 헤더 (label + Add 버튼) + label | input form-style row */

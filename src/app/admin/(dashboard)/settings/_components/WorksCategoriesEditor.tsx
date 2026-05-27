@@ -55,6 +55,14 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
     return map;
   }, [categories]);
 
+  // 이름 (KO/EN) 변경 — categories 배열 중 매칭되는 항목의 ko/en 업데이트.
+  // en 이 바뀌면 canonical key 도 변경되므로 onItemsChange / onNotesChange 가 함께 적용되어야 정합.
+  const handleNameChange = (currentEn: string, next: BilingualDesc) => {
+    onChange(
+      categories.map((c) => (c.en === currentEn ? { ...c, ko: next.ko, en: next.en } : c)),
+    );
+  };
+
   // items 순서 변경 / 제거 — categories 배열 재구성
   const handleItemsChange = (nextItems: string[]) => {
     const byEn: Record<string, WorksCategory> = {};
@@ -114,11 +122,20 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
         removeTitle={t("admin.settings.removeCategory")}
         renderItemLabel={(en) => (
           <span className={styles.worksCatChipLabel}>
+            <span className={styles.worksCatChipBadge}>KO</span>
             <span>{koByEn[en]}</span>
-            <span className={styles.worksCatChipSep}>·</span>
+            <span className={styles.worksCatChipBadge}>EN</span>
             <span>{en}</span>
           </span>
         )}
+        renderDrawerExtra={(en, isEditing) => isEditing ? (
+          <BilingualInputPair
+            value={{ ko: koByEn[en] ?? "", en }}
+            onChange={(v) => handleNameChange(en, v)}
+            koPlaceholder={t("admin.settings.categoryKoLabel")}
+            enPlaceholder={t("admin.settings.categoryEnLabel")}
+          />
+        ) : null}
       />
 
       {/* 새 카테고리 추가 — 헤더 행 (label + Add 버튼) + label | bilingual input 형 row */}

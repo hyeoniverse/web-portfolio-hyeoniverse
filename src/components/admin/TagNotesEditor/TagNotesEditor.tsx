@@ -95,6 +95,8 @@ export interface TagNotesEditorProps {
   multiLine?: boolean;
   /** chip 라벨 커스텀 렌더 — 기본 `${prefix}${item}`. bilingual chip 등에 사용 (WorksCategoriesEditor). */
   renderItemLabel?: (item: string) => React.ReactNode;
+  /** drawer 안 추가 슬롯 — 편집 모드 or entry 존재 시 노출. 이름 인라인 편집 등에 사용. */
+  renderDrawerExtra?: (item: string, isEditing: boolean) => React.ReactNode;
 }
 
 /**
@@ -115,6 +117,7 @@ export default function TagNotesEditor({
   removeTitle = "Remove",
   multiLine = false,
   renderItemLabel,
+  renderDrawerExtra,
 }: TagNotesEditorProps) {
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dropPos, setDropPos] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
@@ -437,6 +440,12 @@ export default function TagNotesEditor({
                 </div>
               )}
             </div>
+            {/* drawer extra slot — 편집 모드 or entry 존재 시 노출 (이름 인라인 편집 등) */}
+            {renderDrawerExtra && (entry || editingItem === item) && (
+              <div className={styles.drawerExtra}>
+                {renderDrawerExtra(item, editingItem === item)}
+              </div>
+            )}
             {/* readonly + editing body — 통합 ul (li 단위로 input/readonly swap, 깜빡임 방지) */}
             <AnimatePresence initial={false}>
               {entry && (

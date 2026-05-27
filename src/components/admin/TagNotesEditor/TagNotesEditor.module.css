@@ -314,6 +314,11 @@
   display: none;
 }
 
+/* drawer extra — chip 헤더와 description 사이 슬롯 (이름 인라인 편집 등) */
+.drawerExtra {
+  padding: var(--spacing-xs) 0;
+}
+
 /* readonly checkbox — KO line 안 첫 자식 (itemCheckbox 14px) */
 .readonlyCheckLabel {
   display: inline-flex;
