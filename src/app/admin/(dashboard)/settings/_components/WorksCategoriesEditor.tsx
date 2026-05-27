@@ -100,11 +100,11 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
         onItemsChange={handleItemsChange}
         onNotesChange={handleNotesChange}
         prefix=""
-        notePlaceholder={t("admin.settings.categoryDescPlaceholder") || "설명 (선택)"}
-        addLabel={t("admin.settings.categoryDescAdd") || "설명 추가"}
-        cancelLabel={t("admin.settings.cancel") || "취소"}
-        editLabel={t("admin.settings.edit") || "편집"}
-        removeTitle={t("admin.settings.removeCategory") || "카테고리 제거"}
+        notePlaceholder={t("admin.settings.categoryDescPlaceholder")}
+        addLabel={t("admin.settings.categoryDescAdd")}
+        cancelLabel={t("admin.settings.cancel")}
+        editLabel={t("admin.settings.edit")}
+        removeTitle={t("admin.settings.removeCategory")}
       />
 
       {/* 새 카테고리 추가 — KO/EN 이름 + 선택적 설명 (bilingual) + Add */}
@@ -122,8 +122,8 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
         <BilingualInputPair
           value={newDesc}
           onChange={setNewDesc}
-          koPlaceholder={(t("admin.settings.categoryDescPlaceholder") || "설명") + " (KO)"}
-          enPlaceholder={(t("admin.settings.categoryDescPlaceholder") || "설명") + " (EN)"}
+          koPlaceholder={`${t("admin.settings.categoryDescPlaceholder")} (KO)`}
+          enPlaceholder={`${t("admin.settings.categoryDescPlaceholder")} (EN)`}
           onEnter={addCategory}
         />
         <Button

@@ -449,6 +449,11 @@
       "addCategory": "Add",
       "categoryInUse": "Posts in this category will be moved to:",
       "categoryLastWarning": "At least one category is required.",
+      "categoryDescPlaceholder": "Description (optional)",
+      "categoryDescAdd": "Add description",
+      "removeCategory": "Remove category",
+      "cancel": "Cancel",
+      "edit": "Edit",
       "reassignModal": {
         "title": "Reassign Category",
         "description": "Move posts to another category before deleting.",
