@@ -305,23 +305,13 @@
   align-items: center;
 }
 
-/* readonly bullet — readonlyLine 안 첫 자식. badge 와 vertical center 자연 정렬 */
+/* readonly bullet — 비표시 (덜어내기), 자리는 0 으로 collapse */
 .readonlyBulletInline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 8px;
-  height: 16px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
+  display: none;
 }
 
-/* EN line — bullet 자리 비워둠 (들여쓰기 KO line 과 동일) */
 .readonlyBulletSpacer {
-  display: inline-block;
-  width: 8px;
-  height: 16px;
-  flex-shrink: 0;
+  display: none;
 }
 
 /* readonly checkbox — KO line 안 첫 자식 (itemCheckbox 14px) */

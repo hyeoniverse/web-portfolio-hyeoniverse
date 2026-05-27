@@ -48,6 +48,13 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
     return map;
   }, [categories]);
 
+  // chip 라벨 — KO 이름 + EN 이름 둘 다 표시 (en → ko 역인덱스 lookup)
+  const koByEn = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const c of categories) map[c.en] = c.ko;
+    return map;
+  }, [categories]);
+
   // items 순서 변경 / 제거 — categories 배열 재구성
   const handleItemsChange = (nextItems: string[]) => {
     const byEn: Record<string, WorksCategory> = {};
@@ -105,6 +112,13 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
         cancelLabel={t("admin.settings.cancel")}
         editLabel={t("admin.settings.edit")}
         removeTitle={t("admin.settings.removeCategory")}
+        renderItemLabel={(en) => (
+          <span className={styles.worksCatChipLabel}>
+            <span>{koByEn[en]}</span>
+            <span className={styles.worksCatChipSep}>·</span>
+            <span>{en}</span>
+          </span>
+        )}
       />
 
       {/* 새 카테고리 추가 — 헤더 행 (label + Add 버튼) + label | bilingual input 형 row */}

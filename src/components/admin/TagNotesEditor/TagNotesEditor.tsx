@@ -93,6 +93,8 @@ export interface TagNotesEditorProps {
   removeTitle?: string;
   /** true 면 entry input 을 textarea 로 (여러 항목 입력 가능) — 역할/담당업무 같이 multi-item case 용 */
   multiLine?: boolean;
+  /** chip 라벨 커스텀 렌더 — 기본 `${prefix}${item}`. bilingual chip 등에 사용 (WorksCategoriesEditor). */
+  renderItemLabel?: (item: string) => React.ReactNode;
 }
 
 /**
@@ -112,6 +114,7 @@ export default function TagNotesEditor({
   editLabel = "Edit",
   removeTitle = "Remove",
   multiLine = false,
+  renderItemLabel,
 }: TagNotesEditorProps) {
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dropPos, setDropPos] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
@@ -336,7 +339,7 @@ export default function TagNotesEditor({
                 <span className={styles.grip} aria-hidden title="드래그로 순서 변경" data-cursor="grab">
                   <GripVertical size={12} strokeWidth={2} />
                 </span>
-                <span className={styles.tag}>{prefix}{item}</span>
+                <span className={styles.tag}>{renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}</span>
                 <CloseButton
                   size="sm"
                   onClick={removeItem}
