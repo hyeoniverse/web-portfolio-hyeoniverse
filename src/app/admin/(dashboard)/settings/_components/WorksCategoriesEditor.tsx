@@ -56,7 +56,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
   }, [categories]);
 
   // 이름 (KO/EN) 변경 — categories 배열 중 매칭되는 항목의 ko/en 업데이트.
-  // en 이 바뀌면 canonical key 도 변경되므로 onItemsChange / onNotesChange 가 함께 적용되어야 정합.
+  // en 이 바뀌면 canonical key 도 변경됨 — TagNotesEditor 가 다음 렌더에서 새 key 로 lookup.
   const handleNameChange = (currentEn: string, next: BilingualDesc) => {
     onChange(
       categories.map((c) => (c.en === currentEn ? { ...c, ko: next.ko, en: next.en } : c)),
@@ -122,9 +122,8 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
         removeTitle={t("admin.settings.removeCategory")}
         renderItemLabel={(en) => (
           <span className={styles.worksCatChipLabel}>
-            <span className={styles.worksCatChipBadge}>KO</span>
             <span>{koByEn[en]}</span>
-            <span className={styles.worksCatChipBadge}>EN</span>
+            <span className={styles.worksCatChipSep}>·</span>
             <span>{en}</span>
           </span>
         )}
@@ -132,8 +131,6 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
           <BilingualInputPair
             value={{ ko: koByEn[en] ?? "", en }}
             onChange={(v) => handleNameChange(en, v)}
-            koPlaceholder={t("admin.settings.categoryKoLabel")}
-            enPlaceholder={t("admin.settings.categoryEnLabel")}
           />
         ) : null}
       />
@@ -159,19 +156,16 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
           <BilingualInputPair
             value={newPair}
             onChange={setNewPair}
-            koPlaceholder={t("admin.settings.categoryKoLabel")}
-            enPlaceholder={t("admin.settings.categoryEnLabel")}
             onEnter={addCategory}
           />
         </div>
         <div className={styles.worksCatAddRow}>
           <span className={styles.worksCatAddRowLabel}>
-            <T k="admin.settings.description" />
+            <T k="admin.settings.categoryDescPlaceholder" />
           </span>
           <BilingualInputPair
             value={newDesc}
             onChange={setNewDesc}
-            placeholder={t("admin.settings.categoryDescPlaceholder")}
             onEnter={addCategory}
           />
         </div>

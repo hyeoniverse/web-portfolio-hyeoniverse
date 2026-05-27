@@ -204,14 +204,9 @@
   align-self: flex-start;
 }
 
-/* custom bullet — SVG circle, flex center 로 perfect 정렬 */
+/* 편집 모드 bullet — 비표시 (readonly bullet 과 동일 정책) */
 .bullet {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 8px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
+  display: none;
 }
 
 /* pair grip — 첫 input line 과 vertical center */
