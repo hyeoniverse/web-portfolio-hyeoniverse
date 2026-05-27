@@ -19,22 +19,29 @@ const LOGO_COLOR_PRESETS_FALLBACK: LogoColorPreset[] = [
   { name: "Default", light: "", dark: "" },
 ];
 
-export default function GeneralTab({ config, savedConfig, update, saveSection, savingPaths }: SettingsTabProps) {
+export default function GeneralTab({ config, savedConfig, update, saveSection, revertSection, savingPaths }: SettingsTabProps) {
   const { t } = useLanguage();
 
   /** 공통 props 묶음 — SectionHeader 에 spread */
-  const sh = { config, savedConfig, saveSection, savingPaths, titleClassName: styles.sectionTitle };
+  const sh = { config, savedConfig, saveSection, revertSection, savingPaths, titleClassName: styles.sectionTitle };
 
   const presets: LogoColorPreset[] = config.brand.logoColorPresets ?? LOGO_COLOR_PRESETS_FALLBACK;
-  const [addingPreset, setAddingPreset] = useState(false);
-  const [newPreset, setNewPreset] = useState<LogoColorPreset>({ name: "", light: "", dark: "" });
+  // 현재 색상이 기존 preset 중 하나와 일치하는지 — 일치하면 \"추가\" 버튼 숨김
+  const currentLight = config.brand.logoColor;
+  const currentDark = config.brand.logoColorDark;
+  const matchesExisting = presets.some((p) => p.light === currentLight && p.dark === currentDark);
+  // 추가 가능 조건: 일치 X + 적어도 light/dark 중 하나 비어있지 않음
+  const canAddPreset = !matchesExisting && !!(currentLight || currentDark);
 
-  const addPreset = () => {
-    const name = newPreset.name.trim();
+  const [addingPresetName, setAddingPresetName] = useState(false);
+  const [newPresetName, setNewPresetName] = useState("");
+
+  const addCurrentAsPreset = () => {
+    const name = newPresetName.trim();
     if (!name || presets.some((p) => p.name === name)) return;
-    update("brand", "logoColorPresets", [...presets, { name, light: newPreset.light.trim(), dark: newPreset.dark.trim() }]);
-    setNewPreset({ name: "", light: "", dark: "" });
-    setAddingPreset(false);
+    update("brand", "logoColorPresets", [...presets, { name, light: currentLight, dark: currentDark }]);
+    setNewPresetName("");
+    setAddingPresetName(false);
   };
 
   const removePreset = (i: number) => {
@@ -120,58 +127,8 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, s
                   )}
                 </div>
               ))}
-              <button
-                type="button"
-                className={styles.logoColorPresetAddBtn}
-                onClick={() => setAddingPreset((v) => !v)}
-                title="프리셋 추가"
-              >
-                <Plus size={14} strokeWidth={2} />
-              </button>
             </div>
           </div>
-          {addingPreset && (
-            <div className={styles.logoColorPresetAddForm}>
-              <Input
-                size="sm"
-                placeholder="프리셋 이름"
-                value={newPreset.name}
-                onChange={(v) => setNewPreset({ ...newPreset, name: v })}
-              />
-              <div className={styles.logoColorPresetAddRow}>
-                <span className={styles.logoColorPresetAddLabel}>Light</span>
-                <ColorPicker value={newPreset.light || "#000000"} onChange={(c) => setNewPreset({ ...newPreset, light: c.hex })} triggerClassName={styles.colorPicker} />
-                <Input
-                  size="sm"
-                  className={styles.colorInput}
-                  value={newPreset.light}
-                  onChange={(v) => setNewPreset({ ...newPreset, light: v })}
-                  placeholder="#000000"
-                  maxLength={7}
-                />
-              </div>
-              <div className={styles.logoColorPresetAddRow}>
-                <span className={styles.logoColorPresetAddLabel}>Dark</span>
-                <ColorPicker value={newPreset.dark || "#ffffff"} onChange={(c) => setNewPreset({ ...newPreset, dark: c.hex })} triggerClassName={styles.colorPicker} />
-                <Input
-                  size="sm"
-                  className={styles.colorInput}
-                  value={newPreset.dark}
-                  onChange={(v) => setNewPreset({ ...newPreset, dark: v })}
-                  placeholder="#ffffff"
-                  maxLength={7}
-                />
-              </div>
-              <div className={styles.logoColorPresetAddActions}>
-                <Button variant="outline" size="2xs" onClick={() => setAddingPreset(false)} icon={<X size={12} strokeWidth={2.5} />}>
-                  {t("admin.settings.cancel")}
-                </Button>
-                <Button variant="outline" size="2xs" onClick={addPreset} disabled={!newPreset.name.trim()} icon={<Plus size={12} strokeWidth={2} />}>
-                  {t("admin.settings.addCategory") /* "추가" 재사용 */}
-                </Button>
-              </div>
-            </div>
-          )}
           <div className={styles.fieldPair}>
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}>{t("admin.settings.logoColor")}</label>
@@ -202,6 +159,49 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, s
               </div>
             </div>
           </div>
+          {/* 색상 변경 시 — 현재 색상을 새 프리셋으로 저장 */}
+          {canAddPreset && (
+            <div className={styles.logoColorPresetAddRow}>
+              {addingPresetName ? (
+                <>
+                  <Input
+                    size="sm"
+                    className={styles.logoColorPresetNameInput}
+                    placeholder={t("admin.settings.presetNamePlaceholder")}
+                    value={newPresetName}
+                    onChange={setNewPresetName}
+                    autoFocus
+                  />
+                  <Button
+                    variant="outline"
+                    size="2xs"
+                    onClick={addCurrentAsPreset}
+                    disabled={!newPresetName.trim() || presets.some((p) => p.name === newPresetName.trim())}
+                    icon={<Plus size={12} strokeWidth={2} />}
+                  >
+                    {t("admin.settings.saveEdit")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="2xs"
+                    onClick={() => { setAddingPresetName(false); setNewPresetName(""); }}
+                    icon={<X size={12} strokeWidth={2.5} />}
+                  >
+                    {t("admin.settings.cancel")}
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="2xs"
+                  onClick={() => setAddingPresetName(true)}
+                  icon={<Plus size={12} strokeWidth={2} />}
+                >
+                  {t("admin.settings.savePreset")}
+                </Button>
+              )}
+            </div>
+          )}
           </div>
         </div>
 

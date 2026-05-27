@@ -294,6 +294,7 @@
       "title": "Settings",
       "save": "Save Tab",
       "saveSection": "Save Section",
+      "revertSection": "Revert",
       "saving": "Saving...",
       "saveSuccess": "Settings saved successfully",
       "saveError": "Error saving settings",
@@ -456,6 +457,8 @@
       "edit": "Edit",
       "saveEdit": "Save",
       "logoDifference": "Difference",
+      "savePreset": "Save as preset",
+      "presetNamePlaceholder": "Preset name",
       "reassignModal": {
         "title": "Reassign Category",
         "description": "Move posts to another category before deleting.",

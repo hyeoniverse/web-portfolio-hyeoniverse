@@ -15,6 +15,8 @@ export interface SettingsTabProps {
   update: UpdateSettingFn;
   /** 지정된 dot-path 만 부분 저장. 섹션 헤더의 저장 버튼이 호출 */
   saveSection: (paths: string[]) => Promise<void>;
+  /** 지정된 dot-path 만 savedConfig 로 되돌리기. 섹션 헤더의 되돌리기 버튼이 호출 */
+  revertSection: (paths: string[]) => void;
   /** 현재 저장 중인 paths (UI 비활성/스피너용). null 이면 idle. */
   savingPaths: string[] | null;
   styles: Record<string, string>;

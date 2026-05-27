@@ -1028,56 +1028,16 @@
   border-color: var(--color-accent);
 }
 
-/* + 추가 버튼 — preset 그리드 끝에 추가 */
-.logoColorPresetAddBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--button-h-md);
-  height: 20px;
-  border: 1px dashed var(--border-light-color);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: color var(--duration-base) ease, border-color var(--duration-base) ease;
-}
-
-.logoColorPresetAddBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--text-primary);
-}
-
-/* 프리셋 추가 폼 — preset 그리드 아래 노출 */
-.logoColorPresetAddForm {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-sm);
-  padding: var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-}
-
+/* 색상 변경 시 현재 색상을 프리셋으로 저장 — 인라인 row */
 .logoColorPresetAddRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.logoColorPresetAddLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  width: 40px;
-  flex-shrink: 0;
-}
-
-.logoColorPresetAddActions {
-  display: flex;
-  justify-content: flex-end;
   gap: var(--spacing-2xs);
+  margin-top: var(--spacing-xs);
+}
+
+.logoColorPresetNameInput {
+  flex: 0 0 160px;
 }
 
 /* 토글 그룹 — sectionTitleRow 우측 여러 toggle 같이 묶음 */
