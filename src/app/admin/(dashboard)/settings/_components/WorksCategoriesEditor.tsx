@@ -1,20 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, X } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Plus } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
-import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
+import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
 import styles from "../Settings.module.css";
 
+/** legacy `description: string` → bilingual `{ko, en}` 도 자동 정규화.
+ *  새 데이터는 bilingual 로 저장됨. */
+type LegacyDesc = string;
+type BilingualDesc = { ko: string; en: string };
 interface WorksCategory {
   ko: string;
   en: string;
-  description?: string;
+  description?: BilingualDesc | LegacyDesc;
 }
 
 interface WorksCategoriesEditorProps {
@@ -22,105 +24,94 @@ interface WorksCategoriesEditorProps {
   onChange: (cats: WorksCategory[]) => void;
 }
 
-/** Works 카테고리 에디터 — TagNotesEditor 패턴.
- *  chips 리스트 + 클릭 시 inline drawer (KO/EN + description) + capsule group 으로 새 카테고리 추가. */
-export default function WorksCategoriesEditor({ categories, onChange }: WorksCategoriesEditorProps) {
-  const { t, language } = useLanguage();
-  // 편집 중인 chip index — null = 모두 closed
-  const [editingIdx, setEditingIdx] = useState<number | null>(null);
-  // 새 카테고리 입력 상태
-  const [newPair, setNewPair] = useState({ ko: "", en: "" });
-  const [newDescription, setNewDescription] = useState("");
+function normalizeDesc(d: WorksCategory["description"]): BilingualDesc {
+  if (!d) return { ko: "", en: "" };
+  if (typeof d === "string") return { ko: "", en: d };
+  return { ko: d.ko ?? "", en: d.en ?? "" };
+}
 
-  const { itemProps } = useTagDrag((from, to) => {
-    const next = [...categories];
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
-    onChange(next);
-    if (editingIdx === from) setEditingIdx(to);
-    else if (editingIdx !== null && from < editingIdx && to >= editingIdx) setEditingIdx(editingIdx - 1);
-    else if (editingIdx !== null && from > editingIdx && to <= editingIdx) setEditingIdx(editingIdx + 1);
-  });
+/** Works 카테고리 에디터 — TagNotesEditor 그대로 사용 (works/posts editor 패턴 통일).
+ *  - chip 라벨 = EN name (canonical key)
+ *  - drawer 내용 = description bilingual (KO/EN)
+ *  - 이름 (KO/EN) 변경 = 별도 inline editor (drawer 안) OR 새로 추가
+ *  - description 도 bilingual 구조 — TagNotesEditor 의 notes 와 1:1 매칭 */
+export default function WorksCategoriesEditor({ categories, onChange }: WorksCategoriesEditorProps) {
+  const { t } = useLanguage();
+
+  // TagNotesEditor 용 데이터 변환 — items = EN name (canonical), notes[en] = bilingual description
+  const items = useMemo(() => categories.map((c) => c.en), [categories]);
+  const notes = useMemo(() => {
+    const map: Record<string, BilingualDesc> = {};
+    for (const c of categories) {
+      map[c.en] = normalizeDesc(c.description);
+    }
+    return map;
+  }, [categories]);
+
+  // items 순서 변경 / 제거 — categories 배열 재구성
+  const handleItemsChange = (nextItems: string[]) => {
+    const byEn: Record<string, WorksCategory> = {};
+    for (const c of categories) byEn[c.en] = c;
+    const nextCats = nextItems.map((en) => byEn[en]).filter(Boolean);
+    if (nextCats.length === 0) {
+      alert(t("admin.settings.categoryLastWarning"));
+      return;
+    }
+    onChange(nextCats);
+  };
+
+  // description 변경 — categories 의 해당 항목 description 만 업데이트
+  const handleNotesChange = (nextNotes: Record<string, BilingualDesc>) => {
+    onChange(
+      categories.map((c) => {
+        const nextDesc = nextNotes[c.en];
+        if (!nextDesc) return { ...c, description: undefined };
+        if (!nextDesc.ko.trim() && !nextDesc.en.trim()) return { ...c, description: undefined };
+        return { ...c, description: nextDesc };
+      }),
+    );
+  };
+
+  // 새 카테고리 추가 입력
+  const [newPair, setNewPair] = useState<BilingualDesc>({ ko: "", en: "" });
+  const [newDesc, setNewDesc] = useState<BilingualDesc>({ ko: "", en: "" });
 
   const addCategory = () => {
     const ko = newPair.ko.trim();
     const en = newPair.en.trim();
     if (!ko || !en) return;
     if (categories.some((c) => c.ko === ko || c.en === en)) return;
-    onChange([...categories, { ko, en, description: newDescription.trim() || undefined }]);
+    const descKo = newDesc.ko.trim();
+    const descEn = newDesc.en.trim();
+    const description = descKo || descEn ? { ko: descKo, en: descEn } : undefined;
+    onChange([...categories, { ko, en, description }]);
     setNewPair({ ko: "", en: "" });
-    setNewDescription("");
+    setNewDesc({ ko: "", en: "" });
   };
 
-  const updateCategory = (idx: number, patch: Partial<WorksCategory>) => {
-    onChange(categories.map((c, i) => (i === idx ? { ...c, ...patch } : c)));
-  };
-
-  const removeCategory = (idx: number) => {
-    if (categories.length <= 1) {
-      alert(t("admin.settings.categoryLastWarning"));
-      return;
-    }
-    onChange(categories.filter((_, i) => i !== idx));
-    if (editingIdx === idx) setEditingIdx(null);
-    else if (editingIdx !== null && idx < editingIdx) setEditingIdx(editingIdx - 1);
-  };
-
-  const addPairFilled = !!newPair.ko.trim() && !!newPair.en.trim();
+  const addEnabled = !!newPair.ko.trim() && !!newPair.en.trim();
 
   return (
     <div className={styles.worksCatEditor}>
-      {/* 카테고리 chip 리스트 — drag-reorder + 클릭 시 drawer 토글 + edit 아이콘 */}
-      {categories.length > 0 && (
-        <div className={styles.worksCatChips}>
-          {categories.map((cat, i) => {
-            const label = language === "ko" ? cat.ko : cat.en;
-            const isEditing = editingIdx === i;
-            return (
-              <DraggableTag
-                key={`${cat.ko}-${cat.en}`}
-                label={label}
-                index={i}
-                onRemove={() => removeCategory(i)}
-                onClick={() => setEditingIdx(isEditing ? null : i)}
-                active={isEditing}
-                leftIcon={isEditing ? <X size={11} strokeWidth={2.5} /> : <Pencil size={11} strokeWidth={2} />}
-                {...itemProps(i)}
-              />
-            );
-          })}
+      {/* 기존 카테고리 — TagNotesEditor 그대로 사용 (chip + bilingual description drawer) */}
+      <TagNotesEditor
+        items={items}
+        notes={notes}
+        onItemsChange={handleItemsChange}
+        onNotesChange={handleNotesChange}
+        prefix=""
+        notePlaceholder={t("admin.settings.categoryDescPlaceholder") || "설명 (선택)"}
+        addLabel={t("admin.settings.categoryDescAdd") || "설명 추가"}
+        cancelLabel={t("admin.settings.cancel") || "취소"}
+        editLabel={t("admin.settings.edit") || "편집"}
+        removeTitle={t("admin.settings.removeCategory") || "카테고리 제거"}
+      />
+
+      {/* 새 카테고리 추가 — KO/EN 이름 + 선택적 설명 (bilingual) + Add */}
+      <div className={styles.worksCatAddBox}>
+        <div className={styles.worksCatAddLabel}>
+          <T k="admin.settings.addCategory" />
         </div>
-      )}
-
-      {/* 편집 중인 chip 의 drawer — KO/EN BilingualInputPair + description */}
-      <AnimatePresence initial={false}>
-        {editingIdx !== null && categories[editingIdx] && (
-          <motion.div
-            key={`edit-${editingIdx}`}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-            className={styles.worksCatDrawer}
-          >
-            <div className={styles.worksCatDrawerInner}>
-              <BilingualInputPair
-                value={{ ko: categories[editingIdx].ko, en: categories[editingIdx].en }}
-                onChange={(v) => updateCategory(editingIdx, { ko: v.ko, en: v.en })}
-              />
-              <Input
-                size="sm"
-                value={categories[editingIdx].description ?? ""}
-                onChange={(v) => updateCategory(editingIdx, { description: v })}
-                placeholder={t("admin.settings.categoryDescPlaceholder") || "설명 (선택)"}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 새 카테고리 추가 — capsule group (KO/EN BilingualInputPair + description) */}
-      <div className={styles.worksCatAddRow}>
         <BilingualInputPair
           value={newPair}
           onChange={setNewPair}
@@ -128,31 +119,22 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
           enPlaceholder={t("admin.settings.categoryEnLabel")}
           onEnter={addCategory}
         />
-        <div className={styles.worksCatAddDescRow}>
-          <Input
-            size="sm"
-            value={newDescription}
-            onChange={setNewDescription}
-            placeholder={t("admin.settings.categoryDescPlaceholder") || "설명 (선택)"}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addCategory();
-              }
-            }}
-          />
-          <Button
-            variant="outline"
-            shape="square"
-            size="xs"
-            onClick={addCategory}
-            disabled={!addPairFilled}
-            aria-label="Add category"
-            icon={<Plus size={14} strokeWidth={2} />}
-          >
-            <T k="admin.settings.addCategory" />
-          </Button>
-        </div>
+        <BilingualInputPair
+          value={newDesc}
+          onChange={setNewDesc}
+          koPlaceholder={(t("admin.settings.categoryDescPlaceholder") || "설명") + " (KO)"}
+          enPlaceholder={(t("admin.settings.categoryDescPlaceholder") || "설명") + " (EN)"}
+          onEnter={addCategory}
+        />
+        <Button
+          variant="outline"
+          size="xs"
+          onClick={addCategory}
+          disabled={!addEnabled}
+          icon={<Plus size={14} strokeWidth={2} />}
+        >
+          <T k="admin.settings.addCategory" />
+        </Button>
       </div>
     </div>
   );

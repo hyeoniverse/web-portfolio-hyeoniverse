@@ -3794,50 +3794,32 @@
   width: auto;
 }
 
-/* ── Works Categories Editor (TagNotesEditor 패턴) ── */
+/* ── Works Categories Editor (TagNotesEditor 그대로 사용) ── */
 .worksCatEditor {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
 }
 
-.worksCatChips {
+/* 새 카테고리 추가 박스 — KO/EN 이름 + bilingual 설명 + Add 버튼 */
+.worksCatAddBox {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-}
-
-/* 편집 drawer — chip 클릭 시 inline expand */
-.worksCatDrawer {
-  overflow: hidden;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-secondary);
 }
 
-.worksCatDrawerInner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
+.worksCatAddLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
 }
 
-/* 새 카테고리 추가 영역 — bilingual pair + description + add 버튼 */
-.worksCatAddRow {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding-top: var(--spacing-sm);
-  border-top: var(--border-light);
-}
-
-.worksCatAddDescRow {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: stretch;
-}
-
-.worksCatAddDescRow > :first-child {
-  flex: 1;
-  min-width: 0;
+.worksCatAddBox > button {
+  align-self: flex-end;
 }
