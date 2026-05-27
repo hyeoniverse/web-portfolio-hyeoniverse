@@ -1067,13 +1067,20 @@
   gap: var(--spacing-xl);
 }
 
+/* 좌측 미리보기 슬롯 — light/dark variant 2개 세로 stack */
 .faviconPreviewSlot {
   flex-shrink: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
+  gap: var(--spacing-sm);
+}
+
+.faviconPreviewCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3xs);
 }
 
 .faviconPreview {
@@ -1082,9 +1089,20 @@
   justify-content: center;
   width: 48px;
   height: 48px;
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
+  /* 글자 baseline 보정 — favicon 의 SVG dominant-baseline=central 과 일관 */
+  line-height: 1;
+  padding-bottom: 2px;
+}
+
+.faviconPreviewLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .faviconControls {

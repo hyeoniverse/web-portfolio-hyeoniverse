@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useTheme } from "@/providers/ThemeProvider";
 import type { SettingsTabProps } from "../_types";
 import Checkbox from "@/components/ui/Checkbox";
 import ColorPicker from "@/components/ui/ColorPicker";
@@ -23,8 +22,6 @@ const LOGO_COLOR_PRESETS_FALLBACK: LogoColorPreset[] = [
 
 export default function GeneralTab({ config, savedConfig, update, saveSection, revertSection, savingPaths }: SettingsTabProps) {
   const { t } = useLanguage();
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
 
   /** 공통 props 묶음 — SectionHeader 에 spread */
   const sh = { config, savedConfig, saveSection, revertSection, savingPaths, titleClassName: styles.sectionTitle };
@@ -211,30 +208,37 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
           <h3 className={styles.sectionSubTitle}>{t("admin.settings.faviconSection")}</h3>
           <div className={styles.fields}>
             <div className={styles.faviconLayout}>
-              {/* 좌측 — 현재 admin 테마 기준 미리보기 (favicon 은 페이지와 반대 색이므로 inverse) */}
+              {/* 좌측 — light/dark 두 가지 모두 미리보기 (viewer 시스템 테마에 따라 달라지는 결과) */}
               <div className={styles.faviconPreviewSlot}>
-                {(() => {
+                {(["light", "dark"] as const).map((variant) => {
                   const shape = config.brand.faviconShape ?? "circle";
                   const font = config.brand.faviconFont ?? "serif";
-                  const fontFamily = font === "serif" ? "serif" : font === "mono" ? "monospace" : "sans-serif";
-                  // 페이지 테마와 반대로 — admin dark 이면 favicon bg = lightBg
-                  const bgColor = isDark ? (config.theme.lightBg || "#f5f5f0") : (config.theme.darkBg || "#0a0a0a");
-                  const fgColor = isDark ? (config.brand.logoColor || "#0a0a0a") : (config.brand.logoColorDark || "#f5f5f0");
+                  const fontFamily = font === "serif" ? "Georgia, serif" : font === "mono" ? "Menlo, monospace" : "system-ui, sans-serif";
+                  // light user → bg = darkBg, dark user → bg = lightBg (페이지와 반대)
+                  const bgColor = variant === "light"
+                    ? (config.theme.darkBg || "#0a0a0a")
+                    : (config.theme.lightBg || "#f5f5f0");
+                  const fgColor = variant === "light"
+                    ? (config.brand.logoColorDark || "#f5f5f0")
+                    : (config.brand.logoColor || "#0a0a0a");
                   return (
-                    <span
-                      className={styles.faviconPreview}
-                      style={{
-                        borderRadius: shape === "circle" ? "50%" : shape === "square" ? "8px" : 0,
-                        background: shape === "none" ? "transparent" : bgColor,
-                        color: fgColor,
-                        border: shape === "none" ? "1px dashed var(--border-light-color)" : "none",
-                        fontFamily,
-                      }}
-                    >
-                      {(config.brand.logoText || "H").charAt(0)}
-                    </span>
+                    <div key={variant} className={styles.faviconPreviewCell}>
+                      <span
+                        className={styles.faviconPreview}
+                        style={{
+                          borderRadius: shape === "circle" ? "50%" : shape === "square" ? "8px" : 0,
+                          background: shape === "none" ? "transparent" : bgColor,
+                          color: fgColor,
+                          border: shape === "none" ? "1px dashed var(--border-light-color)" : "none",
+                          fontFamily,
+                        }}
+                      >
+                        {(config.brand.logoText || "H").charAt(0)}
+                      </span>
+                      <span className={styles.faviconPreviewLabel}>{variant}</span>
+                    </div>
                   );
-                })()}
+                })}
               </div>
               {/* 우측 — 모양 / 폰트 RadioGroup */}
               <div className={styles.faviconControls}>

@@ -54,8 +54,12 @@ export async function generateMetadata(): Promise<Metadata> {
       follow: true,
     },
     icons: {
-      // SVG favicon — prefers-color-scheme 으로 viewer 테마에 따라 bg 반전
-      icon: [{ url: "/api/favicon", type: "image/svg+xml" }],
+      // light / dark user 별 분리된 SVG — <link media> 로 브라우저가 시스템 테마에 맞춰 선택.
+      // SVG 내부 @media 보다 cross-browser 지원 안정적.
+      icon: [
+        { url: "/api/favicon?variant=light", media: "(prefers-color-scheme: light)", type: "image/svg+xml" },
+        { url: "/api/favicon?variant=dark", media: "(prefers-color-scheme: dark)", type: "image/svg+xml" },
+      ],
     },
   };
 }
