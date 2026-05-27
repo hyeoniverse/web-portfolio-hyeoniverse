@@ -3820,7 +3820,7 @@
   gap: var(--spacing-sm);
 }
 
-/* 헤더 — 좌측 label + 우측 Add 버튼 */
+/* 헤더 — 좌측 label + 우측 actions (Add / Save+Cancel) */
 .worksCatAddLabel {
   display: flex;
   align-items: center;
@@ -3831,6 +3831,23 @@
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
+}
+
+/* 우측 actions — edit 모드는 Cancel + Save 2개 */
+.worksCatAddActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+/* edit 모드 — 박스가 카테고리 편집 중임을 시각적으로 강조 (좌 accent 보더) */
+.worksCatAddBoxEdit {
+  border-left: 2px solid var(--color-accent);
+  padding-left: var(--spacing-md);
+}
+
+.worksCatAddBoxEdit .worksCatAddLabel {
+  color: var(--text-accent);
 }
 
 /* form row — 라벨 좌측 고정 너비 + 입력 우측 stretch */

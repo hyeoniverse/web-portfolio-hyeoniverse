@@ -456,6 +456,7 @@
       "removeCategory": "카테고리 제거",
       "cancel": "취소",
       "edit": "편집",
+      "saveEdit": "저장",
       "reassignModal": {
         "title": "카테고리 재할당",
         "description": "삭제하기 전에 이 카테고리의 글을 다른 카테고리로 옮겨주세요.",

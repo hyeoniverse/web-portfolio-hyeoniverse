@@ -97,6 +97,8 @@ export interface TagNotesEditorProps {
   renderItemLabel?: (item: string) => React.ReactNode;
   /** drawer 안 추가 슬롯 — 편집 모드 or entry 존재 시 노출. 이름 인라인 편집 등에 사용. */
   renderDrawerExtra?: (item: string, isEditing: boolean) => React.ReactNode;
+  /** chip 라벨 body 클릭 핸들러 — 외부 편집 패널 트리거용 (WorksCategoriesEditor). */
+  onItemClick?: (item: string) => void;
 }
 
 /**
@@ -118,6 +120,7 @@ export default function TagNotesEditor({
   multiLine = false,
   renderItemLabel,
   renderDrawerExtra,
+  onItemClick,
 }: TagNotesEditorProps) {
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dropPos, setDropPos] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
@@ -342,7 +345,20 @@ export default function TagNotesEditor({
                 <span className={styles.grip} aria-hidden title="드래그로 순서 변경" data-cursor="grab">
                   <GripVertical size={12} strokeWidth={2} />
                 </span>
-                <span className={styles.tag}>{renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}</span>
+                {onItemClick ? (
+                  <button
+                    type="button"
+                    className={styles.tag}
+                    data-cursor="big"
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => { e.stopPropagation(); onItemClick(item); }}
+                  >
+                    {renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}
+                  </button>
+                ) : (
+                  <span className={styles.tag}>{renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}</span>
+                )}
                 <CloseButton
                   size="sm"
                   onClick={removeItem}

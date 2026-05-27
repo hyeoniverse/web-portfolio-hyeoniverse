@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Plus } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Plus, Check, X } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
@@ -9,8 +9,7 @@ import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import styles from "../Settings.module.css";
 
-/** legacy `description: string` → bilingual `{ko, en}` 도 자동 정규화.
- *  새 데이터는 bilingual 로 저장됨. */
+/** legacy `description: string` → bilingual `{ko, en}` 자동 정규화. */
 type LegacyDesc = string;
 type BilingualDesc = { ko: string; en: string };
 interface WorksCategory {
@@ -30,11 +29,8 @@ function normalizeDesc(d: WorksCategory["description"]): BilingualDesc {
   return { ko: d.ko ?? "", en: d.en ?? "" };
 }
 
-/** Works 카테고리 에디터 — TagNotesEditor 그대로 사용 (works/posts editor 패턴 통일).
- *  - chip 라벨 = EN name (canonical key)
- *  - drawer 내용 = description bilingual (KO/EN)
- *  - 이름 (KO/EN) 변경 = 별도 inline editor (drawer 안) OR 새로 추가
- *  - description 도 bilingual 구조 — TagNotesEditor 의 notes 와 1:1 매칭 */
+/** Works 카테고리 에디터 — TagNotesEditor (chip + drag) + 하단 통합 add/edit box.
+ *  chip 클릭 시 박스가 해당 카테고리 편집 모드로 전환 → 이름·설명 모두 수정. */
 export default function WorksCategoriesEditor({ categories, onChange }: WorksCategoriesEditorProps) {
   const { t } = useLanguage();
 
@@ -48,22 +44,14 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
     return map;
   }, [categories]);
 
-  // chip 라벨 — KO 이름 + EN 이름 둘 다 표시 (en → ko 역인덱스 lookup)
+  // chip 라벨 — KO + EN 둘 다 표시 (en → ko 역인덱스)
   const koByEn = useMemo(() => {
     const map: Record<string, string> = {};
     for (const c of categories) map[c.en] = c.ko;
     return map;
   }, [categories]);
 
-  // 이름 (KO/EN) 변경 — categories 배열 중 매칭되는 항목의 ko/en 업데이트.
-  // en 이 바뀌면 canonical key 도 변경됨 — TagNotesEditor 가 다음 렌더에서 새 key 로 lookup.
-  const handleNameChange = (currentEn: string, next: BilingualDesc) => {
-    onChange(
-      categories.map((c) => (c.en === currentEn ? { ...c, ko: next.ko, en: next.en } : c)),
-    );
-  };
-
-  // items 순서 변경 / 제거 — categories 배열 재구성
+  // items 순서 변경 / 제거
   const handleItemsChange = (nextItems: string[]) => {
     const byEn: Record<string, WorksCategory> = {};
     for (const c of categories) byEn[c.en] = c;
@@ -75,7 +63,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
     onChange(nextCats);
   };
 
-  // description 변경 — categories 의 해당 항목 description 만 업데이트
+  // description 변경 — TagNotesEditor 자체 drawer 에서 편집 시
   const handleNotesChange = (nextNotes: Record<string, BilingualDesc>) => {
     onChange(
       categories.map((c) => {
@@ -87,28 +75,60 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
     );
   };
 
-  // 새 카테고리 추가 입력
-  const [newPair, setNewPair] = useState<BilingualDesc>({ ko: "", en: "" });
-  const [newDesc, setNewDesc] = useState<BilingualDesc>({ ko: "", en: "" });
+  // ── 하단 통합 add/edit box ──
+  // editingEn = 편집 중인 카테고리 EN key (canonical). null 이면 add 모드.
+  const [editingEn, setEditingEn] = useState<string | null>(null);
+  const [pair, setPair] = useState<BilingualDesc>({ ko: "", en: "" });
+  const [desc, setDesc] = useState<BilingualDesc>({ ko: "", en: "" });
 
-  const addCategory = () => {
-    const ko = newPair.ko.trim();
-    const en = newPair.en.trim();
+  const isEdit = editingEn !== null;
+
+  // editingEn 바뀌면 폼 값 sync (편집 → 해당 카테고리 / add → 빈 값)
+  useEffect(() => {
+    if (editingEn === null) {
+      setPair({ ko: "", en: "" });
+      setDesc({ ko: "", en: "" });
+      return;
+    }
+    const cat = categories.find((c) => c.en === editingEn);
+    if (!cat) {
+      setEditingEn(null);
+      return;
+    }
+    setPair({ ko: cat.ko, en: cat.en });
+    setDesc(normalizeDesc(cat.description));
+  }, [editingEn, categories]);
+
+  const cancelEdit = () => setEditingEn(null);
+
+  const submit = () => {
+    const ko = pair.ko.trim();
+    const en = pair.en.trim();
     if (!ko || !en) return;
-    if (categories.some((c) => c.ko === ko || c.en === en)) return;
-    const descKo = newDesc.ko.trim();
-    const descEn = newDesc.en.trim();
+    const descKo = desc.ko.trim();
+    const descEn = desc.en.trim();
     const description = descKo || descEn ? { ko: descKo, en: descEn } : undefined;
-    onChange([...categories, { ko, en, description }]);
-    setNewPair({ ko: "", en: "" });
-    setNewDesc({ ko: "", en: "" });
+
+    if (isEdit) {
+      // 편집 — editingEn 항목의 ko/en/description 갱신 (en 변경 가능)
+      const conflict = categories.some((c) => c.en !== editingEn && (c.ko === ko || c.en === en));
+      if (conflict) return;
+      onChange(categories.map((c) => (c.en === editingEn ? { ko, en, description } : c)));
+      setEditingEn(null);
+    } else {
+      // 신규 — 중복 체크
+      if (categories.some((c) => c.ko === ko || c.en === en)) return;
+      onChange([...categories, { ko, en, description }]);
+      setPair({ ko: "", en: "" });
+      setDesc({ ko: "", en: "" });
+    }
   };
 
-  const addEnabled = !!newPair.ko.trim() && !!newPair.en.trim();
+  const submitEnabled = !!pair.ko.trim() && !!pair.en.trim();
 
   return (
     <div className={styles.worksCatEditor}>
-      {/* 기존 카테고리 — TagNotesEditor 그대로 사용 (chip + bilingual description drawer) */}
+      {/* 기존 카테고리 — chip (clickable) + drag */}
       <TagNotesEditor
         items={items}
         notes={notes}
@@ -127,47 +147,46 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
             <span>{en}</span>
           </span>
         )}
-        renderDrawerExtra={(en, isEditing) => isEditing ? (
-          <BilingualInputPair
-            value={{ ko: koByEn[en] ?? "", en }}
-            onChange={(v) => handleNameChange(en, v)}
-          />
-        ) : null}
+        onItemClick={(en) => setEditingEn(en === editingEn ? null : en)}
       />
 
-      {/* 새 카테고리 추가 — 헤더 행 (label + Add 버튼) + label | bilingual input 형 row */}
-      <div className={styles.worksCatAddBox}>
+      {/* 하단 통합 add/edit box — editingEn 이면 편집 모드, 아니면 추가 모드 */}
+      <div className={`${styles.worksCatAddBox} ${isEdit ? styles.worksCatAddBoxEdit : ""}`}>
         <div className={styles.worksCatAddLabel}>
-          <T k="admin.settings.addCategory" />
-          <Button
-            variant="outline"
-            size="2xs"
-            onClick={addCategory}
-            disabled={!addEnabled}
-            icon={<Plus size={12} strokeWidth={2} />}
-          >
-            <T k="admin.settings.addCategory" />
-          </Button>
+          {isEdit ? <T k="admin.settings.edit" /> : <T k="admin.settings.addCategory" />}
+          <div className={styles.worksCatAddActions}>
+            {isEdit && (
+              <Button
+                variant="outline"
+                size="2xs"
+                onClick={cancelEdit}
+                icon={<X size={12} strokeWidth={2.5} />}
+              >
+                <T k="admin.settings.cancel" />
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="2xs"
+              onClick={submit}
+              disabled={!submitEnabled}
+              icon={isEdit ? <Check size={12} strokeWidth={2.5} /> : <Plus size={12} strokeWidth={2} />}
+            >
+              {isEdit ? <T k="admin.settings.saveEdit" /> : <T k="admin.settings.addCategory" />}
+            </Button>
+          </div>
         </div>
         <div className={styles.worksCatAddRow}>
           <span className={styles.worksCatAddRowLabel}>
             <T k="admin.settings.name" />
           </span>
-          <BilingualInputPair
-            value={newPair}
-            onChange={setNewPair}
-            onEnter={addCategory}
-          />
+          <BilingualInputPair value={pair} onChange={setPair} onEnter={submit} />
         </div>
         <div className={styles.worksCatAddRow}>
           <span className={styles.worksCatAddRowLabel}>
             <T k="admin.settings.categoryDescPlaceholder" />
           </span>
-          <BilingualInputPair
-            value={newDesc}
-            onChange={setNewDesc}
-            onEnter={addCategory}
-          />
+          <BilingualInputPair value={desc} onChange={setDesc} onEnter={submit} />
         </div>
       </div>
     </div>

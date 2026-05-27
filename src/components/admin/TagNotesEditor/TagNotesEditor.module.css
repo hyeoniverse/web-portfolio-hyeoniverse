@@ -77,6 +77,19 @@
   transition: color 0.15s ease;
 }
 
+/* button 으로 렌더될 때 — span 과 동일 톤 유지 (외부 click 핸들러용 wrap) */
+button.tag {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+button.tag:hover {
+  color: var(--text-primary);
+}
+
 /* × 버튼 hover 시 — accent 색 취소선 */
 .tagGroup:has([data-close-trigger]:hover) .tag {
   text-decoration: line-through;
