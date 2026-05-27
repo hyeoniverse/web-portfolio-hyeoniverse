@@ -113,10 +113,10 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
           <T k="admin.settings.addCategory" />
           <Button
             variant="outline"
-            size="xs"
+            size="2xs"
             onClick={addCategory}
             disabled={!addEnabled}
-            icon={<Plus size={14} strokeWidth={2} />}
+            icon={<Plus size={12} strokeWidth={2} />}
           >
             <T k="admin.settings.addCategory" />
           </Button>
