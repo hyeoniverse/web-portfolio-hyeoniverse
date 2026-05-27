@@ -53,6 +53,10 @@ export async function generateMetadata(): Promise<Metadata> {
       index: true,
       follow: true,
     },
+    icons: {
+      // SVG favicon — prefers-color-scheme 으로 viewer 테마에 따라 bg 반전
+      icon: [{ url: "/api/favicon", type: "image/svg+xml" }],
+    },
   };
 }
 

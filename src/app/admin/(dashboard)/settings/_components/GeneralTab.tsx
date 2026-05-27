@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import type { SettingsTabProps } from "../_types";
 import Checkbox from "@/components/ui/Checkbox";
 import ColorPicker from "@/components/ui/ColorPicker";
@@ -22,6 +23,8 @@ const LOGO_COLOR_PRESETS_FALLBACK: LogoColorPreset[] = [
 
 export default function GeneralTab({ config, savedConfig, update, saveSection, revertSection, savingPaths }: SettingsTabProps) {
   const { t } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   /** 공통 props 묶음 — SectionHeader 에 spread */
   const sh = { config, savedConfig, saveSection, revertSection, savingPaths, titleClassName: styles.sectionTitle };
@@ -208,19 +211,22 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
           <h3 className={styles.sectionSubTitle}>{t("admin.settings.faviconSection")}</h3>
           <div className={styles.fields}>
             <div className={styles.faviconLayout}>
-              {/* 좌측 — 현재 설정 미리보기 한 개 */}
+              {/* 좌측 — 현재 admin 테마 기준 미리보기 (favicon 은 페이지와 반대 색이므로 inverse) */}
               <div className={styles.faviconPreviewSlot}>
                 {(() => {
                   const shape = config.brand.faviconShape ?? "circle";
                   const font = config.brand.faviconFont ?? "serif";
                   const fontFamily = font === "serif" ? "serif" : font === "mono" ? "monospace" : "sans-serif";
+                  // 페이지 테마와 반대로 — admin dark 이면 favicon bg = lightBg
+                  const bgColor = isDark ? (config.theme.lightBg || "#f5f5f0") : (config.theme.darkBg || "#0a0a0a");
+                  const fgColor = isDark ? (config.brand.logoColor || "#0a0a0a") : (config.brand.logoColorDark || "#f5f5f0");
                   return (
                     <span
                       className={styles.faviconPreview}
                       style={{
                         borderRadius: shape === "circle" ? "50%" : shape === "square" ? "8px" : 0,
-                        background: shape === "none" ? "transparent" : (config.theme.lightBg || "#fff"),
-                        color: config.brand.logoColor || "#0a0a0a",
+                        background: shape === "none" ? "transparent" : bgColor,
+                        color: fgColor,
                         border: shape === "none" ? "1px dashed var(--border-light-color)" : "none",
                         fontFamily,
                       }}
