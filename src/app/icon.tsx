@@ -7,14 +7,22 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
-// 다른 인스턴스가 동시 fetch 해도 안전 — getSiteConfig 가 캐시 됨
-export const revalidate = 60;
+// 매 요청마다 fresh — siteConfig 변경이 즉시 favicon 에 반영되도록 (브라우저 캐시는 여전히 있음 → 강제 새로고침 권장)
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function Icon() {
   const config = await getSiteConfig().catch(() => null);
   const logoText = (config?.brand?.logoText ?? "H").trim() || "H";
   const logoColor = config?.brand?.logoColor || "#0a0a0a";
   const bgColor = config?.theme?.lightBg || "#ffffff";
+  const shape = config?.brand?.faviconShape ?? "circle";
+  // 로고 이미지 업로드되어 있으면 그 이미지를 favicon 으로 사용 (short 우선, 없으면 dark short)
+  const logoUrl = config?.brand?.logoShortUrl || config?.brand?.logoShortDarkUrl || "";
+
+  // shape 별 background / borderRadius. none = bg 투명 (배경 없음)
+  const bg = shape === "none" ? "transparent" : bgColor;
+  const borderRadius = shape === "circle" ? "50%" : shape === "square" ? "6px" : 0;
 
   return new ImageResponse(
     (
@@ -25,16 +33,33 @@ export default async function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: bgColor,
+          background: bg,
           color: logoColor,
           fontSize: 26,
           fontWeight: 700,
           letterSpacing: "-0.04em",
+          borderRadius,
+          overflow: "hidden",
         }}
       >
-        {logoText.charAt(0)}
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={logoUrl}
+            alt=""
+            width={size.width}
+            height={size.height}
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          />
+        ) : (
+          logoText.charAt(0)
+        )}
       </div>
     ),
-    { ...size },
+    {
+      ...size,
+      // 브라우저 캐시 최소화 — admin 색상 변경 시 강제 새로고침으로 즉시 확인 가능
+      headers: { "Cache-Control": "no-cache, no-store, must-revalidate" },
+    },
   );
 }

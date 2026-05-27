@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Undo2 } from "lucide-react";
+import { Undo2, Check } from "lucide-react";
 import type { SiteConfigData } from "@/config/site.config";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -69,6 +69,7 @@ export default function SectionHeader({
             loading={isSavingThis}
             loadingVariant="wave"
             onClick={() => saveSection(paths)}
+            icon={<Check size={12} strokeWidth={2.5} />}
           >
             {t("admin.settings.saveSection")}
           </Button>

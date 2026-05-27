@@ -459,6 +459,8 @@
       "logoDifference": "Difference",
       "savePreset": "Save as preset",
       "presetNamePlaceholder": "Preset name",
+      "faviconSection": "Favicon",
+      "faviconShape": "Favicon shape",
       "reassignModal": {
         "title": "Reassign Category",
         "description": "Move posts to another category before deleting.",

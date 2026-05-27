@@ -12,24 +12,46 @@
   right: 0;
   left: 0;
   z-index: var(--z-nav);
+  mix-blend-mode: difference;
   pointer-events: none;
 }
 
-/* mix-blend-mode 는 각 자식 (logoGroup / navCenter / navActions) 에 개별 적용 —
-   부모 .nav 에 걸면 자식 전부가 묶여 blend 되므로 \"로고만\" 끄는 부분 토글이 안 됨.
-   per-child blend 로 하면 logoDifference=false 일 때 .logoGroup 만 따로 normal 처리 가능. */
 .logoGroup,
 .logo,
 .navCenter,
 .navActions {
   pointer-events: auto;
+}
+
+/* 로고 + admin 배지 anchor — nav 와 별도 fixed flex 컨테이너. 자체 blend 없음 (자식 각자 처리) */
+.logoNavBar {
+  position: fixed;
+  top: var(--spacing-2xl);
+  left: var(--page-px);
+  z-index: var(--z-nav);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  pointer-events: none;
+}
+
+/* 로고 anchor — flex 자식, logoDifference 토글에 독립 반응 */
+.logoAnchor {
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
   mix-blend-mode: difference;
 }
 
-/* logoDifference=false — 로고만 blend 끄기. navCenter / navActions 는 그대로 difference 유지 */
-.navNoDifference .logoGroup,
-.navNoDifference .logo {
+/* logoDifference=false — 로고만 blend 끔. admin 배지 / nav (메뉴 / actions) 는 그대로 difference */
+.logoAnchorNoDifference {
   mix-blend-mode: normal;
+}
+
+/* Admin 배지 — flex sibling, logoNavBar gap 으로 자연스러운 간격, 항상 difference */
+.adminBadgeFixed {
+  mix-blend-mode: difference;
+  pointer-events: auto;
 }
 
 .logoGroup {

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
-import { jsonOk } from "@/lib/api/response";
+import { jsonOk, jsonError } from "@/lib/api/response";
 
 // GET /api/admin/notifications — 알림 목록 (최근 50개)
 // 테이블이 없거나 query 실패 시에도 200 + 빈 리스트로 graceful degradation —
@@ -76,7 +76,12 @@ export async function DELETE(request: Request) {
   const admin = createAdminClient();
 
   if (deleteAll) {
-    await admin.from("admin_notifications").delete().neq("id", "");
+    // .neq("id", "") 는 일부 PostgREST 환경에서 not-equal 매치 안 잡힘 — created_at >= epoch 로 전체 row 매칭
+    const { error: delErr } = await admin
+      .from("admin_notifications")
+      .delete()
+      .gte("created_at", "1970-01-01T00:00:00Z");
+    if (delErr) return jsonError(delErr.message, 500);
   } else {
     const idArr = asStringIdArray(ids);
     if (idArr) {

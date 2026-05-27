@@ -1028,7 +1028,27 @@
   border-color: var(--color-accent);
 }
 
-/* 색상 변경 시 현재 색상을 프리셋으로 저장 — 인라인 row */
+/* + 점선 버튼 — preset 그리드 끝에 추가 (canAddPreset 일 때만 노출) */
+.logoColorPresetAddBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-md);
+  height: 20px;
+  border: 1px dashed var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color var(--duration-base) ease, border-color var(--duration-base) ease;
+}
+
+.logoColorPresetAddBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+/* + 버튼 클릭 시 펼쳐지는 이름 input 인라인 row */
 .logoColorPresetAddRow {
   display: flex;
   align-items: center;
@@ -1038,6 +1058,51 @@
 
 .logoColorPresetNameInput {
   flex: 0 0 160px;
+}
+
+/* Favicon shape — circle / square / none 세 가지 미리보기 버튼 */
+.faviconShapeGroup {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.faviconShapeBtn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color var(--duration-base) ease;
+}
+
+.faviconShapeBtn:hover {
+  border-color: var(--text-primary);
+}
+
+.faviconShapeBtnActive {
+  border-color: var(--color-accent);
+}
+
+.faviconShapePreview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.faviconShapeLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* 토글 그룹 — sectionTitleRow 우측 여러 toggle 같이 묶음 */

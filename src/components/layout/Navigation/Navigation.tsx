@@ -465,8 +465,12 @@ export default function Navigation() {
   }, [router, pathname]);
 
   return (
-    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""} ${siteConfig.brand.logoDifference === false ? styles.navNoDifference : ""}`}>
-      <Link href={isAdminPage ? "/admin" : "/"} className={styles.logoGroup}>
+    <>
+    {/* 로고 + admin 배지를 nav 와 sibling 인 fixed 컨테이너에 — 로고만 logoDifference 토글, 배지는 항상 blend.
+        부모 logoNavBar 는 blend 없음 (flex 컨테이너 역할) — 자식 각자 mix-blend-mode 가 backdrop 까지 propagate */}
+    <div className={styles.logoNavBar}>
+      <div className={`${styles.logoAnchor} ${siteConfig.brand.logoDifference === false ? styles.logoAnchorNoDifference : ""}`}>
+        <Link href={isAdminPage ? "/admin" : "/"} className={styles.logoGroup}>
         <motion.div
           ref={logoRef}
           className={styles.logoWrapper}
@@ -578,9 +582,15 @@ export default function Navigation() {
           )}
         </span>
         </motion.div>
-        {isAdminPage && <span className={styles.adminBadge}>Admin</span>}
       </Link>
+      </div>
+      {/* Admin 배지 — logoAnchor sibling, logoNavBar 내 flex gap 으로 자연스러운 간격 */}
+      {isAdminPage && (
+        <span className={`${styles.adminBadge} ${styles.adminBadgeFixed}`}>Admin</span>
+      )}
+    </div>
 
+    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div
         ref={navCenterRef}
         className={styles.navCenter}
@@ -910,5 +920,6 @@ export default function Navigation() {
         onLogout={handleLogout}
       />
     </nav>
+    </>
   );
 }

@@ -127,6 +127,18 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                   )}
                 </div>
               ))}
+              {/* 현재 색상이 기존 preset 과 다르면 점선 + 버튼 — 클릭 시 이름 input 펼침 */}
+              {canAddPreset && (
+                <button
+                  type="button"
+                  className={styles.logoColorPresetAddBtn}
+                  onClick={() => setAddingPresetName(true)}
+                  title={t("admin.settings.savePreset")}
+                  aria-label={t("admin.settings.savePreset")}
+                >
+                  <Plus size={14} strokeWidth={2} />
+                </button>
+              )}
             </div>
           </div>
           <div className={styles.fieldPair}>
@@ -159,49 +171,70 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
               </div>
             </div>
           </div>
-          {/* 색상 변경 시 — 현재 색상을 새 프리셋으로 저장 */}
-          {canAddPreset && (
+          {/* 점선 + 버튼 클릭 시 — 이름 input 인라인 펼침 */}
+          {addingPresetName && (
             <div className={styles.logoColorPresetAddRow}>
-              {addingPresetName ? (
-                <>
-                  <Input
-                    size="sm"
-                    className={styles.logoColorPresetNameInput}
-                    placeholder={t("admin.settings.presetNamePlaceholder")}
-                    value={newPresetName}
-                    onChange={setNewPresetName}
-                    autoFocus
-                  />
-                  <Button
-                    variant="outline"
-                    size="2xs"
-                    onClick={addCurrentAsPreset}
-                    disabled={!newPresetName.trim() || presets.some((p) => p.name === newPresetName.trim())}
-                    icon={<Plus size={12} strokeWidth={2} />}
-                  >
-                    {t("admin.settings.saveEdit")}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="2xs"
-                    onClick={() => { setAddingPresetName(false); setNewPresetName(""); }}
-                    icon={<X size={12} strokeWidth={2.5} />}
-                  >
-                    {t("admin.settings.cancel")}
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="2xs"
-                  onClick={() => setAddingPresetName(true)}
-                  icon={<Plus size={12} strokeWidth={2} />}
-                >
-                  {t("admin.settings.savePreset")}
-                </Button>
-              )}
+              <Input
+                size="sm"
+                className={styles.logoColorPresetNameInput}
+                placeholder={t("admin.settings.presetNamePlaceholder")}
+                value={newPresetName}
+                onChange={setNewPresetName}
+                autoFocus
+              />
+              <Button
+                variant="outline"
+                size="2xs"
+                onClick={addCurrentAsPreset}
+                disabled={!newPresetName.trim() || presets.some((p) => p.name === newPresetName.trim())}
+              >
+                {t("admin.settings.saveEdit")}
+              </Button>
+              <Button
+                variant="outline"
+                size="2xs"
+                onClick={() => { setAddingPresetName(false); setNewPresetName(""); }}
+              >
+                {t("admin.settings.cancel")}
+              </Button>
             </div>
           )}
+          </div>
+        </div>
+
+        {/* Sub: Favicon — 브라우저 탭 아이콘 배경 모양 */}
+        <div className={styles.subSection}>
+          <h3 className={styles.sectionSubTitle}>{t("admin.settings.faviconSection")}</h3>
+          <div className={styles.fields}>
+            <div className={styles.fieldRow}>
+              <label className={styles.fieldLabel}>{t("admin.settings.faviconShape")}</label>
+              <div className={styles.faviconShapeGroup}>
+                {(["circle", "square", "none"] as const).map((shape) => {
+                  const active = (config.brand.faviconShape ?? "circle") === shape;
+                  return (
+                    <button
+                      key={shape}
+                      type="button"
+                      className={`${styles.faviconShapeBtn} ${active ? styles.faviconShapeBtnActive : ""}`}
+                      onClick={() => update("brand", "faviconShape", shape)}
+                    >
+                      <span
+                        className={styles.faviconShapePreview}
+                        style={{
+                          borderRadius: shape === "circle" ? "50%" : shape === "square" ? "4px" : 0,
+                          background: shape === "none" ? "transparent" : (config.theme.lightBg || "#fff"),
+                          color: config.brand.logoColor || "#0a0a0a",
+                          border: shape === "none" ? "1px dashed var(--border-light-color)" : "none",
+                        }}
+                      >
+                        {(config.brand.logoText || "H").charAt(0)}
+                      </span>
+                      <span className={styles.faviconShapeLabel}>{shape}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 
