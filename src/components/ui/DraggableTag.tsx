@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type DragEvent } from "react";
+import { useState, type DragEvent, type ReactNode } from "react";
 import { GripVertical } from "lucide-react";
 import styles from "./DraggableTag.module.css";
 
@@ -68,6 +68,12 @@ interface DraggableTagProps {
   onDrop: (e: DragEvent<HTMLSpanElement>) => void;
   onDragEnd: () => void;
   onRemove: () => void;
+  /** 라벨 클릭 시 호출 — 토글 / drawer 등 용도. grip / remove 와 별도 영역. */
+  onClick?: () => void;
+  /** active 상태 — 편집 중인 chip 강조 */
+  active?: boolean;
+  /** 라벨 왼쪽 아이콘 (Pencil / X 등). grip 과 라벨 사이 표시. */
+  leftIcon?: ReactNode;
 }
 
 export default function DraggableTag({
@@ -79,12 +85,15 @@ export default function DraggableTag({
   onDrop,
   onDragEnd,
   onRemove,
+  onClick,
+  active,
+  leftIcon,
 }: DraggableTagProps) {
   return (
     <span
       className={`${styles.tag} ${dragging ? styles.dragging : ""} ${
         dropSide === "left" ? styles.dropBefore : ""
-      } ${dropSide === "right" ? styles.dropAfter : ""}`}
+      } ${dropSide === "right" ? styles.dropAfter : ""} ${active ? styles.active : ""}`}
       draggable
       onDragStart={onDragStart}
       onDragOver={onDragOver}
@@ -92,7 +101,17 @@ export default function DraggableTag({
       onDragEnd={onDragEnd}
     >
       <GripVertical className={styles.grip} size={10} strokeWidth={2.5} />
-      {label}
+      {onClick ? (
+        <button type="button" className={styles.label} onClick={onClick}>
+          {leftIcon && <span className={styles.leftIcon}>{leftIcon}</span>}
+          {label}
+        </button>
+      ) : (
+        <>
+          {leftIcon && <span className={styles.leftIcon}>{leftIcon}</span>}
+          {label}
+        </>
+      )}
       <button type="button" className={styles.remove} onClick={onRemove}>
         &times;
       </button>
