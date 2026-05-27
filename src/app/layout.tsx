@@ -17,6 +17,7 @@ import ClientOverlays from "@/components/layout/ClientOverlays";
 import { LenisProvider } from "@/providers/LenisProvider";
 import RecaptchaProvider from "@/providers/RecaptchaProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import FaviconSync from "@/components/layout/FaviconSync";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -53,14 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
       index: true,
       follow: true,
     },
-    icons: {
-      // light / dark user 별 분리된 SVG — <link media> 로 브라우저가 시스템 테마에 맞춰 선택.
-      // SVG 내부 @media 보다 cross-browser 지원 안정적.
-      icon: [
-        { url: "/api/favicon?variant=light", media: "(prefers-color-scheme: light)", type: "image/svg+xml" },
-        { url: "/api/favicon?variant=dark", media: "(prefers-color-scheme: dark)", type: "image/svg+xml" },
-      ],
-    },
+    // icons 는 FaviconSync (client) 가 site theme 에 맞춰 동적으로 교체 — metadata 에선 미설정
   };
 }
 
@@ -128,6 +122,7 @@ export default async function RootLayout({
       <body>
         <SiteConfigProvider initialConfig={config} publicKeys={publicKeys}>
           <ThemeProvider>
+            <FaviconSync />
             <LanguageProvider>
               <RecaptchaProvider>
                 <LenisProvider>

@@ -260,8 +260,8 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                     value={(config.brand.faviconFont ?? "serif") as "sans" | "serif" | "mono"}
                     onChange={(v) => update("brand", "faviconFont", v)}
                     options={[
-                      { value: "sans", label: "Sans" },
                       { value: "serif", label: "Serif" },
+                      { value: "sans", label: "Sans" },
                       { value: "mono", label: "Mono" },
                     ]}
                   />
