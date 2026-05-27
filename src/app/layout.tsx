@@ -115,9 +115,7 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable}`}
     >
-      <head>
-        <link rel="icon" href="/favicon-light.ico" />
-      </head>
+      {/* favicon — src/app/icon.tsx 가 siteConfig 기반 다이내믹 생성 (Next 자동 주입) */}
 
       <body>
         <SiteConfigProvider initialConfig={config} publicKeys={publicKeys}>

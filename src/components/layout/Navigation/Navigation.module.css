@@ -16,9 +16,15 @@
   pointer-events: none;
 }
 
-/* logoDifference=false 일 때 — mix-blend-mode 끔 (admin 설정 토글) */
+/* logoDifference=false 일 때 — 로고만 blend 제외, 나머지 네비 영역은 그대로 difference 유지.
+   parent (.nav) 의 mix-blend-mode 를 normal 로 바꾸고, 다른 children 에 개별 blend 적용 */
 .navNoDifference {
   mix-blend-mode: normal;
+}
+
+.navNoDifference .navCenter,
+.navNoDifference .navActions {
+  mix-blend-mode: difference;
 }
 
 .logoGroup,
