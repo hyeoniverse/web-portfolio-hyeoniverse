@@ -29,8 +29,8 @@ export async function GET(request: Request) {
   const logoUrl = config?.brand?.logoShortUrl || config?.brand?.logoShortDarkUrl || "";
   const shape = config?.brand?.faviconShape ?? "circle";
   const font = config?.brand?.faviconFont ?? "serif";
-  const weight = config?.brand?.faviconWeight ?? "bold";
-  const fontWeight = weight === "regular" ? 400 : weight === "medium" ? 500 : 700;
+  const weight = config?.brand?.faviconWeight ?? "light";
+  const fontWeight = weight === "light" ? 300 : weight === "regular" ? 500 : 700;
 
   const lightBg = config?.theme?.lightBg || "#f5f5f0";
   const darkBg = config?.theme?.darkBg || "#0a0a0a";

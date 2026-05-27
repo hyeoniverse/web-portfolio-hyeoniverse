@@ -213,9 +213,9 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                 {(["light", "dark"] as const).map((variant) => {
                   const shape = config.brand.faviconShape ?? "circle";
                   const font = config.brand.faviconFont ?? "serif";
-                  const weight = config.brand.faviconWeight ?? "bold";
+                  const weight = config.brand.faviconWeight ?? "light";
                   const fontFamily = font === "serif" ? "Georgia, serif" : font === "mono" ? "Menlo, monospace" : "system-ui, sans-serif";
-                  const fontWeight = weight === "regular" ? 400 : weight === "medium" ? 500 : 700;
+                  const fontWeight = weight === "light" ? 300 : weight === "regular" ? 500 : 700;
                   // favicon = 페이지 테마와 같은 변형 (페이지 미니 로고)
                   //   light → bg = lightBg, text = logoColor
                   //   dark → bg = darkBg, text = logoColorDark
@@ -273,12 +273,12 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                 </div>
                 <div className={styles.fieldRow}>
                   <label className={styles.fieldLabel}>{t("admin.settings.faviconWeight")}</label>
-                  <RadioGroup<"regular" | "medium" | "bold">
-                    value={(config.brand.faviconWeight ?? "bold") as "regular" | "medium" | "bold"}
+                  <RadioGroup<"light" | "regular" | "bold">
+                    value={(config.brand.faviconWeight ?? "light") as "light" | "regular" | "bold"}
                     onChange={(v) => update("brand", "faviconWeight", v)}
                     options={[
+                      { value: "light", label: "Light" },
                       { value: "regular", label: "Regular" },
-                      { value: "medium", label: "Medium" },
                       { value: "bold", label: "Bold" },
                     ]}
                   />
