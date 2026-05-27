@@ -122,8 +122,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
         <BilingualInputPair
           value={newDesc}
           onChange={setNewDesc}
-          koPlaceholder={`${t("admin.settings.categoryDescPlaceholder")} (KO)`}
-          enPlaceholder={`${t("admin.settings.categoryDescPlaceholder")} (EN)`}
+          placeholder={t("admin.settings.categoryDescPlaceholder")}
           onEnter={addCategory}
         />
         <Button
