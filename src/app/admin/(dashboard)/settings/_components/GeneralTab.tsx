@@ -208,7 +208,8 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
           <h3 className={styles.sectionSubTitle}>{t("admin.settings.faviconSection")}</h3>
           <div className={styles.fields}>
             <div className={styles.faviconLayout}>
-              {/* 좌측 — light/dark 두 가지 모두 미리보기 (각자 해당 테마 페이지에서 어떻게 보일지) */}
+              {/* 좌측 — light/dark 가로 flex row. data-theme 강제 → 각 셀 안 --bg-primary 가
+                  해당 테마의 실제 적용 색 (subSection 과 동일하게 ThemeProvider 가 set 한 값) */}
               <div className={styles.faviconPreviewSlot}>
                 {(["light", "dark"] as const).map((variant) => {
                   const shape = config.brand.faviconShape ?? "circle";
@@ -216,20 +217,17 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                   const weight = config.brand.faviconWeight ?? "light";
                   const fontFamily = font === "serif" ? "Georgia, serif" : font === "mono" ? "Menlo, monospace" : "system-ui, sans-serif";
                   const fontWeight = weight === "light" ? 300 : weight === "regular" ? 500 : 700;
-                  // favicon 은 페이지 테마의 미니 로고 — bg / text 둘 다 페이지와 동일
-                  const bgColor = variant === "light"
-                    ? (config.theme.lightBg || "#f5f5f0")
-                    : (config.theme.darkBg || "#0a0a0a");
+                  // text color — 로고 색 우선 (config.brand.logoColor/logoColorDark), 없으면 --text-primary 자동
                   const fgColor = variant === "light"
-                    ? (config.brand.logoColor || config.theme.lightText || "#0a0a0a")
-                    : (config.brand.logoColorDark || config.theme.darkText || "#f5f5f0");
+                    ? (config.brand.logoColor || "var(--text-primary)")
+                    : (config.brand.logoColorDark || "var(--text-primary)");
                   return (
-                    <div key={variant} className={styles.faviconPreviewCell}>
+                    <div key={variant} className={styles.faviconPreviewCell} data-theme={variant}>
                       <span
                         className={styles.faviconPreview}
                         style={{
                           borderRadius: shape === "circle" ? "50%" : shape === "square" ? "8px" : 0,
-                          background: shape === "none" ? "transparent" : bgColor,
+                          background: shape === "none" ? "transparent" : "var(--bg-primary)",
                           color: fgColor,
                           border: shape === "none" ? "1px dashed var(--border-light-color)" : "none",
                           fontFamily,

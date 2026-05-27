@@ -365,6 +365,25 @@ export default function Navigation() {
     requestAnimationFrame(measureLogo);
   }, [showLoadingLogo, measureLogo]);
 
+  // admin 배지 위치 자동 — logo right edge 를 CSS var 로 publish.
+  // adminBadge 가 별도 fixed top-level 이라 logoAnchor stacking context 와 분리 → blend 가 page backdrop 까지 도달.
+  useEffect(() => {
+    const el = logoRef.current;
+    if (!el) return;
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      document.documentElement.style.setProperty("--logo-right-px", `${Math.round(rect.right)}px`);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener("resize", update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, [isAdminPage]);
+
   // 로딩이 완전히 끝나면 다음 로딩을 위해 측정 플래그 리셋
   useEffect(() => {
     if (!isLoading) {
@@ -466,11 +485,9 @@ export default function Navigation() {
 
   return (
     <>
-    {/* 로고 + admin 배지 — flex 컨테이너 (logoNavBar) 로 자연스러운 gap.
-        부모는 mix-blend-mode 없음 (isolation 없으니 자식 blend 가 page backdrop 까지 propagate) */}
-    <div className={styles.logoNavBar}>
-      <div className={`${styles.logoAnchor} ${siteConfig.brand.logoDifference === false ? styles.logoAnchorNoDifference : ""}`}>
-        <Link href={isAdminPage ? "/admin" : "/"} className={styles.logoGroup}>
+    {/* 로고 anchor — 독립 top-level fixed. admin 배지와 stacking context 완전 분리 */}
+    <div className={`${styles.logoAnchor} ${siteConfig.brand.logoDifference === false ? styles.logoAnchorNoDifference : ""}`}>
+      <Link href={isAdminPage ? "/admin" : "/"} className={styles.logoGroup}>
         <motion.div
           ref={logoRef}
           className={styles.logoWrapper}
@@ -583,12 +600,12 @@ export default function Navigation() {
         </span>
         </motion.div>
       </Link>
-      </div>
-      {/* Admin 배지 — logoNavBar flex 자식, 자체 blend (difference) 유지 */}
-      {isAdminPage && (
-        <span className={`${styles.adminBadge} ${styles.adminBadgeFixed}`}>Admin</span>
-      )}
     </div>
+    {/* Admin 배지 — 독립 top-level fixed. 위치는 logo 오른쪽 edge + gap (JS 가 측정해 CSS var 로 set).
+        logoAnchor 와 stacking context 분리되어 difference 가 진짜 page backdrop 과 blend */}
+    {isAdminPage && (
+      <span className={`${styles.adminBadge} ${styles.adminBadgeFixed}`}>Admin</span>
+    )}
 
     <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div

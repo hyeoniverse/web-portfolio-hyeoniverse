@@ -1067,11 +1067,12 @@
   gap: var(--spacing-xl);
 }
 
-/* 좌측 미리보기 슬롯 — light/dark variant 가로 배치 */
+/* 좌측 미리보기 슬롯 — light/dark variant 가로 nowrap flex */
 .faviconPreviewSlot {
   flex-shrink: 0;
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   gap: var(--spacing-md);
 }
