@@ -1,6 +1,7 @@
 "use client";
 
 import type { InputHTMLAttributes } from "react";
+import { Eraser } from "lucide-react";
 import styles from "./Input.module.css";
 
 type Variant = "capsule" | "underline";
@@ -15,6 +16,8 @@ interface InputProps
   variant?: Variant;
   size?: Size;
   className?: string;
+  /** 입력값 지우기 (Eraser) 버튼 — value 있을 때 우측 표시. 기본 true. */
+  clearable?: boolean;
 }
 
 export default function Input({
@@ -26,14 +29,17 @@ export default function Input({
   size = "md",
   className,
   id,
+  clearable = true,
   ...rest
 }: InputProps) {
+  const showClear = clearable && !!value && !rest.disabled && !rest.readOnly;
   const inputCls = [
     styles.input,
     variant === "underline" ? styles.underline : "",
     size === "sm" ? styles.sm : "",
     size === "xs" ? styles.xs : "",
     inlineLabel ? styles.hasInlineLabel : "",
+    showClear ? styles.hasClear : "",
   ].filter(Boolean).join(" ");
 
   return (
@@ -43,18 +49,8 @@ export default function Input({
           {label}
         </label>
       )}
-      {inlineLabel ? (
-        <div className={styles.inlineWrap}>
-          <span className={styles.inlineLabel}>{inlineLabel}</span>
-          <input
-            id={id}
-            className={inputCls}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            {...rest}
-          />
-        </div>
-      ) : (
+      <div className={styles.fieldWrap}>
+        {inlineLabel && <span className={styles.inlineLabel}>{inlineLabel}</span>}
         <input
           id={id}
           className={inputCls}
@@ -62,7 +58,24 @@ export default function Input({
           onChange={(e) => onChange(e.target.value)}
           {...rest}
         />
-      )}
+        {showClear && (
+          <button
+            type="button"
+            className={styles.clearBtn}
+            data-cursor="big"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onChange("");
+            }}
+            aria-label="clear"
+            title="지우기"
+          >
+            <Eraser size={11} strokeWidth={2} />
+          </button>
+        )}
+      </div>
     </div>
   );
 }

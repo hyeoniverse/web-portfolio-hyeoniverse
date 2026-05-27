@@ -94,8 +94,8 @@
   border-color: var(--text-primary);
 }
 
-/* ── Inline label (inside input) ── */
-.inlineWrap {
+/* ── Field wrapper — input + 선택 inlineLabel + 선택 clearBtn 묶음 ── */
+.fieldWrap {
   position: relative;
   display: flex;
   align-items: center;
@@ -114,4 +114,34 @@
 
 .hasInlineLabel {
   padding-left: calc(var(--spacing-sm) + 24px);
+}
+
+/* clearBtn — value 있을 때 우측 absolute, eraser 아이콘. input padding-right 와 정합 */
+.clearBtn {
+  position: absolute;
+  right: var(--spacing-2xs);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.clearBtn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+.hasClear {
+  padding-right: calc(var(--spacing-sm) + 20px);
 }
