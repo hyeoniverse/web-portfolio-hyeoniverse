@@ -148,6 +148,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
           </span>
         )}
         onItemClick={(en) => setEditingEn(en === editingEn ? null : en)}
+        onEditClick={(en) => setEditingEn(en === editingEn ? null : en)}
       />
 
       {/* 하단 통합 add/edit box — editingEn 이면 편집 모드, 아니면 추가 모드 */}

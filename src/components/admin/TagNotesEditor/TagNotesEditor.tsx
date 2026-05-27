@@ -99,6 +99,9 @@ export interface TagNotesEditorProps {
   renderDrawerExtra?: (item: string, isEditing: boolean) => React.ReactNode;
   /** chip 라벨 body 클릭 핸들러 — 외부 편집 패널 트리거용 (WorksCategoriesEditor). */
   onItemClick?: (item: string) => void;
+  /** 편집 / "+ 설명 추가" 버튼 클릭 핸들러 — 외부 편집 패널로 위임.
+   *  제공 시 TagNotesEditor 의 내부 drawer 열림 로직 대신 이 콜백만 발화. */
+  onEditClick?: (item: string) => void;
 }
 
 /**
@@ -121,6 +124,7 @@ export default function TagNotesEditor({
   renderItemLabel,
   renderDrawerExtra,
   onItemClick,
+  onEditClick,
 }: TagNotesEditorProps) {
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dropPos, setDropPos] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
@@ -374,6 +378,10 @@ export default function TagNotesEditor({
                   cancelLabel={cancelLabel}
                   editLabel={editLabel}
                   onClick={() => {
+                    if (onEditClick) {
+                      onEditClick(item);
+                      return;
+                    }
                     setEntry({ ko: "", en: "" });
                     focusLastPairInput(item);
                   }}
@@ -412,6 +420,10 @@ export default function TagNotesEditor({
                       cancelLabel={cancelLabel}
                       editLabel={editLabel}
                       onClick={() => {
+                        if (onEditClick) {
+                          onEditClick(item);
+                          return;
+                        }
                         if (editingItem === item) {
                           const normalized = normalizeEntry(entry);
                           if (normalized === null) setEntry(null);
