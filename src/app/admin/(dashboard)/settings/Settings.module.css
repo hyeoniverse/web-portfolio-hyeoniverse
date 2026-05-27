@@ -774,6 +774,48 @@
   outline: none;
 }
 
+/* Field input + Eraser clearBtn wrapper — input flex 차지, clearBtn 우측 absolute */
+.fieldInputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.fieldInputWrap > .fieldInput {
+  width: 100%;
+}
+
+.fieldInputHasClear {
+  padding-right: calc(var(--spacing-sm) + 20px);
+}
+
+.fieldClearBtn {
+  position: absolute;
+  right: var(--spacing-2xs);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.fieldClearBtn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
 .fieldTextarea {
   flex: 1;
   min-width: 0;

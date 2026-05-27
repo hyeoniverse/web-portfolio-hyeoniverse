@@ -5,7 +5,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
-import { ExternalLink, Volume2 } from "lucide-react";
+import { ExternalLink, Volume2, Eraser } from "lucide-react";
 import type { SiteConfigData } from "@/config/site.config";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Button from "@/components/ui/Button";
@@ -26,6 +26,7 @@ interface FieldProps {
 }
 
 export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required }: FieldProps) {
+  const showClear = !!value;
   return (
     <div className={`${styles.fieldRow} ${labelInline ? styles.fieldRowInline : ""}`}>
       <label className={styles.fieldLabel}>
@@ -38,13 +39,28 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
       {multiline ? (
         <Textarea size="sm" value={value} onChange={onChange} placeholder={placeholder} />
       ) : (
-        <input
-          className={styles.fieldInput}
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-        />
+        <div className={styles.fieldInputWrap}>
+          <input
+            className={`${styles.fieldInput} ${showClear ? styles.fieldInputHasClear : ""}`}
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+          />
+          {showClear && (
+            <button
+              type="button"
+              className={styles.fieldClearBtn}
+              data-cursor="big"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChange(""); }}
+              aria-label="clear"
+              title="지우기"
+            >
+              <Eraser size={11} strokeWidth={2} />
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
