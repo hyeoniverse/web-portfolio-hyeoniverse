@@ -487,10 +487,10 @@ export default function ContentTab({
 
       {contentSubTab === "works" && (
         <>
-          {/* Works Layout */}
+          {/* Works Layout + Pagination — 2-col 통합 */}
           <section className={styles.section}>
-            <SectionHeader title={t("admin.settings.worksLayout")} paths={["works.layout"]} {...sh} />
-            <div className={styles.fields}>
+            <SectionHeader title={`${t("admin.settings.worksLayout")} & ${t("admin.settings.pagination")}`} paths={["works.layout", "works.adminPerPage"]} {...sh} />
+            <div className={`${styles.fields} ${styles.fieldsGrid2}`}>
               <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}><T k="admin.settings.worksLayout" /></label>
                 <Select
@@ -506,13 +506,6 @@ export default function ContentTab({
                   onChange={(v) => update("works", "layout", v)}
                 />
               </div>
-            </div>
-          </section>
-
-          {/* Works Pagination */}
-          <section className={styles.section}>
-            <SectionHeader title={t("admin.settings.pagination")} paths={["works.adminPerPage"]} {...sh} />
-            <div className={styles.fields}>
               <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}><T k="admin.settings.adminPerPage" /></label>
                 <Select

@@ -28,24 +28,16 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, s
 
   return (
     <>
-      {/* Personal */}
+      {/* Personal — 2-col 배치 */}
       <section className={`${styles.section} ${styles.sectionWide}`}>
         <SectionHeader title={t("admin.settings.personal")} paths={["personal", "contact.email"]} {...sh} />
-        <div className={styles.fieldsGrid}>
-          <div className={styles.fields}>
-            <Field label={t("admin.settings.name")} value={config.personal.name} onChange={(v) => update("personal", "name", v)} />
-            <Field label={t("admin.settings.role")} value={config.personal.role} onChange={(v) => update("personal", "role", v)} />
-          </div>
-          <div className={styles.fields}>
-            <Field label={t("admin.settings.nickname")} value={config.personal.nickname} onChange={(v) => update("personal", "nickname", v)} />
-            <Field label={t("admin.settings.location")} value={config.personal.location} onChange={(v) => update("personal", "location", v)} />
-          </div>
-          <div className={styles.fields}>
-            <Field label={t("admin.settings.status")} value={config.personal.status} onChange={(v) => update("personal", "status", v)} />
-          </div>
-          <div className={styles.fields}>
-            <Field label={t("admin.settings.email")} value={config.contact.email} onChange={(v) => update("contact", "email", v)} />
-          </div>
+        <div className={`${styles.fields} ${styles.fieldsGrid2}`}>
+          <Field label={t("admin.settings.name")} value={config.personal.name} onChange={(v) => update("personal", "name", v)} />
+          <Field label={t("admin.settings.role")} value={config.personal.role} onChange={(v) => update("personal", "role", v)} />
+          <Field label={t("admin.settings.nickname")} value={config.personal.nickname} onChange={(v) => update("personal", "nickname", v)} />
+          <Field label={t("admin.settings.location")} value={config.personal.location} onChange={(v) => update("personal", "location", v)} />
+          <Field label={t("admin.settings.status")} value={config.personal.status} onChange={(v) => update("personal", "status", v)} />
+          <Field label={t("admin.settings.email")} value={config.contact.email} onChange={(v) => update("contact", "email", v)} />
         </div>
       </section>
 

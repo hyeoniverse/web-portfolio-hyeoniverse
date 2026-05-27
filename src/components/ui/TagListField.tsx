@@ -98,6 +98,7 @@ export default function TagListField({
           ))}
         </div>
       )}
+      {/* input + button capsule group — 외부 wrapper 가 border + capsule, 내부 inputs/buttons 는 border 제거 */}
       <div className={styles.inputRow}>
         <Input
           size="sm"
@@ -108,7 +109,7 @@ export default function TagListField({
         />
         <Button
           variant="outline"
-          shape="circle"
+          shape="square"
           size="xs"
           onClick={addTags}
           disabled={!input.trim()}

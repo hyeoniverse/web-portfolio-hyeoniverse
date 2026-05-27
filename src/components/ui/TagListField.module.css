@@ -29,10 +29,20 @@
   gap: var(--spacing-xs);
 }
 
+/* input + button capsule group — wrapper 가 border + capsule, 내부 input/button 의 border 제거.
+   :focus-within 으로 강조. WorkEditor / PostEditor 의 capsule group 패턴 통일. */
 .inputRow {
-  display: flex;
+  display: inline-flex;
   align-items: stretch;
-  gap: var(--spacing-xs);
+  width: 100%;
+  border: var(--border-strong);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  transition: border-color var(--duration-base) ease;
+}
+
+.inputRow:focus-within {
+  border-color: var(--text-primary);
 }
 
 .inputRow > :first-child {
@@ -40,23 +50,36 @@
   min-width: 0;
 }
 
-/* input 과 + 버튼 1:1 정사각 매칭.
-   Input sm 의 자연 height (padding 4+4 + font 14*1.5 + border 2 ≈ 32px) 에 맞춰 둘 다 32px 강제. */
+/* 내부 input — wrapper 가 border 담당. height 32px 매칭 + 자체 border / focus outline 제거 */
 .inputRow input {
   height: 32px;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent;
 }
 
+.inputRow input:focus,
+.inputRow input:focus-visible {
+  outline: none;
+  box-shadow: none;
+  border: none !important;
+}
+
+/* + 버튼 — 32×32 정사각, 좌측 divider 만 남기고 다른 border 제거 */
 .inputRow > button {
   width: 32px !important;
   height: 32px !important;
   font-size: var(--font-size-sm);
   line-height: 1;
+  border: none !important;
+  border-left: var(--border-light) !important;
+  border-radius: 0 !important;
+  background: transparent;
+  color: var(--text-tertiary);
 }
 
-/* enabled — input 에 값 있어 활성화된 상태: border strong + icon primary
-   (settings 페이지 한정 outline-light override 를 뒤집음) */
+/* enabled — input 에 값 있어 활성화된 상태: icon primary */
 .inputRow > button:not(:disabled):not([aria-disabled="true"]) {
-  border-color: var(--border-strong-color);
   color: var(--text-primary);
 }
 
