@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Undo2, Check } from "lucide-react";
+/* 섹션 헤더 버튼은 아이콘 없이 텍스트만 */
 import type { SiteConfigData } from "@/config/site.config";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -56,7 +56,6 @@ export default function SectionHeader({
               size="2xs"
               disabled={!dirty || isSavingOther || isSavingThis}
               onClick={() => revertSection(paths)}
-              icon={<Undo2 size={12} strokeWidth={2} />}
               title={t("admin.settings.revertSection")}
             >
               {t("admin.settings.revertSection")}
@@ -69,7 +68,6 @@ export default function SectionHeader({
             loading={isSavingThis}
             loadingVariant="wave"
             onClick={() => saveSection(paths)}
-            icon={<Check size={12} strokeWidth={2.5} />}
           >
             {t("admin.settings.saveSection")}
           </Button>

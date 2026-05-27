@@ -3364,28 +3364,49 @@
   letter-spacing: 0.02em;
 }
 
-/* ── Font Select Group ── */
+/* ── Font Select Group — Select + 직접입력 input 을 한 capsule 로 묶음 ── */
 .fontSelectGroup {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+  display: inline-flex;
+  align-items: stretch;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  transition: border-color var(--duration-base) ease;
+}
+
+.fontSelectGroup:focus-within {
+  border-color: var(--text-primary);
+}
+
+/* 내부 Select trigger / 직접입력 input 의 자체 border 제거 — wrapper 가 담당 */
+.fontSelectGroup > div:first-child {
+  flex: 0 0 auto;
+  min-width: 180px;
+}
+
+.fontSelectGroup > div:first-child > button {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent;
 }
 
 .fontCustomWrap {
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 0;
+  border-left: var(--border-light);
 }
 
 .fontCustomInput {
   flex: 1;
   min-width: 0;
   padding: var(--input-p);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border: none !important;
+  border-radius: 0 !important;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -3394,7 +3415,8 @@
 }
 
 .fontSelectGroup .fontCustomInput:focus {
-  border-color: var(--text-primary);
+  outline: none;
+  box-shadow: none;
 }
 
 .fontCustomInput::placeholder {
