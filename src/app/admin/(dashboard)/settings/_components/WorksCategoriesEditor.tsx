@@ -107,33 +107,43 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
         removeTitle={t("admin.settings.removeCategory")}
       />
 
-      {/* 새 카테고리 추가 — KO/EN 이름 + 선택적 설명 (bilingual) + Add */}
+      {/* 새 카테고리 추가 — 헤더 행 (label + Add 버튼) + label | bilingual input 형 row */}
       <div className={styles.worksCatAddBox}>
         <div className={styles.worksCatAddLabel}>
           <T k="admin.settings.addCategory" />
+          <Button
+            variant="outline"
+            size="xs"
+            onClick={addCategory}
+            disabled={!addEnabled}
+            icon={<Plus size={14} strokeWidth={2} />}
+          >
+            <T k="admin.settings.addCategory" />
+          </Button>
         </div>
-        <BilingualInputPair
-          value={newPair}
-          onChange={setNewPair}
-          koPlaceholder={t("admin.settings.categoryKoLabel")}
-          enPlaceholder={t("admin.settings.categoryEnLabel")}
-          onEnter={addCategory}
-        />
-        <BilingualInputPair
-          value={newDesc}
-          onChange={setNewDesc}
-          placeholder={t("admin.settings.categoryDescPlaceholder")}
-          onEnter={addCategory}
-        />
-        <Button
-          variant="outline"
-          size="xs"
-          onClick={addCategory}
-          disabled={!addEnabled}
-          icon={<Plus size={14} strokeWidth={2} />}
-        >
-          <T k="admin.settings.addCategory" />
-        </Button>
+        <div className={styles.worksCatAddRow}>
+          <span className={styles.worksCatAddRowLabel}>
+            <T k="admin.settings.name" />
+          </span>
+          <BilingualInputPair
+            value={newPair}
+            onChange={setNewPair}
+            koPlaceholder={t("admin.settings.categoryKoLabel")}
+            enPlaceholder={t("admin.settings.categoryEnLabel")}
+            onEnter={addCategory}
+          />
+        </div>
+        <div className={styles.worksCatAddRow}>
+          <span className={styles.worksCatAddRowLabel}>
+            <T k="admin.settings.description" />
+          </span>
+          <BilingualInputPair
+            value={newDesc}
+            onChange={setNewDesc}
+            placeholder={t("admin.settings.categoryDescPlaceholder")}
+            onEnter={addCategory}
+          />
+        </div>
       </div>
     </div>
   );
