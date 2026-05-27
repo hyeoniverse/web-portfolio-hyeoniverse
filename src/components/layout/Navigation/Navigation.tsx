@@ -466,9 +466,11 @@ export default function Navigation() {
 
   return (
     <>
-    {/* 로고 anchor — 독립 top-level fixed. mix-blend-mode 는 로고만 토글, admin 배지 (별도 fixed) 와 stacking context 분리 */}
-    <div className={`${styles.logoAnchor} ${siteConfig.brand.logoDifference === false ? styles.logoAnchorNoDifference : ""}`}>
-      <Link href={isAdminPage ? "/admin" : "/"} className={styles.logoGroup}>
+    {/* 로고 + admin 배지 — flex 컨테이너 (logoNavBar) 로 자연스러운 gap.
+        부모는 mix-blend-mode 없음 (isolation 없으니 자식 blend 가 page backdrop 까지 propagate) */}
+    <div className={styles.logoNavBar}>
+      <div className={`${styles.logoAnchor} ${siteConfig.brand.logoDifference === false ? styles.logoAnchorNoDifference : ""}`}>
+        <Link href={isAdminPage ? "/admin" : "/"} className={styles.logoGroup}>
         <motion.div
           ref={logoRef}
           className={styles.logoWrapper}
@@ -581,11 +583,12 @@ export default function Navigation() {
         </span>
         </motion.div>
       </Link>
+      </div>
+      {/* Admin 배지 — logoNavBar flex 자식, 자체 blend (difference) 유지 */}
+      {isAdminPage && (
+        <span className={`${styles.adminBadge} ${styles.adminBadgeFixed}`}>Admin</span>
+      )}
     </div>
-    {/* Admin 배지 — 별도 top-level fixed. logoAnchor 의 blend 토글과 완전히 독립 (stacking context 분리) */}
-    {isAdminPage && (
-      <span className={`${styles.adminBadge} ${styles.adminBadgeFixed}`}>Admin</span>
-    )}
 
     <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div
