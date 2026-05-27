@@ -208,8 +208,7 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
           <h3 className={styles.sectionSubTitle}>{t("admin.settings.faviconSection")}</h3>
           <div className={styles.fields}>
             <div className={styles.faviconLayout}>
-              {/* 좌측 — light/dark 가로 flex row. data-theme 강제 → 각 셀 안 --bg-primary 가
-                  해당 테마의 실제 적용 색 (subSection 과 동일하게 ThemeProvider 가 set 한 값) */}
+              {/* 좌측 — light/dark 가로 flex. bg/text 는 config.theme + brand 의 preset 값 직접 사용 */}
               <div className={styles.faviconPreviewSlot}>
                 {(["light", "dark"] as const).map((variant) => {
                   const shape = config.brand.faviconShape ?? "circle";
@@ -217,17 +216,17 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
                   const weight = config.brand.faviconWeight ?? "light";
                   const fontFamily = font === "serif" ? "Georgia, serif" : font === "mono" ? "Menlo, monospace" : "system-ui, sans-serif";
                   const fontWeight = weight === "light" ? 300 : weight === "regular" ? 500 : 700;
-                  // text color — 로고 색 우선 (config.brand.logoColor/logoColorDark), 없으면 --text-primary 자동
+                  const bgColor = variant === "light" ? config.theme.lightBg : config.theme.darkBg;
                   const fgColor = variant === "light"
-                    ? (config.brand.logoColor || "var(--text-primary)")
-                    : (config.brand.logoColorDark || "var(--text-primary)");
+                    ? (config.brand.logoColor || config.theme.lightText)
+                    : (config.brand.logoColorDark || config.theme.darkText);
                   return (
-                    <div key={variant} className={styles.faviconPreviewCell} data-theme={variant}>
+                    <div key={variant} className={styles.faviconPreviewCell}>
                       <span
                         className={styles.faviconPreview}
                         style={{
                           borderRadius: shape === "circle" ? "50%" : shape === "square" ? "8px" : 0,
-                          background: shape === "none" ? "transparent" : "var(--bg-primary)",
+                          background: shape === "none" ? "transparent" : bgColor,
                           color: fgColor,
                           border: shape === "none" ? "1px dashed var(--border-light-color)" : "none",
                           fontFamily,
