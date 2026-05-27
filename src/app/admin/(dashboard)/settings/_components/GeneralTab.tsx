@@ -1,24 +1,22 @@
 "use client";
 
-import { Eraser } from "lucide-react";
+import { useState } from "react";
+import { Plus, X } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { SettingsTabProps } from "../_types";
 import Checkbox from "@/components/ui/Checkbox";
 import ColorPicker from "@/components/ui/ColorPicker";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import Field, { AudioUpload, LogoUpload, TagField } from "./SettingsFormFields";
 import SectionHeader from "./SectionHeader";
 import styles from "../Settings.module.css";
 
-const LOGO_COLOR_PRESETS: { name: string; light: string; dark: string }[] = [
+type LogoColorPreset = { name: string; light: string; dark: string };
+
+/** logoColorPresets 가 config 에 없는 legacy 환경용 minimal fallback */
+const LOGO_COLOR_PRESETS_FALLBACK: LogoColorPreset[] = [
   { name: "Default", light: "", dark: "" },
-  { name: "Accent", light: "#d40063", dark: "#ff4d8d" },
-  { name: "Navy", light: "#1c3d5a", dark: "#a8c8e8" },
-  { name: "Forest", light: "#2a4035", dark: "#b0be97" },
-  { name: "Warm", light: "#5c3a1a", dark: "#f5cac3" },
-  { name: "Coral", light: "#c44536", dark: "#ffa07a" },
-  { name: "Violet", light: "#5b2c6f", dark: "#d4a5f5" },
-  { name: "Teal", light: "#1a6b5a", dark: "#7eddd3" },
-  { name: "Gold", light: "#8b6914", dark: "#f6d860" },
 ];
 
 export default function GeneralTab({ config, savedConfig, update, saveSection, savingPaths }: SettingsTabProps) {
@@ -26,6 +24,22 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, s
 
   /** 공통 props 묶음 — SectionHeader 에 spread */
   const sh = { config, savedConfig, saveSection, savingPaths, titleClassName: styles.sectionTitle };
+
+  const presets: LogoColorPreset[] = config.brand.logoColorPresets ?? LOGO_COLOR_PRESETS_FALLBACK;
+  const [addingPreset, setAddingPreset] = useState(false);
+  const [newPreset, setNewPreset] = useState<LogoColorPreset>({ name: "", light: "", dark: "" });
+
+  const addPreset = () => {
+    const name = newPreset.name.trim();
+    if (!name || presets.some((p) => p.name === name)) return;
+    update("brand", "logoColorPresets", [...presets, { name, light: newPreset.light.trim(), dark: newPreset.dark.trim() }]);
+    setNewPreset({ name: "", light: "", dark: "" });
+    setAddingPreset(false);
+  };
+
+  const removePreset = (i: number) => {
+    update("brand", "logoColorPresets", presets.filter((_, j) => j !== i));
+  };
 
   return (
     <>
@@ -50,10 +64,16 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, s
         <div className={styles.subSection}>
           <div className={styles.sectionTitleRow}>
             <h3 className={styles.sectionSubTitle}>{t("admin.settings.logoTextSection")}</h3>
-            <label className={styles.inlineToggle}>
-              {t("admin.settings.logoGlitch")}
-              <Checkbox checked={config.brand.logoGlitch} onChange={(v) => update("brand", "logoGlitch", v)} shape="square" />
-            </label>
+            <div className={styles.inlineToggleGroup}>
+              <label className={styles.inlineToggle}>
+                {t("admin.settings.logoGlitch")}
+                <Checkbox checked={config.brand.logoGlitch} onChange={(v) => update("brand", "logoGlitch", v)} shape="square" />
+              </label>
+              <label className={styles.inlineToggle}>
+                {t("admin.settings.logoDifference")}
+                <Checkbox checked={config.brand.logoDifference !== false} onChange={(v) => update("brand", "logoDifference", v)} shape="square" />
+              </label>
+            </div>
           </div>
           <div className={styles.fields}>
             <div className={styles.fieldPair}>
@@ -70,49 +90,115 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, s
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}>{t("admin.settings.logoColorPresets")}</label>
             <div className={styles.logoColorPresets}>
-              {LOGO_COLOR_PRESETS.map((p) => (
-                <button
-                  key={p.name}
-                  type="button"
-                  title={p.name}
-                  className={`${styles.logoColorPresetBtn} ${
-                    config.brand.logoColor === p.light && config.brand.logoColorDark === p.dark
-                      ? styles.logoColorPresetBtnActive : ""
-                  }`}
-                  onClick={() => {
-                    update("brand", "logoColor", p.light);
-                    update("brand", "logoColorDark", p.dark);
-                  }}
-                >
-                  <span className={styles.logoColorPresetHalf} style={{ background: p.light || "#1a1a1a" }} />
-                  <span className={styles.logoColorPresetHalf} style={{ background: p.dark || "#f5f5f0" }} />
-                </button>
+              {presets.map((p, i) => (
+                <div key={`${p.name}-${i}`} className={styles.logoColorPresetWrap}>
+                  <button
+                    type="button"
+                    title={p.name}
+                    className={`${styles.logoColorPresetBtn} ${
+                      config.brand.logoColor === p.light && config.brand.logoColorDark === p.dark
+                        ? styles.logoColorPresetBtnActive : ""
+                    }`}
+                    onClick={() => {
+                      update("brand", "logoColor", p.light);
+                      update("brand", "logoColorDark", p.dark);
+                    }}
+                  >
+                    <span className={styles.logoColorPresetHalf} style={{ background: p.light || "#1a1a1a" }} />
+                    <span className={styles.logoColorPresetHalf} style={{ background: p.dark || "#f5f5f0" }} />
+                  </button>
+                  {presets.length > 1 && (
+                    <button
+                      type="button"
+                      className={styles.logoColorPresetRemove}
+                      onClick={() => removePreset(i)}
+                      aria-label={`Remove ${p.name}`}
+                      title="프리셋 제거"
+                    >
+                      <X size={10} strokeWidth={2.5} />
+                    </button>
+                  )}
+                </div>
               ))}
+              <button
+                type="button"
+                className={styles.logoColorPresetAddBtn}
+                onClick={() => setAddingPreset((v) => !v)}
+                title="프리셋 추가"
+              >
+                <Plus size={14} strokeWidth={2} />
+              </button>
             </div>
           </div>
+          {addingPreset && (
+            <div className={styles.logoColorPresetAddForm}>
+              <Input
+                size="sm"
+                placeholder="프리셋 이름"
+                value={newPreset.name}
+                onChange={(v) => setNewPreset({ ...newPreset, name: v })}
+              />
+              <div className={styles.logoColorPresetAddRow}>
+                <span className={styles.logoColorPresetAddLabel}>Light</span>
+                <ColorPicker value={newPreset.light || "#000000"} onChange={(c) => setNewPreset({ ...newPreset, light: c.hex })} triggerClassName={styles.colorPicker} />
+                <Input
+                  size="sm"
+                  className={styles.colorInput}
+                  value={newPreset.light}
+                  onChange={(v) => setNewPreset({ ...newPreset, light: v })}
+                  placeholder="#000000"
+                  maxLength={7}
+                />
+              </div>
+              <div className={styles.logoColorPresetAddRow}>
+                <span className={styles.logoColorPresetAddLabel}>Dark</span>
+                <ColorPicker value={newPreset.dark || "#ffffff"} onChange={(c) => setNewPreset({ ...newPreset, dark: c.hex })} triggerClassName={styles.colorPicker} />
+                <Input
+                  size="sm"
+                  className={styles.colorInput}
+                  value={newPreset.dark}
+                  onChange={(v) => setNewPreset({ ...newPreset, dark: v })}
+                  placeholder="#ffffff"
+                  maxLength={7}
+                />
+              </div>
+              <div className={styles.logoColorPresetAddActions}>
+                <Button variant="outline" size="2xs" onClick={() => setAddingPreset(false)} icon={<X size={12} strokeWidth={2.5} />}>
+                  {t("admin.settings.cancel")}
+                </Button>
+                <Button variant="outline" size="2xs" onClick={addPreset} disabled={!newPreset.name.trim()} icon={<Plus size={12} strokeWidth={2} />}>
+                  {t("admin.settings.addCategory") /* "추가" 재사용 */}
+                </Button>
+              </div>
+            </div>
+          )}
           <div className={styles.fieldPair}>
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}>{t("admin.settings.logoColor")}</label>
               <div className={styles.colorField}>
                 <ColorPicker value={config.brand.logoColor || "#000000"} onChange={(c) => update("brand", "logoColor", c.hex)} triggerClassName={styles.colorPicker} />
-                <input type="text" className={styles.colorText} value={config.brand.logoColor || "#000000"} onChange={(e) => update("brand", "logoColor", e.target.value)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
-                {config.brand.logoColor && (
-                  <button type="button" className={styles.colorClearBtn} onClick={() => update("brand", "logoColor", "")} aria-label="clear" title="지우기">
-                    <Eraser size={11} strokeWidth={2} />
-                  </button>
-                )}
+                <Input
+                  size="sm"
+                  className={styles.colorInput}
+                  value={config.brand.logoColor || "#000000"}
+                  onChange={(v) => update("brand", "logoColor", v)}
+                  placeholder={t("admin.settings.logoColorPlaceholder")}
+                  maxLength={7}
+                />
               </div>
             </div>
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}>{t("admin.settings.logoColorDark")}</label>
               <div className={styles.colorField}>
                 <ColorPicker value={config.brand.logoColorDark || "#ffffff"} onChange={(c) => update("brand", "logoColorDark", c.hex)} triggerClassName={styles.colorPicker} />
-                <input type="text" className={styles.colorText} value={config.brand.logoColorDark || "#ffffff"} onChange={(e) => update("brand", "logoColorDark", e.target.value)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
-                {config.brand.logoColorDark && (
-                  <button type="button" className={styles.colorClearBtn} onClick={() => update("brand", "logoColorDark", "")} aria-label="clear" title="지우기">
-                    <Eraser size={11} strokeWidth={2} />
-                  </button>
-                )}
+                <Input
+                  size="sm"
+                  className={styles.colorInput}
+                  value={config.brand.logoColorDark || "#ffffff"}
+                  onChange={(v) => update("brand", "logoColorDark", v)}
+                  placeholder={t("admin.settings.logoColorPlaceholder")}
+                  maxLength={7}
+                />
               </div>
             </div>
           </div>

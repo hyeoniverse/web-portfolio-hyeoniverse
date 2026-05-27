@@ -455,6 +455,7 @@
       "cancel": "Cancel",
       "edit": "Edit",
       "saveEdit": "Save",
+      "logoDifference": "Difference",
       "reassignModal": {
         "title": "Reassign Category",
         "description": "Move posts to another category before deleting.",

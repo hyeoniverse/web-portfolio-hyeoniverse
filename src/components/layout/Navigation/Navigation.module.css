@@ -16,6 +16,11 @@
   pointer-events: none;
 }
 
+/* logoDifference=false 일 때 — mix-blend-mode 끔 (admin 설정 토글) */
+.navNoDifference {
+  mix-blend-mode: normal;
+}
+
 .logoGroup,
 .logo,
 .navCenter,

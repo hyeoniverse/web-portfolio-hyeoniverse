@@ -32,10 +32,23 @@ export const siteConfig = {
     logoColor: "", // 라이트 모드 로고 색상 (빈 문자열 = 기본 텍스트 색상)
     logoColorDark: "", // 다크 모드 로고 색상 (빈 문자열 = 기본 텍스트 색상)
     logoGlitch: true, // 로고 글리치 효과 on/off
+    logoDifference: true, // 네비 mix-blend-mode: difference on/off (배경에 따라 자동 반전)
     logoShortUrl: "", // 빈 문자열 = 텍스트 로고(logoText) 사용
     logoShortDarkUrl: "", // 다크 모드 숏 로고 (빈 문자열 = logoShortUrl 사용)
     logoFullUrl: "", // 빈 문자열 = 텍스트 로고(displayName) 사용
     logoFullDarkUrl: "", // 다크 모드 풀 로고 (빈 문자열 = logoFullUrl 사용)
+    // 로고 색상 프리셋 — 관리자가 추가/삭제 가능. 빈 light/dark = "기본 텍스트 색상" 의미
+    logoColorPresets: [
+      { name: "Default", light: "", dark: "" },
+      { name: "Accent", light: "#d40063", dark: "#ff4d8d" },
+      { name: "Navy", light: "#1c3d5a", dark: "#a8c8e8" },
+      { name: "Forest", light: "#2a4035", dark: "#b0be97" },
+      { name: "Warm", light: "#5c3a1a", dark: "#f5cac3" },
+      { name: "Coral", light: "#c44536", dark: "#ffa07a" },
+      { name: "Violet", light: "#5b2c6f", dark: "#d4a5f5" },
+      { name: "Teal", light: "#1a6b5a", dark: "#7eddd3" },
+      { name: "Gold", light: "#8b6914", dark: "#f6d860" },
+    ] as { name: string; light: string; dark: string }[],
   },
 
   // ---------------------------------------------------------------------------

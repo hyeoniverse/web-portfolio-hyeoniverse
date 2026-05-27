@@ -900,27 +900,10 @@
   border-color: var(--text-primary);
 }
 
-/* 로고 색상 Eraser clear 버튼 — Field clearBtn 과 동일 톤 */
-.colorClearBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
-  flex-shrink: 0;
-}
-
-.colorClearBtn:hover {
-  opacity: 1;
-  color: var(--text-primary);
+/* 로고 색상 Input (공통 컴포넌트 사용) — flex 1 로 ColorPicker 옆에서 stretch */
+.colorInput {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ── Theme Presets ── */
@@ -1009,6 +992,99 @@
 
 .logoColorPresetHalf {
   flex: 1;
+}
+
+/* preset chip wrap — hover 시 remove 버튼 노출 */
+.logoColorPresetWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.logoColorPresetRemove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--border-strong-color);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.logoColorPresetWrap:hover .logoColorPresetRemove {
+  opacity: 1;
+}
+
+.logoColorPresetRemove:hover {
+  color: var(--text-accent);
+  border-color: var(--color-accent);
+}
+
+/* + 추가 버튼 — preset 그리드 끝에 추가 */
+.logoColorPresetAddBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-md);
+  height: 20px;
+  border: 1px dashed var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color var(--duration-base) ease, border-color var(--duration-base) ease;
+}
+
+.logoColorPresetAddBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+/* 프리셋 추가 폼 — preset 그리드 아래 노출 */
+.logoColorPresetAddForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+
+.logoColorPresetAddRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.logoColorPresetAddLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.logoColorPresetAddActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-2xs);
+}
+
+/* 토글 그룹 — sectionTitleRow 우측 여러 toggle 같이 묶음 */
+.inlineToggleGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-md);
 }
 
 /* ── Logo Upload ── */

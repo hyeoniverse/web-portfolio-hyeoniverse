@@ -465,7 +465,7 @@ export default function Navigation() {
   }, [router, pathname]);
 
   return (
-    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
+    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""} ${siteConfig.brand.logoDifference === false ? styles.navNoDifference : ""}`}>
       <Link href={isAdminPage ? "/admin" : "/"} className={styles.logoGroup}>
         <motion.div
           ref={logoRef}
