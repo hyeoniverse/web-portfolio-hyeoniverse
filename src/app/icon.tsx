@@ -14,6 +14,7 @@ export default async function Icon() {
   const config = await getSiteConfig().catch(() => null);
   const logoText = (config?.brand?.logoText ?? "H").trim() || "H";
   const logoColor = config?.brand?.logoColor || "#0a0a0a";
+  const bgColor = config?.theme?.lightBg || "#ffffff";
 
   return new ImageResponse(
     (
@@ -24,11 +25,10 @@ export default async function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "transparent",
+          background: bgColor,
           color: logoColor,
           fontSize: 26,
           fontWeight: 700,
-          fontFamily: "serif",
           letterSpacing: "-0.04em",
         }}
       >
