@@ -5597,28 +5597,10 @@ a.tagRelatedItem:hover {
   color: var(--text-tertiary);
 }
 /* + 추가 chip (점선) — 그룹 그리드 전체 너비 차지 */
+/* + 추가 — 공통 Button(ghost) 사용 (외곽선 없음) */
 .techAddRow {
   grid-column: 1 / -1;
   padding-top: var(--spacing-xs);
-}
-.techAddChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: 5px 10px;
-  border: 1px dashed var(--border-strong-color);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-secondary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-}
-.techAddChip:hover {
-  border-color: var(--border-accent-color);
-  color: var(--text-accent);
 }
 
 /* ── 추가 / 편집 popover 내부 ── */

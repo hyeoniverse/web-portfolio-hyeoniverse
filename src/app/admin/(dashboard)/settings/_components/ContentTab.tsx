@@ -2761,9 +2761,9 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
           placement="bottom-start"
           sheetTitle={t("admin.settings.aboutTechStackAdd")}
           trigger={
-            <button type="button" className={styles.techAddChip}>
-              <Plus size={14} strokeWidth={2.5} /> {t("admin.settings.aboutTechStackAdd")}
-            </button>
+            <Button variant="ghost" size="xs" icon={<Plus size={14} strokeWidth={2.5} />}>
+              {t("admin.settings.aboutTechStackAdd")}
+            </Button>
           }
         >
           <TechAddPanel existing={items} onAdd={add} t={t} styles={styles} />
