@@ -1,0 +1,78 @@
+/* ── RadioGroup — Checkbox 와 톤 일치 (circle dot + label) ── */
+.group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.group.vertical {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  cursor: pointer;
+  user-select: none;
+}
+
+.option.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 원형 점 — Checkbox 와 동일 사이즈 16px */
+.dot {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border-default-color);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  transition: border-color var(--duration-base) ease, background var(--duration-base) ease;
+}
+
+.option:hover:not(.disabled) .dot {
+  outline: 1.5px solid var(--border-default-color);
+  outline-offset: 2px;
+}
+
+/* 선택됨 — 안쪽 dot (8px) 강조 */
+.dotChecked {
+  border-color: var(--bg-inverse);
+}
+
+.dotChecked::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-inverse);
+}
+
+.label {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.option:hover:not(.disabled) .label,
+.optionActive .label {
+  color: var(--text-primary);
+}
+
+/* hidden native input — keyboard accessible */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

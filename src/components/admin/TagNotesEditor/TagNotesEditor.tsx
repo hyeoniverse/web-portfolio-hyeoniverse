@@ -93,6 +93,17 @@ export interface TagNotesEditorProps {
   removeTitle?: string;
   /** true 면 entry input 을 textarea 로 (여러 항목 입력 가능) — 역할/담당업무 같이 multi-item case 용 */
   multiLine?: boolean;
+  /** chip 라벨 커스텀 렌더 — 기본 `${prefix}${item}`. bilingual chip 등에 사용 (WorksCategoriesEditor). */
+  renderItemLabel?: (item: string) => React.ReactNode;
+  /** drawer 안 추가 슬롯 — 편집 모드 or entry 존재 시 노출. 이름 인라인 편집 등에 사용. */
+  renderDrawerExtra?: (item: string, isEditing: boolean) => React.ReactNode;
+  /** chip 라벨 body 클릭 핸들러 — 외부 편집 패널 트리거용 (WorksCategoriesEditor). */
+  onItemClick?: (item: string) => void;
+  /** 편집 / "+ 설명 추가" 버튼 클릭 핸들러 — 외부 편집 패널로 위임.
+   *  제공 시 TagNotesEditor 의 내부 drawer 열림 로직 대신 이 콜백만 발화. */
+  onEditClick?: (item: string) => void;
+  /** 외부 편집 패널에서 현재 active 인 item — 해당 chip 강조 표시 (active class). */
+  activeItem?: string | null;
 }
 
 /**
@@ -112,6 +123,11 @@ export default function TagNotesEditor({
   editLabel = "Edit",
   removeTitle = "Remove",
   multiLine = false,
+  renderItemLabel,
+  renderDrawerExtra,
+  onItemClick,
+  onEditClick,
+  activeItem,
 }: TagNotesEditorProps) {
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dropPos, setDropPos] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
@@ -336,7 +352,20 @@ export default function TagNotesEditor({
                 <span className={styles.grip} aria-hidden title="드래그로 순서 변경" data-cursor="grab">
                   <GripVertical size={12} strokeWidth={2} />
                 </span>
-                <span className={styles.tag}>{prefix}{item}</span>
+                {onItemClick ? (
+                  <button
+                    type="button"
+                    className={`${styles.tag} ${activeItem === item ? styles.tagActive : ""}`}
+                    data-cursor="big"
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => { e.stopPropagation(); onItemClick(item); }}
+                  >
+                    {renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}
+                  </button>
+                ) : (
+                  <span className={`${styles.tag} ${activeItem === item ? styles.tagActive : ""}`}>{renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}</span>
+                )}
                 <CloseButton
                   size="sm"
                   onClick={removeItem}
@@ -352,6 +381,10 @@ export default function TagNotesEditor({
                   cancelLabel={cancelLabel}
                   editLabel={editLabel}
                   onClick={() => {
+                    if (onEditClick) {
+                      onEditClick(item);
+                      return;
+                    }
                     setEntry({ ko: "", en: "" });
                     focusLastPairInput(item);
                   }}
@@ -390,6 +423,10 @@ export default function TagNotesEditor({
                       cancelLabel={cancelLabel}
                       editLabel={editLabel}
                       onClick={() => {
+                        if (onEditClick) {
+                          onEditClick(item);
+                          return;
+                        }
                         if (editingItem === item) {
                           const normalized = normalizeEntry(entry);
                           if (normalized === null) setEntry(null);
@@ -434,6 +471,12 @@ export default function TagNotesEditor({
                 </div>
               )}
             </div>
+            {/* drawer extra slot — 편집 모드 or entry 존재 시 노출 (이름 인라인 편집 등) */}
+            {renderDrawerExtra && (entry || editingItem === item) && (
+              <div className={styles.drawerExtra}>
+                {renderDrawerExtra(item, editingItem === item)}
+              </div>
+            )}
             {/* readonly + editing body — 통합 ul (li 단위로 input/readonly swap, 깜빡임 방지) */}
             <AnimatePresence initial={false}>
               {entry && (
