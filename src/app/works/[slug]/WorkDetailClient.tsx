@@ -339,6 +339,9 @@ export default function WorkDetailClient({
             const githubLink = siteConfig?.socialLinks?.find((l) => l.platform === "github");
             const ownerMember = personal ? {
               name: personal.name,
+              /* siteConfig.personal 에는 영문 이름 별도 필드가 없어 undefined.
+                 union 으로 ProjectTeamMember 와 합쳐질 때 name_en?: string 시그니처 일치시키기 위해 명시. */
+              name_en: undefined as string | undefined,
               role: { ko: project.role.ko, en: project.role.en },
               url: githubLink?.url || undefined,
               email: siteConfig?.contact?.email || undefined,
