@@ -1,7 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonOk } from "@/lib/api/response";
-import { escapeOrSearch } from "@/lib/api/search";
+import { applySearchQuery } from "@/lib/api/applySearchQuery";
+import type { SyntaxMode } from "@/lib/searchQuery";
 
 /**
  * GET /api/admin/comments — admin 모더레이션용 통합 댓글 조회
@@ -24,6 +25,7 @@ export async function GET(request: Request) {
   const source = (searchParams.get("source") ?? "all") as "posts" | "works" | "all";
   const status = (searchParams.get("status") ?? "active") as "active" | "deleted" | "all";
   const search = searchParams.get("search")?.trim() ?? "";
+  const syntaxMode = (searchParams.get("syntaxMode") === "regex" ? "regex" : "prefix") as SyntaxMode;
   const page = Math.max(1, Number(searchParams.get("page")) || 1);
   const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit")) || 20));
   const offset = (page - 1) * limit;
@@ -64,8 +66,7 @@ export async function GET(request: Request) {
     if (status === "active") q = q.eq("is_deleted", false);
     else if (status === "deleted") q = q.eq("is_deleted", true);
     if (search) {
-      const esc = escapeOrSearch(search);
-      q = q.or(`nickname.ilike.%${esc}%,content.ilike.%${esc}%`);
+      q = applySearchQuery(q, { search, mode: syntaxMode, columns: ["nickname", "content"] });
     }
     q = q.order("created_at", { ascending: false }).limit(fetchLimit);
     const { data, count, error } = await q;

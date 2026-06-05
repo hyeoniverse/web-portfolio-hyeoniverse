@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { ImageIcon } from "lucide-react";
+import MediaThumb from "@/components/admin/MediaThumb";
 import { adminShellStyles as shell } from "@/components/admin/AdminListShell";
 import { formatPostTitle } from "@/utils/post";
 import type { Post } from "@/types/post";
@@ -33,13 +33,11 @@ export default function PreviewTooltip({
       >
         <div className={shell.previewImage}>
           {post.cover_image && !imgError ? (
-            <Image
+            <MediaThumb
               src={post.cover_image}
-              alt=""
               width={280}
               height={140}
               className={shell.previewImg}
-              unoptimized
               onError={onImgError}
             />
           ) : (
