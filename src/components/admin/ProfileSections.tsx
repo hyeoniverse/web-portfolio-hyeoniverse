@@ -298,11 +298,14 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           setExpanded={setExpandedExp}
           styles={styles}
           renderHeader={(exp, i) => (<>
-            <input
+            <Input
+              variant="underline"
+              size="md"
               className={styles.skillFieldInline}
               value={exp.company}
-              onChange={(e) => updateExperience(i, "company", e.target.value)}
+              onChange={(v) => updateExperience(i, "company", v)}
               placeholder="Company"
+              clearable={false}
             />
             <span className={styles.periodBadge}>{briefPeriod(exp.period)}</span>
           </>)}
@@ -310,8 +313,8 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.role" /></label>
               <div className={styles.profileGrid}>
-                <Input size="sm" inlineLabel="KO" value={exp.role.ko} onChange={(v) => updateExperience(i, "role.ko", v)} />
-                <Input size="sm" inlineLabel="EN" value={exp.role.en} onChange={(v) => updateExperience(i, "role.en", v)} />
+                <Input size="md" inlineLabel="KO" value={exp.role.ko} onChange={(v) => updateExperience(i, "role.ko", v)} />
+                <Input size="md" inlineLabel="EN" value={exp.role.en} onChange={(v) => updateExperience(i, "role.en", v)} />
               </div>
             </div>
             <div className={styles.fieldGroup}>
@@ -321,14 +324,8 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
               <div className={styles.profileGrid}>
-                <div>
-                  <label className={styles.profileFieldLabel}>KO</label>
-                  <Textarea size="sm" value={exp.description.ko} onChange={(v) => updateExperience(i, "description.ko", v)} rows={2} />
-                </div>
-                <div>
-                  <label className={styles.profileFieldLabel}>EN</label>
-                  <Textarea size="sm" value={exp.description.en} onChange={(v) => updateExperience(i, "description.en", v)} rows={2} />
-                </div>
+                <Textarea size="md" inlineLabel="KO" value={exp.description.ko} onChange={(v) => updateExperience(i, "description.ko", v)} rows={2} />
+                <Textarea size="md" inlineLabel="EN" value={exp.description.en} onChange={(v) => updateExperience(i, "description.en", v)} rows={2} />
               </div>
             </div>
           </>)}
@@ -350,11 +347,14 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           setExpanded={setExpandedGroups}
           styles={styles}
           renderHeader={(group, gi) => (<>
-            <input
+            <Input
+              variant="underline"
+              size="md"
               className={styles.skillFieldInline}
               value={group.category}
-              onChange={(e) => updateSkillGroup(gi, "category", e.target.value)}
+              onChange={(v) => updateSkillGroup(gi, "category", v)}
               placeholder="Category"
+              clearable={false}
             />
             <span className={styles.skillCount}>({group.skills.length})</span>
           </>)}
@@ -364,14 +364,8 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
               <div className={styles.fieldGroup}>
                 <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
                 <div className={styles.profileGrid}>
-                  <div>
-                    <label className={styles.profileFieldLabel}>KO</label>
-                    <Textarea size="sm" value={group.description.ko} onChange={(v) => updateSkillGroup(gi, "description.ko", v)} rows={2} />
-                  </div>
-                  <div>
-                    <label className={styles.profileFieldLabel}>EN</label>
-                    <Textarea size="sm" value={group.description.en} onChange={(v) => updateSkillGroup(gi, "description.en", v)} rows={2} />
-                  </div>
+                  <Textarea size="md" inlineLabel="KO" value={group.description.ko} onChange={(v) => updateSkillGroup(gi, "description.ko", v)} rows={2} />
+                  <Textarea size="md" inlineLabel="EN" value={group.description.en} onChange={(v) => updateSkillGroup(gi, "description.en", v)} rows={2} />
                 </div>
               </div>
               <SkillList
@@ -408,25 +402,22 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           setExpanded={setExpandedPhil}
           styles={styles}
           renderHeader={(item, i) => (
-            <input
+            <Input
+              variant="underline"
+              size="md"
               className={styles.skillFieldInline}
               value={item.title}
-              onChange={(e) => updatePhilosophy(i, "title", e.target.value)}
+              onChange={(v) => updatePhilosophy(i, "title", v)}
               placeholder="Title"
+              clearable={false}
             />
           )}
           renderDetails={(item, i) => (
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
               <div className={styles.profileGrid}>
-                <div>
-                  <label className={styles.profileFieldLabel}>KO</label>
-                  <Textarea size="sm" value={item.description.ko} onChange={(v) => updatePhilosophy(i, "description.ko", v)} rows={2} />
-                </div>
-                <div>
-                  <label className={styles.profileFieldLabel}>EN</label>
-                  <Textarea size="sm" value={item.description.en} onChange={(v) => updatePhilosophy(i, "description.en", v)} rows={2} />
-                </div>
+                <Textarea size="md" inlineLabel="KO" value={item.description.ko} onChange={(v) => updatePhilosophy(i, "description.ko", v)} rows={2} />
+                <Textarea size="md" inlineLabel="EN" value={item.description.en} onChange={(v) => updatePhilosophy(i, "description.en", v)} rows={2} />
               </div>
             </div>
           )}
@@ -448,25 +439,22 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           styles={styles}
           renderHeader={(step, i) => (<>
             <span className={styles.skillCount}>{step.number}</span>
-            <input
+            <Input
+              variant="underline"
+              size="md"
               className={styles.skillFieldInline}
               value={step.title}
-              onChange={(e) => updateApproach(i, "title", e.target.value)}
+              onChange={(v) => updateApproach(i, "title", v)}
               placeholder="Step title"
+              clearable={false}
             />
           </>)}
           renderDetails={(step, i) => (
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.description" /></label>
               <div className={styles.profileGrid}>
-                <div>
-                  <label className={styles.profileFieldLabel}>KO</label>
-                  <Textarea size="sm" value={step.description.ko} onChange={(v) => updateApproach(i, "description.ko", v)} rows={2} />
-                </div>
-                <div>
-                  <label className={styles.profileFieldLabel}>EN</label>
-                  <Textarea size="sm" value={step.description.en} onChange={(v) => updateApproach(i, "description.en", v)} rows={2} />
-                </div>
+                <Textarea size="md" inlineLabel="KO" value={step.description.ko} onChange={(v) => updateApproach(i, "description.ko", v)} rows={2} />
+                <Textarea size="md" inlineLabel="EN" value={step.description.en} onChange={(v) => updateApproach(i, "description.en", v)} rows={2} />
               </div>
             </div>
           )}
@@ -492,18 +480,21 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           setExpanded={setExpandedCert}
           styles={styles}
           renderHeader={(cert, i) => (<>
-            <input
+            <Input
+              variant="underline"
+              size="md"
               className={styles.skillFieldInline}
               value={cert.name.ko}
-              onChange={(e) => updateCertification(i, "name.ko", e.target.value)}
+              onChange={(v) => updateCertification(i, "name.ko", v)}
               placeholder="Name (KO)"
+              clearable={false}
             />
             <span className={styles.periodBadge}>{briefPeriod(cert.period)}</span>
           </>)}
           renderDetails={(cert, i) => (<>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.name" /></label>
-              <Input size="sm" label="EN" value={cert.name.en} onChange={(v) => updateCertification(i, "name.en", v)} />
+              <Input size="md" inlineLabel="EN" value={cert.name.en} onChange={(v) => updateCertification(i, "name.en", v)} />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
@@ -512,8 +503,8 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.issuer" /></label>
               <div className={styles.profileGrid}>
-                <Input size="sm" label="KO" value={cert.issuer.ko} onChange={(v) => updateCertification(i, "issuer.ko", v)} />
-                <Input size="sm" label="EN" value={cert.issuer.en} onChange={(v) => updateCertification(i, "issuer.en", v)} />
+                <Input size="md" inlineLabel="KO" value={cert.issuer.ko} onChange={(v) => updateCertification(i, "issuer.ko", v)} />
+                <Input size="md" inlineLabel="EN" value={cert.issuer.en} onChange={(v) => updateCertification(i, "issuer.en", v)} />
               </div>
             </div>
           </>)}
@@ -534,18 +525,21 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
           setExpanded={setExpandedAward}
           styles={styles}
           renderHeader={(award, i) => (<>
-            <input
+            <Input
+              variant="underline"
+              size="md"
               className={styles.skillFieldInline}
               value={award.name.ko}
-              onChange={(e) => updateAward(i, "name.ko", e.target.value)}
+              onChange={(v) => updateAward(i, "name.ko", v)}
               placeholder="Name (KO)"
+              clearable={false}
             />
             <span className={styles.periodBadge}>{briefPeriod(award.period)}</span>
           </>)}
           renderDetails={(award, i) => (<>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.name" /></label>
-              <Input size="sm" label="EN" value={award.name.en} onChange={(v) => updateAward(i, "name.en", v)} />
+              <Input size="md" inlineLabel="EN" value={award.name.en} onChange={(v) => updateAward(i, "name.en", v)} />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.period" /></label>
@@ -554,8 +548,8 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
             <div className={styles.fieldGroup}>
               <label className={styles.fieldGroupLabel}><T k="admin.settings.profile.organization" /></label>
               <div className={styles.profileGrid}>
-                <Input size="sm" label="KO" value={award.organization.ko} onChange={(v) => updateAward(i, "organization.ko", v)} />
-                <Input size="sm" label="EN" value={award.organization.en} onChange={(v) => updateAward(i, "organization.en", v)} />
+                <Input size="md" inlineLabel="KO" value={award.organization.ko} onChange={(v) => updateAward(i, "organization.ko", v)} />
+                <Input size="md" inlineLabel="EN" value={award.organization.en} onChange={(v) => updateAward(i, "organization.en", v)} />
               </div>
             </div>
           </>)}
@@ -598,7 +592,7 @@ function SortableList<T>({
       <div className={styles.sectionTitleRow}>
         {title}
         {items.length > 0 && (
-          <Button variant="link" size="xs" onClick={toggleAll}>
+          <Button variant="outline" size="2xs" onClick={toggleAll}>
             <T k={allOpen ? "admin.settings.profile.collapseAll" : "admin.settings.profile.expandAll"} />
           </Button>
         )}
@@ -625,7 +619,7 @@ function SortableList<T>({
                       </button>
                     </div>
                     <ExpandablePanel open={isOpen} className={styles.skillExpandable}>
-                      <div>{renderDetails(item, i)}</div>
+                      <div className={styles.profileExpandableInner}>{renderDetails(item, i)}</div>
                     </ExpandablePanel>
                   </>)}
                 </SortableRow>
@@ -634,7 +628,7 @@ function SortableList<T>({
           </div>
         </SortableContext>
       </DndContext>
-      <Button variant="outline" size="xs" fullWidth className={styles.profileAddBtn} onClick={onAdd}>{addLabel}</Button>
+      <Button variant="outline" size="md" fullWidth className={styles.profileAddBtn} onClick={onAdd}>{addLabel}</Button>
     </>
   );
 }

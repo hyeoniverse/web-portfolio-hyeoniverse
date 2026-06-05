@@ -7,11 +7,29 @@
   gap: var(--spacing-sm) var(--spacing-lg);
 }
 
-/* drop indicator — section absolute, gap 정중앙. y 위치는 JS 가 계산 */
+/* singleColumn prop true 시 — chip 1열 stack (정렬 순서 = 위→아래 명확) */
+.sectionSingleCol {
+  grid-template-columns: 1fr;
+}
+
+/* 정렬 순서 번호 badge — chip 앞. min-width 는 inline style 로 caller 결정 (기본 5ch = "#9999") */
+.indexBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary-alt);
+  border-radius: var(--radius-capsule);
+  font-variant-numeric: tabular-nums;
+}
+
+/* drop indicator — section absolute. top + left + width 는 JS 가 계산 (dragging chip cell 너비만큼) */
 .dropIndicator {
   position: absolute;
-  left: 0;
-  right: 0;
   height: 2px;
   background: var(--text-accent);
   border-radius: 1px;
@@ -25,7 +43,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2xs);
-  padding-left: var(--spacing-sm);
+  padding-left: var(--spacing-2xs);
   border-left: var(--border-light);
   transition: opacity 0.15s ease;
 }
@@ -69,41 +87,7 @@
   color: var(--text-primary);
 }
 
-.tag {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text-secondary);
-  transition: color 0.15s ease;
-}
-
-/* button 으로 렌더될 때 — span 과 동일 톤 유지 (외부 click 핸들러용 wrap) */
-button.tag {
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  text-align: inherit;
-}
-
-button.tag:hover {
-  color: var(--text-primary);
-}
-
-/* 외부 편집 패널에서 active 인 chip — accent 강조 (text + underline) */
-.tagActive {
-  color: var(--text-accent) !important;
-  text-decoration: underline;
-  text-decoration-color: var(--color-accent);
-  text-underline-offset: 3px;
-}
-
-/* × 버튼 hover 시 — accent 색 취소선 */
-.tagGroup:has([data-close-trigger]:hover) .tag {
-  text-decoration: line-through;
-  text-decoration-color: var(--text-accent);
-  color: var(--text-accent);
-}
+/* chip 자체 스타일(.tag / .tagActive / hover line-through) 은 공통 Chip 컴포넌트가 담당 — 본 파일에서 제거. */
 
 /* + Add / × Cancel 버튼 — ghost capsule, slim, fit content */
 .toggleBtn {
@@ -309,16 +293,17 @@ button.tag:hover {
   color: var(--text-primary);
 }
 
-/* readonly 표시 — ul (custom bullet 사용). 들여쓰기 한 칸 (header 기준 살짝 안쪽) */
+/* readonly 표시 — ul. header 의 .tag 시작점과 정확히 정렬 (padding-left 는 caller 가 inline style 로 지정). */
 .readonly {
   list-style: none;
   margin: 0;
-  padding: 0 0 0 var(--spacing-xs);
+  padding: 0;
 }
 
-/* readonly KO·EN line — itemRow 와 동일 layout, align center 만 차이 */
+/* readonly KO·EN line — itemRow 와 동일 layout. badge/checkbox 가 첫 줄 상단에 정렬되도록 flex-start
+   (text 가 여러 줄 wrap 될 때 badge 가 center 되면 시각 무게중심이 틀어짐) */
 .readonlyLine {
-  align-items: center;
+  align-items: flex-start;
 }
 
 /* readonly bullet — 비표시 (덜어내기), 자리는 0 으로 collapse */
@@ -344,30 +329,6 @@ button.tag:hover {
   height: 16px;
   flex-shrink: 0;
   cursor: pointer;
-}
-
-/* EN line — checkbox 자리 spacer */
-.readonlyCheckSpacer {
-  display: inline-block;
-  width: 14px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
-.readonlyBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 16px;
-  padding: 0 5px;
-  background: var(--bg-tertiary);
-  color: var(--text-tertiary);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
 }
 
 .readonlyText {
