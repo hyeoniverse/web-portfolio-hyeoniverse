@@ -26,6 +26,28 @@
 --
 -- 기존 DB 에서 마이그레이션 중이라면 supabase/migrations/ 의 .sql 파일을
 -- 날짜순으로 실행하세요. 이 파일은 \"fresh install\" 기준입니다.
+--
+-- 마이그레이션 통합 (이 setup.sql 안에 내용 흡수됨, 파일 끝에서 applied_migrations 에
+-- record 만 남김 — 나중에 같은 마이그레이션 단일 실행해도 log_migration_applied 가
+-- was_new = false 로 skip):
+--   2026_05_14  post_views — KST timezone + atomic dedup function
+--   2026_05_18  admin_known_devices — 새 기기 인증 (UA fingerprint)
+--   2026_05_18  admin_login_attempts — 로그인 lockout (5회 → 15분)
+--   2026_05_18  posts/works.purge_after — 휴지통 TTL
+--   2026_05_21  series_order_normalize trigger
+--   2026_05_22  publish_scheduled + purge_trash_scheduled pg_cron + pg_net + Vault
+--   2026_05_22  works.categories_ko/en TEXT[] (다중 카테고리)
+--   2026_05_22  works.nature_ko/en (제작 동기)
+--   2026_05_22  works.slug UNIQUE
+--   2026_05_23  works.contributions / tech_notes jsonb
+--   2026_05_24  posts.tag_notes jsonb (태그별 설명)
+--   2026_05_26  applied_migrations + log_migration_applied 헬퍼
+--   2026_05_26  safe_publish_scheduled / safe_purge_trash_scheduled wrapper
+--                 (EXCEPTION 잡아 admin_notifications insert)
+--   2026_05_26  works.number DROP (sort_order 로 derive)
+--   2026_05_27  works.size DROP
+--   2026_05_28  publish_scheduled — #variable_conflict use_column (id ambiguity fix)
+--   2026_05_29  posts.github_url
 -- ============================================================
 
 
@@ -861,9 +883,12 @@ $$;
 
 -- 예약 발행 — 시간이 도달한 예약 게시물/작품을 발행 + admin_notifications + 이메일.
 -- pg_cron 이 매분 호출 (idempotent). RETURN QUERY 가 caller 에 stream 하고 별도 LOOP 로 알림 처리.
+-- #variable_conflict use_column — RETURNS TABLE 의 묵시적 OUT 변수 (id, title) 가
+-- 본문 SQL 의 컬럼 참조와 충돌해 "column reference 'id' is ambiguous" 가 던져지는 것 방지.
 CREATE OR REPLACE FUNCTION publish_scheduled()
 RETURNS TABLE(table_name text, id uuid, title text, was_scheduled_at timestamptz)
 LANGUAGE plpgsql SECURITY DEFINER AS $$
+#variable_conflict use_column
 DECLARE
   r RECORD;
   total int := 0;
@@ -1203,4 +1228,36 @@ END $$;
 --
 -- Storage:
 --   uploads (public)                              : logos/, resume/, bgm/, covers/, images/, posts/ ...
+-- ============================================================
+
+
+-- ────────────────────────────────────────────────────────────
+-- Applied migrations log — setup.sql 이 흡수한 마이그레이션 마킹
+-- ────────────────────────────────────────────────────────────
+-- 위 파일의 모든 구조는 아래 마이그레이션 18건을 통합한 결과입니다.
+-- fresh install 환경에서 setup.sql 실행 직후, supabase/migrations/ 의 .sql 을
+-- 단일 실행해도 was_new = false 로 skip 되도록 record 만 미리 남깁니다.
+--
+-- log_migration_applied 대신 직접 INSERT — fresh install 시점엔 admin 이 아직
+-- 없어서 알림이 의미 없고, 18건 알림이 한꺼번에 쌓이는 노이즈도 회피.
+INSERT INTO applied_migrations (name, description) VALUES
+  ('2026_05_14_post_views_kst',                'post_views — KST timezone + atomic dedup + race-free counter'),
+  ('2026_05_18_admin_known_devices',           '새 기기 인증 (admin_known_devices) — UA fingerprint + approve token'),
+  ('2026_05_18_admin_login_lockout',           'admin 로그인 lockout (admin_login_attempts) — 5회 → 15분'),
+  ('2026_05_18_trash_purge_after',             'posts/works.purge_after — 휴지통 TTL'),
+  ('2026_05_21_series_order_normalize',        'series_order 자동 정합화 trigger'),
+  ('2026_05_22_publish_purge_pg_cron',         'publish_scheduled + purge_trash_scheduled pg_cron + pg_net + Vault'),
+  ('2026_05_22_works_categories_multi',        'works.categories_ko/en TEXT[] (다중 카테고리)'),
+  ('2026_05_22_works_nature',                  'works.nature_ko/en (제작 동기 축)'),
+  ('2026_05_22_works_nature_backfill',         'works.nature backfill — fresh install 은 데이터 없어 no-op'),
+  ('2026_05_22_works_slug',                    'works.slug UNIQUE — /works/[slug] 라우팅'),
+  ('2026_05_23_works_contributions_tech_notes','works.contributions / tech_notes jsonb'),
+  ('2026_05_24_posts_tag_notes',               'posts.tag_notes jsonb (태그별 설명)'),
+  ('2026_05_26_a_migration_applied_helper',    'applied_migrations 테이블 + log_migration_applied 헬퍼'),
+  ('2026_05_26_cron_error_notifications',      'safe_publish_scheduled / safe_purge_trash_scheduled wrapper (EXCEPTION → admin_notifications)'),
+  ('2026_05_26_works_drop_number',             'works.number DROP — sort_order 로 derive'),
+  ('2026_05_27_works_drop_size',               'works.size DROP'),
+  ('2026_05_28_publish_scheduled_fix_ambiguous','publish_scheduled — #variable_conflict use_column (id ambiguity fix)'),
+  ('2026_05_29_posts_github_url',              'posts.github_url')
+ON CONFLICT (name) DO NOTHING;
 -- ============================================================
