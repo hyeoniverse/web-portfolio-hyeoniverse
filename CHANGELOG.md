@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.15.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.14.0...v1.15.0) (2026-06-05)
+
+
+### Features
+
+* **admin:** 시스템 알림 9종 추가 + cron / migration 추적 ([#207](https://github.com/hyeoniverse/web-portfolio-oval/issues/207)) ([a17246d](https://github.com/hyeoniverse/web-portfolio-oval/commit/a17246d0879461ce7ef7ebbd35817877985fe53a)), closes [#206](https://github.com/hyeoniverse/web-portfolio-oval/issues/206)
+* **editor:** autosave / draft / revision panel 아키텍처 재정비 ([#196](https://github.com/hyeoniverse/web-portfolio-oval/issues/196)) ([#197](https://github.com/hyeoniverse/web-portfolio-oval/issues/197)) ([cba1cfa](https://github.com/hyeoniverse/web-portfolio-oval/commit/cba1cfa42fbc1bd2e0305db0bbe7d376297d28db))
+* **editor:** 요약 (excerpt / description) 글자수 soft hint 추가 ([#183](https://github.com/hyeoniverse/web-portfolio-oval/issues/183)) ([#184](https://github.com/hyeoniverse/web-portfolio-oval/issues/184)) ([7e580d6](https://github.com/hyeoniverse/web-portfolio-oval/commit/7e580d64753ff42233b78dd2b763079183e276f6))
+* **ui:** Button loadingVariant=wave + notifications 항목 clickable ([#217](https://github.com/hyeoniverse/web-portfolio-oval/issues/217)) ([be2f636](https://github.com/hyeoniverse/web-portfolio-oval/commit/be2f636ba152eabddbfd617f4b05941d27149340)), closes [#216](https://github.com/hyeoniverse/web-portfolio-oval/issues/216)
+* **ui:** HeartIcon 추출 + Textarea contenteditable + formatCount 통일 ([#189](https://github.com/hyeoniverse/web-portfolio-oval/issues/189)) ([#190](https://github.com/hyeoniverse/web-portfolio-oval/issues/190)) ([68d3248](https://github.com/hyeoniverse/web-portfolio-oval/commit/68d3248b82ea7f8ac35a5ab7b77083bcf1a144f0))
+* **ui:** LanguageToggle size sm + Modal cancel difference variant ([#199](https://github.com/hyeoniverse/web-portfolio-oval/issues/199)) ([d62768b](https://github.com/hyeoniverse/web-portfolio-oval/commit/d62768bc7ab687914ac6b3f1cbe49e8421713b7a))
+* **works:** number 컬럼 제거 + sort_order 에서 derive ([#203](https://github.com/hyeoniverse/web-portfolio-oval/issues/203)) ([8390f97](https://github.com/hyeoniverse/web-portfolio-oval/commit/8390f974676229b715fccf0017c78b6ccb781bea)), closes [#202](https://github.com/hyeoniverse/web-portfolio-oval/issues/202)
+* **works:** size 컬럼 제거 + sort_order cycle 로 derive ([#213](https://github.com/hyeoniverse/web-portfolio-oval/issues/213)) ([d03cec9](https://github.com/hyeoniverse/web-portfolio-oval/commit/d03cec958d4b864ecf72279f4e51f93aabfa7707)), closes [#212](https://github.com/hyeoniverse/web-portfolio-oval/issues/212)
+
+
+### Bug Fixes
+
+* **admin:** config_changed 알림 — delta unwrap + tab url metadata ([#215](https://github.com/hyeoniverse/web-portfolio-oval/issues/215)) ([420c163](https://github.com/hyeoniverse/web-portfolio-oval/commit/420c1634917d7d1aea50d820196d1ade5d7861ed)), closes [#214](https://github.com/hyeoniverse/web-portfolio-oval/issues/214)
+* **footer:** Admin 메뉴 클릭 시 /admin (dashboard) 로 이동 ([#185](https://github.com/hyeoniverse/web-portfolio-oval/issues/185)) ([#186](https://github.com/hyeoniverse/web-portfolio-oval/issues/186)) ([f1418e5](https://github.com/hyeoniverse/web-portfolio-oval/commit/f1418e5d867412d5339d06ef08d3eb4a2d0a56f0))
+* **supabase:** migration helper 알파벳 first 로 rename ([#211](https://github.com/hyeoniverse/web-portfolio-oval/issues/211)) ([69f878d](https://github.com/hyeoniverse/web-portfolio-oval/commit/69f878db2fb2393f46c9bae3ee9fd0ff359617e1)), closes [#210](https://github.com/hyeoniverse/web-portfolio-oval/issues/210)
+* **works:** WorkDetail ownerMember 에 name_en 명시 — typecheck 통과 ([#236](https://github.com/hyeoniverse/web-portfolio-oval/issues/236)) ([6ea392d](https://github.com/hyeoniverse/web-portfolio-oval/commit/6ea392d6c488aae49c03428790c3986d92c49e4d)), closes [#235](https://github.com/hyeoniverse/web-portfolio-oval/issues/235)
+
 ## [1.14.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.13.0...v1.14.0) (2026-05-24)
 
 
