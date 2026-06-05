@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { deviceKey } from "@/lib/auth/uaParser";
 
 /** DELETE /api/admin/auth/devices/[id]
- *  특정 기기 등록 해제. 다시 그 기기에서 로그인하면 새 기기 인증 흐름 재발생.
- *  현재 기기 자체를 삭제해도 supabase 세션은 살아있음 — 그건 별도 logout 으로. */
+ *  특정 기기 등록 해제. UI 에서 같은 browser+OS+device 로 묶인 모든 row 를 같이 삭제
+ *  (legacy raw-UA hash 중복 row 도 깔끔히 정리). */
 export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -15,13 +16,34 @@ export async function DELETE(
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const admin = createAdminClient();
-  // user_id 매칭 확인 — 남의 기기 못 지우게
+  // 대상 row 의 user_agent 로 deviceKey 계산 → 같은 group 의 모든 row 제거
+  const { data: target } = await admin
+    .from("admin_known_devices")
+    .select("user_agent")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .maybeSingle<{ user_agent: string | null }>();
+
+  if (!target) return NextResponse.json({ success: true });
+
+  const targetKey = deviceKey(target.user_agent ?? "");
+  const { data: all } = await admin
+    .from("admin_known_devices")
+    .select("id, user_agent")
+    .eq("user_id", user.id);
+
+  const idsToDelete = (all ?? [])
+    .filter((r) => deviceKey(r.user_agent ?? "") === targetKey)
+    .map((r) => r.id);
+
+  if (idsToDelete.length === 0) return NextResponse.json({ success: true });
+
   const { error } = await admin
     .from("admin_known_devices")
     .delete()
-    .eq("id", id)
+    .in("id", idsToDelete)
     .eq("user_id", user.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, deletedCount: idsToDelete.length });
 }

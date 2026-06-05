@@ -10,18 +10,28 @@
   width: fit-content;
 }
 
-/* capsule + border-light, height 28 — TagNotesEditor 와 동일 라인 */
+/* layout=row — 컨테이너 좁아도 wrap 안하고 항상 ko/en 1:1 분할로 강제 (auto-fit override) */
+.pairRow {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* capsule + border-light. 기본 height md (32px) — 다른 control 들과 통일. */
 .wrap {
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  height: 28px;
+  height: 32px;
   padding-left: var(--spacing-2xs);
   padding-right: 0;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   box-sizing: border-box;
+}
+
+/* sm 사이즈 — TagNotesEditor 인라인 row (28px) 처럼 좁은 alignment 가 필요한 곳에서만 명시 */
+.wrapSm {
+  height: 28px;
 }
 
 /* multiLine prop 은 BilingualInputPair 외부 (TagNotesEditor) 에서 pair 여러 개 렌더링 시 사용.

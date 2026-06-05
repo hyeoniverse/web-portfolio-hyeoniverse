@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensurePostCategory } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
-import { escapeOrSearch } from "@/lib/api/search";
+import { applySearchQuery } from "@/lib/api/applySearchQuery";
+import type { SyntaxMode } from "@/lib/searchQuery";
 import type { PostFormData } from "@/types/post";
 
 // GET /api/posts — 목록 조회
@@ -81,14 +82,13 @@ export async function GET(request: Request) {
   }
 
   if (search) {
-    const s = escapeOrSearch(search);
-    if (searchType === "all") {
-      query = query.or(`title.ilike.%${s}%,title_en.ilike.%${s}%,content.ilike.%${s}%,content_en.ilike.%${s}%`);
-    } else if (searchType === "content") {
-      query = query.or(`content.ilike.%${s}%,content_en.ilike.%${s}%`);
-    } else {
-      query = query.or(`title.ilike.%${s}%,title_en.ilike.%${s}%`);
-    }
+    const mode = (searchParams.get("syntaxMode") === "regex" ? "regex" : "prefix") as SyntaxMode;
+    const columns = searchType === "all"
+      ? ["title", "title_en", "content", "content_en"]
+      : searchType === "content"
+        ? ["content", "content_en"]
+        : ["title", "title_en"];
+    query = applySearchQuery(query, { search, mode, columns });
   }
 
   // 시리즈 필터링 시에는 series_order ASC 우선 (시리즈 안의 순서대로 보이도록)

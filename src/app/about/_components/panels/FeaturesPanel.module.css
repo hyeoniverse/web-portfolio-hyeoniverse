@@ -14,6 +14,13 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
+  /* hover 시 backdrop-filter 활성 — isHovered prop 으로 .featureDfOverlayHovered 토글 */
+  transition: backdrop-filter var(--duration-moderate) ease;
+}
+
+/* hover 시 frame 뒤 이미지/비디오 blur — backdrop-filter 로 overlay 뒤 미디어만 blur */
+.featureDfOverlayHovered {
+  backdrop-filter: blur(8px);
 }
 
 .featureDfInfo {
@@ -29,7 +36,7 @@
 
 .featureDfTitle {
   margin: 0;
-  font-size: var(--_fs-body);
+  font-size: calc(var(--_fs-subhead) * 0.85);
   font-weight: var(--font-weight-semibold);
   color: var(--text-white);
   text-shadow: 0 1px 4px var(--color-gray-alpha-50);
@@ -47,7 +54,7 @@
 
 .featureDfDesc {
   margin: 0;
-  font-size: var(--_fs-small);
+  font-size: calc(var(--_fs-body) * 0.9);
   line-height: var(--_lh-reading);
   color: var(--text-white);
   text-shadow: 0 1px 3px var(--color-gray-alpha-40);

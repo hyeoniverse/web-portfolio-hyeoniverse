@@ -442,6 +442,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
   }, [config, stops, angle, type, onSelect]);
 
   return (
+    <div className={styles.customGradientWrap}>
     <div className={styles.customGradient}>
       <div className={styles.customGradientPreview}>
         <canvas ref={canvasRef} />
@@ -674,6 +675,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
           </label>
         </div>
       </div>
+    </div>
     </div>
   );
 }

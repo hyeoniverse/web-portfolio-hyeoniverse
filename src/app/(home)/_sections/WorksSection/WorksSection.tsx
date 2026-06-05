@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef, memo, useCallback, useState } from "react";
-import Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 import { motion, MotionValue } from "framer-motion";
 import { worksData, WorkItem } from "@/data/works";
 import type { Language } from "@/providers/LanguageProvider";
@@ -100,7 +100,7 @@ const WorkCircle = memo(function WorkCircle({
               ease: [0.25, 0.1, 0.25, 1],
             }}
           >
-            <Image
+            <MediaThumb
               src={work.main}
               alt={`Work ${work.id}`}
               fill
@@ -141,7 +141,7 @@ const WorkCircle = memo(function WorkCircle({
               }}
               style={{ width: "100%", height: "100%", position: "relative" }}
             >
-              <Image
+              <MediaThumb
                 src={work.hover}
                 alt={`Work ${work.id}`}
                 fill

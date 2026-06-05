@@ -19,19 +19,34 @@ const QUALITY_START = 0.85;
 const QUALITY_STEP = 0.05;
 const QUALITY_MIN = 0.7;
 
-// ── 형식별 업로드 크기 제한 (기본값, MB) ──
+// ── 형식별 업로드 크기 제한 (기본값, MB) ── site.config.ts media.limits 와 동기화 유지 ──
 const DEFAULT_LIMITS: Record<string, number> = {
+  // image
   "image/jpeg": 5,
   "image/png": 5,
   "image/webp": 5,
   "image/svg+xml": 2,
   "image/gif": 10,
+  // video
   "video/mp4": 50,
   "video/webm": 50,
+  "video/quicktime": 50,
+  // audio
   "audio/mpeg": 20,
   "audio/wav": 20,
   "audio/ogg": 20,
+  // document
+  "text/markdown": 1,
+  "text/plain": 1,
+  "text/csv": 5,
   "application/pdf": 20,
+  "application/msword": 20,
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": 20,
+  "application/vnd.ms-excel": 20,
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": 20,
+  "application/vnd.ms-powerpoint": 50,
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": 50,
+  // archive
   "application/zip": 50,
   _default: 20,
 };
@@ -57,8 +72,15 @@ function isBlockedExtension(file: File): boolean {
   return BLOCKED_EXTENSIONS.has(ext);
 }
 
-/** 파일 보안 + 크기 검증. 에러 시 메시지 반환, 통과 시 null */
-export function validateFileSize(file: File, limits?: Record<string, number>): string | null {
+/** 파일 보안 + 크기 검증. 에러 시 메시지 반환, 통과 시 null.
+ *
+ * opts.skipCompressibleBypass=true 이면 jpg/png/webp 도 compress 파이프라인 후 재검증 목적으로
+ * 검사 통과시키지 않고 limit 초과 시 에러 반환. 압축 후 호출 또는 압축 안 하는 경로 (contact form) 에서 사용. */
+export function validateFileSize(
+  file: File,
+  limits?: Record<string, number>,
+  opts?: { skipCompressibleBypass?: boolean },
+): string | null {
   // 차단 확장자 검사
   if (isBlockedExtension(file)) {
     const ext = file.name.split(".").pop()?.toLowerCase();
@@ -68,8 +90,9 @@ export function validateFileSize(file: File, limits?: Record<string, number>): s
   if (file.size <= limit) return null;
   const limitMB = limit / (1024 * 1024);
   const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-  // 압축 가능한 이미지(jpg/png/webp)는 파이프라인이 처리하므로 통과
-  if (file.type.startsWith("image/") && !SKIP_TYPES.has(file.type)) return null;
+  // 압축 가능한 이미지는 compressImage 가 처리하니 pre-validation 단계에선 통과시킴.
+  // 단 opts.skipCompressibleBypass 가 true 면 (post-compress 또는 압축 안 하는 경로) bypass 비활성.
+  if (!opts?.skipCompressibleBypass && file.type.startsWith("image/") && !SKIP_TYPES.has(file.type)) return null;
   return `파일 크기 제한 초과: ${sizeMB}MB / 최대 ${limitMB}MB`;
 }
 

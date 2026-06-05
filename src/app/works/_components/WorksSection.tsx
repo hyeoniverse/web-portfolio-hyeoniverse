@@ -11,7 +11,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
-import Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
@@ -67,6 +67,8 @@ type LayoutType = "flow" | "fullscreen" | "cinematic" | "grid" | "split" | "cyli
 export default function WorksSection({ projects: projectsProp }: WorksSectionProps) {
   const projects = projectsProp ?? staticProjects;
   const PROJECT_COUNT = projects.length;
+  // statsClients 라벨이 "Tech Stack" 이므로 전체 작품의 tech 항목 union → unique 개수로 카운트
+  const TECH_COUNT = new Set(projects.flatMap((p) => p.tech ?? [])).size;
   const allProjects = Array(INFINITE_SCROLL_SETS).fill(projects).flat();
 
   const { t } = useLanguage();
@@ -540,7 +542,9 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
         </div>
         <div className={styles.introStatDivider} />
         <div className={styles.introStat}>
-          <span className={styles.introStatNumber}>05</span>
+          <span className={styles.introStatNumber}>
+            {String(TECH_COUNT).padStart(2, "0")}
+          </span>
           <span className={styles.introStatLabel}>
             <T ko={w.statsClients_ko} en={w.statsClients} />
           </span>
@@ -717,7 +721,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
               }}
               transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
             >
-              <Image
+              <MediaThumb
                 src={transitionData.image}
                 alt="Transition"
                 fill

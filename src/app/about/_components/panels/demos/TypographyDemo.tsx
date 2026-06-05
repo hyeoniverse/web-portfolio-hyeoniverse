@@ -8,7 +8,7 @@ const styles = { ...shared, ...local };
 const fonts = [
   { label: "Inter", family: "var(--font-inter)" },
   { label: "Instrument", family: "var(--font-instrument)" },
-  { label: "JetBrains", family: "var(--font-jetbrains)" },
+  { label: "JetBrains", family: "var(--font-mono)" },
   { label: "Grotesk", family: "var(--font-space-grotesk)" },
 ];
 

@@ -8,11 +8,12 @@ import { toggleList, someList, someTodoList } from "@platejs/list";
 import { indent, outdent } from "@platejs/indent";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
-import Select from "@/components/ui/Select";
+import _Select from "@/components/ui/Select";
 import ColorPicker from "@/components/ui/ColorPicker";
-import { loadGoogleFont, validateGoogleFont } from "@/lib/loadGoogleFont";
+import FontPicker from "@/components/ui/FontPicker";
+import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
-import { MessageSquareQuote, ChevronRight, ExternalLink, Undo2, Redo2, SquareCheck } from "lucide-react";
+import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck } from "lucide-react";
 import { AlignIcon } from "../icons";
 import {
   FONT_GROUPS,
@@ -58,176 +59,46 @@ interface MainToolbarProps {
 }
 
 
-// ── Font Picker (검색 + Google Fonts) ──
-function FontPicker({ value, onChange, preferEn }: { value: string; onChange: (val: string, googleName?: string) => void; preferEn?: boolean }) {
-  const { t } = useLanguage();
-  const [query, setQuery] = useState("");
-  const [googleResult, setGoogleResult] = useState<{ name: string; valid: boolean } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+// ── Editor 용 FontPicker wrapper — 공통 FontPicker 위에 editor 특유의 normalize/Default 처리 ──
+function EditorFontPicker({ value, onChange, preferEn }: { value: string; onChange: (val: string, googleName?: string) => void; preferEn?: boolean }) {
+  // editor 는 "Default" (빈 값) 옵션을 그룹 최상단에 prepend. 나머지는 FONT_GROUPS 그대로.
+  const groups = [
+    { group: "", fonts: [{ label: "Default", value: "" }] },
+    ...FONT_GROUPS,
+  ];
 
-  // 검색어 변경 시 Google Fonts 검증 (debounce)
-  useEffect(() => {
-    clearTimeout(debounceRef.current);
-    const q = query.trim();
-    if (!q || FONT_FAMILIES_FLAT.some((f) => f.label.toLowerCase().includes(q.toLowerCase()))) {
-      setGoogleResult(null);
-      return;
-    }
-    setLoading(true);
-    debounceRef.current = setTimeout(async () => {
-      const valid = await validateGoogleFont(q);
-      setGoogleResult({ name: q, valid });
-      setLoading(false);
-    }, 500);
-    return () => clearTimeout(debounceRef.current);
-  }, [query]);
-
-  // value → 실제 매칭되는 font entry의 value (따옴표 차이 보정)
-  const matchedValue = (() => {
-    if (!value) return "";
-    if (FONT_FAMILIES_FLAT.some((f) => f.value === value)) return value;
-    const normalized = value.replace(/["']/g, "").split(",")[0].trim();
+  // editor 값은 CSS font-family string (따옴표 등 표기 차이 있을 수 있음) — 정규화해서 매칭
+  const resolveMatch = (v: string) => {
+    if (!v) return "";
+    if (FONT_FAMILIES_FLAT.some((f) => f.value === v)) return v;
+    const normalized = v.replace(/["']/g, "").split(",")[0].trim();
     const byName = FONT_FAMILIES_FLAT.find((f) => f.label.toLowerCase() === normalized.toLowerCase());
     return byName ? byName.value : "";
-  })();
+  };
 
-  const currentLabel = (() => {
+  const renderValue = () => {
     if (!value) return "Default";
-    if (matchedValue) {
-      const font = FONT_FAMILIES_FLAT.find((f) => f.value === matchedValue);
+    const matched = resolveMatch(value);
+    if (matched) {
+      const font = FONT_FAMILIES_FLAT.find((f) => f.value === matched);
       return font ? font.label : "Default";
     }
     const normalized = value.replace(/["']/g, "").split(",")[0].trim();
     return normalized || "Default";
-  })();
-
-  // 영문 우선이면 영문 그룹을 한글 그룹 앞으로
-  const orderedGroups = (() => {
-    if (!preferEn) return FONT_GROUPS;
-    const ko = ["Sans (한글)", "Serif (한글)", "Display (한글)"];
-    const before = FONT_GROUPS.filter((g) => !ko.includes(g.group));
-    const after = FONT_GROUPS.filter((g) => ko.includes(g.group));
-    return [...before, ...after];
-  })();
-
-  const filtered = query.trim()
-    ? orderedGroups.map((g) => ({
-        ...g,
-        fonts: g.fonts.filter((f) => f.label.toLowerCase().includes(query.toLowerCase())),
-      })).filter((g) => g.fonts.length > 0)
-    : orderedGroups;
-
-  const selectFont = (val: string, close: () => void, googleName?: string) => {
-    onChange(val, googleName);
-    close();
-    setQuery("");
   };
 
   return (
-    <Select
-      value={matchedValue}
-      onChange={() => {}}
-      variant="compact"
-      renderValue={() => currentLabel}
-      className={styles.fontPickerSelect}
+    <FontPicker
+      value={value}
+      onChange={onChange}
+      groups={groups}
+      preferEn={preferEn}
+      triggerClassName={styles.fontPickerSelect}
       dropdownClassName={styles.fontPickerDropdown}
-    >
-      {({ close }) => (
-        <>
-          {/* 검색 입력 */}
-          <div className={styles.fontDropSearch}>
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t("editor.fontSearch")}
-              className={styles.fontDropSearchInput}
-            />
-          </div>
-          {/* 폰트 목록 */}
-          <div data-lenis-prevent className={styles.fontDropList}>
-            {/* Default 옵션 */}
-            {!query && (() => {
-              const isDefault = !matchedValue && !value;
-              return (
-              <div
-                onMouseDown={(e) => { e.preventDefault(); selectFont("", close); }}
-                data-active={isDefault ? "" : undefined}
-                className={`${styles.fontDropItem} ${isDefault ? styles.fontDropItemActive : ""}`}
-              >
-                {isDefault ? "✓ " : ""}Default
-              </div>
-              );
-            })()}
-            {filtered.map((g) => (
-              <div key={g.group}>
-                <div className={styles.fontDropGroup}>{g.group}</div>
-                {g.fonts.map((f) => {
-                  const active = matchedValue === f.value;
-                  return (
-                  <div
-                    key={f.value}
-                    onMouseDown={(e) => { e.preventDefault(); selectFont(f.value, close, f.googleName); }}
-                    data-active={active ? "" : undefined}
-                    className={`${styles.fontDropItem} ${active ? styles.fontDropItemActive : ""}`}
-                    style={{ fontFamily: f.value }}
-                    onMouseEnter={() => { if (f.googleName) loadGoogleFont(f.googleName); }}
-                  >
-                    {active ? "✓ " : ""}{f.label}
-                  </div>
-                  );
-                })}
-              </div>
-            ))}
-            {/* Google Fonts 검색 결과 */}
-            {query.trim() && !loading && googleResult && (
-              <div className={styles.fontDropFooter}>
-                <div className={styles.fontDropGroup}>Google Fonts</div>
-                {googleResult.valid ? (
-                  <div
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      selectFont(`'${googleResult.name}', sans-serif`, close, googleResult.name);
-                    }}
-                    className={styles.fontDropItem}
-                    style={{ fontFamily: `'${googleResult.name}', sans-serif` }}
-                    onMouseEnter={() => loadGoogleFont(googleResult.name)}
-                  >
-                    {googleResult.name} ✓
-                  </div>
-                ) : (
-                  <div className={styles.fontDropHint}>
-                    &quot;{googleResult.name}&quot; {t("editor.fontNotFound")}
-                  </div>
-                )}
-              </div>
-            )}
-            {query.trim() && loading && (
-              <div className={styles.fontDropHint}>...</div>
-            )}
-            {query.trim() && filtered.length === 0 && !googleResult && !loading && (
-              <div className={styles.fontDropHint}>{t("editor.fontNoResult")}</div>
-            )}
-          </div>
-          {/* Google Fonts 새 창 열기 */}
-          <div className={styles.fontDropFooter}>
-            <a
-              href="https://fonts.google.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              onMouseDown={(e) => e.stopPropagation()}
-              className={styles.fontDropFooterLink}
-            >
-              <ExternalLink size={12} />
-              Google Fonts
-            </a>
-          </div>
-        </>
-      )}
-    </Select>
+      renderValue={renderValue}
+      resolveMatch={(v) => resolveMatch(v)}
+      toGoogleValue={(name) => `'${name}', sans-serif`}
+    />
   );
 }
 
@@ -375,7 +246,7 @@ export default React.memo(function MainToolbar({
       <div className={styles.divider} />
 
       {/* Font family — 검색 가능 드롭다운 */}
-      <FontPicker
+      <EditorFontPicker
         value={currentFontFamily || ""}
         preferEn={preferEn}
         onChange={(val, googleName) => {

@@ -112,7 +112,6 @@ export default function NotificationsPage() {
     openModal(
       <ModalConfirm
         desc={t("admin.notifications.deleteConfirmDesc")}
-        cancelText={t("admin.notifications.cancel")}
         confirmText={t("admin.notifications.deleteConfirm")}
         danger
         onConfirm={async () => {
@@ -209,7 +208,7 @@ export default function NotificationsPage() {
           <Tooltip content={t("admin.notifications.tipRefresh")} placement="bottom" delay={250}>
             <Button
               variant="outline"
-              size="xs"
+              size="md"
               onClick={fetchNotifications}
               disabled={loading}
               icon={<RefreshCw size={13} strokeWidth={1.8} className={loading ? styles.refreshSpinning : undefined} />}
@@ -219,14 +218,14 @@ export default function NotificationsPage() {
           </Tooltip>
           {!loading && unreadCount > 0 && (
             <Tooltip content={t("admin.notifications.tipMarkAllRead")} placement="bottom" delay={250}>
-              <Button variant="outline" size="xs" onClick={handleMarkAllRead}>
+              <Button variant="outline" size="md" onClick={handleMarkAllRead}>
                 <T k="admin.notifications.markAllRead" />
               </Button>
             </Tooltip>
           )}
           {!loading && notifications.length > 0 && (
             <Tooltip content={t("admin.notifications.tipDeleteAll")} placement="bottom" delay={250}>
-              <Button variant="outline" size="xs" tone="danger" onClick={handleDeleteAll}>
+              <Button variant="outline" size="md" tone="danger" onClick={handleDeleteAll}>
                 <T k="admin.notifications.deleteAll" />
               </Button>
             </Tooltip>

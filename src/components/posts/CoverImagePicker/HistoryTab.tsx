@@ -5,6 +5,8 @@ import { Check, Copy, Download, Palette, Trash2 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
 import { extractPalette } from "@/components/admin/CoverImageField/extractPalette";
+import { isVideoUrl } from "@/lib/isVideoUrl";
+import { downloadFile } from "./downloadFile";
 import type { HistoryItem } from "./useHistory";
 import styles from "./CoverImagePicker.module.css";
 
@@ -25,23 +27,6 @@ const SOURCE_KEY: Record<HistoryItem["source"], string> = {
 
 export default function HistoryTab({ items, onPick, onRemove, currentUrl }: HistoryTabProps) {
   const { t } = useLanguage();
-
-  const downloadUrl = useCallback(async (url: string, name: string) => {
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      const ext = (blob.type.split("/")[1] || "png").replace(/[^a-z0-9]/g, "");
-      const safe = name.trim().slice(0, 30).replace(/[^a-z0-9가-힣]+/gi, "_") || "cover";
-      a.download = `${safe}-${Date.now()}.${ext}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
-    } catch { /* swallow */ }
-  }, []);
 
   const copy = useCallback((text: string) => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -81,8 +66,20 @@ export default function HistoryTab({ items, onPick, onRemove, currentUrl }: Hist
               onClick={() => onPick(item.url)}
               title={item.meta}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.url} alt={item.meta} className={styles.historyThumbImg} />
+              {isVideoUrl(item.url) ? (
+                <video
+                  src={item.url}
+                  className={styles.historyThumbImg}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  onMouseEnter={(e) => { void e.currentTarget.play().catch(() => {}); }}
+                  onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                />
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={item.url} alt={item.meta} className={styles.historyThumbImg} />
+              )}
             </button>
             {/* 우상단 — active 체크 (항상 visible 일 때만) */}
             {isActive && (
@@ -140,7 +137,7 @@ export default function HistoryTab({ items, onPick, onRemove, currentUrl }: Hist
                 <button
                   type="button"
                   className={styles.historyOverlayBtn}
-                  onClick={(e) => { e.stopPropagation(); downloadUrl(item.url, item.meta); }}
+                  onClick={(e) => { e.stopPropagation(); downloadFile(item.url, item.meta); }}
                   aria-label={t("admin.posts.coverPicker.download")}
                 >
                   <Download size={11} strokeWidth={2} />

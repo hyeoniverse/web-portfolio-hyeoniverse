@@ -78,6 +78,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "images.pexels.com",
+        port: "",
+      },
+      {
+        protocol: "https",
         hostname: "**.supabase.co",
       },
     ],

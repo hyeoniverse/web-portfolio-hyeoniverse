@@ -1,7 +1,8 @@
-import Image from "next/image";
 import { ImageIcon, Download } from "lucide-react";
 import T from "@/components/ui/T";
+import HighlightedText from "@/components/ui/HighlightedText";
 import { formatPostTitle } from "@/utils/post";
+import MediaThumb from "@/components/admin/MediaThumb";
 import {
   adminTableStyles as ts,
   type AdminTableColumn,
@@ -23,14 +24,7 @@ export function createPostColumns(t: TFn): AdminTableColumn<Post>[] {
       render: (post) => (
         <div className={ts.colThumb}>
           {post.cover_image ? (
-            <Image
-              src={post.cover_image}
-              alt=""
-              fill
-              sizes="48px"
-              className={ts.thumbImg}
-              unoptimized
-            />
+            <MediaThumb src={post.cover_image} fill sizes="48px" className={ts.thumbImg} />
           ) : (
             <div className={ts.thumbPlaceholder}>
               <ImageIcon size={16} strokeWidth={1.5} />
@@ -44,7 +38,7 @@ export function createPostColumns(t: TFn): AdminTableColumn<Post>[] {
       key: "title",
       label: t("admin.posts.tableTitle"),
       className: ts.colTitle,
-      render: (post) => formatPostTitle(post) || t("admin.posts.untitled"),
+      render: (post) => <HighlightedText text={formatPostTitle(post) || t("admin.posts.untitled")} />,
       skeletonWidth: "75%",
     },
     {
@@ -107,7 +101,7 @@ export function createTrashColumns(
       render: (post) => (
         <div className={st.colThumb}>
           {post.cover_image ? (
-            <Image src={post.cover_image} alt="" fill sizes="48px" className={st.thumbImg} unoptimized />
+            <MediaThumb src={post.cover_image} fill sizes="48px" className={st.thumbImg} />
           ) : (
             <div className={st.thumbPlaceholder}>
               <ImageIcon size={16} strokeWidth={1.5} />
@@ -180,7 +174,7 @@ export function createSeriesColumns(
       render: (s) => (
         <div className={st.colThumb}>
           {s.cover_image ? (
-            <Image src={s.cover_image} alt="" fill sizes="48px" unoptimized className={st.thumbImg} />
+            <MediaThumb src={s.cover_image} fill sizes="48px" className={st.thumbImg} />
           ) : (
             <div className={st.thumbPlaceholder}>
               <ImageIcon size={16} strokeWidth={1.5} />

@@ -83,6 +83,7 @@ export default function Select({
   size = "default",
   editable,
   editableInputProps,
+  width,
 }: SelectProps) {
   // editable + value 비어있으면 mount 시 default editing (= 직접 입력 mode 부터 시작).
   const [editing, setEditing] = useState(() => !!editable && !value);
@@ -99,7 +100,7 @@ export default function Select({
   const [dropPos, setDropPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
   const [dropOffset, setDropOffset] = useState(0);
   /** mount 시 invisible probe 로 측정한 dropdown content width — trigger 가 첫 paint 부터 이 width 가짐 */
-  const [triggerWidth, setTriggerWidth] = useState<number | null>(null);
+  const [_triggerWidth, setTriggerWidth] = useState<number | null>(null);
   const probeRef = useRef<HTMLDivElement>(null);
   /** editable 더블클릭 감지용 — 첫 click 을 setTimeout 으로 지연, 두번째 click 오면 cancel + editing */
   const clickTimerRef = useRef<number | null>(null);
@@ -190,11 +191,8 @@ export default function Select({
   const selected = options.find((o) => o.value === value);
   const isCompact = variant === "compact";
   const hasChildren = children != null;
-  // fit-content 시 가장 긴 option label 기준 width — sizer span 으로 grid cell 채워서 자연 max-width
-  const longestLabel = useMemo(
-    () => options.reduce((max, o) => (o.label.length > max.length ? o.label : max), ""),
-    [options],
-  );
+  /* fit-content 시 trigger width — 모든 옵션 label 을 sizer 로 stack 해서
+     가장 넓은 자연 width 가 grid track 결정 (글자수 length 비교 X — 실제 렌더 width 기준). */
 
   // combobox: input value 로 options filter — label + searchTerms 둘 다 매칭
   const filteredOptions = useMemo(() => {
@@ -290,13 +288,17 @@ export default function Select({
         : filteredOptions.map((opt, i) => renderOptionBtn(opt, i));
 
   // dropdown 은 trigger 의 width 를 minWidth 로 보장. content 가 더 wide 면 자연 grow.
+  // 단 width="full" 일 땐 trigger 가 부모 column 폭에 맞춰져 있으므로 dropdown 도 그 폭을 cap (max-width) 으로 두고
+  // 옵션 라벨은 .option 의 ellipsis 로 잘림 처리 → 긴 옵션 라벨 때문에 dropdown 이 무한히 길어지는 현상 방지.
   // trigger 자체 width 는 sizer 기반 (가장 긴 label) 이라 open 전후 변하지 않음.
   const portalStyle: React.CSSProperties = isCompact
     ? { top: dropPos.top - dropOffset, left: dropPos.left, minWidth: dropPos.width }
-    : { top: dropPos.top, left: dropPos.left, minWidth: dropPos.width };
+    : width === "full"
+      ? { top: dropPos.top, left: dropPos.left, width: dropPos.width, maxWidth: dropPos.width }
+      : { top: dropPos.top, left: dropPos.left, minWidth: dropPos.width };
 
   return (
-    <div className={`${styles.root} ${isCompact ? styles.rootCompact : ""} ${open ? styles.rootOpen : ""} ${disabled ? styles.rootDisabled : ""} ${className ?? ""}`} ref={ref}>
+    <div className={`${styles.root} ${isCompact ? styles.rootCompact : ""} ${open ? styles.rootOpen : ""} ${disabled ? styles.rootDisabled : ""} ${width === "full" ? styles.rootFull : ""} ${className ?? ""}`} ref={ref}>
       {combobox ? (
         <>
           <input
@@ -329,7 +331,8 @@ export default function Select({
           autoFocus
           defaultValue={value}
           className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""}`}
-          style={triggerWidth ? { width: triggerWidth } : undefined}
+          /* triggerWidth (probe-measured) 제거 — trigger 가 자기 자연 너비 (.root width: max-content) 유지.
+             probe 가 dropdown 폰트(xs)로 측정해서 trigger 폰트(sm) 보다 짧아지는 문제 방지. */
           maxLength={editableInputProps?.maxLength}
           placeholder={editableInputProps?.placeholder ?? placeholder}
           disabled={disabled}
@@ -354,7 +357,8 @@ export default function Select({
         <button
           type="button"
           className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""}`}
-          style={triggerWidth ? { width: triggerWidth } : undefined}
+          /* triggerWidth (probe-measured) 제거 — trigger 가 자기 자연 너비 (.root width: max-content) 유지.
+             probe 가 dropdown 폰트(xs)로 측정해서 trigger 폰트(sm) 보다 짧아지는 문제 방지. */
           onClick={() => {
             if (disabled) return;
             if (!editable) { setOpen(!open); return; }
@@ -385,7 +389,11 @@ export default function Select({
                     </span>
                   ) : (placeholder ?? "")}
             </span>
-            <span className={styles.sizer} aria-hidden>{longestLabel || placeholder || ""}</span>
+            {options.length > 0
+              ? options.map((o, i) => (
+                  <span key={i} className={styles.sizer} aria-hidden>{o.label}</span>
+                ))
+              : <span className={styles.sizer} aria-hidden>{placeholder || ""}</span>}
           </span>
           <ChevronRight className={`${styles.arrow} ${open ? styles.arrowOpen : ""}`} size={12} strokeWidth={2.5} />
         </button>

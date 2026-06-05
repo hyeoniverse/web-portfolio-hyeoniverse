@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import { useState, useEffect, useMemo, useRef, forwardRef, useImperativeHandle } from "react";
 import Image from "next/image";
-import { ChevronUp, ChevronDown, ExternalLink, GripVertical, X, Trash2 } from "lucide-react";
+import { ChevronUp, ChevronDown, ExternalLink, GripVertical, Plus, Unlink, Trash2 } from "lucide-react";
+import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
 import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
@@ -37,6 +38,8 @@ interface SeriesInlineEditorProps {
   hideInlinePublishToggle?: boolean;
   /** form 상태 변경 알림 (외부 헤더의 토글/저장 버튼 동기화 용) */
   onFormStateChange?: (state: { published: boolean; saving: boolean }) => void;
+  /** 새 시리즈 default sort_order 계산용 — 현재 시리즈 총 개수 (default = totalCount + 1, 맨 뒤) */
+  totalCount?: number;
 }
 
 /** 외부에서 호출 가능한 명령 — save / setPublished */
@@ -56,6 +59,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
   hideBottomActions = false,
   hideInlinePublishToggle = false,
   onFormStateChange,
+  totalCount = 0,
 }, ref) {
   const { t, language } = useLanguage();
   const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
@@ -64,7 +68,9 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
   /* 새 시리즈 기본 카테고리 — '기타' 우선, 없으면 첫 카테고리 */
   const defaultCatKo = categories.find((c) => c.ko === "기타")?.ko || categories[0]?.ko || "";
 
-  const [form, setForm] = useState({
+  /* 초기값 — revert 시 이 값으로 복원. series prop 변경 시 갱신.
+     desiredPosition: 새 시리즈일 때 사용자가 원하는 list position (1-based, default totalCount+1 = 맨 뒤). */
+  const initialForm = useMemo(() => ({
     title: series?.title ?? "",
     title_en: series?.title_en ?? "",
     description: series?.description ?? "",
@@ -72,7 +78,17 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
     category: series?.category || defaultCatKo,
     cover_image: series?.cover_image ?? "",
     published: series?.published ?? true,
-  });
+    desiredPosition: totalCount + 1,
+  }), [series, defaultCatKo, totalCount]);
+
+  const [form, setForm] = useState(initialForm);
+
+  /* totalCount 가 비동기로 늦게 도착하는 케이스 — 새 시리즈일 때 desiredPosition 을 최신 totalCount+1 로 동기화.
+     마운트 시점에 totalCount=0 이라 1 로 시작했어도, total 이 로드되면 default 갱신. */
+  useEffect(() => {
+    if (isEdit) return;
+    setForm((prev) => ({ ...prev, desiredPosition: totalCount + 1 }));
+  }, [totalCount, isEdit]);
 
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -92,6 +108,25 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
   const [posts, setPosts] = useState<SeriesPostItem[]>([]);
   const [originalPosts, setOriginalPosts] = useState<SeriesPostItem[]>([]);
   const [removedPostIds, setRemovedPostIds] = useState<Set<string>>(new Set());
+
+  /* dirty 체크 — form 변경 OR posts 변경 (제거/추가/순서). originalPosts.id 와 posts.id 비교 */
+  const isDirty = useMemo(() => {
+    const formDirty = (Object.keys(initialForm) as Array<keyof typeof initialForm>).some(
+      (k) => form[k] !== initialForm[k],
+    );
+    if (formDirty) return true;
+    if (removedPostIds.size > 0) return true;
+    if (posts.length !== originalPosts.length) return true;
+    // 순서 변경 또는 추가 감지 — id 배열 비교
+    return posts.some((p, i) => p.id !== originalPosts[i]?.id);
+  }, [form, initialForm, posts, originalPosts, removedPostIds]);
+
+  const handleRevert = () => {
+    setForm(initialForm);
+    setPosts(originalPosts);
+    setRemovedPostIds(new Set());
+  };
+
   const [postsLoading, setPostsLoading] = useState(false);
   const [showAddPost, setShowAddPost] = useState(false);
   const [addPostVisible, setAddPostVisible] = useState(false);
@@ -305,42 +340,59 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
     try {
       const url = isEdit && series ? `/api/series/${series.id}` : "/api/series";
       const method = isEdit ? "PATCH" : "POST";
+      // desiredPosition 은 form 내부용 — body 에서 분리. POST default 는 max+1, 사용자 위치 변경은 PATCH 로 별도 처리.
+      const { desiredPosition: _desiredPosition, ...formBody } = form;
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(formBody),
       });
       if (!res.ok) throw new Error(ts("saveFailed"));
       const savedSeries = (await res.json()) as Series;
-
-      /* 포스트 변경사항 일괄 반영 */
-      if (isEdit) {
-        // 제거된 포스트
-        for (const id of removedPostIds) {
-          await fetch(`/api/posts/${id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ series_id: null, series_order: 0 }),
-          });
-        }
-        // 추가/순서 변경된 포스트
-        const originalIds = new Set(originalPosts.map((o) => o.id));
-        for (const p of posts) {
-          const orig = originalPosts.find((o) => o.id === p.id);
-          const isNew = !originalIds.has(p.id);
-          if (isNew) {
-            await fetch(`/api/posts/${p.id}`, {
+      /* 새 시리즈 + 사용자가 원한 position 이 기본 (맨 뒤) 와 다르면 PATCH 로 위치 변경 (backend auto-shift) */
+      if (!isEdit && form.desiredPosition !== totalCount + 1) {
+        // 현재 list 의 (position-1) 번째 시리즈의 sort_order 자리로 이동
+        try {
+          const listRes = await fetch(`/api/series?all=true&sortBy=default&sortDir=asc&page=0&limit=200`);
+          const listData = await listRes.json();
+          const items = (Array.isArray(listData?.items) ? listData.items : []) as Series[];
+          const target = items[form.desiredPosition - 1];
+          if (target && target.id !== savedSeries.id) {
+            await fetch(`/api/series/${savedSeries.id}`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ series_id: series!.id, series_order: p.series_order }),
-            });
-          } else if (!orig || orig.series_order !== p.series_order) {
-            await fetch(`/api/posts/${p.id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ series_order: p.series_order }),
+              body: JSON.stringify({ sort_order: target.sort_order }),
             });
           }
+        } catch { /* ignore — 위치 변경 실패 시 default 위치 유지 */ }
+      }
+
+      /* 포스트 변경사항 일괄 반영 — 새 시리즈 / edit 둘 다. savedSeries.id 로 연결. */
+      // 제거된 포스트 (edit 만 의미 — 새 시리즈는 removedPostIds 항상 빈 Set)
+      for (const id of removedPostIds) {
+        await fetch(`/api/posts/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ series_id: null, series_order: 0 }),
+        });
+      }
+      // 추가/순서 변경된 포스트 — 새 시리즈는 모든 posts 가 신규 연결
+      const originalIds = new Set(originalPosts.map((o) => o.id));
+      for (const p of posts) {
+        const orig = originalPosts.find((o) => o.id === p.id);
+        const isNew = !originalIds.has(p.id);
+        if (isNew) {
+          await fetch(`/api/posts/${p.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ series_id: savedSeries.id, series_order: p.series_order }),
+          });
+        } else if (!orig || orig.series_order !== p.series_order) {
+          await fetch(`/api/posts/${p.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ series_order: p.series_order }),
+          });
         }
       }
 
@@ -381,7 +433,19 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
     }>
       {isStandalone && !hideStandaloneHeader && (
         <div className={styles.seriesStandaloneHeader}>
-          <h3 className={styles.seriesStandaloneTitle}><T k="admin.posts.seriesModal.newTitle" /></h3>
+          <h3 className={styles.seriesStandaloneTitle}>
+            <span className={styles.seriesCardOrderPrefix}>
+              #
+              <EditableRowNumber
+                value={form.desiredPosition}
+                min={1}
+                max={totalCount + 1}
+                onSave={(n) => updateField("desiredPosition", n)}
+              />
+              _
+            </span>
+            <T k="admin.posts.seriesModal.newTitle" />
+          </h3>
           <div className={styles.seriesStandaloneActions}>
             <div className={styles.publishToggle}>
               <Switch
@@ -391,38 +455,62 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
               />
               <span key={form.published ? "pub" : "draft"} className={styles.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
             </div>
-            <Button variant="outline" size="xs" onClick={onCancel} soundDisabled>
+            <Button variant="outline" size="sm" onClick={handleRevert} disabled={!isDirty || saving} soundDisabled>
+              <T k="admin.posts.seriesModal.revert" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={onCancel} soundDisabled>
               <T k="admin.posts.seriesModal.cancel" />
             </Button>
-            <Button variant="primary" size="xs" onClick={handleSave} disabled={saving} loading={saving} soundDisabled>
+            <Button variant="primary" size="sm" onClick={handleSave} disabled={saving} loading={saving} soundDisabled>
               <T k="admin.posts.seriesModal.create" />
             </Button>
           </div>
         </div>
       )}
       <div className={styles.fieldPair}>
-        <Field label={ts("titleKO")} value={form.title} onChange={(v) => updateField("title", v)} required />
-        <Field label={ts("titleEN")} value={form.title_en} onChange={(v) => updateField("title_en", v)} />
+        <Field label={ts("titleLabel")} langBadge="ko" value={form.title} onChange={(v) => updateField("title", v)} required maxHint={80} />
+        <Field label={ts("titleLabel")} langBadge="en" value={form.title_en} onChange={(v) => updateField("title_en", v)} maxHint={80} />
       </div>
       <div className={styles.fieldPair}>
-        <Field label={ts("descriptionKO")} value={form.description} onChange={(v) => updateField("description", v)} multiline />
-        <Field label={ts("descriptionEN")} value={form.description_en} onChange={(v) => updateField("description_en", v)} multiline />
+        <Field label={ts("descLabel")} langBadge="ko" value={form.description} onChange={(v) => updateField("description", v)} multiline maxHint={200} />
+        <Field label={ts("descLabel")} langBadge="en" value={form.description_en} onChange={(v) => updateField("description_en", v)} multiline maxHint={200} />
       </div>
-      <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}>
-          <span className={styles.fieldLabelText}>
-            <T k="admin.posts.seriesModal.category" />
-            <span className={styles.fieldRequiredDot} aria-label="필수">•</span>
-          </span>
-        </label>
-        <Select
-          value={form.category}
-          options={categories.map((cat) => ({
-            value: cat.ko,
-            label: language === "ko" ? cat.ko : cat.en,
-          }))}
-          onChange={(v) => updateField("category", v)}
-        />
+      {/* 카테고리 + 순서 — fieldPair (2열 grid) */}
+      <div className={styles.fieldPair}>
+        <div className={styles.fieldRow}>
+          <label className={styles.fieldLabel}>
+            <span className={styles.fieldLabelText}>
+              <T k="admin.posts.seriesModal.category" />
+              <span className={styles.fieldRequiredDot} aria-label="필수">•</span>
+            </span>
+          </label>
+          <Select
+            value={form.category}
+            options={categories.map((cat) => ({
+              value: cat.ko,
+              label: language === "ko" ? cat.ko : cat.en,
+            }))}
+            onChange={(v) => updateField("category", v)}
+          />
+        </div>
+        {!isEdit && (
+          <div className={styles.fieldRow}>
+            <label className={styles.fieldLabel}>
+              <span className={styles.fieldLabelText}>
+                순서
+                <span className={styles.fieldRequiredDot} aria-label="필수">•</span>
+              </span>
+            </label>
+            <div onClick={(e) => e.stopPropagation()}>
+              <EditableRowNumber
+                value={form.desiredPosition}
+                min={1}
+                max={totalCount + 1}
+                onSave={(n) => updateField("desiredPosition", n)}
+              />
+            </div>
+          </div>
+        )}
       </div>
       {!hideInlinePublishToggle && (!isStandalone || (hideStandaloneHeader && !hideBottomActions)) && (
         <div className={styles.fieldRow}>
@@ -444,19 +532,19 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
             <div className={styles.seriesCoverPreview}>
               <Image src={form.cover_image} alt="" width={288} height={162} className={styles.logoPreviewImage} unoptimized />
             </div>
-            <Button variant="outline" size="xs" tone="danger" onClick={() => updateField("cover_image", "")}>
+            <Button variant="outline" size="md" tone="danger" onClick={() => updateField("cover_image", "")}>
               <T k="admin.posts.seriesModal.remove" />
             </Button>
           </div>
         ) : (
           <>
             <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
-              <Button variant="outline" size="xs" onClick={handleImageUpload} loading={uploading}>
+              <Button variant="outline" size="md" onClick={handleImageUpload} loading={uploading}>
                 <T k="admin.posts.seriesModal.uploadCover" />
               </Button>
               <Button
                 variant="outline"
-                size="xs"
+                size="md"
                 onClick={() => {
                   if (showCoverPicker && !coverPickerClosing) closeCoverPicker();
                   else if (!showCoverPicker) setShowCoverPicker(true);
@@ -477,17 +565,18 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
         )}
       </div>
 
-      {isEdit && (
-        <div className={styles.seriesPostsSection}>
+      {/* 포함된 글 — edit 시 기존 글 표시 + 추가/제거. 새 시리즈 시 미리 연결할 글 추가 가능. */}
+      <div className={styles.seriesPostsSection}>
           <div className={styles.seriesPostsHeader}>
             <label className={styles.fieldLabel} style={{ flexDirection: "row", gap: "4px", whiteSpace: "nowrap" }}><T k="admin.posts.seriesModal.posts" /> ({posts.length})</label>
-            <button
-              type="button"
-              className={styles.seriesPostsAddBtn}
+            <Button
+              variant="ghost"
+              size="xs"
+              icon={addPostHint ? undefined : <Plus size={14} strokeWidth={2} />}
               onClick={openAddPost}
             >
-              {addPostHint ? <T k="admin.posts.seriesModal.addPostHint" /> : <>+ <T k="admin.posts.seriesModal.addPost" /></>}
-            </button>
+              {addPostHint ? <T k="admin.posts.seriesModal.addPostHint" /> : <T k="admin.posts.seriesModal.addPost" />}
+            </Button>
           </div>
           <div className={`${styles.addPostModal} ${addPostVisible ? styles.addPostModalOpen : ""}`}>
             <div>
@@ -567,7 +656,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                           {p.title || t("admin.posts.seriesModal.untitled")}
                         </span>
                         <span className={`${styles.seriesPostStatus} ${p.published ? styles.seriesPostPublished : styles.seriesPostDraft}`}>
-                          {p.published ? "P" : "D"}
+                          {p.published ? t("admin.posts.published") : t("admin.posts.draft")}
                         </span>
                       </div>
                     ))
@@ -685,23 +774,26 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                   >
                     {post.title || <T k="admin.posts.seriesModal.untitled" />}
                   </a>
-                  <a
-                    href={`/posts/${post.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.seriesPostViewBtn}
-                    title={t("admin.posts.seriesModal.viewPost")}
-                  >
-                    <ExternalLink size={12} />
-                  </a>
                   <span className={`${styles.seriesPostStatus} ${post.published ? styles.seriesPostPublished : styles.seriesPostDraft}`}>
-                    {post.published ? "P" : "D"}
+                    {post.published ? t("admin.posts.published") : t("admin.posts.draft")}
                   </span>
+                  {/* 아이콘 버튼 묶음 — ExternalLink + Unlink + Trash. ghost 스타일, 한 그룹 */}
                   <div
                     className={styles.seriesPostActions}
                     draggable={false}
                     onDragStart={(e) => e.preventDefault()}
                   >
+                    <a
+                      href={`/posts/${post.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${styles.seriesPostOrderBtn} ${styles.seriesPostViewBtn}`}
+                      title={t("admin.posts.seriesModal.viewPost")}
+                      onClick={(e) => e.stopPropagation()}
+                      onMouseDown={(e) => e.stopPropagation()}
+                    >
+                      <ExternalLink size={12} />
+                    </a>
                     <button
                       type="button"
                       className={`${styles.seriesPostOrderBtn} ${styles.seriesPostRemoveBtn}`}
@@ -709,7 +801,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                       onMouseDown={(e) => e.stopPropagation()}
                       title={t("admin.posts.seriesModal.removeFromSeries")}
                     >
-                      <X size={10} />
+                      <Unlink size={10} />
                     </button>
                     <button
                       type="button"
@@ -747,7 +839,6 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
             </LayoutGroup>
           )}
         </div>
-      )}
 
       {error && <p className={styles.sectionHint} style={{ color: "var(--color-accent)" }}>{error}</p>}
 
@@ -757,10 +848,13 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
       {(!isStandalone || hideStandaloneHeader) && !hideBottomActions && (
         <div className={styles.seriesCardActions}>
           <div style={{ flex: 1 }} />
-          <Button variant="outline" size="xs" onClick={onCancel}>
+          <Button variant="outline" size="sm" onClick={handleRevert} disabled={!isDirty || saving}>
+            <T k="admin.posts.seriesModal.revert" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={onCancel}>
             <T k="admin.posts.seriesModal.cancel" />
           </Button>
-          <Button variant="primary" size="xs" onClick={handleSave} disabled={saving} loading={saving}>
+          <Button variant="primary" size="sm" onClick={handleSave} disabled={saving} loading={saving}>
             {isEdit ? <T k="admin.posts.seriesModal.save" /> : <T k="admin.posts.seriesModal.create" />}
           </Button>
         </div>

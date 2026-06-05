@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import "katex/dist/katex.min.css";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
-import Image from "next/image";
+import _Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion } from "framer-motion";
 import { FileText, ImageIcon, Pencil, Globe, User, Users, Link2, Mail } from "lucide-react";
@@ -539,7 +540,7 @@ export default function WorkDetailClient({
                   >
                     <div className={styles.relatedCardImage}>
                       {p.cover_image ? (
-                        <Image
+                        <MediaThumb
                           src={p.cover_image}
                           alt={title}
                           fill

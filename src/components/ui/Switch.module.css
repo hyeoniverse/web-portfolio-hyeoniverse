@@ -37,9 +37,9 @@
   pointer-events: none;
 }
 
-/* ── Size: sm (default, compact UI 용) ── */
+/* ── Size: sm (default + withText 공용 width: 44 → ON/OFF 텍스트 fit + 기본 토글과 시각적 균형) ── */
 .sizeSm {
-  width: 36px;
+  width: 44px;
   height: 20px;
 }
 
@@ -50,8 +50,62 @@
 }
 
 .sizeSm[data-state="checked"] .thumb {
-  transform: translateX(17px);
+  transform: translateX(25px);
 }
+
+/* ── withText (showStateText) — width 는 sizeSm 와 동일 (44), thumb 절대위치 + 텍스트 fade ── */
+.sizeSm.withText {
+  position: relative;
+  padding: 0;
+}
+
+.sizeSm.withText .thumb {
+  position: absolute;
+  top: 50%;
+  margin-top: -8px;
+  transform: none;
+  left: 1px;
+  transition: left var(--duration-fast) ease, background var(--duration-fast) ease;
+}
+
+.sizeSm.withText[data-state="checked"] .thumb {
+  transform: none;
+  left: 25px;
+}
+
+.stateText {
+  position: absolute;
+  top: 50%;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  /* translate(-50%, -50%) — text 의 좌우 중심을 left 위치에 맞춤 */
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: opacity var(--duration-fast) ease, color var(--duration-fast) ease;
+  user-select: none;
+}
+
+/* ON — thumb 가 우측에 있을 때 좌측 빈 영역(content 0~25px) 의 중간 = 12px */
+.stateOn {
+  left: 12px;
+  color: var(--bg-primary);
+  opacity: 0;
+}
+
+/* OFF — thumb 가 좌측에 있을 때 우측 빈 영역의 시각적 중심 */
+.stateOff {
+  left: 28px;
+  color: var(--text-tertiary);
+  opacity: 1;
+}
+
+.withText[data-state="checked"] .stateOn { opacity: 1; }
+.withText[data-state="checked"] .stateOff { opacity: 0; }
+.withText[data-state="unchecked"] .stateOn { opacity: 0; }
+.withText[data-state="unchecked"] .stateOff { opacity: 1; }
 
 /* ── Size: md (form row 용 — admin 설정 등) ── */
 .sizeMd {
@@ -92,6 +146,14 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
+}
+
+/* ── Stack layout (label 토글 위) ── */
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-2xs);
 }
 
 .label {

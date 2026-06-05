@@ -40,3 +40,10 @@ export function parseUA(ua: string): ParsedUA {
 
   return { browser, os, device };
 }
+
+/** 표시용 안정 키 — 같은 browser+OS+device 면 동일 (버전·minor 패치 무시).
+ *  fingerprint 와 dedup 의 input 으로 사용. UA 가 비어도 unknown 으로 정규화. */
+export function deviceKey(ua: string): string {
+  const p = parseUA(ua || "");
+  return `${p.browser}|${p.os}|${p.device}`;
+}

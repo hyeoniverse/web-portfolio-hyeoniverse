@@ -1,21 +1,11 @@
 /* ==========================================================================
-   Close Button
+   Close Button — CloseButton 컴포넌트가 사이즈/스타일 책임, 여기선 position 만
    ========================================================================== */
 
 .closeButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  padding: 0;
-  border: var(--border-strong);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-primary);
+  top: 12px;
+  right: 12px;
   z-index: 4;
 }
 
@@ -23,12 +13,6 @@
   .closeButton {
     display: none;
   }
-}
-
-.closeButton:hover {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-  border-color: var(--bg-inverse);
 }
 
 /* ==========================================================================
@@ -70,7 +54,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-xl) 56px var(--spacing-sm) var(--spacing-2xl);
+  /* 좌측 padding 줄여 본문 (modalBody / 외부 content) 시작점과 어색하지 않게 정렬.
+     우측은 close button 영역 확보 위해 그대로. */
+  padding: var(--spacing-xl) 56px var(--spacing-2xs) var(--spacing-lg);
 }
 
 .headerContent {
@@ -100,6 +86,7 @@
 .modalScroll {
   flex: 1;
   min-height: 0;
+  padding-top: var(--spacing-md);
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -118,5 +105,23 @@
    ========================================================================== */
 
 .modalBody {
-  padding: var(--spacing-base) var(--spacing-2xl) var(--spacing-xl);
+  padding: var(--spacing-base) var(--spacing-lg) var(--spacing-xl);
+}
+
+/* ==========================================================================
+   Modal Footer — body 가 ModalFooterContext 로 portal 렌더하는 슬롯.
+   비어있으면 :empty 셀렉터로 padding/border 제거 (인접 본문과 어색하지 않게).
+   ========================================================================== */
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: var(--border-light);
+  flex-shrink: 0;
+}
+
+.modalFooter:empty {
+  display: none;
 }

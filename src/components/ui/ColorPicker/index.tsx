@@ -11,6 +11,9 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useLenis } from "@/providers/LenisProvider";
 import {
   clamp,
   formatOklch,
@@ -35,7 +38,8 @@ import {
 import Select from "../Select";
 import Input from "../Input";
 import Tooltip from "../Tooltip";
-import { Info } from "lucide-react";
+import { Info, Copy, ClipboardPaste, Check } from "lucide-react";
+import { showToast } from "@/stores/toastStore";
 import styles from "./ColorPicker.module.css";
 
 type InputFormat = "hex" | "rgb" | "hsl" | "hsv" | "oklch";
@@ -47,13 +51,13 @@ const FORMAT_OPTIONS = [
   { value: "oklch", label: "OKLCH" },
 ];
 
-/** format 별 의미 설명 — i 버튼 Tooltip 에 표시 (일반 사용자 친화) */
+/** format 별 의미 설명 — i 버튼 Tooltip 에 표시. 완결된 문장 + 색공간 모르는 사용자도 이해 가능. */
 const FORMAT_INFO: Record<InputFormat, string> = {
-  hex: "웹에서 가장 흔한 색 코드. #ff0000 처럼 # 뒤에 6자리 숫자/문자.",
-  rgb: "빨강·초록·파랑 빛을 0~255 로 섞어 만드는 색. 모니터 픽셀이 작동하는 방식.",
-  hsl: "색상·채도·밝기로 표현. ‘어떤 색을, 얼마나 진하게, 얼마나 밝게’ — 가장 직관적인 모델.",
-  hsv: "HSV = HSB (Photoshop 표기). HSL 과 비슷하지만 V/B 가 ‘밝기 최대치’ 기준. Figma·Photoshop 등 디자인 툴 picker 의 표준.",
-  oklch: "최신 색공간. 사람 눈에 자연스럽게 보이도록 설계돼서, 같은 밝기 값이면 색이 달라도 실제로 같은 밝기로 느껴짐.",
+  hex: "HEX 는 색을 6자리 코드로 적는 방식입니다. 앞에 # 을 붙이고 0–9 와 a–f 를 조합해서 #ff0000 (빨강) 처럼 표기합니다. 웹과 디자인 툴에서 가장 흔하게 쓰이는 형식이라 색을 공유하거나 검색할 때 편합니다.",
+  rgb: "RGB 는 빛의 3원색인 빨강 · 초록 · 파랑을 각각 0 부터 255 까지의 숫자로 섞어 색을 만드는 방식입니다. 모니터 픽셀이 실제로 빛을 내는 원리와 같기 때문에 컴퓨터 그래픽의 기본이 되는 모델이지만, 숫자만 보고는 결과 색을 떠올리기 어렵습니다.",
+  hsl: "HSL 은 사람이 색을 인식하는 방식에 가깝게 색상(H), 채도(S), 밝기(L) 세 값으로 색을 표현합니다. ‘어떤 색을, 얼마나 진하게, 얼마나 밝게’ 라는 직관적인 흐름으로 조절할 수 있어서 RGB 보다 색을 다듬기 쉽습니다.",
+  hsv: "HSV (또는 HSB) 는 색상(H), 채도(S), 밝기(V/B) 로 표현한다는 점에서 HSL 과 비슷하지만, 밝기 100% 가 ‘가장 진하고 선명한 색’ 을 의미합니다. Photoshop · Figma 등 디자인 툴의 컬러 피커가 기본으로 쓰는 방식이라 친숙합니다.",
+  oklch: "OKLCH 는 최근 웹 표준에 도입된 색공간입니다. 사람의 눈이 실제로 느끼는 밝기 차이가 균일하도록 설계되어 있어서, 색상이 달라도 같은 L 값이면 비슷한 밝기로 보입니다. 그래서 같은 톤의 색들을 만들거나 다크 / 라이트 테마용 팔레트를 설계할 때 유리합니다.",
 };
 
 /** onChange 가 emit 하는 통합 결과 — consumer 가 .hex / .oklch 등 원하는 format 골라 사용 */
@@ -107,6 +111,9 @@ export default function ColorPicker({
   const triggerRef = useRef<HTMLSpanElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  /* 모바일 (화면 너비 ≤ 768px) 일 땐 dropdown 대신 bottom sheet 으로 렌더. */
+  const { isMobile } = useIsMobile();
+  const useSheet = isMobile;
 
   // source of truth — OKLCH
   const [oklch, setOklch] = useState<OKLCH>(() => parseAnyToOklch(value));
@@ -171,7 +178,7 @@ export default function ColorPicker({
    * 이후 scroll/resize 에는 rAF + DOM 직접 mutate 로 처리해 rerender 없이 매끄럽게 따라감
    * (Lenis smooth scroll 환경에서 setState 기반은 한 프레임씩 튐). */
   useLayoutEffect(() => {
-    if (!open) return;
+    if (!open || useSheet) return;
     const r = measure();
     if (r) setPos(computePos(r));
 
@@ -196,7 +203,7 @@ export default function ColorPicker({
       window.removeEventListener("resize", onMove);
       window.removeEventListener("scroll", onMove, true);
     };
-  }, [open, measure, computePos]);
+  }, [open, useSheet, measure, computePos]);
 
   // 외부 클릭 / Escape 닫기
   useEffect(() => {
@@ -215,6 +222,20 @@ export default function ColorPicker({
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
+
+  /* 모바일 sheet 열릴 때 body scroll lock + Lenis 정지 — backdrop 외부 스크롤 방지.
+     Lenis smooth scroll 사용 중이라 단순 body overflow:hidden 만으로 부족 → useLenis().stop() 함께 호출. */
+  const { stop: lenisStop, start: lenisStart } = useLenis();
+  useEffect(() => {
+    if (!open || !useSheet) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    lenisStop();
+    return () => {
+      document.body.style.overflow = prev;
+      lenisStart();
+    };
+  }, [open, useSheet, lenisStop, lenisStart]);
 
   const toResult = useCallback((next: OKLCH): ColorResult => {
     const h = oklchToHex(next);
@@ -477,14 +498,72 @@ export default function ColorPicker({
   // HEX
   const [hexDraft, setHexDraft] = useState(hex);
   useEffect(() => { setHexDraft(hex); }, [hex]);
+  // 잘못된 입력 시 popover 흔들기 — HEX commit 실패 / 붙여넣기 실패 공통
+  const [shaking, setShaking] = useState(false);
+  const triggerShake = useCallback(() => {
+    setShaking(false);
+    requestAnimationFrame(() => setShaking(true));
+    setTimeout(() => setShaking(false), 450);
+  }, []);
+
   const commitHex = (raw: string) => {
     const n = normalizeHex(raw);
     if (n) {
       const next = hexToOklch(n);
       update(next);
       onChangeComplete?.(toResult(next));
-    } else setHexDraft(hex);
+    } else {
+      setHexDraft(hex);
+      triggerShake();
+      showToast("HEX 형식이 올바르지 않습니다. 예: #ff0000", "error");
+    }
   };
+
+  // ── Clipboard — 현재 format 으로 복사 / 어떤 format 이든 자동 파싱해서 붙여넣기 ──
+  const [copied, setCopied] = useState(false);
+  const [pasteFlash, setPasteFlash] = useState<"ok" | "fail" | null>(null);
+
+  const formatForCopy = useCallback((): string => {
+    switch (format) {
+      case "hex": return hex;
+      case "rgb": return `rgb(${Math.round(rgb.r)}, ${Math.round(rgb.g)}, ${Math.round(rgb.b)})`;
+      case "hsl": return `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`;
+      case "hsv": return `hsv(${Math.round(hsv.h)}, ${Math.round(hsv.s)}%, ${Math.round(hsv.v)}%)`;
+      case "oklch": return formatOklch(oklch);
+    }
+  }, [format, hex, rgb, hsl, hsv, oklch]);
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(formatForCopy());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {
+      /* clipboard 권한 / 보안 컨텍스트 실패 — 조용히 무시 */
+    }
+  }, [formatForCopy]);
+
+  const handlePaste = useCallback(async () => {
+    try {
+      const text = (await navigator.clipboard.readText()).trim();
+      const next = parseAnyColorToOklch(text);
+      if (next) {
+        update(next);
+        onChangeComplete?.(toResult(next));
+        setPasteFlash("ok");
+      } else {
+        setPasteFlash("fail");
+        triggerShake();
+        showToast("클립보드 색을 인식하지 못했습니다", "error");
+      }
+      setTimeout(() => setPasteFlash(null), 1200);
+    } catch {
+      setPasteFlash("fail");
+      triggerShake();
+      showToast("클립보드를 읽지 못했습니다", "error");
+      setTimeout(() => setPasteFlash(null), 1200);
+    }
+  }, [update, onChangeComplete, toResult, triggerShake]);
 
   /** RGB / HSL / HSV slider drag — handler factory (e.currentTarget 으로 rect 캐싱) */
   const onRgbSliderDown = (channel: keyof RGB) => (e: React.PointerEvent) => {
@@ -596,13 +675,41 @@ export default function ColorPicker({
   return (
     <>
       <span ref={triggerRef} style={{ display: "inline-flex" }}>{trigger}</span>
-      {open && pos && typeof window !== "undefined" && createPortal(
-        <div
+      {typeof window !== "undefined" && createPortal(
+        <AnimatePresence>
+          {open && useSheet && (
+            <motion.div
+              key="cp-backdrop"
+              className={styles.sheetBackdrop}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setOpen(false)}
+            />
+          )}
+          {open && (pos || useSheet) && (
+        <motion.div
+          key="cp-overlay"
           ref={popRef}
-          className={styles.popover}
-          style={{ top: pos.top, left: pos.left }}
+          className={`${useSheet ? styles.sheet : styles.popover} ${shaking ? styles.shaking : ""}`}
+          style={useSheet ? undefined : { top: pos!.top, left: pos!.left }}
+          initial={useSheet ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
+          animate={useSheet ? { y: 0 } : { opacity: 1, scale: 1 }}
+          exit={useSheet ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
+          transition={useSheet ? { type: "spring", damping: 30, stiffness: 280 } : { duration: 0.14 }}
           onPointerDown={(e) => e.stopPropagation()}
+          role={useSheet ? "dialog" : undefined}
+          aria-modal={useSheet ? true : undefined}
         >
+          {useSheet && (
+            <>
+              <div className={styles.sheetHandle} aria-hidden>
+                <span className={styles.sheetHandleBar} />
+              </div>
+              <h3 className={styles.sheetTitle}>Pick color</h3>
+            </>
+          )}
           {padType === "wheel" ? (
             /* HSV/HSB — 원형 Hue ring + 안쪽 SV pad */
             <div className={styles.hsvWheel}>
@@ -694,6 +801,30 @@ export default function ColorPicker({
                 <Info size={14} strokeWidth={2} />
               </button>
             </Tooltip>
+            <Tooltip content={copied ? "복사됨" : `현재 색을 ${format.toUpperCase()} 형식으로 클립보드에 복사`} placement="top">
+              <button
+                type="button"
+                className={styles.infoButton}
+                onClick={handleCopy}
+                aria-label="색 복사"
+              >
+                {copied ? <Check size={14} strokeWidth={2} /> : <Copy size={14} strokeWidth={2} />}
+              </button>
+            </Tooltip>
+            <Tooltip
+              content={pasteFlash === "ok" ? "붙여넣기 완료" : pasteFlash === "fail" ? "인식 못함" : "클립보드 색을 자동 인식해 적용 (HEX / RGB / HSL / HSV / OKLCH)"}
+              placement="top"
+            >
+              <button
+                type="button"
+                className={styles.infoButton}
+                onClick={handlePaste}
+                aria-label="색 붙여넣기"
+                data-flash={pasteFlash ?? undefined}
+              >
+                {pasteFlash === "ok" ? <Check size={14} strokeWidth={2} /> : <ClipboardPaste size={14} strokeWidth={2} />}
+              </button>
+            </Tooltip>
           </div>
 
           {/* format 별 입력 영역 — 공통 Input 컴포넌트 (size="xs") 사용 */}
@@ -707,6 +838,7 @@ export default function ColorPicker({
                 onBlur={(e) => commitHex(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") commitHex(e.currentTarget.value); }}
                 spellCheck={false}
+                clearable={false}
                 className={styles.pickerInput}
               />
             </div>
@@ -727,6 +859,7 @@ export default function ColorPicker({
                       max={255}
                       value={String(Math.round(rgb[ch]))}
                       onChange={(v) => onRgbChange(ch, v)}
+                      clearable={false}
                       className={`${styles.pickerInput} ${styles.pickerInputCenter} ${styles.oklchChInput}`}
                     />
                     <div
@@ -766,6 +899,7 @@ export default function ColorPicker({
                       max={max}
                       value={String(hsl[ch])}
                       onChange={(v) => onHslChange(ch, v)}
+                      clearable={false}
                       className={`${styles.pickerInput} ${styles.pickerInputCenter} ${styles.oklchChInput}`}
                     />
                     <div
@@ -804,6 +938,7 @@ export default function ColorPicker({
                       max={max}
                       value={String(hsv[ch])}
                       onChange={(v) => onHsvChange(ch, v)}
+                      clearable={false}
                       className={`${styles.pickerInput} ${styles.pickerInputCenter} ${styles.oklchChInput}`}
                     />
                     <div
@@ -837,6 +972,7 @@ export default function ColorPicker({
                   step={0.1}
                   value={String(oklch.l)}
                   onChange={(v) => onOklchChange("l", v)}
+                  clearable={false}
                   className={`${styles.pickerInput} ${styles.pickerInputCenter} ${styles.oklchChInput}`}
                 />
                 <div
@@ -865,6 +1001,7 @@ export default function ColorPicker({
                   step={0.001}
                   value={String(oklch.c)}
                   onChange={(v) => onOklchChange("c", v)}
+                  clearable={false}
                   className={`${styles.pickerInput} ${styles.pickerInputCenter} ${styles.oklchChInput}`}
                 />
                 <div
@@ -893,6 +1030,7 @@ export default function ColorPicker({
                   step={1}
                   value={String(oklch.h)}
                   onChange={(v) => onOklchChange("h", v)}
+                  clearable={false}
                   className={`${styles.pickerInput} ${styles.pickerInputCenter} ${styles.oklchChInput}`}
                 />
                 <div
@@ -910,7 +1048,9 @@ export default function ColorPicker({
             </div>
           )}
 
-        </div>,
+        </motion.div>
+          )}
+        </AnimatePresence>,
         document.body,
       )}
     </>
@@ -924,4 +1064,57 @@ function parseAnyToOklch(input: string): OKLCH {
     return parseOklchString(trimmed) ?? { l: 0, c: 0, h: 0 };
   }
   return hexToOklch(trimmed);
+}
+
+/** 붙여넣기용 — HEX / RGB / HSL / HSV / OKLCH 어떤 형식이든 자동 감지해 OKLCH 로 변환. 실패 시 null. */
+function parseAnyColorToOklch(input: string): OKLCH | null {
+  const s = input.trim().toLowerCase();
+  if (!s) return null;
+
+  // 1. oklch(...)
+  if (s.startsWith("oklch")) return parseOklchString(s);
+
+  // 2. hex (with or without #) — 정확히 3 또는 6 자리
+  if (s.startsWith("#") || /^[0-9a-f]{3}$|^[0-9a-f]{6}$/.test(s)) {
+    const n = normalizeHex(s.startsWith("#") ? s : `#${s}`);
+    if (n) return hexToOklch(n);
+  }
+
+  // 3. rgb(r, g, b) / rgba(r, g, b, a) — 0~255, alpha 무시
+  const rgbMatch = s.match(/^rgba?\(\s*([0-9.]+)[\s,]+([0-9.]+)[\s,]+([0-9.]+)/);
+  if (rgbMatch) {
+    const r = clamp(parseFloat(rgbMatch[1]), 0, 255);
+    const g = clamp(parseFloat(rgbMatch[2]), 0, 255);
+    const b = clamp(parseFloat(rgbMatch[3]), 0, 255);
+    return hexToOklch(rgbToHex({ r, g, b }));
+  }
+
+  // 4. hsl(h, s%, l%) / hsla(...)
+  const hslMatch = s.match(/^hsla?\(\s*([0-9.]+)[\s,]+([0-9.]+)%?[\s,]+([0-9.]+)%?/);
+  if (hslMatch) {
+    const h = clamp(parseFloat(hslMatch[1]), 0, 360);
+    const sat = clamp(parseFloat(hslMatch[2]), 0, 100);
+    const l = clamp(parseFloat(hslMatch[3]), 0, 100);
+    return hexToOklch(hslToHex({ h, s: sat, l }));
+  }
+
+  // 5. hsv(h, s%, v%) / hsb(h, s%, b%)
+  const hsvMatch = s.match(/^(?:hsv|hsb)\(\s*([0-9.]+)[\s,]+([0-9.]+)%?[\s,]+([0-9.]+)%?/);
+  if (hsvMatch) {
+    const h = clamp(parseFloat(hsvMatch[1]), 0, 360);
+    const sat = clamp(parseFloat(hsvMatch[2]), 0, 100);
+    const v = clamp(parseFloat(hsvMatch[3]), 0, 100);
+    return hexToOklch(hsvToHex({ h, s: sat, v }));
+  }
+
+  // 6. bare "r, g, b" — 숫자 3개 콤마 구분 (RGB 추정)
+  const bare = s.match(/^([0-9.]+)[\s,]+([0-9.]+)[\s,]+([0-9.]+)$/);
+  if (bare) {
+    const r = clamp(parseFloat(bare[1]), 0, 255);
+    const g = clamp(parseFloat(bare[2]), 0, 255);
+    const b = clamp(parseFloat(bare[3]), 0, 255);
+    return hexToOklch(rgbToHex({ r, g, b }));
+  }
+
+  return null;
 }

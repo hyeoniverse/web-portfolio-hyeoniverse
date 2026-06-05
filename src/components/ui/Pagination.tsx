@@ -11,9 +11,11 @@ interface PaginationProps {
   className?: string;
   /** false 면 Jump-to input 숨김 (default true). totalPages 가 5 이하면 자동 숨김 */
   showJump?: boolean;
+  /** 버튼 크기 — sm (28) / md (38, default) */
+  size?: "sm" | "md";
 }
 
-export default function Pagination({ page, totalPages, onChange, className, showJump = true }: PaginationProps) {
+export default function Pagination({ page, totalPages, onChange, className, showJump = true, size = "md" }: PaginationProps) {
   const pageNumbers = useMemo(() => {
     // single page 도 명시적 active "1" 버튼이 보이도록 [1] 반환
     if (totalPages <= 1) return [1];
@@ -40,7 +42,7 @@ export default function Pagination({ page, totalPages, onChange, className, show
   const renderJump = showJump && totalPages > 5;
 
   return (
-    <div className={`${styles.paginationWrap} ${className ?? ""}`}>
+    <div className={`${styles.paginationWrap} ${size === "sm" ? styles.paginationWrapSm : ""} ${className ?? ""}`}>
       <div className={styles.pagination}>
         <button type="button" disabled={page <= 1} onClick={() => onChange(1)} className={styles.pageBtn} title="First">
           <ChevronsLeft size={14} />

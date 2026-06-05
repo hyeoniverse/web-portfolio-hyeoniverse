@@ -261,6 +261,13 @@
   --button-h-md: var(--size-md);   /* 38 — icon-only md */
   --button-h-lg: var(--size-lg);   /* 46 — icon-only lg */
 
+  /* Control height (button/input/select capsule) — 4-pt grid, md 가 default.
+     기존 --button-h-* / --size-* 는 icon-only 등 기존 용도 유지, 이건 capsule controls 전용. */
+  --control-h-xs: 24px;
+  --control-h-sm: 28px;
+  --control-h-md: 32px;
+  --control-h-lg: 36px;
+
   /* Skeleton 라인/필 높이 — 텍스트 한 줄·캡슐 컨트롤 흉내. raw px 하드코딩 방지 */
   --skeleton-h-line: var(--font-size-sm);   /* 14px — 텍스트 한 줄 */
   --skeleton-h-line-sm: var(--font-size-xs); /* 12px — 작은 메타 텍스트 */

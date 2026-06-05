@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 import { ImageIcon, ArrowLeft, ArrowRight } from "lucide-react";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import T from "@/components/ui/T";
@@ -40,7 +40,7 @@ export default function AdjacentNav({
         <div className={styles.card} data-clickable="true" onClick={(e) => handleClick(prev, e)} role="link" style={{ cursor: "pointer" }}>
           <div className={styles.thumb}>
             {prev.image ? (
-              <Image src={prev.image} alt={prev.title} fill sizes="64px" className={styles.thumbImg} />
+              <MediaThumb src={prev.image} alt={prev.title} fill sizes="64px" className={styles.thumbImg} />
             ) : (
               <ImageIcon className={styles.placeholder} size={20} strokeWidth={1} />
             )}
@@ -60,7 +60,7 @@ export default function AdjacentNav({
         <div className={`${styles.card} ${styles.cardNext}`} data-clickable="true" onClick={(e) => handleClick(next, e)} role="link" style={{ cursor: "pointer" }}>
           <div className={styles.thumb}>
             {next.image ? (
-              <Image src={next.image} alt={next.title} fill sizes="64px" className={styles.thumbImg} />
+              <MediaThumb src={next.image} alt={next.title} fill sizes="64px" className={styles.thumbImg} />
             ) : (
               <ImageIcon className={styles.placeholder} size={20} strokeWidth={1} />
             )}
