@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronRight, GripVertical, Trash2 } from "lucide-react";
+import { ChevronRight, GripVertical, Trash2, Eye, EyeOff, Plus } from "lucide-react";
 import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
@@ -13,6 +13,11 @@ import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import SegmentedControl from "@/components/ui/SegmentedControl";
+import Tooltip from "@/components/ui/Tooltip";
+import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
+import { Filter, ChevronDown } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import SeriesInlineEditor, { type SeriesInlineEditorHandle } from "./SeriesInlineEditor";
 import { Switch } from "@/components/ui/Switch";
 import SeriesDeleteModal from "./SeriesDeleteModal";
@@ -22,11 +27,13 @@ import styles from "../Settings.module.css";
 
 interface SeriesManagerProps {
   categories: BilingualCategory[];
+  /** 섹션 타이틀 — 헤더 row 에 SearchCapsule 과 같은 라인으로 표시 */
+  title?: string;
 }
 
 const PAGE_SIZE = 5;
 
-export default function SeriesManager({ categories }: SeriesManagerProps) {
+export default function SeriesManager({ categories, title }: SeriesManagerProps) {
   const { t } = useLanguage();
   const { openModal, closeAll } = useModalStore();
   const searchParams = useSearchParams();
@@ -41,7 +48,33 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [searchType, setSearchType] = useState<"all" | "title">("all");
+  const [searchType, setSearchType] = useState<"all" | "title" | "desc">("all");
+  /* 정렬 + 필터 — 태그/카테고리 패턴과 일관 */
+  type SortBy = "default" | "newest" | "title";
+  type SortDir = "asc" | "desc";
+  type PublishFilter = "all" | "published" | "draft";
+  type DescFilter = "all" | "with" | "without";
+  const [sortBy, setSortBy] = useState<SortBy>("default");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [publishFilter, setPublishFilter] = useState<PublishFilter>("all");
+  const [descFilter, setDescFilter] = useState<DescFilter>("all");
+  const [filterExpanded, setFilterExpanded] = useState(false);
+
+  const activeFilterCount = (publishFilter !== "all" ? 1 : 0) + (descFilter !== "all" ? 1 : 0);
+
+  const handleSortByChange = (next: SortBy) => {
+    if (next === sortBy) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortBy(next);
+      setSortDir(next === "newest" ? "desc" : "asc");
+    }
+  };
+
+  const sortItems = [
+    { value: "default" as const, label: "사용자 정의순" },
+    { value: "newest" as const, label: "최신순" },
+    { value: "title" as const, label: "제목순" },
+  ];
   const newFormRef = useRef<HTMLDivElement>(null);
   const seriesRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const didScrollRef = useRef(false);
@@ -49,7 +82,7 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
   const [newEditorPublished, setNewEditorPublished] = useState(true);
   const [newEditorSaving, setNewEditorSaving] = useState(false);
   const expandedEditorRef = useRef<SeriesInlineEditorHandle>(null);
-  const [expandedPublished, setExpandedPublished] = useState(true);
+  const [_expandedPublished, setExpandedPublished] = useState(true);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
   // grip handle 을 mousedown 했을 때만 카드의 draggable 이 켜짐 — 다른 영역 클릭으로는 드래그 시작 X
@@ -94,29 +127,42 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
     return () => clearTimeout(tid);
   }, [search]);
 
-  /* search/searchType 변경 시 page 0 으로 리셋 */
+  /* search/searchType/sort/filter 변경 시 page 0 으로 리셋 */
   useEffect(() => {
     setPage(0);
-  }, [debouncedSearch, searchType]);
+  }, [debouncedSearch, searchType, sortBy, sortDir, publishFilter, descFilter]);
 
   const fetchSeries = useCallback(async () => {
     try {
       const params = new URLSearchParams({
-        all: "true",
         page: String(page),
         limit: String(PAGE_SIZE),
       });
+      // 발행 필터: published 만 → all 미지정 (published=true 만), 그 외 → all=true
+      if (publishFilter !== "published") params.set("all", "true");
+      params.set("sortBy", sortBy);
+      params.set("sortDir", sortDir);
       if (debouncedSearch) {
         params.set("q", debouncedSearch);
         params.set("searchType", searchType);
       }
       const res = await fetch(`/api/series?${params}`);
       const data = await res.json();
-      setSeriesList(Array.isArray(data?.items) ? data.items : []);
+      let items = Array.isArray(data?.items) ? data.items : [];
+      // draft 필터는 client side — published=false 인 것만
+      if (publishFilter === "draft") items = items.filter((s: Series) => !s.published);
+      // 설명 있음/없음 client filter
+      if (descFilter !== "all") {
+        items = items.filter((s: Series) => {
+          const hasDesc = !!(s.description?.trim() || s.description_en?.trim());
+          return descFilter === "with" ? hasDesc : !hasDesc;
+        });
+      }
+      setSeriesList(items);
       setTotal(typeof data?.total === "number" ? data.total : 0);
     } catch { /* ignore */ }
     setLoading(false);
-  }, [page, debouncedSearch, searchType]);
+  }, [page, debouncedSearch, searchType, sortBy, sortDir, publishFilter, descFilter]);
 
   useEffect(() => { fetchSeries(); }, [fetchSeries]);
 
@@ -144,19 +190,99 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
 
   return (
     <div className={styles.seriesList}>
-      <SearchCapsule
-        typeSelector={{
-          value: searchType,
-          options: [
-            { value: "all", label: t("admin.posts.searchAll") },
-            { value: "title", label: t("admin.posts.searchTitle") },
-          ],
-          onChange: (v) => setSearchType(v as "all" | "title"),
-        }}
-        search={search}
-        onSearchChange={setSearch}
-        placeholder={t("admin.posts.seriesSearch")}
-      />
+      {title && (
+        <div className={styles.sectionTitleRow}>
+          <h2 className={styles.sectionTitle}>{title}</h2>
+        </div>
+      )}
+      {/* Toolbar 묶음 — filterRow + drawer (태그/카테고리와 동일 패턴) */}
+      <div className={styles.tagDescToolbarWrap}>
+        <div className={styles.tagDescFilterRow}>
+          <Button
+            variant={filterExpanded || activeFilterCount > 0 ? "primary" : "outline"}
+            size="sm"
+            icon={<Filter size={12} />}
+            onClick={() => setFilterExpanded((e) => !e)}
+          >
+            필터{activeFilterCount > 0 && ` (${activeFilterCount})`}
+            <ChevronDown
+              size={12}
+              style={{
+                marginLeft: 2,
+                transform: filterExpanded ? "rotate(180deg)" : undefined,
+                transition: "transform 0.2s",
+              }}
+            />
+          </Button>
+          <SegmentedControl
+            items={sortItems}
+            value={sortBy}
+            onChange={handleSortByChange}
+            sortDir={sortDir}
+            size="sm"
+          />
+          <div className={styles.tagDescSearchEnd}>
+            <SearchCapsule
+              typeSelector={{
+                value: searchType,
+                options: [
+                  { value: "all", label: t("admin.posts.searchTitleDesc") },
+                  { value: "title", label: t("admin.posts.searchTitle") },
+                  { value: "desc", label: t("admin.posts.searchDesc") },
+                ],
+                onChange: (v) => setSearchType(v as "all" | "title" | "desc"),
+              }}
+              search={search}
+              onSearchChange={setSearch}
+              placeholder={t("admin.posts.seriesSearch")}
+              align="left"
+              size="sm"
+            />
+          </div>
+        </div>
+        <AnimatePresence initial={false}>
+          {filterExpanded && (
+            <motion.div
+              key="series-filter-drawer"
+              className={styles.tagDescFilterDrawerWrap}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              style={{ overflow: "hidden" }}
+            >
+              <div className={styles.tagDescFilterDrawer}>
+                <div className={styles.tagDescFilterGroup}>
+                  <span className={styles.tagDescFilterGroupLabel}>발행</span>
+                  <Button
+                    variant={publishFilter === "published" ? "primary" : "outline"}
+                    size="md"
+                    onClick={() => setPublishFilter((p) => p === "published" ? "all" : "published")}
+                  >발행</Button>
+                  <Button
+                    variant={publishFilter === "draft" ? "primary" : "outline"}
+                    size="md"
+                    onClick={() => setPublishFilter((p) => p === "draft" ? "all" : "draft")}
+                  >미발행</Button>
+                </div>
+                <div className={styles.tagDescFilterGroup}>
+                  <span className={styles.tagDescFilterGroupLabel}>설명</span>
+                  <Button
+                    variant={descFilter === "with" ? "primary" : "outline"}
+                    size="md"
+                    onClick={() => setDescFilter((d) => d === "with" ? "all" : "with")}
+                  >설명 있음</Button>
+                  <Button
+                    variant={descFilter === "without" ? "primary" : "outline"}
+                    size="md"
+                    onClick={() => setDescFilter((d) => d === "without" ? "all" : "without")}
+                  >설명 없음</Button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {loading ? (
         <>
@@ -221,33 +347,68 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
               >
                 <GripVertical size={16} strokeWidth={1.8} />
               </span>
-              <button
-                type="button"
+              {/* button 안에 button 중첩 금지 (HTML invalid) — div + role="button" 으로 변경 */}
+              <div
+                role="button"
+                tabIndex={0}
+                aria-expanded={expanded}
                 className={`${styles.seriesCardHead} ${expanded ? styles.seriesCardHeadExpanded : ""} ${s.cover_image ? styles.seriesCardHeadCover : ""}`}
                 style={s.cover_image ? { backgroundImage: `url(${s.cover_image})` } : undefined}
                 onClick={() => expanded ? collapseId(s.id) : setExpandedId(s.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    expanded ? collapseId(s.id) : setExpandedId(s.id);
+                  }
+                }}
               >
                 {s.cover_image && <span className={styles.seriesCardOverlay} />}
                 <div className={styles.seriesCardInfo}>
-                  <p className={styles.seriesCardName}>{s.title || <T k="admin.posts.untitled" />}</p>
+                  <div className={styles.seriesCardNameRow}>
+                    <p className={styles.seriesCardName}>
+                      <span
+                        className={styles.seriesCardOrderPrefix}
+                        onClick={(e) => e.stopPropagation()}
+                        onMouseDown={(e) => e.stopPropagation()}
+                      >
+                        #
+                        <EditableRowNumber
+                          value={s.sort_order}
+                          min={1}
+                          max={total}
+                          onSave={async (n) => {
+                            if (n === s.sort_order) return;
+                            try {
+                              await fetch(`/api/series/${s.id}`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ sort_order: n }),
+                              });
+                              fetchSeries();
+                            } catch { /* ignore */ }
+                          }}
+                        />
+                        _
+                      </span>
+                      {s.title || <T k="admin.posts.untitled" />}
+                    </p>
+                  </div>
                   <div className={styles.seriesCardMeta}>
                     {s.category && <span className={styles.seriesBadgeCat}>{s.category}</span>}
                     <span>{s.post_count ?? 0} <T k="admin.posts.postsCount" /></span>
-                    <span className={`${styles.seriesBadge} ${s.published ? styles.seriesBadgePublished : styles.seriesBadgeDraft}`}>
-                      {s.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
-                    </span>
                   </div>
                 </div>
-                <ChevronRight className={`${styles.seriesChevron} ${expanded ? styles.seriesChevronOpen : ""}`} size={14} />
-              </button>
-              {expanded && (
-                <div className={styles.seriesCardHeadActions}>
+                {/* 펼친 상태 — 삭제 버튼을 publish badge 의 왼쪽에 (info ↔ publish 사이) 삽입.
+                   publish/chevron 우측 anchor 가 유지되어 펼치기/접기 시 publish 위치 흔들림 없음.
+                   클릭 전파 차단 (parent role=button 의 expand/collapse 트리거 방지). */}
+                {expanded && (
                   <Button
                     variant="primary"
                     size="xs"
                     className={styles.seriesCardDeleteBtn}
                     icon={<Trash2 size={12} />}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       openModal(
                         <SeriesDeleteModal
                           series={s}
@@ -265,22 +426,36 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
                   >
                     {t("admin.posts.delete")}
                   </Button>
-                  <span className={styles.newSeriesShellDivider} aria-hidden="true" />
-                  <div className={styles.publishToggle}>
-                    <span key={expandedPublished ? "pub" : "draft"} className={styles.publishLabel}>
-                      {expandedPublished ? t("admin.posts.seriesModal.publishedLabel") : t("admin.posts.seriesModal.draftLabel")}
-                    </span>
-                    <Switch
-                      size="md"
-                      checked={expandedPublished}
-                      onCheckedChange={(v) => {
-                        setExpandedPublished(v);
-                        expandedEditorRef.current?.setPublished(v);
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
+                )}
+                {/* 발행 배지 — chevron 바로 앞. 펼침/접기와 무관하게 우측 anchor 유지 (delete 가 좌측에 삽입돼도 position 불변). */}
+                <Tooltip content={s.published ? "클릭해서 발행 해제" : "클릭해서 발행"}>
+                  <Button
+                    variant={s.published ? "primary" : "subtle"}
+                    tone={s.published ? "success" : "default"}
+                    size="xs"
+                    icon={s.published ? <Eye size={10} strokeWidth={2.2} /> : <EyeOff size={10} strokeWidth={2.2} />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const nextPub = !s.published;
+                      if (expanded) {
+                        setExpandedPublished(nextPub);
+                        expandedEditorRef.current?.setPublished(nextPub);
+                      }
+                      setSeriesList((prev) => prev.map((item) => item.id === s.id ? { ...item, published: nextPub } : item));
+                      fetch(`/api/series/${s.id}`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ published: nextPub }),
+                      }).catch(() => {
+                        setSeriesList((prev) => prev.map((item) => item.id === s.id ? { ...item, published: s.published } : item));
+                      });
+                    }}
+                  >
+                    {s.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
+                  </Button>
+                </Tooltip>
+                <ChevronRight className={`${styles.seriesChevron} ${expanded ? styles.seriesChevronOpen : ""}`} size={14} />
+              </div>
               <div className={`${styles.seriesCardCollapse} ${expanded ? styles.seriesCardCollapseOpen : ""}`}>
                 <div>
                   {(expanded || closingId === s.id) && (
@@ -307,6 +482,13 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
         </LayoutGroup>
       )}
 
+      <Pagination
+        page={page + 1}
+        totalPages={totalPages}
+        onChange={(p) => { setPage(p - 1); setExpandedId(null); }}
+        size="sm"
+      />
+
       <div
         ref={newFormRef}
         className={`${styles.newSeriesShell} ${creatingNew ? styles.newSeriesShellOpen : ""}`}
@@ -324,16 +506,16 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
             } : undefined}
             disabled={creatingNew}
           >
-            <span className={styles.newSeriesShellPlus} aria-hidden="true">+ </span>
+            <span className={styles.newSeriesShellPlus} aria-hidden="true"><Plus size={14} strokeWidth={2.2} /></span>
             <T k="admin.posts.seriesModal.newTitle" />
           </button>
           <div className={styles.newSeriesShellActions}>
-            <Button variant="outline" size="xs" onClick={() => setCreatingNew(false)} soundDisabled>
+            <Button variant="outline" size="sm" onClick={() => setCreatingNew(false)} soundDisabled>
               <T k="admin.posts.seriesModal.cancel" />
             </Button>
             <Button
               variant="primary"
-              size="xs"
+              size="sm"
               onClick={() => newEditorRef.current?.save()}
               disabled={newEditorSaving}
               loading={newEditorSaving}
@@ -367,6 +549,7 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
             bare
             hideStandaloneHeader
             hideBottomActions
+            totalCount={total}
             onFormStateChange={(s) => {
               setNewEditorPublished(s.published);
               setNewEditorSaving(s.saving);
@@ -374,12 +557,6 @@ export default function SeriesManager({ categories }: SeriesManagerProps) {
           />
         </div>
       </div>
-
-      <Pagination
-        page={page + 1}
-        totalPages={totalPages}
-        onChange={(p) => { setPage(p - 1); setExpandedId(null); }}
-      />
     </div>
   );
 }
