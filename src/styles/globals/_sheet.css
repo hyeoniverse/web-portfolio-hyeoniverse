@@ -1,0 +1,49 @@
+/* ==========================================================================
+   Bottom Sheet — 공통 모바일 시트 시각 패턴 (Modal / Picker / Popover 통일)
+   --------------------------------------------------------------------------
+   재사용을 위해 전역 클래스로 정의 (id 는 유일해야 하므로 클래스).
+   컴포넌트는 framer-motion 으로 slide(y 100%→0) 애니메이션만 입히고,
+   컨테이너/배경/핸들 시각은 여기서 일괄 관리한다.
+   각 컴포넌트별 차이(content padding 등)는 자기 module 에서 보강.
+   ========================================================================== */
+
+.ui-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: oklch(0.00% 0.0000 0.00 / 0.4);
+  backdrop-filter: blur(10px);
+}
+
+.ui-sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: var(--z-overlay);
+  width: 100vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-neutral-0);
+  border-top: var(--border-light);
+  border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* 상단 drag indicator (시각용 grabber) */
+.ui-sheet-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: var(--spacing-xs) 0;
+}
+
+.ui-sheet-handle-bar {
+  width: 40px;
+  height: 5px;
+  border-radius: var(--radius-capsule);
+  background: var(--text-muted);
+}

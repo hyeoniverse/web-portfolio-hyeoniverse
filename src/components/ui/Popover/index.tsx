@@ -74,11 +74,13 @@ export default function Popover({
     if (externalContentRef) (externalContentRef as { current: HTMLDivElement | null }).current = node;
   };
   const [mounted, setMounted] = useState(false);
-  const { isTouch } = useIsMobile();
-  const useSheet = responsive && isTouch;
+  const { isTouch, isMobile } = useIsMobile();
+  // responsive 시 터치 디바이스뿐 아니라 좁은 뷰포트(모바일 모드)에서도 bottom sheet 로 전환
+  const useSheet = responsive && (isTouch || isMobile);
 
-  const [pos, setPos] = useState<{ top: number; left?: number; right?: number; origin: string }>({
+  const [pos, setPos] = useState<{ top: number; left: number; origin: string; maxHeight?: number }>({
     top: 0,
+    left: 0,
     origin: "top right",
   });
 
@@ -88,34 +90,35 @@ export default function Popover({
     const el = triggerRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    const contentH = contentRef.current?.offsetHeight ?? 0;
-    let top = 0;
-    let left: number | undefined;
-    let right: number | undefined;
-    let origin = "top right";
-    switch (placement) {
-      case "bottom-end":
-        top = rect.bottom + offset;
-        right = window.innerWidth - rect.right;
-        origin = "top right";
-        break;
-      case "bottom-start":
-        top = rect.bottom + offset;
-        left = rect.left;
-        origin = "top left";
-        break;
-      case "top-end":
-        top = rect.top - contentH - offset;
-        right = window.innerWidth - rect.right;
-        origin = "bottom right";
-        break;
-      case "top-start":
-        top = rect.top - contentH - offset;
-        left = rect.left;
-        origin = "bottom left";
-        break;
-    }
-    setPos({ top, left, right, origin });
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const MARGIN = 8; // 화면 가장자리 최소 여백
+    const cw = contentRef.current?.offsetWidth ?? 0;
+    const ch = contentRef.current?.offsetHeight ?? 0;
+
+    const wantTop = placement.startsWith("top");
+    const wantEnd = placement.endsWith("end");
+
+    // ── 세로: 공간 부족하면 flip ──
+    const spaceBelow = vh - rect.bottom;
+    const spaceAbove = rect.top;
+    let placeTop = wantTop;
+    if (!wantTop && spaceBelow < ch + offset + MARGIN && spaceAbove > spaceBelow) placeTop = true;
+    if (wantTop && spaceAbove < ch + offset + MARGIN && spaceBelow > spaceAbove) placeTop = false;
+
+    // 사용 가능한 세로 공간으로 maxHeight 제한 (넘치면 내부 스크롤)
+    const avail = (placeTop ? spaceAbove : spaceBelow) - offset - MARGIN;
+    const maxHeight = Math.max(120, Math.min(ch || avail, avail, vh - MARGIN * 2));
+
+    let top = placeTop ? rect.top - Math.min(ch, maxHeight) - offset : rect.bottom + offset;
+    top = Math.max(MARGIN, Math.min(top, vh - Math.min(ch, maxHeight) - MARGIN));
+
+    // ── 가로: start/end 로 anchor 후 화면 안으로 clamp ──
+    let left = wantEnd ? rect.right - cw : rect.left;
+    left = Math.max(MARGIN, Math.min(left, vw - cw - MARGIN));
+
+    const origin = `${placeTop ? "bottom" : "top"} ${wantEnd ? "right" : "left"}`;
+    setPos({ top, left, origin, maxHeight });
   };
 
   useLayoutEffect(() => {
@@ -181,7 +184,7 @@ export default function Popover({
             useSheet ? (
               <>
                 <motion.div
-                  className={styles.sheetBackdrop}
+                  className="ui-sheet-backdrop"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -190,7 +193,9 @@ export default function Popover({
                 />
                 <motion.div
                   ref={setContentRef}
-                  className={cn(styles.sheet, contentClassName)}
+                  className={cn("ui-sheet", contentClassName)}
+                  /* Lenis 가 wheel/touch 를 가로채 내부 스크롤이 막히는 것 방지 */
+                  data-lenis-prevent
                   initial={{ y: "100%" }}
                   animate={{ y: 0 }}
                   exit={{ y: "100%" }}
@@ -198,6 +203,9 @@ export default function Popover({
                   role="dialog"
                   aria-modal="true"
                 >
+                  <div className="ui-sheet-handle" aria-hidden>
+                    <span className="ui-sheet-handle-bar" />
+                  </div>
                   <div className={styles.sheetHeader}>
                     {sheetTitle ? <h3 className={styles.sheetTitle}>{sheetTitle}</h3> : <span />}
                     <button
@@ -209,14 +217,16 @@ export default function Popover({
                       <X size={18} aria-hidden />
                     </button>
                   </div>
-                  {renderedContent}
+                  <div className={styles.sheetBody}>{renderedContent}</div>
                 </motion.div>
               </>
             ) : (
               <motion.div
                 ref={contentRef}
                 className={cn(styles.dropdown, contentClassName)}
-                style={{ top: pos.top, left: pos.left, right: pos.right, transformOrigin: pos.origin }}
+                /* Lenis 가 wheel 을 가로채 내부 스크롤이 막히는 것 방지 */
+                data-lenis-prevent
+                style={{ top: pos.top, left: pos.left, maxHeight: pos.maxHeight, overflowY: "auto", transformOrigin: pos.origin }}
                 initial={{ opacity: 0, scale: 0.92, y: placement.startsWith("bottom") ? -4 : 4 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.92, y: placement.startsWith("bottom") ? -4 : 4 }}

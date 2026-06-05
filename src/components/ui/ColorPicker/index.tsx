@@ -692,7 +692,7 @@ export default function ColorPicker({
         <motion.div
           key="cp-overlay"
           ref={popRef}
-          className={`${useSheet ? styles.sheet : styles.popover} ${shaking ? styles.shaking : ""}`}
+          className={`${useSheet ? `ui-sheet ${styles.sheet}` : styles.popover} ${shaking ? styles.shaking : ""}`}
           style={useSheet ? undefined : { top: pos!.top, left: pos!.left }}
           initial={useSheet ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
           animate={useSheet ? { y: 0 } : { opacity: 1, scale: 1 }}
@@ -704,8 +704,8 @@ export default function ColorPicker({
         >
           {useSheet && (
             <>
-              <div className={styles.sheetHandle} aria-hidden>
-                <span className={styles.sheetHandleBar} />
+              <div className="ui-sheet-handle" aria-hidden>
+                <span className="ui-sheet-handle-bar" />
               </div>
               <h3 className={styles.sheetTitle}>Pick color</h3>
             </>

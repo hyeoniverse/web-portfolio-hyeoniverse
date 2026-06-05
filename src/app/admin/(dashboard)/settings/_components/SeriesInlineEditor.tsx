@@ -16,6 +16,7 @@ import T from "@/components/ui/T";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
+import { matchesSearch } from "@/lib/koSearch";
 import styles from "../Settings.module.css";
 
 /* ── SeriesInlineEditor ── */
@@ -609,7 +610,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                   </div>
                 ) : (() => {
                   const filtered = availablePosts.filter((p) =>
-                    !addSearch || (p.title || "").toLowerCase().includes(addSearch.toLowerCase())
+                    matchesSearch(addSearch, p.title ?? "")
                   );
                   return filtered.length === 0 ? (
                     <p className={styles.addPostEmpty}>{t("admin.posts.seriesModal.noAvailablePosts")}</p>

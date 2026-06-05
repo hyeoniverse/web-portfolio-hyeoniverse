@@ -12,6 +12,7 @@ import Button from "@/components/ui/Button";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import { matchesSearch } from "@/lib/koSearch";
 import ReportsList from "./_components/ReportsList";
 import styles from "./Notifications.module.css";
 
@@ -55,13 +56,9 @@ export default function NotificationsPage() {
     } else if (tab === "system") {
       result = notifications.filter((n) => !["comment", "reply", "like", "report"].includes(n.type));
     }
-    const q = search.trim().toLowerCase();
+    const q = search.trim();
     if (!q) return result;
-    return result.filter(
-      (n) =>
-        n.title?.toLowerCase().includes(q) ||
-        n.message?.toLowerCase().includes(q),
-    );
+    return result.filter((n) => matchesSearch(q, n.title ?? "", n.message ?? ""));
   }, [notifications, tab, search]);
 
   const tabCounts = useMemo(() => {
