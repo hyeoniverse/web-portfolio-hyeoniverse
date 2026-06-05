@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getTagPageData } from "@/lib/posts";
 import TagPageClient from "./TagPageClient";
 import { notFound } from "next/navigation";
@@ -25,5 +26,10 @@ export default async function TagPage({ params }: Props) {
 
   if (data.totalCount === 0) notFound();
 
-  return <TagPageClient tag={decoded} initialData={data} />;
+  // TagPageClient 가 SearchCapsule(useSearchParams) 를 쓰므로 prerender 시 Suspense 필요
+  return (
+    <Suspense fallback={null}>
+      <TagPageClient tag={decoded} initialData={data} />
+    </Suspense>
+  );
 }

@@ -15,6 +15,7 @@ import { List, ListItem } from "@/app/admin/(dashboard)/components";
 import { showToast } from "@/stores/toastStore";
 import { findDuplicate } from "@/lib/dedupe";
 import { getInitial, KO_INITIALS, EN_INITIALS } from "@/lib/initial";
+import { matchesSearch } from "@/lib/koSearch";
 import LetterFilter from "@/components/ui/LetterFilter";
 import styles from "../Settings.module.css";
 
@@ -177,8 +178,8 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
         const c = categories.find((x) => x.en === en);
         const ko = c?.ko ?? "";
         const d = c ? normalizeDesc(c.description) : { ko: "", en: "" };
-        const inName = en.toLowerCase().includes(q) || ko.toLowerCase().includes(q);
-        const inDesc = d.ko.toLowerCase().includes(q) || d.en.toLowerCase().includes(q);
+        const inName = matchesSearch(q, en, ko);
+        const inDesc = matchesSearch(q, d.ko, d.en);
         if (searchType === "name") return inName;
         if (searchType === "desc") return inDesc;
         return inName || inDesc;

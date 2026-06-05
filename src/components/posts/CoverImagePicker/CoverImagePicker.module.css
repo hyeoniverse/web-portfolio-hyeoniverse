@@ -66,29 +66,10 @@
   overflow: hidden;
 }
 
-.sheetBackdrop {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-overlay);
-  background: oklch(0.00% 0.0000 0.00 / 0.4);
-  backdrop-filter: blur(10px);
-}
-
+/* backdrop / handle-bar 는 글로벌 .ui-sheet-backdrop / .ui-sheet-handle-bar 사용.
+   핸들 영역 배경만 헤더와 같은 색 띠로 보강 (글로벌 핸들은 투명). */
 .sheetHandle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xs) 0;
-  /* header 와 같은 배경 — 핸들 영역 / 헤더 사이 시각적 색 띠 제거 */
   background: var(--bg-tertiary);
-  flex-shrink: 0;
-}
-
-.sheetHandleBar {
-  width: 40px;
-  height: 5px;
-  border-radius: var(--radius-capsule);
-  background: var(--text-muted);
 }
 
 /* sheet 안에서는 body 가 남은 공간 채우고 자체 스크롤 — 데스크탑의 fixed 360px 무효화 */

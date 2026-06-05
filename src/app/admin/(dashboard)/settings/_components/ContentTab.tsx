@@ -18,6 +18,7 @@ import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { Slider } from "@/components/ui/Slider";
 import Popover from "@/components/ui/Popover";
+import Chip from "@/components/ui/Chip";
 import Button from "@/components/ui/Button";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import { Switch } from "@/components/ui/Switch";
@@ -39,9 +40,85 @@ import { normalizeTagMeta, type TagMeta, type StoredTagMeta } from "@/lib/tagMet
 import { showToast } from "@/stores/toastStore";
 import { useModalStore } from "@/stores/modalStore";
 import { findDuplicate } from "@/lib/dedupe";
+import { matchesSearch } from "@/lib/koSearch";
 import { getInitial, KO_INITIALS, EN_INITIALS } from "@/lib/initial";
 import LetterFilter from "@/components/ui/LetterFilter";
 import styles from "../Settings.module.css";
+
+/* About 페이지 패널 목록 — 표시여부 토글 + 전체선택 계산에 공용 */
+const ABOUT_PANELS = [
+  { key: "hero", label: "Hero" },
+  { key: "overview", label: "Overview" },
+  { key: "architecture", label: "Architecture" },
+  { key: "userflow", label: "User Flow" },
+  { key: "features", label: "Features" },
+  { key: "designSystem", label: "Design System" },
+  { key: "process", label: "Process" },
+  { key: "visualBreak", label: "Break Image" },
+  { key: "techStack", label: "Tech Stack" },
+  { key: "backend", label: "Backend" },
+  { key: "erd", label: "ERD" },
+  { key: "codeHighlights", label: "Code Highlights" },
+  { key: "troubleshooting", label: "Troubleshooting" },
+  { key: "security", label: "Security" },
+  { key: "credits", label: "Credits" },
+] as const;
+
+/* simple-icons slug 또는 이미지 URL → 렌더용 src. slug 면 simpleicons CDN 으로 해석. */
+function techIconSrc(icon?: string): string {
+  if (!icon) return "";
+  return /^https?:\/\//.test(icon) || icon.startsWith("/") ? icon : `https://cdn.simpleicons.org/${icon}`;
+}
+
+/* Tech stack 프리셋 — slug(아이콘) + 이름 + 카테고리 + ko(한글 별칭, 초성/한글 검색용) */
+type TechPreset = { slug: string; name: string; category: string; ko?: string };
+const TECH_PRESETS: TechPreset[] = [
+  { slug: "nextdotjs", name: "Next.js", category: "Framework", ko: "넥스트" },
+  { slug: "react", name: "React", category: "Library", ko: "리액트" },
+  { slug: "vuedotjs", name: "Vue.js", category: "Framework", ko: "뷰" },
+  { slug: "svelte", name: "Svelte", category: "Framework", ko: "스벨트" },
+  { slug: "typescript", name: "TypeScript", category: "Language", ko: "타입스크립트" },
+  { slug: "javascript", name: "JavaScript", category: "Language", ko: "자바스크립트" },
+  { slug: "python", name: "Python", category: "Language", ko: "파이썬" },
+  { slug: "nodedotjs", name: "Node.js", category: "Runtime", ko: "노드" },
+  { slug: "greensock", name: "GSAP", category: "Animation", ko: "지샙" },
+  { slug: "framer", name: "Framer Motion", category: "Animation", ko: "프레이머모션" },
+  { slug: "tailwindcss", name: "Tailwind CSS", category: "Styling", ko: "테일윈드" },
+  { slug: "css", name: "CSS", category: "Styling", ko: "씨에스에스" },
+  { slug: "sass", name: "Sass", category: "Styling", ko: "사스" },
+  { slug: "threedotjs", name: "Three.js", category: "3D", ko: "쓰리" },
+  { slug: "supabase", name: "Supabase", category: "Backend", ko: "슈파베이스" },
+  { slug: "firebase", name: "Firebase", category: "Backend", ko: "파이어베이스" },
+  { slug: "postgresql", name: "PostgreSQL", category: "Database", ko: "포스트그레" },
+  { slug: "mongodb", name: "MongoDB", category: "Database", ko: "몽고디비" },
+  { slug: "prisma", name: "Prisma", category: "ORM", ko: "프리즈마" },
+  { slug: "redux", name: "Redux", category: "State", ko: "리덕스" },
+  { slug: "vite", name: "Vite", category: "Build", ko: "비트" },
+  { slug: "webpack", name: "Webpack", category: "Build", ko: "웹팩" },
+  { slug: "vitest", name: "Vitest", category: "Testing", ko: "비테스트" },
+  { slug: "jest", name: "Jest", category: "Testing", ko: "제스트" },
+  { slug: "playwright", name: "Playwright", category: "Testing", ko: "플레이라이트" },
+  { slug: "storybook", name: "Storybook", category: "UI", ko: "스토리북" },
+  { slug: "vercel", name: "Vercel", category: "Deployment", ko: "버셀" },
+  { slug: "netlify", name: "Netlify", category: "Deployment", ko: "넷리파이" },
+  { slug: "docker", name: "Docker", category: "DevOps", ko: "도커" },
+  { slug: "git", name: "Git", category: "VCS", ko: "깃" },
+  { slug: "github", name: "GitHub", category: "VCS", ko: "깃허브" },
+  { slug: "figma", name: "Figma", category: "Design", ko: "피그마" },
+  { slug: "openai", name: "OpenAI", category: "AI", ko: "오픈에이아이" },
+  { slug: "huggingface", name: "Hugging Face", category: "AI", ko: "허깅페이스" },
+  { slug: "tiptap", name: "Tiptap", category: "Editor", ko: "팁탭" },
+  { slug: "graphql", name: "GraphQL", category: "API", ko: "그래프큐엘" },
+  { slug: "stripe", name: "Stripe", category: "Payments", ko: "스트라이프" },
+  { slug: "zod", name: "Zod", category: "Validation", ko: "조드" },
+];
+
+/* 변형 검색(영문 부분일치 + 한글 + 초성)은 공용 util matchesSearch 사용 */
+function matchTech(p: TechPreset, query: string): boolean {
+  return matchesSearch(query, p.name, p.slug, p.category, p.ko ?? "");
+}
+
+type TechItem = { name: string; category: string; icon?: string };
 
 /* social platform select option — 라벨 옆에 brand SVG icon */
 function SocialIconSvg({ name }: { name: string }) {
@@ -798,10 +875,10 @@ export default function ContentTab({
             <SectionHeader title={t("admin.settings.aboutVisualBreak")} paths={["about.visualBreakImage"]} {...sh} />
             <p className={styles.sectionHint}>{t("admin.settings.aboutVisualBreakHint")}</p>
             <div className={styles.fields}>
-              <div style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center" }}>
+              <div className={styles.aboutMediaRow}>
                 {aboutVisualBreak && (
-                  <div style={{ width: 160, height: 90, borderRadius: "var(--radius-2xl)", overflow: "hidden", border: "var(--border-light)", flexShrink: 0 }}>
-                    <img src={aboutVisualBreak} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <div className={styles.aboutMediaThumb}>
+                    <img src={aboutVisualBreak} alt="" />
                   </div>
                 )}
                 <Button variant="outline" size="sm" onClick={() => setShowAboutCover((v) => !v)}>
@@ -826,11 +903,12 @@ export default function ContentTab({
           <section className={styles.section}>
             <SectionHeader title={t("admin.settings.aboutHero")} paths={["about.heroLine1", "about.heroLine1_ko", "about.heroLine2", "about.heroLine2_ko", "about.heroWatermark", "about.heroWatermark_ko", "about.heroLine1Color", "about.heroLine1FontSize", "about.heroLine1FontWeight", "about.heroLine1FontFamily", "about.heroLine2Color", "about.heroLine2FontSize", "about.heroLine2FontWeight", "about.heroLine2FontFamily", "about.heroSubtitleColor", "about.heroSubtitleFontSize", "about.heroSubtitleFontWeight", "about.heroSubtitleFontFamily", "about.heroWatermarkColor", "about.heroWatermarkFontSize", "about.heroWatermarkFontWeight", "about.heroWatermarkFontFamily", "about.heroBackground", "about.heroBgColor", "about.heroBgGradientFrom", "about.heroBgGradientTo", "about.heroBgGradientAngle", "about.heroBgOpacity", "about.heroVideoOverlayColor", "about.heroVideoOverlayStrength"]} {...sh} />
             <div className={styles.fields}>
+              <p className={styles.fieldGroupTitle}>{t("admin.settings.aboutHeroTextGroup")}</p>
               {/* Line 1 — ko/en + ⚙ style 버튼 (popover 안 색/크기/굵기/폰트) */}
-              <div className={styles.fieldRow} style={{ width: "100%" }}>
+              <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroLine1")}</label>
-                <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "flex-start" }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                <div className={styles.aboutHeroField}>
+                  <div className={styles.aboutHeroFieldMain}>
                     <BilingualInputPair
                       layout="row"
                       value={{ ko: config.about.heroLine1_ko ?? "", en: config.about.heroLine1 ?? "" }}
@@ -858,10 +936,10 @@ export default function ContentTab({
               </div>
 
               {/* Line 2 (accent) */}
-              <div className={styles.fieldRow} style={{ width: "100%" }}>
+              <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroLine2")}</label>
-                <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "flex-start" }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                <div className={styles.aboutHeroField}>
+                  <div className={styles.aboutHeroFieldMain}>
                     <BilingualInputPair
                       layout="row"
                       value={{ ko: config.about.heroLine2_ko ?? "", en: config.about.heroLine2 ?? "" }}
@@ -889,10 +967,10 @@ export default function ContentTab({
               </div>
 
               {/* 서브타이틀 — 인풋 없음 (i18n aboutPage.description), 스타일 버튼만 */}
-              <div className={styles.fieldRow} style={{ width: "100%" }}>
+              <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroSubtitle")}</label>
-                <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "center" }}>
-                  <span style={{ flex: 1, fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>
+                <div className={`${styles.aboutHeroField} ${styles.aboutHeroFieldCenter}`}>
+                  <span className={styles.aboutHeroSubtitleHint}>
                     {t("admin.settings.aboutHeroSubtitleHint")}
                   </span>
                   <TextStyleButton sheetTitle={`${t("admin.settings.aboutHeroSubtitle")} · ${t("admin.settings.aboutHeroStylePopoverTitle")}`}>
@@ -916,10 +994,10 @@ export default function ContentTab({
               </div>
 
               {/* Watermark */}
-              <div className={styles.fieldRow} style={{ width: "100%" }}>
+              <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroWatermark")}</label>
-                <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "flex-start" }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                <div className={styles.aboutHeroField}>
+                  <div className={styles.aboutHeroFieldMain}>
                     <BilingualInputPair
                       layout="row"
                       value={{ ko: config.about.heroWatermark_ko ?? "", en: config.about.heroWatermark ?? "" }}
@@ -946,9 +1024,10 @@ export default function ContentTab({
                 </div>
               </div>
 
+              <hr className={styles.sectionDivider} />
               {/* 패널 배경 — media (cover picker) + solid color + gradient + video opacity, 전부 UI 컨트롤 */}
-              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "var(--spacing-sm)" }}>
-                <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroBackground")}</label>
+              <div className={styles.aboutBgGroup}>
+                <p className={styles.fieldGroupTitle}>{t("admin.settings.aboutHeroBackground")}</p>
 
                 {/* media row — preview + picker toggle + remove. preview 는 동영상이면 <video>, 아니면 <img>. */}
                 {(() => {
@@ -956,17 +1035,17 @@ export default function ContentTab({
                   const mediaUrl = bg.match(/url\(["']?([^"')]+)["']?\)/)?.[1] ?? (bg.match(/^(\S+)/)?.[1] ?? "");
                   const isVideo = !!mediaUrl && /\.(mp4|webm|mov|ogv)(\?|#|$)/i.test(mediaUrl);
                   return (
-                    <div style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center" }}>
+                    <div className={styles.aboutMediaRow}>
                       {mediaUrl && (
-                        <div style={{ width: 160, height: 90, borderRadius: "var(--radius-2xl)", overflow: "hidden", border: "var(--border-light)", flexShrink: 0, background: "var(--bg-tertiary)" }}>
+                        <div className={styles.aboutMediaThumb}>
                           {isVideo ? (
-                            <video src={mediaUrl} autoPlay muted loop playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            <video src={mediaUrl} autoPlay muted loop playsInline />
                           ) : (
-                            <img src={mediaUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            <img src={mediaUrl} alt="" />
                           )}
                         </div>
                       )}
-                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", alignItems: "stretch" }}>
+                      <div className={styles.aboutMediaActions}>
                         <Button variant="outline" size="sm" onClick={() => setShowHeroBgCover((v) => !v)}>
                           {showHeroBgCover ? t("admin.posts.seriesModal.closePicker") : t("admin.posts.seriesModal.chooseCover")}
                         </Button>
@@ -1002,8 +1081,8 @@ export default function ContentTab({
                     <>
                       <div className={styles.fieldRow}>
                         <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroBgOpacity")}</label>
-                        <div style={{ display: "flex", gap: "var(--spacing-sm)", alignItems: "center" }}>
-                          <div style={{ flex: 1 }}>
+                        <div className={styles.aboutSliderRow}>
+                          <div className={styles.aboutSliderTrack}>
                             <Slider
                               min={0}
                               max={1}
@@ -1031,8 +1110,8 @@ export default function ContentTab({
                       />
                       <div className={styles.fieldRow}>
                         <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroVideoOverlayStrength")}</label>
-                        <div style={{ display: "flex", gap: "var(--spacing-sm)", alignItems: "center" }}>
-                          <div style={{ flex: 1 }}>
+                        <div className={styles.aboutSliderRow}>
+                          <div className={styles.aboutSliderTrack}>
                             <Slider
                               min={0}
                               max={1}
@@ -1067,7 +1146,7 @@ export default function ContentTab({
                 {/* gradient — from/to 빈 값이면 테마 표면 색을 fallback 으로 표시 */}
                 <div className={styles.fieldRow}>
                   <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroBgGradient")}</label>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-sm)" }}>
+                  <div className={styles.aboutGradientGrid}>
                     <ColorField
                       label={t("admin.settings.aboutHeroBgGradientFrom")}
                       value={config.about.heroBgGradientFrom || themeBg.primary}
@@ -1079,11 +1158,11 @@ export default function ContentTab({
                       onChange={(v) => update("about", "heroBgGradientTo", v)}
                     />
                   </div>
-                  <div style={{ display: "flex", gap: "var(--spacing-sm)", alignItems: "center", marginTop: "var(--spacing-xs)" }}>
-                    <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-sm)", color: "var(--text-secondary)", minWidth: "56px" }}>
+                  <div className={styles.aboutGradientAngle}>
+                    <span className={styles.aboutGradientAngleLabel}>
                       {t("admin.settings.aboutHeroBgGradientAngle")}
                     </span>
-                    <div style={{ flex: 1 }}>
+                    <div className={styles.aboutSliderTrack}>
                       <Slider
                         min={0}
                         max={360}
@@ -1112,7 +1191,7 @@ export default function ContentTab({
           <section className={styles.section}>
             <SectionHeader title={t("admin.settings.aboutInfiniteScroll")} paths={["about.infiniteScroll"]} {...sh} />
             <div className={styles.fields}>
-              <label style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-sm)", cursor: "pointer" }}>
+              <label className={styles.aboutCheckRow}>
                 <Checkbox
                   shape="square"
                   checked={config.about.infiniteScroll ?? false}
@@ -1127,27 +1206,33 @@ export default function ContentTab({
             <SectionHeader title={t("admin.settings.aboutPanelVisibility")} paths={["about.hiddenPanels"]} {...sh} />
             <p className={styles.sectionHint}>{t("admin.settings.aboutPanelVisibilityHint")}</p>
             <div className={styles.fields}>
-              <div style={{ width: "100%", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "var(--spacing-xs) var(--spacing-md)" }}>
-                {([
-                  { key: "hero", label: "Hero" },
-                  { key: "overview", label: "Overview" },
-                  { key: "architecture", label: "Architecture" },
-                  { key: "userflow", label: "User Flow" },
-                  { key: "features", label: "Features" },
-                  { key: "designSystem", label: "Design System" },
-                  { key: "process", label: "Process" },
-                  { key: "visualBreak", label: "Break Image" },
-                  { key: "techStack", label: "Tech Stack" },
-                  { key: "backend", label: "Backend" },
-                  { key: "erd", label: "ERD" },
-                  { key: "codeHighlights", label: "Code Highlights" },
-                  { key: "troubleshooting", label: "Troubleshooting" },
-                  { key: "security", label: "Security" },
-                  { key: "credits", label: "Credits" },
-                ] as const).map(({ key, label }) => {
+              {(() => {
+                const hiddenList = config.about.hiddenPanels ?? [];
+                const shownCount = ABOUT_PANELS.filter((p) => !hiddenList.includes(p.key)).length;
+                const allShown = shownCount === ABOUT_PANELS.length;
+                const allHidden = shownCount === 0;
+                return (
+                  <div className={styles.aboutPanelHeader}>
+                    <label className={styles.aboutPanelToggle}>
+                      <Checkbox
+                        shape="square"
+                        checked={allShown}
+                        indeterminate={!allShown && !allHidden}
+                        onChange={(v) =>
+                          update("about", "hiddenPanels", (v ? [] : ABOUT_PANELS.map((p) => p.key)) as SiteConfigData["about"]["hiddenPanels"])
+                        }
+                      />
+                      <span>{allShown ? t("admin.settings.aboutPanelHideAll") : t("admin.settings.aboutPanelShowAll")}</span>
+                    </label>
+                    <span className={styles.sectionHint}>{shownCount} / {ABOUT_PANELS.length}</span>
+                  </div>
+                );
+              })()}
+              <div className={styles.aboutPanelGrid}>
+                {ABOUT_PANELS.map(({ key, label }) => {
                   const hidden = (config.about.hiddenPanels ?? []).includes(key);
                   return (
-                    <label key={key} style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-2xs)", cursor: "pointer" }}>
+                    <label key={key} className={styles.aboutPanelToggle}>
                       <Checkbox
                         shape="square"
                         checked={!hidden}
@@ -1157,7 +1242,7 @@ export default function ContentTab({
                           update("about", "hiddenPanels", Array.from(list) as SiteConfigData["about"]["hiddenPanels"]);
                         }}
                       />
-                      <span style={{ fontSize: "var(--font-size-sm)" }}>{label}</span>
+                      <span>{label}</span>
                     </label>
                   );
                 })}
@@ -1217,52 +1302,16 @@ export default function ContentTab({
             styles={styles}
           />
 
-          {/* Tech stack 편집 — 인라인 row form */}
+          {/* Tech stack 편집 — chip + 프리셋(아이콘) + 아이콘 편집 */}
           <section className={`${styles.section} ${styles.sectionWide}`}>
             <SectionHeader title={t("admin.settings.aboutTechStack")} paths={["about.techStack"]} {...sh} />
             <p className={styles.sectionHint}>{t("admin.settings.aboutTechStackHint")}</p>
-            <div className={styles.fields}>
-              {(config.about.techStack ?? []).map((item, idx) => (
-                <div key={idx} style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "center" }}>
-                  <div style={{ flex: 1 }}>
-                    <Input
-                      value={item.name}
-                      onChange={(v) => {
-                        const next = [...(config.about.techStack ?? [])];
-                        next[idx] = { ...next[idx], name: v };
-                        update("about", "techStack", next as SiteConfigData["about"]["techStack"]);
-                      }}
-                      placeholder={t("admin.settings.aboutTechStackName")}
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <Input
-                      value={item.category}
-                      onChange={(v) => {
-                        const next = [...(config.about.techStack ?? [])];
-                        next[idx] = { ...next[idx], category: v };
-                        update("about", "techStack", next as SiteConfigData["about"]["techStack"]);
-                      }}
-                      placeholder={t("admin.settings.aboutTechStackCategory")}
-                    />
-                  </div>
-                  <Button variant="outline" size="2xs" onClick={() => {
-                    const next = (config.about.techStack ?? []).filter((_, i) => i !== idx);
-                    update("about", "techStack", next as SiteConfigData["about"]["techStack"]);
-                  }}>
-                    {t("admin.settings.aboutTechStackRemove")}
-                  </Button>
-                </div>
-              ))}
-              <div>
-                <Button variant="outline" size="sm" onClick={() => {
-                  const next = [...(config.about.techStack ?? []), { name: "", category: "" }];
-                  update("about", "techStack", next as SiteConfigData["about"]["techStack"]);
-                }}>
-                  + {t("admin.settings.aboutTechStackAdd")}
-                </Button>
-              </div>
-            </div>
+            <AboutTechStackEditor
+              items={(config.about.techStack ?? []) as TechItem[]}
+              onChange={(v) => update("about", "techStack", v as SiteConfigData["about"]["techStack"])}
+              t={t}
+              styles={styles}
+            />
           </section>
         </>
       )}
@@ -1449,13 +1498,8 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
     if (q) {
       list = list.filter((tag) => {
         const m = normalizeTagMeta(value[tag]);
-        const inName =
-          tag.toLowerCase().includes(q) ||
-          m.ko.toLowerCase().includes(q) ||
-          m.en.toLowerCase().includes(q);
-        const inDesc =
-          m.description.ko.toLowerCase().includes(q) ||
-          m.description.en.toLowerCase().includes(q);
+        const inName = matchesSearch(q, tag, m.ko, m.en);
+        const inDesc = matchesSearch(q, m.description.ko, m.description.en);
         if (searchType === "name") return inName;
         if (searchType === "desc") return inDesc;
         return inName || inDesc;
@@ -2653,5 +2697,263 @@ function AboutSecurityEditor({ value, onChange, t, sh, styles }: { value: Securi
         </div>
       </div>
     </section>
+  );
+}
+
+/* ── Tech stack — chip 형태 + 프리셋(아이콘) 추가 + 아이콘 편집(검색/업로드/링크) ── */
+function AboutTechStackEditor({ items, onChange, t, styles }: {
+  items: TechItem[];
+  onChange: (v: TechItem[]) => void;
+  t: (key: string) => string;
+  styles: Record<string, string>;
+}) {
+  const patch = (idx: number, p: Partial<TechItem>) => onChange(items.map((it, i) => (i === idx ? { ...it, ...p } : it)));
+  const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
+  const add = (it: TechItem) => onChange([...items, it]);
+
+  // 카테고리별 그룹화 (등장 순서 보존). 무카테고리는 "" 그룹.
+  const order: string[] = [];
+  const groups = new Map<string, { item: TechItem; idx: number }[]>();
+  items.forEach((item, idx) => {
+    const key = item.category || "";
+    if (!groups.has(key)) { groups.set(key, []); order.push(key); }
+    groups.get(key)!.push({ item, idx });
+  });
+
+  const renderChip = (item: TechItem, idx: number) => (
+    <Popover
+      key={idx}
+      placement="bottom-start"
+      sheetTitle={item.name || "Tech"}
+      trigger={
+        <Chip
+          leftIcon={
+            <span className={styles.techIconTile}>
+              {techIconSrc(item.icon)
+                // eslint-disable-next-line @next/next/no-img-element
+                ? <img src={techIconSrc(item.icon)} alt="" />
+                : <span className={styles.techIconInitial}>{(item.name || "?").slice(0, 1).toUpperCase()}</span>}
+            </span>
+          }
+          onRemove={() => remove(idx)}
+        >
+          {item.name || "—"}
+        </Chip>
+      }
+    >
+      <TechEditPanel item={item} onChange={(p) => patch(idx, p)} t={t} styles={styles} />
+    </Popover>
+  );
+
+  return (
+    <div className={styles.techGroups}>
+      {order.map((cat) => (
+        <div key={cat || "__none"} className={styles.techGroup}>
+          {cat && <span className={styles.techGroupLabel}>{cat}</span>}
+          <div className={styles.techChips}>
+            {groups.get(cat)!.map(({ item, idx }) => renderChip(item, idx))}
+          </div>
+        </div>
+      ))}
+
+      <div className={styles.techAddRow}>
+        <Popover
+          placement="bottom-start"
+          sheetTitle={t("admin.settings.aboutTechStackAdd")}
+          trigger={
+            <button type="button" className={styles.techAddChip}>
+              <Plus size={14} strokeWidth={2.5} /> {t("admin.settings.aboutTechStackAdd")}
+            </button>
+          }
+        >
+          <TechAddPanel existing={items} onAdd={add} t={t} styles={styles} />
+        </Popover>
+      </div>
+    </div>
+  );
+}
+
+/* tech 아이콘 업로드 — /api/admin/upload (folder: icons) */
+async function uploadTechIcon(file: File): Promise<string | null> {
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("folder", "icons");
+  const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+  if (!res.ok) return null;
+  const data = await res.json().catch(() => null);
+  return data?.url ?? null;
+}
+
+/* 프리셋 grid — 검색 필터 + 클릭 시 onPick */
+function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
+  query: string;
+  onPick: (p: { slug: string; name: string; category: string }) => void;
+  styles: Record<string, string>;
+  /** 이미 추가된 항목 — 중복 추가 방지 (비활성 + 체크 표시) */
+  isAdded?: (p: TechPreset) => boolean;
+  t?: (key: string) => string;
+}) {
+  const list = TECH_PRESETS.filter((p) => matchTech(p, query));
+  if (list.length === 0) return <div className={styles.techPresetEmpty}>검색 결과 없음</div>;
+  return (
+    <div className={styles.techPresetScroll}>
+      <div className={styles.techPresetList}>
+        {list.map((p) => {
+          const added = isAdded?.(p) ?? false;
+          return (
+            <button
+              key={p.slug}
+              type="button"
+              className={`${styles.techPresetRow} ${added ? styles.techPresetRowAdded : ""}`}
+              onClick={() => { if (!added) onPick(p); }}
+              disabled={added}
+              title={added ? (t?.("admin.settings.aboutTechStackAdded") ?? "Added") : p.name}
+            >
+              <span className={styles.techIconTile}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={techIconSrc(p.slug)} alt="" />
+              </span>
+              <span className={styles.techPresetRowName}>{p.name}</span>
+              {added
+                ? <Check size={13} strokeWidth={2.5} className={styles.techPresetCheck} />
+                : <span className={styles.techPresetRowCat}>{p.category}</span>}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* 아이콘 편집 공용 — circle 미리보기(클릭=업로드/교체) + 링크 + (옵션)프리셋 검색.
+   showSearch=false 면 검색 숨김 (직접 추가용 — 검색되는 건 프리셋으로 추가하면 됨). */
+function TechIconEditor({ icon, onIconChange, t, styles, showSearch = true }: {
+  icon: string;
+  onIconChange: (icon: string) => void;
+  t: (key: string) => string;
+  styles: Record<string, string>;
+  showSearch?: boolean;
+}) {
+  const [q, setQ] = useState("");
+  const [link, setLink] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const src = techIconSrc(icon);
+
+  const handleFile = async (file: File) => {
+    setUploading(true);
+    const url = await uploadTechIcon(file);
+    setUploading(false);
+    if (url) onIconChange(url);
+  };
+
+  return (
+    <>
+      <div className={styles.techIconRow}>
+        <div className={styles.techIconCircleWrap}>
+          <button
+            type="button"
+            className={styles.techIconCircleBtn}
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            title={t("admin.settings.aboutTechStackIconHint")}
+            aria-label={t("admin.settings.aboutTechStackIconHint")}
+          >
+            {uploading
+              ? <span className={styles.techIconSpinner} />
+              : src
+                // eslint-disable-next-line @next/next/no-img-element
+                ? <img src={src} alt="" />
+                : <Plus size={16} strokeWidth={2} />}
+          </button>
+          {icon && !uploading && (
+            <button
+              type="button"
+              className={styles.techIconClear}
+              onClick={() => onIconChange("")}
+              aria-label={t("admin.settings.aboutTechStackRemove")}
+            >
+              <X size={9} strokeWidth={3} />
+            </button>
+          )}
+          <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }} />
+        </div>
+        <Input
+          value={link}
+          onChange={setLink}
+          placeholder={t("admin.settings.aboutTechStackIconUrl")}
+          size="sm"
+          onAdd={(v) => { const u = v.trim(); if (u) { onIconChange(u); setLink(""); } }}
+        />
+      </div>
+      {showSearch && (
+        <>
+          <Input value={q} onChange={setQ} placeholder={t("admin.settings.aboutTechStackSearch")} size="sm" clearable />
+          {q.trim() && <TechPresetGrid query={q} onPick={(p) => { onIconChange(p.slug); setQ(""); }} styles={styles} />}
+        </>
+      )}
+    </>
+  );
+}
+
+/* 추가 패널 — 프리셋 표 + 직접 입력(이름·카테고리·아이콘) */
+function TechAddPanel({ existing, onAdd, t, styles }: {
+  existing: TechItem[];
+  onAdd: (it: TechItem) => void;
+  t: (key: string) => string;
+  styles: Record<string, string>;
+}) {
+  const [q, setQ] = useState("");
+  const [draft, setDraft] = useState<TechItem>({ name: "", category: "", icon: "" });
+  const has = (name: string) => existing.some((e) => e.name.toLowerCase() === name.toLowerCase());
+  const isDup = !!draft.name.trim() && has(draft.name.trim());
+  const canAdd = !!draft.name.trim() && !isDup;
+  const submitCustom = () => {
+    if (!canAdd) return;
+    onAdd({ name: draft.name.trim(), category: draft.category.trim(), icon: draft.icon ?? "" });
+    setDraft({ name: "", category: "", icon: "" });
+  };
+
+  return (
+    <div className={styles.techPanel}>
+      <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackPresetTitle")}</p>
+      <Input value={q} onChange={setQ} placeholder={t("admin.settings.aboutTechStackSearch")} size="sm" clearable />
+      <TechPresetGrid
+        query={q}
+        onPick={(p) => { if (!has(p.name)) onAdd({ name: p.name, category: p.category, icon: p.slug }); }}
+        isAdded={(p) => has(p.name)}
+        t={t}
+        styles={styles}
+      />
+      {/* 직접 추가 — sticky footer (프리셋 스크롤해도 항상 보임). 검색은 없음(프리셋으로 추가). */}
+      <div className={styles.techCustomFooter}>
+        <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackCustomTitle")}</p>
+        <Input value={draft.name} onChange={(v) => setDraft((d) => ({ ...d, name: v }))} placeholder={t("admin.settings.aboutTechStackName")} size="sm" />
+        {isDup && <p className={styles.techAddDupHint}>{t("admin.settings.aboutTechStackDupHint")}</p>}
+        <Input value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} placeholder={t("admin.settings.aboutTechStackCategory")} size="sm" />
+        <TechIconEditor icon={draft.icon ?? ""} onIconChange={(icon) => setDraft((d) => ({ ...d, icon }))} t={t} styles={styles} showSearch={false} />
+        <Button variant="primary" size="xs" fullWidth disabled={!canAdd} onClick={submitCustom} icon={<Plus size={14} strokeWidth={2.5} />}>
+          {t("admin.settings.aboutTechStackAdd")}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/* 편집 패널 — 이름/카테고리 + 아이콘 */
+function TechEditPanel({ item, onChange, t, styles }: {
+  item: TechItem;
+  onChange: (p: Partial<TechItem>) => void;
+  t: (key: string) => string;
+  styles: Record<string, string>;
+}) {
+  return (
+    <div className={styles.techPanel}>
+      <Input value={item.name} onChange={(v) => onChange({ name: v })} placeholder={t("admin.settings.aboutTechStackName")} size="sm" />
+      <Input value={item.category} onChange={(v) => onChange({ category: v })} placeholder={t("admin.settings.aboutTechStackCategory")} size="sm" />
+      <hr className={styles.techDivider} />
+      <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackIcon")}</p>
+      <TechIconEditor icon={item.icon ?? ""} onIconChange={(icon) => onChange({ icon })} t={t} styles={styles} />
+    </div>
   );
 }

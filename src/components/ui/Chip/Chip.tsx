@@ -113,7 +113,8 @@ export default function Chip({
       {onRemove && (
         <CloseButton
           size="xs"
-          onClick={onRemove}
+          /* × 클릭이 부모(예: Popover trigger)로 전파돼 다른 동작을 트리거하지 않도록 차단 */
+          onClick={(e) => { e.stopPropagation(); onRemove(); }}
           ariaLabel="Remove"
           className={styles.remove}
         />

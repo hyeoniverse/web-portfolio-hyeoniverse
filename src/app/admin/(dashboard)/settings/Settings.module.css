@@ -5414,3 +5414,387 @@ a.tagRelatedItem:hover {
   color: var(--text-tertiary);
   text-align: center;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   About 패널 — 인라인 스타일 추출 (간격·정렬을 토큰으로 일관화)
+   ───────────────────────────────────────────────────────────────────────── */
+/* 미디어 프리뷰 + 액션 (VisualBreak / Hero 배경 공용) */
+.aboutMediaRow {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+.aboutMediaThumb {
+  width: 160px;
+  height: 90px;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  border: var(--border-light);
+  flex-shrink: 0;
+  background: var(--bg-tertiary);
+}
+.aboutMediaThumb img,
+.aboutMediaThumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.aboutMediaActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* Hero 텍스트 필드 (입력 + ⚙ 스타일 버튼) */
+.aboutHeroField {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: flex-start;
+  width: 100%;
+}
+.aboutHeroFieldMain {
+  flex: 1;
+  min-width: 0;
+}
+/* 서브타이틀처럼 단일 라인이면 가운데 정렬 */
+.aboutHeroFieldCenter {
+  align-items: center;
+}
+.aboutHeroSubtitleHint {
+  flex: 1;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* Hero 배경 그룹 */
+.aboutBgGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+.aboutSliderRow {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+.aboutSliderTrack {
+  flex: 1;
+}
+.aboutGradientGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+.aboutGradientAngle {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  margin-top: var(--spacing-xs);
+}
+.aboutGradientAngleLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  min-width: 56px;
+}
+
+/* 체크박스 row (무한 스크롤) */
+.aboutCheckRow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+}
+
+/* 패널 표시여부 그리드 */
+.aboutPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+.aboutPanelGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--spacing-xs) var(--spacing-md);
+}
+.aboutPanelToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+}
+
+/* Tech stack row (legacy) */
+.aboutTechRow {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+.aboutTechCol {
+  flex: 1;
+}
+
+/* ── Tech stack — chip editor ── */
+/* 카테고리별 그룹 — 그룹들을 n열 그리드로 배치 (압축). 라벨 밑줄로 구분감. */
+.techGroups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-md) var(--spacing-xl);
+  align-items: start;
+}
+.techGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+.techGroupLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  padding-bottom: var(--spacing-2xs);
+  border-bottom: var(--border-light);
+}
+/* 그룹 내 chip 들 — wrap */
+.techChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  min-width: 0;
+}
+/* 아이콘 타일 — circle, 브랜드 컬러가 양쪽 테마에서 보이도록 밝은 중립 타일 위에 */
+.techIconTile {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-circle);
+  background: var(--color-neutral-50);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.techIconTile img {
+  width: 13px;
+  height: 13px;
+  object-fit: contain;
+}
+/* 아이콘 없을 때 이니셜 */
+.techIconInitial {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 700;
+  color: var(--text-tertiary);
+}
+/* + 추가 chip (점선) — 그룹 그리드 전체 너비 차지 */
+.techAddRow {
+  grid-column: 1 / -1;
+  padding-top: var(--spacing-xs);
+}
+.techAddChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 5px 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.techAddChip:hover {
+  border-color: var(--border-accent);
+  color: var(--text-accent);
+}
+
+/* ── 추가 / 편집 popover 내부 ── */
+.techPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: min(340px, 86vw);
+  /* dropdown 자체엔 padding 이 없어 content 가 padding 을 가짐 */
+  padding: var(--spacing-md);
+}
+.techPanelTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+/* preset 스크롤 영역 — 좌우 트임(full-bleed) + 높이 제한(내부 스크롤). Lenis 는 dropdown 의 data-lenis-prevent 로 무시됨 */
+.techPresetScroll {
+  margin: 0 calc(-1 * var(--spacing-md));
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+/* preset — 좌우 트인 표(row 리스트). circle 아이콘 + 이름 + 카테고리. 가로 구분선만. */
+.techPresetList {
+  display: flex;
+  flex-direction: column;
+}
+.techPresetRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: none;
+  border-bottom: var(--border-light);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+.techPresetRow:last-child {
+  border-bottom: none;
+}
+.techPresetRow:hover {
+  background: var(--bg-tertiary);
+}
+.techPresetRowName {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.techPresetRowCat {
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.techPresetEmpty {
+  padding: var(--spacing-md);
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+/* 직접 추가 — sticky footer. 프리셋 스크롤해도 popover 하단에 항상 고정 */
+.techCustomFooter {
+  position: sticky;
+  bottom: 0;
+  margin: var(--spacing-xs) calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md));
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  background: var(--bg-primary);
+  border-top: var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+/* 아이콘 편집 — circle 미리보기(클릭=업로드/교체) + 링크 입력 한 줄 */
+.techIconRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.techIconCircleWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.techIconCircleBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-circle);
+  background: var(--color-neutral-50);
+  border: 1px dashed var(--border-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  transition: border-color 0.15s, color 0.15s;
+}
+.techIconCircleBtn:hover {
+  border-color: var(--border-accent);
+  color: var(--text-accent);
+}
+.techIconCircleBtn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.techIconCircleBtn img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+/* 아이콘 있을 때 테두리 실선 */
+.techIconCircleWrap:has(img) .techIconCircleBtn {
+  border-style: solid;
+  border-color: var(--border-light);
+}
+.techIconSpinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--text-accent);
+  border-radius: var(--radius-circle);
+  animation: techSpin 0.7s linear infinite;
+}
+@keyframes techSpin {
+  to { transform: rotate(360deg); }
+}
+/* × 제거 — circle 우상단 */
+.techIconClear {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-circle);
+  border: var(--border-light);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.techIconClear:hover {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+/* 직접 추가 — 중복 이름 힌트 */
+.techAddDupHint {
+  font-size: var(--font-size-2xs);
+  color: var(--text-accent);
+  margin: 0;
+}
+/* 이미 추가된 preset row — 비활성 + 체크 */
+.techPresetRowAdded {
+  cursor: default;
+  opacity: 0.55;
+}
+.techPresetRowAdded:hover {
+  background: transparent;
+}
+.techPresetCheck {
+  color: var(--text-accent);
+  justify-self: end;
+}
+.techDivider {
+  border: none;
+  border-top: var(--border-light);
+  margin: 0;
+}
