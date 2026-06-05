@@ -2827,8 +2827,7 @@ function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
 
 /* 아이콘 편집 공용 — circle 미리보기(클릭=업로드/교체) + 링크 + (옵션)프리셋 검색.
    showSearch=false 면 검색 숨김 (직접 추가용 — 검색되는 건 프리셋으로 추가하면 됨). */
-function TechIconEditor({ name, icon, onIconChange, t, styles, showSearch = true }: {
-  name: string;
+function TechIconEditor({ icon, onIconChange, t, styles, showSearch = true }: {
   icon: string;
   onIconChange: (icon: string) => void;
   t: (key: string) => string;
@@ -2932,7 +2931,7 @@ function TechAddPanel({ existing, onAdd, t, styles }: {
         <Input value={draft.name} onChange={(v) => setDraft((d) => ({ ...d, name: v }))} placeholder={t("admin.settings.aboutTechStackName")} size="sm" />
         {isDup && <p className={styles.techAddDupHint}>{t("admin.settings.aboutTechStackDupHint")}</p>}
         <Input value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} placeholder={t("admin.settings.aboutTechStackCategory")} size="sm" />
-        <TechIconEditor name={draft.name} icon={draft.icon ?? ""} onIconChange={(icon) => setDraft((d) => ({ ...d, icon }))} t={t} styles={styles} showSearch={false} />
+        <TechIconEditor icon={draft.icon ?? ""} onIconChange={(icon) => setDraft((d) => ({ ...d, icon }))} t={t} styles={styles} showSearch={false} />
         <Button variant="primary" size="xs" fullWidth disabled={!canAdd} onClick={submitCustom} icon={<Plus size={14} strokeWidth={2.5} />}>
           {t("admin.settings.aboutTechStackAdd")}
         </Button>
@@ -2954,7 +2953,7 @@ function TechEditPanel({ item, onChange, t, styles }: {
       <Input value={item.category} onChange={(v) => onChange({ category: v })} placeholder={t("admin.settings.aboutTechStackCategory")} size="sm" />
       <hr className={styles.techDivider} />
       <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackIcon")}</p>
-      <TechIconEditor name={item.name} icon={item.icon ?? ""} onIconChange={(icon) => onChange({ icon })} t={t} styles={styles} />
+      <TechIconEditor icon={item.icon ?? ""} onIconChange={(icon) => onChange({ icon })} t={t} styles={styles} />
     </div>
   );
 }
