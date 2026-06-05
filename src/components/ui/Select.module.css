@@ -164,6 +164,45 @@
   pointer-events: none;
 }
 
+/* ── 말풍선 variant — trigger 오른쪽에 solid 말풍선 + 왼쪽 꼬리 ── */
+.bubble {
+  /* glass → solid (꼬리가 같은 색으로 이어지도록) */
+  background: var(--bg-primary);
+  backdrop-filter: none;
+  /* 꼬리가 보이도록 overflow visible — 스크롤은 내부 .bubbleScroll 이 담당 */
+  overflow: visible;
+  max-height: none;
+  transform-origin: left center;
+}
+.bubble.dropdownClose {
+  transform: scale(0.96) translateX(-4px);
+}
+.bubble.dropdownOpen {
+  transform: scale(1) translateX(0);
+}
+/* 내부 스크롤 영역 — 옵션 layout + max-height */
+.bubbleScroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* 꼬리 — 왼쪽 모서리에서 왼쪽(trigger)을 가리키는 삼각형 */
+.bubbleRight::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: -6px;
+  width: 11px;
+  height: 11px;
+  background: var(--bg-primary);
+  border-left: var(--border-light);
+  border-bottom: var(--border-light);
+  transform: rotate(45deg);
+}
+
 .option {
   padding: var(--box-sm);
   border: none;

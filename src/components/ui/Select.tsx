@@ -61,6 +61,8 @@ interface SelectProps {
     /** input commit 직전 값 정규화 (예: 숫자만, 0 padding 등) */
     sanitize?: (raw: string) => string;
   };
+  /** 말풍선 dropdown — 아래가 아니라 trigger 오른쪽에 solid 말풍선(꼬리 포함)으로 연다. */
+  bubble?: boolean;
 }
 
 export default function Select({
@@ -84,6 +86,7 @@ export default function Select({
   editable,
   editableInputProps,
   width,
+  bubble = false,
 }: SelectProps) {
   // editable + value 비어있으면 mount 시 default editing (= 직접 입력 mode 부터 시작).
   const [editing, setEditing] = useState(() => !!editable && !value);
@@ -122,8 +125,17 @@ export default function Select({
   const updatePosition = useCallback(() => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    setDropPos({ top: rect.bottom, left: rect.left, width: rect.width });
-  }, []);
+    if (bubble) {
+      // 오른쪽 말풍선 — trigger 오른쪽, 위쪽 정렬. 화면 밖이면 안쪽으로 clamp.
+      const GAP = 10;
+      const dw = dropdownRef.current?.offsetWidth ?? 220;
+      let left = rect.right + GAP;
+      if (left + dw > window.innerWidth - 8) left = Math.max(8, window.innerWidth - dw - 8);
+      setDropPos({ top: rect.top, left, width: rect.width });
+    } else {
+      setDropPos({ top: rect.bottom, left: rect.left, width: rect.width });
+    }
+  }, [bubble]);
 
   useLayoutEffect(() => {
     if (!visible) return;
@@ -291,11 +303,13 @@ export default function Select({
   // 단 width="full" 일 땐 trigger 가 부모 column 폭에 맞춰져 있으므로 dropdown 도 그 폭을 cap (max-width) 으로 두고
   // 옵션 라벨은 .option 의 ellipsis 로 잘림 처리 → 긴 옵션 라벨 때문에 dropdown 이 무한히 길어지는 현상 방지.
   // trigger 자체 width 는 sizer 기반 (가장 긴 label) 이라 open 전후 변하지 않음.
-  const portalStyle: React.CSSProperties = isCompact
-    ? { top: dropPos.top - dropOffset, left: dropPos.left, minWidth: dropPos.width }
-    : width === "full"
-      ? { top: dropPos.top, left: dropPos.left, width: dropPos.width, maxWidth: dropPos.width }
-      : { top: dropPos.top, left: dropPos.left, minWidth: dropPos.width };
+  const portalStyle: React.CSSProperties = bubble
+    ? { top: dropPos.top, left: dropPos.left, minWidth: 160, maxWidth: 280 }
+    : isCompact
+      ? { top: dropPos.top - dropOffset, left: dropPos.left, minWidth: dropPos.width }
+      : width === "full"
+        ? { top: dropPos.top, left: dropPos.left, width: dropPos.width, maxWidth: dropPos.width }
+        : { top: dropPos.top, left: dropPos.left, minWidth: dropPos.width };
 
   return (
     <div className={`${styles.root} ${isCompact ? styles.rootCompact : ""} ${open ? styles.rootOpen : ""} ${disabled ? styles.rootDisabled : ""} ${width === "full" ? styles.rootFull : ""} ${className ?? ""}`} ref={ref}>
@@ -401,12 +415,12 @@ export default function Select({
       {visible && createPortal(
         <div
           ref={dropdownRef}
-          className={`${styles.dropdown} ${isCompact ? styles.dropdownCompact : ""} ${animateOpen ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
+          className={`${styles.dropdown} ${isCompact ? styles.dropdownCompact : ""} ${bubble ? `${styles.bubble} ${styles.bubbleRight}` : ""} ${animateOpen ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
           style={portalStyle}
           onTransitionEnd={handleTransitionEnd}
           data-lenis-prevent
         >
-          {dropdownContent}
+          {bubble ? <div className={styles.bubbleScroll}>{dropdownContent}</div> : dropdownContent}
         </div>,
         document.body,
       )}

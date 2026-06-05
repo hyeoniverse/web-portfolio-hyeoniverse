@@ -210,15 +210,21 @@ function TechIcon({ icon, name, styles }: { icon?: string; name: string; styles:
   return <span className={styles.techIconInitial}>{(name || "?").slice(0, 1).toUpperCase()}</span>;
 }
 
-/* 카테고리 입력 — 프리셋 카테고리 자동완성(datalist) + 자유 입력 */
+/* 카테고리 입력 — 공통 Select combobox (프리셋 카테고리 제안 + 자유 입력) */
 function CategoryInput({ value, onChange, t }: { value: string; onChange: (v: string) => void; t: (key: string) => string }) {
   return (
-    <>
-      <Input value={value} onChange={onChange} placeholder={t("admin.settings.aboutTechStackCategory")} size="sm" list="techCategoryPresets" />
-      <datalist id="techCategoryPresets">
-        {CATEGORY_PRESETS.map((c) => <option key={c} value={c} />)}
-      </datalist>
-    </>
+    <Select
+      combobox
+      bubble
+      size="sm"
+      value={value}
+      inputValue={value}
+      onChange={onChange}
+      onInputChange={onChange}
+      onAdd={onChange}
+      options={CATEGORY_PRESETS.map((c) => ({ value: c, label: c }))}
+      placeholder={t("admin.settings.aboutTechStackCategory")}
+    />
   );
 }
 
