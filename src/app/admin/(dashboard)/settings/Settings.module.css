@@ -5606,7 +5606,7 @@ a.tagRelatedItem:hover {
   align-items: center;
   gap: var(--spacing-2xs);
   padding: 5px 10px;
-  border: 1px dashed var(--border-strong);
+  border: 1px dashed var(--border-strong-color);
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-secondary);
@@ -5617,7 +5617,7 @@ a.tagRelatedItem:hover {
   transition: border-color 0.15s, color 0.15s;
 }
 .techAddChip:hover {
-  border-color: var(--border-accent);
+  border-color: var(--border-accent-color);
   color: var(--text-accent);
 }
 
@@ -5715,7 +5715,7 @@ a.tagRelatedItem:hover {
   height: 40px;
   border-radius: var(--radius-circle);
   background: var(--color-neutral-50);
-  border: 1px dashed var(--border-strong);
+  border: 1px dashed var(--border-strong-color);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -5726,7 +5726,7 @@ a.tagRelatedItem:hover {
   transition: border-color 0.15s, color 0.15s;
 }
 .techIconCircleBtn:hover {
-  border-color: var(--border-accent);
+  border-color: var(--border-accent-color);
   color: var(--text-accent);
 }
 .techIconCircleBtn:disabled {
@@ -5741,12 +5741,12 @@ a.tagRelatedItem:hover {
 /* 아이콘 있을 때 테두리 실선 */
 .techIconCircleWrap:has(img) .techIconCircleBtn {
   border-style: solid;
-  border-color: var(--border-light);
+  border-color: var(--border-light-color);
 }
 .techIconSpinner {
   width: 14px;
   height: 14px;
-  border: 2px solid var(--border-strong);
+  border: 2px solid var(--border-strong-color);
   border-top-color: var(--text-accent);
   border-radius: var(--radius-circle);
   animation: techSpin 0.7s linear infinite;
