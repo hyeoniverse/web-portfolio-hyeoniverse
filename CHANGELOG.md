@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.15.0...v1.16.0) (2026-06-05)
+
+
+### Features
+
+* **about/settings:** Tech Stack chip 에디터 + Popover/공통 시트 + 초성 검색 ([#239](https://github.com/hyeoniverse/web-portfolio-oval/issues/239)) ([6b369f1](https://github.com/hyeoniverse/web-portfolio-oval/commit/6b369f1a0d2ff1591d00b7653b963ddd99bec8a4))
+
 ## [1.15.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.14.0...v1.15.0) (2026-06-05)
 
 
