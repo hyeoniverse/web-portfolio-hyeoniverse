@@ -272,6 +272,8 @@
 - **HEIC / TIFF 자동 변환**: 업로드 시점에 sharp로 HEIC/HEIF/TIFF → WebP(quality 85) 서버 변환, 브라우저 네이티브 미지원 포맷도 모든 브라우저에서 표시 가능
 - **문서 뷰어**: 파일 첨부 시 PDF(iframe) · 오피스(MS Viewer) · 텍스트(fetch+pre) 인라인 미리보기, 다운로드 원본 파일명 유지
 - **아이콘 일관화**: 모든 인라인 SVG를 `lucide-react`로 통일 (~200개 교체), 브랜드 마크(GitHub)는 `src/components/icons/` 커스텀 컴포넌트로 분리 — 트리 셰이킹 + 일관된 strokeWidth/size API
+- **About 페이지 패널 인라인 편집 (Hero / Features / Architecture)**: ① **Hero 패널** — `[Line 1] [Line 2 (accent)] [Subtitle] [Watermark]` 4개 텍스트마다 ⚙ 버튼으로 dropdown(데스크탑) / bottom sheet(모바일) 안에서 **줄별 독립** 컬러 / 폰트 크기 / 굵기 / 폰트 패밀리 편집. 배경은 CoverImagePicker 로 이미지 / 동영상 통합 선택 + 동영상 시 opacity 슬라이더 + accent overlay (color + 강도) 별도 컨트롤. 모든 변경 사항은 inline style CSS 변수 (`--_hero-line1-color` 등) 로 panel 에 주입 — `.heroSubtitle` 같은 컴포넌트 CSS 가 `var(--_hero-subtitle-color, fallback)` 으로 받아씀. ② **Features 패널** — 카드 hover 시 backdrop-filter blur 적용으로 텍스트 가독성 확보, admin 에서 각 카드 image 를 CoverImagePicker (Pexels 포함) 로 교체. ③ **Architecture 패널** — `architectureItems` (path · description ko/en · indent level) 를 admin compact row 에디터로 추가 / 수정 / 삭제 / 위 · 아래 reorder. config 우선 적용, 비어있으면 정적 `projectStructure` fallback
+- **ColorPicker 모바일 bottom sheet + copy / paste / 잘못된 입력 흔들기**: 모바일 (`width ≤ 768px`) 에서 dropdown popover → Modal 의 sheet 패턴 (top radius / handle bar / max-height 85vh) 으로 자동 전환. backdrop-filter blur 10px + `pointer-events: none` 으로 trigger 클릭 통과 — outside-click effect 가 tap-to-close 처리. Lenis smooth scroll 환경이라 `useLenis().stop()` 까지 추가 안 그러면 메인 페이지 스크롤이 같이 움직임. 툴바에 Copy / Paste 버튼 — Copy 는 현재 format (HEX / RGB / HSL / HSV / OKLCH) 으로 클립보드 write, Paste 는 `parseAnyColorToOklch` 로 모든 5가지 포맷 + bare `r, g, b` 까지 자동 인식. HEX 형식 오류 / 붙여넣기 인식 실패 시 popover 좌우 0.4s 흔들기 + Toast `error`. picker input wrapper 폭 정렬 — `padding: var(--spacing-sm)` 균일 + min-width OKLCH 6자 기준 (`0.2249`) 으로 통일
 
 <p align="center">
   <img src="public/images/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
@@ -343,6 +345,9 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 
 # Cover Image Picker — Unsplash (선택사항)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
+
+# Cover Image Picker — Pexels (선택사항, Unsplash 대안)
+PEXELS_API_KEY=your_pexels_api_key
 
 # Cover Image Picker — AI Generate (provider에 맞는 키 하나만 설정)
 # site.config.ts의 aiCover.provider 값에 따라 해당 키 사용
@@ -489,15 +494,17 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 포스트·시리즈·작업물 에디터의 Cover Image / Main Image 영역에서 **Upload**(직접 업로드)과 **Choose cover**(피커) 중 선택할 수 있습니다.
 
-**Choose cover** 클릭 시 3개 탭이 표시됩니다:
+**Choose cover** 클릭 시 5개 탭 + 로컬 파일 영역이 표시됩니다 (모바일에서는 bottom sheet 으로 자동 전환):
 
 | 탭 | 설명 | 필요한 환경변수 |
 |----|------|----------------|
-| **Presets** | 16종 그라데이션/패턴 중 클릭하면 Canvas API로 1200×630 이미지를 생성하여 Supabase에 업로드 | 없음 |
+| **Presets** | 16종 그라데이션/패턴 — 클릭 시 Canvas API 로 1200×630 이미지를 생성하여 Supabase 에 업로드. `public/cover/images/` · `public/cover/videos/` 의 로컬 미디어도 같은 패널에서 노출 (공용 `/api/admin/cover`) | 없음 |
 | **Unsplash** | 키워드로 Unsplash 사진 검색 → 클릭 시 다운로드 트래킹 + Supabase 업로드 | `UNSPLASH_ACCESS_KEY` |
-| **AI Generate** | 프롬프트 + 스타일 선택 → AI로 이미지 생성 → Supabase 업로드 | provider별 API key (아래 참고) |
+| **Pexels** | 키워드로 Pexels 사진 검색 → 클릭 시 다운로드 + Supabase 업로드. Unsplash 보완 대안 (API 정책 변경 시 fail-safe) | `PEXELS_API_KEY` |
+| **AI Generate** | 프롬프트 + 스타일 선택 → AI 로 이미지 생성 → Supabase 업로드 | provider별 API key (아래 참고) |
+| **History** | 과거 선택한 cover 영구 보관 (`cover_image_history` 테이블, RLS) — preset / Unsplash / Pexels / AI 통합. 키워드·색상표 복사 · 다운로드 · 재선택 인라인 | 없음 |
 
-> **참고**: Unsplash와 AI Generate 탭은 각각 API key가 필요합니다. Presets 탭은 환경변수 없이 사용 가능합니다.
+> **참고**: Unsplash · Pexels · AI Generate 탭은 각각 API key 가 필요합니다. Presets 탭과 History 탭은 환경변수 없이 사용 가능합니다.
 
 ---
 
@@ -566,6 +573,14 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 5. `.env.local`에 `UNSPLASH_ACCESS_KEY=...` 입력
 
 > Demo 앱 기준 시간당 50건 제한. Production 승인 시 5,000건/시간.
+
+#### Pexels API Key 발급
+
+1. [Pexels API](https://www.pexels.com/api/) 가입
+2. **Your API Key** 페이지에서 Key 복사 (별도 신청 없이 즉시 발급)
+3. `.env.local`에 `PEXELS_API_KEY=...` 입력
+
+> 무료 — 시간당 200건, 월 20,000건. Unsplash 정책 변경 / rate limit 시 대안으로 활용.
 
 **인증 플로우:**
 
@@ -673,6 +688,10 @@ npm run test:watch
 | 68 | works 표시 번호 (#01) 와 정렬 순서가 따로 관리되어 어긋남 — 단일 source 통합으로 해결 | DB 에 `works.number text` 가 별도 컬럼으로 존재해서 admin reorder 시 sort_order 만 갱신되고 number 는 그대로. 사용자가 보는 "#01" 이 정렬 순서와 어긋날 수 있는 구조적 결함. 해결: `number` 컬럼 DROP + `workToProject` 매퍼에서 `formatProjectNumber(sort_order)` 로 derive. **표시 데이터를 derive 가능한 다른 컬럼에서 끌어올 수 있으면 컬럼을 두지 않는다** — 둘이 어긋날 가능성 자체를 없애는 게 동기화 로직 추가보다 cheaper |
 | 69 | pg_cron job 실패가 silent — wrapper 함수에서 EXCEPTION 잡아 알림 발송 | `cron.schedule('publish-scheduled', '* * * * *', $$ SELECT publish_scheduled() $$)` 직접 호출 시 함수 안에서 exception 던지면 cron 이 그냥 fail 후 다음 주기 대기 → 관리자는 발행 안 되는 걸 모름. 해결: `safe_publish_scheduled` PL/pgSQL wrapper 에서 `PERFORM publish_scheduled()` + `EXCEPTION WHEN OTHERS THEN INSERT INTO admin_notifications (...)` 로 SQLSTATE/SQLERRM 까지 metadata 에 담아 알림. cron.schedule 은 wrapper 를 호출하도록 변경 |
 | 70 | GitHub 100MB 파일 크기 제한 — 인트로 배경 영상 137MB push 거부, 외부 호스팅 + siteConfig URL 로 분리 | `git push` 시 `error: GH001: Large files detected` — Git LFS 도 무료 quota 1GB/월 제약. 해결: 영상 자산을 외부 CDN 에 호스팅하고 `siteConfig.works.introVideoUrl` 에 URL 입력. 빈 값이면 로컬 `/public/intro-bg.mp4` fallback (`.gitignore` 추가로 로컬 dev 만 사용). **사용자 데이터 (siteConfig) 로 환경별 분기하면 코드 변경 없이 자산 교체 가능** — env var 보다 admin UI 에서 직접 바꿀 수 있어 운영 친화적 |
+| 71 ★ | ColorPicker 모바일 bottom sheet — content 가 페이지처럼 스크롤됨, body overflow hidden 으론 안 잠김 | `body.style.overflow = "hidden"` 만으론 모바일 sheet 가 열려도 메인 페이지가 같이 스크롤되는 현상. 원인: 사이트 전체가 Lenis smooth scroll 을 사용 중이라 native body scroll lock 만으론 부족 — Lenis 가 자체 RAF 루프로 transform 을 갱신해 페이지를 움직인다. 해결: `useLenis().stop()` 을 sheet open effect 에 함께 호출, cleanup 에서 `start()` 로 복구. **Lenis 같은 가상 스크롤 라이브러리는 native overflow 와 별개 — 두 채널을 모두 lock 해야 모달이 진짜 잠긴다** (CoverImagePicker · ColorPicker 양쪽에 동일 패턴 적용) |
+| 72 | `<input type="number">` 의 spinner 가 OKLCH 6자 소수 (`0.2249`) 를 잘라먹음 + 입력 폭이 row 마다 달라 정렬 안 맞음 | ColorPicker 채널 입력 (RGB / HSL / HSV / OKLCH) 들이 row 마다 폭이 달라 시각적 노이즈. 가장 긴 값 (OKLCH C `0.2249` 6자) 기준으로 통일하려고 `width: 88px` 고정 → 짧은 값 (`100`) 에선 비어 보임. 해결: ① `clearable={false}` 로 eraser 24px 자리 회수, ② padding 좌·우 `--spacing-xs` 통일, ③ `width: calc(7ch + var(--spacing-xs) * 2 + 2px)` — HEX `#ffffff` 7자 기준 + border 2px. RGB / HSL 등 짧은 값은 같은 폭 안에서 왼쪽 정렬 (`text-align: left`). 채널 input · format select · 잘못된 입력 시 좌우 흔들기 (`@keyframes pickerShake`) 모두 동일 폭 grid 안에 정렬 |
+| 73 ★ | Hero 배경 동영상 opacity 만 조절하던 컨트롤 — 이미지에는 적용 안 됨 (CSS `background-image: url()` 은 opacity 분리 불가) | admin 에서 Hero 배경을 동영상 → 이미지로 바꾼 뒤 opacity 슬라이더가 사라짐. 원인: 동영상은 `<video>` element 라 `opacity` 직접 가능, 이미지는 CSS `background-image: url(...)` 로 panel 표면에 칠해서 opacity 분리 채널이 없음. 해결: 이미지도 `<img>` element 로 동영상과 같은 패턴 — `position: absolute; inset: 0; object-fit: cover` + `opacity: var(--_hero-bg-opacity)`. panel CSS background 는 color / gradient 만, 이미지는 별 element 로 분리. 라벨 `동영상 투명도` → `배경 투명도` 로 통일. **CSS property 의 추상화가 새는 곳 (background-image vs `<img>`) 은 control plane 도 함께 갈라 둔다** |
+| 74 | Navigation 모바일 — navCenter 가 `display: none` 으로 사라지자 navActions 가 로고 (fixed) 위치로 박혀 겹침 | `.nav { justify-content: space-between }` 인데 모바일에서 `.navCenter` 만 숨기면 단일 남은 자식 (`.navActions`) 이 flex-start 로 align 되어 fixed 위치의 로고 (`.logoNavBar { left: var(--page-px) }`) 와 같은 자리 겹침. 해결: `@media (max-width: 768px) .nav { justify-content: flex-end }` — 모바일에서만 우측 정렬 강제. 로고는 fixed 라 flex flow 밖이지만 navActions 우측이라 "로고 [space] 버튼들" 자연스러운 레이아웃. **fixed 요소가 있는 컨테이너에서 flex `space-between` 의 단일 자식 분기 처리는 따로 명시** |
 
 
 ## 배포
@@ -694,6 +713,7 @@ npm run test:watch
 
 선택 환경변수:
   UNSPLASH_ACCESS_KEY          # Cover Image — Unsplash
+  PEXELS_API_KEY               # Cover Image — Pexels (Unsplash 대안)
   HUGGINGFACE_API_KEY          # Cover Image — AI (HuggingFace)
   NANOBANANA_API_KEY           # Cover Image — AI (NanoBanana)
   DEEPL_API_KEY                # 번역 — DeepL
