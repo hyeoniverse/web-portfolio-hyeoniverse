@@ -274,6 +274,8 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 - **HEIC / TIFF Auto-Conversion**: On upload, HEIC/HEIF/TIFF are server-converted to WebP (quality 85) via sharp, making browser-unsupported formats viewable everywhere
 - **Document Viewer**: File attachments with inline preview — PDF (iframe) · Office (MS Viewer) · text (fetch+pre), original filename preserved on download
 - **Icon Consistency**: All inline SVGs unified to `lucide-react` (~200 replacements); brand marks (GitHub) extracted as custom components in `src/components/icons/` — tree-shakable + consistent strokeWidth/size API
+- **About page panel inline editing (Hero / Features / Architecture)**: ① **Hero panel** — `[Line 1] [Line 2 (accent)] [Subtitle] [Watermark]` each gets a ⚙ button opening a dropdown (desktop) / bottom sheet (mobile) with **per-line** color / font-size / font-weight / font-family controls. Background uses CoverImagePicker for image / video unified selection, with opacity slider on videos and accent overlay (color + strength). All edits are injected as inline-style CSS variables (`--_hero-line1-color`, etc.); the panel CSS reads them via `var(--_hero-subtitle-color, fallback)`. ② **Features panel** — `backdrop-filter: blur` on cards during hover for text legibility; admin can swap each card image via CoverImagePicker (incl. Pexels). ③ **Architecture panel** — `architectureItems` (path · description ko/en · indent level) edited via a compact-row admin editor with add / remove / reorder up/down. Config wins; falls back to the static `projectStructure` when empty.
+- **ColorPicker mobile bottom sheet + copy / paste / shake-on-invalid**: On mobile (`width ≤ 768px`) the dropdown popover auto-switches to the Modal sheet pattern (top radius / handle bar / max-height 85vh). Backdrop uses `backdrop-filter: blur(10px)` with `pointer-events: none` so trigger clicks pass through — the outside-click effect handles tap-to-close. The site uses Lenis smooth scroll, so we also call `useLenis().stop()` on sheet open; otherwise the page underneath still scrolls. Toolbar gets Copy / Paste buttons — Copy writes the current format (HEX / RGB / HSL / HSV / OKLCH) to the clipboard; Paste auto-detects via `parseAnyColorToOklch` covering all 5 formats plus bare `r, g, b`. Invalid HEX commit / paste failure triggers a 0.4s left-right shake + an `error` toast. Picker input wrapper widths are aligned — uniform `padding: var(--spacing-sm)`, min-width sized to the longest OKLCH C value (`0.2249`, 6 chars).
 
 <p align="center">
   <img src="public/images/screenshots/pc/profile-dark.png" width="49%" alt="Profile — Dark" />
@@ -343,6 +345,9 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 
 # Cover Image Picker — Unsplash (optional)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
+
+# Cover Image Picker — Pexels (optional, Unsplash fallback)
+PEXELS_API_KEY=your_pexels_api_key
 
 # Cover Image Picker — AI Generate (set only the key matching your provider)
 # Uses the key corresponding to aiCover.provider value in site.config.ts
@@ -489,15 +494,17 @@ There is no login button on the site. Only the admin accesses it by entering the
 
 In the Cover Image / Main Image area of the post, series, and work editors, you can choose between **Upload** (direct upload) and **Choose cover** (picker).
 
-Clicking **Choose cover** shows 3 tabs:
+Clicking **Choose cover** shows 5 tabs (auto-switches to a bottom sheet on mobile):
 
 | Tab | Description | Required Environment Variable |
 |----|------|----------------|
-| **Presets** | Click from 16 gradient/pattern options to generate a 1200x630 image via Canvas API and upload to Supabase | None |
+| **Presets** | Click from 16 gradient/pattern options to generate a 1200x630 image via Canvas API and upload to Supabase. Local media under `public/cover/images/` and `public/cover/videos/` also surfaces in the same panel via the shared `/api/admin/cover` endpoint | None |
 | **Unsplash** | Search Unsplash photos by keyword -> click to trigger download tracking + Supabase upload | `UNSPLASH_ACCESS_KEY` |
+| **Pexels** | Search Pexels photos by keyword -> click to download + Supabase upload. Complements Unsplash (fail-safe if Unsplash policy changes) | `PEXELS_API_KEY` |
 | **AI Generate** | Prompt + style selection -> AI image generation -> Supabase upload | Provider-specific API key (see below) |
+| **History** | Permanent record of past picks (`cover_image_history` table, RLS) — unified across preset / Unsplash / Pexels / AI. Inline keyword/palette copy · download · re-pick | None |
 
-> **Note**: The Unsplash and AI Generate tabs each require their own API key. The Presets tab works without any environment variables.
+> **Note**: Unsplash, Pexels, and AI Generate tabs each require their own API key. Presets and History work without any environment variables.
 
 ---
 
@@ -566,6 +573,14 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 5. Enter `UNSPLASH_ACCESS_KEY=...` in `.env.local`
 
 > Demo app limit: 50 requests/hour. Production approval: 5,000 requests/hour.
+
+#### Pexels API Key Setup
+
+1. Sign up at [Pexels API](https://www.pexels.com/api/)
+2. Copy the key from the **Your API Key** page (issued instantly, no app review)
+3. Enter `PEXELS_API_KEY=...` in `.env.local`
+
+> Free tier: 200 requests/hour, 20,000 requests/month. Useful as a fallback when Unsplash policy changes or rate limits hit.
 
 **Authentication flow:**
 
@@ -673,6 +688,10 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 | 68 | works display number (#01) drifted from sort order — fixed by collapsing into a single source | DB had a dedicated `works.number text` column, so admin reorder updated only `sort_order` while `number` stayed put. The user-visible "#01" could disagree with actual order — a structural fault, not a sync bug. Fix: drop the column and derive in the mapper via `formatProjectNumber(sort_order)`. **If a displayed value can be derived from another column, don't store it** — eliminating the chance of drift beats writing sync logic |
 | 69 | pg_cron job failures were silent — wrapper function catches EXCEPTION and inserts an admin notification | `cron.schedule('publish-scheduled', '* * * * *', $$ SELECT publish_scheduled() $$)` — if the inner function throws, cron just fails and waits for the next tick. The admin has no way to know publishes are broken. Fix: a `safe_publish_scheduled` PL/pgSQL wrapper that `PERFORM publish_scheduled()` inside an `EXCEPTION WHEN OTHERS THEN INSERT INTO admin_notifications (…)` block, capturing SQLSTATE / SQLERRM into metadata. `cron.schedule` is updated to call the wrapper |
 | 70 | GitHub's 100MB file size limit — the 137MB intro video was rejected; solved via external hosting + a siteConfig URL | `git push` returned `error: GH001: Large files detected`. Git LFS has a 1GB/month free quota too. Fix: host the video on an external CDN and store the URL in `siteConfig.works.introVideoUrl`. Empty falls back to `/public/intro-bg.mp4` (gitignored, local-dev only). **Branching on user data (siteConfig) lets you swap assets without code changes** — friendlier than env vars because the admin UI can edit it directly |
+| 71 ★ | ColorPicker mobile bottom sheet — page scrolls underneath while sheet is open; `body { overflow: hidden }` alone isn't enough | Mobile sheet open lock didn't catch the page underneath. Cause: the site runs on Lenis smooth scroll which animates `transform` in its own RAF loop — native body overflow lock doesn't touch Lenis's virtual scroll. Fix: call `useLenis().stop()` in the sheet open effect, restore with `start()` on cleanup. **A virtual-scroll library like Lenis is a separate channel from native overflow — you have to lock both for a modal to feel truly locked** (same pattern applied to CoverImagePicker and ColorPicker). |
+| 72 | `<input type="number">` spinner clipped OKLCH 6-digit decimals like `0.2249`, and per-row widths drifted in the picker | Channel inputs (RGB / HSL / HSV / OKLCH) ended up different widths per row — visual noise. Fixing on the longest value (OKLCH C, `0.2249`, 6 chars) with `width: 88px` made shorter values (`100`) look empty. Fix: ① `clearable={false}` reclaims the 24px eraser slot, ② uniform `padding: var(--spacing-xs)` left/right, ③ `width: calc(7ch + var(--spacing-xs) * 2 + 2px)` — based on HEX `#ffffff` (7 chars) + 2px border. Shorter values left-align inside that fixed cell. Channel inputs, the format select, and the invalid-input shake animation (`@keyframes pickerShake`) all share the same width grid. |
+| 73 ★ | Hero background opacity worked for video but not images — CSS `background-image: url()` can't be opacity-faded independently | After switching Hero background from video to an image, the opacity slider stopped doing anything. Cause: video used a `<video>` element where `opacity` works directly; the image path painted `background-image: url(...)` on the panel surface — `opacity` there fades the whole panel, not just the image. Fix: render the image with an `<img>` element matching the video pattern — `position: absolute; inset: 0; object-fit: cover` + `opacity: var(--_hero-bg-opacity)`. The panel CSS background now only carries color / gradient; the image is a sibling. Label `Video opacity` → `Background opacity`. **Where a CSS property's abstraction leaks (background-image vs `<img>`), the control surface has to split too**. |
+| 74 | Navigation mobile — once navCenter goes `display: none`, navActions snaps to where the fixed logo sits, overlapping it | `.nav { justify-content: space-between }` is fine with 3 children, but on mobile only `.navActions` remains, so a single flex child aligns to flex-start — landing exactly where the fixed `.logoNavBar { left: var(--page-px) }` is. Fix: `@media (max-width: 768px) .nav { justify-content: flex-end }` — right-align on mobile only. The logo is `position: fixed` and outside the flex flow, but with navActions explicitly on the right the natural reading is "logo [space] buttons". **In containers that hold fixed-positioned siblings, the single-child branch of `space-between` needs its own justification rule**. |
 
 ## Deployment
 
@@ -694,6 +713,7 @@ Required:
 
 Optional:
   UNSPLASH_ACCESS_KEY          # Cover Image — Unsplash
+  PEXELS_API_KEY               # Cover Image — Pexels (Unsplash fallback)
   HUGGINGFACE_API_KEY          # Cover Image — AI (HuggingFace)
   NANOBANANA_API_KEY           # Cover Image — AI (NanoBanana)
   DEEPL_API_KEY                # Translation — DeepL
