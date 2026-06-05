@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo } from "react";
 import { Check, Download, RotateCw } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import LoadingDots from "@/components/ui/LoadingDots";
+import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
 
@@ -114,7 +115,7 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
     }
   }, [prompt, style, tc, onGenerated]);
 
-  const handleClear = useCallback(() => {
+  const _handleClear = useCallback(() => {
     setPrompt("");
     setPreviewUrl(null);
     setPermanentUrl(null);
@@ -150,18 +151,14 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
     <>
       <div className={styles.aiForm}>
       <div className={styles.inputRow}>
-        <div className={styles.inputWrapper}>
-          <input
-            type="text"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <SearchCapsule
+            search={prompt}
+            onSearchChange={setPrompt}
             placeholder={tc("aiPlaceholder")}
+            align="left"
+            size="sm"
           />
-          {prompt && (
-            <button type="button" className={styles.clearBtn} onClick={handleClear}>
-              &times;
-            </button>
-          )}
         </div>
         <button
           type="button"

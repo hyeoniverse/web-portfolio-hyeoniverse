@@ -45,6 +45,63 @@
   }
 }
 
+/* ── Mobile bottom sheet 변형 — Modal 의 sheet 패턴 그대로 ── */
+.pickerSheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-overlay);
+  width: 100vw;
+  max-height: 90vh;
+  margin: 0;
+  background: var(--color-neutral-0);
+  border: none;
+  border-top: var(--border-light);
+  border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+  /* 인라인 expand 애니메이션 disable — framer-motion 이 slide 처리 */
+  animation: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sheetBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: oklch(0.00% 0.0000 0.00 / 0.4);
+  backdrop-filter: blur(10px);
+}
+
+.sheetHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs) 0;
+  /* header 와 같은 배경 — 핸들 영역 / 헤더 사이 시각적 색 띠 제거 */
+  background: var(--bg-tertiary);
+  flex-shrink: 0;
+}
+
+.sheetHandleBar {
+  width: 40px;
+  height: 5px;
+  border-radius: var(--radius-capsule);
+  background: var(--text-muted);
+}
+
+/* sheet 안에서는 body 가 남은 공간 채우고 자체 스크롤 — 데스크탑의 fixed 360px 무효화 */
+.pickerSheet .body {
+  height: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.pickerSheet .header {
+  flex-shrink: 0;
+}
+
 /* ── Header (tabs + close) ── */
 .header {
   display: flex;
@@ -183,6 +240,12 @@
   border-radius: var(--radius-2xs);
 }
 
+/* customGradient 의 외부 wrapper — container query 기준점.
+ * .customGradient 자체를 query 못 하므로 wrapper 가 필요. */
+.customGradientWrap {
+  container-type: inline-size;
+}
+
 /* ── Custom Gradient Editor — preset 위, 가로 배치로 컴팩트하게 ── */
 /* CustomGradient — CSS Grid layout 으로 데스크탑/모바일 area 분기.
  * 데스크탑: preview 가 좌측 column 3 row 차지 + 우측 column 에 scheme/stops/group 세로 stack
@@ -197,8 +260,20 @@
   column-gap: var(--spacing-xl);
   row-gap: var(--spacing-md);
   padding: var(--spacing-sm);
-  border-bottom: var(--border-light);
   align-items: start;
+}
+
+/* 컨테이너 폭 부족 시 (admin/settings 처럼 좁은 column 안에 embed 됐을 때 등) — 줄바꿈 레이아웃 */
+@container (max-width: 520px) {
+  .customGradient {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "preview"
+      "scheme"
+      "stops"
+      "group";
+    column-gap: 0;
+  }
 }
 
 .customGradientPreview {
@@ -865,6 +940,11 @@
   border-right: none;
 }
 
+/* 마지막 row 의 bottom border 제거 — 다음 section header 위에 보이는 line 방지 */
+.presetGrid .presetItem:nth-last-child(-n + 4) {
+  border-bottom: none;
+}
+
 .presetItem canvas {
   width: 100%;
   height: 100%;
@@ -888,6 +968,68 @@
   font-size: var(--font-size-2xs);
   color: var(--text-inverse);
   text-align: center;
+}
+
+/* preset tab 의 섹션 헤더 — 로컬 미디어 / 그라데이션 프리셋 구분 */
+.presetSectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-xs);
+}
+
+.presetSectionLabel {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.presetSectionCount {
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--text-secondary);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.presetSectionHint {
+  margin: 0;
+  padding: 0 var(--spacing-md) var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+/* preset 안 로컬 파일 셀 — 선택된 상태 표시 (presetItem hover outline 과 별개) */
+.presetItemActive {
+  outline: 2px solid var(--text-accent);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.localFileActiveCheck {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+  z-index: 2;
 }
 
 .presetUploading {
@@ -993,7 +1135,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: var(--box-sm);
+  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-md);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
@@ -1050,11 +1192,48 @@
   z-index: 1;
 }
 
-.unsplashItem img {
+.unsplashItem img,
+.unsplashItem video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* ── Pexels image/video 토글 ── */
+.pexelsTypeToggle {
+  display: inline-flex;
+  gap: 0;
+  margin: var(--spacing-sm) var(--spacing-md) 0;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.pexelsTypeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.pexelsTypeBtn:hover {
+  color: var(--text-primary);
+}
+
+.pexelsTypeBtnActive,
+.pexelsTypeBtnActive:hover {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 
 .unsplashCredit {
@@ -1078,6 +1257,26 @@
 .unsplashDownloading {
   opacity: 0.5;
   pointer-events: none;
+}
+
+/* unsplash/pexels 카드 hover 시 우상단 action cluster — license badge(좌상단)와 충돌 X */
+.unsplashActions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  z-index: 2;
+}
+
+.unsplashItem:hover .historyOverlayBtn,
+.unsplashItem:focus-within .historyOverlayBtn {
+  opacity: 1;
+}
+
+.unsplashItem .historyOverlayBtn:hover {
+  transform: scale(1.1);
 }
 
 .loadMore {
@@ -1405,7 +1604,8 @@
   display: block;
 }
 
-.picker .historyThumbBtn:hover img {
+.picker .historyThumbBtn:hover img,
+.picker .historyThumbBtn:hover video {
   opacity: 0.85;
 }
 
@@ -1666,4 +1866,80 @@
   .unsplashGrid .unsplashItem:nth-child(2n) {
     border-right: none;
   }
+}
+
+/* ── Local Files Tab ── */
+.localFilesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+}
+
+.localFileCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.localFileCard:hover {
+  border-color: var(--text-tertiary);
+}
+
+.localFileCardSelected {
+  border-color: var(--text-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text-accent) 25%, transparent);
+}
+
+.localFileThumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--bg-tertiary);
+}
+
+.localFileCheck {
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-2xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+}
+
+.localFileMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  text-align: left;
+}
+
+.localFileName {
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.localFileSize {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
 }
