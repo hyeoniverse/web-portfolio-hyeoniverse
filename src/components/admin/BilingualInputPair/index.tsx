@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Eraser } from "lucide-react";
 import styles from "./BilingualInputPair.module.css";
 
 export interface BilingualValue {
@@ -72,7 +72,7 @@ export default function BilingualInputPair({
             aria-label="clear KO"
             title="지우기"
           >
-            <X size={10} strokeWidth={2.5} />
+            <Eraser size={11} strokeWidth={2} />
           </button>
         )}
       </label>
@@ -101,7 +101,7 @@ export default function BilingualInputPair({
             aria-label="clear EN"
             title="지우기"
           >
-            <X size={10} strokeWidth={2.5} />
+            <Eraser size={11} strokeWidth={2} />
           </button>
         )}
       </label>

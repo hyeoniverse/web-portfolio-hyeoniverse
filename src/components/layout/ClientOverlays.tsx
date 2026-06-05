@@ -8,7 +8,7 @@ const Modal = dynamic(() => import("@/components/ui/Modal"), { ssr: false });
 const ToastContainer = dynamic(() => import("@/components/ui/Toast"), { ssr: false });
 const ContactDrawerWrapper = dynamic(() => import("@/components/layout/ContactDrawer/ContactDrawerWrapper"), { ssr: false });
 const CursorTrail = dynamic(() => import("@/components/effects/CursorTrail"), { ssr: false });
-const FaviconSwitcher = dynamic(() => import("@/components/common/FaviconSwitcher"), { ssr: false });
+// FaviconSwitcher 제거 — FaviconSync (ThemeProvider 안) 가 동적 favicon 처리 (theme + siteConfig 기반)
 const BGMController = dynamic(() => import("@/components/common/BGMController"), { ssr: false });
 const VisitTracker = dynamic(() => import("@/components/common/VisitTracker"), { ssr: false });
 const SettingsSync = dynamic(() => import("@/components/common/SettingsSync"), { ssr: false });
@@ -22,7 +22,6 @@ export default function ClientOverlays() {
       <ToastContainer />
       <ContactDrawerWrapper />
       <CursorTrail />
-      <FaviconSwitcher />
       <BGMController />
       <VisitTracker />
       <SettingsSync />

@@ -17,6 +17,7 @@ import ClientOverlays from "@/components/layout/ClientOverlays";
 import { LenisProvider } from "@/providers/LenisProvider";
 import RecaptchaProvider from "@/providers/RecaptchaProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import FaviconSync from "@/components/layout/FaviconSync";
 import { LanguageProvider } from "@/providers/LanguageProvider";
 import { SiteConfigProvider } from "@/providers/SiteConfigProvider";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -53,6 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
       index: true,
       follow: true,
     },
+    // icons 는 FaviconSync (client) 가 site theme 에 맞춰 동적으로 교체 — metadata 에선 미설정
   };
 }
 
@@ -115,13 +117,12 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${playfair.variable} ${jetbrains.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable}`}
     >
-      <head>
-        <link rel="icon" href="/favicon-light.ico" />
-      </head>
+      {/* favicon — src/app/icon.tsx 가 siteConfig 기반 다이내믹 생성 (Next 자동 주입) */}
 
       <body>
         <SiteConfigProvider initialConfig={config} publicKeys={publicKeys}>
           <ThemeProvider>
+            <FaviconSync />
             <LanguageProvider>
               <RecaptchaProvider>
                 <LenisProvider>

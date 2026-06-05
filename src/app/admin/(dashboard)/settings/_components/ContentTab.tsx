@@ -116,7 +116,9 @@ export default function ContentTab({
   const normalizedWorksCats = useMemo(() => {
     const raw = config.works?.categories ?? [];
     return (raw as unknown[]).map((item) =>
-      typeof item === "string" ? { ko: item, en: item } : (item as { ko: string; en: string }),
+      typeof item === "string"
+        ? { ko: item, en: item, description: undefined as { ko: string; en: string } | string | undefined }
+        : (item as { ko: string; en: string; description?: { ko: string; en: string } | string }),
     );
   }, [config.works?.categories]);
 

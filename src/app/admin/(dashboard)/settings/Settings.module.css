@@ -774,6 +774,48 @@
   outline: none;
 }
 
+/* Field input + Eraser clearBtn wrapper — input flex 차지, clearBtn 우측 absolute */
+.fieldInputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.fieldInputWrap > .fieldInput {
+  width: 100%;
+}
+
+.fieldInputHasClear {
+  padding-right: calc(var(--spacing-sm) + 20px);
+}
+
+.fieldClearBtn {
+  position: absolute;
+  right: var(--spacing-2xs);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.fieldClearBtn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
 .fieldTextarea {
   flex: 1;
   min-width: 0;
@@ -856,6 +898,12 @@
 
 .colorText:focus {
   border-color: var(--text-primary);
+}
+
+/* 로고 색상 Input (공통 컴포넌트 사용) — flex 1 로 ColorPicker 옆에서 stretch */
+.colorInput {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ── Theme Presets ── */
@@ -944,6 +992,140 @@
 
 .logoColorPresetHalf {
   flex: 1;
+}
+
+/* preset chip wrap — hover 시 remove 버튼 노출 */
+.logoColorPresetWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.logoColorPresetRemove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--border-strong-color);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.logoColorPresetWrap:hover .logoColorPresetRemove {
+  opacity: 1;
+}
+
+.logoColorPresetRemove:hover {
+  color: var(--text-accent);
+  border-color: var(--color-accent);
+}
+
+/* + 점선 버튼 — preset 그리드 끝에 추가 (canAddPreset 일 때만 노출) */
+.logoColorPresetAddBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-md);
+  height: 20px;
+  border: 1px dashed var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color var(--duration-base) ease, border-color var(--duration-base) ease;
+}
+
+.logoColorPresetAddBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+/* + 버튼 클릭 시 펼쳐지는 이름 input 인라인 row */
+.logoColorPresetAddRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-xs);
+}
+
+.logoColorPresetNameInput {
+  flex: 0 0 160px;
+}
+
+/* Favicon — 좌측 미리보기 (light/dark 가로) + 우측 모양/폰트 RadioGroup 2개 */
+.faviconLayout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xl);
+}
+
+/* 좌측 미리보기 슬롯 — light/dark variant 가로 nowrap flex */
+.faviconPreviewSlot {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.faviconPreviewCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3xs);
+}
+
+.faviconPreview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  /* 글자 baseline 보정 — favicon 의 SVG dominant-baseline=central 과 일관 */
+  line-height: 1;
+  padding-bottom: 2px;
+}
+
+.faviconPreviewLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.faviconControls {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+@media (max-width: 640px) {
+  .faviconLayout {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* 토글 그룹 — sectionTitleRow 우측 여러 toggle 같이 묶음 */
+.inlineToggleGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-md);
 }
 
 /* ── Logo Upload ── */
@@ -3183,28 +3365,49 @@
   letter-spacing: 0.02em;
 }
 
-/* ── Font Select Group ── */
+/* ── Font Select Group — Select + 직접입력 input 을 한 capsule 로 묶음 ── */
 .fontSelectGroup {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+  display: inline-flex;
+  align-items: stretch;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  transition: border-color var(--duration-base) ease;
+}
+
+.fontSelectGroup:focus-within {
+  border-color: var(--text-primary);
+}
+
+/* 내부 Select trigger / 직접입력 input 의 자체 border 제거 — wrapper 가 담당 */
+.fontSelectGroup > div:first-child {
+  flex: 0 0 auto;
+  min-width: 180px;
+}
+
+.fontSelectGroup > div:first-child > button {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent;
 }
 
 .fontCustomWrap {
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 0;
+  border-left: var(--border-light);
 }
 
 .fontCustomInput {
   flex: 1;
   min-width: 0;
   padding: var(--input-p);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
+  border: none !important;
+  border-radius: 0 !important;
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -3213,7 +3416,8 @@
 }
 
 .fontSelectGroup .fontCustomInput:focus {
-  border-color: var(--text-primary);
+  outline: none;
+  box-shadow: none;
 }
 
 .fontCustomInput::placeholder {
@@ -3794,50 +3998,81 @@
   width: auto;
 }
 
-/* ── Works Categories Editor (TagNotesEditor 패턴) ── */
+/* ── Works Categories Editor (TagNotesEditor 그대로 사용) ── */
 .worksCatEditor {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* chip 라벨 — KO 이름 + separator + EN 이름 둘 다 표시 */
+.worksCatChipLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.worksCatChipSep {
+  color: var(--text-tertiary);
+  opacity: 0.6;
+}
+
+/* 새 카테고리 추가 영역 — 헤더 (label + Add 버튼) + label | input form-style row */
+.worksCatAddBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 헤더 — 좌측 label + 우측 actions (Add / Save+Cancel) */
+.worksCatAddLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+/* 우측 actions — edit 모드는 Cancel + Save 2개 */
+.worksCatAddActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+/* edit 모드 — 박스가 카테고리 편집 중임을 시각적으로 강조 (좌 accent 보더) */
+.worksCatAddBoxEdit {
+  border-left: 2px solid var(--color-accent);
+  padding-left: var(--spacing-md);
+}
+
+.worksCatAddBoxEdit .worksCatAddLabel {
+  color: var(--text-accent);
+}
+
+/* form row — 라벨 좌측 고정 너비 + 입력 우측 stretch */
+.worksCatAddRow {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  align-items: center;
   gap: var(--spacing-md);
 }
 
-.worksCatChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
+.worksCatAddRowLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
 }
 
-/* 편집 drawer — chip 클릭 시 inline expand */
-.worksCatDrawer {
-  overflow: hidden;
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-}
-
-.worksCatDrawerInner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-}
-
-/* 새 카테고리 추가 영역 — bilingual pair + description + add 버튼 */
-.worksCatAddRow {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding-top: var(--spacing-sm);
-  border-top: var(--border-light);
-}
-
-.worksCatAddDescRow {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: stretch;
-}
-
-.worksCatAddDescRow > :first-child {
-  flex: 1;
-  min-width: 0;
+@media (max-width: 768px) {
+  .worksCatAddRow {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xs);
+  }
 }

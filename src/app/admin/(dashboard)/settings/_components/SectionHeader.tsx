@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+/* 섹션 헤더 버튼은 아이콘 없이 텍스트만 */
 import type { SiteConfigData } from "@/config/site.config";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -15,6 +16,7 @@ interface SectionHeaderProps {
   config: SiteConfigData;
   savedConfig: SiteConfigData;
   saveSection: (paths: string[]) => Promise<void>;
+  revertSection?: (paths: string[]) => void;
   savingPaths: string[] | null;
   /** 타이틀 우측에 함께 표시할 추가 element (toggle 등). 저장 버튼 앞에 배치 */
   extra?: ReactNode;
@@ -30,6 +32,7 @@ export default function SectionHeader({
   config,
   savedConfig,
   saveSection,
+  revertSection,
   savingPaths,
   extra,
   rowClassName,
@@ -47,6 +50,17 @@ export default function SectionHeader({
       {extra}
       {paths.length > 0 && (
         <div className={localStyles.spacer}>
+          {revertSection && (
+            <Button
+              variant="outline"
+              size="2xs"
+              disabled={!dirty || isSavingOther || isSavingThis}
+              onClick={() => revertSection(paths)}
+              title={t("admin.settings.revertSection")}
+            >
+              {t("admin.settings.revertSection")}
+            </Button>
+          )}
           <Button
             variant="outline"
             size="2xs"
