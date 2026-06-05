@@ -1,10 +1,9 @@
 .root {
-  /* 기본 width fit-content — content 만큼만 차지.
-   * full-width 필요한 곳은 className 또는 부모에서 width:100%/flex:1 override.
-   * flex column item 일 때 cross-axis stretch 로 늘어나지 않도록 width 명시. */
+  /* width: max-content — trigger 가 항상 옵션 최대 자연 너비 유지 (잘림 방지).
+   * max-width 제약 X — 부모 wrapper 가 좁아도 trigger 자연 너비 그대로 (overflow).
+   * full-width 필요한 곳은 className 또는 부모에서 width:100%/flex:1 override. */
   display: inline-block;
-  width: fit-content;
-  max-width: 100%;
+  width: max-content;
   min-width: 0;
   position: relative;
 }
@@ -17,17 +16,29 @@
   opacity: 0.5;
 }
 
+/* width="full" — 부모 column(1fr 등) 폭에 맞춰 trigger 가 stretch.
+ * valueStack 의 max-content track 도 minmax(0,1fr) 로 override 해 .value ellipsis 가 동작. */
+.rootFull {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+.rootFull .valueStack {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* default trigger = md (32px). 4-pt control grid.
+   padding 비대칭: 왼쪽 text 여백은 md, 오른쪽 chevron 여백은 sm.
+   gap: sm — chevron 과 value 사이 spacing 확보 (max-content stretch 시 겹침 방지). */
 .trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-xs);
-  /* width 100% 제거 — trigger 가 content (valueStack sizer + chevron + gap) 만큼만 차지.
-   * full-width 가 필요하면 부모/className 에서 강제 */
-  /* 디테일 페이지의 button/input 과 동일한 28px total height (border 포함). box-sizing 명시 — 안 그러면 30px (border 2px 추가) */
-  height: 28px;
+  gap: var(--spacing-sm);
+  height: var(--control-h-md);
   box-sizing: border-box;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-sm) 0 var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -48,22 +59,21 @@
   border-color: var(--text-accent);
 }
 
-/* size="sm" — ColorPicker 같은 좁은 popover 안 trigger 압축
- * vertical padding 은 Input size="xs" 와 동일 (spacing-3xs) 로 통일해 같은 row 에서 높이 일치 */
+/* size="sm" — 28px. ColorPicker 같은 좁은 popover 등 compact 컨텍스트 */
 .trigger.triggerSm {
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-md);
   font-size: var(--font-size-xs);
 }
 
 /* valueStack — value 와 sizer 를 같은 grid cell 에 stack.
-   sizer 가 가장 긴 label 의 자연 width 차지 (visibility hidden) → trigger 의 width 자동 fit.
-   minmax(0, 1fr) — 부모 (.root max-width: 100%) 가 좁아지면 grid track 도 0 까지 줄어들어
-   .value 의 text-overflow: ellipsis 가 작동. (auto track 은 min-content 가 0 이상이라 wrap/overflow) */
+   sizer 가 모든 option label 을 stack 으로 렌더 (Select.tsx) → grid track 이 가장 넓은 자연 너비 차지.
+   grid-template-columns: max-content — track 이 항상 sizer max-content. 잘림 X. */
 .valueStack {
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: max-content;
 }
 
 .value {
@@ -96,7 +106,7 @@
 /* combobox 전용 — input 안에 자리 안 잡히니까 절대 위치로 우측 padding 안쪽에 배치 */
 .arrowCombobox {
   position: absolute;
-  right: var(--spacing-md);
+  right: var(--spacing-sm);
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
@@ -120,11 +130,11 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   border: var(--border-light);
-  border-radius: var(--radius-xl);
-  background: var(--bg-primary);
-  backdrop-filter: blur(20px) saturate(1.4);
+  border-radius: var(--radius-2xl);
+  /* background 없이 backdrop-filter blur 만 — 뒤가 비치는 glass 효과 */
+  backdrop-filter: blur(8px) saturate(1.4);
   z-index: var(--z-dropdown);
-  box-shadow: 0 8px 32px oklch(0.00% 0.0000 0.00 / 0.25);
+  box-shadow: 0 8px 32px oklch(0% 0 0 / 0.25);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3xs);
@@ -137,7 +147,9 @@
 
 /* compound (0,2,0) — global theme transition override */
 .dropdown.dropdown {
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
 }
 
 .dropdownOpen {
@@ -262,7 +274,7 @@
   backdrop-filter: blur(4px);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
-  box-shadow: 0 2px 8px oklch(0.00% 0.0000 0.00 / 0.15);
+  box-shadow: 0 2px 8px oklch(0% 0 0 / 0.15);
   padding: var(--box-xs);
 }
 
