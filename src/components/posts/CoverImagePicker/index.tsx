@@ -95,8 +95,8 @@ export default function CoverImagePicker({
   const pickerBody = (
     <>
       {isMobile && (
-        <div className={styles.sheetHandle} aria-hidden>
-          <span className={styles.sheetHandleBar} />
+        <div className={`ui-sheet-handle ${styles.sheetHandle}`} aria-hidden>
+          <span className="ui-sheet-handle-bar" />
         </div>
       )}
       <div className={styles.header}>
@@ -177,7 +177,7 @@ export default function CoverImagePicker({
           <>
             <motion.div
               key="cover-backdrop"
-              className={styles.sheetBackdrop}
+              className="ui-sheet-backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
