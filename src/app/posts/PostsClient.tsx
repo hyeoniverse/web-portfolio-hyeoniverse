@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
+import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
 import type { Post, Series } from "@/types/post";
 import type { InitialPostsData } from "@/lib/posts";
@@ -41,6 +42,8 @@ import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import SearchSyntaxHelpButton from "@/components/ui/SearchCapsule/SearchSyntaxHelpButton";
+import LetterFilter, { KOREAN_LETTERS, ENGLISH_LETTERS, LETTER_ETC, getLetterInitial } from "@/components/ui/LetterFilter";
 import styles from "./Posts.module.css";
 
 function SidebarWrap({
@@ -156,6 +159,9 @@ function getCardType(idx: number): CardType {
   return TEMPLATES[cycle % TEMPLATES.length][pos];
 }
 
+/* 태그 dropdown letter filter — 공통 LetterFilter 컴포넌트 사용 (constants/util import). */
+const TAG_LETTERS = [...KOREAN_LETTERS, ...ENGLISH_LETTERS, LETTER_ETC];
+
 interface PostsClientProps {
   initialData: InitialPostsData;
 }
@@ -171,6 +177,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [searchType, setSearchType] = useState<"all" | "title" | "content">(
     "all",
   );
+  const [syntaxMode, setSyntaxMode] = useState<"prefix" | "regex">("prefix");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   // URL query (?tag=foo 또는 ?tag=foo,bar CSV) 도착 시 초기값 sync — 다중 선택 지원
   const urlSearchParams = useSearchParams();
@@ -278,23 +285,32 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [seriesSortDir, setSeriesSortDir] = useState<"asc" | "desc">("asc");
   const [seriesRandomSeed, setSeriesRandomSeed] = useState(0);
   const seriesPerPage = initialData.seriesPerPage;
-  const [page, setPage] = useState(1);
+  // 초기 page 값 URL 의 ?page= 에서 읽음 — 새로고침해도 같은 페이지 유지
+  const [page, setPage] = useState(() => {
+    const p = Number(urlSearchParams?.get("page"));
+    return Number.isFinite(p) && p >= 1 ? p : 1;
+  });
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
+
+  // page 변경 시 URL 동기화 — replace 로 history 누적 방지. page=1 일 땐 param 제거(깔끔)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (page > 1) url.searchParams.set("page", String(page));
+    else url.searchParams.delete("page");
+    window.history.replaceState(null, "", url.toString());
+  }, [page]);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const [popularIds] = useState<Set<string>>(new Set(initialData.popularIds));
   const [showTags, setShowTags] = useState(false);
-  // 태그 dropdown 검색 — name 또는 description 매칭. 무한 스크롤 X (현실에서 1000+ 안 됨).
-  const [tagSearch, setTagSearch] = useState("");
+  /* 태그 dropdown — 검색창 대신 철자 (ㄱ~ㅎ + A~Z + #) 필터. 상단 main 검색과 중복 회피.
+     activeTagLetters 비어있으면 전체 표시. multiple selection (toggle). */
+  const [activeTagLetters, setActiveTagLetters] = useState<Set<string>>(new Set());
   const tagRowRef = useRef<HTMLDivElement>(null);
   const filteredTags = useMemo(() => {
-    const q = tagSearch.trim().toLowerCase();
-    if (!q) return allTags;
-    return allTags.filter(({ tag, description }) => {
-      if (tag.toLowerCase().includes(q)) return true;
-      if (description && description.toLowerCase().includes(q)) return true;
-      return false;
-    });
-  }, [allTags, tagSearch]);
+    if (activeTagLetters.size === 0) return allTags;
+    return allTags.filter(({ tag }) => activeTagLetters.has(getLetterInitial(tag)));
+  }, [allTags, activeTagLetters]);
   const [catExpanded, setCatExpanded] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -327,12 +343,12 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     }
   }, [isStuck, showTags, catExpanded]);
 
-  // 태그 dropdown 닫힐 때 검색어 + 스크롤 mask 초기화
+  // 태그 dropdown 닫힐 때 letter 필터 + 스크롤 mask 초기화
   const [tagScrolled, setTagScrolled] = useState(false);
   const [tagAtBottom, setTagAtBottom] = useState(false);
   useEffect(() => {
     if (!showTags) {
-      setTagSearch("");
+      setActiveTagLetters(new Set());
       setTagScrolled(false);
       setTagAtBottom(false);
     }
@@ -435,6 +451,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     if (search) {
       params.set("search", search);
       params.set("searchType", searchType);
+      params.set("syntaxMode", syntaxMode);
     }
     if (activeCategory) params.set("category", activeCategory);
     if (activeTagsKey) params.set("tags", activeTagsKey);
@@ -466,6 +483,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   }, [
     search,
     searchType,
+    syntaxMode,
     activeCategory,
     activeTagsKey,
     activeSeries,
@@ -553,19 +571,23 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     [seriesSortBy],
   );
 
-  // Fetch posts when filters change (skip initial — we have SSR data)
-  // 필터 변경 즉시 loading=true 로 — debounce 동안 옛 데이터 보이는 깜빡임 방지
+  // Fetch posts when filters change (skip initial if page=1 — SSR 데이터가 page 1).
+  // URL ?page=N (N>1) 으로 진입 시 SSR 데이터 없으므로 초기 mount 에도 fetch 필요.
   useEffect(() => {
     if (isInitial) {
       setIsInitial(false);
-      return;
+      if (page === 1) return; // SSR 와 동일 page → 재요청 불필요
     }
     setLoading(true);
     const debounce = setTimeout(fetchPosts, 300);
     return () => clearTimeout(debounce);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchPosts, isInitial]);
 
+  // 필터 변경 시 page 리셋 — 단, 첫 mount 는 skip (URL ?page= 으로 초기화된 값 보존)
+  const filterChangeRef = useRef(false);
   useEffect(() => {
+    if (!filterChangeRef.current) { filterChangeRef.current = true; return; }
     setPage(1);
   }, [
     search,
@@ -749,10 +771,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     };
   }, [seriesList.length, loadMoreSeries]);
 
-  // 필터 활성 시 banner 숨김 — pinned 글이 현재 필터와 무관하게 노출돼 사용자가 혼란 받지 않게 +
-  // posts 가 0개일 때 empty 메시지 가려지는 문제 방지.
-  const hasActiveFilter = !!search || activeTags.size > 0 || !!activeSeries || !!activeCategory;
-  const showBanner = pinnedPosts.length >= 1 && page === 1 && !hasActiveFilter;
+  const _hasActiveFilter = !!search || activeTags.size > 0 || !!activeSeries || !!activeCategory;
+  // banner 는 pinned 글 있으면 항상 표시 (필터/검색/페이지네이션 무관)
+  const showBanner = pinnedPosts.length >= 1;
 
   const pageNumbers = useMemo(() => {
     if (totalPages <= 7)
@@ -772,6 +793,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   }, [page, totalPages]);
 
   return (
+    <SearchHighlightProvider query={search} mode={syntaxMode}>
     <div className={styles.page}>
       {loading && <div className={styles.topProgress} aria-hidden />}
       {/* ── Header ── */}
@@ -819,12 +841,16 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         ref={filterBarRef}
         className={`${styles.filterBar} ${barHidden && !showTags && !catExpanded ? styles.filterBarHidden : ""}`}
       >
-        {/* 검색 capsule — 별도 윗줄에 우측 정렬 (공통 SearchCapsule 사용) */}
+        {/* 검색 capsule — 별도 윗줄에 우측 정렬 (공통 SearchCapsule 사용) + 검색 문법 help 버튼 */}
         <div className={styles.filterBarSearchRow}>
           <SearchCapsule
             search={search}
             onSearchChange={setSearch}
             placeholder={t("postsPage.searchPlaceholder")}
+            routeParam="q"
+            hasResults={posts.length > 0}
+            size="sm"
+            onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
             typeSelector={{
               value: searchType,
               options: [
@@ -835,27 +861,15 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               onChange: (v) => setSearchType(v as "all" | "title" | "content"),
             }}
           />
+          <SearchSyntaxHelpButton />
         </div>
 
         <div className={styles.filterBarTop}>
-          <CategoryNav
-            extraCategories={extraCategories}
-            activeCategory={activeCategory}
-            onCategoryChange={(cat) => {
-              setActiveCategory(cat);
-              // 카테고리 선택 시 자동으로 닫지 않음 — close 버튼 / filter bar 바깥 클릭 / 스크롤로만 닫힘
-            }}
-            expanded={catExpanded}
-            onExpandChange={(v) => {
-              setCatExpanded(v);
-              if (v) setShowTags(false);
-            }}
-          />
-
+          {/* 전체태그 버튼 — start 위치 */}
           <AnimatePresence>
             {!catExpanded && (
               <motion.div
-                className={styles.filterBarRight}
+                className={styles.filterBarLeft}
                 initial={{ opacity: 0, width: 0 }}
                 animate={{ opacity: 1, width: "auto", overflow: "visible" }}
                 exit={{ opacity: 0, width: 0, overflow: "hidden" }}
@@ -879,6 +893,20 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               </motion.div>
             )}
           </AnimatePresence>
+
+          <CategoryNav
+            extraCategories={extraCategories}
+            activeCategory={activeCategory}
+            onCategoryChange={(cat) => {
+              setActiveCategory(cat);
+              // 카테고리 선택 시 자동으로 닫지 않음 — close 버튼 / filter bar 바깥 클릭 / 스크롤로만 닫힘
+            }}
+            expanded={catExpanded}
+            onExpandChange={(v) => {
+              setCatExpanded(v);
+              if (v) setShowTags(false);
+            }}
+          />
         </div>
 
         <AnimatePresence>
@@ -898,14 +926,20 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 y: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
               }}
             >
-              {/* 상단 헤더 — 검색 (공통 SearchCapsule) + 전체 태그 링크 */}
+              {/* 상단 헤더 — 철자 필터 (공통 LetterFilter) + 전체 태그 링크.
+                  상단 main 검색과 중복 회피 + 다른 letter filter 위치 (TagsIndex / admin) 와 스타일 통일. */}
               <div className={styles.tagSearchHeader}>
-                <SearchCapsule
-                  search={tagSearch}
-                  onSearchChange={setTagSearch}
-                  placeholder="태그 또는 설명으로 검색…"
-                  align="left"
-                  className={styles.tagSearchInput}
+                <LetterFilter
+                  letters={TAG_LETTERS}
+                  active={activeTagLetters}
+                  onToggle={(l) => setActiveTagLetters((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(l)) next.delete(l); else next.add(l);
+                    return next;
+                  })}
+                  onClear={() => setActiveTagLetters(new Set())}
+                  hasLetter={(l) => allTags.some(({ tag }) => getLetterInitial(tag) === l)}
+                  className={styles.tagLetterRow}
                 />
                 <Link
                   href="/posts/tags"
@@ -941,7 +975,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 ))}
                 {filteredTags.length === 0 && (
                   <p className={styles.tagAllLoaded}>
-                    — &ldquo;{tagSearch}&rdquo; 와 일치하는 태그 없음 —
+                    — 선택한 철자에 해당하는 태그 없음 —
                   </p>
                 )}
               </div>
@@ -967,53 +1001,11 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   </span>
                   <ChevronRight size={12} className={styles.sectionHeaderChevron} aria-hidden />
                 </Link>
-                <Tooltip
-                  content={
-                    <>
-                      <div>{t("postsPage.sortRandom")}</div>
-                      <div>{t("postsPage.sortRandomTooltip")}</div>
-                    </>
-                  }
-                >
-                  <button
-                    type="button"
-                    className={`${styles.shuffleBtn} ${seriesSortBy === "random" ? styles.shuffleBtnActive : ""}`}
-                    onClick={() => {
-                      if (seriesSortBy === "random") {
-                        setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
-                      } else {
-                        setSeriesSortBy("random");
-                        setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
-                      }
-                    }}
-                    data-clickable="true"
-                    aria-label={t("postsPage.sortRandom")}
-                  >
-                    <Shuffle size={12} />
-                  </button>
-                </Tooltip>
-                <div
-                  className={`${styles.seriesSearchMorph} ${seriesSearchOpen ? styles.seriesSearchMorphOpen : ""}`}
-                  onClick={() => { if (!seriesSearchOpen) setSeriesSearchOpen(true); }}
-                  data-clickable="true"
-                  title={!seriesSearchOpen ? t("postsPage.searchPlaceholder") : undefined}
-                >
-                  <SearchIcon className={styles.seriesSearchMorphIcon} size={14} />
-                  <input
-                    ref={seriesSearchInputRef}
-                    className={styles.seriesSearchMorphInput}
-                    type="text"
-                    value={seriesSearch}
-                    onChange={(e) => setSeriesSearch(e.target.value)}
-                    placeholder={t("postsPage.searchPlaceholder")}
-                    tabIndex={seriesSearchOpen ? 0 : -1}
-                    onClick={(e) => e.stopPropagation()}
-                    onBlur={() => { if (!seriesSearch.trim()) setSeriesSearchOpen(false); }}
-                  />
-                </div>
               </div>
               <div className={styles.sortWrap}>
                 <SegmentedControl
+                  size="sm"
+                  className={styles.seriesSegmented}
                   items={[
                     { value: "default", label: t("postsPage.seriesSortDefault") },
                     { value: "newest", label: t("postsPage.seriesSortNewest") },
@@ -1024,6 +1016,51 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                     handleSeriesSortClick(v as "default" | "newest" | "title")
                   }
                   sortDir={seriesSortDir}
+                />
+                <Tooltip
+                  content={
+                    <>
+                      <div>{t("postsPage.sortRandom")}</div>
+                      <div>{t("postsPage.sortRandomTooltip")}</div>
+                    </>
+                  }
+                >
+                  <Button
+                    variant={seriesSortBy === "random" ? "primary" : "outline"}
+                    shape="circle"
+                    size="sm"
+                    icon={<Shuffle size={12} />}
+                    onClick={() => {
+                      if (seriesSortBy === "random") {
+                        setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
+                      } else {
+                        setSeriesSortBy("random");
+                        setSeriesRandomSeed(Math.floor(Math.random() * 1e9));
+                      }
+                    }}
+                    aria-label={t("postsPage.sortRandom")}
+                    className={styles.shuffleBtn}
+                  />
+                </Tooltip>
+              </div>
+              {/* 검색창 — sectionHeader 의 가장 오른쪽 (margin-left: auto) */}
+              <div
+                className={`${styles.seriesSearchMorph} ${styles.seriesSearchMorphRight} ${seriesSearchOpen ? styles.seriesSearchMorphOpen : ""}`}
+                onClick={() => { if (!seriesSearchOpen) setSeriesSearchOpen(true); }}
+                data-clickable="true"
+                title={!seriesSearchOpen ? "시리즈 제목·설명 검색" : undefined}
+              >
+                <SearchIcon className={styles.seriesSearchMorphIcon} size={14} />
+                <input
+                  ref={seriesSearchInputRef}
+                  className={styles.seriesSearchMorphInput}
+                  type="text"
+                  value={seriesSearch}
+                  onChange={(e) => setSeriesSearch(e.target.value)}
+                  placeholder="시리즈 제목·설명 검색"
+                  tabIndex={seriesSearchOpen ? 0 : -1}
+                  onClick={(e) => e.stopPropagation()}
+                  onBlur={() => { if (!seriesSearch.trim()) setSeriesSearchOpen(false); }}
                 />
               </div>
             </div>
@@ -1171,44 +1208,12 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                     <T k="postsPage.posts" tooltip={t("postsPage.postsTooltip")} />
                   </span>
                 </span>
-                {/* shuffle + pageSize → postsLabelMain 끝 (4 element 한 묶음, mobile width 100%) */}
-                <Tooltip
-                  content={
-                    <>
-                      <div>{t("postsPage.sortRandom")}</div>
-                      <div>{t("postsPage.sortRandomTooltip")}</div>
-                    </>
-                  }
-                >
-                  <button
-                    type="button"
-                    className={`${styles.shuffleBtn} ${sortBy === "random" ? styles.shuffleBtnActive : ""}`}
-                    onClick={() => {
-                      if (sortBy === "random") {
-                        setRandomSeed(Math.floor(Math.random() * 1e9));
-                      } else {
-                        setSortBy("random");
-                        setRandomSeed(Math.floor(Math.random() * 1e9));
-                      }
-                    }}
-                    data-clickable="true"
-                    aria-label={t("postsPage.sortRandom")}
-                  >
-                    <Shuffle size={12} />
-                  </button>
-                </Tooltip>
-                <Select
-                  value={String(perPage)}
-                  options={PAGE_SIZE_OPTIONS}
-                  onChange={(v) => {
-                    setPerPage(Number(v));
-                    setPage(1);
-                  }}
-                  className={styles.pageSizeSelect}
-                />
               </div>
                 <div className={styles.sortWrap}>
+                  {/* sort + shuffle 한 묶음 — shuffle 은 sort 의 random 변형 (오른쪽 인접). */}
                   <SegmentedControl<"date" | "popular" | "title", "score" | "views" | "comments" | "likes">
+                    size="sm"
+                    className={styles.seriesSegmented}
                     items={[
                       { value: "date", label: <T k="postsPage.sortDate" tooltip={t("postsPage.sortDateTooltip")} /> },
                       {
@@ -1241,7 +1246,43 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                       setSortDir("desc");
                     }}
                   />
+                  <Tooltip
+                    content={
+                      <>
+                        <div>{t("postsPage.sortRandom")}</div>
+                        <div>{t("postsPage.sortRandomTooltip")}</div>
+                      </>
+                    }
+                  >
+                    <Button
+                      variant={sortBy === "random" ? "primary" : "outline"}
+                      shape="circle"
+                      size="sm"
+                      icon={<Shuffle size={12} />}
+                      onClick={() => {
+                        if (sortBy === "random") {
+                          setRandomSeed(Math.floor(Math.random() * 1e9));
+                        } else {
+                          setSortBy("random");
+                          setRandomSeed(Math.floor(Math.random() * 1e9));
+                        }
+                      }}
+                      aria-label={t("postsPage.sortRandom")}
+                      className={styles.shuffleBtn}
+                    />
+                  </Tooltip>
                 </div>
+                {/* 페이지 select — 가장 오른쪽 (margin-left: auto). shuffle/sort 와 분리. */}
+                <Select
+                  value={String(perPage)}
+                  options={PAGE_SIZE_OPTIONS}
+                  size="sm"
+                  onChange={(v) => {
+                    setPerPage(Number(v));
+                    setPage(1);
+                  }}
+                  className={`${styles.pageSizeSelect} ${styles.pageSizeSelectRight}`}
+                />
               </div>
               {!loading && posts.length === 0 ? (
                 activeSeries ? (
@@ -1420,6 +1461,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         </SidebarWrap>
       </div>
     </div>
+    </SearchHighlightProvider>
   );
 }
 

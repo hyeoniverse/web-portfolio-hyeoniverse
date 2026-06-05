@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { formatPostTitle } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
-import { PlaceholderIcon } from "./PlaceholderIcon";
+import { seededGradient } from "@/components/posts/CoverImagePicker/seededGradient";
 import { useAutoSlide } from "./useAutoSlide";
 import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
 import type { Post } from "@/types/post";
@@ -72,7 +72,7 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
         >
           <div className={styles.tickerThumb}>
             {post.cover_image && !imgErrors.has(post.id) ? (
-              <Image
+              <MediaThumb
                 src={post.cover_image}
                 alt={title}
                 fill
@@ -81,7 +81,11 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
                 onError={() => onImgError(post.id)}
               />
             ) : (
-              <div className={styles.tickerThumbFallback}><PlaceholderIcon size={24} /></div>
+              <div
+                className={styles.tickerThumbFallback}
+                style={{ background: seededGradient(post.slug || post.id) }}
+                aria-hidden="true"
+              />
             )}
           </div>
           {post.category && <span className={styles.tickerCategory}><CategoryLabel category={post.category} /></span>}
