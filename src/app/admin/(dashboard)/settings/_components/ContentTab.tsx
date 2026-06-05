@@ -86,13 +86,13 @@ const TECH_PRESETS: TechPreset[] = [
   { slug: "tailwindcss", name: "Tailwind CSS", category: "Styling", ko: "테일윈드" },
   { slug: "css", name: "CSS", category: "Styling", ko: "씨에스에스" },
   { slug: "sass", name: "Sass", category: "Styling", ko: "사스" },
-  { slug: "threedotjs", name: "Three.js", category: "3D", ko: "쓰리" },
+  { slug: "threedotjs", name: "Three.js", category: "3D Graphics", ko: "쓰리" },
   { slug: "supabase", name: "Supabase", category: "Backend", ko: "슈파베이스" },
   { slug: "firebase", name: "Firebase", category: "Backend", ko: "파이어베이스" },
   { slug: "postgresql", name: "PostgreSQL", category: "Database", ko: "포스트그레" },
   { slug: "mongodb", name: "MongoDB", category: "Database", ko: "몽고디비" },
   { slug: "prisma", name: "Prisma", category: "ORM", ko: "프리즈마" },
-  { slug: "redux", name: "Redux", category: "State", ko: "리덕스" },
+  { slug: "redux", name: "Redux", category: "State Management", ko: "리덕스" },
   { slug: "vite", name: "Vite", category: "Build", ko: "비트" },
   { slug: "webpack", name: "Webpack", category: "Build", ko: "웹팩" },
   { slug: "vitest", name: "Vitest", category: "Testing", ko: "비테스트" },
@@ -107,9 +107,9 @@ const TECH_PRESETS: TechPreset[] = [
   { slug: "figma", name: "Figma", category: "Design", ko: "피그마" },
   { slug: "openai", name: "OpenAI", category: "AI", ko: "오픈에이아이" },
   { slug: "huggingface", name: "Hugging Face", category: "AI", ko: "허깅페이스" },
-  { slug: "tiptap", name: "Tiptap", category: "Editor", ko: "팁탭" },
-  { slug: "", name: "Plate", category: "Editor", ko: "플레이트" },
-  { slug: "slate", name: "Slate", category: "Editor", ko: "슬레이트" },
+  { slug: "tiptap", name: "Tiptap", category: "Rich Text Editor", ko: "팁탭" },
+  { slug: "", name: "Plate", category: "Rich Text Editor", ko: "플레이트" },
+  { slug: "slate", name: "Slate", category: "Rich Text Editor", ko: "슬레이트" },
   { slug: "graphql", name: "GraphQL", category: "API", ko: "그래프큐엘" },
   { slug: "stripe", name: "Stripe", category: "Payments", ko: "스트라이프" },
   { slug: "zod", name: "Zod", category: "Validation", ko: "조드" },
@@ -151,8 +151,8 @@ const TECH_PRESETS: TechPreset[] = [
   { slug: "deno", name: "Deno", category: "Runtime", ko: "디노" },
   { slug: "bun", name: "Bun", category: "Runtime", ko: "번" },
   // ── 상태 / 스타일 ──
-  { slug: "mobx", name: "MobX", category: "State", ko: "몹엑스" },
-  { slug: "reactquery", name: "React Query", category: "State", ko: "리액트쿼리" },
+  { slug: "mobx", name: "MobX", category: "State Management", ko: "몹엑스" },
+  { slug: "reactquery", name: "React Query", category: "State Management", ko: "리액트쿼리" },
   { slug: "styledcomponents", name: "styled-components", category: "Styling", ko: "스타일드컴포넌츠" },
   { slug: "mui", name: "MUI", category: "Styling", ko: "엠유아이" },
   { slug: "chakraui", name: "Chakra UI", category: "Styling", ko: "차크라" },
@@ -210,8 +210,21 @@ function TechIcon({ icon, name, styles }: { icon?: string; name: string; styles:
   return <span className={styles.techIconInitial}>{(name || "?").slice(0, 1).toUpperCase()}</span>;
 }
 
-/* 카테고리 입력 — 공통 Select combobox (프리셋 카테고리 제안 + 자유 입력) */
-function CategoryInput({ value, onChange, t }: { value: string; onChange: (v: string) => void; t: (key: string) => string }) {
+/* 카테고리 입력 — 공통 Select combobox. 제안 = 기존 항목 카테고리 우선 + 프리셋 (대소문자 무시 dedupe) */
+function CategoryInput({ value, onChange, currentCats, t }: {
+  value: string;
+  onChange: (v: string) => void;
+  currentCats: string[];
+  t: (key: string) => string;
+}) {
+  const seen = new Set<string>();
+  const options: { value: string; label: string }[] = [];
+  for (const c of [...currentCats, ...CATEGORY_PRESETS]) {
+    const key = c.trim().toLowerCase();
+    if (!c.trim() || seen.has(key)) continue;
+    seen.add(key);
+    options.push({ value: c, label: c });
+  }
   return (
     <Select
       combobox
@@ -222,7 +235,7 @@ function CategoryInput({ value, onChange, t }: { value: string; onChange: (v: st
       onChange={onChange}
       onInputChange={onChange}
       onAdd={onChange}
-      options={CATEGORY_PRESETS.map((c) => ({ value: c, label: c }))}
+      options={options}
       placeholder={t("admin.settings.aboutTechStackCategory")}
     />
   );
@@ -2825,6 +2838,8 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
   const patch = (idx: number, p: Partial<TechItem>) => onChange(items.map((it, i) => (i === idx ? { ...it, ...p } : it)));
   const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
   const add = (it: TechItem) => onChange([...items, it]);
+  // 기존 항목에서 실제 쓰이는 카테고리 — 카테고리 입력 제안에 우선 노출
+  const currentCats = Array.from(new Set(items.map((i) => i.category).filter(Boolean)));
 
   // 카테고리별 그룹화 (등장 순서 보존). 무카테고리는 "" 그룹.
   const order: string[] = [];
@@ -2853,7 +2868,7 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
         </Chip>
       }
     >
-      <TechEditPanel item={item} onChange={(p) => patch(idx, p)} t={t} styles={styles} />
+      <TechEditPanel item={item} onChange={(p) => patch(idx, p)} currentCats={currentCats} t={t} styles={styles} />
     </Popover>
   );
 
@@ -2878,7 +2893,7 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
             </Button>
           }
         >
-          <TechAddPanel existing={items} onAdd={add} t={t} styles={styles} />
+          <TechAddPanel existing={items} onAdd={add} currentCats={currentCats} t={t} styles={styles} />
         </Popover>
       </div>
     </div>
@@ -3008,9 +3023,10 @@ function TechIconEditor({ icon, onIconChange, t, styles, showSearch = true }: {
 }
 
 /* 추가 패널 — 프리셋 표 + 직접 입력(이름·카테고리·아이콘) */
-function TechAddPanel({ existing, onAdd, t, styles }: {
+function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
   existing: TechItem[];
   onAdd: (it: TechItem) => void;
+  currentCats: string[];
   t: (key: string) => string;
   styles: Record<string, string>;
 }) {
@@ -3041,7 +3057,7 @@ function TechAddPanel({ existing, onAdd, t, styles }: {
         <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackCustomTitle")}</p>
         <Input value={draft.name} onChange={(v) => setDraft((d) => ({ ...d, name: v }))} placeholder={t("admin.settings.aboutTechStackName")} size="sm" />
         {isDup && <p className={styles.techAddDupHint}>{t("admin.settings.aboutTechStackDupHint")}</p>}
-        <CategoryInput value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} t={t} />
+        <CategoryInput value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} currentCats={currentCats} t={t} />
         <TechIconEditor icon={draft.icon ?? ""} onIconChange={(icon) => setDraft((d) => ({ ...d, icon }))} t={t} styles={styles} showSearch={false} />
         <Button variant="primary" size="xs" fullWidth disabled={!canAdd} onClick={submitCustom} icon={<Plus size={14} strokeWidth={2.5} />}>
           {t("admin.settings.aboutTechStackAdd")}
@@ -3052,16 +3068,17 @@ function TechAddPanel({ existing, onAdd, t, styles }: {
 }
 
 /* 편집 패널 — 이름/카테고리 + 아이콘 */
-function TechEditPanel({ item, onChange, t, styles }: {
+function TechEditPanel({ item, onChange, currentCats, t, styles }: {
   item: TechItem;
   onChange: (p: Partial<TechItem>) => void;
+  currentCats: string[];
   t: (key: string) => string;
   styles: Record<string, string>;
 }) {
   return (
     <div className={styles.techPanel}>
       <Input value={item.name} onChange={(v) => onChange({ name: v })} placeholder={t("admin.settings.aboutTechStackName")} size="sm" />
-      <CategoryInput value={item.category} onChange={(v) => onChange({ category: v })} t={t} />
+      <CategoryInput value={item.category} onChange={(v) => onChange({ category: v })} currentCats={currentCats} t={t} />
       <hr className={styles.techDivider} />
       <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackIcon")}</p>
       <TechIconEditor icon={item.icon ?? ""} onIconChange={(icon) => onChange({ icon })} t={t} styles={styles} />

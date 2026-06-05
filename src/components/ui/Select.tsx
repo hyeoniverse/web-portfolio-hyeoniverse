@@ -126,12 +126,14 @@ export default function Select({
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     if (bubble) {
-      // 오른쪽 말풍선 — trigger 오른쪽, 위쪽 정렬. 화면 밖이면 안쪽으로 clamp.
-      const GAP = 10;
+      // 오른쪽 말풍선 — trigger 오른쪽. 꼬리가 trigger 세로 중앙을 가리키도록 bubble 보정.
+      const GAP = 7;
+      const TAIL_CENTER = 19.5; // CSS .bubbleRight::before: top(14) + height(11)/2
       const dw = dropdownRef.current?.offsetWidth ?? 220;
       let left = rect.right + GAP;
       if (left + dw > window.innerWidth - 8) left = Math.max(8, window.innerWidth - dw - 8);
-      setDropPos({ top: rect.top, left, width: rect.width });
+      const top = Math.max(8, rect.top + rect.height / 2 - TAIL_CENTER);
+      setDropPos({ top, left, width: rect.width });
     } else {
       setDropPos({ top: rect.bottom, left: rect.left, width: rect.width });
     }
