@@ -1,4 +1,5 @@
 import type { TechStackItem } from "@/data/about";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import shared from "../AboutSection.module.css";
 import local from "./TechStackPanel.module.css";
 const styles = { ...shared, ...local };
@@ -39,11 +40,15 @@ interface TechStackPanelProps {
 }
 
 export default function TechStackPanel({ techStack }: TechStackPanelProps) {
+  const cfg = useSiteConfig();
+  /* admin 편집 가능한 siteConfig.about.techStack 우선. 없으면(legacy) prop 으로 fallback. */
+  const cfgStack = (cfg.about as { techStack?: TechStackItem[] }).techStack;
+  const list = cfgStack ?? techStack;
   return (
     <div className={`${styles.panel} ${styles.panelCompact}`}>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>Tech Stack.</h3>
       <div className={styles.techGrid}>
-        {techStack.map((tech, index) => (
+        {list.map((tech, index) => (
           <div key={index} className={`${styles.techItem} ${styles.animate}`}>
             <span className={styles.techNameGroup}>
               <span className={styles.techIcon}>{techIcons[tech.name]}</span>
