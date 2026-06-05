@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
 import { Upload, Plus, Check, X, Trash2, Filter, ChevronDown, Sliders } from "lucide-react";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { AnimatePresence, motion } from "framer-motion";
@@ -2841,6 +2841,24 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
   // 기존 항목에서 실제 쓰이는 카테고리 — 카테고리 입력 제안에 우선 노출
   const currentCats = Array.from(new Set(items.map((i) => i.category).filter(Boolean)));
 
+  // ── 칩 drag&drop 으로 그룹(카테고리) 이동 ──
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor),
+  );
+  const handleDragEnd = (e: DragEndEvent) => {
+    setDragIdx(null);
+    const { active, over } = e;
+    if (!over) return;
+    const idx = Number(String(active.id).replace("techchip:", ""));
+    const targetCat = String(over.id).replace("techgroup:", "");
+    if (Number.isNaN(idx) || !items[idx]) return;
+    if ((items[idx].category || "") !== targetCat) {
+      onChange(items.map((it, i) => (i === idx ? { ...it, category: targetCat } : it)));
+    }
+  };
+
   // 카테고리별 그룹화 (등장 순서 보존). 무카테고리는 "" 그룹.
   const order: string[] = [];
   const groups = new Map<string, { item: TechItem; idx: number }[]>();
@@ -2873,29 +2891,65 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
   );
 
   return (
-    <div className={styles.techGroups}>
-      {order.map((cat) => (
-        <div key={cat || "__none"} className={styles.techGroup}>
-          {cat && <span className={styles.techGroupLabel}>{cat}</span>}
-          <div className={styles.techChips}>
-            {groups.get(cat)!.map(({ item, idx }) => renderChip(item, idx))}
-          </div>
-        </div>
-      ))}
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={(e: DragStartEvent) => setDragIdx(Number(String(e.active.id).replace("techchip:", "")))} onDragEnd={handleDragEnd} onDragCancel={() => setDragIdx(null)}>
+      <div className={styles.techGroups}>
+        {order.map((cat) => (
+          <DroppableTechGroup key={cat || "__none"} cat={cat} styles={styles}>
+            {cat && <span className={styles.techGroupLabel}>{cat}</span>}
+            <div className={styles.techChips}>
+              {groups.get(cat)!.map(({ item, idx }) => (
+                <DraggableTechChip key={idx} idx={idx} styles={styles}>
+                  {renderChip(item, idx)}
+                </DraggableTechChip>
+              ))}
+            </div>
+          </DroppableTechGroup>
+        ))}
 
-      <div className={styles.techAddRow}>
-        <Popover
-          placement="bottom-start"
-          sheetTitle={t("admin.settings.aboutTechStackAdd")}
-          trigger={
-            <Button variant="ghost" size="xs" icon={<Plus size={14} strokeWidth={2.5} />}>
-              {t("admin.settings.aboutTechStackAdd")}
-            </Button>
-          }
-        >
-          <TechAddPanel existing={items} onAdd={add} currentCats={currentCats} t={t} styles={styles} />
-        </Popover>
+        <div className={styles.techAddRow}>
+          <Popover
+            placement="bottom-start"
+            sheetTitle={t("admin.settings.aboutTechStackAdd")}
+            trigger={
+              <Button variant="ghost" size="xs" icon={<Plus size={14} strokeWidth={2.5} />}>
+                {t("admin.settings.aboutTechStackAdd")}
+              </Button>
+            }
+          >
+            <TechAddPanel existing={items} onAdd={add} currentCats={currentCats} t={t} styles={styles} />
+          </Popover>
+        </div>
       </div>
+      <DragOverlay>
+        {dragIdx != null && items[dragIdx] ? (
+          <span className={styles.techDragOverlay}>
+            <span className={styles.techIconTile}>
+              <TechIcon icon={items[dragIdx].icon} name={items[dragIdx].name} styles={styles} />
+            </span>
+            {items[dragIdx].name || "—"}
+          </span>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
+  );
+}
+
+/* drag 가능한 칩 wrapper — listeners 는 wrapper 에. activationConstraint(distance) 로 클릭(Popover)과 공존 */
+function DraggableTechChip({ idx, children, styles }: { idx: number; children: React.ReactNode; styles: Record<string, string> }) {
+  const { setNodeRef, listeners, attributes, isDragging } = useDraggable({ id: `techchip:${idx}` });
+  return (
+    <div ref={setNodeRef} {...attributes} {...listeners} className={`${styles.techDragWrap} ${isDragging ? styles.techDragSource : ""}`}>
+      {children}
+    </div>
+  );
+}
+
+/* drop 가능한 그룹 — 위에 드래그하면 하이라이트, drop 시 해당 카테고리로 이동 */
+function DroppableTechGroup({ cat, children, styles }: { cat: string; children: React.ReactNode; styles: Record<string, string> }) {
+  const { setNodeRef, isOver } = useDroppable({ id: `techgroup:${cat}` });
+  return (
+    <div ref={setNodeRef} className={`${styles.techGroup} ${isOver ? styles.techGroupOver : ""}`}>
+      {children}
     </div>
   );
 }

@@ -5572,6 +5572,41 @@ a.tagRelatedItem:hover {
   align-items: center;
   min-width: 0;
 }
+/* ── 칩 drag&drop (그룹 이동) ── */
+.techDragWrap {
+  display: inline-flex;
+  touch-action: none; /* dnd-kit pointer drag — 스크롤 간섭 방지 */
+  cursor: grab;
+}
+.techDragWrap:active {
+  cursor: grabbing;
+}
+.techDragSource {
+  opacity: 0.4;
+}
+/* 드래그가 위에 올라온 그룹 — 하이라이트 */
+.techGroupOver {
+  outline: 1px dashed var(--border-accent-color);
+  outline-offset: 3px;
+  border-radius: var(--radius-md);
+  background: var(--bg-accent-light);
+}
+/* 드래그 중 따라다니는 칩 오버레이 */
+.techDragOverlay {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 4px 10px 4px 4px;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: grabbing;
+}
 /* 아이콘 타일 — circle, 브랜드 컬러가 양쪽 테마에서 보이도록 밝은 중립 타일 위에 */
 .techIconTile {
   width: 20px;
