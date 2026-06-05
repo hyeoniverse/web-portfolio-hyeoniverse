@@ -128,7 +128,7 @@ export default function Select({
     if (bubble) {
       // 오른쪽 말풍선 — trigger 오른쪽. 꼬리가 trigger 세로 중앙을 가리키도록 bubble 보정.
       const GAP = 7;
-      const TAIL_CENTER = 19.5; // CSS .bubbleRight::before: top(14) + height(11)/2
+      const TAIL_CENTER = 21.5; // CSS .bubbleRight::before: top(16) + height(11)/2
       const dw = dropdownRef.current?.offsetWidth ?? 220;
       let left = rect.right + GAP;
       if (left + dw > window.innerWidth - 8) left = Math.max(8, window.innerWidth - dw - 8);

@@ -173,6 +173,8 @@
   overflow: visible;
   max-height: none;
   transform-origin: left center;
+  /* radius 작게 — 큰 둥근 모서리 안에 꼬리가 걸쳐 위쪽이 끊겨 보이는 문제 방지 */
+  border-radius: var(--radius-lg);
 }
 .bubble.dropdownClose {
   transform: scale(0.96) translateX(-4px);
@@ -189,11 +191,12 @@
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-/* 꼬리 — 왼쪽 모서리에서 왼쪽(trigger)을 가리키는 삼각형 */
+/* 꼬리 — 왼쪽 모서리에서 왼쪽(trigger)을 가리키는 삼각형.
+   top 은 둥근 모서리(radius-lg=12px) 아래로 둬서 직선 테두리에 자연스럽게 붙도록. */
 .bubbleRight::before {
   content: "";
   position: absolute;
-  top: 14px;
+  top: 16px;
   left: -6px;
   width: 11px;
   height: 11px;
