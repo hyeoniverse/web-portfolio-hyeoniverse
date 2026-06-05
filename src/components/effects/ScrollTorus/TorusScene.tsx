@@ -11,7 +11,6 @@ import {
   TORUS_ROTATION,
   TORUS_MATERIAL,
   TORUS_MOBILE,
-  TORUS_REPULSION,
   TORUS_ATTRACTION,
 } from "@/constants/torus";
 
@@ -103,7 +102,7 @@ export default function TorusScene({
         TORUS_PATH.zAmplitude -
       2;
 
-    // 커서/터치 자석 + 반발 효과
+    // 커서/터치 자석 효과 (반발 제거 — 가까울 때 끌어당기는 동작만)
     let repSettling = false;
     {
       const isActive = isMobile ? pointerActive.current : true;
@@ -123,26 +122,13 @@ export default function TorusScene({
 
       let targetRepX = 0;
       let targetRepY = 0;
-      let smoothing: number = TORUS_ATTRACTION.smoothing;
+      const smoothing: number = TORUS_ATTRACTION.smoothing;
 
-      if (isActive && dist > 0.01) {
-        if (dist < TORUS_ATTRACTION.radius) {
-          const force =
-            ((1 - dist / TORUS_ATTRACTION.radius) ** 2) * TORUS_ATTRACTION.strength;
-          targetRepX = -(dx / dist) * force;
-          targetRepY = -(dy / dist) * force;
-          smoothing = TORUS_ATTRACTION.smoothing;
-        } else if (dist < TORUS_REPULSION.radius) {
-          const range = TORUS_REPULSION.radius - TORUS_ATTRACTION.radius;
-          const normalized = (dist - TORUS_ATTRACTION.radius) / range;
-          const force = Math.min(
-            (normalized ** 1.5) * TORUS_REPULSION.strength,
-            TORUS_REPULSION.maxDisplacement,
-          );
-          targetRepX = (dx / dist) * force;
-          targetRepY = (dy / dist) * force;
-          smoothing = TORUS_REPULSION.smoothing;
-        }
+      if (isActive && dist > 0.01 && dist < TORUS_ATTRACTION.radius) {
+        const force =
+          ((1 - dist / TORUS_ATTRACTION.radius) ** 2) * TORUS_ATTRACTION.strength;
+        targetRepX = -(dx / dist) * force;
+        targetRepY = -(dy / dist) * force;
       }
 
       // lerp 보간으로 부드러운 전환

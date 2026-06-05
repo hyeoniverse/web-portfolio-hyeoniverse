@@ -297,6 +297,37 @@ export default function CursorTrail() {
     };
   }, [isTouch]);
 
+  /* 현재 cursor 상태에 맞는 라벨. 상태가 없으면 빈 문자열. */
+  const computedLabel = cursorType === "grab" ? "Drag"
+    : cursorType === "stop" ? "Stop"
+    : cursorType === "zoom" ? "View"
+    : cursorType === "next" ? "Next"
+    : cursorType === "prev" ? "Prev"
+    : cursorType === "big" ? (isMore ? "More" : "Click")
+    : "";
+
+  /* fade-out 중에 React 가 fallback ("Click") 으로 즉시 swap 하면 "Click" 이 잠깐 노출됨.
+     opacity transition 끝날 때까지 마지막 라벨을 유지. */
+  const [displayLabel, setDisplayLabel] = useState("");
+  const labelClearTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (computedLabel) {
+      if (labelClearTimerRef.current) {
+        clearTimeout(labelClearTimerRef.current);
+        labelClearTimerRef.current = null;
+      }
+      setDisplayLabel(computedLabel);
+    } else {
+      // fade 후 클리어 — CSS transition (duration-base 0.3s) 끝나고 안전 마진
+      if (labelClearTimerRef.current) clearTimeout(labelClearTimerRef.current);
+      labelClearTimerRef.current = window.setTimeout(() => {
+        setDisplayLabel("");
+        labelClearTimerRef.current = null;
+      }, 320);
+    }
+  }, [computedLabel]);
+
   if (isTouch) return null;
 
   return (
@@ -311,15 +342,7 @@ export default function CursorTrail() {
       )}
     >
       <div className={styles.cursorInner}>
-        <span className={styles.cursorText}>
-          {cursorType === "grab" ? "Drag"
-            : cursorType === "stop" ? "Stop"
-            : cursorType === "zoom" ? "View"
-            : cursorType === "next" ? "Next"
-            : cursorType === "prev" ? "Prev"
-            : isMore ? "More"
-            : "Click"}
-        </span>
+        <span className={styles.cursorText}>{displayLabel}</span>
         {cursorType === "zoom" && (
           <svg className={styles.zoomIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="7" />
