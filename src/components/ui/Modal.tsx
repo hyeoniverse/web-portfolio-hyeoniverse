@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useModalStore } from "@/stores/modalStore";
 import { useLenis } from "@/providers/LenisProvider";
@@ -9,6 +9,10 @@ import CloseButton from "./CloseButton";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSoundManager } from "@/hooks/useSoundManager";
 import { useIsMobile } from "@/hooks/useIsMobile";
+
+/** Modal footer slot — modal body 가 createPortal 로 footer 영역에 렌더하기 위한 ref.
+ *  body 와 footer 가 같은 React tree 안에 있어 state 공유 가능. */
+export const ModalFooterContext = createContext<HTMLDivElement | null>(null);
 
 const SWIPE_THRESHOLD = 30;
 const DISMISS_THRESHOLD = 100;
@@ -21,6 +25,30 @@ export default function Modal() {
   const [mounted, setMounted] = useState(false);
   const overflowRef = useRef<string>("");
   const [sheetExpanded, setSheetExpanded] = useState(false);
+  /* 모달별 footer DOM el — body 가 ModalFooterContext 로 받아 portal 로 렌더. */
+  const [footerEls, setFooterEls] = useState<Record<string, HTMLDivElement | null>>({});
+  /* ref callback 은 id 별로 cached — 같은 id 면 항상 같은 함수 반환.
+     매 렌더 새 arrow function 이면 React 가 cleanup(null) + mount(el) cycle 무한 반복 (Maximum update depth). */
+  const footerRefSettersRef = useRef<Map<string, (el: HTMLDivElement | null) => void>>(new Map());
+  const getFooterRefSetter = useCallback((id: string) => {
+    let setter = footerRefSettersRef.current.get(id);
+    if (!setter) {
+      setter = (el) => {
+        setFooterEls((prev) => {
+          if (prev[id] === el) return prev;
+          if (el === null) {
+            if (!(id in prev)) return prev;
+            const next = { ...prev };
+            delete next[id];
+            return next;
+          }
+          return { ...prev, [id]: el };
+        });
+      };
+      footerRefSettersRef.current.set(id, setter);
+    }
+    return setter;
+  }, []);
   const startYRef = useRef(0);
   const swipingRef = useRef(false);
   const draggingRef = useRef(false);
@@ -74,6 +102,14 @@ export default function Modal() {
 
   // expandedRef를 state와 동기화 (드래그 콜백에서 최신 값 참조)
   useEffect(() => { expandedRef.current = sheetExpanded; }, [sheetExpanded]);
+
+  // 닫힌 modal 의 cached ref setter 정리 — 메모리 누수 방지
+  useEffect(() => {
+    const currentIds = new Set(modals.map((m) => m.id));
+    for (const id of footerRefSettersRef.current.keys()) {
+      if (!currentIds.has(id)) footerRefSettersRef.current.delete(id);
+    }
+  }, [modals]);
 
   // ── Sheet 드래그: 위로 = 확장(height), 아래로 = dismiss(CSS translate) ──
   const onHandlePointerDown = useCallback((e: React.PointerEvent) => {
@@ -253,13 +289,17 @@ export default function Modal() {
             {closeButton && (
               <CloseButton
                 className={styles.closeButton}
+                size="md"
                 onClick={() => handleClose(id)}
                 ariaLabel="닫기"
               />
             )}
-            <div className={styles.modalScroll}>
-              {content}
-            </div>
+            <ModalFooterContext.Provider value={footerEls[id] ?? null}>
+              <div className={styles.modalScroll}>
+                {content}
+              </div>
+              <div ref={getFooterRefSetter(id)} className={styles.modalFooter} />
+            </ModalFooterContext.Provider>
           </motion.div>
         </motion.div>
       ))}

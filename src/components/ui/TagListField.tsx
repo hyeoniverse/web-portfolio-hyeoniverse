@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, type KeyboardEvent } from "react";
-import { Plus } from "lucide-react";
-import DraggableTag, { useTagDrag } from "./DraggableTag";
-import Button from "./Button";
+import Chip, { useChipReorder } from "./Chip";
 import Input from "./Input";
 import styles from "./TagListField.module.css";
 
@@ -18,6 +16,10 @@ interface TagListFieldProps {
   separator?: string;
   /** Enter 외에 "," 도 add trigger 로 쓸지 (scope/tag 입력처럼) */
   commaAsAdd?: boolean;
+  /** Input 내부 좌측 inline 배지 (KO/EN) — Field 의 langBadge 와 동일 패턴 */
+  langBadge?: "ko" | "en";
+  /** Input 크기 — 기본 md */
+  size?: "xs" | "sm" | "md";
 }
 
 export default function TagListField({
@@ -28,6 +30,8 @@ export default function TagListField({
   placeholder,
   separator = ", ",
   commaAsAdd = false,
+  langBadge,
+  size = "md",
 }: TagListFieldProps) {
   const [input, setInput] = useState("");
   /* commaAsAdd 모드: 저장된 값 split = separator. 그 외엔 콤마 split + trim (bulk paste 지원) */
@@ -39,7 +43,7 @@ export default function TagListField({
 
   const commit = (next: string[]) => onChange(next.join(separator));
 
-  const { itemProps } = useTagDrag((from, to) => {
+  const { itemProps } = useChipReorder((from, to) => {
     const next = [...tags];
     const [moved] = next.splice(from, 1);
     next.splice(to, 0, moved);
@@ -66,11 +70,13 @@ export default function TagListField({
     commit(tags.filter((_, i) => i !== idx));
   };
 
+  /* Backspace 처리만 별도 — Enter 는 Input 의 onAdd 가 받음 */
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.nativeEvent.isComposing) return;
-    if (e.key === "Enter" || (commaAsAdd && e.key === ",")) {
+    if (commaAsAdd && e.key === ",") {
       e.preventDefault();
       addTags();
+      return;
     }
     if (e.key === "Backspace" && !input && tags.length > 0) {
       removeTag(tags.length - 1);
@@ -87,36 +93,33 @@ export default function TagListField({
       )}
       {tags.length > 0 && (
         <div className={styles.tags}>
-          {tags.map((tag, i) => (
-            <DraggableTag
-              key={`${tag}-${i}`}
-              label={tag}
-              index={i}
-              onRemove={() => removeTag(i)}
-              {...itemProps(i)}
-            />
-          ))}
+          {tags.map((tag, i) => {
+            const { dragging, dropSide, ...handlers } = itemProps(i);
+            return (
+              <Chip
+                key={`${tag}-${i}`}
+                variant="capsule"
+                showHandle
+                onRemove={() => removeTag(i)}
+                dragging={dragging}
+                dropSide={dropSide}
+                dragHandlers={{ draggable: true, ...handlers }}
+              >
+                {tag}
+              </Chip>
+            );
+          })}
         </div>
       )}
-      {/* input + button capsule group — 외부 wrapper 가 border + capsule, 내부 inputs/buttons 는 border 제거 */}
-      <div className={styles.inputRow}>
-        <Input
-          size="sm"
-          value={input}
-          onChange={setInput}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-        />
-        <Button
-          variant="outline"
-          shape="square"
-          size="xs"
-          onClick={addTags}
-          disabled={!input.trim()}
-          aria-label="Add"
-          icon={<Plus size={14} strokeWidth={2} />}
-        />
-      </div>
+      <Input
+        size={size}
+        value={input}
+        onChange={setInput}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        onAdd={addTags}
+        inlineLabel={langBadge ? langBadge.toUpperCase() : undefined}
+      />
     </div>
   );
 }

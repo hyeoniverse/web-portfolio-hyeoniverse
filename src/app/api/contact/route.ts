@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSecret } from "@/lib/getSecret";
+import { getSiteConfig } from "@/lib/getSiteConfig";
 import { EMAIL_RE } from "@/utils/commentValidation";
 
 export async function POST(request: NextRequest) {
@@ -23,6 +24,26 @@ export async function POST(request: NextRequest) {
     }
     if (message.length > 5000) {
       return NextResponse.json({ success: false, message: "Message too long" }, { status: 400 });
+    }
+
+    // 첨부 파일 검증 — admin 의 media.limits 적용 (provider 와 무관하게 1차 차단)
+    const attachedFile = (body.get("attachment") || body.get("upload") || body.get("file")) as File | null;
+    if (attachedFile && attachedFile.size > 0) {
+      try {
+        const cfg = await getSiteConfig();
+        const limits = (cfg.media?.limits ?? {}) as Record<string, number>;
+        const fallback = limits._default ?? 20;
+        const limitMB = limits[attachedFile.type] ?? fallback;
+        if (attachedFile.size > limitMB * 1024 * 1024) {
+          const sizeMB = (attachedFile.size / (1024 * 1024)).toFixed(1);
+          return NextResponse.json({
+            success: false,
+            message: `File too large: ${sizeMB}MB (max ${limitMB}MB for ${attachedFile.type})`,
+          }, { status: 400 });
+        }
+      } catch {
+        // 설정 로드 실패 시 통과 (provider 단계에서 size 한도 적용)
+      }
     }
 
     // 내부 필드 제거

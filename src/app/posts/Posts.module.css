@@ -188,39 +188,20 @@
   white-space: nowrap;
 }
 
-/* 별도 셔플(랜덤) 버튼 — sortGroup 옆에 위치 */
+/* 셔플(랜덤) 버튼 — Button shape="circle" size="sm" + border light override + active 회전 */
 .shuffleBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  /* 통일 높이 — filter-row-h */
-  min-height: var(--filter-row-h);
-  padding: 0 var(--spacing-sm);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.3s ease;
-}
-
-.shuffleBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--text-primary);
-}
-
-.shuffleBtnActive {
-  color: var(--text-inverse);
-  border-color: var(--text-inverse);
-  background: var(--bg-inverse);
+  border: var(--border-light);
 }
 
 .shuffleBtn:active {
   transform: rotate(180deg);
+  transition: transform 0.3s ease;
 }
 
 /* Tag toggle button */
 .tagToggleBtn {
+  /* CategoryNav 가 multi-row 로 wrap 되어도 항상 첫 번째 row 와 정렬되도록 self start. */
+  align-self: flex-start;
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
@@ -234,6 +215,11 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   color: var(--text-primary);
+}
+
+/* motion.div wrapper 도 명시적으로 start 정렬 — flex 부모의 align-items 만으론 framer-motion height 애니 시 휘는 케이스 방지 */
+.filterBarLeft {
+  align-self: flex-start;
 }
 
 .tagToggleBtn.tagToggleBtn {
@@ -354,7 +340,7 @@
   color: var(--text-inverse);
 }
 
-/* 태그 dropdown 상단 헤더 — 검색 input + 전체 태그 링크 */
+/* 태그 dropdown 상단 헤더 — 철자 필터 chip row + 전체 태그 링크 */
 .tagSearchHeader {
   display: flex;
   align-items: center;
@@ -364,7 +350,8 @@
   margin-bottom: var(--spacing-sm);
 }
 
-.tagSearchInput {
+/* 철자 chip row — 공통 LetterFilter 컴포넌트가 자체 스타일 보유. 여기선 layout 만 (flex grow). */
+.tagLetterRow {
   flex: 1;
   min-width: 0;
 }
@@ -929,15 +916,28 @@
   min-height: var(--filter-row-h);
 }
 
-.sortWrap button {
+/* 시리즈 SegmentedControl — 기본 border-default 대신 light 로 (영역 약화).
+   SegmentedControl 의 .group 이 box-shadow inset 로 border line 처리하므로 동일 방식으로 override. */
+.seriesSegmented.seriesSegmented {
+  box-shadow: inset 0 0 0 1px var(--border-light-color);
+}
+
+/* SegmentedControl 안 button 만 컴팩트 padding — circle shuffleBtn 은 제외 (가로 padding 이 들어가면 원형 깨짐) */
+.sortWrap button:not(.shuffleBtn) {
   padding: 0 var(--spacing-md);
   font-size: var(--font-size-2xs);
 }
 
-/* seriesLabel 의 ChevronRight (12px) + 내부 gap (spacing-xs = 8px) 만큼 sortGroup 시작점을
-   오른쪽으로 밀어, 두 라벨의 sort 컨트롤 left edge 가 동일 x 위치로 정렬되도록. */
-.sectionHeader .sortWrap {
-  margin-left: calc(12px + var(--spacing-xs));
+/* shuffle 이 sortWrap 안으로 들어가 sectionHeaderMain 과 visual 분리 — 별도 margin 불필요 */
+
+/* 시리즈 검색창 — sectionHeader 의 가장 오른쪽 */
+.seriesSearchMorphRight {
+  margin-left: auto;
+}
+
+/* posts sectionHeader 페이지 select — 가장 오른쪽 (shuffle/sort 와 분리). */
+.pageSizeSelectRight {
+  margin-left: auto;
 }
 
 .postsCount {
@@ -1381,12 +1381,11 @@
     margin-left: auto;
   }
 
-  /* 모바일 — postsLabelMain (icon+text+shuffle+select 묶음) 이 width 100% 차지 → sortWrap 만 자연스럽게 다음 줄 */
+  /* 모바일 — title 만 있는 sectionHeaderMain 이 width 100% 차지 → sortWrap / Select 다음 줄 */
   .sectionHeaderMain {
     width: 100%;
   }
   .sectionHeader .sortWrap {
-    margin-left: 0;
     margin-right: auto;
   }
 

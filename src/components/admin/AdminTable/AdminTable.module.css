@@ -21,7 +21,11 @@
   border-radius: 50%;
   background: var(--bg-secondary);
   border: var(--border-light);
-  background-image: linear-gradient(135deg, transparent 50%, var(--bg-accent-subtle) 50%);
+  background-image: linear-gradient(
+    135deg,
+    transparent 50%,
+    var(--bg-accent-subtle) 50%
+  );
 }
 
 /* ── Bulk action bar ── */
@@ -39,7 +43,11 @@
   opacity: 0;
   overflow: hidden;
   margin-bottom: 0;
-  transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease, margin 0.25s ease;
+  transition:
+    max-height 0.25s ease,
+    opacity 0.2s ease,
+    padding 0.25s ease,
+    margin 0.25s ease;
 }
 
 .bulkBarOpen {
@@ -150,7 +158,8 @@
 }
 
 /* Changed row indicator */
-.rowChanged {}
+.rowChanged {
+}
 
 /* ── Meta columns ── */
 .colMeta {
@@ -261,8 +270,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* ── Actions column ── [Edit] [Delete] ····· [⋯ kebab] */
@@ -273,7 +287,9 @@
   align-items: center;
 }
 /* kebab 메뉴 trigger 는 오른쪽 끝으로 */
-.colActions > span { margin-left: auto; }
+.colActions > span {
+  margin-left: auto;
+}
 
 .actionBtn {
   padding: var(--box-2xs-md);
@@ -287,7 +303,10 @@
 }
 
 .colActions .actionBtn {
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .colActions .actionBtn:hover {
@@ -306,7 +325,10 @@
 }
 
 .colActions .deleteBtn {
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .colActions .deleteBtn:hover {
@@ -350,24 +372,55 @@
   align-items: center;
 }
 
+/* text ↔ input 전환 시 크기 동일 — box-sizing border-box + 동일 height/width/padding/border (1px solid).
+   background 은 transparent — 어두운 배경에서도 텍스트 가독성 유지 (text-primary 강한 대비). */
 .rowNumText {
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 4ch;
+  width: 4ch;
+  height: 22px;
+  line-height: 20px; /* content area = height - border(2) - padding-block(0) = 20 */
+  padding: 0 4px;
+  border: 1px solid transparent;
+  border-bottom-color: var(--text-white);
+  border-bottom-style: dashed;
+  border-radius: 0;
+  background: transparent;
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
+  font-weight: 600;
+  color: var(--text-white);
+  /* mix-blend-mode: difference + white — 어두운 배경엔 white, 밝은 배경엔 dark 로 자동 반전 */
+  mix-blend-mode: difference;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
+  transition: opacity 0.15s ease;
 }
 
-/* 인라인 편집 — 동일한 font 유지하면서 input 으로 swap */
+.rowNumText:hover {
+  opacity: 0.7;
+}
+
+/* 인라인 편집 — text 와 동일 크기. border 만 사방으로. radius 없음 */
 .rowNumInput {
-  width: 32px;
-  padding: 2px 4px;
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 4ch;
+  width: 4ch;
+  height: 22px;
+  line-height: 20px;
+  padding: 0 4px;
   border: var(--border-default);
-  border-radius: var(--radius-xs);
+  border-radius: 0;
   background: var(--bg-primary);
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
+  font-weight: 600;
   color: var(--text-primary);
   text-align: center;
+  font-variant-numeric: tabular-nums;
   outline: none;
 }
 
@@ -386,8 +439,13 @@
 }
 
 @keyframes rowFlash {
-  0%, 30% { background: var(--bg-accent-light); }
-  100% { background: transparent; }
+  0%,
+  30% {
+    background: var(--bg-accent-light);
+  }
+  100% {
+    background: transparent;
+  }
 }
 
 .dropAbove::before {

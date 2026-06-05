@@ -49,6 +49,7 @@ export default function CommentsModerationPage() {
   const [status, setStatus] = useState<StatusFilter>("active");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [syntaxMode, setSyntaxMode] = useState<"prefix" | "regex">("prefix");
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const fetchComments = useCallback(async () => {
@@ -59,7 +60,10 @@ export default function CommentsModerationPage() {
       page: String(page),
       limit: String(PAGE_SIZE),
     });
-    if (search) params.set("search", search);
+    if (search) {
+      params.set("search", search);
+      params.set("syntaxMode", syntaxMode);
+    }
     try {
       const res = await fetch(`/api/admin/comments?${params}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -71,7 +75,7 @@ export default function CommentsModerationPage() {
       setTotal(0);
     }
     setLoading(false);
-  }, [source, status, search, page]);
+  }, [source, status, search, syntaxMode, page]);
 
   useEffect(() => {
     fetchComments();
@@ -89,7 +93,6 @@ export default function CommentsModerationPage() {
     openModal(
       <ModalConfirm
         desc={t("admin.comments.deleteDesc")}
-        cancelText={t("admin.posts.cancel")}
         confirmText={t("admin.posts.delete")}
         onConfirm={async () => {
           const path = source === "posts" ? `/api/comments/${id}` : `/api/work-comments/${id}`;
@@ -112,7 +115,6 @@ export default function CommentsModerationPage() {
     openModal(
       <ModalConfirm
         desc={t("admin.comments.bulkDeleteDesc").replace("{{count}}", String(ids.length))}
-        cancelText={t("admin.posts.cancel")}
         confirmText={t("admin.posts.delete")}
         onConfirm={async () => {
           await Promise.all(
@@ -191,6 +193,7 @@ export default function CommentsModerationPage() {
             search={searchInput}
             onSearchChange={setSearchInput}
             placeholder={t("admin.comments.searchPlaceholder")}
+            onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
           />
           <Button type="submit" variant="ghost" size="sm">
             <T k="admin.comments.search" />

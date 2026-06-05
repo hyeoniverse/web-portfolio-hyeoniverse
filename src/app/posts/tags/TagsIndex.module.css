@@ -83,44 +83,7 @@
   transition: box-shadow 0.18s ease;
 }
 
-.letterIndex {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-3xs);
-}
-
-.letterBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
-  border: none;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.letterBtn:hover:not(:disabled) {
-  color: var(--text-primary);
-  background: var(--bg-tertiary-alt);
-}
-
-.letterBtnActive,
-.letterBtnActive:hover {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
-.letterBtnDisabled {
-  color: var(--text-muted);
-  opacity: 0.4;
-  cursor: default;
-}
+/* letter chip 스타일은 공통 LetterFilter 컴포넌트가 보유 — 본 파일은 layout 만 (사용처 없으면 제거 가능). */
 
 /* 일반 태그 나열 — pill flex-wrap, font-size 는 inline (count 기반 scale) */
 .list {

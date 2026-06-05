@@ -1,8 +1,12 @@
-/* posts main sort / series sort 와 동일 — capsule wrapper, border default */
+/* posts main sort / series sort 와 동일 — capsule wrapper, border default.
+   border 대신 inset box-shadow 로 처리 → layout 에 영향 안 줘서 전체 높이 = btn 높이 + padding 으로 명확히 제어됨.
+   padding 2px 로 안쪽 버튼과 group 테두리 사이 시각적 호흡 확보. */
 .group {
   display: inline-flex;
+  align-items: center;
+  padding: 2px;
   border-radius: var(--radius-capsule);
-  border: var(--border-default);
+  box-shadow: inset 0 0 0 1px var(--border-default-color);
 }
 
 .btn {
@@ -10,7 +14,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: var(--spacing-2xs) var(--spacing-md);
+  /* group padding(2+2) 빼서 group 전체 높이는 --control-h-* 토큰 그대로 유지 */
+  height: calc(var(--control-h-md) - 4px);
+  padding: 0 var(--spacing-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -19,6 +25,20 @@
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.18s ease;
+}
+
+/* size sm — group 전체 28 (= 24 btn + 4 padding) */
+.btnSm {
+  height: calc(var(--control-h-sm) - 4px);
+  padding: 0 var(--spacing-sm);
+}
+
+/* size xs — group 전체 24 (= 20 btn + 4 padding). sidebar 인기글 등 슬림 컨텍스트 */
+.btnXs {
+  height: calc(var(--control-h-xs) - 4px);
+  padding: 0 var(--spacing-xs);
+  font-size: var(--font-size-2xs);
+  gap: 0;
 }
 
 .btn:hover {
@@ -38,15 +58,17 @@
   color: var(--text-tertiary);
 }
 
-/* Button variant="primary" 가 background/color 처리. 여기선 padding override만 — onBack click 으로 toggle */
+/* Button variant="primary" 가 background/color + height 처리. padding override 안 함 (수직 정렬 깨짐 방지). */
 .btnNestedLabel.btnNestedLabel {
-  padding: var(--spacing-2xs) var(--spacing-md);
+  /* Button 의 size-xs default padding (0 spacing-md) 그대로 사용 */
 }
 
-/* nested 모드 outer wrapper — 자체에 vertical padding 으로 border 와 자식 사이 상하 여백.
-   자식 사이 horizontal 간격은 label / inner group 의 margin 으로. */
+/* nested 모드 outer wrapper — main 과 동일 높이 유지 (vertical padding 0).
+   자식 사이 horizontal 간격은 label / inner group 의 margin 으로.
+   align-items: center 로 자식 (back btn, label, divider, sub group) 의 수직 정렬 보장. */
 .nestedGroup {
-  padding: var(--spacing-3xs) 0;
+  padding: 0;
+  align-items: center;
 }
 
 .nestedGroup > .group {
@@ -54,12 +76,12 @@
   border: none;
 }
 
-/* divider — chevron 대신 가는 vertical line. align-self stretch 로 outer group height 만큼 자동 */
+/* divider — ChevronRight 아이콘 (main → sub 의 진입 표시) */
 .nestedDivider {
-  align-self: stretch;
-  width: 1px;
-  margin: 0 var(--spacing-xs);
-  background: var(--border-light-color);
+  display: inline-flex;
+  align-items: center;
+  margin: 0 var(--spacing-2xs);
+  color: var(--text-tertiary);
 }
 
 /* inline 모드 — main group + chevron + sub group 같은 row */

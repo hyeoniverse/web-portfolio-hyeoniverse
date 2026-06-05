@@ -1,7 +1,8 @@
 /* ── Modal Content Templates ── */
 
 .body {
-  padding: 0 var(--spacing-2xl) var(--spacing-2xl);
+  /* Modal header 좌측 padding (--spacing-lg) 과 정렬 */
+  padding: 0 var(--spacing-lg) var(--spacing-2xl);
 }
 
 .desc {
@@ -43,20 +44,8 @@
   color: var(--text-accent);
 }
 
-.actions {
-  display: flex;
-  gap: var(--spacing-sm);
-  justify-content: flex-end;
-}
-
-/* 액션 버튼 — 다른 input/Select 와 동일한 28px 라인 (Button size="sm" 의 기본 padding 무효화) */
-.actions > button {
-  height: 28px;
-  min-height: 28px;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
+/* dangerBtn — confirm 모달의 위험 액션 (삭제 등) 스타일.
+   .actions 컨테이너는 Modal 공통 footer slot 으로 마이그레이션되어 제거됨. */
 .dangerBtn {
   --_bg: var(--color-accent) !important;
   --_border: var(--color-accent) !important;

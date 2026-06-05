@@ -1,13 +1,49 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Trash2, Eye, EyeOff } from "lucide-react";
+import { Fragment, useState, useEffect, useCallback, useMemo } from "react";
+import { Trash2, Eye, EyeOff, Info, ExternalLink, ClipboardPaste, AlertTriangle, Database, Mail, Shield, Image as ImageIcon, Sparkles, Languages, Bell, Check, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
+import { showToast } from "@/stores/toastStore";
 import T from "@/components/ui/T";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import { ModalPrompt, ModalConfirm } from "@/components/ui/ModalTemplates";
 import Tooltip from "@/components/ui/Tooltip";
+import SectionHeader from "./SectionHeader";
+import type { SiteConfigData } from "@/config/site.config";
 import styles from "../Settings.module.css";
+
+/* env var 메타 — description / 발급 docs URL / value prefix (typo 감지용).
+   prefix 가 정의된 키만 prefix mismatch 경고. 없는 키는 검증 skip. */
+const ENV_VAR_META: Record<string, { description: string; docsUrl?: string; prefix?: string }> = {
+  // 인프라
+  NEXT_PUBLIC_SUPABASE_URL: { description: "Supabase 프로젝트 URL", docsUrl: "https://supabase.com/dashboard/project/_/settings/api", prefix: "https://" },
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: { description: "Supabase anonymous public key (브라우저 노출 안전)", docsUrl: "https://supabase.com/dashboard/project/_/settings/api", prefix: "eyJ" },
+  SUPABASE_SERVICE_ROLE_KEY: { description: "Supabase service role (서버 전용, 절대 노출 금지)", docsUrl: "https://supabase.com/dashboard/project/_/settings/api", prefix: "eyJ" },
+  // 이메일
+  NEXT_PUBLIC_WEB3FORMS_KEY: { description: "Web3Forms access key (컨택트 폼)", docsUrl: "https://web3forms.com/" },
+  NEXT_PUBLIC_FORMSPREE_ID: { description: "Formspree form ID (컨택트 폼)", docsUrl: "https://formspree.io/forms" },
+  NEXT_PUBLIC_EMAILJS_SERVICE_ID: { description: "EmailJS Service ID", docsUrl: "https://dashboard.emailjs.com/admin", prefix: "service_" },
+  NEXT_PUBLIC_EMAILJS_TEMPLATE_ID: { description: "EmailJS Template ID", docsUrl: "https://dashboard.emailjs.com/admin/templates", prefix: "template_" },
+  NEXT_PUBLIC_EMAILJS_PUBLIC_KEY: { description: "EmailJS Public Key", docsUrl: "https://dashboard.emailjs.com/admin/account" },
+  // 보안
+  NEXT_PUBLIC_RECAPTCHA_SITE_KEY: { description: "Google reCAPTCHA site key (브라우저 노출 안전)", docsUrl: "https://www.google.com/recaptcha/admin" },
+  // AI / 번역
+  NANOBANANA_API_KEY: { description: "NanoBanana (Gemini Image Generation)", docsUrl: "https://aistudio.google.com/apikey", prefix: "AIza" },
+  HUGGINGFACE_API_KEY: { description: "Hugging Face Inference token (FLUX 등)", docsUrl: "https://huggingface.co/settings/tokens", prefix: "hf_" },
+  GEMINI_API_KEY: { description: "Google Gemini API key", docsUrl: "https://aistudio.google.com/apikey", prefix: "AIza" },
+  OPENAI_API_KEY: { description: "OpenAI API key", docsUrl: "https://platform.openai.com/api-keys", prefix: "sk-" },
+  ANTHROPIC_API_KEY: { description: "Anthropic Claude API key", docsUrl: "https://console.anthropic.com/settings/keys", prefix: "sk-ant-" },
+  GOOGLE_TRANSLATE_API_KEY: { description: "Google Cloud Translation API key", docsUrl: "https://console.cloud.google.com/apis/credentials", prefix: "AIza" },
+  DEEPL_API_KEY: { description: "DeepL API key (Free/Pro)", docsUrl: "https://www.deepl.com/account/summary" },
+  UNSPLASH_ACCESS_KEY: { description: "Unsplash 이미지 검색 access key", docsUrl: "https://unsplash.com/oauth/applications" },
+  PEXELS_API_KEY: { description: "Pexels 이미지/비디오 검색 API key", docsUrl: "https://www.pexels.com/api/new/" },
+  // 알림
+  RESEND_API_KEY: { description: "Resend transactional email (신규 댓글 알림 등)", docsUrl: "https://resend.com/api-keys", prefix: "re_" },
+  // cron 시스템
+  CRON_SECRET: { description: "예약 발행이나 휴지통 정리 같은 주기 작업을 외부에서 트리거할 때 쓰는 비밀번호입니다. 이 사이트는 평소엔 Supabase 안에서 자동으로 작업이 돌아가기 때문에 이 값이 비어 있어도 정상 동작합니다. cron-job.org 같은 외부 서비스를 통해 따로 호출할 일이 생길 때만 .env 파일이나 Vercel 환경변수에 임의의 긴 문자열을 넣어 두세요. 어드민 화면에서는 편집할 수 없고, 현재 서버에 값이 설정돼 있는지만 확인할 수 있습니다." },
+};
 
 interface EnvVarFieldsProps {
   provider: string;
@@ -19,6 +55,15 @@ interface EnvVarFieldsProps {
   commentEmailNotify: boolean;
   summaryProvider?: string;
   summaryFallbacks?: string[];
+  /** SectionHeader 를 EnvVarFields 안에서 직접 렌더하기 위한 props. 액션 버튼이 title 옆 spacer 자리로 가도록 customActions 로 꽂음. */
+  sectionHeader?: {
+    title: React.ReactNode;
+    config: SiteConfigData;
+    savedConfig: SiteConfigData;
+    saveSection: (paths: string[]) => Promise<void>;
+    savingPaths: string[] | null;
+    titleClassName?: string;
+  };
 }
 
 export default function EnvVarFields({
@@ -31,6 +76,7 @@ export default function EnvVarFields({
   commentEmailNotify: _commentEmailNotify,
   summaryProvider = "gemini",
   summaryFallbacks = [],
+  sectionHeader,
 }: EnvVarFieldsProps) {
   const { t } = useLanguage();
   const { openModal, closeModal } = useModalStore();
@@ -92,14 +138,19 @@ export default function EnvVarFields({
     { key: "SUPABASE_SERVICE_ROLE_KEY", label: "Supabase Service Role Key" },
   ];
 
-  const groups: { label: string; rows: FieldRow[] }[] = [
-    { label: "인프라", rows: infraRows },
-    { label: "이메일 서비스", rows: emailRows },
-    { label: "보안", rows: recaptchaEnabled ? [{ key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key" }] : [] },
-    { label: "커버 이미지", rows: [...toRows(coverProviders), { key: "UNSPLASH_ACCESS_KEY", label: "Unsplash Access Key" }] },
-    { label: "AI 요약", rows: toRows(sumProviders) },
-    { label: "번역", rows: toRows(transProviders) },
-    { label: "알림", rows: [{ key: "RESEND_API_KEY", label: "Resend API Key" }] },
+  const groups: { label: string; rows: FieldRow[]; icon: LucideIcon }[] = [
+    { label: "인프라", rows: infraRows, icon: Database },
+    { label: "이메일 서비스", rows: emailRows, icon: Mail },
+    { label: "보안", rows: recaptchaEnabled ? [{ key: "NEXT_PUBLIC_RECAPTCHA_SITE_KEY", label: "reCAPTCHA Site Key" }] : [], icon: Shield },
+    { label: "커버 이미지", rows: [
+      ...toRows(coverProviders),
+      { key: "UNSPLASH_ACCESS_KEY", label: "Unsplash Access Key" },
+      { key: "PEXELS_API_KEY", label: "Pexels API Key" },
+    ], icon: ImageIcon },
+    { label: "AI 요약", rows: toRows(sumProviders), icon: Sparkles },
+    { label: "번역", rows: toRows(transProviders), icon: Languages },
+    { label: "알림", rows: [{ key: "RESEND_API_KEY", label: "Resend API Key" }], icon: Bell },
+    { label: "시스템", rows: [{ key: "CRON_SECRET", label: "Cron Secret" }], icon: Shield },
   ];
 
   const visibleGroups = groups.filter((g) => g.rows.length > 0);
@@ -107,6 +158,89 @@ export default function EnvVarFields({
   const visible = visibleGroups.flatMap((g) => g.rows);
 
   const hasEdits = Object.keys(edits).length > 0;
+
+  /* 각 var 의 "현재 상태" — edits / db / env / none. 통계 + 그룹별 progress 계산 */
+  type RowStatus = "edit" | "db" | "env" | "none";
+  const rowStatusOf = useCallback((key: string): RowStatus => {
+    if (key in edits) return "edit";
+    const src = secrets[key]?.source ?? "none";
+    return src;
+  }, [edits, secrets]);
+
+  const stats = useMemo(() => {
+    const total = visible.length;
+    let env = 0, db = 0, missing = 0, edit = 0;
+    for (const { key } of visible) {
+      const s = rowStatusOf(key);
+      if (s === "edit") edit++;
+      else if (s === "env") env++;
+      else if (s === "db") db++;
+      else missing++;
+    }
+    const set = env + db + edit;
+    return { total, set, env, db, edit, missing };
+  }, [visible, rowStatusOf]);
+
+  /* .env paste 모달 — textarea 파싱 후 매칭되는 visible key 만 edits 로 흡수 */
+  const openPasteModal = () => {
+    const modalId = "env-paste";
+    let text = "";
+    const apply = () => {
+      const matched: Record<string, string> = {};
+      const visibleSet = new Set(visible.map((v) => v.key));
+      const seen = new Set<string>();
+      for (const line of text.split(/\r?\n/)) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+        const eq = trimmed.indexOf("=");
+        if (eq <= 0) continue;
+        const k = trimmed.slice(0, eq).trim();
+        let v = trimmed.slice(eq + 1).trim();
+        /* 양쪽 quote 제거 */
+        if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+          v = v.slice(1, -1);
+        }
+        if (visibleSet.has(k) && !seen.has(k)) {
+          matched[k] = v;
+          seen.add(k);
+        }
+      }
+      const count = Object.keys(matched).length;
+      if (count === 0) {
+        showToast(t("admin.settings.envPasteNoMatch"), "error");
+        return;
+      }
+      setEdits((prev) => ({ ...prev, ...matched }));
+      showToast(t("admin.settings.envPasteApplied").replace("{n}", String(count)), "success");
+      closeModal(modalId);
+    };
+    openModal(
+      <div className={styles.envPasteModal}>
+        <p className={styles.envPasteHint}>{t("admin.settings.envPasteHint")}</p>
+        <textarea
+          className={styles.envPasteTextarea}
+          placeholder={"KEY=value\nKEY2=\"value with spaces\"\n# comment lines are ignored"}
+          autoFocus
+          onChange={(e) => { text = e.target.value; }}
+          rows={10}
+        />
+        <div className={styles.envPasteActions}>
+          <Button variant="outline" size="sm" onClick={() => closeModal(modalId)}>
+            {t("admin.settings.cancel")}
+          </Button>
+          <Button variant="primary" size="sm" onClick={apply}>
+            {t("admin.settings.envPasteApply")}
+          </Button>
+        </div>
+      </div>,
+      {
+        id: modalId,
+        header: { title: t("admin.settings.envPasteTitle") },
+        width: "520px",
+        closeButton: true,
+      },
+    );
+  };
 
   const handleReveal = useCallback(
     (key: string) => {
@@ -134,18 +268,16 @@ export default function EnvVarFields({
               <ModalPrompt
                 placeholder={t("admin.settings.enterPassword")}
                 inputType="password"
-                cancelText={t("admin.settings.cancel")}
                 confirmText={t("admin.settings.confirm")}
                 error={t("admin.settings.wrongPassword")}
                 closeOnConfirm={false}
                 onConfirm={doReveal}
-                onCancel={() => closeModal(modalId)}
               />,
               {
                 id: modalId,
                 header: { title: t("admin.settings.enterPassword") },
                 width: "360px",
-                closeButton: false,
+                closeButton: true,
               }
             );
             return;
@@ -162,17 +294,15 @@ export default function EnvVarFields({
         <ModalPrompt
           placeholder={t("admin.settings.enterPassword")}
           inputType="password"
-          cancelText={t("admin.settings.cancel")}
           confirmText={t("admin.settings.confirm")}
           closeOnConfirm={false}
           onConfirm={doReveal}
-          onCancel={() => closeModal(modalId)}
         />,
         {
           id: modalId,
           header: { title: t("admin.settings.enterPassword") },
           width: "360px",
-          closeButton: false,
+          closeButton: true,
         }
       );
     },
@@ -205,17 +335,15 @@ export default function EnvVarFields({
       openModal(
         <ModalConfirm
           desc={t("admin.settings.envVarDeleteDesc")}
-          cancelText={t("admin.settings.cancel")}
           confirmText={t("admin.settings.envVarDelete")}
           danger
           onConfirm={doDelete}
-          onCancel={() => closeModal(modalId)}
         />,
         {
           id: modalId,
           header: { title: t("admin.settings.envVarDeleteConfirm") },
           width: "360px",
-          closeButton: false,
+          closeButton: true,
         }
       );
     },
@@ -245,6 +373,70 @@ export default function EnvVarFields({
     }
   };
 
+  /* 단일 row 저장 — 저장 후 edits 에서 해당 key 만 제거 */
+  const [savingKey, setSavingKey] = useState<string | null>(null);
+  const handleSaveOne = useCallback(async (key: string) => {
+    if (!(key in edits)) return;
+    setSavingKey(key);
+    try {
+      const res = await fetch("/api/admin/secrets", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ secrets: { [key]: edits[key] } }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setEdits((prev) => { const next = { ...prev }; delete next[key]; return next; });
+      const fresh = await fetch("/api/admin/secrets").then((r) => r.json());
+      setSecrets(fresh.secrets ?? {});
+      showToast(t("admin.settings.envVarSaved"), "success");
+    } catch {
+      showToast(t("admin.settings.saveError"), "error");
+    } finally {
+      setSavingKey(null);
+    }
+  }, [edits, t]);
+
+  /* 기본값 (전체 .env 로 복원) — 모든 DB override 삭제 → .env fallback 으로 회귀 */
+  const dbOverrideKeys = useMemo(
+    () => visible.filter(({ key }) => secrets[key]?.source === "db").map(({ key }) => key),
+    [visible, secrets],
+  );
+
+  const handleResetAllToEnv = useCallback(() => {
+    if (dbOverrideKeys.length === 0) return;
+    const modalId = "env-reset-all";
+    openModal(
+      <ModalConfirm
+        desc={t("admin.settings.envResetAllDesc").replace("{n}", String(dbOverrideKeys.length))}
+        confirmText={t("admin.settings.envResetAllConfirm")}
+        danger
+        onConfirm={async () => {
+          try {
+            await Promise.all(dbOverrideKeys.map((key) =>
+              fetch("/api/admin/secrets", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ key }),
+              }),
+            ));
+            const fresh = await fetch("/api/admin/secrets").then((r) => r.json());
+            setSecrets(fresh.secrets ?? {});
+            setRevealed({});
+            showToast(t("admin.settings.envResetAllDone"), "success");
+          } catch {
+            showToast(t("admin.settings.saveError"), "error");
+          }
+        }}
+      />,
+      {
+        id: modalId,
+        header: { title: t("admin.settings.envResetAllTitle") },
+        width: "420px",
+        closeButton: true,
+      },
+    );
+  }, [dbOverrideKeys, openModal, t]);
+
   if (visible.length === 0) return null;
 
   const renderField = (key: string, label: string) => {
@@ -254,87 +446,143 @@ export default function EnvVarFields({
     const source = info?.source ?? "none";
     const isRevealed = key in revealed;
     const displayValue = isEditing ? edits[key] : isRevealed ? revealed[key] : "";
-    const placeholder = !loaded ? "..." : source !== "none" ? info.value : t("admin.settings.envVarPlaceholder");
+    const meta = ENV_VAR_META[key];
+    const placeholder = !loaded
+      ? "..."
+      : source !== "none"
+        ? info.value
+        : meta?.prefix
+          ? `${meta.prefix}…`
+          : t("admin.settings.envVarPlaceholder");
+    /* prefix mismatch — 사용자가 편집 중이고 prefix 정의돼 있고 value 가 prefix 로 시작 안 할 때만 */
+    const prefixMismatch = isEditing && meta?.prefix && edits[key] && !edits[key].startsWith(meta.prefix);
 
+    /* row 상태 — missing 강조 (left border) 용 */
+    const rowMissing = loaded && source === "none" && !isEditing;
+    const sourceForBadge = isEditing ? "edit" : source;
     return (
-      <div key={key} className={`${styles.fieldRow} ${styles.envFieldRow}`}>
-        <label className={`${styles.fieldLabel}${loaded && source === "none" && !isEditing ? ` ${styles.envLabelMissing}` : ""}`}>
-          {label}
-          {source === "env" && !isEditing && (
-            <span className={styles.envSourceBadge}>.env</span>
+      <div
+        key={key}
+        id={`env-${key}`}
+        className={`${styles.fieldRow} ${styles.envFieldRow} ${rowMissing ? styles.envFieldRowMissing : ""}`}
+      >
+        <label className={`${styles.fieldLabel}${rowMissing ? ` ${styles.envLabelMissing}` : ""}`}>
+          <span className={styles.envFieldLabelText}>{label}</span>
+          {meta && (
+            <Tooltip
+              content={
+                <span>
+                  {meta.description}
+                  {meta.docsUrl && (
+                    <>
+                      {" · "}
+                      <a href={meta.docsUrl} target="_blank" rel="noopener noreferrer" className={styles.envMetaLink}>
+                        {t("admin.settings.envVarDocs")} <ExternalLink size={10} />
+                      </a>
+                    </>
+                  )}
+                </span>
+              }
+              placement="top"
+            >
+              <span className={styles.envMetaIcon} role="button" tabIndex={0}>
+                <Info size={12} />
+              </span>
+            </Tooltip>
           )}
-          {source === "db" && !isEditing && (
-            <span className={styles.envSourceBadge}>DB</span>
+          {/* 소스 배지 (.env / DB / 편집중) + Read-only 배지 — 같은 위치에 인접 배치, 동일 스타일 */}
+          {sourceForBadge !== "none" && (
+            <span className={styles.envSourceBadge} data-source={sourceForBadge}>
+              {sourceForBadge === "env" && ".env"}
+              {sourceForBadge === "db" && "DB"}
+              {sourceForBadge === "edit" && t("admin.settings.envSourceEdit")}
+            </span>
           )}
           {isReadOnly && (
             <span className={styles.envSourceBadge}>Read-only</span>
           )}
+          {prefixMismatch && (
+            <Tooltip
+              content={t("admin.settings.envVarPrefixMismatch").replace("{prefix}", meta!.prefix!)}
+              placement="top"
+            >
+              <span className={styles.envMetaWarn} role="button" tabIndex={0}>
+                <AlertTriangle size={12} />
+              </span>
+            </Tooltip>
+          )}
         </label>
         <div className={styles.envFieldRight}>
         <div className={styles.envInputRow}>
-          <input
-            className={styles.fieldInput}
-            type="text"
+          <Input
             value={isReadOnly ? "" : displayValue}
             placeholder={placeholder}
-            onChange={isReadOnly ? undefined : (e) => setEdits((prev) => ({ ...prev, [key]: e.target.value }))}
+            onChange={(v) => {
+              if (isReadOnly) return;
+              setEdits((prev) => {
+                const next = { ...prev };
+                // 빈 값 = 편집 취소 (저장된 값으로 되돌리기) — Input clearable 의 Eraser 도 이 경로
+                if (v === "") delete next[key];
+                else next[key] = v;
+                return next;
+              });
+            }}
             readOnly={isReadOnly}
             disabled={isReadOnly}
-            onBlur={isReadOnly ? undefined : () => {
-              if (isEditing && edits[key] === "") {
-                setEdits((prev) => {
-                  const next = { ...prev };
-                  delete next[key];
-                  return next;
-                });
-              }
-            }}
           />
-          {!isReadOnly && (source === "db" || source === "env") && !isEditing && (
-            <Tooltip
-              content={source === "env" ? t("admin.settings.envVarEnvHint") : undefined}
-              disabled={source !== "env"}
-              placement="top"
-            >
+          {/* 개별 row 저장 — 편집 중일 때만 노출 */}
+          {isEditing && (
+            <Tooltip content={t("admin.settings.envSaveOne")} placement="top">
               <button
                 type="button"
-                className={`${styles.envDeleteBtn}${source === "env" ? ` ${styles.envDeleteBtnDisabled}` : ""}`}
-                onClick={source === "env" ? undefined : () => handleDelete(key)}
-                disabled={source === "env"}
-                title={source === "env" ? undefined : t("admin.settings.envVarDelete")}
-                aria-disabled={source === "env"}
+                className={styles.envRowSaveBtn}
+                onClick={() => handleSaveOne(key)}
+                disabled={savingKey === key}
+                aria-label={t("admin.settings.envSaveOne")}
               >
-                <Trash2 size={14} />
+                <Check size={14} strokeWidth={2.5} />
               </button>
             </Tooltip>
           )}
-          {source !== "none" && !isEditing && (
-            <button
-              type="button"
-              className={styles.envRevealBtn}
-              onClick={() => handleReveal(key)}
-              title={isRevealed ? "Hide" : "Reveal"}
-            >
-              {isRevealed ? (
-                <EyeOff size={16} />
-              ) : (
-                <Eye size={16} />
-              )}
-            </button>
-          )}
-          {isEditing && edits[key] !== "" && (
-            <button
-              type="button"
-              className={styles.envCancelBtn}
-              onClick={() => setEdits((prev) => {
-                const next = { ...prev };
-                delete next[key];
-                return next;
-              })}
-            >
-              &times;
-            </button>
-          )}
+          {/* 삭제 버튼 — UI 일관성 위해 항상 렌더. 비활성 조건: editing / readOnly / env source / none */}
+          {(() => {
+            const deleteDisabled = isEditing || isReadOnly || source === "env" || source === "none";
+            const tooltipContent = isReadOnly
+              ? t("admin.settings.envVarReadOnlyHint")
+              : source === "env"
+                ? t("admin.settings.envVarEnvHint")
+                : source === "none"
+                  ? undefined
+                  : undefined;
+            return (
+              <Tooltip content={tooltipContent} disabled={!tooltipContent} placement="top">
+                <button
+                  type="button"
+                  className={`${styles.envDeleteBtn}${deleteDisabled ? ` ${styles.envDeleteBtnDisabled}` : ""}`}
+                  onClick={deleteDisabled ? undefined : () => handleDelete(key)}
+                  disabled={deleteDisabled}
+                  title={deleteDisabled ? undefined : t("admin.settings.envVarDelete")}
+                  aria-disabled={deleteDisabled}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </Tooltip>
+            );
+          })()}
+          {/* reveal (눈) 버튼 — UI 일관성 위해 항상 렌더. source none 또는 editing 시 비활성 */}
+          <button
+            type="button"
+            className={styles.envRevealBtn}
+            onClick={() => handleReveal(key)}
+            disabled={source === "none" || isEditing}
+            title={isRevealed ? "Hide" : "Reveal"}
+          >
+            {isRevealed ? (
+              <EyeOff size={16} />
+            ) : (
+              <Eye size={16} />
+            )}
+          </button>
         </div>
         {source === "env" && !isEditing && (
           <span className={styles.envHintMobile}>{t("admin.settings.envVarEnvHint")}</span>
@@ -344,29 +592,98 @@ export default function EnvVarFields({
     );
   };
 
+  /* SectionHeader 의 customActions 자리로 들어갈 액션 버튼 그룹 — 기본값(env override 해제) + 섹션 저장 */
+  const envActions = (
+    <>
+      <Button
+        variant="outline"
+        size="2xs"
+        disabled={dbOverrideKeys.length === 0}
+        onClick={handleResetAllToEnv}
+        title={t("admin.settings.envResetAllTooltip")}
+      >
+        {t("admin.settings.envResetAll")}
+      </Button>
+      <Button
+        variant="outline"
+        size="2xs"
+        disabled={!hasEdits}
+        loading={saving}
+        loadingVariant="wave"
+        onClick={handleSaveSecrets}
+      >
+        {t("admin.settings.saveSection")}
+      </Button>
+    </>
+  );
+
   return (
     <div className={styles.fields}>
-      {visibleGroups.map((group) => (
-        <div key={group.label} className={styles.envGroup}>
-          <p className={styles.envGroupLabel}>{group.label}</p>
-          {group.rows.map(({ key, label }) => renderField(key, label))}
-        </div>
-      ))}
-      {(hasEdits || msg) && (
-        <div className={styles.envActions}>
-          {msg && <span className={styles.envMsg}>{msg}</span>}
-          {hasEdits && (
-            <button
-              type="button"
-              className={styles.envSaveBtn}
-              onClick={handleSaveSecrets}
-              disabled={saving}
-            >
-              {saving ? <T k="admin.settings.saving" /> : <T k="admin.settings.envVarSave" />}
-            </button>
+      {sectionHeader && (
+        <SectionHeader
+          title={sectionHeader.title}
+          paths={[]}
+          config={sectionHeader.config}
+          savedConfig={sectionHeader.savedConfig}
+          saveSection={sectionHeader.saveSection}
+          savingPaths={sectionHeader.savingPaths}
+          titleClassName={sectionHeader.titleClassName}
+          customActions={envActions}
+        />
+      )}
+
+      {/* ── 상단 status overview ── */}
+      <div className={styles.envStatusBar}>
+        <div className={styles.envStatusSummary}>
+          <span className={styles.envStatusCount}>
+            <strong>{stats.set}</strong>/{stats.total} <T k="admin.settings.envStatSet" />
+          </span>
+          {stats.env > 0 && (
+            <span className={styles.envStatusChip}><span className={styles.envSourceDot} data-source="env" />{stats.env} .env</span>
+          )}
+          {stats.db > 0 && (
+            <span className={styles.envStatusChip}><span className={styles.envSourceDot} data-source="db" />{stats.db} DB</span>
+          )}
+          {stats.edit > 0 && (
+            <span className={styles.envStatusChip}><span className={styles.envSourceDot} data-source="edit" />{stats.edit} 편집중</span>
+          )}
+          {stats.missing > 0 && (
+            <span className={styles.envStatusChip} data-warn>
+              <span className={styles.envSourceDot} data-source="none" />
+              {stats.missing} <T k="admin.settings.envStatMissing" />
+            </span>
           )}
         </div>
-      )}
+        <Button variant="outline" size="sm" icon={<ClipboardPaste size={12} />} onClick={openPasteModal}>
+          <T k="admin.settings.envPasteBtn" />
+        </Button>
+      </div>
+      {/* progress 바 — set ratio 시각화 */}
+      <div className={styles.envProgressBar}>
+        <div className={styles.envProgressFill} style={{ width: `${stats.total ? (stats.set / stats.total) * 100 : 0}%` }} />
+      </div>
+
+      {visibleGroups.map((group, i) => {
+        const grpSet = group.rows.filter((r) => rowStatusOf(r.key) !== "none").length;
+        const grpTotal = group.rows.length;
+        const GroupIcon = group.icon;
+        return (
+          <Fragment key={group.label}>
+            {i > 0 && <hr className={styles.envGroupDivider} />}
+            <div className={styles.envGroup}>
+              <h3 className={styles.envGroupLabel}>
+                <GroupIcon size={14} strokeWidth={2} />
+                <span>{group.label}</span>
+                <span className={styles.envGroupCount} data-ok={grpSet === grpTotal || undefined}>
+                  {grpSet}/{grpTotal}
+                </span>
+              </h3>
+              {group.rows.map(({ key, label }) => renderField(key, label))}
+            </div>
+          </Fragment>
+        );
+      })}
+      {msg && <div className={styles.envActions}><span className={styles.envMsg}>{msg}</span></div>}
     </div>
   );
 }

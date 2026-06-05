@@ -85,7 +85,11 @@ const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--font-jetbrains",
-  display: "optional",
+  /* swap — web font 가 로드되면 항상 적용 (optional 이면 늦게 로드 시 fallback 영구 표시 → 폰트 크기 일관성 깨짐).
+     fallback 으로 size-adjusted 시스템 mono 지정해 swap 직전·직후 메트릭 차이 최소화 */
+  display: "swap",
+  fallback: ["SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"],
+  adjustFontFallback: true,
   preload: false,
 });
 const spaceGrotesk = Space_Grotesk({

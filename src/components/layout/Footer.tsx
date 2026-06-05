@@ -218,6 +218,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                 </>
               ) : (
                 <>
+                  <Link href="/" ref={setLinkRef("/")} onMouseEnter={() => setHoveredLink("/")} className={pathname === "/" ? styles.activeLink : ""}>Home</Link>
                   <Link href="/works" ref={setLinkRef("/works")} onMouseEnter={() => setHoveredLink("/works")} className={pathname.startsWith("/works") ? styles.activeLink : ""}>Works</Link>
                   <Link href="/posts" ref={setLinkRef("/posts")} onMouseEnter={() => setHoveredLink("/posts")} className={pathname.startsWith("/posts") ? styles.activeLink : ""}>Posts</Link>
                   <Link href="/profile" ref={setLinkRef("/profile")} onMouseEnter={() => setHoveredLink("/profile")} className={pathname.startsWith("/profile") ? styles.activeLink : ""}>Profile</Link>

@@ -4,6 +4,8 @@ import { useState, useMemo, useCallback, useRef, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Language } from "@/providers/LanguageProvider";
 import { projectStructure } from "@/data/about/architecture";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import type { StructureItem } from "@/data/about/types";
 import {
   buildGraph,
   computeTree,
@@ -33,7 +35,17 @@ const VIEW_MODES: { key: ViewMode; label: string }[] = [
 ];
 
 function ArchitecturePanel({ language }: ArchitecturePanelProps) {
-  const structure = projectStructure;
+  /* admin 에서 architectureItems 수정 가능 — 비어있으면 정적 fallback 사용 */
+  const cfg = useSiteConfig();
+  const cfgItems = (cfg.about as { architectureItems?: Array<{ path: string; description_ko: string; description_en: string; indent: number }> })?.architectureItems;
+  const structure: StructureItem[] = useMemo(() => {
+    if (!cfgItems || cfgItems.length === 0) return projectStructure;
+    return cfgItems.map((it) => ({
+      path: it.path,
+      description: { ko: it.description_ko, en: it.description_en },
+      indent: it.indent,
+    }));
+  }, [cfgItems]);
   const [viewMode, setViewMode] = useState<ViewMode>("diagram");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);

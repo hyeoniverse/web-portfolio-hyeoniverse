@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { isVideoUrl } from "@/lib/isVideoUrl";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -370,13 +371,24 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
                     <div key={w.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/works/${w.slug || w.id}`, w.image || "", rect); }} style={{ cursor: "pointer" }} className={styles.relatedCard}>
                       <div className={styles.relatedCardImage}>
                         {w.image ? (
-                          <Image
-                            src={w.image}
-                            alt={w.title}
-                            fill
-                            sizes="(max-width: 768px) 50vw, 220px"
-                            className={styles.relatedCardImg}
-                          />
+                          isVideoUrl(w.image) ? (
+                            <video
+                              src={w.image}
+                              className={styles.relatedCardImg}
+                              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                              muted
+                              playsInline
+                              preload="metadata"
+                            />
+                          ) : (
+                            <Image
+                              src={w.image}
+                              alt={w.title}
+                              fill
+                              sizes="(max-width: 768px) 50vw, 220px"
+                              className={styles.relatedCardImg}
+                            />
+                          )
                         ) : (
                           <ImageIcon className={styles.relatedCardPlaceholder} size={32} strokeWidth={1.5} />
                         )}
@@ -410,13 +422,24 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
                   <div key={sp.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${sp.slug}`, sp.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.relatedCard}>
                     <div className={styles.relatedCardImage}>
                       {sp.cover_image ? (
-                        <Image
-                          src={sp.cover_image}
-                          alt={viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
-                          fill
-                          sizes="(max-width: 768px) 50vw, 220px"
-                          className={styles.relatedCardImg}
-                        />
+                        isVideoUrl(sp.cover_image) ? (
+                          <video
+                            src={sp.cover_image}
+                            className={styles.relatedCardImg}
+                            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                            muted
+                            playsInline
+                            preload="metadata"
+                          />
+                        ) : (
+                          <Image
+                            src={sp.cover_image}
+                            alt={viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
+                            fill
+                            sizes="(max-width: 768px) 50vw, 220px"
+                            className={styles.relatedCardImg}
+                          />
+                        )
                       ) : (
                         <ImageIcon className={styles.relatedCardPlaceholder} size={32} strokeWidth={1.5} />
                       )}
@@ -597,13 +620,23 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       >
         <div className={styles.seriesPreviewImg}>
           {seriesPreview.post.cover_image ? (
-            <Image
-              src={seriesPreview.post.cover_image}
-              alt={seriesPreview.post.title}
-              width={240}
-              height={135}
-              style={{ objectFit: "cover", width: "100%", height: "100%" }}
-            />
+            isVideoUrl(seriesPreview.post.cover_image) ? (
+              <video
+                src={seriesPreview.post.cover_image}
+                style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                muted
+                playsInline
+                preload="metadata"
+              />
+            ) : (
+              <Image
+                src={seriesPreview.post.cover_image}
+                alt={seriesPreview.post.title}
+                width={240}
+                height={135}
+                style={{ objectFit: "cover", width: "100%", height: "100%" }}
+              />
+            )
           ) : (
             <div className={styles.seriesPreviewPlaceholder}>
               <ImageIcon size={32} strokeWidth={1} />

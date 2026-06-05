@@ -1,11 +1,12 @@
 import { createHash, randomBytes } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { emailLayout, escapeHtml } from "@/lib/mail/template";
+import { deviceKey } from "@/lib/auth/uaParser";
 
-/** UA 기반 device fingerprint — IP는 변동이 크므로 제외.
- *  UA 도 완벽하진 않지만 사이드 채널 정보 없이 server 에서 얻을 수 있는 가장 안정적 단서. */
+/** UA 기반 device fingerprint — parsed browser+OS+device 만 해시 (버전 변동 무시).
+ *  Chrome auto-update 등으로 UA minor 가 바뀌어도 같은 fingerprint 가 나와 중복 row 가 안 생김. */
 export function fingerprintFromUA(userAgent: string): string {
-  return createHash("sha256").update(userAgent || "unknown").digest("hex").slice(0, 32);
+  return createHash("sha256").update(deviceKey(userAgent)).digest("hex").slice(0, 32);
 }
 
 const APPROVE_TOKEN_TTL_HOURS = 24;
@@ -43,6 +44,30 @@ export async function checkOrRegisterDevice(args: {
       .update({ last_seen_at: now.toISOString(), ip_address: args.ip })
       .eq("id", existing.id);
     return { kind: "trusted" };
+  }
+
+  // Migration fallback — fingerprint 가 바뀌었을 때 (이전 raw-UA hash → parsed hash) 같은
+  // browser+OS+device 의 legacy row 가 있으면 그걸 adopt (fingerprint 갱신 + trusted 처리).
+  // 새 row 만들지 않아 중복/스푸리어스 알림 방지.
+  if (!existing) {
+    const key = deviceKey(args.userAgent);
+    const { data: candidates } = await supabase
+      .from("admin_known_devices")
+      .select("id, user_agent, approved")
+      .eq("user_id", args.userId);
+    const legacy = (candidates ?? []).find((c) => c.approved && deviceKey(c.user_agent ?? "") === key);
+    if (legacy) {
+      await supabase
+        .from("admin_known_devices")
+        .update({
+          fingerprint,
+          user_agent: args.userAgent,
+          ip_address: args.ip,
+          last_seen_at: now.toISOString(),
+        })
+        .eq("id", legacy.id);
+      return { kind: "trusted" };
+    }
   }
 
   // 새 기기 (또는 미승인 재시도) — 보안 알림

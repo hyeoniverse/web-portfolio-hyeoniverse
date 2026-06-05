@@ -279,7 +279,7 @@
 .conflictDiffPre {
   margin: 0;
   padding: var(--spacing-md);
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   line-height: 1.7;
   color: var(--text-primary);
@@ -375,7 +375,7 @@
 /* ── Layout: Side Nav + Panel ── */
 .layout {
   display: flex;
-  gap: var(--spacing-2xl);
+  gap: var(--spacing-lg);
 }
 
 .sideNav {
@@ -400,7 +400,7 @@
   justify-content: space-between;
   gap: var(--spacing-xs);
   /* min-height 로 모든 nav row 동일 — padding 상하 0 이라 텍스트는 자동 정중앙 */
-  min-height: var(--button-h-md);
+  min-height: var(--control-h-md);
   padding: 0 var(--spacing-xs);
   border: none;
   border-bottom: var(--border-light);
@@ -443,7 +443,7 @@
   align-items: center;
   justify-content: space-between;
   /* navItem 과 동일 min-height — 폰트 크기는 작지만 row 높이 일관 */
-  min-height: var(--button-h-md);
+  min-height: var(--control-h-md);
   padding: 0 0 0 var(--spacing-md);
   border: none;
   border-bottom: var(--border-light);
@@ -476,10 +476,12 @@
   display: none;
 }
 
-/* ── Tab grid — 1열 고정 + max-width 제한 ── */
+/* ── Tab grid — auto-fit: 컬럼 폭이 minmax min 이하로 좁아지면 자동으로 1열 wrap.
+   max-width 1040px 안에서 2 col 폭이 ~440px 미만이면 1열. */
 .tabGrid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 0 var(--spacing-2xl);
   max-width: 1040px;
   margin: 0 auto;
 }
@@ -499,6 +501,42 @@
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
+}
+
+/* Popover trigger wrapper (span) — flex 안에서 줄어들지 않게 + 32px 라인에 input 첫 줄과 정렬. */
+.textStyleTrigger {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 0;
+}
+
+/* Hero text 줄별 ⚙ 스타일 버튼 — input pair 옆 작은 아이콘 버튼. */
+.textStyleBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-md);
+  height: var(--control-h-md);
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-base) ease, border-color var(--duration-base) ease;
+}
+
+.textStyleBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+/* Popover 안 스타일 컨트롤 padding + 너비 */
+.textStylePopover {
+  padding: var(--spacing-md);
+  min-width: 320px;
+  max-width: 360px;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -528,9 +566,9 @@
 
 .sectionTitleRow {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--spacing-md);
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs) var(--spacing-md);
   margin-bottom: var(--spacing-md);
 }
 
@@ -549,6 +587,7 @@
 .fields {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--spacing-sm);
 }
 
@@ -561,14 +600,23 @@
   padding: var(--spacing-xs) 0;
 }
 
-/* ── Field Pair (EN/KO group — 2열 나란히) ── */
+/* profile expandable panel 안 fieldGroup 들 사이 간격 */
+.profileExpandableInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* ── Field Pair (EN/KO group — 2열 나란히).
+   minmax(0, 1fr) — 자식 (긴 input value) 따라 column grow 방지. */
 .fieldPair {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--spacing-xs) var(--spacing-md);
 }
 
-.fieldPair > .fieldHint {
+.fieldPair > .fieldHint,
+.fieldPair > .fallbackSection {
   grid-column: 1 / -1;
 }
 
@@ -604,7 +652,7 @@
   padding: 0 6px;
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
@@ -696,7 +744,7 @@
   display: flex;
   gap: var(--spacing-sm);
   margin-top: 2px;
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
 }
@@ -727,6 +775,60 @@
   flex-direction: column;
   align-items: stretch;
   gap: var(--spacing-2xs);
+  /* flex/grid 부모 안에서 content (긴 input value) 따라 grow 방지 */
+  min-width: 0;
+}
+
+/* single-line Field counter — Input 박스 안 우측. clear 버튼이 right edge 점유 (20px),
+   counter 는 그 좌측에 작은 글자로 부드럽게 표시 (clearable 유지).
+   클래스 이름이 fieldInputWrap (TagField 등 다른 컴포넌트에서 flex container 로 이미 사용됨) 과 충돌하지 않도록 fieldCounterWrap 으로 분리. */
+.fieldCounterWrap {
+  position: relative;
+  /* 부모 (.fieldNarrow > div > :last-child 등) 에서 받은 폭을 Input 에 전달 — Input.wrapper 가 100% 차지하도록 block 레이아웃 */
+  width: 100%;
+}
+
+/* counter + (선택) clearBtn 모두 우측 차지 — EditableInput 은 자체 padding-right 80px 이라 override 불필요.
+   native Input fallback 만 위해 input 셀렉터로 유지. */
+.fieldInputWithCounter input {
+  padding-right: 80px;
+}
+
+.fieldCounter {
+  position: absolute;
+  right: var(--spacing-sm);
+  top: 50%;
+  translate: 0 -50%;
+  font-family: var(--font-space-grotesk);
+  /* counter 는 작게 — input text 보다 한 단계 down */
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  user-select: none;
+  pointer-events: none;
+}
+
+.fieldCounterWrapHasClear .fieldCounter {
+  /* clearBtn (20px) + 2px gap — counter 와 clear 간격 타이트하게 */
+  right: calc(var(--spacing-sm) + 18px);
+}
+
+/* count 숫자만 상태별 색상 — "/ max" 는 항상 tertiary. */
+.fieldCounterWarn {
+  color: var(--text-warning);
+}
+
+.fieldCounterOver {
+  color: var(--text-accent);
+  font-weight: 500;
+}
+
+/* overflow 시 시각 indicator 는 EditableInput 의 inline <mark> highlight + counter accent 색 — 별도 border rule 불필요. */
+
+.fieldRow .fieldCounter {
+  /* (0,2,0) — global theme transition 오버라이드 */
+  transition: color var(--duration-base) ease;
 }
 
 .fieldRowInline {
@@ -764,7 +866,9 @@
 .fieldSelect {
   flex: 1;
   min-width: 0;
-  padding: var(--input-p);
+  height: var(--control-h-md);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -772,6 +876,7 @@
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
+  line-height: 1;
 }
 
 /* Field input + Eraser clearBtn wrapper — input flex 차지, clearBtn 우측 absolute */
@@ -883,24 +988,8 @@
   border-radius: var(--radius-circle);
 }
 
-.colorText {
-  flex: 1;
-  min-width: 0;
-  padding: var(--input-p);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  outline: none;
-}
-
-.colorText:focus {
-  border-color: var(--text-primary);
-}
-
-/* 로고 색상 Input (공통 컴포넌트 사용) — flex 1 로 ColorPicker 옆에서 stretch */
+/* ColorField / 로고 색상 hex Input — flex 1 로 ColorPicker 옆에서 stretch.
+   공통 Input 컴포넌트 사용 (height 등 control 시스템 따라감) */
 .colorInput {
   flex: 1;
   min-width: 0;
@@ -936,6 +1025,62 @@
 .section .presetCardActive .presetName {
   color: var(--text-accent);
   font-weight: 600;
+}
+
+/* 사용자 추가 preset wrap — card + X 제거 버튼 absolute 우측 위 */
+.presetCardWrap {
+  position: relative;
+}
+
+.presetCardWrap > .presetCard {
+  width: 100%;
+}
+
+.presetCardRemove {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 4px oklch(0.00% 0.0000 0.00 / 0.15);
+  opacity: 0;
+  transition: opacity var(--duration-base) ease;
+}
+
+.presetCardWrap:hover .presetCardRemove {
+  opacity: 1;
+}
+
+.presetCardRemove:hover {
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+}
+
+/* 현재 색상이 어떤 preset 과도 다를 때만 노출되는 + 버튼 */
+.presetCardAddBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  border: 1px dashed var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.presetCardAddBtn:hover {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
 }
 
 .presetSwatches {
@@ -1048,16 +1193,19 @@
   border-color: var(--text-primary);
 }
 
-/* + 버튼 클릭 시 펼쳐지는 이름 input 인라인 row */
+/* + 버튼 클릭 시 펼쳐지는 이름 input 인라인 row.
+   AnimatePresence motion wrapper 가 height/opacity 애니메이션 — 이 inner 는 위 구분선 + padding 만 담당 */
 .logoColorPresetAddRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  margin-top: var(--spacing-xs);
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: var(--border-light);
 }
 
 .logoColorPresetNameInput {
-  flex: 0 0 160px;
+  flex: 0 0 200px;
 }
 
 /* Favicon — 좌측 미리보기 (light/dark 가로) + 우측 모양/폰트 RadioGroup 2개 */
@@ -1084,18 +1232,9 @@
   gap: var(--spacing-3xs);
 }
 
+/* SVG inline 렌더 — /api/favicon 출력과 동일 구조라 픽셀 일치. width/height 는 attr 로 set. */
 .faviconPreview {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  /* 글자 baseline 보정 — favicon 의 SVG dominant-baseline=central 과 일관 */
-  line-height: 1;
-  padding-bottom: 2px;
+  display: block;
 }
 
 .faviconPreviewLabel {
@@ -1106,12 +1245,21 @@
   letter-spacing: 0.05em;
 }
 
+/* n열 auto-fit grid — 폭에 따라 1~n 컬럼 자동 reflow. 각 row 의 min 280px */
 .faviconControls {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--spacing-sm);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: start;
+  gap: var(--spacing-sm) var(--spacing-xl);
+}
+
+/* faviconBg light/dark — 항상 한 줄 (외부 grid 와 무관). grid 셀 하나가 sub-grid 2열 */
+.faviconBgRow {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm) var(--spacing-xl);
 }
 
 @media (max-width: 640px) {
@@ -1162,20 +1310,36 @@
   flex-wrap: wrap;
 }
 
+/* 고정 너비 280px — 텍스트 줄바꿈 안 되고 길면 ellipsis */
 .resumeFile {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--box-sm);
+  height: var(--control-h-md);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--text-tertiary);
   text-decoration: none;
-  max-width: 220px;
-  flex-shrink: 0;
+  width: 280px;
+  max-width: 100%;
+  line-height: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 1;
+}
+
+/* 파일명 span — ellipsis 위해 min-width: 0 + nowrap 필수 (inline-flex 자식은 기본 min-content) */
+.resumeFile > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .resumeFile > svg {
@@ -1194,6 +1358,89 @@
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-md);
   margin-top: 0;
+  line-height: 1.4;
+}
+
+/* SectionHeader row 에 inline 으로 들어갈 때 — margin 모두 제거, line-height 1.
+   title 과의 간격은 SectionHeader 의 row gap 이 담당. 모바일에선 flex-basis 100% 로 줄바꿈. */
+.sectionHintInline {
+  margin: 0;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .sectionHintInline {
+    flex-basis: 100%;
+    order: 99;
+  }
+}
+
+/* ── 태그 삭제 대기 표시 ── */
+.tagPendingDeleteBar {
+  margin: 0 0 var(--spacing-sm);
+  padding: var(--spacing-2xs) 0;
+}
+
+.tagPendingDeleteToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-accent);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.tagPendingDeleteToggle:hover {
+  border-color: var(--text-accent);
+}
+
+.tagPendingDeleteList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-2xs);
+  padding: var(--spacing-2xs) 0;
+}
+
+.tagPendingDeleteChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-3xs) var(--spacing-2xs) var(--spacing-3xs) var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-decoration: line-through;
+  text-decoration-color: var(--text-muted);
+}
+
+.tagPendingDeleteUndo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.tagPendingDeleteUndo:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
 }
 
 .sectionTitle + .sectionHint,
@@ -1266,6 +1513,52 @@
   color: var(--text-tertiary);
 }
 
+/* 언어 배지 — Field label 옆 KO/EN 표시 */
+.fieldLangBadge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--spacing-2xs);
+  padding: 0 var(--spacing-2xs);
+  height: 16px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+/* textarea 의 lang 배지 — textarea 좌측 외부에 배치 (textarea 첫 줄과 안 겹침) */
+.fieldTextareaWithBadge {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: flex-start;
+}
+
+.fieldTextareaWithBadge > :last-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.fieldLangBadgeOutside {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--spacing-2xs);
+  height: 20px;
+  margin-top: var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
 /* 라벨 텍스트와 dot 을 가로 한 줄로 묶는 컨테이너 (.fieldLabel 이 column 이라 필요) */
 .fieldLabelText {
   display: flex;
@@ -1302,6 +1595,10 @@
   gap: var(--spacing-2xs);
 }
 
+.priorityList :is(input, .priorityItem) {
+  width: 100%;
+}
+
 .priorityRow {
   display: flex;
   align-items: center;
@@ -1309,8 +1606,11 @@
 }
 
 .priorityItem {
-  flex: 1;
+  width: 280px;
+  max-width: 100%;
   min-width: 0;
+  height: var(--control-h-md);
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   border: var(--border-light);
@@ -1320,16 +1620,13 @@
   user-select: none;
 }
 
-.priorityItem:active {
-}
-
 .priorityItemOver {
   border-color: var(--text-accent);
   background: var(--bg-accent-subtle);
 }
 
 .priorityBadge {
-  width: var(--button-h-sm);
+  width: var(--control-h-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1361,20 +1658,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  align-self: stretch;
+  height: var(--control-h-md);
+  padding: 0;
   color: var(--text-quaternary);
   flex-shrink: 0;
+  cursor: grab;
   touch-action: none;
+}
+
+.priorityGrip:active {
+  cursor: grabbing;
 }
 
 .priorityBtns {
   display: flex;
   flex-shrink: 0;
-  height: 30px;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
+  align-self: stretch;
+  border-left: var(--border-light);
 }
 
 .priorityBtn {
@@ -1409,7 +1709,6 @@
 .serviceItems {
   display: flex;
   flex-direction: column;
-  margin-top: var(--spacing-md);
 }
 
 .serviceItem {
@@ -1418,6 +1717,14 @@
   align-items: flex-start;
   padding: var(--spacing-sm) 0;
   transition: background-color 0.2s ease;
+}
+
+.serviceItem:first-child {
+  padding-top: 0;
+}
+
+.serviceItem:last-child {
+  padding-bottom: 0;
 }
 
 .serviceItem + .serviceItem {
@@ -1625,7 +1932,7 @@
 
 .profileGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--spacing-sm);
 }
 
@@ -1747,6 +2054,7 @@
 }
 
 .confirmDialog {
+  position: relative;
   width: 100%;
   max-width: 380px;
   background: var(--bg-primary);
@@ -1757,6 +2065,13 @@
   flex-direction: column;
   gap: var(--spacing-md);
   box-shadow: var(--shadow-xl);
+}
+
+/* position 만 — size/style 은 CloseButton md 가 책임 */
+.confirmClose {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
 }
 
 .confirmTitle {
@@ -1850,7 +2165,7 @@
 
 .seriesCardHead {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacing-md);
   padding: var(--box-sm-md);
   border: var(--border-light);
@@ -1873,9 +2188,9 @@
   border-radius: var(--radius-2xl);
   position: relative;
   /* grip 핸들 + 카드 본체(head + collapse) 가로 배치.
-     본체(.seriesCardHead 와 .seriesCardCollapse) 는 자동으로 다음 row 로 wrap 되어 head 우측 / collapse 아래 형태가 됨 */
+     2열은 minmax(0, 1fr) — 1fr 의 기본 min-width:auto 는 content 따라 grow → 긴 타이틀이 truncate 안됨. */
   display: grid;
-  grid-template-columns: var(--spacing-xl) 1fr;
+  grid-template-columns: var(--spacing-xl) minmax(0, 1fr);
   align-items: stretch;
 }
 
@@ -1892,14 +2207,25 @@
   grid-column: 1;
   grid-row: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   color: var(--text-tertiary);
   cursor: move;
   user-select: none;
-  /* head 의 padding(box-sm-md) 과 같은 수직 정렬을 위해 head height 와 동일하게 stretch */
+  /* head padding 의 top 값에 맞춰 grip 이 카드 head 첫 줄과 정렬 */
+  padding-top: var(--spacing-sm);
   align-self: stretch;
   min-height: 56px;
+}
+
+/* seriesCardName 안 정렬 순서 prefix (#1_) — mix-blend-mode: difference + white 로
+   어두운 cover 배경에서도 자동 반전되어 가독성 유지. 내부 EditableRowNumber 도 함께 효과. */
+.seriesCardOrderPrefix {
+  font-family: var(--font-mono);
+  color: var(--text-white);
+  mix-blend-mode: difference;
+  margin-right: 2px;
+  font-variant-numeric: tabular-nums;
 }
 
 .seriesCardHandle:hover {
@@ -1914,7 +2240,8 @@
   opacity: 0.5;
 }
 
-/* drop indicator — 드래그 대상 카드 위쪽/아래쪽에 가는 라인 */
+/* drop indicator — 카드 사이 gap(spacing-sm=12px) 의 정중앙에 위치.
+   gap 절반(6px) + indicator height 절반(1px) = 7px 카드 외부로. */
 .seriesCardDropAbove::before,
 .seriesCardDropBelow::after {
   content: "";
@@ -1929,24 +2256,14 @@
 }
 
 .seriesCardDropAbove::before {
-  top: -1px;
+  top: -7px;
 }
 
 .seriesCardDropBelow::after {
-  bottom: -1px;
+  bottom: -7px;
 }
 
-/* 펼친 시리즈 카드 헤더 우측 액션 — 삭제 버튼 + 발행 토글
-   chevron(우측 끝)을 침범하지 않도록 right offset 을 chevron 너비만큼 확보 */
-.seriesCardHeadActions {
-  position: absolute;
-  top: var(--spacing-xs);
-  right: calc(var(--spacing-md) + 14px + var(--spacing-sm));
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
+/* 펼친 시리즈 카드 헤더 — 삭제 버튼. parent flex 의 align-items:center 로 자연 정렬 (chevron 과 수직 중심 일치). */
 
 .seriesCardDeleteBtn.seriesCardDeleteBtn.seriesCardDeleteBtn {
   background: var(--bg-primary);
@@ -2055,12 +2372,6 @@
   color: var(--text-secondary);
 }
 
-.seriesDeleteActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-xs);
-}
-
 .seriesCardHeadExpanded {
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   /* 펼칠 때: 모서리 먼저 각지게(0.25s), delay 없음 */
@@ -2075,7 +2386,17 @@
   min-width: 0;
 }
 
+/* 타이틀 + 발행 배지 한 줄 — 타이틀 truncate(min-width:0), 배지는 우측 끝 (flex 정렬). */
+.seriesCardNameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+
 .seriesCardName {
+  flex: 1;
+  min-width: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -2083,6 +2404,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin: 0;
 }
 
 .seriesCardMeta {
@@ -2092,7 +2414,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-  margin-top: var(--spacing-3xs);
+  margin-top: var(--spacing-sm);
 }
 
 .publishToggle {
@@ -2130,28 +2452,14 @@
   color: var(--text-secondary);
 }
 
-.seriesBadge {
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
-  font-size: var(--font-size-2xs);
-  font-weight: 500;
-}
-
-.seriesBadgePublished {
-  background: var(--bg-success-solid);
-  color: var(--bg-white);
-}
-
-.seriesBadgeDraft {
-  background: var(--bg-tertiary-alt);
-  color: var(--text-tertiary);
-}
+/* 발행 배지 — 공통 Button (variant=primary tone=success / variant=subtle) 로 통합됨.
+   기존 .seriesBadge / .seriesBadgeBtn / Published / Draft CSS 제거. */
 
 .seriesChevron {
   flex-shrink: 0;
-  align-self: flex-start;
-  /* 제목(첫 줄) + 우측 actions 와 같은 수직선에 맞추기 위해 위쪽으로 정렬 */
-  margin-top: var(--spacing-3xs);
+  /* parent align-items: flex-start. chevron(14px) 의 center 를 button(xs=24px) 의 center 와 정렬:
+     margin-top = (24 - 14) / 2 = 5px. */
+  margin-top: calc((var(--control-h-xs) - 14px) / 2);
   color: var(--text-tertiary);
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -2270,6 +2578,9 @@
 
 /* 제목 — 버튼 ↔ 헤더 사이에서 styling 만 변하면서 morph */
 .newSeriesShellTitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   padding: var(--box-md);
   border: none;
@@ -2277,6 +2588,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);
+  line-height: 1;
   color: var(--text-tertiary);
   text-align: center;
   cursor: pointer;
@@ -2289,45 +2601,51 @@
 }
 
 .newSeriesShellOpen .newSeriesShellTitle {
+  justify-content: flex-start;
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   text-align: left;
   padding: var(--spacing-md);
   cursor: default;
-  /* 열림 방향 — 즉시 transition (delay 0) */
+  /* 열림 방향 — radius 끝난 뒤(0.25s) body 와 함께 morph (bounce 방지) */
   transition:
-    font-size 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    font-weight 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.3s,
-    padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
+    font-weight 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
+    color 0.3s 0.25s,
+    padding 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s;
 }
 
 .newSeriesShellTitle:disabled {
   cursor: default;
 }
 
-/* "+ " prefix — 열릴 때 사라짐, 닫힐 때 body 닫힌 뒤 다시 등장 */
+/* Plus icon prefix — 열릴 때 사라짐, 닫힐 때 body 닫힌 뒤 다시 등장 */
 .newSeriesShellPlus {
-  display: inline-block;
-  max-width: 1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 14px;
+  margin-right: 4px;
   opacity: 1;
   overflow: hidden;
   white-space: nowrap;
-  vertical-align: bottom;
   /* 닫힘 방향 — delay 0.35s */
   transition:
     max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
+    margin-right 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.35s,
     opacity 0.18s 0.35s;
 }
 
 .newSeriesShellOpen .newSeriesShellPlus {
   max-width: 0;
+  margin-right: 0;
   opacity: 0;
-  /* 열림 방향 — 즉시 */
+  /* 열림 방향 — radius 끝난 뒤(0.25s) title morph 와 함께 사라짐 */
   transition:
-    max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.18s;
+    max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
+    margin-right 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
+    opacity 0.18s 0.25s;
 }
 
 /* actions(토글/취소/만들기) — 닫힘 상태에서는 column 0fr 로 안 보임,
@@ -2355,8 +2673,7 @@
 }
 
 /* shell actions 안의 발행 토글 — 라벨↔토글 간격 좁게 */
-.newSeriesShellActions .publishToggle,
-.seriesCardHeadActions .publishToggle {
+.newSeriesShellActions .publishToggle {
   gap: var(--spacing-2xs);
 }
 
@@ -2408,7 +2725,6 @@
 .seriesPostsSection {
   display: flex;
   flex-direction: column;
-  padding-top: var(--spacing-sm);
   border-top: var(--border-light);
 }
 
@@ -2421,7 +2737,7 @@
 }
 
 .seriesPostsSection > .addPostModalOpen {
-  margin-top: var(--spacing-sm);
+  margin-top: 0;
 }
 
 .seriesPostsSection > .addPostModal {
@@ -2433,7 +2749,9 @@
 .seriesPostsHeader {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-xs);
+  padding-block: var(--spacing-xs);
 }
 
 .seriesPostsAddBtn {
@@ -2460,6 +2778,7 @@
 
 .addPostModalOpen {
   grid-template-rows: 1fr;
+  border-top: var(--border-light);
 }
 
 .addPostModal > * {
@@ -2475,8 +2794,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--spacing-xs) 0;
-  border-top: var(--border-light);
+  padding: var(--spacing-2xs) 0;
   border-bottom: var(--border-light);
   height: var(--button-h-md);
 }
@@ -2511,7 +2829,8 @@
 
 .addPostList {
   height: 200px;
-  overflow-y: auto;
+  overflow-x: visible;
+  overflow-y: scroll;
   overscroll-behavior: contain;
 }
 
@@ -2642,6 +2961,11 @@
   flex-direction: column;
 }
 
+/* section 의 `> * + *` margin-top override — (0,2,0) compound 로 specificity 일치/우선 */
+.seriesPostsSection > .seriesPostsList {
+  margin-top: 0;
+}
+
 .seriesPostsList .seriesPostItem {
   border-bottom: var(--border-light);
 }
@@ -2656,6 +2980,11 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-xs) 0;
   border-radius: 0;
+}
+
+/* handle 과 order 묶음 — 부모 gap 상쇄 (gap 0 으로 붙임) */
+.seriesPostHandle + .seriesPostOrder {
+  margin-left: calc(-1 * var(--spacing-sm));
 }
 
 .seriesPostItem {
@@ -2715,13 +3044,12 @@
   flex-shrink: 0;
 }
 
+/* unlink + 삭제 버튼 — 캡슐로 묶지 않고 각자 ghost 스타일 (border/배경 없음) */
 .seriesPostActions {
   display: flex;
   align-items: center;
+  gap: var(--spacing-2xs);
   flex-shrink: 0;
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
 }
 
 .seriesPostOrderBtn {
@@ -2736,7 +3064,9 @@
   padding: 0;
 }
 
-.seriesPostOrderBtn + .seriesPostOrderBtn {
+/* order ↑↓ 묶음 안에서만 sibling border (캡슐 그룹 유지).
+   seriesPostActions(unlink+delete) 는 ghost — border 없음 (별도 selector 안 함). */
+.seriesPostOrder .seriesPostOrderBtn + .seriesPostOrderBtn {
   border-left: var(--border-default);
 }
 
@@ -2791,22 +3121,25 @@
   color: var(--text-primary);
 }
 
+/* 발행/미발행 배지 — 헤더의 seriesBadge 와 동일 크기/폰트 통일.
+   capsule, 줄바꿈 X (발행/미발행 텍스트라 P/D 보다 길어짐) */
 .seriesPostStatus {
   flex-shrink: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   font-weight: 500;
-  width: 16px;
-  height: 16px;
-  display: flex;
+  padding: var(--spacing-4xs) var(--spacing-xs);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-circle);
+  border-radius: var(--radius-capsule);
+  white-space: nowrap;
 }
 
+/* 헤더의 seriesBadgePublished/Draft 와 동일 색 — 시각적 일관성 */
 .seriesPostPublished {
-  background: var(--bg-success);
-  color: var(--text-success);
+  background: var(--bg-success-solid);
+  color: var(--bg-white);
 }
 
 .seriesPostDraft {
@@ -3029,7 +3362,7 @@
   height: 0;
   overflow: hidden;
   transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-left: calc(16px + var(--spacing-xs));
+  margin-left: var(--spacing-xl);
 }
 
 .sortableList .skillExpandable > * {
@@ -3130,50 +3463,41 @@
   color: var(--text-primary);
 }
 
+/* row 헤더 inline title editor — 공통 Input variant="underline" 사용.
+   wrapper 에만 flex 적용 (row 참여), 내부 input 의 underline 스타일은 Input.module.css 가 담당.
+   기존 font-weight 600 + 더 가벼운 border-default 는 유지 (callsite 차별성). */
 .skillFieldInline {
   flex: 1;
   min-width: 0;
-  height: var(--_skill-row-h);
-  box-sizing: border-box;
-  padding: 0 var(--spacing-2xs);
-  border: none;
-  border-bottom: var(--border-default);
-  border-radius: 0;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-  outline: none;
-  transition: border-color 0.2s ease;
 }
 
-.skillFieldInline:hover {
+.skillFieldInline input {
+  font-weight: 600;
+  border-bottom: var(--border-default);
+}
+
+.skillFieldInline input:hover {
   border-bottom-color: var(--border-default-color);
 }
 
-.skillFieldInline:focus {
-  border-bottom-color: var(--text-primary);
-}
-
-.skillCount {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-  height: 100%;
-  min-width: 20px;
-  text-align: center;
-  white-space: nowrap;
-  padding: var(--spacing-3xs) 0;
-  border-radius: var(--radius-capsule);
-}
-
+/* 헤더 우측 meta 표시 — 기술 스택 개수, 연도 등. 작고 깔끔한 mono caption. */
+.skillCount,
 .periodBadge {
-  composes: skillCount;
-  width: 90px;
-  border: none;
-  padding: 0;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+
+/* 연도 표기 — "nnnn", "nnnn -", "nnnn - nnnn" 모두 같은 width 로 정렬.
+   border-box + 좌우 padding 포함해 "nnnn - nnnn" (11자) 까지 안 잘리게 충분히 확보. */
+.periodBadge {
+  display: inline-block;
+  width: 9em;
+  padding: 0 var(--spacing-sm);
   text-align: left;
 }
 
@@ -3237,8 +3561,19 @@
    - 2열 grid → 1열, gap 축소
    - layout 사이 간격 살짝 축소해 panel 가용폭 확보 */
 @media (min-width: 769px) and (max-width: 1024px) {
+  /* container padding-x 축소 — page-px: 8vw 가 tablet 에서 너무 커서 panel 가용폭 부족 */
+  .container {
+    padding-left: 4vw;
+    padding-right: 4vw;
+  }
+
   .layout {
     gap: var(--spacing-lg);
+  }
+
+  /* sideNav 도 좁게 — panel 가용폭 더 확보 */
+  .sideNav {
+    width: 160px;
   }
 
   /* 2열 grid 들 → 1열 (좁은 panel 에서 잘림 방지) */
@@ -3252,7 +3587,7 @@
 @media (max-width: 768px) {
   .layout {
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: 0;
   }
 
   .sideNav {
@@ -3365,99 +3700,109 @@
   letter-spacing: 0.02em;
 }
 
-/* ── Font Select Group — Select + 직접입력 input 을 한 capsule 로 묶음 ── */
-.fontSelectGroup {
+/* ── Font Picker — editor 의 FontPicker 패턴 (Select + dropdown 내부 search + 필터링 목록) ── */
+.fontPickerSelect {
   flex: 1;
   min-width: 0;
-  display: inline-flex;
-  align-items: stretch;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-  transition: border-color var(--duration-base) ease;
 }
 
-.fontSelectGroup:focus-within {
-  border-color: var(--text-primary);
+/* compound (0,2,0) — Select 의 .dropdown/.dropdownCompact (0,1,0) padding 을 이김.
+   interpolate-size — 검색 필터링으로 list height 변할 때 부드럽게 transition (modern browsers).
+   미지원 브라우저는 transition 안 되고 즉시 변화 (degraded but fine). */
+.fontPickerDropdown.fontPickerDropdown {
+  width: 320px;
+  padding: 0;
+  gap: 0;
+  font-family: var(--font-space-grotesk);
+  border-radius: var(--radius-2xl);
+  max-height: none;
+  overflow: visible;
+  interpolate-size: allow-keywords;
+  transition: height var(--duration-moderate) var(--ease-material), opacity 0.18s ease, transform 0.18s ease;
 }
 
-/* 내부 Select trigger / 직접입력 input 의 자체 border 제거 — wrapper 가 담당 */
-.fontSelectGroup > div:first-child {
-  flex: 0 0 auto;
-  min-width: 180px;
+.fontDropSearch {
+  padding: var(--box-xs);
+  border-bottom: var(--border-light);
 }
 
-.fontSelectGroup > div:first-child > button {
-  border: none !important;
-  border-radius: 0 !important;
+.fontDropSearchInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: var(--font-size-sm);
+  font-family: inherit;
   background: transparent;
+  color: var(--text-primary);
+  padding: var(--box-y-xs);
 }
 
-.fontCustomWrap {
-  position: relative;
+.fontDropList {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: var(--spacing-3xs) 0;
+}
+
+.fontDropGroup {
+  padding: var(--spacing-3xs) var(--spacing-xs) 2px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.fontDropItem {
+  padding: var(--box-xs);
+  border-radius: var(--radius-sm);
+  margin: var(--spacing-4xs) var(--spacing-3xs);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.fontDropItem:hover {
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+}
+
+.fontDropItemActive {
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+}
+
+.fontDropFooter {
+  border-top: var(--border-light);
+  padding: var(--box-xs);
+}
+
+.fontDropFooterLink {
   display: flex;
   align-items: center;
-  flex: 1;
-  min-width: 0;
-  border-left: var(--border-light);
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-decoration: none;
 }
 
-.fontCustomInput {
-  flex: 1;
-  min-width: 0;
-  padding: var(--input-p);
-  border: none !important;
-  border-radius: 0 !important;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+.fontDropFooterLink:hover {
   color: var(--text-primary);
-  outline: none;
 }
 
-.fontSelectGroup .fontCustomInput:focus {
-  outline: none;
-  box-shadow: none;
+.fontDropHint {
+  padding: var(--box-3xs-sm);
+  font-size: var(--font-size-2xs);
+  color: var(--text-muted);
 }
 
-.fontCustomInput::placeholder {
-  color: var(--text-tertiary);
+.fontDropHintInline {
+  font-size: var(--font-size-2xs);
+  color: var(--text-muted);
+  margin-left: var(--spacing-2xs);
 }
 
-.fontValidating {
-  flex-shrink: 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  white-space: nowrap;
-}
-
-.fontValidationMsg {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-accent);
-  margin: 0;
-}
-
-/* ── Font Suggestions Dropdown ── */
-.fontSuggestions {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  max-height: 240px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  background: var(--bg-primary);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.12);
-  z-index: var(--z-dropdown);
-  display: flex;
-  flex-direction: column;
-  padding: var(--spacing-2xs);
-}
-
+/* (legacy) unused fontSelectGroup/fontSuggestions — removed after FontPicker rewrite */
 .fontSuggestionItem {
   padding: var(--box-xs-sm);
   border: none;
@@ -3474,27 +3819,266 @@
   background: var(--bg-tertiary);
 }
 
-/* ── Env Var Editor ── */
+/* ── Env Var Editor — 단일 column 의 table-like layout. 라벨 좌측 fixed, input flex, actions 우측. ── */
 .envGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-2xs);
 }
 
 .envGroupLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-sm);
   font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+  margin: 0 0 var(--spacing-2xs);
+}
+
+.envGroupLabel > svg {
+  flex-shrink: 0;
   color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+}
+
+/* 그룹별 set/total — 라벨 옆 작은 mono 카운터. 모두 set 이면 accent 색 ✓ */
+.envGroupCount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: none;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.envGroupCount[data-ok] {
+  color: var(--bg-success-solid);
+}
+
+/* env 액션 바 — section 저장 / 기본값 (SectionHeader 의 spacer 와 같은 스타일) */
+.envActionBar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ── 상단 status overview ── */
+.envStatusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-2xs);
+}
+
+/* row 개별 저장 버튼 — Check 아이콘, 편집 중 노출 */
+.envRowSaveBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--bg-success-solid);
+  cursor: pointer;
+  transition: border-color var(--duration-base) ease, background var(--duration-base) ease;
+}
+
+.envRowSaveBtn:hover {
+  border-color: var(--bg-success-solid);
+  background: color-mix(in oklch, var(--bg-success-solid) 12%, transparent);
+}
+
+.envRowSaveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.envStatusSummary {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.envStatusCount {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.envStatusCount strong {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.envStatusChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.envStatusChip[data-warn] {
+  color: var(--text-accent);
+}
+
+.envSourceDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  background: var(--text-tertiary);
+}
+
+.envSourceDot[data-source="env"] { background: var(--bg-success-solid); }
+.envSourceDot[data-source="db"] { background: var(--text-primary); }
+.envSourceDot[data-source="edit"] { background: var(--bg-warning-solid, var(--text-accent)); }
+.envSourceDot[data-source="none"] {
+  background: transparent;
+  border: 1.5px solid var(--text-accent);
+}
+
+.envFieldLabelText {
+  font-weight: 500;
+}
+
+/* 누락 row 강조 — left accent 보더 + 들여쓰기 */
+.envFieldRowMissing {
+  border-left: 2px solid var(--text-accent);
+  padding-left: var(--spacing-sm);
+  margin-left: calc(var(--spacing-sm) * -1 - 2px);
+}
+
+/* progress 바 — set ratio */
+.envProgressBar {
+  height: 3px;
+  background: var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  margin-bottom: var(--spacing-md);
+}
+
+.envProgressFill {
+  height: 100%;
+  background: var(--bg-success-solid);
+  transition: width var(--duration-base) ease, background var(--duration-base) ease;
+}
+
+/* info icon + warn icon — label 옆 작게 */
+.envMetaIcon,
+.envMetaWarn {
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--spacing-3xs);
+  color: var(--text-tertiary);
+  cursor: help;
+  transition: color var(--duration-base) ease;
+}
+
+.envMetaIcon:hover {
+  color: var(--text-primary);
+}
+
+.envMetaWarn {
+  color: var(--text-warning, var(--text-accent));
+  cursor: help;
+}
+
+.envMetaLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  /* tooltip 안 (bg-inverse + text-inverse) 에서도 보이도록 부모 텍스트 색 그대로 상속 + underline 으로 link 표식 */
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* .env paste 모달 */
+.envPasteModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+}
+
+.envPasteHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
   margin: 0;
+}
+
+.envPasteTextarea {
+  width: 100%;
+  min-height: 200px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+  transition: border-color var(--duration-base) ease;
+}
+
+.envPasteTextarea:focus {
+  border-color: var(--text-primary);
+}
+
+.envPasteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
 }
 
 .envGroupDivider {
   border: none;
-  border-top: 1px dashed var(--border-light-color);
+  border-top: 1px solid var(--border-light-color);
   margin: 0;
+}
+
+/* fieldHint 안에서 env var key 클릭 시 해당 입력 필드로 스크롤. underline + monospace 로 link 임을 명확히 */
+.envKeyLink {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: inherit;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color var(--duration-base) ease;
+}
+
+.envKeyLink:hover {
+  color: var(--text-accent);
+}
+
+/* env var 필드 클릭 후 라벨 text 만 accent — 다음 인터랙션 까지 지속.
+   (0,2,0) — .envFieldRow .fieldLabel 등 기존 색상 override */
+.section .envFieldHighlight .fieldLabel,
+.envFieldHighlight .fieldLabel {
+  color: var(--text-accent);
+  transition: color var(--duration-base) ease;
 }
 
 .envLabelMissing {
@@ -3514,9 +4098,15 @@
   gap: var(--spacing-xs);
 }
 
+/* Input wrapper (첫 자식 div) — flex 1 로 envInputRow 의 남은 공간 모두 차지 */
+.envInputRow > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
 .envInputRow .fieldInput {
   flex: 1;
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   letter-spacing: 0.01em;
 }
@@ -3593,6 +4183,38 @@
   font-weight: 500;
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* 소스별 텍스트 색 차별화 — env(녹색), db(기본), edit(액센트). Read-only 는 data-source 없어 기본 tertiary 유지 */
+.envSourceBadge[data-source="env"] { color: var(--bg-success-solid); }
+.envSourceBadge[data-source="db"] { color: var(--text-primary); }
+.envSourceBadge[data-source="edit"] { color: var(--text-accent); }
+
+/* env row — 가로 grid: 라벨 좌측 fixed, input + actions 우측 flex (전체 폭 활용) */
+.envFieldRow {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) 1fr;
+  align-items: center;
+  gap: var(--spacing-md);
+  /* .fieldRow base (flex column) override */
+  flex-direction: row;
+}
+
+/* env label — text + badges 한 행 정렬 (default .fieldLabel 의 flex column 오버라이드) */
+.envFieldRow .fieldLabel {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .envFieldRow {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xs);
+  }
 }
 
 .envActions {
@@ -3769,16 +4391,291 @@
   color: var(--text-accent);
 }
 
-/* ── MIME row (default row + optional chips below) ── */
+/* ── MIME row — horizontal layout (label 좌 / Select 우). 카드 제거 후엔 살짝 indent. */
 .mimeRow {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-2xs);
 }
 
 .mimeRow .fieldRow {
   padding: 0;
   border-bottom: none;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.mimeRow .fieldRow > .fieldLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  flex: 1 1 auto;
+  min-width: 0;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.mimeRow .fieldRow > :last-child {
+  flex: 0 0 auto;
+  min-width: 96px;
+}
+
+/* 카드 제거 후 chip grid 도 indent 통일 */
+.mimeLimitGroup > .mimeChipGrid {
+  margin-top: var(--spacing-2xs);
+}
+
+/* MediaLimits 컨테이너 — 카테고리별 단순 stacked 리스트. */
+.mediaLimitsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* ── Drag-and-Drop size bucket 레이아웃 ──
+   카드 X, 카테고리 헤더 + top border 구분선만. drop hover 는 배경색으로 표시. */
+.sizeBucketStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.sizeBucket,
+.sizePoolBucket {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  background: transparent;
+  /* drop hover 영역 안정성 위한 padding */
+  padding: var(--spacing-2xs) 0;
+  transition: background var(--duration-base) ease;
+}
+
+/* 첫 버킷 제외 top border 로 구분 */
+.sizeBucketStack > .sizeBucket:not(:first-child),
+.sizeBucketStack > .sizePoolBucket {
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-light);
+}
+
+/* drop hover — 옅은 accent 배경만 (radius-md 안에서) */
+.sizeBucketHover {
+  background: color-mix(in oklch, var(--text-accent) 8%, transparent);
+}
+
+.sizeBucketHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+}
+
+.sizeBucketLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.sizeBucketCount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sizeBucketBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  min-height: 24px;
+}
+
+.sizeBucketEmpty {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+/* 버킷 안 카테고리별 row — icon 좌측 + chip wrap 우측 */
+.sizeBucketCategory {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  color: var(--text-tertiary);
+}
+
+.sizeBucketCategory > svg {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.sizeBucketChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  flex: 1 1 auto;
+}
+
+/* draggable format chip — radius-capsule, 보더 only */
+.sizeChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+  cursor: grab;
+  user-select: none;
+  transition: border-color var(--duration-base) ease, color var(--duration-base) ease, transform var(--duration-fast) ease;
+}
+
+.section .sizeChip:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.sizeChip:active {
+  cursor: grabbing;
+  transform: scale(0.96);
+}
+
+/* built-in chip 이 비활성 풀로 drop 됐을 때 잠깐 흔들림 — 비활성화 불가 시각 피드백 */
+.sizeChipShake {
+  animation: sizeChipShakeKf 0.42s var(--ease-out-expo);
+  border-color: var(--text-accent) !important;
+  color: var(--text-accent) !important;
+}
+
+@keyframes sizeChipShakeKf {
+  0%, 100% { transform: translateX(0); }
+  15%, 45%, 75% { transform: translateX(-3px); }
+  30%, 60%, 90% { transform: translateX(3px); }
+}
+
+/* 사용자 정의 MIME 추가 UI — input + size Select + add 버튼 */
+.customMimeAdder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-light);
+}
+
+.customMimeLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.customMimeRow {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+.customMimeInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--duration-base) ease;
+}
+
+.customMimeInput:focus {
+  border-color: var(--text-primary);
+}
+
+.customMimeInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.customMimeAddBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.section .customMimeAddBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.customMimeError {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-accent);
+  margin: 0;
+}
+
+/* 미디어 group — 카드 없음. 첫 group 제외 top border 로 시각적 분리. */
+.mimeLimitGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  background: transparent;
+}
+
+.mimeLimitGroup:not(:first-child) {
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-light);
+}
+
+/* group header — icon + uppercase label, rows 위에 작게 위치 */
+.mimeLimitGroupHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.mimeLimitGroupHeader > svg {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
+.mimeLimitGroupLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.mediaLimitsGrid > .mimeAddBlock {
+  grid-column: 1 / -1;
 }
 
 .mimeAddedChip {
@@ -3791,7 +4688,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-secondary);
-  background: var(--bg-secondary);
+  background: transparent;
 }
 
 .mimeAddedChipRemove {
@@ -3913,36 +4810,270 @@
   color: var(--text-tertiary);
 }
 
-/* ── Tag descriptions KV editor — responsive grid (최대 3열) ── */
+/* ── Tag descriptions editor — bilingual + search/sort/pagination ── */
 .tagDescEditor {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-xs) var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
-/* 큰 화면에서도 최대 3열만 */
-@media (min-width: 1200px) {
-  .tagDescEditor {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.tagDescToolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
+
+/* 필터 row — 정렬/검색 row 와 분리된 별도 줄. 그룹 사이 divider. */
+.tagDescFilterRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.tagDescFilterGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.tagDescFilterGroupLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+  margin-right: var(--spacing-2xs);
+}
+
+/* filter row + drawer 안 button 폰트 — size-sm(28px) 의 default font-size-sm 보다 작게 (xs).
+   다른 toolbar control (SegmentedControl btn 등) 과 통일. */
+.tagDescFilterRow button,
+.tagDescFilterDrawer button {
+  font-size: var(--font-size-xs);
+}
+
+.tagDescFilterGroup + .tagDescFilterGroup {
+  padding-left: var(--spacing-sm);
+  border-left: var(--border-light);
+}
+
+/* 우측 끝 정렬 — 정렬 group 같은 거 (margin-left:auto 로 row 의 남는 공간 차지). */
+.tagDescFilterGroupEnd {
+  margin-left: auto;
+  /* border 와 충돌 방지 — 끝쪽이라 좌측 divider 제거 */
+  padding-left: 0 !important;
+  border-left: none !important;
+}
+
+/* 검색창 — filter row 의 마지막 item. wrap 안 됐을 땐 margin-left:auto 로 우측 끝.
+   wrap 됐을 땐 새 줄의 끝쪽 (justify-content: flex-end 효과는 width 100% 로). */
+.tagDescSearchEnd {
+  margin-left: auto;
+  width: 280px;
+  max-width: 100%;
+}
+
+/* filterRow + filterDrawer 묶음 컨테이너 */
+.tagDescToolbarWrap {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 필터 펼침 wrap — height 애니메이션 (overflow: hidden 으로 child clip) */
+.tagDescFilterDrawerWrap {
+  /* motion 이 height 0 → auto 컨트롤 */
+}
+
+/* 필터 펼침 영역 — toolbar 아래에 inline 노출 (배경/radius/border 없이 깔끔) */
+.tagDescFilterDrawer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+}
+
+/* letter (철자) drawer — 공통 LetterFilter 컴포넌트가 자체 스타일 보유. 본 클래스는 외부 margin 만 */
+.tagDescLetterDrawer {
+  margin-top: var(--spacing-xs);
+}
+
+/* chip 영역 + count 묶음 — count 는 chip block 끝에 중앙 정렬 */
+.tagDescChipsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* toolbar 내 count — SegmentedControl 오른쪽, search (margin-left:auto) 앞 자연 배치. */
 
 .tagDescRow {
   display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  min-width: 0;
+  padding: var(--spacing-2xs) 0;
+}
+
+/* tag row 안 — 이름 / 설명 BilingualInputPair 두 줄 stacked */
+.tagDescFields {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+/* 새 태그 추가 행 — toolbar 아래, 구분선 */
+.tagDescAddRow {
+  display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: var(--border-light);
+}
+
+.tagDescCount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.tagDescEmpty {
+  padding: var(--spacing-2xl) 0;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+}
+
+/* Pagination 컴포넌트의 .paginationWrap 이 margin-top: spacing-md 를 default 로 둠.
+   compound selector (0,2,0) 로 specificity 올려 override. */
+.tagDescPagination.tagDescPagination {
+  align-self: center;
+  margin-top: 0;
+}
+
+/* 칩 라벨 옆 사용 카운트 (n) */
+.tagCountBadge {
+  margin-left: var(--spacing-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 편집 박스 — 관련 게시물/프로젝트 리스트.
+   <List> / <ListItem> 공통 컴포넌트 래퍼 위에 위아래 border + max-height 만 추가.
+   좌우는 트임 (radius 없음, 좌우 border 없음). */
+.tagRelatedPosts {
+  /* ListItem row 높이 = padding 포함 38px. max-height = 38 * 5 으로 정확히 5개만 보이고 그 이상 scroll */
+  --_row-h: 38px;
+  flex: 1;
+  min-width: 0;
+  /* grid item default min-height: auto → content 크기까지 늘어나 max-height 무시됨.
+     min-height: 0 으로 reset 해야 max-height + overflow scroll 작동. */
+  min-height: 0;
+  max-height: calc(var(--_row-h) * 5);
+  overflow-y: auto;
+  border-block: var(--border-light);
+}
+
+/* List 컴포넌트는 height:100% 라 부모 max-height 안에서 잘림 — content-fit 으로 override
+   해서 부모 max-height 초과 시 부모가 scroll trigger 되게 함. */
+.tagRelatedPosts > ul {
+  height: auto;
+}
+
+/* ListItem 한 행 = --_row-h. ListItem default padding(spacing-xs) 그대로 유지,
+   content + padding 합쳐 38px 자연 높이. min-height 만 보장. */
+.tagRelatedPosts > ul > li {
+  min-height: var(--_row-h);
+  box-sizing: border-box;
+}
+
+.tagRelatedEmpty {
+  justify-content: center;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* 리스트 row 의 anchor — ListItem 안에 들어가서 title(flex 1) + 메타(우측) 레이아웃 담당.
+   padding/divider 는 ListItem 이 제공 — 여기는 안 줌. */
+.tagRelatedItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
   min-width: 0;
 }
 
-/* 새 태그 추가 행 — 별도 줄 (grid full-width) + 아래 구분선 + 약간의 padding */
-.tagDescAddRow {
-  grid-column: 1 / -1;
-  display: flex;
+a.tagRelatedItem:hover {
+  color: var(--text-accent);
+}
+
+.tagRelatedTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tagRelatedMeta {
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding-bottom: var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
-  border-bottom: var(--border-light);
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.tagRelatedMetaDraft {
+  padding: 1px var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary-alt);
+  color: var(--text-tertiary);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* 태그 삭제 confirm 모달 — 질문 + 관련 게시물 chip 목록 + 삭제 버튼 */
+.tagDeleteConfirmBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+}
+
+.tagDeleteConfirmDesc {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.tagDeleteRelated {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+
+.tagDeleteConfirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
 }
 
 /* section fields 내부 grid utility — 2-col / 3-col */
@@ -3956,6 +5087,20 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-md);
+}
+
+/* n-col auto-fit — 폭에 따라 1~n 컬럼 자동 reflow. 각 cell min 220px */
+.fieldsGridAuto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* narrow field — input 자체는 fit-content 이지만 fieldNarrow override 로 부모 폭 50% 강제.
+   counter / clear 가 input 안 absolute (overflow 없음). multiline / TagField / single-line 모두 50%. */
+.fieldNarrow > div > :last-child {
+  width: 50%;
+  max-width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -4024,6 +5169,21 @@
   gap: var(--spacing-sm);
 }
 
+/* 중복 등 잘못된 입력 시 시각 알림 — 가로 흔들림 */
+.shakeAlert {
+  animation: shakeAlert 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes shakeAlert {
+  0%, 100% { transform: translateX(0); }
+  15%      { transform: translateX(-8px); }
+  30%      { transform: translateX(8px); }
+  45%      { transform: translateX(-6px); }
+  60%      { transform: translateX(6px); }
+  75%      { transform: translateX(-3px); }
+  90%      { transform: translateX(3px); }
+}
+
 /* 헤더 — 좌측 label + 우측 actions (Add / Save+Cancel) */
 .worksCatAddLabel {
   display: flex;
@@ -4075,4 +5235,182 @@
     grid-template-columns: 1fr;
     gap: var(--spacing-2xs);
   }
+}
+
+/* ── Works Intro Video Picker — 2 column grid: preview | actions, 그 아래 picker drawer full width ── */
+.worksIntroVideoPicker {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: var(--spacing-lg);
+  row-gap: var(--spacing-md);
+  align-items: start;
+  width: 100%;
+}
+
+/* 선택된 커버 미리보기 — 클릭 가능. grid 첫 컬럼. */
+.worksIntroPreview {
+  position: relative;
+  display: block;
+  width: 240px;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  overflow: hidden;
+  transition: outline 0.15s ease;
+}
+
+.worksIntroPreview:hover {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -1px;
+}
+
+.worksIntroPreviewThumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.worksIntroPreviewExpand {
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-2xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-overlay);
+  color: var(--text-inverse);
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+
+.worksIntroPreview:hover .worksIntroPreviewExpand {
+  opacity: 1;
+}
+
+.worksIntroVideoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.worksIntroVideoCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.worksIntroVideoCard:hover {
+  border-color: var(--text-tertiary);
+}
+
+.worksIntroVideoCardSelected {
+  border-color: var(--text-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text-accent) 25%, transparent);
+}
+
+.worksIntroVideoThumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--bg-tertiary);
+}
+
+.worksIntroVideoCheck {
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-2xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+}
+
+.worksIntroVideoMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  text-align: left;
+}
+
+.worksIntroVideoName {
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.worksIntroVideoSize {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+}
+
+.worksIntroVideoActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* CoverImagePicker drawer 가 grid 두 컬럼 모두 차지하도록 */
+.worksIntroPickerWrap {
+  grid-column: 1 / -1;
+}
+
+/* ── Compress Video Modal ── */
+.compressModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.compressProgress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+}
+
+.compressProgressBar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+}
+
+.compressProgressFill {
+  height: 100%;
+  background: var(--bg-accent-solid);
+  border-radius: var(--radius-capsule);
+  transition: width 0.2s ease;
+}
+
+.compressProgressText {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-align: center;
 }

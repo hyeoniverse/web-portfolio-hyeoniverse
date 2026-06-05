@@ -1,0 +1,115 @@
+/* FontPicker — Select trigger + dropdown 내부 search + 그룹화 list + Google Fonts 검증.
+   search / footer 높이 통일 — display flex + 같은 height. */
+.search,
+.footer {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 0 var(--spacing-md);
+}
+
+.search {
+  border-bottom: var(--border-light);
+}
+
+.searchInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  background: transparent;
+  color: var(--text-primary);
+  padding: 0;
+}
+
+/* list — JS 가 측정한 explicit height 가 style 로 적용됨. transition 으로 부드럽게 변환.
+   내부 .listInner 이 실제 content (padding/gap 담당), 측정 대상.
+   overflow-y auto — content 가 320 cap 보다 크면 스크롤. */
+.list {
+  overflow-y: auto;
+  transition: height var(--duration-moderate) var(--ease-material);
+}
+
+/* 실제 content wrapper — 상하 spacing-sm (12px), 좌우 spacing-xs (8px) */
+.listInner {
+  padding: var(--box-sm-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+/* 그룹 div 도 flex column + gap — items 가 같은 간격 유지 */
+.listInner > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.groupLabel {
+  padding: var(--spacing-3xs) var(--spacing-xs) 2px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.item {
+  padding: var(--box-xs);
+  margin: 0;
+  border-radius: var(--radius-capsule);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* check 아이콘 — active 일 때만 렌더, label 오른쪽에 위치 (선택 안 된 item 앞에 빈공간 없음) */
+.itemCheck {
+  flex-shrink: 0;
+}
+
+.itemLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item:hover {
+  background: var(--bg-accent-light);
+  color: var(--text-primary);
+}
+
+.itemActive,
+.itemActive:hover {
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+}
+
+.hint {
+  padding: var(--box-3xs-sm);
+  font-size: var(--font-size-2xs);
+  color: var(--text-muted);
+}
+
+.footer {
+  border-top: var(--border-light);
+}
+
+.footerLink {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.footerLink:hover {
+  color: var(--text-primary);
+}

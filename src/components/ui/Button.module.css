@@ -51,36 +51,49 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Sizes — capsule (기본). padding 기반 (--button-p-* semantic token)
+   Sizes — capsule. 4-pt grid, height 명시 (controls 정렬 안정성).
+   --control-h-* token 사용 (--control-h-xs:24 / sm:28 / md:32 / lg:36)
    --------------------------------------------------------------------------- */
 .size-2xs {
-  padding: var(--button-p-xs);
+  height: 20px;
+  box-sizing: border-box;
+  padding: 0 var(--spacing-sm);
   font-size: var(--font-size-2xs);
 }
 
 .size-xs {
-  padding: var(--button-p-sm);
+  height: var(--control-h-xs);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
   font-size: var(--font-size-xs);
 }
 
 .size-sm {
-  padding: var(--button-p-md);
+  height: var(--control-h-sm);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
   font-size: var(--font-size-sm);
 }
 
 .size-md {
-  padding: var(--button-p-md);
+  height: var(--control-h-md);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-lg);
   font-size: var(--font-size-sm);
 }
 
 .size-lg {
-  padding: var(--button-p-lg);
+  height: var(--control-h-lg);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-lg);
   font-size: var(--font-size-sm);
   letter-spacing: 0.05em;
 }
 
 .size-xl {
-  padding: var(--button-p-lg);
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 var(--spacing-xl);
   font-size: var(--font-size-sm);
   letter-spacing: 0.05em;
 }
@@ -110,7 +123,7 @@
   flex: 0 0 auto;
 }
 
-/* circle / square — size 별 고정 width/height. capsule .size-* 의 height 와 동일 semantic 토큰 */
+/* circle / square — height = width. capsule .size-* 의 height (control-h-*) 와 동일하게 매핑 */
 .shape-circle.size-2xs,
 .shape-square.size-2xs {
   width: var(--button-h-xs);
@@ -120,37 +133,37 @@
 
 .shape-circle.size-xs,
 .shape-square.size-xs {
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  min-width: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
+  min-width: var(--control-h-xs);
 }
 
 .shape-circle.size-sm,
 .shape-square.size-sm {
-  width: var(--button-h-md);
-  height: var(--button-h-md);
-  min-width: var(--button-h-md);
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  min-width: var(--control-h-sm);
 }
 
 .shape-circle.size-md,
 .shape-square.size-md {
-  width: var(--button-h-lg);
-  height: var(--button-h-lg);
-  min-width: var(--button-h-lg);
+  width: var(--control-h-md);
+  height: var(--control-h-md);
+  min-width: var(--control-h-md);
 }
 
 .shape-circle.size-lg,
 .shape-square.size-lg {
-  width: 52px;
-  height: 52px;
-  min-width: 52px;
+  width: var(--control-h-lg);
+  height: var(--control-h-lg);
+  min-width: var(--control-h-lg);
 }
 
 .shape-circle.size-xl,
 .shape-square.size-xl {
-  width: 60px;
-  height: 60px;
-  min-width: 60px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
 }
 
 /* ---------------------------------------------------------------------------
@@ -365,6 +378,24 @@
 .variant-primary.tone-danger.btn:active:not(:disabled) {
   background: var(--bg-accent-light);
   color: var(--text-accent);
+}
+
+/* primary + success — 발행/완료 상태 표시 (series 발행 배지 등) */
+.variant-primary.tone-success {
+  background: var(--bg-success-solid);
+  color: var(--text-white);
+  border-color: var(--bg-success-solid);
+}
+
+.variant-primary.tone-success.btn:hover:not(:disabled) {
+  background: transparent;
+  color: var(--bg-success-solid);
+  border-color: var(--bg-success-solid);
+}
+
+.variant-primary.tone-success.btn:active:not(:disabled) {
+  background: var(--bg-success-solid);
+  color: var(--text-white);
 }
 
 /* ghost + danger — 인라인 텍스트 삭제 액션 */

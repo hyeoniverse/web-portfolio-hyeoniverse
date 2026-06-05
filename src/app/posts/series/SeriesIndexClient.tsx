@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
+import HighlightedText from "@/components/ui/HighlightedText";
+import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
+import { parseSearchQuery, matchesQuery, type SyntaxMode } from "@/lib/searchQuery";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, Sparkles, X, ArrowRight, Settings } from "lucide-react";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
@@ -28,6 +31,7 @@ const FEATURED_COUNT = 3;
 export default function SeriesIndexClient({ series }: Props) {
   const { language } = useLanguage();
   const [search, setSearch] = useState("");
+  const [syntaxMode, setSyntaxMode] = useState<SyntaxMode>("prefix");
   const [sortBy, setSortBy] = useState<SortBy>("popular");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [sheetSeries, setSheetSeries] = useState<SeriesEntry | null>(null);
@@ -76,13 +80,15 @@ export default function SeriesIndexClient({ series }: Props) {
   // 검색 + 카테고리 필터 + 정렬
   const filtered = useMemo(() => {
     let list = series;
-    const q = search.trim().toLowerCase();
+    const q = search.trim();
     if (q) {
-      list = list.filter((s) =>
-        [s.title, s.title_en, s.description, s.description_en]
+      const parsed = parseSearchQuery(q, syntaxMode);
+      list = list.filter((s) => {
+        const haystack = [s.title, s.title_en, s.description, s.description_en]
           .filter(Boolean)
-          .some((v) => (v as string).toLowerCase().includes(q)),
-      );
+          .join("\n");
+        return matchesQuery(haystack, parsed);
+      });
     }
     if (activeCategory) {
       list = list.filter((s) => s.category === activeCategory);
@@ -97,7 +103,7 @@ export default function SeriesIndexClient({ series }: Props) {
       list.sort((a, b) => b.post_count - a.post_count);
     }
     return list;
-  }, [series, search, activeCategory, sortBy]);
+  }, [series, search, syntaxMode, activeCategory, sortBy]);
 
   const totalPosts = useMemo(
     () => series.reduce((sum, s) => sum + s.post_count, 0),
@@ -105,6 +111,7 @@ export default function SeriesIndexClient({ series }: Props) {
   );
 
   return (
+    <SearchHighlightProvider query={search} mode={syntaxMode}>
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerTitleRow}>
@@ -144,6 +151,9 @@ export default function SeriesIndexClient({ series }: Props) {
             placeholder="시리즈 제목 또는 설명으로 검색…"
             align="left"
             className={styles.searchBar}
+            routeParam="q"
+            hasResults={filtered.length > 0}
+            onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
           />
         </div>
       </header>
@@ -207,9 +217,8 @@ export default function SeriesIndexClient({ series }: Props) {
                   )}
                   <div className={styles.cover}>
                     {cover ? (
-                      <Image
+                      <MediaThumb
                         src={cover}
-                        alt=""
                         fill
                         sizes="(max-width: 768px) 50vw, 240px"
                         className={styles.coverImg}
@@ -224,8 +233,8 @@ export default function SeriesIndexClient({ series }: Props) {
                       {s.category && <span className={styles.category}>{s.category}</span>}
                       <span>{s.post_count}개의 글</span>
                     </span>
-                    <span className={styles.cardTitle}>{title}</span>
-                    {description && <span className={styles.cardDesc}>{description}</span>}
+                    <span className={styles.cardTitle}><HighlightedText text={title} /></span>
+                    {description && <span className={styles.cardDesc}><HighlightedText text={description} /></span>}
                   </div>
                 </Link>
               </li>
@@ -290,5 +299,6 @@ export default function SeriesIndexClient({ series }: Props) {
         )}
       </AnimatePresence>
     </div>
+    </SearchHighlightProvider>
   );
 }

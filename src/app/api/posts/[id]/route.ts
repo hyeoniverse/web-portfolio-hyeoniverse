@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { ensurePostCategory } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { getPopularPostIds } from "@/lib/popularity";
+import { fetchAutoCoverImage, extractKeywordsFromPost } from "@/lib/autoCoverImage";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -44,6 +45,33 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   const admin = createAdminClient();
+
+  /* 발행 자동 cover 배정: published=true 로 전환(또는 이미 published) 인데 cover_image 가 비어 있으면
+     키워드 기반으로 Unsplash/Pexels 검색해서 cover_image 자동 채움. 한 번 채워지면 다시 호출 안 함. */
+  if (body.published === true) {
+    const { data: cur } = await admin
+      .from("posts")
+      .select("cover_image, tags, category, title, title_en")
+      .eq("id", id)
+      .maybeSingle();
+
+    const incomingCover = typeof body.cover_image === "string" ? body.cover_image : undefined;
+    const effectiveCover = incomingCover !== undefined ? incomingCover : (cur?.cover_image ?? "");
+
+    if (!effectiveCover) {
+      try {
+        const merged = {
+          tags: (body.tags as string[]) ?? cur?.tags ?? [],
+          category: (body.category as string) ?? cur?.category ?? "",
+          title: (body.title as string) ?? cur?.title ?? "",
+          title_en: (body.title_en as string) ?? cur?.title_en ?? "",
+        };
+        const kws = extractKeywordsFromPost(merged);
+        const url = await fetchAutoCoverImage({ keywords: kws });
+        if (url) body.cover_image = url;
+      } catch { /* graceful — 자동 배정 실패는 발행 자체를 막지 않음 */ }
+    }
+  }
 
   const { data, error } = await admin
     .from("posts")

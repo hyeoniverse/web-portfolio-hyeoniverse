@@ -3,8 +3,9 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, GripVertical, Pencil } from "lucide-react";
-import CloseButton from "@/components/ui/CloseButton";
+import Chip from "@/components/ui/Chip";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./TagNotesEditor.module.css";
 
 export type TagNote = { ko: string; en: string };
@@ -104,6 +105,23 @@ export interface TagNotesEditorProps {
   onEditClick?: (item: string) => void;
   /** 외부 편집 패널에서 현재 active 인 item — 해당 chip 강조 표시 (active class). */
   activeItem?: string | null;
+  /** true 면 drag handle (grip) 숨기고 reorder 비활성. 순서가 의미 없는 목록(태그 등) 에 사용. */
+  disableReorder?: boolean;
+  /** true 면 chip 들을 1열 strict — 정렬 순서가 위→아래 명확. 기본은 auto-fill multi-col. */
+  singleColumn?: boolean;
+  /** true 면 chip 앞에 정렬 순서 번호 (1-based) 표시 — 2열 grid 에서 정렬 방향 명확화. */
+  showIndex?: boolean;
+  /** showIndex 시 시작 번호 — pagination 글로벌 idx 보여주려면 pageStart 전달. 기본 0. */
+  startIndex?: number;
+  /** indexBadge 표시 번호를 캡슐의 정렬 순서가 아닌 임의 번호로 override.
+   *  반환 1-based. 카테고리처럼 "사용자 정의 고정 순서"를 표시하고 싶을 때 사용 (정렬·필터에 무관).
+   *  undefined 반환 시 기본 `startIndex + idx + 1` 사용. */
+  getDisplayIndex?: (item: string, idx: number) => number | undefined;
+  /** indexBadge 의 최소 가로 자릿수 (mono ch 단위). 기본 4 — "#999" 까지. 짧은 list 면 2 추천. */
+  indexMinChars?: number;
+  /** showIndex 시 indexBadge 클릭으로 위치 변경 가능 — caller 가 새 position(1-based) 받아 reorder 처리.
+   *  미지정 시 indexBadge 는 read-only display. */
+  onIndexChange?: (item: string, newPosition: number) => void;
 }
 
 /**
@@ -121,14 +139,22 @@ export default function TagNotesEditor({
   addLabel = "Add description",
   cancelLabel = "Cancel",
   editLabel = "Edit",
-  removeTitle = "Remove",
+  removeTitle: _removeTitle = "Remove",
   multiLine = false,
   renderItemLabel,
   renderDrawerExtra,
   onItemClick,
   onEditClick,
   activeItem,
+  disableReorder = false,
+  singleColumn = false,
+  showIndex = false,
+  startIndex = 0,
+  getDisplayIndex,
+  indexMinChars = 5,
+  onIndexChange: _onIndexChange,
 }: TagNotesEditorProps) {
+  const { language } = useLanguage();
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dropPos, setDropPos] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
   const resetDrag = useCallback(() => { setDragIdx(null); setDropPos(null); }, []);
@@ -202,27 +228,31 @@ export default function TagNotesEditor({
     document.addEventListener("pointerdown", handler);
     return () => document.removeEventListener("pointerdown", handler);
   }, [editingItem, notes, onNotesChange]);
-  // dropPos 변화에 따라 indicator y 좌표 계산 (group rect → section 상대 offset)
-  const [indicatorTop, setIndicatorTop] = useState<number | null>(null);
+  // dropPos 변화에 따라 indicator rect (top + left + width) 계산 — 2열 grid 에서 한 column 만 차지하도록.
+  const [indicatorRect, setIndicatorRect] = useState<{ top: number; left: number; width: number } | null>(null);
   useEffect(() => {
-    if (dragIdx === null || dropPos === null) { setIndicatorTop(null); return; }
+    if (dragIdx === null || dropPos === null) { setIndicatorRect(null); return; }
     const targetItem = items[dropPos.idx];
     const groupEl = groupRefs.current.get(targetItem);
     const sectionEl = sectionRef.current;
-    if (!groupEl || !sectionEl) { setIndicatorTop(null); return; }
+    if (!groupEl || !sectionEl) { setIndicatorRect(null); return; }
     // no-op 위치 확인
     let effectiveTo = dropPos.idx + (dropPos.side === "bottom" ? 1 : 0);
     if (dragIdx < effectiveTo) effectiveTo -= 1;
-    if (effectiveTo === dragIdx) { setIndicatorTop(null); return; }
+    if (effectiveTo === dragIdx) { setIndicatorRect(null); return; }
     const groupRect = groupEl.getBoundingClientRect();
     const sectionRect = sectionEl.getBoundingClientRect();
     // gap 의 정중앙 — top: group 위쪽 gap 중앙, bottom: group 아래쪽 gap 중앙
-    // section gap = var(--spacing-md) → 약 16px → 절반 8px
     const GAP_HALF = 8;
-    const y = dropPos.side === "top"
+    const top = dropPos.side === "top"
       ? groupRect.top - sectionRect.top - GAP_HALF
       : groupRect.bottom - sectionRect.top + GAP_HALF;
-    setIndicatorTop(y);
+    // 한 chip 너비만큼만 — multi-col grid 에서 indicator 가 한 column 만 차지
+    setIndicatorRect({
+      top,
+      left: groupRect.left - sectionRect.left,
+      width: groupRect.width,
+    });
   }, [dragIdx, dropPos, items]);
   // 신규 entry 가 막 추가됐는지 추적 — 추가 직후 자동 editing 진입
   const prevNotesRef = useRef(notes);
@@ -250,7 +280,7 @@ export default function TagNotesEditor({
   // 마지막 항목 삭제 시 exit 애니메이션을 위해 항상 section 렌더링 (빈 list 면 자동 빈 공간 처리)
   return (
     <div
-      className={styles.section}
+      className={`${styles.section} ${singleColumn ? styles.sectionSingleCol : ""}`}
       ref={sectionRef}
       // section 전체 cursor 를 grab 으로 일관 — group 사이 gap 영역 통과 시에도 동일 cursor.
       // input/button 처럼 own data-cursor 가진 자식은 innermost 우선 룰로 자동 override
@@ -268,8 +298,11 @@ export default function TagNotesEditor({
       }}
     >
       {/* 단일 drop indicator — gap 정중앙. section absolute */}
-      {indicatorTop !== null && (
-        <div className={styles.dropIndicator} style={{ top: indicatorTop }} />
+      {indicatorRect !== null && (
+        <div
+          className={styles.dropIndicator}
+          style={{ top: indicatorRect.top, left: indicatorRect.left, width: indicatorRect.width }}
+        />
       )}
       <AnimatePresence initial={false}>
       {items.map((item, idx) => {
@@ -311,20 +344,20 @@ export default function TagNotesEditor({
                 else groupRefs.current.delete(item);
               }}
               className={`${styles.group} ${isDragging ? styles.groupDragging : ""}`}
-              draggable
+              draggable={!disableReorder}
               // mousedown 위치 기반 drag 가능 여부 결정 — button/input/textarea/label/select 영역은
               // drag 비활성화 (click/edit 보존), 그 외 (grip / 텍스트 / 빈 공간) 는 즉시 drag 가능
-              onMouseDown={(e) => {
+              onMouseDown={disableReorder ? undefined : (e) => {
                 const target = e.target as HTMLElement;
                 const isInteractive = !!target.closest("button, a, input, textarea, select, [contenteditable]");
                 (e.currentTarget as HTMLElement).setAttribute("draggable", isInteractive ? "false" : "true");
               }}
               // mouseup 시 draggable=true 복원 — cursor 표시 (grab) 가 idle 상태에서 정확히 보임
-              onMouseUp={(e) => {
+              onMouseUp={disableReorder ? undefined : (e) => {
                 (e.currentTarget as HTMLElement).setAttribute("draggable", "true");
               }}
-              onDragStart={() => setDragIdx(idx)}
-              onDragOver={(e) => {
+              onDragStart={disableReorder ? undefined : () => setDragIdx(idx)}
+              onDragOver={disableReorder ? undefined : (e) => {
                 if (dragIdx === null) return;
                 e.preventDefault();
                 const rect = e.currentTarget.getBoundingClientRect();
@@ -338,8 +371,8 @@ export default function TagNotesEditor({
                   setDropPos({ idx, side: rawSide });
                 }
               }}
-              onDrop={(e) => { e.preventDefault(); handleDrop(idx); }}
-              onDragEnd={(e) => {
+              onDrop={disableReorder ? undefined : (e) => { e.preventDefault(); handleDrop(idx); }}
+              onDragEnd={disableReorder ? undefined : (e) => {
                 // drop 이 안 잡혔으면 (cursor 가 section 밖에서 release) fallback 으로 보정
                 if (!droppedRef.current) handleDrop(idx);
                 droppedRef.current = false;
@@ -349,34 +382,34 @@ export default function TagNotesEditor({
             >
             <div className={styles.header}>
               <span className={styles.tagGroup}>
-                <span className={styles.grip} aria-hidden title="드래그로 순서 변경" data-cursor="grab">
-                  <GripVertical size={12} strokeWidth={2} />
-                </span>
-                {onItemClick ? (
-                  <button
-                    type="button"
-                    className={`${styles.tag} ${activeItem === item ? styles.tagActive : ""}`}
-                    data-cursor="big"
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={(e) => { e.stopPropagation(); onItemClick(item); }}
-                  >
-                    {renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}
-                  </button>
-                ) : (
-                  <span className={`${styles.tag} ${activeItem === item ? styles.tagActive : ""}`}>{renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}</span>
+                {!disableReorder && (
+                  <span className={styles.grip} aria-hidden title="드래그로 순서 변경" data-cursor="grab">
+                    <GripVertical size={12} strokeWidth={2} />
+                  </span>
                 )}
-                <CloseButton
-                  size="sm"
-                  onClick={removeItem}
-                  ariaLabel="remove"
-                  title={removeTitle}
-                />
+                {showIndex && (() => {
+                  const override = getDisplayIndex?.(item, idx);
+                  const displayNum = override ?? startIndex + idx + 1;
+                  return (
+                    <span className={styles.indexBadge} aria-hidden style={{ minWidth: `${indexMinChars}ch` }}>
+                      #{displayNum}
+                    </span>
+                  );
+                })()}
+                <Chip
+                  variant="bare"
+                  active={activeItem === item}
+                  onClick={onItemClick ? () => onItemClick(item) : undefined}
+                  onRemove={removeItem}
+                  className={styles.chipSlot}
+                >
+                  <span data-tag-item={item}>{renderItemLabel ? renderItemLabel(item) : `${prefix}${item}`}</span>
+                </Chip>
               </span>
               {!entry ? (
-                /* 신규 entry — 단일 + 설명 추가 버튼 */
+                /* 신규 entry — 단일 + 설명 추가 / 외부 편집 중이면 취소 표시 */
                 <GroupToggleButton
-                  state="add"
+                  state={activeItem === item ? "cancel" : "add"}
                   addLabel={addLabel}
                   cancelLabel={cancelLabel}
                   editLabel={editLabel}
@@ -418,7 +451,7 @@ export default function TagNotesEditor({
                       </button>
                     )}
                     <GroupToggleButton
-                      state={editingItem === item ? "cancel" : "edit"}
+                      state={(editingItem === item || activeItem === item) ? "cancel" : "edit"}
                       addLabel={addLabel}
                       cancelLabel={cancelLabel}
                       editLabel={editLabel}
@@ -477,12 +510,20 @@ export default function TagNotesEditor({
                 {renderDrawerExtra(item, editingItem === item)}
               </div>
             )}
-            {/* readonly + editing body — 통합 ul (li 단위로 input/readonly swap, 깜빡임 방지) */}
+            {/* readonly + editing body — 통합 ul (li 단위로 input/readonly swap, 깜빡임 방지).
+                padding-left 는 header 의 .tag 시작점과 정확히 일치: grip(14px) + gap(2xs) + [indexBadge(minChars ch + 8px padding) + gap] */}
             <AnimatePresence initial={false}>
               {entry && (
                 <motion.ul
                   key="body"
                   className={styles.readonly}
+                  style={{
+                    paddingLeft: `calc(${
+                      !disableReorder ? "14px + var(--spacing-2xs)" : "0px"
+                    }${
+                      showIndex ? ` + ${indexMinChars}ch + 8px + var(--spacing-2xs)` : ""
+                    })`,
+                  }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -603,54 +644,37 @@ export default function TagNotesEditor({
                                 onChange={(next) => writePairs(pairs.map((p, j) => (j === i ? next : p)))}
                                 placeholder={notePlaceholder}
                                 onEnter={closeEdit}
+                                /* 28px row leading 요소 (체크박스/grip) 와 alignment 위해 sm 유지 */
+                                size="sm"
                               />
                             ) : (() => {
-                              const hasKo = !!pair.ko.trim();
-                              const hasEn = !!pair.en.trim();
-                              // bullet + checkbox 는 첫 번째 보이는 line 에만 (KO 우선, 없으면 EN)
-                              const renderLeading = () => (
-                                <>
-                                  {showCheckbox && (
-                                    <label className={styles.readonlyCheckLabel} data-cursor="big">
-                                      <input
-                                        type="checkbox"
-                                        className={styles.itemCheckbox}
-                                        checked={checked}
-                                        onChange={toggleChecked}
-                                        onMouseDown={(e) => e.stopPropagation()}
-                                        onPointerDown={(e) => e.stopPropagation()}
-                                      />
-                                    </label>
-                                  )}
-                                  <span className={styles.readonlyBulletInline} aria-hidden>
-                                    <svg viewBox="0 0 4 4" width="4" height="4">
-                                      <circle cx="2" cy="2" r="2" fill="currentColor" />
-                                    </svg>
-                                  </span>
-                                </>
-                              );
-                              const renderSpacer = () => (
-                                <>
-                                  {showCheckbox && <span className={styles.readonlyCheckSpacer} aria-hidden />}
-                                  <span className={styles.readonlyBulletSpacer} aria-hidden />
-                                </>
-                              );
+                              const koText = pair.ko.trim();
+                              const enText = pair.en.trim();
+                              /* 현재 언어 우선 — 비어있으면 다른 언어로 fallback. 한 줄만 노출이므로 lang badge 불필요. */
+                              const text = language === "ko" ? (koText || enText) : (enText || koText);
+                              if (!text) return null;
                               return (
                                 <div className={styles.readonlyInlineGroup}>
-                                  {hasKo && (
-                                    <div className={styles.readonlyLine}>
-                                      {renderLeading()}
-                                      <span className={styles.readonlyBadge}>KO</span>
-                                      <span className={styles.readonlyText}>{pair.ko.trim()}</span>
-                                    </div>
-                                  )}
-                                  {hasEn && (
-                                    <div className={styles.readonlyLine}>
-                                      {hasKo ? renderSpacer() : renderLeading()}
-                                      <span className={styles.readonlyBadge}>EN</span>
-                                      <span className={styles.readonlyText}>{pair.en.trim()}</span>
-                                    </div>
-                                  )}
+                                  <div className={styles.readonlyLine}>
+                                    {showCheckbox && (
+                                      <label className={styles.readonlyCheckLabel} data-cursor="big">
+                                        <input
+                                          type="checkbox"
+                                          className={styles.itemCheckbox}
+                                          checked={checked}
+                                          onChange={toggleChecked}
+                                          onMouseDown={(e) => e.stopPropagation()}
+                                          onPointerDown={(e) => e.stopPropagation()}
+                                        />
+                                      </label>
+                                    )}
+                                    <span className={styles.readonlyBulletInline} aria-hidden>
+                                      <svg viewBox="0 0 4 4" width="4" height="4">
+                                        <circle cx="2" cy="2" r="2" fill="currentColor" />
+                                      </svg>
+                                    </span>
+                                    <span className={styles.readonlyText}>{text}</span>
+                                  </div>
                                 </div>
                               );
                             })()}

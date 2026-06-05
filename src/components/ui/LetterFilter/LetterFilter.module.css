@@ -1,0 +1,40 @@
+/* Letter filter — capsule chip 행. flex-wrap 으로 좁은 폭에서 다음 줄. */
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-3xs);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--bg-tertiary-alt);
+}
+
+.btnActive,
+.btnActive:hover {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.btnDisabled {
+  color: var(--text-muted);
+  opacity: 0.4;
+  cursor: default;
+}

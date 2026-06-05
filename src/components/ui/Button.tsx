@@ -16,7 +16,7 @@ import styles from "./Button.module.css";
 type ButtonVariant = "primary" | "outline" | "subtle" | "ghost" | "link" | "difference";
 type ButtonShape = "capsule" | "circle" | "square";
 type ButtonSize = "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
-type ButtonTone = "default" | "danger";
+type ButtonTone = "default" | "danger" | "success";
 
 interface ButtonBaseProps {
   variant?: ButtonVariant;

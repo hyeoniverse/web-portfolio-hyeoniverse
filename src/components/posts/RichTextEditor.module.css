@@ -141,7 +141,6 @@
   aspect-ratio: 1;
 }
 
-
 .toolbar .toolbarBtn:hover,
 .tableToolbar .toolbarBtn:hover {
   background: var(--bg-tertiary-alt);
@@ -177,7 +176,7 @@
 }
 
 .selectWrap::after {
-  content: '';
+  content: "";
   position: absolute;
   right: 7px;
   top: 50%;
@@ -245,15 +244,18 @@
 }
 
 /* dropdown (portal) */
-.fontPickerDropdown {
-  width: 280px !important;
-  padding: var(--box-y-xs);
+/* compound (0,2,0) — Select 의 .dropdown/.dropdownCompact (0,1,0) padding 을 이김 */
+.fontPickerDropdown.fontPickerDropdown {
+  width: 280px;
+  padding: 0;
   gap: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   max-height: none;
   overflow: visible;
+  interpolate-size: allow-keywords;
+  transition: height var(--duration-moderate) var(--ease-material), opacity 0.18s ease, transform 0.18s ease;
 }
 
 /* ── Font picker dropdown ── */
@@ -266,7 +268,7 @@
   backdrop-filter: blur(4px);
   border: var(--border-light);
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px oklch(0.00% 0.0000 0.00 / 0.15);
+  box-shadow: 0 2px 8px oklch(0% 0 0 / 0.15);
   padding: var(--box-y-xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -377,8 +379,13 @@
 }
 
 @keyframes cursorBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 .lsSelect {
@@ -584,10 +591,11 @@
 
 /* 글로벌 html[data-theme-ready] * transition shorthand 강제 override */
 .tableToolbar {
-  transition: opacity 0.2s ease-out,
-              clip-path 0.2s ease-out,
-              border-color 0.2s ease-out,
-              top 0.2s ease-out !important;
+  transition:
+    opacity 0.2s ease-out,
+    clip-path 0.2s ease-out,
+    border-color 0.2s ease-out,
+    top 0.2s ease-out !important;
 }
 
 .tableToolbarRow {
@@ -659,10 +667,11 @@
 }
 
 .findToolbar.findToolbar {
-  transition: opacity 0.2s ease-out,
-              clip-path 0.2s ease-out,
-              border-color 0.2s ease-out,
-              top 0.2s ease-out !important;
+  transition:
+    opacity 0.2s ease-out,
+    clip-path 0.2s ease-out,
+    border-color 0.2s ease-out,
+    top 0.2s ease-out !important;
 }
 
 .tableToolbarLabel {
@@ -808,17 +817,33 @@
 }
 
 .tableToolbar .presetDotInline:hover {
-  box-shadow: 0 0 0 1.5px var(--bg-primary), 0 0 0 3px var(--text-primary);
+  box-shadow:
+    0 0 0 1.5px var(--bg-primary),
+    0 0 0 3px var(--text-primary);
 }
 
 /* 빈 슬롯 — 투명 표시용 격자무늬 */
 .presetDotEmpty {
   background-color: var(--bg-primary);
   background-image:
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
+    linear-gradient(
+      45deg,
+      var(--border-light-color) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--border-light-color) 75%
+    ),
+    linear-gradient(
+      45deg,
+      var(--border-light-color) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--border-light-color) 75%
+    );
   background-size: 6px 6px;
-  background-position: 0 0, 3px 3px;
+  background-position:
+    0 0,
+    3px 3px;
   pointer-events: none;
   opacity: 0.6;
 }
@@ -889,7 +914,9 @@
   font-size: var(--font-size-2xs);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
 }
 
 .borderClearBtn:hover {
@@ -964,7 +991,9 @@
   background: transparent;
   color: var(--text-primary);
   padding: 0;
-  transition: background-color 0.12s ease, border-color 0.12s ease;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
 }
 
 .borderGridBtn :global(svg) {
@@ -1211,11 +1240,15 @@
 
 .toolbar .presetDot:hover,
 .tableToolbar .presetDot:hover {
-  box-shadow: 0 0 0 1.5px var(--bg-primary), 0 0 0 3px var(--text-primary);
+  box-shadow:
+    0 0 0 1.5px var(--bg-primary),
+    0 0 0 3px var(--text-primary);
 }
 
 .presetDotActive {
-  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 3.5px var(--text-primary);
+  box-shadow:
+    0 0 0 2px var(--bg-primary),
+    0 0 0 3.5px var(--text-primary);
 }
 
 .colorSection {
@@ -1443,7 +1476,12 @@
   margin-top: var(--spacing-3xs);
 }
 
-.editor :global(.tiptap) ul[data-type="taskList"] li > label input[type="checkbox"] {
+.editor
+  :global(.tiptap)
+  ul[data-type="taskList"]
+  li
+  > label
+  input[type="checkbox"] {
   width: 14px;
   height: 14px;
   accent-color: var(--text-accent);
@@ -1454,7 +1492,11 @@
   min-width: 0;
 }
 
-.editor :global(.tiptap) ul[data-type="taskList"] li[data-checked="true"] > div {
+.editor
+  :global(.tiptap)
+  ul[data-type="taskList"]
+  li[data-checked="true"]
+  > div {
   text-decoration: line-through;
   color: var(--text-tertiary);
 }
@@ -1496,13 +1538,11 @@
   text-align: left;
 }
 
-
 /* 셀 안 마지막 p의 margin-bottom 제거 (셀 패딩과 중복 방지) */
 .editor :global(.tiptap) table td p:last-child,
 .editor :global(.tiptap) table th p:last-child {
   margin-bottom: 0;
 }
-
 
 /* Built-in handle hidden — layout impact 방지. 시각적 indicator는 외부 React overlay로 렌더링 */
 .editor :global(.column-resize-handle) {
@@ -1609,7 +1649,6 @@
   border: none;
 }
 
-
 .editor :global(.tiptap) p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   color: var(--text-muted);
@@ -1714,7 +1753,6 @@
   gap: var(--spacing-2xs);
   margin-left: auto;
 }
-
 
 .imagePanelActionDanger {
   color: var(--text-error);
@@ -1831,7 +1869,9 @@
   border: 1.5px solid var(--text-tertiary);
   background: var(--bg-primary);
   color: var(--bg-primary);
-  transition: background-color 0.15s, border-color 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
 
 .imagePanelCheckboxChecked {
@@ -1866,7 +1906,6 @@
   border: var(--border-default);
 }
 
-
 .imagePanelInfoText {
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
@@ -1887,7 +1926,10 @@
   color: var(--text-tertiary);
   opacity: 0;
   border-radius: var(--radius-xs);
-  transition: opacity 0.15s, color 0.15s, background-color 0.15s;
+  transition:
+    opacity 0.15s,
+    color 0.15s,
+    background-color 0.15s;
   z-index: 5;
   user-select: none;
 }
@@ -2094,7 +2136,7 @@
   border-radius: var(--radius-sm);
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-jetbrains), monospace;
+  font-family: var(--font-mono), monospace;
   font-size: var(--font-size-md);
   line-height: 1.8;
   box-sizing: border-box;
@@ -2145,7 +2187,6 @@
   opacity: 0.4;
 }
 
-
 /* Math modal */
 /* ── Math Toolbar Panel (inline, no modal) ── */
 .mathPanel {
@@ -2170,7 +2211,7 @@
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-primary);
-  font-family: var(--font-jetbrains), monospace;
+  font-family: var(--font-mono), monospace;
   font-size: var(--font-size-xs);
   line-height: 1.6;
   resize: none;
@@ -2210,7 +2251,10 @@
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
-  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .mathPanelModeBtn:hover {
@@ -2319,7 +2363,10 @@
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .mathModeBtnActive {
@@ -2336,7 +2383,7 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-primary);
-  font-family: var(--font-jetbrains), monospace;
+  font-family: var(--font-mono), monospace;
   font-size: var(--font-size-sm);
   line-height: 1.6;
   resize: vertical;
@@ -2423,10 +2470,20 @@
   scrollbar-color: var(--border-strong-color) transparent;
 }
 
-.editorContent::-webkit-scrollbar { display: block; width: 6px; }
-.editorContent::-webkit-scrollbar-track { background: transparent; }
-.editorContent::-webkit-scrollbar-thumb { background: var(--border-strong-color); border-radius: var(--radius-2xs); }
-.editorContent::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+.editorContent::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+}
+.editorContent::-webkit-scrollbar-track {
+  background: transparent;
+}
+.editorContent::-webkit-scrollbar-thumb {
+  background: var(--border-strong-color);
+  border-radius: var(--radius-2xs);
+}
+.editorContent::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
 
 .editorContent h1,
 .editorContent h2,
@@ -2435,11 +2492,20 @@
   font-weight: var(--font-weight-regular);
   margin: var(--spacing-lg) 0 var(--spacing-sm);
 }
-.editorContent h1 { font-size: var(--font-size-2xl); }
-.editorContent h2 { font-size: var(--font-size-lg); }
-.editorContent p { margin-bottom: var(--spacing-sm); }
+.editorContent h1 {
+  font-size: var(--font-size-2xl);
+}
+.editorContent h2 {
+  font-size: var(--font-size-lg);
+}
+.editorContent p {
+  margin-bottom: var(--spacing-sm);
+}
 /* 표 바로 뒤 빈 paragraph 여백 축소 */
-.editorContent [data-table-wrap] + p { margin-top: 0; margin-bottom: var(--spacing-2xs); }
+.editorContent [data-table-wrap] + p {
+  margin-top: 0;
+  margin-bottom: var(--spacing-2xs);
+}
 
 /* Slate가 <tr>/<tbody> 안에 삽입하는 text span과 paragraph div 숨김 */
 .editorContent :global(.slate-tr) > :global([data-slate-node="text"]) {
@@ -2468,57 +2534,126 @@
   overflow-x: auto;
   margin: var(--spacing-md) 0;
 }
-.editorContent pre code { padding: 0; background: transparent; border: none; color: inherit; border-radius: 0; }
+.editorContent pre code {
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  border-radius: 0;
+}
 /* Code syntax highlighting — VSCode Dark+ / Light+ inspired */
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-keyword),
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-selector-tag),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-built_in) { color: oklch(74.27% 0.1348 311.06); }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-built_in) {
+  color: oklch(74.27% 0.1348 311.06);
+}
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-string),
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-attr),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-addition) { color: oklch(84.25% 0.0844 75.06); }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-addition) {
+  color: oklch(84.25% 0.0844 75.06);
+}
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-comment),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-quote) { color: oklch(55.31% 0.0236 196.49); font-style: italic; }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-quote) {
+  color: oklch(55.31% 0.0236 196.49);
+  font-style: italic;
+}
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-number),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-literal) { color: oklch(74.86% 0.1381 37.46); }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-literal) {
+  color: oklch(74.86% 0.1381 37.46);
+}
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-title),
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-section),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-title.function_) { color: oklch(74.41% 0.1311 264.28); }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-title.function_) {
+  color: oklch(74.41% 0.1311 264.28);
+}
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-type),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-name) { color: oklch(70.09% 0.1567 18.62); }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-name) {
+  color: oklch(70.09% 0.1567 18.62);
+}
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-variable),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-template-variable) { color: oklch(83.44% 0.1534 127.38); }
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-property) { color: oklch(82.92% 0.0920 180.70); }
+:global([data-theme="dark"])
+  .editorContent
+  pre
+  :global(.hljs-template-variable) {
+  color: oklch(83.44% 0.1534 127.38);
+}
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-property) {
+  color: oklch(82.92% 0.092 180.7);
+}
 :global([data-theme="dark"]) .editorContent pre :global(.hljs-operator),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-punctuation) { color: oklch(85.61% 0.0943 225.87); }
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-regexp) { color: oklch(70.53% 0.1170 245.09); }
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-deletion) { color: oklch(65.39% 0.1926 25.14); }
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-meta) { color: oklch(74.41% 0.1311 264.28); }
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-params) { color: oklch(89.84% 0.0198 260.17); }
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-punctuation) {
+  color: oklch(85.61% 0.0943 225.87);
+}
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-regexp) {
+  color: oklch(70.53% 0.117 245.09);
+}
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-deletion) {
+  color: oklch(65.39% 0.1926 25.14);
+}
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-meta) {
+  color: oklch(74.41% 0.1311 264.28);
+}
+:global([data-theme="dark"]) .editorContent pre :global(.hljs-params) {
+  color: oklch(89.84% 0.0198 260.17);
+}
 
 :global([data-theme="light"]) .editorContent pre :global(.hljs-keyword),
 :global([data-theme="light"]) .editorContent pre :global(.hljs-selector-tag),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-built_in) { color: oklch(56.39% 0.1860 311.73); }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-built_in) {
+  color: oklch(56.39% 0.186 311.73);
+}
 :global([data-theme="light"]) .editorContent pre :global(.hljs-string),
 :global([data-theme="light"]) .editorContent pre :global(.hljs-attr),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-addition) { color: oklch(62.80% 0.1251 22.49); }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-addition) {
+  color: oklch(62.8% 0.1251 22.49);
+}
 :global([data-theme="light"]) .editorContent pre :global(.hljs-comment),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-quote) { color: oklch(69.79% 0.0159 196.79); font-style: italic; }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-quote) {
+  color: oklch(69.79% 0.0159 196.79);
+  font-style: italic;
+}
 :global([data-theme="light"]) .editorContent pre :global(.hljs-number),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-literal) { color: oklch(49.77% 0.2095 342.46); }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-literal) {
+  color: oklch(49.77% 0.2095 342.46);
+}
 :global([data-theme="light"]) .editorContent pre :global(.hljs-title),
 :global([data-theme="light"]) .editorContent pre :global(.hljs-section),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-title.function_) { color: oklch(58.19% 0.1557 263.15); }
+:global([data-theme="light"])
+  .editorContent
+  pre
+  :global(.hljs-title.function_) {
+  color: oklch(58.19% 0.1557 263.15);
+}
 :global([data-theme="light"]) .editorContent pre :global(.hljs-type),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-name) { color: oklch(56.39% 0.1860 311.73); }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-name) {
+  color: oklch(56.39% 0.186 311.73);
+}
 :global([data-theme="light"]) .editorContent pre :global(.hljs-variable),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-template-variable) { color: oklch(61.22% 0.1023 199.06); }
-:global([data-theme="light"]) .editorContent pre :global(.hljs-property) { color: oklch(61.22% 0.1023 199.06); }
+:global([data-theme="light"])
+  .editorContent
+  pre
+  :global(.hljs-template-variable) {
+  color: oklch(61.22% 0.1023 199.06);
+}
+:global([data-theme="light"]) .editorContent pre :global(.hljs-property) {
+  color: oklch(61.22% 0.1023 199.06);
+}
 :global([data-theme="light"]) .editorContent pre :global(.hljs-operator),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-punctuation) { color: oklch(47.72% 0.2870 264.37); }
-:global([data-theme="light"]) .editorContent pre :global(.hljs-regexp) { color: oklch(58.19% 0.1557 263.15); }
-:global([data-theme="light"]) .editorContent pre :global(.hljs-deletion) { color: oklch(60.05% 0.1983 26.06); }
-:global([data-theme="light"]) .editorContent pre :global(.hljs-meta) { color: oklch(58.19% 0.1557 263.15); }
-:global([data-theme="light"]) .editorContent pre :global(.hljs-params) { color: oklch(37.69% 0.0339 286.94); }
+:global([data-theme="light"]) .editorContent pre :global(.hljs-punctuation) {
+  color: oklch(47.72% 0.287 264.37);
+}
+:global([data-theme="light"]) .editorContent pre :global(.hljs-regexp) {
+  color: oklch(58.19% 0.1557 263.15);
+}
+:global([data-theme="light"]) .editorContent pre :global(.hljs-deletion) {
+  color: oklch(60.05% 0.1983 26.06);
+}
+:global([data-theme="light"]) .editorContent pre :global(.hljs-meta) {
+  color: oklch(58.19% 0.1557 263.15);
+}
+:global([data-theme="light"]) .editorContent pre :global(.hljs-params) {
+  color: oklch(37.69% 0.0339 286.94);
+}
 
 .editorContent img {
   max-width: 100%;
@@ -2539,8 +2674,12 @@
   margin-bottom: var(--spacing-sm);
   list-style-position: inside;
 }
-.editorContent ul { list-style-type: disc; }
-.editorContent ol { list-style-type: decimal; }
+.editorContent ul {
+  list-style-type: disc;
+}
+.editorContent ol {
+  list-style-type: decimal;
+}
 .editorContent li {
   margin-bottom: var(--spacing-2xs);
 }
@@ -2563,18 +2702,30 @@
   display: list-item;
 }
 
-
 .editorContent hr {
   border: none;
   border-top: var(--border-light);
   margin: var(--spacing-lg) 0;
 }
 
-.editorContent a { color: var(--text-accent); }
-.editorContent mark { border-radius: var(--radius-2xs); padding: 0 2px; }
-.editorContent u { text-decoration: underline; }
-.editorContent sup { font-size: 0.75em; vertical-align: super; }
-.editorContent sub { font-size: 0.75em; vertical-align: sub; }
+.editorContent a {
+  color: var(--text-accent);
+}
+.editorContent mark {
+  border-radius: var(--radius-2xs);
+  padding: 0 2px;
+}
+.editorContent u {
+  text-decoration: underline;
+}
+.editorContent sup {
+  font-size: 0.75em;
+  vertical-align: super;
+}
+.editorContent sub {
+  font-size: 0.75em;
+  vertical-align: sub;
+}
 
 .editorContent table {
   border-collapse: separate;
@@ -2620,7 +2771,6 @@
 .editorContent :global(.selectedCell)::after {
   display: none !important;
 }
-
 
 /* Plate placeholder */
 .editorContent :global([data-slate-placeholder]) {
@@ -2774,6 +2924,5 @@
   color: var(--text-secondary);
   line-height: var(--line-height-relaxed);
 }
-
 
 /* 삭제 버튼: 우상단, 호버 시만 */

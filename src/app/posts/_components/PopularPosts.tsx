@@ -42,6 +42,7 @@ export default function PopularPosts() {
         <Flame size={14} className={styles.flameIcon} fill="currentColor" />
         <T k="postsPage.popular" />
         <SegmentedControl<Metric>
+          size="xs"
           items={METRICS}
           value={metric}
           onChange={setMetric}

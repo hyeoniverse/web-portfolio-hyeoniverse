@@ -10,8 +10,10 @@ import type { Post } from "@/types/post";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import { formatCount } from "@/utils/format";
 import CategoryLabel from "@/components/ui/CategoryLabel";
+import HighlightedText from "@/components/ui/HighlightedText";
 import T from "@/components/ui/T";
-import { ImageIcon, Flame, Pin, Eye, Heart } from "lucide-react";
+import { Flame, Pin, Eye, Heart } from "lucide-react";
+import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import styles from "./PostCard.module.css";
 
 interface PostCardProps {
@@ -117,6 +119,7 @@ export default function PostCard({
 
   const cardClass = [
     styles.card,
+    !showImage && styles.placeholderCard,
     isFeatured && styles.featured,
     isHero && styles.hero,
     compact && styles.compact,
@@ -149,7 +152,10 @@ export default function PostCard({
             onError={() => onImgError?.(post.id)}
           />
         ) : (
-          <div className={styles.heroPlaceholder} />
+          <div
+            className={styles.heroPlaceholder}
+            style={{ background: getFallbackCoverGradient(post.slug || post.id) }}
+          />
         )}
 
         {/* 하단 그라데이션 */}
@@ -173,8 +179,8 @@ export default function PostCard({
               <span className={styles.heroLangHint}><T k={`postDetail.${langBadge}`} /></span>
             )}
           </div>
-          <h2 className={styles.heroTitle}>{displayTitle}</h2>
-          {displayExcerpt && <p className={styles.heroExcerpt}>{displayExcerpt}</p>}
+          <h2 className={styles.heroTitle}><HighlightedText text={displayTitle} /></h2>
+          {displayExcerpt && <p className={styles.heroExcerpt}><HighlightedText text={displayExcerpt} /></p>}
           <div className={styles.heroMeta}>
             <span className={styles.metaGroup}>
               <span>{date}</span>
@@ -223,36 +229,80 @@ export default function PostCard({
           />
         ) : (
           <div className={styles.placeholder}>
-            <ImageIcon size={32} strokeWidth={1} />
+            {/* 배경 레이어 — hover 시 이 레이어만 scale, 텍스트는 정적 */}
+            <div
+              className={styles.placeholderBg}
+              style={{ background: getFallbackCoverGradient(post.slug || post.id) }}
+            />
+            {/* placeholderInner = 상단 badges + 하단 텍스트 그룹 (space-between) */}
+            <div className={styles.placeholderInner}>
+              {(isHot || post.is_pinned || langBadge) && (
+                <div className={styles.placeholderBadges}>
+                  {isHot && (
+                    <span className={styles.hotBadge}>
+                      <Flame size={10} fill="currentColor" stroke="none" />
+                      HOT
+                    </span>
+                  )}
+                  {post.is_pinned && (
+                    <span className={styles.pinnedOverlay}>
+                      <Pin size={10} />
+                      Pinned
+                    </span>
+                  )}
+                  {langBadge && (
+                    <span className={styles.langOverlay}><T k={`postDetail.${langBadge}`} /></span>
+                  )}
+                </div>
+              )}
+              <div className={styles.placeholderText}>
+                {category && (
+                  <span className={styles.placeholderCategory}><CategoryLabel category={category} /></span>
+                )}
+                <h2 className={styles.placeholderTitle}><HighlightedText text={displayTitle} /></h2>
+                {displayExcerpt && (
+                  <p className={styles.placeholderExcerpt}><HighlightedText text={displayExcerpt} /></p>
+                )}
+              </div>
+            </div>
           </div>
         )}
-        {isHot && (
-          <span className={styles.hotBadge}>
-            <Flame size={10} fill="currentColor" stroke="none" />
-            HOT
-          </span>
+        {/* 이미지가 있는 경우에만 absolute 배지 — placeholder 는 위 inline 으로 처리 */}
+        {showImage && (isHot || post.is_pinned) && (
+          <div className={styles.imageBadgesLeft}>
+            {isHot && (
+              <span className={styles.hotBadge}>
+                <Flame size={10} fill="currentColor" stroke="none" />
+                HOT
+              </span>
+            )}
+            {post.is_pinned && (
+              <span className={styles.pinnedOverlay}>
+                <Pin size={10} />
+                Pinned
+              </span>
+            )}
+          </div>
         )}
-        {post.is_pinned && (
-          <span className={styles.pinnedOverlay}>
-            <Pin size={10} />
-            Pinned
-          </span>
+        {showImage && langBadge && (
+          <span className={styles.langOverlay}><T k={`postDetail.${langBadge}`} /></span>
         )}
       </div>
 
       <div className={styles.body}>
-        <div className={styles.badgeRow}>
-          {category && (
+        {/* category 만 — cover 있을 때만 (cover 없을 땐 placeholder 안에 표시). lang 은 이미지 위로 이동 */}
+        {showImage && category && (
+          <div className={styles.badgeRow}>
             <span className={styles.categoryBadge}><CategoryLabel category={category} /></span>
-          )}
-          {langBadge && (
-            <span className={styles.langHint}><T k={`postDetail.${langBadge}`} /></span>
-          )}
-        </div>
+          </div>
+        )}
 
-        <h2 className={styles.title}>{displayTitle}</h2>
+        {showImage && (
+          <h2 className={styles.title}><HighlightedText text={displayTitle} /></h2>
+        )}
 
-        <p className={styles.excerpt}>{displayExcerpt}</p>
+        {/* excerpt — 항상 렌더. placeholder 카드는 기본적으로 CSS 가 숨기지만 작은 화면에선 여기로 노출 */}
+        <p className={styles.excerpt}><HighlightedText text={displayExcerpt} /></p>
 
         {post.tags && post.tags.length > 0 && (
           <div ref={tagsRef} className={`${styles.tagsRow} ${tagsExpanded ? styles.tagsRowExpanded : ""}`}>

@@ -15,8 +15,8 @@
 }
 
 .pageBtn {
-  width: var(--button-h-md);
-  height: var(--button-h-md);
+  width: var(--control-h-md);
+  height: var(--control-h-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,9 +24,20 @@
   border-radius: var(--radius-circle);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   transition: transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+/* size=sm — 컴팩트한 list 안에서 사용 */
+.paginationWrapSm .pageBtn {
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  font-size: var(--font-size-xs);
+}
+
+.paginationWrapSm .pagination {
+  gap: var(--spacing-2xs);
 }
 
 .pagination .pageBtn:hover:not(:disabled) {
@@ -79,7 +90,7 @@
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   color: var(--text-primary);
   text-align: center;
@@ -100,6 +111,6 @@
 }
 
 .jumpTotal {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }

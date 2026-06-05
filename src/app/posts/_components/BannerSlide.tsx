@@ -9,7 +9,7 @@ import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import type { Post } from "@/types/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import T from "@/components/ui/T";
-import { ImageIcon } from "lucide-react";
+import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import styles from "./BannerSlide.module.css";
 
 export type BannerStyle = "editorial" | "minimal" | "cinematic" | "magazine";
@@ -68,9 +68,10 @@ export default function BannerSlide({
       onError={() => onImgError(post.id)}
     />
   ) : (
-    <div className={styles.slideFallback}>
-      <ImageIcon size={48} strokeWidth={1} />
-    </div>
+    <div
+      className={styles.slideFallback}
+      style={{ background: getFallbackCoverGradient(post.slug || post.id) }}
+    />
   );
 
   /* ── Editorial ── */

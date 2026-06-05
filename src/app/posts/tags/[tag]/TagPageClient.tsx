@@ -14,6 +14,8 @@ import Tooltip from "@/components/ui/Tooltip";
 import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import { parseSearchQuery, matchesQuery, type SyntaxMode } from "@/lib/searchQuery";
+import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import styles from "./TagPage.module.css";
 
 type Sort = "newest" | "popular" | "title";
@@ -40,6 +42,7 @@ export default function TagPageClient({ tag, initialData }: Props) {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [searchType, setSearchType] = useState<"all" | "title" | "content">("all");
+  const [syntaxMode, setSyntaxMode] = useState<SyntaxMode>("prefix");
   // 추가 태그 필터 — selectMode 켤 때 관련 태그 클릭으로 토글. client-side 교집합 필터.
   const [extraTags, setExtraTags] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
@@ -124,24 +127,20 @@ export default function TagPageClient({ tag, initialData }: Props) {
 
   // 검색 client-side filter (다중 태그 교집합은 서버가 처리)
   const filteredPosts = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = search.trim();
     if (!q) return posts;
-    const matchTitle = (p: Post) =>
-      (p.title?.toLowerCase() ?? "").includes(q) ||
-      (p.title_en?.toLowerCase() ?? "").includes(q);
-    const matchContent = (p: Post) =>
-      (p.content?.toLowerCase() ?? "").includes(q) ||
-      (p.content_en?.toLowerCase() ?? "").includes(q) ||
-      (p.excerpt?.toLowerCase() ?? "").includes(q) ||
-      (p.excerpt_en?.toLowerCase() ?? "").includes(q);
+    const parsed = parseSearchQuery(q, syntaxMode);
+    const titleHaystack = (p: Post) => [p.title, p.title_en].filter(Boolean).join("\n");
+    const contentHaystack = (p: Post) => [p.content, p.content_en, p.excerpt, p.excerpt_en].filter(Boolean).join("\n");
     return posts.filter((p) => {
-      if (searchType === "title") return matchTitle(p);
-      if (searchType === "content") return matchContent(p);
-      return matchTitle(p) || matchContent(p);
+      if (searchType === "title") return matchesQuery(titleHaystack(p), parsed);
+      if (searchType === "content") return matchesQuery(contentHaystack(p), parsed);
+      return matchesQuery(`${titleHaystack(p)}\n${contentHaystack(p)}`, parsed);
     });
-  }, [posts, search, searchType]);
+  }, [posts, search, searchType, syntaxMode]);
 
   return (
+    <SearchHighlightProvider query={search} mode={syntaxMode}>
     <div className={styles.container}>
       {/* Sticky 감지용 sentinel — heroTopRow 바로 위에 0-height 로 두고
          viewport top 라인을 넘는 순간 stuck = true */}
@@ -176,6 +175,9 @@ export default function TagPageClient({ tag, initialData }: Props) {
             align="right"
             placeholder="이 태그 안에서 검색…"
             className={styles.heroSearch}
+            routeParam="q"
+            hasResults={filteredPosts.length > 0}
+            onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
             typeSelector={{
               value: searchType,
               options: [
@@ -285,5 +287,6 @@ export default function TagPageClient({ tag, initialData }: Props) {
         className={styles.pagination}
       />
     </div>
+    </SearchHighlightProvider>
   );
 }

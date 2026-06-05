@@ -7,6 +7,7 @@ import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
+import { isVideoUrl } from "@/lib/isVideoUrl";
 import { extractPalette } from "./extractPalette";
 import styles from "./CoverImageField.module.css";
 
@@ -177,13 +178,26 @@ export default function CoverImageField({
             onClick={onPickerToggle}
             title={chooseLabel}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={displaySrc}
-              alt={label}
-              className={styles.thumb}
-              onError={() => setImgErrored(true)}
-            />
+            {isVideoUrl(value) && !imgErrored ? (
+              <video
+                src={value}
+                className={styles.thumb}
+                muted
+                playsInline
+                autoPlay
+                loop
+                preload="metadata"
+                onError={() => setImgErrored(true)}
+              />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={displaySrc}
+                alt={label}
+                className={styles.thumb}
+                onError={() => setImgErrored(true)}
+              />
+            )}
           </button>
           {/* 추출된 테마 색상 — palette 아이콘 = 전체 복사, swatch 개별 = hex 복사 */}
           {palette.length > 0 && (

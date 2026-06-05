@@ -13,7 +13,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
 import { focusFirstMissingField } from "@/utils/focusFirstMissing";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
-import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
+import Chip, { useChipReorder } from "@/components/ui/Chip";
 import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
@@ -43,6 +43,7 @@ import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import SortOrderDragList from "@/components/admin/SortOrderDragList";
 import CoverImageField from "@/components/admin/CoverImageField";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
+import { isVideoUrl } from "@/lib/isVideoUrl";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { List, ListItem } from "@/app/admin/(dashboard)/components";
@@ -118,7 +119,7 @@ function useRoleMultiPicker({
     setInput("");
   };
   const remove = (idx: number) => setTokens(tokens.filter((_, i) => i !== idx));
-  const { itemProps } = useTagDrag((from, to) => {
+  const { itemProps } = useChipReorder((from, to) => {
     const next = [...tokens];
     const [moved] = next.splice(from, 1);
     next.splice(to, 0, moved);
@@ -147,9 +148,22 @@ function useRoleMultiPicker({
   );
   const chipsNode = tokens.length > 0 ? (
     <div className={styles.categoryChipList}>
-      {tokens.map((t, i) => (
-        <DraggableTag key={`${t}-${i}`} label={t} onRemove={() => remove(i)} {...itemProps(i)} />
-      ))}
+      {tokens.map((t, i) => {
+        const { dragging, dropSide, ...handlers } = itemProps(i);
+        return (
+          <Chip
+            key={`${t}-${i}`}
+            variant="capsule"
+            showHandle
+            onRemove={() => remove(i)}
+            dragging={dragging}
+            dropSide={dropSide}
+            dragHandlers={{ draggable: true, ...handlers }}
+          >
+            {t}
+          </Chip>
+        );
+      })}
     </div>
   ) : null;
   return { selectNode, chipsNode };
@@ -610,7 +624,7 @@ function CategoryMultiPicker({
       selectedEns.filter((_, i) => i !== idx),
     );
   };
-  const { itemProps } = useTagDrag((from, to) => {
+  const { itemProps } = useChipReorder((from, to) => {
     const ko = [...selectedKos];
     const en = [...selectedEns];
     const [movedKo] = ko.splice(from, 1);
@@ -648,17 +662,25 @@ function CategoryMultiPicker({
           <CategoryCustomAdder onAdd={add} onCancel={() => setCustomMode(false)} koPh={labels.placeholder} enPh={labels.placeholder} />
         )}
       </div>
-      {/* 아래쪽 — 선택된 chip 들 (DraggableTag 공통 컴포넌트) */}
+      {/* 아래쪽 — 선택된 chip 들 (공통 Chip + drag reorder) */}
       {selectedKos.length > 0 && (
         <div className={styles.categoryChipList}>
-          {selectedKos.map((k, i) => (
-            <DraggableTag
-              key={`${k}-${i}`}
-              label={editorLang === "en" ? (selectedEns[i] || k) : k}
-              onRemove={() => remove(i)}
-              {...itemProps(i)}
-            />
-          ))}
+          {selectedKos.map((k, i) => {
+            const { dragging, dropSide, ...handlers } = itemProps(i);
+            return (
+              <Chip
+                key={`${k}-${i}`}
+                variant="capsule"
+                showHandle
+                onRemove={() => remove(i)}
+                dragging={dragging}
+                dropSide={dropSide}
+                dragHandlers={{ draggable: true, ...handlers }}
+              >
+                {editorLang === "en" ? (selectedEns[i] || k) : k}
+              </Chip>
+            );
+          })}
         </div>
       )}
     </div>
@@ -1250,7 +1272,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                   openModal(
                     <ModalConfirm
                       desc={tw("templateConfirm")}
-                      cancelText={tw("cancel") || "취소"}
                       confirmText={tw("insertTemplate")}
                       onConfirm={() => { applyTemplate(tmpl); closeAll(); }}
                     />,
@@ -1280,6 +1301,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
     const compressed = await compressImage(file);
 
+    // 압축 후에도 한도 초과면 reject
+    const postError = validateFileSize(compressed, undefined, { skipCompressibleBypass: true });
+    if (postError) throw new Error(postError);
+
     const fd = new FormData();
     fd.append("file", compressed);
     const res = await fetch("/api/upload", { method: "POST", body: fd });
@@ -1291,7 +1316,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const handleImageUpload = useCallback(async (field: "image" | "gallery") => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*";
+    input.accept = "image/*,video/mp4,video/webm,video/quicktime";
     input.multiple = field === "gallery";
     input.onchange = async () => {
       const files = input.files;
@@ -1301,9 +1326,14 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       for (const file of Array.from(files)) {
         const sizeError = validateFileSize(file);
         if (sizeError) { alert(sizeError); continue; }
-        const compressed = await compressImage(file);
+        // 비디오는 압축 X — 그대로 업로드. 이미지만 압축 파이프라인.
+        const isVideo = file.type.startsWith("video/");
+        const payload = isVideo ? file : await compressImage(file);
+        // 압축 후에도 한도 초과면 reject
+        const postError = validateFileSize(payload, undefined, { skipCompressibleBypass: true });
+        if (postError) { alert(postError); continue; }
         const formData = new FormData();
-        formData.append("file", compressed);
+        formData.append("file", payload);
         const res = await fetch("/api/upload", { method: "POST", body: formData });
         const data = await res.json();
         if (!res.ok) continue;
@@ -1977,18 +2007,36 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setGalleryViewerIdx(i); } }}
                     aria-label={tw("viewImage")}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={galleryImgErrors.has(src) ? "/images/placeholder.svg" : src}
-                      alt={`Gallery ${i + 1}`}
-                      className={styles.galleryImg}
-                      onError={() => setGalleryImgErrors((prev) => {
-                        if (prev.has(src)) return prev;
-                        const next = new Set(prev);
-                        next.add(src);
-                        return next;
-                      })}
-                    />
+                    {isVideoUrl(src) && !galleryImgErrors.has(src) ? (
+                      <video
+                        src={src}
+                        className={styles.galleryImg}
+                        muted
+                        playsInline
+                        preload="metadata"
+                        onMouseEnter={(e) => { void e.currentTarget.play().catch(() => {}); }}
+                        onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                        onError={() => setGalleryImgErrors((prev) => {
+                          if (prev.has(src)) return prev;
+                          const next = new Set(prev);
+                          next.add(src);
+                          return next;
+                        })}
+                      />
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={galleryImgErrors.has(src) ? "/images/placeholder.svg" : src}
+                        alt={`Gallery ${i + 1}`}
+                        className={styles.galleryImg}
+                        onError={() => setGalleryImgErrors((prev) => {
+                          if (prev.has(src)) return prev;
+                          const next = new Set(prev);
+                          next.add(src);
+                          return next;
+                        })}
+                      />
+                    )}
                     {isMain && (
                       <span className={styles.galleryMainBadge}>
                         <Star size={10} strokeWidth={2.5} fill="currentColor" />

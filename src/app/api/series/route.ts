@@ -2,6 +2,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonOk, jsonServerError } from "@/lib/api/response";
 import { ensurePostCategory } from "@/lib/api/validateCategory";
+import { applySearchQuery } from "@/lib/api/applySearchQuery";
+import type { SyntaxMode } from "@/lib/searchQuery";
 
 // GET /api/series — 시리즈 목록
 // 쿼리: ?all=true (비공개 포함), ?category=, ?q= (검색),
@@ -15,7 +17,7 @@ export async function GET(request: Request) {
 
   const category = searchParams.get("category");
   const q = (searchParams.get("q") || "").trim();
-  const searchType = (searchParams.get("searchType") || "all") as "all" | "title";
+  const searchType = (searchParams.get("searchType") || "all") as "all" | "title" | "desc";
   // tags=tag1,tag2,... — 모든 태그를 포함한 글이 있는 시리즈만 (AND semantic, main posts 와 동일)
   const tagsParam = (searchParams.get("tags") || "").trim();
   const tags = tagsParam ? tagsParam.split(",").map((t) => t.trim()).filter(Boolean) : [];
@@ -73,14 +75,13 @@ export async function GET(request: Request) {
     query = query.in("id", taggedSeriesIds);
   }
   if (q) {
-    const esc = q.replace(/[%_]/g, (m) => `\\${m}`);
-    if (searchType === "title") {
-      query = query.or(`title.ilike.%${esc}%,title_en.ilike.%${esc}%`);
-    } else {
-      query = query.or(
-        `title.ilike.%${esc}%,title_en.ilike.%${esc}%,category.ilike.%${esc}%`,
-      );
-    }
+    const syntaxMode = (searchParams.get("syntaxMode") === "regex" ? "regex" : "prefix") as SyntaxMode;
+    const columns = searchType === "title"
+      ? ["title", "title_en"]
+      : searchType === "desc"
+        ? ["description", "description_en"]
+        : ["title", "title_en", "description", "description_en"];
+    query = applySearchQuery(query, { search: q, mode: syntaxMode, columns });
   }
 
   if (isPaginated) {

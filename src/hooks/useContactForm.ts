@@ -6,6 +6,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { EMAIL_RE } from "@/utils/commentValidation";
+import { validateFileSize } from "@/lib/compressImage";
 
 interface SubmittedData {
   name: string;
@@ -154,6 +155,17 @@ export function useContactForm(): UseContactFormReturn {
       if (!privacyAccepted) {
         showFormToastRef.current("Please accept the Privacy Policy");
         return;
+      }
+
+      /* 첨부 파일 검증 — admin 의 media.limits 적용 (post-compress bypass 활성: 첨부는 압축 안 함) */
+      const attachedFile = fileInputRef.current?.files?.[0];
+      if (attachedFile) {
+        const mediaLimits = cfg.media?.limits as Record<string, number> | undefined;
+        const sizeError = validateFileSize(attachedFile, mediaLimits, { skipCompressibleBypass: true });
+        if (sizeError) {
+          showFormToastRef.current(sizeError);
+          return;
+        }
       }
 
       // reCAPTCHA 유효성 검사

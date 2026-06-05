@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { createPortal } from "react-dom";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
+import { ModalFooterContext } from "@/components/ui/Modal";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import type { BilingualCategory } from "@/hooks/useCategories";
@@ -25,6 +27,7 @@ export default function BulkCategoryModal({ count, categories, onConfirm }: Bulk
   const { closeAll } = useModalStore();
   const [value, setValue] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const footerEl = useContext(ModalFooterContext);
 
   const options = [
     { value: "", label: t("admin.common.unset") || "—" },
@@ -48,14 +51,17 @@ export default function BulkCategoryModal({ count, categories, onConfirm }: Bulk
         {t("admin.common.bulkCategoryDesc").replace("{{count}}", String(count))}
       </p>
       <Select value={value} options={options} onChange={setValue} />
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--spacing-sm)" }}>
-        <Button variant="ghost" size="sm" onClick={closeAll} disabled={submitting}>
-          {t("admin.posts.cancel")}
-        </Button>
-        <Button variant="primary" size="sm" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? "..." : t("admin.common.apply") || "Apply"}
-        </Button>
-      </div>
+      {footerEl && createPortal(
+        <>
+          <Button variant="ghost" size="sm" onClick={closeAll} disabled={submitting}>
+            {t("admin.posts.cancel")}
+          </Button>
+          <Button variant="primary" size="sm" onClick={handleSubmit} disabled={submitting}>
+            {submitting ? "..." : t("admin.common.apply") || "Apply"}
+          </Button>
+        </>,
+        footerEl,
+      )}
     </div>
   );
 }

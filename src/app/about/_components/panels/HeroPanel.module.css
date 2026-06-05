@@ -4,6 +4,67 @@
   flex-direction: column;
   position: relative;
   height: 100%;
+  z-index: 1;
+}
+
+/* admin 에서 heroBackground 로 미디어 URL (이미지/동영상) 지정 시 panel 위 full cover 로 렌더.
+   둘 다 같은 클래스로 통일 — opacity 도 공통 (--_hero-bg-opacity). */
+.heroBgMedia {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: 0;
+  /* 미디어 톤만 살짝 죽임 — 패널/텍스트와의 균형. admin heroBgOpacity 로 override. */
+  opacity: var(--_hero-bg-opacity, 0.8);
+}
+
+/* video 위 accent halo — 우상단 강 + 좌하단 약, 두 radial 합성.
+   admin override: --_hero-overlay-color (기본 accent) / --_hero-overlay-strength (기본 0.5, 0 이면 사실상 미적용).
+   color-mix 으로 strength 만큼 alpha 부여 — 0 이면 transparent. */
+.heroBgOverlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 78% 22%,
+      color-mix(in oklab, var(--_hero-overlay-color, var(--color-accent)) calc(var(--_hero-overlay-strength, 0.5) * 100%), transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 15% 85%,
+      color-mix(in oklab, var(--_hero-overlay-color, var(--color-accent)) calc(var(--_hero-overlay-strength, 0.5) * 40%), transparent) 0%,
+      transparent 55%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* video 모드 — accent 강조 부분만 brighter accent 로 교체. 일반 텍스트는 panel 토큰 색 유지. */
+.heroMediaMode .label {
+  color: var(--color-accent-light);
+  border-color: var(--color-accent-light);
+}
+
+.heroMediaMode :global(h2[class*="title"]) :global([class*="accent"]) {
+  color: var(--color-accent-light);
+}
+
+.heroMediaMode .heroAccentLine {
+  background: var(--color-accent-light);
+}
+
+/* video 모드에선 ::after 의 우상단 accent glow 숨김 — overlay 가 같은 영역 담당하므로 중복 제거 */
+.heroMediaMode.heroPanelBg::after {
+  display: none;
+}
+
+/* heroContent 가 z-index 1 → overlay z-index 1 일 때 동률 + DOM 순서로 text 가 위.
+   더 명확히 위에 두려고 heroContent z-index 2 로 bump (compound 로 (0,2,0) 글로벌 override). */
+.heroMediaMode .heroContent {
+  z-index: 2;
 }
 
 .label {
@@ -33,19 +94,46 @@
 
 .heroSubtitle {
   margin: 0;
-  font-size: var(--_fs-subhead);
+  font-size: var(--_hero-subtitle-font-size, var(--_fs-subhead));
+  font-weight: var(--_hero-subtitle-font-weight, inherit);
+  font-family: var(--_hero-subtitle-font-family, inherit);
   line-height: var(--line-height-loose);
-  color: var(--text-secondary);
+  /* 기본값: 흰색 + mix-blend difference (배경 동영상/이미지/색에 따라 자동 inverted).
+     admin 에서 heroSubtitleColor override 시 그 색이 difference 와 함께 적용됨. */
+  color: var(--_hero-subtitle-color, var(--color-white-alpha-100));
+  mix-blend-mode: difference;
+}
+
+/* ── KineticHero line별 스타일 override ──
+   line1 = nth-of-type(1), line2 = nth-of-type(2) (accent). class 명 hashed 라 attribute 선택. */
+.heroPanelBg :global([class*="line"]):nth-of-type(1) {
+  color: var(--_hero-line1-color, inherit);
+  font-size: var(--_hero-line1-font-size, inherit);
+  font-weight: var(--_hero-line1-font-weight, inherit);
+  font-family: var(--_hero-line1-font-family, inherit);
+}
+
+/* line2 — accent char 들이 자체 color: var(--text-accent) 가져서 .line 색 override 만으로는 안 됨.
+   그래서 line 자체 + 안쪽 accent char 둘 다 override. */
+.heroPanelBg :global([class*="line"]):nth-of-type(2),
+.heroPanelBg :global([class*="line"]):nth-of-type(2) :global([class*="accent"]) {
+  color: var(--_hero-line2-color, var(--text-accent));
+}
+.heroPanelBg :global([class*="line"]):nth-of-type(2) {
+  font-size: var(--_hero-line2-font-size, inherit);
+  font-weight: var(--_hero-line2-font-weight, inherit);
+  font-family: var(--_hero-line2-font-family, inherit);
 }
 
 .heroWatermark {
   position: absolute;
   right: -4%;
   bottom: 5%;
-  font-family: var(--font-instrument);
-  font-size: clamp(6rem, min(18vw, 24vh), 16rem);
+  font-family: var(--_hero-watermark-font-family, var(--font-instrument));
+  font-size: var(--_hero-watermark-font-size, clamp(6rem, min(18vw, 24vh), 16rem));
   font-style: italic;
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--_hero-watermark-font-weight, var(--font-weight-regular));
+  color: var(--_hero-watermark-color, inherit);
   line-height: 0.85;
   pointer-events: none;
   opacity: 0.04;

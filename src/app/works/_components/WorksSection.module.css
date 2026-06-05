@@ -808,7 +808,8 @@
     height: auto;
     align-items: flex-start;
     padding-top: 0;
-    padding-bottom: 0;
+    /* 모바일 — intro 와 첫 프로젝트 사이 시각적 호흡 확보 */
+    padding-bottom: var(--spacing-4xl);
     text-align: left;
     border-right: none;
   }
@@ -873,7 +874,7 @@
   }
 
   .gallerySlider {
-    --_gallery-gap: var(--spacing-2xl);
+    --_gallery-gap: 0;
 
     align-items: stretch;
     flex-direction: column;
@@ -902,18 +903,27 @@
   .sizeWide {
     --_mobile-px: 1.5rem;
 
-    gap: var(--spacing-xl);
+    gap: var(--spacing-lg);
     align-self: stretch;
+    height: auto;
     margin: 0;
-    padding: var(--spacing-lg) var(--_mobile-px) 3rem;
+    padding: var(--spacing-md) var(--_mobile-px) var(--spacing-2xl);
     pointer-events: auto;
   }
 
   .card {
     margin-left: calc(-1 * var(--_mobile-px));
     margin-right: calc(-1 * var(--_mobile-px));
-    margin-top: calc(-1 * var(--spacing-lg));
+    margin-top: calc(-1 * var(--spacing-md));
     aspect-ratio: 16 / 10;
+  }
+
+  /* GSAP 가 데스크탑 horizontal scroll 중 cardImageWrap/cardImage 에 transform 을 inline 으로 주입함.
+     모바일에서는 horizontal scroll 이 비활성이라 cleanup 안 돼 inset:0 cover 가 어긋나 보임 — 강제로 reset. */
+  .cardImageWrap,
+  .cardImage {
+    transform: none !important;
+    will-change: auto;
   }
 
   .intro + .project {
@@ -973,39 +983,63 @@
     right: auto !important;
     margin: 0;
     z-index: 3;
-    opacity: 1 !important;
+    opacity: 0.95 !important;
     color: var(--text-white) !important;
     mix-blend-mode: normal;
     will-change: auto;
-    text-shadow: 0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5);
-    font-size: var(--font-size-5xl) !important;
+    text-shadow: 0 2px 10px oklch(0.00% 0.0000 0.00 / 0.6);
+    font-family: var(--font-instrument), serif;
+    font-weight: var(--font-weight-light);
+    font-size: var(--font-size-6xl) !important;
     line-height: 1;
+    letter-spacing: -0.03em;
   }
 
   .metaGroup {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) 0 0;
+    gap: var(--spacing-md);
+    padding: var(--spacing-xs) 0 0;
   }
+
+  /* 읽기 순서 — category → role → tech → desc. year 는 카드 오버레이에만 표시 */
+  .metaGroup > .metaCategory { order: 0; }
+  .metaGroup > .metaRole { order: 1; }
+  .metaGroup > .metaTech { order: 2; }
+  .metaGroup > .metaDesc { order: 3; }
+  .metaGroup > .metaYear { order: 4; }
 
   .project[data-layout] .metaCategory {
     margin-bottom: 0;
-    font-size: var(--font-size-2xs);
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--text-accent);
   }
 
+  /* 카드 위 그라데이션 — 상단(번호용) + 하단(타이틀용) */
   .card::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 50%;
-    background: linear-gradient(to bottom, oklch(0.00% 0.0000 0.00 / 0.7), transparent);
+    height: 40%;
+    background: linear-gradient(to bottom, oklch(0.00% 0.0000 0.00 / 0.65), transparent);
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65%;
+    background: linear-gradient(to top, oklch(0.00% 0.0000 0.00 / 0.85), oklch(0.00% 0.0000 0.00 / 0.35) 40%, transparent);
     z-index: 1;
     pointer-events: none;
     border-radius: inherit;
@@ -1016,44 +1050,54 @@
     flex-direction: column;
     gap: var(--spacing-3xs);
     position: absolute;
-    top: var(--spacing-md);
-    left: calc(var(--_mobile-px) + 4.5rem);
+    top: auto;
+    bottom: var(--spacing-lg);
+    left: var(--_mobile-px);
     right: var(--_mobile-px);
     z-index: 2;
     color: var(--text-white);
     pointer-events: none;
-    text-shadow: 0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5);
+    text-shadow: 0 2px 8px oklch(0.00% 0.0000 0.00 / 0.65);
   }
+
+  /* year(작은 라벨) → title(크게) → subtitle 순으로 시각 정렬 */
+  .cardOverlay > .metaTitle { order: 1; }
+  .cardOverlay > .metaSubtitle { order: 2; }
 
   .project .metaTitle {
     font-family: var(--font-instrument), serif;
-    font-size: var(--font-size-2xl);
+    font-size: var(--fluid-font-size-4xl);
     font-weight: var(--font-weight-medium);
-    letter-spacing: -0.02em;
-    line-height: var(--line-height-tight);
+    letter-spacing: -0.03em;
+    line-height: var(--line-height-dense);
   }
 
   .project .metaSubtitle {
     font-family: var(--font-space-grotesk), sans-serif;
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-xl);
     font-weight: var(--font-weight-regular);
-    letter-spacing: 0.02em;
-    opacity: 0.7;
+    letter-spacing: 0.01em;
+    opacity: 0.9;
+    margin-top: var(--spacing-2xs);
   }
 
-  .project[data-layout] .metaYear {
-    position: absolute;
+  /* cardOverlay 내부 metaYear — 작은 액센트 라벨, 타이틀 위 */
+  .project[data-layout] .cardOverlay .metaYear {
+    position: relative;
+    order: 0;
     top: auto;
-    right: 0;
+    right: auto;
+    bottom: auto;
     left: auto;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-light);
-    letter-spacing: 0.05em;
+    margin: 0 0 var(--spacing-2xs);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
     color: var(--text-white) !important;
-    margin: 0;
-    text-shadow: 0 1px 4px oklch(0.00% 0.0000 0.00 / 0.5);
+    opacity: 0.85 !important;
+    text-shadow: 0 1px 6px oklch(0.00% 0.0000 0.00 / 0.6);
     mix-blend-mode: normal;
-    opacity: 0.8 !important;
   }
 
   .project[data-layout] .metaTech {
@@ -1061,14 +1105,18 @@
     flex-wrap: wrap;
     flex-direction: row;
     margin-top: 0;
+    margin-left: 0;
   }
 
   .project[data-layout] .metaTech span {
-    padding: var(--spacing-3xs) var(--spacing-sm);
+    padding: var(--spacing-2xs) var(--spacing-md);
+    font-family: var(--font-mono);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
-    border-color: var(--border-default-color);
-    color: var(--text-secondary);
+    letter-spacing: 0.08em;
+    border: 1px solid var(--text-accent-alt);
+    color: var(--text-accent-alt);
+    border-radius: var(--radius-capsule);
   }
 
   .project[data-layout] .metaRole {
@@ -1082,9 +1130,9 @@
   }
 
   .project[data-layout] .metaDesc {
-    margin-top: var(--spacing-xs);
+    margin-top: 0;
     max-width: none;
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-xl);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-relaxed);
     text-align: left;
@@ -1121,10 +1169,6 @@
     font-size: var(--font-size-base);
   }
 
-  .gallerySlider {
-    --_gallery-gap: var(--spacing-lg);
-  }
-
   .project {
     --_card-w: 100vw;
     --_number-size: var(--font-size-5xl);
@@ -1136,9 +1180,9 @@
   .sizeMedium,
   .sizeTall,
   .sizeWide {
-    --_mobile-px: var(--m-sm);
+    --_mobile-px: var(--spacing-md);
 
-    padding: var(--m-lg) var(--_mobile-px);
+    padding: var(--spacing-md) var(--_mobile-px) var(--spacing-xl);
   }
 
   .card {
@@ -1147,25 +1191,22 @@
   }
 
   .cardOverlay {
-    top: 3.3vw;
+    bottom: var(--spacing-md);
     left: var(--_mobile-px);
     right: var(--_mobile-px);
   }
 
-  .project .metaTitle {
-    font-size: var(--font-size-3xl);
-  }
-
   .project .metaSubtitle {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-lg);
   }
 
-  .project[data-layout] .metaYear {
-    font-size: var(--font-size-base);
+  .project[data-layout] .cardOverlay .metaYear {
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.3em;
   }
 
   .project[data-layout] .metaNumber {
-    margin-bottom: -3.3vw;
+    font-size: var(--font-size-5xl) !important;
   }
 
   .project[data-layout] .metaCategory {
@@ -1177,7 +1218,7 @@
   }
 
   .project[data-layout] .metaTech span {
-    padding: var(--box-md);
+    padding: var(--spacing-3xs) var(--spacing-sm);
     font-size: var(--font-size-xs);
   }
 

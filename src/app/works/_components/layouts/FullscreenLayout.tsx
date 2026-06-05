@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import T from "@/components/ui/T";
@@ -48,7 +48,7 @@ export default function FullscreenLayout({ projects, onProjectClick }: WorksLayo
   const siteConfig = useSiteConfig();
   const w = siteConfig.works;
   const infiniteScroll = w.infiniteScroll;
-  const introVideoSrc = w.introVideoUrl || "/intro-bg.mp4";
+  const introVideoSrc = w.introVideoUrl || "/cover/videos/bg-1.mp4";
   const { lenis } = useLenis();
   // 무한 스크롤일 땐 프로젝트 sections 를 2 번 렌더해 seamless wrap. wrap 로직이 끝에서 oneSet 만큼 scroll 되돌림
   const sets = infiniteScroll ? 2 : 1;
@@ -109,13 +109,13 @@ export default function FullscreenLayout({ projects, onProjectClick }: WorksLayo
             className={`${styles.bgImage} ${i === activeIdx ? styles.bgImageActive : ""}`}
             aria-hidden="true"
           >
-            <Image
+            <MediaThumb
               src={p.image}
-              alt=""
               fill
               sizes="100vw"
               priority={i === 0}
               loading={i === 0 ? "eager" : "lazy"}
+              fallbackSeed={p.id}
             />
           </div>
         ))}
@@ -127,7 +127,7 @@ export default function FullscreenLayout({ projects, onProjectClick }: WorksLayo
         data-idx={-1}
         className={`${styles.section} ${styles.introSection}`}
       >
-        {/* (D) Flow video — siteConfig.works.introVideoUrl 또는 로컬 /public/intro-bg.mp4 fallback.
+        {/* (D) Flow video — siteConfig.works.introVideoUrl 또는 /cover/videos/bg-1.mp4 fallback.
              없으면 자동 fade-out (errored 시 안 보임). 100MB 초과면 외부 CDN 사용 권장. */}
         <video
           className={styles.flowVideo}

@@ -27,8 +27,7 @@ import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
 import { MoreVertical, ChevronsLeft, ChevronsRight, Pencil, Trash2 } from "lucide-react";
 import TextLink from "@/components/ui/TextLink";
 import Pagination from "@/components/ui/Pagination";
-import DraggableTag, { useTagDrag } from "@/components/ui/DraggableTag";
-import TagPill from "@/components/ui/TagPill";
+import Chip, { useChipReorder } from "@/components/ui/Chip";
 import BilingualInputPair, { type BilingualValue } from "@/components/admin/BilingualInputPair";
 import TagNotesEditor, { type TagNote } from "@/components/admin/TagNotesEditor";
 import { LikeButton } from "@/components/layout/DetailLayout";
@@ -63,6 +62,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [inputUnderline, setInputUnderline] = useState("");
   const [inputSm, setInputSm] = useState("");
   const [inputInline, setInputInline] = useState("");
+  const [inputAdd, setInputAdd] = useState("");
   const [checkSquare, setCheckSquare] = useState(false);
   const [checkCircle, setCheckCircle] = useState(true);
   const [checkIndet, setCheckIndet] = useState(false);
@@ -109,7 +109,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
     // 데모용 — 실제 페이지에선 API 응답까지 busy 유지. 여기선 200ms 후 해제 → LikeButton 안의 minDuration(2s) 로직이 wave 완료까지 유지
     setTimeout(() => setLikeBusy(false), 200);
   }, []);
-  const { itemProps: tagItemProps } = useTagDrag((from, to) => {
+  const { itemProps: tagItemProps } = useChipReorder((from, to) => {
     setDragTags((prev) => {
       const next = [...prev];
       const [moved] = next.splice(from, 1);
@@ -209,19 +209,24 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Input — Variants</div>
         <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 4)}>
             <Tooltip content="variant: capsule (default)">
               <Input label="Label" value={inputValue} onChange={setInputValue} placeholder="Type something..." />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 4)}>
             <Tooltip content="variant: underline">
               <Input label="Underline" value={inputUnderline} onChange={setInputUnderline} variant="underline" placeholder="Underline style..." />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 4)}>
             <Tooltip content="inlineLabel">
               <Input inlineLabel="EN" value={inputInline} onChange={setInputInline} placeholder="Inline label..." />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(3, 4)}>
+            <Tooltip content="onAdd — Enter / + 클릭 시 commit, focus-within 시 + 도 strong border">
+              <Input label="Add" value={inputAdd} onChange={setInputAdd} onAdd={(v) => { showToast(`Added: ${v}`, "info"); setInputAdd(""); }} placeholder="Type then Enter / +" />
             </Tooltip>
           </motion.div>
         </div>
@@ -338,7 +343,6 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                 onClick={() => handleOpenModal("Confirm Action", (
                   <ModalConfirm
                     desc="Are you sure you want to proceed? This action cannot be undone."
-                    cancelText="Cancel"
                     confirmText="Confirm"
                     onConfirm={() => {}}
                   />
@@ -540,39 +544,54 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </motion.div>
       </motion.div>
 
-      {/* DraggableTag */}
+      {/* Chip — variant capsule (draggable, with × remove) */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>DraggableTag</div>
+        <div className={styles.componentGroupTitle}>Chip — draggable capsule</div>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
-          {dragTags.map((tag, i) => (
-            <DraggableTag
-              key={`${tag}-${i}`}
-              label={tag}
-              index={i}
-              onRemove={() => setDragTags((prev) => prev.filter((_, j) => j !== i))}
-              {...tagItemProps(i)}
-            />
-          ))}
+          {dragTags.map((tag, i) => {
+            const { dragging, dropSide, ...handlers } = tagItemProps(i);
+            return (
+              <Chip
+                key={`${tag}-${i}`}
+                variant="capsule"
+                showHandle
+                onRemove={() => setDragTags((prev) => prev.filter((_, j) => j !== i))}
+                dragging={dragging}
+                dropSide={dropSide}
+                dragHandlers={{ draggable: true, ...handlers }}
+              >
+                {tag}
+              </Chip>
+            );
+          })}
         </motion.div>
       </motion.div>
 
-      {/* TagPill */}
+      {/* Chip — variant capsule with href + count (TagPill 대체) */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>TagPill</div>
+        <div className={styles.componentGroupTitle}>Chip — href + count</div>
         <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
           {language === "ko"
-            ? "캡슐 모양 태그 — `# + 태그명` + 선택적 카운트. 클릭 시 `/posts/tags/[tag]` 로 이동."
-            : "Capsule-shaped tag — `# + name` + optional count. Navigates to `/posts/tags/[tag]` on click."}
+            ? "캡슐 chip — Link 로 wrap, `# + 태그명` + 선택적 카운트. 클릭 시 `/posts/tags/[tag]` 로 이동."
+            : "Capsule chip — Link wrap with `# + name` + optional count. Navigates to `/posts/tags/[tag]` on click."}
         </p>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
-          <Tooltip content="basic — name only"><TagPill tag="React" /></Tooltip>
-          <Tooltip content="basic — name only"><TagPill tag="Next.js" /></Tooltip>
-          <Tooltip content="basic — name only"><TagPill tag="TypeScript" /></Tooltip>
+          {["React", "Next.js", "TypeScript"].map((tag) => (
+            <Tooltip key={tag} content="basic — name only">
+              <Chip variant="capsule" href={`/posts/tags/${encodeURIComponent(tag)}`}>
+                <span>#{tag}</span>
+              </Chip>
+            </Tooltip>
+          ))}
         </motion.div>
         <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
-          <Tooltip content="with count badge"><TagPill tag="GSAP" count={12} /></Tooltip>
-          <Tooltip content="with count badge"><TagPill tag="CSS" count={47} /></Tooltip>
-          <Tooltip content="with count badge"><TagPill tag="Plate" count={3} /></Tooltip>
+          {[["GSAP", 12], ["CSS", 47], ["Plate", 3]].map(([tag, count]) => (
+            <Tooltip key={tag} content="with count badge">
+              <Chip variant="capsule" href={`/posts/tags/${encodeURIComponent(tag as string)}`} count={count as number}>
+                <span>#{tag}</span>
+              </Chip>
+            </Tooltip>
+          ))}
         </motion.div>
       </motion.div>
 
@@ -655,12 +674,20 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
           <div style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center", flexWrap: "wrap" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) var(--spacing-md)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>
+              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>xs (20px)</span>
+              <CloseButton size="xs" onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
+            </div>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) var(--spacing-md)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>
               <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>sm (24px)</span>
               <CloseButton size="sm" onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
             </div>
             <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) var(--spacing-md)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>
-              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>md (button-h-sm)</span>
+              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>md (32px)</span>
               <CloseButton size="md" onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
+            </div>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) var(--spacing-md)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>
+              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>lg (38px)</span>
+              <CloseButton size="lg" onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
             </div>
           </div>
           <div style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center" }}>

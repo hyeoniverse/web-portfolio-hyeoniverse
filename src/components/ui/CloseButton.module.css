@@ -1,8 +1,10 @@
-/* Circle icon button — hover bg-tertiary. CloseIcon 의 morph 가 시각 강조 */
+/* Circle icon button — hover bg-tertiary. CloseIcon 의 morph 가 시각 강조.
+   size 별 width/height + CloseIcon 의 --close-size, --close-weight 컨텍스트 토큰 설정. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   background: transparent;
   border: none;
   border-radius: var(--radius-capsule);
@@ -18,15 +20,30 @@
   background: var(--bg-tertiary);
 }
 
+.xs {
+  width: var(--button-h-xs);     /* 20 */
+  height: var(--button-h-xs);
+  --close-size: 10px;
+  --close-weight: 1px;
+}
+
 .sm {
-  width: 24px;
-  height: 24px;
+  width: var(--button-h-sm);     /* 24 */
+  height: var(--button-h-sm);
   --close-size: 12px;
   --close-weight: 1px;
 }
 
 .md {
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  --close-weight: 1px;
+  width: var(--control-h-md);    /* 32 */
+  height: var(--control-h-md);
+  --close-size: 14px;
+  --close-weight: 1.5px;
+}
+
+.lg {
+  width: var(--button-h-md);     /* 38 */
+  height: var(--button-h-md);
+  --close-size: 16px;
+  --close-weight: 1.5px;
 }

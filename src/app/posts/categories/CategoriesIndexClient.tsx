@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 import { motion, AnimatePresence } from "framer-motion";
 import { LayoutGrid, Sparkles, X, ArrowRight } from "lucide-react";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
@@ -90,6 +90,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
             placeholder="카테고리 검색…"
             align="left"
             className={styles.searchBar}
+            routeParam="q"
           />
         </div>
       </header>
@@ -118,9 +119,8 @@ export default function CategoriesIndexClient({ categories }: Props) {
                   )}
                   <div className={styles.cover}>
                     {c.first_cover ? (
-                      <Image
+                      <MediaThumb
                         src={c.first_cover}
-                        alt=""
                         fill
                         sizes="(max-width: 768px) 50vw, 240px"
                         className={styles.coverImg}

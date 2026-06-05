@@ -7,7 +7,8 @@ import { Settings, Tags, X, ArrowRight } from "lucide-react";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import Button from "@/components/ui/Button";
 import SegmentedControl from "@/components/ui/SegmentedControl";
-import TagPill from "@/components/ui/TagPill";
+import Chip from "@/components/ui/Chip";
+import LetterFilter, { KOREAN_LETTERS, ENGLISH_LETTERS, LETTER_ETC, getLetterInitial } from "@/components/ui/LetterFilter";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./TagsIndex.module.css";
 
@@ -25,26 +26,8 @@ interface Props {
 const PAGE_SIZE = 60;
 const FEATURED_COUNT = 8;
 
-// 한글 초성 분리 — 쌍자음은 기본형으로 묶음
-const CHOSUNG_GROUPED = [
-  "ㄱ", "ㄱ", "ㄴ", "ㄷ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅂ", "ㅅ",
-  "ㅅ", "ㅇ", "ㅈ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ",
-];
-const KOREAN_ORDER = ["ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
-const ENGLISH_ORDER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const ETC = "#";
-const ALL_LETTERS = [...KOREAN_ORDER, ...ENGLISH_ORDER, ETC];
-
-function getInitial(s: string): string {
-  const c = s.charAt(0);
-  const code = c.charCodeAt(0);
-  if (code >= 0xac00 && code <= 0xd7a3) {
-    const idx = Math.floor((code - 0xac00) / 588);
-    return CHOSUNG_GROUPED[idx];
-  }
-  if (/[A-Za-z]/.test(c)) return c.toUpperCase();
-  return ETC;
-}
+/* letter 상수 + getLetterInitial 은 공통 LetterFilter 모듈에서 import.
+   ALL_LETTERS 는 ko/en 통합 (사용처 없음 — nameLang 별 분기로 대체). */
 
 const loadSupabaseClient = () =>
   import("@/lib/supabase/client").then((m) => m.createClient());
@@ -52,8 +35,16 @@ const loadSupabaseClient = () =>
 export default function TagsIndexClient({ tags }: Props) {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"popular" | "alphabetical">("popular");
-  const [activeLetter, setActiveLetter] = useState<string | null>(null);
+  const [nameLang, setNameLang] = useState<"ko" | "en">("ko");
+  const [activeLetters, setActiveLetters] = useState<Set<string>>(new Set());
   const [visible, setVisible] = useState(PAGE_SIZE);
+  const toggleLetter = (l: string) => setActiveLetters((prev) => {
+    const next = new Set(prev);
+    if (next.has(l)) next.delete(l); else next.add(l);
+    return next;
+  });
+  /* nameLang 변경 시 letter 초기화 (한글/영어 letter set 다름) */
+  useEffect(() => { setActiveLetters(new Set()); }, [nameLang]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [hoveredTag, setHoveredTag] = useState<string | null>(null);
   const [sheetTag, setSheetTag] = useState<TagEntry | null>(null);
@@ -113,7 +104,7 @@ export default function TagsIndexClient({ tags }: Props) {
   const letterBuckets = useMemo(() => {
     const map = new Map<string, number>();
     for (const t of tags) {
-      const k = getInitial(t.tag);
+      const k = getLetterInitial(t.tag);
       map.set(k, (map.get(k) ?? 0) + 1);
     }
     return map;
@@ -130,18 +121,19 @@ export default function TagsIndexClient({ tags }: Props) {
           t.description.toLowerCase().includes(q),
       );
     }
-    if (activeLetter) {
-      list = list.filter((t) => getInitial(t.tag) === activeLetter);
+    /* letter 는 sortBy 무관하게 적용 — 첫글자 필터 */
+    if (activeLetters.size > 0) {
+      list = list.filter((t) => activeLetters.has(getLetterInitial(t.tag)));
     }
     if (sortBy === "alphabetical") {
-      list = list.slice().sort((a, b) => a.tag.localeCompare(b.tag));
+      list = list.slice().sort((a, b) => a.tag.localeCompare(b.tag, nameLang));
     } else {
       list = list.slice().sort((a, b) => b.count - a.count);
     }
     return list;
-  }, [tags, search, activeLetter, sortBy]);
+  }, [tags, search, activeLetters, sortBy, nameLang]);
 
-  useEffect(() => { setVisible(PAGE_SIZE); }, [search, activeLetter, sortBy]);
+  useEffect(() => { setVisible(PAGE_SIZE); }, [search, activeLetters, sortBy, nameLang]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -184,13 +176,24 @@ export default function TagsIndexClient({ tags }: Props) {
           <strong>{filtered.length.toLocaleString()}</strong>개의 태그
         </p>
         <div className={styles.searchSortRow}>
-          <SegmentedControl<"popular" | "alphabetical">
+          <SegmentedControl<"popular" | "alphabetical", "ko" | "en">
             items={[
               { value: "popular", label: "인기순" },
-              { value: "alphabetical", label: "제목순" },
+              {
+                value: "alphabetical",
+                label: "제목순",
+                subItems: [
+                  { value: "ko", label: "한글" },
+                  { value: "en", label: "영어" },
+                ] as const,
+              },
             ]}
             value={sortBy}
             onChange={(v) => setSortBy(v)}
+            subValue={nameLang}
+            onSubChange={(v) => setNameLang(v)}
+            subVariant="nested"
+            onBack={() => setSortBy("popular")}
           />
           <SearchCapsule
             search={search}
@@ -198,38 +201,21 @@ export default function TagsIndexClient({ tags }: Props) {
             placeholder="태그 이름 또는 설명으로 검색…"
             align="left"
             className={styles.searchBar}
+            routeParam="q"
           />
         </div>
       </header>
 
-      {/* 알파벳 인덱스 */}
+      {/* 알파벳 인덱스 — 항상 표시. nameLang(ko/en) 변경 시 letter set 교체.
+          공통 LetterFilter — 전체 + letter chips 한 row 에 같이 렌더. */}
       <div className={styles.controlRow}>
-        <div className={styles.letterIndex}>
-          <button
-            type="button"
-            className={`${styles.letterBtn} ${activeLetter === null ? styles.letterBtnActive : ""}`}
-            onClick={() => setActiveLetter(null)}
-            data-clickable="true"
-          >
-            전체
-          </button>
-          {ALL_LETTERS.map((l) => {
-            const has = (letterBuckets.get(l) ?? 0) > 0;
-            const active = activeLetter === l;
-            return (
-              <button
-                key={l}
-                type="button"
-                className={`${styles.letterBtn} ${active ? styles.letterBtnActive : ""} ${!has ? styles.letterBtnDisabled : ""}`}
-                onClick={() => has && setActiveLetter(active ? null : l)}
-                disabled={!has}
-                data-clickable={has ? "true" : undefined}
-              >
-                {l}
-              </button>
-            );
-          })}
-        </div>
+        <LetterFilter
+          letters={nameLang === "ko" ? [...KOREAN_LETTERS, LETTER_ETC] : [...ENGLISH_LETTERS, LETTER_ETC]}
+          active={activeLetters}
+          onToggle={toggleLetter}
+          onClear={() => setActiveLetters(new Set())}
+          hasLetter={(l) => (letterBuckets.get(l) ?? 0) > 0}
+        />
       </div>
 
       <ul className={styles.list}>
@@ -244,16 +230,18 @@ export default function TagsIndexClient({ tags }: Props) {
               onMouseEnter={() => setHoveredTag(t.tag)}
               onMouseLeave={() => setHoveredTag(null)}
             >
-              <TagPill
-                tag={t.tag}
+              <Chip
+                variant="capsule"
+                href={`/posts/tags/${encodeURIComponent(t.tag)}`}
                 count={t.count}
                 className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""} ${isRelated ? styles.tagItemRelated : ""}`}
-                style={{ fontSize: `${fontFor(t.count)}px` }}
                 onClick={isTouch && hasExtras ? (e) => {
                   e.preventDefault();
                   setSheetTag(t);
                 } : undefined}
-              />
+              >
+                <span style={{ fontSize: `${fontFor(t.count)}px` }}>#{t.tag}</span>
+              </Chip>
             </li>
           );
         })}
@@ -308,7 +296,14 @@ export default function TagsIndexClient({ tags }: Props) {
                   <span className={styles.sheetSectionLabel}>연관 태그</span>
                   <div className={styles.sheetRelatedPills}>
                     {sheetTag.related.map((r) => (
-                      <TagPill key={r} tag={r} onClick={() => setSheetTag(null)} />
+                      <Chip
+                        key={r}
+                        variant="capsule"
+                        href={`/posts/tags/${encodeURIComponent(r)}`}
+                        onClick={() => setSheetTag(null)}
+                      >
+                        <span>#{r}</span>
+                      </Chip>
                     ))}
                   </div>
                 </div>

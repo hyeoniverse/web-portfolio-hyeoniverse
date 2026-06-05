@@ -620,7 +620,7 @@ a.statCard:hover .statValue {
 }
 
 .timeAgo {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -683,7 +683,7 @@ a.statCard:hover .statValue {
 .serviceName {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   color: var(--text-primary);
   overflow: hidden;
@@ -692,7 +692,7 @@ a.statCard:hover .statValue {
 }
 
 .serviceStatus {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -715,7 +715,7 @@ a.statCard:hover .statValue {
   gap: 2px;
   padding: 2px var(--spacing-2xs);
   border-radius: var(--radius-capsule);
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -805,7 +805,7 @@ a.statCard:hover .statValue {
 }
 
 .dailyChartTotal {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-md);
   font-weight: 700;
   color: var(--text-primary);
@@ -900,7 +900,7 @@ a.statCard:hover .statValue {
 }
 
 .calendarDow {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   text-align: center;
@@ -960,7 +960,7 @@ a.statCard:hover .statValue {
   position: absolute;
   top: 4px;
   left: 6px;
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
@@ -992,7 +992,7 @@ a.statCard:hover .statValue {
   align-items: center;
   gap: var(--spacing-3xs);
   align-self: flex-end;
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-muted);
   padding: var(--spacing-xs) var(--spacing-md);
@@ -1084,7 +1084,7 @@ a.statCard:hover .statValue {
   position: absolute;
   left: 50%;
   transform: translate(-50%, calc(-100% - 10px));
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -1190,7 +1190,7 @@ a.statCard:hover .statValue {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
@@ -1283,7 +1283,7 @@ a.statCard:hover .statValue {
   display: inline-flex;
   align-items: baseline;
   gap: var(--spacing-2xs);
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-variant-numeric: tabular-nums;
 }
@@ -1322,7 +1322,7 @@ a.statCard:hover .statValue {
 }
 
 .tagPillCount {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-weight: 700;
   color: var(--text-muted);
@@ -1467,7 +1467,7 @@ a.statCard:hover .statValue {
 }
 
 .dayDetailRank {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -1631,7 +1631,7 @@ a.statCard:hover .statValue {
   display: flex;
   justify-content: space-between;
   margin-block: var(--spacing-xs);
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
@@ -1646,7 +1646,7 @@ a.statCard:hover .statValue {
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-xs);
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   line-height: 16px;
@@ -1655,7 +1655,7 @@ a.statCard:hover .statValue {
 
 .popularRank,
 .commentAuthor {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-weight: 700;
   color: var(--text-secondary);
@@ -1748,7 +1748,7 @@ a.commentSource:hover {
 }
 
 .popularDate {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1763,7 +1763,7 @@ a.commentSource:hover {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
@@ -1773,7 +1773,7 @@ a.commentSource:hover {
 
 /* 행: rank | title | bar track | views — 가로 막대 그래프 한 줄 */
 .dayDetailTopRank {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-weight: 700;
   color: var(--text-muted);
@@ -1796,7 +1796,7 @@ a.commentSource:hover {
 }
 
 .dayDetailTopViews {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
@@ -1834,7 +1834,7 @@ a.commentSource:hover {
   display: inline-flex;
   align-items: baseline;
   gap: var(--spacing-2xs);
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-variant-numeric: tabular-nums;
 }
@@ -1933,7 +1933,7 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 }
 
 .deviceLegendPct {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-secondary);
   font-weight: 700;
@@ -2068,7 +2068,7 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 }
 
 .deviceDrillCount {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
@@ -2076,7 +2076,7 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 }
 
 .deviceDrillPct {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-accent);

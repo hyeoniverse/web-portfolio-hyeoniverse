@@ -28,29 +28,40 @@ export async function GET(request: Request) {
   const logoText = ((config?.brand?.logoText ?? "H").trim() || "H").charAt(0);
   const logoUrl = config?.brand?.logoShortUrl || config?.brand?.logoShortDarkUrl || "";
   const shape = config?.brand?.faviconShape ?? "circle";
-  const font = config?.brand?.faviconFont ?? "serif";
+  // 로고 폰트가 favicon 도 결정 — 빈 값이면 brand 기본 (Instrument Serif)
+  const logoFont = config?.brand?.logoFont || "'Instrument Serif', Georgia, serif";
   const weight = config?.brand?.faviconWeight ?? "light";
   const fontWeight = weight === "light" ? 300 : weight === "regular" ? 500 : 700;
 
-  const lightBg = config?.theme?.lightBg || "#f5f5f0";
-  const darkBg = config?.theme?.darkBg || "#0a0a0a";
-  const lightFg = config?.brand?.logoColor || "#0a0a0a";
-  const darkFg = config?.brand?.logoColorDark || "#f5f5f0";
+  const presetLight = config?.brand?.logoColor || "#0a0a0a";
+  const presetDark = config?.brand?.logoColorDark || "#f5f5f0";
+  const faviconBgLight = config?.brand?.faviconBgLight || presetDark;
+  const faviconBgDark = config?.brand?.faviconBgDark || presetLight;
 
-  // 색 매핑 — favicon 은 페이지 테마와 같은 변형 (페이지의 미니 로고).
-  //   light variant → bg=lightBg, text=logoColor (dark text on light bg)
-  //   dark variant → bg=darkBg, text=logoColorDark (light text on dark bg)
-  const bg = variant === "light" ? lightBg : darkBg;
-  const fg = variant === "light" ? lightFg : darkFg;
+  // light variant = 라이트 톤 favicon, dark variant = 다크 톤 favicon.
+  // bg 는 brand.faviconBgLight/Dark 우선, 빈 값이면 preset 으로 자동 (light → preset.dark, dark → preset.light).
+  // 글자색은 preset 의 반대 (light variant text = preset.light, dark variant text = preset.dark).
+  // shape=none 일 땐 bg 없음 — text 는 logo 색 그대로
+  const bg = variant === "light" ? faviconBgLight : faviconBgDark;
+  const fg = shape === "none"
+    ? (variant === "light" ? presetDark : presetLight)
+    : (variant === "light" ? presetLight : presetDark);
   const finalBg = shape === "none" ? "transparent" : bg;
 
-  const fontFamily = font === "serif" ? "Georgia, serif" : font === "mono" ? "Menlo, monospace" : "system-ui, sans-serif";
+  const fontFamily = logoFont;
   const radius = shape === "circle" ? 16 : shape === "square" ? 4 : 0;
+
+  // 장평 — viewBox 중심 (16,16) 기준 scaleX. 빈/invalid 면 0.8 default
+  const stretchRaw = parseFloat(config?.brand?.logoFontStretch ?? "");
+  const stretchN = Number.isFinite(stretchRaw) && stretchRaw > 0 ? stretchRaw : 0.8;
+  const textTransform = stretchN !== 1
+    ? ` transform="translate(${16 * (1 - stretchN)} 0) scale(${stretchN} 1)"`
+    : "";
 
   // 이미지 업로드된 경우 — SVG <image> (변형 없이 그대로)
   const inner = logoUrl
     ? `<image href="${esc(logoUrl)}" x="0" y="0" width="32" height="32" preserveAspectRatio="xMidYMid meet" />`
-    : `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="${esc(fontFamily)}" font-size="20" font-weight="${fontWeight}" fill="${esc(fg)}">${esc(logoText)}</text>`;
+    : `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="${esc(fontFamily)}" font-size="20" font-weight="${fontWeight}" fill="${esc(fg)}"${textTransform}>${esc(logoText)}</text>`;
 
   const bgShape = shape === "none"
     ? ""
