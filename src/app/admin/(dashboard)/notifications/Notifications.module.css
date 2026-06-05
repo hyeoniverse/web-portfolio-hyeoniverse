@@ -247,13 +247,16 @@
   min-width: 200px;
 }
 
+/* 부모 SegmentedControl btn 의 color (text-tertiary / hover text-primary / active text-inverse)
+   를 currentColor 로 상속받고 bg 는 currentColor 15% mix 로 contrast 자동 보정 —
+   active 시 검정 배경 위에서 숫자가 묻히던 문제 방지 */
 .tabCount {
   margin-left: var(--spacing-2xs);
   padding: 0 4px;
   border-radius: var(--radius-capsule);
-  background: var(--bg-tertiary);
-  font-family: var(--font-jetbrains);
+  background: color-mix(in oklch, currentColor 15%, transparent);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-variant-numeric: tabular-nums;
-  color: var(--text-tertiary);
+  color: currentColor;
 }

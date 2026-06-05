@@ -1,0 +1,158 @@
+/* ── 공통 chip — variant capsule / bare. label + optional handle + count + remove × ── */
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+/* capsule — bg + border + 캡슐 radius */
+.capsule {
+  padding: var(--box-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-capsule);
+}
+
+/* bare — text-only (TagNotesEditor 패턴) */
+.bare {
+  gap: var(--spacing-2xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* drag 중 — 흐릿 */
+.dragging {
+  opacity: 0.4;
+}
+
+/* drop 인디케이터 — chip 좌/우 gap 중앙 2px 막대 */
+.dropBefore::before,
+.dropAfter::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-accent);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.dropBefore::before { left: -5px; }
+.dropAfter::after { right: -5px; }
+
+/* grip 핸들 (showHandle=true) — 좌측 */
+.grip {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  cursor: move;
+}
+
+.chip:hover .grip {
+  color: var(--text-tertiary);
+}
+
+/* leftIcon 슬롯 */
+.leftIcon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+/* label 텍스트 영역 — variants 별 공통 */
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+/* label-as-button (onClick) */
+.labelBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: inherit;
+  transition: color 0.15s ease;
+}
+
+.labelBtn:hover {
+  color: var(--text-primary);
+}
+
+/* label-as-link (href) */
+.labelLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.labelLink:hover {
+  color: var(--text-primary);
+}
+
+/* static label (둘 다 없음) */
+.labelStatic {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+/* count 배지 — capsule 안 우측 (TagPill 패턴) */
+.count {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* active 상태 — 편집 drawer 열림 등 */
+.capsule.active {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  outline: 1px solid var(--color-accent);
+  outline-offset: -1px;
+}
+
+.bare.active {
+  color: var(--text-accent) !important;
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-underline-offset: 3px;
+}
+
+/* × 버튼 위치 */
+.remove {
+  flex-shrink: 0;
+}
+
+/* × hover 시 라벨에 line-through (accent 색).
+   text-decoration-thickness 명시 — 기본값 (auto = 보통 1px subpixel) 으로 가시성 낮음.
+   inline-flex 컨테이너 (.label/.labelBtn 등) 는 text-decoration 이 자손 inline element 로 propagation 안 됨 →
+   descendant `*` 로 자손까지 강제 적용 (renderItemLabel 의 중첩 span 들 포함). */
+.chip:has([data-close-trigger]:hover) .label,
+.chip:has([data-close-trigger]:hover) .label *,
+.chip:has([data-close-trigger]:hover) .labelBtn,
+.chip:has([data-close-trigger]:hover) .labelBtn *,
+.chip:has([data-close-trigger]:hover) .labelLink,
+.chip:has([data-close-trigger]:hover) .labelLink *,
+.chip:has([data-close-trigger]:hover) .labelStatic,
+.chip:has([data-close-trigger]:hover) .labelStatic * {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-accent);
+  text-decoration-thickness: 1.5px;
+  color: var(--text-accent);
+}

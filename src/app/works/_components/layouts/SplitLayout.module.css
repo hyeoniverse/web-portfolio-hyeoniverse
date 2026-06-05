@@ -384,6 +384,11 @@
     width: 100%;
   }
 
+  /* 모바일 — intro 패널/우측 배경 blur 약화 (데스크탑 40px 은 작은 화면에서 너무 과함) */
+  .right::before {
+    backdrop-filter: blur(12px) saturate(1.05);
+  }
+
   .imageCard {
     height: 80vh;
   }

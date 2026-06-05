@@ -10,6 +10,7 @@ import {
   type CompositionEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import { Eraser } from "lucide-react";
 import styles from "./Textarea.module.css";
 
 type Variant = "capsule" | "underline";
@@ -42,6 +43,8 @@ interface TextareaProps
    *  숫자 (예: 400) 또는 preset ("short" / "basic" / "long") 으로 지정.
    *  설정되면 contenteditable 모드로 전환 (초과 글자에 inline highlight). 미설정이면 plain textarea. */
   maxHint?: number | MaxHintPreset;
+  /** input 좌측 안에 absolute 로 표시되는 짧은 배지 (KO/EN 등). Input 공통 패턴과 일치 */
+  inlineLabel?: string;
 }
 
 /* ── Mode selector ── maxHint 가 있으면 contenteditable 모드 (inline highlight)
@@ -55,7 +58,7 @@ export default function Textarea(props: TextareaProps) {
 }
 
 /* ============================================================
- * Plain textarea — maxHint 미설정. 기존 동작 그대로.
+ * Plain textarea — maxHint 미설정. native textarea + 커스텀 resize 오버레이.
  * ============================================================ */
 function PlainTextarea({
   label,
@@ -67,14 +70,43 @@ function PlainTextarea({
   textareaClassName,
   id,
   rows = 3,
+  inlineLabel,
+  /* maxHint 는 PlainTextarea 분기에서 사용 안 함 — DOM 으로 새지 않도록 destructure 로 제거 (React unknown attr warning 회피) */
+  maxHint: _maxHint,
   ...rest
 }: TextareaProps) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inputCls = [
     styles.textarea,
     variant === "underline" ? styles.underline : "",
     size === "sm" ? styles.sm : "",
+    /* inlineLabel 은 textarea 바깥 (좌측 flex row) — textarea 자체엔 추가 padding 불필요 */
     textareaClassName,
   ].filter(Boolean).join(" ");
+
+  /* native resize 핸들 위 투명 overlay — EditableTextarea 와 동일 패턴 (커스텀 커서 + JS 드래그).
+     PlainTextarea 도 admin/settings 등에서 sm 사이즈로 자주 쓰여 일관성 위해 동일 overlay 적용. */
+  const handleResizePointerDown = useCallback((e: ReactPointerEvent<HTMLDivElement>) => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    e.preventDefault();
+    const startY = e.clientY;
+    const startHeight = ta.offsetHeight;
+    const onMove = (ev: PointerEvent) => {
+      if (!textareaRef.current) return;
+      const dy = ev.clientY - startY;
+      const next = Math.max(60, Math.min(window.innerHeight * 0.7, startHeight + dy));
+      textareaRef.current.style.height = `${next}px`;
+    };
+    const onUp = () => {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
+    };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
+  }, []);
 
   return (
     <div className={`${styles.wrapper} ${size === "sm" ? styles.wrapperSm : ""} ${className ?? ""}`}>
@@ -83,15 +115,39 @@ function PlainTextarea({
           {label}
         </label>
       )}
-      <textarea
-        id={id}
-        className={inputCls}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={rows}
-        data-lenis-prevent
-        {...rest}
-      />
+      <div className={`${styles.editableWrap} ${inlineLabel ? styles.editableWrapWithBadge : ""}`}>
+        {inlineLabel && <span className={styles.inlineLabel}>{inlineLabel}</span>}
+        <textarea
+          ref={textareaRef}
+          id={id}
+          className={inputCls}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          rows={rows}
+          data-lenis-prevent
+          {...rest}
+        />
+        {!rest.disabled && !rest.readOnly && (
+          <div
+            className={styles.resizeOverlay}
+            data-cursor="resizeV"
+            onPointerDown={handleResizePointerDown}
+            aria-hidden
+          />
+        )}
+        {!!value && !rest.disabled && !rest.readOnly && (
+          <button
+            type="button"
+            className={styles.clearBtn}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => onChange("")}
+            aria-label="clear"
+            title="지우기"
+          >
+            <Eraser size={11} strokeWidth={2} />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -172,6 +228,7 @@ function EditableTextarea({
   disabled,
   onFocus,
   onBlur,
+  inlineLabel,
 }: EditableProps) {
   const generatedId = useId();
   const id = idProp ?? generatedId;
@@ -183,6 +240,7 @@ function EditableTextarea({
     styles.editable,
     variant === "underline" ? styles.underline : "",
     size === "sm" ? styles.sm : "",
+    /* inlineLabel 은 textarea 바깥 (좌측 flex row) — textarea 자체엔 추가 padding 불필요 */
     textareaClassName,
   ].filter(Boolean).join(" ");
 
@@ -248,7 +306,8 @@ function EditableTextarea({
           {label}
         </label>
       )}
-      <div className={styles.editableWrap}>
+      <div className={`${styles.editableWrap} ${inlineLabel ? styles.editableWrapWithBadge : ""}`}>
+        {inlineLabel && <span className={styles.inlineLabel}>{inlineLabel}</span>}
         <div
           ref={ref}
           id={id}
@@ -280,16 +339,31 @@ function EditableTextarea({
           />
         )}
       </div>
-      <span
-        className={[
-          styles.counter,
-          value.length >= maxHint ? styles.counterOver : "",
-          value.length >= maxHint * 0.8 && value.length < maxHint ? styles.counterWarn : "",
-        ].filter(Boolean).join(" ")}
-        aria-live="polite"
-      >
-        {value.length} / {maxHint}
-      </span>
+      <div className={styles.bottomRow}>
+        {!isEmpty && !disabled && (
+          <button
+            type="button"
+            className={styles.clearBtn}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => onChange("")}
+            aria-label="clear"
+            title="지우기"
+          >
+            <Eraser size={11} strokeWidth={2} />
+          </button>
+        )}
+        <span
+          className={[
+            styles.counter,
+            value.length > maxHint ? styles.counterOver : "",
+            value.length >= maxHint * 0.8 && value.length < maxHint ? styles.counterWarn : "",
+          ].filter(Boolean).join(" ")}
+          aria-live="polite"
+        >
+          <span>{value.length}</span>
+          {" / "}{maxHint}
+        </span>
+      </div>
     </div>
   );
 }

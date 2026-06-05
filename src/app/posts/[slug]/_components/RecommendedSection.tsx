@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import T from "@/components/ui/T";
@@ -31,7 +31,7 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
     <div key={rp.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${rp.slug}`, rp.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.recommendedItem}>
       <div className={styles.recommendedItemThumb}>
         {rp.cover_image ? (
-          <Image src={rp.cover_image} alt="" fill sizes="64px" className={styles.recommendedItemImg} />
+          <MediaThumb src={rp.cover_image} fill sizes="64px" className={styles.recommendedItemImg} />
         ) : (
           <ImageIcon className={styles.recommendedItemPlaceholder} size={20} strokeWidth={1} />
         )}

@@ -68,7 +68,7 @@ export default function DiffResolver({
           <Button
             variant="outline"
             shape="circle"
-            size="xs"
+            size="md"
             onClick={handleApply}
             title="적용"
             icon={<Check size={14} strokeWidth={1.8} />}

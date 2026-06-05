@@ -21,6 +21,10 @@ export interface BilingualInputPairProps {
   width?: "full" | "fit";
   /** Enter 키 입력 시 호출 — IME composition 가드 포함 */
   onEnter?: () => void;
+  /** wrap 높이 — sm (28px, TagNotesEditor 인라인 28px alignment) / md (32px, 일반 폼). 기본 md */
+  size?: "sm" | "md";
+  /** ko/en 배치 — auto (auto-fit, 좁으면 wrap, 기본) / row (항상 1fr 1fr 로 강제 나란히) */
+  layout?: "auto" | "row";
 }
 
 /**
@@ -36,6 +40,8 @@ export default function BilingualInputPair({
   type = "text",
   width = "full",
   onEnter,
+  size = "md",
+  layout = "auto",
 }: BilingualInputPairProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!onEnter) return;
@@ -46,8 +52,8 @@ export default function BilingualInputPair({
     }
   };
   return (
-    <div className={`${styles.pair} ${width === "fit" ? styles.pairFit : ""}`}>
-      <label className={styles.wrap} data-cursor="text">
+    <div className={`${styles.pair} ${width === "fit" ? styles.pairFit : ""} ${layout === "row" ? styles.pairRow : ""}`}>
+      <label className={`${styles.wrap} ${size === "sm" ? styles.wrapSm : ""}`} data-cursor="text">
         <span className={styles.badge}>KO</span>
         <input
           type={type}
@@ -76,7 +82,7 @@ export default function BilingualInputPair({
           </button>
         )}
       </label>
-      <label className={styles.wrap} data-cursor="text">
+      <label className={`${styles.wrap} ${size === "sm" ? styles.wrapSm : ""}`} data-cursor="text">
         <span className={styles.badge}>EN</span>
         <input
           type={type}

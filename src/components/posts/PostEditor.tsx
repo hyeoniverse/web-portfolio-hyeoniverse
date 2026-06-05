@@ -482,12 +482,24 @@ export default function PostEditor({ post }: PostEditorProps) {
       tag.setInput("");
       return;
     }
-    const preset = config.tagDescriptions?.[raw];
+    /* tagDescriptions 의 description (bilingual) 을 tag_notes 초기값으로 채움 */
+    const stored = config.tagDescriptions?.[raw];
+    const meta = stored !== undefined
+      ? (() => {
+          if (typeof stored === "string") return { description: { ko: stored, en: "" } };
+          if ("description" in stored && stored.description) return { description: stored.description };
+          // legacy { ko, en } as description
+          return { description: { ko: stored.ko ?? "", en: stored.en ?? "" } };
+        })()
+      : null;
+    const presetNote = meta?.description.ko || meta?.description.en
+      ? { ko: meta.description.ko, en: meta.description.en }
+      : null;
     setForm((prev) => ({
       ...prev,
       tags: [...prev.tags, raw],
-      tag_notes: preset
-        ? { ...(prev.tag_notes ?? {}), [raw]: { ko: preset, en: "" } }
+      tag_notes: presetNote
+        ? { ...(prev.tag_notes ?? {}), [raw]: presetNote }
         : prev.tag_notes,
     }));
     tag.setInput("");
@@ -709,15 +721,20 @@ export default function PostEditor({ post }: PostEditorProps) {
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
     const { compressImage, validateFileSize } = await import("@/lib/compressImage");
 
-    // 보안 + 형식별 크기 제한 검증 (설정 값 사용)
+    // 보안 + 형식별 크기 제한 검증 (설정 값 사용). 압축 가능 이미지는 일단 통과.
     const sizeError = validateFileSize(file, mediaLimits);
     if (sizeError) throw new Error(sizeError);
 
-    // 일반 이미지는 압축 파이프라인 적용
-    const compressed = await compressImage(file);
+    // 비디오는 압축 X → 그대로 업로드. 이미지만 압축 파이프라인 적용.
+    const isVideo = file.type.startsWith("video/");
+    const payload = isVideo ? file : await compressImage(file);
+
+    // 압축 후에도 한도 초과면 reject (예: 최저 품질로도 limit 못 맞춤)
+    const postError = validateFileSize(payload, mediaLimits, { skipCompressibleBypass: true });
+    if (postError) throw new Error(postError);
 
     const formData = new FormData();
-    formData.append("file", compressed);
+    formData.append("file", payload);
 
     const res = await fetch("/api/upload", { method: "POST", body: formData });
     const data = await res.json();
@@ -729,7 +746,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   const handleCoverUpload = useCallback(async () => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*";
+    input.accept = "image/*,video/mp4,video/webm,video/quicktime";
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return;
@@ -746,25 +763,32 @@ export default function PostEditor({ post }: PostEditorProps) {
 
       if (willPublish) {
         const missing: Array<{ label: string; field: string }> = [];
-        const _koStarted = !!(form.title.trim() || form.content.trim());
-        const _enStarted = !!(form.title_en.trim() || form.content_en.trim());
+        // KO/EN 중 한 쪽만 title+content 둘 다 채워져 있으면 통과. 다른 쪽은 비어있거나 일부만 채워져있어도 OK.
+        const koComplete = !!(form.title.trim() && form.content.trim());
+        const enComplete = !!(form.title_en.trim() && form.content_en.trim());
 
         if (!form.slug.trim()) {
           missing.push({ label: te("slug"), field: "slug" });
         }
         if (!form.category.trim()) missing.push({ label: te("category"), field: "category" });
 
-        if (!_koStarted && !_enStarted) {
-          missing.push({ label: te("title"), field: "title" });
-          missing.push({ label: te("content"), field: "content" });
-        } else {
-          if (_koStarted) {
-            if (!form.title.trim()) missing.push({ label: `${te("title")} (KO)`, field: "title" });
-            if (!form.content.trim()) missing.push({ label: `${te("content")} (KO)`, field: "content" });
-          }
-          if (_enStarted) {
-            if (!form.title_en.trim()) missing.push({ label: `${te("title")} (EN)`, field: "title" });
-            if (!form.content_en.trim()) missing.push({ label: `${te("content")} (EN)`, field: "content" });
+        if (!koComplete && !enComplete) {
+          // 어느 쪽도 완성 안 됨 — 부분 입력된 쪽의 missing 필드 표시, 양쪽 다 비어있으면 KO 기준
+          const koStarted = !!(form.title.trim() || form.content.trim());
+          const enStarted = !!(form.title_en.trim() || form.content_en.trim());
+
+          if (!koStarted && !enStarted) {
+            missing.push({ label: te("title"), field: "title" });
+            missing.push({ label: te("content"), field: "content" });
+          } else {
+            if (koStarted) {
+              if (!form.title.trim()) missing.push({ label: `${te("title")} (KO)`, field: "title" });
+              if (!form.content.trim()) missing.push({ label: `${te("content")} (KO)`, field: "content" });
+            }
+            if (enStarted) {
+              if (!form.title_en.trim()) missing.push({ label: `${te("title")} (EN)`, field: "title" });
+              if (!form.content_en.trim()) missing.push({ label: `${te("content")} (EN)`, field: "content" });
+            }
           }
         }
 
@@ -795,7 +819,6 @@ export default function PostEditor({ post }: PostEditorProps) {
           openModal(
             <ModalConfirm
               desc={te("scheduledPastConfirm") || "예약 시점이 이미 지났습니다. 지금 바로 발행할까요?"}
-              cancelText={te("cancel") || "취소"}
               confirmText={te("publishNow") || "지금 발행"}
               onConfirm={async () => {
                 updateField("scheduled_at", null);
@@ -1051,7 +1074,6 @@ export default function PostEditor({ post }: PostEditorProps) {
                   openModal(
                     <ModalConfirm
                       desc={te("templateConfirm")}
-                      cancelText={te("cancel")}
                       confirmText={te("insertTemplate")}
                       onConfirm={() => { applyTemplate(tmpl); closeAll(); }}
                     />,
@@ -1249,7 +1271,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           {/* 시리즈 — 항상 표시 (optionalContent 바깥이라 직접 padding 부여) */}
           <div style={{ padding: "0 var(--spacing-md) var(--spacing-md)" }}>
             <div className={es.row}>
-              <div className={es.field} style={{ gridColumn: "1 / -1" }} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
+              <div className={es.field} onFocusCapture={() => { if (!optionalOpen) setOptionalOpen(true); }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
                   <label className={es.fieldLabel}>{te("series")}</label>
                   <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
@@ -1284,6 +1306,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                       style={{ overflow: "hidden" }}
                     >
                       <Select
+                        width="full"
                         value={form.series_id ?? ""}
                         options={[
                           { value: "", label: te("seriesNone") },

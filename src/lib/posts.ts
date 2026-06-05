@@ -142,12 +142,27 @@ export async function getInitialPostsData() {
     if (p.category) categorySet.add(p.category);
   }
 
-  // tagDescriptions 도 함께 (검색에서 활용)
+  // tagDescriptions 도 함께 — 새 포맷 (이름 + 설명 bilingual) 또는 legacy 모두 처리.
+  // description 은 client/server 양쪽에서 normalize 가능하게 raw 전달 (lib/tagMeta 의 normalizeTagMeta 사용 가능).
   const cfgForTags = await getSiteConfig();
   const tagDescriptions = cfgForTags.tagDescriptions ?? {};
   const allTags = Array.from(tagCounts.entries())
     .sort((a, b) => b[1] - a[1])
-    .map(([tag, count]) => ({ tag, count, description: tagDescriptions[tag] ?? "" }));
+    .map(([tag, count]) => {
+      const raw = tagDescriptions[tag];
+      // 검색용 - 모든 텍스트를 하나로 합쳐서 사용
+      let description = "";
+      if (typeof raw === "string") description = raw;
+      else if (raw) {
+        if ("description" in raw && raw.description) {
+          description = raw.description.ko || raw.description.en || "";
+        } else if ("ko" in raw || "en" in raw) {
+          // legacy bilingual desc
+          description = (raw as { ko?: string }).ko || (raw as { en?: string }).en || "";
+        }
+      }
+      return { tag, count, description, meta: raw };
+    });
 
   const extraCategories = Array.from(categorySet);
 
@@ -181,12 +196,26 @@ export async function getInitialPostsData() {
 
 export type InitialPostsData = Awaited<ReturnType<typeof getInitialPostsData>>;
 
+/** tagDescriptions raw entry → 표시용 string (KO 우선, fallback EN). legacy string / bilingual desc / 신규 { ko, en, description: { ko, en } } 모두 처리. */
+function normalizeTagDescString(raw: unknown): string {
+  if (!raw) return "";
+  if (typeof raw === "string") return raw;
+  if (typeof raw !== "object") return "";
+  const r = raw as { description?: unknown; ko?: string; en?: string };
+  if (r.description) {
+    if (typeof r.description === "string") return r.description;
+    const d = r.description as { ko?: string; en?: string };
+    return d.ko || d.en || "";
+  }
+  return r.ko || r.en || "";
+}
+
 /** Tag 페이지용 — tag 로 필터된 첫 페이지 posts + count + 관련 tags (co-occurrence) */
 const TAG_PER_PAGE_DEFAULT = 10;
 export async function getTagPageData(tag: string, perPage: number = TAG_PER_PAGE_DEFAULT) {
   const admin = createAdminClient();
   const cfg = await getSiteConfig();
-  const description = cfg.tagDescriptions?.[tag] ?? "";
+  const description = normalizeTagDescString(cfg.tagDescriptions?.[tag]);
 
   const [postsResult, allTaggedResult] = await Promise.all([
     // tag 가 포함된 첫 페이지 posts (count 포함)
@@ -287,7 +316,7 @@ export async function getAllTagsData() {
     .map(([tag, count]) => ({
       tag,
       count,
-      description: descriptions[tag] ?? "",
+      description: normalizeTagDescString(descriptions[tag]),
       related: getRelated(tag),
     }));
 

@@ -12,8 +12,10 @@
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif:
     "Playfair Display", Georgia, Cambria, "Times New Roman", Times, serif;
+  /* default mono — next/font 가 self-host 한 JetBrains Mono 를 var(--font-jetbrains) 로 주입.
+     user 가 설정에서 다른 mono 폰트 고르면 ThemeProvider 가 이 --font-mono 를 override. */
   --font-mono:
-    "JetBrains Mono", SFMono-Regular, Menlo, Monaco, Consolas,
+    var(--font-jetbrains), SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
 
   /* Font Aliases (layout.tsx CSS variables) */

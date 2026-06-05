@@ -8,6 +8,7 @@ import { useModalStore } from "@/stores/modalStore";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import CloseButton from "@/components/ui/CloseButton";
 import Select from "@/components/ui/Select";
 import TextLink from "@/components/ui/TextLink";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
@@ -78,7 +79,6 @@ export default function AccountTab({
       openModal(
         <ModalConfirm
           desc={t(device.isCurrent ? "admin.settings.revokeCurrentDeviceDesc" : "admin.settings.revokeDeviceDesc")}
-          cancelText={t("admin.settings.cancel")}
           confirmText={t("admin.settings.revokeDevice")}
           danger
           onConfirm={async () => {
@@ -121,7 +121,6 @@ export default function AccountTab({
     openModal(
       <ModalConfirm
         desc={t("admin.settings.signOutAllConfirmDesc")}
-        cancelText={t("admin.settings.cancel")}
         confirmText={t("admin.settings.signOutAllConfirm")}
         danger
         onConfirm={async () => {
@@ -213,11 +212,11 @@ export default function AccountTab({
 
   return (
     <>
-      <section className={styles.section}>
+      <section className={`${styles.section} ${styles.sectionWide}`}>
         <div className={styles.sectionTitleRow}>
           <h2 className={styles.sectionTitle}><T k="admin.settings.authSettingsTitle" /></h2>
           <TextLink href="https://supabase.com/docs/guides/auth/passwords" external>
-            Supabase Auth Docs ↗
+            Supabase Auth Docs
           </TextLink>
         </div>
         <p className={styles.sectionHint}>
@@ -263,10 +262,10 @@ export default function AccountTab({
               )}
             </div>
             <div className={styles.pendingEmailActions}>
-              <Button variant="outline" size="xs" onClick={handleResend} disabled={resending}>
+              <Button variant="outline" size="md" onClick={handleResend} disabled={resending}>
                 {resending ? <T k="admin.settings.resending" /> : <T k="admin.settings.resendEmail" />}
               </Button>
-              <Button variant="ghost" size="xs" onClick={handleCancelEmailChange} disabled={cancelling}>
+              <Button variant="ghost" size="md" onClick={handleCancelEmailChange} disabled={cancelling}>
                 {cancelling ? <T k="admin.settings.cancelling" /> : <T k="admin.settings.cancelChange" />}
               </Button>
             </div>
@@ -287,7 +286,7 @@ export default function AccountTab({
         </div>
       </section>
 
-      <section className={`${styles.section} ${styles.sectionWide}`}>
+      <section className={styles.section}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.password" /></h2>
         <ul className={styles.sectionHintList}>
           <li><T k="admin.settings.securePasswordChangeHint" /></li>
@@ -299,22 +298,23 @@ export default function AccountTab({
           </li>
         </ul>
         <div className={styles.fields}>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}><T k="admin.settings.passwordPolicyLabel" /></label>
-            <Select
-              value={passwordPolicy}
-              options={[
-                { value: "secure", label: t("admin.settings.passwordPolicySecure") },
-                { value: "default", label: t("admin.settings.passwordPolicyDefault") },
-              ]}
-              onChange={onPasswordPolicyChange}
-            />
+          <div className={styles.fieldPair}>
+            <div className={styles.fieldRow}>
+              <label className={styles.fieldLabel}><T k="admin.settings.passwordPolicyLabel" /></label>
+              <Select
+                value={passwordPolicy}
+                options={[
+                  { value: "secure", label: t("admin.settings.passwordPolicySecure") },
+                  { value: "default", label: t("admin.settings.passwordPolicyDefault") },
+                ]}
+                onChange={onPasswordPolicyChange}
+              />
+            </div>
           </div>
-          <div className={styles.fieldGroup}>
+          <div className={styles.fieldPair}>
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}><T k="admin.settings.newPassword" /></label>
               <Input
-                size="sm"
                 type="password"
                 value={accountPassword}
                 onChange={setAccountPassword}
@@ -324,7 +324,6 @@ export default function AccountTab({
             <div className={styles.fieldRow}>
               <label className={styles.fieldLabel}><T k="admin.settings.confirmPassword" /></label>
               <Input
-                size="sm"
                 type="password"
                 value={accountConfirm}
                 onChange={setAccountConfirm}
@@ -336,7 +335,7 @@ export default function AccountTab({
       </section>
 
       {/* Security — sessions / devices */}
-      <section className={styles.section}>
+      <section className={`${styles.section} ${styles.sectionWide}`}>
         <h2 className={styles.sectionTitle}><T k="admin.settings.securityTitle" /></h2>
         <ul className={styles.sectionHintList}>
           <li><T k="admin.settings.signOutAllHint" /></li>
@@ -404,7 +403,7 @@ export default function AccountTab({
             <label className={styles.fieldLabel}><T k="admin.settings.signOutAllLabel" /></label>
             <Button
               variant="outline"
-              size="xs"
+              size="md"
               tone="danger"
               onClick={handleSignOutAll}
               disabled={signingOutAll}
@@ -415,54 +414,50 @@ export default function AccountTab({
         </div>
       </section>
 
-      {showPasswordConfirm && (
-        <div className={styles.confirmOverlay} onClick={() => setShowPasswordConfirm(false)}>
-          <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
-            <h3 className={styles.confirmTitle}><T k="admin.settings.currentPassword" /></h3>
-            <p className={styles.confirmDesc}>
-              <T k="admin.settings.confirmPasswordDesc" />
-            </p>
-            <Input
-              size="sm"
-              type="password"
-              value={accountCurrentPassword}
-              onChange={setAccountCurrentPassword}
-              placeholder={t("admin.settings.currentPasswordPlaceholder")}
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && accountCurrentPassword) handleAccountUpdate();
-                if (e.key === "Escape") setShowPasswordConfirm(false);
-              }}
-            />
-            {accountMessage && (
-              <span className={`${styles.message} ${accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
-                {accountMessage}
-              </span>
-            )}
-            <div className={styles.confirmActions}>
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={() => {
-                  setShowPasswordConfirm(false);
-                  setAccountCurrentPassword("");
-                  setAccountMessage("");
+      {showPasswordConfirm && (() => {
+        const closeConfirm = () => {
+          setShowPasswordConfirm(false);
+          setAccountCurrentPassword("");
+          setAccountMessage("");
+        };
+        return (
+          <div className={styles.confirmOverlay} onClick={closeConfirm}>
+            <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
+              <CloseButton className={styles.confirmClose} size="md" onClick={closeConfirm} ariaLabel={t("admin.settings.cancel")} />
+              <h3 className={styles.confirmTitle}><T k="admin.settings.currentPassword" /></h3>
+              <p className={styles.confirmDesc}>
+                <T k="admin.settings.confirmPasswordDesc" />
+              </p>
+              <Input
+                type="password"
+                value={accountCurrentPassword}
+                onChange={setAccountCurrentPassword}
+                placeholder={t("admin.settings.currentPasswordPlaceholder")}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && accountCurrentPassword) handleAccountUpdate();
+                  if (e.key === "Escape") closeConfirm();
                 }}
-              >
-                <T k="admin.settings.cancel" />
-              </Button>
-              <Button
-                variant="primary"
-                size="xs"
-                disabled={accountSaving || !accountCurrentPassword}
-                onClick={handleAccountUpdate}
-              >
-                {accountSaving ? <T k="admin.settings.saving" /> : <T k="admin.settings.confirm" />}
-              </Button>
+              />
+              {accountMessage && (
+                <span className={`${styles.message} ${accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
+                  {accountMessage}
+                </span>
+              )}
+              <div className={styles.confirmActions}>
+                <Button
+                  variant="primary"
+                  size="md"
+                  disabled={accountSaving || !accountCurrentPassword}
+                  onClick={handleAccountUpdate}
+                >
+                  {accountSaving ? <T k="admin.settings.saving" /> : <T k="admin.settings.confirm" />}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </>
   );
 }

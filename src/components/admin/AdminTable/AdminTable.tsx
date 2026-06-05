@@ -206,7 +206,6 @@ export default function AdminTable<T extends { id: string; published: boolean }>
         hint={`${selected.size}개 항목을 삭제하려면 "${count}"을(를) 입력하세요.`}
         placeholder={count}
         validate={(v) => v === count}
-        cancelText={labels.cancel}
         confirmText={labels.delete}
         danger
         onConfirm={() => onBulkDelete([...selected]).then(() => setSelected(new Set()))}
@@ -232,14 +231,13 @@ export default function AdminTable<T extends { id: string; published: boolean }>
         hint={labels.deleteConfirmInput}
         placeholder={title}
         validate={(v) => v === title}
-        cancelText={labels.cancel}
         confirmText={labels.delete}
         danger
         onConfirm={() => onDelete(item.id, title)}
       />,
       {
         id: "delete-confirm",
-        closeButton: false,
+        closeButton: true,
         width: "400px",
         header: { title: `\u201C${title}\u201D` },
       },

@@ -68,12 +68,23 @@ export default function SettingsPage() {
     const tab = searchParams.get("tab");
     return tab && TAB_IDS.includes(tab as TabId) ? (tab as TabId) : "general";
   });
-  const [contentSubTab, setContentSubTab] = useState<"home" | "profile" | "works" | "posts">(() => {
+  const [contentSubTab, setContentSubTab] = useState<"home" | "profile" | "works" | "posts" | "about">(() => {
     const sub = searchParams.get("sub");
-    return sub && ["home", "profile", "works", "posts"].includes(sub)
-      ? (sub as "home" | "profile" | "works" | "posts")
+    return sub && ["home", "profile", "works", "posts", "about"].includes(sub)
+      ? (sub as "home" | "profile" | "works" | "posts" | "about")
       : "home";
   });
+  /* 탭/서브탭 → URL 동기화 — 새로고침/북마크/공유 가능. push 아닌 replace 라 history 안 늘어남.
+     첫 mount 는 skip (초기화 그대로 두기). */
+  const tabSyncedRef = useRef(false);
+  useEffect(() => {
+    if (!tabSyncedRef.current) { tabSyncedRef.current = true; return; }
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", activeTab);
+    if (activeTab === "content") url.searchParams.set("sub", contentSubTab);
+    else url.searchParams.delete("sub");
+    window.history.replaceState(null, "", url.toString());
+  }, [activeTab, contentSubTab]);
   const account = useAccountSettings(t);
 
   // ── 통합 충돌 상태 ──
@@ -320,6 +331,18 @@ export default function SettingsPage() {
     });
   }, []);
 
+  /** 특정 dot-path 들만 siteConfig 기본값으로 재설정 — 섹션 헤더의 기본값 버튼 */
+  const resetSection = useCallback((paths: string[]) => {
+    if (paths.length === 0) return;
+    setConfig((prev) => {
+      let next = structuredClone(prev);
+      for (const p of paths) {
+        next = setByPath(next, p, getByPath(siteConfig as unknown as SiteConfigData, p));
+      }
+      return next;
+    });
+  }, []);
+
   /** 특정 dot-path 들만 부분 저장 — 섹션 헤더의 저장 버튼이 호출 */
   const saveSection = useCallback(async (paths: string[]) => {
     if (paths.length === 0) return;
@@ -482,7 +505,7 @@ export default function SettingsPage() {
               )}
               <Button
                 variant="primary"
-                size="xs"
+                size="md"
                 disabled={account.accountSaving}
                 onClick={() => {
                   if (account.accountPassword && account.accountPassword !== account.accountConfirm) {
@@ -513,8 +536,8 @@ export default function SettingsPage() {
               )}
               {activeTab === "content" && contentSubTab === "profile" && (
                 <Button
-                  variant="link"
-                  size="xs"
+                  variant="outline"
+                  size="md"
                   onClick={() => setProfileExpanded(toggleProfileAll(profileData, !isProfileAllOpen(profileData, profileExpanded)))}
                 >
                   <T k={isProfileAllOpen(profileData, profileExpanded) ? "admin.settings.profile.collapseAll" : "admin.settings.profile.expandAll"} />
@@ -523,13 +546,12 @@ export default function SettingsPage() {
               <Tooltip content={t("admin.settings.resetDefaultsTooltip")} placement="bottom" delay={250}>
                 <Button
                   variant="outline"
-                  size="xs"
+                  size="md"
                   tone="danger"
                   onClick={() => {
                     openModal(
                       <ModalConfirm
                         desc={t("admin.settings.resetDefaultsConfirm")}
-                        cancelText={t("admin.settings.cancel")}
                         confirmText={t("admin.settings.resetDefaults")}
                         danger
                         onConfirm={() => setConfig(structuredClone(siteConfig) as unknown as SiteConfigData)}
@@ -544,7 +566,7 @@ export default function SettingsPage() {
               <Tooltip content={t("admin.settings.revertTooltip")} placement="bottom" delay={250}>
                 <Button
                   variant="outline"
-                  size="xs"
+                  size="md"
                   disabled={!hasChanges}
                   onClick={() => setConfig(structuredClone(savedConfigRef.current))}
                 >
@@ -553,7 +575,7 @@ export default function SettingsPage() {
               </Tooltip>
               <Button
                 variant="primary"
-                size="xs"
+                size="md"
                 onClick={handleSave}
                 disabled={saving || !hasChanges || !!validationError}
               >
@@ -588,7 +610,7 @@ export default function SettingsPage() {
                 </button>
                 {id === "content" && (
                   <div className={styles.navSub}>
-                    {(["home", "profile", "works", "posts"] as const).map((sub) => {
+                    {(["home", "profile", "works", "posts", "about"] as const).map((sub) => {
                       const subCount = allConflicts.filter((c) => c.tab === "content" && c.subTab === sub).length;
                       return (
                         <button
@@ -722,13 +744,13 @@ export default function SettingsPage() {
             <>
               {activeTab === "general" && (
                 <div className={styles.tabGrid}>
-                  <GeneralTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} savingPaths={savingPaths} styles={styles} />
+                  <GeneralTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} styles={styles} />
                 </div>
               )}
               {activeTab === "content" && (
                 <>
                   <div className={styles.mobileSubNav}>
-                    {(["home", "profile", "works", "posts"] as const).map((sub) => {
+                    {(["home", "profile", "works", "posts", "about"] as const).map((sub) => {
                       const subCount = allConflicts.filter((c) => c.tab === "content" && c.subTab === sub).length;
                       return (
                         <button
@@ -753,7 +775,7 @@ export default function SettingsPage() {
                     savedConfig={savedConfigRef.current}
                     update={update}
                     saveSection={saveSection}
-                    revertSection={revertSection}
+                    revertSection={revertSection} resetSection={resetSection}
                     savingPaths={savingPaths}
                     setConfig={setConfig}
                     profileData={profileData}
@@ -768,12 +790,12 @@ export default function SettingsPage() {
               )}
               {activeTab === "appearance" && (
                 <div className={styles.tabGrid}>
-                  <AppearanceTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
+                  <AppearanceTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
                 </div>
               )}
               {activeTab === "services" && (
                 <div className={styles.tabGrid}>
-                  <ServicesTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
+                  <ServicesTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
                 </div>
               )}
               {activeTab === "account" && (

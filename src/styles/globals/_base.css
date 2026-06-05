@@ -84,6 +84,12 @@ select {
   font: inherit;
 }
 
+/* 글로벌 a 태그 — 기본 underline / color 제거. 각 컴포넌트가 필요 시 override */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
 body {
   overflow-x: hidden;
   position: relative;

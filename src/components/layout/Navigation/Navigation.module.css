@@ -16,16 +16,16 @@
   pointer-events: none;
 }
 
-.logoGroup,
+.logoNavBar,
 .logo,
 .navCenter,
 .navActions {
   pointer-events: auto;
 }
 
-/* 로고 + admin 배지 flex 컨테이너 — fixed top-left, mix-blend-mode 없음 (자식 각자 처리).
-   부모에 isolation: isolate 가 없으니 자식 blend 가 page backdrop 까지 propagate. */
-/* 로고 + admin 배지 flex 부모 (wrap). isolation 없으므로 자식 mix-blend-mode 가 page backdrop 까지 도달 */
+/* 로고 + admin 배지 flex wrap 부모이자 Link (a) — hit area 전체 = navigation.
+   mix-blend-mode 를 부모에 두면 전체 box 가 page backdrop 과 한 번에 blend.
+   (자식에 두면 부모 stacking context 안에서 transparent backdrop 과 blend → 무효) */
 .logoNavBar {
   position: fixed;
   top: var(--spacing-2xl);
@@ -35,37 +35,45 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-sm);
-  pointer-events: none;
-}
-
-/* 로고 anchor — flex 자식, logoDifference 토글에 독립 */
-.logoAnchor {
-  display: flex;
-  align-items: center;
-  pointer-events: auto;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
   mix-blend-mode: difference;
 }
 
-.logoAnchorNoDifference {
+/* hit area 확장 — 시각 위치는 그대로 두고 ::before 가 주변까지 클릭 인식 */
+.logoNavBar::before {
+  content: "";
+  position: absolute;
+  inset: -16px -24px;
+  z-index: -1;
+  pointer-events: auto;
+}
+
+/* .glith-on-hover 의 글로벌 (0,1,1) :hover 는 logoNavBar 자신에게 text-shadow 를 주지만
+   text 가 직접 자식 .logo 안에 있어 시각 효과 없음 → hover 시 자식 .logo 로 glitch 전파 */
+.logoNavBar.glith-on-hover:hover .logo {
+  animation: glitch var(--duration-slower) infinite alternate;
+  z-index: 30;
+}
+
+/* logoDifference 토글 off — 부모 전체의 blend 해제 (logo + admin 배지 같이 영향) */
+.logoNavBarNoDifference {
   mix-blend-mode: normal;
 }
 
-/* Admin 배지 — flex sibling, 자체 difference (logoDifference 무관) */
+/* 로딩 중 (또는 elevated z) — LoadingScreen backdrop 위로 올림 */
+.logoNavBarElevated {
+  z-index: calc(var(--z-overlay) + 1);
+}
+
+
 .adminBadgeFixed {
   pointer-events: auto;
-  mix-blend-mode: difference;
   display: inline-flex;
   align-items: center;
 }
 
-.logoGroup {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-}
 
 .adminBadge {
   font-family: var(--font-space-grotesk), sans-serif;
@@ -87,8 +95,10 @@
   color: var(--text-white);
   letter-spacing: -0.02em;
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  line-height: 1;
+  will-change: transform;
 }
 
 .logoImageWrap {
@@ -146,7 +156,7 @@
 }
 
 .navIndicator::before {
-  content: "►";
+  content: "▶\fe0e";
   position: absolute;
   right: calc(100% + 6px);
   top: 50%;
@@ -156,7 +166,7 @@
 }
 
 .navIndicator::after {
-  content: "◀︎";
+  content: "◀\fe0e";
   position: absolute;
   left: calc(100% + 6px);
   top: 50%;
@@ -1181,7 +1191,7 @@
   border-radius: var(--radius-capsule);
   background: var(--text-accent);
   color: var(--bg-primary);
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -1274,7 +1284,7 @@
 }
 
 .notifDropdownItemTime {
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: 9px;
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
@@ -1355,9 +1365,9 @@
   z-index: calc(var(--z-overlay) + 1);
 }
 
-/* logoGroup 은 자식 .logoWrapper 의 인라인 visibility:visible 때문에 visibility 만으로는 안 숨겨짐
+/* logoNavBar 자식 motion.span (.logo) 의 인라인 visibility:visible 로 visibility 만으론 안 숨겨짐
    → opacity (곱셈 합성) 로 강제 */
-.navMenuOpen .logoGroup {
+.navMenuOpen .logoNavBar {
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
@@ -1374,13 +1384,6 @@
   visibility: hidden;
 }
 
-/* Logo wrapper: transform 기반 중앙→nav 이동 애니메이션 */
-.logoWrapper {
-  display: inline-flex;
-  will-change: transform;
-  font-size: var(--font-size-3xl);
-  line-height: 1;
-}
 
 /* ==========================================================================
   Responsive
@@ -1398,6 +1401,12 @@
 }
 
 @media (max-width: 768px) {
+  /* navCenter 가 사라지면 .nav 의 space-between 이 단일 자식 (navActions) 을 왼쪽으로 박음 → 로고와 겹침.
+     flex-end 로 강제 우측 정렬 — 로고는 fixed 로 좌측 그대로, 가운데 자연 공백, 버튼은 우측 = "로고 [space] 버튼들". */
+  .nav {
+    justify-content: flex-end;
+  }
+
   .navCenter {
     display: none;
   }

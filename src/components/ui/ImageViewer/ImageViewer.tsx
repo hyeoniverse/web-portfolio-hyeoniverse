@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { HelpCircle, MoreVertical, RotateCcw } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
+import { isVideoUrl } from "@/lib/isVideoUrl";
 import CloseButton from "@/components/ui/CloseButton";
 import Tooltip from "@/components/ui/Tooltip";
 import { Switch } from "@/components/ui/Switch";
@@ -156,11 +157,16 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     return () => document.removeEventListener("keydown", onKey);
   }, [open, current, images.length, isFullscreen, zoom]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Preload adjacent
+  // Preload adjacent — 이미지만 (비디오는 너무 큼)
   useEffect(() => {
     if (!open || images.length <= 1) return;
     [(current + 1) % images.length, (current - 1 + images.length) % images.length]
-      .forEach((i) => { const img = new Image(); img.src = images[i]; });
+      .forEach((i) => {
+        const src = images[i];
+        if (isVideoUrl(src)) return;
+        const img = new Image();
+        img.src = src;
+      });
   }, [open, current, images]);
 
   // Fullscreen auto-hide controls
@@ -752,26 +758,49 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                 {loading && (
                   <div className={styles.loader}><div className={styles.loaderSpinner} /></div>
                 )}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  ref={imgRef}
-                  src={resolveSrc(images[current])}
-                  alt=""
-                  className={`${styles.image} ${loading ? styles.imageLoading : ""}`}
-                  onClick={(e) => e.stopPropagation()}
-                  style={{
-                    transform: `scale(${zoom}) translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`,
-                    cursor: isZoomed ? "grab" : "zoom-in",
-                  }}
-                  onDoubleClick={handleDoubleClick}
-                  onPointerDown={handlePanStart}
-                  onPointerMove={handlePanMove}
-                  onPointerUp={handlePanEnd}
-                  onPointerCancel={handlePanEnd}
-                  onLoad={() => setLoading(false)}
-                  onError={() => { markError(images[current]); setLoading(false); }}
-                  draggable={false}
-                />
+                {isVideoUrl(images[current]) && !imgErrors.has(images[current]) ? (
+                  <video
+                    src={images[current]}
+                    className={`${styles.image} ${loading ? styles.imageLoading : ""}`}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      transform: `scale(${zoom}) translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`,
+                      cursor: isZoomed ? "grab" : "default",
+                    }}
+                    onPointerDown={handlePanStart}
+                    onPointerMove={handlePanMove}
+                    onPointerUp={handlePanEnd}
+                    onPointerCancel={handlePanEnd}
+                    onLoadedData={() => setLoading(false)}
+                    onError={() => { markError(images[current]); setLoading(false); }}
+                    controls
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    ref={imgRef}
+                    src={resolveSrc(images[current])}
+                    alt=""
+                    className={`${styles.image} ${loading ? styles.imageLoading : ""}`}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      transform: `scale(${zoom}) translate(${panOffset.x / zoom}px, ${panOffset.y / zoom}px)`,
+                      cursor: isZoomed ? "grab" : "zoom-in",
+                    }}
+                    onDoubleClick={handleDoubleClick}
+                    onPointerDown={handlePanStart}
+                    onPointerMove={handlePanMove}
+                    onPointerUp={handlePanEnd}
+                    onPointerCancel={handlePanEnd}
+                    onLoad={() => setLoading(false)}
+                    onError={() => { markError(images[current]); setLoading(false); }}
+                    draggable={false}
+                  />
+                )}
               </motion.div>
             </AnimatePresence>
             </motion.div>
@@ -853,8 +882,19 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                         className={`${styles.thumbItem} ${i === current ? styles.thumbItemActive : ""}`}
                         onClick={(e) => { e.stopPropagation(); goTo(i); }}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={resolveSrc(src)} alt="" className={styles.thumbImg} draggable={false} onError={() => markError(src)} />
+                        {isVideoUrl(src) && !imgErrors.has(src) ? (
+                          <video
+                            src={src}
+                            className={styles.thumbImg}
+                            muted
+                            playsInline
+                            preload="metadata"
+                            onError={() => markError(src)}
+                          />
+                        ) : (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img src={resolveSrc(src)} alt="" className={styles.thumbImg} draggable={false} onError={() => markError(src)} />
+                        )}
                         {i === current && (
                           <motion.span
                             className={styles.thumbIndicator}
@@ -896,8 +936,19 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                       className={`${styles.thumbListItem} ${i === current ? styles.thumbListItemActive : ""}`}
                       onClick={() => goTo(i)}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={resolveSrc(src)} alt="" className={styles.thumbListImg} draggable={false} onError={() => markError(src)} />
+                      {isVideoUrl(src) && !imgErrors.has(src) ? (
+                        <video
+                          src={src}
+                          className={styles.thumbListImg}
+                          muted
+                          playsInline
+                          preload="metadata"
+                          onError={() => markError(src)}
+                        />
+                      ) : (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={resolveSrc(src)} alt="" className={styles.thumbListImg} draggable={false} onError={() => markError(src)} />
+                      )}
                       <span className={styles.thumbListLabel}>{i + 1}</span>
                     </button>
                   ))}

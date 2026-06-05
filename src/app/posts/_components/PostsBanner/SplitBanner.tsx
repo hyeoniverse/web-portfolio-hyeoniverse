@@ -8,7 +8,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
-import { PlaceholderIcon } from "./PlaceholderIcon";
+import { seededGradient } from "@/components/posts/CoverImagePicker/seededGradient";
 import { useAutoSlide } from "./useAutoSlide";
 import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
 import type { Post } from "@/types/post";
@@ -77,7 +77,11 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
                     onError={() => onImgError(post.id)}
                   />
                 ) : (
-                  <div className={styles.splitFallback}><PlaceholderIcon /></div>
+                  <div
+                    className={styles.splitFallback}
+                    style={{ background: seededGradient(post.slug || post.id) }}
+                    aria-hidden="true"
+                  />
                 )}
               </div>
             </motion.div>

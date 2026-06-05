@@ -2,7 +2,7 @@
 
 import { useId, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
-import { ArrowUp, ChevronLeft } from "lucide-react";
+import { ArrowUp, ChevronRight, X } from "lucide-react";
 import { cn } from "@/utils/cn";
 import Button from "./Button";
 import styles from "./SegmentedControl.module.css";
@@ -31,6 +31,8 @@ interface Props<T extends string, S extends string = string> {
   subVariant?: "inline" | "nested";
   /** nested 모드에서 main 으로 돌아가는 callback — 없으면 back 버튼 미표시 */
   onBack?: () => void;
+  /** control 높이 — xs (24) / sm (28) / md (32, 기본). 다른 control 들과 정렬용 */
+  size?: "xs" | "sm" | "md";
 }
 
 /** Capsule pill segmented control — single-select. framer-motion active background sliding + hover preview.
@@ -46,6 +48,7 @@ export default function SegmentedControl<T extends string, S extends string = st
   onSubChange,
   subVariant = "nested",
   onBack,
+  size = "md",
 }: Props<T, S>) {
   const layoutId = useId();
   const [hovered, setHovered] = useState<T | null>(null);
@@ -74,23 +77,26 @@ export default function SegmentedControl<T extends string, S extends string = st
             onClick={onBack}
             aria-label="Back"
           >
-            <ChevronLeft size={12} strokeWidth={2} />
+            <X size={12} strokeWidth={2} />
           </button>
         )}
         <Button
           variant="primary"
-          size="xs"
+          size={size}
           soundDisabled
           className={styles.btnNestedLabel}
           onClick={onBack}
         >
           {activeItem.label}
         </Button>
-        <span aria-hidden className={styles.nestedDivider} />
+        <span aria-hidden className={styles.nestedDivider}>
+          <ChevronRight size={12} strokeWidth={2} />
+        </span>
         <SegmentedControl<S>
           items={activeItem.subItems!}
           value={subValue}
           onChange={onSubChange}
+          size={size}
         />
       </motion.div>
     );
@@ -101,7 +107,7 @@ export default function SegmentedControl<T extends string, S extends string = st
     <motion.div
       layout
       transition={morphTransition}
-      className={cn(styles.group, className)}
+      className={cn(styles.group, size === "sm" && styles.groupSm, className)}
       role="tablist"
       onMouseLeave={() => setHovered(null)}
     >
@@ -114,7 +120,7 @@ export default function SegmentedControl<T extends string, S extends string = st
             type="button"
             role="tab"
             aria-selected={isActive}
-            className={cn(styles.btn, isActive && showIndicator && styles.btnActiveOver)}
+            className={cn(styles.btn, size === "sm" && styles.btnSm, size === "xs" && styles.btnXs, isActive && showIndicator && styles.btnActiveOver)}
             onClick={() => onChange(it.value)}
             onMouseEnter={() => setHovered(it.value)}
           >
@@ -152,6 +158,7 @@ export default function SegmentedControl<T extends string, S extends string = st
           items={activeItem.subItems!}
           value={subValue}
           onChange={onSubChange}
+          size={size}
         />
       </div>
     );

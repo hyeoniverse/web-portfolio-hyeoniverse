@@ -84,7 +84,7 @@
   display: inline-flex;
   align-items: baseline;
   gap: 1px;
-  font-family: var(--font-jetbrains);
+  font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;

@@ -92,7 +92,7 @@
 }
 
 /* ── Arrows ── */
-.carousel .arrow {
+.viewportWrap .arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -116,7 +116,7 @@
   opacity: 1;
 }
 
-.carousel .arrow:hover {
+.viewportWrap .arrow:hover {
   background: var(--text-white);
   color: var(--text-black);
   backdrop-filter: none;
@@ -146,7 +146,7 @@
   border-radius: var(--radius-capsule);
 }
 
-.carousel .dot {
+.viewportWrap .dot {
   position: relative;
   width: var(--button-h-sm);
   height: 4px;
@@ -157,7 +157,7 @@
   overflow: hidden;
 }
 
-.carousel .dot:hover {
+.viewportWrap .dot:hover {
   background: var(--bg-white);
 }
 
@@ -180,7 +180,7 @@
     height: 280px;
   }
 
-  .carousel .arrow {
+  .viewportWrap .arrow {
     width: var(--button-h-md);
     height: var(--button-h-md);
   }

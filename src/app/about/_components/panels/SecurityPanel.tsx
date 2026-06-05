@@ -2,9 +2,22 @@ import { memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { SecurityItem } from "@/data/about";
 import { renderHighlight } from "../renderHighlight";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import shared from "../AboutSection.module.css";
 import local from "./SecurityPanel.module.css";
 const styles = { ...shared, ...local };
+
+/* admin (siteConfig.about.security) flat shape → SecurityItem nested shape 변환 */
+type CfgSecurity = { layer: string; icon: string; title_ko: string; title_en: string; description_ko: string; description_en: string; scope_ko: string; scope_en: string };
+function adaptSecurity(cfgList: CfgSecurity[]): SecurityItem[] {
+  return cfgList.map((s) => ({
+    layer: s.layer,
+    icon: s.icon,
+    title: { ko: s.title_ko, en: s.title_en },
+    description: { ko: s.description_ko, en: s.description_en },
+    scope: { ko: s.scope_ko, en: s.scope_en },
+  }));
+}
 
 /* Inline lucide-style SVG icons */
 const icons: Record<string, React.ReactNode> = {
@@ -73,6 +86,9 @@ interface SecurityPanelProps {
 }
 
 function SecurityPanel({ language, items }: SecurityPanelProps) {
+  const cfg = useSiteConfig();
+  const cfgList = (cfg.about as { security?: CfgSecurity[] }).security;
+  if (cfgList && cfgList.length > 0) items = adaptSecurity(cfgList);
   return (
     <div className={styles.panel}>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>

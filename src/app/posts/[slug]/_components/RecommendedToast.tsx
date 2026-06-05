@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion } from "framer-motion";
 import { BookOpen, ImageIcon } from "lucide-react";
@@ -52,7 +52,7 @@ export default function RecommendedToast({ post, viewLang, onDismiss }: Recommen
       <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.toastItem} data-clickable="true">
         <div className={styles.toastThumb}>
           {post.cover_image ? (
-            <Image src={post.cover_image} alt="" fill sizes="48px" className={styles.toastThumbImg} />
+            <MediaThumb src={post.cover_image} fill sizes="48px" className={styles.toastThumbImg} />
           ) : (
             <ImageIcon className={styles.toastThumbPlaceholder} size={16} strokeWidth={1} />
           )}

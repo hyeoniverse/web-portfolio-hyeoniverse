@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { Trash2, Upload, Plus, Download } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -55,6 +56,7 @@ export default function AdminPostsPage() {
   /* Filters & sort */
   const [search, setSearch] = useState("");
   const [searchType, setSearchType] = useState("all");
+  const [syntaxMode, setSyntaxMode] = useState<"prefix" | "regex">("prefix");
   const [sort, setSort] = useState("newest");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSeries, setFilterSeries] = useState("");
@@ -111,13 +113,14 @@ export default function AdminPostsPage() {
     if (search) {
       params.set("search", search);
       params.set("searchType", searchType);
+      params.set("syntaxMode", syntaxMode);
     }
     const res = await fetch(`/api/posts?${params}`);
     const data = await res.json();
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [page, perPage, sort, filterCategory, filterSeries, search, searchType]);
+  }, [page, perPage, sort, filterCategory, filterSeries, search, searchType, syntaxMode]);
 
   const fetchSeries = useCallback(async () => {
     setSeriesLoading(true);
@@ -195,10 +198,8 @@ export default function AdminPostsPage() {
       openModal(
         <ModalConfirm
           desc={`${t("admin.posts.newCategoriesFound")}\n\n${newCats.map((c) => `• ${c}`).join("\n")}\n\n${t("admin.posts.newCategoriesConfirm")}`}
-          cancelText={t("admin.posts.cancel")}
           confirmText={t("admin.posts.createAndUpload")}
           onConfirm={() => { closeAll(); doCreate(); }}
-          onCancel={() => closeAll()}
         />,
         { header: { title: t("admin.posts.newCategories") }, closeButton: true, width: "400px" },
       );
@@ -305,7 +306,6 @@ export default function AdminPostsPage() {
           desc={t("admin.posts.popularDeleteDesc")
             .replace("{{views}}", String(post?.view_count ?? 0))
             .replace("{{likes}}", String(post?.like_count ?? 0))}
-          cancelText={t("admin.posts.cancel")}
           confirmText={t("admin.posts.delete")}
           danger
           onConfirm={doDelete}
@@ -412,7 +412,6 @@ export default function AdminPostsPage() {
               openModal(
                 <ModalConfirm
                   desc={t("admin.posts.trashPurgeConfirmBulk").replace("{{count}}", String(trashSelected.size))}
-                  cancelText={t("admin.posts.cancel")}
                   confirmText={t("admin.posts.trashPurge")}
                   onConfirm={async () => {
                     setBusy(true);
@@ -536,7 +535,6 @@ export default function AdminPostsPage() {
               openModal(
                 <ModalConfirm
                   desc={t("admin.posts.seriesBulkDeleteConfirm").replace("{{count}}", String(ids.length))}
-                  cancelText={t("admin.posts.cancel")}
                   confirmText={t("admin.posts.delete")}
                   onConfirm={async () => {
                     setBusy(true);
@@ -610,6 +608,7 @@ export default function AdminPostsPage() {
   );
 
   return (
+    <SearchHighlightProvider query={search} mode={syntaxMode}>
     <div style={{ position: "relative" }}>
     {busy && <div className={styles.busyOverlay}><span className={styles.busySpinner} /></div>}
     <AdminListShell
@@ -761,6 +760,7 @@ tags: React`}</code></pre>
           placeholder={t("admin.posts.search")}
           align="left"
           className={shell.filterSearch}
+          onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
         />
         <Select
           value={String(perPage)}
@@ -873,5 +873,6 @@ tags: React`}</code></pre>
 
     </AdminListShell>
     </div>
+    </SearchHighlightProvider>
   );
 }

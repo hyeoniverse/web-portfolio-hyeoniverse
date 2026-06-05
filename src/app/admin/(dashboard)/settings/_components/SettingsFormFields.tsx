@@ -5,12 +5,27 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
-import { ExternalLink, Volume2, Eraser } from "lucide-react";
+import { ExternalLink, Volume2 } from "lucide-react";
 import type { SiteConfigData } from "@/config/site.config";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Button from "@/components/ui/Button";
-import Textarea from "@/components/ui/Textarea";
+import Input from "@/components/ui/Input";
+import EditableInput from "@/components/ui/EditableInput";
+import Textarea, { type MaxHintPreset } from "@/components/ui/Textarea";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "../Settings.module.css";
+
+/* ── FieldCounter — n / max. count 숫자만 상태별 색상 (warn / over). 슬래시·max 는 tertiary. ── */
+function _FieldCounter({ value, hintNum }: { value: number; hintNum: number }) {
+  const over = value > hintNum;
+  const warn = !over && value >= hintNum * 0.8;
+  return (
+    <span className={styles.fieldCounter} aria-live="polite">
+      <span className={over ? styles.fieldCounterOver : warn ? styles.fieldCounterWarn : undefined}>{value}</span>
+      {" / "}{hintNum}
+    </span>
+  );
+}
 
 /* ── Field ── */
 
@@ -23,44 +38,57 @@ interface FieldProps {
   hint?: string;
   labelInline?: boolean;
   required?: boolean;
+  /** 언어 배지 — label 옆에 capsule 형태로 표시 (예: "KO" / "EN") */
+  langBadge?: "ko" | "en";
+  /** Soft 글자수 권장 한도 — 카운터 표시, 80% 부터 warning, 100% 초과 시 over.
+   *  - 명시 안 하면 default: multiline=300 / single-line=100 (admin/settings 전반 자동 counter)
+   *  - null 명시 → counter 미표시 (URL/email 등 자유 입력) */
+  maxHint?: number | MaxHintPreset | null;
 }
 
-export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required }: FieldProps) {
-  const showClear = !!value;
+const MAX_HINT_PRESETS: Record<MaxHintPreset, number> = {
+  short: 200,
+  basic: 500,
+  long: 2000,
+};
+const DEFAULT_MAX_HINT_SINGLE = 100;
+const DEFAULT_MAX_HINT_MULTI = 300;
+
+function resolveMaxHint(v: number | MaxHintPreset | undefined | null, multiline: boolean): number | undefined {
+  if (v === null) return undefined; // 명시적 opt-out
+  if (v === undefined) return multiline ? DEFAULT_MAX_HINT_MULTI : DEFAULT_MAX_HINT_SINGLE;
+  return typeof v === "string" ? MAX_HINT_PRESETS[v] : v;
+}
+
+export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint }: FieldProps) {
+  const badgeStr = langBadge ? langBadge.toUpperCase() : undefined;
+  const hintNum = resolveMaxHint(maxHint, !!multiline);
+  /* langBadge 위치:
+     - single-line (Input) → input 박스 안 inlineLabel
+     - multiline (Textarea) → label 옆 capsule (textarea 안 inlineLabel 은 큰 영역에 시각적 어색) */
   return (
     <div className={`${styles.fieldRow} ${labelInline ? styles.fieldRowInline : ""}`}>
       <label className={styles.fieldLabel}>
         <span className={styles.fieldLabelText}>
           {label}
+          {multiline && badgeStr && <span className={styles.fieldLangBadge}>{badgeStr}</span>}
           {required && <span className={styles.fieldRequiredDot} aria-label="필수">•</span>}
         </span>
         {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
       </label>
       {multiline ? (
-        <Textarea size="sm" value={value} onChange={onChange} placeholder={placeholder} />
+        <Textarea size="md" value={value} onChange={onChange} placeholder={placeholder} maxHint={hintNum} />
+      ) : hintNum != null ? (
+        /* EditableInput — counter / clear / inline mark 모두 내부 처리 (외부 wrap 불필요) */
+        <EditableInput
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          inlineLabel={badgeStr}
+          maxHint={hintNum}
+        />
       ) : (
-        <div className={styles.fieldInputWrap}>
-          <input
-            className={`${styles.fieldInput} ${showClear ? styles.fieldInputHasClear : ""}`}
-            type="text"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-          />
-          {showClear && (
-            <button
-              type="button"
-              className={styles.fieldClearBtn}
-              data-cursor="big"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChange(""); }}
-              aria-label="clear"
-              title="지우기"
-            >
-              <Eraser size={11} strokeWidth={2} />
-            </button>
-          )}
-        </div>
+        <Input value={value} onChange={onChange} placeholder={placeholder} inlineLabel={badgeStr} />
       )}
     </div>
   );
@@ -78,16 +106,26 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
   return (
     <div className={styles.fieldRow}>
       <label className={styles.fieldLabel}>{label}</label>
-      <div className={styles.colorField}>
-        <ColorPicker value={value} onChange={(c) => onChange(c.hex)} triggerClassName={styles.colorPicker} />
-        <input
-          type="text"
-          className={styles.colorText}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          maxLength={7}
-        />
-      </div>
+      <ColorPicker value={value} onChange={(c) => onChange(c.hex)}>
+        {({ open, toggle }) => (
+          <span className={styles.colorField}>
+            <button
+              type="button"
+              className={styles.colorPicker}
+              style={{ background: value }}
+              onClick={toggle}
+              aria-label="색 선택 popover 열기"
+            />
+            <Input
+              className={styles.colorInput}
+              value={value}
+              onChange={onChange}
+              maxLength={7}
+              onFocus={() => { if (!open) toggle(); }}
+            />
+          </span>
+        )}
+      </ColorPicker>
     </div>
   );
 }
@@ -151,14 +189,14 @@ export function LogoUpload({
         <div className={styles.logoActions}>
           <Button
             variant="outline"
-            size="xs"
+            size="md"
             onClick={() => fileRef.current?.click()}
             loading={uploading}
           >
             {uploadLabel}
           </Button>
           {url && (
-            <Button variant="outline" size="xs" tone="danger" onClick={onRemove}>
+            <Button variant="outline" size="md" tone="danger" onClick={onRemove}>
               {removeLabel}
             </Button>
           )}
@@ -228,20 +266,20 @@ export function ResumeUpload({
             className={styles.resumeFile}
           >
             <ExternalLink size={14} />
-            {decodeURIComponent(url.split("/").pop() ?? "resume.pdf")}
+            <span>{decodeURIComponent(url.split("/").pop() ?? "resume.pdf")}</span>
           </a>
         )}
         <div className={styles.logoActions}>
           <Button
             variant="outline"
-            size="xs"
+            size="md"
             onClick={() => fileRef.current?.click()}
             loading={uploading}
           >
             {uploadLabel}
           </Button>
           {url && (
-            <Button variant="outline" size="xs" tone="danger" onClick={onRemove}>
+            <Button variant="outline" size="md" tone="danger" onClick={onRemove}>
               {removeLabel}
             </Button>
           )}
@@ -317,14 +355,14 @@ export function AudioUpload({
         <div className={styles.logoActions}>
           <Button
             variant="outline"
-            size="xs"
+            size="md"
             onClick={() => fileRef.current?.click()}
             loading={uploading}
           >
             {uploadLabel}
           </Button>
           {url && (
-            <Button variant="outline" size="xs" tone="danger" onClick={onRemove}>
+            <Button variant="outline" size="md" tone="danger" onClick={onRemove}>
               {removeLabel}
             </Button>
           )}
@@ -355,6 +393,7 @@ interface ServiceItemsEditorProps {
 }
 
 export function ServiceItemsEditor({ items, onChange }: ServiceItemsEditorProps) {
+  const { t } = useLanguage();
   const updateItem = (index: number, key: string, value: string) => {
     const next = items.map((item, i) =>
       i === index ? { ...item, [key]: value } : item,
@@ -390,12 +429,12 @@ export function ServiceItemsEditor({ items, onChange }: ServiceItemsEditorProps)
               <SlotNumber value={i + 1} />
               <div className={styles.serviceItemFields}>
                 <div className={styles.fieldPair}>
-                  <Field label="Title (EN)" value={item.title} onChange={(v) => updateItem(i, "title", v)} />
-                  <Field label="Title (KO)" value={item.title_ko} onChange={(v) => updateItem(i, "title_ko", v)} />
+                  <Field label={t("admin.settings.fieldTitle")} langBadge="en" value={item.title} onChange={(v) => updateItem(i, "title", v)} />
+                  <Field label={t("admin.settings.fieldTitle")} langBadge="ko" value={item.title_ko} onChange={(v) => updateItem(i, "title_ko", v)} />
                 </div>
                 <div className={styles.fieldPair}>
-                  <Field label="Desc (EN)" value={item.desc} onChange={(v) => updateItem(i, "desc", v)} />
-                  <Field label="Desc (KO)" value={item.desc_ko} onChange={(v) => updateItem(i, "desc_ko", v)} />
+                  <Field label={t("admin.settings.fieldDesc")} langBadge="en" value={item.desc} onChange={(v) => updateItem(i, "desc", v)} />
+                  <Field label={t("admin.settings.fieldDesc")} langBadge="ko" value={item.desc_ko} onChange={(v) => updateItem(i, "desc_ko", v)} />
                 </div>
               </div>
             </SortableServiceItem>

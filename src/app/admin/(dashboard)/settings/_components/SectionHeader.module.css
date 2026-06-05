@@ -1,18 +1,31 @@
+/* wrap — row + below 를 하나의 시각 단위로 묶음. margin 은 wrap 에 부여 */
+.wrap {
+  margin-bottom: var(--spacing-md);
+}
+
 .row {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
+  flex-wrap: nowrap;
+  /* row-gap column-gap — column 은 md, row 는 wrap 안 하므로 무의미 */
+  gap: var(--spacing-2xs) var(--spacing-md);
 }
 
 .row > h2 {
   margin: 0;
   line-height: 1;
+  /* 좁은 컨테이너에서 title 이 길어 spacer 가 줄바꿈 되는 거 방지 — title 만 ellipsis */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* spacer (action 버튼들) — margin-left: auto 로 우측 정렬. 절대 줄바꿈 X. */
 .spacer {
   margin-left: auto;
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
+  flex-shrink: 0;
 }

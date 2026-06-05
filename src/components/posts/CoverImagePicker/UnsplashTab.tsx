@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, Download } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import LoadingDots from "@/components/ui/LoadingDots";
+import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import Tooltip from "@/components/ui/Tooltip";
+import { downloadFile } from "./downloadFile";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
 
@@ -120,8 +123,16 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
     (value: string) => {
       setQuery(value);
       if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (!value.trim()) {
+        // clear → 추천 검색어가 다시 보이는 초기 상태로 복귀
+        setPhotos([]);
+        setPage(1);
+        setTotalPages(0);
+        setError("");
+        return;
+      }
       debounceRef.current = setTimeout(() => {
-        if (value.trim()) search(value, 1);
+        search(value, 1);
       }, 300);
     },
     [search]
@@ -166,30 +177,17 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
     [onSelect, tc]
   );
 
-  const handleClear = useCallback(() => {
-    setQuery("");
-    setPhotos([]);
-    setTotalPages(0);
-    setError("");
-  }, []);
-
   return (
     <div>
       {/* 검색 input + suggestions + error 는 한 padded wrapper 안 — AI 탭과 spacing 일관성 */}
       <div className={styles.tabSection}>
-        <div className={styles.inputWrapper}>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => handleInputChange(e.target.value)}
-            placeholder={tc("searchPlaceholder")}
-          />
-          {query && (
-            <button type="button" className={styles.clearBtn} onClick={handleClear}>
-              &times;
-            </button>
-          )}
-        </div>
+        <SearchCapsule
+          search={query}
+          onSearchChange={handleInputChange}
+          placeholder={tc("searchPlaceholder")}
+          align="left"
+          size="sm"
+        />
 
         {photos.length === 0 && !loading && (
           <div className={styles.suggestions}>
@@ -220,23 +218,41 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
             </a>
           </div>
           <div className={styles.unsplashGrid}>
-            {photos.map((photo) => (
-              <button
-                key={photo.id}
-                type="button"
-                className={`${styles.unsplashItem} ${downloading === photo.id ? styles.unsplashDownloading : ""}`}
-                onClick={() => handleSelect(photo)}
-                disabled={!!downloading}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.urls.small} alt={`Photo by ${photo.user.name}`} />
-                {/* 라이선스 표시 — 좌상단 작은 배지 */}
-                <span className={styles.unsplashLicenseBadge} title="Free for commercial use">
-                  <BadgeCheck size={11} strokeWidth={2.2} />
-                </span>
-                <span className={styles.unsplashCredit}>{photo.user.name}</span>
-              </button>
-            ))}
+            {photos.map((photo) => {
+              const onActivate = () => { if (!downloading) handleSelect(photo); };
+              return (
+                <div
+                  key={photo.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-disabled={!!downloading}
+                  className={`${styles.unsplashItem} ${downloading === photo.id ? styles.unsplashDownloading : ""}`}
+                  onClick={onActivate}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onActivate(); } }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={photo.urls.small} alt={`Photo by ${photo.user.name}`} />
+                  {/* 라이선스 표시 — 좌상단 작은 배지 */}
+                  <span className={styles.unsplashLicenseBadge} title="Free for commercial use">
+                    <BadgeCheck size={11} strokeWidth={2.2} />
+                  </span>
+                  {/* 다운로드 — hover 시 우상단 */}
+                  <div className={styles.unsplashActions}>
+                    <Tooltip content={tc("download")} placement="top">
+                      <button
+                        type="button"
+                        className={styles.historyOverlayBtn}
+                        onClick={(e) => { e.stopPropagation(); downloadFile(photo.urls.regular, photo.user.name); }}
+                        aria-label={tc("download")}
+                      >
+                        <Download size={11} strokeWidth={2} />
+                      </button>
+                    </Tooltip>
+                  </div>
+                  <span className={styles.unsplashCredit}>{photo.user.name}</span>
+                </div>
+              );
+            })}
           </div>
         </>
       )}

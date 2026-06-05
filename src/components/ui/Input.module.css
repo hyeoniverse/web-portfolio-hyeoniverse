@@ -12,16 +12,21 @@
   letter-spacing: 0.03em;
 }
 
+/* base = md (default) — height 명시, 4-pt grid.
+   border 는 light 가 default (sm/xs 도 override 안 해도 됨). strong 필요한 경우 callsite 에서 className 으로 추가 */
 .input {
   width: 100%;
-  padding: var(--input-p);
-  border: var(--border-strong);
+  height: var(--control-h-md);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
+  line-height: 1;
 }
 
 /* (0,2,0) — 전역 theme transition 오버라이드 */
@@ -49,10 +54,13 @@
   letter-spacing: 0.02em;
 }
 
+/* sm — 28px (border-color 는 base 가 light 라 따로 override 안 함) */
 .sm {
-  padding: var(--input-p);
-  border-color: var(--border-light-color);
+  height: var(--control-h-sm);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
   font-size: var(--font-size-sm);
+  line-height: 1;
 }
 
 .sm:focus {
@@ -71,10 +79,13 @@
   letter-spacing: 0.02em;
 }
 
+/* xs — 24px (ColorPicker popover 등 좁은 곳) */
 .xs {
-  padding: var(--spacing-3xs) var(--spacing-2xs);
-  border-color: var(--border-light-color);
+  height: var(--control-h-xs);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-sm);
   font-size: var(--font-size-xs);
+  line-height: 1;
 }
 
 .xs:focus {
@@ -101,19 +112,131 @@
   align-items: center;
 }
 
+/* inline 배지 — KO/EN 같은 짧은 식별자 표시. capsule + bg-tertiary */
 .inlineLabel {
   position: absolute;
-  left: var(--spacing-sm);
+  left: var(--spacing-xs);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
-  font-weight: 500;
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  letter-spacing: 0.05em;
   color: var(--text-tertiary);
+  text-transform: uppercase;
   pointer-events: none;
   user-select: none;
 }
 
 .hasInlineLabel {
-  padding-left: calc(var(--spacing-sm) + 24px);
+  padding-left: calc(var(--spacing-xs) + 28px);
+}
+
+/* clearBtn — value 있을 때 우측 absolute, eraser 아이콘. input padding-right 와 정합 */
+.clearBtn {
+  position: absolute;
+  right: var(--spacing-2xs);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.clearBtn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+.hasClear {
+  padding-right: calc(var(--spacing-sm) + 20px);
+}
+
+/* ── Grouped mode (onAdd) ──
+   fieldWrap 이 border + capsule, input 의 자체 border 제거.
+   focus-within 으로 외곽 + 버튼 divider 까지 함께 strong 강조 (border-color: text-primary). */
+.fieldWrapGrouped {
+  align-items: stretch;
+  height: var(--control-h-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  /* (0,2,0) — 전역 theme transition 오버라이드 */
+  transition: border-color var(--duration-base) ease;
+}
+
+.fieldWrapGroupedSm {
+  height: var(--control-h-sm);
+}
+
+.fieldWrapGroupedXs {
+  height: var(--control-h-xs);
+}
+
+.fieldWrap.fieldWrapGrouped:focus-within {
+  border-color: var(--text-primary);
+}
+
+/* grouped input — 자체 border / focus border 제거. wrapper 가 책임. */
+.wrapper .input.inputGrouped,
+.wrapper .input.inputGrouped:focus {
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.addBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-md);
+  height: 100%;
+  padding: 0;
+  border: none;
+  /* 좌측 divider — 외곽 border 와 함께 색이 바뀌어야 하므로 currentColor 가 아닌
+     fieldWrap 의 border-light 색과 같은 토큰 사용. focus-within 시 아래 규칙으로 strong. */
+  border-left: var(--border-light);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: border-color var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.fieldWrapGroupedSm .addBtn { width: var(--control-h-sm); }
+.fieldWrapGroupedXs .addBtn { width: var(--control-h-xs); }
+
+/* enabled — input 에 값 있어 활성 상태: icon primary */
+.addBtn:not(:disabled) {
+  color: var(--text-primary);
+}
+
+.addBtn:disabled {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+/* focus-within 시 좌측 divider 도 strong */
+.fieldWrap.fieldWrapGrouped:focus-within .addBtn {
+  border-left-color: var(--text-primary);
 }
 
 /* clearBtn — value 있을 때 우측 absolute, eraser 아이콘. input padding-right 와 정합 */

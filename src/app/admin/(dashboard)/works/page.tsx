@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import MediaThumb from "@/components/admin/MediaThumb";
+import HighlightedText from "@/components/ui/HighlightedText";
+import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { ImageIcon, Trash2, Upload, Plus, Download } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { getTrashDaysLeft } from "@/utils/trash";
@@ -67,13 +69,11 @@ function PreviewTooltip({
       >
         <div className={shell.previewImage}>
           {work.image && !imgError ? (
-            <Image
+            <MediaThumb
               src={work.image}
-              alt=""
               width={280}
               height={140}
               className={shell.previewImg}
-              unoptimized
               onError={onImgError}
             />
           ) : (
@@ -111,6 +111,7 @@ export default function AdminWorksPage() {
   /* Filters & sort */
   const [search, setSearch] = useState("");
   const [searchType, setSearchType] = useState("all");
+  const [syntaxMode, setSyntaxMode] = useState<"prefix" | "regex">("prefix");
   const [sort, setSort] = useState("order");
   const [filterYear, setFilterYear] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
@@ -191,6 +192,7 @@ export default function AdminWorksPage() {
     if (search) {
       params.set("search", search);
       params.set("searchType", searchType);
+      params.set("syntaxMode", syntaxMode);
     }
     const res = await fetch(`/api/works?${params}`);
     const data = await res.json();
@@ -198,7 +200,7 @@ export default function AdminWorksPage() {
     setTotalPages(data.totalPages ?? 1);
     setTotalCount(data.total ?? data.works?.length ?? 0);
     setLoading(false);
-  }, [page, perPage, sort, filterCategory, filterNature, filterYear, search, searchType]);
+  }, [page, perPage, sort, filterCategory, filterNature, filterYear, search, searchType, syntaxMode]);
 
   const fetchTrash = useCallback(async () => {
     const res = await fetch("/api/works?trash=true&limit=100");
@@ -374,14 +376,7 @@ export default function AdminWorksPage() {
         render: (work) => (
           <div className={ts.colThumb}>
             {work.image ? (
-              <Image
-                src={work.image}
-                alt=""
-                fill
-                sizes="48px"
-                className={ts.thumbImg}
-                unoptimized
-              />
+              <MediaThumb src={work.image} fill sizes="48px" className={ts.thumbImg} />
             ) : (
               <div className={ts.thumbPlaceholder}>—</div>
             )}
@@ -393,7 +388,7 @@ export default function AdminWorksPage() {
         key: "title",
         label: t("admin.works.tableTitle"),
         className: ts.colTitle,
-        render: (work) => work.title || t("admin.works.untitled"),
+        render: (work) => <HighlightedText text={work.title || t("admin.works.untitled")} />,
         skeletonWidth: "65%",
       },
       {
@@ -447,7 +442,7 @@ export default function AdminWorksPage() {
       render: (work) => (
         <div className={st.colThumb}>
           {work.image ? (
-            <Image src={work.image} alt="" fill sizes="48px" className={st.thumbImg} unoptimized />
+            <MediaThumb src={work.image} fill sizes="48px" className={st.thumbImg} />
           ) : (
             <div className={st.thumbPlaceholder}>—</div>
           )}
@@ -562,6 +557,7 @@ export default function AdminWorksPage() {
   );
 
   return (
+    <SearchHighlightProvider query={search} mode={syntaxMode}>
     <AdminListShell
       title={t("admin.works.title")}
       newHref="/admin/works/new"
@@ -703,6 +699,7 @@ role: 풀스택 개발
           placeholder={t("admin.works.search")}
           align="left"
           className={shell.filterSearch}
+          onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
         />
         <Select
           value={String(perPage)}
@@ -818,5 +815,6 @@ role: 풀스택 개발
       />
 
     </AdminListShell>
+    </SearchHighlightProvider>
   );
 }

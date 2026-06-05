@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { createPortal } from "react-dom";
 import { Book } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
@@ -8,6 +9,8 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import T from "@/components/ui/T";
+import { ModalFooterContext } from "@/components/ui/Modal";
+import { List, ListItem } from "@/app/admin/(dashboard)/components";
 import styles from "./CategoryReassignModal.module.css";
 
 interface PostItem {
@@ -38,7 +41,7 @@ export default function CategoryReassignModal({
   category,
   availableCategories,
   onConfirm,
-  onCancel,
+  onCancel: _onCancel,
 }: Props) {
   const { t, language } = useLanguage();
   const tc = (key: string) => t(`admin.settings.reassignModal.${key}`);
@@ -52,6 +55,8 @@ export default function CategoryReassignModal({
   const [bulkCategory, setBulkCategory] = useState("");
   const [newKo, setNewKo] = useState("");
   const [newEn, setNewEn] = useState("");
+  const [newDescKo, setNewDescKo] = useState("");
+  const [newDescEn, setNewDescEn] = useState("");
   const [addedCategories, setAddedCategories] = useState<BilingualCategory[]>([]);
 
   const allCategories = [...availableCategories, ...addedCategories];
@@ -98,15 +103,21 @@ export default function CategoryReassignModal({
   const handleAddCategory = () => {
     const ko = newKo.trim();
     const en = newEn.trim();
+    const descKo = newDescKo.trim();
+    const descEn = newDescEn.trim();
     if (
       ko && en &&
       !allCategories.some((c) => c.ko === ko || c.en === en) &&
       ko !== category.ko && en !== category.en
     ) {
-      setAddedCategories((prev) => [...prev, { ko, en }]);
+      /* BilingualCategory.description 은 단일 string — ko 우선, 없으면 en */
+      const description = descKo || descEn || undefined;
+      setAddedCategories((prev) => [...prev, { ko, en, ...(description && { description }) }]);
     }
     setNewKo("");
     setNewEn("");
+    setNewDescKo("");
+    setNewDescEn("");
   };
 
   const isValid = () => {
@@ -148,27 +159,23 @@ export default function CategoryReassignModal({
     return p.title || tc("untitled");
   };
 
+  /* 공통 Modal 의 footer slot — body 와 같은 컴포넌트라 state(saving, isValid) 공유 OK. */
+  const footerEl = useContext(ModalFooterContext);
+
+  /* 공통 Modal 의 content 로 사용 — overlay/modal/header/footer 는 Modal 컴포넌트가 처리.
+     X 버튼/배경 클릭 dismiss/일관된 radius 모두 공통 Modal 가 책임. */
   return (
-    <div className={styles.overlay} onClick={onCancel}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.header}>
-          <h2 className={styles.title}><T k="admin.settings.reassignModal.title" /></h2>
-          <p className={styles.subtitle}>
-            <span className={styles.catBadge}>{catLabel}</span>
-            <T k="admin.settings.reassignModal.description" />
-          </p>
-        </div>
+    <div className={styles.body}>
+        <p className={styles.subtitle}>
+          <span className={styles.catBadge}>{catLabel}</span>
+          <T k="admin.settings.reassignModal.description" />
+        </p>
 
         {loading ? (
           <p className={styles.loading}><T k="admin.settings.reassignModal.loading" /></p>
         ) : posts.length === 0 ? (
           <div className={styles.empty}>
             <p><T k="admin.settings.reassignModal.noPosts" /></p>
-            <div className={styles.footer}>
-              <Button variant="primary" size="xs" onClick={() => onConfirm([], addedCategories)}>
-                <T k="admin.settings.reassignModal.confirm" />
-              </Button>
-            </div>
           </div>
         ) : (
           <>
@@ -183,48 +190,76 @@ export default function CategoryReassignModal({
                     ...categoryOptions,
                   ]}
                   onChange={handleBulkAssign}
+                  dropdownClassName={styles.selectDropdownAboveModal}
                 />
               </div>
             </div>
 
-            {/* New category */}
-            <div className={styles.newCatRow}>
-              <div className={styles.newCatGroup}>
-                <Input
-                  label={t("admin.settings.categoryKoLabel")}
-                  size="sm"
-                  value={newKo}
-                  onChange={setNewKo}
-                />
+            {/* New category — form 레이아웃: title + 추가 버튼 한 줄, 아래에 이름/설명 ko/en */}
+            <div className={styles.newCatSection}>
+              <div className={styles.newCatTitleRow}>
+                <label className={styles.bulkLabel}>
+                  <T k="admin.settings.reassignModal.newCategoryTitle" />
+                </label>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={handleAddCategory}
+                  disabled={!newKo.trim() || !newEn.trim()}
+                >
+                  <T k="admin.settings.reassignModal.addCategory" />
+                </Button>
               </div>
-              <div className={styles.newCatGroup}>
-                <Input
-                  label={t("admin.settings.categoryEnLabel")}
-                  size="sm"
-                  value={newEn}
-                  onChange={setNewEn}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddCategory();
-                    }
-                  }}
-                />
+              <div className={styles.newCatFormRow}>
+                <span className={styles.newCatFormLabel}>{t("admin.settings.name")}</span>
+                <div className={styles.newCatGroup}>
+                  <Input
+                    inlineLabel="KO"
+                    size="sm"
+                    value={newKo}
+                    onChange={setNewKo}
+                  />
+                </div>
+                <div className={styles.newCatGroup}>
+                  <Input
+                    inlineLabel="EN"
+                    size="sm"
+                    value={newEn}
+                    onChange={setNewEn}
+                  />
+                </div>
               </div>
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={handleAddCategory}
-                disabled={!newKo.trim() || !newEn.trim()}
-              >
-                <T k="admin.settings.reassignModal.addCategory" />
-              </Button>
+              <div className={styles.newCatFormRow}>
+                <span className={styles.newCatFormLabel}>{t("admin.settings.categoryDescPlaceholder")}</span>
+                <div className={styles.newCatGroup}>
+                  <Input
+                    inlineLabel="KO"
+                    size="sm"
+                    value={newDescKo}
+                    onChange={setNewDescKo}
+                  />
+                </div>
+                <div className={styles.newCatGroup}>
+                  <Input
+                    inlineLabel="EN"
+                    size="sm"
+                    value={newDescEn}
+                    onChange={setNewDescEn}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddCategory();
+                      }
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Post list */}
-            <div className={styles.postList}>
+            {/* Post list — 공통 List/ListItem 로 통일 */}
+            <List className={styles.postList}>
               {seriesGroups.map((g) => (
-                <div key={g.seriesId} className={styles.seriesGroup}>
+                <ListItem key={g.seriesId} layout="column" className={styles.seriesGroup}>
                   <div className={styles.seriesHeader}>
                     <span className={styles.seriesLabel}>
                       <Book size={12} />
@@ -243,28 +278,29 @@ export default function CategoryReassignModal({
                         onChange={(v) =>
                           handleAssign(`series:${g.seriesId}`, v)
                         }
+                        dropdownClassName={styles.selectDropdownAboveModal}
                       />
                     </div>
                   </div>
-                  <div className={styles.seriesPosts}>
+                  <List className={styles.seriesPosts}>
                     {g.posts.map((p) => (
-                      <div key={p.id} className={styles.postItem}>
+                      <ListItem key={p.id} className={styles.postItem}>
                         <span className={styles.postTitle}>
                           {getTitle(p)}
                         </span>
-                      </div>
+                      </ListItem>
                     ))}
-                  </div>
+                  </List>
                   {!assignments[`series:${g.seriesId}`] && (
                     <p className={styles.warningText}>
                       <T k="admin.settings.reassignModal.seriesWarning" />
                     </p>
                   )}
-                </div>
+                </ListItem>
               ))}
 
               {standalonePosts.map((p) => (
-                <div key={p.id} className={styles.standalonePost}>
+                <ListItem key={p.id} className={styles.standalonePost}>
                   <span className={styles.postTitle}>{getTitle(p)}</span>
                   <div className={styles.standaloneSelect}>
                     <Select
@@ -274,28 +310,33 @@ export default function CategoryReassignModal({
                         ...categoryOptions,
                       ]}
                       onChange={(v) => handleAssign(p.id, v)}
+                      dropdownClassName={styles.selectDropdownAboveModal}
                     />
                   </div>
-                </div>
+                </ListItem>
               ))}
-            </div>
-
-            <div className={styles.footer}>
-              <Button variant="outline" size="xs" onClick={onCancel}>
-                <T k="admin.settings.reassignModal.cancel" />
-              </Button>
-              <Button
-                variant="primary"
-                size="xs"
-                onClick={handleConfirm}
-                disabled={saving || !isValid()}
-              >
-                {saving ? <T k="admin.settings.reassignModal.saving" /> : <T k="admin.settings.reassignModal.confirm" />}
-              </Button>
-            </div>
+            </List>
           </>
         )}
-      </div>
+
+        {/* footer — 공통 Modal 의 footer slot 으로 portal. case 별 분기 */}
+        {footerEl && createPortal(
+          loading ? null : posts.length === 0 ? (
+            <Button variant="primary" size="xs" tone="danger" onClick={() => onConfirm([], addedCategories)}>
+              <T k="admin.settings.reassignModal.delete" />
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              size="xs"
+              onClick={handleConfirm}
+              disabled={saving || !isValid()}
+            >
+              {saving ? <T k="admin.settings.reassignModal.saving" /> : <T k="admin.settings.reassignModal.confirm" />}
+            </Button>
+          ),
+          footerEl,
+        )}
     </div>
   );
 }

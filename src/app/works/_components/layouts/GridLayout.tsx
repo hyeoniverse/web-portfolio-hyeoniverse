@@ -80,7 +80,7 @@ export default function GridLayout({ projects, onProjectClick }: WorksLayoutProp
   const frames = useMemo(() => buildFrames(projects.length), [projects.length]);
   const siteConfig = useSiteConfig();
   const w = siteConfig.works;
-  const introVideoSrc = w.introVideoUrl || "/intro-bg.mp4";
+  const introVideoSrc = w.introVideoUrl || "/cover/videos/bg-1.mp4";
 
   /** index 0 = intro (텍스트만), 1+ = 프로젝트 (이미지 bg + meta overlay). renderCell 로 전체 cell 직접 그림 */
   const renderCell = useCallback(

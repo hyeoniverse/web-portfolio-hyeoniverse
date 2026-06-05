@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
-import { escapeOrSearch } from "@/lib/api/search";
+import { applySearchQuery } from "@/lib/api/applySearchQuery";
+import type { SyntaxMode } from "@/lib/searchQuery";
 // GET /api/works — 목록 조회
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -46,15 +47,15 @@ export async function GET(request: Request) {
     query = query.eq("year", year);
   }
 
+  const syntaxMode = (searchParams.get("syntaxMode") === "regex" ? "regex" : "prefix") as SyntaxMode;
+  const searchColumns = searchType === "all"
+    ? ["title", "subtitle_ko", "subtitle_en", "content_ko", "content_en"]
+    : searchType === "content"
+      ? ["content_ko", "content_en"]
+      : ["title", "subtitle_ko", "subtitle_en"];
+
   if (search) {
-    const s = escapeOrSearch(search);
-    if (searchType === "all") {
-      query = query.or(`title.ilike.%${s}%,subtitle_ko.ilike.%${s}%,subtitle_en.ilike.%${s}%,content_ko.ilike.%${s}%,content_en.ilike.%${s}%`);
-    } else if (searchType === "content") {
-      query = query.or(`content_ko.ilike.%${s}%,content_en.ilike.%${s}%`);
-    } else {
-      query = query.or(`title.ilike.%${s}%,subtitle_ko.ilike.%${s}%,subtitle_en.ilike.%${s}%`);
-    }
+    query = applySearchQuery(query, { search, mode: syntaxMode, columns: searchColumns });
   }
 
   if (sort === "newest") {
@@ -83,14 +84,7 @@ export async function GET(request: Request) {
     if (nature) fallback = fallback.eq("nature_ko", nature);
     if (year) fallback = fallback.eq("year", year);
     if (search) {
-      const s = escapeOrSearch(search);
-      if (searchType === "all") {
-        fallback = fallback.or(`title.ilike.%${s}%,subtitle_ko.ilike.%${s}%,subtitle_en.ilike.%${s}%,content_ko.ilike.%${s}%,content_en.ilike.%${s}%`);
-      } else if (searchType === "content") {
-        fallback = fallback.or(`content_ko.ilike.%${s}%,content_en.ilike.%${s}%`);
-      } else {
-        fallback = fallback.or(`title.ilike.%${s}%,subtitle_ko.ilike.%${s}%,subtitle_en.ilike.%${s}%`);
-      }
+      fallback = applySearchQuery(fallback, { search, mode: syntaxMode, columns: searchColumns });
     }
     if (sort === "newest") fallback = fallback.order("created_at", { ascending: false });
     else if (sort === "oldest") fallback = fallback.order("created_at", { ascending: true });

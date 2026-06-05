@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
-import Image from "next/image";
+import _Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -207,9 +208,8 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
               </span>
               <span className={styles.deckLayerMedia}>
                 {previewCover && (
-                  <Image
+                  <MediaThumb
                     src={previewCover}
-                    alt=""
                     fill
                     sizes="160px"
                     className={styles.deckLayerImage}
@@ -267,9 +267,8 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
         style={useTypoCover ? { background: placeholderBg } : undefined}
       >
         {(hasCover || useAutoCover) && (
-          <Image
+          <MediaThumb
             src={displayCover}
-            alt=""
             fill
             sizes="160px"
             className={styles.image}
@@ -278,9 +277,8 @@ export default function SeriesCard({ series, onClick, active, index = 0, scrollC
         )}
         {useMosaic && thumbs.slice(0, 4).map((src, i) => (
           <span key={i} className={styles.tile}>
-            <Image
+            <MediaThumb
               src={src}
-              alt=""
               fill
               sizes="80px"
               className={styles.tileImage}

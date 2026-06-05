@@ -3,12 +3,14 @@ import CloseIcon from "./CloseIcon";
 import { cn } from "@/utils/cn";
 import styles from "./CloseButton.module.css";
 
+type Size = "xs" | "sm" | "md" | "lg";
+
 interface Props {
   onClick: (e: MouseEvent<HTMLButtonElement>) => void;
   ariaLabel?: string;
   title?: string;
-  /** sm (24px, default) | md (button-h-sm) */
-  size?: "sm" | "md";
+  /** xs (20) | sm (24, default) | md (32) | lg (38) */
+  size?: Size;
   className?: string;
 }
 
@@ -19,7 +21,7 @@ export default function CloseButton({ onClick, ariaLabel = "close", title, size 
   return (
     <button
       type="button"
-      className={cn(styles.btn, size === "sm" ? styles.sm : styles.md, className)}
+      className={cn(styles.btn, styles[size], className)}
       onClick={onClick}
       aria-label={ariaLabel}
       title={title}

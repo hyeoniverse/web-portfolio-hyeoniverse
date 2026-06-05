@@ -608,7 +608,6 @@ export default function AdminEditorShell({
                                           hint="이 로그를 삭제하려면 &quot;삭제&quot;를 입력하세요."
                                           placeholder="삭제"
                                           validate={(v) => v === "삭제"}
-                                          cancelText="취소"
                                           confirmText="삭제"
                                           danger
                                           onConfirm={async () => {
@@ -789,7 +788,6 @@ export default function AdminEditorShell({
                                           hint={`${selectedRevisions.size}개 로그를 삭제하려면 "${count}"을(를) 입력하세요.`}
                                           placeholder={count}
                                           validate={(v) => v === count}
-                                          cancelText="취소"
                                           confirmText="삭제"
                                           danger
                                           onConfirm={async () => {
@@ -920,7 +918,6 @@ export default function AdminEditorShell({
                           hint={labels.deleteConfirmInput}
                           placeholder={deleteTargetName}
                           validate={(v) => v === deleteTargetName}
-                          cancelText={labels.deleteCancel}
                           confirmText={labels.delete}
                           danger
                           onConfirm={() => onDelete?.()}

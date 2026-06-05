@@ -9,7 +9,7 @@ import {
   useEffect,
 } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 
 /* ── Types ── */
 interface TransitionState {
@@ -260,9 +260,8 @@ function TransitionOverlay({
       }}
     >
       {image ? (
-        <Image
+        <MediaThumb
           src={image}
-          alt=""
           fill
           sizes="100vw"
           style={{ objectFit: "cover" }}

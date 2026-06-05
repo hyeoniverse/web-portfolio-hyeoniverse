@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useLayoutEffect, useState, useEffect, useCallback } from "react";
-import Image from "next/image";
+import MediaThumb from "@/components/ui/MediaThumb";
 import gsap from "gsap";
 import T from "@/components/ui/T";
 import { useLenis } from "@/providers/LenisProvider";
@@ -136,7 +136,7 @@ export default function CinematicLayout({ projects, onProjectClick }: WorksLayou
             onClick={() => handleClick(i)}
           >
             <div className={styles.image}>
-              <Image src={p.image} alt={p.title} fill sizes="100vw" priority={i === 0} />
+              <MediaThumb src={p.image} alt={p.title} fill sizes="100vw" priority={i === 0} fallbackSeed={p.id} />
             </div>
             <div className={styles.overlay} />
             <div className={styles.meta}>

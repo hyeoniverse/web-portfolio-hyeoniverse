@@ -112,7 +112,6 @@ export default function ReportsPage() {
     openModal(
       <ModalConfirm
         desc={t("admin.reports.deleteCommentDesc")}
-        cancelText={t("admin.reports.cancel")}
         confirmText={t("admin.reports.deleteComment")}
         danger
         onConfirm={() => deleteComment(report)}

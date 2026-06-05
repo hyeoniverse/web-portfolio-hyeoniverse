@@ -1,11 +1,17 @@
-/* ── 공통 SearchCapsule — Select(옵션) + 아이콘 + input. 기본 control sm 높이 */
+/* ── 공통 SearchCapsule — Select(옵션) + 아이콘 + input.
+   기본 md 높이(32). size="sm" → 28. */
 .capsule {
+  position: relative;
   display: flex;
   align-items: center;
+  height: var(--control-h-md);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
-  overflow: hidden;
   background: transparent;
+}
+
+.capsuleSm {
+  height: var(--control-h-sm);
 }
 
 .capsule:focus-within {
@@ -45,6 +51,8 @@
   flex: 1;
   min-width: 80px;
   padding: var(--input-p);
+  /* 돋보기 아이콘과의 간격 — 기본 input padding 보다 더 좁게 */
+  padding-left: var(--spacing-2xs);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
@@ -57,7 +65,354 @@
   color: var(--text-tertiary);
 }
 
+/* 검색어 있을 때만 노출되는 clear button — Input 의 clearBtn 과 동일 스타일 (ghost) */
+.clearBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: var(--spacing-2xs);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0.7;
+  transition:
+    opacity var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.clearBtn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+/* search 비어있을 때 — layout 자리 유지하면서 안 보이게 */
+.clearBtnHidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* 우측 정렬 변형 */
 .right {
   margin-left: auto;
+}
+
+/* ── 검색 이력 dropdown ── */
+.historyDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  /* radius-xl(16px) 에 맞춰 패딩 축소 */
+  padding: var(--spacing-2xs);
+  border: var(--border-default);
+  border-radius: var(--radius-xl);
+  background: transparent;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-md);
+  /* 자식 항목 overflow ellipsis 가 한 줄 안에서 잘 처리되도록 */
+  min-width: 0;
+}
+
+/* portal 로 document.body 에 옮긴 후엔 capsuleFocused 가 dropdown 자체에 직접 적용 */
+.capsuleFocused .historyDropdown,
+.capsuleFocused .helpDropdown,
+.historyDropdown.capsuleFocused,
+.helpDropdown.capsuleFocused {
+  border: var(--border-strong);
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
+}
+
+.historyHeaderLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.historyClearAll {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color var(--duration-base) ease;
+}
+
+.historyClearAll:hover {
+  color: var(--text-primary);
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* 항목 8개 이상이면 스크롤 — item 약 32px x 8 ≈ 256px */
+  max-height: 256px;
+  overflow-y: auto;
+  /* 스크롤바가 콘텐츠 위에 떠도 layout shift 없도록 */
+  scrollbar-gutter: stable;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border-radius: var(--radius-capsule);
+  transition: background var(--duration-base) ease;
+}
+
+.historyItem:hover {
+  background: var(--bg-secondary);
+}
+
+.historyText {
+  flex: 1;
+  min-width: 0;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  /* 한 줄, ellipsis */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historyRemoveWrap {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  margin-right: var(--spacing-2xs);
+  opacity: 0;
+  transition: opacity var(--duration-base) ease;
+}
+
+.historyItem:hover .historyRemoveWrap,
+.historyRemoveWrap:focus-within {
+  opacity: 0.7;
+}
+
+.historyRemoveWrap:hover {
+  opacity: 1;
+}
+
+.historyRemove {
+  /* CloseButton 기본 크기 그대로 — wrap 으로 opacity 만 제어 */
+}
+
+/* ── help 버튼 (capsule 우측) ── */
+.helpBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: var(--spacing-2xs);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0.6;
+  transition:
+    opacity var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.helpBtn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+/* standalone help 버튼 — Button shape="circle" size="sm" + border light override + 좌측 간격 */
+.helpBtnStandalone {
+  margin-left: var(--spacing-sm);
+  border: var(--border-light);
+}
+
+/* help popover — solid 배경 variant. standalone 버전은 검색창과 무관해 가독성 우선 */
+.helpDropdownSolid {
+  background: var(--bg-primary);
+  backdrop-filter: none;
+}
+
+/* ── help dropdown (history dropdown 과 동일 스타일) ── */
+.helpDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  /* 위아래 충분한 여백 — 마지막 section 의 콘텐츠가 popover 끝 가까이서 안 잘림 */
+  padding: var(--spacing-md) var(--spacing-xs);
+  border: var(--border-default);
+  border-radius: var(--radius-xl);
+  background: transparent;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  /* 콘텐츠가 길면 스크롤 — dvh 로 모바일 주소창 변동까지 대응 */
+  max-height: 70dvh;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.helpSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+/* 매칭 강도 section 의 label + 토글 한 줄 배치 */
+.helpSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.helpSectionLabel {
+  padding: 0 var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* 표 형태 — badge / desc 두 컬럼 grid. 각 row 는 display:contents. */
+.helpList {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: var(--spacing-sm);
+  row-gap: 0;
+  align-items: baseline;
+  margin: 0;
+  /* 좌우 inset + 위아래 padding — 마지막 row 의 descender 가 잘리지 않도록 buffer 확보 */
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  list-style: none;
+}
+
+.helpRow {
+  display: contents;
+}
+
+/* badge 자체는 sides 모두 border 가 그대로 (캡슐 모양 유지). padding 만 추가. */
+.helpKey {
+  padding-block: var(--spacing-2xs);
+}
+
+/* divider 는 desc 컬럼에만 — badge 의 capsule 외곽선을 깨지 않으면서 row 분리감만 표현 */
+.helpDesc {
+  padding-block: var(--spacing-2xs);
+  border-bottom: var(--border-light);
+}
+
+.helpRow:last-child .helpDesc {
+  border-bottom: none;
+}
+
+/* badge 첫 줄 baseline 이 desc 첫 줄 baseline 과 자연 정렬되도록
+   — badge 에 align-self / 별도 처리 X, 그저 표 cell 로 동작 */
+
+.helpKey {
+  flex-shrink: 0;
+  min-width: 56px;
+  padding: 2px var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.helpDesc {
+  flex: 1;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.helpFootnote {
+  margin: var(--spacing-3xs) var(--spacing-xs) 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+.helpFootnote code {
+  padding: 1px 4px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  font-family: var(--font-mono);
+}
+
+/* prefix / regex 모드 선택 — 캡슐 토글 */
+.helpModeToggle {
+  display: inline-flex;
+  margin-right: var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  width: fit-content;
+}
+
+.helpModeBtn {
+  padding: 2px var(--spacing-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    background var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.helpModeBtn:hover {
+  color: var(--text-primary);
+}
+
+.helpModeBtnActive,
+.helpModeBtnActive:hover {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
 }

@@ -2,7 +2,6 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
 }
 
 .label {
@@ -28,6 +27,11 @@
   max-height: 240px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* 단어 경계 무시하고 글자 단위로 줄바꿈 (긴 영어 단어/URL 도 자연스럽게 wrap).
+     break-all 만으론 영어 단어가 단어 단위로 우선 wrap 되는 브라우저 있음 → line-break: anywhere 로 강제. */
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  line-break: anywhere;
 }
 
 /* (0,2,0) — 전역 theme transition 오버라이드 */
@@ -45,7 +49,7 @@
 
 /* ── Size: sm ── */
 .wrapperSm {
-  gap: var(--spacing-2xs);
+  /* gap 제거 — wrapper 와 일관 */
 }
 
 .wrapperSm .label {
@@ -65,19 +69,96 @@
   border-color: var(--text-primary);
 }
 
-/* ── Editable wrapper — overlay 포지셔닝 위해 relative ── */
+/* ── Editable wrapper — overlay 포지셔닝 위해 relative.
+   inlineLabel 있을 땐 flex row 로 전환 — 배지가 textarea 좌측 바깥 (Input 의 inline 배지와 달리). */
 .editableWrap {
   position: relative;
 }
 
+/* bottomRow — EditableTextarea (maxHint) 하단의 clear + counter 묶음 (우측 정렬) */
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-2xs);
+}
+
+/* clear (Eraser) — PlainTextarea: editableWrap 우측 상단 absolute / EditableTextarea: bottomRow flex child */
+.clearBtn {
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-2xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+  z-index: 1;
+}
+
+/* bottomRow 안에서는 absolute 해제 + flex child 동작 */
+.bottomRow .clearBtn {
+  position: static;
+  top: auto;
+  right: auto;
+  flex-shrink: 0;
+}
+
+.clearBtn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+.editableWrapWithBadge {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+}
+
+/* inline 배지 — textarea 바깥 왼쪽, 첫 줄과 수직 중심 정렬 (line-height 1.5 + padding 고려) */
+.inlineLabel {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  user-select: none;
+  /* textarea 첫 줄과 vertical 중심 맞춤 — textarea 의 padding-top 만큼 */
+  margin-top: 6px;
+}
+
+/* flex row 안 textarea — width:0 + flex: 1 로 남은 폭 차지. base .textarea width:100% 강제 override.
+   wrapper (.wrapper) 내에서 추가 selector specificity (0,3,0) 로 안전. */
+.wrapper .editableWrapWithBadge > .textarea {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 0;
+}
+
 /* ── Editable (contenteditable div, maxHint 모드) ── */
-/* .textarea base 위에 div 전용 보정만 추가 — native resize 핸들 사용 */
+/* .textarea base 위에 div 전용 보정. native resize/grip 사용 안 함 — JS overlay 가 담당.
+   word-break + overflow-wrap + line-break 조합으로 영어 단어도 글자 단위 wrap. */
 .editable {
   white-space: pre-wrap;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  word-break: normal;
-  resize: vertical;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  line-break: anywhere;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -95,6 +176,7 @@
   z-index: 2;
   background: transparent;
   touch-action: none;
+  cursor: none;
 }
 
 /* placeholder — contenteditable 은 native placeholder 없음 → empty 일 때 ::before 로 표시 */
@@ -119,26 +201,24 @@
   -webkit-text-fill-color: inherit;
 }
 
-/* ── Soft 글자수 카운터 ── */
-.counter {
-  align-self: flex-end;
+/* ── Soft 글자수 카운터 — Input 의 fieldCounter 와 동일 크기 (3xs). (0,2,0) 으로 specificity 확보.
+   bottomRow flex 안 child 라 align-self 불필요 (parent 의 align-items:center 가 처리). */
+.wrapper .counter {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-3xs);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
   user-select: none;
-}
-
-/* (0,2,0) — 전역 theme transition 오버라이드 */
-.wrapper .counter {
   transition: color var(--duration-base) ease;
 }
 
-.counterWarn {
+/* count 숫자만 상태별 색상 — "/ max" 는 항상 tertiary (EditableInput 과 동일 패턴). */
+.counterWarn > span {
   color: var(--text-warning);
 }
 
-.counterOver {
+.counterOver > span {
   color: var(--text-accent);
   font-weight: 500;
 }

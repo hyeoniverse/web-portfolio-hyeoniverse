@@ -70,7 +70,6 @@ export default function PostPreviewPage() {
         hint={t("admin.posts.trashPurgeHint")}
         placeholder={title}
         validate={(v) => v === title}
-        cancelText={t("admin.posts.cancel")}
         confirmText={t("admin.posts.trashPurge")}
         danger
         onConfirm={async () => {

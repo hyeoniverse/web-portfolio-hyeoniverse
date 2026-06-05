@@ -13,6 +13,7 @@ import { useSoundStore } from "@/stores/soundStore";
 import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { loadGoogleFont } from "@/lib/loadGoogleFont";
 // Supabase client는 admin 페이지에서만 동적으로 로드 (630KB 번들 절약)
 const loadSupabaseClient = () => import("@/lib/supabase/client").then(m => m.createClient());
 import Image from "next/image";
@@ -81,6 +82,15 @@ export default function Navigation() {
   const { stop: lenisStop, start: lenisStart } = useLenis();
 
   const isAdminPage = pathname.startsWith("/admin");
+
+  // 로고 폰트가 Google Fonts 면 동적 로드 — CSS font-family string 에서 첫 family 이름 추출.
+  // "'Roboto', sans-serif" / "Roboto, sans-serif" / "Roboto" 모두 처리.
+  useEffect(() => {
+    const v = siteConfig.brand.logoFont;
+    if (!v) return;
+    const fontName = v.replace(/["']/g, "").split(",")[0].trim();
+    if (fontName) loadGoogleFont(fontName);
+  }, [siteConfig.brand.logoFont]);
 
   const [adminEmail, setAdminEmail] = useState("");
   useEffect(() => {
@@ -365,7 +375,6 @@ export default function Navigation() {
     requestAnimationFrame(measureLogo);
   }, [showLoadingLogo, measureLogo]);
 
-
   // 로딩이 완전히 끝나면 다음 로딩을 위해 측정 플래그 리셋
   useEffect(() => {
     if (!isLoading) {
@@ -467,29 +476,40 @@ export default function Navigation() {
 
   return (
     <>
-    {/* 로고 + admin 배지 flex wrap 부모. 자식 각자 mix-blend-mode 적용 */}
-    <div className={styles.logoNavBar}>
-      <div className={`${styles.logoAnchor} ${siteConfig.brand.logoDifference === false ? styles.logoAnchorNoDifference : ""}`}>
-        <Link href={isAdminPage ? "/admin" : "/"} className={styles.logoGroup}>
-        <motion.div
-          ref={logoRef}
-          className={styles.logoWrapper}
-          animate={
-            showLoadingLogo && !isTransitioning
-              ? { x: centerOffset.x, y: centerOffset.y, scale: scaleFactor }
-              : { x: 0, y: 0, scale: 1 }
-          }
-          transition={{
-            duration: isTransitioning ? 0.8 : 0,
-            ease: [0.76, 0, 0.24, 1],
-            delay: isTransitioning ? 0.05 : 0,
-          }}
-          style={{
+    {/* 로고 + admin 배지 flex 부모. .nav 와 동일 패턴 — mix-blend-mode 를 부모에 두면
+        전체가 page backdrop 과 한 번에 blend (자식에 두면 부모 stacking context 안에서 갇혀 무효) */}
+    <Link
+      href={isAdminPage ? "/admin" : "/"}
+      className={`${styles.logoNavBar} ${siteConfig.brand.logoDifference === false ? styles.logoNavBarNoDifference : ""} ${showLoadingLogo || elevatedZ ? styles.logoNavBarElevated : ""} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
+    >
+        {(() => {
+          // 장평 — scaleX. 빈/invalid 면 0.8 default.
+          const rawStretch = parseFloat(siteConfig.brand.logoFontStretch ?? "");
+          const stretchN = Number.isFinite(rawStretch) && rawStretch > 0 ? rawStretch : 0.8;
+          // 로고 색상 (테마별 override)
+          const color = isDark ? siteConfig.brand.logoColorDark : siteConfig.brand.logoColor;
+          const inlineStyle: React.CSSProperties = {
             transformOrigin: "left center",
             visibility: showLoadingLogo && !logoMeasured ? "hidden" : "visible",
-          }}
-        >
-          <span className={styles.logo}>
+          };
+          if (siteConfig.brand.logoFont) inlineStyle.fontFamily = siteConfig.brand.logoFont;
+          if (color) inlineStyle.color = color;
+          return (
+            <motion.span
+              ref={logoRef}
+              className={styles.logo}
+              animate={
+                showLoadingLogo && !isTransitioning
+                  ? { x: centerOffset.x, y: centerOffset.y, scaleX: scaleFactor * stretchN, scaleY: scaleFactor }
+                  : { x: 0, y: 0, scaleX: stretchN, scaleY: 1 }
+              }
+              transition={{
+                duration: isTransitioning ? 0.8 : 0,
+                ease: [0.76, 0, 0.24, 1],
+                delay: isTransitioning ? 0.05 : 0,
+              }}
+              style={inlineStyle}
+            >
           {hasImageLogo ? (
             <>
               {/* 로딩 중 풀 로고 이미지 (숏과 다를 때만) */}
@@ -528,21 +548,7 @@ export default function Navigation() {
             </>
           ) : (
             <>
-              <motion.span
-                className={siteConfig.brand.logoGlitch ? "glith-on-hover" : undefined}
-                initial={showLoadingLogo ? { opacity: 0, y: 20, filter: "blur(12px)" } : false}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{
-                  opacity: { duration: 0.6, delay: 0.1, ease: "easeOut" },
-                  y: { duration: 0.7, delay: 0.1, ease: "easeOut" },
-                  filter: { duration: 1.0, delay: 0.1, ease: "easeOut" },
-                }}
-                style={(isDark ? siteConfig.brand.logoColorDark : siteConfig.brand.logoColor)
-                  ? { color: isDark ? siteConfig.brand.logoColorDark : siteConfig.brand.logoColor }
-                  : undefined}
-              >
-                {LOGO_TEXT}
-              </motion.span>
+              {LOGO_TEXT}
               {showLoadingLogo &&
                 EXTRA_LETTERS.map((char, i) => (
                   <motion.span
@@ -580,14 +586,14 @@ export default function Navigation() {
                 ))}
             </>
           )}
-        </span>
-        </motion.div>
-      </Link>
-      </div>
+            </motion.span>
+          );
+        })()}
+      {/* Admin 배지 — logoNavBar flex 자식. blend 는 부모(.logoNavBar) 가 통째로 처리 */}
       {isAdminPage && (
         <span className={`${styles.adminBadge} ${styles.adminBadgeFixed}`}>Admin</span>
       )}
-    </div>
+    </Link>
 
     <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div

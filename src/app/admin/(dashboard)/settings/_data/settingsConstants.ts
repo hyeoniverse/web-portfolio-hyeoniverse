@@ -27,15 +27,15 @@ export type DeepPartial<T> = {
 export const TAB_IDS = ["general", "content", "appearance", "services", "account"] as const;
 
 export const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
-  general: ["personal", "brand", "contact", "metadata", "bgm"],
+  general: ["personal", "contact", "metadata", "bgm"],
   content: ["brand", "hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "posts", "works", "profile", "about", "socialLinks"],
-  appearance: ["theme", "typography", "datePickerStyle"],
+  appearance: ["theme", "typography", "datePickerStyle", "brand"],
   services: ["emailService", "aiCover", "aiSummary", "recaptcha", "translation", "commentEmailNotify", "media"],
 };
 
 export type TabId = (typeof TAB_IDS)[number];
 
-export const THEME_PRESETS: { name: string; theme: SiteConfigData["theme"] }[] = [
+export const THEME_PRESETS: { name: string; theme: Omit<SiteConfigData["theme"], "presets"> }[] = [
   {
     name: "Default",
     theme: { accentColor: "#d40063", lightBg: "#f5f5f0", lightText: "#1a1a1a", darkBg: "#0a0a0a", darkText: "#f5f5f0" },
@@ -116,7 +116,7 @@ const FONT_CSS_VARS: Record<string, string> = {
   "IBM Plex Sans KR": "var(--font-ibm-plex-sans-kr)",
   "Gowun Dodum": "var(--font-gowun-dodum)",
   "Nanum Gothic": "var(--font-nanum-gothic)",
-  "JetBrains Mono": "var(--font-jetbrains)",
+  "JetBrains Mono": "var(--font-mono)",
   "Fira Code": "var(--font-fira-code)",
   "Source Code Pro": "var(--font-source-code-pro)",
   "IBM Plex Mono": "var(--font-ibm-plex-mono)",
@@ -267,14 +267,15 @@ export function extractDefaults(delta: any, defaults: any): any {
   return snapshot;
 }
 
-export type ContentSubTab = "home" | "profile" | "works" | "posts";
+export type ContentSubTab = "home" | "profile" | "works" | "posts" | "about";
 
 /** content 탭 내 siteConfig 키 → sub-tab 매핑 */
 const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
   home: ["brand", "hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "socialLinks"],
-  profile: ["profile", "about"],
+  profile: ["profile"],
   works: ["works"],
   posts: ["posts"],
+  about: ["about"],
 };
 
 /** siteConfig 키 → content sub-tab */

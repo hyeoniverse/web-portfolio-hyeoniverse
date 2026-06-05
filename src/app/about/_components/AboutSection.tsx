@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
@@ -23,6 +23,10 @@ const REPETITIONS = 3;
 export default function AboutSection() {
   const siteConfig = useSiteConfig();
   const infiniteScroll = siteConfig.about.infiniteScroll;
+  const hiddenPanels = useMemo(
+    () => new Set((siteConfig.about as { hiddenPanels?: string[] }).hiddenPanels ?? []),
+    [siteConfig.about],
+  );
 
   const { language } = useLanguage();
   const { sectionRef, trackRef, activeSection, goToSection, scrollBy } =
@@ -59,11 +63,13 @@ export default function AboutSection() {
     scrollBy,
   };
 
-  /* ── Render panels from config ── */
+  /* ── Render panels from config — siteConfig.about.hiddenPanels 에 등록된 key 는 skip ── */
   const renderPanels = (panels: typeof desktopPanels) =>
-    panels.map(({ key, Component, props }) => (
-      <Component key={key} {...props(ctx)} />
-    ));
+    panels
+      .filter(({ key }) => !hiddenPanels.has(key))
+      .map(({ key, Component, props }) => (
+        <Component key={key} {...props(ctx)} />
+      ));
 
   const panelSet = (repeatKey: number) => (
     <Fragment key={repeatKey}>{renderPanels(desktopPanels)}</Fragment>

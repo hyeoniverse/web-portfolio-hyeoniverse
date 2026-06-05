@@ -1,0 +1,155 @@
+/* contentEditable single-line input — Input(native) 의 capsule 스타일 모방.
+   border 는 .fieldWrap 에 (한 capsule 안에 badge / input / clear / counter 모두 flex children). */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  width: 100%;
+  min-width: 0;
+}
+
+.fieldWrap {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  height: var(--control-h-md);
+  box-sizing: border-box;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  /* (0,2,0) — 전역 theme transition override 위해 fieldWrap.wrapper 등으로 specificity 보강 가능 */
+  transition: border-color var(--duration-base) ease;
+}
+
+.fieldWrap:focus-within {
+  border-color: var(--text-primary);
+}
+
+/* contentEditable div — flex 1 로 남은 공간 차지, min-width: 0 로 truncate 허용.
+   horizontal scroll 은 native (overflow-x: auto + nowrap). */
+.input {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  box-sizing: border-box;
+  /* padding 0 — gap 은 margin 으로 (scroll 영역 밖이라 항상 유지됨) */
+  padding: 0;
+  margin: 0 var(--spacing-2xs) 0 var(--spacing-md);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+  /* line-height: 1 + flex align-items: center 로 텍스트 vertical center 정확히 */
+  line-height: 1;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.input::-webkit-scrollbar {
+  display: none;
+}
+
+/* placeholder — contentEditable 은 native placeholder 없음 → empty 일 때 ::before */
+.input[data-empty]::before {
+  content: attr(data-placeholder);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+/* inlineLabel 배지 — flex child (좌측). line-height:1 + align-items:center 로 text vertical center 정확히. */
+.inlineLabel {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+  margin-left: var(--spacing-xs);
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* inlineLabel 다음에 오는 input — badge 와 text 사이 margin (scroll 영역 밖이라 항상 유지) */
+.hasInlineLabel .input {
+  margin-left: var(--spacing-sm);
+}
+
+/* 초과 글자 highlight — accent 배경색 (22% opacity), text 색 상속. native <mark> default 무효화.
+   padding 으로 background 가 글자 주변에 여유 (inline 이라 box-decoration-break: clone 으로 줄바꿈 시도 자연 처리). */
+.over {
+  background: color-mix(in oklch, var(--text-accent) 22%, transparent);
+  color: inherit;
+  padding: 2px 3px;
+  border-radius: 3px;
+  -webkit-text-fill-color: inherit;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* clear 버튼 — flex child (counter 의 왼쪽). value 있을 때만 렌더 */
+.clearBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: var(--spacing-2xs);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+}
+
+.clearBtn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+/* counter — flex child (clear 우측, 가장 우측). inline-flex 로 vertical center 정확히. */
+.counter {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  margin-right: var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  transition: color var(--duration-base) ease;
+}
+
+.counterWarn > span {
+  color: var(--text-warning);
+}
+
+.counterOver > span {
+  color: var(--text-accent);
+  font-weight: 500;
+}
