@@ -60,10 +60,12 @@
     opacity var(--duration-base) ease !important;
 }
 
+/* indicator 화살표 — 좌/우 짝 매칭. BLACK …TRIANGLE + text variation selector (U+FE0E)
+   로 통일해 양쪽 모두 text 형태로 렌더 (이전엔 ► (POINTER) + ◀︎ (TRIANGLE+VS) 가 family 가 달라 크기 차이) */
 .footerIndicator::before {
-  content: "►";
+  content: "▶\fe0e";
   position: absolute;
-  right: calc(100% + 5px);
+  right: calc(100% + 6px);
   top: 50%;
   transform: translateY(-50%) translateX(-3px);
   font-size: var(--font-size-dot);
@@ -72,9 +74,9 @@
 }
 
 .footerIndicator::after {
-  content: "◀︎";
+  content: "◀\fe0e";
   position: absolute;
-  left: calc(100% + 5px);
+  left: calc(100% + 6px);
   top: 50%;
   transform: translateY(-50%) translateX(3px);
   font-size: var(--font-size-dot);
