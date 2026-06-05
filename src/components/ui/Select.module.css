@@ -189,31 +189,22 @@
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-/* 꼬리 — 왼쪽을 가리키는 삼각형 2겹(테두리 outline + 배경 fill).
-   base 가 body 왼쪽 변에 겹쳐 둥근 모서리(큰 radius)와 무관하게 자연스럽게 연결.
-   위쪽 변(border-top)을 더 길게 둬서 위에서 부드럽게 이어짐. */
-.bubbleRight::before,
-.bubbleRight::after {
+/* 꼬리 — 왼쪽(trigger)을 가리키는 삼각형.
+   둥근 모서리(radius-2xl) 아래 직선 테두리에 붙도록 충분히 아래(top 24)에 둠
+   → body 위쪽이 길어지고 위쪽 끊김 없이 연결. */
+.bubbleRight::before {
   content: "";
   position: absolute;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-color: transparent;
-}
-/* 테두리(outline) 레이어 */
-.bubbleRight::before {
-  top: 11px;
-  left: -9px;
-  border-width: 13px 9px 9px 0;
-  border-right-color: var(--border-light-color);
-}
-/* 배경 fill 레이어 — body 쪽으로 더 들어가 왼쪽 두 변에 outline 만 노출 */
-.bubbleRight::after {
-  top: 12px;
+  top: 24px;
   left: -6px;
-  border-width: 12px 8px 8px 0;
-  border-right-color: var(--bg-primary);
+  width: 11px;
+  height: 11px;
+  background: var(--bg-primary);
+  border-left: var(--border-light);
+  border-bottom: var(--border-light);
+  transform: rotate(45deg);
+  /* body 테두리는 덮되(seam 가림) 옵션은 가리지 않도록 content 아래로 */
+  z-index: -1;
 }
 
 .option {
