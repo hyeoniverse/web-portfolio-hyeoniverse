@@ -133,16 +133,16 @@ export const projectStructure: StructureItem[] = [
   {
     path: "ui/",
     description: {
-      ko: "Button, Modal, Typography, OptimizedImage",
-      en: "Button, Modal, Typography, OptimizedImage",
+      ko: "Button, Modal, Typography, OptimizedImage, Chip, EditableInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
+      en: "Button, Modal, Typography, OptimizedImage, Chip, EditableInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
     },
     indent: 2,
   },
   {
     path: "posts/",
     description: {
-      ko: "PostEditor, MarkdownRenderer, CoverImagePicker",
-      en: "PostEditor, MarkdownRenderer, CoverImagePicker",
+      ko: "PostEditor, MarkdownRenderer, CoverImagePicker (Presets / Local files / Unsplash / Pexels / AI / History — 모바일 sheet 자동 전환)",
+      en: "PostEditor, MarkdownRenderer, CoverImagePicker (Presets / Local files / Unsplash / Pexels / AI / History — auto-switches to mobile sheet)",
     },
     indent: 2,
   },
@@ -162,8 +162,8 @@ export const projectStructure: StructureItem[] = [
   {
     path: "lib/",
     description: {
-      ko: "서버 사이드 로직 — Supabase 클라이언트, API 공통 핸들러, Posts SSR 쿼리",
-      en: "Server-side logic — Supabase clients, API shared handlers, Posts SSR queries",
+      ko: "서버 사이드 로직 — Supabase 클라이언트, API 공통 핸들러, Posts SSR 쿼리, tagMeta · autoCoverImage · searchQuery · searchHighlight · videoCompress · isVideoUrl 유틸",
+      en: "Server-side logic — Supabase clients, API shared handlers, Posts SSR queries, plus tagMeta · autoCoverImage · searchQuery · searchHighlight · videoCompress · isVideoUrl utilities",
     },
     indent: 1,
   },
@@ -178,8 +178,8 @@ export const projectStructure: StructureItem[] = [
   {
     path: "providers/",
     description: {
-      ko: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig",
-      en: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig",
+      ko: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig, SearchHighlight",
+      en: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig, SearchHighlight",
     },
     indent: 1,
   },

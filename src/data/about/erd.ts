@@ -21,8 +21,10 @@ export const erdTables: ErdTable[] = [
       { name: "like_count", type: "INT" },
       { name: "post_number", type: "INT UNIQUE" },
       { name: "github_url", type: "TEXT" },
+      { name: "tag_notes", type: "JSONB" },
       { name: "summary_ko / _en", type: "TEXT" },
       { name: "deleted_at", type: "TIMESTAMPTZ" },
+      { name: "purge_after", type: "TIMESTAMPTZ" },
       { name: "created_at", type: "TIMESTAMPTZ" },
     ],
   },
@@ -87,16 +89,18 @@ export const erdTables: ErdTable[] = [
     name: "works",
     columns: [
       { name: "id", type: "UUID", pk: true },
-      { name: "number", type: "TEXT" },
+      { name: "slug", type: "TEXT UNIQUE" },
       { name: "title", type: "TEXT" },
       { name: "subtitle_ko / _en", type: "TEXT" },
-      { name: "category_ko / _en", type: "TEXT" },
+      { name: "categories_ko / _en", type: "TEXT[]" },
+      { name: "nature_ko / _en", type: "TEXT" },
       { name: "year", type: "TEXT" },
       { name: "description_ko / _en", type: "TEXT" },
-      { name: "role_ko / _en", type: "TEXT" },
+      { name: "role_ko / _en", type: "TEXT[]" },
+      { name: "contributions", type: "JSONB" },
       { name: "tech", type: "TEXT[]" },
+      { name: "tech_notes", type: "JSONB" },
       { name: "image", type: "TEXT" },
-      { name: "size", type: "TEXT CHECK" },
       { name: "content_ko / _en", type: "TEXT" },
       { name: "content_type", type: "TEXT CHECK" },
       { name: "team_members", type: "JSONB" },
@@ -106,6 +110,7 @@ export const erdTables: ErdTable[] = [
       { name: "sort_order", type: "INT" },
       { name: "summary_ko / _en", type: "TEXT" },
       { name: "deleted_at", type: "TIMESTAMPTZ" },
+      { name: "purge_after", type: "TIMESTAMPTZ" },
       { name: "created_at", type: "TIMESTAMPTZ" },
     ],
   },
@@ -149,6 +154,77 @@ export const erdTables: ErdTable[] = [
       { name: "created_at", type: "TIMESTAMPTZ" },
     ],
   },
+  {
+    name: "post_views",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "post_id", type: "UUID", fk: "posts.id" },
+      { name: "ip", type: "TEXT" },
+      { name: "date_kst", type: "DATE" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+    ],
+  },
+  {
+    name: "post_work_relations",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "post_id", type: "UUID", fk: "posts.id" },
+      { name: "work_id", type: "UUID", fk: "works.id" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+    ],
+  },
+  {
+    name: "comment_reports",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "target_type", type: "TEXT CHECK" },
+      { name: "target_id", type: "UUID" },
+      { name: "reason", type: "TEXT" },
+      { name: "reporter_ip", type: "TEXT" },
+      { name: "status", type: "TEXT" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+    ],
+  },
+  {
+    name: "admin_known_devices",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "ua_hash", type: "TEXT UNIQUE" },
+      { name: "label", type: "TEXT" },
+      { name: "approved_at", type: "TIMESTAMPTZ" },
+      { name: "approve_token", type: "TEXT" },
+      { name: "token_expires_at", type: "TIMESTAMPTZ" },
+      { name: "last_seen_at", type: "TIMESTAMPTZ" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+    ],
+  },
+  {
+    name: "admin_login_attempts",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "email", type: "TEXT" },
+      { name: "attempted_at", type: "TIMESTAMPTZ" },
+      { name: "success", type: "BOOL" },
+    ],
+  },
+  {
+    name: "applied_migrations",
+    columns: [
+      { name: "name", type: "TEXT", pk: true },
+      { name: "description", type: "TEXT" },
+      { name: "applied_at", type: "TIMESTAMPTZ" },
+    ],
+  },
+  {
+    name: "cover_image_history",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "url", type: "TEXT" },
+      { name: "source", type: "TEXT" },
+      { name: "meta", type: "TEXT" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+    ],
+  },
 ];
 
 export const erdRelations: ErdRelation[] = [
@@ -161,6 +237,9 @@ export const erdRelations: ErdRelation[] = [
   { from: "likes", fromField: "target_id", to: "work_comments", toField: "id", label: "N:1" },
   { from: "revisions", fromField: "entity_id", to: "posts", toField: "id", label: "N:1" },
   { from: "revisions", fromField: "entity_id", to: "works", toField: "id", label: "N:1" },
+  { from: "post_views", fromField: "post_id", to: "posts", toField: "id", label: "N:1" },
+  { from: "post_work_relations", fromField: "post_id", to: "posts", toField: "id", label: "N:1" },
+  { from: "post_work_relations", fromField: "work_id", to: "works", toField: "id", label: "N:1" },
 ];
 
 export const erdDesignNotes: ErdDesignNote[] = [

@@ -86,6 +86,10 @@ const { data } = await admin.from("comments")
       { method: "GET", path: "/api/admin/secrets", description: { ko: "API 키 목록 조회 (마스킹)", en: "List API keys (masked)" } },
       { method: "PUT", path: "/api/admin/secrets", description: { ko: "API 키 저장/갱신", en: "Save/update API key" } },
       { method: "DELETE", path: "/api/admin/secrets", description: { ko: "API 키 삭제", en: "Delete API key" } },
+      { method: "GET", path: "/api/admin/cover", description: { ko: "public/cover/{images,videos} 안 로컬 미디어 목록 (CoverImagePicker 의 Presets / Local files 탭 공용)", en: "List local media under public/cover/{images,videos} (shared by CoverImagePicker Presets / Local files tab)" } },
+      { method: "GET", path: "/api/admin/categories", description: { ko: "포스트 카테고리 목록 + CRUD (siteConfig.posts.categories 동기화)", en: "Post category list + CRUD (syncs siteConfig.posts.categories)" } },
+      { method: "GET", path: "/api/admin/works-categories", description: { ko: "Works 카테고리 목록 + CRUD (siteConfig.works.categories 동기화)", en: "Works category list + CRUD (syncs siteConfig.works.categories)" } },
+      { method: "DELETE", path: "/api/admin/tags/remove", description: { ko: "전체 게시물에서 특정 태그 일괄 제거 (tagMeta + posts.tags + tag_notes 동기화)", en: "Bulk-remove a tag from all posts (syncs tagMeta + posts.tags + tag_notes)" } },
     ],
     exampleQuery: {
       title: "Admin Auth Flow",
@@ -110,13 +114,15 @@ res.cookies.set("sb-token", data.session.access_token, {
     name: "Cover Image API",
     kind: "api",
     description: {
-      ko: "포스트·시리즈·작업물 커버 이미지 생성 API. Unsplash 검색과 AI 이미지 생성(NanoBanana/Hugging Face 선택)을 지원합니다.",
-      en: "Cover image APIs for posts, series, and works. Supports Unsplash search and AI image generation (NanoBanana/Hugging Face selectable).",
+      ko: "포스트·시리즈·작업물 커버 이미지 생성 API. Unsplash + Pexels 검색, AI 이미지 생성 (NanoBanana / Hugging Face 선택), 게시물 키워드 기반 자동 매칭까지 지원합니다.",
+      en: "Cover image APIs for posts, series, and works. Supports Unsplash + Pexels search, AI image generation (NanoBanana / Hugging Face selectable), and keyword-based automatic matching from post content.",
     },
     endpoints: [
       { method: "GET", path: "/api/cover/unsplash", description: { ko: "Unsplash 이미지 검색", en: "Search Unsplash images" } },
       { method: "POST", path: "/api/cover/unsplash/download", description: { ko: "Unsplash 이미지 → Storage 저장", en: "Save Unsplash image to Storage" } },
+      { method: "GET", path: "/api/cover/pexels", description: { ko: "Pexels 이미지 검색 (Unsplash 대안, rate limit / 정책 변경 fail-safe)", en: "Search Pexels images (Unsplash alternative, fail-safe against rate limits / policy changes)" } },
       { method: "POST", path: "/api/cover/ai-generate", description: { ko: "AI 커버 이미지 생성 (스타일 프리셋)", en: "Generate AI cover image (style presets)" } },
+      { method: "POST", path: "/api/posts/auto-cover", description: { ko: "게시물 title / tags / excerpt 키워드로 Unsplash · Pexels 검색해 cover 자동 매칭 — 발행 시 cover 비어있으면 자동 호출", en: "Match cover from Unsplash · Pexels using post title / tags / excerpt keywords — auto-invoked on publish when cover is empty" } },
     ],
     exampleQuery: {
       title: "AI Image Generation",
