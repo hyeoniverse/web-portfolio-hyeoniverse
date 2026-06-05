@@ -186,7 +186,7 @@ export default function SearchCapsule({
           options={typeSelector.options}
           onChange={typeSelector.onChange}
           className={styles.selectWrap}
-          size={size}
+          size={size === "sm" ? "sm" : "default"}
         />
       )}
       <Search className={styles.icon} size={14} />

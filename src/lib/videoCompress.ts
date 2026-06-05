@@ -89,7 +89,7 @@ export async function compressVideo(
     (data as Uint8Array).byteOffset,
     (data as Uint8Array).byteOffset + (data as Uint8Array).byteLength,
   );
-  const blob = new Blob([arrayBuffer], { type: isWebm ? "video/webm" : "video/mp4" });
+  const blob = new Blob([arrayBuffer as ArrayBuffer], { type: isWebm ? "video/webm" : "video/mp4" });
   const baseName = file.name.replace(/\.[^.]+$/, "");
   const newName = `${baseName}.${isWebm ? "webm" : "mp4"}`;
   return { blob, name: newName };

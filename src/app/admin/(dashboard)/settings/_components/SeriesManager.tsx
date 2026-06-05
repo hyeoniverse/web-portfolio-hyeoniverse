@@ -17,7 +17,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import Tooltip from "@/components/ui/Tooltip";
 import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
 import { Filter, ChevronDown } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import SeriesInlineEditor, { type SeriesInlineEditorHandle } from "./SeriesInlineEditor";
 import { Switch } from "@/components/ui/Switch";
 import SeriesDeleteModal from "./SeriesDeleteModal";
