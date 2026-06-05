@@ -308,6 +308,18 @@ export default function SettingsPage() {
     }
   }, [activeTab, config, profileData, allConflicts, checkedConflicts, t, saveDelta]);
 
+  /** 특정 dot-path 들만 savedConfig 로 되돌리기 — 섹션 헤더의 되돌리기 버튼이 호출 */
+  const revertSection = useCallback((paths: string[]) => {
+    if (paths.length === 0) return;
+    setConfig((prev) => {
+      let next = structuredClone(prev);
+      for (const p of paths) {
+        next = setByPath(next, p, getByPath(savedConfigRef.current, p));
+      }
+      return next;
+    });
+  }, []);
+
   /** 특정 dot-path 들만 부분 저장 — 섹션 헤더의 저장 버튼이 호출 */
   const saveSection = useCallback(async (paths: string[]) => {
     if (paths.length === 0) return;
@@ -710,7 +722,7 @@ export default function SettingsPage() {
             <>
               {activeTab === "general" && (
                 <div className={styles.tabGrid}>
-                  <GeneralTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} savingPaths={savingPaths} styles={styles} />
+                  <GeneralTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} savingPaths={savingPaths} styles={styles} />
                 </div>
               )}
               {activeTab === "content" && (
@@ -741,6 +753,7 @@ export default function SettingsPage() {
                     savedConfig={savedConfigRef.current}
                     update={update}
                     saveSection={saveSection}
+                    revertSection={revertSection}
                     savingPaths={savingPaths}
                     setConfig={setConfig}
                     profileData={profileData}
@@ -755,12 +768,12 @@ export default function SettingsPage() {
               )}
               {activeTab === "appearance" && (
                 <div className={styles.tabGrid}>
-                  <AppearanceTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
+                  <AppearanceTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
                 </div>
               )}
               {activeTab === "services" && (
                 <div className={styles.tabGrid}>
-                  <ServicesTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
+                  <ServicesTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
                 </div>
               )}
               {activeTab === "account" && (

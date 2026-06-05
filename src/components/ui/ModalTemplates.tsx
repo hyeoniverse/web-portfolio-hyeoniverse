@@ -69,7 +69,7 @@ export function ModalConfirm({
       <p className={styles.desc}>{desc}</p>
       <div className={styles.actions}>
         <Button
-          variant="difference"
+          variant="outline"
           size="sm"
           soundDisabled
           onClick={() => {
@@ -159,7 +159,7 @@ export function ModalPrompt({
       {error && <p className={styles.error}>{error}</p>}
       <div className={styles.actions}>
         <Button
-          variant="difference"
+          variant="outline"
           size="sm"
           soundDisabled
           onClick={() => {

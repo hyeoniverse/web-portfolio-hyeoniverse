@@ -365,6 +365,7 @@ export default function Navigation() {
     requestAnimationFrame(measureLogo);
   }, [showLoadingLogo, measureLogo]);
 
+
   // 로딩이 완전히 끝나면 다음 로딩을 위해 측정 플래그 리셋
   useEffect(() => {
     if (!isLoading) {
@@ -465,8 +466,11 @@ export default function Navigation() {
   }, [router, pathname]);
 
   return (
-    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
-      <Link href={isAdminPage ? "/admin" : "/"} className={styles.logoGroup}>
+    <>
+    {/* 로고 + admin 배지 flex wrap 부모. 자식 각자 mix-blend-mode 적용 */}
+    <div className={styles.logoNavBar}>
+      <div className={`${styles.logoAnchor} ${siteConfig.brand.logoDifference === false ? styles.logoAnchorNoDifference : ""}`}>
+        <Link href={isAdminPage ? "/admin" : "/"} className={styles.logoGroup}>
         <motion.div
           ref={logoRef}
           className={styles.logoWrapper}
@@ -578,9 +582,14 @@ export default function Navigation() {
           )}
         </span>
         </motion.div>
-        {isAdminPage && <span className={styles.adminBadge}>Admin</span>}
       </Link>
+      </div>
+      {isAdminPage && (
+        <span className={`${styles.adminBadge} ${styles.adminBadgeFixed}`}>Admin</span>
+      )}
+    </div>
 
+    <nav className={`${styles.nav} ${showLoadingLogo ? styles.navLoading : ""} ${elevatedZ ? styles.navElevated : ""} ${isAdminPage ? styles.navAdmin : ""} ${showMenu ? styles.navMenuOpen : ""}`}>
       <div
         ref={navCenterRef}
         className={styles.navCenter}
@@ -910,5 +919,6 @@ export default function Navigation() {
         onLogout={handleLogout}
       />
     </nav>
+    </>
   );
 }

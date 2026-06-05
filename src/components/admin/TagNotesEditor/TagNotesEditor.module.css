@@ -77,6 +77,27 @@
   transition: color 0.15s ease;
 }
 
+/* button 으로 렌더될 때 — span 과 동일 톤 유지 (외부 click 핸들러용 wrap) */
+button.tag {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+button.tag:hover {
+  color: var(--text-primary);
+}
+
+/* 외부 편집 패널에서 active 인 chip — accent 강조 (text + underline) */
+.tagActive {
+  color: var(--text-accent) !important;
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-underline-offset: 3px;
+}
+
 /* × 버튼 hover 시 — accent 색 취소선 */
 .tagGroup:has([data-close-trigger]:hover) .tag {
   text-decoration: line-through;
@@ -204,14 +225,9 @@
   align-self: flex-start;
 }
 
-/* custom bullet — SVG circle, flex center 로 perfect 정렬 */
+/* 편집 모드 bullet — 비표시 (readonly bullet 과 동일 정책) */
 .bullet {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 8px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
+  display: none;
 }
 
 /* pair grip — 첫 input line 과 vertical center */
@@ -305,23 +321,18 @@
   align-items: center;
 }
 
-/* readonly bullet — readonlyLine 안 첫 자식. badge 와 vertical center 자연 정렬 */
+/* readonly bullet — 비표시 (덜어내기), 자리는 0 으로 collapse */
 .readonlyBulletInline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 8px;
-  height: 16px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
+  display: none;
 }
 
-/* EN line — bullet 자리 비워둠 (들여쓰기 KO line 과 동일) */
 .readonlyBulletSpacer {
-  display: inline-block;
-  width: 8px;
-  height: 16px;
-  flex-shrink: 0;
+  display: none;
+}
+
+/* drawer extra — chip 헤더와 description 사이 슬롯 (이름 인라인 편집 등) */
+.drawerExtra {
+  padding: var(--spacing-xs) 0;
 }
 
 /* readonly checkbox — KO line 안 첫 자식 (itemCheckbox 14px) */
