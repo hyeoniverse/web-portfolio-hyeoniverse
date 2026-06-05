@@ -736,7 +736,7 @@ export const siteConfig = {
       { name: "R3F", category: "3D Graphics", icon: "" },
       { name: "Zustand", category: "State Management", icon: "" },
       { name: "Supabase", category: "Backend (DB/Auth/Storage)", icon: "supabase" },
-      { name: "Tiptap", category: "Rich Text Editor", icon: "tiptap" },
+      { name: "Plate", category: "Rich Text Editor", icon: "" },
       { name: "NanoBanana", category: "AI Image Generation", icon: "" },
       { name: "Hugging Face", category: "AI Image Generation", icon: "huggingface" },
       { name: "Formspree", category: "Form & Email", icon: "" },

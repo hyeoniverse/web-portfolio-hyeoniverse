@@ -108,10 +108,119 @@ const TECH_PRESETS: TechPreset[] = [
   { slug: "openai", name: "OpenAI", category: "AI", ko: "오픈에이아이" },
   { slug: "huggingface", name: "Hugging Face", category: "AI", ko: "허깅페이스" },
   { slug: "tiptap", name: "Tiptap", category: "Editor", ko: "팁탭" },
+  { slug: "", name: "Plate", category: "Editor", ko: "플레이트" },
+  { slug: "slate", name: "Slate", category: "Editor", ko: "슬레이트" },
   { slug: "graphql", name: "GraphQL", category: "API", ko: "그래프큐엘" },
   { slug: "stripe", name: "Stripe", category: "Payments", ko: "스트라이프" },
   { slug: "zod", name: "Zod", category: "Validation", ko: "조드" },
+  // ── 언어 ──
+  { slug: "html5", name: "HTML", category: "Markup", ko: "에이치티엠엘" },
+  { slug: "rust", name: "Rust", category: "Language", ko: "러스트" },
+  { slug: "go", name: "Go", category: "Language", ko: "고" },
+  { slug: "cplusplus", name: "C++", category: "Language", ko: "씨쁠쁠" },
+  { slug: "c", name: "C", category: "Language", ko: "씨" },
+  { slug: "openjdk", name: "Java", category: "Language", ko: "자바" },
+  { slug: "kotlin", name: "Kotlin", category: "Language", ko: "코틀린" },
+  { slug: "swift", name: "Swift", category: "Language", ko: "스위프트" },
+  { slug: "ruby", name: "Ruby", category: "Language", ko: "루비" },
+  { slug: "php", name: "PHP", category: "Language", ko: "피에이치피" },
+  { slug: "dart", name: "Dart", category: "Language", ko: "다트" },
+  // ── 프레임워크 (프론트) ──
+  { slug: "angular", name: "Angular", category: "Framework", ko: "앵귤러" },
+  { slug: "solid", name: "Solid", category: "Framework", ko: "솔리드" },
+  { slug: "qwik", name: "Qwik", category: "Framework", ko: "퀵" },
+  { slug: "astro", name: "Astro", category: "Framework", ko: "아스트로" },
+  { slug: "nuxtdotjs", name: "Nuxt", category: "Framework", ko: "넉스트" },
+  { slug: "remix", name: "Remix", category: "Framework", ko: "리믹스" },
+  { slug: "preact", name: "Preact", category: "Framework", ko: "프리액트" },
+  // ── 백엔드 ──
+  { slug: "express", name: "Express", category: "Backend", ko: "익스프레스" },
+  { slug: "nestjs", name: "NestJS", category: "Backend", ko: "네스트" },
+  { slug: "fastify", name: "Fastify", category: "Backend", ko: "패스티파이" },
+  { slug: "django", name: "Django", category: "Backend", ko: "장고" },
+  { slug: "flask", name: "Flask", category: "Backend", ko: "플라스크" },
+  { slug: "fastapi", name: "FastAPI", category: "Backend", ko: "패스트에이피아이" },
+  { slug: "laravel", name: "Laravel", category: "Backend", ko: "라라벨" },
+  { slug: "spring", name: "Spring", category: "Backend", ko: "스프링" },
+  { slug: "dotnet", name: ".NET", category: "Backend", ko: "닷넷" },
+  // ── 모바일 / 데스크탑 / 런타임 ──
+  { slug: "flutter", name: "Flutter", category: "Mobile", ko: "플러터" },
+  { slug: "electron", name: "Electron", category: "Desktop", ko: "일렉트론" },
+  { slug: "tauri", name: "Tauri", category: "Desktop", ko: "타우리" },
+  { slug: "expo", name: "Expo", category: "Mobile", ko: "엑스포" },
+  { slug: "deno", name: "Deno", category: "Runtime", ko: "디노" },
+  { slug: "bun", name: "Bun", category: "Runtime", ko: "번" },
+  // ── 상태 / 스타일 ──
+  { slug: "mobx", name: "MobX", category: "State", ko: "몹엑스" },
+  { slug: "reactquery", name: "React Query", category: "State", ko: "리액트쿼리" },
+  { slug: "styledcomponents", name: "styled-components", category: "Styling", ko: "스타일드컴포넌츠" },
+  { slug: "mui", name: "MUI", category: "Styling", ko: "엠유아이" },
+  { slug: "chakraui", name: "Chakra UI", category: "Styling", ko: "차크라" },
+  { slug: "radixui", name: "Radix UI", category: "Styling", ko: "라딕스" },
+  { slug: "bootstrap", name: "Bootstrap", category: "Styling", ko: "부트스트랩" },
+  { slug: "postcss", name: "PostCSS", category: "Styling", ko: "포스트씨에스에스" },
+  // ── 빌드 / 도구 / 패키지 ──
+  { slug: "rollupdotjs", name: "Rollup", category: "Build", ko: "롤업" },
+  { slug: "esbuild", name: "esbuild", category: "Build", ko: "이에스빌드" },
+  { slug: "babel", name: "Babel", category: "Build", ko: "바벨" },
+  { slug: "turborepo", name: "Turborepo", category: "Build", ko: "터보레포" },
+  { slug: "eslint", name: "ESLint", category: "Lint", ko: "이에스린트" },
+  { slug: "prettier", name: "Prettier", category: "Lint", ko: "프리티어" },
+  { slug: "npm", name: "npm", category: "Package", ko: "엔피엠" },
+  { slug: "pnpm", name: "pnpm", category: "Package", ko: "피엔피엠" },
+  { slug: "yarn", name: "Yarn", category: "Package", ko: "얀" },
+  // ── 테스트 ──
+  { slug: "cypress", name: "Cypress", category: "Testing", ko: "사이프러스" },
+  { slug: "testinglibrary", name: "Testing Library", category: "Testing", ko: "테스팅라이브러리" },
+  // ── DB / API ──
+  { slug: "mysql", name: "MySQL", category: "Database", ko: "마이에스큐엘" },
+  { slug: "redis", name: "Redis", category: "Database", ko: "레디스" },
+  { slug: "sqlite", name: "SQLite", category: "Database", ko: "에스큐엘라이트" },
+  { slug: "planetscale", name: "PlanetScale", category: "Database", ko: "플래닛스케일" },
+  { slug: "apollographql", name: "Apollo", category: "API", ko: "아폴로" },
+  // ── DevOps / Cloud ──
+  { slug: "kubernetes", name: "Kubernetes", category: "DevOps", ko: "쿠버네티스" },
+  { slug: "githubactions", name: "GitHub Actions", category: "CI", ko: "깃허브액션" },
+  { slug: "gitlab", name: "GitLab", category: "VCS", ko: "깃랩" },
+  { slug: "googlecloud", name: "Google Cloud", category: "Cloud", ko: "구글클라우드" },
+  { slug: "cloudflare", name: "Cloudflare", category: "Cloud", ko: "클라우드플레어" },
+  { slug: "nginx", name: "Nginx", category: "DevOps", ko: "엔진엑스" },
+  // ── AI / 디자인 / 도구 ──
+  { slug: "anthropic", name: "Anthropic", category: "AI", ko: "앤트로픽" },
+  { slug: "ollama", name: "Ollama", category: "AI", ko: "올라마" },
+  { slug: "googlegemini", name: "Gemini", category: "AI", ko: "제미나이" },
+  { slug: "adobephotoshop", name: "Photoshop", category: "Design", ko: "포토샵" },
+  { slug: "blender", name: "Blender", category: "Design", ko: "블렌더" },
+  { slug: "notion", name: "Notion", category: "Tool", ko: "노션" },
+  { slug: "jira", name: "Jira", category: "Tool", ko: "지라" },
+  { slug: "markdown", name: "Markdown", category: "Markup", ko: "마크다운" },
 ];
+
+/* 카테고리 프리셋 — TECH_PRESETS 의 distinct 카테고리 (입력 자동완성용) */
+const CATEGORY_PRESETS = Array.from(new Set(TECH_PRESETS.map((p) => p.category))).sort((a, b) => a.localeCompare(b));
+
+/* tech 아이콘 렌더 — slug/URL 이미지, 로드 실패하거나 비어있으면 이니셜 폴백 */
+function TechIcon({ icon, name, styles }: { icon?: string; name: string; styles: Record<string, string> }) {
+  const src = techIconSrc(icon);
+  const [brokenSrc, setBrokenSrc] = useState<string | null>(null);
+  if (src && brokenSrc !== src) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={src} alt="" onError={() => setBrokenSrc(src)} />;
+  }
+  return <span className={styles.techIconInitial}>{(name || "?").slice(0, 1).toUpperCase()}</span>;
+}
+
+/* 카테고리 입력 — 프리셋 카테고리 자동완성(datalist) + 자유 입력 */
+function CategoryInput({ value, onChange, t }: { value: string; onChange: (v: string) => void; t: (key: string) => string }) {
+  return (
+    <>
+      <Input value={value} onChange={onChange} placeholder={t("admin.settings.aboutTechStackCategory")} size="sm" list="techCategoryPresets" />
+      <datalist id="techCategoryPresets">
+        {CATEGORY_PRESETS.map((c) => <option key={c} value={c} />)}
+      </datalist>
+    </>
+  );
+}
 
 /* 변형 검색(영문 부분일치 + 한글 + 초성)은 공용 util matchesSearch 사용 */
 function matchTech(p: TechPreset, query: string): boolean {
@@ -2729,10 +2838,7 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
         <Chip
           leftIcon={
             <span className={styles.techIconTile}>
-              {techIconSrc(item.icon)
-                // eslint-disable-next-line @next/next/no-img-element
-                ? <img src={techIconSrc(item.icon)} alt="" />
-                : <span className={styles.techIconInitial}>{(item.name || "?").slice(0, 1).toUpperCase()}</span>}
+              <TechIcon icon={item.icon} name={item.name} styles={styles} />
             </span>
           }
           onRemove={() => remove(idx)}
@@ -2802,7 +2908,7 @@ function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
           const added = isAdded?.(p) ?? false;
           return (
             <button
-              key={p.slug}
+              key={p.name}
               type="button"
               className={`${styles.techPresetRow} ${added ? styles.techPresetRowAdded : ""}`}
               onClick={() => { if (!added) onPick(p); }}
@@ -2810,8 +2916,7 @@ function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
               title={added ? (t?.("admin.settings.aboutTechStackAdded") ?? "Added") : p.name}
             >
               <span className={styles.techIconTile}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={techIconSrc(p.slug)} alt="" />
+                <TechIcon icon={p.slug} name={p.name} styles={styles} />
               </span>
               <span className={styles.techPresetRowName}>{p.name}</span>
               {added
@@ -2930,7 +3035,7 @@ function TechAddPanel({ existing, onAdd, t, styles }: {
         <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackCustomTitle")}</p>
         <Input value={draft.name} onChange={(v) => setDraft((d) => ({ ...d, name: v }))} placeholder={t("admin.settings.aboutTechStackName")} size="sm" />
         {isDup && <p className={styles.techAddDupHint}>{t("admin.settings.aboutTechStackDupHint")}</p>}
-        <Input value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} placeholder={t("admin.settings.aboutTechStackCategory")} size="sm" />
+        <CategoryInput value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} t={t} />
         <TechIconEditor icon={draft.icon ?? ""} onIconChange={(icon) => setDraft((d) => ({ ...d, icon }))} t={t} styles={styles} showSearch={false} />
         <Button variant="primary" size="xs" fullWidth disabled={!canAdd} onClick={submitCustom} icon={<Plus size={14} strokeWidth={2.5} />}>
           {t("admin.settings.aboutTechStackAdd")}
@@ -2950,7 +3055,7 @@ function TechEditPanel({ item, onChange, t, styles }: {
   return (
     <div className={styles.techPanel}>
       <Input value={item.name} onChange={(v) => onChange({ name: v })} placeholder={t("admin.settings.aboutTechStackName")} size="sm" />
-      <Input value={item.category} onChange={(v) => onChange({ category: v })} placeholder={t("admin.settings.aboutTechStackCategory")} size="sm" />
+      <CategoryInput value={item.category} onChange={(v) => onChange({ category: v })} t={t} />
       <hr className={styles.techDivider} />
       <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackIcon")}</p>
       <TechIconEditor icon={item.icon ?? ""} onIconChange={(icon) => onChange({ icon })} t={t} styles={styles} />
