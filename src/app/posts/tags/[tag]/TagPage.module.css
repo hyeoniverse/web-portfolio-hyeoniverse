@@ -299,7 +299,8 @@
 
 /* selectMode 켰을 때 — dashed border 로 "선택 가능" 시각 신호 */
 .relatedPillSelectable {
-  border: 1px dashed var(--border-default-color);
+  border: var(--border-default);
+  border-style: dashed;
   padding-block: calc(var(--spacing-2xs) - 1px);
   padding-inline: calc(var(--spacing-sm) - 1px);
 }
