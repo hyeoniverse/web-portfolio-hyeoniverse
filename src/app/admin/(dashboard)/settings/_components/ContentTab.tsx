@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
 import { Upload, Plus, Check, X, Trash2, Filter, ChevronDown, Sliders } from "lucide-react";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { DndContext, closestCenter, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import T from "@/components/ui/T";
@@ -86,13 +86,13 @@ const TECH_PRESETS: TechPreset[] = [
   { slug: "tailwindcss", name: "Tailwind CSS", category: "Styling", ko: "테일윈드" },
   { slug: "css", name: "CSS", category: "Styling", ko: "씨에스에스" },
   { slug: "sass", name: "Sass", category: "Styling", ko: "사스" },
-  { slug: "threedotjs", name: "Three.js", category: "3D", ko: "쓰리" },
+  { slug: "threedotjs", name: "Three.js", category: "3D Graphics", ko: "쓰리" },
   { slug: "supabase", name: "Supabase", category: "Backend", ko: "슈파베이스" },
   { slug: "firebase", name: "Firebase", category: "Backend", ko: "파이어베이스" },
   { slug: "postgresql", name: "PostgreSQL", category: "Database", ko: "포스트그레" },
   { slug: "mongodb", name: "MongoDB", category: "Database", ko: "몽고디비" },
   { slug: "prisma", name: "Prisma", category: "ORM", ko: "프리즈마" },
-  { slug: "redux", name: "Redux", category: "State", ko: "리덕스" },
+  { slug: "redux", name: "Redux", category: "State Management", ko: "리덕스" },
   { slug: "vite", name: "Vite", category: "Build", ko: "비트" },
   { slug: "webpack", name: "Webpack", category: "Build", ko: "웹팩" },
   { slug: "vitest", name: "Vitest", category: "Testing", ko: "비테스트" },
@@ -107,11 +107,143 @@ const TECH_PRESETS: TechPreset[] = [
   { slug: "figma", name: "Figma", category: "Design", ko: "피그마" },
   { slug: "openai", name: "OpenAI", category: "AI", ko: "오픈에이아이" },
   { slug: "huggingface", name: "Hugging Face", category: "AI", ko: "허깅페이스" },
-  { slug: "tiptap", name: "Tiptap", category: "Editor", ko: "팁탭" },
+  { slug: "tiptap", name: "Tiptap", category: "Rich Text Editor", ko: "팁탭" },
+  { slug: "", name: "Plate", category: "Rich Text Editor", ko: "플레이트" },
+  { slug: "slate", name: "Slate", category: "Rich Text Editor", ko: "슬레이트" },
   { slug: "graphql", name: "GraphQL", category: "API", ko: "그래프큐엘" },
   { slug: "stripe", name: "Stripe", category: "Payments", ko: "스트라이프" },
   { slug: "zod", name: "Zod", category: "Validation", ko: "조드" },
+  // ── 언어 ──
+  { slug: "html5", name: "HTML", category: "Markup", ko: "에이치티엠엘" },
+  { slug: "rust", name: "Rust", category: "Language", ko: "러스트" },
+  { slug: "go", name: "Go", category: "Language", ko: "고" },
+  { slug: "cplusplus", name: "C++", category: "Language", ko: "씨쁠쁠" },
+  { slug: "c", name: "C", category: "Language", ko: "씨" },
+  { slug: "openjdk", name: "Java", category: "Language", ko: "자바" },
+  { slug: "kotlin", name: "Kotlin", category: "Language", ko: "코틀린" },
+  { slug: "swift", name: "Swift", category: "Language", ko: "스위프트" },
+  { slug: "ruby", name: "Ruby", category: "Language", ko: "루비" },
+  { slug: "php", name: "PHP", category: "Language", ko: "피에이치피" },
+  { slug: "dart", name: "Dart", category: "Language", ko: "다트" },
+  // ── 프레임워크 (프론트) ──
+  { slug: "angular", name: "Angular", category: "Framework", ko: "앵귤러" },
+  { slug: "solid", name: "Solid", category: "Framework", ko: "솔리드" },
+  { slug: "qwik", name: "Qwik", category: "Framework", ko: "퀵" },
+  { slug: "astro", name: "Astro", category: "Framework", ko: "아스트로" },
+  { slug: "nuxtdotjs", name: "Nuxt", category: "Framework", ko: "넉스트" },
+  { slug: "remix", name: "Remix", category: "Framework", ko: "리믹스" },
+  { slug: "preact", name: "Preact", category: "Framework", ko: "프리액트" },
+  // ── 백엔드 ──
+  { slug: "express", name: "Express", category: "Backend", ko: "익스프레스" },
+  { slug: "nestjs", name: "NestJS", category: "Backend", ko: "네스트" },
+  { slug: "fastify", name: "Fastify", category: "Backend", ko: "패스티파이" },
+  { slug: "django", name: "Django", category: "Backend", ko: "장고" },
+  { slug: "flask", name: "Flask", category: "Backend", ko: "플라스크" },
+  { slug: "fastapi", name: "FastAPI", category: "Backend", ko: "패스트에이피아이" },
+  { slug: "laravel", name: "Laravel", category: "Backend", ko: "라라벨" },
+  { slug: "spring", name: "Spring", category: "Backend", ko: "스프링" },
+  { slug: "dotnet", name: ".NET", category: "Backend", ko: "닷넷" },
+  // ── 모바일 / 데스크탑 / 런타임 ──
+  { slug: "flutter", name: "Flutter", category: "Mobile", ko: "플러터" },
+  { slug: "electron", name: "Electron", category: "Desktop", ko: "일렉트론" },
+  { slug: "tauri", name: "Tauri", category: "Desktop", ko: "타우리" },
+  { slug: "expo", name: "Expo", category: "Mobile", ko: "엑스포" },
+  { slug: "deno", name: "Deno", category: "Runtime", ko: "디노" },
+  { slug: "bun", name: "Bun", category: "Runtime", ko: "번" },
+  // ── 상태 / 스타일 ──
+  { slug: "mobx", name: "MobX", category: "State Management", ko: "몹엑스" },
+  { slug: "reactquery", name: "React Query", category: "State Management", ko: "리액트쿼리" },
+  { slug: "styledcomponents", name: "styled-components", category: "Styling", ko: "스타일드컴포넌츠" },
+  { slug: "mui", name: "MUI", category: "Styling", ko: "엠유아이" },
+  { slug: "chakraui", name: "Chakra UI", category: "Styling", ko: "차크라" },
+  { slug: "radixui", name: "Radix UI", category: "Styling", ko: "라딕스" },
+  { slug: "bootstrap", name: "Bootstrap", category: "Styling", ko: "부트스트랩" },
+  { slug: "postcss", name: "PostCSS", category: "Styling", ko: "포스트씨에스에스" },
+  // ── 빌드 / 도구 / 패키지 ──
+  { slug: "rollupdotjs", name: "Rollup", category: "Build", ko: "롤업" },
+  { slug: "esbuild", name: "esbuild", category: "Build", ko: "이에스빌드" },
+  { slug: "babel", name: "Babel", category: "Build", ko: "바벨" },
+  { slug: "turborepo", name: "Turborepo", category: "Build", ko: "터보레포" },
+  { slug: "eslint", name: "ESLint", category: "Lint", ko: "이에스린트" },
+  { slug: "prettier", name: "Prettier", category: "Lint", ko: "프리티어" },
+  { slug: "npm", name: "npm", category: "Package", ko: "엔피엠" },
+  { slug: "pnpm", name: "pnpm", category: "Package", ko: "피엔피엠" },
+  { slug: "yarn", name: "Yarn", category: "Package", ko: "얀" },
+  // ── 테스트 ──
+  { slug: "cypress", name: "Cypress", category: "Testing", ko: "사이프러스" },
+  { slug: "testinglibrary", name: "Testing Library", category: "Testing", ko: "테스팅라이브러리" },
+  // ── DB / API ──
+  { slug: "mysql", name: "MySQL", category: "Database", ko: "마이에스큐엘" },
+  { slug: "redis", name: "Redis", category: "Database", ko: "레디스" },
+  { slug: "sqlite", name: "SQLite", category: "Database", ko: "에스큐엘라이트" },
+  { slug: "planetscale", name: "PlanetScale", category: "Database", ko: "플래닛스케일" },
+  { slug: "apollographql", name: "Apollo", category: "API", ko: "아폴로" },
+  // ── DevOps / Cloud ──
+  { slug: "kubernetes", name: "Kubernetes", category: "DevOps", ko: "쿠버네티스" },
+  { slug: "githubactions", name: "GitHub Actions", category: "CI", ko: "깃허브액션" },
+  { slug: "gitlab", name: "GitLab", category: "VCS", ko: "깃랩" },
+  { slug: "googlecloud", name: "Google Cloud", category: "Cloud", ko: "구글클라우드" },
+  { slug: "cloudflare", name: "Cloudflare", category: "Cloud", ko: "클라우드플레어" },
+  { slug: "nginx", name: "Nginx", category: "DevOps", ko: "엔진엑스" },
+  // ── AI / 디자인 / 도구 ──
+  { slug: "anthropic", name: "Anthropic", category: "AI", ko: "앤트로픽" },
+  { slug: "ollama", name: "Ollama", category: "AI", ko: "올라마" },
+  { slug: "googlegemini", name: "Gemini", category: "AI", ko: "제미나이" },
+  { slug: "adobephotoshop", name: "Photoshop", category: "Design", ko: "포토샵" },
+  { slug: "blender", name: "Blender", category: "Design", ko: "블렌더" },
+  { slug: "notion", name: "Notion", category: "Tool", ko: "노션" },
+  { slug: "jira", name: "Jira", category: "Tool", ko: "지라" },
+  { slug: "markdown", name: "Markdown", category: "Markup", ko: "마크다운" },
 ];
+
+/* 카테고리 프리셋 — TECH_PRESETS 의 distinct 카테고리 (입력 자동완성용) */
+const CATEGORY_PRESETS = Array.from(new Set(TECH_PRESETS.map((p) => p.category))).sort((a, b) => a.localeCompare(b));
+
+/* tech 아이콘 렌더 — slug/URL 이미지, 로드 실패하거나 비어있으면 이니셜 폴백 */
+function TechIcon({ icon, name, styles }: { icon?: string; name: string; styles: Record<string, string> }) {
+  const src = techIconSrc(icon);
+  const [brokenSrc, setBrokenSrc] = useState<string | null>(null);
+  if (src && brokenSrc !== src) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={src} alt="" onError={() => setBrokenSrc(src)} />;
+  }
+  return <span className={styles.techIconInitial}>{(name || "?").slice(0, 1).toUpperCase()}</span>;
+}
+
+/* 카테고리 입력 — 공통 Select combobox. 제안 = 기존 항목 카테고리 우선 + 프리셋 (대소문자 무시 dedupe).
+   타이핑은 로컬 버퍼만 두고 commit(onAdd)에서만 반영 — 키 입력마다 patch → re-group → 팝오버 닫힘 방지. */
+function CategoryInput({ value, onChange, currentCats, t }: {
+  value: string;
+  onChange: (v: string) => void;
+  currentCats: string[];
+  t: (key: string) => string;
+}) {
+  const [draft, setDraft] = useState(value);
+  useEffect(() => { setDraft(value); }, [value]);
+
+  const seen = new Set<string>();
+  const options: { value: string; label: string }[] = [];
+  for (const c of [...currentCats, ...CATEGORY_PRESETS]) {
+    const key = c.trim().toLowerCase();
+    if (!c.trim() || seen.has(key)) continue;
+    seen.add(key);
+    options.push({ value: c, label: c });
+  }
+  return (
+    <Select
+      combobox
+      bubble
+      size="sm"
+      value={value}
+      inputValue={draft}
+      onInputChange={setDraft}
+      onChange={() => {}}
+      onAdd={(v) => onChange(v.trim())}
+      options={options}
+      placeholder={t("admin.settings.aboutTechStackCategory")}
+    />
+  );
+}
 
 /* 변형 검색(영문 부분일치 + 한글 + 초성)은 공용 util matchesSearch 사용 */
 function matchTech(p: TechPreset, query: string): boolean {
@@ -2710,14 +2842,65 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
   const patch = (idx: number, p: Partial<TechItem>) => onChange(items.map((it, i) => (i === idx ? { ...it, ...p } : it)));
   const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
   const add = (it: TechItem) => onChange([...items, it]);
+  // 기존 항목에서 실제 쓰이는 카테고리 — 카테고리 입력 제안에 우선 노출
+  const currentCats = Array.from(new Set(items.map((i) => i.category).filter(Boolean)));
 
-  // 카테고리별 그룹화 (등장 순서 보존). 무카테고리는 "" 그룹.
-  const order: string[] = [];
+  // ── 칩 drag&drop 으로 그룹(카테고리) 이동 ──
+  // 그룹(표시) 순서는 항목 위치가 아니라 별도 상태로 관리 — 그래야 (1) 첫 항목을 옮겨도
+  // 그룹 순서가 안 뒤집히고(switch 버그 방지) (2) 내용물이 비어도 그룹이 사라지지 않는다.
+  const [groupOrder, setGroupOrder] = useState<string[]>(() => {
+    const o: string[] = []; const seen = new Set<string>();
+    for (const it of items) { const k = it.category || ""; if (!seen.has(k)) { seen.add(k); o.push(k); } }
+    return o;
+  });
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor),
+  );
+  const handleDragEnd = (e: DragEndEvent) => {
+    setDragIdx(null);
+    const { active, over } = e;
+    if (!over) return;
+    const idx = Number(String(active.id).replace("techchip:", ""));
+    const targetCat = String(over.id).replace("techgroup:", "");
+    if (Number.isNaN(idx) || !items[idx]) return;
+    const moved = items[idx];
+    const sourceCat = moved.category || "";
+    if (sourceCat === targetCat) return;
+
+    // moved 를 targetCat 그룹의 마지막 항목 뒤(=그룹 끝)에 삽입. 그룹 순서는 state 가 책임지므로
+    // 배열 순서는 그룹 내 정렬만 의미가 있다.
+    const updated = { ...moved, category: targetCat };
+    const rest = items.filter((_, i) => i !== idx);
+    let lastTarget = -1;
+    rest.forEach((it, i) => { if ((it.category || "") === targetCat) lastTarget = i; });
+    const next = [...rest];
+    next.splice(lastTarget >= 0 ? lastTarget + 1 : next.length, 0, updated);
+    onChange(next);
+
+    // source 그룹은 비어도 유지 + target 이 새 그룹이면 순서에 추가
+    setGroupOrder((prev) => {
+      let out = prev;
+      if (!out.includes(sourceCat)) out = [...out, sourceCat];
+      if (!out.includes(targetCat)) out = [...out, targetCat];
+      return out;
+    });
+  };
+
+  // 항목 카테고리별 그룹화 (그룹 내 순서 = 배열 순서)
   const groups = new Map<string, { item: TechItem; idx: number }[]>();
   items.forEach((item, idx) => {
     const key = item.category || "";
-    if (!groups.has(key)) { groups.set(key, []); order.push(key); }
+    if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push({ item, idx });
+  });
+  // 표시 순서 = groupOrder(빈 그룹 포함) + 아직 순서에 없는 신규 카테고리(끝에 merge)
+  const order: string[] = [...groupOrder];
+  const orderSet = new Set(groupOrder);
+  items.forEach((item) => {
+    const key = item.category || "";
+    if (!orderSet.has(key)) { orderSet.add(key); order.push(key); }
   });
 
   const renderChip = (item: TechItem, idx: number) => (
@@ -2727,12 +2910,10 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
       sheetTitle={item.name || "Tech"}
       trigger={
         <Chip
+          showHandle
           leftIcon={
             <span className={styles.techIconTile}>
-              {techIconSrc(item.icon)
-                // eslint-disable-next-line @next/next/no-img-element
-                ? <img src={techIconSrc(item.icon)} alt="" />
-                : <span className={styles.techIconInitial}>{(item.name || "?").slice(0, 1).toUpperCase()}</span>}
+              <TechIcon icon={item.icon} name={item.name} styles={styles} />
             </span>
           }
           onRemove={() => remove(idx)}
@@ -2741,34 +2922,93 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
         </Chip>
       }
     >
-      <TechEditPanel item={item} onChange={(p) => patch(idx, p)} t={t} styles={styles} />
+      <TechEditPanel item={item} onChange={(p) => patch(idx, p)} currentCats={currentCats} t={t} styles={styles} />
     </Popover>
   );
 
   return (
-    <div className={styles.techGroups}>
-      {order.map((cat) => (
-        <div key={cat || "__none"} className={styles.techGroup}>
-          {cat && <span className={styles.techGroupLabel}>{cat}</span>}
-          <div className={styles.techChips}>
-            {groups.get(cat)!.map(({ item, idx }) => renderChip(item, idx))}
-          </div>
-        </div>
-      ))}
+    <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={(e: DragStartEvent) => setDragIdx(Number(String(e.active.id).replace("techchip:", "")))} onDragEnd={handleDragEnd} onDragCancel={() => setDragIdx(null)}>
+      <LayoutGroup>
+      <div className={styles.techGroups}>
+        {order.map((cat) => {
+          const chips = groups.get(cat) ?? [];
+          // 무카테고리("") 그룹은 비면 숨김(라벨도 없어 빈 박스가 어색). named 그룹은 비어도 유지.
+          if (cat === "" && chips.length === 0) return null;
+          return (
+            <DroppableTechGroup key={cat || "__none"} cat={cat} styles={styles}>
+              {cat && <span className={styles.techGroupLabel}>{cat}</span>}
+              <div className={styles.techChips}>
+                {chips.length === 0 && <span className={styles.techGroupEmpty}>{t("admin.settings.aboutTechStackEmptyGroup")}</span>}
+                {chips.map(({ item, idx }) => {
+                  // layoutId 는 항목별 안정 키여야 FLIP 이 동작(배열 index 는 이동 시 바뀜) → 이름 기준
+                  const layoutId = item.name ? `tech-${item.name}` : `tech-empty-${idx}`;
+                  return (
+                    <DraggableTechChip key={layoutId} idx={idx} layoutId={layoutId} styles={styles}>
+                      {renderChip(item, idx)}
+                    </DraggableTechChip>
+                  );
+                })}
+              </div>
+            </DroppableTechGroup>
+          );
+        })}
 
-      <div className={styles.techAddRow}>
-        <Popover
-          placement="bottom-start"
-          sheetTitle={t("admin.settings.aboutTechStackAdd")}
-          trigger={
-            <button type="button" className={styles.techAddChip}>
-              <Plus size={14} strokeWidth={2.5} /> {t("admin.settings.aboutTechStackAdd")}
-            </button>
-          }
-        >
-          <TechAddPanel existing={items} onAdd={add} t={t} styles={styles} />
-        </Popover>
+        <div className={styles.techAddRow}>
+          <Popover
+            placement="bottom-start"
+            sheetTitle={t("admin.settings.aboutTechStackAdd")}
+            trigger={
+              <Button variant="ghost" size="xs" icon={<Plus size={14} strokeWidth={2.5} />}>
+                {t("admin.settings.aboutTechStackAdd")}
+              </Button>
+            }
+          >
+            <TechAddPanel existing={items} onAdd={add} currentCats={currentCats} t={t} styles={styles} />
+          </Popover>
+        </div>
       </div>
+      </LayoutGroup>
+      <DragOverlay dropAnimation={null}>
+        {dragIdx != null && items[dragIdx] ? (
+          <span className={styles.techDragOverlay}>
+            <span className={styles.techIconTile}>
+              <TechIcon icon={items[dragIdx].icon} name={items[dragIdx].name} styles={styles} />
+            </span>
+            {items[dragIdx].name || "—"}
+          </span>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
+  );
+}
+
+/* drag 가능한 칩 wrapper — listeners 는 chip 전체에(activationConstraint distance 로 클릭 공존).
+   data-cursor="grab" 도 chip 전체 → 어디에 올려도 커스텀 커서가 "Drag" 로 표시.
+   layout/layoutId(framer-motion) → drop 으로 위치·그룹 바뀔 때 FLIP 애니메이션. */
+function DraggableTechChip({ idx, layoutId, children, styles }: { idx: number; layoutId: string; children: React.ReactNode; styles: Record<string, string> }) {
+  const { setNodeRef, listeners, attributes, isDragging } = useDraggable({ id: `techchip:${idx}` });
+  return (
+    <motion.div
+      ref={setNodeRef}
+      layout
+      layoutId={layoutId}
+      transition={{ type: "spring", stiffness: 550, damping: 38, mass: 0.7 }}
+      data-cursor="grab"
+      {...attributes}
+      {...listeners}
+      className={`${styles.techDragWrap} ${isDragging ? styles.techDragSource : ""}`}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* drop 가능한 그룹 — 위에 드래그하면 하이라이트, drop 시 해당 카테고리로 이동 */
+function DroppableTechGroup({ cat, children, styles }: { cat: string; children: React.ReactNode; styles: Record<string, string> }) {
+  const { setNodeRef, isOver } = useDroppable({ id: `techgroup:${cat}` });
+  return (
+    <div ref={setNodeRef} className={`${styles.techGroup} ${isOver ? styles.techGroupOver : ""}`}>
+      {children}
     </div>
   );
 }
@@ -2802,7 +3042,7 @@ function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
           const added = isAdded?.(p) ?? false;
           return (
             <button
-              key={p.slug}
+              key={p.name}
               type="button"
               className={`${styles.techPresetRow} ${added ? styles.techPresetRowAdded : ""}`}
               onClick={() => { if (!added) onPick(p); }}
@@ -2810,8 +3050,7 @@ function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
               title={added ? (t?.("admin.settings.aboutTechStackAdded") ?? "Added") : p.name}
             >
               <span className={styles.techIconTile}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={techIconSrc(p.slug)} alt="" />
+                <TechIcon icon={p.slug} name={p.name} styles={styles} />
               </span>
               <span className={styles.techPresetRowName}>{p.name}</span>
               {added
@@ -2897,9 +3136,10 @@ function TechIconEditor({ icon, onIconChange, t, styles, showSearch = true }: {
 }
 
 /* 추가 패널 — 프리셋 표 + 직접 입력(이름·카테고리·아이콘) */
-function TechAddPanel({ existing, onAdd, t, styles }: {
+function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
   existing: TechItem[];
   onAdd: (it: TechItem) => void;
+  currentCats: string[];
   t: (key: string) => string;
   styles: Record<string, string>;
 }) {
@@ -2930,7 +3170,7 @@ function TechAddPanel({ existing, onAdd, t, styles }: {
         <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackCustomTitle")}</p>
         <Input value={draft.name} onChange={(v) => setDraft((d) => ({ ...d, name: v }))} placeholder={t("admin.settings.aboutTechStackName")} size="sm" />
         {isDup && <p className={styles.techAddDupHint}>{t("admin.settings.aboutTechStackDupHint")}</p>}
-        <Input value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} placeholder={t("admin.settings.aboutTechStackCategory")} size="sm" />
+        <CategoryInput value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} currentCats={currentCats} t={t} />
         <TechIconEditor icon={draft.icon ?? ""} onIconChange={(icon) => setDraft((d) => ({ ...d, icon }))} t={t} styles={styles} showSearch={false} />
         <Button variant="primary" size="xs" fullWidth disabled={!canAdd} onClick={submitCustom} icon={<Plus size={14} strokeWidth={2.5} />}>
           {t("admin.settings.aboutTechStackAdd")}
@@ -2941,16 +3181,17 @@ function TechAddPanel({ existing, onAdd, t, styles }: {
 }
 
 /* 편집 패널 — 이름/카테고리 + 아이콘 */
-function TechEditPanel({ item, onChange, t, styles }: {
+function TechEditPanel({ item, onChange, currentCats, t, styles }: {
   item: TechItem;
   onChange: (p: Partial<TechItem>) => void;
+  currentCats: string[];
   t: (key: string) => string;
   styles: Record<string, string>;
 }) {
   return (
     <div className={styles.techPanel}>
       <Input value={item.name} onChange={(v) => onChange({ name: v })} placeholder={t("admin.settings.aboutTechStackName")} size="sm" />
-      <Input value={item.category} onChange={(v) => onChange({ category: v })} placeholder={t("admin.settings.aboutTechStackCategory")} size="sm" />
+      <CategoryInput value={item.category} onChange={(v) => onChange({ category: v })} currentCats={currentCats} t={t} />
       <hr className={styles.techDivider} />
       <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackIcon")}</p>
       <TechIconEditor icon={item.icon ?? ""} onIconChange={(icon) => onChange({ icon })} t={t} styles={styles} />

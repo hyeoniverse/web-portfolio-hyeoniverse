@@ -1144,7 +1144,8 @@ a.statCard:hover .statValue {
 .todayLine {
   position: absolute;
   width: 0;
-  border-left: 1px dashed var(--color-accent-alpha-30);
+  border-left: var(--border-accent);
+  border-left-style: dashed;
   pointer-events: none;
 }
 

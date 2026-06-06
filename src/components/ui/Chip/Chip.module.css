@@ -45,11 +45,21 @@
 .dropBefore::before { left: -5px; }
 .dropAfter::after { right: -5px; }
 
-/* grip 핸들 (showHandle=true) — 좌측 */
+/* grip 핸들 (showHandle=true) — 좌측. 래퍼가 drag 인디케이터(grab/grabbing) + handleProps spread 담당 */
+.gripHandle {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: grab;
+  touch-action: none; /* pointer drag — 스크롤 간섭 방지 */
+}
+.gripHandle:active {
+  cursor: grabbing;
+}
+
 .grip {
   flex-shrink: 0;
   color: var(--text-muted);
-  cursor: move;
 }
 
 .chip:hover .grip {

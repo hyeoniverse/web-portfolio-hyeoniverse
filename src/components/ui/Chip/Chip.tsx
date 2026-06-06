@@ -36,6 +36,8 @@ interface ChipProps {
     HTMLAttributes<HTMLElement>,
     "onDragStart" | "onDragOver" | "onDrop" | "onDragEnd" | "onDragLeave"
   > & { draggable?: boolean };
+  /** 핸들(grip)에 직접 spread 할 props — 핸들 기반 drag (dnd-kit listeners/attributes 등). showHandle 과 함께 사용 */
+  handleProps?: HTMLAttributes<HTMLElement>;
 }
 
 /**
@@ -58,6 +60,7 @@ export default function Chip({
   dropSide,
   className,
   dragHandlers,
+  handleProps,
 }: ChipProps) {
   const rootCls = [
     styles.chip,
@@ -107,7 +110,9 @@ export default function Chip({
   return (
     <span className={rootCls} {...dragHandlers}>
       {showHandle && (
-        <GripVertical className={styles.grip} size={10} strokeWidth={2.5} aria-hidden />
+        <span className={styles.gripHandle} {...handleProps}>
+          <GripVertical className={styles.grip} size={10} strokeWidth={2.5} aria-hidden />
+        </span>
       )}
       {renderLabelBlock()}
       {onRemove && (

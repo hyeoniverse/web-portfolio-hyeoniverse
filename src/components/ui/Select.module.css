@@ -116,9 +116,31 @@
   transform: translateY(-50%) rotate(90deg);
 }
 
-/* combobox input — 오른쪽 padding 늘려서 chevron 자리 확보 */
+/* combobox input — 오른쪽 padding 늘려서 지우개 + chevron 자리 확보 (긴 텍스트가 겹치지 않게) */
 .triggerCombobox {
-  padding-right: calc(var(--spacing-md) + 12px + var(--spacing-2xs));
+  padding-right: calc(var(--spacing-sm) + 38px);
+}
+/* 지우개 — chevron 왼쪽 */
+.comboClear {
+  position: absolute;
+  right: calc(var(--spacing-sm) + 18px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.comboClear:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 .dropdown {
@@ -162,6 +184,49 @@
   opacity: 0;
   transform: scaleY(0.9) translateY(-4px);
   pointer-events: none;
+}
+
+/* ── 말풍선 variant — trigger 오른쪽에 solid 말풍선 + 왼쪽 꼬리 ── */
+.bubble {
+  /* glass → solid (꼬리가 같은 색으로 이어지도록) */
+  background: var(--bg-primary);
+  backdrop-filter: none;
+  /* 꼬리가 보이도록 overflow visible — 스크롤은 내부 .bubbleScroll 이 담당 */
+  overflow: visible;
+  max-height: none;
+  transform-origin: left center;
+}
+.bubble.dropdownClose {
+  transform: scale(0.96) translateX(-4px);
+}
+.bubble.dropdownOpen {
+  transform: scale(1) translateX(0);
+}
+/* 내부 스크롤 영역 — 옵션 layout + max-height */
+.bubbleScroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* 꼬리 — 왼쪽(trigger)을 가리키는 삼각형.
+   둥근 모서리(radius-2xl) 아래 직선 테두리에 붙도록 충분히 아래(top 24)에 둠
+   → body 위쪽이 길어지고 위쪽 끊김 없이 연결. */
+.bubbleRight::before {
+  content: "";
+  position: absolute;
+  top: var(--bubble-tail-top, 24px);
+  left: -6px;
+  width: 11px;
+  height: 11px;
+  background: var(--bg-primary);
+  border-left: var(--border-light);
+  border-bottom: var(--border-light);
+  transform: rotate(45deg);
+  /* body 테두리는 덮되(seam 가림) 옵션은 가리지 않도록 content 아래로 */
+  z-index: -1;
 }
 
 .option {

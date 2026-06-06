@@ -711,6 +711,7 @@
       "aboutTechStackIconHint": "클릭해서 아이콘 업로드 / 교체",
       "aboutTechStackAdded": "이미 추가됨",
       "aboutTechStackDupHint": "이미 추가된 이름입니다",
+      "aboutTechStackEmptyGroup": "여기로 드래그",
       "aboutOverview": "Overview 패널",
       "aboutOverviewHint": "프로젝트 소개 문장, highlights 칩, stats 카드를 편집합니다.",
       "aboutOverviewDesc": "설명",
