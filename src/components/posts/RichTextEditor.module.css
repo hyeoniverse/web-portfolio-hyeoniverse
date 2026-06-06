@@ -1986,6 +1986,9 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  /* 텍스트 첫 줄 중앙에 핸들 맞춤 — line-height leading 보정.
+     ((font-size * line-height) - handle 22px) / 2 ≈ 첫 줄 center */
+  padding-top: calc((var(--font-size-sm) * var(--line-height-relaxed) - 22px) / 2);
   opacity: 0;
   user-select: none;
 }
