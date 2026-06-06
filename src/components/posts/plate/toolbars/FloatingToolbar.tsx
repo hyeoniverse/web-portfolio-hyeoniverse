@@ -4,12 +4,13 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import {
   useEditorId,
-  useEventEditorValue,
   useEditorRef,
+  useEditorSelection,
+  useEventEditorValue,
   useMarkToolbarButton,
   useMarkToolbarButtonState,
 } from "platejs/react";
-import { useFloatingToolbar, useFloatingToolbarState, offset, flip } from "@platejs/floating";
+import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
 import { toggleList } from "@platejs/list";
 import { useLanguage } from "@/providers/LanguageProvider";
 import TBtn from "../TBtn";
@@ -59,33 +60,60 @@ function ListButton({ listStyleType, tooltip, children }: { listStyleType: strin
   );
 }
 
+/** 현재 DOM 선택(또는 collapsed 커서)의 화면 사각형 — caret 위치 추적용 */
+function getSelectionRect(): DOMRect {
+  if (typeof window === "undefined") return new DOMRect();
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0) {
+    const range = sel.getRangeAt(0);
+    const r = range.getBoundingClientRect();
+    if (r && (r.width || r.height)) return r;
+    // collapsed/빈 줄: range rects → anchor element 순으로 폴백
+    const rects = range.getClientRects();
+    if (rects.length) return rects[0] as DOMRect;
+    const node = range.startContainer;
+    const el = node.nodeType === 3 ? node.parentElement : (node as Element);
+    if (el) return el.getBoundingClientRect();
+  }
+  return new DOMRect();
+}
+
 /**
- * 선택 영역 위에 뜨는 floating 포맷팅 툴바 — 공식 @platejs/floating 패턴.
- * 표시/위치/외부클릭은 useFloatingToolbar 가 선택 상태로부터 계산.
+ * 선택 영역/커서 위에 뜨는 floating 포맷팅 툴바 — @platejs/floating useVirtualFloating.
+ * 공식 useFloatingToolbar 는 expanded 선택만 표시하므로, collapsed 커서(클릭만)에도
+ * 뜨도록 virtual element 로 caret 위치를 직접 추적한다.
  * hideToolbar: 링크/임베드 입력 툴바가 열려 있을 때 겹침 방지용.
  */
 export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean }) {
   const { t } = useLanguage();
   const editorId = useEditorId();
   const focusedEditorId = useEventEditorValue("focus");
-  const state = useFloatingToolbarState({
-    editorId,
-    focusedEditorId,
-    hideToolbar,
-    floatingOptions: {
-      // fixed: overflow/positioned 조상에 clipping 안 되도록 viewport 기준 배치
-      strategy: "fixed",
-      placement: "top",
-      middleware: [offset(12), flip({ padding: 12 })],
-    },
-  });
-  const { clickOutsideRef, hidden, props, ref } = useFloatingToolbar(state);
+  const selection = useEditorSelection();
 
-  if (hidden) return null;
+  const focused = editorId === focusedEditorId;
+  const open = focused && selection != null && !hideToolbar;
+
+  const { refs, style, update } = useVirtualFloating({
+    open,
+    getBoundingClientRect: getSelectionRect,
+    // fixed: overflow/positioned 조상에 clipping 안 되도록 viewport 기준 배치
+    strategy: "fixed",
+    placement: "top",
+    middleware: [offset(12), flip({ padding: 12 }), shift({ padding: 12 })],
+  });
+
+  // 선택/커서 이동 시 caret rect 재계산 → 재배치
+  React.useEffect(() => {
+    if (open) update?.();
+  }, [open, selection, update]);
+
+  if (!open) return null;
 
   const toolbar = (
-    <div ref={clickOutsideRef}>
-      <div ref={ref} className={styles.floatingToolbar} style={props.style}>
+    <div>
+      {/* refs 는 floating-ui 의 ref 객체(React ref 아님) — setFloating 은 callback ref */}
+      {/* eslint-disable-next-line react-hooks/refs */}
+      <div ref={refs.setFloating} className={styles.floatingToolbar} style={style}>
         {/* turn-into */}
         <BlockButton type="h1" tooltip={t("editor.heading1")}>H1</BlockButton>
         <BlockButton type="h2" tooltip={t("editor.heading2")}>H2</BlockButton>
