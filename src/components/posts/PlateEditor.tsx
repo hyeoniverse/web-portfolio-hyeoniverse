@@ -35,6 +35,7 @@ import TableToolbar from "./plate/toolbars/TableToolbar";
 import ImageToolbar from "./plate/toolbars/ImageToolbar";
 import MathToolbar from "./plate/toolbars/MathToolbar";
 import InlineInputToolbar from "./plate/toolbars/InlineInputToolbar";
+import FloatingToolbar from "./plate/toolbars/FloatingToolbar";
 import TBtn from "./plate/TBtn";
 import { TblTrash } from "./plate/icons";
 import { RxReset } from "react-icons/rx";
@@ -2410,6 +2411,9 @@ export default function PlateEditor({
           )}
 
         </div>
+
+        {/* 선택 영역 floating 포맷팅 툴바 (링크/임베드 입력 중엔 숨김) */}
+        <FloatingToolbar hideToolbar={showLinkInput || showEmbedInput} />
 
         {/* ── Status bar ── */}
         <div className={styles.statusBar}>

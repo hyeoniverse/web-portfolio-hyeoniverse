@@ -117,6 +117,21 @@
   z-index: var(--z-dropdown);
 }
 
+/* 선택 영역 위에 뜨는 floating 포맷팅 툴바 — 위치(top/left/position)는
+   useFloatingToolbar(props.style) 가 inline 으로 지정, 여기선 시각 스타일만. */
+.floatingToolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(8px);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  box-shadow: 0 8px 24px oklch(0% 0 0 / 0.18);
+  z-index: var(--z-dropdown);
+}
+
 .toolbarBtn {
   position: relative;
   display: inline-flex;
