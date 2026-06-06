@@ -1855,7 +1855,7 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
       /* 중복 비교 — 대소문자 + 공백 무시 (lib/dedupe) */
       const dup = findDuplicate(allTags, [newCanonical], (t) => [t]);
       if (dup) {
-        showToast(`"${dup}" 과 같은 태그입니다`, "error");
+        showToast(`"${dup}" 과 같은 태그입니다`, "warning");
         triggerShake();
         focusDuplicate(dup);
         return;

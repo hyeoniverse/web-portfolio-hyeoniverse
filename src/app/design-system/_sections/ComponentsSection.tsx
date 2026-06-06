@@ -579,13 +579,16 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Toast</div>
         <div className={styles.componentRow}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 3)}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}>
             <Tooltip content="variant: success"><Button variant="outline" onClick={() => showToast("Saved successfully", "success")}>Success</Button></Tooltip>
           </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 3)}>
-            <Tooltip content="variant: error"><Button variant="outline" onClick={() => showToast("Something went wrong", "error")}>Error</Button></Tooltip>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}>
+            <Tooltip content="variant: error (accent — 진짜 실패)"><Button variant="outline" onClick={() => showToast("Something went wrong", "error")}>Error</Button></Tooltip>
           </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(2, 3)}>
+          <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}>
+            <Tooltip content="variant: warning (amber — 검증·중복)"><Button variant="outline" onClick={() => showToast("Already exists", "warning")}>Warning</Button></Tooltip>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}>
             <Tooltip content="variant: info"><Button variant="outline" onClick={() => showToast("Just so you know", "info")}>Info</Button></Tooltip>
           </motion.div>
         </div>

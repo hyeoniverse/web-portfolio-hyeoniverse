@@ -55,7 +55,8 @@
 }
 
 .error {
-  color: var(--text-error);
+  /* error = accent (브랜드). 진짜 실패에만 사용 */
+  color: var(--text-accent);
 }
 
 .info {
@@ -63,5 +64,6 @@
 }
 
 .warning {
-  color: var(--text-accent);
+  /* warning = amber. 검증·중복 등 주의 알림 */
+  color: var(--text-warning);
 }

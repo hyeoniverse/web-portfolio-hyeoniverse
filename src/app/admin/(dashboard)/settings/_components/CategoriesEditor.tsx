@@ -372,7 +372,7 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
     if (isEdit) {
       const conflict = findDuplicate(categories, [ko, en], (c) => [c.ko, c.en], (c) => c.en === editingEn);
       if (conflict) {
-        showToast(`"${conflict.ko}/${conflict.en}" 와 중복되는 카테고리가 있습니다`, "error");
+        showToast(`"${conflict.ko}/${conflict.en}" 와 중복되는 카테고리가 있습니다`, "warning");
         triggerShake();
         focusDuplicate(conflict.en);
         return;
@@ -382,7 +382,7 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
     } else {
       const dup = findDuplicate(categories, [ko, en], (c) => [c.ko, c.en]);
       if (dup) {
-        showToast(`"${dup.ko}/${dup.en}" 카테고리가 이미 있습니다`, "error");
+        showToast(`"${dup.ko}/${dup.en}" 카테고리가 이미 있습니다`, "warning");
         triggerShake();
         focusDuplicate(dup.en);
         return;
