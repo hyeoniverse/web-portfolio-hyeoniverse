@@ -1,3 +1,58 @@
+/** HTML 엔티티 디코드 (annotation 안 LaTeX 복원용) */
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&");
+}
+const attrEsc = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const htmlEsc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/** `<span class="CLS" ...> ... </span>` 를 중첩(span depth) 고려해 balanced 매칭 후 replacer 로 치환.
+ *  katex 출력처럼 span 이 깊게 중첩된 구조를 regex 대신 안전하게 처리. */
+function replaceBalancedSpan(html: string, cls: string, replacer: (inner: string) => string): string {
+  const marker = `<span class="${cls}"`;
+  let out = "";
+  let idx = 0;
+  for (;;) {
+    const start = html.indexOf(marker, idx);
+    if (start === -1) { out += html.slice(idx); break; }
+    const openEnd = html.indexOf(">", start);
+    if (openEnd === -1) { out += html.slice(idx); break; }
+    let depth = 1;
+    let p = openEnd + 1;
+    while (depth > 0 && p < html.length) {
+      const nextOpen = html.indexOf("<span", p);
+      const nextClose = html.indexOf("</span>", p);
+      if (nextClose === -1) { p = html.length; break; }
+      if (nextOpen !== -1 && nextOpen < nextClose) { depth++; p = nextOpen + 5; }
+      else { depth--; p = nextClose + 7; }
+    }
+    const inner = html.slice(openEnd + 1, p - 7);
+    out += html.slice(idx, start) + replacer(inner);
+    idx = p;
+  }
+  return out;
+}
+
+/** katex 출력(span.katex-display / span.katex) → Plate math 노드(data-math-block / data-math-inline) */
+function katexToPlateMath(html: string): string {
+  const latexOf = (inner: string) => {
+    const m = inner.match(/<annotation[^>]*>([\s\S]*?)<\/annotation>/);
+    return m ? decodeEntities(m[1]).trim() : "";
+  };
+  // 블록 먼저(중첩된 inner .katex 까지 통째로 소비) → 그 다음 남은 inline
+  html = replaceBalancedSpan(html, "katex-display", (inner) => {
+    const tex = latexOf(inner);
+    return `<div data-math-block="true" data-latex="${attrEsc(tex)}">${htmlEsc(tex)}</div>`;
+  });
+  html = replaceBalancedSpan(html, "katex", (inner) => {
+    const tex = latexOf(inner);
+    return `<span data-math-inline="true" data-latex="${attrEsc(tex)}">${htmlEsc(tex)}</span>`;
+  });
+  return html;
+}
+
 /** marked HTML → Plate 호환 후처리 */
 export function postProcessMarkedHtml(html: string): string {
   // 각주 참조
@@ -29,24 +84,9 @@ export function postProcessMarkedHtml(html: string): string {
       return `<div data-callout data-callout-bg="var(--bg-tertiary)" data-callout-icon="${iconMap[type] || "💡"}">${body}</div>`;
     }
   );
-  // 인라인 수식
-  html = html.replace(
-    /<span class="katex">([\s\S]*?)<\/span>(?=(?:(?!<span class="katex">).)*?(?:<\/p>|$))/g,
-    (full) => {
-      const ann = full.match(/<annotation encoding="application\/x-tex">([\s\S]*?)<\/annotation>/);
-      if (!ann) return full;
-      return `<span data-math-inline="true" data-latex="${ann[1]}">${ann[1]}</span>`;
-    }
-  );
-  // 블록 수식
-  html = html.replace(
-    /<span class="katex-display">([\s\S]*?)<\/span>\s*(?=\n|$)/g,
-    (full) => {
-      const ann = full.match(/<annotation encoding="application\/x-tex">([\s\S]*?)<\/annotation>/);
-      if (!ann) return full;
-      return `<div data-math-block="true" data-latex="${ann[1]}">${ann[1]}</div>`;
-    }
-  );
+  // 수식: katex 출력(span.katex-display / span.katex) → data-math-block / data-math-inline.
+  //  블록을 먼저 balanced 매칭으로 통째로 치환(인라인 regex 가 블록 안 .katex 를 오인 변환하던 버그 수정).
+  html = katexToPlateMath(html);
   // 열블록 마커 + 표 → column HTML 복원
   html = html.replace(
     /<!-- columns ([^>]*?) -->\s*<table>([\s\S]*?)<\/table>/g,
