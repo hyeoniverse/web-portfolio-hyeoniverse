@@ -694,6 +694,16 @@ export default function PostEditor({ post }: PostEditorProps) {
               return `\n[🔊 ${title}](${url})\n`;
             },
           });
+          // 미디어 임베드(YouTube/Vimeo iframe): turndown 기본이 <iframe> 을 통째로 드롭해
+          // 변환 시 사라지던 문제 → 원본 URL 링크로 보존. data-original-url 우선.
+          td.addRule("mediaEmbed", {
+            filter: (node) => node.nodeName === "IFRAME",
+            replacement: (_content, node) => {
+              const el = node as HTMLElement;
+              const url = el.getAttribute("data-original-url") || el.getAttribute("src") || "";
+              return url ? `\n[📺 ${url}](${url})\n` : "";
+            },
+          });
 
           return td.turndown(content);
         }

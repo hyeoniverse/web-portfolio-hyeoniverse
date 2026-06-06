@@ -118,5 +118,12 @@ export function postProcessMarkedHtml(html: string): string {
   };
   html = html.replace(/<ul>([\s\S]*?)<\/ul>/g, (_, inner) => convertList(inner, "disc"));
   html = html.replace(/<ol>([\s\S]*?)<\/ol>/g, (_, inner) => convertList(inner, "decimal"));
+  // 📺 미디어 임베드 마커 링크(richtext→md 시 생성) → media_embed iframe 복원 (round-trip).
+  // 단독 문단 `[📺 url](url)` 만 대상 (일반 링크 오변환 방지).
+  html = html.replace(
+    /<p><a href="([^"]+)"[^>]*>\s*📺[^<]*<\/a><\/p>/g,
+    (_m, url) =>
+      `<div style="display:flex;justify-content:center"><iframe src="${url}" data-original-url="${url}" style="width:100%;aspect-ratio:16/9" frameborder="0" loading="lazy" allowfullscreen></iframe></div>`
+  );
   return html;
 }
