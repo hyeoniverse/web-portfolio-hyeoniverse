@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.16.0...v1.16.1) (2026-06-06)
+
+
+### Bug Fixes
+
+* **supabase:** setup.sql 에 posts 스토리지 버킷 + 정책 추가 ([#246](https://github.com/hyeoniverse/web-portfolio-oval/issues/246)) ([06d640d](https://github.com/hyeoniverse/web-portfolio-oval/commit/06d640d84563420a28e3096c59f3d2908be9d7fb))
+
 ## [1.16.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.15.0...v1.16.0) (2026-06-05)
 
 
