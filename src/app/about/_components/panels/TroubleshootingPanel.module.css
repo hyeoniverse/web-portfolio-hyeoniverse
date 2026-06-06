@@ -936,7 +936,8 @@
 .ideDivider::after {
   content: "";
   flex: 1;
-  border-top: 1px dashed var(--border-default);
+  border-top: var(--border-default);
+  border-top-style: dashed;
   opacity: 0.5;
 }
 

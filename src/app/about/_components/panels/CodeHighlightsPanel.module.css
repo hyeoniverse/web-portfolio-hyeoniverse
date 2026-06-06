@@ -504,7 +504,8 @@
   align-items: center;
   justify-content: center;
   margin-top: 0.4rem;
-  border: 1px dashed var(--color-accent-alpha-30);
+  border: var(--border-accent);
+  border-style: dashed;
   height: 1.5rem;
   font-size: clamp(0.5rem, 0.55vw, 0.7rem);
   color: var(--text-tertiary);
