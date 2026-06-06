@@ -31,7 +31,9 @@ export const BlockDraggable = (props: RenderNodeWrapperProps): RenderNodeWrapper
 
 function DraggableBlock({ element, children }: { element: TElement; children: React.ReactNode }) {
   const { isDragging, nodeRef, handleRef } = useDraggable({ element });
-  const { dropLine } = useDropLine({ id: (element as { id?: string }).id, orientation: "horizontal" });
+  // 공식 BlockDraggable 과 동일하게 인자 없이 호출 — 현재 drop target 위치(top/bottom)를 컨텍스트로 받음.
+  // (id/orientation 을 넘기면 매칭이 어긋나 dropLine 이 안 잡혀 indicator 가 안 보였음)
+  const { dropLine } = useDropLine();
 
   return (
     <div ref={nodeRef} className={styles.blockDraggable} style={isDragging ? { opacity: 0.5 } : undefined}>
@@ -47,10 +49,10 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
         </button>
       </div>
       {children}
-      {(dropLine === "top" || dropLine === "bottom") && (
+      {dropLine && (
         <div
           contentEditable={false}
-          className={`${styles.blockDropLine} ${dropLine === "top" ? styles.blockDropLineTop : styles.blockDropLineBottom}`}
+          className={`${styles.blockDropLine} ${dropLine === "bottom" ? styles.blockDropLineBottom : styles.blockDropLineTop}`}
         />
       )}
     </div>
