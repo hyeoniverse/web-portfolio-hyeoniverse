@@ -1086,7 +1086,7 @@ CREATE POLICY "Users manage own cover history"
 
 
 -- ────────────────────────────────────────────────────────────
--- Storage: uploads 버킷
+-- Storage: uploads + posts 버킷
 --   폴더: logos/, resume/, bgm/, covers/, images/, posts/, ...
 --   Admin API(service_role)로 업로드, 공개 읽기
 -- ────────────────────────────────────────────────────────────
@@ -1157,11 +1157,16 @@ END $$;
 
 
 -- 버킷 자동 생성
+--   - uploads : admin/upload 라우트 (일반 첨부)
+--   - posts   : upload / cover(ai-generate · unsplash download) 라우트가 사용하는
+--               게시물·커버 이미지 버킷. 둘 다 public(getPublicUrl)
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('uploads', 'uploads', true)
+VALUES
+  ('uploads', 'uploads', true),
+  ('posts',   'posts',   true)
 ON CONFLICT (id) DO NOTHING;
 
--- 인증된 사용자만 업로드
+-- 인증된 사용자만 업로드 / 누구나 조회 — uploads + posts 두 버킷 모두
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -1178,6 +1183,22 @@ BEGIN
     CREATE POLICY "Anyone can view uploads"
       ON storage.objects FOR SELECT
       USING (bucket_id = 'uploads');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Authenticated users can upload to posts'
+  ) THEN
+    CREATE POLICY "Authenticated users can upload to posts"
+      ON storage.objects FOR INSERT
+      WITH CHECK (bucket_id = 'posts' AND auth.role() = 'authenticated');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Anyone can view posts'
+  ) THEN
+    CREATE POLICY "Anyone can view posts"
+      ON storage.objects FOR SELECT
+      USING (bucket_id = 'posts');
   END IF;
 END $$;
 
@@ -1227,7 +1248,8 @@ END $$;
 --   purge-trash-scheduled   (0 18 * * *)          : 매일 UTC 18:00 (KST 03:00) purge_trash_scheduled() 호출
 --
 -- Storage:
---   uploads (public)                              : logos/, resume/, bgm/, covers/, images/, posts/ ...
+--   uploads (public)                              : admin/upload — logos/, resume/, bgm/, covers/, images/ ...
+--   posts   (public)                              : upload · cover(ai-generate · unsplash download) — 게시물/커버 이미지
 -- ============================================================
 
 
