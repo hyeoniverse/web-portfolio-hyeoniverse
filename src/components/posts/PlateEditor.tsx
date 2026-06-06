@@ -20,7 +20,7 @@ import type { PlateEditorProps } from "./plate/types";
 export type { EditorImageInfo, PlateEditorHandle } from "./plate/types";
 import { isInAncestor, getEditorText, _mathEditingSet, _imageUploadFn, findTextMatches } from "./plate/utils";
 import { CHECKER_BG, COLUMN_BG_PRESETS, CALLOUT_BG_PRESETS } from "./plate/presets";
-import { plugins } from "./plate/plugins";
+import { EditorKit } from "./plate/editor-kit";
 
 // ── hooks ──
 import {
@@ -218,7 +218,7 @@ export default function PlateEditor({
   _mathEditingSet.current = setMathEditing;
 
   const editor = usePlateEditor({
-    plugins,
+    plugins: EditorKit,
     value: value || "<p></p>",
   });
 
