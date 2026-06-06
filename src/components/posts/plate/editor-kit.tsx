@@ -19,8 +19,10 @@ import { ToggleKit } from "./plugins/toggle-kit";
 import { CalloutKit } from "./plugins/callout-kit";
 import { FootnoteKit } from "./plugins/footnote-kit";
 import { FontKit } from "./plugins/font-kit";
+import { DndKit } from "./plugins/dnd-kit";
 
 export const EditorKit = [
+  ...DndKit,          // NodeId + block drag&drop (공식 @platejs/dnd) — id 먼저 부여
   ...BasicBlocksKit,  // paragraph, heading, blockquote, hr
   ...BasicMarksKit,   // bold, italic, ... code, kbd
   ...ColumnKit,

@@ -1972,6 +1972,64 @@
   pointer-events: none;
 }
 
+/* ── 공식 @platejs/dnd 블록 드래그 (BlockDraggable aboveNodes) ── */
+.blockDraggable {
+  position: relative;
+}
+/* 좌측 gutter — hover 시 핸들 노출 */
+.blockDragGutter {
+  position: absolute;
+  top: 0;
+  left: -26px;
+  width: 24px;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  opacity: 0;
+  user-select: none;
+}
+.blockDraggable:hover > .blockDragGutter {
+  opacity: 1;
+}
+.blockDragHandleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: grab;
+}
+.blockDragHandleBtn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.blockDragHandleBtn:active {
+  cursor: grabbing;
+}
+/* drop line — 블록 위/아래 삽입 위치 표시 */
+.blockDropLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--bg-accent-solid);
+  border-radius: var(--spacing-4xs);
+  pointer-events: none;
+  z-index: 10;
+}
+.blockDropLineTop {
+  top: -1px;
+}
+.blockDropLineBottom {
+  bottom: -1px;
+}
+
 /* ── Embed / Link modal ── */
 /* Modal content (embed / link) — 공통 Modal 컴포넌트 안에 들어가는 content */
 .embedModalBody {

@@ -439,25 +439,10 @@ export function ImageElement(props: PlateElementProps) {
         <div
           contentEditable={false}
           style={{ display: imgLayout.startsWith("float-") ? "block" : "inline-block", maxWidth: "100%" }}
-          draggable={!draggingRef.current}
+          /* 블록 드래그는 공식 @platejs/dnd 가 담당 — 이미지 자체 네이티브 드래그는
+             react-dnd(HTML5Backend) 와 충돌하므로 비활성화 */
+          draggable={false}
           onClick={() => setClicked(true)}
-          onDragStart={(e) => {
-            if (draggingRef.current) { e.preventDefault(); return; }
-            e.dataTransfer.effectAllowed = "move";
-            e.dataTransfer.setData("text/plain", "block-dnd");
-            _blockDragPath.current = elPath;
-            if (imgRef.current) {
-              const img = imgRef.current;
-              const clone = img.cloneNode(true) as HTMLImageElement;
-              clone.style.cssText = `width:${img.offsetWidth}px;height:${img.offsetHeight}px;position:fixed;top:-9999px;left:-9999px;pointer-events:none;outline:none;filter:none;`;
-              document.body.appendChild(clone);
-              const rect = img.getBoundingClientRect();
-              e.dataTransfer.setDragImage(clone, e.clientX - rect.left, e.clientY - rect.top);
-              requestAnimationFrame(() => clone.remove());
-            }
-            setIsDragging(true);
-          }}
-          onDragEnd={() => { _blockDragPath.current = null; setIsDragging(false); }}
         >
           <div
             style={{ position: "relative" }}
