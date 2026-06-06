@@ -5,10 +5,12 @@ import { createPortal } from "react-dom";
 import {
   useEditorId,
   useEventEditorValue,
+  useEditorRef,
   useMarkToolbarButton,
   useMarkToolbarButtonState,
 } from "platejs/react";
 import { useFloatingToolbar, useFloatingToolbarState, offset, flip } from "@platejs/floating";
+import { toggleList } from "@platejs/list";
 import { useLanguage } from "@/providers/LanguageProvider";
 import TBtn from "../TBtn";
 import styles from "../../RichTextEditor.module.css";
@@ -24,6 +26,34 @@ function MarkButton({ nodeType, tooltip, children, style }: {
   const { props } = useMarkToolbarButton(state);
   return (
     <TBtn active={props.pressed} onClick={props.onClick} onMouseDown={props.onMouseDown} tooltip={tooltip} style={style}>
+      {children}
+    </TBtn>
+  );
+}
+
+/** 블록 타입 전환(turn-into) 버튼 — toggleBlock */
+function BlockButton({ type, tooltip, children }: { type: string; tooltip?: React.ReactNode; children: React.ReactNode }) {
+  const editor = useEditorRef();
+  return (
+    <TBtn
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => { editor.tf.toggleBlock(type); setTimeout(() => editor.tf.focus(), 0); }}
+      tooltip={tooltip}
+    >
+      {children}
+    </TBtn>
+  );
+}
+
+/** 리스트 전환 버튼 — toggleList */
+function ListButton({ listStyleType, tooltip, children }: { listStyleType: string; tooltip?: React.ReactNode; children: React.ReactNode }) {
+  const editor = useEditorRef();
+  return (
+    <TBtn
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => { toggleList(editor, { listStyleType }); setTimeout(() => editor.tf.focus(), 0); }}
+      tooltip={tooltip}
+    >
       {children}
     </TBtn>
   );
@@ -56,11 +86,21 @@ export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean
   const toolbar = (
     <div ref={clickOutsideRef}>
       <div ref={ref} className={styles.floatingToolbar} style={props.style}>
+        {/* turn-into */}
+        <BlockButton type="h1" tooltip={t("editor.heading1")}>H1</BlockButton>
+        <BlockButton type="h2" tooltip={t("editor.heading2")}>H2</BlockButton>
+        <BlockButton type="h3" tooltip={t("editor.heading3")}>H3</BlockButton>
+        <BlockButton type="blockquote" tooltip={t("editor.blockquote")}>&ldquo;</BlockButton>
+        <ListButton listStyleType="disc" tooltip={t("editor.bulletList")}>&bull;</ListButton>
+        <ListButton listStyleType="decimal" tooltip={t("editor.numberedList")}>1.</ListButton>
+        <span className={styles.divider} />
+        {/* marks */}
         <MarkButton nodeType="bold" tooltip={t("editor.bold")}>B</MarkButton>
         <MarkButton nodeType="italic" tooltip={t("editor.italic")} style={{ fontStyle: "italic" }}>I</MarkButton>
         <MarkButton nodeType="underline" tooltip={t("editor.underline")} style={{ textDecoration: "underline" }}>U</MarkButton>
         <MarkButton nodeType="strikethrough" tooltip={t("editor.strikethrough")} style={{ textDecoration: "line-through" }}>S</MarkButton>
         <MarkButton nodeType="code" tooltip={t("editor.inlineCode")}>{"<>"}</MarkButton>
+        <MarkButton nodeType="highlight" tooltip={t("editor.highlight")} style={{ background: "var(--color-warning-soft)", borderRadius: 3 }}>H</MarkButton>
       </div>
     </div>
   );
