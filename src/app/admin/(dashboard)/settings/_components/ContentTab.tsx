@@ -3168,7 +3168,7 @@ function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
       setShake(false);
       requestAnimationFrame(() => setShake(true));
       window.setTimeout(() => setShake(false), 450);
-      showToast(t("admin.settings.aboutTechStackDupToast"), "error");
+      showToast(t("admin.settings.aboutTechStackDupToast"), "warning");
       return;
     }
     onAdd({ name, category: draft.category.trim(), icon: draft.icon ?? "" });
@@ -3196,7 +3196,21 @@ function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
           size="sm"
           className={`${isDup ? styles.techNameDup : ""} ${shake ? styles.techNameShake : ""}`.trim() || undefined}
         />
-        {isDup && <p className={styles.techAddDupHint}>{t("admin.settings.aboutTechStackDupHint")}</p>}
+        <AnimatePresence initial={false}>
+          {isDup && (
+            <motion.p
+              key="dupHint"
+              className={styles.techAddDupHint}
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: "auto", marginTop: -8 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+              style={{ overflow: "hidden" }}
+            >
+              {t("admin.settings.aboutTechStackDupHint")}
+            </motion.p>
+          )}
+        </AnimatePresence>
         <CategoryInput value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} currentCats={currentCats} t={t} />
         <TechIconEditor icon={draft.icon ?? ""} onIconChange={(icon) => setDraft((d) => ({ ...d, icon }))} t={t} styles={styles} showSearch={false} />
         <Button variant="primary" size="xs" fullWidth disabled={!canAdd} onClick={submitCustom} icon={<Plus size={14} strokeWidth={2.5} />}>

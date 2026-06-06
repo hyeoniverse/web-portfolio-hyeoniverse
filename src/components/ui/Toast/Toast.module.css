@@ -20,7 +20,9 @@
   gap: var(--spacing-xs);
   padding: var(--box-md);
   border-radius: var(--radius-capsule);
-  backdrop-filter: blur(4px) saturate(160%);
+  /* 배경색 없이 backdrop blur 만 — glass. (배경 채움 금지) */
+  background: transparent;
+  backdrop-filter: blur(12px) saturate(180%);
   color: var(--text-primary);
   border: var(--border-light);
   font-family: var(--font-space-grotesk);
@@ -58,4 +60,8 @@
 
 .info {
   color: var(--text-info);
+}
+
+.warning {
+  color: var(--text-accent);
 }
