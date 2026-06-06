@@ -116,9 +116,31 @@
   transform: translateY(-50%) rotate(90deg);
 }
 
-/* combobox input — 오른쪽 padding 늘려서 chevron 자리 확보 */
+/* combobox input — 오른쪽 padding 늘려서 지우개 + chevron 자리 확보 (긴 텍스트가 겹치지 않게) */
 .triggerCombobox {
-  padding-right: calc(var(--spacing-md) + 12px + var(--spacing-2xs));
+  padding-right: calc(var(--spacing-sm) + 38px);
+}
+/* 지우개 — chevron 왼쪽 */
+.comboClear {
+  position: absolute;
+  right: calc(var(--spacing-sm) + 18px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.comboClear:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 .dropdown {
@@ -195,7 +217,7 @@
 .bubbleRight::before {
   content: "";
   position: absolute;
-  top: 24px;
+  top: var(--bubble-tail-top, 24px);
   left: -6px;
   width: 11px;
   height: 11px;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
 import { Upload, Plus, Check, X, Trash2, Filter, ChevronDown, Sliders } from "lucide-react";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
+import { DndContext, closestCenter, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { AnimatePresence, motion } from "framer-motion";
@@ -210,13 +210,17 @@ function TechIcon({ icon, name, styles }: { icon?: string; name: string; styles:
   return <span className={styles.techIconInitial}>{(name || "?").slice(0, 1).toUpperCase()}</span>;
 }
 
-/* 카테고리 입력 — 공통 Select combobox. 제안 = 기존 항목 카테고리 우선 + 프리셋 (대소문자 무시 dedupe) */
+/* 카테고리 입력 — 공통 Select combobox. 제안 = 기존 항목 카테고리 우선 + 프리셋 (대소문자 무시 dedupe).
+   타이핑은 로컬 버퍼만 두고 commit(onAdd)에서만 반영 — 키 입력마다 patch → re-group → 팝오버 닫힘 방지. */
 function CategoryInput({ value, onChange, currentCats, t }: {
   value: string;
   onChange: (v: string) => void;
   currentCats: string[];
   t: (key: string) => string;
 }) {
+  const [draft, setDraft] = useState(value);
+  useEffect(() => { setDraft(value); }, [value]);
+
   const seen = new Set<string>();
   const options: { value: string; label: string }[] = [];
   for (const c of [...currentCats, ...CATEGORY_PRESETS]) {
@@ -231,10 +235,10 @@ function CategoryInput({ value, onChange, currentCats, t }: {
       bubble
       size="sm"
       value={value}
-      inputValue={value}
-      onChange={onChange}
-      onInputChange={onChange}
-      onAdd={onChange}
+      inputValue={draft}
+      onInputChange={setDraft}
+      onChange={() => {}}
+      onAdd={(v) => onChange(v.trim())}
       options={options}
       placeholder={t("admin.settings.aboutTechStackCategory")}
     />
@@ -2875,6 +2879,7 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
       sheetTitle={item.name || "Tech"}
       trigger={
         <Chip
+          showHandle
           leftIcon={
             <span className={styles.techIconTile}>
               <TechIcon icon={item.icon} name={item.name} styles={styles} />
@@ -2891,7 +2896,7 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
   );
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={(e: DragStartEvent) => setDragIdx(Number(String(e.active.id).replace("techchip:", "")))} onDragEnd={handleDragEnd} onDragCancel={() => setDragIdx(null)}>
+    <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={(e: DragStartEvent) => setDragIdx(Number(String(e.active.id).replace("techchip:", "")))} onDragEnd={handleDragEnd} onDragCancel={() => setDragIdx(null)}>
       <div className={styles.techGroups}>
         {order.map((cat) => (
           <DroppableTechGroup key={cat || "__none"} cat={cat} styles={styles}>
