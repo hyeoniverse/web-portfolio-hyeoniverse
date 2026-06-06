@@ -3171,7 +3171,8 @@ function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
       showToast(t("admin.settings.aboutTechStackDupToast"), "warning");
       return;
     }
-    onAdd({ name, category: draft.category.trim(), icon: draft.icon ?? "" });
+    // 카테고리 비우면 "Etc" 자동 할당 — 항상 그룹에 속하게(무카테고리 방지)
+    onAdd({ name, category: draft.category.trim() || "Etc", icon: draft.icon ?? "" });
     setDraft({ name: "", category: "", icon: "" });
   };
 
@@ -3195,6 +3196,9 @@ function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
           placeholder={t("admin.settings.aboutTechStackName")}
           size="sm"
           className={`${isDup ? styles.techNameDup : ""} ${shake ? styles.techNameShake : ""}`.trim() || undefined}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.nativeEvent.isComposing) { e.preventDefault(); submitCustom(); }
+          }}
         />
         <AnimatePresence initial={false}>
           {isDup && (
