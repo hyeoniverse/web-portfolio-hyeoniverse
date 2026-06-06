@@ -5,7 +5,7 @@ import { Upload, Plus, Check, X, Trash2, Filter, ChevronDown, Sliders } from "lu
 import { DndContext, closestCenter, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import T from "@/components/ui/T";
@@ -2846,6 +2846,13 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
   const currentCats = Array.from(new Set(items.map((i) => i.category).filter(Boolean)));
 
   // ── 칩 drag&drop 으로 그룹(카테고리) 이동 ──
+  // 그룹(표시) 순서는 항목 위치가 아니라 별도 상태로 관리 — 그래야 (1) 첫 항목을 옮겨도
+  // 그룹 순서가 안 뒤집히고(switch 버그 방지) (2) 내용물이 비어도 그룹이 사라지지 않는다.
+  const [groupOrder, setGroupOrder] = useState<string[]>(() => {
+    const o: string[] = []; const seen = new Set<string>();
+    for (const it of items) { const k = it.category || ""; if (!seen.has(k)) { seen.add(k); o.push(k); } }
+    return o;
+  });
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -2858,18 +2865,42 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
     const idx = Number(String(active.id).replace("techchip:", ""));
     const targetCat = String(over.id).replace("techgroup:", "");
     if (Number.isNaN(idx) || !items[idx]) return;
-    if ((items[idx].category || "") !== targetCat) {
-      onChange(items.map((it, i) => (i === idx ? { ...it, category: targetCat } : it)));
-    }
+    const moved = items[idx];
+    const sourceCat = moved.category || "";
+    if (sourceCat === targetCat) return;
+
+    // moved 를 targetCat 그룹의 마지막 항목 뒤(=그룹 끝)에 삽입. 그룹 순서는 state 가 책임지므로
+    // 배열 순서는 그룹 내 정렬만 의미가 있다.
+    const updated = { ...moved, category: targetCat };
+    const rest = items.filter((_, i) => i !== idx);
+    let lastTarget = -1;
+    rest.forEach((it, i) => { if ((it.category || "") === targetCat) lastTarget = i; });
+    const next = [...rest];
+    next.splice(lastTarget >= 0 ? lastTarget + 1 : next.length, 0, updated);
+    onChange(next);
+
+    // source 그룹은 비어도 유지 + target 이 새 그룹이면 순서에 추가
+    setGroupOrder((prev) => {
+      let out = prev;
+      if (!out.includes(sourceCat)) out = [...out, sourceCat];
+      if (!out.includes(targetCat)) out = [...out, targetCat];
+      return out;
+    });
   };
 
-  // 카테고리별 그룹화 (등장 순서 보존). 무카테고리는 "" 그룹.
-  const order: string[] = [];
+  // 항목 카테고리별 그룹화 (그룹 내 순서 = 배열 순서)
   const groups = new Map<string, { item: TechItem; idx: number }[]>();
   items.forEach((item, idx) => {
     const key = item.category || "";
-    if (!groups.has(key)) { groups.set(key, []); order.push(key); }
+    if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push({ item, idx });
+  });
+  // 표시 순서 = groupOrder(빈 그룹 포함) + 아직 순서에 없는 신규 카테고리(끝에 merge)
+  const order: string[] = [...groupOrder];
+  const orderSet = new Set(groupOrder);
+  items.forEach((item) => {
+    const key = item.category || "";
+    if (!orderSet.has(key)) { orderSet.add(key); order.push(key); }
   });
 
   const renderChip = (item: TechItem, idx: number) => (
@@ -2897,19 +2928,30 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
 
   return (
     <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={(e: DragStartEvent) => setDragIdx(Number(String(e.active.id).replace("techchip:", "")))} onDragEnd={handleDragEnd} onDragCancel={() => setDragIdx(null)}>
+      <LayoutGroup>
       <div className={styles.techGroups}>
-        {order.map((cat) => (
-          <DroppableTechGroup key={cat || "__none"} cat={cat} styles={styles}>
-            {cat && <span className={styles.techGroupLabel}>{cat}</span>}
-            <div className={styles.techChips}>
-              {groups.get(cat)!.map(({ item, idx }) => (
-                <DraggableTechChip key={idx} idx={idx} styles={styles}>
-                  {renderChip(item, idx)}
-                </DraggableTechChip>
-              ))}
-            </div>
-          </DroppableTechGroup>
-        ))}
+        {order.map((cat) => {
+          const chips = groups.get(cat) ?? [];
+          // 무카테고리("") 그룹은 비면 숨김(라벨도 없어 빈 박스가 어색). named 그룹은 비어도 유지.
+          if (cat === "" && chips.length === 0) return null;
+          return (
+            <DroppableTechGroup key={cat || "__none"} cat={cat} styles={styles}>
+              {cat && <span className={styles.techGroupLabel}>{cat}</span>}
+              <div className={styles.techChips}>
+                {chips.length === 0 && <span className={styles.techGroupEmpty}>{t("admin.settings.aboutTechStackEmptyGroup")}</span>}
+                {chips.map(({ item, idx }) => {
+                  // layoutId 는 항목별 안정 키여야 FLIP 이 동작(배열 index 는 이동 시 바뀜) → 이름 기준
+                  const layoutId = item.name ? `tech-${item.name}` : `tech-empty-${idx}`;
+                  return (
+                    <DraggableTechChip key={layoutId} idx={idx} layoutId={layoutId} styles={styles}>
+                      {renderChip(item, idx)}
+                    </DraggableTechChip>
+                  );
+                })}
+              </div>
+            </DroppableTechGroup>
+          );
+        })}
 
         <div className={styles.techAddRow}>
           <Popover
@@ -2925,7 +2967,8 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
           </Popover>
         </div>
       </div>
-      <DragOverlay>
+      </LayoutGroup>
+      <DragOverlay dropAnimation={null}>
         {dragIdx != null && items[dragIdx] ? (
           <span className={styles.techDragOverlay}>
             <span className={styles.techIconTile}>
@@ -2939,13 +2982,24 @@ function AboutTechStackEditor({ items, onChange, t, styles }: {
   );
 }
 
-/* drag 가능한 칩 wrapper — listeners 는 wrapper 에. activationConstraint(distance) 로 클릭(Popover)과 공존 */
-function DraggableTechChip({ idx, children, styles }: { idx: number; children: React.ReactNode; styles: Record<string, string> }) {
+/* drag 가능한 칩 wrapper — listeners 는 chip 전체에(activationConstraint distance 로 클릭 공존).
+   data-cursor="grab" 도 chip 전체 → 어디에 올려도 커스텀 커서가 "Drag" 로 표시.
+   layout/layoutId(framer-motion) → drop 으로 위치·그룹 바뀔 때 FLIP 애니메이션. */
+function DraggableTechChip({ idx, layoutId, children, styles }: { idx: number; layoutId: string; children: React.ReactNode; styles: Record<string, string> }) {
   const { setNodeRef, listeners, attributes, isDragging } = useDraggable({ id: `techchip:${idx}` });
   return (
-    <div ref={setNodeRef} {...attributes} {...listeners} className={`${styles.techDragWrap} ${isDragging ? styles.techDragSource : ""}`}>
+    <motion.div
+      ref={setNodeRef}
+      layout
+      layoutId={layoutId}
+      transition={{ type: "spring", stiffness: 550, damping: 38, mass: 0.7 }}
+      data-cursor="grab"
+      {...attributes}
+      {...listeners}
+      className={`${styles.techDragWrap} ${isDragging ? styles.techDragSource : ""}`}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
