@@ -6,6 +6,7 @@ import {
   useSelected,
   useFocused,
 } from "platejs/react";
+import type { TLinkElement } from "platejs";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
 import { ReactEditor } from "slate-react";
@@ -1049,8 +1050,8 @@ export function MediaEmbedElement(props: PlateElementProps) {
 }
 
 /** 링크 — 밑줄 + hover 시 URL 툴팁 + 클릭 시 새창 */
-export function LinkElement(props: PlateElementProps) {
-  const url = ((props.element as Record<string, unknown>).url as string) || "";
+export function LinkElement(props: PlateElementProps<TLinkElement>) {
+  const url = props.element.url || "";
   return (
     <Tooltip content={url} delay={300} placement="top" wrapperStyle={{ display: "inline" }}>
       <PlateElement
@@ -1301,11 +1302,13 @@ export function AudioElement(props: PlateElementProps) {
 
 export function HrElement(props: PlateElementProps) {
   const editor = useEditorRef();
+  const selected = useSelected();
+  const focused = useFocused();
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   return (
     <BlockDropZone path={elPath}>
       <PlateElement {...props} style={{ ...props.style }}>
-        <hr contentEditable={false} style={{ border: "none", borderTop: "1px solid var(--border-light-color)", margin: "var(--spacing-md) 0" }} />
+        <hr contentEditable={false} style={{ border: "none", borderTop: "1px solid var(--border-light-color)", margin: "var(--spacing-md) 0", borderRadius: 1, outline: selected && focused ? "2px solid var(--color-accent)" : "none", outlineOffset: 4 }} />
         <BlockTailClickZone path={elPath} />
         {props.children}
       </PlateElement>
