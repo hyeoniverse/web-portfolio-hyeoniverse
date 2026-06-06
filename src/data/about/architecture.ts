@@ -8,11 +8,11 @@ import type {
 
 export const projectOverview = {
   description: {
-    ko: "Claude와 함께 만든 풀스택 포트폴리오. Next.js 15 App Router를 기반으로 GSAP·Framer Motion 애니메이션, Lenis 무한 스크롤, Supabase 블로그까지 직접 설계하고 구현했습니다.",
-    en: "A full-stack portfolio built alongside Claude. Designed and implemented from scratch — Next.js 15 App Router, GSAP & Framer Motion animations, Lenis infinite scroll, and a Supabase-powered blog.",
+    ko: "Claude와 함께 만든 풀스택 포트폴리오. Next.js 16 App Router를 기반으로 GSAP·Framer Motion 애니메이션, Lenis 무한 스크롤, Supabase 블로그까지 직접 설계하고 구현했습니다.",
+    en: "A full-stack portfolio built alongside Claude. Designed and implemented from scratch — Next.js 16 App Router, GSAP & Framer Motion animations, Lenis infinite scroll, and a Supabase-powered blog.",
   },
   highlights: [
-    "Next.js 15",
+    "Next.js 16",
     "GSAP ScrollTrigger",
     "Framer Motion",
     "Lenis Smooth Scroll",
@@ -170,16 +170,16 @@ export const projectStructure: StructureItem[] = [
   {
     path: "stores/",
     description: {
-      ko: "Zustand 상태 관리 — app, project, modal, contact, transition",
-      en: "Zustand state management — app, project, modal, contact, transition",
+      ko: "Zustand 상태 관리 — contact, modal, pageTransition, profileSection, sound, toast",
+      en: "Zustand state management — contact, modal, pageTransition, profileSection, sound, toast",
     },
     indent: 1,
   },
   {
     path: "providers/",
     description: {
-      ko: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig, SearchHighlight",
-      en: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig, SearchHighlight",
+      ko: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig, SearchHighlight, PageTransition",
+      en: "Context Providers — Theme, Language, Lenis, reCAPTCHA, SiteConfig, SearchHighlight, PageTransition",
     },
     indent: 1,
   },

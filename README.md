@@ -4,10 +4,10 @@
 
 # Arc — Where Growth Takes Shape
 
-개인 포트폴리오 웹사이트입니다. Next.js 15, React 19, TypeScript로 구축되었으며, GSAP, Framer Motion, Lenis를 활용한 인터랙티브 애니메이션이 특징입니다.
+개인 포트폴리오 웹사이트입니다. Next.js 16, React 19, TypeScript로 구축되었으며, GSAP, Framer Motion, Lenis를 활용한 인터랙티브 애니메이션이 특징입니다.
 
 [![License](https://img.shields.io/badge/license-PolyForm%20NC%201.0-d40063?style=flat-square)](./LICENSE)
-[![Next.js](https://img.shields.io/badge/Next.js-15-000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-16-000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
@@ -85,7 +85,7 @@
 
 | Category | Technology |
 |:---|:---|
-| Framework | ![Next.js](https://img.shields.io/badge/Next.js_15-000?style=flat-square&logo=nextdotjs&logoColor=white) (App Router, Turbopack) |
+| Framework | ![Next.js](https://img.shields.io/badge/Next.js_16-000?style=flat-square&logo=nextdotjs&logoColor=white) (App Router, Turbopack) |
 | Language | ![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?style=flat-square&logo=typescript&logoColor=white) |
 | UI | ![React](https://img.shields.io/badge/React_19-61dafb?style=flat-square&logo=react&logoColor=black) |
 | Styling | ![CSS Modules](https://img.shields.io/badge/CSS_Modules-1572b6?style=flat-square&logo=css3&logoColor=white) + CSS Variables |
@@ -262,7 +262,7 @@
 - **새 기기 인증**: UA 지문(SHA-256) 을 `admin_known_devices` 테이블과 비교 — 미등록 기기는 자동 signOut + 승인 토큰(24h TTL) 이메일 발송. 링크 클릭 시 기기 승인 → 로그인 페이지에서 비밀번호 재입력. 승인 응답 HTML 페이지는 `error.tsx` 패턴(원형 border 아이콘 + Instrument Serif 헤딩 + 캡슐 버튼 + 데코 ovals) 으로 리디자인, Accept-Language 헤더 ko/en 자동 감지
 - **이메일 템플릿 헬퍼**: `src/lib/mail/template.ts` — 새 기기 알림 + 보안 알림 메일이 공유하는 레이아웃(Space Grotesk + Instrument Serif Google Fonts, 캡슐 CTA, prefers-color-scheme dark/light)
 - **Settings 5탭**: General/Content/Appearance/Services/Account — 브랜드, SEO, 이중언어 편집
-- **Cover Image Picker 고도화**: 4탭 구조(프리셋 / Unsplash / AI 생성 / 이력) + 클라이언트 이미지 WebP 압축. **프리셋 = Adobe Color 스타일 그라데이션 에디터** — base color + 8 scheme(유사 / 단색 / 삼각형 / 보색 / 분할 보색 / 정사각형 / 혼합 / 음영) + linear/radial 토글 + 각도/크기/속도 슬라이더 + drag-to-reposition stop bar(2~4 stop, capsule bar + 핸들 아래 아이콘), **이미지 업로드 → 색 추출** 또는 **클립보드 색상표 붙여넣기**(`#rrggbb` / `#rgb` 둘 다 인식, 모달 prompt fallback)로 stop seed, **완전 랜덤 버튼**(pattern/크기/속도/색/개수/위치 모두 random) + presets[0] 자동 시드 — picker 첫 진입 시 현재 cover 이미지에서 palette 추출해 stops seed (사용자가 preset 클릭/수동 편집하면 seed 비활성). **이력 탭** 은 ai/unsplash/preset 통합, Supabase 영구 저장(cover_image_history 테이블, RLS) — 선택/삭제/키워드 복사/색상표 복사/다운로드 버튼이 좌상단에 cluster, active 체크는 우상단
+- **Cover Image Picker 고도화**: 5탭 구조(프리셋 / Unsplash / Pexels / AI 생성 / 이력) + 클라이언트 이미지 WebP 압축. **프리셋 = Adobe Color 스타일 그라데이션 에디터** — base color + 8 scheme(유사 / 단색 / 삼각형 / 보색 / 분할 보색 / 정사각형 / 혼합 / 음영) + linear/radial 토글 + 각도/크기/속도 슬라이더 + drag-to-reposition stop bar(2~4 stop, capsule bar + 핸들 아래 아이콘), **이미지 업로드 → 색 추출** 또는 **클립보드 색상표 붙여넣기**(`#rrggbb` / `#rgb` 둘 다 인식, 모달 prompt fallback)로 stop seed, **완전 랜덤 버튼**(pattern/크기/속도/색/개수/위치 모두 random) + presets[0] 자동 시드 — picker 첫 진입 시 현재 cover 이미지에서 palette 추출해 stops seed (사용자가 preset 클릭/수동 편집하면 seed 비활성). **이력 탭** 은 ai/unsplash/preset 통합, Supabase 영구 저장(cover_image_history 테이블, RLS) — 선택/삭제/키워드 복사/색상표 복사/다운로드 버튼이 좌상단에 cluster, active 체크는 우상단
 - **CoverImageField 공용 컴포넌트**: `src/components/admin/CoverImageField` — 라벨 + inline 액션(Upload / Choose / Remove) + 썸네일 + 추출 팔레트 swatch row. 깨진 이미지 placeholder fallback, 클릭으로 picker open. PostEditor / WorkEditor / SeriesEditor 가 동일 UI 공유
 - **ColorPicker 커스텀 구현**: `src/components/ui/ColorPicker` — native `<input type="color">` 의 OS 별 일관성 부재 해결. SV pad + hue slider + Hex/RGB 입력, render-prop trigger(부모가 swatch 모양 자유), createPortal popover(`overflow:hidden` 부모 escape). **wrapper span 이 0×0 으로 collapse 되는 케이스**(자식이 `position: absolute` 인 stop handle 등) 는 `firstElementChild.getBoundingClientRect()` fallback 으로 popover 위치 정확. PlateEditor / Settings / RichTextEditor / MainToolbar / TableToolbar 등 13곳 native input 일괄 교체
 - **SortOrderDragList 공용 컴포넌트**: `src/components/admin/SortOrderDragList` — 페이지네이션(5/페이지) + grip handle pointer 드래그 + 페이지 edge hover 시 즉시 reorder + 위치 input + 맨앞/맨뒤 jump. WorkEditor 정렬 + PostEditor 시리즈 순서 동일 UI 공유
@@ -272,7 +272,7 @@
 - **HEIC / TIFF 자동 변환**: 업로드 시점에 sharp로 HEIC/HEIF/TIFF → WebP(quality 85) 서버 변환, 브라우저 네이티브 미지원 포맷도 모든 브라우저에서 표시 가능
 - **문서 뷰어**: 파일 첨부 시 PDF(iframe) · 오피스(MS Viewer) · 텍스트(fetch+pre) 인라인 미리보기, 다운로드 원본 파일명 유지
 - **아이콘 일관화**: 모든 인라인 SVG를 `lucide-react`로 통일 (~200개 교체), 브랜드 마크(GitHub)는 `src/components/icons/` 커스텀 컴포넌트로 분리 — 트리 셰이킹 + 일관된 strokeWidth/size API
-- **About 페이지 패널 인라인 편집 (Hero / Features / Architecture)**: ① **Hero 패널** — `[Line 1] [Line 2 (accent)] [Subtitle] [Watermark]` 4개 텍스트마다 ⚙ 버튼으로 dropdown(데스크탑) / bottom sheet(모바일) 안에서 **줄별 독립** 컬러 / 폰트 크기 / 굵기 / 폰트 패밀리 편집. 배경은 CoverImagePicker 로 이미지 / 동영상 통합 선택 + 동영상 시 opacity 슬라이더 + accent overlay (color + 강도) 별도 컨트롤. 모든 변경 사항은 inline style CSS 변수 (`--_hero-line1-color` 등) 로 panel 에 주입 — `.heroSubtitle` 같은 컴포넌트 CSS 가 `var(--_hero-subtitle-color, fallback)` 으로 받아씀. ② **Features 패널** — 카드 hover 시 backdrop-filter blur 적용으로 텍스트 가독성 확보, admin 에서 각 카드 image 를 CoverImagePicker (Pexels 포함) 로 교체. ③ **Architecture 패널** — `architectureItems` (path · description ko/en · indent level) 를 admin compact row 에디터로 추가 / 수정 / 삭제 / 위 · 아래 reorder. config 우선 적용, 비어있으면 정적 `projectStructure` fallback
+- **About 페이지 패널 인라인 편집 (Hero / Features / Architecture / Tech Stack)**: ① **Hero 패널** — `[Line 1] [Line 2 (accent)] [Subtitle] [Watermark]` 4개 텍스트마다 ⚙ 버튼으로 dropdown(데스크탑) / bottom sheet(모바일) 안에서 **줄별 독립** 컬러 / 폰트 크기 / 굵기 / 폰트 패밀리 편집. 배경은 CoverImagePicker 로 이미지 / 동영상 통합 선택 + 동영상 시 opacity 슬라이더 + accent overlay (color + 강도) 별도 컨트롤. 모든 변경 사항은 inline style CSS 변수 (`--_hero-line1-color` 등) 로 panel 에 주입 — `.heroSubtitle` 같은 컴포넌트 CSS 가 `var(--_hero-subtitle-color, fallback)` 으로 받아씀. ② **Features 패널** — 카드 hover 시 backdrop-filter blur 적용으로 텍스트 가독성 확보, admin 에서 각 카드 image 를 CoverImagePicker (Pexels 포함) 로 교체. ③ **Architecture 패널** — `architectureItems` (path · description ko/en · indent level) 를 admin compact row 에디터로 추가 / 수정 / 삭제 / 위 · 아래 reorder. config 우선 적용, 비어있으면 정적 `projectStructure` fallback ④ **Tech Stack 패널** — 칩(chip) 형태 에디터: 100+ 프리셋(`src/data/techIcons.tsx`, SimpleIcons + FontAwesome) + 칩별 아이콘(검색/업로드/URL), **카테고리 combobox 자동완성**(기존 항목 제안 + `koSearch` 초성/한글 alias 검색), **그룹(카테고리) 간 chip drag&drop** — framer-motion `layout`/`layoutId` FLIP 애니메이션, 내용물 비어도 그룹 유지, 칩 전체에 `data-cursor="grab"`
 - **ColorPicker 모바일 bottom sheet + copy / paste / 잘못된 입력 흔들기**: 모바일 (`width ≤ 768px`) 에서 dropdown popover → Modal 의 sheet 패턴 (top radius / handle bar / max-height 85vh) 으로 자동 전환. backdrop-filter blur 10px + `pointer-events: none` 으로 trigger 클릭 통과 — outside-click effect 가 tap-to-close 처리. Lenis smooth scroll 환경이라 `useLenis().stop()` 까지 추가 안 그러면 메인 페이지 스크롤이 같이 움직임. 툴바에 Copy / Paste 버튼 — Copy 는 현재 format (HEX / RGB / HSL / HSV / OKLCH) 으로 클립보드 write, Paste 는 `parseAnyColorToOklch` 로 모든 5가지 포맷 + bare `r, g, b` 까지 자동 인식. HEX 형식 오류 / 붙여넣기 인식 실패 시 popover 좌우 0.4s 흔들기 + Toast `error`. picker input wrapper 폭 정렬 — `padding: var(--spacing-sm)` 균일 + min-width OKLCH 6자 기준 (`0.2249`) 으로 통일
 
 <p align="center">
@@ -296,7 +296,8 @@
 
 ### Design System
 
-- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown + combobox toggle), Pagination(smart ellipsis), DatePicker / PeriodPicker, CloseButton(X ↔ minus morph), ModalTemplates(Confirm/Alert/Prompt — 28px action 버튼), Banner (구 Carousel), BilingualInputPair(KO/EN 배지 in-input), TagNotesEditor(item drag-reorder + multiLine KO/EN notes), Gradient Tokens, 3-phase scroll 애니메이션
+- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown + combobox + **오른쪽 말풍선(bubble) variant**), 공통 **Chip**(capsule/bare · grip handle · leftIcon · count · drag), Pagination(smart ellipsis), DatePicker / PeriodPicker, CloseButton(X ↔ minus morph), ModalTemplates(Confirm/Alert/Prompt — 28px action 버튼), Banner (구 Carousel), BilingualInputPair(KO/EN 배지 in-input), TagNotesEditor(item drag-reorder + multiLine KO/EN notes), Gradient Tokens, 3-phase scroll 애니메이션
+- **한글 초성 검색 (`src/lib/koSearch.ts`)**: `getChosung()` + `matchesSearch()` — 부분 문자열 + 한글 초성("ㄹㅇㅌ" → 리액트) + 한글 alias 매칭. 태그/카테고리/Tech Stack 등 짧은 이름 필터에 사용(본문 검색은 `@/lib/searchQuery` 별도)
 - **OKLCH 색 토큰 전체 전환**: 모든 raw color token + module CSS 의 산발 hex/rgba 가 [culori](https://culori.js.org) 를 통해 `oklch(L% C H)` 로 일괄 변환됨. **`oklch(L C H / α)` alpha syntax**, hue 무관 균일한 지각 밝기. fallback 없이 `var(--color-*)` 만 참조 (component CSS hex 직접 사용 금지). 신규 색 추가 시 culori 의 동일 정밀도(5 dp L/C, 2 dp H) 유지
 
 <p align="center">
