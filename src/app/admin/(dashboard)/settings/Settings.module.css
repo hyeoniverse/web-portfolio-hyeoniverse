@@ -1070,7 +1070,8 @@
   align-items: center;
   justify-content: center;
   height: 52px;
-  border: 1px dashed var(--border-light-color);
+  border: var(--border-light);
+  border-style: dashed;
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-muted);
@@ -1180,7 +1181,8 @@
   justify-content: center;
   width: var(--button-h-md);
   height: 20px;
-  border: 1px dashed var(--border-light-color);
+  border: var(--border-light);
+  border-style: dashed;
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-tertiary);
@@ -3234,7 +3236,8 @@
 }
 
 .socialIconClickable {
-  border: 1px dashed var(--border-light-color);
+  border: var(--border-light);
+  border-style: dashed;
   border-radius: var(--radius-circle);
   transition: border-color 0.2s ease;
 }
@@ -5564,13 +5567,53 @@ a.tagRelatedItem:hover {
   padding-bottom: var(--spacing-2xs);
   border-bottom: var(--border-light);
 }
-/* 그룹 내 chip 들 — wrap */
+/* 그룹 내 chip 들 — wrap. min-height 로 빈 그룹도 drop 영역 확보 */
 .techChips {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2xs);
   align-items: center;
   min-width: 0;
+  min-height: var(--control-h-sm);
+}
+/* 빈 그룹 placeholder — "여기로 드래그" */
+.techGroupEmpty {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-muted);
+  font-style: italic;
+}
+/* ── 칩 drag&drop (그룹 이동) ── */
+.techDragWrap {
+  display: inline-flex;
+  touch-action: none; /* dnd-kit pointer drag — 스크롤 간섭 방지(칩 전체 draggable) */
+}
+.techDragSource {
+  opacity: 0.4;
+}
+/* 드래그가 위에 올라온 그룹 — 하이라이트 */
+.techGroupOver {
+  outline: var(--border-accent);
+  outline-style: dashed;
+  outline-offset: 3px;
+  border-radius: var(--radius-md);
+  background: var(--bg-accent-light);
+}
+/* 드래그 중 따라다니는 칩 오버레이 */
+.techDragOverlay {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 4px 10px 4px 4px;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: grabbing;
 }
 /* 아이콘 타일 — circle, 브랜드 컬러가 양쪽 테마에서 보이도록 밝은 중립 타일 위에 */
 .techIconTile {
@@ -5597,28 +5640,10 @@ a.tagRelatedItem:hover {
   color: var(--text-tertiary);
 }
 /* + 추가 chip (점선) — 그룹 그리드 전체 너비 차지 */
+/* + 추가 — 공통 Button(ghost) 사용 (외곽선 없음) */
 .techAddRow {
   grid-column: 1 / -1;
   padding-top: var(--spacing-xs);
-}
-.techAddChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: 5px 10px;
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-secondary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-}
-.techAddChip:hover {
-  border-color: var(--border-accent);
-  color: var(--text-accent);
 }
 
 /* ── 추가 / 편집 popover 내부 ── */
@@ -5715,7 +5740,8 @@ a.tagRelatedItem:hover {
   height: 40px;
   border-radius: var(--radius-circle);
   background: var(--color-neutral-50);
-  border: 1px dashed var(--border-strong);
+  border: var(--border-strong);
+  border-style: dashed;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -5726,7 +5752,7 @@ a.tagRelatedItem:hover {
   transition: border-color 0.15s, color 0.15s;
 }
 .techIconCircleBtn:hover {
-  border-color: var(--border-accent);
+  border-color: var(--border-accent-color);
   color: var(--text-accent);
 }
 .techIconCircleBtn:disabled {
@@ -5741,12 +5767,12 @@ a.tagRelatedItem:hover {
 /* 아이콘 있을 때 테두리 실선 */
 .techIconCircleWrap:has(img) .techIconCircleBtn {
   border-style: solid;
-  border-color: var(--border-light);
+  border-color: var(--border-light-color);
 }
 .techIconSpinner {
   width: 14px;
   height: 14px;
-  border: 2px solid var(--border-strong);
+  border: 2px solid var(--border-strong-color);
   border-top-color: var(--text-accent);
   border-radius: var(--radius-circle);
   animation: techSpin 0.7s linear infinite;

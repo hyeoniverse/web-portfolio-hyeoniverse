@@ -3,7 +3,7 @@
 import { memo, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Mail, Send, Star, ArrowRight, Zap, RotateCcw } from "lucide-react";
+import { Mail, Send, Star, ArrowRight, Zap, RotateCcw, Hash, Code } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { Typography } from "@/components/ui/Typography";
 import { Switch } from "@/components/ui/Switch";
@@ -70,6 +70,9 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [selectCompact, setSelectCompact] = useState("option1");
   const [selectChildren, setSelectChildren] = useState("b");
   const [selectEmpty, setSelectEmpty] = useState("");
+  const [comboInput, setComboInput] = useState("");
+  const [comboTags, setComboTags] = useState<string[]>(["React"]);
+  const [bubbleVal, setBubbleVal] = useState("normal");
   const [dpFormat, setDpFormat] = useState<"year" | "yearMonth" | "date">("date");
   const [dpDate, setDpDate] = useState({ year: "2024", month: "03", day: "15" });
   const [period, setPeriod] = useState<DatePeriod>({ start: "2024-03", end: "2024-12", format: "yearMonth" });
@@ -490,6 +493,60 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </div>
       </motion.div>
 
+      {/* Select — Combobox & Bubble */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Select — Combobox & Bubble</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "combobox — input trigger. label + searchTerms(한글 alias) 필터, Enter/쉼표로 free text 추가, 지우개 버튼, ↑↓ 키보드 이동, group/icon 옵션. bubble — 아래가 아니라 trigger 오른쪽에 꼬리 달린 말풍선으로 열림."
+            : "combobox — input trigger. filter by label + searchTerms (Korean alias), Enter/comma to add free text, clear button, ↑↓ nav, grouped options w/ icons. bubble — opens as a tailed speech-bubble to the trigger's right."}
+        </p>
+        <div className={styles.sliderRow}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
+            <Tooltip content="combobox — filter + free-text add">
+              <Select
+                combobox
+                value=""
+                inputValue={comboInput}
+                onInputChange={setComboInput}
+                onChange={() => {}}
+                onAdd={(v) => { const t = v.trim(); if (t && !comboTags.includes(t)) setComboTags((p) => [...p, t]); setComboInput(""); }}
+                options={[
+                  { value: "React", label: "React", searchTerms: ["리액트"] },
+                  { value: "Next.js", label: "Next.js", searchTerms: ["넥스트"] },
+                  { value: "TypeScript", label: "TypeScript", icon: <Code size={12} /> },
+                  { value: "GSAP", label: "GSAP", group: "Animation" },
+                  { value: "Framer Motion", label: "Framer Motion", group: "Animation" },
+                ].map((o) => ({ ...o, selected: comboTags.includes(o.value) }))}
+                placeholder={language === "ko" ? "입력해 필터 / 추가" : "Type to filter / add"}
+              />
+            </Tooltip>
+            {comboTags.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-2xs)" }}>
+                {comboTags.map((tag, i) => (
+                  <Chip key={tag} variant="capsule" onRemove={() => setComboTags((p) => p.filter((_, j) => j !== i))}>{tag}</Chip>
+                ))}
+              </div>
+            )}
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)} style={{ paddingLeft: "var(--spacing-md)" }}>
+            <Tooltip content="bubble — right-anchored speech bubble">
+              <Select
+                bubble
+                variant="compact"
+                value={bubbleVal}
+                onChange={setBubbleVal}
+                options={[
+                  { value: "happy", label: "😊 Happy" },
+                  { value: "normal", label: "😐 Normal" },
+                  { value: "sad", label: "😢 Sad" },
+                ]}
+              />
+            </Tooltip>
+          </motion.div>
+        </div>
+      </motion.div>
+
       {/* ColorPicker */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>ColorPicker</div>
@@ -592,6 +649,33 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               </Chip>
             </Tooltip>
           ))}
+        </motion.div>
+      </motion.div>
+
+      {/* Chip — variants & states */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Chip — variants & states</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "variant capsule|bare · leftIcon · active(편집중) · onClick(button) · 핸들 위에 올리면 data-cursor 로 \"Drag\" 커서."
+            : "variant capsule|bare · leftIcon · active(editing) · onClick(button) · grip shows a \"Drag\" cursor via data-cursor."}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)", alignItems: "center" }}>
+          <Tooltip content="variant: capsule + leftIcon">
+            <Chip variant="capsule" leftIcon={<Hash size={11} />}>react</Chip>
+          </Tooltip>
+          <Tooltip content="variant: bare (text-only)">
+            <Chip variant="bare">#tag</Chip>
+          </Tooltip>
+          <Tooltip content="active — edit drawer open">
+            <Chip variant="capsule" active>editing…</Chip>
+          </Tooltip>
+          <Tooltip content="onClick (button mode)">
+            <Chip variant="capsule" onClick={() => showToast(language === "ko" ? "칩 클릭" : "chip clicked", "info")}>clickable</Chip>
+          </Tooltip>
+          <Tooltip content="showHandle — grip + Drag cursor">
+            <Chip variant="capsule" showHandle leftIcon={<Star size={11} />}>draggable</Chip>
+          </Tooltip>
         </motion.div>
       </motion.div>
 
