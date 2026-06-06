@@ -209,6 +209,18 @@ const itemMeta: Record<
       en: "Picked this to show the step from \"start with the host's built-in feature\" to \"data work lives where the data is.\" Also includes the fail-soft notification design and the setup.sql idempotency detail.",
     },
   },
+
+  // Component System / Animation / CSS — Tech Stack 칩 에디터 세션
+  "칩을 다른 그룹으로 drag 하면 일부는 잘 옮겨지고 일부는 기존 항목과 위치가 바뀜(switch)": {
+    section: "C", difficulty: 2, recommended: true,
+    recommendReason: {
+      ko: "좌표/collision 을 의심하기 쉬운 증상이었지만 진짜 원인은 '파생 순서'였던 케이스 — 표면 증상이 아닌 데이터 모델까지 파고든 디버깅을 보여드리려 골랐습니다.",
+      en: "The symptom screamed coordinates/collision, but the real cause was derived ordering — picked it to show debugging that goes past the symptom into the data model.",
+    },
+  },
+  "drag&drop 후 위치 이동 애니메이션이 안 먹거나 엉뚱한 칩이 튐": { section: "I", difficulty: 2 },
+  "drag 핸들 위에서만 'Drag' 커서가 떠서 사용자가 끌 수 있다는 걸 못 알아챔": { section: "I", difficulty: 1 },
+  "dashed 테두리를 줬는데 테두리가 아예 안 그려짐": { section: "L", difficulty: 1 },
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
@@ -2576,6 +2588,98 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "**`getPropertyValue` returns only the declared value. If you need the resolved end of a `var()` chain, pipe it through a standard CSS property and read with `getComputedStyle`.**\n\nDevTools' Computed tab helpfully resolves and shows the final value, but the JS API doesn't. Per the CSS Custom Properties spec, a custom property's *computed value* is the specified value, not \"the result of substitutions\".\n\nThis bites harder the more tiers your token system has. With direct hex (1-tier) it's invisible; once you have semantic → raw chains, it surfaces immediately.\n\nSame pattern reaches further:\n- **Three.js material colors** — resolve before `new THREE.Color(bg)`.\n- **SVG `fill`/`stroke` set dynamically** — resolve before `element.setAttribute(\"fill\", bg)` (the SVG attribute parser doesn't support `var()`).\n- **Animation library from/to colors** — some Framer/GSAP interpolators can't parse raw `var()` strings.\n\nWhen the value stays inside CSS (`background: var(--bg-primary)`), the browser resolves it for you — no issue. **The danger window opens the moment JS reads a CSS value and hands it to a non-CSS context** (Canvas, SVG attributes, library props).",
     },
     tags: ["css", "custom-properties", "var", "getComputedStyle", "canvas", "three.js", "design-tokens"],
+  },
+  {
+    problem: {
+      ko: "칩을 다른 그룹으로 drag 하면 일부는 잘 옮겨지고 일부는 기존 항목과 위치가 바뀜(switch)",
+      en: "Dragging a chip to another group works for some, but others swap places with an existing item",
+    },
+    definition: {
+      ko: "Tech Stack 칩 에디터에서 칩을 카테고리 그룹 간 이동할 때, 그룹의 '첫 번째' 칩을 옮기면 그룹 순서 전체가 뒤집혀 다른 칩과 자리가 바뀐 것처럼 보임.",
+      en: "In the Tech Stack chip editor, moving the *first* chip of a group flips the entire group order, making it look like chips swapped places.",
+    },
+    cause: {
+      ko: "그룹(카테고리) 표시 순서를 항목 배열의 '첫 등장' index 에서 파생하고 있었음. 어떤 카테고리의 첫 항목을 다른 그룹으로 옮기면 그 카테고리의 '앵커'가 사라져, 남은 항목의 첫 등장 위치 기준으로 그룹 순서가 재계산되며 통째로 뒤집힘. 중간·끝 항목을 옮길 땐 앵커가 유지돼 멀쩡 → '어떤 건 되고 어떤 건 안 되는' 증상.",
+      en: "Group display order was *derived* from each category's first-appearance index in the items array. Moving a category's first item removed its anchor, so the order recomputed off the remaining items and flipped wholesale. Moving middle/last items kept the anchor — hence the intermittent symptom.",
+    },
+    solution: {
+      ko: "그룹 순서를 항목 위치에서 파생하지 않고 **별도 state 로 소유**. drop 시 옮긴 항목은 타깃 그룹의 끝에 append 하고, 그룹 순서는 이동 전 순서를 유지(빈 그룹도 placeholder 로 유지해 다시 끌어올 수 있게). collision detection 이나 좌표 문제가 아니라 '파생 순서'가 원인이었던 게 핵심.",
+      en: "Stop deriving group order from item positions — **own it in explicit state**. On drop, append the moved item to the end of the target group and keep the prior group order (empty groups stay as drop placeholders). The root cause was the derived order, not collision detection or coordinates.",
+    },
+    keyInsight: {
+      ko: "파생 상태(derived order)가 입력 '순서'에 의존하면, 입력의 부분 변경이 전체 재배열을 유발한다. 순서가 의미를 가지면 파생하지 말고 명시적으로 소유하라.",
+      en: "When derived state depends on input *ordering*, a partial change to the input can trigger a full reshuffle. If order carries meaning, own it explicitly instead of deriving it.",
+    },
+    tags: ["dnd-kit", "drag-and-drop", "react", "state", "derived-state"],
+  },
+  {
+    problem: {
+      ko: "drag&drop 후 위치 이동 애니메이션이 안 먹거나 엉뚱한 칩이 튐",
+      en: "After drag & drop, the position animation doesn't play — or the wrong chip jumps",
+    },
+    definition: {
+      ko: "framer-motion `layout`/`layoutId` 로 칩 재배치를 FLIP 애니메이션하려 했으나, 어떤 칩은 슬라이드 없이 즉시 점프하고 그룹 간 이동은 전혀 보간되지 않음.",
+      en: "Tried to FLIP-animate chip reordering with framer-motion `layout`/`layoutId`, but some chips jumped instantly and cross-group moves weren't interpolated at all.",
+    },
+    cause: {
+      ko: "motion 컴포넌트의 key/layoutId 를 배열 index 로 부여. 항목이 이동하면 index 가 바뀌어 React 가 다른 요소로 보고 unmount/remount → framer 가 '같은 요소'로 추적하지 못해 FLIP 실패. 그룹 간 이동은 부모(컨테이너)가 달라 더더욱 추적 불가.",
+      en: "key/layoutId were derived from the array index. When an item moved, its index changed, so React treated it as a different element and unmounted/remounted it — framer couldn't track it as the same node, so FLIP broke. Cross-group moves change the parent container, breaking it further.",
+    },
+    solution: {
+      ko: "layoutId/key 를 항목 고유값(이름)으로 부여해 이동해도 동일 instance 로 유지하고, 전체를 `<LayoutGroup>` 으로 감싸 그룹(부모)이 달라져도 공유 레이아웃 전환이 일어나게 함. drop 시 DragOverlay 의 dropAnimation 은 비활성해 실제 칩의 FLIP 과 충돌 방지.",
+      en: "Give layoutId/key a stable per-item identity (the name) so the instance survives moves, and wrap everything in `<LayoutGroup>` so shared-layout transitions fire across parents. Disable the DragOverlay drop animation so it doesn't fight the real chip's FLIP.",
+    },
+    keyInsight: {
+      ko: "FLIP·공유 레이아웃 애니메이션은 '이 요소가 그 요소와 같다'를 key 로 증명해야 동작한다. 배열 index 는 안정 키가 아니다.",
+      en: "FLIP / shared-layout animation only works if you *prove* element identity via the key. An array index is not a stable key.",
+    },
+    tags: ["framer-motion", "layout", "layoutId", "flip", "react-key", "animation"],
+  },
+  {
+    problem: {
+      ko: "drag 핸들 위에서만 'Drag' 커서가 떠서 사용자가 끌 수 있다는 걸 못 알아챔",
+      en: "The 'Drag' cursor only showed over the tiny handle, so users couldn't tell a chip was draggable",
+    },
+    definition: {
+      ko: "커스텀 커서(CursorTrail) 환경에서 칩 핸들에만 drag 커서를 줬더니, 작은 grip 위에 정확히 올렸을 때만 잠깐 바뀌어 사실상 표시가 안 되는 것처럼 보임.",
+      en: "With the custom cursor (CursorTrail), the drag affordance was scoped to the chip's handle only — it changed only when hovering the tiny grip, so it effectively read as 'not working'.",
+    },
+    cause: {
+      ko: "① `html.custom-cursor` 가 native 커서를 숨겨 CSS `cursor: grab` 자체가 안 보임. ② 커스텀 커서는 `[data-draggable]`/`[draggable]` 또는 `[data-cursor]` 로 상태를 잡는데, dnd-kit 은 HTML5 `draggable` 속성을 달지 않음 → 자동 감지 안 됨. ③ 그 신호를 좁은 핸들에만 부여.",
+      en: "① `html.custom-cursor` hides the native cursor, so CSS `cursor: grab` is invisible. ② The custom cursor reads `[data-draggable]`/`[draggable]` or `[data-cursor]`, but dnd-kit doesn't set the HTML5 `draggable` attribute, so auto-detection misses it. ③ The signal was attached only to the narrow handle.",
+    },
+    solution: {
+      ko: "`data-cursor=\"grab\"` 를 핸들이 아닌 **칩 전체**에 부여. drag 감지(listeners)는 칩 전체에 그대로 두고, 커서 신호만 넓혀 어디에 올려도 'Drag' 가 보이게 함. (클릭=편집은 그대로 — data-cursor 는 시각 힌트일 뿐 클릭을 막지 않음.)",
+      en: "Put `data-cursor=\"grab\"` on the **whole chip** instead of the handle. Keep drag listeners on the whole chip; just widen the cursor signal so 'Drag' shows anywhere. (Click-to-edit still works — data-cursor is a visual hint, it doesn't block clicks.)",
+    },
+    keyInsight: {
+      ko: "커스텀 커서 환경에선 CSS `cursor` 가 무력하다. 발견성(affordance)은 `data-*` 신호로, 그것도 충분히 넓은 hit 영역에 줘야 한다.",
+      en: "Under a custom cursor, CSS `cursor` is inert. Affordance must come from a `data-*` signal — and over a wide enough hit area to be discoverable.",
+    },
+    tags: ["custom-cursor", "data-attribute", "dnd-kit", "affordance", "ux"],
+  },
+  {
+    problem: {
+      ko: "dashed 테두리를 줬는데 테두리가 아예 안 그려짐",
+      en: "Set a dashed border, but no border renders at all",
+    },
+    definition: {
+      ko: "`border: 1px dashed var(--border-strong)` 처럼 디자인 토큰으로 dashed 테두리를 줬는데 화면에 아무 테두리도 안 나옴.",
+      en: "Wrote `border: 1px dashed var(--border-strong)` with a design token, but no border appears.",
+    },
+    cause: {
+      ko: "`--border-*` 토큰은 색이 아니라 `1px solid <color>` **shorthand**. 그래서 `1px dashed var(--border-strong)` 는 `1px dashed 1px solid <color>` 로 전개돼 invalid → 선언 전체가 무시됨. 침묵 실패라 더 헷갈림.",
+      en: "`--border-*` tokens aren't colors — they're `1px solid <color>` **shorthands**. So `1px dashed var(--border-strong)` expands to `1px dashed 1px solid <color>`, which is invalid and silently dropped.",
+    },
+    solution: {
+      ko: "base shorthand 를 먼저 적용한 뒤 **style 만 override**: `border: var(--border-strong); border-style: dashed;` (한 변이면 `border-top-style`, outline 이면 `outline-style`). width·color 가 base 토큰에 동기화되고 dash 전용 토큰을 새로 만들 필요도 없음. 색 토큰이 필요할 땐 `--border-*-color` 를 직접 쓴다.",
+      en: "Apply the base shorthand, then **override only the style**: `border: var(--border-strong); border-style: dashed;` (per-side `border-top-style`, or `outline-style` for outlines). Width/color stay synced to the base token, and no dashed-specific tokens are needed. When a raw color is required, use `--border-*-color` directly.",
+    },
+    keyInsight: {
+      ko: "shorthand 토큰을 다른 shorthand 속성 안에 끼우면 조용히 깨진다. 토큰이 '값'인지 'shorthand'인지 구분하고, 일부만 바꾸려면 longhand override 로 분리하라.",
+      en: "Nesting a shorthand token inside another shorthand silently breaks. Know whether a token is a *value* or a *shorthand*, and split out partial changes via a longhand override.",
+    },
+    tags: ["css", "design-tokens", "border", "shorthand", "dashed"],
   },
 ];
 
