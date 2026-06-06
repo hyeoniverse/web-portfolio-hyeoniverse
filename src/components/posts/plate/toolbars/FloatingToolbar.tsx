@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import {
   useEditorId,
   useEventEditorValue,
@@ -42,6 +43,8 @@ export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean
     focusedEditorId,
     hideToolbar,
     floatingOptions: {
+      // fixed: overflow/positioned 조상에 clipping 안 되도록 viewport 기준 배치
+      strategy: "fixed",
       placement: "top",
       middleware: [offset(12), flip({ padding: 12 })],
     },
@@ -50,7 +53,7 @@ export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean
 
   if (hidden) return null;
 
-  return (
+  const toolbar = (
     <div ref={clickOutsideRef}>
       <div ref={ref} className={styles.floatingToolbar} style={props.style}>
         <MarkButton nodeType="bold" tooltip={t("editor.bold")}>B</MarkButton>
@@ -61,4 +64,7 @@ export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean
       </div>
     </div>
   );
+
+  // admin 레이아웃의 transform/overflow 조상을 벗어나도록 body 로 portal
+  return typeof document !== "undefined" ? createPortal(toolbar, document.body) : null;
 }
