@@ -134,6 +134,9 @@ function serializeNode(node: SlateNode): string {
       return `<blockquote${styleAttr}>${children}</blockquote>`;
     case "hr":
       return `<hr />`;
+    case "toc":
+      // 목차는 heading 에서 동적 생성되므로 마커만 저장 (재오픈 시 라이브 렌더)
+      return `<div data-toc="true"></div>`;
 
     // ── Toggle (접기/펼치기) ──
     case "toggle": {

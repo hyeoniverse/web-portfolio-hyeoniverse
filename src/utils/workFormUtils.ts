@@ -83,7 +83,7 @@ export const defaultForm: WorkFormData = {
   image: "",
   content_ko: "",
   content_en: "",
-  content_type: "markdown",
+  content_type: "richtext",
   team_members: [],
   gallery: [],
   live_url: "",

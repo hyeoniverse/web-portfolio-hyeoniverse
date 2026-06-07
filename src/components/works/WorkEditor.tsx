@@ -17,8 +17,7 @@ import Chip, { useChipReorder } from "@/components/ui/Chip";
 import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
-import EditorToggle from "@/components/posts/EditorToggle";
-import MarkdownEditor from "@/components/posts/MarkdownEditor";
+import { postProcessMarkedHtml } from "@/components/posts/postProcessMarkedHtml";
 import SeoChecklist, { type SeoCheckId } from "@/components/admin/SeoChecklist";
 import type { Work, WorkFormData, TeamMember } from "@/types/work";
 import { useRevisions } from "@/hooks/useRevisions";
@@ -53,6 +52,16 @@ import styles from "./WorkEditor.module.css";
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
 });
+
+/** 레거시 마크다운 본문 → richtext(HTML) 1회 변환 (에디터가 richtext 단일로 통합됨). */
+function mdToRichHtml(md: string): string {
+  if (!md) return md;
+  try {
+    return postProcessMarkedHtml(marked.parse(md, { async: false }) as string);
+  } catch {
+    return md;
+  }
+}
 
 // ── year ↔ DatePeriod 변환 ──
 // 기존 work.year 는 "2024" 같은 단순 문자열. 이제 "기간" 도 지원하기 위해 JSON 직렬화로 저장.
@@ -922,7 +931,17 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   const [form, setForm] = useState<WorkFormData>(() => {
     if (!work) return defaultForm;
-    return workToFormData(work);
+    const f = workToFormData(work);
+    // 레거시 md 글은 열 때 richtext 로 1회 변환 후 richtext 로 고정 (토글 제거)
+    if (f.content_type === "markdown") {
+      return {
+        ...f,
+        content_ko: mdToRichHtml(f.content_ko),
+        content_en: mdToRichHtml(f.content_en),
+        content_type: "richtext",
+      };
+    }
+    return f;
   });
 
   // title 변경 시 slug auto-generate (manual 모드 아닐 때만). form 선언 이후에 위치
@@ -1212,37 +1231,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     }
   };
 
-  const handleContentTypeChange = useCallback(
-    async (newType: "markdown" | "richtext") => {
-      if (newType === form.content_type) return;
-
-      const convert = async (content: string): Promise<string> => {
-        if (!content) return content;
-        if (form.content_type === "markdown" && newType === "richtext") {
-          return marked.parse(content, { async: false }) as string;
-        } else {
-          const TurndownService = (await import("turndown")).default;
-          const td = new TurndownService({ headingStyle: "atx" });
-          return td.turndown(content);
-        }
-      };
-
-      const [newKo, newEn] = await Promise.all([
-        convert(form.content_ko),
-        convert(form.content_en),
-      ]);
-
-      setForm((prev) => ({
-        ...prev,
-        content_ko: newKo,
-        content_en: newEn,
-        content_type: newType,
-      }));
-      setStatus("");
-      setError("");
-    },
-    [form.content_type, form.content_ko, form.content_en],
-  );
 
   const handleInsertTemplate = useCallback(() => {
     const lang = editorLang;
@@ -1250,11 +1238,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     const current = form[contentKey];
 
     const applyTemplate = (tmpl: WorkTemplate) => {
-      const md = lang === "ko" ? tmpl.content.ko : tmpl.content.en;
+      // 에디터는 richtext 단일 — 템플릿 md 를 richtext 로 변환해 삽입
+      const content = mdToRichHtml(lang === "ko" ? tmpl.content.ko : tmpl.content.en);
       if (current.trim()) {
-        updateField(contentKey, current + "\n\n---\n\n" + md);
+        updateField(contentKey, current + "<hr />" + content);
       } else {
-        updateField(contentKey, md);
+        updateField(contentKey, content);
       }
     };
 
@@ -1904,31 +1893,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               {tw("insertTemplate")}
             </button>
           </div>
-          <EditorToggle
-            value={form.content_type}
-            onChange={handleContentTypeChange}
-          />
         </div>
 
         <div className={styles.editorBlock}>
-          {form.content_type === "markdown" ? (
-            <MarkdownEditor
-              key={editorLang}
-              value={form[contentKey]}
-              onChange={(v) => updateField(contentKey, v)}
-              onImageUpload={handleContentImageUpload}
-              compact
-              editLabel={tw("editorLabel")}
-              previewLabel={tw("previewLabel")}
-            />
-          ) : (
-            <Editor
-              key={editorLang}
-              value={form[contentKey]}
-              onChange={(v) => updateField(contentKey, v)}
-              onImageUpload={handleContentImageUpload}
-            />
-          )}
+          <Editor
+            key={editorLang}
+            value={form[contentKey]}
+            onChange={(v) => updateField(contentKey, v)}
+            onImageUpload={handleContentImageUpload}
+          />
         </div>
       </div>
 
