@@ -117,6 +117,21 @@
   z-index: var(--z-dropdown);
 }
 
+/* 선택 영역 위에 뜨는 floating 포맷팅 툴바 — 위치(top/left/position)는
+   useFloatingToolbar(props.style) 가 inline 으로 지정, 여기선 시각 스타일만. */
+.floatingToolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(8px);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  box-shadow: 0 8px 24px oklch(0% 0 0 / 0.18);
+  z-index: var(--z-dropdown);
+}
+
 .toolbarBtn {
   position: relative;
   display: inline-flex;
@@ -1957,6 +1972,67 @@
   pointer-events: none;
 }
 
+/* ── 공식 @platejs/dnd 블록 드래그 (BlockDraggable aboveNodes) ── */
+.blockDraggable {
+  position: relative;
+}
+/* 좌측 gutter — hover 시 핸들 노출 */
+.blockDragGutter {
+  position: absolute;
+  top: 0;
+  left: -38px;
+  width: 28px;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  /* 텍스트 첫 줄 중앙에 핸들 맞춤 — line-height leading 보정.
+     ((font-size * line-height) - handle 22px) / 2 ≈ 첫 줄 center */
+  padding-top: calc((var(--font-size-sm) * var(--line-height-relaxed) - 22px) / 2);
+  opacity: 0;
+  user-select: none;
+}
+.blockDraggable:hover > .blockDragGutter {
+  opacity: 1;
+}
+.blockDragHandleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: grab;
+}
+.blockDragHandleBtn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.blockDragHandleBtn:active {
+  cursor: grabbing;
+}
+/* drop line — 블록 위/아래 삽입 위치 표시 */
+.blockDropLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--bg-accent-solid);
+  border-radius: var(--spacing-4xs);
+  pointer-events: none;
+  z-index: 10;
+}
+.blockDropLineTop {
+  top: -1px;
+}
+.blockDropLineBottom {
+  bottom: -1px;
+}
+
 /* ── Embed / Link modal ── */
 /* Modal content (embed / link) — 공통 Modal 컴포넌트 안에 들어가는 content */
 .embedModalBody {
@@ -2454,6 +2530,8 @@
 
 .editorContent {
   padding: var(--spacing-md);
+  /* 좌측은 블록 드래그 핸들(gutter) 공간 확보 — overflow-x:hidden 에 안 잘리도록 충분히 */
+  padding-left: 44px;
   outline: none;
   min-height: 400px;
   font-family: var(--font-space-grotesk);
