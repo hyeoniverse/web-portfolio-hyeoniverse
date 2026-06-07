@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.18.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.17.0...v1.18.0) (2026-06-07)
+
+
+### Features
+
+* **plate:** 노션식 에디터 개편 — 마크다운 단일화 + 슬래시/이모지/TOC/찾기/mermaid ([#253](https://github.com/hyeoniverse/web-portfolio-oval/issues/253)) ([cbd95d7](https://github.com/hyeoniverse/web-portfolio-oval/commit/cbd95d73034d249a8cefd8262805ff0f0bda5c19))
+* **posts:** 공개 페이지 mermaid 다이어그램 + in-content TOC 렌더 ([#255](https://github.com/hyeoniverse/web-portfolio-oval/issues/255)) ([4714473](https://github.com/hyeoniverse/web-portfolio-oval/commit/47144730944b95015ed5725cb5b4921196248a65)), closes [#254](https://github.com/hyeoniverse/web-portfolio-oval/issues/254)
+
 ## [1.17.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.16.1...v1.17.0) (2026-06-07)
 
 
