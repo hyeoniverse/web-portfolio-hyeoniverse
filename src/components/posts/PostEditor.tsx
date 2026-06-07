@@ -575,7 +575,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           // 수식 블록: <div data-math-block data-latex="..."> → $$...$$
           td.addRule("mathBlock", {
             filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-math-block"),
-            replacement: (_content, node) => `\n$$\n${(node as HTMLElement).getAttribute("data-latex") ?? ""}\n$$\n`,
+            replacement: (_content, node) => `\n\n$$\n${(node as HTMLElement).getAttribute("data-latex") ?? ""}\n$$\n\n`,
           });
           // 인라인 수식: <span data-math-inline data-latex="..."> → $...$
           td.addRule("mathInline", {
@@ -607,7 +607,7 @@ export default function PostEditor({ post }: PostEditorProps) {
             filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-callout"),
             replacement: (content) => {
               const lines = content.trim().split("\n").map((l) => `> ${l}`).join("\n");
-              return `\n> [!NOTE]\n${lines}\n`;
+              return `\n\n> [!NOTE]\n${lines}\n\n`;
             },
           });
           // 콜아웃 아이콘 visual span 무시
@@ -629,7 +629,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               const header = toRow(rows[0]);
               const divider = `| ${Array.from(rows[0].querySelectorAll("th, td")).map(() => "---").join(" | ")} |`;
               const body = rows.slice(1).map(toRow).join("\n");
-              return `\n${header}\n${divider}\n${body}\n`;
+              return `\n\n${header}\n${divider}\n${body}\n\n`;
             },
           });
           // 열블록 (column_group) → 마크다운 표 + 열블록 마커
@@ -652,7 +652,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               const header = `| ${cols.map((_, i) => `Col ${i + 1}`).join(" | ")} |`;
               const sep = `| ${cols.map(() => "---").join(" | ")} |`;
               const body = `| ${cols.map((c) => (c.textContent ?? "").trim().replace(/\n/g, " ").replace(/\|/g, "\\|")).join(" | ")} |`;
-              return `\n<!-- columns ${meta} -->\n${header}\n${sep}\n${body}\n`;
+              return `\n\n<!-- columns ${meta} -->\n${header}\n${sep}\n${body}\n\n`;
             },
           });
           td.addRule("column", {
@@ -681,7 +681,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               const el = node as HTMLElement;
               const url = el.getAttribute("data-url") || "";
               const name = el.getAttribute("data-filename") || url.split("/").pop() || "file";
-              return `\n[📎 ${name}](${url})\n`;
+              return `\n\n[📎 ${name}](${url})\n\n`;
             },
           });
           // 오디오 첨부: <div data-audio-embed ...> → [🔊 title](url)
@@ -691,7 +691,17 @@ export default function PostEditor({ post }: PostEditorProps) {
               const el = node as HTMLElement;
               const url = el.getAttribute("data-url") || "";
               const title = el.getAttribute("data-title") || url.split("/").pop() || "audio";
-              return `\n[🔊 ${title}](${url})\n`;
+              return `\n\n[🔊 ${title}](${url})\n\n`;
+            },
+          });
+          // 미디어 임베드(YouTube/Vimeo iframe): turndown 기본이 <iframe> 을 통째로 드롭해
+          // 변환 시 사라지던 문제 → 원본 URL 링크로 보존. data-original-url 우선.
+          td.addRule("mediaEmbed", {
+            filter: (node) => node.nodeName === "IFRAME",
+            replacement: (_content, node) => {
+              const el = node as HTMLElement;
+              const url = el.getAttribute("data-original-url") || el.getAttribute("src") || "";
+              return url ? `\n\n[📺 ${url}](${url})\n\n` : "";
             },
           });
 
