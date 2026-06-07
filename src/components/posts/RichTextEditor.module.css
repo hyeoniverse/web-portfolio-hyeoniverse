@@ -182,6 +182,230 @@
   flex-shrink: 0;
 }
 
+/* floating toolbar 안의 Turn into Select trigger — border 제거, 툴바 버튼처럼.
+   compound selector 로 Select .trigger(단일 클래스)보다 우선순위 확보. */
+.floatingToolbar .turnIntoTrigger {
+  border: none;
+  background: transparent;
+}
+
+.floatingToolbar .turnIntoTrigger:hover {
+  background: var(--bg-tertiary-alt);
+}
+
+/* floating toolbar 오버플로(⋯) 드롭다운 내부 — Popover .dropdown 위에 레이아웃만 */
+.floatingMenu {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 124px;
+  max-width: 180px;
+  padding: var(--spacing-3xs);
+}
+
+.floatingMenu :global(button) {
+  white-space: nowrap;
+}
+
+.menuIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+}
+
+/* 슬래시 명령 메뉴 (/) */
+.slashMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 200px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: var(--spacing-3xs);
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(8px);
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px oklch(0% 0 0 / 0.18);
+  z-index: var(--z-dropdown);
+}
+
+.slashItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  width: 100%;
+  padding: var(--box-x-sm);
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.slashItemActive {
+  background: var(--bg-tertiary-alt);
+}
+
+.emojiNative {
+  font-size: var(--font-size-md);
+  line-height: 1;
+  width: 22px;
+  text-align: center;
+}
+
+.emojiName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 목차(TOC) 블록 */
+.toc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
+  padding: var(--box-md);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+
+.tocEmpty {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+
+.tocItem {
+  border: none;
+  background: transparent;
+  padding: var(--box-y-3xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.tocItem:hover {
+  color: var(--text-accent);
+}
+
+.tocItem[data-depth="2"] { padding-left: var(--spacing-md); }
+.tocItem[data-depth="3"] { padding-left: var(--spacing-xl); }
+.tocItem[data-depth="4"] { padding-left: var(--spacing-2xl); }
+
+/* mermaid 다이어그램 미리보기 */
+.mermaidPreview {
+  display: flex;
+  justify-content: center;
+  padding: var(--box-md);
+  margin-top: var(--spacing-2xs);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  overflow-x: auto;
+}
+
+.mermaidPreview svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaidError {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: pre-wrap;
+}
+
+/* 찾기 & 바꾸기 바 (하이라이트는 FindReplacePlugin 내장 스타일 사용) */
+.findBar {
+  position: fixed;
+  top: 72px;
+  right: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-2xs);
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(8px);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px oklch(0% 0 0 / 0.18);
+  z-index: var(--z-dropdown);
+}
+
+.findRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+}
+
+.findInput {
+  width: 180px;
+  height: 28px;
+  padding: var(--box-x-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+}
+
+.findInput:focus {
+  outline: none;
+  border-color: var(--text-accent);
+}
+
+.findCount {
+  min-width: 36px;
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.findBtn {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.findBtn:hover {
+  background: var(--bg-tertiary-alt);
+  color: var(--text-primary);
+}
+
+.findTextBtn {
+  height: 28px;
+  padding: var(--box-x-sm);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary-alt);
+  font-size: var(--font-size-2xs);
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.findTextBtn:hover {
+  background: var(--bg-tertiary);
+}
+
 /* ── Select wrapper: custom chevron via ::after ── */
 .selectWrap {
   position: relative;

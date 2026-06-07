@@ -7,6 +7,7 @@ import {
   type PlateLeafProps,
 } from "platejs/react";
 import { CodeBlockPlugin, CodeLinePlugin, CodeSyntaxPlugin } from "@platejs/code-block/react";
+import { CodeBlockRules } from "@platejs/code-block";
 import { common, createLowlight } from "lowlight";
 import { CodeBlockElement } from "../elements";
 
@@ -17,6 +18,7 @@ export const CodeBlockKit = [
   CodeBlockPlugin.configure({
     options: { lowlight, defaultLanguage: "auto" },
     render: { node: CodeBlockElement },
+    inputRules: [CodeBlockRules.markdown({ on: "break" })], // ``` + Enter → 코드블록
   }).configurePlugin(CodeLinePlugin, {
     render: {
       node: (props: PlateElementProps) => <PlateElement {...props} as="div" />,
