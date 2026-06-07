@@ -558,17 +558,61 @@ function InlineCursorTarget({ side, element }: { side: "before" | "after"; eleme
 }
 
 // ── 코드블록 엘리먼트 (줄바꿈/스크롤 토글) ──
+/** ```mermaid 코드블록 → 다이어그램 미리보기 (mermaid 동적 import) */
+function MermaidPreview({ code }: { code: string }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const src = code.trim();
+    if (!src) {
+      setError(null);
+      if (ref.current) ref.current.innerHTML = "";
+      return;
+    }
+    (async () => {
+      try {
+        const mermaid = (await import("mermaid")).default;
+        mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
+        const id = "mmd-" + Math.floor(Math.random() * 1e9).toString(36);
+        const { svg } = await mermaid.render(id, src);
+        if (!cancelled && ref.current) {
+          ref.current.innerHTML = svg;
+          setError(null);
+        }
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : "mermaid render error");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [code]);
+
+  return (
+    <div contentEditable={false} className={styles.mermaidPreview}>
+      {error ? <div className={styles.mermaidError}>{error}</div> : <div ref={ref} />}
+    </div>
+  );
+}
+
 export function CodeBlockElement(props: PlateElementProps) {
   const editor = useEditorRef();
   const { t } = useLanguage();
   const el = props.element as Record<string, unknown>;
   const wrap = (el.wrap as boolean) ?? false;
+  const lang = el.lang as string | undefined;
   const [justClicked, setJustClicked] = React.useState(false);
   const isEmpty = !el.children || (el.children as Array<{ children?: Array<{ text?: string }> }>).every(
     (line) => !line.children?.some((leaf) => leaf.text && leaf.text.length > 0),
   );
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   const { blockDragProps } = useBlockDrag(elPath);
+  // code_line 들을 \n 으로 join (api.string 은 줄바꿈을 안 넣음 → mermaid 파싱 실패)
+  const mermaidSource = lang === "mermaid"
+    ? ((el.children as Array<{ children?: Array<{ text?: string }> }>) || [])
+        .map((line) => (line.children || []).map((leaf) => leaf.text || "").join(""))
+        .join("\n")
+    : "";
 
   const toggleWrap = () => {
     if (elPath) editor.tf.setNodes({ wrap: !wrap }, { at: elPath });
@@ -613,6 +657,7 @@ export function CodeBlockElement(props: PlateElementProps) {
         {props.children}
       </code>
     </PlateElement>
+    {lang === "mermaid" && <MermaidPreview code={mermaidSource} />}
     </div>
     </BlockDropZone>
   );

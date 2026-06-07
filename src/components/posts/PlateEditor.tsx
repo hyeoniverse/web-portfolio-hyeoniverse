@@ -36,6 +36,9 @@ import ImageToolbar from "./plate/toolbars/ImageToolbar";
 import MathToolbar from "./plate/toolbars/MathToolbar";
 import InlineInputToolbar from "./plate/toolbars/InlineInputToolbar";
 import FloatingToolbar from "./plate/toolbars/FloatingToolbar";
+import SlashMenu from "./plate/toolbars/SlashMenu";
+import EmojiMenu from "./plate/toolbars/EmojiMenu";
+import FindReplaceBar from "./plate/toolbars/FindReplaceBar";
 import TBtn from "./plate/TBtn";
 import { TblTrash } from "./plate/icons";
 import { RxReset } from "react-icons/rx";
@@ -2414,6 +2417,15 @@ export default function PlateEditor({
 
         {/* 선택 영역 floating 포맷팅 툴바 (링크/임베드 입력 중엔 숨김) */}
         <FloatingToolbar hideToolbar={showLinkInput || showEmbedInput} />
+
+        {/* 슬래시 명령 메뉴 (/) */}
+        <SlashMenu />
+
+        {/* 이모지 인라인 검색 (:) */}
+        <EmojiMenu />
+
+        {/* 찾기 & 바꾸기 (Cmd/Ctrl+F) */}
+        <FindReplaceBar />
 
         {/* ── Status bar ── */}
         <div className={styles.statusBar}>

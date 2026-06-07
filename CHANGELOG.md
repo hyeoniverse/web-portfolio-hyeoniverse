@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.16.1...v1.17.0) (2026-06-07)
+
+
+### Features
+
+* **about/settings:** Tech Stack 중복검사 정규화 + shake/toast ([#251](https://github.com/hyeoniverse/web-portfolio-oval/issues/251)) ([f4ce541](https://github.com/hyeoniverse/web-portfolio-oval/commit/f4ce541edb849c2b886312ad3f476888ae4c8236))
+
 ## [1.16.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.16.0...v1.16.1) (2026-06-06)
 
 
