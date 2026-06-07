@@ -12,7 +12,7 @@ import DiffResolver from "./_components/DiffResolver";
 import SettingsSkeleton from "./_components/SettingsSkeleton";
 import { profileDefaults, isProfileAllOpen, toggleProfileAll, type ProfileExpandState } from "@/components/admin/ProfileSections";
 import type { ProfileData } from "@/types/profile";
-import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
+import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, CONTENT_SUBTABS, type ContentSubTab, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
 import GeneralTab from "./_components/GeneralTab";
 import ContentTab from "./_components/ContentTab";
 import AppearanceTab from "./_components/AppearanceTab";
@@ -68,10 +68,10 @@ export default function SettingsPage() {
     const tab = searchParams.get("tab");
     return tab && TAB_IDS.includes(tab as TabId) ? (tab as TabId) : "general";
   });
-  const [contentSubTab, setContentSubTab] = useState<"home" | "profile" | "works" | "posts" | "about">(() => {
+  const [contentSubTab, setContentSubTab] = useState<ContentSubTab>(() => {
     const sub = searchParams.get("sub");
-    return sub && ["home", "profile", "works", "posts", "about"].includes(sub)
-      ? (sub as "home" | "profile" | "works" | "posts" | "about")
+    return sub && (CONTENT_SUBTABS as readonly string[]).includes(sub)
+      ? (sub as ContentSubTab)
       : "home";
   });
   /* 탭/서브탭 → URL 동기화 — 새로고침/북마크/공유 가능. push 아닌 replace 라 history 안 늘어남.
@@ -86,6 +86,15 @@ export default function SettingsPage() {
     window.history.replaceState(null, "", url.toString());
   }, [activeTab, contentSubTab]);
   const account = useAccountSettings(t);
+
+  // ── 현재 탭/서브탭을 URL 쿼리에 반영 (새로고침·북마크·딥링크 유지) ──
+  // replaceState 라 history 를 오염시키지 않음. content 탭일 때만 sub 노출.
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set("tab", activeTab);
+    if (activeTab === "content") params.set("sub", contentSubTab);
+    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+  }, [activeTab, contentSubTab]);
 
   // ── 통합 충돌 상태 ──
   const [allConflicts, setAllConflicts] = useState<ConfigConflict[]>([]);
@@ -610,7 +619,7 @@ export default function SettingsPage() {
                 </button>
                 {id === "content" && (
                   <div className={styles.navSub}>
-                    {(["home", "profile", "works", "posts", "about"] as const).map((sub) => {
+                    {CONTENT_SUBTABS.map((sub) => {
                       const subCount = allConflicts.filter((c) => c.tab === "content" && c.subTab === sub).length;
                       return (
                         <button
@@ -750,7 +759,7 @@ export default function SettingsPage() {
               {activeTab === "content" && (
                 <>
                   <div className={styles.mobileSubNav}>
-                    {(["home", "profile", "works", "posts", "about"] as const).map((sub) => {
+                    {CONTENT_SUBTABS.map((sub) => {
                       const subCount = allConflicts.filter((c) => c.tab === "content" && c.subTab === sub).length;
                       return (
                         <button
