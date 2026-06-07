@@ -709,6 +709,7 @@
       "aboutTechStackIconHint": "Click to upload / replace icon",
       "aboutTechStackAdded": "Already added",
       "aboutTechStackDupHint": "This name is already added",
+      "aboutTechStackDupToast": "This tech is already added",
       "aboutTechStackEmptyGroup": "Drag here",
       "aboutOverview": "Overview Panel",
       "aboutOverviewHint": "Edit the project intro paragraph, highlight chips, and stat cards.",

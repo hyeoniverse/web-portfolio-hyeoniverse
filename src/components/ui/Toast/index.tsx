@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, AlertCircle, Info } from "lucide-react";
+import { Check, AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { useToastStore, type ToastVariant } from "@/stores/toastStore";
 import styles from "./Toast.module.css";
 
@@ -10,6 +10,7 @@ const ICONS: Record<ToastVariant, typeof Check> = {
   success: Check,
   error: AlertCircle,
   info: Info,
+  warning: AlertTriangle,
 };
 
 /**
