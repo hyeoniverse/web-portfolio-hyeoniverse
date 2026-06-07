@@ -1,7 +1,7 @@
 // 글로벌 toast 스토어 — 어디서든 showToast(...) 로 비차단 피드백 표시
 import { create } from "zustand";
 
-export type ToastVariant = "success" | "error" | "info";
+export type ToastVariant = "success" | "error" | "info" | "warning";
 
 interface ToastItem {
   id: string;

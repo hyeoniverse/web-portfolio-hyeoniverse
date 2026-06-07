@@ -515,7 +515,7 @@ export default function ColorPicker({
     } else {
       setHexDraft(hex);
       triggerShake();
-      showToast("HEX 형식이 올바르지 않습니다. 예: #ff0000", "error");
+      showToast("HEX 형식이 올바르지 않습니다. 예: #ff0000", "warning");
     }
   };
 
@@ -554,7 +554,7 @@ export default function ColorPicker({
       } else {
         setPasteFlash("fail");
         triggerShake();
-        showToast("클립보드 색을 인식하지 못했습니다", "error");
+        showToast("클립보드 색을 인식하지 못했습니다", "warning");
       }
       setTimeout(() => setPasteFlash(null), 1200);
     } catch {
