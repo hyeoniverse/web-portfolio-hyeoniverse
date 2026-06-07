@@ -84,6 +84,18 @@ export default function WorkDetailClient({
 
   useRichtextEnhance(richtextRef, content);
 
+  // mermaid 다이어그램 + in-content TOC 렌더 (richtext 만)
+  useEffect(() => {
+    if (!isRichtext) return;
+    const el = richtextRef.current;
+    if (!el) return;
+    let cleanup: (() => void) | undefined;
+    import("@/components/posts/enhanceReaderExtras").then(({ enhanceReaderExtras }) => {
+      cleanup = enhanceReaderExtras(el);
+    });
+    return () => cleanup?.();
+  }, [isRichtext, content]);
+
   const headings: TocHeading[] = useMemo(() => {
     const contentHeadings = extractHeadings(content, isRichtext);
     if (project.gallery.length > 0) {

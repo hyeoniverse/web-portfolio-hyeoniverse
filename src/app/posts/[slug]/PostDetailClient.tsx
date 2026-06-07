@@ -181,6 +181,8 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       html = html.replace(
         /<pre><code(?:\s+class="([^"]*)")?>([\s\S]*?)<\/code><\/pre>/g,
         (_match, cls, code) => {
+          // mermaid 는 하이라이트하지 않고 원본 유지 → 클라이언트에서 SVG 렌더
+          if ((cls || "").includes("language-mermaid")) return _match;
           const langMatch = (cls || "").match(/language-(\S+)/);
           const lang = langMatch?.[1];
           const validLang = lang && hljs.getLanguage(lang) ? lang : null;
@@ -222,7 +224,12 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
         scrollTitle: t("common.codeScrollTitle"),
       });
     });
-  }, [post.content_type, displayContent, t]);
+    let cleanup: (() => void) | undefined;
+    import("@/components/posts/enhanceReaderExtras").then(({ enhanceReaderExtras }) => {
+      cleanup = enhanceReaderExtras(el);
+    });
+    return () => cleanup?.();
+  }, [post.content_type, displayContent, t, processedRichtextHtml]);
 
   const date = new Date(post.created_at).toLocaleDateString("en-US", {
     year: "numeric",
