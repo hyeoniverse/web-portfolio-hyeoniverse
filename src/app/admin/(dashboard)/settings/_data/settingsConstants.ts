@@ -267,15 +267,17 @@ export function extractDefaults(delta: any, defaults: any): any {
   return snapshot;
 }
 
-export type ContentSubTab = "home" | "profile" | "works" | "posts" | "about";
+/** content 탭 서브탭 순서 — 사이드 nav / 모바일 nav / URL 동기화에서 공용 */
+export const CONTENT_SUBTABS = ["home", "profile", "about", "works", "posts"] as const;
+export type ContentSubTab = (typeof CONTENT_SUBTABS)[number];
 
 /** content 탭 내 siteConfig 키 → sub-tab 매핑 */
 const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
   home: ["brand", "hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "socialLinks"],
   profile: ["profile"],
+  about: ["about"],
   works: ["works"],
   posts: ["posts"],
-  about: ["about"],
 };
 
 /** siteConfig 키 → content sub-tab */

@@ -389,6 +389,7 @@
       "worksInfiniteScroll": "Works — 무한 스크롤",
       "profileInfiniteScroll": "Profile — 무한 스크롤",
       "aboutInfiniteScroll": "About — 무한 스크롤",
+      "aboutInfiniteScrollHint": "켜면 끝에서 처음으로 이어져 무한 반복되고, 끄면 마지막에서 멈춥니다.",
       "accentColor": "강조 색상",
       "saveThemePreset": "현재 색상을 프리셋으로 저장",
       "removeThemePreset": "프리셋 제거",
@@ -656,6 +657,7 @@
       "contentSub": {
         "home": "HOME",
         "profile": "PROFILE",
+        "about": "ABOUT",
         "works": "WORKS",
         "posts": "POSTS",
         "about": "ABOUT"
