@@ -387,6 +387,7 @@
       "worksInfiniteScroll": "Works — Infinite Scroll",
       "profileInfiniteScroll": "Profile — Infinite Scroll",
       "aboutInfiniteScroll": "About — Infinite Scroll",
+      "aboutInfiniteScrollHint": "On: loops seamlessly from end to start. Off: stops at the last section.",
       "accentColor": "Accent Color",
       "saveThemePreset": "Save current as preset",
       "removeThemePreset": "Remove preset",
@@ -654,6 +655,7 @@
       "contentSub": {
         "home": "HOME",
         "profile": "PROFILE",
+        "about": "ABOUT",
         "works": "WORKS",
         "posts": "POSTS",
         "about": "ABOUT"

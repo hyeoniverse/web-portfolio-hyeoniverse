@@ -280,7 +280,7 @@ interface ContentTabProps extends SettingsTabProps {
   profileExpanded: ProfileExpandState;
   setProfileExpanded: Dispatch<SetStateAction<ProfileExpandState>>;
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
-  contentSubTab: "home" | "profile" | "works" | "posts" | "about";
+  contentSubTab: "home" | "profile" | "about" | "works" | "posts";
 }
 
 export default function ContentTab({
@@ -697,7 +697,36 @@ export default function ContentTab({
       )}
 
       {contentSubTab === "profile" && (
-        <ProfileSections data={profileData} setData={setProfileData} expanded={profileExpanded} setExpanded={setProfileExpanded} styles={styles} />
+        <>
+          {/* Profile 페이지 동작 */}
+          <section className={styles.section}>
+            <SectionHeader title="Profile" paths={["profile.infiniteScroll"]} {...sh} />
+            <div className={styles.fields}>
+              <Switch
+                size="md"
+                label={t("admin.settings.profileInfiniteScroll")}
+                checked={config.profile?.infiniteScroll !== false}
+                onCheckedChange={(v) => update("profile", "infiniteScroll", v)}
+              />
+            </div>
+          </section>
+          <ProfileSections data={profileData} setData={setProfileData} expanded={profileExpanded} setExpanded={setProfileExpanded} styles={styles} />
+        </>
+      )}
+
+      {contentSubTab === "about" && (
+        <section className={styles.section}>
+          <SectionHeader title="About" paths={["about.infiniteScroll"]} {...sh} />
+          <p className={styles.sectionHint}><T k="admin.settings.aboutInfiniteScrollHint" /></p>
+          <div className={styles.fields}>
+            <Switch
+              size="md"
+              label={t("admin.settings.aboutInfiniteScroll")}
+              checked={config.about?.infiniteScroll !== false}
+              onCheckedChange={(v) => update("about", "infiniteScroll", v)}
+            />
+          </div>
+        </section>
       )}
 
       {contentSubTab === "posts" && (
@@ -877,8 +906,8 @@ export default function ContentTab({
         <>
           {/* Works Layout + Pagination — 단일 column 으로 stack */}
           <section className={styles.section}>
-            <SectionHeader title={`${t("admin.settings.worksLayout")} & ${t("admin.settings.pagination")}`} paths={["works.layout", "works.adminPerPage"]} {...sh} />
-            <div className={styles.fields}>
+            <SectionHeader title={`${t("admin.settings.worksLayout")} & ${t("admin.settings.pagination")}`} paths={["works.layout", "works.adminPerPage", "works.infiniteScroll"]} {...sh} />
+            <div className={`${styles.fields} ${styles.fieldsGrid2}`}>
               <div className={styles.fieldRow}>
                 <label className={styles.fieldLabel}><T k="admin.settings.worksLayout" /></label>
                 <Select
@@ -908,6 +937,15 @@ export default function ContentTab({
                   onChange={(v) => update("works", "adminPerPage", Number(v))}
                 />
               </div>
+            </div>
+            <hr className={styles.sectionDivider} />
+            <div className={styles.fields}>
+              <Switch
+                size="md"
+                label={t("admin.settings.worksInfiniteScroll")}
+                checked={config.works.infiniteScroll !== false}
+                onCheckedChange={(v) => update("works", "infiniteScroll", v)}
+              />
             </div>
           </section>
 
