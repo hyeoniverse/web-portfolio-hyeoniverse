@@ -30,6 +30,8 @@ interface SelectProps {
   renderOption?: (option: SelectOption, isActive: boolean) => ReactNode;
   renderValue?: (option: SelectOption | undefined) => ReactNode;
   className?: string;
+  /** trigger 버튼 추가 className (예: floating toolbar 에서 border 제거) */
+  triggerClassName?: string;
   dropdownClassName?: string;
   disabled?: boolean;
   variant?: SelectVariant;
@@ -63,6 +65,9 @@ interface SelectProps {
   };
   /** 말풍선 dropdown — 아래가 아니라 trigger 오른쪽에 solid 말풍선(꼬리 포함)으로 연다. */
   bubble?: boolean;
+  /** floating toolbar 등 "포커스가 풀리면 사라지는" 컨테이너 안에서 쓸 때 — trigger·옵션
+   *  클릭 시 mousedown preventDefault 로 에디터 포커스를 유지한다(클릭으로 닫히는 것 방지). */
+  preserveFocus?: boolean;
 }
 
 export default function Select({
@@ -73,6 +78,7 @@ export default function Select({
   renderOption,
   renderValue,
   className,
+  triggerClassName,
   dropdownClassName,
   disabled,
   variant = "default",
@@ -87,6 +93,7 @@ export default function Select({
   editableInputProps,
   width,
   bubble = false,
+  preserveFocus = false,
 }: SelectProps) {
   // editable + value 비어있으면 mount 시 default editing (= 직접 입력 mode 부터 시작).
   const [editing, setEditing] = useState(() => !!editable && !value);
@@ -259,6 +266,7 @@ export default function Select({
         className={`${styles.option} ${isActive ? styles.optionActive : ""} ${isHovered ? styles.optionActive : ""} ${opt.selected ? styles.optionSelected : ""}`}
         data-active={isActive ? "" : undefined}
         onMouseEnter={() => combobox && setActiveIdx(i)}
+        onMouseDown={preserveFocus ? (e) => e.preventDefault() : undefined}
         onClick={() => {
           if (combobox) {
             onAdd?.(opt.value);
@@ -391,9 +399,10 @@ export default function Select({
       ) : (
         <button
           type="button"
-          className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""}`}
+          className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""} ${triggerClassName ?? ""}`}
           /* triggerWidth (probe-measured) 제거 — trigger 가 자기 자연 너비 (.root width: max-content) 유지.
              probe 가 dropdown 폰트(xs)로 측정해서 trigger 폰트(sm) 보다 짧아지는 문제 방지. */
+          onMouseDown={preserveFocus ? (e) => e.preventDefault() : undefined}
           onClick={() => {
             if (disabled) return;
             if (!editable) { setOpen(!open); return; }

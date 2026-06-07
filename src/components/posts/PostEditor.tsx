@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
-import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ChevronRight, ExternalLink } from "lucide-react";
@@ -26,8 +25,6 @@ import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
 import { useEditorDraft } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useEditorTranslation } from "@/hooks/useEditorTranslation";
-import EditorToggle from "./EditorToggle";
-import MarkdownEditor, { extractMarkdownImages } from "./MarkdownEditor";
 import CoverImagePicker from "./CoverImagePicker";
 import SeoChecklist from "@/components/admin/SeoChecklist";
 import RelationPicker from "@/components/admin/RelationPicker";
@@ -45,6 +42,19 @@ import ShortcutsModalContent from "./ShortcutsModal";
 import styles from "./PostEditor.module.css";
 import "./PostEditor.global.css";
 
+/**
+ * 레거시 마크다운 본문 → richtext(HTML) 1회 변환.
+ * 에디터는 이제 richtext 단일이라, DB 에 markdown 으로 저장된 옛 글은 열 때 한 번만
+ * 변환한다(이미 검증된 md→richtext 단방향). 변환 실패 시 원문 유지.
+ */
+function mdToRichHtml(md: string): string {
+  if (!md) return md;
+  try {
+    return postProcessMarkedHtml(marked.parse(md, { async: false }) as string);
+  } catch {
+    return md;
+  }
+}
 
 const Editor = dynamic(() => import("./PlateEditor"), {
   ssr: false,
@@ -169,8 +179,9 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [form, setForm] = useState<PostFormData>({
     title: post?.title ?? "",
     slug: post?.slug ?? "",
-    content: post?.content ?? "",
-    content_type: post?.content_type ?? "markdown",
+    // 레거시 md 글은 로드 시 richtext 로 1회 변환 후 richtext 로 고정 (토글 제거)
+    content: post?.content_type === "markdown" ? mdToRichHtml(post?.content ?? "") : (post?.content ?? ""),
+    content_type: "richtext",
     excerpt: post?.excerpt ?? "",
     cover_image: post?.cover_image ?? "",
     tags: post?.tags ?? [],
@@ -180,7 +191,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     published: post?.published ?? false,
     language: post?.language ?? "ko",
     title_en: post?.title_en ?? "",
-    content_en: post?.content_en ?? "",
+    content_en: post?.content_type === "markdown" ? mdToRichHtml(post?.content_en ?? "") : (post?.content_en ?? ""),
     excerpt_en: post?.excerpt_en ?? "",
     series_id: post?.series_id ?? null,
     series_order: post?.series_order ?? 0,
@@ -375,7 +386,6 @@ export default function PostEditor({ post }: PostEditorProps) {
   useEffect(() => () => {
     if (closeCoverPickerTimer.current) clearTimeout(closeCoverPickerTimer.current);
   }, []);
-  const [showMdHelp, setShowMdHelp] = useState(false);
   const initialFormRef = useRef(form);
   const isDirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(initialFormRef.current),
@@ -532,201 +542,6 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, [refetchSeries, updateField]);
 
 
-  const [converting, setConverting] = useState(false);
-
-  const handleContentTypeChange = useCallback(
-    async (newType: "markdown" | "richtext") => {
-      if (newType === form.content_type) return;
-      // 1) fade-out
-      flushSync(() => setConverting(true));
-      // 2) fade-out 완료 대기 (0.2s transition)
-      await new Promise((r) => setTimeout(r, 220));
-
-      const convert = async (content: string): Promise<string> => {
-        if (!content) return content;
-        if (form.content_type === "markdown" && newType === "richtext") {
-          let html = marked.parse(content, { async: false }) as string;
-          html = postProcessMarkedHtml(html);
-          return html;
-        } else {
-          const TurndownService = (await import("turndown")).default;
-          const td = new TurndownService({ headingStyle: "atx", codeBlockStyle: "fenced" });
-          // 백틱 이스케이프 방지
-          td.escape = (str: string) => str;
-
-          // 각주 참조: <sup data-footnote-ref="1">[1]</sup> → [^1]
-          td.addRule("footnoteRef", {
-            filter: (node) => node.nodeName === "SUP" && node.hasAttribute("data-footnote-ref"),
-            replacement: (_content, node) => `[^${(node as HTMLElement).getAttribute("data-footnote-ref")}]`,
-          });
-          // 각주 ID span: <span data-footnote-id="1">[1]</span> → 무시
-          td.addRule("footnoteIdSpan", {
-            filter: (node) => node.nodeName === "SPAN" && (node as HTMLElement).hasAttribute("data-footnote-id"),
-            replacement: () => "",
-          });
-          // 각주 내용: <div data-footnote-content="1">text</div> → [^1]: text
-          td.addRule("footnoteContent", {
-            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-footnote-content"),
-            replacement: (content, node) => {
-              const id = (node as HTMLElement).getAttribute("data-footnote-content");
-              return `\n[^${id}]: ${content.trim()}\n`;
-            },
-          });
-          // 수식 블록: <div data-math-block data-latex="..."> → $$...$$
-          td.addRule("mathBlock", {
-            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-math-block"),
-            replacement: (_content, node) => `\n\n$$\n${(node as HTMLElement).getAttribute("data-latex") ?? ""}\n$$\n\n`,
-          });
-          // 인라인 수식: <span data-math-inline data-latex="..."> → $...$
-          td.addRule("mathInline", {
-            filter: (node) => node.nodeName === "SPAN" && (node as HTMLElement).hasAttribute("data-math-inline"),
-            replacement: (_content, node) => `$${(node as HTMLElement).getAttribute("data-latex") ?? ""}$`,
-          });
-          // 코드 블록: fenced style 보장
-          td.addRule("codeBlock", {
-            filter: (node) => {
-              if (node.nodeName === "PRE") {
-                const code = (node as HTMLElement).querySelector("code");
-                return !!code;
-              }
-              if (node.nodeName === "DIV" && (node as HTMLElement).classList.contains("code-block-wrap")) return true;
-              return false;
-            },
-            replacement: (_content, node) => {
-              const el = node as HTMLElement;
-              const code = el.querySelector("code");
-              if (!code) return _content;
-              const lang = Array.from(code.classList).find(c => c.startsWith("language-"))?.replace("language-", "") ?? "";
-              const text = code.textContent ?? "";
-              return `\n\`\`\`${lang}\n${text}\n\`\`\`\n`;
-            },
-          });
-
-          // 콜아웃: <div data-callout ...> → > [!NOTE]
-          td.addRule("callout", {
-            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-callout"),
-            replacement: (content) => {
-              const lines = content.trim().split("\n").map((l) => `> ${l}`).join("\n");
-              return `\n\n> [!NOTE]\n${lines}\n\n`;
-            },
-          });
-          // 콜아웃 아이콘 visual span 무시
-          td.addRule("calloutIconVisual", {
-            filter: (node) => node.nodeName === "SPAN" && (node as HTMLElement).hasAttribute("data-callout-icon-visual"),
-            replacement: () => "",
-          });
-          // 테이블: Plate 테이블 → 마크다운 표
-          td.addRule("table", {
-            filter: (node) => node.nodeName === "TABLE",
-            replacement: (_content, node) => {
-              const el = node as HTMLElement;
-              const rows = Array.from(el.querySelectorAll("tr"));
-              if (rows.length === 0) return _content;
-              const toRow = (tr: Element) => {
-                const cells = Array.from(tr.querySelectorAll("th, td"));
-                return `| ${cells.map((c) => (c.textContent ?? "").trim().replace(/\|/g, "\\|")).join(" | ")} |`;
-              };
-              const header = toRow(rows[0]);
-              const divider = `| ${Array.from(rows[0].querySelectorAll("th, td")).map(() => "---").join(" | ")} |`;
-              const body = rows.slice(1).map(toRow).join("\n");
-              return `\n\n${header}\n${divider}\n${body}\n\n`;
-            },
-          });
-          // 열블록 (column_group) → 마크다운 표 + 열블록 마커
-          td.addRule("columnGroup", {
-            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-column-group"),
-            replacement: (_content, node) => {
-              const el = node as HTMLElement;
-              const cols = Array.from(el.querySelectorAll(":scope > [data-column]"));
-              if (cols.length === 0) return _content;
-              const widths = cols.map((c) => (c as HTMLElement).getAttribute("data-width") || "");
-              const layout = el.getAttribute("data-layout") || "";
-              const bg = el.getAttribute("data-column-bg") || "";
-              const divider = el.getAttribute("data-column-divider") || "";
-              const meta = [
-                widths.join(","),
-                layout && `layout=${layout}`,
-                bg && `bg=${bg}`,
-                divider && `divider=${divider}`,
-              ].filter(Boolean).join(" ");
-              const header = `| ${cols.map((_, i) => `Col ${i + 1}`).join(" | ")} |`;
-              const sep = `| ${cols.map(() => "---").join(" | ")} |`;
-              const body = `| ${cols.map((c) => (c.textContent ?? "").trim().replace(/\n/g, " ").replace(/\|/g, "\\|")).join(" | ")} |`;
-              return `\n\n<!-- columns ${meta} -->\n${header}\n${sep}\n${body}\n\n`;
-            },
-          });
-          td.addRule("column", {
-            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-column"),
-            replacement: (content) => content,
-          });
-          // 인라인 리스트 div (Plate indent-list) → 마크다운 리스트
-          td.addRule("indentList", {
-            filter: (node) => {
-              if (node.nodeName !== "DIV") return false;
-              const style = (node as HTMLElement).getAttribute("style") ?? "";
-              return style.includes("list-style-type") && style.includes("margin-left");
-            },
-            replacement: (content, node) => {
-              const style = (node as HTMLElement).getAttribute("style") ?? "";
-              const isOl = style.includes("decimal");
-              const prefix = isOl ? "1. " : "- ";
-              return `${prefix}${content.trim()}\n`;
-            },
-          });
-
-          // 파일 첨부: <div data-file-embed ...> → [📎 filename](url)
-          td.addRule("fileEmbed", {
-            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-file-embed"),
-            replacement: (_content, node) => {
-              const el = node as HTMLElement;
-              const url = el.getAttribute("data-url") || "";
-              const name = el.getAttribute("data-filename") || url.split("/").pop() || "file";
-              return `\n\n[📎 ${name}](${url})\n\n`;
-            },
-          });
-          // 오디오 첨부: <div data-audio-embed ...> → [🔊 title](url)
-          td.addRule("audioEmbed", {
-            filter: (node) => node.nodeName === "DIV" && (node as HTMLElement).hasAttribute("data-audio-embed"),
-            replacement: (_content, node) => {
-              const el = node as HTMLElement;
-              const url = el.getAttribute("data-url") || "";
-              const title = el.getAttribute("data-title") || url.split("/").pop() || "audio";
-              return `\n\n[🔊 ${title}](${url})\n\n`;
-            },
-          });
-          // 미디어 임베드(YouTube/Vimeo iframe): turndown 기본이 <iframe> 을 통째로 드롭해
-          // 변환 시 사라지던 문제 → 원본 URL 링크로 보존. data-original-url 우선.
-          td.addRule("mediaEmbed", {
-            filter: (node) => node.nodeName === "IFRAME",
-            replacement: (_content, node) => {
-              const el = node as HTMLElement;
-              const url = el.getAttribute("data-original-url") || el.getAttribute("src") || "";
-              return url ? `\n\n[📺 ${url}](${url})\n\n` : "";
-            },
-          });
-
-          return td.turndown(content);
-        }
-      };
-
-      const [newContent, newContentEn] = await Promise.all([
-        convert(form.content),
-        convert(form.content_en),
-      ]);
-
-      setForm((prev) => ({
-        ...prev,
-        content: newContent,
-        content_en: newContentEn,
-        content_type: newType,
-      }));
-      setStatus("");
-      setError("");
-      // 3) 새 에디터 mount 후 fade-in
-      requestAnimationFrame(() => setConverting(false));
-    },
-    [form.content, form.content_en, form.content_type] // eslint-disable-line react-hooks/exhaustive-deps
-  );
 
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
     const { compressImage, validateFileSize } = await import("@/lib/compressImage");
@@ -1058,13 +873,11 @@ export default function PostEditor({ post }: PostEditorProps) {
 
     const applyTemplate = (tmpl: PostTemplate) => {
       const md = lang === "ko" ? tmpl.content.ko : tmpl.content.en;
-      const content = form.content_type === "richtext"
-        ? postProcessMarkedHtml(marked.parse(md, { async: false }) as string)
-        : md;
+      // 에디터는 richtext 단일 — 템플릿 md 를 richtext 로 변환해 삽입
+      const content = mdToRichHtml(md);
 
       if (current.trim()) {
-        const divider = form.content_type === "richtext" ? "<hr />" : "\n\n---\n\n";
-        updateField(key as keyof PostFormData, current + divider + content);
+        updateField(key as keyof PostFormData, current + "<hr />" + content);
       } else {
         updateField(key as keyof PostFormData, content);
       }
@@ -1552,52 +1365,10 @@ export default function PostEditor({ post }: PostEditorProps) {
             >
               ?
             </button>
-            {form.content_type === "markdown" && (
-              <button
-                type="button"
-                className={`${styles.editorHelpBtn} ${showMdHelp ? styles.editorHelpBtnActive : ""}`}
-                onClick={() => setShowMdHelp(!showMdHelp)}
-                title="Markdown"
-              >
-                MD
-              </button>
-            )}
           </div>
-          <EditorToggle
-            value={form.content_type}
-            onChange={handleContentTypeChange}
-          />
         </div>
 
-        <div className={`${styles.editorWrap} ${converting ? styles.editorWrapConverting : ""}`} data-required="content">
-        {converting && (
-          <div className={styles.editorSkeletonOverlay}>
-            <div className={styles.editorSkeletonToolbar}>
-              <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
-              <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
-              <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
-              <div className={styles.editorSkeletonBar} style={{ width: 60, height: 24 }} />
-            </div>
-            <div className={styles.editorSkeleton}>
-              <div className={styles.editorSkeletonBar} style={{ width: "60%" }} />
-              <div className={styles.editorSkeletonBar} style={{ width: "90%" }} />
-              <div className={styles.editorSkeletonBar} style={{ width: "75%" }} />
-              <div className={styles.editorSkeletonBar} style={{ width: "85%" }} />
-              <div className={styles.editorSkeletonBar} style={{ width: "40%" }} />
-            </div>
-          </div>
-        )}
-        {form.content_type === "markdown" ? (
-          <MarkdownEditor
-            key={editorLang}
-            value={form[contentKey]}
-            onChange={(v) => updateField(contentKey, v)}
-            onImageUpload={handleImageUpload}
-            editLabel={te("editorLabel")}
-            previewLabel={te("previewLabel")}
-            showHelp={showMdHelp}
-          />
-        ) : (
+        <div className={styles.editorWrap} data-required="content">
           <Editor
             key={editorLang}
             value={form[contentKey]}
@@ -1613,35 +1384,10 @@ export default function PostEditor({ post }: PostEditorProps) {
             editorRef={plateRef}
             postLang={editorLang}
           />
-        )}
         </div>
       </div>
 
-      {/* ── 첨부 이미지 패널 ── */}
-      {form.content_type === "markdown" ? (
-        (() => {
-          const mdImages = extractMarkdownImages(form[contentKey]).map((url, i) => ({
-            url, path: [i], mediaType: "img" as const,
-          }));
-          return (
-            <div className={styles.attachedImagesSection}>
-              <ImagePanel
-                images={mdImages}
-                onSelect={() => {}}
-                onReorder={() => {}}
-                onRemove={() => {}}
-                onImageUpload={async (file) => {
-                  const url = await handleImageUpload(file);
-                  // 마크다운 본문 끝에 이미지 삽입
-                  const content = form[contentKey] as string;
-                  updateField(contentKey, `${content}\n![image](${url})\n`);
-                  return url;
-                }}
-              />
-            </div>
-          );
-        })()
-      ) : (
+      {/* ── 첨부 이미지 패널 (richtext 단일) ── */}
         <div className={styles.attachedImagesSection}>
           <ImagePanel
             images={editorImages}
@@ -1680,7 +1426,6 @@ export default function PostEditor({ post }: PostEditorProps) {
             }}
           />
         </div>
-      )}
 
       {/* SEO 체크리스트 — portal 로 floating pill 렌더 (wrapper 불필요) */}
       <SeoChecklist

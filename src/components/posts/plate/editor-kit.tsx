@@ -18,11 +18,17 @@ import { FileKit } from "./plugins/file-kit";
 import { ToggleKit } from "./plugins/toggle-kit";
 import { CalloutKit } from "./plugins/callout-kit";
 import { FootnoteKit } from "./plugins/footnote-kit";
+import { TocKit } from "./plugins/toc-kit";
+import { FindReplaceKit } from "./plugins/find-replace-kit";
 import { FontKit } from "./plugins/font-kit";
 import { DndKit } from "./plugins/dnd-kit";
+import { MarkdownKit } from "./plugins/markdown-kit";
+import { AutoformatUndoKit } from "./plugins/autoformat-undo-kit";
 
 export const EditorKit = [
   ...DndKit,          // NodeId + block drag&drop (공식 @platejs/dnd) — id 먼저 부여
+  ...AutoformatUndoKit, // 자동변환 직후 Backspace/Esc → 리터럴 복원 (insertText override 우선)
+  ...MarkdownKit,     // md 직렬화 API + 붙여넣기 파싱
   ...BasicBlocksKit,  // paragraph, heading, blockquote, hr
   ...BasicMarksKit,   // bold, italic, ... code, kbd
   ...ColumnKit,
@@ -36,5 +42,7 @@ export const EditorKit = [
   ...ToggleKit,
   ...CalloutKit,
   ...FootnoteKit,     // footnote_ref, footnote_content
+  ...TocKit,          // 목차 블록
+  ...FindReplaceKit,  // 찾기 하이라이트
   ...FontKit,         // color/bg/family/size/line-height/text-align
 ];
