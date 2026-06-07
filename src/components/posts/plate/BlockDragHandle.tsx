@@ -1,68 +1,8 @@
 import React from "react";
-import { useEditorRef } from "platejs/react";
-import { _blockDragPath } from "./utils";
 import styles from "../RichTextEditor.module.css";
 
-// ── 드래그 중 에디터 가장자리 자동 스크롤 ──
-const EDGE_ZONE = 60;  // px — 가장자리 감지 영역
-const SCROLL_SPEED = 12; // px per frame
-
-let _scrollRaf: number | null = null;
-let _lastClientY = 0;
-
-function startAutoScroll(editorEl: HTMLElement | null) {
-  stopAutoScroll();
-  if (!editorEl) return;
-
-  // 에디터의 스크롤 가능한 부모 찾기
-  const scrollParent = findScrollParent(editorEl);
-  if (!scrollParent) return;
-
-  const tick = () => {
-    const rect = scrollParent.getBoundingClientRect();
-    const y = _lastClientY;
-
-    if (y < rect.top + EDGE_ZONE && y >= rect.top) {
-      // 위쪽 가장자리 — 위로 스크롤
-      const intensity = 1 - (y - rect.top) / EDGE_ZONE;
-      scrollParent.scrollTop -= SCROLL_SPEED * intensity;
-    } else if (y > rect.bottom - EDGE_ZONE && y <= rect.bottom) {
-      // 아래쪽 가장자리 — 아래로 스크롤
-      const intensity = 1 - (rect.bottom - y) / EDGE_ZONE;
-      scrollParent.scrollTop += SCROLL_SPEED * intensity;
-    }
-
-    _scrollRaf = requestAnimationFrame(tick);
-  };
-
-  _scrollRaf = requestAnimationFrame(tick);
-}
-
-function stopAutoScroll() {
-  if (_scrollRaf !== null) {
-    cancelAnimationFrame(_scrollRaf);
-    _scrollRaf = null;
-  }
-}
-
-function findScrollParent(el: HTMLElement): HTMLElement | null {
-  let current: HTMLElement | null = el;
-  while (current) {
-    const { overflow, overflowY } = getComputedStyle(current);
-    if (/(auto|scroll)/.test(overflow + overflowY) && current.scrollHeight > current.clientHeight) {
-      return current;
-    }
-    current = current.parentElement;
-  }
-  return null;
-}
-
-// document-level drag listener for tracking mouse Y
-function onDocDrag(e: DragEvent) {
-  _lastClientY = e.clientY;
-}
-
-const LONGPRESS_MS = 250;
+// 블록 drag&drop 은 공식 @platejs/dnd(DndKit)로 이관됨. 아래 두 export 는
+// 기존 호출부(elements/Math/Table 의 BlockDropZone/useBlockDrag) 호환용 shim.
 
 /**
  * 블록 요소에 롱프레스 드래그를 부여하는 훅.
@@ -71,68 +11,24 @@ const LONGPRESS_MS = 250;
  * 롱프레스(400ms) 후 draggable 활성화 → 드래그 시작 → 드롭/취소 시 해제.
  * ghostRef를 전달하면 해당 요소만 고스트로 표시.
  */
+/**
+ * (구) 커스텀 네이티브 HTML5 블록 드래그 훅 — 공식 @platejs/dnd(DndKit) 로 대체되어 no-op.
+ * 호출부 호환을 위해 시그니처만 유지하고 빈 props 를 반환한다.
+ */
 export function useBlockDrag(
-  path: number[] | null,
-  ghostRef?: React.RefObject<HTMLElement | null>,
+  _path: number[] | null,
+  _ghostRef?: React.RefObject<HTMLElement | null>,
 ) {
-  const [ready, setReady] = React.useState(false);
-  const timerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  const clearTimer = React.useCallback(() => {
-    if (timerRef.current !== undefined) { clearTimeout(timerRef.current); timerRef.current = undefined; }
-    setReady(false);
-  }, []);
-
-  const props: React.HTMLAttributes<HTMLElement> & { draggable?: boolean } = {
-    draggable: ready,
-    onPointerDown: (e: React.PointerEvent) => {
-      // 인터랙티브 요소 위에서는 무시 (버튼, 입력, 리사이즈 핸들 등)
-      const tag = (e.target as HTMLElement).tagName;
-      if (["BUTTON", "INPUT", "TEXTAREA", "SELECT", "A"].includes(tag)) return;
-      if ((e.target as HTMLElement).closest("[data-no-drag]")) return;
-      timerRef.current = setTimeout(() => setReady(true), LONGPRESS_MS);
-    },
-    onPointerUp: clearTimer,
-    onPointerCancel: clearTimer,
-    onPointerLeave: clearTimer,
-    onDragStart: (e: React.DragEvent) => {
-      if (!ready || !path) { e.preventDefault(); return; }
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/plain", "block-dnd");
-      _blockDragPath.current = path;
-      // 고스트 지정
-      if (ghostRef?.current) {
-        const el = ghostRef.current;
-        const clone = el.cloneNode(true) as HTMLElement;
-        clone.style.cssText = `width:${el.offsetWidth}px;height:${el.offsetHeight}px;position:fixed;top:-9999px;left:-9999px;pointer-events:none;outline:none;`;
-        document.body.appendChild(clone);
-        const rect = el.getBoundingClientRect();
-        e.dataTransfer.setDragImage(clone, e.clientX - rect.left, e.clientY - rect.top);
-        requestAnimationFrame(() => clone.remove());
-      }
-      // 자동 스크롤 활성화
-      _lastClientY = e.clientY;
-      const editorEl = (e.target as HTMLElement).closest("[data-slate-editor]") as HTMLElement | null;
-      document.addEventListener("drag", onDocDrag);
-      startAutoScroll(editorEl);
-    },
-    onDragEnd: () => {
-      _blockDragPath.current = null;
-      setReady(false);
-      document.removeEventListener("drag", onDocDrag);
-      stopAutoScroll();
-    },
-  };
-
-  return { blockDragProps: props, isDragging: ready };
+  void _path; void _ghostRef;
+  return { blockDragProps: {} as React.HTMLAttributes<HTMLElement> & { draggable?: boolean }, isDragging: false };
 }
 
 /**
- * 블록 요소의 드롭 존 래퍼.
- * 다른 블록이 드래그되어 올 때 드롭 표시기 + 실제 이동 수행.
+ * (구) 블록 드롭 존 래퍼 — 드래그/드롭은 공식 @platejs/dnd 가 담당하므로 여기선
+ * 레이아웃 유지를 위한 passthrough wrapper 로만 동작(네이티브 drop 핸들러 제거).
  */
 export function BlockDropZone({
-  path,
+  path: _path,
   children,
   className,
   style,
@@ -142,62 +38,7 @@ export function BlockDropZone({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  const editor = useEditorRef();
-  const [dropPosition, setDropPosition] = React.useState<"above" | "below" | null>(null);
-
+  void _path;
   const wrapCls = [styles.blockDragWrap, className].filter(Boolean).join(" ");
-
-  if (!path) return <div className={wrapCls} style={style}>{children}</div>;
-
-  const onDragOver = (e: React.DragEvent) => {
-    const src = _blockDragPath.current;
-    if (!src) return;
-    // 자기 자신 위에선 무시
-    if (src.length === path.length && src.every((v, i) => v === path[i])) return;
-
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-
-    // 마우스 위치로 위/아래 결정
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mid = rect.top + rect.height / 2;
-    setDropPosition(e.clientY < mid ? "above" : "below");
-  };
-
-  const onDragLeave = () => {
-    setDropPosition(null);
-  };
-
-  const onDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDropPosition(null);
-    const src = _blockDragPath.current;
-    if (!src || !path) return;
-    if (src.length === path.length && src.every((v, i) => v === path[i])) return;
-
-    try {
-      // 같은 depth의 블록간 이동
-      if (src.length === path.length) {
-        const targetIdx = dropPosition === "below" ? path[path.length - 1] + 1 : path[path.length - 1];
-        const parentPath = path.slice(0, -1);
-        editor.tf.moveNodes({ at: src, to: [...parentPath, targetIdx] });
-      }
-    } catch { /* ignore */ }
-    _blockDragPath.current = null;
-    stopAutoScroll();
-  };
-
-  return (
-    <div
-      className={wrapCls}
-      style={{ ...style, position: "relative" }}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
-    >
-      {dropPosition === "above" && <div className={styles.blockDropIndicator} style={{ top: -1 }} />}
-      {children}
-      {dropPosition === "below" && <div className={styles.blockDropIndicator} style={{ bottom: -1 }} />}
-    </div>
-  );
+  return <div className={wrapCls} style={style}>{children}</div>;
 }

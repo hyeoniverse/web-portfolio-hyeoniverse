@@ -179,10 +179,11 @@ export function FootnoteContentElement(props: PlateElementProps) {
   };
 
   return (
-    <div
-      {...attributes}
+    <PlateElement
+      {...props}
+      as="div"
       className={styles.footnoteContent}
-      data-footnote-content={id}
+      attributes={{ ...attributes, "data-footnote-content": id }}
     >
       <span
         className={styles.footnoteContentId}
@@ -206,6 +207,6 @@ export function FootnoteContentElement(props: PlateElementProps) {
         )}
       </span>
       <div className={styles.footnoteContentBody}>{children}</div>
-    </div>
+    </PlateElement>
   );
 }
