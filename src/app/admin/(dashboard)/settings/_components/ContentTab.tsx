@@ -40,6 +40,7 @@ import { normalizeTagMeta, type TagMeta, type StoredTagMeta } from "@/lib/tagMet
 import { showToast } from "@/stores/toastStore";
 import { useModalStore } from "@/stores/modalStore";
 import { findDuplicate } from "@/lib/dedupe";
+import { normalizeTechName } from "@/data/techIcons";
 import { matchesSearch } from "@/lib/koSearch";
 import { getInitial, KO_INITIALS, EN_INITIALS } from "@/lib/initial";
 import LetterFilter from "@/components/ui/LetterFilter";
@@ -1854,7 +1855,7 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
       /* 중복 비교 — 대소문자 + 공백 무시 (lib/dedupe) */
       const dup = findDuplicate(allTags, [newCanonical], (t) => [t]);
       if (dup) {
-        showToast(`"${dup}" 과 같은 태그입니다`, "error");
+        showToast(`"${dup}" 과 같은 태그입니다`, "warning");
         triggerShake();
         focusDuplicate(dup);
         return;
@@ -3136,6 +3137,14 @@ function TechIconEditor({ icon, onIconChange, t, styles, showSearch = true }: {
 }
 
 /* 추가 패널 — 프리셋 표 + 직접 입력(이름·카테고리·아이콘) */
+/** 기술명 중복 비교 키 — 이름만 검사(카테고리 무시).
+ *  본질적으로 같은 건 같게: 끝 버전 토큰 제거("React 19"→React) + alias 정규화
+ *  (리액트/react/React→React) + 소문자 + 공백/점/하이픈 제거(Next.js=nextjs). */
+function techDupKey(name: string): string {
+  const base = name.trim().replace(/\s+v?\d+(?:\.\d+)*$/i, "").trim();
+  return normalizeTechName(base).toLowerCase().replace(/[\s._-]/g, "");
+}
+
 function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
   existing: TechItem[];
   onAdd: (it: TechItem) => void;
@@ -3145,12 +3154,25 @@ function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
 }) {
   const [q, setQ] = useState("");
   const [draft, setDraft] = useState<TechItem>({ name: "", category: "", icon: "" });
-  const has = (name: string) => existing.some((e) => e.name.toLowerCase() === name.toLowerCase());
-  const isDup = !!draft.name.trim() && has(draft.name.trim());
-  const canAdd = !!draft.name.trim() && !isDup;
+  const [shake, setShake] = useState(false);
+  // 이름만 검사 + 정규화(react=리액트=React=React 19). 카테고리는 무시.
+  const dupKeys = useMemo(() => new Set(existing.map((e) => techDupKey(e.name))), [existing]);
+  const has = (name: string) => { const k = techDupKey(name); return !!k && dupKeys.has(k); };
+  const isDup = !!draft.name.trim() && has(draft.name);
+  const canAdd = !!draft.name.trim();
   const submitCustom = () => {
-    if (!canAdd) return;
-    onAdd({ name: draft.name.trim(), category: draft.category.trim(), icon: draft.icon ?? "" });
+    const name = draft.name.trim();
+    if (!name) return;
+    if (has(name)) {
+      // 중복 — accent + shake + toast
+      setShake(false);
+      requestAnimationFrame(() => setShake(true));
+      window.setTimeout(() => setShake(false), 450);
+      showToast(t("admin.settings.aboutTechStackDupToast"), "warning");
+      return;
+    }
+    // 카테고리 비우면 "Etc" 자동 할당 — 항상 그룹에 속하게(무카테고리 방지)
+    onAdd({ name, category: draft.category.trim() || "Etc", icon: draft.icon ?? "" });
     setDraft({ name: "", category: "", icon: "" });
   };
 
@@ -3168,8 +3190,31 @@ function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
       {/* 직접 추가 — sticky footer (프리셋 스크롤해도 항상 보임). 검색은 없음(프리셋으로 추가). */}
       <div className={styles.techCustomFooter}>
         <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackCustomTitle")}</p>
-        <Input value={draft.name} onChange={(v) => setDraft((d) => ({ ...d, name: v }))} placeholder={t("admin.settings.aboutTechStackName")} size="sm" />
-        {isDup && <p className={styles.techAddDupHint}>{t("admin.settings.aboutTechStackDupHint")}</p>}
+        <Input
+          value={draft.name}
+          onChange={(v) => setDraft((d) => ({ ...d, name: v }))}
+          placeholder={t("admin.settings.aboutTechStackName")}
+          size="sm"
+          className={`${isDup ? styles.techNameDup : ""} ${shake ? styles.techNameShake : ""}`.trim() || undefined}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.nativeEvent.isComposing) { e.preventDefault(); submitCustom(); }
+          }}
+        />
+        <AnimatePresence initial={false}>
+          {isDup && (
+            <motion.p
+              key="dupHint"
+              className={styles.techAddDupHint}
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: "auto", marginTop: -8 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+              style={{ overflow: "hidden" }}
+            >
+              {t("admin.settings.aboutTechStackDupHint")}
+            </motion.p>
+          )}
+        </AnimatePresence>
         <CategoryInput value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} currentCats={currentCats} t={t} />
         <TechIconEditor icon={draft.icon ?? ""} onIconChange={(icon) => setDraft((d) => ({ ...d, icon }))} t={t} styles={styles} showSearch={false} />
         <Button variant="primary" size="xs" fullWidth disabled={!canAdd} onClick={submitCustom} icon={<Plus size={14} strokeWidth={2.5} />}>
