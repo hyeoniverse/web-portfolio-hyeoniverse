@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.18.0...v1.19.0) (2026-06-07)
+
+
+### Features
+
+* **settings:** works 무한스크롤 토글 + content 서브탭 상수화 ([#257](https://github.com/hyeoniverse/web-portfolio-oval/issues/257)) ([468490d](https://github.com/hyeoniverse/web-portfolio-oval/commit/468490d2306029af3907aad288c0a693d5ed3782))
+
 ## [1.18.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.17.0...v1.18.0) (2026-06-07)
 
 
