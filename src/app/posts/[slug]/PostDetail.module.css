@@ -1374,3 +1374,43 @@
     max-width: 340px;
   }
 }
+
+/* 본문 내 mermaid 다이어그램 */
+.prose :global(.reader-mermaid) {
+  display: flex;
+  justify-content: center;
+  margin: var(--spacing-lg) 0;
+  padding: var(--box-md);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  overflow-x: auto;
+}
+
+.prose :global(.reader-mermaid) svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 본문 내 목차(TOC) */
+.prose :global(.reader-toc) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
+  margin: var(--spacing-lg) 0;
+  padding: var(--box-md);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+
+.prose :global(.reader-toc) a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+}
+
+.prose :global(.reader-toc) a:hover { color: var(--text-accent); }
+.prose :global(.reader-toc) a[data-depth="2"] { padding-left: var(--spacing-md); }
+.prose :global(.reader-toc) a[data-depth="3"] { padding-left: var(--spacing-xl); }
+.prose :global(.reader-toc) a[data-depth="4"] { padding-left: var(--spacing-2xl); }
