@@ -9,6 +9,7 @@ import { Typography } from "@/components/ui/Typography";
 import { Switch } from "@/components/ui/Switch";
 import { Slider } from "@/components/ui/Slider";
 import Input from "@/components/ui/Input";
+import NumberInput from "@/components/ui/NumberInput";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import { ImageViewer } from "@/components/ui/ImageViewer";
@@ -54,6 +55,9 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const { openModal } = useModalStore();
   const [sliderValue, setSliderValue] = useState([40]);
   const [rangeValue, setRangeValue] = useState([20, 80]);
+  const [numBasic, setNumBasic] = useState(50);
+  const [numWidth, setNumWidth] = useState(320);
+  const [numPlain, setNumPlain] = useState(12);
   const [switchOn, setSwitchOn] = useState(false);
   const [switchAccent, setSwitchAccent] = useState(true);
   const [switchMd, setSwitchMd] = useState(true);
@@ -331,6 +335,31 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
             <span className={styles.sliderLabel}>Disabled</span>
             <Slider defaultValue={[60]} max={100} disabled />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* NumberInput — 캡슐형 숫자 입력 (타이핑 중엔 draft, blur/Enter/스텝퍼에만 확정) */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>NumberInput</div>
+        <div className={styles.sliderRow}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
+            <span className={styles.sliderLabel}>Basic — {numBasic} · 스텝퍼 + blur/Enter 확정</span>
+            <Tooltip content="value + onCommit (min/max clamp)">
+              <NumberInput value={numBasic} onCommit={setNumBasic} min={0} max={100} />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
+            <span className={styles.sliderLabel}>Label + suffix — {numWidth}px</span>
+            <Tooltip content="label='W' · suffix='px' · width">
+              <NumberInput value={numWidth} onCommit={setNumWidth} min={1} label="W" suffix="px" width={56} />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
+            <span className={styles.sliderLabel}>No stepper — {numPlain}</span>
+            <Tooltip content="stepper={false} — ↑/↓ 키로만 증감">
+              <NumberInput value={numPlain} onCommit={setNumPlain} min={0} stepper={false} />
+            </Tooltip>
           </motion.div>
         </div>
       </motion.div>

@@ -122,8 +122,8 @@
 .floatingToolbar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-xs);
   background: var(--bg-glass-strong);
   backdrop-filter: blur(8px);
   border: var(--border-light);
@@ -137,23 +137,30 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 24px;
-  min-width: 24px;
+  height: 28px;
+  min-width: 28px;
   padding: var(--box-x-sm);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--text-primary);
   line-height: 1;
 }
 
 .toolbarBtn.toolbarBtnSquare {
-  width: 24px;
+  width: 28px;
   padding: 0;
   aspect-ratio: 1;
+}
+/* floating bar 안 아이콘(square) 버튼 — active 배경이 원이 아니라 capsule(pill) 로 보이도록 가로 확장 */
+.floatingToolbar .toolbarBtn.toolbarBtnSquare {
+  width: auto;
+  min-width: 34px;
+  padding: 0 9px;
+  aspect-ratio: auto;
 }
 
 .toolbar .toolbarBtn:hover,
@@ -199,8 +206,8 @@
   flex-direction: column;
   width: max-content;
   min-width: 124px;
-  max-width: 180px;
-  padding: var(--spacing-3xs);
+  max-width: 220px;
+  padding: var(--spacing-2xs);
 }
 
 .floatingMenu :global(button) {
@@ -225,33 +232,109 @@
   min-width: 200px;
   max-height: 320px;
   overflow-y: auto;
-  padding: var(--spacing-3xs);
+  padding: var(--spacing-xs);
   background: var(--bg-glass-strong);
   backdrop-filter: blur(8px);
   border: var(--border-light);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   box-shadow: 0 8px 24px oklch(0% 0 0 / 0.18);
   z-index: var(--z-dropdown);
 }
 
+.slashGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.slashGroup + .slashGroup {
+  margin-top: var(--spacing-2xs);
+}
+.slashGroupLabel {
+  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-3xs);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  user-select: none;
+}
 .slashItem {
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
   width: 100%;
-  padding: var(--box-x-sm);
-  height: 32px;
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  height: 36px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-md);
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
 }
+.slashItem .menuIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
 
 .slashItemActive {
   background: var(--bg-tertiary-alt);
+}
+
+/* 슬래시 메뉴가 열린 블록 / 다중 선택 블록 — 옅은 accent 배경 하이라이트.
+   배경을 ::before(텍스트 뒤)로 그려서 텍스트·placeholder 위치엔 영향 없게. 상하 2px / 좌우 8px 확장 */
+.editorContent :global([data-slash-active]),
+.editorContent :global([data-block-selected]) {
+  position: relative;
+  z-index: 0;
+}
+.editorContent :global([data-slash-active])::before,
+.editorContent :global([data-block-selected])::before,
+.editorContent :global([data-block-selected])::after {
+  content: "";
+  position: absolute;
+  background: var(--bg-accent-subtle);
+  border-radius: var(--radius-sm);
+  z-index: -1;
+  pointer-events: none;
+}
+.editorContent :global([data-slash-active])::before,
+.editorContent :global([data-block-selected])::before {
+  inset: -2px -8px;
+}
+.editorContent :global([data-block-selected])::after {
+  display: none;
+}
+/* float 이미지가 겹치는 블록 — 배경을 두 조각으로 나눠 이미지 영역을 실제로 비움(각각 radius 유지).
+   ::before = 이미지 옆 영역, ::after = 이미지 아래 영역. 좌표는 JS 가 px 로 설정 */
+.editorContent :global([data-block-selected][data-float-clip])::before {
+  inset: auto;
+  left: var(--a-l);
+  top: var(--a-t);
+  width: var(--a-w);
+  height: var(--a-h);
+}
+.editorContent :global([data-block-selected][data-float-clip])::after {
+  display: block;
+  inset: auto;
+  left: var(--b-l);
+  top: var(--b-t);
+  width: var(--b-w);
+  height: var(--b-h);
+}
+/* 다중 블록 선택 시 placeholder 숨김 — 시작 블록은 selected 유지라 JS 조건이 안 먹어 CSS 로 처리.
+   (::selection 텍스트 하이라이트 제거는 globals/_overrides.css 에서) */
+.editorContent[data-multiblock] .blockPlaceholder {
+  display: none;
+}
+/* IME 조합 중에는 placeholder 숨김 (조합 텍스트와 겹쳐 보이는 문제 방지) */
+.editorContent[data-composing] .blockPlaceholder {
+  display: none;
 }
 
 .emojiNative {
@@ -774,7 +857,7 @@
 }
 
 .tableGroup .toolbarBtn.toolbarBtnSquare {
-  width: 24px;
+  width: 28px;
   padding: 0;
   aspect-ratio: 1;
 }
@@ -2204,17 +2287,94 @@
 .blockDragGutter {
   position: absolute;
   top: 0;
-  left: -38px;
-  width: 28px;
+  /* 요소 왼쪽 — [+][이동핸들] 두 버튼, 좌측 패딩 안. 오른쪽 끝을 콘텐츠에서 살짝 띄움.
+     float 이미지 옆 블록은 --float-edge 만큼 오른쪽으로(이미지 옆 텍스트 시작에 맞춤) */
+  left: calc(-40px + var(--float-edge, 0px));
+  width: 34px;
   height: 100%;
   display: flex;
+  /* 첫 줄에 핸들 정렬 (멀티라인 블록에서 중앙으로 내려가지 않게) — 첫 줄 중앙 보정 */
   align-items: flex-start;
-  justify-content: center;
-  /* 텍스트 첫 줄 중앙에 핸들 맞춤 — line-height leading 보정.
-     ((font-size * line-height) - handle 22px) / 2 ≈ 첫 줄 center */
-  padding-top: calc((var(--font-size-sm) * var(--line-height-relaxed) - 22px) / 2);
+  justify-content: flex-end;
+  gap: 1px;
+  padding-top: calc((var(--font-size-md) * var(--line-height-relaxed) - 22px) / 2);
   opacity: 0;
   user-select: none;
+}
+/* 블록 도구 popover (이동 핸들 클릭) */
+.blockToolsMenu {
+  min-width: 220px;
+  padding: var(--spacing-2xs);
+}
+.blockToolsLabel {
+  padding: var(--spacing-2xs) var(--spacing-xs) var(--spacing-3xs);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.blockToolsTurn {
+  display: flex;
+  gap: 2px;
+  padding: 0 var(--spacing-3xs) var(--spacing-3xs);
+}
+.blockToolsTurnBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.blockToolsTurnBtn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.blockToolsSwatches {
+  display: flex;
+  gap: var(--spacing-2xs);
+  padding: 0 var(--spacing-xs) var(--spacing-3xs);
+}
+.blockToolsSwatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-capsule);
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.blockToolsSwatch:hover {
+  transform: scale(1.12);
+}
+.blockToolsDanger {
+  color: var(--color-danger, #ef4444);
+}
+
+.blockAddBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.blockAddBtn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 .blockDraggable:hover > .blockDragGutter {
   opacity: 1;
@@ -2223,14 +2383,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
+  width: 16px;
   height: 22px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-tertiary);
   cursor: grab;
+  flex-shrink: 0;
 }
 .blockDragHandleBtn:hover {
   background: var(--bg-tertiary);
@@ -2753,13 +2914,12 @@
 }
 
 .editorContent {
-  padding: var(--spacing-md);
-  /* 좌측은 블록 드래그 핸들(gutter) 공간 확보 — overflow-x:hidden 에 안 잘리도록 충분히 */
-  padding-left: 44px;
+  /* 좌우 동일 패딩 — 좌측 [+][드래그] gutter 가 패딩 영역 안에 들어가므로 텍스트 여백이 좌우 대칭 */
+  padding: var(--spacing-md) var(--spacing-2xl-plus);
   outline: none;
   min-height: 400px;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   line-height: var(--line-height-relaxed);
   color: var(--text-primary);
   font-synthesis: style;
@@ -2801,7 +2961,7 @@
   font-size: var(--font-size-lg);
 }
 .editorContent p {
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
 /* 표 바로 뒤 빈 paragraph 여백 축소 */
 .editorContent [data-table-wrap] + p {
@@ -2972,7 +3132,8 @@
 .editorContent ul,
 .editorContent ol {
   padding-left: 0 !important;
-  margin-left: -24px !important;
+  /* 마커를 콘텐츠 좌측(대칭 여백)에 맞춤 — 음수 마진 제거(핸들 영역 침범 방지) */
+  margin-left: 0 !important;
   margin-bottom: var(--spacing-sm);
   list-style-position: inside;
 }
@@ -3002,6 +3163,9 @@
 .editorContent :global([data-slate-node="element"][style*="list-style-type"]) {
   margin-bottom: var(--spacing-2xs);
   display: list-item;
+  /* float 이미지 옆으로 감기면(outside 마커가 이미지 위로 빠져 어긋남) 깨지므로
+     리스트는 float 을 감지 않고 이미지 아래에서 시작. 일반(플로트 없는) 리스트엔 영향 없음 */
+  clear: both;
 }
 
 .editorContent hr {
@@ -3228,3 +3392,97 @@
 }
 
 /* 삭제 버튼: 우상단, 호버 시만 */
+
+/* 이미지 floating toolbar — ⋯ 오버플로 내부 */
+.imgMoreMenu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 240px;
+  padding: var(--spacing-xs);
+}
+
+.imgMoreRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+/* 이미지 이동 핸들 — CSS :hover 로 표시(자손 hover 시에도 조상 :hover 유지되어 깜빡임 없음) */
+.imgMoveHandle {
+  position: absolute;
+  top: 4px;
+  left: -26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 22px;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: grab;
+  z-index: 6;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+.imgMoveHandle:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+/* 선택(active) 시에만 표시 — hover 로 띄우면 핸들이 이미지 박스 밖이라 경계에서 깜빡임 */
+.imgMoveHandle.imgMoveHandleActive {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 삭제 확인 팝오버 */
+.imgConfirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  min-width: 180px;
+}
+.imgConfirmMsg {
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  text-align: center;
+}
+.imgConfirmActions {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+}
+
+.imgDimLabel {
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0 3px;
+}
+
+.imgDimInput {
+  width: 44px;
+  margin: 0 2px;
+  padding: 1px 2px;
+  border: var(--border-light);
+  border-radius: var(--radius-2xs);
+  background: var(--bg-primary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.imgCaptionInput {
+  height: 26px;
+  padding: var(--box-x-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+}
+
+.imgCaptionInput:focus { outline: none; border-color: var(--text-accent); }

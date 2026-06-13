@@ -1,11 +1,18 @@
 "use client";
 
-import React, { useCallback, useState, useEffect, useRef } from "react";
+import React, { useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
+import { MoreHorizontal, ImageUp } from "lucide-react";
+import { RxReset } from "react-icons/rx";
 import { useLanguage } from "@/providers/LanguageProvider";
 import TBtn from "../TBtn";
+import Popover, { MenuDivider } from "@/components/ui/Popover";
+import Select from "@/components/ui/Select";
+import NumberInput from "@/components/ui/NumberInput";
 import { TblTrash, LockIcon, UnlockIcon } from "../icons";
-import { RxReset } from "react-icons/rx";
-import { IMG_ALIGNS, IMG_ALIGN_ICONS, IMG_FILTERS, IMG_LAYOUTS } from "../constants";
+import { IMG_ALIGNS, IMG_ALIGN_ICONS, IMG_FILTERS } from "../constants";
+import { _imageUploadFn } from "../utils";
 import styles from "../../RichTextEditor.module.css";
 
 interface ImageToolbarProps {
@@ -14,205 +21,203 @@ interface ImageToolbarProps {
   visible: boolean;
   selectedImage: Record<string, unknown> | null;
   setImageAttr: (attr: string, val: unknown) => void;
-  moveImage: (direction: "up" | "down") => void;
   onFocusCapture?: () => void;
   onBlurCapture?: () => void;
 }
 
+const LAYOUT_LABELS = {
+  inline: "Inline", block: "Block", float: "Float",
+};
+
+/**
+ * 이미지 floating toolbar — 선택한 이미지 바로 위에 컴팩트하게 뜬다.
+ * 메인: 레이아웃 / 정렬(block 일 때) / 캡션 토글 / ⋯
+ * ⋯ 오버플로: 비율잠금·W/H·원본복원 / 필터 / 순서 / 삭제
+ */
 export default React.memo(function ImageToolbar({
-  editor, visible, selectedImage, setImageAttr, moveImage, onFocusCapture, onBlurCapture,
+  editor, visible, selectedImage, setImageAttr, onFocusCapture, onBlurCapture,
 }: ImageToolbarProps) {
   const { t } = useLanguage();
 
+  const getRect = useCallback((): DOMRect => {
+    try {
+      const dom = selectedImage ? editor.api.toDOMNode(selectedImage) : null;
+      if (dom) {
+        // 슬레이트 wrapper 가 아닌 실제 <img> 박스에 맞춰 toolbar 위치 계산
+        // (wrapper 는 캡션·커서타깃까지 포함해 rect 가 이미지에서 벗어남)
+        const img = (dom as HTMLElement).querySelector("img");
+        return (img || dom).getBoundingClientRect();
+      }
+    } catch { /* ignore */ }
+    return new DOMRect();
+  }, [editor, selectedImage]);
+
+  const { refs, style, update } = useVirtualFloating({
+    open: visible,
+    getBoundingClientRect: getRect,
+    strategy: "fixed",
+    placement: "top",
+    middleware: [offset(8), flip({ padding: 8 }), shift({ padding: 8 })],
+  });
+  // 큰 이미지는 첫 렌더 시 레이아웃 전이라 rect 가 어긋남 → paint 후 rAF 로 위치 재계산
+  useEffect(() => {
+    if (!visible) return;
+    update?.();
+    const r = requestAnimationFrame(() => update?.());
+    return () => cancelAnimationFrame(r);
+  }, [visible, selectedImage, update]);
+
   const deleteImage = useCallback(() => {
     try {
+      // selection 이 toolbar 로 넘어가 above 가 비어도 캐시된 selectedImage path 로 삭제
+      let path = null;
       const entry = editor.api.above({ match: { type: "img" } });
-      if (entry) editor.tf.removeNodes({ at: entry[1] });
+      if (entry) path = entry[1];
+      else if (selectedImage) { const p = editor.api.findPath(selectedImage); if (p) path = p; }
+      if (path) editor.tf.removeNodes({ at: path });
     } catch { /* ignore */ }
-  }, [editor]);
+  }, [editor, selectedImage]);
 
-  // 캡션 로컬 state — 에디터 값과 동기화하되, 입력 중에는 로컬 우선
-  const [captionLocal, setCaptionLocal] = useState("");
-  const captionFocusedRef = useRef(false);
-  const externalCaption = selectedImage ? (selectedImage.caption as string || "") : "";
-  useEffect(() => {
-    if (!captionFocusedRef.current) setCaptionLocal(externalCaption);
-  }, [externalCaption]);
+  // 이미지 교체 — 파일 선택 후 업로드, url 교체 + 크기 초기화(새 이미지 원본 비율)
+  const replaceImage = useCallback(() => {
+    const fn = _imageUploadFn.current;
+    if (!fn) return;
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        const url = await fn(file);
+        if (url) { setImageAttr("url", url); setImageAttr("width", 0); setImageAttr("height", 0); }
+      } catch { /* ignore */ }
+    };
+    input.click();
+  }, [setImageAttr]);
 
-  return (
-    <div className={`${styles.tableToolbar} ${!visible ? styles.tableToolbarHidden : ""}`} onFocusCapture={onFocusCapture} onBlurCapture={onBlurCapture}>
-      <TBtn
-        square
-        className={styles.tableDangerBtn}
-        onClick={deleteImage}
-        tooltip={t("editor.deleteImage")}
-        style={{ position: "absolute", top: 4, right: 4, zIndex: 1 }}
-      >
-        <TblTrash />
+  // 캡션 input 은 이미지 아래에 렌더됨 — toolbar 버튼은 그 input 을 편집 모드로 트리거
+  const focusCaption = useCallback(() => {
+    try {
+      const dom = (selectedImage ? editor.api.toDOMNode(selectedImage) : null) as HTMLElement | null;
+      const wrapper = (dom?.closest('[data-slate-node="element"]') as HTMLElement | null) || dom;
+      const input = wrapper?.querySelector("[data-img-caption]") as HTMLTextAreaElement | null;
+      if (input) {
+        input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+        setTimeout(() => input.focus(), 0);
+      }
+    } catch { /* ignore */ }
+  }, [editor, selectedImage]);
+
+  // W/H — NumberInput 이 draft/commit 을 내부 처리. lock 비율 연동만 부모에서.
+  const wVal = (selectedImage?.width as number) || 0;
+  const hVal = (selectedImage?.height as number) || 0;
+  const lockVal = (selectedImage?.lockAspect as boolean) ?? true;
+  const ratioVal = wVal > 0 && hVal > 0 ? wVal / hVal : 0;
+  const commitW = useCallback((nw: number) => {
+    setImageAttr("width", nw);
+    if (lockVal && ratioVal > 0) setImageAttr("height", Math.round(nw / ratioVal));
+  }, [lockVal, ratioVal, setImageAttr]);
+  const commitH = useCallback((nh: number) => {
+    setImageAttr("height", nh);
+    if (lockVal && ratioVal > 0) setImageAttr("width", Math.round(nh * ratioVal));
+  }, [lockVal, ratioVal, setImageAttr]);
+
+  if (!visible || !selectedImage) return null;
+
+  const layout = (selectedImage.layout as string) || "inline";
+  const isFloat = layout.startsWith("float-");
+  const lock = (selectedImage.lockAspect as boolean) ?? true;
+
+  const toolbar = (
+    <div ref={refs.setFloating} className={styles.floatingToolbar} style={style}
+      onFocusCapture={onFocusCapture} onBlurCapture={onBlurCapture} onMouseDown={(e) => e.preventDefault()}>
+      {/* 레이아웃 — Inline / Block / Float (Float 은 단일 버튼, 좌/우는 아래에서) */}
+      <TBtn active={layout === "inline"} onClick={() => setImageAttr("layout", "inline")} tooltip={LAYOUT_LABELS.inline} style={{ padding: "0 10px" }}>{LAYOUT_LABELS.inline}</TBtn>
+      <TBtn active={layout === "block"} onClick={() => setImageAttr("layout", "block")} tooltip={LAYOUT_LABELS.block} style={{ padding: "0 10px" }}>{LAYOUT_LABELS.block}</TBtn>
+      <TBtn active={isFloat} onClick={() => { if (!isFloat) setImageAttr("layout", "float-left"); }} tooltip={LAYOUT_LABELS.float} style={{ padding: "0 10px" }}>{LAYOUT_LABELS.float}</TBtn>
+      {/* block 정렬 — block 일 때만 (left/center/right) */}
+      {layout === "block" && (
+        <>
+          <span className={styles.divider} />
+          {IMG_ALIGNS.map((a) => (
+            <TBtn key={a} square active={(selectedImage.align as string || "center") === a}
+              onClick={() => setImageAttr("align", a)}
+              tooltip={a === "left" ? t("editor.left") : a === "center" ? t("editor.center") : t("editor.right")}>
+              {IMG_ALIGN_ICONS[a]}
+            </TBtn>
+          ))}
+        </>
+      )}
+      {/* float 좌/우 — float 일 때만 */}
+      {isFloat && (
+        <>
+          <span className={styles.divider} />
+          <TBtn square active={layout === "float-left"} onClick={() => setImageAttr("layout", "float-left")} tooltip={t("editor.left")}>{IMG_ALIGN_ICONS.left}</TBtn>
+          <TBtn square active={layout === "float-right"} onClick={() => setImageAttr("layout", "float-right")} tooltip={t("editor.right")}>{IMG_ALIGN_ICONS.right}</TBtn>
+        </>
+      )}
+      <span className={styles.divider} />
+      {/* 캡션 — 버튼만 (input 은 이미지 아래) */}
+      <TBtn active={!!(selectedImage.caption as string)} onClick={focusCaption} tooltip={t("editor.caption")} style={{ padding: "0 10px" }}>
+        {t("editor.caption")}
       </TBtn>
-      <div className={styles.tableToolbarRow}>
-        <span className={styles.tableToolbarLabel}>IMAGE</span>
-        <div className={styles.divider} />
-
-        {/* 비율 고정 토글 */}
-        <div className={styles.tableGroup}>
-          <span className={styles.tableGroupLabel}>{t("editor.imageSize")}</span>
-          <TBtn
-            active={selectedImage ? (selectedImage.lockAspect as boolean) ?? true : true}
-            onClick={() => setImageAttr("lockAspect", !((selectedImage?.lockAspect as boolean) ?? true))}
-            tooltip={((selectedImage?.lockAspect as boolean) ?? true) ? t("editor.lockAspect") : t("editor.unlockAspect")}
-            style={{ padding: "0 6px" }}
-          >
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 2, fontSize: 9 }}>
-              <span style={{ display: "flex", transform: "scale(0.8)" }}>{((selectedImage?.lockAspect as boolean) ?? true) ? <LockIcon /> : <UnlockIcon />}</span>
-              {t("editor.ratio")}
-            </span>
-          </TBtn>
-          {selectedImage && (selectedImage.width as number) > 0 && (() => {
-            const w = selectedImage.width as number;
-            const h = (selectedImage.height as number) || 0;
-            const lock = (selectedImage.lockAspect as boolean) ?? true;
-            const ratio = w > 0 && h > 0 ? w / h : 0;
-            const inputStyle: React.CSSProperties = { width: 44, fontSize: 9, fontFamily: "var(--font-mono)", textAlign: "center", padding: "1px 2px", margin: "0 3px", border: "var(--border-light)", borderRadius: "var(--radius-2xs)", background: "var(--bg-primary)", color: "var(--text-primary)" };
-            const labelStyle: React.CSSProperties = { fontSize: 8, color: "var(--text-muted)", fontWeight: 600, padding: "0 3px" };
-            const sepStyle: React.CSSProperties = { width: 1, height: 14, background: "var(--border-light-color)", flexShrink: 0, margin: "0 2px" };
-            return (
-              <span style={{ display: "inline-flex", alignItems: "center", fontSize: 9, fontFamily: "var(--font-mono)", whiteSpace: "nowrap" }}>
-                <span style={labelStyle}>W</span>
-                <input
-                  type="number"
-                  value={w}
-                  min={1}
-                  style={inputStyle}
-                  onChange={(e) => {
-                    const nw = Math.max(1, parseInt(e.target.value) || 1);
-                    setImageAttr("width", nw);
-                    if (lock && ratio > 0) setImageAttr("height", Math.round(nw / ratio));
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                />
-                <span style={sepStyle} />
-                <span style={labelStyle}>H</span>
-                <input
-                  type="number"
-                  value={h || ""}
-                  min={1}
-                  placeholder="auto"
-                  style={inputStyle}
-                  onChange={(e) => {
-                    const nh = Math.max(1, parseInt(e.target.value) || 1);
-                    setImageAttr("height", nh);
-                    if (lock && ratio > 0) setImageAttr("width", Math.round(nh * ratio));
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                />
-              </span>
-            );
-          })()}
-          <TBtn square onClick={() => { setImageAttr("width", 0); setImageAttr("height", 0); }} tooltip={t("editor.restoreOriginal")}><RxReset size={13} /></TBtn>
-        </div>
-
-        <div className={styles.divider} />
-
-        {/* 배치 */}
-        <div className={styles.tableGroup}>
-          <span className={styles.tableGroupLabel}>{t("editor.imageLayout")}</span>
-          {IMG_LAYOUTS.map((l) => {
-            const labels: Record<string, string> = {
-              inline: "Inline",
-              block: "Block",
-              "float-left": "Float ◧",
-              "float-right": "Float ◨",
-            };
-            return (
-              <TBtn
-                key={l}
-                active={selectedImage ? (selectedImage.layout as string || "inline") === l : false}
-                onClick={() => setImageAttr("layout", l)}
-                tooltip={labels[l]}
-                style={{ padding: "0 6px" }}
-              >
-                <span style={{ fontSize: 9 }}>{labels[l]}</span>
-              </TBtn>
-            );
-          })}
-        </div>
-
-        <div className={styles.divider} />
-
-        {/* 정렬 — inline/float에서는 비활성화 */}
-        <div className={styles.tableGroup}>
-          <span className={styles.tableGroupLabel}>{t("editor.imageAlign")}</span>
-          {IMG_ALIGNS.map((a) => {
-            const currentLayout = (selectedImage?.layout as string) || "inline";
-            const disabled = currentLayout !== "block";
-            return (
-              <TBtn
-                key={a}
-                square
-                active={!disabled && selectedImage ? (selectedImage.align as string || "center") === a : false}
-                onClick={() => setImageAttr("align", a)}
-                tooltip={a === "left" ? t("editor.left") : a === "center" ? t("editor.center") : t("editor.right")}
-                disabled={disabled}
-              >
-                {IMG_ALIGN_ICONS[a]}
-              </TBtn>
-            );
-          })}
-        </div>
-
-        <div className={styles.divider} />
-
-        {/* 캡션 */}
-        <div className={styles.tableGroup}>
-          <span className={styles.tableGroupLabel}>{t("editor.caption")}</span>
-          <input
-            type="text"
-            value={captionLocal}
-            placeholder={t("editor.captionPlaceholder")}
-            onChange={(e) => {
-              setCaptionLocal(e.target.value);
-              setImageAttr("caption", e.target.value);
-            }}
-            onFocus={() => { captionFocusedRef.current = true; }}
-            onBlur={() => { captionFocusedRef.current = false; }}
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
-            className={styles.fontSelect}
-            style={{ width: 160 }}
-          />
-          <TBtn square onClick={() => { setImageAttr("caption", ""); setCaptionLocal(""); }} tooltip={t("editor.removeCaption")} disabled={!captionLocal}>×</TBtn>
-        </div>
-
-        <div className={styles.divider} />
-
-        {/* 색조 */}
-        <div className={styles.tableGroup}>
-          <span className={styles.tableGroupLabel}>{t("editor.filter")}</span>
-          <div className={styles.selectWrap}>
-            <select
-              value={selectedImage ? (selectedImage.filter as string || "") : ""}
-              onChange={(e) => { setImageAttr("filter", e.target.value); setTimeout(() => editor.tf.focus(), 0); }}
-              className={styles.fontSelect}
-              style={{ width: 80 }}
-            >
-              {IMG_FILTERS.map((f) => <option key={f.value} value={f.value}>{t(f.labelKey)}</option>)}
-            </select>
+      <span className={styles.divider} />
+      {/* 교체 / 삭제 — 메인 바에 노출 */}
+      {_imageUploadFn.current && (
+        <TBtn square onClick={replaceImage} tooltip={t("editor.replaceImage")}><ImageUp size={16} strokeWidth={1.75} /></TBtn>
+      )}
+      {/* 삭제 — 확인 후 삭제 */}
+      <Popover placement="bottom-end" contentClassName={styles.floatingMenu}
+        trigger={<TBtn square className={styles.tableDangerBtn} tooltip={t("editor.deleteImage")}><TblTrash /></TBtn>}>
+        {({ close }) => (
+          <div onMouseDown={(e) => e.preventDefault()} className={styles.imgConfirm}>
+            <span className={styles.imgConfirmMsg}>{t("editor.deleteImageConfirm")}</span>
+            <div className={styles.imgConfirmActions}>
+              <TBtn onClick={close} style={{ padding: "0 12px" }}>{t("editor.cancel")}</TBtn>
+              <TBtn className={styles.tableDangerBtn} onClick={() => { deleteImage(); close(); }} style={{ padding: "0 12px" }}>{t("editor.delete")}</TBtn>
+            </div>
           </div>
-        </div>
-
-        <div className={styles.divider} />
-
-        {/* 순서 */}
-        <div className={styles.tableGroup}>
-          <span className={styles.tableGroupLabel}>{t("editor.order")}</span>
-          <TBtn square onClick={() => moveImage("up")} tooltip={t("editor.moveUp")}>↑</TBtn>
-          <TBtn square onClick={() => moveImage("down")} tooltip={t("editor.moveDown")}>↓</TBtn>
-        </div>
-
-      </div>
+        )}
+      </Popover>
+      <span className={styles.divider} />
+      {/* ⋯ 오버플로 */}
+      <Popover placement="bottom-end" contentClassName={styles.floatingMenu}
+        trigger={<TBtn square tooltip={t("editor.more")}><MoreHorizontal size={14} strokeWidth={1.75} /></TBtn>}>
+        {() => (
+          <div onMouseDown={(e) => e.preventDefault()} className={styles.imgMoreMenu}>
+            <div className={styles.imgMoreRow}>
+              <TBtn active={lock} onClick={() => setImageAttr("lockAspect", !lock)} tooltip={lock ? t("editor.lockAspect") : t("editor.unlockAspect")} style={{ padding: "0 10px" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ display: "flex" }}>{lock ? <LockIcon /> : <UnlockIcon />}</span>{t("editor.ratio")}
+                </span>
+              </TBtn>
+              <span style={{ flex: 1 }} />
+              <TBtn square onClick={() => { setImageAttr("width", 0); setImageAttr("height", 0); }} tooltip={t("editor.restoreOriginal")}><RxReset size={14} /></TBtn>
+            </div>
+            {wVal > 0 && (
+              <div className={styles.imgMoreRow}>
+                <NumberInput label="W" value={wVal} min={1} width={52} onCommit={commitW} ariaLabel="Width" />
+                <NumberInput label="H" value={hVal} min={1} width={52} placeholder="auto" onCommit={commitH} ariaLabel="Height" />
+              </div>
+            )}
+            <MenuDivider />
+            <div className={styles.imgMoreRow}>
+              <span className={styles.tableGroupLabel}>{t("editor.filter")}</span>
+              <Select
+                value={(selectedImage.filter as string) || ""}
+                options={IMG_FILTERS.map((f) => ({ value: f.value, label: t(f.labelKey) }))}
+                onChange={(v) => { setImageAttr("filter", v); setTimeout(() => editor.tf.focus(), 0); }}
+                size="sm"
+                width="max"
+                preserveFocus
+              />
+            </div>
+          </div>
+        )}
+      </Popover>
     </div>
   );
-})
+
+  return typeof document !== "undefined" ? createPortal(toolbar, document.body) : null;
+});
