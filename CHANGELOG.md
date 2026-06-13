@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.19.0...v1.20.0) (2026-06-13)
+
+
+### Features
+
+* **plate:** 요소별 floating toolbar 개편 + 공통 NumberInput/Select ([#262](https://github.com/hyeoniverse/web-portfolio-oval/issues/262)) ([3bf7bfb](https://github.com/hyeoniverse/web-portfolio-oval/commit/3bf7bfb8ea03f81b91a9b9722f70d65ba642517d)), closes [#261](https://github.com/hyeoniverse/web-portfolio-oval/issues/261)
+
 ## [1.19.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.18.0...v1.19.0) (2026-06-07)
 
 
