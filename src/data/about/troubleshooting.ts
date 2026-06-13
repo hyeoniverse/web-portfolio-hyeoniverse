@@ -89,6 +89,11 @@ const itemMeta: Record<
   "각주 참조/내용 정합성 — 한쪽 삭제 시 고아 노드 잔존": { section: "E", difficulty: 2 },
   "링크 클릭 시 즉시 이동 — 에디터에서 링크 편집 불가": { section: "E", difficulty: 1 },
   "Plate 인라인 코드에서 방향키 커서 점프": { section: "E", difficulty: 2 },
+  "다중 블록 선택 배경이 float 이미지를 덮음 — z-index·flow-root·clip-path 모두 부적합": {
+    section: "E", difficulty: 3, recommended: true,
+    recommendReason: { ko: "여러 정공법(z-index/BFC/clip-path)이 디자인 제약 때문에 차례로 막힌 끝에, 영역 자체를 둘로 쪼개고 layout 을 관찰해 CSS 변수로 주입한 과정을 보여드리고 싶어 골랐습니다.", en: "Picked this because each textbook fix (z-index / BFC / clip-path) was blocked by a design constraint in turn, ending with splitting the region in two and feeding measured layout into CSS variables." },
+  },
+  "float 이미지(인라인 void) 클릭이 엉뚱한 본문 단락을 선택": { section: "E", difficulty: 2 },
   // Animation & Interaction
   "커스텀 커서 리사이즈 모드에서 마우스 방향에 따라 커서 회전": { section: "I", difficulty: 1 },
   "Page transition 이 hold 단계에서 멈추고 morph 후 skeleton 이 노출": { section: "I", difficulty: 3 },
@@ -1413,6 +1418,46 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     keyInsight: {
       ko: "`normalizeNode` 안에서 다른 노드를 삭제하면 **path shift로 인해 `Cannot find a descendant` 에러**가 발생합니다. 비동기 effect로 분리하면 안전합니다.",
       en: "Deleting other nodes inside `normalizeNode` causes **`Cannot find a descendant` errors due to path shifts**. Separating into an async effect is safer.",
+    },
+  },
+  {
+    section: { ko: "에디터 / 선택", en: "Editor / Selection" },
+    problem: { ko: "다중 블록 선택 배경이 float 이미지를 덮음 — z-index·flow-root·clip-path 모두 부적합", en: "Multi-block Selection Background Covers Floated Image — z-index, flow-root, clip-path All Fall Short" },
+    definition: {
+      ko: "여러 블록을 드래그로 선택하면 블록마다 옅은 배경 하이라이트를 깔아주는데, 좌·우로 텍스트를 감싸는(float) 이미지가 들어간 블록에서는 그 배경이 **이미지 위까지 덮어** 이미지가 가려졌습니다.",
+      en: "Dragging across multiple blocks paints a faint background highlight on each block, but in a block containing a text-wrapping (float) image, that background **painted over the image itself**, hiding it.",
+    },
+    cause: {
+      ko: "CSS `float` 이미지는 본문 블록의 box 흐름 안에 포함됩니다. 블록 전체에 배경을 깔면 이미지가 차지하는 영역까지 함께 칠해집니다. `z-index`로 이미지를 위로 올리면 디자인상 배경이 텍스트와 같은 평면이어야 한다는 의도가 깨지고, `display: flow-root`로 BFC를 만들면 텍스트 wrap 자체가 사라지며, `clip-path`로 이미지 영역을 도려내면 배경의 `border-radius`를 유지할 수 없었습니다.",
+      en: "A CSS `float` image lives inside the content block's box flow, so a background on the whole block also covers the image's area. Raising the image with `z-index` broke the design intent (background must sit on the same plane as text), `display: flow-root` (a BFC) killed the text wrap entirely, and `clip-path` carving out the image area couldn't preserve the background's `border-radius`.",
+    },
+    solution: {
+      ko: "배경을 단일 box가 아니라 `::before`/`::after` **두 개의 사각형으로 분리**했습니다. `ResizeObserver` + `MutationObserver(childList)` + 이미지 `load`로 이미지 rect를 측정해 CSS 변수(`--a-*`=이미지 옆 영역, `--b-*`=이미지 아래 영역)로 주입 — 각 사각형이 자기 `border-radius`를 그대로 유지한 채 이미지를 피해서 칠합니다. 더불어 `[data-multiblock] ::selection`을 transparent로 덮어 드래그 중 텍스트가 accent 색으로 물드는 글로벌 `::selection` 규칙도 차단했습니다.",
+      en: "Split the background from one box into **two rectangles via `::before`/`::after`**. `ResizeObserver` + `MutationObserver(childList)` + image `load` measure the image rect and feed it into CSS variables (`--a-*` = area beside the image, `--b-*` = area below it) — each rectangle keeps its own `border-radius` while painting around the image. Also overrode `[data-multiblock] ::selection` to transparent to block the global `::selection` rule that was tinting dragged text with the accent color.",
+    },
+    keyInsight: {
+      ko: "`float`은 본문 박스 흐름에 묶여 있어 \"이미지를 피하는 배경\"을 단일 요소로는 만들 수 없습니다. **영역을 실제로 둘로 쪼개고 layout을 관찰해 변수로 주입**하는 방식이 radius까지 보존하는 유일한 해법이었습니다. 정공법(z-index/BFC/clip-path)이 모두 디자인 제약에 막힐 때는 '문제의 형태' 자체를 바꿔야 합니다.",
+      en: "Because `float` is bound to the content box flow, you can't build a \"background that avoids the image\" as one element. **Physically splitting the region in two and feeding observed layout into variables** was the only approach that also preserved the radius. When every textbook fix (z-index / BFC / clip-path) hits a design constraint, you have to change the shape of the problem itself.",
+    },
+  },
+  {
+    section: { ko: "에디터 / 선택", en: "Editor / Selection" },
+    problem: { ko: "float 이미지(인라인 void) 클릭이 엉뚱한 본문 단락을 선택", en: "Clicking a Floated Image (Inline Void) Selects the Wrong Paragraph" },
+    definition: {
+      ko: "float 레이아웃 이미지를 클릭하면 이미지가 아니라 그 아래에 깔린 본문 단락(p/li)이 선택되어, floating 툴바가 엉뚱한 위치에 떴습니다.",
+      en: "Clicking a floated image selected the underlying paragraph (p/li) instead of the image, so the floating toolbar appeared in the wrong place.",
+    },
+    cause: {
+      ko: "이미지는 inline void 노드라 float 되면 본문 텍스트와 같은 평면에 겹쳐 흐릅니다. 클릭 시 `event.target`이 시각적으로 위에 있는 이미지가 아니라 흐름상 그 자리를 차지한 `LI`/`p`로 잡혔습니다(진단 로그로 `[imgclick] {tag:'LI'} node{type:'p'}` 확인).",
+      en: "An image is an inline void node, so when floated it overlaps the same plane as the body text. On click, `event.target` resolved to the `LI`/`p` that occupies that spot in the flow — not the visually-on-top image (confirmed via diagnostic log `[imgclick] {tag:'LI'} node{type:'p'}`).",
+    },
+    solution: {
+      ko: "PlateEditor의 capture-phase mousedown 핸들러에서 `document.elementsFromPoint`로 클릭 지점의 요소 스택을 훑어 이미지 wrapper를 먼저 찾고, `ReactEditor.toSlateNode`로 그 노드를 직접 선택합니다(캡션 영역은 `[data-img-caption]`으로 제외). 스크롤 위치도 보존합니다.",
+      en: "In PlateEditor's capture-phase mousedown handler, walk the element stack at the click point with `document.elementsFromPoint` to find the image wrapper first, then select that node directly via `ReactEditor.toSlateNode` (caption area excluded by `[data-img-caption]`), preserving scroll position.",
+    },
+    keyInsight: {
+      ko: "`float`된 inline void는 **시각적 위치와 흐름상 위치가 어긋나** `event.target`이 직관과 다르게 잡힙니다. 좌표 기반 `elementsFromPoint`로 z-순서 스택을 직접 읽어야 \"보이는 것\"을 선택할 수 있습니다.",
+      en: "A floated inline void has a **mismatch between its visual position and its flow position**, so `event.target` lands somewhere unintuitive. Reading the z-order stack directly with coordinate-based `elementsFromPoint` is what lets you select \"what's visible.\"",
     },
   },
   {

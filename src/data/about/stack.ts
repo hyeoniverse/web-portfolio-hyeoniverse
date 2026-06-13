@@ -12,7 +12,7 @@ export const techStack: TechStackItem[] = [
   { name: "Three.js / R3F", category: "3D Graphics" },
   { name: "Zustand", category: "State Management" },
   { name: "Supabase", category: "Backend (DB/Auth/Storage)" },
-  { name: "Tiptap", category: "Rich Text Editor" },
+  { name: "Plate.js", category: "Rich Text Editor" },
   { name: "NanoBanana / Hugging Face", category: "AI Image Generation" },
   { name: "Formspree", category: "Form & Email" },
   { name: "Vercel", category: "Deployment" },
