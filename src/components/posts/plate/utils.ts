@@ -94,6 +94,10 @@ export const _mathDeleteNode: { current: (() => void) | null } = { current: null
 // 이미지 업로드 함수 공유 (CalloutElement 이모지 피커에서 사용)
 export const _imageUploadFn: { current: ((file: File) => Promise<string>) | null } = { current: null };
 
+// "/" 텍스트 없이 슬래시 메뉴를 수동으로 여는 트리거 — 블록 + 버튼이 호출, SlashMenu 가 등록.
+// onCancel: 메뉴를 명령 선택 없이 닫을 때(blur/Esc/이동) 호출 — + 로 새로 만든 빈 블록 제거용.
+export const _slashOpenTrigger: { current: ((onCancel?: () => void) => void) | null } = { current: null };
+
 // ── Find & Replace: pure text-match helper ──
 
 export interface FindMatch {

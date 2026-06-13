@@ -159,7 +159,11 @@ export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean
       return false;
     }
   }, [editor, selection]);
-  const open = focused && selection != null && !hideToolbar && !voidSelected;
+  // 텍스트를 실제로 선택(드래그)했을 때만 — collapsed 커서(클릭)엔 숨김
+  const collapsed = React.useMemo(() => {
+    try { return editor.api.isCollapsed(); } catch { return true; }
+  }, [editor, selection]);
+  const open = focused && selection != null && !collapsed && !hideToolbar && !voidSelected;
 
   const { refs, style, update } = useVirtualFloating({
     open,

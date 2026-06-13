@@ -6,6 +6,7 @@ import {
   PlateContent,
   usePlateEditor,
 } from "platejs/react";
+import { ReactEditor } from "slate-react";
 import { insertMediaEmbed } from "@platejs/media";
 import { upsertLink, unwrapLink } from "@platejs/link";
 import { toggleList } from "@platejs/list";
@@ -45,6 +46,7 @@ import { RxReset } from "react-icons/rx";
 import { Pipette, ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, Unlink } from "lucide-react";
 import Tooltip from "@/components/ui/Tooltip";
 import ColorPicker from "@/components/ui/ColorPicker";
+import NumberInput from "@/components/ui/NumberInput";
 
 // Re-export ImagePanel for backward compatibility
 export { ImagePanel } from "./plate/ImagePanel";
@@ -163,6 +165,125 @@ function ColumnRatioInputs({ colChildren, colCount, activePath, editor }: {
   );
 }
 
+// 다중 블록 선택 시 — 텍스트 하이라이트 대신 블록 전체에 배경 표시.
+// selection 이 두 개 이상의 top-level 블록에 걸치면 해당 블록 DOM 에 data-block-selected 부여.
+function MultiBlockHighlight() {
+  useEffect(() => {
+    const root = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
+    if (!root) return;
+    const CLIP_VARS = ["--a-l", "--a-t", "--a-w", "--a-h", "--b-l", "--b-t", "--b-w", "--b-h"];
+    const clearClip = (el: HTMLElement) => { el.removeAttribute("data-float-clip"); CLIP_VARS.forEach((v) => el.style.removeProperty(v)); };
+    const clear = () => root.querySelectorAll("[data-block-selected]").forEach((el) => { el.removeAttribute("data-block-selected"); clearClip(el as HTMLElement); });
+    // float 이미지가 겹치는 블록은 선택 배경을 2조각(이미지 옆 ::before / 아래 ::after)으로 나눠 이미지 영역을 비움
+    const applyClip = (block: HTMLElement, floats: HTMLElement[]) => {
+      const br = block.getBoundingClientRect();
+      const f = floats.find((fi) => {
+        const fr = fi.getBoundingClientRect();
+        return fr.right > br.left + 1 && fr.left < br.right - 1 && fr.bottom > br.top + 1 && fr.top < br.bottom - 1;
+      });
+      if (!f) { clearClip(block); return; }
+      const fr = f.getBoundingClientRect();
+      const bw = br.width, bh = br.height;
+      const GAP = 10; // 이미지와 배경 조각 사이 간격
+      const ih = Math.max(0, Math.min(fr.bottom - br.top, bh)); // 이미지 하단(블록 기준)
+      const side = f.getAttribute("data-float-side") || "left";
+      // ::before = 이미지 옆(전체 높이), ::after = 이미지 아래(이미지 폭까지만) — 서로 안 겹치게(반투명 중첩 방지)
+      if (side === "left") {
+        const iw = Math.max(0, Math.min(fr.right - br.left, bw)); // 이미지 우측
+        block.style.setProperty("--a-l", `${iw + GAP}px`);
+        block.style.setProperty("--a-w", `${Math.max(0, bw - iw - GAP + 8)}px`);
+        block.style.setProperty("--b-l", `-8px`);
+        block.style.setProperty("--b-w", `${iw + GAP + 8}px`);
+      } else {
+        const il = Math.max(0, Math.min(fr.left - br.left, bw)); // 이미지 좌측
+        block.style.setProperty("--a-l", `-8px`);
+        block.style.setProperty("--a-w", `${Math.max(0, il - GAP + 8)}px`);
+        block.style.setProperty("--b-l", `${il - GAP}px`);
+        block.style.setProperty("--b-w", `${Math.max(0, bw - il + GAP + 8)}px`);
+      }
+      block.style.setProperty("--a-t", `-2px`);
+      block.style.setProperty("--a-h", `${bh + 4}px`);
+      block.style.setProperty("--b-t", `${ih + GAP}px`);
+      block.style.setProperty("--b-h", `${Math.max(0, bh - ih - GAP + 2)}px`);
+      block.setAttribute("data-float-clip", side);
+    };
+    // 에디터 루트의 직속 자식(top-level 블록 래퍼) 찾기
+    const blockOf = (node: Node | null): HTMLElement | null => {
+      let el: HTMLElement | null = node ? (node.nodeType === 3 ? node.parentElement : (node as HTMLElement)) : null;
+      while (el && el.parentElement && el.parentElement !== root) el = el.parentElement;
+      return el && el.parentElement === root ? el : null;
+    };
+    // DOM selection 을 직접 읽어 selectionchange 에 즉시 토글 — slate 의 raf 갱신 지연/리렌더를 안 거쳐 깜빡임 없음
+    const apply = () => {
+      clear();
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0 || sel.isCollapsed || !root.contains(sel.anchorNode) || !root.contains(sel.focusNode)) {
+        root.removeAttribute("data-multiblock");
+        return;
+      }
+      const aB = blockOf(sel.anchorNode);
+      const fB = blockOf(sel.focusNode);
+      if (!aB || !fB || aB === fB) { root.removeAttribute("data-multiblock"); return; }
+      root.setAttribute("data-multiblock", "");
+      const floats = Array.from(root.querySelectorAll("[data-float-side]")) as HTMLElement[];
+      let start = aB, end = fB;
+      if (aB.compareDocumentPosition(fB) & Node.DOCUMENT_POSITION_PRECEDING) { start = fB; end = aB; }
+      let cur: HTMLElement | null = start;
+      while (cur) {
+        cur.setAttribute("data-block-selected", "");
+        if (floats.length) applyClip(cur, floats); else clearClip(cur);
+        if (cur === end) break;
+        cur = cur.nextElementSibling as HTMLElement | null;
+      }
+    };
+    document.addEventListener("selectionchange", apply);
+    return () => {
+      document.removeEventListener("selectionchange", apply);
+      root.removeAttribute("data-multiblock");
+      clear();
+    };
+  }, []);
+  return null;
+}
+
+// float-left 이미지 옆 블록에 --float-edge(이미지 우측+gap) 설정 → 핸들·placeholder 를 이미지 옆으로.
+// 실제론 float-wrap 이지만 핸들/placeholder 가 이미지 영역을 피해 flow-root 처럼 보이게.
+function FloatEdgeAdjust() {
+  useEffect(() => {
+    const root = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
+    if (!root) return;
+    const MARGIN = 20; // float 이미지 margin-right — 텍스트 입력 시작 위치와 일치
+    const update = () => {
+      const blocks = Array.from(root.children) as HTMLElement[];
+      blocks.forEach((b) => b.style.removeProperty("--float-edge"));
+      const floats = Array.from(root.querySelectorAll('[data-float-side="left"]')) as HTMLElement[];
+      if (!floats.length) return;
+      for (const f of floats) {
+        const fr = f.getBoundingClientRect();
+        for (const b of blocks) {
+          const br = b.getBoundingClientRect();
+          if (fr.right > br.left && fr.left < br.right && fr.bottom > br.top + 2 && fr.top < br.bottom - 2) {
+            const edge = Math.max(0, fr.right - br.left) + MARGIN;
+            const prev = parseFloat(b.style.getPropertyValue("--float-edge")) || 0;
+            if (edge > prev) b.style.setProperty("--float-edge", `${edge}px`);
+          }
+        }
+      }
+    };
+    update();
+    // 레이아웃 변화(리사이즈/이미지 로드)·구조 변화(블록 추가삭제) 시 갱신.
+    // (style 변경은 attributeFilter 에서 제외 → --float-edge 설정이 무한 루프 안 일으킴)
+    const ro = new ResizeObserver(update);
+    ro.observe(root);
+    const mo = new MutationObserver(update);
+    mo.observe(root, { childList: true, subtree: true });
+    const onLoad = () => update();
+    root.querySelectorAll("img").forEach((img) => img.addEventListener("load", onLoad));
+    return () => { ro.disconnect(); mo.disconnect(); root.querySelectorAll("img").forEach((img) => img.removeEventListener("load", onLoad)); };
+  }, []);
+  return null;
+}
+
 // ── Main component ──
 export default function PlateEditor({
   value,
@@ -194,6 +315,7 @@ export default function PlateEditor({
 
   // ── Inline input states ──
   const [showLinkInput, setShowLinkInput] = useState(false);
+  const [slashOpen, setSlashOpen] = useState(false);
   const [linkForm, setLinkForm] = useState({ url: "", text: "", protocol: "https://" as string, target: "_blank" as string });
   const [showEmbedInput, setShowEmbedInput] = useState(false);
   const [embedInputValue, setEmbedInputValue] = useState("");
@@ -280,15 +402,56 @@ export default function PlateEditor({
         };
         requestAnimationFrame(tick);
       };
-      const onCompStart = () => { composingRef.current = true; };
+      const onCompStart = () => { composingRef.current = true; editorEl?.setAttribute("data-composing", ""); };
       const onCompEnd = () => {
         composingRef.current = false;
+        editorEl?.removeAttribute("data-composing");
         lastCompositionEndRef.current = Date.now();
         const pending = pendingClickRef.current;
         pendingClickRef.current = null;
         if (pending) forceCaret(pending.x, pending.y);
       };
       const onMouseDown = (e: MouseEvent) => {
+        // 이미지(inline void) 클릭 — float 등 흐름 밖 상태에서 slate 가 caret 을 인접 문단으로
+        // 보내는 문제. capture 단계에서 가로채 기본 동작을 막고 이미지 노드를 직접 선택.
+        // 클릭 지점을 감싸는 element wrapper 가 img 면 선택(이미지·핸들·내부 span 어디든).
+        // 단 캡션 입력란 클릭은 편집해야 하므로 제외.
+        const tgt = e.target as HTMLElement;
+        // float 이미지는 흐름 밖이라 e.target 이 뒤에 깔린 요소(LI 등)로 잡힘 →
+        // 클릭 좌표의 모든 요소 중 <img> 를 찾아 그 이미지 노드를 선택 (stacking 무관).
+        if (tgt && !tgt.closest("[data-img-caption]")) {
+          const stack = document.elementsFromPoint(e.clientX, e.clientY);
+          const imgDom = stack.find((el) => el.tagName === "IMG") as HTMLElement | undefined;
+          if (imgDom) {
+            const elDom = imgDom.closest('[data-slate-node="element"]') as HTMLElement | null;
+            if (elDom) {
+              try {
+                const node = ReactEditor.toSlateNode(editor as unknown as ReactEditor, elDom);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if (node && (node as any).type === "img") {
+                  const path = ReactEditor.findPath(editor as unknown as ReactEditor, node);
+                  if (path) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    const anchor = editor.api.start(path);
+                    const focus = editor.api.end(path);
+                    // focus/select 시 브라우저가 selection 으로 스크롤 점프 → 위치 보존 후 복원
+                    const sc = editorEl;
+                    const prevTop = sc ? sc.scrollTop : 0;
+                    editor.tf.focus();
+                    editor.tf.select(anchor && focus ? { anchor, focus } : path);
+                    if (sc) {
+                      const restore = () => { sc.scrollTop = prevTop; };
+                      restore();
+                      requestAnimationFrame(restore);
+                    }
+                    return;
+                  }
+                }
+              } catch { /* ignore */ }
+            }
+          }
+        }
         if (composingRef.current) {
           pendingClickRef.current = { x: e.clientX, y: e.clientY };
           return;
@@ -965,25 +1128,6 @@ export default function PlateEditor({
     } catch { /* ignore */ }
   }, [editor]);
 
-  const moveImage = useCallback((direction: "up" | "down") => {
-    if (!editor?.selection) return;
-    try {
-      const entry = editor.api.above({ match: { type: "img" } });
-      if (!entry) return;
-      const path = entry[1];
-      const idx = path[path.length - 1];
-      const parentPath = path.slice(0, -1);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const parent = (editor as any).api.node(parentPath)?.[0] as { children?: unknown[] } | undefined;
-      const siblingCount = parent?.children?.length ?? 0;
-      if (direction === "up" && idx > 0) {
-        editor.tf.moveNodes({ at: path, to: [...parentPath, idx - 1] });
-      } else if (direction === "down" && idx < siblingCount - 1) {
-        editor.tf.moveNodes({ at: path, to: [...parentPath, idx + 1] });
-      }
-    } catch { /* ignore */ }
-  }, [editor]);
-
   // ── Link / Embed insert ──
   const doInsertLink = useCallback((form: { url: string; text: string; protocol: string; target: string }) => {
     if (!editor || !form.url) return;
@@ -1589,7 +1733,6 @@ export default function PlateEditor({
             onBlurCapture={() => setImgToolbarFocused(false)}
             selectedImage={selectedImage}
             setImageAttr={setImageAttr}
-            moveImage={moveImage}
           />
 
           <MathToolbar visible={mathEditing && noOverlay} />
@@ -1637,38 +1780,10 @@ export default function PlateEditor({
                     <>
                       <div className={styles.tableGroup}>
                         <span className={styles.embedStartLabel}>Start</span>
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 2, padding: "0 4px" }}>
-                          <span className={styles.embedTimeSep}>h</span>
-                          <input
-                            type="number"
-                            min={0}
-                            value={hh}
-                            onChange={(e) => handleTimeChange("h", e.target.value)}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            className={styles.embedTimeInput}
-                          />
-                          <span className={styles.embedTimeSep}>:</span>
-                          <span className={styles.embedTimeSep}>m</span>
-                          <input
-                            type="number"
-                            min={0}
-                            max={59}
-                            value={mm}
-                            onChange={(e) => handleTimeChange("m", e.target.value)}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            className={styles.embedTimeInput}
-                          />
-                          <span className={styles.embedTimeSep}>:</span>
-                          <span className={styles.embedTimeSep}>s</span>
-                          <input
-                            type="number"
-                            min={0}
-                            max={59}
-                            value={ss}
-                            onChange={(e) => handleTimeChange("s", e.target.value)}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            className={styles.embedTimeInput}
-                          />
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "0 4px" }}>
+                          <NumberInput label="h" value={hh} min={0} emptyValue={-1} stepper={false} width={26} onCommit={(n) => handleTimeChange("h", String(n))} ariaLabel="hours" />
+                          <NumberInput label="m" value={mm} min={0} max={59} emptyValue={-1} stepper={false} width={26} onCommit={(n) => handleTimeChange("m", String(n))} ariaLabel="minutes" />
+                          <NumberInput label="s" value={ss} min={0} max={59} emptyValue={-1} stepper={false} width={26} onCommit={(n) => handleTimeChange("s", String(n))} ariaLabel="seconds" />
                         </span>
                       </div>
                       <div className={styles.tableGroup}>
@@ -2362,7 +2477,6 @@ export default function PlateEditor({
             />
             <PlateContent
               className={styles.editorContent}
-              placeholder="Write your content..."
               style={{ minHeight: 300, paddingBottom: 40 }}
               data-lenis-prevent
               onKeyDown={handleContentKeyDown}
@@ -2416,10 +2530,16 @@ export default function PlateEditor({
         </div>
 
         {/* 선택 영역 floating 포맷팅 툴바 (링크/임베드 입력 중엔 숨김) */}
-        <FloatingToolbar hideToolbar={showLinkInput || showEmbedInput} />
+        <FloatingToolbar hideToolbar={showLinkInput || showEmbedInput || isInImage || isInMediaEmbed || mathEditing || slashOpen} />
 
         {/* 슬래시 명령 메뉴 (/) */}
-        <SlashMenu />
+        <SlashMenu onOpenChange={setSlashOpen} />
+
+        {/* 다중 블록 선택 하이라이트 */}
+        <MultiBlockHighlight />
+
+        {/* float 이미지 옆 블록의 핸들/placeholder 위치 조정 */}
+        <FloatEdgeAdjust />
 
         {/* 이모지 인라인 검색 (:) */}
         <EmojiMenu />

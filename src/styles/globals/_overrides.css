@@ -24,6 +24,16 @@ textarea::selection {
   color: var(--text-inverse);
 }
 
+/* 에디터 다중 블록 선택 시 — 텍스트 하이라이트/색 변화 제거 (블록 배경으로 대체) */
+[data-slate-editor][data-multiblock] ::selection {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+[data-slate-editor][data-multiblock] ::-moz-selection {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
 strong {
   background: linear-gradient(
     145deg,
