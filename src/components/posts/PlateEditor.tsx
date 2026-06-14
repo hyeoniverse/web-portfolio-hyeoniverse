@@ -69,6 +69,40 @@ const renderFindLeaf = (props: import("platejs").RenderLeafProps) => {
   return <span {...attributes}>{children}</span>;
 };
 
+// float/block 이미지가 텍스트와 한 문단에 섞여 있으면 [전][이미지][후] 문단으로 분리.
+// 이미지는 inline void 라 같은 문단에 섞일 수 있는데, 그러면 블록 드래그 시 통째로 이동된다.
+// 콘텐츠 로드(deserialize) 직후 1회 적용 — 노드 배열만 가공(순수 함수)해 normalize 타이밍 의존 X.
+function isolateFloatImageBlocks(nodes: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
+  const isFloatImg = (c: Record<string, unknown>) =>
+    c?.type === "img" && (c.layout === "block" || (typeof c.layout === "string" && (c.layout as string).startsWith("float")));
+  const meaningful = (c: Record<string, unknown>) =>
+    typeof c.text === "string" ? (c.text as string).replace(/[​‌‍﻿\s]/g, "").length > 0 : true;
+  const pad = (a: Array<Record<string, unknown>>) => {
+    const arr = [...a];
+    if (!arr.length || typeof arr[0]?.text !== "string") arr.unshift({ text: "" });
+    if (typeof arr[arr.length - 1]?.text !== "string") arr.push({ text: "" });
+    return arr;
+  };
+  const out: Array<Record<string, unknown>> = [];
+  for (const block of nodes) {
+    const kids = block?.children as Array<Record<string, unknown>> | undefined;
+    if (!Array.isArray(kids)) { out.push(block); continue; }
+    const imgIdx = kids.findIndex(isFloatImg);
+    if (imgIdx === -1) { out.push(block); continue; }
+    const before = kids.slice(0, imgIdx);
+    const after = kids.slice(imgIdx + 1);
+    const hasBefore = before.some(meaningful);
+    const hasAfter = after.some(meaningful);
+    if (!hasBefore && !hasAfter) { out.push(block); continue; }
+    const blockType = typeof block.type === "string" ? block.type : "p";
+    if (hasBefore) out.push({ ...block, type: blockType, children: pad(before) });
+    out.push({ type: "p", children: [{ text: "" }, kids[imgIdx], { text: "" }] });
+    // 뒤쪽에 또 float 이미지가 있을 수 있으니 재귀
+    if (hasAfter) out.push(...isolateFloatImageBlocks([{ ...block, type: blockType, children: pad(after) }]));
+  }
+  return out;
+}
+
 // ── Column ratio inputs (Enter/blur로 적용) ──
 function ColumnRatioInputs({ colChildren, colCount, activePath, editor }: {
   colChildren: { width?: string }[];
@@ -892,6 +926,27 @@ export default function PlateEditor({
     return () => clearTimeout(timer);
   }, [editor, tick]);
 
+  // ── 초기 콘텐츠의 float 이미지 분리 (1회) ──
+  // usePlateEditor 가 만든 초기 콘텐츠는 아래 value 동기화 effect 가 skip 하므로 여기서 처리.
+  // float/block 이미지가 텍스트와 한 문단이면 분리(= 블록 드래그 독립). 구조가 바뀔 때만 setValue.
+  const didInitIsolateRef = useRef(false);
+  useEffect(() => {
+    if (!editor || didInitIsolateRef.current) return;
+    const t = setTimeout(() => {
+      if (didInitIsolateRef.current) return;
+      didInitIsolateRef.current = true;
+      try {
+        const cur = editor.children as unknown as Array<Record<string, unknown>>;
+        const split = isolateFloatImageBlocks(cur);
+        if (split.length !== cur.length) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          editor.tf.setValue(split as any);
+        }
+      } catch { /* ignore */ }
+    }, 60);
+    return () => clearTimeout(t);
+  }, [editor]);
+
   // ── 외부 value 동기화 ──
   useEffect(() => {
     if (!editor) return;
@@ -904,8 +959,11 @@ export default function PlateEditor({
     prevValueRef.current = value;
     try {
       const nodes = editor.api.html.deserialize({ element: value || "<p></p>" });
+      // float/block 이미지가 텍스트와 같은 문단에 섞여 있으면(= inline void 라 생기는 현상)
+      // 블록 드래그 시 통째로 움직인다. 로드 시점에 이미지를 자기 문단으로 분리해 독립 이동 보장.
+      const split = isolateFloatImageBlocks(nodes as Array<Record<string, unknown>>);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      editor.tf.setValue(nodes as any);
+      editor.tf.setValue(split as any);
 
       // ☐ 마커(U+200B + U+2610)가 있는 paragraph → todo 변환
       editor.tf.withoutNormalizing(() => {
@@ -1235,6 +1293,7 @@ export default function PlateEditor({
     // composition commit 과 우리 동작을 둘 다 처리하면서 글자 복제 / 빈 줄 삽입
     // 등 race condition 발생. 브라우저가 composition 끝낸 후 다시 키 누르면 정상 처리.
     if (e.nativeEvent.isComposing) return;
+
     // ── Find & Replace 단축키 ──
     const mod = e.metaKey || e.ctrlKey;
     if (mod && e.key === "f") {
@@ -2465,12 +2524,12 @@ export default function PlateEditor({
             <div
               id="inline-drag-caret"
               style={{
-                position: "absolute",
-                width: 2,
+                position: "fixed",
+                width: 3,
                 background: "var(--color-accent)",
                 borderRadius: 1,
                 pointerEvents: "none",
-                zIndex: 10,
+                zIndex: 9998,
                 opacity: 0,
                 transition: "opacity 0.1s",
               }}

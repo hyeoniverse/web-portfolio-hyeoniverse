@@ -1182,10 +1182,12 @@
   padding: var(--box-xs);
   width: 120px;
   outline: none;
+  /* 내용에 맞춰 높이 자동 — 입력 길이만큼만 공간 차지(미리 큰 공간 확보 X) */
+  field-sizing: content;
 }
 
 .captionInput::placeholder {
-  color: var(--text-white);
+  color: var(--text-muted);
 }
 
 /* ── Cell border popover ── */
@@ -2300,6 +2302,14 @@
   padding-top: calc((var(--font-size-md) * var(--line-height-relaxed) - 22px) / 2);
   opacity: 0;
   user-select: none;
+  /* float 이미지 옆 블록은 거터가 이미지 위에 겹친다 — 이미지 오버레이(z 6) 위로 올려야
+     핸들(드래그) 클릭이 이미지에 안 먹힘. 숨김 상태에선 이미지 클릭을 막지 않도록
+     거터 자체는 pointer-events 차단, 버튼만 활성. */
+  z-index: 7;
+  pointer-events: none;
+}
+.blockDragGutter > * {
+  pointer-events: auto;
 }
 /* 블록 도구 popover (이동 핸들 클릭) */
 .blockToolsMenu {
@@ -2400,10 +2410,11 @@
 .blockDragHandleBtn:active {
   cursor: grabbing;
 }
-/* drop line — 블록 위/아래 삽입 위치 표시 */
+/* drop line — 블록 위/아래 삽입 위치 표시. float 이미지 옆 블록은 텍스트 시작(--float-edge)부터
+   그어 이미지 영역을 침범하지 않게 */
 .blockDropLine {
   position: absolute;
-  left: 0;
+  left: var(--float-edge, 0px);
   right: 0;
   height: 2px;
   background: var(--bg-accent-solid);
@@ -3430,10 +3441,24 @@
   background: var(--bg-tertiary);
   color: var(--text-primary);
 }
-/* 선택(active) 시에만 표시 — hover 로 띄우면 핸들이 이미지 박스 밖이라 경계에서 깜빡임 */
+/* 이미지 영역 hover(자손 hover 포함) 또는 선택(active) 시 핸들 표시 */
+.imgHoverZone {
+  position: relative;
+}
+.imgHoverZone:hover .imgMoveHandle,
 .imgMoveHandle.imgMoveHandleActive {
   opacity: 1;
   pointer-events: auto;
+}
+/* 핸들(-26px, 이미지 박스 왼쪽 바깥)과 이미지 사이 빈틈을 투명 hit-area 로 이어
+   커서가 이동하는 동안 hover 가 끊기지 않게 → 깜빡임/도달 불가 방지 */
+.imgMoveHandle::after {
+  content: "";
+  position: absolute;
+  left: 100%;
+  top: 0;
+  width: 18px;
+  height: 100%;
 }
 
 /* 삭제 확인 팝오버 */
