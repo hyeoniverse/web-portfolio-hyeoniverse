@@ -825,6 +825,7 @@
       "sortNewest": "최신순",
       "sortOldest": "오래된순",
       "sortPopular": "인기순",
+      "sortOrder": "순서",
       "sortDate": "최신",
       "sortName": "제목",
       "sortNewestDeleted": "최근 삭제",

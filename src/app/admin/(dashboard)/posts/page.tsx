@@ -84,7 +84,7 @@ export default function AdminPostsPage() {
   const [seriesPage, setSeriesPage] = useState(1);
   const [seriesSearch, setSeriesSearch] = useState("");
   const [seriesSearchType, setSeriesSearchType] = useState<"all" | "title" | "content">("all");
-  const [seriesSort, setSeriesSort] = useState<"newest" | "oldest" | "name">("newest");
+  const [seriesSort, setSeriesSort] = useState<"order" | "newest" | "oldest" | "name">("order");
   const [seriesFilter, setSeriesFilter] = useState<"" | "published" | "draft">("");
   const [seriesPerPage, setSeriesPerPage] = useState(5);
   const [seriesSelected, setSeriesSelected] = useState<Set<string>>(new Set());
@@ -249,7 +249,8 @@ export default function AdminPostsPage() {
     }
     if (seriesFilter === "published") list = list.filter((s) => s.published);
     if (seriesFilter === "draft") list = list.filter((s) => !s.published);
-    if (seriesSort === "newest") list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    if (seriesSort === "order") list.sort((a, b) => a.sort_order - b.sort_order);
+    else if (seriesSort === "newest") list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     else if (seriesSort === "oldest") list.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     else if (seriesSort === "name") list.sort((a, b) => a.title.localeCompare(b.title));
     return list;
@@ -493,9 +494,27 @@ export default function AdminPostsPage() {
     await downloadFiles(files);
   }, []);
 
+  // 순서 인라인 편집 — order 정렬 + 검색/필터 없을 때만 (그 외엔 표시 순번이 sort_order 와 어긋나 혼란)
+  const seriesReorder = useMemo(
+    () =>
+      seriesSort === "order" && !seriesSearch && seriesFilter === ""
+        ? async (s: Series, newOrder: number) => {
+            if (newOrder === s.sort_order) return;
+            await fetch(`/api/series/${s.id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ sort_order: newOrder }),
+            });
+            await fetchSeries();
+          }
+        : undefined,
+    [seriesSort, seriesSearch, seriesFilter, fetchSeries],
+  );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const seriesColumns = useMemo(() => createSeriesColumns(t, handleDeleteSeries, handleExportSeries, language, categories), [t, language, categories]);
+  const seriesColumns = useMemo(() => createSeriesColumns(t, handleDeleteSeries, handleExportSeries, language, categories, seriesReorder, seriesList.length), [t, language, categories, seriesReorder, seriesList.length]);
 
+  // 시리즈/휴지통 섹션은 posts loading 과 무관(자체 loading 스켈레톤 보유) → AdminListShell 에 항상 렌더한다.
+  // (예전엔 !loading 조건으로 가려서, perPage 변경 등 메인 테이블 reload 시 펼쳐진 섹션이 사라져 레이아웃이 크게 점프했다)
   const seriesSection = (
     <div className={styles.seriesSection}>
       <SubTable<Series>
@@ -558,13 +577,15 @@ export default function AdminPostsPage() {
           <div className={shell.filterBar}>
             <SegmentedControl
               items={[
+                { value: "order", label: t("admin.posts.sortOrder") },
                 { value: "date", label: t("admin.posts.sortDate") },
                 { value: "name", label: t("admin.posts.sortName") },
               ]}
-              value={seriesSort === "name" ? "name" : "date"}
+              value={seriesSort === "name" ? "name" : seriesSort === "order" ? "order" : "date"}
               sortDir={seriesSort === "oldest" ? "asc" : "desc"}
               onChange={(v) => {
-                if (v === "name") setSeriesSort("name");
+                if (v === "order") setSeriesSort("order");
+                else if (v === "name") setSeriesSort("name");
                 else if (seriesSort === "newest") setSeriesSort("oldest");
                 else if (seriesSort === "oldest") setSeriesSort("newest");
                 else setSeriesSort("newest");
@@ -690,8 +711,8 @@ tags: React`}</code></pre>
           </ButtonGroup>
         </>
       }
-      beforeTable={!loading ? seriesSection : undefined}
-      afterTable={!loading ? trashSection : undefined}
+      beforeTable={seriesSection}
+      afterTable={trashSection}
     >
       {/* Filter bar — sort + filters + perPage 좌측, 검색은 우측 끝 (margin-left:auto) */}
       <div className={shell.filterBar}>
@@ -725,18 +746,20 @@ tags: React`}</code></pre>
           onChange={(v) => { setFilterCategory(v); setPage(1); }}
           className={shell.filterItem}
         />
-        <Select
-          value={filterSeries}
-          options={[
-            { value: "", label: t("admin.posts.allSeries") },
-            ...seriesList.map((s) => ({
-              value: s.id,
-              label: s.title,
-            })),
-          ]}
-          onChange={(v) => { setFilterSeries(v); setPage(1); }}
-          className={shell.filterItem}
-        />
+        <div className={shell.filterItem}>
+          <Select
+            value={filterSeries}
+            options={[
+              { value: "", label: t("admin.posts.allSeries") },
+              ...seriesList.map((s) => ({
+                value: s.id,
+                label: s.title,
+              })),
+            ]}
+            onChange={(v) => { setFilterSeries(v); setPage(1); }}
+            width="full"
+          />
+        </div>
         {hasFilters && (
           <button
             className={shell.filterReset}
@@ -838,6 +861,7 @@ tags: React`}</code></pre>
         showRowNumbers
         getRowLabel={(p) => p.post_number ?? "—"}
         loading={loading}
+        skeletonRows={perPage}
         emptyMessage={t("admin.posts.noPostsYet")}
         labels={labels}
         page={page}
