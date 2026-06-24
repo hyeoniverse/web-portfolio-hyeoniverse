@@ -155,6 +155,13 @@
 .tableHeader .colCheck {
   overflow: visible;
   white-space: nowrap;
+  /* colCheck 는 flex 라 text-align 대신 justify-content 로 가운데 */
+  justify-content: center;
+}
+
+/* 헤더의 # 컬럼 가운데정렬 */
+.tableHeader .colNum {
+  text-align: center;
 }
 
 /* Changed row indicator */
@@ -180,10 +187,11 @@
   margin: calc(-1 * var(--spacing-md)) 0;
 }
 
-/* 헤더에서 thumb 셀은 stretch/음수마진 무효화 */
+/* 헤더에서 thumb 셀은 stretch/음수마진 무효화 + 가운데정렬 */
 .tableHeader .colThumbWrap {
   align-self: center;
   margin: 0;
+  text-align: center;
 }
 
 .colThumb {

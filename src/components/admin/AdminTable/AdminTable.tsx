@@ -137,7 +137,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   }, [highlightId, items]);
 
   const hasNumCol = onReorder || showRowNumbers;
-  const effectiveGrid = `28px ${hasNumCol ? "28px " : ""}${gridTemplate}`;
+  // 체크박스 열은 내용(체크박스)에 맞춰 — 고정 28px 대신 max-content
+  const effectiveGrid = `max-content ${hasNumCol ? "28px " : ""}${gridTemplate}`;
 
   /* ── Selection ── */
   const allSelected = items.length > 0 && items.every((item) => selected.has(item.id));
@@ -254,7 +255,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
         <div className={styles.tableInner}>
           <div className={styles.tableHeader}>
             <span />
-            {hasNumCol && <span>#</span>}
+            {hasNumCol && <span className={styles.colNum}>#</span>}
             {columns.map((col) => (
               <span key={col.key} className={col.className}>{col.label}</span>
             ))}
@@ -325,7 +326,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           <span className={styles.colCheck} onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={allSelected} indeterminate={someSelected} onChange={toggleSelectAll} shape="square" />
           </span>
-          {hasNumCol && <span>#</span>}
+          {hasNumCol && <span className={styles.colNum}>#</span>}
           {columns.map((col) => (
             <span key={col.key} className={col.className}>{col.label}</span>
           ))}

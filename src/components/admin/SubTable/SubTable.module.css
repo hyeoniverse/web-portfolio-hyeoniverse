@@ -140,10 +140,20 @@
   letter-spacing: 0.06em;
 }
 
-/* 헤더에서 colThumbWrap의 stretch/음수마진 무효화 */
+/* 헤더에서 colThumbWrap의 stretch/음수마진 무효화 + 가운데정렬 */
 .tableHeader .colThumbWrap {
   align-self: center;
   margin: 0;
+  text-align: center;
+}
+
+/* 헤더의 체크박스(flex)·# 가운데정렬 */
+.tableHeader .colCheck {
+  justify-content: center;
+}
+
+.tableHeader .colNum {
+  text-align: center;
 }
 
 /* ── Rows — AdminTable 과 동일한 padding (spacing-md) ── */
