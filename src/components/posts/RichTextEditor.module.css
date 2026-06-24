@@ -2143,8 +2143,14 @@
 .imagePanelDivider {
   display: flex;
   align-items: center;
-  padding: var(--box-sm);
-  border-bottom: var(--border-light);
+  /* 아래(이미지 영역 쪽) 간격은 최소로 — label 과 detached 썸네일 사이 좁힘 */
+  padding: var(--spacing-2xs) var(--spacing-sm) 0;
+  border-top: var(--border-light);
+}
+
+/* detached 리스트는 label 바로 아래라 위쪽 패딩 축소 */
+.imagePanelDetachedSection .imagePanelList {
+  padding-top: var(--spacing-3xs);
 }
 
 .imagePanelDividerLabel {
@@ -2943,6 +2949,26 @@
   scrollbar-color: var(--border-strong-color) transparent;
 }
 
+/* inline 이미지가 든 문단은 글자 단위 줄바꿈 — 영문이 이미지 옆 공간을 채우게.
+   영문 단어와 inline-block 이미지(atomic void) 사이엔 줄바꿈 기회가 없어 "단어+이미지"가
+   통째로 줄을 넘겨 앞에 큰 빈공간이 생긴다(한글은 글자마다 기회가 있어 꽉 참). break-all 로 동일하게. */
+.editorContent :global([data-slate-node="element"]:has(img)) {
+  word-break: break-all;
+}
+
+/* 이미지 전용 블록(float)의 드래그 핸들(gutter)은 이미지 위에 겹쳐 거슬리므로 숨긴다.
+   이미지는 클릭/화살표로 선택 + 자체 이동 핸들/툴바(순서 변경 포함) 가 있어 블록 핸들 불필요. */
+.blockDraggable:has([data-float-side]) > .blockDragGutter {
+  display: none;
+}
+
+/* float 이미지 블록은 흐름상 빈 줄(ZWSP 한 줄)만 남고 이미지는 떠내려간다 → 빈 줄이 이미지 위에 보인다.
+   블록을 0높이로 collapse 하면(line-height:0) 커서/핸들이 깨지므로, 대신 다음 블록을 한 줄 높이만큼
+   끌어올려 빈 줄을 덮는다. 이미지 블록 자체는 그대로라 커서·핸들 정상. */
+.blockDraggable:has([data-float-side]) {
+  margin-bottom: -1lh;
+}
+
 .editorContent::-webkit-scrollbar {
   display: block;
   width: 6px;
@@ -3446,6 +3472,7 @@
   position: relative;
 }
 .imgHoverZone:hover .imgMoveHandle,
+.imgMoveHandle:hover,
 .imgMoveHandle.imgMoveHandleActive {
   opacity: 1;
   pointer-events: auto;

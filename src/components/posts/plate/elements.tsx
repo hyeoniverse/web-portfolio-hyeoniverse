@@ -397,10 +397,11 @@ export function ImageElement(props: PlateElementProps) {
     const wrapper = el.closest("[data-slate-node=\"element\"]") as HTMLElement | null;
     if (!wrapper) return;
     if (imgLayout === "float-left") {
-      wrapper.style.cssText = "float:left;margin:4px 20px 8px 0;padding:0;display:block;clear:none;";
+      // position:relative+z-index — 옆 블록을 -1lh 로 끌어올려 빈 줄을 덮을 때 이미지/이동핸들이 그 블록 위로 보이게
+      wrapper.style.cssText = "float:left;margin:4px 20px 8px 0;padding:0;display:block;clear:none;position:relative;z-index:2;";
       wrapper.setAttribute("data-float-side", "left");
     } else if (imgLayout === "float-right") {
-      wrapper.style.cssText = "float:right;margin:4px 0 8px 20px;padding:0;display:block;clear:none;";
+      wrapper.style.cssText = "float:right;margin:4px 0 8px 20px;padding:0;display:block;clear:none;position:relative;z-index:2;";
       wrapper.setAttribute("data-float-side", "right");
     } else {
       wrapper.style.cssText = "";
