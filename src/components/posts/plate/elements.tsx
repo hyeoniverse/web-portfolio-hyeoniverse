@@ -60,15 +60,9 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
 
   useEffect(() => { setDraft(caption); }, [caption]);
 
-  // textarea 높이 자동 조절 — 긴 캡션은 줄바꿈되어 여러 줄로 늘어남
-  const autoGrow = useCallback(() => {
-    const el = inputRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  }, []);
+  // 높이는 CSS field-sizing:content 가 내용에 맞춰 자동 조절 (인라인 height 박으면 그게 무시되므로 설정 X).
+  // field-sizing 미지원 브라우저 대비 fallback — 명시 height 대신 rows 만으로 대략.
   const shownValue = editing ? draft : caption;
-  useEffect(() => { autoGrow(); }, [shownValue, autoGrow]);
 
   // autoEdit: 처음 마운트 시 자동 편집 모드 진입
   useEffect(() => {
@@ -104,7 +98,16 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
         }
       }}
       onBlur={() => { if (editing) setTimeout(() => commit(), 0); }}
-      onMouseDown={(e) => { if (!editing) { e.preventDefault(); setEditingWrapped(true); setDraft(caption); setTimeout(() => { inputRef.current?.focus(); }, 0); } }}
+      // 캡션 클릭이 (1) 부모 onClick=selectImage 로 버블되거나 (2) Slate 네이티브 mousedown
+      // 리스너가 caret 을 옆(float) 텍스트에 놓는 것 둘 다 차단해야 캡션이 편집됨.
+      onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => {
+        // 전파만 차단(에디터/Slate 가 caret 가져가는 것 방지). textarea 는 진짜 폼 요소라
+        // preventDefault 하면 네이티브 focus 자체가 막히므로 호출하지 않는다.
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
+        if (!editing) { setEditingWrapped(true); setDraft(caption); setTimeout(() => { inputRef.current?.focus(); }, 0); }
+      }}
       onKeyDown={(e) => {
         if (!editing) return;
         // Enter=확정 / Shift+Enter=줄바꿈 / Esc=취소
@@ -173,10 +176,12 @@ export function ImageElement(props: PlateElementProps) {
   // 엘리먼트 path 가져오기
   const getPath = useCallback(() => {
     try {
-      const entry = editor.api.above({ match: { type: "img" } });
-      return entry ? entry[1] : null;
+      // selection 무관하게 이 이미지 element 의 path 를 직접 찾음 — blur(선택 해제) 후에도
+      // 캡션 commit/clear 가 올바른 노드에 적용되도록. (above 는 selection 기준이라 blur 시 null)
+      const p = editor.api.findPath(props.element);
+      return p ? p : null;
     } catch { return null; }
-  }, [editor]);
+  }, [editor, props.element]);
 
   const setAttr = useCallback((attrs: Record<string, unknown>) => {
     const path = getPath();
@@ -316,25 +321,36 @@ export function ImageElement(props: PlateElementProps) {
     const startX = e.clientX;
     const startY = e.clientY;
     let activated = false;
+    let ghost: HTMLElement | null = null;
     const onMove = (ev: PointerEvent) => {
       if (!activated) {
         if (Math.abs(ev.clientX - startX) + Math.abs(ev.clientY - startY) < 5) return;
         activated = true;
         _inlineDragPath.current = elPath;
         setIsDragging(true);
+        // 드래그 ghost — 이미지 축소 복제본이 커서를 따라다님
+        const imgEl = plateElRef.current?.querySelector("img") as HTMLImageElement | null;
+        if (imgEl) {
+          ghost = document.createElement("div");
+          const w = Math.min(imgEl.getBoundingClientRect().width || 120, 160);
+          ghost.style.cssText = `position:fixed;left:0;top:0;width:${w}px;pointer-events:none;z-index:9999;opacity:0.7;border-radius:6px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.35);will-change:transform;`;
+          const clone = imgEl.cloneNode(true) as HTMLImageElement;
+          clone.style.cssText = "width:100%;height:auto;display:block;";
+          ghost.appendChild(clone);
+          document.body.appendChild(ghost);
+        }
       }
+      if (ghost) ghost.style.transform = `translate(${ev.clientX + 14}px, ${ev.clientY + 14}px)`;
       const caret = document.getElementById("inline-drag-caret");
       if (!caret) return;
       const range = document.caretRangeFromPoint?.(ev.clientX, ev.clientY);
       if (!range) { caret.style.opacity = "0"; return; }
       const rect = range.getClientRects()[0] || range.getBoundingClientRect();
       if (!rect || (rect.width === 0 && rect.height === 0 && rect.x === 0)) { caret.style.opacity = "0"; return; }
-      const container = caret.parentElement;
-      if (!container) return;
-      const containerRect = container.getBoundingClientRect();
+      // position:fixed → 뷰포트 좌표 그대로 사용 (부모 positioning 무관하게 정확히 표시)
       caret.style.opacity = "1";
-      caret.style.left = `${rect.left - containerRect.left}px`;
-      caret.style.top = `${rect.top - containerRect.top}px`;
+      caret.style.left = `${rect.left}px`;
+      caret.style.top = `${rect.top}px`;
       caret.style.height = `${rect.height || 18}px`;
     };
     const onUp = (ev: PointerEvent) => {
@@ -342,6 +358,7 @@ export function ImageElement(props: PlateElementProps) {
       document.removeEventListener("pointerup", onUp);
       const caret = document.getElementById("inline-drag-caret");
       if (caret) caret.style.opacity = "0";
+      if (ghost) { ghost.remove(); ghost = null; }
       if (!activated) return;
       _inlineDragPath.current = null;
       setIsDragging(false);
@@ -380,10 +397,11 @@ export function ImageElement(props: PlateElementProps) {
     const wrapper = el.closest("[data-slate-node=\"element\"]") as HTMLElement | null;
     if (!wrapper) return;
     if (imgLayout === "float-left") {
-      wrapper.style.cssText = "float:left;margin:4px 20px 12px 0;padding:0;display:block;clear:none;";
+      // position:relative+z-index — 옆 블록을 -1lh 로 끌어올려 빈 줄을 덮을 때 이미지/이동핸들이 그 블록 위로 보이게
+      wrapper.style.cssText = "float:left;margin:4px 20px 8px 0;padding:0;display:block;clear:none;position:relative;z-index:2;";
       wrapper.setAttribute("data-float-side", "left");
     } else if (imgLayout === "float-right") {
-      wrapper.style.cssText = "float:right;margin:4px 0 12px 20px;padding:0;display:block;clear:none;";
+      wrapper.style.cssText = "float:right;margin:4px 0 8px 20px;padding:0;display:block;clear:none;position:relative;z-index:2;";
       wrapper.setAttribute("data-float-side", "right");
     } else {
       wrapper.style.cssText = "";
@@ -397,7 +415,7 @@ export function ImageElement(props: PlateElementProps) {
       display: imgLayout === "block" ? "block" : "inline",
       verticalAlign: imgLayout === "inline" ? "baseline" : undefined,
       // block: 상단 margin 0 — 드래그 핸들(좌측 gutter)이 이미지 top 에 정렬되도록 (margin 이 핸들을 위로 밀어내는 것 방지)
-      margin: imgLayout === "block" ? "0 0 20px" : imgLayout.startsWith("float-") ? "0" : undefined,
+      margin: imgLayout === "block" ? "0 0 4px" : imgLayout.startsWith("float-") ? "0" : undefined,
       ...(imgLayout.startsWith("float-") ? { lineHeight: 0, fontSize: 0 } : {}),
       position: "relative",
     }}>
@@ -543,9 +561,13 @@ export function ImageElement(props: PlateElementProps) {
             {/* 캡션 — 이미지 박스 밖(아래). 박스 안에 두면 리사이즈 핸들이 캡션 높이만큼 밀림.
                 float 일 땐 absolute 라 선택 시 박스 높이가 안 변해 옆 텍스트가 재배치되지 않음 */}
             {!isSmall && showCaption && (
-              <div style={imgLayout.startsWith("float-")
-                ? { position: "absolute", top: "100%", left: 0, right: 0, textAlign: "center" }
-                : { textAlign: "center" }}>
+              <div style={
+                // 캡션 비었고 편집 중도 아니면 공간 차지 안 하게 숨김(렌더는 유지 → 툴바 캡션 버튼이 focus 가능).
+                // 내용 있거나 편집 중이면 normal flow → 캡션 높이만큼 공간 확보(float 도 wrapper 높이에 포함).
+                (!caption && !captionEditing)
+                  ? { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0, pointerEvents: "none" }
+                  // position:relative + z-index → float 옆 wrapping 텍스트 위로 올려 클릭이 캡션에 떨어지게
+                  : { textAlign: "center", position: "relative", zIndex: 5 }}>
                 <InlineCaption
                   caption={caption}
                   onCommit={(v) => setAttr({ caption: v || undefined })}
@@ -753,7 +775,7 @@ export function ParagraphElement(props: PlateElementProps) {
     }
     return (
       <BlockDropZone path={elPath}>
-        <PlateElement {...props} as="div" style={{ marginBottom: "var(--spacing-sm)", ...props.style, position: "relative" }}>
+        <PlateElement {...props} as="div" style={{ marginBottom: "var(--spacing-xs)", ...props.style, position: "relative" }}>
           {showPlaceholder && <BlockPlaceholder text={t("editor.phParagraph")} />}
           {props.children}
         </PlateElement>

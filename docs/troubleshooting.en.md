@@ -1589,3 +1589,29 @@ function swapToPlaceholder(img: HTMLImageElement) {
 ④ For dynamic regions like richtext, a one-shot `querySelectorAll` won't catch images added later — pair it with a `MutationObserver` for incremental coverage
 
 </details>
+
+<details>
+<summary><strong>48. Float images — independent block split + hidden empty line + blocking caret/click on the blank</strong></summary>
+
+**Problem**: Wanted a float image that wraps with the body text while (1) dragging/selecting the neighboring text block leaves the image alone, (2) no empty line shows above/below the image, and (3) clicks/arrows never drop the caret onto an invisible blank — but the three goals conflicted.
+
+**Cause**: CSS `float` pulls the image out of flow, but in Plate (Slate) the image is an inline void (`isInline: true, isVoid: true`) — it must live inside a paragraph with mandatory empty text (ZWSP) on both sides.
+
+1. In the **same paragraph**, block drag moves image + text as one unit
+2. Split into its **own paragraph** and the in-flow content is just a ZWSP line → renders as an empty line
+3. Collapse that line (`line-height:0`) and the block becomes 0-height, breaking caret/handle; cover it with the next block and the now-invisible spot still catches clicks/arrows → caret flickers there
+
+**Solution**: Fix across three layers — data, layout, input
+
+1. **(Data) Independent block** — on every change, split mixed paragraphs with `splitNodes` so the image gets its own paragraph → drag/selection independent from text
+2. **(Layout) Hide the empty line** — instead of collapsing the image block to 0-height, **pull the next block up by one line** (`margin-bottom: -1lh`). The image block stays intact so caret/handle render fine; give the float wrapper a `z-index` so the move handle isn't covered
+3. **(Input) Block entry into the blank** — intercept click (mousedown) and arrows (keydown) in the **capture phase**; when the caret would land on the blank, select the image or jump to the adjacent block instead. Handled before Slate's default move → no flicker
+
+**Key insight**:
+
+① A CSS float (out of flow) and an inline void (forced in-paragraph text) fundamentally conflict — no single-spot fix works
+② You don't *remove* the empty line — you **cover it with the next block** and **stop the caret from reaching it**
+③ Letting Slate move the caret first and correcting afterward yields a 1-frame flicker → you must **pre-empt in the capture phase**
+④ The inline void's mandatory ZWSP can't be deleted (normalize restores it), so making it **invisible + untouchable** is the pragmatic workaround
+
+</details>

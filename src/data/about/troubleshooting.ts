@@ -81,6 +81,13 @@ const itemMeta: Record<
   "제목(heading) 안 각주가 마크다운 변환 시 처리 안 됨": { section: "E", difficulty: 3 },
   "Plate inline void 노드에서 클릭 vs 키보드 구분 불가": { section: "E", difficulty: 3 },
   "인라인 이미지 양옆에 커서 배치·텍스트 입력 불가": { section: "E", difficulty: 3 },
+  "float 이미지 옆 텍스트를 드래그·선택하면 이미지가 같이 묶이고, 화살표·클릭 시 빈 줄에 커서가 떨어짐": {
+    section: "E", difficulty: 3, recommended: true,
+    recommendReason: {
+      ko: "데이터(노드 분리)·레이아웃(CSS float)·입력(capture)을 한꺼번에 다뤄야 풀리는 다층 문제를 끝까지 추적한 사례라 골랐습니다.",
+      en: "Picked this as a multi-layer bug — data (node split), layout (CSS float), and input (capture) all had to move together; shows end-to-end root-cause tracing.",
+    },
+  },
   "마크다운 각주 번호 꼬임 — heading renderer 충돌": { section: "E", difficulty: 3 },
   "열블록 스타일 round-trip 유실": { section: "E", difficulty: 3 },
   "YouTube embed URL — watch URL이 iframe에서 로드 실패": { section: "E", difficulty: 1 },
@@ -2725,6 +2732,29 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "Nesting a shorthand token inside another shorthand silently breaks. Know whether a token is a *value* or a *shorthand*, and split out partial changes via a longhand override.",
     },
     tags: ["css", "design-tokens", "border", "shorthand", "dashed"],
+  },
+  {
+    problem: {
+      ko: "float 이미지 옆 텍스트를 드래그·선택하면 이미지가 같이 묶이고, 화살표·클릭 시 빈 줄에 커서가 떨어짐",
+      en: "Dragging/selecting the text next to a float image dragged the image with it, and arrows/clicks dropped the caret into an empty line",
+    },
+    definition: {
+      ko: "float 이미지를 본문 옆에 흘리면서도 (1) 블록 드래그·선택은 이미지와 텍스트가 독립이고 (2) 이미지 위/아래에 빈 줄이 안 보이고 (3) 클릭·방향키가 보이지 않는 빈 자리에 안 떨어지게 하려 했음.",
+      en: "Wanted a float image that wraps with the text while (1) block drag/selection stays independent from the surrounding text, (2) no empty line shows above/below it, and (3) clicks/arrows never land on an invisible blank.",
+    },
+    cause: {
+      ko: "CSS `float` 은 이미지를 흐름 밖으로 빼는데, Plate(Slate)에선 이미지가 inline void 라 반드시 문단 안에 있고 양옆에 빈 텍스트(ZWSP)가 강제됨. ① 텍스트와 같은 문단이면 블록 드래그가 통째로 이동(통짜 선택). ② 독립 문단으로 분리하면 흐름엔 ZWSP 한 줄만 남아 빈 줄로 보임. ③ 그 빈 줄을 가리면(line-height:0 / 다음 블록으로 덮기) 그 자리가 안 보이는데도 클릭·방향키로 커서가 들어가 깜빡임.",
+      en: "CSS `float` pulls the image out of flow, but in Plate (Slate) the image is an inline void — it must live inside a paragraph with mandatory empty text (ZWSP) on both sides. ① In the same paragraph, block drag moves image+text as one. ② Split into its own paragraph and the in-flow content is just a ZWSP line → shows as an empty line. ③ Hide that line (line-height:0 / cover with the next block) and the now-invisible spot still catches clicks/arrows, so the caret flickers there.",
+    },
+    solution: {
+      ko: "세 층을 함께 처리: (데이터) 변경마다 mixed 문단을 `splitNodes` 로 분리해 이미지를 독립 블록화 → 드래그·선택 독립. (레이아웃) 빈 줄은 다음 블록을 한 줄 끌어올려(`margin-bottom: -1lh`) 가리고, float wrapper 에 `z-index` 를 줘 이동 핸들이 안 가리게. (입력) 클릭(mousedown)·방향키(keydown)를 capture 단계에서 가로채 — 빈 자리로 갈 상황이면 이미지를 선택하거나 인접 블록으로 보냄(Slate 기본 이동 전에 처리해 깜빡임 제거).",
+      en: "Fixed across three layers: (data) on every change, split mixed paragraphs with `splitNodes` so the image becomes its own block → independent drag/selection. (layout) hide the empty line by pulling the next block up one line (`margin-bottom: -1lh`) and give the float wrapper a `z-index` so the move handle isn't covered. (input) intercept click (mousedown) and arrows (keydown) in the capture phase — when the caret would land on the blank, select the image or jump to the adjacent block instead (handled before Slate's default move, so no flicker).",
+    },
+    keyInsight: {
+      ko: "float(흐름 밖)과 inline void(문단 내 강제 텍스트)는 근본적으로 충돌한다. '독립 블록 + 빈 줄 없음 + 자연스러운 네비게이션' 을 동시에 만족시키려면 한 군데를 고치는 게 아니라 데이터·레이아웃·입력을 함께 맞춰야 한다.",
+      en: "A CSS float (out of flow) and an inline void (forced in-paragraph text) fundamentally conflict. Getting 'independent block + no empty line + natural navigation' at once isn't a one-spot fix — data, layout, and input handling all have to align.",
+    },
+    tags: ["plate", "slate", "float", "inline-void", "navigation", "editor"],
   },
 ];
 

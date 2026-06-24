@@ -3,6 +3,7 @@ import T from "@/components/ui/T";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { formatPostTitle } from "@/utils/post";
 import MediaThumb from "@/components/admin/MediaThumb";
+import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
 import {
   adminTableStyles as ts,
   type AdminTableColumn,
@@ -90,7 +91,7 @@ export function createTrashColumns(
     {
       key: "num",
       label: "#",
-      className: st.colMeta,
+      className: `${st.colMeta} ${st.colNum}`,
       render: (post) => <span>{post.post_number ?? "—"}</span>,
       skeletonWidth: "24px",
     },
@@ -159,12 +160,22 @@ export function createSeriesColumns(
   handleExportSeries?: (seriesId: string) => void,
   language: "ko" | "en" = "ko",
   categories: BilingualCategory[] = [],
+  // 순서(sort_order) 인라인 편집 — 메인 테이블처럼 # 클릭 시 input 으로 위치 변경.
+  // 미지정(검색/필터/다른 정렬 중)이면 정적 순번만 표시.
+  onReorder?: (s: Series, newOrder: number) => void | Promise<void>,
+  rowMax?: number,
 ): SubTableColumn<Series>[] {
   return [
     {
       key: "num",
       label: "#",
-      render: (_s, index) => <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>{index + 1}</span>,
+      className: st.colNum,
+      render: (s, index) =>
+        onReorder ? (
+          <EditableRowNumber value={s.sort_order} min={1} max={rowMax} onSave={(n) => onReorder(s, n)} />
+        ) : (
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>{index + 1}</span>
+        ),
       skeletonWidth: "20px",
     },
     {

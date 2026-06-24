@@ -823,6 +823,7 @@
       "sortNewest": "Newest",
       "sortOldest": "Oldest",
       "sortPopular": "Popular",
+      "sortOrder": "Order",
       "sortDate": "Latest",
       "sortName": "Title",
       "sortNewestDeleted": "Recently deleted",
