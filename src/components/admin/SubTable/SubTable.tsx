@@ -95,7 +95,8 @@ export default function SubTable<T extends { id: string }>({
   filterBar,
 }: SubTableProps<T>) {
   /* Grid: checkbox col + user columns */
-  const fullGrid = `28px ${gridTemplate}`;
+  // 체크박스 열은 내용에 맞춰 — 고정 28px 대신 max-content
+  const fullGrid = `max-content ${gridTemplate}`;
   const gridStyle = { gridTemplateColumns: fullGrid };
 
   /* Paginated items */

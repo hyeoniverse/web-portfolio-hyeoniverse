@@ -1408,10 +1408,16 @@ export default function PostEditor({ post }: PostEditorProps) {
               plateRef.current?.insertMediaByUrl(url);
               return url;
             }}
-            onBulkInsert={(paths) => {
-              for (const path of paths) {
-                plateRef.current?.selectImageAt(path);
+            onBulkInsert={(items) => {
+              // 선택 항목을 본문에 복제 삽입 (이미 첨부된 이미지여도 같은 걸 또 추가)
+              for (const it of items) {
+                if (it.mediaType === "media_embed") plateRef.current?.insertMediaByUrl(it.url);
+                else plateRef.current?.insertImageByUrl(it.url);
               }
+              requestAnimationFrame(() => {
+                const imgs = plateRef.current?.getImages();
+                if (imgs) setEditorImages(imgs);
+              });
             }}
             onReinsert={(url, mediaType) => {
               if (mediaType === "media_embed") plateRef.current?.insertMediaByUrl(url);

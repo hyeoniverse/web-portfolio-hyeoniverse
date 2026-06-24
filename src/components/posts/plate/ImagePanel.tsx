@@ -32,7 +32,8 @@ export function ImagePanel({
   onRemove: (path: number[]) => void;
   onImageUpload?: (file: File) => Promise<string>;
   onVideoUpload?: (file: File) => Promise<string>;
-  onBulkInsert?: (paths: number[][]) => void;
+  /** 선택 항목을 본문에 (복제) 삽입 */
+  onBulkInsert?: (items: { url: string; mediaType?: string }[]) => void;
   /** detached 미디어를 본문에 재삽입 */
   onReinsert?: (url: string, mediaType?: string) => void;
   /** detached 미디어를 패널에서 완전 삭제 */
@@ -199,10 +200,11 @@ export function ImagePanel({
 
   const handleBulkInsert = () => {
     if (selected.size === 0) return;
-    const paths = Array.from(selected)
+    // 이미 본문에 있는 이미지여도 url 로 복제 삽입 (같은 이미지 또 추가)
+    const items = Array.from(selected)
       .sort((a, b) => a - b)
-      .map((idx) => images[idx].path);
-    onBulkInsert?.(paths);
+      .map((idx) => ({ url: images[idx].url, mediaType: images[idx].mediaType }));
+    onBulkInsert?.(items);
     setSelected(new Set());
   };
 

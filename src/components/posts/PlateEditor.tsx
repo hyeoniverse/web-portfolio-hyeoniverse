@@ -69,6 +69,68 @@ const renderFindLeaf = (props: import("platejs").RenderLeafProps) => {
   return <span {...attributes}>{children}</span>;
 };
 
+// float/block 이미지가 텍스트와 한 문단에 섞여 있으면 [전][이미지][후] 문단으로 분리.
+// 이미지는 inline void 라 같은 문단에 섞일 수 있는데, 그러면 블록 드래그 시 통째로 이동된다.
+// 콘텐츠 로드(deserialize) 직후 1회 적용 — 노드 배열만 가공(순수 함수)해 normalize 타이밍 의존 X.
+function isolateFloatImageBlocks(nodes: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
+  const isFloatImg = (c: Record<string, unknown>) =>
+    c?.type === "img" && (c.layout === "block" || (typeof c.layout === "string" && (c.layout as string).startsWith("float")));
+  const meaningful = (c: Record<string, unknown>) =>
+    typeof c.text === "string" ? (c.text as string).replace(/[​‌‍﻿\s]/g, "").length > 0 : true;
+  const pad = (a: Array<Record<string, unknown>>) => {
+    const arr = [...a];
+    if (!arr.length || typeof arr[0]?.text !== "string") arr.unshift({ text: "" });
+    if (typeof arr[arr.length - 1]?.text !== "string") arr.push({ text: "" });
+    return arr;
+  };
+  const out: Array<Record<string, unknown>> = [];
+  for (const block of nodes) {
+    const kids = block?.children as Array<Record<string, unknown>> | undefined;
+    if (!Array.isArray(kids)) { out.push(block); continue; }
+    const imgIdx = kids.findIndex(isFloatImg);
+    if (imgIdx === -1) { out.push(block); continue; }
+    const before = kids.slice(0, imgIdx);
+    const after = kids.slice(imgIdx + 1);
+    const hasBefore = before.some(meaningful);
+    const hasAfter = after.some(meaningful);
+    if (!hasBefore && !hasAfter) { out.push(block); continue; }
+    const blockType = typeof block.type === "string" ? block.type : "p";
+    if (hasBefore) out.push({ ...block, type: blockType, children: pad(before) });
+    out.push({ type: "p", children: [{ text: "" }, kids[imgIdx], { text: "" }] });
+    // 뒤쪽에 또 float 이미지가 있을 수 있으니 재귀
+    if (hasAfter) out.push(...isolateFloatImageBlocks([{ ...block, type: blockType, children: pad(after) }]));
+  }
+  return out;
+}
+
+// ── detached(본문에서 제거된) 미디어를 저장 HTML 에 숨김 div 로 round-trip ──
+// 본문엔 안 보이지만 저장/로드 시 패널의 "삭제됨" 목록을 유지하기 위함.
+// detached 가 없으면 빈 문자열 → 일반 글의 저장 HTML 은 그대로(영향 0).
+function serializeDetachedMedia(items: { url: string; mediaType?: string }[]): string {
+  if (!items.length) return "";
+  const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `<div data-detached-media="1" style="display:none">${items
+    .map((d) => `<img src="${esc(d.url)}" data-detached-type="${esc(d.mediaType || "")}" />`)
+    .join("")}</div>`;
+}
+function stripDetachedMedia(html: string): string {
+  return html.replace(/<div data-detached-media="1"[\s\S]*?<\/div>/g, "");
+}
+function extractDetachedMedia(html: string): { url: string; mediaType?: string }[] {
+  const block = html.match(/<div data-detached-media="1"[\s\S]*?<\/div>/);
+  if (!block) return [];
+  const out: { url: string; mediaType?: string }[] = [];
+  const re = /<img\s[^>]*?src="([^"]*)"[^>]*?>/g;
+  const unesc = (s: string) => s.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  let im: RegExpExecArray | null;
+  while ((im = re.exec(block[0])) !== null) {
+    const url = unesc(im[1]);
+    const tm = im[0].match(/data-detached-type="([^"]*)"/);
+    out.push({ url, mediaType: tm && tm[1] ? unesc(tm[1]) : undefined });
+  }
+  return out;
+}
+
 // ── Column ratio inputs (Enter/blur로 적용) ──
 function ColumnRatioInputs({ colChildren, colCount, activePath, editor }: {
   colChildren: { width?: string }[];
@@ -345,7 +407,7 @@ export default function PlateEditor({
 
   const editor = usePlateEditor({
     plugins: EditorKit,
-    value: value || "<p></p>",
+    value: stripDetachedMedia(value || "<p></p>"),
   });
 
   // ── 한글 IME composition 트래킹 ──
@@ -451,6 +513,39 @@ export default function PlateEditor({
               } catch { /* ignore */ }
             }
           }
+          // 이미지 위가 아니라 이미지 전용 블록의 빈 영역(ZWSP)을 클릭한 경우 →
+          // 빈자리에 커서를 두지 않고 이미지를 선택 (빈 줄 클릭 방지)
+          const blockDom = tgt.closest('[data-slate-node="element"]') as HTMLElement | null;
+          if (blockDom) {
+            try {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const bnode = ReactEditor.toSlateNode(editor as unknown as ReactEditor, blockDom) as any;
+              const bkids = bnode?.children;
+              if (Array.isArray(bkids)) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const fb = (c: any) => c?.type === "img" && (c.layout === "block" || (typeof c.layout === "string" && (c.layout as string).startsWith("float")));
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const blnk = (c: any) => typeof c?.text === "string" && (c.text as string).replace(/[​‌‍﻿\s]/g, "") === "";
+                const ii = bkids.findIndex(fb);
+                if (ii >= 0 && bkids.every((c: Record<string, unknown>, k: number) => k === ii || blnk(c))) {
+                  const bpath = ReactEditor.findPath(editor as unknown as ReactEditor, bnode);
+                  if (bpath) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    const imgPath = [...bpath, ii];
+                    const a = editor.api.start(imgPath);
+                    const f = editor.api.end(imgPath);
+                    const sc = editorEl;
+                    const prevTop = sc ? sc.scrollTop : 0;
+                    editor.tf.focus();
+                    editor.tf.select(a && f ? { anchor: a, focus: f } : imgPath);
+                    if (sc) { const r = () => { sc.scrollTop = prevTop; }; r(); requestAnimationFrame(r); }
+                    return;
+                  }
+                }
+              }
+            } catch { /* ignore */ }
+          }
         }
         if (composingRef.current) {
           pendingClickRef.current = { x: e.clientX, y: e.clientY };
@@ -461,14 +556,80 @@ export default function PlateEditor({
         }
       };
 
+      // 커서가 float/block 이미지 위에 있을 때 ←/→ 의 Slate 기본 이동(빈 ZWSP 자리로 1프레임 떨어짐)을
+      // capture 단계에서 미리 차단 → 빈자리 안 거침(깜빡임 제거). 실제 이동은 handleContentKeyDown(버블)이 처리.
+      const onKeyDownCapture = (ev: KeyboardEvent) => {
+        const k = ev.key;
+        if ((k !== "ArrowLeft" && k !== "ArrowRight" && k !== "ArrowUp" && k !== "ArrowDown") || !editor.selection || !editor.api.isCollapsed()) return;
+        try {
+          const prevDir = k === "ArrowLeft" || k === "ArrowUp"; // 이전 블록 방향
+          const point = editor.selection.anchor;
+          const p = point.path;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const fb = (c: any) => c?.type === "img" && (c.layout === "block" || (typeof c.layout === "string" && (c.layout as string).startsWith("float")));
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const blnk = (c: any) => typeof c?.text === "string" && (c.text as string).replace(/[​‌‍﻿\s]/g, "") === "";
+          const selectImageBlock = (adj: number, ii: number) => {
+            ev.preventDefault();
+            ev.stopImmediatePropagation();
+            const imgPath = [adj, ii];
+            const a = editor.api.start(imgPath);
+            const f = editor.api.end(imgPath);
+            imgPathRef.current = imgPath;
+            arrowSelectImgRef.current = true;
+            editor.tf.select(a && f ? { anchor: a, focus: f } : imgPath);
+            prevAnchorRef.current = { path: [...imgPath, 0], offset: 0 };
+          };
+          const moveToAdjBlock = (adj: number) => {
+            ev.preventDefault();
+            ev.stopImmediatePropagation();
+            const t = prevDir ? editor.api.end([adj]) : editor.api.start([adj]);
+            if (t) {
+              skipImgRef.current = true;
+              editor.tf.select(t);
+              prevAnchorRef.current = { path: [...t.path], offset: t.offset };
+              requestAnimationFrame(() => { try { editor.tf.select(t); } catch { /* ignore */ } skipImgRef.current = false; });
+            }
+          };
+          // (a) 커서가 float/block 이미지 위 → 인접 블록으로 (빈자리 안 거침). inline 이미지는 제외.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const parent = editor.api.node(p.slice(0, -1))?.[0] as any;
+          if (fb(parent)) {
+            const adj = p[0] + (prevDir ? -1 : 1);
+            if (adj >= 0 && adj < editor.children.length) moveToAdjBlock(adj);
+            else ev.preventDefault();
+            return;
+          }
+          // (b) 블록 가장자리에서 진행 방향 인접이 이미지 전용 블록 → 이미지 선택
+          if (p.length === 2) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const leaf = editor.api.node(p)?.[0] as any;
+            const leafLen = typeof leaf?.text === "string" ? (leaf.text as string).length : 0;
+            const idx = p[1];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const pkids = ((editor.api.node([p[0]])?.[0] as any)?.children ?? []) as any[];
+            const atEdge = prevDir ? (point.offset <= 0 && idx <= 0) : (point.offset >= leafLen && idx >= pkids.length - 1);
+            const adjIdx = p[0] + (prevDir ? -1 : 1);
+            if (atEdge && adjIdx >= 0 && adjIdx < editor.children.length) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const ak = ((editor.children[adjIdx] as any)?.children ?? []) as any[];
+              const ii = ak.findIndex(fb);
+              if (ii >= 0 && ak.every((c, kk) => kk === ii || blnk(c))) selectImageBlock(adjIdx, ii);
+            }
+          }
+        } catch { /* ignore */ }
+      };
+
       editorEl.addEventListener("compositionstart", onCompStart, true);
       editorEl.addEventListener("compositionend", onCompEnd, true);
       editorEl.addEventListener("mousedown", onMouseDown, true);
+      editorEl.addEventListener("keydown", onKeyDownCapture, true);
 
       return () => {
         editorEl?.removeEventListener("compositionstart", onCompStart, true);
         editorEl?.removeEventListener("compositionend", onCompEnd, true);
         editorEl?.removeEventListener("mousedown", onMouseDown, true);
+        editorEl?.removeEventListener("keydown", onKeyDownCapture, true);
       };
     };
 
@@ -892,6 +1053,68 @@ export default function PlateEditor({
     return () => clearTimeout(timer);
   }, [editor, tick]);
 
+  // ── 초기 콘텐츠의 float 이미지 분리 (1회) ──
+  // usePlateEditor 가 만든 초기 콘텐츠는 아래 value 동기화 effect 가 skip 하므로 여기서 처리.
+  // float/block 이미지가 텍스트와 한 문단이면 분리(= 블록 드래그 독립). 구조가 바뀔 때만 setValue.
+  const didInitIsolateRef = useRef(false);
+  useEffect(() => {
+    if (!editor || didInitIsolateRef.current) return;
+    const t = setTimeout(() => {
+      if (didInitIsolateRef.current) return;
+      didInitIsolateRef.current = true;
+      try {
+        const cur = editor.children as unknown as Array<Record<string, unknown>>;
+        const split = isolateFloatImageBlocks(cur);
+        if (split.length !== cur.length) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          editor.tf.setValue(split as any);
+        }
+      } catch { /* ignore */ }
+    }, 60);
+    return () => clearTimeout(t);
+  }, [editor]);
+
+  // ── float/block 이미지 상시 분리 (변경마다) ──
+  // 이미지는 inline void 라 텍스트와 한 블록에 공존 가능 → 그대로면 블록 드래그/선택 시 통째로 묶인다.
+  // normalize 는 dirty 노드만 타서 기존/이동된 블록을 놓치므로, tick(=모든 변경) 마다 전체를 훑어
+  // mixed 블록을 splitNodes 로 분리한다. mixed 가 있을 때만 분리(=idempotent) → 일반 타이핑엔 영향 없고
+  // splitNodes 라 커서/선택도 보존된다.
+  useEffect(() => {
+    if (!editor) return;
+    const timer = setTimeout(() => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const isFloatImg = (c: any) => c?.type === "img" && (c.layout === "block" || (typeof c.layout === "string" && (c.layout as string).startsWith("float")));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const blank = (c: any) => typeof c?.text === "string" && (c.text as string).replace(/[​‌‍﻿\s]/g, "") === "";
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const isBlock = (n: any) => editor.api.isBlock(n);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const blocks = editor.children as any[];
+        // 역순 — 분리로 인덱스가 밀려도 아래쪽(이미 처리한) 블록에 영향 없게
+        for (let bi = blocks.length - 1; bi >= 0; bi--) {
+          const kids = blocks[bi]?.children;
+          if (!Array.isArray(kids)) continue;
+          const imgIdx = kids.findIndex(isFloatImg);
+          if (imgIdx < 0) continue;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const hasBefore = kids.slice(0, imgIdx).some((c: any) => !blank(c));
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const hasAfter = kids.slice(imgIdx + 1).some((c: any) => !blank(c));
+          if (!hasBefore && !hasAfter) continue;
+          editor.tf.withoutNormalizing(() => {
+            // 뒤 먼저 분리(앞 인덱스 안 흔들리게) → 그 다음 앞
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (hasAfter) editor.tf.splitNodes({ at: { path: [bi, imgIdx + 1], offset: 0 }, match: isBlock, mode: "lowest", always: true } as any);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (hasBefore) editor.tf.splitNodes({ at: { path: [bi, imgIdx], offset: 0 }, match: isBlock, mode: "lowest", always: true } as any);
+          });
+        }
+      } catch { /* ignore */ }
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [editor, tick]);
+
   // ── 외부 value 동기화 ──
   useEffect(() => {
     if (!editor) return;
@@ -903,9 +1126,14 @@ export default function PlateEditor({
     if (value === prevValueRef.current) return;
     prevValueRef.current = value;
     try {
-      const nodes = editor.api.html.deserialize({ element: value || "<p></p>" });
+      // detached 미디어는 본문이 아니라 패널 "삭제됨" 목록으로 복원 → 본문 deserialize 전에 분리
+      detachedRef.current = extractDetachedMedia(value || "");
+      const nodes = editor.api.html.deserialize({ element: stripDetachedMedia(value || "<p></p>") });
+      // float/block 이미지가 텍스트와 같은 문단에 섞여 있으면(= inline void 라 생기는 현상)
+      // 블록 드래그 시 통째로 움직인다. 로드 시점에 이미지를 자기 문단으로 분리해 독립 이동 보장.
+      const split = isolateFloatImageBlocks(nodes as Array<Record<string, unknown>>);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      editor.tf.setValue(nodes as any);
+      editor.tf.setValue(split as any);
 
       // ☐ 마커(U+200B + U+2610)가 있는 paragraph → todo 변환
       editor.tf.withoutNormalizing(() => {
@@ -932,6 +1160,8 @@ export default function PlateEditor({
 
   // ── 인라인 이미지 선택 건너뛰기 ──
   const skipImgRef = useRef(false);
+  // 화살표로 이미지를 막 선택했을 때, handleChange 의 "이미지 자동 건너뛰기"를 1회 막아 선택 유지
+  const arrowSelectImgRef = useRef(false);
   const prevAnchorRef = useRef<{ path: number[]; offset: number } | null>(null);
   const pointerDownRef = useRef(false);
 
@@ -962,6 +1192,15 @@ export default function PlateEditor({
             if (parentNode) {
               const pn = parentNode[0] as Record<string, unknown>;
               if (pn.type === "img") {
+                // float/block 이미지는 독립 블록 → 커서가 머물러도 됨(선택 상태). 자동 건너뛰기 안 함.
+                // (inline 이미지만 흐름 중간에 끼므로 건너뛰기 필요. 단 화살표로 방금 선택한 경우는 inline 도 유지)
+                const lay = pn.layout;
+                const floatOrBlock = lay === "block" || (typeof lay === "string" && (lay as string).startsWith("float"));
+                if (floatOrBlock || arrowSelectImgRef.current) {
+                  arrowSelectImgRef.current = false;
+                  prevAnchorRef.current = { path: [...editor.selection.anchor.path], offset: editor.selection.anchor.offset };
+                  return;
+                }
                 // 이전 위치와 비교해서 방향 판단
                 const prev = prevAnchorRef.current;
                 let isForward = true;
@@ -987,6 +1226,51 @@ export default function PlateEditor({
                   skipImgRef.current = false;
                 }
                 return;
+              } else if (Array.isArray(pn.children)) {
+                // 이미지 전용 블록(float 이미지 + 빈 텍스트)의 빈 위치(ZWSP)에 커서가 오면 — 그 자리는
+                // 다음 블록이 덮어 안 보이므로 머물지 않고 진행 방향으로 블록을 건너뛴다(가둠 방지).
+                // 이미지 선택은 화살표 keydown(좌/우)이 직접 처리하므로 여기선 통과만 시킨다.
+                const kids = pn.children as Array<Record<string, unknown>>;
+                const fb = (c: Record<string, unknown>) => c.type === "img" && (c.layout === "block" || (typeof c.layout === "string" && (c.layout as string).startsWith("float")));
+                const isBlank = (c: Record<string, unknown>) => typeof c.text === "string" && (c.text as string).replace(/[​‌‍﻿\s]/g, "") === "";
+                const imgIdx = kids.findIndex(fb);
+                const cursorChildIdx = anchor.path[parentPath.length];
+                if (imgIdx >= 0 && kids.every((c, i) => i === imgIdx || isBlank(c)) && cursorChildIdx !== imgIdx) {
+                  const prev = prevAnchorRef.current;
+                  // 바깥 블록에서 들어왔으면(enter) 이미지 선택, 이 블록 안(이미지)에서 나왔으면(leave) 건너뛰기.
+                  const entering = !prev || prev.path[0] !== anchor.path[0];
+                  skipImgRef.current = true;
+                  if (entering) {
+                    const imgPath = [...parentPath, imgIdx];
+                    requestAnimationFrame(() => {
+                      try {
+                        const a = editor.api.start(imgPath);
+                        const f = editor.api.end(imgPath);
+                        arrowSelectImgRef.current = true;
+                        editor.tf.select(a && f ? { anchor: a, focus: f } : imgPath);
+                        prevAnchorRef.current = { path: [...imgPath, 0], offset: 0 };
+                      } catch { /* ignore */ }
+                      skipImgRef.current = false;
+                    });
+                  } else {
+                    let isForward = true;
+                    for (let i = 0; i < Math.min(prev.path.length, anchor.path.length); i++) {
+                      if (anchor.path[i] > prev.path[i]) { isForward = true; break; }
+                      if (anchor.path[i] < prev.path[i]) { isForward = false; break; }
+                    }
+                    const target = isForward ? editor.api.after(parentPath) : editor.api.before(parentPath);
+                    if (target) {
+                      requestAnimationFrame(() => {
+                        try { editor.tf.select(target); } catch { /* ignore */ }
+                        prevAnchorRef.current = { path: [...target.path], offset: target.offset };
+                        skipImgRef.current = false;
+                      });
+                    } else {
+                      skipImgRef.current = false;
+                    }
+                  }
+                  return;
+                }
               }
             }
           }
@@ -997,7 +1281,8 @@ export default function PlateEditor({
       if (slateValue !== lastSlateValueRef.current) {
         lastSlateValueRef.current = slateValue;
         isInternalUpdate.current = true;
-        const html = slateToHtml(slateValue);
+        // detached 미디어를 숨김 div 로 덧붙여 저장 → 새로고침 후에도 패널에 유지 (없으면 빈 문자열)
+        const html = slateToHtml(slateValue) + serializeDetachedMedia(detachedRef.current);
         prevValueRef.current = html;
         onChangeRef.current(html);
       }
@@ -1115,18 +1400,70 @@ export default function PlateEditor({
       if (entry) imgPathRef.current = Array.from(entry[1]);
     } catch { /* ignore */ }
   }
+  // float/block 이미지를 같은 문단의 텍스트와 분리해 독립 블록으로 만든다.
+  // 이미지는 inline void 라 한 문단에 텍스트와 공존 가능 → 그대로 두면 블록 드래그/선택 시
+  // 텍스트 블록을 잡아도 이미지가 통째로 묶인다. 로드 시엔 isolateFloatImageBlocks 가 처리하지만
+  // in-session(삽입/레이아웃 변경 직후)은 아니므로, float/block 전환 시점에 1회 분리한다.
+  const isolateImageBlock = useCallback((path: number[]) => {
+    try {
+      if (path.length < 2) return; // 이미 top-level 단독
+      const blockPath = path.slice(0, -1);
+      const idx = path[path.length - 1];
+      const blockEntry = editor.api.node(blockPath);
+      if (!blockEntry) return;
+      const block = blockEntry[0] as { type?: string; children?: Array<Record<string, unknown>> };
+      const kids = block.children;
+      if (!Array.isArray(kids)) return;
+      const meaningful = (c: Record<string, unknown>) =>
+        c.type ? true : (typeof c.text === "string" && (c.text as string).replace(/[​‌‍﻿\s]/g, "").length > 0);
+      const before = kids.slice(0, idx);
+      const after = kids.slice(idx + 1);
+      const hasBefore = before.some(meaningful);
+      const hasAfter = after.some(meaningful);
+      if (!hasBefore && !hasAfter) return; // 이미 단독 블록
+      const imgNode = kids[idx];
+      const blockType = typeof block.type === "string" ? block.type : "p";
+      const pad = (a: Array<Record<string, unknown>>) => {
+        const arr = [...a];
+        if (!arr.length || typeof arr[0]?.text !== "string") arr.unshift({ text: "" });
+        if (typeof arr[arr.length - 1]?.text !== "string") arr.push({ text: "" });
+        return arr;
+      };
+      const newBlocks: Array<Record<string, unknown>> = [];
+      if (hasBefore) newBlocks.push({ ...block, type: blockType, children: pad(before) });
+      const imgBlockIndex = newBlocks.length;
+      newBlocks.push({ type: "p", children: [{ text: "" }, imgNode, { text: "" }] });
+      if (hasAfter) newBlocks.push({ ...block, type: blockType, children: pad(after) });
+      editor.tf.withoutNormalizing(() => {
+        editor.tf.removeNodes({ at: blockPath });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        editor.tf.insertNodes(newBlocks as any, { at: blockPath });
+      });
+      // 분리된 이미지를 다시 선택 → toolbar 유지 + path 캐시 갱신
+      const imgPath = [blockPath[0] + imgBlockIndex, 1];
+      imgPathRef.current = imgPath;
+      try { editor.tf.select(imgPath); editor.tf.focus(); } catch { /* ignore */ }
+    } catch { /* ignore */ }
+  }, [editor]);
+
   const setImageAttr = useCallback((attr: string, val: unknown) => {
     // 에디터에 selection이 있으면 직접 탐색, 없으면 캐시된 path 사용
     try {
+      let targetPath: number[] | null = null;
       if (editor?.selection) {
         const entry = editor.api.above({ match: { type: "img" } });
-        if (entry) { editor.tf.setNodes({ [attr]: val }, { at: entry[1] }); return; }
+        if (entry) { editor.tf.setNodes({ [attr]: val }, { at: entry[1] }); targetPath = entry[1] as number[]; }
       }
-      if (imgPathRef.current) {
+      if (!targetPath && imgPathRef.current) {
         editor.tf.setNodes({ [attr]: val }, { at: imgPathRef.current });
+        targetPath = imgPathRef.current;
+      }
+      // float/block 전환 시 같은 문단의 텍스트와 분리 (독립 블록화)
+      if (attr === "layout" && targetPath && typeof val === "string" && (val === "block" || val.startsWith("float"))) {
+        isolateImageBlock(targetPath);
       }
     } catch { /* ignore */ }
-  }, [editor]);
+  }, [editor, isolateImageBlock]);
 
   // ── Link / Embed insert ──
   const doInsertLink = useCallback((form: { url: string; text: string; protocol: string; target: string }) => {
@@ -1235,6 +1572,97 @@ export default function PlateEditor({
     // composition commit 과 우리 동작을 둘 다 처리하면서 글자 복제 / 빈 줄 삽입
     // 등 race condition 발생. 브라우저가 composition 끝낸 후 다시 키 누르면 정상 처리.
     if (e.nativeEvent.isComposing) return;
+
+    // ── 화살표로 이미지 선택 ──
+    // 커서가 이미지(inline void) 바로 옆에서 ←/→ 를 누르면 그냥 지나치지 않고 이미지를 선택(툴바 표시).
+    // 한 번 더 누르면(이미 선택=비collapsed) 기본 동작으로 지나간다.
+    if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && editor.selection && editor.api.isCollapsed()) {
+      try {
+        const right = e.key === "ArrowRight";
+        const point = editor.selection.anchor;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const isImg = (n: any) => n?.type === "img";
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const blank = (n: any) => typeof n?.text === "string" && (n.text as string).replace(/[​‌‍﻿\s]/g, "") === "";
+        const selectImgPath = (imgPath: number[]) => {
+          const doSelect = () => {
+            try {
+              const a = editor.api.start(imgPath);
+              const f = editor.api.end(imgPath);
+              imgPathRef.current = imgPath;
+              arrowSelectImgRef.current = true;
+              editor.tf.select(a && f ? { anchor: a, focus: f } : imgPath);
+            } catch { /* ignore */ }
+          };
+          // 동기 선택 먼저 — Slate 기본 이동이 막혔으면 이게 유지돼 깜빡임 없음.
+          // Slate 가 그래도 keydown 직후 커서를 옮기면 rAF 로 재선택(fallback).
+          doSelect();
+          requestAnimationFrame(doSelect);
+        };
+        // 커서가 이미 float/block 이미지 위(= 선택 상태)면 ←/→ 로 이미지 블록을 건너뛰어 인접 블록으로.
+        // 기본 이동에 맡기면 빈 ZWSP 자리에 떨어지므로 keydown 에서 직접 처리(preventDefault).
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const curParent = editor.api.node(point.path.slice(0, -1))?.[0] as any;
+        if (curParent?.type === "img" && (curParent.layout === "block" || (typeof curParent.layout === "string" && (curParent.layout as string).startsWith("float")))) {
+          // 바로 인접한 블록을 명시적으로 타겟 (after/before 는 빈 블록 등을 건너뛸 수 있어 한 블록 더 감)
+          const adjIdx = point.path[0] + (right ? 1 : -1);
+          if (adjIdx >= 0 && adjIdx < editor.children.length) {
+            const target = right ? editor.api.start([adjIdx]) : editor.api.end([adjIdx]);
+            if (target) {
+              e.preventDefault();
+              e.stopPropagation();
+              skipImgRef.current = true;
+              editor.tf.select(target);
+              prevAnchorRef.current = { path: [...target.path], offset: target.offset };
+              // Slate 기본 화살표가 preventDefault 를 무시하고 한 번 더 옮기는 경우(→ 한 블록 더 건너뜀)
+              // 대비: rAF 로 목표 위치를 다시 고정해 이중 이동을 되돌린다.
+              requestAnimationFrame(() => {
+                try { editor.tf.select(target); } catch { /* ignore */ }
+                skipImgRef.current = false;
+              });
+              return;
+            }
+          }
+        }
+        const leaf = editor.api.node(point.path)?.[0] as Record<string, unknown> | undefined;
+        const leafLen = typeof leaf?.text === "string" ? (leaf.text as string).length : 0;
+        // 현재 리프 끝(→)/시작(←) 이거나, 빈 텍스트(ZWSP 패딩) 위면 인접 이미지 탐색
+        const atEdge = (right ? point.offset >= leafLen : point.offset <= 0) || blank(leaf);
+        const parentPath = point.path.slice(0, -1);
+        const idx = point.path[point.path.length - 1];
+        const parent = editor.api.node(parentPath)?.[0] as { children?: Record<string, unknown>[] } | undefined;
+        const kids = parent?.children ?? [];
+        if (atEdge) {
+          // (1) 같은 문단에서 해당 방향으로 스캔 — ZWSP 등 빈 텍스트는 건너뛰고 img 면 선택
+          //     (inline 이미지는 normalize 가 앞뒤에 ZWSP 를 넣어 바로 옆이 img 가 아닐 수 있음)
+          const dir = right ? 1 : -1;
+          for (let j = idx + dir; j >= 0 && j < kids.length; j += dir) {
+            if (isImg(kids[j])) {
+              e.preventDefault();
+              selectImgPath([...parentPath, j]);
+              return;
+            }
+            if (!blank(kids[j])) break;
+          }
+          // (2) 문단 경계 — 인접 블록이 이미지 전용 블록(float/block)이면 그 이미지 선택
+          const atBlockEdge = right ? idx >= kids.length - 1 : idx <= 0;
+          if (point.path.length === 2 && atBlockEdge) {
+            const adjBlockPath = [point.path[0] + (right ? 1 : -1)];
+            if (adjBlockPath[0] >= 0 && adjBlockPath[0] < editor.children.length) {
+              const adj = editor.api.node(adjBlockPath)?.[0] as { children?: Record<string, unknown>[] } | undefined;
+              const adjKids = adj?.children ?? [];
+              const imgIdx = adjKids.findIndex(isImg);
+              if (imgIdx >= 0 && adjKids.every((k) => isImg(k) || blank(k))) {
+                e.preventDefault();
+                selectImgPath([...adjBlockPath, imgIdx]);
+                return;
+              }
+            }
+          }
+        }
+      } catch { /* ignore */ }
+    }
+
     // ── Find & Replace 단축키 ──
     const mod = e.metaKey || e.ctrlKey;
     if (mod && e.key === "f") {
@@ -1394,7 +1822,8 @@ export default function PlateEditor({
   }, [editor, findOpen, isInTable, isInColumn, isInToggle, isInCallout, mathEditing, isInImage, isInMediaEmbed]);
 
   // ── All media (images + video embeds) + detached 동기 관리 ──
-  const detachedRef = useRef<{ url: string; mediaType?: string }[]>([]);
+  // 초기값: 저장 HTML 에 남아있던 detached 미디어 복원 (새로고침 후에도 패널 "삭제됨" 유지)
+  const detachedRef = useRef<{ url: string; mediaType?: string }[]>(extractDetachedMedia(value || ""));
   const prevContentUrlsRef = useRef<Map<string, string>>(new Map()); // url → mediaType
   const deletedUrlsRef = useRef<Set<string>>(new Set()); // 패널에서 완전 삭제된 URL
 
@@ -1458,17 +1887,24 @@ export default function PlateEditor({
   }, [editor]);
 
   const removeImage = useCallback((path: number[]) => {
-    console.log("[removeImage] path:", path);
     try {
       const node = editor.api.node(path);
-      console.log("[removeImage] node:", node);
       if (node) {
         const n = node[0] as Record<string, unknown>;
         if (n.url) deletedUrlsRef.current.add(n.url as string);
       }
+      const blockPath = path.slice(0, -1);
       editor.tf.removeNodes({ at: path });
-      console.log("[removeImage] done");
-    } catch (e) { console.error("[removeImage] ERROR:", e); }
+      // 이미지가 빠진 뒤 블록이 비었으면(빈 텍스트만) 블록째 제거 — float/block 단독 이미지 블록의 잔여 공간 방지
+      try {
+        if (blockPath.length === 1 && editor.children.length > 1) {
+          const block = editor.api.node(blockPath)?.[0] as { children?: Array<Record<string, unknown>> } | undefined;
+          const kids = block?.children ?? [];
+          const empty = kids.length > 0 && kids.every((k) => typeof k.text === "string" && (k.text as string).replace(/[​‌‍﻿\s]/g, "") === "");
+          if (empty) editor.tf.removeNodes({ at: blockPath });
+        }
+      } catch { /* ignore */ }
+    } catch { /* ignore */ }
   }, [editor]);
 
   const reorderImage = useCallback((fromIdx: number, toIdx: number) => {
@@ -1494,18 +1930,15 @@ export default function PlateEditor({
   }, [editor]);
 
   const insertMediaByUrl = useCallback((url: string) => {
-    console.log("[insertMediaByUrl] url:", url, "selection:", editor?.selection);
     if (!editor) return;
     if (editor.selection) {
       insertMediaEmbed(editor, { url });
     } else {
-      console.log("[insertMediaByUrl] no selection, inserting at:", [editor.children.length]);
       editor.tf.insertNodes(
         { type: "media_embed", url, children: [{ text: "" }] },
         { at: [editor.children.length] },
       );
     }
-    console.log("[insertMediaByUrl] done");
   }, [editor]);
 
   const getImagesLive = useCallback((): import("./plate/types").EditorImageInfo[] => {
@@ -2465,12 +2898,12 @@ export default function PlateEditor({
             <div
               id="inline-drag-caret"
               style={{
-                position: "absolute",
-                width: 2,
+                position: "fixed",
+                width: 3,
                 background: "var(--color-accent)",
                 borderRadius: 1,
                 pointerEvents: "none",
-                zIndex: 10,
+                zIndex: 9998,
                 opacity: 0,
                 transition: "opacity 0.1s",
               }}
