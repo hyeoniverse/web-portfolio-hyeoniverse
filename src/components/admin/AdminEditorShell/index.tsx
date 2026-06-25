@@ -176,6 +176,55 @@ export default function AdminEditorShell({
   );
   const { setInfinite, lenis } = useLenis();
   const { openModal } = useModalStore();
+  // topBar sticky — 아래로 스크롤하면 접고(translateY -100%), 위로 스크롤하면 펼침.
+  // 에디터 본문은 60vh + data-lenis-prevent 라 페이지와 분리된 내부 스크롤 → capture 단계로
+  // 페이지·본문 스크롤을 모두 감지해, 본문 안에서 위로 스크롤해도 topBar 가 펼쳐지게(어디서든 보이게).
+  const [topBarHidden, setTopBarHidden] = useState(false);
+  useEffect(() => {
+    const positions = new WeakMap<HTMLElement, number>();
+    let lastPage = 0;
+    // per-event delta 가 작은 느린 스크롤도 동작하도록 같은 방향으로 누적해 임계값 도달 시 토글
+    let accum = 0;
+    const THRESH = 6;
+    const decide = (delta: number, atTop: boolean) => {
+      if (atTop) { setTopBarHidden(false); accum = 0; return; }
+      if (delta === 0) return;
+      // 방향이 바뀌면 누적 리셋
+      if ((delta > 0 && accum < 0) || (delta < 0 && accum > 0)) accum = 0;
+      accum += delta;
+      if (accum > THRESH) { setTopBarHidden(true); accum = 0; }
+      else if (accum < -THRESH) { setTopBarHidden(false); accum = 0; }
+    };
+    const onScroll = (e: Event) => {
+      const tgt = e.target;
+      if (tgt === document || tgt === document.documentElement || tgt === document.body) {
+        const y = window.scrollY;
+        decide(y - lastPage, y < 64);
+        lastPage = y;
+      } else if (tgt instanceof HTMLElement) {
+        const y = tgt.scrollTop;
+        const last = positions.get(tgt) ?? 0;
+        decide(y - last, false);
+        positions.set(tgt, y);
+      }
+    };
+    // capture=true — scroll 은 버블 안 하므로 중첩 스크롤(본문)까지 잡으려면 캡처 단계로
+    window.addEventListener("scroll", onScroll, true);
+    return () => window.removeEventListener("scroll", onScroll, true);
+  }, []);
+
+  // topBar 가 position:fixed 라 flow 에서 빠짐 → 같은 높이 spacer 로 본문이 가려지지 않게 예약
+  const topBarRef = useRef<HTMLDivElement>(null);
+  const [spacerH, setSpacerH] = useState(0);
+  useLayoutEffect(() => {
+    const el = topBarRef.current;
+    if (!el) return;
+    const update = () => setSpacerH(el.offsetHeight);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const [showRevisions, setShowRevisions] = useState(false);
   const [viewingRevision, setViewingRevision] = useState<number | null>(null);
   const [revisionDetail, setRevisionDetail] = useState<{ title?: string; subtitle?: string; excerpt?: string; content?: string; meta?: import("./types").RevisionMetaGroup[]; headerLabels?: { title?: string; subtitle?: string; excerpt?: string } } | null>(null);
@@ -432,7 +481,7 @@ export default function AdminEditorShell({
 
   return (
     <div className={styles.container}>
-      <div className={styles.topBar}>
+      <div ref={topBarRef} className={`${styles.topBar}${topBarHidden ? ` ${styles.topBarHidden}` : ""}`}>
         <div className={styles.topBarRow}>
         {/* ── 왼쪽: BackLink + extra(Checkbox) + LanguageToggle 한 묶음 ── */}
         <div className={styles.navGroup}>
@@ -951,6 +1000,7 @@ export default function AdminEditorShell({
           </div>
         </div>
       </div>
+      <div className={styles.topBarSpacer} style={{ height: spacerH }} aria-hidden />
 
       {children}
 

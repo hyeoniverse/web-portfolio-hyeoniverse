@@ -259,6 +259,11 @@
   touch-action: none;
 }
 
+/* 단일 이미지(하단 썸네일 strip 없음) — strip 높이만큼 하단 여백을 줘서 멀티 이미지와 위치/여백 통일 */
+.noThumbs .imageArea {
+  padding-bottom: var(--spacing-5xl);
+}
+
 .imageWrap {
   position: relative;
   display: flex;

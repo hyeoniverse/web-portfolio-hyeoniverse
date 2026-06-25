@@ -172,6 +172,15 @@
   margin: var(--spacing-xl) 0;
 }
 
+/* float 이미지 — 직렬화 인라인 margin 과 무관하게 텍스트와 가로 간격 강제(과거 margin:0 콘텐츠 커버) */
+.prose figure[style*="float:left"] {
+  margin: 0 var(--spacing-lg) var(--spacing-lg) 0 !important;
+}
+
+.prose figure[style*="float:right"] {
+  margin: 0 0 var(--spacing-lg) var(--spacing-lg) !important;
+}
+
 .prose figure img {
   margin: 0;
   display: block;

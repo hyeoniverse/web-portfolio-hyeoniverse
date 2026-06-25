@@ -451,7 +451,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
         <motion.div
           key="viewer"
           ref={viewerRef}
-          className={`${styles.viewer} ${thumbMode === "list" ? styles.hasListPanel : ""} ${isFullscreen ? styles.fullscreen : ""}`}
+          className={`${styles.viewer} ${thumbMode === "list" ? styles.hasListPanel : ""} ${!hasMultiple ? styles.noThumbs : ""} ${isFullscreen ? styles.fullscreen : ""}`}
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

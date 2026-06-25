@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
@@ -64,6 +64,13 @@ export function ModalConfirm({
 }: ModalConfirmProps) {
   const { closeModal } = useModalStore();
   const footerEl = useContext(ModalFooterContext);
+
+  // confirm 모달은 작아서(메시지 + 버튼) footer 위 구분선이 불필요 — 해당 모달 footer 의 border 만 제거
+  useEffect(() => {
+    if (!footerEl) return;
+    footerEl.style.borderTop = "none";
+    return () => { footerEl.style.borderTop = ""; };
+  }, [footerEl]);
 
   return (
     <div className={styles.body}>

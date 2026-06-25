@@ -80,8 +80,9 @@ export default function HorizontalCarousel({
     if (e.pointerType !== "mouse") return;
     const el = ref.current;
     if (!el) return;
+    // 포인터 캡처는 실제 드래그가 시작될 때(onPointerMove)만 — pointerdown 에서 바로 캡처하면
+    // 자식(카드)의 click/hover 이벤트가 carousel 로 리다이렉트돼 클릭이 안 먹는 경우가 있음.
     dragState.current = { active: true, startX: e.clientX, startLeft: el.scrollLeft, moved: false };
-    el.setPointerCapture(e.pointerId);
   };
 
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
@@ -93,6 +94,7 @@ export default function HorizontalCarousel({
     if (Math.abs(dx) > 4 && !state.moved) {
       state.moved = true;
       el.setAttribute("data-cursor", "grab");
+      el.setPointerCapture(e.pointerId);
     }
     el.scrollLeft = state.startLeft - dx;
   };
@@ -102,7 +104,7 @@ export default function HorizontalCarousel({
     if (!state.active) return;
     state.active = false;
     const el = ref.current;
-    el?.releasePointerCapture?.(e.pointerId);
+    if (state.moved && el?.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
     el?.removeAttribute("data-cursor");
   };
 

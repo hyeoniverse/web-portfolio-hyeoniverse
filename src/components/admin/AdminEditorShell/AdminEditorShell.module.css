@@ -2,19 +2,61 @@
 .container {
   max-width: var(--page-max-width);
   margin: 0 auto;
-  padding: var(--spacing-5xl-plus) var(--page-px) var(--spacing-3xl);
+  /* topBar 가 position:fixed 라 상단 패딩은 nav 높이만큼만 — topBar 자리는 .topBarSpacer 가 예약 */
+  padding: var(--header-height) var(--page-px) var(--spacing-3xl);
 }
 
-/* ── Top Bar ── */
+/* topBar(fixed) 가 빠진 flow 자리를 예약 — 높이는 JS(ResizeObserver)로 동기화 */
+.topBarSpacer {
+  flex-shrink: 0;
+}
+
+/* ── Top Bar ──
+   에디터 본문이 60vh + data-lenis-prevent 내부 스크롤이라 페이지가 거의 안 스크롤됨 →
+   position:sticky 로는 핀이 안 걸림. fixed 로 항상 nav 아래에 고정하고, 접힘/펼침은 transform 으로. */
 .topBar {
-  position: relative;
+  position: fixed;
+  /* 전역 Navigation(고정, top:0, 높이 --header-height) 바로 아래에 붙음 */
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  /* .container 와 동일하게 중앙 정렬 + max-width + 좌우 page-px */
+  margin-left: auto;
+  margin-right: auto;
+  max-width: var(--page-max-width);
+  box-sizing: border-box;
+  /* nav 보다 한 단계 아래 — frost 가 nav 뒤로 깔리고 nav 가 그 위에 보이도록 */
+  z-index: calc(var(--z-nav) - 1);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  /* padding + margin 같은 token 으로 통일 — section divider 의 위/아래 균등 spacing */
-  margin-bottom: var(--spacing-xl);
-  padding-bottom: var(--spacing-xl);
-  border-bottom: var(--border-light);
+  padding: var(--spacing-md) var(--page-px);
+  /* 아래로 스크롤 시 접힘(translateY), 위로 스크롤 시 펼침 */
+  transition: transform var(--duration-base) ease;
+  will-change: transform;
+}
+
+/* 펼쳐졌을 때 배경 — blur + 하단 mask 그라데이션(콘텐츠로 자연스럽게 페이드).
+   콘텐츠(버튼/배너)는 위 레이어라 선명, 배경만 blur+fade.
+   위로는 --header-height 만큼 확장해 Navigation 영역까지 frost 가 깔리고,
+   좌우는 페이지 패딩만큼 확장해 화면 끝까지. */
+.topBar::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--header-height));
+  left: calc(-1 * var(--page-px));
+  right: calc(-1 * var(--page-px));
+  bottom: calc(-1 * var(--spacing-lg));
+  z-index: -1;
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent);
+  pointer-events: none;
+}
+
+/* 접힘 — 자기 높이 + nav 높이만큼 위로 올려 nav 뒤로 완전히 숨김 */
+.topBarHidden {
+  transform: translateY(calc(-100% - var(--header-height)));
 }
 
 /* topBar 안의 모든 control (Button / BackLink / LanguageToggle 등) height 통일 —
