@@ -1114,6 +1114,7 @@
       "trashExtendTip": "보관 기간 +30일",
       "trashPurgeConfirm": "영구 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
       "trashPurgeHint": "영구 삭제하려면 게시물 제목을 입력하세요. 이 작업은 되돌릴 수 없습니다.",
+      "trashPreviewNotice": "이 작품은 휴지통에 있습니다.",
       "trashAutoDelete": "30일 후 자동 삭제됩니다.",
       "trashSearch": "휴지통 검색...",
       "sortNewestDeleted": "최근 삭제",
