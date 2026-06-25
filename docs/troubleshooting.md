@@ -1616,3 +1616,94 @@ function swapToPlaceholder(img: HTMLImageElement) {
 ④ inline void 의 강제 ZWSP 는 normalize 가 복원해 지울 수 없으므로, **안 보이게 + 안 닿게** 만드는 우회가 현실적
 
 </details>
+
+<details>
+<summary><strong>49. 에디터 top bar 가 sticky 로 안 붙음 — `position: sticky` → `position: fixed` 전환</strong></summary>
+
+**문제**: 에디터 상단 바(BackLink·저장·리비전 등)를 `position: sticky` 로 화면 상단에 고정하려 했으나, 스크롤해도 핀이 걸리지 않고 본문과 함께 위로 사라짐
+
+**원인**: 에디터 본문이 `height: 60vh` + `data-lenis-prevent` 로 감싼 **내부 스크롤 영역**이라, 정작 페이지(document) 자체는 거의 스크롤되지 않음
+
+- `position: sticky` 는 **스크롤 컨테이너가 실제로 스크롤될 때** 핀이 걸리는데, 본문 안에서 휠을 굴려도 페이지 스크롤 위치는 그대로라 sticky 가 발동할 조건이 안 생김
+- 또 `scroll` 이벤트는 버블하지 않아서, 일반 listener 로는 중첩된 본문 영역의 스크롤을 잡지 못함
+
+**해결**: sticky 를 버리고 `position: fixed` 로 직접 제어
+
+1. **(고정) `position: fixed; top: var(--header-height)`** — 전역 Navigation 바로 아래에 항상 고정. 접힘/펼침은 `transform: translateY()` 로
+2. **(flow 예약) `ResizeObserver` spacer** — fixed 라 flow 에서 빠진 만큼 본문이 위로 밀려 가려지므로, top bar 높이를 `ResizeObserver` 로 측정해 같은 높이의 `.topBarSpacer` 로 자리를 예약
+3. **(스크롤 감지) capture 단계 listener** — `window.addEventListener("scroll", onScroll, true)` 로 capture 단계에서 듣고, target 이 document 면 페이지 스크롤, `HTMLElement` 면 중첩 본문 스크롤로 분기. 두 경우 모두 방향(delta)을 누적해 임계값(6px) 도달 시 접기/펼치기 토글 — 느린 스크롤도 같은 방향으로 모이면 동작
+
+**핵심 인사이트**:
+
+① `position: sticky` 는 "조상 중 실제로 스크롤되는 컨테이너" 가 있어야 동작 — 내부 스크롤 패턴(`60vh` + `lenis-prevent`)에선 페이지가 안 움직이므로 sticky 가 무의미
+② `scroll` 이벤트는 **버블하지 않는다** → 중첩 스크롤 영역까지 한 listener 로 잡으려면 **capture 단계**(`useCapture=true`)로 들어야 함
+③ `fixed` 는 flow 에서 빠지므로, 가려짐을 막으려면 spacer 로 높이를 **명시적으로 예약**해야 한다 (`ResizeObserver` 로 동기화)
+
+</details>
+
+<details>
+<summary><strong>50. HorizontalCarousel 안의 카드 클릭이 안 먹음 — `setPointerCapture` 가 자식 click 을 가로챔</strong></summary>
+
+**문제**: 가로 캐러셀 안에 든 팀원 폴라로이드(플립) 카드를 클릭해도 토글이 안 됨. 카드 자체엔 `onClick` 이 정상으로 붙어 있는데도 이벤트가 도달하지 않음
+
+**원인**: 캐러셀이 마우스 드래그 스크롤을 위해 `onPointerDown` 에서 **즉시 `el.setPointerCapture()`** 를 호출
+
+- 포인터가 캡처되면 이후 pointer 이벤트가 전부 캐러셀로 redirect 되고, 그 결과 자식 카드의 `click`(= pointerdown→up 한 쌍) 이 카드까지 전달되지 않음
+- 즉 "드래그하려고 캡처" 가 "탭/클릭" 까지 같이 삼켜 버린 것
+
+**해결**: 캡처를 **pointerdown 시점이 아니라 실제 드래그가 시작된 시점으로 미룸**
+
+1. `onPointerDown` 에선 시작 좌표만 기록(`active: true`) — 캡처는 하지 않음
+2. `onPointerMove` 에서 이동량이 **4px 을 넘긴 순간** 비로소 `setPointerCapture()` + `data-cursor="grab"` 설정 → 진짜 드래그로 판정
+3. 4px 미만으로 떼면 캡처가 일어나지 않아 `click` 이 자식에 정상 전달. `onClickCapture` 는 `moved` 플래그가 섰을 때만 click 을 막아, 드래그 끝의 의도치 않은 클릭을 차단
+
+**핵심 인사이트**:
+
+① `setPointerCapture` 를 pointerdown 에서 바로 부르면 **클릭과 드래그를 구분할 기회 자체가 없어진다** — 캡처가 자식 이벤트를 통째로 가져감
+② "이동 임계값(4px)을 넘기 전까진 캡처하지 않는다" 가 클릭과 드래그를 공존시키는 표준 패턴 (TagCloud3D·Series Deck 와 동일한 원인·해법)
+
+</details>
+
+<details>
+<summary><strong>51. 에디터 미리보기가 게시 상세와 레이아웃이 어긋남 — 공용 Article 뷰 컴포넌트로 추출</strong></summary>
+
+**문제**: admin 에디터의 미리보기(preview) 화면이 실제 게시된 상세 페이지와 레이아웃·간격·코드블록 처리가 미묘하게 계속 어긋남
+
+**원인**: preview 가 detail 과 **별개로 만든 단순화 버전**이었음
+
+- detail 의 마크업/스타일이 바뀔 때마다 preview 를 따로 맞춰야 했고, 한쪽만 고치면 곧바로 어긋남 — 같은 화면을 두 번 구현한 구조적 중복
+- richtext(코드 하이라이팅·embed·heading id) 처리도 서로 다른 코드 경로라 출력이 달랐음
+
+**해결**: 상세 페이지의 article 뷰를 **공용 프레젠테이션 컴포넌트로 추출**해 detail·preview 가 같은 컴포넌트를 렌더하게 함
+
+1. `PostArticleView` / `WorkArticleView` 에서 `Header` / `Body` / `Team` 을 export → `PostDetailClient`·`WorkDetailClient`(상세)와 `posts/preview`·`works/preview`(미리보기)가 **동일 컴포넌트**를 사용. 댓글·뒤로가기처럼 preview 에 없는 chrome 만 detail 쪽에서 추가
+2. richtext HTML 처리를 `src/utils/processRichtextHtml.ts` 한 곳으로 공유 — heading id 주입 → embed URL 변환 → hljs 코드 하이라이팅 → wrap 토글 라벨 → img `data-cursor="zoom"` 순서를 양쪽이 똑같이 거침 → 코드블록까지 100% 동일
+
+**핵심 인사이트**:
+
+① "미리보기" 가 본화면과 다르면 미리보기로서의 가치가 없다 — 단순화 버전을 따로 두는 순간 **두 화면이 silent 하게 drift** 한다
+② 해법은 동기화가 아니라 **단일 소스화**: 같은 출력이 필요하면 같은 컴포넌트·같은 처리 함수를 쓰게 만들어, 한쪽만 바뀌는 상태를 구조적으로 불가능하게 한다
+
+</details>
+
+<details>
+<summary><strong>52. float 이미지가 상세 페이지에서 텍스트와 딱 붙음 (간격 0)</strong></summary>
+
+**문제**: 본문 옆으로 흘린 float 이미지가 상세 페이지에서 인접 텍스트와 **간격 없이 딱 붙어** 렌더됨
+
+**원인**: plateSerializer 가 float figure 를 `style="float:left;margin:0"` 처럼 **인라인 style 로 margin:0** 을 박아 저장
+
+- 가로 여백이 0이라 텍스트가 이미지에 달라붙음
+- 게다가 **인라인 style 은 우선순위가 높아** `.prose figure` 같은 일반 CSS 규칙으로는 덮을 수 없었음
+
+**해결**: 직렬화 값 자체를 고치고, CSS 로도 `!important` 강제
+
+1. `plateSerializer.ts` — float figure 직렬화 margin 을 `0 24px 24px 0`(left) / `0 0 24px 24px`(right) 로 변경. 옆·아래 여백을 직렬화 단계에서 부여
+2. `PostDetail.module.css` / `WorkDetail.module.css` — `.prose figure[style*="float:left"]` / `.sectionProse figure[style*="float:right"]` 에 `margin: ... !important` 로 옆·아래 간격(`--spacing-lg`)을 강제. **과거에 `margin:0` 으로 저장된 콘텐츠도** 일관되게 간격이 적용되도록(직렬화 값과 무관하게 커버)
+
+**핵심 인사이트**:
+
+① 직렬화가 인라인 style 을 박으면, 그 값은 외부 CSS 보다 **우선순위가 높아** 나중에 덮기 어렵다 — 직렬화 단계에서 올바른 값을 넣는 게 1차 방어
+② 이미 잘못 저장된 과거 데이터까지 책임지려면, attribute selector(`[style*="float"]`) + `!important` 로 **인라인 값을 무력화**하는 2차 방어를 둔다
+
+</details>

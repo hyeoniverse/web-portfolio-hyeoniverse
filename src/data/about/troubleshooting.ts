@@ -233,6 +233,34 @@ const itemMeta: Record<
   "drag&drop 후 위치 이동 애니메이션이 안 먹거나 엉뚱한 칩이 튐": { section: "I", difficulty: 2 },
   "drag 핸들 위에서만 'Drag' 커서가 떠서 사용자가 끌 수 있다는 걸 못 알아챔": { section: "I", difficulty: 1 },
   "dashed 테두리를 줬는데 테두리가 아예 안 그려짐": { section: "L", difficulty: 1 },
+
+  // Layout & CSS — 에디터 top bar fixed 전환
+  "에디터 top bar 가 `position: sticky` 로 안 붙음 — 본문 내부 스크롤이라 페이지가 안 움직여 핀이 안 걸림": {
+    section: "L", difficulty: 3, recommended: true,
+    recommendReason: {
+      ko: "sticky 가 안 되는 이유를 \"스크롤되는 조상이 없다\" 까지 좁히고, fixed + ResizeObserver spacer + capture 단계 scroll 로 우회한 사례 — 증상이 아닌 스크롤 모델까지 파고든 디버깅을 보여드리려 골랐습니다.",
+      en: "Narrowed why sticky failed down to \"no actually-scrolling ancestor,\" then worked around it with fixed + a ResizeObserver spacer + capture-phase scroll — picked it to show debugging that goes into the scroll model, not the symptom.",
+    },
+  },
+
+  // Animation & Interaction — carousel child click vs drag
+  "HorizontalCarousel 안의 카드 클릭이 안 먹음 — `setPointerCapture` 가 자식 click 을 가로챔": {
+    section: "I", difficulty: 3,
+  },
+
+  // Architecture / Component — preview = detail 공용 컴포넌트화
+  "에디터 미리보기가 게시 상세와 레이아웃이 어긋남 — 단순화 버전이라 계속 drift": {
+    section: "A", difficulty: 3, recommended: true,
+    recommendReason: {
+      ko: "\"미리보기를 본화면에 맞춘다\" 가 아니라 \"같은 컴포넌트·같은 처리 함수를 쓰게 만들어 drift 자체를 불가능하게\" 로 관점을 바꾼 사례입니다.",
+      en: "Picked this for the shift from \"keep the preview matched to the real screen\" to \"make both use the same component and processing function so drift becomes impossible.\"",
+    },
+  },
+
+  // Layout & CSS — float figure margin
+  "float 이미지가 상세 페이지에서 텍스트와 딱 붙음 (간격 0)": {
+    section: "L", difficulty: 2,
+  },
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
@@ -2755,6 +2783,110 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "A CSS float (out of flow) and an inline void (forced in-paragraph text) fundamentally conflict. Getting 'independent block + no empty line + natural navigation' at once isn't a one-spot fix — data, layout, and input handling all have to align.",
     },
     tags: ["plate", "slate", "float", "inline-void", "navigation", "editor"],
+  },
+
+  /* ── Editor shell / Layout ── */
+  {
+    section: { ko: "Admin / Layout", en: "Admin / Layout" },
+    problem: {
+      ko: "에디터 top bar 가 `position: sticky` 로 안 붙음 — 본문 내부 스크롤이라 페이지가 안 움직여 핀이 안 걸림",
+      en: "Editor top bar won't pin with `position: sticky` — the body is an inner scroll region so the page never moves",
+    },
+    definition: {
+      ko: "에디터 상단 바(BackLink·저장·리비전 등)를 `position: sticky` 로 화면 상단에 고정하려 했으나, 스크롤해도 핀이 걸리지 않고 본문과 함께 위로 사라짐.",
+      en: "Tried to pin the editor's top bar (BackLink, save, revisions) at the top with `position: sticky`, but it never pinned — it scrolled away with the body.",
+    },
+    cause: {
+      ko: "에디터 본문이 `height: 60vh` + `data-lenis-prevent` 로 감싼 **내부 스크롤 영역**이라, 정작 페이지(document) 자체는 거의 스크롤되지 않음. `position: sticky` 는 스크롤 컨테이너가 실제로 스크롤될 때 핀이 걸리는데, 본문 안에서 휠을 굴려도 페이지 스크롤 위치는 그대로라 sticky 발동 조건이 안 생김. 게다가 `scroll` 이벤트는 버블하지 않아 일반 listener 로는 중첩된 본문 스크롤을 잡지 못함.",
+      en: "The editor body is an **inner scroll region** wrapped in `height: 60vh` + `data-lenis-prevent`, so the page (document) itself barely scrolls. `position: sticky` pins only when the scroll container actually scrolls, but wheeling inside the body leaves the page scroll position unchanged, so sticky never has a condition to fire. And `scroll` events don't bubble, so a plain listener can't catch the nested body scroll.",
+    },
+    solution: {
+      ko: "sticky 를 버리고 `position: fixed` 로 직접 제어. ① `position: fixed; top: var(--header-height)` 로 전역 Navigation 바로 아래에 항상 고정하고 접힘/펼침은 `transform: translateY()`. ② fixed 라 flow 에서 빠진 만큼 본문이 가려지므로 `ResizeObserver` 로 top bar 높이를 측정해 같은 높이의 spacer 로 자리를 예약. ③ `window.addEventListener(\"scroll\", onScroll, true)` 로 capture 단계에서 듣고, target 이 document 면 페이지 스크롤·`HTMLElement` 면 중첩 본문 스크롤로 분기. 두 경우 모두 방향(delta)을 누적해 임계값(6px) 도달 시 접기/펼치기 토글.",
+      en: "Dropped sticky and controlled it with `position: fixed`. ① `position: fixed; top: var(--header-height)` keeps it below the global Navigation; collapse/expand via `transform: translateY()`. ② fixed removes it from flow, so measure the top bar height with a `ResizeObserver` and reserve the space with a same-height spacer. ③ `window.addEventListener(\"scroll\", onScroll, true)` listens in the capture phase; when target is the document it's page scroll, when it's an `HTMLElement` it's nested body scroll. Both accumulate direction and toggle collapse/expand at a threshold (6px).",
+    },
+    keyInsight: {
+      ko: "`position: sticky` 는 실제로 스크롤되는 조상이 있어야 동작 — 내부 스크롤 패턴(`60vh` + `lenis-prevent`)에선 페이지가 안 움직여 sticky 가 무의미하다. `scroll` 은 버블하지 않으므로 중첩 스크롤까지 잡으려면 capture 단계로 들어야 하고, fixed 는 flow 에서 빠지므로 spacer 로 높이를 명시적으로 예약해야 한다.",
+      en: "`position: sticky` works only with an actually-scrolling ancestor — in an inner-scroll pattern (`60vh` + `lenis-prevent`) the page never moves, so sticky is meaningless. `scroll` doesn't bubble, so catching nested scroll needs the capture phase; and fixed removes the element from flow, so its height must be explicitly reserved with a spacer.",
+    },
+    tags: ["css", "position", "sticky", "fixed", "scroll", "capture", "ResizeObserver", "editor"],
+  },
+
+  /* ── Interaction ── */
+  {
+    section: { ko: "Interaction", en: "Interaction" },
+    problem: {
+      ko: "HorizontalCarousel 안의 카드 클릭이 안 먹음 — `setPointerCapture` 가 자식 click 을 가로챔",
+      en: "Card clicks inside HorizontalCarousel don't register — `setPointerCapture` steals the child click",
+    },
+    definition: {
+      ko: "가로 캐러셀 안에 든 팀원 폴라로이드(플립) 카드를 클릭해도 토글이 안 됨. 카드 자체엔 `onClick` 이 정상으로 붙어 있는데도 이벤트가 도달하지 않음.",
+      en: "Clicking a team polaroid (flip) card inside the horizontal carousel didn't toggle it. The card had a working `onClick`, yet the event never reached it.",
+    },
+    cause: {
+      ko: "캐러셀이 마우스 드래그 스크롤을 위해 `onPointerDown` 에서 즉시 `el.setPointerCapture()` 를 호출. 포인터가 캡처되면 이후 pointer 이벤트가 전부 캐러셀로 redirect 되고, 그 결과 자식 카드의 `click`(= pointerdown→up 한 쌍) 이 카드까지 전달되지 않음. \"드래그하려고 캡처\" 가 \"탭/클릭\" 까지 같이 삼켜 버린 것.",
+      en: "For mouse drag-scroll, the carousel called `el.setPointerCapture()` immediately on `onPointerDown`. Once captured, all subsequent pointer events redirect to the carousel, so the child card's `click` (a pointerdown→up pair) never reaches the card. \"Capture to drag\" also swallowed the \"tap/click.\"",
+    },
+    solution: {
+      ko: "캡처를 pointerdown 시점이 아니라 실제 드래그가 시작된 시점으로 미룸. ① `onPointerDown` 에선 시작 좌표만 기록(`active: true`) — 캡처 안 함. ② `onPointerMove` 에서 이동량이 4px 을 넘긴 순간 비로소 `setPointerCapture()` + `data-cursor=\"grab\"` → 진짜 드래그로 판정. ③ 4px 미만으로 떼면 캡처가 없어 `click` 이 자식에 정상 전달. `onClickCapture` 는 `moved` 플래그가 섰을 때만 click 을 막아 드래그 끝의 의도치 않은 클릭만 차단.",
+      en: "Defer the capture from pointerdown to when a real drag begins. ① `onPointerDown` records only the start coords (`active: true`) — no capture. ② `onPointerMove` calls `setPointerCapture()` + sets `data-cursor=\"grab\"` only once the move exceeds 4px → judged a real drag. ③ Release under 4px and no capture happens, so `click` propagates to the child. `onClickCapture` swallows the click only when the `moved` flag is set, blocking just the unintended end-of-drag click.",
+    },
+    keyInsight: {
+      ko: "`setPointerCapture` 를 pointerdown 에서 바로 부르면 클릭과 드래그를 구분할 기회 자체가 사라진다 — 캡처가 자식 이벤트를 통째로 가져감. \"이동 임계값(4px)을 넘기 전엔 캡처하지 않는다\" 가 클릭·드래그를 공존시키는 표준 패턴(TagCloud3D·Series Deck 와 동일).",
+      en: "Calling `setPointerCapture` straight on pointerdown removes any chance to tell click from drag — the capture takes the child's events wholesale. \"Don't capture until the move exceeds a threshold (4px)\" is the standard pattern for letting click and drag coexist (same as TagCloud3D and Series Deck).",
+    },
+    tags: ["pointer-events", "setPointerCapture", "drag", "click", "carousel", "interaction"],
+  },
+
+  /* ── Architecture / Component ── */
+  {
+    section: { ko: "Admin / Architecture", en: "Admin / Architecture" },
+    problem: {
+      ko: "에디터 미리보기가 게시 상세와 레이아웃이 어긋남 — 단순화 버전이라 계속 drift",
+      en: "Editor preview drifts from the published detail layout — it was a simplified version",
+    },
+    definition: {
+      ko: "admin 에디터의 미리보기(preview) 화면이 실제 게시된 상세 페이지와 레이아웃·간격·코드블록 처리가 미묘하게 계속 어긋남.",
+      en: "The admin editor's preview kept subtly diverging from the actual published detail page — in layout, spacing, and code-block handling.",
+    },
+    cause: {
+      ko: "preview 가 detail 과 별개로 만든 단순화 버전이었음. detail 의 마크업/스타일이 바뀔 때마다 preview 를 따로 맞춰야 했고, 한쪽만 고치면 곧바로 어긋남(같은 화면을 두 번 구현). richtext(코드 하이라이팅·embed·heading id) 처리도 서로 다른 코드 경로라 출력이 달랐음.",
+      en: "The preview was a separate, simplified version built apart from detail. Every time the detail markup/styles changed, the preview had to be matched separately, and fixing one side drifted (the same screen implemented twice). richtext handling (highlighting, embeds, heading ids) ran through different code paths too, so output differed.",
+    },
+    solution: {
+      ko: "상세 페이지의 article 뷰를 공용 프레젠테이션 컴포넌트로 추출해 detail·preview 가 같은 컴포넌트를 렌더하게 함. ① `PostArticleView`/`WorkArticleView` 에서 `Header`/`Body`/`Team` 을 export → `PostDetailClient`·`WorkDetailClient`(상세)와 `posts/preview`·`works/preview`(미리보기)가 동일 컴포넌트 사용. 댓글·뒤로가기처럼 preview 에 없는 chrome 만 detail 쪽에서 추가. ② richtext HTML 처리를 `src/utils/processRichtextHtml.ts` 한 곳으로 공유(heading id → embed → hljs → wrap 라벨 → img cursor 순서 동일) → 코드블록까지 100% 일치.",
+      en: "Extracted the detail page's article view into shared presentation components so detail and preview render the same component. ① `PostArticleView`/`WorkArticleView` export `Header`/`Body`/`Team` → `PostDetailClient`/`WorkDetailClient` (detail) and `posts/preview`/`works/preview` (preview) use the same components; only chrome absent from preview (comments, back link) is added on the detail side. ② richtext HTML processing is shared in `src/utils/processRichtextHtml.ts` (same order: heading id → embed → hljs → wrap label → img cursor) → identical down to the code blocks.",
+    },
+    keyInsight: {
+      ko: "\"미리보기\" 가 본화면과 다르면 미리보기로서 가치가 없다 — 단순화 버전을 따로 두는 순간 두 화면이 silent 하게 drift 한다. 해법은 동기화가 아니라 단일 소스화: 같은 출력이 필요하면 같은 컴포넌트·같은 처리 함수를 쓰게 해 한쪽만 바뀌는 상태를 구조적으로 불가능하게 만든다.",
+      en: "A preview that differs from the real screen has no value as a preview — keeping a simplified version separate makes the two screens silently drift. The fix isn't synchronization but a single source: if you need identical output, make both use the same component and processing function so a one-side-only change becomes structurally impossible.",
+    },
+    tags: ["preview", "detail", "shared-component", "richtext", "refactor", "single-source"],
+  },
+
+  /* ── Layout / CSS ── */
+  {
+    section: { ko: "Layout / CSS", en: "Layout / CSS" },
+    problem: {
+      ko: "float 이미지가 상세 페이지에서 텍스트와 딱 붙음 (간격 0)",
+      en: "Float images stick to the text on the detail page (zero gap)",
+    },
+    definition: {
+      ko: "본문 옆으로 흘린 float 이미지가 상세 페이지에서 인접 텍스트와 간격 없이 딱 붙어 렌더됨.",
+      en: "A float image wrapped beside the body text rendered flush against the adjacent text with no gap on the detail page.",
+    },
+    cause: {
+      ko: "plateSerializer 가 float figure 를 `style=\"float:left;margin:0\"` 처럼 인라인 style 로 margin:0 을 박아 저장 → 가로 여백이 0이라 텍스트가 이미지에 달라붙음. 게다가 인라인 style 은 우선순위가 높아 `.prose figure` 같은 일반 CSS 규칙으로 덮을 수 없었음.",
+      en: "plateSerializer saved the float figure with inline-style `margin:0`, like `style=\"float:left;margin:0\"` → zero horizontal margin, so the text clung to the image. And inline styles win on specificity, so a generic rule like `.prose figure` couldn't override it.",
+    },
+    solution: {
+      ko: "직렬화 값 자체를 고치고 CSS 로도 `!important` 강제. ① `plateSerializer.ts` 에서 float figure margin 을 `0 24px 24px 0`(left)/`0 0 24px 24px`(right) 로 변경해 직렬화 단계에서 옆·아래 여백 부여. ② `PostDetail.module.css`/`WorkDetail.module.css` 의 `.prose figure[style*=\"float:left\"]`/`.sectionProse figure[style*=\"float:right\"]` 에 `margin: ... !important` 로 옆·아래 간격(`--spacing-lg`)을 강제 — 과거에 `margin:0` 으로 저장된 콘텐츠도 일관되게 간격이 적용되도록(직렬화 값과 무관하게 커버).",
+      en: "Fix the serialized value and also force it via CSS `!important`. ① In `plateSerializer.ts`, change the float figure margin to `0 24px 24px 0` (left) / `0 0 24px 24px` (right), applying side/bottom spacing at the serialization step. ② In `PostDetail.module.css`/`WorkDetail.module.css`, force side/bottom spacing (`--spacing-lg`) with `margin: ... !important` on `.prose figure[style*=\"float:left\"]`/`.sectionProse figure[style*=\"float:right\"]` — so the gap applies consistently even to old content saved with `margin:0` (regardless of the serialized value).",
+    },
+    keyInsight: {
+      ko: "직렬화가 인라인 style 을 박으면 그 값은 외부 CSS 보다 우선순위가 높아 나중에 덮기 어렵다 — 직렬화 단계에서 올바른 값을 넣는 게 1차 방어. 이미 잘못 저장된 과거 데이터까지 책임지려면 attribute selector(`[style*=\"float\"]`) + `!important` 로 인라인 값을 무력화하는 2차 방어를 둔다.",
+      en: "When serialization bakes in an inline style, that value outranks external CSS and is hard to override later — putting the right value in at serialization is the first line of defense. To cover already-broken legacy data, add a second line: an attribute selector (`[style*=\"float\"]`) + `!important` to neutralize the inline value.",
+    },
+    tags: ["css", "float", "inline-style", "specificity", "serializer", "important"],
   },
 ];
 

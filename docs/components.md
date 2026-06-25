@@ -120,3 +120,93 @@ import StaggerText from "@/components/effects/StaggerText";
 - `ClientOverlays`에서 글로벌 1회 렌더링 (portal to body)
 
 ---
+
+### PostArticleView
+
+게시물 본문(아티클)을 그리는 **presentational 컴포넌트 집합**. 공개 상세 페이지(`posts/[slug]`)와 어드민 미리보기 페이지가 **같은 컴포넌트를 공유**한다 — 미리보기가 실제 게시 화면과 1:1로 일치하고, 중복 구현이 사라진다 (single source of truth).
+
+**경로**: `src/components/posts/PostArticleView.tsx`
+
+**Exports**:
+
+- `PostArticleHeader` — DetailLayout 의 `header` slot. metaRow(날짜·읽기시간·조회수·편집 / GitHub·Share·언어토글) · 제목 · 요약 · 태그 · divider
+- `PostArticleBody` — DetailLayout 의 `children` slot 본문. richtext / markdown 렌더 + 코드 wrap 토글·이미지 뷰어 등 인터랙션
+
+**기능**:
+
+- ko/en fallback 은 호출부에서 해석해 `displayTitle / displayContent / displayExcerpt` 로 전달 — 컴포넌트는 표시값만 받음
+- richtext 는 `processRichtextHtml` 로 전처리, markdown 은 `MarkdownRenderer` 사용
+- `isPreview` 로 저장된 DB 레코드가 필요한 요소(좋아요/댓글 등)를 호출부에서 제외
+- `headerActionsLeft` 로 미리보기 전용 액션(휴지통 복원/영구삭제 등)을 header 에 주입
+- `proseViewerRef` 로 호출부의 `useProseImageViewer` 와 연결
+
+**사용처**: `src/app/posts/[slug]/PostDetailClient.tsx` (공개 상세) + `src/app/admin/(preview)/posts/preview/page.tsx` (미리보기)
+
+---
+
+### WorkArticleView
+
+작업물(프로젝트) 상세 본문을 그리는 **presentational 컴포넌트 집합**. PostArticleView 와 동일하게 공개 상세(`works/[slug]`)와 어드민 미리보기가 같은 컴포넌트를 공유한다.
+
+**경로**: `src/components/works/WorkArticleView.tsx`
+
+**Exports**:
+
+- `WorkArticleHeader` — DetailLayout 의 `header` slot. meta(#번호·팀/개인 배지·편집·언어토글) · 제목 · 설명 · 액션(Visit/GitHub/Share) · info grid(Year/Category/Tech/Role) · AISummary
+- `WorkArticleBody` — DetailLayout 의 `children` slot. 본문(richtext/markdown) · 갤러리 + ImageViewer
+- `WorkArticleTeam` — DetailLayout 의 `afterContent` slot. 팀 멤버 폴라로이드 flip carousel을 **본문 컬럼이 아닌 전체 페이지 폭**으로 렌더
+
+**기능**:
+
+- `Project` shape 하나만 받아 렌더 — 미리보기는 `workFormToProject(form)`(`src/types/work.ts`)로 에디터 폼을 `Project` 로 변환해 동일 컴포넌트 재사용
+- richtext enhance / 갤러리·prose ImageViewer 등 인터랙션 내부 보유
+- `isPreview` 로 편집 링크 등 DB 의존 요소 제외
+
+**사용처**: `src/app/works/[slug]/WorkDetailClient.tsx` (공개 상세) + `src/app/admin/(preview)/works/preview/page.tsx` (미리보기)
+
+---
+
+### AdminNotFound
+
+어드민 편집/상세에서 항목을 찾지 못했을 때 보여주는 **중앙 정렬 "not found" 상태**. 아이콘 + 메시지 + 목록으로 돌아가는 링크.
+
+**경로**: `src/components/admin/AdminNotFound/index.tsx`
+
+**Props**:
+
+| Prop        | Type     | Description              |
+| ----------- | -------- | ----------------------- |
+| `title`     | `string` | 표시 메시지             |
+| `backHref`  | `string` | 목록 등으로 돌아갈 링크 |
+| `backLabel` | `string` | 돌아가기 버튼 라벨      |
+
+**사용처**: 어드민 posts/works 편집 페이지 (`admin/(dashboard)/posts/[id]/edit`, `.../works/[id]/edit`)
+
+---
+
+### processRichtextHtml (util)
+
+richtext HTML을 후처리하는 **공용 유틸**. 상세 페이지와 미리보기가 본문을 **동일하게 렌더**하도록 처리를 한곳으로 모았다.
+
+**경로**: `src/utils/processRichtextHtml.ts`
+
+**처리 순서**:
+
+1. heading id 주입 (TOC 앵커)
+2. iframe embed URL 변환
+3. 코드블록 hljs 신택스 하이라이팅 (+ language 클래스, mermaid 는 원본 유지)
+4. 코드 wrap 토글 버튼 라벨 삽입
+5. img 에 `data-cursor="zoom"` 힌트 주입 (CursorTrail 이미지 뷰어)
+
+```ts
+import { processRichtextHtml } from "@/utils/processRichtextHtml";
+
+const html = processRichtextHtml(rawHtml, {
+  codeScroll: t("common.codeScroll"),
+  codeWrap: t("common.codeWrap"),
+});
+```
+
+> 코드 하이라이트·버튼 라벨을 DOM 조작이 아닌 **HTML 문자열 단계**에서 적용 — 리렌더로 사라지지 않게.
+
+---
