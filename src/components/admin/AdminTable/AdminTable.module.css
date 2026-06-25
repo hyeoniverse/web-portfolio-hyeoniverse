@@ -181,6 +181,13 @@
   color: var(--text-tertiary);
 }
 
+/* 상세 보기 컬럼 — 좁은 폭, 아이콘 버튼 가운데 정렬 */
+.colView {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ── Thumbnail ── */
 .colThumbWrap {
   align-self: stretch;
@@ -320,6 +327,25 @@
 .colActions .actionBtn:hover {
   background: var(--bg-inverse);
   color: var(--text-inverse);
+}
+
+/* 상세 보기 아이콘 버튼 — RowActionsMenu trigger 와 동일 사이즈/스타일 */
+.viewBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--duration-base) ease;
+}
+
+.viewBtn:hover {
+  color: var(--text-accent);
 }
 
 .deleteBtn {
