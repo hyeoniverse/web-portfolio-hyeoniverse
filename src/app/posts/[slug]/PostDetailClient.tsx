@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
@@ -10,26 +10,18 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Post, Series } from "@/types/post";
 import DetailLayout from "@/components/layout/DetailLayout";
-import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
-import { extractHeadings, addIdsToHtml } from "@/utils/headingUtils";
-import { fixEmbedUrls } from "@/utils/htmlUtils";
-import { formatCount } from "@/utils/format";
-import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
+import { PostArticleHeader, PostArticleBody } from "@/components/posts/PostArticleView";
+import { extractHeadings } from "@/utils/headingUtils";
 import "katex/dist/katex.min.css";
-import LanguageToggle from "@/components/ui/LanguageToggle";
 import T from "@/components/ui/T";
-import Tooltip from "@/components/ui/Tooltip";
 import AISummary from "@/components/ui/AISummary";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import RecommendedToast from "./_components/RecommendedToast";
 import RecommendedSection from "./_components/RecommendedSection";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
-import ShareButton from "@/components/ui/ShareButton";
-import Button from "@/components/ui/Button";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
-import { ImageIcon, SquarePen, Monitor, BookOpen, ChevronRight, ArrowLeft, ArrowRight, Languages } from "lucide-react";
-import { GithubIcon } from "@/components/icons";
+import { ImageIcon, Monitor, BookOpen, ChevronRight, ArrowLeft, ArrowRight, Languages } from "lucide-react";
 import styles from "./PostDetail.module.css";
 
 interface AdjacentPost {
@@ -66,7 +58,6 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const [adjacentPosts, setAdjacentPosts] = useState<{ prev: AdjacentPost | null; next: AdjacentPost | null }>({ prev: null, next: null });
   const [recommendedPosts, setRecommendedPosts] = useState<{ id: string; title: string; slug: string; cover_image: string; title_en: string; excerpt: string; excerpt_en: string; category: string; tags: string[] }[]>([]);
   const [relatedWorks, setRelatedWorks] = useState<{ id: string; slug?: string; title: string; subtitle_ko: string; subtitle_en: string; image: string; year: string; categories_ko?: string[]; categories_en?: string[] }[]>([]);
-  const richtextRef = useRef<HTMLDivElement>(null);
   const { containerRef: proseViewerRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const isAdmin = useIsAuthenticated();
   const [autoTranslating, setAutoTranslating] = useState(false);
@@ -168,76 +159,6 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
     return extractHeadings(displayContent, post?.content_type === "markdown");
   }, [displayContent, post?.content_type]);
 
-  const processedRichtextHtml = useMemo(() => {
-    if (post.content_type === "markdown") return "";
-    let html = fixEmbedUrls(addIdsToHtml(displayContent));
-    // 코드블록: hljs 하이라이트 + 버튼 라벨을 HTML 문자열 단계에서 적용
-    // (DOM 조작은 리렌더 시 사라지므로 문자열 처리)
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { hljs } = require("@/components/posts/highlightCodeBlocks") as typeof import("@/components/posts/highlightCodeBlocks");
-      const wrapLabel = `↔ ${t("common.codeScroll")}`;
-      const hoverLabel = `↩ ${t("common.codeWrap")}`;
-      html = html.replace(
-        /<pre><code(?:\s+class="([^"]*)")?>([\s\S]*?)<\/code><\/pre>/g,
-        (_match, cls, code) => {
-          // mermaid 는 하이라이트하지 않고 원본 유지 → 클라이언트에서 SVG 렌더
-          if ((cls || "").includes("language-mermaid")) return _match;
-          const langMatch = (cls || "").match(/language-(\S+)/);
-          const lang = langMatch?.[1];
-          const validLang = lang && hljs.getLanguage(lang) ? lang : null;
-          let highlighted: string;
-          try {
-            highlighted = validLang
-              ? hljs.highlight(code.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"'), { language: validLang }).value
-              : hljs.highlightAuto(code.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')).value;
-          } catch {
-            highlighted = code;
-          }
-          return `<pre><code class="hljs${validLang ? ` language-${validLang}` : ""}">${highlighted}</code></pre>`;
-        }
-      );
-      // 빈 버튼에 라벨 span 삽입
-      html = html.replace(
-        /<button[^>]*data-wrap-btn[^>]*><\/button>/g,
-        `<button type="button" class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${wrapLabel}</span><span class="code-wrap-label-hover">${hoverLabel}</span></button>`
-      );
-    } catch { /* hljs 로드 실패 시 무시 */ }
-    // img에 data-cursor="zoom" 주입 → CursorTrail 이미지 뷰어 힌트
-    html = html.replace(/<img\s/g, '<img data-cursor="zoom" ');
-    return html;
-  }, [post.content_type, displayContent, t]);
-
-  // markdown: proseViewerRef로 처리 (MarkdownRenderer가 이미 하이라이트, 이벤트만 위임)
-  useRichtextEnhance(post.content_type === "markdown" ? proseViewerRef : { current: null }, displayContent);
-
-  // richtext 전용: 이벤트 위임만 (하이라이트/라벨은 useMemo에서 HTML에 포함)
-  useEffect(() => {
-    if (post.content_type === "markdown") return;
-    const el = richtextRef.current;
-    if (!el) return;
-    import("@/components/posts/highlightCodeBlocks").then(({ attachCodeWrapToggle }) => {
-      attachCodeWrapToggle(el, {
-        wrap: t("common.codeWrap"),
-        scroll: t("common.codeScroll"),
-        wrapTitle: t("common.codeWrapTitle"),
-        scrollTitle: t("common.codeScrollTitle"),
-      });
-    });
-    let cleanup: (() => void) | undefined;
-    import("@/components/posts/enhanceReaderExtras").then(({ enhanceReaderExtras }) => {
-      cleanup = enhanceReaderExtras(el);
-    });
-    return () => cleanup?.();
-  }, [post.content_type, displayContent, t, processedRichtextHtml]);
-
-  const date = new Date(post.created_at).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-  const readTime = Math.max(1, Math.ceil(displayContent.length / 1000));
-
   const seriesPosts = seriesData?.posts ?? [];
   const currentSeriesIdx = seriesPosts.findIndex((p) => p.id === post.id);
   const prevSeriesPost = currentSeriesIdx > 0 ? seriesPosts[currentSeriesIdx - 1] : null;
@@ -291,52 +212,22 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <div className={styles.metaRow}>
-            <div className={styles.meta}>
-              <span>{date}</span>
-              <span className={styles.dot}>&middot;</span>
-              <span>{readTime} <T k="postDetail.minRead" /></span>
-              <span className={styles.dot}>&middot;</span>
-              <span>{formatCount(post.view_count)} <T k="postDetail.views" /></span>
-              {isAdmin && (
-                <>
-                  <span className={styles.metaDivider} />
-                  <Tooltip content={t("postDetail.editPost")} placement="top" delay={200}>
-                    <a
-                      href={`/admin/posts/${post.id}/edit`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
-                    >
-                      <SquarePen size={13} />
-                    </a>
-                  </Tooltip>
-                </>
-              )}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {post.github_url && (
-                <Button variant="outline" size="xs" href={post.github_url} external>
-                  <GithubIcon size={14} />
-                  GitHub
-                </Button>
-              )}
-              <ShareButton />
-              <LanguageToggle lang={viewLang} onLangChange={setViewLang} />
-            </div>
-          </div>
-          <h1 className={styles.articleTitle}>{displayTitle}</h1>
-          {displayExcerpt && <p className={styles.excerpt}>{displayExcerpt}</p>}
-          <div className={styles.tagsShareRow}>
-            {post.tags.length > 0 && (
-              <div className={styles.tags}>
-                {post.tags.map((tag) => (
-                  <span key={tag} className={styles.tag}>{tag}</span>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className={styles.headerDivider} />
+          <PostArticleHeader
+            data={{
+              displayTitle,
+              displayContent,
+              displayExcerpt,
+              contentType: post.content_type,
+              tags: post.tags,
+              viewCount: post.view_count,
+              createdAt: post.created_at,
+              githubUrl: post.github_url || undefined,
+              editHref: `/admin/posts/${post.id}/edit`,
+            }}
+            viewLang={viewLang}
+            onLangChange={setViewLang}
+            isAdmin={isAdmin}
+          />
         </motion.div>
       }
       likeConfig={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
@@ -588,17 +479,18 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
       >
-        <div ref={proseViewerRef}>
-          {post.content_type === "markdown" ? (
-            <MarkdownRenderer content={displayContent} className={styles.prose} />
-          ) : (
-            <div
-              ref={richtextRef}
-              className={styles.prose}
-              dangerouslySetInnerHTML={{ __html: processedRichtextHtml }}
-            />
-          )}
-        </div>
+        <PostArticleBody
+          data={{
+            displayTitle,
+            displayContent,
+            displayExcerpt,
+            contentType: post.content_type,
+            tags: post.tags,
+            viewCount: post.view_count,
+            createdAt: post.created_at,
+          }}
+          proseViewerRef={proseViewerRef}
+        />
       </motion.div>
     </DetailLayout>
 

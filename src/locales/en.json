@@ -1113,6 +1113,8 @@
       "trashExtend": "Extend",
       "trashExtendTip": "Add 30 more days",
       "trashPurgeConfirm": "Permanently delete this work? This cannot be undone.",
+      "trashPurgeHint": "Type the work title to permanently delete. This cannot be undone.",
+      "trashPreviewNotice": "This work is in the trash.",
       "trashAutoDelete": "Works are automatically deleted after 30 days.",
       "trashSearch": "Search trash...",
       "sortNewestDeleted": "Recently deleted",
