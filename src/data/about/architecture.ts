@@ -93,8 +93,8 @@ export const projectStructure: StructureItem[] = [
   {
     path: "admin/",
     description: {
-      ko: "어드민 대시보드 — 포스트/작업물 CRUD, 설정(콘텐츠·프로필·계정)",
-      en: "Admin dashboard — posts/works CRUD, settings (content, profile, account)",
+      ko: "어드민 대시보드 — 포스트/작업물 CRUD, 설정(콘텐츠·프로필·계정). 미리보기는 공개 상세와 동일한 아티클 뷰 재사용 (single source of truth)",
+      en: "Admin dashboard — posts/works CRUD, settings (content, profile, account). Preview reuses the same article view as the public detail page (single source of truth)",
     },
     indent: 2,
   },
@@ -141,14 +141,25 @@ export const projectStructure: StructureItem[] = [
   {
     path: "posts/",
     description: {
-      ko: "PostEditor, MarkdownRenderer, CoverImagePicker (Presets / Local files / Unsplash / Pexels / AI / History — 모바일 sheet 자동 전환)",
-      en: "PostEditor, MarkdownRenderer, CoverImagePicker (Presets / Local files / Unsplash / Pexels / AI / History — auto-switches to mobile sheet)",
+      ko: "PostEditor, MarkdownRenderer, PostArticleView (상세·미리보기 공용 아티클 뷰), CoverImagePicker (Presets / Local files / Unsplash / Pexels / AI / History — 모바일 sheet 자동 전환)",
+      en: "PostEditor, MarkdownRenderer, PostArticleView (shared article view for detail & preview), CoverImagePicker (Presets / Local files / Unsplash / Pexels / AI / History — auto-switches to mobile sheet)",
+    },
+    indent: 2,
+  },
+  {
+    path: "works/",
+    description: {
+      ko: "WorkArticleView (상세·미리보기 공용 — Header/Body/Team 슬롯) — 미리보기는 workFormToProject 로 폼을 Project 로 변환해 동일 뷰 재사용",
+      en: "WorkArticleView (shared by detail & preview — Header/Body/Team slots) — preview reuses the same view via workFormToProject (form → Project)",
     },
     indent: 2,
   },
   {
     path: "admin/",
-    description: { ko: "어드민 패널 컴포넌트", en: "Admin panel components" },
+    description: {
+      ko: "어드민 패널 컴포넌트 — AdminNotFound (편집 페이지 공용 not-found 상태) 등",
+      en: "Admin panel components — AdminNotFound (shared not-found state for edit pages), etc.",
+    },
     indent: 2,
   },
   {

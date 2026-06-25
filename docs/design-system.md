@@ -368,6 +368,22 @@ import Tooltip from "@/components/ui/Tooltip";
 - 두 트리거가 같은 hover 영역을 공유하므로 사용자에게는 "한 번 hover → 번역 + 설명 동시 표시" 로 보임. 모바일은 터치 토글로 동일 결과
 - **언제 쓰나** — capsule 버튼·아이콘 only 트리거·축약된 라벨 등 시각만으로 의미가 즉시 전달되지 않는 자리에 의무화
 
+### AdminNotFound (`src/components/admin/AdminNotFound/`)
+
+admin 편집/상세에서 항목을 찾지 못했을 때 쓰는 **중앙 정렬 empty state** — icon + 메시지 + 돌아가기 링크.
+
+- `title` (표시 메시지) · `backHref` · `backLabel` 만 받는 가벼운 프레젠테이션 컴포넌트
+- `min-height: 60vh` 중앙 정렬, `SearchX` 아이콘 + `text-tertiary` 톤, 돌아가기는 capsule 링크 (hover 시 `--bg-inverse` 반전)
+- not-found 외에 "결과 없음" 류 빈 상태에도 재사용 가능
+
+```tsx
+<AdminNotFound
+  title="게시물을 찾을 수 없습니다"
+  backHref="/admin/posts"
+  backLabel="목록으로"
+/>
+```
+
 ### 캡슐형 정렬 버튼 패턴 (sortBtn)
 
 `/posts` 의 정렬 컨트롤 — 같은 정렬 키를 다시 누르면 방향(asc / desc) toggle.
