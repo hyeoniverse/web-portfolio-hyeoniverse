@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
-import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import DetailLayout from "@/components/layout/DetailLayout";
-import { extractHeadings, addIdsToHtml } from "@/utils/headingUtils";
-import { fixEmbedUrls } from "@/utils/htmlUtils";
+import { PostArticleHeader, PostArticleBody } from "@/components/posts/PostArticleView";
+import { extractHeadings } from "@/utils/headingUtils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
@@ -23,7 +21,7 @@ export default function PostPreviewPage() {
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const { openModal } = useModalStore();
-  const richtextRef = useRef<HTMLDivElement>(null);
+  const [viewLang, setViewLang] = useState<"ko" | "en">("ko");
 
   useEffect(() => {
     if (fetchId) {
@@ -83,20 +81,21 @@ export default function PostPreviewPage() {
     );
   }, [trashId, form?.title, t, openModal]);
 
-  const content = form?.content ?? "";
+  const content = viewLang === "en"
+    ? (form?.content_en || form?.content || "")
+    : (form?.content || form?.content_en || "");
+  const displayTitle = viewLang === "en"
+    ? (form?.title_en || form?.title || "")
+    : (form?.title || form?.title_en || "");
+  const displayExcerpt = viewLang === "en"
+    ? (form?.excerpt_en || form?.excerpt || "")
+    : (form?.excerpt || form?.excerpt_en || "");
   const isMarkdown = form?.content_type === "markdown";
 
   const headings = useMemo(() => {
     if (!content) return [];
     return extractHeadings(content, isMarkdown);
   }, [content, isMarkdown]);
-
-  const processedHtml = useMemo(() => {
-    if (isMarkdown || !content) return "";
-    return fixEmbedUrls(addIdsToHtml(content));
-  }, [content, isMarkdown]);
-
-  useRichtextEnhance(richtextRef, processedHtml);
 
   if (!form) {
     if (!ready) return null;
@@ -107,7 +106,15 @@ export default function PostPreviewPage() {
     );
   }
 
-  const readTime = Math.max(1, Math.ceil(content.length / 1000));
+  const articleData = {
+    displayTitle,
+    displayContent: content,
+    displayExcerpt,
+    contentType: form.content_type,
+    tags: form.tags,
+    viewCount: 0,
+    createdAt: new Date().toISOString(),
+  };
 
   return (
     <DetailLayout
@@ -116,59 +123,41 @@ export default function PostPreviewPage() {
       heroImage={form.cover_image || undefined}
       heroAlt={form.title}
       headings={headings}
-    >
-      <div className={styles.articleHeader}>
-        <div className={styles.meta}>
-          <span>{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
-          <span className={styles.dot}>&middot;</span>
-          <span>{readTime} min read</span>
-          {trashId && (
-            <>
-              <span className={styles.trashBarLabel}>{t("admin.posts.trashPreviewNotice")}</span>
-              <button
-                type="button"
-                className={styles.trashBarRestore}
-                disabled={busy}
-                onClick={handleRestore}
-              >
-                {t("admin.posts.trashRestore")}
-              </button>
-              <button
-                type="button"
-                className={styles.trashBarPurge}
-                disabled={busy}
-                onClick={handlePurge}
-              >
-                {t("admin.posts.trashPurge")}
-              </button>
-            </>
-          )}
+      header={
+        <div className={styles.articleHeader}>
+          <PostArticleHeader
+            data={articleData}
+            viewLang={viewLang}
+            onLangChange={setViewLang}
+            isPreview
+            headerActionsLeft={
+              trashId ? (
+                <>
+                  <span className={styles.trashBarLabel}>{t("admin.posts.trashPreviewNotice")}</span>
+                  <button
+                    type="button"
+                    className={styles.trashBarRestore}
+                    disabled={busy}
+                    onClick={handleRestore}
+                  >
+                    {t("admin.posts.trashRestore")}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.trashBarPurge}
+                    disabled={busy}
+                    onClick={handlePurge}
+                  >
+                    {t("admin.posts.trashPurge")}
+                  </button>
+                </>
+              ) : null
+            }
+          />
         </div>
-
-        <h1 className={styles.articleTitle}>{form.title}</h1>
-
-        {form.excerpt && <p className={styles.excerpt}>{form.excerpt}</p>}
-
-        {form.tags.length > 0 && (
-          <div className={styles.tags}>
-            {form.tags.map((tag) => (
-              <span key={tag} className={styles.tag}>{tag}</span>
-            ))}
-          </div>
-        )}
-
-        <div className={styles.headerDivider} />
-      </div>
-
-      {isMarkdown ? (
-        <MarkdownRenderer content={content} className={styles.prose} />
-      ) : (
-        <div
-          ref={richtextRef}
-          className={styles.prose}
-          dangerouslySetInnerHTML={{ __html: processedHtml }}
-        />
-      )}
+      }
+    >
+      <PostArticleBody data={articleData} isPreview />
     </DetailLayout>
   );
 }
