@@ -5,6 +5,8 @@ import CloseButton from "@/components/ui/CloseButton";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useModalStore } from "@/stores/modalStore";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import type { EditorImageInfo } from "./types";
 import styles from "../RichTextEditor.module.css";
 
@@ -40,6 +42,19 @@ export function ImagePanel({
   onRemoveDetached?: (url: string) => void;
 }) {
   const { t } = useLanguage();
+  const { openModal } = useModalStore();
+  // 패널 삭제는 영구(복구 불가) → 확인 모달 후 실행
+  const confirmDelete = React.useCallback((onConfirm: () => void) => {
+    openModal(
+      <ModalConfirm
+        desc={t("editor.imageDeleteConfirm")}
+        confirmText={t("editor.imageRemove")}
+        danger
+        onConfirm={onConfirm}
+      />,
+      { id: "image-panel-delete", header: { title: t("editor.imageDeleteTitle") }, closeButton: true, width: "360px" },
+    );
+  }, [openModal, t]);
   const [dragIdx, setDragIdx] = React.useState<number | null>(null);
   const [overIdx, setOverIdx] = React.useState<number | null>(null);
   const [fileDragOver, setFileDragOver] = React.useState(false);
@@ -210,14 +225,16 @@ export function ImagePanel({
 
   const handleBulkDelete = () => {
     if (selected.size === 0) return;
-    const sorted = Array.from(selected).sort((a, b) => b - a);
-    for (const idx of sorted) {
-      const img = images[idx];
-      if (!img) continue;
-      if (img.detached) onRemoveDetached?.(img.url);
-      else onRemove(img.path);
-    }
-    setSelected(new Set());
+    confirmDelete(() => {
+      const sorted = Array.from(selected).sort((a, b) => b - a);
+      for (const idx of sorted) {
+        const img = images[idx];
+        if (!img) continue;
+        if (img.detached) onRemoveDetached?.(img.url);
+        else onRemove(img.path);
+      }
+      setSelected(new Set());
+    });
   };
 
   const handleBulkReinsert = () => {
@@ -342,7 +359,7 @@ export function ImagePanel({
               <span className={styles.imagePanelName}>{fileName}</span>
               <CloseButton
                 className={styles.imagePanelRemove}
-                onClick={(e) => { e.stopPropagation(); if (isDetached) onRemoveDetached?.(img.url); else onRemove(img.path); }}
+                onClick={(e) => { e.stopPropagation(); confirmDelete(() => { if (isDetached) onRemoveDetached?.(img.url); else onRemove(img.path); }); }}
                 title={t("editor.imageRemove")}
                 ariaLabel={t("editor.imageRemove")}
               />
@@ -351,14 +368,18 @@ export function ImagePanel({
         };
         return (
           <>
-            <div className={styles.imagePanelList}>
-              {contentImages.length === 0 && detachedImages.length === 0 && (
-                <span className={styles.imagePanelEmpty}>
-                  {fileDragOver ? t("editor.imageDragDrop") : t("editor.imageDragHint")}
-                </span>
-              )}
-              {contentImages.map((img, i) => renderItem(img, i))}
-            </div>
+            {/* 본문 이미지 목록 — 이미지가 있거나(또는 둘 다 없어 안내가 필요할 때만) 렌더.
+                삭제된 이미지만 있을 땐 빈 목록(패딩)이 "삭제됨" 위에 여백을 만들어서 숨긴다. */}
+            {(contentImages.length > 0 || detachedImages.length === 0) && (
+              <div className={styles.imagePanelList}>
+                {contentImages.length === 0 && detachedImages.length === 0 && (
+                  <span className={styles.imagePanelEmpty}>
+                    {fileDragOver ? t("editor.imageDragDrop") : t("editor.imageDragHint")}
+                  </span>
+                )}
+                {contentImages.map((img, i) => renderItem(img, i))}
+              </div>
+            )}
             <AnimatePresence>
               {detachedImages.length > 0 && (
                 <motion.div
@@ -369,7 +390,7 @@ export function ImagePanel({
                   transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
                   style={{ overflow: "hidden" }}
                 >
-                  <div className={styles.imagePanelDivider}>
+                  <div className={`${styles.imagePanelDivider}${contentImages.length === 0 ? ` ${styles.imagePanelDividerFlush}` : ""}`}>
                     <span className={styles.imagePanelDividerLabel}>{t("editor.detachedMedia")}</span>
                   </div>
                   <div className={styles.imagePanelList}>

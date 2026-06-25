@@ -1761,6 +1761,8 @@
     "imageDragHint": "Drag images here to attach",
     "imageDragDrop": "Drop here",
     "imageRemove": "Remove image",
+    "imageDeleteTitle": "Delete image",
+    "imageDeleteConfirm": "Deleted images can't be recovered. Delete anyway?",
     "mediaReinsertHint": "Select and use reinsert button",
     "mediaReinsert": "Reinsert",
     "detachedMedia": "Removed",
