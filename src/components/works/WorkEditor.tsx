@@ -48,10 +48,15 @@ import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { List, ListItem } from "@/app/admin/(dashboard)/components";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
 import styles from "./WorkEditor.module.css";
+import type { PlateEditorHandle, EditorImageInfo } from "@/components/posts/PlateEditor";
 
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
 });
+const ImagePanel = dynamic(
+  () => import("@/components/posts/PlateEditor").then((m) => ({ default: m.ImagePanel })),
+  { ssr: false },
+);
 
 /** 레거시 마크다운 본문 → richtext(HTML) 1회 변환 (에디터가 richtext 단일로 통합됨). */
 function mdToRichHtml(md: string): string {
@@ -917,6 +922,24 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const serviceStatus = useServiceStatus();
 
   const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
+  // 본문 에디터 ref + 첨부 이미지 패널 (Posts editor 와 동일 패턴)
+  const plateRef = useRef<PlateEditorHandle>(null);
+  const [editorImages, setEditorImages] = useState<EditorImageInfo[]>([]);
+  // 에디터 준비될 때까지 polling 으로 이미지 목록 동기화. 언어 전환 시 에디터가 remount(key=editorLang) 되므로 재동기화.
+  useEffect(() => {
+    setEditorImages([]);
+    let cancelled = false;
+    let attempts = 0;
+    const poll = setInterval(() => {
+      attempts++;
+      const imgs = plateRef.current?.getImages();
+      if (!cancelled && imgs !== undefined) {
+        setEditorImages(imgs);
+        if (imgs.length > 0 || attempts >= 10) clearInterval(poll);
+      }
+    }, 300);
+    return () => { cancelled = true; clearInterval(poll); };
+  }, [editorLang]);
   // 필수/선택 그룹 토글 — Posts editor 와 동일 패턴
   const [optionalOpen, setOptionalOpen] = useState(false);
   const [extraOpen, setExtraOpen] = useState(false);
@@ -1899,8 +1922,61 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           <Editor
             key={editorLang}
             value={form[contentKey]}
-            onChange={(v) => updateField(contentKey, v)}
+            onChange={(v) => {
+              updateField(contentKey, v);
+              requestAnimationFrame(() => {
+                const imgs = plateRef.current?.getImages();
+                if (imgs) setEditorImages(imgs);
+              });
+            }}
             onImageUpload={handleContentImageUpload}
+            editorRef={plateRef}
+            postLang={editorLang}
+          />
+        </div>
+
+        {/* ── 본문 첨부 이미지 패널 (Posts editor 와 동일) ── */}
+        <div style={{ marginTop: "var(--spacing-md)" }}>
+          <ImagePanel
+            images={editorImages}
+            onSelect={(path) => plateRef.current?.selectImageAt(path)}
+            onReorder={(from, to) => plateRef.current?.reorderImage(from, to)}
+            onRemove={(path) => plateRef.current?.removeImage(path)}
+            onImageUpload={async (file) => {
+              const url = await handleContentImageUpload(file);
+              plateRef.current?.insertImageByUrl(url);
+              requestAnimationFrame(() => {
+                const imgs = plateRef.current?.getImages();
+                if (imgs) setEditorImages(imgs);
+              });
+              return url;
+            }}
+            onVideoUpload={async (file) => {
+              const url = await handleContentImageUpload(file);
+              plateRef.current?.insertMediaByUrl(url);
+              return url;
+            }}
+            onBulkInsert={(items) => {
+              for (const it of items) {
+                if (it.mediaType === "media_embed") plateRef.current?.insertMediaByUrl(it.url);
+                else plateRef.current?.insertImageByUrl(it.url);
+              }
+              requestAnimationFrame(() => {
+                const imgs = plateRef.current?.getImages();
+                if (imgs) setEditorImages(imgs);
+              });
+            }}
+            onReinsert={(url, mediaType) => {
+              if (mediaType === "media_embed") plateRef.current?.insertMediaByUrl(url);
+              else plateRef.current?.insertImageByUrl(url);
+            }}
+            onRemoveDetached={(url) => {
+              plateRef.current?.removeDetached(url);
+              requestAnimationFrame(() => {
+                const imgs = plateRef.current?.getImages();
+                if (imgs) setEditorImages(imgs);
+              });
+            }}
           />
         </div>
       </div>

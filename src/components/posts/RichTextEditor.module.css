@@ -2148,6 +2148,14 @@
   border-top: var(--border-light);
 }
 
+/* 본문 이미지가 없고 삭제된 이미지만 있을 때 — 위에 구분할 대상이 없으므로 구분선 제거.
+   detached 목록만 남으면 label 위 패딩(2xs)이 아래 목록 패딩(sm)과 달라 위아래가 비대칭 →
+   위 패딩을 sm 으로 맞춰 블록 상하 여백을 동일하게. */
+.imagePanelDividerFlush {
+  border-top: none;
+  padding-top: var(--spacing-sm);
+}
+
 /* detached 리스트는 label 바로 아래라 위쪽 패딩 축소 */
 .imagePanelDetachedSection .imagePanelList {
   padding-top: var(--spacing-3xs);

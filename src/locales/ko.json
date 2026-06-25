@@ -1765,6 +1765,8 @@
     "imageDragHint": "이미지를 드래그하여 첨부하세요",
     "imageDragDrop": "여기에 놓으세요",
     "imageRemove": "이미지 제거",
+    "imageDeleteTitle": "이미지 삭제",
+    "imageDeleteConfirm": "삭제한 이미지는 다시 불러올 수 없습니다. 삭제하시겠습니까?",
     "mediaReinsertHint": "선택 후 본문 삽입 버튼으로 재삽입",
     "mediaReinsert": "본문 삽입",
     "detachedMedia": "삭제됨",
