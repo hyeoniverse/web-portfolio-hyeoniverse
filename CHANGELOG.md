@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.20.0...v1.20.1) (2026-06-24)
+
+
+### Bug Fixes
+
+* **plate:** float 이미지 편집 UX 완성 + admin posts 시리즈·테이블 개선 ([#267](https://github.com/hyeoniverse/web-portfolio-oval/issues/267)) ([48c0669](https://github.com/hyeoniverse/web-portfolio-oval/commit/48c06698da69b42ba71e4a028bc0733e1447fc34))
+
 ## [1.20.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.19.0...v1.20.0) (2026-06-13)
 
 
