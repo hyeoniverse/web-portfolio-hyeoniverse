@@ -141,6 +141,61 @@ function buildLegacyContent(
   return parts.join("\n\n");
 }
 
+/**
+ * Convert editor form → front-end Project shape (preview 용).
+ * WorkFormData 에 없는 DB 전용 필드(id/slug/타임스탬프/legacy 섹션 등)는
+ * 빈 값/기본값으로 채운 뒤 workToProject 로 변환 — 변환 로직 재사용.
+ */
+export function workFormToProject(form: WorkFormData): Project {
+  const work: Work = {
+    id: "preview",
+    slug: form.slug || "",
+    title: form.title,
+    subtitle_ko: form.subtitle_ko,
+    subtitle_en: form.subtitle_en,
+    categories_ko: form.categories_ko,
+    categories_en: form.categories_en,
+    nature_ko: form.nature_ko,
+    nature_en: form.nature_en,
+    year: form.year,
+    description_ko: form.description_ko,
+    description_en: form.description_en,
+    role_ko: form.role_ko,
+    role_en: form.role_en,
+    contributions_ko: form.contributions_ko,
+    contributions_en: form.contributions_en,
+    tech: form.tech,
+    tech_notes: form.tech_notes,
+    image: form.image,
+    content_ko: form.content_ko,
+    content_en: form.content_en,
+    content_type: form.content_type,
+    // legacy 분리 섹션 — 폼엔 없음 (content_ko/en 사용하므로 빈 값)
+    overview_ko: "",
+    overview_en: "",
+    overview_image: "",
+    challenge_ko: "",
+    challenge_en: "",
+    challenge_image: "",
+    solution_ko: "",
+    solution_en: "",
+    solution_image: "",
+    team_members: form.team_members,
+    gallery: form.gallery,
+    live_url: form.live_url,
+    github_url: form.github_url,
+    published: form.published,
+    sort_order: form.sort_order,
+    created_at: "",
+    updated_at: "",
+    summary_ko: "",
+    summary_en: "",
+    scheduled_at: form.scheduled_at,
+    related_post_ids: form.related_post_ids,
+  };
+  return workToProject(work);
+}
+
 /** Convert DB Work row → front-end Project shape */
 export function workToProject(w: Work): Project {
   const loc = (ko: string, en: string): LocalizedText => ({ ko, en });
