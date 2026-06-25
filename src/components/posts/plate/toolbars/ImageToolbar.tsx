@@ -168,7 +168,7 @@ export default React.memo(function ImageToolbar({
         <TBtn square onClick={replaceImage} tooltip={t("editor.replaceImage")}><ImageUp size={16} strokeWidth={1.75} /></TBtn>
       )}
       {/* 삭제 — 확인 후 삭제 */}
-      <Popover placement="bottom-end" contentClassName={styles.floatingMenu}
+      <Popover placement="bottom-end" offset={12} contentClassName={styles.floatingMenu}
         trigger={<TBtn square className={styles.tableDangerBtn} tooltip={t("editor.deleteImage")}><TblTrash /></TBtn>}>
         {({ close }) => (
           <div onMouseDown={(e) => e.preventDefault()} className={styles.imgConfirm}>
@@ -182,7 +182,7 @@ export default React.memo(function ImageToolbar({
       </Popover>
       <span className={styles.divider} />
       {/* ⋯ 오버플로 */}
-      <Popover placement="bottom-end" contentClassName={styles.floatingMenu}
+      <Popover placement="bottom-end" offset={12} contentClassName={styles.floatingMenu}
         trigger={<TBtn square tooltip={t("editor.more")}><MoreHorizontal size={14} strokeWidth={1.75} /></TBtn>}>
         {() => (
           <div onMouseDown={(e) => e.preventDefault()} className={styles.imgMoreMenu}>

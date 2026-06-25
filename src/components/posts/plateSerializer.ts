@@ -294,7 +294,7 @@ function serializeNode(node: SlateNode): string {
       const justifyMap: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
       const isFloat = imgLayout === "float-left" || imgLayout === "float-right";
       const figStyle = isFloat
-        ? `float:${imgLayout === "float-left" ? "left" : "right"};margin:0`
+        ? `float:${imgLayout === "float-left" ? "left" : "right"};margin:${imgLayout === "float-left" ? "0 24px 24px 0" : "0 0 24px 24px"}`
         : imgLayout === "block"
           ? `display:block;margin:1em 0`
           : `display:flex;flex-direction:column;align-items:${justifyMap[imgAlign] || "center"};margin:1em 0`;
