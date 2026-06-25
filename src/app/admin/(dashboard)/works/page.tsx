@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import MediaThumb from "@/components/admin/MediaThumb";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
-import { ImageIcon, Trash2, Upload, Plus, Download } from "lucide-react";
+import { ImageIcon, Trash2, Upload, Plus, Download, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { getTrashDaysLeft } from "@/utils/trash";
 import { downloadBlob, downloadFiles } from "@/utils/download";
@@ -383,6 +383,7 @@ export default function AdminWorksPage() {
           </div>
         ),
         skeletonWidth: "48px",
+        skeletonShape: "box",
       },
       {
         key: "title",
@@ -390,6 +391,26 @@ export default function AdminWorksPage() {
         className: ts.colTitle,
         render: (work) => <HighlightedText text={work.title || t("admin.works.untitled")} />,
         skeletonWidth: "65%",
+      },
+      {
+        key: "view",
+        label: "",
+        className: ts.colView,
+        render: (work) =>
+          work.published && work.slug ? (
+            <a
+              href={`/works/${work.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={ts.viewBtn}
+              title={t("admin.works.viewDetail")}
+              aria-label={t("admin.works.viewDetail")}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ExternalLink size={14} strokeWidth={1.5} />
+            </a>
+          ) : null,
+        skeletonWidth: "20px",
       },
       {
         key: "year",
@@ -777,7 +798,7 @@ role: 풀스택 개발
           fetchWorks();
         } : undefined}
         rowLabelMax={totalCount || works.length}
-        gridTemplate="64px 1fr 100px 180px"
+        gridTemplate="64px 1fr 40px 100px 180px"
         showRowNumbers
         getRowLabel={(w) => String(w.sort_order)}
         loading={loading}

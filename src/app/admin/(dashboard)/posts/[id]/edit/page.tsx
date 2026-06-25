@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import PostEditor from "@/components/posts/PostEditor";
+import AdminNotFound from "@/components/admin/AdminNotFound";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { useLenis } from "@/providers/LenisProvider";
@@ -31,11 +32,13 @@ export default function EditPostPage() {
 
   if (loading) return <EditorSkeleton />;
 
-  if (!post) {
+  if (!post || !post.id) {
     return (
-      <div style={{ padding: "4rem", textAlign: "center", color: "var(--text-tertiary)" }}>
-        Post not found
-      </div>
+      <AdminNotFound
+        title="글을 찾을 수 없습니다"
+        backHref="/admin/posts"
+        backLabel="글 목록으로"
+      />
     );
   }
 
