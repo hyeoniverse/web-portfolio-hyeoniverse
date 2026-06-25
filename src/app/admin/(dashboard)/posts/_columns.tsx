@@ -1,4 +1,4 @@
-import { ImageIcon, Download } from "lucide-react";
+import { ImageIcon, Download, ExternalLink } from "lucide-react";
 import T from "@/components/ui/T";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { formatPostTitle } from "@/utils/post";
@@ -34,6 +34,7 @@ export function createPostColumns(t: TFn): AdminTableColumn<Post>[] {
         </div>
       ),
       skeletonWidth: "48px",
+      skeletonShape: "box",
     },
     {
       key: "title",
@@ -41,6 +42,26 @@ export function createPostColumns(t: TFn): AdminTableColumn<Post>[] {
       className: ts.colTitle,
       render: (post) => <HighlightedText text={formatPostTitle(post) || t("admin.posts.untitled")} />,
       skeletonWidth: "75%",
+    },
+    {
+      key: "view",
+      label: "",
+      className: ts.colView,
+      render: (post) =>
+        post.published && post.slug ? (
+          <a
+            href={`/posts/${post.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={ts.viewBtn}
+            title={t("admin.posts.viewDetail")}
+            aria-label={t("admin.posts.viewDetail")}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ExternalLink size={14} strokeWidth={1.5} />
+          </a>
+        ) : null,
+      skeletonWidth: "20px",
     },
     {
       key: "date",
