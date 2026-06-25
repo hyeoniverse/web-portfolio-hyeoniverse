@@ -1615,3 +1615,94 @@ function swapToPlaceholder(img: HTMLImageElement) {
 ④ The inline void's mandatory ZWSP can't be deleted (normalize restores it), so making it **invisible + untouchable** is the pragmatic workaround
 
 </details>
+
+<details>
+<summary><strong>49. Editor top bar won't pin with `position: sticky` — switched to `position: fixed`</strong></summary>
+
+**Problem**: Tried to pin the editor's top bar (BackLink, save, revisions, etc.) at the top with `position: sticky`, but it never pinned — it scrolled away with the body content.
+
+**Cause**: The editor body is an **inner scroll region** wrapped in `height: 60vh` + `data-lenis-prevent`, so the page (document) itself barely scrolls.
+
+- `position: sticky` pins only **when the scroll container actually scrolls**, but wheeling inside the body leaves the page scroll position unchanged, so sticky never has a condition to fire
+- Also, `scroll` events don't bubble, so a plain listener can't catch the nested body region's scroll
+
+**Solution**: Drop sticky and control it directly with `position: fixed`
+
+1. **(Pin) `position: fixed; top: var(--header-height)`** — always fixed right below the global Navigation. Collapse/expand via `transform: translateY()`
+2. **(Reserve flow) `ResizeObserver` spacer** — fixed removes the bar from flow, so the body shifts up and gets covered; measure the top bar height with a `ResizeObserver` and reserve the space with a same-height `.topBarSpacer`
+3. **(Detect scroll) capture-phase listener** — `window.addEventListener("scroll", onScroll, true)` listens in the capture phase; when the target is the document it's page scroll, when it's an `HTMLElement` it's nested body scroll. Both accumulate direction (delta) and toggle collapse/expand once a threshold (6px) is hit — slow scrolls still work as long as they sum in one direction
+
+**Key insight**:
+
+① `position: sticky` works only when there's an ancestor that **actually scrolls** — in an inner-scroll pattern (`60vh` + `lenis-prevent`) the page never moves, so sticky is meaningless
+② `scroll` events **don't bubble** → to catch nested scroll regions with one listener you must listen in the **capture phase** (`useCapture=true`)
+③ `fixed` removes the element from flow, so to avoid covering content you must **explicitly reserve** its height with a spacer (kept in sync via `ResizeObserver`)
+
+</details>
+
+<details>
+<summary><strong>50. Card clicks inside HorizontalCarousel don't register — `setPointerCapture` steals the child click</strong></summary>
+
+**Problem**: Clicking a team polaroid (flip) card inside the horizontal carousel didn't toggle it. The card had a working `onClick`, yet the event never reached it.
+
+**Cause**: For mouse drag-scroll, the carousel called **`el.setPointerCapture()` immediately on `onPointerDown`**.
+
+- Once the pointer is captured, all subsequent pointer events get redirected to the carousel, so the child card's `click` (a pointerdown→up pair) never reaches the card
+- In other words, "capture to drag" also swallowed the "tap/click"
+
+**Solution**: Defer the capture **from pointerdown to the moment a real drag begins**
+
+1. `onPointerDown` only records the start coords (`active: true`) — no capture
+2. `onPointerMove` calls `setPointerCapture()` + sets `data-cursor="grab"` only **once the move exceeds 4px** → judged a real drag
+3. Release under 4px and no capture happens, so `click` propagates to the child normally. `onClickCapture` swallows the click only when the `moved` flag is set, blocking the unintended click at the end of a drag
+
+**Key insight**:
+
+① Calling `setPointerCapture` straight on pointerdown **removes any chance to distinguish click from drag** — the capture takes the child's events wholesale
+② "Don't capture until the move exceeds a threshold (4px)" is the standard pattern for letting click and drag coexist (same cause/fix as TagCloud3D and Series Deck)
+
+</details>
+
+<details>
+<summary><strong>51. Editor preview drifts from the published detail layout — extracted shared Article view components</strong></summary>
+
+**Problem**: The admin editor's preview kept subtly diverging from the actual published detail page — in layout, spacing, and code-block handling.
+
+**Cause**: The preview was a **separate, simplified version** built apart from the detail page.
+
+- Every time the detail markup/styles changed, the preview had to be matched separately; fix one side and it drifted — the same screen implemented twice
+- richtext handling (code highlighting, embeds, heading ids) ran through different code paths too, so the output differed
+
+**Solution**: Extract the detail page's article view into **shared presentation components** so detail and preview render the same component
+
+1. `PostArticleView` / `WorkArticleView` export `Header` / `Body` / `Team` → `PostDetailClient`/`WorkDetailClient` (detail) and `posts/preview`/`works/preview` (preview) use the **same components**. Only chrome absent from preview (comments, back link) is added on the detail side
+2. richtext HTML processing is shared in one place, `src/utils/processRichtextHtml.ts` — both paths run the identical order: heading id injection → embed URL fix → hljs highlighting → wrap-toggle label → img `data-cursor="zoom"` → identical down to the code blocks
+
+**Key insight**:
+
+① A "preview" that differs from the real screen has no value as a preview — the moment you keep a simplified version separate, the **two screens silently drift**
+② The fix isn't synchronization but a **single source**: if you need identical output, make both use the same component and the same processing function, so a one-side-only change becomes structurally impossible
+
+</details>
+
+<details>
+<summary><strong>52. Float images stick to the text on the detail page (zero gap)</strong></summary>
+
+**Problem**: A float image wrapped beside the body text rendered **flush against the adjacent text with no gap** on the detail page.
+
+**Cause**: plateSerializer saved the float figure with **inline-style `margin:0`**, like `style="float:left;margin:0"`.
+
+- With zero horizontal margin, the text clung to the image
+- And **inline styles win on specificity**, so a generic CSS rule like `.prose figure` couldn't override it
+
+**Solution**: Fix the serialized value itself, and also force it via CSS `!important`
+
+1. `plateSerializer.ts` — change the float figure's serialized margin to `0 24px 24px 0` (left) / `0 0 24px 24px` (right). Side/bottom spacing is applied at the serialization step
+2. `PostDetail.module.css` / `WorkDetail.module.css` — force side/bottom spacing (`--spacing-lg`) with `margin: ... !important` on `.prose figure[style*="float:left"]` / `.sectionProse figure[style*="float:right"]`. This applies the gap consistently **even to old content saved with `margin:0`** (covering it regardless of the serialized value)
+
+**Key insight**:
+
+① When serialization bakes in an inline style, that value **outranks external CSS** and is hard to override later — putting the right value in at the serialization step is the first line of defense
+② To also cover already-broken legacy data, add a second line of defense: an attribute selector (`[style*="float"]`) + `!important` to **neutralize the inline value**
+
+</details>
