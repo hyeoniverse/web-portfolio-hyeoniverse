@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import WorkEditor from "@/components/works/WorkEditor";
+import AdminNotFound from "@/components/admin/AdminNotFound";
 import { SkeletonLine, SkeletonPill, SkeletonBlock } from "@/components/ui/Skeleton";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { useLenis } from "@/providers/LenisProvider";
@@ -108,9 +109,11 @@ export default function EditWorkPage() {
 
   if (error || !work) {
     return (
-      <div style={{ padding: "var(--spacing-3xl)", textAlign: "center", color: "var(--color-accent)" }}>
-        {error || "Work not found"}
-      </div>
+      <AdminNotFound
+        title={error || "작품을 찾을 수 없습니다"}
+        backHref="/admin/works"
+        backLabel="작품 목록으로"
+      />
     );
   }
 

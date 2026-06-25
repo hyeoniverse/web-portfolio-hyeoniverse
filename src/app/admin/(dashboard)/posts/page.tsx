@@ -857,7 +857,7 @@ tags: React`}</code></pre>
             },
           },
         ]}
-        gridTemplate="64px 1fr 100px 60px 80px 180px"
+        gridTemplate="64px 1fr 40px 100px 60px 80px 180px"
         showRowNumbers
         getRowLabel={(p) => p.post_number ?? "—"}
         loading={loading}

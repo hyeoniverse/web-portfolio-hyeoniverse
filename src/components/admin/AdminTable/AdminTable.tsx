@@ -12,7 +12,7 @@ function ConditionalLayoutGroup({ enabled, children }: { enabled: boolean; child
 import { GripVertical } from "lucide-react";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
-import { SkeletonLine } from "@/components/ui/Skeleton";
+import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import Pagination from "@/components/ui/Pagination";
 import EditableRowNumber from "./EditableRowNumber";
@@ -26,6 +26,8 @@ export interface AdminTableColumn<T> {
   className?: string;
   render: (item: T, published: boolean) => ReactNode;
   skeletonWidth?: string;
+  /** 로딩 스켈레톤 모양 — "box" 는 썸네일처럼 사각형 블록으로 렌더 (기본 "line") */
+  skeletonShape?: "line" | "box";
 }
 
 interface AdminTableLabels {
@@ -271,7 +273,15 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               {hasNumCol && <span><SkeletonLine width="16px" /></span>}
               {columns.map((col) => (
                 <span key={col.key} className={col.className}>
-                  <SkeletonLine width={col.skeletonWidth ?? "60%"} />
+                  {col.skeletonShape === "box" ? (
+                    <Skeleton
+                      width={col.skeletonWidth ?? "48px"}
+                      height="48px"
+                      borderRadius="var(--radius-sm)"
+                    />
+                  ) : (
+                    <SkeletonLine width={col.skeletonWidth ?? "60%"} />
+                  )}
                 </span>
               ))}
               <span>

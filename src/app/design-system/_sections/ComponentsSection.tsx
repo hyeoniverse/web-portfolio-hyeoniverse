@@ -31,6 +31,7 @@ import Pagination from "@/components/ui/Pagination";
 import Chip, { useChipReorder } from "@/components/ui/Chip";
 import BilingualInputPair, { type BilingualValue } from "@/components/admin/BilingualInputPair";
 import TagNotesEditor, { type TagNote } from "@/components/admin/TagNotesEditor";
+import AdminNotFound from "@/components/admin/AdminNotFound";
 import { LikeButton } from "@/components/layout/DetailLayout";
 import HeartIcon from "@/components/ui/HeartIcon";
 import Textarea from "@/components/ui/Textarea";
@@ -986,6 +987,23 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </motion.div>
         <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
           item drag-reorder · KO / EN bilingual notes · multiLine 모드 (항목 추가 / 체크박스 일괄 삭제 / 항목별 drag)
+        </span>
+      </motion.div>
+
+      {/* AdminNotFound — 중앙 정렬 not-found / empty state */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>AdminNotFound</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ border: "var(--border-light)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
+          <AdminNotFound
+            title={language === "ko" ? "게시물을 찾을 수 없습니다" : "Post not found"}
+            backHref="#components"
+            backLabel={language === "ko" ? "목록으로" : "Back to list"}
+          />
+        </motion.div>
+        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
+          {language === "ko"
+            ? "icon + 메시지 + 돌아가기 링크 중앙 정렬 — admin 편집/상세에서 항목을 못 찾았을 때 쓰는 empty state 패턴"
+            : "Centered icon + message + back link — empty-state pattern for when an admin edit/detail view can't find the item"}
         </span>
       </motion.div>
     </section>
