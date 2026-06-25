@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.21.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.20.1...v1.21.0) (2026-06-25)
+
+
+### Features
+
+* **admin:** 리스트 테이블 상세 바로가기 + 스켈레톤/not-found 개선 ([730e4f1](https://github.com/hyeoniverse/web-portfolio-oval/commit/730e4f16003e276dd3606231d03e4607a75fecac))
+
+
+### Bug Fixes
+
+* **editor:** 에디터/이미지뷰어 UX 수정 모음 ([4aefc5d](https://github.com/hyeoniverse/web-portfolio-oval/commit/4aefc5dfce2183d8b17d3d48bf147a429673461c))
+
 ## [1.20.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.20.0...v1.20.1) (2026-06-24)
 
 
