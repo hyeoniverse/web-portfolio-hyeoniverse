@@ -1,13 +1,17 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { Search, Shuffle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
-import { EMOJI_CATEGORIES, ICON_CATEGORIES, EMOJI_KEYWORDS } from "../emojiData";
+import { EMOJI_CATEGORIES, ICON_CATEGORIES, EMOJI_KEYWORDS, iconSvgInner } from "../emojiData";
+import { EMOJI_KO } from "../emojiKo";
+import { emojiMeta } from "./emojiMeta";
 import { resizeEmojiImage } from "./resizeEmojiImage";
 import { UploadTab } from "./UploadTab";
 import { EmojiIcon } from "./EmojiIcon";
+import styles from "./EmojiPicker.module.css";
 
 export { EmojiIcon } from "./EmojiIcon";
 
@@ -19,15 +23,40 @@ interface EmojiPickerProps {
   currentValue?: string;
   /** 이미지를 영구 저장소에 업로드하는 함수 */
   onImageUpload?: (file: File) => Promise<string>;
+  /** 트리거 요소 rect 반환 함수. 지정 시 body 로 portal + fixed 로 그 아래에 렌더(에디터 stacking/overflow 탈출,
+   *  뒤 요소 클릭 통과 방지) + 스크롤 따라 위치 갱신. 미지정 시 부모 기준 absolute(legacy). */
+  getAnchorRect?: () => DOMRect | null;
 }
 
 const STORAGE_KEY = "custom-emojis";
 const RECENT_KEY = "recent-emojis";
 const MAX_RECENT = 24;
 
-export default function EmojiPicker({ open, onClose, onSelect, currentValue, onImageUpload }: EmojiPickerProps) {
+export default function EmojiPicker({ open, onClose, onSelect, currentValue, onImageUpload, getAnchorRect }: EmojiPickerProps) {
   const { language } = useLanguage();
   const ref = useRef<HTMLDivElement>(null);
+  // portal 모드 위치 (getAnchorRect 지정 시) — 열림/스크롤/리사이즈마다 갱신
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  useEffect(() => {
+    if (!open || !getAnchorRect) return;
+    const W = 340, H = 420, gap = 6;
+    const compute = () => {
+      const r = getAnchorRect();
+      if (!r) return;
+      const left = Math.max(8, Math.min(r.left, window.innerWidth - W - 8));
+      let top = r.bottom + gap;
+      if (top + H > window.innerHeight - 8) top = Math.max(8, r.top - H - gap); // 아래 공간 부족 시 위로
+      setPos({ top, left });
+    };
+    compute();
+    const onScroll = () => compute();
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [open, getAnchorRect]);
   const [tab, setTab] = useState<"emoji" | "icon" | "upload">("emoji");
   const indicatorRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
@@ -60,15 +89,46 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
     onClose();
   }, [addRecent, onSelect, onClose]);
 
-  // 바깥 클릭
+  // 바깥 클릭 — 닫기만 하고 그 클릭이 뒤 요소까지 활성화되지 않게 capture 단계에서 차단(modal 처럼)
   useEffect(() => {
     if (!open) return;
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    let closing = false;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        closing = true;
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    const onClick = (e: MouseEvent) => {
+      if (closing) {
+        e.preventDefault();
+        e.stopPropagation();
+        closing = false;
+      }
+    };
+    document.addEventListener("mousedown", onDown, true);
+    document.addEventListener("click", onClick, true);
+    return () => {
+      document.removeEventListener("mousedown", onDown, true);
+      document.removeEventListener("click", onClick, true);
+    };
   }, [open, onClose]);
+
+  // 파일 드래그 중 페이지(브라우저 native autoscroll) 차단 — window dragover/drop preventDefault
+  useEffect(() => {
+    if (!open || !onImageUpload) return;
+    const prevent = (e: DragEvent) => {
+      if (e.dataTransfer && Array.from(e.dataTransfer.types).includes("Files")) e.preventDefault();
+    };
+    window.addEventListener("dragover", prevent);
+    window.addEventListener("drop", prevent);
+    return () => {
+      window.removeEventListener("dragover", prevent);
+      window.removeEventListener("drop", prevent);
+    };
+  }, [open, onImageUpload]);
 
   // 열릴 때 초기화
   useEffect(() => {
@@ -89,20 +149,36 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
     });
   }, [tab, open]);
 
-  // 검색 필터 (키워드 + 카테고리명 + 이모지 자체)
+  // 이모지 메타(emoji-mart 영어 이름·키워드) — lazy 메모이즈
+  const META = useMemo(() => emojiMeta(), []);
+  // 검색 대상 텍스트: 영어 이름·키워드(색/모양/종류) + 한국어 키워드 + 자체 키워드
+  const searchText = useCallback((e: string) => {
+    const m = META[e];
+    const ko = EMOJI_KO[e];
+    return [m?.name, m?.kw, EMOJI_KEYWORDS[e], ko?.n, ko?.k].filter(Boolean).join(" ").toLowerCase();
+  }, [META]);
+  // 이모지 이름 (툴팁) — 한국어면 한국어 이름 우선
+  const emojiName = useCallback((e: string) => {
+    const ko = EMOJI_KO[e];
+    const en = META[e]?.name;
+    return language === "ko" ? (ko?.n || en || "") : (en || ko?.n || "");
+  }, [META, language]);
+
+  // 검색 필터 (이름 + 키워드(영/한) + 카테고리명 + 이모지 자체)
   const filteredEmojis = useMemo(() => {
     if (!query) return EMOJI_CATEGORIES;
     const q = query.toLowerCase();
     return EMOJI_CATEGORIES.map((cat) => ({
       ...cat,
       emojis: cat.emojis.filter((e) => {
-        const kw = EMOJI_KEYWORDS[e];
-        if (kw && kw.toLowerCase().includes(q)) return true;
+        if (searchText(e).includes(q)) return true;
         if (cat.label.ko.includes(q) || cat.label.en.toLowerCase().includes(q)) return true;
         return e.includes(query);
       }),
     })).filter((cat) => cat.emojis.length > 0);
-  }, [query]);
+  }, [query, searchText]);
+  // 검색 시 결과 있는 카테고리만 활성 (카테고리바는 계속 표시)
+  const activeEmojiCats = useMemo(() => new Set(filteredEmojis.map((c) => c.id)), [filteredEmojis]);
 
   // 셔플 — 랜덤 1개 바로 적용
   const doShuffle = useCallback(() => {
@@ -133,6 +209,7 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
       ),
     })).filter((cat) => cat.icons.length > 0);
   }, [query]);
+  const activeIconCats = useMemo(() => new Set(filteredIconCats.map((c) => c.id)), [filteredIconCats]);
 
   // 업로드
   const handleUpload = useCallback(async (file: File) => {
@@ -160,53 +237,40 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
 
   const t = (ko: string, en: string) => language === "ko" ? ko : en;
 
-  const EmojiBtn = ({ val }: { val: string }) => (
-    <button
-      type="button"
-      style={{
-        width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 20, border: "none", cursor: "pointer", borderRadius: "50%",
-        background: "transparent", padding: 0,
-      }}
-      onMouseDown={(e) => e.preventDefault()}
-      onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-tertiary)"; }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-      onClick={() => handleSelect(val)}
-    >
-      <EmojiIcon value={val} size={22} />
-    </button>
-  );
+  const EmojiBtn = ({ val }: { val: string }) => {
+    const btn = (
+      <button
+        type="button"
+        className={`${styles.cell} ${styles.emojiCell}`}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => handleSelect(val)}
+      >
+        <EmojiIcon value={val} size={22} />
+      </button>
+    );
+    // 커스텀 이미지(img:)는 이름 없음 → 그대로. 이모지는 이름 툴팁.
+    const name = val.startsWith("img:") ? "" : emojiName(val);
+    return name ? <Tooltip content={name} placement="top" delay={300}>{btn}</Tooltip> : btn;
+  };
 
-  return (
+  const node = (
     <div
       ref={ref}
       contentEditable={false}
+      className={`${styles.picker} ${getAnchorRect ? styles.fixed : styles.absolute}`}
+      style={getAnchorRect ? { left: pos?.left ?? -9999, top: pos?.top ?? -9999 } : undefined}
       onMouseDown={(e) => {
+        e.stopPropagation(); // 뒤 에디터로 클릭 전파 차단 (겹친 요소 동시 클릭 방지)
         const tag = (e.target as HTMLElement).tagName;
         if (tag !== "INPUT" && tag !== "TEXTAREA") e.preventDefault();
       }}
+      onClick={(e) => e.stopPropagation()}
       onWheel={(e) => e.stopPropagation()}
       data-lenis-prevent
-      style={{
-        position: "absolute", top: -4, left: 40, zIndex: 10,
-        width: 340,
-        background: "var(--bg-primary)",
-        border: "1px solid var(--border-light-color)",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-        display: "flex", flexDirection: "column",
-        maxHeight: 420,
-        overflow: "hidden",
-      }}
+      data-emoji-picker
     >
       {/* 탭 헤더 */}
-      <div style={{
-        display: "flex", alignItems: "center",
-        borderBottom: "1px solid var(--border-light-color)",
-        padding: "0 4px",
-        flexShrink: 0,
-        position: "relative",
-      }}>
+      <div className={styles.tabHeader}>
         {([
           { id: "emoji" as const, label: t("이모지", "Emoji") },
           { id: "icon" as const, label: t("아이콘", "Icon") },
@@ -216,15 +280,7 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
             key={tb.id}
             type="button"
             data-tab={tb.id}
-            style={{
-              padding: "8px 12px", border: "none", cursor: "pointer",
-              background: "transparent",
-              color: tab === tb.id ? "var(--text-primary)" : "var(--text-muted)",
-              fontFamily: "var(--font-space-grotesk)", fontSize: 13, fontWeight: 500,
-              borderBottom: "2px solid transparent",
-              marginBottom: -1,
-              transition: "color 0.15s",
-            }}
+            className={`${styles.tab} ${tab === tb.id ? styles.active : ""}`}
             onMouseDown={(e) => e.preventDefault()}
             onMouseEnter={(e) => {
               const ind = indicatorRef.current;
@@ -252,11 +308,7 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
         {currentValue && (
           <button
             type="button"
-            style={{
-              marginLeft: "auto", padding: "4px 8px", border: "none", cursor: "pointer",
-              background: "transparent", color: "var(--color-error, #e05252)",
-              fontFamily: "var(--font-space-grotesk)", fontSize: 11, fontWeight: 500,
-            }}
+            className={styles.removeBtn}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => { onSelect(""); onClose(); }}
           >
@@ -264,52 +316,32 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
           </button>
         )}
         {/* 슬라이딩 indicator */}
-        <div
-          data-indicator
-          ref={indicatorRef}
-          style={{
-            position: "absolute", bottom: 0, height: 2,
-            background: "var(--text-primary)",
-            borderRadius: 1,
-            transition: "left 0.2s ease-out, width 0.2s ease-out, opacity 0.15s",
-          }}
-        />
+        <div data-indicator ref={indicatorRef} className={styles.indicator} />
       </div>
 
       {/* 이모지 / 아이콘 탭 */}
       {(tab === "emoji" || tab === "icon") && (
         <>
           {/* 검색 + 셔플 */}
-          <div style={{ padding: "8px 10px 4px", flexShrink: 0, display: "flex", gap: 6, alignItems: "center" }}>
-            <div style={{
-              flex: 1, display: "flex", alignItems: "center", gap: 6,
-              border: "1px solid var(--border-light-color)", borderRadius: "var(--radius-capsule)",
-              padding: "5px 10px",
-            }}>
+          <div className={styles.searchRow}>
+            <div className={styles.searchBox}>
               <Search size={14} stroke="var(--text-muted)" />
               <input
                 type="text"
+                className={styles.searchInput}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("필터", "Filter")}
-                style={{
-                  flex: 1, border: "none", outline: "none", background: "transparent",
-                  fontFamily: "var(--font-space-grotesk)", fontSize: 13, color: "var(--text-primary)",
-                }}
               />
               {query && (
-                <button type="button" style={{ border: "none", background: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: 14, padding: 0 }}
+                <button type="button" className={styles.clearBtn}
                   onMouseDown={(e) => e.preventDefault()} onClick={() => setQuery("")}>×</button>
               )}
             </div>
             {/* 셔플 버튼 (랜덤 1개 바로 적용) */}
             <button
               type="button"
-              style={{
-                width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center",
-                border: "1px solid var(--border-light-color)", borderRadius: "var(--radius-sm)",
-                background: "transparent", cursor: "pointer", color: "var(--text-muted)", flexShrink: 0,
-              }}
+              className={styles.shuffleBtn}
               onMouseDown={(e) => e.preventDefault()}
               onClick={doShuffle}
               title={t("랜덤", "Random")}
@@ -319,16 +351,14 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
           </div>
 
           {/* 그리드 */}
-          <div ref={gridRef} style={{ flex: 1, overflowY: "auto", padding: "4px 8px 8px", scrollbarWidth: "thin" }} data-lenis-prevent>
+          <div ref={gridRef} className={styles.grid} data-lenis-prevent>
             {tab === "emoji" && (
               <>
                 {/* 최근 사용 */}
                 {!query && recent.length > 0 && (
                   <div>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", padding: "6px 4px 2px", fontFamily: "var(--font-space-grotesk)" }}>
-                      {t("최근 사용", "Recent")}
-                    </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    <div className={styles.sectionLabel}>{t("최근 사용", "Recent")}</div>
+                    <div className={styles.itemRow}>
                       {recent.map((em, i) => <EmojiBtn key={`r-${i}`} val={em} />)}
                     </div>
                   </div>
@@ -336,10 +366,8 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
                 {/* 커스텀 이모지 */}
                 {!query && customs.length > 0 && (
                   <div>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", padding: "6px 4px 2px", fontFamily: "var(--font-space-grotesk)" }}>
-                      {t("커스텀", "Custom")}
-                    </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    <div className={styles.sectionLabel}>{t("커스텀", "Custom")}</div>
+                    <div className={styles.itemRow}>
                       {customs.map((c, i) => <EmojiBtn key={`c-${i}`} val={`img:${c.src}`} />)}
                     </div>
                   </div>
@@ -347,10 +375,8 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
                 {/* 카테고리별 */}
                 {filteredEmojis.map((cat) => (
                   <div key={cat.id} data-cat={cat.id}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", padding: "6px 4px 2px", fontFamily: "var(--font-space-grotesk)" }}>
-                      {language === "ko" ? cat.label.ko : cat.label.en}
-                    </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    <div className={styles.sectionLabel}>{language === "ko" ? cat.label.ko : cat.label.en}</div>
+                    <div className={styles.itemRow}>
                       {cat.emojis.map((em) => <EmojiBtn key={em} val={em} />)}
                     </div>
                   </div>
@@ -362,27 +388,18 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
               <>
                 {filteredIconCats.map((cat) => (
                   <div key={cat.id} data-icon-cat={cat.id}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", padding: "6px 4px 2px", fontFamily: "var(--font-space-grotesk)" }}>
-                      {language === "ko" ? cat.label.ko : cat.label.en}
-                    </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    <div className={styles.sectionLabel}>{language === "ko" ? cat.label.ko : cat.label.en}</div>
+                    <div className={styles.itemRow}>
                       {cat.icons.map((ic) => (
                         <Tooltip key={ic.id} content={ic.label} placement="top" delay={300}>
                           <button
                             type="button"
-                            style={{
-                              width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center",
-                              border: "none", cursor: "pointer", borderRadius: "50%",
-                              background: "transparent", padding: 0, color: "var(--text-primary)",
-                            }}
+                            className={`${styles.cell} ${styles.iconCell}`}
                             onMouseDown={(e) => e.preventDefault()}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-tertiary)"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                             onClick={() => handleSelect(`icon:${ic.id}`)}
                           >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d={ic.path} />
-                            </svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                              dangerouslySetInnerHTML={{ __html: iconSvgInner(ic) }} />
                           </button>
                         </Tooltip>
                       ))}
@@ -393,94 +410,63 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
             )}
           </div>
 
-          {/* 하단 카테고리 바 (이모지 탭) */}
-          {tab === "emoji" && !query && (
-            <div style={{
-              display: "flex", justifyContent: "center", gap: 2, padding: "4px 6px",
-              borderTop: "1px solid var(--border-light-color)", flexShrink: 0,
-            }}>
-              {EMOJI_CATEGORIES.map((cat) => (
-                <Tooltip key={cat.id} content={language === "ko" ? cat.label.ko : cat.label.en} placement="top" delay={200}>
-                  <button
-                    type="button"
-                    style={{
-                      width: 26, height: 26, display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 14, border: "none", cursor: "pointer", borderRadius: "50%",
-                      background: "transparent", padding: 0,
-                    }}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-tertiary)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-                    onClick={() => scrollToCategory(cat.id)}
-                  >
-                    {cat.emojis[0]}
-                  </button>
-                </Tooltip>
-              ))}
+          {/* 하단 카테고리 바 (이모지 탭) — 검색 중에도 표시, 결과 있는 카테고리만 활성 */}
+          {tab === "emoji" && (
+            <div className={styles.catBar}>
+              {EMOJI_CATEGORIES.map((cat) => {
+                const active = activeEmojiCats.has(cat.id);
+                return (
+                  <Tooltip key={cat.id} content={language === "ko" ? cat.label.ko : cat.label.en} placement="top" delay={200}>
+                    <button
+                      type="button"
+                      className={`${styles.catBtn} ${active ? "" : styles.inactive}`}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => { if (active) scrollToCategory(cat.id); }}
+                    >
+                      {cat.emojis[0]}
+                    </button>
+                  </Tooltip>
+                );
+              })}
             </div>
           )}
 
-          {/* 하단 카테고리 바 (아이콘 탭) — 좌우 스크롤 */}
-          {tab === "icon" && !query && (() => {
+          {/* 하단 카테고리 바 (아이콘 탭) — 좌우 스크롤. 검색 중에도 표시 */}
+          {tab === "icon" && (() => {
             const iconBarRef = React.createRef<HTMLDivElement>();
             const scroll = (dir: number) => {
               iconBarRef.current?.scrollBy({ left: dir * 80, behavior: "smooth" });
             };
             return (
-              <div style={{
-                display: "flex", alignItems: "center",
-                borderTop: "1px solid var(--border-light-color)", flexShrink: 0,
-              }}>
+              <div className={styles.catBarScroll}>
                 <button
                   type="button"
-                  style={{
-                    width: 20, height: 28, display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "none", background: "transparent", cursor: "pointer", color: "var(--text-muted)",
-                    flexShrink: 0, fontSize: 12,
-                  }}
+                  className={styles.scrollBtn}
                   onMouseDown={(e) => e.preventDefault()}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
                   onClick={() => scroll(-1)}
                 ><ChevronLeft size={12} /></button>
-                <div
-                  ref={iconBarRef}
-                  style={{
-                    flex: 1, display: "flex", gap: 2, padding: "4px 2px",
-                    overflowX: "auto", scrollbarWidth: "none",
-                  }}
-                >
-                  {ICON_CATEGORIES.map((cat) => (
+                <div ref={iconBarRef} className={styles.catScrollInner}>
+                  {ICON_CATEGORIES.map((cat) => {
+                    const active = activeIconCats.has(cat.id);
+                    return (
                     <Tooltip key={cat.id} content={language === "ko" ? cat.label.ko : cat.label.en} placement="top" delay={200}>
                       <button
                         type="button"
-                        style={{
-                          width: 26, height: 26, display: "flex", alignItems: "center", justifyContent: "center",
-                          border: "none", cursor: "pointer", borderRadius: "50%",
-                          background: "transparent", padding: 0, color: "var(--text-muted)", flexShrink: 0,
-                        }}
+                        className={`${styles.catBtn} ${styles.catBtnIcon} ${active ? "" : styles.inactive}`}
                         onMouseDown={(e) => e.preventDefault()}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-tertiary)"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-                        onClick={() => scrollToCategory(cat.id, "icon")}
+                        onClick={() => { if (active) scrollToCategory(cat.id, "icon"); }}
                       >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d={cat.icons[0].path} />
-                        </svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                          dangerouslySetInnerHTML={{ __html: iconSvgInner(cat.icons[0]) }} />
                       </button>
                     </Tooltip>
-                  ))}
+                    );
+                  })}
                 </div>
                 <button
                   type="button"
-                  style={{
-                    width: 20, height: 28, display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "none", background: "transparent", cursor: "pointer", color: "var(--text-muted)",
-                    flexShrink: 0, fontSize: 12,
-                  }}
+                  className={styles.scrollBtn}
                   onMouseDown={(e) => e.preventDefault()}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
                   onClick={() => scroll(1)}
                 ><ChevronRight size={12} /></button>
               </div>
@@ -494,14 +480,13 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
         <UploadTab
           uploading={uploading}
           uploadError={uploadError}
-          currentValue={currentValue}
           onImageUpload={onImageUpload}
           onUpload={handleUpload}
-          onClose={onClose}
-          onSelect={onSelect}
           t={t}
         />
       )}
     </div>
   );
+
+  return getAnchorRect ? createPortal(node, document.body) : node;
 }

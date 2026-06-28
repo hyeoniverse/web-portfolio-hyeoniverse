@@ -706,7 +706,8 @@ function CommentItem({
                   placeholder={t("comments.reportPlaceholder")}
                   maxLength={500}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") handleReport();
+                    // isComposing: 한글 조합 확정 Enter 가 제출로도 처리되는 것 방지
+                    if (e.key === "Enter" && !e.nativeEvent.isComposing) handleReport();
                   }}
                 />
                 <button

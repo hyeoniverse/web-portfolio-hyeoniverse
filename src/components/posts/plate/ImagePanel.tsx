@@ -357,12 +357,13 @@ export function ImagePanel({
                   />
               }
               <span className={styles.imagePanelName}>{fileName}</span>
-              <CloseButton
-                className={styles.imagePanelRemove}
-                onClick={(e) => { e.stopPropagation(); confirmDelete(() => { if (isDetached) onRemoveDetached?.(img.url); else onRemove(img.path); }); }}
-                title={t("editor.imageRemove")}
-                ariaLabel={t("editor.imageRemove")}
-              />
+              <Tooltip content={t("editor.imageRemove")} placement="top">
+                <CloseButton
+                  className={styles.imagePanelRemove}
+                  onClick={(e) => { e.stopPropagation(); confirmDelete(() => { if (isDetached) onRemoveDetached?.(img.url); else onRemove(img.path); }); }}
+                  ariaLabel={t("editor.imageRemove")}
+                />
+              </Tooltip>
             </div>
           );
         };

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
 import { MoreHorizontal, ImageUp } from "lucide-react";
@@ -59,13 +59,30 @@ export default React.memo(function ImageToolbar({
     placement: "top",
     middleware: [offset(8), flip({ padding: 8 }), shift({ padding: 8 })],
   });
-  // 큰 이미지는 첫 렌더 시 레이아웃 전이라 rect 가 어긋남 → paint 후 rAF 로 위치 재계산
+  // 큰 이미지는 첫 렌더 시 레이아웃 전이라 rect 가 어긋남 → paint 후 rAF 로 위치 재계산.
+  // + 이미지가 에디터 보이는 영역을 벗어나면 toolbar 숨김(portal 이라 overflow 에 안 잘리므로 직접 클립).
+  const [outOfView, setOutOfView] = useState(false);
   useEffect(() => {
     if (!visible) return;
-    update?.();
-    const r = requestAnimationFrame(() => update?.());
-    return () => cancelAnimationFrame(r);
-  }, [visible, selectedImage, update]);
+    const recompute = () => {
+      update?.();
+      const editEl = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
+      const er = editEl?.getBoundingClientRect();
+      if (er) {
+        const r = getRect();
+        setOutOfView(r.bottom <= er.top || r.top >= er.bottom);
+      }
+    };
+    recompute();
+    const r = requestAnimationFrame(recompute);
+    window.addEventListener("scroll", recompute, true);
+    window.addEventListener("resize", recompute);
+    return () => {
+      cancelAnimationFrame(r);
+      window.removeEventListener("scroll", recompute, true);
+      window.removeEventListener("resize", recompute);
+    };
+  }, [visible, selectedImage, update, getRect]);
 
   const deleteImage = useCallback(() => {
     try {
@@ -123,7 +140,7 @@ export default React.memo(function ImageToolbar({
     if (lockVal && ratioVal > 0) setImageAttr("width", Math.round(nh * ratioVal));
   }, [lockVal, ratioVal, setImageAttr]);
 
-  if (!visible || !selectedImage) return null;
+  if (!visible || !selectedImage || outOfView) return null;
 
   const layout = (selectedImage.layout as string) || "inline";
   const isFloat = layout.startsWith("float-");

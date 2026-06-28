@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getWorks } from "@/lib/getWorks";
+import { highlightRichtextCode } from "@/utils/highlightRichtext";
 import WorkDetailClient from "./WorkDetailClient";
 
 interface PageProps {
@@ -47,9 +48,21 @@ export default async function WorkDetailPage({ params }: PageProps) {
   const nextProject =
     projectIndex < projects.length - 1 ? projects[projectIndex + 1] : null;
 
+  // richtext 코드블록 — 서버에서 Shiki 로 미리 칠함 (ko/en 둘 다, viewLang 은 client 에서 전환).
+  const rendered =
+    project.contentType === "richtext"
+      ? {
+          ...project,
+          content: {
+            ko: project.content.ko ? await highlightRichtextCode(project.content.ko) : project.content.ko,
+            en: project.content.en ? await highlightRichtextCode(project.content.en) : project.content.en,
+          },
+        }
+      : project;
+
   return (
     <WorkDetailClient
-      project={project}
+      project={rendered}
       prevProject={prevProject}
       nextProject={nextProject}
     />
