@@ -227,6 +227,24 @@ export const erdTables: ErdTable[] = [
       { name: "created_at", type: "TIMESTAMPTZ" },
     ],
   },
+  {
+    name: "poll_votes",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "poll_id", type: "TEXT" },
+      { name: "option_id", type: "TEXT" },
+      { name: "ip", type: "TEXT" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+    ],
+  },
+  {
+    name: "series_work_relations",
+    columns: [
+      { name: "series_id", type: "UUID", pk: true, fk: "series.id" },
+      { name: "work_id", type: "UUID", pk: true, fk: "works.id" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+    ],
+  },
 ];
 
 export const erdRelations: ErdRelation[] = [
@@ -242,6 +260,8 @@ export const erdRelations: ErdRelation[] = [
   { from: "post_views", fromField: "post_id", to: "posts", toField: "id", label: "N:1" },
   { from: "post_work_relations", fromField: "post_id", to: "posts", toField: "id", label: "N:1" },
   { from: "post_work_relations", fromField: "work_id", to: "works", toField: "id", label: "N:1" },
+  { from: "series_work_relations", fromField: "series_id", to: "series", toField: "id", label: "N:1" },
+  { from: "series_work_relations", fromField: "work_id", to: "works", toField: "id", label: "N:1" },
 ];
 
 export const erdDesignNotes: ErdDesignNote[] = [
@@ -352,5 +372,23 @@ export const erdDesignNotes: ErdDesignNote[] = [
       en: "Admin events like comment notifications are classified by type, with extra info in metadata JSONB. The read flag tracks read status.",
     },
     relatedTable: "admin_notifications",
+  },
+  {
+    title: { ko: "투표 집계 전용 테이블", en: "Vote-aggregation-only table" },
+    tag: "UNIQUE(poll_id, option_id, ip)",
+    description: {
+      ko: "투표 질문과 옵션 자체는 본문 HTML에 저장되고, poll_votes는 집계만 담당합니다. poll_id/option_id는 FK가 아니라 에디터가 부여한 text id이며, (poll_id, option_id, ip) UNIQUE로 같은 IP의 중복 투표를 차단합니다.",
+      en: "Poll questions and options live inside the content HTML; poll_votes only handles aggregation. poll_id/option_id are editor-assigned text ids, not FKs. A UNIQUE(poll_id, option_id, ip) constraint blocks duplicate votes from the same IP.",
+    },
+    relatedTable: "poll_votes",
+  },
+  {
+    title: { ko: "시리즈↔프로젝트 다대다", en: "Series↔Project many-to-many" },
+    tag: "PRIMARY KEY(series_id, work_id)",
+    description: {
+      ko: "post_work_relations와 동일한 패턴의 조인 테이블로, 시리즈와 프로젝트를 다대다로 연결합니다. (series_id, work_id) 복합 PK를 사용하고, 양쪽 FK 모두 ON DELETE CASCADE로 정리됩니다.",
+      en: "A join table following the same pattern as post_work_relations, linking series and works in a many-to-many relationship. Uses a composite PK (series_id, work_id), with both FKs cleaned up via ON DELETE CASCADE.",
+    },
+    relatedTable: "series_work_relations",
   },
 ];
