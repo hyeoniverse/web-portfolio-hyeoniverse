@@ -59,4 +59,39 @@ In a login-free comment system, edit/delete permissions are verified through **2
 | **Reply Email Notification** | Enter email (optional) when commenting to receive reply notifications (`notify_email` column) |
 | **Admin Comments** | Post comments with Admin badge without password when logged in, server-side Supabase Auth re-verification |
 
+### Poll Block Tally: `poll_votes`
+
+A table that tallies responses to the content editor's poll block. The poll's **structure (question, options) has no separate table** — it lives inside the editor block's saved HTML/JSON.
+
+| Column | Description |
+|------|------|
+| `id` | uuid PK |
+| `poll_id` | Fixed text id the editor assigns on block creation (saved HTML `data-poll-id`) |
+| `option_id` | Fixed option text id (`data-option-id`) |
+| `ip` | Voter IP (DEFAULT `''`), for duplicate prevention |
+| `created_at` | timestamptz |
+
+**Alternatives considered:**
+
+| Approach | Pros | Cons |
+|------|------|------|
+| **Single tally table** (current) | Poll structure stored alongside editor content, simple schema | poll_id/option_id are text, not FKs |
+| **Normalized `polls` + `poll_options`** | Referential integrity | Needs separate-table sync on every content save, more tables |
+
+**Rationale:** A poll block's question and options are part of the post content, so they are stored inside the post HTML, and `poll_votes` handles **pure tallying** only. Hence `poll_id` / `option_id` are editor-assigned text ids rather than FKs. `UNIQUE(poll_id, option_id, ip)` blocks duplicate votes from the same IP on the same option at the DB level, and a `poll_id` index optimizes tally queries. For single-select polls the API deletes and re-inserts the `(poll_id, ip)` rows to replace the choice; multi-select toggles per option (insert/delete). RLS is public SELECT + service_role ALL (tally/vote handled by the admin client).
+
+### Series ↔ Project Linking: `series_work_relations`
+
+A many-to-many table linking related series onto a project (work), following the same pattern as the existing `post_work_relations`.
+
+| Column | Description |
+|------|------|
+| `series_id` | uuid FK → `series(id)` ON DELETE CASCADE |
+| `work_id` | uuid FK → `works(id)` ON DELETE CASCADE |
+| `created_at` | timestamptz |
+
+The PRIMARY KEY is the composite `(series_id, work_id)`, with an index on each of `series_id` / `work_id`. RLS is public SELECT + service_role ALL.
+
+**Rationale:** Since posts↔works bidirectional linking (`post_work_relations`) is an already-proven many-to-many pattern, series↔project linking reuses the same structure for consistency. ON DELETE CASCADE on both FKs auto-cleans relation rows when a series or work is deleted, and the composite PK blocks duplicate links of the same pair.
+
 
