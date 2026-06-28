@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.21.0...v1.22.0) (2026-06-28)
+
+
+### Features
+
+* **editor·picker:** 블록·이모지 picker·관련 콘텐츠 등 세션 기능 통합 ([2edb8b4](https://github.com/hyeoniverse/web-portfolio-oval/commit/2edb8b41848d8247312d932d248cc78903fd1025))
+
 ## [1.21.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.20.1...v1.21.0) (2026-06-25)
 
 
