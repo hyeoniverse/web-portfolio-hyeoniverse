@@ -57,6 +57,8 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | `work_comments` | Works 댓글 (대댓글, 이중 인증) |
 | `admin_notifications` | 관리자 알림 로그 |
 | `revisions` | 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot) |
+| `poll_votes` | 본문 투표 블록 집계 (poll_id + option_id — 에디터 부여 text id, IP 기반 중복 방지) |
+| `series_work_relations` | series ↔ works 다대다 (프로젝트에 관련 시리즈 연결, post_work_relations 와 동일 패턴) |
 
 > `IF NOT EXISTS`를 사용하므로 이미 존재하는 테이블은 건너뜁니다. 기존 배포 DB에 누락된 컬럼(commenter_hash, updated_at 등)은 파일 하단의 마이그레이션 섹션에서 `ALTER TABLE ADD COLUMN IF NOT EXISTS`로 안전하게 추가됩니다.
 
@@ -82,7 +84,11 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 >
 > **Categories API**: `GET /api/categories` (Posts 이중언어 카테고리 목록), `GET /api/works-categories` (Works 이중언어 카테고리 목록)
 >
-> **Utility API**: `POST /api/translate` (공개, Gemini 단일 텍스트), `POST /api/posts/reassign-category` (카테고리 일괄 재할당), `GET /api/fonts/search?q=` (Google Fonts 자동완성 검색)
+> **Polls API**: `GET/POST /api/polls/[pollId]` (본문 투표 블록 집계 조회 / 투표)
+>
+> **Related Series API**: `GET /api/works/[id]/related-series` (공개 관련 시리즈), `GET/PUT /api/admin/works/[id]/related-series` (관리자 관련 시리즈 편집)
+>
+> **Utility API**: `POST /api/translate` (공개, Gemini 단일 텍스트), `POST /api/posts/reassign-category` (카테고리 일괄 재할당), `GET /api/fonts/search?q=` (Google Fonts 자동완성 검색), `POST /api/highlight` (서버사이드 코드 하이라이팅)
 
 ### 3. Storage 버킷 생성
 

@@ -210,3 +210,66 @@ const html = processRichtextHtml(rawHtml, {
 > 코드 하이라이트·버튼 라벨을 DOM 조작이 아닌 **HTML 문자열 단계**에서 적용 — 리렌더로 사라지지 않게.
 
 ---
+
+### EmojiPicker
+
+이모지·아이콘·커스텀 이미지를 고르는 **공용 picker** (개편). 값 형식은 native 이모지 / `img:url`(커스텀 업로드) / `icon:id`(SVG 아이콘) 3종.
+
+**경로**: `src/components/ui/EmojiPicker/`
+
+**기능**:
+
+- lucide 에서 추출한 **아이콘 476개** (`IconEntry.svg` inner-SVG 필드 + `iconSvgInner` 헬퍼), 신규 카테고리(날씨/기기/음식/건강/도구/교육/표정/지도/도형 등)
+- **한국어 검색**(`emojiKo.ts`) + emoji-mart 메타(영문 이름/키워드, `emojiMeta.ts`) + 이모지 이름 툴팁(공용 Tooltip)
+- 이미지 **드래그앤드롭 업로드**, inline 스타일 → CSS 모듈(`EmojiPicker.module.css`) 전환
+
+---
+
+### RelatedChips
+
+썸네일 + 제목 + 카테고리로 된 **관련 콘텐츠 칩 목록**. 더보기 토글 + hover 시 미리보기 카드.
+
+**경로**: `src/components/ui/RelatedChips/`
+
+**기능**:
+
+- 칩 hover 시 미리보기 카드를 띄우는 `useHoverPreview` 훅 동봉 (`src/components/ui/RelatedChips/useHoverPreview.tsx`)
+- 상세 페이지의 관련 시리즈 / 관련 게시물 노출에 사용
+
+---
+
+### ViewModeToggle
+
+Footer 의 **PC / 모바일 모드 전환** 토글. viewport meta 를 오버라이드한다.
+
+**경로**: `src/components/layout/ViewModeToggle.tsx`
+
+**기능**:
+
+- viewport 오버라이드는 모바일에서 "PC 버전 보기" 용으로만 유효하므로 **터치 기기(`pointer:coarse`)에서만 노출**
+
+---
+
+### CoverBanner
+
+어드민 에디터의 **커버 배너** 컴포넌트.
+
+**경로**: `src/components/admin/CoverBanner/`
+
+---
+
+### FloatingBar
+
+PlateEditor 에서 **블록 선택 시 뜨는 플로팅 툴바**. 다른 블록과 인터랙션하면 닫힌다.
+
+**경로**: `src/components/posts/plate/toolbars/FloatingBar.tsx`
+
+---
+
+### EditorTextInput
+
+에디터 내부 폼 입력용 **IME-safe 공용 프리미티브**. `contentEditable=false` + commit-on-blur 로 한글 조합 깨짐을 막는다. (이미지 caption · poll · tab 입력에서 공유)
+
+**경로**: `src/components/posts/plate/EditorTextInput.tsx`
+
+---

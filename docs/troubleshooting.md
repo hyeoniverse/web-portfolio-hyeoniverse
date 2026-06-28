@@ -1707,3 +1707,81 @@ function swapToPlaceholder(img: HTMLImageElement) {
 ② 이미 잘못 저장된 과거 데이터까지 책임지려면, attribute selector(`[style*="float"]`) + `!important` 로 **인라인 값을 무력화**하는 2차 방어를 둔다
 
 </details>
+
+<details>
+<summary><strong>53. 에디터 폼 input 에서 한글 IME 입력이 깨짐</strong></summary>
+
+**문제**: poll/tab 블록 등 에디터 내부 폼 input 에 한글을 입력하면 조합 중인 글자가 깨지거나 사라짐
+
+**원인**: Slate 가 IME 조합 도중에 re-render 하면 조합 상태가 끊김
+
+**해결**: poll/tab 입력을 void element + 공용 `EditorTextInput` 로 격리
+
+1. `EditorTextInput` 은 `contentEditable=false` + commit-on-blur 방식 — Slate 의 편집 모델 밖에서 동작해 조합 중 re-render 영향을 받지 않음
+2. `onMouseDown` 에서 `nativeEvent.stopImmediatePropagation()` 으로 Slate 의 selection 처리를 차단
+3. 이미지 caption 과 동일 패턴
+
+**핵심 인사이트**: 에디터 내부의 폼 input 은 에디터의 편집 모델과 분리해야 IME 조합이 안전하다 — caption 에서 검증된 패턴을 poll/tab 에 재사용
+
+</details>
+
+<details>
+<summary><strong>54. 블록 드래그가 HTML5 native drag 에 가로채여 pointer 드래그가 안 됨</strong></summary>
+
+**문제**: 에디터 블록을 핸들로 드래그할 때 브라우저의 HTML5 native drag 가 끼어들어 커스텀 pointer 드래그가 동작하지 않음
+
+**해결**: native drag 를 끄고 커스텀 드래그 레이어로 대체
+
+1. `useDraggable` 의 preview 를 disable + 핸들 `draggable={false}` 로 native drag 차단
+2. 커스텀 `BlockDragLayer` 가 DOM 을 복제한 고스트를 커서를 따라 그리고, 에디터 가장자리에서 자동 스크롤
+3. 커서 모양은 CSS `cursor` 가 아니라 `data-cursor` 속성(CursorTrail 시스템)으로 지정
+
+**핵심 인사이트**: pointer 기반 커스텀 드래그를 쓰려면 HTML5 native drag 를 명시적으로 꺼야 한다 — 둘이 공존하면 native 가 pointer 이벤트를 삼킨다
+
+</details>
+
+<details>
+<summary><strong>55. EmojiPicker 에서 "two children with the same key: weather" 에러</strong></summary>
+
+**문제**: 이모지 picker 개편 중 React 가 `two children with the same key: weather` 경고를 던짐
+
+**원인**: 기존 `ICON_CATEGORIES` 에 이미 weather/shapes/dev 카테고리가 있었는데, 신규 아이콘을 추가하면서 같은 id 로 카테고리를 **중복 생성**
+
+**해결**: 중복 카테고리 제거 + 신규 아이콘을 기존 카테고리에 병합
+
+1. 같은 id 의 중복 카테고리(weather/shapes/dev)를 제거하고 신규 아이콘을 기존 카테고리에 병합
+2. 글로벌 아이콘 id 중복도 함께 제거
+
+**핵심 인사이트**: 카테고리/아이콘 같은 정적 리스트를 확장할 땐 기존 id 와의 충돌부터 확인해야 한다 — key 중복은 곧 데이터 중복의 신호
+
+</details>
+
+<details>
+<summary><strong>56. EmojiPicker 를 inline→CSS 모듈로 바꾸니 hover/슬라이드 transition 이 안 먹음</strong></summary>
+
+**문제**: EmojiPicker 를 inline 스타일에서 CSS 모듈로 옮기자 인디케이터 슬라이드·카테고리 opacity 같은 transition 이 동작하지 않음
+
+**원인**: 전역 룰 `html[data-theme-ready] *`(specificity `(0,1,1)`)의 transition 이 단일 클래스 `(0,1,0)` 컴포넌트 transition 을 덮어씀
+
+**해결**: 전역 룰에 없는 속성은 compound 선택자로 specificity 확보
+
+1. 인디케이터 슬라이드·카테고리 opacity 처럼 전역 transition 룰에 없는 속성을 `.tabHeader .indicator`, `.picker .catBtn` 같은 compound 선택자 `(0,2,0)` 로 지정
+
+**핵심 인사이트**: 전역 theme transition 룰 `(0,1,1)` 이 단일 클래스 컴포넌트 transition 을 덮으므로, transform/opacity 등 전역 룰에 없는 속성은 compound 선택자로 specificity 를 올려야 한다
+
+</details>
+
+<details>
+<summary><strong>57. ViewModeToggle 로 데스크톱에서 "모바일 모드" 가 무효</strong></summary>
+
+**문제**: ViewModeToggle 로 데스크톱에서 "모바일 모드" 를 켜도 아무 변화가 없음
+
+**원인**: 데스크톱 브라우저는 viewport meta 의 `width` 를 무시함 (모바일 브라우저 전용 동작)
+
+**해결**: 토글을 터치 기기에서만 노출
+
+1. viewport 오버라이드는 모바일에서 "PC 버전 보기" 용으로만 유효하므로, 토글을 터치 기기(`pointer:coarse`)에서만 노출
+
+**핵심 인사이트**: viewport meta `width` 오버라이드는 모바일 브라우저에서만 효과가 있다 — 데스크톱에서 모바일 폭을 강제할 수단이 아니므로, 기능을 터치 기기로 한정하는 게 맞다
+
+</details>

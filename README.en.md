@@ -239,6 +239,9 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 - **Pagination jump input**: New `showJump?: boolean` prop (default true, auto-hidden when totalPages ≤ 5) — "Go to [n]" capsule input, fires onChange (clamped) on Enter/blur, synced back when `page` changes externally. Number-input spinner removed in Firefox + WebKit
 - **Scheduled Publish + Auto Trash Purge (pg_cron)**: `scheduled_at` / `purge_after` columns + **Supabase pg_cron direct execution** (removes the prior Vercel cron dependency). `publish_scheduled()` runs every minute, `purge_trash_scheduled()` daily at UTC 18:00 (KST 03:00). **pg_net** reads Vault secrets (`resend_api_key` / `admin_email` / `notify_from`) to call Resend's API → publishes/purges insert rows into `admin_notifications` and send a summary email. When Vault is empty, DB work succeeds and only the email step is skipped (fail-soft). DateTimePicker UI (date + time split, 12h/24h toggle)
 - **Posts ↔ Works Bidirectional Linking**: Notion Relation–style — `post_work_relations` many-to-many table, additions on either side surface on detail pages automatically, `RelationPicker` with search · thumbnails · publish status
+- **Project ↔ Series Linking**: `series_work_relations` many-to-many table links related series onto a project (work) — `GET /api/works/[id]/related-series` (public) · `GET/PUT /api/admin/works/[id]/related-series` (admin editing), surfaced on the works detail as related-series chips
+- **Editor new blocks (PlateEditor)**: ① **Poll block** — void element, add options / drag-reorder, IME-safe input, IP-based tally via `GET/POST /api/polls/[pollId]` (poll_id/option_id live in the saved HTML data attributes). ② **Tabs block** — per-tab emoji + title + a `+` button to add tabs. ③ **FloatingBar** — a floating toolbar shown on block selection, closing on interaction with other blocks. ④ **BlockDragLayer** — a custom ghost (blurred, cursor-tracking) during block drag + auto-scroll at editor edges. ⑤ **EditorTextInput** — an IME-safe shared primitive for in-editor form inputs (contentEditable=false + commit-on-blur). ⑥ **Server-side code highlighting** — handled by `POST /api/highlight`, styled via `_hljs.css`. ⑦ **Mermaid diagram reader** — renders graphs in detail/preview + a "⋯" menu (view code / copy code)
+- **EmojiPicker overhaul**: 476 icons (extracted from lucide, `IconEntry.svg` inner-SVG field + `iconSvgInner` helper) + new categories (weather / devices / food / health / tools / education / faces / maps / shapes, etc.), Korean search (`emojiKo.ts`) + emoji-mart metadata (English names/keywords, `emojiMeta.ts`) + emoji-name tooltip (shared Tooltip), image drag-and-drop upload, inline styles → CSS module (`EmojiPicker.module.css`). Value format: native emoji / `img:url` (custom upload) / `icon:id` (SVG icon)
 - **SEO Checklist**: Editor footer widget — 6-item check (title/slug/excerpt 30+/cover/category/tags), score progress bar, click an item to scroll to the field + label accent highlight (persists until next interaction)
 - **`.md` Sync**: `content/posts/` · `content/works/` folder → DB unidirectional sync (Jekyll-style, `pnpm sync-all`)
 - **`.md` Export**: Bulk/individual/series frontmatter-included `.md` download
@@ -301,7 +304,7 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 
 ### Design System
 
-- **Design System Preview**: View tokens/components/banner layouts at `/design-system` route — Tooltip, Select (portal-based dropdown + combobox + **right-anchored bubble variant**), **NumberInput** (capsule numeric input — commit on blur/Enter + stepper + label/suffix), shared **Chip** (capsule/bare · grip handle · leftIcon · count · drag), Pagination (smart ellipsis), DatePicker / PeriodPicker, CloseButton (X ↔ minus morph), ModalTemplates (Confirm/Alert/Prompt — 28px action buttons), Banner (renamed from Carousel), BilingualInputPair (KO/EN badges in-input), TagNotesEditor (item drag-reorder + multiLine KO/EN notes), Gradient Tokens, 3-phase scroll animation
+- **Design System Preview**: View tokens/components/banner layouts at `/design-system` route — Tooltip, Select (portal-based dropdown + combobox + **right-anchored bubble variant**), **NumberInput** (capsule numeric input — commit on blur/Enter + stepper + label/suffix), shared **Chip** (capsule/bare · grip handle · leftIcon · count · drag), Pagination (smart ellipsis), DatePicker / PeriodPicker, CloseButton (X ↔ minus morph), ModalTemplates (Confirm/Alert/Prompt — 28px action buttons), Banner (renamed from Carousel), BilingualInputPair (KO/EN badges in-input), TagNotesEditor (item drag-reorder + multiLine KO/EN notes), EmojiPicker (overhauled — 476 lucide icons + Korean search + drag upload), RelatedChips (thumbnail+title+category chips + hover preview card via `useHoverPreview`), ViewModeToggle (Footer PC/mobile mode switch, touch devices only), CoverBanner (admin editor cover banner), FloatingBar (editor block-selection floating toolbar), BlockDragLayer (custom ghost during block drag), EditorTextInput (IME-safe in-editor form input), Gradient Tokens, 3-phase scroll animation
 - **Korean chosung search (`src/lib/koSearch.ts`)**: `getChosung()` + `matchesSearch()` — substring + Korean initial-consonant ("ㄹㅇㅌ" → 리액트) + Korean-alias matching. Used for short name filters (tags / categories / Tech Stack); long body search uses `@/lib/searchQuery` separately.
 - **OKLCH color migration**: All raw color tokens and scattered module-CSS hex/rgba values converted to `oklch(L% C H)` via [culori](https://culori.js.org). Uses **`oklch(L C H / α)` alpha syntax**, perceptually uniform lightness regardless of hue. No `var()` fallbacks — component CSS must never use raw hex (use `var(--color-*)`). New colors should preserve culori's precision (5 dp for L/C, 2 dp for H)
 
@@ -398,6 +401,8 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 | `admin_notifications` | Admin notification logs |
 | `revisions` | Editor revision history (shared for posts/works, JSONB snapshot) |
 | `post_work_relations` | Posts ↔ works many-to-many bidirectional (Notion Relation–style) |
+| `series_work_relations` | Series ↔ works many-to-many (related series on a project, same pattern as post_work_relations) |
+| `poll_votes` | In-content poll block tally (poll_id + option_id — editor-assigned text ids, IP-based duplicate prevention) |
 | `cover_image_history` | Cover Image Picker unified history (per admin user, AI/Unsplash/Preset, RLS) |
 | `admin_login_attempts` | Admin login failure counter (5 fails → 15-minute lockout) |
 | `admin_known_devices` | Approved admin device UA fingerprints (SHA-256; unknown devices require email approval, 24h TTL) |
@@ -435,7 +440,11 @@ You also need to enable `pg_cron` and `pg_net` in `Database > Extensions` (setup
 >
 > **Categories API**: `GET /api/categories` (Posts bilingual category list), `GET /api/works-categories` (Works bilingual category list)
 >
-> **Utility API**: `POST /api/translate` (public, Gemini single text), `POST /api/posts/reassign-category` (batch category reassignment), `GET /api/fonts/search?q=` (Google Fonts autocomplete search)
+> **Polls API**: `GET/POST /api/polls/[pollId]` (in-content poll block tally query / vote)
+>
+> **Related Series API**: `GET /api/works/[id]/related-series` (public related series), `GET/PUT /api/admin/works/[id]/related-series` (admin related-series editing)
+>
+> **Utility API**: `POST /api/translate` (public, Gemini single text), `POST /api/posts/reassign-category` (batch category reassignment), `GET /api/fonts/search?q=` (Google Fonts autocomplete search), `POST /api/highlight` (server-side code highlighting)
 
 ### 3. Storage Bucket Creation
 
