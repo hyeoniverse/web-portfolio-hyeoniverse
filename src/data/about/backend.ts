@@ -174,6 +174,18 @@ if (category) {
     },
   },
   {
+    name: "Polls API",
+    kind: "api",
+    description: {
+      ko: "본문 투표 블록 API. 에디터로 삽입한 투표 블록의 집계를 조회하고 투표를 처리합니다. 투표 질문/옵션은 본문 HTML에 저장되고, poll_votes 테이블은 집계만 담당하며 IP 기반으로 중복 투표를 방지합니다.",
+      en: "In-content poll block API. Reads aggregates for poll blocks inserted via the editor and records votes. Poll questions/options live in the content HTML while the poll_votes table only handles aggregation, preventing duplicate votes by IP.",
+    },
+    endpoints: [
+      { method: "GET", path: "/api/polls/[pollId]", description: { ko: "투표 블록 집계 조회 (옵션별 득표 + IP voted 여부)", en: "Get poll block aggregates (per-option counts + IP voted status)" } },
+      { method: "POST", path: "/api/polls/[pollId]", description: { ko: "투표 (IP 기반 중복 방지)", en: "Cast a vote (IP-based duplicate prevention)" } },
+    ],
+  },
+  {
     name: "Works API",
     kind: "api",
     description: {
@@ -188,6 +200,9 @@ if (category) {
       { method: "DELETE", path: "/api/works/[id]", description: { ko: "작업물 삭제 (admin)", en: "Delete work (admin)" } },
       { method: "GET", path: "/api/works/[id]/like", description: { ko: "좋아요 수 + IP liked 여부", en: "Like count + IP liked status" } },
       { method: "POST", path: "/api/works/[id]/like", description: { ko: "좋아요 토글 (IP 기반)", en: "Toggle like (IP-based)" } },
+      { method: "GET", path: "/api/works/[id]/related-series", description: { ko: "작업물에 연결된 시리즈 목록 (공개, series_work_relations 조인)", en: "Related series for a work (public, series_work_relations join)" } },
+      { method: "GET", path: "/api/admin/works/[id]/related-series", description: { ko: "연결된 시리즈 관리 — 조회 (admin)", en: "Manage related series — read (admin)" } },
+      { method: "PUT", path: "/api/admin/works/[id]/related-series", description: { ko: "연결된 시리즈 일괄 갱신 (admin, series_work_relations 동기화)", en: "Bulk-update related series (admin, syncs series_work_relations)" } },
     ],
     exampleQuery: {
       title: "Static Fallback Pattern",
@@ -223,6 +238,7 @@ return data?.length ? data.map(workToProject) : projects;`,
       { method: "POST", path: "/api/posts/[id]/ai-summary", description: { ko: "포스트 AI 요약 생성 (fallback provider 체인)", en: "Generate post AI summary (fallback provider chain)" } },
       { method: "POST", path: "/api/works/[id]/ai-summary", description: { ko: "작업물 AI 요약 생성 (fallback provider 체인)", en: "Generate work AI summary (fallback provider chain)" } },
       { method: "GET", path: "/api/service-status", description: { ko: "서비스 상태 조회 (기능 토글 + API 키 유무)", en: "Service status (feature toggles + API key availability)" } },
+      { method: "POST", path: "/api/highlight", description: { ko: "서버사이드 코드 하이라이팅 (코드 블록을 서버에서 토큰화해 반환)", en: "Server-side code highlighting (tokenizes code blocks on the server)" } },
     ],
     exampleQuery: {
       title: "Fallback Provider Chain",
