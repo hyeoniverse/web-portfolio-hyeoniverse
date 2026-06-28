@@ -16,7 +16,9 @@ import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import { _blockDragPath, _inlineDragPath, _imageUploadFn } from "./utils";
 import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import { RxReset } from "react-icons/rx";
-import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical } from "lucide-react";
+import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical, Copy, WrapText, MoreHorizontal, CopyPlus, ArrowUp, ArrowDown, Trash2, Languages, ChevronLeft, Search } from "lucide-react";
+import Popover from "@/components/ui/Popover";
+import Select from "@/components/ui/Select";
 import styles from "../RichTextEditor.module.css";
 
 /** 블록 void 요소 아래 클릭 가능 영역 — 클릭 시 다음 줄에 커서 배치 */
@@ -657,13 +659,181 @@ function MermaidPreview({ code }: { code: string }) {
   );
 }
 
+// 코드블록 언어 — lowlight(editor)/Shiki(detail) 양쪽 지원 언어 + mermaid.
+// terms: 검색 별칭(js, py 등)
+const CODE_BLOCK_LANGS: ReadonlyArray<{ value: string; label: string; terms?: string[] }> = [
+  { value: "plaintext", label: "Plain text", terms: ["text", "txt"] },
+  { value: "bash", label: "Bash", terms: ["shell", "sh", "zsh"] },
+  { value: "c", label: "C" },
+  { value: "clojure", label: "Clojure", terms: ["clj"] },
+  { value: "coffeescript", label: "CoffeeScript", terms: ["coffee"] },
+  { value: "cpp", label: "C++", terms: ["c++", "cplusplus"] },
+  { value: "crystal", label: "Crystal", terms: ["cr"] },
+  { value: "csharp", label: "C#", terms: ["c#", "cs", "dotnet"] },
+  { value: "css", label: "CSS" },
+  { value: "dart", label: "Dart" },
+  { value: "diff", label: "Diff", terms: ["patch"] },
+  { value: "dockerfile", label: "Dockerfile", terms: ["docker"] },
+  { value: "elixir", label: "Elixir", terms: ["ex"] },
+  { value: "elm", label: "Elm" },
+  { value: "erlang", label: "Erlang", terms: ["erl"] },
+  { value: "fortran", label: "Fortran", terms: ["f90"] },
+  { value: "fsharp", label: "F#", terms: ["f#", "fs"] },
+  { value: "go", label: "Go", terms: ["golang"] },
+  { value: "graphql", label: "GraphQL", terms: ["gql"] },
+  { value: "groovy", label: "Groovy" },
+  { value: "haml", label: "Haml" },
+  { value: "handlebars", label: "Handlebars", terms: ["hbs", "mustache"] },
+  { value: "haskell", label: "Haskell", terms: ["hs"] },
+  { value: "ini", label: "INI", terms: ["conf", "properties"] },
+  { value: "java", label: "Java" },
+  { value: "javascript", label: "JavaScript", terms: ["js", "node", "jsx"] },
+  { value: "json", label: "JSON" },
+  { value: "julia", label: "Julia", terms: ["jl"] },
+  { value: "kotlin", label: "Kotlin", terms: ["kt"] },
+  { value: "latex", label: "LaTeX", terms: ["tex"] },
+  { value: "less", label: "Less" },
+  { value: "lua", label: "Lua" },
+  { value: "makefile", label: "Makefile", terms: ["make"] },
+  { value: "markdown", label: "Markdown", terms: ["md"] },
+  { value: "matlab", label: "MATLAB" },
+  { value: "mermaid", label: "Mermaid", terms: ["diagram"] },
+  { value: "nginx", label: "Nginx" },
+  { value: "nim", label: "Nim" },
+  { value: "nix", label: "Nix" },
+  { value: "objectivec", label: "Objective-C", terms: ["objc", "obj-c"] },
+  { value: "ocaml", label: "OCaml", terms: ["ml"] },
+  { value: "perl", label: "Perl", terms: ["pl"] },
+  { value: "php", label: "PHP" },
+  { value: "powershell", label: "PowerShell", terms: ["ps", "ps1"] },
+  { value: "prisma", label: "Prisma" },
+  { value: "prolog", label: "Prolog" },
+  { value: "puppet", label: "Puppet" },
+  { value: "python", label: "Python", terms: ["py"] },
+  { value: "r", label: "R" },
+  { value: "ruby", label: "Ruby", terms: ["rb"] },
+  { value: "rust", label: "Rust", terms: ["rs"] },
+  { value: "scala", label: "Scala" },
+  { value: "scheme", label: "Scheme" },
+  { value: "scss", label: "SCSS", terms: ["sass"] },
+  { value: "smalltalk", label: "Smalltalk" },
+  { value: "solidity", label: "Solidity", terms: ["sol"] },
+  { value: "sql", label: "SQL" },
+  { value: "stylus", label: "Stylus", terms: ["styl"] },
+  { value: "svelte", label: "Svelte" },
+  { value: "swift", label: "Swift" },
+  { value: "tcl", label: "Tcl" },
+  { value: "toml", label: "TOML" },
+  { value: "twig", label: "Twig" },
+  { value: "typescript", label: "TypeScript", terms: ["ts", "tsx"] },
+  { value: "vala", label: "Vala" },
+  { value: "verilog", label: "Verilog", terms: ["v"] },
+  { value: "vhdl", label: "VHDL" },
+  { value: "vim", label: "Vim Script", terms: ["vimscript"] },
+  { value: "vue", label: "Vue" },
+  { value: "wasm", label: "WebAssembly", terms: ["wat"] },
+  { value: "xml", label: "HTML / XML", terms: ["html", "xhtml", "svg"] },
+  { value: "yaml", label: "YAML", terms: ["yml"] },
+];
+
+/** 코드블록 "..." 메뉴 — main(액션) / lang(언어 검색) 두 view. 단일 Popover 안에서 전환. */
+function CodeBlockMenu({
+  close, lang, wrap, language,
+  onCopy, onToggleWrap, onSetLang, onDuplicate, onMoveUp, onMoveDown, onDelete,
+}: {
+  close: () => void;
+  lang?: string;
+  wrap: boolean;
+  language: string;
+  onCopy: () => void;
+  onToggleWrap: () => void;
+  onSetLang: (v: string) => void;
+  onDuplicate: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  onDelete: () => void;
+}) {
+  const [view, setView] = useState<"main" | "lang">("main");
+  const [q, setQ] = useState("");
+  const ko = language === "ko";
+  const L = (k: string, e: string) => (ko ? k : e);
+
+  if (view === "lang") {
+    const ql = q.trim().toLowerCase();
+    const filtered = CODE_BLOCK_LANGS.filter(
+      (l) => !ql || l.label.toLowerCase().includes(ql) || l.value.includes(ql) || (l.terms ?? []).some((t) => t.includes(ql)),
+    );
+    return (
+      <div className={styles.codeMenu}>
+        <button type="button" className={styles.codeMenuBack} onClick={() => setView("main")}>
+          <ChevronLeft size={13} /> {L("언어", "Language")}
+        </button>
+        <div className={styles.codeMenuSearch}>
+          <Search size={13} />
+          <input
+            autoFocus
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={L("언어 검색…", "Search…")}
+            spellCheck={false}
+          />
+        </div>
+        <div className={styles.codeMenuLangList}>
+          {filtered.map((l) => (
+            <button
+              key={l.value}
+              type="button"
+              className={styles.codeMenuItem}
+              onClick={() => { onSetLang(l.value); close(); }}
+            >
+              <span>{l.label}</span>
+              {(lang ?? "plaintext") === l.value && <Check size={13} />}
+            </button>
+          ))}
+          {filtered.length === 0 && <div className={styles.codeMenuEmpty}>{L("결과 없음", "No results")}</div>}
+        </div>
+      </div>
+    );
+  }
+
+  const curLang = CODE_BLOCK_LANGS.find((l) => l.value === (lang ?? "plaintext"))?.label ?? "Plain text";
+  return (
+    <div className={styles.codeMenu}>
+      <button type="button" className={styles.codeMenuItem} onClick={() => { onCopy(); close(); }}>
+        <Copy size={14} /> {L("코드 복사", "Copy code")}
+      </button>
+      <button type="button" className={styles.codeMenuItem} onClick={() => { onToggleWrap(); close(); }}>
+        <WrapText size={14} /> {L("줄바꿈", "Wrap")}{wrap && <Check size={13} className={styles.codeMenuTrailing} />}
+      </button>
+      <button type="button" className={styles.codeMenuItem} onClick={() => setView("lang")}>
+        <Languages size={14} /> {L("언어", "Language")}
+        <span className={styles.codeMenuTrailing}>{curLang}</span>
+      </button>
+      <div className={styles.codeMenuDivider} />
+      <button type="button" className={styles.codeMenuItem} onClick={() => { onDuplicate(); close(); }}>
+        <CopyPlus size={14} /> {L("복제", "Duplicate")}
+      </button>
+      <button type="button" className={styles.codeMenuItem} onClick={() => { onMoveUp(); close(); }}>
+        <ArrowUp size={14} /> {L("위로 이동", "Move up")}
+      </button>
+      <button type="button" className={styles.codeMenuItem} onClick={() => { onMoveDown(); close(); }}>
+        <ArrowDown size={14} /> {L("아래로 이동", "Move down")}
+      </button>
+      <div className={styles.codeMenuDivider} />
+      <button type="button" className={`${styles.codeMenuItem} ${styles.codeMenuDanger}`} onClick={() => { onDelete(); close(); }}>
+        <Trash2 size={14} /> {L("삭제", "Delete")}
+      </button>
+    </div>
+  );
+}
+
 export function CodeBlockElement(props: PlateElementProps) {
   const editor = useEditorRef();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const el = props.element as Record<string, unknown>;
   const wrap = (el.wrap as boolean) ?? false;
   const lang = el.lang as string | undefined;
-  const [justClicked, setJustClicked] = React.useState(false);
+  const [langSearch, setLangSearch] = React.useState("");
   const isEmpty = !el.children || (el.children as Array<{ children?: Array<{ text?: string }> }>).every(
     (line) => !line.children?.some((leaf) => leaf.text && leaf.text.length > 0),
   );
@@ -680,36 +850,126 @@ export function CodeBlockElement(props: PlateElementProps) {
     if (elPath) editor.tf.setNodes({ wrap: !wrap }, { at: elPath });
   };
 
+  // ── 코드블록 "..." 메뉴 액션 핸들러 ──
+  const getCodeText = () =>
+    ((el.children as Array<{ children?: Array<{ text?: string }> }>) || [])
+      .map((line) => (line.children || []).map((leaf) => leaf.text || "").join(""))
+      .join("\n");
+  const handleCopy = () => {
+    navigator.clipboard?.writeText(getCodeText());
+    showToast(language === "ko" ? "코드 복사됨" : "Code copied", "success");
+  };
+  const setLang = (v: string) => {
+    if (elPath) editor.tf.setNodes({ lang: v }, { at: elPath });
+  };
+  // 깊은 복제 시 Plate id 충돌 방지 — id 재귀 제거(normalize 가 새 id 부여)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const stripIds = (n: any): any => {
+    if (Array.isArray(n)) return n.map(stripIds);
+    if (n && typeof n === "object") {
+      const { id: _id, ...rest } = n as Record<string, unknown>;
+      void _id;
+      if ("children" in rest) rest.children = stripIds(rest.children);
+      return rest;
+    }
+    return n;
+  };
+  const handleDuplicate = () => {
+    if (!elPath) return;
+    const nextPath = [...elPath.slice(0, -1), elPath[elPath.length - 1] + 1];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    try { editor.tf.insertNodes(stripIds(props.element) as any, { at: nextPath }); } catch { /* noop */ }
+  };
+  const handleMoveUp = () => {
+    if (!elPath) return;
+    const i = elPath[elPath.length - 1];
+    if (i <= 0) return;
+    try { editor.tf.moveNodes({ at: elPath, to: [...elPath.slice(0, -1), i - 1] }); } catch { /* noop */ }
+  };
+  const handleMoveDown = () => {
+    if (!elPath) return;
+    const i = elPath[elPath.length - 1];
+    try { editor.tf.moveNodes({ at: elPath, to: [...elPath.slice(0, -1), i + 1] }); } catch { /* noop */ }
+  };
+  const handleDelete = () => {
+    if (!elPath) return;
+    try { editor.tf.removeNodes({ at: elPath }); } catch { /* noop */ }
+  };
+
   return (
     <BlockDropZone path={elPath}>
-    <div {...blockDragProps} style={{ cursor: "default" }}>
+    {/* 언어 변경 시 code-syntax 재decoration 으로 leaf 의 hook 구조가 바뀌어 React hook 순서 에러 →
+        lang 을 key 로 줘서 변경 시 subtree 를 새로 마운트(leaf 를 fresh 하게)해 비교 자체를 피한다. */}
+    <div key={`cb-${lang ?? "plaintext"}`} {...blockDragProps} style={{ cursor: "default" }}>
     <PlateElement
       {...props}
       as="pre"
       style={{
         ...props.style,
         position: "relative",
-        overflowX: wrap ? "visible" : "auto",
-        whiteSpace: wrap ? "pre-wrap" : "pre",
-        wordBreak: wrap ? "break-all" : undefined,
       }}
     >
-      <button
-        type="button"
-        contentEditable={false}
-        onMouseDown={(e) => {
-          e.preventDefault(); e.stopPropagation();
-          setJustClicked(true);
-          toggleWrap();
-        }}
-        onMouseLeave={() => setJustClicked(false)}
-        className={`${styles.codeWrapToggle}${justClicked ? " just-clicked" : ""}`}
-        title={wrap ? t("common.codeScrollTitle") : t("common.codeWrapTitle")}
-      >
-        <span className="toggle-label-default">{wrap ? `↔ ${t("common.codeScroll")}` : `↩ ${t("common.codeWrap")}`}</span>
-        <span className="toggle-label-hover">{wrap ? `↩ ${t("common.codeWrap")}` : `↔ ${t("common.codeScroll")}`}</span>
-      </button>
-      <code style={{ position: "relative" }}>
+      <div className={styles.codeControls} contentEditable={false}>
+        <span className={styles.codeLangSelectWrap} onMouseDown={(e) => e.stopPropagation()}>
+          <Select
+            combobox
+            value={lang ?? "plaintext"}
+            inputValue={langSearch}
+            onInputChange={setLangSearch}
+            onChange={() => {}}
+            onAdd={(v) => {
+              if (CODE_BLOCK_LANGS.some((l) => l.value === v)) setLang(v);
+              setLangSearch("");
+            }}
+            options={CODE_BLOCK_LANGS.map((l) => ({ value: l.value, label: l.label, searchTerms: l.terms ? [...l.terms] : undefined }))}
+            placeholder={CODE_BLOCK_LANGS.find((l) => l.value === (lang ?? "plaintext"))?.label ?? "Plain text"}
+            size="sm"
+            width="max"
+            triggerClassName={styles.codeLangTrigger}
+          />
+        </span>
+        <Tooltip content={language === "ko" ? "코드 복사" : "Copy code"} placement="bottom">
+          <button
+            type="button"
+            className={styles.codeCtrlBtn}
+            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCopy(); }}
+            aria-label={language === "ko" ? "코드 복사" : "Copy code"}
+          >
+            <Copy size={14} />
+          </button>
+        </Tooltip>
+        <Popover
+          placement="bottom-end"
+          contentClassName={styles.codeMenuPopover}
+          trigger={
+            <button
+              type="button"
+              className={styles.codeCtrlBtn}
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              aria-label={language === "ko" ? "더보기" : "More"}
+            >
+              <MoreHorizontal size={16} />
+            </button>
+          }
+        >
+          {({ close }) => (
+            <CodeBlockMenu
+              close={close}
+              lang={lang}
+              wrap={wrap}
+              language={language}
+              onCopy={handleCopy}
+              onToggleWrap={toggleWrap}
+              onSetLang={setLang}
+              onDuplicate={handleDuplicate}
+              onMoveUp={handleMoveUp}
+              onMoveDown={handleMoveDown}
+              onDelete={handleDelete}
+            />
+          )}
+        </Popover>
+      </div>
+      <code style={{ position: "relative", whiteSpace: wrap ? "pre-wrap" : "pre", wordBreak: wrap ? "break-all" : undefined }}>
         {isEmpty && (
           <span contentEditable={false} style={{
             position: "absolute", top: 0, left: 0, color: "var(--text-tertiary)",
@@ -1316,21 +1576,22 @@ export function FileElement(props: PlateElementProps) {
               {sizeLabel && <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{sizeLabel}</div>}
             </div>
             {hasPreview && (
-              <button
-                type="button"
-                onClick={() => setPreviewOpen(!previewOpen)}
-                style={{
-                  width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  border: "1px solid var(--border-light-color)",
-                  background: previewOpen ? "var(--bg-inverse)" : "var(--bg-primary)",
-                  color: previewOpen ? "var(--text-inverse)" : "var(--text-primary)", cursor: "pointer",
-                  transition: "background 0.2s, color 0.2s",
-                }}
-                title={previewOpen ? "Close preview" : "Preview"}
-              >
-                <Eye size={16} />
-              </button>
+              <Tooltip content={previewOpen ? "Close preview" : "Preview"} placement="top">
+                <button
+                  type="button"
+                  onClick={() => setPreviewOpen(!previewOpen)}
+                  style={{
+                    width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    border: "1px solid var(--border-light-color)",
+                    background: previewOpen ? "var(--bg-inverse)" : "var(--bg-primary)",
+                    color: previewOpen ? "var(--text-inverse)" : "var(--text-primary)", cursor: "pointer",
+                    transition: "background 0.2s, color 0.2s",
+                  }}
+                >
+                  <Eye size={16} />
+                </button>
+              </Tooltip>
             )}
             <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} style={{
               width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
@@ -1462,7 +1723,8 @@ export function ColumnGroupElement(props: PlateElementProps) {
   const colDivider = el.columnDivider as string | undefined;
   const groupRef = useRef<HTMLDivElement>(null);
 
-  const dividerColor = colDivider === "transparent" ? "transparent" : colDivider || "var(--text-muted)";
+  // 기본은 구분선 숨김(transparent) — 사용자가 색을 지정해야 보임
+  const dividerColor = colDivider === "transparent" ? "transparent" : colDivider || "transparent";
   const colBgVal = colBg === "transparent" ? "transparent" : colBg || "var(--bg-primary)";
 
   const colChildren = (el.children as unknown[]) || [];
@@ -1584,8 +1846,9 @@ export function ColumnGroupElement(props: PlateElementProps) {
 
   return (
     <PlateElement {...props} ref={groupRef as React.Ref<HTMLElement>} style={groupStyle} data-col-group>
-      {props.children}
+      {/* handles 를 children 앞에 — 그래야 마지막 컬럼이 :last-child 가 되어 오른쪽 구분선이 숨겨짐 */}
       {handles}
+      {props.children}
     </PlateElement>
   );
 }
@@ -1594,7 +1857,7 @@ export function ColumnElement(props: PlateElementProps) {
   const el = props.element as Record<string, unknown>;
   const width = el.width as string | undefined;
   return (
-    <PlateElement {...props} className={styles.colElement} style={{
+    <PlateElement {...props} className={styles.colElement} data-block-container="" style={{
       ...props.style,
       flex: width ? `${parseFloat(width)} 0 0` : "1 0 0",
       minWidth: 0,
@@ -1676,6 +1939,7 @@ export function CalloutElement(props: PlateElementProps) {
   const icon = (el.icon as string) || "";
   const hasIcon = icon.length > 0;
   const [showIconPicker, setShowIconPicker] = useState(false);
+  const iconRef = useRef<HTMLSpanElement>(null);
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   const { blockDragProps } = useBlockDrag(elPath);
 
@@ -1683,7 +1947,7 @@ export function CalloutElement(props: PlateElementProps) {
     <BlockDropZone path={elPath}>
       <div {...blockDragProps} style={{ position: "relative", margin: "var(--spacing-md) 0" }}>
         {hasIcon && (
-          <span contentEditable={false} style={{
+          <span ref={iconRef} contentEditable={false} style={{
             position: "absolute", left: 12, top: "calc(var(--spacing-md) + 2px)", zIndex: 1,
             fontSize: 20, lineHeight: 1, cursor: "pointer", userSelect: "none",
           }} onMouseDown={(e) => e.preventDefault()} onClick={() => setShowIconPicker(!showIconPicker)} data-clickable="true">
@@ -1692,6 +1956,7 @@ export function CalloutElement(props: PlateElementProps) {
         )}
         <EmojiPickerPopup
           open={showIconPicker}
+          getAnchorRect={() => iconRef.current?.getBoundingClientRect() ?? null}
           onClose={() => setShowIconPicker(false)}
           onSelect={(val) => { if (elPath) editor.tf.setNodes({ icon: val || undefined }, { at: elPath }); }}
           onImageUpload={_imageUploadFn.current || undefined}

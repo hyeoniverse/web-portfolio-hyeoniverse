@@ -4,6 +4,7 @@ import { ListPlugin } from "@platejs/list/react";
 import { IndentPlugin } from "@platejs/indent/react";
 import { BulletedListRules, OrderedListRules, TaskListRules } from "@platejs/list";
 import { createPlatePlugin } from "platejs/react";
+import { KEYS } from "platejs";
 
 // 들여쓰기 레벨별 마커 — Google Docs / 한글 처럼 단계마다 자동 전환
 const UL_CYCLE = ["disc", "circle", "square"];
@@ -53,15 +54,31 @@ export const ListKit = [
       TaskListRules.markdown(),
     ],
   }),
-  // 첫 단계(level 1)는 들여쓰기 0, 그 다음 단계부터 24px 씩.
+  // Tab 들여쓰기 — 리스트뿐 아니라 문단·제목·인용도 대상.
   IndentPlugin.configure({
     options: { offset: 24, unit: "px" },
     inject: {
+      targetPlugins: [KEYS.p, KEYS.h1, KEYS.h2, KEYS.h3, KEYS.blockquote],
       nodeProps: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        transformNodeValue: ({ getOptions, nodeValue }: any) => {
+        transformNodeValue: ({ getOptions, nodeValue, element }: any) => {
           const { offset, unit } = getOptions();
-          return Math.max(0, nodeValue - 1) * offset + unit;
+          // 리스트 아이템: 첫 단계(1)는 들여쓰기 0 (base level). 일반 블록: 첫 Tab 부터 한 단계씩.
+          const level = element?.listStyleType ? Math.max(0, nodeValue - 1) : nodeValue;
+          return level * offset + unit;
+        },
+      },
+    },
+    // 재로드(HTML 역직렬화) 시 margin-left → indent 복원. 일반 블록(p·heading·blockquote)만.
+    // 리스트는 <li>+data-indent 경로라 여기 안 걸림.
+    parsers: {
+      html: {
+        deserializer: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          parse: ({ element }: any) => {
+            const ml = parseInt(element?.style?.marginLeft || "", 10);
+            return ml > 0 ? { indent: Math.round(ml / 24) } : {};
+          },
         },
       },
     },

@@ -38,27 +38,17 @@ export interface WrapLabels {
   scroll: string;
   wrapTitle: string;
   scrollTitle: string;
+  copy: string;
+  copied: string;
 }
 
 export function highlightCodeBlocks(container: HTMLElement) {
-  // 1. wrapper가 없는 <pre> 요소에 code-block-wrap + 버튼 추가
-  container.querySelectorAll("pre").forEach((pre) => {
-    if (pre.closest(".code-block-wrap")) return; // 이미 wrapper 있음
-    const wrap = document.createElement("div");
-    wrap.className = "code-block-wrap";
-    pre.parentNode!.insertBefore(wrap, pre);
-    wrap.appendChild(pre);
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "code-wrap-toggle";
-    btn.setAttribute("data-wrap-btn", "");
-    wrap.appendChild(btn);
-  });
-
-  // 2. 하이라이팅
+  // hljs 하이라이팅만 담당 (markdown 콘텐츠용). wrap/컨트롤 버튼 주입은 attachCodeWrapToggle 이 처리.
+  // 이미 Shiki(.shiki)로 칠해진 건 건드리지 않음 — 서버에서 처리됨.
   container.querySelectorAll("pre code").forEach((el) => {
     const htmlEl = el as HTMLElement;
-    if (htmlEl.dataset.highlighted || htmlEl.classList.contains("hljs")) return;
+    if (htmlEl.classList.contains("language-mermaid")) return; // mermaid 는 SVG 로 렌더
+    if (htmlEl.dataset.highlighted || htmlEl.classList.contains("hljs") || htmlEl.closest(".shiki")) return;
     // 미등록 언어 class(language-auto 등)를 제거해서 hljs가 auto-detect 하도록
     const langMatch = htmlEl.className.match(/language-(\S+)/);
     if (langMatch && !hljs.getLanguage(langMatch[1])) {
@@ -80,6 +70,58 @@ export function attachCodeWrapToggle(
   container: HTMLElement,
   labels: WrapLabels,
 ) {
+  // 0. 각 코드블록에 컨트롤(복사 + 줄바꿈) 버튼 주입 — 블록당 1회.
+  //    serializer/Shiki 출력엔 버튼이 없으므로 reader(상세/미리보기)에서 런타임 주입한다.
+  container.querySelectorAll("pre").forEach((pre) => {
+    // mermaid 코드블록은 enhanceReaderExtras 가 그래프+메뉴로 따로 처리 → 코드 컨트롤 주입 안 함
+    if (pre.querySelector("code.language-mermaid")) return;
+    let wrap = pre.closest<HTMLElement>(".code-block-wrap");
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "code-block-wrap";
+      pre.parentNode?.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+    }
+    if (wrap.querySelector(".code-block-controls")) return; // 이미 주입됨
+
+    // 현재 언어 라벨 — Shiki 는 pre[data-lang], hljs/원본은 code.language-X 에서 읽음.
+    const codeEl = pre.querySelector("code");
+    const langVal = (
+      pre.getAttribute("data-lang") ||
+      codeEl?.className.match(/language-([\w-]+)/)?.[1] ||
+      ""
+    ).toLowerCase();
+    const showLang = langVal && !["plaintext", "text", "plain"].includes(langVal);
+
+    const controls = document.createElement("div");
+    controls.className = "code-block-controls";
+    controls.contentEditable = "false";
+    if (showLang) {
+      const langLabel = document.createElement("span");
+      langLabel.className = "code-lang-label";
+      langLabel.textContent = langVal;
+      controls.appendChild(langLabel);
+    }
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "code-copy-btn";
+    copyBtn.setAttribute("data-copy-btn", "");
+    const wrapBtn = document.createElement("button");
+    wrapBtn.type = "button";
+    wrapBtn.className = "code-wrap-toggle";
+    wrapBtn.setAttribute("data-wrap-btn", "");
+    controls.append(copyBtn, wrapBtn);
+    wrap.appendChild(controls);
+  });
+
+  // 복사 버튼 라벨 (언어별, 매 호출 갱신 — 클릭 핸들러는 dataset 에서 최신값 읽음)
+  container.querySelectorAll<HTMLButtonElement>("button[data-copy-btn]").forEach((btn) => {
+    btn.dataset.copyLabel = labels.copy;
+    btn.dataset.copiedLabel = labels.copied;
+    btn.title = labels.copy;
+    if (!btn.classList.contains("copied")) btn.textContent = labels.copy;
+  });
+
   // 초기 라벨 설정 (언어별) — 두 개의 span으로 hover 전환
   container.querySelectorAll<HTMLButtonElement>("button[data-wrap-btn]").forEach((btn) => {
     const wrap = btn.closest(".code-block-wrap");
@@ -107,6 +149,21 @@ export function attachCodeWrapToggle(
   container.dataset.wrapDelegated = "1";
 
   container.addEventListener("click", (e) => {
+    // 복사 버튼
+    const copyBtn = (e.target as HTMLElement).closest<HTMLButtonElement>("button[data-copy-btn]");
+    if (copyBtn) {
+      const cw = copyBtn.closest(".code-block-wrap");
+      const text = (cw?.querySelector("pre code") ?? cw?.querySelector("pre"))?.textContent ?? "";
+      navigator.clipboard?.writeText(text);
+      copyBtn.classList.add("copied");
+      copyBtn.textContent = copyBtn.dataset.copiedLabel || "Copied";
+      window.setTimeout(() => {
+        copyBtn.classList.remove("copied");
+        copyBtn.textContent = copyBtn.dataset.copyLabel || "Copy";
+      }, 1500);
+      return;
+    }
+
     const btn = (e.target as HTMLElement).closest<HTMLButtonElement>("button[data-wrap-btn]");
     if (!btn) return;
 

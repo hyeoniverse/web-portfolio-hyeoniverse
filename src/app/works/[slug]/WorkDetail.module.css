@@ -15,6 +15,11 @@
   gap: var(--spacing-xs);
   margin-bottom: var(--spacing-xl);
 }
+/* liveUrl/GitHub 버튼(size xs=24)과 ShareButton(패딩 기반 ~27)의 높이가 달라 → 모두 동일 높이로 강제 */
+.headerActions :is(a, button) {
+  height: var(--control-h-sm);
+  box-sizing: border-box;
+}
 
 .metaLeft {
   display: flex;
@@ -128,6 +133,7 @@
 .infoBlockFull {
   grid-column: 1 / -1;
 }
+
 
 .infoLabel {
   font-family: var(--font-space-grotesk), sans-serif;
@@ -553,21 +559,7 @@
   border-radius: var(--radius-xs);
 }
 
-.sectionProse pre {
-  padding: var(--spacing-lg);
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-md);
-  border: var(--border-light);
-  overflow-x: auto;
-  margin: var(--spacing-xl) 0;
-}
-
-.sectionProse pre code {
-  padding: 0;
-  background: transparent;
-  font-size: var(--font-size-sm);
-  line-height: 1.6;
-}
+/* 코드블록(pre/code) 프레임·스크롤은 globals/_hljs.css 의 .code-block-wrap 규칙으로 공통화 */
 
 .sectionProse blockquote {
   border-left: 3px solid var(--color-accent);
@@ -1034,7 +1026,7 @@
   margin: var(--spacing-lg) 0;
   padding: var(--box-md);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
   overflow-x: auto;
 }

@@ -17,6 +17,8 @@ import { MathKit } from "./plugins/math-kit";
 import { FileKit } from "./plugins/file-kit";
 import { ToggleKit } from "./plugins/toggle-kit";
 import { CalloutKit } from "./plugins/callout-kit";
+import { TabsKit } from "./plugins/tabs-kit";
+import { PollKit } from "./plugins/poll-kit";
 import { FootnoteKit } from "./plugins/footnote-kit";
 import { TocKit } from "./plugins/toc-kit";
 import { FindReplaceKit } from "./plugins/find-replace-kit";
@@ -41,6 +43,8 @@ export const EditorKit = [
   ...FileKit,         // file_embed, audio_embed
   ...ToggleKit,
   ...CalloutKit,
+  ...TabsKit,         // tabs(activeTab) > tab_panel(label) > 내용
+  ...PollKit,         // poll(pollId, multiple, options[]) — void, 라벨은 React input
   ...FootnoteKit,     // footnote_ref, footnote_content
   ...TocKit,          // 목차 블록
   ...FindReplaceKit,  // 찾기 하이라이트

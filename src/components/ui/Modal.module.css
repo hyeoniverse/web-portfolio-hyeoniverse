@@ -118,7 +118,6 @@
   justify-content: flex-end;
   gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-lg);
-  border-top: var(--border-light);
   flex-shrink: 0;
 }
 

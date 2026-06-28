@@ -22,7 +22,7 @@ export function PurgeModal({ title, onConfirm }: { title: string; onConfirm: () 
         placeholder={title}
         value={input}
         onChange={setInput}
-        onKeyDown={(e) => { if (e.key === "Enter" && valid) { closeAll(); onConfirm(); } }}
+        onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing && valid) { closeAll(); onConfirm(); } }}
       />
       <div className={styles.seriesDeleteActions}>
         <Button variant="outline" size="xs" onClick={closeAll}>{t("admin.posts.cancel")}</Button>
@@ -55,7 +55,7 @@ export function SeriesDeleteModal({ series, deletePostsRef, onConfirm }: {
         placeholder={series.title}
         value={input}
         onChange={setInput}
-        onKeyDown={(e) => { if (e.key === "Enter" && valid) { closeAll(); onConfirm(); } }}
+        onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing && valid) { closeAll(); onConfirm(); } }}
       />
       <div className={styles.seriesDeleteActions}>
         <Button variant="outline" size="xs" onClick={closeAll}>{t("admin.posts.cancel")}</Button>

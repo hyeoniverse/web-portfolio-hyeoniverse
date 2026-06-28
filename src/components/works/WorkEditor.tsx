@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { marked } from "marked";
 import { ChevronRight, Plus, Star, Check, X, User, Pencil } from "lucide-react";
 import Button from "@/components/ui/Button";
+import Checkbox from "@/components/ui/Checkbox";
 import CloseButton from "@/components/ui/CloseButton";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import { ImageViewer } from "@/components/ui/ImageViewer";
@@ -19,6 +20,8 @@ import AdminEditorShell, {
 } from "@/components/admin/AdminEditorShell";
 import { postProcessMarkedHtml } from "@/components/posts/postProcessMarkedHtml";
 import SeoChecklist, { type SeoCheckId } from "@/components/admin/SeoChecklist";
+import "@/components/admin/seoFlash.css";
+import { flashSeoField, clearSeoFlash } from "@/components/admin/seoFlash";
 import type { Work, WorkFormData, TeamMember } from "@/types/work";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
@@ -41,6 +44,7 @@ import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import SortOrderDragList from "@/components/admin/SortOrderDragList";
 import CoverImageField from "@/components/admin/CoverImageField";
+import CoverBanner from "@/components/admin/CoverBanner";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { useModalStore } from "@/stores/modalStore";
@@ -766,6 +770,9 @@ function SubtitleInput({
   const ref = useRef<HTMLInputElement>(null);
   const [multiLine, setMultiLine] = useState(false);
 
+  // SEO blink 리스너 unmount 시 정리
+  useEffect(() => () => clearSeoFlash(), []);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -925,6 +932,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   // 본문 에디터 ref + 첨부 이미지 패널 (Posts editor 와 동일 패턴)
   const plateRef = useRef<PlateEditorHandle>(null);
   const [editorImages, setEditorImages] = useState<EditorImageInfo[]>([]);
+  const [editorHtmlMode, setEditorHtmlMode] = useState(false);
   // 에디터 준비될 때까지 polling 으로 이미지 목록 동기화. 언어 전환 시 에디터가 remount(key=editorLang) 되므로 재동기화.
   useEffect(() => {
     setEditorImages([]);
@@ -1032,6 +1040,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
   /* ── 관련 글 multi-select ── */
   const [allPosts, setAllPosts] = useState<Array<{ id: string; title: string; title_en?: string; cover_image: string; category: string; published: boolean; created_at: string }>>([]);
+  const [allSeries, setAllSeries] = useState<Array<{ id: string; title: string; title_en?: string; cover_image: string; category: string; published: boolean }>>([]);
 
   useEffect(() => {
     fetch("/api/posts?all=true&limit=200")
@@ -1040,23 +1049,33 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         if (Array.isArray(d?.posts)) setAllPosts(d.posts);
       })
       .catch(() => {});
+    fetch("/api/series?all=true")
+      .then((r) => r.json())
+      .then((d) => {
+        const list = Array.isArray(d) ? d : (Array.isArray(d?.items) ? d.items : []);
+        setAllSeries(list);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
     if (!work?.id) return;
     let cancelled = false;
-    fetch(`/api/admin/works/${work.id}/related-posts`)
-      .then((r) => r.json())
-      .then((d) => {
+    Promise.all([
+      fetch(`/api/admin/works/${work.id}/related-posts`).then((r) => r.json()).catch(() => null),
+      fetch(`/api/admin/works/${work.id}/related-series`).then((r) => r.json()).catch(() => null),
+    ])
+      .then(([posts, series]) => {
         if (cancelled) return;
-        if (Array.isArray(d?.items)) {
-          setForm((prev) => ({ ...prev, related_post_ids: d.items.map((p: { id: string }) => p.id) }));
-        }
+        setForm((prev) => ({
+          ...prev,
+          ...(Array.isArray(posts?.items) ? { related_post_ids: posts.items.map((p: { id: string }) => p.id) } : {}),
+          ...(Array.isArray(series?.items) ? { related_series_ids: series.items.map((s: { id: string }) => s.id) } : {}),
+        }));
       })
-      .catch(() => {})
       .finally(() => {
         if (cancelled) return;
-        // async load 된 related_post_ids 가 form 에 반영된 다음 frame 에 baseline 정합화 + draft restore 활성화
+        // async load 된 관계 ID 가 form 에 반영된 다음 frame 에 baseline 정합화 + draft restore 활성화
         requestAnimationFrame(() => {
           markBaseline();
           setInitialLoadsReady(true);
@@ -1066,6 +1085,9 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [work?.id]);
 
+  // 커버 배너의 페이지 이모지 — 현재는 로컬 상태만 유지
+  // TODO: 이모지 저장 방식 확정 후 form/DB 연동
+  const [coverEmoji, setCoverEmoji] = useState<string | null>(null);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [galleryViewerIdx, setGalleryViewerIdx] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -1402,8 +1424,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       setError("");
       setStatus("");
 
-      // works 테이블에는 related_post_ids 컬럼이 없음 — 분리해서 별도 endpoint로 sync.
-      const { related_post_ids, ...workBody } = form;
+      // works 테이블에는 관계 컬럼이 없음 — 분리해서 별도 endpoint로 sync.
+      const { related_post_ids, related_series_ids, ...workBody } = form;
       const body = {
         ...workBody,
         published: willPublish,
@@ -1436,6 +1458,13 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ postIds: related_post_ids }),
+          }).catch(() => {});
+        }
+        if (savedId.current && related_series_ids) {
+          await fetch(`/api/admin/works/${savedId.current}/related-series`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ seriesIds: related_series_ids }),
           }).catch(() => {});
         }
 
@@ -1626,6 +1655,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       onRetranslate={serviceStatus.translation ? handleRetranslate : undefined}
       retranslateOptions={retranslateOptions}
       retranslateDisabled={!serviceStatus.loading && !serviceStatus.translation}
+      retranslating={translating}
       onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleGenerateSummary : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       generatingSummary={generatingSummary}
@@ -1639,6 +1669,16 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           meta: workSnapshotMeta(form, lang),
         };
       }}
+      coverSlot={
+        /* 커버 배너 + 페이지 이모지 — topBar 위 최상단(전역 nav 바로 아래) */
+        <CoverBanner
+          cover={form.image}
+          onCoverChange={(url) => updateField("image", url)}
+          onUpload={() => handleImageUpload("image")}
+          emoji={coverEmoji}
+          onEmojiChange={setCoverEmoji}
+        />
+      }
     >
       {/* Basic Info — 필수 (title, year, category) + 선택 (collapsible) */}
       <div className={styles.section}>
@@ -1916,6 +1956,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               {tw("insertTemplate")}
             </button>
           </div>
+          <Checkbox
+            checked={editorHtmlMode}
+            onChange={() => plateRef.current?.toggleHtmlMode()}
+            shape="square"
+            label="HTML"
+          />
         </div>
 
         <div className={styles.editorBlock}>
@@ -1932,6 +1978,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             onImageUpload={handleContentImageUpload}
             editorRef={plateRef}
             postLang={editorLang}
+            onHtmlModeChange={setEditorHtmlMode}
           />
         </div>
 
@@ -2467,6 +2514,29 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         />
       </div>
 
+      {/* 관련 시리즈 */}
+      <div className={styles.section}>
+        <div className={styles.sectionTitleRow}>
+          <h2 className={styles.sectionTitle}>{tw("relatedSeries")}</h2>
+          {(form.related_series_ids ?? []).length === 0 && (
+            <span className={styles.sectionTitleHint}>{tw("relatedSeriesEmpty")}</span>
+          )}
+        </div>
+        <RelationPicker
+          items={allSeries}
+          selectedIds={form.related_series_ids ?? []}
+          onChange={(ids) => updateField("related_series_ids", ids)}
+          getId={(s) => s.id}
+          getTitle={(s) => (language === "en" && s.title_en ? s.title_en : s.title)}
+          getMeta={(s) => s.category}
+          getThumb={(s) => s.cover_image}
+          getStatus={(s) => (s.published ? "published" : "draft")}
+          searchPlaceholder={tw("relatedSeriesSearch")}
+          searchInputPlaceholder={tw("relatedSeriesSearchInput")}
+          noResultsText={tw("relatedSeriesNoResults")}
+        />
+      </div>
+
         </div>{/* /extraSectionsContent */}
       </div>{/* /extraSections (Tech+Team+Links+Related) */}
 
@@ -2482,7 +2552,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         onItemClick={(id: SeoCheckId) => {
           const fieldId = id === "excerpt" ? "work-description" : id === "cover" ? "work-image" : id === "tags" ? "work-tech" : `work-${id}`;
           const el = document.getElementById(fieldId);
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+          if (!el) return;
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.querySelector<HTMLElement>("input, textarea, select, button")?.focus({ preventScroll: true });
+          // 이동한 필드를 상호작용 전까지 blink
+          flashSeoField(el);
         }}
       />
       <ImageViewer

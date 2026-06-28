@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPostBySlug, getAllPostSlugs } from "@/lib/posts";
+import { highlightRichtextCode } from "@/utils/highlightRichtext";
 import PostDetailClient from "./PostDetailClient";
 
 export const revalidate = 300;
@@ -41,5 +42,12 @@ export default async function PostDetailPage({
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  return <PostDetailClient post={post} />;
+  // 코드블록 신택스 하이라이팅 — richtext 는 서버에서 Shiki 로 미리 칠해 내려보냄
+  // (markdown 은 MarkdownRenderer 가 클라에서 hljs 처리). 클라 번들엔 하이라이터 미포함.
+  const rendered =
+    post.content_type !== "markdown" && post.content
+      ? { ...post, content: await highlightRichtextCode(post.content) }
+      : post;
+
+  return <PostDetailClient post={rendered} />;
 }
