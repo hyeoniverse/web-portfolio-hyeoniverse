@@ -245,6 +245,34 @@ const glossary: GlossaryEntry[] = [
       en: "Footnote extension plugin for the marked markdown parser",
     },
   },
+  {
+    match: ["투표 블록", "poll"],
+    tip: {
+      ko: "본문에 삽입하는 투표 블록. 질문/옵션은 본문 HTML에 저장되고 집계만 poll_votes 테이블이 담당",
+      en: "An in-content poll block. Questions/options live in the content HTML; only the tally is stored in the poll_votes table",
+    },
+  },
+  {
+    match: ["related-series", "series_work_relations"],
+    tip: {
+      ko: "프로젝트와 시리즈를 다대다로 잇는 조인 테이블 기반 연관 시리즈 기능",
+      en: "Related-series feature backed by a join table linking works and series in a many-to-many relationship",
+    },
+  },
+  {
+    match: ["mermaid"],
+    tip: {
+      ko: "텍스트로 플로차트·다이어그램을 그리는 문법. 본문에서 코드 블록처럼 렌더링됨",
+      en: "Text-based syntax for drawing flowcharts and diagrams, rendered like a code block in content",
+    },
+  },
+  {
+    match: ["ViewModeToggle", "뷰 모드"],
+    tip: {
+      ko: "콘텐츠 표시 방식(예: 목록/그리드)을 전환하는 토글 컴포넌트",
+      en: "Toggle component that switches the content display mode (e.g., list/grid)",
+    },
+  },
 ];
 
 /** 언어별로 match → tip 맵을 한 번만 빌드 */

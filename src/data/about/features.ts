@@ -91,4 +91,14 @@ export const designFeatures: DesignFeature[] = [
     tech: ["Supabase Auth", "Next.js Middleware", "JSONB", "Static Fallback"],
     image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80",
   },
+  {
+    icon: "10",
+    title: "Editor Block Extensions",
+    description: {
+      ko: "에디터를 확장한 인터랙티브 블록 모음입니다. IP 기반 중복 방지 투표 블록과 탭 블록을 본문에 삽입할 수 있고, 476개 아이콘을 갖춘 이모지 picker, 서버사이드 코드 하이라이팅을 지원합니다.",
+      en: "A set of interactive blocks extending the editor. Insert IP-deduped poll blocks and tab blocks into content, with a 476-icon emoji picker and server-side code highlighting.",
+    },
+    tech: ["Plate.js", "Poll Block", "Tab Block", "Emoji Picker", "Server Highlight"],
+    image: "https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80",
+  },
 ];
