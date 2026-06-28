@@ -210,3 +210,66 @@ const html = processRichtextHtml(rawHtml, {
 > Highlighting & button labels are applied at the **HTML string stage**, not via DOM mutation — so they don't disappear on re-render.
 
 ---
+
+### EmojiPicker
+
+A **shared picker** for emoji, icons, and custom images (overhauled). The value format is one of native emoji / `img:url` (custom upload) / `icon:id` (SVG icon).
+
+**Path**: `src/components/ui/EmojiPicker/`
+
+**Features**:
+
+- **476 icons** extracted from lucide (`IconEntry.svg` inner-SVG field + `iconSvgInner` helper), new categories (weather / devices / food / health / tools / education / faces / maps / shapes, etc.)
+- **Korean search** (`emojiKo.ts`) + emoji-mart metadata (English names/keywords, `emojiMeta.ts`) + emoji-name tooltip (shared Tooltip)
+- Image **drag-and-drop upload**, inline styles → CSS module (`EmojiPicker.module.css`)
+
+---
+
+### RelatedChips
+
+A **related-content chip list** of thumbnail + title + category. More toggle + a hover preview card.
+
+**Path**: `src/components/ui/RelatedChips/`
+
+**Features**:
+
+- Bundles a `useHoverPreview` hook that surfaces a preview card on chip hover (`src/components/ui/RelatedChips/useHoverPreview.tsx`)
+- Used to surface related series / related posts on detail pages
+
+---
+
+### ViewModeToggle
+
+The Footer's **PC / mobile mode switch** toggle. Overrides the viewport meta.
+
+**Path**: `src/components/layout/ViewModeToggle.tsx`
+
+**Features**:
+
+- The viewport override is only meaningful as "view PC version" on mobile, so it is **shown only on touch devices (`pointer:coarse`)**
+
+---
+
+### CoverBanner
+
+The admin editor's **cover banner** component.
+
+**Path**: `src/components/admin/CoverBanner/`
+
+---
+
+### FloatingBar
+
+PlateEditor's **floating toolbar shown on block selection**. Closes on interaction with other blocks.
+
+**Path**: `src/components/posts/plate/toolbars/FloatingBar.tsx`
+
+---
+
+### EditorTextInput
+
+An **IME-safe shared primitive** for in-editor form inputs. `contentEditable=false` + commit-on-blur prevents Korean composition from breaking. (Shared by image caption · poll · tab inputs)
+
+**Path**: `src/components/posts/plate/EditorTextInput.tsx`
+
+---

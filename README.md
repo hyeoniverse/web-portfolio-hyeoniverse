@@ -237,6 +237,9 @@
 - **Pagination jump input**: `showJump?: boolean` prop (default true, totalPages ≤ 5 자동 숨김) — "Go to [n]" capsule input 추가, Enter/blur 시 onChange (clamp), 외부 page 변경 시 sync. number input spinner 는 Firefox + WebKit 모두 제거
 - **예약 발행 + 휴지통 자동 영구삭제 (pg_cron)**: `scheduled_at` / `purge_after` 컬럼 + **Supabase pg_cron 직접 실행** (기존 Vercel cron 의존 제거). `publish_scheduled()` 가 매분, `purge_trash_scheduled()` 가 매일 UTC 18:00 (KST 03:00) 실행. **pg_net** 으로 Vault 의 `resend_api_key`/`admin_email`/`notify_from` secret 읽어 Resend API 호출 → 발행/삭제 건수를 `admin_notifications` insert + 이메일 발송. Vault 미등록 시 DB 작업은 정상, 이메일만 skip (fail-soft). DateTimePicker UI(날짜 + 시간 분리, 12h/24h 토글)
 - **Posts ↔ Works 양방향 연결**: Notion Relation 스타일 — `post_work_relations` 다대다 테이블, 양쪽 어디서 추가하든 detail 페이지에 자동 노출, `RelationPicker` 검색·썸네일·발행 상태 표시
+- **프로젝트 ↔ 시리즈 연결**: `series_work_relations` 다대다 테이블로 프로젝트(work)에 관련 시리즈 연결 — `GET /api/works/[id]/related-series`(공개) · `GET/PUT /api/admin/works/[id]/related-series`(관리자 편집), works 상세에 관련 시리즈 칩으로 노출
+- **에디터 신규 블록 (PlateEditor)**: ① **투표(poll) 블록** — void element, 옵션 추가 / 드래그 재정렬, IME 안전 입력, `GET/POST /api/polls/[pollId]` 로 IP 기반 집계 (poll_id/option_id 는 저장 HTML data-attribute). ② **탭(tabs) 블록** — 탭별 이모지+제목 + `+` 버튼 추가. ③ **FloatingBar** — 블록 선택 시 뜨는 플로팅 툴바, 다른 블록과 인터랙션 시 닫힘. ④ **BlockDragLayer** — 블록 드래그 시 커스텀 고스트(흐려진 채 커서 추적) + 에디터 가장자리 자동 스크롤. ⑤ **EditorTextInput** — 에디터 내부 폼 입력용 IME-safe 공용 프리미티브(contentEditable=false + commit-on-blur). ⑥ **서버사이드 코드 하이라이팅** — `POST /api/highlight` 처리, 스타일 `_hljs.css`. ⑦ **mermaid 다이어그램 리더** — 상세/프리뷰에서 그래프 렌더 + "⋯" 메뉴(코드 보기 / 코드 복사)
+- **이모지 picker 개편**: 아이콘 476개(lucide 추출, `IconEntry.svg` inner-SVG 필드 + `iconSvgInner` 헬퍼) + 신규 카테고리(날씨/기기/음식/건강/도구/교육/표정/지도/도형 등), 한국어 검색(`emojiKo.ts`) + emoji-mart 메타(영문 이름/키워드, `emojiMeta.ts`) + 이모지 이름 툴팁(공용 Tooltip), 이미지 드래그앤드롭 업로드, inline 스타일 → CSS 모듈(`EmojiPicker.module.css`). 값 형식: native 이모지 / `img:url`(커스텀 업로드) / `icon:id`(SVG 아이콘)
 - **SEO 체크리스트**: 에디터 하단 위젯 — title/slug/excerpt(30자+)/cover/category/tags 6항목 점검, score 진행 바, 항목 클릭 시 해당 필드로 스크롤 + label accent 강조 (다음 인터랙션 전까지 유지)
 - **`.md` 동기화**: `content/posts/` · `content/works/` 폴더 → DB 단방향 싱크 (Jekyll-style, `pnpm sync-all`)
 - **`.md` 내보내기**: 전체/선택/개별/시리즈 단위로 frontmatter 포함 `.md` 다운로드
@@ -299,7 +302,7 @@
 
 ### Design System
 
-- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown + combobox + **오른쪽 말풍선(bubble) variant**), **NumberInput**(캡슐형 숫자 입력 — blur·Enter 확정 + 스텝퍼 + label/suffix), 공통 **Chip**(capsule/bare · grip handle · leftIcon · count · drag), Pagination(smart ellipsis), DatePicker / PeriodPicker, CloseButton(X ↔ minus morph), ModalTemplates(Confirm/Alert/Prompt — 28px action 버튼), Banner (구 Carousel), BilingualInputPair(KO/EN 배지 in-input), TagNotesEditor(item drag-reorder + multiLine KO/EN notes), Gradient Tokens, 3-phase scroll 애니메이션
+- **Design System 프리뷰**: `/design-system` 라우트로 토큰/컴포넌트/배너 레이아웃 확인 — Tooltip, Select(portal 기반 dropdown + combobox + **오른쪽 말풍선(bubble) variant**), **NumberInput**(캡슐형 숫자 입력 — blur·Enter 확정 + 스텝퍼 + label/suffix), 공통 **Chip**(capsule/bare · grip handle · leftIcon · count · drag), Pagination(smart ellipsis), DatePicker / PeriodPicker, CloseButton(X ↔ minus morph), ModalTemplates(Confirm/Alert/Prompt — 28px action 버튼), Banner (구 Carousel), BilingualInputPair(KO/EN 배지 in-input), TagNotesEditor(item drag-reorder + multiLine KO/EN notes), EmojiPicker(개편 — lucide 아이콘 476개 + 한국어 검색 + 드래그 업로드), RelatedChips(썸네일+제목+카테고리 칩 + hover 미리보기 카드 `useHoverPreview`), ViewModeToggle(Footer PC/모바일 모드 전환, 터치 기기에서만 노출), CoverBanner(admin 에디터 커버 배너), FloatingBar(에디터 블록 선택 플로팅 툴바), BlockDragLayer(블록 드래그 커스텀 고스트), EditorTextInput(IME-safe 에디터 폼 입력), Gradient Tokens, 3-phase scroll 애니메이션
 - **한글 초성 검색 (`src/lib/koSearch.ts`)**: `getChosung()` + `matchesSearch()` — 부분 문자열 + 한글 초성("ㄹㅇㅌ" → 리액트) + 한글 alias 매칭. 태그/카테고리/Tech Stack 등 짧은 이름 필터에 사용(본문 검색은 `@/lib/searchQuery` 별도)
 - **OKLCH 색 토큰 전체 전환**: 모든 raw color token + module CSS 의 산발 hex/rgba 가 [culori](https://culori.js.org) 를 통해 `oklch(L% C H)` 로 일괄 변환됨. **`oklch(L C H / α)` alpha syntax**, hue 무관 균일한 지각 밝기. fallback 없이 `var(--color-*)` 만 참조 (component CSS hex 직접 사용 금지). 신규 색 추가 시 culori 의 동일 정밀도(5 dp L/C, 2 dp H) 유지
 
@@ -398,6 +401,8 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | `admin_notifications` | 관리자 알림 로그 |
 | `revisions` | 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot) |
 | `post_work_relations` | posts ↔ works 양방향 다대다 (Notion Relation 스타일) |
+| `series_work_relations` | series ↔ works 다대다 (프로젝트에 관련 시리즈 연결, post_work_relations 와 동일 패턴) |
+| `poll_votes` | 본문 투표 블록 집계 (poll_id + option_id — 에디터 부여 text id, IP 기반 중복 방지) |
 | `cover_image_history` | Cover Image Picker 통합 이력 (admin user 별, ai/unsplash/preset 구분, RLS) |
 | `admin_login_attempts` | 관리자 로그인 실패 카운터 (5회 실패 → 15분 잠금) |
 | `admin_known_devices` | 승인된 관리자 기기 UA 지문 (SHA-256, 미등록 기기는 이메일 승인 24h TTL) |
@@ -435,7 +440,11 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 >
 > **Categories API**: `GET /api/categories` (Posts 이중언어 카테고리 목록), `GET /api/works-categories` (Works 이중언어 카테고리 목록)
 >
-> **Utility API**: `POST /api/translate` (공개, Gemini 단일 텍스트), `POST /api/posts/reassign-category` (카테고리 일괄 재할당), `GET /api/fonts/search?q=` (Google Fonts 자동완성 검색)
+> **Polls API**: `GET/POST /api/polls/[pollId]` (본문 투표 블록 집계 조회 / 투표)
+>
+> **Related Series API**: `GET /api/works/[id]/related-series` (공개 관련 시리즈), `GET/PUT /api/admin/works/[id]/related-series` (관리자 관련 시리즈 편집)
+>
+> **Utility API**: `POST /api/translate` (공개, Gemini 단일 텍스트), `POST /api/posts/reassign-category` (카테고리 일괄 재할당), `GET /api/fonts/search?q=` (Google Fonts 자동완성 검색), `POST /api/highlight` (서버사이드 코드 하이라이팅)
 
 ### 3. Storage 버킷 생성
 
