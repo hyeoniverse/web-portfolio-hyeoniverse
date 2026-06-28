@@ -57,6 +57,8 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 | `work_comments` | Works comments (threaded replies, dual auth) |
 | `admin_notifications` | Admin notification logs |
 | `revisions` | Editor revision history (shared for posts/works, JSONB snapshot) |
+| `poll_votes` | In-content poll block tally (poll_id + option_id — editor-assigned text ids, IP-based duplicate prevention) |
+| `series_work_relations` | Series ↔ works many-to-many (related series on a project, same pattern as post_work_relations) |
 
 > Uses `IF NOT EXISTS` so existing tables are skipped. Missing columns (commenter_hash, updated_at, etc.) in existing deployed DBs are safely added via `ALTER TABLE ADD COLUMN IF NOT EXISTS` in the migration section at the bottom of the file.
 
@@ -82,7 +84,11 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 >
 > **Categories API**: `GET /api/categories` (Posts bilingual category list), `GET /api/works-categories` (Works bilingual category list)
 >
-> **Utility API**: `POST /api/translate` (public, Gemini single text), `POST /api/posts/reassign-category` (batch category reassignment), `GET /api/fonts/search?q=` (Google Fonts autocomplete search)
+> **Polls API**: `GET/POST /api/polls/[pollId]` (in-content poll block tally query / vote)
+>
+> **Related Series API**: `GET /api/works/[id]/related-series` (public related series), `GET/PUT /api/admin/works/[id]/related-series` (admin related-series editing)
+>
+> **Utility API**: `POST /api/translate` (public, Gemini single text), `POST /api/posts/reassign-category` (batch category reassignment), `GET /api/fonts/search?q=` (Google Fonts autocomplete search), `POST /api/highlight` (server-side code highlighting)
 
 ### 3. Storage Bucket Creation
 

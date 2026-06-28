@@ -10,7 +10,8 @@ Multi-layered security validation is applied to all public API endpoints.
 | **Authentication** | Comment dual authentication (commenter_hash + bcrypt password), admin comment server-side Supabase Auth re-verification | Comment edit/delete, admin |
 | **RLS** | Supabase Row Level Security policies | All tables |
 | **Route Protection** | Layout-level Supabase Auth session check + access denied page | `/admin/*` |
-| **Duplicate Prevention** | IP-based UNIQUE constraints | Likes, visitor statistics |
+| **Duplicate Prevention** | IP-based UNIQUE constraints (votes use `poll_votes(poll_id, option_id, ip)` UNIQUE) | Likes, visitor statistics, votes |
+| **service_role Writes** | `/api/polls` votes + related-series writes are handled by the service_role admin client | Votes, related-series editing |
 | **Password Security** | bcrypt (salt round 10), 72-byte limit, minimum 2 characters | Comment passwords |
 | **Category Validation** | Server-side whitelist validation — only categories registered in site settings are allowed | Posts, Works, Series |
 | **Secret Management** | API keys stored in DB, `SUPABASE_SERVICE_ROLE_KEY` server-side only, only `NEXT_PUBLIC_` prefix exposed to client | Environment variables, API keys |

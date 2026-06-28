@@ -1706,3 +1706,81 @@ function swapToPlaceholder(img: HTMLImageElement) {
 ② To also cover already-broken legacy data, add a second line of defense: an attribute selector (`[style*="float"]`) + `!important` to **neutralize the inline value**
 
 </details>
+
+<details>
+<summary><strong>53. Korean IME input breaks in editor form inputs</strong></summary>
+
+**Problem**: Typing Korean into an in-editor form input (poll/tab blocks, etc.) corrupts or drops the composing character.
+
+**Cause**: When Slate re-renders mid-IME-composition, the composition state is broken.
+
+**Solution**: Isolate poll/tab inputs as a void element + the shared `EditorTextInput`
+
+1. `EditorTextInput` uses `contentEditable=false` + commit-on-blur — it operates outside Slate's editing model, so it isn't affected by re-renders during composition
+2. `onMouseDown` calls `nativeEvent.stopImmediatePropagation()` to block Slate's selection handling
+3. Same pattern as the image caption
+
+**Key insight**: Form inputs inside the editor must be separated from the editor's editing model for IME composition to stay safe — reusing the pattern already proven on captions for poll/tab.
+
+</details>
+
+<details>
+<summary><strong>54. Block drag is hijacked by HTML5 native drag, so pointer drag doesn't work</strong></summary>
+
+**Problem**: When dragging an editor block by its handle, the browser's HTML5 native drag intercepts and the custom pointer drag doesn't run.
+
+**Solution**: Disable native drag and replace it with a custom drag layer
+
+1. Disable `useDraggable`'s preview + set `draggable={false}` on the handle to block native drag
+2. A custom `BlockDragLayer` draws a DOM-cloned ghost that follows the cursor and auto-scrolls at the editor edges
+3. The cursor shape is set via the `data-cursor` attribute (CursorTrail system), not CSS `cursor`
+
+**Key insight**: To use pointer-based custom drag you must explicitly turn off HTML5 native drag — if both coexist, native swallows the pointer events.
+
+</details>
+
+<details>
+<summary><strong>55. "two children with the same key: weather" error in EmojiPicker</strong></summary>
+
+**Problem**: During the emoji picker overhaul, React warned `two children with the same key: weather`.
+
+**Cause**: `ICON_CATEGORIES` already had weather/shapes/dev categories, but adding the new icons **created duplicate categories under the same id**.
+
+**Solution**: Remove the duplicate categories and merge the new icons into the existing ones
+
+1. Remove the duplicate categories (weather/shapes/dev) and merge new icons into the existing categories
+2. Also de-duplicate global icon ids
+
+**Key insight**: When extending a static list like categories/icons, check for collisions with existing ids first — a duplicate key is a signal of duplicate data.
+
+</details>
+
+<details>
+<summary><strong>56. EmojiPicker's hover/slide transitions stopped working after inline → CSS module</strong></summary>
+
+**Problem**: After moving EmojiPicker from inline styles to a CSS module, transitions like the indicator slide and category opacity stopped working.
+
+**Cause**: The global rule `html[data-theme-ready] *` (specificity `(0,1,1)`) transition overrides a single-class `(0,1,0)` component transition.
+
+**Solution**: For properties not in the global rule, raise specificity with a compound selector
+
+1. Set properties absent from the global transition rule — indicator slide, category opacity — via compound selectors `(0,2,0)` like `.tabHeader .indicator`, `.picker .catBtn`
+
+**Key insight**: The global theme-transition rule `(0,1,1)` overrides single-class component transitions, so properties not in the global rule (transform/opacity, etc.) need a compound selector to win on specificity.
+
+</details>
+
+<details>
+<summary><strong>57. "Mobile mode" via ViewModeToggle does nothing on desktop</strong></summary>
+
+**Problem**: Toggling "mobile mode" with ViewModeToggle on desktop produced no change.
+
+**Cause**: Desktop browsers ignore the viewport meta `width` (it's a mobile-browser-only behavior).
+
+**Solution**: Show the toggle only on touch devices
+
+1. The viewport override is only meaningful as "view PC version" on mobile, so the toggle is shown only on touch devices (`pointer:coarse`)
+
+**Key insight**: A viewport meta `width` override only takes effect in mobile browsers — it isn't a way to force a mobile width on desktop, so limiting the feature to touch devices is the correct scope.
+
+</details>

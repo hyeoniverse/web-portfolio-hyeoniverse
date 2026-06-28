@@ -59,4 +59,39 @@ Posts/Works 에디터의 자동저장 시 폼 전체를 JSONB snapshot으로 영
 | **답글 이메일 알림** | 댓글 작성 시 이메일(선택) 입력하면 답글 알림 발송 (`notify_email` 컬럼) |
 | **관리자 댓글** | 로그인 상태에서 비밀번호 없이 Admin 뱃지로 댓글 작성, 서버 측 Supabase Auth 재검증 |
 
+### 투표 블록 집계: `poll_votes`
+
+본문 에디터의 투표(poll) 블록 응답을 집계하는 테이블입니다. 투표의 **구조(질문·옵션)는 별도 테이블이 없고**, 에디터 블록의 저장 HTML/JSON 안에 들어 있습니다.
+
+| 컬럼 | 설명 |
+|------|------|
+| `id` | uuid PK |
+| `poll_id` | 에디터가 블록 생성 시 부여하는 고정 text id (저장 HTML `data-poll-id`) |
+| `option_id` | 투표 옵션 고정 text id (`data-option-id`) |
+| `ip` | 투표자 IP (DEFAULT `''`), 중복 방지용 |
+| `created_at` | timestamptz |
+
+**검토한 대안:**
+
+| 방식 | 장점 | 단점 |
+|------|------|------|
+| **단일 집계 테이블** (현재 구조) | 투표 구조를 에디터 콘텐츠와 함께 저장, 스키마 단순 | poll_id/option_id 가 FK 가 아닌 text |
+| **`polls` + `poll_options` 정규화** | 참조 무결성 | 본문 블록을 저장할 때마다 별도 테이블 동기화 필요, 테이블 증가 |
+
+**선택 근거:** 투표 블록의 질문·옵션은 본문 콘텐츠의 일부이므로 게시물 HTML 안에 함께 저장하고, `poll_votes` 는 **순수 집계**만 담당합니다. 그래서 `poll_id` / `option_id` 는 FK 가 아닌 에디터가 부여한 text id입니다. `UNIQUE(poll_id, option_id, ip)` 로 같은 IP 의 같은 옵션 중복 투표를 DB 레벨에서 차단하고, `poll_id` 인덱스로 집계 조회를 최적화합니다. 단일 선택 투표는 API 가 `(poll_id, ip)` 행을 지우고 다시 넣어 교체하고, 복수 선택은 옵션별 토글(insert/delete)로 처리합니다. RLS 는 public SELECT + service_role ALL (집계/투표는 admin client 로 처리).
+
+### 시리즈↔프로젝트 연결: `series_work_relations`
+
+프로젝트(work)에 관련 시리즈를 연결하는 다대다 테이블로, 기존 `post_work_relations` 와 동일한 패턴입니다.
+
+| 컬럼 | 설명 |
+|------|------|
+| `series_id` | uuid FK → `series(id)` ON DELETE CASCADE |
+| `work_id` | uuid FK → `works(id)` ON DELETE CASCADE |
+| `created_at` | timestamptz |
+
+PRIMARY KEY 는 `(series_id, work_id)` 복합키이고, `series_id` / `work_id` 각각에 인덱스가 있습니다. RLS 는 public SELECT + service_role ALL.
+
+**선택 근거:** posts↔works 양방향 연결(`post_work_relations`)이 이미 검증된 다대다 패턴이므로 시리즈↔프로젝트 연결도 동일 구조로 통일했습니다. 양쪽 FK 에 ON DELETE CASCADE 를 걸어 시리즈나 작품 삭제 시 연결 행이 자동 정리되고, 복합 PK 로 같은 쌍의 중복 연결을 차단합니다.
+
 
