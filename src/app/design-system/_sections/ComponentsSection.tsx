@@ -36,6 +36,9 @@ import { LikeButton } from "@/components/layout/DetailLayout";
 import HeartIcon from "@/components/ui/HeartIcon";
 import Textarea from "@/components/ui/Textarea";
 import LanguageToggle from "@/components/ui/LanguageToggle";
+import EmojiPicker, { EmojiIcon } from "@/components/ui/EmojiPicker";
+import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
+import ViewModeToggle from "@/components/layout/ViewModeToggle";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
 
@@ -107,6 +110,9 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   }, []);
   // Textarea (with maxHint) 데모
   const [excerptDemo, setExcerptDemo] = useState("");
+  // EmojiPicker 데모
+  const [dsEmojiOpen, setDsEmojiOpen] = useState(false);
+  const [dsEmoji, setDsEmoji] = useState("");
   const handleLikeToggle = useCallback(() => {
     setLikeBusy(true);
     setLiked((prev) => {
@@ -712,6 +718,34 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </motion.div>
       </motion.div>
 
+      {/* RelatedChips */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>RelatedChips</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "관련 글 / 프로젝트 칩 — 썸네일 + 제목 + 카테고리, `+N 더보기` 토글, hover 시 미리보기 카드(데스크톱)."
+            : "Related post / project chips — thumbnail + title + category, `+N more` toggle, hover preview card (desktop)."}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
+          <RelatedChips
+            moreLabel={language === "ko" ? "더보기" : "More"}
+            lessLabel={language === "ko" ? "접기" : "Less"}
+            items={[
+              { id: "1", title: "Design Tokens 정리", href: "#", category: "CSS", image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=200&h=200&fit=crop", desc: "raw → semantic → component → context 4-tier 토큰 시스템" },
+              { id: "2", title: "Plate Editor 마이그레이션", href: "#", category: "Editor", image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200&h=200&fit=crop", desc: "Tiptap 에서 Plate 로 — IME workaround 포함" },
+              { id: "3", title: "Lenis Smooth Scroll", href: "#", category: "UX" },
+              { id: "4", title: "Framer Motion Stagger", href: "#", category: "Animation" },
+              { id: "5", title: "GSAP Horizontal Scroll", href: "#", category: "Animation" },
+              { id: "6", title: "Admin 리스트 리팩토링", href: "#", category: "Admin" },
+              { id: "7", title: "TOC 공통 컴포넌트", href: "#", category: "Refactor" },
+              { id: "8", title: "이모지 Picker SVG", href: "#", category: "Editor" },
+              { id: "9", title: "Autosave Debounce", href: "#", category: "Editor" },
+              { id: "10", title: "Theme Provider", href: "#", category: "System" },
+            ]}
+          />
+        </motion.div>
+      </motion.div>
+
       {/* DatePicker */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>DatePicker</div>
@@ -888,6 +922,48 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
             anchor + portal · outside click / ESC 자동 닫힘 · 터치 디바이스에선 bottom sheet 로 자동 분기
           </span>
+        </motion.div>
+      </motion.div>
+
+      {/* EmojiPicker */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>EmojiPicker</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "이모지 · 아이콘 · 커스텀 이미지 선택 — 탭 전환 + 검색 + 셔플 + 최근 사용."
+            : "Pick an emoji, icon, or custom image — tabbed, with search, shuffle, and recents."}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ position: "relative", display: "flex", alignItems: "center", gap: "var(--spacing-md)" }}>
+          <Tooltip content="open EmojiPicker">
+            <Button variant="outline" onClick={() => setDsEmojiOpen((v) => !v)}>
+              {language === "ko" ? "선택하기" : "Pick"}
+            </Button>
+          </Tooltip>
+          {dsEmoji && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+              <EmojiIcon value={dsEmoji} />
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>{dsEmoji}</span>
+            </span>
+          )}
+          <EmojiPicker
+            open={dsEmojiOpen}
+            onClose={() => setDsEmojiOpen(false)}
+            onSelect={(v) => { setDsEmoji(v); setDsEmojiOpen(false); }}
+            currentValue={dsEmoji}
+          />
+        </motion.div>
+      </motion.div>
+
+      {/* ViewModeToggle */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>ViewModeToggle</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "터치 기기(모바일/태블릿)에서만 노출 — PC / 모바일 viewport 를 전환. 데스크톱 브라우저에선 viewport 오버라이드가 무효라 렌더되지 않음."
+            : "Only appears on touch devices (mobile/tablet) — toggles PC / mobile viewport. Renders nothing on desktop browsers, where the viewport override has no effect."}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
+          <ViewModeToggle />
         </motion.div>
       </motion.div>
 
