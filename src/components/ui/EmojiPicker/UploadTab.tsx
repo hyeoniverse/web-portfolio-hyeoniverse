@@ -1,61 +1,71 @@
-import React, { useRef } from "react";
-import { ImageIcon } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { ImageIcon, Upload } from "lucide-react";
 import { EMOJI_MIN, EMOJI_MAX, EMOJI_RECOMMENDED } from "./resizeEmojiImage";
+import styles from "./EmojiPicker.module.css";
 
 interface UploadTabProps {
   uploading: boolean;
   uploadError: string;
-  currentValue?: string;
   onImageUpload?: (file: File) => Promise<string>;
   onUpload: (file: File) => void;
-  onClose: () => void;
-  onSelect: (value: string) => void;
   t: (ko: string, en: string) => string;
 }
 
 export function UploadTab({
   uploading,
   uploadError,
-  currentValue,
   onImageUpload,
   onUpload,
-  onClose,
-  onSelect,
   t,
 }: UploadTabProps) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const disabled = uploading || !onImageUpload;
+
+  const handleFiles = (files: FileList | null | undefined) => {
+    const file = files?.[0];
+    if (file && file.type.startsWith("image/")) onUpload(file);
+  };
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "16px 16px 12px", gap: 8 }}>
+    <div className={styles.uploadTab}>
+      {/* 드롭존 겸 클릭 업로드 — drag indicator 는 이 버튼에만 표시 */}
       <button
         type="button"
-        disabled={uploading || !onImageUpload}
-        style={{
-          width: "100%", padding: "18px 16px",
-          border: "1px solid var(--border-light-color)", borderRadius: "var(--radius-md)",
-          background: "var(--bg-tertiary)", cursor: uploading ? "wait" : "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-          color: "var(--text-secondary)", fontSize: 13, fontFamily: "var(--font-space-grotesk)",
-          opacity: uploading ? 0.5 : 1,
-        }}
+        disabled={disabled}
+        className={`${styles.dropzone} ${dragOver ? styles.dragOver : ""}`}
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => fileRef.current?.click()}
+        onDragOver={(e) => { e.preventDefault(); if (!disabled) setDragOver(true); }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          // 버튼 내부 자식으로 이동할 땐 유지, 버튼 밖으로 나갈 때만 해제 (깜빡임 방지)
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          if (!disabled) handleFiles(e.dataTransfer.files);
+        }}
       >
-        <ImageIcon size={16} />
-        {uploading ? t("업로드 중...", "Uploading...") : t("이미지 업로드", "Upload Image")}
+        {dragOver ? <Upload size={22} /> : <ImageIcon size={22} />}
+        {uploading
+          ? t("업로드 중...", "Uploading...")
+          : dragOver
+            ? t("여기에 놓기", "Drop here")
+            : t("이미지를 끌어다 놓거나 클릭", "Drag & drop or click")}
       </button>
       <input
         ref={fileRef}
         type="file"
         accept="image/*"
         hidden
-        onChange={async (e) => {
-          const file = e.target.files?.[0];
-          if (file) onUpload(file);
+        onChange={(e) => {
+          handleFiles(e.target.files);
           e.target.value = "";
         }}
       />
-      <span style={{ fontSize: 10, color: "var(--text-muted)", textAlign: "center", lineHeight: 1.4 }}>
+      <span className={styles.uploadHint}>
         {t(
           `권장 ${EMOJI_RECOMMENDED}×${EMOJI_RECOMMENDED}px · 최소 ${EMOJI_MIN} · 최대 ${EMOJI_MAX}px`,
           `${EMOJI_RECOMMENDED}×${EMOJI_RECOMMENDED}px recommended · ${EMOJI_MIN}–${EMOJI_MAX}px`
@@ -64,35 +74,8 @@ export function UploadTab({
         {t("또는 ⌘+V로 이미지나 링크를 붙여넣으세요.", "Or paste image/link with ⌘+V.")}
       </span>
       {uploadError && (
-        <span style={{ fontSize: 11, color: "var(--color-error, #e05252)", textAlign: "center" }}>{uploadError}</span>
+        <span className={styles.uploadError}>{uploadError}</span>
       )}
-      {/* 취소 / 저장 */}
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "auto", paddingTop: 4 }}>
-        <button
-          type="button"
-          style={{
-            border: "none", background: "transparent", cursor: "pointer",
-            color: "var(--text-muted)", fontSize: 13, fontFamily: "var(--font-space-grotesk)",
-          }}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={onClose}
-        >
-          {t("취소", "Cancel")}
-        </button>
-        {currentValue && (
-          <button
-            type="button"
-            style={{
-              border: "none", background: "transparent", cursor: "pointer",
-              color: "var(--color-error, #e05252)", fontSize: 13, fontFamily: "var(--font-space-grotesk)",
-            }}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => { onSelect(""); onClose(); }}
-          >
-            {t("제거", "Remove")}
-          </button>
-        )}
-      </div>
     </div>
   );
 }

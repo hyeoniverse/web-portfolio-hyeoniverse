@@ -30,9 +30,9 @@ export default React.memo(function InlineInputToolbar({
   }, [onClose]));
 
   return (
-    <div ref={toolbarRef} className={`${styles.tableToolbar} ${!visible ? styles.tableToolbarHidden : ""}`}>
-      <div className={styles.tableToolbarRow}>
-        <span className={styles.tableToolbarLabel}>{label}</span>
+    <div ref={toolbarRef} className={`${styles.contextToolbar} ${!visible ? styles.contextToolbarHidden : ""}`}>
+      <div className={styles.contextToolbarRow}>
+        <span className={styles.contextToolbarLabel}>{label}</span>
         <div className={styles.linkInputWrap}>
           <input
             ref={ref}

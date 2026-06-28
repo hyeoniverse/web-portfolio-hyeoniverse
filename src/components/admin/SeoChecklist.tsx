@@ -198,12 +198,29 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
                     {t("admin.seoChecklist.completed") || "Completed"}
                   </span>
                   <ul className={styles.panelPassedList}>
-                    {passedItems.map((c) => (
-                      <li key={c.id} className={styles.panelPassedItem}>
-                        <Check size={10} strokeWidth={3} className={styles.panelPassedCheck} />
-                        <span>{c.label}</span>
-                      </li>
-                    ))}
+                    {passedItems.map((c) => {
+                      const inner = (
+                        <>
+                          <Check size={10} strokeWidth={3} className={styles.panelPassedCheck} />
+                          <span>{c.label}</span>
+                        </>
+                      );
+                      return (
+                        <li key={c.id} className={styles.panelPassedLi}>
+                          {onItemClick ? (
+                            <button
+                              type="button"
+                              className={`${styles.panelPassedItem} ${styles.panelPassedBtn}`}
+                              onClick={() => { onItemClick(c.id); setOpen(false); }}
+                            >
+                              {inner}
+                            </button>
+                          ) : (
+                            <span className={styles.panelPassedItem}>{inner}</span>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}

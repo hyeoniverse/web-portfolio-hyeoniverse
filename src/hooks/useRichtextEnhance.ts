@@ -66,6 +66,8 @@ export function useRichtextEnhance(
       scroll: t("common.codeScroll"),
       wrapTitle: t("common.codeWrapTitle"),
       scrollTitle: t("common.codeScrollTitle"),
+      copy: t("common.codeCopy"),
+      copied: t("common.codeCopied"),
     });
     renderMathNodes(root);
     const detachFallback = attachImageFallback(root);

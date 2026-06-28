@@ -172,6 +172,37 @@ function serializeNode(node: SlateNode): string {
       return `<div data-callout data-callout-bg="${cBg}"${cIcon ? ` data-callout-icon="${esc(cIcon)}"` : ""} style="display:flex;gap:${cIcon ? "12px" : "0"};padding:16px;border-radius:8px;background:${cBg};margin:16px 0${borderStyle}">${iconSpan}<div style="flex:1;min-width:0">${calloutChildren}</div></div>`;
     }
 
+    // ── Tabs ──
+    case "tabs": {
+      const active = Number(el.activeTab ?? 0);
+      const panels = (el.children || []).map((child) => serializeNode(child)).join("");
+      return `<div data-tabs data-active="${active}">${panels}</div>`;
+    }
+    case "tab_panel": {
+      const content = (el.children || []).map((child) => {
+        if (isText(child)) return `<p>${serializeLeaf(child as SlateText)}</p>`;
+        return serializeNode(child);
+      }).join("");
+      const tabIcon = el.icon ? ` data-tab-icon="${esc(String(el.icon))}"` : "";
+      return `<div data-tab-panel data-label="${esc(String(el.label ?? ""))}"${tabIcon}>${content}</div>`;
+    }
+
+    // ── Poll (투표) ── void 요소: 옵션은 el.options 배열(라벨은 plain text)
+    case "poll": {
+      const pollId = esc(String(el.pollId ?? ""));
+      const multiple = el.multiple ? "true" : "false";
+      const start = el.startAt ? ` data-start="${esc(String(el.startAt))}"` : "";
+      const end = el.endAt ? ` data-end="${esc(String(el.endAt))}"` : "";
+      const before = el.resultsBeforeVote ? ` data-results-before="true"` : "";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const optionList = (Array.isArray((el as any).options) ? (el as any).options : []) as { optionId?: string; label?: string }[];
+      const opts = optionList
+        .filter((o) => (o.label ?? "").trim())
+        .map((o) => `<div data-poll-option data-option-id="${esc(String(o.optionId ?? ""))}">${esc(String(o.label ?? ""))}</div>`)
+        .join("");
+      return `<div data-poll data-poll-id="${pollId}" data-multiple="${multiple}"${start}${end}${before}>${opts}</div>`;
+    }
+
     // ── Column layout ──
     case "column_group": {
       const layout = el.layout as string | undefined;

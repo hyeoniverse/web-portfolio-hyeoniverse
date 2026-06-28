@@ -1,30 +1,12 @@
 /* PostEditor 의 [data-seo] label 스타일 — 모든 selector 가 element/attribute 라서
- * .module.css 안에서는 "pure selector" 규칙 위반. 비-module CSS 로 분리. */
+ * .module.css 안에서는 "pure selector" 규칙 위반. 비-module CSS 로 분리.
+ * blink(상호작용 전까지) 는 seoFlash.css 의 .seo-flash 가 담당. dot(::after) 는
+ * 필수입력 표시(.fieldLabelRequired::after)와 충돌해 가렸으므로 제거함. */
 
 [data-seo] label {
   transition: color 0.35s ease;
 }
 
-[data-seo] label::after {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-left: 8px;
-  border-radius: 50%;
-  background: var(--color-accent);
-  vertical-align: middle;
-  opacity: 0;
-  transform: scale(0.5);
-  transition: opacity 0.35s ease, transform 0.35s ease;
-  pointer-events: none;
-}
-
 [data-seo] label.seo-flash {
   color: var(--text-accent);
-}
-
-[data-seo] label.seo-flash::after {
-  opacity: 1;
-  transform: scale(1);
 }

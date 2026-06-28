@@ -74,6 +74,7 @@ export interface Work {
   /** ISO timestamp — null/없음=즉시 발행, 미래=cron 이 도달 시 published=true */
   scheduled_at?: string | null;
   related_post_ids?: string[];
+  related_series_ids?: string[];
 }
 
 /** Editor form — uses content_ko/en only (no legacy fields).
@@ -109,6 +110,8 @@ export interface WorkFormData {
   scheduled_at?: string | null;
   /** 양방향 연결: 이 작품이 참조하는 글 ID 목록 */
   related_post_ids?: string[];
+  /** 관련 시리즈 ID 목록 */
+  related_series_ids?: string[];
 }
 
 /**
@@ -192,6 +195,7 @@ export function workFormToProject(form: WorkFormData): Project {
     summary_en: "",
     scheduled_at: form.scheduled_at,
     related_post_ids: form.related_post_ids,
+    related_series_ids: form.related_series_ids,
   };
   return workToProject(work);
 }

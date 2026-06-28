@@ -164,9 +164,9 @@ export default function DateTimePicker({ value, onChange, disabled, minDate, max
             {pickerOpen && (
               <motion.div
                 key="date-inline-panel"
-                initial={{ clipPath: "inset(0 0 100% 0)", maxHeight: 0, opacity: 0 }}
-                animate={{ clipPath: "inset(0 0 0 0)", maxHeight: 600, opacity: 1 }}
-                exit={{ clipPath: "inset(0 0 100% 0)", maxHeight: 0, opacity: 0 }}
+                initial={{ clipPath: "inset(0 0 100% 0)", height: 0, opacity: 0 }}
+                animate={{ clipPath: "inset(0 0 0 0)", height: "auto", opacity: 1 }}
+                exit={{ clipPath: "inset(0 0 100% 0)", height: 0, opacity: 0 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 style={{ overflow: "hidden" }}
               >
@@ -186,9 +186,9 @@ export default function DateTimePicker({ value, onChange, disabled, minDate, max
             {timeOpen && (
               <motion.div
                 key="time-inline-panel"
-                initial={{ clipPath: "inset(0 0 100% 0)", maxHeight: 0, opacity: 0 }}
-                animate={{ clipPath: "inset(0 0 0 0)", maxHeight: 600, opacity: 1 }}
-                exit={{ clipPath: "inset(0 0 100% 0)", maxHeight: 0, opacity: 0 }}
+                initial={{ clipPath: "inset(0 0 100% 0)", height: 0, opacity: 0 }}
+                animate={{ clipPath: "inset(0 0 0 0)", height: "auto", opacity: 1 }}
+                exit={{ clipPath: "inset(0 0 100% 0)", height: 0, opacity: 0 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 style={{ overflow: "hidden" }}
               >

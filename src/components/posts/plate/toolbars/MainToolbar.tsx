@@ -13,7 +13,8 @@ import ColorPicker from "@/components/ui/ColorPicker";
 import FontPicker from "@/components/ui/FontPicker";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
-import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck } from "lucide-react";
+import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote } from "lucide-react";
+import { genPollId } from "../PollElements";
 import { AlignIcon } from "../icons";
 import {
   FONT_GROUPS,
@@ -47,9 +48,6 @@ interface MainToolbarProps {
   onToggleLinkInput: () => void;
   showEmbedInput: boolean;
   onToggleEmbedInput: () => void;
-  // html
-  htmlMode: boolean;
-  onToggleHtmlMode: () => void;
   // actions
   onAddImage: () => void;
   onAddFile: () => void;
@@ -109,7 +107,6 @@ export default React.memo(function MainToolbar({
   editor, isMac, postLang,
   showLinkInput, onToggleLinkInput,
   showEmbedInput, onToggleEmbedInput,
-  htmlMode, onToggleHtmlMode,
   onAddImage, onAddFile, onAddAudio, onInsertMath, mathEditing,
 }: MainToolbarProps) {
   const { t, language } = useLanguage();
@@ -606,6 +603,45 @@ export default React.memo(function MainToolbar({
         <ChevronRight size={14} />
       </TBtn>
       <TBtn
+        square
+        tooltip={t("editor.insertTabs")}
+        onClick={() => {
+          const node = {
+            type: "tabs", activeTab: 0,
+            children: [
+              { type: "tab_panel", label: "Tab 1", children: [{ type: "p", children: [{ text: "" }] }] },
+              { type: "tab_panel", label: "Tab 2", children: [{ type: "p", children: [{ text: "" }] }] },
+            ],
+          };
+          const sel = editor.selection;
+          const insertAt = sel ? [sel.anchor.path[0] + 1] : [editor.children.length];
+          editor.tf.insertNodes(node, { at: insertAt });
+          setTimeout(() => editor.tf.focus(), 0);
+        }}
+      >
+        <LayoutPanelTop size={14} />
+      </TBtn>
+      <TBtn
+        square
+        tooltip={t("editor.insertPoll")}
+        onClick={() => {
+          const node = {
+            type: "poll", pollId: genPollId(), multiple: false,
+            options: [
+              { optionId: genPollId(), label: "항목 1" },
+              { optionId: genPollId(), label: "항목 2" },
+            ],
+            children: [{ text: "" }],
+          };
+          const sel = editor.selection;
+          const insertAt = sel ? [sel.anchor.path[0] + 1] : [editor.children.length];
+          editor.tf.insertNodes(node, { at: insertAt });
+          setTimeout(() => editor.tf.focus(), 0);
+        }}
+      >
+        <Vote size={14} />
+      </TBtn>
+      <TBtn
         active={showEmbedInput}
         onClick={onToggleEmbedInput}
         tooltip={`${t("editor.insertEmbed")}\nYouTube · Spotify · X`}
@@ -637,15 +673,6 @@ export default React.memo(function MainToolbar({
         }, { at: lastPath });
       }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 016.5 2H20v20H6.5a2.5 2.5 0 010-5H20"/><text x="9" y="15" fontSize="10" fill="currentColor" stroke="none" fontFamily="serif">1</text></svg>
-      </TBtn>
-      <div className={styles.divider} />
-
-      <TBtn
-        active={htmlMode}
-        onClick={onToggleHtmlMode}
-        tooltip={htmlMode ? t("editor.htmlToRich") : t("editor.htmlSource")}
-      >
-        {"</>"}
       </TBtn>
     </div>
   );

@@ -1,0 +1,16 @@
+/* SEO 체크리스트 항목 클릭으로 이동한 필드의 label — 상호작용 전까지 accent 색 + opacity blink.
+ * 양 에디터(Post/Work) 공용. ([data-seo] label 의 dot 은 PostEditor 쪽 CSS 가 담당) */
+@keyframes seoFlashBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.seo-flash {
+  color: var(--text-accent);
+  animation: seoFlashBlink 0.9s ease-in-out infinite;
+}

@@ -35,6 +35,11 @@ interface PopoverProps {
   sheetTitle?: ReactNode;
   /** content DOM 노드 ref — 직접 DOM 측정/조작이 필요할 때. */
   contentRef?: RefObject<HTMLDivElement | null>;
+  /** dropdown 높이 제한.
+   *  - undefined(기본): 가용 세로 공간 기준 자동 계산 + 넘치면 내부 스크롤
+   *  - number: 해당 px 로 고정
+   *  - false: maxHeight 캡 없이 내용 전체 표시(스크롤 X) — 내용이 bounded 할 때만 사용 */
+  maxHeight?: number | false;
 }
 
 /** 공통 Popover — desktop dropdown (portal) + touch bottom sheet 자동 전환.
@@ -54,6 +59,7 @@ export default function Popover({
   responsive = true,
   sheetTitle,
   contentRef: externalContentRef,
+  maxHeight: maxHeightProp,
 }: PopoverProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
@@ -68,6 +74,10 @@ export default function Popover({
 
   const triggerRef = useRef<HTMLSpanElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  // dropdown(=contentRef)엔 maxHeight 가 걸려 offsetHeight 가 capped → 내용 자연 높이를
+  // 못 잼. maxHeight 없는 inner wrapper 를 따로 관찰/측정해 내용 변화(예: 날짜 picker
+  // inline 펼침)에도 popover 가 같이 커지도록.
+  const innerRef = useRef<HTMLDivElement>(null);
   // 외부 ref 가 있으면 동기화 (직접 DOM 측정/조작용)
   const setContentRef = (node: HTMLDivElement | null) => {
     contentRef.current = node;
@@ -94,7 +104,8 @@ export default function Popover({
     const vh = window.innerHeight;
     const MARGIN = 8; // 화면 가장자리 최소 여백
     const cw = contentRef.current?.offsetWidth ?? 0;
-    const ch = contentRef.current?.offsetHeight ?? 0;
+    // inner wrapper(높이 제약 없음)로 내용 자연 높이 측정 — capped 된 contentRef 대신
+    const ch = innerRef.current?.offsetHeight ?? contentRef.current?.offsetHeight ?? 0;
 
     const wantTop = placement.startsWith("top");
     const wantEnd = placement.endsWith("end");
@@ -130,7 +141,9 @@ export default function Popover({
     window.addEventListener("resize", onResize);
     // content 자체 크기 변화 (예: tab/section 전환) 시에도 recompute — placement 'top-*' 에서 height 변화하면 위치 어긋남
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => recompute()) : null;
-    if (ro && contentRef.current) ro.observe(contentRef.current);
+    // inner wrapper 를 우선 관찰 — capped 된 contentRef 는 내용 커져도 border-box 가 안 변해 RO 가 안 fire
+    const roTarget = innerRef.current ?? contentRef.current;
+    if (ro && roTarget) ro.observe(roTarget);
     return () => {
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", onResize);
@@ -168,6 +181,8 @@ export default function Popover({
   }, [open, useSheet]);
 
   const renderedContent = typeof children === "function" ? children({ close }) : children;
+  // maxHeight prop: false → 캡 없음(스크롤 X), number → 고정, undefined → 자동 계산값
+  const effMaxHeight = maxHeightProp === false ? undefined : (maxHeightProp ?? pos.maxHeight);
 
   return (
     <>
@@ -226,14 +241,14 @@ export default function Popover({
                 className={cn(styles.dropdown, contentClassName)}
                 /* Lenis 가 wheel 을 가로채 내부 스크롤이 막히는 것 방지 */
                 data-lenis-prevent
-                style={{ top: pos.top, left: pos.left, maxHeight: pos.maxHeight, overflowY: "auto", transformOrigin: pos.origin }}
+                style={{ top: pos.top, left: pos.left, maxHeight: effMaxHeight, overflowY: effMaxHeight != null ? "auto" : "visible", transformOrigin: pos.origin }}
                 initial={{ opacity: 0, scale: 0.92, y: placement.startsWith("bottom") ? -4 : 4 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.92, y: placement.startsWith("bottom") ? -4 : 4 }}
                 transition={{ duration: 0.14, ease: [0.4, 0, 0.2, 1] }}
                 onClick={(e) => e.stopPropagation()}
               >
-                {renderedContent}
+                <div ref={innerRef}>{renderedContent}</div>
               </motion.div>
             )
           )}

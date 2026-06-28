@@ -19,9 +19,10 @@ import {
   Pilcrow, Heading1, Heading2, Heading3, Quote,
   List, ListOrdered, ListChecks,
   Image as ImageIcon, Video,
-  Code, Minus, Table as TableIcon, Lightbulb, Columns2, Columns3, ChevronRight, Sigma, ListTree, Workflow,
+  Code, Minus, Table as TableIcon, Lightbulb, Columns2, Columns3, ChevronRight, Sigma, ListTree, Workflow, LayoutPanelTop, Vote,
 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { genPollId } from "../PollElements";
 import { _imageUploadFn, _slashOpenTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
 
@@ -82,17 +83,23 @@ const GROUPS: { labelKey: string; items: Cmd[] }[] = [
     { key: "image", labelKey: "insertImage", icon: <ImageIcon size={ICON} />, keywords: ["image", "이미지", "사진", "그림", "photo", "picture"], run: (e) => triggerImageUpload(e) },
     { key: "video", labelKey: "insertEmbed", icon: <Video size={ICON} />, keywords: ["video", "비디오", "embed", "youtube", "임베드", "동영상"], run: (e) => insertAfter(e, { type: "media_embed", url: "", children: [{ text: "" }] }) },
   ] },
-  { labelKey: "groupInsert", items: [
-    { key: "code", labelKey: "codeBlock", icon: <Code size={ICON} />, keywords: ["code", "코드"], run: (e) => toggleCodeBlock(e) },
-    { key: "table", labelKey: "insertTable", icon: <TableIcon size={ICON} />, keywords: ["table", "표"], run: (e) => e.tf.withMerging(() => insertTable(e, { colCount: 3, rowCount: 3, header: true })) },
+  { labelKey: "groupContainer", items: [
     { key: "callout", labelKey: "insertCallout", icon: <Lightbulb size={ICON} />, keywords: ["callout", "콜아웃", "노트"], run: (e) => { const sel = e.selection; const at = sel ? [sel.anchor.path[0] + 1] : [e.children.length]; e.tf.insertNodes({ type: "callout", bg: "var(--bg-tertiary)", icon: "💡", children: [{ type: "p", children: [{ text: "" }] }] }, { at }); } },
     { key: "toggle", labelKey: "insertToggle", icon: <ChevronRight size={ICON} />, keywords: ["toggle", "토글", "접기", "fold", "accordion"], run: (e) => insertAfter(e, { type: "toggle", open: true, children: [{ type: "p", children: [{ text: "" }] }, { type: "p", children: [{ text: "" }] }] }) },
+    { key: "tabs", labelKey: "insertTabs", icon: <LayoutPanelTop size={ICON} />, keywords: ["tabs", "탭", "tab"], run: (e) => insertAfter(e, { type: "tabs", activeTab: 0, children: [{ type: "tab_panel", label: "Tab 1", children: [{ type: "p", children: [{ text: "" }] }] }, { type: "tab_panel", label: "Tab 2", children: [{ type: "p", children: [{ text: "" }] }] }] }) },
+  ] },
+  { labelKey: "groupData", items: [
+    { key: "code", labelKey: "codeBlock", icon: <Code size={ICON} />, keywords: ["code", "코드"], run: (e) => toggleCodeBlock(e) },
+    { key: "table", labelKey: "insertTable", icon: <TableIcon size={ICON} />, keywords: ["table", "표"], run: (e) => e.tf.withMerging(() => insertTable(e, { colCount: 3, rowCount: 3, header: true })) },
+    { key: "equation", labelKey: "equation", icon: <Sigma size={ICON} />, keywords: ["equation", "math", "수식", "latex"], run: (e) => insertEquation(e) },
+    { key: "mermaid", labelKey: "mermaid", icon: <Workflow size={ICON} />, keywords: ["mermaid", "diagram", "다이어그램", "chart", "flow"], run: (e) => e.tf.insertNodes({ type: "code_block", lang: "mermaid", children: [{ type: "code_line", children: [{ text: "graph TD" }] }, { type: "code_line", children: [{ text: "  A[Start] --> B[End]" }] }] }) },
+    { key: "poll", labelKey: "insertPoll", icon: <Vote size={ICON} />, keywords: ["poll", "vote", "투표", "설문"], run: (e) => insertAfter(e, { type: "poll", pollId: genPollId(), multiple: false, options: [{ optionId: genPollId(), label: "항목 1" }, { optionId: genPollId(), label: "항목 2" }], children: [{ text: "" }] }) },
+  ] },
+  { labelKey: "groupLayout", items: [
     { key: "col2", labelKey: "columns2", icon: <Columns2 size={ICON} />, keywords: ["column", "columns", "열", "단", "2", "분할"], run: (e) => insertColumns(e, 2) },
     { key: "col3", labelKey: "columns3", icon: <Columns3 size={ICON} />, keywords: ["column", "columns", "열", "단", "3", "분할"], run: (e) => insertColumns(e, 3) },
     { key: "hr", labelKey: "insertHr", icon: <Minus size={ICON} />, keywords: ["divider", "hr", "구분", "선"], run: (e) => e.tf.insertNodes({ type: "hr", children: [{ text: "" }] }) },
-    { key: "equation", labelKey: "equation", icon: <Sigma size={ICON} />, keywords: ["equation", "math", "수식", "latex"], run: (e) => insertEquation(e) },
     { key: "toc", labelKey: "toc", icon: <ListTree size={ICON} />, keywords: ["toc", "목차", "contents", "outline"], run: (e) => insertToc(e) },
-    { key: "mermaid", labelKey: "mermaid", icon: <Workflow size={ICON} />, keywords: ["mermaid", "diagram", "다이어그램", "chart", "flow"], run: (e) => e.tf.insertNodes({ type: "code_block", lang: "mermaid", children: [{ type: "code_line", children: [{ text: "graph TD" }] }, { type: "code_line", children: [{ text: "  A[Start] --> B[End]" }] }] }) },
   ] },
 ];
 

@@ -2,56 +2,61 @@
 .container {
   max-width: var(--page-max-width);
   margin: 0 auto;
-  /* topBar 가 position:fixed 라 상단 패딩은 nav 높이만큼만 — topBar 자리는 .topBarSpacer 가 예약 */
-  padding: var(--header-height) var(--page-px) var(--spacing-3xl);
-}
-
-/* topBar(fixed) 가 빠진 flow 자리를 예약 — 높이는 JS(ResizeObserver)로 동기화 */
-.topBarSpacer {
-  flex-shrink: 0;
+  /* 커버(coverSlot)가 nav 바로 아래 최상단에 오므로 상단 패딩은 0 — 커버가 nav 와 자연스럽게 flush */
+  padding: 0 var(--page-px) var(--spacing-3xl);
 }
 
 /* ── Top Bar ──
-   에디터 본문이 60vh + data-lenis-prevent 내부 스크롤이라 페이지가 거의 안 스크롤됨 →
-   position:sticky 로는 핀이 안 걸림. fixed 로 항상 nav 아래에 고정하고, 접힘/펼침은 transform 으로. */
+   커버(≈35vh)가 위에 page content 로 깔리므로 페이지가 커버를 지나 스크롤됨 →
+   position:sticky 가 정상 동작. 커버 아래에 있다가 nav 가 닿으면(top:--header-height) 그대로 핀.
+   아래로 스크롤하면 접힘(translateY), 위로 스크롤하면 펼침. */
 .topBar {
-  position: fixed;
+  position: sticky;
   /* 전역 Navigation(고정, top:0, 높이 --header-height) 바로 아래에 붙음 */
   top: var(--header-height);
-  left: 0;
-  right: 0;
-  /* .container 와 동일하게 중앙 정렬 + max-width + 좌우 page-px */
-  margin-left: auto;
-  margin-right: auto;
-  max-width: var(--page-max-width);
-  box-sizing: border-box;
   /* nav 보다 한 단계 아래 — frost 가 nav 뒤로 깔리고 nav 가 그 위에 보이도록 */
   z-index: calc(var(--z-nav) - 1);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--page-px);
+  /* 좌우 패딩은 .container 가 이미 --page-px 로 줌 → 세로만 */
+  padding: var(--spacing-md) 0;
   /* 아래로 스크롤 시 접힘(translateY), 위로 스크롤 시 펼침 */
   transition: transform var(--duration-base) ease;
   will-change: transform;
 }
 
-/* 펼쳐졌을 때 배경 — blur + 하단 mask 그라데이션(콘텐츠로 자연스럽게 페이드).
-   콘텐츠(버튼/배너)는 위 레이어라 선명, 배경만 blur+fade.
-   위로는 --header-height 만큼 확장해 Navigation 영역까지 frost 가 깔리고,
-   좌우는 페이지 패딩만큼 확장해 화면 끝까지. */
+/* 배경 — blur + mask 그라데이션.
+   위로 --header-height 만큼 확장 → topBar 펼쳐졌을 때 Navigation 영역까지 frost 가 깔림.
+   좌우는 페이지 패딩만큼 확장. blur 는 위(nav)에서 진하고 아래로 갈수록 투명 →
+   mask 가 위는 solid, 아래로 페이드아웃해 메타 영역으로 자연스럽게 사라짐(제목 label 안 가림). */
 .topBar::before {
   content: "";
   position: absolute;
   top: calc(-1 * var(--header-height));
   left: calc(-1 * var(--page-px));
   right: calc(-1 * var(--page-px));
-  bottom: calc(-1 * var(--spacing-lg));
+  bottom: 0;
   z-index: -1;
   background: var(--bg-glass);
   backdrop-filter: blur(12px);
-  mask-image: linear-gradient(to bottom, #000 62%, transparent);
+  /* 위(nav)는 진하게, 아래로 갈수록 투명 — nav 영역까지 solid 로 blur 후 topBar 아래로 페이드 */
+  -webkit-mask-image: linear-gradient(to bottom, #000, #000 50%, transparent);
+  mask-image: linear-gradient(to bottom, #000, #000 50%, transparent);
   pointer-events: none;
+  /* 핀(nav 에 닿아 고정) 되기 전엔 숨김 — 커버 보일 때 frost 가 커버 위 유리 띠를
+     만들지 않도록. 핀 되면 페이드 인(nav blur + 콘텐츠 구분). */
+  opacity: 0;
+  transition: opacity var(--duration-base) ease;
+}
+
+.topBarPinned::before {
+  opacity: 1;
+}
+
+/* topBar 핀 감지용 sentinel — topBar 자연 위치에 두는 0 높이 마커 */
+.topBarSentinel {
+  height: 0;
 }
 
 /* 접힘 — 자기 높이 + nav 높이만큼 위로 올려 nav 뒤로 완전히 숨김 */
@@ -169,10 +174,23 @@
   max-width: 320px;
 }
 
+/* 예약 popover — 배경 blur (.dropdown 의 blur 8px 을 override, (0,2,0)).
+   maxHeight 캡 제거는 Popover 의 maxHeight={false} prop 으로 처리. */
+.scheduleDropdown.scheduleDropdown {
+  backdrop-filter: blur(8px);
+}
+
+/* 안의 모든 텍스트/아이콘 white (difference 블렌드 전) — (0,2,0) 로 내부 컴포넌트 색 강제 */
+.scheduleDropdown .scheduleMenu * {
+  /* color: var(--text-white); */
+}
+
 .scheduleMenu {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  /* white + difference — 강한 blur 위에서 배경에 따라 자동 반전돼 가독성 확보 */
+  mix-blend-mode: difference;
 }
 
 .scheduleMenuHeader {
@@ -233,6 +251,17 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
+}
+
+/* AI 번역/요약 생성 중 — 버튼 아이콘 spinner */
+.spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .revertBtn {
@@ -323,14 +352,16 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 500;
-  color: var(--text-tertiary);
+  /* white + mix-blend difference — 배경색에 따라 자동 반전돼 어디서나 가독성 */
+  color: var(--text-white);
+  mix-blend-mode: difference;
   text-transform: none;
   letter-spacing: 0;
   padding: 0;
 }
 
 .revisionHeader .revisionSelectToggle:hover {
-  color: var(--text-primary);
+  text-decoration: underline;
 }
 
 .revisionSelectAll {
@@ -690,7 +721,9 @@
   margin-top: var(--spacing-2xs);
 }
 
-.revisionMetaListSeparated .revisionMetaItem:not(:first-child) > *:nth-child(2) {
+.revisionMetaListSeparated
+  .revisionMetaItem:not(:first-child)
+  > *:nth-child(2) {
   border-top: var(--border-light);
 }
 
@@ -771,7 +804,9 @@
   text-decoration-color: var(--border-light-color);
   text-underline-offset: 2px;
   word-break: break-all;
-  transition: color 0.15s, text-decoration-color 0.15s;
+  transition:
+    color 0.15s,
+    text-decoration-color 0.15s;
 }
 
 .revisionMetaLink:hover {
@@ -970,6 +1005,8 @@
 
 .fieldInput {
   width: 100%;
+  /* Select 등 컨트롤(--control-h-md)과 높이 통일 — padding 만으론 ~27px 라 Select(32px)보다 낮았음 */
+  min-height: var(--control-h-md);
   padding: var(--input-p);
   border: var(--border-light);
   border-radius: var(--radius-capsule);

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
-import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX } from "lucide-react";
+import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX, Loader2 } from "lucide-react";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
@@ -47,12 +47,14 @@ export default function AdminEditorShell({
   onRetranslate,
   retranslateOptions,
   retranslateDisabled = false,
+  retranslating = false,
   onGenerateSummary,
   generatingSummary = false,
   aiSummaryDisabled = false,
   getCurrentSnapshot,
   topBarSecondRowLeft,
   topBarFirstRowExtra,
+  coverSlot,
   scheduledAt,
   onScheduledChange,
   minScheduledDate,
@@ -142,6 +144,7 @@ export default function AdminEditorShell({
             onOpenChange={setOpen}
             placement={schedulePlacement}
             contentClassName={styles.scheduleDropdown}
+            maxHeight={false}
             sheetTitle={labels.scheduledAt ?? "Schedule"}
             trigger={
               <Tooltip content={labels.publishOptions ?? labels.scheduledAt ?? "Schedule"} placement="bottom">
@@ -176,18 +179,33 @@ export default function AdminEditorShell({
   );
   const { setInfinite, lenis } = useLenis();
   const { openModal } = useModalStore();
-  // topBar sticky — 아래로 스크롤하면 접고(translateY -100%), 위로 스크롤하면 펼침.
-  // 에디터 본문은 60vh + data-lenis-prevent 라 페이지와 분리된 내부 스크롤 → capture 단계로
-  // 페이지·본문 스크롤을 모두 감지해, 본문 안에서 위로 스크롤해도 topBar 가 펼쳐지게(어디서든 보이게).
+  // topBar — 아래로 스크롤하면 접고(translateY), 위로 스크롤하면 펼침. position:sticky 와 병행.
+  // 에디터 본문(60vh + data-lenis-prevent)은 페이지와 분리된 내부 스크롤 → capture 단계로 함께 감지.
+  // 이모지 피커가 열려 있는 동안엔 토글 보류 — 피커 내부/overscroll 스크롤이 topBar 를 움직이지 않게.
   const [topBarHidden, setTopBarHidden] = useState(false);
+  // topBar frost/접힘은 핀(nav 에 닿아 고정)됐을 때만 — 핀 전(커버 보일 때)엔 frost 숨김 + 항상 펼침.
+  // sentinel 은 topBar 의 '자연 위치'(스크롤에 따라 같이 올라옴, transform 영향 없음).
+  const [topBarPinned, setTopBarPinned] = useState(false);
+  const topBarSentinelRef = useRef<HTMLDivElement>(null);
+  const pinnedRef = useRef(false);
   useEffect(() => {
     const positions = new WeakMap<HTMLElement, number>();
     let lastPage = 0;
-    // per-event delta 가 작은 느린 스크롤도 동작하도록 같은 방향으로 누적해 임계값 도달 시 토글
+    // per-event delta 가 작은 느린 스크롤도 동작하도록 같은 방향으로 누적해 임계값 도달 시 토글.
+    // 핀 직후 바로 접히지 않도록 임계값을 크게 — nav 에 닿은 뒤 충분히 더 내려야 접힘.
     let accum = 0;
-    const THRESH = 6;
-    const decide = (delta: number, atTop: boolean) => {
-      if (atTop) { setTopBarHidden(false); accum = 0; return; }
+    const THRESH = 120;
+    const HEADER = 64; // --header-height
+    const setPinned = (p: boolean) => {
+      if (pinnedRef.current === p) return;
+      pinnedRef.current = p;
+      setTopBarPinned(p);
+      // 핀 해제(다시 커버 영역으로 올라옴) 시 접힘도 즉시 해제
+      if (!p) { setTopBarHidden(false); accum = 0; }
+    };
+    const decide = (delta: number) => {
+      // 아직 nav 에 안 닿았으면(미핀) 접지 않고 펼침 유지
+      if (!pinnedRef.current) { setTopBarHidden(false); accum = 0; return; }
       if (delta === 0) return;
       // 방향이 바뀌면 누적 리셋
       if ((delta > 0 && accum < 0) || (delta < 0 && accum > 0)) accum = 0;
@@ -195,36 +213,38 @@ export default function AdminEditorShell({
       if (accum > THRESH) { setTopBarHidden(true); accum = 0; }
       else if (accum < -THRESH) { setTopBarHidden(false); accum = 0; }
     };
+    const updatePinned = () => {
+      const sentinel = topBarSentinelRef.current;
+      // sentinel(topBar 자연 위치 상단)이 nav 아래 라인에 닿으면(=topBar 핀) 핀으로 간주
+      if (sentinel) setPinned(sentinel.getBoundingClientRect().top <= HEADER);
+    };
     const onScroll = (e: Event) => {
+      // 이모지 피커 등 팝업이 열려 있으면 topBar 토글 보류
+      if (document.querySelector("[data-emoji-picker]")) return;
+      // 핀 여부를 sentinel 실제 위치로 매 스크롤마다 동기 측정 (IO 지연 없이 정확)
+      updatePinned();
       const tgt = e.target;
       if (tgt === document || tgt === document.documentElement || tgt === document.body) {
         const y = window.scrollY;
-        decide(y - lastPage, y < 64);
+        decide(y - lastPage);
         lastPage = y;
-      } else if (tgt instanceof HTMLElement) {
+      } else if (
+        tgt instanceof HTMLElement &&
+        (tgt.closest("[data-slate-editor]") || tgt.querySelector("[data-slate-editor]"))
+      ) {
+        // 에디터 본문 스크롤만 반영 — 그 외 팝업 내부 스크롤은 제외
         const y = tgt.scrollTop;
         const last = positions.get(tgt) ?? 0;
-        decide(y - last, false);
+        decide(y - last);
         positions.set(tgt, y);
       }
     };
+    updatePinned(); // 초기 1회 (새로고침 시 이미 스크롤된 상태 대응)
     // capture=true — scroll 은 버블 안 하므로 중첩 스크롤(본문)까지 잡으려면 캡처 단계로
     window.addEventListener("scroll", onScroll, true);
     return () => window.removeEventListener("scroll", onScroll, true);
   }, []);
 
-  // topBar 가 position:fixed 라 flow 에서 빠짐 → 같은 높이 spacer 로 본문이 가려지지 않게 예약
-  const topBarRef = useRef<HTMLDivElement>(null);
-  const [spacerH, setSpacerH] = useState(0);
-  useLayoutEffect(() => {
-    const el = topBarRef.current;
-    if (!el) return;
-    const update = () => setSpacerH(el.offsetHeight);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
   const [showRevisions, setShowRevisions] = useState(false);
   const [viewingRevision, setViewingRevision] = useState<number | null>(null);
   const [revisionDetail, setRevisionDetail] = useState<{ title?: string; subtitle?: string; excerpt?: string; content?: string; meta?: import("./types").RevisionMetaGroup[]; headerLabels?: { title?: string; subtitle?: string; excerpt?: string } } | null>(null);
@@ -481,7 +501,14 @@ export default function AdminEditorShell({
 
   return (
     <div className={styles.container}>
-      <div ref={topBarRef} className={`${styles.topBar}${topBarHidden ? ` ${styles.topBarHidden}` : ""}`}>
+      {coverSlot}
+      {/* topBar 핀 감지용 sentinel — topBar 바로 위(자연 위치) */}
+      <div ref={topBarSentinelRef} className={styles.topBarSentinel} aria-hidden />
+      <div
+        className={`${styles.topBar}${topBarHidden ? ` ${styles.topBarHidden}` : ""}${
+          topBarPinned ? ` ${styles.topBarPinned}` : ""
+        }`}
+      >
         <div className={styles.topBarRow}>
         {/* ── 왼쪽: BackLink + extra(Checkbox) + LanguageToggle 한 묶음 ── */}
         <div className={styles.navGroup}>
@@ -516,7 +543,7 @@ export default function AdminEditorShell({
                       onClick={retranslateDisabled ? undefined : () => { /* Popover toggle */ }}
                       disabled={saving || retranslateDisabled}
                       soundDisabled
-                      icon={<Languages size={14} />}
+                      icon={retranslating ? <Loader2 size={14} className={styles.spinIcon} /> : <Languages size={14} />}
                     />
                   </Tooltip>
                 }
@@ -559,7 +586,7 @@ export default function AdminEditorShell({
                   onClick={aiSummaryDisabled ? undefined : onGenerateSummary}
                   disabled={saving || generatingSummary || aiSummaryDisabled}
                   soundDisabled
-                  icon={<MessageSquareMore size={14} />}
+                  icon={generatingSummary ? <Loader2 size={14} className={styles.spinIcon} /> : <MessageSquareMore size={14} />}
                 />
               </Tooltip>
             )}
@@ -1000,7 +1027,6 @@ export default function AdminEditorShell({
           </div>
         </div>
       </div>
-      <div className={styles.topBarSpacer} style={{ height: spacerH }} aria-hidden />
 
       {children}
 

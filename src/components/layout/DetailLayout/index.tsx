@@ -79,9 +79,11 @@ interface DetailLayoutProps {
   // ── 공통 detail page 요소들 — config 만 넘기면 DetailLayout 이 자동 render ──
   /** 좋아요 — afterContent 다음 */
   likeConfig?: LikeConfig;
-  /** 관련 글/작품/시리즈 등 — page 가 직접 ReactNode 로 (다양한 source). 좋아요 다음 */
+  /** 관련 글/작품/시리즈 등 — page 가 직접 ReactNode 로 (다양한 source). header 다음, 본문(content) 전 위쪽에 표시 */
   relatedContent?: ReactNode;
-  /** 이전/다음 — relatedContent 다음 */
+  /** 추천 글(함께 읽어보면 좋은) — 이전/다음(AdjacentNav) 바로 위에 표시 */
+  recommendedContent?: ReactNode;
+  /** 이전/다음 — 본문 하단 */
   adjacentConfig?: {
     prev?: { href: string; title: string; image?: string } | null;
     next?: { href: string; title: string; image?: string } | null;
@@ -114,6 +116,7 @@ export default function DetailLayout({
   afterContent,
   likeConfig,
   relatedContent,
+  recommendedContent,
   adjacentConfig,
   commentsConfig,
   backLink,
@@ -229,6 +232,11 @@ export default function DetailLayout({
         </div>
       )}
 
+      {/* 관련 프로젝트/게시물 — 본문 전(위) 영역에 표시 */}
+      {relatedContent && (
+        <div className={styles.afterContent}>{relatedContent}</div>
+      )}
+
       {/* Content + TOC row */}
       <div className={`${styles.contentRow} ${!heroImage && !header ? styles.contentNoHero : ""}`}>
         <div className={`${styles.content}${contentClassName ? ` ${contentClassName}` : ""}`}>
@@ -249,11 +257,11 @@ export default function DetailLayout({
       )}
 
       {/* ── 공통 detail 요소들 ─ afterContent 다음 자동 render ── */}
-      {(likeConfig || relatedContent || adjacentConfig || commentsConfig || backLink) && (
+      {(likeConfig || adjacentConfig || commentsConfig || backLink) && (
         <div className={styles.afterContent}>
           {likeConfig && <LikeButton config={likeConfig} />}
 
-          {relatedContent}
+          {recommendedContent}
 
           {adjacentConfig && (
             <AdjacentNav

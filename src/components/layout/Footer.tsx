@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { cn } from "@/utils/cn";
+import ViewModeToggle from "./ViewModeToggle";
 import styles from "./Footer.module.css";
 
 /** Supabase 클라이언트 동적 로드 (번들 절약) */
@@ -176,6 +177,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
               {copyrightText}
             </div>
             <div className={styles.bottomRight}>
+              <ViewModeToggle />
               <div className={styles.visits}>
                 <Link href="/privacy" className={styles.adminLink}>Privacy</Link>
                 <span className={styles.divider}>✧</span>
@@ -245,6 +247,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                 {copyrightText}
               </div>
               <div className={styles.bottomRight}>
+                <ViewModeToggle />
                 {visitsBlock}
                 {musicCreditText}
               </div>

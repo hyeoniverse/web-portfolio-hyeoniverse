@@ -168,11 +168,18 @@ export function PostArticleBody({
         scroll: t("common.codeScroll"),
         wrapTitle: t("common.codeWrapTitle"),
         scrollTitle: t("common.codeScrollTitle"),
+        copy: t("common.codeCopy"),
+        copied: t("common.codeCopied"),
       });
     });
     let cleanup: (() => void) | undefined;
     import("@/components/posts/enhanceReaderExtras").then(({ enhanceReaderExtras }) => {
-      cleanup = enhanceReaderExtras(el);
+      cleanup = enhanceReaderExtras(el, {
+        viewCode: t("common.mermaidViewCode"),
+        hideCode: t("common.mermaidHideCode"),
+        copyCode: t("common.codeCopy"),
+        copied: t("common.codeCopied"),
+      });
     });
     return () => cleanup?.();
   }, [isMarkdown, content, t, processedRichtextHtml]);

@@ -1,0 +1,150 @@
+/* ── Tabs block — 에디터 + reader 공용 (글로벌 클래스). 외곽선으로 컨테이너 구분 ── */
+.tabs-block,
+[data-tabs] {
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-2xl);
+}
+
+/* 헤더 + 팝업 anchor 영역 (팝업이 여기 기준 absolute → 스크롤 따라 움직이고 editor overflow 에 잘림) */
+.tabs-block-inner {
+  position: relative;
+}
+
+/* 탭 바 — 아래 경계선(rail) + 탭 라벨들 */
+.tabs-header {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  border-bottom: var(--border-light);
+}
+
+/* 도구/이모지 팝업 컨테이너 — JS 가 left/top/transform 으로 위치 지정 */
+.tabs-popup {
+  z-index: var(--z-dropdown);
+}
+
+.tabs-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) 0;
+  margin-bottom: -1px; /* rail 위로 겹쳐 active 밑줄이 경계선과 이어지게 */
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tabs-tab:hover {
+  color: var(--text-secondary);
+}
+
+.tabs-tab-active {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* 탭 아이콘 (이모지/이미지) */
+.tabs-tab-icon {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+.tabs-tab-icon img {
+  width: 1.1em;
+  height: 1.1em;
+  object-fit: contain;
+}
+
+/* 탭 추가 버튼 — 탭과 같은 박스(패딩·줄높이·rail 정렬)로 끝에 흐릿하게 */
+.tabs-add {
+  /* 탭 텍스트와 동일한 line box·padding 으로 → + 아이콘이 탭과 수직 정렬됨
+     (flex+min-height 중앙정렬은 텍스트 광학중심과 어긋나 보였음) */
+  display: inline-block;
+  padding: var(--spacing-xs) 0;
+  margin-bottom: -1px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.tabs-add svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.tabs-add:hover {
+  color: var(--text-secondary);
+}
+
+/* ── 도구 popover (이름변경 · 아이콘 · 삭제) ── */
+.tabs-tools {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  min-width: 12rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 0.15);
+}
+
+.tabs-tools-main {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+/* 이름 입력(공통 Input) — 레이아웃만, 스타일은 컴포넌트가 담당 */
+.tabs-tools-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.tabs-tools-delete {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.tabs-tools-delete:hover {
+  color: var(--text-accent);
+  background: var(--bg-tertiary);
+}
+
+/* 패널 내용 */
+.tabs-body {
+  padding: var(--spacing-xs) 0;
+}
+/* reader: 거터 없으니 본문 정렬만 */
+[data-tabs] > [data-tab-panel] {
+  padding: var(--spacing-sm) 0;
+}
+
+/* reader: JS 인핸스(헤더 생성) 전엔 첫 패널만 — 모든 패널이 쌓여 보이는 flash 방지 */
+[data-tabs]:not([data-tabs-rendered]) > [data-tab-panel]:not(:first-of-type) {
+  display: none;
+}

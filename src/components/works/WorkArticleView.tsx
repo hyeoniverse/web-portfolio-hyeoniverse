@@ -11,6 +11,7 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
+import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
 import Button from "@/components/ui/Button";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
@@ -24,6 +25,27 @@ import type { Project } from "@/data/projects";
 import { getBentoClass } from "@/app/works/_utils";
 import styles from "@/app/works/[slug]/WorkDetail.module.css";
 
+export type RelatedPostItem = {
+  id: string;
+  title: string;
+  title_en?: string;
+  slug: string;
+  cover_image: string;
+  excerpt: string;
+  category: string;
+  created_at: string;
+};
+
+export type RelatedSeriesItem = {
+  id: string;
+  title: string;
+  title_en?: string;
+  cover_image?: string;
+  category?: string;
+  description?: string;
+  description_en?: string;
+};
+
 export interface WorkArticleViewProps {
   project: Project;
   viewLang: "ko" | "en";
@@ -32,6 +54,10 @@ export interface WorkArticleViewProps {
   /** 어드민 여부 — 편집 링크 노출. 미리보기에선 보통 미사용 */
   isAdmin?: boolean;
   onLangChange?: (l: "ko" | "en") => void;
+  /** 관련 글 — info grid 안에 리스트로 표시 (Header 에서만 사용) */
+  relatedPosts?: RelatedPostItem[];
+  /** 관련 시리즈 — info grid 안에 표시 (Header 에서만 사용) */
+  relatedSeries?: RelatedSeriesItem[];
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -45,6 +71,8 @@ export function WorkArticleHeader({
   isAdmin: isAdminProp,
   isPreview,
   onLangChange,
+  relatedPosts,
+  relatedSeries,
 }: WorkArticleViewProps) {
   const { t } = useLanguage();
   const siteConfig = useSiteConfig();
@@ -269,6 +297,44 @@ export function WorkArticleHeader({
             </div>
           );
         })()}
+
+        {/* 관련 글 — info grid 안 full-width 칩 (공용 RelatedChips: wrap·더보기·hover 미리보기) */}
+        {relatedPosts && relatedPosts.length > 0 && (
+          <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+            <span className={styles.infoLabel}>{viewLang === "en" ? "Related Posts" : "관련 글"}</span>
+            <RelatedChips
+              items={relatedPosts.map((p) => ({
+                id: p.id,
+                title: viewLang === "en" && p.title_en ? p.title_en : p.title,
+                href: `/posts/${p.slug}`,
+                image: p.cover_image || undefined,
+                category: p.category || undefined,
+                desc: p.excerpt || undefined,
+              }))}
+              moreLabel={viewLang === "en" ? "more" : "더보기"}
+              lessLabel={viewLang === "en" ? "Show less" : "접기"}
+            />
+          </div>
+        )}
+
+        {/* 관련 시리즈 — info grid 안 칩 */}
+        {relatedSeries && relatedSeries.length > 0 && (
+          <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
+            <span className={styles.infoLabel}>{viewLang === "en" ? "Related Series" : "관련 시리즈"}</span>
+            <RelatedChips
+              items={relatedSeries.map((s) => ({
+                id: s.id,
+                title: viewLang === "en" && s.title_en ? s.title_en : s.title,
+                href: `/posts?series=${s.id}`,
+                image: s.cover_image || undefined,
+                category: s.category || undefined,
+                desc: (viewLang === "en" ? (s.description_en || s.description) : s.description) || undefined,
+              }))}
+              moreLabel={viewLang === "en" ? "more" : "더보기"}
+              lessLabel={viewLang === "en" ? "Show less" : "접기"}
+            />
+          </div>
+        )}
       </motion.div>
 
       {needsTranslation && translationEnabled && (
@@ -295,6 +361,7 @@ export function WorkArticleHeader({
  * 팀 멤버 carousel 은 full-width afterContent slot 으로 분리됨 → WorkArticleTeam.
  * ──────────────────────────────────────────────────────────── */
 export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
+  const { t } = useLanguage();
   const isRichtext = project.contentType === "richtext";
 
   const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
@@ -316,10 +383,15 @@ export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
     if (!el) return;
     let cleanup: (() => void) | undefined;
     import("@/components/posts/enhanceReaderExtras").then(({ enhanceReaderExtras }) => {
-      cleanup = enhanceReaderExtras(el);
+      cleanup = enhanceReaderExtras(el, {
+        viewCode: t("common.mermaidViewCode"),
+        hideCode: t("common.mermaidHideCode"),
+        copyCode: t("common.codeCopy"),
+        copied: t("common.codeCopied"),
+      });
     });
     return () => cleanup?.();
-  }, [isRichtext, content]);
+  }, [isRichtext, content, t]);
 
   return (
     <>

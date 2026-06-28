@@ -338,6 +338,11 @@
   padding: 0;
 }
 
+/* li 는 레이아웃에서 빠지고 내부 chip(button/span)이 flex item 이 되도록 */
+.panelPassedLi {
+  display: contents;
+}
+
 .panelPassedItem {
   display: inline-flex;
   align-items: center;
@@ -348,6 +353,22 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   color: var(--text-secondary);
+}
+
+/* 완료 항목도 클릭 시 해당 영역으로 이동 — chip 형태의 버튼 */
+.panelPassedBtn {
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.panelPassedBtn:hover {
+  background: var(--bg-secondary);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .panelPassedCheck {

@@ -164,7 +164,7 @@
 }
 
 .toolbar .toolbarBtn:hover,
-.tableToolbar .toolbarBtn:hover {
+:is(.contextToolbar, .floatingBar) .toolbarBtn:hover {
   background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
@@ -299,13 +299,17 @@
   content: "";
   position: absolute;
   background: var(--bg-accent-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-2xl);
   z-index: -1;
   pointer-events: none;
 }
 .editorContent :global([data-slash-active])::before,
 .editorContent :global([data-block-selected])::before {
   inset: -2px -8px;
+}
+/* 코드블록 선택 시 — 배경 하이라이트 상하좌우 여백을 균등하게 */
+.editorContent :global([data-block-selected]:has(.slate-code_block))::before {
+  inset: -8px;
 }
 .editorContent :global([data-block-selected])::after {
   display: none;
@@ -391,8 +395,9 @@
   justify-content: center;
   padding: var(--box-md);
   margin-top: var(--spacing-2xs);
+  margin-bottom: var(--spacing-lg);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: var(--bg-primary);
   overflow-x: auto;
 }
@@ -886,33 +891,37 @@
 }
 
 .toolbar .tableDangerBtn:hover,
-.tableToolbar .tableDangerBtn:hover {
+:is(.contextToolbar, .floatingBar) .tableDangerBtn:hover {
   background: var(--bg-error);
   color: var(--text-error);
 }
 
 /* Table toolbar — absolutely positioned over editor top, no layout impact */
-.tableToolbar {
+.contextToolbar {
+  /* 분리된 떠있는 pill — 가운데 정렬, glass + shadow. JS 가 top 을 동적 지정(스크롤/스택). */
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 5;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  border: none;
-  border-top: var(--border-light);
-  border-bottom: var(--border-light);
-  background: var(--bg-primary);
+  width: max-content;
+  max-width: calc(100% - var(--spacing-lg));
+  margin-top: var(--spacing-sm);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(8px) saturate(1.4);
+  box-shadow: 0 6px 24px oklch(0% 0 0 / 0.14);
   opacity: 1;
-  /* bottom 을 음수로 확장 — toolbar 의 popover (테두리/색 선택 등) 가 아래로
-     빠져나와도 안 잘리게. 슬라이드업 hide 애니메이션은 hidden state 의 100% 와 함께 동작 */
-  clip-path: inset(0 0 -500px 0);
+  /* bottom 을 음수로 확장 — popover (테두리/색 선택 등) 가 아래로 빠져나와도 안 잘리게.
+     round 로 2xl 곡률 유지. 슬라이드업 hide 는 hidden state 의 100% 와 함께 동작 */
+  clip-path: inset(0 0 -500px 0 round var(--radius-2xl));
 }
 
 /* 글로벌 html[data-theme-ready] * transition shorthand 강제 override */
-.tableToolbar {
+.contextToolbar {
   transition:
     opacity 0.2s ease-out,
     clip-path 0.2s ease-out,
@@ -920,7 +929,66 @@
     top 0.2s ease-out !important;
 }
 
-.tableToolbarRow {
+/* ── 공통 floating bar (FloatingBar 컴포넌트) — 대상 요소에 앵커, body 로 portal. 위치는 inline style ── */
+.floatingBar {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  max-width: 90vw;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(8px) saturate(1.4);
+  box-shadow: 0 6px 24px oklch(0% 0 0 / 0.14);
+  overflow: hidden;
+  z-index: var(--z-dropdown);
+}
+/* 가로 한 줄(이미지 등) */
+.floatingBarInline {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-2xs) var(--spacing-xs);
+}
+
+/* ── 컬럼 BG/Line popover 트리거 + 메뉴 ── */
+.colMenuTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.colMenuTrigger:hover {
+  border-color: var(--text-primary);
+}
+.colMenu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  min-width: 11rem;
+}
+.colMenuDots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+.colMenuPicker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  padding-top: var(--spacing-2xs);
+  border-top: 1px solid var(--border-light-color);
+}
+
+.contextToolbarRow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -931,11 +999,11 @@
   width: 100%;
 }
 
-.tableToolbarRow + .tableToolbarRow {
+.contextToolbarRow + .contextToolbarRow {
   border-top: none;
 }
 
-/* Math toolbar — tableToolbarRow와 동일한 레이아웃 */
+/* Math toolbar — contextToolbarRow와 동일한 레이아웃 */
 .mathToolbarWrap {
   display: flex;
   flex-wrap: wrap;
@@ -963,7 +1031,7 @@
   right: var(--spacing-xs);
 }
 
-.tableToolbarActions {
+.contextToolbarActions {
   display: flex;
   align-items: center;
   gap: var(--spacing-3xs);
@@ -972,15 +1040,15 @@
   right: var(--spacing-xs);
 }
 
-.findToolbar .tableToolbarActions {
+.findToolbar .contextToolbarActions {
   top: 50%;
   transform: translateY(-50%);
 }
 
-.tableToolbarHidden {
+.contextToolbarHidden {
   pointer-events: none;
   opacity: 0;
-  clip-path: inset(0 0 100% 0);
+  clip-path: inset(0 0 100% 0 round var(--radius-2xl));
   border-color: transparent;
 }
 
@@ -996,7 +1064,7 @@
     top 0.2s ease-out !important;
 }
 
-.tableToolbarLabel {
+.contextToolbarLabel {
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-weight: 600;
@@ -1138,7 +1206,7 @@
   margin-right: var(--spacing-2xs);
 }
 
-.tableToolbar .presetDotInline:hover {
+:is(.contextToolbar, .floatingBar) .presetDotInline:hover {
   box-shadow:
     0 0 0 1.5px var(--bg-primary),
     0 0 0 3px var(--text-primary);
@@ -1520,7 +1588,7 @@
 }
 
 .toolbar .colorGroup:hover,
-.tableToolbar .colorGroup:hover {
+:is(.contextToolbar, .floatingBar) .colorGroup:hover {
   background: var(--bg-tertiary-alt);
 }
 
@@ -1563,7 +1631,7 @@
 }
 
 .toolbar .presetDot:hover,
-.tableToolbar .presetDot:hover {
+:is(.contextToolbar, .floatingBar) .presetDot:hover {
   box-shadow:
     0 0 0 1.5px var(--bg-primary),
     0 0 0 3px var(--text-primary);
@@ -1652,7 +1720,7 @@
   background: var(--text-muted);
 }
 
-/* tableToolbar is position:absolute — overlays content, no padding adjustment needed */
+/* contextToolbar is position:absolute — overlays content, no padding adjustment needed */
 
 .editor :global(.tiptap) {
   padding: var(--spacing-md);
@@ -2298,6 +2366,7 @@
 /* ── 공식 @platejs/dnd 블록 드래그 (BlockDraggable aboveNodes) ── */
 .blockDraggable {
   position: relative;
+  border-radius: var(--radius-2xl);
 }
 /* 좌측 gutter — hover 시 핸들 노출 */
 .blockDragGutter {
@@ -2305,7 +2374,7 @@
   top: 0;
   /* 요소 왼쪽 — [+][이동핸들] 두 버튼, 좌측 패딩 안. 오른쪽 끝을 콘텐츠에서 살짝 띄움.
      float 이미지 옆 블록은 --float-edge 만큼 오른쪽으로(이미지 옆 텍스트 시작에 맞춤) */
-  left: calc(-40px + var(--float-edge, 0px));
+  left: calc(-40px + var(--float-edge, 0px) + var(--block-indent, 0px));
   width: 34px;
   height: 100%;
   display: flex;
@@ -2428,7 +2497,7 @@
    그어 이미지 영역을 침범하지 않게 */
 .blockDropLine {
   position: absolute;
-  left: var(--float-edge, 0px);
+  left: calc(var(--float-edge, 0px) + var(--block-indent, 0px));
   right: 0;
   height: 2px;
   background: var(--bg-accent-solid);
@@ -2441,6 +2510,20 @@
 }
 .blockDropLineBottom {
   bottom: -1px;
+}
+
+/* 블록 드래그 커스텀 ghost (BlockDragLayer) — 원본 블록 DOM 복제본 그 자체가 커서를 따라다님.
+   박스/칩 없이 블록 그대로. 네이티브 drag image 대체. 위치는 JS transform. */
+.blockDragLayer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-tooltip);
+  max-width: 32rem;
+  max-height: 16rem;
+  overflow: hidden;
+  opacity: 0.65;
+  pointer-events: none;
 }
 
 /* ── Embed / Link modal ── */
@@ -2901,24 +2984,149 @@
 }
 
 /* Code block wrap toggle */
-.codeWrapToggle {
+/* 코드블록 우상단 컨트롤 — 언어 select + wrap 토글 한 줄 */
+.codeControls {
   position: absolute;
   top: 6px;
   right: 6px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: var(--box-sm);
+  z-index: 2;
+}
+
+/* 복사 / "..." 컨트롤 — 다크 원형 아이콘 버튼 */
+.codeCtrlBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-circle);
   background: var(--bg-inverse);
   color: var(--text-inverse);
-  font-family: var(--font-mono);
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.15s ease;
+}
+
+.codeCtrlBtn:hover {
+  opacity: 1;
+}
+
+/* "..." 밖 별개 언어 Select */
+.codeLangSelectWrap {
+  display: inline-flex;
+}
+
+.codeLangTrigger {
+  font-size: var(--font-size-2xs);
+}
+
+/* ── "..." 메뉴 ── */
+.codeMenuPopover {
+  min-width: 210px;
+}
+
+.codeMenu {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-2xs);
+}
+
+.codeMenuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  z-index: 2;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.codeMenuItem:hover {
+  background: var(--bg-secondary);
+}
+
+.codeMenuTrailing {
+  margin-left: auto;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+}
+
+.codeMenuDanger {
+  color: var(--text-accent);
+}
+
+.codeMenuDanger:hover {
+  background: var(--bg-accent-light);
+}
+
+.codeMenuDivider {
+  height: 1px;
+  background: var(--border-light-color);
+  margin: var(--spacing-2xs) var(--spacing-2xs);
+}
+
+.codeMenuBack {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.codeMenuSearch {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  margin-bottom: var(--spacing-2xs);
+  border-bottom: var(--border-light);
+  color: var(--text-tertiary);
+}
+
+.codeMenuSearch input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+}
+
+.codeMenuLangList {
+  display: flex;
+  flex-direction: column;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.codeMenuLangList .codeMenuItem {
+  justify-content: space-between;
+}
+
+.codeMenuEmpty {
+  padding: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-align: center;
 }
 
 @media (max-width: 768px) {
@@ -3034,14 +3242,23 @@
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
-.editorContent pre {
-  padding: var(--spacing-md);
+.editorContent :global(.slate-code_block) {
+  /* pre = 패딩/배경 프레임 + 높이 조절(resize 핸들), <code> = flex 로 채우며 스크롤 */
+  display: flex;
+  flex-direction: column;
+  max-height: 16rem;
+  padding: var(--spacing-3xl) var(--spacing-md) var(--spacing-xl);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-md);
-  overflow-x: auto;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
   margin: var(--spacing-md) 0;
+  overflow: hidden;
+  resize: vertical;
 }
 .editorContent pre code {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
   padding: 0;
   background: transparent;
   border: none;
@@ -3275,7 +3492,7 @@
   margin: var(--spacing-md) 0;
 }
 
-/* tableToolbar is position:absolute — no extra padding needed */
+/* contextToolbar is position:absolute — no extra padding needed */
 
 /* Override ProseMirror default selectedCell overlays */
 .editorContent :global(.selectedCell)::before,
@@ -3289,7 +3506,7 @@
 }
 
 /* ── Find & Replace Panel ── */
-/* ── Find & Replace (inside tableToolbar) ── */
+/* ── Find & Replace (inside contextToolbar) ── */
 .findInput {
   flex: 1;
   min-width: 100px;
@@ -3314,6 +3531,23 @@
   text-align: left;
   border-left: var(--border-light);
   transition: min-width 0.2s ease;
+}
+
+/* ── n단 블록 hover/focus 시 배경 살짝 (레이아웃 안 밀리게 ::before 오버레이, 컬럼 뒤로) ── */
+[data-col-group]::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--spacing-2xs));
+  z-index: -1;
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+[data-col-group]:hover::before,
+[data-col-group]:focus-within::before {
+  opacity: 1;
 }
 
 /* ── Column divider line (pseudo-element) ── */

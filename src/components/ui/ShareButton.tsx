@@ -3,9 +3,12 @@
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Share } from "lucide-react";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { showToast } from "@/stores/toastStore";
 import styles from "./ShareButton.module.css";
 
 export default function ShareButton({ className }: { className?: string }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   const handleShare = useCallback(async () => {
@@ -17,11 +20,12 @@ export default function ShareButton({ className }: { className?: string }) {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
+      showToast(t("editor.linkCopied"), "success");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       /* clipboard not available */
     }
-  }, []);
+  }, [t]);
 
   return (
     <button

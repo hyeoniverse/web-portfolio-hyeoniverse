@@ -91,6 +91,8 @@ export interface AdminEditorShellProps {
   onRetranslate?: (fields?: string[]) => void;
   retranslateOptions?: RetranslateOption[];
   retranslateDisabled?: boolean;
+  /** AI 재번역 진행 중 — 버튼에 spinner 표시 */
+  retranslating?: boolean;
   onGenerateSummary?: () => void;
   generatingSummary?: boolean;
   aiSummaryDisabled?: boolean;
@@ -98,6 +100,8 @@ export interface AdminEditorShellProps {
   getCurrentSnapshot?: (lang: "ko" | "en") => { title: string; subtitle?: string; excerpt?: string; content?: string; meta?: RevisionMetaGroup[]; headerLabels?: { title?: string; subtitle?: string; excerpt?: string } };
   topBarSecondRowLeft?: ReactNode;
   topBarFirstRowExtra?: ReactNode;
+  /** 커버 배너 — topBar 위 최상단(전역 nav 바로 아래)에 렌더. 이게 있으면 페이지가 커버를 지나 스크롤되며 topBar 가 sticky 로 붙음. */
+  coverSlot?: ReactNode;
   /** 예약 발행 값 — ISO string 또는 null. */
   scheduledAt?: string | null;
   /** 예약 발행 변경 — null 이면 해제. */
