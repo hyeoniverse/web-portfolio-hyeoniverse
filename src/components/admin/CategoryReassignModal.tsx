@@ -246,7 +246,7 @@ export default function CategoryReassignModal({
                     value={newDescEn}
                     onChange={setNewDescEn}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                      if (e.key === "Enter" && !e.nativeEvent.isComposing) {
                         e.preventDefault();
                         handleAddCategory();
                       }

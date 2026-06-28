@@ -397,9 +397,9 @@ export default function AdminWorksPage() {
         label: "",
         className: ts.colView,
         render: (work) =>
-          work.published && work.slug ? (
+          work.published && (work.slug || work.id) ? (
             <a
-              href={`/works/${work.slug}`}
+              href={`/works/${work.slug || work.id}`}
               target="_blank"
               rel="noopener noreferrer"
               className={ts.viewBtn}

@@ -10,8 +10,11 @@ import { ReactEditor } from "slate-react";
 import { insertMediaEmbed } from "@platejs/media";
 import { upsertLink, unwrapLink } from "@platejs/link";
 import { toggleList } from "@platejs/list";
+import { outdent } from "@platejs/indent";
 import "katex/dist/katex.min.css";
 import { slateToHtml, setWrapLabel, setScrollLabel, type SlateNode } from "./plateSerializer";
+import { detectCodeLanguage } from "./plate/lowlightInstance";
+import { _dndScrollContainer } from "./plate/utils";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./RichTextEditor.module.css";
@@ -34,6 +37,7 @@ import {
 import MainToolbar from "./plate/toolbars/MainToolbar";
 import TableToolbar from "./plate/toolbars/TableToolbar";
 import ImageToolbar from "./plate/toolbars/ImageToolbar";
+import FloatingBar from "./plate/toolbars/FloatingBar";
 import MathToolbar from "./plate/toolbars/MathToolbar";
 import InlineInputToolbar from "./plate/toolbars/InlineInputToolbar";
 import FloatingToolbar from "./plate/toolbars/FloatingToolbar";
@@ -45,6 +49,7 @@ import { TblTrash } from "./plate/icons";
 import { RxReset } from "react-icons/rx";
 import { Pipette, ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, Unlink } from "lucide-react";
 import Tooltip from "@/components/ui/Tooltip";
+import Popover from "@/components/ui/Popover";
 import ColorPicker from "@/components/ui/ColorPicker";
 import NumberInput from "@/components/ui/NumberInput";
 
@@ -269,11 +274,13 @@ function MultiBlockHighlight() {
       block.style.setProperty("--b-h", `${Math.max(0, bh - ih - GAP + 2)}px`);
       block.setAttribute("data-float-clip", side);
     };
-    // 에디터 루트의 직속 자식(top-level 블록 래퍼) 찾기
+    // 블록 래퍼 찾기 — 루트 또는 data-block-container(탭 패널·컬럼 등) 의 직속 자식까지 올라간다.
+    // → top-level 뿐 아니라 중첩 컨테이너 안의 멀티블록 선택도 같은 부모 형제로 잡힘.
+    const isBoundary = (p: HTMLElement | null) => !!p && (p === root || p.hasAttribute("data-block-container"));
     const blockOf = (node: Node | null): HTMLElement | null => {
       let el: HTMLElement | null = node ? (node.nodeType === 3 ? node.parentElement : (node as HTMLElement)) : null;
-      while (el && el.parentElement && el.parentElement !== root) el = el.parentElement;
-      return el && el.parentElement === root ? el : null;
+      while (el && el.parentElement && !isBoundary(el.parentElement)) el = el.parentElement;
+      return el && isBoundary(el.parentElement) ? el : null;
     };
     // DOM selection 을 직접 읽어 selectionchange 에 즉시 토글 — slate 의 raf 갱신 지연/리렌더를 안 거쳐 깜빡임 없음
     const apply = () => {
@@ -353,6 +360,7 @@ export default function PlateEditor({
   onImageUpload,
   editorRef,
   postLang,
+  onHtmlModeChange,
 }: PlateEditorProps) {
   const { theme } = useTheme();
   const { t } = useLanguage();
@@ -410,6 +418,34 @@ export default function PlateEditor({
     value: stripDetachedMedia(value || "<p></p>"),
   });
 
+  // 코드블록에 붙여넣을 때 언어 자동감지 — 네이티브 paste 리스너(React 합성 이벤트가 Plate 에
+  // 가로채여 안 잡히는 경우가 있어 DOM 레벨로 확실히 잡는다). 아직 언어 미지정/plaintext 일 때만.
+  useEffect(() => {
+    if (!editor) return;
+    let el: HTMLElement | null = null;
+    const onPaste = (e: ClipboardEvent) => {
+      try {
+        const cb = editor.api.above({ match: { type: "code_block" } });
+        if (!cb) return;
+        const [node, path] = cb as [{ lang?: string }, number[]];
+        if (node.lang && node.lang !== "plaintext") return;
+        const detected = detectCodeLanguage(e.clipboardData?.getData("text/plain") ?? "");
+        if (!detected) return;
+        setTimeout(() => {
+          try { editor.tf.setNodes({ lang: detected }, { at: path }); } catch { /* noop */ }
+        }, 0);
+      } catch { /* noop */ }
+    };
+    const id = window.setTimeout(() => {
+      el = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
+      el?.addEventListener("paste", onPaste);
+    }, 0);
+    return () => {
+      window.clearTimeout(id);
+      el?.removeEventListener("paste", onPaste);
+    };
+  }, [editor]);
+
   // ── 한글 IME composition 트래킹 ──
   // composition 중에 click 하면 slate-react 가 selection 업데이트를 skip 해서
   // cursor 가 안 옮겨감. compositionend 후 저장된 좌표로 직접 select.
@@ -440,9 +476,14 @@ export default function PlateEditor({
         const pos = doc.caretPositionFromPoint?.(x, y);
         let range: Range | null = null;
         if (pos) {
-          range = document.createRange();
-          range.setStart(pos.offsetNode, pos.offset);
-          range.collapse(true);
+          try {
+            // offsetNode 가 element 면 offset 이 자식 수를 넘을 수 있음(IndexSizeError) → try/catch 로 막고 fallback
+            range = document.createRange();
+            range.setStart(pos.offsetNode, pos.offset);
+            range.collapse(true);
+          } catch {
+            range = doc.caretRangeFromPoint?.(x, y) ?? null;
+          }
         } else {
           range = doc.caretRangeFromPoint?.(x, y) ?? null;
         }
@@ -953,6 +994,47 @@ export default function PlateEditor({
     } catch { return null; }
   })();
   const isInMediaEmbed = !!selectedMediaEmbed;
+
+  // 선택의 "가장 안쪽 contextual 블록" 타입 — floating bar 가 중첩될 때 현재(가장 깊은) 것만 띄우려고.
+  // 컨테이너 바(table/column/toggle/callout)는 자기보다 더 깊은 블록이 선택되면 닫는다.
+  const nearestContextType = (() => {
+    try {
+      if (!editor.selection) return null;
+      const CTX = new Set(["table", "column_group", "toggle", "callout", "img", "equation", "media_embed"]);
+      let found: string | null = null;
+      let depth = -1;
+      // 순회 순서와 무관하게 path 가 가장 긴(가장 안쪽) contextual 블록을 고른다.
+      for (const [node, path] of editor.api.levels({ at: editor.selection.anchor.path })) {
+        const ty = (node as { type?: string }).type;
+        if (ty && CTX.has(ty) && (path as number[]).length > depth) { found = ty; depth = (path as number[]).length; }
+      }
+      return found;
+    } catch { return null; }
+  })();
+
+  // ── floating bar 닫기 ── 다른 블록의 컨트롤(탭 버튼·다른 블록 UI 등)과 인터랙션하면
+  // 에디터 선택을 해제해 컨텍스트 바가 닫히게 한다. (이미지/void·바 자체·같은 컨텍스트 블록은 제외)
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (!editor.selection) return;
+      const root = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
+      const t = e.target as HTMLElement | null;
+      if (!root || !t || !root.contains(t)) return; // 에디터 밖(바·팝오버 등)은 무시
+      const ctrl = t.closest('[contenteditable="false"]');
+      if (!ctrl) return; // 편집 텍스트 클릭은 Slate 가 처리
+      if (t.closest('[data-slate-void="true"]')) return; // 이미지 등 void 는 기존 선택 핸들러 담당
+      try {
+        const selEntry = editor.api.block();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const selDom = selEntry ? (editor.api.toDOMNode(selEntry[0] as any) as HTMLElement | null) : null;
+        const clicked = (ctrl as HTMLElement).closest('[data-slate-node="element"]');
+        if (selDom && clicked && (clicked === selDom || clicked.contains(selDom))) return; // 같은 컨텍스트 블록
+      } catch { /* noop */ }
+      editor.tf.deselect();
+    };
+    document.addEventListener("mousedown", onDown, true);
+    return () => document.removeEventListener("mousedown", onDown, true);
+  }, [editor]);
 
   // ── void 블록 전후에 빈 paragraph 보장 ──
   useEffect(() => {
@@ -1573,6 +1655,84 @@ export default function PlateEditor({
     // 등 race condition 발생. 브라우저가 composition 끝낸 후 다시 키 누르면 정상 처리.
     if (e.nativeEvent.isComposing) return;
 
+    // ── 들여쓴 블록 맨 앞에서 Backspace → 들여쓰기 한 단계 줄이기(outdent) ──
+    // 리스트는 자체 backspace 동작이 있으니 제외.
+    if (e.key === "Backspace" && editor.selection && editor.api.isCollapsed()) {
+      try {
+        const entry = editor.api.block();
+        if (entry) {
+          const [node, path] = entry;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const n = node as any;
+          if (!n.listStyleType && (n.indent as number) > 0 && editor.api.isStart(editor.selection.anchor, path)) {
+            e.preventDefault();
+            outdent(editor);
+            return;
+          }
+        }
+      } catch { /* noop */ }
+    }
+
+    // ── 탭 패널 안에서 Backspace 로 탭이 삭제되지 않도록 ──
+    // 패널 첫 블록의 맨 앞에서 Backspace → 기본 병합이 패널 밖으로 빠져나가며 탭 구조를 깬다. 차단.
+    if (e.key === "Backspace" && editor.selection && editor.api.isCollapsed()) {
+      try {
+        const anchor = editor.selection.anchor;
+        for (let len = anchor.path.length - 1; len >= 1; len--) {
+          const p = anchor.path.slice(0, len);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const parent = editor.api.node(p.slice(0, -1))?.[0] as any;
+          if (parent?.type === "tab_panel") {
+            if (p[p.length - 1] === 0 && editor.api.isStart(anchor, p)) {
+              e.preventDefault();
+              return;
+            }
+            break;
+          }
+        }
+      } catch { /* noop */ }
+    }
+
+    // ── 여러 top-level 블록에 걸친 선택에서 Backspace/Delete → 선택된 블록들을 통째로 삭제 ──
+    // 기본 deleteFragment 는 void/특수 블록(이미지·코드블록·hr 등)을 일부 남기므로 명시적으로 removeNodes.
+    if ((e.key === "Backspace" || e.key === "Delete") && editor.selection && !editor.api.isCollapsed()) {
+      // anchor/focus 의 블록 path 를 구해 공통 부모에서 발산하는 레벨의 블록들을 삭제.
+      // → top-level 뿐 아니라 탭 패널·컬럼 등 중첩 컨테이너 안에서도 멀티블록 선택 삭제 동작.
+      let aB: number[] | undefined, fB: number[] | undefined;
+      try {
+        aB = editor.api.block({ at: editor.selection.anchor })?.[1] as number[] | undefined;
+        fB = editor.api.block({ at: editor.selection.focus })?.[1] as number[] | undefined;
+      } catch { /* noop */ }
+      let d = 0;
+      if (aB && fB) { while (d < aB.length && d < fB.length && aB[d] === fB[d]) d++; }
+      if (aB && fB && d < aB.length && d < fB.length && aB[d] !== fB[d]) {
+        const parent = aB.slice(0, d);
+        const startIdx = Math.min(aB[d], fB[d]);
+        const endIdx = Math.max(aB[d], fB[d]);
+        e.preventDefault();
+        editor.tf.withoutNormalizing(() => {
+          for (let i = endIdx; i >= startIdx; i--) {
+            try { editor.tf.removeNodes({ at: [...parent, i] }); } catch { /* noop */ }
+          }
+        });
+        try {
+          // 부모(또는 루트)가 비면 빈 p 삽입
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const pn = parent.length ? (editor.api.node(parent)?.[0] as any) : null;
+          const empty = parent.length ? !(pn?.children?.length) : editor.children.length === 0;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if (empty) editor.tf.insertNodes({ type: "p", children: [{ text: "" }] } as any, { at: [...parent, 0] });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const pn2 = parent.length ? (editor.api.node(parent)?.[0] as any) : null;
+          const count = parent.length ? (pn2?.children?.length ?? 1) : editor.children.length;
+          const idx = Math.max(0, Math.min(startIdx, count - 1));
+          editor.tf.select(editor.api.start([...parent, idx])!);
+          editor.tf.focus();
+        } catch { /* noop */ }
+        return;
+      }
+    }
+
     // ── 화살표로 이미지 선택 ──
     // 커서가 이미지(inline void) 바로 옆에서 ←/→ 를 누르면 그냥 지나치지 않고 이미지를 선택(툴바 표시).
     // 한 번 더 누르면(이미 선택=비collapsed) 기본 동작으로 지나간다.
@@ -1959,6 +2119,8 @@ export default function PlateEditor({
     return [...content, ...detachedItems];
   }, [editor]);
 
+  // toggleHtmlMode 는 아래에서 정의됨(TDZ) → ref 경유로 handle 에 노출
+  const toggleHtmlModeRef = useRef<() => void>(() => {});
   useImperativeHandle(editorRef, () => ({
     getImages: getImagesLive,
     selectImageAt,
@@ -1967,6 +2129,7 @@ export default function PlateEditor({
     insertImageByUrl,
     insertMediaByUrl,
     removeDetached,
+    toggleHtmlMode: () => toggleHtmlModeRef.current(),
   }), [selectImageAt, reorderImage, removeImage, insertImageByUrl, insertMediaByUrl, removeDetached, getImagesLive]);
 
   // ── MainToolbar toggle handlers ──
@@ -2060,12 +2223,27 @@ export default function PlateEditor({
     }
     setHtmlMode(!htmlMode);
   }, [htmlMode, htmlSource, editor]);
+  // 외부(제목 라인) 토글 버튼이 ref 로 호출할 수 있게 최신 함수 보관
+  toggleHtmlModeRef.current = toggleHtmlMode;
+  // htmlMode 변화를 부모(PostEditor/WorkEditor)에 통지 → 외부 버튼 active 표시
+  useEffect(() => { onHtmlModeChange?.(htmlMode); }, [htmlMode, onHtmlModeChange]);
 
   const insertMathBlock = useCallback(() => doInsertMath("", "block"), [doInsertMath]);
 
   // ── Active toolbar height → scrollPaddingTop + find offset ──
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const toolbarPadRef = useRef(0);
+  // 블록 DnD 자동 스크롤 대상 = 에디터 스크롤 컨테이너([data-slate-editor]). 전체 페이지 스크롤 방지.
+  useEffect(() => {
+    let raf = 0;
+    const set = () => {
+      const el = editorContainerRef.current?.querySelector<HTMLElement>("[data-slate-editor]") ?? null;
+      if (el) _dndScrollContainer.current = el;
+      else raf = requestAnimationFrame(set);
+    };
+    set();
+    return () => { cancelAnimationFrame(raf); _dndScrollContainer.current = null; };
+  }, []);
   // 어떤 toolbar든 visibility가 바뀌면 재측정
   const toolbarKey = `${findOpen}|${findReplace}|${isInTable}|${isInColumn}|${isInToggle}|${isInCallout}|${mathEditing}|${isInImage}|${showLinkInput}|${showEmbedInput}`;
   useEffect(() => {
@@ -2073,11 +2251,11 @@ export default function PlateEditor({
     const id = requestAnimationFrame(() => {
       const container = editorContainerRef.current;
       if (!container) return;
-      const findH = findToolbarRef.current && !findToolbarRef.current.classList.contains(styles.tableToolbarHidden)
+      const findH = findToolbarRef.current && !findToolbarRef.current.classList.contains(styles.contextToolbarHidden)
         ? findToolbarRef.current.offsetHeight : 0;
-      container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
+      container.querySelectorAll<HTMLElement>(`.${styles.contextToolbar}`).forEach((tb) => {
         if (tb === findToolbarRef.current) return;
-        const isHidden = tb.classList.contains(styles.tableToolbarHidden);
+        const isHidden = tb.classList.contains(styles.contextToolbarHidden);
         if (isHidden) {
           tb.style.top = "0px";
         } else if (findH > 0) {
@@ -2087,8 +2265,8 @@ export default function PlateEditor({
         }
       });
       let maxH = 0;
-      container.querySelectorAll<HTMLElement>(`.${styles.tableToolbar}`).forEach((tb) => {
-        if (!tb.classList.contains(styles.tableToolbarHidden)) {
+      container.querySelectorAll<HTMLElement>(`.${styles.contextToolbar}`).forEach((tb) => {
+        if (!tb.classList.contains(styles.contextToolbarHidden)) {
           maxH = Math.max(maxH, (tb === findToolbarRef.current ? 0 : findH) + tb.offsetHeight);
         }
       });
@@ -2131,8 +2309,6 @@ export default function PlateEditor({
           onToggleLinkInput={toggleLinkInput}
           showEmbedInput={showEmbedInput}
           onToggleEmbedInput={toggleEmbedInput}
-          htmlMode={htmlMode}
-          onToggleHtmlMode={toggleHtmlMode}
           onAddImage={addImage}
           onAddFile={addFile}
           onAddAudio={addAudio}
@@ -2144,7 +2320,7 @@ export default function PlateEditor({
         <div ref={editorContainerRef} className={`${styles.editorContainer} ${isInTable && noOverlay ? styles.editorContainerActive : ""}`}>
           <TableToolbar
             editor={editor}
-            visible={isInTable && noOverlay}
+            visible={isInTable && noOverlay && nearestContextType === "table"}
             cellBg={cellBg}
             cellVAlign={cellVAlign}
             tableCaption={tableCaption}
@@ -2171,7 +2347,7 @@ export default function PlateEditor({
           <MathToolbar visible={mathEditing && noOverlay} />
 
           {/* Media Embed toolbar */}
-          <div className={`${styles.tableToolbar} ${!isInMediaEmbed || !noOverlay ? styles.tableToolbarHidden : ""}`}>
+          <div className={`${styles.contextToolbar} ${!isInMediaEmbed || !noOverlay ? styles.contextToolbarHidden : ""}`}>
             {selectedMediaEmbed && (() => {
               const mel = selectedMediaEmbed.node;
               const mUrl = (mel.url as string) || "";
@@ -2197,8 +2373,8 @@ export default function PlateEditor({
                 setAttr({ ytStart: next });
               };
               return (
-                <div className={styles.tableToolbarRow}>
-                  <span className={styles.tableToolbarLabel}>EMBED</span>
+                <div className={styles.contextToolbarRow}>
+                  <span className={styles.contextToolbarLabel}>EMBED</span>
                   <div className={styles.tableGroup}>
                     {(["left", "center", "right"] as const).map((a) => (
                       <TBtn key={a} square active={mAlign === a} onClick={() => setAttr({ align: a })}>{a === "left" ? "◧" : a === "center" ? "◻" : "◨"}</TBtn>
@@ -2227,7 +2403,7 @@ export default function PlateEditor({
                       </div>
                     </>
                   )}
-                  <div className={styles.tableToolbarActions}>
+                  <div className={styles.contextToolbarActions}>
                     <TBtn square onClick={() => setAttr({ width: 0, align: "center", ytStart: 0, ytAutoplay: false, ytLoop: false, ytMute: false, ytControls: true })}><RxReset size={13} /></TBtn>
                   </div>
                 </div>
@@ -2236,9 +2412,9 @@ export default function PlateEditor({
           </div>
 
           {/* Find & Replace toolbar — always on top */}
-          <div ref={findToolbarRef} className={`${styles.tableToolbar} ${styles.findToolbar} ${!findOpen ? styles.tableToolbarHidden : ""}`}>
-            <div className={styles.tableToolbarRow}>
-              <span className={styles.tableToolbarLabel} style={{ minWidth: 52 }}>FIND</span>
+          <div ref={findToolbarRef} className={`${styles.contextToolbar} ${styles.findToolbar} ${!findOpen ? styles.contextToolbarHidden : ""}`}>
+            <div className={styles.contextToolbarRow}>
+              <span className={styles.contextToolbarLabel} style={{ minWidth: 52 }}>FIND</span>
               <div className={styles.tableGroup} style={{ width: 220 }}>
                 <input
                   ref={findInputRef}
@@ -2272,15 +2448,15 @@ export default function PlateEditor({
                   <Replace size={12} />
                 </TBtn>
               </div>
-              <div className={styles.tableToolbarActions}>
+              <div className={styles.contextToolbarActions}>
                 <TBtn square onClick={() => { setFindOpen(false); setFindQuery(""); setReplaceQuery(""); editor.tf.focus(); }} tooltip="Close (Esc)">
                   <X size={12} strokeWidth={2.5} />
                 </TBtn>
               </div>
             </div>
             {findReplace && (
-              <div className={styles.tableToolbarRow}>
-                <span className={styles.tableToolbarLabel} style={{ minWidth: 52 }}>REPLACE</span>
+              <div className={styles.contextToolbarRow}>
+                <span className={styles.contextToolbarLabel} style={{ minWidth: 52 }}>REPLACE</span>
                 <div className={styles.tableGroup} style={{ width: 220 }}>
                   <input
                     type="text"
@@ -2300,8 +2476,17 @@ export default function PlateEditor({
             )}
           </div>
 
-          {/* Column toolbar */}
-          <div className={`${styles.tableToolbar} ${!(isInColumn && columnGroupNode && noOverlay) ? styles.tableToolbarHidden : ""}`}>
+          {/* Column toolbar — 대상 컬럼 블록에 앵커 + 스크롤 추적 */}
+          <FloatingBar
+            open={!!(isInColumn && columnGroupNode && noOverlay && nearestContextType === "column_group")}
+            getAnchorRect={() => {
+              try {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const dom = columnGroupForRender ? editor.api.toDOMNode(columnGroupForRender.node as any) : null;
+                return (dom as HTMLElement | null)?.getBoundingClientRect() ?? new DOMRect();
+              } catch { return new DOMRect(); }
+            }}
+          >
             {columnGroupForRender && (() => {
               const colBg = (columnGroupForRender.node.columnBg as string) || "";
               const colDiv = (columnGroupForRender.node.columnDivider as string) || "";
@@ -2311,110 +2496,96 @@ export default function PlateEditor({
               const colCount = colChildren.length;
               const BG_PRESETS = COLUMN_BG_PRESETS;
               return (
-                <div className={styles.tableToolbarRow}>
-                  <span className={styles.tableToolbarLabel}>COLS</span>
-                  {/* BG 캡슐: 현재색 | 기본색 | 프리셋 | 초기화 | 피커 */}
-                  <div className={styles.tableGroup}>
-                    <span className={styles.tableGroupLabel}>BG</span>
-                    <div className={styles.divider} />
-                    <Tooltip content="current" placement="top" delay={200}>
-                      <div className={styles.presetDotInline} style={{ background: colBg || CHECKER_BG, margin: "0 2px" }} />
-                    </Tooltip>
-                    <div className={styles.divider} />
-                    {/* default(배경색) */}
-                    <Tooltip content="default" placement="top" delay={200}>
-                      <button type="button" className={`${styles.presetDotInline} ${!colBg ? styles.presetDotActive : ""}`} style={{ background: "var(--bg-secondary)" }} onClick={() => editor.tf.setNodes({ columnBg: undefined }, { at: activePath })} />
-                    </Tooltip>
-                    {/* none(투명) */}
-                    <Tooltip content="none" placement="top" delay={200}>
-                      <button type="button" className={`${styles.presetDotInline} ${colBg === "transparent" ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnBg: "transparent" }, { at: activePath })} />
-                    </Tooltip>
-                    {/* 프리셋 */}
-                    {BG_PRESETS.filter((c) => c !== "transparent").map((c) => (
-                      <Tooltip key={`bg-${c}`} content={c} placement="top" delay={200}>
-                        <button type="button" className={`${styles.presetDotInline} ${c === colBg ? styles.presetDotActive : ""}`} style={{ background: c }} onClick={() => editor.tf.setNodes({ columnBg: c }, { at: activePath })} />
-                      </Tooltip>
-                    ))}
-                    <div className={styles.divider} />
-                    <div className={styles.colorGroup} style={{ gap: 2 }}>
-                      <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
-                      <div className={styles.presetDotInline} style={{ background: colBg || CHECKER_BG, margin: "0 2px" }} />
-                      <span style={{ width: 1, alignSelf: "stretch", background: "var(--border-light-color)", flexShrink: 0 }} />
-                      <ColorPicker
-                        value={colBg || "#ffffff"}
-                        onChange={(c) => {
-                          const v = c.oklch;
-                          editor.tf.setNodes({ columnBg: v }, { at: activePath });
-                          const list = colBgRecentColors.current;
-                          if (list[0] !== v) {
-                            const idx = list.indexOf(v);
-                            if (idx !== -1) list.splice(idx, 1);
-                            list.unshift(v);
-                            if (list.length > 5) list.pop();
-                            localStorage.setItem("col-bg-recent", JSON.stringify(list));
-                            forceColorUpdate((v) => v + 1);
-                          }
-                        }}
-                        triggerClassName={styles.colorInput}
-                      />
-                    </div>
-                    {Array.from({ length: 5 }).map((_, i) => {
-                      const c = colBgRecentColors.current[i];
-                      const btn = <button key={i} type="button" className={`${styles.presetDotInline} ${c && colBg === c ? styles.presetDotActive : ""}`} disabled={!c} style={{ background: c || CHECKER_BG, cursor: c ? "pointer" : "default" }} onClick={() => { if (c) editor.tf.setNodes({ columnBg: c }, { at: activePath }); }} />;
-                      return c ? <Tooltip key={i} content={c} placement="top" delay={200}>{btn}</Tooltip> : btn;
-                    })}
-                  </div>
-                  {/* LINE 캡슐: 현재색 | 기본색 | none | 프리셋 | 초기화 | 피커 */}
-                  <div className={styles.tableGroup}>
-                    <span className={styles.tableGroupLabel}>Line</span>
-                    <div className={styles.divider} />
-                    <Tooltip content="current" placement="top" delay={200}>
-                      <div className={styles.presetDotInline} style={{ background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)", margin: "0 2px" }} />
-                    </Tooltip>
-                    <div className={styles.divider} />
-                    {/* 기본색(default) */}
-                    <Tooltip content="default" placement="top" delay={200}>
-                      <button type="button" className={`${styles.presetDotInline} ${!colDiv ? styles.presetDotActive : ""}`} style={{ background: "var(--text-muted)" }} onClick={() => editor.tf.setNodes({ columnDivider: undefined }, { at: activePath })} />
-                    </Tooltip>
-                    {/* none(transparent) */}
-                    <Tooltip content="none" placement="top" delay={200}>
-                      <button type="button" className={`${styles.presetDotInline} ${colDiv === "transparent" ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnDivider: "transparent" }, { at: activePath })} />
-                    </Tooltip>
-                    {/* 프리셋 */}
-                    {["#d1d5db", "#000000", "#374151", "#ef4444", "#3b82f6", "#22c55e", "#8b5cf6"].map((c) => (
-                      <Tooltip key={`line-${c}`} content={c} placement="top" delay={200}>
-                        <button type="button" className={`${styles.presetDotInline} ${c === colDiv ? styles.presetDotActive : ""}`} style={{ background: c }} onClick={() => editor.tf.setNodes({ columnDivider: c }, { at: activePath })} />
-                      </Tooltip>
-                    ))}
-                    <div className={styles.divider} />
-                    <div className={styles.colorGroup} style={{ gap: 2 }}>
-                      <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
-                      <div className={styles.presetDotInline} style={{ background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)", margin: "0 2px" }} />
-                      <span style={{ width: 1, alignSelf: "stretch", background: "var(--border-light-color)", flexShrink: 0 }} />
-                      <ColorPicker
-                        value={colDiv && colDiv !== "transparent" ? colDiv : "#d1d5db"}
-                        onChange={(c) => {
-                          const v = c.oklch;
-                          editor.tf.setNodes({ columnDivider: v }, { at: activePath });
-                          const list = colLineRecentColors.current;
-                          if (list[0] !== v) {
-                            const idx = list.indexOf(v);
-                            if (idx !== -1) list.splice(idx, 1);
-                            list.unshift(v);
-                            if (list.length > 5) list.pop();
-                            localStorage.setItem("col-line-recent", JSON.stringify(list));
-                            forceColorUpdate((v) => v + 1);
-                          }
-                        }}
-                        triggerClassName={styles.colorInput}
-                      />
-                    </div>
-                    {Array.from({ length: 5 }).map((_, i) => {
-                      const c = colLineRecentColors.current[i];
-                      const btn = <button key={i} type="button" className={`${styles.presetDotInline} ${c && colDiv === c ? styles.presetDotActive : ""}`} disabled={!c} style={{ background: c || CHECKER_BG, cursor: c ? "pointer" : "default" }} onClick={() => { if (c) editor.tf.setNodes({ columnDivider: c }, { at: activePath }); }} />;
-                      return c ? <Tooltip key={i} content={c} placement="top" delay={200}>{btn}</Tooltip> : btn;
-                    })}
-                  </div>
+                <div className={styles.contextToolbarRow}>
+                  <span className={styles.contextToolbarLabel}>COLS</span>
+                  {/* BG — popover 로 정리 (트리거=현재색, 안에 프리셋·피커·최근색) */}
+                  <Popover placement="bottom-start" offset={8} contentClassName={styles.floatingMenu}
+                    trigger={
+                      <button type="button" className={styles.colMenuTrigger} aria-label="background">
+                        <span className={styles.tableGroupLabel}>BG</span>
+                        <span className={styles.presetDotInline} style={{ background: colBg || CHECKER_BG }} />
+                      </button>
+                    }>
+                    {() => (
+                      <div className={styles.colMenu} onMouseDown={(e) => e.preventDefault()}>
+                        <div className={styles.colMenuDots}>
+                          <Tooltip content="default" placement="top" delay={200}>
+                            <button type="button" className={`${styles.presetDotInline} ${!colBg ? styles.presetDotActive : ""}`} style={{ background: "var(--bg-secondary)" }} onClick={() => editor.tf.setNodes({ columnBg: undefined }, { at: activePath })} />
+                          </Tooltip>
+                          <Tooltip content="none" placement="top" delay={200}>
+                            <button type="button" className={`${styles.presetDotInline} ${colBg === "transparent" ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnBg: "transparent" }, { at: activePath })} />
+                          </Tooltip>
+                          {BG_PRESETS.filter((c) => c !== "transparent").map((c) => (
+                            <Tooltip key={`bg-${c}`} content={c} placement="top" delay={200}>
+                              <button type="button" className={`${styles.presetDotInline} ${c === colBg ? styles.presetDotActive : ""}`} style={{ background: c }} onClick={() => editor.tf.setNodes({ columnBg: c }, { at: activePath })} />
+                            </Tooltip>
+                          ))}
+                        </div>
+                        <div className={styles.colMenuPicker}>
+                          <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
+                          <ColorPicker
+                            value={colBg || "#ffffff"}
+                            onChange={(c) => {
+                              const v = c.oklch;
+                              editor.tf.setNodes({ columnBg: v }, { at: activePath });
+                              const list = colBgRecentColors.current;
+                              if (list[0] !== v) { const idx = list.indexOf(v); if (idx !== -1) list.splice(idx, 1); list.unshift(v); if (list.length > 5) list.pop(); localStorage.setItem("col-bg-recent", JSON.stringify(list)); forceColorUpdate((x) => x + 1); }
+                            }}
+                            triggerClassName={styles.colorInput}
+                          />
+                          {colBgRecentColors.current.filter(Boolean).slice(0, 5).map((c, i) => (
+                            <Tooltip key={i} content={c} placement="top" delay={200}>
+                              <button type="button" className={`${styles.presetDotInline} ${colBg === c ? styles.presetDotActive : ""}`} style={{ background: c }} onClick={() => editor.tf.setNodes({ columnBg: c }, { at: activePath })} />
+                            </Tooltip>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </Popover>
+                  {/* Line — popover */}
+                  <Popover placement="bottom-start" offset={8} contentClassName={styles.floatingMenu}
+                    trigger={
+                      <button type="button" className={styles.colMenuTrigger} aria-label="divider">
+                        <span className={styles.tableGroupLabel}>Line</span>
+                        <span className={styles.presetDotInline} style={{ background: colDiv === "transparent" ? CHECKER_BG : colDiv || "var(--text-muted)" }} />
+                      </button>
+                    }>
+                    {() => (
+                      <div className={styles.colMenu} onMouseDown={(e) => e.preventDefault()}>
+                        <div className={styles.colMenuDots}>
+                          <Tooltip content="default" placement="top" delay={200}>
+                            <button type="button" className={`${styles.presetDotInline} ${!colDiv ? styles.presetDotActive : ""}`} style={{ background: "var(--text-muted)" }} onClick={() => editor.tf.setNodes({ columnDivider: undefined }, { at: activePath })} />
+                          </Tooltip>
+                          <Tooltip content="none" placement="top" delay={200}>
+                            <button type="button" className={`${styles.presetDotInline} ${colDiv === "transparent" ? styles.presetDotActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => editor.tf.setNodes({ columnDivider: "transparent" }, { at: activePath })} />
+                          </Tooltip>
+                          {["#d1d5db", "#000000", "#374151", "#ef4444", "#3b82f6", "#22c55e", "#8b5cf6"].map((c) => (
+                            <Tooltip key={`line-${c}`} content={c} placement="top" delay={200}>
+                              <button type="button" className={`${styles.presetDotInline} ${c === colDiv ? styles.presetDotActive : ""}`} style={{ background: c }} onClick={() => editor.tf.setNodes({ columnDivider: c }, { at: activePath })} />
+                            </Tooltip>
+                          ))}
+                        </div>
+                        <div className={styles.colMenuPicker}>
+                          <Pipette size={13} style={{ color: "var(--text-muted)", pointerEvents: "none", flexShrink: 0 }} />
+                          <ColorPicker
+                            value={colDiv && colDiv !== "transparent" ? colDiv : "#d1d5db"}
+                            onChange={(c) => {
+                              const v = c.oklch;
+                              editor.tf.setNodes({ columnDivider: v }, { at: activePath });
+                              const list = colLineRecentColors.current;
+                              if (list[0] !== v) { const idx = list.indexOf(v); if (idx !== -1) list.splice(idx, 1); list.unshift(v); if (list.length > 5) list.pop(); localStorage.setItem("col-line-recent", JSON.stringify(list)); forceColorUpdate((x) => x + 1); }
+                            }}
+                            triggerClassName={styles.colorInput}
+                          />
+                          {colLineRecentColors.current.filter(Boolean).slice(0, 5).map((c, i) => (
+                            <Tooltip key={i} content={c} placement="top" delay={200}>
+                              <button type="button" className={`${styles.presetDotInline} ${colDiv === c ? styles.presetDotActive : ""}`} style={{ background: c }} onClick={() => editor.tf.setNodes({ columnDivider: c }, { at: activePath })} />
+                            </Tooltip>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </Popover>
                   {/* 너비 캡슐 */}
                   {colCount > 1 && (
                     <div className={styles.tableGroup}>
@@ -2429,7 +2600,7 @@ export default function PlateEditor({
                     </div>
                   )}
                   {/* 액션 */}
-                  <div className={styles.tableToolbarActions}>
+                  <div className={styles.contextToolbarActions}>
                     <TBtn
                       onClick={() => {
                         editor.tf.setNodes({ columnBg: undefined, columnDivider: undefined }, { at: activePath });
@@ -2454,10 +2625,10 @@ export default function PlateEditor({
                 </div>
               );
             })()}
-          </div>
+          </FloatingBar>
 
           {/* Toggle toolbar */}
-          <div className={`${styles.tableToolbar} ${!(isInToggle && toggleNode && noOverlay) ? styles.tableToolbarHidden : ""}`}>
+          <div className={`${styles.contextToolbar} ${!(isInToggle && toggleNode && noOverlay && nearestContextType === "toggle") ? styles.contextToolbarHidden : ""}`}>
             {toggleNode && (() => {
               // 첫 번째 child의 타입 확인
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -2465,8 +2636,8 @@ export default function PlateEditor({
               const firstChild = children[0] as { type?: string; listStyleType?: string; checked?: boolean } | undefined;
               const headingType = firstChild?.type || "p";
               return (
-                <div className={styles.tableToolbarRow}>
-                  <span className={styles.tableToolbarLabel}>TOGGLE</span>
+                <div className={styles.contextToolbarRow}>
+                  <span className={styles.contextToolbarLabel}>TOGGLE</span>
                   {/* 제목 스타일 */}
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>{t("editor.toggleTitle") || "제목"}</span>
@@ -2605,7 +2776,7 @@ export default function PlateEditor({
                     </TBtn>
                   </div>
                   {/* 삭제 */}
-                  <div className={styles.tableToolbarActions}>
+                  <div className={styles.contextToolbarActions}>
                     <TBtn
                       onClick={() => editor.tf.setNodes({ open: true }, { at: toggleNode.path })}
                       tooltip={t("editor.clearFormat")}
@@ -2628,12 +2799,12 @@ export default function PlateEditor({
           </div>
 
           {/* Callout toolbar */}
-          <div className={`${styles.tableToolbar} ${!(isInCallout && calloutNode && noOverlay) ? styles.tableToolbarHidden : ""}`}>
+          <div className={`${styles.contextToolbar} ${!(isInCallout && calloutNode && noOverlay && nearestContextType === "callout") ? styles.contextToolbarHidden : ""}`}>
             {calloutNode && (() => {
               const cBg = (calloutNode.node.bg as string) || "var(--bg-tertiary)";
               return (
-                <div className={styles.tableToolbarRow}>
-                  <span className={styles.tableToolbarLabel}>CALLOUT</span>
+                <div className={styles.contextToolbarRow}>
+                  <span className={styles.contextToolbarLabel}>CALLOUT</span>
                   {/* BG 그룹 (캡슐) */}
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>BG</span>
@@ -2724,7 +2895,7 @@ export default function PlateEditor({
                     >🔮</TBtn>
                   </div>
                   {/* 우측 — 이모지 제거/추가, 서식 초기화, 콜아웃 삭제 */}
-                  <div className={styles.tableToolbarActions}>
+                  <div className={styles.contextToolbarActions}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
                       {calloutNode.node.icon ? (
                         <TBtn
@@ -2766,9 +2937,9 @@ export default function PlateEditor({
           </div>
 
           {/* ── Link form (advanced) ── */}
-          <div ref={linkToolbarRef} className={`${styles.tableToolbar} ${!showLinkInput ? styles.tableToolbarHidden : ""}`}>
-            <div className={styles.tableToolbarRow} style={{ gap: 6, paddingRight: "var(--spacing-xs)" }}>
-              <span className={styles.tableToolbarLabel}>LINK</span>
+          <div ref={linkToolbarRef} className={`${styles.contextToolbar} ${!showLinkInput ? styles.contextToolbarHidden : ""}`}>
+            <div className={styles.contextToolbarRow} style={{ gap: 6, paddingRight: "var(--spacing-xs)" }}>
+              <span className={styles.contextToolbarLabel}>LINK</span>
               {/* 프로토콜 + URL 캡슐 */}
               <div className={styles.linkCapsule}>
                 <select
@@ -2914,7 +3085,7 @@ export default function PlateEditor({
               data-lenis-prevent
               onKeyDown={handleContentKeyDown}
               decorate={findOpen ? decorate : undefined}
-              renderLeaf={findOpen ? renderFindLeaf : undefined}
+              renderLeaf={renderFindLeaf}
               onClick={(e) => {
                 // kbd/code 밖 클릭 시 plain text 모드로 전환
                 const clickTarget = e.target as HTMLElement;

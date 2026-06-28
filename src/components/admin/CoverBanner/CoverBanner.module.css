@@ -1,0 +1,233 @@
+/* ── 커버 배너 + 페이지 이모지 ── */
+
+.wrap {
+  position: relative;
+  /* 커버가 container 최상단(전역 nav 바로 아래)에 위치 → 별도 offset 불필요 */
+  /* 이모지가 배너 하단에 겹치므로 아래쪽 여유 공간 확보 */
+  margin-bottom: var(--spacing-lg);
+}
+
+/* ── 커버 배너 ── */
+.banner {
+  position: relative;
+  /* 좌우 페이지 패딩을 벗어나 에디터 폭을 꽉 채움 */
+  margin-left: calc(-1 * var(--page-px));
+  margin-right: calc(-1 * var(--page-px));
+  /* detail 페이지 hero 와 동일한 비율 */
+  height: 35vh;
+  min-height: 240px;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+  /* 커버 이미지가 아래로 갈수록 투명해지는 그라데이션 마스크 — 40% 부터 완만히 페이드 */
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
+  mask-image: linear-gradient(to bottom, #000 40%, transparent);
+}
+
+/* 비어있을 때 — 낮은 채도의 점선 영역 */
+.bannerEmpty {
+  border: 1px dashed var(--border-light-color);
+  background: var(--bg-tertiary);
+}
+
+.media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── 우상단 hover 컨트롤 ── */
+.controls {
+  position: absolute;
+  /* 전역 nav(높이 --header-height)와 안 겹치게 그 아래로 */
+  top: calc(var(--header-height) + var(--spacing-sm));
+  /* 페이지·nav 우측 여백(--page-px)과 동일하게 — 배너가 page-px 만큼 넘쳐있으므로 그만큼 안쪽으로 */
+  right: var(--page-px);
+  display: flex;
+  gap: 0;
+  opacity: 0;
+  pointer-events: none;
+  /* 전역 theme transition(opacity 미포함)을 덮기 위해 compound selector 사용 (0,2,0) */
+}
+
+.wrap .controls {
+  transition: opacity var(--duration-base) ease;
+}
+
+.banner:hover .controls,
+.controls:focus-within,
+.bannerRepositioning .controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── 위치 조정 모드 ── */
+.bannerRepositioning {
+  cursor: grab;
+  touch-action: none;
+}
+
+.bannerRepositioning:active {
+  cursor: grabbing;
+}
+
+/* 드래그 중 이미지 선택/드래그 방지 */
+.bannerRepositioning .media {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 상단 중앙 안내 힌트 — difference blend 로 어떤 배경 위에서도 가독성 */
+.repositionHint {
+  position: absolute;
+  top: calc(var(--header-height) + var(--spacing-sm));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  mix-blend-mode: difference;
+  color: var(--color-white-alpha-100);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ── 커버 변경 Popover 내용 ── */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  min-width: 240px;
+}
+
+/* shared Button(ghost/sm) 위에 메뉴 레이아웃만 override — full-width + 좌측 정렬 */
+.menuBtn {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.urlInput {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  outline: none;
+}
+
+.urlInput:focus {
+  border-color: var(--text-primary);
+}
+
+.menuDivider {
+  height: 1px;
+  background: var(--border-light-color);
+  margin: var(--spacing-2xs) 0;
+}
+
+/* ── 페이지 이모지 ── */
+.emojiRow {
+  position: relative;
+  /* 배너에 절반 겹치도록 위로 끌어올림 (이모지 박스 80px의 절반) */
+  margin-top: -40px;
+  margin-left: var(--spacing-md);
+  height: 40px;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* 커버가 없을 때는 겹칠 배너가 없으니 끌어올리지 않음 */
+.emojiRowNoCover {
+  margin-top: var(--spacing-2xs);
+  height: auto;
+}
+
+.emojiAnchor {
+  position: relative;
+  /* EmojiPicker 팝업이 sticky topBar(z) 위로 뜨도록 — 커버는 stacking context 가 없어
+     여기서 z-index 를 주면 picker 가 topBar 위 레이어로 올라감 */
+  z-index: var(--z-dropdown);
+}
+
+.emojiBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 이모지(56px) 주변 여백 확보 — 버튼 크기를 키워서(이모지 크기는 유지) */
+  width: 80px;
+  height: 80px;
+  padding: var(--spacing-3xs);
+  /* hover 시 border-color 만 입히도록 자리 미리 확보(border-box → 시프트 없음) */
+  border: 1px solid transparent;
+  border-radius: var(--radius-circle);
+  /* 선택된 이모지는 배경 없음(투명). 페이지색 backing 은 placeholder(.addEmojiBtn)만 */
+  background: transparent;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* 커버 위에서 hover 시 — 투명 + frost blur (뒤 커버가 blur 되며 비침).
+   compound (0,2,0) 로 전역 theme transition(backdrop-filter 미포함) 덮어쓰기 */
+.emojiBtn.emojiBtnOverlay {
+  /* blur(0) 을 기본값으로 둬야 hover/active 해제 시 none 으로 뚝 끊기지 않고 0↔8px 보간됨 */
+  backdrop-filter: blur(0);
+  /* 커버 이미지 위에서 이모지 글리프 가독성 확보 */
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  transition:
+    background var(--duration-base) ease,
+    backdrop-filter var(--duration-base) ease,
+    border-color var(--duration-base) ease;
+}
+
+/* picker 열려있을 때(.emojiBtnActive)도 hover 와 동일한 frost 유지 */
+.emojiBtnOverlay:hover,
+.emojiBtnOverlay.emojiBtnActive {
+  background: transparent;
+  backdrop-filter: blur(8px);
+  border-color: var(--border-light-color);
+}
+
+/* 이모지 없을 때 — 이모지 슬롯(72px) 크기의 '추가' 플레이스홀더. 항상 표시.
+   compound selector (0,2,0) 로 .emojiBtn 의 border:none / bg:transparent 덮어쓰기 */
+.addEmojiBtn {
+  color: var(--text-tertiary);
+}
+
+.emojiBtn.addEmojiBtn {
+  position: relative;
+  /* placeholder 는 페이지색 backing 유지(선택된 이모지만 투명). position 은 + 배지 기준점.
+     .emojiBtnOverlay 와 같은 (0,2,0) + source order 상 이 규칙이 이기므로,
+     frost 속성(background/backdrop/border-color)도 여기 함께 명시해야 active→normal 이 부드럽게 전환됨 */
+  background: var(--bg-primary);
+  transition:
+    color var(--duration-base) ease,
+    background var(--duration-base) ease,
+    backdrop-filter var(--duration-base) ease,
+    border-color var(--duration-base) ease;
+}
+
+.emojiBtn.addEmojiBtn:hover {
+  color: var(--text-primary);
+}
+
+/* 우상단 '+' 배지 — 추가 동작임을 명시 */
+.addPlusBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}

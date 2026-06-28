@@ -275,6 +275,8 @@
 }
 
 .variant-ghost.btn {
+  /* 배경에 backdrop blur — 투명 bg 라 단색 위에선 안 보이고, 이미지/가변 배경 위에선 살짝 frost */
+  backdrop-filter: blur(8px);
   transition:
     color var(--duration-base) ease,
     opacity var(--duration-base) ease;

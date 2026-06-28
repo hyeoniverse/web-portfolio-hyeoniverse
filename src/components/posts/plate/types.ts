@@ -15,6 +15,8 @@ export interface PlateEditorHandle {
   insertImageByUrl: (url: string) => void;
   insertMediaByUrl: (url: string) => void;
   removeDetached: (url: string) => void;
+  /** HTML 소스 모드 토글 — 버튼을 에디터 밖(제목 라인 등)에 둘 때 사용 */
+  toggleHtmlMode: () => void;
 }
 
 export interface PlateEditorProps {
@@ -24,4 +26,6 @@ export interface PlateEditorProps {
   editorRef?: React.Ref<PlateEditorHandle>;
   /** 게시물 작성 언어 (폰트 그룹 정렬에 사용) */
   postLang?: "ko" | "en";
+  /** HTML 소스 모드 변화 통지 — 외부 토글 버튼의 active 표시용 */
+  onHtmlModeChange?: (htmlMode: boolean) => void;
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
-import { WorkArticleHeader, WorkArticleBody, WorkArticleTeam } from "@/components/works/WorkArticleView";
+import { WorkArticleHeader, WorkArticleBody, WorkArticleTeam, type RelatedPostItem, type RelatedSeriesItem } from "@/components/works/WorkArticleView";
 import { extractHeadings } from "@/app/works/_utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
@@ -22,6 +22,60 @@ export default function WorkPreviewPage() {
   const [busy, setBusy] = useState(false);
   const { openModal } = useModalStore();
   const [viewLang, setViewLang] = useState<"ko" | "en">(language === "en" ? "en" : "ko");
+
+  // 관련 글 — 디테일과 동일하게 info grid 에 표시 (렌더는 공용 WorkArticleHeader, 데이터만 여기서).
+  // 프리뷰는 편집 중 초안(저장 전)일 수 있어 work-id 관계테이블 대신 form 의 related_post_ids 로 각 글을 직접 가져온다.
+  const relatedIdsKey = (form?.related_post_ids ?? []).join(",");
+  const [relatedPosts, setRelatedPosts] = useState<RelatedPostItem[]>([]);
+  useEffect(() => {
+    const ids = relatedIdsKey ? relatedIdsKey.split(",") : [];
+    if (ids.length === 0) { setRelatedPosts([]); return; }
+    const ac = new AbortController();
+    Promise.all(
+      ids.map((id) =>
+        fetch(`/api/posts/${id}`, { signal: ac.signal })
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null),
+      ),
+    ).then((posts) => {
+      if (ac.signal.aborted) return;
+      const items: RelatedPostItem[] = posts
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((p: any) => p?.id)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((p: any) => ({
+          id: p.id, title: p.title ?? "", title_en: p.title_en, slug: p.slug ?? "",
+          cover_image: p.cover_image ?? "", excerpt: p.excerpt ?? "",
+          category: p.category ?? "", created_at: p.created_at ?? "",
+        }));
+      setRelatedPosts(items);
+    }).catch(() => {});
+    return () => ac.abort();
+  }, [relatedIdsKey]);
+
+  // 관련 시리즈 — form 의 related_series_ids 로 시리즈 데이터 조회
+  const relatedSeriesIdsKey = (form?.related_series_ids ?? []).join(",");
+  const [relatedSeries, setRelatedSeries] = useState<RelatedSeriesItem[]>([]);
+  useEffect(() => {
+    const ids = relatedSeriesIdsKey ? relatedSeriesIdsKey.split(",") : [];
+    if (ids.length === 0) { setRelatedSeries([]); return; }
+    const ac = new AbortController();
+    fetch("/api/series?all=true", { signal: ac.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (ac.signal.aborted) return;
+        const list = Array.isArray(d) ? d : (Array.isArray(d?.items) ? d.items : []);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const byId = new Map(list.map((s: any) => [s.id, s]));
+        const items: RelatedSeriesItem[] = ids
+          .map((id) => byId.get(id))
+          .filter(Boolean)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((s: any) => ({ id: s.id, title: s.title ?? "", title_en: s.title_en, cover_image: s.cover_image, category: s.category, description: s.description, description_en: s.description_en }));
+        setRelatedSeries(items);
+      }).catch(() => {});
+    return () => ac.abort();
+  }, [relatedSeriesIdsKey]);
 
   useEffect(() => {
     if (fetchId) {
@@ -121,6 +175,22 @@ export default function WorkPreviewPage() {
     return h;
   }, [content, isRichtext, project]);
 
+  // richtext 코드블록 — Shiki 는 서버(/api/highlight)에서 처리(현재 viewLang content).
+  const [highlightedContent, setHighlightedContent] = useState(content);
+  useEffect(() => {
+    if (!isRichtext || !content) { setHighlightedContent(content); return; }
+    let active = true;
+    fetch("/api/highlight", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ html: content }),
+    })
+      .then((r) => r.json())
+      .then((d) => { if (active && d?.html) setHighlightedContent(d.html); })
+      .catch(() => { if (active) setHighlightedContent(content); });
+    return () => { active = false; };
+  }, [content, isRichtext]);
+
   if (!form || !project) {
     if (!ready) return null;
     return (
@@ -136,6 +206,11 @@ export default function WorkPreviewPage() {
       </div>
     );
   }
+
+  // 현재 viewLang content 를 하이라이트된 것으로 교체한 project
+  const highlightedProject = isRichtext
+    ? { ...project, content: { ...project.content, [viewLang]: highlightedContent } }
+    : project;
 
   return (
     <DetailLayout
@@ -165,11 +240,13 @@ export default function WorkPreviewPage() {
             viewLang={viewLang}
             onLangChange={setViewLang}
             isPreview
+            relatedPosts={relatedPosts}
+            relatedSeries={relatedSeries}
           />
         </>
       }
     >
-      <WorkArticleBody project={project} viewLang={viewLang} isPreview />
+      <WorkArticleBody project={highlightedProject} viewLang={viewLang} isPreview />
     </DetailLayout>
   );
 }

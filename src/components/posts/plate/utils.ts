@@ -98,6 +98,9 @@ export const _imageUploadFn: { current: ((file: File) => Promise<string>) | null
 // onCancel: 메뉴를 명령 선택 없이 닫을 때(blur/Esc/이동) 호출 — + 로 새로 만든 빈 블록 제거용.
 export const _slashOpenTrigger: { current: ((onCancel?: () => void) => void) | null } = { current: null };
 
+// 블록 DnD 자동 스크롤 대상 = 에디터 스크롤 컨테이너([data-slate-editor]). PlateEditor 가 마운트 시 채움.
+export const _dndScrollContainer: { current: HTMLElement | null } = { current: null };
+
 // ── Find & Replace: pure text-match helper ──
 
 export interface FindMatch {

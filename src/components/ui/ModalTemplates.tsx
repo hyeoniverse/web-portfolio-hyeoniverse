@@ -1,8 +1,9 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { createPortal } from "react-dom";
 import { useModalStore } from "@/stores/modalStore";
+import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { ModalFooterContext } from "@/components/ui/Modal";
@@ -52,6 +53,7 @@ export function ModalAlert({
 interface ModalConfirmProps {
   desc: string;
   confirmText?: string;
+  cancelText?: string;
   danger?: boolean;
   onConfirm: () => void;
 }
@@ -59,35 +61,36 @@ interface ModalConfirmProps {
 export function ModalConfirm({
   desc,
   confirmText = "Confirm",
+  cancelText,
   danger = false,
   onConfirm,
 }: ModalConfirmProps) {
   const { closeModal } = useModalStore();
+  const { language } = useLanguage();
   const footerEl = useContext(ModalFooterContext);
-
-  // confirm 모달은 작아서(메시지 + 버튼) footer 위 구분선이 불필요 — 해당 모달 footer 의 border 만 제거
-  useEffect(() => {
-    if (!footerEl) return;
-    footerEl.style.borderTop = "none";
-    return () => { footerEl.style.borderTop = ""; };
-  }, [footerEl]);
+  const cancel = cancelText ?? (language === "ko" ? "취소" : "Cancel");
 
   return (
     <div className={styles.body}>
       <p className={styles.desc}>{desc}</p>
       {footerEl && createPortal(
-        <Button
-          variant="primary"
-          size="sm"
-          soundDisabled
-          className={danger ? styles.dangerBtn : undefined}
-          onClick={() => {
-            closeModal();
-            onConfirm();
-          }}
-        >
-          {confirmText}
-        </Button>,
+        <>
+          <Button variant="outline" size="sm" soundDisabled onClick={() => closeModal()}>
+            {cancel}
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            soundDisabled
+            className={danger ? styles.dangerBtn : undefined}
+            onClick={() => {
+              closeModal();
+              onConfirm();
+            }}
+          >
+            {confirmText}
+          </Button>
+        </>,
         footerEl,
       )}
     </div>
@@ -105,6 +108,7 @@ interface ModalPromptProps {
   /** 입력값 검증. 미제공 시 비어있지 않으면 통과 */
   validate?: (value: string) => boolean;
   confirmText?: string;
+  cancelText?: string;
   danger?: boolean;
   error?: string;
   /** false면 onConfirm에서 직접 모달을 닫아야 함 (비동기 검증 등) */
@@ -119,6 +123,7 @@ export function ModalPrompt({
   inputType,
   validate,
   confirmText = "Confirm",
+  cancelText,
   danger = false,
   error,
   closeOnConfirm = true,
@@ -126,7 +131,9 @@ export function ModalPrompt({
 }: ModalPromptProps) {
   const [input, setInput] = useState("");
   const { closeModal } = useModalStore();
+  const { language } = useLanguage();
   const footerEl = useContext(ModalFooterContext);
+  const cancel = cancelText ?? (language === "ko" ? "취소" : "Cancel");
 
   const isValid = validate ? validate(input) : input.trim().length > 0;
 
@@ -153,16 +160,21 @@ export function ModalPrompt({
       />
       {error && <p className={styles.error}>{error}</p>}
       {footerEl && createPortal(
-        <Button
-          variant="primary"
-          size="sm"
-          soundDisabled
-          className={danger ? styles.dangerBtn : undefined}
-          disabled={!isValid}
-          onClick={handleConfirm}
-        >
-          {confirmText}
-        </Button>,
+        <>
+          <Button variant="outline" size="sm" soundDisabled onClick={() => closeModal()}>
+            {cancel}
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            soundDisabled
+            className={danger ? styles.dangerBtn : undefined}
+            disabled={!isValid}
+            onClick={handleConfirm}
+          >
+            {confirmText}
+          </Button>
+        </>,
         footerEl,
       )}
     </div>

@@ -43,7 +43,8 @@ const BLOCK_COLORS: { key: string; value: string | null }[] = [
 
 // 공식 @platejs/dnd 기반 블록 드래그 래퍼 (aboveNodes 로 각 블록에 적용).
 // 최상위 블록만 핸들 부여 — 표/컬럼/코드라인 내부 등은 제외.
-const NON_DRAGGABLE = new Set(["tr", "td", "th", "column", "column_group", "code_line", "column-item"]);
+// column_group(n단 블록 전체)은 드래그 허용 — 개별 column 은 레이아웃이라 제외
+const NON_DRAGGABLE = new Set(["tr", "td", "th", "column", "code_line", "column-item"]);
 
 export const BlockDraggable = (props: RenderNodeWrapperProps): RenderNodeWrapperFunction => {
   const { editor, element } = props;
@@ -55,7 +56,14 @@ export const BlockDraggable = (props: RenderNodeWrapperProps): RenderNodeWrapper
     /* path 일시 무효 */
   }
   const type = (element as { type?: string }).type ?? "";
-  const enabled = !!path && path.length === 1 && !NON_DRAGGABLE.has(type);
+  // 최상위 블록 + 탭 패널 직계 자식(중첩 컨테이너 안에서도 블록 이동 가능)
+  let enabled = !!path && path.length === 1 && !NON_DRAGGABLE.has(type);
+  if (!enabled && path && path.length === 3 && !NON_DRAGGABLE.has(type)) {
+    try {
+      const parent = editor.api.node(path.slice(0, -1))?.[0] as { type?: string } | undefined;
+      if (parent?.type === "tab_panel" || parent?.type === "column") enabled = true;
+    } catch { /* path 일시 무효 */ }
+  }
   if (!enabled) return undefined;
 
   return function DraggableWrapper(elementProps) {
@@ -68,7 +76,29 @@ const IS_MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(naviga
 function DraggableBlock({ element, children }: { element: TElement; children: React.ReactNode }) {
   const { t } = useLanguage();
   const editor = useEditorRef();
-  const { isDragging, nodeRef, handleRef } = useDraggable({ element });
+  // 들여쓴 블록 위에 드롭하면 옮긴 블록도 그 들여쓰기(indent)를 물려받게 — "들여쓰기 블록 안에" 넣는 느낌.
+  // 기본 이동(onDropNode)은 그대로 두고(return false), 이동 후 indent 만 맞춘다.
+  const onDropHandler = React.useCallback((ed: any, { id, dragItem }: any) => {
+    try {
+      const targetEntry = ed.api.node({ id, at: [] });
+      const targetIndent = targetEntry ? ((targetEntry[0]?.indent as number) ?? 0) : 0;
+      if (targetIndent > 0) {
+        const draggedId = Array.isArray(dragItem.id) ? dragItem.id[0] : dragItem.id;
+        setTimeout(() => {
+          try {
+            const de = ed.api.node({ id: draggedId, at: [] });
+            if (!de) return;
+            const [dn, dp] = de;
+            if (dn.listStyleType) return; // 리스트는 제외
+            if (((dn.indent as number) ?? 0) !== targetIndent) ed.tf.setNodes({ indent: targetIndent }, { at: dp });
+          } catch { /* noop */ }
+        }, 0);
+      }
+    } catch { /* noop */ }
+    return false;
+  }, []);
+  // preview.disable → 네이티브 HTML5 drag image 끄고 커스텀 BlockDragLayer 로 대체
+  const { isDragging, nodeRef, handleRef } = useDraggable({ element, onDropHandler, preview: { disable: true } });
   // 공식 BlockDraggable 과 동일하게 인자 없이 호출 — 현재 drop target 위치(top/bottom)를 컨텍스트로 받음.
   const { dropLine } = useDropLine();
 
@@ -80,9 +110,11 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
       if (!path) return;
       const empty = ((editor.api.string(path) as string) ?? "") === "";
       const insertNew = !(empty && !above); // 빈 블록 + 아래 = 새 블록 없이 현재 블록 전환
-      let target = path;
+      let target = path as number[];
       if (insertNew) {
-        target = above ? [path[0]] : [path[0] + 1];
+        const parent = path.slice(0, -1);
+        const idx = path[path.length - 1];
+        target = above ? [...parent, idx] : [...parent, idx + 1];
         editor.tf.insertNodes({ type: "p", children: [{ text: "" }] }, { at: target });
       }
       const start = editor.api.start(target);
@@ -133,7 +165,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
     const p = path(); if (!p) return;
     try {
       const clone = JSON.parse(JSON.stringify(editor.api.node(p)?.[0]));
-      editor.tf.insertNodes(clone, { at: [p[0] + 1] });
+      editor.tf.insertNodes(clone, { at: [...p.slice(0, -1), p[p.length - 1] + 1] });
     } catch { /* ignore */ }
     close();
   };
@@ -163,8 +195,21 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
     close();
   };
 
+  // 들여쓰기(indent) 만큼 핸들 거터도 우측으로 — 콘텐츠 왼쪽에 붙어있게.
+  const indentLvl = (element as any).indent as number | undefined;
+  const indentPx = indentLvl
+    ? ((element as any).listStyleType ? Math.max(0, indentLvl - 1) : indentLvl) * 24
+    : 0;
+
   return (
-    <div ref={nodeRef} className={styles.blockDraggable} style={isDragging ? { opacity: 0.5 } : undefined}>
+    <div
+      ref={nodeRef}
+      className={styles.blockDraggable}
+      style={{
+        ...(isDragging ? { opacity: 0.5 } : {}),
+        ...(indentPx ? ({ ["--block-indent"]: `${indentPx}px` } as React.CSSProperties) : {}),
+      }}
+    >
       <div className={styles.blockDragGutter} contentEditable={false}>
         <button
           type="button"

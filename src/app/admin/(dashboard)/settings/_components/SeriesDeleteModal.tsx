@@ -32,7 +32,7 @@ export default function SeriesDeleteModal({ series, onConfirm, onCancel }: {
         placeholder={series.title}
         value={input}
         onChange={setInput}
-        onKeyDown={(e) => { if (e.key === "Enter" && valid) onConfirm(deletePosts); }}
+        onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing && valid) onConfirm(deletePosts); }}
       />
       {footerEl && createPortal(
         <>

@@ -170,10 +170,10 @@ export default React.memo(function TableToolbar({
   };
 
   return (
-    <div className={`${styles.tableToolbar} ${!visible ? styles.tableToolbarHidden : ""}`}>
+    <div className={`${styles.contextToolbar} ${!visible ? styles.contextToolbarHidden : ""}`}>
       {/* Row 1: 구조 */}
-      <div className={styles.tableToolbarRow}>
-        <span className={styles.tableToolbarLabel}>TABLE</span>
+      <div className={styles.contextToolbarRow}>
+        <span className={styles.contextToolbarLabel}>TABLE</span>
         <div className={styles.tableGroup}>
           <span className={styles.tableGroupLabel}>{t("editor.row")}</span>
           <TBtn square onClick={() => insertRow(true)} tooltip={t("editor.addRowAbove")}><TblRowBefore /></TBtn>
@@ -197,15 +197,15 @@ export default React.memo(function TableToolbar({
           <TBtn square active={cellVAlign === "middle"} onClick={() => setCellAttr("verticalAlign", "middle")} tooltip={t("editor.alignMiddle")}><TblVAlignMiddle /></TBtn>
           <TBtn square active={cellVAlign === "bottom"} onClick={() => setCellAttr("verticalAlign", "bottom")} tooltip={t("editor.alignBottom")}><TblVAlignBottom /></TBtn>
         </div>
-        <div className={styles.tableToolbarActions}>
+        <div className={styles.contextToolbarActions}>
           <TBtn square onClick={resetTableFormat} tooltip={`${t("editor.resetTableFormat")}\n${t("editor.resetTableFormatHint")}`}><TblResetFormat /></TBtn>
           <TBtn square className={styles.tableDangerBtn} onClick={() => deleteTable(editor)} tooltip={t("editor.deleteTable")}><TblTrash /></TBtn>
         </div>
       </div>
 
       {/* Row 2: 스타일 */}
-      <div className={styles.tableToolbarRow}>
-        <span className={styles.tableToolbarLabel}>STYLE</span>
+      <div className={styles.contextToolbarRow}>
+        <span className={styles.contextToolbarLabel}>STYLE</span>
 
         {/* 줄무늬 */}
         <div className={styles.tableGroup}>

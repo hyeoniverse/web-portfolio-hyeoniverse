@@ -15,6 +15,7 @@ import type { Post, PostFormData, Series } from "@/types/post";
 import SeriesInlineEditor from "@/app/admin/(dashboard)/settings/_components/SeriesInlineEditor";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import Checkbox from "@/components/ui/Checkbox";
+import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import AdminEditorShell, {
@@ -30,6 +31,7 @@ import SeoChecklist from "@/components/admin/SeoChecklist";
 import RelationPicker from "@/components/admin/RelationPicker";
 import SortOrderDragList from "@/components/admin/SortOrderDragList";
 import CoverImageField from "@/components/admin/CoverImageField";
+import CoverBanner from "@/components/admin/CoverBanner";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import { motion, AnimatePresence } from "framer-motion";
 import { postProcessMarkedHtml } from "./postProcessMarkedHtml";
@@ -41,6 +43,8 @@ import { usePostSeries } from "@/hooks/usePostSeries";
 import ShortcutsModalContent from "./ShortcutsModal";
 import styles from "./PostEditor.module.css";
 import "./PostEditor.global.css";
+import "@/components/admin/seoFlash.css";
+import { flashSeoField, clearSeoFlash } from "@/components/admin/seoFlash";
 
 /**
  * 레거시 마크다운 본문 → richtext(HTML) 1회 변환.
@@ -262,28 +266,9 @@ export default function PostEditor({ post }: PostEditorProps) {
   const optionalInnerRef = useRef<HTMLDivElement>(null);
   const optionalContentRef = useRef<HTMLDivElement>(null);
 
-  /** SEO 체크리스트 항목 클릭 → 해당 필드로 스크롤 + 포커스 + label 색을 accent 로 + dot 표시.
-   *  강조된 필드 외부에서 다음 인터랙션(클릭/포커스)이 일어나면 강조 해제. */
-  const activeSeoLabelRef = useRef<HTMLElement | null>(null);
-  const activeSeoFieldRef = useRef<HTMLElement | null>(null);
-  const seoCleanupRef = useRef<(() => void) | null>(null);
-
-  const clearSeoHighlight = useCallback(() => {
-    if (activeSeoLabelRef.current) {
-      activeSeoLabelRef.current.classList.remove("seo-flash");
-      activeSeoLabelRef.current = null;
-    }
-    activeSeoFieldRef.current = null;
-    if (seoCleanupRef.current) {
-      seoCleanupRef.current();
-      seoCleanupRef.current = null;
-    }
-  }, []);
-
-  // 컴포넌트 unmount 시 document 리스너 정리
-  useEffect(() => () => {
-    if (seoCleanupRef.current) seoCleanupRef.current();
-  }, []);
+  /** SEO 체크리스트 항목 클릭 → 해당 필드로 스크롤 + 포커스 + 상호작용 전까지 blink. */
+  // 컴포넌트 unmount 시 blink 리스너 정리
+  useEffect(() => () => clearSeoFlash(), []);
 
   const handleSeoItemClick = useCallback((id: "title" | "slug" | "excerpt" | "cover" | "category" | "tags") => {
     // category 는 titleGroup 으로 옮겨졌으므로 optional 펼침 불필요
@@ -295,41 +280,12 @@ export default function PostEditor({ post }: PostEditorProps) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
       const input = el.querySelector<HTMLElement>("input, textarea, select, button");
       input?.focus({ preventScroll: true });
-      const label = el.querySelector<HTMLElement>("label");
-      if (!label) return;
-
-      // 이전 활성 label 의 강조 제거 + 기존 리스너 정리 → transition 으로 자연스럽게 페이드 아웃
-      if (activeSeoLabelRef.current && activeSeoLabelRef.current !== label) {
-        activeSeoLabelRef.current.classList.remove("seo-flash");
-      }
-      if (seoCleanupRef.current) {
-        seoCleanupRef.current();
-        seoCleanupRef.current = null;
-      }
-
-      // 새 highlight 적용
-      label.classList.add("seo-flash");
-      activeSeoLabelRef.current = label;
-      activeSeoFieldRef.current = el;
-
-      // 강조된 필드 외부에서 인터랙션 발생 시 해제 — 현재 클릭 이벤트가 잡히지 않도록 한 프레임 지연
-      requestAnimationFrame(() => {
-        const onOutside = (e: Event) => {
-          const target = e.target as Node | null;
-          if (activeSeoFieldRef.current && target && activeSeoFieldRef.current.contains(target)) return;
-          clearSeoHighlight();
-        };
-        document.addEventListener("pointerdown", onOutside, true);
-        document.addEventListener("focusin", onOutside, true);
-        seoCleanupRef.current = () => {
-          document.removeEventListener("pointerdown", onOutside, true);
-          document.removeEventListener("focusin", onOutside, true);
-        };
-      });
+      // 이동한 필드를 상호작용 전까지 blink
+      flashSeoField(el);
     };
     if (inOptional) requestAnimationFrame(() => requestAnimationFrame(scrollAndHighlight));
     else scrollAndHighlight();
-  }, [clearSeoHighlight]);
+  }, []);
 
   useEffect(() => {
     const inner = optionalInnerRef.current;
@@ -353,6 +309,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   // 에디터 ref + 첨부 이미지
   const plateRef = useRef<PlateEditorHandle>(null);
   const [editorImages, setEditorImages] = useState<EditorImageInfo[]>([]);
+  const [editorHtmlMode, setEditorHtmlMode] = useState(false);
   // 초기 로드 후 이미지 목록 동기화 (에디터 준비될 때까지 polling)
   useEffect(() => {
     let cancelled = false;
@@ -369,6 +326,9 @@ export default function PostEditor({ post }: PostEditorProps) {
     return () => { cancelled = true; clearInterval(poll); };
   }, [editorLang, form.content_type]);
   const [slugManual, setSlugManual] = useState(isEdit);
+  // 커버 배너의 페이지 이모지 — 현재는 로컬 상태만 유지
+  // TODO: 이모지 저장 방식 확정 후 form/DB 연동
+  const [coverEmoji, setCoverEmoji] = useState<string | null>(null);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   // 닫는 중 — coverPickerCollapse 애니메이션 (~0.45s) 끝난 뒤 unmount.
   // showCoverPicker 만 false 로 즉시 두면 컴포넌트가 사라져 닫는 애니메이션이 보이지 않음
@@ -968,6 +928,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       onRetranslate={serviceStatus.translation ? handleRetranslate : undefined}
       retranslateOptions={retranslateOptions}
       retranslateDisabled={!serviceStatus.loading && !serviceStatus.translation}
+      retranslating={translating}
       onGenerateSummary={isEdit || !!savedId.current ? (serviceStatus.aiSummary ? handleGenerateSummary : undefined) : undefined}
       aiSummaryDisabled={!serviceStatus.loading && !serviceStatus.aiSummary && (isEdit || !!savedId.current)}
       generatingSummary={generatingSummary}
@@ -987,6 +948,16 @@ export default function PostEditor({ post }: PostEditorProps) {
           onChange={(v) => updateField("is_pinned", v)}
           shape="square"
           label={te("pinLabel")}
+        />
+      }
+      coverSlot={
+        /* 커버 배너 + 페이지 이모지 — topBar 위 최상단(전역 nav 바로 아래) */
+        <CoverBanner
+          cover={form.cover_image}
+          onCoverChange={(url) => updateField("cover_image", url)}
+          onUpload={handleCoverUpload}
+          emoji={coverEmoji}
+          onEmojiChange={setCoverEmoji}
         />
       }
     >
@@ -1357,15 +1328,22 @@ export default function PostEditor({ post }: PostEditorProps) {
             >
               {te("insertTemplate")}
             </button>
-            <button
-              type="button"
-              className={styles.editorHelpBtn}
-              onClick={() => openModal(<ShortcutsModalContent />, { id: "shortcuts-help", header: { title: "단축키 및 기능 안내" }, closeButton: true })}
-              title="단축키 및 기능 안내"
-            >
-              ?
-            </button>
+            <Tooltip content="단축키 및 기능 안내" placement="top">
+              <button
+                type="button"
+                className={styles.editorHelpBtn}
+                onClick={() => openModal(<ShortcutsModalContent />, { id: "shortcuts-help", header: { title: "단축키 및 기능 안내" }, closeButton: true })}
+              >
+                ?
+              </button>
+            </Tooltip>
           </div>
+          <Checkbox
+            checked={editorHtmlMode}
+            onChange={() => plateRef.current?.toggleHtmlMode()}
+            shape="square"
+            label="HTML"
+          />
         </div>
 
         <div className={styles.editorWrap} data-required="content">
@@ -1383,6 +1361,7 @@ export default function PostEditor({ post }: PostEditorProps) {
             onImageUpload={handleImageUpload}
             editorRef={plateRef}
             postLang={editorLang}
+            onHtmlModeChange={setEditorHtmlMode}
           />
         </div>
       </div>

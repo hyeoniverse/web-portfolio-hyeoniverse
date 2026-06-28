@@ -216,24 +216,7 @@
   -webkit-box-decoration-break: clone;
 }
 
-.prose pre {
-  padding: var(--spacing-lg);
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-xl);
-  border: var(--border-light);
-  overflow-x: auto;
-  margin: var(--spacing-xl) 0;
-}
-
-.prose pre code {
-  padding: 0;
-  background: transparent;
-  border: none;
-  color: inherit;
-  border-radius: 0;
-  font-size: var(--font-size-sm);
-  line-height: 1.6;
-}
+/* 코드블록(pre/code) 프레임·스크롤은 globals/_hljs.css 의 .code-block-wrap 규칙으로 공통화 */
 
 .prose ul,
 .prose ol {
@@ -751,7 +734,9 @@
 }
 
 /* ── Related / Recommended sections — 동일 layout (max-width 는 DetailLayout 의 afterContent / content 가 처리) ── */
-.relatedSection,
+.relatedSection {
+  padding: var(--spacing-md) 0 0;
+}
 .recommendedSection {
   padding: var(--spacing-2xl) 0 0;
 }
@@ -1391,7 +1376,7 @@
   margin: var(--spacing-lg) 0;
   padding: var(--box-md);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
   overflow-x: auto;
 }

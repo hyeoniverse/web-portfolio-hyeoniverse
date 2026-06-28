@@ -4,6 +4,9 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DetailLayout from "@/components/layout/DetailLayout";
 import { PostArticleHeader, PostArticleBody } from "@/components/posts/PostArticleView";
+import RecommendedSection from "@/app/posts/[slug]/_components/RecommendedSection";
+import RelatedWorksCarousel, { type RelatedWork } from "@/app/posts/[slug]/_components/RelatedWorksCarousel";
+import type { RecommendedPost } from "@/app/posts/[slug]/_components/types";
 import { extractHeadings } from "@/utils/headingUtils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
@@ -22,6 +25,30 @@ export default function PostPreviewPage() {
   const [busy, setBusy] = useState(false);
   const { openModal } = useModalStore();
   const [viewLang, setViewLang] = useState<"ko" | "en">("ko");
+
+  // 디테일 페이지와 동일하게 관련 프로젝트/추천 글/이전·다음 (기존 글 프리뷰=fetchId 있을 때만)
+  type AdjacentPost = { slug: string; title: string; title_en?: string; cover_image: string };
+  const [relatedWorks, setRelatedWorks] = useState<RelatedWork[]>([]);
+  const [recommendedPosts, setRecommendedPosts] = useState<RecommendedPost[]>([]);
+  const [adjacent, setAdjacent] = useState<{ prev: AdjacentPost | null; next: AdjacentPost | null }>({ prev: null, next: null });
+
+  useEffect(() => {
+    if (!fetchId) return;
+    const ac = new AbortController();
+    fetch(`/api/posts/${fetchId}/related-works`, { signal: ac.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (Array.isArray(d?.items)) setRelatedWorks(d.items); })
+      .catch(() => {});
+    fetch(`/api/posts/${fetchId}/related`, { signal: ac.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (Array.isArray(d)) setRecommendedPosts(d); })
+      .catch(() => {});
+    fetch(`/api/posts/${fetchId}/adjacent`, { signal: ac.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d) setAdjacent({ prev: d.prev ?? null, next: d.next ?? null }); })
+      .catch(() => {});
+    return () => ac.abort();
+  }, [fetchId]);
 
   useEffect(() => {
     if (fetchId) {
@@ -97,6 +124,22 @@ export default function PostPreviewPage() {
     return extractHeadings(content, isMarkdown);
   }, [content, isMarkdown]);
 
+  // richtext 코드블록 — Shiki 는 서버(/api/highlight)에서 처리(detail 과 동일 util/결과).
+  const [highlightedContent, setHighlightedContent] = useState(content);
+  useEffect(() => {
+    if (isMarkdown || !content) { setHighlightedContent(content); return; }
+    let active = true;
+    fetch("/api/highlight", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ html: content }),
+    })
+      .then((r) => r.json())
+      .then((d) => { if (active && d?.html) setHighlightedContent(d.html); })
+      .catch(() => { if (active) setHighlightedContent(content); });
+    return () => { active = false; };
+  }, [content, isMarkdown]);
+
   if (!form) {
     if (!ready) return null;
     return (
@@ -108,7 +151,7 @@ export default function PostPreviewPage() {
 
   const articleData = {
     displayTitle,
-    displayContent: content,
+    displayContent: highlightedContent,
     displayExcerpt,
     contentType: form.content_type,
     tags: form.tags,
@@ -156,6 +199,28 @@ export default function PostPreviewPage() {
           />
         </div>
       }
+      relatedContent={
+        <RelatedWorksCarousel works={relatedWorks} viewLang={viewLang} onNavigate={(href) => router.push(href)} />
+      }
+      recommendedContent={
+        recommendedPosts.length > 0 ? (
+          <RecommendedSection posts={recommendedPosts} viewLang={viewLang} />
+        ) : null
+      }
+      adjacentConfig={{
+        prev: adjacent.prev ? {
+          href: `/posts/${adjacent.prev.slug}`,
+          title: viewLang === "en" && adjacent.prev.title_en ? adjacent.prev.title_en : adjacent.prev.title,
+          image: adjacent.prev.cover_image,
+        } : null,
+        next: adjacent.next ? {
+          href: `/posts/${adjacent.next.slug}`,
+          title: viewLang === "en" && adjacent.next.title_en ? adjacent.next.title_en : adjacent.next.title,
+          image: adjacent.next.cover_image,
+        } : null,
+        prevLabelKey: "postDetail.previous",
+        nextLabelKey: "postDetail.next",
+      }}
     >
       <PostArticleBody data={articleData} isPreview />
     </DetailLayout>

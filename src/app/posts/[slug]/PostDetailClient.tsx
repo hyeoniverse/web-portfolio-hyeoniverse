@@ -15,13 +15,14 @@ import { extractHeadings } from "@/utils/headingUtils";
 import "katex/dist/katex.min.css";
 import T from "@/components/ui/T";
 import AISummary from "@/components/ui/AISummary";
-import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import RecommendedToast from "./_components/RecommendedToast";
 import RecommendedSection from "./_components/RecommendedSection";
+import RelatedWorksCarousel from "./_components/RelatedWorksCarousel";
+import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
-import { ImageIcon, Monitor, BookOpen, ChevronRight, ArrowLeft, ArrowRight, Languages } from "lucide-react";
+import { ImageIcon, BookOpen, ChevronRight, ArrowLeft, ArrowRight, Languages } from "lucide-react";
 import styles from "./PostDetail.module.css";
 
 interface AdjacentPost {
@@ -247,64 +248,14 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       }}
       commentsConfig={{ commentType: "post", targetId: post.id, translationEnabled }}
       backLink={{ href: "/posts", labelKey: "postDetail.backToList" }}
+      recommendedContent={
+        recommendedPosts.length > 0 ? (
+          <RecommendedSection posts={recommendedPosts} viewLang={viewLang} />
+        ) : null
+      }
       relatedContent={
         <>
-          {recommendedPosts.length > 0 && (
-            <RecommendedSection posts={recommendedPosts} viewLang={viewLang} />
-          )}
-          {relatedWorks.length > 0 && (
-            <section className={styles.relatedSection}>
-              <div className={styles.relatedHeader}>
-                <Monitor size={16} />
-                <span className={styles.relatedLabel}>{viewLang === "en" ? "Related Works" : "관련 프로젝트"}</span>
-              </div>
-              <HorizontalCarousel className={styles.relatedGrid}>
-                {relatedWorks.map((w) => {
-                  const subtitle = viewLang === "en" ? (w.subtitle_en || w.subtitle_ko) : (w.subtitle_ko || w.subtitle_en);
-                  const cats = viewLang === "en"
-                    ? (w.categories_en?.length ? w.categories_en : w.categories_ko ?? [])
-                    : (w.categories_ko?.length ? w.categories_ko : w.categories_en ?? []);
-                  const category = cats[0] || "";
-                  return (
-                    <div key={w.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/works/${w.slug || w.id}`, w.image || "", rect); }} style={{ cursor: "pointer" }} className={styles.relatedCard}>
-                      <div className={styles.relatedCardImage}>
-                        {w.image ? (
-                          isVideoUrl(w.image) ? (
-                            <video
-                              src={w.image}
-                              className={styles.relatedCardImg}
-                              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-                              muted
-                              playsInline
-                              preload="metadata"
-                            />
-                          ) : (
-                            <Image
-                              src={w.image}
-                              alt={w.title}
-                              fill
-                              sizes="(max-width: 768px) 50vw, 220px"
-                              className={styles.relatedCardImg}
-                            />
-                          )
-                        ) : (
-                          <ImageIcon className={styles.relatedCardPlaceholder} size={32} strokeWidth={1.5} />
-                        )}
-                      </div>
-                      <div className={styles.relatedCardBody}>
-                        <div className={styles.relatedCardMeta}>
-                          {w.year && <span className={styles.relatedCardOrder}>{w.year}</span>}
-                          {category && <span className={styles.relatedCardCategory}>{category}</span>}
-                        </div>
-                        <span className={styles.relatedCardTitle}>{w.title}</span>
-                        {subtitle && <span className={styles.relatedCardExcerpt}>{subtitle}</span>}
-                      </div>
-                    </div>
-                  );
-                })}
-              </HorizontalCarousel>
-            </section>
-          )}
+          <RelatedWorksCarousel works={relatedWorks} viewLang={viewLang} onNavigate={navigateWithTransition} />
 
           {relatedSeriesPosts.length > 0 && seriesData && (
             <section className={styles.relatedSection}>
@@ -315,53 +266,18 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
                   &mdash; {viewLang === "en" && seriesData.title_en ? seriesData.title_en : seriesData.title}
                 </span>
               </div>
-              <HorizontalCarousel className={styles.relatedGrid}>
-                {relatedSeriesPosts.map((sp, idx) => (
-                  <div key={sp.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${sp.slug}`, sp.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.relatedCard}>
-                    <div className={styles.relatedCardImage}>
-                      {sp.cover_image ? (
-                        isVideoUrl(sp.cover_image) ? (
-                          <video
-                            src={sp.cover_image}
-                            className={styles.relatedCardImg}
-                            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-                            muted
-                            playsInline
-                            preload="metadata"
-                          />
-                        ) : (
-                          <Image
-                            src={sp.cover_image}
-                            alt={viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
-                            fill
-                            sizes="(max-width: 768px) 50vw, 220px"
-                            className={styles.relatedCardImg}
-                          />
-                        )
-                      ) : (
-                        <ImageIcon className={styles.relatedCardPlaceholder} size={32} strokeWidth={1.5} />
-                      )}
-                    </div>
-                    <div className={styles.relatedCardBody}>
-                      <div className={styles.relatedCardMeta}>
-                        <span className={styles.relatedCardOrder}>#{idx + 1}</span>
-                        {sp.category && <span className={styles.relatedCardCategory}>{sp.category}</span>}
-                      </div>
-                      <span className={styles.relatedCardTitle}>
-                        {viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
-                      </span>
-                      {(viewLang === "en" ? sp.excerpt_en || sp.excerpt : sp.excerpt) && (
-                        <span className={styles.relatedCardExcerpt}>
-                          {viewLang === "en" ? sp.excerpt_en || sp.excerpt : sp.excerpt}
-                        </span>
-                      )}
-                      <span className={styles.relatedCardDate}>
-                        {new Date(sp.created_at).toLocaleDateString(viewLang === "en" ? "en-US" : "ko-KR", { year: "numeric", month: "short", day: "numeric" })}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </HorizontalCarousel>
+              <RelatedChips
+                items={relatedSeriesPosts.map((sp) => ({
+                  id: sp.id,
+                  title: viewLang === "en" && sp.title_en ? sp.title_en : sp.title,
+                  href: `/posts/${sp.slug}`,
+                  image: sp.cover_image || undefined,
+                  category: sp.category || undefined,
+                  desc: (viewLang === "en" ? (sp.excerpt_en || sp.excerpt) : sp.excerpt) || undefined,
+                }))}
+                moreLabel={viewLang === "en" ? "more" : "더보기"}
+                lessLabel={viewLang === "en" ? "Show less" : "접기"}
+              />
             </section>
           )}
 
