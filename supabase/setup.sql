@@ -48,6 +48,8 @@
 --   2026_05_27  works.size DROP
 --   2026_05_28  publish_scheduled — #variable_conflict use_column (id ambiguity fix)
 --   2026_05_29  posts.github_url
+--   2026_06_27  poll_votes — 본문 투표 블록 집계 (poll_id + option_id, IP 중복 방지)
+--   2026_06_28  series_work_relations — works 에 관련 시리즈 연결
 -- ============================================================
 
 
@@ -345,6 +347,38 @@ CREATE POLICY "likes_public_read"
 DROP POLICY IF EXISTS "likes_service_all" ON likes;
 CREATE POLICY "likes_service_all"
   ON likes FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ────────────────────────────────────────────────────────────
+-- 5b. poll_votes — 본문 투표 블록 집계 (poll_id + option_id, IP 기반 중복 방지)
+--    단일 선택은 API 에서 (poll_id, ip) 표를 교체, 복수는 옵션별 토글
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS poll_votes (
+  id         uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  poll_id    text NOT NULL,
+  option_id  text NOT NULL,
+  ip         text NOT NULL DEFAULT '',
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_poll_votes_unique
+  ON poll_votes (poll_id, option_id, ip);
+
+CREATE INDEX IF NOT EXISTS idx_poll_votes_poll
+  ON poll_votes (poll_id);
+
+ALTER TABLE poll_votes ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "poll_votes_public_read" ON poll_votes;
+CREATE POLICY "poll_votes_public_read"
+  ON poll_votes FOR SELECT
+  USING (true);
+
+DROP POLICY IF EXISTS "poll_votes_service_all" ON poll_votes;
+CREATE POLICY "poll_votes_service_all"
+  ON poll_votes FOR ALL
   USING (true)
   WITH CHECK (true);
 
@@ -731,6 +765,33 @@ CREATE POLICY "post_work_relations_public_read"
 DROP POLICY IF EXISTS "post_work_relations_service_all" ON post_work_relations;
 CREATE POLICY "post_work_relations_service_all"
   ON post_work_relations FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ────────────────────────────────────────────────────────────
+-- series_work_relations — series ↔ works 다대다 (프로젝트에 관련 시리즈 연결)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS series_work_relations (
+  series_id  uuid NOT NULL REFERENCES series(id) ON DELETE CASCADE,
+  work_id    uuid NOT NULL REFERENCES works(id) ON DELETE CASCADE,
+  created_at timestamptz DEFAULT now(),
+  PRIMARY KEY (series_id, work_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_series_work_relations_series ON series_work_relations (series_id);
+CREATE INDEX IF NOT EXISTS idx_series_work_relations_work ON series_work_relations (work_id);
+
+ALTER TABLE series_work_relations ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "series_work_relations_public_read" ON series_work_relations;
+CREATE POLICY "series_work_relations_public_read"
+  ON series_work_relations FOR SELECT
+  USING (true);
+
+DROP POLICY IF EXISTS "series_work_relations_service_all" ON series_work_relations;
+CREATE POLICY "series_work_relations_service_all"
+  ON series_work_relations FOR ALL
   USING (true)
   WITH CHECK (true);
 
@@ -1204,7 +1265,7 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 16개 테이블 + 5개 RPC 함수 + 2개 pg_cron job 생성됨.
+-- 완료! 총 18개 테이블 + 5개 RPC 함수 + 2개 pg_cron job 생성됨.
 --
 -- 테이블:
 --   site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
@@ -1212,6 +1273,7 @@ END $$;
 --   posts                : 블로그 포스트 (post_number 시퀀스 + scheduled_at + soft delete)
 --   comments             : 포스트 댓글 (대댓글, password 인증, tombstone)
 --   likes                : 좋아요 (target_type 으로 posts/works/comments 통합, IP 중복 방지)
+--   poll_votes           : 본문 투표 블록 집계 (poll_id + option_id text, IP 중복 방지)
 --   works                : 포트폴리오 작업물 (slug, categories_ko/en text[], nature_ko/en,
 --                          contributions_ko/en jsonb, tech_notes jsonb,
 --                          team_members jsonb, scheduled_at, soft delete)
@@ -1222,6 +1284,7 @@ END $$;
 --   comment_reports      : 댓글 신고 누적 (posts/works 공용, status: pending/resolved/dismissed)
 --   revisions            : 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot)
 --   post_work_relations  : posts ↔ works many-to-many 양방향 (Notion Relation)
+--   series_work_relations: series ↔ works many-to-many (프로젝트에 관련 시리즈 연결)
 --   cover_image_history  : Cover Image Picker 통합 이력 (admin user 별, RLS)
 --   admin_login_attempts : admin 로그인 실패 횟수 추적 + lockout (5회 → 15분)
 --   admin_known_devices  : 새 기기 인증 (UA fingerprint + 이메일 approve 토큰)
@@ -1280,6 +1343,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_05_26_works_drop_number',             'works.number DROP — sort_order 로 derive'),
   ('2026_05_27_works_drop_size',               'works.size DROP'),
   ('2026_05_28_publish_scheduled_fix_ambiguous','publish_scheduled — #variable_conflict use_column (id ambiguity fix)'),
-  ('2026_05_29_posts_github_url',              'posts.github_url')
+  ('2026_05_29_posts_github_url',              'posts.github_url'),
+  ('2026_06_27_poll_votes',                    'poll_votes — 본문 투표 블록 집계 (poll_id + option_id, IP 중복 방지)'),
+  ('2026_06_28_series_work_relations',         'series_work_relations — works 에 관련 시리즈 연결')
 ON CONFLICT (name) DO NOTHING;
 -- ============================================================
