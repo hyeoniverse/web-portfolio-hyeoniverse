@@ -26,7 +26,7 @@ jobs:
       # (v1.2.0, v1.2.1 모두 → v1.2 라벨. prefix 매칭 v1. 으로 major 그룹화도 가능)
       - name: Checkout (for git log/tags)
         if: ${{ steps.release.outputs.release_created }}
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true

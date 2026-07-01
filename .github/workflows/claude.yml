@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           # PR 작성자가 본인이 되도록 PAT 사용 (GITHUB_TOKEN 이면 github-actions[bot] 작성)
           token: ${{ secrets.WORKFLOW_PAT }}
