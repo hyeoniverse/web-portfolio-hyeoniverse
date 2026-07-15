@@ -30,7 +30,9 @@
   position: fixed;
   top: var(--spacing-2xl);
   left: var(--page-px);
-  z-index: var(--z-nav);
+  /* nav(.nav flex:1 navCenter 가 좌측까지 덮음) 보다 한 단계 위 — 로고+Admin 배지 전체가 클릭 가능하도록.
+     로고는 좌측, nav 링크는 중앙/우측이라 시각적 겹침 없음. */
+  z-index: calc(var(--z-nav) + 1);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -52,6 +54,10 @@
 
 /* .glith-on-hover 의 글로벌 (0,1,1) :hover 는 logoNavBar 자신에게 text-shadow 를 주지만
    text 가 직접 자식 .logo 안에 있어 시각 효과 없음 → hover 시 자식 .logo 로 glitch 전파 */
+/* glitch 의 전역 .glith-on-hover:hover { z-index:30 } 이 로고를 nav 아래로 떨어뜨려
+   hover 시 클릭이 막히던 것 방지 — 로고는 hover 에도 nav 위(z-nav+1) 유지.
+   (모듈에서 전역 클래스는 :global 로 매칭해야 해시 안 됨) */
+.logoNavBar:global(.glith-on-hover):hover { z-index: calc(var(--z-nav) + 1); }
 .logoNavBar.glith-on-hover:hover .logo {
   animation: glitch var(--duration-slower) infinite alternate;
   z-index: 30;
@@ -191,6 +197,60 @@
 
 .navIndicatorHidden {
   opacity: 0;
+}
+
+/* ── Posts nav 하위 드롭다운 (Series/Tags/History) — .nav 직속 자식, difference blend 상속 ──
+   카드 배경 없음: 흰 텍스트가 page backdrop 과 blend 돼 어느 배경에서도 읽힘 (nav 링크와 동일). */
+.postsNavDropdown {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-sm) 0 var(--spacing-sm) var(--spacing-md);
+  pointer-events: auto;
+}
+
+/* 왼쪽 연결 선 — Posts 아래에서 하위 항목으로 뻗는 세로 rule (draw 애니는 motion) */
+.postsNavDropdownLine {
+  position: absolute;
+  left: 0;
+  top: var(--spacing-2xs);
+  bottom: var(--spacing-2xs);
+  width: 1px;
+  background: var(--text-white);
+  opacity: 0.4;
+  transform-origin: top;
+  pointer-events: none;
+}
+
+.postsNavDropdownItemWrap {
+  display: flex;
+}
+
+.postsNavDropdownItem {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0.01em;
+  color: var(--text-white);
+  opacity: 0.78;
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1.35;
+  transition:
+    opacity var(--duration-fast) var(--ease-material),
+    transform var(--duration-moderate) var(--ease-out-back, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+
+.postsNavDropdownItem:hover {
+  opacity: 1;
+  transform: translateX(5px);
+}
+
+.postsNavDropdownItemActive {
+  opacity: 1;
+  font-weight: var(--font-weight-medium);
 }
 
 /* Right side actions */
@@ -770,6 +830,38 @@
   font-weight: var(--font-weight-regular);
   -webkit-text-stroke: 1px var(--color-white-alpha-100);
   color: transparent;
+}
+
+/* Posts 하위 항목(Series/Tags/History) — 대형 링크 아래 들여쓴 서브 리스트 */
+.menuSubList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding-left: var(--spacing-lg);
+  margin-top: calc(var(--spacing-2xs) * -1);
+}
+
+.menuSubLink {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: clamp(18px, 4.5vw, 28px);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-white);
+  opacity: 0.55;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  line-height: 1.3;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.menuSubLink:hover {
+  opacity: 1;
+}
+
+.menuSubLinkActive {
+  opacity: 1;
+  font-style: italic;
+  font-family: var(--font-instrument), serif;
 }
 
 /* Close button — nav 햄버거 버튼과 동일한 우상단 위치 */

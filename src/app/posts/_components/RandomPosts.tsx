@@ -5,6 +5,7 @@ import type { Post } from "@/types/post";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { Shuffle, RefreshCw } from "lucide-react";
 import T from "@/components/ui/T";
+import Tooltip from "@/components/ui/Tooltip";
 import { formatCount } from "@/utils/format";
 import styles from "./PopularPosts.module.css";
 
@@ -30,15 +31,16 @@ export default function RandomPosts() {
       <div className={styles.label}>
         <Shuffle size={14} />
         <T k="postsPage.random" />
-        <button
-          type="button"
-          className={styles.shuffleBtn}
-          onClick={(e) => { e.stopPropagation(); setSeed(Math.floor(Math.random() * 1e9)); }}
-          aria-label="Refresh"
-          title="다시 섞기"
-        >
-          <RefreshCw size={11} strokeWidth={2} />
-        </button>
+        <Tooltip content="다시 섞기" placement="top" delay={300}>
+          <button
+            type="button"
+            className={styles.shuffleBtn}
+            onClick={(e) => { e.stopPropagation(); setSeed(Math.floor(Math.random() * 1e9)); }}
+            aria-label="Refresh"
+          >
+            <RefreshCw size={11} strokeWidth={2} />
+          </button>
+        </Tooltip>
       </div>
       <div className={styles.list} data-more="true" data-clickable="true">
         {posts.map((post, idx) => (

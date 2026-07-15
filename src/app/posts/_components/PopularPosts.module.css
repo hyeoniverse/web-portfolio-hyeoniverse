@@ -47,6 +47,11 @@
   margin-left: auto;
 }
 
+/* SegmentedControl .group 기본 border-default → light 로 통일 (0,2,0 로 base .group 이김) */
+.metricControl.metricControl {
+  box-shadow: inset 0 0 0 1px var(--border-light-color);
+}
+
 .metricControl button {
   padding: var(--spacing-3xs) var(--spacing-sm);
   font-size: var(--font-size-2xs);

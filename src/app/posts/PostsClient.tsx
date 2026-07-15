@@ -1,22 +1,24 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, Fragment, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
 import type { Post, Series } from "@/types/post";
 import type { InitialPostsData } from "@/lib/posts";
 import PostCard from "./_components/PostCard";
+import PostsSubnav from "./_components/PostsSubnav";
+import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import CategoryNav from "./_components/CategoryNav";
 import SeriesCard from "./_components/SeriesCard";
 import PostsBanner from "./_components/PostsBanner/PostsBanner";
+import TagCloud3D from "./_components/TagCloud3D";
 import PopularPosts from "./_components/PopularPosts";
 import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
-import TagCloud3D from "./_components/TagCloud3D";
 import {
   SkeletonLine,
   SkeletonPill,
@@ -31,9 +33,12 @@ import {
   BookOpen,
   LayoutGrid,
   Shuffle,
-  Search as SearchIcon,
   Sparkles,
+  Settings,
+  List,
+  History as HistoryIcon,
 } from "lucide-react";
+import PageTitle from "@/components/ui/PageTitle";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -42,7 +47,6 @@ import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
-import SearchSyntaxHelpButton from "@/components/ui/SearchCapsule/SearchSyntaxHelpButton";
 import LetterFilter, { KOREAN_LETTERS, ENGLISH_LETTERS, LETTER_ETC, getLetterInitial } from "@/components/ui/LetterFilter";
 import styles from "./Posts.module.css";
 
@@ -104,9 +108,9 @@ function SidebarWrap({
 }
 
 const PAGE_SIZE_OPTIONS = [
-  { value: "10", label: "10" },
-  { value: "20", label: "20" },
-  { value: "50", label: "50" },
+  { value: "10", label: "10개씩" },
+  { value: "20", label: "20개씩" },
+  { value: "50", label: "50개씩" },
 ];
 
 // Bento variants — 1-col (square/portrait/standard) + 2-col span (wide/banner).
@@ -162,25 +166,154 @@ function getCardType(idx: number): CardType {
 /* 태그 dropdown letter filter — 공통 LetterFilter 컴포넌트 사용 (constants/util import). */
 const TAG_LETTERS = [...KOREAN_LETTERS, ...ENGLISH_LETTERS, LETTER_ETC];
 
-interface PostsClientProps {
-  initialData: InitialPostsData;
+/* 타임라인 카드 — framer useScroll 로 스크롤 진행에 비례한 리빌(페이드 + 자기 쪽 슬라이드 + 살짝 scale).
+   카드가 뷰 하단→60% 로 올라오는 동안 값이 매핑되고, 지나면 유지. 모바일 단일컬럼선 x 이동 없음. */
+function TimelineMotionItem({
+  side,
+  disableX,
+  className,
+  assignRef,
+  children,
+}: {
+  side: "left" | "right";
+  disableX: boolean;
+  className: string;
+  assignRef: (el: HTMLDivElement | null) => void;
+  children: ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "start 60%"],
+  });
+  const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const y = useTransform(scrollYProgress, [0, 1], [44, 0]);
+  const xFrom = disableX ? 0 : side === "left" ? -44 : 44;
+  const x = useTransform(scrollYProgress, [0, 1], [xFrom, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], [0.965, 1]);
+  return (
+    <motion.div
+      ref={(el) => {
+        ref.current = el;
+        assignRef(el);
+      }}
+      className={className}
+      style={{ opacity, y, x, scale }}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
-export default function PostsClient({ initialData }: PostsClientProps) {
+interface PostsClientProps {
+  initialData: InitialPostsData;
+  /** history 모드 — /posts/history 전용. timeline 레이아웃 강제 + 필터/배너/시리즈/사이드바 숨김. */
+  history?: boolean;
+  /** 전체 아카이브 유효일 문자열(최신순) — 왼쪽 월 인덱스에 로드 여부와 무관하게 모든 월 표시 (history 전용). */
+  archiveMonths?: string[];
+}
+
+export default function PostsClient({ initialData, history = false, archiveMonths }: PostsClientProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
+  // 타임라인 지그재그 단일컬럼 전환(640px) — 리빌 x 이동 on/off 판단용
+  const { isMobile: tlSingleCol } = useIsMobile(640);
   const { t, language } = useLanguage();
   const siteConf = useSiteConfig();
+  // 목록 카드 레이아웃 (설정) — magazine(기본)/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
+  const configLayout = (["magazine", "grid", "list", "compact", "masonry", "featured"].includes(siteConf.posts.layout)
+    ? siteConf.posts.layout
+    : "magazine");
+  const postsLayout = (history ? "timeline" : configLayout) as "magazine" | "grid" | "list" | "compact" | "masonry" | "timeline" | "featured";
+  // magazine 만 grid-auto-rows:1px 위 JS row-span(사이즈 변주 packing) 사용, 나머지는 미사용
+  const usesRowSpan = postsLayout === "magazine";
+  const layoutClass =
+    postsLayout === "grid" ? styles.gridUniform
+      : postsLayout === "list" ? styles.gridList
+        : postsLayout === "compact" ? styles.gridCompact
+          : postsLayout === "masonry" ? styles.gridMasonry
+            : postsLayout === "timeline" ? styles.gridTimeline
+              : postsLayout === "featured" ? styles.gridFeatured
+                : ""; // magazine = base .grid
+  // timeline 레이아웃 — 발행(예약)/생성 월 기준으로 그룹 마커 삽입.
+  // 월 key/label 은 브라우저 로컬 타임존 기준 (marker id 와 index 가 반드시 일치해야 하므로 서버 버킷팅 금지)
+  const dateOf = (p: Post) => p.scheduled_at ?? p.created_at ?? null;
+  const monthKeyFromDate = (d: string | null) => {
+    if (!d) return "";
+    const t = new Date(d);
+    return `${t.getFullYear()}-${t.getMonth()}`;
+  };
+  const monthLabelFromDate = (d: string | null) => {
+    if (!d) return "";
+    const t = new Date(d);
+    return `${t.getFullYear()}. ${String(t.getMonth() + 1).padStart(2, "0")}`;
+  };
+  const monthKey = (p: Post) => monthKeyFromDate(dateOf(p));
+  const monthLabel = (p: Post) => monthLabelFromDate(dateOf(p));
   const [posts, setPosts] = useState<Post[]>(initialData.posts);
   const [pinnedPosts] = useState<Post[]>(initialData.pinnedPosts);
+  // 타임라인 왼쪽 인덱스 — history 는 전체 아카이브 월(로드 여부 무관), 그 외엔 로드된 posts 기준. 최신순.
+  const timelineMonths = useMemo(() => {
+    if (postsLayout !== "timeline") return [] as { key: string; label: string; year: string; mm: string }[];
+    const source: string[] =
+      history && archiveMonths && archiveMonths.length
+        ? archiveMonths
+        : posts.map((p) => dateOf(p)).filter((d): d is string => !!d);
+    const seen = new Map<string, { key: string; label: string; ord: number }>();
+    for (const d of source) {
+      const k = monthKeyFromDate(d);
+      if (!k || seen.has(k)) continue;
+      const t = new Date(d);
+      seen.set(k, { key: k, label: monthLabelFromDate(d), ord: t.getFullYear() * 12 + t.getMonth() });
+    }
+    return Array.from(seen.values())
+      .sort((a, b) => b.ord - a.ord)
+      .map(({ key, label }) => {
+        const [year, mm] = label.split(". ");
+        return { key, label, year, mm };
+      });
+  }, [posts, postsLayout, history, archiveMonths]);
+
+  // 인덱스용 — 연도별 그룹 (헤더 + 월). timelineMonths 가 최신순이라 같은 연도끼리 연속.
+  const timelineIndexGroups = useMemo(() => {
+    const groups: { year: string; months: { key: string; mm: string }[] }[] = [];
+    for (const m of timelineMonths) {
+      let g = groups[groups.length - 1];
+      if (!g || g.year !== m.year) { g = { year: m.year, months: [] }; groups.push(g); }
+      g.months.push({ key: m.key, mm: m.mm });
+    }
+    return groups;
+  }, [timelineMonths]);
+
+  // 아직 로드 안 된(무한스크롤) 과거 월 클릭 시 — 그 지점까지 순차 로드 후 스크롤 (아래 effect 가 구동)
+  const [pendingMonthJump, setPendingMonthJump] = useState<string | null>(null);
+  // 현재 뷰포트 상단에 걸린 월(scroll-spy) — 인덱스에서 강조
+  const [activeMonthKey, setActiveMonthKey] = useState<string | null>(null);
+  const doScrollToMonth = useCallback((key: string) => {
+    const el = document.getElementById(`tl-m-${key}`);
+    if (!el) return false;
+    if (lenis) lenis.scrollTo(el, { offset: -96 });
+    else el.scrollIntoView({ behavior: "smooth", block: "start" });
+    return true;
+  }, [lenis]);
+  const scrollToMonth = useCallback((key: string) => {
+    if (!doScrollToMonth(key)) setPendingMonthJump(key);
+  }, [doScrollToMonth]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [searchType, setSearchType] = useState<"all" | "title" | "content">(
     "all",
   );
   const [syntaxMode, setSyntaxMode] = useState<"prefix" | "regex">("prefix");
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  // URL query (?tag=foo 또는 ?tag=foo,bar CSV) 도착 시 초기값 sync — 다중 선택 지원
+  // URL query (?tag=foo,bar / ?category=a,b CSV) 도착 시 초기값 sync — 다중 선택(OR)
   const urlSearchParams = useSearchParams();
+  const [activeCategories, setActiveCategories] = useState<string[]>(() => {
+    const raw = urlSearchParams?.get("category");
+    return raw ? raw.split(",").map((c) => c.trim()).filter(Boolean) : [];
+  });
+  const activeCategoryKey = useMemo(
+    () => [...activeCategories].sort().join(","),
+    [activeCategories],
+  );
   const [activeTags, setActiveTags] = useState<Set<string>>(() => {
     const raw = urlSearchParams?.get("tag");
     return new Set(
@@ -201,16 +334,28 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       const next = new Set(prev);
       if (next.has(tag)) next.delete(tag);
       else next.add(tag);
+      // 모든 태그가 선택되면 = 필터 없음 → 클리어(전체)
+      const all = initialData.allTags;
+      if (all.length > 0 && all.every((t) => next.has(t.tag))) return new Set();
       return next;
     });
-  }, []);
+  }, [initialData.allTags]);
   const clearActiveTags = useCallback(() => setActiveTags(new Set()), []);
   const [allTags] = useState(initialData.allTags);
+  // faceted 태그 — 현재 필터(카테고리·태그·시리즈·검색)에 매칭되는 글들의 태그+개수.
+  // /api/posts 응답의 facets 로 갱신 (무필터 초기값은 전체 allTags).
+  const [facetTags, setFacetTags] = useState<{ tag: string; count: number }[]>(
+    () => initialData.allTags.map((t) => ({ tag: t.tag, count: t.count })),
+  );
   const [extraCategories] = useState(initialData.extraCategories);
   const [sortBy, setSortBy] = useState<"date" | "popular" | "title" | "random">(
     "date",
   );
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  // 타임라인 레이아웃은 월 그룹 마커라 시간순만 유효 — 다른 정렬이면 date 로 강제(마커 깨짐 방지).
+  useEffect(() => {
+    if (postsLayout === "timeline" && sortBy !== "date") setSortBy("date");
+  }, [postsLayout, sortBy]);
   // popular 그룹 안 세부 메트릭 — 종합 / 조회 / 댓글 / 좋아요
   const [popularSort, setPopularSort] = useState<
     "score" | "views" | "comments" | "likes"
@@ -240,7 +385,8 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             ? "newest"
             : "oldest";
   const [perPage, setPerPage] = useState(siteConf.posts.perPage ?? 10);
-  const [activeSeries, setActiveSeries] = useState<string | null>(null);
+  // /posts?series=<id> 로 진입 시(시리즈 카드 클릭) 해당 시리즈로 초기 필터
+  const [activeSeries, setActiveSeries] = useState<string | null>(() => urlSearchParams?.get("series") ?? null);
   const [seriesList, setSeriesList] = useState<Series[]>(
     initialData.seriesList,
   );
@@ -248,8 +394,18 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const [seriesTotal, setSeriesTotal] = useState(initialData.seriesTotal);
   const [seriesLoading, setSeriesLoading] = useState(false);
   const [seriesSearch, setSeriesSearch] = useState("");
-  const [seriesSearchOpen, setSeriesSearchOpen] = useState(false);
-  const seriesSearchInputRef = useRef<HTMLInputElement>(null);
+  const [seriesScope, setSeriesScope] = useState<"all" | "title" | "desc">("all");
+  // 로그인 사용자 = admin (단일 운영자 가정) — 시리즈 관리 바로가기 노출용
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    import("@/lib/supabase/client").then((m) => {
+      m.createClient().auth.getUser().then(({ data }) => {
+        if (!cancelled) setIsAdmin(!!data.user);
+      });
+    });
+    return () => { cancelled = true; };
+  }, []);
   // 시리즈 좌/우 화살표 long-press 스크롤 — 누르고 있을수록 가속
   const seriesScrollRafRef = useRef<number | null>(null);
   const seriesScrollStartRef = useRef<number>(0);
@@ -272,13 +428,6 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       seriesScrollRafRef.current = null;
     }
   };
-  useEffect(() => {
-    if (seriesSearchOpen) {
-      // morph 펼침 transition 길이 (0.25s) 와 비슷한 타이밍에 focus
-      const t = setTimeout(() => seriesSearchInputRef.current?.focus(), 180);
-      return () => clearTimeout(t);
-    }
-  }, [seriesSearchOpen]);
   const [seriesSortBy, setSeriesSortBy] = useState<
     "default" | "newest" | "title" | "random"
   >("default");
@@ -307,9 +456,12 @@ export default function PostsClient({ initialData }: PostsClientProps) {
      activeTagLetters 비어있으면 전체 표시. multiple selection (toggle). */
   const [activeTagLetters, setActiveTagLetters] = useState<Set<string>>(new Set());
   const tagRowRef = useRef<HTMLDivElement>(null);
+  // 필터바 태그 목록 — 선택과 무관하게 항상 전체(개수 고정). 무관한 태그끼리도 OR 선택 가능해야 하므로
+  // facet(관련 태그만 남김)으로 좁히지 않음. (facet 은 사이드바 등에서만 사용)
   const filteredTags = useMemo(() => {
-    if (activeTagLetters.size === 0) return allTags;
-    return allTags.filter(({ tag }) => activeTagLetters.has(getLetterInitial(tag)));
+    const base = allTags.map((t) => ({ tag: t.tag, count: t.count }));
+    if (activeTagLetters.size === 0) return base;
+    return base.filter(({ tag }) => activeTagLetters.has(getLetterInitial(tag)));
   }, [allTags, activeTagLetters]);
   const [catExpanded, setCatExpanded] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
@@ -332,7 +484,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     if (!el) return;
     const shouldBlur = isStuck && (showTags || catExpanded);
     if (shouldBlur) {
-      el.style.filter = "blur(6px)";
+      el.style.filter = "blur(12px)";
       el.style.transition = "filter 0.3s ease";
     } else {
       el.style.filter = "";
@@ -387,27 +539,8 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     return () => clearTimeout(id);
   }, [showTags, catExpanded]);
 
-  // tags/categories close-on-scroll — 약간의 여유 후 닫힘. 너무 빨라도 너무 늦어도 안 됨.
-  useEffect(() => {
-    if (!showTags && !catExpanded) return;
-    let startY = -1;
-    const CLOSE_THRESHOLD = 80; // px — 짧은 스크롤은 유지, moderate 스크롤이면 닫힘
-    const armTimer = setTimeout(() => {
-      startY = window.scrollY;
-    }, 300);
-    const handleScroll = () => {
-      if (startY < 0) return;
-      if (Math.abs(window.scrollY - startY) > CLOSE_THRESHOLD) {
-        setShowTags(false);
-        setCatExpanded(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      clearTimeout(armTimer);
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [showTags, catExpanded]);
+  // (close-on-scroll 제거) 명시적으로 펼친 태그/카테고리를 스크롤만으로 닫지 않음 —
+  // 바깥 클릭(아래) / 토글 버튼 재클릭으로만 닫힘. 펼친 상태에선 filter bar 도 스크롤에 안 숨음.
 
   // catExpanded / showTags 일 때 filter bar 바깥 클릭 시 닫기 — non-stuck 상태에서도 동작.
   // (sticky backdrop 은 isStuck 일 때만 렌더되므로 그 외 케이스 보완)
@@ -453,7 +586,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       params.set("searchType", searchType);
       params.set("syntaxMode", syntaxMode);
     }
-    if (activeCategory) params.set("category", activeCategory);
+    if (activeCategoryKey) params.set("category", activeCategoryKey);
     if (activeTagsKey) params.set("tags", activeTagsKey);
     if (activeSeries) params.set("series_id", activeSeries);
     params.set("sort", sort);
@@ -472,8 +605,15 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       const data = await res.json();
       // 응답 도착 시점에 이미 새 요청이 시작됐다면 무시 (stale write 방지)
       if (fetchAbortRef.current !== ac) return;
-      setPosts(data.posts ?? []);
+      const incoming = (data.posts ?? []) as Post[];
+      // 타임라인(히스토리)은 무한 스크롤 — page>1 이면 이어붙임(중복 id 제거). 그 외엔 교체(페이지네이션).
+      setPosts((prev) => {
+        if (!(postsLayout === "timeline" && page > 1)) return incoming;
+        const seen = new Set(prev.map((p) => p.id));
+        return [...prev, ...incoming.filter((p) => !seen.has(p.id))];
+      });
       setTotalPages(data.totalPages ?? 1);
+      if (Array.isArray(data.facets)) setFacetTags(data.facets);
       setLoading(false);
       fetchAbortRef.current = null;
     } catch (err) {
@@ -484,7 +624,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     search,
     searchType,
     syntaxMode,
-    activeCategory,
+    activeCategoryKey,
     activeTagsKey,
     activeSeries,
     sort,
@@ -492,13 +632,74 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     randomSeed,
     page,
     perPage,
+    postsLayout,
   ]);
+
+  // 타임라인(히스토리) 무한 스크롤 — sentinel 이 뷰에 들어오면 다음 page 로드(append). 그 외 레이아웃은 페이지네이션.
+  const timelineSentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (postsLayout !== "timeline") return;
+    const el = timelineSentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !loading && page < totalPages) {
+          setPage((p) => p + 1);
+        }
+      },
+      { rootMargin: "400px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [postsLayout, loading, page, totalPages]);
+
+  // scroll-spy — 현재 뷰포트 상단(sticky nav 아래)에 걸린 월 마커를 활성으로. 인덱스 강조용.
+  useEffect(() => {
+    if (postsLayout !== "timeline") return;
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const markers = document.querySelectorAll<HTMLElement>('[id^="tl-m-"]');
+        let current: string | null = null;
+        for (const m of markers) {
+          if (m.getBoundingClientRect().top <= 140) current = m.id.slice("tl-m-".length);
+          else break;
+        }
+        setActiveMonthKey(current);
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [postsLayout, posts]);
+
+  // 월 인덱스 점프 — 대상 월이 아직 로드 안 됐으면 마커가 나타날 때까지 다음 page 순차 로드 후 스크롤.
+  // posts.length 로 게이팅(로드 완료 = posts 증가). loading 플래그만 쓰면 effect 실행 순서상 lag 때문에
+  // page 를 2씩 건너뛰어(짝수 page 미로드) 영구 gap 이 생기던 버그 방지.
+  const jumpReqLenRef = useRef(-1);
+  useEffect(() => {
+    if (!pendingMonthJump) return;
+    if (doScrollToMonth(pendingMonthJump)) { setPendingMonthJump(null); jumpReqLenRef.current = -1; return; }
+    if (loading) return;
+    if (jumpReqLenRef.current === posts.length) return; // 이 길이에서 이미 로드 요청함 — posts 늘 때까지 대기
+    if (page < totalPages) {
+      jumpReqLenRef.current = posts.length;
+      setPage((p) => p + 1);
+    } else {
+      setPendingMonthJump(null); // 끝까지 갔는데 못 찾음 → 포기
+      jumpReqLenRef.current = -1;
+    }
+  }, [pendingMonthJump, posts, page, totalPages, loading, doScrollToMonth]);
 
   // 시리즈 fetch 공통 파라미터 빌더
   const buildSeriesParams = useCallback(
     (page: number) => {
       const params = new URLSearchParams();
-      if (activeCategory) params.set("category", activeCategory);
+      if (activeCategoryKey) params.set("category", activeCategoryKey);
       if (activeTagsKey) params.set("tags", activeTagsKey);
       params.set("page", String(page));
       params.set("limit", String(seriesPerPage));
@@ -509,7 +710,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       }
       return params;
     },
-    [activeCategory, activeTagsKey, seriesPerPage, seriesSortBy, seriesSortDir],
+    [activeCategoryKey, activeTagsKey, seriesPerPage, seriesSortBy, seriesSortDir],
   );
 
   // Fetch series when category/sort changes — initial mount 은 skip (SSR 의 auto_cover_url 보존)
@@ -576,7 +777,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   useEffect(() => {
     if (isInitial) {
       setIsInitial(false);
-      if (page === 1) return; // SSR 와 동일 page → 재요청 불필요
+      // SSR initialData 는 필터 미적용 목록 — URL 로 필터(시리즈/태그)가 걸린 채 진입하면
+      // page 1 이어도 다시 fetch 해야 필터가 반영됨.
+      const hasUrlFilter = !!activeSeries || activeTags.size > 0 || activeCategories.length > 0;
+      if (page === 1 && !hasUrlFilter) return; // SSR 와 동일(무필터 page 1) → 재요청 불필요
     }
     setLoading(true);
     const debounce = setTimeout(fetchPosts, 300);
@@ -592,7 +796,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   }, [
     search,
     searchType,
-    activeCategory,
+    activeCategoryKey,
     activeTagsKey,
     activeSeries,
     sort,
@@ -609,7 +813,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
   const recomputeRowSpans = useCallback(() => {
     const grid = gridRef.current;
     if (!grid) return;
-    if (activeSeries) return; // 시리즈 timeline 모드는 flex 레이아웃이라 패스
+    if (activeSeries || !usesRowSpan) return; // 시리즈 timeline 모드는 flex 레이아웃이라 패스
     const cs = window.getComputedStyle(grid);
     const rowGap = parseFloat(cs.rowGap) || 0;
     const baseUnit = 1; // grid-auto-rows: 1px
@@ -622,10 +826,10 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       const span = Math.ceil((h + rowGap) / (baseUnit + rowGap));
       el.style.gridRow = `span ${span}`;
     });
-  }, [activeSeries]);
+  }, [activeSeries, usesRowSpan]);
 
   useEffect(() => {
-    if (activeSeries) return;
+    if (activeSeries || !usesRowSpan) return;
     recomputeRowSpans();
     const grid = gridRef.current;
     if (!grid) return;
@@ -641,15 +845,15 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       imgs.forEach((img) => img.removeEventListener("load", onLoad));
       ro.disconnect();
     };
-  }, [posts, loading, activeSeries, recomputeRowSpans]);
+  }, [posts, loading, activeSeries, usesRowSpan, recomputeRowSpans]);
 
   // window resize 시에도 재측정 (column 폭 변하면 카드 height 도 변함)
   useEffect(() => {
-    if (activeSeries) return;
+    if (activeSeries || !usesRowSpan) return;
     const onResize = () => recomputeRowSpans();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [activeSeries, recomputeRowSpans]);
+  }, [activeSeries, usesRowSpan, recomputeRowSpans]);
 
   const handleSeriesClick = useCallback((seriesId: string) => {
     setActiveSeries((prev) => (prev === seriesId ? null : seriesId));
@@ -683,12 +887,20 @@ export default function PostsClient({ initialData }: PostsClientProps) {
       scrollingTimer = setTimeout(() => setScrolling(false), SCROLL_IDLE_MS);
     };
 
-    // 좌/우 mask 표시 여부 — 스크롤 위치에 따라 클래스 토글
+    // 좌/우 mask + 스크롤 화살표 표시 여부 — 스크롤 위치에 따라 클래스 토글
     const updateEdges = () => {
       const atStart = el.scrollLeft <= EDGE_TOL;
       const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - EDGE_TOL;
+      const noScroll = el.scrollWidth <= el.clientWidth + EDGE_TOL; // 넘치지 않으면 화살표 둘 다 숨김
       el.classList.toggle(styles.atStart, atStart);
       el.classList.toggle(styles.atEnd, atEnd);
+      // 화살표 버튼은 wrap 기준으로 숨김 (왼쪽 버튼은 seriesRow 앞 형제라 CSS ~ 로 못 잡음)
+      const wrap = el.parentElement;
+      if (wrap) {
+        wrap.classList.toggle(styles.atStart, atStart);
+        wrap.classList.toggle(styles.atEnd, atEnd);
+        wrap.classList.toggle(styles.noScroll, noScroll);
+      }
     };
 
     const maybeLoadMore = () => {
@@ -771,7 +983,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
     };
   }, [seriesList.length, loadMoreSeries]);
 
-  const _hasActiveFilter = !!search || activeTags.size > 0 || !!activeSeries || !!activeCategory;
+  const hasActiveFilter = !!search || activeTags.size > 0 || !!activeSeries || activeCategories.length > 0;
   // banner 는 pinned 글 있으면 항상 표시 (필터/검색/페이지네이션 무관)
   const showBanner = pinnedPosts.length >= 1;
 
@@ -794,18 +1006,35 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
   return (
     <SearchHighlightProvider query={search} mode={syntaxMode}>
-    <div className={styles.page}>
+    <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
       {loading && <div className={styles.topProgress} aria-hidden />}
+      {/* history: 위/아래 스크롤 버튼 (긴 아카이브 이동) */}
+      {history && <ScrollButtons />}
+      {/* ── Posts 계열 브라우즈 서브네비 (All/Series/Tags/History) ── */}
+      <PostsSubnav />
       {/* ── Header ── */}
       <div className={styles.header}>
-        <h1 className={styles.title}>Posts.</h1>
-        <p className={styles.subtitle}>
-          <T k="postsPage.subtitle" />
-        </p>
+        {history ? (
+          <>
+            <PageTitle icon={<HistoryIcon size={40} strokeWidth={1.6} aria-hidden />}>
+              History.
+            </PageTitle>
+            <p className={styles.subtitle}>시간순으로 쌓인 모든 기록.</p>
+          </>
+        ) : (
+          <>
+            <PageTitle icon={<LayoutGrid size={40} strokeWidth={1.6} aria-hidden />}>
+              Posts.
+            </PageTitle>
+            <p className={styles.subtitle}>
+              <T k="postsPage.subtitle" />
+            </p>
+          </>
+        )}
       </div>
 
-      {/* ── Banner Slider ── */}
-      {showBanner && (
+      {/* ── Banner Slider ── (history 모드 제외) */}
+      {!history && showBanner && (
         <div className={styles.bannerSlider}>
           <PostsBanner
             posts={pinnedPosts}
@@ -835,8 +1064,8 @@ export default function PostsClient({ initialData }: PostsClientProps) {
         )}
       </AnimatePresence>
 
-      {/* ── Filter Bar (Category tabs + Search + Sort) ── */}
-      {/* tags/categories 펼친 상태에선 filter bar 안 숨김 (사용자 인터랙션 중) */}
+      {/* ── Filter Bar (Category tabs + Search + Sort) — history 모드에선 숨김 ── */}
+      {!history && (
       <div
         ref={filterBarRef}
         className={`${styles.filterBar} ${barHidden && !showTags && !catExpanded ? styles.filterBarHidden : ""}`}
@@ -848,6 +1077,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
             onSearchChange={setSearch}
             placeholder={t("postsPage.searchPlaceholder")}
             routeParam="q"
+            className={styles.postsSearchCapsule}
             hasResults={posts.length > 0}
             size="sm"
             onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
@@ -860,8 +1090,8 @@ export default function PostsClient({ initialData }: PostsClientProps) {
               ],
               onChange: (v) => setSearchType(v as "all" | "title" | "content"),
             }}
+            syntaxHelp
           />
-          <SearchSyntaxHelpButton />
         </div>
 
         <div className={styles.filterBarTop}>
@@ -896,9 +1126,9 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
           <CategoryNav
             extraCategories={extraCategories}
-            activeCategory={activeCategory}
-            onCategoryChange={(cat) => {
-              setActiveCategory(cat);
+            activeCategories={activeCategories}
+            onCategoriesChange={(next) => {
+              setActiveCategories(next);
               // 카테고리 선택 시 자동으로 닫지 않음 — close 버튼 / filter bar 바깥 클릭 / 스크롤로만 닫힘
             }}
             expanded={catExpanded}
@@ -983,6 +1213,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
           )}
         </AnimatePresence>
       </div>
+      )}
 
       {/* ── Content Area (2-column) ── */}
       <div ref={contentRef} className={styles.contentArea}>
@@ -1001,6 +1232,19 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   </span>
                   <ChevronRight size={12} className={styles.sectionHeaderChevron} aria-hidden />
                 </Link>
+                {isAdmin && (
+                  <Button
+                    href="/admin/settings?tab=content&sub=posts"
+                    external
+                    size="sm"
+                    variant="outline"
+                    className={styles.seriesManageBtn}
+                    icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
+                    title={t("postsPage.seriesManage")}
+                  >
+                    {t("postsPage.seriesManage")}
+                  </Button>
+                )}
               </div>
               <div className={styles.sortWrap}>
                 <SegmentedControl
@@ -1043,32 +1287,39 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   />
                 </Tooltip>
               </div>
-              {/* 검색창 — sectionHeader 의 가장 오른쪽 (margin-left: auto) */}
-              <div
-                className={`${styles.seriesSearchMorph} ${styles.seriesSearchMorphRight} ${seriesSearchOpen ? styles.seriesSearchMorphOpen : ""}`}
-                onClick={() => { if (!seriesSearchOpen) setSeriesSearchOpen(true); }}
-                data-clickable="true"
-                title={!seriesSearchOpen ? "시리즈 제목·설명 검색" : undefined}
-              >
-                <SearchIcon className={styles.seriesSearchMorphIcon} size={14} />
-                <input
-                  ref={seriesSearchInputRef}
-                  className={styles.seriesSearchMorphInput}
-                  type="text"
-                  value={seriesSearch}
-                  onChange={(e) => setSeriesSearch(e.target.value)}
-                  placeholder="시리즈 제목·설명 검색"
-                  tabIndex={seriesSearchOpen ? 0 : -1}
-                  onClick={(e) => e.stopPropagation()}
-                  onBlur={() => { if (!seriesSearch.trim()) setSeriesSearchOpen(false); }}
-                />
-              </div>
+              {/* 검색창 — 공통 SearchCapsule collapsible(morph) + 스코프 typeSelector */}
+              <SearchCapsule
+                search={seriesSearch}
+                onSearchChange={setSeriesSearch}
+                placeholder="시리즈 제목·설명 검색"
+                size="sm"
+                align="left"
+                collapsible
+                historyKey={null}
+                showHelp={false}
+                className={styles.seriesSearchCapsule}
+                typeSelector={{
+                  value: seriesScope,
+                  options: [
+                    { value: "all", label: t("postsPage.seriesSearchAll") },
+                    { value: "title", label: t("postsPage.seriesSearchTitle") },
+                    { value: "desc", label: t("postsPage.seriesSearchDesc") },
+                  ],
+                  onChange: (v) => setSeriesScope(v as "all" | "title" | "desc"),
+                }}
+              />
             </div>
             {(() => {
               const q = seriesSearch.trim().toLowerCase();
+              const scopeFields = (s: Series) =>
+                seriesScope === "title"
+                  ? [s.title, s.title_en]
+                  : seriesScope === "desc"
+                    ? [s.description, s.description_en]
+                    : [s.title, s.title_en, s.description, s.description_en];
               const baseFiltered = q
                 ? seriesList.filter((s) =>
-                    [s.title, s.title_en, s.description, s.description_en]
+                    scopeFields(s)
                       .filter(Boolean)
                       .some((v) => (v as string).toLowerCase().includes(q)),
                   )
@@ -1214,21 +1465,26 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                   <SegmentedControl<"date" | "popular" | "title", "score" | "views" | "comments" | "likes">
                     size="sm"
                     className={styles.seriesSegmented}
-                    items={[
-                      { value: "date", label: <T k="postsPage.sortDate" tooltip={t("postsPage.sortDateTooltip")} /> },
-                      {
-                        value: "popular",
-                        label: <T k="postsPage.sortPopular" tooltip={t("postsPage.sortPopularTooltip")} />,
-                        subItems: [
-                          { value: "score", label: <T k="postsPage.popularScore" /> },
-                          { value: "views", label: <T k="postsPage.popularViews" /> },
-                          { value: "comments", label: <T k="postsPage.popularComments" /> },
-                          { value: "likes", label: <T k="postsPage.popularLikes" /> },
-                        ],
-                      },
-                      { value: "title", label: <T k="postsPage.sortTitle" tooltip={t("postsPage.sortTitleTooltip")} /> },
-                    ]}
-                    value={(sortBy === "random" ? "date" : sortBy) as "date" | "popular" | "title"}
+                    items={
+                      /* 타임라인은 월 그룹이라 날짜순만 유효 → date(newest/oldest 토글)만 노출 */
+                      postsLayout === "timeline"
+                        ? [{ value: "date", label: <T k="postsPage.sortDate" tooltip={t("postsPage.sortDateTooltip")} /> }]
+                        : [
+                            { value: "date", label: <T k="postsPage.sortDate" tooltip={t("postsPage.sortDateTooltip")} /> },
+                            {
+                              value: "popular",
+                              label: <T k="postsPage.sortPopular" tooltip={t("postsPage.sortPopularTooltip")} />,
+                              subItems: [
+                                { value: "score", label: <T k="postsPage.popularScore" /> },
+                                { value: "views", label: <T k="postsPage.popularViews" /> },
+                                { value: "comments", label: <T k="postsPage.popularComments" /> },
+                                { value: "likes", label: <T k="postsPage.popularLikes" /> },
+                              ],
+                            },
+                            { value: "title", label: <T k="postsPage.sortTitle" tooltip={t("postsPage.sortTitleTooltip")} /> },
+                          ]
+                    }
+                    value={(postsLayout === "timeline" || sortBy === "random" ? "date" : sortBy) as "date" | "popular" | "title"}
                     onChange={(v) => {
                       if (sortBy === v) {
                         setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -1246,43 +1502,52 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                       setSortDir("desc");
                     }}
                   />
-                  <Tooltip
-                    content={
-                      <>
-                        <div>{t("postsPage.sortRandom")}</div>
-                        <div>{t("postsPage.sortRandomTooltip")}</div>
-                      </>
-                    }
-                  >
-                    <Button
-                      variant={sortBy === "random" ? "primary" : "outline"}
-                      shape="circle"
-                      size="sm"
-                      icon={<Shuffle size={12} />}
-                      onClick={() => {
-                        if (sortBy === "random") {
-                          setRandomSeed(Math.floor(Math.random() * 1e9));
-                        } else {
-                          setSortBy("random");
-                          setRandomSeed(Math.floor(Math.random() * 1e9));
-                        }
-                      }}
-                      aria-label={t("postsPage.sortRandom")}
-                      className={styles.shuffleBtn}
-                    />
-                  </Tooltip>
+                  {/* 타임라인에선 랜덤 정렬도 무의미 → shuffle 숨김 */}
+                  {postsLayout !== "timeline" && (
+                    <Tooltip
+                      content={
+                        <>
+                          <div>{t("postsPage.sortRandom")}</div>
+                          <div>{t("postsPage.sortRandomTooltip")}</div>
+                        </>
+                      }
+                    >
+                      <Button
+                        variant={sortBy === "random" ? "primary" : "outline"}
+                        shape="circle"
+                        size="sm"
+                        icon={<Shuffle size={12} />}
+                        onClick={() => {
+                          if (sortBy === "random") {
+                            setRandomSeed(Math.floor(Math.random() * 1e9));
+                          } else {
+                            setSortBy("random");
+                            setRandomSeed(Math.floor(Math.random() * 1e9));
+                          }
+                        }}
+                        aria-label={t("postsPage.sortRandom")}
+                        className={styles.shuffleBtn}
+                      />
+                    </Tooltip>
+                  )}
                 </div>
-                {/* 페이지 select — 가장 오른쪽 (margin-left: auto). shuffle/sort 와 분리. */}
-                <Select
-                  value={String(perPage)}
-                  options={PAGE_SIZE_OPTIONS}
-                  size="sm"
-                  onChange={(v) => {
-                    setPerPage(Number(v));
-                    setPage(1);
-                  }}
-                  className={`${styles.pageSizeSelect} ${styles.pageSizeSelectRight}`}
-                />
+                {/* 페이지당 개수 select — 가장 오른쪽 (margin-left: auto). shuffle/sort 와 분리.
+                   history(timeline)는 무한스크롤이라 페이지 개념이 없어 숨김. */}
+                {postsLayout !== "timeline" && (
+                  <div className={styles.pageSizeGroup}>
+                    <List size={14} strokeWidth={1.8} className={styles.pageSizeIcon} aria-hidden />
+                    <Select
+                      value={String(perPage)}
+                      options={PAGE_SIZE_OPTIONS}
+                      size="sm"
+                      onChange={(v) => {
+                        setPerPage(Number(v));
+                        setPage(1);
+                      }}
+                      className={styles.pageSizeSelect}
+                    />
+                  </div>
+                )}
               </div>
               {!loading && posts.length === 0 ? (
                 activeSeries ? (
@@ -1324,7 +1589,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                     <p className={styles.emptyTitle}>{t("postsPage.noPostsYet")}</p>
                     {(search ||
                       activeTags.size > 0 ||
-                      activeCategory) && (
+                      activeCategories.length > 0) && (
                       <Button
                         variant="outline"
                         size="xs"
@@ -1332,7 +1597,7 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                           setSearch("");
                           setSearchType("all");
                           clearActiveTags();
-                          setActiveCategory(null);
+                          setActiveCategories([]);
                         }}
                       >
                         <T
@@ -1345,39 +1610,118 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                 )
               ) : (
                 <>
+              <div className={`${styles.gridWrap} ${postsLayout === "timeline" ? styles.gridWrapTimeline : ""}`}>
+              {postsLayout === "timeline" && timelineIndexGroups.length > 0 && (
+                <motion.nav
+                  className={styles.timelineIndex}
+                  aria-label="월별 이동"
+                  data-lenis-prevent
+                  initial="hidden"
+                  animate="show"
+                  variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05, delayChildren: 0.08 } } }}
+                >
+                  {timelineIndexGroups.map((group) => {
+                    const yearActive = group.months.some((m) => m.key === activeMonthKey);
+                    return (
+                      <motion.div
+                        key={group.year}
+                        className={styles.timelineIndexGroup}
+                        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.02 } } }}
+                      >
+                        <motion.div
+                          className={`${styles.timelineIndexYear} ${yearActive ? styles.timelineIndexYearActive : ""}`}
+                          variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0 } }}
+                        >
+                          {group.year}<span className={styles.timelineIndexHanja}>年</span>
+                        </motion.div>
+                        <motion.div
+                          className={styles.timelineIndexMonths}
+                          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.02 } } }}
+                        >
+                          {group.months.map((m) => {
+                            const isActive = activeMonthKey === m.key;
+                            return (
+                              <motion.button
+                                key={m.key}
+                                type="button"
+                                variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0 } }}
+                                whileHover={{ x: 3 }}
+                                transition={{ type: "spring", stiffness: 480, damping: 30 }}
+                                className={`${styles.timelineIndexItem} ${isActive ? styles.timelineIndexItemActive : ""}`}
+                                onClick={() => scrollToMonth(m.key)}
+                                data-clickable="true"
+                              >
+                                <span className={styles.timelineIndexTick} aria-hidden="true">
+                                  {isActive && (
+                                    <motion.span
+                                      layoutId="tlIndexActiveDot"
+                                      className={styles.timelineIndexDot}
+                                      transition={{ type: "spring", stiffness: 520, damping: 34 }}
+                                    />
+                                  )}
+                                </span>
+                                <span className={styles.timelineIndexMm}>{m.mm}<span className={styles.timelineIndexHanja}>月</span></span>
+                              </motion.button>
+                            );
+                          })}
+                        </motion.div>
+                      </motion.div>
+                    );
+                  })}
+                </motion.nav>
+              )}
               <div
                 ref={gridRef}
-                className={`${styles.grid} ${activeSeries ? styles.gridSeries : ""} ${loading ? styles.gridLoading : ""}`}
+                className={`${styles.grid} ${activeSeries ? styles.gridSeries : layoutClass} ${loading ? styles.gridLoading : ""}`}
               >
                 {posts.length === 0 ? (
                   <PostsSkeletonCards
                     count={perPage}
                     activeSeries={!!activeSeries}
+                    bento={postsLayout === "magazine"}
+                    compactLayout={postsLayout === "compact"}
                   />
                 ) : (
                   (() => {
+                    // magazine 만 사이즈 변주(wide/banner/square/portrait). grid·list·compact 는 균일 카드.
                     const variants: CardType[] = posts.map((_, i) =>
-                      activeSeries ? "standard" : getCardType(i),
+                      activeSeries || postsLayout !== "magazine" ? "standard" : getCardType(i),
                     );
                     return posts.map((post, idx) => {
                       const type: CardType = variants[idx];
+                      // featured — 첫 카드만 대형 hero. masonry/timeline 은 균일 표준 카드.
+                      const isFeaturedHero =
+                        !activeSeries && postsLayout === "featured" && idx === 0;
                       const cls =
                         !activeSeries && (type === "wide" || type === "banner")
                           ? styles.gridWide
                           : "";
+                      // timeline — 월(연-월) 이 이전 카드와 다르면 앞에 날짜 마커 삽입
+                      const timelineMarker =
+                        !activeSeries &&
+                        postsLayout === "timeline" &&
+                        monthKey(post) !== (idx > 0 ? monthKey(posts[idx - 1]) : "")
+                          ? monthLabel(post)
+                          : null;
                       // 시리즈 필터링 시 — DB 의 series_order 값이 비연속/중복일 수 있어 sort 후 idx+1 로 1-based 일관 표시
                       const stepNumber = activeSeries
                         ? String(idx + 1).padStart(2, "0")
                         : null;
-                      return (
-                        <div
-                          key={post.id}
-                          ref={(el) => {
-                            if (el) itemRefs.current.set(post.id, el);
-                            else itemRefs.current.delete(post.id);
-                          }}
-                          className={`${styles.gridItem} ${cls} ${activeSeries ? styles.seriesStep : ""}`}
-                        >
+                      const isTimeline = !activeSeries && postsLayout === "timeline";
+                      // 지그재그 — 인덱스로 좌/우 교차 (마커가 껴도 idx 기준이라 일관)
+                      const tlSide: "left" | "right" = idx % 2 === 0 ? "left" : "right";
+                      const tlSideClass = isTimeline
+                        ? tlSide === "left"
+                          ? styles.gridItemTlLeft
+                          : styles.gridItemTlRight
+                        : "";
+                      const setItemRef = (el: HTMLDivElement | null) => {
+                        if (el) itemRefs.current.set(post.id, el);
+                        else itemRefs.current.delete(post.id);
+                      };
+                      const itemClassName = `${styles.gridItem} ${cls} ${isFeaturedHero ? styles.gridFeaturedHero : ""} ${activeSeries ? styles.seriesStep : ""} ${tlSideClass}`;
+                      const cardInner = (
+                        <>
                           {stepNumber && (
                             <div
                               className={styles.seriesStepNumber}
@@ -1393,7 +1737,8 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                           >
                             <PostCard
                               post={post}
-                              variant="standard"
+                              variant={isFeaturedHero ? "featured" : "standard"}
+                              layout={activeSeries ? undefined : postsLayout}
                               banner={!activeSeries && type === "banner"}
                               square={!activeSeries && type === "square"}
                               portrait={!activeSeries && type === "portrait"}
@@ -1403,15 +1748,54 @@ export default function PostsClient({ initialData }: PostsClientProps) {
                               imgError={imgErrors.has(post.id)}
                             />
                           </div>
+                        </>
+                      );
+                      // 타임라인 리빌은 framer useScroll 로 스크롤 진행에 비례(TimelineMotionItem). 그 외는 plain div.
+                      const cardEl = isTimeline ? (
+                        <TimelineMotionItem
+                          key={post.id}
+                          side={tlSide}
+                          disableX={tlSingleCol}
+                          className={itemClassName}
+                          assignRef={setItemRef}
+                        >
+                          {cardInner}
+                        </TimelineMotionItem>
+                      ) : (
+                        <div key={post.id} ref={setItemRef} className={itemClassName}>
+                          {cardInner}
                         </div>
+                      );
+                      return timelineMarker ? (
+                        <Fragment key={post.id}>
+                          <motion.div
+                            id={`tl-m-${monthKey(post)}`}
+                            className={styles.timelineMarker}
+                            initial={{ opacity: 0, y: 12 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "0px 0px -6% 0px" }}
+                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                          >
+                            <span className={styles.timelineMarkerLabel}>{timelineMarker}</span>
+                          </motion.div>
+                          {cardEl}
+                        </Fragment>
+                      ) : (
+                        cardEl
                       );
                     });
                   })()
                 )}
               </div>
+              </div>{/* /gridWrap */}
 
-              {/* Pagination */}
-              {totalPages > 1 && (
+              {/* 타임라인 무한 스크롤 sentinel — 다음 page 자동 로드 */}
+              {postsLayout === "timeline" && page < totalPages && (
+                <div ref={timelineSentinelRef} className={styles.timelineSentinel} aria-hidden="true" />
+              )}
+
+              {/* Pagination — 타임라인(무한스크롤) 제외 */}
+              {postsLayout !== "timeline" && totalPages > 1 && (
                 <div className={styles.pagination}>
                   <button
                     disabled={page <= 1}
@@ -1454,7 +1838,15 @@ export default function PostsClient({ initialData }: PostsClientProps) {
 
         {/* ── Sidebar ── */}
         <SidebarWrap barHidden={barHidden}>
-          <TagCloud3D tags={allTags} activeTags={activeTags} />
+          {/* 태그 — label 헤더는 그대로, 필터링 중일 땐 sphere 대신 chip(개수 명시)로.
+              tags 는 필터 중이면 facet(결과 반영)로 전달. 클릭 시 태그 토글(OR) 필터. */}
+          <TagCloud3D
+            tags={hasActiveFilter ? facetTags : allTags}
+            activeTags={activeTags}
+            // 평소 sphere 는 태그 페이지로 이동(기존), 필터 중 chip 은 토글(OR)로 필터 조정
+            onTagClick={hasActiveFilter ? toggleActiveTag : undefined}
+            asChips={hasActiveFilter}
+          />
           <PopularPosts />
           <RandomPosts />
           <RecentComments />
@@ -1474,14 +1866,37 @@ function PostsSkeletonCards({
   activeSeries,
   startIdx = 0,
   ghost = false,
+  bento = true,
+  compactLayout = false,
 }: {
   count: number;
   activeSeries: boolean;
   startIdx?: number;
   ghost?: boolean;
+  bento?: boolean;
+  compactLayout?: boolean;
 }) {
+  // compact 레이아웃 — 이미지 없이 텍스트 행 skeleton
+  if (compactLayout) {
+    return (
+      <>
+        {Array.from({ length: count }, (_, i) => (
+          <div
+            key={i}
+            className={`${styles.gridItem} ${ghost ? styles.gridItemGhost : ""}`}
+            aria-hidden={ghost || undefined}
+          >
+            <div className={styles.skeletonCompactRow}>
+              <SkeletonLine width="42%" height={18} />
+              <SkeletonPill width={110} height={14} />
+            </div>
+          </div>
+        ))}
+      </>
+    );
+  }
   const variants: CardType[] = Array.from({ length: count }, (_, i) =>
-    activeSeries ? "standard" : getCardType(startIdx + i),
+    activeSeries || !bento ? "standard" : getCardType(startIdx + i),
   );
   return (
     <>

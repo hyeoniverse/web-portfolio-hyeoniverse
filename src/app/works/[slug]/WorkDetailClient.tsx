@@ -66,6 +66,7 @@ export default function WorkDetailClient({
       backHref="/works"
       backLabel={t("workDetail.back")}
       heroImage={project.image}
+      heroIcon={project.icon}
       heroAlt={project.title}
       headings={headings}
       header={

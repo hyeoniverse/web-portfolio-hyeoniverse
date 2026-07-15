@@ -1,15 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Logo from "@/components/common/Logo";
 import styles from "./Navigation.module.css";
 
+interface MenuChild {
+  key: string;
+  href: string;
+  label: string;
+}
+
 interface MenuItem {
   key: string;
   href: string | null;
   label?: string;
+  children?: MenuChild[];
 }
 
 interface MobileMenuProps {
@@ -84,6 +91,35 @@ export default function MobileMenu({
                 >
                   {item.label ?? item.key}
                 </button>
+              );
+            }
+            if (item.children?.length) {
+              return (
+                <Fragment key={item.key}>
+                  <Link
+                    href={item.href}
+                    className={`${styles.menuLink} glith-on-hover ${activeHref === item.href ? styles.menuLinkActive : ""}`}
+                    onClick={onClose}
+                  >
+                    {item.label ?? item.key}
+                  </Link>
+                  <div className={styles.menuSubList}>
+                    {item.children.map((child) => {
+                      const childActive =
+                        pathname === child.href || pathname.startsWith(child.href + "/");
+                      return (
+                        <Link
+                          key={child.key}
+                          href={child.href}
+                          className={`${styles.menuSubLink} glith-on-hover ${childActive ? styles.menuSubLinkActive : ""}`}
+                          onClick={onClose}
+                        >
+                          {child.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </Fragment>
               );
             }
             return (

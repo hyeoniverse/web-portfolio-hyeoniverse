@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { clampTitle } from "@/lib/postConstants";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import {
   type Provider,
@@ -41,7 +42,8 @@ export async function POST(request: Request, context: RouteContext) {
     if ("error" in result) {
       return NextResponse.json({ error: result.error }, { status: 502 });
     }
-    const [titleKo, contentKo, excerptKo] = result.translations;
+    const [titleKoRaw, contentKo, excerptKo] = result.translations;
+    const titleKo = clampTitle(titleKoRaw); // 생성 제목 상한 초과 방지 (DB CHECK 위반 방지)
     await admin.from("posts").update({ title: titleKo, content: contentKo, excerpt: excerptKo }).eq("id", id);
     return NextResponse.json({ title: titleKo, content: contentKo, excerpt: excerptKo });
   }
@@ -55,7 +57,8 @@ export async function POST(request: Request, context: RouteContext) {
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: 502 });
   }
-  const [titleEn, contentEn, excerptEn] = result.translations;
+  const [titleEnRaw, contentEn, excerptEn] = result.translations;
+  const titleEn = clampTitle(titleEnRaw); // 생성 제목 상한 초과 방지
   await admin.from("posts").update({ title_en: titleEn, content_en: contentEn, excerpt_en: excerptEn }).eq("id", id);
   return NextResponse.json({ title_en: titleEn, content_en: contentEn, excerpt_en: excerptEn });
 }
