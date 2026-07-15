@@ -2161,7 +2161,8 @@ export function MediaEmbedElement(props: PlateElementProps) {
   const vidLayout = (el.layout as string) || "block";
   const vidLock = (el.lockAspect as boolean) ?? true;
   // 재생 옵션 + 캡션 + 다운로드 방지
-  const vidAutoplay = (el.vidAutoplay as boolean) || false;
+  // vidAutoplay 는 여기서 안 읽는다 — autoplay 는 편집을 방해해서 에디터엔 일부러 미적용이고,
+  // 발행 HTML 에만 직렬화기(plateSerializer)가 넣는다.
   const vidLoop = (el.vidLoop as boolean) || false;
   const vidMuted = (el.vidMuted as boolean) || false;
   const vidStart = (el.vidStart as number) || 0;
