@@ -120,6 +120,10 @@
 .triggerCombobox {
   padding-right: calc(var(--spacing-sm) + 38px);
 }
+/* width="full" 일 때 input 이 root 폭을 채워야 chevron(절대배치, root 우측)이 input 안쪽에 위치 */
+.rootFull .triggerCombobox {
+  width: 100%;
+}
 /* 지우개 — chevron 왼쪽 */
 .comboClear {
   position: absolute;
@@ -153,8 +157,10 @@
   overscroll-behavior: contain;
   border: var(--border-light);
   border-radius: var(--radius-2xl);
-  /* background 없이 backdrop-filter blur 만 — 뒤가 비치는 glass 효과 */
-  backdrop-filter: blur(8px) saturate(1.4);
+  /* 글래스 패널 — Popover/Toast/DatePicker 와 동일 표면 (--bg-glass-panel + --blur-glass).
+     (모달 위 dropdown 은 .selectAboveModal 로 완전 불투명) */
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
   z-index: var(--z-dropdown);
   box-shadow: 0 8px 32px oklch(0% 0 0 / 0.25);
   display: flex;
@@ -236,6 +242,7 @@
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
+  /* 투명 글래스라 difference 블렌딩 면이 약해 텍스트가 연해짐 → solid text-primary(테마 적응, 진함) */
   color: var(--text-primary);
   text-align: left;
   width: 100%;
@@ -281,6 +288,21 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* 투명 글래스라 difference 대신 solid text-primary 사용 (진하게). trigger 선택값(.value) 엔 미적용. */
+.dropdown .optionLabel,
+.dropdown .optionTrailing { mix-blend-mode: normal; }
+/* 선택/활성 옵션도 solid — 선택 표시는 옵션 배경 하이라이트(bg-accent-subtle)가 담당. */
+.dropdown .optionActive,
+.dropdown .optionSelected { color: var(--text-primary); }
+.dropdown .optionActive .optionTrailing,
+.dropdown .optionSelected .optionTrailing { color: var(--text-primary); }
+/* 현재 선택 항목 라벨은 accent text — difference 끄고 진짜 accent 색으로 표시.
+   compact 는 선택 배경이 accent-solid(흰 글자)라 제외. */
+.dropdown:not(.dropdownCompact) .optionActive .optionLabel,
+.dropdown:not(.dropdownCompact) .optionSelected .optionLabel {
+  color: var(--text-accent);
+  mix-blend-mode: normal;
+}
 
 /* trailing — 라벨 오른쪽, 자동 spacing (margin-left auto + 좌측 spacing 추가로 시각적 gap) */
 .optionTrailing {
@@ -315,6 +337,13 @@
   display: flex;
   flex-direction: column;
 }
+/* 옵션 사이 구분선 (divider 옵션 위) */
+.optionDivider {
+  height: 1px;
+  margin: var(--spacing-3xs) 0;
+  background: var(--border-light-color);
+  flex-shrink: 0;
+}
 
 .optionGroup + .optionGroup {
   margin-top: var(--spacing-2xs);
@@ -336,7 +365,7 @@
 
 .dropdownCompact {
   background: var(--bg-glass-strong);
-  backdrop-filter: blur(4px);
+  backdrop-filter: var(--blur-glass);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   box-shadow: 0 2px 8px oklch(0% 0 0 / 0.15);

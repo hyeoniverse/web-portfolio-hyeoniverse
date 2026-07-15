@@ -27,13 +27,36 @@
   border-color: var(--text-primary);
 }
 
+/* ── size 변형 (Input 위임 시 pass-through) — height + input line-height 동반 조정 ── */
+.fieldWrapSm {
+  height: var(--control-h-sm);
+}
+
+.fieldWrapXs {
+  height: var(--control-h-xs);
+}
+
+.fieldWrapSm .input {
+  line-height: var(--control-h-sm);
+}
+
+.fieldWrapXs .input {
+  line-height: var(--control-h-xs);
+  font-size: var(--font-size-xs);
+}
+
+/* ── underline variant — border 대신 하단선. focus-within 시 위 규칙이 border-color 강조 ── */
+.fieldWrapUnderline {
+  border: none;
+  border-bottom: var(--border-strong);
+  border-radius: 0;
+}
+
 /* contentEditable div — flex 1 로 남은 공간 차지, min-width: 0 로 truncate 허용.
    horizontal scroll 은 native (overflow-x: auto + nowrap). */
 .input {
   flex: 1;
   min-width: 0;
-  display: flex;
-  align-items: center;
   height: 100%;
   box-sizing: border-box;
   /* padding 0 — gap 은 margin 으로 (scroll 영역 밖이라 항상 유지됨) */
@@ -45,8 +68,9 @@
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   outline: none;
-  /* line-height: 1 + flex align-items: center 로 텍스트 vertical center 정확히 */
-  line-height: 1;
+  /* line-height = 높이 → 단일 라인 vertical center. flex 중앙정렬은 빈 contentEditable 에서 line box 가
+     없어 caret 이 위로 치우침 → line-height 방식으로 빈 상태에서도 caret 중앙 유지 */
+  line-height: var(--control-h-md);
   white-space: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
@@ -58,8 +82,10 @@
   display: none;
 }
 
-/* placeholder — contentEditable 은 native placeholder 없음 → empty 일 때 ::before */
-.input[data-empty]::before {
+/* placeholder — contentEditable 은 native placeholder 없음 → 실제 DOM 이 비었을 때(:empty) ::before.
+   value(React state) 기준이면 IME 조합 중 onChange 가 안 불려 placeholder 가 안 사라지고 조합 글자가
+   그 뒤에 겹쳐 보임 → :empty 는 DOM 에 노드가 생기는 즉시(조합 시작) 사라져 그 버그가 없음. */
+.input:empty::before {
   content: attr(data-placeholder);
   color: var(--text-tertiary);
   pointer-events: none;

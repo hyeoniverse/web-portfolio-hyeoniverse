@@ -42,6 +42,40 @@
   opacity: 0.5;
 }
 
+/* 입력 영역 묶음 — label 을 왼쪽에 둘 때(가로 폼) input+counter 를 하나의 오른쪽 컬럼으로 묶음 */
+.fieldBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  min-width: 0;
+}
+
+/* ── 글자수 카운터 — 공통 Textarea 와 동일 룩(EditorTextInput 등에서 재사용). 우측 정렬 ── */
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-2xs);
+}
+/* (0,2,0) 으로 전역 theme transition 오버라이드 */
+.wrapper .counter {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  user-select: none;
+  transition: color var(--duration-base) ease;
+}
+/* count 숫자만 상태별 색 — "/ max" 는 항상 tertiary */
+.counterWarn > span {
+  color: var(--text-warning);
+}
+.counterOver > span {
+  color: var(--text-accent);
+  font-weight: 500;
+}
+
 /* ── Size: sm ── */
 .wrapperSm {
   gap: var(--spacing-2xs);
@@ -103,6 +137,16 @@
 
 .underline:focus {
   border-color: var(--text-primary);
+}
+
+/* ── Multiline (textarea) — 고정 높이 대신 내용 기반. EditorTextInput 전용 ── */
+.multiline {
+  height: auto;
+  min-height: var(--control-h-sm);
+  padding-top: var(--spacing-2xs);
+  padding-bottom: var(--spacing-2xs);
+  line-height: 1.5;
+  resize: none;
 }
 
 /* ── Field wrapper — input + 선택 inlineLabel + 선택 clearBtn 묶음 ── */

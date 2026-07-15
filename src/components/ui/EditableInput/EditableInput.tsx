@@ -12,7 +12,12 @@ import {
   type FocusEvent,
 } from "react";
 import { Eraser } from "lucide-react";
+import { showToast } from "@/stores/toastStore";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./EditableInput.module.css";
+
+/** maxLength 하드컷 발생 시 built-in toast 문구 (onOverflow 미제공 시) */
+const LIMIT_TOAST = { ko: "글자수 제한에 도달했습니다.", en: "Character limit reached." };
 
 interface EditableInputProps {
   value: string;
@@ -22,12 +27,24 @@ interface EditableInputProps {
   inlineLabel?: string;
   /** Soft 글자수 권장 한도 — 초과 글자에 inline <mark> highlight + 우측 counter (n/max). 미지정 시 highlight/counter 없음. */
   maxHint?: number;
+  /** Hard 글자수 상한 — 입력/붙여넣기 시 이 길이로 잘라 onChange 에 전달 (근본 차단). maxHint 와 별개. */
+  maxLength?: number;
+  /** 시각 variant — capsule(기본) / underline. Input 위임 시 pass-through. */
+  variant?: "capsule" | "underline";
+  /** 크기 — xs / sm / md(기본). Input 위임 시 pass-through. */
+  size?: "xs" | "sm" | "md";
   /** clear 버튼 표시 — value 있을 때 우측. 기본 true */
   clearable?: boolean;
   className?: string;
   disabled?: boolean;
   onFocus?: (e: FocusEvent<HTMLDivElement>) => void;
   onBlur?: (e: FocusEvent<HTMLDivElement>) => void;
+  /** 마운트 시 자동 포커스 (contentEditable 라 native autoFocus 없음 → ref + effect) */
+  autoFocus?: boolean;
+  /** Enter (single-line 이라 기본 차단) 시 호출 — 예: 저장 트리거 */
+  onEnter?: () => void;
+  /** maxLength 로 초과분이 처음 잘릴 때 1회 호출 — 소비자 override. 미제공 + maxLength 있으면 built-in toast. */
+  onOverflow?: () => void;
 }
 
 function escapeHtml(s: string): string {
@@ -88,15 +105,24 @@ export default function EditableInput({
   placeholder,
   inlineLabel,
   maxHint,
+  maxLength,
+  variant = "capsule",
+  size = "md",
   clearable = true,
   className,
   disabled,
   onFocus,
   onBlur,
+  autoFocus,
+  onEnter,
+  onOverflow,
 }: EditableInputProps) {
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
   const isComposingRef = useRef(false);
+  const { language } = useLanguage();
+  /* built-in toast throttle — 연속 입력/paste 도배 방지 (ref 타임스탬프) */
+  const lastToastRef = useRef(0);
 
   /* DOM 동기화 — value / maxHint 변경 시 innerHTML 재구성 + caret 보존 (composition 중엔 skip) */
   useLayoutEffect(() => {
@@ -110,29 +136,73 @@ export default function EditableInput({
     if (caret != null) setCaretOffset(root, Math.min(caret, value.length));
   }, [value, maxHint]);
 
+  /* 마운트 시 자동 포커스 — DOM-sync effect 뒤에 실행되어 caret 을 값 끝으로 (1회만) */
+  useLayoutEffect(() => {
+    if (autoFocus && ref.current) {
+      // preventScroll — 모달 열릴 때 포커스가 페이지를 스크롤시키지 않도록
+      ref.current.focus({ preventScroll: true });
+      setCaretOffset(ref.current, ref.current.textContent?.length ?? 0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* maxLength 초과분 잘라내고, DOM 이 이미 그린 초과분도 즉시 제거 (capped 값이 기존 value 와
+     같으면 value effect 가 안 돌아 DOM 이 초과 상태로 남는 것 방지). caret 은 끝으로. */
+  const capAndSync = useCallback(
+    (root: HTMLDivElement, raw: string): string => {
+      const text = raw.replace(/[\r\n]+/g, "");
+      if (maxLength == null || text.length <= maxLength) return text;
+      const capped = text.slice(0, maxLength);
+      root.innerHTML = buildHtml(capped, maxHint, styles.over);
+      setCaretOffset(root, capped.length);
+      return capped;
+    },
+    [maxLength, maxHint],
+  );
+
+  /* 이번 입력이 maxLength 를 처음 넘겨 잘렸으면(직전 value 는 아직 한도 미만) 알림.
+     onOverflow 제공 시 그걸 호출(소비자 override), 없으면 throttle 된 built-in toast. */
+  const notifyOverflow = useCallback((raw: string) => {
+    if (maxLength == null) return;
+    const len = raw.replace(/[\r\n]+/g, "").length;
+    if (len <= maxLength || value.length >= maxLength) return;
+    if (onOverflow) { onOverflow(); return; }
+    const now = Date.now();
+    if (now - lastToastRef.current < 1500) return;
+    lastToastRef.current = now;
+    showToast(LIMIT_TOAST[language], "info", 3000);
+  }, [onOverflow, maxLength, value, language]);
+
   const handleInput = useCallback(
     (e: FormEvent<HTMLDivElement>) => {
       if (isComposingRef.current) return;
-      /* 단일 행 — 어떤 줄바꿈도 제거 (paste 든 자동삽입이든) */
-      const text = (e.currentTarget.textContent ?? "").replace(/[\r\n]+/g, "");
+      /* 단일 행 — 어떤 줄바꿈도 제거 (paste 든 자동삽입이든) + maxLength hard cap */
+      const raw = e.currentTarget.textContent ?? "";
+      const text = capAndSync(e.currentTarget, raw);
+      notifyOverflow(raw);
       onChange(text);
     },
-    [onChange],
+    [onChange, capAndSync, notifyOverflow],
   );
 
   const handleCompositionEnd = useCallback(
     (e: CompositionEvent<HTMLDivElement>) => {
       isComposingRef.current = false;
-      const text = (e.currentTarget.textContent ?? "").replace(/[\r\n]+/g, "");
+      const raw = e.currentTarget.textContent ?? "";
+      const text = capAndSync(e.currentTarget, raw);
+      notifyOverflow(raw);
       onChange(text);
     },
-    [onChange],
+    [onChange, capAndSync, notifyOverflow],
   );
 
-  /* Enter 차단 — single-line */
+  /* Enter — single-line 이라 차단, onEnter 있으면 (조합 중이 아닐 때) 호출 */
   const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Enter") e.preventDefault();
-  }, []);
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (!e.nativeEvent.isComposing) onEnter?.();
+    }
+  }, [onEnter]);
 
   /* paste — 줄바꿈 제거 후 plain text 삽입 */
   const handlePaste = useCallback((e: ClipboardEvent<HTMLDivElement>) => {
@@ -152,6 +222,9 @@ export default function EditableInput({
      input 만 flex:1 로 남은 공간 grow + truncate. padding 트릭 불필요. */
   const wrapClasses = [
     styles.fieldWrap,
+    size === "sm" ? styles.fieldWrapSm : "",
+    size === "xs" ? styles.fieldWrapXs : "",
+    variant === "underline" ? styles.fieldWrapUnderline : "",
     inlineLabel ? styles.hasInlineLabel : "",
   ].filter(Boolean).join(" ");
 
@@ -170,7 +243,6 @@ export default function EditableInput({
           spellCheck
           className={styles.input}
           data-placeholder={placeholder}
-          data-empty={isEmpty || undefined}
           onInput={handleInput}
           onCompositionStart={() => { isComposingRef.current = true; }}
           onCompositionEnd={handleCompositionEnd}

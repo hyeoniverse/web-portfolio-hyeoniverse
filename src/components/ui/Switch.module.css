@@ -107,6 +107,20 @@
 .withText[data-state="unchecked"] .stateOn { opacity: 0; }
 .withText[data-state="unchecked"] .stateOff { opacity: 1; }
 
+/* ── Size: lg (56×28 — 툴바 버튼 control-h-sm 높이 맞춤. sm(44×20) 비율 유지하며 확대) ── */
+.sizeLg { width: 56px; height: 28px; }
+.sizeLg .thumb { width: 22px; height: 22px; transform: translateX(3px); }
+.sizeLg[data-state="checked"] .thumb { transform: translateX(31px); }
+.sizeLg.withText { position: relative; padding: 0; }
+.sizeLg.withText .thumb {
+  position: absolute; top: 50%; margin-top: -11px; transform: none; left: 3px;
+  transition: left var(--duration-fast) ease, background var(--duration-fast) ease;
+}
+.sizeLg.withText[data-state="checked"] .thumb { transform: none; left: 31px; }
+.sizeLg .stateText { font-size: 9px; }
+.sizeLg .stateOn { left: 16px; }
+.sizeLg .stateOff { left: 40px; }
+
 /* ── Size: md (form row 용 — admin 설정 등) ── */
 .sizeMd {
   width: 44px;

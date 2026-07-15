@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ArrowUp, ChevronRight, X } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -69,6 +69,12 @@ export default function SegmentedControl<T extends string, S extends string = st
         transition={morphTransition}
         className={cn(styles.group, styles.nestedGroup, className)}
         role="tablist"
+        /* 버튼 control-h-8 로 축소(여백 4px, 높이는 control-h 유지) + label 폰트를 세그먼트 btn 과 동일하게
+           (Button 컴포넌트는 sm/md 가 font-size-sm 이라 커 보임 → xs, 단 size xs 는 2xs) */
+        style={{
+          "--nested-btn-h": `calc(var(--control-h-${size}) - 8px)`,
+          "--nested-label-fs": size === "xs" ? "var(--font-size-2xs)" : "var(--font-size-xs)",
+        } as CSSProperties}
       >
         {onBack && (
           <button

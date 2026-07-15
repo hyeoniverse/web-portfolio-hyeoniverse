@@ -1,7 +1,8 @@
 "use client";
 
-import type { InputHTMLAttributes, KeyboardEvent } from "react";
+import type { InputHTMLAttributes, KeyboardEvent, ReactNode } from "react";
 import { Eraser, Plus } from "lucide-react";
+import EditableInput from "./EditableInput/EditableInput";
 import styles from "./Input.module.css";
 
 type Variant = "capsule" | "underline";
@@ -16,6 +17,9 @@ interface InputProps
   variant?: Variant;
   size?: Size;
   className?: string;
+  /** Soft 글자수 권장 한도 — 지정 시(그리고 onAdd/trailingAction 없을 때) EditableInput 에 위임하여
+   *  Textarea 와 동일한 초과 highlight + counter 를 얻음. 미지정 시 기존 native input 경로 그대로. */
+  maxHint?: number;
   /** 입력값 지우기 (Eraser) 버튼 — value 있을 때 우측 표시. 기본 true.
    *  onAdd 가 있으면 자동으로 false (+ 버튼이 우측 점유 + Enter 로 값 처리). */
   clearable?: boolean;
@@ -26,6 +30,14 @@ interface InputProps
   addDisabled?: boolean;
   /** + 버튼 aria-label (default: "Add") */
   addAriaLabel?: string;
+  /** 우측에 임의의 액션 버튼(업로드 등) — onAdd 대신. 설정되면 onAdd 와 동일하게 capsule 그룹 모드
+   *  (wrapper 가 border, input border 제거) + 1:1 정사각 버튼으로 렌더. */
+  trailingAction?: {
+    icon: ReactNode;
+    onClick: () => void;
+    ariaLabel: string;
+    disabled?: boolean;
+  };
 }
 
 export default function Input({
@@ -38,14 +50,40 @@ export default function Input({
   className,
   id,
   clearable = true,
+  maxHint,
   onAdd,
   addDisabled,
   addAriaLabel = "Add",
+  trailingAction,
   onKeyDown,
   ...rest
 }: InputProps) {
   const hasAdd = !!onAdd;
-  const showClear = !hasAdd && clearable && !!value && !rest.disabled && !rest.readOnly;
+  const hasTrailing = !!trailingAction;
+  const isGrouped = hasAdd || hasTrailing;
+
+  /* maxHint 지정 + grouped 아님 → EditableInput 에 위임 (초과 highlight + counter parity).
+     grouped(+버튼/trailingAction)는 EditableInput 이 미지원이라 native 유지. maxHint 미지정 시 기존 경로 그대로.
+     label 은 위임 대상 아님 — maxHint 는 신규 prop 이라 기존 조합 없음(회귀 0). */
+  if (maxHint != null && !isGrouped) {
+    return (
+      <EditableInput
+        value={value}
+        onChange={onChange}
+        placeholder={rest.placeholder}
+        inlineLabel={inlineLabel}
+        maxHint={maxHint}
+        maxLength={rest.maxLength}
+        variant={variant}
+        size={size}
+        clearable={clearable}
+        disabled={rest.disabled}
+        className={className}
+      />
+    );
+  }
+
+  const showClear = !isGrouped && clearable && !!value && !rest.disabled && !rest.readOnly;
   const isAddDisabled = addDisabled ?? !value.trim();
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -63,7 +101,7 @@ export default function Input({
     size === "xs" ? styles.xs : "",
     inlineLabel ? styles.hasInlineLabel : "",
     showClear ? styles.hasClear : "",
-    hasAdd ? styles.inputGrouped : "",
+    isGrouped ? styles.inputGrouped : "",
   ].filter(Boolean).join(" ");
 
   return (
@@ -73,7 +111,7 @@ export default function Input({
           {label}
         </label>
       )}
-      <div className={`${styles.fieldWrap} ${hasAdd ? styles.fieldWrapGrouped : ""} ${hasAdd && size === "sm" ? styles.fieldWrapGroupedSm : ""} ${hasAdd && size === "xs" ? styles.fieldWrapGroupedXs : ""}`}>
+      <div className={`${styles.fieldWrap} ${isGrouped ? styles.fieldWrapGrouped : ""} ${isGrouped && size === "sm" ? styles.fieldWrapGroupedSm : ""} ${isGrouped && size === "xs" ? styles.fieldWrapGroupedXs : ""}`}>
         {inlineLabel && <span className={styles.inlineLabel}>{inlineLabel}</span>}
         <input
           id={id}
@@ -110,6 +148,18 @@ export default function Input({
             aria-label={addAriaLabel}
           >
             <Plus size={14} strokeWidth={2} />
+          </button>
+        )}
+        {trailingAction && (
+          <button
+            type="button"
+            className={styles.addBtn}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={trailingAction.onClick}
+            disabled={trailingAction.disabled}
+            aria-label={trailingAction.ariaLabel}
+          >
+            {trailingAction.icon}
           </button>
         )}
       </div>
