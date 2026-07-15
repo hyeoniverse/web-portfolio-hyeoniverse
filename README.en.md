@@ -73,8 +73,8 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 |:---|:---|
 | **Interaction** | Infinite scroll loop, mouse parallax, StaggerText, Three.js 3D coffee cup + latte art, directional scroll cascade |
 | **Works** | 6 layouts (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) |
-| **Blog** | SSR + ISR, series, banner slider, guest comments (password-only auth) |
-| **Admin** | Plate.js editor, `.md` sync + export, AI translation/summary, revision history |
+| **Blog** | SSR + ISR, series, banner slider, 6 list layouts, guest comments (markdown + emoji reactions) or switch to giscus |
+| **Admin** | Plate.js editor (calendar · diagram · code playground blocks), `.md` sync + export, AI translation/summary, revision history, optimistic concurrency control |
 | **Performance** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic counters + AbortController + bulk Promise.all |
 | **Security** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin check (production fail-closed), middleware admin multi-layer gate, 5-fails lockout + new-device email approval + sign-out all devices |
 | **Design System** | 4-tier tokens (Raw → Semantic → Component → Context) + live preview, **all color tokens migrated to OKLCH** (precise culori conversion, perceptually uniform brightness across hues) |
@@ -94,6 +94,8 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 | Typography | Instrument Serif, Space Grotesk, JetBrains Mono (30+ presets per category + direct Google Fonts input in admin settings) |
 | Backend | ![Supabase](https://img.shields.io/badge/Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white) (PostgreSQL, Auth, Storage) |
 | Editor | ![Plate.js](https://img.shields.io/badge/Plate.js-1a1a2e?style=flat-square) (Slate-based WYSIWYG) + Markdown |
+| Editor Blocks | ![React Flow](https://img.shields.io/badge/@xyflow/react-ff0072?style=flat-square) (diagrams) ![Sandpack](https://img.shields.io/badge/Sandpack-000?style=flat-square) (React/TS playground) ![KaTeX](https://img.shields.io/badge/KaTeX-329894?style=flat-square) (math) + Prettier (code formatting, lazy-loaded) |
+| Comments | Built-in system (marked + isomorphic-dompurify) or ![giscus](https://img.shields.io/badge/giscus-000?style=flat-square) (GitHub Discussions) — switchable from Admin |
 | AI Image | NanoBanana / Hugging Face (priority-based fallback chain) |
 
 ## Key Features
@@ -137,6 +139,10 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 ### Blog System
 
 - **Posts (Blog)**: Supabase-based blog system — SSR + ISR caching, Markdown/Rich Text toggle editor, search/tag filters, view count tracking, GitHub link
+- **Posts subnav (`PostsSubnav`)**: An All / Series / Tags / History capsule subnav unifies entry into the `/posts` sub-indexes
+- **6 list layouts**: Switched via `siteConfig.posts.layout` (Admin settings) — magazine (default, bento masonry) · grid · list · compact · masonry · featured. This is a **site-wide setting, not per post**, and the size variants (wide/banner/square/portrait) plus JS row-span packing apply only to magazine. `/posts/history` is timeline-only
+- **2-level category tree**: Moved from a flat list to a 2-level tree (Development > Frontend/Backend/DevOps, Learning > Algorithms/CS, Insights/Retrospective/Life/Etc). Only the leaf is stored and the parent is derived via `src/lib/categoryTree.ts` — zero DB migration. Supports **multi-select categories** (OR, `?category=a,b`) plus a `facets` sidebar
+- **Multiple authors**: `posts.author_ids text[]` + the Admin `AuthorsEditor` — references `authors[]` in `site.config.ts`
 - **Series**: Group posts into series for sequential publishing — `/series` page removed; series now live inside `/posts` as a timeline (numbered step + vertical connector) revealed after a category filter, with previous/next navigation on detail pages
 - **Series Deck Cards**: Horizontal-scroll row — hovering a card waits 800ms then unfolds a deck of up to 4 preview layers in 0.4s staggered sequence (transform-based stack offset, JS-state timer instead of CSS `transition-delay` to avoid snap perception). The unfolded deck pushes the next card right and uses an `::after` pseudo to extend the hit area, eliminating flicker between layers. **If the unfolded deck overflows the horizontal scroll container, an rAF loop directly increments `scrollLeft` per frame** — the card's `margin-right` grows via CSS transition, so `scrollWidth` keeps growing too; a single `scrollBy({ behavior: "smooth" })` would clamp to the small initial `maxScrollLeft`. After auto-scroll ends, `card.matches(":hover")` is checked once more — if the cursor truly left, the deck closes (defending against false-positive `mouseleave` from the card sliding out from under a stationary cursor)
 - **Series Auto Cover**: Series with neither a cover nor any post cover get a single Unsplash image fetched at SSR time and persisted permanently in `series.auto_cover_url` — zero external calls on subsequent loads
@@ -155,6 +161,10 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 - **PostCard hides separators on wrapped meta**: When a narrow card forces the meta row onto two lines, the wrapped group's leading `::before` separator (`·`) used to float awkwardly at the start of the new line. `useLayoutEffect` compares each metaGroup's `offsetTop` against the first group's and tags wrapped groups with `data-meta-wrapped` so CSS hides their `::before`. A `ResizeObserver` re-runs the check whenever card width changes
 - **IP-based Likes**: Single `likes` table with `target_type` discrimination for Posts/Works/comments, IP-based UNIQUE constraint to prevent duplicates, rapid-click prevention (ref lock + busy disabled), formatCount (1k/1.2m) number abbreviation
 - **Comment System**: Guest threaded replies — dual authentication (commenter_hash + bcrypt), nickname shuffle, email reply notifications, admin comments, admin tombstone double-delete for permanent removal, nickname-preserved tombstone
+- **Comment provider switch (built-in / giscus)**: Flip `comments.provider` between `system` and `giscus` in the Admin Services tab. With giscus, entering just the repository (`owner/name`) lets `GET /api/admin/giscus-repo` **auto-resolve the repoId + Discussion categories** through the GitHub GraphQL API (`GITHUB_TOKEN`) — no separate trip to giscus.app. Supports mapping / reactions / strict / lazyLoading / input position / theme (preset name or custom CSS URL). `DetailLayout` switches to giscus only when `provider === "giscus" && repo is filled`, **falling back to the built-in comments if the repo is empty**. The widget is injected dynamically via `giscus.app/client.js` (iframe) and theme changes go over postMessage. Turning on giscus reactions automatically hides the site's own like button. Data lives in GitHub Discussions, so no DB is involved
+- **Comment emoji reactions**: The old comment "like" is fully replaced by a giscus-style **fixed set of 8** reactions (👍👎😄🎉😕❤️🚀👀). Popover picker with optimistic updates and rollback on failure, sorted by reaction count. `GET /api/comment-reactions` batches the tally + the viewer's own reactions; `POST` toggles. Reactors are identified not by a raw IP but by the first 32 chars of `sha256(IP + ":" + UA)` (`reactor_hash`)
+- **Comment markdown editor**: Write/preview tabs + a 14-button formatting toolbar in 4 groups (text / block / list / insert — bold·italic·strikethrough·inline code / heading·quote·code block / list·numbered list·checkbox / link·image·table·divider), with a markdown cheat-sheet help popover at the end of the toolbar. `marked` (gfm + breaks) → `isomorphic-dompurify` sanitize, forcing `nofollow noopener` on links and `loading=lazy` on images, allowing only http(s)/mailto schemes. **Images are external URLs only, with no upload** — a deliberate choice to avoid granting anonymous users Storage write access (the approach GitHub originally took). Integrates with ImageViewer; long comments clamp behind the shared `Collapsible` (520px) with a show-more toggle. **Code highlighting is deliberately unsupported** — importing highlight.js makes the bundler emit a broken regex that crashes the whole page (troubleshooting #58)
+- **RecentComments preview**: `stripMarkdown.ts` strips markdown syntax so the sidebar shows a 2-line clamped plain-text preview
 - **First Comment Celebration**: Confetti effect + card flip celebration message (sparkle stars + accent lines) on first comment, admin select-all / drag selection / tombstone bulk permanent deletion
 - **Comment Reporting**: Per-comment report button + reason modal — reports accumulate into the "Reports" tab of `/admin/notifications` for inline resolve / dismiss / permanent delete
 - **Posts Tags Suite**: ① **TagCloud3D** — 3D rotating word cloud in the Posts sidebar, Fibonacci-sphere distribution + an rAF loop that updates DOM transforms directly (zero React re-render per frame), hover pauses auto-rotation while drag rotates manually, click navigates to `/posts/tags/[tag]` (`setPointerCapture` was removed because it absorbed child `<Link>` clicks; drag-after-threshold clicks are blocked via document-level pointer listeners). ② `/posts/tags` index — all-tags grid + infinite scroll + search + admin-only quick link to tag settings. ③ `/posts/tags/[tag]` detail — server-side fetch, infinite scroll OFF (Lenis `setInfinite(false)`), top/bottom search bars (420px cap), shared `Pagination`, related-tags tooltip on the label. ④ Shared `TagPill` component (`src/components/ui/TagPill.tsx`) unifying the visual across all tags pages
@@ -241,7 +251,12 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 - **Posts ↔ Works Bidirectional Linking**: Notion Relation–style — `post_work_relations` many-to-many table, additions on either side surface on detail pages automatically, `RelationPicker` with search · thumbnails · publish status
 - **Project ↔ Series Linking**: `series_work_relations` many-to-many table links related series onto a project (work) — `GET /api/works/[id]/related-series` (public) · `GET/PUT /api/admin/works/[id]/related-series` (admin editing), surfaced on the works detail as related-series chips
 - **Editor new blocks (PlateEditor)**: ① **Poll block** — void element, add options / drag-reorder, IME-safe input, IP-based tally via `GET/POST /api/polls/[pollId]` (poll_id/option_id live in the saved HTML data attributes). ② **Tabs block** — per-tab emoji + title + a `+` button to add tabs. ③ **FloatingBar** — a floating toolbar shown on block selection, closing on interaction with other blocks. ④ **BlockDragLayer** — a custom ghost (blurred, cursor-tracking) during block drag + auto-scroll at editor edges. ⑤ **EditorTextInput** — an IME-safe shared primitive for in-editor form inputs (contentEditable=false + commit-on-blur). ⑥ **Server-side code highlighting** — handled by `POST /api/highlight`, styled via `_hljs.css`. ⑦ **Mermaid diagram reader** — renders graphs in detail/preview + a "⋯" menu (view code / copy code)
-- **EmojiPicker overhaul**: 476 icons (extracted from lucide, `IconEntry.svg` inner-SVG field + `iconSvgInner` helper) + new categories (weather / devices / food / health / tools / education / faces / maps / shapes, etc.), Korean search (`emojiKo.ts`) + emoji-mart metadata (English names/keywords, `emojiMeta.ts`) + emoji-name tooltip (shared Tooltip), image drag-and-drop upload, inline styles → CSS module (`EmojiPicker.module.css`). Value format: native emoji / `img:url` (custom upload) / `icon:id` (SVG icon)
+- **New editor blocks, wave 2 (PlateEditor)**: ① **Calendar** — month/week/day/timeline views, event CRUD + recurrence + dependencies, ics/csv/json/md export. **Linked storage** — the block references only a `calendarId` while the real data lives in the `calendars` table, so multiple posts share one calendar (the opposite choice from the poll block's embedded storage). Admin-only management tab + trash (30-day TTL) + `?calendar=ID` deep links. ② **Diagram** — freeform nodes/edges (12 shapes) on `@xyflow/react`; mermaid is **export-only (one-way)** since coordinates are lost. The reader view is pure SVG. ③ **Code playground** — HTML/CSS/JS and static run in a self-hosted `iframe.srcdoc` runner, React/TS in `@codesandbox/sandpack-react`. Legacy `{html,css,js}` auto-migrates. ④ **Date mention** — typing `@` inserts a Notion-style date pill, with a mini calendar on hover in the reader. ⑤ **Post link** — typing `[[` opens post search + suggestions. ⑥ **mermaid** — the reader view now uses the same React island as the editor
+- **Optimistic concurrency control for posts**: `posts.version` — the load-time version is sent as `baseVersion` and the server runs `UPDATE ... WHERE id AND version = baseVersion`. Zero rows returns `409 { error: "version_conflict", currentVersion }` → `SaveConflictDialog` offers **cancel / load latest / overwrite**. As a complement, `usePostPresence` detects other sessions over a Supabase Realtime presence channel (`post-edit:{postId}`) and shows a non-blocking warning banner before saving (no DB table)
+- **Direct Storage upload**: `POST /api/upload/signed-url` + `src/lib/directUpload.ts` — only the filename and type go to the server, which returns a signed URL so the browser uploads straight to Storage, sidestepping Vercel's request body size cap. The existing server-proxied `/api/upload` remains in parallel, with a 200MB absolute cap
+- **Favicon overhaul**: Font-size presets + direct input, independent text/background shadows (8 directions + sm/md/lg/custom), color overrides, and a **WCAG contrast-ratio checker** (`src/utils/contrast.ts`). `resolveFavicon()` in `src/lib/favicon.tsx` is shared by the route (SVG) and the admin preview (React), guaranteeing identical logic
+- **Social links editor split out**: `SocialLinksEditor` + `types/social.ts`, with 12 new icons in `socialIcons.ts`
+- **EmojiPicker overhaul**: 476 icons (extracted from lucide, `IconEntry.svg` inner-SVG field + `iconSvgInner` helper) + new categories (weather / devices / food / health / tools / education / faces / maps / shapes, etc.), Korean search (`emojiKo.ts`) + emoji-mart metadata (English names/keywords, `emojiMeta.ts`) + emoji-name tooltip (shared Tooltip), image drag-and-drop upload, inline styles → CSS module (`EmojiPicker.module.css`). Value format: native emoji / `img:url` (custom upload) / `icon:id` (SVG icon). **Custom uploads sync from `localStorage` to the `custom_emojis` table** (`GET/POST /api/custom-emojis`, `DELETE /api/custom-emojis/[id]`) — localStorage stays as an offline cache and first-paint source, and local entries missing server-side are back-filled via POST and merged with dedup by `src` (replacing wholesale with the server list would leave failed back-fills undeletable)
 - **SEO Checklist**: Editor footer widget — 6-item check (title/slug/excerpt 30+/cover/category/tags), score progress bar, click an item to scroll to the field + label accent highlight (persists until next interaction)
 - **`.md` Sync**: `content/posts/` · `content/works/` folder → DB unidirectional sync (Jekyll-style, `pnpm sync-all`)
 - **`.md` Export**: Bulk/individual/series frontmatter-included `.md` download
@@ -367,7 +382,13 @@ DEEPL_API_KEY=your_deepl_key                   # provider: "deepl" (default)
 GOOGLE_TRANSLATE_API_KEY=your_google_key        # provider: "google"
 GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
 ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (translation + AI summary)
+
+# giscus comments (optional) — used only to load a repository's Discussion categories
+# from the admin settings. A GitHub PAT for reading public repos (no scopes needed)
+GITHUB_TOKEN=ghp_...
 ```
+
+> `GITHUB_TOKEN` prefers the secret saved in the admin Services tab, falling back to the environment variable (`getSecret("GITHUB_TOKEN")`). The giscus widget itself works without a token.
 
 **How to find the values:**
 
@@ -385,16 +406,18 @@ The [`supabase/setup.sql`](supabase/setup.sql) file contains all table creation 
 
 Copy the file contents and run them at once in Supabase Dashboard -> **SQL Editor**.
 
-**Tables created (15) + RPC functions (3):**
+**Tables created (22) + RPC functions:**
 
 | Table | Purpose |
 |--------|------|
 | `site_settings` | Site settings + profile data + secrets/API keys (JSONB) |
-| `series` | Blog series (`sort_order` for admin ordering, `auto_cover_url` for Unsplash cache) |
-| `posts` | Blog posts (post_number sequence + `scheduled_at` for scheduled publishing + `purge_after` trash TTL) |
+| `series` | Blog series (`sort_order` for admin ordering, `auto_cover_url` for Unsplash cache, 80-char title CHECK) |
+| `posts` | Blog posts (post_number sequence + `scheduled_at` for scheduled publishing + `purge_after` trash TTL + `version` optimistic locking + `icon` / `cover_position` / `cover_zoom` / `author_ids`) |
 | `comments` | Post comments (threaded replies, dual auth: commenter_hash + password) |
+| `comment_reactions` | Comment emoji reactions (fixed set of 8, post/work split via `comment_type`, duplicate prevention via `reactor_hash`) |
+| `comment_reports` | Comment reports (reason + resolve/dismiss state) |
 | `likes` | Likes (unified for posts/works/comments, distinguished by target_type, IP duplicate prevention) |
-| `works` | Portfolio works (slug, `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `scheduled_at`, `purge_after`) |
+| `works` | Portfolio works (slug, `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `icon`, `scheduled_at`, `purge_after`) |
 | `site_visits` | Visitor statistics (1 per IP+date) |
 | `post_views` | Per-post time-series view records (daily trend chart on dashboard) |
 | `work_comments` | Works comments (threaded replies, dual auth) |
@@ -403,9 +426,12 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 | `post_work_relations` | Posts ↔ works many-to-many bidirectional (Notion Relation–style) |
 | `series_work_relations` | Series ↔ works many-to-many (related series on a project, same pattern as post_work_relations) |
 | `poll_votes` | In-content poll block tally (poll_id + option_id — editor-assigned text ids, IP-based duplicate prevention) |
+| `calendars` | Shared calendars for the editor's calendar block (`data jsonb`, soft delete + 30-day `purge_after` TTL) |
+| `custom_emojis` | Custom uploaded icons for the EmojiPicker (admin-only RLS) |
 | `cover_image_history` | Cover Image Picker unified history (per admin user, AI/Unsplash/Preset, RLS) |
 | `admin_login_attempts` | Admin login failure counter (5 fails → 15-minute lockout) |
 | `admin_known_devices` | Approved admin device UA fingerprints (SHA-256; unknown devices require email approval, 24h TTL) |
+| `applied_migrations` | Tracks applied schema migrations (fires a notification on first application) |
 
 **RPC functions**: `sum_post_views()` (cumulative view total), `daily_post_views(start, end)` (daily time series), `publish_scheduled()` (publishes posts/works whose scheduled time has arrived + admin notifications + email — **pg_cron every minute**), `purge_trash_scheduled()` (hard-deletes trash past `purge_after` + notifications — **pg_cron daily at KST 03:00**)
 
@@ -432,9 +458,15 @@ You also need to enable `pg_cron` and `pg_net` in `Database > Extensions` (setup
 >
 > **Work Comments API**: `GET /api/work-comments?work_id=`, `POST /api/work-comments`, `PATCH /api/work-comments` (edit), `DELETE /api/work-comments/[id]`
 >
-> **Comment Likes API**: `GET /api/comment-likes?comment_type=&comment_ids=` (batch like status query), `POST /api/comment-likes` (toggle comment like)
+> **Comment Reactions API**: `GET /api/comment-reactions?comment_type=&comment_ids=` (batch tally + my reactions), `POST /api/comment-reactions` (toggle an emoji reaction)
 >
-> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`
+> **Calendars API**: `GET/POST /api/calendars` (list — `?trash=true` for trash / create), `GET/PUT/DELETE /api/calendars/[calendarId]`, `POST /api/calendars/[calendarId]/restore`, `DELETE /api/calendars/[calendarId]/purge` — all admin-only
+>
+> **Custom Emojis API**: `GET/POST /api/custom-emojis`, `DELETE /api/custom-emojis/[id]` — EmojiPicker custom icons, admin-only
+>
+> **Upload API**: `POST /api/upload` (server-proxied, per-MIME size limits + a 200MB absolute cap), `POST /api/upload/signed-url` (issues a signed URL for direct Storage upload — only the filename and type transit, sidestepping the request body size cap)
+>
+> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (looks up repoId + Discussion categories via GitHub GraphQL, requires `GITHUB_TOKEN`)
 >
 > **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (list, excluding snapshots), `POST /api/revisions` (save + cleanup beyond 50), `GET /api/revisions/[id]` (single with snapshot), `DELETE /api/revisions/[id]`
 >
@@ -705,6 +737,12 @@ Config file: `vitest.config.ts`, Test location: `src/__tests__/`
 | 72 | `<input type="number">` spinner clipped OKLCH 6-digit decimals like `0.2249`, and per-row widths drifted in the picker | Channel inputs (RGB / HSL / HSV / OKLCH) ended up different widths per row — visual noise. Fixing on the longest value (OKLCH C, `0.2249`, 6 chars) with `width: 88px` made shorter values (`100`) look empty. Fix: ① `clearable={false}` reclaims the 24px eraser slot, ② uniform `padding: var(--spacing-xs)` left/right, ③ `width: calc(7ch + var(--spacing-xs) * 2 + 2px)` — based on HEX `#ffffff` (7 chars) + 2px border. Shorter values left-align inside that fixed cell. Channel inputs, the format select, and the invalid-input shake animation (`@keyframes pickerShake`) all share the same width grid. |
 | 73 ★ | Hero background opacity worked for video but not images — CSS `background-image: url()` can't be opacity-faded independently | After switching Hero background from video to an image, the opacity slider stopped doing anything. Cause: video used a `<video>` element where `opacity` works directly; the image path painted `background-image: url(...)` on the panel surface — `opacity` there fades the whole panel, not just the image. Fix: render the image with an `<img>` element matching the video pattern — `position: absolute; inset: 0; object-fit: cover` + `opacity: var(--_hero-bg-opacity)`. The panel CSS background now only carries color / gradient; the image is a sibling. Label `Video opacity` → `Background opacity`. **Where a CSS property's abstraction leaks (background-image vs `<img>`), the control surface has to split too**. |
 | 74 | Navigation mobile — once navCenter goes `display: none`, navActions snaps to where the fixed logo sits, overlapping it | `.nav { justify-content: space-between }` is fine with 3 children, but on mobile only `.navActions` remains, so a single flex child aligns to flex-start — landing exactly where the fixed `.logoNavBar { left: var(--page-px) }` is. Fix: `@media (max-width: 768px) .nav { justify-content: flex-end }` — right-align on mobile only. The logo is `position: fixed` and outside the flex flow, but with navActions explicitly on the right the natural reading is "logo [space] buttons". **In containers that hold fixed-positioned siblings, the single-child branch of `space-between` needs its own justification rule**. |
+| 75 ★ | Importing highlight.js crashed the entire post detail page — **the build passes and it only blows up at runtime** | hljs `xml.js` uses `/[\p{L}_]/u` (a unicode property escape); the bundler expands it into codepoint ranges for older browsers and emits a **character class with an inverted range** → `SyntaxError: Range out of order in character class`. It throws at module evaluation, so every page loading that chunk dies. The original file loads fine under Node (only the bundled output is broken); removing it from `optimizePackageImports` still reproduces, and even a hand-rolled instance with hand-picked languages crashes the moment the chunk loads. Fix: comment code highlighting shelved (retry means shiki, or patching hljs). **`npm run build` passes, so a green build must not be mistaken for a safety signal** — the same mine is latent in `highlightCodeBlocks.ts` |
+| 76 ★ | Comment markdown checkboxes rendered as plain bullets — DOMPurify stripped the `type` attribute, which isn't even a URL | DOMPurify tests an attribute's **value** against `ALLOWED_URI_REGEXP` unless the attribute is known URI-safe. `type` isn't in the default list, so `type="checkbox"`'s value failed `/^(?:https?:\|mailto:)/i` and was silently dropped → the hook judged it "not a checkbox" and removed the `<input>`, leaving only a bullet. Table `align` was dead for the same reason, so markdown table alignment was ignored wholesale. Listing them in `ALLOWED_ATTR` does nothing. Fix: `ADD_URI_SAFE_ATTR: ["type","checked","disabled","align"]`. **The allowlist and the value-inspection policy are separate axes** — when something is "allowed but disappears," suspect the filter is reading its value as a URL |
+| 77 | Task list `:has()` — traps on both the under- and over-matching side | marked emits tight lists as `<li><input>` and loose lists (blank line between items) as `<li><p><input>`. `:has(> li > input)` alone misses the loose form and leaves bullets; collapsing to the descendant `:has(input)` removes **the parent list's bullets too** when a checkbox sublist sits inside an ordinary bullet list. Fix: spell out only the two direct paths — `:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"])`. **With `:has()`, the combinator choice is the match scope** — enumerate every DOM shape the renderer actually produces and nail them down as direct paths |
+| 78 | The global input reset stopped native checkboxes from being drawn at all | `input { border: none; background: none }` in `_base.css` wipes the UA defaults, so the checkbox has no surface to render on — `appearance: auto` alone doesn't help. Fix: `background: revert; border: revert` restores the UA styling (they're shorthands, so stylelint's `declaration-strict-value` doesn't apply). **`appearance: auto` only says "draw this natively" — it does not resurrect a background/border already erased by a reset** |
+| 79 | Toolbar markdown insertion — the intended element doesn't appear on blank lines or with block syntax | GFM only parses a task list when **text follows** the `- [ ] ` marker, so pressing the checkbox button on a blank line yields a `<li>[ ]</li>` bullet. And `---` with text on the line above is a **setext h2**, not an hr. Fix: prefix actions carry a placeholder (on a blank line, fill example text and select it) + block inserts ensure a blank line above first. **An insert button must create the context in which the parser recognizes that syntax, not just drop a string** |
+| 80 | Per-text `mix-blend-mode: difference` inside a Popover is incompatible with backdrop-filter | `backdrop-filter` / `isolation: isolate` establish a Backdrop Root that cuts what backdrop-filter can see, and a backdrop-filter's output is never offered to descendants/siblings as a blendable backdrop → per-text difference inside a popover is **impossible in principle**. Workaround: `filter: invert(1)` on content + `mix-blend-mode: difference` on the panel restores the color via `\|backdrop − (1−color)\|`. Ultimately glass (translucent + blur) became the default and difference remains a variant. **The two look like they read the same backdrop, but neither can be the other's input** |
 
 ## Deployment
 
@@ -734,6 +772,8 @@ Optional:
   GEMINI_API_KEY               # Translation + AI Summary — Gemini
   OPENAI_API_KEY               # AI Summary — OpenAI
   ANTHROPIC_API_KEY            # Translation + AI Summary — Claude
+  GITHUB_TOKEN                 # giscus — public-repo read PAT for auto-loading Discussion categories
+                               # (the admin Services tab secret takes priority; the giscus widget itself needs no token)
 ```
 
 > Auto-deploys on every push to `main`. Preview deployments are created for each PR.

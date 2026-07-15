@@ -273,3 +273,132 @@ An **IME-safe shared primitive** for in-editor form inputs. `contentEditable=fal
 **Path**: `src/components/posts/plate/EditorTextInput.tsx`
 
 ---
+
+### Collapsible
+
+A shared wrapper that clamps long content and attaches a **show more / collapse** toggle. Used for long comments, among others.
+
+**Path**: `src/components/ui/Collapsible.tsx`
+
+**Features**:
+
+- Clamps **only when** content exceeds `maxHeight` — if it doesn't, neither the toggle button nor the bottom fade renders
+- Overflow is measured by a `ResizeObserver` on an inner, un-clamped div — late-loading images that grow the height are picked up
+- **No animation on the first clamp** — animation stays suppressed until the user actually clicks the toggle, so it never looks like the block is collapsing by itself on load
+- Expanded height animates via framer-motion `height: "auto"`; the toggle is a `Button variant="ghost" size="sm" shape="capsule"`
+
+**Props**:
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `maxHeight` | `number` | (required) | Clamp only when content exceeds this height (px) |
+| `expandLabel` | `ReactNode` | (required) | Expand label |
+| `collapseLabel` | `ReactNode` | (required) | Collapse label |
+| `children` | `ReactNode` | (required) | Target content |
+
+---
+
+### HelpButton
+
+A unifying wrapper for the circular `?` help button. Used as a Popover / Tooltip trigger.
+
+**Path**: `src/components/ui/HelpButton.tsx`
+
+**Features**:
+
+- Hardcodes `Button variant="subtle" shape="circle"` + `?` — `variant` / `shape` / `children` are deliberately not overridable; **`size` is the only visual knob**
+- All other props spread through to Button (so handlers injected by Popover/Tooltip on the trigger pass through)
+- `forwardRef` — the trigger anchor can be measured
+
+**Props**:
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `size` | `"2xs" \| "xs" \| "sm" \| "md" \| "lg" \| "xl"` | `"sm"` | Default 28px. Use `2xs` (20px) / `xs` (24px) in tight spots like next to a form label |
+| `className` | `string` | - | **Layout only** — do not override color/border/radius/padding (use a parent wrapper instead) |
+| `soundDisabled` | `boolean` | - | Disable the click sound |
+
+---
+
+### PageTitle
+
+The shared large page title (`<h1>`) for the posts-family pages.
+
+**Path**: `src/components/ui/PageTitle.tsx`
+
+**Props**:
+
+| Prop | Type | Description |
+| ---- | ---- | ----------- |
+| `icon` | `ReactNode` | Left icon (lucide, etc.). Its size scales automatically in `em` against the title font-size |
+| `children` | `ReactNode` | Title text |
+| `className` | `string` | Additional CSS class |
+
+> No `"use client"` — this is a server component.
+
+---
+
+### SpinButton
+
+A button with **long-press accelerating repeat**. Used by NumberInput's stepper.
+
+**Path**: `src/components/ui/SpinButton.tsx`
+
+**Features**:
+
+- Fires **once immediately** on pointerDown, then starts repeating after a 380ms hold, with the interval decreasing from 130ms by 12ms per tick down to a **28ms floor**
+- `setPointerCapture` — releasing outside the button still stops it. It stops on pointerUp / pointerCancel / lostPointerCapture / unmount
+- Mouse input responds only to `e.button === 0`; the latest action is held in a ref so repeat ticks never go stale
+- `type="button"` + `tabIndex={-1}` — the stepper doesn't pollute tab order
+
+**Props**:
+
+| Prop | Type | Description |
+| ---- | ---- | ----------- |
+| `onStep` | `() => void` | (required) One step of the action |
+| `children` | `ReactNode` | (required) Icon, etc. |
+| `className` | `string` | Additional CSS class |
+| `ariaLabel` | `string` | Accessibility label (camelCase prop) |
+
+---
+
+### portalContainer (context)
+
+A context that hands down a portal target so that **popovers opened inside an overlay (modal) stack above that overlay**. A top-layer approach that avoids inflating global z-index.
+
+**Path**: `src/components/ui/portalContainer.ts`
+
+```ts
+export const PortalContainerContext = createContext<HTMLElement | null>(null);
+export const usePortalContainer = () => useContext(PortalContainerContext);
+```
+
+**Behavior**:
+
+- `Modal` renders a `.portalLayer` div and provides that element to the subtree via the Provider
+- Consumers pick their portal target with `usePortalContainer() ?? document.body` — outside an overlay it's `body` as before
+- Consumers: `Popover` · `Select` · `Tooltip` · `DatePickerPopover` · `TimePickerPopover`
+
+**Technical decisions**:
+
+- `.portalLayer` is a **sibling of the modal panel, not a child** — if the panel's `transform` became the containing block, fixed coordinates would drift, so it is attached on the `inset: 0` backdrop side
+- The ref setter is cached in a `Map` per modal id — a fresh arrow function each render causes an infinite cleanup/mount loop ("Maximum update depth")
+
+---
+
+### Shared components — props added this cycle
+
+| Component | Addition | Details |
+| --------- | -------- | ------- |
+| `Popover` | `variant` | `"glass"` (default) / `"solid"` / `"difference"`. `solid` applies no modifier class — the base `.dropdown` is the solid look |
+| `Popover` | `openOnHover` | Default `false`, desktop only (ignored in sheet mode). Opens immediately, closes on a 500ms delay (bridging the trigger↔content travel). A module-level flag keeps **only one hover popover open at a time** |
+| `Button` | `tone="accent"` | `tone: "default" \| "danger" \| "success" \| "accent"` |
+| `Modal` | `header.actions` | Action area on the right of the header (`ReactNode`, left of the close button) |
+| `Modal` | `subButtons` | Sub buttons immediately left of the close (X) button (back/forward, etc.) |
+| `Toast` | `pauseAllToasts` / `resumeAllToasts` | Hovering one toast pauses **the whole stack** — prevents re-layout from sliding the cursor off and dismissing it |
+| `NumberInput` | `unit` | `ReactNode`. Shows the unit (`px`, `%`) on the right. Tooltip activates **only when the text is actually ellipsis-truncated** |
+| `NumberInput` | `gauge` | Default `false`. Active only when both `min` and `max` are set; tints the number by where the value sits (low/mid/high). No bar is drawn |
+| `Textarea` | `tabIndent` | Opt-in. Tab inserts a 2-space indent — via `execCommand("insertText")` to preserve the native undo stack, skipped during IME composition, and Shift+Tab keeps native focus traversal. Works **only in EditableTextarea mode**, which requires `maxHint` |
+| `Select` | (viewport clamp) | Aligns the selected item's center to the trigger's center, then clamps into the viewport with an 8px margin, setting `max-height` only when the natural height exceeds the available height. On outside scroll it **closes** rather than repositioning |
+
+---

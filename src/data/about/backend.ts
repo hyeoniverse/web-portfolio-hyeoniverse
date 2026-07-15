@@ -6,13 +6,17 @@ export const backendItems: BackendItem[] = [
     name: "Posts API",
     kind: "api",
     description: {
-      ko: "블로그 포스트 CRUD + 좋아요/조회수 API. 목록 조회 시 태그·검색·정렬·시리즈 필터를 지원하며, 좋아요는 IP 기반 토글 방식입니다. 삭제는 soft delete(deleted_at) 방식으로, 30일 후 자동 영구 삭제됩니다.",
-      en: "Blog post CRUD + like/view APIs. List queries support tag, search, sort, and series filters. Likes use IP-based toggling. Deletion uses soft delete (deleted_at), with auto-purge after 30 days.",
+      ko: "블로그 포스트 CRUD + 좋아요/조회수 API. 목록 조회 시 태그·검색·정렬·시리즈 필터를 지원하며, 좋아요는 IP 기반 토글 방식입니다. 삭제는 soft delete(deleted_at) 방식으로, 30일 후 자동 영구 삭제됩니다. 수정은 posts.version 기반 낙관적 동시성 제어로 덮어쓰기를 막습니다.",
+      en: "Blog post CRUD + like/view APIs. List queries support tag, search, sort, and series filters. Likes use IP-based toggling. Deletion uses soft delete (deleted_at), with auto-purge after 30 days. Updates guard against clobbering via posts.version-based optimistic concurrency.",
+    },
+    designNote: {
+      ko: "**낙관적 동시성 제어**: 여러 탭·기기에서 같은 글을 편집할 때 나중 저장이 앞선 저장을 조용히 덮어쓰지 않도록, PATCH 는 불러온 시점의 `baseVersion` 을 함께 받습니다. `UPDATE … WHERE id = ? AND version = baseVersion` 로 조건부 갱신하고 0행이면 그사이 누가 저장한 것이므로 **409 `version_conflict` + 현재 version** 을 돌려줍니다. 락을 걸지 않으므로 충돌이 없을 때는 비용이 0입니다.",
+      en: "**Optimistic concurrency control**: so a later save can't silently clobber an earlier one across tabs or devices, PATCH also takes the `baseVersion` the editor loaded. The update is conditional — `UPDATE … WHERE id = ? AND version = baseVersion` — and zero affected rows means someone saved in between, so it returns **409 `version_conflict` plus the current version**. No locks are taken, so the uncontended path costs nothing.",
     },
     endpoints: [
-      { method: "GET", path: "/api/posts", description: { ko: "포스트 목록 (페이지네이션, 태그/검색/정렬 필터, ?trash=true: 휴지통)", en: "List posts (pagination, tag/search/sort filters, ?trash=true: trash)" } },
+      { method: "GET", path: "/api/posts", description: { ko: "포스트 목록 (페이지네이션, 태그/검색/정렬 필터, 카테고리 다중선택 ?category=a,b, ?trash=true: 휴지통)", en: "List posts (pagination, tag/search/sort filters, multi-select ?category=a,b, ?trash=true: trash)" } },
       { method: "GET", path: "/api/posts/[id]", description: { ko: "포스트 단건 조회", en: "Get single post" } },
-      { method: "PATCH", path: "/api/posts/[id]", description: { ko: "포스트 수정 (admin)", en: "Update post (admin)" } },
+      { method: "PATCH", path: "/api/posts/[id]", description: { ko: "포스트 수정 (admin, baseVersion 동봉 시 409 version_conflict 로 충돌 감지)", en: "Update post (admin, sends baseVersion → 409 version_conflict on clash)" } },
       { method: "DELETE", path: "/api/posts/[id]", description: { ko: "soft delete — deleted_at 마킹 (admin)", en: "Soft delete — mark deleted_at (admin)" } },
       { method: "POST", path: "/api/posts/[id]/restore", description: { ko: "삭제된 포스트 복원 (admin)", en: "Restore soft-deleted post (admin)" } },
       { method: "DELETE", path: "/api/posts/[id]/purge", description: { ko: "영구 삭제 (admin)", en: "Permanent delete (admin)" } },
@@ -48,14 +52,20 @@ await admin.from("posts")
     name: "Comments API",
     kind: "api",
     description: {
-      ko: "게스트 댓글 시스템 API. 닉네임+비밀번호로 작성하며, 삭제 시 비밀번호 검증 또는 어드민 세션 인증이 필요합니다. 관리자는 비밀번호 없이 편집/삭제가 가능합니다.",
-      en: "Guest comment system API. Create with nickname + password. Deletion requires password verification or admin session. Admins can edit/delete without password.",
+      ko: "게스트 댓글 시스템 API. 닉네임+비밀번호로 작성하며, 삭제 시 비밀번호 검증 또는 어드민 세션 인증이 필요합니다. 관리자는 비밀번호 없이 편집/삭제가 가능합니다. 본문은 마크다운으로 작성하고, 댓글마다 giscus 식 고정 8종 이모지 반응을 달 수 있습니다.",
+      en: "Guest comment system API. Create with nickname + password. Deletion requires password verification or admin session. Admins can edit/delete without password. Bodies are written in markdown, and each comment accepts a fixed giscus-style set of 8 emoji reactions.",
+    },
+    designNote: {
+      ko: "**반응이 좋아요를 대체**: 댓글의 단일 좋아요를 giscus 식 고정 8종(👍👎😄🎉😕❤️🚀👀) 반응으로 교체했습니다. 반응자는 IP+UA 의 SHA-256(`reactor_hash`)으로 식별하고, `UNIQUE(comment_id, comment_type, emoji, reactor_hash)` 로 **같은 이모지 중복만** 막습니다 — 서로 다른 이모지는 여러 개 달 수 있습니다. 토글은 낙관적 업데이트로 즉시 반영하고 실패 시 롤백합니다.",
+      en: "**Reactions replaced likes**: the single like per comment became a fixed giscus-style set of 8 reactions (👍👎😄🎉😕❤️🚀👀). A reactor is identified by a SHA-256 of IP+UA (`reactor_hash`), and `UNIQUE(comment_id, comment_type, emoji, reactor_hash)` blocks **only repeats of the same emoji** — different emojis can stack. Toggling applies optimistically and rolls back on failure.",
     },
     endpoints: [
       { method: "GET", path: "/api/comments?post_id=", description: { ko: "포스트의 전체 댓글 조회", en: "Get all comments for a post" } },
       { method: "POST", path: "/api/comments", description: { ko: "댓글 작성 (비밀번호 bcrypt 해시 저장)", en: "Create comment (password stored as bcrypt hash)" } },
       { method: "PATCH", path: "/api/comments/[id]", description: { ko: "댓글 수정 (비밀번호 검증 or admin 세션)", en: "Edit comment (password verify or admin session)" } },
       { method: "DELETE", path: "/api/comments/[id]", description: { ko: "댓글 삭제 (비밀번호 검증 or admin 세션)", en: "Delete comment (password verify or admin session)" } },
+      { method: "GET", path: "/api/comment-reactions?comment_type=&comment_ids=", description: { ko: "여러 댓글의 반응 집계 + 내가 누른 반응 (한 번에 조회)", en: "Reaction aggregates for many comments + my own reactions (single round-trip)" } },
+      { method: "POST", path: "/api/comment-reactions", description: { ko: "반응 토글 (reactor_hash = IP+UA SHA-256)", en: "Toggle a reaction (reactor_hash = SHA-256 of IP+UA)" } },
     ],
     exampleQuery: {
       title: "Threaded Comments",
@@ -90,6 +100,11 @@ const { data } = await admin.from("comments")
       { method: "GET", path: "/api/admin/categories", description: { ko: "포스트 카테고리 목록 + CRUD (siteConfig.posts.categories 동기화)", en: "Post category list + CRUD (syncs siteConfig.posts.categories)" } },
       { method: "GET", path: "/api/admin/works-categories", description: { ko: "Works 카테고리 목록 + CRUD (siteConfig.works.categories 동기화)", en: "Works category list + CRUD (syncs siteConfig.works.categories)" } },
       { method: "DELETE", path: "/api/admin/tags/remove", description: { ko: "전체 게시물에서 특정 태그 일괄 제거 (tagMeta + posts.tags + tag_notes 동기화)", en: "Bulk-remove a tag from all posts (syncs tagMeta + posts.tags + tag_notes)" } },
+      { method: "GET", path: "/api/admin/giscus-repo", description: { ko: "giscus 저장소 조회 — GitHub GraphQL 로 repoId + Discussion 카테고리 자동 확인 (GITHUB_TOKEN)", en: "Look up a giscus repo — resolves repoId + Discussion categories via GitHub GraphQL (GITHUB_TOKEN)" } },
+      { method: "POST", path: "/api/upload/signed-url", description: { ko: "Storage 직접 업로드용 signed URL 발급 — 서버리스 요청 본문 크기 제한 우회", en: "Issue a signed URL for direct-to-Storage upload — bypasses the serverless request body limit" } },
+      { method: "GET", path: "/api/custom-emojis", description: { ko: "커스텀 이모지 목록 (에디터·댓글 picker 공용)", en: "List custom emojis (shared by the editor and comment pickers)" } },
+      { method: "POST", path: "/api/custom-emojis", description: { ko: "커스텀 이모지 추가 (admin)", en: "Add a custom emoji (admin)" } },
+      { method: "DELETE", path: "/api/custom-emojis/[id]", description: { ko: "커스텀 이모지 삭제 (admin)", en: "Delete a custom emoji (admin)" } },
     ],
     exampleQuery: {
       title: "Admin Auth Flow",
@@ -183,6 +198,27 @@ if (category) {
     endpoints: [
       { method: "GET", path: "/api/polls/[pollId]", description: { ko: "투표 블록 집계 조회 (옵션별 득표 + IP voted 여부)", en: "Get poll block aggregates (per-option counts + IP voted status)" } },
       { method: "POST", path: "/api/polls/[pollId]", description: { ko: "투표 (IP 기반 중복 방지)", en: "Cast a vote (IP-based duplicate prevention)" } },
+    ],
+  },
+  {
+    name: "Calendars API",
+    kind: "api",
+    description: {
+      ko: "본문 캘린더 블록의 공유 달력 API. 투표와 달리 실데이터를 본문이 아니라 calendars 테이블에 두고, 블록은 calendarId만 참조합니다. 삭제는 posts/works와 같은 휴지통 규약(deleted_at + purge_after)을 따릅니다.",
+      en: "Shared-calendar API behind the in-content calendar block. Unlike polls, the real data lives in the calendars table rather than the content body — a block only references calendarId. Deletion follows the same trash convention as posts/works (deleted_at + purge_after).",
+    },
+    designNote: {
+      ko: "**연결형 저장**: 달력을 본문에 인라인으로 넣으면 같은 달력을 쓰는 글마다 사본이 생기고 서로 어긋납니다. 그래서 실데이터는 테이블 한 곳에 두고 본문 블록은 `calendarId` 만 참조합니다 — **여러 글이 같은 달력을 공유**하고 한 번 고치면 전부 반영됩니다. 대신 참조 무결성이 문제라, 달력이 휴지통에 들어가면 단건 조회가 `{ deleted: true }` 를 돌려주고 블록은 **\"연결 끊김\"** 으로 표시합니다.",
+      en: "**Reference-based storage**: inlining a calendar into content would fork a copy per post and let them drift. So the real data lives once in the table and the content block only references `calendarId` — **multiple posts share one calendar** and a single edit propagates. The tradeoff is referential integrity: when a calendar is trashed, the single-item GET returns `{ deleted: true }` and the block renders as **\"link broken\"**.",
+    },
+    endpoints: [
+      { method: "GET", path: "/api/calendars", description: { ko: "공유 달력 목록 (admin, ?trash=true: 휴지통)", en: "List shared calendars (admin, ?trash=true: trash)" } },
+      { method: "POST", path: "/api/calendars", description: { ko: "공유 달력 생성 (admin)", en: "Create shared calendar (admin)" } },
+      { method: "GET", path: "/api/calendars/[calendarId]", description: { ko: "달력 단건 조회 (휴지통 상태면 deleted 플래그 반환)", en: "Get single calendar (returns a deleted flag when trashed)" } },
+      { method: "PUT", path: "/api/calendars/[calendarId]", description: { ko: "달력 수정 (admin)", en: "Update calendar (admin)" } },
+      { method: "DELETE", path: "/api/calendars/[calendarId]", description: { ko: "휴지통 이동 — deleted_at + purge_after(30일) 세팅 (admin)", en: "Move to trash — sets deleted_at + purge_after (30 days) (admin)" } },
+      { method: "POST", path: "/api/calendars/[calendarId]/restore", description: { ko: "휴지통에서 복구 (admin)", en: "Restore from trash (admin)" } },
+      { method: "DELETE", path: "/api/calendars/[calendarId]/purge", description: { ko: "영구 삭제 (admin)", en: "Permanent delete (admin)" } },
     ],
   },
   {
