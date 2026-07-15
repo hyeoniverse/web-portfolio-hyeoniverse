@@ -1,0 +1,415 @@
+/* ============================================================================
+ * giscus custom theme — 사이트 다크 (hex/rgba)
+ * 배포/공개 https URL 로 admin → 서비스 → 댓글 시스템 → "테마 (다크)" 에 입력.
+ * ==========================================================================*/
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+main {
+  /* 텍스트 */
+  --color-fg-default: #eeede7;
+  --color-fg-muted: #e0dfd8;
+  --color-fg-subtle: #cac9c1;
+  --color-fg-on-emphasis: #1b1a18;
+
+  /* 배경 */
+  --color-canvas-default: #1b1a18;
+  --color-canvas-overlay: #1b1a18;
+  --color-canvas-inset: #242321;
+  --color-canvas-subtle: #242321;
+  --color-input-bg: #201f1c;
+
+  /* 테두리 — 중립(accent 아님) */
+  --color-border-default: rgba(238, 237, 231, 0.16);
+  --color-border-muted: rgba(238, 237, 231, 0.10);
+  --color-neutral-muted: rgba(238, 237, 231, 0.08);
+  --color-neutral-subtle: rgba(238, 237, 231, 0.05);
+  --color-neutral-emphasis: #cac9c1;
+  --color-neutral-emphasis-plus: #e0dfd8;
+  --color-primer-border-active: rgba(238, 237, 231, 0.5);
+  --color-primer-fg-disabled: rgba(202, 201, 193, 0.5);
+
+  /* accent — 링크만 */
+  --color-accent-fg: #ff4da6;
+  --color-accent-light: #ff80c2;             /* 입력 포커스 등 옅은 accent */
+  --color-accent-emphasis: #cac9c1;
+  --color-accent-muted: rgba(238, 237, 231, 0.3);
+  --color-accent-subtle: rgba(238, 237, 231, 0.06);
+
+  /* 상태색 */
+  --color-success-fg: #53be70;
+  --color-danger-fg: #e06a6a;
+
+  /* 버튼 (secondary) — outline */
+  --color-btn-text: #eeede7;
+  --color-btn-bg: transparent;
+  --color-btn-border: rgba(238, 237, 231, 0.20);
+  --color-btn-hover-bg: rgba(238, 237, 231, 0.07);
+  --color-btn-hover-border: rgba(238, 237, 231, 0.30);
+  --color-btn-active-bg: rgba(238, 237, 231, 0.10);
+  --color-btn-active-border: rgba(238, 237, 231, 0.30);
+
+  /* 버튼 (primary = 댓글 등록) — 공통 컴포넌트 .variant-primary 그대로 (bg-inverse/text-inverse) */
+  --color-btn-primary-text: #000000;              /* --text-inverse (neutral-0) */
+  --color-btn-primary-bg: #f8f6f0;                /* --bg-inverse (neutral-950) */
+  --color-btn-primary-hover-bg: #f8f6f0;
+  --color-btn-primary-border: #f8f6f0;
+  --color-btn-primary-hover-border: #f8f6f0;
+  --color-btn-primary-selected-bg: #cac9c1;       /* --bg-inverse-light (neutral-700) = active */
+  --color-btn-primary-disabled-bg: rgba(248, 246, 240, 0.5);
+
+  /* 반응 — 중립 */
+  --color-social-reaction-bg-hover: rgba(238, 237, 231, 0.07);
+  --color-social-reaction-bg-reacted-hover: rgba(238, 237, 231, 0.10);
+
+  color-scheme: dark;
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+main .gsc-comment-box-textarea,
+main .markdown-body,
+main .gsc-comment-content {
+  font-family: inherit;
+}
+
+/* ============================================================================
+ * 블로그 디자인 언어
+ * ==========================================================================*/
+
+/* 트인 댓글 — 카드 박스 제거, 루트 댓글은 hairline 구분선으로만 분리 */
+main .gsc-comment > div {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+main .gsc-comment-header {
+  background: transparent !important;
+}
+main .gsc-timeline > .gsc-comment {
+  padding: 22px 0;
+}
+main .gsc-timeline > .gsc-comment + .gsc-comment {
+  border-top: 1px solid var(--color-border-muted);
+}
+
+/* 스레드(답글) — giscus 기본 inset 박스 제거. 좌측 스레드 줄은 각 .gsc-reply 에 부여(아래).
+   giscus 자체 짧은 연결선(.gsc-tl-line)은 숨겨 이중선 방지 */
+main .gsc-replies {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+main .gsc-tl-line {
+  display: none !important;
+}
+/* 답글 각각(.gsc-reply) — 왼쪽 스레드 줄 + 들여쓰기 (세로로 이어져 연속 줄이 됨) */
+main .gsc-reply {
+  border-left: 2px solid var(--color-border-muted) !important;
+  margin-left: 8px;
+  padding-left: 20px !important;
+}
+
+/* 한 줄 컨트롤 = capsule */
+main .btn,
+main .gsc-reactions-count,
+main .gsc-social-reaction-summary-item,
+main .gsc-direct-reaction-buttons button,
+main .gsc-comment-author-association {
+  border-radius: 9999px !important;
+}
+
+/* 정렬(.gsc-right-header.BtnGroup) = 하나의 pill 세그먼트.
+   inline-flex + stretch 로 버튼이 pill 안쪽을 꽉 채워야 hover 배경에 유격이 안 생김
+   (Primer 기본 .BtnGroup-item 의 float/음수마진이 유격의 원인) */
+main .BtnGroup {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 9999px !important;
+  overflow: hidden;
+  border: 1px solid var(--color-btn-border);
+}
+main .BtnGroup-item {
+  display: flex !important;
+  float: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+main .BtnGroup .btn,
+main .BtnGroup-item {
+  border-radius: 0 !important;
+  border: 0 !important;
+}
+main .BtnGroup .btn {
+  display: flex !important;
+  align-items: center;
+  margin: 0 !important;
+}
+main .BtnGroup .btn + .btn,
+main .BtnGroup-item + .BtnGroup-item {
+  border-left: 1px solid var(--color-btn-border) !important;
+}
+
+/* 블록 = 2xl */
+main .markdown-body pre,
+main .markdown-body img,
+main .gsc-reactions-popover {
+  border-radius: 24px !important;
+}
+
+/* 입력 박스 = 탭 + aa툴바 + textarea + footer 를 감싸는 2xl 컨테이너.
+   내부 요소는 각지게 두고 박스가 통째로 clip → "감싸는 곳"만 2xl */
+main .gsc-comment-box {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+}
+main .gsc-comment-box-textarea,
+main textarea.form-control {
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;   /* 기본 투명 → 포커스시만 accent (레이아웃 시프트 없음) */
+}
+main .gsc-comment-box-bottom {
+  border-radius: 0 !important;
+  border-top: 1px solid var(--color-border-muted) !important;   /* footer 구분선 */
+  padding: 12px 14px !important;      /* 좌우 14 = textarea/preview 와 동일 정렬 */
+  margin: 0 !important;               /* 좌우·아래 마진 제거 → 구분선이 박스 폭 전체 */
+}
+/* textarea 아래 extras(마크다운 링크 영역) — 배경/보더/radius 제거 */
+main .gsc-comment-box-textarea-extras {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+/* Preview 탭 렌더 영역(.gsc-comment-box-preview) — 아래 border 제거 + 상하좌우 패딩 균일.
+   14px = textarea 좌우 패딩과 동일 → Write↔Preview 전환 시 글 시작 위치 안 틀어짐 */
+main .gsc-comment-box-preview {
+  border-bottom: 0 !important;
+  padding: 14px !important;
+}
+/* 포커스 = textarea(.gsc-comment-box-textarea) 에만 light accent 보더 */
+main .gsc-comment-box-textarea:focus,
+main textarea.form-control:focus {
+  border-color: var(--color-accent-light) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+/* write 래퍼(.gsc-comment-box-write) — giscus 기본 포커스 보더/링 제거.
+   textarea 에 커서 줄 때 여기까지 accent 가 번지는 걸 막음 */
+main .gsc-comment-box-write,
+main .gsc-comment-box-write:focus-within {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* 탭 바(.gsc-comment-box-tabs) — 전체 폭 + 보더/배경 제거. pill 은 안쪽 래퍼가 담당 */
+main .gsc-comment-box-tabs {
+  display: flex !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+/* Write/Preview 를 감싸는 래퍼(mx-2 mb-[-1px] mt-2) = pill 세그먼트.
+   여백은 aa 툴바와 상하좌우 8px 로 통일 */
+main .gsc-comment-box-tabs > div {
+  display: inline-flex;
+  width: max-content;
+  margin: 8px !important;
+  border: 1px solid var(--color-btn-border) !important;
+  border-radius: 9999px !important;
+  overflow: hidden;
+}
+main .gsc-comment-box-tabs button {
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 5px 16px !important;
+  background: transparent !important;
+}
+main .gsc-comment-box-tabs button + button {
+  border-left: 1px solid var(--color-btn-border) !important;
+}
+/* 선택된 탭 = 옅은 채움 (giscus 가 active 탭에 color-bg-canvas 부여) */
+main .gsc-comment-box-tabs button.color-bg-canvas {
+  background: var(--color-btn-hover-bg) !important;
+  color: var(--color-fg-default) !important;
+}
+
+/* aa 버튼(.gsc-comment-box-md-toolbar) = giscus 의 fixed-width(고정폭 글꼴) 토글 하나.
+   역할이 안 보이니 CSS 툴팁을 붙임 — 테마 CSS 는 iframe 내부에서 실행되므로 ::after 로 가능(JS 불필요) */
+main .gsc-comment-box-md-toolbar {
+  margin: 8px !important;               /* 탭 pill 래퍼와 상하좌우 여백 통일 */
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+main .gsc-toolbar-item {
+  position: relative;
+  border-radius: 9999px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--color-fg-subtle) !important;
+}
+main .gsc-toolbar-item:hover {
+  background: var(--color-btn-hover-bg) !important;
+  color: var(--color-fg-default) !important;
+}
+/* 커스텀 툴팁 — 박스 overflow:hidden 에 안 잘리게 버튼 아래로 표시 */
+main .gsc-toolbar-item::after {
+  content: "고정폭(모노스페이스) 글꼴";
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  background: var(--color-btn-primary-bg);
+  color: var(--color-btn-primary-text);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+  z-index: 5;
+}
+main .gsc-toolbar-item:hover::after {
+  opacity: 1;
+}
+
+/* 댓글 등록(primary) = 공통 .variant-primary: 채움 → hover 시 투명+본문색 반전 */
+main .btn-primary:hover:not(:disabled) {
+  background: transparent !important;
+  color: var(--color-fg-default) !important;
+  border-color: var(--color-btn-primary-bg) !important;
+}
+main .btn-primary:active:not(:disabled) {
+  background: var(--color-btn-primary-selected-bg) !important;
+  color: var(--color-btn-primary-text) !important;
+  border-color: var(--color-btn-primary-selected-bg) !important;
+}
+/* disabled — dimmed inverse (익명 사용자 상태) */
+main .btn-primary:disabled,
+main .btn-primary[disabled],
+main .btn-primary.disabled {
+  background: rgba(248, 246, 240, 0.42) !important;
+  color: rgba(0, 0, 0, 0.85) !important;
+  border-color: transparent !important;
+  opacity: 1 !important;
+}
+
+/* .link-secondary.text-sm — btn-primary 와 동일한 패딩/radius(capsule) + 보더만. 배경 없음(outline 룩) */
+main .link-secondary.text-sm {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 16px !important;
+  border: 1px solid var(--color-btn-border) !important;
+  border-radius: 9999px !important;
+  background: transparent !important;
+  text-decoration: none !important;
+}
+main .link-secondary.text-sm:hover {
+  background: var(--color-btn-hover-bg) !important;
+  text-decoration: none !important;
+}
+
+/* 보기 영역(댓글 리스트) — 좌우 트인: radius 없이 위아래 끝에만 border */
+main .gsc-timeline {
+  border-top: 1px solid var(--color-border-muted);
+  border-bottom: 1px solid var(--color-border-muted);
+}
+/* 답글 작성 영역(.gsc-comment-box-is-reply) — 완전 open: 배경/보더/radius 전부 없음.
+   스레드 줄·indent 는 안쪽 color-box-border-info 박스가 담당 → 여기선 안 줌 (중복 방지) */
+main .gsc-comment-box-is-reply,
+main .gsc-replies .gsc-comment-box {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  margin-top: 16px !important;          /* 위 답글과의 여백 */
+}
+/* 답글쪽 footer 만 각지게. textarea 는 제외 — 메인/답글 모두 2xl 유지 (여기 넣으면 특정도가 높아 2xl 을 덮어버림) */
+main .gsc-comment-box-is-reply .gsc-comment-box-bottom,
+main .gsc-replies .gsc-comment-box-bottom {
+  border-radius: 0 !important;
+}
+/* 답글 박스 래퍼(.gsc-reply-box, color-bg-tertiary) — 배경/위 border 제거 + 왼쪽 indent */
+main .gsc-reply-box {
+  background: transparent !important;
+  border-top: 0 !important;
+  padding-left: 8px !important;
+}
+/* 답글 작성 접힌 placeholder(.form-control.cursor-text) — capsule + 내용 너비만(w-full 해제).
+   클릭해 작성 모드로 펼쳐지면 이 요소는 사라지고 실제 .gsc-comment-box 가 100% 폭으로 뜸 */
+main .form-control.cursor-text {
+  width: auto !important;
+  border-radius: 9999px !important;
+}
+/* 작성 모드 = 실제 입력 박스는 100% 폭 */
+main .gsc-comment-box {
+  width: 100% !important;
+}
+/* 답글 내부 박스(color-box-border-info) — info 박스 제거. 왼쪽 스레드 줄만 남기고 위/아래/오른쪽 border 없음 */
+main .color-box-border-info.w-full.rounded-md {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  border-left: 2px solid var(--color-border-muted) !important;
+  border-bottom: 0 !important;
+  padding-left: 16px !important;
+}
+
+/* 반응 고르기 picker 의 이모지 버튼 = 원형 */
+main .gsc-emoji-button,
+main .gsc-reactions-popover button,
+main .gsc-direct-reaction-buttons button {
+  border-radius: 9999px !important;
+}
+
+/* 댓글 불러오는 중 — 상단 여백 (실제 class: .gsc-pagination / .pagination-loader-container) */
+main .gsc-pagination,
+main .pagination-loader-container {
+  margin-top: 48px;
+}
+
+/* 정렬(오래된순/새로운순) — .gsc-right-header.BtnGroup 안의 선택 항목 .BtnGroup-item--selected.
+   inverse 채움 (다크=흰배경+검정글자, primary 변수 자동) */
+main .gsc-right-header .BtnGroup-item--selected,
+main .gsc-right-header .BtnGroup-item--selected .btn {
+  background: var(--color-btn-primary-bg) !important;
+  color: var(--color-btn-primary-text) !important;
+  border-color: transparent !important;
+}
+
+/* 인라인 코드 */
+main .markdown-body :not(pre) > code {
+  border-radius: 6px;
+}
+
+/* 표 — 좌우 트인 라인 테이블 */
+main .markdown-body table {
+  display: table;
+  width: 100%;
+  border: 0;
+  border-collapse: collapse;
+}
+main .markdown-body table tr {
+  background: transparent !important;
+  border-top: 0;
+}
+main .markdown-body table th,
+main .markdown-body table td {
+  border: 0;
+  border-bottom: 1px solid var(--color-border-muted);
+  padding: 8px 14px;
+  text-align: left;
+}
+main .markdown-body table th {
+  border-bottom: 2px solid var(--color-border-default);
+  font-weight: 600;
+}
+main .markdown-body table tr:last-child td {
+  border-bottom: 0;
+}

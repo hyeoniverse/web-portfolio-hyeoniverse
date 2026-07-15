@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
+import { EmojiIcon } from "@/components/ui/EmojiPicker";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
@@ -13,11 +14,14 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 import HeartIcon from "@/components/ui/HeartIcon";
+import ShareButton from "@/components/ui/ShareButton";
 import T from "@/components/ui/T";
 import { formatCount } from "@/utils/format";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./DetailLayout.module.css";
 
 const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
+const Giscus = dynamic(() => import("@/components/comments/Giscus"), { ssr: false });
 
 export interface TocHeading {
   id: string;
@@ -66,8 +70,14 @@ interface DetailLayoutProps {
   onBack?: () => void;
   heroImage?: string;
   heroAlt?: string;
+  /** 커버 세로 위치 % (object-position, 0~100). 기본 50 — 편집기 CoverBanner 와 동일 */
+  heroPosition?: number;
+  /** 커버 확대 배율 (scale, 1~2.5). 기본 1 */
+  heroZoom?: number;
   onHeroError?: () => void;
   heroFallback?: ReactNode;
+  /** 페이지 이모지(아이콘) — 커버에 겹쳐 표시 (native / img:url / icon:id). 편집기 CoverBanner 와 동일 포맷 */
+  heroIcon?: string | null;
   headings?: TocHeading[];
   contentClassName?: string;
   /** Full-width header slot (title, meta) rendered above content+TOC row */
@@ -79,6 +89,8 @@ interface DetailLayoutProps {
   // ── 공통 detail page 요소들 — config 만 넘기면 DetailLayout 이 자동 render ──
   /** 좋아요 — afterContent 다음 */
   likeConfig?: LikeConfig;
+  /** 좋아요 버튼 바로 아래 슬롯 (예: 작성자 상세) */
+  afterLike?: ReactNode;
   /** 관련 글/작품/시리즈 등 — page 가 직접 ReactNode 로 (다양한 source). header 다음, 본문(content) 전 위쪽에 표시 */
   relatedContent?: ReactNode;
   /** 추천 글(함께 읽어보면 좋은) — 이전/다음(AdjacentNav) 바로 위에 표시 */
@@ -107,14 +119,18 @@ export default function DetailLayout({
   onBack,
   heroImage,
   heroAlt = "",
+  heroPosition = 50,
+  heroZoom = 1,
   onHeroError,
   heroFallback,
+  heroIcon,
   headings = [],
   contentClassName,
   header,
   children,
   afterContent,
   likeConfig,
+  afterLike,
   relatedContent,
   recommendedContent,
   adjacentConfig,
@@ -123,7 +139,13 @@ export default function DetailLayout({
 }: DetailLayoutProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
   const { endTransition, isTransitioning } = usePageTransition();
+  const { comments } = useSiteConfig();
   const pageRef = useRef<HTMLDivElement>(null);
+
+  // 댓글 시스템 provider — giscus 선택 + repo 설정 시 giscus 위젯, 아니면 내장 커스텀 댓글
+  const useGiscus = comments?.provider === "giscus" && !!comments?.giscus?.repo?.trim();
+  // giscus 게시물 반응이 켜져 있으면 중복이므로 사이트 자체 좋아요는 숨긴다(share 는 유지).
+  const hidePostLike = useGiscus && comments?.giscus?.reactionsEnabled !== false;
 
   // (animBusy / busyStartRef / heartClipId — LikeButton 컴포넌트 안으로 이동)
 
@@ -215,6 +237,10 @@ export default function DetailLayout({
             sizes="100vw"
             priority
             className={styles.heroCover}
+            style={{
+              objectPosition: `50% ${heroPosition}%`,
+              ...(heroZoom !== 1 ? { transform: `scale(${heroZoom})`, transformOrigin: "center" } : {}),
+            }}
             onError={onHeroError}
           />
           <div className={styles.heroOverlay} />
@@ -223,6 +249,13 @@ export default function DetailLayout({
         heroFallback
       ) : (
         <div className={styles.heroSpacer} />
+      )}
+
+      {/* 페이지 이모지 — 커버에 겹쳐(Notion 식). 편집기 CoverBanner 와 동일 위치감 */}
+      {heroIcon && (
+        <div className={`${styles.heroIconRow}${heroImage ? "" : ` ${styles.heroIconNoHero}`}`}>
+          <span className={styles.heroIcon}><EmojiIcon value={heroIcon} size={64} /></span>
+        </div>
       )}
 
       {/* Header — full width */}
@@ -257,9 +290,16 @@ export default function DetailLayout({
       )}
 
       {/* ── 공통 detail 요소들 ─ afterContent 다음 자동 render ── */}
-      {(likeConfig || adjacentConfig || commentsConfig || backLink) && (
+      {(likeConfig || afterLike || adjacentConfig || commentsConfig || backLink) && (
         <div className={styles.afterContent}>
-          {likeConfig && <LikeButton config={likeConfig} />}
+          {likeConfig && (
+            <div className={styles.likeShareRow}>
+              {!hidePostLike && <LikeButton config={likeConfig} />}
+              <ShareButton />
+            </div>
+          )}
+
+          {afterLike}
 
           {recommendedContent}
 
@@ -281,11 +321,15 @@ export default function DetailLayout({
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              <CommentSection
-                commentType={commentsConfig.commentType}
-                targetId={commentsConfig.targetId}
-                translationEnabled={commentsConfig.translationEnabled !== false}
-              />
+              {useGiscus ? (
+                <Giscus />
+              ) : (
+                <CommentSection
+                  commentType={commentsConfig.commentType}
+                  targetId={commentsConfig.targetId}
+                  translationEnabled={commentsConfig.translationEnabled !== false}
+                />
+              )}
             </motion.div>
           )}
 
