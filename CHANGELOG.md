@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.22.0...v1.22.1) (2026-07-15)
+
+
+### Bug Fixes
+
+* **deps:** react-icons 5.7 에서 삭제된 SiOpenai 를 RiOpenaiFill 로 교체 ([ed7e803](https://github.com/hyeoniverse/web-portfolio-oval/commit/ed7e8030bb2cb81dc473a29eb1ce78ee58d5044c))
+
 ## [1.22.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.21.0...v1.22.0) (2026-06-28)
 
 
