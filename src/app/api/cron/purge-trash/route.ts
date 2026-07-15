@@ -43,9 +43,22 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: worksErr.message }, { status: 500 });
   }
 
+  // calendars hard delete — deleted_at IS NOT NULL + purge_after < NOW()
+  const { data: deletedCalendars, error: calErr } = await admin
+    .from("calendars")
+    .delete()
+    .not("deleted_at", "is", null)
+    .lt("purge_after", now)
+    .select("id");
+
+  if (calErr) {
+    return NextResponse.json({ error: calErr.message }, { status: 500 });
+  }
+
   return NextResponse.json({
     success: true,
     postsPurged: deletedPosts?.length ?? 0,
     worksPurged: deletedWorks?.length ?? 0,
+    calendarsPurged: deletedCalendars?.length ?? 0,
   });
 }

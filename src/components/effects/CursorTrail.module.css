@@ -4,7 +4,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: var(--z-top);
+  z-index: var(--z-cursor); /* 항상 최상단 */
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   opacity: 0;
