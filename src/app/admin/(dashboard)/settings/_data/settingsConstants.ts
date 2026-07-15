@@ -30,7 +30,7 @@ export const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
   general: ["personal", "contact", "metadata", "bgm"],
   content: ["brand", "hero", "home3d", "homeIntro", "services", "marquee", "cta", "loading", "footer", "posts", "works", "profile", "about", "socialLinks"],
   appearance: ["theme", "typography", "datePickerStyle", "brand"],
-  services: ["emailService", "aiCover", "aiSummary", "recaptcha", "translation", "commentEmailNotify", "media"],
+  services: ["emailService", "aiCover", "aiSummary", "recaptcha", "translation", "commentEmailNotify", "comments", "media"],
 };
 
 export type TabId = (typeof TAB_IDS)[number];
@@ -268,7 +268,7 @@ export function extractDefaults(delta: any, defaults: any): any {
 }
 
 /** content 탭 서브탭 순서 — 사이드 nav / 모바일 nav / URL 동기화에서 공용 */
-export const CONTENT_SUBTABS = ["home", "profile", "about", "works", "posts"] as const;
+export const CONTENT_SUBTABS = ["home", "profile", "about", "works", "posts", "calendars"] as const;
 export type ContentSubTab = (typeof CONTENT_SUBTABS)[number];
 
 /** content 탭 내 siteConfig 키 → sub-tab 매핑 */
@@ -278,6 +278,7 @@ const CONTENT_SUBTAB_KEYS: Record<ContentSubTab, (keyof SiteConfigData)[]> = {
   about: ["about"],
   works: ["works"],
   posts: ["posts"],
+  calendars: [],
 };
 
 /** siteConfig 키 → content sub-tab */

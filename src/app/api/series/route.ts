@@ -1,9 +1,19 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
-import { jsonOk, jsonServerError } from "@/lib/api/response";
-import { ensurePostCategory } from "@/lib/api/validateCategory";
+import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
+import { expandPostCategoryFilters } from "@/lib/api/validateCategory";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
+import { SERIES_TITLE_MAX } from "@/types/post";
+
+/** 제목(ko/en) 길이 검증 — 초과 시 400, 통과 시 null. UI/폼 우회(직접 API 호출) 방어. */
+function validateSeriesTitle(body: { title?: unknown; title_en?: unknown }) {
+  if (typeof body.title === "string" && body.title.length > SERIES_TITLE_MAX)
+    return jsonError(`title must be ${SERIES_TITLE_MAX} characters or fewer`, 400);
+  if (typeof body.title_en === "string" && body.title_en.length > SERIES_TITLE_MAX)
+    return jsonError(`title_en must be ${SERIES_TITLE_MAX} characters or fewer`, 400);
+  return null;
+}
 
 // GET /api/series — 시리즈 목록
 // 쿼리: ?all=true (비공개 포함), ?category=, ?q= (검색),
@@ -57,15 +67,32 @@ export async function GET(request: Request) {
   }
 
   if (!showAll) query = query.eq("published", true);
-  if (category) query = query.eq("category", category);
+  if (category) {
+    // 시리즈는 자기 카테고리가 없음 — 그 카테고리(+자식) 글을 가진 시리즈만 도출.
+    // 멀티 카테고리(CSV) OR — 각 확장값 union.
+    const categoryList = category.split(",").map((c) => c.trim()).filter(Boolean);
+    const values = await expandPostCategoryFilters(categoryList);
+    let catQ = admin
+      .from("posts")
+      .select("series_id")
+      .in("category", values)
+      .not("series_id", "is", null);
+    if (!showAll) catQ = catQ.eq("published", true);
+    const { data: catPosts } = await catQ;
+    const catSeriesIds = Array.from(new Set((catPosts ?? []).map((p) => p.series_id))).filter(Boolean) as string[];
+    if (catSeriesIds.length === 0) {
+      return jsonOk(isPaginated ? { items: [], total: 0 } : []);
+    }
+    query = query.in("id", catSeriesIds);
+  }
 
-  // tags 필터 — posts 테이블에서 tags 모두 포함한 글의 series_id 만 추림
+  // tags 필터 — posts 테이블에서 tags 하나라도 포함한 글의 series_id (OR/합집합, posts 필터와 동일)
   if (tags.length > 0) {
     const { data: taggedPosts } = await admin
       .from("posts")
       .select("series_id")
       .eq("published", true)
-      .contains("tags", tags)
+      .overlaps("tags", tags)
       .not("series_id", "is", null);
     const taggedSeriesIds = Array.from(new Set((taggedPosts ?? []).map((p) => p.series_id))).filter(Boolean) as string[];
     if (taggedSeriesIds.length === 0) {
@@ -160,6 +187,9 @@ export async function POST(request: Request) {
 
   const body = await request.json();
 
+  const titleError = validateSeriesTitle(body);
+  if (titleError) return titleError;
+
   // slug 자동 생성
   if (!body.slug) {
     body.slug = body.title
@@ -168,12 +198,8 @@ export async function POST(request: Request) {
       .replace(/^-|-$/g, "");
   }
 
-  // 카테고리 미지정 시 "기타"로 기본 설정 (없으면 자동 등록)
-  if (!body.category) {
-    body.category = "기타";
-  }
-  await ensurePostCategory(body.category as string);
-
+  // 시리즈는 자기 카테고리를 갖지 않음 — 카테고리는 멤버 글들에서 도출한다.
+  // (series.category 컬럼은 legacy 로 남되 '' 기본값으로 둔다.)
   const admin = createAdminClient();
 
   // sort_order 미지정 시 — 현재 max + 1 (맨 뒤)

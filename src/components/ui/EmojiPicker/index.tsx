@@ -69,11 +69,72 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
     try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
   });
 
-  // 커스텀 이모지
-  const [customs, setCustoms] = useState<{ name: string; src: string }[]>(() => {
+  // 커스텀(업로드) 이모지 — 서버(custom_emojis) 동기화, localStorage 는 오프라인 캐시/즉시표시용.
+  type CustomEmoji = { id?: string; name: string; src: string };
+  const [customs, setCustoms] = useState<CustomEmoji[]>(() => {
     if (typeof window === "undefined") return [];
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; }
   });
+  const cacheCustoms = useCallback((list: CustomEmoji[]) => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch { /* quota/disabled */ }
+  }, []);
+
+  // 열릴 때 서버 목록으로 동기화 (실패 시 로컬 캐시 유지 — 오프라인/비로그인).
+  //   ── 보완: 서버에 아직 없는 로컬 업로드(동기화 기능 추가 전 업로드분·POST 실패분)를 보존/재등록 ──
+  //   과거엔 서버 목록으로 통째로 교체(+캐시 덮어쓰기)해서 그런 항목이 커스텀 섹션에서 사라지고
+  //   최근사용에만 남아 삭제가 불가능했음. 이제 로컬 캐시 + 최근사용(img:) 에서 서버에 없는 src 를 모아
+  //   지금 서버에 백필(POST)하고, 실패해도 로컬로 병합해 커스텀 섹션에 노출(삭제 가능)한다.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/custom-emojis");
+        if (!res.ok) return; // 비로그인/오프라인 → 로컬 캐시 유지
+        const rows = (await res.json()) as CustomEmoji[];
+        if (cancelled || !Array.isArray(rows)) return;
+
+        const serverSrcs = new Set(rows.map((r) => r.src));
+        // 로컬 캐시 + 최근사용(img:) 에서 서버에 없는 src 수집 (state 대신 localStorage 직접 읽어 deps 회피)
+        const readLS = <T,>(k: string): T[] => { try { return JSON.parse(localStorage.getItem(k) || "[]"); } catch { return []; } };
+        const localCache = readLS<CustomEmoji>(STORAGE_KEY);
+        const recentImgSrcs = readLS<string>(RECENT_KEY).filter((v) => typeof v === "string" && v.startsWith("img:")).map((v) => v.slice(4));
+        const seenPending = new Set<string>();
+        const pending: CustomEmoji[] = [];
+        for (const c of localCache) {
+          if (c?.src && !serverSrcs.has(c.src) && !seenPending.has(c.src)) { seenPending.add(c.src); pending.push({ name: c.name || "", src: c.src }); }
+        }
+        for (const src of recentImgSrcs) {
+          if (src && !serverSrcs.has(src) && !seenPending.has(src)) { seenPending.add(src); pending.push({ name: "", src }); }
+        }
+
+        // 백필 — 서버에 없는 것들을 지금 등록. 성공 시 id 부여, 실패해도 로컬 항목으로 유지.
+        const reconciled: CustomEmoji[] = [];
+        for (const p of pending) {
+          try {
+            const r = await fetch("/api/custom-emojis", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: p.name, src: p.src }),
+            });
+            reconciled.push(r.ok ? ((await r.json()) as CustomEmoji) : p);
+          } catch { reconciled.push(p); }
+        }
+        if (cancelled) return;
+
+        // 병합 — 방금 백필분(최신) + 서버 목록, src 중복 제거
+        const seen = new Set<string>();
+        const merged = [...reconciled, ...rows].filter((c) => {
+          if (!c?.src || seen.has(c.src)) return false;
+          seen.add(c.src);
+          return true;
+        });
+        setCustoms(merged);
+        cacheCustoms(merged);
+      } catch { /* 네트워크 실패 → 캐시 유지 */ }
+    })();
+    return () => { cancelled = true; };
+  }, [open, cacheCustoms]);
 
   const addRecent = useCallback((val: string) => {
     setRecent((prev) => {
@@ -219,10 +280,20 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
     try {
       const resized = await resizeEmojiImage(file);
       const url = await onImageUpload(resized);
-      const entry = { name: file.name.replace(/\.\w+$/, ""), src: url };
+      const name = file.name.replace(/\.\w+$/, "");
+      // 서버에 기록 추가 (동기화). 실패해도 로컬로 표시는 유지.
+      let entry: CustomEmoji = { name, src: url };
+      try {
+        const res = await fetch("/api/custom-emojis", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, src: url }),
+        });
+        if (res.ok) entry = (await res.json()) as CustomEmoji;
+      } catch { /* 서버 실패 → 로컬만 */ }
       setCustoms((prev) => {
-        const next = [...prev, entry];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        const next = [entry, ...prev]; // 최신 업로드가 앞에
+        cacheCustoms(next);
         return next;
       });
       handleSelect(`img:${url}`);
@@ -231,13 +302,33 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
     } finally {
       setUploading(false);
     }
-  }, [onImageUpload, handleSelect]);
+  }, [onImageUpload, handleSelect, cacheCustoms]);
 
   if (!open) return null;
 
   const t = (ko: string, en: string) => language === "ko" ? ko : en;
 
-  const EmojiBtn = ({ val }: { val: string }) => {
+  // 커스텀(업로드) 아이콘 기록 삭제 — 서버 + state + 캐시 + 최근사용
+  const removeCustom = (idx: number) => {
+    const target = customs[idx];
+    setCustoms((prev) => {
+      const next = prev.filter((_, i) => i !== idx);
+      cacheCustoms(next);
+      return next;
+    });
+    // 최근사용에서도 같은 이미지 제거 — 삭제 후 깨진 이미지가 남거나, 동기화 시 다시 백필돼 되살아나는 것 방지
+    if (target?.src) {
+      const val = `img:${target.src}`;
+      setRecent((prev) => {
+        const next = prev.filter((v) => v !== val);
+        try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch { /* noop */ }
+        return next;
+      });
+    }
+    if (target?.id) fetch(`/api/custom-emojis/${target.id}`, { method: "DELETE" }).catch(() => { /* noop */ });
+  };
+
+  const EmojiBtn = ({ val, onDelete }: { val: string; onDelete?: () => void }) => {
     const btn = (
       <button
         type="button"
@@ -250,7 +341,22 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
     );
     // 커스텀 이미지(img:)는 이름 없음 → 그대로. 이모지는 이름 툴팁.
     const name = val.startsWith("img:") ? "" : emojiName(val);
-    return name ? <Tooltip content={name} placement="top" delay={300}>{btn}</Tooltip> : btn;
+    const inner = name ? <Tooltip content={name} placement="top" delay={300}>{btn}</Tooltip> : btn;
+    if (!onDelete) return inner;
+    // 삭제 가능(커스텀) — hover 시 × 노출
+    return (
+      <span className={styles.emojiCellWrap}>
+        {inner}
+        <button
+          type="button"
+          className={styles.emojiDelBtn}
+          aria-label={t("삭제", "Delete")}
+          title={t("기록에서 삭제", "Remove from history")}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+        >×</button>
+      </span>
+    );
   };
 
   const node = (
@@ -368,7 +474,7 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
                   <div>
                     <div className={styles.sectionLabel}>{t("커스텀", "Custom")}</div>
                     <div className={styles.itemRow}>
-                      {customs.map((c, i) => <EmojiBtn key={`c-${i}`} val={`img:${c.src}`} />)}
+                      {customs.map((c, i) => <EmojiBtn key={`c-${i}`} val={`img:${c.src}`} onDelete={() => removeCustom(i)} />)}
                     </div>
                   </div>
                 )}

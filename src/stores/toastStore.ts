@@ -20,6 +20,9 @@ interface ToastState {
   pauseToast: (id: string) => void;
   /** hover 종료 — 남은 시간만큼 다시 타이머 시작 */
   resumeToast: (id: string) => void;
+  /** 토스트 하나에 hover 하면 스택 전체 정지 (재배치로 커서가 벗어나 사라지는 것 방지) */
+  pauseAllToasts: () => void;
+  resumeAllToasts: () => void;
   clearToasts: () => void;
 }
 
@@ -79,6 +82,16 @@ export const useToastStore = create<ToastState>((set, get) => ({
     const dismiss = get().dismissToast;
     const timer = setTimeout(() => dismiss(id), info.remaining);
     timers.set(id, { timer, startedAt: Date.now(), remaining: info.remaining });
+  },
+
+  pauseAllToasts: () => {
+    const { pauseToast } = get();
+    Array.from(timers.keys()).forEach((id) => pauseToast(id));
+  },
+
+  resumeAllToasts: () => {
+    const { resumeToast } = get();
+    Array.from(timers.keys()).forEach((id) => resumeToast(id));
   },
 
   clearToasts: () => {

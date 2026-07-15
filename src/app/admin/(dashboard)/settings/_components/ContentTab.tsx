@@ -1,16 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
-import { Upload, Plus, Check, X, Trash2, Filter, ChevronDown, Sliders } from "lucide-react";
-import { DndContext, closestCenter, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { Plus, Check, X, Trash2, Filter, ChevronDown, Sliders } from "lucide-react";
+import { DndContext, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
+import { normalizeCategories } from "@/lib/categoryTree";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import T from "@/components/ui/T";
 import Input from "@/components/ui/Input";
-import type { SiteConfigData } from "@/config/site.config";
+import { siteConfig, type SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
 import ProfileSections, { type ProfileExpandState } from "@/components/admin/ProfileSections";
 import type { SettingsTabProps } from "../_types";
@@ -27,6 +26,9 @@ import Field, { ColorField, ResumeUpload, ServiceItemsEditor } from "./SettingsF
 import CategoriesEditor from "./CategoriesEditor";
 import WorksCategoriesEditor from "./WorksCategoriesEditor";
 import SeriesManager from "./SeriesManager";
+import AuthorsEditor from "./AuthorsEditor";
+import SocialLinksEditor from "./SocialLinksEditor";
+import CalendarManager from "./CalendarManager";
 import WorksIntroVideoPicker from "./WorksIntroVideoPicker";
 import SectionHeader from "./SectionHeader";
 import TagListField from "@/components/ui/TagListField";
@@ -35,7 +37,6 @@ import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import { List, ListItem } from "@/app/admin/(dashboard)/components";
-import { SOCIAL_ICONS } from "@/data/socialIcons";
 import { normalizeTagMeta, type TagMeta, type StoredTagMeta } from "@/lib/tagMeta";
 import { showToast } from "@/stores/toastStore";
 import { useModalStore } from "@/stores/modalStore";
@@ -253,34 +254,13 @@ function matchTech(p: TechPreset, query: string): boolean {
 
 type TechItem = { name: string; category: string; icon?: string };
 
-/* social platform select option — 라벨 옆에 brand SVG icon */
-function SocialIconSvg({ name }: { name: string }) {
-  const icon = SOCIAL_ICONS[name];
-  if (!icon) return null;
-  return icon.stroke ? (
-    <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={icon.path} /></svg>
-  ) : (
-    <svg viewBox="0 0 24 24" width={14} height={14}><path d={icon.path} fill="currentColor" /></svg>
-  );
-}
-
-const SOCIAL_PLATFORM_OPTIONS_WITH_ICON = Object.entries(SOCIAL_ICONS).map(([value, { label }]) => ({
-  value,
-  label,
-  icon: <SocialIconSvg name={value} />,
-}));
-
-type SocialLink = { platform: string; url: string; label?: string; icon?: string };
-
-const MAX_SOCIAL_LINKS = 6;
-
 interface ContentTabProps extends SettingsTabProps {
   profileData: ProfileData;
   setProfileData: Dispatch<SetStateAction<ProfileData>>;
   profileExpanded: ProfileExpandState;
   setProfileExpanded: Dispatch<SetStateAction<ProfileExpandState>>;
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
-  contentSubTab: "home" | "profile" | "about" | "works" | "posts";
+  contentSubTab: "home" | "profile" | "about" | "works" | "posts" | "calendars";
 }
 
 export default function ContentTab({
@@ -298,7 +278,7 @@ export default function ContentTab({
   setConfig,
   contentSubTab,
 }: ContentTabProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { theme } = useTheme();
 
   const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, titleClassName: styles.sectionTitle };
@@ -319,6 +299,14 @@ export default function ContentTab({
 
   /* 태그 deferred 삭제 — pending list. UI 에선 즉시 숨김, 섹션 저장 클릭 시 일괄 API 처리 */
   const [tagPendingDeletes, setTagPendingDeletes] = useState<Set<string>>(new Set());
+  /* 태그 섹션 "기본값" 버튼 — 에디터가 리포트한 정보(기본 세트 밖 태그 존재 여부 + 초기화 실행 함수)로 제어.
+     ref 는 항상 최신 초기화 함수 보관(리렌더 없이), state 는 버튼 활성 여부만. */
+  const tagResetRef = useRef<(() => void) | null>(null);
+  const [tagHasNonDefault, setTagHasNonDefault] = useState(false);
+  const handleTagResetInfo = useCallback((info: { hasNonDefault: boolean; resetToDefault: () => void }) => {
+    tagResetRef.current = info.resetToDefault;
+    setTagHasNonDefault((prev) => (prev !== info.hasNonDefault ? info.hasNonDefault : prev));
+  }, []);
   const [tagPendingExpanded, setTagPendingExpanded] = useState(false);
   const undoTagPendingDelete = useCallback((tag: string) => {
     setTagPendingDeletes((prev) => {
@@ -351,56 +339,7 @@ export default function ContentTab({
   }, [tagPendingDeletes]);
 
   /* config.socialLinks 가 매 렌더마다 새 array 가 되면 deps 가 매번 바뀜 → useMemo 로 stable. */
-  const socialLinks = useMemo<SocialLink[]>(() => config.socialLinks ?? [], [config.socialLinks]);
-
-  const updateSocialLinks = useCallback(
-    (fn: (prev: SocialLink[]) => SocialLink[]) => {
-      setConfig((prev) => ({ ...prev, socialLinks: fn(prev.socialLinks ?? []) }));
-    },
-    [setConfig],
-  );
-
-  const socialIds = useMemo(() => socialLinks.map((_, i) => `social-${i}`), [socialLinks]);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor),
-  );
-
-  const handleSocialDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over || active.id === over.id) return;
-      const oldIdx = socialIds.indexOf(String(active.id));
-      const newIdx = socialIds.indexOf(String(over.id));
-      if (oldIdx === -1 || newIdx === -1) return;
-      updateSocialLinks((prev) => arrayMove([...prev], oldIdx, newIdx));
-    },
-    [socialIds, updateSocialLinks],
-  );
-
-  const updateSocialItem = useCallback(
-    (idx: number, field: keyof SocialLink, value: string) => {
-      updateSocialLinks((prev) =>
-        prev.map((item, i) => (i === idx ? { ...item, [field]: value } : item)),
-      );
-    },
-    [updateSocialLinks],
-  );
-
-  const addSocialLink = useCallback(() => {
-    updateSocialLinks((prev) => {
-      if (prev.length >= MAX_SOCIAL_LINKS) return prev;
-      return [...prev, { platform: "custom", url: "", label: "" }];
-    });
-  }, [updateSocialLinks]);
-
-  const removeSocialLink = useCallback(
-    (idx: number) => {
-      updateSocialLinks((prev) => prev.filter((_, i) => i !== idx));
-    },
-    [updateSocialLinks],
-  );
+  const socialLinks = useMemo(() => config.socialLinks ?? [], [config.socialLinks]);
 
   // Normalize: support both old string[] and new { ko, en, description? }[] (description 은 legacy string 또는 bilingual {ko,en})
   const normalizedPostCats = useMemo(() => {
@@ -630,68 +569,11 @@ export default function ContentTab({
           <section className={styles.section}>
             <SectionHeader title={t("admin.settings.socialLinks")} paths={["socialLinks"]} {...sh} />
             <p className={styles.sectionHint}><T k="admin.settings.socialHint" /></p>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSocialDragEnd}>
-              <SortableContext items={socialIds} strategy={verticalListSortingStrategy}>
-            <div className={styles.socialEditor}>
-              {socialLinks.map((link, idx) => (
-                <SortableSocialItem key={socialIds[idx]} id={socialIds[idx]}>
-                  <SocialIconArea
-                    link={link}
-                    isCustom={link.platform === "custom"}
-                    onUploaded={(url) => updateSocialItem(idx, "icon", url)}
-                  />
-                  <div className={styles.socialItemFields}>
-                    <Select
-                      value={link.platform}
-                      options={SOCIAL_PLATFORM_OPTIONS_WITH_ICON}
-                      onChange={(v) => updateSocialItem(idx, "platform", v)}
-                    />
-                    {link.platform === "custom" && (
-                      <>
-                        <Input
-                          placeholder={t("admin.settings.socialLabelPlaceholder")}
-                          value={link.label ?? ""}
-                          onChange={(v) => updateSocialItem(idx, "label", v)}
-                        />
-                        <SocialIconUploadRow
-                          icon={link.icon ?? ""}
-                          onIconChange={(v) => updateSocialItem(idx, "icon", v)}
-                          onUploaded={(url) => updateSocialItem(idx, "icon", url)}
-                          placeholder={t("admin.settings.socialIconPlaceholder")}
-                        />
-                      </>
-                    )}
-                    <Input
-                      placeholder={t("admin.settings.socialUrlPlaceholder")}
-                      value={link.url}
-                      onChange={(v) => updateSocialItem(idx, "url", v)}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className={styles.socialRemoveBtn}
-                    onClick={() => removeSocialLink(idx)}
-                    aria-label="Remove"
-                  >
-                    <span className={styles.socialRemoveLine} />
-                    <span className={styles.socialRemoveLine} />
-                  </button>
-                </SortableSocialItem>
-              ))}
-              <Button
-                variant="outline"
-                size="md"
-                fullWidth
-                icon={<Plus size={14} strokeWidth={2} />}
-                onClick={addSocialLink}
-                disabled={socialLinks.length >= MAX_SOCIAL_LINKS}
-                className={styles.profileAddBtn}
-              >
-                <T k="admin.settings.addSocial" /> ({socialLinks.length}/{MAX_SOCIAL_LINKS})
-              </Button>
-            </div>
-              </SortableContext>
-            </DndContext>
+            <SocialLinksEditor
+              links={socialLinks}
+              onChange={(links) => setConfig((prev) => ({ ...prev, socialLinks: links }))}
+              max={6}
+            />
           </section>
         </>
       )}
@@ -775,6 +657,28 @@ export default function ContentTab({
             </div>
           </section>
 
+          {/* 목록 카드 레이아웃 */}
+          <section className={styles.section}>
+            <SectionHeader title={language === "ko" ? "카드 레이아웃" : "Card layout"} paths={["posts.layout"]} {...sh} />
+            <div className={styles.fields}>
+              <div className={styles.fieldRow}>
+                <label className={styles.fieldLabel}>{language === "ko" ? "목록 배치" : "Grid style"}</label>
+                <Select
+                  value={config.posts.layout ?? "magazine"}
+                  options={[
+                    { value: "magazine", label: language === "ko" ? "Magazine (사이즈 변주)" : "Magazine (mixed sizes)" },
+                    { value: "grid", label: language === "ko" ? "Grid (균일·이미지 우선)" : "Grid (image-first)" },
+                    { value: "list", label: language === "ko" ? "List (수평 목록)" : "List (rows)" },
+                    { value: "compact", label: language === "ko" ? "Compact (텍스트형)" : "Compact (text-only)" },
+                    { value: "masonry", label: language === "ko" ? "Masonry (가변 높이)" : "Masonry (variable height)" },
+                    { value: "featured", label: language === "ko" ? "Featured (대형 1 + 그리드)" : "Featured (hero + grid)" },
+                  ]}
+                  onChange={(v) => update("posts", "layout", v as SiteConfigData["posts"]["layout"])}
+                />
+              </div>
+            </div>
+          </section>
+
           {/* Pagination — 내부 2-col */}
           <section className={styles.section}>
             <SectionHeader title={t("admin.settings.pagination")} paths={["posts.perPage", "posts.adminPerPage"]} {...sh} />
@@ -816,6 +720,8 @@ export default function ContentTab({
               title="태그"
               paths={["tagDescriptions"]}
               extraDirty={tagPendingDeletes.size > 0}
+              resetForceEnabled={tagHasNonDefault}
+              onResetOverride={() => tagResetRef.current?.()}
               beforeSave={commitTagDeletes}
               extraRevert={() => setTagPendingDeletes(new Set())}
               spacerExtra={tagPendingDeletes.size > 0 ? (
@@ -874,6 +780,7 @@ export default function ContentTab({
               onChange={(v) => setConfig((prev) => ({ ...prev, tagDescriptions: v }))}
               pendingDeletes={tagPendingDeletes}
               onPendingDeletesChange={setTagPendingDeletes}
+              onResetInfoChange={handleTagResetInfo}
             />
           </section>
 
@@ -892,15 +799,23 @@ export default function ContentTab({
           <section className={styles.section}>
             <SeriesManager
               title={t("admin.posts.series")}
-              categories={normalizedPostCats.map((c) => ({
-                ko: c.ko,
-                en: c.en,
-                description: typeof c.description === "string" ? c.description : c.description?.ko,
-              }))}
+              // 2단계 트리(children 포함) 그대로 전달 — strip 하면 소분류가 series 픽커에서 사라짐
+              categories={normalizeCategories(config.posts?.categories ?? [])}
+            />
+          </section>
+
+          {/* Authors — 작성자 관리. 게시물 에디터에서 author_ids 로 참조 */}
+          <section className={styles.section}>
+            <SectionHeader title={language === "ko" ? "작성자" : "Authors"} paths={["authors"]} {...sh} />
+            <AuthorsEditor
+              authors={config.authors ?? []}
+              onChange={(authors) => setConfig((prev) => ({ ...prev, authors }))}
             />
           </section>
         </>
       )}
+
+      {contentSubTab === "calendars" && <CalendarManager />}
 
       {contentSubTab === "works" && (
         <>
@@ -1552,11 +1467,70 @@ function PostMeta({ p }: { p: { published: boolean; published_at: string | null;
   );
 }
 
-function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDeletesChange }: {
+/* 태그 "기본값으로 초기화" 확인 모달 본문 — chip 클릭 시 해당 태그 사용 게시물 목록 노출. */
+function TagResetConfirmBody({ inUse, tagCounts, tagPosts, affectedCount, onConfirm }: {
+  inUse: string[];
+  tagCounts: Record<string, number>;
+  tagPosts: TagPostInfo[];
+  affectedCount: number;
+  onConfirm: () => void;
+}) {
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const selectedPosts = selectedTag ? tagPosts.filter((p) => p.tags.includes(selectedTag)) : [];
+  return (
+    <div className={styles.tagDeleteConfirmBody}>
+      <p className={styles.tagDeleteConfirmDesc}>
+        기본 세트에 없는 태그 <strong>{inUse.length}개</strong>가 게시물 <strong>{affectedCount}건</strong>에서 사용 중입니다. 정말 기본값으로 초기화할까요?
+        <br />
+        <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>
+          이 태그들은 삭제 대기열에 추가됩니다. 섹션 저장 시 모든 게시물의 tags 에서 제거됩니다. 되돌리기로 취소할 수 있습니다.
+        </span>
+      </p>
+      <div className={styles.tagResetChipRow}>
+        {inUse.map((t) => (
+          <button
+            key={t}
+            type="button"
+            className={`${styles.tagResetChip} ${selectedTag === t ? styles.tagResetChipActive : ""}`}
+            onClick={() => setSelectedTag((cur) => (cur === t ? null : t))}
+          >
+            #{t}
+            <span className={styles.tagResetChipCount}>{tagCounts[t] ?? 0}</span>
+          </button>
+        ))}
+      </div>
+      {selectedTag && (
+        <List className={styles.tagRelatedPosts} data-lenis-prevent>
+          {selectedPosts.length === 0 ? (
+            <ListItem className={styles.tagRelatedEmpty}>이 태그를 사용하는 게시물이 없습니다.</ListItem>
+          ) : (
+            selectedPosts.map((p) => (
+              <ListItem key={p.id} layout="column">
+                <a href={`/admin/posts/${p.id}/edit`} target="_blank" rel="noopener noreferrer" className={styles.tagRelatedItem}>
+                  <span className={styles.tagRelatedTitle}>{p.title || p.title_en || "(no title)"}</span>
+                  <PostMeta p={p} />
+                </a>
+              </ListItem>
+            ))
+          )}
+        </List>
+      )}
+      <div className={styles.tagDeleteConfirmActions}>
+        <Button variant="primary" size="md" tone="danger" onClick={onConfirm}>
+          기본값으로 초기화
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDeletesChange, onResetInfoChange }: {
   value: TagDescValue;
   onChange: (v: SavedTagValue) => void;
   pendingDeletes: Set<string>;
   onPendingDeletesChange: (next: Set<string>) => void;
+  /** 기본값(reset) 버튼용 정보 리포트 — hasNonDefault(기본 세트에 없는 태그 존재 여부) + resetToDefault 실행 함수 */
+  onResetInfoChange?: (info: { hasNonDefault: boolean; resetToDefault: () => void }) => void;
 }) {
   const [postTags, setPostTags] = useState<string[]>([]);
   const [tagCounts, setTagCounts] = useState<Record<string, number>>({});
@@ -1765,7 +1739,7 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
           이 태그를 사용 중인 게시물 <strong>{inUse.length}건</strong>이 있습니다. 정말 삭제할까요?
           <br />
           <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>
-            삭제 대기열에 추가됩니다 — 섹션 저장 시 모든 게시물의 tags 에서 함께 제거. 되돌리기로 취소 가능.
+            삭제 대기열에 추가됩니다. 섹션 저장 시 모든 게시물의 tags 에서 함께 제거됩니다. 되돌리기로 취소할 수 있습니다.
           </span>
         </p>
         <List className={styles.tagRelatedPosts} data-lenis-prevent>
@@ -1815,6 +1789,56 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
     /* TagNotesEditor 의 × 는 항목 단위 — 첫 번째 (보통 유일한) 제거 대상에 대해 confirm 모달 */
     confirmDeleteTag(removed[0]);
   };
+
+  /* ── 기본값으로 초기화 (SectionHeader 의 "기본값" 버튼) ──
+     config 설명을 기본 세트로 되돌리고, 기본 세트에 없는 태그는 (게시물에서 사용 중이면 확인 후)
+     삭제 대기열에 추가 → 섹션 저장 시 게시물 tags 에서 제거(휴지통 복구 가능). */
+  const buildDefaults = useCallback((): SavedTagValue => {
+    const out: SavedTagValue = {};
+    const defaults = siteConfig.tagDescriptions as unknown as TagDescValue;
+    for (const k of Object.keys(defaults)) {
+      const stored = metaToStored(normalizeTagMeta(defaults[k]));
+      if (stored) out[k] = stored;
+    }
+    return out;
+  }, []);
+  const defaultKeySet = useMemo(() => new Set(Object.keys(siteConfig.tagDescriptions)), []);
+  const nonDefaultTags = useMemo(() => allTags.filter((t) => !defaultKeySet.has(t)), [allTags, defaultKeySet]);
+
+  const resetToDefault = useCallback(() => {
+    const defaults = buildDefaults();
+    // 기본 세트에 없는 태그 중 게시물이 실제 사용하는 것 → 확인 후 삭제 대기. (커스텀 설명만 있고 미사용인 건 config 초기화로 자동 제거)
+    const inUse = nonDefaultTags.filter((t) => postTagSet.has(t));
+    if (inUse.length === 0) {
+      onChange(defaults);
+      showToast("태그 설명을 기본값으로 초기화했습니다", "success");
+      return;
+    }
+    const affected = new Set<string>();
+    for (const p of tagPosts) if (p.tags.some((t) => inUse.includes(t))) affected.add(p.id);
+    const id = "tag-reset-confirm";
+    openModal(
+      <TagResetConfirmBody
+        inUse={inUse}
+        tagCounts={tagCounts}
+        tagPosts={tagPosts}
+        affectedCount={affected.size}
+        onConfirm={() => {
+          onChange(defaults);
+          const next = new Set(pendingDeletes);
+          for (const t of inUse) next.add(t);
+          onPendingDeletesChange(next);
+          useModalStore.getState().closeModal(id);
+          showToast(`기본값 초기화 — 태그 ${inUse.length}개 삭제 대기 (섹션 저장 시 반영)`, "info");
+        }}
+      />,
+      { id, header: { title: "기본값으로 초기화" }, closeButton: true, width: "min(520px, 90vw)" },
+    );
+  }, [buildDefaults, nonDefaultTags, postTagSet, onChange, pendingDeletes, onPendingDeletesChange, tagPosts, tagCounts, openModal]);
+
+  useEffect(() => {
+    onResetInfoChange?.({ hasNonDefault: nonDefaultTags.length > 0, resetToDefault });
+  }, [nonDefaultTags, resetToDefault, onResetInfoChange]);
 
   /* TagNotesEditor 의 내부 drawer 는 onEditClick prop 으로 모두 외부 위임됐고,
      description 편집도 하단 box 에서 처리. 따라서 onNotesChange 는 noop —
@@ -1957,14 +1981,13 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
           icon={<Filter size={12} />}
           onClick={() => setFilterExpanded((e) => !e)}
         >
-          필터{activeFilterCount > 0 && ` (${activeFilterCount})`}
+          필터
+          {activeFilterCount > 0 && (
+            <span className={styles.filterBtnCount}>{activeFilterCount}</span>
+          )}
           <ChevronDown
             size={12}
-            style={{
-              marginLeft: 2,
-              transform: filterExpanded ? "rotate(180deg)" : undefined,
-              transition: "transform 0.2s",
-            }}
+            className={`${styles.filterBtnChevron} ${filterExpanded ? styles.filterBtnChevronOpen : ""}`}
           />
         </Button>
         <SegmentedControl
@@ -2014,29 +2037,29 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
             <div className={styles.tagDescFilterDrawer}>
               <div className={styles.tagDescFilterGroup}>
                 <span className={styles.tagDescFilterGroupLabel}>사용</span>
-                <Button
-                  variant={usageFilter === "in-use" ? "primary" : "outline"}
-                  size="md"
-                  onClick={() => setUsageFilter((u) => u === "in-use" ? "all" : "in-use")}
-                >사용중</Button>
-                <Button
-                  variant={usageFilter === "unused" ? "primary" : "outline"}
-                  size="md"
-                  onClick={() => setUsageFilter((u) => u === "unused" ? "all" : "unused")}
-                >미사용</Button>
+                <SegmentedControl
+                  items={[
+                    { value: "all", label: "전체" },
+                    { value: "in-use", label: "사용중" },
+                    { value: "unused", label: "미사용" },
+                  ]}
+                  value={usageFilter}
+                  onChange={(v) => setUsageFilter(v as UsageFilter)}
+                  size="sm"
+                />
               </div>
               <div className={styles.tagDescFilterGroup}>
                 <span className={styles.tagDescFilterGroupLabel}>설명</span>
-                <Button
-                  variant={descFilter === "with" ? "primary" : "outline"}
-                  size="md"
-                  onClick={() => setDescFilter((d) => d === "with" ? "all" : "with")}
-                >설명 있음</Button>
-                <Button
-                  variant={descFilter === "without" ? "primary" : "outline"}
-                  size="md"
-                  onClick={() => setDescFilter((d) => d === "without" ? "all" : "without")}
-                >설명 없음</Button>
+                <SegmentedControl
+                  items={[
+                    { value: "all", label: "전체" },
+                    { value: "with", label: "있음" },
+                    { value: "without", label: "없음" },
+                  ]}
+                  value={descFilter}
+                  onChange={(v) => setDescFilter(v as DescFilter)}
+                  size="sm"
+                />
               </div>
             </div>
           </motion.div>
@@ -2194,158 +2217,6 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-/* ── Sortable social link item ── */
-function SortableSocialItem({ id, children }: { id: string; children: React.ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`${styles.socialItem} ${isDragging ? styles.socialItemDragging : ""}`}
-      {...attributes}
-    >
-      <button type="button" className={styles.socialDragHandle} {...listeners} aria-label="Drag to reorder">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="9" cy="6" r="1.5" />
-          <circle cx="15" cy="6" r="1.5" />
-          <circle cx="9" cy="12" r="1.5" />
-          <circle cx="15" cy="12" r="1.5" />
-          <circle cx="9" cy="18" r="1.5" />
-          <circle cx="15" cy="18" r="1.5" />
-        </svg>
-      </button>
-      {children}
-    </div>
-  );
-}
-
-/* ── Clickable social icon area with upload ── */
-function SocialIconArea({ link, isCustom, onUploaded }: {
-  link: SocialLink;
-  isCustom: boolean;
-  onUploaded: (url: string) => void;
-}) {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-
-  const handleFile = async (file: File) => {
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "icons");
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      if (!res.ok) return;
-      const data = await res.json();
-      onUploaded(data.url);
-    } catch {
-      // upload failed
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const icon = SOCIAL_ICONS[link.platform];
-
-  return (
-    <>
-      <span
-        className={`${styles.socialIcon} ${isCustom ? styles.socialIconClickable : ""}`}
-        onClick={isCustom ? () => fileRef.current?.click() : undefined}
-        title={isCustom ? "Click to upload icon" : undefined}
-      >
-        {uploading ? (
-          <span className={styles.socialIconSpinner}>…</span>
-        ) : link.icon ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={link.icon} alt="" className={styles.socialIconImg} />
-        ) : icon?.stroke ? (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={icon.path} /></svg>
-        ) : icon ? (
-          <svg viewBox="0 0 24 24"><path d={icon.path} fill="currentColor" /></svg>
-        ) : null}
-      </span>
-      {isCustom && (
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
-        />
-      )}
-    </>
-  );
-}
-
-/* ── Social icon upload row (input + button + error as placeholder) ── */
-function SocialIconUploadRow({ icon, onIconChange, onUploaded, placeholder }: {
-  icon: string;
-  onIconChange: (v: string) => void;
-  onUploaded: (url: string) => void;
-  placeholder: string;
-}) {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleFile = async (file: File) => {
-    setUploading(true);
-    setError("");
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "icons");
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        setError(err.error || "Upload failed");
-        return;
-      }
-      const data = await res.json();
-      onUploaded(data.url);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div className={styles.socialIconUpload}>
-      <Input
-        className={error ? styles.fieldInputError : undefined}
-        placeholder={error || placeholder}
-        value={icon}
-        onChange={(v) => { onIconChange(v); if (error) setError(""); }}
-      />
-      <Button
-        variant="outline"
-        shape="circle"
-        size="md"
-        onClick={() => fileRef.current?.click()}
-        disabled={uploading}
-        loading={uploading}
-        aria-label="Upload"
-        icon={<Upload size={14} strokeWidth={2} />}
-        className={styles.socialIconUploadBtn}
-      />
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
-      />
     </div>
   );
 }

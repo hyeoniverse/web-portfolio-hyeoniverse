@@ -18,12 +18,14 @@ import { insertToc } from "@platejs/toc";
 import {
   Pilcrow, Heading1, Heading2, Heading3, Quote,
   List, ListOrdered, ListChecks,
-  Image as ImageIcon, Video,
-  Code, Minus, Table as TableIcon, Lightbulb, Columns2, Columns3, ChevronRight, Sigma, ListTree, Workflow, LayoutPanelTop, Vote,
+  Image as ImageIcon, Video, Film,
+  Code, Minus, Table as TableIcon, Lightbulb, Columns2, Columns3, ChevronRight, Sigma, ListTree, Workflow, LayoutPanelTop, Vote, Shapes, Smile, SquareCode, CalendarDays, Paperclip, AudioLines, Superscript, FileText,
 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { DEFAULT_TEMPLATE } from "../playground/model";
+import { starterFiles } from "../playground/starters";
 import { genPollId } from "../PollElements";
-import { _imageUploadFn, _slashOpenTrigger } from "../utils";
+import { _imageUploadFn, _uploadErrorFn, _slashOpenTrigger, _emojiPickerTrigger, _postLinkTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -61,9 +63,58 @@ const triggerImageUpload = (e: any) => {
   input.onchange = async () => {
     const f = input.files?.[0];
     if (!f) return;
-    try { const url = await fn(f); if (url) e.tf.insertNodes({ type: "img", url, children: [{ text: "" }] }); } catch { /* ignore */ }
+    try { const url = await fn(f); if (url) e.tf.insertNodes({ type: "img", url, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
   };
   input.click();
+};
+// 동영상 파일 업로드 → media_embed(video url) 삽입
+const triggerVideoUpload = (e: any) => {
+  const fn = _imageUploadFn.current;
+  if (!fn) return;
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "video/*";
+  input.onchange = async () => {
+    const f = input.files?.[0];
+    if (!f) return;
+    try { const url = await fn(f); if (url) e.tf.insertNodes({ type: "media_embed", url, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
+  };
+  input.click();
+};
+// 파일 업로드 → file_embed(파일명·크기) 삽입
+const triggerFileUpload = (e: any) => {
+  const fn = _imageUploadFn.current;
+  if (!fn) return;
+  const input = document.createElement("input");
+  input.type = "file";
+  input.onchange = async () => {
+    const f = input.files?.[0];
+    if (!f) return;
+    try { const url = await fn(f); if (url) e.tf.insertNodes({ type: "file_embed", url, fileName: f.name, fileSize: f.size, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
+  };
+  input.click();
+};
+// 오디오 업로드 → audio_embed 삽입
+const triggerAudioUpload = (e: any) => {
+  const fn = _imageUploadFn.current;
+  if (!fn) return;
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "audio/*";
+  input.onchange = async () => {
+    const f = input.files?.[0];
+    if (!f) return;
+    try { const url = await fn(f); if (url) e.tf.insertNodes({ type: "audio_embed", url, title: f.name, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
+  };
+  input.click();
+};
+// 각주 — 커서에 참조(footnote_ref) + 문서 끝에 내용(footnote_content) 삽입
+const insertFootnote = (e: any) => {
+  const existing = Array.from(e.api.nodes({ at: [], match: (n: any) => n.type === "footnote_ref" }));
+  const nextId = String(existing.length + 1);
+  e.tf.insertNodes({ type: "footnote_ref", footnoteId: nextId, children: [{ text: "" }] }, { at: e.selection ?? undefined });
+  e.tf.move({ unit: "offset" });
+  e.tf.insertNodes({ type: "footnote_content", footnoteId: nextId, children: [{ text: "각주 내용" }] }, { at: [e.children.length] });
 };
 
 const GROUPS: { labelKey: string; items: Cmd[] }[] = [
@@ -73,6 +124,7 @@ const GROUPS: { labelKey: string; items: Cmd[] }[] = [
     { key: "h2", labelKey: "heading2", icon: <Heading2 size={ICON} />, keywords: ["heading", "제목", "h2"], run: (e) => e.tf.toggleBlock("h2") },
     { key: "h3", labelKey: "heading3", icon: <Heading3 size={ICON} />, keywords: ["heading", "제목", "h3"], run: (e) => e.tf.toggleBlock("h3") },
     { key: "quote", labelKey: "blockquote", icon: <Quote size={ICON} />, keywords: ["quote", "인용"], run: (e) => e.tf.toggleBlock("blockquote") },
+    { key: "emoji", labelKey: "insertEmoji", icon: <Smile size={ICON} />, keywords: ["emoji", "이모지", "이모티콘", "emoticon", "smiley", "표정"], run: () => _emojiPickerTrigger.current?.() },
   ] },
   { labelKey: "groupLists", items: [
     { key: "ul", labelKey: "bulletList", icon: <List size={ICON} />, keywords: ["bullet", "list", "불릿", "글머리", "목록"], run: (e) => toggleList(e, { listStyleType: "disc" }) },
@@ -81,7 +133,10 @@ const GROUPS: { labelKey: string; items: Cmd[] }[] = [
   ] },
   { labelKey: "groupMedia", items: [
     { key: "image", labelKey: "insertImage", icon: <ImageIcon size={ICON} />, keywords: ["image", "이미지", "사진", "그림", "photo", "picture"], run: (e) => triggerImageUpload(e) },
-    { key: "video", labelKey: "insertEmbed", icon: <Video size={ICON} />, keywords: ["video", "비디오", "embed", "youtube", "임베드", "동영상"], run: (e) => insertAfter(e, { type: "media_embed", url: "", children: [{ text: "" }] }) },
+    { key: "video", labelKey: "insertVideo", icon: <Film size={ICON} />, keywords: ["video", "동영상", "비디오", "movie", "mp4", "업로드", "upload"], run: (e) => triggerVideoUpload(e) },
+    { key: "embed", labelKey: "insertEmbed", icon: <Video size={ICON} />, keywords: ["embed", "youtube", "임베드", "미디어", "url", "링크"], run: (e) => insertAfter(e, { type: "media_embed", url: "", children: [{ text: "" }] }) },
+    { key: "file", labelKey: "insertFile", icon: <Paperclip size={ICON} />, keywords: ["file", "파일", "attachment", "첨부", "다운로드", "download", "업로드", "upload"], run: (e) => triggerFileUpload(e) },
+    { key: "audio", labelKey: "insertAudio", icon: <AudioLines size={ICON} />, keywords: ["audio", "오디오", "음악", "music", "sound", "소리", "mp3"], run: (e) => triggerAudioUpload(e) },
   ] },
   { labelKey: "groupContainer", items: [
     { key: "callout", labelKey: "insertCallout", icon: <Lightbulb size={ICON} />, keywords: ["callout", "콜아웃", "노트"], run: (e) => { const sel = e.selection; const at = sel ? [sel.anchor.path[0] + 1] : [e.children.length]; e.tf.insertNodes({ type: "callout", bg: "var(--bg-tertiary)", icon: "💡", children: [{ type: "p", children: [{ text: "" }] }] }, { at }); } },
@@ -94,6 +149,11 @@ const GROUPS: { labelKey: string; items: Cmd[] }[] = [
     { key: "equation", labelKey: "equation", icon: <Sigma size={ICON} />, keywords: ["equation", "math", "수식", "latex"], run: (e) => insertEquation(e) },
     { key: "mermaid", labelKey: "mermaid", icon: <Workflow size={ICON} />, keywords: ["mermaid", "diagram", "다이어그램", "chart", "flow"], run: (e) => e.tf.insertNodes({ type: "code_block", lang: "mermaid", children: [{ type: "code_line", children: [{ text: "graph TD" }] }, { type: "code_line", children: [{ text: "  A[Start] --> B[End]" }] }] }) },
     { key: "poll", labelKey: "insertPoll", icon: <Vote size={ICON} />, keywords: ["poll", "vote", "투표", "설문"], run: (e) => insertAfter(e, { type: "poll", pollId: genPollId(), multiple: false, options: [{ optionId: genPollId(), label: "항목 1" }, { optionId: genPollId(), label: "항목 2" }], children: [{ text: "" }] }) },
+    { key: "calendar", labelKey: "insertCalendar", icon: <CalendarDays size={ICON} />, keywords: ["calendar", "달력", "캘린더", "일정", "event", "이벤트", "schedule"], run: (e) => insertAfter(e, { type: "calendar", children: [{ text: "" }] }) },
+    { key: "diagram", labelKey: "insertDiagram", icon: <Shapes size={ICON} />, keywords: ["diagram", "graph", "flow", "shape", "다이어그램", "도형", "그리기", "비주얼", "visual"], run: (e) => insertAfter(e, { type: "diagram", data: { nodes: [], edges: [] }, children: [{ text: "" }] }) },
+    { key: "playground", labelKey: "insertPlayground", icon: <SquareCode size={ICON} />, keywords: ["playground", "codepen", "html", "css", "js", "javascript", "실행", "미리보기", "preview", "샌드박스", "sandbox", "코드펜", "플레이그라운드"], run: (e) => insertAfter(e, { type: "playground", data: { template: DEFAULT_TEMPLATE, files: starterFiles(DEFAULT_TEMPLATE) }, children: [{ text: "" }] }) },
+    { key: "footnote", labelKey: "insertFootnote", icon: <Superscript size={ICON} />, keywords: ["footnote", "각주", "주석", "reference", "note"], run: (e) => insertFootnote(e) },
+    { key: "postlink", labelKey: "insertPostLink", icon: <FileText size={ICON} />, keywords: ["post", "link", "게시물", "링크", "글", "참조", "reference", "mention", "멘션"], run: () => _postLinkTrigger.current?.() },
   ] },
   { labelKey: "groupLayout", items: [
     { key: "col2", labelKey: "columns2", icon: <Columns2 size={ICON} />, keywords: ["column", "columns", "열", "단", "2", "분할"], run: (e) => insertColumns(e, 2) },
@@ -200,6 +260,11 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
 
   React.useEffect(() => { if (open) update?.(); }, [open, query, update]);
   React.useEffect(() => { setActiveIdx(0); }, [query]);
+  // 화살표로 active 항목이 스크롤 밖으로 나가면 자동으로 보이게 스크롤
+  React.useEffect(() => {
+    if (!open) return;
+    document.querySelector<HTMLElement>(`[data-slash-nav="${activeIdx}"]`)?.scrollIntoView({ block: "nearest" });
+  }, [activeIdx, open]);
   // 슬래시 메뉴 열림/닫힘을 부모에 알림 → floating 포맷 바 숨김
   React.useEffect(() => { onOpenChange?.(open); }, [open, onOpenChange]);
 
@@ -257,6 +322,7 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
               <button
                 key={c.key}
                 type="button"
+                data-slash-nav={i}
                 className={`${styles.slashItem} ${i === activeIdx ? styles.slashItemActive : ""}`}
                 onMouseEnter={() => setActiveIdx(i)}
                 onClick={() => run(c)}

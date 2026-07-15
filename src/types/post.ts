@@ -1,3 +1,6 @@
+/** 시리즈 제목(ko/en) 최대 길이 — UI 입력·폼 검사·API·DB CHECK 전 레이어 공통 */
+export const SERIES_TITLE_MAX = 80;
+
 export interface Post {
   id: string;
   title: string;
@@ -6,6 +9,12 @@ export interface Post {
   content_type: "markdown" | "richtext";
   excerpt: string;
   cover_image: string;
+  /** 커버 세로 위치 % (object-position, 0~100). 기본 50 */
+  cover_position?: number;
+  /** 커버 확대 배율 (scale, 1~2.5). 기본 1 */
+  cover_zoom?: number;
+  /** 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단 */
+  icon?: string;
   tags: string[];
   /** 태그별 설명 — 태그당 단일 ko/en 쌍 (Record<tag, {ko,en}>) */
   tag_notes?: Record<string, { ko: string; en: string }>;
@@ -17,6 +26,8 @@ export interface Post {
   like_count: number;
   created_at: string;
   updated_at: string;
+  /** 낙관적 동시성 제어 버전 — 저장 시 baseVersion 으로 전송 */
+  version?: number;
   title_en: string;
   content_en: string;
   excerpt_en: string;
@@ -33,6 +44,8 @@ export interface Post {
   /** ISO timestamp — null/없음=즉시 발행, 미래=cron 이 도달 시 published=true */
   scheduled_at?: string | null;
   related_work_ids?: string[];
+  /** 작성자 id 목록 — site.config authors 의 id 참조. 비어있으면 기본 작성자로 표시 */
+  author_ids?: string[];
 }
 
 export interface PostFormData {
@@ -42,6 +55,12 @@ export interface PostFormData {
   content_type: "markdown" | "richtext";
   excerpt: string;
   cover_image: string;
+  /** 커버 세로 위치 % (object-position, 0~100). 기본 50 */
+  cover_position?: number;
+  /** 커버 확대 배율 (scale, 1~2.5). 기본 1 */
+  cover_zoom?: number;
+  /** 페이지 아이콘(이모지 또는 이미지 URL) */
+  icon: string;
   tags: string[];
   /** 태그별 설명 — 태그당 단일 ko/en 쌍 */
   tag_notes: Record<string, { ko: string; en: string }>;
@@ -58,6 +77,8 @@ export interface PostFormData {
   scheduled_at?: string | null;
   /** 양방향 연결: 이 글이 참조하는 작품 ID 목록 (저장 시 post_work_relations 동기화) */
   related_work_ids?: string[];
+  /** 작성자 id 목록 — site.config authors 의 id 참조 */
+  author_ids?: string[];
 }
 
 export interface Series {

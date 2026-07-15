@@ -7,10 +7,11 @@
   /* 공통 Modal 의 scroll 영역 (modalScroll) 안에 들어가니 자체 max-height/scroll 불필요 */
 }
 
-/* modal 안 createPortal Select dropdown 이 #modal-root (z-overlay = 9000) 보다 위로 오도록.
-   기존 z-modal 기준이었으나 공통 Modal 이 z-overlay 를 쓰므로 그것보다 더 높여야 함. */
+/* modal 안 Select dropdown — z 는 Modal 의 PortalContainerContext(layer portal)가 처리하므로 override 불필요.
+   불투명 배경만 유지(가독성). */
 .selectDropdownAboveModal {
-  z-index: calc(var(--z-overlay) + 10) !important;
+  background: var(--bg-primary) !important;
+  backdrop-filter: none !important;
 }
 
 .subtitle {

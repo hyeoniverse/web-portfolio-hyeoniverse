@@ -6,7 +6,9 @@
   position: relative;
   display: flex;
   min-height: 100vh;
-  background: var(--bg-primary);
+  /* 항상 어두운 fallback — 지정된 bg 영상(introVideoUrl)이 없거나 깨져도 좌측 흰 텍스트 대비 확보.
+     영상이 정상 로드되면 그 위(opacity 0.85)로 덮여 거의 영향 없음. (테마 무관 black) */
+  background: var(--color-gray-alpha-100);
 }
 
 /* 전체 화면 video 배경 — 좌측: 선명, 우측: backdrop-filter blur 로 흐림 */
@@ -260,6 +262,8 @@
   height: 100vh;
   overflow: hidden;
   cursor: pointer;
+  /* 이미지 없거나 깨져도 뒤 블러 영상이 비치지 않게 어두운 fallback (정상 이미지가 덮음) */
+  background: var(--color-gray-alpha-100);
 }
 
 /* 우측 카드 우하단 다크 vignette — year 텍스트 backdrop. radial 로 자연스럽게 fade */
@@ -307,6 +311,14 @@
   text-align: center;
   text-wrap: balance;
   pointer-events: none;
+  /* 중앙 제목 대비 — 밝은 이미지·gradient fallback 위에서도 읽히게 radial 스크림 + text-shadow */
+  background: radial-gradient(
+    ellipse 78% 52% at 50% 50%,
+    var(--color-gray-alpha-50) 0%,
+    var(--color-gray-alpha-25) 46%,
+    transparent 72%
+  );
+  text-shadow: 0 2px 24px var(--color-gray-alpha-60);
 }
 
 /* ── Image overlay (year + number) ── */

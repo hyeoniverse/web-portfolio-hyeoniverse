@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
-import { WorkArticleHeader, WorkArticleBody, WorkArticleTeam, type RelatedPostItem, type RelatedSeriesItem } from "@/components/works/WorkArticleView";
+import { WorkArticleHeader, WorkArticleBody, type RelatedPostItem, type RelatedSeriesItem } from "@/components/works/WorkArticleView";
 import { extractHeadings } from "@/app/works/_utils";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
@@ -103,6 +103,7 @@ export default function WorkPreviewPage() {
               tech: w.tech || [],
               tech_notes: w.tech_notes || {},
               image: w.image || "",
+              icon: w.icon || "",
               content_ko: w.content_ko || "",
               content_en: w.content_en || "",
               content_type: w.content_type || "markdown",
@@ -217,9 +218,9 @@ export default function WorkPreviewPage() {
       onBack={() => window.close()}
       backLabel="Close Preview"
       heroImage={form.image || undefined}
+      heroIcon={form.icon || undefined}
       heroAlt={form.title}
       headings={headings}
-      afterContent={<WorkArticleTeam project={project} viewLang={viewLang} isPreview />}
       header={
         <>
           {trashId && (

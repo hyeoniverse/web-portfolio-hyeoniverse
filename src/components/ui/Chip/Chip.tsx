@@ -38,6 +38,10 @@ interface ChipProps {
   > & { draggable?: boolean };
   /** 핸들(grip)에 직접 spread 할 props — 핸들 기반 drag (dnd-kit listeners/attributes 등). showHandle 과 함께 사용 */
   handleProps?: HTMLAttributes<HTMLElement>;
+  /** 한 줄 유지 + 공간 부족 시 … 로 자름 (줄바꿈 금지). 부모가 폭을 제한할 때 라벨 ellipsis */
+  truncate?: boolean;
+  /** 최대 글자수 — string children 이 넘으면 잘라 … 붙임 (title 로 전체 표시) */
+  maxLength?: number;
 }
 
 /**
@@ -61,6 +65,8 @@ export default function Chip({
   className,
   dragHandlers,
   handleProps,
+  truncate = false,
+  maxLength,
 }: ChipProps) {
   const rootCls = [
     styles.chip,
@@ -69,13 +75,21 @@ export default function Chip({
     dragging ? styles.dragging : "",
     dropSide === "left" ? styles.dropBefore : "",
     dropSide === "right" ? styles.dropAfter : "",
+    truncate ? styles.truncate : "",
     className ?? "",
   ].filter(Boolean).join(" ");
+
+  // 글자수 컷 (string children 만) + hover 시 전체 표시용 title
+  const isStr = typeof children === "string";
+  const fullText = isStr ? (children as string) : undefined;
+  const shown = isStr && maxLength && (children as string).length > maxLength
+    ? (children as string).slice(0, maxLength).replace(/\s+$/, "") + "…"
+    : children;
 
   const innerContent = (
     <>
       {leftIcon && <span className={styles.leftIcon}>{leftIcon}</span>}
-      <span className={styles.label}>{children}</span>
+      <span className={`${styles.label}${truncate ? ` ${styles.labelTruncate}` : ""}`}>{shown}</span>
       {typeof count === "number" && <span className={styles.count}>{count}</span>}
     </>
   );
@@ -108,7 +122,7 @@ export default function Chip({
   };
 
   return (
-    <span className={rootCls} {...dragHandlers}>
+    <span className={rootCls} title={(truncate || maxLength) ? fullText : undefined} {...dragHandlers}>
       {showHandle && (
         <span className={styles.gripHandle} {...handleProps}>
           <GripVertical className={styles.grip} size={10} strokeWidth={2.5} aria-hidden />

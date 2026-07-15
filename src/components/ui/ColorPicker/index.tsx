@@ -88,6 +88,8 @@ interface ColorPickerProps {
   /** trigger 가 없을 때 기본 swatch 버튼의 className/style override */
   triggerClassName?: string;
   triggerStyle?: CSSProperties;
+  /** 인라인 모드 — portal 대신 trigger 바로 아래에서 clip-path 로 펼쳐짐 (부모 popover 안에 임베드용) */
+  inline?: boolean;
 }
 
 /**
@@ -106,14 +108,15 @@ export default function ColorPicker({
   children,
   triggerClassName,
   triggerStyle,
+  inline = false,
 }: ColorPickerProps) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLSpanElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
-  /* 모바일 (화면 너비 ≤ 768px) 일 땐 dropdown 대신 bottom sheet 으로 렌더. */
+  /* 모바일 (화면 너비 ≤ 768px) 일 땐 dropdown 대신 bottom sheet 으로 렌더. (inline 모드 제외) */
   const { isMobile } = useIsMobile();
-  const useSheet = isMobile;
+  const useSheet = isMobile && !inline;
 
   // source of truth — OKLCH
   const [oklch, setOklch] = useState<OKLCH>(() => parseAnyToOklch(value));
@@ -178,7 +181,7 @@ export default function ColorPicker({
    * 이후 scroll/resize 에는 rAF + DOM 직접 mutate 로 처리해 rerender 없이 매끄럽게 따라감
    * (Lenis smooth scroll 환경에서 setState 기반은 한 프레임씩 튐). */
   useLayoutEffect(() => {
-    if (!open || useSheet) return;
+    if (!open || useSheet || inline) return;
     const r = measure();
     if (r) setPos(computePos(r));
 
@@ -672,44 +675,9 @@ export default function ColorPicker({
     />
   );
 
-  return (
+  // ── panel 본문 (pad/slider/input) — portal · inline 두 모드 공용 ──
+  const panelContent = (
     <>
-      <span ref={triggerRef} style={{ display: "inline-flex" }}>{trigger}</span>
-      {typeof window !== "undefined" && createPortal(
-        <AnimatePresence>
-          {open && useSheet && (
-            <motion.div
-              key="cp-backdrop"
-              className={styles.sheetBackdrop}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setOpen(false)}
-            />
-          )}
-          {open && (pos || useSheet) && (
-        <motion.div
-          key="cp-overlay"
-          ref={popRef}
-          className={`${useSheet ? `ui-sheet ${styles.sheet}` : styles.popover} ${shaking ? styles.shaking : ""}`}
-          style={useSheet ? undefined : { top: pos!.top, left: pos!.left }}
-          initial={useSheet ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
-          animate={useSheet ? { y: 0 } : { opacity: 1, scale: 1 }}
-          exit={useSheet ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
-          transition={useSheet ? { type: "spring", damping: 30, stiffness: 280 } : { duration: 0.14 }}
-          onPointerDown={(e) => e.stopPropagation()}
-          role={useSheet ? "dialog" : undefined}
-          aria-modal={useSheet ? true : undefined}
-        >
-          {useSheet && (
-            <>
-              <div className="ui-sheet-handle" aria-hidden>
-                <span className="ui-sheet-handle-bar" />
-              </div>
-              <h3 className={styles.sheetTitle}>Pick color</h3>
-            </>
-          )}
           {padType === "wheel" ? (
             /* HSV/HSB — 원형 Hue ring + 안쪽 SV pad */
             <div className={styles.hsvWheel}>
@@ -1048,11 +1016,71 @@ export default function ColorPicker({
             </div>
           )}
 
-        </motion.div>
+    </>
+  );
+
+  return (
+    <>
+      <span ref={triggerRef} style={{ display: "inline-flex" }}>{trigger}</span>
+      {inline ? (
+        /* 인라인 — portal 없이 trigger 바로 아래에서 clip-path 로 펼침 */
+        <AnimatePresence initial={false}>
+          {open && (
+            <motion.div
+              key="cp-inline"
+              ref={popRef}
+              className={`${styles.inlinePanel} ${shaking ? styles.shaking : ""}`}
+              initial={{ clipPath: "inset(0 0 100% 0)", opacity: 0 }}
+              animate={{ clipPath: "inset(0 0 0% 0)", opacity: 1 }}
+              exit={{ clipPath: "inset(0 0 100% 0)", opacity: 0 }}
+              transition={{ duration: 0.24, ease: [0.4, 0, 0.2, 1] }}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              {panelContent}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      ) : (typeof window !== "undefined" && createPortal(
+        <AnimatePresence>
+          {open && useSheet && (
+            <motion.div
+              key="cp-backdrop"
+              className={styles.sheetBackdrop}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setOpen(false)}
+            />
+          )}
+          {open && (pos || useSheet) && (
+            <motion.div
+              key="cp-overlay"
+              ref={popRef}
+              className={`${useSheet ? `ui-sheet ${styles.sheet}` : styles.popover} ${shaking ? styles.shaking : ""}`}
+              style={useSheet ? undefined : { top: pos!.top, left: pos!.left }}
+              initial={useSheet ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
+              animate={useSheet ? { y: 0 } : { opacity: 1, scale: 1 }}
+              exit={useSheet ? { y: "100%" } : { opacity: 0, scale: 0.96 }}
+              transition={useSheet ? { type: "spring", damping: 30, stiffness: 280 } : { duration: 0.14 }}
+              onPointerDown={(e) => e.stopPropagation()}
+              role={useSheet ? "dialog" : undefined}
+              aria-modal={useSheet ? true : undefined}
+            >
+              {useSheet && (
+                <>
+                  <div className="ui-sheet-handle" aria-hidden>
+                    <span className="ui-sheet-handle-bar" />
+                  </div>
+                  <h3 className={styles.sheetTitle}>Pick color</h3>
+                </>
+              )}
+              {panelContent}
+            </motion.div>
           )}
         </AnimatePresence>,
         document.body,
-      )}
+      ))}
     </>
   );
 }

@@ -22,7 +22,11 @@ export interface ModalOptions {
   header?: {
     icon?: ReactNode;
     title?: string;
+    /** 헤더 우측 액션 영역 (닫기 버튼 왼쪽) — 링크/버튼 등 */
+    actions?: ReactNode;
   };
+  /** 닫기(X) 버튼 바로 왼쪽에 붙는 서브 버튼 (뒤로/앞으로 등) */
+  subButtons?: ReactNode;
 }
 
 export interface ModalItem {
@@ -30,10 +34,12 @@ export interface ModalItem {
   header?: {
     icon?: ReactNode;
     title?: string;
+    actions?: ReactNode;
   };
   content: ReactNode;
   style?: CSSProperties;
   closeButton?: boolean;
+  subButtons?: ReactNode;
 }
 
 // ============================================

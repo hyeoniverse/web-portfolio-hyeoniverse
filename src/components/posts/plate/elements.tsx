@@ -10,15 +10,20 @@ import type { TLinkElement } from "platejs";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
 import Tooltip from "@/components/ui/Tooltip";
-import TBtn from "./TBtn";
 import { ReactEditor } from "slate-react";
+import { COLUMN_DEFAULT_BG, COLUMN_MIN_PX, COLUMN_MAX_PX } from "./presets";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
+import { formatCode, isFormattable } from "./formatCode";
+import MermaidPreview from "./MermaidPreview";
+import FloatingBar from "./toolbars/FloatingBar";
+import BlockActionsMenu from "./BlockActionsMenu";
+import SegmentedControl from "@/components/ui/SegmentedControl";
+import { useModalStore } from "@/stores/modalStore";
 import { _blockDragPath, _inlineDragPath, _imageUploadFn } from "./utils";
 import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
-import { RxReset } from "react-icons/rx";
-import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical, Copy, WrapText, MoreHorizontal, CopyPlus, ArrowUp, ArrowDown, Trash2, Languages, ChevronLeft, Search } from "lucide-react";
+import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical, Copy, WrapText, MoreHorizontal, ChevronDown, Search, Sparkles, ExternalLink, ZoomIn, ZoomOut, Maximize, Maximize2, Minimize2 } from "lucide-react";
+import { createPortal } from "react-dom";
 import Popover from "@/components/ui/Popover";
-import Select from "@/components/ui/Select";
 import styles from "../RichTextEditor.module.css";
 
 /** 블록 void 요소 아래 클릭 가능 영역 — 클릭 시 다음 줄에 커서 배치 */
@@ -286,7 +291,9 @@ export function ImageElement(props: PlateElementProps) {
     || naturalSize;
 
   const isSmall = (imgWidth > 0 && imgWidth < 150) || (imgHeight > 0 && imgHeight < 80);
-  const showCaption = !!(caption || isActive || captionEditing);
+  // 캡션 영역은 (1) 이미 캡션이 있거나 (2) 툴바 "캡션 추가" 버튼을 눌러 편집을 시작했을 때만.
+  // 단순 이미지 선택만으로는 뜨지 않는다.
+  const showCaption = !!(caption || captionEditing);
   const badgeHeight = 22;
   const infoStyle: React.CSSProperties = {
     position: "absolute", left: 4,
@@ -392,6 +399,26 @@ export function ImageElement(props: PlateElementProps) {
 
   // float 시 Plate wrapper div 자체에 float 적용 (useEffect)
   const plateElRef = useRef<HTMLElement>(null);
+
+  // 툴바 "캡션 추가" 버튼 → 이미지 DOM 노드에 커스텀 이벤트가 버블 → 편집 모드 진입 + input focus.
+  // (버튼 클릭 시 selection 이 벗어나 input 이 아직 없어도, 여기서 먼저 렌더시킨 뒤 focus)
+  useEffect(() => {
+    const el = plateElRef.current;
+    if (!el) return;
+    const handler = () => {
+      setCaptionEditing(true);
+      requestAnimationFrame(() => {
+        const input = el.querySelector("[data-img-caption]") as HTMLElement | null;
+        if (input) {
+          input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+          setTimeout(() => input.focus(), 0);
+        }
+      });
+    };
+    el.addEventListener("img-caption-edit", handler);
+    return () => el.removeEventListener("img-caption-edit", handler);
+  }, []);
+
   useEffect(() => {
     const el = plateElRef.current;
     if (!el) return;
@@ -563,13 +590,8 @@ export function ImageElement(props: PlateElementProps) {
             {/* 캡션 — 이미지 박스 밖(아래). 박스 안에 두면 리사이즈 핸들이 캡션 높이만큼 밀림.
                 float 일 땐 absolute 라 선택 시 박스 높이가 안 변해 옆 텍스트가 재배치되지 않음 */}
             {!isSmall && showCaption && (
-              <div style={
-                // 캡션 비었고 편집 중도 아니면 공간 차지 안 하게 숨김(렌더는 유지 → 툴바 캡션 버튼이 focus 가능).
-                // 내용 있거나 편집 중이면 normal flow → 캡션 높이만큼 공간 확보(float 도 wrapper 높이에 포함).
-                (!caption && !captionEditing)
-                  ? { position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0, pointerEvents: "none" }
-                  // position:relative + z-index → float 옆 wrapping 텍스트 위로 올려 클릭이 캡션에 떨어지게
-                  : { textAlign: "center", position: "relative", zIndex: 5 }}>
+              // position:relative + z-index → float 옆 wrapping 텍스트 위로 올려 클릭이 캡션에 떨어지게
+              <div style={{ textAlign: "center", position: "relative", zIndex: 5 }}>
                 <InlineCaption
                   caption={caption}
                   onCommit={(v) => setAttr({ caption: v || undefined })}
@@ -622,69 +644,567 @@ function InlineCursorTarget({ side, element }: { side: "before" | "after"; eleme
 }
 
 // ── 코드블록 엘리먼트 (줄바꿈/스크롤 토글) ──
-/** ```mermaid 코드블록 → 다이어그램 미리보기 (mermaid 동적 import) */
-function MermaidPreview({ code }: { code: string }) {
-  const ref = React.useRef<HTMLDivElement>(null);
-  const [error, setError] = React.useState<string | null>(null);
+/** 예시 하나 — 코드 + 렌더 그래프 + 확대/축소/전체화면/복사 */
+function MermaidExample({ label, code, wide, ko, onCopy }: { label: string; code: string; wide?: boolean; ko: boolean; onCopy: (c: string) => void }) {
+  const [zoom, setZoom] = useState(1);
+  const [full, setFull] = useState(false);
+  const clamp = (z: number) => Math.min(3, Math.max(0.5, Math.round(z * 10) / 10));
+  // 롱프레스로 연속 확대/축소 — 누르면 즉시 1회, 계속 누르면 반복
+  const repeat = useRef<{ t1: ReturnType<typeof setTimeout> | null; iv: ReturnType<typeof setInterval> | null }>({ t1: null, iv: null });
+  const stopRepeat = () => {
+    if (repeat.current.t1) clearTimeout(repeat.current.t1);
+    if (repeat.current.iv) clearInterval(repeat.current.iv);
+    repeat.current = { t1: null, iv: null };
+  };
+  const startRepeat = (fn: () => void) => {
+    stopRepeat();
+    fn();
+    repeat.current.t1 = setTimeout(() => { repeat.current.iv = setInterval(fn, 90); }, 350);
+  };
+  useEffect(() => () => stopRepeat(), []);
+  // 드래그로 차트 이동(pan) — 스크롤 위치 조작. 인라인/전체화면 두 뷰포트 공용(currentTarget 기준).
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const fsViewportRef = useRef<HTMLDivElement>(null);
+  const dragEl = useRef<HTMLElement | null>(null);
+  const drag = useRef({ active: false, x: 0, y: 0, sl: 0, st: 0 });
+  const onPanDown = (e: React.PointerEvent) => {
+    const vp = e.currentTarget as HTMLElement;
+    dragEl.current = vp;
+    drag.current = { active: true, x: e.clientX, y: e.clientY, sl: vp.scrollLeft, st: vp.scrollTop };
+    vp.setPointerCapture?.(e.pointerId);
+  };
+  const onPanMove = (e: React.PointerEvent) => {
+    if (!drag.current.active) return;
+    const vp = dragEl.current; if (!vp) return;
+    vp.scrollLeft = drag.current.sl - (e.clientX - drag.current.x);
+    vp.scrollTop = drag.current.st - (e.clientY - drag.current.y);
+  };
+  const onPanUp = (e: React.PointerEvent) => {
+    drag.current.active = false;
+    (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+  };
+  const focus = () => { setZoom(1); [viewportRef.current, fsViewportRef.current].forEach((vp) => { if (vp) { vp.scrollLeft = 0; vp.scrollTop = 0; } }); };
 
-  React.useEffect(() => {
-    let cancelled = false;
-    const src = code.trim();
-    if (!src) {
-      setError(null);
-      if (ref.current) ref.current.innerHTML = "";
-      return;
-    }
-    (async () => {
-      try {
-        const mermaid = (await import("mermaid")).default;
-        mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
-        const id = "mmd-" + Math.floor(Math.random() * 1e9).toString(36);
-        const { svg } = await mermaid.render(id, src);
-        if (!cancelled && ref.current) {
-          ref.current.innerHTML = svg;
-          setError(null);
-        }
-      } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : "mermaid render error");
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [code]);
-
+  // 컨트롤 버튼(축소/배율/확대/포커스/전체화면 토글) — 인라인·전체화면 공용. fs 면 전체화면 버튼→축소.
+  const ctrlButtons = (fs: boolean) => (
+    <>
+      <button type="button" className={styles.mermaidHelpIconBtn} title={ko ? "축소 (길게 눌러 연속)" : "Zoom out (hold)"}
+        onPointerDown={() => startRepeat(() => setZoom((z) => clamp(z - 0.2)))} onPointerUp={stopRepeat} onPointerLeave={stopRepeat} onPointerCancel={stopRepeat}><ZoomOut size={14} /></button>
+      <span className={styles.mermaidHelpZoomVal}>{Math.round(zoom * 100)}%</span>
+      <button type="button" className={styles.mermaidHelpIconBtn} title={ko ? "확대 (길게 눌러 연속)" : "Zoom in (hold)"}
+        onPointerDown={() => startRepeat(() => setZoom((z) => clamp(z + 0.2)))} onPointerUp={stopRepeat} onPointerLeave={stopRepeat} onPointerCancel={stopRepeat}><ZoomIn size={14} /></button>
+      <button type="button" className={styles.mermaidHelpIconBtn} title={ko ? "포커스(초기화)" : "Focus (reset)"} onClick={focus}><Maximize size={14} /></button>
+      <button type="button" className={styles.mermaidHelpIconBtn} title={fs ? (ko ? "전체화면 종료 (Esc)" : "Exit fullscreen (Esc)") : (ko ? "전체화면" : "Fullscreen")} onClick={() => setFull(!fs)}>{fs ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
+    </>
+  );
+  useEffect(() => {
+    if (!full) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); setFull(false); } };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [full]);
   return (
-    <div contentEditable={false} className={styles.mermaidPreview}>
-      {error ? <div className={styles.mermaidError}>{error}</div> : <div ref={ref} />}
+    <div className={`${styles.mermaidHelpExample}${wide ? ` ${styles.mermaidHelpExampleWide}` : ""}`}>
+      <div className={styles.mermaidHelpLabelRow}>
+        <div className={styles.mermaidHelpLabel}>{label}</div>
+        <button type="button" className={styles.mermaidHelpCopy} onClick={() => onCopy(code)}><Copy size={13} />{ko ? "코드 복사" : "Copy code"}</button>
+      </div>
+      <div className={styles.mermaidHelpExampleBody}>
+        <pre className={styles.mermaidHelpCode}>{code}</pre>
+        {/* 차트 컨테이너 — 우상단에 확대/축소/전체화면 컨트롤(스크롤에 안 딸려가게 뷰포트 밖) */}
+        <div className={styles.mermaidHelpDiagramWrap}>
+          <div className={styles.mermaidHelpDiagramCtrls}>
+            {ctrlButtons(false)}
+          </div>
+          <div className={styles.mermaidHelpDiagram} ref={viewportRef}
+            onPointerDown={onPanDown} onPointerMove={onPanMove} onPointerUp={onPanUp} onPointerCancel={onPanUp}>
+            <div className={styles.mermaidHelpZoomInner} style={{ transform: `scale(${zoom})` }}>
+              <MermaidPreview code={code} />
+            </div>
+          </div>
+        </div>
+      </div>
+      {full && createPortal(
+        <div className={styles.mermaidHelpFsOverlay}>
+          <div className={styles.mermaidHelpFsBar}>
+            <span className={styles.mermaidHelpFsTitle}>{label}</span>
+            {/* X 대신 인라인과 동일한 툴바 — 전체화면 버튼만 축소로 전환 */}
+            <div className={styles.mermaidHelpFsCtrls}>
+              {ctrlButtons(true)}
+            </div>
+          </div>
+          <div className={`${styles.mermaidHelpFsBody} ${styles.mermaidHelpFsViewport}`} ref={fsViewportRef}
+            onPointerDown={onPanDown} onPointerMove={onPanMove} onPointerUp={onPanUp} onPointerCancel={onPanUp}>
+            <div className={styles.mermaidHelpZoomInner} style={{ transform: `scale(${zoom})` }}>
+              <MermaidPreview code={code} />
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
     </div>
   );
 }
 
-// 코드블록 언어 — lowlight(editor)/Shiki(detail) 양쪽 지원 언어 + mermaid.
-// terms: 검색 별칭(js, py 등)
-const CODE_BLOCK_LANGS: ReadonlyArray<{ value: string; label: string; terms?: string[] }> = [
+/** mermaid 문법 도움말 (공통 Modal 콘텐츠) — 각 예시를 코드 + 실제 렌더 그래프로 나란히 보여준다. */
+function MermaidHelpModal({ language }: { language: string }) {
+  const ko = language === "ko";
+  type MRule = { code: string; desc: string };
+  type MType = { key: string; label: string; intro: string; example: string; wide?: boolean; rules: MRule[]; advanced: MRule[] };
+  const TYPES: MType[] = ko ? [
+    {
+      key: "flowchart", label: "플로우차트",
+      intro: "순서도·프로세스·의사결정 흐름을 표현합니다.",
+      example: "graph TD\n  A[시작] --> B{조건}\n  B -->|예| C[처리]\n  B -->|아니오| D[종료]",
+      rules: [
+        { code: "graph TD", desc: "첫 줄에 종류와 방향을 지정합니다. TD는 위에서 아래로, LR은 왼쪽에서 오른쪽으로 흐릅니다." },
+        { code: "A[사각형]", desc: "id 와 [라벨]로 노드를 정의합니다. 같은 id 를 다시 쓰면 같은 노드를 가리킵니다." },
+        { code: "B(둥근)", desc: "괄호 모양으로 도형이 바뀝니다. ( )는 둥근, ([ ])는 알약, (( ))는 원입니다." },
+        { code: "C{조건}", desc: "{ }는 마름모(분기), {{ }}는 육각형입니다." },
+        { code: "A --> B", desc: "화살표로 두 노드를 연결합니다. -.->는 점선, ==>는 굵은 선입니다." },
+        { code: "A -->|예| B", desc: "화살표 중간의 |글자|는 연결선 라벨이 됩니다." },
+      ],
+      advanced: [
+        { code: "subgraph 그룹 … end", desc: "여러 노드를 subgraph 이름 … end 로 묶어 하나의 그룹(영역)으로 표시합니다." },
+        { code: "style A fill:#f9d", desc: "style 노드id 속성:값 으로 특정 노드의 색·테두리를 직접 지정합니다." },
+        { code: "classDef 강조 fill:#faa", desc: "classDef 로 스타일을 정의하고 class 노드 강조 로 여러 노드에 한꺼번에 적용합니다." },
+        { code: 'click A "https://…"', desc: 'click 노드 "URL" 로 노드를 클릭하면 링크가 열리게 합니다.' },
+      ],
+    },
+    {
+      key: "sequence", label: "시퀀스",
+      intro: "참여자(객체) 사이에 시간 순서로 오가는 메시지를 표현합니다.",
+      example: "sequenceDiagram\n  participant 사용자\n  participant 서버\n  사용자->>서버: 로그인 요청\n  서버-->>사용자: 토큰 응답",
+      rules: [
+        { code: "sequenceDiagram", desc: "이 줄로 시퀀스 다이어그램을 시작합니다." },
+        { code: "participant 서버", desc: "참여자를 선언합니다. 생략하면 등장 순서대로 자동 생성됩니다." },
+        { code: "A->>B: 메시지", desc: "실선 화살표로 A 가 B 에게 보내는 메시지입니다. 콜론 뒤가 내용입니다." },
+        { code: "B-->>A: 응답", desc: "점선 화살표는 보통 응답(반환)에 사용합니다." },
+        { code: "loop / alt / opt", desc: "loop(반복)·alt(분기)·opt(선택) 블록으로 구간을 묶습니다." },
+      ],
+      advanced: [
+        { code: "A->>+B: 요청", desc: "화살표에 +/- 를 붙이면 활성 막대(activation)가 켜지고 꺼집니다." },
+        { code: "Note over A,B: 메모", desc: "Note left of / right of / over 로 참여자 위에 주석을 답니다." },
+        { code: "par … and … end", desc: "par 블록으로 동시에 일어나는 병렬 메시지를 표현합니다." },
+        { code: "autonumber", desc: "맨 위에 넣으면 메시지에 순번이 자동으로 붙습니다." },
+      ],
+    },
+    {
+      key: "class", label: "클래스",
+      intro: "클래스의 속성·메서드와 클래스 간 관계를 표현합니다.",
+      example: "classDiagram\n  Animal <|-- Dog\n  Animal : +name\n  Animal : +eat()",
+      rules: [
+        { code: "classDiagram", desc: "이 줄로 클래스 다이어그램을 시작합니다." },
+        { code: "class Animal", desc: "클래스를 정의합니다. 관계에 처음 등장하면 자동 생성됩니다." },
+        { code: "Animal : +name", desc: "속성·메서드를 추가합니다. +는 public, -는 private 입니다." },
+        { code: "Animal <|-- Dog", desc: "상속 관계입니다. Dog 가 Animal 을 상속합니다." },
+        { code: "A *-- B / A o-- B", desc: "*--는 합성, o--는 집합 관계입니다." },
+      ],
+      advanced: [
+        { code: "Animal : +int age", desc: "타입을 앞에 붙여 +타입 이름 형식으로 필드를 적습니다." },
+        { code: "<<interface>> Shape", desc: "<<interface>>·<<abstract>> 등 스테레오타입을 표시합니다." },
+        { code: 'Owner "1" --> "*" Pet', desc: '관계 양끝에 "1"·"*" 로 다중도(cardinality)를 적습니다.' },
+        { code: "A ..> B : uses", desc: "..>는 의존 관계이며 : 뒤에 관계 설명을 답니다." },
+      ],
+    },
+    {
+      key: "state", label: "상태",
+      intro: "상태와 상태 전이(상태 기계)를 표현합니다.",
+      example: "stateDiagram-v2\n  [*] --> 대기\n  대기 --> 진행 : 시작\n  진행 --> 완료\n  완료 --> [*]",
+      rules: [
+        { code: "stateDiagram-v2", desc: "이 줄로 상태 다이어그램을 시작합니다." },
+        { code: "[*] --> 대기", desc: "[*]는 시작·종료 지점을 나타냅니다." },
+        { code: "대기 --> 진행", desc: "화살표로 상태 전이를 그립니다." },
+        { code: "진행 --> 완료 : 조건", desc: "콜론 뒤에 전이 조건(이벤트)을 적습니다." },
+      ],
+      advanced: [
+        { code: "state 진행 { … }", desc: "중괄호로 상태 안에 하위 상태를 넣어 복합 상태를 만듭니다." },
+        { code: "state f <<fork>>", desc: "<<fork>>·<<join>> 으로 병렬 분기와 합류를 표현합니다." },
+        { code: "note right of 대기", desc: "note right of / left of 상태 로 주석을 답니다." },
+        { code: "--", desc: "복합 상태 안에서 -- 로 동시에 활성인 영역(병렬 상태)을 나눕니다." },
+      ],
+    },
+    {
+      key: "pie", label: "파이",
+      intro: "전체 대비 비율을 원그래프로 표현합니다.",
+      example: 'pie showData\n  title 과일 선호도\n  "사과" : 40\n  "바나나" : 35\n  "체리" : 25',
+      rules: [
+        { code: "pie showData", desc: "이 줄로 파이 차트를 시작합니다. showData 는 값을 함께 표시하는 옵션입니다." },
+        { code: "title 제목", desc: "차트 제목을 지정합니다(선택)." },
+        { code: '"사과" : 40', desc: '"항목" : 값 형식으로 조각을 추가합니다. 값의 비율로 크기가 정해집니다.' },
+      ],
+      advanced: [
+        { code: "pie", desc: "showData 를 빼면 조각의 값 숫자는 숨기고 비율만 보여줍니다." },
+        { code: "%% 주석", desc: "%% 로 시작하는 줄은 주석으로 무시됩니다(모든 다이어그램 공통)." },
+      ],
+    },
+    {
+      key: "gantt", label: "간트", wide: true,
+      intro: "작업 일정을 시간축 막대로 표현합니다.",
+      example: "gantt\n  title 프로젝트 일정\n  dateFormat YYYY-MM-DD\n  section 기획\n  요구분석 :a1, 2024-01-01, 3d\n  설계 :after a1, 2d\n  section 개발\n  구현 :after a1, 5d",
+      rules: [
+        { code: "gantt", desc: "이 줄로 간트 차트를 시작합니다." },
+        { code: "dateFormat YYYY-MM-DD", desc: "날짜 입력 형식을 지정합니다." },
+        { code: "section 기획", desc: "작업을 구획(섹션)으로 묶습니다." },
+        { code: "작업 :a1, 2024-01-01, 3d", desc: "작업명 :아이디, 시작일, 기간 형식입니다. 3d 는 3일을 뜻합니다." },
+        { code: "설계 :after a1, 2d", desc: "after 아이디로 앞 작업이 끝난 뒤에 이어붙입니다." },
+      ],
+      advanced: [
+        { code: ":done / :active / :crit", desc: "작업 태그로 완료·진행 중·중요(critical) 상태를 표시합니다." },
+        { code: "MS :milestone, m1, …, 0d", desc: "milestone 태그로 기간 0의 마일스톤을 찍습니다." },
+        { code: "excludes weekends", desc: "주말이나 특정 날짜를 일정 계산에서 제외합니다." },
+        { code: "axisFormat %m-%d", desc: "하단 시간축의 날짜 표시 형식을 바꿉니다." },
+      ],
+    },
+    {
+      key: "er", label: "ER",
+      intro: "엔터티(테이블)와 그들 사이의 관계·다중도를 표현합니다.",
+      example: "erDiagram\n  CUSTOMER ||--o{ ORDER : places\n  ORDER ||--|{ LINE_ITEM : contains\n  CUSTOMER {\n    string name\n    string email\n  }",
+      rules: [
+        { code: "erDiagram", desc: "이 줄로 ER 다이어그램을 시작합니다." },
+        { code: "CUSTOMER ||--o{ ORDER : places", desc: "두 엔터티를 관계선으로 잇고 : 뒤에 관계 이름을 적습니다." },
+        { code: "||   o{   |{", desc: "선 끝 기호가 다중도입니다. ||=정확히 1, o{=0개 이상, |{=1개 이상." },
+        { code: "CUSTOMER { string name }", desc: "중괄호 안에 타입과 속성명을 적어 엔터티의 필드를 정의합니다." },
+      ],
+      advanced: [
+        { code: "string id PK", desc: "속성 뒤에 PK·FK 를 붙여 기본키·외래키를 표시합니다." },
+        { code: 'string name "설명"', desc: "속성 끝에 따옴표로 주석(코멘트)을 답니다." },
+      ],
+    },
+    {
+      key: "journey", label: "여정",
+      intro: "사용자가 목표를 이루기까지의 단계별 경험과 만족도를 표현합니다.",
+      example: "journey\n  title 쇼핑 여정\n  section 방문\n    홈 접속: 5: 고객\n    검색: 3: 고객\n  section 구매\n    장바구니: 4: 고객\n    결제: 2: 고객, 시스템",
+      rules: [
+        { code: "journey", desc: "이 줄로 사용자 여정 다이어그램을 시작합니다." },
+        { code: "title 제목", desc: "여정의 제목을 답니다." },
+        { code: "section 방문", desc: "여정을 단계(구간)로 나눕니다." },
+        { code: "작업: 5: 고객", desc: "작업: 점수(1~5): 참여자 형식입니다. 점수가 만족도이며 높을수록 좋습니다." },
+      ],
+      advanced: [
+        { code: "결제: 2: 고객, 시스템", desc: "쉼표로 한 작업에 여러 참여자를 함께 적습니다." },
+        { code: "%% 주석", desc: "%% 로 시작하는 줄은 주석으로 무시됩니다." },
+      ],
+    },
+    {
+      key: "git", label: "Git",
+      intro: "커밋·브랜치·병합 등 git 흐름을 표현합니다.",
+      example: "gitGraph\n  commit\n  branch develop\n  checkout develop\n  commit\n  checkout main\n  merge develop",
+      rules: [
+        { code: "gitGraph", desc: "이 줄로 git 그래프를 시작합니다." },
+        { code: "commit", desc: "현재 브랜치에 커밋을 추가합니다." },
+        { code: "branch develop", desc: "새 브랜치를 만듭니다." },
+        { code: "checkout develop", desc: "해당 브랜치로 전환합니다." },
+        { code: "merge develop", desc: "현재 브랜치에 다른 브랜치를 병합합니다." },
+      ],
+      advanced: [
+        { code: 'commit id: "v1" tag: "release"', desc: "커밋에 id·tag 를 붙여 표시합니다." },
+        { code: "commit type: HIGHLIGHT", desc: "type 으로 커밋 모양을 바꿉니다(NORMAL·REVERSE·HIGHLIGHT)." },
+      ],
+    },
+    {
+      key: "mindmap", label: "마인드맵",
+      intro: "중심 주제에서 뻗어나가는 생각을 계층 구조로 표현합니다.",
+      example: "mindmap\n  root((핵심))\n    기획\n      리서치\n      기획서\n    개발\n      프론트\n      백엔드",
+      rules: [
+        { code: "mindmap", desc: "이 줄로 마인드맵을 시작합니다." },
+        { code: "  들여쓰기", desc: "들여쓰기 깊이로 계층을 만듭니다. 더 깊게 들여쓰면 하위 노드입니다." },
+        { code: "root((핵심))", desc: "괄호 모양으로 노드 도형을 바꿉니다. (( ))=원, [ ]=사각, ) (=구름." },
+      ],
+      advanced: [
+        { code: "::icon(fa fa-book)", desc: "노드 아래 줄에 아이콘을 붙입니다(폰트어썸 등)." },
+        { code: ":::className", desc: "노드에 CSS 클래스를 지정해 스타일을 적용합니다." },
+      ],
+    },
+    {
+      key: "timeline", label: "타임라인",
+      intro: "시간 순서로 사건을 나열해 연대기를 표현합니다.",
+      example: "timeline\n  title 제품 로드맵\n  2023 : 기획 : 프로토타입\n  2024 : 베타 출시\n  2025 : 정식 출시",
+      rules: [
+        { code: "timeline", desc: "이 줄로 타임라인을 시작합니다." },
+        { code: "title 제목", desc: "타임라인의 제목을 답니다." },
+        { code: "2024 : 사건", desc: "기간 : 사건 형식으로 한 시점을 적습니다." },
+        { code: "2024 : 사건A : 사건B", desc: "콜론으로 한 시점에 여러 사건을 나열합니다." },
+      ],
+      advanced: [
+        { code: "section 1기", desc: "여러 시점을 구간(section)으로 묶어 그룹화합니다." },
+        { code: "%% 주석", desc: "%% 로 시작하는 줄은 주석으로 무시됩니다." },
+      ],
+    },
+  ] : [
+    {
+      key: "flowchart", label: "Flowchart",
+      intro: "Shows flows, processes, and decision paths.",
+      example: "graph TD\n  A[Start] --> B{Condition}\n  B -->|Yes| C[Handle]\n  B -->|No| D[End]",
+      rules: [
+        { code: "graph TD", desc: "The first line sets the type and direction. TD is top-to-bottom, LR is left-to-right." },
+        { code: "A[Box]", desc: "Defines a node with an id and a [label]. Reusing an id refers to the same node." },
+        { code: "B(Round)", desc: "The bracket sets the shape: ( ) round, ([ ]) stadium, (( )) circle." },
+        { code: "C{If}", desc: "{ } is a diamond (branch); {{ }} is a hexagon." },
+        { code: "A --> B", desc: "Connects two nodes. -.-> is dotted, ==> is a thick line." },
+        { code: "A -->|Yes| B", desc: "The |text| in the middle becomes the connection's label." },
+      ],
+      advanced: [
+        { code: "subgraph G … end", desc: "Wrap nodes in subgraph name … end to show a group/boundary." },
+        { code: "style A fill:#f9d", desc: "style <id> prop:value sets a single node's color/border directly." },
+        { code: "classDef big fill:#faa", desc: "Define a style with classDef, then apply it to many nodes via class <id> big." },
+        { code: 'click A "https://…"', desc: 'click <id> "URL" opens a link when the node is clicked.' },
+      ],
+    },
+    {
+      key: "sequence", label: "Sequence",
+      intro: "Shows messages exchanged between participants over time.",
+      example: "sequenceDiagram\n  participant User\n  participant Server\n  User->>Server: Login request\n  Server-->>User: Token response",
+      rules: [
+        { code: "sequenceDiagram", desc: "Starts a sequence diagram." },
+        { code: "participant Server", desc: "Declares a participant. If omitted, participants are created in order of appearance." },
+        { code: "A->>B: Message", desc: "A solid arrow is a message from A to B. Text after the colon is the content." },
+        { code: "B-->>A: Reply", desc: "A dotted arrow is typically used for a response/return." },
+        { code: "loop / alt / opt", desc: "Group regions with loop (repeat), alt (branch), opt (optional)." },
+      ],
+      advanced: [
+        { code: "A->>+B: req", desc: "Adding +/- to arrows turns an activation bar on and off." },
+        { code: "Note over A,B: memo", desc: "Add notes with Note left of / right of / over." },
+        { code: "par … and … end", desc: "A par block shows parallel messages happening at once." },
+        { code: "autonumber", desc: "Put it at the top to number messages automatically." },
+      ],
+    },
+    {
+      key: "class", label: "Class",
+      intro: "Shows class attributes, methods, and relationships.",
+      example: "classDiagram\n  Animal <|-- Dog\n  Animal : +name\n  Animal : +eat()",
+      rules: [
+        { code: "classDiagram", desc: "Starts a class diagram." },
+        { code: "class Animal", desc: "Defines a class (also auto-created when first used in a relation)." },
+        { code: "Animal : +name", desc: "Adds an attribute/method. + is public, - is private." },
+        { code: "Animal <|-- Dog", desc: "Inheritance — Dog extends Animal." },
+        { code: "A *-- B / A o-- B", desc: "*-- is composition, o-- is aggregation." },
+      ],
+      advanced: [
+        { code: "Animal : +int age", desc: "Prefix a type — fields are written as +type name." },
+        { code: "<<interface>> Shape", desc: "Show stereotypes like <<interface>> or <<abstract>>." },
+        { code: 'Owner "1" --> "*" Pet', desc: 'Add cardinality with "1" / "*" at each end of a relation.' },
+        { code: "A ..> B : uses", desc: "..> is a dependency; text after : labels the relation." },
+      ],
+    },
+    {
+      key: "state", label: "State",
+      intro: "Shows states and transitions (a state machine).",
+      example: "stateDiagram-v2\n  [*] --> Idle\n  Idle --> Running : start\n  Running --> Done\n  Done --> [*]",
+      rules: [
+        { code: "stateDiagram-v2", desc: "Starts a state diagram." },
+        { code: "[*] --> Idle", desc: "[*] marks the start/end point." },
+        { code: "Idle --> Running", desc: "An arrow draws a state transition." },
+        { code: "Running --> Done : cond", desc: "Text after the colon is the transition trigger." },
+      ],
+      advanced: [
+        { code: "state Running { … }", desc: "Nest sub-states inside braces to make a composite state." },
+        { code: "state f <<fork>>", desc: "Use <<fork>> / <<join>> for a parallel split and merge." },
+        { code: "note right of Idle", desc: "Add notes with note right of / left of <state>." },
+        { code: "--", desc: "Inside a composite state, -- separates concurrent (parallel) regions." },
+      ],
+    },
+    {
+      key: "pie", label: "Pie",
+      intro: "Shows proportions of a whole as a pie chart.",
+      example: 'pie showData\n  title Fruit poll\n  "Apple" : 40\n  "Banana" : 35\n  "Cherry" : 25',
+      rules: [
+        { code: "pie showData", desc: "Starts a pie chart. showData also prints the values." },
+        { code: "title Text", desc: "Sets a chart title (optional)." },
+        { code: '"Apple" : 40', desc: 'Add a slice as "label" : value. Size is proportional to the value.' },
+      ],
+      advanced: [
+        { code: "pie", desc: "Without showData, values are hidden and only proportions show." },
+        { code: "%% comment", desc: "Lines starting with %% are comments (works in every diagram)." },
+      ],
+    },
+    {
+      key: "gantt", label: "Gantt", wide: true,
+      intro: "Shows a schedule as bars along a time axis.",
+      example: "gantt\n  title Project plan\n  dateFormat YYYY-MM-DD\n  section Planning\n  Research :a1, 2024-01-01, 3d\n  Design :after a1, 2d\n  section Build\n  Implement :after a1, 5d",
+      rules: [
+        { code: "gantt", desc: "Starts a Gantt chart." },
+        { code: "dateFormat YYYY-MM-DD", desc: "Sets the input date format." },
+        { code: "section Planning", desc: "Groups tasks into a section." },
+        { code: "Task :a1, 2024-01-01, 3d", desc: "Format is name :id, start, duration. 3d means 3 days." },
+        { code: "Design :after a1, 2d", desc: "after <id> chains a task right after another." },
+      ],
+      advanced: [
+        { code: ":done / :active / :crit", desc: "Task tags mark done, in-progress, and critical tasks." },
+        { code: "MS :milestone, m1, …, 0d", desc: "The milestone tag places a zero-length milestone." },
+        { code: "excludes weekends", desc: "Exclude weekends or specific dates from the schedule." },
+        { code: "axisFormat %m-%d", desc: "Change the date format of the bottom time axis." },
+      ],
+    },
+    {
+      key: "er", label: "ER",
+      intro: "Shows entities (tables) and the relationships and cardinality between them.",
+      example: "erDiagram\n  CUSTOMER ||--o{ ORDER : places\n  ORDER ||--|{ LINE_ITEM : contains\n  CUSTOMER {\n    string name\n    string email\n  }",
+      rules: [
+        { code: "erDiagram", desc: "Starts an ER diagram." },
+        { code: "CUSTOMER ||--o{ ORDER : places", desc: "Connects two entities with a relation; text after : names it." },
+        { code: "||   o{   |{", desc: "End symbols are cardinality: || exactly one, o{ zero-or-more, |{ one-or-more." },
+        { code: "CUSTOMER { string name }", desc: "Define fields inside braces as type and attribute name." },
+      ],
+      advanced: [
+        { code: "string id PK", desc: "Append PK / FK to an attribute to mark primary/foreign keys." },
+        { code: 'string name "note"', desc: "Add a comment to an attribute with a quoted string." },
+      ],
+    },
+    {
+      key: "journey", label: "Journey",
+      intro: "Shows a user's step-by-step experience and satisfaction toward a goal.",
+      example: "journey\n  title Shopping journey\n  section Visit\n    Open home: 5: User\n    Search: 3: User\n  section Buy\n    Cart: 4: User\n    Checkout: 2: User, System",
+      rules: [
+        { code: "journey", desc: "Starts a user journey diagram." },
+        { code: "title Text", desc: "Sets the journey title." },
+        { code: "section Visit", desc: "Splits the journey into stages." },
+        { code: "Task: 5: User", desc: "Format is Task: score(1-5): actor. The score is satisfaction (higher is better)." },
+      ],
+      advanced: [
+        { code: "Checkout: 2: User, System", desc: "List several actors for one task, separated by commas." },
+        { code: "%% comment", desc: "Lines starting with %% are comments." },
+      ],
+    },
+    {
+      key: "git", label: "Git",
+      intro: "Shows a git flow — commits, branches, and merges.",
+      example: "gitGraph\n  commit\n  branch develop\n  checkout develop\n  commit\n  checkout main\n  merge develop",
+      rules: [
+        { code: "gitGraph", desc: "Starts a git graph." },
+        { code: "commit", desc: "Adds a commit to the current branch." },
+        { code: "branch develop", desc: "Creates a new branch." },
+        { code: "checkout develop", desc: "Switches to that branch." },
+        { code: "merge develop", desc: "Merges another branch into the current one." },
+      ],
+      advanced: [
+        { code: 'commit id: "v1" tag: "release"', desc: "Attach an id and tag to a commit." },
+        { code: "commit type: HIGHLIGHT", desc: "type changes the commit style (NORMAL, REVERSE, HIGHLIGHT)." },
+      ],
+    },
+    {
+      key: "mindmap", label: "Mindmap",
+      intro: "Shows ideas branching out from a central topic as a hierarchy.",
+      example: "mindmap\n  root((Core))\n    Plan\n      Research\n      Spec\n    Build\n      Frontend\n      Backend",
+      rules: [
+        { code: "mindmap", desc: "Starts a mindmap." },
+        { code: "  indentation", desc: "Indentation depth builds the hierarchy — deeper indent means a child node." },
+        { code: "root((Core))", desc: "Brackets set the node shape: (( )) circle, [ ] square, ) ( cloud." },
+      ],
+      advanced: [
+        { code: "::icon(fa fa-book)", desc: "Add an icon on the line below a node (Font Awesome, etc.)." },
+        { code: ":::className", desc: "Assign a CSS class to a node for styling." },
+      ],
+    },
+    {
+      key: "timeline", label: "Timeline",
+      intro: "Lists events in chronological order.",
+      example: "timeline\n  title Product roadmap\n  2023 : Plan : Prototype\n  2024 : Beta launch\n  2025 : GA release",
+      rules: [
+        { code: "timeline", desc: "Starts a timeline." },
+        { code: "title Text", desc: "Sets the timeline title." },
+        { code: "2024 : Event", desc: "Write one point as period : event." },
+        { code: "2024 : A : B", desc: "List several events at one point using colons." },
+      ],
+      advanced: [
+        { code: "section Phase 1", desc: "Group several points into a section." },
+        { code: "%% comment", desc: "Lines starting with %% are comments." },
+      ],
+    },
+  ];
+  const [tab, setTab] = useState(TYPES[0].key);
+  const active = TYPES.find((x) => x.key === tab) ?? TYPES[0];
+  const copy = (code: string) => {
+    try { navigator.clipboard?.writeText(code); showToast(ko ? "코드 복사됨" : "Code copied", "success"); }
+    catch { showToast(ko ? "복사 실패" : "Copy failed", "error"); }
+  };
+  return (
+    <div className={styles.mermaidHelp}>
+      <p className={styles.mermaidHelpIntro}>
+        {ko ? "Mermaid 는 코드로 다이어그램을 그립니다. 종류별 문법을 확인하고, 예시 코드를 그래프 블록에 붙여넣어 시작하십시오." : "Mermaid draws diagrams from text. Check the syntax per type, then paste an example into a graph block to start."}
+      </p>
+      {/* 종류 탭 */}
+      <div className={styles.mermaidHelpTabs}>
+        <SegmentedControl<string>
+          items={TYPES.map((x) => ({ value: x.key, label: x.label }))}
+          value={tab} onChange={setTab} size="sm"
+        />
+      </div>
+      {/* 선택된 종류의 설명 + 문법 + 고급 문법 + 예시 (각 섹션 label 분리) */}
+      <div className={styles.mermaidHelpTabBody}>
+        <p className={styles.mermaidHelpBasicsIntro}>{active.intro}</p>
+        <section className={styles.mermaidHelpSection}>
+          <div className={styles.mermaidHelpLabelRow}><span className={styles.mermaidHelpLabel}>{ko ? "문법" : "Syntax"}</span></div>
+          <ul className={styles.mermaidHelpRules}>
+            {active.rules.map((r) => (
+              <li key={r.code} className={styles.mermaidHelpRule}>
+                <code>{r.code}</code>
+                <span className={styles.mermaidHelpRuleDesc}>{r.desc}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+        {active.advanced.length > 0 && (
+          <section className={styles.mermaidHelpSection}>
+            <div className={styles.mermaidHelpLabelRow}><span className={styles.mermaidHelpLabel}>{ko ? "고급 문법" : "Advanced"}</span></div>
+            <ul className={styles.mermaidHelpRules}>
+              {active.advanced.map((r) => (
+                <li key={r.code} className={styles.mermaidHelpRule}>
+                  <code>{r.code}</code>
+                  <span className={styles.mermaidHelpRuleDesc}>{r.desc}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        <MermaidExample key={active.key} label={ko ? "예시" : "Example"} code={active.example} wide={active.wide} ko={ko} onCopy={copy} />
+      </div>
+    </div>
+  );
+}
+
+// 코드블록 언어 — lowlight(all: highlight.js 전체) 지원. terms: 검색 별칭.
+type CodeLang = { value: string; label: string; terms?: string[] };
+const CODE_BLOCK_LANGS: ReadonlyArray<CodeLang> = [
   { value: "plaintext", label: "Plain text", terms: ["text", "txt"] },
+  { value: "actionscript", label: "ActionScript", terms: ["as", "flash"] },
+  { value: "apache", label: "Apache", terms: ["apacheconf", "httpd"] },
+  { value: "applescript", label: "AppleScript", terms: ["osascript"] },
+  { value: "x86asm", label: "Assembly", terms: ["asm", "nasm", "x86"] },
+  { value: "autohotkey", label: "AutoHotkey", terms: ["ahk"] },
+  { value: "awk", label: "AWK" },
   { value: "bash", label: "Bash", terms: ["shell", "sh", "zsh"] },
+  { value: "basic", label: "BASIC" },
   { value: "c", label: "C" },
   { value: "clojure", label: "Clojure", terms: ["clj"] },
+  { value: "cmake", label: "CMake" },
   { value: "coffeescript", label: "CoffeeScript", terms: ["coffee"] },
   { value: "cpp", label: "C++", terms: ["c++", "cplusplus"] },
   { value: "crystal", label: "Crystal", terms: ["cr"] },
   { value: "csharp", label: "C#", terms: ["c#", "cs", "dotnet"] },
   { value: "css", label: "CSS" },
+  { value: "d", label: "D" },
   { value: "dart", label: "Dart" },
+  { value: "delphi", label: "Delphi / Pascal", terms: ["pascal", "object pascal"] },
   { value: "diff", label: "Diff", terms: ["patch"] },
+  { value: "django", label: "Django", terms: ["jinja", "jinja2"] },
   { value: "dockerfile", label: "Dockerfile", terms: ["docker"] },
   { value: "elixir", label: "Elixir", terms: ["ex"] },
   { value: "elm", label: "Elm" },
   { value: "erlang", label: "Erlang", terms: ["erl"] },
   { value: "fortran", label: "Fortran", terms: ["f90"] },
   { value: "fsharp", label: "F#", terms: ["f#", "fs"] },
+  { value: "gherkin", label: "Gherkin", terms: ["cucumber"] },
+  { value: "glsl", label: "GLSL", terms: ["shader"] },
   { value: "go", label: "Go", terms: ["golang"] },
+  { value: "gradle", label: "Gradle" },
   { value: "graphql", label: "GraphQL", terms: ["gql"] },
   { value: "groovy", label: "Groovy" },
   { value: "haml", label: "Haml" },
   { value: "handlebars", label: "Handlebars", terms: ["hbs", "mustache"] },
   { value: "haskell", label: "Haskell", terms: ["hs"] },
+  { value: "haxe", label: "Haxe", terms: ["hx"] },
+  { value: "http", label: "HTTP" },
   { value: "ini", label: "INI", terms: ["conf", "properties"] },
   { value: "java", label: "Java" },
   { value: "javascript", label: "JavaScript", terms: ["js", "node", "jsx"] },
@@ -693,9 +1213,12 @@ const CODE_BLOCK_LANGS: ReadonlyArray<{ value: string; label: string; terms?: st
   { value: "kotlin", label: "Kotlin", terms: ["kt"] },
   { value: "latex", label: "LaTeX", terms: ["tex"] },
   { value: "less", label: "Less" },
+  { value: "lisp", label: "Lisp", terms: ["commonlisp", "elisp", "clisp"] },
+  { value: "livescript", label: "LiveScript", terms: ["ls"] },
   { value: "lua", label: "Lua" },
   { value: "makefile", label: "Makefile", terms: ["make"] },
   { value: "markdown", label: "Markdown", terms: ["md"] },
+  { value: "mathematica", label: "Mathematica", terms: ["wolfram", "wl"] },
   { value: "matlab", label: "MATLAB" },
   { value: "mermaid", label: "Mermaid", terms: ["diagram"] },
   { value: "nginx", label: "Nginx" },
@@ -708,25 +1231,31 @@ const CODE_BLOCK_LANGS: ReadonlyArray<{ value: string; label: string; terms?: st
   { value: "powershell", label: "PowerShell", terms: ["ps", "ps1"] },
   { value: "prisma", label: "Prisma" },
   { value: "prolog", label: "Prolog" },
+  { value: "protobuf", label: "Protocol Buffers", terms: ["proto", "protobuf", "grpc"] },
   { value: "puppet", label: "Puppet" },
   { value: "python", label: "Python", terms: ["py"] },
   { value: "r", label: "R" },
+  { value: "reasonml", label: "Reason", terms: ["re", "reason"] },
   { value: "ruby", label: "Ruby", terms: ["rb"] },
   { value: "rust", label: "Rust", terms: ["rs"] },
   { value: "scala", label: "Scala" },
   { value: "scheme", label: "Scheme" },
   { value: "scss", label: "SCSS", terms: ["sass"] },
   { value: "smalltalk", label: "Smalltalk" },
+  { value: "sml", label: "Standard ML", terms: ["sml"] },
   { value: "solidity", label: "Solidity", terms: ["sol"] },
   { value: "sql", label: "SQL" },
   { value: "stylus", label: "Stylus", terms: ["styl"] },
   { value: "svelte", label: "Svelte" },
   { value: "swift", label: "Swift" },
   { value: "tcl", label: "Tcl" },
+  { value: "thrift", label: "Thrift" },
   { value: "toml", label: "TOML" },
   { value: "twig", label: "Twig" },
   { value: "typescript", label: "TypeScript", terms: ["ts", "tsx"] },
   { value: "vala", label: "Vala" },
+  { value: "vbnet", label: "VB.NET", terms: ["vb", "visualbasic"] },
+  { value: "vbscript", label: "VBScript", terms: ["vbs"] },
   { value: "verilog", label: "Verilog", terms: ["v"] },
   { value: "vhdl", label: "VHDL" },
   { value: "vim", label: "Vim Script", terms: ["vimscript"] },
@@ -734,111 +1263,408 @@ const CODE_BLOCK_LANGS: ReadonlyArray<{ value: string; label: string; terms?: st
   { value: "wasm", label: "WebAssembly", terms: ["wat"] },
   { value: "xml", label: "HTML / XML", terms: ["html", "xhtml", "svg"] },
   { value: "yaml", label: "YAML", terms: ["yml"] },
+  // ── 추가 언어 (lowlight `all` 지원 = 하이라이팅 됨) ──
+  { value: "ada", label: "Ada" },
+  { value: "angelscript", label: "AngelScript", terms: ["asc"] },
+  { value: "arduino", label: "Arduino", terms: ["ino"] },
+  { value: "armasm", label: "ARM Assembly", terms: ["arm", "asm"] },
+  { value: "asciidoc", label: "AsciiDoc", terms: ["adoc"] },
+  { value: "autoit", label: "AutoIt", terms: ["au3"] },
+  { value: "avrasm", label: "AVR Assembly", terms: ["avr", "asm"] },
+  { value: "brainfuck", label: "Brainfuck", terms: ["bf"] },
+  { value: "capnproto", label: "Cap'n Proto", terms: ["capnp"] },
+  { value: "ceylon", label: "Ceylon" },
+  { value: "coq", label: "Coq" },
+  { value: "dos", label: "Batch / DOS", terms: ["bat", "cmd", "batch", "dos"] },
+  { value: "dts", label: "Device Tree", terms: ["dts", "dtsi"] },
+  { value: "ebnf", label: "EBNF" },
+  { value: "erb", label: "ERB", terms: ["eruby", "rhtml"] },
+  { value: "excel", label: "Excel", terms: ["xlsx", "formula"] },
+  { value: "gcode", label: "G-code", terms: ["nc"] },
+  { value: "gml", label: "GameMaker (GML)", terms: ["gamemaker"] },
+  { value: "hy", label: "Hy", terms: ["hylang"] },
+  { value: "llvm", label: "LLVM IR", terms: ["ll"] },
+  { value: "mipsasm", label: "MIPS Assembly", terms: ["mips", "asm"] },
+  { value: "moonscript", label: "MoonScript", terms: ["moon"] },
+  { value: "n1ql", label: "N1QL", terms: ["couchbase"] },
+  { value: "openscad", label: "OpenSCAD", terms: ["scad"] },
+  { value: "pgsql", label: "PostgreSQL", terms: ["postgres", "postgresql", "psql"] },
+  { value: "pony", label: "Pony" },
+  { value: "processing", label: "Processing", terms: ["pde"] },
+  { value: "purebasic", label: "PureBasic", terms: ["pb"] },
+  { value: "q", label: "Q / kdb+", terms: ["kdb"] },
+  { value: "qml", label: "QML", terms: ["qt"] },
+  { value: "sas", label: "SAS" },
+  { value: "scilab", label: "Scilab", terms: ["sci"] },
+  { value: "smali", label: "Smali", terms: ["dalvik"] },
+  { value: "stata", label: "Stata" },
+  { value: "wren", label: "Wren" },
+  { value: "xquery", label: "XQuery", terms: ["xq", "xqy"] },
+  { value: "zephir", label: "Zephir", terms: ["zep"] },
 ];
 
-/** 코드블록 "..." 메뉴 — main(액션) / lang(언어 검색) 두 view. 단일 Popover 안에서 전환. */
-function CodeBlockMenu({
-  close, lang, wrap, language,
-  onCopy, onToggleWrap, onSetLang, onDuplicate, onMoveUp, onMoveDown, onDelete,
-}: {
-  close: () => void;
-  lang?: string;
-  wrap: boolean;
-  language: string;
-  onCopy: () => void;
-  onToggleWrap: () => void;
-  onSetLang: (v: string) => void;
-  onDuplicate: () => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-  onDelete: () => void;
-}) {
-  const [view, setView] = useState<"main" | "lang">("main");
-  const [q, setQ] = useState("");
+// 언어별 메타 — 한글명(검색), 브랜드색·약어(아이콘 배지), popular(자주 쓰는 그룹).
+const LANG_META: Record<string, { ko?: string; color?: string; abbr?: string; popular?: boolean }> = {
+  javascript: { ko: "자바스크립트", color: "#f7df1e", abbr: "JS", popular: true },
+  typescript: { ko: "타입스크립트", color: "#3178c6", abbr: "TS", popular: true },
+  python: { ko: "파이썬", color: "#3776ab", abbr: "Py", popular: true },
+  java: { ko: "자바", color: "#e76f00", abbr: "Ja", popular: true },
+  cpp: { ko: "씨쁠쁠", color: "#00599c", abbr: "C+", popular: true },
+  c: { ko: "씨", color: "#5c6bc0", abbr: "C", popular: true },
+  csharp: { ko: "씨샵", color: "#68217a", abbr: "C#" },
+  go: { ko: "고", color: "#00add8", abbr: "Go", popular: true },
+  rust: { ko: "러스트", color: "#dea584", abbr: "Rs", popular: true },
+  sql: { ko: "에스큐엘", color: "#e38c00", abbr: "SQL", popular: true },
+  json: { ko: "제이슨", color: "#5a5a5a", abbr: "{}", popular: true },
+  bash: { ko: "배시", color: "#4eaa25", abbr: "$_", popular: true },
+  xml: { ko: "에이치티엠엘", color: "#e34f26", abbr: "<>", popular: true },
+  css: { ko: "씨에스에스", color: "#1572b6", abbr: "CSS", popular: true },
+  ruby: { ko: "루비", color: "#cc342d", abbr: "Rb" },
+  php: { ko: "피에이치피", color: "#777bb4", abbr: "Php" },
+  swift: { ko: "스위프트", color: "#f05138", abbr: "Sw" },
+  kotlin: { ko: "코틀린", color: "#7f52ff", abbr: "Kt" },
+  dart: { ko: "다트", color: "#0175c2", abbr: "Da" },
+  scala: { ko: "스칼라", color: "#dc322f", abbr: "Sc" },
+  haskell: { ko: "하스켈", color: "#5e5086", abbr: "Hs" },
+  elixir: { ko: "엘릭서", color: "#6e4a7e", abbr: "Ex" },
+  erlang: { ko: "얼랭", color: "#a90533", abbr: "Er" },
+  clojure: { ko: "클로저", color: "#5881d8", abbr: "Cl" },
+  lua: { ko: "루아", color: "#2c2d72", abbr: "Lu" },
+  perl: { ko: "펄", color: "#39457e", abbr: "Pl" },
+  r: { ko: "알", color: "#276dc3", abbr: "R" },
+  julia: { ko: "줄리아", color: "#9558b2", abbr: "Jl" },
+  objectivec: { ko: "오브젝티브씨", color: "#438eff", abbr: "OC" },
+  scss: { ko: "에스씨에스에스", color: "#cc6699", abbr: "SC" },
+  less: { ko: "레스", color: "#1d365d", abbr: "Le" },
+  vue: { ko: "뷰", color: "#41b883", abbr: "Vue" },
+  svelte: { ko: "스벨트", color: "#ff3e00", abbr: "Sv" },
+  solidity: { ko: "솔리디티", color: "#363636", abbr: "Sol" },
+  graphql: { ko: "그래프큐엘", color: "#e10098", abbr: "GQ" },
+  markdown: { ko: "마크다운", color: "#5a5a5a", abbr: "Md" },
+  yaml: { ko: "야믈", color: "#cb171e", abbr: "Ym" },
+  toml: { ko: "토믈", color: "#9c4221", abbr: "Tm" },
+  dockerfile: { ko: "도커", color: "#2496ed", abbr: "Dk" },
+  nginx: { ko: "엔진엑스", color: "#009639", abbr: "Ng" },
+  latex: { ko: "라텍", color: "#008080", abbr: "TeX" },
+  mermaid: { ko: "머메이드", color: "#ff3670", abbr: "Mm" },
+  wasm: { ko: "웹어셈블리", color: "#654ff0", abbr: "Wa" },
+  fsharp: { color: "#378bba", abbr: "F#" },
+  ocaml: { color: "#ec6813", abbr: "ML" },
+  x86asm: { ko: "어셈블리", color: "#6e4c13", abbr: "Asm" },
+  prisma: { color: "#2d3748", abbr: "Pr" },
+  groovy: { color: "#4298b8", abbr: "Gr" },
+  crystal: { color: "#333333", abbr: "Cr" },
+  nim: { color: "#ffe953", abbr: "Nim" },
+  zig: { color: "#f7a41d", abbr: "Zg" },
+  arduino: { ko: "아두이노", color: "#00979d", abbr: "Ar" },
+  pgsql: { ko: "포스트그레스", color: "#336791", abbr: "Pg" },
+  ada: { ko: "에이다", color: "#02f88c", abbr: "Ada" },
+  dos: { ko: "배치", color: "#4d4d4d", abbr: ">_" },
+  erb: { ko: "이알비", color: "#cc342d", abbr: "Erb" },
+  llvm: { ko: "엘엘브이엠", color: "#09627d", abbr: "LL" },
+  processing: { ko: "프로세싱", color: "#006699", abbr: "Ps" },
+  qml: { ko: "큐엠엘", color: "#41cd52", abbr: "QML" },
+  asciidoc: { ko: "아스키닥", color: "#e40046", abbr: "Ad" },
+  plaintext: { ko: "일반 텍스트", abbr: "Aa" },
+};
+
+// 한글 → 초성 (검색용). "자바" → "ㅈㅂ"
+const CHO = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
+function choseong(s: string): string {
+  let out = "";
+  for (const ch of s) {
+    const c = ch.charCodeAt(0);
+    if (c >= 0xac00 && c <= 0xd7a3) out += CHO[Math.floor((c - 0xac00) / 588)];
+    else out += ch;
+  }
+  return out;
+}
+// 언어의 전체 검색 토큰 (영문 terms + 한글명 + 초성)
+function langSearchTerms(l: CodeLang): string[] {
+  const ko = LANG_META[l.value]?.ko;
+  return [
+    l.value, l.label.toLowerCase(),
+    ...(l.terms ?? []),
+    ...(ko ? [ko, choseong(ko)] : []),
+  ];
+}
+// 언어 아이콘 배지 — 브랜드색 + 약어. 색 없으면 중립 배지.
+function LangIcon({ value, label }: { value: string; label: string }) {
+  const meta = LANG_META[value];
+  const abbr = meta?.abbr ?? (label.replace(/[^A-Za-z0-9#+.]/g, "").slice(0, 2) || "?");
+  if (!meta?.color) {
+    return <span className={`${styles.codeLangIcon} ${styles.codeLangIconPlain}`}>{abbr}</span>;
+  }
+  const c = meta.color.replace("#", "");
+  const r = parseInt(c.slice(0, 2), 16), g = parseInt(c.slice(2, 4), 16), b = parseInt(c.slice(4, 6), 16);
+  const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return <span className={styles.codeLangIcon} style={{ background: meta.color, color: lum > 0.6 ? "#1a1a1a" : "#fff" }}>{abbr}</span>;
+}
+
+// ── 최근 사용 언어 (localStorage, 최대 5개, value 저장) ──
+const RECENT_LANG_KEY = "code-lang-recent";
+function readRecentLangs(): string[] {
+  try {
+    const raw = localStorage.getItem(RECENT_LANG_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.filter((v) => typeof v === "string") : [];
+  } catch { return []; }
+}
+function pushRecentLang(value: string) {
+  if (!value || value === "plaintext") return; // 기본값(plaintext)은 최근에 안 쌓음
+  try {
+    const cur = readRecentLangs().filter((v) => v !== value);
+    cur.unshift(value);
+    localStorage.setItem(RECENT_LANG_KEY, JSON.stringify(cur.slice(0, 5)));
+  } catch { /* noop */ }
+}
+
+// 검색 정확도 점수 — 높을수록 우선(-1=미매치). 동점은 호출부에서 label 철자순 tie-break.
+// 완전일치 > 별칭 완전일치 > 이름 접두 > 별칭/한글/초성 접두 > 부분 포함
+function scoreLang(l: CodeLang, ql: string): number {
+  const label = l.label.toLowerCase();
+  const value = l.value.toLowerCase();
+  if (value === ql || label === ql) return 100;
+  let best = -1;
+  if (value.startsWith(ql) || label.startsWith(ql)) best = 80;
+  for (const term of langSearchTerms(l)) {
+    if (term === ql) best = Math.max(best, 90);
+    else if (term.startsWith(ql)) best = Math.max(best, 60);
+    else if (term.includes(ql)) best = Math.max(best, 30);
+  }
+  return best;
+}
+
+// ── 공통 코드블록 언어 피커 — 트리거(현재 언어) + Popover(검색·최근·자주 쓰는·A–Z). 유일한 언어 선택 UI. ──
+function CodeLangPicker({ value, onChange, language }: { value: string; onChange: (v: string) => void; language: string }) {
+  const curLabel = CODE_BLOCK_LANGS.find((l) => l.value === value)?.label ?? "Plain text";
+  return (
+    <Popover placement="bottom-start" contentClassName={styles.codeMenuPopover}
+      trigger={
+        <button
+          type="button"
+          className={styles.codeLangTrigger}
+          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          aria-label={language === "ko" ? "언어 선택" : "Select language"}
+        >
+          <LangIcon value={value} label={curLabel} />
+          <span className={styles.codeLangName}>{curLabel}</span>
+          <ChevronDown size={12} className={styles.codeLangCaret} />
+        </button>
+      }
+    >
+      {({ close }) => <CodeLangPickerBody value={value} onChange={onChange} language={language} close={close} />}
+    </Popover>
+  );
+}
+
+function CodeLangPickerBody({ value, onChange, language, close }: { value: string; onChange: (v: string) => void; language: string; close: () => void }) {
   const ko = language === "ko";
   const L = (k: string, e: string) => (ko ? k : e);
+  const [q, setQ] = useState("");
+  const ql = q.trim().toLowerCase();
+  const searching = ql.length > 0;
+  const recentVals = React.useMemo(() => readRecentLangs(), []); // popover 열릴 때 1회 스냅샷
+  const listRef = useRef<HTMLDivElement>(null);
+  const railRef = useRef<HTMLDivElement>(null);
+  const [activeLetter, setActiveLetter] = useState("");
+  const [railVisible, setRailVisible] = useState(false); // A–Z 영역에 들어왔을 때만 인덱스 노출
+  const [active, setActive] = useState(0); // 화살표 네비게이션 활성 항목(플랫 인덱스)
+  const pick = (v: string) => { onChange(v); pushRecentLang(v); close(); };
 
-  if (view === "lang") {
-    const ql = q.trim().toLowerCase();
-    const filtered = CODE_BLOCK_LANGS.filter(
-      (l) => !ql || l.label.toLowerCase().includes(ql) || l.value.includes(ql) || (l.terms ?? []).some((t) => t.includes(ql)),
-    );
-    return (
-      <div className={styles.codeMenu}>
-        <button type="button" className={styles.codeMenuBack} onClick={() => setView("main")}>
-          <ChevronLeft size={13} /> {L("언어", "Language")}
-        </button>
-        <div className={styles.codeMenuSearch}>
-          <Search size={13} />
-          <input
-            autoFocus
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder={L("언어 검색…", "Search…")}
-            spellCheck={false}
-          />
-        </div>
-        <div className={styles.codeMenuLangList}>
-          {filtered.map((l) => (
-            <button
-              key={l.value}
-              type="button"
-              className={styles.codeMenuItem}
-              onClick={() => { onSetLang(l.value); close(); }}
-            >
-              <span>{l.label}</span>
-              {(lang ?? "plaintext") === l.value && <Check size={13} />}
-            </button>
-          ))}
-          {filtered.length === 0 && <div className={styles.codeMenuEmpty}>{L("결과 없음", "No results")}</div>}
-        </div>
-      </div>
+  // 리스트 스크롤 → 현재 위치 알파벳 계산 + A–Z 영역 진입 여부(그때만 인덱스 노출)
+  const syncActive = useCallback(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const anchors = Array.from(list.querySelectorAll<HTMLElement>("[data-letter]"));
+    if (!anchors.length) { setRailVisible(false); return; }
+    const firstTop = anchors[0].offsetTop;
+    setRailVisible(list.scrollTop + list.clientHeight * 0.35 >= firstTop); // A–Z 그룹이 화면에 들어옴
+    // 맨 아래까지 스크롤하면 마지막 글자(Z 등)를 active 로 — 안 그러면 하단 섹션이 감지선을 못 넘어 마지막 글자에 못 닿음
+    const atBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 2;
+    let cur = anchors[0].dataset.letter || "";
+    if (atBottom) {
+      cur = anchors[anchors.length - 1].dataset.letter || cur;
+    } else {
+      const y = list.scrollTop + 44;
+      anchors.forEach((a) => { if (a.offsetTop <= y) cur = a.dataset.letter || cur; });
+    }
+    setActiveLetter((p) => (p === cur ? p : cur));
+  }, []);
+  // activeLetter 바뀌면 rail 을 그 글자가 중앙에 오도록 스크롤(룰렛 회전)
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail || !activeLetter) return;
+    const btn = rail.querySelector<HTMLElement>(`[data-rail-letter="${activeLetter}"]`);
+    if (btn) rail.scrollTo({ top: btn.offsetTop - rail.clientHeight / 2 + btn.clientHeight / 2, behavior: "smooth" });
+  }, [activeLetter]);
+  // 브라우징 진입 시 1회 동기화(초기 active/visible)
+  useEffect(() => { if (!searching) syncActive(); }, [searching, syncActive]);
+  // 검색어/모드 바뀌면 활성 항목을 맨 위로 리셋
+  useEffect(() => { setActive(0); }, [ql]);
+  // 활성 항목이 바뀌면 리스트가 자동으로 스크롤돼 항상 보이게(scrollIntoView)
+  useEffect(() => {
+    const el = listRef.current?.querySelector<HTMLElement>(`[data-idx="${active}"]`);
+    el?.scrollIntoView({ block: "nearest" });
+  }, [active, ql]);
+  // idx: 화살표 네비게이션용 플랫 인덱스, dataLetter: A–Z 그룹 첫 항목 앵커(rail 점프용)
+  const renderItem = (l: CodeLang, idx: number, dataLetter?: string) => (
+    <button key={l.value} type="button" className={styles.codeMenuItem} data-idx={idx} data-letter={dataLetter}
+      data-active={idx === active ? "" : undefined} onMouseMove={() => setActive(idx)} onClick={() => pick(l.value)}>
+      <LangIcon value={l.value} label={l.label} />
+      <span className={styles.codeLangName}>{l.label}</span>
+      {value === l.value && <Check size={13} className={styles.codeMenuTrailing} />}
+    </button>
+  );
+
+  let body: React.ReactNode;
+  const azLetters: string[] = [];
+  let items: CodeLang[] = []; // 화살표 네비게이션 대상(렌더 순서대로 플랫)
+  if (searching) {
+    // 검색: 정확도순 정렬 + 동점은 철자순, 그룹 없이 플랫
+    const scored = CODE_BLOCK_LANGS
+      .map((l) => ({ l, s: scoreLang(l, ql) }))
+      .filter((x) => x.s >= 0)
+      .sort((a, b) => b.s - a.s || a.l.label.localeCompare(b.l.label));
+    items = scored.map((x) => x.l);
+    body = items.length
+      ? items.map((l, i) => renderItem(l, i))
+      : <div className={styles.codeMenuEmpty}>{L("결과 없음", "No results")}</div>;
+  } else {
+    // 브라우징: 최근 → 자주 쓰는 → A–Z(철자순 + 알파벳 인덱스)
+    const recentSet = new Set(recentVals);
+    const recent = recentVals
+      .map((v) => CODE_BLOCK_LANGS.find((l) => l.value === v))
+      .filter((l): l is CodeLang => !!l);
+    const popular = CODE_BLOCK_LANGS.filter((l) => LANG_META[l.value]?.popular && !recentSet.has(l.value));
+    const rest = CODE_BLOCK_LANGS
+      .filter((l) => !LANG_META[l.value]?.popular && !recentSet.has(l.value))
+      .slice()
+      .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }));
+    items = [...recent, ...popular, ...rest];
+    const baseAz = recent.length + popular.length;
+    // 첫 글자(A–Z, 그 외는 "#") 그룹 — 각 그룹 첫 항목에만 data-letter 앵커
+    const letterOf = (label: string) => { const c = (label[0] || "#").toUpperCase(); return /[A-Z]/.test(c) ? c : "#"; };
+    let lastLetter = "";
+    const azNodes = rest.map((l, i) => {
+      const letter = letterOf(l.label);
+      const isFirst = letter !== lastLetter;
+      if (isFirst) { azLetters.push(letter); lastLetter = letter; }
+      return renderItem(l, baseAz + i, isFirst ? letter : undefined);
+    });
+    body = (
+      <>
+        {recent.length > 0 && (<><div className={styles.codeMenuGroupLabel}>{L("최근", "Recent")}</div>{recent.map((l, i) => renderItem(l, i))}</>)}
+        {popular.length > 0 && (<><div className={styles.codeMenuGroupLabel}>{L("자주 쓰는", "Popular")}</div>{popular.map((l, i) => renderItem(l, recent.length + i))}</>)}
+        <div className={styles.codeMenuGroupLabel}>{L("A–Z", "A–Z")}</div>
+        {azNodes}
+      </>
     );
   }
+  // 화살표 네비게이션 — active 이동 + Enter 선택
+  const onMenuKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); setActive((a) => Math.min(items.length - 1, a + 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setActive((a) => Math.max(0, a - 1)); }
+    else if (e.key === "Enter") { const it = items[active]; if (it) { e.preventDefault(); pick(it.value); } }
+  };
 
-  const curLang = CODE_BLOCK_LANGS.find((l) => l.value === (lang ?? "plaintext"))?.label ?? "Plain text";
+  // 알파벳 인덱스 클릭 → 해당 글자 첫 항목으로 리스트 스크롤(한 번에 이동) + 인덱스 갱신
+  const jumpTo = (letter: string) => {
+    const list = listRef.current;
+    if (!list) return;
+    const el = list.querySelector<HTMLElement>(`[data-letter="${letter}"]`);
+    // sticky "A–Z" 그룹 라벨 높이만큼 빼서 항목이 라벨 아래로 노출되게
+    if (el) { list.scrollTop = Math.max(0, el.offsetTop - 30); setActiveLetter(letter); setRailVisible(true); }
+  };
+
   return (
-    <div className={styles.codeMenu}>
-      <button type="button" className={styles.codeMenuItem} onClick={() => { onCopy(); close(); }}>
-        <Copy size={14} /> {L("코드 복사", "Copy code")}
-      </button>
-      <button type="button" className={styles.codeMenuItem} onClick={() => { onToggleWrap(); close(); }}>
-        <WrapText size={14} /> {L("줄바꿈", "Wrap")}{wrap && <Check size={13} className={styles.codeMenuTrailing} />}
-      </button>
-      <button type="button" className={styles.codeMenuItem} onClick={() => setView("lang")}>
-        <Languages size={14} /> {L("언어", "Language")}
-        <span className={styles.codeMenuTrailing}>{curLang}</span>
-      </button>
-      <div className={styles.codeMenuDivider} />
-      <button type="button" className={styles.codeMenuItem} onClick={() => { onDuplicate(); close(); }}>
-        <CopyPlus size={14} /> {L("복제", "Duplicate")}
-      </button>
-      <button type="button" className={styles.codeMenuItem} onClick={() => { onMoveUp(); close(); }}>
-        <ArrowUp size={14} /> {L("위로 이동", "Move up")}
-      </button>
-      <button type="button" className={styles.codeMenuItem} onClick={() => { onMoveDown(); close(); }}>
-        <ArrowDown size={14} /> {L("아래로 이동", "Move down")}
-      </button>
-      <div className={styles.codeMenuDivider} />
-      <button type="button" className={`${styles.codeMenuItem} ${styles.codeMenuDanger}`} onClick={() => { onDelete(); close(); }}>
-        <Trash2 size={14} /> {L("삭제", "Delete")}
-      </button>
+    <div className={styles.codeMenu} onKeyDown={onMenuKeyDown}>
+      <div className={styles.codeMenuSearch}>
+        <Search size={13} />
+        <input
+          autoFocus
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder={L("언어 검색 (java, 자바, ㅈㅂ)", "Search (java, 자바, ㅈㅂ)")}
+          spellCheck={false}
+        />
+      </div>
+      {searching ? (
+        <div className={styles.codeMenuLangList}>
+          {/* 검색 결과는 정확도순 — Hint 표시 */}
+          <div className={styles.codeMenuHint}>{L("정확도순 정렬", "Sorted by relevance")}</div>
+          {body}
+        </div>
+      ) : (
+        <div className={styles.codeMenuBrowse}>
+          {/* 왼쪽 알파벳 인덱스 — 룰렛(위아래 그라데이션 마스크 + 현재 글자 중앙 정렬, circle indicator).
+              A–Z 영역에 들어왔을 때만 노출. 클릭 시 해당 글자로 점프. */}
+          {azLetters.length > 1 && (
+            <div className={styles.codeAzRail} ref={railRef} data-visible={railVisible ? "" : undefined} aria-hidden={!railVisible}>
+              {azLetters.map((lt) => (
+                <button key={lt} type="button" data-rail-letter={lt} data-active={lt === activeLetter ? "" : undefined}
+                  className={styles.codeAzLetter} tabIndex={railVisible ? 0 : -1}
+                  onMouseDown={(e) => e.preventDefault()} onClick={() => jumpTo(lt)}>{lt}</button>
+              ))}
+            </div>
+          )}
+          <div className={styles.codeMenuLangList} ref={listRef} onScroll={syncActive}>{body}</div>
+        </div>
+      )}
     </div>
   );
 }
 
 export function CodeBlockElement(props: PlateElementProps) {
   const editor = useEditorRef();
+  const selected = useSelected();
   const { t, language } = useLanguage();
+  const openModal = useModalStore((s) => s.openModal);
+  const [uiFocused, setUiFocused] = useState(false); // 컨트롤(popover 등) 상호작용 시 바 유지
   const el = props.element as Record<string, unknown>;
   const wrap = (el.wrap as boolean) ?? false;
   const lang = el.lang as string | undefined;
-  const [langSearch, setLangSearch] = React.useState("");
+  const isMermaid = lang === "mermaid";
+  // 그래프 블록 뷰 — 코드만 / 다이어그램만 / 나란히(split). 기본 나란히.
+  const [graphView, setGraphView] = useState<"code" | "diagram" | "split">("split");
+  const showCode = !isMermaid || graphView !== "diagram";
+  const showDiagram = isMermaid && graphView !== "code";
+  const isSplit = isMermaid && graphView === "split";
+  // split 시 코드/그래프 폭 비율(%) — 가운데 핸들 드래그로 조절
+  const [splitPct, setSplitPct] = useState(50);
+  const splitRef = useRef<HTMLDivElement>(null);
+  const onSplitHandleDown = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const container = splitRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const onMove = (ev: PointerEvent) => {
+      const pct = ((ev.clientX - rect.left) / rect.width) * 100;
+      setSplitPct(Math.min(80, Math.max(20, pct)));
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      document.body.style.cursor = "";
+    };
+    document.body.style.cursor = "col-resize";
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
   const isEmpty = !el.children || (el.children as Array<{ children?: Array<{ text?: string }> }>).every(
     (line) => !line.children?.some((leaf) => leaf.text && leaf.text.length > 0),
   );
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   const { blockDragProps } = useBlockDrag(elPath);
+  // 코드블록 위에 뜨는 floating bar 앵커 — 코드블록 DOM(pre) rect
+  const getAnchorRect = () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dom = editor.api.toDOMNode(props.element as any);
+      return (dom as HTMLElement | null)?.getBoundingClientRect() ?? new DOMRect();
+    } catch { return new DOMRect(); }
+  };
   // code_line 들을 \n 으로 join (api.string 은 줄바꿈을 안 넣음 → mermaid 파싱 실패)
   const mermaidSource = lang === "mermaid"
     ? ((el.children as Array<{ children?: Array<{ text?: string }> }>) || [])
@@ -895,91 +1721,192 @@ export function CodeBlockElement(props: PlateElementProps) {
     if (!elPath) return;
     try { editor.tf.removeNodes({ at: elPath }); } catch { /* noop */ }
   };
+  // 내용 제거 — 블록은 유지하고 코드만 비움(빈 code_line 하나로 교체)
+  const handleClear = () => {
+    if (!elPath) return;
+    const lineType = ((el.children as Array<{ type?: string }>)[0]?.type as string) || "code_line";
+    const codeType = (el.type as string) || "code_block";
+    try {
+      editor.tf.withoutNormalizing(() => {
+        editor.tf.removeNodes({ at: elPath });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        editor.tf.insertNodes({ type: codeType, ...(lang ? { lang } : {}), ...(wrap ? { wrap } : {}), children: [{ type: lineType, children: [{ text: "" }] }] } as any, { at: elPath });
+      });
+    } catch { /* noop */ }
+  };
+  // 코드 포맷팅 — Prettier 지연 로딩. 코드블록 전체를 포맷 결과(code_line 들)로 교체.
+  const handleFormat = async () => {
+    if (!elPath || !lang) return;
+    const code = getCodeText();
+    if (!code.trim()) return;
+    try {
+      const out = await formatCode(lang, code);
+      if (out === code) {
+        showToast(language === "ko" ? "이미 포맷되어 있습니다." : "Already formatted.", "info");
+        return;
+      }
+      const lineType = ((el.children as Array<{ type?: string }>)[0]?.type as string) || "code_line";
+      const codeType = (el.type as string) || "code_block";
+      const newChildren = out.split("\n").map((line) => ({ type: lineType, children: [{ text: line }] }));
+      editor.tf.withoutNormalizing(() => {
+        editor.tf.removeNodes({ at: elPath });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        editor.tf.insertNodes({ type: codeType, ...(lang ? { lang } : {}), ...(wrap ? { wrap } : {}), children: newChildren } as any, { at: elPath });
+      });
+      showToast(language === "ko" ? "코드 포맷팅 완료" : "Code formatted", "success");
+    } catch {
+      showToast(language === "ko" ? "포맷팅에 실패했습니다 — 문법 오류일 수 있습니다." : "Format failed — check syntax.", "error");
+    }
+  };
 
   return (
     <BlockDropZone path={elPath}>
     {/* 언어 변경 시 code-syntax 재decoration 으로 leaf 의 hook 구조가 바뀌어 React hook 순서 에러 →
         lang 을 key 로 줘서 변경 시 subtree 를 새로 마운트(leaf 를 fresh 하게)해 비교 자체를 피한다. */}
     <div key={`cb-${lang ?? "plaintext"}`} {...blockDragProps} style={{ cursor: "default" }}>
-    <PlateElement
-      {...props}
-      as="pre"
-      style={{
-        ...props.style,
-        position: "relative",
-      }}
-    >
-      <div className={styles.codeControls} contentEditable={false}>
+    {/* 코드블록 floating bar — 선택/포커스 시 코드블록 위에 뜸(다른 블록과 동일 패턴).
+        main: 언어 · 포맷팅 · 줄바꿈 · 복사 / ⋯: 복제·이동·삭제(블록 관리). keepInView 로 스크롤 추적. */}
+    <FloatingBar open={selected || uiFocused} getAnchorRect={getAnchorRect} inline keepInView
+      onFocusCapture={() => setUiFocused(true)}
+      onBlurCapture={() => setUiFocused(false)}>
+      {/* 다이어그램(mermaid) 블록은 언어가 mermaid 로 고정 → 언어 선택 숨김 */}
+      {!isMermaid && (
         <span className={styles.codeLangSelectWrap} onMouseDown={(e) => e.stopPropagation()}>
-          <Select
-            combobox
-            value={lang ?? "plaintext"}
-            inputValue={langSearch}
-            onInputChange={setLangSearch}
-            onChange={() => {}}
-            onAdd={(v) => {
-              if (CODE_BLOCK_LANGS.some((l) => l.value === v)) setLang(v);
-              setLangSearch("");
-            }}
-            options={CODE_BLOCK_LANGS.map((l) => ({ value: l.value, label: l.label, searchTerms: l.terms ? [...l.terms] : undefined }))}
-            placeholder={CODE_BLOCK_LANGS.find((l) => l.value === (lang ?? "plaintext"))?.label ?? "Plain text"}
-            size="sm"
-            width="max"
-            triggerClassName={styles.codeLangTrigger}
-          />
+          <CodeLangPicker value={lang ?? "plaintext"} onChange={setLang} language={language} />
         </span>
-        <Tooltip content={language === "ko" ? "코드 복사" : "Copy code"} placement="bottom">
+      )}
+      {isMermaid && (
+        <>
+          <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex", marginRight: "var(--spacing-3xs)" }}>
+            <SegmentedControl<"code" | "diagram" | "split">
+              items={[
+                { value: "code", label: language === "ko" ? "코드" : "Code" },
+                { value: "diagram", label: language === "ko" ? "다이어그램" : "Diagram" },
+                { value: "split", label: language === "ko" ? "스플릿" : "Split" },
+              ]}
+              value={graphView}
+              onChange={setGraphView}
+              size="sm"
+            />
+          </span>
+        </>
+      )}
+      {isFormattable(lang) && (
+        <button
+          type="button"
+          className={styles.codeBarBtn}
+          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleFormat(); }}
+        >
+          <Sparkles size={13} />{language === "ko" ? "포맷" : "Format"}
+        </button>
+      )}
+      <button
+        type="button"
+        className={styles.codeBarBtn}
+        data-on={wrap ? "" : undefined}
+        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleWrap(); }}
+      >
+        <WrapText size={13} />{language === "ko" ? "줄바꿈" : "Wrap"}
+      </button>
+      <Tooltip content={language === "ko" ? "코드 복사" : "Copy code"} placement="bottom">
+        <button
+          type="button"
+          className={styles.codeCtrlBtn}
+          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCopy(); }}
+          aria-label={language === "ko" ? "코드 복사" : "Copy code"}
+        >
+          <Copy size={14} />
+        </button>
+      </Tooltip>
+      {isMermaid && (
+        <button type="button" className={styles.codeCtrlBtn}
+          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onClick={() => openModal(<MermaidHelpModal language={language} />, {
+            header: {
+              title: language === "ko" ? "Mermaid 문법 도움말" : "Mermaid syntax help",
+              actions: (
+                <a className={styles.mermaidHelpLink} href="https://mermaid.js.org/intro/" target="_blank" rel="noopener noreferrer">
+                  {language === "ko" ? "전체 문서 보기" : "Full documentation"} <ExternalLink size={12} />
+                </a>
+              ),
+            },
+            width: "min(56rem, 94vw)",
+          })}
+          aria-label={language === "ko" ? "Mermaid 문법 도움말" : "Mermaid syntax help"}>
+          {/* HelpCircle 에서 원만 뺀 물음표 아이콘 (stroke 기반, bold 아님) */}
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <path d="M12 17h.01" />
+          </svg>
+        </button>
+      )}
+      <Popover
+        openOnHover
+        placement="bottom-end"
+        contentClassName={styles.codeMenuPopover}
+        trigger={
           <button
             type="button"
             className={styles.codeCtrlBtn}
-            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCopy(); }}
-            aria-label={language === "ko" ? "코드 복사" : "Copy code"}
+            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            aria-label={language === "ko" ? "더보기" : "More"}
           >
-            <Copy size={14} />
+            <MoreHorizontal size={16} />
           </button>
-        </Tooltip>
-        <Popover
-          placement="bottom-end"
-          contentClassName={styles.codeMenuPopover}
-          trigger={
-            <button
-              type="button"
-              className={styles.codeCtrlBtn}
-              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              aria-label={language === "ko" ? "더보기" : "More"}
-            >
-              <MoreHorizontal size={16} />
-            </button>
-          }
-        >
-          {({ close }) => (
-            <CodeBlockMenu
-              close={close}
-              lang={lang}
-              wrap={wrap}
-              language={language}
-              onCopy={handleCopy}
-              onToggleWrap={toggleWrap}
-              onSetLang={setLang}
-              onDuplicate={handleDuplicate}
-              onMoveUp={handleMoveUp}
-              onMoveDown={handleMoveDown}
-              onDelete={handleDelete}
-            />
-          )}
-        </Popover>
-      </div>
-      <code style={{ position: "relative", whiteSpace: wrap ? "pre-wrap" : "pre", wordBreak: wrap ? "break-all" : undefined }}>
-        {isEmpty && (
-          <span contentEditable={false} style={{
-            position: "absolute", top: 0, left: 0, color: "var(--text-tertiary)",
-            fontStyle: "italic", pointerEvents: "none", userSelect: "none",
-          }}>{t("editor.codeEnter")}</span>
+        }
+      >
+        {({ close }) => (
+          <BlockActionsMenu
+            close={close}
+            language={language}
+            actions={{
+              onDuplicate: handleDuplicate,
+              onMoveUp: handleMoveUp,
+              onMoveDown: handleMoveDown,
+              onClear: handleClear,
+              onDelete: handleDelete,
+            }}
+          />
         )}
-        {props.children}
-      </code>
-    </PlateElement>
-    {lang === "mermaid" && <MermaidPreview code={mermaidSource} />}
+      </Popover>
+    </FloatingBar>
+    {/* mermaid: 뷰 토글에 따라 코드/다이어그램/나란히. split 은 코드·그래프가 같은 컨테이너(동일 높이)에
+        좌우로 들어가고 가운데 핸들로 폭 비율 조절(넓으면 좌우, 좁으면 위아래로 스택). */}
+    <div
+      className={isSplit ? styles.graphSplit : undefined}
+      ref={splitRef}
+      style={isSplit ? ({ ["--split-pct" as string]: `${splitPct}%` } as React.CSSProperties) : undefined}
+    >
+      <PlateElement
+        {...props}
+        as="pre"
+        className={isSplit ? styles.graphSplitCode : undefined}
+        style={{
+          ...props.style,
+          position: "relative",
+          ...(showCode ? {} : { display: "none" }),
+          ...(isSplit ? { minWidth: 0, margin: 0, maxHeight: "none", resize: "none" } : {}),
+        }}
+      >
+        <code style={{ position: "relative", whiteSpace: wrap ? "pre-wrap" : "pre", wordBreak: wrap ? "break-all" : undefined }}>
+          {isEmpty && (
+            <span contentEditable={false} style={{
+              position: "absolute", top: 0, left: 0, color: "var(--text-tertiary)",
+              fontStyle: "italic", pointerEvents: "none", userSelect: "none",
+            }}>{t("editor.codeEnter")}</span>
+          )}
+          {props.children}
+        </code>
+      </PlateElement>
+      {isSplit && showDiagram && (
+        <div className={styles.graphSplitHandle} contentEditable={false} role="separator" aria-label="resize"
+          data-cursor="resizeH"
+          onMouseDown={(e) => e.stopPropagation()} onPointerDown={onSplitHandleDown}>
+          <span className={styles.graphSplitHandleBar} />
+        </div>
+      )}
+      {showDiagram && <MermaidPreview code={mermaidSource} split={isSplit} />}
+    </div>
     </div>
     </BlockDropZone>
   );
@@ -997,7 +1924,8 @@ function BlockPlaceholder({ text }: { text: string }) {
     <span
       contentEditable={false}
       className={styles.blockPlaceholder}
-      style={{ position: "absolute", left: "var(--float-edge, 0px)", top: 0, pointerEvents: "none", color: "var(--text-muted)", opacity: 0.45, userSelect: "none", whiteSpace: "nowrap" }}
+      // right:0 + overflow ellipsis — 열 너비가 좁으면 잘리는 대신 말줄임표(…)
+      style={{ position: "absolute", left: "var(--float-edge, 0px)", right: 0, top: 0, pointerEvents: "none", color: "var(--text-muted)", opacity: 0.45, userSelect: "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}
     >
       {text}
     </span>
@@ -1014,7 +1942,9 @@ export function ParagraphElement(props: PlateElementProps) {
   // 단 여러 블록을 선택(드래그)한 상태에선 숨김.
   const sel0 = editor.selection;
   const multiBlock = !!sel0 && sel0.anchor.path[0] !== sel0.focus.path[0];
-  const showPlaceholder = !hasTodo && !multiBlock && isEmptyBlock(props.element) && (selected || editor.children.length === 1);
+  // 확장(range) 선택 — 표 여러 셀 선택 등. 이때는 커서가 아니므로 placeholder 숨김.
+  const collapsed = !!sel0 && sel0.anchor.offset === sel0.focus.offset && sel0.anchor.path.join() === sel0.focus.path.join();
+  const showPlaceholder = !hasTodo && !multiBlock && isEmptyBlock(props.element) && ((selected && collapsed) || editor.children.length === 1);
 
   // table 안에 Slate가 삽입하는 빈 paragraph → <div>가 <tbody> 안에 들어가면 안 됨
   const parentType = (() => {
@@ -1137,6 +2067,14 @@ function parseEmbed(url: string): EmbedInfo {
   // CodePen
   m = url.match(/codepen\.io\/([\w-]+)\/pen\/([\w]+)/);
   if (m) return { type: "iframe", src: `https://codepen.io/${m[1]}/embed/${m[2]}?default-tab=result` };
+  // CodeSandbox — /s/<id>, /embed/<id>, /p/sandbox/<id>
+  m = url.match(/codesandbox\.io\/(?:s|embed)\/([\w-]+)/) || url.match(/codesandbox\.io\/p\/sandbox\/([\w-]+)/);
+  if (m) return { type: "iframe", src: `https://codesandbox.io/embed/${m[1]}?view=preview&hidenavigation=1`, aspect: "16/11" };
+  // StackBlitz — /edit/<slug>, /github/<owner>/<repo>
+  if (/stackblitz\.com\/(edit|github)\//.test(url)) {
+    const base = url.split(/[?#]/)[0];
+    return { type: "iframe", src: `${base}?embed=1&view=preview`, aspect: "16/11" };
+  }
   // Google Maps
   if (/google\.\w+\/maps/.test(url)) {
     return { type: "iframe", src: `https://maps.google.com/maps?q=${encodeURIComponent(url)}&output=embed` };
@@ -1202,7 +2140,6 @@ function ScriptEmbed({ platform, href }: { platform: string; href: string }) {
 
 /** 미디어 임베드 — iframe / script / video 렌더링 */
 export function MediaEmbedElement(props: PlateElementProps) {
-  const { t } = useLanguage();
   const editor = useEditorRef();
   const selected = useSelected();
   const focused = useFocused();
@@ -1221,51 +2158,107 @@ export function MediaEmbedElement(props: PlateElementProps) {
   const vidAlign = (el.align as string) || "center";
   const vidWidth = (el.width as number) || 0;
   const vidHeight = (el.height as number) || 0;
+  const vidLayout = (el.layout as string) || "block";
+  const vidLock = (el.lockAspect as boolean) ?? true;
+  // 재생 옵션 + 캡션 + 다운로드 방지
+  // vidAutoplay 는 여기서 안 읽는다 — autoplay 는 편집을 방해해서 에디터엔 일부러 미적용이고,
+  // 발행 HTML 에만 직렬화기(plateSerializer)가 넣는다.
+  const vidLoop = (el.vidLoop as boolean) || false;
+  const vidMuted = (el.vidMuted as boolean) || false;
+  const vidStart = (el.vidStart as number) || 0;
+  const noDownload = (el.noDownload as boolean) ?? false;
+  const caption = (el.caption as string) || "";
+  const [captionEditing, setCaptionEditing] = useState(false);
+  const showCaption = !!(caption || captionEditing);
 
-  const [clicked, setClicked] = useState(false);
-  const isActive = isVideo && selected && focused && clicked;
-  useEffect(() => { if (!selected) setClicked(false); }, [selected]);
+  // 이미지처럼 — 선택(void 가 selection 에 포함) + 포커스면 핸들/아웃라인 표시
+  const isActive = isVideo && selected && focused;
 
+  const videoElRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // 툴바 "캡션" 버튼 → 동영상 DOM 에 커스텀 이벤트 → 편집 모드 진입 + input focus (이미지와 동일)
+  useEffect(() => {
+    const node = videoElRef.current;
+    if (!node) return;
+    const handler = () => {
+      setCaptionEditing(true);
+      requestAnimationFrame(() => {
+        const input = node.querySelector("[data-img-caption]") as HTMLElement | null;
+        if (input) {
+          input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+          setTimeout(() => input.focus(), 0);
+        }
+      });
+    };
+    node.addEventListener("video-caption-edit", handler);
+    return () => node.removeEventListener("video-caption-edit", handler);
+  }, []);
   const [resizeSize, setResizeSize] = useState<{ w: number; h: number } | null>(null);
-  const draggingRef = useRef<{ startX: number; startY: number; startW: number; startH: number; ratio: number } | null>(null);
+  const draggingRef = useRef<{ handle: "right" | "bottom" | "corner"; startX: number; startY: number; startW: number; startH: number; ratio: number } | null>(null);
 
   const setMediaAttr = useCallback((attrs: Record<string, unknown>) => {
     if (elPath) editor.tf.setNodes(attrs, { at: elPath });
   }, [editor, elPath]);
 
-  const onPointerDown = useCallback((e: React.PointerEvent) => {
+  // 클릭 시 media_embed void 노드를 명시적으로 선택 (이미지 selectImage 와 동일) →
+  // selected 가 켜져야 리사이즈 핸들/툴바가 뜬다. preventDefault 안 해서 video 컨트롤은 그대로 동작.
+  const selectVideo = useCallback(() => {
+    if (!elPath) return;
+    try {
+      const anchor = editor.api.start(elPath);
+      const focus = editor.api.end(elPath);
+      editor.tf.focus();
+      if (anchor && focus) editor.tf.select({ anchor, focus });
+      else editor.tf.select(elPath);
+    } catch { /* ignore */ }
+  }, [editor, elPath]);
+
+  // 이미지와 동일한 다중 핸들 리사이즈 (동영상은 왜곡 방지 위해 항상 비율 유지)
+  const onPointerDown = useCallback((handle: "right" | "bottom" | "corner") => (e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const vid = videoRef.current;
     if (!vid) return;
     const rect = vid.getBoundingClientRect();
-    draggingRef.current = { startX: e.clientX, startY: e.clientY, startW: rect.width, startH: rect.height, ratio: rect.width / rect.height };
+    draggingRef.current = { handle, startX: e.clientX, startY: e.clientY, startW: rect.width, startH: rect.height, ratio: rect.width / rect.height };
 
     const onPointerMove = (ev: PointerEvent) => {
       const d = draggingRef.current;
       if (!d || !vid) return;
-      const newW = Math.max(120, d.startW + (ev.clientX - d.startX));
-      const newH = Math.round(newW / d.ratio);
-      vid.style.width = `${newW}px`;
-      vid.style.height = `${newH}px`;
-      setResizeSize({ w: Math.round(newW), h: newH });
+      const dx = ev.clientX - d.startX;
+      const dy = ev.clientY - d.startY;
+      let newW: number, newH: number;
+      if (d.handle === "right") {
+        newW = Math.max(120, d.startW + dx);
+        newH = vidLock ? newW / d.ratio : d.startH;
+      } else if (d.handle === "bottom") {
+        newH = Math.max(68, d.startH + dy);
+        newW = vidLock ? newH * d.ratio : d.startW;
+      } else {
+        // corner — 잠금이면 비율 유지, 해제면 자유
+        newW = Math.max(120, d.startW + dx);
+        newH = vidLock ? newW / d.ratio : Math.max(68, d.startH + dy);
+      }
+      const rw = Math.round(newW);
+      const rh = Math.round(newH);
+      vid.style.width = `${rw}px`;
+      vid.style.height = `${rh}px`;
+      setResizeSize({ w: rw, h: rh });
     };
 
     const onPointerUp = () => {
       document.removeEventListener("pointermove", onPointerMove);
       document.removeEventListener("pointerup", onPointerUp);
       if (!vid) return;
-      const w = Math.round(parseFloat(vid.style.width));
-      const h = Math.round(parseFloat(vid.style.height));
-      setMediaAttr({ width: w, height: h });
+      setMediaAttr({ width: Math.round(parseFloat(vid.style.width)), height: Math.round(parseFloat(vid.style.height)) });
       draggingRef.current = null;
       setResizeSize(null);
     };
 
     document.addEventListener("pointermove", onPointerMove);
     document.addEventListener("pointerup", onPointerUp);
-  }, [setMediaAttr]);
+  }, [setMediaAttr, vidLock]);
 
   const justifyMap: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
 
@@ -1333,23 +2326,42 @@ export function MediaEmbedElement(props: PlateElementProps) {
   const iframeJustify: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
 
   if (isVideo) {
-    const handleStyle: React.CSSProperties = { position: "absolute", background: "var(--color-accent, #3b82f6)", borderRadius: 3, zIndex: 2, cursor: "nwse-resize" };
+    const isFloat = vidLayout.startsWith("float-");
+    const handleStyle: React.CSSProperties = { position: "absolute", background: "var(--color-accent)", borderRadius: 3, zIndex: 4, pointerEvents: "none" };
     return (
-      <PlateElement {...props} as="figure" style={{ ...props.style, display: "flex", flexDirection: "column", alignItems: justifyMap[vidAlign] || "center", margin: "var(--spacing-md, 16px) 0" }}>
+      <PlateElement {...props} ref={videoElRef} as="figure" style={{
+        ...props.style,
+        ...(isFloat
+          ? {
+              float: vidLayout === "float-left" ? "left" : "right",
+              margin: vidLayout === "float-left" ? "4px 20px 8px 0" : "4px 0 8px 20px",
+              display: "block", clear: "none", maxWidth: "60%",
+            }
+          : { display: "flex", flexDirection: "column", alignItems: justifyMap[vidAlign] || "center", margin: "var(--spacing-md, 16px) 0" }),
+      }}>
         <BlockDropZone path={elPath}>
-          <div {...blockDragProps} contentEditable={false} style={{ display: "inline-block", maxWidth: "100%", position: "relative", cursor: "default" }} onClick={() => setClicked(true)}>
+          <div {...blockDragProps} contentEditable={false} style={{ display: "inline-block", maxWidth: "100%", position: "relative", cursor: "default", lineHeight: 0, fontSize: 0 }} onClick={selectVideo}>
             <video
               ref={videoRef}
+              // src 는 fragment 없이 고정 → 시작 시점을 바꿔도 reload 안 됨. 시작 프레임은 metadata 로드 후 seek.
+              // (발행 HTML 엔 직렬화기가 #t= 로 시작 위치 지정. autoplay 는 편집 방해되어 에디터엔 미적용)
               src={embed.src}
               controls
+              loop={vidLoop}
+              muted={vidMuted}
+              controlsList={noDownload ? "nodownload noplaybackrate" : undefined}
+              onContextMenu={noDownload ? (e) => e.preventDefault() : undefined}
+              onLoadedMetadata={(e) => { if (vidStart > 0) { try { e.currentTarget.currentTime = vidStart; } catch { /* ignore */ } } }}
               preload="metadata"
               style={{
                 width: vidWidth > 0 ? vidWidth : undefined,
-                height: vidHeight > 0 ? vidHeight : undefined,
+                // 비율 잠금이면 height 는 auto → 콘텐츠 aspect 로 딱 맞음(레터박스=위아래 여백 방지).
+                // 해제 상태에서만 명시 height 로 자유 조절(왜곡 허용).
+                height: vidLock ? "auto" : (vidHeight > 0 ? vidHeight : undefined),
                 maxWidth: "100%",
                 display: "block",
                 borderRadius: 8,
-                outline: isActive ? "2px solid var(--color-accent, #3b82f6)" : undefined,
+                outline: isActive ? "2px solid var(--color-accent)" : undefined,
               }}
               draggable={false}
             />
@@ -1359,20 +2371,25 @@ export function MediaEmbedElement(props: PlateElementProps) {
               </div>
             )}
             {isActive && (
-              <div onPointerDown={onPointerDown} data-no-drag style={{ ...handleStyle, right: -5, bottom: -5, width: 10, height: 10 }} />
+              <>
+                {/* 히트박스 — 우/하/모서리 (이미지와 동일) */}
+                <div data-cursor="resizeH" onPointerDown={onPointerDown("right")} data-no-drag style={{ position: "absolute", right: -5, top: 0, bottom: 0, width: 10, cursor: "ew-resize", zIndex: 5 }} />
+                <div data-cursor="resizeV" onPointerDown={onPointerDown("bottom")} data-no-drag style={{ position: "absolute", bottom: -5, left: 0, right: 0, height: 10, cursor: "ns-resize", zIndex: 5 }} />
+                <div data-cursor="resizeDiag" onPointerDown={onPointerDown("corner")} data-no-drag style={{ position: "absolute", right: -7, bottom: -7, width: 14, height: 14, cursor: "nwse-resize", zIndex: 6 }} />
+                {/* 시각 핸들 */}
+                <div style={{ ...handleStyle, width: 6, height: 32, right: -4, top: "50%", transform: "translateY(-50%)" }} />
+                <div style={{ ...handleStyle, width: 32, height: 6, bottom: -4, left: "50%", transform: "translateX(-50%)" }} />
+                <div style={{ ...handleStyle, width: 10, height: 10, borderRadius: "var(--radius-capsule)", right: -5, bottom: -5 }} />
+              </>
             )}
           </div>
-          {/* 정렬 버튼 */}
-          {isActive && (
-            <div contentEditable={false} className={styles.floatingToolbar} style={{ display: "inline-flex", gap: 4, marginTop: 4 }}>
-              {(["left", "center", "right"] as const).map((a) => (
-                <TBtn key={a} square active={vidAlign === a} onClick={() => setMediaAttr({ align: a })}>
-                  {a === "left" ? "◧" : a === "center" ? "◻" : "◨"}
-                </TBtn>
-              ))}
-              <TBtn square onClick={() => { setMediaAttr({ width: 0, height: 0 }); }} tooltip={t("editor.restoreOriginal")}><RxReset size={14} /></TBtn>
+          {/* 캡션 — 이미지처럼 동영상 아래 인라인 (버튼 눌렀을 때 or 값 있을 때만) */}
+          {showCaption && (
+            <div contentEditable={false} style={{ width: vidWidth > 0 ? vidWidth : undefined, maxWidth: "100%" }}>
+              <InlineCaption caption={caption} onCommit={(v) => setMediaAttr({ caption: v || undefined })} onEditingChange={setCaptionEditing} />
             </div>
           )}
+          {/* 툴바(레이아웃/정렬/크기/재생/삭제)는 공통 VideoToolbar 가 최상위에서 렌더 */}
         </BlockDropZone>
         {props.children}
       </PlateElement>
@@ -1637,7 +2654,9 @@ export function HeadingElement(props: PlateElementProps) {
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   const sel0 = editor.selection;
   const multiBlock = !!sel0 && sel0.anchor.path[0] !== sel0.focus.path[0];
-  const showPlaceholder = selected && !multiBlock && isEmptyBlock(props.element);
+  // 확장(range) 선택 — 표 여러 셀 선택 등. 이때는 커서가 아니므로 placeholder 숨김.
+  const collapsed = !!sel0 && sel0.anchor.offset === sel0.focus.offset && sel0.anchor.path.join() === sel0.focus.path.join();
+  const showPlaceholder = selected && collapsed && !multiBlock && isEmptyBlock(props.element);
   const phKey = tag === "h1" ? "editor.phHeading1" : tag === "h2" ? "editor.phHeading2" : "editor.phHeading3";
   return (
     <BlockDropZone path={elPath}>
@@ -1657,7 +2676,9 @@ export function BlockquoteElement(props: PlateElementProps) {
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   const sel0 = editor.selection;
   const multiBlock = !!sel0 && sel0.anchor.path[0] !== sel0.focus.path[0];
-  const showPlaceholder = selected && !multiBlock && isEmptyBlock(props.element);
+  // 확장(range) 선택 — 표 여러 셀 선택 등. 이때는 커서가 아니므로 placeholder 숨김.
+  const collapsed = !!sel0 && sel0.anchor.offset === sel0.focus.offset && sel0.anchor.path.join() === sel0.focus.path.join();
+  const showPlaceholder = selected && collapsed && !multiBlock && isEmptyBlock(props.element);
   return (
     <BlockDropZone path={elPath}>
       <PlateElement {...props} as="blockquote" style={{ ...props.style, position: "relative" }}>
@@ -1721,11 +2742,12 @@ export function ColumnGroupElement(props: PlateElementProps) {
   const el = props.element as Record<string, unknown>;
   const colBg = el.columnBg as string | undefined;
   const colDivider = el.columnDivider as string | undefined;
+  const columnScroll = el.columnScroll as boolean | undefined; // false = 스크롤 끔(넘치면 잘림)
   const groupRef = useRef<HTMLDivElement>(null);
 
-  // 기본은 구분선 숨김(transparent) — 사용자가 색을 지정해야 보임
-  const dividerColor = colDivider === "transparent" ? "transparent" : colDivider || "transparent";
-  const colBgVal = colBg === "transparent" ? "transparent" : colBg || "var(--bg-primary)";
+  // 기본은 열 사이 가운데에 subtle 구분선 — "transparent" 로 명시하면 숨김
+  const dividerColor = colDivider === "transparent" ? "transparent" : colDivider || "var(--border-light-color)";
+  const colBgVal = colBg === "transparent" ? "transparent" : colBg || COLUMN_DEFAULT_BG;
 
   const colChildren = (el.children as unknown[]) || [];
   const colCount = colChildren.length;
@@ -1739,47 +2761,63 @@ export function ColumnGroupElement(props: PlateElementProps) {
     const colEls = Array.from(group.querySelectorAll<HTMLElement>(":scope > [data-slate-node='element']"));
     if (colEls.length < 2 || index >= colEls.length - 1) return;
 
-    const groupW = group.getBoundingClientRect().width;
-    const startLeftW = colEls[index].getBoundingClientRect().width;
-    const startRightW = colEls[index + 1].getBoundingClientRect().width;
-    const totalW = startLeftW + startRightW;
+    // 잡은 열을 넓히면 이웃이 MIN 까지 줄고, 더 끌면 총폭이 화면을 넘어 가로 스크롤(= 화면보다 넓게 가능). 놓으면 px 로 확정.
+    const startWidths = colEls.map((el) => el.getBoundingClientRect().width);
     const startX = e.clientX;
+    const clampPx = (w: number) => Math.min(COLUMN_MAX_PX, Math.max(COLUMN_MIN_PX, Math.round(w)));
+    const applyPxWidths = (widths: number[]) => {
+      colEls.forEach((el, i) => { el.style.flex = `0 0 ${clampPx(widths[i])}px`; });
+    };
 
     const onMove = (ev: PointerEvent) => {
+      if (!ev.buttons) { onUp(); return; } // 창 밖 릴리즈 등으로 pointerup 유실 → 버튼 안 눌린 이동은 종료(유령 리사이즈 방지)
       const dx = ev.clientX - startX;
-      const newLeftW = Math.max(groupW * 0.1, Math.min(totalW - groupW * 0.1, startLeftW + dx));
-      const newRightW = totalW - newLeftW;
-      colEls[index].style.flex = `${(newLeftW / groupW) * 100} 0 0`;
-      colEls[index + 1].style.flex = `${(newRightW / groupW) * 100} 0 0`;
+      const pair = startWidths[index] + startWidths[index + 1];
+      // 하한 = pair-MAX → 이웃이 MAX(1600) 초과할 일이 없어 clampPx 손실(오른쪽 gap)이 안 생김. 상한은 MAX(넘으면 total 증가 → 스크롤).
+      const lo = Math.max(COLUMN_MIN_PX, pair - COLUMN_MAX_PX);
+      const newLeft = Math.min(COLUMN_MAX_PX, Math.max(lo, startWidths[index] + dx));
+      const widths = startWidths.slice();
+      widths[index] = newLeft;
+      widths[index + 1] = Math.max(COLUMN_MIN_PX, pair - newLeft); // 이웃 MIN 도달 후엔 total 이 늘어 화면보다 넓어짐
+      applyPxWidths(widths);
     };
 
     const onUp = () => {
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
-      // 최종 비율 Slate에 저장
+      document.removeEventListener("pointercancel", onUp);
+      // px 로 확정 저장 — 합이 화면보다 넓으면 그대로 가로 스크롤. (렌더: flex:0 0 {px}px)
+      // width(%) 는 지우지 않는다 — @platejs/layout normalizer 가 열 width 합=100 을 요구하므로 null 로 지우면 무한 루프.
       try {
         const path = editor.api.findPath(props.element);
         if (!path) return;
-        const finalGroupW = group.getBoundingClientRect().width;
+        const finalPx = colEls.map((el) => clampPx(el.getBoundingClientRect().width));
         editor.tf.withoutNormalizing(() => {
-          colEls.forEach((colEl, i) => {
-            const pct = Math.round((colEl.getBoundingClientRect().width / finalGroupW) * 100);
-            editor.tf.setNodes({ width: `${pct}%` }, { at: [...Array.from(path), i] });
-          });
+          colEls.forEach((_, i) => editor.tf.setNodes({ widthPx: finalPx[i] }, { at: [...Array.from(path), i] }));
         });
       } catch { /* ignore */ }
     };
 
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
   }, [editor, props.element]);
 
+  // 스크롤 ON(기본): px 열 고정 → 넘치면 가로 스크롤. OFF: px 열이 flex-shrink 로 줄어 화면 폭에 맞춤(fit).
+  const scrollOn = columnScroll !== false;
   const groupStyle: React.CSSProperties = {
     ...props.style,
     display: "flex",
     gap: "var(--spacing-xs)",
-    margin: "var(--spacing-md) 0",
+    marginBlock: "var(--spacing-md)",
+    // 첫 열 블록의 좌측 핸들(gutter left:-40px)이 overflow-x 에 안 잘리게 좌측 40px 공간 확보.
+    // 같은 크기의 음수 margin 으로 시각적 위치는 그대로(그 40px 는 에디터 좌측 여백 안에 들어감).
+    marginRight: 0,
+    marginLeft: -40,
+    paddingLeft: 40,
     position: "relative",
+    overflowX: scrollOn ? "auto" : "hidden",
+    "--_col-shrink": scrollOn ? 0 : 1, // px 열의 flex-shrink — OFF 면 1(줄어들어 fit)
     "--_col-bg": colBgVal,
     "--_col-divider": dividerColor,
   } as React.CSSProperties;
@@ -1856,13 +2894,20 @@ export function ColumnGroupElement(props: PlateElementProps) {
 export function ColumnElement(props: PlateElementProps) {
   const el = props.element as Record<string, unknown>;
   const width = el.width as string | undefined;
+  const widthPx = el.widthPx as number | undefined;
+  // px 지정: 정확한 px 고정(grow/shrink 0) → 합이 컨테이너를 넘으면 가로 스크롤(= 화면보다 넓게 가능).
+  // px 없음: 유동 % 채움(항상 화면에 맞음).
+  const px = typeof widthPx === "number" && widthPx > 0 ? widthPx : null;
+  const weight = width ? Math.max(0.001, parseFloat(width)) : 1;
+  // 편집(selection 이 이 열 안)이면 selected → accent 하이라이트. hover 는 CSS(:hover)가 처리.
+  const selected = useSelected();
   return (
-    <PlateElement {...props} className={styles.colElement} data-block-container="" style={{
+    <PlateElement {...props} className={`${styles.colElement}${selected ? ` ${styles.colElementActive}` : ""}`} data-block-container="" style={{
       ...props.style,
-      flex: width ? `${parseFloat(width)} 0 0` : "1 0 0",
-      minWidth: 0,
-      borderRadius: "var(--radius-sm)",
-      background: "var(--_col-bg, var(--bg-primary))",
+      ...(px != null ? { flex: `0 var(--_col-shrink, 0) ${px}px` } : { flex: `${weight} 1 0` }),
+      minWidth: COLUMN_MIN_PX,
+      borderRadius: "var(--radius-2xl)",
+      background: `var(--_col-bg, ${COLUMN_DEFAULT_BG})`,
       padding: "var(--spacing-sm)",
     }}>
       {props.children}

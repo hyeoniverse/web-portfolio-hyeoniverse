@@ -51,6 +51,15 @@
   --color-error: oklch(57.71% 0.2152 27.33);
   --color-error-alpha: oklch(57.71% 0.2152 27.33 / 0.15);
   --color-error-soft: oklch(57.71% 0.2152 27.33 / 0.12);
+
+  /* Label Palette (rainbow) — 캘린더 라벨/이벤트 색 */
+  --color-label-red: oklch(57.71% 0.2152 27.33);
+  --color-label-orange: oklch(66% 0.18 55);
+  --color-label-yellow: oklch(79% 0.15 90);
+  --color-label-green: oklch(62.71% 0.1699 149.21);
+  --color-label-blue: oklch(54.61% 0.2152 262.88);
+  --color-label-indigo: oklch(49% 0.19 279);
+  --color-label-violet: oklch(55% 0.2 320);
 }
 
 /* ==========================================================================

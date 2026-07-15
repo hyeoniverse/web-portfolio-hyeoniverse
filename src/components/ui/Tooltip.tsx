@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { usePortalContainer } from "./portalContainer";
 import styles from "./Tooltip.module.css";
 
 interface TooltipProps {
@@ -19,6 +20,11 @@ interface TooltipProps {
   wrapperStyle?: React.CSSProperties;
   /** bubble 자체에 추가할 className — max-width / padding 등 부분 오버라이드용 */
   bubbleClassName?: string;
+  /** hover 영역(래퍼)은 그대로 두되, 위치 앵커는 래퍼 안의 이 selector 요소 기준.
+   *  예: 전체폭 버튼은 hover, 툴팁은 그 안 텍스트 중앙에 표시 */
+  anchorSelector?: string;
+  /** 툴팁 콘텐츠를 hover/클릭 가능하게 (링크 등). 트리거→툴팁 이동 시 gap 을 건너도 유지되도록 지연 hide. */
+  interactive?: boolean;
   children: ReactNode;
 }
 
@@ -31,13 +37,19 @@ export default function Tooltip({
   disabled,
   wrapperStyle,
   bubbleClassName,
+  anchorSelector,
+  interactive,
   children,
 }: TooltipProps) {
+  // 오버레이(모달) 안이면 그 stacking context 로 portal → 모달 위에 tooltip 표시.
+  // 페이지 레벨(container 없음)이면 body + z-tooltip(700, drawer 아래) 유지.
+  const portalContainer = usePortalContainer();
   const [visible, setVisible] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0, side: "top" as "top" | "bottom" | "left" | "right" });
   /** 뷰포트 우/좌 경계에 가까울 때 bubble 이 viewport 안으로 들어오도록 한 px 시프트.
    *  arrow 는 그대로 두어 trigger 중심을 가리키고, bubble 만 옆으로 밀려 잘림 방지 */
   const [bubbleShiftX, setBubbleShiftX] = useState(0);
+  const [bubbleShiftY, setBubbleShiftY] = useState(0);
   /** 좌/우 placement 가 viewport 밖으로 나갈 때 1회만 반대 side 로 flip. 무한 ping-pong 방지 */
   const flippedRef = useRef(false);
 
@@ -48,13 +60,16 @@ export default function Tooltip({
   const measure = useCallback(() => {
     const el = triggerRef.current;
     if (!el) return;
-    const rect = el.getBoundingClientRect();
+    // 앵커 selector 지정 시 그 자식 요소 기준으로 위치 (hover 영역은 래퍼 그대로)
+    const anchorEl = anchorSelector ? (el.querySelector(anchorSelector) as HTMLElement | null) : null;
+    const rect = (anchorEl ?? el).getBoundingClientRect();
 
     if (placement === "left" || placement === "right") {
       const cy = rect.top + rect.height / 2;
       setPos({
-        x: placement === "left" ? rect.left - GAP : rect.right + GAP,
-        y: cy,
+        // 정수 픽셀로 반올림 — translate(-50%) 와 겹쳐 subpixel 위치가 되면 텍스트가 흐릿해짐
+        x: Math.round(placement === "left" ? rect.left - GAP : rect.right + GAP),
+        y: Math.round(cy),
         side: placement,
       });
       return;
@@ -78,17 +93,20 @@ export default function Tooltip({
       if (rect.top - scrollTop < 40 || rect.top < 60) side = "bottom";
     }
     setPos({
-      x: cx,
-      y: side === "top" ? rect.top - GAP : rect.bottom + GAP,
+      // 정수 픽셀로 반올림 — translate(-50%) 와 겹쳐 subpixel 위치가 되면 텍스트가 흐릿해짐
+      x: Math.round(cx),
+      y: Math.round(side === "top" ? rect.top - GAP : rect.bottom + GAP),
       side,
     });
-  }, [placement]);
+  }, [placement, anchorSelector]);
 
   const autoHideRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const show = useCallback(() => {
     if (disabled) return;
     clearTimeout(autoHideRef.current);
+    clearTimeout(hideTimerRef.current); // 진행 중인 지연 hide 취소 (트리거/툴팁 재진입)
     measure();
     if (delay > 0) {
       timerRef.current = setTimeout(() => {
@@ -103,8 +121,19 @@ export default function Tooltip({
   const hide = useCallback(() => {
     clearTimeout(timerRef.current);
     clearTimeout(autoHideRef.current);
+    clearTimeout(hideTimerRef.current);
     flippedRef.current = false;
     setVisible(false);
+  }, []);
+
+  // interactive: 트리거를 벗어나도 잠깐 유지 → 그 사이 gap 건너 툴팁으로 진입해 클릭 가능. 아니면 즉시 hide.
+  const scheduleHide = useCallback(() => {
+    if (!interactive) { hide(); return; }
+    clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(hide, 160);
+  }, [interactive, hide]);
+  const cancelHide = useCallback(() => {
+    clearTimeout(hideTimerRef.current);
   }, []);
 
   const handleTouch = useCallback(() => {
@@ -114,12 +143,14 @@ export default function Tooltip({
       return;
     }
     show();
-    autoHideRef.current = setTimeout(hide, 2000);
-  }, [disabled, visible, show, hide]);
+    // interactive(링크 등)면 자동 닫힘 없이 유지해 콘텐츠 탭 가능. 아니면 2초 후 자동 hide.
+    if (!interactive) autoHideRef.current = setTimeout(hide, 2000);
+  }, [disabled, visible, show, hide, interactive]);
 
   useEffect(() => () => {
     clearTimeout(timerRef.current);
     clearTimeout(autoHideRef.current);
+    clearTimeout(hideTimerRef.current);
   }, []);
 
   /** bubble 이 그려진 직후 viewport 밖으로 나가지 않도록 가로 시프트 계산 (top/bottom)
@@ -134,6 +165,7 @@ export default function Tooltip({
   useLayoutEffect(() => {
     if (!visible) {
       setBubbleShiftX(0); // React 가 동일값이면 자동 skip
+      setBubbleShiftY(0);
       return;
     }
     const bubble = bubbleRef.current;
@@ -159,6 +191,13 @@ export default function Tooltip({
 
     const margin = 8;
     const vpW = window.innerWidth;
+    const vpH = window.innerHeight;
+
+    // 세로 clamp — 모든 placement 공통. bubble 이 위/아래 뷰포트를 넘으면 그만큼 shift (arrow 는 유지).
+    let shiftY = 0;
+    if (rect.top < margin) shiftY = margin - rect.top;
+    else if (rect.bottom > vpH - margin) shiftY = vpH - margin - rect.bottom;
+    setBubbleShiftY(Math.round(shiftY));
 
     // 좌/우 placement — overflow 시 반대 side 로 flip (1회만)
     if (pos.side === "left" || pos.side === "right") {
@@ -203,7 +242,7 @@ export default function Tooltip({
         ref={triggerRef}
         style={{ display: "inline-flex", ...wrapperStyle }}
         onMouseEnter={show}
-        onMouseLeave={hide}
+        onMouseLeave={scheduleHide}
         onTouchStart={handleTouch}
       >
         {children}
@@ -211,6 +250,8 @@ export default function Tooltip({
 
       {visible && createPortal(
         <div
+          onMouseEnter={interactive ? cancelHide : undefined}
+          onMouseLeave={interactive ? scheduleHide : undefined}
           style={{
             position: "fixed",
             left: pos.x,
@@ -222,14 +263,15 @@ export default function Tooltip({
             /* z-tooltip 토큰 (700) — drawer/modal 같은 overlay (8000+) 아래에 위치하도록.
                drawer 가 열려있을 때 tooltip 이 그 위로 튀어나오지 않게 하기 위함. */
             zIndex: "var(--z-tooltip)",
-            pointerEvents: "none",
+            // interactive: 콘텐츠(링크 등) hover/클릭 가능. 아니면 통과시켜 아래 요소 방해 안 함.
+            pointerEvents: interactive ? "auto" : "none",
           }}
         >
           <div
             ref={bubbleRef}
             className={`${styles.bubble}${bubbleClassName ? ` ${bubbleClassName}` : ""}`}
-            // bubbleShiftX 만 bubble 에 적용 — arrow 는 그대로 두어 trigger 중앙을 가리킴
-            style={bubbleShiftX !== 0 ? { transform: `translateX(${bubbleShiftX}px)` } : undefined}
+            // bubbleShiftX/Y 만 bubble 에 적용 — arrow 는 그대로 두어 trigger 중앙을 가리킴
+            style={(bubbleShiftX !== 0 || bubbleShiftY !== 0) ? { transform: `translate(${bubbleShiftX}px, ${bubbleShiftY}px)` } : undefined}
           >
             {content}
           </div>
@@ -242,7 +284,7 @@ export default function Tooltip({
             }`}
           />
         </div>,
-        document.body,
+        portalContainer ?? document.body,
       )}
     </>
   );

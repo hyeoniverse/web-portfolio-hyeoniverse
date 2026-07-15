@@ -44,6 +44,8 @@ export interface Work {
   /** 기술별 메모 — 기술마다 ko/en 단일 설명 (TagNotesEditor 와 동일 패턴) */
   tech_notes?: Record<string, { ko: string; en: string }>;
   image: string;
+  /** 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단 (posts.icon 미러) */
+  icon: string;
   /* ── Detail content (single content field) ── */
   content_ko: string;
   content_en: string;
@@ -98,6 +100,8 @@ export interface WorkFormData {
   tech: string[];
   tech_notes: Record<string, { ko: string; en: string }>;
   image: string;
+  /** 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단 (posts.icon 미러) */
+  icon: string;
   content_ko: string;
   content_en: string;
   content_type: "markdown" | "richtext";
@@ -170,6 +174,7 @@ export function workFormToProject(form: WorkFormData): Project {
     tech: form.tech,
     tech_notes: form.tech_notes,
     image: form.image,
+    icon: form.icon,
     content_ko: form.content_ko,
     content_en: form.content_en,
     content_type: form.content_type,
@@ -253,6 +258,7 @@ export function workToProject(w: Work): Project {
     tech: w.tech,
     tech_notes: w.tech_notes && Object.keys(w.tech_notes).length > 0 ? w.tech_notes : undefined,
     image: w.image,
+    icon: w.icon,
     // card size (Flow 레이아웃) — sort_order 에서 cycle derive (single source of truth)
     size: getCardSize(w.sort_order),
     content: loc(contentKo, contentEn),

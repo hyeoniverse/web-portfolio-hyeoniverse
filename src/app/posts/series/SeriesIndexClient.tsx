@@ -3,14 +3,19 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import MediaThumb from "@/components/ui/MediaThumb";
+import PostsSubnav from "../_components/PostsSubnav";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { parseSearchQuery, matchesQuery, type SyntaxMode } from "@/lib/searchQuery";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Sparkles, X, ArrowRight, Settings } from "lucide-react";
+import { BookOpen, Flame, X, ArrowRight, Settings, List } from "lucide-react";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SegmentedControl from "@/components/ui/SegmentedControl";
+import Select from "@/components/ui/Select";
+import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
+import BackLink from "@/components/ui/BackLink";
+import PageTitle from "@/components/ui/PageTitle";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Series } from "@/types/post";
@@ -27,12 +32,20 @@ interface Props {
 
 type SortBy = "popular" | "alphabetical" | "newest";
 const FEATURED_COUNT = 3;
+const PER_PAGE_OPTIONS = [
+  { value: "10", label: "10개씩" },
+  { value: "20", label: "20개씩" },
+  { value: "50", label: "50개씩" },
+];
 
 export default function SeriesIndexClient({ series }: Props) {
   const { language } = useLanguage();
   const [search, setSearch] = useState("");
+  const [searchType, setSearchType] = useState<"all" | "title" | "desc">("all");
   const [syntaxMode, setSyntaxMode] = useState<SyntaxMode>("prefix");
   const [sortBy, setSortBy] = useState<SortBy>("popular");
+  const [perPage, setPerPage] = useState(20);
+  const [page, setPage] = useState(1);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [sheetSeries, setSheetSeries] = useState<SeriesEntry | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -84,10 +97,13 @@ export default function SeriesIndexClient({ series }: Props) {
     if (q) {
       const parsed = parseSearchQuery(q, syntaxMode);
       list = list.filter((s) => {
-        const haystack = [s.title, s.title_en, s.description, s.description_en]
-          .filter(Boolean)
-          .join("\n");
-        return matchesQuery(haystack, parsed);
+        const fields =
+          searchType === "title"
+            ? [s.title, s.title_en]
+            : searchType === "desc"
+              ? [s.description, s.description_en]
+              : [s.title, s.title_en, s.description, s.description_en];
+        return matchesQuery(fields.filter(Boolean).join("\n"), parsed);
       });
     }
     if (activeCategory) {
@@ -103,7 +119,17 @@ export default function SeriesIndexClient({ series }: Props) {
       list.sort((a, b) => b.post_count - a.post_count);
     }
     return list;
-  }, [series, search, syntaxMode, activeCategory, sortBy]);
+  }, [series, search, searchType, syntaxMode, activeCategory, sortBy]);
+
+  // 필터/정렬/페이지당개수 변경 시 1페이지로
+  useEffect(() => {
+    setPage(1);
+  }, [search, searchType, syntaxMode, activeCategory, sortBy, perPage]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  // page 가 범위를 벗어난 프레임(perPage 증가·검색 축소 등, reset effect 반영 전)에 빈 그리드 방지
+  const safePage = Math.min(page, totalPages);
+  const paged = filtered.slice((safePage - 1) * perPage, (safePage - 1) * perPage + perPage);
 
   const totalPosts = useMemo(
     () => series.reduce((sum, s) => sum + s.post_count, 0),
@@ -113,16 +139,19 @@ export default function SeriesIndexClient({ series }: Props) {
   return (
     <SearchHighlightProvider query={search} mode={syntaxMode}>
     <div className={styles.container}>
+      <PostsSubnav />
+      <div className={styles.backRow}>
+        <BackLink href="/posts" label={language === "en" ? "Posts" : "글 목록"} />
+      </div>
       <header className={styles.header}>
         <div className={styles.headerTitleRow}>
-          <h1 className={styles.title}>
-            <BookOpen size={22} strokeWidth={1.8} aria-hidden />
-            시리즈 모음
-          </h1>
+          <PageTitle icon={<BookOpen size={40} strokeWidth={1.6} aria-hidden />}>
+            Series.
+          </PageTitle>
           {isAdmin && (
             <Button
               href="/admin/settings?tab=content&sub=posts"
-              size="xs"
+              size="sm"
               icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
               title="시리즈 관리"
             >
@@ -137,6 +166,8 @@ export default function SeriesIndexClient({ series }: Props) {
         </p>
         <div className={styles.searchSortRow}>
           <SegmentedControl<SortBy>
+            className={styles.sortControl}
+            size="sm"
             items={[
               { value: "popular", label: "인기순" },
               { value: "newest", label: "최신순" },
@@ -145,16 +176,39 @@ export default function SeriesIndexClient({ series }: Props) {
             value={sortBy}
             onChange={(v) => setSortBy(v)}
           />
-          <SearchCapsule
-            search={search}
-            onSearchChange={setSearch}
-            placeholder="시리즈 제목 또는 설명으로 검색…"
-            align="left"
-            className={styles.searchBar}
-            routeParam="q"
-            hasResults={filtered.length > 0}
-            onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
-          />
+          <div className={styles.searchTools}>
+            <div className={styles.perPageGroup}>
+              <List size={14} strokeWidth={1.8} className={styles.perPageIcon} aria-hidden />
+              <Select
+                className={styles.perPageSelect}
+                size="sm"
+                value={String(perPage)}
+                options={PER_PAGE_OPTIONS}
+                onChange={(v) => setPerPage(Number(v))}
+              />
+            </div>
+            <SearchCapsule
+              search={search}
+              onSearchChange={setSearch}
+              placeholder="시리즈 제목 또는 설명으로 검색…"
+              align="left"
+              size="sm"
+              className={styles.searchBar}
+              routeParam="q"
+              hasResults={filtered.length > 0}
+              onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
+              typeSelector={{
+                value: searchType,
+                options: [
+                  { value: "all", label: "제목+설명" },
+                  { value: "title", label: "제목" },
+                  { value: "desc", label: "설명" },
+                ],
+                onChange: (v) => setSearchType(v as "all" | "title" | "desc"),
+              }}
+              syntaxHelp
+            />
+          </div>
         </div>
       </header>
 
@@ -194,7 +248,7 @@ export default function SeriesIndexClient({ series }: Props) {
         <p className={styles.empty}>일치하는 시리즈가 없습니다.</p>
       ) : (
         <ul className={styles.grid}>
-          {filtered.map((s) => {
+          {paged.map((s) => {
             const title = language === "en" ? (s.title_en || s.title) : s.title;
             const description = language === "en" ? (s.description_en || s.description) : s.description;
             const cover = s.cover_image || s.first_cover || s.auto_cover_url;
@@ -210,9 +264,9 @@ export default function SeriesIndexClient({ series }: Props) {
                   } : undefined}
                 >
                   {isFeatured && (
-                    <span className={styles.cardFeaturedBadge}>
-                      <Sparkles size={10} strokeWidth={2} aria-hidden />
-                      인기
+                    <span className={styles.cardHotBadge}>
+                      <Flame size={11} fill="currentColor" stroke="none" aria-hidden />
+                      HOT
                     </span>
                   )}
                   <div className={styles.cover}>
@@ -244,7 +298,12 @@ export default function SeriesIndexClient({ series }: Props) {
       )}
 
       {filtered.length > 0 && (
-        <p className={styles.endNote}>— 모든 시리즈를 다 표시했습니다. ({filtered.length}개) —</p>
+        <Pagination
+          page={safePage}
+          totalPages={totalPages}
+          onChange={setPage}
+          className={styles.pagination}
+        />
       )}
 
       {/* 터치 디바이스 — 탭 시 바텀 시트로 detail */}

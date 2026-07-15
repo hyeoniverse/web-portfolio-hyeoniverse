@@ -13,7 +13,22 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import RadioGroup from "@/components/ui/RadioGroup";
 import Select from "@/components/ui/Select";
+import { Switch } from "@/components/ui/Switch";
+import NumberInput from "@/components/ui/NumberInput";
 import FontPicker from "@/components/ui/FontPicker";
+import {
+  resolveFavicon,
+  resolveFaviconFontSize,
+  FaviconFilter,
+  FAVICON_SHADOW_DIRECTIONS,
+  DEFAULT_FAVICON_TEXT_SHADOW,
+  DEFAULT_FAVICON_BG_SHADOW,
+  type FaviconShape,
+  type FaviconWeight,
+  type FaviconShadow,
+  type FaviconShadowSize,
+} from "@/lib/favicon";
+import { contrastRatio, contrastLevel } from "@/utils/contrast";
 import { FONT_GROUPS, FONT_FAMILIES_FLAT } from "@/components/posts/plate/constants";
 import { showToast } from "@/stores/toastStore";
 import type { SiteConfigData } from "@/config/site.config";
@@ -31,6 +46,97 @@ type LogoColorPreset = { name: string; light: string; dark: string };
 const LOGO_COLOR_PRESETS_FALLBACK: LogoColorPreset[] = [
   { name: "Default", light: "", dark: "" },
 ];
+
+/** favicon 폰트 크기 프리셋 (px). 이 목록에 없는 값이면 "직접 입력"(stepper) 모드 */
+const FAVICON_FONT_SIZE_PRESETS = ["14", "18", "20", "24", "28"];
+
+/** 텍스트/배경 그림자 각각의 on·off / inset / size / custom blur / 색상 컨트롤 */
+function FaviconShadowControls({
+  label,
+  value,
+  onChange,
+  t,
+}: {
+  label: string;
+  value: FaviconShadow;
+  onChange: (v: FaviconShadow) => void;
+  t: (key: string) => string;
+}) {
+  return (
+    <div className={styles.faviconShadowCard}>
+      <div className={styles.faviconShadowHead}>
+        <span className={styles.faviconShadowTitle}>{label}</span>
+        <Switch
+          checked={value.enabled}
+          onCheckedChange={(v) => onChange({ ...value, enabled: v })}
+          showStateText
+          size="lg"
+          variant="accent"
+        />
+      </div>
+      {value.enabled && (
+        <div className={styles.faviconShadowBody}>
+          <div className={styles.fieldRow}>
+            <label className={styles.fieldLabel}>{t("admin.settings.faviconShadowSize")}</label>
+            <Select
+              value={value.size}
+              onChange={(v) => onChange({ ...value, size: v as FaviconShadowSize })}
+              width="min"
+              options={[
+                { value: "sm", label: "S" },
+                { value: "md", label: "M" },
+                { value: "lg", label: "L" },
+                { value: "custom", label: t("admin.settings.faviconShadowSizeCustom") },
+              ]}
+            />
+          </div>
+          {value.size === "custom" && (
+            <div className={styles.fieldRow}>
+              <label className={styles.fieldLabel}>{t("admin.settings.faviconShadowCustom")}</label>
+              <Input
+                value={value.custom}
+                onChange={(v) => onChange({ ...value, custom: v })}
+                placeholder={t("admin.settings.faviconShadowCustomPlaceholder")}
+                maxLength={4}
+              />
+            </div>
+          )}
+          {/* 방향 — 8방향 세그먼트 (나침반식: 0=위, 시계방향). 화살표와 실제 그림자 방향 일치 */}
+          <div className={styles.fieldRow}>
+            <label className={styles.fieldLabel}>{t("admin.settings.faviconShadowDirection")}</label>
+            <SegmentedControl<string>
+              size="sm"
+              className={styles.faviconDirControl}
+              items={FAVICON_SHADOW_DIRECTIONS.map((d) => ({ value: d.value, label: d.arrow }))}
+              value={value.angle || "135"}
+              onChange={(v) => onChange({ ...value, angle: v })}
+            />
+          </div>
+          <label className={styles.inlineToggle}>
+            {t("admin.settings.faviconShadowInset")}
+            <Checkbox checked={value.inset} onChange={(v) => onChange({ ...value, inset: v })} shape="square" />
+          </label>
+          <div className={styles.fieldRow}>
+            <label className={styles.fieldLabel}>{t("admin.settings.faviconShadowColor")}</label>
+            <div className={styles.colorField}>
+              <ColorPicker
+                value={value.color || "rgba(0,0,0,0.4)"}
+                onChange={(c) => onChange({ ...value, color: c.hex })}
+                triggerClassName={styles.colorPicker}
+              />
+              <Input
+                className={styles.colorInput}
+                value={value.color}
+                onChange={(v) => onChange({ ...value, color: v })}
+                placeholder={t("admin.settings.faviconShadowColorPlaceholder")}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface AppearanceTabProps extends SettingsTabProps {
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
@@ -51,6 +157,10 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
   const [newPresetName, setNewPresetName] = useState("");
   const [addingThemePreset, setAddingThemePreset] = useState(false);
   const [newThemePresetName, setNewThemePresetName] = useState("");
+  // favicon 폰트 크기 — 프리셋 Select + "직접 입력"(stepper) 하이브리드. 초기값이 프리셋에 없으면 커스텀 모드.
+  const [fontSizeCustom, setFontSizeCustom] = useState(
+    () => !FAVICON_FONT_SIZE_PRESETS.includes(config.brand.faviconFontSize ?? "20"),
+  );
 
   const addCurrentAsPreset = () => {
     const name = newPresetName.trim();
@@ -255,8 +365,8 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
           </div>
           <div className={styles.fields}>
             <div className={styles.fieldPair}>
-              <Field label={t("admin.settings.logoText")} hint={t("admin.settings.logoTextHint")} value={config.brand.logoText} onChange={(v) => update("brand", "logoText", v)} />
-              <Field label={t("admin.settings.logoFullText")} hint={t("admin.settings.logoFullTextHint")} value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} />
+              <Field label={t("admin.settings.logoText")} hint={t("admin.settings.logoTextHint")} value={config.brand.logoText} onChange={(v) => update("brand", "logoText", v)} maxLength={4} maxHint={4} />
+              <Field label={t("admin.settings.logoFullText")} hint={t("admin.settings.logoFullTextHint")} value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} maxLength={20} maxHint={20} />
             </div>
           </div>
         </div>
@@ -387,25 +497,33 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
             <div className={styles.faviconLayout}>
               <div className={styles.faviconPreviewSlot}>
                 {(["light", "dark"] as const).map((variant) => {
-                  const shape = config.brand.faviconShape ?? "circle";
-                  const weight = config.brand.faviconWeight ?? "light";
-                  // 로고 폰트가 favicon 도 결정 — 빈 값이면 brand 기본 (Instrument Serif)
-                  const fontFamily = config.brand.logoFont || "'Instrument Serif', Georgia, serif";
-                  const fontWeight = weight === "light" ? 300 : weight === "regular" ? 500 : 700;
+                  // preset 색 — 미리보기는 theme.lightText/darkText 로 fallback (route.ts 와 동일 계산 구조)
                   const presetLight = config.brand.logoColor || config.theme.lightText;
                   const presetDark = config.brand.logoColorDark || config.theme.darkText;
-                  const faviconBgLight = config.brand.faviconBgLight || presetDark;
-                  const faviconBgDark = config.brand.faviconBgDark || presetLight;
-                  const bgColor = variant === "light" ? faviconBgLight : faviconBgDark;
-                  const fgColor = shape === "none"
-                    ? (variant === "light" ? presetDark : presetLight)
-                    : (variant === "light" ? presetLight : presetDark);
-                  const radius = shape === "circle" ? 16 : shape === "square" ? 4 : 0;
-                  const logoText = ((config.brand.logoText || "H").trim() || "H").charAt(0);
-                  // 장평 — viewBox 중심 (16,16) 기준 scaleX. 빈/invalid 면 0.8 default
-                  const stretchRaw = parseFloat(config.brand.logoFontStretch ?? "");
-                  const stretchN = Number.isFinite(stretchRaw) && stretchRaw > 0 ? stretchRaw : 0.8;
-                  const textTransform = stretchN !== 1 ? `translate(${16 * (1 - stretchN)} 0) scale(${stretchN} 1)` : undefined;
+                  const render = resolveFavicon(
+                    {
+                      shape: (config.brand.faviconShape ?? "circle") as FaviconShape,
+                      weight: (config.brand.faviconWeight ?? "light") as FaviconWeight,
+                      logoText: config.brand.logoText ?? "H",
+                      logoFont: config.brand.logoFont ?? "",
+                      logoFontStretch: config.brand.logoFontStretch ?? "",
+                      faviconBgLight: config.brand.faviconBgLight ?? "",
+                      faviconBgDark: config.brand.faviconBgDark ?? "",
+                      faviconFontSize: config.brand.faviconFontSize ?? "20",
+                      faviconColor: config.brand.faviconColor ?? "",
+                      faviconColorDark: config.brand.faviconColorDark ?? "",
+                      faviconTextShadow: config.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW,
+                      faviconBgShadow: config.brand.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW,
+                      presetLight,
+                      presetDark,
+                    },
+                    variant,
+                  );
+                  const textShadowId = `favicon-text-shadow-${variant}`;
+                  const bgShadowId = `favicon-bg-shadow-${variant}`;
+                  // 대비율 — 배경 있을 때만(글자색 vs 배경색). shape=none 이면 배경 없어 N/A
+                  const ratio = render.hasBg ? contrastRatio(render.fgColor, render.bgColor) : null;
+                  const level = ratio != null ? contrastLevel(ratio) : null;
                   return (
                     <div key={variant} className={styles.faviconPreviewCell}>
                       <svg
@@ -414,26 +532,62 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                         width="48"
                         height="48"
                         aria-hidden
-                        style={shape === "none" ? { border: "1px dashed var(--border-light-color)", borderRadius: 4 } : undefined}
+                        style={render.shape === "none" ? { border: "1px dashed var(--border-light-color)", borderRadius: 4 } : undefined}
                       >
-                        {shape !== "none" && (
-                          <rect x="0" y="0" width="32" height="32" rx={radius} ry={radius} fill={bgColor} />
+                        {(render.textShadow || render.bgShadow) && (
+                          <defs>
+                            {render.bgShadow && <FaviconFilter resolved={render.bgShadow} id={bgShadowId} />}
+                            {render.textShadow && <FaviconFilter resolved={render.textShadow} id={textShadowId} />}
+                          </defs>
+                        )}
+                        {render.hasBg && (
+                          <rect
+                            x="0"
+                            y="0"
+                            width="32"
+                            height="32"
+                            rx={render.radius}
+                            ry={render.radius}
+                            fill={render.bgColor}
+                            filter={render.bgShadow ? `url(#${bgShadowId})` : undefined}
+                          />
                         )}
                         <text
                           x="50%"
                           y="50%"
                           textAnchor="middle"
                           dominantBaseline="central"
-                          fontFamily={fontFamily}
-                          fontSize="20"
-                          fontWeight={fontWeight}
-                          fill={fgColor}
-                          transform={textTransform}
+                          fontFamily={render.fontFamily}
+                          fontSize={render.fontSize}
+                          fontWeight={render.fontWeight}
+                          fill={render.fgColor}
+                          transform={render.transform}
+                          filter={render.textShadow ? `url(#${textShadowId})` : undefined}
                         >
-                          {logoText}
+                          {render.logoText}
                         </text>
                       </svg>
                       <span className={styles.faviconPreviewLabel}>{variant}</span>
+                      {/* 대비율 + WCAG 배지 — favicon 은 그래픽 글리프라 3:1(1.4.11)이 실질 최소 */}
+                      <span className={styles.faviconContrast}>
+                        {!render.hasBg ? (
+                          <span className={styles.faviconContrastMuted}>
+                            {t("admin.settings.faviconContrastNoBg")}
+                          </span>
+                        ) : ratio == null || level == null ? (
+                          <span className={styles.faviconContrastMuted}>—</span>
+                        ) : (
+                          <>
+                            <span className={styles.faviconContrastRatio}>{ratio.toFixed(2)}:1</span>
+                            <span
+                              className={`${styles.faviconContrastBadge} ${level === "fail" ? styles.faviconContrastFail : styles.faviconContrastPass}`}
+                              title={t(`admin.settings.faviconContrast_${level}`)}
+                            >
+                              {t(`admin.settings.faviconContrast_${level}`)}
+                            </span>
+                          </>
+                        )}
+                      </span>
                     </div>
                   );
                 })}
@@ -443,7 +597,22 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                   <label className={styles.fieldLabel}>{t("admin.settings.faviconShape")}</label>
                   <RadioGroup<"circle" | "square" | "none">
                     value={(config.brand.faviconShape ?? "circle") as "circle" | "square" | "none"}
-                    onChange={(v) => update("brand", "faviconShape", v)}
+                    onChange={(v) => {
+                      const prev = (config.brand.faviconShape ?? "circle") as FaviconShape;
+                      // 배경 있던(circle/square) → none 전환 시, 텍스트가 배경 없이 떠서 대비가 필요.
+                      // 텍스트 그림자가 꺼져 있으면 자동으로 켜준다 (이미 켜져 있으면 그대로).
+                      if (v === "none" && prev !== "none") {
+                        const ts = config.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW;
+                        if (!ts.enabled) {
+                          setConfig((p) => ({
+                            ...p,
+                            brand: { ...p.brand, faviconShape: v, faviconTextShadow: { ...ts, enabled: true } },
+                          }));
+                          return;
+                        }
+                      }
+                      update("brand", "faviconShape", v);
+                    }}
                     options={[
                       { value: "circle", label: "Circle" },
                       { value: "square", label: "Square" },
@@ -507,6 +676,40 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                     ]}
                   />
                 </div>
+                {/* 폰트 크기 — 프리셋 Select + "직접 입력" 선택 시 stepper(NumberInput) 노출. 8~30 clamp */}
+                <div className={styles.fieldRow}>
+                  <label className={styles.fieldLabel}>{t("admin.settings.faviconFontSize")}</label>
+                  <div className={styles.faviconFontSizeControl}>
+                    <Select
+                      value={fontSizeCustom ? "custom" : (config.brand.faviconFontSize ?? "20")}
+                      onChange={(v) => {
+                        if (v === "custom") { setFontSizeCustom(true); return; }
+                        setFontSizeCustom(false);
+                        update("brand", "faviconFontSize", v);
+                      }}
+                      width="min"
+                      options={[
+                        { value: "14", label: "14" },
+                        { value: "18", label: "18" },
+                        { value: "20", label: "20" },
+                        { value: "24", label: "24" },
+                        { value: "28", label: "28" },
+                        { value: "custom", label: t("admin.settings.faviconFontSizeCustom") },
+                      ]}
+                    />
+                    {fontSizeCustom && (
+                      <NumberInput
+                        value={resolveFaviconFontSize(config.brand.faviconFontSize)}
+                        onCommit={(n) => update("brand", "faviconFontSize", String(n))}
+                        min={8}
+                        max={30}
+                        step={1}
+                        unit="px"
+                        ariaLabel={t("admin.settings.faviconFontSize")}
+                      />
+                    )}
+                  </div>
+                </div>
                 <div className={styles.faviconBgRow}>
                   <div className={styles.fieldRow}>
                     <label className={styles.fieldLabel}>{t("admin.settings.faviconBgLight")}</label>
@@ -543,7 +746,59 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                     </div>
                   </div>
                 </div>
+                {/* 글자색 — favicon 텍스트 색 override. 빈 값이면 preset 자동 계산 (하위호환) */}
+                <div className={styles.faviconBgRow}>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel}>{t("admin.settings.faviconTextColorLight")}</label>
+                    <div className={styles.colorField}>
+                      <ColorPicker
+                        value={config.brand.faviconColor || config.brand.logoColor || config.theme.lightText}
+                        onChange={(c) => update("brand", "faviconColor", c.hex)}
+                        triggerClassName={styles.colorPicker}
+                      />
+                      <Input
+                        className={styles.colorInput}
+                        value={config.brand.faviconColor}
+                        onChange={(v) => update("brand", "faviconColor", v)}
+                        placeholder={t("admin.settings.faviconBgPlaceholder")}
+                        maxLength={7}
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel}>{t("admin.settings.faviconTextColorDark")}</label>
+                    <div className={styles.colorField}>
+                      <ColorPicker
+                        value={config.brand.faviconColorDark || config.brand.logoColorDark || config.theme.darkText}
+                        onChange={(c) => update("brand", "faviconColorDark", c.hex)}
+                        triggerClassName={styles.colorPicker}
+                      />
+                      <Input
+                        className={styles.colorInput}
+                        value={config.brand.faviconColorDark}
+                        onChange={(v) => update("brand", "faviconColorDark", v)}
+                        placeholder={t("admin.settings.faviconBgPlaceholder")}
+                        maxLength={7}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
+            </div>
+            {/* 그림자 — 텍스트 / 배경(rect) 각각 on·off / inset / size / 색상 */}
+            <div className={styles.faviconShadowGroup}>
+              <FaviconShadowControls
+                label={t("admin.settings.faviconTextShadow")}
+                value={config.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
+                onChange={(v) => update("brand", "faviconTextShadow", v)}
+                t={t}
+              />
+              <FaviconShadowControls
+                label={t("admin.settings.faviconBgShadow")}
+                value={config.brand.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW}
+                onChange={(v) => update("brand", "faviconBgShadow", v)}
+                t={t}
+              />
             </div>
           </div>
         </div>

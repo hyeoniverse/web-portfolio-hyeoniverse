@@ -6,9 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/utils/cn";
+import { usePortalContainer } from "../portalContainer";
 import styles from "./Popover.module.css";
 
-export type PopoverPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end";
+export type PopoverPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end" | "right-start" | "left-start";
 
 interface PopoverRenderProps {
   close: () => void;
@@ -25,6 +26,14 @@ interface PopoverProps {
   /** controlled open state. */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** - "glass"(기본): 반투명 scrim + blur, blend 없음. 색이 정확하고 가독성이 안정적이다.
+   *  - "difference": 투명 + blur + 뒤 페이지와 반전 합성. 밑에 뭐가 깔리든 대비가 자동으로 잡힌다.
+   *    콘텐츠는 filter: invert(1) 로 "반대색을 주입"해서 넣으므로 (|배경 − (1−색)|),
+   *    **밝은 배경 위에선 의도한 색이 거의 그대로 복원**되고 어두운 배경 위에선 반전된 색이 된다.
+   *    ※ 배경이 임의 색/이미지면 색이 틀어진다 — 그래서 기본은 glass.
+   *    ※ "특정 텍스트만 반전"은 불가능 — blend 는 패널 단위로만 걸린다.
+   *  - "solid": 불투명 bg-primary. 뒤가 전혀 비치면 안 될 때. */
+  variant?: "glass" | "solid" | "difference";
   /** wrapper className (trigger 감싸는 span). */
   className?: string;
   /** dropdown / sheet content 의 className. */
@@ -40,7 +49,14 @@ interface PopoverProps {
    *  - number: 해당 px 로 고정
    *  - false: maxHeight 캡 없이 내용 전체 표시(스크롤 X) — 내용이 bounded 할 때만 사용 */
   maxHeight?: number | false;
+  /** 데스크톱에서 trigger 에 hover 하면 열리고, trigger↔content 사이 이동은 짧은 지연으로 유지. 클릭도 그대로 동작.
+   *  (터치/모바일 sheet 모드에선 무시 — hover 개념이 없음) */
+  openOnHover?: boolean;
 }
+
+// openOnHover popover 는 한 번에 하나만 열림 — 새 hover popover 가 열리면 이전 것을 닫는다
+// (같은 floating bar 안에서 여러 메뉴가 동시에 펼쳐지는 것 방지). click-only popover 는 기존 outside-click 로 처리.
+let activeHoverPopover: { close: () => void } | null = null;
 
 /** 공통 Popover — desktop dropdown (portal) + touch bottom sheet 자동 전환.
  *  - portal 로 body 렌더 → 부모 stacking context / overflow 영향 안 받음
@@ -55,15 +71,19 @@ export default function Popover({
   open: controlledOpen,
   onOpenChange,
   className,
+  variant = "glass",
   contentClassName,
   responsive = true,
   sheetTitle,
   contentRef: externalContentRef,
   maxHeight: maxHeightProp,
+  openOnHover = false,
 }: PopoverProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? !!controlledOpen : uncontrolledOpen;
+  // 오버레이(모달) 안이면 그 stacking context 로 portal → 전역 z 없이 모달 위에 뜬다.
+  const portalContainer = usePortalContainer();
 
   const setOpen = (next: boolean) => {
     if (!isControlled) setUncontrolledOpen(next);
@@ -71,6 +91,29 @@ export default function Popover({
   };
   const close = () => setOpen(false);
   const toggle = () => setOpen(!open);
+
+  // ── hover 로 열기(openOnHover, 데스크톱) — trigger↔content 이동/이탈 순간은 close 타이머로 브릿지.
+  //    열림은 즉시, 닫힘은 넉넉한 지연(실수로 벗어나거나 빠르게 지나칠 때 팝오버가 휙휙 닫히지 않게) ──
+  const HOVER_CLOSE_DELAY = 500;
+  const hoverTimer = useRef(0);
+  const cancelHoverClose = () => { if (hoverTimer.current) { clearTimeout(hoverTimer.current); hoverTimer.current = 0; } };
+  const hoverOpen = () => { if (!openOnHover) return; cancelHoverClose(); setOpen(true); };
+  const hoverScheduleClose = () => { if (!openOnHover) return; cancelHoverClose(); hoverTimer.current = window.setTimeout(() => setOpen(false), HOVER_CLOSE_DELAY); };
+  useEffect(() => cancelHoverClose, []); // 언마운트 시 타이머 정리
+
+  // ── 단일 오픈 조율(openOnHover) — 이 popover 가 열리면 다른 hover popover 를 닫음 ──
+  const selfRef = useRef<{ close: () => void }>({ close: () => {} });
+  selfRef.current.close = close;
+  useEffect(() => {
+    if (!openOnHover) return;
+    if (open) {
+      if (activeHoverPopover && activeHoverPopover !== selfRef.current) activeHoverPopover.close();
+      activeHoverPopover = selfRef.current;
+    } else if (activeHoverPopover === selfRef.current) {
+      activeHoverPopover = null;
+    }
+  }, [open, openOnHover]);
+  useEffect(() => () => { if (activeHoverPopover === selfRef.current) activeHoverPopover = null; }, []);
 
   const triggerRef = useRef<HTMLSpanElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -106,6 +149,24 @@ export default function Popover({
     const cw = contentRef.current?.offsetWidth ?? 0;
     // inner wrapper(높이 제약 없음)로 내용 자연 높이 측정 — capped 된 contentRef 대신
     const ch = innerRef.current?.offsetHeight ?? contentRef.current?.offsetHeight ?? 0;
+
+    // ── side(right/left) placement — 서브메뉴/플라이아웃: 트리거 옆에 배치, 공간 부족하면 좌우 flip ──
+    if (placement.startsWith("right") || placement.startsWith("left")) {
+      const wantLeft = placement.startsWith("left");
+      const spaceRight = vw - rect.right;
+      const spaceLeft = rect.left;
+      let placeLeft = wantLeft;
+      if (!wantLeft && spaceRight < cw + offset + MARGIN && spaceLeft > spaceRight) placeLeft = true;
+      if (wantLeft && spaceLeft < cw + offset + MARGIN && spaceRight > spaceLeft) placeLeft = false;
+      let sideLeft = placeLeft ? rect.left - cw - offset : rect.right + offset;
+      sideLeft = Math.max(MARGIN, Math.min(sideLeft, vw - cw - MARGIN));
+      const availSide = vh - MARGIN * 2;
+      const sideMaxH = Math.max(120, Math.min(ch || availSide, availSide));
+      let sideTop = rect.top; // start 정렬(트리거 상단)
+      sideTop = Math.max(MARGIN, Math.min(sideTop, vh - Math.min(ch, sideMaxH) - MARGIN));
+      setPos({ top: sideTop, left: sideLeft, origin: `top ${placeLeft ? "right" : "left"}`, maxHeight: sideMaxH });
+      return;
+    }
 
     const wantTop = placement.startsWith("top");
     const wantEnd = placement.endsWith("end");
@@ -189,7 +250,9 @@ export default function Popover({
       <span
         ref={triggerRef}
         className={cn(styles.trigger, className)}
-        onClick={(e) => { e.stopPropagation(); toggle(); }}
+        onClick={(e) => { e.stopPropagation(); if (openOnHover && open) return; toggle(); }}
+        onMouseEnter={hoverOpen}
+        onMouseLeave={hoverScheduleClose}
       >
         {trigger}
       </span>
@@ -237,8 +300,13 @@ export default function Popover({
               </>
             ) : (
               <motion.div
-                ref={contentRef}
-                className={cn(styles.dropdown, contentClassName)}
+                ref={setContentRef}
+                className={cn(
+                  styles.dropdown,
+                  variant === "glass" && styles.dropdownGlass,
+                  variant === "difference" && styles.dropdownDifference,
+                  contentClassName,
+                )}
                 /* Lenis 가 wheel 을 가로채 내부 스크롤이 막히는 것 방지 */
                 data-lenis-prevent
                 style={{ top: pos.top, left: pos.left, maxHeight: effMaxHeight, overflowY: effMaxHeight != null ? "auto" : "visible", transformOrigin: pos.origin }}
@@ -247,13 +315,15 @@ export default function Popover({
                 exit={{ opacity: 0, scale: 0.92, y: placement.startsWith("bottom") ? -4 : 4 }}
                 transition={{ duration: 0.14, ease: [0.4, 0, 0.2, 1] }}
                 onClick={(e) => e.stopPropagation()}
+                onMouseEnter={cancelHoverClose}
+                onMouseLeave={hoverScheduleClose}
               >
                 <div ref={innerRef}>{renderedContent}</div>
               </motion.div>
             )
           )}
         </AnimatePresence>,
-        document.body,
+        portalContainer ?? document.body,
       )}
     </>
   );

@@ -1784,3 +1784,117 @@ function swapToPlaceholder(img: HTMLImageElement) {
 **Key insight**: A viewport meta `width` override only takes effect in mobile browsers — it isn't a way to force a mobile width on desktop, so limiting the feature to touch devices is the correct scope.
 
 </details>
+
+<details>
+<summary><strong>58. Importing highlight.js crashed the entire post detail page — the bundler generated a broken regex</strong></summary>
+
+**Problem**: Importing `highlight.js` to add highlighting to comment code blocks took down the whole post detail page, in both dev and prod: `SyntaxError: Invalid regular expression: /[A-...]/: Range out of order in character class`.
+
+**Cause**: highlight.js's `xml.js` uses `/[\p{L}_]/u` (a unicode property escape). The bundler expands that into codepoint ranges for older browsers and produces a character class whose range is inverted. It throws at module evaluation time, so every page that loads the chunk dies.
+
+**Solution**: Comment code highlighting shelved (deliberately unsupported)
+
+1. The original file loads fine under Node — only the bundled output is broken. Removing highlight.js from `optimizePackageImports` still reproduces it
+2. Unregistering just `xml` makes the regex error go away, but even a hand-rolled instance with hand-picked languages crashes the same way **the moment the highlight.js chunk loads**
+3. Retrying this means moving to shiki (what richtext already uses) or patching hljs itself
+
+**Caution**: `npm run build` **passes — it only blows up at runtime**. This class of bug cannot be caught by a green build. The same mine is latent in `src/components/posts/highlightCodeBlocks.ts`, which can crash identically if evaluated on a markdown post.
+
+**Key insight**: A library's source can be fine while the bundler's down-leveling manufactures a runtime-only bomb — and code that throws at module top level kills every page that imports it, so treating a passing build as a safety signal is a mistake.
+
+</details>
+
+<details>
+<summary><strong>59. Comment markdown checkboxes rendered as plain bullets — DOMPurify stripped the `type` attribute, which isn't even a URL</strong></summary>
+
+**Problem**: `- [ ] todo` in comment markdown rendered as a plain bullet instead of a checkbox — even with `type` listed in `ALLOWED_ATTR`.
+
+**Cause**: DOMPurify tests an attribute's **value** against `ALLOWED_URI_REGEXP` unless the attribute is known to be URI-safe. `type` isn't in the default URI-safe list (alt/class/title/value, …), so the value of `type="checkbox"` failed `/^(?:https?:|mailto:)/i` and was silently dropped — the hook then judged it "not a checkbox" and removed the `<input>`, leaving only the bullet. Table `align` was dead for the same reason, so markdown table alignment was being ignored wholesale.
+
+**Solution**: Declare them as inert, non-URL attributes
+
+1. Added `ADD_URI_SAFE_ATTR: ["type", "checked", "disabled", "align"]` — excluded from the URI check
+2. Registering them in `ALLOWED_ATTR` alone does nothing — the two options are different axes (whether it's allowed vs. how its value is inspected)
+
+**Key insight**: The allowlist (`ALLOWED_ATTR`) and the value-inspection policy (`ADD_URI_SAFE_ATTR`) are separate axes — when something is "allowed but disappears anyway," suspect that the filter is misreading the attribute's **value** as a URL.
+
+</details>
+
+<details>
+<summary><strong>60. Task list `:has()` — traps on both the under-matching and over-matching side</strong></summary>
+
+**Problem**: The `:has()` rule that removes bullets from checkbox lists missed some lists (bullets remained) and over-matched others (bullets vanished from perfectly normal lists).
+
+**Cause**: `marked` emits tight lists as `<li><input>` and loose lists (blank line between items) as `<li><p><input>`. `:has(> li > input)` alone misses the loose form, while collapsing it to a descendant combinator `:has(input)` removes **the parent list's bullets too** whenever a checkbox sublist sits inside an ordinary bullet list.
+
+**Solution**: Spell out only the two direct paths
+
+1. `:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"])` — catches both tight and loose forms while excluding descendant matches
+
+**Key insight**: With `:has()`, the combinator choice *is* the match scope — widening it to a descendant combinator contaminates ancestors in nested structures. Enumerating **every DOM shape the markdown renderer actually produces** and nailing them down as direct paths is the safer route.
+
+</details>
+
+<details>
+<summary><strong>61. The global input reset stopped native checkboxes from being drawn at all</strong></summary>
+
+**Problem**: `<input type="checkbox">` survived sanitize and was present in the DOM, yet no checkbox appeared on screen — `appearance: auto` didn't help.
+
+**Cause**: The global reset `input { border: none; background: none }` in `src/styles/globals/_base.css` wipes the UA default styles, leaving the native checkbox with no surface to render on.
+
+**Solution**: Restore the UA default styling
+
+1. `background: revert; border: revert` on the checkbox — the point is reverting the two properties the reset erased, not `appearance`
+2. `background` / `border` are shorthands, so they fall outside stylelint's `declaration-strict-value` — no conflict with the token rules
+
+**Key insight**: `appearance: auto` only says "draw this as a native widget" — it does not resurrect a `background`/`border` already erased by a reset. In a project with a global reset, bringing back a native control means restoring the UA styles themselves with `revert`.
+
+</details>
+
+<details>
+<summary><strong>62. Toolbar markdown insertion — the intended element doesn't appear on blank lines or with block syntax</strong></summary>
+
+**Problem**: Pressing the comment toolbar's checkbox button on a blank line produced a bullet, not a checkbox. The `---` divider button produced a **heading** instead of a rule whenever the previous line had text on it.
+
+**Cause**: Two GFM parsing rules
+
+1. Checkbox: GFM only parses a task list when **text follows** the `- [ ] ` marker — a bare marker on a blank line yields a `<li>[ ]</li>` bullet
+2. `---`: with text on the line above, it's read as a **setext h2** (underlined heading syntax), not an hr. Code fences and tables likewise only parse at the start of a line
+
+**Solution**: Have the insert action build the context along with the text
+
+1. Added a placeholder to prefix actions — on a blank line it fills in example text and leaves it selected
+2. Block inserts first ensure a blank line above, then insert
+
+**Key insight**: A markdown insert button must not just drop a string in — it has to **create the context in which the parser will recognize that syntax**. Inserting the bare marker just makes the button look broken.
+
+</details>
+
+<details>
+<summary><strong>63. Per-text `mix-blend-mode: difference` inside a Popover is incompatible with backdrop-filter</strong></summary>
+
+**Problem**: Building a popover that stays readable over any background — `backdrop-filter` on the panel, `difference` on the inner text — left the blend unable to see the background.
+
+**Cause**: `backdrop-filter` / `isolation: isolate` establish a Backdrop Root, cutting off what backdrop-filter can see. On top of that, a `backdrop-filter`'s output is not offered to descendants or siblings as a blendable backdrop, which makes **per-text difference inside a popover impossible in principle**.
+
+**Solution**: Work around it with a color-inversion trick, then adopt something else as the default
+
+1. `filter: invert(1)` on the content + `mix-blend-mode: difference` on the panel → `|backdrop − (1−color)|` restores the original color
+2. That combination carries too many constraints, so **glass (translucent + blur) became the default** and `difference` remains as a `Popover` variant
+
+**Key insight**: `backdrop-filter` and `mix-blend-mode` look like they're reading the same "stuff behind," but neither can be the other's input — before combining both on one element, check where the Backdrop Root cuts the chain.
+
+</details>
+
+<details>
+<summary><strong>64. Running `npm run build` while the dev server is up causes ChunkLoadError</strong></summary>
+
+**Problem**: Running `npm run build` to sanity-check a build mid-development broke the open dev site with a `ChunkLoadError`.
+
+**Cause**: `next dev` and `next build` share the same `.next` directory — the build overwrites the dev output, so the chunk hashes the browser was holding disappear.
+
+**Solution**: Don't run a build while the dev server is up (or separate them with a distinct `distDir`).
+
+**Key insight**: When two processes write to the same output directory, "verifying the build" becomes "destroying the dev environment" — to check whether a build passes, either stop dev or split the output path.
+
+</details>

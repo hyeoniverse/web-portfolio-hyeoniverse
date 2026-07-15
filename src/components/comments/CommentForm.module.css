@@ -1,16 +1,56 @@
+/* 댓글 작성 폼 = 입력 박스 — giscus `.gsc-comment-box { border-radius: 24px; overflow: hidden }` 미러.
+   보더 + 2xl 만이고 채움은 없음(페이지 배경과 동일하게 보임).
+   padding 0 — 내부 요소가 각자 좌우 여백을 가져야 footer 구분선이 박스 폭 전체를 가로지른다
+   (giscus `.gsc-comment-box-bottom { margin: 0 }`). 내부는 각지게 두고 박스가 통째로 clip.
+   gap 0 — 세로 간격은 각 요소의 padding 이 담당 (footer 구분선이 textarea 에 바로 붙어야 함).
+   position: relative — 알림 캡슐(.notifyWrap)의 기준.
+   답글 폼(.formPlain)은 이 박스가 통째로 열린다. */
 .form {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 0;
+  min-width: 0;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  overflow: hidden;
 }
 
-/* 닉네임 + 비밀번호 한 줄 */
+/* 아바타 — identityRow 안에서 이름 앞에 붙는다.
+   CommentItem 의 아바타와 같은 정사각 자리/크기라 등록 후 모습과 이어진다. */
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--size-xs);
+  height: var(--size-xs);
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+/* 답글 폼 — 박스 없음 (CommentItem `.replyForm` 이 하던 역할).
+   부모 거터의 스레드 줄이 이미 옆을 지나 영역이 읽히고, 여기 또 보더를 그리면
+   스레드 안에 카드가 박힌 것처럼 튄다. giscus 도 `.gsc-comment-box-is-reply` 를 border/radius 없이 열어둔다.
+   `.form` 과 같은 요소 · 같은 특정도라 아래에 와야 이긴다. */
+.formPlain {
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+/* 아바타 + 닉네임 + 비밀번호 한 줄 — 탭 pill / aa 툴바와 좌우 여백 통일 (giscus 8px).
+   min-height = 위 패딩 + 컨트롤 높이. 안쪽 컨트롤(Input sm / 셔플 Button sm)이 이미 --control-h-sm 이라
+   보통은 자연 높이와 같지만, 명시해야 비밀번호 칸이 없는 경우에도 행 높이가 안 줄어든다. */
 .identityRow {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
   flex-wrap: wrap;
+  min-height: calc(var(--spacing-xs) + var(--control-h-sm));
+  padding: var(--spacing-xs) var(--spacing-xs) 0;
 }
 
 /* 현재 사용자 identity 표시 */
@@ -23,36 +63,19 @@
   color: var(--text-tertiary);
 }
 
-.identityEmoji {
-  font-size: var(--font-size-md);
-}
-
 .identityName {
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
 }
 
-.shuffleBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: var(--border-light);
-  background: transparent;
-  color: var(--text-muted);
-  border-radius: var(--radius-circle);
-}
-
-.identity .shuffleBtn:hover {
-  color: var(--text-primary);
-}
-
-/* Admin identity */
+/* Admin identity — identityRow 와 동일한 여백/행 높이.
+   배지 하나뿐이라 자연 높이가 더 낮지만, 일반 사용자 폼과 첫 행 높이가 같아야 폼이 안 튄다. */
 .adminIdentity {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  min-height: calc(var(--spacing-xs) + var(--control-h-sm));
+  padding: var(--spacing-xs) var(--spacing-xs) 0;
 }
 
 .adminBadge {
@@ -65,52 +88,48 @@
   color: var(--text-accent);
 }
 
-.textarea {
-  border: var(--border-light);
-}
+/* 에디터(Write/Preview 탭 + 툴바 + textarea/미리보기) 스타일은 CommentEditor.module.css 로 이관 —
+   CommentForm / CommentItem 수정 폼이 공유한다. */
 
-.passwordInput {
-  padding: var(--box-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  outline: none;
+/* 비밀번호 입력(공통 Input) 래퍼 — 폭만 고정. 시각 스타일은 Input size="sm" 이 전부 담당. */
+.passwordField {
   width: 160px;
+  flex-shrink: 0;
 }
 
-.form .passwordInput:focus {
-  border-color: var(--text-primary);
-}
-
-.passwordInput::placeholder {
-  color: var(--text-tertiary);
-}
-
+/* footer (등록 버튼 줄) — giscus `.gsc-comment-box-bottom` 미러:
+   위 border 구분선 + radius 0 + margin 0(구분선이 박스 폭 전체).
+   좌우 패딩 --box-sm-md 의 X 축(= --spacing-md) 이 textarea 좌우 패딩(--textarea-p = --box-sm-md)과 같아
+   등록 버튼이 본문 글 시작선과 세로 정렬됨 (giscus 의 "좌우 14 = textarea/preview 와 동일 정렬"). */
 .actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--spacing-sm);
+  margin: 0;
+  padding: var(--box-sm-md);
+  border-top: var(--border-light);
+  border-radius: 0;
 }
 
+/* 알림 캡슐 — 폼 박스(.form) 안쪽 우상단. 박스가 padding 0 이라 탭/툴바와 동일한 8px 로 직접 inset. */
 .notifyWrap {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
   z-index: 1;
   overflow: visible;
 }
 
-/* Notify capsule */
+/* Notify capsule — 닫힘 상태는 정사각(=원). --input-h 는 프로젝트에 정의되지 않은 토큰이라
+   var() 가 해석 실패 → width/height 가 auto 로 떨어져 원이 아닌 납작한 타원이었음.
+   가장 가까운 기존 component-level 토큰 --control-h-sm(28px) 으로 교체. */
 .notifyCapsule {
   position: relative;
   display: flex;
   align-items: center;
-  width: var(--input-h);
-  height: var(--input-h);
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
   border: var(--border-default);
   border-radius: var(--radius-circle);
   background: transparent;
@@ -139,7 +158,7 @@
 
 /* Confirmed: 캡슐이 수정 버튼 크기 원형, 아이콘+이메일은 왼쪽에 absolute */
 .notifyCapsuleConfirmed {
-  width: var(--input-h);
+  width: var(--control-h-sm);
   border-radius: var(--radius-circle);
   border-color: var(--border-strong-color);
   overflow: visible;
@@ -272,8 +291,8 @@
 
 /* confirmed: 수정 버튼이 원 전체를 채움 */
 .notifyCapsuleConfirmed .notifyAction {
-  width: var(--input-h);
-  height: var(--input-h);
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
   margin: 0;
   opacity: 1;
   pointer-events: auto;
@@ -351,12 +370,14 @@
   color: var(--text-white);
 }
 
-/* Email hint */
+/* Email hint — 캡슐 "아래"로 표시.
+   입력 박스(.form)가 overflow: hidden 이라 위로 띄우면 박스 밖이라 잘림.
+   giscus 도 같은 이유로 aa 툴팁을 버튼 아래로 내렸다
+   ("커스텀 툴팁 — 박스 overflow:hidden 에 안 잘리게 버튼 아래로 표시"). */
 .notifyHint {
   position: absolute;
-  bottom: 100%;
+  top: calc(100% + var(--spacing-3xs));
   right: var(--spacing-md);
-  margin-bottom: var(--spacing-3xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
   color: var(--text-accent);

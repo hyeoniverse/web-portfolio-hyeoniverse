@@ -8,7 +8,7 @@ import { ModalFooterContext } from "@/components/ui/Modal";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import type { BilingualCategory } from "@/hooks/useCategories";
-import { translateCategory } from "@/hooks/useCategories";
+import { toCategoryOptions, findCategoryNode } from "@/lib/categoryTree";
 
 /**
  * 일괄 카테고리 변경 모달
@@ -31,13 +31,13 @@ export default function BulkCategoryModal({ count, categories, onConfirm }: Bulk
 
   const options = [
     { value: "", label: t("admin.common.unset") || "—" },
-    ...categories.map((c) => ({ value: c.ko, label: translateCategory(c.ko, language, categories) })),
+    ...toCategoryOptions(categories, language === "ko" ? "ko" : "en"),
   ];
 
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const picked = value ? categories.find((c) => c.ko === value) ?? null : null;
+      const picked = value ? findCategoryNode(categories, value) : null;
       await onConfirm(picked);
       closeAll();
     } finally {

@@ -1,0 +1,25 @@
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: 0;
+  font-family: var(--font-instrument);
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: var(--font-weight-light);
+  font-style: italic;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* 아이콘 — 타이틀 크기에 em 비례로 스케일 + 기울이지 않음(텍스트만 italic) */
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  font-style: normal;
+}
+
+.icon svg {
+  width: 0.72em;
+  height: 0.72em;
+}

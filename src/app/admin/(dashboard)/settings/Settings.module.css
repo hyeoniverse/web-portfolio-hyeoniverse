@@ -400,14 +400,14 @@
   justify-content: space-between;
   gap: var(--spacing-xs);
   /* min-height 로 모든 nav row 동일 — padding 상하 0 이라 텍스트는 자동 정중앙 */
-  min-height: var(--control-h-md);
+  min-height: calc(var(--control-h-md) + var(--spacing-sm));
   padding: 0 var(--spacing-xs);
   border: none;
   border-bottom: var(--border-light);
   border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   font-weight: 500;
   color: var(--text-primary);
   text-align: left;
@@ -443,14 +443,14 @@
   align-items: center;
   justify-content: space-between;
   /* navItem 과 동일 min-height — 폰트 크기는 작지만 row 높이 일관 */
-  min-height: var(--control-h-md);
+  min-height: calc(var(--control-h-md) + var(--spacing-sm));
   padding: 0 0 0 var(--spacing-md);
   border: none;
   border-bottom: var(--border-light);
   border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--text-secondary);
   text-align: left;
@@ -493,6 +493,106 @@
   border-bottom: var(--border-light);
 }
 
+/* ── 작성자(Authors) 에디터 ── */
+.authorsEditor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+.authorCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+.authorCardHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+/* 아바타 = 이미지 업로드 trigger (클릭 시 파일 선택). 우상단 + 배지로 버튼임을 표시 */
+.authorAvatarUpload {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  overflow: visible;
+  transition: border-color 0.2s;
+}
+.authorAvatarUpload:hover {
+  border-color: var(--text-tertiary);
+}
+.authorAvatarImg,
+.authorAvatarInitial {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-circle);
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.authorAvatarInitial {
+  font-family: var(--font-space-grotesk);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg);
+  color: var(--text-tertiary);
+}
+.authorAvatarPlus {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+  border: 2px solid var(--bg-primary);
+}
+.authorCardName {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-space-grotesk);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+/* 삭제 버튼 — 카드 상단(start)에 붙임 (아바타가 커서 center 면 중앙에 뜸) */
+.authorRemoveBtn {
+  align-self: flex-start;
+}
+.authorCardFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+.authorLinksEditor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+.authorLinksHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.authorLinkRow {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto;
+  align-items: end;
+  gap: var(--spacing-2xs);
+}
+
 .sectionWide {
   grid-column: 1 / -1;
 }
@@ -524,7 +624,9 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color var(--duration-base) ease, border-color var(--duration-base) ease;
+  transition:
+    color var(--duration-base) ease,
+    border-color var(--duration-base) ease;
 }
 
 .textStyleBtn:hover {
@@ -761,7 +863,9 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .deviceRevokeBtn:hover {
@@ -913,7 +1017,9 @@
   color: var(--text-tertiary);
   cursor: pointer;
   opacity: 0.7;
-  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+  transition:
+    opacity var(--duration-base) ease,
+    color var(--duration-base) ease;
 }
 
 .fieldClearBtn:hover {
@@ -1050,7 +1156,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 1px 4px oklch(0.00% 0.0000 0.00 / 0.15);
+  box-shadow: 0 1px 4px oklch(0% 0 0 / 0.15);
   opacity: 0;
   transition: opacity var(--duration-base) ease;
 }
@@ -1076,7 +1182,9 @@
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: border-color var(--duration-base) ease, color var(--duration-base) ease;
+  transition:
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease;
 }
 
 .presetCardAddBtn:hover {
@@ -1162,7 +1270,9 @@
   color: var(--text-tertiary);
   cursor: pointer;
   opacity: 0;
-  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+  transition:
+    opacity var(--duration-base) ease,
+    color var(--duration-base) ease;
 }
 
 .logoColorPresetWrap:hover .logoColorPresetRemove {
@@ -1187,7 +1297,9 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color var(--duration-base) ease, border-color var(--duration-base) ease;
+  transition:
+    color var(--duration-base) ease,
+    border-color var(--duration-base) ease;
 }
 
 .logoColorPresetAddBtn:hover {
@@ -1232,6 +1344,8 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-3xs);
+  /* 대비 배지 텍스트 폭 변화가 셀·슬롯 레이아웃을 흔들지 않게 고정 폭 확보 */
+  min-width: 8rem;
 }
 
 /* SVG inline 렌더 — /api/favicon 출력과 동일 구조라 픽셀 일치. width/height 는 attr 로 set. */
@@ -1269,6 +1383,98 @@
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+/* ── Favicon 그림자 컨트롤 — 텍스트 / 배경 카드 2열 (폭 좁으면 1열) ── */
+.faviconShadowGroup {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.faviconShadowCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--box-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-secondary);
+}
+
+.faviconShadowHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.faviconShadowTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.faviconShadowBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-xs);
+  border-top: var(--border-light);
+}
+
+/* 방향 8방향 세그먼트 — 좁은 카드 안에서 넘치면 가로 스크롤 */
+.faviconDirControl {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* 폰트 크기 — Select + (커스텀 모드) stepper 가로 배치 */
+.faviconFontSizeControl {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* ── Favicon 대비율 / WCAG 배지 (미리보기 셀 하단) ── */
+.faviconContrast {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-3xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  line-height: 1;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.faviconContrastRatio {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.faviconContrastMuted {
+  color: var(--text-tertiary);
+}
+
+.faviconContrastBadge {
+  padding: 2px var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.faviconContrastPass {
+  color: var(--text-success);
+  background: var(--bg-success-soft);
+}
+
+.faviconContrastFail {
+  color: var(--text-error);
+  background: var(--bg-error-soft);
 }
 
 /* 토글 그룹 — sectionTitleRow 우측 여러 toggle 같이 묶음 */
@@ -1414,7 +1620,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-3xs) var(--spacing-2xs) var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--spacing-3xs) var(--spacing-2xs) var(--spacing-3xs)
+    var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: var(--bg-primary);
@@ -1437,7 +1644,9 @@
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .tagPendingDeleteUndo:hover {
@@ -1579,6 +1788,24 @@
   flex-shrink: 0;
   font-size: 0;
   line-height: 0;
+}
+
+/* 라벨 옆 ? 도움말 아이콘 — 값·옵션 설명 tooltip trigger */
+.fieldHelp {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-tertiary);
+  cursor: help;
+}
+.fieldHelp:hover {
+  color: var(--text-secondary);
+}
+
+/* Switch + ? 도움말 나란히 배치 (Switch 공통 컴포넌트 미변경, 감싸서 처리) */
+.switchHelpRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 /* ── Fallback Priority List ── */
@@ -2326,8 +2553,8 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    oklch(0.00% 0.0000 0.00 / 0.2) 0%,
-    oklch(0.00% 0.0000 0.00 / 0.5) 100%
+    oklch(0% 0 0 / 0.2) 0%,
+    oklch(0% 0 0 / 0.5) 100%
   );
   z-index: 0;
   pointer-events: none;
@@ -3236,14 +3463,30 @@
 }
 
 .socialIconClickable {
+  position: relative;
   border: var(--border-light);
-  border-style: dashed;
   border-radius: var(--radius-circle);
   transition: border-color 0.2s ease;
 }
 
 .socialIconClickable:hover {
   border-color: var(--text-primary);
+}
+
+/* 업로드 trigger 임을 알리는 우상단 + 배지 */
+.socialIconPlus {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+  border: 1.5px solid var(--bg-primary);
 }
 
 .socialIconImg {
@@ -3721,7 +3964,10 @@
   max-height: none;
   overflow: visible;
   interpolate-size: allow-keywords;
-  transition: height var(--duration-moderate) var(--ease-material), opacity 0.18s ease, transform 0.18s ease;
+  transition:
+    height var(--duration-moderate) var(--ease-material),
+    opacity 0.18s ease,
+    transform 0.18s ease;
 }
 
 .fontDropSearch {
@@ -3893,7 +4139,9 @@
   background: transparent;
   color: var(--bg-success-solid);
   cursor: pointer;
-  transition: border-color var(--duration-base) ease, background var(--duration-base) ease;
+  transition:
+    border-color var(--duration-base) ease,
+    background var(--duration-base) ease;
 }
 
 .envRowSaveBtn:hover {
@@ -3947,9 +4195,15 @@
   background: var(--text-tertiary);
 }
 
-.envSourceDot[data-source="env"] { background: var(--bg-success-solid); }
-.envSourceDot[data-source="db"] { background: var(--text-primary); }
-.envSourceDot[data-source="edit"] { background: var(--bg-warning-solid, var(--text-accent)); }
+.envSourceDot[data-source="env"] {
+  background: var(--bg-success-solid);
+}
+.envSourceDot[data-source="db"] {
+  background: var(--text-primary);
+}
+.envSourceDot[data-source="edit"] {
+  background: var(--bg-warning-solid, var(--text-accent));
+}
 .envSourceDot[data-source="none"] {
   background: transparent;
   border: 1.5px solid var(--text-accent);
@@ -3978,7 +4232,9 @@
 .envProgressFill {
   height: 100%;
   background: var(--bg-success-solid);
-  transition: width var(--duration-base) ease, background var(--duration-base) ease;
+  transition:
+    width var(--duration-base) ease,
+    background var(--duration-base) ease;
 }
 
 /* info icon + warn icon — label 옆 작게 */
@@ -4190,9 +4446,15 @@
 }
 
 /* 소스별 텍스트 색 차별화 — env(녹색), db(기본), edit(액센트). Read-only 는 data-source 없어 기본 tertiary 유지 */
-.envSourceBadge[data-source="env"] { color: var(--bg-success-solid); }
-.envSourceBadge[data-source="db"] { color: var(--text-primary); }
-.envSourceBadge[data-source="edit"] { color: var(--text-accent); }
+.envSourceBadge[data-source="env"] {
+  color: var(--bg-success-solid);
+}
+.envSourceBadge[data-source="db"] {
+  color: var(--text-primary);
+}
+.envSourceBadge[data-source="edit"] {
+  color: var(--text-accent);
+}
 
 /* env row — 가로 grid: 라벨 좌측 fixed, input + actions 우측 flex (전체 폭 활용) */
 .envFieldRow {
@@ -4537,7 +4799,10 @@
   color: var(--text-secondary);
   cursor: grab;
   user-select: none;
-  transition: border-color var(--duration-base) ease, color var(--duration-base) ease, transform var(--duration-fast) ease;
+  transition:
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease,
+    transform var(--duration-fast) ease;
 }
 
 .section .sizeChip:hover {
@@ -4558,9 +4823,20 @@
 }
 
 @keyframes sizeChipShakeKf {
-  0%, 100% { transform: translateX(0); }
-  15%, 45%, 75% { transform: translateX(-3px); }
-  30%, 60%, 90% { transform: translateX(3px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15%,
+  45%,
+  75% {
+    transform: translateX(-3px);
+  }
+  30%,
+  60%,
+  90% {
+    transform: translateX(3px);
+  }
 }
 
 /* 사용자 정의 MIME 추가 UI — input + size Select + add 버튼 */
@@ -4626,7 +4902,9 @@
   color: var(--text-secondary);
   cursor: pointer;
   flex-shrink: 0;
-  transition: border-color var(--duration-base) ease, color var(--duration-base) ease;
+  transition:
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease;
 }
 
 .section .customMimeAddBtn:hover {
@@ -4834,6 +5112,31 @@
   gap: var(--spacing-sm);
 }
 
+/* 필터 버튼 안 활성 개수 배지 — primary 버튼 위에 밝은 pill + 중립 숫자 (accent 미사용) */
+.filterBtnCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: var(--font-size-2xs);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+/* 필터 버튼 chevron — 펼침 시 회전. 전역 theme transition(0,1,1)이 transform 미포함이라
+   compound (0,2,0) 로 transform transition 을 직접 지정(전역보다 우선). */
+.tagDescFilterRow .filterBtnChevron {
+  transition: transform 0.2s var(--ease-material);
+}
+.filterBtnChevronOpen {
+  transform: rotate(180deg);
+}
+
 .tagDescFilterGroup {
   display: inline-flex;
   align-items: center;
@@ -5014,7 +5317,9 @@
   font-size: var(--font-size-sm);
   color: var(--text-primary);
   text-decoration: none;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
   min-width: 0;
 }
 
@@ -5077,6 +5382,40 @@ a.tagRelatedItem:hover {
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-sm);
+}
+
+/* 기본값 초기화 모달 chip — 클릭 시 해당 태그 사용 게시물 노출. 취소선 없음(삭제 대기 chip 과 구분). */
+.tagResetChipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  margin: var(--spacing-sm) 0;
+}
+.tagResetChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.tagResetChip:hover {
+  border-color: var(--text-tertiary);
+  color: var(--text-primary);
+}
+.tagResetChipActive {
+  border-color: var(--text-primary);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+.tagResetChipCount {
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
 }
 
 /* section fields 내부 grid utility — 2-col / 3-col */
@@ -5151,6 +5490,7 @@ a.tagRelatedItem:hover {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
+  width: 100%;
 }
 
 /* chip 라벨 — KO 이름 + separator + EN 이름 둘 다 표시 */
@@ -5178,13 +5518,28 @@ a.tagRelatedItem:hover {
 }
 
 @keyframes shakeAlert {
-  0%, 100% { transform: translateX(0); }
-  15%      { transform: translateX(-8px); }
-  30%      { transform: translateX(8px); }
-  45%      { transform: translateX(-6px); }
-  60%      { transform: translateX(6px); }
-  75%      { transform: translateX(-3px); }
-  90%      { transform: translateX(3px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-8px);
+  }
+  30% {
+    transform: translateX(8px);
+  }
+  45% {
+    transform: translateX(-6px);
+  }
+  60% {
+    transform: translateX(6px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
+  90% {
+    transform: translateX(3px);
+  }
 }
 
 /* 헤더 — 좌측 label + 우측 actions (Add / Save+Cancel) */
@@ -5313,7 +5668,9 @@ a.tagRelatedItem:hover {
   background: var(--bg-primary);
   cursor: pointer;
   overflow: hidden;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .worksIntroVideoCard:hover {
@@ -5717,7 +6074,8 @@ a.tagRelatedItem:hover {
 .techCustomFooter {
   position: sticky;
   bottom: 0;
-  margin: var(--spacing-xs) calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md));
+  margin: var(--spacing-xs) calc(-1 * var(--spacing-md))
+    calc(-1 * var(--spacing-md));
   padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
   background: var(--bg-primary);
   border-top: var(--border-light);
@@ -5749,7 +6107,9 @@ a.tagRelatedItem:hover {
   overflow: hidden;
   cursor: pointer;
   color: var(--text-tertiary);
-  transition: border-color 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
 }
 .techIconCircleBtn:hover {
   border-color: var(--border-accent-color);
@@ -5778,7 +6138,9 @@ a.tagRelatedItem:hover {
   animation: techSpin 0.7s linear infinite;
 }
 @keyframes techSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 /* × 제거 — circle 우상단 */
 .techIconClear {
@@ -5818,9 +6180,18 @@ a.tagRelatedItem:hover {
   animation: techNameShake 0.45s ease;
 }
 @keyframes techNameShake {
-  0%, 100% { transform: translateX(0); }
-  15%, 55% { transform: translateX(-5px); }
-  35%, 75% { transform: translateX(5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15%,
+  55% {
+    transform: translateX(-5px);
+  }
+  35%,
+  75% {
+    transform: translateX(5px);
+  }
 }
 /* 이미 추가된 preset row — 비활성 + 체크 */
 .techPresetRowAdded {

@@ -6,6 +6,7 @@ import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { MessageSquare } from "lucide-react";
 import T from "@/components/ui/T";
 import styles from "./RecentComments.module.css";
+import { stripMarkdown } from "@/utils/stripMarkdown";
 
 interface RecentComment {
   id: string;
@@ -62,7 +63,9 @@ export default function RecentComments() {
                 </span>
                 <span className={styles.time}>{timeAgo(c.created_at, t)}</span>
               </div>
-              <p className={styles.content}>{c.content}</p>
+              {/* 댓글은 마크다운 원문 — 2줄 클램프 미리보기라 렌더하면 제목/목록/코드블록이 튀어나온다.
+                  기호만 벗겨 평문으로 표시. */}
+              <p className={styles.content}>{stripMarkdown(c.content)}</p>
               <span className={styles.postTitle}>{c.post_title}</span>
             </div>
           ))}

@@ -37,12 +37,14 @@ const ICONS: Record<string, { path: string; color: string }> = {
   storage:  { path: "M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z", color: "#10b981" },
   vercel:   { path: "M12 2L2 19.5h20L12 2z", color: "#000000" },
   ssr:      { path: "M2 5h6v6H2zM10 5h12v2H10zM10 9h8v2h-8zM2 13h20v2H2zM2 17h14v2H2z", color: "#3b82f6" },
+  realtime: { path: "M12 12m-2 0a2 2 0 1 0 4 0 2 2 0 1 0-4 0M7.8 16.2a6 6 0 0 1 0-8.4M16.2 7.8a6 6 0 0 1 0 8.4M4.9 19.1a10 10 0 0 1 0-14.2M19.1 4.9a10 10 0 0 1 0 14.2", color: "#3ecf8e" },
+  giscus:   { path: "M21 11.5a8.4 8.4 0 0 1-9 8.4 9.9 9.9 0 0 1-4.2-.9L3 20.5l1.6-4.4A8.3 8.3 0 0 1 3.6 11.5a8.4 8.4 0 0 1 9-8.4 8.4 8.4 0 0 1 8.4 8.4z", color: "#6e5494" },
 };
 
 const INITIAL_NODES: Node[] = [
   { id: "user", label: "User", x: 880, y: 210, w: 72, h: 72, icon: "user" },
 
-  { id: "nextjs", label: "Next.js 15", x: 640, y: 100, w: 120, h: 48, icon: "nextjs", group: "frontend" },
+  { id: "nextjs", label: "Next.js 16", x: 640, y: 100, w: 120, h: 48, icon: "nextjs", group: "frontend" },
   { id: "react", label: "React 19", x: 640, y: 200, w: 120, h: 48, icon: "react", group: "frontend" },
   { id: "css", label: "CSS Modules", x: 640, y: 300, w: 120, h: 48, icon: "css", group: "frontend" },
 
@@ -58,9 +60,13 @@ const INITIAL_NODES: Node[] = [
   { id: "postgres", label: "PostgreSQL", x: 140, y: 380, w: 110, h: 40, icon: "postgres", group: "db" },
   { id: "auth", label: "Auth", x: 140, y: 435, w: 110, h: 40, icon: "auth", group: "db" },
   { id: "storage", label: "Storage", x: 140, y: 490, w: 110, h: 40, icon: "storage", group: "db" },
+  // 편집 presence (usePostPresence) — supabase 바로 위, 수직 엣지라 다른 노드를 안 지나간다
+  { id: "realtime", label: "Realtime", x: 300, y: 380, w: 110, h: 40, icon: "realtime", group: "db" },
 
   { id: "vercel", label: "Vercel", x: 820, y: 400, w: 100, h: 48, icon: "vercel", group: "deploy" },
   { id: "ssr", label: "SSR / ISR", x: 820, y: 100, w: 100, h: 40, icon: "ssr", group: "deploy" },
+  // 외부 댓글 provider — admin 에서 system(supabase) ↔ giscus 전환. api 아래 빈 영역.
+  { id: "giscus", label: "giscus", x: 620, y: 480, w: 110, h: 44, icon: "giscus", group: "external" },
 ];
 
 const EDGES: Edge[] = [
@@ -79,8 +85,11 @@ const EDGES: Edge[] = [
   { from: "supabase", to: "postgres" },
   { from: "supabase", to: "auth" },
   { from: "supabase", to: "storage" },
+  { from: "supabase", to: "realtime" },
   { from: "api", to: "vercel", dashed: true },
   { from: "nextjs", to: "vercel", dashed: true },
+  // giscus 선택 시 시스템 댓글(api→supabase) 대신 GitHub Discussions 를 씀
+  { from: "api", to: "giscus", dashed: true },
 ];
 
 const GROUP_COLORS: Record<string, string> = {
@@ -89,6 +98,7 @@ const GROUP_COLORS: Record<string, string> = {
   backend: "var(--text-secondary)",
   db: "var(--text-muted)",
   deploy: "var(--text-tertiary)",
+  external: "var(--text-muted)",
 };
 
 function getCenter(n: Node) {

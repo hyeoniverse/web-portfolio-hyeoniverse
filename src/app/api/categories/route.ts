@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { ensurePostCategory } from "@/lib/api/validateCategory";
+import { normalizeCategories } from "@/lib/categoryTree";
 import type { BilingualCategory } from "@/types/common";
 
 // GET /api/categories — 카테고리 목록 (공개, 이중언어)
@@ -19,10 +20,8 @@ export async function GET() {
     raw = config.posts?.categories ?? [];
   }
 
-  // 기존 string[] → { ko, en }[] 자동 정규화
-  const categories: BilingualCategory[] = (raw as unknown[]).map((item) =>
-    typeof item === "string" ? { ko: item, en: item } : (item as BilingualCategory),
-  );
+  // 기존 string[] / flat / 2단계 트리 모두 정규화 (children 보존)
+  const categories: BilingualCategory[] = normalizeCategories(raw as unknown[]);
 
   return NextResponse.json(categories);
 }

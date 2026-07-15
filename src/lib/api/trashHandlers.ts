@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "./requireAuth";
 
-type TableName = "posts" | "works";
+type TableName = "posts" | "works" | "calendars";
 
 /** 휴지통에서 복구 */
 export async function restoreFromTrash(table: TableName, id: string) {

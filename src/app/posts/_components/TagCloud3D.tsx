@@ -20,11 +20,13 @@ interface TagCloud3DProps {
   onTagClick?: (tag: string) => void;
   /** 구 반지름 (px). sidebar 가 좁으니 기본 90 */
   size?: number;
+  /** true 면 3D sphere 대신 chip 리스트(개수 명시) 로 렌더 — 필터링 중 결과 태그 표시용. label 헤더는 동일. */
+  asChips?: boolean;
 }
 
 /** 태그를 구체 표면에 Fibonacci 분포 + rAF 회전. CSS 3D translate3d + scale/opacity 로 depth 표현.
  *  hover 시 자동 회전 일시정지, drag 로 수동 회전. */
-export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90 }: TagCloud3DProps) {
+export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90, asChips = false }: TagCloud3DProps) {
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -60,8 +62,9 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90 }: 
     };
   }, [tags]);
 
-  // rAF rotation loop — DOM 직접 조작 (React re-render 안 함)
+  // rAF rotation loop — DOM 직접 조작 (React re-render 안 함). chip 모드면 sphere 없으니 skip.
   useEffect(() => {
+    if (asChips) return;
     let raf = 0;
     let last = performance.now();
     const tick = (now: number) => {
@@ -94,11 +97,12 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90 }: 
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [points, size]);
+  }, [points, size, asChips]);
 
   // hover 정지 + drag 회전. setPointerCapture 쓰면 자식 Link 의 click 이 가로채져서
   // document 레벨에 move/up 등록 (PostsClient series row 와 동일 패턴).
   useEffect(() => {
+    if (asChips) return;
     const el = containerRef.current;
     if (!el) return;
     const onEnter = () => { pausedRef.current = true; };
@@ -163,7 +167,7 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90 }: 
       el.removeEventListener("pointerleave", onLeave);
       el.removeEventListener("pointerdown", onDown);
     };
-  }, []);
+  }, [asChips]);
 
   if (!tags.length) return null;
 
@@ -174,28 +178,46 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90 }: 
         <T k="postsPage.tags" tooltip={t("postsPage.tagCloudHint")} />
         <ChevronRight size={14} aria-hidden className={styles.labelArrow} />
       </Link>
-      <div ref={containerRef} className={styles.sphere} style={{ height: size * 2.2 }}>
-        <div className={styles.scene}>
-          {points.map((p, i) => (
-            <Link
-              key={p.tag}
-              ref={(el) => { itemRefs.current[i] = el; }}
-              href={`/posts/tags/${encodeURIComponent(p.tag)}`}
-              onClick={(e) => {
-                // onTagClick 이 명시되면 페이지 이동 막고 호출자에 위임 (필터링 등)
-                if (onTagClick) {
-                  e.preventDefault();
-                  onTagClick(p.tag);
-                }
-              }}
-              className={`${styles.tag} ${activeTags?.has(p.tag) ? styles.tagActive : ""}`}
-              style={{ fontSize: `${fontFor(p.count)}px` }}
+      {asChips ? (
+        /* 필터링 중 — 결과 태그를 chip + 명시적 개수로. 클릭 시 토글(OR) 필터. */
+        <div className={styles.chips}>
+          {tags.map((tg) => (
+            <button
+              key={tg.tag}
+              type="button"
+              className={`${styles.chip} ${activeTags?.has(tg.tag) ? styles.chipActive : ""}`}
+              onClick={() => onTagClick?.(tg.tag)}
+              data-clickable="true"
             >
-              {p.tag}
-            </Link>
+              <span>#{tg.tag}</span>
+              <span className={styles.chipCount}>{tg.count}</span>
+            </button>
           ))}
         </div>
-      </div>
+      ) : (
+        <div ref={containerRef} className={styles.sphere} style={{ height: size * 2.2 }}>
+          <div className={styles.scene}>
+            {points.map((p, i) => (
+              <Link
+                key={p.tag}
+                ref={(el) => { itemRefs.current[i] = el; }}
+                href={`/posts/tags/${encodeURIComponent(p.tag)}`}
+                onClick={(e) => {
+                  // onTagClick 이 명시되면 페이지 이동 막고 호출자에 위임 (필터링 등)
+                  if (onTagClick) {
+                    e.preventDefault();
+                    onTagClick(p.tag);
+                  }
+                }}
+                className={`${styles.tag} ${activeTags?.has(p.tag) ? styles.tagActive : ""}`}
+                style={{ fontSize: `${fontFor(p.count)}px` }}
+              >
+                {p.tag}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

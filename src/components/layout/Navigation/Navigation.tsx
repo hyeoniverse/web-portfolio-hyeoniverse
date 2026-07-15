@@ -270,6 +270,46 @@ export default function Navigation() {
   const navLinkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const navCenterRef = useRef<HTMLDivElement>(null);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+
+  // ── Posts nav hover 드롭다운 (Series/Tags/History) — .nav 직속 자식으로 렌더해 difference blend 상속 ──
+  const postsChildren = navItems.find((i) => i.key === "posts")?.children ?? [];
+  const [postsMenuOpen, setPostsMenuOpen] = useState(false);
+  const [postsMenuPos, setPostsMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const postsMenuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const openPostsMenu = useCallback(() => {
+    if (postsMenuCloseTimer.current) clearTimeout(postsMenuCloseTimer.current);
+    const el = navLinkRefs.current["posts"];
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    // .nav(position:fixed, top/left 0) padding box 기준 = viewport 좌표. Posts 링크 좌측 정렬.
+    setPostsMenuPos({ top: rect.bottom + 3, left: rect.left });
+    setPostsMenuOpen(true);
+  }, []);
+
+  const schedulePostsMenuClose = useCallback(() => {
+    if (postsMenuCloseTimer.current) clearTimeout(postsMenuCloseTimer.current);
+    postsMenuCloseTimer.current = setTimeout(() => setPostsMenuOpen(false), 160);
+  }, []);
+
+  const cancelPostsMenuClose = useCallback(() => {
+    if (postsMenuCloseTimer.current) clearTimeout(postsMenuCloseTimer.current);
+  }, []);
+
+  // pathname 변경(라우팅) / resize / Escape 시 닫기 — nav 가 fixed 라 scroll 은 무시
+  useEffect(() => { setPostsMenuOpen(false); }, [pathname]);
+  useEffect(() => {
+    if (!postsMenuOpen) return;
+    const close = () => setPostsMenuOpen(false);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setPostsMenuOpen(false); };
+    window.addEventListener("resize", close);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("resize", close);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [postsMenuOpen]);
+
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
   // resize 중엔 transition 비활성화 — 그래야 indicator 가 메뉴 위치를 즉시 따라감
   const [indicatorInstant, setIndicatorInstant] = useState(false);
@@ -613,23 +653,37 @@ export default function Navigation() {
                 {item.label}
               </Link>
             ))
-          : navItems.map((item) => (
-              <Tooltip
-                key={item.key}
-                content={navDescs[item.key]?.[language] ?? ""}
-                delay={600}
-                placement="bottom"
-              >
+          : navItems.map((item) => {
+              const hasChildren = !!item.children?.length;
+              const link = (
                 <Link
+                  key={item.key}
                   href={item.href}
                   ref={(el) => { navLinkRefs.current[item.key] = el; }}
                   className={`${styles.navLink} glith-on-hover`}
-                  onMouseEnter={() => setHoveredNav(item.key)}
+                  onMouseEnter={() => {
+                    setHoveredNav(item.key);
+                    if (hasChildren) openPostsMenu();
+                  }}
+                  onMouseLeave={hasChildren ? schedulePostsMenuClose : undefined}
                 >
                   {item.label}
                 </Link>
-              </Tooltip>
-            ))}
+              );
+              // children 있는 항목(Posts)은 hover 드롭다운이 대신하므로 Tooltip 생략
+              return hasChildren ? (
+                link
+              ) : (
+                <Tooltip
+                  key={item.key}
+                  content={navDescs[item.key]?.[language] ?? ""}
+                  delay={600}
+                  placement="bottom"
+                >
+                  {link}
+                </Tooltip>
+              );
+            })}
         <span
           className={`${styles.navIndicator} ${indicatorStyle.opacity === 0 ? styles.navIndicatorHidden : ""}`}
           style={indicatorInstant ? { ...indicatorStyle, transition: "none" } : indicatorStyle}
@@ -924,6 +978,59 @@ export default function Navigation() {
         onContactOpen={openForm}
         onLogout={handleLogout}
       />
+
+      {/* Posts nav 하위 드롭다운 (Series/Tags/History) — .nav 직속 자식 → difference blend 상속.
+         카드 없이 흰 텍스트가 page backdrop 과 blend (nav 링크와 동일 언어) */}
+      {postsChildren.length > 0 && (
+        <AnimatePresence>
+          {postsMenuOpen && (
+            <motion.div
+              key="posts-nav-dropdown"
+              className={styles.postsNavDropdown}
+              role="menu"
+              style={{ top: postsMenuPos.top, left: postsMenuPos.left }}
+              onMouseEnter={cancelPostsMenuClose}
+              onMouseLeave={schedulePostsMenuClose}
+              initial="hidden"
+              animate="show"
+              exit="hidden"
+              variants={{
+                hidden: { transition: { staggerChildren: 0.04, staggerDirection: -1 } },
+                show: { transition: { staggerChildren: 0.055, delayChildren: 0.02 } },
+              }}
+            >
+              {/* 연결선 — 먼저 위→아래로 draw */}
+              <motion.span
+                className={styles.postsNavDropdownLine}
+                aria-hidden="true"
+                variants={{ hidden: { scaleY: 0, opacity: 0 }, show: { scaleY: 1, opacity: 1 } }}
+                transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              />
+              {postsChildren.map((child) => {
+                const active =
+                  pathname === child.href || pathname.startsWith(child.href + "/");
+                return (
+                  <motion.div
+                    key={child.key}
+                    className={styles.postsNavDropdownItemWrap}
+                    variants={{ hidden: { opacity: 0, x: -12 }, show: { opacity: 1, x: 0 } }}
+                    transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <Link
+                      href={child.href}
+                      role="menuitem"
+                      className={`${styles.postsNavDropdownItem} ${active ? styles.postsNavDropdownItemActive : ""}`}
+                      onClick={() => setPostsMenuOpen(false)}
+                    >
+                      {child.label}
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </nav>
     </>
   );

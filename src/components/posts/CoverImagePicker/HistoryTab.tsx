@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { Check, Copy, Download, Palette, Trash2 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
+import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import { extractPalette } from "@/components/admin/CoverImageField/extractPalette";
 import { isVideoUrl } from "@/lib/isVideoUrl";
@@ -102,46 +103,50 @@ export default function HistoryTab({ items, onPick, onRemove, currentUrl }: Hist
             {/* 좌상단 — tool button cluster (hover): 제거 / 키워드 복사 / 색상표 복사 / 다운로드 */}
             <div className={styles.historyActions}>
               <Tooltip content={t("admin.posts.coverPicker.remove")} placement="top">
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  shape="circle"
+                  size="xs"
                   className={styles.historyOverlayBtn}
+                  icon={<Trash2 size={11} strokeWidth={2} />}
                   onClick={(e) => { e.stopPropagation(); onRemove(item.url); }}
                   aria-label={t("admin.posts.coverPicker.remove")}
-                >
-                  <Trash2 size={11} strokeWidth={2} />
-                </button>
+                />
               </Tooltip>
               {item.meta && (
                 <Tooltip content={t("admin.posts.coverPicker.copyKeyword")} placement="top">
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    shape="circle"
+                    size="xs"
                     className={styles.historyOverlayBtn}
+                    icon={<Copy size={11} strokeWidth={2} />}
                     onClick={(e) => { e.stopPropagation(); copy(item.meta); }}
                     aria-label={t("admin.posts.coverPicker.copyKeyword")}
-                  >
-                    <Copy size={11} strokeWidth={2} />
-                  </button>
+                  />
                 </Tooltip>
               )}
               <Tooltip content={t("admin.posts.coverPicker.copyPalette")} placement="top">
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  shape="circle"
+                  size="xs"
                   className={styles.historyOverlayBtn}
+                  icon={<Palette size={11} strokeWidth={2} />}
                   onClick={(e) => { e.stopPropagation(); copyPalette(item.url); }}
                   aria-label={t("admin.posts.coverPicker.copyPalette")}
-                >
-                  <Palette size={11} strokeWidth={2} />
-                </button>
+                />
               </Tooltip>
               <Tooltip content={t("admin.posts.coverPicker.download")} placement="top">
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  shape="circle"
+                  size="xs"
                   className={styles.historyOverlayBtn}
+                  icon={<Download size={11} strokeWidth={2} />}
                   onClick={(e) => { e.stopPropagation(); downloadFile(item.url, item.meta); }}
                   aria-label={t("admin.posts.coverPicker.download")}
-                >
-                  <Download size={11} strokeWidth={2} />
-                </button>
+                />
               </Tooltip>
             </div>
           </div>

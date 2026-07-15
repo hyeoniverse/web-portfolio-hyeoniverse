@@ -261,6 +261,34 @@ const itemMeta: Record<
   "float 이미지가 상세 페이지에서 텍스트와 딱 붙음 (간격 0)": {
     section: "L", difficulty: 2,
   },
+
+  // Architecture — 번들러가 라이브러리 정규식을 깨뜨림
+  "댓글에 코드 하이라이팅을 붙이자 게시물 페이지 전체가 크래시 — 빌드는 통과": {
+    section: "A", difficulty: 3, recommended: true,
+    recommendReason: {
+      ko: "빌드가 통과했는데 런타임에만 터진 케이스 — \"내 코드\" 가 아니라 번들러 산출물을 의심해야 풀렸습니다. CI 가 잡아주지 못하는 층이 있다는 걸 보여드리고 싶어 골랐습니다.",
+      en: "The build passed and only the runtime died — solving it meant suspecting the bundler's output rather than my own code. Picked this because it shows a layer CI simply cannot catch.",
+    },
+  },
+
+  // Architecture — sanitizer 설정 키끼리의 충돌
+  "댓글 마크다운 체크박스가 렌더 안 됨 — DOMPurify 가 허용 목록에 넣은 속성을 조용히 지움": {
+    section: "A", difficulty: 3, recommended: true,
+    recommendReason: {
+      ko: "허용 목록에 분명히 넣었는데 사라지는, 에러 한 줄 없는 조용한 실패 — 설정 키 하나가 다른 키의 허용을 덮고 있다는 걸 라이브러리 내부 규칙까지 읽어서 찾아낸 사례입니다.",
+      en: "A silent failure with no error at all — the attribute was explicitly allowlisted yet vanished. Picked this because the fix required reading the library's internal rules to find one config key quietly overruling another.",
+    },
+  },
+
+  // Plate Editor — normalizer 무한루프
+  "열블록 너비를 %로 바꾸면 에디터가 멈춤 — normalize 무한루프": {
+    section: "E", difficulty: 3,
+  },
+
+  // Plate Editor — decorate leaf + mark leaf hook 순서 충돌
+  "코드블록 안 텍스트에 서식을 넣으면 에디터가 크래시 — \"change in the order of Hooks\"": {
+    section: "E", difficulty: 3,
+  },
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
@@ -2887,6 +2915,106 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "When serialization bakes in an inline style, that value outranks external CSS and is hard to override later — putting the right value in at serialization is the first line of defense. To cover already-broken legacy data, add a second line: an attribute selector (`[style*=\"float\"]`) + `!important` to neutralize the inline value.",
     },
     tags: ["css", "float", "inline-style", "specificity", "serializer", "important"],
+  },
+
+  /* ── 댓글 마크다운 — 번들러 / sanitizer ── */
+  {
+    section: { ko: "Architecture & Backend", en: "Architecture & Backend" },
+    problem: {
+      ko: "댓글에 코드 하이라이팅을 붙이자 게시물 페이지 전체가 크래시 — 빌드는 통과",
+      en: "Adding code highlighting to comments crashed the entire post page — while the build passed",
+    },
+    definition: {
+      ko: "댓글 마크다운의 코드블록에 하이라이팅을 붙이려고 `highlight.js` 를 import 했더니, 댓글이 아니라 **게시물 상세 페이지가 통째로** 죽었습니다. dev·prod 양쪽에서 재현됐고, `npm run build` 는 아무 경고 없이 통과했습니다.",
+      en: "I imported `highlight.js` to highlight code blocks inside comment markdown, and **the entire post detail page** died — not just the comment. It reproduced in both dev and prod, and `npm run build` passed without a single warning.",
+    },
+    cause: {
+      ko: "콘솔에 남은 건 코드 한 줄 실행되기도 전에 터진 이 에러였습니다:\n\n```\nSyntaxError: Invalid regular expression: /[A-...]/:\nRange out of order in character class\n```\n\n추적해 보니 highlight.js 의 `xml.js` 가 `/[\\p{L}_]/u` 라는 **유니코드 속성 이스케이프**를 씁니다. 번들러가 이 파일을 구형 브라우저 타겟에 맞춰 downlevel 하면서 `\\p{L}` 을 코드포인트 범위의 나열로 풀어쓰는데, 그 과정에서 **시작이 끝보다 큰(범위가 뒤집힌) 문자 클래스**가 만들어졌습니다.\n\n결정적인 건 터지는 **시점**이었습니다. 정규식 리터럴은 함수가 호출될 때가 아니라 **모듈이 평가되는 순간** 컴파일됩니다. 그래서 하이라이팅 함수를 한 번도 부르지 않아도, 그 모듈이 포함된 청크가 로드되는 순간 throw 가 나고, **그 청크에 함께 묶인 페이지 전체가 죽습니다**. 댓글 하나의 문제가 게시물 페이지 전체로 번진 이유입니다.\n\n원인이 번들 산출물이라는 건 아래로 확인했습니다.\n\n- **원본 파일은 멀쩡합니다** — Node 에서 `xml.js` 를 그대로 로드하면 정상입니다. 즉 라이브러리 소스가 아니라 **번들러가 변환한 결과물만** 깨져 있습니다.\n- `next.config` 의 `optimizePackageImports` 에서 highlight.js 를 빼도 그대로 재현됩니다 — 최적화 옵션이 원인이 아닙니다.\n- `xml` 언어만 등록에서 빼면 정규식 에러는 사라집니다. 하지만 **필요한 언어만 골라 등록한 자체 인스턴스로도** highlight.js 청크가 로드되는 순간 같은 크래시가 납니다.",
+      en: "The console showed an error that fired before a single line of my code ran:\n\n```\nSyntaxError: Invalid regular expression: /[A-...]/:\nRange out of order in character class\n```\n\nTracing it: highlight.js's `xml.js` uses `/[\\p{L}_]/u`, a **Unicode property escape**. When the bundler downlevels that file for older browser targets, it expands `\\p{L}` into a list of codepoint ranges — and in doing so produced a **character class whose range start was greater than its end**.\n\nThe decisive part was *when* it threw. A regex literal is compiled **when its module is evaluated**, not when a function is called. So even without ever invoking the highlighter, the moment the chunk containing that module loaded, it threw — and **every page bundled into that chunk died with it**. That's how one comment feature took down the whole post page.\n\nI confirmed the bundle output was the culprit:\n\n- **The original file is fine** — loading `xml.js` directly in Node works. Only the **bundler's transformed output** is broken, not the library source.\n- Removing highlight.js from `optimizePackageImports` in `next.config` reproduces it identically — the optimization flag isn't the cause.\n- Dropping just the `xml` language makes the regex error go away, but **even a hand-rolled instance registering only the languages I need** crashes the same way the instant the highlight.js chunk loads.",
+    },
+    solution: {
+      ko: "**댓글 코드 하이라이팅을 포기했습니다.** 댓글 코드블록은 marked 기본 code renderer 그대로, 하이라이팅 없이 이스케이프만 합니다. 부가 기능 하나를 위해 페이지 전체를 크래시 위험에 두는 건 교환이 성립하지 않았습니다.\n\n대신 같은 시도를 반복하지 않도록 `CommentMarkdown.tsx` 상단에 **왜 쓰면 안 되는지**를 주석으로 남겼습니다. \"highlight.js 쓰지 말 것\" 만 적으면 다음 사람이 (혹은 미래의 제가) \"언어를 골라 등록하면 되지 않나\" 로 같은 길을 다시 걷기 때문에, **이미 시도해서 실패한 우회로까지** 함께 적었습니다.\n\n다시 붙인다면 두 갈래입니다 — richtext 본문이 이미 쓰고 있는 **shiki 로 가거나**, hljs 를 patch 하는 것입니다.\n\n**아직 남아 있는 지뢰**: `src/components/posts/highlightCodeBlocks.ts` 는 여전히 `highlight.js/lib/core` 를 import 합니다. markdown 게시물 경로에서 평가되면 같은 크래시가 재현될 수 있어, 알고 남겨둔 리스크로 기록해 둡니다.",
+      en: "**I dropped code highlighting in comments.** Comment code blocks now go through marked's default code renderer — escaped, not highlighted. Risking a full page crash for one nice-to-have wasn't a trade that made sense.\n\nInstead I left a comment at the top of `CommentMarkdown.tsx` explaining **why it must not be used**. Writing just \"don't use highlight.js\" would send the next person (or future me) straight back down the same path via \"but what if I only register the languages I need?\" — so I documented **the workarounds I already tried and that already failed**.\n\nIf it comes back, there are two routes: move to **shiki**, which the richtext body already uses, or patch hljs.\n\n**A live landmine remains**: `src/components/posts/highlightCodeBlocks.ts` still imports `highlight.js/lib/core`. If it gets evaluated on the markdown post path, the same crash can resurface — recording it here as a known, accepted risk.",
+    },
+    keyInsight: {
+      ko: "**빌드 통과는 안전을 보장하지 않습니다.** 번들러는 소스를 타겟 환경에 맞춰 \"고쳐 쓰는\" 단계이고, 그 산출물은 소스와 다르게 동작할 수 있습니다. 타입 체크도 빌드도 원본을 보기 때문에, 이 층의 결함은 **오직 런타임에서만** 드러납니다.\n\n그리고 실패 시점이 곧 폭발 반경입니다. **모듈 평가 시점에 컴파일되는 코드**(정규식 리터럴, 최상위 실행문)는 함수 호출 지점이 아니라 **import 지점에서** 터지므로, 한 컴포넌트의 문제가 그 청크를 공유하는 페이지 전체로 번집니다. 기능 하나를 넣을 때 그 실패가 **어디까지 번지는지**를 같이 봐야 하는 이유입니다.",
+      en: "**A green build doesn't mean it's safe.** The bundler is a step that *rewrites* your source for a target environment, and its output can behave differently from what you wrote. Type-checking and building both inspect the original — so defects at this layer surface **only at runtime**.\n\nAnd the moment of failure defines the blast radius. Code compiled **at module-evaluation time** — regex literals, top-level statements — throws at the **import** site, not the call site, so one component's problem takes down every page sharing that chunk. That's why adding a feature means also asking **how far its failure spreads**.",
+    },
+    tags: ["highlight.js", "bundler", "regex", "unicode-property-escape", "runtime-crash", "chunk"],
+  },
+  {
+    section: { ko: "Architecture & Backend", en: "Architecture & Backend" },
+    problem: {
+      ko: "댓글 마크다운 체크박스가 렌더 안 됨 — DOMPurify 가 허용 목록에 넣은 속성을 조용히 지움",
+      en: "Comment markdown checkboxes never rendered — DOMPurify silently stripped an explicitly allowlisted attribute",
+    },
+    definition: {
+      ko: "댓글에 `- [ ] 할 일` 을 쓰면 체크박스가 아니라 **그냥 불릿**으로 렌더됐습니다. `ALLOWED_TAGS` 에 `input` 도, `ALLOWED_ATTR` 에 `type` 도 분명히 넣어둔 상태였고, 에러는 한 줄도 없었습니다.",
+      en: "Writing `- [ ] todo` in a comment rendered a **plain bullet** instead of a checkbox. `input` was in `ALLOWED_TAGS` and `type` was in `ALLOWED_ATTR` — and there wasn't a single error anywhere.",
+    },
+    cause: {
+      ko: "marked 는 정상이었습니다. `<input type=\"checkbox\">` 를 제대로 만들어 냈고, 그게 사라지는 건 **DOMPurify 를 통과한 뒤**였습니다.\n\n원인은 DOMPurify 의 규칙 하나였습니다. DOMPurify 는 **\"URI-safe 로 알려진 속성\"이 아니면 그 속성의 *값*을 `ALLOWED_URI_REGEXP` 로 검사**합니다. 값이 URL 일 수 있다고 보고 프로토콜을 확인하는 것입니다. 그런데 기본 URI-safe 목록(`alt`·`class`·`title`·`value` 등)에는 `type` 이 없습니다.\n\n그래서 이런 일이 벌어졌습니다:\n\n```ts\nconst ALLOWED_URI_REGEXP = /^(?:https?:|mailto:)/i;\n// type=\"checkbox\" → 값 \"checkbox\" 를 위 정규식으로 검사 → 불일치 → 속성 제거\n```\n\n`ALLOWED_ATTR` 에 `type` 을 넣은 건 **\"이 속성을 남겨라\"** 라는 뜻이지 **\"이 속성의 값을 URL 로 검사하지 말라\"** 는 뜻이 아니었습니다. 두 설정은 서로 다른 축이고, **URI 검사가 조용히 이깁니다**.\n\n속성이 지워지자 그다음은 제 코드가 마무리했습니다. `afterSanitizeAttributes` 훅이 \"task-list 체크박스만 남기고 나머지 input 은 제거\" 하려고 `type` 을 확인하는데, 그 `type` 이 이미 사라진 뒤라 **훅이 체크박스를 \"체크박스 아님\"으로 판정하고 `<input>` 을 지웠습니다** → 불릿만 남음.\n\n같은 이유로 **표의 `align` 도 죽어 있었습니다.** 마크다운 표 정렬(`|:---|---:|`)이 통째로 무시되고 있었는데, 이것도 에러 없이 조용히 사라지던 터라 체크박스를 파기 전까지 아무도 몰랐습니다.",
+      en: "marked was fine. It produced `<input type=\"checkbox\">` correctly — the attribute disappeared **after DOMPurify**.\n\nThe cause was one DOMPurify rule: unless an attribute is **known to be URI-safe, DOMPurify tests its *value* against `ALLOWED_URI_REGEXP`**, on the assumption the value might be a URL whose protocol needs checking. And `type` is not in the default URI-safe list (`alt`, `class`, `title`, `value`, …).\n\nSo:\n\n```ts\nconst ALLOWED_URI_REGEXP = /^(?:https?:|mailto:)/i;\n// type=\"checkbox\" → value \"checkbox\" tested against the regex → no match → attribute dropped\n```\n\nPutting `type` in `ALLOWED_ATTR` means **\"keep this attribute\"** — not **\"don't URL-check its value\"**. They're different axes, and **the URI check wins, silently**.\n\nOnce the attribute was gone, my own code finished the job. The `afterSanitizeAttributes` hook checks `type` to keep only task-list checkboxes and remove any other input — but `type` was already stripped, so **the hook judged the checkbox to be \"not a checkbox\" and removed the `<input>`** → bullet only.\n\nThe same rule had quietly killed **table `align`** too. Markdown table alignment (`|:---|---:|`) had been ignored the whole time — also with no error, so nobody noticed until I dug into the checkbox.",
+    },
+    solution: {
+      ko: "URL 이 아닌 inert 속성들을 URI 검사에서 빼주면 끝이었습니다.\n\n```ts\n// type/checked/disabled/align — 전부 URL 이 아닌 inert 속성\nconst URI_SAFE_ATTR = [\"type\", \"checked\", \"disabled\", \"align\"];\n\nDOMPurify.sanitize(raw, {\n  ALLOWED_TAGS, ALLOWED_ATTR, ALLOWED_URI_REGEXP,\n  ADD_URI_SAFE_ATTR: URI_SAFE_ATTR,\n});\n```\n\n중요한 건 **이게 보안을 낮추지 않는다는 점**입니다. `ADD_URI_SAFE_ATTR` 는 \"이 속성 값은 URL 이 아니니 프로토콜 검사를 건너뛰라\" 는 선언일 뿐, 속성 자체의 허용 여부는 여전히 `ALLOWED_ATTR` 이 결정합니다. `href`·`src` 는 목록에 없으므로 **URL 을 실을 수 있는 속성의 프로토콜 검사는 그대로 유지**됩니다.",
+      en: "The fix was to exempt the non-URL, inert attributes from the URI check:\n\n```ts\n// type/checked/disabled/align — all inert, none are URLs\nconst URI_SAFE_ATTR = [\"type\", \"checked\", \"disabled\", \"align\"];\n\nDOMPurify.sanitize(raw, {\n  ALLOWED_TAGS, ALLOWED_ATTR, ALLOWED_URI_REGEXP,\n  ADD_URI_SAFE_ATTR: URI_SAFE_ATTR,\n});\n```\n\nWhat matters is that **this doesn't weaken sanitization**. `ADD_URI_SAFE_ATTR` only declares \"this attribute's value isn't a URL, skip the protocol check\" — whether the attribute is allowed at all is still `ALLOWED_ATTR`'s call. `href` and `src` aren't on the list, so **protocol checking stays fully intact for the attributes that can actually carry a URL**.",
+    },
+    keyInsight: {
+      ko: "**허용 목록에 넣었는데도 사라진다면, 다른 설정 키가 그 허용을 덮고 있는지 봐야 합니다.** `ALLOWED_ATTR` 와 `ALLOWED_URI_REGEXP` 는 각각 \"무엇을 남길지\" 와 \"값이 안전한지\" 라는 별개의 축인데, 이름만 보면 둘 다 \"허용\" 이라 같은 축처럼 읽힙니다. 라이브러리 설정은 **키 하나만 보고 판단하면 안 되고, 키들 사이의 상호작용까지** 읽어야 합니다.\n\n그리고 이 버그가 오래 산 진짜 이유는 **조용해서**입니다. sanitizer 는 위험한 걸 지우는 게 일이라 \"지웠다\" 고 알리지 않고, 그래서 정상 동작과 조용한 제거가 겉보기에 똑같습니다. 표의 `align` 은 아무도 신고하지 않은 채로 계속 죽어 있었습니다 — **로그를 남기지 않는 계층에서는 \"에러가 없다\" 가 \"동작한다\" 의 근거가 되지 못합니다.**",
+      en: "**When something is allowlisted but still disappears, look for a different config key overruling the allowance.** `ALLOWED_ATTR` and `ALLOWED_URI_REGEXP` are separate axes — \"what to keep\" versus \"is this value safe\" — but both read as \"allow\" by name, which makes them look like one axis. Library config can't be reasoned about one key at a time; **you have to read how the keys interact**.\n\nAnd the reason this bug lived so long is that it was **quiet**. A sanitizer's whole job is removing things, so it doesn't announce removals — which makes correct behavior and silent stripping look identical from the outside. Table `align` had been dead the entire time with nobody reporting it. **In a layer that doesn't log, \"no errors\" is not evidence of \"it works\".**",
+    },
+    tags: ["dompurify", "sanitize", "allowlist", "silent-failure", "markdown", "gfm"],
+  },
+
+  /* ── Plate 에디터 — normalizer / hook 순서 ── */
+  {
+    section: { ko: "Plate Editor", en: "Plate Editor" },
+    problem: {
+      ko: "열블록 너비를 %로 바꾸면 에디터가 멈춤 — normalize 무한루프",
+      en: "Switching column widths to % froze the editor — an infinite normalize loop",
+    },
+    definition: {
+      ko: "열블록(column_group)을 3열로 만들거나 열 너비를 %로 조정하면 에디터가 그대로 굳었습니다. 탭이 응답을 멈추고 결국 크래시했습니다.",
+      en: "Creating a 3-column block or adjusting column widths in % froze the editor solid — the tab stopped responding and eventually crashed.",
+    },
+    cause: {
+      ko: "`@platejs/layout` 의 기본 normalizer 는 열 너비의 합이 100 이 아니면 `(100 - 합) / 열수` 로 차이를 재분배합니다. 열이 추가되거나 빈 열이 자동 제거될 때마다 이 보정이 돕니다.\n\n문제는 **100/3 처럼 딱 떨어지지 않는 값**입니다. `33.333...` 을 세 번 더해도 부동소수점상 합이 정확히 100 이 되지 않습니다. normalizer 는 \"합이 100 이 아니네\" 하고 다시 보정하고, 그 결과가 또 100 이 아니고, 다시 보정하고 — **종료 조건에 영영 도달하지 못합니다.**\n\nnormalize 는 동기 루프라 이 사이에 브라우저가 프레임을 그릴 틈이 없습니다. 그래서 \"느려짐\" 이 아니라 **완전한 정지**로 나타났습니다.",
+      en: "`@platejs/layout`'s default normalizer redistributes the difference as `(100 - sum) / n` whenever column widths don't sum to 100. That correction runs every time a column is added or an empty one is auto-removed.\n\nThe problem is **values that don't divide evenly, like 100/3**. Adding `33.333...` three times never lands exactly on 100 in floating point. So the normalizer sees \"sum isn't 100\", corrects, gets a result that still isn't 100, corrects again — and **never reaches its exit condition**.\n\nNormalization is a synchronous loop, so the browser never gets a frame in between. That's why it presented as a **hard freeze** rather than \"slow\".",
+    },
+    solution: {
+      ko: "부동소수점으로는 \"합이 정확히 100\" 을 보장할 수 없으니, **너비를 정수로만 다루기로** 했습니다. `ColumnKit` 뒤에 등록한 `ColumnWidthFixKit` 이 원래 `normalizeNode` 를 감싸서, 너비가 \"정수 & 합 100\" 이 아니면 비율을 유지한 채 정수로 재분배하고 **그 pass 를 즉시 종료**합니다.\n\n```ts\n// 비율 유지 정수 재분배 (각 열 최소 1)\nconst ints = widths.map((w) =>\n  Math.max(1, Math.round((sum > 0 ? w / sum : 1 / n) * 100)),\n);\n// 반올림 오차는 가장 큰 열이 흡수 → 합이 정확히 100\nconst s = ints.reduce((a, b) => a + b, 0);\nif (s !== 100) {\n  let maxIdx = 0;\n  for (let i = 1; i < ints.length; i++) if (ints[i] > ints[maxIdx]) maxIdx = i;\n  ints[maxIdx] = Math.max(1, ints[maxIdx] + (100 - s));\n}\n```\n\n반올림하면 합이 99 나 101 이 될 수 있는데, 그 오차를 **가장 큰 열 하나가 흡수**합니다. 가장 큰 열에 몰아주면 1~2% 오차가 시각적으로 가장 덜 드러나고, 무엇보다 합이 **정확히** 100 인 정수 배분이 나옵니다.\n\n루프가 끝나는 근거는 여기 있습니다. 우리 보정은 항상 정확한 정수-100 을 만들기 때문에 **다음 pass 에서는 조건이 풀려** 원래 normalize(빈 열 제거·unwrap 등)가 그대로 통과합니다. 이미 정수-100 이면 아예 개입하지 않습니다.",
+      en: "Since floating point can't guarantee \"sums to exactly 100\", I made widths **integers only**. `ColumnWidthFixKit`, registered after `ColumnKit`, wraps the original `normalizeNode`: if widths aren't \"all integers and summing to 100\", it redistributes them as ratio-preserving integers and **ends that pass immediately**.\n\n```ts\n// ratio-preserving integer redistribution (min 1 per column)\nconst ints = widths.map((w) =>\n  Math.max(1, Math.round((sum > 0 ? w / sum : 1 / n) * 100)),\n);\n// the largest column absorbs the rounding error → sum is exactly 100\nconst s = ints.reduce((a, b) => a + b, 0);\nif (s !== 100) {\n  let maxIdx = 0;\n  for (let i = 1; i < ints.length; i++) if (ints[i] > ints[maxIdx]) maxIdx = i;\n  ints[maxIdx] = Math.max(1, ints[maxIdx] + (100 - s));\n}\n```\n\nRounding can leave the sum at 99 or 101, and **the single largest column absorbs that error** — dumping a 1–2% discrepancy into the widest column is the least visually detectable place for it, and it yields an integer split summing to **exactly** 100.\n\nThat's also why the loop terminates: our correction always produces an exact integer-100, so **the condition is false on the next pass** and the original normalize (empty-column removal, unwrap, etc.) proceeds untouched. If widths are already integer-100, we never intervene at all.",
+    },
+    keyInsight: {
+      ko: "**수렴하지 않는 종료 조건은 무한루프와 같은 말입니다.** `합 === 100` 은 정수에서는 도달 가능하지만 부동소수점에서는 도달하지 못할 수 있고, 라이브러리는 그 차이를 검사해 주지 않습니다.\n\n해법은 조건을 느슨하게(`Math.abs(sum - 100) < 0.01`) 만드는 쪽이 아니라 **애초에 도달 가능한 값의 공간으로 옮기는 것**이었습니다. 정수로 좁히면 \"정확히 100\" 이 표현 가능한 값이 되고, 그때부터 종료 조건은 신뢰할 수 있는 명제가 됩니다. **오차를 허용하는 대신 오차가 생길 수 없는 표현을 고르는 편이 더 단단합니다.**",
+      en: "**An exit condition that can't converge is just an infinite loop.** `sum === 100` is reachable in integers and possibly unreachable in floating point — and the library won't check which one you're in.\n\nThe fix wasn't to loosen the condition (`Math.abs(sum - 100) < 0.01`) but to **move into a value space where the target is reachable at all**. Constrain to integers and \"exactly 100\" becomes representable, at which point the exit condition is a proposition you can trust. **Choosing a representation where the error can't exist is sturdier than tolerating the error.**",
+    },
+    tags: ["plate", "normalizer", "infinite-loop", "floating-point", "column-group"],
+  },
+  {
+    section: { ko: "Plate Editor", en: "Plate Editor" },
+    problem: {
+      ko: "코드블록 안 텍스트에 서식을 넣으면 에디터가 크래시 — \"change in the order of Hooks\"",
+      en: "Formatting text inside a code block crashed the editor — \"change in the order of Hooks\"",
+    },
+    definition: {
+      ko: "코드블록 안의 텍스트를 선택하고 굵게·색상·형광펜 같은 mark 를 적용하면 에디터가 React 에러로 크래시했습니다.\n\n```\nRendered more hooks than during the previous render.\n(change in the order of Hooks)\n```",
+      en: "Selecting text inside a code block and applying a mark — bold, color, highlight — crashed the editor with a React error:\n\n```\nRendered more hooks than during the previous render.\n(change in the order of Hooks)\n```",
+    },
+    cause: {
+      ko: "코드블록은 syntax highlighting 을 위해 **leaf 를 decorate** 합니다. lowlight 가 토큰 단위로 leaf 를 쪼개 각각에 하이라이팅 정보를 붙이는 구조입니다.\n\n여기에 mark(bold·color 등) leaf 가 섞이면 leaf 의 구성이 렌더마다 달라집니다. Plate 내부 `Leaf` 컴포넌트는 leaf 종류에 따라 hook 을 다르게 부르는데, **decorate leaf 와 mark leaf 가 겹치면 렌더 간 hook 호출 순서가 바뀝니다**. React 의 규칙 위반이라 크래시로 이어집니다.\n\n즉 원인은 제 렌더링 코드가 아니라 **두 leaf 시스템(decoration 과 mark)이 같은 노드를 두고 겹친 것**이었습니다.",
+      en: "Code blocks **decorate leaves** for syntax highlighting — lowlight splits leaves per token and attaches highlight info to each.\n\nMix mark leaves (bold, color, …) into that and the leaf composition changes between renders. Plate's internal `Leaf` component calls different hooks depending on leaf type, so **when decoration leaves and mark leaves overlap, the hook call order shifts between renders** — a React rules violation, hence the crash.\n\nSo the cause wasn't my rendering code but **two leaf systems (decoration and marks) colliding on the same node**.",
+    },
+    solution: {
+      ko: "겹침 자체를 없앴습니다. `NoCodeMarksKit` 이 `addMark` 를 감싸서, 선택 영역이 코드블록 안이면 **mark 적용을 그냥 무시**합니다.\n\n```ts\naddMark(key: string, value: unknown) {\n  try {\n    if (editor.api.some({ match: { type: [KEYS.codeBlock, KEYS.codeLine] } })) return;\n  } catch { /* ignore */ }\n  addMark(key, value);\n}\n```\n\n렌더 단계에서 겹친 leaf 를 수습하려 하지 않고 **입력 단계에서 애초에 안 들어가게** 막는 쪽을 골랐습니다. 코드에 굵게·형광펜을 넣는 건 의미도 없고 — 코드블록의 서식은 syntax highlighting 이 담당합니다 — 사용자가 잃는 기능이 없습니다. 막는 게 곧 올바른 동작입니다.",
+      en: "I removed the overlap itself. `NoCodeMarksKit` wraps `addMark` and **simply ignores mark application** when the selection sits inside a code block:\n\n```ts\naddMark(key: string, value: unknown) {\n  try {\n    if (editor.api.some({ match: { type: [KEYS.codeBlock, KEYS.codeLine] } })) return;\n  } catch { /* ignore */ }\n  addMark(key, value);\n}\n```\n\nRather than reconciling overlapping leaves at render time, I blocked them **at the input step so they never exist**. Bolding or highlighting code is meaningless anyway — syntax highlighting owns formatting inside a code block — so no user-facing capability is lost. Blocking it *is* the correct behavior.",
+    },
+    keyInsight: {
+      ko: "**\"두 시스템이 같은 자원을 두고 겹칠 수 있다\" 면, 겹친 뒤에 수습하는 것보다 겹치지 못하게 막는 게 쌉니다.** 여기서 decoration 과 mark 는 각각은 멀쩡하고 둘이 만났을 때만 깨지는데, 이런 결함은 두 기능을 따로 테스트하면 절대 안 보입니다.\n\n그리고 이 경우 **막는 것이 곧 올바른 동작**이었다는 점이 결정을 쉽게 만들었습니다. 제약을 걸면 보통 기능을 잃지만, 애초에 의미 없는 조합이라면 제약이 손해가 아니라 **의도를 명시하는 일**이 됩니다. 크래시를 고치는 방법을 고를 때 \"어느 쪽이 더 정직한 모델인가\" 를 같이 물어볼 만합니다.",
+      en: "**When two systems can collide over the same resource, preventing the collision is cheaper than reconciling it afterward.** Decoration and marks are each fine alone and break only when they meet — a class of defect that testing the two features separately will never surface.\n\nWhat made the call easy here is that **blocking it was also the correct behavior**. Adding a constraint usually costs you a capability, but when the combination is meaningless to begin with, the constraint isn't a loss — it's **making the intent explicit**. Worth asking, when picking how to fix a crash, which option is the more honest model.",
+    },
+    tags: ["plate", "react-hooks", "decorate", "marks", "code-block", "crash"],
   },
 ];
 

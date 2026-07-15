@@ -101,8 +101,8 @@ export const projectStructure: StructureItem[] = [
   {
     path: "api/",
     description: {
-      ko: "API 라우트 — posts, comments, likes, contact, cover, admin",
-      en: "API routes — posts, comments, likes, contact, cover, admin",
+      ko: "API 라우트 — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin",
+      en: "API routes — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin",
     },
     indent: 2,
   },
@@ -163,18 +163,26 @@ export const projectStructure: StructureItem[] = [
     indent: 2,
   },
   {
+    path: "comments/",
+    description: {
+      ko: "댓글 — CommentEditor (마크다운 작성/미리보기 탭 + 서식 툴바), CommentMarkdown (marked → DOMPurify sanitize), 이모지 반응, Giscus (admin 에서 system ↔ giscus provider 전환, 미설정 시 시스템 댓글로 폴백)",
+      en: "Comments — CommentEditor (markdown write/preview tabs + formatting toolbar), CommentMarkdown (marked → DOMPurify sanitize), emoji reactions, Giscus (admin switches provider system ↔ giscus, falling back to system comments when unset)",
+    },
+    indent: 2,
+  },
+  {
     path: "hooks/",
     description: {
-      ko: "15개 커스텀 훅 — useMagnetic, useScrollVelocity, useHorizontalScroll 등",
-      en: "15 custom hooks — useMagnetic, useScrollVelocity, useHorizontalScroll, etc.",
+      ko: "30개 커스텀 훅 — useMagnetic, useScrollVelocity, useHorizontalScroll, usePostPresence (Supabase Realtime presence 로 같은 글을 편집 중인 다른 세션 감지) 등",
+      en: "30 custom hooks — useMagnetic, useScrollVelocity, useHorizontalScroll, usePostPresence (detects other sessions editing the same post via Supabase Realtime presence), etc.",
     },
     indent: 1,
   },
   {
     path: "lib/",
     description: {
-      ko: "서버 사이드 로직 — Supabase 클라이언트, API 공통 핸들러, Posts SSR 쿼리, tagMeta · autoCoverImage · searchQuery · searchHighlight · videoCompress · isVideoUrl 유틸",
-      en: "Server-side logic — Supabase clients, API shared handlers, Posts SSR queries, plus tagMeta · autoCoverImage · searchQuery · searchHighlight · videoCompress · isVideoUrl utilities",
+      ko: "서버 사이드 로직 — Supabase 클라이언트, API 공통 핸들러, Posts SSR 쿼리, favicon (route 의 SVG 생성과 admin 미리보기가 같은 resolveFavicon 공유), directUpload (signed URL 로 Storage 직접 업로드 — 서버리스 본문 크기 제한 우회), categoryTree, tagMeta · autoCoverImage · searchQuery · searchHighlight · videoCompress 유틸",
+      en: "Server-side logic — Supabase clients, API shared handlers, Posts SSR queries, favicon (the route's SVG generation and the admin preview share one resolveFavicon), directUpload (direct-to-Storage upload via signed URL, bypassing the serverless body-size limit), categoryTree, plus tagMeta · autoCoverImage · searchQuery · searchHighlight · videoCompress utilities",
     },
     indent: 1,
   },

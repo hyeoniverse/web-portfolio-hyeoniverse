@@ -17,6 +17,7 @@ import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import Button from "@/components/ui/Button";
 import ButtonGroup from "@/components/ui/ButtonGroup";
+import HelpButton from "@/components/ui/HelpButton";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
@@ -587,9 +588,9 @@ export default function AdminWorksPage() {
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
-          <button
-            className={shell.helpBtn}
+          <HelpButton
             title={t("admin.works.uploadGuide")}
+            aria-label={t("admin.works.uploadGuide")}
             onClick={() => {
               openModal(
                 <div className={styles.uploadGuide}>
@@ -637,9 +638,7 @@ role: 풀스택 개발
                 { header: { title: t("admin.works.uploadGuide") }, closeButton: true, width: "560px" },
               );
             }}
-          >
-            ?
-          </button>
+          />
           <ButtonGroup>
             <Button variant="outline" size="xs" title={t("admin.works.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<Upload size={14} />}>
               {uploading ? "..." : t("admin.works.uploadMd")}

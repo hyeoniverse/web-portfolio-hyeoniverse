@@ -90,13 +90,35 @@ export const _inlineDragPath: { current: number[] | null } = { current: null };
 export const _mathSymbolInsert: { current: ((latex: string) => void) | null } = { current: null };
 export const _mathEditingSet: { current: ((v: boolean) => void) | null } = { current: null };
 export const _mathDeleteNode: { current: (() => void) | null } = { current: null };
+export const _mathToggleMode: { current: (() => void) | null } = { current: null };
+
+// 미디어 항목(패널 재삽입 등)이 동영상인지 판별 — mediaType("media_embed"|"video") 또는 확장자.
+export function isVideoMedia(mediaType?: string, url?: string): boolean {
+  return mediaType === "media_embed" || mediaType === "video"
+    || (!!url && /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url));
+}
 
 // 이미지 업로드 함수 공유 (CalloutElement 이모지 피커에서 사용)
 export const _imageUploadFn: { current: ((file: File) => Promise<string>) | null } = { current: null };
 
+// 업로드 실패 시 상세 사유 모달을 띄우는 핸들러 공유 — 여러 삽입 진입점(슬래시/툴바 등)이
+// catch 블록에서 호출. PlateEditor 가 useModalStore 기반으로 등록.
+export const _uploadErrorFn: { current: ((err: unknown) => void) | null } = { current: null };
+
 // "/" 텍스트 없이 슬래시 메뉴를 수동으로 여는 트리거 — 블록 + 버튼이 호출, SlashMenu 가 등록.
 // onCancel: 메뉴를 명령 선택 없이 닫을 때(blur/Esc/이동) 호출 — + 로 새로 만든 빈 블록 제거용.
 export const _slashOpenTrigger: { current: ((onCancel?: () => void) => void) | null } = { current: null };
+
+// 공통 EmojiPicker 열기 — 슬래시 "이모지" 명령에서 호출. EmojiMenu 가 마운트 시 채움.
+export const _emojiPickerTrigger: { current: (() => void) | null } = { current: null };
+
+// 게시물 링크 검색 열기 — 슬래시/툴바에서 호출. PostLinkMenu 가 마운트 시 채움("[[" 를 삽입해 인라인 검색 진입).
+export const _postLinkTrigger: { current: (() => void) | null } = { current: null };
+
+// 현재 편집 중인 글의 메타 — PostEditor 가 설정. PostLinkMenu 가 "연관 게시물" 스코어링에 사용.
+export const _postLinkCategory: { current: string } = { current: "" };
+export const _postLinkTags: { current: string[] } = { current: [] };
+export const _postLinkExcludeId: { current: string } = { current: "" };
 
 // 블록 DnD 자동 스크롤 대상 = 에디터 스크롤 컨테이너([data-slate-editor]). PlateEditor 가 마운트 시 채움.
 export const _dndScrollContainer: { current: HTMLElement | null } = { current: null };

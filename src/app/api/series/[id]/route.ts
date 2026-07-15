@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
-import { ensurePostCategory } from "@/lib/api/validateCategory";
+import { SERIES_TITLE_MAX } from "@/types/post";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -46,13 +46,17 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (authError) return authError;
 
   const body = await request.json();
+
+  // 제목(ko/en) 길이 검증 — partial update 라 존재할 때만. UI/폼 우회 방어.
+  if (typeof body.title === "string" && body.title.length > SERIES_TITLE_MAX)
+    return jsonError(`title must be ${SERIES_TITLE_MAX} characters or fewer`, 400);
+  if (typeof body.title_en === "string" && body.title_en.length > SERIES_TITLE_MAX)
+    return jsonError(`title_en must be ${SERIES_TITLE_MAX} characters or fewer`, 400);
+
   const url = new URL(request.url);
   const skipShift = url.searchParams.get("skipShift") === "true";
 
-  // 카테고리 직접 입력 시 자동 등록 (기존 목록에 없으면)
-  if (body.category) {
-    await ensurePostCategory(body.category as string);
-  }
+  // 시리즈는 자기 카테고리를 갖지 않음(멤버 글에서 도출) — category 쓰기 경로 제거.
 
   const admin = createAdminClient();
 

@@ -14,6 +14,7 @@ import HighlightedText from "@/components/ui/HighlightedText";
 import T from "@/components/ui/T";
 import { Flame, Pin, Eye, Heart } from "lucide-react";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
+import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 import styles from "./PostCard.module.css";
 
 interface PostCardProps {
@@ -21,6 +22,8 @@ interface PostCardProps {
   variant?: "featured" | "standard" | "hero";
   /** 시리즈 필터링 등 — 카드 높이를 축소 (이미지 16:9 + body 슬림) */
   compact?: boolean;
+  /** 목록 레이아웃 (설정) — compact 는 전용 렌더, 나머지는 표준 카드 + CSS */
+  layout?: "magazine" | "grid" | "list" | "compact" | "masonry" | "timeline" | "featured";
   /** bento — 2-col span + ultra-wide(21:9) 이미지 */
   banner?: boolean;
   /** bento — 정사각 이미지(1:1) */
@@ -36,6 +39,7 @@ export default function PostCard({
   post,
   variant = "standard",
   compact,
+  layout,
   banner,
   square,
   portrait,
@@ -116,6 +120,7 @@ export default function PostCard({
 
   const displayTitle = formatPostTitle(post, displayLang);
   const displayExcerpt = getPostExcerpt(post, displayLang);
+  const icon = post.icon;
 
   const cardClass = [
     styles.card,
@@ -135,6 +140,136 @@ export default function PostCard({
     const rect = el.getBoundingClientRect();
     navigateWithTransition(`/posts/${post.slug}`, img, rect);
   };
+
+  /* ── Timeline 레이아웃: 블로그식 히스토리 — 축 점 왼쪽에 날짜, 오른쪽에 제목·발췌·메타 ── */
+  if (layout === "timeline") {
+    const d = new Date(post.created_at);
+    const TL_MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    const eyebrowDate = `${TL_MONTHS[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")}, ${d.getFullYear()}`;
+    return (
+      <div
+        ref={cardRef}
+        className={`${styles.card} ${styles.timelineCard}`}
+        onClick={handleClick}
+        onMouseEnter={handlePrefetch}
+        onFocus={handlePrefetch}
+        role="link"
+        data-more="true"
+        data-clickable="true"
+      >
+        {/* eyebrow — 날짜(accent) · 카테고리 · pinned · hot */}
+        <div className={styles.timelineEyebrow}>
+          <time className={styles.timelineDate} dateTime={post.created_at}>{eyebrowDate}</time>
+          {category && (
+            <>
+              <span className={styles.timelineEyebrowSep} aria-hidden />
+              <span className={styles.timelineCat}><CategoryLabel category={category} /></span>
+            </>
+          )}
+          {langBadge && (
+            <>
+              <span className={styles.timelineEyebrowSep} aria-hidden />
+              <span className={styles.compactLang}><T k={`postDetail.${langBadge}`} /></span>
+            </>
+          )}
+          {isHot && (
+            <span className={styles.hotBadge}><Flame size={11} fill="currentColor" stroke="none" />HOT</span>
+          )}
+        </div>
+        <h3 className={styles.timelineTitle}>
+          {post.is_pinned && (
+            <span className={styles.timelinePinInline} aria-label="Pinned">
+              {/* lucide Pin 기반 — 바늘 길게, CSS 로 기울임. 제목 텍스트에 인라인(글자처럼) */}
+              <svg viewBox="0 0 24 34" fill="currentColor" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
+                <line x1="12" x2="12" y1="17" y2="32" />
+              </svg>
+            </span>
+          )}
+          <HighlightedText text={displayTitle} />
+        </h3>
+        {/* 반대편 빈 공간 프리뷰 — 데스크톱은 hover 시 썸네일+desc, 모바일은 인라인 상시 표시 */}
+        {(displayExcerpt || showImage || icon) && (
+          <div className={styles.timelinePreview}>
+            {(showImage || icon) && (
+              <div className={`${styles.timelinePreviewThumb} ${icon ? styles.timelinePreviewThumbEmoji : ""}`}>
+                {icon ? <EmojiIcon value={icon} size={34} /> : (
+                  <ProgressiveImage src={post.cover_image} alt="" fill sizes="140px" className={styles.timelinePreviewThumbImg} onError={() => onImgError?.(post.id)} />
+                )}
+              </div>
+            )}
+            {displayExcerpt && <p className={styles.timelinePreviewExcerpt}><HighlightedText text={displayExcerpt} /></p>}
+          </div>
+        )}
+        <div className={styles.timelineMeta}>
+          <span>{readTime} {t("postDetail.minRead")}</span>
+          <span className={styles.timelineSep} aria-hidden>·</span>
+          <span className={styles.compactStat}><Eye size={11} strokeWidth={1.75} />{formatCount(post.view_count ?? 0)}</span>
+          <span className={styles.compactStat}><Heart size={11} strokeWidth={1.75} />{formatCount(post.like_count ?? 0)}</span>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Compact 레이아웃: 이미지 없이 텍스트 행 (초고밀도 목록) ── */
+  if (layout === "compact") {
+    return (
+      <div
+        ref={cardRef}
+        className={`${styles.card} ${styles.compactCard}`}
+        onClick={handleClick}
+        onMouseEnter={handlePrefetch}
+        onFocus={handlePrefetch}
+        role="link"
+        data-more="true"
+        data-clickable="true"
+      >
+        {/* 데스크톱: lead(pin·카테고리·썸네일·제목·hot·lang) 한 줄 + meta. 모바일선 media query 로
+            2줄 분해 (1줄: 썸네일·제목·meta / 2줄: 카테고리·hot·lang). DOM 은 desktop 기준 유지. */}
+        <div className={styles.compactLead}>
+          <span className={styles.compactPin} aria-label={post.is_pinned ? "Pinned" : undefined}>
+            {post.is_pinned && (
+              /* lucide Pin 기반 + 바늘(line) 더 길게 (viewBox 세로 확장으로 안 잘리게) */
+              <svg width="13" height="15" viewBox="0 0 24 28" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
+                <line x1="12" x2="12" y1="17" y2="26" />
+              </svg>
+            )}
+          </span>
+          {category && <span className={styles.compactCat}><CategoryLabel category={category} /></span>}
+          <span className={styles.compactThumb}>
+            {icon ? <EmojiIcon value={icon} size={18} /> : showImage ? (
+              <ProgressiveImage src={post.cover_image} alt="" fill sizes="24px" className={styles.compactThumbImg} onError={() => onImgError?.(post.id)} />
+            ) : null}
+          </span>
+          <h3 className={styles.compactTitle}><HighlightedText text={displayTitle} /></h3>
+          <span className={styles.compactHotSlot}>
+            {isHot && <span className={styles.hotBadge}><Flame size={15} fill="currentColor" stroke="none" />HOT</span>}
+          </span>
+          <span className={styles.compactLangSlot}>
+            {langBadge && <span className={styles.compactLang}><T k={`postDetail.${langBadge}`} /></span>}
+          </span>
+        </div>
+        <div className={styles.compactMeta}>
+          <span className={styles.compactDate}>{date}</span>
+          <span className={styles.compactRead}>{readTime} {t("postDetail.minRead")}</span>
+          <span className={styles.compactStat}><Eye size={11} strokeWidth={1.75} />{formatCount(post.view_count ?? 0)}</span>
+          <span className={styles.compactStat}><Heart size={11} strokeWidth={1.75} />{formatCount(post.like_count ?? 0)}</span>
+        </div>
+        {/* 모바일 전용 2번째 줄 — grid 2×2 (col1: 카테고리·hot·lang / col2: 조회·좋아요, 1줄 날짜와 같은 열).
+            데스크톱은 둘 다 display:none. */}
+        <div className={styles.compactChipsMobile}>
+          {category && <span className={styles.compactCat}><CategoryLabel category={category} /></span>}
+          {isHot && <span className={styles.hotBadge}><Flame size={15} fill="currentColor" stroke="none" />HOT</span>}
+          {langBadge && <span className={styles.compactLang}><T k={`postDetail.${langBadge}`} /></span>}
+        </div>
+        <div className={styles.compactStatsMobile}>
+          <span className={styles.compactStat}><Eye size={11} strokeWidth={1.75} />{formatCount(post.view_count ?? 0)}</span>
+          <span className={styles.compactStat}><Heart size={11} strokeWidth={1.75} />{formatCount(post.like_count ?? 0)}</span>
+        </div>
+      </div>
+    );
+  }
 
   /* ── Hero variant: 풀 블리드 이미지 + 하단 오버레이 ── */
   if (isHero) {
@@ -171,6 +306,9 @@ export default function PostCard({
 
         {/* 하단 콘텐츠 */}
         <div className={styles.heroContent}>
+          {icon && (
+            <span className={`${styles.cardIcon} ${styles.cardIconInline}`}><EmojiIcon value={icon} size={34} /></span>
+          )}
           <div className={styles.badgeRow}>
             {category && (
               <span className={styles.heroBadge}><CategoryLabel category={category} /></span>
@@ -236,8 +374,12 @@ export default function PostCard({
             />
             {/* placeholderInner = 상단 badges + 하단 텍스트 그룹 (space-between) */}
             <div className={styles.placeholderInner}>
-              {(isHot || post.is_pinned || langBadge) && (
+              {/* hot·pinned·icon 좌상단 (lang 은 아래에서 imageWrap 우상단 절대배치로 별도 처리) */}
+              {(isHot || post.is_pinned || icon) && (
                 <div className={styles.placeholderBadges}>
+                  {icon && (
+                    <span className={styles.placeholderIcon}><EmojiIcon value={icon} size={24} /></span>
+                  )}
                   {isHot && (
                     <span className={styles.hotBadge}>
                       <Flame size={10} fill="currentColor" stroke="none" />
@@ -250,15 +392,10 @@ export default function PostCard({
                       Pinned
                     </span>
                   )}
-                  {langBadge && (
-                    <span className={styles.langOverlay}><T k={`postDetail.${langBadge}`} /></span>
-                  )}
                 </div>
               )}
               <div className={styles.placeholderText}>
-                {category && (
-                  <span className={styles.placeholderCategory}><CategoryLabel category={category} /></span>
-                )}
+                {/* 카테고리는 placeholder 썸네일에 넣지 않음 — 아래 body 의 badgeRow 에 항상 표시 */}
                 <h2 className={styles.placeholderTitle}><HighlightedText text={displayTitle} /></h2>
                 {displayExcerpt && (
                   <p className={styles.placeholderExcerpt}><HighlightedText text={displayExcerpt} /></p>
@@ -267,7 +404,7 @@ export default function PostCard({
             </div>
           </div>
         )}
-        {/* 이미지가 있는 경우에만 absolute 배지 — placeholder 는 위 inline 으로 처리 */}
+        {/* hot·pinned — 좌상단에 나란히(가로) 고정 */}
         {showImage && (isHot || post.is_pinned) && (
           <div className={styles.imageBadgesLeft}>
             {isHot && (
@@ -284,20 +421,26 @@ export default function PostCard({
             )}
           </div>
         )}
-        {showImage && langBadge && (
+        {/* lang — 커버/placeholder 무관 imageWrap 우상단 고정 (hot·pinned 유무 상관없이) */}
+        {langBadge && (
           <span className={styles.langOverlay}><T k={`postDetail.${langBadge}`} /></span>
+        )}
+        {/* 페이지 이모지 — 커버 좌하단에 겹쳐(Notion·디테일 페이지와 동일 감성) */}
+        {showImage && icon && (
+          <span className={styles.cardIcon}><EmojiIcon value={icon} size={30} /></span>
         )}
       </div>
 
       <div className={styles.body}>
-        {/* category 만 — cover 있을 때만 (cover 없을 땐 placeholder 안에 표시). lang 은 이미지 위로 이동 */}
-        {showImage && category && (
+        {/* category — cover/placeholder 무관 항상 body 에 표시. lang 은 이미지 위로 이동 */}
+        {category && (
           <div className={styles.badgeRow}>
             <span className={styles.categoryBadge}><CategoryLabel category={category} /></span>
           </div>
         )}
 
-        {showImage && (
+        {/* 제목 — 커버 카드는 항상 body. list 레이아웃 placeholder 도 body 로(작은 썸네일에 제목/칩 겹침 방지) */}
+        {(showImage || layout === "list") && (
           <h2 className={styles.title}><HighlightedText text={displayTitle} /></h2>
         )}
 

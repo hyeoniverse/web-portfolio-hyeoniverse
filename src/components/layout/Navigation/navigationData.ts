@@ -7,9 +7,31 @@ export const navDescs: Record<string, Record<string, string>> = {
   about: { ko: "사이트 소개", en: "About this site" },
 };
 
-export const navItems = [
+export interface NavChild {
+  key: string;
+  href: string;
+  label: string;
+}
+
+export interface NavItem {
+  key: string;
+  href: string;
+  label: string;
+  children?: NavChild[];
+}
+
+export const navItems: NavItem[] = [
   { key: "works", href: "/works", label: "Works" },
-  { key: "posts", href: "/posts", label: "Posts" },
+  {
+    key: "posts",
+    href: "/posts",
+    label: "Posts",
+    children: [
+      { key: "posts-series", href: "/posts/series", label: "Series" },
+      { key: "posts-tags", href: "/posts/tags", label: "Tags" },
+      { key: "posts-history", href: "/posts/history", label: "History" },
+    ],
+  },
   { key: "profile", href: "/profile", label: "Profile" },
   { key: "about", href: "/about", label: "About" },
 ];

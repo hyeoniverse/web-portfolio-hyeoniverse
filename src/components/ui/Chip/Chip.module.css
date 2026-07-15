@@ -81,6 +81,20 @@
   gap: var(--spacing-2xs);
 }
 
+/* truncate — 한 줄 유지 + 공간 부족 시 … (부모 flex 에서 chip 이 줄어들 수 있게 min-width:0) */
+.truncate { min-width: 0; }
+.truncate .label,
+.truncate .labelBtn,
+.truncate .labelLink,
+.truncate .labelStatic { min-width: 0; }
+.labelTruncate {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* label-as-button (onClick) */
 .labelBtn {
   display: inline-flex;

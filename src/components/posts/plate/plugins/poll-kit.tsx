@@ -27,6 +27,11 @@ export const PollKit = [
               ...(element.getAttribute("data-start") ? { startAt: element.getAttribute("data-start") } : {}),
               ...(element.getAttribute("data-end") ? { endAt: element.getAttribute("data-end") } : {}),
               ...(element.getAttribute("data-results-before") === "true" ? { resultsBeforeVote: true } : {}),
+              ...(element.getAttribute("data-allow-retract") === "false" ? { allowRetract: false } : {}),
+              ...(element.getAttribute("data-result-chart") === "pie" ? { resultChart: "pie" } : {}),
+              ...(element.getAttribute("data-poll-title") ? { title: element.getAttribute("data-poll-title") } : {}),
+              ...(element.getAttribute("data-poll-subtitle") ? { subtitle: element.getAttribute("data-poll-subtitle") } : {}),
+              ...(element.getAttribute("data-poll-description") ? { description: element.getAttribute("data-poll-description") } : {}),
               children: [{ text: "" }],
             };
           },

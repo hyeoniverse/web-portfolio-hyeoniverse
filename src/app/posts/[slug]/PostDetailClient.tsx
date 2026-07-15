@@ -10,7 +10,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Post, Series } from "@/types/post";
 import DetailLayout from "@/components/layout/DetailLayout";
-import { PostArticleHeader, PostArticleBody } from "@/components/posts/PostArticleView";
+import { PostArticleHeader, PostArticleBody, PostArticleAuthors } from "@/components/posts/PostArticleView";
 import { extractHeadings } from "@/utils/headingUtils";
 import "katex/dist/katex.min.css";
 import T from "@/components/ui/T";
@@ -46,6 +46,16 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const translationEnabled = siteConfig?.translation?.enabled !== false;
 
   const [post, setPost] = useState<Post>(initialPost);
+
+  // author_ids → Author[] 해석 (site config authors). 미할당(빈 배열)이면 기본 작성자(첫 항목) fallback.
+  const postAuthors = useMemo(() => {
+    const all = siteConfig?.authors ?? [];
+    const resolved = (post.author_ids ?? [])
+      .map((id) => all.find((a) => a.id === id))
+      .filter((a): a is (typeof all)[number] => Boolean(a));
+    return resolved.length > 0 ? resolved : all.slice(0, 1);
+  }, [siteConfig, post.author_ids]);
+
   const [heroImgError, setHeroImgError] = useState(false);
   const [viewLang, setViewLang] = useState<"ko" | "en">(
     !initialPost.content_en ? "ko" : !initialPost.content ? "en" : language === "en" ? "en" : "ko"
@@ -200,6 +210,9 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       backLabel={t("nav.posts")}
       heroImage={showHero ? post.cover_image : undefined}
       heroAlt={displayTitle}
+      heroIcon={post.icon}
+      heroPosition={post.cover_position}
+      heroZoom={post.cover_zoom}
       onHeroError={() => setHeroImgError(true)}
       heroFallback={heroErrorFallback}
       headings={[...headings, { id: "comments", text: t("comments.heading"), level: 1 }]}
@@ -224,6 +237,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
               createdAt: post.created_at,
               githubUrl: post.github_url || undefined,
               editHref: `/admin/posts/${post.id}/edit`,
+              authors: postAuthors,
             }}
             viewLang={viewLang}
             onLangChange={setViewLang}
@@ -232,6 +246,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
         </motion.div>
       }
       likeConfig={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }}
+      afterLike={<PostArticleAuthors authors={postAuthors} />}
       adjacentConfig={{
         prev: adjacentPosts.prev ? {
           href: `/posts/${adjacentPosts.prev.slug}`,

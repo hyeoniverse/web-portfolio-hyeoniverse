@@ -1,7 +1,21 @@
 /* ── PostEditor-specific styles ── */
 /* Shared shell styles (container, topBar, buttons, field, tags, etc.) are in AdminEditorShell */
 
-
+/* 동시 편집 경고 배너 (soft presence) — 비차단 */
+.presenceBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-2xl);
+  background: color-mix(in srgb, var(--text-warning) 12%, var(--bg-primary));
+  color: var(--text-warning);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.presenceBanner svg { flex-shrink: 0; }
 
 /* Meta fields — open, breathing */
 .meta {
@@ -97,6 +111,60 @@
 
 .manageLink:hover svg {
   transform: translate(2px, -2px);
+}
+
+/* ── 작성자 다중 선택 ── */
+.authorSelect {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-2xs);
+}
+.authorChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-3xs) var(--spacing-sm) var(--spacing-3xs) var(--spacing-3xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.authorChip:hover {
+  border-color: var(--text-tertiary);
+  color: var(--text-primary);
+}
+.authorChipSelected {
+  border-color: var(--border-default-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+/* 선택된 칩 hover — .authorChip:hover(0,2,0) 가 덮지 않게 동일 specificity 로 유지 */
+.authorChipSelected:hover {
+  border-color: var(--border-strong-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+.authorChipAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-circle);
+  object-fit: cover;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-3xs);
+}
+.authorEmpty {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
 }
 
 /* ── Optional fields (collapsible) ── */
@@ -759,6 +827,24 @@
 }
 
 /* ── Shortcuts modal content ── */
+/* 공통 블록 단축키 — 탭 위 고정 섹션 */
+.helpCommon {
+  margin: 0 var(--spacing-lg) var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: var(--border-light);
+}
+/* 2열 배치 */
+.helpCommonRows {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-3xs) var(--spacing-xl);
+}
+@media (max-width: 768px) {
+  .helpCommonRows {
+    grid-template-columns: 1fr;
+  }
+}
+
 .helpTabs {
   display: flex;
   gap: var(--spacing-2xs);
@@ -841,26 +927,46 @@
 
 .helpRow {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--spacing-md);
+  flex-wrap: wrap; /* 공간 부족 시 키를 라벨 아래 줄로 내림 */
+  align-items: baseline;
+  column-gap: var(--spacing-md);
+  row-gap: var(--spacing-3xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
+}
+/* 라벨(첫 span) — 남는 폭을 채워 키를 오른쪽으로 밀되, 키가 안 들어가면 다음 줄로 */
+.helpRow > span:first-child {
+  margin-right: auto;
 }
 
 .helpKeys {
   display: inline-flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* 폭 부족 시 badge 줄바꿈 허용 */
   justify-content: flex-end;
   gap: var(--spacing-4xs);
-  flex-shrink: 0;
 }
 
 .helpKeyPlus {
   color: var(--text-muted);
   font-size: var(--font-size-xs);
+}
+
+/* 방향키 묶음 — 각 화살표 badge 를 촘촘히(+ 없이) */
+.helpArrowGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4xs);
+}
+/* 방향키 badge — mono 폰트에서 ←→ 가 ↑↓ 보다 작게 나오는 문제 회피(sans + 균일 정사각 박스) */
+.helpArrowGroup .helpKbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5em;
+  padding-inline: var(--spacing-4xs);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 .helpKbd {

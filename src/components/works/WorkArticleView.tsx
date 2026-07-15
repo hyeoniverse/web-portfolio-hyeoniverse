@@ -13,6 +13,7 @@ import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvat
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
+import DateMentionPeek from "@/components/posts/DateMentionPeek";
 import Button from "@/components/ui/Button";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
@@ -361,7 +362,7 @@ export function WorkArticleHeader({
  * 팀 멤버 carousel 은 full-width afterContent slot 으로 분리됨 → WorkArticleTeam.
  * ──────────────────────────────────────────────────────────── */
 export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const isRichtext = project.contentType === "richtext";
 
   const [galleryViewer, setGalleryViewer] = useState({ open: false, index: 0 });
@@ -388,6 +389,9 @@ export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
         hideCode: t("common.mermaidHideCode"),
         copyCode: t("common.codeCopy"),
         copied: t("common.codeCopied"),
+        diagram: t("common.mermaidDiagram"),
+        code: t("common.mermaidCode"),
+        split: t("common.mermaidSplit"),
       });
     });
     return () => cleanup?.();
@@ -410,6 +414,7 @@ export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
               <MarkdownRenderer content={content} className={styles.sectionProse} />
             )}
           </div>
+          {isRichtext && <DateMentionPeek containerRef={richtextRef} language={language} />}
         </motion.div>
       )}
 

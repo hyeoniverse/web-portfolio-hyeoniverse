@@ -98,12 +98,26 @@ export default function CursorTrail() {
 
     let hasMoved = false;
     let hitTestTimer = 0;
+
+    /* iframe(giscus 등) 위에서는 cross-origin 이라 parent 가 pointermove 를 못 받는다.
+       → 트레일이 마지막 위치에 멈춘 채 남으므로, iframe 에 들어가면 숨기고 나오면 복구.
+       iframe 안에서는 그 문서의 기본 커서가 보인다 (parent 의 cursor:none 은 iframe 에 안 걸림). */
+    let isOverIframe = false;
+    const setOverIframe = (over: boolean) => {
+      if (isOverIframe === over) return;
+      isOverIframe = over;
+      if (over) setIsVisible(false);
+      else if (hasMoved) setIsVisible(true);
+    };
+
     // mouseover 이벤트로 data-cursor 감지 (elementsFromPoint보다 확실)
     let activeDateCursor: CursorType | null = null;
     const handleOverForCursor = (e: Event) => {
       const t = e.target as HTMLElement | null;
       const dc = t?.closest("[data-cursor]");
       activeDateCursor = dc ? (dc.getAttribute("data-cursor") as CursorType) : null;
+      // iframe 진입 감지 — 경계를 넘는 순간 parent 에 target=<iframe> 으로 mouseover 가 온다
+      setOverIframe(t?.tagName === "IFRAME");
     };
     document.addEventListener("mouseover", handleOverForCursor, true);
 
@@ -193,6 +207,8 @@ export default function CursorTrail() {
     };
 
     const handleMouseMove = (e: PointerEvent) => {
+      // pointermove 가 도착했다는 건 iframe 밖(=parent 영역) 이라는 뜻 → 복구
+      setOverIframe(false);
       if (!hasMoved) {
         hasMoved = true;
         circleRef.current = { x: e.clientX, y: e.clientY };

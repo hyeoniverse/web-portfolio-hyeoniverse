@@ -50,6 +50,19 @@
 --   2026_05_29  posts.github_url
 --   2026_06_27  poll_votes — 본문 투표 블록 집계 (poll_id + option_id, IP 중복 방지)
 --   2026_06_28  series_work_relations — works 에 관련 시리즈 연결
+--   2026_07_09  calendars — 본문 이벤트 달력 블록 (게시물 간 공유 원본, 블록은 calendar_id 참조)
+--   2026_07_09  posts.icon — 페이지 아이콘
+--   2026_07_09  series 제목(ko/en) 80자 CHECK
+--   2026_07_12  calendars 휴지통 (deleted_at/purge_after, 30일 TTL)
+--   2026_07_12  posts.cover_position / cover_zoom
+--   2026_07_12  posts.version — 낙관적 동시성 제어
+--   2026_07_12  works.icon
+--   2026_07_13  posts 제목(ko/en) 120자 CHECK
+--   2026_07_14  comment_reactions — 댓글 이모지 반응 (giscus 식 고정 8종)
+--   2026_07_14  posts.author_ids — 다중 작성자
+--
+-- 마이그레이션 파일이 없는 것 (setup.sql 에만 존재):
+--   custom_emojis — 에디터 이모지 picker 의 커스텀 아이콘 기록
 -- ============================================================
 
 
@@ -119,6 +132,17 @@ CREATE TABLE IF NOT EXISTS series (
 -- 정렬용 인덱스 — 기본 정렬(sort_order ASC, created_at DESC)
 CREATE INDEX IF NOT EXISTS idx_series_sort_order ON series (sort_order);
 
+-- 제목(ko/en) 최대 길이 80자 — 앱 상수 SERIES_TITLE_MAX 와 동일. UI/폼/API 우회 최종 방어선.
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'series_title_maxlen') THEN
+    ALTER TABLE series ADD CONSTRAINT series_title_maxlen CHECK (char_length(title) <= 80) NOT VALID;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'series_title_en_maxlen') THEN
+    ALTER TABLE series ADD CONSTRAINT series_title_en_maxlen CHECK (char_length(title_en) <= 80) NOT VALID;
+  END IF;
+END $$;
+
 ALTER TABLE series ENABLE ROW LEVEL SECURITY;
 
 -- 공개된 시리즈만 읽기
@@ -149,12 +173,21 @@ CREATE TABLE IF NOT EXISTS posts (
     CHECK (content_type IN ('markdown', 'richtext')),
   excerpt      text NOT NULL DEFAULT '',
   cover_image  text NOT NULL DEFAULT '',
+  -- 커버 세로 위치 %(object-position, 0~100) + 확대 배율(scale, 1~2.5) — CoverBanner 편집값
+  cover_position real NOT NULL DEFAULT 50,
+  cover_zoom     real NOT NULL DEFAULT 1,
+  -- 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단
+  icon         text NOT NULL DEFAULT '',
   tags         text[] NOT NULL DEFAULT '{}',
   -- 태그별 설명 (works.tech_notes 와 동일 패턴 — { tag: items[] })
   tag_notes    jsonb NOT NULL DEFAULT '{}'::jsonb,
   category     text NOT NULL DEFAULT '',
   is_pinned    boolean NOT NULL DEFAULT false,
   published    boolean NOT NULL DEFAULT false,
+  -- 글 작성 언어 — PostEditor 폼(PostFormData.language)이 저장 때마다 그대로 보내고
+  -- /api/posts 는 body 를 필터 없이 insert 하므로 컬럼이 없으면 저장이 400 으로 실패한다.
+  language     text NOT NULL DEFAULT 'ko'
+    CHECK (language IN ('ko', 'en')),
   view_count   int NOT NULL DEFAULT 0,
   like_count   int NOT NULL DEFAULT 0,
   github_url   text DEFAULT '',
@@ -167,6 +200,8 @@ CREATE TABLE IF NOT EXISTS posts (
   summary_en   text NOT NULL DEFAULT '',
   created_at   timestamptz DEFAULT now(),
   updated_at   timestamptz DEFAULT now(),
+  -- 낙관적 동시성 제어 카운터 (편집 저장 시 조건부 갱신)
+  version      integer NOT NULL DEFAULT 1,
   -- 영문 필드
   title_en     text NOT NULL DEFAULT '',
   content_en   text NOT NULL DEFAULT '',
@@ -177,12 +212,27 @@ CREATE TABLE IF NOT EXISTS posts (
   series_id    uuid REFERENCES series(id) ON DELETE SET NULL,
   series_order int NOT NULL DEFAULT 0,
   -- 예약 발행: NULL=즉시, 미래 시간 설정 시 cron이 published=true 로 flip
-  scheduled_at timestamptz DEFAULT NULL
+  scheduled_at timestamptz DEFAULT NULL,
+  -- 작성자 id 배열 (site.config authors 참조). 비어있으면 기본 작성자로 표시
+  author_ids   text[] NOT NULL DEFAULT '{}'
 );
 
 -- purge_after cron 스캔용 — deleted_at IS NOT NULL 인 row 만 인덱스
 CREATE INDEX IF NOT EXISTS posts_purge_after_idx
   ON posts (purge_after) WHERE deleted_at IS NOT NULL;
+
+-- 제목(ko/en) 최대 길이 120자 — 앱 상수 POST_TITLE_MAX 와 동일. UI/폼/API 우회 최종 방어선.
+-- NOT VALID: 이미 데이터가 있는 DB 에 이 파일을 다시 돌려도 기존 초과 행 때문에 중단되지 않게.
+-- 전수 검증이 필요하면 초과 행 정리 후 ALTER TABLE posts VALIDATE CONSTRAINT posts_title_len;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'posts_title_len') THEN
+    ALTER TABLE posts ADD CONSTRAINT posts_title_len CHECK (char_length(title) <= 120) NOT VALID;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'posts_title_en_len') THEN
+    ALTER TABLE posts ADD CONSTRAINT posts_title_en_len CHECK (title_en IS NULL OR char_length(title_en) <= 120) NOT VALID;
+  END IF;
+END $$;
 
 -- slug 검색용 인덱스
 CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts (slug);
@@ -384,6 +434,104 @@ CREATE POLICY "poll_votes_service_all"
 
 
 -- ────────────────────────────────────────────────────────────
+-- 5c. comment_reactions — 댓글 이모지 반응 (giscus 식 고정 세트: 👍 👎 😄 🎉 😕 ❤️ 🚀 👀)
+--    comment_type: 'post' | 'work'
+--    reactor_hash: IP+UA 해시 (좋아요의 IP 방식과 동일 취지, 익명 식별)
+--    같은 reactor 가 같은 (댓글, 이모지) 에 중복 반응 방지
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS comment_reactions (
+  id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  comment_id   uuid NOT NULL,
+  comment_type text NOT NULL CHECK (comment_type IN ('post', 'work')),
+  emoji        text NOT NULL,
+  reactor_hash text NOT NULL DEFAULT '',
+  created_at   timestamptz DEFAULT now()
+);
+
+-- 동일 reactor 가 같은 (댓글, 이모지) 에 중복 반응 방지
+CREATE UNIQUE INDEX IF NOT EXISTS idx_comment_reactions_unique
+  ON comment_reactions (comment_id, comment_type, emoji, reactor_hash);
+
+-- 댓글 단위 집계 조회용
+CREATE INDEX IF NOT EXISTS idx_comment_reactions_comment
+  ON comment_reactions (comment_id, comment_type);
+
+ALTER TABLE comment_reactions ENABLE ROW LEVEL SECURITY;
+
+-- 누구나 반응 수 조회 가능
+DROP POLICY IF EXISTS "comment_reactions_public_read" ON comment_reactions;
+CREATE POLICY "comment_reactions_public_read"
+  ON comment_reactions FOR SELECT
+  USING (true);
+
+-- service_role 전체 접근 (반응 토글은 admin client 로 처리)
+DROP POLICY IF EXISTS "comment_reactions_service_all" ON comment_reactions;
+CREATE POLICY "comment_reactions_service_all"
+  ON comment_reactions FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ────────────────────────────────────────────────────────────
+-- 5b-2. calendars — 본문 이벤트 달력 블록 (게시물 간 공유 원본)
+--    블록은 calendar_id 만 참조 → 여러 게시물이 같은 달력을 공유(연결형).
+--    data(jsonb) = { month, events[], labels[] }. 읽기 공개 / 쓰기 admin(service_role).
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS calendars (
+  id         uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  title      text NOT NULL DEFAULT '',
+  data       jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  -- 휴지통(소프트 삭제) + 30일 자동 영구삭제 TTL — posts/works 컨벤션 동일
+  deleted_at  timestamptz DEFAULT NULL,
+  purge_after timestamptz DEFAULT NULL
+);
+
+-- purge cron 스캔용 — deleted_at IS NOT NULL 인 row 만 인덱스
+CREATE INDEX IF NOT EXISTS calendars_purge_after_idx
+  ON calendars (purge_after) WHERE deleted_at IS NOT NULL;
+
+ALTER TABLE calendars ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "calendars_public_read" ON calendars;
+CREATE POLICY "calendars_public_read"
+  ON calendars FOR SELECT
+  USING (true);
+
+DROP POLICY IF EXISTS "calendars_service_all" ON calendars;
+CREATE POLICY "calendars_service_all"
+  ON calendars FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ────────────────────────────────────────────────────────────
+-- 5c. custom_emojis — 에디터 이모지 picker 의 업로드(커스텀) 아이콘 기록
+--    src : 업로드된 이미지 URL (파일 자체는 스토리지에 저장됨), 기록만 동기화
+--    admin 전용 — API 는 service_role(createAdminClient) 로만 접근
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS custom_emojis (
+  id         uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name       text NOT NULL DEFAULT '',
+  src        text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_custom_emojis_created
+  ON custom_emojis (created_at DESC);
+
+ALTER TABLE custom_emojis ENABLE ROW LEVEL SECURITY;
+
+-- service_role 전체 접근 (anon/public 접근 없음 — admin 전용)
+DROP POLICY IF EXISTS "custom_emojis_service_all" ON custom_emojis;
+CREATE POLICY "custom_emojis_service_all"
+  ON custom_emojis FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ────────────────────────────────────────────────────────────
 -- 6. works — 포트폴리오 작업물
 --    ko/en 컬럼 분리 (LocalizedText 변환은 앱에서 처리)
 --    categories_ko/en : text[] 다중 선택 (예: ["웹앱", "라이브러리"])
@@ -412,6 +560,8 @@ CREATE TABLE IF NOT EXISTS works (
   role_en          text NOT NULL DEFAULT '',
   tech             text[] NOT NULL DEFAULT '{}',
   image            text NOT NULL DEFAULT '',
+  -- 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단
+  icon             text NOT NULL DEFAULT '',
   -- Flow 레이아웃 카드 사이즈는 sort_order 에서 cycle derive — 별도 컬럼 없음 (single source of truth)
   content_ko       text NOT NULL DEFAULT '',
   content_en       text NOT NULL DEFAULT '',
@@ -1005,14 +1155,16 @@ BEGIN
 END;
 $$;
 
--- 휴지통 영구삭제 — purge_after 가 지난 posts/works hard delete + 알림.
+-- 휴지통 영구삭제 — purge_after 가 지난 posts/works/calendars hard delete + 알림.
 -- pg_cron 이 매일 UTC 18:00 (= KST 03:00) 호출.
+-- calendars 도 posts/works 와 같은 30일 TTL 휴지통을 쓴다 (/api/cron/purge-trash 와 동일 범위).
 CREATE OR REPLACE FUNCTION purge_trash_scheduled()
 RETURNS int
 LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
   posts_count int := 0;
   works_count int := 0;
+  calendars_count int := 0;
   total int;
 BEGIN
   WITH del AS (
@@ -1033,15 +1185,24 @@ BEGIN
   )
   SELECT COUNT(*) INTO works_count FROM del;
 
-  total := posts_count + works_count;
+  WITH del AS (
+    DELETE FROM calendars
+    WHERE deleted_at IS NOT NULL
+      AND purge_after IS NOT NULL
+      AND purge_after < now()
+    RETURNING id
+  )
+  SELECT COUNT(*) INTO calendars_count FROM del;
+
+  total := posts_count + works_count + calendars_count;
 
   IF total > 0 THEN
     INSERT INTO admin_notifications (type, title, message, metadata)
     VALUES (
       'purge',
       '🗑️ 휴지통 영구삭제',
-      'posts ' || posts_count || '건, works ' || works_count || '건 영구삭제됨',
-      jsonb_build_object('posts', posts_count, 'works', works_count)
+      'posts ' || posts_count || '건, works ' || works_count || '건, calendars ' || calendars_count || '건 영구삭제됨',
+      jsonb_build_object('posts', posts_count, 'works', works_count, 'calendars', calendars_count)
     );
 
     PERFORM _send_admin_email(
@@ -1049,6 +1210,7 @@ BEGIN
       '<p>아래 항목이 영구삭제되었습니다:</p><ul>'
         || '<li>posts: ' || posts_count || '건</li>'
         || '<li>works: ' || works_count || '건</li>'
+        || '<li>calendars: ' || calendars_count || '건</li>'
         || '</ul>'
     );
   END IF;
@@ -1265,7 +1427,7 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 18개 테이블 + 5개 RPC 함수 + 2개 pg_cron job 생성됨.
+-- 완료! 총 22개 테이블 + 6개 RPC 함수 + 2개 pg_cron job 생성됨.
 --
 -- 테이블:
 --   site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
@@ -1274,6 +1436,10 @@ END $$;
 --   comments             : 포스트 댓글 (대댓글, password 인증, tombstone)
 --   likes                : 좋아요 (target_type 으로 posts/works/comments 통합, IP 중복 방지)
 --   poll_votes           : 본문 투표 블록 집계 (poll_id + option_id text, IP 중복 방지)
+--   comment_reactions    : 댓글 이모지 반응 (giscus 식 고정 세트, comment_type + reactor_hash 중복 방지)
+--   calendars            : 본문 이벤트 달력 블록 (게시물 간 공유 원본, 휴지통 30일 TTL)
+--   custom_emojis        : 에디터 이모지 picker 의 커스텀 아이콘 기록 (admin 전용)
+--   applied_migrations   : schema migration 적용 추적 (log_migration_applied 헬퍼)
 --   works                : 포트폴리오 작업물 (slug, categories_ko/en text[], nature_ko/en,
 --                          contributions_ko/en jsonb, tech_notes jsonb,
 --                          team_members jsonb, scheduled_at, soft delete)
@@ -1295,7 +1461,7 @@ END $$;
 --   sum_post_views()                              : 누적 조회수 합계
 --   daily_post_views(p_start date, p_end date)    : 일별 조회수 시계열 (KST)
 --   publish_scheduled()                           : 예약 시간 도달한 게시물/작품 발행 + 알림 (cron 매분)
---   purge_trash_scheduled()                       : purge_after 지난 휴지통 hard delete + 알림 (cron 매일 KST 03:00)
+--   purge_trash_scheduled()                       : purge_after 지난 휴지통(posts/works/calendars) hard delete + 알림 (cron 매일 KST 03:00)
 --
 -- 유틸 함수:
 --   _sql_slugify(t)                               : title → slug 변환 (마이그레이션 backfill 용)
@@ -1345,6 +1511,18 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_05_28_publish_scheduled_fix_ambiguous','publish_scheduled — #variable_conflict use_column (id ambiguity fix)'),
   ('2026_05_29_posts_github_url',              'posts.github_url'),
   ('2026_06_27_poll_votes',                    'poll_votes — 본문 투표 블록 집계 (poll_id + option_id, IP 중복 방지)'),
-  ('2026_06_28_series_work_relations',         'series_work_relations — works 에 관련 시리즈 연결')
+  ('2026_06_28_series_work_relations',         'series_work_relations — works 에 관련 시리즈 연결'),
+  ('2026_07_09_calendars',                     'calendars — 본문 이벤트 달력 블록 (게시물 간 공유 원본)'),
+  ('2026_07_09_post_icon',                     'posts.icon — 페이지 아이콘(이모지/이미지 URL)'),
+  ('2026_07_09_series_title_maxlen',           'series 제목(ko/en) 80자 CHECK'),
+  ('2026_07_12_calendars_trash',               'calendars.deleted_at/purge_after — 휴지통 30일 TTL'),
+  ('2026_07_12_cover_position',                'posts.cover_position/cover_zoom — 커버 위치·확대 영속화'),
+  ('2026_07_12_posts_version',                 'posts.version — 낙관적 동시성 제어 카운터'),
+  ('2026_07_12_works_icon',                    'works.icon — posts.icon 미러'),
+  ('2026_07_13_posts_title_len',               'posts 제목(ko/en) 120자 CHECK'),
+  ('2026_07_14_comment_reactions',             'comment_reactions — 댓글 이모지 반응 (giscus 식 고정 8종)'),
+  ('2026_07_14_posts_author_ids',              'posts.author_ids text[] — 다중 작성자')
 ON CONFLICT (name) DO NOTHING;
+-- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
+-- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.
 -- ============================================================

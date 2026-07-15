@@ -75,6 +75,9 @@ export function attachCodeWrapToggle(
   container.querySelectorAll("pre").forEach((pre) => {
     // mermaid 코드블록은 enhanceReaderExtras 가 그래프+메뉴로 따로 처리 → 코드 컨트롤 주입 안 함
     if (pre.querySelector("code.language-mermaid")) return;
+    // 중복 주입 방지는 pre 단위로 판정 — 한 wrap 에 pre 가 여러 개여도 각 pre 가 바를 받도록.
+    //   (wrap.querySelector 로 판정하면 첫 pre 의 바를 보고 이후 pre 를 건너뛰는 오탐이 생김)
+    if (pre.previousElementSibling?.classList.contains("code-block-bar")) return;
     let wrap = pre.closest<HTMLElement>(".code-block-wrap");
     if (!wrap) {
       wrap = document.createElement("div");
@@ -82,7 +85,6 @@ export function attachCodeWrapToggle(
       pre.parentNode?.insertBefore(wrap, pre);
       wrap.appendChild(pre);
     }
-    if (wrap.querySelector(".code-block-controls")) return; // 이미 주입됨
 
     // 현재 언어 라벨 — Shiki 는 pre[data-lang], hljs/원본은 code.language-X 에서 읽음.
     const codeEl = pre.querySelector("code");
@@ -93,25 +95,35 @@ export function attachCodeWrapToggle(
     ).toLowerCase();
     const showLang = langVal && !["plaintext", "text", "plain"].includes(langVal);
 
-    const controls = document.createElement("div");
-    controls.className = "code-block-controls";
-    controls.contentEditable = "false";
+    // pre 위(밖)에 별도 바 — mermaid 리더뷰와 동일하게 언어 라벨(좌) + 컨트롤(우)을 프레임 밖으로.
+    wrap.classList.add("has-code-bar");
+    const bar = document.createElement("div");
+    bar.className = "code-block-bar";
+    bar.contentEditable = "false";
     if (showLang) {
       const langLabel = document.createElement("span");
       langLabel.className = "code-lang-label";
       langLabel.textContent = langVal;
-      controls.appendChild(langLabel);
+      bar.appendChild(langLabel);
+    } else {
+      bar.appendChild(document.createElement("span")); // 좌측 스페이서(컨트롤 우측 정렬 유지)
     }
+    const controls = document.createElement("div");
+    controls.className = "code-block-controls";
     const copyBtn = document.createElement("button");
     copyBtn.type = "button";
     copyBtn.className = "code-copy-btn";
     copyBtn.setAttribute("data-copy-btn", "");
+    // 복사 아이콘(lucide copy) + 텍스트 span — 텍스트는 span 만 갱신해 아이콘 유지
+    copyBtn.innerHTML =
+      '<svg class="code-copy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg><span class="code-copy-text"></span>';
     const wrapBtn = document.createElement("button");
     wrapBtn.type = "button";
     wrapBtn.className = "code-wrap-toggle";
     wrapBtn.setAttribute("data-wrap-btn", "");
     controls.append(copyBtn, wrapBtn);
-    wrap.appendChild(controls);
+    bar.appendChild(controls);
+    pre.parentElement?.insertBefore(bar, pre); // pre 바로 위(밖)에 배치 (pre 가 wrap 직계가 아니어도 안전)
   });
 
   // 복사 버튼 라벨 (언어별, 매 호출 갱신 — 클릭 핸들러는 dataset 에서 최신값 읽음)
@@ -119,7 +131,8 @@ export function attachCodeWrapToggle(
     btn.dataset.copyLabel = labels.copy;
     btn.dataset.copiedLabel = labels.copied;
     btn.title = labels.copy;
-    if (!btn.classList.contains("copied")) btn.textContent = labels.copy;
+    const txt = btn.querySelector<HTMLElement>(".code-copy-text");
+    if (txt && !btn.classList.contains("copied")) txt.textContent = labels.copy;
   });
 
   // 초기 라벨 설정 (언어별) — 두 개의 span으로 hover 전환
@@ -156,10 +169,11 @@ export function attachCodeWrapToggle(
       const text = (cw?.querySelector("pre code") ?? cw?.querySelector("pre"))?.textContent ?? "";
       navigator.clipboard?.writeText(text);
       copyBtn.classList.add("copied");
-      copyBtn.textContent = copyBtn.dataset.copiedLabel || "Copied";
+      const ctxt = copyBtn.querySelector<HTMLElement>(".code-copy-text");
+      if (ctxt) ctxt.textContent = copyBtn.dataset.copiedLabel || "Copied";
       window.setTimeout(() => {
         copyBtn.classList.remove("copied");
-        copyBtn.textContent = copyBtn.dataset.copyLabel || "Copy";
+        if (ctxt) ctxt.textContent = copyBtn.dataset.copyLabel || "Copy";
       }, 1500);
       return;
     }

@@ -7,7 +7,9 @@
 
 import { BasicBlocksKit } from "./plugins/basic-blocks-kit";
 import { BasicMarksKit } from "./plugins/basic-marks-kit";
+import { NoCodeMarksKit } from "./plugins/no-code-marks-kit";
 import { ColumnKit } from "./plugins/column-kit";
+import { ColumnWidthFixKit } from "./plugins/column-width-fix-kit";
 import { TableKit } from "./plugins/table-kit";
 import { CodeBlockKit } from "./plugins/code-block-kit";
 import { MediaKit } from "./plugins/media-kit";
@@ -19,9 +21,13 @@ import { ToggleKit } from "./plugins/toggle-kit";
 import { CalloutKit } from "./plugins/callout-kit";
 import { TabsKit } from "./plugins/tabs-kit";
 import { PollKit } from "./plugins/poll-kit";
+import { DateMentionKit } from "./plugins/date-mention-kit";
+import { PostLinkKit } from "./plugins/post-link-kit";
+import { CalendarKit } from "./plugins/calendar-kit";
+import { DiagramKit } from "./plugins/diagram-kit";
+import { PlaygroundKit } from "./plugins/playground-kit";
 import { FootnoteKit } from "./plugins/footnote-kit";
 import { TocKit } from "./plugins/toc-kit";
-import { FindReplaceKit } from "./plugins/find-replace-kit";
 import { FontKit } from "./plugins/font-kit";
 import { DndKit } from "./plugins/dnd-kit";
 import { MarkdownKit } from "./plugins/markdown-kit";
@@ -33,7 +39,9 @@ export const EditorKit = [
   ...MarkdownKit,     // md 직렬화 API + 붙여넣기 파싱
   ...BasicBlocksKit,  // paragraph, heading, blockquote, hr
   ...BasicMarksKit,   // bold, italic, ... code, kbd
+  ...NoCodeMarksKit,  // 코드블록 안 mark 차단 (syntax leaf + mark leaf 섞임 → hook 순서 crash 방지)
   ...ColumnKit,
+  ...ColumnWidthFixKit, // ColumnKit 뒤 — 열 너비를 항상 정수 합=100 으로 정규화(소수 재분배 무한루프 차단)
   ...TableKit,
   ...CodeBlockKit,
   ...MediaKit,        // image, media_embed
@@ -45,8 +53,12 @@ export const EditorKit = [
   ...CalloutKit,
   ...TabsKit,         // tabs(activeTab) > tab_panel(label) > 내용
   ...PollKit,         // poll(pollId, multiple, options[]) — void, 라벨은 React input
+  ...DateMentionKit,  // date_mention(date, time?) — inline void, 노션식 @날짜 pill
+  ...PostLinkKit,     // post_link(slug, title) — inline void, 노션식 [[게시물 링크
+  ...CalendarKit,     // calendar(month, events[]) — void, 이벤트 달력
+  ...DiagramKit,      // diagram(data: 위치보존 노드/엣지) — void, React Flow 캔버스
+  ...PlaygroundKit,   // playground(data: html/css/js) — void, sandboxed iframe 라이브 실행
   ...FootnoteKit,     // footnote_ref, footnote_content
   ...TocKit,          // 목차 블록
-  ...FindReplaceKit,  // 찾기 하이라이트
   ...FontKit,         // color/bg/family/size/line-height/text-align
 ];

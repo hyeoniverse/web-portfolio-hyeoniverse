@@ -89,6 +89,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
             onSearchChange={setSearch}
             placeholder="카테고리 검색…"
             align="left"
+            size="sm"
             className={styles.searchBar}
             routeParam="q"
           />

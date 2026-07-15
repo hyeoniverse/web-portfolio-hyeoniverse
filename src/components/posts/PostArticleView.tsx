@@ -1,21 +1,34 @@
 "use client";
 
 import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import Link from "next/link";
 import "katex/dist/katex.min.css";
-import { SquarePen } from "lucide-react";
+import { SquarePen, ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
-import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
 import { processRichtextHtml } from "@/utils/processRichtextHtml";
 import { formatCount } from "@/utils/format";
 import MarkdownRenderer from "@/components/posts/MarkdownRenderer";
+import DateMentionPeek from "@/components/posts/DateMentionPeek";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import ShareButton from "@/components/ui/ShareButton";
 import Button from "@/components/ui/Button";
 import T from "@/components/ui/T";
+import TextLink from "@/components/ui/TextLink";
 import Tooltip from "@/components/ui/Tooltip";
+import type { Author } from "@/types/author";
+import { SOCIAL_ICONS } from "@/data/socialIcons";
 import styles from "@/app/posts/[slug]/PostDetail.module.css";
+
+/** URL 에서 표시용 도메인 추출 (www. 제거). 실패하면 원본 반환. */
+function hostFromUrl(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
 
 /**
  * detail(공개 글 상세)·preview(미리보기)가 공유하는 정규화 데이터.
@@ -37,6 +50,10 @@ export interface PostArticleData {
   githubUrl?: string;
   /** admin 편집 링크 href. 없으면 편집 아이콘 미노출 */
   editHref?: string;
+  /** 발행된 글 보기 href — 미리보기에서 발행 상태면 새창으로 여는 버튼 노출(편집 버튼 자리) */
+  viewHref?: string;
+  /** 작성자 목록 — 호출부에서 post.author_ids 를 site.config authors 로 해석해 전달. 비면 미표시 */
+  authors?: Author[];
 }
 
 export interface PostArticleViewProps {
@@ -63,7 +80,7 @@ export function PostArticleHeader({
   onLangChange,
   headerActionsLeft,
 }: PostArticleViewProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const authed = useIsAuthenticated();
   const isAdmin = isAdminProp ?? authed;
   const handleLangChange = onLangChange ?? (() => {});
@@ -99,6 +116,21 @@ export function PostArticleHeader({
               </Tooltip>
             </>
           )}
+          {data.viewHref && (
+            <>
+              <span className={styles.metaDivider} />
+              <Tooltip content={language === "en" ? "Open published post" : "발행된 글 열기"} placement="top" delay={200}>
+                <a
+                  href={data.viewHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
+                >
+                  <ExternalLink size={13} />
+                </a>
+              </Tooltip>
+            </>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {headerActionsLeft}
@@ -118,11 +150,33 @@ export function PostArticleHeader({
         {data.tags.length > 0 && (
           <div className={styles.tags}>
             {data.tags.map((tag) => (
-              <span key={tag} className={styles.tag}>{tag}</span>
+              <Link key={tag} href={`/posts/tags/${encodeURIComponent(tag)}`} className={styles.tag}>
+                <span className={styles.tagHash} aria-hidden>#</span>{tag}
+              </Link>
             ))}
           </div>
         )}
       </div>
+      {data.authors && data.authors.length > 0 && (
+        <div className={styles.authorsCompact}>
+          {data.authors.map((a) => (
+            <a key={a.id} href="#post-authors" className={styles.authorChip}>
+              {a.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={a.avatar} alt="" className={styles.authorChipAvatar} loading="lazy" />
+              ) : (
+                <span className={styles.authorChipAvatarFallback} aria-hidden>
+                  {(a.name || "?").charAt(0).toUpperCase()}
+                </span>
+              )}
+              <span className={styles.authorChipMeta}>
+                <span className={styles.authorChipName}>{a.name}</span>
+                {a.role && <span className={styles.authorChipRole}>{a.role}</span>}
+              </span>
+            </a>
+          ))}
+        </div>
+      )}
       <div className={styles.headerDivider} />
     </>
   );
@@ -144,13 +198,13 @@ export function PostArticleBody({
   /** 미리보기 모드 — 현재 본문 렌더는 동일하나 API 일관성 위해 허용 */
   isPreview?: boolean;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const isMarkdown = data.contentType === "markdown";
   const content = data.displayContent;
   const richtextRef = useRef<HTMLDivElement>(null);
 
-  // markdown: proseViewerRef 로 이벤트 위임 (MarkdownRenderer 가 이미 하이라이트)
-  useRichtextEnhance(isMarkdown ? (proseViewerRef as React.RefObject<HTMLDivElement> | undefined) ?? { current: null } : { current: null }, content);
+  // markdown 코드블록 컨트롤은 MarkdownRenderer 가 자체 ref 로 주입한다(부모 ref 전달 여부와 무관).
+  // richtext 는 아래 useEffect 에서 richtextRef 로 처리.
 
   const processedRichtextHtml = useMemo(() => {
     if (isMarkdown) return "";
@@ -162,6 +216,10 @@ export function PostArticleBody({
     if (isMarkdown) return;
     const el = richtextRef.current;
     if (!el) return;
+    // 수식 노드([data-math-block]/[data-math-inline])를 KaTeX 로 렌더 — 없으면 raw LaTeX 로 깨져 보임
+    import("@/components/posts/renderMathNodes").then(({ renderMathNodes }) => {
+      renderMathNodes(el);
+    });
     import("@/components/posts/highlightCodeBlocks").then(({ attachCodeWrapToggle }) => {
       attachCodeWrapToggle(el, {
         wrap: t("common.codeWrap"),
@@ -179,6 +237,9 @@ export function PostArticleBody({
         hideCode: t("common.mermaidHideCode"),
         copyCode: t("common.codeCopy"),
         copied: t("common.codeCopied"),
+        diagram: t("common.mermaidDiagram"),
+        code: t("common.mermaidCode"),
+        split: t("common.mermaidSplit"),
       });
     });
     return () => cleanup?.();
@@ -195,6 +256,68 @@ export function PostArticleBody({
           dangerouslySetInnerHTML={{ __html: processedRichtextHtml }}
         />
       )}
+      {!isMarkdown && <DateMentionPeek containerRef={richtextRef} language={language} />}
     </div>
+  );
+}
+
+/* 작성자 상세 — 게시물 끝(좋아요 버튼 아래) 슬롯으로 렌더. 헤더 칩의 #post-authors 앵커 대상. */
+export function PostArticleAuthors({ authors }: { authors?: Author[] }) {
+  const { language } = useLanguage();
+  if (!authors || authors.length === 0) return null;
+  return (
+    <section id="post-authors" className={styles.authorsFooter}>
+      <h2 className={styles.authorsFooterHeading}>
+        {language === "en" ? (authors.length > 1 ? "Authors" : "Author") : "작성자"}
+      </h2>
+      {authors.map((a) => (
+        <article key={a.id} className={styles.authorFooterCard}>
+          {a.avatar ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={a.avatar} alt="" className={styles.authorFooterAvatar} loading="lazy" />
+          ) : (
+            <span className={styles.authorFooterAvatarFallback} aria-hidden>
+              {(a.name || "?").charAt(0).toUpperCase()}
+            </span>
+          )}
+          <div className={styles.authorFooterBody}>
+            <div className={styles.authorFooterNameRow}>
+              <span className={styles.authorFooterName}>{a.name}</span>
+              {a.role && <span className={styles.authorFooterRole}>{a.role}</span>}
+            </div>
+            {a.bio && <p className={styles.authorFooterBio}>{a.bio}</p>}
+            {(a.links.length > 0 || a.email) && (
+              <div className={styles.authorFooterLinks}>
+                {a.email && (
+                  <TextLink external href={`mailto:${a.email}`}>
+                    <svg viewBox="0 0 24 24" className={styles.authorFooterLinkIcon} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={SOCIAL_ICONS.email.path} /></svg>
+                    <span>{a.email}</span>
+                  </TextLink>
+                )}
+                {a.links.map((l, i) => {
+                  const brand = SOCIAL_ICONS[l.platform];
+                  const label = l.label || brand?.label || hostFromUrl(l.url);
+                  return (
+                    <TextLink key={`${l.url}-${i}`} external href={l.url}>
+                      {l.icon ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={l.icon} alt="" className={styles.authorFooterLinkIcon} />
+                      ) : brand ? (
+                        brand.stroke ? (
+                          <svg viewBox="0 0 24 24" className={styles.authorFooterLinkIcon} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={brand.path} /></svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" className={styles.authorFooterLinkIcon}><path d={brand.path} fill="currentColor" /></svg>
+                        )
+                      ) : null}
+                      <span>{label}</span>
+                    </TextLink>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </article>
+      ))}
+    </section>
   );
 }

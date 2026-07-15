@@ -2,14 +2,24 @@
    Close Button — CloseButton 컴포넌트가 사이즈/스타일 책임, 여기선 position 만
    ========================================================================== */
 
-.closeButton {
+/* 우상단 영역 — [서브 버튼들] [닫기(X)]. 서브 버튼은 X 왼쪽에 나란히 */
+.topRight {
   position: absolute;
   top: 12px;
   right: 12px;
   z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+.subButtons {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
 }
 
 @media (max-width: 768px) {
+  /* 모바일 시트에선 닫기 버튼만 숨김(스와이프로 닫음), 서브 버튼은 유지 */
   .closeButton {
     display: none;
   }
@@ -70,6 +80,14 @@
   color: var(--text-tertiary);
 }
 
+/* 헤더 우측 액션 영역 (링크/버튼) — close 버튼(우측 padding 56px) 왼쪽에 위치 */
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
 .modalTitle {
   margin: 0;
   font-family: var(--font-grotesk), sans-serif;
@@ -123,4 +141,17 @@
 
 .modalFooter:empty {
   display: none;
+}
+
+/* 모달 stacking context 안 portal layer — Popover/Select/Tooltip 이 여기로 portal 돼 패널(#modal) 위에 뜬다.
+   position:absolute(=#modal-root 기준, fixed inset:0 → 뷰포트) → fixed 자식은 뷰포트 좌표 그대로.
+   pointer-events:none 으로 패널 클릭 통과, 실제 팝오버 컨텐츠(자식)만 auto. */
+.portalLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+.portalLayer > * {
+  pointer-events: auto;
 }

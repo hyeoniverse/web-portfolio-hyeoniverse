@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { Hash } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Hash, ArrowLeft, List, ChevronRight, ArrowUpRight } from "lucide-react";
 import type { Post } from "@/types/post";
-import type { TagPageData } from "@/lib/posts";
+import type { TagPageData, AllTagsData } from "@/lib/posts";
 import { useLenis } from "@/providers/LenisProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
 import PostCard from "../../_components/PostCard";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -23,6 +26,7 @@ type Sort = "newest" | "popular" | "title";
 interface Props {
   tag: string;
   initialData: TagPageData;
+  allTags: AllTagsData["tags"];
 }
 
 const PER_PAGE_OPTIONS = [
@@ -31,7 +35,9 @@ const PER_PAGE_OPTIONS = [
   { value: "50", label: "50개씩" },
 ];
 
-export default function TagPageClient({ tag, initialData }: Props) {
+export default function TagPageClient({ tag, initialData, allTags }: Props) {
+  const router = useRouter();
+  const { language } = useLanguage();
   const { setInfinite } = useLenis();
   const [posts, setPosts] = useState<Post[]>(initialData.posts);
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
@@ -46,6 +52,13 @@ export default function TagPageClient({ tag, initialData }: Props) {
   // 추가 태그 필터 — selectMode 켤 때 관련 태그 클릭으로 토글. client-side 교집합 필터.
   const [extraTags, setExtraTags] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
+  // 관련 태그 헤더 트리거로 펼치는 "그 외 전체 태그" 패널
+  const [showAllTags, setShowAllTags] = useState(false);
+  // 관련 태그 + 현재 태그를 제외한 나머지 전체 태그 (count desc — getAllTagsData 정렬 유지)
+  const otherTags = useMemo(() => {
+    const exclude = new Set<string>([tag, ...initialData.relatedTags.map((r) => r.tag)]);
+    return allTags.filter((t) => !exclude.has(t.tag));
+  }, [allTags, initialData.relatedTags, tag]);
   const toggleExtraTag = (t: string) => {
     setExtraTags((prev) => {
       const next = new Set(prev);
@@ -116,9 +129,15 @@ export default function TagPageClient({ tag, initialData }: Props) {
   const isInitial =
     page === 1 && sort === "newest" && sortDir === "desc" && perPage === initialData.perPage && extraTagsKey === "";
   useEffect(() => {
-    if (isInitial) return;
+    if (isInitial) {
+      // 초기 파라미터로 복귀(전체 클릭 / 태그 해제 / 다중선택 off) 시 SSR 초기 데이터 복원 —
+      // 안 하면 이전 교집합 결과가 그대로 남음. 마운트 시엔 이미 같은 값이라 no-op.
+      setPosts(initialData.posts);
+      setTotalPages(initialData.totalPages);
+      return;
+    }
     fetchPosts();
-  }, [fetchPosts, isInitial]);
+  }, [fetchPosts, isInitial, initialData]);
 
   // extraTags 변경 시 page 1 로 reset (totalPages 재계산 위해)
   useEffect(() => {
@@ -152,6 +171,16 @@ export default function TagPageClient({ tag, initialData }: Props) {
         ref={filterBarRef}
         className={`${styles.heroTopRow} ${isStuck ? styles.heroTopRowStuck : ""} ${barHidden ? styles.heroTopRowHidden : ""}`}
       >
+        <Button
+          variant="ghost"
+          size="sm"
+          className={styles.backBtn}
+          icon={<ArrowLeft size={16} strokeWidth={1.8} />}
+          onClick={() => router.push("/posts/tags")}
+          title="태그 목록으로"
+        >
+          태그 목록
+        </Button>
         <Link href="/posts/tags" className={styles.heroBadge} title="전체 태그 보기">
           <Hash size={18} strokeWidth={1.8} />
           <span>TAG</span>
@@ -159,6 +188,7 @@ export default function TagPageClient({ tag, initialData }: Props) {
         <div className={styles.toolbar}>
           <div className={styles.toolbarLeft}>
             <SegmentedControl<Sort>
+              className={styles.sortControl}
               items={[
                 { value: "newest", label: "최신순" },
                 { value: "popular", label: "인기순" },
@@ -167,33 +197,42 @@ export default function TagPageClient({ tag, initialData }: Props) {
               value={sort}
               onChange={handleSortChange}
               sortDir={sortDir}
+              size="sm"
             />
           </div>
-          <SearchCapsule
-            search={search}
-            onSearchChange={setSearch}
-            align="right"
-            placeholder="이 태그 안에서 검색…"
-            className={styles.heroSearch}
-            routeParam="q"
-            hasResults={filteredPosts.length > 0}
-            onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
-            typeSelector={{
-              value: searchType,
-              options: [
-                { value: "all", label: "제목+내용" },
-                { value: "title", label: "제목" },
-                { value: "content", label: "내용" },
-              ],
-              onChange: (v) => setSearchType(v as "all" | "title" | "content"),
-            }}
-          />
-          <Select
-            className={styles.perPageSelect}
-            value={String(perPage)}
-            options={PER_PAGE_OPTIONS}
-            onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
-          />
+          <div className={styles.searchPerPageGroup}>
+            <div className={styles.perPageGroup}>
+              <List size={14} strokeWidth={1.8} className={styles.perPageIcon} aria-hidden />
+              <Select
+                className={styles.perPageSelect}
+                size="sm"
+                value={String(perPage)}
+                options={PER_PAGE_OPTIONS}
+                onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
+              />
+            </div>
+            <SearchCapsule
+              search={search}
+              onSearchChange={setSearch}
+              align="right"
+              size="sm"
+              placeholder="이 태그 안에서 검색…"
+              className={styles.heroSearch}
+              routeParam="q"
+              hasResults={filteredPosts.length > 0}
+              onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
+              typeSelector={{
+                value: searchType,
+                options: [
+                  { value: "all", label: "제목+내용" },
+                  { value: "title", label: "제목" },
+                  { value: "content", label: "내용" },
+                ],
+                onChange: (v) => setSearchType(v as "all" | "title" | "content"),
+              }}
+              syntaxHelp
+            />
+          </div>
         </div>
       </div>
 
@@ -216,13 +255,31 @@ export default function TagPageClient({ tag, initialData }: Props) {
                   <div className={styles.relatedLabelTooltip}>
                     <div className={styles.relatedLabelTooltipMain}>Related Tags</div>
                     <div className={styles.relatedLabelTooltipDesc}>
-                      이 태그와 같은 게시물에 함께 쓰인 다른 태그 — 같이 등장한 빈도순 정렬.
-                      &lsquo;다중 선택&rsquo; 켜면 클릭으로 추가 필터, 끄면 클릭으로 해당 태그 페이지 이동.
+                      이 태그와 같은 게시물에 함께 쓰인 태그를 등장 빈도가 높은 순으로 보여줍니다.
+                      &lsquo;관련 태그&rsquo;를 클릭하면 그 외 전체 태그가 펼쳐집니다.
+                      &lsquo;다중 선택&rsquo;을 켜면 여러 태그를 클릭해 추가로 필터링할 수 있습니다.
                     </div>
                   </div>
                 }
               >
-                <span className={styles.relatedLabel}>관련 태그</span>
+                <Button
+                  variant="ghost"
+                  size="2xs"
+                  className={styles.relatedToggle}
+                  active={showAllTags}
+                  onClick={() => setShowAllTags((v) => !v)}
+                  icon={
+                    <ChevronRight
+                      size={13}
+                      strokeWidth={2.2}
+                      className={`${styles.relatedToggleChevron} ${showAllTags ? styles.relatedToggleChevronOpen : ""}`}
+                      aria-hidden
+                    />
+                  }
+                  title={showAllTags ? "전체 태그 접기" : "그 외 전체 태그 펼치기"}
+                >
+                  관련 태그
+                </Button>
               </Tooltip>
               <Button
                 variant="outline"
@@ -236,6 +293,16 @@ export default function TagPageClient({ tag, initialData }: Props) {
               </Button>
             </div>
             <div className={styles.relatedTags}>
+              {selectMode && (
+                <button
+                  type="button"
+                  className={`${styles.relatedPill} ${styles.relatedPillSelectable} ${extraTags.size === 0 ? styles.relatedPillActive : ""}`}
+                  onClick={() => setExtraTags(new Set())}
+                  title="추가 필터 해제 — 이 태그 전체 보기"
+                >
+                  <span>전체</span>
+                </button>
+              )}
               {initialData.relatedTags.map(({ tag: rt, count }) => {
                 const active = extraTags.has(rt);
                 const inner = (
@@ -267,6 +334,37 @@ export default function TagPageClient({ tag, initialData }: Props) {
                 );
               })}
             </div>
+            <AnimatePresence initial={false}>
+              {showAllTags && (
+                <motion.div
+                  className={styles.allTagsPanel}
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{
+                    height: { duration: 0.32, ease: [0.16, 1, 0.3, 1] },
+                    opacity: { duration: 0.22, ease: [0.4, 0, 0.2, 1] },
+                  }}
+                >
+                  <div className={styles.allTagsInner}>
+                    {otherTags.length === 0 ? (
+                      <span className={styles.allTagsEmpty}>그 외 태그가 없습니다.</span>
+                    ) : (
+                      otherTags.map((t) => (
+                        <Link
+                          key={t.tag}
+                          href={`/posts/tags/${encodeURIComponent(t.tag)}`}
+                          className={styles.relatedPill}
+                        >
+                          <span>#{t.tag}</span>
+                          <span className={styles.relatedPillCount}>{t.count}</span>
+                        </Link>
+                      ))
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
 
@@ -286,6 +384,41 @@ export default function TagPageClient({ tag, initialData }: Props) {
         onChange={setPage}
         className={styles.pagination}
       />
+
+      {/* 통합 태그 — 같은 기술(tech)을 쓴 작업물. tags↔tech 공유 어휘. */}
+      {initialData.works.length > 0 && (
+        <section className={styles.worksSection}>
+          <h2 className={styles.worksHeading}>
+            이 태그를 쓴 프로젝트
+            <span className={styles.worksCount}>{initialData.works.length}</span>
+          </h2>
+          <div className={styles.worksTable}>
+            {initialData.works.map((w) => (
+              <Link
+                key={w.id}
+                href={`/works/${w.slug}`}
+                className={styles.workRow}
+                data-clickable="true"
+              >
+                {w.image && (
+                  <div className={styles.workRowBg} aria-hidden="true">
+                    <div
+                      className={styles.workRowBgImg}
+                      style={{ backgroundImage: `url(${w.image})` }}
+                    />
+                  </div>
+                )}
+                <span className={styles.workRowTitle}>{w.title}</span>
+                <span className={styles.workRowSubtitle}>
+                  {(language === "ko" ? w.subtitle_ko : w.subtitle_en) || (language === "ko" ? w.subtitle_en : w.subtitle_ko)}
+                </span>
+                {w.year && <span className={styles.workRowYear}>{w.year}</span>}
+                <ArrowUpRight className={styles.workRowArrow} size={20} strokeWidth={2} aria-hidden />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
     </SearchHighlightProvider>
   );

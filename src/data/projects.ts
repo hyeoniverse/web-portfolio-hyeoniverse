@@ -40,6 +40,8 @@ export interface Project {
   /** 기술별 KO/EN 설명 (DB tech_notes) */
   tech_notes?: Record<string, { ko: string; en: string }>;
   image: string;
+  /** 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단 (DB works.icon) */
+  icon?: string;
   size: CardSize;
   /* ── Detail page content (single field with sections as headings) ── */
   content: LocalizedText;

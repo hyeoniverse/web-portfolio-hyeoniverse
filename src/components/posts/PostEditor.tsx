@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { ChevronRight, ExternalLink } from "lucide-react";
+import { ChevronRight, ExternalLink, AlertTriangle } from "lucide-react";
 import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -14,6 +14,7 @@ import { stripHtml } from "@/utils/htmlUtils";
 import type { Post, PostFormData, Series } from "@/types/post";
 import SeriesInlineEditor from "@/app/admin/(dashboard)/settings/_components/SeriesInlineEditor";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
+import { findCategoryNode, toCategoryOptions, flattenCategories } from "@/lib/categoryTree";
 import Checkbox from "@/components/ui/Checkbox";
 import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
@@ -36,8 +37,11 @@ import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import { motion, AnimatePresence } from "framer-motion";
 import { postProcessMarkedHtml } from "./postProcessMarkedHtml";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
+import { POST_TITLE_MAX } from "@/lib/postConstants";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import SaveConflictDialog from "./SaveConflictDialog";
+import { usePostPresence } from "@/hooks/usePostPresence";
 import { useTagInput } from "@/hooks/useTagInput";
 import { usePostSeries } from "@/hooks/usePostSeries";
 import ShortcutsModalContent from "./ShortcutsModal";
@@ -87,6 +91,7 @@ const ImagePanel = dynamic(
 );
 
 import type { PlateEditorHandle, EditorImageInfo } from "./PlateEditor";
+import { isVideoMedia, _postLinkCategory, _postLinkTags, _postLinkExcludeId } from "./plate/utils";
 
 interface PostEditorProps {
   post?: Post;
@@ -161,10 +166,16 @@ export default function PostEditor({ post }: PostEditorProps) {
   const isEdit = !!post;
   const categories = useCategories();
   const serviceStatus = useServiceStatus();
-  // 카테고리 ko 또는 en 값으로 매칭
+  // 카테고리 ko 또는 en 값으로 매칭 — 2단계 트리 전체(대분류/소분류)에서 탐색
   const findCat = (val: string): BilingualCategory | undefined =>
-    categories.find((c) => c.ko === val || c.en === val);
-  const isManagedCat = (val: string) => !!findCat(val);
+    findCategoryNode(categories, val) ?? undefined;
+  // 선택 가능한(= Select 옵션에 뜨는) 카테고리는 leaf 뿐. 대분류(children 보유)는 배정 대상 아님.
+  const isManagedCat = (val: string) => {
+    const c = findCat(val);
+    return !!c && !(c.children?.length);
+  };
+  // posts.category 기본값·fallback 은 항상 leaf 여야 함 (대분류 값 저장 방지)
+  const firstLeafKo = flattenCategories(categories).find((c) => !c.children?.length)?.ko ?? "";
 
   const POST_FIELD_KEYS = ["title", "content", "excerpt"];
 
@@ -180,6 +191,18 @@ export default function PostEditor({ post }: PostEditorProps) {
     [],
   );
 
+  // draft(localStorage)의 미저장 커버 값을 mount 시 동기 읽어 초기값에 반영 — 새로고침 때 DB 커버가 먼저 떴다가
+  // draft 커버로 교체되는 flash + 위치(cover_position/zoom) 초기화 방지. (전체 draft 복원은 useEditorDraft 가 fetch 후 별도 처리)
+  const [draftCover] = useState<{ cover_image?: string; cover_position?: number; cover_zoom?: number } | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(`editor-draft:post:${post?.id ?? "draft-new-post"}`);
+      if (!raw) return null;
+      const d = JSON.parse(raw) as Partial<PostFormData>;
+      return { cover_image: d.cover_image, cover_position: d.cover_position, cover_zoom: d.cover_zoom };
+    } catch { return null; }
+  });
+
   const [form, setForm] = useState<PostFormData>({
     title: post?.title ?? "",
     slug: post?.slug ?? "",
@@ -187,7 +210,10 @@ export default function PostEditor({ post }: PostEditorProps) {
     content: post?.content_type === "markdown" ? mdToRichHtml(post?.content ?? "") : (post?.content ?? ""),
     content_type: "richtext",
     excerpt: post?.excerpt ?? "",
-    cover_image: post?.cover_image ?? "",
+    cover_image: draftCover?.cover_image ?? post?.cover_image ?? "",
+    cover_position: draftCover?.cover_position ?? post?.cover_position ?? 50,
+    cover_zoom: draftCover?.cover_zoom ?? post?.cover_zoom ?? 1,
+    icon: post?.icon ?? "",
     tags: post?.tags ?? [],
     tag_notes: post?.tag_notes ?? {},
     category: post?.category || "",
@@ -202,6 +228,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     github_url: post?.github_url ?? "",
     scheduled_at: post?.scheduled_at ?? null,
     related_work_ids: [],
+    author_ids: post?.author_ids ?? [],
   });
 
   // 직접 입력 모드 — 사용자가 "직접 입력" 선택 시 활성화. form.category 가 비어도 input 유지
@@ -226,12 +253,12 @@ export default function PostEditor({ post }: PostEditorProps) {
     if (categories.length === 0) return;
     if (categoryCustomMode) return;
     if (!form.category) {
-      const fallback = categories.find((c) => c.ko === "기타")?.ko ?? categories[0]?.ko ?? "";
+      const fallback = categories.find((c) => c.ko === "기타")?.ko ?? firstLeafKo;
       setForm((prev) => ({ ...prev, category: fallback }));
     }
   }, [categories]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { openModal, closeAll } = useModalStore();
+  const { openModal, closeAll, closeModal } = useModalStore();
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [generatingSummary, setRegeneratingSummary] = useState(false);
@@ -326,9 +353,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     return () => { cancelled = true; clearInterval(poll); };
   }, [editorLang, form.content_type]);
   const [slugManual, setSlugManual] = useState(isEdit);
-  // 커버 배너의 페이지 이모지 — 현재는 로컬 상태만 유지
-  // TODO: 이모지 저장 방식 확정 후 form/DB 연동
-  const [coverEmoji, setCoverEmoji] = useState<string | null>(null);
+  // 커버 배너의 페이지 이모지/아이콘 — form.icon 으로 저장(DB posts.icon)
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   // 닫는 중 — coverPickerCollapse 애니메이션 (~0.45s) 끝난 뒤 unmount.
   // showCoverPicker 만 false 로 즉시 두면 컴포넌트가 사라져 닫는 애니메이션이 보이지 않음
@@ -375,6 +400,10 @@ export default function PostEditor({ post }: PostEditorProps) {
   const savedIdRef = useRef<string | undefined>(post?.id);
   useEffect(() => { if (post?.id) savedIdRef.current = post.id; }, [post?.id]);
   const savedId = savedIdRef; // backward-compat — handleSave 가 .current 로 접근
+  // 낙관적 동시성 — 로드 시점 version. undefined 면(마이그레이션 전) 버전 체크 생략 → 기존 저장 유지.
+  const baseVersionRef = useRef<number | undefined>(post?.version);
+  // presence — 같은 글을 다른 기기/탭에서 편집 중이면 소프트 경고
+  const presenceOthers = usePostPresence(post?.id, isEdit);
 
   const onAutoSaved = useCallback(() => {
     setStatus(te("autoSaved"));
@@ -443,6 +472,10 @@ export default function PostEditor({ post }: PostEditorProps) {
     },
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
+  // 현재 글 메타를 PostLinkMenu([[])에 공유 — "연관 게시물" 스코어링
+  useEffect(() => { _postLinkCategory.current = form.category || ""; }, [form.category]);
+  useEffect(() => { _postLinkTags.current = form.tags || []; }, [form.tags]);
+  useEffect(() => { _postLinkExcludeId.current = post?.id || ""; }, [post?.id]);
 
   const tag = useTagInput(form.tags, (tags) => updateField("tags", tags));
   // 태그 추가 시 site.config 의 tagDescriptions 프리셋 자동 채움 (ko 만, en 은 빈값)
@@ -504,15 +537,21 @@ export default function PostEditor({ post }: PostEditorProps) {
 
 
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
+    // 동영상 — 서버 body 한도(배포 시 ~4.5MB)를 우회하려 Storage 직접 업로드.
+    // 제한 초과 시 브라우저에서 압축 후 업로드 (진행 모달 포함).
+    if (file.type.startsWith("video/")) {
+      const { runVideoUpload } = await import("@/components/posts/plate/MediaUploadModal");
+      return runVideoUpload(file, mediaLimits);
+    }
+
     const { compressImage, validateFileSize } = await import("@/lib/compressImage");
 
     // 보안 + 형식별 크기 제한 검증 (설정 값 사용). 압축 가능 이미지는 일단 통과.
     const sizeError = validateFileSize(file, mediaLimits);
     if (sizeError) throw new Error(sizeError);
 
-    // 비디오는 압축 X → 그대로 업로드. 이미지만 압축 파이프라인 적용.
-    const isVideo = file.type.startsWith("video/");
-    const payload = isVideo ? file : await compressImage(file);
+    // 이미지는 압축 파이프라인 적용.
+    const payload = await compressImage(file);
 
     // 압축 후에도 한도 초과면 reject (예: 최저 품질로도 limit 못 맞춤)
     const postError = validateFileSize(payload, mediaLimits, { skipCompressibleBypass: true });
@@ -522,9 +561,11 @@ export default function PostEditor({ post }: PostEditorProps) {
     formData.append("file", payload);
 
     const res = await fetch("/api/upload", { method: "POST", body: formData });
-    const data = await res.json();
+    // 빈/비JSON 응답(413·게이트웨이 오류 등)에서도 의미 있는 에러를 던지도록 방어적 파싱
+    const data: { url?: string; error?: string } = await res.json().catch(() => ({}));
 
-    if (!res.ok) throw new Error(data.error);
+    if (!res.ok) throw new Error(data.error || `업로드 실패 (${res.status})`);
+    if (!data.url) throw new Error(data.error || "업로드 응답을 받지 못했습니다");
     return data.url;
   }, [mediaLimits]);
 
@@ -623,9 +664,12 @@ export default function PostEditor({ post }: PostEditorProps) {
 
       // posts 테이블에는 related_work_ids 컬럼이 없음 — 분리해서 별도 endpoint로 sync.
       const { related_work_ids, ...postBody } = form;
+      const isPatch = !!savedId.current;
       const body = {
         ...postBody,
         published: willPublish,
+        // 기존 글 수정 + version 로드됨(마이그레이션 후)일 때만 낙관적 버전 체크
+        ...(isPatch && typeof baseVersionRef.current === "number" ? { baseVersion: baseVersionRef.current } : {}),
       };
 
       try {
@@ -642,10 +686,32 @@ export default function PostEditor({ post }: PostEditorProps) {
 
         const data = await res.json();
 
+        // 저장 충돌 — 다른 기기/탭에서 먼저 저장됨. 덮어쓰기/최신 불러오기/취소 선택.
+        if (res.status === 409 && data.error === "version_conflict") {
+          setSaving(false);
+          openModal(
+            <SaveConflictDialog
+              language={language}
+              onCancel={() => closeModal("post-save-conflict")}
+              onReload={() => { closeModal("post-save-conflict"); clearDraft(); window.location.reload(); }}
+              onOverwrite={() => {
+                closeModal("post-save-conflict");
+                if (typeof data.currentVersion === "number") baseVersionRef.current = data.currentVersion;
+                handleSave(publish); // 최신 version 으로 재시도 → 덮어쓰기
+              }}
+            />,
+            { id: "post-save-conflict", header: { title: language === "ko" ? "저장 충돌" : "Save conflict" }, width: "400px" },
+          );
+          return;
+        }
+
         if (!res.ok) {
           setError(data.error ?? "Failed to save");
           return;
         }
+
+        // 저장 성공 — 반환된 version 으로 base 갱신 (연속 저장/이 세션 유지 대비)
+        if (typeof data.version === "number") baseVersionRef.current = data.version;
 
         if (!savedId.current) savedId.current = data.id;
 
@@ -956,22 +1022,40 @@ export default function PostEditor({ post }: PostEditorProps) {
           cover={form.cover_image}
           onCoverChange={(url) => updateField("cover_image", url)}
           onUpload={handleCoverUpload}
-          emoji={coverEmoji}
-          onEmojiChange={setCoverEmoji}
+          emoji={form.icon || null}
+          onEmojiChange={(e) => updateField("icon", e ?? "")}
+          position={form.cover_position}
+          zoom={form.cover_zoom}
+          onPositionChange={(n) => updateField("cover_position", n)}
+          onZoomChange={(n) => updateField("cover_zoom", n)}
         />
       }
     >
+      {presenceOthers > 0 && (
+        <div className={styles.presenceBanner} role="status">
+          <AlertTriangle size={14} />
+          <span>{language === "ko"
+            ? "다른 기기·탭에서 이 글을 편집 중이에요. 동시에 저장하면 충돌할 수 있어요."
+            : "This post is being edited on another device or tab — saving at the same time may conflict."}</span>
+        </div>
+      )}
       <div className={styles.meta}>
         {/* title + slug + 예약 발행 — 컴팩트 그룹 (gap 작게) */}
         <div className={styles.titleGroup}>
           <div className={es.field} data-seo="title" data-required="title">
-            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--spacing-xs)" }}>
+              <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
+              <span style={{ fontSize: "var(--font-size-2xs)", fontVariantNumeric: "tabular-nums", color: form[titleKey].length >= POST_TITLE_MAX ? "var(--text-accent)" : "var(--text-muted)" }}>
+                {form[titleKey].length}/{POST_TITLE_MAX}
+              </span>
+            </div>
             <input
               className={`${es.titleInput}${titleFieldError ? ` ${es.titleInputError}` : ""}`}
               type="text"
               value={form[titleKey]}
               onChange={(e) => updateField(titleKey, e.target.value)}
               placeholder={te("titlePlaceholder")}
+              maxLength={POST_TITLE_MAX}
             />
           </div>
 
@@ -999,23 +1083,18 @@ export default function PostEditor({ post }: PostEditorProps) {
           {/* slug 아래 — 카테고리 (필수 입력) */}
           <div className={es.row}>
             <div className={es.field} style={{ gridColumn: "1 / -1" }} data-seo="category" data-required="category">
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
-                {form.series_id && (
-                  <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>{te("categoryFromSeries")}</span>
-                )}
-              </div>
+              <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.category.trim() ? ` ${es.fieldLabelError}` : ""}`}>{te("category")}</label>
               {(() => {
                 const matched = isManagedCat(form.category);
                 const isCustom = categoryCustomMode || (!!form.category && !matched);
-                const selectValue = isCustom ? "__custom__" : (matched ? (findCat(form.category)?.ko ?? form.category) : (categories[0]?.ko ?? ""));
+                const selectValue = isCustom ? "__custom__" : (matched ? (findCat(form.category)?.ko ?? form.category) : firstLeafKo);
                 return (
                   <>
                     <Select
                       value={selectValue}
                       options={[
                         { value: "__custom__", label: te("customCategory") },
-                        ...categories.map((cat) => ({ value: cat.ko, label: language === "ko" ? cat.ko : cat.en })),
+                        ...toCategoryOptions(categories, language === "ko" ? "ko" : "en"),
                       ]}
                       onChange={(v) => {
                         if (v === "__custom__") {
@@ -1026,9 +1105,8 @@ export default function PostEditor({ post }: PostEditorProps) {
                           updateField("category", v);
                         }
                       }}
-                      disabled={!!form.series_id}
                     />
-                    {isCustom && !form.series_id && (
+                    {isCustom && (
                       <input
                         className={es.fieldInput}
                         type="text"
@@ -1042,6 +1120,67 @@ export default function PostEditor({ post }: PostEditorProps) {
                   </>
                 );
               })()}
+            </div>
+          </div>
+
+          {/* 작성자 (복수 선택) — site.config authors 에서 선택. 비면 리더뷰에서 기본 작성자 표시 */}
+          <div className={es.row}>
+            <div className={es.field} style={{ gridColumn: "1 / -1" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                <label className={es.fieldLabel}>{language === "en" ? "Authors" : "작성자"}</label>
+                <a href="/admin/settings?tab=content" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
+                  {language === "en" ? "Manage authors" : "작성자 관리"}
+                  <ExternalLink size={12} />
+                </a>
+              </div>
+              <div className={styles.authorSelect}>
+                {config.authors && config.authors.length > 0 ? (
+                  config.authors.map((a, i) => {
+                    const ids = form.author_ids ?? [];
+                    const actualSelected = ids.includes(a.id);
+                    // 미할당(빈 배열)이면 기본 작성자(첫 항목)를 선택된 것처럼 표시 — 리더뷰 fallback 과 일치
+                    const showSelected = actualSelected || (ids.length === 0 && i === 0);
+                    return (
+                      <button
+                        key={a.id}
+                        type="button"
+                        className={`${styles.authorChip}${showSelected ? ` ${styles.authorChipSelected}` : ""}`}
+                        onClick={() => {
+                          const atLeastOne = language === "en"
+                            ? "At least one author is required."
+                            : "작성자는 최소 한 명이 필요합니다.";
+                          if (actualSelected) {
+                            const next = ids.filter((x) => x !== a.id);
+                            if (next.length === 0) {
+                              // 마지막 작성자 해제 → 유효 작성자 0 방지 (리더뷰는 기본 작성자로 fallback)
+                              showToast(atLeastOne, "info");
+                              return;
+                            }
+                            updateField("author_ids", next);
+                          } else if (showSelected) {
+                            // ids 빈 상태에서 fallback 표시된 기본 작성자 해제 시도 — 유효 작성자 0 이 되므로 차단
+                            showToast(atLeastOne, "info");
+                          } else {
+                            updateField("author_ids", [...ids, a.id]);
+                          }
+                        }}
+                      >
+                        {a.avatar ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={a.avatar} alt="" className={styles.authorChipAvatar} />
+                        ) : (
+                          <span className={styles.authorChipAvatar} aria-hidden>{(a.name || "?").charAt(0)}</span>
+                        )}
+                        <span>{a.name}</span>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <span className={styles.authorEmpty}>
+                    {language === "en" ? "Add authors in settings." : "설정에서 작성자를 추가하세요."}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -1105,7 +1244,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                         options={[
                           { value: "", label: te("seriesNone") },
                           { value: "__custom__", label: te("customSeries") },
-                          ...seriesList.map((s) => ({ value: s.id, label: `${s.title} (${s.post_count ?? 0})${s.category ? ` — ${s.category}` : ""}` })),
+                          ...seriesList.map((s) => ({ value: s.id, label: `${s.title} (${s.post_count ?? 0})` })),
                         ]}
                         onChange={(v) => {
                           if (v === "__custom__") {
@@ -1115,10 +1254,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                           }
                           setSeriesSelectMode("existing");
                           updateField("series_id", v || null);
-                          if (v) {
-                            const selected = seriesList.find((s) => s.id === v);
-                            if (selected?.category) updateField("category", selected.category);
-                          }
+                          // 시리즈 카테고리를 글에 상속하지 않음 — 글은 각자 카테고리를 가진다(도출 모델)
                         }}
                       />
                     </motion.div>
@@ -1385,12 +1521,16 @@ export default function PostEditor({ post }: PostEditorProps) {
             onVideoUpload={async (file) => {
               const url = await handleImageUpload(file);
               plateRef.current?.insertMediaByUrl(url);
+              requestAnimationFrame(() => {
+                const imgs = plateRef.current?.getImages();
+                if (imgs) setEditorImages(imgs);
+              });
               return url;
             }}
             onBulkInsert={(items) => {
               // 선택 항목을 본문에 복제 삽입 (이미 첨부된 이미지여도 같은 걸 또 추가)
               for (const it of items) {
-                if (it.mediaType === "media_embed") plateRef.current?.insertMediaByUrl(it.url);
+                if (isVideoMedia(it.mediaType, it.url)) plateRef.current?.insertMediaByUrl(it.url);
                 else plateRef.current?.insertImageByUrl(it.url);
               }
               requestAnimationFrame(() => {
@@ -1399,7 +1539,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               });
             }}
             onReinsert={(url, mediaType) => {
-              if (mediaType === "media_embed") plateRef.current?.insertMediaByUrl(url);
+              if (isVideoMedia(mediaType, url)) plateRef.current?.insertMediaByUrl(url);
               else plateRef.current?.insertImageByUrl(url);
             }}
             onRemoveDetached={(url) => {

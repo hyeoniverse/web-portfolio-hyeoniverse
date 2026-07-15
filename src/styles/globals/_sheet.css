@@ -1,5 +1,8 @@
 /* ==========================================================================
-   Bottom Sheet — 공통 모바일 시트 시각 패턴 (Modal / Picker / Popover 통일)
+   Bottom Sheet — 공통 모바일 시트 시각 패턴 (Popover / CoverImagePicker 사용)
+   --------------------------------------------------------------------------
+   ※ Modal 은 여기를 쓰지 않는다 — 자체 시트 구현(드래그 확장/dismiss, --sheet-y)을 갖고 있고
+     backdrop 도 자기 것을 쓴다. 통합하려면 Modal 의 드래그 로직까지 옮겨야 함.
    --------------------------------------------------------------------------
    재사용을 위해 전역 클래스로 정의 (id 는 유일해야 하므로 클래스).
    컴포넌트는 framer-motion 으로 slide(y 100%→0) 애니메이션만 입히고,
@@ -7,12 +10,15 @@
    각 컴포넌트별 차이(content padding 등)는 자기 module 에서 보강.
    ========================================================================== */
 
+/* 시트 뒤 막 — 클릭 시 닫기 + 뒤 콘텐츠와 분리.
+   검정 40% 스크림이었으나 제거 — Modal 의 backdrop(#modal-root)도 transparent + blur 만 쓴다.
+   어둡게 덮을 이유가 없고 blur 만으로 충분히 분리된다. blur 값은 다른 유리 표면과 통일. */
 .ui-sheet-backdrop {
   position: fixed;
   inset: 0;
   z-index: var(--z-overlay);
-  background: oklch(0.00% 0.0000 0.00 / 0.4);
-  backdrop-filter: blur(10px);
+  background: transparent;
+  backdrop-filter: var(--blur-glass);
 }
 
 .ui-sheet {

@@ -660,7 +660,8 @@
         "about": "ABOUT",
         "works": "WORKS",
         "posts": "POSTS",
-        "about": "ABOUT"
+        "about": "ABOUT",
+        "calendars": "CALENDAR"
       },
       "aboutVisualBreak": "브레이크 이미지",
       "aboutVisualBreakImage": "브레이크 이미지 URL",
@@ -772,7 +773,53 @@
         "showAsRange": "기간으로 표시",
         "ongoing": "진행 중",
         "preview": "미리보기"
-      }
+      },
+      "faviconFontSize": "폰트 크기",
+      "faviconFontSizePlaceholder": "예: 20",
+      "faviconTextColorLight": "라이트 글자색",
+      "faviconTextColorDark": "다크 글자색",
+      "faviconTextShadow": "텍스트 그림자",
+      "faviconBgShadow": "배경 그림자",
+      "faviconShadowInset": "안쪽",
+      "faviconShadowSize": "크기",
+      "faviconShadowSizeCustom": "직접",
+      "faviconShadowCustom": "블러",
+      "faviconShadowCustomPlaceholder": "px",
+      "faviconShadowColor": "그림자색",
+      "faviconShadowColorPlaceholder": "rgba(0,0,0,0.4)",
+      "faviconShadowDirection": "방향",
+      "faviconFontSizeCustom": "직접 입력",
+      "faviconContrastNoBg": "배경 없음",
+      "faviconContrast_aaa": "AAA",
+      "faviconContrast_aa": "AA",
+      "faviconContrast_aaLarge": "그래픽 3:1",
+      "faviconContrast_fail": "미달",
+      "commentSystem": "댓글 시스템",
+      "commentProvider": "제공자",
+      "commentProviderSystem": "내장(커스텀)",
+      "giscusHint": "giscus 는 GitHub Discussions 를 댓글로 임베드합니다. 공개 저장소에서 Discussions 를 활성화하고 giscus GitHub 앱을 설치한 뒤, giscus.app 에서 발급받은 저장소/카테고리 값을 아래에 입력하세요.",
+      "giscusRepo": "저장소",
+      "giscusRepoId": "저장소 ID",
+      "giscusCategory": "Discussion 카테고리",
+      "giscusCategoryId": "카테고리 ID",
+      "giscusMapping": "페이지 ↔ Discussion 매핑",
+      "giscusInputPosition": "댓글 입력창 위치",
+      "giscusInputTop": "상단",
+      "giscusInputBottom": "하단",
+      "giscusReactions": "메인 글 리액션 표시",
+      "giscusStrict": "엄격한 제목 일치",
+      "giscusEmitMetadata": "메타데이터 보내기",
+      "giscusLazyLoading": "댓글 느리게 불러오기",
+      "giscusNeedsToken": "GITHUB_TOKEN 환경변수가 필요합니다 — 입력하러 가기",
+      "giscusLoadRepo": "저장소 불러오기",
+      "giscusLoading": "불러오는 중…",
+      "giscusLoaded": "카테고리 불러옴",
+      "giscusCategoryPick": "카테고리 선택",
+      "giscusNoDiscussions": "이 저장소에 Discussions가 활성화되어 있지 않습니다.",
+      "giscusThemeLight": "테마 (라이트 모드)",
+      "giscusThemeDark": "테마 (다크 모드)",
+      "giscusThemeCustom": "커스텀 (CSS URL)",
+      "giscusThemeHint": "giscus 프리셋 이름(light, dark, noborder_dark…) 또는 커스텀 CSS URL. 비우면 기본값."
     },
     "posts": {
       "title": "POSTS",
@@ -1059,7 +1106,8 @@
         "removeFromSeries": "시리즈에서 제거",
         "addPost": "게시물 추가",
         "addPostHint": "이미 불러왔습니다. 아래에서 선택하세요 ↓",
-        "noAvailablePosts": "추가할 수 있는 게시물이 없습니다"
+        "noAvailablePosts": "추가할 수 있는 게시물이 없습니다",
+        "titleTooLong": "제목은 {{max}}자 이내로 입력해주세요"
       }
     },
     "works": {
@@ -1286,7 +1334,10 @@
     "copied": "복사됨",
     "copyFailed": "복사 실패",
     "copyAllPalette": "전체 색상 복사",
-    "paletteCopied": "색상표 복사됨"
+    "paletteCopied": "색상표 복사됨",
+    "mermaidDiagram": "다이어그램",
+    "mermaidCode": "코드",
+    "mermaidSplit": "스플릿"
   },
   "workDetail": {
     "back": "Works",
@@ -1354,7 +1405,18 @@
     "report": "신고",
     "reportPlaceholder": "신고 사유 (선택)",
     "confirmReport": "신고",
-    "reportThanks": "신고가 접수되었습니다. 검토 후 조치하겠습니다."
+    "reportThanks": "신고가 접수되었습니다. 검토 후 조치하겠습니다.",
+    "addReaction": "반응 추가",
+    "translatedResult": "번역 결과",
+    "expand": "더보기",
+    "collapse": "접기",
+    "hardDeleteWarn": "복구할 수 없습니다.",
+    "hardDeleteWarnReplies": "답글 {n}개도 함께 영구 삭제됩니다. 복구할 수 없습니다.",
+    "write": "작성",
+    "preview": "미리보기",
+    "markdownHint": "마크다운 지원",
+    "previewEmpty": "미리 볼 내용이 없습니다",
+    "giscusNotConfigured": "giscus 설정이 필요합니다. 관리자에게 설정 › 서비스 › 댓글 시스템 에서 저장소와 카테고리 입력을 요청하세요."
   },
   "postDetail": {
     "recommended": "함께 읽어보면 좋은 게시물",
@@ -1487,7 +1549,11 @@
     "noResultsFor": "검색 결과 없음:",
     "noPostsTagged": "태그된 글 없음:",
     "noPostsInSeries": "시리즈에 글 없음:",
-    "noPostsInCategory": "카테고리에 글 없음:"
+    "noPostsInCategory": "카테고리에 글 없음:",
+    "seriesSearchAll": "제목+설명",
+    "seriesSearchTitle": "제목",
+    "seriesSearchDesc": "설명",
+    "seriesManage": "시리즈 관리"
   },
   "bunny": {
     "name": "몽이",
@@ -1840,6 +1906,19 @@
       "zoomOut": "축소",
       "savePosition": "저장",
       "cancel": "취소"
-    }
+    },
+    "insertVideo": "동영상 삽입",
+    "insertCalendar": "이벤트 달력",
+    "insertPostLink": "게시물 링크",
+    "insertFootnote": "각주 삽입",
+    "insertDiagram": "다이어그램 (비주얼)",
+    "insertEmoji": "이모지",
+    "insertPlayground": "플레이그라운드 (HTML·CSS·JS)",
+    "equalRowHeight": "행 높이 균등",
+    "equalColWidth": "열 너비 균등",
+    "tableStructure": "구조",
+    "tableStyle": "스타일",
+    "uploadFail": "업로드 실패",
+    "uploadFailHint": "파일 용량이 너무 크거나 지원하지 않는 형식일 수 있어요. 형식·용량을 확인한 뒤 다시 시도해주세요."
   }
 }
