@@ -1260,24 +1260,7 @@
   transform: scale(1.1);
 }
 
-.loadMore {
-  display: block;
-  width: 100%;
-  margin: 0;
-  padding: var(--spacing-sm) 0;
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  text-align: center;
-  cursor: pointer;
-}
-
-.body .loadMore:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
+/* loadMore 는 공통 Button(ghost, fullWidth)으로 대체 — 전용 CSS 불필요 */
 
 /* ── AI Generate ── */
 /* .aiForm 은 .tabSection 과 동일한 padded column wrapper — alias 로 유지 */
@@ -1322,33 +1305,10 @@
   color: var(--bg-primary);
 }
 
+/* 공통 Button(primary) 사용 — 시각은 컴포넌트가 담당, 여기선 레이아웃(폭 유지)만.
+   높이는 .inputRow 의 align-items:stretch + .inputRow .generateBtn align-self:stretch 가 처리 */
 .generateBtn {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  /* admin editor 표준 uploadBtn 과 동일 (--size-sm = 32px) */
-  min-height: var(--input-h);
-  padding: 0 var(--spacing-xl);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: var(--text-primary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--bg-primary);
-  box-sizing: border-box;
-}
-
-.generateBtn:disabled {
-  opacity: 0.5;
-}
-
-/* generating 중 — 텍스트 + LoadingDots 가로 정렬 */
-.generateBtnLoading {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  flex-shrink: 0;
 }
 
 .aiPreview {
@@ -1379,38 +1339,24 @@
   border-top: var(--border-light);
 }
 
-.useBtn,
-.retryBtn {
+/* 공통 Button(ghost) 사용 — 세그먼트 바 형태만 유지 (flex 균등 분할, radius 제거).
+   시각/패딩/폰트는 Button 이 담당. flex/width/radius/색은 compound(0,2,0)로 Button 클래스 override */
+.aiActions .useBtn,
+.aiActions .retryBtn {
   flex: 1;
-  width: 100%;
-  margin: 0;
-  padding: var(--spacing-sm) 0;
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  text-align: center;
-  cursor: pointer;
+  width: auto;
+  border-radius: 0;
 }
 
 /* 사용 — primary action 강조 */
-.useBtn {
-  font-weight: 600;
+.aiActions .useBtn {
   color: var(--text-accent);
+  font-weight: 600;
 }
 
-/* 재생성 — secondary tone */
-.retryBtn {
-  color: var(--text-secondary);
-}
-
-/* 모든 actions 버튼 — 아이콘 + 텍스트 가로 정렬 */
-.aiActions .useBtn,
+/* 재생성/다운로드 — secondary tone */
 .aiActions .retryBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  color: var(--text-secondary);
 }
 
 /* ── AI History (세션 동안 생성한 이미지 이력) ── */
@@ -1651,21 +1597,27 @@
 
 /* overlay 버튼 (제거 / action cluster 안 버튼들) — hover 시만 노출 */
 .historyOverlayBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--button-h-xs);
-  height: var(--button-h-xs);
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: var(--bg-overlay);
-  color: var(--text-inverse);
   cursor: pointer;
   opacity: 0;
   transition:
     opacity 0.15s ease,
     transform 0.15s ease;
+}
+/* 공통 Button(ghost/circle) 위에 오버레이 아이콘 시각을 강제 — variant/size/shape 클래스(0,1,0) 이김.
+   :hover 도 포함해 Button ghost hover 배경이 bg-overlay 를 덮지 않게 고정 */
+.historyOverlayBtn.historyOverlayBtn,
+.historyOverlayBtn.historyOverlayBtn:hover {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-xs);
+  height: var(--button-h-xs);
+  min-width: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--bg-overlay);
+  color: var(--text-inverse);
 }
 
 .historyGridItem:hover .historyOverlayBtn,

@@ -1,0 +1,149 @@
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.trigger:hover {
+  border-color: var(--border-strong-color);
+  color: var(--text-primary);
+}
+
+.popover {
+  width: min(33rem, 92vw);
+  max-height: 72vh;
+  overflow-y: auto;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  font-family: var(--font-space-grotesk);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.sec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.secTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* 방법 A/B 소제목 — 섹션 제목보다 한 단계 작게 */
+.subTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* 상단 안내문 */
+.intro {
+  font-size: var(--font-size-sm);
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* 하단 커스텀 CSS 주의 */
+.caution {
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-tertiary);
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding-left: var(--spacing-lg);
+  list-style: decimal;
+}
+.steps li {
+  font-size: var(--font-size-sm);
+  line-height: 1.65;
+  color: var(--text-secondary);
+  padding-left: var(--spacing-2xs);
+}
+.steps li b {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-accent);
+  text-decoration: none;
+}
+.link:hover {
+  text-decoration: underline;
+}
+
+/* 본문 인라인 외부 링크 (URL) */
+.inlineLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.inlineLink:hover {
+  text-decoration: underline;
+}
+
+/* kbd — 버튼·메뉴·코드 토큰 칩 */
+.kbd {
+  display: inline-block;
+  padding: 1px var(--spacing-2xs);
+  border: var(--border-light);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+/* 핵심 단어 highlight */
+.hl {
+  padding: 0 var(--spacing-3xs);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+  font-weight: var(--font-weight-semibold);
+}

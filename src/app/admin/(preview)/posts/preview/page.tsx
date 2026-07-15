@@ -3,12 +3,11 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DetailLayout from "@/components/layout/DetailLayout";
-import { PostArticleHeader, PostArticleBody } from "@/components/posts/PostArticleView";
-import RecommendedSection from "@/app/posts/[slug]/_components/RecommendedSection";
+import { PostArticleHeader, PostArticleBody, PostArticleAuthors } from "@/components/posts/PostArticleView";
 import RelatedWorksCarousel, { type RelatedWork } from "@/app/posts/[slug]/_components/RelatedWorksCarousel";
-import type { RecommendedPost } from "@/app/posts/[slug]/_components/types";
 import { extractHeadings } from "@/utils/headingUtils";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import type { PostFormData } from "@/types/post";
@@ -16,6 +15,7 @@ import styles from "@/app/posts/[slug]/PostDetail.module.css";
 
 export default function PostPreviewPage() {
   const { t } = useLanguage();
+  const siteConfig = useSiteConfig();
   const router = useRouter();
   const searchParams = useSearchParams();
   const fetchId = searchParams.get("fetch");
@@ -25,12 +25,11 @@ export default function PostPreviewPage() {
   const [busy, setBusy] = useState(false);
   const { openModal } = useModalStore();
   const [viewLang, setViewLang] = useState<"ko" | "en">("ko");
+  // 발행된 글이면 새창으로 열 href (fetch 프리뷰 한정 — 세션 프리뷰는 미저장이라 없음)
+  const [publishedHref, setPublishedHref] = useState<string | null>(null);
 
-  // 디테일 페이지와 동일하게 관련 프로젝트/추천 글/이전·다음 (기존 글 프리뷰=fetchId 있을 때만)
-  type AdjacentPost = { slug: string; title: string; title_en?: string; cover_image: string };
+  // 프리뷰 상단에 관련 프로젝트 캐러셀만 표시 (추천 글·이전/다음은 프리뷰에서 제외)
   const [relatedWorks, setRelatedWorks] = useState<RelatedWork[]>([]);
-  const [recommendedPosts, setRecommendedPosts] = useState<RecommendedPost[]>([]);
-  const [adjacent, setAdjacent] = useState<{ prev: AdjacentPost | null; next: AdjacentPost | null }>({ prev: null, next: null });
 
   useEffect(() => {
     if (!fetchId) return;
@@ -38,14 +37,6 @@ export default function PostPreviewPage() {
     fetch(`/api/posts/${fetchId}/related-works`, { signal: ac.signal })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => { if (Array.isArray(d?.items)) setRelatedWorks(d.items); })
-      .catch(() => {});
-    fetch(`/api/posts/${fetchId}/related`, { signal: ac.signal })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (Array.isArray(d)) setRecommendedPosts(d); })
-      .catch(() => {});
-    fetch(`/api/posts/${fetchId}/adjacent`, { signal: ac.signal })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (d) setAdjacent({ prev: d.prev ?? null, next: d.next ?? null }); })
       .catch(() => {});
     return () => ac.abort();
   }, [fetchId]);
@@ -61,9 +52,13 @@ export default function PostPreviewPage() {
               content: post.content || post.content_en || "",
               content_type: post.content_type || "markdown",
               cover_image: post.cover_image || "",
+              cover_position: post.cover_position ?? 50,
+              cover_zoom: post.cover_zoom ?? 1,
               excerpt: post.excerpt || post.excerpt_en || "",
               tags: post.tags || [],
+              author_ids: post.author_ids || [],
             } as PostFormData);
+            if (post.published && post.slug) setPublishedHref(`/posts/${post.slug}`);
           }
         })
         .catch(() => {})
@@ -119,10 +114,26 @@ export default function PostPreviewPage() {
     : (form?.excerpt || form?.excerpt_en || "");
   const isMarkdown = form?.content_type === "markdown";
 
+  // 브라우저 탭 제목 — Admin | Preview | 게시물 제목
+  useEffect(() => {
+    const prev = document.title;
+    document.title = `Admin | Preview${displayTitle ? ` | ${displayTitle}` : ""}`;
+    return () => { document.title = prev; };
+  }, [displayTitle]);
+
   const headings = useMemo(() => {
     if (!content) return [];
     return extractHeadings(content, isMarkdown);
   }, [content, isMarkdown]);
+
+  // author_ids → Author[] 해석. 미할당(빈 배열)이면 기본 작성자(첫 항목) fallback.
+  const previewAuthors = useMemo(() => {
+    const all = siteConfig?.authors ?? [];
+    const resolved = (form?.author_ids ?? [])
+      .map((id) => all.find((a) => a.id === id))
+      .filter((a): a is (typeof all)[number] => Boolean(a));
+    return resolved.length > 0 ? resolved : all.slice(0, 1);
+  }, [siteConfig, form?.author_ids]);
 
   // richtext 코드블록 — Shiki 는 서버(/api/highlight)에서 처리(detail 과 동일 util/결과).
   const [highlightedContent, setHighlightedContent] = useState(content);
@@ -157,6 +168,8 @@ export default function PostPreviewPage() {
     tags: form.tags,
     viewCount: 0,
     createdAt: new Date().toISOString(),
+    authors: previewAuthors,
+    viewHref: publishedHref ?? undefined,
   };
 
   return (
@@ -165,6 +178,9 @@ export default function PostPreviewPage() {
       backLabel="Close Preview"
       heroImage={form.cover_image || undefined}
       heroAlt={form.title}
+      heroIcon={form.icon}
+      heroPosition={form.cover_position}
+      heroZoom={form.cover_zoom}
       headings={headings}
       header={
         <div className={styles.articleHeader}>
@@ -202,25 +218,7 @@ export default function PostPreviewPage() {
       relatedContent={
         <RelatedWorksCarousel works={relatedWorks} viewLang={viewLang} onNavigate={(href) => router.push(href)} />
       }
-      recommendedContent={
-        recommendedPosts.length > 0 ? (
-          <RecommendedSection posts={recommendedPosts} viewLang={viewLang} />
-        ) : null
-      }
-      adjacentConfig={{
-        prev: adjacent.prev ? {
-          href: `/posts/${adjacent.prev.slug}`,
-          title: viewLang === "en" && adjacent.prev.title_en ? adjacent.prev.title_en : adjacent.prev.title,
-          image: adjacent.prev.cover_image,
-        } : null,
-        next: adjacent.next ? {
-          href: `/posts/${adjacent.next.slug}`,
-          title: viewLang === "en" && adjacent.next.title_en ? adjacent.next.title_en : adjacent.next.title,
-          image: adjacent.next.cover_image,
-        } : null,
-        prevLabelKey: "postDetail.previous",
-        nextLabelKey: "postDetail.next",
-      }}
+      afterLike={<PostArticleAuthors authors={previewAuthors} />}
     >
       <PostArticleBody data={articleData} isPreview />
     </DetailLayout>

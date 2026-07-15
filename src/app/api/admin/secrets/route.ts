@@ -22,6 +22,7 @@ const EDITABLE_KEYS = [
   "OPENAI_API_KEY",
   "ANTHROPIC_API_KEY",
   "RESEND_API_KEY",
+  "GITHUB_TOKEN",
 ] as const;
 
 const READ_ONLY_KEYS = [

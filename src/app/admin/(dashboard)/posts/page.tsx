@@ -9,11 +9,13 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import ButtonGroup from "@/components/ui/ButtonGroup";
+import HelpButton from "@/components/ui/HelpButton";
 import type { Post, Series } from "@/types/post";
 import { formatPostTitle } from "@/utils/post";
 import { getTrashDaysLeft } from "@/utils/trash";
 import { downloadBlob, downloadFiles } from "@/utils/download";
-import { useCategories, translateCategory } from "@/hooks/useCategories";
+import { useCategories } from "@/hooks/useCategories";
+import { flattenCategories, toCategoryOptions } from "@/lib/categoryTree";
 import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -185,8 +187,10 @@ export default function AdminPostsPage() {
     if (mdInputRef.current) mdInputRef.current.value = "";
     if (parsed.length === 0) return;
 
-    // 새 카테고리 확인
-    const existingCats = new Set(categories.map((c) => c.ko));
+    // 새 카테고리 확인 — 트리 flatten (대분류/소분류 모두 기존으로 인식, 잘못된 신규 추가 방지)
+    const existingCats = new Set(
+      flattenCategories(categories).flatMap((c) => [c.ko, c.en]),
+    );
     const newCats = [...new Set(parsed.map((p) => p.category as string).filter((c) => c && !existingCats.has(c)))];
 
     const doCreate = async () => {
@@ -639,9 +643,9 @@ export default function AdminPostsPage() {
       headerExtra={
         <>
           <input ref={mdInputRef} type="file" accept=".md" multiple hidden onChange={handleMdUpload} />
-          <button
-            className={shell.helpBtn}
+          <HelpButton
             title={t("admin.posts.uploadGuide")}
+            aria-label={t("admin.posts.uploadGuide")}
             onClick={() => {
               openModal(
                 <div className={styles.uploadGuide}>
@@ -698,9 +702,7 @@ tags: React`}</code></pre>
                 { header: { title: t("admin.posts.uploadGuide") }, closeButton: true, width: "560px" },
               );
             }}
-          >
-            ?
-          </button>
+          />
           <ButtonGroup>
             <Button variant="outline" size="xs" title={t("admin.posts.uploadMd")} onClick={() => mdInputRef.current?.click()} disabled={uploading} soundDisabled icon={<Upload size={14} />}>
               {uploading ? "..." : t("admin.posts.uploadMd")}
@@ -738,10 +740,7 @@ tags: React`}</code></pre>
           value={filterCategory}
           options={[
             { value: "", label: t("admin.posts.allCategories") },
-            ...categories.map((c) => ({
-              value: c.ko,
-              label: translateCategory(c.ko, language, categories),
-            })),
+            ...toCategoryOptions(categories, language === "ko" ? "ko" : "en"),
           ]}
           onChange={(v) => { setFilterCategory(v); setPage(1); }}
           className={shell.filterItem}
