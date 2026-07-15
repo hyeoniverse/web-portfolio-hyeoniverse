@@ -1,0 +1,119 @@
+.memo {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4xs);
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border-bottom: var(--border-light);
+}
+.tbBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+.tbBtn:hover { color: var(--text-primary); background: var(--bg-secondary); }
+.tbBtn:disabled { opacity: 0.5; cursor: default; }
+.tbBtnOn, .tbBtnOn:hover { color: var(--text-accent); background: var(--bg-accent-subtle); }
+.sep { width: 1px; align-self: stretch; margin: 4px 2px; background: var(--border-light-color); }
+.spin { animation: rmSpin 0.8s linear infinite; }
+@keyframes rmSpin { to { transform: rotate(360deg); } }
+
+.editable {
+  min-height: 120px;
+  max-height: 70vh;
+  resize: vertical;
+  overflow-y: auto;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  outline: none;
+}
+.editableEmpty::before {
+  content: attr(data-placeholder);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+.editable :is(h1, h2, h3) { font-size: var(--font-size-md); font-weight: 700; margin: 0.4em 0 0.2em; }
+.editable ul, .editable ol { margin: 0.2em 0; padding-left: 1.4em; }
+.editable img { max-width: 100%; border-radius: var(--radius-lg); margin: var(--spacing-2xs) 0; }
+.editable a { color: var(--text-accent); text-decoration: underline; }
+
+/* @ 멘션 드롭다운 메뉴 */
+.mentionMenu {
+  z-index: calc(var(--z-overlay) + 20);
+  min-width: 180px;
+  max-width: 280px;
+  padding: var(--spacing-3xs);
+  border: var(--border-light);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.mentionItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  width: 100%;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--font-size-xs);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.mentionItem:hover { background: var(--bg-secondary); }
+.mentionItemOn { background: var(--bg-accent-subtle); color: var(--text-accent); }
+.mentionIcon { flex-shrink: 0; color: var(--text-tertiary); }
+.mentionEmpty { padding: var(--spacing-2xs) var(--spacing-sm); font-size: var(--font-size-xs); color: var(--text-tertiary); }
+.mentionDate { padding: 2px; }
+
+/* 멘션 칩 — 에디터/뷰 공통 (전역: 저장된 HTML 이 다른 CSS 모듈에서 렌더돼도 적용) */
+:global(.cal-event-mention) {
+  display: inline;
+  padding: 0.05em 0.35em;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+:global(.cal-event-mention):hover { background: var(--bg-accent-light); }
+
+/* 날짜 멘션 칩 — 이벤트 멘션과 구분되는 중립 톤 */
+:global(.cal-date-mention) {
+  display: inline;
+  padding: 0.05em 0.35em;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
