@@ -87,6 +87,11 @@ export const TABLE_BG_PRESETS = [
   "#fef3c7", "#dcfce7", "#dbeafe", "#fce7f3", "#f3e8ff", "#fee2e2", "#f3f4f6",
 ];
 
+/** 헤더 글자색 프리셋 */
+export const TABLE_TEXT_PRESETS = [
+  "#111827", "#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6",
+];
+
 /** 줄무늬 기본색 = 헤더 배경색(--bg-tertiary) */
 export const ZEBRA_COLOR_DEFAULT = "var(--bg-tertiary)";
 

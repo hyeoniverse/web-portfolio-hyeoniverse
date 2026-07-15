@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { setAlign, setLineHeight } from "@platejs/basic-styles";
 import { insertTable } from "@platejs/table";
 import { toggleCodeBlock } from "@platejs/code-block";
+import { insertToc } from "@platejs/toc";
 import { toggleList, someList, someTodoList } from "@platejs/list";
 import { indent, outdent } from "@platejs/indent";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -13,8 +14,11 @@ import ColorPicker from "@/components/ui/ColorPicker";
 import FontPicker from "@/components/ui/FontPicker";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
-import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote } from "lucide-react";
+import { useRecentColors } from "../useRecentColors";
+import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText } from "lucide-react";
 import { genPollId } from "../PollElements";
+import { DEFAULT_TEMPLATE } from "../playground/model";
+import { starterFiles } from "../playground/starters";
 import { AlignIcon } from "../icons";
 import {
   FONT_GROUPS,
@@ -33,6 +37,7 @@ import {
   resolvedFontSize,
   resolvedLineHeight,
 } from "../hooks";
+import { _imageUploadFn, _uploadErrorFn, _postLinkTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
 
 interface MainToolbarProps {
@@ -100,7 +105,6 @@ function EditorFontPicker({ value, onChange, preferEn }: { value: string; onChan
   );
 }
 
-const MAX_RECENT = 5;
 const ALL_PRESETS = new Set([...BASE_COLORS, ...VIVID_COLORS, ...PASTEL_COLORS]);
 
 export default React.memo(function MainToolbar({
@@ -112,7 +116,9 @@ export default React.memo(function MainToolbar({
   const { t, language } = useLanguage();
   const preferEn = language === "en" || postLang === "en";
   const [colorMode, setColorMode] = useState<"text" | "bg" | null>(null);
-  const recentColorsRef = useRef<string[]>([]);
+  // 최근색 — 공통 useRecentColors hook. 저장은 ColorPicker onChangeComplete(드래그 뗄 때)에서만.
+  const recentTextColor = useRecentColors("text-mark");
+  const recentBgColor = useRecentColors("bg-mark");
 
   // 색상 팔레트 바깥 클릭 시 닫기
   useEffect(() => {
@@ -203,7 +209,7 @@ export default React.memo(function MainToolbar({
   const canRedo = (editor.history?.redos?.length ?? 0) > 0;
 
   return (
-    <div className={styles.toolbar}>
+    <div className={styles.toolbar} data-editor-toolbar>
       {/* Undo / Redo */}
       <TBtn square onClick={() => editor.undo()} disabled={!canUndo} tooltip={`${t("editor.undo")}\n${kb("⌘Z")}`}>
         <Undo2 size={14} />
@@ -385,17 +391,13 @@ export default React.memo(function MainToolbar({
         {/* 프리셋 — colorMode 선택 시에만 표시 */}
         {colorMode && (() => {
           const activeColor = colorMode === "text" ? currentColor : currentBgColor;
+          const recentColors = colorMode === "bg" ? recentBgColor : recentTextColor;
           const apply = (color: string) => {
             if (colorMode === "text") editor.tf.addMarks({ color });
             else editor.tf.addMarks({ backgroundColor: color });
-            if (!ALL_PRESETS.has(color)) {
-              const list = recentColorsRef.current;
-              const idx = list.indexOf(color);
-              if (idx !== -1) list.splice(idx, 1);
-              list.unshift(color);
-              if (list.length > MAX_RECENT) list.pop();
-            }
           };
+          // 최근색 저장 — 프리셋 제외, commit(드래그 뗄 때) 시점에만
+          const saveRecent = (color: string) => { if (!ALL_PRESETS.has(color)) recentColors.addColor(color); };
           const isLight = (c: string) => c === "#ffffff" || c === "#d1d5db" || PASTEL_COLORS.includes(c);
           const dot = (c: string) => (
             <Tooltip key={c} content={c} delay={200} placement="top">
@@ -409,17 +411,17 @@ export default React.memo(function MainToolbar({
               {VIVID_COLORS.map(dot)}
               <div className={styles.divider} />
               {PASTEL_COLORS.map(dot)}
-              {recentColorsRef.current.length > 0 && (
+              {recentColors.colors.length > 0 && (
                 <>
                   <div className={styles.divider} />
-                  {recentColorsRef.current.map(dot)}
+                  {recentColors.colors.map(dot)}
                 </>
               )}
               {/* 컬러피커 */}
               <div className={styles.divider} />
               <div className={styles.colorGroup}>
                 <div className={styles.colorIndicator} style={{ width: 14, height: 14, borderRadius: "50%", background: activeColor || "var(--bg-primary)", border: "1px solid var(--border-light-color)" }} />
-                <ColorPicker value={activeColor || "#000000"} onChange={(c) => apply(c.oklch)} triggerClassName={styles.colorInput} />
+                <ColorPicker value={activeColor || "#000000"} onChange={(c) => apply(c.oklch)} onChangeComplete={(c) => { apply(c.oklch); saveRecent(c.oklch); }} triggerClassName={styles.colorInput} />
               </div>
               {/* 제거 */}
               {activeColor && (
@@ -506,6 +508,20 @@ export default React.memo(function MainToolbar({
         Link
       </TBtn>
       <TBtn onClick={onAddImage} tooltip={t("editor.insertImage")}>Image</TBtn>
+      <TBtn onClick={() => {
+        // 동영상 파일 업로드 → media_embed(video url) 삽입 (SlashMenu 와 동일)
+        const fn = _imageUploadFn.current;
+        if (!fn) return;
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "video/*";
+        input.onchange = async () => {
+          const f = input.files?.[0];
+          if (!f) return;
+          try { const url = await fn(f); if (url) editor.tf.insertNodes({ type: "media_embed", url, children: [{ text: "" }] }); } catch (err) { _uploadErrorFn.current?.(err); }
+        };
+        input.click();
+      }} tooltip={t("editor.insertVideo")}>Video</TBtn>
       <TBtn onClick={onAddFile} tooltip={t("editor.insertFile")}>File</TBtn>
       <TBtn onClick={onAddAudio} tooltip={t("editor.insertAudio")}>Audio</TBtn>
       <TBtn active={blockType === "table"} onClick={() => { editor.tf.withMerging(() => { insertTable(editor, { colCount: 3, rowCount: 3, header: true }); }); }} tooltip={t("editor.insertTable")}>Table</TBtn>
@@ -640,6 +656,68 @@ export default React.memo(function MainToolbar({
         }}
       >
         <Vote size={14} />
+      </TBtn>
+      <TBtn
+        square
+        tooltip={t("editor.insertCalendar")}
+        onClick={() => {
+          const sel = editor.selection;
+          const insertAt = sel ? [sel.anchor.path[0] + 1] : [editor.children.length];
+          editor.tf.insertNodes({ type: "calendar", children: [{ text: "" }] }, { at: insertAt });
+          setTimeout(() => editor.tf.focus(), 0);
+        }}
+      >
+        <CalendarDays size={14} />
+      </TBtn>
+      <TBtn
+        square
+        tooltip={t("editor.insertPostLink")}
+        onClick={() => { _postLinkTrigger.current?.(); }}
+      >
+        <FileText size={14} />
+      </TBtn>
+      <TBtn
+        square
+        tooltip={t("editor.insertDiagram")}
+        onClick={() => {
+          const sel = editor.selection;
+          const insertAt = sel ? [sel.anchor.path[0] + 1] : [editor.children.length];
+          editor.tf.insertNodes({ type: "diagram", data: { nodes: [], edges: [] }, children: [{ text: "" }] }, { at: insertAt });
+          setTimeout(() => editor.tf.focus(), 0);
+        }}
+      >
+        <Shapes size={14} />
+      </TBtn>
+      <TBtn
+        square
+        tooltip={t("editor.mermaid")}
+        onClick={() => {
+          editor.tf.insertNodes({
+            type: "code_block", lang: "mermaid",
+            children: [
+              { type: "code_line", children: [{ text: "graph TD" }] },
+              { type: "code_line", children: [{ text: "  A[Start] --> B[End]" }] },
+            ],
+          });
+          setTimeout(() => editor.tf.focus(), 0);
+        }}
+      >
+        <Workflow size={14} />
+      </TBtn>
+      <TBtn
+        square
+        tooltip={t("editor.insertPlayground")}
+        onClick={() => {
+          const sel = editor.selection;
+          const insertAt = sel ? [sel.anchor.path[0] + 1] : [editor.children.length];
+          editor.tf.insertNodes({ type: "playground", data: { template: DEFAULT_TEMPLATE, files: starterFiles(DEFAULT_TEMPLATE) }, children: [{ text: "" }] }, { at: insertAt });
+          setTimeout(() => editor.tf.focus(), 0);
+        }}
+      >
+        <SquareCode size={14} />
+      </TBtn>
+      <TBtn square tooltip={t("editor.toc")} onClick={() => { insertToc(editor); setTimeout(() => editor.tf.focus(), 0); }}>
+        <ListTree size={14} />
       </TBtn>
       <TBtn
         active={showEmbedInput}

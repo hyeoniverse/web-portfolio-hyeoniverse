@@ -17,6 +17,7 @@ export const ColumnKit = [
             layout: element.getAttribute("data-layout") || undefined,
             columnBg: element.getAttribute("data-column-bg") || undefined,
             columnDivider: element.getAttribute("data-column-divider") || undefined,
+            columnScroll: element.getAttribute("data-column-scroll") === "false" ? false : undefined,
           }),
         },
       },
@@ -32,6 +33,7 @@ export const ColumnKit = [
           parse: ({ element }: { element: HTMLElement }) => ({
             type: "column",
             width: element.getAttribute("data-width") || undefined,
+            widthPx: element.getAttribute("data-width-px") ? Number(element.getAttribute("data-width-px")) : undefined,
           }),
         },
       },
