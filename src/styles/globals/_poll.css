@@ -1,31 +1,60 @@
-/* ── Poll block — 에디터 + reader 공용. 외곽선 컨테이너 ── */
+/* ── Poll block — 에디터 + reader 공용. 미니멀 라인형: fill 없이 얇은 외곽선 + 넉넉한 여백 ── */
 .poll-block,
 [data-poll] {
   margin: var(--spacing-lg) 0;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: transparent;
   border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-xl);
 }
 
-/* ── 에디터 toolbar 버튼 (FloatingBar 안) ── */
-.poll-mode-btn {
+/* ── 에디터 상단 바 — 블록 정체성(eyebrow) + 편집|결과 토글. 하단 구분선으로 본문과 분리 ── */
+.poll-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-2xs);
+  border-bottom: 1px solid var(--border-light-color);
+}
+/* 블록 정체성 라벨 — 작지 않게(제목급). 아이콘 + "투표" */
+.poll-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.01em;
+  color: var(--text-secondary);
+}
+.poll-eyebrow svg {
+  color: var(--text-tertiary);
+}
+
+/* ── 에디터 toolbar 버튼 (FloatingBar 안) — 토글들은 공통 TBtn, 단일/다중은 공통 SegmentedControl 사용 ── */
+/* 버튼 행 — 접힘=한 줄, 펼침 시에도 상단 행 */
+.poll-tb-main {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-capsule);
-  background: transparent;
+}
+/* 펼침 패널 — 기간 설정 등 하위 메뉴(popover) 내용을 바 안에 인라인으로 노출 */
+.poll-tb-panel {
+  margin-top: var(--spacing-2xs);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-light-color);
+  min-width: 18rem;
+}
+.poll-tb-panel-label {
+  margin-bottom: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--text-tertiary);
-  cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
-}
-.poll-mode-active {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
-  color: var(--text-inverse);
 }
 /* toolbar 구분선 */
 .poll-tb-div {
@@ -37,24 +66,65 @@
 
 /* 기간 설정(popover 안) */
 .poll-period-menu {
-  padding: var(--spacing-sm);
-  min-width: 16rem;
+  padding: var(--spacing-md);
+  min-width: 18rem;
+  min-height: 7rem;
+  background: var(--bg-primary);
 }
 .poll-period {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-}
-.poll-period-row {
-  display: flex;
-  align-items: center;
   gap: var(--spacing-sm);
 }
-.poll-period-label {
-  flex-shrink: 0;
-  width: 3rem;
+/* 시작/종료 행 — 라벨 + [날짜 trigger][시간 trigger] */
+.poll-period-field {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+.poll-period-field-label {
+  min-width: 2.5rem;
   font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+/* 날짜·시간 trigger — 선택 전 (테두리 있는 버튼) */
+.poll-period-trigger {
+  padding: var(--box-xs);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.poll-period-trigger:hover {
+  border-color: var(--text-primary);
+}
+/* 값 있을 때 — 테두리 없는 텍스트 (더블클릭 편집) */
+.poll-period-trigger-text {
+  border-color: transparent;
+  cursor: text;
+}
+.poll-period-trigger-text:hover {
+  background: var(--bg-tertiary-alt);
+}
+/* 편집 중 (공유 picker 열림) */
+.poll-period-trigger-on {
+  border-color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+/* 공유 picker — 트리거 아래에 펼쳐짐 (하나만) */
+.poll-period-picker {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--spacing-sm);
+  margin-top: var(--spacing-2xs);
+  border-top: 1px solid var(--border-light-color);
 }
 
 /* ── 옵션 행 (드래그 핸들로 순서 변경) ── */
@@ -63,7 +133,14 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-2xs) 0;
+  padding: var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  transition: background 0.15s ease;
+}
+/* 편집 중/hover 인 행만 살짝 강조 — 리스트가 정적으로 붕 뜨지 않게 은은하게 */
+.poll-option-row:hover,
+.poll-option-row:focus-within {
+  background: var(--bg-tertiary);
 }
 /* 드래그 핸들 — 왼쪽 패딩 영역에 absolute (마커 indent 에 영향 X → 마커 좌우 여백 대칭).
    블록 거터(-40~-6px)보다 안쪽이라 안 겹침. draggable=false + mousedown preventDefault 로
@@ -130,7 +207,7 @@ body.poll-grabbing * {
   padding: var(--spacing-2xs) var(--spacing-sm);
   background: var(--bg-primary);
   border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-lg);
   opacity: 0.85;
   pointer-events: none;
@@ -149,7 +226,7 @@ body.poll-grabbing * {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--border-strong-color);
+  border: 1.5px solid var(--border-strong-color);
   border-radius: var(--radius-circle);
   color: var(--text-tertiary);
 }
@@ -175,28 +252,50 @@ body.poll-grabbing * {
   display: inline-flex;
   padding: var(--spacing-3xs);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  opacity: 0;
+  transition: color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+/* 해당 행에 hover/focus 일 때만 삭제 버튼 노출 — 평소엔 깔끔하게 숨김 */
+.poll-option-row:hover .poll-option-remove,
+.poll-option-row:focus-within .poll-option-remove {
+  opacity: 1;
 }
 .poll-option-remove:hover {
   color: var(--text-accent);
-  background: var(--bg-tertiary);
+  background: var(--bg-tertiary-alt);
 }
 /* ── 추가: 하단 빈 input (값 입력 시 항목 추가) ── 옵션 행과 동일 구조(gutter+마커+input) 로 정렬 */
 .poll-add-row {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  margin-top: var(--spacing-2xs);
-  padding: var(--spacing-2xs) 0;
+  margin-top: var(--spacing-3xs);
+  padding: var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
   color: var(--text-muted);
+  transition: background 0.15s ease;
 }
-/* add 행 마커 — 옵션과 동일 모양·위치, placeholder 라 살짝 흐리게 */
+.poll-add-row:hover,
+.poll-add-row:focus-within {
+  background: var(--bg-tertiary);
+}
+/* add 행 마커 — 점선 원 + "+" 아이콘으로 항목 추가 affordance. hover/focus 시 또렷하게 */
 .poll-add-marker {
-  opacity: 0.45;
+  border-style: dashed;
+  border-width: 1.5px;
+  border-color: var(--border-strong-color);
+  color: var(--text-muted);
+  opacity: 0.7;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+.poll-add-row:hover .poll-add-marker,
+.poll-add-row:focus-within .poll-add-marker {
+  opacity: 1;
+  color: var(--text-secondary);
 }
 .poll-add-input {
   flex: 1;
@@ -212,46 +311,64 @@ body.poll-grabbing * {
 .poll-add-input::placeholder {
   color: var(--text-muted);
 }
+/* 최대 항목 도달 시 안내 (add-row 대신) */
+.poll-add-limit {
+  padding: var(--spacing-2xs) 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
 
 /* ── reader: 투표 버튼 + 결과 막대 ── */
 .poll-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-3xs);
 }
+/* 차트 + 선택 리스트가 함께 뜰 때(투표 전 결과 공개) 간격 */
+.poll-result + .poll-list {
+  margin-top: var(--spacing-md);
+}
+/* 항목 = 테두리 없는 라인형 행. 선택 가능(투표). hover 는 capsule 하이라이트(기본) */
 .poll-option-btn {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-lg);
-  background: var(--bg-primary);
+  padding: var(--spacing-sm) var(--spacing-2xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
   color: var(--text-primary);
   font-size: var(--font-size-sm);
+  font-weight: 500;
   text-align: left;
   cursor: pointer;
   overflow: hidden;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: background 0.15s ease;
 }
 .poll-option-btn:hover:not(:disabled) {
-  border-color: var(--border-strong-color);
+  background: var(--bg-tertiary);
 }
 .poll-option-btn:disabled {
   cursor: default;
 }
-.poll-voted {
-  border-color: var(--text-accent);
+/* 내 선택 — 라벨 accent (테두리·박스 없음) */
+.poll-voted .poll-label {
+  color: var(--text-accent);
+  font-weight: 600;
 }
-/* 결과 막대 (투표 후) */
+/* 결과 막대 (레거시 — 현재 결과는 도넛+범례) */
 .poll-bar {
   position: absolute;
   inset: 0 auto 0 0;
-  background: var(--bg-accent-subtle);
+  background: var(--bg-tertiary-alt);
+  border-radius: inherit;
   z-index: 0;
   transition: width 0.4s ease;
+}
+.poll-voted .poll-bar {
+  background: var(--bg-accent-subtle);
 }
 .poll-option-btn > .poll-marker,
 .poll-option-btn > .poll-label,
@@ -263,8 +380,12 @@ body.poll-grabbing * {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  border: 2px solid var(--border-strong-color);
+  border: 1.5px solid var(--border-strong-color);
   border-radius: var(--radius-circle);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.poll-option-btn:hover .poll-marker {
+  border-color: var(--text-secondary);
 }
 .poll-marker-multi {
   border-radius: var(--radius-xs);
@@ -281,10 +402,354 @@ body.poll-grabbing * {
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
   font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+/* footer — 텍스트 + 우측 액션 같은 줄 */
+/* ── 공통 eyebrow 라벨 ── 편집 필드 라벨 · 항목 라벨 · 결과 헤더 라벨을 하나의 크기/스타일로 통일.
+   (예전엔 3xs 로 너무 작았음 → xs 로 키우고 letter-spacing 완화) */
+.poll-opts-label,
+.poll-head-label,
+.poll-edit-head .poll-field > label {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* ── 에디터: 제목/부제목/설명 — 라벨(위) + 입력(아래) 세로 스택. 결과 헤더와 동일한 라벨 체계.
+   (좌측 고정폭 라벨 폼 → 상단 라벨 스택으로 재구성: 답답한 폼 느낌 제거 + 결과와 시각 일관) */
+.poll-edit-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-2xs);
+  margin-bottom: var(--spacing-lg);
+}
+.poll-edit-head .poll-field {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-3xs);
+}
+.poll-edit-head .poll-field > label {
+  margin: 0;
+}
+.poll-edit-head .poll-field > div {
+  min-width: 0;
+}
+/* 제목 입력 — 결과 제목처럼 눈에 띄게(크고 굵게) */
+.poll-title-input {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+/* 설명 textarea — pill 대신 rounded 모서리 + 높이·resize */
+.poll-edit-head .poll-desc-input {
+  min-height: 4rem;
+  border-radius: var(--radius-lg);
+  resize: vertical;
+}
+.poll-title-input::placeholder,
+.poll-subtitle-input::placeholder,
+.poll-desc-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── 항목 섹션 헤더 — eyebrow 라벨 + 개수 배지 ── */
+.poll-opts-head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin: 0 var(--spacing-2xs) var(--spacing-xs);
+}
+.poll-opts-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 var(--spacing-3xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary-alt);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
 }
-.poll-footer {
+/* 옵션 리스트 컨테이너 — 항목들을 하나의 그룹으로 묶어 섹션감 부여 */
+.poll-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+/* ── 결과 헤더: 제목 > 부제목 > (설명 라벨) 설명 > 기간. 크기·색·간격으로 계층 구분 ── */
+.poll-header {
+  margin-bottom: var(--spacing-lg);
+}
+/* 결과 헤더 eyebrow 라벨 여백 — 타이포는 위 공통 규칙에서. 그룹 사이 간격 축소(md→xs) */
+.poll-head-label {
+  margin-top: var(--spacing-xs);
+  margin-bottom: var(--spacing-3xs);
+}
+/* 첫 라벨(제목)은 헤더 최상단이라 위 여백 제거 */
+.poll-header > .poll-head-label:first-child {
+  margin-top: 0;
+}
+.poll-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.poll-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+.poll-desc {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.poll-period {
   margin-top: var(--spacing-sm);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-2xs);
   color: var(--text-muted);
+}
+.poll-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+.poll-footer {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+/* 공통 Button(size sm/xs)과 동일한 control-h 토큰·패딩으로 맞춤 — reader 는 vanilla DOM 이라 React Button 직접 사용 불가 */
+.poll-submit {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.poll-submit:hover:not(:disabled) {
+  opacity: 0.85;
+}
+.poll-submit:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.poll-revote {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-h-xs);
+  padding: 0 var(--spacing-md);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.poll-revote:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-strong-color);
+}
+
+/* ── 결과: 도넛(원형) + 항목별 막대 범례 + 정렬 ── */
+.poll-result {
+  padding: var(--spacing-2xs) 0;
+}
+/* 정렬 컨트롤 — 우측 상단. 에디터는 공통 SegmentedControl, 리더는 아래 vanilla 세그먼트(동일 모양) */
+.poll-result-head {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--spacing-sm);
+}
+/* 리더용 vanilla 세그먼트 — capsule 트랙 + 활성 세그먼트 채움(SegmentedControl 과 시각 동일) */
+.poll-sort-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+}
+.poll-sort-seg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  height: var(--control-h-xs);
+  padding: 0 var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.poll-sort-seg-btn:hover:not(.poll-sort-seg-on) {
+  color: var(--text-primary);
+}
+.poll-sort-seg-on {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+/* 방향 화살표 — 활성 세그먼트에만. desc 면 180° 회전 */
+.poll-sort-dir {
+  display: inline-flex;
+  font-size: var(--font-size-xs);
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+.poll-sort-dir-desc {
+  transform: rotate(180deg);
+}
+.poll-result-empty {
+  padding: var(--spacing-lg) 0;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+}
+.poll-pie-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  animation: pollPieIn 0.32s ease both;
+}
+@keyframes pollPieIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+/* 차트 크기 — 기본은 컨테이너 대비 % 비율, 최소/최대 너비로 clamp (viewBox SVG 라 폰트·두께 함께 스케일).
+   높이는 aspect-ratio 로 정사각 유지. */
+.poll-pie {
+  width: clamp(11rem, 34%, 18rem);
+  aspect-ratio: 1 / 1;
+  height: auto;
+  flex-shrink: 0;
+  overflow: visible; /* hover pop(확대·shadow) 잘림 방지 */
+}
+/* stroke-width/transform 는 전역 transition 룰(0,1,1)에 없어 compound 선택자로 specificity 확보 */
+.poll-pie .poll-pie-seg {
+  cursor: pointer;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: stroke-width 0.18s ease, transform 0.18s ease, filter 0.18s ease;
+}
+/* hover 시 세그먼트 pop — 두께↑ + 바깥으로 살짝 확대(float) + 그림자 */
+.poll-pie .poll-pie-seg-on {
+  stroke-width: 6;
+  transform: scale(1.06);
+  filter: drop-shadow(0 1.5px 2px oklch(0% 0 0 / 0.28));
+}
+.poll-pie-num {
+  fill: var(--text-primary);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+}
+.poll-pie-sub {
+  fill: var(--text-tertiary);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 3.4px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.poll-legend {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+.poll-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.poll-legend-on {
+  background: var(--bg-tertiary);
+}
+.poll-legend-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-circle);
+}
+.poll-legend-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+/* 항목별 비율 막대(원형+막대) — track 고정 폭이라 모든 항목 막대 길이가 비교 가능 */
+.poll-legend-bar {
+  flex: 0 0 5rem;
+  height: 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  overflow: hidden;
+}
+.poll-legend-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.4s ease;
+}
+/* 고정 폭·우측 정렬 — "nn% · n표" 길이가 달라도 막대 위치가 흔들리지 않게. 큰 수는 축약(compactNum) + overflow 안전망 */
+.poll-legend-pct {
+  flex: 0 0 5.5rem;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+/* 내 선택 항목 — 라벨 accent */
+.poll-legend-mine .poll-legend-label {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+@media (max-width: 480px) {
+  .poll-pie-wrap {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+  .poll-pie {
+    align-self: center;
+  }
 }

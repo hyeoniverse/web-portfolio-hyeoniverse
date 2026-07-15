@@ -43,6 +43,30 @@
   letter-spacing: -0.03em;
 }
 
+/* History 페이지(page.tsx) 전용 뒤로가기 바 — PostsClient 밖에서 렌더되므로
+   .page 와 동일한 max-width/좌우 padding 으로 정렬하고, 상단 여백은 .page(padding-top: var(--spacing-6xl))
+   와 맞춘 뒤 음수 margin-bottom 으로 서브네비 사이 간격만 남긴다. */
+.historyBackBar {
+  max-width: var(--page-max-width);
+  margin-inline: auto;
+  padding: var(--spacing-6xl) var(--page-px) 0;
+  margin-bottom: calc(var(--spacing-lg) - var(--spacing-6xl));
+  position: relative;
+  z-index: 1;
+}
+
+/* browse 서브페이지(History) 타이틀 — posts/series·posts/tags 와 동일 스타일(아이콘 + 중간 크기 instrument). */
+.browseTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
+  font-family: var(--font-instrument);
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+}
+
 .subtitle {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
@@ -69,7 +93,7 @@
    같은 행 컨트롤들의 통일 높이는 .page 의 --filter-row-h (28px) 로 cascade. */
 .filterBar {
   max-width: var(--page-max-width);
-  margin: 0 auto;
+  margin: 0 auto var(--spacing-2xl);
   position: sticky;
   top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl));
   z-index: 51;
@@ -80,10 +104,30 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   border-bottom: var(--border-light);
-  margin-bottom: var(--spacing-2xl);
   transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
+  /* difference blend 는 페이지 backdrop 과 blend 되는 이 박스(sticky, z-index → stacking context)
+     레벨에 둬야 작동 (Navigation 과 동일 패턴). 자식(.wrapper)에 두면 filterBar 내부와만 blend → 무효. */
+  mix-blend-mode: difference;
+  /* 내부 컨트롤(검색·정렬·태그버튼·카테고리) 색을 흰색 기반 토큰으로 오버라이드 → 자식 전부 상속돼
+     일관된 difference 바(배경 위에서 깔끔히 반전). 비활성은 반투명 흰색. */
+  color: var(--text-white);
+  --text-primary: var(--text-white);
+  --text-secondary: color-mix(in srgb, var(--text-white) 72%, transparent);
+  --text-tertiary: color-mix(in srgb, var(--text-white) 58%, transparent);
+  --text-accent: var(--text-white);
+  /* border 는 하나로 통일 — 다른 페이지 요소(light) 와 진하기 맞춰 반투명 흰색으로.
+     (color 변수만 바꾸면 nested var 해석이 안 먹는 케이스가 있어 shorthand 를 직접 덮음). */
+  --border-default: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-light: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-strong: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-ghost-light: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-default-color: color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-light-color: color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-strong-color: color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-ghost-light-color: color-mix(in srgb, var(--text-white) 28%, transparent);
+  --bg-tertiary: color-mix(in srgb, var(--text-white) 16%, transparent);
 }
 
 
@@ -118,10 +162,11 @@
   white-space: nowrap;
 }
 
-/* 검색 전용 윗줄 — 우상단 정렬 */
+/* 검색 전용 윗줄 — 우상단 정렬. 검색창↔도움말 간격 (다른 페이지도 이 값 참고) */
 .filterBarSearchRow {
   display: flex;
   justify-content: flex-end;
+  gap: var(--spacing-sm);
 }
 
 /* filter bar 의 SearchCapsule 도 다른 컨트롤과 통일 높이로 */
@@ -232,17 +277,19 @@
   border: var(--border-strong);
 }
 
+/* 열림(active) 상태 — difference blend: bg-primary → 검정, 텍스트 bg-inverse → 밝게 */
 .tagToggleBtnOpen {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
-  color: var(--text-inverse);
+  background: var(--bg-primary);
+  border-color: var(--bg-primary);
+  color: var(--bg-inverse);
 }
 
 .tagToggleBtnOpen svg {
   transform: rotate(180deg);
 }
 
-/* Tag dropdown (absolute overlay — when filter bar is stuck) */
+/* Tag dropdown (absolute overlay — when filter bar is stuck).
+   filterBar 자식이라 difference blend 그룹에 포함됨(어두운 배경에서도 반전으로 가독). */
 .tagDropdown {
   position: absolute;
   top: 100%;
@@ -298,6 +345,7 @@
   --bot-fade: 0px;
 }
 
+/* 미선택 칩 — subtle (transparent). difference blend 에서 backdrop(밝은 페이지)이 비쳐 옅게. */
 .tagBtn {
   display: inline-flex;
   align-items: center;
@@ -317,31 +365,37 @@
   font-weight: var(--font-weight-medium);
 }
 
+/* 선택(active) 칩 — difference blend: bg-primary(=backdrop) 는 차이 0 → 검정으로 보임.
+   텍스트는 어두운 소스(bg-inverse)여야 반전돼 밝게 보여 검정 칩 위에서 가독. */
 .tagBtnActive .tagCount {
-  color: var(--bg-primary);
-  opacity: 0.7;
+  color: var(--bg-inverse);
+  opacity: 0.6;
 }
 
+/* hover — difference blend: bg-primary(=backdrop) 소스 → border·텍스트가 검정으로 보임 */
 .tagRow .tagBtn.tagBtn:hover {
   background: transparent;
-  color: var(--text-primary);
-  border-color: var(--border-strong-color);
+  color: var(--bg-primary);
+  border-color: var(--bg-primary);
 }
 
 .tagBtn.tagBtnActive {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
-  color: var(--text-inverse);
+  background: var(--bg-primary);
+  border-color: var(--bg-primary);
+  color: var(--bg-inverse);
 }
 
 .tagRow .tagBtn.tagBtnActive:hover {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
-  color: var(--text-inverse);
+  background: var(--bg-primary);
+  border-color: var(--bg-primary);
+  color: var(--bg-inverse);
 }
 
 /* 태그 dropdown 상단 헤더 — 철자 필터 chip row + 전체 태그 링크 */
 .tagSearchHeader {
+  /* 철자 active 칩을 검정으로 만들 때 텍스트용으로 쓸 원래 잉크색(테마별) 캡처 —
+     .tagLetterRow 에서 --bg-inverse 를 덮기 전에 상위에 보관. */
+  --_ink: var(--bg-inverse);
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -354,6 +408,17 @@
 .tagLetterRow {
   flex: 1;
   min-width: 0;
+  /* 기본 letter(text-tertiary 사용) 진하게 — 변수만 덮어 disabled(text-muted)는 유지. */
+  --text-tertiary: var(--text-primary);
+  /* active(.btnActive) 칩 → 검정: 배경 bg-inverse→bg-primary(차이 0=검정),
+     텍스트 text-inverse→캡처한 잉크색(어두운 소스→밝게 반전). */
+  --bg-inverse: var(--bg-primary);
+  --text-inverse: var(--_ink);
+}
+
+/* 철자 index "전체" 버튼(첫 번째, 텍스트 2자) — 단일 letter 보다 좌우 패딩 더 */
+.tagLetterRow button:first-child {
+  padding-inline: var(--spacing-sm);
 }
 
 /* "전체 태그" 페이지 이동 링크 — tagSearchHeader 안 오른쪽. border 없이 옅게, hover 시 강조 */
@@ -566,84 +631,16 @@
   margin-left: auto;
 }
 
-/* collapsible 검색 — 같은 element 가 closed(circle 32px) ↔ open(capsule 280px) 으로 morph.
-   comments NotifyCapsule 패턴과 동일 (단일 DOM 노드의 width / border-radius transition) */
-.seriesSearchMorph {
-  position: relative;
+/* 시리즈 검색 — 공통 SearchCapsule collapsible(morph). 헤더 우측 정렬만. */
+.seriesSearchCapsule {
   margin-left: auto;
-  display: flex;
-  align-items: center;
-  /* 통일 높이 — filter-row-h. closed 상태는 원 (width = height = filter-row-h). */
-  width: var(--filter-row-h);
-  height: var(--filter-row-h);
-  border: var(--border-default);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-secondary);
-  overflow: hidden;
-  cursor: pointer;
 }
 
-/* compound (0,2,0) — 글로벌 theme transition override */
-.sectionHeader .seriesSearchMorph {
-  transition: width 0.25s ease, border-radius 0.25s ease, border-color 0.25s ease, color 0.25s ease;
-}
-
-.sectionHeader .seriesSearchMorph:hover {
-  color: var(--text-primary);
-  border-color: var(--border-strong-color);
-}
-
-.seriesSearchMorphOpen {
-  width: 280px;
-  border-radius: var(--radius-capsule);
-  color: var(--text-primary);
-  cursor: text;
-}
-
-.sectionHeader .seriesSearchMorphOpen:focus-within {
-  border-color: var(--border-strong-color);
-}
-
-/* icon — closed 시 center, open 시 좌측 padding 내. flex-shrink 0 으로 줄어들지 않음 */
-.seriesSearchMorphIcon {
-  flex-shrink: 0;
-  margin-left: var(--spacing-md);
-  color: inherit;
-}
-
-/* closed 상태 — icon 을 absolute 로 컨테이너 정중앙. flex layout 영향 완전 배제. */
-.seriesSearchMorph:not(.seriesSearchMorphOpen) .seriesSearchMorphIcon {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-}
-
-.seriesSearchMorphInput {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  padding: 0 var(--spacing-md) 0 var(--spacing-xs);
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  outline: none;
-}
-
-.seriesSearchMorph:not(.seriesSearchMorphOpen) .seriesSearchMorphInput {
-  /* closed 시 input 안 보이게 — icon 은 absolute 라 input 이 flex 자리 차지해도 무관 */
-  opacity: 0;
-  pointer-events: none;
-}
-
-.seriesSearchMorph .seriesSearchMorphInput {
-  transition: opacity 0.2s ease 0.05s;
-}
-
-.seriesSearchMorphInput::placeholder {
-  color: var(--text-tertiary);
+/* 검색 capsule border 를 도움말/셔플 등 주변 컨트롤(--border-light)과 통일 (기본 --border-default 는 더 진함).
+   focus-within 시엔 강조 border 를 유지하려고 resting 상태에만 적용. */
+.seriesSearchCapsule:not(:focus-within),
+.postsSearchCapsule:not(:focus-within) {
+  border-color: var(--border-light-color) !important;
 }
 
 /* 책 표지를 가로로 나열 — 좌우 끝에 mask gradient 로 스크롤 가능 표시.
@@ -669,6 +666,14 @@
   border: none;
   background: transparent;
   cursor: pointer;
+  transition: opacity var(--duration-base) ease;
+}
+/* 왼쪽 끝이면 prev, 오른쪽 끝이면 next, 스크롤 불가면 둘 다 숨김 (공통 캐러셀과 동일 동작) */
+.seriesRowWrap.atStart .seriesScrollBtnLeft,
+.seriesRowWrap.atEnd .seriesScrollBtnRight,
+.seriesRowWrap.noScroll .seriesScrollBtn {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .seriesScrollBtnLeft {
@@ -896,6 +901,12 @@
   white-space: nowrap;
 }
 
+/* 시리즈 관리 버튼(outline) — 기본 border-strong 대신 주변 정렬 컨트롤과 같은 light 로.
+   hover 시엔 outline 기본 채움 동작 유지 위해 :not(:hover) 로 resting 만 오버라이드. */
+.seriesManageBtn:not(:hover) {
+  border-color: var(--border-light-color) !important;
+}
+
 /* postsLabelMain — LayoutGrid + 글목록text + shuffleBtn + Select 묶음. mobile 에서 width 100% 차지 → sortWrap 만 다음 줄로 자연 wrap */
 .sectionHeaderMain {
   display: flex;
@@ -930,14 +941,16 @@
 
 /* shuffle 이 sortWrap 안으로 들어가 sectionHeaderMain 과 visual 분리 — 별도 margin 불필요 */
 
-/* 시리즈 검색창 — sectionHeader 의 가장 오른쪽 */
-.seriesSearchMorphRight {
+/* posts sectionHeader 페이지 select 그룹(아이콘 + select) — 가장 오른쪽 (shuffle/sort 와 분리). */
+.pageSizeGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
   margin-left: auto;
 }
-
-/* posts sectionHeader 페이지 select — 가장 오른쪽 (shuffle/sort 와 분리). */
-.pageSizeSelectRight {
-  margin-left: auto;
+.pageSizeIcon {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
 }
 
 .postsCount {
@@ -1101,9 +1114,8 @@
   flex-direction: column !important;
   gap: var(--spacing-xl) !important;
   grid-template-columns: none !important;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  /* main column 을 꽉 채움 — 800px 로 가운데 정렬하면 좌우 여백이 과함 */
+  width: 100%;
 }
 
 /* 각 step — 좌측 큰 번호 + 우측 카드 콘텐츠. 다음 step 까지 세로 연결선 */
@@ -1182,6 +1194,496 @@
   grid-row: auto !important;
 }
 
+/* ══ 목록 카드 레이아웃 (설정 posts.layout) — magazine 은 위 .grid 기본, 아래는 대체 배치 ══ */
+
+/* grid — 균일 격자 + "이미지 우선"(발췌·태그 숨겨 커버 중심). 같은 행 카드는 높이 stretch. row-span 미사용. */
+.gridUniform {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-auto-rows: auto;
+  grid-auto-flow: row;
+  align-items: stretch;
+}
+.gridUniform .gridItem,
+.gridUniform .gridItem > div,
+.gridUniform .gridItem > div > * {
+  height: 100%;
+}
+.gridUniform [class*="excerpt"],
+.gridUniform [class*="placeholderExcerpt"],
+.gridUniform [class*="tagsRow"] {
+  display: none !important;
+}
+
+/* list — 수평 카드 1열(이미지 좌측). 시리즈 timeline 과 동일 패턴, 스텝 번호만 없음. */
+.gridList {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--spacing-lg) !important;
+  grid-template-columns: none !important;
+  grid-auto-rows: auto !important;
+  /* main column 을 꽉 채움 — 별도 max-width 로 가운데 정렬하면 좌우 여백이 과함 */
+}
+.gridList .gridItem > div > * {
+  display: grid !important;
+  grid-template-columns: 220px 1fr !important;
+  gap: var(--spacing-lg);
+  align-items: start;
+  border-bottom: var(--border-light);
+  padding-bottom: var(--spacing-lg);
+}
+.gridList .gridItem:last-child > div > * {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.gridList [class*="imageWrap"] {
+  aspect-ratio: 16 / 10 !important;
+  width: 220px !important;
+}
+.gridList [class*="body"] {
+  padding-top: 0 !important;
+}
+/* list — 썸네일 안의 placeholder 텍스트(제목·발췌) 숨김. 제목은 아래 body 로 이동(작은 썸네일에
+   제목·칩 겹침 방지, 제목 길이도 자유). 썸네일은 gradient + 칩만. body 의 제목/발췌 표시. */
+.gridList [class*="placeholderText"] {
+  display: none !important;
+}
+.gridList [class*="body"] [class*="excerpt"] {
+  display: -webkit-box !important;
+}
+@media (max-width: 640px) {
+  .gridList .gridItem > div > * {
+    grid-template-columns: 120px 1fr !important;
+    gap: var(--spacing-md);
+  }
+  .gridList [class*="imageWrap"] {
+    width: 120px !important;
+  }
+  /* 좁은 썸네일 — lang 칩을 우하단으로 내려 좌상단 hot/pinned 와 다른 모서리에(겹침 방지, 리스트 형태 유지) */
+  .gridList [class*="langOverlay"] {
+    top: auto !important;
+    bottom: var(--spacing-2xs) !important;
+    right: var(--spacing-2xs) !important;
+  }
+  .gridList [class*="imageBadgesLeft"] {
+    top: var(--spacing-2xs) !important;
+    left: var(--spacing-2xs) !important;
+  }
+}
+
+/* compact — 이미지 없는 텍스트 행 1열(초고밀도). 카드 스타일은 PostCard.module.css(.compactCard). */
+.gridCompact {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  grid-template-columns: none !important;
+  grid-auto-rows: auto !important;
+  /* main column 을 꽉 채움 (좌우 여백 최소화) */
+}
+.skeletonCompactRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: var(--border-light);
+}
+
+/* ══ masonry — CSS multi-column. 가변 높이 카드가 열에 촘촘히 packing (row-span JS 미사용). ══ */
+.gridMasonry {
+  display: block !important;
+  grid-template-columns: none !important;
+  grid-auto-rows: auto !important;
+  columns: 260px;
+  column-gap: var(--bento-gap);
+}
+.gridMasonry .gridItem {
+  break-inside: avoid;
+  margin-bottom: var(--bento-gap);
+}
+/* 이미지 비율을 소스 순서로 변주 → 카드 높이가 달라져 masonry 느낌 (표준 카드는 fill 이라 aspect 로 제어) */
+.gridMasonry .gridItem:nth-child(3n) [class*="imageWrap"] { aspect-ratio: 3 / 4 !important; }
+.gridMasonry .gridItem:nth-child(3n + 1) [class*="imageWrap"] { aspect-ratio: 4 / 3 !important; }
+.gridMasonry .gridItem:nth-child(3n + 2) [class*="imageWrap"] { aspect-ratio: 1 / 1 !important; }
+
+/* ══ timeline — [날짜 | 축(점·선) | 본문] 블로그 히스토리. 월(연-월) 마커로 그룹. ══ */
+.gridTimeline {
+  /* 중앙 축 + 카드가 좌/우 반폭 교차 (지그재그 타임라인) */
+  --tl-gap: var(--spacing-xl);
+  display: block !important;
+  grid-template-columns: none !important;
+  grid-auto-rows: auto !important;
+  position: relative;
+}
+/* 중앙 축선 (faint track) */
+.gridTimeline::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: var(--spacing-sm);
+  bottom: var(--spacing-sm);
+  width: 2px;
+  transform: translateX(-1px);
+  background: color-mix(in srgb, var(--text-primary) 13%, transparent);
+  border-radius: var(--radius-capsule);
+}
+/* 스크롤 진행 fill — accent 선이 스크롤 따라 위→아래로 차오름 (scroll-driven, 미지원 시 생략) */
+@supports (animation-timeline: scroll()) {
+  .gridTimeline::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: var(--spacing-sm);
+    bottom: var(--spacing-sm);
+    width: 2px;
+    transform-origin: top;
+    transform: translateX(-1px) scaleY(0);
+    background: linear-gradient(to bottom, var(--color-accent), color-mix(in srgb, var(--color-accent) 55%, transparent));
+    border-radius: var(--radius-capsule);
+    animation: tlAxisProgress linear both;
+    animation-timeline: scroll(root block);
+  }
+  @keyframes tlAxisProgress {
+    from { transform: translateX(-1px) scaleY(0); }
+    to { transform: translateX(-1px) scaleY(1); }
+  }
+}
+/* 월 마커 — 중앙 축 위 pill (라벨이 축선을 끊음) */
+.timelineMarker {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin: var(--spacing-2xl) 0;
+  z-index: 2;
+}
+.timelineMarker:first-child { margin-top: var(--spacing-xs); }
+.timelineMarkerLabel {
+  background: var(--bg-primary);
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 카드 — 좌/우 반폭 교차. (margin 은 side 클래스가 좌우 배치하므로 여기서 설정하지 않음 —
+   .gridTimeline .gridItem 의 margin 이 side 클래스보다 특이도가 높아 우측 카드 밀림을 덮어버리는 것 방지) */
+.gridTimeline .gridItem {
+  position: relative;
+  width: 50%;
+  box-sizing: border-box;
+  border-bottom: var(--border-light); /* 항목 사이 구분선 */
+  animation: none; /* base .gridItem cardFadeIn 제거 — 리빌은 framer useScroll(TimelineMotionItem) 담당 */
+}
+/* 마지막 항목 아래엔 구분선 없음 */
+.gridTimeline .gridItem:last-child {
+  border-bottom: none;
+}
+.gridItemTlLeft {
+  --tl-align: right;
+  --tl-justify: flex-end;
+  /* 프리뷰는 오른쪽(빈) 반쪽에 */
+  --tl-preview-left: 100%;
+  --tl-preview-right: auto;
+  --tl-preview-align: left;
+  --tl-preview-dir: row;
+  --tl-preview-x: -14px;
+  /* 리빌은 왼쪽에서 슬라이드-인 */
+  --tl-reveal-x: -28px;
+  margin-left: 0;
+  padding-right: var(--tl-gap);
+}
+.gridItemTlRight {
+  --tl-align: left;
+  --tl-justify: flex-start;
+  /* 프리뷰는 왼쪽(빈) 반쪽에 */
+  --tl-preview-left: auto;
+  --tl-preview-right: 100%;
+  --tl-preview-align: right;
+  --tl-preview-dir: row-reverse;
+  --tl-preview-x: 14px;
+  /* 리빌은 오른쪽에서 슬라이드-인 */
+  --tl-reveal-x: 28px;
+  margin-left: 50%;
+  padding-left: var(--tl-gap);
+}
+/* hover 시 카드를 위로 올려 프리뷰가 이웃 카드에 안 가리게 */
+.gridTimeline .gridItem:hover {
+  z-index: 4;
+}
+
+/* 엔트리 dot — 중앙 축(카드 안쪽 가장자리), 첫 줄(eyebrow) 높이 */
+.gridTimeline .gridItem::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--spacing-lg) + 6px);
+  width: 11px;
+  height: 11px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text-primary) 42%, transparent);
+  z-index: 3;
+  transition:
+    background var(--duration-fast) var(--ease-material),
+    box-shadow var(--duration-fast) var(--ease-material);
+}
+.gridItemTlLeft::before { right: -5.5px; }
+.gridItemTlRight::before { left: -5.5px; }
+/* connector — dot 에서 카드 쪽으로 짧은 가로선 */
+.gridTimeline .gridItem::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--spacing-lg) + 11px);
+  width: calc(var(--tl-gap) - 16px);
+  height: 1px;
+  background: color-mix(in srgb, var(--text-primary) 16%, transparent);
+}
+.gridItemTlLeft::after { right: 6px; }
+.gridItemTlRight::after { left: 6px; }
+/* hover — dot accent */
+.gridTimeline .gridItem:hover::before {
+  background: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent), 0 0 0 6px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+/* 모바일 — 단일 컬럼(축 왼쪽)으로 collapse */
+@media (max-width: 640px) {
+  .gridTimeline::before,
+  .gridTimeline::after { left: 6px; }
+  .gridTimeline .gridItem { width: 100%; }
+  .gridItemTlLeft,
+  .gridItemTlRight {
+    --tl-align: left;
+    --tl-justify: flex-start;
+    --tl-reveal-x: 0; /* 단일 컬럼 — 리빌은 아래로만(좌우 번갈아 X) */
+    margin-left: 0;
+    padding-left: 26px;
+    padding-right: 0;
+  }
+  .gridItemTlLeft::before,
+  .gridItemTlRight::before { left: 0.5px; right: auto; }
+  /* 특이도를 데스크톱 .gridTimeline .gridItem::after (0,2,1) 보다 높여야 width 가 먹음 */
+  .gridTimeline .gridItemTlLeft::after,
+  .gridTimeline .gridItemTlRight::after { left: 12px; right: auto; width: 12px; }
+  .timelineMarker { justify-content: flex-start; }
+}
+
+/* 타임라인 무한 스크롤 감지용 sentinel (관찰 대상만, 시각 요소 아님) */
+.timelineSentinel {
+  width: 100%;
+  height: 1px;
+}
+
+/* grid wrapper — 기본은 layout 무영향(contents), timeline 일 때만 [연월 인덱스 | 타임라인] 2단 */
+.gridWrap {
+  display: contents;
+}
+.gridWrapTimeline {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xl);
+}
+.gridWrapTimeline .grid {
+  flex: 1;
+  min-width: 0;
+}
+/* 왼쪽 연월 인덱스 — sticky, 클릭 시 해당 월 마커로 스크롤 점프 */
+.timelineIndex {
+  position: sticky;
+  top: 104px;
+  align-self: flex-start;
+  flex-shrink: 0;
+  width: 104px;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-2xs) 0;
+  border-right: var(--border-light);
+  scrollbar-width: none;
+}
+.timelineIndex::-webkit-scrollbar {
+  display: none;
+}
+
+.timelineIndexGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
+}
+
+/* 연도 헤더 — 월 그룹 상단 */
+.timelineIndexYear {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  padding: 0 0 var(--spacing-3xs) var(--spacing-2xs);
+  transition: color var(--duration-fast) var(--ease-material);
+}
+.timelineIndexYearActive {
+  color: var(--text-primary);
+}
+
+/* 월 목록 — 왼쪽 세로 축(axis) 위에 dot 배치 */
+.timelineIndexMonths {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.timelineIndexMonths::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 7px;
+  bottom: 7px;
+  width: 1px;
+  background: var(--border-default-color);
+  transform-origin: top;
+  animation: tlAxisDraw 0.6s var(--ease-material) 0.1s both;
+}
+@keyframes tlAxisDraw {
+  from { transform: scaleY(0); opacity: 0; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+.timelineIndexItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  text-align: left;
+  padding: var(--spacing-4xs) var(--spacing-2xs) var(--spacing-4xs) 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* tick — 축 위 dot 자리. 기본은 작은 muted dot, active 는 accent dot(layoutId)이 위로 슬라이드 */
+.timelineIndexTick {
+  position: relative;
+  width: 18px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.timelineIndexTick::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-circle);
+  background: var(--border-strong-color);
+  transform: translate(-50%, -50%);
+  transition: background var(--duration-fast) var(--ease-material), transform var(--duration-fast) var(--ease-material);
+}
+.timelineIndexDot {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  background: var(--color-accent);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-accent) 20%, transparent);
+}
+
+.timelineIndexMm {
+  transition: color var(--duration-fast) var(--ease-material);
+}
+/* 년/월 한자 접미 — 작고 은은하게 */
+.timelineIndexHanja {
+  margin-left: 1px;
+  font-size: 0.82em;
+  font-weight: var(--font-weight-regular);
+  opacity: 0.55;
+}
+
+.timelineIndexItem:hover {
+  color: var(--text-primary);
+}
+.timelineIndexItem:hover .timelineIndexTick::before {
+  background: var(--text-primary);
+  transform: translate(-50%, -50%) scale(1.3);
+}
+
+.timelineIndexItemActive {
+  color: var(--text-accent);
+  font-weight: var(--font-weight-bold);
+}
+.timelineIndexItemActive .timelineIndexTick::before {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timelineIndexMonths::before { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .timelineIndex {
+    display: none;
+  }
+}
+
+/* /posts/history (history 모드) — 시리즈·사이드바 숨기고 본문 단일 컬럼 (타임라인만) */
+.historyMode .seriesSection {
+  display: none;
+}
+.historyMode .sidebarWrap {
+  display: none;
+}
+.historyMode .contentArea {
+  grid-template-columns: 1fr;
+}
+
+/* ══ featured — 첫 카드 대형 hero(전폭 2-col) + 나머지 균일 그리드. ══ */
+.gridFeatured {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+  grid-auto-rows: auto !important;
+}
+.gridFeaturedHero {
+  grid-column: 1 / -1;
+}
+.gridFeaturedHero > div > * {
+  display: grid !important;
+  grid-template-columns: 1.4fr 1fr !important;
+  gap: clamp(var(--spacing-lg), 4vw, var(--spacing-2xl));
+  align-items: center;
+}
+.gridFeaturedHero [class*="imageWrap"] {
+  aspect-ratio: 16 / 10 !important;
+  width: 100% !important;
+}
+.gridFeaturedHero [class*="body"] {
+  padding-top: 0 !important;
+}
+.gridFeaturedHero [class*="title"] {
+  font-size: clamp(1.4rem, 3vw, 2.2rem) !important;
+  line-height: 1.15 !important;
+}
+.gridFeaturedHero [class*="placeholderTitle"] {
+  font-size: clamp(1.2rem, 2.4vw, 1.8rem) !important;
+  -webkit-line-clamp: 3 !important;
+}
+@media (max-width: 640px) {
+  .gridFeaturedHero > div > * {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* ghost — 마지막 페이지 underfill 패딩용. layout 공간만 차지 (shimmer 등 invisible) */
 .gridItemGhost {
   visibility: hidden;
@@ -1252,9 +1754,6 @@
 
 .pageSizeSelect {
   flex: 0 0 auto;
-  min-width: 50px;
-  max-width: 65px;
-  margin-left: auto;
 }
 
 .pageSizeSelect button {

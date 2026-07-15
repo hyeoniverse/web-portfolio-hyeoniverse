@@ -1,30 +1,31 @@
 "use client";
 
 import { useRef, useState, useEffect, useLayoutEffect, useMemo } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
+import { flattenCategories } from "@/lib/categoryTree";
 import T from "@/components/ui/T";
 import styles from "./CategoryNav.module.css";
 
 interface CategoryNavProps {
   extraCategories?: string[];
-  activeCategory: string | null;
-  onCategoryChange: (cat: string | null) => void;
+  /** 선택된 카테고리 값 목록 (다중선택, OR). 부모(대분류) 값 또는 소분류 leaf 값. */
+  activeCategories: string[];
+  onCategoriesChange: (next: string[]) => void;
   expanded: boolean;
   onExpandChange: (expanded: boolean) => void;
 }
 
 export default function CategoryNav({
   extraCategories = [],
-  activeCategory,
-  onCategoryChange,
+  activeCategories,
+  onCategoriesChange,
   expanded,
   onExpandChange,
 }: CategoryNavProps) {
   const categories = useCategories();
   const navRef = useRef<HTMLDivElement>(null);
   const [overflowCount, setOverflowCount] = useState(0);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [rowHeight, setRowHeight] = useState(46);
   const [fullHeight, setFullHeight] = useState(9999);
   const expandedRef = useRef(expanded);
@@ -58,156 +59,206 @@ export default function CategoryNav({
     return () => { clearTimeout(timer); ro.disconnect(); };
   }, []);
 
-  // extra categories (DB에 있지만 config에 없는 카테고리) 통합
+  // config 트리에 존재하는 모든 값(대분류+소분류 ko/en) — extra 판별용
+  const knownCategoryValues = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of flattenCategories(categories)) {
+      set.add(c.ko);
+      set.add(c.en);
+    }
+    return set;
+  }, [categories]);
+
+  // extra categories (DB 에 있지만 config 트리에 없음) — 최상위로 통합
   const extraBilingual = useMemo<BilingualCategory[]>(
     () =>
       extraCategories
-        .filter((ec) => !categories.some((c) => c.ko === ec || c.en === ec))
+        .filter((ec) => !knownCategoryValues.has(ec))
         .map((ec) => ({ ko: ec, en: ec })),
-    [extraCategories, categories],
+    [extraCategories, knownCategoryValues],
   );
 
-  const allCategories = useMemo(
+  const parentCategories = useMemo(
     () => [...categories, ...extraBilingual],
     [categories, extraBilingual],
   );
 
-  // 활성 카테고리를 "All" 다음 첫 자리로 pin — collapsed (1 row) 일 때 항상 visible 보장.
-  // active 가 +N 안에 가려져있는 경우를 방지. framer-motion layout 으로 reorder 부드럽게 처리.
-  const orderedCategories = useMemo(() => {
-    if (!activeCategory) return allCategories;
-    const idx = allCategories.findIndex(
-      (c) => c.ko === activeCategory || c.en === activeCategory,
-    );
-    if (idx < 0) return allCategories;
-    return [
-      allCategories[idx],
-      ...allCategories.slice(0, idx),
-      ...allCategories.slice(idx + 1),
-    ];
-  }, [allCategories, activeCategory]);
+  const activeSet = useMemo(() => new Set(activeCategories), [activeCategories]);
 
-  // ko 또는 en 값으로 매칭
-  const isActive = (cat: BilingualCategory) =>
-    activeCategory === cat.ko || activeCategory === cat.en;
+  // hover 로 소분류 행 미리보기 — 부모 탭↔소분류 행 왕래 시 안 닫히게 지연 숨김
+  const [hoveredParent, setHoveredParent] = useState<string | null>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelHide = () => { if (hideTimerRef.current) clearTimeout(hideTimerRef.current); };
+  const scheduleHide = () => {
+    cancelHide();
+    hideTimerRef.current = setTimeout(() => setHoveredParent(null), 180);
+  };
+  const hoverParent = (koOrNull: string | null) => { cancelHide(); setHoveredParent(koOrNull); };
+
+  // 자식이 "직접" 선택됨 (부모 선택과 구분 — 토글 로직·부모 활성 판정용)
+  const isChildSelected = (ch: BilingualCategory) =>
+    activeSet.has(ch.ko) || activeSet.has(ch.en);
+  // 부모 자신이 선택됨 (= 그 자식 전부 필터링)
+  const isSelfSelected = (cat: BilingualCategory) =>
+    activeSet.has(cat.ko) || activeSet.has(cat.en);
+  // 부모 탭 활성 — 자신 또는 자식 하나라도 직접 선택
+  const isActiveParent = (cat: BilingualCategory) =>
+    isSelfSelected(cat) || !!cat.children?.some(isChildSelected);
+
+  // 모든 카테고리가 다 커버되면(각 대분류가 자신 or 자식 전부 선택) = 전체선택 = 필터 없음(All) 으로 정규화
+  const coversAll = (sel: string[]): boolean => {
+    if (parentCategories.length === 0) return false;
+    const s = new Set(sel);
+    return parentCategories.every((c) => {
+      if (s.has(c.ko) || s.has(c.en)) return true;
+      if (c.children?.length) return c.children.every((ch) => s.has(ch.ko) || s.has(ch.en));
+      return false;
+    });
+  };
+  const emit = (next: string[]) => onCategoriesChange(coversAll(next) ? [] : next);
+
+  // 부모 토글 — 선택 시 그 자식들 제거(부모가 포괄), 이미 선택이면 해제
+  const toggleParent = (cat: BilingualCategory) => {
+    if (isSelfSelected(cat)) {
+      emit(activeCategories.filter((v) => v !== cat.ko && v !== cat.en));
+      return;
+    }
+    const childVals = new Set<string>();
+    for (const ch of cat.children ?? []) { childVals.add(ch.ko); childVals.add(ch.en); }
+    const next = activeCategories.filter((v) => !childVals.has(v) && v !== cat.en);
+    next.push(cat.ko);
+    emit(next);
+  };
+
+  // 자식 토글
+  const toggleChild = (parent: BilingualCategory, ch: BilingualCategory) => {
+    // 부모 선택(자식 전부 active) 상태 → 클릭한 자식만 빼기 = 나머지 자식들을 개별 선택으로 전개
+    if (isSelfSelected(parent)) {
+      const others = (parent.children ?? [])
+        .filter((c) => c.ko !== ch.ko)
+        .map((c) => c.ko);
+      const base = activeCategories.filter((v) => v !== parent.ko && v !== parent.en);
+      emit([...base, ...others]);
+      return;
+    }
+    // 개별 선택된 자식 → 해제
+    if (isChildSelected(ch)) {
+      emit(activeCategories.filter((v) => v !== ch.ko && v !== ch.en));
+      return;
+    }
+    // 미선택 자식 → 추가
+    emit([...activeCategories, ch.ko]);
+  };
+
+  // 소분류 행 표시 — 활성(자신/자식 선택) 이거나 hover 중인 대분류
+  const parentsWithChildRow = useMemo(
+    () => parentCategories.filter(
+      (c) => c.children?.length && (isActiveParent(c) || hoveredParent === c.ko),
+    ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [parentCategories, activeSet, hoveredParent],
+  );
 
   const [settled, setSettled] = useState(!expanded);
   const prevExpandedRef = useRef(expanded);
 
-  // useLayoutEffect: React가 DOM을 커밋한 직후, 브라우저 paint 전에 실행
   useLayoutEffect(() => {
     const el = navRef.current;
     if (!el) { prevExpandedRef.current = expanded; return; }
-
     if (prevExpandedRef.current && !expanded) {
-      // 닫기: transition 끄고 현재 높이 고정 → transition 켜고 rowHeight로
       setSettled(false);
       const currentH = el.getBoundingClientRect().height;
       el.style.transition = "none";
       el.style.maxHeight = `${currentH}px`;
-      el.getBoundingClientRect(); // force reflow
+      el.getBoundingClientRect();
       el.style.transition = "";
       el.style.maxHeight = `${rowHeight}px`;
     }
     if (!prevExpandedRef.current && expanded) {
-      // 열기: transition 끄고 현재 높이 고정 → transition 켜고 fullHeight로
       setSettled(false);
       const currentH = el.getBoundingClientRect().height;
       el.style.transition = "none";
       el.style.maxHeight = `${currentH}px`;
-      el.getBoundingClientRect(); // force reflow
+      el.getBoundingClientRect();
       el.style.transition = "";
       el.style.maxHeight = `${fullHeight}px`;
     }
     prevExpandedRef.current = expanded;
   }, [expanded, rowHeight, fullHeight]);
 
-  // 초기 렌더 + rowHeight 가 ResizeObserver 측정으로 갱신될 때마다 maxHeight 동기화.
-  // (default rowHeight 46 → 측정 후 28 로 바뀌어도 maxHeight 가 안 따라가면 두 번째 row 잔여가 노출됨)
-  // expanded 중엔 useLayoutEffect 의 transition 로직이 처리하므로 collapsed 일 때만 동기화.
   useEffect(() => {
     const el = navRef.current;
-    if (el && !expanded) {
-      el.style.maxHeight = `${rowHeight}px`;
-    }
+    if (el && !expanded) el.style.maxHeight = `${rowHeight}px`;
   }, [rowHeight, expanded]);
 
-  // orderedCategories 변경 (active pin 으로 reorder) 시 overflow count 재계산.
-  // ResizeObserver 는 nav 크기 변화에만 fire — 순서 바뀜만으론 트리거 안 되어 +N 값이 stale 됨.
-  useLayoutEffect(() => {
-    const el = navRef.current;
-    if (!el || expanded) return;
-    const buttons = el.querySelectorAll<HTMLButtonElement>("button");
-    if (buttons.length === 0) return;
-    const firstTop = buttons[0].offsetTop;
-    let hidden = 0;
-    buttons.forEach((btn) => {
-      if (btn.offsetTop > firstTop) hidden++;
-    });
-    setOverflowCount(hidden);
-    setFullHeight(el.scrollHeight);
-  }, [orderedCategories, expanded]);
-
-  const handleTransitionEnd = () => {
-    setSettled(true);
-  };
+  const handleTransitionEnd = () => setSettled(true);
 
   const navCls = `${styles.nav} ${expanded && settled ? styles.navExpanded : ""}`;
 
-  // indicator target: hover takes priority, fallback to active
-  const activeId = activeCategory ?? "__all__";
-  const indicatorId = hoveredId ?? activeId;
-
-  const indicatorEl = (
-    <motion.span
-      className={styles.indicator}
-      layoutId="catIndicator"
-      layout="position"
-      transition={{ type: "spring", stiffness: 500, damping: 32 }}
-    />
-  );
-
   return (
     <div className={styles.wrapper}>
-      <div
-        className={navCls}
-        ref={navRef}
-        onTransitionEnd={handleTransitionEnd}
-        onMouseLeave={() => setHoveredId(null)}
-      >
-        <button
-          className={`${styles.btn} ${!activeCategory ? styles.btnActive : ""}`}
-          onClick={() => onCategoryChange(null)}
-          onMouseEnter={() => setHoveredId("__all__")}
-          data-clickable="true"
-        >
-          All
-          {indicatorId === "__all__" && indicatorEl}
-        </button>
-        {orderedCategories.map((cat) => (
-          <motion.button
-            key={cat.ko}
-            layout="position"
-            transition={{ type: "spring", stiffness: 400, damping: 32 }}
-            className={`${styles.btn} ${isActive(cat) ? styles.btnActive : ""}`}
-            onClick={() => onCategoryChange(isActive(cat) ? null : cat.ko)}
-            onMouseEnter={() => setHoveredId(cat.ko)}
+      <div className={styles.navRow}>
+        <div className={navCls} ref={navRef} onTransitionEnd={handleTransitionEnd}>
+          <button
+            className={`${styles.btn} ${activeCategories.length === 0 ? styles.btnActive : ""}`}
+            onClick={() => onCategoriesChange([])}
             data-clickable="true"
           >
-            <T ko={cat.ko} en={cat.en} delay={0} alwaysTooltip />
-            {indicatorId === cat.ko && indicatorEl}
-          </motion.button>
-        ))}
+            All
+          </button>
+          {parentCategories.map((cat) => (
+            <button
+              key={cat.ko}
+              className={`${styles.btn} ${isActiveParent(cat) ? styles.btnActive : ""}`}
+              onClick={() => toggleParent(cat)}
+              onMouseEnter={() => { if (cat.children?.length) hoverParent(cat.ko); }}
+              onMouseLeave={scheduleHide}
+              data-clickable="true"
+            >
+              <T ko={cat.ko} en={cat.en} delay={0} alwaysTooltip />
+            </button>
+          ))}
+        </div>
+        {(overflowCount > 0 || expanded) && (
+          <button
+            className={`${styles.moreBtn} ${expanded ? styles.moreBtnOpen : ""}`}
+            onClick={() => onExpandChange(!expanded)}
+            data-clickable="true"
+          >
+            {expanded ? "Close" : `+${overflowCount}`}
+          </button>
+        )}
       </div>
-      {(overflowCount > 0 || expanded) && (
-        <button
-          className={`${styles.moreBtn} ${expanded ? styles.moreBtnOpen : ""}`}
-          onClick={() => onExpandChange(!expanded)}
-          data-clickable="true"
-        >
-          {expanded ? "Close" : `+${overflowCount}`}
-        </button>
-      )}
+
+      {/* 소분류 행 — 활성 대분류마다 (다중선택이라 여러 줄 가능) */}
+      <AnimatePresence initial={false}>
+        {parentsWithChildRow.map((parent) => (
+          <motion.div
+            key={parent.ko}
+            className={styles.childRow}
+            onMouseEnter={() => hoverParent(parent.ko)}
+            onMouseLeave={scheduleHide}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className={styles.childRowInner}>
+              {(parent.children ?? []).map((ch) => (
+                <button
+                  key={ch.ko}
+                  /* 시각적 active — 자식 직접 선택 OR 부모 선택(자식 전부 필터링 상태) */
+                  className={`${styles.childBtn} ${(isChildSelected(ch) || isSelfSelected(parent)) ? styles.childBtnActive : ""}`}
+                  onClick={() => toggleChild(parent, ch)}
+                  data-clickable="true"
+                >
+                  <T ko={ch.ko} en={ch.en} delay={0} alwaysTooltip />
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

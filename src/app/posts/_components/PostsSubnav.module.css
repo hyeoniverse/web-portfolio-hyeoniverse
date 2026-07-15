@@ -1,0 +1,30 @@
+/* /posts 계열 브라우즈 서브네비 — 페이지 상단(헤더 위) 가로 링크 row */
+.subnav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  max-width: var(--page-max-width);
+  margin: 0 auto var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.item {
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.item:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.active {
+  color: var(--text-inverse);
+  background: var(--text-primary);
+}

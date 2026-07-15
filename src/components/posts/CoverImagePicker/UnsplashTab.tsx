@@ -5,6 +5,7 @@ import { BadgeCheck, Download } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import LoadingDots from "@/components/ui/LoadingDots";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import { downloadFile } from "./downloadFile";
 import type { PostContext } from "./index";
@@ -239,14 +240,15 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
                   {/* 다운로드 — hover 시 우상단 */}
                   <div className={styles.unsplashActions}>
                     <Tooltip content={tc("download")} placement="top">
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        shape="circle"
+                        size="xs"
                         className={styles.historyOverlayBtn}
+                        icon={<Download size={11} strokeWidth={2} />}
                         onClick={(e) => { e.stopPropagation(); downloadFile(photo.urls.regular, photo.user.name); }}
                         aria-label={tc("download")}
-                      >
-                        <Download size={11} strokeWidth={2} />
-                      </button>
+                      />
                     </Tooltip>
                   </div>
                   <span className={styles.unsplashCredit}>{photo.user.name}</span>
@@ -269,13 +271,14 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
       )}
 
       {photos.length > 0 && page < totalPages && !loading && (
-        <button
-          type="button"
-          className={styles.loadMore}
+        <Button
+          variant="ghost"
+          size="sm"
+          fullWidth
           onClick={() => search(query, page + 1, true)}
         >
           {tc("loadMore")}
-        </button>
+        </Button>
       )}
     </div>
   );

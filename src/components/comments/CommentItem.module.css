@@ -93,11 +93,65 @@
 }
 
 /* ── Comment ── */
+/* 댓글 카드 = 박스 없음 — 배경/보더/radius 전부 없이 상하 패딩만 균일하게.
+   giscus `.gsc-comment > div { background: transparent; border: 0; border-radius: 0 }`
+   + `.gsc-timeline > .gsc-comment { padding: 22px 0 }` 미러.
+
+   레이아웃 = 아바타 거터 2열 그리드:
+     [거터: 아바타 + 스레드 줄] [본문 컬럼: 헤더/본문/하단/답글]
+   답글은 본문 컬럼 안의 CommentItem 이라 같은 그리드를 재귀적으로 다시 만든다
+   → 중첩 들여쓰기가 거터 폭+간격 만큼 자동으로 쌓인다. 별도 padding-left 불필요.
+
+   ※ 거터 오프셋(--_gutter-w + --_gutter-gap)은 CommentSection `.listHeaderSlot` 의
+     padding-left 와 반드시 같아야 한다 (전체선택 체크박스 ↔ 각 댓글 체크박스 세로 정렬). */
 .comment {
+  --_gutter-w: var(--size-xs);
+  --_gutter-gap: var(--spacing-sm);
+  display: grid;
+  grid-template-columns: var(--_gutter-w) 1fr;
+  column-gap: var(--_gutter-gap);
+  padding: var(--spacing-lg) 0;
+}
+
+/* 선택 모드 — 체크박스를 아바타 거터보다 "앞" 열에 둔다.
+   auto 라 체크박스 실제 폭만큼만 차지하고, 선택 모드가 아니면 이 열 자체가 없다. */
+.comment.commentWithSelect {
+  grid-template-columns: auto var(--_gutter-w) 1fr;
+}
+
+/* 체크박스 셀 — 행 전체 높이로 늘어나지 않게 위쪽 고정 + 헤더(=아바타) 높이에 맞춰 수직 중앙 */
+.selectCell {
+  display: flex;
+  align-items: center;
+  align-self: start;
+  min-height: var(--_gutter-w);
+}
+
+/* 거터 — 아바타가 위에 앉고 그 아래로 스레드 줄이 흐른다.
+   그리드 행 높이만큼 stretch 되므로 줄이 본문 컬럼(답글 포함) 바닥까지 따라 내려간다. */
+.gutter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+/* 스레드 줄 — 거터 한가운데. width 0 + 좌측 보더로 두께를 내서
+   `--border-light-2` 가 바뀌어도 폭을 하드코딩하지 않는다.
+   flex: 1 로 아바타 아래 남은 높이를 전부 채운다. */
+.threadLine {
+  flex: 1 1 auto;
+  width: 0;
+  border-left: var(--border-light-2);
+}
+
+/* 본문 컬럼 — 헤더/본문/하단/모달/답글이 세로로 쌓인다.
+   `.commentBottom`(반응 좌 / 액션 우)도 이 컬럼 폭에 맞춰 정렬된다. */
+.body {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--spacing-lg) 0;
+  min-width: 0;
 }
 
 .commentSelectable {
@@ -106,24 +160,67 @@
   touch-action: none;
 }
 
+/* tombstone 첫 행 — 문구(좌) + 완전 삭제(우).
+   이 행이 본문 컬럼의 첫 행이라, 거터의 아바타 자리와 세로 중심이 맞도록
+   일반 댓글의 .commentHeader 와 같은 min-height 를 갖는다. */
+.deletedRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  min-height: var(--_gutter-w);
+}
+
 .deletedPlaceholder {
   margin: 0;
+  min-width: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
   font-style: italic;
 }
 
+/* 헤더 = [선택 체크박스] [메타(닉네임·배지·날짜·수정됨)].
+   아바타는 거터로 빠졌다. min-height 를 거터 폭(=아바타 박스 한 변)과 맞춰야
+   아바타와 헤더 텍스트의 세로 중심이 정확히 일치한다. */
 .commentHeader {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
+  min-height: var(--_gutter-w);
 }
 
+/* 닉네임(sm)·Admin 배지(2xs)·날짜(xs)·수정됨(xs) 은 폰트 크기가 제각각 —
+   baseline 정렬이라야 글자들이 같은 선에 앉는다.
+   (체크박스는 baseline 이 없으니 헤더 레벨의 center 정렬로 남겨두고,
+    텍스트 묶음만 이 래퍼에서 baseline 을 잡는다) */
+.headerMeta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* 아바타 — 거터 폭에 딱 맞는 정사각 박스. 헤더 min-height 와 같은 값이라
+   첫 헤더 행과 세로 중심이 맞는다. tombstone 에선 내용 없이 자리만 잡는 스페이서로도 쓴다. */
 .avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--_gutter-w);
+  height: var(--_gutter-w);
   font-size: var(--font-size-lg);
   line-height: 1;
+}
+
+/* tombstone 아바타 자리 — 휴지통 아이콘으로 "삭제됨" 표시.
+   아바타 박스(거터 폭)는 그대로 둔다: 없애면 답글 거터/스레드 줄이 일반 댓글과 어긋나고,
+   빈 칸으로 두면 아바타가 로딩 실패한 것처럼 보인다. */
+.avatarDeleted {
+  color: var(--text-tertiary);
 }
 
 .nickname {
@@ -156,15 +253,10 @@
   font-style: italic;
 }
 
-.content {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  line-height: var(--line-height-relaxed);
-  white-space: pre-wrap;
-}
-
+/* 번역 결과 — 본문과 떨어뜨려 별개 블록임을 드러냄.
+   height 0↔auto 애니메이션 중이라 margin 은 밖(여기)에 둬야 접힐 때 같이 사라진다. */
 .translatedContent {
+  margin-top: var(--spacing-lg);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
@@ -172,99 +264,208 @@
   white-space: pre-wrap;
   font-style: italic;
   padding-left: var(--spacing-sm);
-  border-left: 2px solid var(--border-light-color);
+  border-left: var(--border-light-2);
   overflow: hidden;
+}
+
+/* "번역 결과" 라벨 — 본문과 동일 md */
+.translatedLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  margin-bottom: var(--spacing-2xs);
+  font-size: var(--font-size-md);
+  font-style: normal;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+
+/* ── Reactions (giscus 식) ── */
+/* 추가 버튼 ↔ 칩 그룹 사이 간격 */
+.reactionBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+/* 칩끼리 간격 — bar gap 과 분리 */
+.reactionChips {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+/* 반응 칩 — capsule + light 보더. 높이는 추가 버튼과 통일(28px).
+   보더가 생겼으니 좌우 패딩이 있어야 내용이 테두리에 안 붙는다. */
+.reactionChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-shrink: 0;
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-2xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
+/* hover — 보더가 칩으로 옮겨왔으므로 strong 도 칩에 */
+.comment .reactionChip:hover {
+  border-color: var(--border-strong-color);
+  color: var(--text-primary);
+}
+
+/* 반응 선택 — accent 는 링크 + textarea 포커스 전용이라 중립으로만 강조 */
+.reactionChip.reactionChipActive {
+  color: var(--text-primary);
+}
+
+/* 이모지 파트 — 보더/배경 없음 (보더는 칩이 가짐) */
+.reactionEmoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  font-size: var(--font-size-sm);
+  line-height: 1;
+}
+
+/* 숫자 파트 — 이모지와 동일하게 높이 기준 1:1 로 최소너비 보장.
+   flex item 의 min-width:auto 덕에 자릿수가 늘면(10, 100) 내용만큼 자연히 넓어진다.
+   tabular-nums 와 함께 → 카운트가 바뀌어도 칩 너비가 안 튄다. */
+.reactionCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 이모지 추가 버튼 — 정사각 + circle. padding 방식으론 원이 안 나와 크기를 명시 */
+.reactionAddBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  line-height: 1;
+}
+
+.comment .reactionAddBtn:hover {
+  border-color: var(--border-strong-color);
+  color: var(--text-primary);
+}
+
+.reactionPopover {
+  padding: var(--spacing-2xs);
+}
+
+.reactionPicker {
+  display: flex;
+  gap: var(--spacing-4xs);
+}
+
+.reactionPickerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-sm);
+  height: var(--size-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-size: var(--font-size-md);
+  line-height: 1;
+}
+
+.reactionPickerBtn:hover {
+  background: var(--bg-tertiary);
+}
+
+/* picker 선택 — 중립 채움 (reactionChipActive 와 동일 규칙).
+   compound (0,2,0) — `.reactionPickerBtn:hover` (0,1,1) override. */
+.reactionPickerBtn.reactionPickerBtnActive {
+  background: var(--bg-tertiary-alt);
+}
+
+/* 댓글 하단 — 반응 바(왼쪽) + 액션 버튼(오른쪽) 을 한 줄로 묶음 */
+.commentBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
 }
 
 .commentActions {
   display: flex;
-  gap: var(--spacing-sm);
   align-items: center;
 }
 
-.actionBtn {
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  padding: 0;
-}
+/* 액션 버튼(답글/수정/삭제/신고/번역)은 공통 Button variant="ghost" size="sm" 사용 —
+   대응 클래스(.actionBtn/.translateBtn/.deleteBtn 등)는 전부 제거했다. */
 
-.comment .actionBtn:hover {
-  color: var(--text-primary);
-}
-
-.headerSpacer {
-  flex: 1;
-}
-
-/* Translate button — header right */
-.translateBtn {
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-}
-
-.comment .translateBtn:hover {
-  color: var(--text-primary);
-}
-
-.translateBtnActive {
-  color: var(--text-secondary);
-}
-
-/* Like button — header right */
-.likeBtn {
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  margin-left: auto;
-}
-
-.comment .likeBtn:hover {
-  color: var(--text-accent);
-}
-
-.likeBtnLiked {
-  color: var(--text-accent);
-}
-
-.likeCount {
-  font-variant-numeric: tabular-nums;
-}
-
-.deleteBtn {
-  composes: actionBtn;
-}
-
-.comment .deleteBtn:hover {
-  color: var(--text-accent);
-}
-
-/* Nested replies */
+/* Nested replies — 들여쓰기/연결선을 여기서 만들지 않는다.
+   연결선은 부모 거터의 `.threadLine` 이 이미 이 블록 옆을 따라 내려오고,
+   들여쓰기는 각 답글 CommentItem 이 자기 거터를 새로 만들면서 자동으로 생긴다.
+   gap 0 — 세로 간격은 각 답글 `.comment` 의 상하 패딩이 담당해 루트 댓글과 같은 리듬으로 이어짐. */
 .replies {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  margin-left: var(--spacing-xl);
-  padding-left: var(--spacing-md);
-  border-left: var(--border-light);
+  gap: 0;
   margin-top: var(--spacing-sm);
 }
 
+/* 엘보 커넥터 ├─ — 부모 거터의 세로 레일에서 가로로 뻗어 각 답글의 아바타에 연결.
+   "이 답글이 어느 댓글에 달렸는지"를 시각적으로 확정한다.
+
+   좌표는 전부 거터 토큰에서 파생 (하드코딩 없음):
+   - .replies 는 부모 body 컬럼 안이라, 부모 레일은 여기 기준 왼쪽으로
+     (거터갭 + 거터폭/2) 만큼 떨어져 있다 → left 가 그 값의 음수.
+   - 가로 길이는 거기서 답글 거터의 왼쪽 끝(x=0)까지 → 같은 값.
+   - 세로 위치는 답글 아바타의 중심 = 답글 상단 패딩(--spacing-lg) + 거터폭/2.
+   답글도 자기 --_gutter-* 를 갖고 있어 값이 동일하게 해석된다. */
+.replies > * {
+  position: relative;
+}
+
+.replies > *::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * (var(--_gutter-gap) + var(--_gutter-w) / 2));
+  width: calc(var(--_gutter-gap) + var(--_gutter-w) / 2);
+  top: calc(var(--spacing-lg) + var(--_gutter-w) / 2);
+  border-top: var(--border-light-2);
+  pointer-events: none;
+}
+
+/* 답글 작성 영역 — 여백/애니메이션만.
+   들여쓰기도 박스도 여기서 만들지 않는다: CommentForm 이 자기 안에서 [아바타 거터][박스] 2열을
+   만들면서, `.replies` 의 답글 CommentItem 들과 같은 x 에 박스를 떨군다 (= 등록되면 답글이 생길 자리).
+   답글 폼의 박스는 보더 없이 열린 형태 — `.replies` 와 마찬가지로 부모 거터의 스레드 줄이 옆을 지난다.
+   overflow: hidden 은 framer-motion height 애니메이션용 — 유지. */
 .replyForm {
   margin-top: var(--spacing-sm);
   overflow: hidden;
@@ -279,56 +480,35 @@
   overflow: hidden;
 }
 
+/* 확인 버튼은 오른쪽 — 댓글의 다른 액션(.commentActions)과 같은 자리.
+   파괴적 액션이라고 일부러 불편한 곳에 두지 않는다: 운동적 마찰은 실수를 막지 못하고
+   배치만 예측 불가능하게 만들어 오히려 오작동을 부른다.
+   안전장치는 정보 쪽에 있다 — 2단계 확인 + 경고문(복구 불가/답글 N개) + danger 색.
+   비밀번호 입력이 있으면 그건 왼쪽에 남는다(.passwordField 의 margin-right: auto). */
 .deleteRow {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--spacing-xs);
 }
 
-.deleteInput {
-  padding: var(--box-2xs-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  outline: none;
+/* 비밀번호 입력(공통 Input) 래퍼 — 폭만 고정. 시각 스타일은 Input size="sm" 이 담당.
+   삭제 모달 / 수정 액션 줄 공용. */
+.passwordField {
   width: 140px;
+  flex-shrink: 0;
 }
 
-.deleteConfirm {
-  padding: var(--box-2xs-md);
-  border: var(--border-accent-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-accent);
-}
-
-.deleteCancel {
-  padding: var(--box-2xs-md);
-  border: none;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
+/* 수정 폼 / 삭제 확인 행 — 비밀번호를 왼쪽에 남기고 뒤따르는 버튼들을 오른쪽 끝으로 밀어냄 */
+.editActions .passwordField,
+.deleteRow .passwordField {
+  margin-right: auto;
 }
 
 .deleteError {
+  text-align: right;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  color: var(--text-accent);
-}
-
-/* Report — delete 와 동일한 capsule 패턴, 색만 muted 톤으로 */
-.reportBtn {
-  composes: actionBtn;
-}
-
-.comment .reportBtn:hover {
   color: var(--text-accent);
 }
 
@@ -340,46 +520,22 @@
   overflow: hidden;
 }
 
+/* 확인 버튼 오른쪽 정렬 — .deleteRow 와 동일 규칙. 사유 입력은 flex:1 이라 왼쪽을 채운다 */
 .reportRow {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--spacing-xs);
 }
 
-.reportInput {
+/* 신고 사유 입력(공통 Input) 래퍼 — 남는 폭 채우기만 담당 */
+.reportField {
   flex: 1 1 auto;
   min-width: 0;
-  padding: var(--box-2xs-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  outline: none;
-}
-
-.reportConfirm {
-  padding: var(--box-2xs-md);
-  border: var(--border-accent-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-accent);
-}
-
-.reportCancel {
-  padding: var(--box-2xs-md);
-  border: none;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
 }
 
 .reportThanks {
+  text-align: right;
   margin: 0;
   padding: var(--box-2xs-md) 0;
   font-family: var(--font-space-grotesk);
@@ -395,47 +551,21 @@
   overflow: hidden;
 }
 
-.editTextarea {
-  border: var(--border-light);
-}
-
+/* 저장/취소 버튼은 오른쪽 끝으로. 비밀번호 입력이 있으면 그건 왼쪽에 남는다
+   (.passwordField 의 margin-right: auto 가 밀어냄). admin 이면 입력이 없어
+   justify-content: flex-end 가 버튼을 오른쪽에 붙인다 — 두 경우 다 커버. */
 .editActions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--spacing-xs);
 }
 
-.editSubmitBtn {
-  padding: var(--box-2xs-md);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: var(--text-primary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  color: var(--bg-primary);
-}
-
-.editArea .editSubmitBtn:hover:not(:disabled) {
-  background: transparent;
-  color: var(--text-primary);
-}
-
-.editSubmitBtn:disabled {
-  opacity: 0.5;
-}
-
-.editCancelBtn {
-  padding: var(--box-2xs-md);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-}
+/* 수정 저장/취소는 공통 Button (primary / outline, size="sm") 이 담당 —
+   .editSubmitBtn / .editCancelBtn / .editTextarea(공통 Textarea 기본 보더와 중복) 제거. */
 
 .editError {
+  text-align: right;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-accent);

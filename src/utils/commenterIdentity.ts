@@ -31,6 +31,12 @@ const IDENTITIES = [
   { emoji: "🦥", name: "Mellow Sloth" },
 ] as const;
 
+/* commenter_hash 가 없거나 해석 불가한 댓글의 아바타 — admin 댓글이 여기 해당한다
+   (admin insert 는 commenter_hash 를 안 남긴다). CommentItem 의 렌더와 CommentForm 의
+   거터가 이 값을 공유해야 한다: 폼 거터는 "등록하면 이렇게 보인다" 의 미리보기라
+   실제로 그려질 아바타와 달라지면 안 된다. */
+export const FALLBACK_AVATAR_EMOJI = "👤";
+
 const STORAGE_KEY = "oval_commenter_id";
 
 /** 브라우저에 저장된 commenterId를 가져오거나 새로 생성 */
@@ -85,7 +91,7 @@ export function identityFromHash(commenterHash: string): {
   name: string;
 } {
   const hashNum = parseInt(commenterHash, 36);
-  if (isNaN(hashNum)) return { emoji: "👤", name: "Anonymous" };
+  if (isNaN(hashNum)) return { emoji: FALLBACK_AVATAR_EMOJI, name: "Anonymous" };
   const identity = IDENTITIES[hashNum % IDENTITIES.length];
   return { emoji: identity.emoji, name: identity.name };
 }

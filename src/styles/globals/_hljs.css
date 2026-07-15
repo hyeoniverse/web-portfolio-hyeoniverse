@@ -173,6 +173,58 @@
   color: oklch(61.22% 0.1023 199.06);
 }
 
+/* 날짜 멘션 pill (리더) — 에디터는 DateMention.module.css 의 .pill 사용 */
+.date-mention {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: 1px var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  line-height: 1.4;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+.date-mention svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+/* 게시물 링크 pill (리더) — 에디터는 PostLink.module.css 의 .pill 사용 */
+.post-link {
+  display: inline;
+  padding: 1px 2px;
+  border-radius: var(--radius-xs);
+  color: var(--text-accent);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent-alpha-50);
+  text-underline-offset: 2px;
+  transition: background-color 0.15s ease, text-decoration-color 0.15s ease;
+}
+.post-link:hover {
+  background: var(--bg-accent);
+  text-decoration-color: var(--color-accent);
+}
+/* 게시물 개별 아이콘 (이모지/이미지) — 다른 링크와 구분 */
+.post-link-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-right: 0.2em;
+  font-size: 0.95em;
+  line-height: 1;
+}
+.post-link-icon img,
+.post-link-icon video {
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: var(--radius-circle);
+  object-fit: cover;
+  vertical-align: middle;
+}
+
 /* Code block wrapper */
 .code-block-wrap {
   position: relative;
@@ -194,6 +246,12 @@
   resize: vertical;
 }
 
+/* 컨트롤을 밖(상단 바)으로 뺀 경우 — pre 상단 여백 축소 + 위아래 마진은 바/pre 로 분담 */
+.code-block-wrap.has-code-bar pre {
+  padding-top: var(--spacing-lg);
+  margin-top: 0;
+}
+
 .code-block-wrap pre code {
   flex: 1 1 auto;
   min-height: 0;
@@ -207,18 +265,23 @@
   line-height: 1.6;
 }
 
-/* 코드블록 컨트롤 바 — wrapper 기준 absolute (스크롤 영향 없음). 복사 + 줄바꿈 버튼 가로 배치 */
+/* 코드블록 상단 바 — pre 밖(위)에 별도 행. 언어 라벨(좌) + 컨트롤(우) 양끝 정렬 (mermaid 리더뷰와 동일) */
+.code-block-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-xl) 0 var(--spacing-2xs);
+}
+
+/* 코드블록 컨트롤 — 바 안에서 우측 배치. 복사 + 줄바꿈 버튼 가로 배치 */
 .code-block-controls {
-  position: absolute;
-  top: 6px;
-  right: 6px;
   display: flex;
   align-items: center;
   gap: 6px;
-  z-index: 2;
 }
 
-/* 현재 언어 라벨 (비상호작용 태그) */
+/* 현재 언어 라벨 (비상호작용 태그) — 바 좌측 */
 .code-block-wrap .code-lang-label {
   display: inline-flex;
   align-items: center;
@@ -226,7 +289,6 @@
   border-radius: var(--radius-capsule);
   background: var(--bg-inverse);
   color: var(--text-inverse);
-  opacity: 0.65;
   font-family: var(--font-mono);
   font-size: 10px;
   line-height: 1;
@@ -240,6 +302,7 @@
 .code-block-wrap .code-copy-btn {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   padding: 4px 12px;
   border: none;
   border-radius: var(--radius-capsule);
@@ -259,6 +322,10 @@
 
 .code-block-wrap .code-copy-btn.copied {
   opacity: 0.6;
+}
+
+.code-block-wrap .code-copy-btn .code-copy-icon {
+  flex-shrink: 0;
 }
 
 /* 줄바꿈 토글 — controls 안에서 flex 배치, 내부 라벨 슬라이드 위해 relative 유지 */
@@ -377,6 +444,25 @@ span.math-element-wrap .math-katex-content {
   opacity: 1;
 }
 
+/* 수식 인라인/블록 토글 base — 코드 토글(.code-block-wrap 스코프) 밖이라 자체 스타일 필요 */
+.math-mode-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  font-family: var(--font-space-grotesk);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+
 /* ── Toggle button: hover slide + press scale ── */
 .math-mode-toggle,
 .code-wrap-toggle,
@@ -443,91 +529,141 @@ span.math-element-wrap .math-katex-content {
 .toggle-title-wrap h2 { font-size: var(--font-size-lg); font-family: var(--font-instrument); font-weight: var(--font-weight-regular); }
 .toggle-title-wrap h3 { font-size: var(--font-size-md); font-family: var(--font-instrument); font-weight: var(--font-weight-regular); }
 
-/* ── reader mermaid 다이어그램 — 기본 그래프만, "..." 메뉴로 코드 보기/복사 ── */
-.reader-mermaid {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* ── reader 비주얼 다이어그램 (data-diagram → SVG, 위치 보존 읽기전용) ── */
+.reader-diagram {
   margin: var(--spacing-xl) 0;
+  display: flex;
+  justify-content: center;
+  color: var(--text-tertiary); /* 화살표 currentColor */
 }
-.reader-mermaid-graph {
-  max-width: 100%;
-  overflow-x: auto;
-}
-.reader-mermaid-graph svg {
+.reader-diagram-svg {
   max-width: 100%;
   height: auto;
+  max-height: 32rem;
 }
-.reader-mermaid-menu {
-  position: absolute;
-  top: var(--spacing-xs);
-  right: var(--spacing-xs);
-  z-index: 2;
+.reader-diagram-node {
+  fill: var(--bg-secondary);
+  stroke: var(--border-strong-color);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
 }
-.reader-mermaid-menu-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
+/* 서브루틴 내부 세로선 — 채우기 없음 */
+.reader-diagram-node-line {
+  fill: none;
+  stroke: var(--border-strong-color);
+  stroke-width: 1.5;
+}
+.reader-diagram-label {
+  fill: var(--text-primary);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 13px;
+}
+.reader-diagram-edge {
+  stroke: var(--border-strong-color);
+  stroke-width: 1.5;
+}
+.reader-diagram-edge-label {
+  fill: var(--text-tertiary);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 11px;
+}
+
+/* Sandpack 미리보기 iframe — 전역 .editorContent iframe(margin·radius) 규칙 무효화 */
+.sp-preview-iframe {
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* ── reader 코드 플레이그라운드 — 미리보기(iframe) + 코드 탭 ── */
+.reader-playground {
+  margin: var(--spacing-xl) 0;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
   background: var(--bg-primary);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
-.reader-mermaid:hover .reader-mermaid-menu-btn,
-.reader-mermaid:focus-within .reader-mermaid-menu-btn {
-  opacity: 1;
+/* .prose 타이포그래피(code 캡슐 배경·ul disc bullet·li marker 등)가 read-only Sandpack
+   island(<pre class="sp-cm"> + 토큰 code, 파일 트리 등)로 새어드는 것 차단 */
+.reader-playground :is(pre, code) {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  border-radius: 0 !important;
+  color: inherit !important;
+  font-size: inherit !important;
 }
-.reader-mermaid-menu-btn span {
-  display: block;
-  width: 3px;
-  height: 3px;
-  border-radius: var(--radius-circle);
-  background: currentColor;
+.reader-playground :is(ul, ol, li) {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
 }
-.reader-mermaid-menu-btn:hover {
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
+.reader-playground li::marker {
+  content: "" !important;
 }
-.reader-mermaid-menu-list {
-  position: absolute;
-  top: calc(100% + var(--spacing-3xs));
-  right: 0;
+.reader-playground-bar {
   display: flex;
-  flex-direction: column;
-  min-width: 9rem;
-  padding: var(--spacing-3xs);
-  border: var(--border-light);
-  border-radius: var(--radius-lg);
-  background: var(--bg-primary);
-  box-shadow: var(--shadow-lg);
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-2xs);
+  border-bottom: 1px solid var(--border-light-color);
+  background: var(--bg-secondary);
 }
-.reader-mermaid-menu-item {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+.reader-playground-tab {
+  padding: var(--spacing-3xs) var(--spacing-md);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  text-align: left;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: color 0.12s ease, background 0.12s ease;
 }
-.reader-mermaid-menu-item:hover {
-  background: var(--bg-tertiary);
+.reader-playground-tab:hover {
   color: var(--text-primary);
 }
-.reader-mermaid-code {
-  width: 100%;
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--bg-tertiary);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  overflow-x: auto;
-  font-size: var(--font-size-sm);
+.reader-playground-tab-on {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
 }
+.reader-playground-frame {
+  display: block;
+  width: 100%;
+  height: 26rem;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: #fff;
+}
+.reader-playground-code {
+  margin: 0;
+  height: 26rem;
+  overflow: auto;
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  white-space: pre;
+}
+.reader-playground-console {
+  max-height: 8rem;
+  overflow: auto;
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border-top: 1px solid var(--border-light-color);
+  background: var(--bg-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.reader-playground-log {
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 1px 0;
+}
+.reader-playground-log-error { color: var(--text-accent); }
+.reader-playground-log-warn { color: var(--text-warning); }
+

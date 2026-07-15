@@ -73,8 +73,8 @@
 |:---|:---|
 | **인터랙션** | 무한 스크롤 루프, 마우스 패럴랙스, StaggerText, Three.js 3D 커피잔 + 라떼아트, 방향별 Scroll Cascade |
 | **Works** | 6종 레이아웃 (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) |
-| **Blog** | SSR + ISR, 시리즈, 배너 슬라이더, 게스트 댓글 (비번 단일 인증) |
-| **Admin** | Plate.js 에디터, `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리 |
+| **Blog** | SSR + ISR, 시리즈, 배너 슬라이더, 6종 목록 레이아웃, 게스트 댓글 (마크다운 + 이모지 반응) 또는 giscus 전환 |
+| **Admin** | Plate.js 에디터 (캘린더 · 다이어그램 · 코드 플레이그라운드 블록), `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리, 낙관적 동시성 제어 |
 | **성능** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic 카운터 + AbortController + bulk Promise.all |
 | **보안** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin 체크 (production fail-closed), middleware admin 다층 가드, 5회 실패 잠금 + 새 기기 이메일 승인 + 전기기 로그아웃 |
 | **디자인 시스템** | 4-tier 토큰 (Raw → Semantic → Component → Context) + 라이브 프리뷰, **전체 색 토큰 OKLCH 전환** (culori 정확 변환, hue 무관 균일한 지각 밝기) |
@@ -94,6 +94,8 @@
 | Typography | Instrument Serif, Space Grotesk, JetBrains Mono (관리자 설정에서 카테고리별 30+ 프리셋 + Google Fonts 직접 입력 지원) |
 | Backend | ![Supabase](https://img.shields.io/badge/Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white) (PostgreSQL, Auth, Storage) |
 | Editor | ![Plate.js](https://img.shields.io/badge/Plate.js-1a1a2e?style=flat-square) (Slate 기반 WYSIWYG) + Markdown |
+| Editor Blocks | ![React Flow](https://img.shields.io/badge/@xyflow/react-ff0072?style=flat-square) (다이어그램) ![Sandpack](https://img.shields.io/badge/Sandpack-000?style=flat-square) (React/TS 플레이그라운드) ![KaTeX](https://img.shields.io/badge/KaTeX-329894?style=flat-square) (수식) + Prettier (코드 포맷, 지연 로딩) |
+| Comments | 자체 시스템 (marked + isomorphic-dompurify) 또는 ![giscus](https://img.shields.io/badge/giscus-000?style=flat-square) (GitHub Discussions) — Admin 에서 전환 |
 | AI Image | NanoBanana / Hugging Face (우선순위 기반 fallback chain) |
 
 ## 주요 기능
@@ -137,6 +139,10 @@
 ### Blog System
 
 - **Posts (Blog)**: Supabase 기반 블로그 시스템 — SSR + ISR 캐싱, Markdown/Rich Text 전환 에디터, 검색/태그 필터, 조회수 추적, GitHub 링크
+- **Posts 서브네비 (`PostsSubnav`)**: All / Series / Tags / History 캡슐 서브네비로 `/posts` 하위 인덱스를 통합 진입
+- **목록 레이아웃 6종**: `siteConfig.posts.layout` (Admin 설정) 으로 전환 — magazine(기본, bento masonry) · grid · list · compact · masonry · featured. 글마다가 아니라 **사이트 전역 설정**이며, 사이즈 변주(wide/banner/square/portrait) + JS row-span packing 은 magazine 에만 적용. `/posts/history` 는 timeline 전용
+- **카테고리 2단계 트리**: 플랫 목록 → 2단계 트리로 전환 (개발 > 프론트엔드/백엔드/DevOps, 학습 > 알고리즘/CS, 인사이트/회고/일상/기타). 저장은 leaf 만 하고 부모는 `src/lib/categoryTree.ts` 로 도출 — DB 마이그레이션 0. **카테고리 다중 선택**(OR, `?category=a,b`) + `facets` 사이드바 지원
+- **다중 작성자**: `posts.author_ids text[]` + Admin `AuthorsEditor` — `site.config.ts` 의 `authors[]` 를 참조
 - **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행 — `/series` 별도 페이지 폐지 후 `/posts` 안으로 통합, 카테고리 필터 후 타임라인(스텝 번호 + 세로 connector) 형태로 노출, 상세 페이지 이전/다음 네비게이션
 - **Series Deck Cards**: 가로 스크롤 row — 카드를 hover 하면 0.8s 후 deck 형태로 펼쳐지며 소속 글 4개의 미리보기 layer가 0.4s 간격 stagger로 순차 등장 (transform 기반 stack offset, JS state 기반 timer 로 CSS transition-delay snap 회피), 펼침 상태에서 우측으로 next 카드를 밀어내고 `::after` pseudo 로 hit-area 확장해 flicker 없이 hover 유지. **deck 가 가로 스크롤 컨테이너 우측 밖으로 넘치면 rAF 루프로 매 프레임 `scrollLeft` 직접 증가** — 카드 `margin-right` 가 transition 으로 점차 늘어나면서 `scrollWidth` 도 함께 커지므로 단발 `scrollBy` 는 시작 시점 `maxScrollLeft` 에 즉시 clamp 되어 부족함. auto-scroll 종료 후 `card.matches(":hover")` 한번 더 확인해 cursor 가 떠나 있으면 deck 닫음(스크롤로 카드가 cursor 밑에서 빠져나간 false-positive mouseleave 방지)
 - **Series Auto Cover**: cover/소속 글 cover 둘 다 없는 시리즈는 SSR 시점에 Unsplash 에서 자동으로 cover 1장 fetch → `series.auto_cover_url` 컬럼에 영구 캐시 (다음 요청부터 외부 호출 0회)
@@ -155,6 +161,10 @@
 - **PostCard 메타 wrap 시 separator 자동 숨김**: 좁은 카드에서 metaGroup 이 두 줄로 wrap 되면 줄 첫머리 항목의 `::before` separator(`·`) 가 어색하게 떠 있던 문제 — `useLayoutEffect` 로 각 metaGroup 의 `offsetTop` 을 첫 그룹과 비교해 wrap 된 그룹에 `data-meta-wrapped` 부여, CSS 가 해당 그룹의 `::before` 를 숨김. ResizeObserver 로 카드 폭 변화에도 재계산
 - **IP 기반 좋아요**: Posts/Works/댓글에서 단일 `likes` 테이블 + `target_type` 구분, IP 기반 UNIQUE 제약으로 중복 방지, 연타 방지(ref lock + busy disabled), formatCount(1k/1.2m) 숫자 축약
 - **댓글 시스템**: 게스트 대댓글(threaded) 지원 — 이중 인증(commenter_hash + bcrypt), 닉네임 셔플, 이메일 답글 알림, 관리자 댓글, 관리자 tombstone 2회 삭제로 완전 제거, 닉네임 보존 tombstone
+- **댓글 provider 전환 (자체 / giscus)**: Admin Services 탭에서 `comments.provider` 를 `system` ↔ `giscus` 로 스위치. giscus 선택 시 저장소(`owner/name`)만 입력하면 `GET /api/admin/giscus-repo` 가 GitHub GraphQL(`GITHUB_TOKEN`)로 **repoId + Discussion 카테고리를 자동 조회** — giscus.app 을 따로 방문할 필요 없음. mapping / reactions / strict / lazyLoading / 입력창 위치 / 테마(프리셋 또는 커스텀 CSS URL) 설정 지원. `DetailLayout` 이 `provider === "giscus" && repo 채워짐` 일 때만 giscus 로 스위치하고 **repo 미입력이면 시스템 댓글로 폴백**. 위젯은 `giscus.app/client.js` 동적 주입(iframe), 테마 전환은 postMessage. giscus reactions 를 켜면 사이트 좋아요 버튼은 자동으로 숨김. 저장은 GitHub Discussions 이므로 DB 사용 없음
+- **댓글 이모지 반응**: 기존 "좋아요" 를 giscus 식 **고정 8종**(👍👎😄🎉😕❤️🚀👀) 반응으로 완전 대체. Popover 피커 + 낙관적 업데이트 + 실패 시 롤백, 반응 수 기준 정렬. `GET /api/comment-reactions` 로 집계 + 내 반응 일괄 조회, `POST` 로 토글. 반응자 식별은 IP 원문이 아니라 `sha256(IP + ":" + UA)` 앞 32자(`reactor_hash`)
+- **댓글 마크다운 에디터**: 작성/미리보기 탭 + 14개 서식 버튼 툴바(텍스트 / 블록 / 목록 / 삽입 4그룹 — 굵게·기울임·취소선·인라인코드 / 제목·인용·코드블록 / 목록·번호목록·체크박스 / 링크·이미지·표·구분선), 툴바 끝에 마크다운 치트시트 도움말 popover. `marked`(gfm + breaks) → `isomorphic-dompurify` sanitize, 링크는 `nofollow noopener` + 이미지는 `loading=lazy` 강제, http(s)/mailto 스킴만 통과. **이미지는 업로드 없이 외부 URL 만** (익명 사용자에게 Storage 쓰기를 열지 않기 위한 의도적 선택 — GitHub 초기 방식). ImageViewer 연동, 긴 댓글은 공통 `Collapsible`(520px)로 접힘 + 더보기. **코드 하이라이팅은 의도적 미지원** — highlight.js 를 import 하면 번들러가 깨진 정규식을 생성해 페이지 전체가 크래시 (트러블슈팅 58번)
+- **RecentComments 미리보기**: `stripMarkdown.ts` 로 마크다운 기호를 제거해 사이드바에 2줄 클램프 평문으로 표시
 - **첫 댓글 축하**: 첫 댓글 등록 시 confetti 효과 + 카드 플립 축하 메시지 (sparkle 별 장식 + accent 라인), 관리자 댓글 전체 선택 / 드래그 선택 / tombstone 일괄 완전 삭제
 - **댓글 신고**: 댓글마다 신고 버튼 + 사유 입력 모달, 신고 즉시 `/admin/notifications` 의 "신고" 탭에 누적 — 관리자에서 resolve / dismiss / 완전 삭제 인라인 처리
 - **Posts 태그 스위트**: ① **TagCloud3D** — Posts 사이드바 3D 회전 워드 클라우드, 피보나치 구면 분포 + rAF 루프에서 DOM transform 을 직접 갱신해 React 리렌더 0회, hover 시 자동 회전 정지 / drag 로 수동 회전, 클릭 시 `/posts/tags/[tag]` 이동 (`setPointerCapture` 는 자식 Link click 을 흡수해 제거하고 document-level pointer listener 로 drag-after-threshold click 차단). ② `/posts/tags` 인덱스 — 전체 태그 그리드 + 무한 스크롤 + 검색 + admin 전용 태그 설정 바로가기. ③ `/posts/tags/[tag]` 상세 — 서버사이드 fetch, Lenis `setInfinite(false)` 로 무한 스크롤 OFF, 상/하단 검색바(420px cap), 공통 `Pagination`, 라벨 hover 시 관련 태그 툴팁. ④ 공통 `TagPill` 컴포넌트 (`src/components/ui/TagPill.tsx`) 로 통일
@@ -239,7 +249,12 @@
 - **Posts ↔ Works 양방향 연결**: Notion Relation 스타일 — `post_work_relations` 다대다 테이블, 양쪽 어디서 추가하든 detail 페이지에 자동 노출, `RelationPicker` 검색·썸네일·발행 상태 표시
 - **프로젝트 ↔ 시리즈 연결**: `series_work_relations` 다대다 테이블로 프로젝트(work)에 관련 시리즈 연결 — `GET /api/works/[id]/related-series`(공개) · `GET/PUT /api/admin/works/[id]/related-series`(관리자 편집), works 상세에 관련 시리즈 칩으로 노출
 - **에디터 신규 블록 (PlateEditor)**: ① **투표(poll) 블록** — void element, 옵션 추가 / 드래그 재정렬, IME 안전 입력, `GET/POST /api/polls/[pollId]` 로 IP 기반 집계 (poll_id/option_id 는 저장 HTML data-attribute). ② **탭(tabs) 블록** — 탭별 이모지+제목 + `+` 버튼 추가. ③ **FloatingBar** — 블록 선택 시 뜨는 플로팅 툴바, 다른 블록과 인터랙션 시 닫힘. ④ **BlockDragLayer** — 블록 드래그 시 커스텀 고스트(흐려진 채 커서 추적) + 에디터 가장자리 자동 스크롤. ⑤ **EditorTextInput** — 에디터 내부 폼 입력용 IME-safe 공용 프리미티브(contentEditable=false + commit-on-blur). ⑥ **서버사이드 코드 하이라이팅** — `POST /api/highlight` 처리, 스타일 `_hljs.css`. ⑦ **mermaid 다이어그램 리더** — 상세/프리뷰에서 그래프 렌더 + "⋯" 메뉴(코드 보기 / 코드 복사)
-- **이모지 picker 개편**: 아이콘 476개(lucide 추출, `IconEntry.svg` inner-SVG 필드 + `iconSvgInner` 헬퍼) + 신규 카테고리(날씨/기기/음식/건강/도구/교육/표정/지도/도형 등), 한국어 검색(`emojiKo.ts`) + emoji-mart 메타(영문 이름/키워드, `emojiMeta.ts`) + 이모지 이름 툴팁(공용 Tooltip), 이미지 드래그앤드롭 업로드, inline 스타일 → CSS 모듈(`EmojiPicker.module.css`). 값 형식: native 이모지 / `img:url`(커스텀 업로드) / `icon:id`(SVG 아이콘)
+- **에디터 신규 블록 2차 (PlateEditor)**: ① **캘린더** — 월/주/일/타임라인 4뷰, 이벤트 CRUD + 반복 + 선후관계, ics/csv/json/md 내보내기. **연결형 저장** — 블록은 `calendarId` 만 참조하고 실데이터는 `calendars` 테이블에 있어 여러 글이 같은 달력을 공유 (투표 블록의 내장 저장과 반대 선택). Admin 전용 관리 탭 + 휴지통(30일 TTL) + `?calendar=ID` 딥링크. ② **다이어그램** — `@xyflow/react` 기반 자유배치 노드/엣지(12종 도형), mermaid 는 좌표가 소실되므로 **단방향 export** 만. 리더뷰는 순수 SVG. ③ **코드 플레이그라운드** — HTML/CSS/JS·static 은 자체 `iframe.srcdoc` 러너, React/TS 는 `@codesandbox/sandpack-react`. 레거시 `{html,css,js}` 자동 마이그레이션. ④ **날짜 멘션** — `@` 입력 시 노션식 날짜 pill, 리더에서 hover 하면 미니 캘린더. ⑤ **포스트 내부 링크** — `[[` 입력 시 게시물 검색 + 추천. ⑥ **mermaid** — 리더뷰를 에디터와 동일한 React island 로 통일
+- **게시물 낙관적 동시성 제어**: `posts.version` — 로드 시점 버전을 `baseVersion` 으로 보내고 서버가 `UPDATE ... WHERE id AND version = baseVersion`. 0행이면 `409 { error: "version_conflict", currentVersion }` → `SaveConflictDialog` 가 **취소 / 최신 불러오기 / 덮어쓰기** 3선택지 제시. 보조로 `usePostPresence` 가 Supabase Realtime presence 채널(`post-edit:{postId}`)로 다른 세션을 감지해 저장 전에 비차단 경고 배너 (DB 테이블 없음)
+- **Storage 직접 업로드**: `POST /api/upload/signed-url` + `src/lib/directUpload.ts` — 파일명·타입만 서버로 보내 signed URL 을 받고 브라우저가 Storage 로 직접 업로드, Vercel 요청 본문 크기 제한 우회. 기존 `/api/upload`(서버 경유) 도 병행하며 절대 상한 200MB
+- **Favicon 고도화**: 폰트 크기 프리셋 + 직접 입력, 텍스트/배경 독립 그림자(8방향 + sm/md/lg/custom), 색상 override, **WCAG 대비율 검사기**(`src/utils/contrast.ts`). `src/lib/favicon.tsx` 의 `resolveFavicon()` 을 route(SVG)와 admin 미리보기(React)가 공유해 동일 로직 보장
+- **소셜 링크 편집 분리**: `SocialLinksEditor` + `types/social.ts`, `socialIcons.ts` 에 아이콘 12종 추가
+- **이모지 picker 개편**: 아이콘 476개(lucide 추출, `IconEntry.svg` inner-SVG 필드 + `iconSvgInner` 헬퍼) + 신규 카테고리(날씨/기기/음식/건강/도구/교육/표정/지도/도형 등), 한국어 검색(`emojiKo.ts`) + emoji-mart 메타(영문 이름/키워드, `emojiMeta.ts`) + 이모지 이름 툴팁(공용 Tooltip), 이미지 드래그앤드롭 업로드, inline 스타일 → CSS 모듈(`EmojiPicker.module.css`). 값 형식: native 이모지 / `img:url`(커스텀 업로드) / `icon:id`(SVG 아이콘). **커스텀 업로드는 `localStorage` → `custom_emojis` 테이블 동기화** (`GET/POST /api/custom-emojis`, `DELETE /api/custom-emojis/[id]`) — localStorage 는 오프라인 캐시 + 첫 페인트용으로 남기고, 서버에 없는 로컬 항목은 POST 로 백필 후 `src` 기준 dedup 병합 (서버 목록으로 통째 replace 하면 백필 실패 항목이 삭제 불가 상태가 됨)
 - **SEO 체크리스트**: 에디터 하단 위젯 — title/slug/excerpt(30자+)/cover/category/tags 6항목 점검, score 진행 바, 항목 클릭 시 해당 필드로 스크롤 + label accent 강조 (다음 인터랙션 전까지 유지)
 - **`.md` 동기화**: `content/posts/` · `content/works/` 폴더 → DB 단방향 싱크 (Jekyll-style, `pnpm sync-all`)
 - **`.md` 내보내기**: 전체/선택/개별/시리즈 단위로 frontmatter 포함 `.md` 다운로드
@@ -367,7 +382,13 @@ DEEPL_API_KEY=your_deepl_key                   # provider: "deepl" (기본)
 GOOGLE_TRANSLATE_API_KEY=your_google_key        # provider: "google"
 GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
 ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (번역 + AI 요약)
+
+# giscus 댓글 (선택) — admin 설정에서 저장소의 Discussion 카테고리를 불러올 때만 사용
+# 공개 저장소 읽기용 GitHub PAT (별도 권한 없이도 공개 데이터 조회 가능)
+GITHUB_TOKEN=ghp_...
 ```
+
+> `GITHUB_TOKEN` 은 admin Services 탭에 저장한 시크릿이 우선이고, 없으면 환경변수를 씁니다 (`getSecret("GITHUB_TOKEN")`). giscus 위젯 자체는 토큰 없이 동작합니다.
 
 **값 확인 방법:**
 
@@ -385,16 +406,18 @@ ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (번역 + A
 
 Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
 
-**생성되는 테이블 (15개) + RPC 함수 (3개):**
+**생성되는 테이블 (22개) + RPC 함수:**
 
 | 테이블 | 용도 |
 |--------|------|
 | `site_settings` | 사이트 설정 + 프로필 데이터 + secrets/API 키 (JSONB) |
-| `series` | 블로그 시리즈 (sort_order — admin 정렬, auto_cover_url — Unsplash 캐시) |
-| `posts` | 블로그 포스트 (post_number 시퀀스 + `scheduled_at` 예약 발행 + `purge_after` 휴지통 TTL) |
+| `series` | 블로그 시리즈 (sort_order — admin 정렬, auto_cover_url — Unsplash 캐시, 제목 80자 CHECK) |
+| `posts` | 블로그 포스트 (post_number 시퀀스 + `scheduled_at` 예약 발행 + `purge_after` 휴지통 TTL + `version` 낙관적 잠금 + `icon` / `cover_position` / `cover_zoom` / `author_ids`) |
 | `comments` | 포스트 댓글 (대댓글, 이중 인증: commenter_hash + password) |
+| `comment_reactions` | 댓글 이모지 반응 (고정 8종, `comment_type` 으로 post/work 구분, `reactor_hash` 중복 방지) |
+| `comment_reports` | 댓글 신고 (사유 + resolve/dismiss 상태) |
 | `likes` | 좋아요 (포스트/작업물/댓글 통합, target_type으로 구분, IP 중복 방지) |
-| `works` | 포트폴리오 작업물 (slug, `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `scheduled_at`, `purge_after`) |
+| `works` | 포트폴리오 작업물 (slug, `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `icon`, `scheduled_at`, `purge_after`) |
 | `site_visits` | 방문자 통계 (IP+날짜 1회) |
 | `post_views` | 게시물별 시계열 조회 기록 (대시보드 일별 추세 차트) |
 | `work_comments` | Works 댓글 (대댓글, 이중 인증) |
@@ -403,9 +426,12 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | `post_work_relations` | posts ↔ works 양방향 다대다 (Notion Relation 스타일) |
 | `series_work_relations` | series ↔ works 다대다 (프로젝트에 관련 시리즈 연결, post_work_relations 와 동일 패턴) |
 | `poll_votes` | 본문 투표 블록 집계 (poll_id + option_id — 에디터 부여 text id, IP 기반 중복 방지) |
+| `calendars` | 에디터 캘린더 블록의 공유 달력 (`data jsonb`, soft delete + `purge_after` 30일 TTL) |
+| `custom_emojis` | EmojiPicker 커스텀 업로드 아이콘 (admin 전용 RLS) |
 | `cover_image_history` | Cover Image Picker 통합 이력 (admin user 별, ai/unsplash/preset 구분, RLS) |
 | `admin_login_attempts` | 관리자 로그인 실패 카운터 (5회 실패 → 15분 잠금) |
 | `admin_known_devices` | 승인된 관리자 기기 UA 지문 (SHA-256, 미등록 기기는 이메일 승인 24h TTL) |
+| `applied_migrations` | 적용된 schema migration 추적 (최초 적용 시 알림 발생) |
 
 **RPC 함수**: `sum_post_views()` (누적 조회수 합계), `daily_post_views(start, end)` (일별 시계열), `publish_scheduled()` (예약 시간 도달한 게시물/작품 발행 + 알림 + 이메일 — **pg_cron 매분**), `purge_trash_scheduled()` (`purge_after` 지난 휴지통 hard delete + 알림 — **pg_cron 매일 KST 03:00**)
 
@@ -432,9 +458,15 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 >
 > **Work Comments API**: `GET /api/work-comments?work_id=`, `POST /api/work-comments`, `PATCH /api/work-comments` (수정), `DELETE /api/work-comments/[id]`
 >
-> **Comment Likes API**: `GET /api/comment-likes?comment_type=&comment_ids=` (좋아요 상태 일괄 조회), `POST /api/comment-likes` (댓글 좋아요 토글)
+> **Comment Reactions API**: `GET /api/comment-reactions?comment_type=&comment_ids=` (반응 집계 + 내 반응 일괄 조회), `POST /api/comment-reactions` (이모지 반응 토글)
 >
-> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`
+> **Calendars API**: `GET/POST /api/calendars` (목록 — `?trash=true` 면 휴지통 / 생성), `GET/PUT/DELETE /api/calendars/[calendarId]`, `POST /api/calendars/[calendarId]/restore`, `DELETE /api/calendars/[calendarId]/purge` — 모두 admin 전용
+>
+> **Custom Emojis API**: `GET/POST /api/custom-emojis`, `DELETE /api/custom-emojis/[id]` — EmojiPicker 커스텀 아이콘, admin 전용
+>
+> **Upload API**: `POST /api/upload` (서버 경유, MIME 별 크기 제한 + 절대 상한 200MB), `POST /api/upload/signed-url` (Storage 직접 업로드용 signed URL 발급 — 파일명·타입만 전송해 요청 본문 크기 제한 회피)
+>
+> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (GitHub GraphQL 로 repoId + Discussion 카테고리 조회, `GITHUB_TOKEN` 필요)
 >
 > **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (목록, snapshot 제외), `POST /api/revisions` (저장 + 50개 초과 정리), `GET /api/revisions/[id]` (snapshot 포함 단건), `DELETE /api/revisions/[id]`
 >
@@ -705,6 +737,12 @@ npm run test:watch
 | 72 | `<input type="number">` 의 spinner 가 OKLCH 6자 소수 (`0.2249`) 를 잘라먹음 + 입력 폭이 row 마다 달라 정렬 안 맞음 | ColorPicker 채널 입력 (RGB / HSL / HSV / OKLCH) 들이 row 마다 폭이 달라 시각적 노이즈. 가장 긴 값 (OKLCH C `0.2249` 6자) 기준으로 통일하려고 `width: 88px` 고정 → 짧은 값 (`100`) 에선 비어 보임. 해결: ① `clearable={false}` 로 eraser 24px 자리 회수, ② padding 좌·우 `--spacing-xs` 통일, ③ `width: calc(7ch + var(--spacing-xs) * 2 + 2px)` — HEX `#ffffff` 7자 기준 + border 2px. RGB / HSL 등 짧은 값은 같은 폭 안에서 왼쪽 정렬 (`text-align: left`). 채널 input · format select · 잘못된 입력 시 좌우 흔들기 (`@keyframes pickerShake`) 모두 동일 폭 grid 안에 정렬 |
 | 73 ★ | Hero 배경 동영상 opacity 만 조절하던 컨트롤 — 이미지에는 적용 안 됨 (CSS `background-image: url()` 은 opacity 분리 불가) | admin 에서 Hero 배경을 동영상 → 이미지로 바꾼 뒤 opacity 슬라이더가 사라짐. 원인: 동영상은 `<video>` element 라 `opacity` 직접 가능, 이미지는 CSS `background-image: url(...)` 로 panel 표면에 칠해서 opacity 분리 채널이 없음. 해결: 이미지도 `<img>` element 로 동영상과 같은 패턴 — `position: absolute; inset: 0; object-fit: cover` + `opacity: var(--_hero-bg-opacity)`. panel CSS background 는 color / gradient 만, 이미지는 별 element 로 분리. 라벨 `동영상 투명도` → `배경 투명도` 로 통일. **CSS property 의 추상화가 새는 곳 (background-image vs `<img>`) 은 control plane 도 함께 갈라 둔다** |
 | 74 | Navigation 모바일 — navCenter 가 `display: none` 으로 사라지자 navActions 가 로고 (fixed) 위치로 박혀 겹침 | `.nav { justify-content: space-between }` 인데 모바일에서 `.navCenter` 만 숨기면 단일 남은 자식 (`.navActions`) 이 flex-start 로 align 되어 fixed 위치의 로고 (`.logoNavBar { left: var(--page-px) }`) 와 같은 자리 겹침. 해결: `@media (max-width: 768px) .nav { justify-content: flex-end }` — 모바일에서만 우측 정렬 강제. 로고는 fixed 라 flex flow 밖이지만 navActions 우측이라 "로고 [space] 버튼들" 자연스러운 레이아웃. **fixed 요소가 있는 컨테이너에서 flex `space-between` 의 단일 자식 분기 처리는 따로 명시** |
+| 75 ★ | highlight.js 를 import 하자 게시물 상세가 통째로 크래시 — **빌드는 통과하고 런타임에만 터짐** | hljs `xml.js` 의 `/[\p{L}_]/u` (유니코드 속성 이스케이프) 를 번들러가 구형 브라우저용 코드포인트 범위로 풀어쓰면서 **범위가 뒤집힌 문자 클래스** 생성 → `SyntaxError: Range out of order in character class`. 모듈 평가 시점 throw 라 그 청크를 로드한 페이지 전체가 죽음. 원본 파일은 Node 에서 정상 로드 (번들 산출물만 깨짐), `optimizePackageImports` 에서 빼도, 언어를 골라 등록한 자체 인스턴스로도 청크가 로드되는 순간 동일 크래시. 해결: 댓글 코드 하이라이팅 보류 (재시도하려면 shiki 또는 hljs patch). **`npm run build` 가 통과하므로 빌드 성공을 안전 신호로 착각하면 안 된다** — 같은 지뢰가 `highlightCodeBlocks.ts` 에 잠복 |
+| 76 ★ | 댓글 마크다운 체크박스가 불릿으로만 렌더 — DOMPurify 가 URL 도 아닌 `type` 속성을 지움 | DOMPurify 는 "URI-safe 로 알려진 속성" 이 아니면 그 **값**을 `ALLOWED_URI_REGEXP` 로 검사. 기본 URI-safe 목록에 `type` 이 없어 `type="checkbox"` 의 값이 `/^(?:https?:\|mailto:)/i` 에 걸려 조용히 제거 → 훅이 "체크박스 아님" 판정으로 `<input>` 삭제 → 불릿만 남음. 표의 `align` 도 같은 이유로 죽어 마크다운 표 정렬이 통째로 무시되고 있었음. `ALLOWED_ATTR` 등록만으로는 무의미. 해결: `ADD_URI_SAFE_ATTR: ["type","checked","disabled","align"]`. **허용 목록과 값 검사 정책은 별개 축** — "허용했는데 사라진다" 면 필터가 그 속성의 값을 URL 로 오해하는지 의심 |
+| 77 | task list `:has()` — 과소/과다 매칭 양쪽 함정 | marked 는 tight list 를 `<li><input>`, loose list(항목 사이 빈 줄) 를 `<li><p><input>` 으로 만든다. `:has(> li > input)` 만 쓰면 loose 에서 빗나가 불릿이 남고, `:has(input)` 자손 조합자로 퉁치면 일반 불릿 목록 안에 체크박스 하위목록이 있을 때 **부모 목록의 불릿까지** 사라짐. 해결: 직계 경로 두 개만 명시 — `:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"])`. **`:has()` 는 조합자 선택이 곧 매칭 범위** — 렌더러가 만드는 실제 DOM 형태를 전부 열거해 직계로 못 박아야 안전 |
+| 78 | 전역 input reset 이 native 체크박스를 아예 안 그림 | `_base.css` 의 `input { border: none; background: none }` 이 UA 기본 스타일을 지워 체크박스가 그려질 표면 자체가 없음 — `appearance: auto` 만으론 안 됨. 해결: `background: revert; border: revert` 로 UA 스타일 복원 (shorthand 라 stylelint `declaration-strict-value` 대상 아님). **`appearance: auto` 는 "네이티브로 그려라" 일 뿐, 리셋이 지운 background/border 를 되살리지 않는다** |
+| 79 | 툴바 마크다운 삽입 — 빈 줄·블록 문법에서 의도한 요소가 안 나옴 | GFM 은 `- [ ] ` 마커 **뒤에 텍스트가 있어야** task list 로 파싱 → 빈 줄에서 체크박스 버튼을 누르면 `<li>[ ]</li>` 불릿. `---` 은 앞 줄에 글이 붙어 있으면 hr 이 아니라 **setext h2**. 해결: prefix 액션에 placeholder(빈 줄이면 예시 텍스트 채우고 선택) + 블록 삽입 시 앞에 빈 줄 확보. **삽입 버튼은 문자열이 아니라 파서가 그 문법을 인식할 문맥까지 만들어야 한다** |
+| 80 | Popover 내부 텍스트별 `mix-blend-mode: difference` 가 backdrop-filter 와 양립 불가 | `backdrop-filter` / `isolation: isolate` 는 Backdrop Root 를 만들어 backdrop-filter 가 볼 수 있는 범위를 자르고, `backdrop-filter` 출력은 자손·형제에게 blendable backdrop 으로 제공되지 않음 → popover 내부 텍스트별 difference 는 **원리적으로 불가**. 우회: 콘텐츠 `filter: invert(1)` + 패널 `mix-blend-mode: difference` 로 `\|배경 − (1−색)\|` 복원. 최종적으로 기본은 glass(반투명+blur), difference 는 variant 로 유지. **둘은 같은 뒷배경을 보는 것 같지만 서로의 입력이 되지 못한다** |
 
 
 ## 배포
@@ -734,6 +772,8 @@ npm run test:watch
   GEMINI_API_KEY               # 번역 + AI 요약 — Gemini
   OPENAI_API_KEY               # AI 요약 — OpenAI
   ANTHROPIC_API_KEY            # 번역 + AI 요약 — Claude
+  GITHUB_TOKEN                 # giscus — 저장소 Discussion 카테고리 자동 조회용 공개 저장소 읽기 PAT
+                               # (admin Services 탭 시크릿이 우선. giscus 위젯 자체는 토큰 없이 동작)
 ```
 
 > `main` 브랜치에 push할 때마다 자동 배포됩니다. PR을 생성하면 Preview 배포가 별도로 생성됩니다.

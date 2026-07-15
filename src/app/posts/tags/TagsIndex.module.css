@@ -4,6 +4,11 @@
   padding: var(--spacing-5xl) var(--page-px) var(--spacing-3xl);
 }
 
+/* 뒤로가기(글 목록) — 서브네비와 제목 헤더 사이 */
+.backRow {
+  margin-bottom: var(--spacing-md);
+}
+
 .header {
   display: flex;
   flex-direction: column;
@@ -26,7 +31,7 @@
   gap: var(--spacing-sm);
   margin: 0;
   font-family: var(--font-instrument);
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
 }

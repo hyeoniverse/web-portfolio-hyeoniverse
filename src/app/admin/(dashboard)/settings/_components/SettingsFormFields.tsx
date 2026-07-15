@@ -5,15 +5,27 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
-import { ExternalLink, Volume2 } from "lucide-react";
+import { ExternalLink, Volume2, HelpCircle } from "lucide-react";
 import type { SiteConfigData } from "@/config/site.config";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import EditableInput from "@/components/ui/EditableInput";
 import Textarea, { type MaxHintPreset } from "@/components/ui/Textarea";
+import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "../Settings.module.css";
+
+/* ── FieldHelp — 라벨 옆 ? 아이콘 + Tooltip. 필드 값·옵션 설명용 (raw label/Switch 케이스도 재사용). ── */
+export function FieldHelp({ content }: { content: React.ReactNode }) {
+  return (
+    <Tooltip content={content} placement="top">
+      <span className={styles.fieldHelp} role="button" tabIndex={0} aria-label="설명">
+        <HelpCircle size={13} />
+      </span>
+    </Tooltip>
+  );
+}
 
 /* ── FieldCounter — n / max. count 숫자만 상태별 색상 (warn / over). 슬래시·max 는 tertiary. ── */
 function _FieldCounter({ value, hintNum }: { value: number; hintNum: number }) {
@@ -44,6 +56,10 @@ interface FieldProps {
    *  - 명시 안 하면 default: multiline=300 / single-line=100 (admin/settings 전반 자동 counter)
    *  - null 명시 → counter 미표시 (URL/email 등 자유 입력) */
   maxHint?: number | MaxHintPreset | null;
+  /** Hard 글자수 상한 — 입력/붙여넣기 단계에서 잘라 근본 차단 (single-line 에만 적용). maxHint 와 별개. */
+  maxLength?: number;
+  /** 라벨 옆 ? 툴팁 내용 — 있으면 FieldHelp 렌더 (additive, 없으면 기존과 동일). */
+  help?: React.ReactNode;
 }
 
 const MAX_HINT_PRESETS: Record<MaxHintPreset, number> = {
@@ -60,7 +76,7 @@ function resolveMaxHint(v: number | MaxHintPreset | undefined | null, multiline:
   return typeof v === "string" ? MAX_HINT_PRESETS[v] : v;
 }
 
-export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint }: FieldProps) {
+export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint, maxLength, help }: FieldProps) {
   const badgeStr = langBadge ? langBadge.toUpperCase() : undefined;
   const hintNum = resolveMaxHint(maxHint, !!multiline);
   /* langBadge 위치:
@@ -73,6 +89,7 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
           {label}
           {multiline && badgeStr && <span className={styles.fieldLangBadge}>{badgeStr}</span>}
           {required && <span className={styles.fieldRequiredDot} aria-label="필수">•</span>}
+          {help && <FieldHelp content={help} />}
         </span>
         {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
       </label>
@@ -86,6 +103,7 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
           placeholder={placeholder}
           inlineLabel={badgeStr}
           maxHint={hintNum}
+          maxLength={maxLength}
         />
       ) : (
         <Input value={value} onChange={onChange} placeholder={placeholder} inlineLabel={badgeStr} />

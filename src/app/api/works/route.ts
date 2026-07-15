@@ -124,7 +124,7 @@ const ALLOWED_FIELDS = new Set([
   "description_ko", "description_en",
   "role_ko", "role_en",
   "contributions_ko", "contributions_en",
-  "tech", "tech_notes", "image",
+  "tech", "tech_notes", "image", "icon",
   "content_ko", "content_en", "content_type",
   "overview_ko", "overview_en", "overview_image",
   "challenge_ko", "challenge_en", "challenge_image",

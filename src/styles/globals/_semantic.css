@@ -40,6 +40,17 @@
   --bg-inverse-light: var(--color-neutral-700);
   --bg-inverse-alt: var(--color-inverse-alpha-30);
 
+  /* 글래스 "패널" 표면 — dropdown / popover / toast 처럼 뒤를 비추며 떠 있는 면.
+     Select · SearchCapsule · Popover · Toast · DatePicker 가 `반투명 bg + blur + saturate` 라는
+     같은 공식을 각자 복붙하고 blur 만 제각각(4~20px)이었던 걸 여기로 통합.
+     항상 둘을 같이 쓴다: background: var(--bg-glass-panel); backdrop-filter: var(--blur-glass);
+
+     ※ 아래쪽 --bg-glass / -subtle / -strong (white-alpha 틴트) 와는 다른 개념이다.
+        그쪽은 "요소 위에 흰색을 덧씌우는 오버레이", 이건 "페이지 배경이 비쳐 보이는 패널 면".
+        이름이 겹치면 같은 :root 안에서 뒤 선언이 이겨 조용히 덮어쓰므로 -panel 로 구분. */
+  --bg-glass-panel: color-mix(in srgb, var(--bg-primary) 24%, transparent);
+  --blur-glass: var(--blur-lg) saturate(1.4);
+
   /* Accent */
   --bg-accent-subtle: var(--color-accent-alpha-5);
   --bg-accent-light: var(--color-accent-alpha-10);

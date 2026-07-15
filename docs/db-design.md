@@ -4,6 +4,8 @@
 
 모든 좋아요(포스트, 작업물, 포스트 댓글, 작업물 댓글)를 단일 `likes` 테이블에서 `target_type`으로 구분합니다.
 
+> 현재 댓글 좋아요는 UI 에서 [이모지 반응](#댓글-이모지-반응-comment_reactions)으로 대체됐습니다. `target_type` 의 `post_comment` / `work_comment` 값과 `/api/comment-likes` 라우트는 스키마·코드에 남아 있지만 호출부가 없습니다.
+
 **검토한 대안:**
 
 | 방식 | 장점 | 단점 |
@@ -58,6 +60,38 @@ Posts/Works 에디터의 자동저장 시 폼 전체를 JSONB snapshot으로 영
 | **닉네임 셔플** | 랜덤 이모지+이름 조합, 셔플 버튼으로 변경 가능 |
 | **답글 이메일 알림** | 댓글 작성 시 이메일(선택) 입력하면 답글 알림 발송 (`notify_email` 컬럼) |
 | **관리자 댓글** | 로그인 상태에서 비밀번호 없이 Admin 뱃지로 댓글 작성, 서버 측 Supabase Auth 재검증 |
+| **마크다운 본문** | `marked`(gfm + breaks) → `isomorphic-dompurify` sanitize, 태그·속성 화이트리스트 |
+| **이모지 반응** | giscus 식 고정 8종 (아래 `comment_reactions`) |
+
+### 댓글 이모지 반응: `comment_reactions`
+
+댓글의 단일 "좋아요" 를 giscus 식 고정 8종 이모지 반응(👍 👎 😄 🎉 😕 ❤️ 🚀 👀 — `src/utils/commentReactions.ts` 의 `REACTION_EMOJIS`)으로 대체한 테이블입니다.
+
+| 컬럼 | 설명 |
+|------|------|
+| `id` | uuid PK |
+| `comment_id` | uuid NOT NULL, **FK 없음** — `comment_type` 에 따라 `comments` 또는 `work_comments` 를 가리키는 다형 참조 |
+| `comment_type` | text CHECK (`post` / `work`) |
+| `emoji` | text — 고정 8종 중 하나 (서버가 `isReactionEmoji` 로 검증) |
+| `reactor_hash` | text DEFAULT `''` — 반응자 식별자 (아래) |
+| `created_at` | timestamptz |
+
+**검토한 대안:**
+
+| 방식 | 장점 | 단점 |
+|------|------|------|
+| **전용 테이블** (현재 구조) | 이모지 축이 스키마에 명시, 집계가 단순 | `likes` 와 개념이 겹치는 테이블이 하나 더 |
+| **`likes` 재사용** (`target_type='post_comment'` + emoji 컬럼) | 테이블 수 유지 | `UNIQUE(target_type, target_id, ip)` 가 이모지 축을 모름 — 한 사람이 여러 이모지를 못 남김. 제약 재설계가 필요해 "재사용" 의 이득이 사라짐 |
+
+**선택 근거:** 좋아요는 `(대상, 사람)` 2축이지만 반응은 `(대상, 사람, 이모지)` 3축이라 `likes` 의 UNIQUE 제약과 축이 맞지 않습니다. 별도 테이블에서 4컬럼 unique 로 토글 단위를 정확히 표현합니다.
+
+중복 방지는 테이블 제약이 아니라 **unique index** `idx_comment_reactions_unique(comment_id, comment_type, emoji, reactor_hash)` 입니다 — `ON CONFLICT` 에는 4컬럼 추론 목록이 필요하고, 이름으로 지정할 named constraint 는 없습니다. 조회용 인덱스는 `(comment_id, comment_type)` 별도.
+
+`comment_id` 에 FK 를 두지 않은 것은 참조 대상 테이블이 `comment_type` 에 따라 갈리는 다형 참조라 단일 FK 로 표현할 수 없기 때문입니다. 따라서 ON DELETE CASCADE 도 없고, 댓글이 완전 삭제돼도 반응 행은 남습니다 (조회가 클라이언트가 보유한 `comment_ids` 기준이라 노출되지는 않음).
+
+**반응자 식별 (`reactor_hash`):** 좋아요의 IP 방식과 같은 취지지만, 원문 IP 를 저장하지 않고 `sha256(IP + ":" + UA)` 의 앞 32자만 보관합니다. IP 단독보다 공용 IP(회사·카페) 뒤 사용자들이 서로를 덮어쓸 확률이 낮고, 저장값 자체가 개인 식별정보가 아닙니다. 로그인 없는 반응이므로 완벽한 식별이 아니라 **일상적 중복 차단**이 목표입니다.
+
+RLS 는 조회 공개(`FOR SELECT USING (true)`) + 쓰기 service_role. 집계·토글은 admin client 로 처리합니다.
 
 ### 투표 블록 집계: `poll_votes`
 
@@ -93,5 +127,87 @@ Posts/Works 에디터의 자동저장 시 폼 전체를 JSONB snapshot으로 영
 PRIMARY KEY 는 `(series_id, work_id)` 복합키이고, `series_id` / `work_id` 각각에 인덱스가 있습니다. RLS 는 public SELECT + service_role ALL.
 
 **선택 근거:** posts↔works 양방향 연결(`post_work_relations`)이 이미 검증된 다대다 패턴이므로 시리즈↔프로젝트 연결도 동일 구조로 통일했습니다. 양쪽 FK 에 ON DELETE CASCADE 를 걸어 시리즈나 작품 삭제 시 연결 행이 자동 정리되고, 복합 PK 로 같은 쌍의 중복 연결을 차단합니다.
+
+### 캘린더 블록 연결형 저장: `calendars`
+
+에디터의 캘린더 블록이 참조하는 공유 달력 테이블입니다. 블록은 `calendarId` 만 갖고, 실제 이벤트 데이터는 이 테이블에 있습니다.
+
+| 컬럼 | 설명 |
+|------|------|
+| `id` | uuid PK |
+| `title` | text NOT NULL DEFAULT `''` |
+| `data` | jsonb NOT NULL DEFAULT `'{}'` — 월/이벤트 등 달력 전체 상태 |
+| `created_at` / `updated_at` | timestamptz |
+| `deleted_at` | timestamptz — soft delete |
+| `purge_after` | timestamptz — 휴지통 TTL (30일) |
+
+**검토한 대안:**
+
+| 방식 | 장점 | 단점 |
+|------|------|------|
+| **연결형 저장** (현재 구조) | 여러 글이 같은 달력 공유, 한 곳만 고치면 전부 반영, admin 에서 일괄 관리 | 블록 렌더에 fetch 1회 추가, 글 삭제해도 달력은 남음 |
+| **블록 내장 저장** (투표 블록 방식) | fetch 없음, 글과 수명 동일 | 같은 달력을 여러 글에 넣으면 사본이 갈라짐 |
+
+**선택 근거:** 투표 블록은 "이 글의 투표" 라 콘텐츠에 내장하는 게 맞지만, 달력은 **여러 글이 같은 일정을 참조**하는 성격이라 사본이 갈라지면 곧바로 오답이 됩니다. 그래서 투표와 반대로 연결형을 택했습니다. 대신 글과 수명이 분리되므로 posts/works 와 같은 soft delete + `purge_after` 휴지통을 두고, `/api/cron/purge-trash` 가 posts·works 와 함께 `purge_after < NOW()` 인 달력도 hard delete 합니다.
+
+인덱스는 `calendars_purge_after_idx (purge_after) WHERE deleted_at IS NOT NULL` — 휴지통 행만 담는 partial index 로 posts/works 와 동일 패턴입니다. RLS 는 조회 공개 + 쓰기 service_role (달력 블록은 공개 글에서 읽히지만 편집은 admin 전용).
+
+### 커스텀 이모지: `custom_emojis`
+
+EmojiPicker 에 업로드한 커스텀 이미지 아이콘 기록입니다. 값 형식은 `img:<url>`.
+
+| 컬럼 | 설명 |
+|------|------|
+| `id` | uuid PK |
+| `name` | text NOT NULL DEFAULT `''` (서버에서 120자 slice) |
+| `src` | text NOT NULL — 업로드된 이미지 URL |
+| `created_at` | timestamptz |
+
+**선택 근거:** 원래 `localStorage` 에만 있어 기기·브라우저를 옮기면 업로드한 이모지가 사라졌습니다. DB 로 올려 기기 간 공유되게 하고, `localStorage` 는 **오프라인 캐시 + 첫 페인트용**으로 남겼습니다. picker 를 열면 서버 목록을 fetch 하되, 실패(로그아웃·오프라인) 시 로컬 캐시를 지우지 않고 그대로 유지합니다. 로컬에만 있고 서버에 없는 항목은 POST 로 백필 후 `src` 기준 dedup 병합 — 서버 목록으로 통째 replace 하면 백필 실패 시 그 항목들이 삭제 불가 상태로 남기 때문입니다.
+
+RLS 는 `FOR ALL` service_role 정책 **하나뿐**이라 공개 읽기 정책이 없습니다 (admin 전용, anon 조회는 0행). 조회는 `created_at DESC` 인덱스 + `limit(200)`.
+
+> **주의:** 이 테이블은 `supabase/setup.sql` 에만 있고 `supabase/migrations/` 에 대응 파일이 없습니다. 마이그레이션만 순서대로 적용한 DB 에는 생성되지 않습니다.
+
+### 게시물 낙관적 동시성 제어: `posts.version`
+
+여러 탭·기기에서 같은 글을 편집할 때 마지막 저장이 앞선 저장을 조용히 덮어쓰는 것(lost update)을 막습니다.
+
+| 방식 | 장점 | 단점 |
+|------|------|------|
+| **낙관적 잠금** (현재 구조 — `version` 컬럼) | 락 없음, 실패 시점에만 사용자에게 물어봄, 컬럼 1개 | 충돌 시 사용자가 해소해야 함 |
+| **비관적 잠금** (편집 중 row lock) | 충돌 자체가 없음 | 탭 강제종료 시 락 해제 문제, 1인 admin 에 과함 |
+| **CRDT / OT 실시간 병합** | 동시 편집 가능 | 에디터 전체 재설계, 단일 작성자에 이득 없음 |
+
+**선택 근거:** 작성자가 1인이라 실제 충돌은 "내가 두 탭에서 열어둔" 경우가 대부분입니다. 이 빈도에 실시간 병합은 과하고, 그렇다고 조용한 덮어쓰기는 데이터 유실입니다. 로드 시점 버전을 `baseVersion` 으로 보내고 서버가 `UPDATE ... WHERE id = ? AND version = baseVersion` 로 갱신 — 0행이면 그 사이 누가 저장한 것이므로 `409 { error: "version_conflict", currentVersion }` 를 돌려주고, `SaveConflictDialog` 가 **취소 / 최신 불러오기 / 덮어쓰기** 3선택지를 띄웁니다.
+
+보조로 `usePostPresence` 가 Supabase Realtime presence 채널(`post-edit:{postId}`)로 다른 세션을 감지해 **저장 전에** 비차단 경고 배너를 띄웁니다. presence 는 DB 테이블 없이 Realtime 채널 상태만 사용하므로 스키마 영향이 없습니다.
+
+### 그 밖의 컬럼 추가
+
+| 컬럼 | 타입 | 용도 |
+|------|------|------|
+| `posts.cover_position` | `real NOT NULL DEFAULT 50` | 커버 이미지 세로 초점(%) — 에디터에서 드래그한 위치 영속화 |
+| `posts.cover_zoom` | `real NOT NULL DEFAULT 1` | 커버 이미지 확대 배율 |
+| `posts.icon` | `text NOT NULL DEFAULT ''` | 글 아이콘 (EmojiPicker 값 — native / `img:url` / `icon:id`) |
+| `posts.author_ids` | `text[] NOT NULL DEFAULT '{}'` | 다중 작성자 — `site.config.ts` 의 `authors[]` id 참조 |
+| `works.icon` | `text NOT NULL DEFAULT ''` | `posts.icon` 미러 |
+
+`cover_position` 은 0–100, `cover_zoom` 은 1–2.5 를 의도하지만 **CHECK 제약은 없고 주석상의 범위**입니다 (검증은 에디터 UI 담당).
+
+`author_ids` 를 별도 `authors` 테이블 + 조인 테이블로 정규화하지 않은 이유: 작성자 목록이 사이트 설정(`site.config.ts`)에 사는 소수의 고정 항목이고, 글 조회마다 조인을 추가할 만큼의 쿼리 요구가 없습니다. `text[]` + GIN 없이도 목록 렌더에 충분합니다.
+
+> 목록 카드 레이아웃(`magazine` / `grid` / `list` / `compact` / `masonry` / `featured`)은 **DB 컬럼이 아니라 사이트 설정** `siteConfig.posts.layout` 입니다 — 글마다가 아니라 사이트 전역으로 적용됩니다.
+
+### 제목 길이 CHECK 제약
+
+| 제약 | 대상 | 상한 | 비고 |
+|------|------|------|------|
+| `series_title_maxlen` / `series_title_en_maxlen` | `series.title` / `title_en` | 80자 | `NOT VALID` — 기존 행은 검사 안 함 |
+| `posts_title_len` / `posts_title_en_len` | `posts.title` / `title_en` | 120자 | 즉시 검증 (기존 행이 길면 마이그레이션 실패) |
+
+**선택 근거:** 서버 코드에도 검증이 있지만(`SERIES_TITLE_MAX = 80`), API 가 여러 경로(에디터·`.md` 싱크·수동 SQL)로 열려 있어 DB 제약을 최종 방어선으로 둡니다. 시리즈 쪽은 이미 배포된 데이터가 있어 `NOT VALID` 로 신규·수정 행만 검사하게 했습니다.
+
+> **주의:** `posts_title_len` / `posts_title_en_len` 은 마이그레이션 파일에만 있고 `setup.sql` 에는 없습니다. `setup.sql` 로만 세팅한 DB 에는 제목 길이 제약이 걸리지 않습니다.
 
 

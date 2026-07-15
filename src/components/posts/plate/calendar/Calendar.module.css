@@ -1,0 +1,3144 @@
+/* 공통 컴포넌트(SearchCapsule/Button) border 를 달력 컨트롤(--border-light)과 통일 */
+.ctrlBorderLight { border-color: var(--border-light-color) !important; }
+/* 모달 안 Select dropdown — z 는 이제 Modal 의 PortalContainerContext(layer portal)가 처리하므로 불필요.
+   불투명 배경만 유지(가독성 — 모달 backdrop blur 위에서 difference 대비 확보). */
+.selectAboveModal {
+  background: var(--bg-primary) !important;
+  backdrop-filter: none !important;
+  /* 모달 안 popover(--z-popover:600) 위로 — recur 팝오버 안의 freq select dropdown 이 팝오버에 가리지 않게 */
+  z-index: var(--z-tooltip) !important;
+}
+
+/* ── 검색/필터/정렬 툴바 ── (blockBar 인라인 겸 리더 행) */
+.calToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.readerCalendar .calToolbar { margin-bottom: var(--spacing-sm); }
+/* 검색 범위 버튼 */
+.scopeBtn {
+  flex-shrink: 0;
+  padding: 2px var(--spacing-2xs);
+  border: none;
+  border-left: var(--border-light);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 10px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.scopeBtn:hover { color: var(--text-primary); }
+/* 툴바 버튼(필터/정렬) */
+.tbBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.tbBtn:hover { color: var(--text-primary); border-color: var(--border-strong-color); }
+.tbBtnOn { color: var(--text-accent); border-color: var(--color-accent); }
+
+/* 정렬 pill — Select + 역순버튼을 하나의 capsule 로 결합, 높이는 다른 컨트롤과 동일(sm) */
+.sortGroup {
+  display: inline-flex;
+  align-items: stretch;
+  height: var(--control-h-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  /* 배경 없음 — 다른 컨트롤처럼 투명. 캡슐 끝단까지 테두리가 온전히 보이도록 내부 컨트롤을 clip */
+  overflow: hidden;
+}
+/* 내부 컨트롤(Select trigger·역순 Button)은 자체 테두리/라운드/배경 제거 — pill 이 담당 */
+.sortGroup button {
+  height: 100%;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  /* ghost Button 의 backdrop-filter blur 가 뒤(pill border 포함)를 frost 처리해 테두리를 덮던 문제 차단 */
+  backdrop-filter: none !important;
+}
+/* 역순 버튼 — Select 와 사이 구분선 */
+.sortGroup .sortDir {
+  border-left: var(--border-light) !important;
+  padding-inline: var(--spacing-sm);
+}
+.tbBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: var(--radius-circle);
+  background: var(--color-accent);
+  color: var(--text-white);
+  font-size: 9px;
+}
+/* 드롭다운 메뉴(범위/정렬) */
+.tbMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-2xs);
+  min-width: 140px;
+}
+.tbMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+.tbMenuItem:hover { background: var(--bg-secondary); }
+.tbMenuItem svg { color: var(--color-accent); }
+/* 필터 메뉴 */
+.filterMenu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-md);
+  min-width: 240px;
+  max-width: 320px;
+}
+.filterGroupLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  margin-top: var(--spacing-3xs);
+}
+.filterTag {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.12s ease;
+}
+.filterTagOn {
+  color: var(--text-primary);
+  border-color: var(--color-accent);
+  background: var(--bg-accent);
+}
+.tbEmpty {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  text-align: center;
+  padding: var(--spacing-sm);
+}
+.searchBox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+}
+.searchIcon { color: var(--text-tertiary); flex-shrink: 0; }
+.searchInput {
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--font-size-2xs);
+  outline: none;
+  width: 140px;
+}
+.searchClear {
+  display: inline-flex;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.searchClear:hover { color: var(--text-primary); }
+.filterChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3xs);
+}
+.filterChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.12s ease;
+}
+.filterChip:hover { color: var(--text-secondary); }
+.filterChipOn {
+  color: var(--text-primary);
+  border-color: var(--_lc);
+  background: color-mix(in srgb, var(--_lc) 12%, var(--bg-primary));
+}
+.filterDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  background: var(--_lc);
+}
+
+/* ── 에디터 전용 상단 바 (공유 달력 연결/불러오기) ── */
+/* 캘린더 제목 — blockBar 안 인라인 편집 인풋 (제목 | 툴바 | 액션 한 줄) */
+.calNameWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.calNameInput {
+  width: 180px;
+  max-width: 100%;
+  min-width: 0;
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  outline: none;
+  text-overflow: ellipsis;
+  transition: background-color 0.15s ease;
+}
+.calNameInput::placeholder {
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+.calNameInput:hover { background: var(--bg-secondary); }
+.calNameInput:focus { background: var(--bg-secondary); }
+/* 글자수 카운터 — 포커스 시에만 표시 */
+.calNameCount {
+  flex-shrink: 0;
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.calNameCountMax { color: var(--color-accent); }
+
+/* 리더 — 읽기전용 캘린더 제목 heading */
+.calNameReader {
+  margin: var(--spacing-xs) 0 var(--spacing-2xs);
+  padding: 0 var(--spacing-xs);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.blockBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-sm) 0 var(--spacing-2xs);
+}
+.blockBarLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+.blockBarActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.blockBarBtn {
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.blockBarBtn:hover { color: var(--text-primary); border-color: var(--border-strong-color); }
+.blockBarIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.blockBarIconBtn:hover { color: var(--text-primary); border-color: var(--border-strong-color); }
+
+/* 내보내기 형식 메뉴 */
+.exportMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-2xs);
+  min-width: 180px;
+}
+.exportItem {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+.exportItem:hover { background: var(--bg-secondary); }
+
+/* ── 전체화면 ── */
+.calFullscreen {
+  position: fixed;
+  inset: 0;
+  /* 모달(#modal-root = --z-overlay 9000)보다 아래 — 전체화면 중 열리는 이벤트/날짜/체인 모달이 위에 보이도록.
+     (nav 100·페이지 콘텐츠보다는 위라 전체화면 커버는 유지) */
+  z-index: var(--z-modal);
+  margin: 0;
+  padding: var(--spacing-xl);
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  overflow: auto;
+}
+.calFullscreen .blockBar { margin: 0; }
+.calFullscreen .calendar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.calFullscreen .grid {
+  flex: 1;
+  grid-auto-rows: minmax(0, 1fr);
+}
+
+/* 로딩/에러 상태 */
+.calStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+  min-height: 120px;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* 연결된 달력이 삭제(휴지통)됐을 때 — 에디터: 재연결 안내 / 리더: 삭제됨 표시 */
+.calDeleted {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-height: 96px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 1px solid var(--border-strong-color);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+.calDeletedIcon { flex-shrink: 0; color: var(--text-tertiary); }
+.calDeletedText { display: flex; flex-direction: column; gap: var(--spacing-3xs); flex: 1; min-width: 0; }
+.calDeletedText strong { color: var(--text-primary); font-size: var(--font-size-sm); font-weight: 600; }
+.calDeletedText span { color: var(--text-tertiary); font-size: var(--font-size-2xs); line-height: 1.5; }
+.spin { animation: calspin 0.8s linear infinite; }
+@keyframes calspin { to { transform: rotate(360deg); } }
+
+/* ── 불러오기 picker 모달 ── */
+.pickerModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+}
+.pickerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+.pickerNew {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-md);
+  border: 1px dashed var(--border-strong-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+.pickerNew:hover { color: var(--text-accent); border-color: var(--color-accent); background: var(--bg-accent); }
+.pickerManage {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+.pickerManage:hover { color: var(--text-primary); background: var(--bg-secondary); }
+.pickerList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  max-height: 340px;
+  overflow-y: auto;
+}
+.pickerEmpty {
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+.pickerItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-2xs) var(--spacing-2xs);
+  border: 1px solid transparent;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.pickerItem:hover { background: var(--bg-secondary); }
+.pickerItemOn { background: var(--bg-accent); border-color: var(--color-accent); }
+.pickerItemOn:hover { background: var(--bg-accent); }
+.pickerItemConfirming { background: var(--bg-secondary); cursor: default; }
+/* 날짜 뱃지 — 좌측 rounded square (월 / 연도) */
+.pickerItemDate {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  line-height: 1.05;
+}
+.pickerItemMon { font-size: var(--font-size-xs); font-weight: 600; }
+.pickerItemYear { font-size: var(--font-size-3xs); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+/* 선택된 행 — 뱃지를 accent 로 채워 tint 위 회색 뱃지가 탁해지는 문제 해결 */
+.pickerItemOn .pickerItemDate { background: var(--color-accent); color: var(--text-white); }
+.pickerItemOn .pickerItemMon,
+.pickerItemOn .pickerItemYear { color: var(--text-white); }
+.pickerItemMain { display: flex; flex-direction: column; gap: var(--spacing-3xs); min-width: 0; flex: 1; }
+.pickerItemTitle { font-size: var(--font-size-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pickerItemMeta { font-size: var(--font-size-2xs); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pickerItemEnd { flex-shrink: 0; display: inline-flex; align-items: center; }
+.pickerItemCheck { color: var(--color-accent); }
+/* 삭제 버튼 — absolute 로 우측에 겹침(레이아웃 미점유) → 체크 아이콘 옆 유령 여백 제거. hover 시 페이드인 */
+.pickerItemDel {
+  position: absolute;
+  right: var(--spacing-2xs);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+}
+/* (0,2,0) — 전역 theme transition shorthand(opacity 미포함) override */
+.pickerItem .pickerItemDel { transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease; }
+.pickerItem:hover .pickerItemDel, .pickerItemDel:focus-visible { opacity: 1; }
+/* hover 시 체크는 숨겨 삭제 버튼과 겹치지 않게 */
+.pickerItem:hover .pickerItemCheck { opacity: 0; }
+.pickerItemDel:hover { color: var(--text-accent); background: var(--bg-accent); }
+/* 인라인 삭제 확인 */
+.pickerConfirm { flex-shrink: 0; display: inline-flex; align-items: center; gap: var(--spacing-2xs); }
+.pickerConfirmText { font-size: var(--font-size-2xs); color: var(--text-secondary); }
+.pickerConfirmYes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent);
+  color: var(--text-white);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+}
+.pickerConfirmYes:disabled { opacity: 0.7; cursor: default; }
+.pickerConfirmNo {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+}
+.pickerConfirmNo:hover { color: var(--text-primary); background: var(--bg-secondary); }
+.pickerSpin { animation: calspin 0.7s linear infinite; }
+
+/* ── 불러오기 모달 휴지통 섹션 (접힘) — 복구는 명시적 버튼으로만 ── */
+.pickerTrash {
+  margin-top: var(--spacing-2xs);
+  padding-top: var(--spacing-2xs);
+  border-top: var(--border-light);
+}
+.pickerTrashHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  width: 100%;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+.pickerTrashHead:hover { background: var(--bg-secondary); color: var(--text-secondary); }
+.pickerTrashCount {
+  min-width: 18px;
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  text-align: center;
+}
+.pickerTrashChev { margin-left: auto; color: var(--text-tertiary); }
+/* compound(0,2,0) — 글로벌 theme transition 이 transform 을 안 덮게 */
+.pickerTrash .pickerTrashChev { transition: transform var(--duration-base) ease; }
+.pickerTrashChevOpen { transform: rotate(180deg); }
+.pickerTrashBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: var(--spacing-3xs);
+}
+.pickerTrashItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border-radius: var(--radius-2xl);
+}
+.pickerTrashItem:hover { background: var(--bg-secondary); }
+/* 삭제된 항목이라 날짜 뱃지 살짝 흐리게 */
+.pickerTrashItem .pickerItemDate { opacity: 0.6; }
+.pickerTrashSoon { color: var(--text-error); font-weight: 600; }
+
+/* ── 이벤트 달력 (에디터·리더 공용) ── 마진은 wrapper(blockBar/readerCalendar)가 담당 */
+.calendar {
+  /* 3개 구역(달이동/요일/날짜)을 풀폭 밴드로 분리 — padding 은 각 밴드가 담당 */
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  /* overflow visible — 월 선택 popover 가 밖으로 펼쳐질 수 있게. 코너는 grid 가 자체 클립 */
+  user-select: none;
+}
+.monthNavWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ① 달 이동 구역 */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: var(--border-light);
+}
+.navGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+.title {
+  min-width: 8em;
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  text-align: center;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.title:hover { background: var(--bg-secondary); }
+.monthPickerPop { padding: var(--spacing-sm); }
+.navBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+.navBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong-color);
+}
+
+/* ② 요일 구역 */
+.weekRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: var(--spacing-2xs) 0;
+  border-bottom: var(--border-light);
+}
+.weekday {
+  padding: var(--spacing-3xs) 0;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+.sun { color: var(--color-accent); }
+.sat { color: var(--color-info); }
+
+/* ③ 날짜 구역 — 주(week) 단위 스택 + 스팬 바 오버레이(기간 이벤트를 한 줄로 연속 표시) */
+/* 월 그리드 페이지 넘김 슬라이드 clip 래퍼 */
+.gridViewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+}
+.grid {
+  display: flex;
+  flex-direction: column;
+  /* 외곽 테두리는 .calendar 가 담당(중복 방지) — 여기선 내부 week/cell 구분선만 */
+  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+  overflow: hidden;
+}
+.week {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  min-height: 104px;
+  overflow: hidden;
+}
+.week + .week { border-top: 1px solid var(--border-light-color); }
+.cell {
+  min-height: 104px;
+  padding: var(--spacing-3xs);
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-light-color);
+  min-width: 0;
+  overflow: hidden;
+}
+/* 마지막(7번째) 셀 border-right 제거 — 컨테이너 오른쪽 border 와 겹쳐 두꺼워 보이는 것 방지 */
+.week .cell:nth-child(7) { border-right: none; }
+.cell:last-child { border-right: none; }
+/* 스팬 바 오버레이 — 셀 열과 동일한 7열 그리드, 바는 grid-column span 으로 연속 */
+.weekBars {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 20px;
+  row-gap: var(--spacing-3xs);
+  align-content: start;
+  padding: 30px 0 var(--spacing-2xs);
+  pointer-events: none;
+}
+.spanBar {
+  height: 20px;
+  margin: 0 2px;
+  min-width: 0;
+  pointer-events: auto;
+}
+.weekBars .moreChip { pointer-events: auto; align-self: center; justify-self: stretch; text-align: left; margin: 0 2px; }
+.editable {
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+/* 반투명 틴트는 셀 아래 그리드 라인(회색)이 비쳐 탁해짐 → bg-primary 에 accent 를 섞은 불투명 틴트 */
+/* hover 시 셀 전체가 아니라 날짜 숫자에만 옅은 accent 원 */
+.editable:hover:not(.today) .dayNum {
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--bg-primary));
+  color: var(--text-primary);
+}
+.outMonth { background: var(--bg-secondary); }
+.outMonth .dayNum { color: var(--text-tertiary); opacity: 0.6; }
+.selected { background: var(--bg-accent); }
+/* 사이드바 focus → 이벤트 chip 펄스 강조 (타임라인 tlBarHighlight 와 동일 컨셉, tint 아님) */
+.chipHi { animation: monthChipHl 1.5s ease-in-out infinite; z-index: 5; }
+@keyframes monthChipHl {
+  0%, 100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--_chip) 32%, transparent), 0 0 0 0 color-mix(in srgb, var(--_chip) 0%, transparent); }
+  50% { box-shadow: inset 0 0 0 2px var(--_chip), 0 0 0 4px color-mix(in srgb, var(--_chip) 45%, transparent); }
+}
+/* 드래그 중 드롭 대상 셀 — 옅은 accent + inset 링 */
+.cellDrop {
+  background: color-mix(in srgb, var(--color-accent) 12%, var(--bg-primary));
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.dayNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-circle);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.today .dayNum {
+  background: var(--color-accent);
+  color: var(--text-white);
+}
+
+.chips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  min-width: 0;
+}
+/* 레인 슬롯 — 고정 높이(빈 슬롯도 자리 차지해 셀 간 레인 정렬 → 기간 이벤트가 이어져 보임) */
+.lane {
+  display: flex;
+  height: 20px;
+  min-width: 0;
+}
+/* 기간 이벤트 바 — 셀 폭 가득 채우고, 이어지는 쪽 모서리는 flat */
+.chipBar {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+.spanL { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.spanR { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.chip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 3px var(--spacing-2xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  /* 불투명 틴트 — 셀 hover(accent)가 뒤에서 비쳐 색이 달라 보이는 것 방지 */
+  background: color-mix(in srgb, var(--_chip) 16%, var(--bg-primary));
+  color: var(--text-primary);
+  font-size: 10px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+  transition: background-color 0.12s ease;
+}
+.chip:hover { background: color-mix(in srgb, var(--_chip) 28%, var(--bg-primary)); }
+/* 기간 이벤트가 여러 줄로 나뉜 경우 한 세그먼트 hover 시 이어진 모든 세그먼트에 동일 효과 */
+.chipHover { background: color-mix(in srgb, var(--_chip) 28%, var(--bg-primary)); }
+/* hover 한 이벤트의 연결 체인 강조 (월/주/일 공통) — accent 링 + 부드러운 글로우 */
+.chipChainHi { box-shadow: 0 0 0 1.5px var(--color-accent), 0 2px 10px color-mix(in srgb, var(--color-accent) 26%, transparent); z-index: 3; }
+.agendaChainHi { box-shadow: 0 0 0 1.5px var(--color-accent), 0 2px 10px color-mix(in srgb, var(--color-accent) 26%, transparent); z-index: 3; }
+.chip[draggable="true"] { cursor: grab; }
+.chip[draggable="true"]:active { cursor: grabbing; }
+.chipDone .chipLabel { text-decoration: line-through; opacity: 0.6; }
+.chipDot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--_chip);
+}
+.chipLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.moreChip {
+  align-self: flex-start;
+  padding: 2px var(--spacing-2xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.moreChip:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* +N 클릭 시 그 날 이벤트 전체 목록 팝오버 */
+.dayPop {
+  position: fixed;
+  z-index: var(--z-top);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-lg);
+}
+.dayPopHead {
+  padding: 0 var(--spacing-3xs);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.dayPopList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  max-height: 260px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ── 이벤트 목록 사이드바 (월/주/일/타임라인 공통) ── */
+.calShell { display: flex; align-items: stretch; gap: 0; min-width: 0; }
+.calMain { flex: 1; min-width: 0; }
+
+/* ── 전체화면 peek 패널 (날짜/연결작업 상세 — 모달 대신 우측 인라인) ── */
+.calFullscreen .calShell { flex: 1; min-height: 0; }
+.peekPanel {
+  flex-shrink: 0;
+  overflow: hidden;          /* width 애니메이션 클립 */
+  border-left: var(--border-light);
+  align-self: stretch;
+}
+.peekInner {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  height: 100%;
+  min-height: 0;
+}
+.peekHeader {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
+  border-bottom: var(--border-light);
+}
+.peekTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.peekClose {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.peekClose:hover { color: var(--text-primary); background: var(--bg-secondary); }
+.peekBody { flex: 1; min-height: 0; overflow-y: auto; }
+.peekFooter:not(:empty) {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-top: var(--border-light);
+}
+/* 모션 래퍼는 메인뷰 높이에 맞춰 stretch, 사이드바는 absolute 로 빼 높이 기여 안 함 → 메인뷰 높이를 따라감 */
+.evSidebarMotion { flex-shrink: 0; overflow: hidden; align-self: stretch; position: relative; }
+.evSidebar {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 260px;
+  display: flex;
+  flex-direction: column;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+.evSidebarHead {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
+}
+.evSidebarTitle { font-size: var(--font-size-lg); font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
+.evSidebarActions { display: inline-flex; align-items: center; gap: var(--spacing-3xs); }
+.evSidebarBtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border: none; border-radius: var(--radius-circle);
+  background: transparent; color: var(--text-tertiary); cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.evSidebarBtn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.evFilters { padding: 0 var(--spacing-md) var(--spacing-sm); }
+.evList { flex: 1; min-height: 0; overflow-y: auto; padding: 0 var(--spacing-sm) var(--spacing-md); overscroll-behavior: contain; }
+.evEmpty { padding: var(--spacing-3xl) var(--spacing-md); text-align: center; color: var(--text-tertiary); font-size: var(--font-size-sm); }
+.evGroup { padding-top: var(--spacing-sm); }
+/* 날짜 헤더 — line 기반: 하단 hairline 구분선 */
+.evDate {
+  display: flex; align-items: center; gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-2xs) var(--spacing-xs);
+  margin-bottom: var(--spacing-2xs);
+  font-size: var(--font-size-2xs); font-weight: 700; color: var(--text-secondary); letter-spacing: 0.01em;
+  border-bottom: var(--border-light);
+  position: sticky; top: 0; background: var(--bg-primary); z-index: 1;
+}
+.evGroupToday .evDate { color: var(--color-accent); border-bottom-color: color-mix(in srgb, var(--color-accent) 40%, transparent); }
+.evTodayTag {
+  margin-left: auto;
+  padding: 1px var(--spacing-2xs); border-radius: var(--radius-capsule);
+  background: var(--color-accent); color: var(--text-white);
+  font-size: var(--font-size-3xs); font-weight: 600;
+}
+/* 이벤트 = 한 줄. hover 배경은 capsule (단일행 → capsule) */
+.evItem {
+  display: flex; align-items: center; gap: var(--spacing-sm);
+  width: 100%; text-align: left;
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border: none; border-radius: var(--radius-capsule);
+  background: transparent; cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+.evItem:hover { background: var(--bg-secondary); }
+.evItemDot { flex-shrink: 0; width: 10px; height: 10px; border-radius: var(--radius-circle); background: var(--_c); position: relative; }
+/* 상태를 채움 정도로 — 예정=빈원 / 진행=반채움 / 완료=체크 / 중단=채움 (색은 라벨색 --_c) */
+.evItemDotTodo { background: transparent; box-shadow: inset 0 0 0 1.5px var(--_c); }
+.evItemDotDoing { background: transparent; box-shadow: inset 0 0 0 1.5px var(--_c); overflow: hidden; }
+.evItemDotDoing::before { content: ""; position: absolute; inset: 0; background: var(--_c); clip-path: inset(0 50% 0 0); }
+/* 중단 = 채움 + 흰 대시 — plain 채움(상태없음, 라벨색만)과 구분 */
+.evItemDotHold { background: var(--_c); }
+.evItemDotHold::after {
+  content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 5px; height: 1.5px; border-radius: 1px; background: var(--bg-primary);
+}
+.evItemDotDone { background: var(--_c); }
+.evItemDotDone::after {
+  content: ""; position: absolute; left: 50%; top: 45%;
+  width: 2.5px; height: 5px; border: solid var(--bg-primary); border-width: 0 1.5px 1.5px 0;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.evItemTitle { flex: 1; min-width: 0; font-size: var(--font-size-sm); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.evItemDone .evItemTitle { text-decoration: line-through; color: var(--text-tertiary); }
+.evItemTime { flex-shrink: 0; font-size: var(--font-size-2xs); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+/* 중요도 = 별. 채움 정도로 단계(높음=꽉 / 보통=반 / 낮음=빈). 색은 중요도색 보조 */
+.evItemStar { flex-shrink: 0; display: inline-flex; align-items: center; color: var(--_sc); line-height: 0; }
+/* 반별 — 외곽선 별 위에 채운 별을 좌측 50% clip 으로 겹침 (rating 식 반쪽) */
+.evStarHalf { position: relative; display: inline-flex; width: 13px; height: 13px; }
+.evStarHalf svg { position: absolute; inset: 0; }
+.evStarHalfFill { clip-path: inset(0 50% 0 0); }
+/* 도움말 범례 (Popover) — 각 아이콘 의미 */
+.evHelp { display: flex; flex-direction: column; gap: var(--spacing-sm); padding: var(--spacing-xs) var(--spacing-sm); min-width: 168px; }
+.evHelpGroup { display: flex; flex-direction: column; gap: var(--spacing-3xs); }
+.evHelpTitle { font-size: var(--font-size-3xs); font-weight: 700; color: var(--text-tertiary); letter-spacing: 0.02em; margin-bottom: 2px; }
+.evHelpRow { display: flex; align-items: center; gap: var(--spacing-2xs); font-size: var(--font-size-2xs); color: var(--text-secondary); }
+.evHelpDot { --_c: var(--text-secondary); }
+.evHelpStar { display: inline-flex; align-items: center; width: 13px; height: 13px; color: var(--text-secondary); line-height: 0; flex-shrink: 0; }
+.evHelpLink { color: var(--text-tertiary); flex-shrink: 0; }
+/* active(사이드바 열림) — accent 아이콘 대신 공통 active 스타일(inverse 배경/글자) */
+.blockBarIconOn {
+  background: var(--bg-inverse) !important;
+  border-color: var(--bg-inverse) !important;
+  color: var(--text-inverse) !important;
+}
+
+/* ── 사이드바 — 연결된 이벤트 인라인 펼침 ── */
+.evRow { display: flex; flex-direction: column; }
+.evRowMain { display: flex; align-items: center; gap: var(--spacing-3xs); }
+.evRowMain > .evItem { flex: 1; min-width: 0; }
+/* 연결 토글 — 링크 아이콘 + 개수 + chevron */
+.evLinkToggle {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 2px var(--spacing-2xs);
+  border: none; border-radius: var(--radius-capsule);
+  background: transparent; color: var(--text-tertiary);
+  font-size: var(--font-size-3xs); font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.evLinkToggle:hover { background: var(--bg-secondary); color: var(--text-secondary); }
+.evLinkToggleOn { color: var(--text-accent); }
+.evLinkCount { font-variant-numeric: tabular-nums; }
+/* compound selector (0,2,0) — 전역 theme transition(0,1,1)이 transform 을 안 넣어 snap 되던 것 복구 */
+.evLinkToggle .evLinkChevron { transition: transform 0.15s ease; }
+.evLinkChevronOn { transform: rotate(180deg); }
+/* 펼친 체인 — 연결선 + 노드, 현재 이벤트 강조. framer height:auto 로 열고닫음 → 바깥은 clip, 안쪽이 padding 담당 */
+.evChainCollapse { overflow: hidden; }
+.evChainExpand {
+  display: flex; flex-direction: column;
+  margin-left: var(--spacing-sm);
+  padding: var(--spacing-3xs) 0 var(--spacing-2xs) var(--spacing-2xs);
+  border-left: var(--border-light);
+}
+.evChainRow { position: relative; display: flex; align-items: stretch; gap: var(--spacing-2xs); padding-left: var(--spacing-2xs); }
+.evChainRow > .evItem { flex: 1; min-width: 0; }
+.evChainRail { position: relative; width: 12px; flex-shrink: 0; }
+.evChainRail::before {
+  content: ""; position: absolute; left: 50%; transform: translateX(-50%);
+  top: 0; bottom: 0; width: 2px; border-radius: 2px;
+  background: color-mix(in srgb, var(--_c) 45%, var(--border-light-color));
+}
+.evChainRow:first-child .evChainRail::before { top: 50%; }
+.evChainRow:last-child .evChainRail::before { bottom: 50%; }
+.evChainNode {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 9px; height: 9px; border-radius: var(--radius-circle);
+  background: var(--bg-primary); border: 2px solid var(--_c);
+  box-shadow: 0 0 0 2px var(--bg-primary); z-index: 1;
+}
+.evChainRowDone .evChainNode { background: var(--_c); }
+/* 현재(펼친 기준) 이벤트 강조 */
+.evChainRowCurrent > .evItem { background: color-mix(in srgb, var(--_c) 12%, var(--bg-primary)); }
+.evChainRowCurrent .evChainNode { box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px color-mix(in srgb, var(--_c) 25%, transparent); }
+
+/* ── 연결된 작업 모달 — 넘버링 스테퍼 타임라인 ── */
+.chainFlow { display: flex; flex-direction: column; padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg); }
+.chainStep {
+  position: relative;
+  display: flex; align-items: stretch; gap: var(--spacing-md);
+  width: 100%; text-align: left;
+  padding: 0 var(--spacing-2xs) 0 0;
+  border: none; background: transparent; cursor: pointer;
+}
+/* 레일 — 연결선(노드 사이 gap 관통) */
+.chainStepRail { position: relative; width: 26px; flex-shrink: 0; }
+.chainStepRail::before {
+  content: "";
+  position: absolute;
+  left: 13px; transform: translateX(-50%);
+  top: 0; bottom: 0; width: 2px; border-radius: 2px;
+  background: var(--border-light-color);
+}
+.chainStep:first-child .chainStepRail::before { top: 13px; }
+.chainStep:last-child .chainStepRail::before { bottom: auto; height: 13px; }
+/* 완료 단계까지의 연결선은 라벨색으로 (진행 표시) */
+.chainStepDone .chainStepRail::before { background: color-mix(in srgb, var(--_c) 55%, var(--border-light-color)); }
+/* 마일스톤 노드 — 미완료: 라벨색 링, 완료: 라벨색 채움+체크 */
+.chainStepNode {
+  position: absolute;
+  left: 13px; top: 13px; transform: translate(-50%, -50%);
+  width: 15px; height: 15px; border-radius: var(--radius-circle);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--bg-primary);
+  border: 2.5px solid var(--_c);
+  color: var(--text-white);
+  z-index: 1;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+.chainStepDone .chainStepNode { background: var(--_c); border-color: var(--_c); }
+.chainStep:hover .chainStepNode { transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 0 0 4px color-mix(in srgb, var(--_c) 18%, transparent); }
+/* 컨텐츠 — 배경 없이. 노드 간 간격은 body padding-bottom 으로 줘서 레일이 그 구간까지 덮어 선이 연속되게 */
+.chainStepBody { display: flex; flex-direction: column; gap: var(--spacing-3xs); min-width: 0; flex: 1; padding-top: 3px; padding-bottom: var(--spacing-xl); }
+.chainStep:last-child .chainStepBody { padding-bottom: 0; }
+.chainStepTitleRow { display: flex; align-items: center; gap: var(--spacing-2xs); min-width: 0; }
+.chainStepTitle {
+  font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1;
+  transition: color 0.12s ease;
+}
+.chainStep:hover .chainStepTitle { color: var(--text-accent); }
+.chainStepDone .chainStepTitle { color: var(--text-tertiary); text-decoration: line-through; }
+.chainStep:hover.chainStepDone .chainStepTitle { color: var(--text-tertiary); }
+.chainChip {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: var(--spacing-4xs);
+  font-size: var(--font-size-2xs); font-weight: 500; color: var(--text-secondary); white-space: nowrap;
+}
+.chainStepMeta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-3xs) var(--spacing-md); font-size: var(--font-size-2xs); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.chainMetaItem { display: inline-flex; align-items: center; gap: var(--spacing-3xs); }
+.chainLabelDot { width: 6px; height: 6px; border-radius: var(--radius-circle); }
+
+/* ── 이벤트 추가/편집 모달 폼 ── 좌(제목~상태) | 우(내용~태그), 모바일 1열 */
+.modalBody { display: flex; flex-direction: column; }
+.recurScopeBar {
+  display: flex; align-items: center; gap: var(--spacing-sm);
+  padding: 0 0 var(--spacing-2xs); padding-left: var(--spacing-lg); margin-bottom: var(--spacing-sm);
+  border-bottom: var(--border-light);
+}
+.recurScopeLabel { font-size: var(--font-size-xs); color: var(--text-tertiary); white-space: nowrap; }
+.modalForm {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-md);
+}
+/* 내용(리치 메모) — 편집 폼 아래 전체폭 */
+.memoSection {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
+}
+/* 내용 위 구분선 — 좌우 패딩(모달 콘텐츠 여백)만큼 inset */
+.memoSection::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--spacing-lg);
+  right: var(--spacing-lg);
+  border-top: var(--border-light);
+}
+/* ── 이벤트 상세 뷰(읽기전용) ── */
+.viewDetail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+}
+.vdHead { display: flex; align-items: stretch; gap: var(--spacing-sm); }
+.vdBar {
+  flex-shrink: 0;
+  width: 4px;
+  min-height: 24px;
+  border-radius: var(--radius-capsule);
+  background: var(--_c);
+}
+.vdTitle {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  word-break: break-word;
+  line-height: 1.35;
+}
+.vdRows { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.vdRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.vdIcon { flex-shrink: 0; color: var(--text-tertiary); }
+.vdTags { display: flex; flex-wrap: wrap; gap: var(--spacing-2xs); }
+.vdSection { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
+.vdDividerTop { padding-top: var(--spacing-md); margin-top: var(--spacing-2xs); border-top: var(--border-light); }
+.vdDividerBottom { padding-bottom: var(--spacing-md); margin-bottom: var(--spacing-2xs); border-bottom: var(--border-light); }
+.vdTimeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  margin-left: var(--spacing-2xs);
+  padding: var(--box-3xs-xs);
+  background: var(--color-accent-alpha-10);
+  color: var(--text-accent);
+  border-radius: var(--radius-capsule);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.vdLabel {
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+.vdEmpty {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  font-style: italic;
+}
+.vdDesc {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  line-height: 1.6;
+  word-break: break-word;
+}
+.vdDesc :is(h1, h2, h3) { font-size: var(--font-size-md); font-weight: 700; margin: 0.4em 0 0.2em; }
+.vdDesc ul, .vdDesc ol { margin: 0.2em 0; padding-left: 1.4em; }
+.vdDesc img { max-width: 100%; border-radius: var(--radius-lg); margin: var(--spacing-2xs) 0; }
+.vdDesc a { color: var(--text-accent); text-decoration: underline; }
+
+/* ── 주/일 아젠다 뷰 — 고정 높이(이벤트 수 무관) + 컬럼 내부 스크롤 ── */
+/* 일/주 뷰 헤더 — 월뷰(.header 공유)보다 컴팩트 + 우측 이벤트 추가 버튼 */
+.agendaHeader { padding: var(--spacing-xs) var(--spacing-md); }
+.agendaHeadRight { display: flex; align-items: center; gap: var(--spacing-sm); }
+.agendaHeadAdd {
+  display: inline-flex; align-items: center; gap: var(--spacing-3xs);
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.agendaHeadAdd:hover { color: var(--text-accent); border-color: var(--color-accent); }
+.agendaTitle {
+  padding: 0 var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+/* 페이지 넘김 슬라이드 clip 래퍼 — 하단 코너 라운드 클립 */
+.agendaViewport { position: relative; overflow: hidden; border-radius: 0 0 var(--radius-2xl) var(--radius-2xl); }
+/* 일 뷰 — 왼쪽 시간축 + 오른쪽(미니 달력 + 상세/편집 패널). 시간축이 오른쪽 컬럼과 같은 전체 높이를 채우도록 definite 높이 + stretch */
+.agendaViewportDay { display: flex; align-items: stretch; height: 480px; }
+.agendaViewportDay .dayGrid { flex: 1; min-width: 0; height: 100%; }
+.dayRightCol {
+  flex-shrink: 0;
+  width: 268px;
+  border-left: var(--border-light);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden; /* 미니달력 고정 + 아래 상세 패널만 독립 스크롤 */
+}
+/* 상세 패널만 남은 높이 채우고 내부 스크롤 (미니달력은 위에 고정) */
+.dayRightCol .dayPanel { flex: 1; min-height: 0; overflow-y: auto; }
+.miniCal {
+  flex-shrink: 0;
+  padding: 0 var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+/* 일뷰 사이드바에서만 아래 DayDetailPanel 과 구분선 (peek 팝오버 등 단독 사용 시엔 없음) */
+.dayRightCol .miniCal { border-bottom: var(--border-light); }
+.miniCalHead { display: flex; align-items: center; justify-content: space-between; margin: var(--spacing-sm) 0; }
+.miniCalTitleWrap { position: relative; display: inline-flex; }
+.miniCalTitle {
+  font-size: var(--font-size-sm); font-weight: 700; color: var(--text-primary);
+  border: none; background: transparent; cursor: pointer;
+  padding: var(--spacing-4xs) var(--spacing-2xs); border-radius: var(--radius-capsule);
+  transition: background-color 0.12s ease;
+}
+.miniCalTitle:hover { background: var(--bg-secondary); }
+.miniCalNav {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border: none; border-radius: var(--radius-circle);
+  background: transparent; color: var(--text-tertiary); cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.miniCalNav:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.miniCalWeek, .miniCalGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.miniCalDow { text-align: center; font-size: var(--font-size-3xs); font-weight: 600; color: var(--text-tertiary); padding-bottom: 2px; }
+.miniCalDow.sun { color: var(--color-accent); }
+.miniCalDow.sat { color: var(--color-info); }
+/* 셀 — 숫자 + 개수를 한 그룹으로 세로 센터. 개수 슬롯 항상 예약(빈 날은 공백)해 숫자 위치 고정 → 배경 원이 그룹 가운데. */
+.miniCalCell {
+  aspect-ratio: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  border: none; border-radius: var(--radius-circle);
+  background: transparent;
+  font-size: var(--font-size-2xs); color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.miniCalNum { line-height: 1; }
+.miniCalCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 13px;
+  padding: 1px 3px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  line-height: 1;
+  font-size: var(--font-size-3xs);
+  font-weight: 700;
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+/* 이벤트 없는 날 — 높이만 예약, 배경 없음 */
+/* 선택된 날(accent 원) 위 — 흰 pill + accent 숫자 */
+.miniCalSel .miniCalCount { background: var(--bg-primary); color: var(--color-accent); }
+.miniCalCell:hover { background: var(--bg-secondary); }
+.miniCalOut { color: var(--text-tertiary); opacity: 0.55; }
+.miniCalOut .miniCalCount { opacity: 0.55; }
+.miniCalToday { color: var(--color-accent); font-weight: 700; }
+.miniCalToday .miniCalCount { color: var(--color-accent); }
+.miniCalSel { background: var(--color-accent); color: var(--text-white); font-weight: 700; }
+.miniCalSel:hover { background: var(--color-accent); }
+
+/* ── 일 뷰 인라인 상세/편집 패널 ── */
+.dayPanel { position: relative; display: flex; flex-direction: column; gap: var(--spacing-xs); padding: var(--spacing-xs) var(--spacing-md) var(--spacing-md); }
+.dayPanelEmpty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--spacing-md); padding: var(--spacing-2xl) var(--spacing-md); text-align: center;
+}
+.dayPanelEmptyText { font-size: var(--font-size-xs); color: var(--text-tertiary); line-height: 1.5; }
+/* 헤더 — 색 점 + 제목 한 줄 (dot 과 제목 사이 넉넉히) */
+.dayPanelHead { display: flex; align-items: center; gap: var(--spacing-sm); }
+.dayPanelDot { flex-shrink: 0; width: 11px; height: 11px; border-radius: var(--radius-circle); background: var(--_c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--_c) 20%, transparent); }
+.dayPanelTitle {
+  flex: 1; min-width: 0; border: none; background: transparent;
+  padding: 0;
+  font-family: var(--font-grotesk);
+  font-size: var(--font-size-xl); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; color: var(--text-primary);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+.dayPanelTitle::placeholder { color: var(--text-muted); font-weight: 500; }
+.dayPanelTitle:focus { outline: none; border-bottom-color: var(--color-accent); }
+.dayPanelTitleStatic { flex: 1; min-width: 0; font-family: var(--font-grotesk); font-size: var(--font-size-xl); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; color: var(--text-primary); word-break: break-word; }
+/* 날짜·시간 메타 — 무배경, 아래 hairline 으로 필드와 분리 */
+.dayPanelMeta {
+  display: flex; flex-direction: column; gap: var(--spacing-2xs);
+  padding: var(--spacing-3xs) 0 var(--spacing-sm);
+  border-bottom: var(--border-light);
+}
+.dayPanelRow { display: flex; align-items: center; gap: var(--spacing-xs); font-size: var(--font-size-sm); color: var(--text-secondary); }
+.dayPanelIcon { color: var(--text-tertiary); flex-shrink: 0; }
+.dayPanelTime { color: var(--text-accent); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+.dayPanelField { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
+.dayPanelLabel { font-size: var(--font-size-3xs); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-tertiary); }
+.dayPanelDuo { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm); }
+.dayPanelChips { display: flex; flex-wrap: wrap; gap: var(--spacing-2xs); }
+.dayPanelMuted { font-size: var(--font-size-sm); color: var(--text-muted); }
+.dayPanelDesc {
+  font-size: var(--font-size-xs); color: var(--text-secondary); line-height: 1.55;
+  max-height: 168px; overflow-y: auto; word-break: break-word;
+}
+.dayPanelDesc img { max-width: 100%; border-radius: var(--radius-2xl); }
+.dayPanelActions { display: flex; gap: var(--spacing-2xs); margin-top: var(--spacing-2xs); }
+/* 반복 시간 변경 적용범위 다이얼로그 — 라디오 선택 후 확인 (modalScroll 이 좌우/하단 패딩 없어 여기서 부여) */
+.scopeDialog { display: flex; flex-direction: column; gap: var(--spacing-md); padding: 0 var(--spacing-lg) var(--spacing-lg); }
+.scopeDialogText { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.5; }
+.scopeDialogFooter { display: flex; justify-content: flex-end; gap: var(--spacing-2xs); margin-top: var(--spacing-2xs); }
+/* 선택된 일 이벤트 강조 */
+.dayEventSelected { box-shadow: 0 0 0 2px var(--color-accent), var(--shadow-md); z-index: 4; }
+/* 경계 당김 인디케이터 — 시간축 끝에서 계속 스크롤할 때만 나타나고, 다 차오르면(--_p=1) 넘어감 */
+.pullHint {
+  position: absolute; left: 0; right: 0; z-index: 4;
+  display: flex; justify-content: center; pointer-events: none;
+}
+/* 일뷰: 상/하(세로 스크롤 페이징) · 주뷰: 좌/우(가로 페이징) */
+.pullBottom { bottom: 0; left: 0; right: 0; align-items: flex-end; justify-content: center; padding-bottom: var(--spacing-md); }
+.pullTop { top: 0; left: 0; right: 0; align-items: flex-start; justify-content: center; padding-top: var(--spacing-md); }
+.pullRight { right: 0; top: 0; bottom: 0; align-items: center; justify-content: flex-end; padding-right: var(--spacing-md); }
+.pullLeft { left: 0; top: 0; bottom: 0; align-items: center; justify-content: flex-start; padding-left: var(--spacing-md); }
+/* 원형 진행 링 — 당김 진행도(--_p)만큼 accent 로 차오르고, 다 차면(ready) 꽉 찬 원 */
+.pullRing {
+  position: relative;
+  width: 34px; height: 34px;
+  border-radius: var(--radius-circle);
+  display: grid; place-items: center;
+  background: conic-gradient(var(--color-accent) calc(var(--_p) * 1turn), var(--border-light-color) 0);
+  box-shadow: var(--shadow-sm);
+  opacity: calc(0.5 + 0.5 * var(--_p));
+  transition: opacity 0.1s ease;
+}
+.pullBottom .pullRing { transform: translateY(calc((1 - var(--_p)) * 6px)) scale(calc(0.86 + 0.14 * var(--_p))); }
+.pullTop .pullRing { transform: translateY(calc((1 - var(--_p)) * -6px)) scale(calc(0.86 + 0.14 * var(--_p))); }
+.pullRight .pullRing { transform: translateX(calc((1 - var(--_p)) * 6px)) scale(calc(0.86 + 0.14 * var(--_p))); }
+.pullLeft .pullRing { transform: translateX(calc((1 - var(--_p)) * -6px)) scale(calc(0.86 + 0.14 * var(--_p))); }
+.pullRing::after {
+  content: ""; position: absolute; inset: 2px;
+  border-radius: var(--radius-circle); background: var(--bg-primary);
+}
+.pullRingIcon { position: relative; z-index: 1; display: inline-flex; color: var(--text-tertiary); }
+.pullReady .pullRing::after { background: var(--color-accent); }
+.pullReady .pullRingIcon { color: var(--text-white); }
+/* 블록 크기 일정 — 컬럼 박스 없이, 컬럼 사이 얇은 구분선만. 내부 스크롤. 모바일: 가로 스크롤. */
+.agendaWeek {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(104px, 1fr);
+  height: 300px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+.agendaDay { height: 300px; display: flex; }
+.agendaDay .agendaCol { flex: 1; }
+.agendaCol {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+/* 박스 대신 컬럼 사이 얇은 구분선만 (바깥 컨테이너 테두리와 겹치지 않음) */
+.agendaCol + .agendaCol { border-left: 1px solid var(--border-light-color); }
+
+/* 오늘 — 컬럼 배경 틴트 없이 요일/날짜 accent 텍스트로만 강조 */
+/* 헤더 — 숫자(왼쪽) + 요일(가운데). 클릭 → 상세 모달 */
+.agendaColHead {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border: none;
+  border-bottom: var(--border-light);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+.agendaColHead:hover { background: color-mix(in srgb, var(--color-accent) 6%, transparent); }
+/* 요일 — 가운데, 크게 */
+.agendaDow {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.agendaToday .agendaDow { color: var(--color-accent); }
+/* 날짜 숫자 — 왼쪽 고정 */
+.agendaDate {
+  position: absolute;
+  left: var(--spacing-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 var(--spacing-4xs);
+  border-radius: var(--radius-circle);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.agendaToday .agendaDate { background: var(--color-accent); color: var(--text-white); }
+.agendaDay .agendaDate { min-width: 0; height: auto; padding: 1px var(--spacing-2xs); border-radius: var(--radius-md); }
+.agendaCount {
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-2xs);
+  min-width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--spacing-4xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* 이벤트 목록 — 남는 높이 채우고 내부 스크롤. 스크롤 시 헤더 경계에 하드 클립되지 않게 위아래 페이드. */
+.agendaList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--spacing-2xs), #000 calc(100% - var(--spacing-2xs)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--spacing-2xs), #000 calc(100% - var(--spacing-2xs)), transparent 100%);
+}
+.agendaEmpty {
+  padding: var(--spacing-sm) var(--spacing-2xs);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+/* 심플 이벤트 행 — 색 dot + 시간 + 제목 (박스 없음, hover 시 라벨색 캡슐 틴트) */
+.agendaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 1px var(--spacing-xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+.agendaItem:hover { background: color-mix(in srgb, var(--_c) 11%, var(--bg-primary)); }
+.agendaItemDone { opacity: 0.5; }
+.agendaItemDone .agendaItemTitle { text-decoration: line-through; }
+.agendaDot { display: inline-block; flex-shrink: 0; width: 8px; height: 8px; border-radius: var(--radius-circle); background: var(--_c); }
+.agendaTime { flex-shrink: 0; font-size: var(--font-size-2xs); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-tertiary); }
+.agendaItemTitle { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-size-sm); color: var(--text-primary); }
+.agendaItemLabel { display: none; }
+.agendaAdd {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4xs);
+  padding: var(--spacing-3xs);
+  border: none;
+  border-top: var(--border-light);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+.agendaAdd:hover { color: var(--text-primary); background: var(--bg-secondary); }
+
+/* ── 일 뷰 시간축 그리드 ── */
+/* 하루는 편안한 폭의 단일 컬럼으로 모으고 넓은 블록에선 양옆을 여백으로 (풀너비 슬래브 방지) */
+.dayGrid { display: flex; flex-direction: column; height: 300px; --_col: 560px; }
+.dayAllDay {
+  flex-shrink: 0;
+  width: 100%; max-width: var(--_col); margin-inline: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-bottom: var(--border-light);
+  max-height: 74px;
+  overflow-y: auto;
+}
+.dayAllDayLabel { flex-shrink: 0; margin-right: var(--spacing-3xs); font-size: var(--font-size-2xs); font-weight: 600; color: var(--text-tertiary); letter-spacing: 0.02em; }
+.dayAllDayItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  max-width: 100%;
+  padding: 2px var(--spacing-2xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: color-mix(in srgb, var(--_c) 14%, var(--bg-primary));
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+.dayAllDayItem:hover { background: color-mix(in srgb, var(--_c) 24%, var(--bg-primary)); }
+.dayAllDayItem .agendaItemTitle { font-size: var(--font-size-xs); }
+.dayAllDayAdd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+.dayAllDayAdd:hover { color: var(--text-primary); background: var(--bg-secondary); }
+
+.dayGridScroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.dayGridBody { position: relative; width: 100%; max-width: var(--_col); margin-inline: auto; --_axis: 58px; }
+/* 시간축과 이벤트 영역을 가르는 옅은 세로선 — 컬럼을 시각적으로 그라운딩 */
+.dayGridBody::before {
+  content: ""; position: absolute; top: 0; bottom: 0;
+  left: var(--_axis); width: 1px; background: var(--border-light-color);
+}
+.dayHour {
+  position: absolute;
+  left: var(--_axis);
+  right: 0;
+  height: 0;
+  border-top: 1px solid var(--border-light-color);
+}
+.dayHourLabel {
+  position: absolute;
+  left: calc(-1 * var(--_axis));
+  top: -0.5em;
+  width: calc(var(--_axis) - 10px);
+  text-align: right;
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.dayEvent {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 1px;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: none;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--_c) 16%, var(--bg-primary));
+  box-shadow: inset 3px 0 0 0 var(--_c);
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease;
+}
+.dayEvent:hover { background: color-mix(in srgb, var(--_c) 26%, var(--bg-primary)); box-shadow: inset 3px 0 0 0 var(--_c), var(--shadow-sm); }
+/* 제목 + 상태 아이콘(반복/연결) 한 줄 — 제목만 truncate, 아이콘은 항상 노출 */
+.dayEventHead { display: flex; align-items: center; gap: 3px; min-width: 0; }
+.dayEventIcon { flex-shrink: 0; color: color-mix(in srgb, var(--_c) 55%, var(--text-tertiary)); }
+/* 짧은 블록(30분 등)은 한 줄 — 제목만, 좌측 정렬(시각은 hover 프리뷰로) */
+.dayEventShort { flex-direction: row; align-items: center; justify-content: flex-start; gap: var(--spacing-2xs); padding-block: 2px; }
+.dayEventShort .dayEventHead { flex: 1; }
+.dayEventShort .dayEventTime { display: none; }
+.dayEventTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-sm); font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.35;
+}
+.dayEventTime { font-size: var(--font-size-2xs); font-weight: 600; color: color-mix(in srgb, var(--_c) 60%, var(--text-tertiary)); font-variant-numeric: tabular-nums; line-height: 1.3; }
+.dayNowLine { position: absolute; left: var(--_axis); right: 0; height: 2px; background: var(--color-accent); z-index: 5; pointer-events: none; }
+.dayNowDot { position: absolute; left: -4px; top: 50%; width: 8px; height: 8px; border-radius: var(--radius-circle); background: var(--color-accent); transform: translateY(-50%); }
+/* 드래그: 블록 이동/리사이즈 + 빈 슬롯 생성 프리뷰 */
+.dayEventDraggable { cursor: grab; }
+.dayEventDragging { z-index: 6; box-shadow: 0 4px 14px oklch(0% 0 0 / 0.2); opacity: 0.95; cursor: grabbing; overflow: visible; }
+/* 드래그 중 현재 위치 시간 배지 — 시작 엣지는 블록 위, 종료 엣지는 블록 아래 */
+.dayEventDragTime {
+  position: absolute;
+  left: var(--spacing-xs);
+  bottom: calc(100% + 3px);
+  padding: 1px var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent);
+  color: var(--text-white);
+  font-size: var(--font-size-3xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  z-index: 7;
+  pointer-events: none;
+  box-shadow: var(--shadow-sm);
+}
+.dayEventDragTimeBottom { bottom: auto; top: calc(100% + 3px); }
+.dayEventResize { position: absolute; left: 0; right: 0; bottom: 0; height: 11px; cursor: ns-resize; z-index: 3; }
+/* 상단 핸들 — 시작 시각 조절 */
+.dayEventResizeTop { top: 0; bottom: auto; }
+/* 짧은 블록은 위·아래 핸들이 겹치지 않게 얇게 (가운데 선택 영역 확보) */
+.dayEventShort .dayEventResize { height: 7px; }
+/* hover 시 그립 바 — 크기 조절 지점 안내 (기본 하단, Top 은 상단으로) */
+.dayEvent:hover .dayEventResize::after {
+  content: "";
+  position: absolute;
+  left: 50%; bottom: 2px;
+  transform: translateX(-50%);
+  width: 24px; height: 3px;
+  border-radius: var(--radius-capsule);
+  background: var(--_c);
+  opacity: 0.65;
+}
+.dayEvent:hover .dayEventResizeTop::after { top: 2px; bottom: auto; }
+.dayCreatePreview {
+  position: absolute;
+  left: var(--_axis);
+  right: 3px;
+  z-index: 4;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-accent) 16%, var(--bg-primary));
+  border: 1px dashed var(--color-accent);
+  pointer-events: none;
+}
+
+/* ── 날짜 상세 모달 ── */
+/* ── 날짜별 이벤트 모달 — 라인 기반 트렌디 리스트 ── */
+.dayModal { display: flex; flex-direction: column; min-height: 60px; padding: var(--spacing-sm) var(--spacing-md) var(--spacing-lg); }
+.dayModalEmpty {
+  padding: var(--spacing-2xl) var(--spacing-md);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+.dayModalList { display: flex; flex-direction: column; }
+/* 미니멀 agenda 행 — 시간 · 라벨색 dot · 제목 · muted 서브텍스트 (상태·중요도) */
+.dayRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.14s ease;
+}
+.dayRow:hover { background: var(--bg-secondary); }
+.dayRowDone { opacity: 0.5; }
+.dayRowDone .dayRowTitle { text-decoration: line-through; }
+.dayRowTime {
+  flex-shrink: 0;
+  width: 58px;
+  padding-top: 2px;
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+.dayRowBody { display: flex; flex-direction: column; gap: var(--spacing-3xs); min-width: 0; flex: 1; }
+.dayRowTitleLine { display: flex; align-items: center; gap: var(--spacing-2xs); min-width: 0; }
+.dayRowDot { flex-shrink: 0; width: 7px; height: 7px; border-radius: var(--radius-circle); background: var(--_c); }
+.dayRowTitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); min-width: 0; }
+.dayRowRange {
+  flex-shrink: 0;
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+.dayRowSub {
+  padding-left: calc(7px + var(--spacing-2xs));
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ── 관계(선행/후속) 인디케이터 ── */
+.chipRel { flex-shrink: 0; margin-left: auto; color: var(--text-tertiary); opacity: 0.7; }
+/* 반복·연결 아이콘 묶음 — 우측 정렬, 아이콘 사이 간격 */
+.chipInd { flex-shrink: 0; margin-left: auto; display: inline-flex; align-items: center; gap: var(--spacing-4xs); color: var(--text-tertiary); opacity: 0.7; }
+.agendaRel { flex-shrink: 0; margin-left: var(--spacing-4xs); color: var(--text-tertiary); opacity: 0.7; vertical-align: -1px; }
+
+/* ── 저장 상태 표시 ── */
+.saveState {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4xs);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* ── 키보드 단축키 힌트 (툴팁 안) ── */
+.kbdHint { display: flex; flex-direction: column; gap: var(--spacing-3xs); font-size: var(--font-size-2xs); text-align: left; }
+.kbdHint kbd {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 1px var(--spacing-4xs);
+  border-radius: var(--radius-sm);
+  /* 툴팁 글자색(text-inverse) 기반 — 전역 kbd{color:text-primary} 를 덮어써 툴팁(inverse 배경)에서 보이게 */
+  color: var(--text-inverse);
+  background: color-mix(in srgb, var(--text-inverse) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-inverse) 30%, transparent);
+  font-family: var(--font-space-grotesk);
+  font-size: 0.9em;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ── 이벤트 모달 헤더 back/forward ── */
+.navBtns { display: inline-flex; align-items: center; gap: var(--spacing-4xs); }
+.navBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+.navBtn:hover:not(:disabled) { color: var(--text-primary); background: var(--bg-secondary); }
+.navBtn:disabled { opacity: 0.35; cursor: default; }
+
+/* ── 연관 이벤트 (편집 필드) ── */
+.relField { display: flex; flex-direction: column; gap: var(--spacing-3xs); }
+.relField + .relField { margin-top: var(--spacing-2xs); }
+.relFieldLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4xs);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+}
+/* 선택된 관계 이벤트 칩 목록 (공통 Chip) — 한 줄 유지·줄바꿈 금지·왼쪽 정렬·넘치면 잘림 */
+.relChips { display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: var(--spacing-3xs); min-width: 0; overflow: hidden; padding-block: 5px; margin-block: -5px; }
+
+/* ── 연관 이벤트 (상세 뷰) ── */
+.vdRelRow { display: flex; align-items: center; gap: var(--spacing-2xs); min-width: 0; }
+.vdRelKind {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4xs);
+  flex-shrink: 0;
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+/* 공통 Chip 사용 — 한 줄 유지 · 줄바꿈 금지 · 왼쪽 정렬 · 넘치면 잘림 */
+.vdRelChips { display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: var(--spacing-3xs); min-width: 0; overflow: hidden; padding-block: 5px; margin-block: -5px; }
+/* 클릭 시 해당 이벤트로 이동 — hover 로 명확히 표시(accent 틴트 + 살짝 올라옴) */
+.relNavChip { cursor: pointer; transition: background-color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease; }
+.relNavChip:hover {
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--bg-secondary));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  color: var(--color-accent);
+  transform: translateY(-1px);
+}
+.modalCol {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+.sectionFull { /* flex 컬럼에선 자동 전체폭 */ }
+@media (max-width: 560px) {
+  .modalForm { flex-direction: column; gap: var(--spacing-md); }
+}
+.sectionLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+/* 두 필드를 나란히 (상태·중요도). 모바일은 세로 */
+.sectionRow {
+  display: flex;
+  gap: var(--spacing-md);
+}
+.sectionRow > .section { flex: 1 1 0; min-width: 0; }
+@media (max-width: 560px) {
+  .sectionRow { flex-direction: column; }
+}
+.periodToggle {
+  padding: 1px var(--spacing-sm);
+  border: 1px dashed var(--border-strong-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 10px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.12s ease;
+}
+.periodToggle:hover { color: var(--text-accent); border-color: var(--color-accent); }
+.periodToggleOn {
+  color: var(--text-accent);
+  border-style: solid;
+  border-color: var(--color-accent);
+  background: var(--bg-accent);
+}
+/* 기간 토글 ON — 공통 active 스타일(SegmentedControl 선택 등)과 동일한 검정 채움 */
+.rangeToggleOn {
+  background: var(--bg-inverse) !important;
+  border-color: var(--bg-inverse) !important;
+  color: var(--text-inverse) !important;
+}
+
+/* 섹션 (날짜/제목/라벨/태그/시간) */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+/* 그룹 경계 구분선 (섹션 아래) — 지정 위치에만 */
+.grpDividerBottom { border-bottom: var(--border-light); padding-bottom: var(--spacing-md); }
+
+/* ── 반복 사용자화(custom recurrence) — popover 내부 ── */
+/* z 는 공통 Popover 기본값(--z-popover)이 모달 위로 올려줌 — 별도 override 불필요 */
+.recurPop { min-width: 252px; }
+.recurPopBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+}
+/* 사용자화 + 종료 구분 hairline */
+.recurPopBody .recurEnd:not(:first-child) {
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-light);
+}
+.recurCustom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+.recurCustomRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+.recurText { font-size: var(--font-size-xs); color: var(--text-secondary); }
+/* 반복 stepper(NumberInput) — 배경을 옆 Select/Segmented(투명=popover bg)와 통일 (기본 bg-tertiary 튐 방지) */
+.recurCustomRow .recurStepper,
+.recurCountWrap .recurStepper { background: transparent; }
+/* 종료일 버튼 — 다른 컨트롤(28px)과 높이 통일 */
+.recurDateBtn { height: var(--control-h-sm); }
+.recurWeekdays { display: flex; gap: var(--spacing-3xs); flex-wrap: wrap; }
+
+/* ── 고급 반복 (월: 날짜/조건, 연: 월 grid + 조건) ── */
+.recurAdv { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
+/* 날짜/조건 SegmentedControl — flex column 에서 100% 로 늘어나지 않게 내용 폭만 */
+.recurModeSeg { align-self: flex-start; }
+/* 월간 날짜 그리드 1~31 (7열) */
+/* 폭을 고정·가운데 정렬 → 셀(1fr)이 좁아져 원끼리 촘촘. 위아래 여백으로 주변 요소와 분리 */
+.recurDayGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--spacing-3xs);
+  width: 210px;
+  max-width: 100%;
+  margin: var(--spacing-sm) 0 var(--spacing-2xs);
+}
+.recurDay {
+  aspect-ratio: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+}
+.recurDay:hover { border-color: var(--border-strong-color); }
+.recurDayOn { background: var(--color-accent); border-color: var(--color-accent); color: var(--text-white); font-weight: 600; }
+/* 연간 월 그리드 1~12월 (4열) */
+/* 날짜 grid 와 gap·위아래 여백 동일. 4열이라 폭만 좁게(셀은 day 와 비슷한 원 크기) */
+.recurMonthGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-3xs);
+  width: 120px;
+  flex-shrink: 0;
+  max-width: 100%;
+}
+.recurMonth {
+  aspect-ratio: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-3xs);
+  cursor: pointer;
+}
+.recurMonth:hover { border-color: var(--border-strong-color); }
+.recurMonthOn { background: var(--color-accent); border-color: var(--color-accent); color: var(--text-white); font-weight: 600; }
+/* 연간 — 월 그리드(좌) + 조건 지정(우) 2열 나란히 */
+.recurYearCols { display: flex; align-items: flex-start; gap: var(--spacing-md); margin-top: var(--spacing-sm); }
+.recurYearCond { display: flex; flex-direction: column; gap: var(--spacing-2xs); min-width: 0; }
+/* n번째 요일 조건 select 행 */
+.recurOrdRow { display: flex; align-items: center; gap: var(--spacing-2xs); flex-wrap: wrap; }
+/* 연간 "조건 지정" 체크박스 행 */
+.recurCondToggle { display: inline-flex; align-items: center; gap: var(--spacing-2xs); cursor: pointer; }
+.recurWd {
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  flex-shrink: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.recurWd:hover { border-color: var(--border-strong-color); }
+.recurWdOn {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--text-white);
+  font-weight: 600;
+}
+.recurEnd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-top: 0;
+}
+.recurCountWrap { display: inline-flex; align-items: center; gap: var(--spacing-2xs); }
+/* 날짜 선택 trigger */
+.dateTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  align-self: flex-start;
+  max-width: 100%;
+  min-width: 0;
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.dateTrigger:hover { border-color: var(--border-strong-color); }
+.dateTrigger > svg { flex-shrink: 0; }
+/* 요약 텍스트 — 한 줄 유지, 넘치면 …. (종료일은 따로 표시해 길이 최소화) */
+.dateTriggerText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+/* 반복 종료(횟수/날짜/계속) — 요약 chip 밖 별도 표시 */
+.recurEndLabel { font-size: var(--font-size-xs); color: var(--text-tertiary); white-space: nowrap; }
+.dateRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+.dateTilde { color: var(--text-tertiary); }
+.rangeToggle {
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-md);
+  border: 1px dashed var(--border-strong-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.rangeToggle:hover { color: var(--text-accent); border-color: var(--color-accent); }
+.sectionLabel {
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+/* 필수 입력 표시 dot */
+.reqDot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: var(--spacing-3xs);
+  border-radius: var(--radius-circle);
+  background: var(--color-accent);
+  vertical-align: middle;
+}
+
+/* 라벨 (이름+색) */
+.labelRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  align-items: center;
+}
+/* 라벨 칩 컨테이너 — [반구+이름 선택버튼][수정버튼] */
+.labelChip {
+  display: inline-flex;
+  align-items: stretch;
+  height: var(--control-h-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  overflow: hidden;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.labelChip:hover { border-color: var(--border-strong-color); color: var(--text-primary); }
+/* 선택 시 — 배경 유지, accent 외곽선 굵게(inset, 외부 glow 없음) */
+.labelChipOn {
+  border-color: var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+  color: var(--text-primary);
+}
+.labelChipSelect {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-sm) 0 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+.labelChipEdit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.12s ease;
+}
+.labelChipEdit:hover { color: var(--text-primary); background: var(--bg-secondary); }
+/* 색상 반구 — pill 좌측 캡을 채우는 반원(세로로 꽉 찬 half-capsule), 너비 넓게 */
+.labelDot {
+  align-self: stretch;
+  width: 22px;
+  flex-shrink: 0;
+  border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
+  background: var(--_lc);
+}
+.labelAdd {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-md);
+  border: 1px dashed var(--border-strong-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.labelAdd:hover { color: var(--text-accent); border-color: var(--color-accent); }
+.labelCreate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: transparent;
+}
+
+/* 상태 (노션식) */
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.12s ease, color 0.15s ease;
+}
+.statusChip:hover { color: var(--text-primary); border-color: var(--border-strong-color); }
+.statusChipOn {
+  color: var(--text-primary);
+  border-color: var(--_sc);
+  background: color-mix(in srgb, var(--_sc) 14%, var(--bg-primary));
+}
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  background: var(--_sc);
+}
+
+/* 태그 (텍스트) */
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+.tagChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: 2px var(--spacing-2xs) 2px var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+}
+.tagRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.tagRemove:hover { color: var(--text-primary); }
+.tagSuggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+/* 태그 제안 칩 — 추가 칩(공통 Chip capsule)과 같은 크기 + 대시 외곽선으로 구분 */
+.suggestChip {
+  border-style: dashed !important;
+  background: transparent !important;
+  color: var(--text-tertiary) !important;
+}
+.suggestChip svg { color: var(--text-tertiary); transition: color 0.15s ease; }
+.suggestChip:hover {
+  border-color: var(--color-accent) !important;
+  color: var(--text-accent) !important;
+}
+.suggestChip:hover svg { color: var(--color-accent); }
+.tagSuggestChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px var(--spacing-sm);
+  border: 1px dashed var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.tagSuggestChip:hover { color: var(--text-accent); border-color: var(--color-accent); }
+
+/* 내용 textarea — 하단 우측 리사이즈 핸들과 겹치는 우상단 지우개 버튼 숨김 (글자수 카운터는 별도 표시) */
+.descTextarea [aria-label="clear"] { display: none; }
+
+.colorRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+.swatch {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-circle);
+  border: 2px solid transparent;
+  background: var(--_sw);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.swatch:hover { transform: scale(1.12); }
+.swatchOn {
+  border-color: var(--bg-primary);
+  box-shadow: 0 0 0 2px var(--_sw);
+}
+/* 커스텀 색 추가 — 점선 원 + 가운데 + */
+.swatchAdd {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-circle);
+  border: 1px dashed var(--border-light-color);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.swatchAdd:hover {
+  color: var(--text-accent);
+  border-color: var(--text-accent);
+}
+.editorActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+.editorActionsRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: auto;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+.btn:hover { color: var(--text-primary); border-color: var(--border-strong-color); }
+.btnPrimary {
+  background: var(--color-accent);
+  color: var(--text-white);
+  border-color: transparent;
+}
+.btnPrimary:hover { color: var(--text-white); opacity: 0.9; }
+.btnDanger:hover { color: var(--color-accent); border-color: var(--color-accent); }
+.timeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  align-self: flex-start;
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+.timeToggle:hover { color: var(--text-primary); border-color: var(--border-strong-color); }
+.timeToggleOn {
+  background: var(--bg-accent);
+  color: var(--text-accent);
+  border-color: transparent;
+}
+
+/* 리더 — 편집 불가라 hover/커서 없음 */
+.readerCalendar { margin: var(--spacing-md) 0; }
+.readerCalendar .chip { cursor: default; }
+
+/* ── 타임라인(어젠다) 뷰 ── */
+.timeline { display: flex; flex-direction: column; }
+.tlHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+.tlHeadRight { flex-wrap: wrap; justify-content: flex-end; }
+.tlHeadTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.tlHeadRight {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.tlAdd {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.tlAdd:hover { color: var(--text-accent); border-color: var(--color-accent); }
+.viewControls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+.tlIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.12s ease;
+}
+.tlIconBtn:hover { color: var(--text-primary); border-color: var(--border-strong-color); }
+.tlIconBtnOn {
+  color: var(--text-accent);
+  border-color: var(--color-accent);
+  background: var(--bg-accent);
+}
+.tlEmpty {
+  padding: var(--spacing-2xl) var(--spacing-md);
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+/* ── 간트 타임라인 (연속 날짜축 + 이벤트 바 + 오늘 세로선) ── */
+/* 가로(날짜)만 스크롤 — 세로는 내부 스크롤 없이 콘텐츠 높이대로(페이지가 스크롤) */
+.tlGantt { overflow-x: auto; overflow-y: auto; }
+.tlCanvas { position: relative; min-width: 100%; }
+/* 주말(토·일) 세로 밴드 레이어 — 날짜행 아래부터 바닥까지, 콘텐츠 뒤(z0) */
+.tlWeekendLayer {
+  position: absolute;
+  top: 32px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.tlWeekendCol {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: color-mix(in srgb, var(--color-accent) 5%, transparent);
+}
+/* 월 라벨 행 */
+.tlMonthRow { position: sticky; top: 0; z-index: 3; background: var(--bg-primary); }
+.tlMonthLabel {
+  position: absolute;
+  top: 0;
+  padding-left: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  line-height: 26px;
+  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+/* 날짜 행 */
+.tlDayRow {
+  display: flex;
+  border-bottom: var(--border-light);
+  position: sticky;
+  top: 32px;
+  z-index: 3;
+  background: var(--bg-primary);
+}
+.tlDay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: var(--spacing-2xs) 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+.tlDayNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-circle);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.tlDay:hover .tlDayNum { background: color-mix(in srgb, var(--color-accent) 12%, var(--bg-primary)); color: var(--text-primary); }
+.tlDay.sun .tlDayNum { color: var(--color-accent); }
+.tlDay.sat .tlDayNum { color: var(--color-info); }
+/* 오늘 — 주말(.sun/.sat) 색보다 우선하도록 특이도 확보(0,3,0), 배경 accent 위 흰 글자 */
+.tlDay.tlDayToday .tlDayNum {
+  background: var(--color-accent);
+  color: var(--text-white);
+  font-weight: 600;
+}
+/* 이벤트 바 영역 */
+.tlBars { position: relative; z-index: 1; }
+.tlBarsAdding { cursor: pointer; }
+/* 노션식 hover-to-add — 빈 셀 가상 이벤트 블록 */
+.tlAddGhost {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-capsule);
+  border: 1.5px dashed var(--border-strong-color);
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+.tlGrid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to right, var(--border-light-color) 1px, transparent 1px);
+  background-position: -1px 0;
+  opacity: 0.45;
+  pointer-events: none;
+}
+/* 오늘 세로선 + 상단 점 (사진 참고) */
+.tlTodayLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--color-accent);
+  pointer-events: none;
+}
+.tlTodayDot {
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-circle);
+  background: var(--color-accent);
+}
+.tlBar {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  /* inline-flex 기본 min-width:auto(=내용폭) 때문에 width 무시되고 넓어지는 것 방지 → 지정 span 폭 유지, 제목은 넘침 */
+  min-width: 0;
+  padding: 0 var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  /* 배경은 bg-primary 로 통일, 색상은 왼쪽 스트라이프에만 */
+  background: var(--bg-primary);
+  box-shadow: inset 0 0 0 1px var(--border-light-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  /* 공간 부족하면 제목을 바 밖으로 넘쳐 표시(clip 안 함) */
+  overflow: visible;
+  transition: box-shadow 0.12s ease, background-color 0.12s ease;
+}
+.tlBar:hover {
+  background: var(--bg-secondary);
+  box-shadow: inset 0 0 0 1px var(--border-strong-color);
+}
+/* 양끝 리사이즈 핸들 — 시작/종료일(기간) 조절 */
+.tlBarHandle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 9px;
+  z-index: 2;
+  cursor: ew-resize;
+}
+.tlBarHandleL { left: 0; }
+.tlBarHandleR { right: 0; }
+/* grip — 카드 끝단 border 에 겹치는 굵은 아크 + 둥근 끝(인라인 SVG, round cap) */
+.tlBarGrip {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 30px;
+  /* 전역 svg{max-width:100%} 가 9px 핸들 폭으로 SVG 를 잘라 viewBox 가 축소되던 문제 차단 */
+  max-width: none;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+.tlBarHandleL .tlBarGrip { left: 0; }
+.tlBarHandleR .tlBarGrip { right: 0; }
+.tlBarGrip path {
+  fill: none;
+  stroke: var(--_c);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.tlBar:hover .tlBarGrip { opacity: 1; }
+.tlBarResizing { box-shadow: inset 0 0 0 2px var(--_c); }
+.tlBarDraggable { cursor: grab; }
+.tlBarMoving { z-index: 6; box-shadow: 0 6px 16px oklch(0% 0 0 / 0.22); opacity: 0.92; cursor: grabbing; }
+/* 이동 중 원본 바 — 제자리에서 흐리게(출발점 표시) */
+.tlBarMoveSrc { opacity: 0.32; cursor: grabbing; }
+/* 드롭될 위치의 고스트 바 — 반투명 + 점선 테두리, 클릭 불가 */
+.tlBarGhost {
+  position: absolute;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 0 var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  border: 1.5px dashed var(--_c);
+  background: color-mix(in srgb, var(--_c) 22%, transparent);
+  pointer-events: none;
+  overflow: hidden;
+  box-shadow: 0 6px 16px oklch(0% 0 0 / 0.18);
+}
+/* 행 재정렬 삽입 위치 가로선 */
+.tlDropRow {
+  position: absolute;
+  left: 0;
+  height: 2px;
+  margin-top: -1px;
+  background: var(--color-accent);
+  z-index: 6;
+  pointer-events: none;
+}
+/* 드롭 위치 세로 인디케이터 선 + 날짜 뱃지 */
+.tlDropLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-accent);
+  z-index: 7;
+  pointer-events: none;
+}
+.tlDropDate {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  padding: 1px var(--spacing-2xs);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--text-white);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 의존 관계 화살표 + 노드 연결 ── */
+.tlDepLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: visible;
+}
+.tlDepPath {
+  fill: none;
+  stroke: color-mix(in srgb, var(--text-secondary) 42%, transparent);
+  stroke-width: 1.15;
+  transition: stroke 0.18s ease;
+}
+.tlDepArrowHead { fill: color-mix(in srgb, var(--text-secondary) 60%, transparent); }
+/* 화살표 선 클릭 히트영역(투명, 두껍게) + 선택된 연결 강조 */
+.tlDepHit { fill: none; stroke: transparent; stroke-width: 11; pointer-events: stroke; }
+/* 클릭 선택 시에만 화살표가 accent 로 (선 + 화살촉 함께) */
+.tlDepPathHi { stroke: var(--color-accent); stroke-width: 1.6; }
+/* 선 클릭으로 강조된 선행·후속 바 — 얇은 accent 링 + 부드러운 accent 글로우 */
+.tlBarLinkHi {
+  box-shadow: 0 0 0 1.5px var(--color-accent), 0 4px 16px color-mix(in srgb, var(--color-accent) 26%, transparent);
+  z-index: 4;
+}
+.tlDepTemp {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+.tlDepTempHead { fill: var(--color-accent); }
+/* 연결 포트 — 바 좌(선행)/우(후속) 밖 작은 원 (hover 시 표시). 드래그로 연결 시작 */
+.tlBarPort {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 11px;
+  height: 11px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  border: 2px solid var(--_c);
+  cursor: crosshair;
+  opacity: 0;
+  z-index: 4;
+}
+/* 컴파운드 셀렉터(0,2,0)로 글로벌 테마 transition(0,1,1) 덮어쓰기 방지 → transform 애니메이션 살림 */
+.tlBar .tlBarPort {
+  transition: opacity 0.12s ease, background-color 0.14s ease, border-color 0.14s ease, transform 0.22s cubic-bezier(0.34, 1.7, 0.5, 1);
+}
+/* 미연결 포트는 밖으로 빼 stem 갭 확보 / 연결 포트는 바에 붙임(화살표가 연결선, stem·갭 없음) */
+.tlBarPortL { left: -16px; }
+.tlBarPortR { right: -16px; }
+.tlBarPortL.tlBarPortConn { left: -13px; }
+.tlBarPortR.tlBarPortConn { right: -13px; }
+.tlBar:hover .tlBarPort { opacity: 1; }
+.tlBarPort:hover { background: var(--_c); }
+.tlBarPortConn { cursor: pointer; }
+/* 바(이벤트)와 포트를 잇는 stem 선 — 화살표 없는(미연결) 포트에만 표시 (연결된 포트는 화살표가 곧 연결선) */
+.tlBarPort:not(.tlBarPortConn)::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 8px; height: 2px;
+  transform: translateY(-50%);
+  background: var(--_c);
+  border-radius: 1px;
+}
+.tlBarPortL:not(.tlBarPortConn)::before { left: 100%; }   /* 포트 오른쪽 → 바 쪽 */
+.tlBarPortR:not(.tlBarPortConn)::before { right: 100%; }  /* 포트 왼쪽 → 바 쪽 */
+/* 갭을 덮는 투명 hover 브리지 — 바→포트로 마우스 이동 중 포트가 사라지지 않게 */
+.tlBarPort:not(.tlBarPortConn)::after {
+  content: "";
+  position: absolute;
+  top: -8px; bottom: -8px;
+  z-index: -1;
+}
+.tlBarPortL:not(.tlBarPortConn)::after { left: 0; right: -5px; }   /* 포트 ~ 바 왼쪽 가장자리 */
+.tlBarPortR:not(.tlBarPortConn)::after { right: 0; left: -5px; }  /* 포트 ~ 바 오른쪽 가장자리 */
+/* 삭제하려고 hover → 포트색 유지 + 확대(애니메이션) + - 에서 x 로 모프 */
+.tlBarPortX {
+  position: absolute;
+  top: 50%; left: 50%;
+  color: var(--text-white);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.3) rotate(-135deg);
+}
+.tlBarPortConn .tlBarPortX { transition: opacity 0.18s ease, transform 0.26s cubic-bezier(0.34, 1.7, 0.5, 1); }
+.tlBarPortConn:hover { transform: translateY(-50%) scale(1.55); } /* 색은 .tlBarPort:hover 의 포트색(--_c) 사용 */
+.tlBarPortConn:hover .tlBarPortX { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+/* 링크 드래그 중 놓을 수 있는 대상 바 강조 */
+.tlBarLinkTarget { box-shadow: inset 0 0 0 2px var(--color-accent); }
+.tlBarDone { opacity: 0.65; }
+.tlBarDone .tlBarTitle { text-decoration: line-through; }
+.tlBarStripe {
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 4px;
+  border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
+  background: var(--_c);
+}
+/* 간트 바 — 제목 앞 라벨색 dot(왼쪽 라인 대체) */
+.tlBarDot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--_c);
+}
+.tlBarTime {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.tlBarTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: var(--spacing-2xs);
+}
+/* 간트 바 안에서는 폭보다 길면 오른쪽으로 넘침 — 단 적당히(최대폭 넘으면 ellipsis) */
+.tlBar .tlBarTitle {
+  flex: 0 0 auto;
+  min-width: auto;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* ── 이벤트 hover 미리보기 카드 ── */
+.preview {
+  position: fixed;
+  z-index: var(--z-top);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+}
+/* 칩 ↔ 카드 사이 8px 틈(dead zone) 메우는 투명 브릿지 — 커서가 끊기지 않고 카드로 이동 */
+.preview::before,
+.preview::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 12px;
+}
+.preview::before { top: -12px; }
+.preview::after { bottom: -12px; }
+/* 미리보기 내용 이미지 썸네일 + 확대 */
+.previewThumbs { display: flex; flex-wrap: wrap; gap: var(--spacing-2xs); margin-top: var(--spacing-3xs); }
+.previewThumb {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  border: var(--border-light);
+  cursor: zoom-in;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.previewThumb:hover { transform: scale(1.05); box-shadow: var(--shadow-md); }
+.previewZoom {
+  position: fixed;
+  z-index: var(--z-top);
+  max-width: 320px;
+  max-height: 320px;
+  border-radius: var(--radius-2xl);
+  border: var(--border-light);
+  box-shadow: var(--shadow-lg);
+  background: var(--bg-primary);
+  object-fit: contain;
+  pointer-events: none;
+}
+.previewTop {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-2xs);
+}
+.previewBar {
+  flex-shrink: 0;
+  width: 4px;
+  min-height: 16px;
+  border-radius: var(--radius-capsule);
+  background: var(--_c);
+}
+.previewTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+.previewDate {
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+}
+.previewStatusRow { display: flex; flex-wrap: wrap; gap: var(--spacing-3xs); }
+.previewStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: 1px var(--spacing-sm);
+  border-radius: var(--radius-capsule);
+  background: color-mix(in srgb, var(--_sc) 14%, var(--bg-primary));
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+.previewStatusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-circle);
+  background: var(--_sc);
+}
+.previewDesc {
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.previewMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  margin-top: var(--spacing-3xs);
+}
+.previewLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+.previewLabelDot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-circle);
+  background: var(--_c);
+}
+.previewTag {
+  padding: 0 var(--spacing-3xs);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  font-size: 10px;
+}
+
+/* 하단 새로 만들기 */
+.tlNew {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  align-self: flex-start;
+  margin: 0 var(--spacing-md) var(--spacing-md);
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.12s ease;
+}
+.tlNew:hover { color: var(--text-primary); background: var(--bg-secondary); }
+
+/* ── compact: 이벤트 있는 날만 카드 ── */
+.tlCards {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-md) var(--spacing-md) 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+/* compact 섹션 라벨 */
+.tlSectionLabel {
+  display: block;
+  font-size: var(--font-size-2xs); font-weight: 700; letter-spacing: 0.02em;
+  color: var(--text-tertiary);
+  padding: 0 0 var(--spacing-sm) var(--spacing-2xs);
+}
+.tlChainSection { margin-bottom: var(--spacing-lg); }
+.tlSingleSection .tlSectionLabel { padding-top: var(--spacing-2xs); }
+/* 연결된 작업 체인 — 이벤트 노드 + 연결선(선행→후속) */
+.tlChain { display: flex; flex-direction: column; margin-bottom: var(--spacing-md); }
+.tlChain:last-child { margin-bottom: 0; }
+.tlChainRow { position: relative; display: flex; gap: var(--spacing-sm); align-items: stretch; padding-bottom: var(--spacing-2xs); }
+.tlChainRow > .tlCard { flex: 1; min-width: 0; }
+.tlChainRail { position: relative; width: 14px; flex-shrink: 0; }
+.tlChainRail::before {
+  content: ""; position: absolute; left: 50%; transform: translateX(-50%);
+  top: 0; bottom: calc(-1 * var(--spacing-2xs)); width: 2px; border-radius: 2px;
+  background: color-mix(in srgb, var(--_c) 45%, var(--border-light-color));
+}
+.tlChainRow:first-child .tlChainRail::before { top: 15px; }
+.tlChainRow:last-child .tlChainRail::before { bottom: auto; height: 15px; }
+.tlChainNode {
+  position: absolute; left: 50%; top: 15px; transform: translate(-50%, -50%);
+  width: 11px; height: 11px; border-radius: var(--radius-circle);
+  background: var(--bg-primary); border: 2.5px solid var(--_c);
+  box-shadow: 0 0 0 3px var(--bg-primary); z-index: 1;
+}
+.tlChainRowDone .tlChainNode { background: var(--_c); }
+/* 세로 타임라인 레일 — 날짜 노드 + 연결선 */
+.tlCardGroup {
+  position: relative;
+  padding: 0 0 var(--spacing-lg) 26px;
+}
+.tlCardGroup::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border-light-color);
+}
+.tlCardGroup:last-child::before { bottom: auto; height: 10px; }
+.tlDot {
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-circle);
+  border: 2px solid var(--border-strong-color);
+  background: var(--bg-primary);
+  box-sizing: border-box;
+  z-index: 1;
+}
+.tlCardToday .tlDot { border-color: var(--color-accent); background: var(--color-accent); }
+.tlCardDate {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  width: 100%;
+  margin-bottom: var(--spacing-xs);
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+.tlDateLabel { position: relative; }
+/* hover 밑줄 — 좌→우로 그어지는 애니메이션 (compound 선택자로 전역 *::after transition override) */
+.tlDateLabel::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.28s ease;
+}
+.tlCardDate:hover .tlDateLabel::after { transform: scaleX(1); }
+.tlCardToday .tlCardDate { color: var(--text-accent); }
+.tlDateLabel { line-height: 1; }
+.tlTodayTag {
+  padding: 1px var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent);
+  color: var(--text-accent);
+  font-size: var(--font-size-3xs);
+  font-weight: 600;
+}
+.tlCount {
+  margin-left: auto;
+  min-width: 18px;
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  text-align: center;
+}
+.tlCardList { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
+.tlCard {
+  display: flex;
+  align-items: stretch;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  overflow: hidden;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.tlCard:hover { border-color: var(--border-strong-color); box-shadow: var(--shadow-sm); }
+/* 카드 본문 — 클릭 시 간트 위치로 이동 */
+.tlCardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) var(--spacing-sm);
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+/* 세부사항 모달 열기 버튼 (카드 우측) */
+.tlCardOpen {
+  flex-shrink: 0;
+  align-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  border: none;
+  border-left: var(--border-light);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+.tlCardOpen:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+/* 이동 대상 이벤트 강조 — 다음 인터랙션 전까지 반복 펄스 */
+.tlBarHighlight { animation: tlHl 1.5s ease-in-out infinite; z-index: 3; }
+@keyframes tlHl {
+  0%, 100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--_c) 32%, transparent), 0 0 0 0 color-mix(in srgb, var(--_c) 0%, transparent); }
+  50% { box-shadow: inset 0 0 0 2px var(--_c), 0 0 0 5px color-mix(in srgb, var(--_c) 45%, transparent); }
+}
+/* 이동 대상 날짜 강조 — 반복 펄스 */
+.tlDayHi .tlDayNum { animation: tlDayHl 1.5s ease-in-out infinite; }
+@keyframes tlDayHl {
+  0%, 100% { background: transparent; box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 0%, transparent); color: var(--text-secondary); }
+  50% { background: color-mix(in srgb, var(--color-accent) 22%, var(--bg-primary)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 35%, transparent); color: var(--text-primary); }
+}
+/* 제목 왼쪽 라벨색 dot */
+.tlCardDot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-circle);
+  background: var(--_c);
+}
+.tlCardMain { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 2px 0; }
+/* 카드 → 간트에서 해당 위치로 이동 */
+.tlCardGoto {
+  flex-shrink: 0;
+  align-self: center;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-circle);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+.tlCardGoto:hover { color: var(--text-accent); background: var(--bg-primary); }
+.tlCardTitleRow { display: flex; align-items: center; gap: var(--spacing-2xs); min-width: 0; }
+.tlCardMeta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-3xs); }
+.tlCardStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: color-mix(in srgb, var(--_sc) 14%, var(--bg-primary));
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+.tlLabel { display: inline-flex; align-items: center; gap: var(--spacing-3xs); font-size: 10px; color: var(--text-secondary); }
+.tlLabelDot { width: 7px; height: 7px; border-radius: var(--radius-circle); }
+.tlTag { padding: 0 var(--spacing-3xs); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-tertiary); font-size: 10px; }

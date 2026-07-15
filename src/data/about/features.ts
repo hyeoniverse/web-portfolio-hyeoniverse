@@ -73,12 +73,12 @@ export const designFeatures: DesignFeature[] = [
   },
   {
     icon: "08",
-    title: "Comment & Like System",
+    title: "Comment System",
     description: {
-      ko: "게스트 대댓글과 IP 기반 좋아요 시스템입니다. 닉네임+비밀번호로 댓글을 작성하고, 쓰레드 형태의 대댓글을 지원하며, 관리자 답변 시 이메일 알림이 발송됩니다.",
-      en: "Guest threaded comments with IP-based likes. Post comments via nickname + password, with threaded replies and email notifications when the admin responds.",
+      ko: "게스트 대댓글 시스템입니다. 닉네임+비밀번호로 작성하고, 본문은 마크다운 에디터(작성/미리보기 탭 + 서식 툴바)로 씁니다. 댓글마다 giscus식 고정 8종 이모지 반응을 달 수 있고, 관리자 답변 시 이메일 알림이 발송됩니다. 어드민에서 자체 댓글 대신 giscus(GitHub Discussions)로 전환할 수도 있습니다.",
+      en: "A guest threaded comment system. Write with nickname + password using a markdown editor (write/preview tabs + formatting toolbar). Each comment takes a fixed giscus-style set of 8 emoji reactions, and the admin gets an email on replies. The admin can also swap the built-in system for giscus (GitHub Discussions).",
     },
-    tech: ["Supabase", "Threaded Replies", "IP Likes", "Email Notify"],
+    tech: ["Supabase", "Markdown", "DOMPurify", "Emoji Reactions", "giscus"],
     image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
   },
   {
@@ -95,10 +95,30 @@ export const designFeatures: DesignFeature[] = [
     icon: "10",
     title: "Editor Block Extensions",
     description: {
-      ko: "에디터를 확장한 인터랙티브 블록 모음입니다. IP 기반 중복 방지 투표 블록과 탭 블록을 본문에 삽입할 수 있고, 476개 아이콘을 갖춘 이모지 picker, 서버사이드 코드 하이라이팅을 지원합니다.",
-      en: "A set of interactive blocks extending the editor. Insert IP-deduped poll blocks and tab blocks into content, with a 476-icon emoji picker and server-side code highlighting.",
+      ko: "에디터를 확장한 인터랙티브 블록 모음입니다. IP 기반 중복 방지 투표 블록과 탭 블록을 본문에 삽입할 수 있고, 이모지 picker와 서버사이드 코드 하이라이팅을 지원합니다. 여기에 캘린더(월/주/일/타임라인 4뷰), 자유배치 다이어그램, 코드 플레이그라운드, `@` 날짜 멘션, `[[` 포스트 내부 링크 블록을 더했습니다.",
+      en: "A set of interactive blocks extending the editor. Insert IP-deduped poll blocks and tab blocks into content, with an emoji picker and server-side code highlighting — plus a calendar (month/week/day/timeline views), free-placement diagrams, a code playground, `@` date mentions, and `[[` internal post links.",
     },
-    tech: ["Plate.js", "Poll Block", "Tab Block", "Emoji Picker", "Server Highlight"],
+    tech: ["Plate.js", "Poll Block", "Calendar", "Diagram", "Playground", "Date Mention"],
     image: "https://images.unsplash.com/photo-1542435503-956c469947f6?w=800&q=80",
+  },
+  {
+    icon: "11",
+    title: "Collaborative Safety",
+    description: {
+      ko: "같은 글을 여러 탭이나 기기에서 열어도 저장이 서로를 덮어쓰지 않습니다. Realtime presence로 다른 세션이 편집 중이면 배너로 알리고, 저장 시점에 충돌이 감지되면 덮어쓰기·최신 불러오기·취소 중에서 고르게 합니다.",
+      en: "Saves never clobber each other, even with the same post open across tabs or devices. Realtime presence warns with a banner when another session is editing, and on a save-time conflict you choose: overwrite, reload the latest, or cancel.",
+    },
+    tech: ["Optimistic Locking", "Realtime Presence", "409 Conflict", "Autosave"],
+    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80",
+  },
+  {
+    icon: "12",
+    title: "Post Browsing & Taxonomy",
+    description: {
+      ko: "게시물을 6가지 레이아웃(매거진/그리드/리스트/컴팩트/메이슨리/피처드)으로 볼 수 있습니다. 카테고리는 2단계 트리로 다중 선택되고, 시리즈·태그·히스토리 인덱스와 작성자 여러 명 표기를 지원합니다.",
+      en: "Browse posts in six layouts (magazine/grid/list/compact/masonry/featured). Categories form a two-level tree with multi-select, alongside series, tag, and history indexes, plus multi-author attribution.",
+    },
+    tech: ["6 Layouts", "2-Level Categories", "Multi-Author", "Facets"],
+    image: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&q=80",
   },
 ];

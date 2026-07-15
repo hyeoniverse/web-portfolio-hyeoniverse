@@ -217,7 +217,7 @@ export async function getTagPageData(tag: string, perPage: number = TAG_PER_PAGE
   const cfg = await getSiteConfig();
   const description = normalizeTagDescString(cfg.tagDescriptions?.[tag]);
 
-  const [postsResult, allTaggedResult] = await Promise.all([
+  const [postsResult, allTaggedResult, worksResult] = await Promise.all([
     // tag 가 포함된 첫 페이지 posts (count 포함)
     admin
       .from("posts")
@@ -233,9 +233,18 @@ export async function getTagPageData(tag: string, perPage: number = TAG_PER_PAGE
       .eq("published", true)
       .contains("tags", [tag])
       .limit(500),
+    // 통합 태그 페이지 — 같은 tag(=tech) 를 쓰는 published works (공유 어휘)
+    admin
+      .from("works")
+      .select("id, title, slug, subtitle_ko, subtitle_en, image, tech, year")
+      .eq("published", true)
+      .contains("tech", [tag])
+      .order("sort_order", { ascending: true })
+      .limit(12),
   ]);
 
   const posts = (postsResult.data ?? []) as Post[];
+  const works = (worksResult.data ?? []) as TagWork[];
   const totalCount = postsResult.count ?? 0;
   const totalPages = Math.ceil(totalCount / perPage);
 
@@ -255,12 +264,25 @@ export async function getTagPageData(tag: string, perPage: number = TAG_PER_PAGE
 
   return {
     posts,
+    works,
     totalCount,
     totalPages,
     relatedTags,
     perPage,
     description,
   };
+}
+
+/** 통합 태그 페이지에서 표시할 work 요약 (tech 공유 어휘) */
+export interface TagWork {
+  id: string;
+  title: string;
+  slug: string;
+  subtitle_ko: string;
+  subtitle_en: string;
+  image: string;
+  tech: string[];
+  year: string | number | null;
 }
 
 export type TagPageData = Awaited<ReturnType<typeof getTagPageData>>;
@@ -415,3 +437,19 @@ export async function getAllCategoriesData() {
 }
 
 export type AllCategoriesData = Awaited<ReturnType<typeof getAllCategoriesData>>;
+
+/** /posts/history 타임라인 왼쪽 월 인덱스용 — 전체 published posts 의 유효일(scheduled_at ?? created_at)
+ *  문자열만 최신순으로 반환. 월 버킷팅/라벨은 클라이언트에서(브라우저 타임존 기준 marker id 와 일치하도록). */
+export async function getPostArchiveMonths(): Promise<string[]> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("posts")
+    .select("scheduled_at, created_at")
+    .eq("published", true)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false })
+    .limit(5000);
+  return ((data ?? []) as { scheduled_at: string | null; created_at: string | null }[])
+    .map((r) => r.scheduled_at ?? r.created_at)
+    .filter((d): d is string => !!d);
+}

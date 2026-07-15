@@ -75,12 +75,24 @@
   position: relative;
 }
 
-/* bottomRow — EditableTextarea (maxHint) 하단의 clear + counter 묶음 (우측 정렬) */
+/* bottomRow — EditableTextarea (maxHint) clear + counter 묶음.
+   textarea 안쪽 우하단 오버레이 (리사이즈 grip 18px 피해 right offset). */
 .bottomRow {
+  position: absolute;
+  bottom: var(--spacing-xs);
+  right: var(--spacing-xs);
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--spacing-2xs);
+  /* glass chip — 뒤 텍스트 위에서도 읽히도록 반투명 배경 + blur */
+  padding: var(--spacing-3xs) var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
+  /* 텍스트 선택·리사이즈는 통과시키고 버튼만 클릭 */
+  pointer-events: none;
 }
 
 /* clear (Eraser) — PlainTextarea: editableWrap 우측 상단 absolute / EditableTextarea: bottomRow flex child */
@@ -100,16 +112,25 @@
   color: var(--text-tertiary);
   cursor: pointer;
   opacity: 0.7;
-  transition: opacity var(--duration-base) ease, color var(--duration-base) ease;
+  transition:
+    opacity var(--duration-base) ease,
+    color var(--duration-base) ease;
   z-index: 1;
 }
 
-/* bottomRow 안에서는 absolute 해제 + flex child 동작 */
+/* bottomRow 안에서는 absolute 해제 + flex child 동작. 오버레이는 pointer-events:none 이라 버튼만 되살림 */
 .bottomRow .clearBtn {
   position: static;
   top: auto;
   right: auto;
   flex-shrink: 0;
+  pointer-events: auto;
+}
+
+/* 빈 값 — 버튼 공간은 유지하되 숨김 (chip 치수 고정 → 카운터 위치 불변) */
+.bottomRow .clearBtn[data-hidden] {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .clearBtn:hover {
@@ -161,6 +182,8 @@
   line-break: anywhere;
   overflow-y: auto;
   overflow-x: hidden;
+  /* 안쪽 우하단 오버레이(지우개+카운터)에 텍스트가 겹치지 않도록 하단 여백 확보 */
+  padding-bottom: var(--spacing-xl);
 }
 
 /* ── Native resize 핸들 위 투명 overlay ──

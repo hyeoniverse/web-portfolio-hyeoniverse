@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Share } from "lucide-react";
+import { Check } from "lucide-react";
+import { FaShareAlt } from "react-icons/fa";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
 import styles from "./ShareButton.module.css";
@@ -55,7 +56,7 @@ export default function ShareButton({ className }: { className?: string }) {
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
           >
-            <Share size={12} />
+            <FaShareAlt size={12} />
             Share
           </motion.span>
         )}

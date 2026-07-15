@@ -38,6 +38,7 @@ export const useModalStore = create<ModalState>((set) => ({
               background: options?.background,
             },
             closeButton: options?.closeButton ?? true,
+            subButtons: options?.subButtons,
           },
         ],
         isModalOpen: true,

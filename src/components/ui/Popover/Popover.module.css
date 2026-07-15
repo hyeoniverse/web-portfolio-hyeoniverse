@@ -6,12 +6,53 @@
 /* ── Dropdown (desktop) ── */
 .dropdown {
   position: fixed;
-  z-index: var(--z-dropdown);
-  backdrop-filter: blur(8px);
+  /* 팝오버는 자신을 띄운 컨테이너(모달·드로어·전체화면 에디터) 위로 뜨는 게 정석 → --z-popover */
+  z-index: var(--z-popover);
+  /* variant="solid" 의 배경 = 기본값. glass/difference 는 아래에서 덮어쓴다.
+     (예전엔 각 호출부가 blur+투명 글래스를 제각각 override 해서 제멋대로였다 → variant 로 흡수) */
+  background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-md);
   overflow: hidden;
+}
+
+/* variant="glass" (기본) — 반투명 scrim + blur. blend 를 안 쓰므로 안쪽 색(accent/danger/칩)이 전부 살아있다.
+   대비는 반전이 아니라 scrim 이 보장한다 — difference 처럼 자동 반전은 아니지만,
+   52% 불투명도면 뒤에 뭐가 깔려도 텍스트가 읽힌다. (SearchCapsule 이 쓰던 유리 배경과 동일 공식) */
+.dropdown.dropdownGlass {
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
+}
+
+/* variant="difference" — 투명 + blur + 패널 전체를 뒤 페이지와 반전 합성.
+
+   blend 는 반드시 "패널"에 걸어야 한다. 안쪽 특정 텍스트만 반전시키는 건 불가능했다:
+   - 패널에 backdrop-filter → Backdrop Root 가 생겨 자손 blend 가 격리 → 자손의 backdrop 이
+     "뒷배경"이 아니라 "패널의 투명 배경" → difference(흰색, 투명) = 그냥 흰색
+   - blur 를 ::before(z-index:-1) 형제 레이어로 빼도 마찬가지 — backdrop-filter 의 출력물은
+     뒤이어 그려지는 요소의 blend backdrop 으로 잡히지 않는다
+   → 반전 대상 선택은 "요소별"이 아니라 "popover 별"(variant)이 유일하게 가능한 단위다.
+
+   반대급부: subtree 가 한 덩어리로 합성돼 안쪽 색 구분(accent/danger/칩 배경)이 전부 사라진다.
+   → 내용이 단순한 popover 에만. 색이 필요하면 variant="solid". */
+.dropdown.dropdownDifference {
+  background: transparent;
+  backdrop-filter: blur(20px);
+  border-color: var(--border-light-color);
+  box-shadow: none;
+  mix-blend-mode: difference;
+}
+
+/* 반대색 주입 — 콘텐츠를 미리 반전시켜 넣으면 difference 합성이 그걸 되돌린다.
+     결과 = |배경 − 주입색|,  주입색 = 1 − 원하는색
+     → 배경이 밝을수록(1에 가까울수록) |1 − (1 − 색)| = 색  → 원래 의도한 색이 복원된다.
+     → 배경이 어두우면 1 − 색 (반전된 색) 으로 보인다.
+   색마다 hex 를 계산할 필요 없이 filter: invert(1) 로 subtree 전체를 한 번에 주입한다.
+   덕분에 accent/danger/칩 배경이 각자 "자기 색"을 유지한 채 blend 를 통과한다
+   (예전처럼 전부 흰색으로 뭉개지지 않음). */
+.dropdown.dropdownDifference > * {
+  filter: invert(1);
 }
 
 /* ── Bottom Sheet (touch) ──

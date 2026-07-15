@@ -1,13 +1,21 @@
-/* Wrapper — fills available width. 기본 center 정렬 (collapsed 시 moreBtn / tags / sort
-   와 수직 중심 일치). expanded 일 때만 moreBtn 만 따로 top 정렬 (.moreBtnOpen align-self). */
+/* Wrapper — 대분류 행(navRow) + 소분류 행(childRow) 세로 스택. */
 .wrapper {
   flex: 1 1 0;
   min-width: 0;
   max-width: 100%;
   display: flex;
-  /* nav 가 wrap 으로 multi-row 가 되어도 moreBtn 이 항상 첫 번째 row 와 같은 레벨에 위치하도록 top 정렬.
-     모든 요소가 동일 min-height (filter-row-h) 라 single-row 일 땐 center 와 시각적으로 동일. */
+  flex-direction: column;
+  /* difference blend 는 .filterBar 로 올림 — sticky+z-index 인 filterBar 가 stacking context 를
+     만들어 여기(자식)에 두면 페이지 backdrop 까지 안 닿음(Navigation 주석 참고). */
+}
+
+/* 대분류 행 — 기존 nav + moreBtn 을 한 줄에.
+   nav 가 wrap 으로 multi-row 가 되어도 moreBtn 이 항상 첫 번째 row 와 같은 레벨에 위치하도록 top 정렬.
+   모든 요소가 동일 min-height (filter-row-h) 라 single-row 일 땐 center 와 시각적으로 동일. */
+.navRow {
+  display: flex;
   align-items: flex-start;
+  min-width: 0;
 }
 
 /* Nav — flex-wrap, clips via inline maxHeight */
@@ -48,21 +56,43 @@
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  color: var(--text-secondary);
+  /* difference 블렌드 — 흰색이라야 배경 위에서 깔끔히 반전. 비활성도 충분히 진하게(구분은 밑줄/굵기로) */
+  color: var(--text-white);
+  opacity: 0.78;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .nav .btn:hover {
-  color: var(--text-primary);
+  opacity: 1;
 }
 
+/* 다중선택 — 선택된 카테고리는 흰색(불투명) + 하단 밑줄 (difference 로 반전, 여러 개 구분) */
 .btnActive {
-  color: var(--text-primary);
+  color: var(--text-white);
+  opacity: 1;
+  font-weight: var(--font-weight-medium);
 }
-
+/* 밑줄 — 항상 렌더하고 scaleX(0→1) 로 grow-in/out 애니. 전역 theme transition 이 transform 미포함이라
+   compound (0,2,1) 로 transform transition 을 직접 지정(전역 규칙보다 우선). */
+.nav .btn::after {
+  content: "";
+  position: absolute;
+  left: var(--spacing-md);
+  right: var(--spacing-md);
+  bottom: 3px;
+  height: 2px;
+  background: var(--text-white);
+  border-radius: var(--radius-capsule);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav .btnActive::after {
+  transform: scaleX(1);
+}
 .nav .btnActive:hover {
-  color: var(--text-primary);
+  opacity: 1;
 }
 
 /* "+N more" / "Close" toggle — .btn 과 같은 행 수직 중심 정렬 (filter-row-h). */
@@ -123,4 +153,66 @@
     left: var(--spacing-xs);
     right: var(--spacing-xs);
   }
+}
+
+/* ── 소분류 행 (2단계 대분류 선택 시 펼쳐짐) ── */
+/* height 애니는 framer(inline)로 처리 — overflow hidden 으로 접힘 클립 */
+.childRow {
+  overflow: hidden;
+}
+
+.childRowInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  /* 대분류 탭 텍스트와 시작선 맞춤 + 상위 행과 여백 확보(상단 넉넉히) */
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-xs);
+}
+
+/* 소분류 칩 — difference 하에선 solid 배경이 어색하므로 흰색 텍스트 + opacity 로 구분 */
+.childBtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-white);
+  opacity: 0.72;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.childRow .childBtn:hover {
+  opacity: 0.92;
+}
+
+/* 소분류 밑줄 — 부모 탭과 동일하게 scaleX(0→1) 애니. compound (0,2,1) 로 transform transition 직접 지정 */
+.childRow .childBtn::after {
+  content: "";
+  position: absolute;
+  left: var(--spacing-sm);
+  right: var(--spacing-sm);
+  bottom: 0;
+  height: 2px;
+  background: var(--text-white);
+  border-radius: var(--radius-capsule);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 선택된 소분류 — 불투명 흰색 + 굵게 + 밑줄 애니 */
+.childRow .childBtnActive,
+.childRow .childBtnActive:hover {
+  opacity: 1;
+  font-weight: var(--font-weight-medium);
+}
+.childRow .childBtnActive::after {
+  transform: scaleX(1);
 }

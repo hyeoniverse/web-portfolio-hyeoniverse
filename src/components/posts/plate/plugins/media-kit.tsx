@@ -3,6 +3,37 @@
 import { ImagePlugin, MediaEmbedPlugin } from "@platejs/media/react";
 import { ImageElement, MediaEmbedElement } from "../elements";
 
+/** <video> → media_embed 노드 복원 (크기·정렬·float·재생옵션·시작위치·다운로드방지·캡션).
+ *  figure 로 감싼 경우(=대부분) figureEl 로 정렬/캡션을 읽는다. */
+function parseVideo(videoEl: HTMLElement, figureEl: HTMLElement | null): Record<string, unknown> {
+  const vStyle = videoEl.getAttribute("style") || "";
+  const rawSrc = videoEl.getAttribute("src") || "";
+  const tMatch = rawSrc.match(/#t=(\d+)/);
+  const node: Record<string, unknown> = {
+    type: "media_embed",
+    url: rawSrc.replace(/#t=\d+$/, ""),
+    mediaType: "video",
+    children: [{ text: "" }],
+  };
+  const vw = vStyle.match(/width:\s*(\d+)px/);
+  if (vw) node.width = Number(vw[1]);
+  const vh = vStyle.match(/height:\s*(\d+)px/);
+  if (vh) node.height = Number(vh[1]);
+  if (tMatch) node.vidStart = Number(tMatch[1]);
+  if (videoEl.hasAttribute("loop")) node.vidLoop = true;
+  if (videoEl.hasAttribute("autoplay")) node.vidAutoplay = true;
+  if (videoEl.hasAttribute("muted")) node.vidMuted = true;
+  if ((videoEl.getAttribute("controlsList") || "").includes("nodownload")) node.noDownload = true;
+  const cap = videoEl.getAttribute("data-caption") || figureEl?.querySelector("figcaption")?.textContent?.trim();
+  if (cap) node.caption = cap;
+  const wrapStyle = figureEl?.getAttribute("style") || "";
+  if (/float:\s*left/.test(vStyle) || /float:\s*left/.test(wrapStyle)) node.layout = "float-left";
+  else if (/float:\s*right/.test(vStyle) || /float:\s*right/.test(wrapStyle)) node.layout = "float-right";
+  else if (wrapStyle.includes("flex-end")) node.align = "right";
+  else if (wrapStyle.includes("flex-start")) node.align = "left";
+  return node;
+}
+
 /** 미디어 — 이미지(크기/정렬/캡션 커스텀) + iframe embed(YouTube 옵션 복원) */
 export const MediaKit = [
   ImagePlugin.configure({
@@ -13,6 +44,11 @@ export const MediaKit = [
         deserializer: {
           rules: [{ validNodeName: ["IMG", "FIGURE"] }],
           parse: ({ element }: { element: HTMLElement }) => {
+            // FIGURE 는 이미지·동영상 모두 감쌀 수 있음 → 동영상이면 media_embed 로 (figcaption 중복 방지)
+            if (element.nodeName === "FIGURE") {
+              const vEl = element.querySelector("video");
+              if (vEl) return parseVideo(vEl as HTMLElement, element);
+            }
             // FIGURE → 내부 IMG를 찾아서 처리
             const imgEl = element.nodeName === "FIGURE"
               ? element.querySelector("img")
@@ -54,8 +90,13 @@ export const MediaKit = [
     parsers: {
       html: {
         deserializer: {
-          rules: [{ validNodeName: "IFRAME" }],
+          rules: [{ validNodeName: ["IFRAME", "VIDEO"] }],
           parse: ({ element }: { element: HTMLElement }) => {
+            // ── 동영상 <video> (figure 로 안 감싼 bare 케이스) → media_embed ──
+            if (element.tagName === "VIDEO") {
+              return parseVideo(element, element.parentElement);
+            }
+
             const url = element.getAttribute("data-original-url") || element.getAttribute("src") || "";
             const node: Record<string, unknown> = { type: "media_embed", url, children: [{ text: "" }] };
             // width from inline style (style="width:400px") or parent div style

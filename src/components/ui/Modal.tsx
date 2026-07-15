@@ -6,6 +6,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { useLenis } from "@/providers/LenisProvider";
 import styles from "./Modal.module.css";
 import CloseButton from "./CloseButton";
+import { PortalContainerContext } from "./portalContainer";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSoundManager } from "@/hooks/useSoundManager";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -46,6 +47,29 @@ export default function Modal() {
         });
       };
       footerRefSettersRef.current.set(id, setter);
+    }
+    return setter;
+  }, []);
+  /* 모달별 portal 컨테이너 DOM el — Popover/Select/Tooltip 이 PortalContainerContext 로 받아
+     body 대신 이 layer 로 portal → 모달 stacking context 안에 쌓임(전역 z 불필요). footerEls 와 동일 패턴. */
+  const [containerEls, setContainerEls] = useState<Record<string, HTMLDivElement | null>>({});
+  const containerRefSettersRef = useRef<Map<string, (el: HTMLDivElement | null) => void>>(new Map());
+  const getContainerRefSetter = useCallback((id: string) => {
+    let setter = containerRefSettersRef.current.get(id);
+    if (!setter) {
+      setter = (el) => {
+        setContainerEls((prev) => {
+          if (prev[id] === el) return prev;
+          if (el === null) {
+            if (!(id in prev)) return prev;
+            const next = { ...prev };
+            delete next[id];
+            return next;
+          }
+          return { ...prev, [id]: el };
+        });
+      };
+      containerRefSettersRef.current.set(id, setter);
     }
     return setter;
   }, []);
@@ -235,7 +259,7 @@ export default function Modal() {
 
   return createPortal(
     <AnimatePresence onExitComplete={handleExitComplete}>
-      {modals.map(({ id, header, content, style, closeButton }) => (
+      {modals.map(({ id, header, content, style, closeButton, subButtons }) => (
         <motion.div
           key={id}
           id="modal-root"
@@ -283,24 +307,39 @@ export default function Modal() {
                     <h2 id={`modal-title-${id}`} className={styles.modalTitle}>{header.title}</h2>
                   )}
                 </div>
+                {header.actions && (
+                  <div className={styles.headerActions}>{header.actions}</div>
+                )}
               </div>
             )}
 
-            {closeButton && (
-              <CloseButton
-                className={styles.closeButton}
-                size="md"
-                onClick={() => handleClose(id)}
-                ariaLabel="닫기"
-              />
+            {((closeButton && !isMobile) || subButtons) && (
+              <div className={styles.topRight}>
+                {subButtons && <div className={styles.subButtons}>{subButtons}</div>}
+                {/* 모바일은 bottom sheet 모드 — 아래로 드래그해서 닫는 게 기본 제스처이고
+                    상단에 grabber 도 있으므로 X 버튼은 숨긴다 (데스크톱에서만 노출) */}
+                {closeButton && !isMobile && (
+                  <CloseButton
+                    className={styles.closeButton}
+                    size="md"
+                    onClick={() => handleClose(id)}
+                    ariaLabel="닫기"
+                  />
+                )}
+              </div>
             )}
             <ModalFooterContext.Provider value={footerEls[id] ?? null}>
-              <div className={styles.modalScroll}>
-                {content}
-              </div>
-              <div ref={getFooterRefSetter(id)} className={styles.modalFooter} />
+              <PortalContainerContext.Provider value={containerEls[id] ?? null}>
+                <div className={styles.modalScroll}>
+                  {content}
+                </div>
+                <div ref={getFooterRefSetter(id)} className={styles.modalFooter} />
+              </PortalContainerContext.Provider>
             </ModalFooterContext.Provider>
           </motion.div>
+          {/* 모달 stacking context 안 portal layer — Popover/Select/Tooltip 이 여기로 렌더돼 패널 위에 뜬다.
+              패널(#modal)의 transform 영향을 안 받도록 형제로 배치, backdrop(#modal-root, fixed inset:0)이 containing block. */}
+          <div ref={getContainerRefSetter(id)} className={styles.portalLayer} aria-hidden />
         </motion.div>
       ))}
     </AnimatePresence>,

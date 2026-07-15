@@ -66,14 +66,36 @@
 /* nested 모드 outer wrapper — main 과 동일 높이 유지 (vertical padding 0).
    자식 사이 horizontal 간격은 label / inner group 의 margin 으로.
    align-items: center 로 자식 (back btn, label, divider, sub group) 의 수직 정렬 보장. */
+/* 가장 바깥 border(base .group box-shadow) 는 유지. 안쪽 padding 4px(main 은 2px) 로 여백 확대.
+   버튼을 control-h-8 로 줄여(--nested-btn-h) 전체 높이는 padding 4*2 + (control-h-8) = control-h 로
+   main 모드와 동일하게 유지 (전환 시 높이 안 변함). */
 .nestedGroup {
-  padding: 0;
+  padding: 4px;
   align-items: center;
+  gap: var(--spacing-2xs);
 }
 
+/* 하위 메뉴(sub-items) 를 감싸는 안쪽 border + padding 제거 — 바깥 하나만, 높이는 버튼 높이로 */
 .nestedGroup > .group {
   margin: 0;
-  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+/* nested 안 모든 컨트롤(back/label/sub) 높이 통일 → control-h-8 */
+.nestedGroup .btn,
+.nestedGroup .btnNestedLabel {
+  height: var(--nested-btn-h);
+}
+
+/* label(상위 메뉴) 폰트를 세그먼트 btn 과 동일하게 — Button 컴포넌트 기본 폰트가 커서 전환 시 바뀌던 것 수정 */
+.nestedGroup .btnNestedLabel {
+  font-size: var(--nested-label-fs);
+}
+
+/* nested 에선 gap 이 간격 담당 — divider 자체 margin 제거해 균일하게 */
+.nestedGroup .nestedDivider {
+  margin: 0;
 }
 
 /* divider — ChevronRight 아이콘 (main → sub 의 진입 표시) */

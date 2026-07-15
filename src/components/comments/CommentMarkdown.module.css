@@ -1,0 +1,255 @@
+/* 댓글 마크다운 컨테이너 — 촘촘한 간격, 토큰만 사용. CommentItem/CommentForm 공용.
+   본문은 md(16px) — 닉네임/날짜/액션 등 메타는 sm(14px) 로 남겨 위계를 만든다.
+   내부 heading 들은 em 기반이라 이 값에 비례해 같이 커진다. */
+.commentMarkdown {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.commentMarkdown > :first-child {
+  margin-top: 0;
+}
+
+.commentMarkdown > :last-child {
+  margin-bottom: 0;
+}
+
+.commentMarkdown p {
+  margin: var(--box-y-md);
+}
+
+.commentMarkdown strong,
+.commentMarkdown b {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.commentMarkdown em,
+.commentMarkdown i {
+  font-style: italic;
+}
+
+.commentMarkdown del,
+.commentMarkdown s {
+  opacity: 0.65;
+}
+
+.commentMarkdown a {
+  color: var(--text-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.commentMarkdown a:hover {
+  opacity: 0.8;
+}
+
+/* ── 제목 h1~h6 — 댓글 스코프라 과하지 않게, em 으로 상대 크기 계단 (# > ## > ### …) ── */
+.commentMarkdown h1,
+.commentMarkdown h2,
+.commentMarkdown h3,
+.commentMarkdown h4,
+.commentMarkdown h5,
+.commentMarkdown h6 {
+  margin: var(--box-y-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+}
+
+.commentMarkdown h1 {
+  font-size: 1.5em;
+}
+
+.commentMarkdown h2 {
+  font-size: 1.3em;
+}
+
+.commentMarkdown h3 {
+  font-size: 1.15em;
+}
+
+.commentMarkdown h4 {
+  font-size: 1em;
+}
+
+.commentMarkdown h5 {
+  font-size: 0.9em;
+}
+
+.commentMarkdown h6 {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}
+
+/* ── 목록 ── */
+.commentMarkdown ul,
+.commentMarkdown ol {
+  margin: var(--box-y-md);
+  padding-left: var(--spacing-xl);
+}
+
+.commentMarkdown ul {
+  list-style: disc;
+}
+
+.commentMarkdown ol {
+  list-style: decimal;
+}
+
+.commentMarkdown li {
+  margin: var(--spacing-3xs) 0;
+}
+
+.commentMarkdown li::marker {
+  color: var(--text-muted);
+}
+
+/* 중첩 목록 — 살짝 촘촘하게 (들여쓰기는 부모 padding-left 가 담당) */
+.commentMarkdown li > ul,
+.commentMarkdown li > ol {
+  margin: var(--spacing-3xs) 0;
+}
+
+/* ── task list (체크박스) — marked 는 class 를 안 붙여 :has 로 판별 (PostDetail 과 동일 패턴).
+   경로 두 개를 다 잡아야 한다:
+     tight list (항목 사이 빈 줄 없음) → <li><input>
+     loose list (항목 사이 빈 줄 있음) → <li><p><input>   ← marked 가 문단으로 감싼다
+   `> li > input` 하나만 쓰면 loose 에서 빗나가 체크박스 자리에 불릿이 찍힌다.
+   그렇다고 자손 조합자(`:has(input)`)로 퉁치면 반대로 과하게 잡혀서,
+   일반 불릿 목록 안에 체크박스 하위목록이 있을 때 그 "부모" 목록의 불릿까지 사라진다.
+   → 직계 경로 두 개만 명시. ── */
+.commentMarkdown ul:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"]) {
+  padding-left: var(--spacing-md);
+  list-style: none;
+}
+
+.commentMarkdown li:has(> input[type="checkbox"], > p > input[type="checkbox"]) {
+  list-style: none;
+}
+
+.commentMarkdown li input[type="checkbox"] {
+  /* _base.css 전역 reset(`input { border: none; background: none }`)이 native 체크박스를 지운다.
+     appearance: auto 만으론 부족 — 배경/보더가 죽은 채로 그려져 빈 자리처럼 보인다.
+     revert = UA 기본 스타일로 되돌림 → native 체크박스가 그대로 복원된다.
+     (background/border 는 shorthand 라 stylelint declaration-strict-value 대상이 아니다) */
+  appearance: auto;
+  background: revert;
+  border: revert;
+  width: 1em;
+  height: 1em;
+  margin-right: var(--spacing-2xs);
+  vertical-align: middle;
+  accent-color: var(--bg-accent-solid);
+  opacity: 1;
+  cursor: default;
+}
+
+/* loose list 는 항목이 <p> 로 감싸진다 — 그 문단 여백까지 그대로 두면 체크박스 줄이 뚝뚝 떨어진다 */
+.commentMarkdown li:has(> p > input[type="checkbox"]) > p {
+  margin: 0;
+}
+
+/* ── inline code ── */
+.commentMarkdown code {
+  padding: var(--box-3xs-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--text-primary);
+}
+
+/* ── code block — 가로 스크롤 ── */
+.commentMarkdown pre {
+  margin: var(--box-y-lg);
+  padding: var(--box-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-secondary);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.commentMarkdown pre code {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+/* ── blockquote ── */
+.commentMarkdown blockquote {
+  margin: var(--box-y-md);
+  padding-left: var(--spacing-md);
+  border-left: var(--border-light-2);
+  color: var(--text-tertiary);
+}
+
+/* ── hr ── */
+.commentMarkdown hr {
+  margin: var(--box-y-lg);
+  border: none;
+  border-top: var(--border-light);
+}
+
+/* ── image ── */
+/* cursor: zoom-in — 클릭하면 ImageViewer 가 열린다는 유일한 단서. 이거 없으면 그냥 그림으로 보인다.
+   max-height — 세로로 긴 외부 이미지 하나가 스레드를 통째로 삼키는 걸 막는다.
+   잘라내는 게 아니라 줄이는 것(height: auto + object-fit 없음)이라 전체는 뷰어에서 본다. */
+.commentMarkdown img {
+  max-width: 100%;
+  max-height: 420px;
+  width: auto;
+  height: auto;
+  margin: var(--box-y-md);
+  border-radius: var(--radius-2xl);
+  cursor: zoom-in;
+}
+
+/* ── table — 좌우 트인 라인 테이블: 외곽/세로선 없이 가로 규칙만.
+   giscus `.markdown-body table { border: 0; border-collapse: collapse }` 미러.
+   display:block + width:max-content 는 좁은 댓글 폭에서의 가로 스크롤용 — 유지
+   (giscus 는 넓은 본문이라 display:table + width:100%). ── */
+.commentMarkdown table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: var(--box-y-md);
+  border: none;
+  border-collapse: collapse;
+  overflow-x: auto;
+  font-size: var(--font-size-xs);
+}
+
+/* 행 배경 없음 — giscus `table tr { background: transparent; border-top: 0 }` */
+.commentMarkdown tr {
+  background: transparent;
+}
+
+/* 가로 규칙만 — 세로선/외곽선 없음 (giscus `th, td { border: 0; border-bottom: 1px }`) */
+.commentMarkdown th,
+.commentMarkdown td {
+  padding: var(--box-xs-sm);
+  border: none;
+  border-bottom: var(--border-light);
+  text-align: left;
+}
+
+/* th 아래만 2px — 헤더 구분 (giscus `table th { border-bottom: 2px solid }`). 배경 채움 없음. */
+.commentMarkdown th {
+  border-bottom: var(--border-light-2);
+  background: transparent;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* 마지막 행 아래 규칙 제거 → 표 아래쪽도 트임 (giscus `table tr:last-child td { border-bottom: 0 }`) */
+.commentMarkdown tr:last-child td {
+  border-bottom: none;
+}

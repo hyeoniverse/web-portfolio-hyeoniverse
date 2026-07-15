@@ -52,14 +52,35 @@ const MIME_EXT_MAP: Record<string, string[]> = {
 
 // 기본 크기 제한 (MB) — 설정이 없을 때 사용
 const DEFAULT_LIMIT_MB = 20;
-const MAX_ABSOLUTE_MB = 100; // 어떤 경우에도 100MB 초과 금지
+const MAX_ABSOLUTE_MB = 200; // 어떤 경우에도 200MB 초과 금지
 
 // POST /api/upload — 파일 업로드 (admin only)
 export async function POST(request: Request) {
   const { error: authError } = await requireAuth();
   if (authError) return authError;
 
-  const formData = await request.formData();
+  // 본문 파싱 전에 Content-Length 로 크기를 먼저 판별 — formData() 는 큰 body 에서 throw 하는데
+  // 그 시점엔 파일 크기를 알 수 없어 "크거나 손상" 처럼 사유가 섞인다. 헤더는 파싱 없이 읽히므로
+  // 이걸로 "용량 초과" 와 "손상/형식오류" 를 명확히 구분한다.
+  const declaredBytes = Number(request.headers.get("content-length") || 0);
+  const absoluteBytes = MAX_ABSOLUTE_MB * 1024 * 1024;
+  if (declaredBytes > absoluteBytes) {
+    const mb = (declaredBytes / (1024 * 1024)).toFixed(1);
+    return jsonError(`동영상·파일 용량이 너무 큽니다 (약 ${mb}MB). 최대 ${MAX_ABSOLUTE_MB}MB까지 업로드할 수 있어요.`, 400);
+  }
+
+  // formData 파싱은 try 밖에서 던지면 빈 500(HTML)이 되어 클라가 사유를 못 받음 → 감싸서 JSON 으로.
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    // 여기까지 와서 파싱 실패 = 대개 서버/플랫폼 본문 한도 초과 (선언 크기가 절대한도보다 작아도 발생).
+    if (declaredBytes > 0) {
+      const mb = (declaredBytes / (1024 * 1024)).toFixed(1);
+      return jsonError(`파일이 너무 커서 서버가 받지 못했습니다 (약 ${mb}MB). 더 작은 파일로 나눠 올리거나 압축해 주세요.`, 400);
+    }
+    return jsonError("파일이 손상되었거나 형식이 올바르지 않아 읽지 못했습니다.", 400);
+  }
   const file = formData.get("file") as File | null;
 
   if (!file) return jsonError("No file provided", 400);

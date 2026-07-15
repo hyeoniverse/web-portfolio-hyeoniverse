@@ -18,13 +18,15 @@ interface DateTimePickerProps {
   maxDate?: Date;
   /** 날짜/시간 picker 가 absolute popover 대신 trigger 아래에 inline 으로 펼쳐짐. */
   inline?: boolean;
+  /** 값이 있으면 trigger 를 테두리 없는 텍스트로 표시하고, 편집은 더블클릭으로만 (선택 전엔 일반 트리거). */
+  textEdit?: boolean;
 }
 
 /** 날짜 + 시간(시:분) picker — 예약 발행 등에 사용
  *  - 날짜 부분: 기존 DatePickerPopover 재사용
  *  - 시간 부분: 24h HH:mm 입력
  *  - 출력: ISO timestamp (UTC) — `value` 가 ISO 면 로컬로 표시 */
-export default function DateTimePicker({ value, onChange, disabled, minDate, maxDate, inline = false }: DateTimePickerProps) {
+export default function DateTimePicker({ value, onChange, disabled, minDate, maxDate, inline = false, textEdit = false }: DateTimePickerProps) {
   const { language } = useLanguage();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [timeOpen, setTimeOpen] = useState(false);
@@ -95,23 +97,22 @@ export default function DateTimePicker({ value, onChange, disabled, minDate, max
     ? `${year}.${month}.${day}`
     : language === "ko" ? "날짜 선택" : "Select date";
 
+  // textEdit + 값 있음 → 텍스트 모양 + 더블클릭 편집 (선택 전엔 일반 트리거)
+  const asText = textEdit && !!validLocal;
+  const toggleDate = () => { if (disabled) return; setPickerOpen((v) => { const n = !v; if (n && inline) setTimeOpen(false); return n; }); };
+  const toggleTime = () => { if (disabled) return; setTimeOpen((v) => { const n = !v; if (n && inline) setPickerOpen(false); return n; }); };
+
   return (
     <div className={`${styles.dateRow}${inline ? ` ${styles.dateRowInline}` : ""}`}>
       <div className={styles.dateInputs}>
         <div className={styles.pickerAnchor} style={{ position: "relative" }}>
           <button
             type="button"
-            onClick={() => {
-              if (disabled) return;
-              setPickerOpen((v) => {
-                const next = !v;
-                if (next && inline) setTimeOpen(false);
-                return next;
-              });
-            }}
+            onClick={asText ? undefined : toggleDate}
+            onDoubleClick={asText ? toggleDate : undefined}
             disabled={disabled}
-            className={styles.yearInput}
-            style={{ width: "auto", minWidth: 110, textAlign: "left", padding: "var(--box-xs)" }}
+            className={asText ? styles.pickerText : styles.yearInput}
+            style={{ width: "auto", minWidth: asText ? 0 : 110, textAlign: "left", padding: "var(--box-xs)" }}
           >
             {dateLabel}
           </button>
@@ -132,17 +133,11 @@ export default function DateTimePicker({ value, onChange, disabled, minDate, max
         <div className={styles.pickerAnchor} style={{ position: "relative" }}>
           <button
             type="button"
-            onClick={() => {
-              if (disabled) return;
-              setTimeOpen((v) => {
-                const next = !v;
-                if (next && inline) setPickerOpen(false);
-                return next;
-              });
-            }}
+            onClick={asText ? undefined : toggleTime}
+            onDoubleClick={asText ? toggleTime : undefined}
             disabled={disabled}
-            className={styles.yearInput}
-            style={{ width: "auto", minWidth: 90, textAlign: "left", padding: "var(--box-xs)" }}
+            className={asText ? styles.pickerText : styles.yearInput}
+            style={{ width: "auto", minWidth: asText ? 0 : 90, textAlign: "left", padding: "var(--box-xs)" }}
           >
             {validLocal ? time : (language === "ko" ? "시간" : "Time")}
           </button>

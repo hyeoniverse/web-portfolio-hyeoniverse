@@ -11,8 +11,15 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
 
+# Production domain — the baseline for the middleware's CSRF Origin check
+# If unset in production, every admin mutation is 403 (fail-closed). Dev passes even when empty
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+
 # Cover Image Picker — Unsplash (optional)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
+
+# Cover Image Picker — Pexels (optional, alternative to Unsplash)
+PEXELS_API_KEY=your_pexels_api_key
 
 # Cover Image Picker — AI Generate (set only the key matching your provider)
 # Uses the key corresponding to aiCover.provider value in site.config.ts
@@ -25,7 +32,13 @@ DEEPL_API_KEY=your_deepl_key                   # provider: "deepl" (default)
 GOOGLE_TRANSLATE_API_KEY=your_google_key        # provider: "google"
 GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
 ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (translation + AI summary)
+
+# giscus comments (optional) — used only to load a repository's Discussion categories
+# from the admin settings. A GitHub PAT for reading public repos (no scopes needed)
+GITHUB_TOKEN=ghp_...
 ```
+
+> `GITHUB_TOKEN` prefers the secret saved in the admin Services tab, falling back to the environment variable (`getSecret("GITHUB_TOKEN")`).
 
 **How to find the values:**
 
@@ -43,24 +56,43 @@ The [`supabase/setup.sql`](supabase/setup.sql) file contains all table creation 
 
 Copy the file contents and run them at once in Supabase Dashboard -> **SQL Editor**.
 
-**Tables created (10):**
+**Tables created (22):**
 
 | Table | Purpose |
 |--------|------|
 | `site_settings` | Site settings + profile data + secrets/API keys (JSONB) |
-| `series` | Blog series (`sort_order` for admin ordering, `auto_cover_url` for Unsplash cache) |
-| `posts` | Blog posts (post_number sequence column for unique numbering) |
+| `series` | Blog series (`sort_order` for admin ordering, `auto_cover_url` for Unsplash cache, 80-char title CHECK) |
+| `posts` | Blog posts (post_number sequence + `scheduled_at` scheduled publishing + `purge_after` trash TTL + `version` optimistic locking + `icon` / `cover_position` / `cover_zoom` / `author_ids`) |
 | `comments` | Post comments (threaded replies, dual auth: commenter_hash + password) |
+| `comment_reactions` | Comment emoji reactions (fixed set of 8, post/work split via `comment_type`, duplicate prevention via `reactor_hash`) |
+| `comment_reports` | Comment reports (reason + resolve/dismiss state) |
 | `likes` | Likes (unified for posts/works/comments, distinguished by target_type, IP duplicate prevention) |
-| `works` | Portfolio works (includes team_members jsonb) |
+| `works` | Portfolio works (slug, `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `icon`, `scheduled_at`, `purge_after`) |
 | `site_visits` | Visitor statistics (1 per IP+date) |
+| `post_views` | Per-post time-series view records (daily trend chart on the dashboard) |
 | `work_comments` | Works comments (threaded replies, dual auth) |
 | `admin_notifications` | Admin notification logs |
 | `revisions` | Editor revision history (shared for posts/works, JSONB snapshot) |
-| `poll_votes` | In-content poll block tally (poll_id + option_id — editor-assigned text ids, IP-based duplicate prevention) |
+| `post_work_relations` | Posts ↔ works bidirectional many-to-many (Notion Relation style) |
 | `series_work_relations` | Series ↔ works many-to-many (related series on a project, same pattern as post_work_relations) |
+| `poll_votes` | In-content poll block tally (poll_id + option_id — editor-assigned text ids, IP-based duplicate prevention) |
+| `calendars` | Shared calendars for the editor's calendar block (`data jsonb`, soft delete + 30-day `purge_after` TTL) |
+| `custom_emojis` | Custom uploaded icons for the EmojiPicker (admin-only RLS) |
+| `cover_image_history` | Unified Cover Image Picker history (per admin user, ai/unsplash/preset tagged, RLS) |
+| `admin_login_attempts` | Admin login failure counter (5 failures → 15-minute lockout) |
+| `admin_known_devices` | Approved admin device UA fingerprints (SHA-256; unknown devices need email approval, 24h TTL) |
+| `applied_migrations` | Tracks applied schema migrations (fires a notification on first application) |
 
 > Uses `IF NOT EXISTS` so existing tables are skipped. Missing columns (commenter_hash, updated_at, etc.) in existing deployed DBs are safely added via `ALTER TABLE ADD COLUMN IF NOT EXISTS` in the migration section at the bottom of the file.
+
+> **setup.sql ↔ migrations drift**: `custom_emojis` exists only in `setup.sql`, with no matching migration file. Conversely, the `posts` title length CHECKs (`posts_title_len` / `posts_title_en_len`, 120 chars) exist only in `2026_07_13_posts_title_len.sql` and are absent from `setup.sql`. A fresh setup needs only `setup.sql`, but if you mix the two paths, check these two items.
+
+**Manual-run migrations (optional):** The two files below are data-rewriting scripts and are not applied automatically. Run them by hand in the SQL Editor only when needed.
+
+| File | What it does |
+|------|---------|
+| `2026_07_13_category_reset.sql` | Removes the category overrides from `site_settings` and remaps `posts.category` / `series.category` onto the new taxonomy. **It updates every row with no WHERE clause, and any value missing from the mapping is swept into `ELSE '기타'`** — always review the step [0] distribution output before running |
+| `2026_07_13_tag_descriptions_reset.sql` | Removes the `tagDescriptions` override from `site_settings` so the default dictionary in `site.config.ts` shows through (leaves `posts.tags` / `tag_notes` untouched) |
 
 > **Works without Supabase**: If environment variables are not set, the site automatically falls back to static data from Works (`data/projects.ts`), Profile (`data/profile.ts`), and Settings (`config/site.config.ts`).
 
@@ -76,9 +108,15 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 >
 > **Work Comments API**: `GET /api/work-comments?work_id=`, `POST /api/work-comments`, `PATCH /api/work-comments` (edit), `DELETE /api/work-comments/[id]`
 >
-> **Comment Likes API**: `GET /api/comment-likes?comment_type=&comment_ids=` (batch like status query), `POST /api/comment-likes` (toggle comment like)
+> **Comment Reactions API**: `GET /api/comment-reactions?comment_type=&comment_ids=` (batch tally + my reactions), `POST /api/comment-reactions` (toggle an emoji reaction)
 >
-> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`
+> **Calendars API**: `GET/POST /api/calendars` (list — `?trash=true` for trash / create), `GET/PUT/DELETE /api/calendars/[calendarId]`, `POST /api/calendars/[calendarId]/restore`, `DELETE /api/calendars/[calendarId]/purge` — all admin-only
+>
+> **Custom Emojis API**: `GET/POST /api/custom-emojis`, `DELETE /api/custom-emojis/[id]` — EmojiPicker custom icons, admin-only
+>
+> **Upload API**: `POST /api/upload` (server-proxied upload, per-MIME size limits + a 200MB absolute cap), `POST /api/upload/signed-url` (issues a signed URL for direct Storage upload — only the filename and type transit, sidestepping the request body size cap)
+>
+> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (looks up repoId + Discussion categories via GitHub GraphQL, requires `GITHUB_TOKEN`)
 >
 > **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (list, excluding snapshots), `POST /api/revisions` (save + cleanup beyond 50), `GET /api/revisions/[id]` (single with snapshot), `DELETE /api/revisions/[id]`
 >
@@ -149,15 +187,17 @@ There is no login button on the site. Only the admin accesses it by entering the
 
 In the Cover Image / Main Image area of the post, series, and work editors, you can choose between **Upload** (direct upload) and **Choose cover** (picker).
 
-Clicking **Choose cover** shows 3 tabs:
+Clicking **Choose cover** shows 5 tabs plus a local-file area (it automatically becomes a bottom sheet on mobile):
 
 | Tab | Description | Required Environment Variable |
 |----|------|----------------|
-| **Presets** | Click from 16 gradient/pattern options to generate a 1200x630 image via Canvas API and upload to Supabase | None |
+| **Presets** | 16 gradients/patterns — clicking one generates a 1200x630 image via the Canvas API and uploads it to Supabase. Local media under `public/cover/images/` · `public/cover/videos/` also appears in the same panel (shared `/api/admin/cover`) | None |
 | **Unsplash** | Search Unsplash photos by keyword -> click to trigger download tracking + Supabase upload | `UNSPLASH_ACCESS_KEY` |
+| **Pexels** | Search Pexels photos by keyword -> click to download + Supabase upload. A complement to Unsplash (fail-safe if their API policy changes) | `PEXELS_API_KEY` |
 | **AI Generate** | Prompt + style selection -> AI image generation -> Supabase upload | Provider-specific API key (see below) |
+| **History** | Permanently keeps previously chosen covers (`cover_image_history` table, RLS) — preset / Unsplash / Pexels / AI unified. Inline keyword & palette copy, download, and re-select | None |
 
-> **Note**: The Unsplash and AI Generate tabs each require their own API key. The Presets tab works without any environment variables.
+> **Note**: The Unsplash, Pexels, and AI Generate tabs each require their own API key. The Presets and History tabs work without any environment variables.
 
 ---
 
@@ -226,6 +266,24 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 5. Enter `UNSPLASH_ACCESS_KEY=...` in `.env.local`
 
 > Demo app limit: 50 requests/hour. Production approval: 5,000 requests/hour.
+
+#### Pexels API Key Setup
+
+1. Sign up at [Pexels API](https://www.pexels.com/api/)
+2. Copy the key from the **Your API Key** page (issued immediately, no application needed)
+3. Enter `PEXELS_API_KEY=...` in `.env.local`
+
+> Free — 200 requests/hour, 20,000/month. Useful as a fallback when Unsplash changes policy or rate-limits you.
+
+#### GitHub Token Setup (only for giscus)
+
+Used solely to auto-load a repository's Discussion categories in the admin settings when comments run on giscus.
+
+1. Go to [GitHub → Settings → Developer settings → Personal access tokens](https://github.com/settings/tokens)
+2. Create a token — **no scopes need to be checked**, since it only reads Discussion categories on public repos
+3. Enter `GITHUB_TOKEN=...` in `.env.local`, or save it in the admin **Services** tab (the DB secret takes priority over the environment variable)
+
+> The giscus widget itself works without a token — the token only powers the category auto-lookup convenience in the admin settings screen.
 
 **Authentication flow:**
 

@@ -409,6 +409,19 @@
   color: var(--text-error);
 }
 
+/* ghost + accent — 위험하지 않은데 기본 상태에서 시선은 끌어야 하는 인라인 액션.
+   (ghost default 는 --text-secondary 로 가라앉아 있고 hover 에서야 accent 가 된다)
+   프로젝트 accent 는 하나뿐이라 tone-danger 와 평상시 색이 같다. 다른 건 hover:
+   danger 는 --text-error 로 더 붉어져 "누르면 위험" 을 예고하고,
+   accent 는 --text-primary 로 가라앉아 그 예고를 안 한다. */
+.variant-ghost.tone-accent {
+  color: var(--text-accent);
+}
+
+.variant-ghost.tone-accent.btn:hover:not(:disabled) {
+  color: var(--text-primary);
+}
+
 /* ---------------------------------------------------------------------------
    Variant: difference — transparent + mix-blend-mode (텍스트/아이콘이 배경 색에 따라 자동 반전).
    hover 시 backdrop-filter blur 로 뒤 컨텐츠 살짝 흐려짐. border/background 없음.

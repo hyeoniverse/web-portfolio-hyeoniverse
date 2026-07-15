@@ -6,9 +6,7 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Series } from "@/types/post";
-import { useCategories } from "@/hooks/useCategories";
 import Checkbox from "@/components/ui/Checkbox";
-import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import AdminEditorShell from "@/components/admin/AdminEditorShell";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
@@ -20,7 +18,6 @@ interface SeriesForm {
   title_en: string;
   description: string;
   description_en: string;
-  category: string;
   cover_image: string;
   published: boolean;
 }
@@ -39,12 +36,10 @@ interface SeriesEditorProps {
 
 export default function SeriesEditor({ series }: SeriesEditorProps) {
   const router = useRouter();
-  const { t, language } = useLanguage();
-  const categories = useCategories();
+  const { t } = useLanguage();
   const isEdit = !!series;
 
   const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
-  const defaultCatKo = categories[0]?.ko || "";
 
   const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
   const [form, setForm] = useState<SeriesForm>({
@@ -52,7 +47,6 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
     title_en: series?.title_en ?? "",
     description: series?.description ?? "",
     description_en: series?.description_en ?? "",
-    category: series?.category || defaultCatKo,
     cover_image: series?.cover_image ?? "",
     published: series?.published ?? true,
   });
@@ -158,10 +152,6 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
     async (asPublished: boolean) => {
       if (!form.title.trim()) {
         setError(ts("titleRequired"));
-        return;
-      }
-      if (!form.category) {
-        setError(ts("categoryRequired"));
         return;
       }
 
@@ -278,18 +268,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
           </div>
 
           <div className={styles.row}>
-            <div className={styles.fieldGroup}>
-              <label className={styles.label}><T k="admin.posts.seriesModal.category" /></label>
-              <Select
-                value={form.category}
-                options={categories.map((cat) => ({
-                  value: cat.ko,
-                  label: language === "ko" ? cat.ko : cat.en,
-                }))}
-                onChange={(v) => updateField("category", v)}
-              />
-            </div>
-
+            {/* 시리즈 카테고리 필드 제거 — 카테고리는 멤버 글들에서 도출(각 글이 자기 카테고리 보유) */}
             <div className={styles.fieldGroup}>
               <label className={styles.label}><T k="admin.posts.seriesModal.published" /></label>
               <div className={styles.toggle}>
@@ -344,7 +323,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
                   <CoverImagePicker
                     onSelect={(url) => { updateField("cover_image", url); setShowCoverPicker(false); }}
                     onClose={() => setShowCoverPicker(false)}
-                    postContext={{ title: form.title, tags: form.category ? [form.category] : [], excerpt: form.description }}
+                    postContext={{ title: form.title, tags: [], excerpt: form.description }}
                   />
                 )}
               </>

@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
-import { ModalConfirm } from "@/components/ui/ModalTemplates";
+import { ModalConfirm, ModalAlert } from "@/components/ui/ModalTemplates";
 import type { EditorImageInfo } from "./types";
 import styles from "../RichTextEditor.module.css";
 
@@ -43,6 +43,17 @@ export function ImagePanel({
 }) {
   const { t } = useLanguage();
   const { openModal } = useModalStore();
+
+  // 업로드 실패 — alert 대신 상세 사유 모달. 서버가 사유를 주면 그대로, 상태코드만/빈 사유면 힌트 추가.
+  const showUploadError = (err: unknown) => {
+    const raw = err instanceof Error ? err.message : "";
+    const generic = !raw || /\(\d{3}\)/.test(raw);
+    const desc = generic ? `${raw || t("editor.uploadFail")}\n\n${t("editor.uploadFailHint")}` : raw;
+    openModal(
+      <ModalAlert desc={desc} />,
+      { id: "media-upload-error", header: { title: t("editor.uploadFail") }, closeButton: true, width: "400px" },
+    );
+  };
   // 패널 삭제는 영구(복구 불가) → 확인 모달 후 실행
   const confirmDelete = React.useCallback((onConfirm: () => void) => {
     openModal(
@@ -171,7 +182,7 @@ export function ImagePanel({
       try {
         await uploadFile(file);
       } catch (err) {
-        alert(err instanceof Error ? err.message : t("editor.imageUploadFail"));
+        showUploadError(err);
       }
     }
   };
@@ -188,7 +199,7 @@ export function ImagePanel({
       try {
         await uploadFile(file);
       } catch (err) {
-        alert(err instanceof Error ? err.message : t("editor.imageUploadFail"));
+        showUploadError(err);
       }
     }
     e.target.value = "";

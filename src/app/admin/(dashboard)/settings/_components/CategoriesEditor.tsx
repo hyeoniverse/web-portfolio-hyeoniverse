@@ -10,6 +10,7 @@ import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
+import Select from "@/components/ui/Select";
 import Pagination from "@/components/ui/Pagination";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
@@ -38,6 +39,49 @@ function normalizeDesc(d: PostCategoryExt["description"]): BilingualDesc {
   if (!d) return { ko: "", en: "" };
   if (typeof d === "string") return { ko: d, en: "" };
   return { ko: d.ko ?? "", en: d.en ?? "" };
+}
+
+/* ── 2단계 트리 ↔ flat 작업목록 변환 ──
+   에디터 내부 로직은 전부 flat(대분류/소분류 한 줄) 기준으로 돌리고, parentEn 으로 소속만 기억.
+   저장 시 rebuildTree 로 다시 트리(대분류 children)로 조립한다. */
+type FlatNode = PostCategoryExt & { parentEn: string | null };
+
+/** 트리 → flat (대분류 먼저, 이어서 그 소분류) */
+function flattenTree(tree: PostCategoryExt[]): FlatNode[] {
+  const out: FlatNode[] = [];
+  for (const p of tree) {
+    out.push({ ko: p.ko, en: p.en, description: p.description, parentEn: null });
+    const children = (p as { children?: PostCategoryExt[] }).children ?? [];
+    for (const ch of children) {
+      out.push({ ko: ch.ko, en: ch.en, description: ch.description, parentEn: p.en });
+    }
+  }
+  return out;
+}
+
+/** flat → 트리. parentEn 으로 소분류를 대분류 아래 재조립. 부모 사라진 소분류는 최상위로 승격. */
+function rebuildTree(flat: FlatNode[]): PostCategoryExt[] {
+  const topLevel = flat.filter((n) => n.parentEn === null);
+  const topEns = new Set(topLevel.map((n) => n.en));
+  const kidsByParent = new Map<string, FlatNode[]>();
+  const orphans: FlatNode[] = [];
+  for (const n of flat) {
+    if (n.parentEn === null) continue;
+    if (topEns.has(n.parentEn)) {
+      const arr = kidsByParent.get(n.parentEn) ?? [];
+      arr.push(n);
+      kidsByParent.set(n.parentEn, arr);
+    } else {
+      orphans.push(n);
+    }
+  }
+  const strip = (n: FlatNode): PostCategoryExt => ({ ko: n.ko, en: n.en, description: n.description });
+  const result: PostCategoryExt[] = topLevel.map((p) => {
+    const kids = kidsByParent.get(p.en);
+    return kids && kids.length ? { ...strip(p), children: kids.map(strip) } : strip(p);
+  });
+  for (const o of orphans) result.push(strip(o));
+  return result;
 }
 
 interface CategoryPostInfo {
@@ -71,10 +115,23 @@ function PostMeta({ p }: { p: { published: boolean; published_at: string | null;
 const CATS_PER_PAGE_COMPACT = 20;
 const CATS_PER_PAGE_DENSE = 8;
 
-export default function CategoriesEditor({ categories, onChange }: CategoriesEditorProps) {
-  const { t } = useLanguage();
+export default function CategoriesEditor({ categories: categoriesTree, onChange: onChangeTree }: CategoriesEditorProps) {
+  const { t, language } = useLanguage();
   const openModal = useModalStore((s) => s.openModal);
   const closeModal = useModalStore((s) => s.closeModal);
+
+  // 트리 → flat 작업목록(parentEn 보유). 아래 모든 로직은 flat 기준으로 동작.
+  const categories = useMemo<FlatNode[]>(() => flattenTree(categoriesTree), [categoriesTree]);
+  // 변경 저장 — flat 을 다시 트리로 조립해 상위(config)에 전달
+  const onChange = useCallback(
+    (flat: FlatNode[]) => onChangeTree(rebuildTree(flat)),
+    [onChangeTree],
+  );
+  const nodeByEn = useMemo(() => {
+    const m = new Map<string, FlatNode>();
+    for (const c of categories) m.set(c.en, c);
+    return m;
+  }, [categories]);
 
   /* 카테고리별 사용 카운트 + 카테고리별 post 목록 fetch */
   const [catCounts, setCatCounts] = useState<Record<string, number>>({});
@@ -292,9 +349,10 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
       if (cat) openReassignModal({ ko: cat.ko, en: cat.en });
       return;
     }
-    /* reorder — default view 일 때만 적용 (필터/정렬 중엔 의미 불명확) */
+    /* reorder — default view 일 때만 적용 (필터/정렬 중엔 의미 불명확).
+       parentEn 보존한 채 순서만 바꾸고 rebuildTree 로 재그룹. */
     if (!isDefaultView) return;
-    const byEn: Record<string, PostCategoryExt> = {};
+    const byEn: Record<string, FlatNode> = {};
     for (const c of categories) byEn[c.en] = c;
     onChange(nextItems.map((en) => byEn[en]).filter(Boolean));
   };
@@ -306,17 +364,32 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
   const [editingEn, setEditingEn] = useState<string | null>(null);
   const [pair, setPair] = useState<BilingualDesc>({ ko: "", en: "" });
   const [desc, setDesc] = useState<BilingualDesc>({ ko: "", en: "" });
+  /* 소속 대분류(parent) EN. null = 최상위(대분류). */
+  const [parentEn, setParentEn] = useState<string | null>(null);
   /* 순서 (1-based). add = categories.length + 1 (맨 뒤 default). edit = 현재 위치. */
   const [_position, setPosition] = useState<number>(categories.length + 1);
   const [isShaking, setIsShaking] = useState(false);
   const triggerShake = () => { setIsShaking(true); setTimeout(() => setIsShaking(false), 450); };
 
   const isEdit = editingEn !== null;
+  /* 편집 중 카테고리가 소분류를 가진 대분류면 최상위 고정(2단계 제한) → 부모 Select 비활성 */
+  const editingHasChildren = isEdit && categories.some((c) => c.parentEn === editingEn);
+  /* 부모(대분류) 선택지 — 최상위 노드들. 자기 자신 제외. */
+  const parentSelectOptions = useMemo(
+    () => [
+      { value: "", label: "최상위 (대분류)" },
+      ...categories
+        .filter((c) => c.parentEn === null && c.en !== editingEn)
+        .map((c) => ({ value: c.en, label: language === "ko" ? c.ko : c.en })),
+    ],
+    [categories, editingEn, language],
+  );
 
   useEffect(() => {
     if (editingEn === null) {
       setPair({ ko: "", en: "" });
       setDesc({ ko: "", en: "" });
+      setParentEn(null);
       setPosition(categories.length + 1);
       return;
     }
@@ -324,6 +397,7 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
     if (!cat) { setEditingEn(null); return; }
     setPair({ ko: cat.ko, en: cat.en });
     setDesc(normalizeDesc(cat.description));
+    setParentEn(cat.parentEn);
     /* 편집 시 현재 array 안 idx + 1 */
     const idx = categories.findIndex((c) => c.en === editingEn);
     if (idx >= 0) setPosition(idx + 1);
@@ -377,7 +451,13 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
         focusDuplicate(conflict.en);
         return;
       }
-      onChange(categories.map((c) => (c.en === editingEn ? { ko, en, description } : c)));
+      // 자식 있는 대분류는 최상위 유지(2단계 초과 방지). en 변경 시 자식 parentEn 재연결.
+      const nextParent = editingHasChildren ? null : parentEn;
+      onChange(categories.map((c) => {
+        if (c.en === editingEn) return { ko, en, description, parentEn: nextParent };
+        if (c.parentEn === editingEn) return { ...c, parentEn: en };
+        return c;
+      }));
       setEditingEn(null);
     } else {
       const dup = findDuplicate(categories, [ko, en], (c) => [c.ko, c.en]);
@@ -387,9 +467,10 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
         focusDuplicate(dup.en);
         return;
       }
-      onChange([...categories, { ko, en, description }]);
+      onChange([...categories, { ko, en, description, parentEn }]);
       setPair({ ko: "", en: "" });
       setDesc({ ko: "", en: "" });
+      setParentEn(null);
     }
   };
 
@@ -412,11 +493,11 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
     const remaining = categories.filter(
       (c) => c.ko !== reassignTarget?.ko || c.en !== reassignTarget?.en,
     );
-    const merged = [
+    const merged: FlatNode[] = [
       ...remaining,
       ...newCategories
         .filter((nc) => !remaining.some((r) => r.ko === nc.ko))
-        .map<PostCategoryExt>((nc) => ({ ko: nc.ko, en: nc.en, description: undefined })),
+        .map<FlatNode>((nc) => ({ ko: nc.ko, en: nc.en, description: undefined, parentEn: null })),
     ];
     onChange(merged);
     setReassignTarget(null);
@@ -445,14 +526,13 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
             icon={<Filter size={12} />}
             onClick={() => setFilterExpanded((e) => !e)}
           >
-            필터{activeFilterCount > 0 && ` (${activeFilterCount})`}
+            필터
+            {activeFilterCount > 0 && (
+              <span className={styles.filterBtnCount}>{activeFilterCount}</span>
+            )}
             <ChevronDown
               size={12}
-              style={{
-                marginLeft: 2,
-                transform: filterExpanded ? "rotate(180deg)" : undefined,
-                transition: "transform 0.2s",
-              }}
+              className={`${styles.filterBtnChevron} ${filterExpanded ? styles.filterBtnChevronOpen : ""}`}
             />
           </Button>
           <SegmentedControl
@@ -501,29 +581,29 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
               <div className={styles.tagDescFilterDrawer}>
                 <div className={styles.tagDescFilterGroup}>
                   <span className={styles.tagDescFilterGroupLabel}>사용</span>
-                  <Button
-                    variant={usageFilter === "in-use" ? "primary" : "outline"}
-                    size="md"
-                    onClick={() => setUsageFilter((u) => u === "in-use" ? "all" : "in-use")}
-                  >사용중</Button>
-                  <Button
-                    variant={usageFilter === "unused" ? "primary" : "outline"}
-                    size="md"
-                    onClick={() => setUsageFilter((u) => u === "unused" ? "all" : "unused")}
-                  >미사용</Button>
+                  <SegmentedControl
+                    items={[
+                      { value: "all", label: "전체" },
+                      { value: "in-use", label: "사용중" },
+                      { value: "unused", label: "미사용" },
+                    ]}
+                    value={usageFilter}
+                    onChange={(v) => setUsageFilter(v as UsageFilter)}
+                    size="sm"
+                  />
                 </div>
                 <div className={styles.tagDescFilterGroup}>
                   <span className={styles.tagDescFilterGroupLabel}>설명</span>
-                  <Button
-                    variant={descFilter === "with" ? "primary" : "outline"}
-                    size="md"
-                    onClick={() => setDescFilter((d) => d === "with" ? "all" : "with")}
-                  >설명 있음</Button>
-                  <Button
-                    variant={descFilter === "without" ? "primary" : "outline"}
-                    size="md"
-                    onClick={() => setDescFilter((d) => d === "without" ? "all" : "without")}
-                  >설명 없음</Button>
+                  <SegmentedControl
+                    items={[
+                      { value: "all", label: "전체" },
+                      { value: "with", label: "있음" },
+                      { value: "without", label: "없음" },
+                    ]}
+                    value={descFilter}
+                    onChange={(v) => setDescFilter(v as DescFilter)}
+                    size="sm"
+                  />
                 </div>
               </div>
             </motion.div>
@@ -572,14 +652,25 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
             editLabel={t("admin.settings.edit")}
             removeTitle={t("admin.settings.removeCategory")}
             renderItemLabel={(en) => {
+              const node = nodeByEn.get(en);
               const koRaw = (koByEn[en] || "").trim();
               const enRaw = en.trim();
               const showBoth = !!koRaw && !!enRaw && koRaw !== enRaw;
               const single = koRaw || enRaw;
-              /* EN 으로 저장된 게시물 + KO 로 저장된 게시물 합산 */
-              const count = (catCounts[en] ?? 0) + (koRaw && koRaw !== en ? (catCounts[koRaw] ?? 0) : 0);
+              /* EN + KO 저장분 합산. 대분류면 소분류 카운트까지 롤업. */
+              let count = (catCounts[en] ?? 0) + (koRaw && koRaw !== en ? (catCounts[koRaw] ?? 0) : 0);
+              const kids = node && node.parentEn === null ? categories.filter((c) => c.parentEn === en) : [];
+              for (const ch of kids) {
+                count += (catCounts[ch.en] ?? 0) + (ch.ko && ch.ko !== ch.en ? (catCounts[ch.ko] ?? 0) : 0);
+              }
+              const parentName = node?.parentEn
+                ? (nodeByEn.get(node.parentEn)?.[nameLang === "ko" ? "ko" : "en"] ?? node.parentEn)
+                : null;
               return (
                 <span className={styles.worksCatChipLabel}>
+                  {parentName && (
+                    <span style={{ color: "var(--text-tertiary)", marginRight: 2 }}>{parentName} ›</span>
+                  )}
                   <span>{showBoth ? koRaw : single}</span>
                   {showBoth && <span className={styles.worksCatChipSep}>·</span>}
                   {showBoth && <span>{enRaw}</span>}
@@ -648,6 +739,20 @@ export default function CategoriesEditor({ categories, onChange }: CategoriesEdi
             <T k="admin.settings.name" />
           </span>
           <BilingualInputPair value={pair} onChange={setPair} onEnter={submit} />
+        </div>
+        <div className={styles.worksCatAddRow}>
+          <span className={styles.worksCatAddRowLabel}>대분류</span>
+          <Select
+            value={parentEn ?? ""}
+            options={parentSelectOptions}
+            onChange={(v) => setParentEn(v || null)}
+            disabled={editingHasChildren}
+          />
+          {editingHasChildren && (
+            <span style={{ fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>
+              소분류를 가진 대분류는 최상위 고정
+            </span>
+          )}
         </div>
         <div className={styles.worksCatAddRow}>
           <span className={styles.worksCatAddRowLabel}>

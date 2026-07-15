@@ -3,12 +3,13 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Shuffle, Bell, CircleX, Check, Pencil, ChevronRight } from "lucide-react";
-import { getCommenterId, getIdentity, getRandomIdentity } from "@/utils/commenterIdentity";
+import { getCommenterId, getIdentity, getRandomIdentity, FALLBACK_AVATAR_EMOJI } from "@/utils/commenterIdentity";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
-import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import CommentEditor from "./CommentEditor";
 import styles from "./CommentForm.module.css";
 
 const Fireworks = dynamic(() => import("@/components/effects/Fireworks"), {
@@ -46,6 +47,8 @@ export default function CommentForm({
   const emailChanged = notifyEmail !== confirmedEmail;
   const [submitting, setSubmitting] = useState(false);
   const [formHint, setFormHint] = useState("");
+  // content 변경 공용 핸들러 — 입력/툴바 서식 적용 모두 여기로
+  const handleContentChange = useCallback((v: string) => { setContent(v); setFormHint(""); }, []);
   const isAdmin = useIsAuthenticated({ subscribe: true });
   const [fireworks, setFireworks] = useState(false);
 
@@ -145,45 +148,56 @@ export default function CommentForm({
         onDone={() => setFireworks(false)}
       />
     )}
-    <form className={styles.form} onSubmit={handleSubmit} noValidate>
+    <form
+      className={`${styles.form} ${parentId ? styles.formPlain : ""}`}
+      onSubmit={handleSubmit}
+      noValidate
+    >
       {isAdmin ? (
         <div className={styles.adminIdentity}>
+          <span className={styles.avatar} aria-hidden="true">
+            {FALLBACK_AVATAR_EMOJI}
+          </span>
           <span className={styles.adminBadge}>Admin</span>
         </div>
       ) : identity ? (
         <div className={styles.identityRow}>
           <div className={styles.identity}>
-            <span className={styles.identityEmoji}>{identity.emoji}</span>
+            <span className={styles.avatar} aria-hidden="true">
+              {identity.emoji}
+            </span>
             <span className={styles.identityName}>{identity.name}</span>
             <span><T k="comments.asYou" /></span>
-            <button
-              type="button"
-              className={styles.shuffleBtn}
+            <Button
+              variant="subtle"
+              shape="circle"
+              size="sm"
+              icon={<Shuffle size={12} strokeWidth={2.5} />}
               onClick={() => setIdentity(getRandomIdentity(identity ?? undefined))}
               data-clickable="true"
               title={t("comments.shuffle")}
-            >
-              <Shuffle size={12} strokeWidth={2.5} />
-            </button>
+              aria-label={t("comments.shuffle")}
+            />
           </div>
-          <input
-            className={styles.passwordInput}
-            type="password"
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); setFormHint(""); }}
-            placeholder={t("comments.passwordPlaceholder")}
-            maxLength={72}
-          />
+          {/* 폭 고정은 래퍼가 담당 — 공통 Input 자체엔 스타일 클래스를 붙이지 않는다 */}
+          <div className={styles.passwordField}>
+            <Input
+              size="sm"
+              type="password"
+              clearable={false}
+              value={password}
+              onChange={(v) => { setPassword(v); setFormHint(""); }}
+              placeholder={t("comments.passwordPlaceholder")}
+              maxLength={72}
+            />
+          </div>
         </div>
       ) : null}
 
-      <Textarea
-        textareaClassName={styles.textarea}
+      <CommentEditor
         value={content}
-        onChange={(v) => { setContent(v); setFormHint(""); }}
+        onChange={handleContentChange}
         placeholder={parentId ? t("comments.replyPlaceholder") : t("comments.placeholder")}
-        rows={3}
-        maxHint="long"
       />
 
       {!isAdmin && (
@@ -290,11 +304,11 @@ export default function CommentForm({
 
       <div className={styles.actions}>
         {formHint && <span className={styles.formHint}>{formHint}</span>}
-        <Button type="submit" variant="primary" size="xs" disabled={submitting}>
+        <Button type="submit" variant="primary" size="sm" disabled={submitting}>
           {submitting ? <T k="comments.posting" /> : parentId ? <T k="comments.reply" /> : <T k="comments.submit" />}
         </Button>
         {onCancel && (
-          <Button type="button" variant="outline" size="xs" onClick={onCancel}>
+          <Button type="button" variant="outline" size="sm" onClick={onCancel}>
             <T k="comments.cancel" />
           </Button>
         )}

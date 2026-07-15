@@ -11,8 +11,15 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
 
+# production 도메인 — middleware 의 CSRF Origin 체크 기준
+# production 에 미설정 시 admin mutation 이 모두 403 (fail-closed). dev 는 비워둬도 통과
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+
 # Cover Image Picker — Unsplash (선택사항)
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
+
+# Cover Image Picker — Pexels (선택사항, Unsplash 대안)
+PEXELS_API_KEY=your_pexels_api_key
 
 # Cover Image Picker — AI Generate (provider에 맞는 키 하나만 설정)
 # site.config.ts의 aiCover.provider 값에 따라 해당 키 사용
@@ -25,7 +32,13 @@ DEEPL_API_KEY=your_deepl_key                   # provider: "deepl" (기본)
 GOOGLE_TRANSLATE_API_KEY=your_google_key        # provider: "google"
 GEMINI_API_KEY=your_gemini_key                  # provider: "gemini"
 ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (번역 + AI 요약)
+
+# giscus 댓글 (선택) — admin 설정에서 저장소의 Discussion 카테고리를 불러올 때만 사용
+# 공개 저장소 읽기용 GitHub PAT (별도 권한 없이도 공개 데이터 조회 가능)
+GITHUB_TOKEN=ghp_...
 ```
+
+> `GITHUB_TOKEN` 은 admin Services 탭에 저장한 시크릿이 우선이고, 없으면 환경변수를 씁니다 (`getSecret("GITHUB_TOKEN")`).
 
 **값 확인 방법:**
 
@@ -43,24 +56,43 @@ ANTHROPIC_API_KEY=your_anthropic_key            # provider: "claude" (번역 + A
 
 Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
 
-**생성되는 테이블 (10개):**
+**생성되는 테이블 (22개):**
 
 | 테이블 | 용도 |
 |--------|------|
 | `site_settings` | 사이트 설정 + 프로필 데이터 + secrets/API 키 (JSONB) |
-| `series` | 블로그 시리즈 (sort_order — admin 정렬, auto_cover_url — Unsplash 캐시) |
-| `posts` | 블로그 포스트 (post_number 시퀀스 컬럼으로 고유 번호 부여) |
+| `series` | 블로그 시리즈 (sort_order — admin 정렬, auto_cover_url — Unsplash 캐시, 제목 80자 CHECK) |
+| `posts` | 블로그 포스트 (post_number 시퀀스 + `scheduled_at` 예약 발행 + `purge_after` 휴지통 TTL + `version` 낙관적 잠금 + `icon` / `cover_position` / `cover_zoom` / `author_ids`) |
 | `comments` | 포스트 댓글 (대댓글, 이중 인증: commenter_hash + password) |
+| `comment_reactions` | 댓글 이모지 반응 (고정 8종, `comment_type` 으로 post/work 구분, `reactor_hash` 중복 방지) |
+| `comment_reports` | 댓글 신고 (사유 + resolve/dismiss 상태) |
 | `likes` | 좋아요 (포스트/작업물/댓글 통합, target_type으로 구분, IP 중복 방지) |
-| `works` | 포트폴리오 작업물 (team_members jsonb 포함) |
+| `works` | 포트폴리오 작업물 (slug, `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `icon`, `scheduled_at`, `purge_after`) |
 | `site_visits` | 방문자 통계 (IP+날짜 1회) |
+| `post_views` | 게시물별 시계열 조회 기록 (대시보드 일별 추세 차트) |
 | `work_comments` | Works 댓글 (대댓글, 이중 인증) |
 | `admin_notifications` | 관리자 알림 로그 |
 | `revisions` | 에디터 리비전 히스토리 (posts/works 공용, JSONB snapshot) |
-| `poll_votes` | 본문 투표 블록 집계 (poll_id + option_id — 에디터 부여 text id, IP 기반 중복 방지) |
+| `post_work_relations` | posts ↔ works 양방향 다대다 (Notion Relation 스타일) |
 | `series_work_relations` | series ↔ works 다대다 (프로젝트에 관련 시리즈 연결, post_work_relations 와 동일 패턴) |
+| `poll_votes` | 본문 투표 블록 집계 (poll_id + option_id — 에디터 부여 text id, IP 기반 중복 방지) |
+| `calendars` | 에디터 캘린더 블록의 공유 달력 (`data jsonb`, soft delete + `purge_after` 30일 TTL) |
+| `custom_emojis` | EmojiPicker 커스텀 업로드 아이콘 (admin 전용 RLS) |
+| `cover_image_history` | Cover Image Picker 통합 이력 (admin user 별, ai/unsplash/preset 구분, RLS) |
+| `admin_login_attempts` | 관리자 로그인 실패 카운터 (5회 실패 → 15분 잠금) |
+| `admin_known_devices` | 승인된 관리자 기기 UA 지문 (SHA-256, 미등록 기기는 이메일 승인 24h TTL) |
+| `applied_migrations` | 적용된 schema migration 추적 (최초 적용 시 알림 발생) |
 
 > `IF NOT EXISTS`를 사용하므로 이미 존재하는 테이블은 건너뜁니다. 기존 배포 DB에 누락된 컬럼(commenter_hash, updated_at 등)은 파일 하단의 마이그레이션 섹션에서 `ALTER TABLE ADD COLUMN IF NOT EXISTS`로 안전하게 추가됩니다.
+
+> **setup.sql ↔ migrations 차이**: `custom_emojis` 는 `setup.sql` 에만 있고 대응 마이그레이션 파일이 없습니다. 반대로 `posts` 제목 길이 CHECK(`posts_title_len` / `posts_title_en_len`, 120자)는 `2026_07_13_posts_title_len.sql` 에만 있고 `setup.sql` 에는 없습니다. 신규 세팅은 `setup.sql` 한 번으로 충분하지만, 두 경로를 섞어 쓴다면 이 두 항목을 확인하세요.
+
+**수동 실행 마이그레이션 (선택):** 아래 두 파일은 데이터 재작성 스크립트라 자동 적용되지 않습니다. 필요할 때만 SQL Editor 에서 직접 실행하세요.
+
+| 파일 | 하는 일 |
+|------|---------|
+| `2026_07_13_category_reset.sql` | `site_settings` 의 카테고리 override 를 제거하고 `posts.category` / `series.category` 를 새 택소노미로 remap. **WHERE 절 없이 전 행을 갱신하고, 매핑에 없는 값은 `ELSE '기타'` 로 흡수**되므로 실행 전 [0] 단계의 분포 출력을 반드시 확인 |
+| `2026_07_13_tag_descriptions_reset.sql` | `site_settings` 의 `tagDescriptions` override 를 제거해 `site.config.ts` 의 기본 사전이 보이게 함 (`posts.tags` / `tag_notes` 는 건드리지 않음) |
 
 > **Supabase 없이도 동작**: 환경변수가 설정되지 않으면 Works(`data/projects.ts`), Profile(`data/profile.ts`), Settings(`config/site.config.ts`)의 정적 데이터로 자동 fallback됩니다.
 
@@ -76,9 +108,15 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 >
 > **Work Comments API**: `GET /api/work-comments?work_id=`, `POST /api/work-comments`, `PATCH /api/work-comments` (수정), `DELETE /api/work-comments/[id]`
 >
-> **Comment Likes API**: `GET /api/comment-likes?comment_type=&comment_ids=` (좋아요 상태 일괄 조회), `POST /api/comment-likes` (댓글 좋아요 토글)
+> **Comment Reactions API**: `GET /api/comment-reactions?comment_type=&comment_ids=` (반응 집계 + 내 반응 일괄 조회), `POST /api/comment-reactions` (이모지 반응 토글)
 >
-> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`
+> **Calendars API**: `GET/POST /api/calendars` (목록 — `?trash=true` 면 휴지통 / 생성), `GET/PUT/DELETE /api/calendars/[calendarId]`, `POST /api/calendars/[calendarId]/restore`, `DELETE /api/calendars/[calendarId]/purge` — 모두 admin 전용
+>
+> **Custom Emojis API**: `GET/POST /api/custom-emojis`, `DELETE /api/custom-emojis/[id]` — EmojiPicker 커스텀 아이콘, admin 전용
+>
+> **Upload API**: `POST /api/upload` (서버 경유 업로드, MIME 별 크기 제한 + 절대 상한 200MB), `POST /api/upload/signed-url` (Storage 직접 업로드용 signed URL 발급 — 파일명·타입만 전송해 요청 본문 크기 제한 회피)
+>
+> **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (GitHub GraphQL 로 repoId + Discussion 카테고리 조회, `GITHUB_TOKEN` 필요)
 >
 > **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (목록, snapshot 제외), `POST /api/revisions` (저장 + 50개 초과 정리), `GET /api/revisions/[id]` (snapshot 포함 단건), `DELETE /api/revisions/[id]`
 >
@@ -149,15 +187,17 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 포스트·시리즈·작업물 에디터의 Cover Image / Main Image 영역에서 **Upload**(직접 업로드)과 **Choose cover**(피커) 중 선택할 수 있습니다.
 
-**Choose cover** 클릭 시 3개 탭이 표시됩니다:
+**Choose cover** 클릭 시 5개 탭 + 로컬 파일 영역이 표시됩니다 (모바일에서는 bottom sheet 으로 자동 전환):
 
 | 탭 | 설명 | 필요한 환경변수 |
 |----|------|----------------|
-| **Presets** | 16종 그라데이션/패턴 중 클릭하면 Canvas API로 1200×630 이미지를 생성하여 Supabase에 업로드 | 없음 |
+| **Presets** | 16종 그라데이션/패턴 — 클릭 시 Canvas API 로 1200×630 이미지를 생성하여 Supabase 에 업로드. `public/cover/images/` · `public/cover/videos/` 의 로컬 미디어도 같은 패널에서 노출 (공용 `/api/admin/cover`) | 없음 |
 | **Unsplash** | 키워드로 Unsplash 사진 검색 → 클릭 시 다운로드 트래킹 + Supabase 업로드 | `UNSPLASH_ACCESS_KEY` |
+| **Pexels** | 키워드로 Pexels 사진 검색 → 클릭 시 다운로드 + Supabase 업로드. Unsplash 보완 대안 (API 정책 변경 시 fail-safe) | `PEXELS_API_KEY` |
 | **AI Generate** | 프롬프트 + 스타일 선택 → AI로 이미지 생성 → Supabase 업로드 | provider별 API key (아래 참고) |
+| **History** | 과거 선택한 cover 영구 보관 (`cover_image_history` 테이블, RLS) — preset / Unsplash / Pexels / AI 통합. 키워드·색상표 복사 · 다운로드 · 재선택 인라인 | 없음 |
 
-> **참고**: Unsplash와 AI Generate 탭은 각각 API key가 필요합니다. Presets 탭은 환경변수 없이 사용 가능합니다.
+> **참고**: Unsplash · Pexels · AI Generate 탭은 각각 API key 가 필요합니다. Presets 탭과 History 탭은 환경변수 없이 사용 가능합니다.
 
 ---
 
@@ -226,6 +266,24 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 5. `.env.local`에 `UNSPLASH_ACCESS_KEY=...` 입력
 
 > Demo 앱 기준 시간당 50건 제한. Production 승인 시 5,000건/시간.
+
+#### Pexels API Key 발급
+
+1. [Pexels API](https://www.pexels.com/api/) 가입
+2. **Your API Key** 페이지에서 Key 복사 (별도 신청 없이 즉시 발급)
+3. `.env.local`에 `PEXELS_API_KEY=...` 입력
+
+> 무료 — 시간당 200건, 월 20,000건. Unsplash 정책 변경 / rate limit 시 대안으로 활용.
+
+#### GitHub Token 발급 (giscus 사용 시)
+
+댓글을 giscus 로 쓸 때, admin 설정에서 저장소의 Discussion 카테고리를 자동으로 불러오는 데만 사용합니다.
+
+1. [GitHub → Settings → Developer settings → Personal access tokens](https://github.com/settings/tokens) 이동
+2. 토큰 생성 — **공개 저장소의 Discussion 카테고리만 읽으므로 별도 스코프 체크 불필요**
+3. `.env.local` 에 `GITHUB_TOKEN=...` 입력하거나, admin **Services** 탭에 저장 (DB 시크릿이 환경변수보다 우선)
+
+> giscus 위젯 자체는 토큰 없이 동작합니다 — 토큰은 admin 설정 화면의 카테고리 자동 조회 편의 기능 전용입니다.
 
 **인증 플로우:**
 

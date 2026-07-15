@@ -607,6 +607,69 @@
   color: var(--text-primary);
 }
 
+/* SpinButton demo — SpinButton 자체엔 시각 스타일이 없다 (className 이 유일한 스타일 훅,
+   NumberInput 도 stepBtn 을 이렇게 넘긴다). override 가 아니라 정상 API. */
+.spinBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.spinBtn:hover {
+  background: var(--bg-tertiary-alt);
+  color: var(--text-primary);
+}
+
+.spinValue {
+  min-width: 5ch;
+  font-family: var(--font-mono), monospace;
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+/* Collapsible demo — 접히는 걸 보여주려면 maxHeight 보다 확실히 긴 내용이 필요 */
+.collapsibleDemo {
+  max-width: 560px;
+}
+
+.collapsibleBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.collapsibleBody p {
+  margin: 0;
+}
+
+/* Popover demo — variant 별 대비를 보려면 뒤에 뭔가 깔려 있어야 한다 */
+.popoverBackdrop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: center;
+  padding: var(--box-lg);
+  border-radius: var(--radius-2xl);
+  background: var(--gradient-accent-soft);
+}
+
+.popoverNote {
+  padding: var(--box-md);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
 /* Slider row */
 .sliderRow {
   display: flex;

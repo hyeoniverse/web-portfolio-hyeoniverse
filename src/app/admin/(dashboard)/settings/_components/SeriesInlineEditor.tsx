@@ -7,9 +7,8 @@ import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
 import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
-import Select from "@/components/ui/Select";
 import { Switch } from "@/components/ui/Switch";
-import type { Series, SeriesPostItem } from "@/types/post";
+import { SERIES_TITLE_MAX, type Series, type SeriesPostItem } from "@/types/post";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import Field from "./SettingsFormFields";
 import T from "@/components/ui/T";
@@ -51,7 +50,6 @@ export interface SeriesInlineEditorHandle {
 
 const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEditorProps>(function SeriesInlineEditor({
   series,
-  categories,
   onSave,
   onCancel,
   onCoverChange,
@@ -62,12 +60,9 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
   onFormStateChange,
   totalCount = 0,
 }, ref) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
   const isEdit = !!series;
-
-  /* 새 시리즈 기본 카테고리 — '기타' 우선, 없으면 첫 카테고리 */
-  const defaultCatKo = categories.find((c) => c.ko === "기타")?.ko || categories[0]?.ko || "";
 
   /* 초기값 — revert 시 이 값으로 복원. series prop 변경 시 갱신.
      desiredPosition: 새 시리즈일 때 사용자가 원하는 list position (1-based, default totalCount+1 = 맨 뒤). */
@@ -76,11 +71,10 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
     title_en: series?.title_en ?? "",
     description: series?.description ?? "",
     description_en: series?.description_en ?? "",
-    category: series?.category || defaultCatKo,
     cover_image: series?.cover_image ?? "",
     published: series?.published ?? true,
     desiredPosition: totalCount + 1,
-  }), [series, defaultCatKo, totalCount]);
+  }), [series, totalCount]);
 
   const [form, setForm] = useState(initialForm);
 
@@ -332,8 +326,8 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
       setError(ts("titleRequired"));
       return;
     }
-    if (!form.category) {
-      setError(ts("categoryRequired"));
+    if (form.title.length > SERIES_TITLE_MAX || form.title_en.length > SERIES_TITLE_MAX) {
+      setError(ts("titleTooLong").replace("{{max}}", String(SERIES_TITLE_MAX)));
       return;
     }
     setSaving(true);
@@ -469,31 +463,15 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
         </div>
       )}
       <div className={styles.fieldPair}>
-        <Field label={ts("titleLabel")} langBadge="ko" value={form.title} onChange={(v) => updateField("title", v)} required maxHint={80} />
-        <Field label={ts("titleLabel")} langBadge="en" value={form.title_en} onChange={(v) => updateField("title_en", v)} maxHint={80} />
+        <Field label={ts("titleLabel")} langBadge="ko" value={form.title} onChange={(v) => updateField("title", v)} required maxHint={SERIES_TITLE_MAX} maxLength={SERIES_TITLE_MAX} />
+        <Field label={ts("titleLabel")} langBadge="en" value={form.title_en} onChange={(v) => updateField("title_en", v)} maxHint={SERIES_TITLE_MAX} maxLength={SERIES_TITLE_MAX} />
       </div>
       <div className={styles.fieldPair}>
         <Field label={ts("descLabel")} langBadge="ko" value={form.description} onChange={(v) => updateField("description", v)} multiline maxHint={200} />
         <Field label={ts("descLabel")} langBadge="en" value={form.description_en} onChange={(v) => updateField("description_en", v)} multiline maxHint={200} />
       </div>
-      {/* 카테고리 + 순서 — fieldPair (2열 grid) */}
+      {/* 순서 — fieldPair (시리즈 카테고리 필드 제거: 카테고리는 멤버 글에서 도출) */}
       <div className={styles.fieldPair}>
-        <div className={styles.fieldRow}>
-          <label className={styles.fieldLabel}>
-            <span className={styles.fieldLabelText}>
-              <T k="admin.posts.seriesModal.category" />
-              <span className={styles.fieldRequiredDot} aria-label="필수">•</span>
-            </span>
-          </label>
-          <Select
-            value={form.category}
-            options={categories.map((cat) => ({
-              value: cat.ko,
-              label: language === "ko" ? cat.ko : cat.en,
-            }))}
-            onChange={(v) => updateField("category", v)}
-          />
-        </div>
         {!isEdit && (
           <div className={styles.fieldRow}>
             <label className={styles.fieldLabel}>
@@ -559,7 +537,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                 onSelect={(url) => { updateField("cover_image", url); closeCoverPicker(); }}
                 onClose={closeCoverPicker}
                 closing={coverPickerClosing}
-                postContext={{ title: form.title, tags: form.category ? [form.category] : [], excerpt: form.description }}
+                postContext={{ title: form.title, tags: [], excerpt: form.description }}
               />
             )}
           </>

@@ -9,7 +9,7 @@ import { useEquationElement } from "@platejs/math/react";
 import katex from "katex";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { localizeKatexErrors } from "../renderMathNodes";
-import { _mathSymbolInsert, _mathEditingSet, _mathDeleteNode } from "./utils";
+import { _mathSymbolInsert, _mathEditingSet, _mathDeleteNode, _mathToggleMode } from "./utils";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import { BlockTailClickZone } from "./elements";
 import styles from "../RichTextEditor.module.css";
@@ -24,6 +24,8 @@ function MathFloatingEdit({
   onConfirm,
   onCancel,
   onDelete,
+  onToggle,
+  inline,
 }: {
   anchorRef: React.RefObject<HTMLElement | null>;
   inputRef: React.RefObject<HTMLTextAreaElement | null>;
@@ -32,9 +34,13 @@ function MathFloatingEdit({
   onConfirm: () => void;
   onCancel: () => void;
   onDelete: () => void;
+  onToggle: () => void;
+  /** true 면 portal/positioning 없이 블록 안에 그대로 렌더 */
+  inline?: boolean;
 }) {
   const { t } = useLanguage();
   const panelRef = React.useRef<HTMLDivElement>(null);
+  const previewRef = React.useRef<HTMLDivElement>(null);
   const [pos, setPos] = React.useState<{ top: number; left: number } | null>(null);
 
   const update = React.useCallback(() => {
@@ -55,7 +61,7 @@ function MathFloatingEdit({
       }
     }
 
-    const panelW = 420;
+    const panelW = panelRef.current?.offsetWidth || 620;
     const panelH = panelRef.current?.offsetHeight || 200;
     let left = rect.left;
     if (left < 8) left = 8;
@@ -91,8 +97,9 @@ function MathFloatingEdit({
     setPos({ top, left });
   }, [anchorRef]);
 
-  // anchor 위치가 안정화되면 위치 계산
+  // anchor 위치가 안정화되면 위치 계산 (inline 은 positioning 불필요)
   React.useEffect(() => {
+    if (inline) return;
     const anchor = anchorRef.current;
     if (!anchor) return;
 
@@ -161,10 +168,12 @@ function MathFloatingEdit({
   React.useEffect(() => {
     _mathSymbolInsert.current = (latex: string) => insertSymbolRef.current(latex);
     _mathDeleteNode.current = onDelete;
+    _mathToggleMode.current = onToggle;
     _mathEditingSet.current?.(true);
     return () => {
       _mathSymbolInsert.current = null;
       _mathDeleteNode.current = null;
+      _mathToggleMode.current = null;
       _mathEditingSet.current?.(false);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -196,13 +205,21 @@ function MathFloatingEdit({
     }
   }, [draft, t]);
 
-  if (!pos) return null;
+  // split 미리보기 — draft 를 KaTeX 로 실시간 렌더 (블록·인라인 공통)
+  React.useEffect(() => {
+    if (!previewRef.current) return;
+    try { katex.render(draft, previewRef.current, { displayMode: true, throwOnError: false }); }
+    catch { /* noop */ }
+  }, [draft]);
 
-  return ReactDOM.createPortal(
+  if (!inline && !pos) return null;
+
+  const content = (
     <div
       ref={panelRef}
-      className={`${styles.mathFloating}${texError ? ` ${styles.mathPreviewError}` : ""}`}
-      style={{ top: pos.top, left: pos.left }}
+      data-math-panel=""
+      className={`${styles.mathFloating} ${styles.mathFloatingSplit}${inline ? ` ${styles.mathFloatingInline}` : ""}${texError ? ` ${styles.mathPreviewError}` : ""}`}
+      style={inline ? undefined : { top: pos!.top, left: pos!.left }}
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div
@@ -241,9 +258,15 @@ function MathFloatingEdit({
           placeholder={t("editor.mathPlaceholder")}
         />
       </div>
-    </div>,
-    document.body,
+      <div className={styles.mathFloatingPreview}>
+        {draft.trim()
+          ? <div ref={previewRef} />
+          : <span className={styles.mathFloatingPreviewEmpty}>{t("editor.mathPlaceholder")}</span>}
+      </div>
+    </div>
   );
+
+  return inline ? content : ReactDOM.createPortal(content, document.body);
 }
 
 // ── Math equation 엘리먼트 (KaTeX 렌더링 + 인라인/블록 토글) ──
@@ -263,7 +286,7 @@ function MathToggleButton({ isBlock, onToggle }: { isBlock: boolean; onToggle: (
       }}
       onMouseLeave={() => setJustClicked(false)}
       className={`${styles.codeWrapToggle} math-mode-toggle${justClicked ? " just-clicked" : ""}`}
-      style={isBlock ? undefined : { top: -20, right: 0 }}
+      style={isBlock ? { position: "absolute", top: 8, right: 8 } : { top: -20, right: 0 }}
     >
       <span className="toggle-label-default">{current}</span>
       <span className="toggle-label-hover">{alt}</span>
@@ -279,7 +302,9 @@ export function EquationElement(props: PlateElementProps) {
   const editor = useEditorRef();
   const element = props.element as Record<string, unknown>;
   const tex = String(element.texExpression ?? "");
-  const [editing, setEditing] = React.useState(!tex);
+  // 빈 수식 자동 편집은 "새로 삽입"(에디터 포커스 상태)일 때만 — 저장된 빈 수식이 로드 시
+  // focus 없이 편집 bar 를 띄우는 문제 방지.
+  const [editing, setEditing] = React.useState(() => !tex && editor.api.isFocused());
   const [draft, setDraft] = React.useState(tex);
   const originalRef = React.useRef(tex);
 
@@ -353,20 +378,24 @@ export function EquationElement(props: PlateElementProps) {
     <div {...blockDragProps} style={{ cursor: "default" }}>
     <PlateElement {...props} as="div"
       style={{
-        ...props.style, textAlign: "center", margin: "var(--spacing-md, 16px) 0",
-        background: "var(--bg-tertiary)", borderRadius: "var(--radius-md)",
+        ...props.style, position: "relative", textAlign: "center", margin: "var(--spacing-md, 16px) 0",
+        background: "var(--bg-tertiary)", borderRadius: "var(--radius-2xl)",
         padding: "var(--spacing-sm) var(--spacing-md)",
       }}
       className="math-element-wrap"
     >
-      <div ref={wrapRef} contentEditable={false} onClick={() => { if (!dragReady) startEdit(); }}
-        style={{ cursor: "pointer", minHeight: 40, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}
+      {/* katex 뷰는 항상 마운트(useEquationElement 렌더 대상 유지) — 편집 중엔 숨김만 */}
+      <div ref={wrapRef} contentEditable={false} onClick={() => { if (!dragReady && !editing) startEdit(); }}
+        style={{ display: editing ? "none" : "flex", cursor: "pointer", minHeight: 40, alignItems: "center", justifyContent: "center", position: "relative" }}
       >
         <div ref={katexRef} />
         {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: 14, fontStyle: "italic" }}>{t("editor.mathEmptyBlock")}</span>}
       </div>
-      {editing && <MathFloatingEdit anchorRef={wrapRef} inputRef={inputRef} draft={draft} onUpdate={updateDraft} onConfirm={confirmEdit} onCancel={cancelEdit} onDelete={deleteNode} />}
-      <MathToggleButton isBlock onToggle={toggleMode} />
+      {editing && (
+        // 팝업 대신 블록 안에서 인라인 split (입력 | 미리보기)
+        <MathFloatingEdit inline anchorRef={wrapRef} inputRef={inputRef} draft={draft} onUpdate={updateDraft} onConfirm={confirmEdit} onCancel={cancelEdit} onDelete={deleteNode} onToggle={toggleMode} />
+      )}
+      {!editing && <MathToggleButton isBlock onToggle={toggleMode} />}
       {props.children}
     </PlateElement>
     </div>
@@ -456,21 +485,23 @@ export function InlineEquationElement(props: PlateElementProps) {
   return (
     <PlateElement {...props} as="span"
       style={{
-        ...props.style, position: "relative",
-        background: "var(--bg-tertiary)", borderRadius: "var(--radius-sm, 4px)",
-        padding: "4px 10px", minWidth: 60, minHeight: 32,
-        display: "inline-flex", alignItems: "center", verticalAlign: "middle",
+        ...props.style, position: "relative", background: "var(--bg-tertiary)",
+        ...(editing
+          ? { display: "block", padding: "var(--spacing-sm) var(--spacing-md)", borderRadius: "var(--radius-2xl)" }
+          : { display: "inline-flex", alignItems: "center", verticalAlign: "middle", padding: "4px 10px", minWidth: 60, minHeight: 32, borderRadius: "var(--radius-sm, 4px)" }),
       }}
       className="math-element-wrap"
     >
-      <span ref={wrapRef} contentEditable={false} className="math-katex-content" onClick={startEdit}
-        style={{ cursor: "pointer", minHeight: 24, display: "inline-flex", alignItems: "center" }}
+      {/* katex 뷰는 항상 마운트 — 편집 중엔 숨김만 (편집 종료 후 즉시 재표시) */}
+      <span ref={wrapRef} contentEditable={false} className="math-katex-content" onClick={() => { if (!editing) startEdit(); }}
+        style={{ display: editing ? "none" : "inline-flex", cursor: "pointer", minHeight: 24, alignItems: "center" }}
       >
         <span ref={katexRef} />
         {!tex && <span style={{ color: "var(--text-tertiary)", fontSize: 13, fontStyle: "italic" }}>{t("editor.mathEmptyInline")}</span>}
       </span>
-      {editing && <MathFloatingEdit anchorRef={wrapRef} inputRef={inputRef} draft={draft} onUpdate={updateDraft} onConfirm={confirmEdit} onCancel={cancelEdit} onDelete={deleteNode} />}
-      <MathToggleButton isBlock={false} onToggle={toggleMode} />
+      {/* 팝업 대신 블록과 동일한 인라인 split 에디터 */}
+      {editing && <MathFloatingEdit inline anchorRef={wrapRef} inputRef={inputRef} draft={draft} onUpdate={updateDraft} onConfirm={confirmEdit} onCancel={cancelEdit} onDelete={deleteNode} onToggle={toggleMode} />}
+      {!editing && <MathToggleButton isBlock={false} onToggle={toggleMode} />}
       {props.children}
     </PlateElement>
   );

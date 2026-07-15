@@ -1785,3 +1785,117 @@ function swapToPlaceholder(img: HTMLImageElement) {
 **핵심 인사이트**: viewport meta `width` 오버라이드는 모바일 브라우저에서만 효과가 있다 — 데스크톱에서 모바일 폭을 강제할 수단이 아니므로, 기능을 터치 기기로 한정하는 게 맞다
 
 </details>
+
+<details>
+<summary><strong>58. highlight.js 를 import 하자 게시물 상세가 통째로 크래시 — 번들러가 깨진 정규식을 생성</strong></summary>
+
+**문제**: 댓글 코드블록에 하이라이팅을 붙이려고 `highlight.js` 를 import 했더니 게시물 상세 페이지가 dev·prod 양쪽에서 통째로 죽음. `SyntaxError: Invalid regular expression: /[A-...]/: Range out of order in character class`
+
+**원인**: highlight.js 의 `xml.js` 가 `/[\p{L}_]/u` (유니코드 속성 이스케이프) 를 쓰는데, 번들러가 이걸 구형 브라우저용 코드포인트 범위로 풀어쓰면서 범위가 뒤집힌 문자 클래스를 만듦. 모듈 평가 시점에 throw 하므로 그 청크를 로드한 페이지 전체가 죽음
+
+**해결**: 댓글 코드 하이라이팅 보류 (의도적 미지원)
+
+1. 원본 파일은 Node 에서 정상 로드됨 — 번들 산출물만 깨짐. `optimizePackageImports` 에서 highlight.js 를 빼도 재현
+2. xml 만 등록 해제하면 정규식 에러는 사라지지만, 언어를 골라 등록한 자체 인스턴스로도 **highlight.js 청크가 로드되는 순간** 동일 크래시
+3. 재시도하려면 richtext 가 쓰는 shiki 로 가거나 hljs 자체를 patch 해야 함
+
+**주의**: `npm run build` 는 **통과하고 런타임에만 터진다** — 빌드 성공으로는 잡을 수 없는 부류. 같은 지뢰가 `src/components/posts/highlightCodeBlocks.ts` 에 잠복해 있어 markdown 게시물에서 평가되면 동일 크래시 가능
+
+**핵심 인사이트**: 라이브러리 소스가 정상이어도 번들러의 다운레벨 변환이 런타임 전용 폭탄을 만들 수 있다 — 모듈 top-level 에서 throw 하는 코드는 import 한 페이지 전체를 죽이므로, 빌드 통과를 안전 신호로 착각하면 안 된다
+
+</details>
+
+<details>
+<summary><strong>59. 댓글 마크다운 체크박스가 불릿으로만 렌더 — DOMPurify 가 URL 도 아닌 `type` 속성을 지움</strong></summary>
+
+**문제**: 댓글 마크다운의 `- [ ] 할 일` 이 체크박스가 아니라 그냥 불릿으로 렌더. `ALLOWED_ATTR` 에 `type` 을 넣어뒀는데도 동일
+
+**원인**: DOMPurify 는 "URI-safe 로 알려진 속성" 이 아니면 그 **값**을 `ALLOWED_URI_REGEXP` 로 검사함. 기본 URI-safe 목록(alt/class/title/value 등)에 `type` 이 없어서 `type="checkbox"` 의 값이 `/^(?:https?:|mailto:)/i` 에 걸려 조용히 제거됨 → 훅이 "체크박스 아님" 으로 판정해 `<input>` 을 삭제 → 불릿만 남음. 같은 이유로 표의 `align` 도 죽어 있어 마크다운 표 정렬이 통째로 무시되고 있었음
+
+**해결**: URL 이 아닌 inert 속성임을 별도로 선언
+
+1. `ADD_URI_SAFE_ATTR: ["type", "checked", "disabled", "align"]` 추가 — URI 검사 대상에서 제외
+2. `ALLOWED_ATTR` 등록만으로는 무의미 — 두 옵션은 축이 다름 (허용 여부 vs 값 검사 방식)
+
+**핵심 인사이트**: 허용 목록(`ALLOWED_ATTR`)과 값 검사 정책(`ADD_URI_SAFE_ATTR`)은 별개 축이다 — "허용했는데 사라진다" 면 필터가 그 속성의 **값**을 URL 로 오해하고 있는지 의심해야 한다
+
+</details>
+
+<details>
+<summary><strong>60. task list `:has()` — 과소 매칭과 과다 매칭 양쪽 함정</strong></summary>
+
+**문제**: 체크박스 목록의 불릿을 지우는 `:has()` 규칙이, 어떤 목록에선 안 먹고(불릿이 남음) 어떤 목록에선 너무 먹음(멀쩡한 불릿까지 사라짐)
+
+**원인**: `marked` 는 tight list 를 `<li><input>` 으로, loose list(항목 사이 빈 줄)를 `<li><p><input>` 으로 만든다. `:has(> li > input)` 만 쓰면 loose 에서 빗나가고, `:has(input)` 자손 조합자로 퉁치면 일반 불릿 목록 안에 체크박스 하위목록이 있을 때 **부모 목록의 불릿까지** 사라짐
+
+**해결**: 직계 경로 두 개만 명시
+
+1. `:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"])` — tight/loose 두 형태만 잡고 자손 매칭은 배제
+
+**핵심 인사이트**: `:has()` 는 조합자 선택이 곧 매칭 범위 — 자손 조합자로 넓히면 중첩 구조에서 조상까지 오염된다. 마크다운 렌더러가 만드는 **실제 DOM 형태를 전부 열거**해 직계 경로로 못 박는 편이 안전하다
+
+</details>
+
+<details>
+<summary><strong>61. 전역 input reset 이 native 체크박스를 아예 안 그림</strong></summary>
+
+**문제**: sanitize 를 통과해 `<input type="checkbox">` 가 DOM 에 살아 있는데도 화면에 체크박스가 안 보임. `appearance: auto` 를 줘도 동일
+
+**원인**: `src/styles/globals/_base.css` 의 전역 리셋 `input { border: none; background: none }` 이 UA 기본 스타일을 지워, native 체크박스가 그려질 표면 자체가 없어짐
+
+**해결**: UA 기본 스타일 복원
+
+1. 해당 체크박스에 `background: revert; border: revert` — `appearance` 가 아니라 리셋으로 지운 두 속성을 되돌리는 게 핵심
+2. `background` / `border` 는 shorthand 라 stylelint `declaration-strict-value` 대상이 아님 — 토큰 규칙과 충돌 없음
+
+**핵심 인사이트**: `appearance: auto` 는 "네이티브 위젯으로 그려라" 일 뿐, 이미 리셋으로 지워진 `background`/`border` 를 되살리지 않는다 — 전역 리셋이 있는 프로젝트에서 네이티브 컨트롤을 되살릴 땐 `revert` 로 UA 스타일 자체를 복원해야 한다
+
+</details>
+
+<details>
+<summary><strong>62. 툴바 마크다운 삽입 — 빈 줄·블록 문법에서 의도한 요소가 안 나옴</strong></summary>
+
+**문제**: 댓글 툴바의 체크박스 버튼을 빈 줄에서 누르면 체크박스가 아니라 불릿이 됨. `---` 구분선 버튼은 앞 줄에 글이 있으면 구분선이 아니라 **제목**이 됨
+
+**원인**: 두 가지 GFM 파싱 규칙
+
+1. 체크박스: GFM 은 `- [ ] ` 마커 **뒤에 텍스트가 있어야** task list 로 파싱 — 빈 줄에 마커만 넣으면 `<li>[ ]</li>` 불릿
+2. `---`: 앞 줄에 텍스트가 붙어 있으면 hr 이 아니라 **setext h2**(밑줄 제목 문법) 로 해석됨. 코드펜스·표도 줄머리에서만 파싱
+
+**해결**: 삽입 액션이 문맥을 만들고 넣도록
+
+1. prefix 액션에 placeholder 추가 — 빈 줄이면 예시 텍스트를 채우고 그 부분을 선택 상태로
+2. 블록 삽입 시 앞에 빈 줄을 확보한 뒤 삽입
+
+**핵심 인사이트**: 마크다운 삽입 버튼은 문자열을 꽂는 게 아니라 **파서가 그 문법을 인식할 문맥까지 만들어야** 한다 — 마커만 넣으면 "버튼이 안 먹는" 것처럼 보인다
+
+</details>
+
+<details>
+<summary><strong>63. Popover 내부 텍스트별 `mix-blend-mode: difference` 가 backdrop-filter 와 양립 불가</strong></summary>
+
+**문제**: 배경이 뭐든 읽히는 popover 를 만들려고 패널에 `backdrop-filter` 를, 내부 텍스트엔 `difference` 를 걸었는데 blend 가 배경을 못 봄
+
+**원인**: `backdrop-filter` / `isolation: isolate` 는 Backdrop Root 를 만들어 backdrop-filter 가 볼 수 있는 범위를 잘라냄. 게다가 `backdrop-filter` 의 출력은 자손·형제에게 blendable backdrop 으로 제공되지 않아, **popover 내부 텍스트별 difference 는 원리적으로 불가**
+
+**해결**: 색 반전 트릭으로 우회 후, 기본값은 다른 방식 채택
+
+1. 콘텐츠에 `filter: invert(1)` + 패널에 `mix-blend-mode: difference` → `|배경 − (1−색)|` 로 원래 색 복원
+2. 다만 이 조합은 제약이 많아 **기본은 glass(반투명 + blur)** 로 가고, `difference` 는 `Popover` 의 variant 로 남김
+
+**핵심 인사이트**: `backdrop-filter` 와 `mix-blend-mode` 는 같은 "뒷배경" 을 보는 것 같지만 서로의 입력이 되지 못한다 — 한 요소에서 둘을 조합하려 하기 전에 Backdrop Root 가 어디서 잘리는지부터 확인해야 한다
+
+</details>
+
+<details>
+<summary><strong>64. dev 서버를 띄운 채 `npm run build` 하면 ChunkLoadError</strong></summary>
+
+**문제**: 개발 중 빌드 검증을 하려고 `npm run build` 를 돌리면 열려 있던 dev 사이트가 `ChunkLoadError` 로 깨짐
+
+**원인**: `next dev` 와 `next build` 가 같은 `.next` 디렉터리를 공유 — 빌드가 dev 산출물을 덮어써서 브라우저가 들고 있던 청크 해시가 사라짐
+
+**해결**: dev 서버가 떠 있는 동안엔 빌드를 돌리지 않음 (또는 별도 `distDir` 로 분리)
+
+**핵심 인사이트**: 두 프로세스가 같은 산출물 디렉터리를 쓰면 "빌드 검증" 이 곧 "dev 환경 파괴" 가 된다 — 빌드 통과 여부를 확인하려면 dev 를 내리거나 산출물 경로를 분리해야 한다
+
+</details>

@@ -10,12 +10,8 @@
 } */
 
 ::selection {
-  background: transparent;
-  color: var(--color-accent-light);
-}
-
-[data-theme="dark"] ::selection {
-  color: var(--color-accent-dark);
+  background: var(--bg-accent);
+  color: inherit;
 }
 
 input::selection,

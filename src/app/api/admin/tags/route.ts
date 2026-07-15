@@ -26,18 +26,26 @@ export async function GET() {
   if (authError) return authError;
 
   const admin = createAdminClient();
-  const { data, error } = await admin
-    .from("posts")
-    .select("id, title, title_en, tags, slug, category, published, created_at, updated_at, view_count")
-    .is("deleted_at", null)
-    .limit(1000);
+  // 태그(posts)와 tech(works)를 공유 사전으로 통합 — 두 어휘를 union 해서 집계.
+  const [postsRes, worksRes] = await Promise.all([
+    admin
+      .from("posts")
+      .select("id, title, title_en, tags, slug, category, published, created_at, updated_at, view_count")
+      .is("deleted_at", null)
+      .limit(1000),
+    admin
+      .from("works")
+      .select("tech")
+      .is("deleted_at", null)
+      .limit(1000),
+  ]);
 
-  if (error) {
-    console.error("/api/admin/tags supabase error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (postsRes.error) {
+    console.error("/api/admin/tags supabase error:", postsRes.error);
+    return NextResponse.json({ error: postsRes.error.message }, { status: 500 });
   }
 
-  const posts = (data ?? []) as PostRow[];
+  const posts = (postsRes.data ?? []) as PostRow[];
   const counts: Record<string, number> = {};
   for (const p of posts) {
     if (!p.tags) continue;
@@ -46,11 +54,22 @@ export async function GET() {
       counts[t] = (counts[t] ?? 0) + 1;
     }
   }
+  // works.tech 도 같은 사전에 합산 (공유 어휘). works 쿼리 실패해도 posts 태그는 유지.
+  const worksCounts: Record<string, number> = {};
+  for (const w of (worksRes.data ?? []) as { tech: string[] | null }[]) {
+    if (!w.tech) continue;
+    for (const t of w.tech) {
+      if (!t) continue;
+      counts[t] = (counts[t] ?? 0) + 1;
+      worksCounts[t] = (worksCounts[t] ?? 0) + 1;
+    }
+  }
 
   const tags = Object.keys(counts).sort((a, b) => a.localeCompare(b, "ko"));
   return NextResponse.json({
     tags,
     counts,
+    worksCounts,
     posts: posts.map((p) => ({
       id: p.id,
       title: p.title ?? "",

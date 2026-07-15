@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useContext } from "react";
 import { createPortal } from "react-dom";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Eraser, History, HelpCircle } from "lucide-react";
 import Select from "@/components/ui/Select";
@@ -10,6 +11,7 @@ import CloseButton from "@/components/ui/CloseButton";
 import type { SearchOptions, SyntaxMode } from "@/lib/searchQuery";
 import { useSearchHistory } from "./useSearchHistory";
 import { useSearchOptions } from "./useSearchOptions";
+import SearchSyntaxHelpButton from "./SearchSyntaxHelpButton";
 import styles from "./SearchCapsule.module.css";
 
 export interface SearchCapsuleProps {
@@ -36,10 +38,17 @@ export interface SearchCapsuleProps {
   routeParam?: string;
   /** 도움말 + 엄격도 옵션 UI 표시. default true (호출처 변경 없이 노출) — false 면 숨김. */
   showHelp?: boolean;
+  /** 검색창 오른쪽에 문법 도움말(SearchSyntaxHelpButton)을 함께 렌더. 페이지에서 별도 배치 불필요. */
+  syntaxHelp?: boolean;
   /** 엄격도 옵션 변경 콜백 — 페이지가 필터 로직에 사용할 때. */
   onSearchOptionsChange?: (options: Required<SearchOptions>) => void;
   /** 검색 결과 유무 — true 일 때 검색어가 안정되면 (1초 후) 이력에 자동 저장. 오타/노이즈 필터링. */
   hasResults?: boolean;
+  /** circle → capsule morph 모드 — 접힌 원형에서 클릭 시 펼쳐지고, 비었을 때 blur 로 다시 접힘.
+   *  시리즈 영역처럼 compact 배치가 필요할 때. 펼친 너비는 collapsedWidth 로 조정. */
+  collapsible?: boolean;
+  /** collapsible 펼침 너비(px). default 280. */
+  expandedWidth?: number;
 }
 
 /** 공통 검색 capsule — Select(옵션) + 아이콘 + input + 검색 이력 dropdown. */
@@ -57,11 +66,15 @@ export default function SearchCapsule({
   historyLimit = 10,
   routeParam,
   showHelp = false,
+  syntaxHelp = false,
   onSearchOptionsChange,
   hasResults,
+  collapsible = false,
+  expandedWidth = 280,
 }: SearchCapsuleProps) {
   const pathname = usePathname();
-  const router = useRouter();
+  // App Router 컨텍스트 직접 구독 — 리더 island(createRoot) 처럼 router provider 밖에서 마운트돼도 throw 없이 null
+  const router = useContext(AppRouterContext);
   const searchParams = useSearchParams();
   const enabled = historyKey !== null;
   const key = historyKey ?? pathname ?? "default";
@@ -95,14 +108,23 @@ export default function SearchCapsule({
     if (trimmed) params.set(routeParam, trimmed);
     else params.delete(routeParam);
     const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    router?.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, routeParam]);
 
   const [focused, setFocused] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  /** collapsible morph 펼침 상태 (collapsible=false 면 무시) */
+  const [morphOpen, setMorphOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  /* morph 펼칠 때 width transition(0.25s) 후 input 포커스 */
+  useEffect(() => {
+    if (!collapsible || !morphOpen) return;
+    const id = setTimeout(() => inputRef.current?.focus(), 180);
+    return () => clearTimeout(id);
+  }, [collapsible, morphOpen]);
 
   /* dropdown 을 portal 로 렌더 — 부모 overflow:hidden 영향 피함.
      capsule 의 viewport 위치 (top/left/width) 를 추적해서 fixed 로 배치.
@@ -178,8 +200,21 @@ export default function SearchCapsule({
 
   const showHistory = enabled && focused && history.length > 0 && !search.trim() && !helpOpen;
 
-  return (
-    <div ref={rootRef} className={`${styles.capsule} ${size === "sm" ? styles.capsuleSm : ""} ${align === "right" ? styles.right : ""} ${focused ? styles.capsuleFocused : ""} ${className ?? ""}`}>
+  const morphExpanded = collapsible && morphOpen;
+
+  const capsule = (
+    <div
+      ref={rootRef}
+      className={`${styles.capsule} ${size === "sm" ? styles.capsuleSm : ""} ${align === "right" ? styles.right : ""} ${focused ? styles.capsuleFocused : ""} ${collapsible ? styles.collapsible : ""} ${morphExpanded ? styles.collapsibleOpen : ""} ${className ?? ""}`}
+      style={collapsible && morphOpen ? { width: expandedWidth } : undefined}
+      onClick={collapsible && !morphOpen ? () => setMorphOpen(true) : undefined}
+      onBlur={collapsible ? (e) => {
+        // 캡슐 내부(예: 스코프 Select trigger)로 포커스 이동 시엔 유지, 완전히 벗어나고 검색어 없으면 접기
+        if (search.trim()) return;
+        const next = e.relatedTarget as Node | null;
+        if (!next || !rootRef.current?.contains(next)) setMorphOpen(false);
+      } : undefined}
+    >
       {typeSelector && (
         <Select
           value={typeSelector.value}
@@ -195,6 +230,7 @@ export default function SearchCapsule({
         type="text"
         placeholder={placeholder}
         value={search}
+        tabIndex={collapsible && !morphOpen ? -1 : undefined}
         onChange={(e) => onSearchChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => {
@@ -416,5 +452,14 @@ export default function SearchCapsule({
         document.body,
       )}
     </div>
+  );
+
+  if (!syntaxHelp) return capsule;
+  // 검색창 + 도움말 버튼을 함께 렌더 — 둘 사이 간격은 페이지 컨테이너의 flex gap 이 담당.
+  return (
+    <>
+      {capsule}
+      <SearchSyntaxHelpButton optionsKey={key} />
+    </>
   );
 }

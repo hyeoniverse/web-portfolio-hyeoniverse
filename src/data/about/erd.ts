@@ -11,8 +11,11 @@ export const erdTables: ErdTable[] = [
       { name: "content_type", type: "TEXT CHECK" },
       { name: "excerpt / excerpt_en", type: "TEXT" },
       { name: "cover_image", type: "TEXT" },
+      { name: "cover_position / cover_zoom", type: "REAL" },
+      { name: "icon", type: "TEXT" },
       { name: "tags", type: "TEXT[]" },
       { name: "category", type: "TEXT" },
+      { name: "author_ids", type: "TEXT[]" },
       { name: "series_id", type: "UUID", fk: "series.id" },
       { name: "series_order", type: "INT" },
       { name: "is_pinned", type: "BOOL" },
@@ -23,6 +26,7 @@ export const erdTables: ErdTable[] = [
       { name: "github_url", type: "TEXT" },
       { name: "tag_notes", type: "JSONB" },
       { name: "summary_ko / _en", type: "TEXT" },
+      { name: "version", type: "INT" },
       { name: "scheduled_at", type: "TIMESTAMPTZ" },
       { name: "deleted_at", type: "TIMESTAMPTZ" },
       { name: "purge_after", type: "TIMESTAMPTZ" },
@@ -102,6 +106,7 @@ export const erdTables: ErdTable[] = [
       { name: "tech", type: "TEXT[]" },
       { name: "tech_notes", type: "JSONB" },
       { name: "image", type: "TEXT" },
+      { name: "icon", type: "TEXT" },
       { name: "content_ko / _en", type: "TEXT" },
       { name: "content_type", type: "TEXT CHECK" },
       { name: "team_members", type: "JSONB" },
@@ -245,6 +250,39 @@ export const erdTables: ErdTable[] = [
       { name: "created_at", type: "TIMESTAMPTZ" },
     ],
   },
+  {
+    name: "comment_reactions",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      // comment_id 는 comments / work_comments 양쪽을 가리켜 FK 를 걸 수 없음 (likes 와 동일 패턴)
+      { name: "comment_id", type: "UUID" },
+      { name: "comment_type", type: "TEXT CHECK" },
+      { name: "emoji", type: "TEXT" },
+      { name: "reactor_hash", type: "TEXT" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+    ],
+  },
+  {
+    name: "calendars",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "title", type: "TEXT" },
+      { name: "data", type: "JSONB" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+      { name: "updated_at", type: "TIMESTAMPTZ" },
+      { name: "deleted_at", type: "TIMESTAMPTZ" },
+      { name: "purge_after", type: "TIMESTAMPTZ" },
+    ],
+  },
+  {
+    name: "custom_emojis",
+    columns: [
+      { name: "id", type: "UUID", pk: true },
+      { name: "name", type: "TEXT" },
+      { name: "src", type: "TEXT" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+    ],
+  },
 ];
 
 export const erdRelations: ErdRelation[] = [
@@ -262,6 +300,8 @@ export const erdRelations: ErdRelation[] = [
   { from: "post_work_relations", fromField: "work_id", to: "works", toField: "id", label: "N:1" },
   { from: "series_work_relations", fromField: "series_id", to: "series", toField: "id", label: "N:1" },
   { from: "series_work_relations", fromField: "work_id", to: "works", toField: "id", label: "N:1" },
+  { from: "comment_reactions", fromField: "comment_id", to: "comments", toField: "id", label: "N:1" },
+  { from: "comment_reactions", fromField: "comment_id", to: "work_comments", toField: "id", label: "N:1" },
 ];
 
 export const erdDesignNotes: ErdDesignNote[] = [
@@ -381,6 +421,33 @@ export const erdDesignNotes: ErdDesignNote[] = [
       en: "Poll questions and options live inside the content HTML; poll_votes only handles aggregation. poll_id/option_id are editor-assigned text ids, not FKs. A UNIQUE(poll_id, option_id, ip) constraint blocks duplicate votes from the same IP.",
     },
     relatedTable: "poll_votes",
+  },
+  {
+    title: { ko: "댓글 반응 — 좋아요를 대체", en: "Comment Reactions — Replacing Likes" },
+    tag: "UNIQUE(comment_id, comment_type, emoji, reactor_hash)",
+    description: {
+      ko: "댓글의 단일 좋아요를 giscus 식 고정 8종(👍👎😄🎉😕❤️🚀👀) 반응으로 대체했습니다. reactor_hash는 IP+UA의 SHA-256으로, 같은 사람이 같은 댓글에 같은 이모지를 중복으로 다는 것만 UNIQUE로 막고 서로 다른 이모지는 여러 개 허용합니다. comment_id는 comments와 work_comments 양쪽을 가리켜야 해서 likes와 같이 FK 없이 comment_type으로 구분합니다.",
+      en: "A single like per comment was replaced by a fixed giscus-style set of 8 reactions (👍👎😄🎉😕❤️🚀👀). reactor_hash is a SHA-256 of IP+UA; the UNIQUE constraint only blocks the same person repeating the same emoji on the same comment, while different emojis stay allowed. comment_id must point at either comments or work_comments, so — like likes — it carries no FK and is disambiguated by comment_type.",
+    },
+    relatedTable: "comment_reactions",
+  },
+  {
+    title: { ko: "캘린더 — 블록은 참조만, 데이터는 테이블", en: "Calendars — Blocks Reference, Table Owns" },
+    tag: "calendars.id ← 본문 블록의 calendarId",
+    description: {
+      ko: "투표(poll_votes)와 달리 캘린더는 실데이터를 본문이 아니라 테이블에 둡니다. 본문 블록은 calendarId만 참조하므로 여러 글이 같은 달력을 공유하고, 한 곳에서 고치면 전부 반영됩니다. 삭제는 posts/works와 같은 휴지통 규약(deleted_at + purge_after)을 그대로 따릅니다.",
+      en: "Unlike polls (poll_votes), calendars keep their real data in the table rather than the content body. A content block only references calendarId, so multiple posts can share one calendar and a single edit propagates everywhere. Deletion reuses the same trash convention as posts/works (deleted_at + purge_after).",
+    },
+    relatedTable: "calendars",
+  },
+  {
+    title: { ko: "낙관적 동시성 제어", en: "Optimistic Concurrency Control" },
+    tag: "posts.version — UPDATE … WHERE version = baseVersion",
+    description: {
+      ko: "여러 탭이나 기기에서 같은 글을 편집할 때 나중 저장이 앞선 저장을 조용히 덮어쓰는 문제를 막습니다. 에디터는 불러온 시점의 version을 baseVersion으로 보내고, 서버는 version이 그대로일 때만 UPDATE합니다. 0행이면 그사이 누군가 저장한 것이므로 409 version_conflict로 응답하고, 에디터가 덮어쓰기·최신 불러오기·취소를 사용자에게 묻습니다.",
+      en: "Prevents a later save from silently clobbering an earlier one when the same post is edited across tabs or devices. The editor sends the version it loaded as baseVersion, and the server only UPDATEs while version is unchanged. Zero rows means someone saved in between, so it answers 409 version_conflict and the editor asks the user to overwrite, reload, or cancel.",
+    },
+    relatedTable: "posts",
   },
   {
     title: { ko: "시리즈↔프로젝트 다대다", en: "Series↔Project many-to-many" },

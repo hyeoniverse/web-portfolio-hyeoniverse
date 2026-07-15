@@ -3,8 +3,13 @@
  * 클라이언트에서 onChange마다 호출되므로 의존성 없이 경량으로 구현
  */
 
+import { formatDateValue } from "./plate/dateUtils";
+
 let _wrapLabel = "↩ Wrap";
 let _scrollLabel = "↔ Scroll";
+
+// 열 기본 배경(테마 고정 라이트 neutral-50 = presets.COLUMN_DEFAULT_BG). --_col-bg 미지정 시 fallback.
+const COLUMN_BG_FALLBACK = "oklch(97.3% 0.0082 91.48)";
 
 /** slateToHtml 호출 전에 세팅하면 코드블록 버튼 라벨에 반영 */
 export function setWrapLabel(label: string) {
@@ -194,13 +199,48 @@ function serializeNode(node: SlateNode): string {
       const start = el.startAt ? ` data-start="${esc(String(el.startAt))}"` : "";
       const end = el.endAt ? ` data-end="${esc(String(el.endAt))}"` : "";
       const before = el.resultsBeforeVote ? ` data-results-before="true"` : "";
+      // 기본 true(취소 가능) → false 일 때만 명시
+      const noRetract = el.allowRetract === false ? ` data-allow-retract="false"` : "";
+      const chart = el.resultChart === "pie" ? ` data-result-chart="pie"` : "";
+      const title = (el.title as string)?.trim() ? ` data-poll-title="${esc(String(el.title))}"` : "";
+      const subtitle = (el.subtitle as string)?.trim() ? ` data-poll-subtitle="${esc(String(el.subtitle))}"` : "";
+      const description = (el.description as string)?.trim() ? ` data-poll-description="${esc(String(el.description))}"` : "";
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const optionList = (Array.isArray((el as any).options) ? (el as any).options : []) as { optionId?: string; label?: string }[];
       const opts = optionList
         .filter((o) => (o.label ?? "").trim())
         .map((o) => `<div data-poll-option data-option-id="${esc(String(o.optionId ?? ""))}">${esc(String(o.label ?? ""))}</div>`)
         .join("");
-      return `<div data-poll data-poll-id="${pollId}" data-multiple="${multiple}"${start}${end}${before}>${opts}</div>`;
+      return `<div data-poll data-poll-id="${pollId}" data-multiple="${multiple}"${start}${end}${before}${noRetract}${chart}${title}${subtitle}${description}>${opts}</div>`;
+    }
+
+    // ── Diagram (비주얼) ── void: el.data(DiagramData: 위치보존 노드/엣지) 를 JSON attribute 로 저장
+    case "diagram": {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = (el as any).data ?? { nodes: [], edges: [] };
+      return `<div data-diagram="${esc(JSON.stringify(data))}"></div>`;
+    }
+
+    // ── Playground ── void: el.data(html/css/js) 를 JSON attribute 로 저장
+    case "playground": {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = (el as any).data ?? { html: "", css: "", js: "" };
+      return `<div data-playground="${esc(JSON.stringify(data))}"></div>`;
+    }
+
+    // ── Calendar (이벤트 달력) ── 연결형: 블록은 calendarId 만 참조(서버 원본). width 는 per-block.
+    case "calendar": {
+      const calId = el.calendarId as string | undefined;
+      const widthAttr = el.width ? ` data-cal-width="${esc(String(el.width))}"` : "";
+      if (calId) return `<div data-calendar-id="${esc(calId)}"${widthAttr}></div>`;
+      // legacy inline fallback (calendarId 생성 전/구버전)
+      const data = {
+        month: (el.month as string) || "",
+        events: Array.isArray(el.events) ? el.events : [],
+        labels: Array.isArray(el.labels) ? el.labels : [],
+        ...(el.width ? { width: el.width } : {}),
+      };
+      return `<div data-calendar="${esc(JSON.stringify(data))}"></div>`;
     }
 
     // ── Column layout ──
@@ -208,29 +248,47 @@ function serializeNode(node: SlateNode): string {
       const layout = el.layout as string | undefined;
       const colBg = el.columnBg as string | undefined;
       const colDiv = el.columnDivider as string | undefined;
+      const colScroll = (el.columnScroll as boolean | undefined) !== false; // 기본 on
       const attrs = [
         "data-column-group",
         layout ? ` data-layout="${esc(layout)}"` : "",
         colBg ? ` data-column-bg="${esc(colBg)}"` : "",
         colDiv ? ` data-column-divider="${esc(colDiv)}"` : "",
+        colScroll ? "" : ` data-column-scroll="false"`,
       ].join("");
-      const gapStyle = colDiv ? "gap:0" : "gap:16px";
-      const bgStyle = colBg ? `;background:${colBg};padding:8px;border-radius:6px` : "";
+      // 에디터와 동일: 열 사이 항상 8px(=--spacing-xs), 구분선은 열 pseudo(.prose [data-column]::after)가 gap 중앙에 그림.
+      // 배경/패딩/라디우스는 그룹이 아니라 열 개별(콘텐츠 폭·줄바꿈이 에디터와 일치). 그룹은 --_col-bg / --_col-divider 변수만 지정.
+      const colBgVal = colBg === "transparent" ? "transparent" : (colBg || COLUMN_BG_FALLBACK);
+      // 에디터(elements.tsx)와 동일: 미지정=기본 subtle 선(--border-light-color), transparent=선 없음, 그 외=지정색. 항상 출력.
+      const dividerColor = colDiv === "transparent" ? "transparent" : (colDiv || "var(--border-light-color)");
+      const divVar = `;--_col-divider:${dividerColor}`;
+      const colBox = `flex:1;min-width:40px;background:var(--_col-bg,${COLUMN_BG_FALLBACK});padding:var(--spacing-sm);border-radius:var(--radius-2xl)`;
       // text leaf 방어
       const groupChildren = (el.children || []).map((child) => {
-        if (isText(child)) return `<div data-column style="flex:1;min-width:0"><p>${serializeLeaf(child as SlateText)}</p></div>`;
+        if (isText(child)) return `<div data-column style="${colBox}"><p>${serializeLeaf(child as SlateText)}</p></div>`;
         return serializeNode(child);
       }).join("");
-      return `<div ${attrs} style="display:flex;${gapStyle};margin:16px 0${bgStyle}">${groupChildren}</div>`;
+      // 스크롤 ON: px 열 고정 → 넘치면 가로 스크롤. OFF: px 열 shrink(--_col-shrink:1) → 화면 폭에 맞춤.
+      return `<div ${attrs} style="display:flex;gap:var(--spacing-xs);margin:16px 0;overflow-x:${colScroll ? "auto" : "hidden"};--_col-shrink:${colScroll ? 0 : 1};--_col-bg:${colBgVal}${divVar}">${groupChildren}</div>`;
     }
     case "column": {
       const colW = el.width as string | undefined;
+      const colPx = el.widthPx as number | undefined;
       // text leaf 방어
       const colChildren = (el.children || []).map((child) => {
         if (isText(child)) return `<p>${serializeLeaf(child as SlateText)}</p>`;
         return serializeNode(child);
       }).join("");
-      return `<div data-column${colW ? ` data-width="${esc(colW)}" style="flex:0 0 ${esc(colW)};min-width:0"` : ` style="flex:1;min-width:0"`}>${colChildren}</div>`;
+      // 배경/패딩/라디우스는 열 개별(에디터 ColumnElement 와 동일 → 콘텐츠 폭·줄바꿈 일치). --_col-bg 는 그룹이 지정.
+      const colBox = `background:var(--_col-bg,${COLUMN_BG_FALLBACK});padding:var(--spacing-sm);border-radius:var(--radius-2xl);min-width:40px`;
+      // px 지정: 정확한 px 고정(grow/shrink 0) → 합 초과 시 가로 스크롤. 없으면 유동 % fill.
+      // data-width(%) 도 함께 실어 재편집 시 @platejs/layout normalizer 가 합 100 을 보게 함(무한 normalize 루프 방지).
+      if (typeof colPx === "number" && colPx > 0) {
+        const cw = Math.round(colPx);
+        return `<div data-column${colW ? ` data-width="${esc(colW)}"` : ""} data-width-px="${cw}" style="flex:0 var(--_col-shrink,0) ${cw}px;${colBox}">${colChildren}</div>`;
+      }
+      const w = colW ? Math.max(0.001, parseFloat(colW)) : 1;
+      return `<div data-column${colW ? ` data-width="${esc(colW)}"` : ""} style="flex:${w} 1 0;${colBox}">${colChildren}</div>`;
     }
 
     // ── Code block ──
@@ -254,16 +312,49 @@ function serializeNode(node: SlateNode): string {
     // ── Table ──
     case "table": {
       const colSizes = el.colSizes as number[] | undefined;
+      // 행/열 고정 개수(구버전 boolean 호환). 열 고정=가로 스크롤 우선, 행 고정=페이지 sticky(→fit).
+      const freezeRows = typeof el.freezeRows === "number" ? (el.freezeRows as number)
+        : (el.freezeRow === true || el.freezeHeader === true ? 1 : 0);
+      const freezeCols = typeof el.freezeCols === "number" ? (el.freezeCols as number)
+        : (el.freezeCol === true ? 1 : 0);
+      const colFreeze = freezeCols > 0;
+      const rowFreeze = freezeRows > 0;
+      const anyFreeze = rowFreeze || colFreeze;
+      // 엑셀 틀 고정: 고정 시 .tbl-freeze 2D 스크롤 박스. 열 고정이면 자연 너비(가로 스크롤), 아니면 fit 유지.
+      const fitWidth = (el.fitWidth === true) && !colFreeze;
+      const totalW = colSizes?.reduce((s, w) => s + (w || 0), 0) || 0;
       const colgroup = colSizes?.length
-        ? `<colgroup>${colSizes.map((w) => `<col${w ? ` style="width: ${w}px"` : ""} />`).join("")}</colgroup>`
+        ? `<colgroup>${colSizes.map((w) => {
+            const colStyle = fitWidth
+              ? (totalW ? ` style="width: ${((w || 0) / totalW * 100).toFixed(4)}%"` : "")
+              : (w ? ` style="width: ${w}px"` : "");
+            return `<col${colStyle} />`;
+          }).join("")}</colgroup>`
         : "";
       const caption = el.caption as string | undefined;
       const captionHtml = caption ? `<caption>${caption}</caption>` : "";
       const tblAttrs: string[] = [`data-col-sizes="${(colSizes || []).join(",")}"`];
+      if (el.fitWidth === true) tblAttrs.push(`data-fit-width="true"`);
+      // 행/열 고정 개수 — round-trip + 리더 sticky(enhanceReaderExtras 가 offset 계산해 적용).
+      if (freezeRows > 0) tblAttrs.push(`data-freeze-rows="${freezeRows}"`);
+      if (freezeCols > 0) tblAttrs.push(`data-freeze-cols="${freezeCols}"`);
+      // 헤더 전용 스타일 — round-trip 용 data 속성 + reader 렌더용 CSS 변수(th 가 상속받아 참조)
+      const headerBg = el.headerBg as string | undefined;
+      const headerColor = el.headerColor as string | undefined;
+      const headerBold = el.headerBold;
+      if (headerBg) tblAttrs.push(`data-header-bg="${esc(headerBg)}"`);
+      if (headerColor) tblAttrs.push(`data-header-color="${esc(headerColor)}"`);
+      if (headerBold === false) tblAttrs.push(`data-header-bold="false"`);
       const borderColor = el.borderColor as string | undefined;
       const borderStyle = el.borderStyle as string | undefined;
       const borderWidth = el.borderWidth as string | undefined;
       const tblStyles: string[] = [];
+      if (fitWidth) tblStyles.push("width: 100%", "table-layout: fixed");
+      // 비-fit 은 자연 너비(colSizes 합) → 넓으면 .tbl-freeze 안에서 가로 스크롤(에디터와 동일). .prose table{width:100%} 오버라이드.
+      else if (totalW) tblStyles.push(`width: ${totalW}px`, "table-layout: fixed");
+      if (headerBg) tblStyles.push(`--tbl-header-bg: ${headerBg}`);
+      if (headerColor) tblStyles.push(`--tbl-header-color: ${headerColor}`);
+      if (headerBold === false) tblStyles.push("--tbl-header-weight: 400");
       const hasBorder = borderColor || borderStyle || borderWidth;
       if (hasBorder) {
         tblAttrs.push(`data-border-style="${esc(borderStyle || "solid")}"`);
@@ -275,7 +366,10 @@ function serializeNode(node: SlateNode): string {
         if (borderWidth) tblStyles.push(`--tbl-border-width: ${borderWidth}`);
       }
       const tblStyleAttr = tblStyles.length ? ` style="${tblStyles.join("; ")}"` : "";
-      return `<table ${tblAttrs.join(" ")}${tblStyleAttr}>${captionHtml}${colgroup}${children}</table>`;
+      const tableHtml = `<table ${tblAttrs.join(" ")}${tblStyleAttr}>${captionHtml}${colgroup}${children}</table>`;
+      // 가로 스크롤 컨테이너로 감쌈 — 고정 표(sticky) + 비-fit 자연 너비 표(넓으면 스크롤). fit 표는 감쌀 필요 없음.
+      const needsScroll = !fitWidth && totalW > 0;
+      return (anyFreeze || needsScroll) ? `<div class="tbl-freeze">${tableHtml}</div>` : tableHtml;
     }
     case "tr":
       return `<tr>${children}</tr>`;
@@ -286,7 +380,21 @@ function serializeNode(node: SlateNode): string {
       if (el.colSpan && (el.colSpan as number) > 1) cellAttrs.push(` colspan="${el.colSpan}"`);
       if (el.rowSpan && (el.rowSpan as number) > 1) cellAttrs.push(` rowspan="${el.rowSpan}"`);
       const cellStyles: string[] = [];
-      if (el.background) cellStyles.push(`background-color: ${el.background}`);
+      if (el.background && tag !== "th") cellStyles.push(`background-color: ${el.background}`);
+      // 헤더 셀(th) — 헤더 tint(기본 --tbl-header-bg=--bg-secondary, 불투명 뉴트럴)를 base(--bg-primary)
+      // 위에 gradient 로 얹어 완전 불투명화 → 행 고정 sticky 시 아래 행이 비쳐 보이지 않게.
+      if (tag === "th") {
+        // var(--bg-primary) 는 잔재이므로 커스텀 색에서 제외
+        const customTh = el.background && String(el.background) !== "var(--bg-primary)" ? String(el.background) : "";
+        const thBg = customTh || "var(--tbl-header-bg, var(--bg-tertiary-alt))";
+        cellStyles.push(`background-color: var(--bg-primary)`);
+        cellStyles.push(`background-image: linear-gradient(${thBg}, ${thBg})`);
+        cellStyles.push(`color: var(--tbl-header-color, inherit)`);
+        cellStyles.push(`font-weight: var(--tbl-header-weight, 700)`);
+        // 커스텀 헤더 색은 data-th-bg 로 왕복 — deserializer 가 background-color(불투명 base=--bg-primary)를
+        // el.background 로 잘못 읽어 리로드 시 헤더가 페이지 배경색으로 투명해지던 버그 방지.
+        if (customTh) cellAttrs.push(` data-th-bg="${esc(customTh)}"`);
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cb = el.cellBorders as Record<string, any> | undefined;
       if (cb) {
@@ -361,6 +469,34 @@ function serializeNode(node: SlateNode): string {
     // ── Media embed ──
     case "media_embed": {
       const rawUrl = String(el.url ?? "");
+      // 동영상 파일 — <video> 로 렌더 (에디터와 동일하게 크기·정렬·float 반영)
+      const isVid = el.mediaType === "video" || /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(rawUrl);
+      if (isVid) {
+        const vw = el.width ? `${el.width}px` : "";
+        const vh = el.height ? `${el.height}px` : "";
+        const vidLayout = (el.layout as string) || "block";
+        const vidAlign = (el.align as string) || "center";
+        const vidStart = (el.vidStart as number) || 0;
+        const vidStyle = ["max-width:100%", "border-radius:8px", vw && `width:${vw}`, vh && `height:${vh}`].filter(Boolean).join(";");
+        const vsrc = `${esc(rawUrl)}${vidStart > 0 ? `#t=${vidStart}` : ""}`;
+        // 재생 옵션 — 발행글엔 autoplay 도 반영(음소거 필수). 다운로드 방지는 controlsList + 우클릭 차단.
+        const vAttrs = [
+          "controls", 'preload="metadata"',
+          el.vidLoop ? "loop" : "",
+          (el.vidMuted || el.vidAutoplay) ? "muted" : "",
+          el.vidAutoplay ? "autoplay playsinline" : "",
+          el.noDownload ? 'controlsList="nodownload noplaybackrate"' : "",
+        ].filter(Boolean).join(" ");
+        const cap = (el.caption as string) || "";
+        const capHtml = cap ? `<figcaption data-video-caption style="text-align:center;font-size:0.85em;color:var(--text-tertiary);margin-top:6px;font-family:var(--font-space-grotesk)">${esc(cap)}</figcaption>` : "";
+        if (vidLayout === "float-left" || vidLayout === "float-right") {
+          const side = vidLayout === "float-left" ? "left" : "right";
+          const m = vidLayout === "float-left" ? "4px 20px 8px 0" : "4px 0 8px 20px";
+          return `<figure style="float:${side};margin:${m};max-width:60%"><video src="${vsrc}" ${vAttrs} style="${vidStyle}"></video>${capHtml}</figure>`;
+        }
+        const vJustify = vidAlign === "left" ? "flex-start" : vidAlign === "right" ? "flex-end" : "center";
+        return `<figure style="display:flex;flex-direction:column;align-items:${vJustify};margin:16px 0"><video src="${vsrc}" ${vAttrs} style="${vidStyle}"></video>${capHtml}</figure>`;
+      }
       let embedSrc = rawUrl;
       const ytMatch = rawUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([\w-]+)/);
       if (ytMatch) {
@@ -470,6 +606,24 @@ function serializeNode(node: SlateNode): string {
     case "math_inline": {
       const tex = String(el.texExpression ?? "");
       return `<span data-math-inline="true" data-latex="${esc(tex)}">${esc(tex)}</span>`;
+    }
+
+    // ── Date mention (inline) ── date/time 을 attribute 로, 표시 텍스트는 리더가 locale 로 재포맷
+    case "date_mention": {
+      const date = String(el.date ?? "");
+      const time = el.time ? String(el.time) : "";
+      const timeAttr = time ? ` data-time="${esc(time)}"` : "";
+      const fallback = formatDateValue(date, time || null, "ko");
+      return `<span data-date-mention="${esc(date)}"${timeAttr} class="date-mention">${esc(fallback)}</span>`;
+    }
+
+    // ── Post link (inline) ── 다른 게시물로 이동하는 링크
+    case "post_link": {
+      const slug = String(el.slug ?? "");
+      const title = String(el.title ?? slug);
+      const idAttr = el.postId ? ` data-post-id="${esc(String(el.postId))}"` : "";
+      const iconAttr = el.icon ? ` data-post-icon="${esc(String(el.icon))}"` : "";
+      return `<a data-post-link="${esc(slug)}"${idAttr}${iconAttr} href="/posts/${esc(slug)}" class="post-link">${esc(title)}</a>`;
     }
 
     // ── Footnote ──

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Image as ImageIcon,
   Smile,
@@ -17,6 +17,7 @@ import {
 import { useLanguage } from "@/providers/LanguageProvider";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import Popover from "@/components/ui/Popover";
 import EmojiPicker, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import styles from "./CoverBanner.module.css";
@@ -31,6 +32,13 @@ interface CoverBannerProps {
   /** 페이지 이모지 (native / img:url / icon:id), null 이면 미설정 */
   emoji: string | null;
   onEmojiChange: (e: string | null) => void;
+  /** 커버 세로 위치 % (object-position, 0~100) — 저장값 */
+  position?: number;
+  /** 커버 확대 배율 (scale, 1~2.5) — 저장값 */
+  zoom?: number;
+  /** 위치 조정 저장 시 호출 (DB 반영) */
+  onPositionChange?: (position: number) => void;
+  onZoomChange?: (zoom: number) => void;
 }
 
 /**
@@ -45,19 +53,28 @@ export default function CoverBanner({
   onUpload,
   emoji,
   onEmojiChange,
+  position: positionProp = 50,
+  zoom: zoomProp = 1,
+  onPositionChange,
+  onZoomChange,
 }: CoverBannerProps) {
   const { t } = useLanguage();
   const [urlDraft, setUrlDraft] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
 
-  // ── 커버 위치/줌 (로컬 상태) ──
-  // TODO: 커버 위치/줌 저장 방식 확정 후 연동 (현재는 이모지와 동일하게 DB 미연동)
-  const [position, setPosition] = useState(50); // object-position 세로 % (0~100)
-  const [zoom, setZoom] = useState(1); // scale 배율 (1~2.5)
+  // ── 커버 위치/줌 (드래그 중 로컬 상태, 저장값은 props) ──
+  const [position, setPosition] = useState(positionProp); // object-position 세로 % (0~100)
+  const [zoom, setZoom] = useState(zoomProp); // scale 배율 (1~2.5)
   const [reposition, setReposition] = useState(false); // 위치 조정 모드 여부
+  // 부모 값(prop)이 바뀌면(draft 복원 등) 로컬 상태 동기화 — 단 위치 조정 중(드래그)엔 사용자 입력 보호
+  useEffect(() => {
+    if (!reposition) { setPosition(positionProp); setZoom(zoomProp); }
+  }, [positionProp, zoomProp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 드래그 추적용 ref (position 백업 + 시작 좌표)
   const dragRef = useRef<{ startY: number; startPos: number } | null>(null);
+  // 위치 조정 진입 시점 백업 (취소 시 복원용)
+  const backupRef = useRef<{ position: number; zoom: number } | null>(null);
 
   const ZOOM_MIN = 1;
   const ZOOM_MAX = 2.5;
@@ -68,9 +85,23 @@ export default function CoverBanner({
 
   const hasCover = !!cover.trim();
 
-  // 위치 조정 모드 진입/이탈
-  const enterReposition = () => setReposition(true);
-  const exitReposition = () => {
+  // 위치 조정 모드 진입 — 취소 대비 현재값 백업
+  const enterReposition = () => {
+    backupRef.current = { position, zoom };
+    setReposition(true);
+  };
+  // 저장 — 로컬 값을 props(DB)로 반영
+  const saveReposition = () => {
+    onPositionChange?.(position);
+    onZoomChange?.(zoom);
+    backupRef.current = null;
+    setReposition(false);
+    dragRef.current = null;
+  };
+  // 취소 — 진입 시점 값으로 복원
+  const cancelReposition = () => {
+    if (backupRef.current) { setPosition(backupRef.current.position); setZoom(backupRef.current.zoom); }
+    backupRef.current = null;
     setReposition(false);
     dragRef.current = null;
   };
@@ -123,12 +154,12 @@ export default function CoverBanner({
         {t("editor.cover.upload")}
       </Button>
       <div className={styles.menuDivider} />
-      <input
-        className={styles.urlInput}
-        type="text"
+      <Input
+        size="sm"
         value={urlDraft}
         placeholder={t("editor.cover.urlPlaceholder")}
-        onChange={(e) => setUrlDraft(e.target.value)}
+        onChange={setUrlDraft}
+        className={styles.urlInput}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.nativeEvent.isComposing && urlDraft.trim()) {
             onCoverChange(urlDraft.trim());
@@ -245,7 +276,7 @@ export default function CoverBanner({
                 size="md"
                 soundDisabled
                 icon={<Check size={15} strokeWidth={2} />}
-                onClick={exitReposition}
+                onClick={saveReposition}
               >
                 {t("editor.cover.savePosition")}
               </Button>
@@ -255,7 +286,7 @@ export default function CoverBanner({
                 size="md"
                 soundDisabled
                 icon={<X size={15} strokeWidth={2} />}
-                onClick={exitReposition}
+                onClick={cancelReposition}
               >
                 {t("editor.cover.cancel")}
               </Button>

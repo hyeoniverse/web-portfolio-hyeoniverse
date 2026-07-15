@@ -1,0 +1,104 @@
+/* ── 게시물 링크 pill (에디터) — 리더는 globals 의 .post-link 사용 ── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  /* 아이콘↔제목 간격 = 상·하·좌·우 여백과 동일 (전부 2xs 로 균일) */
+  gap: var(--spacing-2xs);
+  max-width: 320px;
+  /* 상·하·좌 4px + 아이콘↔제목 gap 4px. 우측만 8px — 캡슐 곡면 근처에서 평평한 텍스트는
+     둥근 아이콘보다 더 여백이 있어야 시각적으로 같아 보이므로 우측(텍스트쪽) 여백을 키움. */
+  padding: var(--spacing-2xs) var(--spacing-xs) var(--spacing-2xs) var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.pill:hover {
+  background: var(--bg-accent);
+  color: var(--text-accent);
+}
+.pill svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+/* 게시물 개별 아이콘 (이모지/이미지) */
+.pillIconEmoji {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  font-size: 0.95em;
+  line-height: 1;
+}
+/* compound (0,2,0) — 전역 `.editorContent img { display:block }` (0,1,1) 를 이겨야
+   pill 아이콘이 인라인 원형으로 라인 중앙에 오고 아래가 안 잘림.
+   아이콘을 라벨 라인과 같은 높이(1.25em)로 두어 pill 최고 요소가 되게 → 균등 padding = 균등 여백. */
+.pill .pillIconImg {
+  flex-shrink: 0;
+  display: inline-block;
+  align-self: center;
+  width: 1.25em;
+  height: 1.25em;
+  max-width: none;
+  border-radius: var(--radius-circle);
+  object-fit: cover;
+  vertical-align: middle;
+}
+.pillLabel {
+  /* min-width:0 — flex item 축소 허용. 없으면 긴 제목이 안 줄고 우측 padding 을 밀어내 여백이 사라짐 */
+  min-width: 0;
+  overflow: hidden;
+  /* 아이콘(1.25em)과 같은 라인 높이 → pill 내용 높이 균일 → 아이콘 상하 여백 = 좌 여백 */
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong-color);
+  text-underline-offset: 2px;
+}
+.pillSelected {
+  background: var(--bg-accent);
+  color: var(--text-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-alpha-50);
+}
+
+/* ── 팝오버 메뉴 ── */
+.menu {
+  padding: var(--spacing-xs);
+}
+.menuBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  min-width: 208px;
+}
+.menuItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.menuItem:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+.menuItemDanger:hover {
+  color: var(--text-error);
+}

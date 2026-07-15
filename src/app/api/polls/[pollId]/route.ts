@@ -42,33 +42,31 @@ export async function POST(request: Request, context: RouteContext) {
   const { pollId } = await context.params;
   if (!pollId) return jsonError("Invalid poll id");
 
-  let body: { optionId?: string; multiple?: boolean };
+  let body: { optionIds?: unknown; optionId?: unknown; multiple?: boolean };
   try {
     body = await request.json();
   } catch {
     return jsonError("Invalid body");
   }
-  const optionId = body.optionId;
-  if (!optionId) return jsonError("Missing optionId");
   const multiple = !!body.multiple;
+  // 선택 세트 제출 — { optionIds } 우선, legacy { optionId } 허용
+  const raw = Array.isArray(body.optionIds)
+    ? body.optionIds
+    : typeof body.optionId === "string"
+      ? [body.optionId]
+      : [];
+  const ids = [...new Set(raw.filter((x): x is string => typeof x === "string" && !!x))];
+  const finalIds = multiple ? ids : ids.slice(0, 1);
 
   const ip = getIp(request);
   const admin = createAdminClient();
   try {
-    const { data: existing } = await admin
-      .from("poll_votes")
-      .select("id")
-      .eq("poll_id", pollId)
-      .eq("option_id", optionId)
-      .eq("ip", ip)
-      .maybeSingle();
-
-    if (multiple) {
-      if (existing) await admin.from("poll_votes").delete().eq("id", existing.id);
-      else await admin.from("poll_votes").insert({ poll_id: pollId, option_id: optionId, ip });
-    } else {
-      await admin.from("poll_votes").delete().eq("poll_id", pollId).eq("ip", ip);
-      if (!existing) await admin.from("poll_votes").insert({ poll_id: pollId, option_id: optionId, ip });
+    // 기존 선택을 통째로 지우고 새 선택으로 교체 (빈 배열 = 투표 취소)
+    await admin.from("poll_votes").delete().eq("poll_id", pollId).eq("ip", ip);
+    if (finalIds.length) {
+      await admin
+        .from("poll_votes")
+        .insert(finalIds.map((option_id) => ({ poll_id: pollId, option_id, ip })));
     }
     return NextResponse.json(await tally(pollId, ip));
   } catch {

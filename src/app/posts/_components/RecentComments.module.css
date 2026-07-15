@@ -40,6 +40,18 @@
   transform: translateX(var(--spacing-2xs));
 }
 
+/* hover indent 는 item 전체를 오른쪽으로 미는데, .time 은 itemTop 의 우측 끝(space-between)이라
+   그만큼 사이드바 밖으로 나가 조상의 overflow:hidden 에 잘렸다.
+   → 같은 거리만큼 반대로 밀어 시간만 제자리에 고정 (indent 느낌은 나머지가 그대로 유지).
+   transform 은 전역 theme transition 에 없어 compound (0,2,0) 로 따로 걸어야 한다. */
+.section .time {
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.section .item:hover .time {
+  transform: translateX(calc(-1 * var(--spacing-2xs)));
+}
+
 .section .item:hover .content {
   color: var(--text-primary);
 }

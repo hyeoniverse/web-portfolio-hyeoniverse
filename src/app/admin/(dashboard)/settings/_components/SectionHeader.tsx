@@ -39,6 +39,11 @@ interface SectionHeaderProps {
   extraRevert?: () => void;
   /** spacer 의 기본 save/revert/reset 버튼 대신 렌더할 custom 액션. paths=[] 인 섹션도 spacer 표시 */
   customActions?: ReactNode;
+  /** config paths 가 기본값과 같더라도 기본값(reset) 버튼을 강제로 활성화 — config 밖 데이터(ex. 게시물 태그)가
+   *  기본 세트와 다를 때 사용. */
+  resetForceEnabled?: boolean;
+  /** 기본값(reset) 버튼 클릭 시 resetSection(paths) 대신 실행할 커스텀 핸들러. */
+  onResetOverride?: () => void;
 }
 
 export default function SectionHeader({
@@ -59,6 +64,8 @@ export default function SectionHeader({
   beforeSave,
   extraRevert,
   customActions,
+  resetForceEnabled = false,
+  onResetOverride,
 }: SectionHeaderProps) {
   const { t } = useLanguage();
 
@@ -66,9 +73,10 @@ export default function SectionHeader({
   const dirty = pathsDirty || extraDirty;
   const isSavingThis = savingPaths != null && savingPaths.length === paths.length && savingPaths.every((p) => paths.includes(p));
   const isSavingOther = savingPaths != null && !isSavingThis;
-  /* 기본값(reset) 버튼 비활성 조건 — 현재 config 의 해당 paths 가 siteConfig 기본값과 정확히 같을 때.
-     savedConfig 와 무관 (clean 이든 dirty 든 config === defaults 면 이미 default 상태). */
-  const isAtDefault = paths.every((p) => deepEqual(getByPath(config, p), getByPath(siteConfig as unknown as SiteConfigData, p)));
+  /* 기본값(reset) 버튼 비활성 조건 — config paths 가 기본값과 같고 + 강제활성(resetForceEnabled)도 아닐 때.
+     resetForceEnabled 는 config 밖 데이터(게시물 태그 등)가 기본 세트와 다를 때 켜짐. */
+  const configAtDefault = paths.every((p) => deepEqual(getByPath(config, p), getByPath(siteConfig as unknown as SiteConfigData, p)));
+  const isAtDefault = configAtDefault && !resetForceEnabled;
 
   return (
     <div className={localStyles.wrap}>
@@ -88,7 +96,7 @@ export default function SectionHeader({
                 variant="outline"
                 size="2xs"
                 disabled={isAtDefault || isSavingOther || isSavingThis}
-                onClick={() => resetSection(paths)}
+                onClick={() => (onResetOverride ? onResetOverride() : resetSection(paths))}
                 title={t("admin.settings.resetSection")}
               >
                 {t("admin.settings.resetSection")}

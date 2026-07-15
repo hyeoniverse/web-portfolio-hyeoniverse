@@ -54,6 +54,17 @@ export const TableKit = [
             const borderColor = element.getAttribute("data-border-color") || undefined;
             const borderStyle = element.getAttribute("data-border-style") || undefined;
             const borderWidth = element.getAttribute("data-border-width") || undefined;
+            const fitWidth = element.getAttribute("data-fit-width") === "true";
+            // 고정 개수 — 구버전(data-freeze-row/col/header) 은 1개로 호환
+            const frRaw = element.getAttribute("data-freeze-rows");
+            const fcRaw = element.getAttribute("data-freeze-cols");
+            const freezeRows = frRaw != null ? Number(frRaw)
+              : (element.getAttribute("data-freeze-row") === "true" || element.getAttribute("data-freeze-header") === "true" ? 1 : 0);
+            const freezeCols = fcRaw != null ? Number(fcRaw)
+              : (element.getAttribute("data-freeze-col") === "true" ? 1 : 0);
+            const headerBg = element.getAttribute("data-header-bg") || undefined;
+            const headerColor = element.getAttribute("data-header-color") || undefined;
+            const headerBold = element.getAttribute("data-header-bold");
             return {
               type: "table",
               ...(colSizes?.length ? { colSizes } : {}),
@@ -61,6 +72,12 @@ export const TableKit = [
               ...(borderColor ? { borderColor } : {}),
               ...(borderStyle ? { borderStyle } : {}),
               ...(borderWidth ? { borderWidth } : {}),
+              ...(fitWidth ? { fitWidth: true } : {}),
+              ...(freezeRows > 0 && !Number.isNaN(freezeRows) ? { freezeRows } : {}),
+              ...(freezeCols > 0 && !Number.isNaN(freezeCols) ? { freezeCols } : {}),
+              ...(headerBg ? { headerBg } : {}),
+              ...(headerColor ? { headerColor } : {}),
+              ...(headerBold === "false" ? { headerBold: false } : {}),
             };
           },
         },
@@ -98,8 +115,10 @@ export const TableKit = [
             if (element.hasAttribute("data-cell-borders")) {
               result.cellBorders = parseCellBordersFromStyle(element);
             }
-            const bg = element.style.backgroundColor;
-            if (bg) result.background = bg;
+            // 헤더 배경 — 직렬화가 background-color 에 불투명 base(var(--bg-primary))를 넣으므로 그걸 읽으면
+            // 리로드 시 헤더가 페이지 배경색으로 투명해짐. 커스텀 색은 data-th-bg 로만 왕복.
+            const thBg = element.getAttribute("data-th-bg");
+            if (thBg && thBg !== "var(--bg-primary)") result.background = thBg;
             return result;
           },
         },

@@ -1,7 +1,7 @@
 import type { TechStackItem } from "./types";
 
 export const techStack: TechStackItem[] = [
-  { name: "Next.js 15", category: "Framework" },
+  { name: "Next.js 16", category: "Framework" },
   { name: "React 19", category: "Library" },
   { name: "TypeScript", category: "Language" },
   { name: "GSAP + ScrollTrigger", category: "Animation" },
@@ -13,6 +13,11 @@ export const techStack: TechStackItem[] = [
   { name: "Zustand", category: "State Management" },
   { name: "Supabase", category: "Backend (DB/Auth/Storage)" },
   { name: "Plate.js", category: "Rich Text Editor" },
+  { name: "React Flow (@xyflow)", category: "Diagram Editor" },
+  { name: "Sandpack", category: "Code Playground" },
+  { name: "marked + DOMPurify", category: "Markdown & Sanitize" },
+  { name: "Prettier", category: "Code Formatting" },
+  { name: "giscus", category: "External Comments" },
   { name: "NanoBanana / Hugging Face", category: "AI Image Generation" },
   { name: "Formspree", category: "Form & Email" },
   { name: "Vercel", category: "Deployment" },

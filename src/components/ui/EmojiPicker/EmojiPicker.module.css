@@ -148,6 +148,34 @@
 .iconCell { color: var(--text-primary); }
 .cell:hover { background: var(--bg-tertiary); }
 
+/* 커스텀(업로드) 아이콘 — hover 시 우상단 × 로 기록 삭제 */
+.emojiCellWrap {
+  position: relative;
+  display: inline-flex;
+}
+.emojiDelBtn {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 15px;
+  height: 15px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1.5px solid var(--bg-primary);
+  border-radius: var(--radius-circle);
+  background: var(--color-error);
+  color: var(--color-white);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 1;
+}
+.emojiCellWrap:hover .emojiDelBtn {
+  display: inline-flex;
+}
+
 /* ── 하단 카테고리 바 ── */
 .catBar {
   display: flex;
