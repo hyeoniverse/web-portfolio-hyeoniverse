@@ -23,7 +23,7 @@ import {
   // BaaS / ORM
   SiSupabase, SiFirebase, SiAppwrite, SiPocketbase, SiPrisma, SiTypeorm,
   // AI / ML
-  SiOpenai, SiAnthropic, SiGooglegemini, SiLangchain, SiTensorflow, SiPytorch, SiHuggingface,
+  SiAnthropic, SiGooglegemini, SiLangchain, SiTensorflow, SiPytorch, SiHuggingface,
   // Mobile
   SiExpo, SiFlutter, SiJetpackcompose,
   // Desktop
@@ -37,6 +37,10 @@ import {
   SiGooglecloud, SiRailway, SiRender, SiFlydotio, SiGithubactions,
 } from "react-icons/si";
 import { FaJava, FaAws, FaMicrosoft } from "react-icons/fa6";
+/* OpenAI 는 react-icons 5.7 에서 Simple Icons 팩(`si`) 에서 사라졌다 —
+   Simple Icons 가 상표 문제로 내린 아이콘이라 되돌아올 가능성이 낮다.
+   RemixIcon 의 Fill 버전이 단색 채움이라 나머지 Si* 브랜드 마크와 결이 같다. */
+import { RiOpenaiFill } from "react-icons/ri";
 
 /** 기술명 → 아이콘. Select renderOption/renderValue 에서 lookup.
  *  매칭 안 되는 항목은 null 반환 → 아이콘 없이 텍스트만 노출. */
@@ -268,7 +272,7 @@ const TECH_ICON_MAP: Record<string, React.ComponentType<{ size?: number }>> = {
   "typeorm": SiTypeorm,
 
   // ── AI / ML
-  "openai api": SiOpenai,
+  "openai api": RiOpenaiFill,
   "anthropic api": SiAnthropic,
   "gemini api": SiGooglegemini,
   "langchain": SiLangchain,
