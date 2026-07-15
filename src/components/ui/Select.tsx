@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, type ReactNode, type KeyboardEvent } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, Fragment, type ReactNode, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { ChevronRight, X } from "lucide-react";
+import { usePortalContainer } from "./portalContainer";
 import styles from "./Select.module.css";
 
 interface SelectOption {
@@ -10,6 +11,8 @@ interface SelectOption {
   label: string;
   /** 같은 group 끼리 dropdown 안에서 헤더와 함께 묶임. undefined 면 ungrouped (헤더 없음) */
   group?: string;
+  /** 이 옵션 위에 구분선(hairline) 표시 — 그룹핑 없이 시각적 분리만 (ungrouped 목록에서 동작) */
+  divider?: boolean;
   /** option 라벨 왼쪽에 인라인 아이콘 */
   icon?: ReactNode;
   /** option 라벨 오른쪽에 trailing 요소 (예: 선택됨 ✓ 표시) */
@@ -95,6 +98,8 @@ export default function Select({
   bubble = false,
   preserveFocus = false,
 }: SelectProps) {
+  // 오버레이(모달) 안이면 그 stacking context 로 portal → 전역 z override 없이 모달 위에 뜬다.
+  const portalContainer = usePortalContainer();
   // editable + value 비어있으면 mount 시 default editing (= 직접 입력 mode 부터 시작).
   const [editing, setEditing] = useState(() => !!editable && !value);
   const [open, setOpen] = useState(false);
@@ -108,7 +113,9 @@ export default function Select({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [dropPos, setDropPos] = useState<{ top: number; left: number; width: number; tailTop?: number }>({ top: 0, left: 0, width: 0 });
-  const [dropOffset, setDropOffset] = useState(0);
+  // 선택 항목을 trigger 에 정렬(native select 처럼) + 뷰포트 밖으로 안 나가게 clamp 한 최종 top / maxHeight
+  const [dropTop, setDropTop] = useState<number | null>(null);
+  const [dropMaxH, setDropMaxH] = useState<number | undefined>(undefined);
   /** mount 시 invisible probe 로 측정한 dropdown content width — trigger 가 첫 paint 부터 이 width 가짐 */
   const [_triggerWidth, setTriggerWidth] = useState<number | null>(null);
   const probeRef = useRef<HTMLDivElement>(null);
@@ -180,21 +187,25 @@ export default function Select({
     };
   }, [visible, updatePosition]);
 
-  // compact: 선택된 옵션의 center 가 trigger 의 center 와 정렬되도록 offset 계산.
-  // dropPos.top = trigger.bottom 이라, dropOffset 만큼 위로 올리면 dropdown.top = trigger.bottom - dropOffset.
-  // active.center = dropdown.top + activeOffsetTop + activeH/2
-  //             = trigger.bottom - dropOffset + activeOffsetTop + activeH/2
-  // trigger.center = trigger.bottom - triggerH/2.
-  // 둘이 일치하려면 dropOffset = activeOffsetTop + activeH/2 + triggerH/2.
+  // dropdown 세로 위치 — 선택 항목 center 를 trigger center 에 맞추고(native select 처럼),
+  // 뷰포트 밖으로 안 나가게 clamp. (bubble 은 자체 로직 사용.)
   useLayoutEffect(() => {
-    if (variant !== "compact" || !visible || !dropdownRef.current || !ref.current) return;
+    if (bubble || !visible || !dropdownRef.current || !ref.current) { setDropTop(null); setDropMaxH(undefined); return; }
     const dropdown = dropdownRef.current;
+    const triggerRect = ref.current.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const MARGIN = 8;
+    const availH = vh - MARGIN * 2;
+    const naturalH = dropdown.offsetHeight; // CSS max-height 로 이미 cap 된 값
+    const dropH = Math.min(naturalH, availH);
+    // 선택 항목이 있으면 그 center 를 trigger center 에 맞춤 (compact 뿐 아니라 모든 variant)
     const activeEl = dropdown.querySelector("[data-active]") as HTMLElement | null;
-    if (!activeEl) { setDropOffset(0); return; }
-    const triggerH = ref.current.offsetHeight;
-    const activeH = activeEl.offsetHeight;
-    setDropOffset(activeEl.offsetTop + activeH / 2 + triggerH / 2);
-  }, [visible, value, options, variant]);
+    const offset = activeEl ? activeEl.offsetTop + activeEl.offsetHeight / 2 + triggerRect.height / 2 : 0;
+    let top = triggerRect.bottom - offset;
+    top = Math.max(MARGIN, Math.min(top, vh - dropH - MARGIN)); // 위·아래 뷰포트 안으로
+    setDropTop(top);
+    setDropMaxH(naturalH > availH ? availH : undefined);
+  }, [visible, value, options, variant, bubble]);
 
   const handleTransitionEnd = () => {
     if (!open) setVisible(false);
@@ -313,7 +324,11 @@ export default function Select({
               </div>
             ));
           })()
-        : filteredOptions.map((opt, i) => renderOptionBtn(opt, i));
+        : filteredOptions.map((opt, i) => (
+            opt.divider
+              ? <Fragment key={opt.value}><div className={styles.optionDivider} aria-hidden />{renderOptionBtn(opt, i)}</Fragment>
+              : renderOptionBtn(opt, i)
+          ));
 
   // dropdown 은 trigger 의 width 를 minWidth 로 보장. content 가 더 wide 면 자연 grow.
   // 단 width="full" 일 땐 trigger 가 부모 column 폭에 맞춰져 있으므로 dropdown 도 그 폭을 cap (max-width) 으로 두고
@@ -321,11 +336,13 @@ export default function Select({
   // trigger 자체 width 는 sizer 기반 (가장 긴 label) 이라 open 전후 변하지 않음.
   const portalStyle: React.CSSProperties = bubble
     ? { top: dropPos.top, left: dropPos.left, minWidth: 160, maxWidth: 280, ["--bubble-tail-top" as string]: `${dropPos.tailTop ?? 24}px` }
-    : isCompact
-      ? { top: dropPos.top - dropOffset, left: dropPos.left, minWidth: dropPos.width }
-      : width === "full"
-        ? { top: dropPos.top, left: dropPos.left, width: dropPos.width, maxWidth: dropPos.width }
-        : { top: dropPos.top, left: dropPos.left, minWidth: dropPos.width };
+    : {
+        // 정렬(선택 항목→trigger) + 뷰포트 clamp 한 dropTop 사용, 아직 미측정이면 trigger 아래(dropPos.top)
+        top: dropTop ?? dropPos.top,
+        left: dropPos.left,
+        ...(width === "full" ? { width: dropPos.width, maxWidth: dropPos.width } : { minWidth: dropPos.width }),
+        ...(dropMaxH != null ? { maxHeight: dropMaxH } : {}),
+      };
 
   return (
     <div className={`${styles.root} ${isCompact ? styles.rootCompact : ""} ${open ? styles.rootOpen : ""} ${disabled ? styles.rootDisabled : ""} ${width === "full" ? styles.rootFull : ""} ${className ?? ""}`} ref={ref}>
@@ -448,11 +465,14 @@ export default function Select({
           className={`${styles.dropdown} ${isCompact ? styles.dropdownCompact : ""} ${bubble ? `${styles.bubble} ${styles.bubbleRight}` : ""} ${animateOpen ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
           style={portalStyle}
           onTransitionEnd={handleTransitionEnd}
+          // 부모 popover(공통 Popover)의 outside-click 이 이 dropdown 클릭을 "바깥"으로 보고 닫는 것 방지 —
+          // dropdown 은 portal 이라 부모 밖에 렌더되므로 mousedown 전파를 여기서 끊는다.
+          onMouseDown={(e) => e.stopPropagation()}
           data-lenis-prevent
         >
           {bubble ? <div className={styles.bubbleScroll}>{dropdownContent}</div> : dropdownContent}
         </div>,
-        document.body,
+        portalContainer ?? document.body,
       )}
       {/* invisible probe — dropdown content 와 동일 mount 해서 width 측정.
        * visibility:hidden + position:absolute + off-screen → 사용자에겐 안 보이고 paint 영향 없음.

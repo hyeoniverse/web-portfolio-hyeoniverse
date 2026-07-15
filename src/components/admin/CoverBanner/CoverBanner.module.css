@@ -110,16 +110,9 @@
   justify-content: flex-start;
 }
 
+/* 공통 Input 사용 — border/radius(capsule)/padding 은 컴포넌트가 담당, wrapper 폭만 지정 */
 .urlInput {
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-sm);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  outline: none;
 }
 
 .urlInput:focus {

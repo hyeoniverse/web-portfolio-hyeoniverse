@@ -22,7 +22,8 @@ export function useHoverPreview() {
     const H = item.image ? 232 : 104;
     const gap = 8;
     const left = Math.max(8, Math.min(rect.left + rect.width / 2 - W / 2, window.innerWidth - W - 8));
-    const top = rect.top > H + gap ? rect.top - H - gap : rect.bottom + gap;
+    let top = rect.top > H + gap ? rect.top - H - gap : rect.bottom + gap;
+    top = Math.max(8, Math.min(top, window.innerHeight - H - 8)); // 상·하 뷰포트 안으로
     setPreview({ item, top, left });
   }, []);
 

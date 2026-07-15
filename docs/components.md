@@ -273,3 +273,132 @@ PlateEditor 에서 **블록 선택 시 뜨는 플로팅 툴바**. 다른 블록�
 **경로**: `src/components/posts/plate/EditorTextInput.tsx`
 
 ---
+
+### Collapsible
+
+내용이 길면 접고 **더보기 / 접기** 토글을 붙이는 공용 래퍼. 긴 댓글 등에 사용.
+
+**경로**: `src/components/ui/Collapsible.tsx`
+
+**기능**:
+
+- `maxHeight` 를 **넘을 때만** 접는다 — 넘지 않으면 토글 버튼도 하단 페이드도 렌더하지 않음
+- 오버플로 판정은 클램프 안 된 내부 div 를 `ResizeObserver` 로 관찰 — 이미지가 늦게 로드돼 높이가 커져도 다시 잡힘
+- **첫 클램프는 애니메이션 없음** — 사용자가 토글을 실제로 누르기 전까지 애니메이션을 억제해, 로드 시점에 저절로 접히는 연출을 방지
+- 펼침 높이는 framer-motion `height: "auto"` 로 애니메이션, 토글은 `Button variant="ghost" size="sm" shape="capsule"`
+
+**Props**:
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `maxHeight` | `number` | (필수) | 이 높이(px)를 넘을 때만 접는다 |
+| `expandLabel` | `ReactNode` | (필수) | 펼치기 라벨 |
+| `collapseLabel` | `ReactNode` | (필수) | 접기 라벨 |
+| `children` | `ReactNode` | (필수) | 대상 콘텐츠 |
+
+---
+
+### HelpButton
+
+`?` 원형 도움말 버튼 통일 래퍼. Popover / Tooltip 트리거로 쓴다.
+
+**경로**: `src/components/ui/HelpButton.tsx`
+
+**기능**:
+
+- `Button variant="subtle" shape="circle"` + `?` 를 고정 — `variant` / `shape` / `children` 은 의도적으로 override 불가, **`size` 만 시각 조절 knob**
+- 나머지 props 는 Button 으로 그대로 spread (Popover/Tooltip 이 트리거에 주입하는 핸들러 통과)
+- `forwardRef` — 트리거 anchor 측정 가능
+
+**Props**:
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `size` | `"2xs" \| "xs" \| "sm" \| "md" \| "lg" \| "xl"` | `"sm"` | 기본 28px. 폼 라벨 옆처럼 좁은 자리는 `2xs`(20px) / `xs`(24px) |
+| `className` | `string` | - | **배치용만** — 색·보더·radius·padding override 금지 (필요하면 부모 래퍼로) |
+| `soundDisabled` | `boolean` | - | 클릭 사운드 비활성 |
+
+---
+
+### PageTitle
+
+posts 계열 페이지의 공용 대형 타이틀(`<h1>`).
+
+**경로**: `src/components/ui/PageTitle.tsx`
+
+**Props**:
+
+| Prop | Type | Description |
+| ---- | ---- | ----------- |
+| `icon` | `ReactNode` | 왼쪽 아이콘 (lucide 등). 크기는 타이틀 font-size 에 `em` 비례로 자동 스케일 |
+| `children` | `ReactNode` | 타이틀 텍스트 |
+| `className` | `string` | 추가 CSS 클래스 |
+
+> `"use client"` 없음 — 서버 컴포넌트.
+
+---
+
+### SpinButton
+
+**long-press 가속 반복** 버튼. NumberInput 의 스테퍼가 사용한다.
+
+**경로**: `src/components/ui/SpinButton.tsx`
+
+**기능**:
+
+- pointerDown 시 **즉시 1회** 발화 → 380ms 홀드 후 반복 시작, 간격이 130ms 에서 tick 마다 12ms 씩 줄어 **최소 28ms** 까지 가속
+- `setPointerCapture` — 버튼 밖에서 손을 떼도 정지. pointerUp / pointerCancel / lostPointerCapture / unmount 에서 모두 stop
+- 마우스는 `e.button === 0` 만 반응, 최신 action 을 ref 로 들고 있어 반복 tick 이 stale 되지 않음
+- `type="button"` + `tabIndex={-1}` — 스테퍼가 탭 순서를 오염시키지 않음
+
+**Props**:
+
+| Prop | Type | Description |
+| ---- | ---- | ----------- |
+| `onStep` | `() => void` | (필수) 1 스텝 동작 |
+| `children` | `ReactNode` | (필수) 아이콘 등 |
+| `className` | `string` | 추가 CSS 클래스 |
+| `ariaLabel` | `string` | 접근성 라벨 (camelCase prop) |
+
+---
+
+### portalContainer (context)
+
+오버레이(모달) **안에서 열린 팝오버가 그 오버레이 위에 쌓이도록** portal 대상을 내려주는 컨텍스트. 전역 z-index 를 키우지 않는 top-layer 방식.
+
+**경로**: `src/components/ui/portalContainer.ts`
+
+```ts
+export const PortalContainerContext = createContext<HTMLElement | null>(null);
+export const usePortalContainer = () => useContext(PortalContainerContext);
+```
+
+**동작**:
+
+- `Modal` 이 `.portalLayer` div 를 렌더하고 그 element 를 Provider 로 하위 트리에 내려준다
+- 소비자는 `usePortalContainer() ?? document.body` 로 portal 대상 결정 — 오버레이 밖에서는 기존대로 body
+- 소비처: `Popover` · `Select` · `Tooltip` · `DatePickerPopover` · `TimePickerPopover`
+
+**기술 결정**:
+
+- `.portalLayer` 는 모달 패널의 **자식이 아니라 형제** — 패널의 `transform` 이 containing block 이 되면 fixed 좌표가 어긋나므로, `inset: 0` backdrop 쪽에 붙인다
+- ref setter 는 modal id 별로 `Map` 에 캐시 — 렌더마다 새 화살표 함수를 주면 cleanup/mount 무한 루프("Maximum update depth")
+
+---
+
+### 공통 컴포넌트 — 이번 사이클 prop 추가
+
+| 컴포넌트 | 추가 | 내용 |
+| -------- | ---- | ---- |
+| `Popover` | `variant` | `"glass"`(기본) / `"solid"` / `"difference"`. `solid` 는 modifier 클래스 없이 base `.dropdown` 자체 |
+| `Popover` | `openOnHover` | 기본 `false`, 데스크탑 전용(sheet 모드에선 무시). 열림은 즉시, 닫힘은 500ms 지연(트리거↔콘텐츠 이동 구간 유지). 모듈 레벨 플래그로 **hover popover 는 동시에 1개만** |
+| `Button` | `tone="accent"` | `tone: "default" \| "danger" \| "success" \| "accent"` |
+| `Modal` | `header.actions` | 헤더 우측 액션 영역 (`ReactNode`, 닫기 버튼 왼쪽) |
+| `Modal` | `subButtons` | 닫기(X) 버튼 바로 왼쪽 서브 버튼 (뒤로/앞으로 등) |
+| `Toast` | `pauseAllToasts` / `resumeAllToasts` | 토스트 하나에 hover 하면 **스택 전체 정지** — 재배치로 커서가 벗어나 사라지는 것 방지 |
+| `NumberInput` | `unit` | `ReactNode`. 우측 단위(`px`, `%`) 표시. 텍스트가 **실제로 말줄임될 때만** Tooltip 활성 |
+| `NumberInput` | `gauge` | 기본 `false`. `min`·`max` 가 둘 다 있을 때만 동작, 값 위치를 숫자 색(낮음/중간/높음)으로 표시 (바는 그리지 않음) |
+| `Textarea` | `tabIndent` | opt-in. Tab 으로 2칸 공백 들여쓰기 — `execCommand("insertText")` 로 native undo 스택 보존, IME 조합 중 skip, Shift+Tab 은 native 포커스 이동 유지. **`maxHint` 가 설정된 EditableTextarea 모드에서만** 동작 |
+| `Select` | (viewport clamp) | 선택 항목 중앙을 트리거 중앙에 맞춘 뒤 여백 8px 로 뷰포트 안에 clamp, 자연 높이가 가용 높이를 넘을 때만 `max-height` 부여. 외부 스크롤 시 재배치가 아니라 **닫음** |
+
+---

@@ -4,6 +4,11 @@
   padding: var(--spacing-5xl) var(--page-px) var(--spacing-3xl);
 }
 
+/* 뒤로가기(글 목록) — 서브네비와 제목 헤더 사이 */
+.backRow {
+  margin-bottom: var(--spacing-md);
+}
+
 .header {
   display: flex;
   flex-direction: column;
@@ -26,7 +31,7 @@
   gap: var(--spacing-sm);
   margin: 0;
   font-family: var(--font-instrument);
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
 }
@@ -51,11 +56,50 @@
   gap: var(--spacing-sm);
 }
 
+/* 페이징 + 검색 + 도움말 묶음 — 우측 정렬, 작은 gap */
+.searchTools {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: auto;
+  min-width: 0;
+}
+
 .searchBar {
   flex: 0 0 auto;
   width: 320px;
   max-width: 100%;
-  margin-left: auto;
+}
+
+/* perPage 그룹(아이콘 + select) */
+.perPageGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+.perPageIcon {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+.perPageSelect {
+  flex: 0 0 auto;
+}
+.perPageSelect > button {
+  padding: 0 var(--spacing-sm);
+  font-size: var(--font-size-2xs);
+}
+
+.pagination {
+  margin-top: var(--spacing-xl);
+}
+
+/* 정렬/검색창 border 를 페이징 select(--border-light) 등 주변 컨트롤과 light 로 통일 */
+.sortControl.sortControl {
+  box-shadow: inset 0 0 0 1px var(--border-light-color);
+}
+
+.searchBar:not(:focus-within) {
+  border-color: var(--border-light-color) !important;
 }
 
 /* ── 카테고리 필터 ── */
@@ -164,7 +208,8 @@
   outline-offset: -1px;
 }
 
-.cardFeaturedBadge {
+/* posts 페이지 hotBadge 와 동일 — accent-solid pill + Flame + HOT (카드 좌상단 배치) */
+.cardHotBadge {
   position: absolute;
   top: var(--spacing-2xs);
   left: var(--spacing-2xs);
@@ -172,16 +217,16 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  padding: var(--spacing-3xs) var(--spacing-sm);
   border-radius: var(--radius-capsule);
-  background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
-  backdrop-filter: blur(4px);
+  background: var(--bg-accent-solid);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-accent);
-  letter-spacing: 0.05em;
+  font-size: var(--font-size-3xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-white);
   text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
 }
 
 .body {
@@ -207,11 +252,17 @@
 }
 
 .cardTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
+  /* /posts 본문 카드·history 와 동일한 editorial instrument serif 로 통일 */
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: -0.01em;
   color: var(--text-primary);
   line-height: var(--line-height-tight);
+  transition: color var(--duration-fast) var(--ease-material);
+}
+.card:hover .cardTitle {
+  color: var(--text-accent);
 }
 
 .cardDesc {

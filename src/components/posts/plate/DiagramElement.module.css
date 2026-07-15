@@ -1,0 +1,474 @@
+/* ── 비주얼 다이어그램 블록 ── */
+.diagramBlock {
+  margin: var(--spacing-lg) 0;
+}
+.diagramInner {
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--bg-primary);
+  transition: border-color 0.15s ease;
+}
+.diagramInner[data-selected] {
+  border-color: var(--border-strong-color);
+}
+/* 전체화면 — 뷰포트 덮기. 에디터 블록 전체화면 레이어(이미지 패널 등 portal 요소 위) */
+.diagramFullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-fullscreen);
+  margin: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+}
+.diagramFullscreen .diagramCanvas {
+  flex: 1;
+  height: auto;
+  resize: none;
+}
+.diagramFullscreen .diagramForm {
+  flex: 1;
+  max-height: none;
+}
+
+/* React Flow +/- /fit 컨트롤 — 수직 캡슐 */
+.diagramCanvas :global(.react-flow__controls) {
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light-color);
+}
+.diagramCanvas :global(.react-flow__controls-button) {
+  width: 26px;
+  height: 26px;
+  background: var(--bg-primary);
+  border: none;
+  border-bottom: 1px solid var(--border-light-color);
+  color: var(--text-secondary);
+}
+.diagramCanvas :global(.react-flow__controls-button:last-child) {
+  border-bottom: none;
+}
+.diagramCanvas :global(.react-flow__controls-button:hover) {
+  background: var(--bg-tertiary);
+}
+.diagramCanvas :global(.react-flow__controls-button svg) {
+  fill: var(--text-secondary);
+  max-width: 12px;
+  max-height: 12px;
+}
+
+/* 상단 툴바 */
+.diagramToolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* 도형이 많아 좁은 폭에선 줄바꿈 */
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-2xs);
+  border-bottom: 1px solid var(--border-light-color);
+}
+.diagramToolbarSpacer {
+  flex: 1;
+}
+.diagramToolbarDiv {
+  width: 1px;
+  align-self: stretch;
+  margin: var(--spacing-3xs);
+  background: var(--border-light-color);
+}
+/* 선택 노드 도형 선택 */
+.diagramShapes {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+.diagramShapeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: var(--radius-circle); /* 선택/hover indicator 원형 */
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.diagramShapeBtn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+.diagramShapeBtn[data-on] {
+  color: var(--text-inverse);
+  background: var(--bg-inverse);
+}
+/* 선 스타일 버튼 안의 미리보기 선 */
+.diagramLinePreview {
+  display: block;
+  width: 16px;
+  height: 0;
+  border-top: 2px solid currentColor;
+}
+/* 색상 팔레트 */
+.diagramColors {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: var(--spacing-3xs);
+}
+.diagramColorBtn {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-circle);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease;
+}
+.diagramColorBtn:hover {
+  transform: scale(1.15);
+}
+.diagramColorBtn[data-none] {
+  background:
+    linear-gradient(45deg, transparent 45%, var(--text-accent) 45%, var(--text-accent) 55%, transparent 55%),
+    var(--bg-primary);
+}
+
+/* ── 커스텀 노드 (도형 + 색) ── */
+.dnode {
+  position: relative; /* Handle 앵커 기준 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 노드에 항상 width/height 를 줘서 wrapper 크기를 채움(리사이즈 반영) */
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  min-width: 44px;
+  min-height: 28px;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  /* 색은 --dnode-bg(노드별 인라인 변수) → 없으면 bg-primary. 캔버스(bg-secondary)와 구분됨 */
+  background: var(--dnode-bg, var(--bg-primary));
+  border: 1.5px solid var(--border-strong-color);
+  border-radius: 6px; /* 사각 (capsule 아님) */
+  color: var(--text-primary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+.dnode[data-selected] {
+  border-color: var(--text-accent);
+  box-shadow: 0 0 0 2px var(--bg-accent-subtle);
+}
+/* 둥근 계열 — CSS 로 크리스프하게 (SVG stretch 코너 왜곡 방지) */
+.dnode_round { border-radius: 14px; }
+.dnode_stadium { border-radius: 999px; }
+.dnode_circle { border-radius: 50%; } /* 정사각 기본, 리사이즈하면 타원처럼 */
+
+/* SVG 로 그리는 도형 — .dnode 자체는 무테/투명, 배경 SVG(.dnodeShape)가 채움/테두리 담당.
+   .dnode 에 clip-path 를 안 써서 핸들이 안 잘림 */
+.dnode_ellipse,
+.dnode_diamond,
+.dnode_hexagon,
+.dnode_parallelogram,
+.dnode_trapezoid,
+.dnode_subroutine,
+.dnode_cylinder {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+/* selected 사각 box-shadow 는 다각형과 안 맞음 → SVG stroke 로 표현 */
+.dnode_ellipse[data-selected],
+.dnode_diamond[data-selected],
+.dnode_hexagon[data-selected],
+.dnode_parallelogram[data-selected],
+.dnode_trapezoid[data-selected],
+.dnode_subroutine[data-selected],
+.dnode_cylinder[data-selected] {
+  box-shadow: none;
+}
+/* 도형별 라벨 여백(꼭짓점에 안 물리게) */
+.dnode_diamond { min-width: 96px; min-height: 68px; padding: var(--spacing-md); }
+.dnode_hexagon { padding: var(--spacing-2xs) var(--spacing-lg); }
+.dnode_parallelogram,
+.dnode_trapezoid { padding: var(--spacing-2xs) var(--spacing-lg); }
+.dnode_subroutine { padding: var(--spacing-2xs) var(--spacing-md); }
+.dnode_cylinder { padding: var(--spacing-md) var(--spacing-sm) var(--spacing-2xs); }
+
+/* 텍스트 노드 — 무테/무배경, 라벨만. 좌우 패딩 넉넉히 */
+.dnode_text {
+  background: transparent;
+  border: none;
+  min-width: 44px;
+  min-height: 24px;
+  padding: var(--spacing-2xs) var(--spacing-md);
+}
+/* 선택 외곽선은 accent 대신 회색~검정 계열(중립) */
+.dnode_text[data-selected] {
+  box-shadow: 0 0 0 1.5px var(--border-strong-color);
+  border-radius: 6px;
+}
+
+/* NodeResizer — 리사이즈 프레임/핸들을 중립 색으로 */
+.dresizeLine {
+  border-color: var(--border-strong-color) !important;
+  border-width: 1px !important;
+}
+.dresizeHandle {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 2px !important;
+  background: var(--bg-primary) !important;
+  border: 1.5px solid var(--text-secondary) !important;
+}
+/* 툴바 텍스트 그룹 큐(A 아이콘) */
+.diagramTextCue {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-tertiary);
+  padding: 0 var(--spacing-3xs);
+}
+
+/* 노드 배경 SVG */
+.dnodeShape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: visible;
+}
+.dnodeShape rect,
+.dnodeShape polygon,
+.dnodeShape ellipse,
+.dnodeShape path {
+  fill: var(--dnode-bg, var(--bg-primary));
+  stroke: var(--border-strong-color);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.dnodeShape line {
+  fill: none;
+  stroke: var(--border-strong-color);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.dnode[data-selected] .dnodeShape rect,
+.dnode[data-selected] .dnodeShape polygon,
+.dnode[data-selected] .dnodeShape ellipse,
+.dnode[data-selected] .dnodeShape path,
+.dnode[data-selected] .dnodeShape line {
+  stroke: var(--text-accent);
+}
+
+/* 팔레트/툴바 도형 아이콘 (윤곽선만) */
+.shapeIcon {
+  display: block;
+}
+.shapeIcon rect,
+.shapeIcon polygon,
+.shapeIcon ellipse,
+.shapeIcon path,
+.shapeIcon line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.dnodeLabel {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  white-space: nowrap;
+}
+/* 캔버스 내부 인라인 편집 input — 라벨 스타일 그대로, 무테/투명/가운데 */
+.dnodeInput {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  min-width: 40px;
+  max-width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+.dhandle {
+  width: 10px;
+  height: 10px;
+  background: var(--bg-primary);
+  border: 2px solid var(--text-accent);
+  z-index: 3;
+}
+
+/* ── 폼 에디터 ── */
+.diagramForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-sm);
+  max-height: 380px;
+  overflow-y: auto;
+}
+.diagramFormSectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--spacing-2xs);
+}
+.diagramFormLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.diagramFormAdd {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  height: var(--control-h-xs);
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.diagramFormAdd:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong-color);
+}
+.diagramFormRow {
+  display: flex;
+  flex-wrap: wrap; /* 좁으면 줄바꿈 — 컨트롤이 넘쳐 레이아웃 깨지지 않게 */
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+/* 늘어나는 컨트롤(라벨 input, 노드 select) — 최소폭 0 이라 긴 텍스트에도 무한 확장 안 함 */
+.diagramFormGrow {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+/* 연결(엣지) 한 건 — 컨트롤이 많아 2줄 카드로 묶어 정돈 */
+.diagramFormEdge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-lg);
+}
+.diagramFormArrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.diagramFormColors {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.diagramColorBtn[data-on] {
+  outline: 2px solid var(--text-accent);
+  outline-offset: 1px;
+}
+.diagramFormDel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.diagramFormDel:hover {
+  color: var(--text-accent);
+  background: var(--bg-tertiary);
+}
+.diagramFormEmpty {
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* React Flow 캔버스 — 높이 고정(세로 리사이즈) */
+.diagramCanvas {
+  position: relative;
+  height: 380px;
+  min-height: 200px;
+  resize: vertical;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+.diagramCanvas :global(.react-flow__attribution) {
+  display: none;
+}
+/* 전역 리셋(_base.css: svg { display:block; max-width:100% })이 RF 엣지 SVG 폭을 0으로 죽여
+   엣지가 클리핑돼 안 보였음. RF 내부 svg 는 전역 리셋에서 예외 처리해 원래 사이징 복원 */
+.diagramCanvas :global(.react-flow svg) {
+  max-width: none;
+}
+.diagramCanvas :global(.react-flow__edges) {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+/* 엣지 — RF 기본은 연한 회색 1px 라 배경에 묻힘. 진하게 + 굵게. 화살표 마커도 같은 색 */
+.diagramCanvas :global(.react-flow__edge-path) {
+  stroke: var(--text-secondary);
+  stroke-width: 2;
+}
+.diagramCanvas :global(.react-flow__edge.selected .react-flow__edge-path),
+.diagramCanvas :global(.react-flow__edge:focus .react-flow__edge-path),
+.diagramCanvas :global(.react-flow__edge:hover .react-flow__edge-path) {
+  stroke: var(--text-accent);
+}
+.diagramCanvas :global(.react-flow__arrowhead) {
+  fill: var(--text-secondary);
+}
+.diagramCanvas :global(.react-flow__edge.selected .react-flow__arrowhead) {
+  fill: var(--text-accent);
+}
+/* 연결 드래그 중 임시 선 */
+.diagramCanvas :global(.react-flow__connection-path) {
+  stroke: var(--text-accent);
+  stroke-width: 2;
+}
+/* 빈 상태 안내 */
+.diagramEmpty {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  pointer-events: none;
+}

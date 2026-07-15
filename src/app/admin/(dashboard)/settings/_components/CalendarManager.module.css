@@ -1,0 +1,147 @@
+/* ── 달력 관리 (settings > 달력 관리 탭) ── */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.headRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+.headCount {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.headSearch {
+  margin-left: auto;
+  width: min(260px, 100%);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+.empty {
+  padding: var(--spacing-xl) var(--spacing-md);
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.row:hover { background: var(--bg-secondary); }
+.rowFocus {
+  border-color: var(--color-accent);
+  animation: calMgrPulse 1.6s ease;
+}
+@keyframes calMgrPulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  30% { box-shadow: 0 0 0 3px var(--bg-accent); }
+}
+
+.rowDate {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  line-height: 1.05;
+}
+.rowMon { font-size: var(--font-size-xs); font-weight: 600; }
+.rowYear { font-size: var(--font-size-3xs); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+
+.rowMain { display: flex; flex-direction: column; gap: var(--spacing-3xs); min-width: 0; flex: 1; cursor: pointer; }
+.rowMain:hover .rowTitle { color: var(--text-accent); }
+.previewWrap { padding: var(--spacing-md); }
+.rowTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rowTitleMuted { color: var(--text-tertiary); font-weight: 400; }
+.rowMeta {
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowActions { flex-shrink: 0; display: inline-flex; align-items: center; gap: var(--spacing-2xs); }
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.iconBtn:hover { color: var(--text-primary); background: var(--bg-secondary); }
+.iconBtnDanger:hover { color: var(--text-accent); background: var(--bg-accent); }
+
+/* 인라인 rename */
+.renameForm { display: flex; align-items: center; gap: var(--spacing-2xs); flex: 1; min-width: 0; }
+.renameInput { flex: 1; min-width: 0; }
+.spin { animation: calMgrSpin 0.7s linear infinite; }
+@keyframes calMgrSpin { to { transform: rotate(360deg); } }
+
+/* ── 휴지통 (soft delete · 30일 후 자동 영구삭제) ── */
+.trashSection { margin-top: var(--spacing-sm); border-top: var(--border-light); padding-top: var(--spacing-sm); }
+.trashHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  width: 100%;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: none;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.trashHead:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.trashTitle { font-size: var(--font-size-sm); font-weight: 500; }
+.trashCount {
+  min-width: 18px;
+  padding: 0 var(--spacing-3xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.trashHint { font-size: var(--font-size-2xs); color: var(--text-tertiary); }
+.trashChev { margin-left: auto; color: var(--text-tertiary); }
+.trashChevOpen { transform: rotate(180deg); }
+/* (0,2,0) — 전역 theme transition shorthand(transform 미포함) override */
+.trashHead .trashChev { transition: transform 0.2s ease; }
+.trashBody { display: flex; flex-direction: column; gap: var(--spacing-2xs); margin-top: var(--spacing-2xs); }
+.trashSoon { color: var(--text-accent); }

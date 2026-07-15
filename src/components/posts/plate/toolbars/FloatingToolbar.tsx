@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { createPortal } from "react-dom";
 import {
   useEditorId,
   useEditorRef,
@@ -10,15 +9,14 @@ import {
   useMarkToolbarButton,
   useMarkToolbarButtonState,
 } from "platejs/react";
-import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
 import { toggleList } from "@platejs/list";
 import { toggleCodeBlock } from "@platejs/code-block";
 import { insertInlineEquation } from "@platejs/math";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Popover, { MenuItem } from "@/components/ui/Popover";
-import Select from "@/components/ui/Select";
 import { useBlockInfo } from "../hooks";
 import TBtn from "../TBtn";
+import FloatingBar from "./FloatingBar";
 import styles from "../../RichTextEditor.module.css";
 
 /** 마크 토글 버튼 — 공식 useMarkToolbarButton 패턴 (pressed/onClick/onMouseDown) 을 TBtn 에 연결 */
@@ -49,7 +47,7 @@ const TURN_INTO = [
   { value: "code_block", key: "codeBlock", icon: "</>" },
 ] as const;
 
-/** Turn into — 현재 블록 타입 표시 + 드롭다운으로 전환 (공통 Select + preserveFocus) */
+/** Turn into — 현재 블록 타입 표시 + hover 로 열리는 전환 메뉴 (Popover openOnHover, 다른 floating bar 메뉴와 일관) */
 function TurnIntoMenu() {
   const { t } = useLanguage();
   const editor = useEditorRef();
@@ -73,22 +71,27 @@ function TurnIntoMenu() {
     setTimeout(() => editor.tf.focus(), 0);
   };
 
-  const options = TURN_INTO.map((o) => ({
-    value: o.value,
-    label: t(`editor.${o.key}`),
-    icon: <span className={styles.menuIcon}>{o.icon}</span>,
-  }));
-
+  const currentKey = TURN_INTO.find((o) => o.value === current)?.key;
   return (
-    <Select
-      value={current}
-      options={options}
-      onChange={apply}
-      preserveFocus
-      size="sm"
-      width="max"
-      triggerClassName={styles.turnIntoTrigger}
-    />
+    <Popover
+      openOnHover
+      placement="bottom-start"
+      contentClassName={styles.floatingMenu}
+      trigger={<TBtn tooltip={t("editor.turnInto")}>{currentKey ? t(`editor.${currentKey}`) : t("editor.paragraph")} ▾</TBtn>}
+    >
+      {({ close }) => (
+        <div onMouseDown={(e) => e.preventDefault()}>
+          {TURN_INTO.map((o) => (
+            <MenuItem
+              key={o.value}
+              icon={<span className={styles.menuIcon}>{o.icon}</span>}
+              label={t(`editor.${o.key}`)}
+              onClick={() => { apply(o.value); close(); }}
+            />
+          ))}
+        </div>
+      )}
+    </Popover>
   );
 }
 
@@ -103,6 +106,7 @@ function OverflowMenu() {
   };
   return (
     <Popover
+      openOnHover
       placement="bottom-end"
       contentClassName={styles.floatingMenu}
       trigger={<TBtn square tooltip={t("editor.more")}>⋯</TBtn>}
@@ -165,43 +169,21 @@ export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean
   }, [editor, selection]);
   const open = focused && selection != null && !collapsed && !hideToolbar && !voidSelected;
 
-  const { refs, style, update } = useVirtualFloating({
-    open,
-    getBoundingClientRect: getSelectionRect,
-    strategy: "fixed",
-    placement: "top",
-    middleware: [offset(12), flip({ padding: 12 }), shift({ padding: 12 })],
-  });
-
-  React.useEffect(() => {
-    if (open) update?.();
-  }, [open, selection, update]);
-
-  if (!open) return null;
-
-  const toolbar = (
-    <div>
-      {/* refs 는 floating-ui 의 ref 객체(React ref 아님) — setFloating 은 callback ref */}
-      {/* eslint-disable-next-line react-hooks/refs */}
-      <div ref={refs.setFloating} className={styles.floatingToolbar} style={style}>
-        <TurnIntoMenu />
-        <span className={styles.divider} />
-        <MarkButton nodeType="bold" tooltip={t("editor.bold")}>B</MarkButton>
-        <MarkButton nodeType="italic" tooltip={t("editor.italic")} style={{ fontStyle: "italic" }}>I</MarkButton>
-        <MarkButton nodeType="underline" tooltip={t("editor.underline")} style={{ textDecoration: "underline" }}>U</MarkButton>
-        <MarkButton nodeType="strikethrough" tooltip={t("editor.strikethrough")} style={{ textDecoration: "line-through" }}>S</MarkButton>
-        <MarkButton nodeType="code" tooltip={t("editor.inlineCode")}>{"<>"}</MarkButton>
-        <TBtn
-          tooltip={t("editor.inlineEquation")}
-          onClick={() => { insertInlineEquation(editor); setTimeout(() => editor.tf.focus(), 0); }}
-        >
-          <span style={{ fontStyle: "italic" }}>fx</span>
-        </TBtn>
-        <span className={styles.divider} />
-        <OverflowMenu />
-      </div>
-    </div>
+  return (
+    <FloatingBar open={open} getAnchorRect={getSelectionRect} inline>
+      <TurnIntoMenu />
+      <MarkButton nodeType="bold" tooltip={t("editor.bold")}>B</MarkButton>
+      <MarkButton nodeType="italic" tooltip={t("editor.italic")} style={{ fontStyle: "italic" }}>I</MarkButton>
+      <MarkButton nodeType="underline" tooltip={t("editor.underline")} style={{ textDecoration: "underline" }}>U</MarkButton>
+      <MarkButton nodeType="strikethrough" tooltip={t("editor.strikethrough")} style={{ textDecoration: "line-through" }}>S</MarkButton>
+      <MarkButton nodeType="code" tooltip={t("editor.inlineCode")}>{"<>"}</MarkButton>
+      <TBtn
+        tooltip={t("editor.inlineEquation")}
+        onClick={() => { insertInlineEquation(editor); setTimeout(() => editor.tf.focus(), 0); }}
+      >
+        <span style={{ fontStyle: "italic" }}>fx</span>
+      </TBtn>
+      <OverflowMenu />
+    </FloatingBar>
   );
-
-  return typeof document !== "undefined" ? createPortal(toolbar, document.body) : null;
 }

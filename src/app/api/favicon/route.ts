@@ -1,4 +1,12 @@
 import { getSiteConfig } from "@/lib/getSiteConfig";
+import {
+  resolveFavicon,
+  faviconFilterString,
+  DEFAULT_FAVICON_TEXT_SHADOW,
+  DEFAULT_FAVICON_BG_SHADOW,
+  type FaviconShape,
+  type FaviconWeight,
+} from "@/lib/favicon";
 
 /** 다이내믹 SVG favicon — query ?variant=light|dark 로 단일 테마 SVG 반환.
  *  layout metadata 에서 prefers-color-scheme media 와 함께 두 URL 등록:
@@ -27,47 +35,50 @@ export async function GET(request: Request) {
   const config = await getSiteConfig().catch(() => null);
   const logoText = ((config?.brand?.logoText ?? "H").trim() || "H").charAt(0);
   const logoUrl = config?.brand?.logoShortUrl || config?.brand?.logoShortDarkUrl || "";
-  const shape = config?.brand?.faviconShape ?? "circle";
-  // 로고 폰트가 favicon 도 결정 — 빈 값이면 brand 기본 (Instrument Serif)
-  const logoFont = config?.brand?.logoFont || "'Instrument Serif', Georgia, serif";
-  const weight = config?.brand?.faviconWeight ?? "light";
-  const fontWeight = weight === "light" ? 300 : weight === "regular" ? 500 : 700;
 
   const presetLight = config?.brand?.logoColor || "#0a0a0a";
   const presetDark = config?.brand?.logoColorDark || "#f5f5f0";
-  const faviconBgLight = config?.brand?.faviconBgLight || presetDark;
-  const faviconBgDark = config?.brand?.faviconBgDark || presetLight;
 
-  // light variant = 라이트 톤 favicon, dark variant = 다크 톤 favicon.
-  // bg 는 brand.faviconBgLight/Dark 우선, 빈 값이면 preset 으로 자동 (light → preset.dark, dark → preset.light).
-  // 글자색은 preset 의 반대 (light variant text = preset.light, dark variant text = preset.dark).
-  // shape=none 일 땐 bg 없음 — text 는 logo 색 그대로
-  const bg = variant === "light" ? faviconBgLight : faviconBgDark;
-  const fg = shape === "none"
-    ? (variant === "light" ? presetDark : presetLight)
-    : (variant === "light" ? presetLight : presetDark);
-  const finalBg = shape === "none" ? "transparent" : bg;
+  const render = resolveFavicon(
+    {
+      shape: (config?.brand?.faviconShape ?? "circle") as FaviconShape,
+      weight: (config?.brand?.faviconWeight ?? "light") as FaviconWeight,
+      logoText: config?.brand?.logoText ?? "H",
+      logoFont: config?.brand?.logoFont ?? "",
+      logoFontStretch: config?.brand?.logoFontStretch ?? "",
+      faviconBgLight: config?.brand?.faviconBgLight ?? "",
+      faviconBgDark: config?.brand?.faviconBgDark ?? "",
+      faviconFontSize: config?.brand?.faviconFontSize ?? "20",
+      faviconColor: config?.brand?.faviconColor ?? "",
+      faviconColorDark: config?.brand?.faviconColorDark ?? "",
+      faviconTextShadow: config?.brand?.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW,
+      faviconBgShadow: config?.brand?.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW,
+      presetLight,
+      presetDark,
+    },
+    variant,
+  );
 
-  const fontFamily = logoFont;
-  const radius = shape === "circle" ? 16 : shape === "square" ? 4 : 0;
+  const textTransform = render.transform ? ` transform="${render.transform}"` : "";
+  const textShadowId = `favicon-text-shadow-${variant}`;
+  const bgShadowId = `favicon-bg-shadow-${variant}`;
 
-  // 장평 — viewBox 중심 (16,16) 기준 scaleX. 빈/invalid 면 0.8 default
-  const stretchRaw = parseFloat(config?.brand?.logoFontStretch ?? "");
-  const stretchN = Number.isFinite(stretchRaw) && stretchRaw > 0 ? stretchRaw : 0.8;
-  const textTransform = stretchN !== 1
-    ? ` transform="translate(${16 * (1 - stretchN)} 0) scale(${stretchN} 1)"`
-    : "";
+  // 그림자 filter defs — enabled 인 것만
+  const defsParts: string[] = [];
+  if (render.textShadow) defsParts.push(faviconFilterString(render.textShadow, textShadowId));
+  if (render.bgShadow) defsParts.push(faviconFilterString(render.bgShadow, bgShadowId));
+  const defs = defsParts.length ? `<defs>${defsParts.join("")}</defs>` : "";
 
-  // 이미지 업로드된 경우 — SVG <image> (변형 없이 그대로)
+  // 이미지 업로드된 경우 — SVG <image> (변형/그림자 없이 그대로)
   const inner = logoUrl
     ? `<image href="${esc(logoUrl)}" x="0" y="0" width="32" height="32" preserveAspectRatio="xMidYMid meet" />`
-    : `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="${esc(fontFamily)}" font-size="20" font-weight="${fontWeight}" fill="${esc(fg)}"${textTransform}>${esc(logoText)}</text>`;
+    : `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="${esc(render.fontFamily)}" font-size="${render.fontSize}" font-weight="${render.fontWeight}" fill="${esc(render.fgColor)}"${textTransform}${render.textShadow ? ` filter="url(#${textShadowId})"` : ""}>${esc(logoText)}</text>`;
 
-  const bgShape = shape === "none"
+  const bgShape = !render.hasBg
     ? ""
-    : `<rect x="0" y="0" width="32" height="32" rx="${radius}" ry="${radius}" fill="${esc(finalBg)}" />`;
+    : `<rect x="0" y="0" width="32" height="32" rx="${render.radius}" ry="${render.radius}" fill="${esc(render.bgColor)}"${render.bgShadow ? ` filter="url(#${bgShadowId})"` : ""} />`;
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">${bgShape}${inner}</svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">${defs}${bgShape}${inner}</svg>`;
 
   return new Response(svg, {
     headers: {

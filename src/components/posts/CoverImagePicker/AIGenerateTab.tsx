@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { Check, Download, RotateCw } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
-import LoadingDots from "@/components/ui/LoadingDots";
+import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
@@ -160,21 +160,17 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
             size="sm"
           />
         </div>
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          size="sm"
           className={styles.generateBtn}
           onClick={handleGenerate}
-          disabled={generating || !prompt.trim()}
+          loading={generating}
+          loadingVariant="wave"
+          disabled={!prompt.trim()}
         >
-          {generating ? (
-            <span className={styles.generateBtnLoading}>
-              <span>{tc("generating")}</span>
-              <LoadingDots />
-            </span>
-          ) : (
-            tc("generate")
-          )}
-        </button>
+          {tc("generate")}
+        </Button>
       </div>
 
       {!prompt && !previewUrl && (
@@ -214,31 +210,34 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={previewUrl} alt="AI generated cover" />
           <div className={styles.aiActions}>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
               className={styles.useBtn}
+              icon={<Check size={12} strokeWidth={2.5} />}
               onClick={() => permanentUrl && onSelect(permanentUrl)}
             >
-              <Check size={12} strokeWidth={2.5} />
-              <span>{tc("useThis")}</span>
-            </button>
-            <button
-              type="button"
+              {tc("useThis")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               className={styles.retryBtn}
+              icon={<Download size={12} strokeWidth={2} />}
               onClick={handleDownload}
             >
-              <Download size={12} strokeWidth={2} />
-              <span>{tc("download")}</span>
-            </button>
-            <button
-              type="button"
+              {tc("download")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               className={styles.retryBtn}
+              icon={<RotateCw size={12} strokeWidth={2} />}
               onClick={handleGenerate}
               disabled={generating}
             >
-              <RotateCw size={12} strokeWidth={2} />
-              <span>{tc("regenerate")}</span>
-            </button>
+              {tc("regenerate")}
+            </Button>
           </div>
         </div>
       )}

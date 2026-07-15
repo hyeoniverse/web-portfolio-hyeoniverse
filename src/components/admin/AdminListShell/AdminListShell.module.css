@@ -61,29 +61,6 @@
   opacity: 0.65;
 }
 
-/* ── Help button ── */
-.helpBtn {
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  flex-shrink: 0;
-  border-radius: var(--radius-circle);
-  border: var(--border-default);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.header .helpBtn:hover {
-  background: var(--bg-inverse);
-  border-color: var(--border-strong-color);
-  color: var(--text-inverse);
-}
-
 /* ── Filter Bar ── */
 .filterBar {
   display: flex;

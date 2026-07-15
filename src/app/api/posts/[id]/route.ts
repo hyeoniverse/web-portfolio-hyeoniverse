@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { titleTooLong, POST_TITLE_MAX } from "@/lib/postConstants";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensurePostCategory } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
@@ -7,6 +9,14 @@ import { fetchAutoCoverImage, extractKeywordsFromPost } from "@/lib/autoCoverIma
 
 interface RouteContext {
   params: Promise<{ id: string }>;
+}
+
+/* 발행/수정/삭제 후 공개 페이지 캐시를 즉시 무효화 — page 의 revalidate=60(ISR) 을 기다리지 않고 바로 반영.
+   목록(/posts)·홈(/)·해당 상세(/posts/[slug]) 를 revalidate. */
+function revalidatePublicPosts(slug?: string | null) {
+  revalidatePath("/posts");
+  revalidatePath("/");
+  if (slug) revalidatePath(`/posts/${slug}`);
 }
 
 // GET /api/posts/[id] — 단일 포스트 (admin 전용 — 비공개/휴지통 포함 raw 조회).
@@ -38,6 +48,15 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (authError) return authError;
 
   const body = await request.json();
+
+  // 제목 길이 제한 (UI·DB 와 동일 상한)
+  if (titleTooLong(body.title) || titleTooLong(body.title_en)) {
+    return NextResponse.json({ error: `title exceeds ${POST_TITLE_MAX} characters` }, { status: 400 });
+  }
+
+  // 낙관적 동시성 제어 — 에디터가 로드 시점 version 을 baseVersion 으로 보냄. 컬럼이 아니므로 분리.
+  const baseVersion = typeof body.baseVersion === "number" ? body.baseVersion : null;
+  delete body.baseVersion;
 
   // 카테고리 직접 입력 시 자동 등록 (기존 목록에 없으면)
   if (body.category) {
@@ -73,6 +92,31 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
   }
 
+  // baseVersion 이 있으면 조건부 갱신(버전 일치할 때만) + version 증가.
+  if (baseVersion !== null) {
+    const { data, error } = await admin
+      .from("posts")
+      .update({ ...body, version: baseVersion + 1 })
+      .eq("id", id)
+      .eq("version", baseVersion)
+      .select()
+      .single();
+
+    if (error) {
+      // 0행 갱신(PGRST116) = 없거나 version 불일치. 현재 version 확인해 충돌/404 구분.
+      if (error.code === "PGRST116") {
+        const { data: cur } = await admin.from("posts").select("version").eq("id", id).maybeSingle();
+        if (cur) {
+          return NextResponse.json({ error: "version_conflict", currentVersion: cur.version }, { status: 409 });
+        }
+        return NextResponse.json({ error: "not found" }, { status: 404 });
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    revalidatePublicPosts(data?.slug);
+    return NextResponse.json(data);
+  }
+
   const { data, error } = await admin
     .from("posts")
     .update(body)
@@ -84,6 +128,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  revalidatePublicPosts(data?.slug);
   return NextResponse.json(data);
 }
 
@@ -113,5 +158,6 @@ export async function DELETE(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  revalidatePublicPosts();
   return NextResponse.json({ success: true, retentionDays });
 }

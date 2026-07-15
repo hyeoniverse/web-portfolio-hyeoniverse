@@ -35,6 +35,7 @@ import { getTechIcon, normalizeTechName, getTechAliases } from "@/data/techIcons
 import { showToast } from "@/stores/toastStore";
 import { workToFormData, defaultForm } from "@/utils/workFormUtils";
 import { stripHtml } from "@/utils/htmlUtils";
+import { isVideoMedia } from "@/components/posts/plate/utils";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
@@ -1085,9 +1086,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [work?.id]);
 
-  // 커버 배너의 페이지 이모지 — 현재는 로컬 상태만 유지
-  // TODO: 이모지 저장 방식 확정 후 form/DB 연동
-  const [coverEmoji, setCoverEmoji] = useState<string | null>(null);
+  // 커버 배너의 페이지 이모지/아이콘 — form.icon 으로 저장(DB works.icon)
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [galleryViewerIdx, setGalleryViewerIdx] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -1328,6 +1327,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [editorLang, form, updateField, tw, openModal, closeAll]);
 
   const handleContentImageUpload = useCallback(async (file: File): Promise<string> => {
+    // 동영상 — 서버 body 한도 우회 위해 Storage 직접 업로드 (제한 초과 시 브라우저 압축).
+    if (file.type.startsWith("video/")) {
+      const { runVideoUpload } = await import("@/components/posts/plate/MediaUploadModal");
+      return runVideoUpload(file, undefined);
+    }
+
     const { compressImage, validateFileSize } = await import("@/lib/compressImage");
 
     const sizeError = validateFileSize(file);
@@ -1675,8 +1680,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           cover={form.image}
           onCoverChange={(url) => updateField("image", url)}
           onUpload={() => handleImageUpload("image")}
-          emoji={coverEmoji}
-          onEmojiChange={setCoverEmoji}
+          emoji={form.icon || null}
+          onEmojiChange={(e) => updateField("icon", e ?? "")}
         />
       }
     >
@@ -2001,11 +2006,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             onVideoUpload={async (file) => {
               const url = await handleContentImageUpload(file);
               plateRef.current?.insertMediaByUrl(url);
+              requestAnimationFrame(() => {
+                const imgs = plateRef.current?.getImages();
+                if (imgs) setEditorImages(imgs);
+              });
               return url;
             }}
             onBulkInsert={(items) => {
               for (const it of items) {
-                if (it.mediaType === "media_embed") plateRef.current?.insertMediaByUrl(it.url);
+                if (isVideoMedia(it.mediaType, it.url)) plateRef.current?.insertMediaByUrl(it.url);
                 else plateRef.current?.insertImageByUrl(it.url);
               }
               requestAnimationFrame(() => {
@@ -2014,7 +2023,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               });
             }}
             onReinsert={(url, mediaType) => {
-              if (mediaType === "media_embed") plateRef.current?.insertMediaByUrl(url);
+              if (isVideoMedia(mediaType, url)) plateRef.current?.insertMediaByUrl(url);
               else plateRef.current?.insertImageByUrl(url);
             }}
             onRemoveDetached={(url) => {

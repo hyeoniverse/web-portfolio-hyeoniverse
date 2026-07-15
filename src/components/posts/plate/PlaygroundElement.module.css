@@ -1,0 +1,457 @@
+/* ── 코드 플레이그라운드 블록 (Sandpack) ── */
+.pgBlock {
+  margin: var(--spacing-lg) 0;
+}
+
+/* ── 자체 srcdoc 러너 ── */
+.rnFrame {
+  display: block;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: none;
+  background: #fff;
+  /* 전역 .editorContent iframe(margin·radius) 무효화 */
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+.rnConsole {
+  height: 100%;
+  overflow: auto;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.rnConsoleEmpty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.rnLog {
+  padding: 2px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-bottom: 1px solid var(--border-light-color);
+}
+.rnLog[data-level="error"] { color: var(--text-accent); }
+.rnLog[data-level="warn"] { color: var(--text-warning); }
+.rnLog[data-level="info"] { color: var(--text-info); }
+.pgInner {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+/* 전체화면 */
+.pgFullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-fullscreen);
+  margin: 0;
+  border-radius: 0;
+}
+.pgFullscreen .pgSandpack {
+  flex: 1;
+  height: auto;
+  resize: none;
+}
+
+/* 상단 툴바 */
+.pgToolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-2xs);
+  border-bottom: 1px solid var(--border-light-color);
+}
+.pgTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: 0 var(--spacing-2xs);
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+.pgToolbarSpacer {
+  flex: 1;
+}
+
+/* Sandpack 컨테이너 — 높이는 하단 핸들(.pgResize)로 조절 */
+.pgSandpack {
+  position: relative;
+  min-height: 240px;
+  overflow: hidden;
+}
+/* SandpackProvider 래퍼(.sp-wrapper)가 높이를 안 물려줘서 전체화면 하단 여백이 생김
+   → 컨테이너 높이를 100% 로 채워 spWrap 의 height:100% 가 먹게 함 */
+.pgSandpack :global(.sp-wrapper),
+.spFullscreen :global(.sp-wrapper),
+:global(.reader-playground) :global(.sp-wrapper) {
+  height: 100%;
+}
+/* 블록 전체 높이 조절 핸들 (하단) */
+.pgResize {
+  position: relative;
+  height: 8px;
+  flex-shrink: 0;
+  cursor: row-resize;
+  border-top: 1px solid var(--border-light-color);
+  background: var(--bg-secondary);
+}
+.pgResize::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 2px;
+  transform: translate(-50%, -50%);
+  border-radius: var(--radius-capsule);
+  background: var(--border-default-color);
+  transition: background 0.12s ease;
+}
+.pgResize:hover::before {
+  background: var(--text-accent);
+}
+.pgLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+}
+
+/* Sandpack 커스텀 레이아웃 — 뷰바 + (탐색기 | 탭+에디터 | 핸들 | 미리보기+콘솔) */
+.spWrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.spViewBar {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex-shrink: 0;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border-bottom: 1px solid var(--border-light-color);
+  background: var(--bg-secondary);
+}
+/* 리더뷰에서는 상단바 좌우 여백을 더 넉넉히 */
+:global(.reader-playground) .spViewBar {
+  padding-left: var(--spacing-sm);
+  padding-right: var(--spacing-sm);
+}
+.spViewBarSpacer {
+  flex: 1;
+}
+.spViewBarDiv {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px var(--spacing-3xs);
+  background: var(--border-light-color);
+}
+.spRow {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+/* 에디터 컬럼 (커스텀 탭 + 코드) */
+.spEditorCol {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+/* 사이드바+코드+디버깅 영역 확대/축소 — 뷰바 zoom(--pg-view-zoom, spWrap 에서 상속) */
+.spExplorer,
+.spEditorCol {
+  zoom: var(--pg-view-zoom, 1);
+}
+/* 커스텀 탭 바 */
+.spTabs {
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid var(--border-light-color);
+  background: var(--bg-secondary);
+  scrollbar-width: none;
+}
+.spTabs::-webkit-scrollbar {
+  display: none;
+}
+.spTab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  flex-shrink: 0;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border-right: 1px solid var(--border-light-color);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+.spTab[data-active] {
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  box-shadow: inset 0 -2px 0 var(--text-accent);
+}
+.spTab:hover {
+  color: var(--text-primary);
+}
+/* 드래그 중인 탭 고스트 */
+.spTab[data-dragging] {
+  opacity: 0.4;
+}
+/* 드롭 위치 인디케이터 (탭 사이 세로 바) */
+.spTabInd {
+  flex: 0 0 2px;
+  align-self: stretch;
+  margin: 3px 0;
+  border-radius: var(--radius-circle);
+  background: var(--text-accent);
+}
+.spTabName {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.spTabClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+.spTab:hover .spTabClose,
+.spTab[data-active] .spTabClose {
+  opacity: 1;
+}
+.spTabClose:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+/* 파일 트리 */
+.spTree {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--spacing-3xs) 0;
+}
+.spTreeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  width: 100%;
+  padding: 3px var(--spacing-2xs);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.spTreeRow:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.spTreeRow[data-active] {
+  background: var(--bg-accent-subtle);
+  color: var(--text-primary);
+}
+.spTreeChevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.spTreeName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* 콘솔(디버그) 패널 — 코드뷰 아래, 높이 인라인 지정 */
+.spConsole {
+  flex-shrink: 0;
+  min-height: 80px;
+  overflow: hidden;
+}
+.spConsole > * {
+  height: 100%;
+}
+.spExplorer {
+  display: flex;
+  flex-direction: column;
+  width: 168px;
+  flex-shrink: 0;
+  min-height: 0;
+  border-right: 1px solid var(--border-light-color);
+}
+.spExplorerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border-bottom: 1px solid var(--border-light-color);
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+}
+.spExplorerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+/* VSCode 식 인라인 파일/폴더 이름 입력 — 트리 행 안에서 인라인 */
+.spTreeInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+}
+.spTreeInput::placeholder {
+  color: var(--text-muted);
+}
+.spTreeInput:focus {
+  outline: 1px solid var(--text-accent);
+  border-radius: var(--radius-sm);
+}
+.spIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.spIconBtn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+.spIconBtn[data-on] {
+  color: var(--text-accent);
+}
+/* 얇은 라인처럼 보이되 hit 영역은 넉넉하게(잡기 쉽게) */
+.spSplit {
+  position: relative;
+  flex: 0 0 5px;
+  align-self: stretch;
+  cursor: col-resize;
+}
+.spSplit::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: var(--border-light-color);
+  transition: background 0.12s ease, width 0.12s ease;
+}
+.spSplit:hover::before {
+  width: 2px;
+  background: var(--text-accent);
+}
+/* 콘솔 높이 조절(가로) 핸들 */
+.spSplitV {
+  position: relative;
+  flex: 0 0 5px;
+  cursor: row-resize;
+}
+.spSplitV::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  transform: translateY(-50%);
+  background: var(--border-light-color);
+  transition: background 0.12s ease, height 0.12s ease;
+}
+.spSplitV:hover::before {
+  height: 2px;
+  background: var(--text-accent);
+}
+.spPreviewCol {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+/* 주소창 바 우측 오버레이 — 미리보기 확대/축소·전체화면 버튼 */
+.spPreviewNav {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 var(--spacing-2xs);
+  z-index: 3;
+}
+/* 리더 자체 전체화면 래퍼(body portal) */
+.spFullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-fullscreen);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+/* 전역 .editorContent iframe(margin·radius) 무효화 — 컴포넌트 스코프로 확실히 덮어씀 */
+.spPreviewCol :global(.sp-preview-iframe),
+.spPreviewCol :global(.sp-preview-container),
+.spPreviewCol :global(.sp-preview) {
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+/* 미리보기 확대/축소 — 배율 != 1(data-zoomed) 일 때만 iframe 크기 재정의.
+   기본 상태에선 Sandpack 네이티브 sizing 을 그대로 둬 번들러 프리뷰 렌더에 간섭 안 함.
+   zoom 은 레이아웃까지 스케일 → 배율만큼 역보정해 컨테이너를 정확히 채움(여백 X). */
+.spPreviewCol[data-zoomed] :global(.sp-preview-iframe) {
+  display: block !important;
+  flex: none !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  zoom: var(--pg-zoom, 1);
+  width: calc(100% / var(--pg-zoom, 1)) !important;
+  height: calc(100% / var(--pg-zoom, 1)) !important;
+}

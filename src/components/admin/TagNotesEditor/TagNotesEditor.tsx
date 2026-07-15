@@ -511,18 +511,16 @@ export default function TagNotesEditor({
               </div>
             )}
             {/* readonly + editing body — 통합 ul (li 단위로 input/readonly swap, 깜빡임 방지).
-                padding-left 는 header 의 .tag 시작점과 정확히 일치: grip(14px) + gap(2xs) + [indexBadge(minChars ch + 8px padding) + gap] */}
+                설명 좌측 여백은 grip 까지만 맞추고 indexBadge 폭은 제외(너무 벌어져서) → 번호 아래쯤에서 시작. */}
             <AnimatePresence initial={false}>
               {entry && (
                 <motion.ul
                   key="body"
                   className={styles.readonly}
                   style={{
-                    paddingLeft: `calc(${
-                      !disableReorder ? "14px + var(--spacing-2xs)" : "0px"
-                    }${
-                      showIndex ? ` + ${indexMinChars}ch + 8px + var(--spacing-2xs)` : ""
-                    })`,
+                    paddingLeft: !disableReorder
+                      ? "calc(14px + var(--spacing-2xs))"
+                      : "var(--spacing-2xs)",
                   }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}

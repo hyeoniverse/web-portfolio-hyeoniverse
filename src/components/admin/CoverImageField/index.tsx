@@ -7,6 +7,7 @@ import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { extractPalette } from "./extractPalette";
 import styles from "./CoverImageField.module.css";
@@ -231,12 +232,11 @@ export default function CoverImageField({
         </div>
       )}
       {!value && urlInputPlaceholder !== undefined && (
-        <input
-          className={`${es.fieldInput} ${styles.urlInput}`}
-          type="text"
+        <Input
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={onChange}
           placeholder={urlInputPlaceholder}
+          className={styles.urlInput}
         />
       )}
       {!value && hint && <div className={styles.hint}>{hint}</div>}

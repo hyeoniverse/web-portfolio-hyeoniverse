@@ -658,7 +658,8 @@
         "about": "ABOUT",
         "works": "WORKS",
         "posts": "POSTS",
-        "about": "ABOUT"
+        "about": "ABOUT",
+        "calendars": "CALENDAR"
       },
       "aboutVisualBreak": "Break Image",
       "aboutVisualBreakImage": "Break image URL",
@@ -770,7 +771,53 @@
         "showAsRange": "Show as range",
         "ongoing": "Ongoing",
         "preview": "Preview"
-      }
+      },
+      "faviconFontSize": "Font size",
+      "faviconFontSizePlaceholder": "e.g. 20",
+      "faviconTextColorLight": "Light text",
+      "faviconTextColorDark": "Dark text",
+      "faviconTextShadow": "Text shadow",
+      "faviconBgShadow": "Background shadow",
+      "faviconShadowInset": "Inset",
+      "faviconShadowSize": "Size",
+      "faviconShadowSizeCustom": "Custom",
+      "faviconShadowCustom": "Blur",
+      "faviconShadowCustomPlaceholder": "px",
+      "faviconShadowColor": "Shadow color",
+      "faviconShadowColorPlaceholder": "rgba(0,0,0,0.4)",
+      "faviconShadowDirection": "Direction",
+      "faviconFontSizeCustom": "Custom",
+      "faviconContrastNoBg": "No background",
+      "faviconContrast_aaa": "AAA",
+      "faviconContrast_aa": "AA",
+      "faviconContrast_aaLarge": "Graphic 3:1",
+      "faviconContrast_fail": "Fail",
+      "commentSystem": "Comment System",
+      "commentProvider": "Provider",
+      "commentProviderSystem": "Built-in",
+      "giscusHint": "giscus embeds GitHub Discussions as comments. On a public repo: enable Discussions, install the giscus GitHub app, then get the repo/category IDs from giscus.app and paste them below.",
+      "giscusRepo": "Repository",
+      "giscusRepoId": "Repository ID",
+      "giscusCategory": "Discussion Category",
+      "giscusCategoryId": "Category ID",
+      "giscusMapping": "Page ↔ Discussion Mapping",
+      "giscusInputPosition": "Comment Box Position",
+      "giscusInputTop": "Top",
+      "giscusInputBottom": "Bottom",
+      "giscusReactions": "Enable main post reactions",
+      "giscusStrict": "Strict title matching",
+      "giscusEmitMetadata": "Emit metadata",
+      "giscusLazyLoading": "Lazy-load comments",
+      "giscusNeedsToken": "GITHUB_TOKEN is required — go set it",
+      "giscusLoadRepo": "Load repository",
+      "giscusLoading": "Loading…",
+      "giscusLoaded": "Categories loaded",
+      "giscusCategoryPick": "Select a category",
+      "giscusNoDiscussions": "Discussions is not enabled on this repository.",
+      "giscusThemeLight": "Theme (light mode)",
+      "giscusThemeDark": "Theme (dark mode)",
+      "giscusThemeCustom": "Custom (CSS URL)",
+      "giscusThemeHint": "giscus preset name (light, dark, noborder_dark…) or a custom CSS URL. Empty = default."
     },
     "posts": {
       "title": "Posts",
@@ -1059,7 +1106,8 @@
         "removeFromSeries": "Remove from series",
         "addPost": "Add post",
         "addPostHint": "Already loaded. Select below ↓",
-        "noAvailablePosts": "No available posts to add"
+        "noAvailablePosts": "No available posts to add",
+        "titleTooLong": "Title must be {{max}} characters or fewer"
       }
     },
     "works": {
@@ -1286,7 +1334,10 @@
     "copied": "Copied",
     "copyFailed": "Copy failed",
     "copyAllPalette": "Copy entire palette",
-    "paletteCopied": "Palette copied"
+    "paletteCopied": "Palette copied",
+    "mermaidDiagram": "Diagram",
+    "mermaidCode": "Code",
+    "mermaidSplit": "Split"
   },
   "workDetail": {
     "back": "Works",
@@ -1354,7 +1405,18 @@
     "report": "Report",
     "reportPlaceholder": "Reason (optional)",
     "confirmReport": "Report",
-    "reportThanks": "Reported. We'll review it shortly."
+    "reportThanks": "Reported. We'll review it shortly.",
+    "addReaction": "Add reaction",
+    "translatedResult": "Translated",
+    "expand": "Show more",
+    "collapse": "Show less",
+    "hardDeleteWarn": "This cannot be undone.",
+    "hardDeleteWarnReplies": "{n} repl{s} will also be permanently deleted. This cannot be undone.",
+    "write": "Write",
+    "preview": "Preview",
+    "markdownHint": "Markdown supported",
+    "previewEmpty": "Nothing to preview",
+    "giscusNotConfigured": "giscus is not configured yet. Ask the admin to enter the repository and category in Settings › Services › Comment System."
   },
   "postDetail": {
     "recommended": "Recommended for You",
@@ -1487,7 +1549,11 @@
     "noResultsFor": "No results for",
     "noPostsTagged": "No posts tagged",
     "noPostsInSeries": "No posts in series",
-    "noPostsInCategory": "No posts in"
+    "noPostsInCategory": "No posts in",
+    "seriesSearchAll": "Title+Desc",
+    "seriesSearchTitle": "Title",
+    "seriesSearchDesc": "Desc",
+    "seriesManage": "Manage series"
   },
   "bunny": {
     "name": "Mongi",
@@ -1840,6 +1906,19 @@
       "zoomOut": "Zoom out",
       "savePosition": "Save",
       "cancel": "Cancel"
-    }
+    },
+    "insertVideo": "Insert Video",
+    "insertCalendar": "Event Calendar",
+    "insertPostLink": "Link post",
+    "insertFootnote": "Insert Footnote",
+    "insertDiagram": "Diagram (visual)",
+    "insertEmoji": "Emoji",
+    "insertPlayground": "Playground (HTML·CSS·JS)",
+    "equalRowHeight": "Equalize Row Heights",
+    "equalColWidth": "Equalize Column Widths",
+    "tableStructure": "Structure",
+    "tableStyle": "Style",
+    "uploadFail": "Upload failed",
+    "uploadFailHint": "The file may be too large or an unsupported format. Check the format and size, then try again."
   }
 }

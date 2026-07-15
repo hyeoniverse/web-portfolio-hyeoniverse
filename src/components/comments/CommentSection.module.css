@@ -20,10 +20,68 @@
   margin-left: var(--spacing-xs);
 }
 
+/* 보기 영역(댓글 리스트) — 좌우 트임: 좌우 border/radius 없이 위아래 끝에만 hairline.
+   giscus `.gsc-timeline { border-top/bottom: 1px solid --color-border-muted }` 미러. */
+/* gap 없음 — 세로 리듬은 각 `.comment` 의 대칭 패딩(--spacing-lg)이 담당하고,
+   구분은 아래 `.list > * + *` 의 선이 한다. gap 을 주면 선 위쪽만 여백이 커져(gap+패딩 vs 패딩)
+   선이 아래 댓글에 붙어 보인다. giscus `.gsc-timeline > .gsc-comment { padding: 22px 0 }` 와 동일 구조. */
 .list {
   display: flex;
   flex-direction: column;
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
 }
+
+/* ※ 예전의 `.list > *:not(.listHeaderSlot)` 좌측 줄/패딩은 제거했다 —
+   스레드 줄과 들여쓰기가 CommentItem 의 아바타 거터로 흡수돼 중복이었다. */
+
+/* 루트 댓글끼리 구분선 — 답글은 `.list` 직속이 아니라 영향 없다.
+   좌측 줄이 거터 "안"으로 들어가서, 예전처럼 구분선과 만나 "⌐" 코너가 생기지 않는다. */
+.list > * + * {
+  border-top: var(--border-light);
+}
+
+/* 선택 모드 헤더 바로 아래 첫 댓글엔 구분선 제외 — 헤더는 댓글이 아니라 컨트롤 줄이라
+   그 사이 선은 "댓글끼리의 구분" 이라는 의미와 안 맞는다. */
+.listHeaderSlot + * {
+  border-top: none;
+}
+
+/* 선택 모드 헤더 — 전체 선택 + 일괄삭제. 선택 대상 바로 위에 붙는다.
+   슬롯은 height auto↔0 애니메이션용 (framer-motion). 패딩을 여기 두면 접혀도 남으므로
+   세로 패딩은 안쪽 .listHeader 가 갖고, 슬롯은 overflow 만 잘라낸다.
+   좌측 패딩 없음 — 각 댓글의 체크박스가 아바타 거터보다 앞선 열(= 댓글 왼쪽 끝)로 옮겨져서,
+   전체선택 체크박스도 x=0 이어야 세로로 정렬된다. */
+.listHeaderSlot {
+  overflow: hidden;
+  /* 공통 Checkbox 는 hover 시 outline(1.5px) + outline-offset(2px) 이라 박스 밖으로 3.5px 튀어나간다.
+     체크박스가 슬롯 맨 왼쪽(x=0)이라 위 overflow:hidden 이 그 outline 을 잘랐다.
+     → 슬롯 박스만 왼쪽으로 넓히고(-margin) 패딩으로 내용을 제자리에 되돌린다.
+        내용 x=0 은 그대로라 각 댓글 체크박스와의 세로 정렬도 유지된다.
+     ※ 이 음수 마진 때문에 슬롯 박스가 `.list` 왼쪽으로 삐져나간다 →
+       구분선은 여기 두면 안 되고, 안쪽 `.listHeader`(x=0 에서 시작)가 가져야 한다. */
+  margin-left: calc(-1 * var(--spacing-sm));
+  padding-left: var(--spacing-sm);
+}
+
+/* min-height — 일괄삭제 버튼(--control-h-sm)이 전체선택 체크박스(16px)보다 커서,
+   선택 개수가 0↔1 로 바뀌며 버튼이 붙었다 떨어질 때마다 헤더 높이가 튀었다.
+   가장 큰 내용물의 높이를 미리 확보해 버튼 유무와 무관하게 높이를 고정.
+   (전역 box-sizing: border-box 라 min-height 에 상하 패딩이 포함됨) */
+.listHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xs) 0;
+  min-height: calc(var(--control-h-sm) + var(--spacing-xs) * 2);
+  /* 구분선은 슬롯이 아니라 여기 — 슬롯은 outline 여유용 음수 마진 때문에 `.list` 밖으로 나가 있다.
+     이 요소는 x=0 에서 시작해 리스트 폭과 정확히 맞고, 슬롯 안이라 접힐 때 같이 사라진다. */
+  border-bottom: var(--border-light);
+}
+
+/* ※ 예전의 `.formZone` 입력 박스 래퍼는 제거했다 — 보더 + 2xl 은 CommentForm `.box` 가 직접 그린다.
+   폼이 [아바타 거터][박스] 2열이 되면서, 래퍼가 박스를 그리면 거터까지 감싸버려
+   박스 왼쪽 끝이 댓글 본문 컬럼과 어긋났다. 배치는 `.section` 의 flex gap 이 담당. */
 
 .empty {
   font-family: var(--font-space-grotesk);
@@ -34,53 +92,39 @@
 
 .headingRow {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
 }
 
-.selectModeBtn {
-  padding: var(--box-2xs-md);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-  cursor: pointer;
+.headingLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
-.bulkDeleteBtn {
-  padding: var(--box-2xs-md);
-  border: 1px solid var(--text-accent);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-accent);
-  cursor: pointer;
-  min-width: 5.5em;
-  font-variant-numeric: tabular-nums;
-  text-align: center;
-}
-
-.bulkDeleteBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.selectAllLabel {
+/* 정렬 Select + 역순 토글을 한 덩어리로 */
+.sortGroup {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-  cursor: pointer;
-  user-select: none;
+  flex-shrink: 0;
+  gap: var(--spacing-2xs);
+}
+
+.sortSelect {
+  flex-shrink: 0;
+}
+
+/* 역순 토글 / 선택 / 일괄삭제 / 더보기 버튼은 공통 Button 컴포넌트를 사용.
+   variant="outline" + active(inverse 채움) / tone="danger" / loading(자동 disabled + 너비 보존)
+   이 기존 수동 스타일을 전부 대체하므로 여기 대응 클래스는 없앴다. */
+
+/* 헤딩 우측 묶음 — 전체선택 Checkbox / 일괄삭제 / 선택 토글 배치 전용 */
+.headingRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: auto;
 }
 
 .disclaimer {
@@ -91,19 +135,8 @@
   flex-shrink: 0;
 }
 
-.loadMore {
-  align-self: center;
-  padding: var(--spacing-xs) var(--spacing-xl);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.loadMore:hover {
-  color: var(--text-primary);
-  border-color: var(--text-secondary);
+/* 더보기 버튼 래퍼 — 스타일은 공통 Button 이 가지고, 가운데 정렬만 래퍼가 담당 */
+.loadMoreRow {
+  display: flex;
+  justify-content: center;
 }

@@ -20,9 +20,9 @@
   gap: var(--spacing-xs);
   padding: var(--box-md);
   border-radius: var(--radius-capsule);
-  /* 배경색 없이 backdrop blur 만 — glass. (배경 채움 금지) */
-  background: transparent;
-  backdrop-filter: blur(12px) saturate(180%);
+  /* 글래스 패널 — Select/Popover/DatePicker 와 동일 표면 */
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
   color: var(--text-primary);
   border: var(--border-light);
   font-family: var(--font-space-grotesk);

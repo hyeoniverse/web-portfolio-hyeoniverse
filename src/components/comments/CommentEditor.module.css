@@ -1,0 +1,199 @@
+/* 댓글 에디터 공용 스타일 — 새 댓글/답글(CommentForm) + 수정 폼(CommentItem) 이 공유.
+
+   gap 0 + 각 요소가 자기 여백을 직접 가짐. 컨테이너가 gap 을 주면 안 되는 이유:
+   에디터 바로 아래 붙는 CommentForm 의 footer 구분선이 textarea 에 맞닿아야 하는데,
+   gap 이 있으면 그 사이가 벌어진다. */
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Write/Preview 탭 + 서식 툴바 + 마크다운 도움말 한 행.
+   pill 은 공통 SegmentedControl 이 담당하므로 여기선 배치만.
+   flex-wrap — 답글은 중첩될수록 폭이 좁아져 툴바가 넘칠 수 있다. 접히더라도 탭과 같은 왼쪽 축 유지. */
+.editorHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  padding: var(--spacing-xs);
+}
+
+/* 서식 툴바 — 헤더 행 안에 인라인으로 들어간다.
+   패딩 없음: 바깥 .editorHeader 가 행 패딩을 담당 (예전엔 별도 행이라 자기 패딩을 가졌었다).
+   flex: 1 — 도움말 버튼을 오른쪽 "끝" 으로 보내려면 툴바가 남는 폭을 다 먹어야 한다.
+   gap 0 — 그룹 사이 간격은 아래 .toolbarGroup 의 좌우 패딩이 만든다. gap 으로 벌리면
+   그룹 구분선(::before)이 그 빈 gap 한가운데가 아니라 그룹 왼쪽 끝에 붙어버린다. */
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+/* 라벨 + 버튼 한 덩어리 — 좁아지면 그룹 통째로 줄바꿈되어 라벨만 홀로 떨어지지 않는다.
+   좌우 패딩이 그룹 사이 간격 = 구분선 양옆 여백. */
+.toolbarGroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: 0 var(--spacing-sm);
+}
+
+/* 그룹 사이 세로 구분선 — 간격 차이(그룹 사이 vs 그룹 안)만으론 경계가 약했다.
+   첫 그룹 앞엔 없어야 하므로 * + * 로 "앞에 형제가 있는 그룹" 에만.
+   ::before 로 그림 — 별도 DOM 을 넣으면 그게 flex item 이 되어 줄바꿈 시
+   구분선만 줄 첫머리에 홀로 떨어질 수 있다. */
+.toolbarGroup + .toolbarGroup::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: var(--spacing-md);
+  border-left: var(--border-default);
+}
+
+/* 첫 그룹 왼쪽 패딩 제거 — 위 [작성|미리보기] 세그먼트와 왼쪽 축을 맞춘다 */
+.toolbarGroup:first-child {
+  padding-left: 0;
+}
+
+/* 그룹 라벨 — 읽으라는 게 아니라 버튼 묶음의 경계를 세우는 용도라 가장 약한 위계로.
+   버튼(28px)보다 낮은 위계여야 아이콘이 먼저 읽힌다.
+   uppercase + letter-spacing 은 치트시트 제목(.helpTitle)과 같은 "구획 라벨" 결. */
+.toolbarGroupLabel {
+  flex-shrink: 0;
+  margin-right: var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* 도움말 — 서식 버튼이 아니라 안내라 툴바 오른쪽 끝에 따로 앉힌다.
+   Popover 의 className 은 trigger span 에 붙는다 (배치 전용, 시각 스타일 override 아님). */
+.toolbarHelp {
+  margin-left: auto;
+}
+
+/* 마크다운 치트시트 popover */
+.helpPopover {
+  padding: var(--spacing-md);
+}
+
+.helpPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  min-width: 220px;
+}
+
+.helpTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* 문법 / 설명 표 — 댓글 본문 표(CommentMarkdown table)와 같은 결:
+   외곽/세로선 없이 가로 규칙만, 행 배경 없음. 좌우 트인 라인 테이블. */
+.helpTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+/* 표 헤더 — bold + 배경 band 로 본문 행과 확실히 갈라놓는다.
+   구분선만으론 아래 행들의 구분선과 굵기가 같아 헤더가 그냥 첫 행처럼 읽혔다. */
+.helpTable th {
+  padding: var(--box-xs);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* 셀 — 세로 가운데 대신 위 정렬. 코드 블록/표처럼 3줄짜리 문법 옆의 한 줄 설명이
+   가운데로 뜨면 어느 문법에 대한 설명인지 눈으로 잇기 어렵다. */
+.helpTable td {
+  padding: var(--box-xs);
+  border-bottom: var(--border-light);
+  vertical-align: top;
+}
+
+/* 두 열 사이 간격 — 열 사이 세로선이 없으니 여백이 그 역할을 한다 */
+.helpTable th:first-child,
+.helpTable td:first-child {
+  padding-right: var(--spacing-lg);
+}
+
+/* 마지막 행 아래 규칙 제거 → 표 아래쪽도 트임 (본문 표와 동일) */
+.helpTable tr:last-child td {
+  border-bottom: none;
+}
+
+/* 문법 — 배경/보더 없는 순수 코드. 표가 이미 행을 갈라주므로 칩으로 또 감쌀 이유가 없다.
+   white-space: pre — 코드 블록/표는 줄바꿈이 있어야 문법이 성립한다(펜스, | --- | 구분행). */
+.helpCode {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre;
+}
+
+.helpDesc {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* textarea — giscus `.gsc-comment-box-textarea` 미러:
+   배경 투명, radius 0 (감싸는 박스가 통째로 clip), 기본 보더는 투명 1px 로 자리만 잡아
+   포커스 시 보더가 생겨도 레이아웃이 밀리지 않음.
+   compound (0,2,0) — 공통 Textarea 의 `.textarea` (0,1,0) / `.textarea:focus` (0,1,1) /
+   `.editable:focus` (0,1,1) 를 확실히 override (CSS Module 간 동일 specificity 순서 의존 회피).
+   기존 CommentForm 의 `.form .textarea` 와 동일 특정도 — 루트 `.editor` 가 `.form` 자리를 대신한다. */
+.editor .textarea {
+  border: var(--border-width-thin) solid transparent;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* 포커스 = textarea 에만 옅은 accent 보더 (giscus `.gsc-comment-box-textarea:focus` → --color-accent-light).
+   공통 Textarea 기본 포커스는 --text-primary(중립) 라 여기서 accent 로 교체. */
+.editor .textarea:focus {
+  border-color: var(--border-accent-color);
+}
+
+/* Preview — giscus `.gsc-comment-box-preview { border-bottom: 0; padding: 14px }` 미러:
+   보더/radius 없이 textarea 와 동일 패딩(--textarea-p) → Write↔Preview 전환 시 글 시작 위치가 안 틀어짐.
+   보더는 textarea 와 같은 투명 1px 로 남겨 전환 시 1px 만큼도 안 흔들리게.
+   높이는 CommentEditor 가 작성창 실측값을 inline height 로 물려준다 (min-height 는 그 전 폴백).
+   overflow-y: auto — 렌더된 마크다운이 그 높이를 넘으면 상자를 늘리지 말고 안에서 스크롤. */
+.previewArea {
+  min-height: 84px;
+  padding: var(--textarea-p);
+  border: var(--border-width-thin) solid transparent;
+  border-radius: 0;
+  overflow-y: auto;
+}
+
+.previewEmpty {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  font-style: italic;
+}

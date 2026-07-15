@@ -10,6 +10,8 @@
  * =============================================================================
  */
 
+import type { Author } from "@/types/author";
+
 export const siteConfig = {
   // ---------------------------------------------------------------------------
   // 개인 정보
@@ -22,6 +24,21 @@ export const siteConfig = {
     status: "Open to Opportunities", // 현재 상태 (예: "채용 가능", "구직 중")
     profileImage: "/images/profile_pic.webp", // 프로필 사진 경로 (works detail TEAM 등에 사용)
   },
+
+  // ---------------------------------------------------------------------------
+  // 작성자(Author) 목록 — 게시물의 author_ids 가 여기 id 를 참조. admin 설정에서 관리.
+  // ---------------------------------------------------------------------------
+  authors: [
+    {
+      id: "owner",
+      name: "Kim JeongHyeon",
+      avatar: "/images/profile_pic.webp",
+      role: "Frontend Focused Fullstack Developer",
+      email: "hyeoniverse.dev@gmail.com",
+      bio: "",
+      links: [{ platform: "github", url: "https://github.com/hyeoniverse" }],
+    },
+  ] as Author[],
 
   // ---------------------------------------------------------------------------
   // 브랜드 / 사이트 아이덴티티
@@ -39,6 +56,13 @@ export const siteConfig = {
     faviconWeight: "light" as "light" | "regular" | "bold", // favicon 텍스트 weight (default 가장 얇은 light)
     faviconBgLight: "", // 라이트 favicon 배경색 (빈 값 = preset.dark 자동 사용)
     faviconBgDark: "", // 다크 favicon 배경색 (빈 값 = preset.light 자동 사용)
+    faviconFontSize: "20", // favicon 텍스트 폰트 크기 (px, viewBox 0~32 기준). 8~30 clamp
+    faviconColor: "", // 라이트 favicon 글자색 override (빈 값 = preset 자동 계산)
+    faviconColorDark: "", // 다크 favicon 글자색 override (빈 값 = preset 자동 계산)
+    // favicon 텍스트 그림자 — enabled=false 면 미적용 (하위호환). angle: 나침반식 0=위, 시계방향 (135=우하단)
+    faviconTextShadow: { enabled: false, inset: false, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
+    // favicon 배경(rect) 그림자 — 32×32 라 outer 공간 없어 inset 기본. enabled=false 면 미적용
+    faviconBgShadow: { enabled: false, inset: true, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
     logoShortUrl: "", // 빈 문자열 = 텍스트 로고(logoText) 사용
     logoShortDarkUrl: "", // 다크 모드 숏 로고 (빈 문자열 = logoShortUrl 사용)
     logoFullUrl: "", // 빈 문자열 = 텍스트 로고(displayName) 사용
@@ -234,9 +258,9 @@ export const siteConfig = {
       "image/svg+xml": 2,
       "image/gif": 10,
       // video
-      "video/mp4": 50,
-      "video/webm": 50,
-      "video/quicktime": 50, // MOV (iOS 흔함)
+      "video/mp4": 200,
+      "video/webm": 200,
+      "video/quicktime": 200, // MOV (iOS 흔함)
       // audio
       "audio/mpeg": 20,
       "audio/wav": 20,
@@ -327,78 +351,102 @@ export const siteConfig = {
       | "cinematic"
       | "magazine",
     bannerTransition: "cylinder" as "default" | "cylinder",
+    // 목록 카드 배치 — magazine(사이즈 변주 매거진) / grid(균일 격자·이미지 우선) / list(수평 행) / compact(텍스트형)
+    layout: "magazine" as "magazine" | "grid" | "list" | "compact" | "masonry" | "featured",
     perPage: 10,
     adminPerPage: 20,
+    // 기본 카테고리 — 성격/의도 기준 플랫 6개(배포용 기본값). 2단계 기능은 유지되며 '학습'만 소분류 사용.
+    // posts.category 엔 leaf 문자열만 저장(개발/알고리즘/CS/인사이트/회고/일상/기타). '학습'은 소분류를 담는 컨테이너.
     categories: [
       {
-        ko: "프론트엔드",
-        en: "Frontend",
+        ko: "개발",
+        en: "Development",
         description: {
-          ko: "브라우저에서 사용자가 직접 마주하는 UI·인터랙션·상태 관리. React · Next.js · CSS · 접근성 등 클라이언트 사이드 주제를 포괄합니다.",
-          en: "User-facing UI, interaction, and state in the browser. Covers client-side topics like React, Next.js, CSS, and accessibility.",
+          ko: "화면 너머 사용자에게 닿는 제품을 실제로 만들어 가는 이야기를 담습니다. 프론트엔드의 인터페이스부터 백엔드의 데이터 흐름, DevOps의 배포까지 코드로 완성되는 전 과정을 다룹니다.",
+          en: "Building real products — split into frontend, backend, and DevOps. Posts spanning layers stay at 'Development'; tooling, workflow, and specific tech (React, Docker, …) go to tags.",
         },
+        children: [
+          {
+            ko: "프론트엔드",
+            en: "Frontend",
+            description: {
+              ko: "브라우저에서 사용자가 직접 마주하는 UI·인터랙션·상태 관리를 다룹니다. React · Next.js · CSS · 접근성 등 클라이언트 사이드 주제를 포괄합니다.",
+              en: "User-facing UI, interaction, and state in the browser. Covers client-side topics like React, Next.js, CSS, and accessibility.",
+            },
+          },
+          {
+            ko: "백엔드",
+            en: "Backend",
+            description: {
+              ko: "서버·API·데이터베이스·인증 등 서버 사이드 로직과 데이터 흐름을 다룹니다. Node · Python · SQL · 메시지 큐 등을 살펴봅니다.",
+              en: "Server, API, database, and auth — server-side logic and data flow. Covers Node, Python, SQL, message queues, and more.",
+            },
+          },
+          {
+            ko: "DevOps",
+            en: "DevOps",
+            description: {
+              ko: "배포·CI/CD·인프라·모니터링·관측성을 아우릅니다. 컨테이너, IaC, 로그·트레이싱·알람 같은 운영 자동화 주제를 다룹니다.",
+              en: "Deployment, CI/CD, infra, monitoring, and observability. Containers, IaC, logs, tracing, alerting — operational automation topics.",
+            },
+          },
+        ],
       },
       {
-        ko: "백엔드",
-        en: "Backend",
+        ko: "학습",
+        en: "Learning",
         description: {
-          ko: "서버·API·데이터베이스·인증 등 서버 사이드 로직과 데이터 흐름. Node · Python · SQL · 메시지 큐 등을 다룹니다.",
-          en: "Server, API, database, and auth — server-side logic and data flow. Covers Node, Python, SQL, message queues, and more.",
+          ko: "개발을 떠받치는 기초 지식을 파고들어 내 것으로 만드는 공간입니다. 알고리즘 풀이와 CS 원리를 곱씹으며 왜 그렇게 동작하는지까지 정리합니다.",
+          en: "Studying and consolidating the knowledge under the craft — algorithms, CS, and more.",
         },
+        children: [
+          {
+            ko: "알고리즘",
+            en: "Algorithm",
+            description: {
+              ko: "자료구조·문제풀이·복잡도 분석을 다룹니다. 코딩 테스트 풀이 회고나 직무 중 마주친 알고리즘 응용을 정리합니다.",
+              en: "Data structures, problem solving, and complexity analysis. Coding-test retros and real-world algorithmic applications.",
+            },
+          },
+          {
+            ko: "CS",
+            en: "CS",
+            description: {
+              ko: "운영체제·네트워크·컴파일러·DB 이론 등 컴퓨터 과학 기초를 다룹니다. 면접 정리부터 깊이 있는 원리 탐구까지 폭넓게 담습니다.",
+              en: "Computer science foundations — OS, networks, compilers, DB theory. From interview notes to deep dives into first principles.",
+            },
+          },
+        ],
       },
       {
-        ko: "DevOps",
-        en: "DevOps",
+        ko: "인사이트",
+        en: "Insights",
         description: {
-          ko: "배포·CI/CD·인프라·모니터링·관측성. 컨테이너, IaC, 로그·트레이싱·알람 같은 운영 자동화 주제.",
-          en: "Deployment, CI/CD, infra, monitoring, and observability. Containers, IaC, logs, tracing, alerting — operational automation topics.",
-        },
-      },
-      {
-        ko: "알고리즘",
-        en: "Algorithm",
-        description: {
-          ko: "자료구조·문제풀이·복잡도 분석. 코딩 테스트 풀이 회고나 직무 중 마주친 알고리즘 응용을 정리합니다.",
-          en: "Data structures, problem solving, and complexity analysis. Coding-test retros and real-world algorithmic applications.",
-        },
-      },
-      {
-        ko: "CS",
-        en: "CS",
-        description: {
-          ko: "운영체제·네트워크·컴파일러·DB 이론 등 컴퓨터 과학 기초. 면접 정리부터 깊이 있는 원리 탐구까지.",
-          en: "Computer science foundations — OS, networks, compilers, DB theory. From interview notes to deep dives into first principles.",
-        },
-      },
-      {
-        ko: "도구·생산성",
-        en: "Tools & Productivity",
-        description: {
-          ko: "에디터·터미널·CLI·자동화 스크립트 등 일을 빠르게 만드는 도구와 워크플로. Claude · Cursor 같은 AI 보조 활용도 포함.",
-          en: "Editors, terminals, CLIs, and automation that speed up work. Includes AI-assisted workflows like Claude and Cursor.",
+          ko: "코드 한 줄이 아니라 판 전체를 바라보며 던지는 생각을 모읍니다. 기술 트렌드와 업계 흐름, 커리어에 대한 고민을 나름의 시선으로 풀어냅니다.",
+          en: "Trends, tech commentary, industry and career — pieces that step back and look at the landscape.",
         },
       },
       {
         ko: "회고",
         en: "Retrospective",
         description: {
-          ko: "프로젝트·이슈·학습 사이클을 돌아보며 무엇이 잘 됐고 무엇을 바꿀지 정리. 분기·연말 회고와 사이드 프로젝트 후기.",
-          en: "Looking back on projects, issues, and learning cycles — what worked and what to change. Quarterly, yearly, and side-project reviews.",
+          ko: "지나온 프로젝트와 이슈, 학습 사이클을 멈춰 서서 돌아봅니다. 무엇이 잘됐고 무엇이 아쉬웠는지 솔직하게 짚으며 다음을 준비합니다.",
+          en: "Looking back on projects, issues, and learning cycles. Quarterly, yearly, and side-project reviews.",
         },
       },
       {
         ko: "일상",
         en: "Life",
         description: {
-          ko: "코드 바깥의 기록 — 일상의 단상, 취향, 공간, 사람. 기술 블로그의 여백을 채우는 글들.",
-          en: "Notes from outside the code — daily thoughts, tastes, places, people. The breathing space around a tech blog.",
+          ko: "코드 바깥에서 흘러가는 순간들을 기록합니다. 문득 스친 단상과 취향, 머물렀던 공간과 만난 사람에 대한 이야기를 담습니다.",
+          en: "Notes from outside the code — daily thoughts, tastes, places, people.",
         },
       },
       {
         ko: "기타",
         en: "Etc",
         description: {
-          ko: "위 분류에 깔끔히 들어가지 않는 글들. 새 카테고리로 분리되기 전 임시 보관함.",
+          ko: "아직 어느 분류에도 딱 맞아떨어지지 않는 글을 잠시 품어 둡니다. 이야기가 쌓여 결이 뚜렷해지면 새 카테고리로 독립합니다.",
           en: "Posts that don't fit cleanly above. A holding area before they get their own category.",
         },
       },
@@ -812,6 +860,39 @@ export const siteConfig = {
   commentEmailNotify: false,
 
   // ---------------------------------------------------------------------------
+  // 댓글 시스템
+  // ---------------------------------------------------------------------------
+  // provider: "system" (내장 커스텀 댓글) | "giscus" (GitHub Discussions 위젯)
+  //
+  // giscus 사용 시 (giscus.app 에서 발급):
+  //   1. 공개 저장소에서 Discussions 기능 활성화
+  //   2. giscus GitHub 앱 설치 (github.com/apps/giscus)
+  //   3. giscus.app 에서 repo/category 선택 → repoId·categoryId 발급
+  //   4. 발급값을 admin 설정 > 서비스 > 댓글 시스템 에 입력
+  // ---------------------------------------------------------------------------
+  comments: {
+    provider: "system" as "system" | "giscus",
+    // 내장(시스템) 댓글 입력란 위치 (top = 리스트 위 / bottom = 리스트 아래, 기본)
+    systemInputPosition: "bottom" as "top" | "bottom",
+    giscus: {
+      repo: "", // "owner/name" 형식
+      repoId: "", // giscus.app 발급
+      category: "", // Discussion 카테고리 이름 (예: "Announcements")
+      categoryId: "", // giscus.app 발급
+      mapping: "pathname" as "pathname" | "og:title" | "title" | "url" | "specific" | "number",
+      reactionsEnabled: true, // 메인 포스트 리액션 표시
+      inputPosition: "bottom" as "top" | "bottom", // 코멘트 입력창 위치
+      // giscus.app 부가 옵션
+      strict: false, // 엄격한 제목 일치 (data-strict)
+      emitMetadata: false, // 메타데이터 보내기 (data-emit-metadata)
+      lazyLoading: true, // 댓글 느리게 불러오기 (data-loading=lazy)
+      // 테마 — giscus 프리셋 이름("light","dark","noborder_dark","transparent_dark"…) 또는 커스텀 CSS URL. 빈 값이면 기본 light/dark.
+      themeLight: "", // 라이트 모드에서 쓸 giscus 테마 (빈 값 = "light")
+      themeDark: "", // 다크 모드에서 쓸 giscus 테마 (빈 값 = "dark")
+    },
+  },
+
+  // ---------------------------------------------------------------------------
   // 비밀번호 정책
   // ---------------------------------------------------------------------------
   // "secure": 8자 이상 + 대문자·소문자·숫자·특수문자 포함
@@ -833,87 +914,87 @@ export const siteConfig = {
   //                                                                ko/en 비면 canonical key 로 fallback)
   // ---------------------------------------------------------------------------
   tagDescriptions: {
-    react: {
+    React: {
       ko: "리액트",
       en: "React",
       description: {
-        ko: "선언적·컴포넌트 기반 UI 라이브러리. 상태→뷰 매핑을 단순화하고 hooks 로 부수효과·재사용 로직을 격리합니다.",
+        ko: "선언적·컴포넌트 기반 UI 라이브러리입니다. 상태→뷰 매핑을 단순화하고 hooks 로 부수효과·재사용 로직을 격리합니다.",
         en: "Declarative component-based UI library. Simplifies state-to-view mapping; hooks isolate side effects and reusable logic.",
       },
     },
-    nextjs: {
+    "Next.js": {
       ko: "Next.js",
       en: "Next.js",
       description: {
-        ko: "React 풀스택 프레임워크. App Router · 서버 컴포넌트 · 라우트 핸들러로 SSR/ISR/CSR 을 한 곳에서 다룹니다.",
+        ko: "React 풀스택 프레임워크입니다. App Router · 서버 컴포넌트 · 라우트 핸들러로 SSR/ISR/CSR 을 한 곳에서 다룹니다.",
         en: "React full-stack framework. App Router, server components, and route handlers unify SSR/ISR/CSR in one place.",
       },
     },
-    typescript: {
+    TypeScript: {
       ko: "타입스크립트",
       en: "TypeScript",
       description: {
-        ko: "정적 타입을 더한 JavaScript. 리팩터·자동완성·계약형 API 표현 등 대규모 코드베이스 유지보수에 강점.",
+        ko: "정적 타입을 더한 JavaScript입니다. 리팩터·자동완성·계약형 API 표현 등 대규모 코드베이스 유지보수에 강점이 있습니다.",
         en: "JavaScript with static types. Strong on refactoring, autocomplete, and contract-style APIs at scale.",
       },
     },
-    css: {
+    CSS: {
       ko: "CSS",
       en: "CSS",
       description: {
-        ko: "레이아웃·타이포·모션을 선언하는 스타일 언어. Grid · Flexbox · Container Queries · custom properties 가 현대적 도구입니다.",
+        ko: "레이아웃·타이포·모션을 선언하는 스타일 언어입니다. Grid · Flexbox · Container Queries · custom properties 가 현대적 도구입니다.",
         en: "Style language for layout, typography, motion. Grid, Flexbox, container queries, and custom properties are the modern toolkit.",
       },
     },
-    "three.js": {
+    "Three.js": {
       ko: "Three.js",
       en: "Three.js",
       description: {
-        ko: "브라우저에서 WebGL 을 다루는 3D 라이브러리. 카메라·라이트·머티리얼·셰이더로 인터랙티브 그래픽을 구성합니다.",
+        ko: "브라우저에서 WebGL 을 다루는 3D 라이브러리입니다. 카메라·라이트·머티리얼·셰이더로 인터랙티브 그래픽을 구성합니다.",
         en: "WebGL-based 3D library for the browser. Cameras, lights, materials, and shaders build interactive graphics.",
       },
     },
-    gsap: {
+    GSAP: {
       ko: "GSAP",
       en: "GSAP",
       description: {
-        ko: "고성능 타임라인 기반 애니메이션 라이브러리. ScrollTrigger 로 스크롤 동기 인터랙션을 정교하게 만들 수 있습니다.",
+        ko: "고성능 타임라인 기반 애니메이션 라이브러리입니다. ScrollTrigger 로 스크롤 동기 인터랙션을 정교하게 만들 수 있습니다.",
         en: "High-performance timeline animation library. ScrollTrigger enables precise scroll-driven interactions.",
       },
     },
-    "framer-motion": {
+    "Framer Motion": {
       ko: "Framer Motion",
       en: "Framer Motion",
       description: {
-        ko: "React 친화적 선언형 애니메이션 라이브러리. layout · AnimatePresence · variants 로 진입·전환을 직관적으로 표현.",
+        ko: "React 친화적 선언형 애니메이션 라이브러리입니다. layout · AnimatePresence · variants 로 진입·전환을 직관적으로 표현합니다.",
         en: "Declarative React-friendly animation library. layout, AnimatePresence, and variants make entrances and transitions intuitive.",
       },
     },
-    supabase: {
+    Supabase: {
       ko: "Supabase",
       en: "Supabase",
       description: {
-        ko: "Postgres 기반 BaaS. 인증·DB·스토리지·realtime·edge function 을 한 SDK 로 제공합니다.",
+        ko: "Postgres 기반 BaaS입니다. 인증·DB·스토리지·realtime·edge function 을 한 SDK 로 제공합니다.",
         en: "Postgres-based BaaS. Auth, DB, storage, realtime, and edge functions through a single SDK.",
       },
     },
-    postgresql: {
+    PostgreSQL: {
       ko: "PostgreSQL",
       en: "PostgreSQL",
       description: {
-        ko: "오픈소스 관계형 데이터베이스. JSONB · 풀텍스트 검색 · 윈도우 함수 등 풍부한 기능을 제공합니다.",
+        ko: "오픈소스 관계형 데이터베이스입니다. JSONB · 풀텍스트 검색 · 윈도우 함수 등 풍부한 기능을 제공합니다.",
         en: "Open-source relational database. Rich features include JSONB, full-text search, and window functions.",
       },
     },
-    performance: {
+    Performance: {
       ko: "성능",
       en: "Performance",
       description: {
-        ko: "로드·렌더·인터랙션 비용을 측정하고 줄이는 작업. Core Web Vitals · 번들 · 캐시 · 메모리가 주요 축입니다.",
+        ko: "로드·렌더·인터랙션 비용을 측정하고 줄이는 작업입니다. Core Web Vitals · 번들 · 캐시 · 메모리가 주요 축입니다.",
         en: "Measuring and reducing load/render/interaction cost. Core Web Vitals, bundles, caching, and memory are the main axes.",
       },
     },
-    accessibility: {
+    Accessibility: {
       ko: "접근성",
       en: "Accessibility",
       description: {
@@ -921,12 +1002,556 @@ export const siteConfig = {
         en: "Design discipline ensuring equivalent experience across keyboards, screen readers, reduced motion, and other contexts.",
       },
     },
-    "design-system": {
+    "Design System": {
       ko: "디자인 시스템",
       en: "Design System",
       description: {
-        ko: "토큰·컴포넌트·패턴을 일관된 규칙으로 정리한 체계. 시각·동작·접근성 결정을 코드에 고정해 확산합니다.",
+        ko: "토큰·컴포넌트·패턴을 일관된 규칙으로 정리한 체계입니다. 시각·동작·접근성 결정을 코드에 고정해 확산합니다.",
         en: "A coordinated system of tokens, components, and patterns that codifies visual, behavioral, and a11y decisions for reuse.",
+      },
+    },
+    JavaScript: {
+      ko: "자바스크립트",
+      en: "JavaScript",
+      description: {
+        ko: "웹을 구동하는 동적 프로그래밍 언어입니다. 프로토타입 기반 · 일급 함수 · 이벤트 루프를 특징으로 하며 브라우저·서버 양쪽에서 실행됩니다.",
+        en: "Dynamic programming language that powers the web. Prototype-based, first-class functions, and an event loop; runs on both browser and server.",
+      },
+    },
+    HTML: {
+      ko: "HTML",
+      en: "HTML",
+      description: {
+        ko: "웹 문서의 구조를 정의하는 마크업 언어입니다. 시맨틱 요소로 의미 · 접근성 · SEO 를 뒷받침합니다.",
+        en: "Markup language that defines web document structure. Semantic elements support meaning, accessibility, and SEO.",
+      },
+    },
+    "Tailwind CSS": {
+      ko: "Tailwind CSS",
+      en: "Tailwind CSS",
+      description: {
+        ko: "유틸리티 우선 CSS 프레임워크입니다. 클래스 조합으로 스타일을 구성하고 디자인 토큰 · 반응형 · 다크모드를 일관되게 관리합니다.",
+        en: "Utility-first CSS framework. Compose styles from classes; manages design tokens, responsive, and dark mode consistently.",
+      },
+    },
+    Animation: {
+      ko: "애니메이션",
+      en: "Animation",
+      description: {
+        ko: "요소의 시간 기반 시각 변화를 다루는 작업입니다. transition · keyframes · 스프링 물리 · compositing 성능이 주요 축입니다.",
+        en: "Working with time-based visual change of elements. Transitions, keyframes, spring physics, and compositing performance are the main axes.",
+      },
+    },
+    "State Management": {
+      ko: "상태 관리",
+      en: "State Management",
+      description: {
+        ko: "애플리케이션 상태의 저장 · 갱신 · 공유를 다루는 작업입니다. 로컬·전역 상태 · 서버 상태 · 불변성 · 리렌더 최적화가 주요 축입니다.",
+        en: "Handling storage, update, and sharing of application state. Local/global state, server state, immutability, and re-render optimization are the main axes.",
+      },
+    },
+    SEO: {
+      ko: "SEO",
+      en: "SEO",
+      description: {
+        ko: "검색 엔진 노출 · 순위를 높이는 최적화 작업입니다. 메타데이터 · 시맨틱 마크업 · 사이트맵 · Core Web Vitals 가 주요 축입니다.",
+        en: "Optimization to improve search engine visibility and ranking. Metadata, semantic markup, sitemaps, and Core Web Vitals are the main axes.",
+      },
+    },
+    "Node.js": {
+      ko: "Node.js",
+      en: "Node.js",
+      description: {
+        ko: "V8 기반 서버사이드 JavaScript 런타임입니다. 이벤트 루프 · 논블로킹 I/O 로 높은 동시성을 처리하며 npm 생태계를 활용합니다.",
+        en: "Server-side JavaScript runtime built on V8. Event loop and non-blocking I/O handle high concurrency; leverages the npm ecosystem.",
+      },
+    },
+    Python: {
+      ko: "파이썬",
+      en: "Python",
+      description: {
+        ko: "동적 타이핑 · 간결한 문법의 범용 프로그래밍 언어입니다. 웹·데이터·자동화 전반을 아우르는 방대한 라이브러리 생태계를 제공합니다.",
+        en: "Dynamically typed general-purpose language with concise syntax. Vast library ecosystem spanning web, data, and automation.",
+      },
+    },
+    Go: {
+      ko: "Go",
+      en: "Go",
+      description: {
+        ko: "구글이 만든 정적 타입 컴파일 언어입니다. goroutine·채널 기반 동시성과 빠른 빌드 · 단일 바이너리 배포가 강점입니다.",
+        en: "Statically typed compiled language from Google. Goroutine/channel concurrency, fast builds, and single-binary deployment.",
+      },
+    },
+    GraphQL: {
+      ko: "GraphQL",
+      en: "GraphQL",
+      description: {
+        ko: "API 를 위한 쿼리 언어 · 런타임입니다. 클라이언트가 필요한 필드만 선언해 오버페칭 · 언더페칭을 줄입니다.",
+        en: "Query language and runtime for APIs. Clients request only the fields they need, reducing over- and under-fetching.",
+      },
+    },
+    "REST API": {
+      ko: "REST API",
+      en: "REST API",
+      description: {
+        ko: "HTTP 자원을 URL · 메서드로 다루는 아키텍처 스타일입니다. 무상태성 · 표준 메서드 · JSON 표현으로 단순함과 상호운용성을 얻습니다.",
+        en: "Architectural style exposing resources over HTTP verbs and URLs. Statelessness, standard methods, and JSON representations bring simplicity and interoperability.",
+      },
+    },
+    SQL: {
+      ko: "SQL",
+      en: "SQL",
+      description: {
+        ko: "관계형 데이터베이스를 다루는 선언적 질의 언어입니다. SELECT · JOIN · 집계 · 트랜잭션으로 데이터를 조회·조작합니다.",
+        en: "Declarative query language for relational databases. SELECT, JOIN, aggregation, and transactions query and manipulate data.",
+      },
+    },
+    Authentication: {
+      ko: "인증",
+      en: "Authentication",
+      description: {
+        ko: "사용자·클라이언트의 신원을 확인하는 과정입니다. 세션 · 토큰(JWT) · OAuth · 다중요소로 자격을 검증합니다.",
+        en: "Process of verifying the identity of a user or client. Sessions, tokens (JWT), OAuth, and MFA validate credentials.",
+      },
+    },
+    Docker: {
+      ko: "Docker",
+      en: "Docker",
+      description: {
+        ko: "애플리케이션을 컨테이너로 패키징·실행하는 플랫폼입니다. 이미지 · 레이어 캐시 · 격리된 런타임으로 환경 차이를 제거합니다.",
+        en: "Platform for packaging and running apps as containers. Images, layer caching, and isolated runtimes remove environment drift.",
+      },
+    },
+    Kubernetes: {
+      ko: "Kubernetes",
+      en: "Kubernetes",
+      description: {
+        ko: "컨테이너 배포 · 확장 · 운영을 자동화하는 오케스트레이터입니다. 선언적 상태 · 셀프힐링 · 롤아웃 · 서비스 디스커버리를 제공합니다.",
+        en: "Orchestrator that automates container deployment, scaling, and operations. Provides declarative state, self-healing, rollouts, and service discovery.",
+      },
+    },
+    "CI/CD": {
+      ko: "CI/CD",
+      en: "CI/CD",
+      description: {
+        ko: "빌드 · 테스트 · 배포를 자동화하는 파이프라인입니다. 지속적 통합 · 지속적 배포로 릴리스 주기를 단축하고 회귀를 조기에 잡습니다.",
+        en: "Pipeline that automates build, test, and deploy. Continuous integration and delivery shorten release cycles and catch regressions early.",
+      },
+    },
+    "GitHub Actions": {
+      ko: "GitHub Actions",
+      en: "GitHub Actions",
+      description: {
+        ko: "GitHub 저장소에 내장된 워크플로 자동화 도구입니다. 이벤트 트리거 · 매트릭스 빌드 · 재사용 액션으로 CI/CD 를 구성합니다.",
+        en: "Workflow automation built into GitHub repositories. Event triggers, matrix builds, and reusable actions compose CI/CD.",
+      },
+    },
+    AWS: {
+      ko: "AWS",
+      en: "AWS",
+      description: {
+        ko: "Amazon 의 클라우드 컴퓨팅 플랫폼입니다. EC2 · S3 · Lambda · RDS 등 광범위한 인프라·매니지드 서비스를 제공합니다.",
+        en: "Amazon's cloud computing platform. Offers broad infrastructure and managed services like EC2, S3, Lambda, and RDS.",
+      },
+    },
+    Vercel: {
+      ko: "Vercel",
+      en: "Vercel",
+      description: {
+        ko: "프런트엔드·서버리스 배포 플랫폼입니다. Git 연동 · 프리뷰 배포 · 엣지 네트워크로 Next.js 앱 배포를 단순화합니다.",
+        en: "Frontend and serverless deployment platform. Git integration, preview deployments, and an edge network simplify Next.js hosting.",
+      },
+    },
+    Algorithm: {
+      ko: "알고리즘",
+      en: "Algorithm",
+      description: {
+        ko: "문제를 유한한 단계로 푸는 절차입니다. 정렬 · 탐색 · 그래프 · DP 를 다루고 시간·공간 복잡도로 효율을 분석합니다.",
+        en: "Step-by-step procedure for solving a problem in finite steps. Covers sorting, search, graphs, and DP; efficiency analyzed by time and space complexity.",
+      },
+    },
+    "Data Structure": {
+      ko: "자료구조",
+      en: "Data Structure",
+      description: {
+        ko: "데이터를 저장·조직하는 방식입니다. 배열 · 리스트 · 트리 · 해시 · 그래프가 대표적이고 연산별 복잡도로 선택합니다.",
+        en: "Way of storing and organizing data. Arrays, lists, trees, hashes, and graphs; chosen by per-operation complexity.",
+      },
+    },
+    "Operating System": {
+      ko: "운영체제",
+      en: "Operating System",
+      description: {
+        ko: "하드웨어와 응용을 잇는 시스템 소프트웨어입니다. 프로세스 · 스레드 · 메모리 · 파일 · 스케줄링을 관리합니다.",
+        en: "System software bridging hardware and applications. Manages processes, threads, memory, files, and scheduling.",
+      },
+    },
+    Network: {
+      ko: "네트워크",
+      en: "Network",
+      description: {
+        ko: "장치 간 데이터를 주고받는 통신 체계입니다. TCP/IP · HTTP · DNS · 소켓 등 계층별 프로토콜로 동작합니다.",
+        en: "Communication system for exchanging data between devices. Runs on layered protocols: TCP/IP, HTTP, DNS, and sockets.",
+      },
+    },
+    Database: {
+      ko: "데이터베이스",
+      en: "Database",
+      description: {
+        ko: "구조화된 데이터를 저장·조회하는 시스템입니다. 트랜잭션 · 인덱스 · 정규화 · 쿼리 최적화가 주요 축입니다.",
+        en: "System for storing and querying structured data. Transactions, indexing, normalization, and query optimization are the main axes.",
+      },
+    },
+    Git: {
+      ko: "Git",
+      en: "Git",
+      description: {
+        ko: "분산 버전 관리 시스템입니다. 커밋 · 브랜치 · 머지로 변경 이력을 추적하고 협업 워크플로를 관리합니다.",
+        en: "Distributed version control system. Tracks change history via commits, branches, and merges; manages collaboration workflows.",
+      },
+    },
+    Testing: {
+      ko: "테스트",
+      en: "Testing",
+      description: {
+        ko: "코드가 의도대로 동작하는지 검증하는 작업입니다. 단위·통합·E2E 테스트로 회귀를 막고 리팩토링 안전망을 만듭니다.",
+        en: "Verifying code behaves as intended. Unit, integration, and E2E tests prevent regressions and form a refactoring safety net.",
+      },
+    },
+    Refactoring: {
+      ko: "리팩토링",
+      en: "Refactoring",
+      description: {
+        ko: "동작을 바꾸지 않고 내부 구조를 개선하는 작업입니다. 중복 제거 · 명명 · 응집도로 가독성과 유지보수성을 높입니다.",
+        en: "Improving internal structure without changing behavior. Removing duplication, naming, and cohesion raise readability and maintainability.",
+      },
+    },
+    Security: {
+      ko: "보안",
+      en: "Security",
+      description: {
+        ko: "취약점을 찾고 시스템 · 데이터를 보호하는 작업입니다. 인증 · 인가 · 입력 검증 · 암호화가 주요 축입니다.",
+        en: "Finding vulnerabilities and protecting systems and data. Authentication, authorization, input validation, and encryption are the main axes.",
+      },
+    },
+    Architecture: {
+      ko: "아키텍처",
+      en: "Architecture",
+      description: {
+        ko: "시스템의 구조와 컴포넌트 관계를 설계하는 작업입니다. 경계 · 의존성 · 확장성 · 트레이드오프를 다룹니다.",
+        en: "Designing system structure and component relationships. Concerns boundaries, dependencies, scalability, and trade-offs.",
+      },
+    },
+    Career: {
+      ko: "커리어",
+      en: "Career",
+      description: {
+        ko: "개발자의 성장 · 이직 · 역할 변화를 다루는 주제입니다. 역량 개발 · 직무 전환 · 회고로 커리어 방향을 점검합니다.",
+        en: "Topics on developer growth, job changes, and role shifts. Skill-building, transitions, and reflection guide career direction.",
+      },
+    },
+    Productivity: {
+      ko: "생산성",
+      en: "Productivity",
+      description: {
+        ko: "작업 효율과 집중을 높이는 방법 · 습관입니다. 워크플로 · 도구 · 자동화 · 시간 관리가 주요 축입니다.",
+        en: "Methods and habits for improving efficiency and focus. Workflow, tooling, automation, and time management are the main axes.",
+      },
+    },
+    Essay: {
+      ko: "에세이",
+      en: "Essay",
+      description: {
+        ko: "경험 · 생각을 자유롭게 풀어내는 글입니다. 기술 · 일상 · 커리어에 대한 개인적 관점과 회고를 담습니다.",
+        en: "Free-form writing on experiences and thoughts. Personal takes and reflections on tech, daily life, and career.",
+      },
+    },
+    "Vue.js": {
+      ko: "Vue.js",
+      en: "Vue.js",
+      description: {
+        ko: "점진적 도입이 가능한 컴포넌트 기반 UI 프레임워크입니다. 반응형 상태 · SFC · Composition API 로 템플릿과 로직을 결합합니다.",
+        en: "Progressive component-based UI framework. Reactive state, single-file components, and the Composition API bind template and logic.",
+      },
+    },
+    Svelte: {
+      ko: "Svelte",
+      en: "Svelte",
+      description: {
+        ko: "런타임 대신 컴파일 타임에 동작하는 UI 프레임워크입니다. 가상 DOM 없이 반응성을 컴파일해 작은 번들과 빠른 실행을 냅니다.",
+        en: "Compile-time UI framework rather than a runtime. Compiles reactivity without a virtual DOM for small bundles and fast execution.",
+      },
+    },
+    Redux: {
+      ko: "Redux",
+      en: "Redux",
+      description: {
+        ko: "단방향 흐름의 예측 가능한 상태 컨테이너입니다. action→reducer→store 로 상태 변경을 중앙화하고 추적합니다.",
+        en: "Predictable state container with unidirectional flow. Centralizes and traces state changes via action → reducer → store.",
+      },
+    },
+    "React Query": {
+      ko: "React Query",
+      en: "React Query",
+      description: {
+        ko: "React 서버 상태 관리 라이브러리입니다. 캐싱 · 재검증 · 백그라운드 갱신으로 비동기 데이터 fetching 을 선언적으로 다룹니다.",
+        en: "Server-state library for React. Caching, revalidation, and background refetching handle async data fetching declaratively.",
+      },
+    },
+    Vite: {
+      ko: "Vite",
+      en: "Vite",
+      description: {
+        ko: "ESM 기반의 프론트엔드 빌드 도구입니다. 네이티브 import 로 dev 서버를 즉시 띄우고 프로덕션은 Rollup 으로 번들합니다.",
+        en: "ESM-based frontend build tool. Native imports start the dev server instantly; production bundles via Rollup.",
+      },
+    },
+    Sass: {
+      ko: "Sass",
+      en: "Sass",
+      description: {
+        ko: "CSS 를 확장한 전처리기입니다. 변수 · 중첩 · mixin · 모듈로 스타일을 구조화하고 재사용합니다.",
+        en: "CSS preprocessor that extends the language. Variables, nesting, mixins, and modules structure and reuse styles.",
+      },
+    },
+    Storybook: {
+      ko: "Storybook",
+      en: "Storybook",
+      description: {
+        ko: "UI 컴포넌트를 격리해 개발·문서화하는 도구입니다. story 단위로 상태·변형을 렌더하고 시각 테스트·문서를 함께 만듭니다.",
+        en: "Tool for building and documenting UI components in isolation. Renders states and variants as stories, pairing visual testing with docs.",
+      },
+    },
+    Java: {
+      ko: "Java",
+      en: "Java",
+      description: {
+        ko: "JVM 위에서 실행되는 객체지향 프로그래밍 언어입니다. 강한 타입 · 가비지 컬렉션 · 방대한 생태계로 엔터프라이즈·안드로이드 개발에 널리 쓰입니다.",
+        en: "Object-oriented programming language running on the JVM. Strong typing, garbage collection, and a vast ecosystem; widely used for enterprise and Android.",
+      },
+    },
+    Spring: {
+      ko: "Spring",
+      en: "Spring",
+      description: {
+        ko: "Java 기반 백엔드 애플리케이션 프레임워크입니다. DI · AOP · 트랜잭션 관리로 엔터프라이즈 개발을 표준화합니다.",
+        en: "Java backend application framework. DI, AOP, and transaction management standardize enterprise development.",
+      },
+    },
+    Rust: {
+      ko: "Rust",
+      en: "Rust",
+      description: {
+        ko: "메모리 안전성을 보장하는 시스템 프로그래밍 언어입니다. 소유권·빌림 검사로 GC 없이 동시성·안전성을 확보합니다.",
+        en: "Systems programming language with memory safety. Ownership and borrow checking ensure concurrency and safety without a GC.",
+      },
+    },
+    Express: {
+      ko: "Express",
+      en: "Express",
+      description: {
+        ko: "Node.js 기반 미니멀 웹 프레임워크입니다. 미들웨어 체인으로 라우팅·요청 처리를 유연하게 구성합니다.",
+        en: "Minimal web framework for Node.js. Middleware chains flexibly compose routing and request handling.",
+      },
+    },
+    NestJS: {
+      ko: "NestJS",
+      en: "NestJS",
+      description: {
+        ko: "TypeScript 기반 서버사이드 프레임워크입니다. 모듈 · DI · 데코레이터로 확장 가능한 구조를 강제합니다.",
+        en: "TypeScript server-side framework. Modules, DI, and decorators enforce a scalable structure.",
+      },
+    },
+    Redis: {
+      ko: "Redis",
+      en: "Redis",
+      description: {
+        ko: "인메모리 키-값 데이터 스토어입니다. 캐시 · 세션 · 큐 · pub/sub 에 낮은 지연으로 쓰입니다.",
+        en: "In-memory key-value data store. Low-latency use for caching, sessions, queues, and pub/sub.",
+      },
+    },
+    Prisma: {
+      ko: "Prisma",
+      en: "Prisma",
+      description: {
+        ko: "Node.js·TypeScript 기반 ORM 입니다. 타입 안전 쿼리·스키마 마이그레이션으로 DB 접근을 단순화합니다.",
+        en: "ORM for Node.js and TypeScript. Type-safe queries and schema migrations simplify database access.",
+      },
+    },
+    WebSocket: {
+      ko: "WebSocket",
+      en: "WebSocket",
+      description: {
+        ko: "양방향 실시간 통신 프로토콜입니다. 단일 TCP 연결로 서버·클라이언트 간 지속적 메시지 교환을 지원합니다.",
+        en: "Bidirectional real-time communication protocol. A single TCP connection sustains continuous server-client messaging.",
+      },
+    },
+    Linux: {
+      ko: "Linux",
+      en: "Linux",
+      description: {
+        ko: "오픈소스 유닉스 계열 운영체제입니다. 프로세스 · 파일시스템 · 권한 · 셸을 다루며 서버·컨테이너 인프라의 기반을 이룹니다.",
+        en: "Open-source Unix-like operating system. Covers processes, filesystems, permissions, and shells; the base layer of server and container infrastructure.",
+      },
+    },
+    Nginx: {
+      ko: "Nginx",
+      en: "Nginx",
+      description: {
+        ko: "고성능 웹 서버·리버스 프록시입니다. 정적 서빙 · 로드밸런싱 · TLS 종단 · 캐싱을 이벤트 기반으로 처리합니다.",
+        en: "High-performance web server and reverse proxy. Handles static serving, load balancing, TLS termination, and caching on an event-driven core.",
+      },
+    },
+    Terraform: {
+      ko: "Terraform",
+      en: "Terraform",
+      description: {
+        ko: "선언적 IaC(Infrastructure as Code) 도구입니다. HCL 로 인프라를 코드화하고 plan · apply · state 로 변경을 관리합니다.",
+        en: "Declarative IaC (Infrastructure as Code) tool. Defines infrastructure in HCL; plan, apply, and state manage every change.",
+      },
+    },
+    Monitoring: {
+      ko: "모니터링",
+      en: "Monitoring",
+      description: {
+        ko: "시스템·서비스 상태를 관측하는 작업입니다. 메트릭 · 로그 · 트레이스로 이상을 감지하고 알림·대시보드로 대응합니다.",
+        en: "Observing the health of systems and services. Metrics, logs, and traces detect anomalies; alerts and dashboards drive response.",
+      },
+    },
+    Serverless: {
+      ko: "서버리스",
+      en: "Serverless",
+      description: {
+        ko: "서버 관리 없이 함수·이벤트 단위로 동작하는 실행 모델입니다. 자동 스케일링 · 사용량 과금 · 콜드 스타트가 주요 특징입니다.",
+        en: "Execution model that runs code as functions and events without managing servers. Auto-scaling, usage-based billing, and cold starts are the defining traits.",
+      },
+    },
+    Cloudflare: {
+      ko: "Cloudflare",
+      en: "Cloudflare",
+      description: {
+        ko: "글로벌 엣지 네트워크·CDN 플랫폼입니다. CDN · DNS · DDoS 방어 · Workers 엣지 컴퓨팅을 제공합니다.",
+        en: "Global edge network and CDN platform. Provides CDN, DNS, DDoS protection, and Workers edge computing.",
+      },
+    },
+    "Design Pattern": {
+      ko: "디자인 패턴",
+      en: "Design Pattern",
+      description: {
+        ko: "반복되는 설계 문제에 대한 검증된 해결책 모음입니다. 생성 · 구조 · 행위로 분류되며 GoF 23개 패턴이 기초를 이룹니다.",
+        en: "Reusable solutions to recurring design problems. Grouped into creational, structural, and behavioral; the GoF 23 form the foundation.",
+      },
+    },
+    Concurrency: {
+      ko: "동시성",
+      en: "Concurrency",
+      description: {
+        ko: "여러 작업을 겹쳐 진행시키는 실행 모델입니다. thread · lock · async 로 자원을 공유하며 race condition·deadlock 이 핵심 난제입니다.",
+        en: "Execution model that interleaves multiple tasks. Threads, locks, and async share resources; race conditions and deadlocks are the core hazards.",
+      },
+    },
+    Compiler: {
+      ko: "컴파일러",
+      en: "Compiler",
+      description: {
+        ko: "소스 코드를 다른 표현으로 번역하는 프로그램입니다. lexing · parsing · 의미 분석 · 최적화 · 코드 생성 단계를 거칩니다.",
+        en: "Program that translates source code into another representation. Passes through lexing, parsing, semantic analysis, optimization, and code generation.",
+      },
+    },
+    Cryptography: {
+      ko: "암호학",
+      en: "Cryptography",
+      description: {
+        ko: "정보를 보호하기 위한 수학적 기법의 학문입니다. 대칭·비대칭 암호 · hash · 서명으로 기밀성 · 무결성 · 인증을 보장합니다.",
+        en: "Study of mathematical techniques for securing information. Symmetric/asymmetric ciphers, hashes, and signatures provide confidentiality, integrity, and authentication.",
+      },
+    },
+    "Functional Programming": {
+      ko: "함수형 프로그래밍",
+      en: "Functional Programming",
+      description: {
+        ko: "함수 합성과 불변성을 중심에 둔 프로그래밍 패러다임입니다. 순수 함수 · 고차 함수 · 부수효과 격리로 예측 가능한 코드를 지향합니다.",
+        en: "Programming paradigm centered on function composition and immutability. Pure functions, higher-order functions, and isolated side effects yield predictable code.",
+      },
+    },
+    OOP: {
+      ko: "OOP",
+      en: "OOP",
+      description: {
+        ko: "데이터와 동작을 객체로 묶는 프로그래밍 패러다임입니다. 캡슐화 · 상속 · 다형성 · 추상화가 네 기둥입니다.",
+        en: "Programming paradigm that bundles data and behavior into objects. Encapsulation, inheritance, polymorphism, and abstraction are the four pillars.",
+      },
+    },
+    "Machine Learning": {
+      ko: "머신러닝",
+      en: "Machine Learning",
+      description: {
+        ko: "데이터에서 패턴을 학습해 예측·분류하는 기법입니다. 지도 · 비지도 · 강화 학습으로 나뉘며 feature · 손실함수 · 일반화가 핵심 축입니다.",
+        en: "Techniques that learn patterns from data to predict and classify. Split into supervised, unsupervised, and reinforcement learning; features, loss functions, and generalization are the core axes.",
+      },
+    },
+    "Artificial Intelligence": {
+      ko: "인공지능",
+      en: "Artificial Intelligence",
+      description: {
+        ko: "인간의 지능적 행동을 기계로 구현하는 분야입니다. 머신러닝 · 추론 · 자연어처리 · 컴퓨터비전을 포괄하며 현재는 생성형 모델이 주류입니다.",
+        en: "Field that reproduces intelligent behavior in machines. Spans machine learning, reasoning, NLP, and computer vision; generative models now lead.",
+      },
+    },
+    LLM: {
+      ko: "LLM",
+      en: "LLM",
+      description: {
+        ko: "대규모 텍스트로 학습한 언어 모델입니다. Transformer 기반으로 문맥 이해·생성을 수행하며 프롬프트 · 파인튜닝 · RAG 로 제어합니다.",
+        en: "Language model trained on massive text corpora. Transformer-based context understanding and generation; controlled via prompting, fine-tuning, and RAG.",
+      },
+    },
+    "Data Science": {
+      ko: "데이터 사이언스",
+      en: "Data Science",
+      description: {
+        ko: "데이터에서 인사이트·예측을 끌어내는 분야입니다. 수집 · 전처리 · 통계 · 모델링 · 시각화를 아우르며 실험과 검증이 핵심입니다.",
+        en: "Field that extracts insight and predictions from data. Spans collection, preprocessing, statistics, modeling, and visualization; experimentation and validation are central.",
+      },
+    },
+    Debugging: {
+      ko: "디버깅",
+      en: "Debugging",
+      description: {
+        ko: "결함을 재현·추적하고 원인을 찾아 고치는 작업입니다. 로그 · 브레이크포인트 · 스택 트레이스 · 이분 탐색이 주요 수단입니다.",
+        en: "Reproducing, tracing, and fixing defects. Logs, breakpoints, stack traces, and bisection are the main tools.",
+      },
+    },
+    "Code Review": {
+      ko: "코드 리뷰",
+      en: "Code Review",
+      description: {
+        ko: "변경된 코드를 동료가 검토하는 협업 과정입니다. 결함 조기 발견 · 지식 공유 · 컨벤션 일관성을 목표로 합니다.",
+        en: "Peer inspection of proposed code changes. Aims for early defect detection, knowledge sharing, and convention consistency.",
+      },
+    },
+    "Open Source": {
+      ko: "오픈소스",
+      en: "Open Source",
+      description: {
+        ko: "소스 코드를 공개하고 협업으로 발전시키는 개발 방식입니다. 라이선스 · 기여 · 커뮤니티 거버넌스가 핵심 축입니다.",
+        en: "Development model with publicly shared source and collaborative growth. Licensing, contribution, and community governance are the core axes.",
+      },
+    },
+    "Side Project": {
+      ko: "사이드 프로젝트",
+      en: "Side Project",
+      description: {
+        ko: "본업과 별개로 자율적으로 만드는 개인 프로젝트입니다. 학습 · 실험 · 포트폴리오 · 수익화가 주된 동기입니다.",
+        en: "Personal project built outside of primary work. Learning, experimentation, portfolio, and monetization are the main motivations.",
+      },
+    },
+    Reading: {
+      ko: "독서",
+      en: "Reading",
+      description: {
+        ko: "책·글을 읽고 소화하는 지적 활동입니다. 기술서 · 아티클 · 독서 노트로 지식을 축적합니다.",
+        en: "Reading and digesting books and articles. Builds knowledge through technical books, articles, and reading notes.",
       },
     },
   } as Record<

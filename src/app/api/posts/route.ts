@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { titleTooLong, POST_TITLE_MAX } from "@/lib/postConstants";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { ensurePostCategory } from "@/lib/api/validateCategory";
+import { ensurePostCategory, expandPostCategoryFilters } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
@@ -34,62 +36,63 @@ export async function GET(request: Request) {
   // popular 정렬의 역방향 지원 — sortDir=asc 면 score 작은 순(비인기순)
   const sortDir = searchParams.get("sortDir") === "asc" ? "asc" : "desc";
 
-  let query = supabase
-    .from("posts")
-    .select("*, series:series_id(title, title_en)", { count: "exact" });
-
-  if (showTrash) {
-    // 휴지통: deleted_at IS NOT NULL
-    query = query.not("deleted_at", "is", null);
-  } else if (!showAll) {
-    // 공개: published=true + deleted_at IS NULL
-    query = query.eq("published", true).is("deleted_at", null);
-  } else {
-    // 어드민 전체: deleted_at IS NULL (삭제 안된 것만)
-    query = query.is("deleted_at", null);
-  }
-
-  // 다중 태그 우선 — tags=a,b,c → contains 로 모두 포함 매치 (PG @>)
+  // 다중 태그 — tags=a,b,c → overlaps 로 하나라도 포함 매치 (PG &&, 합집합/OR)
   const tagList = tagsParam
     ? tagsParam.split(",").map((t) => t.trim()).filter(Boolean)
     : tag
       ? [tag]
       : [];
-  if (tagList.length > 0) {
-    query = query.contains("tags", tagList);
-  }
-
-  if (category) {
-    query = query.eq("category", category);
-  }
-
-  if (slug) {
-    query = query.eq("slug", slug);
-  }
-
-  // pinned 필터: "true" → pinned만, "false" → pinned 제외, 미지정 → 전체
+  // 다중 카테고리 (OR/합집합) — category=a,b,c → 각 확장값(부모→자식 포함) union 후 .in
+  const categoryList = category
+    ? category.split(",").map((c) => c.trim()).filter(Boolean)
+    : [];
+  const expandedCategoryValues = categoryList.length > 0
+    ? await expandPostCategoryFilters(categoryList)
+    : [];
   const pinned = searchParams.get("pinned");
-  if (pinned === "true") {
-    query = query.eq("is_pinned", true);
-  } else if (pinned === "false") {
-    query = query.eq("is_pinned", false);
-  }
-
-  // series 필터
   const seriesId = searchParams.get("series_id");
-  if (seriesId) {
-    query = query.eq("series_id", seriesId);
-  }
 
-  if (search) {
-    const mode = (searchParams.get("syntaxMode") === "regex" ? "regex" : "prefix") as SyntaxMode;
-    const columns = searchType === "all"
-      ? ["title", "title_en", "content", "content_en"]
-      : searchType === "content"
-        ? ["content", "content_en"]
-        : ["title", "title_en"];
-    query = applySearchQuery(query, { search, mode, columns });
-  }
+  // 필터 술어를 한 곳에 모아 page 쿼리와 facet 집계 쿼리가 동일 조건을 공유.
+  // (PostgREST 빌더는 mutable 이라 clone 불가 → 새 빌더마다 적용)
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const applyFilters = (q: any): any => {
+    if (showTrash) q = q.not("deleted_at", "is", null);
+    else if (!showAll) q = q.eq("published", true).is("deleted_at", null);
+    else q = q.is("deleted_at", null);
+
+    if (tagList.length > 0) q = q.overlaps("tags", tagList);
+    if (expandedCategoryValues.length > 0) q = q.in("category", expandedCategoryValues);
+    if (slug) q = q.eq("slug", slug);
+    if (pinned === "true") q = q.eq("is_pinned", true);
+    else if (pinned === "false") q = q.eq("is_pinned", false);
+    if (seriesId) q = q.eq("series_id", seriesId);
+    if (search) {
+      const mode = (searchParams.get("syntaxMode") === "regex" ? "regex" : "prefix") as SyntaxMode;
+      const columns = searchType === "all"
+        ? ["title", "title_en", "content", "content_en"]
+        : searchType === "content"
+          ? ["content", "content_en"]
+          : ["title", "title_en"];
+      q = applySearchQuery(q, { search, mode, columns });
+    }
+    return q;
+  };
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  // 현재 필터에 매칭되는 "전체" 글(페이지 아님)의 태그 빈도 — faceted 사이드바 태그용
+  const computeTagFacet = (
+    rows: Array<{ tags?: string[] | null }>,
+  ): Array<{ tag: string; count: number }> => {
+    const m = new Map<string, number>();
+    for (const r of rows) for (const t of r.tags ?? []) m.set(t, (m.get(t) ?? 0) + 1);
+    return Array.from(m.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([tag, count]) => ({ tag, count }));
+  };
+
+  let query = applyFilters(
+    supabase.from("posts").select("*, series:series_id(title, title_en)", { count: "exact" }),
+  );
 
   // 시리즈 필터링 시에는 series_order ASC 우선 (시리즈 안의 순서대로 보이도록)
   // — 동률은 사용자가 선택한 sort 로 폴백
@@ -149,6 +152,7 @@ export async function GET(request: Request) {
       total: totalCount ?? 0,
       page,
       totalPages: Math.ceil((totalCount ?? 0) / limit),
+      facets: computeTagFacet((rawData ?? []) as Array<{ tags?: string[] | null }>),
     });
   }
 
@@ -180,6 +184,7 @@ export async function GET(request: Request) {
       total: totalCount ?? all.length,
       page,
       totalPages: Math.ceil((totalCount ?? all.length) / limit),
+      facets: computeTagFacet((rawData ?? []) as Array<{ tags?: string[] | null }>),
     });
   }
 
@@ -192,11 +197,19 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // faceted 사이드바 태그 — 공개 목록에서만, 같은 필터로 tags 만 집계(range 없이 전체 매칭셋)
+  let facets: Array<{ tag: string; count: number }> = [];
+  if (!showAll && !showTrash) {
+    const { data: facetRows } = await applyFilters(supabase.from("posts").select("tags"));
+    facets = computeTagFacet((facetRows ?? []) as Array<{ tags?: string[] | null }>);
+  }
+
   const res = NextResponse.json({
     posts: data,
     total: count ?? 0,
     page,
     totalPages: Math.ceil((count ?? 0) / limit),
+    facets,
   });
   // 공개 목록은 짧은 TTL + stale-while-revalidate
   if (!showAll && !showTrash) {
@@ -225,11 +238,23 @@ export async function POST(request: Request) {
     await ensurePostCategory(body.category as string);
   }
 
+  // 제목 길이 제한 (UI·DB 와 동일 상한)
+  if (titleTooLong(body.title) || titleTooLong(body.title_en)) {
+    return NextResponse.json({ error: `title exceeds ${POST_TITLE_MAX} characters` }, { status: 400 });
+  }
+
   const admin = createAdminClient();
   const { data, error } = await admin.from("posts").insert(body).select().single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // 발행 상태로 생성되면 공개 목록/홈 캐시 즉시 무효화
+  if (data?.published) {
+    revalidatePath("/posts");
+    revalidatePath("/");
+    if (data.slug) revalidatePath(`/posts/${data.slug}`);
   }
 
   return NextResponse.json(data, { status: 201 });

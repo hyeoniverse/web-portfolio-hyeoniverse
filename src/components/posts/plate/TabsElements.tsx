@@ -6,12 +6,16 @@ import { Plus, Smile, Trash2 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import Tooltip from "@/components/ui/Tooltip";
 import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import { _imageUploadFn } from "./utils";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 
 type Popup = { tab: number; mode: "tools" | "emoji" };
 type Pos = { left: number; top: number; up: boolean };
+
+/** 탭 라벨 최대 글자수 — 탭은 짧은 제목이므로 넘치지 않게 제한 */
+const TAB_LABEL_MAX = 40;
 
 /** 탭 블록 — activeTab + tab_panel(label, icon). 탭 클릭=전환 / 선택탭 재클릭=도구 팝업(이름·아이콘·삭제).
  *  팝업/이모지 picker 는 블록에 anchor 된 absolute (스크롤 따라 움직이고 overflow 에 잘림) + 뷰포트 안으로 배치. */
@@ -98,12 +102,18 @@ export function TabsElement(props: PlateElementProps) {
               {panels.map((p, i) => {
                 const icon = p.icon as string | undefined;
                 return (
-                  <button key={(p.id as string) ?? i} type="button"
-                    className={`tabs-tab${i === activeTab ? " tabs-tab-active" : ""}`}
-                    onMouseDown={(e) => onTab(i, e)}>
-                    {icon && <span className="tabs-tab-icon"><EmojiIcon value={icon} /></span>}
-                    <span>{labelOf(p, i)}</span>
-                  </button>
+                  <Tooltip key={(p.id as string) ?? i}
+                    content={i === activeTab
+                      ? (language === "ko" ? "다시 클릭하면 이름·아이콘 편집" : "Click again to edit name & icon")
+                      : (language === "ko" ? "클릭하여 전환" : "Click to switch")}
+                    delay={400} placement="top" wrapperStyle={{ display: "inline-flex" }}>
+                    <button type="button"
+                      className={`tabs-tab${i === activeTab ? " tabs-tab-active" : ""}`}
+                      onMouseDown={(e) => onTab(i, e)}>
+                      {icon && <span className="tabs-tab-icon"><EmojiIcon value={icon} /></span>}
+                      <span>{labelOf(p, i)}</span>
+                    </button>
+                  </Tooltip>
                 );
               })}
               <button type="button" className="tabs-add" aria-label="add tab"
@@ -122,11 +132,11 @@ export function TabsElement(props: PlateElementProps) {
               >
                 <div className="tabs-tools">
                   <div className="tabs-tools-main">
-                    <Button type="button" shape="circle" variant="subtle" size="sm" aria-label="icon"
+                    <Button type="button" shape="circle" variant="subtle" size="md" aria-label="icon"
                       onMouseDown={(e) => { e.preventDefault(); openEmoji(); }}>
                       {panels[popup.tab]?.icon ? <EmojiIcon value={panels[popup.tab].icon as string} /> : <Smile size={16} />}
                     </Button>
-                    <Input className="tabs-tools-name" spellCheck={false} autoFocus clearable={false} size="sm"
+                    <Input className="tabs-tools-name" spellCheck={false} autoFocus size="md" maxLength={TAB_LABEL_MAX}
                       value={labelOf(panels[popup.tab], popup.tab)}
                       onChange={(v) => setLabel(popup.tab, v)} />
                   </div>

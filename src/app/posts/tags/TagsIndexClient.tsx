@@ -5,11 +5,17 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Tags, X, ArrowRight } from "lucide-react";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import { parseSearchQuery, matchesQuery, type SyntaxMode } from "@/lib/searchQuery";
 import Button from "@/components/ui/Button";
+import BackLink from "@/components/ui/BackLink";
+import PageTitle from "@/components/ui/PageTitle";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import Chip from "@/components/ui/Chip";
+import Tooltip from "@/components/ui/Tooltip";
+import PostsSubnav from "../_components/PostsSubnav";
 import LetterFilter, { KOREAN_LETTERS, ENGLISH_LETTERS, LETTER_ETC, getLetterInitial } from "@/components/ui/LetterFilter";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./TagsIndex.module.css";
 
 interface TagEntry {
@@ -33,7 +39,10 @@ const loadSupabaseClient = () =>
   import("@/lib/supabase/client").then((m) => m.createClient());
 
 export default function TagsIndexClient({ tags }: Props) {
+  const { language } = useLanguage();
   const [search, setSearch] = useState("");
+  const [searchType, setSearchType] = useState<"all" | "title" | "desc">("all");
+  const [syntaxMode, setSyntaxMode] = useState<SyntaxMode>("prefix");
   const [sortBy, setSortBy] = useState<"popular" | "alphabetical">("popular");
   const [nameLang, setNameLang] = useState<"ko" | "en">("ko");
   const [activeLetters, setActiveLetters] = useState<Set<string>>(new Set());
@@ -64,11 +73,11 @@ export default function TagsIndexClient({ tags }: Props) {
     };
   }, [sheetTag]);
 
-  // hover 한 태그의 related Set — 연관 pill 들 시각적으로 강조
+  // hover 한 태그의 related Set — 연관 pill 들 + hover 한 태그 자신도 glow 강조
   const relatedToHovered = useMemo(() => {
     if (!hoveredTag) return new Set<string>();
     const t = tags.find((x) => x.tag === hoveredTag);
-    return new Set(t?.related ?? []);
+    return new Set([hoveredTag, ...(t?.related ?? [])]);
   }, [hoveredTag, tags]);
 
   // 로그인 사용자 = admin (단일 운영자 가정)
@@ -113,13 +122,18 @@ export default function TagsIndexClient({ tags }: Props) {
   // 검색 + letter 필터 + 정렬
   const filtered = useMemo(() => {
     let list = tags;
-    const q = search.trim().toLowerCase();
+    const q = search.trim();
     if (q) {
-      list = list.filter(
-        (t) =>
-          t.tag.toLowerCase().includes(q) ||
-          t.description.toLowerCase().includes(q),
-      );
+      const parsed = parseSearchQuery(q, syntaxMode);
+      list = list.filter((t) => {
+        const fields =
+          searchType === "title"
+            ? [t.tag]
+            : searchType === "desc"
+              ? [t.description]
+              : [t.tag, t.description];
+        return matchesQuery(fields.filter(Boolean).join("\n"), parsed);
+      });
     }
     /* letter 는 sortBy 무관하게 적용 — 첫글자 필터 */
     if (activeLetters.size > 0) {
@@ -131,9 +145,9 @@ export default function TagsIndexClient({ tags }: Props) {
       list = list.slice().sort((a, b) => b.count - a.count);
     }
     return list;
-  }, [tags, search, activeLetters, sortBy, nameLang]);
+  }, [tags, search, searchType, syntaxMode, activeLetters, sortBy, nameLang]);
 
-  useEffect(() => { setVisible(PAGE_SIZE); }, [search, activeLetters, sortBy, nameLang]);
+  useEffect(() => { setVisible(PAGE_SIZE); }, [search, searchType, syntaxMode, activeLetters, sortBy, nameLang]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -155,16 +169,19 @@ export default function TagsIndexClient({ tags }: Props) {
 
   return (
     <div className={styles.container}>
+      <PostsSubnav />
+      <div className={styles.backRow}>
+        <BackLink href="/posts" label={language === "en" ? "Posts" : "글 목록"} />
+      </div>
       <header className={styles.header}>
         <div className={styles.headerTitleRow}>
-          <h1 className={styles.title}>
-            <Tags size={22} strokeWidth={1.8} aria-hidden />
-            태그 모음
-          </h1>
+          <PageTitle icon={<Tags size={40} strokeWidth={1.6} aria-hidden />}>
+            Tags.
+          </PageTitle>
           {isAdmin && (
             <Button
               href="/admin/settings?tab=content&section=tags"
-              size="xs"
+              size="sm"
               icon={<Settings size={12} strokeWidth={1.8} aria-hidden />}
               title="태그 관리"
             >
@@ -200,8 +217,21 @@ export default function TagsIndexClient({ tags }: Props) {
             onSearchChange={setSearch}
             placeholder="태그 이름 또는 설명으로 검색…"
             align="left"
+            size="sm"
             className={styles.searchBar}
             routeParam="q"
+            hasResults={filtered.length > 0}
+            onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
+            typeSelector={{
+              value: searchType,
+              options: [
+                { value: "all", label: "이름+설명" },
+                { value: "title", label: "이름" },
+                { value: "desc", label: "설명" },
+              ],
+              onChange: (v) => setSearchType(v as "all" | "title" | "desc"),
+            }}
+            syntaxHelp
           />
         </div>
       </header>
@@ -226,22 +256,28 @@ export default function TagsIndexClient({ tags }: Props) {
             <li
               key={t.tag}
               className={styles.tagItem}
-              title={!isTouch && t.description ? t.description : undefined}
               onMouseEnter={() => setHoveredTag(t.tag)}
               onMouseLeave={() => setHoveredTag(null)}
             >
-              <Chip
-                variant="capsule"
-                href={`/posts/tags/${encodeURIComponent(t.tag)}`}
-                count={t.count}
-                className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""} ${isRelated ? styles.tagItemRelated : ""}`}
-                onClick={isTouch && hasExtras ? (e) => {
-                  e.preventDefault();
-                  setSheetTag(t);
-                } : undefined}
+              <Tooltip
+                content={t.description}
+                placement="top"
+                delay={200}
+                disabled={isTouch || !t.description}
               >
-                <span style={{ fontSize: `${fontFor(t.count)}px` }}>#{t.tag}</span>
-              </Chip>
+                <Chip
+                  variant="capsule"
+                  href={`/posts/tags/${encodeURIComponent(t.tag)}`}
+                  count={t.count}
+                  className={`${styles.tagItemPill} ${popularSet.has(t.tag) ? styles.tagItemPopular : ""} ${isRelated ? styles.tagItemRelated : ""}`}
+                  onClick={isTouch && hasExtras ? (e) => {
+                    e.preventDefault();
+                    setSheetTag(t);
+                  } : undefined}
+                >
+                  <span style={{ fontSize: `${fontFor(t.count)}px` }}>#{t.tag}</span>
+                </Chip>
+              </Tooltip>
             </li>
           );
         })}

@@ -83,3 +83,38 @@
   color: var(--text-accent);
   font-weight: var(--font-weight-bold);
 }
+
+/* ── chip 모드 — 필터링 중 결과 태그 + 명시적 개수 (sphere 대체, label 헤더는 공유) ── */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-sm);
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.chips .chip:hover {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+.chips .chipActive,
+.chips .chipActive:hover {
+  background: var(--text-accent);
+  color: var(--bg-primary);
+}
+.chipCount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  opacity: 0.7;
+}

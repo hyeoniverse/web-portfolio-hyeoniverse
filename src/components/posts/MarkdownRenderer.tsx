@@ -5,7 +5,7 @@ import { marked } from "marked";
 import markedFootnote from "marked-footnote";
 import markedAlert from "marked-alert";
 import markedKatex from "marked-katex-extension";
-import { hljs } from "./highlightCodeBlocks";
+import { hljs, attachCodeWrapToggle } from "./highlightCodeBlocks";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 let _wrapLabel = "↩ Wrap";
@@ -100,6 +100,22 @@ export default function MarkdownRenderer({
     // img에 data-cursor="zoom" 주입 → CursorTrail이 이미지 뷰어 힌트 표시
     return raw.replace(/<img\s/g, '<img data-cursor="zoom" ');
   }, [content, t]);
+
+  // 코드블록 복사·줄바꿈 바 주입 — marked 가 이미 hljs 로 하이라이트했으므로 컨트롤 바만 붙인다.
+  // 부모(디테일/미리보기/works)가 ref 를 넘겨주는지에 의존하지 않고 자체 ref 로 처리 → markdown 은
+  // 어느 리더뷰에서든 항상 복사 버튼이 나온다. (mermaid 스킵·중복 주입 방지는 attachCodeWrapToggle 내부)
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    attachCodeWrapToggle(root, {
+      wrap: t("common.codeWrap"),
+      scroll: t("common.codeScroll"),
+      wrapTitle: t("common.codeWrapTitle"),
+      scrollTitle: t("common.codeScrollTitle"),
+      copy: t("common.codeCopy"),
+      copied: t("common.codeCopied"),
+    });
+  }, [html, t]);
 
   // 깨진 이미지 → /images/placeholder.svg 로 swap. MutationObserver 로 동적 추가 img 도 추적
   useEffect(() => {

@@ -111,6 +111,24 @@
   border-color: var(--text-primary);
 }
 
+/* textEdit 모드 — 값이 있을 때 테두리 없는 텍스트로 표시 (더블클릭으로 편집) */
+.pickerText {
+  padding: var(--box-xs);
+  border: 1px solid transparent;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  text-align: left;
+  outline: none;
+  cursor: text;
+  font-variant-numeric: tabular-nums;
+}
+.pickerText:hover {
+  background: var(--bg-tertiary-alt);
+}
+
 .yearInput:disabled {
   opacity: 0.4;
 }
@@ -189,8 +207,9 @@
   overflow-y: auto;
   border: var(--border-light);
   border-radius: var(--radius-2xl);
-  /* 배경 없이 blur 만 — glass */
-  backdrop-filter: blur(4px) saturate(1.4);
+  /* 글래스 패널 — Select/Popover/Toast 와 동일 표면 */
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
   box-shadow: 0 8px 24px oklch(0% 0 0 / 0.15);
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -288,6 +307,15 @@
   z-index: var(--z-nav);
 }
 
+/* portal 모드 — fixed 로 body/모달 layer 에 띄워 overflow 컨테이너에 잘리지 않음.
+   top/left 는 컴포넌트가 부모 rect 기준으로 계산해 인라인 지정. margin-top 으로 trigger 와 살짝 간격. */
+.popoverPortal {
+  position: fixed;
+  transform: translateX(-50%);
+  /* trigger 와의 gap 은 JS(GAP) 에서 위/아래 방향에 맞게 처리 — margin-top 은 flip 시 겹침 유발이라 제거 */
+  z-index: var(--z-tooltip);
+}
+
 /* inline 모드 — absolute popover 대신 trigger 아래에 일반 block 으로 펼침.
  * 애니메이션은 호출부 (DateTimePicker) 의 framer-motion 으로 처리. */
 .popoverInline {
@@ -340,9 +368,9 @@
   width: max-content;
   border: var(--border-light);
   border-radius: var(--radius-2xl);
-  /* 배경 없이 blur 만 — glass (overflow:hidden 으로 2xl 곡률에 맞춰 클립) */
-  background: transparent;
-  backdrop-filter: blur(8px) saturate(1.4);
+  /* 글래스 패널 — Select/Popover/Toast 와 동일 표면 (overflow:hidden 으로 2xl 곡률에 맞춰 클립) */
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
   overflow: hidden;
 }
 

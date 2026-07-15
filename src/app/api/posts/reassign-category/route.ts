@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuth } from "@/lib/api/requireAuth";
 
 /**
  * POST /api/posts/reassign-category
@@ -11,6 +12,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *   { assignments: [{ id: string, category: string }] }
  */
 export async function POST(request: Request) {
+  // 인증 필수 — admin client 로 posts.category 를 대량 변경하므로 (기존 auth 누락 구멍 방지)
+  const { error: authError } = await requireAuth();
+  if (authError) return authError;
+
   const body = await request.json();
   const supabase = createAdminClient();
 
