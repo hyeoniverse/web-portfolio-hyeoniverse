@@ -423,7 +423,7 @@
   gap: 4px;
   padding: 2px 8px;
   border-radius: var(--radius-capsule);
-  background: var(--bg-accent-soft);
+  background: var(--bg-accent-subtle);
   color: var(--text-accent);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);

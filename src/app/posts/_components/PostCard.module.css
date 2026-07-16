@@ -239,7 +239,7 @@
 .title {
   font-family: var(--font-instrument);
   font-size: var(--font-size-2xl-plus);
-  font-weight: var(--font-weight-normal);
+  font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   line-height: var(--line-height-tight);
   min-height: calc(var(--font-size-2xl-plus) * var(--line-height-tight) * 2);

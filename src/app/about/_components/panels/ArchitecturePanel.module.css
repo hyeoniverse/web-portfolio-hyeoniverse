@@ -333,7 +333,7 @@
   z-index: 10;
   max-width: clamp(200px, 20vw, 340px);
   padding: clamp(0.5rem, 0.8vh, 0.75rem) clamp(0.75rem, 1vw, 1.1rem);
-  background: var(--bg-elevated);
+  background: var(--bg-secondary);
   border: var(--border-default);
   border-left: 3px solid var(--text-accent);
   font-size: var(--_fs-small);

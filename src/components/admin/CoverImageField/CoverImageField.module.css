@@ -51,7 +51,7 @@
 }
 
 .field .inlineBtnRemove:hover {
-  background: var(--bg-accent-soft);
+  background: var(--bg-accent-subtle);
   color: var(--text-accent);
 }
 
@@ -175,7 +175,7 @@
 
 .field .removeBtnAction:hover {
   border-color: var(--text-accent) !important;
-  background: var(--bg-accent-soft);
+  background: var(--bg-accent-subtle);
 }
 
 /* Upload + Choose 버튼 row */

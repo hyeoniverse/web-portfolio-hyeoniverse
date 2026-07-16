@@ -108,7 +108,7 @@
 
 .metaDesc {
   max-width: 480px;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-md);
   line-height: var(--line-height-relaxed);
   color: var(--text-white);
   margin: 0;

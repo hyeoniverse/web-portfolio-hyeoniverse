@@ -121,9 +121,13 @@ export default function CoverImagePicker({
           {tc("history")}
           {history.length > 0 && <span className={styles.tabCount}>{history.length}</span>}
         </button>
-        <Tooltip content={tc("close")} placement="bottom">
-          <CloseButton className={styles.closeBtn} onClick={onClose} ariaLabel={tc("close")} />
-        </Tooltip>
+        {/* 모바일은 bottom sheet — 위 grabber + backdrop 탭으로 닫는 게 기본 제스처라 X 는 군더더기다.
+            (Modal / Popover 의 bottom sheet 와 같은 규칙) */}
+        {!isMobile && (
+          <Tooltip content={tc("close")} placement="bottom">
+            <CloseButton className={styles.closeBtn} onClick={onClose} ariaLabel={tc("close")} />
+          </Tooltip>
+        )}
       </div>
 
       <div className={styles.body} data-lenis-prevent>
