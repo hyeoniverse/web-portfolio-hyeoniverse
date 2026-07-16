@@ -15,35 +15,133 @@
   margin: 0 !important;
   border-radius: 0 !important;
 }
-.rnConsole {
-  height: 100%;
-  overflow: auto;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+/* 러너 미리보기 배율 — transform:scale + 역보정 크기. iframe 은 zoom 이 콘텐츠에 잘 안 먹어
+   박스만 줄던(=확대인데 작아짐) 문제가 있어 transform 으로. top-left 기준으로 스케일하고
+   레이아웃 크기를 1/배율로 잡아 스케일 후 컨테이너를 정확히 채운다. */
+.spPreviewCol[data-zoomed] .rnFrame {
+  flex: none;
+  transform: scale(var(--pg-zoom, 1));
+  transform-origin: top left;
+  width: calc(100% / var(--pg-zoom, 1));
+  height: calc(100% / var(--pg-zoom, 1));
+}
+/* 콘솔 = 터미널 패널 — 살짝 파인 solid surface(테마 대응) + mono + 프롬프트 글리프.
+   레벨(warn/error)은 관련 색 텍스트 + 옅은 배경 tint + 좌측 색 바(devtools 콘솔 식). */
+/* devtools 콘솔 래퍼 — 필터바(위) + 스크롤 로그(아래). .spConsole 의 단일 자식(height:100% 상속). */
+.rnConsoleWrap {
+  display: flex;
+  flex-direction: column;
+  /* 배경은 에디터 현재 줄(.cm-activeLine = neutral-alpha-5 = --bg-tertiary)과 동일 톤.
+     코드(위)와 구분은 위쪽 경계선 + 안쪽 그림자(파인 느낌)로. */
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-default-color);
+  box-shadow: var(--shadow-inner);
+}
+/* 필터바 — 레벨 칩 + 텍스트 필터 + 지우기 (브라우저 devtools 콘솔 상단바 식) */
+.rnConsoleBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-shrink: 0;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
+  border-bottom: 1px solid var(--border-light-color);
+}
+.rnFilterChips {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.rnChip {
+  padding: 2px var(--spacing-2xs);
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.rnChip:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary-alt);
+}
+.rnChip[data-on] {
+  color: var(--text-primary);
+  background: var(--bg-secondary-alt);
+}
+.rnFilterInput {
+  flex: 1;
+  min-width: 0;
+  height: 24px;
+  padding: 0 var(--spacing-2xs);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  outline: none;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+}
+.rnFilterInput:focus {
+  border-color: var(--text-accent);
+}
+.rnConsole {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--spacing-2xs) 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
   line-height: 1.7;
   color: var(--text-secondary);
 }
 .rnConsoleEmpty {
+  padding: 0 var(--spacing-sm);
   color: var(--text-muted);
-  font-style: italic;
+}
+.rnConsoleEmpty::before {
+  content: "❯ ";
+  color: var(--text-accent);
 }
 .rnLog {
-  padding: 2px 0;
+  padding: 3px var(--spacing-sm);
   white-space: pre-wrap;
   word-break: break-word;
+  /* devtools 처럼 항목마다 옅은 구분선 */
   border-bottom: 1px solid var(--border-light-color);
 }
-.rnLog[data-level="error"] { color: var(--text-accent); }
-.rnLog[data-level="warn"] { color: var(--text-warning); }
+/* 기본 로그 = 터미널 출력 프롬프트 마커 */
+.rnLog::before {
+  content: "›";
+  margin-right: 0.6ch;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.rnLog[data-level="warn"] {
+  color: var(--text-warning);
+  background: var(--bg-warning-soft);
+  box-shadow: inset 2px 0 0 var(--text-warning);
+}
+.rnLog[data-level="warn"]::before { content: "⚠"; color: var(--text-warning); }
+.rnLog[data-level="error"] {
+  color: var(--text-error);
+  background: var(--bg-error-soft);
+  box-shadow: inset 2px 0 0 var(--text-error);
+}
+.rnLog[data-level="error"]::before { content: "✕"; color: var(--text-error); }
 .rnLog[data-level="info"] { color: var(--text-info); }
+.rnLog[data-level="info"]::before { content: "ℹ"; color: var(--text-info); }
 .pgInner {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border-light-color);
   border-radius: var(--radius-2xl);
   overflow: hidden;
-  background: var(--bg-primary);
+  /* 코드블록 wrap 과 동일한 유리 프레임 — 반투명 + blur. blur 는 클리핑 요소(여기)에만 걸어야
+     radius 클립을 벗어나지 않는다(자식 바에 걸면 모서리로 삐짐). 바들은 tint 만 얹는다. */
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
 }
 /* 전체화면 */
 .pgFullscreen {
@@ -59,28 +157,97 @@
   resize: none;
 }
 
-/* 상단 툴바 */
+/* 상단 툴바 = 블록 헤더. 코드블록 바처럼 유리 톤 — 프레임(pgInner)이 blur 를 담당하고,
+   바는 tint(bg-glass-panel)만 얹어 프레임보다 살짝 진하게(중첩 backdrop-filter 회피). */
 .pgToolbar {
+  position: relative;
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  /* 신호등을 바 위쪽에 붙인다(가운데 정렬 X). top 패딩이 곧 위쪽 inset(macOS 창 헤더처럼). */
+  align-items: flex-start;
   flex-shrink: 0;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-2xs);
-  border-bottom: 1px solid var(--border-light-color);
+  gap: var(--spacing-sm);
+  min-height: 48px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-glass-panel);
 }
+/* 제목 = macOS 창 제목처럼 헤더 정중앙 pill — 코드블록 lang label 과 같은 결(bg-primary + 캡슐 + 그림자).
+   신호등(좌)·Select(우) 폭과 무관하게 항상 정확히 중앙. pointer-events 없음(장식). */
 .pgTitle {
+  position: absolute;
+  left: 50%;
+  /* 신호등 중심(top 패딩 + 반지름 6px)과 같은 높이에 정렬 */
+  top: calc(var(--spacing-sm) + 6px);
+  transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: 0 var(--spacing-2xs);
-  color: var(--text-secondary);
+  padding: 5px 14px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-capsule);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-primary);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
 }
 .pgToolbarSpacer {
   flex: 1;
+}
+/* 스택 피커 — 빈 블록(엔진 미선택)일 때 생성 시 1회 스택을 고르는 화면 */
+.pgPicker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  min-height: 240px;
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+.pgPickerTitle {
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+.pgPickerGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+.pgPickerBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 150px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.pgPickerBtn:hover {
+  border-color: var(--text-accent);
+  box-shadow: var(--shadow-sm);
+}
+.pgPickerLabel {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+.pgPickerDesc {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+}
+/* 비활성 아이콘 버튼(되돌리기/다시하기 등) */
+.spIconBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 /* Sandpack 컨테이너 — 높이는 하단 핸들(.pgResize)로 조절 */
@@ -103,7 +270,7 @@
   flex-shrink: 0;
   cursor: row-resize;
   border-top: 1px solid var(--border-light-color);
-  background: var(--bg-secondary);
+  background: var(--bg-glass-panel);
 }
 .pgResize::before {
   content: "";
@@ -140,16 +307,17 @@
 .spViewBar {
   display: flex;
   align-items: center;
-  gap: 1px;
+  gap: var(--spacing-sm);
   flex-shrink: 0;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  min-height: 40px;
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-bottom: 1px solid var(--border-light-color);
-  background: var(--bg-secondary);
+  background: var(--bg-glass-panel);
 }
 /* 리더뷰에서는 상단바 좌우 여백을 더 넉넉히 */
 :global(.reader-playground) .spViewBar {
-  padding-left: var(--spacing-sm);
-  padding-right: var(--spacing-sm);
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
 }
 .spViewBarSpacer {
   flex: 1;
@@ -157,13 +325,51 @@
 .spViewBarDiv {
   width: 1px;
   align-self: stretch;
-  margin: 2px var(--spacing-3xs);
+  margin: var(--spacing-2xs) var(--spacing-3xs);
   background: var(--border-light-color);
+}
+/* 툴바 도구 묶음 = label 처럼 흰 pill(배경 + 그림자)로 영역 구분 — 구분선 대신. */
+.spGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: 3px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-capsule);
+  box-shadow: var(--shadow-xs);
+}
+/* pill 맨 앞 정적 아이콘 — 그 pill 이 무엇을 대상으로 하는지 표시(미리보기/전체 UI 등) */
+.spGroupLead {
+  display: inline-flex;
+  align-items: center;
+  padding-left: var(--spacing-3xs);
+  color: var(--text-muted);
+}
+/* 인라인 컨트롤 값 표시(배율 %, 폰트 px) — 스텝 버튼 사이 숫자 */
+.spCtlValue {
+  min-width: 40px;
+  padding: 0 var(--spacing-3xs);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
 }
 .spRow {
   display: flex;
   align-items: stretch;
   flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+/* 에디터/미리보기 영역 래퍼 — 사이드바(좌)와 나란히 두고, 내부는 레이아웃 토글에 따라
+   가로(row) 또는 세로(column) 분할. 분할 비율 측정 기준(rowRef)도 이 요소다. */
+.spMain {
+  display: flex;
+  flex: 1;
+  min-width: 0;
   min-height: 0;
   overflow: hidden;
 }
@@ -188,7 +394,7 @@
   overflow-x: auto;
   overflow-y: hidden;
   border-bottom: 1px solid var(--border-light-color);
-  background: var(--bg-secondary);
+  background: var(--bg-glass-panel);
   scrollbar-width: none;
 }
 .spTabs::-webkit-scrollbar {
@@ -197,13 +403,14 @@
 .spTab {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2xs);
   flex-shrink: 0;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  min-height: 34px;
+  padding: var(--spacing-2xs) var(--spacing-sm);
   border-right: 1px solid var(--border-light-color);
   color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-sm);
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
@@ -229,7 +436,7 @@
   background: var(--text-accent);
 }
 .spTabName {
-  max-width: 140px;
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -265,14 +472,15 @@
 .spTreeRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-3xs);
+  gap: var(--spacing-2xs);
   width: 100%;
-  padding: 3px var(--spacing-2xs);
+  min-height: 30px;
+  padding: var(--spacing-3xs) var(--spacing-sm);
   border: none;
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-sm);
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
@@ -294,6 +502,36 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* 트리 행 hover 액션(이름변경·삭제) — 평소 숨김, 행 hover 시 노출. margin-left:auto 로 우측 정렬 */
+.spTreeActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  padding-left: var(--spacing-2xs);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.spTreeRow:hover .spTreeActions {
+  opacity: 1;
+}
+.spTreeAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.spTreeAction:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
 /* 콘솔(디버그) 패널 — 코드뷰 아래, 높이 인라인 지정 */
 .spConsole {
   flex-shrink: 0;
@@ -306,7 +544,7 @@
 .spExplorer {
   display: flex;
   flex-direction: column;
-  width: 168px;
+  width: 184px;
   flex-shrink: 0;
   min-height: 0;
   border-right: 1px solid var(--border-light-color);
@@ -315,12 +553,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  min-height: 34px;
+  padding: 0 var(--spacing-sm);
   border-bottom: 1px solid var(--border-light-color);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-xs);
   font-weight: 600;
+  letter-spacing: 0.04em;
 }
 .spExplorerActions {
   display: inline-flex;
@@ -331,26 +571,39 @@
 .spTreeInput {
   flex: 1;
   min-width: 0;
-  border: none;
+  height: 28px;
+  padding: 0 var(--spacing-2xs);
+  border: 1px solid var(--border-default-color);
+  border-radius: var(--radius-2xl);
   outline: none;
-  background: transparent;
+  background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-sm);
 }
 .spTreeInput::placeholder {
   color: var(--text-muted);
 }
 .spTreeInput:focus {
-  outline: 1px solid var(--text-accent);
-  border-radius: var(--radius-sm);
+  border-color: var(--text-accent);
+  box-shadow: 0 0 0 3px var(--bg-accent-subtle);
+}
+/* 생성/이름변경 입력이 든 행은 좀 더 높게 — input 이 안 눌려 보이게 */
+.spTreeRow:has(.spTreeInput) {
+  min-height: 36px;
+  padding-block: var(--spacing-3xs);
+}
+/* DnD 드롭 대상 폴더 하이라이트 */
+.spTreeRow[data-drop] {
+  background: var(--bg-accent-subtle);
+  box-shadow: inset 0 0 0 1px var(--text-accent);
 }
 .spIconBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border: none;
   border-radius: var(--radius-circle);
   background: transparent;
@@ -414,6 +667,30 @@
   flex-direction: column;
   flex: 1;
   min-width: 0;
+  /* 축소 시 역보정된 큰 레이아웃 박스가 넘치지 않게 클립 */
+  overflow: hidden;
+}
+/* 미리보기 배율 컨트롤 — 툴바가 아니라 미리보기 영역 우상단에 떠 있는 pill */
+.rnPreviewZoom {
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-2xs);
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  padding: 3px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-capsule);
+  box-shadow: var(--shadow-sm);
+  /* 미리보기 영역에 hover 했을 때만 표시 */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+.spPreviewCol:hover .rnPreviewZoom {
+  opacity: 1;
+  pointer-events: auto;
 }
 /* 주소창 바 우측 오버레이 — 미리보기 확대/축소·전체화면 버튼 */
 .spPreviewNav {

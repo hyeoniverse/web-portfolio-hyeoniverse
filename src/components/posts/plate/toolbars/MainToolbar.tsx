@@ -17,8 +17,6 @@ import TBtn from "../TBtn";
 import { useRecentColors } from "../useRecentColors";
 import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText } from "lucide-react";
 import { genPollId } from "../PollElements";
-import { DEFAULT_TEMPLATE } from "../playground/model";
-import { starterFiles } from "../playground/starters";
 import { AlignIcon } from "../icons";
 import {
   FONT_GROUPS,
@@ -712,7 +710,7 @@ export default React.memo(function MainToolbar({
         onClick={() => {
           const sel = editor.selection;
           const insertAt = sel ? [sel.anchor.path[0] + 1] : [editor.children.length];
-          editor.tf.insertNodes({ type: "playground", data: { template: DEFAULT_TEMPLATE, files: starterFiles(DEFAULT_TEMPLATE) }, children: [{ text: "" }] }, { at: insertAt });
+          editor.tf.insertNodes({ type: "playground", data: { template: "", files: {} }, children: [{ text: "" }] }, { at: insertAt });
           setTimeout(() => editor.tf.focus(), 0);
         }}
       >
