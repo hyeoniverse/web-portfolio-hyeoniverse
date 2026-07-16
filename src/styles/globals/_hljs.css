@@ -381,7 +381,7 @@ pre code .token.italic {
 .code-block-wrap.has-code-bar {
   margin: var(--spacing-lg) 0;
   border: var(--border-light);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
   /* 가벼운 유리 면 — 솔리드 대신 반투명 + blur. 뒤 배경이 은은히 비친다.
      프로젝트 glass 관용구(_semantic.css): bg-glass-panel + blur-glass 를 항상 같이. */
@@ -400,7 +400,7 @@ pre code .token.italic {
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
   border: var(--border-light);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
   resize: vertical;
 }
@@ -450,8 +450,9 @@ pre code .token.italic {
   gap: var(--spacing-sm);
   margin: 0;
   padding: var(--spacing-2xs) var(--spacing-md);
-  /* 창이 이미 유리 면이라 헤더는 배경 없이 하단 hairline 만으로 구분 — 선 기반, 더 가볍게 */
-  background: transparent;
+  /* 헤더 — 본문(유리 면)보다 한 톤 어둡게 얹어 "창 헤더" 로 읽히게. inverse-alpha 라
+     라이트/다크 양쪽에서 본문 대비 살짝 어두운 면이 된다. + 하단 hairline. */
+  background: var(--color-gray-alpha-5);
   border-bottom: var(--border-light);
 }
 
@@ -502,7 +503,7 @@ pre code .token.italic {
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  border: none;
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-tertiary);
@@ -516,6 +517,7 @@ pre code .token.italic {
 
 .code-block-wrap .code-copy-btn:hover {
   background: var(--bg-tertiary);
+  border-color: var(--border-default-color);
   color: var(--text-primary);
 }
 
@@ -534,7 +536,7 @@ pre code .token.italic {
   align-items: center;
   gap: 3px;
   padding: 4px 8px;
-  border: none;
+  border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-tertiary);
@@ -548,6 +550,7 @@ pre code .token.italic {
 }
 .code-block-wrap .code-wrap-toggle:hover {
   background: var(--bg-tertiary);
+  border-color: var(--border-default-color);
   color: var(--text-primary);
 }
 
