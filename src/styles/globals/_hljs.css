@@ -566,7 +566,7 @@ pre code .token.italic {
 /* copy/copied 두 라벨을 grid 로 겹쳐 넓은 쪽이 폭을 잡는다 → 상태 전환에도 너비 불변 */
 .code-copy-labels {
   display: inline-grid;
-  place-items: center start;
+  place-items: center;
 }
 .code-copy-default,
 .code-copy-done {
@@ -575,7 +575,7 @@ pre code .token.italic {
 .code-copy-done { opacity: 0; }  /* 기본 = copy 만 보임 */
 
 .code-block-wrap .code-copy-btn:hover {
-  background: var(--bg-tertiary-alt);
+  background: var(--bg-secondary-alt);
   color: var(--text-primary);
 }
 
@@ -606,7 +606,7 @@ pre code .token.italic {
   transition: background 0.15s ease, color 0.15s ease;
 }
 .code-block-wrap .code-wrap-toggle:hover {
-  background: var(--bg-tertiary-alt);
+  background: var(--bg-secondary-alt);
   color: var(--text-primary);
 }
 
