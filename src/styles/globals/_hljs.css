@@ -391,6 +391,10 @@ pre code .token.italic {
   overflow: hidden;
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
+  /* 라벨·버튼이 공유하는 규격 — 높이·폰트를 한 곳에서 강제해 서로 어긋나지 않게 */
+  --_bar-ctl-h: 30px;
+  --_bar-ctl-fs: var(--font-size-sm);
+  --_bar-ctl-px: 14px;
 }
 
 /* 리사이즈 커서 overlay — wrap 우하단 native resize 그립 위. pointer-events:none 이라
@@ -473,9 +477,9 @@ pre code .token.italic {
   position: relative;
   min-height: 42px;
   padding: 0 var(--spacing-md);
-  /* 본문(유리 면)보다 한 톤 어둡게 — 헤더 무게감 */
-  background: var(--bg-tertiary-alt);
-  border-bottom: var(--border-light);
+  /* glass 헤더 — 반투명 유리 면 + blur. border 없이 톤차로만 본문과 구분. */
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
 }
 
 /* 신호등 점 3개 — 빨강·노랑·초록 (macOS 창버튼). radial-gradient 로 한 배경에 그림(추가 DOM 없음) */
@@ -487,6 +491,19 @@ pre code .token.italic {
   /* macOS Big Sur 창버튼 — 지름 12px, 중심간 20px(6/26/46).
      각 점: 채움색 5px → **같은 색 계열의 살짝 진한 림**(6px) → 투명. 검정 링이 아니라 동일계열
      림이라야 진짜 macOS 처럼 채도가 살고 밝은/어두운 배경 양쪽에서 또렷하다. */
+  background:
+    radial-gradient(circle at 6px 6px, #ff5f56 0 5px, #e0443e 5px 6px, transparent 6px),
+    radial-gradient(circle at 26px 6px, #ffbd2e 0 5px, #dea123 5px 6px, transparent 6px),
+    radial-gradient(circle at 46px 6px, #27c93f 0 5px, #1aab29 5px 6px, transparent 6px);
+}
+
+/* 플레이그라운드 블록 헤더도 같은 macOS 창버튼(신호등). 코드블록과 동일 규격 —
+   .pg-titlebar 는 PlaygroundElement 의 pgToolbar 에 붙는 전역 클래스(모듈 hash 와 별개). */
+.pg-titlebar::before {
+  content: "";
+  flex-shrink: 0;
+  width: 52px;
+  height: 12px;
   background:
     radial-gradient(circle at 6px 6px, #ff5f56 0 5px, #e0443e 5px 6px, transparent 6px),
     radial-gradient(circle at 26px 6px, #ffbd2e 0 5px, #dea123 5px 6px, transparent 6px),
@@ -515,8 +532,13 @@ pre code .token.italic {
      바깥만 둥글고(overflow hidden) 안쪽 버튼 맞닿는 모서리는 직선. */
   background: var(--bg-primary);
   border-radius: var(--radius-capsule);
-  box-shadow: inset 0 1px 3px oklch(0% 0 0 / 0.14);
+  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.06), 0 2px 4px oklch(0% 0 0 / 0.06);
   overflow: hidden;
+  transition: box-shadow 0.15s ease;
+}
+/* hover 시 pill 이 살짝 떠오르게 — 드롭 섀도 짙게 */
+.code-block-controls:hover {
+  box-shadow: 0 1px 3px oklch(0% 0 0 / 0.13), 0 3px 8px oklch(0% 0 0 / 0.13);
 }
 /* 세그먼트 버튼 사이 구분선 — (복사 | 스크롤) */
 .code-block-controls > * + * {
@@ -529,14 +551,14 @@ pre code .token.italic {
 .code-block-wrap .code-lang-label {
   display: inline-flex;
   align-items: center;
-  padding: 6px 16px;
-  /* 파인 배경(밝은 면 + inner shadow) 유지. 창 제목처럼 또렷하되 과하지 않게. */
+  height: var(--_bar-ctl-h);
+  padding: 0 var(--_bar-ctl-px);
   background: var(--bg-primary);
   border-radius: var(--radius-capsule);
-  box-shadow: inset 0 1px 3px oklch(0% 0 0 / 0.14);
+  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.06), 0 2px 4px oklch(0% 0 0 / 0.06);
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--_bar-ctl-fs);
   font-weight: var(--font-weight-medium);
   line-height: 1;
   letter-spacing: 0.02em;
@@ -550,13 +572,14 @@ pre code .token.italic {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 14px;
+  height: var(--_bar-ctl-h);
+  padding: 0 var(--_bar-ctl-px);
   border: none;
   border-radius: 0;              /* 세그먼트 — 그룹 캡슐이 바깥 라운드를 만든다 */
   background: transparent;
-  color: var(--text-tertiary);
+  color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--_bar-ctl-fs);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
@@ -575,7 +598,7 @@ pre code .token.italic {
 .code-copy-done { opacity: 0; }  /* 기본 = copy 만 보임 */
 
 .code-block-wrap .code-copy-btn:hover {
-  background: var(--bg-secondary-alt);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
 
@@ -592,13 +615,14 @@ pre code .token.italic {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 6px 14px;
+  height: var(--_bar-ctl-h);
+  padding: 0 var(--_bar-ctl-px);
   border: none;
   border-radius: 0;              /* 복사 버튼과 동일 — 세그먼트 */
   background: transparent;
-  color: var(--text-tertiary);
+  color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--_bar-ctl-fs);
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -606,7 +630,7 @@ pre code .token.italic {
   transition: background 0.15s ease, color 0.15s ease;
 }
 .code-block-wrap .code-wrap-toggle:hover {
-  background: var(--bg-secondary-alt);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
 
