@@ -194,7 +194,7 @@ richtext HTML을 후처리하는 **공용 유틸**. 상세 페이지와 미리�
 
 1. heading id 주입 (TOC 앵커)
 2. iframe embed URL 변환
-3. 코드블록 hljs 신택스 하이라이팅 (+ language 클래스, mermaid 는 원본 유지)
+3. 코드블록 wrap 토글 버튼에 라벨 span 삽입 (신택스 하이라이팅은 **여기서 안 한다** — Shiki 가 별도 처리)
 4. 코드 wrap 토글 버튼 라벨 삽입
 5. img 에 `data-cursor="zoom"` 힌트 주입 (CursorTrail 이미지 뷰어)
 

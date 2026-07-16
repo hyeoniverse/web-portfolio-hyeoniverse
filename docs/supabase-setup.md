@@ -325,15 +325,30 @@ npm run test:watch
 
 **테스트 대상**:
 
-| 파일                       | 테스트 수 | 설명                                                                |
-| -------------------------- | --------- | ------------------------------------------------------------------- |
-| `cn.test.ts`               | 6         | 클래스명 조합 유틸 (`cn`)                                           |
-| `date.test.ts`             | 6         | 날짜 포맷 유틸 (`formatDate`, `getYear`)                            |
-| `random.test.ts`           | 8         | 랜덤 요소 생성 (`generateRandomElements`, `generateRandomDroplets`) |
-| `mobileCheck.test.ts`      | 6         | 모바일 레이아웃 판별 (`checkMobileLayout`)                          |
-| `renderHighlight.test.tsx` | 4         | 하이라이트 마크업 변환 (`renderHighlight`)                          |
+**유틸 · 렌더** (`src/__tests__/`)
 
-설정 파일: `vitest.config.ts`, 테스트 위치: `src/__tests__/`
+| 파일 | 수 | 설명 |
+| --- | --- | --- |
+| `cn.test.ts` | 6 | 클래스명 조합 유틸 (`cn`) |
+| `mobileCheck.test.ts` | 6 | 모바일 레이아웃 판별 (`checkMobileLayout`) |
+| `renderHighlight.test.tsx` | 4 | 하이라이트 마크업 변환 (`renderHighlight`) |
+| `koSearch.test.ts` | 10 | 한글 초성/자모 검색 매칭 |
+| `codeBlockBar.test.tsx` | 3 | 코드블록 상단 바 (언어 라벨 · 복사 · 줄바꿈 토글) |
+| `cssTokens.test.ts` | 1 | **정의되지 않은 CSS 토큰 가드** — `var()` fallback 이 없으면 선언 전체가 무효가 되는데 CSS 는 조용히 넘어간다. 실제로 13종 · 57곳이 죽어 있었다 |
+
+**에디터 (Plate)** (`src/components/posts/plate/__tests__/`)
+
+| 파일 | 수 | 설명 |
+| --- | --- | --- |
+| `browserSafeGrammar.test.ts` | 15 | hljs 문법의 브라우저 안전성 — 등록된 정규식이 hljs 의 flag 없는 재파싱을 견디는지 (트러블슈팅 75번). node 는 원본을 쓰므로 **번들된 형태를 합성**해서 검증 |
+| `fitColumnsForInsert.test.ts` | 10 | 열 블록 폭 배분 — 블록 상한 유지, 최소 폭 하한, 내림 잔여 배분 |
+| `columnHasContent.test.ts` | 9 | 열 삭제 전 내용 판정 — 텍스트가 없어도 이미지/구분선은 내용 |
+| `codePaste.test.ts` | 7 | 코드블록 **밖**에 코드 붙여넣기 — markdown 파서가 들여쓰기로 코드를 찢지 않는지 |
+| `codeBlockClear.test.ts` | 5 | "내용 제거" 후 커서가 블록 안에 남는지 (밖으로 새면 붙여넣기가 유출) |
+| `codeBlockStructure.test.ts` | 4 | `code_block` 자식이 항상 `code_line` 인지 (raw 텍스트면 아무도 못 고치는 상태가 된다) |
+| `tableRowHeight.test.ts` | 4 | 표 행 높이 HTML 왕복 |
+
+설정: `vitest.config.ts` (jsdom, `@platejs/*` inline — 전체 EditorKit 로드용)
 
 ---
 
