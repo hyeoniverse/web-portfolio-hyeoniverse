@@ -9,6 +9,10 @@ import HelpButton from "@/components/ui/HelpButton";
 import DetailActionButton from "@/components/ui/DetailActionButton";
 import SortControl from "@/components/ui/SortControl";
 import SegmentedControl from "@/components/ui/SegmentedControl";
+import FontPicker from "@/components/ui/FontPicker";
+import HighlightedText from "@/components/ui/HighlightedText";
+import EditableInput from "@/components/ui/EditableInput";
+import MediaThumb from "@/components/ui/MediaThumb";
 import PageTitle from "@/components/ui/PageTitle";
 import SpinButton from "@/components/ui/SpinButton";
 import Collapsible from "@/components/ui/Collapsible";
@@ -78,6 +82,9 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [sortDirDemo, setSortDirDemo] = useState<"asc" | "desc">("asc");
   const [segDemo, setSegDemo] = useState("all");
   const [segSubtleDemo, setSegSubtleDemo] = useState("month");
+  const [fontDemo, setFontDemo] = useState("var(--font-instrument)");
+  const [editableDemo, setEditableDemo] = useState("클릭해서 편집");
+  const [editableLimitDemo, setEditableLimitDemo] = useState("글자수 권장 한도를 넘겨 보세요");
   const [switchOn, setSwitchOn] = useState(false);
   const [switchAccent, setSwitchAccent] = useState(true);
   const [switchMd, setSwitchMd] = useState(true);
@@ -812,6 +819,11 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* ColorPicker */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>ColorPicker</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "render-prop trigger + portal popover — trigger 를 호출부가 그리므로 스와치·버튼·칩 무엇이든 될 수 있다. **모바일(≤768px)에선 dropdown 대신 bottom sheet 으로 바뀐다** — 색을 고르려면 두 손가락만 한 면적이 필요한데 작은 화면의 popover 로는 그게 안 나온다. `inline` 모드는 이미 제자리에 펼쳐진 형태라 sheet 전환에서 제외된다."
+            : "A render-prop trigger with a portal popover — the caller draws the trigger, so it can be a swatch, a button, or a chip. **On mobile (≤768px) it becomes a bottom sheet instead of a dropdown** — picking a color needs roughly two fingers' worth of area, which a popover on a small screen can't give. `inline` mode is already expanded in place, so it opts out of the sheet."}
+        </p>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-md)", flexWrap: "wrap" }}>
           <Tooltip content="render-prop trigger + portal popover">
             <ColorPicker value={pickerColor} onChange={(c) => setPickerColor(c.hex)}>
@@ -1440,6 +1452,98 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "icon + 메시지 + 돌아가기 링크 중앙 정렬 — admin 편집/상세에서 항목을 못 찾았을 때 쓰는 empty state 패턴"
             : "Centered icon + message + back link — empty-state pattern for when an admin edit/detail view can't find the item"}
         </span>
+      </motion.div>
+
+      {/* FontPicker */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>FontPicker</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "폰트 선택 드롭다운 — 각 항목이 그 폰트로 렌더돼 고르기 전에 생김새를 본다. `groups` 로 넘기면 그룹 라벨이 붙고, 단일 그룹이면 `group: \"\"` 로 라벨을 숨긴다. `googleName` 이 있는 항목은 고르는 순간 컴포넌트가 Google Font 를 알아서 로드하므로 호출부가 신경 쓸 게 없다. `preferEn` 은 한글 그룹을 뒤로 미는 스위치 (영문 UI 우선인 자리용)."
+            : "A font dropdown where every option renders in its own face, so you see it before you pick it. Pass `groups` to get group labels; a single group with `group: \"\"` hides them. Options carrying a `googleName` load the Google Font themselves the moment they're chosen, so callers don't have to. `preferEn` pushes Korean groups to the back for English-first surfaces."}
+        </p>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
+            <FontPicker
+              value={fontDemo}
+              onChange={(v) => setFontDemo(v)}
+              groups={[
+                {
+                  group: language === "ko" ? "영문" : "Latin",
+                  fonts: [
+                    { label: "Instrument Serif", value: "var(--font-instrument)" },
+                    { label: "Space Grotesk", value: "var(--font-space-grotesk)" },
+                  ],
+                },
+                {
+                  group: language === "ko" ? "고정폭" : "Mono",
+                  fonts: [{ label: "Mono", value: "var(--font-mono)" }],
+                },
+              ]}
+              fallbackLabel="Default"
+            />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* HighlightedText */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>HighlightedText</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "검색 매치 부분만 `<mark>` 로 감싼다. `query` 를 안 주면 SearchHighlightProvider context 의 것을 쓰므로, 리스트의 각 행이 검색어를 일일이 넘겨받을 필요가 없다. query 가 비면 그냥 평문이라 조건 분기 없이 항상 이걸 쓰면 된다."
+            : "Wraps only the matched span in `<mark>`. Without an explicit `query` it reads the one from `SearchHighlightProvider` context, so list rows don't each have to thread the search term through. An empty query renders plain text, so you can use it unconditionally."}
+        </p>
+        <div className={styles.componentRow} style={{ flexDirection: "column", alignItems: "flex-start", gap: "var(--spacing-2xs)" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
+            <HighlightedText text={language === "ko" ? "검색어가 들어간 문장입니다" : "A sentence containing the search term"} query={language === "ko" ? "검색어" : "search"} />
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ color: "var(--text-muted)", fontSize: "var(--font-size-xs)" }}>
+            {language === "ko" ? "query 없음 → 평문" : "no query → plain text"}: <HighlightedText text={language === "ko" ? "강조 없음" : "no highlight"} query="" />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* EditableInput */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>EditableInput</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "인라인 편집 input. 글자수 제한이 두 갈래인 게 핵심이다 — `maxHint` 는 **권장** 한도라 넘겨도 막지 않고 초과분에 `<mark>` + 카운터만 띄우고(붙여넣은 긴 제목을 잘라버리지 않는다), `maxLength` 는 **하드** 상한이라 입력·붙여넣기 시점에 잘라낸다. `inlineLabel` 로 KO/EN 같은 배지를 input 안에 넣을 수 있다."
+            : "An inline-editing input. The two-tier length limit is the point: `maxHint` is a **soft** cap — exceeding it isn't blocked, it just marks the overflow and shows a counter (so a long pasted title isn't silently truncated), while `maxLength` is a **hard** cap enforced on type and paste. `inlineLabel` puts a badge like KO/EN inside the field."}
+        </p>
+        <div className={styles.componentRow} style={{ flexDirection: "column", alignItems: "stretch", gap: "var(--spacing-sm)", maxWidth: 380 }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
+            <EditableInput value={editableDemo} onChange={setEditableDemo} inlineLabel="KO" placeholder={language === "ko" ? "제목" : "Title"} />
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)}>
+            <EditableInput value={editableLimitDemo} onChange={setEditableLimitDemo} maxHint={20} placeholder={language === "ko" ? "권장 20자" : "20 chars suggested"} />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* MediaThumb */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>MediaThumb</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "썸네일 하나로 이미지·영상·빈 값을 다 받는다 — URL 이 영상이면 `<video>`, 아니면 `next/image`, src 가 없으면 `fallbackSeed` 로 gradient 를 만든다. 호출부가 매번 확장자를 보고 분기하던 걸 흡수한 것. `unoptimized` 는 admin 미리보기처럼 외부 도메인이라 optimizer 를 우회해야 할 때."
+            : "One thumbnail that takes images, video, or nothing — a video URL renders `<video>`, anything else goes through `next/image`, and a missing src falls back to a seeded gradient. It absorbs the extension-sniffing every caller used to do. `unoptimized` is for cases like admin previews where the domain is external and the optimizer must be bypassed."}
+        </p>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+            <div style={{ position: "relative", width: 96, height: 64, borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
+              <MediaThumb src="" fallbackSeed="design-system" fill alt="" />
+            </div>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>src 없음 → gradient</span>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+            <div style={{ position: "relative", width: 96, height: 64, borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
+              <MediaThumb src="/images/profile_pic.webp" fill alt="" />
+            </div>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>image</span>
+          </motion.div>
+        </div>
       </motion.div>
     </section>
   );
