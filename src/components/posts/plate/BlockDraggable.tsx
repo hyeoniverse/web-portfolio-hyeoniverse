@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
 import Tooltip from "@/components/ui/Tooltip";
-import { CALLOUT_BG_PRESETS } from "./presets";
+import { CALLOUT_BG_PRESETS, COLUMN_DEFAULT_PX, MAX_COLUMNS, fitColumnsForInsert } from "./presets";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
 import { _slashOpenTrigger } from "./utils";
@@ -79,7 +79,6 @@ export function makeColumnsFromDrop(ed: any, dragIdx: number, targetIdx: number,
 }
 
 // 상식 상한 — 폭이 아니라 "말이 안 되는 개수"를 막는 안전장치. 실제 폭은 CSS(min-width+가로스크롤)가 처리.
-const MAX_COLUMNS = 12;
 
 // 이미 존재하는 column_group 옆에 드롭 → 중첩 대신 그 그룹에 새 열을 추가(3열+).
 // 상한 도달 시 false 반환 → 호출부에서 기본 이동으로 폴백.
@@ -88,15 +87,36 @@ export function addColumnToGroup(ed: any, dragIdx: number, groupIdx: number, sid
   if (!group?.children) return false;
   if (group.children.length >= MAX_COLUMNS) return false; // 상한 초과 → 추가 안 함
   const draggedNode = JSON.parse(JSON.stringify(ed.api.node([dragIdx])?.[0]));
-  const newCol = { type: "column", width: "50%", children: [draggedNode] };
   const origCount = group.children.length;
   const colCount = origCount + 1;
   const insertColIdx = side === "left" ? 0 : origCount;
+  /* px 로 고정된 블록이면 기존 열 폭을 건드리지 않는다 — 새 열만 기본 폭으로 끼운다.
+     새 열에 widthPx 를 안 주면 그 열만 유동(flex: w 1 0)이 되어 남는 공간을 흡수하고,
+     결국 총폭이 컨테이너에 묶여 기존 px 폭이 무의미해진다. */
+  const hasPx = (group.children as { widthPx?: number }[]).some(
+    (c) => typeof c?.widthPx === "number" && c.widthPx > 0,
+  );
+  const newCol: Record<string, unknown> = { type: "column", width: "50%", children: [draggedNode] };
+  // 기존 열 폭은 그대로 두고 새 열만 기본 폭으로 붙인다. 단 블록 상한에 여유가 없으면
+  // 그때만 기존 열을 비례로 깎아 자리를 낸다 (fitColumnsForInsert 가 두 규칙을 다 안다).
+  const curPx = (group.children as { widthPx?: number }[]).map((c) => c?.widthPx || 0);
+  const fit = hasPx ? fitColumnsForInsert(curPx, COLUMN_DEFAULT_PX) : null;
+  if (fit) newCol.widthPx = fit.added;
   ed.tf.withoutNormalizing(() => {
     ed.tf.removeNodes({ at: [dragIdx] });
     const gIdx = dragIdx < groupIdx ? groupIdx - 1 : groupIdx; // 제거로 인한 index 보정
     ed.tf.insertNodes(newCol, { at: [gIdx, insertColIdx] });
-    // 너비 균등 재분배 — 정수 합=100 (소수면 @platejs/layout normalizer 가 수렴 못 해 무한루프)
+    // 자리를 내주느라 깎인 기존 열 반영. 왼쪽에 끼웠으면 기존 열의 index 가 1 씩 밀린다.
+    // px 가 없던(유동) 열은 curPx 가 0 이라 깎이지도 않으므로 그대로 건너뛴다 — 여기서 px 를 주면
+    // 유동이던 열이 갑자기 고정으로 바뀐다.
+    if (fit) {
+      const shift = insertColIdx === 0 ? 1 : 0;
+      fit.widths.forEach((w, i) => {
+        if (curPx[i] > 0 && w !== curPx[i]) ed.tf.setNodes({ widthPx: w }, { at: [gIdx, i + shift] });
+      });
+    }
+    // width(%) 는 정수 합=100 을 유지해야 한다 (소수면 @platejs/layout normalizer 가 수렴 못 해 무한루프).
+    // px 블록에선 이 값이 렌더에 안 쓰이지만(px 가 우선) normalizer 를 만족시키려면 그대로 채워둔다.
     const base = Math.floor(100 / colCount);
     for (let i = 0; i < colCount; i++) {
       const w = i < colCount - 1 ? base : 100 - base * (colCount - 1);

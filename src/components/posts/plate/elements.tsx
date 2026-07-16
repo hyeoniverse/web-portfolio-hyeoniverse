@@ -11,10 +11,12 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
 import Tooltip from "@/components/ui/Tooltip";
 import { ReactEditor } from "slate-react";
-import { COLUMN_DEFAULT_BG, COLUMN_MIN_PX, COLUMN_MAX_PX } from "./presets";
+import { COLUMN_DEFAULT_BG, COLUMN_MIN_PX, COLUMN_MAX_PX, COLUMN_GROUP_MAX_PX } from "./presets";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import { formatCode, isFormattable } from "./formatCode";
 import MermaidPreview from "./MermaidPreview";
+import HelpButton from "@/components/ui/HelpButton";
+import { lowlight } from "./lowlightInstance";
 import FloatingBar from "./toolbars/FloatingBar";
 import BlockActionsMenu from "./BlockActionsMenu";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -710,7 +712,7 @@ function MermaidExample({ label, code, wide, ko, onCopy }: { label: string; code
         <button type="button" className={styles.mermaidHelpCopy} onClick={() => onCopy(code)}><Copy size={13} />{ko ? "코드 복사" : "Copy code"}</button>
       </div>
       <div className={styles.mermaidHelpExampleBody}>
-        <pre className={styles.mermaidHelpCode}>{code}</pre>
+        <MermaidCode code={code} className={styles.mermaidHelpCode} />
         {/* 차트 컨테이너 — 우상단에 확대/축소/전체화면 컨트롤(스크롤에 안 딸려가게 뷰포트 밖) */}
         <div className={styles.mermaidHelpDiagramWrap}>
           <div className={styles.mermaidHelpDiagramCtrls}>
@@ -747,6 +749,29 @@ function MermaidExample({ label, code, wide, ko, onCopy }: { label: string; code
 }
 
 /** mermaid 문법 도움말 (공통 Modal 콘텐츠) — 각 예시를 코드 + 실제 렌더 그래프로 나란히 보여준다. */
+/* lowlight(hast) → React. mermaid 문법은 lowlightInstance 에서 등록해 둔다.
+   도움말의 예제/치트시트도 에디터 코드블록과 **같은 팔레트**(globals/_hljs.css)를 쓰게 하려고
+   같은 hljs-* 클래스를 그대로 내보낸다 — 여기서 색을 따로 정의하면 셋째 팔레트가 또 생긴다. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function hastToReact(node: any, i: number): React.ReactNode {
+  if (node.type === "text") return node.value;
+  const cls = (node.properties?.className || []).join(" ") || undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return <span key={i} className={cls}>{(node.children || []).map((c: any, j: number) => hastToReact(c, j))}</span>;
+}
+
+/** mermaid 코드 — 하이라이팅해서 보여준다. 문법을 못 읽으면 평문 그대로(색만 없음). */
+function MermaidCode({ code, className, inline }: { code: string; className?: string; inline?: boolean }) {
+  const nodes = useMemo(() => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (lowlight.highlight("mermaid", code).children as any[]).map((n, i) => hastToReact(n, i));
+    } catch { return null; }
+  }, [code]);
+  const body = <code>{nodes ?? code}</code>;
+  return inline ? body : <pre className={className}>{body}</pre>;
+}
+
 function MermaidHelpModal({ language }: { language: string }) {
   const ko = language === "ko";
   type MRule = { code: string; desc: string };
@@ -1138,7 +1163,7 @@ function MermaidHelpModal({ language }: { language: string }) {
           <ul className={styles.mermaidHelpRules}>
             {active.rules.map((r) => (
               <li key={r.code} className={styles.mermaidHelpRule}>
-                <code>{r.code}</code>
+                <MermaidCode code={r.code} inline />
                 <span className={styles.mermaidHelpRuleDesc}>{r.desc}</span>
               </li>
             ))}
@@ -1150,7 +1175,7 @@ function MermaidHelpModal({ language }: { language: string }) {
             <ul className={styles.mermaidHelpRules}>
               {active.advanced.map((r) => (
                 <li key={r.code} className={styles.mermaidHelpRule}>
-                  <code>{r.code}</code>
+                  <MermaidCode code={r.code} inline />
                   <span className={styles.mermaidHelpRuleDesc}>{r.desc}</span>
                 </li>
               ))}
@@ -1625,11 +1650,24 @@ export function CodeBlockElement(props: PlateElementProps) {
   const wrap = (el.wrap as boolean) ?? false;
   const lang = el.lang as string | undefined;
   const isMermaid = lang === "mermaid";
-  // 그래프 블록 뷰 — 코드만 / 다이어그램만 / 나란히(split). 기본 나란히.
-  const [graphView, setGraphView] = useState<"code" | "diagram" | "split">("split");
-  const showCode = !isMermaid || graphView !== "diagram";
-  const showDiagram = isMermaid && graphView !== "code";
-  const isSplit = isMermaid && graphView === "split";
+  /* 그래프 블록 뷰 — 코드만 / 다이어그램만 / 나란히(split).
+     **노드에 저장한다**(로컬 state 아님). 의도가 다른 두 경우를 갈라야 하기 때문:
+       · 다이어그램을 직접 추가(슬래시/툴바) → 삽입할 때 graphView:"split" 을 박아 넣는다 → 나란히
+       · 코드블록에 mermaid 를 쓰거나 붙여넣어 lang 만 mermaid 가 된 경우 → graphView 없음 → 코드만
+     로컬 state 로는 이 둘이 구분이 안 돼서, 기본 split 이면 코드블록이 제멋대로 다이어그램이 되고
+     기본 code 면 다이어그램을 추가해도 코드만 보였다.
+     덤으로 사용자가 고른 뷰가 저장되고 다시 열어도 유지된다. */
+  const graphView = ((el.graphView as "code" | "diagram" | "split") ?? "split");
+  /* **다이어그램 블록인가**는 lang 이 아니라 graphView 유무로 정한다.
+     다이어그램 블록은 code_block + lang:"mermaid" 로 구현돼 있어서 lang 만으로 가르면,
+     코드블록에서 mermaid 를 고르거나 붙여넣기로 감지되는 순간 언어 피커가 뷰 토글로 바뀌고
+     그래프까지 떠서 사실상 블록 종류가 바뀌어 버린다.
+     → graphView 는 "다이어그램으로 추가했다"는 의도 표시다. 슬래시/툴바로 삽입할 때만 박힌다.
+       lang:"mermaid" 만 있는 코드블록은 mermaid **하이라이팅만** 받고 코드블록으로 남는다. */
+  const isDiagram = isMermaid && el.graphView != null;
+  const showCode = !isDiagram || graphView !== "diagram";
+  const showDiagram = isDiagram && graphView !== "code";
+  const isSplit = isDiagram && graphView === "split";
   // split 시 코드/그래프 폭 비율(%) — 가운데 핸들 드래그로 조절
   const [splitPct, setSplitPct] = useState(50);
   const splitRef = useRef<HTMLDivElement>(null);
@@ -1652,10 +1690,18 @@ export function CodeBlockElement(props: PlateElementProps) {
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
   };
-  const isEmpty = !el.children || (el.children as Array<{ children?: Array<{ text?: string }> }>).every(
-    (line) => !line.children?.some((leaf) => leaf.text && leaf.text.length > 0),
+  /* 빈 코드블록 판정. 자식이 code_line 이 아니라 raw 텍스트인 깨진 구조(→ plugins/code-block-kit 의
+     CodeBlockStructureKit 참고)에서도 오판하지 않게 텍스트 노드도 같이 본다.
+     예전엔 line.children 만 봐서, 텍스트 자식이면 undefined → "비었다"로 판정 →
+     글자가 멀쩡히 있는데 placeholder 가 겹쳐 보였다. */
+  const isEmpty = !el.children || (el.children as Array<{ text?: string; children?: Array<{ text?: string }> }>).every(
+    (line) => !(line.text && line.text.length > 0)
+      && !line.children?.some((leaf) => leaf.text && leaf.text.length > 0),
   );
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  const setGraphView = (v: "code" | "diagram" | "split") => {
+    if (elPath) editor.tf.setNodes({ graphView: v }, { at: elPath });
+  };
   const { blockDragProps } = useBlockDrag(elPath);
   // 코드블록 위에 뜨는 floating bar 앵커 — 코드블록 DOM(pre) rect
   const getAnchorRect = () => {
@@ -1666,7 +1712,7 @@ export function CodeBlockElement(props: PlateElementProps) {
     } catch { return new DOMRect(); }
   };
   // code_line 들을 \n 으로 join (api.string 은 줄바꿈을 안 넣음 → mermaid 파싱 실패)
-  const mermaidSource = lang === "mermaid"
+  const mermaidSource = isDiagram
     ? ((el.children as Array<{ children?: Array<{ text?: string }> }>) || [])
         .map((line) => (line.children || []).map((leaf) => leaf.text || "").join(""))
         .join("\n")
@@ -1721,17 +1767,21 @@ export function CodeBlockElement(props: PlateElementProps) {
     if (!elPath) return;
     try { editor.tf.removeNodes({ at: elPath }); } catch { /* noop */ }
   };
-  // 내용 제거 — 블록은 유지하고 코드만 비움(빈 code_line 하나로 교체)
+  /* 내용 제거 — 블록 노드는 **그대로 두고** 안의 텍스트만 지운다.
+     예전엔 removeNodes + insertNodes 로 블록을 통째로 갈아치웠는데, removeNodes 가 selection 을
+     날려서 커서가 이전 형제 블록으로 튕겨나갔다. 그 상태로 붙여넣으면 Plate 의 코드블록 붙여넣기
+     핸들러가 `api.block()` 이 code_line 이 아니라며 건너뛰고 기본 붙여넣기로 떨어져서,
+     내용이 코드블록이 아니라 엉뚱한 블록에 꽂히고 코드블록은 빈 채(=placeholder 그대로) 남았다.
+     노드를 유지하면 lang/wrap/graphView 도 자동으로 보존된다. */
   const handleClear = () => {
     if (!elPath) return;
-    const lineType = ((el.children as Array<{ type?: string }>)[0]?.type as string) || "code_line";
-    const codeType = (el.type as string) || "code_block";
     try {
-      editor.tf.withoutNormalizing(() => {
-        editor.tf.removeNodes({ at: elPath });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        editor.tf.insertNodes({ type: codeType, ...(lang ? { lang } : {}), ...(wrap ? { wrap } : {}), children: [{ type: lineType, children: [{ text: "" }] }] } as any, { at: elPath });
-      });
+      const start = editor.api.start(elPath);
+      const end = editor.api.end(elPath);
+      if (start && end) editor.tf.delete({ at: { anchor: start, focus: end } });
+      // 커서를 블록 안에 되돌려 놓는다 — 지운 직후 바로 붙여넣기/타이핑이 이어지므로.
+      const caret = editor.api.start(elPath);
+      if (caret) editor.tf.select(caret);
     } catch { /* noop */ }
   };
   // 코드 포맷팅 — Prettier 지연 로딩. 코드블록 전체를 포맷 결과(code_line 들)로 교체.
@@ -1769,13 +1819,14 @@ export function CodeBlockElement(props: PlateElementProps) {
     <FloatingBar open={selected || uiFocused} getAnchorRect={getAnchorRect} inline keepInView
       onFocusCapture={() => setUiFocused(true)}
       onBlurCapture={() => setUiFocused(false)}>
-      {/* 다이어그램(mermaid) 블록은 언어가 mermaid 로 고정 → 언어 선택 숨김 */}
-      {!isMermaid && (
+      {/* 다이어그램 블록은 언어가 mermaid 로 고정 → 언어 선택 숨김.
+          (lang 만 mermaid 인 코드블록은 언어를 바꿀 수 있어야 하므로 피커를 그대로 둔다) */}
+      {!isDiagram && (
         <span className={styles.codeLangSelectWrap} onMouseDown={(e) => e.stopPropagation()}>
           <CodeLangPicker value={lang ?? "plaintext"} onChange={setLang} language={language} />
         </span>
       )}
-      {isMermaid && (
+      {isDiagram && (
         <>
           <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex", marginRight: "var(--spacing-3xs)" }}>
             <SegmentedControl<"code" | "diagram" | "split">
@@ -1818,8 +1869,10 @@ export function CodeBlockElement(props: PlateElementProps) {
           <Copy size={14} />
         </button>
       </Tooltip>
-      {isMermaid && (
-        <button type="button" className={styles.codeCtrlBtn}
+      {isDiagram && (
+        <HelpButton
+          size="sm"
+          soundDisabled
           onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
           onClick={() => openModal(<MermaidHelpModal language={language} />, {
             header: {
@@ -1832,13 +1885,8 @@ export function CodeBlockElement(props: PlateElementProps) {
             },
             width: "min(56rem, 94vw)",
           })}
-          aria-label={language === "ko" ? "Mermaid 문법 도움말" : "Mermaid syntax help"}>
-          {/* HelpCircle 에서 원만 뺀 물음표 아이콘 (stroke 기반, bold 아님) */}
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-            <path d="M12 17h.01" />
-          </svg>
-        </button>
+          aria-label={language === "ko" ? "Mermaid 문법 도움말" : "Mermaid syntax help"}
+        />
       )}
       <Popover
         openOnHover
@@ -1888,13 +1936,15 @@ export function CodeBlockElement(props: PlateElementProps) {
           ...(isSplit ? { minWidth: 0, margin: 0, maxHeight: "none", resize: "none" } : {}),
         }}
       >
-        <code style={{ position: "relative", whiteSpace: wrap ? "pre-wrap" : "pre", wordBreak: wrap ? "break-all" : undefined }}>
-          {isEmpty && (
-            <span contentEditable={false} style={{
-              position: "absolute", top: 0, left: 0, color: "var(--text-tertiary)",
-              fontStyle: "italic", pointerEvents: "none", userSelect: "none",
-            }}>{t("editor.codeEnter")}</span>
-          )}
+        {/* placeholder 는 **DOM 노드가 아니라 ::before** 로 그린다(globals/_hljs.css).
+            예전엔 여기 <span contentEditable={false}> 를 children 앞에 끼워 넣었는데, Slate 는
+            편집 영역의 DOM 자식으로 경로를 계산하므로 관리 밖 노드가 끼면 DOM→Slate 지점 매핑이
+            어긋난다 → 빈 블록에 붙여넣으면 첫 줄만 들어가고 나머지가 블록 밖으로 튀어나갔다.
+            속성은 자식이 아니라서 안전하다. */}
+        <code
+          data-code-placeholder={isEmpty ? t("editor.codeEnter") : undefined}
+          style={{ position: "relative", whiteSpace: wrap ? "pre-wrap" : "pre", wordBreak: wrap ? "break-all" : undefined }}
+        >
           {props.children}
         </code>
       </PlateElement>
@@ -2582,7 +2632,7 @@ export function FileElement(props: PlateElementProps) {
           }}>
             <div style={{
               width: 32, height: 32, borderRadius: "50%",
-              background: "var(--color-neutral-alpha-6)",
+              background: "var(--color-neutral-alpha-5)",
               display: "flex", alignItems: "center", justifyContent: "center",
               flexShrink: 0, color: "var(--text-secondary)",
             }}>
@@ -2739,6 +2789,9 @@ export function HrElement(props: PlateElementProps) {
 
 export function ColumnGroupElement(props: PlateElementProps) {
   const editor = useEditorRef();
+  const { t } = useLanguage();
+  // 최대 폭 안내 toast — 드래그 1회당 한 번만 (매 pointermove 마다 뜨면 도배된다)
+  const maxToastedRef = useRef(false);
   const el = props.element as Record<string, unknown>;
   const colBg = el.columnBg as string | undefined;
   const colDivider = el.columnDivider as string | undefined;
@@ -2759,30 +2812,108 @@ export function ColumnGroupElement(props: PlateElementProps) {
     if (!group) return;
 
     const colEls = Array.from(group.querySelectorAll<HTMLElement>(":scope > [data-slate-node='element']"));
-    if (colEls.length < 2 || index >= colEls.length - 1) return;
+    // 마지막 열도 조절 대상 — 핸들 i 는 "열 i 의 오른쪽 모서리"라 마지막 열엔 마지막 핸들이 붙는다.
+    // (예전엔 핸들이 열 "사이"에만 있어서 마지막 열은 조절할 방법이 없었다)
+    if (index >= colEls.length) return;
 
-    // 잡은 열을 넓히면 이웃이 MIN 까지 줄고, 더 끌면 총폭이 화면을 넘어 가로 스크롤(= 화면보다 넓게 가능). 놓으면 px 로 확정.
+    // 구분선을 끌면 **잡은 열만** 늘고 줄어든다 — 이웃은 그대로 두고 총폭이 같이 변한다(→ 넘치면 가로 스크롤).
+    // 예전엔 이웃이 그만큼 흡수해서(zero-sum) 총폭이 두 열의 합에 묶였고, 그 합은 처음엔 화면 폭이라
+    // "열을 아무리 넓혀도 총합이 화면 너비를 못 넘는" 상태였다(이웃을 MIN 까지 짜부라뜨려야 겨우 늘어남).
+    // 놓으면 px 로 확정.
     const startWidths = colEls.map((el) => el.getBoundingClientRect().width);
     const startX = e.clientX;
+    maxToastedRef.current = false;
     const clampPx = (w: number) => Math.min(COLUMN_MAX_PX, Math.max(COLUMN_MIN_PX, Math.round(w)));
     const applyPxWidths = (widths: number[]) => {
       colEls.forEach((el, i) => { el.style.flex = `0 0 ${clampPx(widths[i])}px`; });
     };
 
+    // 상한은 둘 — 열 하나(COLUMN_MAX_PX)와 블록 전체(COLUMN_GROUP_MAX_PX, 나머지 열 합을 뺀 여유분).
+    // 둘 중 먼저 걸리는 쪽에서 멈추되 **핸들은 계속 잡힌 채**로 두고, 왜 안 늘어나는지 toast 로 알린다.
+    // (예전엔 조용히 clamp 만 해서 핸들이 죽은 것처럼 보였다)
+    const othersSum = startWidths.reduce((sum, w, i) => (i === index ? sum : sum + w), 0);
+    const groupRoom = COLUMN_GROUP_MAX_PX - othersSum;
+    // 이미 상한을 넘긴 블록(예전 버그로 그렇게 저장된 글)이면 groupRoom 이 현재 폭보다 작거나 음수다.
+    // 그대로 clamp 하면 **잡기만 해도** 손도 안 댄 열이 확 줄어든다 → 상한은 "더 못 늘린다"는 뜻일 뿐,
+    // 이미 있는 폭을 강제로 깎지는 않는다. 줄이는 방향(want < 현재)은 min(cap, want) 라 그대로 먹는다.
+    const cap = Math.max(startWidths[index], Math.min(COLUMN_MAX_PX, groupRoom));
+    const hitGroup = groupRoom < COLUMN_MAX_PX; // 블록 상한이 먼저 걸린 경우
+
+    let lastX = e.clientX;
+    // 자동 스크롤이 대신 벌어준 폭. 포인터가 컨테이너 밖으로 나가면 더 갈 데가 없으므로
+    // "포인터가 못 간 만큼"을 여기에 쌓아 폭에 더한다.
+    let autoPan = 0;
+
+    /** 현재 포인터 + autoPan 으로 폭을 다시 그린다. 상한에 걸렸으면 true. */
+    const render = () => {
+      // 잡은 열만 변경 → 총폭 = 기존 총폭 + dx. 이웃을 안 건드리므로 화면 너비에 묶이지 않는다.
+      const want = startWidths[index] + (lastX - startX) + autoPan;
+      if (want > cap && !maxToastedRef.current) {
+        maxToastedRef.current = true;
+        showToast(
+          hitGroup
+            ? t("editor.columnGroupMaxWidth").replace("{{max}}", String(COLUMN_GROUP_MAX_PX))
+            : t("editor.columnMaxWidth").replace("{{max}}", String(COLUMN_MAX_PX)),
+          "info",
+        );
+      }
+      const widths = startWidths.slice();
+      widths[index] = Math.max(COLUMN_MIN_PX, Math.min(cap, Math.round(want)));
+      applyPxWidths(widths);
+      return want > cap;
+    };
+
+    // ── 경계 밖으로 끌면 자동 스크롤 ──
+    // 열을 넓히려면 핸들을 오른쪽으로 끌게 되는데, 블록이 이미 화면을 채우고 있으면 포인터가
+    // 경계에서 막혀 거기서 성장이 멈춘다. 포인터가 **밖으로 나간 동안** 매 프레임 우리가 폭을
+    // 대신 벌리고(autoPan) 같은 양만큼 스크롤해서, 핸들이 포인터 밑에 그대로 붙어 있게 한다.
+    //
+    // 순서가 중요하다: 오른쪽은 **폭을 먼저 넓혀야** scrollWidth 가 커져서 scrollLeft 가 그만큼
+    // 더 갈 수 있다. 반대로 하면 이미 끝까지 스크롤된 상태라 스크롤이 안 먹고, 스크롤이 안 먹으니
+    // 폭도 안 늘어 서로를 기다리는 교착이 된다.
+    //
+    // 경계 "근처"가 아니라 **밖**에서만 발동한다 — 마지막 열의 핸들은 블록 오른쪽 끝에 붙어 있어서,
+    // 안쪽 여유를 두면 핸들을 잡기만 해도 스크롤이 튀어나간다.
+    const AUTOSCROLL_MAX = 18; // px/frame — 경계에서 멀수록 빨라진다
+    let rafId = requestAnimationFrame(function tick() {
+      rafId = requestAnimationFrame(tick);
+      const g = groupRef.current;
+      if (!g) return;
+      const r = g.getBoundingClientRect();
+      // 그룹이 화면 밖까지 뻗어 있으면 어차피 안 보이니 뷰포트 경계로 자른다
+      const right = Math.min(r.right, window.innerWidth);
+      const left = Math.max(r.left, 0);
+      let v = 0;
+      if (lastX > right) v = Math.min(AUTOSCROLL_MAX, (lastX - right) / 2);
+      else if (lastX < left) v = -Math.min(AUTOSCROLL_MAX, (left - lastX) / 2);
+      if (!v) return;
+
+      if (v > 0) {
+        autoPan += v;
+        render(); // DOM 에 동기 반영 → scrollWidth 갱신 → 아래 스크롤이 그만큼 더 갈 수 있다
+        const before = g.scrollLeft;
+        g.scrollLeft = before + v; // 브라우저가 [0, max] 로 clamp
+        const moved = g.scrollLeft - before;
+        // 실제로 스크롤된 만큼만 인정 — 열이 상한이거나 더 갈 데가 없으면 되돌린다.
+        // (안 그러면 autoPan 만 계속 쌓여, 포인터를 되돌렸을 때 한참 끌어야 반응하는 죽은 구간이 생긴다)
+        if (moved !== v) { autoPan += moved - v; render(); }
+      } else {
+        // 왼쪽은 반대 — 스크롤이 실제로 움직인 만큼만 폭을 줄인다(scrollLeft 가 0 이면 아무 일도 없다)
+        const before = g.scrollLeft;
+        g.scrollLeft = before + v;
+        const moved = g.scrollLeft - before;
+        if (moved) { autoPan += moved; render(); }
+      }
+    });
+
     const onMove = (ev: PointerEvent) => {
       if (!ev.buttons) { onUp(); return; } // 창 밖 릴리즈 등으로 pointerup 유실 → 버튼 안 눌린 이동은 종료(유령 리사이즈 방지)
-      const dx = ev.clientX - startX;
-      const pair = startWidths[index] + startWidths[index + 1];
-      // 하한 = pair-MAX → 이웃이 MAX(1600) 초과할 일이 없어 clampPx 손실(오른쪽 gap)이 안 생김. 상한은 MAX(넘으면 total 증가 → 스크롤).
-      const lo = Math.max(COLUMN_MIN_PX, pair - COLUMN_MAX_PX);
-      const newLeft = Math.min(COLUMN_MAX_PX, Math.max(lo, startWidths[index] + dx));
-      const widths = startWidths.slice();
-      widths[index] = newLeft;
-      widths[index + 1] = Math.max(COLUMN_MIN_PX, pair - newLeft); // 이웃 MIN 도달 후엔 total 이 늘어 화면보다 넓어짐
-      applyPxWidths(widths);
+      lastX = ev.clientX;
+      render();
     };
 
     const onUp = () => {
+      cancelAnimationFrame(rafId);
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
       document.removeEventListener("pointercancel", onUp);
@@ -2801,7 +2932,7 @@ export function ColumnGroupElement(props: PlateElementProps) {
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
     document.addEventListener("pointercancel", onUp);
-  }, [editor, props.element]);
+  }, [editor, props.element, t]);
 
   // 스크롤 ON(기본): px 열 고정 → 넘치면 가로 스크롤. OFF: px 열이 flex-shrink 로 줄어 화면 폭에 맞춤(fit).
   const scrollOn = columnScroll !== false;
@@ -2812,9 +2943,12 @@ export function ColumnGroupElement(props: PlateElementProps) {
     marginBlock: "var(--spacing-md)",
     // 첫 열 블록의 좌측 핸들(gutter left:-40px)이 overflow-x 에 안 잘리게 좌측 40px 공간 확보.
     // 같은 크기의 음수 margin 으로 시각적 위치는 그대로(그 40px 는 에디터 좌측 여백 안에 들어감).
-    marginRight: 0,
     marginLeft: -40,
     paddingLeft: 40,
+    // 마지막 열의 오른쪽 핸들은 콘텐츠 맨 끝에 앉는다 — translateX(-50%) 라 절반(6px)이
+    // overflow 에 잘린다. 좌측과 같은 수법으로 우측에도 폭만큼 여유를 준다.
+    marginRight: -8,
+    paddingRight: 8,
     position: "relative",
     overflowX: scrollOn ? "auto" : "hidden",
     "--_col-shrink": scrollOn ? 0 : 1, // px 열의 flex-shrink — OFF 면 1(줄어들어 fit)
@@ -2823,8 +2957,10 @@ export function ColumnGroupElement(props: PlateElementProps) {
   } as React.CSSProperties;
 
   // 구분선 handle — colElement::after 위에 겹쳐서 배치
+  // 핸들은 각 열의 **오른쪽 모서리**에 하나씩 — 마지막 열 포함(colCount 개).
+  // 드래그하면 그 열만 넓어지고 총폭이 따라 늘어난다.
   const handles = [];
-  for (let i = 0; i < colCount - 1; i++) {
+  for (let i = 0; i < colCount; i++) {
     handles.push(
       <div
         key={i}
@@ -2869,7 +3005,10 @@ export function ColumnGroupElement(props: PlateElementProps) {
       colEls.forEach((colEl, i) => {
         if (i >= handleEls.length) return;
         const colRect = colEl.getBoundingClientRect();
-        const left = colRect.right - groupRect.left;
+        // getBoundingClientRect 는 뷰포트 좌표라 스크롤된 만큼 왼쪽으로 밀려 나온다. 반면 핸들은
+        // position: absolute 라 **스크롤되는 콘텐츠** 기준으로 배치된다 → scrollLeft 를 더해 보정하지 않으면
+        // 블록이 넓어져 그룹이 가로 스크롤되는 순간 핸들이 딱 scrollLeft 만큼 어긋난다(= 못 잡는다).
+        const left = colRect.right - groupRect.left + group.scrollLeft;
         handleEls[i].style.left = `${left}px`;
         handleEls[i].style.transform = "translateX(-50%)";
         handleEls[i].style.opacity = "";
@@ -2880,6 +3019,17 @@ export function ColumnGroupElement(props: PlateElementProps) {
     // 초기 배치 + DOM 갱신 후 재배치
     positionHandles();
     requestAnimationFrame(positionHandles);
+    // 가로 스크롤/크기 변화에도 따라붙어야 한다 — 넓은 블록에서 스크롤하면 위치가 즉시 틀어지므로.
+    group.addEventListener("scroll", positionHandles, { passive: true });
+    const ro = new ResizeObserver(positionHandles);
+    ro.observe(group);
+    // **열도** 관찰한다 — 드래그 중엔 그룹(컨테이너)의 크기는 그대로고 열 폭만 변하므로
+    // 그룹만 보면 콜백이 안 돈다. 그러면 핸들이 제자리에 남아 끌던 열 모서리와 어긋난다.
+    group.querySelectorAll<HTMLElement>(":scope > [data-slate-node='element']").forEach((el) => ro.observe(el));
+    return () => {
+      group.removeEventListener("scroll", positionHandles);
+      ro.disconnect();
+    };
   });
 
   return (
