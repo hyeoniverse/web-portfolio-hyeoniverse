@@ -6,6 +6,9 @@ import { motion } from "framer-motion";
 import { Mail, Send, Star, ArrowRight, Zap, RotateCcw, Hash, Code, Minus, Plus, BookOpen, ExternalLink } from "lucide-react";
 import Button from "@/components/ui/Button";
 import HelpButton from "@/components/ui/HelpButton";
+import DetailActionButton from "@/components/ui/DetailActionButton";
+import SortControl from "@/components/ui/SortControl";
+import SegmentedControl from "@/components/ui/SegmentedControl";
 import PageTitle from "@/components/ui/PageTitle";
 import SpinButton from "@/components/ui/SpinButton";
 import Collapsible from "@/components/ui/Collapsible";
@@ -71,6 +74,10 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [spinCount, setSpinCount] = useState(0);
   // Textarea tabIndent 데모
   const [tabDemo, setTabDemo] = useState("");
+  const [sortDemo, setSortDemo] = useState<"registered" | "reactions">("registered");
+  const [sortDirDemo, setSortDirDemo] = useState<"asc" | "desc">("asc");
+  const [segDemo, setSegDemo] = useState("all");
+  const [segSubtleDemo, setSegSubtleDemo] = useState("month");
   const [switchOn, setSwitchOn] = useState(false);
   const [switchAccent, setSwitchAccent] = useState(true);
   const [switchMd, setSwitchMd] = useState(true);
@@ -282,6 +289,89 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               </div>
             </Popover>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>+ Popover</span>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* DetailActionButton */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>DetailActionButton</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "상세 페이지 하단 액션 버튼 껍데기 — 좋아요·공유가 공유하는 단일 소스. 예전엔 각자 CSS 에 값이 따로 적혀 있어서 share 만 작고(28 vs 47) 진했다. active 는 두 버튼 모두 accent(좋아요=누름, 공유=복사됨). 공통 Button 을 못 쓰는 이유는 size 가 md 32 / lg 36 / xl 40 뿐이라 이 47px 규격이 없어서다."
+            : "The shell for detail-page bottom actions — the single source shared by like and share. Their values used to live in each component's CSS, so share alone was smaller (28 vs 47) and heavier. active is accent for both (like = liked, share = copied). The shared Button can't be used: its sizes are md 32 / lg 36 / xl 40 — there is no 47px."}
+        </p>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+            <DetailActionButton onClick={() => {}}><HeartIcon size={18} liked={false} /><span>Like</span></DetailActionButton>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>default</span>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+            <DetailActionButton active onClick={() => {}}><HeartIcon size={18} liked /><span>Liked</span></DetailActionButton>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>active</span>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* SortControl */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>SortControl</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "정렬 필드 Select + 역순 토글을 하나의 pill 로 결합. 달력 블록 툴바와 댓글이 같이 쓴다 — 예전엔 달력은 pill, 댓글은 gap 배치 + 고정 아이콘이라 같은 기능이 서로 다르게 보였다. 역순 아이콘은 현재 방향을 반영한다(고정 아이콘은 '누르면 뒤집힌다'만 알려줄 뿐 지금 방향을 못 알려준다)."
+            : "A sort-field Select joined with a reverse toggle in one pill. Shared by the calendar block toolbar and comments — the calendar used a pill while comments used a gap layout with a fixed icon, so the same feature looked different in each. The reverse icon reflects the current direction (a fixed icon only says 'this flips', never which way you are)."}
+        </p>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
+            <SortControl
+              value={sortDemo}
+              onChange={setSortDemo}
+              options={[
+                { value: "registered", label: language === "ko" ? "등록순" : "Registered" },
+                { value: "reactions", label: language === "ko" ? "반응순" : "Most reactions" },
+              ]}
+              dir={sortDirDemo}
+              onDirChange={setSortDirDemo}
+            />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* SegmentedControl */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>SegmentedControl</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "캡슐 안에서 하나를 고르는 컨트롤 — posts 정렬 · 시리즈/태그 필터 · 달력 뷰 전환 등 33곳이 쓴다. 테두리를 border 가 아니라 inset box-shadow 로 그린다: border 는 layout 에 영향을 줘서 전체 높이 = 버튼 높이 + padding 으로 못 잡기 때문이다(그래서 색만 바꾸려 해도 border-color 로는 안 먹는다). variant 는 테두리 세기만 가른다 — subtle 은 주변이 전부 border-light 결인 자리(달력 블록)에서 기본값이 혼자 진하게 튀는 걸 막는다."
+            : "A capsule control for picking one of several — used in 33 places (post sorting, series/tag filters, calendar view switching). Its outline is an inset box-shadow, not a border: a real border affects layout and breaks the \"total height = button height + padding\" rule (which is also why border-color won't override it). variant only changes outline weight — subtle keeps the default from standing out where everything around it is border-light, like the calendar block."}
+        </p>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+            <SegmentedControl<string>
+              items={[
+                { value: "all", label: language === "ko" ? "전체" : "All" },
+                { value: "todo", label: language === "ko" ? "예정" : "To-do" },
+                { value: "done", label: language === "ko" ? "완료" : "Done" },
+              ]}
+              value={segDemo}
+              onChange={setSegDemo}
+              size="sm"
+            />
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>default</span>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+            <SegmentedControl<string>
+              variant="subtle"
+              items={[
+                { value: "month", label: language === "ko" ? "월" : "Month" },
+                { value: "week", label: language === "ko" ? "주" : "Week" },
+                { value: "day", label: language === "ko" ? "일" : "Day" },
+              ]}
+              value={segSubtleDemo}
+              onChange={setSegSubtleDemo}
+              size="sm"
+            />
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>subtle</span>
           </motion.div>
         </div>
       </motion.div>
