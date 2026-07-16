@@ -5,7 +5,8 @@ import { marked } from "marked";
 import markedFootnote from "marked-footnote";
 import markedAlert from "marked-alert";
 import markedKatex from "marked-katex-extension";
-import { hljs, attachCodeWrapToggle } from "./highlightCodeBlocks";
+import { attachCodeWrapToggle } from "./highlightCodeBlocks";
+import { highlightCode } from "@/utils/prismHighlight";
 import { useLanguage } from "@/providers/LanguageProvider";
 
 let _wrapLabel = "↩ Wrap";
@@ -50,11 +51,11 @@ marked.use(
       return `<img src="${href}" alt="${alt}" />\n`;
     },
     code({ text, lang }: { text: string; lang?: string }): string {
-      const language = lang && hljs.getLanguage(lang) ? lang : null;
-      const highlighted = language
-        ? hljs.highlight(text, { language }).value
-        : hljs.highlightAuto(text).value;
-      return `<div class="code-block-wrap"><pre><code class="hljs${language ? ` language-${language}` : ""}">${highlighted}</code></pre><button type="button" class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${_scrollLabel}</span><span class="code-wrap-label-hover">${_wrapLabel}</span></button></div>\n`;
+      // hljs → Prism. hljs 는 언어 컴파일 시점에 정규식이 깨져 페이지를 죽인다(#312).
+      // 자세한 건 utils/prismHighlight 주석.
+      const { html: highlighted, lang: resolved } = highlightCode(text, lang ?? undefined);
+      const language = resolved || null;
+      return `<div class="code-block-wrap"><pre><code${language ? ` class="language-${language}"` : ""}>${highlighted}</code></pre><button type="button" class="code-wrap-toggle" data-wrap-btn><span class="code-wrap-label-default">${_scrollLabel}</span><span class="code-wrap-label-hover">${_wrapLabel}</span></button></div>\n`;
     },
   },
 });
@@ -89,7 +90,7 @@ export default function MarkdownRenderer({
         const n = name.trim();
         const dlSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>';
         const iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>';
-        return `<div style="max-width:480px;margin:8px 0"><div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:999px;border:1px solid var(--border-light-color);background:var(--bg-secondary)"><div style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-alpha-6);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-secondary)">${iconSvg}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n}</div></div><a href="${url}" download="${n}" style="width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-light-color);background:var(--bg-primary);color:var(--text-primary);text-decoration:none">${dlSvg}</a></div></div>`;
+        return `<div style="max-width:480px;margin:8px 0"><div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:999px;border:1px solid var(--border-light-color);background:var(--bg-secondary)"><div style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-alpha-5);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-secondary)">${iconSvg}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n}</div></div><a href="${url}" download="${n}" style="width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-light-color);background:var(--bg-primary);color:var(--text-primary);text-decoration:none">${dlSvg}</a></div></div>`;
       }
     );
     // 오디오 첨부 링크를 오디오 플레이어로 변환: <a href="url">🔊 title</a>
@@ -101,7 +102,7 @@ export default function MarkdownRenderer({
     return raw.replace(/<img\s/g, '<img data-cursor="zoom" ');
   }, [content, t]);
 
-  // 코드블록 복사·줄바꿈 바 주입 — marked 가 이미 hljs 로 하이라이트했으므로 컨트롤 바만 붙인다.
+  // 코드블록 복사·줄바꿈 바 주입 — marked 가 이미 Prism 으로 하이라이트했으므로 컨트롤 바만 붙인다.
   // 부모(디테일/미리보기/works)가 ref 를 넘겨주는지에 의존하지 않고 자체 ref 로 처리 → markdown 은
   // 어느 리더뷰에서든 항상 복사 버튼이 나온다. (mermaid 스킵·중복 주입 방지는 attachCodeWrapToggle 내부)
   useEffect(() => {

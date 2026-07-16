@@ -1,37 +1,9 @@
-import hljs from "highlight.js/lib/core";
-import javascript from "highlight.js/lib/languages/javascript";
-import typescript from "highlight.js/lib/languages/typescript";
-import css from "highlight.js/lib/languages/css";
-import xml from "highlight.js/lib/languages/xml";
-import json from "highlight.js/lib/languages/json";
-import bash from "highlight.js/lib/languages/bash";
-import python from "highlight.js/lib/languages/python";
-import sql from "highlight.js/lib/languages/sql";
-import markdown from "highlight.js/lib/languages/markdown";
-import plaintext from "highlight.js/lib/languages/plaintext";
+import { highlightCode, resolveGrammar, normalizeLangAlias } from "@/utils/prismHighlight";
 
-hljs.registerLanguage("javascript", javascript);
-hljs.registerLanguage("js", javascript);
-hljs.registerLanguage("typescript", typescript);
-hljs.registerLanguage("ts", typescript);
-hljs.registerLanguage("css", css);
-hljs.registerLanguage("html", xml);
-hljs.registerLanguage("xml", xml);
-hljs.registerLanguage("json", json);
-hljs.registerLanguage("bash", bash);
-hljs.registerLanguage("sh", bash);
-hljs.registerLanguage("python", python);
-hljs.registerLanguage("py", python);
-hljs.registerLanguage("sql", sql);
-hljs.registerLanguage("markdown", markdown);
-hljs.registerLanguage("md", markdown);
-hljs.registerLanguage("tsx", typescript);
-hljs.registerLanguage("jsx", javascript);
-hljs.registerLanguage("plaintext", plaintext);
-hljs.registerLanguage("text", plaintext);
-hljs.registerLanguage("plain", plaintext);
-
-export { hljs };
+/* 하이라이터는 Prism — highlight.js 를 쓰면 안 된다.
+   hljs 는 언어 **컴파일 시점**(highlight 호출)에 번들러가 깨뜨린 유니코드 정규식 때문에 throw 하고,
+   그러면 그 청크를 로드한 페이지 전체가 죽는다. 빌드는 통과하고 런타임에만 터진다. 조사 기록은 #312.
+   함정과 대안 근거는 utils/prismHighlight 주석 참고. */
 
 export interface WrapLabels {
   wrap: string;
@@ -43,22 +15,22 @@ export interface WrapLabels {
 }
 
 export function highlightCodeBlocks(container: HTMLElement) {
-  // hljs 하이라이팅만 담당 (markdown 콘텐츠용). wrap/컨트롤 버튼 주입은 attachCodeWrapToggle 이 처리.
+  // markdown 콘텐츠용 DOM 하이라이팅. wrap/컨트롤 버튼 주입은 attachCodeWrapToggle 이 처리.
   // 이미 Shiki(.shiki)로 칠해진 건 건드리지 않음 — 서버에서 처리됨.
   container.querySelectorAll("pre code").forEach((el) => {
     const htmlEl = el as HTMLElement;
     if (htmlEl.classList.contains("language-mermaid")) return; // mermaid 는 SVG 로 렌더
-    if (htmlEl.dataset.highlighted || htmlEl.classList.contains("hljs") || htmlEl.closest(".shiki")) return;
-    // 미등록 언어 class(language-auto 등)를 제거해서 hljs가 auto-detect 하도록
+    if (htmlEl.dataset.highlighted || htmlEl.querySelector(".token") || htmlEl.closest(".shiki")) return;
+
     const langMatch = htmlEl.className.match(/language-(\S+)/);
-    if (langMatch && !hljs.getLanguage(langMatch[1])) {
-      htmlEl.classList.remove(langMatch[0]);
-    }
-    try {
-      hljs.highlightElement(htmlEl);
-    } catch {
-      // ignore
-    }
+    const alias = langMatch ? normalizeLangAlias(langMatch[1]) : "";
+    // Prism 이 모르는 언어 class(language-auto 등)는 떼서, 아래 highlightCode 가 추론하게 둔다
+    if (langMatch && alias && !resolveGrammar(alias)) htmlEl.classList.remove(langMatch[0]);
+
+    const { html, lang } = highlightCode(htmlEl.textContent ?? "", alias || undefined);
+    htmlEl.innerHTML = html;
+    htmlEl.dataset.highlighted = "true";
+    if (lang && !htmlEl.className.includes("language-")) htmlEl.classList.add(`language-${lang}`);
   });
 }
 

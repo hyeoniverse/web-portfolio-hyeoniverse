@@ -49,10 +49,10 @@ function formatDateTime(iso: string): string {
    → 폼처럼 통째로 제외해야 하는 영역은 data-no-drag-select 로 서브트리 단위로 막는다. */
 /* 선택 모드에서 댓글 아무 데나 눌러도 체크되게 해놨는데, 이 안의 것들은 그 자체가 클릭 대상이라
    같이 토글되면 안 된다. img — 마크다운 이미지는 클릭하면 ImageViewer 가 열린다. */
-/* 이 높이를 넘는 댓글은 접고 "더보기" 를 붙인다.
-   이미지 상한(420) + 위아래 여백보다 넉넉히 위 — 이미지 한 장짜리 댓글이 항상 접히면
-   접기가 예외가 아니라 기본이 되어버린다. 텍스트로는 20줄 남짓. */
-const COLLAPSE_HEIGHT = 520;
+/* 이 높이를 넘는 댓글은 접고 "더보기" 를 붙인다. 텍스트로 12줄 남짓.
+   이미지 상한(420)보다 낮아서 이미지 한 장짜리 댓글도 접힌다 — 의도한 것이다.
+   스레드가 길어지지 않는 쪽을 우선했고, 이미지는 어차피 클릭하면 뷰어로 전체를 본다. */
+const COLLAPSE_HEIGHT = 320;
 
 const INTERACTIVE_SELECTOR =
   'label, button, a, input, textarea, select, img, [role="button"], [contenteditable], [data-no-drag-select]';

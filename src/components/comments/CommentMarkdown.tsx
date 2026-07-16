@@ -1,8 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { Marked } from "marked";
 import DOMPurify from "isomorphic-dompurify";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
+import { highlightCode } from "@/utils/prismHighlight";
+import { attachCodeWrapToggle } from "@/components/posts/highlightCodeBlocks";
+import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./CommentMarkdown.module.css";
 
 /* 댓글 전용 경량 마크다운 렌더러.
@@ -12,16 +17,18 @@ import styles from "./CommentMarkdown.module.css";
 // 격리된 marked 인스턴스 — 전역 marked.use() 오염 방지. gfm(테이블·취소선·task list) + breaks.
 const marked = new Marked({ gfm: true, breaks: true });
 
-/* 코드블록은 하이라이팅 없이 이스케이프만 — marked 기본 code renderer 와 동일하게 처리된다.
+/* 코드블록 — Prism 하이라이팅 + 언어 라벨. 구현/함정은 utils/prismHighlight 주석 참고. */
 
-   ⚠ highlight.js 를 쓰면 안 된다. hljs 의 xml.js 가 `/[\p{L}_]/u` (유니코드 속성 이스케이프) 를 쓰는데,
-   번들러가 이걸 구형 브라우저용으로 풀어쓰면서 범위가 깨진 문자 클래스를 만들어내고
-   모듈 평가 시점에 `SyntaxError: Invalid regular expression: ... Range out of order in character class`
-   로 터진다 → 그 청크를 로드한 페이지 전체가 크래시한다 (dev/prod 양쪽, 빌드는 통과).
-   실제로 여기서 hljs 를 import 했다가 게시물 상세 페이지가 통째로 죽었다.
-   posts/highlightCodeBlocks 를 쓰든 언어를 골라 등록한 자체 인스턴스를 쓰든 결과는 같다 —
-   highlight.js 청크가 로드되는 순간 터진다.
-   다시 붙이려면 richtext 가 쓰는 shiki 로 가거나 hljs 를 patch 해야 한다. */
+marked.use({
+  renderer: {
+    code({ text, lang }) {
+      const { html, lang: resolved } = highlightCode(text, lang);
+      const attr = resolved ? ` data-lang="${resolved}"` : "";
+      const cls = resolved ? ` class="language-${resolved}"` : "";
+      return `<pre${attr}><code${cls}>${html}</code></pre>\n`;
+    },
+  },
+});
 
 const ALLOWED_TAGS = [
   "p", "br", "strong", "em", "b", "i", "del", "s", "code", "pre",
@@ -33,7 +40,7 @@ const ALLOWED_TAGS = [
   "span",
 ];
 // img(src/alt), task-list 체크박스(input type/checked/disabled), class(task-list 스타일)
-const ALLOWED_ATTR = ["href", "title", "src", "alt", "type", "checked", "disabled", "class", "align"];
+const ALLOWED_ATTR = ["href", "title", "src", "alt", "type", "checked", "disabled", "class", "align", "data-lang"];
 // href/src 프로토콜은 http/https/mailto 만 (data: 등 차단)
 const ALLOWED_URI_REGEXP = /^(?:https?:|mailto:)/i;
 
@@ -43,7 +50,7 @@ const ALLOWED_URI_REGEXP = /^(?:https?:|mailto:)/i;
    그래서 체크박스는 <input type> 이 사라져 아래 훅이 "체크박스 아님"으로 지워버렸고
    (→ 불릿만 남음), 표의 정렬(align)도 통째로 무시됐다.
    전부 URL 이 아닌 inert 속성이라 URI 검사에서 빼주는 게 맞다. */
-const URI_SAFE_ATTR = ["type", "checked", "disabled", "align"];
+const URI_SAFE_ATTR = ["type", "checked", "disabled", "align", "data-lang"];
 
 // 안전 속성 강제 — 모듈 로드 시 1회만 등록
 let hookRegistered = false;
@@ -88,6 +95,23 @@ export default function CommentMarkdown({ content, className }: CommentMarkdownP
      dangerouslySetInnerHTML 로 들어온 마크다운 이미지에도 그대로 붙는다.
      범위가 이 컴포넌트 하나(= 댓글 하나 / 미리보기 하나)라 갤러리도 그 댓글의 이미지들로 묶인다. */
   const { containerRef, viewerState, closeViewer } = useProseImageViewer();
+  const { t } = useLanguage();
+
+  /* 코드블록 상단 바(언어 라벨 + 복사 + 줄바꿈 토글) — 게시물 본문과 같은 컴포넌트를 그대로 쓴다.
+     라벨은 위 renderer 가 심은 `pre[data-lang]` 에서 읽는다.
+     (mermaid 스킵·중복 주입 방지는 attachCodeWrapToggle 내부에 있음) */
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root) return;
+    attachCodeWrapToggle(root, {
+      wrap: t("common.codeWrap"),
+      scroll: t("common.codeScroll"),
+      wrapTitle: t("common.codeWrapTitle"),
+      scrollTitle: t("common.codeScrollTitle"),
+      copy: t("common.codeCopy"),
+      copied: t("common.codeCopied"),
+    });
+  }, [html, t, containerRef]);
 
   return (
     <>
