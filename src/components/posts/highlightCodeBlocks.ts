@@ -1,4 +1,5 @@
 import { highlightCode, resolveGrammar, normalizeLangAlias } from "@/utils/prismHighlight";
+import { showToast } from "@/stores/toastStore";
 
 /* 하이라이터는 Prism — highlight.js 를 쓰면 안 된다.
    hljs 는 언어 **컴파일 시점**(highlight 호출)에 번들러가 깨뜨린 유니코드 정규식 때문에 throw 하고,
@@ -86,9 +87,9 @@ export function attachCodeWrapToggle(
     copyBtn.type = "button";
     copyBtn.className = "code-copy-btn";
     copyBtn.setAttribute("data-copy-btn", "");
-    // 복사 아이콘(lucide copy) + 텍스트 span — 텍스트는 span 만 갱신해 아이콘 유지
-    copyBtn.innerHTML =
-      '<svg class="code-copy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg><span class="code-copy-text"></span>';
+    /* 줄바꿈 토글과 같은 구조 — 두 라벨(copy/copied)을 겹쳐 넓은 쪽이 폭을 잡는다 → 상태 전환에도
+       너비 불변. 아이콘 제거로 줄바꿈 버튼과 스타일도 통일(둘 다 텍스트만). 라벨은 아래에서 채운다. */
+    copyBtn.innerHTML = '<span class="code-copy-default"></span><span class="code-copy-done"></span>';
     const wrapBtn = document.createElement("button");
     wrapBtn.type = "button";
     wrapBtn.className = "code-wrap-toggle";
@@ -100,11 +101,12 @@ export function attachCodeWrapToggle(
 
   // 복사 버튼 라벨 (언어별, 매 호출 갱신 — 클릭 핸들러는 dataset 에서 최신값 읽음)
   container.querySelectorAll<HTMLButtonElement>("button[data-copy-btn]").forEach((btn) => {
-    btn.dataset.copyLabel = labels.copy;
     btn.dataset.copiedLabel = labels.copied;
     btn.title = labels.copy;
-    const txt = btn.querySelector<HTMLElement>(".code-copy-text");
-    if (txt && !btn.classList.contains("copied")) txt.textContent = labels.copy;
+    const def = btn.querySelector<HTMLElement>(".code-copy-default");
+    const done = btn.querySelector<HTMLElement>(".code-copy-done");
+    if (def) def.textContent = labels.copy;
+    if (done) done.textContent = labels.copied;
   });
 
   // 초기 라벨 설정 (언어별) — 두 개의 span으로 hover 전환
@@ -141,12 +143,8 @@ export function attachCodeWrapToggle(
       const text = (cw?.querySelector("pre code") ?? cw?.querySelector("pre"))?.textContent ?? "";
       navigator.clipboard?.writeText(text);
       copyBtn.classList.add("copied");
-      const ctxt = copyBtn.querySelector<HTMLElement>(".code-copy-text");
-      if (ctxt) ctxt.textContent = copyBtn.dataset.copiedLabel || "Copied";
-      window.setTimeout(() => {
-        copyBtn.classList.remove("copied");
-        if (ctxt) ctxt.textContent = copyBtn.dataset.copyLabel || "Copy";
-      }, 1500);
+      showToast(copyBtn.dataset.copiedLabel || "Copied", "success");
+      window.setTimeout(() => copyBtn.classList.remove("copied"), 1500);
       return;
     }
 
