@@ -7,12 +7,11 @@ import { requireAuth } from "@/lib/api/requireAuth";
  *  response: {
  *    categories: string[]    // EN canonical 들 distinct
  *    counts: Record<string, number>
- *    works: Array<{ id, title, title_en, categories: string[], slug }>
+ *    works: Array<{ id, title, categories: string[], slug }>
  *  } */
 type WorkRow = {
   id: string;
   title: string | null;
-  title_en: string | null;
   categories_en: string[] | null;
   slug: string | null;
   published: boolean | null;
@@ -27,7 +26,7 @@ export async function GET() {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("works")
-    .select("id, title, title_en, categories_en, slug, published, created_at, updated_at")
+    .select("id, title, categories_en, slug, published, created_at, updated_at")
     .is("deleted_at", null)
     .limit(2000);
 
@@ -50,7 +49,6 @@ export async function GET() {
     works: works.map((w) => ({
       id: w.id,
       title: w.title ?? "",
-      title_en: w.title_en ?? "",
       categories: w.categories_en ?? [],
       slug: w.slug ?? "",
       published: !!w.published,
