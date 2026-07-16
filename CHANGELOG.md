@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.25.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.24.0...v1.25.0) (2026-07-16)
+
+
+### Features
+
+* **auth:** 역할/권한 기반 헬퍼 (Phase 1a) ([d8facb3](https://github.com/hyeoniverse/web-portfolio-oval/commit/d8facb3499f3730753fb6bac35cb3c475ec16e30))
+* **blocks:** 코드 플레이그라운드 리워크 ([7f41226](https://github.com/hyeoniverse/web-portfolio-oval/commit/7f4122654daa087ba6712b955d576d6c1b9abbfe))
+* **blocks:** 코드블록 리사이즈(핸들·최소높이·스크롤·커스텀커서) + 헤더 정리 ([986ecb8](https://github.com/hyeoniverse/web-portfolio-oval/commit/986ecb88e637769f4df4c5158f93620cc2b5b8e7))
+* **blocks:** 코드블록 복사 버튼 너비 고정 + toast + pill 구분선 ([ddf6a7d](https://github.com/hyeoniverse/web-portfolio-oval/commit/ddf6a7d6ecbfd77b5f90b91a479e6fa457533fb4))
+* **blocks:** 편집뷰 코드블록을 리더와 일치 + 열 overflow 수정 ([fdc990c](https://github.com/hyeoniverse/web-portfolio-oval/commit/fdc990c884b3bee7c679a14a06e2932184f82428))
+* **editor:** 블록 핸들 메뉴에 코드블록 전환 추가 ([a132d6d](https://github.com/hyeoniverse/web-portfolio-oval/commit/a132d6dfd3dd430dcf9093829ef0c4488df31fd4))
+* **posts:** 카드 작성자 표시 + author 필터/정렬 ([43af2c3](https://github.com/hyeoniverse/web-portfolio-oval/commit/43af2c34ffcb7f4c0843bbb96b4834ae11d70dca))
+
+
+### Bug Fixes
+
+* **blocks:** 리사이즈 커서 동작 + pill/라벨 스타일 통일 ([33d8f10](https://github.com/hyeoniverse/web-portfolio-oval/commit/33d8f10ff98b646f269f5b5652240f7019744d70))
+* **blocks:** 표 행 고정이 새로고침 후 스크롤 시 어긋나던 것 수정 ([d9d9260](https://github.com/hyeoniverse/web-portfolio-oval/commit/d9d9260a052d62fd5a1ea910d0b29ab594d938e4))
+* **editor:** 슬래시 메뉴 한글 IME 필터/삽입 + 플레이그라운드 빈 블록 삽입 ([426f448](https://github.com/hyeoniverse/web-portfolio-oval/commit/426f448f3dfe78781618dfe0bfad89d0515ec1ef))
+
 ## [1.24.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.23.0...v1.24.0) (2026-07-16)
 
 
