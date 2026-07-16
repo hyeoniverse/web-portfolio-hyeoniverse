@@ -3,7 +3,9 @@
 // ── 월/주/일/타임라인 공통 이벤트 사이드바 — 날짜별 목록 + 연결된 이벤트는 인라인으로 펼쳐 연결 노드 확인 ──
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { PanelLeftClose, ArrowDownWideNarrow, ArrowUpNarrowWide, Link2, ChevronDown, Star, HelpCircle } from "lucide-react";
+import HelpButton from "@/components/ui/HelpButton";
+import Button from "@/components/ui/Button";
+import { PanelLeftClose, ArrowDownWideNarrow, ArrowUpNarrowWide, Link2, ChevronDown, Star } from "lucide-react";
 import Tooltip from "@/components/ui/Tooltip";
 import Popover from "@/components/ui/Popover";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -111,57 +113,69 @@ export default function CalendarEventList({
       <div className={styles.evSidebarHead}>
         <span className={styles.evSidebarTitle}>{t("이벤트", "Events")}</span>
         <span className={styles.evSidebarActions}>
-          <Popover
-            placement="bottom-end"
-            offset={6}
-            trigger={
-              <Tooltip content={t("도움말", "Help")} placement="top">
-                <button type="button" className={styles.evSidebarBtn} aria-label={t("도움말", "Help")}>
-                  <HelpCircle size={15} />
-                </button>
-              </Tooltip>
-            }
-          >
-            {() => (
-              <div className={styles.evHelp}>
-                <div className={styles.evHelpGroup}>
-                  <span className={styles.evHelpTitle}>{t("상태", "Status")}</span>
-                  <span className={styles.evHelpRow}><span className={`${styles.evItemDot} ${styles.evItemDotTodo} ${styles.evHelpDot}`} />{t("예정", "To-do")}</span>
-                  <span className={styles.evHelpRow}><span className={`${styles.evItemDot} ${styles.evItemDotDoing} ${styles.evHelpDot}`} />{t("진행 중", "In progress")}</span>
-                  <span className={styles.evHelpRow}><span className={`${styles.evItemDot} ${styles.evItemDotDone} ${styles.evHelpDot}`} />{t("완료", "Done")}</span>
-                  <span className={styles.evHelpRow}><span className={`${styles.evItemDot} ${styles.evItemDotHold} ${styles.evHelpDot}`} />{t("중단", "On hold")}</span>
-                </div>
-                <div className={styles.evHelpGroup}>
-                  <span className={styles.evHelpTitle}>{t("중요도", "Priority")}</span>
-                  <span className={styles.evHelpRow}><span className={styles.evHelpStar}><Star size={13} strokeWidth={1.75} /></span>{t("낮음", "Low")}</span>
-                  <span className={styles.evHelpRow}><span className={`${styles.evHelpStar} ${styles.evStarHalf}`}><Star size={13} strokeWidth={1.75} /><Star size={13} fill="currentColor" strokeWidth={1.75} className={styles.evStarHalfFill} /></span>{t("보통", "Normal")}</span>
-                  <span className={styles.evHelpRow}><span className={styles.evHelpStar}><Star size={13} fill="currentColor" strokeWidth={1.75} /></span>{t("높음", "High")}</span>
-                </div>
-                <div className={styles.evHelpGroup}>
-                  <span className={styles.evHelpRow}><Link2 size={13} className={styles.evHelpLink} />{t("연결된 작업 · 눌러서 펼치기", "Connected tasks · click to expand")}</span>
-                </div>
-              </div>
-            )}
-          </Popover>
           <Tooltip content={sortDir === "desc" ? t("최신순", "Newest first") : t("오래된순", "Oldest first")} placement="top">
-            <button type="button" className={styles.evSidebarBtn} onClick={() => setSortDir((d) => (d === "desc" ? "asc" : "desc"))} aria-label={t("정렬 전환", "Toggle sort")}>
-              {sortDir === "desc" ? <ArrowDownWideNarrow size={15} /> : <ArrowUpNarrowWide size={15} />}
-            </button>
+            <Button
+              variant="ghost" shape="circle" size="sm" soundDisabled
+              onClick={() => setSortDir((d) => (d === "desc" ? "asc" : "desc"))}
+              aria-label={t("정렬 전환", "Toggle sort")}
+              icon={sortDir === "desc" ? <ArrowDownWideNarrow size={15} /> : <ArrowUpNarrowWide size={15} />}
+            />
           </Tooltip>
           <Tooltip content={t("목록 닫기", "Close list")} placement="top">
-            <button type="button" className={styles.evSidebarBtn} onClick={onClose} aria-label={t("목록 닫기", "Close list")}>
-              <PanelLeftClose size={15} />
-            </button>
+            <Button
+              variant="ghost" shape="circle" size="sm" soundDisabled
+              onClick={onClose}
+              aria-label={t("목록 닫기", "Close list")}
+              icon={<PanelLeftClose size={15} />}
+            />
           </Tooltip>
         </span>
       </div>
+      {/* 필터 + 도움말 — 도움말은 SegmentedControl 오른쪽 끝.
+          범례(상태·중요도 색/별)가 설명하는 대상이 바로 이 필터와 아래 목록이라, 헤더의
+          조작 버튼(정렬·닫기) 틈이 아니라 설명 대상 옆에 두는 게 맞다. */}
       <div className={styles.evFilters}>
         <SegmentedControl<Filter>
+          variant="subtle"
           items={chips.map((c) => ({ value: c.key, label: c.label }))}
           value={filter}
           onChange={setFilter}
           size="sm"
         />
+        <Popover
+          className={styles.evFiltersHelp}
+          placement="bottom-end"
+          offset={6}
+          trigger={
+            <Tooltip content={t("도움말", "Help")} placement="top">
+              {/* 사이트 전역 도움말 규격(공통 HelpButton — subtle circle "?") */}
+              <HelpButton size="sm" soundDisabled aria-label={t("도움말", "Help")} />
+            </Tooltip>
+          }
+        >
+          {() => (
+            <div className={styles.evHelp}>
+              <div className={styles.evHelpGroup}>
+                <span className={styles.evHelpTitle}>{t("상태", "Status")}</span>
+                <span className={styles.evHelpRow}><span className={`${styles.evItemDot} ${styles.evItemDotTodo} ${styles.evHelpDot}`} />{t("예정", "To-do")}</span>
+                <span className={styles.evHelpRow}><span className={`${styles.evItemDot} ${styles.evItemDotDoing} ${styles.evHelpDot}`} />{t("진행 중", "In progress")}</span>
+                <span className={styles.evHelpRow}><span className={`${styles.evItemDot} ${styles.evItemDotDone} ${styles.evHelpDot}`} />{t("완료", "Done")}</span>
+                <span className={styles.evHelpRow}><span className={`${styles.evItemDot} ${styles.evItemDotHold} ${styles.evHelpDot}`} />{t("중단", "On hold")}</span>
+              </div>
+              <div className={styles.evHelpGroup}>
+                <span className={styles.evHelpTitle}>{t("중요도", "Priority")}</span>
+                <span className={styles.evHelpRow}><span className={styles.evHelpStar}><Star size={13} strokeWidth={1.75} /></span>{t("낮음", "Low")}</span>
+                <span className={styles.evHelpRow}><span className={`${styles.evHelpStar} ${styles.evStarHalf}`}><Star size={13} strokeWidth={1.75} /><Star size={13} fill="currentColor" strokeWidth={1.75} className={styles.evStarHalfFill} /></span>{t("보통", "Normal")}</span>
+                <span className={styles.evHelpRow}><span className={styles.evHelpStar}><Star size={13} fill="currentColor" strokeWidth={1.75} /></span>{t("높음", "High")}</span>
+              </div>
+              <div className={styles.evHelpGroup}>
+                {/* 앞 두 그룹과 같은 결로 제목을 붙인다 — 여기만 없으면 마지막 줄이 떠 보인다 */}
+                <span className={styles.evHelpTitle}>{t("연결", "Links")}</span>
+                <span className={styles.evHelpRow}><Link2 size={13} className={styles.evHelpLink} />{t("연결된 작업 · 눌러서 펼치기", "Connected tasks · click to expand")}</span>
+              </div>
+            </div>
+          )}
+        </Popover>
       </div>
       <div className={styles.evList} data-lenis-prevent>
         {groups.length === 0 ? (

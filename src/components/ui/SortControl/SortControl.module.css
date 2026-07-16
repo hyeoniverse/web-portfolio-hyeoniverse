@@ -1,0 +1,28 @@
+/* 정렬 pill — 필드 Select + 역순 버튼을 하나의 캡슐로 결합.
+   달력 블록(Calendar.module.css)에 있던 규격을 그대로 옮긴 단일 소스다.
+   예전엔 달력은 pill, 댓글은 그냥 gap 배치라 같은 기능이 서로 다르게 보였다. */
+.group {
+  display: inline-flex;
+  align-items: stretch;
+  height: var(--control-h-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  /* 배경 없음 — 다른 컨트롤처럼 투명. 캡슐 끝단까지 테두리가 온전히 보이도록 내부 컨트롤을 clip */
+  overflow: hidden;
+}
+
+/* 내부 컨트롤(Select trigger · 역순 Button)은 자체 테두리/라운드/배경 제거 — pill 이 담당 */
+.group button {
+  height: 100%;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  /* ghost Button 의 backdrop-filter blur 가 뒤(pill border 포함)를 frost 처리해 테두리를 덮던 문제 차단 */
+  backdrop-filter: none !important;
+}
+
+/* 역순 버튼 — Select 와 사이 구분선 */
+.group .dir {
+  border-left: var(--border-light) !important;
+  padding-inline: var(--spacing-sm);
+}

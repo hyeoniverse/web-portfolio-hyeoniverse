@@ -6,7 +6,6 @@ import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import MarkdownMarkIcon from "./MarkdownMarkIcon";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./CommentEditor.module.css";
 
 /* 댓글 마크다운 치트시트 — 댓글 헤딩 우측 도움말 버튼 → 공통 Popover.
@@ -23,11 +22,6 @@ export default function MarkdownHelp() {
   // 치트시트가 열리면 툴팁은 끈다 — 안 그러면 popover 위에 툴팁이 겹쳐 남는다
   // (마우스가 트리거 위에 그대로 있으니 hover 가 안 풀린다).
   const [open, setOpen] = useState(false);
-  /* Popover 는 모바일에서 bottom sheet 가 되며 sheetTitle 로 자기 헤더를 그린다.
-     그 판단(isTouch || isMobile)을 여기서도 똑같이 해서, sheet 일 땐 우리 헤더를 안 그린다 —
-     안 그러면 같은 제목이 위아래로 두 번 뜬다. Popover 가 sheet 여부를 안 알려줘서 hook 을 같이 쓴다. */
-  const { isTouch, isMobile } = useIsMobile();
-  const isSheet = isTouch || isMobile;
 
   const rows: { syntax: string; label: string }[] = [
     { syntax: `# ${ko ? "제목" : "heading"}`, label: ko ? "제목 (# ~ ######)" : "Heading (# – ######)" },
@@ -77,10 +71,16 @@ export default function MarkdownHelp() {
         </Tooltip>
       }
     >
-      {/* 표 — 칩이 아니라. 코드 블록/표 문법은 여러 줄이라 칩(알약)에 담으면 늘어져 어색하고,
+      {/* sheet 여부는 **Popover 가 알려주는 값** 을 쓴다. 예전엔 여기서 useIsMobile 로
+          같은 조건(isTouch || isMobile)을 다시 만들었는데, Popover 의 판단은 responsive
+          옵션까지 포함하므로 한쪽만 바뀌면 조용히 어긋난다(제목이 두 번 뜨거나 사라진다).
+
+          표 — 칩이 아니라. 코드 블록/표 문법은 여러 줄이라 칩(알약)에 담으면 늘어져 어색하고,
           문법↔설명은 원래 2열 대응 관계라 표가 의미에도 맞는다.
           스타일은 댓글 본문 표(CommentMarkdown table)와 같은 라인 테이블 결. */}
+      {({ isSheet }) => (
       <div className={styles.helpPanel}>
+        {/* sheet 는 sheetTitle 로 자기 헤더를 그린다 → 우리 헤더는 접는다 (제목 중복 방지) */}
         {!isSheet && <span className={styles.helpTitle}>{title}</span>}
         <table className={styles.helpTable}>
           <thead>
@@ -101,6 +101,7 @@ export default function MarkdownHelp() {
           </tbody>
         </table>
       </div>
+      )}
     </Popover>
   );
 }

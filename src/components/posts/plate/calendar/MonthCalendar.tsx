@@ -12,7 +12,6 @@ import Tooltip from "@/components/ui/Tooltip";
 import EventPreview from "./EventPreview";
 import { useHoverPreview } from "./useHoverPreview";
 import DayEventsPopover, { type DayPopState } from "./DayEventsPopover";
-import { useWheelPager } from "./useWheelPager";
 import styles from "./Calendar.module.css";
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -97,12 +96,8 @@ export default function MonthCalendar({
   // 페이지 넘김 방향(슬라이드) + 네비게이션
   const [monthDir, setMonthDir] = React.useState(1);
   const navMonth = (d: number) => { setMonthDir(d); onMonthChange?.(shiftMonth(month, d)); };
-  // 휠 스크롤로 이전/다음 달 — 주뷰와 동일하게 당김 링(좌/우)으로 명시적 넘김
-  const [pull, setPull] = React.useState<{ dir: -1 | 1; p: number } | null>(null);
-  const gridWheelRef = useWheelPager(() => navMonth(-1), () => navMonth(1), !!onMonthChange, {
-    threshold: 150,
-    onPull: (d, p) => setPull(d === 0 || p <= 0 ? null : { dir: d, p }),
-  });
+  /* 월뷰는 휠로 달을 넘기지 않는다 — 달 이동은 헤더의 이전/다음 버튼으로만.
+     (주/일 뷰(AgendaView)는 그대로 useWheelPager 를 쓴다) */
 
   return (
     <div className={styles.calendar} contentEditable={false}>
@@ -142,7 +137,7 @@ export default function MonthCalendar({
           <span key={w} className={`${styles.weekday}${i === 0 ? ` ${styles.sun}` : ""}${i === 6 ? ` ${styles.sat}` : ""}`}>{w}</span>
         ))}
       </div>
-      <div className={styles.gridViewport} ref={gridWheelRef} data-lenis-prevent>
+      <div className={styles.gridViewport} data-lenis-prevent>
       <motion.div
         key={month}
         className={styles.grid}
@@ -255,17 +250,6 @@ export default function MonthCalendar({
           );
         })}
       </motion.div>
-      {pull && (
-        <div
-          className={`${styles.pullHint} ${pull.dir === 1 ? styles.pullRight : styles.pullLeft}${pull.p >= 1 ? ` ${styles.pullReady}` : ""}`}
-          style={{ ["--_p" as string]: pull.p }}
-          aria-hidden
-        >
-          <span className={styles.pullRing}>
-            <span className={styles.pullRingIcon}>{pull.dir === 1 ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}</span>
-          </span>
-        </div>
-      )}
       </div>
       <EventPreview hover={hover} labels={labels} language={language} timeFormat={timeFormat} onMouseEnter={keepOpen} onMouseLeave={hideSoon} />
       <DayEventsPopover

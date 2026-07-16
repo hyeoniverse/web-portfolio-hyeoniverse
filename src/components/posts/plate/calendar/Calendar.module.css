@@ -52,29 +52,8 @@
 .tbBtnOn { color: var(--text-accent); border-color: var(--color-accent); }
 
 /* 정렬 pill — Select + 역순버튼을 하나의 capsule 로 결합, 높이는 다른 컨트롤과 동일(sm) */
-.sortGroup {
-  display: inline-flex;
-  align-items: stretch;
-  height: var(--control-h-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  /* 배경 없음 — 다른 컨트롤처럼 투명. 캡슐 끝단까지 테두리가 온전히 보이도록 내부 컨트롤을 clip */
-  overflow: hidden;
-}
-/* 내부 컨트롤(Select trigger·역순 Button)은 자체 테두리/라운드/배경 제거 — pill 이 담당 */
-.sortGroup button {
-  height: 100%;
-  border: none !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  /* ghost Button 의 backdrop-filter blur 가 뒤(pill border 포함)를 frost 처리해 테두리를 덮던 문제 차단 */
-  backdrop-filter: none !important;
-}
-/* 역순 버튼 — Select 와 사이 구분선 */
-.sortGroup .sortDir {
-  border-left: var(--border-light) !important;
-  padding-inline: var(--spacing-sm);
-}
+/* 정렬 pill 은 공통 ui/SortControl 로 옮겼다 (댓글과 단일 소스 공유).
+   여기에 다시 쓰면 특정도가 높아 공통 규격을 덮어써서 또 갈라진다. */
 .tbBadge {
   display: inline-flex;
   align-items: center;
@@ -952,14 +931,22 @@
 }
 .evSidebarTitle { font-size: var(--font-size-lg); font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
 .evSidebarActions { display: inline-flex; align-items: center; gap: var(--spacing-3xs); }
-.evSidebarBtn {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 30px; height: 30px; border: none; border-radius: var(--radius-circle);
-  background: transparent; color: var(--text-tertiary); cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
+/* 사이드바 아이콘 버튼(도움말·정렬·닫기)은 공통 HelpButton / Button(ghost circle)로 옮겼다.
+   여기에 다시 쓰면 공통 규격을 덮어써서 또 갈라진다. */
+/* 필터 줄 — SegmentedControl + 오른쪽 끝 도움말 */
+.evFilters {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 0 var(--spacing-md) var(--spacing-sm);
 }
-.evSidebarBtn:hover { background: var(--bg-secondary); color: var(--text-primary); }
-.evFilters { padding: 0 var(--spacing-md) var(--spacing-sm); }
+
+/* 도움말만 오른쪽 끝으로. `> :last-child` 로 잡으면 이 줄에 뭘 더 넣는 순간
+   엉뚱한 게 밀려나므로 대상을 명시한다. (Popover 의 className 은 trigger 를 감싸는 span 으로 간다) */
+.evFiltersHelp {
+  margin-left: auto;
+}
+
 .evList { flex: 1; min-height: 0; overflow-y: auto; padding: 0 var(--spacing-sm) var(--spacing-md); overscroll-behavior: contain; }
 .evEmpty { padding: var(--spacing-3xl) var(--spacing-md); text-align: center; color: var(--text-tertiary); font-size: var(--font-size-sm); }
 .evGroup { padding-top: var(--spacing-sm); }
@@ -1015,11 +1002,40 @@
 .evStarHalf { position: relative; display: inline-flex; width: 13px; height: 13px; }
 .evStarHalf svg { position: absolute; inset: 0; }
 .evStarHalfFill { clip-path: inset(0 50% 0 0); }
-/* 도움말 범례 (Popover) — 각 아이콘 의미 */
-.evHelp { display: flex; flex-direction: column; gap: var(--spacing-sm); padding: var(--spacing-xs) var(--spacing-sm); min-width: 168px; }
-.evHelpGroup { display: flex; flex-direction: column; gap: var(--spacing-3xs); }
-.evHelpTitle { font-size: var(--font-size-3xs); font-weight: 700; color: var(--text-tertiary); letter-spacing: 0.02em; margin-bottom: 2px; }
-.evHelpRow { display: flex; align-items: center; gap: var(--spacing-2xs); font-size: var(--font-size-2xs); color: var(--text-secondary); }
+/* 도움말 범례 (Popover) — 각 아이콘 의미.
+   그룹 제목은 프로젝트의 라벨 관용구(.groupLabel: uppercase + medium + 0.04em + --text-muted)에 맞춘다.
+   예전엔 여기만 raw `font-weight: 700` 에 letter-spacing 0.02em, uppercase 없음이라 다른
+   popover 의 그룹 라벨과 결이 달랐다. */
+.evHelp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-sm);
+  min-width: 168px;
+}
+
+.evHelpGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+
+.evHelpTitle {
+  margin-bottom: var(--spacing-3xs);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.evHelpRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+}
 .evHelpDot { --_c: var(--text-secondary); }
 .evHelpStar { display: inline-flex; align-items: center; width: 13px; height: 13px; color: var(--text-secondary); line-height: 0; flex-shrink: 0; }
 .evHelpLink { color: var(--text-tertiary); flex-shrink: 0; }
