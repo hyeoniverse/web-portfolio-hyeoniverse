@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.23.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.22.1...v1.23.0) (2026-07-16)
+
+
+### Features
+
+* **editor:** 열 블록 조작 · 탭 바 · 내용 지우기 분리 · mermaid 판정 ([75c231d](https://github.com/hyeoniverse/web-portfolio-oval/commit/75c231d934962d7b40aba02eed485e7b7444ea03))
+* **ui:** 공통 컴포넌트 추출 — SortControl · DetailActionButton · ShareIcon ([17c0fa9](https://github.com/hyeoniverse/web-portfolio-oval/commit/17c0fa913f6b39183ec1aece1b90dce783f61f2c))
+
+
+### Bug Fixes
+
+* **css:** 정의되지 않은 토큰 13종 57곳 — 선언이 통째로 죽어 있었다 ([2061b5a](https://github.com/hyeoniverse/web-portfolio-oval/commit/2061b5a9e2ae19a681ab223ede59eff0b3054f85))
+* **editor:** 코드블록 하이라이팅·붙여넣기·구조 버그 3종 ([405b73c](https://github.com/hyeoniverse/web-portfolio-oval/commit/405b73c95d5ede854f393451b5e68f089fd060b7))
+* 존재하지 않는 컬럼 select 제거 + 데드코드 정리 ([c45f514](https://github.com/hyeoniverse/web-portfolio-oval/commit/c45f5141cda8913abfa6968d973673c4504f658b))
+
 ## [1.22.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.22.0...v1.22.1) (2026-07-15)
 
 
