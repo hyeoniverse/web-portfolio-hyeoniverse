@@ -11,52 +11,102 @@
   color: var(--shiki-dark);
 }
 
-/* ── Highlight.js syntax theme (dark / light) — markdown 콘텐츠용 ── */
+/* ── 코드블록 신택스 팔레트 — 에디터 / 리더뷰 / 댓글 **단일 소스** ──
+   하이라이터가 둘로 갈려 있어서 두 어휘를 한 규칙에 같이 매핑한다:
+     .hljs-*  = 에디터(Plate + lowlight). @platejs/code-block 이 lowlight 인스턴스를 API 로 받고
+                하이라이팅이 Slate decoration 파이프라인이라 Prism 으로 못 바꾼다.
+     .token.* = 리더뷰 + 댓글(Prism). hljs 는 번들러가 정규식을 깨뜨려 페이지를 죽인다(#312).
+   색은 반드시 여기서만 정의할 것 — 예전엔 이 팔레트가 RichTextEditor.module.css 에
+   통째로 복붙돼 있었다(값은 같고 주석만 'VSCode Dark+' 였다). ── */
 
 /* Dark mode — Night Owl inspired */
+/* ── 컨테이너 토큰은 **반드시 먼저** 선언한다 (아래 규칙들보다 위) ──
+   에디터(Plate)는 리더뷰와 DOM 모델이 다르다. hljs 는 원래 span 을 중첩시키지만
+   Plate 의 parseNodes 는 부모 클래스를 자식에 **누적해 flat** 하게 만든다:
+     리더뷰 <span class="hljs-tag">&lt;<span class="hljs-name">main</span>…
+     에디터 <span class="hljs-tag">&lt;</span><span class="hljs-tag hljs-name">main</span>…
+   즉 두 규칙이 **같은 엘리먼트**를 노리고 특정도가 같아 → **소스 순서가 이긴다**.
+   컨테이너(tag/function/params)가 뒤에 있으면 자식(name/string/keyword/number)을 전부 덮어써서
+   태그 안이 통째로 한 색이 된다(= "HTML 하이라이팅이 안 된다"의 정체).
+   여기 순서를 바꾸면 조용히 재발한다. */
+[data-theme="dark"] pre code .hljs-tag {
+  color: oklch(85.61% 0.0943 225.87);
+}
+
+[data-theme="dark"] pre code .hljs-function {
+  color: oklch(74.41% 0.1311 264.28);
+}
+
+[data-theme="dark"] pre code .hljs-params {
+  color: oklch(89.84% 0.0198 260.17);
+}
+
 [data-theme="dark"] pre code .hljs-keyword,
+[data-theme="dark"] pre code .token.keyword,
 [data-theme="dark"] pre code .hljs-selector-tag,
-[data-theme="dark"] pre code .hljs-built_in {
+[data-theme="dark"] pre code .token.selector,
+[data-theme="dark"] pre code .hljs-built_in,
+[data-theme="dark"] pre code .token.builtin,
+[data-theme="dark"] pre code .token.atrule,
+[data-theme="dark"] pre code .token.rule,
+[data-theme="dark"] pre code .hljs-selector-class,
+[data-theme="dark"] pre code .hljs-selector-id,
+[data-theme="dark"] pre code .hljs-selector-pseudo {
   color: oklch(74.27% 0.1348 311.06);
 }
 
 [data-theme="dark"] pre code .hljs-string,
-[data-theme="dark"] pre code .hljs-attr {
+[data-theme="dark"] pre code .token.string,
+[data-theme="dark"] pre code .token.char,
+[data-theme="dark"] pre code .token.attr-value,
+[data-theme="dark"] pre code .hljs-link,
+[data-theme="dark"] pre code .token.url {
   color: oklch(84.25% 0.0844 75.06);
 }
 
 [data-theme="dark"] pre code .hljs-number,
-[data-theme="dark"] pre code .hljs-literal {
+[data-theme="dark"] pre code .token.number,
+[data-theme="dark"] pre code .hljs-literal,
+[data-theme="dark"] pre code .token.boolean,
+[data-theme="dark"] pre code .token.constant {
   color: oklch(74.86% 0.1381 37.46);
 }
 
 [data-theme="dark"] pre code .hljs-comment,
-[data-theme="dark"] pre code .hljs-quote {
+[data-theme="dark"] pre code .token.comment,
+[data-theme="dark"] pre code .token.prolog,
+[data-theme="dark"] pre code .token.cdata,
+[data-theme="dark"] pre code .hljs-quote,
+[data-theme="dark"] pre code .token.doctype {
   color: oklch(55.31% 0.0236 196.49);
   font-style: italic;
 }
 
 [data-theme="dark"] pre code .hljs-title,
-[data-theme="dark"] pre code .hljs-title.function_ {
+[data-theme="dark"] pre code .token.function,
+[data-theme="dark"] pre code .hljs-title.function_,
+[data-theme="dark"] pre code .token.function-variable,
+[data-theme="dark"] pre code .hljs-section,
+[data-theme="dark"] pre code .token.title {
   color: oklch(74.41% 0.1311 264.28);
 }
 
 [data-theme="dark"] pre code .hljs-variable,
-[data-theme="dark"] pre code .hljs-template-variable {
+[data-theme="dark"] pre code .token.variable,
+[data-theme="dark"] pre code .hljs-template-variable,
+[data-theme="dark"] pre code .hljs-code,
+[data-theme="dark"] pre code .token.code-snippet {
   color: oklch(83.44% 0.1534 127.38);
 }
 
 [data-theme="dark"] pre code .hljs-type,
-[data-theme="dark"] pre code .hljs-tag {
+[data-theme="dark"] pre code .token.tag {
   color: oklch(70.09% 0.1567 18.62);
 }
 
-[data-theme="dark"] pre code .hljs-name {
+[data-theme="dark"] pre code .hljs-name,
+[data-theme="dark"] pre code .token.symbol {
   color: oklch(70.09% 0.1567 18.62);
-}
-
-[data-theme="dark"] pre code .hljs-attribute {
-  color: oklch(74.27% 0.1348 311.06);
 }
 
 [data-theme="dark"] pre code .hljs-symbol,
@@ -64,79 +114,128 @@
   color: oklch(83.44% 0.1534 127.38);
 }
 
-[data-theme="dark"] pre code .hljs-params {
-  color: oklch(89.84% 0.0198 260.17);
-}
-
 [data-theme="dark"] pre code .hljs-meta {
   color: oklch(74.41% 0.1311 264.28);
 }
 
 [data-theme="dark"] pre code .hljs-operator,
-[data-theme="dark"] pre code .hljs-punctuation {
+[data-theme="dark"] pre code .token.operator,
+[data-theme="dark"] pre code .hljs-punctuation,
+[data-theme="dark"] pre code .token.punctuation {
   color: oklch(85.61% 0.0943 225.87);
 }
 
-[data-theme="dark"] pre code .hljs-property {
+[data-theme="dark"] pre code .hljs-property,
+[data-theme="dark"] pre code .token.property,
+[data-theme="dark"] pre code .token.attr-name,
+[data-theme="dark"] pre code .hljs-attr,
+[data-theme="dark"] pre code .hljs-attribute {
   color: oklch(82.92% 0.0920 180.70);
 }
 
-[data-theme="dark"] pre code .hljs-regexp {
+[data-theme="dark"] pre code .hljs-regexp,
+[data-theme="dark"] pre code .token.regex {
   color: oklch(70.53% 0.1170 245.09);
 }
 
-[data-theme="dark"] pre code .hljs-deletion {
+[data-theme="dark"] pre code .hljs-deletion,
+[data-theme="dark"] pre code .token.deleted {
   color: oklch(65.39% 0.1926 25.14);
 }
 
-[data-theme="dark"] pre code .hljs-addition {
+[data-theme="dark"] pre code .hljs-addition,
+[data-theme="dark"] pre code .token.inserted {
   color: oklch(83.44% 0.1534 127.38);
 }
 
 /* Light mode — Day Owl inspired */
+/* ── 컨테이너 토큰은 **반드시 먼저** 선언한다 (아래 규칙들보다 위) ──
+   에디터(Plate)는 리더뷰와 DOM 모델이 다르다. hljs 는 원래 span 을 중첩시키지만
+   Plate 의 parseNodes 는 부모 클래스를 자식에 **누적해 flat** 하게 만든다:
+     리더뷰 <span class="hljs-tag">&lt;<span class="hljs-name">main</span>…
+     에디터 <span class="hljs-tag">&lt;</span><span class="hljs-tag hljs-name">main</span>…
+   즉 두 규칙이 **같은 엘리먼트**를 노리고 특정도가 같아 → **소스 순서가 이긴다**.
+   컨테이너(tag/function/params)가 뒤에 있으면 자식(name/string/keyword/number)을 전부 덮어써서
+   태그 안이 통째로 한 색이 된다(= "HTML 하이라이팅이 안 된다"의 정체).
+   여기 순서를 바꾸면 조용히 재발한다. */
+[data-theme="light"] pre code .hljs-tag {
+  color: oklch(47.72% 0.2870 264.37);
+}
+
+[data-theme="light"] pre code .hljs-function {
+  color: oklch(58.19% 0.1557 263.15);
+}
+
+[data-theme="light"] pre code .hljs-params {
+  color: oklch(37.69% 0.0339 286.94);
+}
+
 [data-theme="light"] pre code .hljs-keyword,
+[data-theme="light"] pre code .token.keyword,
 [data-theme="light"] pre code .hljs-selector-tag,
-[data-theme="light"] pre code .hljs-built_in {
+[data-theme="light"] pre code .token.selector,
+[data-theme="light"] pre code .hljs-built_in,
+[data-theme="light"] pre code .token.builtin,
+[data-theme="light"] pre code .token.atrule,
+[data-theme="light"] pre code .token.rule,
+[data-theme="light"] pre code .hljs-selector-class,
+[data-theme="light"] pre code .hljs-selector-id,
+[data-theme="light"] pre code .hljs-selector-pseudo {
   color: oklch(56.39% 0.1860 311.73);
 }
 
 [data-theme="light"] pre code .hljs-string,
-[data-theme="light"] pre code .hljs-attr {
+[data-theme="light"] pre code .token.string,
+[data-theme="light"] pre code .token.char,
+[data-theme="light"] pre code .token.attr-value,
+[data-theme="light"] pre code .hljs-link,
+[data-theme="light"] pre code .token.url {
   color: oklch(62.80% 0.1251 22.49);
 }
 
 [data-theme="light"] pre code .hljs-number,
-[data-theme="light"] pre code .hljs-literal {
+[data-theme="light"] pre code .token.number,
+[data-theme="light"] pre code .hljs-literal,
+[data-theme="light"] pre code .token.boolean,
+[data-theme="light"] pre code .token.constant {
   color: oklch(49.77% 0.2095 342.46);
 }
 
 [data-theme="light"] pre code .hljs-comment,
-[data-theme="light"] pre code .hljs-quote {
+[data-theme="light"] pre code .token.comment,
+[data-theme="light"] pre code .token.prolog,
+[data-theme="light"] pre code .token.cdata,
+[data-theme="light"] pre code .hljs-quote,
+[data-theme="light"] pre code .token.doctype {
   color: oklch(69.79% 0.0159 196.79);
   font-style: italic;
 }
 
 [data-theme="light"] pre code .hljs-title,
-[data-theme="light"] pre code .hljs-title.function_ {
+[data-theme="light"] pre code .token.function,
+[data-theme="light"] pre code .hljs-title.function_,
+[data-theme="light"] pre code .token.function-variable,
+[data-theme="light"] pre code .hljs-section,
+[data-theme="light"] pre code .token.title {
   color: oklch(58.19% 0.1557 263.15);
 }
 
 [data-theme="light"] pre code .hljs-variable,
-[data-theme="light"] pre code .hljs-template-variable {
+[data-theme="light"] pre code .token.variable,
+[data-theme="light"] pre code .hljs-template-variable,
+[data-theme="light"] pre code .hljs-code,
+[data-theme="light"] pre code .token.code-snippet {
   color: oklch(61.22% 0.1023 199.06);
 }
 
 [data-theme="light"] pre code .hljs-type,
-[data-theme="light"] pre code .hljs-tag {
+[data-theme="light"] pre code .token.tag {
   color: oklch(56.39% 0.1860 311.73);
 }
 
-[data-theme="light"] pre code .hljs-name {
+[data-theme="light"] pre code .hljs-name,
+[data-theme="light"] pre code .token.symbol {
   color: oklch(56.39% 0.1860 311.73);
-}
-
-[data-theme="light"] pre code .hljs-attribute {
-  color: oklch(61.22% 0.1023 199.06);
 }
 
 [data-theme="light"] pre code .hljs-symbol,
@@ -144,32 +243,37 @@
   color: oklch(61.22% 0.1023 199.06);
 }
 
-[data-theme="light"] pre code .hljs-params {
-  color: oklch(37.69% 0.0339 286.94);
-}
-
 [data-theme="light"] pre code .hljs-meta {
   color: oklch(58.19% 0.1557 263.15);
 }
 
 [data-theme="light"] pre code .hljs-operator,
-[data-theme="light"] pre code .hljs-punctuation {
+[data-theme="light"] pre code .token.operator,
+[data-theme="light"] pre code .hljs-punctuation,
+[data-theme="light"] pre code .token.punctuation {
   color: oklch(47.72% 0.2870 264.37);
 }
 
-[data-theme="light"] pre code .hljs-property {
+[data-theme="light"] pre code .hljs-property,
+[data-theme="light"] pre code .token.property,
+[data-theme="light"] pre code .token.attr-name,
+[data-theme="light"] pre code .hljs-attr,
+[data-theme="light"] pre code .hljs-attribute {
   color: oklch(61.22% 0.1023 199.06);
 }
 
-[data-theme="light"] pre code .hljs-regexp {
+[data-theme="light"] pre code .hljs-regexp,
+[data-theme="light"] pre code .token.regex {
   color: oklch(58.19% 0.1557 263.15);
 }
 
-[data-theme="light"] pre code .hljs-deletion {
+[data-theme="light"] pre code .hljs-deletion,
+[data-theme="light"] pre code .token.deleted {
   color: oklch(60.05% 0.1983 26.06);
 }
 
-[data-theme="light"] pre code .hljs-addition {
+[data-theme="light"] pre code .hljs-addition,
+[data-theme="light"] pre code .token.inserted {
   color: oklch(61.22% 0.1023 199.06);
 }
 
@@ -233,12 +337,52 @@
 /* 코드블록 프레임 + 스크롤 — detail/preview/works 공통(richtext=Shiki, markdown=hljs 모두 .code-block-wrap).
    pre = 패딩/배경 프레임 + 높이 조절(resize 핸들), <code> = flex 로 채우며 스크롤
    → 패딩이 고정 여백으로 남고 컨트롤도 안 밀림 */
-.code-block-wrap pre {
+/* ── 색이 아닌 것 / 기본색으로 되돌리는 것 (테마 무관) ── */
+
+/* 템플릿 리터럴·f-string 의 보간부 `${...}`. hljs 는 이 토큰을 **string 안에 중첩**시켜서
+   색을 안 주면 문자열 색을 그대로 물려받는다 → 코드인데 문자열처럼 보인다.
+   기본 텍스트색으로 되돌려야 한다(--text-primary 가 이미 테마를 따라가므로 테마별로 나눌 필요 없음). */
+pre code .hljs-subst,
+pre code .token.interpolation {
+  color: var(--text-primary);
+}
+
+/* markdown — 색이 아니라 형태로 구분되는 토큰 */
+pre code .hljs-strong,
+pre code .token.bold {
+  font-weight: var(--font-weight-bold);
+}
+
+pre code .hljs-emphasis,
+pre code .token.italic {
+  font-style: italic;
+}
+
+/* 빈 코드블록 placeholder — 편집 영역 **안에 DOM 노드를 만들지 않으려고** ::before 로 그린다.
+   Slate 는 편집 영역의 DOM 자식 인덱스로 Slate 경로를 계산해서, 관리 밖 노드(<span contentEditable=false>)가
+   끼어 있으면 붙여넣기 지점이 어긋난다(첫 줄만 들어가고 나머지가 블록 밖으로 나가던 원인).
+   문구는 data 속성으로 받는다 — 속성은 자식이 아니라 경로 계산에 안 잡힌다. */
+.slate-code_block code[data-code-placeholder]::before {
+  content: attr(data-code-placeholder);
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--text-tertiary);
+  font-style: italic;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 프레임 — 에디터(.slate-code_block) / 리더뷰·댓글(.code-block-wrap pre) 공통.
+   여백은 에디터 값(md)으로 통일했다. 리더뷰가 쓰던 큰 상단 패딩은 컨트롤이 pre 안에 있던
+   시절의 잔재고, 지금은 상단 바가 밖으로 나와서 필요 없다. */
+.code-block-wrap pre,
+.slate-code_block {
   display: flex;
   flex-direction: column;
   max-height: 16rem;
-  padding: var(--spacing-2xl-plus) var(--spacing-lg) var(--spacing-2xl);
-  margin: var(--spacing-xl) 0;
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
   background: var(--bg-tertiary);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
@@ -246,13 +390,13 @@
   resize: vertical;
 }
 
-/* 컨트롤을 밖(상단 바)으로 뺀 경우 — pre 상단 여백 축소 + 위아래 마진은 바/pre 로 분담 */
+/* 상단 바가 pre 밖에 있을 때 — 바와 pre 사이 마진만 제거 (패딩은 이미 균일한 md) */
 .code-block-wrap.has-code-bar pre {
-  padding-top: var(--spacing-lg);
   margin-top: 0;
 }
 
-.code-block-wrap pre code {
+.code-block-wrap pre code,
+.slate-code_block code {
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
