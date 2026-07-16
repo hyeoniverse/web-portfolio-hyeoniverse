@@ -1055,8 +1055,8 @@
 .inputWrapper input,
 .inputWrapper textarea {
   width: 100%;
-  /* admin editor 표준 input 과 동일 (--size-sm = 32px) */
-  min-height: var(--input-h);
+  /* 공통 Input 의 기본 높이와 동일 (--control-h-md = 32px) */
+  min-height: var(--control-h-md);
   padding: 0 var(--spacing-2xl) 0 var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);

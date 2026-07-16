@@ -93,7 +93,7 @@
   width: 54px;
   text-align: center;
   font-variant-numeric: tabular-nums;
-  padding: var(--box-y-xs);
+  padding: var(--box-y-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;

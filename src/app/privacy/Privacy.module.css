@@ -51,7 +51,7 @@
 .section p {
   margin-bottom: var(--spacing-md);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-md);
   line-height: 1.8;
   color: var(--text-secondary);
 }
@@ -65,7 +65,7 @@
 .section li {
   margin-bottom: var(--spacing-sm);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-md);
   line-height: 1.8;
   color: var(--text-secondary);
 }

@@ -294,7 +294,7 @@
   width: var(--button-h-sm);
   text-align: right;
   padding-right: var(--spacing-sm);
-  color: var(--text-quaternary);
+  color: var(--text-muted);
   user-select: none;
   flex-shrink: 0;
 }
@@ -1889,7 +1889,7 @@
   justify-content: center;
   height: var(--control-h-md);
   padding: 0;
-  color: var(--text-quaternary);
+  color: var(--text-muted);
   flex-shrink: 0;
   cursor: grab;
   touch-action: none;
@@ -2816,7 +2816,7 @@
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-normal);
+  font-weight: var(--font-weight-regular);
   line-height: 1;
   color: var(--text-tertiary);
   text-align: center;
@@ -3983,7 +3983,7 @@
   font-family: inherit;
   background: transparent;
   color: var(--text-primary);
-  padding: var(--box-y-xs);
+  padding: var(--box-y-sm);
 }
 
 .fontDropList {
@@ -4558,7 +4558,7 @@
 
 .pendingEmailDate {
   font-size: var(--font-size-2xs);
-  color: var(--text-quaternary);
+  color: var(--text-muted);
 }
 
 .pendingEmailActions {
