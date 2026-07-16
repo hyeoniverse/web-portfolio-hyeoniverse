@@ -379,14 +379,32 @@ pre code .token.italic {
    → 둘이 갭 없이 하나로 이어진다.
    에디터(.slate-code_block)는 바가 없는(FloatingBar) 단독 블록이라 자체 프레임을 그대로 유지. */
 .code-block-wrap.has-code-bar {
+  display: flex;
+  flex-direction: column;
+  /* 창 전체가 세로 리사이즈 — 핸들은 wrap 우하단(자기 경계라 overflow:hidden 에 안 잘린다).
+     기본 20rem, 최소 8rem. pre 가 flex 로 남는 높이를 채우고 넘치면 스크롤. */
+  height: 20rem;
+  min-height: 8rem;
+  resize: vertical;
   margin: var(--spacing-lg) 0;
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   overflow: hidden;
-  /* 가벼운 유리 면 — 솔리드 대신 반투명 + blur. 뒤 배경이 은은히 비친다.
-     프로젝트 glass 관용구(_semantic.css): bg-glass-panel + blur-glass 를 항상 같이. */
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
+}
+
+/* 리사이즈 커서 overlay — wrap 우하단 native resize 그립 위. pointer-events:none 이라
+   native 리사이즈는 그대로 통과하고, CursorTrail 이 elementsFromPoint 로 data-cursor 를 감지해
+   커스텀 커서를 resizeV 로 바꾼다. */
+.code-block-wrap.has-code-bar .code-resize-cursor {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* 에디터 단독 블록 — 예전 프레임 그대로 (바 없음) */
@@ -407,16 +425,15 @@ pre code .token.italic {
 
 /* 리더뷰 본문 pre — 창 안에 담기므로 자기 테두리/라운드/여백 없음 */
 .code-block-wrap pre {
-  display: flex;
-  flex-direction: column;
-  max-height: 16rem;
+  /* 리사이즈는 wrap(창)이 담당. pre 는 남는 높이를 채우고 넘치면 스크롤. */
+  flex: 1 1 auto;
+  min-height: 0;
   margin: 0;
   padding: var(--spacing-md);
   background: transparent;
   border: none;
   border-radius: 0;
-  overflow: hidden;
-  resize: vertical;
+  overflow: auto;
 }
 /* 바 없는 리더뷰 코드블록(드묾) — 단독 프레임 유지 */
 .code-block-wrap:not(.has-code-bar) pre {
@@ -452,9 +469,11 @@ pre code .token.italic {
   /* macOS 창 헤더 — 신호등이 여유롭게 앉는 높이(약 38px)와 좌우 여백. 세로 중앙 정렬.
      본문(유리 면)보다 한 톤 어둡게(gray-alpha, 테마 무관) + 하단 hairline 으로 헤더임을 드러낸다. */
   position: relative;
-  min-height: 38px;
+  min-height: 42px;
   padding: 0 var(--spacing-md);
-  background: var(--color-gray-alpha-5);
+  /* 본문(유리 면)보다 한 톤 어둡게 — gray-alpha-5(무겁다)와 -10(어둡다) 사이 7%.
+     (globals 는 직접 색 허용 — 5/10 사이 스텝 토큰이 없어서) */
+  background: oklch(0% 0 0 / 0.07);
   border-bottom: var(--border-light);
 }
 
@@ -489,24 +508,16 @@ pre code .token.italic {
    라벨(주소창)과 같은 스타일 — 파인 배경 + shadow-inner + 캡슐. 안의 버튼은 개별로 얹힌다. */
 .code-block-controls {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 0;
-  padding: 3px;
-  background: var(--bg-tertiary);
+  /* 세그먼트 pill — 바깥만 둥근 캡슐, overflow hidden 으로 안쪽 버튼 hover 면을 캡슐에 clip.
+     안쪽 맞닿는 모서리는 직선(버튼이 각져도 캡슐이 바깥 라운드를 만든다). */
   border-radius: var(--radius-capsule);
-  box-shadow: var(--shadow-inner);
+  overflow: hidden;
+  border: var(--border-light);
 }
-/* 버튼 사이 세로 구분선 — (복사 | 스크롤) 처럼 한 pill 로 묶여 보이게 */
+/* 버튼 사이 세로 구분선 — (복사 | 스크롤) */
 .code-block-controls > * + * {
-  position: relative;
-}
-.code-block-controls > * + *::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 60%;
   border-left: var(--border-light);
 }
 
@@ -517,14 +528,15 @@ pre code .token.italic {
 .code-block-wrap .code-lang-label {
   display: inline-flex;
   align-items: center;
-  padding: 7px 20px;
-  /* 파인 배경이되 헤더보다 밝게 — bg-primary(가장 밝은 면) + inner shadow 로 depth. */
+  padding: 8px 22px;
+  /* 파인 배경(밝은 면 + inner shadow) 유지. 폰트 키우고 bold 하게 — 창 제목처럼 또렷. */
   background: var(--bg-primary);
   border-radius: var(--radius-capsule);
   box-shadow: var(--shadow-inner);
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
   line-height: 1;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -534,20 +546,26 @@ pre code .token.italic {
 /* 복사 버튼 */
 /* 복사 버튼 — 줄바꿈 토글과 완전히 같은 스타일(둘 다 텍스트만, 아이콘 없음). */
 .code-block-wrap .code-copy-btn {
-  /* copy/copied 두 라벨을 같은 grid 셀에 겹쳐 넓은 쪽이 폭을 잡는다 → 상태 전환에도 너비 불변 */
-  display: inline-grid;
-  place-items: center;
-  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: 0;              /* 세그먼트 — 그룹 캡슐이 바깥 라운드를 만든다 */
   background: transparent;
   color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.code-copy-icon { flex-shrink: 0; }
+/* copy/copied 두 라벨을 grid 로 겹쳐 넓은 쪽이 폭을 잡는다 → 상태 전환에도 너비 불변 */
+.code-copy-labels {
+  display: inline-grid;
+  place-items: center start;
 }
 .code-copy-default,
 .code-copy-done {
@@ -556,8 +574,7 @@ pre code .token.italic {
 .code-copy-done { opacity: 0; }  /* 기본 = copy 만 보임 */
 
 .code-block-wrap .code-copy-btn:hover {
-  background: var(--bg-primary);
-  box-shadow: var(--shadow-xs);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
 
@@ -574,14 +591,13 @@ pre code .token.italic {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 4px 10px;
+  padding: 6px 14px;
   border: none;
-  border-radius: var(--radius-capsule);
-  background: var(--bg-primary);
-  box-shadow: var(--shadow-xs);
-  color: var(--text-secondary);
+  border-radius: 0;              /* 복사 버튼과 동일 — 세그먼트 */
+  background: transparent;
+  color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -589,7 +605,7 @@ pre code .token.italic {
   transition: background 0.15s ease, color 0.15s ease;
 }
 .code-block-wrap .code-wrap-toggle:hover {
-  box-shadow: var(--shadow-sm);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
 }
 

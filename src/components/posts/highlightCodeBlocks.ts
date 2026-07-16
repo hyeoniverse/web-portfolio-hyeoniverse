@@ -70,6 +70,17 @@ export function attachCodeWrapToggle(
 
     // pre 위(밖)에 별도 바 — mermaid 리더뷰와 동일하게 언어 라벨(좌) + 컨트롤(우)을 프레임 밖으로.
     wrap.classList.add("has-code-bar");
+    // 리사이즈 커서 — wrap 은 CSS resize:vertical 로 native 리사이즈된다. 우하단 그립 위에
+    // data-cursor="resizeV" overlay 를 얹어 CursorTrail 이 커스텀 커서로 바꾸게 한다.
+    // pointer-events:none 이라 native resize 는 그대로 통과(드래그 재구현 불필요),
+    // CursorTrail 은 elementsFromPoint 폴백으로 이 overlay 를 감지한다.
+    if (!wrap.querySelector(".code-resize-cursor")) {
+      const rc = document.createElement("div");
+      rc.className = "code-resize-cursor";
+      rc.setAttribute("data-cursor", "resizeV");
+      rc.setAttribute("aria-hidden", "true");
+      wrap.appendChild(rc);
+    }
     const bar = document.createElement("div");
     bar.className = "code-block-bar";
     bar.contentEditable = "false";
@@ -87,9 +98,9 @@ export function attachCodeWrapToggle(
     copyBtn.type = "button";
     copyBtn.className = "code-copy-btn";
     copyBtn.setAttribute("data-copy-btn", "");
-    /* 줄바꿈 토글과 같은 구조 — 두 라벨(copy/copied)을 겹쳐 넓은 쪽이 폭을 잡는다 → 상태 전환에도
-       너비 불변. 아이콘 제거로 줄바꿈 버튼과 스타일도 통일(둘 다 텍스트만). 라벨은 아래에서 채운다. */
-    copyBtn.innerHTML = '<span class="code-copy-default"></span><span class="code-copy-done"></span>';
+    /* 아이콘 + 라벨. copy/copied 두 라벨을 겹쳐 넓은 쪽이 폭을 잡아 상태 전환에도 너비 불변. */
+    copyBtn.innerHTML =
+      '<svg class="code-copy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg><span class="code-copy-labels"><span class="code-copy-default"></span><span class="code-copy-done"></span></span>';
     const wrapBtn = document.createElement("button");
     wrapBtn.type = "button";
     wrapBtn.className = "code-wrap-toggle";
