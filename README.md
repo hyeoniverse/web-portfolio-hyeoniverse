@@ -163,11 +163,11 @@
 - **댓글 시스템**: 게스트 대댓글(threaded) 지원 — 이중 인증(commenter_hash + bcrypt), 닉네임 셔플, 이메일 답글 알림, 관리자 댓글, 관리자 tombstone 2회 삭제로 완전 제거, 닉네임 보존 tombstone
 - **댓글 provider 전환 (자체 / giscus)**: Admin Services 탭에서 `comments.provider` 를 `system` ↔ `giscus` 로 스위치. giscus 선택 시 저장소(`owner/name`)만 입력하면 `GET /api/admin/giscus-repo` 가 GitHub GraphQL(`GITHUB_TOKEN`)로 **repoId + Discussion 카테고리를 자동 조회** — giscus.app 을 따로 방문할 필요 없음. mapping / reactions / strict / lazyLoading / 입력창 위치 / 테마(프리셋 또는 커스텀 CSS URL) 설정 지원. `DetailLayout` 이 `provider === "giscus" && repo 채워짐` 일 때만 giscus 로 스위치하고 **repo 미입력이면 시스템 댓글로 폴백**. 위젯은 `giscus.app/client.js` 동적 주입(iframe), 테마 전환은 postMessage. giscus reactions 를 켜면 사이트 좋아요 버튼은 자동으로 숨김. 저장은 GitHub Discussions 이므로 DB 사용 없음
 - **댓글 이모지 반응**: 기존 "좋아요" 를 giscus 식 **고정 8종**(👍👎😄🎉😕❤️🚀👀) 반응으로 완전 대체. Popover 피커 + 낙관적 업데이트 + 실패 시 롤백, 반응 수 기준 정렬. `GET /api/comment-reactions` 로 집계 + 내 반응 일괄 조회, `POST` 로 토글. 반응자 식별은 IP 원문이 아니라 `sha256(IP + ":" + UA)` 앞 32자(`reactor_hash`)
-- **댓글 마크다운 에디터**: 작성/미리보기 탭 + 14개 서식 버튼 툴바(텍스트 / 블록 / 목록 / 삽입 4그룹 — 굵게·기울임·취소선·인라인코드 / 제목·인용·코드블록 / 목록·번호목록·체크박스 / 링크·이미지·표·구분선), 툴바 끝에 마크다운 치트시트 도움말 popover. `marked`(gfm + breaks) → `isomorphic-dompurify` sanitize, 링크는 `nofollow noopener` + 이미지는 `loading=lazy` 강제, http(s)/mailto 스킴만 통과. **이미지는 업로드 없이 외부 URL 만** (익명 사용자에게 Storage 쓰기를 열지 않기 위한 의도적 선택 — GitHub 초기 방식). ImageViewer 연동, 긴 댓글은 공통 `Collapsible`(520px)로 접힘 + 더보기. **코드 하이라이팅은 의도적 미지원** — highlight.js 를 import 하면 번들러가 깨진 정규식을 생성해 페이지 전체가 크래시 (트러블슈팅 58번)
+- **댓글 마크다운 에디터**: 작성/미리보기 탭 + 14개 서식 버튼 툴바(텍스트 / 블록 / 목록 / 삽입 4그룹 — 굵게·기울임·취소선·인라인코드 / 제목·인용·코드블록 / 목록·번호목록·체크박스 / 링크·이미지·표·구분선), 툴바 끝에 마크다운 치트시트 도움말 popover. `marked`(gfm + breaks) → `isomorphic-dompurify` sanitize, 링크는 `nofollow noopener` + 이미지는 `loading=lazy` 강제, http(s)/mailto 스킴만 통과. **이미지는 업로드 없이 외부 URL 만** (익명 사용자에게 Storage 쓰기를 열지 않기 위한 의도적 선택 — GitHub 초기 방식). ImageViewer 연동, 긴 댓글은 공통 `Collapsible`(520px)로 접힘 + 더보기. 코드블록은 **Prism 하이라이팅** + 언어 라벨·복사·줄바꿈 토글 바 (언어 미지정 시 휴리스틱 추론). 하이라이터가 Prism 인 건 취향이 아니라 필연 — highlight.js 는 번들러가 유니코드 속성 이스케이프를 전개하면서 정규식을 깨뜨린다 (트러블슈팅 75번)
 - **RecentComments 미리보기**: `stripMarkdown.ts` 로 마크다운 기호를 제거해 사이드바에 2줄 클램프 평문으로 표시
 - **첫 댓글 축하**: 첫 댓글 등록 시 confetti 효과 + 카드 플립 축하 메시지 (sparkle 별 장식 + accent 라인), 관리자 댓글 전체 선택 / 드래그 선택 / tombstone 일괄 완전 삭제
 - **댓글 신고**: 댓글마다 신고 버튼 + 사유 입력 모달, 신고 즉시 `/admin/notifications` 의 "신고" 탭에 누적 — 관리자에서 resolve / dismiss / 완전 삭제 인라인 처리
-- **Posts 태그 스위트**: ① **TagCloud3D** — Posts 사이드바 3D 회전 워드 클라우드, 피보나치 구면 분포 + rAF 루프에서 DOM transform 을 직접 갱신해 React 리렌더 0회, hover 시 자동 회전 정지 / drag 로 수동 회전, 클릭 시 `/posts/tags/[tag]` 이동 (`setPointerCapture` 는 자식 Link click 을 흡수해 제거하고 document-level pointer listener 로 drag-after-threshold click 차단). ② `/posts/tags` 인덱스 — 전체 태그 그리드 + 무한 스크롤 + 검색 + admin 전용 태그 설정 바로가기. ③ `/posts/tags/[tag]` 상세 — 서버사이드 fetch, Lenis `setInfinite(false)` 로 무한 스크롤 OFF, 상/하단 검색바(420px cap), 공통 `Pagination`, 라벨 hover 시 관련 태그 툴팁. ④ 공통 `TagPill` 컴포넌트 (`src/components/ui/TagPill.tsx`) 로 통일
+- **Posts 태그 스위트**: ① **TagCloud3D** — Posts 사이드바 3D 회전 워드 클라우드, 피보나치 구면 분포 + rAF 루프에서 DOM transform 을 직접 갱신해 React 리렌더 0회, hover 시 자동 회전 정지 / drag 로 수동 회전, 클릭 시 `/posts/tags/[tag]` 이동 (`setPointerCapture` 는 자식 Link click 을 흡수해 제거하고 document-level pointer listener 로 drag-after-threshold click 차단). ② `/posts/tags` 인덱스 — 전체 태그 그리드 + 무한 스크롤 + 검색 + admin 전용 태그 설정 바로가기. ③ `/posts/tags/[tag]` 상세 — 서버사이드 fetch, Lenis `setInfinite(false)` 로 무한 스크롤 OFF, 상/하단 검색바(420px cap), 공통 `Pagination`, 라벨 hover 시 관련 태그 툴팁. ④ 공통 `Chip` 컴포넌트 (`src/components/ui/Chip/Chip.tsx`) 로 통일 — DraggableTag / TagPill / TagNotesEditor chip 이 여기로 흡수됐다
 - **Posts 그리드 fluid 컬럼**: bento masonry 가 고정 3/4/6 col → `auto-fit minmax(220px, 1fr)` 기반 fluid 로 전환. viewport 폭에 따라 컬럼 개수가 자연스럽게 변하면서 카드 폭이 220~300px 범위에 머무름 — wide/banner 처럼 2col span 카드도 절대 폭이 안정. 모바일은 명시적 2-col(`grid-template-columns: 1fr 1fr`) 로 분기해 너무 잘게 쪼개지지 않게 가드
 - **Posts skeleton vs dim hybrid loading**: 초기 페이지 로드는 각 카드 variant(wide/banner/square/portrait/standard) 에 맞춰 height 가 정확히 매칭되는 skeleton 렌더 — 카드 mount 시점에 layout shift 없음. 페이지/필터/정렬 변경 등 이미 카드가 그려진 상태에서의 재요청은 기존 카드를 그대로 유지하면서 `opacity: 0.5 + pointer-events: none` 으로 dim 처리해 jump 방지. 상단에 indeterminate progress bar 추가해 "지금 로딩 중" 시그널 분리
 - **Posts 태그 다중 선택**: `activeTag` (단일 문자열) → `activeTags` (Set<string>) 로 전환. 태그 칩 클릭 시 toggle add/remove, URL 도 `?tags=a,b,c` 로 직렬화. 필터 바에 "전체 태그 →" 링크(`/posts/tags`) 도 추가 — 사이드바 태그 클라우드 + 다중 선택 + 전체 인덱스 세 진입점 통합
@@ -667,15 +667,30 @@ npm run test:watch
 
 **테스트 대상**:
 
-| 파일                       | 테스트 수 | 설명                                                                |
-| -------------------------- | --------- | ------------------------------------------------------------------- |
-| `cn.test.ts`               | 6         | 클래스명 조합 유틸 (`cn`)                                           |
-| `date.test.ts`             | 6         | 날짜 포맷 유틸 (`formatDate`, `getYear`)                            |
-| `random.test.ts`           | 8         | 랜덤 요소 생성 (`generateRandomElements`, `generateRandomDroplets`) |
-| `mobileCheck.test.ts`      | 6         | 모바일 레이아웃 판별 (`checkMobileLayout`)                          |
-| `renderHighlight.test.tsx` | 4         | 하이라이트 마크업 변환 (`renderHighlight`)                          |
+**유틸 · 렌더** (`src/__tests__/`)
 
-설정 파일: `vitest.config.ts`, 테스트 위치: `src/__tests__/`
+| 파일 | 수 | 설명 |
+| --- | --- | --- |
+| `cn.test.ts` | 6 | 클래스명 조합 유틸 (`cn`) |
+| `mobileCheck.test.ts` | 6 | 모바일 레이아웃 판별 (`checkMobileLayout`) |
+| `renderHighlight.test.tsx` | 4 | 하이라이트 마크업 변환 (`renderHighlight`) |
+| `koSearch.test.ts` | 10 | 한글 초성/자모 검색 매칭 |
+| `codeBlockBar.test.tsx` | 3 | 코드블록 상단 바 (언어 라벨 · 복사 · 줄바꿈 토글) |
+| `cssTokens.test.ts` | 1 | **정의되지 않은 CSS 토큰 가드** — `var()` fallback 이 없으면 선언 전체가 무효가 되는데 CSS 는 조용히 넘어간다. 실제로 13종 · 57곳이 죽어 있었다 |
+
+**에디터 (Plate)** (`src/components/posts/plate/__tests__/`)
+
+| 파일 | 수 | 설명 |
+| --- | --- | --- |
+| `browserSafeGrammar.test.ts` | 15 | hljs 문법의 브라우저 안전성 — 등록된 정규식이 hljs 의 flag 없는 재파싱을 견디는지 (트러블슈팅 75번). node 는 원본을 쓰므로 **번들된 형태를 합성**해서 검증 |
+| `fitColumnsForInsert.test.ts` | 10 | 열 블록 폭 배분 — 블록 상한 유지, 최소 폭 하한, 내림 잔여 배분 |
+| `columnHasContent.test.ts` | 9 | 열 삭제 전 내용 판정 — 텍스트가 없어도 이미지/구분선은 내용 |
+| `codePaste.test.ts` | 7 | 코드블록 **밖**에 코드 붙여넣기 — markdown 파서가 들여쓰기로 코드를 찢지 않는지 |
+| `codeBlockClear.test.ts` | 5 | "내용 제거" 후 커서가 블록 안에 남는지 (밖으로 새면 붙여넣기가 유출) |
+| `codeBlockStructure.test.ts` | 4 | `code_block` 자식이 항상 `code_line` 인지 (raw 텍스트면 아무도 못 고치는 상태가 된다) |
+| `tableRowHeight.test.ts` | 4 | 표 행 높이 HTML 왕복 |
+
+설정: `vitest.config.ts` (jsdom, `@platejs/*` inline — 전체 EditorKit 로드용)
 
 ---
 
@@ -686,7 +701,7 @@ npm run test:watch
 
 ## Trouble Shooting
 
-> 개발 과정에서 마주친 60+ 건의 이슈 중 핵심 25건만 추려 About 페이지에서 노출 (난이도 + 일반화 가능성 기준, `HIDDEN_PROBLEMS` Set 으로 필터 — 데이터는 보존되어 언제든 다시 노출 가능). 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트) + 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
+> 개발 과정에서 마주친 86건의 이슈 중 핵심 51건을 추려 About 페이지에서 노출 (난이도 + 일반화 가능성 기준, `HIDDEN_PROBLEMS` Set 으로 필터 — 데이터는 보존되어 언제든 다시 노출 가능). 6개 섹션(아키텍처 / 성능 / 레이아웃 / Plate 에디터 / 애니메이션·인터랙션 / 컴포넌트) + 난이도(1~3) + 추천(★) 표시. 주요 항목은 아래에서, 전체 목록은 **[docs/troubleshooting.md](./docs/troubleshooting.md)** 또는 About 페이지에서 확인할 수 있습니다.
 
 | # | 이슈 | 핵심 |
 |:---:|:---|:---|
@@ -737,7 +752,7 @@ npm run test:watch
 | 72 | `<input type="number">` 의 spinner 가 OKLCH 6자 소수 (`0.2249`) 를 잘라먹음 + 입력 폭이 row 마다 달라 정렬 안 맞음 | ColorPicker 채널 입력 (RGB / HSL / HSV / OKLCH) 들이 row 마다 폭이 달라 시각적 노이즈. 가장 긴 값 (OKLCH C `0.2249` 6자) 기준으로 통일하려고 `width: 88px` 고정 → 짧은 값 (`100`) 에선 비어 보임. 해결: ① `clearable={false}` 로 eraser 24px 자리 회수, ② padding 좌·우 `--spacing-xs` 통일, ③ `width: calc(7ch + var(--spacing-xs) * 2 + 2px)` — HEX `#ffffff` 7자 기준 + border 2px. RGB / HSL 등 짧은 값은 같은 폭 안에서 왼쪽 정렬 (`text-align: left`). 채널 input · format select · 잘못된 입력 시 좌우 흔들기 (`@keyframes pickerShake`) 모두 동일 폭 grid 안에 정렬 |
 | 73 ★ | Hero 배경 동영상 opacity 만 조절하던 컨트롤 — 이미지에는 적용 안 됨 (CSS `background-image: url()` 은 opacity 분리 불가) | admin 에서 Hero 배경을 동영상 → 이미지로 바꾼 뒤 opacity 슬라이더가 사라짐. 원인: 동영상은 `<video>` element 라 `opacity` 직접 가능, 이미지는 CSS `background-image: url(...)` 로 panel 표면에 칠해서 opacity 분리 채널이 없음. 해결: 이미지도 `<img>` element 로 동영상과 같은 패턴 — `position: absolute; inset: 0; object-fit: cover` + `opacity: var(--_hero-bg-opacity)`. panel CSS background 는 color / gradient 만, 이미지는 별 element 로 분리. 라벨 `동영상 투명도` → `배경 투명도` 로 통일. **CSS property 의 추상화가 새는 곳 (background-image vs `<img>`) 은 control plane 도 함께 갈라 둔다** |
 | 74 | Navigation 모바일 — navCenter 가 `display: none` 으로 사라지자 navActions 가 로고 (fixed) 위치로 박혀 겹침 | `.nav { justify-content: space-between }` 인데 모바일에서 `.navCenter` 만 숨기면 단일 남은 자식 (`.navActions`) 이 flex-start 로 align 되어 fixed 위치의 로고 (`.logoNavBar { left: var(--page-px) }`) 와 같은 자리 겹침. 해결: `@media (max-width: 768px) .nav { justify-content: flex-end }` — 모바일에서만 우측 정렬 강제. 로고는 fixed 라 flex flow 밖이지만 navActions 우측이라 "로고 [space] 버튼들" 자연스러운 레이아웃. **fixed 요소가 있는 컨테이너에서 flex `space-between` 의 단일 자식 분기 처리는 따로 명시** |
-| 75 ★ | highlight.js 를 import 하자 게시물 상세가 통째로 크래시 — **빌드는 통과하고 런타임에만 터짐** | hljs `xml.js` 의 `/[\p{L}_]/u` (유니코드 속성 이스케이프) 를 번들러가 구형 브라우저용 코드포인트 범위로 풀어쓰면서 **범위가 뒤집힌 문자 클래스** 생성 → `SyntaxError: Range out of order in character class`. 모듈 평가 시점 throw 라 그 청크를 로드한 페이지 전체가 죽음. 원본 파일은 Node 에서 정상 로드 (번들 산출물만 깨짐), `optimizePackageImports` 에서 빼도, 언어를 골라 등록한 자체 인스턴스로도 청크가 로드되는 순간 동일 크래시. 해결: 댓글 코드 하이라이팅 보류 (재시도하려면 shiki 또는 hljs patch). **`npm run build` 가 통과하므로 빌드 성공을 안전 신호로 착각하면 안 된다** — 같은 지뢰가 `highlightCodeBlocks.ts` 에 잠복 |
+| 75 ★ | highlight.js 가 **브라우저에서만** 죽음 — 빌드·tsc·테스트 전부 통과 | hljs `xml.js` 는 태그명을 `/[\p{L}_]/u` 로 정의한다. browserslist 가 최신인데도 Next 는 node_modules 를 보수적 타깃으로 컴파일해 이걸 코드포인트 범위로 전개하는데, 거기 **아스트랄 영역(`\u{10000}-…`)** 이 섞인다 — 중괄호 형태라 `u` flag 없이는 파싱 불가. 그런데 hljs `countMatchGroups` 가 `new RegExp(re.toString() + "|")` 로 **flag 없이 재파싱** → SyntaxError. **node 에선 재현 안 됨** (원본 `\p{L}` + u flag 를 그대로 쓰므로) — 전개된 형태는 브라우저 번들에만 존재해서, DOM·CSS·서빙 청크를 다 검증해도 안 나오고 콘솔 스택트레이스로만 잡힌다. Plate 가 실패를 catch 해 조용히 plaintext 로 떨구므로 화면엔 "색이 안 붙는다" 로만 보인다. 해결: 리더뷰·댓글은 **Prism** 으로 이전, 에디터는 Plate 가 lowlight 인스턴스를 API 로 받아 교체 불가라 **문법 자체를 패치**(아스트랄 제거 + u flag 제거, Plate 도 python 에 같은 우회를 가짐). 함정 — `regex.concat()` 이 RegExp 가 아니라 **문자열**을 반환해서 RegExp 만 변환하면 안 고쳐진다. **`npm run build` 통과를 안전 신호로 착각하면 안 된다** — 테스트 환경(node)과 실행 환경(브라우저 번들)이 다르면 그 틈의 버그는 테스트가 구조적으로 못 잡는다 |
 | 76 ★ | 댓글 마크다운 체크박스가 불릿으로만 렌더 — DOMPurify 가 URL 도 아닌 `type` 속성을 지움 | DOMPurify 는 "URI-safe 로 알려진 속성" 이 아니면 그 **값**을 `ALLOWED_URI_REGEXP` 로 검사. 기본 URI-safe 목록에 `type` 이 없어 `type="checkbox"` 의 값이 `/^(?:https?:\|mailto:)/i` 에 걸려 조용히 제거 → 훅이 "체크박스 아님" 판정으로 `<input>` 삭제 → 불릿만 남음. 표의 `align` 도 같은 이유로 죽어 마크다운 표 정렬이 통째로 무시되고 있었음. `ALLOWED_ATTR` 등록만으로는 무의미. 해결: `ADD_URI_SAFE_ATTR: ["type","checked","disabled","align"]`. **허용 목록과 값 검사 정책은 별개 축** — "허용했는데 사라진다" 면 필터가 그 속성의 값을 URL 로 오해하는지 의심 |
 | 77 | task list `:has()` — 과소/과다 매칭 양쪽 함정 | marked 는 tight list 를 `<li><input>`, loose list(항목 사이 빈 줄) 를 `<li><p><input>` 으로 만든다. `:has(> li > input)` 만 쓰면 loose 에서 빗나가 불릿이 남고, `:has(input)` 자손 조합자로 퉁치면 일반 불릿 목록 안에 체크박스 하위목록이 있을 때 **부모 목록의 불릿까지** 사라짐. 해결: 직계 경로 두 개만 명시 — `:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"])`. **`:has()` 는 조합자 선택이 곧 매칭 범위** — 렌더러가 만드는 실제 DOM 형태를 전부 열거해 직계로 못 박아야 안전 |
 | 78 | 전역 input reset 이 native 체크박스를 아예 안 그림 | `_base.css` 의 `input { border: none; background: none }` 이 UA 기본 스타일을 지워 체크박스가 그려질 표면 자체가 없음 — `appearance: auto` 만으론 안 됨. 해결: `background: revert; border: revert` 로 UA 스타일 복원 (shorthand 라 stylelint `declaration-strict-value` 대상 아님). **`appearance: auto` 는 "네이티브로 그려라" 일 뿐, 리셋이 지운 background/border 를 되살리지 않는다** |
@@ -784,7 +799,7 @@ Next.js를 지원하는 플랫폼이면 배포 가능합니다. 자세한 내용
 
 ## 디자인 시스템
 
-CSS 토큰 3-레이어 구조, 클래스 네이밍 규칙, 특이도 가이드라인 등 스타일 관련 모든 규칙은 **[docs/design-system.md](./docs/design-system.md)** 에 문서화되어 있습니다.
+CSS 토큰 4-레이어 구조, 클래스 네이밍 규칙, 특이도 가이드라인 등 스타일 관련 모든 규칙은 **[docs/design-system.md](./docs/design-system.md)** 에 문서화되어 있습니다.
 
 ### 개요
 
@@ -792,7 +807,7 @@ CSS 토큰 3-레이어 구조, 클래스 네이밍 규칙, 특이도 가이드�
 |--------|------|--------|------|
 | Raw Tokens | `src/styles/tokens/` | `--color-*`, `--spacing-*`, `--size-*` 등 | 원시 값 |
 | Semantic Tokens | `src/styles/globals/_semantic.css` (Layer 2) | `--text-*`, `--bg-*`, `--border-*` | 역할 기반 (컴포넌트 무관) |
-| Component Tokens | `src/styles/globals/_semantic.css` (Layer 3) | `--button-h-*`, `--input-h` | 컴포넌트 typing (일관성 레일) |
+| Component Tokens | `src/styles/globals/_semantic.css` (Layer 3) | `--button-h-*`, `--control-h-*`, `--button-p-*` | 컴포넌트 typing (일관성 레일) |
 | Context Tokens | CSS Module 내 | `--_*` | 컴포넌트 스코프 local 변수 |
 
 **클래스 네이밍**: CSS Modules + camelCase (BEM 미사용)

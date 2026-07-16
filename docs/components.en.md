@@ -194,7 +194,7 @@ A **shared utility** for post-processing richtext HTML. All processing is centra
 
 1. Inject heading ids (TOC anchors)
 2. Convert iframe embed URLs
-3. hljs syntax highlighting for code blocks (+ language class; mermaid left untouched)
+3. Inject the label span into the code block's wrap-toggle button (syntax highlighting is **not done here** — Shiki handles it separately)
 4. Insert code wrap-toggle button labels
 5. Inject `data-cursor="zoom"` hint on imgs (CursorTrail image viewer)
 
