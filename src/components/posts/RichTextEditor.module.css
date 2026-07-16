@@ -4607,9 +4607,9 @@
   font-size: 0.85em;
   padding: var(--box-3xs-xs);
   color: var(--text-accent);
-  background: transparent;
-  border: var(--border-light);
+  background: var(--bg-secondary);
   border-radius: var(--radius-capsule);
+  box-shadow: var(--shadow-xs);
   line-height: inherit;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
@@ -5044,3 +5044,109 @@
 }
 
 .imgCaptionInput:focus { outline: none; border-color: var(--text-accent); }
+
+/* ── 편집뷰 코드블록 = 리더뷰와 같은 창(신호등 바 + 코드). WYSIWYG. (일반 코드블록만; 다이어그램 제외) ── */
+.codeWindow {
+  display: flex;
+  flex-direction: column;
+  max-height: 20rem;
+  margin: var(--spacing-md) 0;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
+  resize: vertical;
+}
+/* 창 안의 pre 는 자기 프레임 벗고 내부를 채운다(리더 .code-block-wrap pre 와 동일 규격) */
+.codeWindow :global(.slate-code_block) {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+  padding: var(--spacing-md);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: auto;
+  resize: none;
+}
+/* 상단 바 = 창 헤더 (신호등 좌 · 언어 중앙 · 컨트롤 우) */
+.codeBar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+  min-height: 42px;
+  padding: 0 var(--spacing-md);
+  background: var(--bg-glass-panel);
+}
+/* 신호등 3개 — 리더 .code-block-bar::before 와 동일(빨/노/초, 동일계열 림) */
+.codeBar::before {
+  content: "";
+  flex-shrink: 0;
+  width: 52px;
+  height: 12px;
+  background:
+    radial-gradient(circle at 6px 6px, #ff5f56 0 5px, #e0443e 5px 6px, transparent 6px),
+    radial-gradient(circle at 26px 6px, #ffbd2e 0 5px, #dea123 5px 6px, transparent 6px),
+    radial-gradient(circle at 46px 6px, #27c93f 0 5px, #1aab29 5px 6px, transparent 6px);
+}
+/* 언어 피커 — 헤더 정중앙(리더 언어 라벨 위치). 편집뷰라 클릭하면 드롭다운(인터랙티브). */
+.codeBarLang {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+}
+/* 컨트롤 pill (복사 | 줄바꿈) — 우측 */
+.codeBarControls {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  background: var(--bg-primary);
+  border-radius: var(--radius-capsule);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+}
+.codeBarCtrl {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 26px;
+  padding: 0 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.codeBarCtrl + .codeBarCtrl {
+  box-shadow: inset 1px 0 0 var(--border-light-color);
+}
+.codeBarCtrl:hover {
+  background: var(--bg-secondary-alt);
+  color: var(--text-primary);
+}
+.codeBarCtrl[data-on] {
+  color: var(--text-accent);
+}
+/* 언어 피커(select)도 컨트롤 pill 과 같은 결로 — 흰 배경 + 그림자 + 캡슐, 테두리 없음, 버튼과 같은 높이/폰트 */
+.codeBarLang .codeLangTrigger {
+  height: 26px;
+  padding: 0 10px;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+}
+.codeBarLang .codeLangTrigger:hover {
+  color: var(--text-primary);
+}
