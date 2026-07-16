@@ -1819,28 +1819,21 @@ export function CodeBlockElement(props: PlateElementProps) {
     <FloatingBar open={selected || uiFocused} getAnchorRect={getAnchorRect} inline keepInView
       onFocusCapture={() => setUiFocused(true)}
       onBlurCapture={() => setUiFocused(false)}>
-      {/* 다이어그램 블록은 언어가 mermaid 로 고정 → 언어 선택 숨김.
-          (lang 만 mermaid 인 코드블록은 언어를 바꿀 수 있어야 하므로 피커를 그대로 둔다) */}
-      {!isDiagram && (
-        <span className={styles.codeLangSelectWrap} onMouseDown={(e) => e.stopPropagation()}>
-          <CodeLangPicker value={lang ?? "plaintext"} onChange={setLang} language={language} />
-        </span>
-      )}
+      {/* 다이어그램 뷰 토글(코드/다이어그램/스플릿) — 다이어그램 블록에서만.
+          일반 코드블록은 언어·복사·줄바꿈이 인라인 바(창 헤더)로 이동했고, floating 엔 포맷·⋯ 만 둔다. */}
       {isDiagram && (
-        <>
-          <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex", marginRight: "var(--spacing-3xs)" }}>
-            <SegmentedControl<"code" | "diagram" | "split">
-              items={[
-                { value: "code", label: language === "ko" ? "코드" : "Code" },
-                { value: "diagram", label: language === "ko" ? "다이어그램" : "Diagram" },
-                { value: "split", label: language === "ko" ? "스플릿" : "Split" },
-              ]}
-              value={graphView}
-              onChange={setGraphView}
-              size="sm"
-            />
-          </span>
-        </>
+        <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex", marginRight: "var(--spacing-3xs)" }}>
+          <SegmentedControl<"code" | "diagram" | "split">
+            items={[
+              { value: "code", label: language === "ko" ? "코드" : "Code" },
+              { value: "diagram", label: language === "ko" ? "다이어그램" : "Diagram" },
+              { value: "split", label: language === "ko" ? "스플릿" : "Split" },
+            ]}
+            value={graphView}
+            onChange={setGraphView}
+            size="sm"
+          />
+        </span>
       )}
       {isFormattable(lang) && (
         <button
@@ -1851,42 +1844,44 @@ export function CodeBlockElement(props: PlateElementProps) {
           <Sparkles size={13} />{language === "ko" ? "포맷" : "Format"}
         </button>
       )}
-      <button
-        type="button"
-        className={styles.codeBarBtn}
-        data-on={wrap ? "" : undefined}
-        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleWrap(); }}
-      >
-        <WrapText size={13} />{language === "ko" ? "줄바꿈" : "Wrap"}
-      </button>
-      <Tooltip content={language === "ko" ? "코드 복사" : "Copy code"} placement="bottom">
-        <button
-          type="button"
-          className={styles.codeCtrlBtn}
-          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCopy(); }}
-          aria-label={language === "ko" ? "코드 복사" : "Copy code"}
-        >
-          <Copy size={14} />
-        </button>
-      </Tooltip>
       {isDiagram && (
-        <HelpButton
-          size="sm"
-          soundDisabled
-          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-          onClick={() => openModal(<MermaidHelpModal language={language} />, {
-            header: {
-              title: language === "ko" ? "Mermaid 문법 도움말" : "Mermaid syntax help",
-              actions: (
-                <a className={styles.mermaidHelpLink} href="https://mermaid.js.org/intro/" target="_blank" rel="noopener noreferrer">
-                  {language === "ko" ? "전체 문서 보기" : "Full documentation"} <ExternalLink size={12} />
-                </a>
-              ),
-            },
-            width: "min(56rem, 94vw)",
-          })}
-          aria-label={language === "ko" ? "Mermaid 문법 도움말" : "Mermaid syntax help"}
-        />
+        <>
+          <button
+            type="button"
+            className={styles.codeBarBtn}
+            data-on={wrap ? "" : undefined}
+            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleWrap(); }}
+          >
+            <WrapText size={13} />{language === "ko" ? "줄바꿈" : "Wrap"}
+          </button>
+          <Tooltip content={language === "ko" ? "코드 복사" : "Copy code"} placement="bottom">
+            <button
+              type="button"
+              className={styles.codeCtrlBtn}
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCopy(); }}
+              aria-label={language === "ko" ? "코드 복사" : "Copy code"}
+            >
+              <Copy size={14} />
+            </button>
+          </Tooltip>
+          <HelpButton
+            size="sm"
+            soundDisabled
+            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onClick={() => openModal(<MermaidHelpModal language={language} />, {
+              header: {
+                title: language === "ko" ? "Mermaid 문법 도움말" : "Mermaid syntax help",
+                actions: (
+                  <a className={styles.mermaidHelpLink} href="https://mermaid.js.org/intro/" target="_blank" rel="noopener noreferrer">
+                    {language === "ko" ? "전체 문서 보기" : "Full documentation"} <ExternalLink size={12} />
+                  </a>
+                ),
+              },
+              width: "min(56rem, 94vw)",
+            })}
+            aria-label={language === "ko" ? "Mermaid 문법 도움말" : "Mermaid syntax help"}
+          />
+        </>
       )}
       <Popover
         openOnHover
@@ -1918,45 +1913,79 @@ export function CodeBlockElement(props: PlateElementProps) {
         )}
       </Popover>
     </FloatingBar>
-    {/* mermaid: 뷰 토글에 따라 코드/다이어그램/나란히. split 은 코드·그래프가 같은 컨테이너(동일 높이)에
-        좌우로 들어가고 가운데 핸들로 폭 비율 조절(넓으면 좌우, 좁으면 위아래로 스택). */}
-    <div
-      className={isSplit ? styles.graphSplit : undefined}
-      ref={splitRef}
-      style={isSplit ? ({ ["--split-pct" as string]: `${splitPct}%` } as React.CSSProperties) : undefined}
-    >
-      <PlateElement
-        {...props}
-        as="pre"
-        className={isSplit ? styles.graphSplitCode : undefined}
-        style={{
-          ...props.style,
-          position: "relative",
-          ...(showCode ? {} : { display: "none" }),
-          ...(isSplit ? { minWidth: 0, margin: 0, maxHeight: "none", resize: "none" } : {}),
-        }}
+    {isDiagram ? (
+      /* mermaid: 뷰 토글에 따라 코드/다이어그램/나란히. split 은 코드·그래프가 같은 컨테이너(동일 높이)에
+         좌우로 들어가고 가운데 핸들로 폭 비율 조절(넓으면 좌우, 좁으면 위아래로 스택). */
+      <div
+        className={isSplit ? styles.graphSplit : undefined}
+        ref={splitRef}
+        style={isSplit ? ({ ["--split-pct" as string]: `${splitPct}%` } as React.CSSProperties) : undefined}
       >
-        {/* placeholder 는 **DOM 노드가 아니라 ::before** 로 그린다(globals/_hljs.css).
-            예전엔 여기 <span contentEditable={false}> 를 children 앞에 끼워 넣었는데, Slate 는
-            편집 영역의 DOM 자식으로 경로를 계산하므로 관리 밖 노드가 끼면 DOM→Slate 지점 매핑이
-            어긋난다 → 빈 블록에 붙여넣으면 첫 줄만 들어가고 나머지가 블록 밖으로 튀어나갔다.
-            속성은 자식이 아니라서 안전하다. */}
-        <code
-          data-code-placeholder={isEmpty ? t("editor.codeEnter") : undefined}
-          style={{ position: "relative", whiteSpace: wrap ? "pre-wrap" : "pre", wordBreak: wrap ? "break-all" : undefined }}
+        <PlateElement
+          {...props}
+          as="pre"
+          className={isSplit ? styles.graphSplitCode : undefined}
+          style={{
+            ...props.style,
+            position: "relative",
+            ...(showCode ? {} : { display: "none" }),
+            ...(isSplit ? { minWidth: 0, margin: 0, maxHeight: "none", resize: "none" } : {}),
+          }}
         >
-          {props.children}
-        </code>
-      </PlateElement>
-      {isSplit && showDiagram && (
-        <div className={styles.graphSplitHandle} contentEditable={false} role="separator" aria-label="resize"
-          data-cursor="resizeH"
-          onMouseDown={(e) => e.stopPropagation()} onPointerDown={onSplitHandleDown}>
-          <span className={styles.graphSplitHandleBar} />
+          <code
+            data-code-placeholder={isEmpty ? t("editor.codeEnter") : undefined}
+            style={{ position: "relative", whiteSpace: wrap ? "pre-wrap" : "pre", wordBreak: wrap ? "break-all" : undefined }}
+          >
+            {props.children}
+          </code>
+        </PlateElement>
+        {isSplit && showDiagram && (
+          <div className={styles.graphSplitHandle} contentEditable={false} role="separator" aria-label="resize"
+            data-cursor="resizeH"
+            onMouseDown={(e) => e.stopPropagation()} onPointerDown={onSplitHandleDown}>
+            <span className={styles.graphSplitHandleBar} />
+          </div>
+        )}
+        {showDiagram && <MermaidPreview code={mermaidSource} split={isSplit} />}
+      </div>
+    ) : (
+      /* 일반 코드블록 = 리더뷰와 같은 창(신호등 헤더 + 코드). WYSIWYG.
+         언어(인터랙티브 피커)·복사·줄바꿈은 헤더 인라인 바로. 헤더는 contentEditable=false 로 Slate 밖. */
+      <div className={styles.codeWindow}>
+        <div className={styles.codeBar} contentEditable={false} onMouseDown={(e) => e.stopPropagation()}>
+          <span className={styles.codeBarLang} onMouseDown={(e) => e.stopPropagation()}>
+            <CodeLangPicker value={lang ?? "plaintext"} onChange={setLang} language={language} />
+          </span>
+          <div className={styles.codeBarControls}>
+            <button
+              type="button"
+              className={styles.codeBarCtrl}
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCopy(); }}
+              aria-label={language === "ko" ? "코드 복사" : "Copy code"}
+            >
+              <Copy size={12} />{language === "ko" ? "복사" : "Copy"}
+            </button>
+            <button
+              type="button"
+              className={styles.codeBarCtrl}
+              data-on={wrap ? "" : undefined}
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleWrap(); }}
+            >
+              <WrapText size={12} />{language === "ko" ? "줄바꿈" : "Wrap"}
+            </button>
+          </div>
         </div>
-      )}
-      {showDiagram && <MermaidPreview code={mermaidSource} split={isSplit} />}
-    </div>
+        {/* placeholder 는 DOM 노드가 아니라 ::before 로 그린다(globals/_hljs.css) — Slate 경로 매핑이 어긋나지 않게. */}
+        <PlateElement {...props} as="pre" style={{ ...props.style, position: "relative" }}>
+          <code
+            data-code-placeholder={isEmpty ? t("editor.codeEnter") : undefined}
+            style={{ position: "relative", whiteSpace: wrap ? "pre-wrap" : "pre", wordBreak: wrap ? "break-all" : undefined }}
+          >
+            {props.children}
+          </code>
+        </PlateElement>
+      </div>
+    )}
     </div>
     </BlockDropZone>
   );
@@ -2951,6 +2980,10 @@ export function ColumnGroupElement(props: PlateElementProps) {
     paddingRight: 8,
     position: "relative",
     overflowX: scrollOn ? "auto" : "hidden",
+    // 좌측 40px(핸들 확보용 paddingLeft)로 스크롤된 콘텐츠가 새어 보이던 것 차단 —
+    // overflow 는 확장된 box 끝(시각 좌측 -40px)에서 잘려서 그 40px 구역에 콘텐츠가 노출됐다.
+    // 시각 좌측 경계(=paddingLeft 안쪽)에서 클립. 우측 8px(핸들 여백)은 유지(right inset 0).
+    clipPath: "inset(0 0 0 40px)",
     "--_col-shrink": scrollOn ? 0 : 1, // px 열의 flex-shrink — OFF 면 1(줄어들어 fit)
     "--_col-bg": colBgVal,
     "--_col-divider": dividerColor,
