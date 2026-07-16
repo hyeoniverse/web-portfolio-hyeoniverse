@@ -5,7 +5,8 @@ import {
   type PlateElementProps,
   type PlateLeafProps,
 } from "platejs/react";
-import { KEYS, createRuleFactory } from "platejs";
+import { KEYS, createRuleFactory, ElementApi, TextApi } from "platejs";
+import { createPlatePlugin } from "platejs/react";
 import { CodeBlockPlugin, CodeLinePlugin, CodeSyntaxPlugin } from "@platejs/code-block/react";
 import { CodeBlockRules } from "@platejs/code-block";
 import { CodeBlockElement } from "../elements";
@@ -19,6 +20,9 @@ const htmlDeserializerCodeBlock = {
     const codeEl = element.querySelector("code");
     const m = codeEl?.className.match(/language-([\w-]+)/);
     const lang = m?.[1];
+    // mermaid 뷰 모드(plateSerializer 가 pre 에 실어 보낸다) 복원 — 없으면 코드만 보기가 기본
+    const gv = element.getAttribute("data-graph-view");
+    const graphView = gv === "split" || gv === "diagram" || gv === "code" ? gv : undefined;
     const selectText =
       [...element.childNodes].find((n) => n.nodeName === "SELECT")?.textContent || "";
     const textContent = (element.textContent || "").replace(selectText, "");
@@ -27,6 +31,7 @@ const htmlDeserializerCodeBlock = {
     return {
       type: KEYS.codeBlock,
       ...(lang ? { lang } : {}),
+      ...(graphView ? { graphView } : {}),
       children: lines.map((line) => ({ type: KEYS.codeLine, children: [{ text: line }] })),
     };
   },
@@ -63,8 +68,45 @@ const CodeBlockSpaceRule = createRuleFactory({
 });
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+/* ── code_block 의 자식은 항상 code_line 이어야 한다 ──
+   Cmd+A 로 코드블록 전체를 선택해 지우면 code_line 들이 통째로 사라지고 **raw 텍스트 노드**만
+   남는 경우가 있다(code_block[text:""]). 이 상태는 아무도 못 고친다:
+     · Plate 의 withNormalizeCodeBlock 은 `setNodes({type: code_line})` 만 해서 텍스트엔 무력하다
+       (텍스트 노드에 type 을 붙여도 element 가 되지 않는다)
+     · Slate 는 children[0] 이 텍스트면 그 블록을 "텍스트를 담는 블록"으로 보고 그대로 둔다
+   → 자기모순이 없어서 **영구히 깨진 채로 남는다.** 증상:
+     · isEmpty 가 children[].children 를 못 찾아 "비었다"로 오판 → 글자가 있는데 placeholder 가 안 사라짐
+     · 커서가 code_line 이 아니라 code_block 안에 놓임 → 붙여넣기 때 Plate 가 나머지 줄을
+       "가장 낮은 블록(=code_block)"의 **형제**로 넣어서 블록 아래로 새어나간다(첫 줄만 안에 남음)
+   여기서 텍스트 자식을 code_line 으로 감싸 구조를 복구한다. */
+const CodeBlockStructureKit = createPlatePlugin({ key: "codeBlockStructure" }).overrideEditor(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ({ editor, tf: { normalizeNode } }: any) => ({
+    transforms: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      normalizeNode(entry: any) {
+        const [node, path] = entry;
+        if (ElementApi.isElement(node) && node.type === editor.getType(KEYS.codeBlock)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const kids = (node.children ?? []) as any[];
+          const i = kids.findIndex((c) => TextApi.isText(c));
+          if (i >= 0) {
+            editor.tf.wrapNodes(
+              { type: editor.getType(KEYS.codeLine), children: [] },
+              { at: [...path, i] },
+            );
+            return; // 한 번에 하나만 — Slate 가 다시 정규화를 돌려준다
+          }
+        }
+        normalizeNode(entry);
+      },
+    },
+  }),
+);
+
 /** 코드 블록 — lowlight 기반 syntax highlighting */
 export const CodeBlockKit = [
+  CodeBlockStructureKit,
   CodeBlockPlugin.configure({
     options: { lowlight, defaultLanguage: "plaintext" },
     render: { node: CodeBlockElement },
