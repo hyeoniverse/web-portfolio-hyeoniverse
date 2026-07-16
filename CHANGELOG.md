@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.23.0...v1.24.0) (2026-07-16)
+
+
+### Features
+
+* **design-system:** FontPicker · HighlightedText · EditableInput · MediaThumb 쇼케이스 추가 ([e11e98e](https://github.com/hyeoniverse/web-portfolio-oval/commit/e11e98eeac6467393ca7ef8651c8c751ba8e4808))
+
 ## [1.23.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.22.1...v1.23.0) (2026-07-16)
 
 
