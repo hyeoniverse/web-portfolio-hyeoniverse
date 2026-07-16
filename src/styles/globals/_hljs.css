@@ -409,14 +409,33 @@ pre code .token.italic {
   line-height: 1.6;
 }
 
-/* 코드블록 상단 바 — pre 밖(위)에 별도 행. 언어 라벨(좌) + 컨트롤(우) 양끝 정렬 (mermaid 리더뷰와 동일) */
+/* 코드블록 상단 바 — pre 밖(위)에 별도 행. 언어 라벨(좌) + 컨트롤(우) 양끝 정렬 (mermaid 리더뷰와 동일).
+   터미널풍 — 왼쪽에 신호등 점 3개(::before). 팔레트/프레임은 안 건드리고 바만 손봐서
+   라이트 테마에서도 안전하다(코드 색은 테마 그대로). 에디터는 FloatingBar 라 이 바가 없어 리더뷰 전용. */
 .code-block-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--spacing-sm);
   margin: var(--spacing-xl) 0 var(--spacing-2xs);
 }
+
+/* 신호등 점 3개 — 빨강·노랑·초록. radial-gradient 로 세 점을 한 배경에 그린다(추가 DOM 없음). */
+.code-block-bar::before {
+  content: "";
+  flex-shrink: 0;
+  width: 40px;
+  height: 12px;
+  background:
+    radial-gradient(circle 6px at 6px 6px, #ff5f57 45%, transparent 50%),
+    radial-gradient(circle 6px at 20px 6px, #febc2e 45%, transparent 50%),
+    radial-gradient(circle 6px at 34px 6px, #28c840 45%, transparent 50%);
+}
+
+/* 신호등 다음 첫 요소(언어 라벨 또는 빈 스페이서)가 컨트롤을 오른쪽 끝으로 민다.
+   라벨이 없는 코드블록(```만)에선 빈 span 이 그 역할을 한다 → 라벨 유무와 무관하게 컨트롤은 우측.
+   ::before 는 DOM 자식이 아니므로 형제 결합자(+)를 못 쓴다(Turbopack 파서 에러) → :first-child 로.
+   신호등이 ::before 라 실제 첫 자식 엘리먼트가 곧 "신호등 다음 첫 요소"다. */
+.code-block-bar > :first-child { margin-right: auto; }
 
 /* 코드블록 컨트롤 — 바 안에서 우측 배치. 복사 + 줄바꿈 버튼 가로 배치 */
 .code-block-controls {

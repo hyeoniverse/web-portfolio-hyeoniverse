@@ -2916,13 +2916,6 @@
   padding: 0 2px;
 }
 
-.editor :global(.tiptap) blockquote {
-  border-left: 3px solid var(--text-accent);
-  padding-left: var(--spacing-md);
-  color: var(--text-secondary);
-  margin: var(--spacing-md) 0;
-}
-
 .editor :global(.tiptap) ul,
 .editor :global(.tiptap) ol {
   padding-left: var(--spacing-xl);
@@ -4640,10 +4633,10 @@
 }
 
 .editorContent blockquote {
-  border-left: 3px solid var(--text-accent);
-  padding-left: var(--spacing-md);
+  border-left: 4px solid var(--text-accent);
+  padding: var(--spacing-2xs) 0 var(--spacing-2xs) var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
   color: var(--text-secondary);
-  margin: var(--spacing-md) 0;
 }
 
 .editorContent ul,
