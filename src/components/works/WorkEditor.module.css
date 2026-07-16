@@ -36,7 +36,7 @@
 
 .sectionTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--text-primary);
   text-transform: uppercase;
@@ -118,7 +118,7 @@
 }
 
 .fieldSelect {
-  min-height: var(--input-h);
+  min-height: var(--control-h-md);
   padding: 0 var(--spacing-md);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
@@ -521,7 +521,7 @@
 
 .subtitleInput {
   flex: 1;
-  min-height: var(--input-h);
+  min-height: var(--control-h-md);
   transition: border-radius 0.2s ease;
 }
 
@@ -569,7 +569,7 @@
 /* hover — "이 chip 을 누르면 제거됨" 을 시각적으로: accent 톤 + ×아이콘 강조 */
 .roleMS .roleMSChip:hover {
   border-color: var(--text-accent);
-  background: var(--bg-accent-soft);
+  background: var(--bg-accent-subtle);
   color: var(--text-accent);
 }
 
@@ -598,7 +598,7 @@
 /* input wrap — 단순한 capsule, hover/focus 시 border 강조 */
 .roleMSInputWrap {
   width: 100%;
-  min-height: var(--input-h);
+  min-height: var(--control-h-md);
   display: flex;
   align-items: center;
   padding: 3px var(--spacing-md);

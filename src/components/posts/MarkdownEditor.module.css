@@ -560,7 +560,7 @@
   grid-template-columns: subgrid;
   grid-column: span 2;
   align-items: baseline;
-  padding: var(--box-y-xs);
+  padding: var(--box-y-sm);
 }
 
 .helpSyntax {

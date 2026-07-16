@@ -173,7 +173,7 @@ nav#side-navigation::after {
 @media (max-width: 1024px) {
   #modal {
     width: calc(
-      100vw - (var(--action-button-width) + var(--spacing-base) * 2) * 2
+      100vw - (var(--action-button-width) + var(--spacing-md) * 2) * 2
     );
   }
 }

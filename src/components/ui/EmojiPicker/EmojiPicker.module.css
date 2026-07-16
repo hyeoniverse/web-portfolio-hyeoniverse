@@ -166,7 +166,7 @@
   border: 1.5px solid var(--bg-primary);
   border-radius: var(--radius-circle);
   background: var(--color-error);
-  color: var(--color-white);
+  color: var(--text-white);
   font-size: 11px;
   line-height: 1;
   cursor: pointer;
