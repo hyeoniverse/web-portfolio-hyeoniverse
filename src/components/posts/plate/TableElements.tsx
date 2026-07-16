@@ -573,7 +573,7 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
     const sp = findScrollParent(wrap);
     const same = (a: number[], b: number[]) => a.length === b.length && a.every((v, i) => Math.abs(v - b[i]) < 0.5);
     const PIN_INSET = 10; // 헤더를 핀 라인보다 이만큼 아래에 → 위 여백에 열 선택 핸들 노출
-    let base = 0, maxOff = 0, rowCells: HTMLElement[] = [];
+    let base = 0, maxOff = 0, blockH = 0, rowCells: HTMLElement[] = [];
     let edges: { c: HTMLElement; fr: boolean; fc: boolean; t: boolean; b: boolean; l: boolean; r: boolean }[] = [];
     let colHandles: { h: HTMLElement; cell: HTMLElement; frozen: boolean }[] = [];
     const applyAt = (s: number) => {
@@ -621,7 +621,14 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
       if (idle > 6) { looping = false; return; }
       rafId = requestAnimationFrame(frame);
     };
-    const onScroll = () => { if (!looping) { looping = true; idle = 0; rafId = requestAnimationFrame(frame); } };
+    // base(표의 스크롤-콘텐츠 상 위치)만 가볍게 재계산 — 표 크기 그대로여도 위 블록 reflow 로 위치만
+    // 바뀐 경우(ResizeObserver 가 못 잡음)를 스크롤 시작마다 보정. transform/state 는 안 건드려 flicker 없음.
+    const refreshBase = () => {
+      const rect = table.getBoundingClientRect();
+      maxOff = Math.max(0, rect.height - blockH);
+      base = (sp ? rect.top - sp.getBoundingClientRect().top + sp.scrollTop : rect.top + window.scrollY) - PIN_INSET;
+    };
+    const onScroll = () => { if (!looping) { looping = true; idle = 0; refreshBase(); rafId = requestAnimationFrame(frame); } };
     const measure = () => {
       // 이전 인라인 스타일 정리(리사이즈로 sticky 열 구성이 바뀌면 잔상 방지)
       for (const c of rowCells) c.style.transform = "";
@@ -666,7 +673,7 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
         const h = (cell as HTMLElement).querySelector("[data-col-handle]") as HTMLElement | null;
         if (h) colHandles.push({ h, cell: cell as HTMLElement, frozen: colLefts[j] < COL_NOT_FROZEN });
       });
-      let blockH = 0; frozenRows.forEach((tr) => { blockH += tr.getBoundingClientRect().height; });
+      blockH = 0; frozenRows.forEach((tr) => { blockH += tr.getBoundingClientRect().height; });
       const rect = table.getBoundingClientRect();
       maxOff = Math.max(0, rect.height - blockH);
       // base = 표 상단 콘텐츠 좌표 - PIN_INSET → off = scrollTop - base (핀 라인보다 PIN_INSET 아래에 붙음)
@@ -674,12 +681,22 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
       lastS = NaN; lastL = NaN; applyAt(readS());
     };
     measure();
+    // 초기 레이아웃이 늦게 안정될 때(폰트·이미지·에디터 하이드레이션) base 재측정.
+    //  특히 새로고침은 스크롤 위치를 복원해서, 표가 이미 스크롤된 채 마운트되면 정지 상태에서도 pin 이 틀어진다.
+    let settleCancelled = false;
+    const remeasure = () => { if (!settleCancelled) measure(); };
+    const raf2 = requestAnimationFrame(() => requestAnimationFrame(remeasure));
+    document.fonts?.ready.then(remeasure).catch(() => {});
+    window.addEventListener("load", remeasure);
     const vt: Window | HTMLElement = sp || window;
     vt.addEventListener("scroll", onScroll, { passive: true });
     if (scrollEl) scrollEl.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", measure, { passive: true });
     const ro = new ResizeObserver(measure); ro.observe(table); if (sp) ro.observe(sp);
     return () => {
+      settleCancelled = true;
+      cancelAnimationFrame(raf2);
+      window.removeEventListener("load", remeasure);
       vt.removeEventListener("scroll", onScroll);
       if (scrollEl) scrollEl.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", measure);
