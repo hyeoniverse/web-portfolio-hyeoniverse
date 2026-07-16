@@ -464,12 +464,13 @@ pre code .token.italic {
   flex-shrink: 0;
   width: 52px;
   height: 12px;
-  /* macOS 창버튼 3개 — 지름 12px, 중심간 20px(6/26/46).
-     각 점: 채움색 5.5px → 얇은 내부 어두운 링(6px) → 투명. 링이 밝은 배경에서 점을 또렷하게. */
+  /* macOS Big Sur 창버튼 — 지름 12px, 중심간 20px(6/26/46).
+     각 점: 채움색 5px → **같은 색 계열의 살짝 진한 림**(6px) → 투명. 검정 링이 아니라 동일계열
+     림이라야 진짜 macOS 처럼 채도가 살고 밝은/어두운 배경 양쪽에서 또렷하다. */
   background:
-    radial-gradient(circle at 6px 6px, #ff5f57 0 5.5px, rgba(0, 0, 0, 0.18) 5.5px 6px, transparent 6px),
-    radial-gradient(circle at 26px 6px, #febc2e 0 5.5px, rgba(0, 0, 0, 0.18) 5.5px 6px, transparent 6px),
-    radial-gradient(circle at 46px 6px, #28c840 0 5.5px, rgba(0, 0, 0, 0.18) 5.5px 6px, transparent 6px);
+    radial-gradient(circle at 6px 6px, #ff5f56 0 5px, #e0443e 5px 6px, transparent 6px),
+    radial-gradient(circle at 26px 6px, #ffbd2e 0 5px, #dea123 5px 6px, transparent 6px),
+    radial-gradient(circle at 46px 6px, #27c93f 0 5px, #1aab29 5px 6px, transparent 6px);
 }
 
 /* macOS 창 제목처럼 언어 라벨을 헤더 정중앙에 절대배치 — 신호등(좌)·컨트롤(우) 폭과 무관하게
