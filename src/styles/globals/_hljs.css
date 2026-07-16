@@ -385,7 +385,6 @@ pre code .token.italic {
      기본 20rem, 최소 8rem. pre 가 flex 로 남는 높이를 채우고 넘치면 스크롤. */
   height: 20rem;
   min-height: 8rem;
-  resize: vertical;
   margin: var(--spacing-lg) 0;
   border: var(--border-light);
   border-radius: var(--radius-2xl);
@@ -403,8 +402,11 @@ pre code .token.italic {
   bottom: 0;
   width: 20px;
   height: 20px;
-  pointer-events: none;
-  z-index: 2;
+  /* pointer 를 받아야 CursorTrail 이 data-cursor 를 감지한다(none 이면 elementsFromPoint 가 건너뜀).
+     native 커서는 숨기고(cursor:none) 자체 JS drag 로 wrap 높이 조절. */
+  cursor: none;
+  touch-action: none;
+  z-index: 3;
 }
 
 /* 에디터 단독 블록 — 예전 프레임 그대로 (바 없음) */
@@ -471,9 +473,8 @@ pre code .token.italic {
   position: relative;
   min-height: 42px;
   padding: 0 var(--spacing-md);
-  /* 본문(유리 면)보다 한 톤 어둡게 — gray-alpha-5(무겁다)와 -10(어둡다) 사이 7%.
-     (globals 는 직접 색 허용 — 5/10 사이 스텝 토큰이 없어서) */
-  background: oklch(0% 0 0 / 0.07);
+  /* 본문(유리 면)보다 한 톤 어둡게 — 헤더 무게감 */
+  background: var(--bg-tertiary-alt);
   border-bottom: var(--border-light);
 }
 
@@ -510,17 +511,17 @@ pre code .token.italic {
   display: flex;
   align-items: stretch;
   gap: 0;
-  /* 세그먼트 pill — 바깥만 둥근 캡슐, overflow hidden 으로 안쪽 버튼 hover 면을 캡슐에 clip.
-     안쪽 맞닿는 모서리는 직선(버튼이 각져도 캡슐이 바깥 라운드를 만든다). */
+  /* 세그먼트 pill — 언어 라벨(주소창)과 같은 결: 파인 배경(bg-primary) + 진한 inner shadow + 캡슐.
+     바깥만 둥글고(overflow hidden) 안쪽 버튼 맞닿는 모서리는 직선. */
+  background: var(--bg-primary);
   border-radius: var(--radius-capsule);
+  box-shadow: inset 0 1px 3px oklch(0% 0 0 / 0.14);
   overflow: hidden;
-  border: var(--border-light);
 }
-/* 버튼 사이 세로 구분선 — (복사 | 스크롤) */
+/* 세그먼트 버튼 사이 구분선 — (복사 | 스크롤) */
 .code-block-controls > * + * {
-  border-left: var(--border-light);
+  box-shadow: inset 1px 0 0 var(--border-light-color);
 }
-
 /* 현재 언어 라벨 (비상호작용 태그) — 바 좌측 */
 /* 언어 라벨 — 터미널 헤더의 제목처럼 조용한 텍스트. 캡슐 배지(bg-inverse)는 헤더 안에서
    튀어서 뺐다. 신호등 옆에 mono 소문자로 얹혀 "창 제목" 처럼 읽힌다. */
@@ -528,15 +529,15 @@ pre code .token.italic {
 .code-block-wrap .code-lang-label {
   display: inline-flex;
   align-items: center;
-  padding: 8px 22px;
-  /* 파인 배경(밝은 면 + inner shadow) 유지. 폰트 키우고 bold 하게 — 창 제목처럼 또렷. */
+  padding: 6px 16px;
+  /* 파인 배경(밝은 면 + inner shadow) 유지. 창 제목처럼 또렷하되 과하지 않게. */
   background: var(--bg-primary);
   border-radius: var(--radius-capsule);
-  box-shadow: var(--shadow-inner);
+  box-shadow: inset 0 1px 3px oklch(0% 0 0 / 0.14);
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   line-height: 1;
   letter-spacing: 0.02em;
   white-space: nowrap;
