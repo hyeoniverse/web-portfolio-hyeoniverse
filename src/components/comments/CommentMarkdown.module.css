@@ -164,24 +164,14 @@
   color: var(--text-primary);
 }
 
-/* ── code block — 가로 스크롤 ── */
-.commentMarkdown pre {
-  margin: var(--box-y-lg);
-  padding: var(--box-md);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: var(--bg-secondary);
-  overflow-x: auto;
-  white-space: pre;
-}
+/* ── code block ──
+   댓글 전용 스타일 없음 — 에디터/리더뷰 코드블록과 **완전히 공유**한다.
+   프레임·스크롤·상단 바(언어 라벨 + 복사 + 줄바꿈 토글) 전부 전역 `.code-block-wrap` 규칙
+   (globals/_hljs.css)이 담당하고, CommentMarkdown 이 리더뷰와 같은 attachCodeWrapToggle 을
+   호출해 같은 DOM 을 만든다. 하이라이팅 토큰 색도 globals/_prism.css 로 공유.
 
-.commentMarkdown pre code {
-  padding: 0;
-  border-radius: 0;
-  background: transparent;
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-}
+   폭/폰트를 댓글에 맞춰 줄이고 싶어도 여기서 override 하지 말 것 — 그 순간 공유가 깨진다.
+   조정이 필요하면 전역 규칙을 고쳐 세 군데(에디터·리더뷰·댓글)가 같이 움직이게 한다. */
 
 /* ── blockquote ── */
 .commentMarkdown blockquote {
