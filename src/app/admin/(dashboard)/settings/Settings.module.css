@@ -6210,3 +6210,25 @@ a.tagRelatedItem:hover {
   border-top: var(--border-light);
   margin: 0;
 }
+
+/* ── Author 초대 (이슈 #334 P1-c) ── */
+.authorInvite {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-sm);
+}
+.authorInviteRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+.authorInviteOk {
+  color: var(--text-success);
+  font-size: var(--font-size-xs);
+}
+.authorInviteErr {
+  color: var(--text-error);
+  font-size: var(--font-size-xs);
+}

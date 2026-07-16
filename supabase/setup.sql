@@ -60,6 +60,7 @@
 --   2026_07_13  posts 제목(ko/en) 120자 CHECK
 --   2026_07_14  comment_reactions — 댓글 이모지 반응 (giscus 식 고정 8종)
 --   2026_07_14  posts.author_ids — 다중 작성자
+--   2026_07_17  author_invites — 저자 초대(이메일→권한) + OAuth 매칭 (이슈 #334)
 --
 -- 마이그레이션 파일이 없는 것 (setup.sql 에만 존재):
 --   custom_emojis — 에디터 이모지 picker 의 커스텀 아이콘 기록
@@ -775,6 +776,29 @@ ALTER TABLE admin_notifications ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "admin_notifications_service_all" ON admin_notifications;
 CREATE POLICY "admin_notifications_service_all"
   ON admin_notifications FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ────────────────────────────────────────────────────────────
+-- 9-a2. author_invites — 저자 초대 (이슈 #334). email→author_id+권한레벨.
+--       owner 가 초대 → OAuth 로그인 시 이메일 매칭으로 app_metadata 부여. service role 전용.
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS author_invites (
+  email             text PRIMARY KEY,
+  author_id         text NOT NULL,
+  permission_level  int  NOT NULL DEFAULT 1,
+  invited_by        text,
+  created_at        timestamptz NOT NULL DEFAULT now(),
+  consumed_at       timestamptz
+);
+
+ALTER TABLE author_invites ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "author_invites_service_all" ON author_invites;
+CREATE POLICY "author_invites_service_all"
+  ON author_invites FOR ALL
+  TO service_role
   USING (true)
   WITH CHECK (true);
 
