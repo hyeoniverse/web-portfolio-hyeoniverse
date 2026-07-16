@@ -14,6 +14,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import AdjacentNav from "@/components/ui/AdjacentNav/AdjacentNav";
 import HeartIcon from "@/components/ui/HeartIcon";
+import DetailActionButton from "@/components/ui/DetailActionButton";
 import ShareButton from "@/components/ui/ShareButton";
 import T from "@/components/ui/T";
 import { formatCount } from "@/utils/format";
@@ -50,16 +51,14 @@ export function LikeButton({ config }: { config: LikeConfig }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5, duration: 0.5 }}
     >
-      <button
-        type="button"
-        className={`${styles.likeBtn} ${config.liked ? styles.likeBtnActive : ""}`}
+      <DetailActionButton
+        active={config.liked}
         onClick={config.onToggle}
         title={t("common.like")}
-        data-clickable="true"
       >
         <HeartIcon liked={config.liked} busy={config.busy} size={20} />
         <span className={styles.likeCount}>{formatCount(config.count)}</span>
-      </button>
+      </DetailActionButton>
     </motion.div>
   );
 }
@@ -295,7 +294,7 @@ export default function DetailLayout({
           {likeConfig && (
             <div className={styles.likeShareRow}>
               {!hidePostLike && <LikeButton config={likeConfig} />}
-              <ShareButton />
+              <ShareButton variant="action" />
             </div>
           )}
 

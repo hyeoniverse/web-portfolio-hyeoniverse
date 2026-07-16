@@ -58,11 +58,10 @@
 /* ── Bottom Sheet (touch) ──
    컨테이너/배경/핸들 시각은 글로벌 .ui-sheet* (styles/globals/_sheet.css) 가 담당.
    여기선 header / body 등 Popover 고유 부분만. */
+/* sheet 헤더 — 제목만. X 버튼은 없다(grabber + backdrop 탭 + Esc 로 닫힘). */
 .sheetHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
   flex-shrink: 0;
   padding: 0 var(--spacing-lg) var(--spacing-2xs);
 }
@@ -83,20 +82,3 @@
   color: var(--text-primary);
 }
 
-.sheetClose {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-}
-
-.sheetClose:hover {
-  color: var(--text-primary);
-  background: var(--bg-tertiary-alt);
-}
