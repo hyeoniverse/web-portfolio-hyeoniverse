@@ -70,10 +70,9 @@ export function attachCodeWrapToggle(
 
     // pre 위(밖)에 별도 바 — mermaid 리더뷰와 동일하게 언어 라벨(좌) + 컨트롤(우)을 프레임 밖으로.
     wrap.classList.add("has-code-bar");
-    // 리사이즈 커서 — wrap 은 CSS resize:vertical 로 native 리사이즈된다. 우하단 그립 위에
-    // data-cursor="resizeV" overlay 를 얹어 CursorTrail 이 커스텀 커서로 바꾸게 한다.
-    // pointer-events:none 이라 native resize 는 그대로 통과(드래그 재구현 불필요),
-    // CursorTrail 은 elementsFromPoint 폴백으로 이 overlay 를 감지한다.
+    // 리사이즈 — 우하단 overlay 가 pointer 를 받아(=CursorTrail 이 data-cursor="resizeV" 감지)
+    // wrap 높이를 드래그로 조절한다. pointer-events:none 으로 두면 CursorTrail 의 elementsFromPoint
+    // 가 overlay 를 건너뛰어 커서가 안 바뀐다 → auto + 자체 drag(Textarea 와 같은 패턴, 아래 위임).
     if (!wrap.querySelector(".code-resize-cursor")) {
       const rc = document.createElement("div");
       rc.className = "code-resize-cursor";
@@ -141,6 +140,33 @@ export function attachCodeWrapToggle(
     btn.appendChild(spanHover);
     btn.title = isWrapped ? labels.wrapTitle : labels.scrollTitle;
   });
+
+  // 리사이즈 드래그 위임 — overlay pointerdown → wrap 높이 조절 (native resize 대신 JS,
+  // overlay 가 pointer 를 받아야 CursorTrail 이 커스텀 커서를 띄우므로)
+  if (!container.dataset.resizeDelegated) {
+    container.dataset.resizeDelegated = "1";
+    container.addEventListener("pointerdown", (e) => {
+      const grip = (e.target as HTMLElement).closest<HTMLElement>(".code-resize-cursor");
+      if (!grip) return;
+      const wrap = grip.closest<HTMLElement>(".code-block-wrap");
+      if (!wrap) return;
+      e.preventDefault();
+      const startY = e.clientY;
+      const startH = wrap.offsetHeight;
+      const onMove = (ev: PointerEvent) => {
+        const next = Math.max(128, Math.min(window.innerHeight * 0.8, startH + (ev.clientY - startY)));
+        wrap.style.height = `${next}px`;
+      };
+      const onUp = () => {
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onUp);
+        document.removeEventListener("pointercancel", onUp);
+      };
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", onUp);
+      document.addEventListener("pointercancel", onUp);
+    });
+  }
 
   // 이벤트 위임
   if (container.dataset.wrapDelegated) return;
