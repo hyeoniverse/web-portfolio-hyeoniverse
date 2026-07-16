@@ -22,8 +22,6 @@ import {
   Code, Minus, Table as TableIcon, Lightbulb, Columns2, Columns3, ChevronRight, Sigma, ListTree, Workflow, LayoutPanelTop, Vote, Shapes, Smile, SquareCode, CalendarDays, Paperclip, AudioLines, Superscript, FileText,
 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
-import { DEFAULT_TEMPLATE } from "../playground/model";
-import { starterFiles } from "../playground/starters";
 import { genPollId } from "../PollElements";
 import { _imageUploadFn, _uploadErrorFn, _slashOpenTrigger, _emojiPickerTrigger, _postLinkTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
@@ -151,7 +149,7 @@ const GROUPS: { labelKey: string; items: Cmd[] }[] = [
     { key: "poll", labelKey: "insertPoll", icon: <Vote size={ICON} />, keywords: ["poll", "vote", "투표", "설문"], run: (e) => insertAfter(e, { type: "poll", pollId: genPollId(), multiple: false, options: [{ optionId: genPollId(), label: "항목 1" }, { optionId: genPollId(), label: "항목 2" }], children: [{ text: "" }] }) },
     { key: "calendar", labelKey: "insertCalendar", icon: <CalendarDays size={ICON} />, keywords: ["calendar", "달력", "캘린더", "일정", "event", "이벤트", "schedule"], run: (e) => insertAfter(e, { type: "calendar", children: [{ text: "" }] }) },
     { key: "diagram", labelKey: "insertDiagram", icon: <Shapes size={ICON} />, keywords: ["diagram", "graph", "flow", "shape", "다이어그램", "도형", "그리기", "비주얼", "visual"], run: (e) => insertAfter(e, { type: "diagram", data: { nodes: [], edges: [] }, children: [{ text: "" }] }) },
-    { key: "playground", labelKey: "insertPlayground", icon: <SquareCode size={ICON} />, keywords: ["playground", "codepen", "html", "css", "js", "javascript", "실행", "미리보기", "preview", "샌드박스", "sandbox", "코드펜", "플레이그라운드"], run: (e) => insertAfter(e, { type: "playground", data: { template: DEFAULT_TEMPLATE, files: starterFiles(DEFAULT_TEMPLATE) }, children: [{ text: "" }] }) },
+    { key: "playground", labelKey: "insertPlayground", icon: <SquareCode size={ICON} />, keywords: ["playground", "codepen", "html", "css", "js", "javascript", "실행", "미리보기", "preview", "샌드박스", "sandbox", "코드펜", "플레이그라운드"], run: (e) => insertAfter(e, { type: "playground", data: { template: "", files: {} }, children: [{ text: "" }] }) },
     { key: "footnote", labelKey: "insertFootnote", icon: <Superscript size={ICON} />, keywords: ["footnote", "각주", "주석", "reference", "note"], run: (e) => insertFootnote(e) },
     { key: "postlink", labelKey: "insertPostLink", icon: <FileText size={ICON} />, keywords: ["post", "link", "게시물", "링크", "글", "참조", "reference", "mention", "멘션"], run: () => _postLinkTrigger.current?.() },
   ] },
@@ -190,6 +188,8 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
   const [activeIdx, setActiveIdx] = React.useState(0);
   // + 버튼으로 "/" 없이 수동 오픈 — 이때는 블록 텍스트 전체를 필터 쿼리로 사용
   const [manualOpen, setManualOpen] = React.useState(false);
+  // IME(한글) 조합 중 실시간 텍스트 — Slate 모델은 조합 끝나야 갱신되므로, 조합 동안엔 DOM 텍스트를 직접 읽어 필터에 반영.
+  const [composing, setComposing] = React.useState<string | null>(null);
   const cancelRef = React.useRef<(() => void) | null>(null);
   const prevManual = React.useRef(false);
   React.useEffect(() => {
@@ -217,6 +217,29 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
     }
   }, []);
 
+  // IME 조합 중엔 현재 블록의 DOM 텍스트를 실시간으로 읽어 composing 에 저장(모델이 아직 안 갱신됨).
+  // 조합이 끝나면 null → blockText(모델)이 이어받는다. 에디터 밖 입력(검색창 등)은 무시.
+  React.useEffect(() => {
+    const onUpdate = (e: Event) => {
+      let root: HTMLElement | null = null;
+      try { root = editor.api.toDOMNode(editor as any) as HTMLElement; } catch { /* ignore */ }
+      if (!root || !(e.target instanceof Node) || !root.contains(e.target)) return;
+      try {
+        const entry = editor.api.block();
+        if (!entry) return;
+        const dom = editor.api.toDOMNode(entry[0]) as HTMLElement;
+        setComposing((dom.textContent ?? "").replace(ZERO_WIDTH, ""));
+      } catch { /* ignore */ }
+    };
+    const onEnd = () => setComposing(null);
+    document.addEventListener("compositionupdate", onUpdate, true);
+    document.addEventListener("compositionend", onEnd, true);
+    return () => {
+      document.removeEventListener("compositionupdate", onUpdate, true);
+      document.removeEventListener("compositionend", onEnd, true);
+    };
+  }, [editor]);
+
   // 다른 블록으로 이동하거나 선택이 풀리면(blockText null) 수동 오픈 해제
   React.useEffect(() => { if (blockText == null) setManualOpen(false); }, [blockText]);
   // 에디터 포커스를 잃으면(blur) 수동 오픈 해제 → onCancel 로 빈 추가 블록 제거.
@@ -224,12 +247,14 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
   React.useEffect(() => { if (!focused) setManualOpen(false); }, [focused]);
 
   const query = React.useMemo(() => {
-    if (blockText == null) return null;
+    // 조합 중이면 DOM 텍스트(composing)를 우선 사용 — 모델(blockText)은 조합 끝나야 갱신되므로.
+    const text = composing ?? blockText;
+    if (text == null) return null;
     // 수동 오픈: "/" 없이 블록 텍스트 전체가 쿼리 (공백 들어가면 닫힘)
-    if (manualOpen) return /\s/.test(blockText) ? null : blockText;
-    const m = /^\/([^\s/]*)$/.exec(blockText);
+    if (manualOpen) return /\s/.test(text) ? null : text;
+    const m = /^\/([^\s/]*)$/.exec(text);
     return m ? m[1] : null;
-  }, [blockText, manualOpen]);
+  }, [blockText, composing, manualOpen]);
 
   const groups = React.useMemo(() => {
     if (query == null) return [] as { labelKey: string; items: Cmd[] }[];
@@ -299,6 +324,9 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
   React.useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
+      // IME 조합 중 키(Enter=조합 확정, 화살표=후보 이동)는 가로채지 않는다.
+      // 안 그러면 마지막 글자가 확정 전에 메뉴가 선택돼 "/코드" 중 마지막 글자가 남는다.
+      if (e.isComposing || e.keyCode === 229) return;
       if (e.key === "ArrowDown") { e.preventDefault(); e.stopPropagation(); setActiveIdx((i) => (i + 1) % items.length); }
       else if (e.key === "ArrowUp") { e.preventDefault(); e.stopPropagation(); setActiveIdx((i) => (i - 1 + items.length) % items.length); }
       else if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); e.stopPropagation(); run(items[activeIdx] ?? items[0]); }
