@@ -66,4 +66,32 @@ describe("code block copy bar", () => {
     const mermaidWrap = root.querySelectorAll(".code-block-wrap")[1];
     expect(mermaidWrap.querySelector(".code-block-bar")).toBeNull();
   });
+
+  // 터미널풍 바 — 신호등(::before)은 CSS 라 DOM 엔 안 나오지만, margin-right:auto 로 컨트롤을
+  // 오른쪽 끝에 미는 "첫 요소"(라벨 또는 빈 스페이서)가 라벨 유무와 무관하게 항상 존재해야 한다.
+  it("바의 첫 요소가 라벨 유무와 무관하게 존재한다 (컨트롤 우측 정렬 보장)", () => {
+    document.body.innerHTML = `
+      <div id="root">
+        <div class="code-block-wrap"><pre><code class="language-js">x</code></pre></div>
+        <div class="code-block-wrap"><pre><code>plain</code></pre></div>
+      </div>`;
+    const root = document.getElementById("root")!;
+    attachCodeWrapToggle(root, labels);
+
+    const bars = root.querySelectorAll(".code-block-bar");
+    expect(bars.length).toBe(2);
+    for (const bar of bars) {
+      // 바의 첫 자식 = 신호등 다음 첫 요소(::before 는 DOM 자식이 아니므로 firstElementChild).
+      // 라벨(js) 또는 빈 스페이서 — 둘 중 하나는 반드시 있어야 controls 가 우측으로 밀린다.
+      const first = bar.firstElementChild;
+      expect(first).not.toBeNull();
+      const controls = bar.querySelector(".code-block-controls");
+      expect(controls).not.toBeNull();
+      // 첫 요소는 controls 가 아니어야 한다 (controls 앞에 스페이서가 있어야 함)
+      expect(first).not.toBe(controls);
+    }
+    // 라벨 있는 첫 블록은 code-lang-label, 없는 둘째는 빈 span
+    expect(bars[0].querySelector(".code-lang-label")?.textContent).toBe("js");
+    expect(bars[1].querySelector(".code-lang-label")).toBeNull();
+  });
 });
