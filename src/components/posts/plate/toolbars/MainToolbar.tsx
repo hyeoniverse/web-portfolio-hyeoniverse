@@ -693,7 +693,9 @@ export default React.memo(function MainToolbar({
         tooltip={t("editor.mermaid")}
         onClick={() => {
           editor.tf.insertNodes({
-            type: "code_block", lang: "mermaid",
+            // graphView:"split" = "다이어그램을 직접 추가했다"는 의도 표시.
+            // 이게 없으면(=코드블록에 mermaid 를 쓴 경우) 코드만 보인다.
+            type: "code_block", lang: "mermaid", graphView: "split",
             children: [
               { type: "code_line", children: [{ text: "graph TD" }] },
               { type: "code_line", children: [{ text: "  A[Start] --> B[End]" }] },

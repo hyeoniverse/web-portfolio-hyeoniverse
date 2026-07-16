@@ -294,7 +294,11 @@ function serializeNode(node: SlateNode): string {
     // ── Code block ──
     case "code_block": {
       const lang = el.lang ? ` class="language-${esc(String(el.lang))}"` : "";
-      return `<div class="code-block-wrap"><pre><code${lang}>${children}</code></pre></div>`;
+      /* mermaid 블록의 뷰 모드(코드만/다이어그램만/나란히)도 같이 싣는다.
+         에디터는 HTML 로 저장하므로 여기서 안 내보내면 다시 열 때 유실돼서,
+         나란히 보던 다이어그램이 코드만 보이는 상태로 열린다. */
+      const gv = el.graphView ? ` data-graph-view="${esc(String(el.graphView))}"` : "";
+      return `<div class="code-block-wrap"><pre${gv}><code${lang}>${children}</code></pre></div>`;
     }
     case "code_line":
       return `${children}\n`;
@@ -371,8 +375,15 @@ function serializeNode(node: SlateNode): string {
       const needsScroll = !fitWidth && totalW > 0;
       return (anyFreeze || needsScroll) ? `<div class="tbl-freeze">${tableHtml}</div>` : tableHtml;
     }
-    case "tr":
+    case "tr": {
+      /* 행 높이(Plate 는 tr 노드의 `size` 에 저장 — setTableRowSize 가 setNodes({size}) 한다).
+         에디터는 HTML 로 저장하므로 여기서 안 내보내면 다시 열 때 통째로 사라진다(= 높이가 저장 안 됨).
+         style 로도 넣어 리더뷰에서 바로 먹고, data 속성으로 왕복시켜 파서가 정확히 되읽는다
+         (열 너비를 colgroup + data-col-sizes 로 왕복시키는 것과 같은 방식). */
+      const rowH = el.size as number | undefined;
+      if (rowH && rowH > 0) return `<tr data-row-size="${rowH}" style="height: ${rowH}px">${children}</tr>`;
       return `<tr>${children}</tr>`;
+    }
     case "td":
     case "th": {
       const tag = el.type === "th" ? "th" : "td";
@@ -565,7 +576,7 @@ function serializeNode(node: SlateNode): string {
         ` style="max-width:${maxW};margin:var(--spacing-sm) 0">`,
         `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;`,
         `border-radius:var(--radius-capsule,999px);border:1px solid var(--border-light-color);background:var(--bg-secondary)">`,
-        `<div style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-alpha-6);`,
+        `<div style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-alpha-5);`,
         `display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-secondary)">${iconSvg}</div>`,
         `<div style="flex:1;min-width:0">`,
         `<div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fName}</div>`,

@@ -86,6 +86,19 @@ export const TableKit = [
   }),
   TableRowPlugin.configure({
     render: { node: TableRowElement },
+    // 행 높이 복원 — plateSerializer 가 tr 에 실어 보낸 data-row-size 를 Plate 의 `size` 로 되돌린다.
+    // (Plate 기본 tr deserializer 는 높이를 안 읽어서 리로드 때마다 날아갔다)
+    parsers: {
+      html: {
+        deserializer: {
+          parse: ({ element }: { element: HTMLElement }) => {
+            const raw = element.getAttribute("data-row-size") || element.style.height.replace("px", "");
+            const size = Number(raw);
+            return { type: "tr", ...(Number.isFinite(size) && size > 0 ? { size } : {}) };
+          },
+        },
+      },
+    },
   }),
   TableCellPlugin.configure({
     render: { node: TableCellElement },

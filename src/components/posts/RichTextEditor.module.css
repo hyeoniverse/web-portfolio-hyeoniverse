@@ -727,7 +727,7 @@
 .tocItem {
   border: none;
   background: transparent;
-  padding: var(--box-y-3xs);
+  padding: var(--box-y-sm);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   text-align: left;
@@ -1350,7 +1350,7 @@
   border: var(--border-light);
   border-radius: var(--radius-lg);
   box-shadow: 0 2px 8px oklch(0% 0 0 / 0.15);
-  padding: var(--box-y-xs);
+  padding: var(--box-y-sm);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
@@ -1369,7 +1369,7 @@
   font-family: inherit;
   background: transparent;
   color: var(--text-primary);
-  padding: var(--box-y-xs);
+  padding: var(--box-y-sm);
 }
 
 .fontDropList {
@@ -1776,12 +1776,25 @@
 /* group label — 그룹(섹션) 위쪽에 배치, 작은 폰트 + uppercase + muted */
 .colorMenuLabel,
 .groupLabel {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
   font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);
   padding: 0 2px;
+}
+
+/* label 라인 오른쪽 끝의 수치(열 레이아웃의 총 너비 등).
+   tabular-nums — 드래그로 1px 씩 바뀔 때 자릿수 폭이 흔들려 라벨이 움찔거리지 않게. */
+.groupLabelValue {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-tertiary);
 }
 /* field label — 필드(컨트롤) 왼쪽에 나란히 배치, 큰 폰트 + 진한 색 */
 .fieldLabel {
@@ -1842,7 +1855,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+  transition: transform var(--duration-fast) var(--ease-material), box-shadow var(--duration-fast) var(--ease-material);
 }
 .swatch:hover {
   transform: scale(1.12);
@@ -1870,7 +1883,7 @@
   cursor: pointer;
   background: var(--bg-secondary);
   flex-shrink: 0;
-  transition: box-shadow var(--duration-fast) var(--ease-out);
+  transition: box-shadow var(--duration-fast) var(--ease-material);
 }
 .pickerCapsuleIcon {
   display: inline-flex;
@@ -1971,7 +1984,7 @@
   color: var(--text-secondary);
   cursor: pointer;
   flex-shrink: 0;
-  transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+  transition: background var(--duration-fast) var(--ease-material), color var(--duration-fast) var(--ease-material);
 }
 .equalizeBtn:hover {
   background: var(--bg-tertiary);
@@ -4475,6 +4488,12 @@
   white-space: nowrap;
 }
 /* 그룹 라벨 (자주 쓰는 / A–Z) — 스크롤 시 상단 고정 */
+/* sticky 라 항목이 밑으로 지나간다 → 뭔가로 가려야 글자가 겹치지 않는다.
+   불투명 --bg-primary 로 막으면 popover 의 유리 표면 위에 단단한 띠가 얹혀 보인다.
+   → 프로젝트 공식(_semantic.css)인 "반투명 패널 + blur" 한 쌍으로 교체.
+   popover 패널(variant=glass)이 이미 backdrop-filter 를 가져 Backdrop Root 이므로,
+   이 라벨의 backdrop 은 **패널 안에서 먼저 그려진 항목들** = 흐려야 할 바로 그 대상이다.
+   ※ -webkit- prefix 는 붙이지 말 것 — Chrome declaration 파싱이 꼬여 blur 가 통째로 죽는다. */
 .codeMenuGroupLabel {
   position: sticky;
   top: 0;
@@ -4484,7 +4503,8 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);
-  background: var(--bg-primary);
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
   z-index: 1;
 }
 
@@ -4601,21 +4621,9 @@
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
-.editorContent :global(.slate-code_block) {
-  /* pre = 패딩/배경 프레임 + 높이 조절(resize 핸들), <code> = flex 로 채우며 스크롤 */
-  /* (컨트롤이 상단 인라인 → floating bar 로 이동해 상단 헤더 여백 제거: top 3xl → md) */
-  display: flex;
-  flex-direction: column;
-  max-height: 16rem;
-  /* 상하 여백 동일 (예전 bottom 만 xl 이라 비대칭이었음) */
-  padding: var(--spacing-md);
-  background: var(--bg-tertiary);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  margin: var(--spacing-md) 0;
-  overflow: hidden;
-  resize: vertical;
-}
+/* 코드블록 프레임/신택스 팔레트는 globals/_hljs.css 의 단일 소스가 담당한다.
+   (.slate-code_block / .code-block-wrap pre 를 같은 규칙이 받는다 — 에디터·리더뷰·댓글 공통)
+   여기에 다시 쓰면 특정도가 높아 전역을 덮어써서 셋이 또 갈라진다. */
 .editorContent pre code {
   flex: 1 1 auto;
   min-height: 0;
@@ -4626,120 +4634,6 @@
   color: inherit;
   border-radius: 0;
 }
-/* Code syntax highlighting — VSCode Dark+ / Light+ inspired */
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-keyword),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-selector-tag),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-built_in) {
-  color: oklch(74.27% 0.1348 311.06);
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-string),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-attr),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-addition) {
-  color: oklch(84.25% 0.0844 75.06);
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-comment),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-quote) {
-  color: oklch(55.31% 0.0236 196.49);
-  font-style: italic;
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-number),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-literal) {
-  color: oklch(74.86% 0.1381 37.46);
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-title),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-section),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-title.function_) {
-  color: oklch(74.41% 0.1311 264.28);
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-type),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-name) {
-  color: oklch(70.09% 0.1567 18.62);
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-variable),
-:global([data-theme="dark"])
-  .editorContent
-  pre
-  :global(.hljs-template-variable) {
-  color: oklch(83.44% 0.1534 127.38);
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-property) {
-  color: oklch(82.92% 0.092 180.7);
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-operator),
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-punctuation) {
-  color: oklch(85.61% 0.0943 225.87);
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-regexp) {
-  color: oklch(70.53% 0.117 245.09);
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-deletion) {
-  color: oklch(65.39% 0.1926 25.14);
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-meta) {
-  color: oklch(74.41% 0.1311 264.28);
-}
-:global([data-theme="dark"]) .editorContent pre :global(.hljs-params) {
-  color: oklch(89.84% 0.0198 260.17);
-}
-
-:global([data-theme="light"]) .editorContent pre :global(.hljs-keyword),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-selector-tag),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-built_in) {
-  color: oklch(56.39% 0.186 311.73);
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-string),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-attr),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-addition) {
-  color: oklch(62.8% 0.1251 22.49);
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-comment),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-quote) {
-  color: oklch(69.79% 0.0159 196.79);
-  font-style: italic;
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-number),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-literal) {
-  color: oklch(49.77% 0.2095 342.46);
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-title),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-section),
-:global([data-theme="light"])
-  .editorContent
-  pre
-  :global(.hljs-title.function_) {
-  color: oklch(58.19% 0.1557 263.15);
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-type),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-name) {
-  color: oklch(56.39% 0.186 311.73);
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-variable),
-:global([data-theme="light"])
-  .editorContent
-  pre
-  :global(.hljs-template-variable) {
-  color: oklch(61.22% 0.1023 199.06);
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-property) {
-  color: oklch(61.22% 0.1023 199.06);
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-operator),
-:global([data-theme="light"]) .editorContent pre :global(.hljs-punctuation) {
-  color: oklch(47.72% 0.287 264.37);
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-regexp) {
-  color: oklch(58.19% 0.1557 263.15);
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-deletion) {
-  color: oklch(60.05% 0.1983 26.06);
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-meta) {
-  color: oklch(58.19% 0.1557 263.15);
-}
-:global([data-theme="light"]) .editorContent pre :global(.hljs-params) {
-  color: oklch(37.69% 0.0339 286.94);
-}
-
 .editorContent img {
   max-width: 100%;
   display: block;

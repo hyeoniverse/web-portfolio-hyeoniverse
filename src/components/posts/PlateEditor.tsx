@@ -24,6 +24,7 @@ import { _dndScrollContainer } from "./plate/utils";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { ModalAlert } from "@/components/ui/ModalTemplates";
 import styles from "./RichTextEditor.module.css";
 
@@ -31,9 +32,11 @@ import styles from "./RichTextEditor.module.css";
 import type { PlateEditorProps } from "./plate/types";
 export type { EditorImageInfo, PlateEditorHandle } from "./plate/types";
 import { isInAncestor, getEditorText, _mathEditingSet, _imageUploadFn, _uploadErrorFn, findTextMatches } from "./plate/utils";
-import { CHECKER_BG, COLUMN_DEFAULT_BG, COLUMN_MIN_PX, COLUMN_MAX_PX, COLUMN_BG_NAMED, COLUMN_LINE_NAMED, CALLOUT_BG_PRESETS } from "./plate/presets";
+import { columnHasContent, insertColumnAfter, removeColumnAt } from "./plate/columnOps";
+import { CHECKER_BG, COLUMN_DEFAULT_BG, COLUMN_DEFAULT_PX, COLUMN_MIN_PX, COLUMN_MAX_PX, COLUMN_GROUP_MAX_PX, COLUMN_BG_NAMED, COLUMN_LINE_NAMED, CALLOUT_BG_PRESETS, MIN_COLUMNS, MAX_COLUMNS, fitColumnsForInsert, distributeInts } from "./plate/presets";
 import { ColorMenu } from "./plate/ColorMenu";
 import { EditorKit } from "./plate/editor-kit";
+import { showToast } from "@/stores/toastStore";
 
 // ── hooks ──
 import {
@@ -57,7 +60,7 @@ import DateMentionMenu from "./plate/toolbars/DateMentionMenu";
 import PostLinkMenu from "./plate/toolbars/PostLinkMenu";
 import TBtn from "./plate/TBtn";
 import { TblTrash } from "./plate/icons";
-import { ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, Unlink, Columns3, AlignHorizontalSpaceAround, SlidersHorizontal, CaseSensitive, WholeWord, Regex, StretchHorizontal, Sparkles, Type, Eraser } from "lucide-react";
+import { ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, Unlink, Columns3, AlignHorizontalSpaceAround, SlidersHorizontal, CaseSensitive, WholeWord, Regex, StretchHorizontal, Sparkles, Type, Eraser, BetweenHorizontalStart, Trash2 } from "lucide-react";
 import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
 
 // Re-export ImagePanel for backward compatibility
@@ -154,42 +157,38 @@ function equalColWidths(n: number): string[] {
 // weights → 정수 %(각 ≥1, 합 = total). @platejs/layout normalizer 는 열 width 합이 정확히 100 이 아니면
 // 매 dirty 마다 재분배해 무한 normalize 루프(Slate throw)를 유발하므로, 모든 % 지정은 반드시 이걸 통과시킨다.
 // total ≥ weights.length 필요 — 열 ≤ 12, total=100 이면 항상 성립. (largest-remainder 라운딩)
-function distributeInts(total: number, weights: number[]): number[] {
-  const n = weights.length;
-  if (n === 0) return [];
-  if (total <= n) return weights.map(() => Math.max(1, Math.floor(total / n)));
-  const wTotal = weights.reduce((a, b) => a + Math.max(0, b), 0) || n;
-  const extra = total - n; // 각 열에 1 을 먼저 주고 나머지를 가중 분배
-  const raw = weights.map((w) => (Math.max(0, w) / wTotal) * extra);
-  const floored = raw.map((r) => Math.floor(r));
-  const leftover = extra - floored.reduce((a, b) => a + b, 0);
-  const order = raw.map((r, i) => ({ i, f: r - Math.floor(r) })).sort((a, b) => b.f - a.f);
-  for (let k = 0; k < leftover; k++) floored[order[k % n].i]++;
-  return floored.map((x) => x + 1);
-}
 
-// ── Column width — 열마다 % 칸 + px 칸(둘 다 항상 활성, 토글 없음). ──
-// %: 페이지 폭에 맞춰(합 100) 재분배 + px 고정 해제. px: 그 열만 정확한 px(합이 넘치면 가로 스크롤 = 화면보다 넓게).
-function ColumnWidthControls({ colChildren, colCount, activePath, editor, language }: {
-  colChildren: { width?: string; widthPx?: number }[];
-  colCount: number;
-  activePath: number[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editor: any;
-  language: string;
-}) {
-  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
-  const clampPx = (w: number) => Math.min(COLUMN_MAX_PX, Math.max(COLUMN_MIN_PX, Math.round(w)));
-  // 실제 렌더 폭 측정 — px/%/드래그 무엇이든 현재 값을 정확히 반영(px 렌더는 flex:0 0 px 라 measured==widthPx).
-  const measurePx = (i: number) => {
+// 각 열의 **실제 렌더 폭**(px) — px/%/드래그 무엇이든 현재 값을 그대로 반영한다.
+// (px 렌더는 flex: 0 0 <px> 라 measured === widthPx)
+// 모듈 레벨인 이유: 열 레이아웃 popover 의 label 라인(총 너비)과 아래 ColumnWidthControls 가
+// 반드시 같은 수를 봐야 해서 — 각자 재면 반올림이 갈려 라벨과 % 칸이 서로 안 맞는다.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function measureColumnPxs(editor: any, activePath: number[], count: number): number[] {
+  return Array.from({ length: count }, (_, i) => {
     try {
       const entry = editor.api.node([...activePath, i]);
       if (!entry) return 0;
       const dom = editor.api.toDOMNode(entry[0]) as HTMLElement | null;
       return Math.round(dom?.getBoundingClientRect().width ?? 0);
     } catch { return 0; }
-  };
-  const pxs = colChildren.map((_, i) => measurePx(i) || 1);
+  }).map((w) => w || 1);
+}
+
+// ── Column width — 열마다 % 칸 + px 칸(둘 다 항상 활성, 토글 없음). ──
+// %: 페이지 폭에 맞춰(합 100) 재분배 + px 고정 해제. px: 그 열만 정확한 px(합이 넘치면 가로 스크롤 = 화면보다 넓게).
+function ColumnWidthControls({ colChildren, colCount, activePath, editor, language, tGroupMax }: {
+  colChildren: { width?: string; widthPx?: number }[];
+  colCount: number;
+  activePath: number[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  editor: any;
+  language: string;
+  /** editor.columnGroupMaxWidth 문구 — "{{max}}" 치환용 (드래그(elements.tsx)와 같은 문구를 공유) */
+  tGroupMax: string;
+}) {
+  const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  const clampPx = (w: number) => Math.min(COLUMN_MAX_PX, Math.max(COLUMN_MIN_PX, Math.round(w)));
+  const pxs = measureColumnPxs(editor, activePath, colChildren.length);
   const totalPx = pxs.reduce((a, b) => a + b, 0) || 1;
   const hasPx = colChildren.some((c) => typeof c.widthPx === "number" && c.widthPx > 0);
   // % 입력 → "블록 너비 기준" 재비율(페이지에 강제로 안 맞춤). 모드 보존:
@@ -219,8 +218,31 @@ function ColumnWidthControls({ colChildren, colCount, activePath, editor, langua
       result.forEach((wv, j) => editor.tf.setNodes({ width: `${wv}%`, widthPx: null }, { at: [...activePath, j] }));
     });
   };
-  // px 입력 → 그 열만 정확한 px 오버라이드(widthPx). width 는 그대로 둠(normalizer 가 합 100 유지 → 루프 방지).
-  const setPxWidth = (idx: number, v: number) => editor.tf.setNodes({ widthPx: clampPx(v) }, { at: [...activePath, idx] });
+  /* px 입력 → 그 열을 정확한 px 로 고정. width(%) 는 그대로 둔다(normalizer 가 합 100 유지 → 루프 방지).
+
+     한 열만 px 로 바꾸면 안 된다: 나머지 열은 유동(flex: weight 1 0)이라 남는 공간을 **흡수**해서
+     총폭이 컨테이너(=화면) 폭에 묶인다 — 열을 넓혀도 다른 열이 줄어들 뿐 블록이 안 커진다.
+     그래서 px 를 지정하는 순간, 아직 유동인 열들도 지금 렌더 폭 그대로 px 로 고정한다.
+     그러면 총폭 = px 들의 합이 되어 화면보다 넓어질 수 있고, 넘치면 그룹이 가로 스크롤한다. */
+  const setPxWidth = (idx: number, v: number) => {
+    /* 열 하나 상한(COLUMN_MAX_PX) 안내는 공통 NumberInput 이 이미 띄우고 clamp 까지 한다 — 여기서 중복 안내 안 함.
+       하지만 **블록 전체 상한**은 NumberInput 이 모른다(자기 max 는 열 하나 기준). 그래서 여기서 본다. */
+    const othersSum = pxs.reduce((sum, w, i) => (i === idx ? sum : sum + w), 0);
+    const groupRoom = COLUMN_GROUP_MAX_PX - othersSum;
+    let applied = v;
+    if (v > groupRoom) {
+      applied = Math.max(COLUMN_MIN_PX, groupRoom);
+      showToast(tGroupMax.replace("{{max}}", String(COLUMN_GROUP_MAX_PX)), "info");
+    }
+    editor.tf.withoutNormalizing(() => {
+      colChildren.forEach((c, i) => {
+        if (i === idx) return;
+        if (typeof c?.widthPx === "number" && c.widthPx > 0) return; // 이미 px 고정
+        editor.tf.setNodes({ widthPx: clampPx(pxs[i]) }, { at: [...activePath, i] });
+      });
+      editor.tf.setNodes({ widthPx: clampPx(applied) }, { at: [...activePath, idx] });
+    });
+  };
   return (
     <div className={styles.colWidthList}>
       {colChildren.map((_, i) => (
@@ -1001,14 +1023,39 @@ export default function PlateEditor({
     }
     return () => clearTimeout(colDebounceRef.current);
   }, [isInColumnRaw]);
+  // 선택 커서가 들어있는 열의 index — 열 추가/삭제 버튼이 "어느 열 기준인지" 아는 유일한 근거.
+  // 위 columnGroupNode 와 **같은 render 에서 같은 selection 으로** 뽑아야 둘이 어긋나지 않는다.
+  const activeColIdxRaw = (() => {
+    if (!isInColumnRaw || !editor.selection) return null;
+    try {
+      const entry = editor.api.above({ match: { type: "column" } });
+      return entry ? (Array.from(entry[1]).pop() as number) : null;
+    } catch { return null; }
+  })();
   // 닫힘 애니메이션용 캐시
   const cachedColumnGroupRef = useRef(columnGroupNode);
   if (columnGroupNode) cachedColumnGroupRef.current = columnGroupNode;
   const columnGroupForRender = columnGroupNode || cachedColumnGroupRef.current;
+  // 열 index 도 같이 캐시 — 그룹 캐시와 항상 짝이 맞아야 한다(둘 다 같은 조건에서 갱신/보존).
+  const cachedColIdxRef = useRef(activeColIdxRaw);
+  if (activeColIdxRaw != null) cachedColIdxRef.current = activeColIdxRaw;
+  const activeColIdx = activeColIdxRaw ?? cachedColIdxRef.current ?? 0;
   // 최근색 — 공통 useRecentColors hook 으로 통일. 저장은 ColorPicker 의 onChangeComplete(=드래그 뗄 때) 에서만.
   const recentColBg = useRecentColors("col-bg");
   const recentColLine = useRecentColors("col-line");
   const recentCallout = useRecentColors("callout");
+  // ── 탭 블록 ── (열/토글과 같은 패턴)
+  const isInTabsRaw = isInAncestor(editor, "tabs");
+  const tabsNode = (() => {
+    if (!isInTabsRaw || !editor.selection) return null;
+    try {
+      const entry = editor.api.above({ match: { type: "tabs" } });
+      return entry ? { node: entry[0] as Record<string, unknown>, path: Array.from(entry[1]) } : null;
+    } catch { return null; }
+  })();
+  const cachedTabsRef = useRef(tabsNode);
+  if (tabsNode) cachedTabsRef.current = tabsNode;
+
   const isInToggle = isInAncestor(editor, "toggle");
   const toggleNode = (() => {
     if (!isInToggle || !editor.selection) return null;
@@ -1059,7 +1106,7 @@ export default function PlateEditor({
   const nearestContextType = (() => {
     try {
       if (!editor.selection) return null;
-      const CTX = new Set(["table", "column_group", "toggle", "callout", "img", "equation", "media_embed"]);
+      const CTX = new Set(["table", "column_group", "toggle", "callout", "tabs", "img", "equation", "media_embed"]);
       let found: string | null = null;
       let depth = -1;
       // 순회 순서와 무관하게 path 가 가장 긴(가장 안쪽) contextual 블록을 고른다.
@@ -2416,6 +2463,7 @@ export default function PlateEditor({
       : (isInTable && nearestContextType === "table") ? "table"
       : (isInColumn && columnGroupNode && nearestContextType === "column_group") ? "column"
       : (isInToggle && toggleNode && nearestContextType === "toggle") ? "toggle"
+      : (isInTabsRaw && tabsNode && nearestContextType === "tabs") ? "tabs"
       : (isInCallout && calloutNode && nearestContextType === "callout") ? "callout"
       : null;
 
@@ -2631,26 +2679,61 @@ export default function PlateEditor({
               const setColumnCount = (n: number) => {
                 const target = Math.max(2, Math.min(12, n));
                 if (target === colCount || !activePath) return;
-                // 현재 실제 폭 측정 → 비율 보존(추가 시 새 열은 평균, 제거 시 앞쪽 유지). 정수 합 100 으로 % 재설정 + px 해제.
                 const measured = colChildren.map((_, i) => measureColPx(i) || 1);
-                const avg = Math.round(measured.reduce((a, b) => a + b, 0) / measured.length) || 1;
-                const base = target > colCount
-                  ? [...measured, ...Array(target - colCount).fill(avg)]
-                  : measured.slice(0, target);
-                const pcts = distributeInts(100, base);
-                setColumns(editor, { at: activePath, widths: equalColWidths(target) }); // 개수만 변경(정수 합=100 → loop 방지)
-                editor.tf.withoutNormalizing(() => {
-                  pcts.forEach((p, i) => editor.tf.setNodes({ width: `${p}%`, widthPx: null }, { at: [...activePath, i] }));
-                });
+                // px 로 고정된 블록이면 기존 열 폭을 그대로 두고 새 열만 기본 폭으로 오른쪽에 덧붙인다.
+                // (예전엔 무조건 widthPx: null + % 합 100 재분배라, 열을 추가하는 순간 px 가 전부 날아가고
+                //  블록이 화면 폭으로 되돌아갔다 — 넓혀둔 폭이 사라지는 원인)
+                const hasPx = colChildren.some((c) => typeof c.widthPx === "number" && c.widthPx > 0);
+                const clampColPx = (w: number) => Math.min(COLUMN_MAX_PX, Math.max(COLUMN_MIN_PX, Math.round(w)));
+                if (hasPx) {
+                  setColumns(editor, { at: activePath, widths: equalColWidths(target) }); // 개수만 변경(정수 합=100 → loop 방지)
+                  /* 살아남는 기존 열은 측정한 현재 폭 그대로, 새 열은 기본 폭으로 오른쪽에 덧붙인다.
+                     블록 상한에 여유가 없을 때만 fitColumnsForInsert 가 기존 열을 비례로 깎아 자리를 낸다.
+                     한 번에 여러 열이 늘 수 있으므로(2→5) 한 개씩 누적한다 — 한꺼번에 계산하면
+                     중간 단계의 상한 초과를 놓친다.
+                     width(%) 는 equalColWidths 가 합 100 을 유지하므로 건드리지 않는다 — px 가 렌더를 지배. */
+                  let next = measured.slice(0, Math.min(colCount, target)).map(clampColPx);
+                  for (let i = colCount; i < target; i++) {
+                    const fit = fitColumnsForInsert(next, COLUMN_DEFAULT_PX);
+                    next = [...fit.widths, fit.added];
+                  }
+                  editor.tf.withoutNormalizing(() => {
+                    next.forEach((w, i) => editor.tf.setNodes({ widthPx: w }, { at: [...activePath, i] }));
+                  });
+                } else {
+                  // 유동(%) 블록 — px 가 없으니 보존할 폭도 없다. 기존대로 비율 보존 재분배.
+                  const avg = Math.round(measured.reduce((a, b) => a + b, 0) / measured.length) || 1;
+                  const base = target > colCount
+                    ? [...measured, ...Array(target - colCount).fill(avg)]
+                    : measured.slice(0, target);
+                  const pcts = distributeInts(100, base);
+                  setColumns(editor, { at: activePath, widths: equalColWidths(target) });
+                  editor.tf.withoutNormalizing(() => {
+                    pcts.forEach((p, i) => editor.tf.setNodes({ width: `${p}%`, widthPx: null }, { at: [...activePath, i] }));
+                  });
+                }
                 // 개수 변경 후 selection 이 풀려 floating bar 가 닫히지 않도록 그룹 안으로 복원.
                 try { editor.tf.select(editor.api.start(activePath)!); } catch { /* noop */ }
               };
-              // 균등 — 전부 같은 % (px 고정 해제 → 페이지에 맞춤)
+              /* 균등 — **현재 블록 총폭**을 그대로 두고 열끼리만 똑같이 나눈다. 화면 폭에 맞추지 않는다.
+                 (화면에 맞추는 건 바로 아래 fitToWidth 가 따로 한다 — 예전엔 균등이 widthPx: null 로
+                  px 를 풀어버려서 넓혀둔 블록이 페이지 폭으로 줄어들었다) */
               const equalizeColumns = () => {
                 if (!activePath) return;
+                const hasPxCols = colChildren.some((c) => typeof c.widthPx === "number" && c.widthPx > 0);
+                if (hasPxCols) {
+                  const measured = colChildren.map((_, i) => measureColPx(i) || 1);
+                  const total = measured.reduce((a, b) => a + b, 0);
+                  const each = Math.min(COLUMN_MAX_PX, Math.max(COLUMN_MIN_PX, Math.round(total / colCount)));
+                  editor.tf.withoutNormalizing(() => {
+                    for (let i = 0; i < colCount; i++) editor.tf.setNodes({ widthPx: each }, { at: [...activePath, i] });
+                  });
+                  return;
+                }
+                // 유동(%) 블록 — px 가 없어 총폭이 곧 페이지 폭이다. 균등 % 로 충분.
                 const ws = equalColWidths(colCount);
                 editor.tf.withoutNormalizing(() => {
-                  ws.forEach((w, i) => editor.tf.setNodes({ width: w, widthPx: null }, { at: [...activePath, i] }));
+                  ws.forEach((w, i) => editor.tf.setNodes({ width: w }, { at: [...activePath, i] }));
                 });
               };
               // 화면 너비 맞춤 — 현재 비율은 유지한 채 px 고정 해제 → 페이지 폭에 유동(오버플로 제거).
@@ -2684,9 +2767,11 @@ export default function PlateEditor({
                 });
               };
               // 내용(텍스트) 지우기 — 각 열 내부, 구조 유지
-              const clearColContent = () => {
+              // 내용 지우기 — 열(칸) 자체는 남기고 안의 내용만 비운다.
+              // 대상이 "블록 전체" 인지 "커서가 있는 열 하나" 인지만 다르다.
+              const clearColsContent = (idxs: number[]) => {
                 editor.tf.withoutNormalizing(() => {
-                  colChildren.forEach((_, i) => {
+                  idxs.forEach((i) => {
                     try {
                       const a = editor.api.start([...activePath, i]); const f = editor.api.end([...activePath, i]);
                       if (a && f) editor.tf.delete({ at: { anchor: a, focus: f } });
@@ -2694,6 +2779,8 @@ export default function PlateEditor({
                   });
                 });
               };
+              const clearColContentAll = () => clearColsContent(colChildren.map((_, i) => i));
+              const clearColContentSelected = () => clearColsContent([activeColIdx]);
               const resetColAll = () => { resetColStyle(); resetColContent(); };
               return (
                 <>
@@ -2761,7 +2848,14 @@ export default function PlateEditor({
                     }>
                     {() => (
                       <div className={styles.colLayoutMenu} onMouseDown={(e) => e.preventDefault()}>
-                        <div className={styles.groupLabel}>{L2("열 레이아웃", "Column layout")}</div>
+                        <div className={styles.groupLabel}>
+                          {L2("열 레이아웃", "Column layout")}
+                          {/* 총 너비 — 열마다 px 를 더해볼 필요 없이 블록이 지금 얼마나 넓은지 바로 보이게.
+                              화면보다 넓힐 수 있게 된 뒤로 "지금 총 얼마"가 유일하게 안 보이는 수였다. */}
+                          <span className={styles.groupLabelValue}>
+                            {measureColumnPxs(editor, activePath, colCount).reduce((a, b) => a + b, 0)}px
+                          </span>
+                        </div>
                         <div className={styles.colLayoutRow}>
                           <span className={styles.fieldLabel}>{L2("열 개수", "Columns")}</span>
                           <NumberInput value={colCount} onCommit={setColumnCount} min={2} max={12} width={30} height={24} ariaLabel={L2("열 개수", "Columns")} />
@@ -2776,11 +2870,56 @@ export default function PlateEditor({
                           activePath={activePath}
                           editor={editor}
                           language={language}
+                          tGroupMax={t("editor.columnGroupMaxWidth")}
                         />
                       </div>
                     )}
                   </Popover>
                   {/* 너비 균등 · 화면 맞춤 — 최상단 1-클릭 액션 */}
+                  {/* 선택한 열 기준 추가/삭제 — 개수 stepper(popover)와 목적이 다르다.
+                      stepper 는 오른쪽 끝에서 지우고 내용을 마지막 열로 합치지만, 여기는 지목한 열을
+                      통째로 지운다(내용 포함) → 내용이 있으면 확인 모달을 거친다. */}
+                  <TBtn
+                    aria-label="add column"
+                    tooltip={t("editor.addColumnAfter")}
+                    square
+                    onClick={() => {
+                      if (!activePath) return;
+                      // 막지 않고 왜 안 되는지 알린다 (열 너비 상한 toast 와 같은 결)
+                      if (!insertColumnAfter(editor, activePath, activeColIdx)) {
+                        showToast(t("editor.columnMaxCount").replace("{{max}}", String(MAX_COLUMNS)), "info");
+                      }
+                    }}
+                  >
+                    <BetweenHorizontalStart size={13} />
+                  </TBtn>
+                  <TBtn
+                    aria-label="remove column"
+                    tooltip={t("editor.removeColumn")}
+                    square
+                    onClick={() => {
+                      if (!activePath) return;
+                      if (colCount <= MIN_COLUMNS) {
+                        showToast(t("editor.columnMinCount").replace("{{min}}", String(MIN_COLUMNS)), "info");
+                        return;
+                      }
+                      const doRemove = () => removeColumnAt(editor, activePath, activeColIdx);
+                      // 빈 열은 그냥 지운다 — 잃을 게 없는데 확인을 받으면 성가시다.
+                      if (!columnHasContent(colChildren[activeColIdx])) { doRemove(); return; }
+                      openModal(
+                        <ModalConfirm
+                          desc={t("editor.removeColumnDesc")}
+                          confirmText={t("editor.removeColumnConfirm")}
+                          danger
+                          onConfirm={doRemove}
+                        />,
+                        { id: "remove-column", header: { title: t("editor.removeColumnTitle") }, closeButton: true, width: "420px" },
+                      );
+                    }}
+                  >
+                    <Trash2 size={13} />
+                  </TBtn>
+                  <span className={styles.divider} />
                   <TBtn square onClick={equalizeColumns} tooltip={L2("너비 균등", "Equalize widths")} aria-label="equalize widths">
                     <AlignHorizontalSpaceAround size={15} strokeWidth={1.75} />
                   </TBtn>
@@ -2799,7 +2938,8 @@ export default function PlateEditor({
                         <MenuItem icon={<Columns3 size={15} />} label={L2("열 서식 제거", "Remove column formatting")} onClick={() => { resetColStyle(); close(); }} />
                         <MenuItem icon={<Type size={15} />} label={L2("콘텐츠 서식 제거", "Remove content formatting")} onClick={() => { resetColContent(); close(); }} />
                         <MenuDivider />
-                        <MenuItem icon={<Eraser size={15} />} label={L2("내용 지우기", "Clear content")} onClick={() => { clearColContent(); close(); }} />
+                        <MenuItem icon={<Eraser size={15} />} label={L2("내용 모두 지우기", "Clear all content")} onClick={() => { clearColContentAll(); close(); }} />
+                        <MenuItem icon={<Eraser size={15} />} label={L2("선택한 열의 내용 지우기", "Clear selected column")} onClick={() => { clearColContentSelected(); close(); }} />
                       </div>
                     )}
                   </Popover>
@@ -2811,6 +2951,69 @@ export default function PlateEditor({
                   >
                     <TblTrash />
                   </TBtn>
+                </>
+              );
+            })()}
+          </FloatingBar>
+
+          {/* Tabs — 대상 탭 블록에 앵커된 FloatingBar.
+              탭 이름/아이콘/탭 삭제는 탭을 다시 눌러 뜨는 기존 팝업이 담당한다(탭 하나하나에 붙어야 해서).
+              여기는 블록 전체 범위의 동작 — 지금은 내용 지우기(모두 / 선택한 탭). */}
+          <FloatingBar
+            inline
+            open={activeBar === "tabs"}
+            anchorKey={tabsNode ? tabsNode.path.join(",") : null}
+            getAnchorRect={() => {
+              try {
+                const src = tabsNode || cachedTabsRef.current;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const dom = src ? editor.api.toDOMNode(src.node as any) : null;
+                return (dom as HTMLElement | null)?.getBoundingClientRect() ?? new DOMRect();
+              } catch { return new DOMRect(); }
+            }}
+          >
+            {(() => {
+              const src = tabsNode || cachedTabsRef.current;
+              if (!src) return null;
+              const L2 = (ko: string, en: string) => (language === "ko" ? ko : en);
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const panels = ((src.node as any).children || []) as unknown[];
+              /* "선택한 탭" = 커서가 있는 탭이 아니라 **화면에 보이는 탭**(activeTab).
+                 탭을 눌러 전환해도 커서는 이전 패널에 남고, 안 보이는 패널은 display:none 이라
+                 커서 기준으로 지우면 아무 일도 안 일어난 것처럼 보인다. (TabsElements 와 같은 clamp) */
+              const activeTab = Math.min(
+                Math.max(0, ((src.node as { activeTab?: number }).activeTab as number) ?? 0),
+                Math.max(0, panels.length - 1),
+              );
+              // 탭(칸) 자체는 남기고 안의 내용만 비운다 — 열/표의 "내용 지우기" 와 같은 규칙.
+              const clearTabs = (idxs: number[]) => {
+                editor.tf.withoutNormalizing(() => {
+                  idxs.forEach((i) => {
+                    try {
+                      const a = editor.api.start([...src.path, i]); const f = editor.api.end([...src.path, i]);
+                      if (a && f) editor.tf.delete({ at: { anchor: a, focus: f } });
+                    } catch { /* noop */ }
+                  });
+                });
+              };
+              return (
+                <>
+                  <span className={styles.floatingBarLabel}>TABS</span>
+                  {/* cleanupMenu — 열 바의 정리·초기화와 같은 규격.
+                      blockToolsMenu(220px 고정 + 라벨 padding 2px)를 쓰면 짧은 항목 2개에 비해 과하게 넓고,
+                      헤더 라벨이 MenuItem(좌측 --spacing-sm)과 좌측 정렬이 어긋난 채 위 모서리에 붙는다. */}
+                  <Popover openOnHover placement="bottom-end" offset={8} contentClassName={styles.cleanupMenu}
+                    trigger={<TBtn square tooltip={L2("정리 · 초기화", "Clean up")}><Sparkles size={15} strokeWidth={1.75} /></TBtn>}>
+                    {({ close }: { close: () => void }) => (
+                      <div onMouseDown={(e) => e.preventDefault()}>
+                        <div className={styles.groupLabel}>{L2("정리 · 초기화", "Clean up")}</div>
+                        <MenuItem icon={<Eraser size={15} />} label={L2("내용 모두 지우기", "Clear all content")}
+                          onClick={() => { clearTabs(panels.map((_, i) => i)); close(); }} />
+                        <MenuItem icon={<Eraser size={15} />} label={L2("선택한 탭의 내용 지우기", "Clear selected tab")}
+                          onClick={() => { clearTabs([activeTab]); close(); }} />
+                      </div>
+                    )}
+                  </Popover>
                 </>
               );
             })()}
