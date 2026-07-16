@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Post } from "@/types/post";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import { formatCount } from "@/utils/format";
@@ -99,6 +100,23 @@ export default function PostCard({
     return () => ro.disconnect();
   }, []);
   const category = post.category || null;
+  // 작성자 — author_ids 첫 항목을 site.config authors 로 해석(미할당이면 기본 작성자 fallback).
+  const siteConf = useSiteConfig();
+  const author = (() => {
+    const all = siteConf?.authors ?? [];
+    const resolved = (post.author_ids ?? []).map((id) => all.find((a) => a.id === id)).find(Boolean);
+    return resolved ?? all[0] ?? null;
+  })();
+  const authorEl = author ? (
+    <span className={styles.metaAuthor} title={author.name}>
+      <span
+        className={styles.metaAuthorAvatar}
+        style={author.avatar ? { backgroundImage: `url(${author.avatar})` } : undefined}
+        aria-hidden
+      >{!author.avatar && author.name.charAt(0)}</span>
+      <span className={styles.metaAuthorName}>{author.name}</span>
+    </span>
+  ) : null;
   const prefetchedRef = useRef(false);
   /* hover 시 다음 페이지 chunk 를 미리 로딩 — 클릭 후 navigate 가 즉시 mount 되도록.
    * dev 모드에선 prefetch 가 compile 미완료된 route 를 건드려 "Failed to fetch RSC payload"
@@ -202,6 +220,8 @@ export default function PostCard({
           </div>
         )}
         <div className={styles.timelineMeta}>
+          {authorEl}
+          {authorEl && <span className={styles.timelineSep} aria-hidden>·</span>}
           <span>{readTime} {t("postDetail.minRead")}</span>
           <span className={styles.timelineSep} aria-hidden>·</span>
           <span className={styles.compactStat}><Eye size={11} strokeWidth={1.75} />{formatCount(post.view_count ?? 0)}</span>
@@ -251,6 +271,7 @@ export default function PostCard({
           </span>
         </div>
         <div className={styles.compactMeta}>
+          {authorEl}
           <span className={styles.compactDate}>{date}</span>
           <span className={styles.compactRead}>{readTime} {t("postDetail.minRead")}</span>
           <span className={styles.compactStat}><Eye size={11} strokeWidth={1.75} />{formatCount(post.view_count ?? 0)}</span>
@@ -320,6 +341,7 @@ export default function PostCard({
           <h2 className={styles.heroTitle}><HighlightedText text={displayTitle} /></h2>
           {displayExcerpt && <p className={styles.heroExcerpt}><HighlightedText text={displayExcerpt} /></p>}
           <div className={styles.heroMeta}>
+            {authorEl && <span className={styles.metaGroup}>{authorEl}</span>}
             <span className={styles.metaGroup}>
               <span>{date}</span>
               <span className={styles.heroDot}>&middot;</span>
@@ -473,6 +495,7 @@ export default function PostCard({
         )}
 
         <div ref={metaRef} className={styles.meta} data-meta-wrapped={metaWrapped || undefined}>
+          {authorEl && <span className={styles.metaGroup}>{authorEl}</span>}
           <span className={styles.metaGroup}>
             <span>{date}</span>
             <span className={styles.dot}>&middot;</span>

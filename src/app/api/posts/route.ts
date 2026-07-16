@@ -51,6 +51,7 @@ export async function GET(request: Request) {
     : [];
   const pinned = searchParams.get("pinned");
   const seriesId = searchParams.get("series_id");
+  const author = searchParams.get("author"); // author id — author_ids 배열에 포함된 게시물만
 
   // 필터 술어를 한 곳에 모아 page 쿼리와 facet 집계 쿼리가 동일 조건을 공유.
   // (PostgREST 빌더는 mutable 이라 clone 불가 → 새 빌더마다 적용)
@@ -66,6 +67,7 @@ export async function GET(request: Request) {
     if (pinned === "true") q = q.eq("is_pinned", true);
     else if (pinned === "false") q = q.eq("is_pinned", false);
     if (seriesId) q = q.eq("series_id", seriesId);
+    if (author) q = q.contains("author_ids", [author]); // PG 배열 포함(cs) — author_ids 에 이 저자 포함
     if (search) {
       const mode = (searchParams.get("syntaxMode") === "regex" ? "regex" : "prefix") as SyntaxMode;
       const columns = searchType === "all"
@@ -104,6 +106,11 @@ export async function GET(request: Request) {
     query = query.order("created_at", { ascending: true });
   } else if (sort === "title") {
     query = query.order("title", { ascending: sortDir !== "desc" });
+  } else if (sort === "author") {
+    // 저자별 — author_ids 배열을 요소순으로 정렬(같은 저자끼리 묶임). 동률은 최신순 tie-break.
+    query = query
+      .order("author_ids", { ascending: sortDir !== "desc", nullsFirst: false })
+      .order("created_at", { ascending: false });
   } else if (sort === "random") {
     // random — 서버에서 정렬은 created_at desc 로 뽑고 JS 가 시드 기반으로 셔플
     query = query.order("created_at", { ascending: false });
