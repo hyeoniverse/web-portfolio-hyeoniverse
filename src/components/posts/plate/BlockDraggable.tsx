@@ -280,6 +280,21 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
   const turnInto = (value: string, close: () => void) => {
     const p = path(); if (!p) return;
     selectBlockStart(p);
+    // 코드블록에서 전환 — 코드는 자식이 code_line 이라 toggleBlock 으로 바로 못 바꾼다.
+    // 먼저 코드블록을 해제(코드라인 → 문단)하고, 필요하면 그 문단을 목표 타입으로 이어서 전환.
+    if ((element as { type?: string }).type === "code_block") {
+      if (value === "code_block") { close(); return; } // 이미 코드블록
+      toggleCodeBlock(editor); // → 문단
+      if (value !== "p") {
+        const p2 = path(); if (p2) selectBlockStart(p2);
+        if (value === "bulleted") toggleList(editor, { listStyleType: "disc" });
+        else if (value === "numbered") toggleList(editor, { listStyleType: "decimal" });
+        else editor.tf.toggleBlock(value);
+      }
+      close();
+      setTimeout(() => editor.tf.focus(), 0);
+      return;
+    }
     const cur = (element as any).listStyleType as string | undefined;
     switch (value) {
       case "bulleted": toggleList(editor, { listStyleType: "disc" }); break;
@@ -608,14 +623,14 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
                   </>
                 );
               })()}
-              {/* 전환 — 텍스트 계열 블록만 */}
-              {isTextLike && (
+              {/* 전환 — 텍스트 계열 + 코드블록(코드로 자동 변환된 걸 텍스트 등으로 되돌릴 수 있게) */}
+              {(isTextLike || isCode) && (
                 <>
                   <div className={styles.blockToolsLabel}>{t("editor.turnInto")}</div>
                   <div className={styles.blockToolsTurn}>
                     {TURN_INTO.map((o) => (
                       <Tooltip key={o.value} content={t(`editor.${o.labelKey}`)} placement="top" delay={200}>
-                        <button type="button" className={styles.blockToolsTurnBtn} onClick={() => turnInto(o.value, close)}>
+                        <button type="button" className={`${styles.blockToolsTurnBtn}${isCode && o.value === "code_block" ? ` ${styles.blockToolsTurnBtnActive}` : ""}`} onClick={() => turnInto(o.value, close)}>
                           {o.icon}
                         </button>
                       </Tooltip>
