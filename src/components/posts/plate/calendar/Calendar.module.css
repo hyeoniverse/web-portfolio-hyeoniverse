@@ -1010,35 +1010,49 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-sm);
-  min-width: 168px;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  min-width: 180px;
 }
 
 .evHelpGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3xs);
+  /* 행 사이 — 아이콘이 10~13px 라 2xs(4px) 는 있어야 답답하지 않다 (기존 3xs=2px 는 촘촘했다) */
+  gap: var(--spacing-2xs);
 }
 
+/* 그룹 제목 — 항목과 크기가 같으면(둘 다 10px) 위계가 안 선다.
+   3xs(8px) uppercase 라벨로 낮추되 tertiary(항목 muted 보다 진함)로 스캔 기준선을 준다. */
 .evHelpTitle {
-  margin-bottom: var(--spacing-3xs);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: 0.04em;
+  margin-bottom: var(--spacing-2xs);
+  font-size: var(--font-size-3xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
 }
 
+/* 항목 — 실제로 읽는 줄이라 2xs(10px)는 작다. xs(12px)로 올리고 색도 한 단계 진하게. */
 .evHelpRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2xs);
-  font-size: var(--font-size-2xs);
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
   color: var(--text-secondary);
 }
+/* 각 행의 첫 아이콘은 같은 폭(16px) 슬롯에 중앙정렬 — dot 10 / star·link 13 로 폭이 달라
+   라벨 시작점이 그룹마다 어긋났다. 슬롯을 통일하면 세로로 정렬돼 스캔이 쉽다. */
+.evHelpRow > :first-child {
+  flex-shrink: 0;
+  width: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 .evHelpDot { --_c: var(--text-secondary); }
-.evHelpStar { display: inline-flex; align-items: center; width: 13px; height: 13px; color: var(--text-secondary); line-height: 0; flex-shrink: 0; }
-.evHelpLink { color: var(--text-tertiary); flex-shrink: 0; }
+.evHelpStar { color: var(--text-secondary); line-height: 0; }
+.evHelpLink { color: var(--text-tertiary); }
 /* active(사이드바 열림) — accent 아이콘 대신 공통 active 스타일(inverse 배경/글자) */
 .blockBarIconOn {
   background: var(--bg-inverse) !important;
