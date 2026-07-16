@@ -6,9 +6,14 @@
     "src/middleware.ts",
     "next.config.{js,ts,mjs}",
     "scripts/**/*.{ts,mjs}",
-    "src/__tests__/**/*.{ts,tsx}"
+    "src/__tests__/**/*.{ts,tsx}",
+    "src/**/__tests__/**/*.{ts,tsx}"
   ],
   "project": ["src/**/*.{ts,tsx}"],
-  "ignoreDependencies": ["next-themes"],
+  "ignoreDependencies": [
+    "next-themes",
+    "sanitize.css",
+    "@platejs/slash-command"
+  ],
   "ignore": ["src/types/**", "src/config/site.config.ts"]
 }
