@@ -173,7 +173,7 @@ export default function DesignSystemClient() {
                 icon: (
                   <svg viewBox="0 0 160 80" fill="none" className={styles.pIcon}>
                     {/* Raw */}
-                    <rect x="0" y="28" width="28" height="24" rx="12" fill="var(--color-neutral-alpha-15)" />
+                    <rect x="0" y="28" width="28" height="24" rx="12" fill="var(--color-neutral-alpha-10)" />
                     <text x="14" y="44" textAnchor="middle" fontSize="8" fontWeight="600" fill="var(--text-primary)">RAW</text>
                     <line x1="30" y1="40" x2="38" y2="40" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.4" />
                     <polygon points="38,37 44,40 38,43" fill="var(--text-primary)" opacity="0.4" />
