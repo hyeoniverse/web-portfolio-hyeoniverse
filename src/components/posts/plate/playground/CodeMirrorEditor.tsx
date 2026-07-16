@@ -1,7 +1,7 @@
 "use client";
 
 // ── 경량 CodeMirror 6 에디터 (srcdoc 러너용) ── html/css/js 언어 + 앱 토큰 테마.
-import { useEffect, useRef } from "react";
+import { type CSSProperties, useEffect, useRef } from "react";
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection, highlightSpecialChars } from "@codemirror/view";
 import { EditorState, Compartment } from "@codemirror/state";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
@@ -21,7 +21,7 @@ const languageExt = (lang: CmLang) =>
 const theme = EditorView.theme({
   "&": { color: "var(--text-primary)", backgroundColor: "transparent", height: "100%" },
   "&.cm-focused": { outline: "none" },
-  ".cm-scroller": { fontFamily: "var(--font-mono), monospace", fontSize: "13px", lineHeight: "1.65" },
+  ".cm-scroller": { fontFamily: "var(--font-mono), monospace", fontSize: "var(--pg-cm-font, 13px)", lineHeight: "1.65" },
   ".cm-content": { caretColor: "var(--text-accent)", padding: "8px 0" },
   ".cm-cursor, .cm-dropCursor": { borderLeftColor: "var(--text-accent)" },
   ".cm-selectionBackground, .cm-content ::selection": {
@@ -31,7 +31,10 @@ const theme = EditorView.theme({
     backgroundColor: "var(--color-accent-alpha-30)",
   },
   ".cm-gutters": { backgroundColor: "transparent", color: "var(--text-muted)", border: "none" },
-  ".cm-activeLine": { backgroundColor: "var(--bg-secondary)" },
+  // 반투명이어야 한다 — 솔리드면 select-all 시 커서가 놓인 마지막(활성) 줄에서 활성줄 배경이
+  // 그 아래 그려지는 선택 레이어(.cm-selectionBackground)를 덮어 "마지막 줄만 하이라이트 안 됨"으로 보인다.
+  // 아주 옅게(alpha-5) — 현재 줄 표시는 은은하게만.
+  ".cm-activeLine": { backgroundColor: "var(--color-neutral-alpha-5)" },
   ".cm-activeLineGutter": { backgroundColor: "transparent", color: "var(--text-secondary)" },
   ".cm-matchingBracket, &.cm-focused .cm-matchingBracket": {
     backgroundColor: "var(--bg-accent-subtle)", outline: "1px solid var(--border-default-color)",
@@ -60,11 +63,12 @@ const highlight = HighlightStyle.define([
 
 const langCompartment = new Compartment();
 
-export default function CodeMirrorEditor({ value, language, onChange, readOnly }: {
+export default function CodeMirrorEditor({ value, language, onChange, readOnly, fontSize = 13 }: {
   value: string;
   language: CmLang;
   onChange?: (code: string) => void;
   readOnly?: boolean;
+  fontSize?: number;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -121,5 +125,5 @@ export default function CodeMirrorEditor({ value, language, onChange, readOnly }
     }
   }, [value]);
 
-  return <div ref={hostRef} style={{ height: "100%", overflow: "hidden" }} data-lenis-prevent />;
+  return <div ref={hostRef} style={{ height: "100%", overflow: "hidden", "--pg-cm-font": `${fontSize}px` } as CSSProperties} data-lenis-prevent />;
 }
