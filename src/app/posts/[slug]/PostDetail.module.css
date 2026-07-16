@@ -416,9 +416,9 @@
   font-size: 0.85em;
   padding: var(--box-3xs-xs);
   color: var(--text-accent);
-  background: transparent;
-  border: var(--border-light);
+  background: var(--bg-secondary);
   border-radius: var(--radius-capsule);
+  box-shadow: var(--shadow-xs);
   line-height: inherit;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;

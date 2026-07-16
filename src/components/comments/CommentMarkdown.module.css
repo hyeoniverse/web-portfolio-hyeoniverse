@@ -4,7 +4,7 @@
 .commentMarkdown {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-md);
-  color: var(--text-secondary);
+  color: var(--text-primary);
   line-height: var(--line-height-relaxed);
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -178,7 +178,7 @@
   margin: var(--box-y-md);
   padding-left: var(--spacing-md);
   border-left: var(--border-light-2);
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
 }
 
 /* ── hr ── */
