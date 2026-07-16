@@ -17,7 +17,12 @@ export async function requireRole(minLevel: number): Promise<Ok | Err> {
   if (auth.error) return { error: auth.error };
   const role = getUserRole(auth.user);
   if (!role.isOwner && role.level < minLevel) {
-    return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
+    return {
+      error: NextResponse.json(
+        { error: "Forbidden", reason: `권한 레벨 ${minLevel} 이상이 필요합니다. 현재 역할: ${role.role ?? "없음"}(레벨 ${role.level}).` },
+        { status: 403 },
+      ),
+    };
   }
   return { user: auth.user, supabase: auth.supabase, role };
 }
@@ -28,7 +33,15 @@ export async function requireOwner(): Promise<Ok | Err> {
   if (auth.error) return { error: auth.error };
   const role = getUserRole(auth.user);
   if (!role.isOwner) {
-    return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
+    return {
+      error: NextResponse.json(
+        {
+          error: "Forbidden",
+          reason: `owner 권한이 필요합니다. (현재 계정 ${auth.user.email ?? "?"} 이 owner 로 인식 안 됨 — 서버의 OWNER_EMAIL 환경변수가 이 이메일로 설정됐는지, 또는 app_metadata.role=owner 인지 확인)`,
+        },
+        { status: 403 },
+      ),
+    };
   }
   return { user: auth.user, supabase: auth.supabase, role };
 }
