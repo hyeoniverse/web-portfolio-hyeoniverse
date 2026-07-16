@@ -1025,7 +1025,7 @@
    3xs(8px) uppercase 라벨로 낮추되 tertiary(항목 muted 보다 진함)로 스캔 기준선을 준다. */
 .evHelpTitle {
   margin-bottom: var(--spacing-2xs);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1037,8 +1037,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  font-size: var(--font-size-xs);
-  line-height: 1.4;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
   color: var(--text-secondary);
 }
 /* 각 행의 첫 아이콘은 같은 폭(16px) 슬롯에 중앙정렬 — dot 10 / star·link 13 로 폭이 달라
