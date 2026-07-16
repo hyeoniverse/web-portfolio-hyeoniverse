@@ -383,7 +383,10 @@ pre code .token.italic {
   border: var(--border-light);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--bg-tertiary);
+  /* 가벼운 유리 면 — 솔리드 대신 반투명 + blur. 뒤 배경이 은은히 비친다.
+     프로젝트 glass 관용구(_semantic.css): bg-glass-panel + blur-glass 를 항상 같이. */
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
 }
 
 /* 에디터 단독 블록 — 예전 프레임 그대로 (바 없음) */
@@ -393,9 +396,11 @@ pre code .token.italic {
   max-height: 16rem;
   padding: var(--spacing-md);
   margin: var(--spacing-md) 0;
-  background: var(--bg-tertiary);
+  /* 에디터 코드블록 — 솔리드 면이 제일 무거웠다. 리더뷰 창과 같은 유리 면 + 선으로 가볍게. */
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   resize: vertical;
 }
@@ -416,7 +421,8 @@ pre code .token.italic {
 /* 바 없는 리더뷰 코드블록(드묾) — 단독 프레임 유지 */
 .code-block-wrap:not(.has-code-bar) pre {
   margin: var(--spacing-md) 0;
-  background: var(--bg-tertiary);
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
 }
@@ -444,7 +450,8 @@ pre code .token.italic {
   gap: var(--spacing-sm);
   margin: 0;
   padding: var(--spacing-2xs) var(--spacing-md);
-  background: var(--bg-tertiary-alt);
+  /* 창이 이미 유리 면이라 헤더는 배경 없이 하단 hairline 만으로 구분 — 선 기반, 더 가볍게 */
+  background: transparent;
   border-bottom: var(--border-light);
 }
 
