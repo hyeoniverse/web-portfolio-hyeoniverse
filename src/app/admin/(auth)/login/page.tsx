@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { SiGithub } from "react-icons/si";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
+import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Checkbox from "@/components/ui/Checkbox";
@@ -12,7 +14,7 @@ import styles from "./Login.module.css";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { setInfinite } = useLenis();
 
   useEffect(() => {
@@ -33,6 +35,24 @@ export default function AdminLoginPage() {
       setRememberEmail(true);
     }
   }, []);
+
+  // OAuth 콜백 실패로 되돌아온 경우(?error=oauth) 안내
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("error") === "oauth") {
+      setError(t("admin.login.loginFailed"));
+    }
+  }, [t]);
+
+  // GitHub OAuth 로그인 — Supabase provider 로 리다이렉트, /auth/callback 에서 세션 교환
+  const handleGithub = async () => {
+    setError("");
+    const supabase = createClient();
+    const { error: oauthErr } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=/admin` },
+    });
+    if (oauthErr) setError(t("admin.login.loginFailed"));
+  };
 
   const formatRemaining = (sec: number) => {
     if (sec >= 60) {
@@ -143,6 +163,17 @@ export default function AdminLoginPage() {
           ) : (
             <T k="admin.login.signIn" />
           )}
+        </Button>
+
+        {/* GitHub OAuth — 초대받은 저자용(및 owner). Supabase provider 로 로그인. */}
+        <div className={styles.oauthDivider}>
+          <span>{language === "ko" ? "또는" : "or"}</span>
+        </div>
+        <Button type="button" variant="outline" fullWidth onClick={handleGithub} soundDisabled>
+          <span className={styles.oauthBtnInner}>
+            <SiGithub size={16} />
+            {language === "ko" ? "GitHub 로 로그인" : "Sign in with GitHub"}
+          </span>
         </Button>
 
         {/* 메시지 — 버튼 아래. 비어있어도 자리 차지해서 form 높이 안 흔들리게 */}

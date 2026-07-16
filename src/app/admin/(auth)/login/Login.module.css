@@ -81,3 +81,27 @@
     transform: translateY(-3px);
   }
 }
+
+/* ── GitHub OAuth (이슈 #334 P1-b) ── */
+.oauthDivider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-md) 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.oauthDivider::before,
+.oauthDivider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-light-color);
+}
+.oauthBtnInner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
