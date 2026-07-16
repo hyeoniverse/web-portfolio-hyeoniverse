@@ -5,12 +5,10 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
-import { SquareCode, Maximize2, Minimize2 } from "lucide-react";
+import { SquareCode } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
-import TBtn from "./TBtn";
-import Select from "@/components/ui/Select";
 import { normalizePlayground, RUNNER_TEMPLATES, type PlaygroundData } from "./playground/model";
 import { starterFiles } from "./playground/starters";
 import styles from "./PlaygroundElement.module.css";
@@ -19,11 +17,13 @@ import styles from "./PlaygroundElement.module.css";
 const PlaygroundSandpack = React.lazy(() => import("./playground/PlaygroundSandpack"));
 const PlaygroundRunner = React.lazy(() => import("./playground/PlaygroundRunner"));
 
-const TEMPLATES = [
-  { value: "html", label: "HTML/CSS/JS" },
-  { value: "vanilla-ts", label: "TypeScript" },
-  { value: "react-ts", label: "React (TS)" },
-  { value: "react", label: "React" },
+// 스택 = 실행 엔진 + 스타터. 생성(빈 블록) 시 1회만 고른다(이후 고정) — html=자체 러너(오프라인·즉시),
+// 나머지=Sandpack(번들러). 파일 언어는 확장자로 자동 렌더되므로 툴바엔 별도 선택이 없다.
+const STACKS: { value: string; label: string; ko: string; en: string }[] = [
+  { value: "html", label: "HTML / CSS / JS", ko: "오프라인·즉시 실행", en: "offline · instant" },
+  { value: "vanilla-ts", label: "TypeScript", ko: "번들러 실행", en: "bundler" },
+  { value: "react-ts", label: "React (TS)", ko: "번들러 실행", en: "bundler" },
+  { value: "react", label: "React", ko: "번들러 실행", en: "bundler" },
 ];
 
 export function PlaygroundElement(props: PlateElementProps) {
@@ -87,44 +87,56 @@ export function PlaygroundElement(props: PlateElementProps) {
 
   const body = (
     <div contentEditable={false} className={`${styles.pgInner}${fullscreen ? ` ${styles.pgFullscreen}` : ""}`} data-selected={selected ? "" : undefined}>
-      <div className={styles.pgToolbar}>
-        <span className={styles.pgTitle}><SquareCode size={13} />{t("플레이그라운드", "Playground")}</span>
-        <span className={styles.pgToolbarSpacer} />
-        <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex" }}>
-          <Select value={data.template} width="s" onChange={setTemplate} options={TEMPLATES} />
-        </span>
-        <TBtn active={fullscreen} onMouseDown={(e) => { e.preventDefault(); applyFullscreen(!fullscreen); }} tooltip={fullscreen ? t("전체화면 종료", "Exit fullscreen") : t("전체화면", "Fullscreen")} square>
-          {fullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-        </TBtn>
+      {/* macOS 창 헤더 — 신호등(.pg-titlebar::before, globals) + 중앙 타이틀. 엔진(스택)은 생성 시
+          1회만 고르므로(아래 피커) 툴바엔 선택 UI 없음. */}
+      <div className={`${styles.pgToolbar} pg-titlebar`}>
+        <span className={styles.pgTitle}><SquareCode size={15} />{t("플레이그라운드", "Playground")}</span>
       </div>
-      {/* CodeMirror(Sandpack) 안의 키보드·클립보드 이벤트가 Slate Editable 로 버블돼
-          복사/선택을 가로채는 문제 차단 — void 블록 내부는 CodeMirror 가 네이티브로 처리 */}
-      <div
-        className={styles.pgSandpack}
-        onMouseDown={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
-        onKeyUp={(e) => e.stopPropagation()}
-        onCopy={(e) => e.stopPropagation()}
-        onCut={(e) => e.stopPropagation()}
-        onPaste={(e) => e.stopPropagation()}
-      >
-        <React.Suspense fallback={<div className={styles.pgLoading}>{t("에디터 불러오는 중…", "Loading editor…")}</div>}>
-          {RUNNER_TEMPLATES.has(data.template)
-            ? <PlaygroundRunner key="runner" data={data} onChange={onFilesChange} height={fullscreen ? "100%" : boxH} fullscreen={fullscreen} onToggleFullscreen={() => applyFullscreen(!fullscreen)} />
-            : <PlaygroundSandpack key={data.template} data={data} onChange={onFilesChange} height={fullscreen ? "100%" : boxH} theme={theme === "dark" ? "dark" : "light"} fullscreen={fullscreen} onToggleFullscreen={() => applyFullscreen(!fullscreen)} />}
-        </React.Suspense>
-      </div>
-      {!fullscreen && (
-        <div
-          className={styles.pgResize}
-          data-cursor="resizeV"
-          onMouseDown={(e) => e.stopPropagation()}
-          onPointerDown={startResize}
-          onPointerMove={onResize}
-          onPointerUp={endResize}
-          onPointerCancel={endResize}
-          title={t("높이 조절", "Resize height")}
-        />
+      {data.template ? (
+        <>
+          {/* CodeMirror(Sandpack) 안의 키보드·클립보드 이벤트가 Slate Editable 로 버블돼
+              복사/선택을 가로채는 문제 차단 — void 블록 내부는 CodeMirror 가 네이티브로 처리 */}
+          <div
+            className={styles.pgSandpack}
+            onMouseDown={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            onKeyUp={(e) => e.stopPropagation()}
+            onCopy={(e) => e.stopPropagation()}
+            onCut={(e) => e.stopPropagation()}
+            onPaste={(e) => e.stopPropagation()}
+          >
+            <React.Suspense fallback={<div className={styles.pgLoading}>{t("에디터 불러오는 중…", "Loading editor…")}</div>}>
+              {RUNNER_TEMPLATES.has(data.template)
+                ? <PlaygroundRunner key="runner" data={data} onChange={onFilesChange} height={fullscreen ? "100%" : boxH} fullscreen={fullscreen} onToggleFullscreen={() => applyFullscreen(!fullscreen)} />
+                : <PlaygroundSandpack key={data.template} data={data} onChange={onFilesChange} height={fullscreen ? "100%" : boxH} theme={theme === "dark" ? "dark" : "light"} fullscreen={fullscreen} onToggleFullscreen={() => applyFullscreen(!fullscreen)} />}
+            </React.Suspense>
+          </div>
+          {!fullscreen && (
+            <div
+              className={styles.pgResize}
+              data-cursor="resizeV"
+              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={startResize}
+              onPointerMove={onResize}
+              onPointerUp={endResize}
+              onPointerCancel={endResize}
+              title={t("높이 조절", "Resize height")}
+            />
+          )}
+        </>
+      ) : (
+        /* 스택 미선택(빈 블록) — 스택 피커. 고르면 스타터로 채우고 이후 고정. */
+        <div className={styles.pgPicker} onMouseDown={(e) => e.stopPropagation()}>
+          <div className={styles.pgPickerTitle}>{t("어떤 스택으로 시작할까요?", "Pick a stack to start")}</div>
+          <div className={styles.pgPickerGrid}>
+            {STACKS.map((s) => (
+              <button key={s.value} type="button" className={styles.pgPickerBtn} onClick={() => setTemplate(s.value)}>
+                <span className={styles.pgPickerLabel}>{s.label}</span>
+                <span className={styles.pgPickerDesc}>{language === "ko" ? s.ko : s.en}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
