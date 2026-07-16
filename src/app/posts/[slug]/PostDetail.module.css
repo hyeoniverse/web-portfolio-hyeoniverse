@@ -405,13 +405,10 @@
 }
 
 .prose blockquote {
-  border-left: 3px solid var(--color-accent);
-  padding: var(--box-lg);
-  color: var(--text-secondary);
+  border-left: 4px solid var(--text-accent);
+  padding: var(--spacing-2xs) 0 var(--spacing-2xs) var(--spacing-xl);
   margin: var(--spacing-xl) 0;
-  font-style: italic;
-  background: var(--bg-accent-subtle);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--text-secondary);
 }
 
 .prose code {

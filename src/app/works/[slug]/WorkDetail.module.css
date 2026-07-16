@@ -562,11 +562,10 @@
 /* 코드블록(pre/code) 프레임·스크롤은 globals/_hljs.css 의 .code-block-wrap 규칙으로 공통화 */
 
 .sectionProse blockquote {
-  border-left: 3px solid var(--color-accent);
-  padding: var(--box-lg);
-  color: var(--text-tertiary);
+  border-left: 4px solid var(--text-accent);
+  padding: var(--spacing-2xs) 0 var(--spacing-2xs) var(--spacing-xl);
   margin: var(--spacing-xl) 0;
-  font-style: italic;
+  color: var(--text-secondary);
 }
 
 .sectionProse img {
