@@ -6,10 +6,10 @@ import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpDown } from "lucide-react";
+
 import T from "@/components/ui/T";
-import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
+import SortControl from "@/components/ui/SortControl";
 import Checkbox from "@/components/ui/Checkbox";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
@@ -227,32 +227,19 @@ export default function CommentSection({ commentType, targetId, translationEnabl
               <span className={styles.count}>({comments.length})</span>
             )}
           </h2>
-          {/* 정렬은 댓글 개수와 무관하게 항상 노출 */}
-          <div className={styles.sortGroup}>
-            <Select
-              size="sm"
-              width="max"
-              value={sortBy}
-              onChange={(v) => setSortBy(v as CommentSort)}
-              className={styles.sortSelect}
-              options={[
-                { value: "registered", label: language === "ko" ? "등록순" : "Registered" },
-                { value: "reactions", label: language === "ko" ? "반응순" : "Most reactions" },
-              ]}
-            />
-            {/* 역순 토글 — 현재 정렬 결과를 뒤집음. subtle = border light (outline 은 border strong) */}
-            <Button
-              variant="subtle"
-              shape="circle"
-              size="sm"
-              icon={<ArrowUpDown size={14} strokeWidth={2} />}
-              active={reversed}
-              onClick={() => setReversed((r) => !r)}
-              aria-pressed={reversed}
-              title={language === "ko" ? "역순" : "Reverse order"}
-              aria-label={language === "ko" ? "역순" : "Reverse order"}
-            />
-          </div>
+          {/* 정렬은 댓글 개수와 무관하게 항상 노출.
+              공통 SortControl — 달력 블록 툴바와 같은 pill 규격.
+              내부 상태는 reversed(boolean) 그대로 두고 방향만 매핑한다 — 정렬 의미는 안 바꾼다. */}
+          <SortControl<CommentSort>
+            value={sortBy}
+            onChange={setSortBy}
+            options={[
+              { value: "registered", label: language === "ko" ? "등록순" : "Registered" },
+              { value: "reactions", label: language === "ko" ? "반응순" : "Most reactions" },
+            ]}
+            dir={reversed ? "desc" : "asc"}
+            onDirChange={(d) => setReversed(d === "desc")}
+          />
         </div>
         <div className={styles.headingRight}>
           <p className={styles.disclaimer}><T k="comments.disclaimer" noTooltip /></p>

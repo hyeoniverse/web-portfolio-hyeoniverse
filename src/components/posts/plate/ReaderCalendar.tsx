@@ -79,6 +79,7 @@ export default function ReaderCalendar({ calendarId, data, language }: {
   );
   const viewToggle = (
     <SegmentedControl<"month" | "week" | "day" | "timeline">
+      variant="subtle"
       items={[
         { value: "month", label: language === "ko" ? "월" : "Month" },
         { value: "week", label: language === "ko" ? "주" : "Week" },

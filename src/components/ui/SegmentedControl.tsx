@@ -21,6 +21,11 @@ interface Props<T extends string, S extends string = string> {
   onChange: (v: T) => void;
   /** 선택된 item 옆 dir arrow (asc/desc) — onChange 가 dir 도 결정 (부모 책임) */
   sortDir?: "asc" | "desc";
+  /** 테두리 세기. 기본 "default"(--border-default-color).
+   *  "subtle" — 한 단계 옅은 --border-light-color. 주변이 전부 border-light 결인 자리에서
+   *  기본값이 혼자 진하게 튀는 걸 막는다(달력 블록 등). 호출부마다 box-shadow 를 복붙해
+   *  덮으면 규격이 갈라지므로 variant 로 둔다. */
+  variant?: "default" | "subtle";
   className?: string;
   /** subItems 가 있는 item 선택 시 sub value */
   subValue?: S;
@@ -43,6 +48,7 @@ export default function SegmentedControl<T extends string, S extends string = st
   value,
   onChange,
   sortDir,
+  variant = "default",
   className,
   subValue,
   onSubChange,
@@ -67,7 +73,7 @@ export default function SegmentedControl<T extends string, S extends string = st
       <motion.div
         layout
         transition={morphTransition}
-        className={cn(styles.group, styles.nestedGroup, className)}
+        className={cn(styles.group, styles.nestedGroup, variant === "subtle" && styles.groupSubtle, className)}
         role="tablist"
         /* 버튼 control-h-8 로 축소(여백 4px, 높이는 control-h 유지) + label 폰트를 세그먼트 btn 과 동일하게
            (Button 컴포넌트는 sm/md 가 font-size-sm 이라 커 보임 → xs, 단 size xs 는 2xs) */
@@ -113,7 +119,7 @@ export default function SegmentedControl<T extends string, S extends string = st
     <motion.div
       layout
       transition={morphTransition}
-      className={cn(styles.group, size === "sm" && styles.groupSm, className)}
+      className={cn(styles.group, size === "sm" && styles.groupSm, variant === "subtle" && styles.groupSubtle, className)}
       role="tablist"
       onMouseLeave={() => setHovered(null)}
     >

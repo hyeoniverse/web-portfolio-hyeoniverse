@@ -5,7 +5,16 @@
   padding-top: var(--spacing-2xl);
 }
 
+/* 옆의 정렬 pill(SortControl, --control-h-sm)과 수직 중심을 맞춘다.
+   · margin: 0 — h2 의 UA 기본 margin(0.83em ≈ 15px). sanitize.css 는 h2 를 안 건드리고
+     Tailwind preflight 도 제거돼 있어 그대로 살아있었다. .section 의 gap 이 이미 간격을
+     담당하므로 중복이고, 행 높이만 부풀렸다.
+   · line-height — 기본(1.5)이면 line box 가 27px 라 pill(28px)과 어긋난다. 컨트롤 높이에
+     맞춰 두 박스를 같은 높이로 만들면 flex 의 align-items:center 가 정확히 겹친다.
+     (.count 도 line-height 를 상속받아 line box 가 28px 로 유지된다) */
 .heading {
+  margin: 0;
+  line-height: var(--control-h-sm);
   font-family: var(--font-instrument);
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-regular);
@@ -104,17 +113,6 @@
 }
 
 /* 정렬 Select + 역순 토글을 한 덩어리로 */
-.sortGroup {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  gap: var(--spacing-2xs);
-}
-
-.sortSelect {
-  flex-shrink: 0;
-}
-
 /* 역순 토글 / 선택 / 일괄삭제 / 더보기 버튼은 공통 Button 컴포넌트를 사용.
    variant="outline" + active(inverse 채움) / tone="danger" / loading(자동 disabled + 너비 보존)
    이 기존 수동 스타일을 전부 대체하므로 여기 대응 클래스는 없앴다. */
@@ -127,7 +125,10 @@
   margin-left: auto;
 }
 
+/* p 의 UA margin 제거 — 같은 행(.headingRow)의 버튼들과 수직 중심을 맞춘다.
+   .heading 과 같은 이유(UA margin 이 살아있고 gap 이 간격을 담당). */
 .disclaimer {
+  margin: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
