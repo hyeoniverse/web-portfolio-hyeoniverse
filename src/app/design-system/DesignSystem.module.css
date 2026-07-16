@@ -99,7 +99,7 @@
 .subtitle {
   margin-bottom: var(--spacing-5xl);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-md);
   color: var(--text-tertiary);
   line-height: 1.6;
 }
@@ -875,7 +875,7 @@
 }
 
 .pRowDesc {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-md);
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
   margin: 0;
