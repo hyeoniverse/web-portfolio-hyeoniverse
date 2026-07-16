@@ -42,7 +42,6 @@ function normalizeDesc(d: WorksCategory["description"]): BilingualDesc {
 interface WorksInfo {
   id: string;
   title: string;
-  title_en: string;
   categories: string[];
   slug: string;
   published: boolean;
@@ -578,7 +577,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
                       className={styles.tagRelatedItem}
                     >
                       <span className={styles.tagRelatedTitle}>
-                        {w.title || w.title_en || "(no title)"}
+                        {w.title || "(no title)"}
                       </span>
                       <WorkMeta w={w} />
                     </a>
