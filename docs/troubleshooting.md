@@ -1677,7 +1677,7 @@ function swapToPlaceholder(img: HTMLImageElement) {
 **해결**: 상세 페이지의 article 뷰를 **공용 프레젠테이션 컴포넌트로 추출**해 detail·preview 가 같은 컴포넌트를 렌더하게 함
 
 1. `PostArticleView` / `WorkArticleView` 에서 `Header` / `Body` / `Team` 을 export → `PostDetailClient`·`WorkDetailClient`(상세)와 `posts/preview`·`works/preview`(미리보기)가 **동일 컴포넌트**를 사용. 댓글·뒤로가기처럼 preview 에 없는 chrome 만 detail 쪽에서 추가
-2. richtext HTML 처리를 `src/utils/processRichtextHtml.ts` 한 곳으로 공유 — heading id 주입 → embed URL 변환 → hljs 코드 하이라이팅 → wrap 토글 라벨 → img `data-cursor="zoom"` 순서를 양쪽이 똑같이 거침 → 코드블록까지 100% 동일
+2. richtext HTML 처리를 `src/utils/processRichtextHtml.ts` 한 곳으로 공유 — heading id 주입 → embed URL 변환 → wrap 토글 라벨 → img `data-cursor="zoom"` 순서를 양쪽이 똑같이 거침 → 코드블록까지 100% 동일
 
 **핵심 인사이트**:
 
@@ -1787,19 +1787,35 @@ function swapToPlaceholder(img: HTMLImageElement) {
 </details>
 
 <details>
-<summary><strong>58. highlight.js 를 import 하자 게시물 상세가 통째로 크래시 — 번들러가 깨진 정규식을 생성</strong></summary>
+<summary><strong>58. highlight.js 가 브라우저에서만 죽음 — 빌드·tsc·테스트는 전부 통과</strong></summary>
 
-**문제**: 댓글 코드블록에 하이라이팅을 붙이려고 `highlight.js` 를 import 했더니 게시물 상세 페이지가 dev·prod 양쪽에서 통째로 죽음. `SyntaxError: Invalid regular expression: /[A-...]/: Range out of order in character class`
+**문제**: 에디터 코드블록에서 **HTML(xml) 만** 색이 안 붙음. 언어 감지는 정상이라 라벨엔 "HTML / XML" 이 뜨는데 코드는 무채색. CSS 등 다른 언어는 멀쩡. `npm run build`·`tsc`·테스트 전부 통과하고 **브라우저에서만** 재현
 
-**원인**: highlight.js 의 `xml.js` 가 `/[\p{L}_]/u` (유니코드 속성 이스케이프) 를 쓰는데, 번들러가 이걸 구형 브라우저용 코드포인트 범위로 풀어쓰면서 범위가 뒤집힌 문자 클래스를 만듦. 모듈 평가 시점에 throw 하므로 그 청크를 로드한 페이지 전체가 죽음
+**원인**: 세 가지가 겹쳐야 터진다.
 
-**해결**: 댓글 코드 하이라이팅 보류 (의도적 미지원)
+1. hljs `xml.js` 가 태그명을 `/[\p{L}_]/u` 로 정의
+2. **번들러가 그걸 전개** — browserslist 가 최신(chrome 148)인데도 Next 는 node_modules 를 보수적 타깃으로 컴파일한다. `\p{L}` 이 실제 코드포인트 범위로 풀리고 거기엔 **아스트랄 영역(`\u{10000}-…`)** 이 섞인다. 중괄호 형태라 `u` flag 없이는 파싱 자체가 불가능
+3. hljs `countMatchGroups` 가 `new RegExp(re.toString() + "|")` 로 **flag 없이 재파싱** → `SyntaxError`
 
-1. 원본 파일은 Node 에서 정상 로드됨 — 번들 산출물만 깨짐. `optimizePackageImports` 에서 highlight.js 를 빼도 재현
-2. xml 만 등록 해제하면 정규식 에러는 사라지지만, 언어를 골라 등록한 자체 인스턴스로도 **highlight.js 청크가 로드되는 순간** 동일 크래시
-3. 재시도하려면 richtext 가 쓰는 shiki 로 가거나 hljs 자체를 patch 해야 함
+```
+SyntaxError: Invalid regular expression: /<(?=[A-Z…\u{10000}-\u{1000B}…
+    at countMatchGroups (core.js:456)
+```
 
-**주의**: `npm run build` 는 **통과하고 런타임에만 터진다** — 빌드 성공으로는 잡을 수 없는 부류. 같은 지뢰가 `src/components/posts/highlightCodeBlocks.ts` 에 잠복해 있어 markdown 게시물에서 평가되면 동일 크래시 가능
+Plate 가 이 throw 를 catch 해서 **조용히 plaintext 로 떨구므로** 화면엔 "색이 안 붙는다" 로만 보이고 원인은 콘솔에만 있다. CSS 가 멀쩡했던 건 `css.js` 에 `\p{}` 가 하나도 없어서.
+
+**node 에선 재현되지 않는다** — node 는 트랜스파일 안 된 원본(`\p{L}` + `u` flag)을 쓰므로 멀쩡하다. 전개된 형태는 **브라우저 번들에만 존재**한다. 그래서 DOM·클래스·CSS·서빙 청크까지 다 검증해도 안 나왔고, 브라우저 콘솔 스택트레이스로만 잡혔다.
+
+**해결**: 두 단계.
+
+1. **리더뷰·댓글 → Prism**. 유니코드 속성 이스케이프를 안 쓰므로 함정이 없고 이미 의존성에 있었다. `utils/prismHighlight.ts` 를 단일 진입점으로 두고 `highlightCodeBlocks.ts` 의 hljs import 를 전부 걷어냄 (Prism 번들에 없는 bash 는 직접 정의)
+2. **에디터 → 문법 패치**. Plate 의 code-block 플러그인이 **lowlight 인스턴스를 API 로 받아** Prism 으로 못 바꾼다. 그래서 등록 시 문법 객체를 훑어 아스트랄 이스케이프를 걷어내고 `u` flag 를 뗀다(`lowlightInstance.ts` 의 `browserSafeGrammar`). 아스트랄 "문자" 는 태그명에 실질적으로 안 쓰이고 BMP(한글·CJK·라틴 확장)는 그대로 남는다. Plate 도 python 에 같은 우회(`ensureStablePythonGrammar`)를 갖고 있어 이게 표준 대응이다
+
+**함정**: 처음엔 `RegExp` 인스턴스만 변환했는데 아무것도 안 고쳐졌다. hljs `regex.concat()` 이 **RegExp 가 아니라 소스를 이어붙인 문자열**을 반환하기 때문(`core.js: return joined`) — 아스트랄은 문자열 안에 있었다.
+
+**검증**: node 로는 실물 재현이 안 되므로 **번들된 형태를 합성**해서 테스트했다 (`plate/__tests__/browserSafeGrammar.test.ts`) — (1) 합성 입력이 실제로 재파싱을 깨뜨리는지 (2) 변환 후엔 견디는지 (3) 한글이 안 깨지는지.
+
+**교훈**: **"테스트가 통과한다" 가 "동작한다" 는 뜻이 아니다.** 테스트가 도는 환경(node)과 코드가 실행되는 환경(브라우저 번들)이 다르면, 그 틈에 사는 버그는 테스트가 구조적으로 못 잡는다. 라이브러리가 **삼켜버리는 예외**도 위험을 키운다 — 증상과 원인의 거리가 멀수록 추측 대신 증거를 먼저 확보해야 한다.
 
 **핵심 인사이트**: 라이브러리 소스가 정상이어도 번들러의 다운레벨 변환이 런타임 전용 폭탄을 만들 수 있다 — 모듈 top-level 에서 throw 하는 코드는 import 한 페이지 전체를 죽이므로, 빌드 통과를 안전 신호로 착각하면 안 된다
 

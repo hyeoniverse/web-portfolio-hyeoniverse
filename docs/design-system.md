@@ -14,9 +14,9 @@ Raw Tokens           →  Semantic Tokens          →  Component Tokens        
 
 | Layer | 위치 | 예시 | 역할 |
 |---|---|---|---|
-| Raw | `tokens/` | `--size-sm: 28px`, `--color-neutral-900` | 원시 값 |
+| Raw | `tokens/` | `--size-sm: 32px`, `--color-neutral-900` | 원시 값 |
 | Semantic | `_semantic.css` (Layer 2) | `--text-primary`, `--border-default`, `--bg-accent` | 의미/역할 부여, 컴포넌트 무관 |
-| Component | `_semantic.css` (Layer 3) | `--button-h-sm`, `--input-h`, `--card-padding` | 컴포넌트별 spec (실수 방지 레일) |
+| Component | `_semantic.css` (Layer 3) | `--button-h-sm`, `--control-h-md`, `--button-p-lg` | 컴포넌트별 spec (실수 방지 레일) |
 | Context | CSS Module `--_*` | `--_h: var(--button-h-sm)`, `--_color: var(--text-accent)` | module 내부 local 변수 (variant 처리) |
 
 ### Layer 1 — Raw Tokens (`src/styles/tokens/`)
@@ -79,14 +79,20 @@ Raw Tokens           →  Semantic Tokens          →  Component Tokens        
 이 토큰을 거치면 다른 사이즈 골라서 일관성 깨지는 실수를 방지함. Carbon / Primer 등 실무 DS 의 흔한 패턴.
 
 ```css
-/* Control heights — slim 톤. raw --size-* 참조 */
---button-h-xs: var(--size-xs);   /* 22 — icon-only btn, dense chip */
---button-h-sm: var(--size-sm);   /* 28 — 일반 button */
---button-h-md: var(--size-md);   /* 36 — primary CTA */
---button-h-lg: var(--size-lg);   /* 44 — hero CTA */
+/* Control heights — 두 갈래다. 원/사각 아이콘 버튼은 padding 으로 높이를 못 잡으므로
+   --button-h-* 를 별도로 두고, capsule 형 컨트롤은 --control-h-* 를 쓴다. */
+--button-h-xs: var(--size-2xs);  /* 20 — icon-only xs */
+--button-h-sm: var(--size-xs);   /* 24 — icon-only sm */
+--button-h-md: var(--size-md);   /* 38 — icon-only md */
+--button-h-lg: var(--size-lg);   /* 46 — icon-only lg */
 
---input-h: var(--size-sm);       /* 28 — input / select 기본 */
---input-h-lg: var(--size-md);    /* 36 — 큰 input (드물게) */
+/* capsule controls (Button/Input/Select/SegmentedControl…) — Button size 와 1:1 대응 */
+--control-h-xs: 24px;
+--control-h-sm: 28px;
+--control-h-md: 32px;            /* Input/Select 기본 */
+--control-h-lg: 36px;
+
+/* padding 계열 — --button-p-*, --input-p, --textarea-p, --skeleton-h-* 도 이 Layer 3 에 있다 */
 ```
 
 **사용 규칙**:
@@ -333,7 +339,7 @@ z-index: 9999;
 캡슐형 검색 입력. 정렬·태그 캡슐 버튼과 톤 / 높이를 통일해 한 줄에 같이 놓을 수 있음.
 
 - **`searchType` prop optional** — 지정 시 좌측에 type select(예: 제목 / 본문) 노출, 미지정 시 단순 입력 캡슐
-- **높이 `var(--input-h)`** (Layer 3 Component 토큰, 28px) — Select / 일반 input 과 동일 높이
+- **높이 `var(--control-h-md)`** (Layer 3 Component 토큰, 32px) — Select / 일반 input 과 동일 높이
 - 내부 Select 컴포넌트가 동일 토큰을 쓰므로 별도 override 없이 자연스럽게 정렬됨
 
 ```tsx

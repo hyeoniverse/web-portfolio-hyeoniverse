@@ -563,8 +563,8 @@ export const userFlows: UserFlow[] = [
       en: "Engaged reader leaving a comment",
     },
     description: {
-      ko: "게시물 하단에서 댓글을 작성하고, 다른 댓글을 번역·좋아요하거나, 비밀번호로 수정·삭제하는 흐름",
-      en: "Write a comment, translate & like others, or edit/delete your own with a password",
+      ko: "게시물 하단에서 댓글을 작성하고, 다른 댓글을 번역·이모지 반응하거나, 비밀번호로 수정·삭제하는 흐름",
+      en: "Write a comment, translate or react to others, or edit/delete your own with a password",
     },
     nodes: [
       n("start", "start", 0, 3, "게시물 하단\n도착", "Reach\nPost Bottom"),
@@ -593,10 +593,10 @@ export const userFlows: UserFlow[] = [
         "decision",
         1,
         6,
-        "마음에 드는\n댓글 발견?",
-        "Found a comment\nyou like?",
+        "반응하고 싶은\n댓글 발견?",
+        "Found a comment\nto react to?",
       ),
-      n("like", "action", 2, 6, "♥ 좋아요 누르기", "Press ♥ Like"),
+      n("like", "action", 2, 6, "이모지 반응 남기기", "Leave an emoji reaction"),
       n("end_done", "end", 3, 6, "피드백 완료", "Feedback Done"),
     ],
     edges: [

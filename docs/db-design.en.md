@@ -4,7 +4,7 @@
 
 All likes (posts, works, post comments, work comments) are managed in a single `likes` table, distinguished by `target_type`.
 
-> Comment likes have since been replaced in the UI by [emoji reactions](#comment-emoji-reactions-comment_reactions). The `post_comment` / `work_comment` values of `target_type` and the `/api/comment-likes` route still exist in the schema and codebase, but nothing calls them.
+> Comment likes have since been replaced in the UI by [emoji reactions](#comment-emoji-reactions-comment_reactions). The unused `/api/comment-likes` route has been removed; only the `post_comment` / `work_comment` values of `target_type` remain in the schema — redefining the CHECK would fail if any rows still carry them, and they're harmless, so they stay without a migration.
 
 **Alternatives considered:**
 

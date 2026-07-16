@@ -325,15 +325,30 @@ npm run test:watch
 
 **Test targets**:
 
-| File                       | Tests | Description                                                                |
-| -------------------------- | --------- | ------------------------------------------------------------------- |
-| `cn.test.ts`               | 6         | Class name composition utility (`cn`)                                           |
-| `date.test.ts`             | 6         | Date format utilities (`formatDate`, `getYear`)                            |
-| `random.test.ts`           | 8         | Random element generation (`generateRandomElements`, `generateRandomDroplets`) |
-| `mobileCheck.test.ts`      | 6         | Mobile layout detection (`checkMobileLayout`)                          |
-| `renderHighlight.test.tsx` | 4         | Highlight markup conversion (`renderHighlight`)                          |
+**Utils & rendering** (`src/__tests__/`)
 
-Config file: `vitest.config.ts`, Test location: `src/__tests__/`
+| File | Tests | Description |
+| --- | --- | --- |
+| `cn.test.ts` | 6 | Class name merge utility (`cn`) |
+| `mobileCheck.test.ts` | 6 | Mobile layout detection (`checkMobileLayout`) |
+| `renderHighlight.test.tsx` | 4 | Highlight markup transformation (`renderHighlight`) |
+| `koSearch.test.ts` | 10 | Korean initial/jamo search matching |
+| `codeBlockBar.test.tsx` | 3 | Code block top bar (language label, copy, wrap toggle) |
+| `cssTokens.test.ts` | 1 | **Guard for undefined CSS tokens** — without a `var()` fallback the whole declaration is invalid, and CSS fails silently. 13 tokens across 57 sites were actually dead |
+
+**Editor (Plate)** (`src/components/posts/plate/__tests__/`)
+
+| File | Tests | Description |
+| --- | --- | --- |
+| `browserSafeGrammar.test.ts` | 15 | Browser safety of hljs grammars — whether registered regexes survive hljs's flag-less re-parse (troubleshooting #75). Node uses the original source, so the tests **synthesize the bundled shape** |
+| `fitColumnsForInsert.test.ts` | 10 | Column width distribution — block cap, minimum width, remainder allocation |
+| `columnHasContent.test.ts` | 9 | Content check before deleting a column — images and dividers count even with no text |
+| `codePaste.test.ts` | 7 | Pasting code **outside** a code block — the markdown parser must not shred it on indentation |
+| `codeBlockClear.test.ts` | 5 | Caret stays inside the block after "clear content" (if it escapes, pastes leak out) |
+| `codeBlockStructure.test.ts` | 4 | `code_block` children are always `code_line` (a raw text child creates a state nothing can repair) |
+| `tableRowHeight.test.ts` | 4 | Table row height HTML round-trip |
+
+Config: `vitest.config.ts` (jsdom, `@platejs/*` inlined so the full EditorKit loads)
 
 ---
 

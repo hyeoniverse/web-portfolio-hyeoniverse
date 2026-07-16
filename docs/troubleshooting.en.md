@@ -1786,19 +1786,35 @@ function swapToPlaceholder(img: HTMLImageElement) {
 </details>
 
 <details>
-<summary><strong>58. Importing highlight.js crashed the entire post detail page — the bundler generated a broken regex</strong></summary>
+<summary><strong>58. highlight.js dies only in the browser — the build, tsc and tests all pass</strong></summary>
 
-**Problem**: Importing `highlight.js` to add highlighting to comment code blocks took down the whole post detail page, in both dev and prod: `SyntaxError: Invalid regular expression: /[A-...]/: Range out of order in character class`.
+**Problem**: In the editor's code block, **only HTML (xml)** got no colors. Detection worked — the label read "HTML / XML" — yet the code stayed monochrome. Other languages like CSS were fine. `npm run build`, `tsc` and the tests all passed; it reproduced **only in the browser**.
 
-**Cause**: highlight.js's `xml.js` uses `/[\p{L}_]/u` (a unicode property escape). The bundler expands that into codepoint ranges for older browsers and produces a character class whose range is inverted. It throws at module evaluation time, so every page that loads the chunk dies.
+**Cause**: Three things had to line up.
 
-**Solution**: Comment code highlighting shelved (deliberately unsupported)
+1. hljs `xml.js` defines tag names as `/[\p{L}_]/u`
+2. **The bundler expands it.** Even with a modern browserslist (chrome 148), Next compiles node_modules against a conservative target, so `\p{L}` becomes explicit codepoint ranges — including **astral ranges (`\u{10000}-…`)**, a braced form that cannot be parsed at all without the `u` flag
+3. hljs's `countMatchGroups` re-parses that regex via `new RegExp(re.toString() + "|")` — **without flags** → `SyntaxError`
 
-1. The original file loads fine under Node — only the bundled output is broken. Removing highlight.js from `optimizePackageImports` still reproduces it
-2. Unregistering just `xml` makes the regex error go away, but even a hand-rolled instance with hand-picked languages crashes the same way **the moment the highlight.js chunk loads**
-3. Retrying this means moving to shiki (what richtext already uses) or patching hljs itself
+```
+SyntaxError: Invalid regular expression: /<(?=[A-Z…\u{10000}-\u{1000B}…
+    at countMatchGroups (core.js:456)
+```
 
-**Caution**: `npm run build` **passes — it only blows up at runtime**. This class of bug cannot be caught by a green build. The same mine is latent in `src/components/posts/highlightCodeBlocks.ts`, which can crash identically if evaluated on a markdown post.
+Plate catches the throw and **silently falls back to plaintext**, so the UI only shows "no colors" while the cause sits in the console. CSS was unaffected because `css.js` contains no `\p{}` at all.
+
+**It never reproduces under node** — node uses the untranspiled source (`\p{L}` + `u` flag) and is fine. The expanded form **exists only in the browser bundle**. Verifying the DOM, the classes, the CSS, even the served chunks turned up nothing; only the browser console's stack trace pinned it.
+
+**Solution**: Two stages.
+
+1. **Reader and comments → Prism.** It uses no Unicode property escapes, so the trap doesn't exist, and it was already a dependency. `utils/prismHighlight.ts` became the single entry point and every hljs import was stripped from `highlightCodeBlocks.ts` (bash, missing from the Prism bundle, is defined by hand)
+2. **Editor → patch the grammar.** Plate's code-block plugin **takes a lowlight instance as its API**, so Prism isn't an option. At registration we walk the grammar object, strip astral escapes and drop the `u` flag (`browserSafeGrammar` in `lowlightInstance.ts`). Astral-plane "letters" are effectively never used in tag names, and the BMP (Korean, CJK, Latin extended) survives untouched. Plate ships the same workaround for python (`ensureStablePythonGrammar`), so this is the standard answer
+
+**Gotcha**: transforming only `RegExp` instances fixed nothing. hljs's `regex.concat()` returns **a concatenated source string, not a RegExp** (`core.js: return joined`) — the astral escapes lived inside strings.
+
+**Verification**: the real failure can't be reproduced under node, so the tests **synthesize the bundled shape** (`plate/__tests__/browserSafeGrammar.test.ts`) — (1) the input really does break the re-parse, (2) the transformed output survives it, (3) Korean text still highlights.
+
+**Lesson**: **"the tests pass" is not "it works".** When the environment your tests run in (node) differs from where the code actually runs (the browser bundle), bugs living in that gap are invisible to tests by construction. **Swallowed exceptions** widen it further — the further apart the symptom and the cause, the earlier you must stop guessing and go get evidence.
 
 **Key insight**: A library's source can be fine while the bundler's down-leveling manufactures a runtime-only bomb — and code that throws at module top level kills every page that imports it, so treating a passing build as a safety signal is a mistake.
 

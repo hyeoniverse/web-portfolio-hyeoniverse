@@ -4,7 +4,7 @@
 
 모든 좋아요(포스트, 작업물, 포스트 댓글, 작업물 댓글)를 단일 `likes` 테이블에서 `target_type`으로 구분합니다.
 
-> 현재 댓글 좋아요는 UI 에서 [이모지 반응](#댓글-이모지-반응-comment_reactions)으로 대체됐습니다. `target_type` 의 `post_comment` / `work_comment` 값과 `/api/comment-likes` 라우트는 스키마·코드에 남아 있지만 호출부가 없습니다.
+> 현재 댓글 좋아요는 UI 에서 [이모지 반응](#댓글-이모지-반응-comment_reactions)으로 대체됐습니다. 호출부가 없던 `/api/comment-likes` 라우트는 제거했고, `target_type` 의 `post_comment` / `work_comment` 값만 스키마에 남아 있습니다 — 기존 행이 있으면 CHECK 재정의가 실패하고 남아 있어도 무해하므로 마이그레이션 없이 둡니다.
 
 **검토한 대안:**
 
