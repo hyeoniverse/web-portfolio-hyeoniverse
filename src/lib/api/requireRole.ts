@@ -19,7 +19,7 @@ export async function requireRole(minLevel: number): Promise<Ok | Err> {
   if (!role.isOwner && role.level < minLevel) {
     return {
       error: NextResponse.json(
-        { error: "Forbidden", reason: `권한 레벨 ${minLevel} 이상이 필요합니다. 현재 역할: ${role.role ?? "없음"}(레벨 ${role.level}).` },
+        { error: "Forbidden", reason: `이 작업에는 권한 레벨 ${minLevel} 이상이 필요합니다. 현재 역할은 "${role.role ?? "없음"}"이며 권한 레벨은 ${role.level}입니다.` },
         { status: 403 },
       ),
     };
@@ -37,7 +37,7 @@ export async function requireOwner(): Promise<Ok | Err> {
       error: NextResponse.json(
         {
           error: "Forbidden",
-          reason: `owner 권한이 필요합니다. (현재 계정 ${auth.user.email ?? "?"} 이 owner 로 인식 안 됨 — 서버의 OWNER_EMAIL 환경변수가 이 이메일로 설정됐는지, 또는 app_metadata.role=owner 인지 확인)`,
+          reason: `이 작업에는 owner 권한이 필요합니다. 현재 계정 "${auth.user.email ?? "?"}"이 owner로 인식되지 않습니다. 서버의 OWNER_EMAIL 환경변수가 이 이메일로 설정되어 있는지, 또는 이 계정의 app_metadata.role이 owner인지 확인해 주세요.`,
         },
         { status: 403 },
       ),

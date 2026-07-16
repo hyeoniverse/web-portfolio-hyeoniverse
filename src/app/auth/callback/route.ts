@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   // provider 가 에러로 되돌린 경우(사용자 거부·설정 오류·redirect URL 미허용 등) — 그 사유를 그대로 전달
   const providerErr = searchParams.get("error_description") || searchParams.get("error");
   if (providerErr) return fail(providerErr);
-  if (!code) return fail("인증 코드(code)가 없습니다. Supabase Redirect URLs 에 /auth/callback 이 허용됐는지 확인하세요.");
+  if (!code) return fail("인증 코드가 전달되지 않았습니다. Supabase의 Redirect URLs에 /auth/callback이 허용되어 있는지 확인해 주세요.");
 
   const supabase = await createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
