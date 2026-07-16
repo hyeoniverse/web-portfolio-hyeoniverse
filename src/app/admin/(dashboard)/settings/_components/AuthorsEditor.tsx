@@ -32,9 +32,9 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
   ];
 
   const invite = async (a: Author) => {
-    if (!a.email) { setStatus((s) => ({ ...s, [a.id]: { ok: false, msg: L("이메일을 먼저 입력하세요", "Enter an email first") } })); return; }
+    if (!a.email) { setStatus((s) => ({ ...s, [a.id]: { ok: false, msg: L("이메일을 먼저 입력해 주세요.", "Please enter an email first.") } })); return; }
     setInviting(a.id);
-    setStatus((s) => ({ ...s, [a.id]: { ok: true, msg: L("초대 중…", "Inviting…") } }));
+    setStatus((s) => ({ ...s, [a.id]: { ok: true, msg: L("초대하고 있습니다…", "Sending the invite…") } }));
     try {
       const res = await fetch("/api/admin/authors/invite", {
         method: "POST",
@@ -42,16 +42,18 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
         body: JSON.stringify({ email: a.email, author_id: a.id, permission_level: Number(levels[a.id] ?? "1") }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) { setStatus((s) => ({ ...s, [a.id]: { ok: false, msg: data.reason || data.error || L("초대 실패", "Invite failed") } })); return; }
+      if (!res.ok) { setStatus((s) => ({ ...s, [a.id]: { ok: false, msg: data.reason || data.error || L("초대에 실패했습니다.", "The invite failed.") } })); return; }
       const parts = [
-        data.appliedNow ? L("기존 계정에 권한 부여됨", "granted to existing account") : L("초대 등록됨", "invite created"),
+        data.appliedNow ? L("기존 계정에 권한을 부여했습니다.", "Granted access to the existing account.") : L("초대를 등록했습니다.", "The invite has been created."),
         data.emailed
-          ? L("메일 발송", "email sent")
-          : `${L("메일 미발송", "email not sent")}${data.emailReason ? ` (${data.emailReason === "no_api_key" ? L("RESEND_API_KEY 없음", "no RESEND_API_KEY") : data.emailReason})` : ""}`,
+          ? L("초대 메일을 발송했습니다.", "The invite email was sent.")
+          : data.emailReason === "no_api_key"
+            ? L("RESEND_API_KEY 가 없어 메일은 발송하지 못했습니다.", "The email was not sent because RESEND_API_KEY is missing.")
+            : `${L("메일을 발송하지 못했습니다.", "The email could not be sent.")}${data.emailReason ? ` (${data.emailReason})` : ""}`,
       ];
-      setStatus((s) => ({ ...s, [a.id]: { ok: !!data.emailed || data.appliedNow, msg: parts.join(" · ") } }));
+      setStatus((s) => ({ ...s, [a.id]: { ok: !!data.emailed || data.appliedNow, msg: parts.join(" ") } }));
     } catch {
-      setStatus((s) => ({ ...s, [a.id]: { ok: false, msg: L("오류", "Error") } }));
+      setStatus((s) => ({ ...s, [a.id]: { ok: false, msg: L("오류가 발생했습니다.", "An error occurred.") } }));
     } finally {
       setInviting(null);
     }
@@ -166,7 +168,7 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
                 disabled={inviting === a.id || !a.email}
                 onClick={() => invite(a)}
               >
-                {inviting === a.id ? L("초대 중…", "Inviting…") : L("이메일로 초대", "Invite by email")}
+                {inviting === a.id ? L("초대하고 있습니다…", "Sending…") : L("이메일로 초대", "Invite by email")}
               </Button>
               {status[a.id] && (
                 <span className={status[a.id].ok ? styles.authorInviteOk : styles.authorInviteErr}>
@@ -175,7 +177,7 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
               )}
             </div>
             <span className={styles.fieldHint}>
-              {L("이 이메일의 GitHub 계정으로 로그인하면 권한이 부여됩니다.", "Sign in with GitHub using this email to get access.")}
+              {L("이 이메일과 동일한 GitHub 계정으로 로그인하면 권한이 부여됩니다.", "Access is granted when they sign in with the GitHub account that uses this email.")}
             </span>
           </div>
 

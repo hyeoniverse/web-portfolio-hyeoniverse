@@ -6232,3 +6232,7 @@ a.tagRelatedItem:hover {
   color: var(--text-error);
   font-size: var(--font-size-xs);
 }
+/* 초대 hint 는 강조 — accent */
+.authorInvite .fieldHint {
+  color: var(--text-accent);
+}
