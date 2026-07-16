@@ -1043,16 +1043,23 @@
 }
 /* 각 행의 첫 아이콘은 같은 폭(16px) 슬롯에 중앙정렬 — dot 10 / star·link 13 로 폭이 달라
    라벨 시작점이 그룹마다 어긋났다. 슬롯을 통일하면 세로로 정렬돼 스캔이 쉽다. */
-.evHelpRow > :first-child {
+/* 각 행 첫 아이콘을 같은 폭(16px) 슬롯에 담아 라벨 시작점을 그룹 간에 맞춘다.
+   dot(10) / star·link(13) 로 폭이 달라 어긋나 있었다.
+   슬롯은 폭만 고정하고, 안의 실제 아이콘은 제 크기를 지킨다 (dot 이 타원으로 안 눌리게). */
+.evHelpIcon {
   flex-shrink: 0;
   width: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
-.evHelpDot { --_c: var(--text-secondary); }
+.evHelpDot {
+  --_c: var(--text-secondary);
+  width: 10px;
+  height: 10px;
+}
 .evHelpStar { color: var(--text-secondary); line-height: 0; }
-.evHelpLink { color: var(--text-tertiary); }
+.evHelpLink { color: var(--text-tertiary); flex-shrink: 0; }
 /* active(사이드바 열림) — accent 아이콘 대신 공통 active 스타일(inverse 배경/글자) */
 .blockBarIconOn {
   background: var(--bg-inverse) !important;
