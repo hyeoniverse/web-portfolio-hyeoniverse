@@ -556,9 +556,9 @@
   font-size: 0.88em;
   padding: var(--box-3xs-xs);
   color: var(--text-accent);
-  background: transparent;
-  border: var(--border-light);
+  background: var(--bg-secondary);
   border-radius: var(--radius-capsule);
+  box-shadow: var(--shadow-xs);
 }
 
 /* 코드블록(pre/code) 프레임·스크롤은 globals/_hljs.css 의 .code-block-wrap 규칙으로 공통화 */
