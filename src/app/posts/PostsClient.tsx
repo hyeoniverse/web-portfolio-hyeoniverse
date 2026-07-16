@@ -348,10 +348,14 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     () => initialData.allTags.map((t) => ({ tag: t.tag, count: t.count })),
   );
   const [extraCategories] = useState(initialData.extraCategories);
-  const [sortBy, setSortBy] = useState<"date" | "popular" | "title" | "random">(
+  const [sortBy, setSortBy] = useState<"date" | "popular" | "title" | "random" | "author">(
     "date",
   );
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  // 작성자 — 2명 이상일 때만 필터/정렬 노출(1명이면 옵션이 무의미). 카드 표시는 무조건.
+  const authors = siteConf.authors ?? [];
+  const multiAuthor = authors.length >= 2;
+  const [activeAuthor, setActiveAuthor] = useState<string | null>(() => urlSearchParams?.get("author") ?? null);
   // 타임라인 레이아웃은 월 그룹 마커라 시간순만 유효 — 다른 정렬이면 date 로 강제(마커 깨짐 방지).
   useEffect(() => {
     if (postsLayout === "timeline" && sortBy !== "date") setSortBy("date");
@@ -370,6 +374,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     | "popular"
     | "title"
     | "random"
+    | "author"
     | "views"
     | "likes"
     | "comments" =
@@ -379,11 +384,13 @@ export default function PostsClient({ initialData, history = false, archiveMonth
         : popularSort
       : sortBy === "title"
         ? "title"
-        : sortBy === "random"
-          ? "random"
-          : sortDir === "desc"
-            ? "newest"
-            : "oldest";
+        : sortBy === "author"
+          ? "author"
+          : sortBy === "random"
+            ? "random"
+            : sortDir === "desc"
+              ? "newest"
+              : "oldest";
   const [perPage, setPerPage] = useState(siteConf.posts.perPage ?? 10);
   // /posts?series=<id> 로 진입 시(시리즈 카드 클릭) 해당 시리즈로 초기 필터
   const [activeSeries, setActiveSeries] = useState<string | null>(() => urlSearchParams?.get("series") ?? null);
@@ -589,6 +596,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     if (activeCategoryKey) params.set("category", activeCategoryKey);
     if (activeTagsKey) params.set("tags", activeTagsKey);
     if (activeSeries) params.set("series_id", activeSeries);
+    if (activeAuthor) params.set("author", activeAuthor);
     params.set("sort", sort);
     params.set("sortDir", sortDir);
     if (sort === "random") params.set("seed", String(randomSeed));
@@ -627,6 +635,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     activeCategoryKey,
     activeTagsKey,
     activeSeries,
+    activeAuthor,
     sort,
     sortDir,
     randomSeed,
@@ -1461,8 +1470,17 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                 </span>
               </div>
                 <div className={styles.sortWrap}>
+                  {/* 작성자 필터 — 저자 2명 이상일 때만. 레이아웃 무관하게 필터로 동작. */}
+                  {multiAuthor && (
+                    <Select
+                      value={activeAuthor ?? ""}
+                      options={[{ value: "", label: language === "ko" ? "작성자 전체" : "All authors" }, ...authors.map((a) => ({ value: a.id, label: a.name }))]}
+                      size="sm"
+                      onChange={(v) => { setActiveAuthor(v || null); setPage(1); }}
+                    />
+                  )}
                   {/* sort + shuffle 한 묶음 — shuffle 은 sort 의 random 변형 (오른쪽 인접). */}
-                  <SegmentedControl<"date" | "popular" | "title", "score" | "views" | "comments" | "likes">
+                  <SegmentedControl<"date" | "popular" | "title" | "author", "score" | "views" | "comments" | "likes">
                     size="sm"
                     className={styles.seriesSegmented}
                     items={
@@ -1482,15 +1500,17 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                               ],
                             },
                             { value: "title", label: <T k="postsPage.sortTitle" tooltip={t("postsPage.sortTitleTooltip")} /> },
+                            // 저자 정렬 — 2명 이상일 때만
+                            ...(multiAuthor ? [{ value: "author" as const, label: language === "ko" ? "저자" : "Author" }] : []),
                           ]
                     }
-                    value={(postsLayout === "timeline" || sortBy === "random" ? "date" : sortBy) as "date" | "popular" | "title"}
+                    value={(postsLayout === "timeline" || sortBy === "random" ? "date" : sortBy) as "date" | "popular" | "title" | "author"}
                     onChange={(v) => {
                       if (sortBy === v) {
                         setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
                       } else {
                         setSortBy(v);
-                        setSortDir(v === "title" ? "asc" : "desc");
+                        setSortDir(v === "title" || v === "author" ? "asc" : "desc");
                       }
                     }}
                     sortDir={sortBy !== "popular" && sortBy !== "random" ? sortDir : undefined}
