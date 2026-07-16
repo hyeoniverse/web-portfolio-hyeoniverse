@@ -4606,8 +4606,8 @@
   font-family: var(--font-mono);
   font-size: 0.85em;
   padding: var(--box-3xs-xs);
-  color: var(--text-secondary);
-  background: var(--bg-tertiary);
+  color: var(--text-accent);
+  background: transparent;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   line-height: inherit;
