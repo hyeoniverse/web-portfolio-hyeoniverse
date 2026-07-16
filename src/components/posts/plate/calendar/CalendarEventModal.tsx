@@ -364,6 +364,7 @@ export default function CalendarEventModal({
       <div className={styles.recurScopeBar}>
         <span className={styles.recurScopeLabel}>{t("적용 범위", "Apply to")}</span>
         <SegmentedControl<"this" | "all">
+          variant="subtle"
           items={[
             { value: "this", label: t("이 일정만", "This event") },
             { value: "all", label: t("전체 일정", "All events") },
@@ -631,6 +632,7 @@ export default function CalendarEventModal({
                     {repeatFreq === "monthly" && (
                       <div className={styles.recurAdv}>
                         <SegmentedControl<"day" | "ordinal">
+                          variant="subtle"
                           className={styles.recurModeSeg}
                           items={[{ value: "day", label: t("날짜 지정", "On day") }, { value: "ordinal", label: t("조건 지정", "On the…") }]}
                           value={repeatBysetpos != null ? "ordinal" : "day"}
@@ -680,6 +682,7 @@ export default function CalendarEventModal({
                 <div className={styles.recurEnd}>
                   <span className={styles.recurText}>{t("종료", "Ends")}</span>
                   <SegmentedControl<"never" | "count" | "until">
+                    variant="subtle"
                     items={[
                       { value: "never", label: t("안 함", "Never") },
                       { value: "count", label: t("횟수", "Count") },

@@ -762,6 +762,7 @@ export function CalendarElement(props: PlateElementProps) {
   );
   const viewToggle = (
     <SegmentedControl<"month" | "week" | "day" | "timeline">
+      variant="subtle"
       items={[
         { value: "month", label: t("월", "Month") },
         { value: "week", label: t("주", "Week") },

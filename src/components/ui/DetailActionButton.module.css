@@ -1,0 +1,40 @@
+/* 상세 페이지 하단 액션 버튼 껍데기 — 좋아요 · 공유가 공유하는 단일 소스.
+
+   값은 기존 좋아요 버튼(DetailLayout `.likeBtn`) 기준이다. 두 버튼이 나란히 놓이는데
+   예전엔 각자 CSS 에 따로 적혀 있어서 share 만 작고(28px vs 47px) 진했다(border-strong).
+   여기서만 정의하고 양쪽이 이 클래스를 쓴다 — 한쪽만 바뀌어 어긋나는 일을 막는다.
+
+   공통 Button 을 못 쓰는 이유: size 가 md 32 / lg 36 / xl 40 뿐이라 이 47px 규격이 없다.
+   (--button-p-lg 는 "hero CTA" 용으로 정의돼 있는데 정작 Button 의 어떤 size 도 안 쓴다) */
+.btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--button-p-lg);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  /* share 의 라벨 전환 애니메이션이 캡슐 밖으로 삐져나가지 않게 */
+  overflow: hidden;
+}
+
+/* compound (0,2,0) — 전역 theme transition 이 shorthand 라 이걸로 덮지 않으면 색 전환이 통째로 교체된다 */
+.btn.btn {
+  transition:
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.btn:hover {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}
+
+/* 켜진 상태 — 좋아요는 "좋아요 누름", 공유는 "복사됨". 둘 다 accent 로 같다. */
+.active {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}

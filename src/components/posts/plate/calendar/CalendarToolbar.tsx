@@ -2,12 +2,10 @@
 
 // ── 달력 검색/필터/정렬 툴바 (에디터·리더 공용) ──
 import React from "react";
-import { SlidersHorizontal, ArrowDownNarrowWide, ArrowUpNarrowWide } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import Popover from "@/components/ui/Popover";
-import Select from "@/components/ui/Select";
-import Button from "@/components/ui/Button";
-import Tooltip from "@/components/ui/Tooltip";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import SortControl from "@/components/ui/SortControl";
 import { type EventLabel, type SearchScope, type SortField, type SortDir, EVENT_PRIORITIES, colorVar } from "./model";
 import styles from "./Calendar.module.css";
 
@@ -101,27 +99,15 @@ export default function CalendarToolbar({
         </div>
       </Popover>
 
-      {/* 정렬 — 필드 select + 역순 토글을 하나의 pill 로 결합 */}
-      <div className={styles.sortGroup}>
-        <Select
-          value={sortField}
-          onChange={(v) => onSortField(v as SortField)}
-          options={sortOptions}
-          size="sm"
-          dropdownClassName={styles.selectAboveModal}
-        />
-        <Tooltip content={sortDir === "asc" ? t("오름차순", "Ascending") : t("내림차순", "Descending")}>
-          <Button
-            variant="ghost"
-            size="sm"
-            soundDisabled
-            className={styles.sortDir}
-            icon={sortDir === "asc" ? <ArrowDownNarrowWide size={14} /> : <ArrowUpNarrowWide size={14} />}
-            onClick={() => onSortDir(sortDir === "asc" ? "desc" : "asc")}
-            aria-label={t("역순", "Reverse")}
-          />
-        </Tooltip>
-      </div>
+      {/* 정렬 — 공통 SortControl (댓글과 같은 규격) */}
+      <SortControl
+        value={sortField}
+        onChange={(v) => onSortField(v as SortField)}
+        options={sortOptions}
+        dir={sortDir}
+        onDirChange={onSortDir}
+        dropdownClassName={styles.selectAboveModal}
+      />
     </div>
   );
 }

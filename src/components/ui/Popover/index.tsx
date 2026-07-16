@@ -3,7 +3,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/utils/cn";
 import { usePortalContainer } from "../portalContainer";
@@ -13,6 +12,12 @@ export type PopoverPlacement = "bottom-start" | "bottom-end" | "top-start" | "to
 
 interface PopoverRenderProps {
   close: () => void;
+  /** 지금 bottom sheet 로 뜨는 중인가 (responsive + 터치/모바일).
+      sheet 는 sheetTitle 로 자기 헤더를 그리므로, 내용 쪽에서 자체 헤더를 그리고 있다면
+      이 값으로 접어야 제목이 두 번 뜨지 않는다.
+      Popover 가 이미 계산해 둔 판단을 내보내는 것 — 호출부가 useIsMobile 로 같은 조건을
+      다시 만들면 Popover 의 판단 기준(responsive 옵션 포함)이 바뀔 때 조용히 어긋난다. */
+  isSheet: boolean;
 }
 
 interface PopoverProps {
@@ -241,7 +246,7 @@ export default function Popover({
     return () => { document.body.style.overflow = prev; };
   }, [open, useSheet]);
 
-  const renderedContent = typeof children === "function" ? children({ close }) : children;
+  const renderedContent = typeof children === "function" ? children({ close, isSheet: useSheet }) : children;
   // maxHeight prop: false → 캡 없음(스크롤 X), number → 고정, undefined → 자동 계산값
   const effMaxHeight = maxHeightProp === false ? undefined : (maxHeightProp ?? pos.maxHeight);
 
@@ -284,17 +289,13 @@ export default function Popover({
                   <div className="ui-sheet-handle" aria-hidden>
                     <span className="ui-sheet-handle-bar" />
                   </div>
-                  <div className={styles.sheetHeader}>
-                    {sheetTitle ? <h3 className={styles.sheetTitle}>{sheetTitle}</h3> : <span />}
-                    <button
-                      type="button"
-                      className={styles.sheetClose}
-                      onClick={close}
-                      aria-label="닫기"
-                    >
-                      <X size={18} aria-hidden />
-                    </button>
-                  </div>
+                  {/* bottom sheet 에는 X 버튼을 두지 않는다 — 상단 grabber 가 있고 backdrop 탭/Esc 로 닫히며,
+                      아래로 쓸어 닫는 게 기본 제스처라 X 는 군더더기다. Modal 의 bottom sheet 도 동일 규칙. */}
+                  {sheetTitle && (
+                    <div className={styles.sheetHeader}>
+                      <h3 className={styles.sheetTitle}>{sheetTitle}</h3>
+                    </div>
+                  )}
                   <div className={styles.sheetBody}>{renderedContent}</div>
                 </motion.div>
               </>

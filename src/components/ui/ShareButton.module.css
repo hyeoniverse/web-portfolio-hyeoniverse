@@ -1,4 +1,13 @@
-.btn {
+/* 이 버튼은 두 자리에 놓이고, 각 자리의 이웃에 맞춰 규격이 다르다 (variant 로 가른다).
+
+   compact — 상세 헤더 메타 줄. 옆의 LanguageToggle(height 28 + --border-strong + xs)에 맞춘다.
+             나란히 서므로 어긋나면 바로 눈에 띈다.
+   action  — 게시물 하단, 좋아요 옆. 껍데기(캡슐 47 + border-light + active accent)를
+             DetailActionButton 으로 좋아요와 **공유**하므로 여기엔 스타일이 없다.
+
+   두 규격(28 vs 47)을 한 벌로 합치면 반드시 한쪽이 깨진다 — 실제로 그렇게 만들었다가 위쪽이 커졌다. */
+
+.compact {
   display: inline-flex;
   align-items: center;
   padding: var(--button-p-sm);
@@ -14,33 +23,32 @@
 }
 
 /* compound selector to beat global theme transition */
-.btn.btn {
+.compact.compact {
   transition:
     background var(--duration-base) var(--ease-material),
     border-color var(--duration-base) var(--ease-material),
     color var(--duration-base) var(--ease-material);
 }
 
-.btn .inner {
-  transition:
-    color var(--duration-base) var(--ease-material),
-    transform var(--duration-base) var(--ease-material);
-}
-
-.btn:hover {
+.compact:hover {
   background: var(--bg-inverse);
   border-color: var(--bg-inverse);
   color: var(--text-inverse);
 }
 
-.inner {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.copied {
+.compactCopied {
   border-color: var(--text-accent);
   background: transparent;
   color: var(--text-accent);
+}
+
+/* 라벨 — Share ↔ Copied 전환 시 폭이 흔들려 버튼이 움찔거리지 않게 */
+.label {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* compact 는 좁으니 아이콘↔라벨도 좁게. action 은 껍데기의 gap(--spacing-sm)을 그대로 쓴다. */
+.compact .label {
+  margin-left: var(--spacing-xs);
 }
