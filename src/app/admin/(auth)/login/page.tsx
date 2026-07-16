@@ -36,10 +36,12 @@ export default function AdminLoginPage() {
     }
   }, []);
 
-  // OAuth 콜백 실패로 되돌아온 경우(?error=oauth) 안내
+  // OAuth 콜백 실패로 되돌아온 경우(?error=oauth&reason=…) — 상세 사유까지 표시
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("error") === "oauth") {
-      setError(t("admin.login.loginFailed"));
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("error") === "oauth") {
+      const reason = params.get("reason");
+      setError(reason ? `${t("admin.login.loginFailed")} — ${reason}` : t("admin.login.loginFailed"));
     }
   }, [t]);
 

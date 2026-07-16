@@ -42,12 +42,14 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
         body: JSON.stringify({ email: a.email, author_id: a.id, permission_level: Number(levels[a.id] ?? "1") }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) { setStatus((s) => ({ ...s, [a.id]: { ok: false, msg: data.error || L("초대 실패", "Invite failed") } })); return; }
+      if (!res.ok) { setStatus((s) => ({ ...s, [a.id]: { ok: false, msg: data.reason || data.error || L("초대 실패", "Invite failed") } })); return; }
       const parts = [
         data.appliedNow ? L("기존 계정에 권한 부여됨", "granted to existing account") : L("초대 등록됨", "invite created"),
-        data.emailed ? L("메일 발송", "email sent") : L("메일 미발송", "email not sent"),
+        data.emailed
+          ? L("메일 발송", "email sent")
+          : `${L("메일 미발송", "email not sent")}${data.emailReason ? ` (${data.emailReason === "no_api_key" ? L("RESEND_API_KEY 없음", "no RESEND_API_KEY") : data.emailReason})` : ""}`,
       ];
-      setStatus((s) => ({ ...s, [a.id]: { ok: true, msg: parts.join(" · ") } }));
+      setStatus((s) => ({ ...s, [a.id]: { ok: !!data.emailed || data.appliedNow, msg: parts.join(" · ") } }));
     } catch {
       setStatus((s) => ({ ...s, [a.id]: { ok: false, msg: L("오류", "Error") } }));
     } finally {
