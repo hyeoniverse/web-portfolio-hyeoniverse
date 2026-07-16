@@ -111,8 +111,18 @@ export default React.memo(function TableToolbar({
   const MARK_KEYS = ["color", "backgroundColor", "bold", "italic", "underline", "strikethrough", "code", "kbd", "highlight", "fontSize", "fontFamily", "fontWeight", "subscript", "superscript"];
 
   // 내용(텍스트) 지우기 — 셀 구조는 유지, 텍스트만 제거
-  const clearContent = useCallback(() => {
-    const paths = getTargetCellPaths();
+  // 표 안 **모든** 셀의 경로 — currentTableInfo(table > tr > td/th)에서 바로 뽑는다.
+  const getAllCellPaths = useCallback((): number[][] => {
+    const info = currentTableInfo;
+    const rows = (info?.node?.children ?? []) as { children?: unknown[] }[];
+    if (!info?.path || !rows.length) return [];
+    const paths: number[][] = [];
+    rows.forEach((row, r) => (row?.children ?? []).forEach((_, c) => paths.push([...info.path, r, c])));
+    return paths;
+  }, [currentTableInfo]);
+
+  // 내용 지우기 — 셀(칸) 자체는 남기고 안의 내용만 비운다. 셀 구조가 안 바뀌므로 경로는 그대로 유효하다.
+  const clearCells = useCallback((paths: number[][]) => {
     if (!paths.length) return;
     editor.tf.withoutNormalizing(() => {
       for (const p of paths) {
@@ -123,7 +133,9 @@ export default React.memo(function TableToolbar({
         } catch { /* noop */ }
       }
     });
-  }, [editor, getTargetCellPaths]);
+  }, [editor]);
+  const clearContentSelected = useCallback(() => clearCells(getTargetCellPaths()), [clearCells, getTargetCellPaths]);
+  const clearContentAll = useCallback(() => clearCells(getAllCellPaths()), [clearCells, getAllCellPaths]);
 
   // 표 서식 제거(선택 셀) — 셀 배경/테두리/세로정렬/너비만
   const resetCellStyle = useCallback(() => {
@@ -637,14 +649,15 @@ export default React.memo(function TableToolbar({
 
       {/* 정리 / 초기화 — 선택 영역(선택 셀/현재 셀)에만 적용 */}
       <Popover openOnHover placement="bottom-end" offset={8} contentClassName={styles.blockToolsMenu}
-        trigger={<TBtn square tooltip={language === "ko" ? "정리 · 초기화 (선택 영역)" : "Clean up (selection)"}><TblResetFormat /></TBtn>}>
+        trigger={<TBtn square tooltip={language === "ko" ? "정리 · 초기화" : "Clean up"}><TblResetFormat /></TBtn>}>
         {({ close }: { close: () => void }) => (
           <div onMouseDown={(e) => e.preventDefault()}>
             <MenuItem icon={<Sparkles size={15} />} label={language === "ko" ? "서식 모두 제거" : "Remove all formatting"} onClick={() => { resetCellAll(); close(); }} />
             <MenuItem icon={<Table size={15} />} label={language === "ko" ? "표 서식 제거" : "Remove table formatting"} onClick={() => { resetCellStyle(); close(); }} />
             <MenuItem icon={<Type size={15} />} label={language === "ko" ? "콘텐츠 서식 제거" : "Remove content formatting"} onClick={() => { resetCellContent(); close(); }} />
             <MenuDivider />
-            <MenuItem icon={<Eraser size={15} />} label={language === "ko" ? "내용 지우기" : "Clear content"} onClick={() => { clearContent(); close(); }} />
+            <MenuItem icon={<Eraser size={15} />} label={language === "ko" ? "내용 모두 지우기" : "Clear all content"} onClick={() => { clearContentAll(); close(); }} />
+            <MenuItem icon={<Eraser size={15} />} label={language === "ko" ? "선택한 셀의 내용 지우기" : "Clear selected cells"} onClick={() => { clearContentSelected(); close(); }} />
           </div>
         )}
       </Popover>
