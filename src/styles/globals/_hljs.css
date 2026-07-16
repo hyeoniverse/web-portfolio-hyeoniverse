@@ -449,9 +449,11 @@ pre code .token.italic {
   align-items: center;
   gap: var(--spacing-sm);
   margin: 0;
-  padding: var(--spacing-2xs) var(--spacing-md);
-  /* 헤더 — 본문(유리 면)보다 한 톤 어둡게 얹어 "창 헤더" 로 읽히게. inverse-alpha 라
-     라이트/다크 양쪽에서 본문 대비 살짝 어두운 면이 된다. + 하단 hairline. */
+  /* macOS 창 헤더 — 신호등이 여유롭게 앉는 높이(약 38px)와 좌우 여백. 세로 중앙 정렬.
+     본문(유리 면)보다 한 톤 어둡게(gray-alpha, 테마 무관) + 하단 hairline 으로 헤더임을 드러낸다. */
+  position: relative;
+  min-height: 38px;
+  padding: 0 var(--spacing-md);
   background: var(--color-gray-alpha-5);
   border-bottom: var(--border-light);
 }
@@ -460,18 +462,27 @@ pre code .token.italic {
 .code-block-bar::before {
   content: "";
   flex-shrink: 0;
-  width: 40px;
+  width: 52px;
   height: 12px;
+  /* macOS 창버튼 3개 — 지름 12px, 중심간 20px(6/26/46).
+     각 점: 채움색 5.5px → 얇은 내부 어두운 링(6px) → 투명. 링이 밝은 배경에서 점을 또렷하게. */
   background:
-    radial-gradient(circle 6px at 6px 6px, #ff5f57 45%, transparent 50%),
-    radial-gradient(circle 6px at 20px 6px, #febc2e 45%, transparent 50%),
-    radial-gradient(circle 6px at 34px 6px, #28c840 45%, transparent 50%);
+    radial-gradient(circle at 6px 6px, #ff5f57 0 5.5px, rgba(0, 0, 0, 0.18) 5.5px 6px, transparent 6px),
+    radial-gradient(circle at 26px 6px, #febc2e 0 5.5px, rgba(0, 0, 0, 0.18) 5.5px 6px, transparent 6px),
+    radial-gradient(circle at 46px 6px, #28c840 0 5.5px, rgba(0, 0, 0, 0.18) 5.5px 6px, transparent 6px);
 }
 
-/* 신호등 다음 첫 요소(언어 라벨 또는 빈 스페이서)가 컨트롤을 오른쪽 끝으로 민다.
-   라벨이 없는 코드블록(```만)에선 빈 span 이 그 역할을 한다 → 라벨 유무와 무관하게 컨트롤은 우측. */
-.code-block-bar > :first-child { margin-right: auto; }
-.code-block-bar > :first-child { margin-right: auto; }
+/* macOS 창 제목처럼 언어 라벨을 헤더 정중앙에 절대배치 — 신호등(좌)·컨트롤(우) 폭과 무관하게
+   항상 정확히 중앙. 라벨이 없어도(빈 스페이서) 중앙이 비어 자연스럽다. */
+.code-block-bar .code-lang-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+/* 컨트롤은 항상 우측 끝. 라벨은 absolute(flow 밖)라 첫요소 방식이 안 통해서 controls 에 직접 건다 —
+   라벨 유무와 무관하게 flow 상 controls 를 오른쪽으로 민다. */
+.code-block-bar .code-block-controls { margin-left: auto; }
 
 /* 코드블록 컨트롤 — 바 안에서 우측 배치. 복사 + 줄바꿈 버튼 가로 배치 */
 .code-block-controls {
