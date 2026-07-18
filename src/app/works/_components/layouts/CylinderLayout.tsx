@@ -7,6 +7,7 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
+import { pickLocalized } from "@/types/common";
 import Tooltip from "@/components/ui/Tooltip";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import IntroBunny from "./CylinderIntroBunny";
@@ -647,7 +648,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
               <T ko={proj.category.ko} en={proj.category.en} />
             </span>
             <h2 className={styles.metaTitle}>
-              {proj.title.split(" ").map((word, wi) => (
+              {pickLocalized(proj.title, language).split(" ").map((word, wi) => (
                 <span
                   key={wi}
                   className={styles.metaWord}

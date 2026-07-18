@@ -49,10 +49,10 @@ export async function GET(request: Request) {
 
   const syntaxMode = (searchParams.get("syntaxMode") === "regex" ? "regex" : "prefix") as SyntaxMode;
   const searchColumns = searchType === "all"
-    ? ["title", "subtitle_ko", "subtitle_en", "content_ko", "content_en"]
+    ? ["title", "title_en", "subtitle_ko", "subtitle_en", "content_ko", "content_en"]
     : searchType === "content"
       ? ["content_ko", "content_en"]
-      : ["title", "subtitle_ko", "subtitle_en"];
+      : ["title", "title_en", "subtitle_ko", "subtitle_en"];
 
   if (search) {
     query = applySearchQuery(query, { search, mode: syntaxMode, columns: searchColumns });
@@ -116,7 +116,7 @@ export async function GET(request: Request) {
 
 // POST /api/works — 새 work 생성 (admin only)
 const ALLOWED_FIELDS = new Set([
-  "slug", "title",
+  "slug", "title", "title_en",
   "subtitle_ko", "subtitle_en",
   "categories_ko", "categories_en",
   "nature_ko", "nature_en",

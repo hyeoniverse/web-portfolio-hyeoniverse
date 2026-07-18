@@ -4,6 +4,8 @@ import { forwardRef, memo, useCallback, useState } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { motion, MotionValue } from "framer-motion";
 import { worksData, WorkItem } from "@/data/works";
+import { pickLocalized } from "@/types/common";
+import T from "@/components/ui/T";
 import type { Language } from "@/providers/LanguageProvider";
 import {
   PressingWork,
@@ -160,7 +162,7 @@ const WorkCircle = memo(function WorkCircle({
         animate={{ opacity: isHovering ? 1 : 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
-        <span className={styles.overlayTitle}>{work.title}</span>
+        <span className={styles.overlayTitle}><T ko={work.title.ko} en={work.title.en} /></span>
         <span className={styles.overlayCategory}>{work.category[language]}</span>
       </motion.div>
     </motion.div>
@@ -251,7 +253,7 @@ const WorksSection = forwardRef<HTMLElement, WorksSectionProps>(
             <WorkCircle
               work={work}
               language={language}
-              tooltipContent={`${work.title}\n${t("tooltip.longHoverNavigate")}`}
+              tooltipContent={`${pickLocalized(work.title, language)}\n${t("tooltip.longHoverNavigate")}`}
               smoothWorkImageY={smoothWorkImageY}
               isPressing={isPressing}
               isHovering={isHovering}

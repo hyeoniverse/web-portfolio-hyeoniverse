@@ -147,7 +147,7 @@ export default function GridLayout({ projects, onProjectClick }: WorksLayoutProp
               PROJECT {p.number}
             </div>
             {/* 항상 표시: title + subtitle */}
-            <h3 className={styles.projectTitle}>{p.title}</h3>
+            <h3 className={styles.projectTitle}><T ko={p.title.ko} en={p.title.en} /></h3>
             <p className={styles.projectSub}>
               <T ko={p.subtitle.ko} en={p.subtitle.en} />
             </p>
