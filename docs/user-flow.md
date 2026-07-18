@@ -18,7 +18,7 @@ Home → Works 갤러리(가로 스크롤) → Work 상세(좋아요)
 /admin 직접 접속 → GitHub OAuth 로그인(`/auth/callback` 인가 게이트 — 미초대 계정 차단) 또는 비밀번호 로그인(소유자 폴백) → Settings 리다이렉트
 → 포스트 작성(Markdown/Rich Text 전환, 에디터에서 투표·탭 블록 + CoverBanner 커버 배너 추가 가능) → 커버 이미지 선택(프리셋/Unsplash/AI) → 시리즈 선택(선택사항) → 발행
 → 작업물 관리(/admin/works) — 생성, 수정, 삭제, 발행/비공개 전환, 정렬 순서 변경
-→ 사이트 설정(/admin/settings) — General(브랜드/로고 커스터마이징, SEO, 푸터, BGM), Content(Home/Profile/About/Posts/Works 서브탭), Appearance(테마·타이포그래피·날짜 선택 스타일), Services(API 키 관리·비밀번호 확인 후 원본 노출), Account(이메일 변경 pending 관리·비밀번호 정책·보안 알림 메일 + 멤버 관리)
+→ 사이트 설정(/admin/settings) — General(브랜드/로고 커스터마이징, SEO[기본 콘텐츠 언어 ko/en], 푸터, BGM), Content(Home/Profile/About/Posts/Works 서브탭), Appearance(테마·타이포그래피·날짜 선택 스타일), Services(API 키 관리·비밀번호 확인 후 원본 노출), Account(이메일 변경 pending 관리·비밀번호 정책·보안 알림 메일 + 멤버 관리)
 → 멤버 관리(Account 탭, 소유자 전용) — 이메일로 멤버 초대(author_invites + Resend) → 초대받은 사람이 같은 이메일 GitHub 로 로그인하면 역할 부여 → 소유자/편집자/저자 역할·권한 변경·삭제. 비소유자는 Account 탭만 접근(다른 설정 탭은 클라이언트+서버 양쪽 소유자 전용)
 → 설정 충돌 감지 — 코드 기본값 변경 시 DB 저장값과 비교하여 per-hunk diff 모달로 시각화, 저장 시 체크된 항목 자동 반영 (deepEqual 비교로 JSON 키 순서 무관)
 ```
