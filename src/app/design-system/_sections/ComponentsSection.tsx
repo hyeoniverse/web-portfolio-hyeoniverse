@@ -43,6 +43,7 @@ import Chip, { useChipReorder } from "@/components/ui/Chip";
 import BilingualInputPair, { type BilingualValue } from "@/components/admin/BilingualInputPair";
 import TagNotesEditor, { type TagNote } from "@/components/admin/TagNotesEditor";
 import AdminNotFound from "@/components/admin/AdminNotFound";
+import { RoleBadge, ProviderChips } from "@/components/admin/MemberBadges";
 import { LikeButton } from "@/components/layout/DetailLayout";
 import HeartIcon from "@/components/ui/HeartIcon";
 import Textarea from "@/components/ui/Textarea";
@@ -1542,6 +1543,31 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               <MediaThumb src="/images/profile_pic.webp" fill alt="" />
             </div>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>image</span>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* MemberBadges (RoleBadge · ProviderChips) */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>MemberBadges</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "관리자 멤버 배지 — 역할(RoleBadge)과 로그인 수단(ProviderChips). 멤버 목록·상세·대시보드가 공유하는 시각 프리미티브다. 역할은 아이콘+색으로 소유자/편집자/저자/멤버를 구분하고, 로그인 수단은 GitHub OAuth·이메일을 칩으로 표시한다. (MembersList 는 이 둘로 조립된 owner 전용 데이터 위젯)"
+            : "Admin member badges — role (RoleBadge) and sign-in method (ProviderChips). Visual primitives shared by the member list, detail, and dashboard. Roles read as icon + color (owner/editor/author/member); sign-in methods show GitHub OAuth / email as chips. (MembersList is an owner-only data widget composed from these two.)"}
+        </p>
+        <div className={styles.componentRow} style={{ gap: "var(--spacing-sm)", flexWrap: "wrap" }}>
+          {(["owner", "editor", "author", "member"] as const).map((role, i) => (
+            <motion.div key={role} variants={staggerItemX} {...scrollChildX(i, 4)}>
+              <RoleBadge role={role} />
+            </motion.div>
+          ))}
+        </div>
+        <div className={styles.componentRow} style={{ gap: "var(--spacing-sm)", flexWrap: "wrap", marginTop: "var(--spacing-sm)" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
+            <ProviderChips providers={["github"]} />
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)}>
+            <ProviderChips providers={["email"]} />
           </motion.div>
         </div>
       </motion.div>
