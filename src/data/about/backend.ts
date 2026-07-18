@@ -498,7 +498,7 @@ if (!allowed) {
     },
     columns: [
       { name: "id", type: "UUID", constraint: "PK", description: { ko: "고유 식별자", en: "Primary key" } },
-      { name: "title", type: "TEXT", description: { ko: "작업물 제목", en: "Work title" } },
+      { name: "title / title_en", type: "TEXT", description: { ko: "작업물 제목 (한국어/영어, 빈쪽은 반대 언어로 fallback)", en: "Work title (KO/EN, empty side falls back to the other)" } },
       { name: "slug", type: "TEXT", description: { ko: "URL 슬러그", en: "URL slug" } },
       { name: "subtitle_ko / _en", type: "TEXT", description: { ko: "부제목 (한국어/영어)", en: "Subtitle (KO/EN)" } },
       { name: "categories_ko / _en", type: "TEXT[]", description: { ko: "다중 카테고리 (한국어/영어)", en: "Multi-category (KO/EN)" } },
