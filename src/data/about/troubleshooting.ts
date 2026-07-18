@@ -35,6 +35,11 @@ const itemMeta: Record<
     recommendReason: { ko: "임시방편(localStorage)을 정식 아키텍처(DB 리비전)로 발전시킨 과정을 보여드리고 싶어 골랐습니다.", en: "Picked this to show how I evolved a stopgap (localStorage) into a real architecture (DB revisions)." },
   },
   "카테고리 자동 보정으로 리비전 프롬프트가 무한 반복": { section: "A", difficulty: 2 },
+  "멤버 역할을 어디에 저장해야 조작을 막을 수 있나": {
+    section: "A", difficulty: 2, recommended: true,
+    recommendReason: { ko: "이름이 비슷한 두 저장소의 신뢰 수준 차이가 곧 권한 시스템의 출발점이었던 사례라 골랐습니다.", en: "Picked this because the trust gap between two similarly-named stores was the very foundation of the permission system." },
+  },
+  "GitHub OAuth 는 계정만 있으면 누구나 로그인 시도가 성공한다": { section: "A", difficulty: 2 },
   // Performance
   "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)": { section: "P", difficulty: 3 },
   "mousemove마다 React 리렌더 (60fps 성능 저하)": { section: "P", difficulty: 2 },
@@ -70,6 +75,10 @@ const itemMeta: Record<
       ko: "DevTools 의 친절한 표시를 그대로 JS API 라고 가정한 함정 — multi-tier 토큰 시스템에서 JS↔CSS 경계가 어디인지 보여주는 사례라 골랐습니다.",
       en: "I assumed DevTools' helpful display matched the JS API — picked this because it shows exactly where the JS↔CSS boundary lives in a multi-tier token system.",
     },
+  },
+  "코드블록 리사이즈 그립에서 커스텀 커서 위로 시스템 커서가 계속 새어나옴": {
+    section: "L", difficulty: 2, recommended: true,
+    recommendReason: { ko: "UA 가 그리는 요소의 페인트 순서(자식 위·형제 아래)까지 파고들어야 풀리던 CSS 함정이라 골랐습니다.", en: "Picked this CSS trap because it only resolved once I dug into the paint order of UA-drawn chrome (above children, below siblings)." },
   },
   // Plate Editor
   "Richtext 게시물에서 코드 하이라이팅·줄바꿈 버튼이 사라짐": { section: "E", difficulty: 2 },
@@ -300,6 +309,70 @@ const itemMeta: Record<
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
+  /* ── 멀티 저자 / OAuth (Phase 1b) + 코드블록 ── */
+  {
+    section: { ko: "Backend / Auth", en: "Backend / Auth" },
+    problem: { ko: "멤버 역할을 어디에 저장해야 조작을 막을 수 있나", en: "Where to store member roles so they can't be tampered with" },
+    definition: {
+      ko: "GitHub OAuth 로 로그인한 멤버마다 소유자·편집자·저자 **역할**을 부여해야 하는데, 이 역할을 Supabase 사용자 객체의 어디에 저장하느냐가 곧 보안 경계였습니다.",
+      en: "Each GitHub-OAuth member needs an owner/editor/author **role**, and where that role lives on the Supabase user object *is* the security boundary.",
+    },
+    cause: {
+      ko: "Supabase 사용자에는 `user_metadata` 와 `app_metadata` 두 저장소가 있습니다. 이름이 비슷해 아무 데나 넣어도 될 것 같지만, **`user_metadata` 는 로그인한 본인이 클라이언트 SDK(`updateUser`)로 직접 수정할 수 있습니다.** 여기에 역할을 넣으면 저자 권한 사용자가 브라우저 콘솔에서 자기 역할을 `owner` 로 바꿔 권한을 탈취할 수 있습니다.\n\n반면 `app_metadata` 는 **service_role 키로만** 쓸 수 있어 클라이언트에서 변경이 불가능합니다.",
+      en: "A Supabase user has two stores: `user_metadata` and `app_metadata`. The names look interchangeable, but **`user_metadata` is writable by the signed-in user via the client SDK (`updateUser`).** Put a role there and an author-level user can flip their own role to `owner` from the browser console and escalate. `app_metadata`, by contrast, is **writable only with the service_role key** — untouchable from the client.",
+    },
+    solution: {
+      ko: "역할(`role`·`author_id`·`permission_level`)은 전부 **`app_metadata` 에만** 저장하고 서버 라우트에서 service_role 로만 갱신합니다. 소유자는 초대 테이블조차 거치지 않고 `OWNER_EMAIL` 환경변수로 부트스트랩해 재지정이 불가능하게 했습니다.\n\n권한 판정(`requireOwner`·`requireRole`)도 매 요청마다 서버에서 `app_metadata` 를 다시 읽어 수행합니다 — 클라이언트가 보낸 값은 신뢰하지 않습니다.",
+      en: "Roles (`role`, `author_id`, `permission_level`) live **only in `app_metadata`**, updated exclusively by server routes with the service_role key. The owner is bootstrapped from an `OWNER_EMAIL` env var — not even the invite table — so it can't be reassigned. Authorization (`requireOwner`, `requireRole`) re-reads `app_metadata` server-side on every request; values sent by the client are never trusted.",
+    },
+    keyInsight: {
+      ko: "**\"사용자가 수정할 수 있는 필드\" 와 \"서버만 수정할 수 있는 필드\" 를 물리적으로 다른 저장소에 두는 것** 이 권한 시스템의 출발점입니다. 이름이 비슷하다고 신뢰 수준이 같지 않습니다.",
+      en: "Putting **user-writable fields and server-only fields in physically separate stores** is the starting point of any permission system. Similar names don't mean the same trust level.",
+    },
+    tags: ["Supabase", "Auth", "app_metadata", "권한"],
+  },
+  {
+    section: { ko: "Backend / Auth", en: "Backend / Auth" },
+    problem: { ko: "GitHub OAuth 는 계정만 있으면 누구나 로그인 시도가 성공한다", en: "GitHub OAuth lets anyone with an account complete sign-in" },
+    definition: {
+      ko: "비밀번호 로그인은 관리자가 만든 계정만 들어올 수 있지만, GitHub OAuth 를 붙이자 **GitHub 계정을 가진 누구든** 콜백까지 통과해 세션이 생겨버렸습니다.",
+      en: "Password login only admits accounts the admin created, but once GitHub OAuth was wired in, **anyone with a GitHub account** could pass the callback and get a session.",
+    },
+    cause: {
+      ko: "OAuth 는 \"이 사람이 진짜 이 GitHub 계정 주인인가\" 라는 **인증(authentication)** 만 보장합니다. \"이 사람이 우리 사이트에 들어와도 되는가\" 라는 **인가(authorization)** 는 전혀 별개인데, `signInWithOAuth` → 콜백 `exchangeCodeForSession` 흐름은 인증만 하고 세션을 만들어 줍니다. 초대받지 않은 사람도 로그인 자체는 성공해 버립니다.",
+      en: "OAuth only guarantees **authentication** — \"is this really the owner of this GitHub account?\". **Authorization** — \"is this person allowed into our site?\" — is a separate question, but the `signInWithOAuth` → callback `exchangeCodeForSession` flow only authenticates and then mints a session. An un-invited person still succeeds at logging in.",
+    },
+    solution: {
+      ko: "콜백 라우트에서 세션 교환 직후 그 이메일이 **허용 대상인지 서버에서 검사**합니다 — `OWNER_EMAIL` 이거나, 이미 역할이 있거나, `author_invites` 에 초대 레코드가 있어야 합니다. 셋 다 아니면 즉시 `signOut()` + service_role `deleteUser()` 로 계정을 지우고 실패 사유와 함께 로그인 페이지로 돌려보냅니다. 통과한 초대는 `app_metadata` 에 역할을 부여하고 초대를 소진 처리합니다.",
+      en: "In the callback route, right after the session exchange, the server **checks whether that email is allowed** — it must be `OWNER_EMAIL`, already have a role, or have an invite row in `author_invites`. If none hold, it immediately `signOut()`s and `deleteUser()`s the account with the service_role key, then redirects back to login with the reason. A valid invite grants the role in `app_metadata` and marks the invite consumed.",
+    },
+    keyInsight: {
+      ko: "**인증과 인가는 다른 문제입니다.** OAuth 를 붙였다는 건 \"신원 확인\" 을 위임한 것뿐, \"출입 허가\" 는 여전히 우리 서버가 콜백에서 직접 판정해야 합니다.",
+      en: "**Authentication and authorization are different problems.** Wiring up OAuth only delegates identity verification; admission is still a call our own server has to make in the callback.",
+    },
+    tags: ["OAuth", "Auth", "GitHub", "인가"],
+  },
+  {
+    section: { ko: "Frontend / CSS", en: "Frontend / CSS" },
+    problem: { ko: "코드블록 리사이즈 그립에서 커스텀 커서 위로 시스템 커서가 계속 새어나옴", en: "The system resize cursor leaks over the custom cursor on the code-block grip" },
+    definition: {
+      ko: "사이트 전역이 커스텀 커서(`cursor: none` + 직접 그린 커서)라 `resize` 되는 코드블록 우하단 그립에서도 커스텀 커서만 보여야 하는데 **네이티브 리사이즈 커서(↘)가 계속 같이 떴습니다.** 똑같은 방식인 댓글창은 멀쩡한데 코드블록만 샜습니다.",
+      en: "The whole site uses a custom cursor (`cursor: none` + a hand-drawn cursor), so the resizable code block's bottom-right grip should show only the custom cursor — but **the native resize cursor (↘) kept bleeding through.** The comment box, built the same way, was fine; only the code block leaked.",
+    },
+    cause: {
+      ko: "`resize` 그립은 `::-webkit-resizer` 라는 UA 의사요소로 그려지는데, 이건 스크롤바처럼 **그 요소의 자식들보다 위에 페인트** 됩니다. 코드블록은 시스템 커서를 가리려 올려둔 투명 오버레이가 resize 요소의 **자식**이라, resizer 가 오버레이보다 위에 그려져 `cursor: none` 이 안 먹었습니다. 댓글창은 오버레이가 resize 되는 textarea 의 **형제**라 resizer 위에 얹혀 정상이었습니다.",
+      en: "The grip is painted by the `::-webkit-resizer` UA pseudo-element, which — like a scrollbar — **paints above the element's own children.** In the code block, the transparent overlay meant to mask the cursor was a **child** of the resizable element, so the resizer painted on top of it and `cursor: none` never applied. In the comment box the overlay was a **sibling** of the resizable textarea, so it sat above the resizer and worked.",
+    },
+    solution: {
+      ko: "오버레이를 resize 요소의 **형제**로 옮겼습니다 — 프레임을 바깥 컨테이너(`position: relative`)로 한 겹 감싸고 오버레이를 그 안에 형제로 두면, 오버레이가 resizer 위에 페인트되어 시스템 커서를 가립니다. `resize` 는 자기 border-radius 가 자기 그립을 자르지 않으므로 프레임(자식 아님)에 그대로 둬 네이티브 그립 모양은 유지했습니다.",
+      en: "Moved the overlay to be a **sibling** of the resizable element — wrap the frame in an outer `position: relative` container and place the overlay as a sibling inside it, so it paints above the resizer and masks the system cursor. `resize` stays on the frame (whose own border-radius doesn't clip its own grip), keeping the native grip look.",
+    },
+    keyInsight: {
+      ko: "UA 가 그리는 요소(스크롤바·resizer)는 **자식 위, 형제 아래** 라는 독특한 페인트 순서를 갖습니다. 그 위에 무언가를 얹어야 한다면 자식이 아니라 형제로 둬야 합니다.",
+      en: "UA-drawn chrome (scrollbars, resizers) has a peculiar paint order: **above children, below siblings.** To cover one, place your element as a sibling — not a child.",
+    },
+    tags: ["CSS", "커서", "resize", "webkit"],
+  },
   /* ── Backend / Admin ── */
   {
     section: { ko: "Backend / Admin", en: "Backend / Admin" },
