@@ -283,6 +283,17 @@ export const erdTables: ErdTable[] = [
       { name: "created_at", type: "TIMESTAMPTZ" },
     ],
   },
+  {
+    name: "author_invites",
+    columns: [
+      { name: "email", type: "TEXT", pk: true },
+      { name: "author_id", type: "TEXT" },
+      { name: "permission_level", type: "INT" },
+      { name: "invited_by", type: "TEXT" },
+      { name: "consumed_at", type: "TIMESTAMPTZ" },
+      { name: "created_at", type: "TIMESTAMPTZ" },
+    ],
+  },
 ];
 
 export const erdRelations: ErdRelation[] = [
@@ -305,6 +316,15 @@ export const erdRelations: ErdRelation[] = [
 ];
 
 export const erdDesignNotes: ErdDesignNote[] = [
+  {
+    title: { ko: "역할은 테이블이 아니라 app_metadata 에", en: "Roles Live in app_metadata, Not a Table" },
+    tag: "email PK · service_role only",
+    description: {
+      ko: "author_invites 는 \"누구를 초대했는가\" 만 담는 대기열입니다. 실제 역할(소유자/편집자/저자)은 로그인 성공 후 auth.users.app_metadata(service_role 전용)에 저장돼 클라이언트가 조작할 수 없습니다. email 을 PK 로 둬 중복 초대를 막고, 소유자는 초대가 아니라 OWNER_EMAIL env 로 부트스트랩되므로 이 테이블에 없습니다.",
+      en: "author_invites is only a queue of \"who was invited\". The actual role (owner/editor/author) is stored in auth.users.app_metadata (service_role only) after login, so the client can't tamper with it. email as PK blocks duplicate invites, and the owner is bootstrapped from OWNER_EMAIL — not invited — so it never appears here.",
+    },
+    relatedTable: "author_invites",
+  },
   {
     title: { ko: "회원가입 없이 좋아요", en: "Likes Without Sign-Up" },
     tag: "UNIQUE (target_type, target_id, ip)",
