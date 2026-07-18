@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.26.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.25.0...v1.26.0) (2026-07-18)
+
+
+### Features
+
+* **auth:** GitHub OAuth 로그인 (Phase 1b) ([fa2a949](https://github.com/hyeoniverse/web-portfolio-oval/commit/fa2a9499612563f1e9639c9f1d625cfecd20a92f))
+* **auth:** 멀티 저자 멤버 관리 + 역할 기반 설정 접근 제어 ([e9b1380](https://github.com/hyeoniverse/web-portfolio-oval/commit/e9b13801566c00e5d181d647f3844352b9ff1109))
+* **auth:** 저자 이메일 초대 + OAuth 매칭 권한 부여 (Phase 1c) ([d4dab96](https://github.com/hyeoniverse/web-portfolio-oval/commit/d4dab96845436fb631bd2888a62ec82484ef5591))
+* **design-system:** 멤버 배지 데모 추가 (RoleBadge·ProviderChips) ([eb07cee](https://github.com/hyeoniverse/web-portfolio-oval/commit/eb07cee7224e517ec0dc73027f02c058c61d1955)), closes [#340](https://github.com/hyeoniverse/web-portfolio-oval/issues/340)
+* **privacy:** 개인정보 처리방침 현행화 + 개정일 고정 ([d34e3dd](https://github.com/hyeoniverse/web-portfolio-oval/commit/d34e3ddfbe78375d684301c4f13bdb505c7b6352))
+
+
+### Bug Fixes
+
+* **auth:** 로그인/초대 에러에 상세 사유 표시 ([5e02bf7](https://github.com/hyeoniverse/web-portfolio-oval/commit/5e02bf7daa2679414d9e78d5d319a8656091ff05))
+* **editor:** 코드블록 리사이즈 핸들·커서·스크롤·그림자 수정 ([71f3750](https://github.com/hyeoniverse/web-portfolio-oval/commit/71f3750da57c915661621d1b7ec761eece964e19))
+
 ## [1.25.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.24.0...v1.25.0) (2026-07-16)
 
 
