@@ -126,7 +126,9 @@ export function enhanceReaderExtras(
         labels: { diagram: L.diagram, code: L.code, split: L.split, copyCode: L.copyCode, copied: L.copied },
       }));
     }).catch(() => { /* noop */ });
-    docCleanups.push(() => { try { root?.unmount(); } catch { /* noop */ } });
+    // 언마운트는 microtask 로 미룬다 — 부모가 렌더 중일 때 동기 unmount 하면
+    // "synchronously unmount a root while React was already rendering" 경고가 난다.
+    docCleanups.push(() => { const r = root; queueMicrotask(() => { try { r?.unmount(); } catch { /* noop */ } }); });
   });
 
   // ── 비주얼 다이어그램 (data-diagram) ── 위치 보존 노드/엣지 → vanilla SVG(읽기전용) 렌더
@@ -277,7 +279,9 @@ export function enhanceReaderExtras(
         : { data, readOnly: true, explorer: true, theme: pgTheme, height: 460, resizable: true };
       r.render(ReactMod.createElement(mod.default as React.ComponentType<Record<string, unknown>>, props));
     }).catch(() => { /* noop */ });
-    docCleanups.push(() => { try { root?.unmount(); } catch { /* noop */ } });
+    // 언마운트는 microtask 로 미룬다 — 부모가 렌더 중일 때 동기 unmount 하면
+    // "synchronously unmount a root while React was already rendering" 경고가 난다.
+    docCleanups.push(() => { const r = root; queueMicrotask(() => { try { r?.unmount(); } catch { /* noop */ } }); });
   });
 
   // ── Calendar ── 연결형(data-calendar-id: 서버 fetch) / legacy(data-calendar: inline). 읽기전용 React island.
@@ -301,7 +305,9 @@ export function enhanceReaderExtras(
       root = r;
       r.render(ReactMod.createElement(mod.default, { calendarId, data, language: calLang }));
     }).catch(() => { /* noop */ });
-    docCleanups.push(() => { try { root?.unmount(); } catch { /* noop */ } });
+    // 언마운트는 microtask 로 미룬다 — 부모가 렌더 중일 때 동기 unmount 하면
+    // "synchronously unmount a root while React was already rendering" 경고가 난다.
+    docCleanups.push(() => { const r = root; queueMicrotask(() => { try { r?.unmount(); } catch { /* noop */ } }); });
   });
 
   // ── Tabs ── 헤더(라벨 버튼)를 만들어 끼우고, active 패널만 표시 + 클릭 전환

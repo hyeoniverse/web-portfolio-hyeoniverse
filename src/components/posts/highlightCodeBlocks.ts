@@ -48,6 +48,8 @@ export function attachCodeWrapToggle(
   container.querySelectorAll("pre").forEach((pre) => {
     // mermaid 코드블록은 enhanceReaderExtras 가 그래프+메뉴로 따로 처리 → 코드 컨트롤 주입 안 함
     if (pre.querySelector("code.language-mermaid")) return;
+    // Lenis 스무스 스크롤이 wheel 을 가로채 코드블록 내부 세로 스크롤이 죽는 것 방지
+    pre.setAttribute("data-lenis-prevent", "");
     // 중복 주입 방지는 pre 단위로 판정 — 한 wrap 에 pre 가 여러 개여도 각 pre 가 바를 받도록.
     //   (wrap.querySelector 로 판정하면 첫 pre 의 바를 보고 이후 pre 를 건너뛰는 오탐이 생김)
     if (pre.previousElementSibling?.classList.contains("code-block-bar")) return;
@@ -57,6 +59,16 @@ export function attachCodeWrapToggle(
       wrap.className = "code-block-wrap";
       pre.parentNode?.insertBefore(wrap, pre);
       wrap.appendChild(pre);
+    }
+
+    // 바깥 컨테이너 — resize 오버레이가 wrap 의 형제가 되도록 wrap 을 감싼다(댓글창 Textarea 구조).
+    // 오버레이가 wrap 의 자식이면 UA resizer 가 그 위에 그려져 시스템 커서가 샌다.
+    let outer = wrap.parentElement;
+    if (!outer?.classList.contains("code-block-outer")) {
+      outer = document.createElement("div");
+      outer.className = "code-block-outer";
+      wrap.parentNode?.insertBefore(outer, wrap);
+      outer.appendChild(wrap);
     }
 
     // 현재 언어 라벨 — Shiki 는 pre[data-lang], hljs/원본은 code.language-X 에서 읽음.
@@ -73,12 +85,12 @@ export function attachCodeWrapToggle(
     // 리사이즈 — 우하단 overlay 가 pointer 를 받아(=CursorTrail 이 data-cursor="resizeV" 감지)
     // wrap 높이를 드래그로 조절한다. pointer-events:none 으로 두면 CursorTrail 의 elementsFromPoint
     // 가 overlay 를 건너뛰어 커서가 안 바뀐다 → auto + 자체 drag(Textarea 와 같은 패턴, 아래 위임).
-    if (!wrap.querySelector(".code-resize-cursor")) {
+    if (!outer.querySelector(":scope > .code-resize-cursor")) {
       const rc = document.createElement("div");
       rc.className = "code-resize-cursor";
       rc.setAttribute("data-cursor", "resizeV");
       rc.setAttribute("aria-hidden", "true");
-      wrap.appendChild(rc);
+      outer.appendChild(rc);
     }
     const bar = document.createElement("div");
     bar.className = "code-block-bar";
@@ -142,13 +154,14 @@ export function attachCodeWrapToggle(
   });
 
   // 리사이즈 드래그 위임 — overlay pointerdown → wrap 높이 조절 (native resize 대신 JS,
-  // overlay 가 pointer 를 받아야 CursorTrail 이 커스텀 커서를 띄우므로)
+  // overlay 가 pointer 를 받아야 CursorTrail 이 커스텀 커서를 띄우므로).
+  // resize 는 wrap 이 가진다(자기 radius 는 자기 그립을 안 자름). overlay 는 wrap 의 형제(.code-block-outer 안).
   if (!container.dataset.resizeDelegated) {
     container.dataset.resizeDelegated = "1";
     container.addEventListener("pointerdown", (e) => {
       const grip = (e.target as HTMLElement).closest<HTMLElement>(".code-resize-cursor");
       if (!grip) return;
-      const wrap = grip.closest<HTMLElement>(".code-block-wrap");
+      const wrap = grip.closest<HTMLElement>(".code-block-outer")?.querySelector<HTMLElement>(".code-block-wrap");
       if (!wrap) return;
       e.preventDefault();
       const startY = e.clientY;

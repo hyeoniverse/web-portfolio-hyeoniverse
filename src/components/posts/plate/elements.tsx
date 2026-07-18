@@ -1917,7 +1917,7 @@ export function CodeBlockElement(props: PlateElementProps) {
       /* mermaid: 뷰 토글에 따라 코드/다이어그램/나란히. split 은 코드·그래프가 같은 컨테이너(동일 높이)에
          좌우로 들어가고 가운데 핸들로 폭 비율 조절(넓으면 좌우, 좁으면 위아래로 스택). */
       <div
-        className={isSplit ? styles.graphSplit : undefined}
+        className={isSplit ? styles.graphSplit : showCode ? styles.graphCodeShell : undefined}
         ref={splitRef}
         style={isSplit ? ({ ["--split-pct" as string]: `${splitPct}%` } as React.CSSProperties) : undefined}
       >
@@ -1929,7 +1929,8 @@ export function CodeBlockElement(props: PlateElementProps) {
             ...props.style,
             position: "relative",
             ...(showCode ? {} : { display: "none" }),
-            ...(isSplit ? { minWidth: 0, margin: 0, maxHeight: "none", resize: "none" } : {}),
+            /* code-only 뷰: 마진은 graphCodeShell 이 갖고 pre 는 shell 을 꽉 채운다(오버레이 정렬용). resize 는 CSS(.slate-code_block)가 부여. */
+            ...(isSplit ? { minWidth: 0, margin: 0, maxHeight: "none", resize: "none" } : { margin: 0 }),
           }}
         >
           <code
@@ -1939,6 +1940,37 @@ export function CodeBlockElement(props: PlateElementProps) {
             {props.children}
           </code>
         </PlateElement>
+        {/* code-only 뷰 리사이즈 오버레이 — pre(.slate-code_block)의 형제로 네이티브 resizer 위에 얹혀
+            시스템 커서를 가린다(일반 코드블록 codeShell·리더 code-block-outer 와 동일). */}
+        {showCode && !isSplit && (
+          <div
+            className={styles.codeResizeHandle}
+            contentEditable={false}
+            data-cursor="resizeV"
+            aria-hidden
+            onMouseDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              // resize 는 pre(.slate-code_block)가 가진다 — 오버레이는 pre 의 형제(previousElementSibling).
+              const pre = (e.currentTarget as HTMLElement).previousElementSibling as HTMLElement | null;
+              if (!pre) return;
+              (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+              const startY = e.clientY;
+              const startH = pre.offsetHeight;
+              const onMove = (ev: PointerEvent) => {
+                pre.style.height = `${Math.max(80, Math.min(window.innerHeight * 0.8, startH + (ev.clientY - startY)))}px`;
+                pre.style.maxHeight = "none";
+              };
+              const onUp = () => {
+                document.removeEventListener("pointermove", onMove);
+                document.removeEventListener("pointerup", onUp);
+              };
+              document.addEventListener("pointermove", onMove);
+              document.addEventListener("pointerup", onUp);
+            }}
+          />
+        )}
         {isSplit && showDiagram && (
           <div className={styles.graphSplitHandle} contentEditable={false} role="separator" aria-label="resize"
             data-cursor="resizeH"
@@ -1950,7 +1982,9 @@ export function CodeBlockElement(props: PlateElementProps) {
       </div>
     ) : (
       /* 일반 코드블록 = 리더뷰와 같은 창(신호등 헤더 + 코드). WYSIWYG.
-         언어(인터랙티브 피커)·복사·줄바꿈은 헤더 인라인 바로. 헤더는 contentEditable=false 로 Slate 밖. */
+         언어(인터랙티브 피커)·복사·줄바꿈은 헤더 인라인 바로. 헤더는 contentEditable=false 로 Slate 밖.
+         codeShell 은 리사이즈 오버레이가 창의 형제가 되게 하는 바깥 컨테이너(리더 .code-block-outer 와 동일). */
+      <div className={styles.codeShell}>
       <div className={styles.codeWindow}>
         <div className={styles.codeBar} contentEditable={false} onMouseDown={(e) => e.stopPropagation()}>
           <span className={styles.codeBarLang} onMouseDown={(e) => e.stopPropagation()}>
@@ -1984,6 +2018,36 @@ export function CodeBlockElement(props: PlateElementProps) {
             {props.children}
           </code>
         </PlateElement>
+        </div>
+        {/* 커스텀 세로 리사이즈 핸들 — 창(codeWindow)의 형제(codeShell 안). 창의 자식이면 UA resizer 가
+            오버레이 위에 그려져 시스템 커서가 샌다. data-cursor 로 커스텀 커서, cursor:none 로 시스템 커서 숨김. */}
+        <div
+          className={styles.codeResizeHandle}
+          contentEditable={false}
+          data-cursor="resizeV"
+          aria-hidden
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // resize 는 창(codeWindow)이 가진다 — 오버레이는 창의 형제(previousElementSibling)라 창의 네이티브 resizer 위에 얹힌다.
+            const win = (e.currentTarget as HTMLElement).previousElementSibling as HTMLElement | null;
+            if (!win) return;
+            (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+            const startY = e.clientY;
+            const startH = win.offsetHeight;
+            const onMove = (ev: PointerEvent) => {
+              win.style.height = `${Math.max(128, Math.min(window.innerHeight * 0.8, startH + (ev.clientY - startY)))}px`;
+              win.style.maxHeight = "none";
+            };
+            const onUp = () => {
+              document.removeEventListener("pointermove", onMove);
+              document.removeEventListener("pointerup", onUp);
+            };
+            document.addEventListener("pointermove", onMove);
+            document.addEventListener("pointerup", onUp);
+          }}
+        />
       </div>
     )}
     </div>
