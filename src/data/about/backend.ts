@@ -351,6 +351,47 @@ const { error } = await admin.from("site_settings")
       language: "javascript",
     },
   },
+  {
+    name: "Members / Auth API",
+    kind: "api",
+    description: {
+      ko: "멀티 저자 인증·멤버 관리 API. GitHub OAuth 로그인, 이메일 초대, 역할 기반 접근 제어를 처리합니다. 역할(소유자/편집자/저자)은 auth.users.app_metadata 에 저장되며 서버에서만 갱신됩니다. 초대받지 않은 OAuth 로그인은 콜백에서 차단하고, 로그아웃은 모든 탭에 전파됩니다.",
+      en: "Multi-author auth + member management APIs. Handles GitHub OAuth login, email invites, and role-based access control. Roles (owner/editor/author) live in auth.users.app_metadata and are updated server-side only. Un-invited OAuth logins are blocked at the callback, and logout propagates across all tabs.",
+    },
+    designNote: {
+      ko: "**인증 ≠ 인가**: OAuth 는 신원만 확인하므로, 콜백(`/auth/callback`)에서 세션 교환 직후 이메일이 `OWNER_EMAIL`·기존 역할·`author_invites` 초대 중 하나에 해당하는지 서버에서 재검사합니다. 아니면 `signOut()` + service_role `deleteUser()` 로 계정을 즉시 제거합니다. **역할은 `app_metadata`(service_role 전용)** 에만 저장해 클라이언트 조작을 원천 차단하고, 소유자는 `OWNER_EMAIL` env 로 부트스트랩합니다. 비소유자는 계정 탭만 접근 가능하며 설정 변경은 서버에서도 막습니다.",
+      en: "**AuthN ≠ AuthZ**: OAuth only verifies identity, so the callback (`/auth/callback`) re-checks server-side, right after the session exchange, whether the email is `OWNER_EMAIL`, already has a role, or has an `author_invites` row. Otherwise it `signOut()`s and `deleteUser()`s the account immediately. **Roles live only in `app_metadata` (service_role only)** to block client tampering, and the owner is bootstrapped from `OWNER_EMAIL`. Non-owners can reach only the account tab, and settings writes are refused server-side too.",
+    },
+    endpoints: [
+      { method: "GET", path: "/auth/callback", description: { ko: "OAuth 콜백 — 세션 교환 후 허용 검사(owner/역할/초대), 미허용 시 계정 삭제 + 실패 리다이렉트", en: "OAuth callback — exchange session, allow-check (owner/role/invite), delete account + fail-redirect if not allowed" } },
+      { method: "GET", path: "/api/admin/me", description: { ko: "현재 로그인 사용자의 이메일·역할·레벨·소유자 여부 (설정 탭 게이팅)", en: "Current user's email/role/level/owner flag (settings tab gating)" } },
+      { method: "GET", path: "/api/admin/authors/members", description: { ko: "OAuth 인증 멤버 + 대기중 초대 목록 (owner 전용)", en: "OAuth-authed members + pending invites (owner only)" } },
+      { method: "PATCH", path: "/api/admin/authors/members", description: { ko: "멤버 권한 변경 / 저자 프로필 연결 (owner 전용)", en: "Change member permission / link author profile (owner only)" } },
+      { method: "DELETE", path: "/api/admin/authors/members", description: { ko: "멤버 계정 삭제 (owner/본인 가드)", en: "Delete member account (owner/self guards)" } },
+      { method: "GET", path: "/api/admin/authors/context", description: { ko: "비소유자용 컨텍스트 — ownerEmail·멤버 저자ID/이메일 (403 없이 목록 표시)", en: "Non-owner context — ownerEmail + member author IDs/emails (list without 403)" } },
+      { method: "POST", path: "/api/admin/authors/invite", description: { ko: "저자 이메일 초대 — author_invites 등록 + Resend 안내 메일 (owner 전용)", en: "Invite author by email — insert author_invites + Resend notice (owner only)" } },
+    ],
+    exampleQuery: {
+      title: "OAuth Callback — AuthZ Gate",
+      code: `// 콜백: 인증(OAuth)은 끝났지만 인가는 우리가 판정한다
+const { data: { session } } = await supabase.auth
+  .exchangeCodeForSession(code);
+const email = session.user.email;
+
+const allowed =
+  email === process.env.OWNER_EMAIL ||
+  hasRole(session.user.app_metadata) ||
+  (await admin.from("author_invites")
+    .select("email").eq("email", email).maybeSingle()).data;
+
+if (!allowed) {
+  await supabase.auth.signOut();
+  await admin.auth.admin.deleteUser(session.user.id);
+  return redirect("/admin/login?error=not_invited");
+}`,
+      language: "javascript",
+    },
+  },
 
   /* ── Database Tables ── */
   {
@@ -491,6 +532,25 @@ const { error } = await admin.from("site_settings")
       { name: "id", type: "TEXT", constraint: "PK", description: { ko: "'default' | 'profile'", en: "'default' | 'profile'" } },
       { name: "config", type: "JSONB", description: { ko: "설정/데이터 JSON", en: "Settings/data JSON" } },
       { name: "updated_at", type: "TIMESTAMPTZ", description: { ko: "마지막 수정 시각", en: "Last modified timestamp" } },
+    ],
+  },
+  {
+    name: "author_invites",
+    kind: "table",
+    description: {
+      ko: "저자 이메일 초대 테이블. 소유자가 이메일로 초대하면 여기에 등록되고, 그 이메일로 GitHub OAuth 로그인 시 매칭해 app_metadata 에 역할을 부여합니다. service_role 전용(RLS).",
+      en: "Author email-invite table. When the owner invites an email it's recorded here; on GitHub OAuth login with that email it's matched and the role is granted in app_metadata. service_role only (RLS).",
+    },
+    designNote: {
+      ko: "**역할은 테이블이 아니라 app_metadata 에**: 이 테이블은 \"누구를 초대했는가\" 만 기록하는 대기열입니다. 실제 권한은 로그인 성공 후 `auth.users.app_metadata`(service_role 전용)에 저장되므로 클라이언트가 조작할 수 없습니다. `email` 을 PK 로 둬 같은 이메일 중복 초대를 자연히 막고, `consumed_at` 으로 소진 여부를 표시합니다. **소유자는 초대 대상이 아니라 `OWNER_EMAIL` env 로 부트스트랩** 되므로 이 테이블에 없습니다.",
+      en: "**Roles live in app_metadata, not this table**: this table is only a queue of \"who was invited\". The actual permission is stored in `auth.users.app_metadata` (service_role only) after a successful login, so the client can't tamper with it. `email` as PK naturally blocks duplicate invites, and `consumed_at` marks whether it's been used. **The owner isn't invited — it's bootstrapped from `OWNER_EMAIL`**, so it never appears here.",
+    },
+    columns: [
+      { name: "email", type: "TEXT", constraint: "PK", description: { ko: "초대 이메일 (OAuth 매칭 키)", en: "Invited email (OAuth matching key)" } },
+      { name: "author_id", type: "TEXT", description: { ko: "연결할 저자 프로필 id (site_settings.profile)", en: "Author profile id to link (site_settings.profile)" } },
+      { name: "permission_level", type: "INT", constraint: "DEFAULT 1", description: { ko: "1=저자 · 2=편집자 (owner 는 env)", en: "1=author · 2=editor (owner via env)" } },
+      { name: "invited_by", type: "TEXT", constraint: "NULLABLE", description: { ko: "초대한 소유자", en: "Owner who invited" } },
+      { name: "consumed_at", type: "TIMESTAMPTZ", constraint: "NULLABLE", description: { ko: "권한 부여된 시각 (NULL = 미소진)", en: "When granted (NULL = pending)" } },
     ],
   },
 ];
