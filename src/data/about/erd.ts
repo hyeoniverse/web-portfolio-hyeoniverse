@@ -95,7 +95,7 @@ export const erdTables: ErdTable[] = [
     columns: [
       { name: "id", type: "UUID", pk: true },
       { name: "slug", type: "TEXT UNIQUE" },
-      { name: "title", type: "TEXT" },
+      { name: "title / title_en", type: "TEXT" },
       { name: "subtitle_ko / _en", type: "TEXT" },
       { name: "categories_ko / _en", type: "TEXT[]" },
       { name: "nature_ko / _en", type: "TEXT" },
