@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.27.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.26.0...v1.27.0) (2026-07-18)
+
+
+### Features
+
+* **i18n:** 콘텐츠 작성 기본 언어 설정 ([8abedf4](https://github.com/hyeoniverse/web-portfolio-oval/commit/8abedf4725bec613b191f4efffea053d732ab356))
+* **works:** 작품 제목 이중언어화 (title_en) ([0dd5408](https://github.com/hyeoniverse/web-portfolio-oval/commit/0dd540861e39c9a9e52bd175c28f54db69e01df0))
+
 ## [1.26.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.25.0...v1.26.0) (2026-07-18)
 
 
