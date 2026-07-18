@@ -192,6 +192,7 @@ As a complement, `usePostPresence` detects other sessions over a Supabase Realti
 | `posts.icon` | `text NOT NULL DEFAULT ''` | Post icon (EmojiPicker value — native / `img:url` / `icon:id`) |
 | `posts.author_ids` | `text[] NOT NULL DEFAULT '{}'` | Per-post author linkage — an array of member profile ids (members/roles are managed via Supabase `app_metadata` + `author_invites`; see below) |
 | `works.icon` | `text NOT NULL DEFAULT ''` | Mirror of `posts.icon` |
+| `works.title_en` | `text NOT NULL DEFAULT ''` | Work title in English (`title` = Korean/primary; falls back to the other side when empty) |
 
 `cover_position` is meant to be 0–100 and `cover_zoom` 1–2.5, but these are **ranges in comments, not CHECK constraints** (the editor UI does the validating).
 

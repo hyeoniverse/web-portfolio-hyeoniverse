@@ -72,7 +72,7 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | `comment_reactions` | 댓글 이모지 반응 (고정 8종, `comment_type` 으로 post/work 구분, `reactor_hash` 중복 방지) |
 | `comment_reports` | 댓글 신고 (사유 + resolve/dismiss 상태) |
 | `likes` | 좋아요 (포스트/작업물/댓글 통합, target_type으로 구분, IP 중복 방지) |
-| `works` | 포트폴리오 작업물 (slug, `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `icon`, `scheduled_at`, `purge_after`) |
+| `works` | 포트폴리오 작업물 (slug, `title`/`title_en` (이중언어 제목), `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `icon`, `scheduled_at`, `purge_after`) |
 | `site_visits` | 방문자 통계 (IP+날짜 1회) |
 | `post_views` | 게시물별 시계열 조회 기록 (대시보드 일별 추세 차트) |
 | `work_comments` | Works 댓글 (대댓글, 이중 인증) |
@@ -205,7 +205,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서, 썸네일, .md 업로드)
 - `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)
 - `/admin/works/[id]/edit` — 기존 작업물 수정
-- `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). General 탭에서 브랜드·SEO·푸터 저작권·BGM 파일 업로드·음원 출처(곡명/아티스트/URL) 관리. Content 탭은 Home/Profile/About/Posts/Works 서브 네비게이션으로 분리. Services 탭에서 이메일 서비스, AI 커버, reCAPTCHA 설정 및 API 키 편집. Account 탭에서 관리자 이메일/비밀번호 변경 + 멤버 관리(소유자 전용 — 멤버 목록·역할[소유자/편집자/저자]·이메일 초대·권한 변경, 비소유자는 Account 탭만 노출)
+- `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). General 탭에서 브랜드·SEO(기본 콘텐츠 언어 `defaultLanguage` ko/en Select — admin 저작 폼에서 어느 언어를 필수 입력으로 둘지[제목/부제목/nature/카테고리]와 에디터 초기 언어 탭을 결정, 방문자 표시 언어와는 무관)·푸터 저작권·BGM 파일 업로드·음원 출처(곡명/아티스트/URL) 관리. Content 탭은 Home/Profile/About/Posts/Works 서브 네비게이션으로 분리. Services 탭에서 이메일 서비스, AI 커버, reCAPTCHA 설정 및 API 키 편집. Account 탭에서 관리자 이메일/비밀번호 변경 + 멤버 관리(소유자 전용 — 멤버 목록·역할[소유자/편집자/저자]·이메일 초대·권한 변경, 비소유자는 Account 탭만 노출)
 
 ### 6. Cover Image Picker 사용법
 

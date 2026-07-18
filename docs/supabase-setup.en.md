@@ -72,7 +72,7 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 | `comment_reactions` | Comment emoji reactions (fixed set of 8, post/work split via `comment_type`, duplicate prevention via `reactor_hash`) |
 | `comment_reports` | Comment reports (reason + resolve/dismiss state) |
 | `likes` | Likes (unified for posts/works/comments, distinguished by target_type, IP duplicate prevention) |
-| `works` | Portfolio works (slug, `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `icon`, `scheduled_at`, `purge_after`) |
+| `works` | Portfolio works (slug, `title`/`title_en` (bilingual title), `categories_ko/en text[]` + GIN, `nature_ko/en`, `contributions_ko/en jsonb`, `tech_notes jsonb`, team_members jsonb, `icon`, `scheduled_at`, `purge_after`) |
 | `site_visits` | Visitor statistics (1 per IP+date) |
 | `post_views` | Per-post time-series view records (daily trend chart on the dashboard) |
 | `work_comments` | Works comments (threaded replies, dual auth) |
@@ -205,7 +205,7 @@ There is no login button on the site. Only the admin accesses it by entering the
 - `/admin/works` — Works list (table view, publish/private toggle, sort order, thumbnails, .md upload)
 - `/admin/works/new` — Create new work (single content editor + template, Korean/English bilingual, tech stack, gallery)
 - `/admin/works/[id]/edit` — Edit existing work
-- `/admin/settings` — Site settings (General, Content, Appearance, Services, Account — 5 tabs). General tab for brand/SEO/footer copyright/BGM file upload/audio source (track name/artist/URL) management. Content tab split into Home/Profile/About/Posts/Works sub-navigation. Services tab for email service, AI cover, reCAPTCHA settings and API key editing. Account tab for admin email/password changes + member management (owner-only — member list, roles [owner/editor/author], email invites, permission changes; non-owners see only the Account tab)
+- `/admin/settings` — Site settings (General, Content, Appearance, Services, Account — 5 tabs). General tab for brand/SEO (incl. a `defaultLanguage` ko/en Select that decides which language is required in admin authoring forms [title/subtitle/nature/categories] plus the editor's initial language tab — independent of the visitor-facing language)/footer copyright/BGM file upload/audio source (track name/artist/URL) management. Content tab split into Home/Profile/About/Posts/Works sub-navigation. Services tab for email service, AI cover, reCAPTCHA settings and API key editing. Account tab for admin email/password changes + member management (owner-only — member list, roles [owner/editor/author], email invites, permission changes; non-owners see only the Account tab)
 
 ### 6. Cover Image Picker Usage
 
