@@ -701,6 +701,8 @@
       "aboutPanelShowAll": "전체 표시",
       "aboutPanelHideAll": "전체 숨김",
       "aboutHeroTextGroup": "텍스트",
+      "aboutHeroTypography": "타이포그래피",
+      "aboutHeroTypoElement": "요소",
       "aboutTechStack": "Tech Stack 패널",
       "aboutTechStackHint": "칩을 클릭해 이름·카테고리·아이콘을 편집합니다. + 추가로 프리셋(아이콘 포함)에서 빠르게 고르거나 직접 입력할 수 있어요.",
       "aboutTechStackName": "이름 (예: Next.js 15)",
