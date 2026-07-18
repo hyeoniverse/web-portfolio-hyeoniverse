@@ -783,14 +783,16 @@ CREATE POLICY "admin_notifications_service_all"
 -- ────────────────────────────────────────────────────────────
 -- 9-a2. author_invites — 저자 초대 (이슈 #334). email→author_id+권한레벨.
 --       owner 가 초대 → OAuth 로그인 시 이메일 매칭으로 app_metadata 부여. service role 전용.
+--       역할은 DB 테이블이 아니라 auth.users.app_metadata 에 저장(role/author_id/permission_level).
+--       owner 는 OWNER_EMAIL env 로 부트스트랩되며 초대 대상이 아니다.
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS author_invites (
   email             text PRIMARY KEY,
-  author_id         text NOT NULL,
-  permission_level  int  NOT NULL DEFAULT 1,
+  author_id         text NOT NULL,   -- site_settings.profile 의 저자 프로필 id
+  permission_level  int  NOT NULL DEFAULT 1,  -- 1=저자(author), 2=편집자(editor). owner 는 별도(env)
   invited_by        text,
   created_at        timestamptz NOT NULL DEFAULT now(),
-  consumed_at       timestamptz
+  consumed_at       timestamptz      -- OAuth 매칭으로 권한 부여된 시각(NULL=미소진)
 );
 
 ALTER TABLE author_invites ENABLE ROW LEVEL SECURITY;
@@ -1545,7 +1547,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_07_12_works_icon',                    'works.icon — posts.icon 미러'),
   ('2026_07_13_posts_title_len',               'posts 제목(ko/en) 120자 CHECK'),
   ('2026_07_14_comment_reactions',             'comment_reactions — 댓글 이모지 반응 (giscus 식 고정 8종)'),
-  ('2026_07_14_posts_author_ids',              'posts.author_ids text[] — 다중 작성자')
+  ('2026_07_14_posts_author_ids',              'posts.author_ids text[] — 다중 작성자'),
+  ('2026_07_17_author_invites',                'author_invites — 저자 이메일 초대 + OAuth 매칭 권한 부여 (이슈 #334)')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.
