@@ -30,6 +30,7 @@ export function workToFormData(work: Work): WorkFormData {
   return {
     slug: work.slug || "",
     title: work.title,
+    title_en: work.title_en || "",
     subtitle_ko: work.subtitle_ko,
     subtitle_en: work.subtitle_en,
     categories_ko: Array.isArray(work.categories_ko) ? work.categories_ko : [],
@@ -64,6 +65,7 @@ export function workToFormData(work: Work): WorkFormData {
 export const defaultForm: WorkFormData = {
   slug: "",
   title: "",
+  title_en: "",
   subtitle_ko: "",
   subtitle_en: "",
   categories_ko: [],

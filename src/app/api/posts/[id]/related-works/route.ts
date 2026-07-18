@@ -20,7 +20,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
   const { data: works } = await admin
     .from("works")
-    .select("id, slug, title, subtitle_ko, subtitle_en, year, image, categories_ko, categories_en, nature_ko, nature_en")
+    .select("id, slug, title, title_en, subtitle_ko, subtitle_en, year, image, categories_ko, categories_en, nature_ko, nature_en")
     .in("id", workIds)
     .eq("published", true)
     .is("deleted_at", null);

@@ -61,6 +61,7 @@
 --   2026_07_14  comment_reactions — 댓글 이모지 반응 (giscus 식 고정 8종)
 --   2026_07_14  posts.author_ids — 다중 작성자
 --   2026_07_17  author_invites — 저자 초대(이메일→권한) + OAuth 매칭 (이슈 #334)
+--   2026_07_18  works.title_en — 작품 제목 영문 (title 이중언어화)
 --
 -- 마이그레이션 파일이 없는 것 (setup.sql 에만 존재):
 --   custom_emojis — 에디터 이모지 picker 의 커스텀 아이콘 기록
@@ -544,7 +545,8 @@ CREATE POLICY "custom_emojis_service_all"
 CREATE TABLE IF NOT EXISTS works (
   id               uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   -- 표시 번호 (#01) 는 sort_order 에서 derive — 별도 컬럼 없음 (single source of truth)
-  title            text NOT NULL DEFAULT '',
+  title            text NOT NULL DEFAULT '',   -- 국문/기본 제목
+  title_en         text NOT NULL DEFAULT '',   -- 영문 제목 (빈 값이면 title 로 fallback)
   slug             text NOT NULL DEFAULT '',
   subtitle_ko      text NOT NULL DEFAULT '',
   subtitle_en      text NOT NULL DEFAULT '',
@@ -1548,7 +1550,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_07_13_posts_title_len',               'posts 제목(ko/en) 120자 CHECK'),
   ('2026_07_14_comment_reactions',             'comment_reactions — 댓글 이모지 반응 (giscus 식 고정 8종)'),
   ('2026_07_14_posts_author_ids',              'posts.author_ids text[] — 다중 작성자'),
-  ('2026_07_17_author_invites',                'author_invites — 저자 이메일 초대 + OAuth 매칭 권한 부여 (이슈 #334)')
+  ('2026_07_17_author_invites',                'author_invites — 저자 이메일 초대 + OAuth 매칭 권한 부여 (이슈 #334)'),
+  ('2026_07_18_works_title_en',                'works.title_en — 작품 제목 영문 (title 이중언어화)')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const projects = await getWorks();
   const idx = findProjectIndex(projects, slug);
   const project = idx >= 0 ? projects[idx] : undefined;
-  return { title: project?.title ?? "Work" };
+  return { title: project?.title.ko || project?.title.en || "Work" };
 }
 
 export default async function WorkDetailPage({ params }: PageProps) {

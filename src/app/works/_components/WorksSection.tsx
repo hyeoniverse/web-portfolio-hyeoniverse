@@ -30,6 +30,7 @@ import {
   INITIAL_MARGIN,
 } from "@/data/projects";
 import CreditsPanel from "@/components/layout/CreditsFooter/CreditsPanel";
+import { pickLocalized } from "@/types/common";
 import {
   SCROLL_LERP,
   VELOCITY_DECAY,
@@ -71,7 +72,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
   const TECH_COUNT = new Set(projects.flatMap((p) => p.tech ?? [])).size;
   const allProjects = Array(INFINITE_SCROLL_SETS).fill(projects).flat();
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const siteConfig = useSiteConfig();
   const infiniteScroll = siteConfig.works.infiniteScroll;
   const searchParams = useSearchParams();
@@ -613,7 +614,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
                 data-layout={(index % 6) + 1}
               >
               {/* 카드 */}
-              <Tooltip content={`${project.title} · ${t("tooltip.viewProject")}`}>
+              <Tooltip content={`${pickLocalized(project.title, language)} · ${t("tooltip.viewProject")}`}>
               <article
                 ref={(el) => {
                   if (el) cardRefs.current.set(index, el);
@@ -631,7 +632,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
                 <div className={styles.cardImageWrap}>
                   <ProgressiveImage
                     src={project.image}
-                    alt={project.title}
+                    alt={pickLocalized(project.title, language)}
                     fill
                     sizes="(max-width: 768px) 100vw, 500px"
                     className={styles.cardImage}
@@ -641,7 +642,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
                 <div className={styles.cardBorder} />
                 <span className={styles.metaNumber}>{project.number}</span>
                 <div className={styles.cardOverlay}>
-                  <h3 className={styles.metaTitle}>{project.title}</h3>
+                  <h3 className={styles.metaTitle}><T ko={project.title.ko} en={project.title.en} /></h3>
                   <span className={styles.metaSubtitle}>
                     <T ko={project.subtitle.ko} en={project.subtitle.en} />
                   </span>
@@ -685,7 +686,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
           >
             <span className={styles.activeNumber}>{projects[activeIndex]?.number}</span>
             <h2 className={styles.activeTitle}>
-              {projects[activeIndex]?.title}
+              <T ko={projects[activeIndex]?.title.ko ?? ""} en={projects[activeIndex]?.title.en ?? ""} />
             </h2>
             <p className={styles.activeSubtitle}>
               <T ko={projects[activeIndex]?.subtitle.ko} en={projects[activeIndex]?.subtitle.en} />

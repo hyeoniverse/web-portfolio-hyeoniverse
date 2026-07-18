@@ -196,7 +196,7 @@ export default function FullscreenLayout({ projects, onProjectClick }: WorksLayo
                 <span className={styles.category}>
                   <T ko={p.category.ko} en={p.category.en} />
                 </span>
-                <h2 className={styles.title}>{p.title}</h2>
+                <h2 className={styles.title}><T ko={p.title.ko} en={p.title.en} /></h2>
                 <p className={styles.subtitle}>
                   <T ko={p.subtitle.ko} en={p.subtitle.en} />
                 </p>

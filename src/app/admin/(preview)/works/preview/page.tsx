@@ -87,6 +87,7 @@ export default function WorkPreviewPage() {
             setForm({
               slug: w.slug || "",
               title: w.title || "",
+              title_en: w.title_en || "",
               subtitle_ko: w.subtitle_ko || "",
               subtitle_en: w.subtitle_en || "",
               categories_ko: w.categories_ko || [],

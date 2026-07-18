@@ -11,6 +11,7 @@ import CloseButton from "@/components/ui/CloseButton";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import { ImageViewer } from "@/components/ui/ImageViewer";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
 import { focusFirstMissingField } from "@/utils/focusFirstMissing";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
@@ -928,8 +929,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const { openModal, closeAll } = useModalStore();
   const isEdit = !!work;
   const serviceStatus = useServiceStatus();
+  // 콘텐츠 작성 기본 언어 — nature/categories 필수 항목 + 초기 편집 언어의 기준 (방문자 언어와 무관)
+  const primaryLang = useSiteConfig().metadata.defaultLanguage as "ko" | "en";
 
-  const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
+  const [editorLang, setEditorLang] = useState<"ko" | "en">(primaryLang);
   // 본문 에디터 ref + 첨부 이미지 패널 (Posts editor 와 동일 패턴)
   const plateRef = useRef<PlateEditorHandle>(null);
   const [editorImages, setEditorImages] = useState<EditorImageInfo[]>([]);
@@ -1157,23 +1160,28 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   const tech = useTagInput(form.tech, (tags) => updateField("tech", tags));
 
   const TRANSLATABLE_FIELDS = useMemo(
-    () => ["subtitle", "description", "role", "content"] as const,
+    () => ["title", "subtitle", "description", "role", "content"] as const,
+    [],
+  );
+
+  // 필드 논리명 → form 키. title 만 bare+_en 컨벤션(title/title_en), 나머지는 _ko/_en.
+  const fieldKeyFor = useCallback(
+    (f: string, l: "ko" | "en"): keyof WorkFormData =>
+      (f === "title" ? (l === "ko" ? "title" : "title_en") : `${f}_${l}`) as keyof WorkFormData,
     [],
   );
 
   const translateFields = useCallback(
     async (fieldKeys: string[], lang: "ko" | "en") => {
       const isToEn = lang === "en";
-      const srcSuf = isToEn ? "_ko" : "_en";
-      const dstSuf = isToEn ? "_en" : "_ko";
       const sourceLang: "ko" | "en" = isToEn ? "ko" : "en";
       const targetLang: "ko" | "en" = isToEn ? "en" : "ko";
       const want = new Set(fieldKeys);
 
       const activeFields = TRANSLATABLE_FIELDS.filter(
-        (f) => want.has(f) && form[`${f}${srcSuf}`]?.trim(),
+        (f) => want.has(f) && (form[fieldKeyFor(f, sourceLang)] as string)?.trim(),
       );
-      const texts = activeFields.map((f) => form[`${f}${srcSuf}`]) as string[];
+      const texts = activeFields.map((f) => form[fieldKeyFor(f, sourceLang)]) as string[];
 
       if (texts.length === 0) return;
 
@@ -1187,7 +1195,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       if ("translations" in result) {
         const patch: Partial<WorkFormData> = {};
         activeFields.forEach((f, i) => {
-          patch[`${f}${dstSuf}` as keyof WorkFormData] = result.translations[i] as never;
+          patch[fieldKeyFor(f, targetLang)] = result.translations[i] as never;
         });
         setForm((prev) => ({ ...prev, ...patch }));
         setStatus(tLang("admin.works.editor.autoTranslated", lang));
@@ -1196,7 +1204,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         setError(result.error);
       }
     },
-    [form, tLang, TRANSLATABLE_FIELDS],
+    [form, tLang, TRANSLATABLE_FIELDS, fieldKeyFor],
   );
 
   const handleEditorLangChange = useCallback(
@@ -1205,11 +1213,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       setEditorLang(newLang);
 
       const isToEn = newLang === "en";
-      const srcSuf = isToEn ? "_ko" : "_en";
-      const dstSuf = isToEn ? "_en" : "_ko";
+      const srcLang: "ko" | "en" = isToEn ? "ko" : "en";
+      const dstLang: "ko" | "en" = isToEn ? "en" : "ko";
 
-      const hasSrc = TRANSLATABLE_FIELDS.some((f) => form[`${f}${srcSuf}`]?.trim());
-      const hasDst = TRANSLATABLE_FIELDS.some((f) => form[`${f}${dstSuf}`]?.trim());
+      const hasSrc = TRANSLATABLE_FIELDS.some((f) => (form[fieldKeyFor(f, srcLang)] as string)?.trim());
+      const hasDst = TRANSLATABLE_FIELDS.some((f) => (form[fieldKeyFor(f, dstLang)] as string)?.trim());
 
       if (hasSrc && !hasDst) {
         await translateFields(
@@ -1218,7 +1226,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         );
       }
     },
-    [form, translating, translateFields, TRANSLATABLE_FIELDS],
+    [form, translating, translateFields, TRANSLATABLE_FIELDS, fieldKeyFor],
   );
 
   const handleRetranslate = useCallback(
@@ -1403,9 +1411,11 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       if (willPublish) {
         const missing: Array<{ label: string; field: string }> = [];
-        if (!form.title.trim()) missing.push({ label: tw("title"), field: "title" });
-        if (!form.categories_ko || form.categories_ko.length === 0) missing.push({ label: tw("category"), field: "category" });
-        if (!form.nature_ko.trim()) missing.push({ label: tw("nature") || "성격", field: "nature" });
+        if (!(primaryLang === "en" ? form.title_en : form.title).trim()) missing.push({ label: tw("title"), field: "title" });
+        // 카테고리·성격의 필수 기준은 기본 언어 (en 기본이면 영문 쪽이 필수)
+        const reqCategories = (primaryLang === "en" ? form.categories_en : form.categories_ko) ?? [];
+        if (reqCategories.length === 0) missing.push({ label: tw("category"), field: "category" });
+        if (!(primaryLang === "en" ? form.nature_en : form.nature_ko).trim()) missing.push({ label: tw("nature") || "성격", field: "nature" });
         if (!form.year.trim()) missing.push({ label: tw("year"), field: "year" });
         if (!form.image.trim()) missing.push({ label: tw("mainImage"), field: "image" });
         if (!form.content_ko.trim() && !form.content_en.trim()) missing.push({ label: tw("content"), field: "content" });
@@ -1487,7 +1497,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         setSaving(false);
       }
     },
-    [form, router, tw, savedId],
+    [form, router, tw, savedId, primaryLang],
   );
 
   const handleDelete = useCallback(async () => {
@@ -1624,6 +1634,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   );
 
   const suf = editorLang === "ko" ? "_ko" : "_en";
+  // 제목은 title(국문/기본) / title_en(영문) 이중언어 — editorLang 토글로 전환
+  const titleKey = editorLang === "ko" ? "title" : "title_en";
+  // 필수 제목 값 — 콘텐츠 작성 기본 언어 기준
+  const reqTitle = primaryLang === "en" ? form.title_en : form.title;
   const contentKey = editorLang === "ko" ? "content_ko" : "content_en";
 
   return (
@@ -1691,12 +1705,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
         {/* ── 필수 ── 제목 + 부제목 + slug 묶음 */}
         <div className={es.field} data-required="title">
-          <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.title.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("title")}</label>
+          <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !reqTitle.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("title")}</label>
           <input
-            className={`${es.titleInput}${showErrors && !form.title.trim() ? ` ${es.titleInputError}` : ""}`}
+            className={`${es.titleInput}${showErrors && !reqTitle.trim() ? ` ${es.titleInputError}` : ""}`}
             type="text"
-            value={form.title}
-            onChange={(e) => updateField("title", e.target.value)}
+            value={form[titleKey]}
+            onChange={(e) => updateField(titleKey, e.target.value)}
             placeholder={tw("titlePlaceholder")}
           />
         </div>
@@ -1746,7 +1760,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         {/* nature (성격) — 제작 동기 축. category 와 별도. 필수 입력 */}
         <div className={es.row}>
           <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="nature">
-            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !form.nature_ko.trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("nature") || "성격"}</label>
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && !(primaryLang === "en" ? form.nature_en : form.nature_ko).trim() ? ` ${es.fieldLabelError}` : ""}`}>{tw("nature") || "성격"}</label>
             {(() => {
               const matchedIdx = naturePresets.findIndex(
                 (n) => n.ko === form.nature_ko && n.en === form.nature_en,
@@ -1813,7 +1827,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         {/* category — multi-select. 선택된 chip 위에, 추가 Select 아래에. 직접 입력 가능 */}
         <div className={es.row}>
           <div className={es.field} style={{ gridColumn: "1 / -1" }} data-required="category">
-            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (form.categories_ko ?? []).length === 0 ? ` ${es.fieldLabelError}` : ""}`}>{tw("category")}</label>
+            <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && ((primaryLang === "en" ? form.categories_en : form.categories_ko) ?? []).length === 0 ? ` ${es.fieldLabelError}` : ""}`}>{tw("category")}</label>
             <CategoryMultiPicker
               selectedKos={form.categories_ko ?? []}
               selectedEns={form.categories_en ?? []}

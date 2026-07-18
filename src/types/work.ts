@@ -23,7 +23,8 @@ export interface TeamMember {
 export interface Work {
   id: string;
   slug: string;
-  title: string;
+  title: string;      // 국문/기본 제목
+  title_en: string;   // 영문 제목 (빈 값이면 title 로 fallback)
   subtitle_ko: string;
   subtitle_en: string;
   /** 결과물 형태 — 웹앱·라이브러리·도구 등. 여러 개 가능 (multi-select) */
@@ -84,6 +85,7 @@ export interface Work {
 export interface WorkFormData {
   slug: string;
   title: string;
+  title_en: string;
   subtitle_ko: string;
   subtitle_en: string;
   categories_ko: string[];
@@ -158,6 +160,7 @@ export function workFormToProject(form: WorkFormData): Project {
     id: "preview",
     slug: form.slug || "",
     title: form.title,
+    title_en: form.title_en,
     subtitle_ko: form.subtitle_ko,
     subtitle_en: form.subtitle_en,
     categories_ko: form.categories_ko,
@@ -237,7 +240,8 @@ export function workToProject(w: Work): Project {
     slug: w.slug || "",
     // display number — DB sort_order 에서 derive (단일 source of truth, 화면 표시 번호 = 정렬 순서)
     number: formatProjectNumber(w.sort_order),
-    title: w.title,
+    // 제목은 필수(항상 표시) — 한쪽만 있으면 반대 언어로 fallback (T 는 빈 문자열을 fallback 안 함)
+    title: loc(w.title || w.title_en, w.title_en || w.title),
     subtitle: loc(w.subtitle_ko, w.subtitle_en),
     categories: {
       ko: w.categories_ko ?? [],

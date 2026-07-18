@@ -22,3 +22,8 @@ export interface BilingualCategory {
 
 /** 한국어/영어 이중언어 텍스트 */
 export type LocalizedText = Record<Language, string>;
+
+/** LocalizedText 를 현재 언어 문자열로 — 반대 언어로 fallback (문자열 컨텍스트: alt/title 속성 등) */
+export function pickLocalized(lt: LocalizedText, lang: Language): string {
+  return lang === "en" ? (lt.en || lt.ko) : (lt.ko || lt.en);
+}

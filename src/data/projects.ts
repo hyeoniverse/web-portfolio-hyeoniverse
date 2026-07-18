@@ -23,7 +23,7 @@ export interface Project {
   /** URL slug — DB 의 works.slug 와 동일. 정적 fallback 에선 optional (없으면 id fallback) */
   slug?: string;
   number: string;
-  title: string;
+  title: LocalizedText;
   subtitle: LocalizedText;
   /** legacy 단일 카테고리 — categories[0] 미러. 신규 호출부는 categories 사용 권장 */
   category: LocalizedText;
@@ -57,7 +57,7 @@ export const projects: Project[] = [
   {
     id: "1",
     number: "01",
-    title: "Oval Portfolio",
+    title: { ko: "Oval Portfolio", en: "Oval Portfolio" },
     subtitle: { ko: "직접 설계하고 구현한 풀스택 포트폴리오", en: "Full-Stack Portfolio, Designed & Built from Scratch" },
     category: { ko: "풀스택 / 개인 프로젝트", en: "Full-Stack / Personal Project" },
     year: "2025",
@@ -143,7 +143,7 @@ Core Architecture:
   {
     id: "2",
     number: "02",
-    title: "Syncboard",
+    title: { ko: "Syncboard", en: "Syncboard" },
     subtitle: { ko: "충돌 없는 실시간 협업", en: "Conflict-Free Real-Time Collaboration" },
     category: { ko: "웹 앱 / 실시간 협업", en: "Web App / Real-Time Collaboration" },
     year: "2024",
@@ -226,7 +226,7 @@ Yjs serves as the CRDT engine, with Hocuspocus as the WebSocket server for real-
   {
     id: "3",
     number: "03",
-    title: "Reflex Commerce",
+    title: { ko: "Reflex Commerce", en: "Reflex Commerce" },
     subtitle: { ko: "결제까지 3초, 이탈률 40% 감소", en: "3s to Checkout, 40% Drop-off Reduction" },
     category: { ko: "이커머스 / 성능 최적화", en: "E-Commerce / Performance Optimization" },
     year: "2024",
@@ -313,7 +313,7 @@ Turborepo monorepo structure with packages/ui and packages/utils shared between 
   {
     id: "4",
     number: "04",
-    title: "Prism UI",
+    title: { ko: "Prism UI", en: "Prism UI" },
     subtitle: { ko: "토큰 기반 디자인 시스템 구축기", en: "Building a Token-Driven Design System" },
     category: { ko: "디자인 시스템 / 오픈소스", en: "Design System / Open Source" },
     year: "2024",
@@ -401,7 +401,7 @@ Post-adoption, new page development time decreased by ~40%, and designer-develop
   {
     id: "5",
     number: "05",
-    title: "Docuflow",
+    title: { ko: "Docuflow", en: "Docuflow" },
     subtitle: { ko: "PDF 생성 자동화로 수작업 90% 제거", en: "90% Manual Work Eliminated via PDF Automation" },
     category: { ko: "SaaS / 문서 자동화", en: "SaaS / Document Automation" },
     year: "2023",
@@ -490,7 +490,7 @@ Frontend Highlights:
   {
     id: "6",
     number: "06",
-    title: "Gridview Analytics",
+    title: { ko: "Gridview Analytics", en: "Gridview Analytics" },
     subtitle: { ko: "10만 행도 버벅임 없이", en: "100K Rows, Zero Lag" },
     category: { ko: "대시보드 / 데이터 시각화", en: "Dashboard / Data Visualization" },
     year: "2023",
