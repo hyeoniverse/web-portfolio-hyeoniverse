@@ -825,6 +825,13 @@
   align-items: stretch;
   margin: var(--spacing-md) 0;
 }
+/* mermaid code-only 뷰 컨테이너 — 리사이즈 오버레이(.codeResizeHandle)가 pre 의 형제가 되게 하는 바깥 컨테이너.
+   pre(.slate-code_block)는 자기 resize 그립을 그리고, 오버레이가 그 위에 얹혀 시스템 커서를 가린다(codeShell 과 동일).
+   마진을 여기로 옮겨 pre 를 꽉 채워야 오버레이가 pre 우하단 그립에 정확히 정렬된다. */
+.graphCodeShell {
+  position: relative;
+  margin: var(--spacing-md) 0;
+}
 /* 코드 pre — 폭 비율(--split-pct)만큼 고정, 나머지는 그래프가 채움 */
 .graphSplitCode {
   flex: 0 0 calc(var(--split-pct, 50%) - var(--spacing-xs));
@@ -4626,6 +4633,11 @@
   border: none;
   color: inherit;
   border-radius: 0;
+  /* 인라인 코드(.editorContent code)의 box-shadow + box-decoration-break:clone 이 블록 코드로 새서
+     wrapper 전체(또는 줄마다) 그림자가 생기는 것 방지 */
+  box-shadow: none;
+  -webkit-box-decoration-break: slice;
+  box-decoration-break: slice;
 }
 .editorContent img {
   max-width: 100%;
@@ -5046,17 +5058,37 @@
 .imgCaptionInput:focus { outline: none; border-color: var(--text-accent); }
 
 /* ── 편집뷰 코드블록 = 리더뷰와 같은 창(신호등 바 + 코드). WYSIWYG. (일반 코드블록만; 다이어그램 제외) ── */
+/* 바깥 컨테이너 — 리사이즈 오버레이(.codeResizeHandle)가 창의 형제가 되도록 codeWindow 를 감싼다.
+   오버레이가 창의 자식이면 UA resizer 가 그 위에 그려져 시스템 커서가 샌다(리더 .code-block-outer 와 동일). */
+.codeShell {
+  position: relative;
+  margin: var(--spacing-md) 0;
+}
 .codeWindow {
   display: flex;
   flex-direction: column;
+  position: relative;
   max-height: 20rem;
-  margin: var(--spacing-md) 0;
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   overflow: hidden;
+  /* 창 전체가 세로 리사이즈 — resize 는 창이 가진다(자기 radius 는 자기 그립을 안 자르므로 그립이 보인다).
+     오버레이(.codeResizeHandle)는 창의 **형제**(.codeShell 안)라 창의 네이티브 resizer 위에 얹혀 시스템 커서를 가린다. */
+  resize: vertical;
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
-  resize: vertical;
+}
+/* 리사이즈 오버레이 — 네이티브 grip visual 위에 투명하게. cursor:none 시스템 커서 숨김 + data-cursor 커스텀 커서 + JS drag */
+.codeResizeHandle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  cursor: none;
+  touch-action: none;
+  z-index: 4;
 }
 /* 창 안의 pre 는 자기 프레임 벗고 내부를 채운다(리더 .code-block-wrap pre 와 동일 규격) */
 .codeWindow :global(.slate-code_block) {
