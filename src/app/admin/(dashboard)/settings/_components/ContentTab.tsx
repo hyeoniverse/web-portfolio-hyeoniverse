@@ -2404,53 +2404,126 @@ function AboutOverviewEditor({
 type ArchitectureItem = { path: string; description_ko: string; description_en: string; indent: number };
 
 function AboutArchitectureEditor({ value, onChange, t, sh, styles }: { value: ArchitectureItem[]; onChange: (v: ArchitectureItem[]) => void } & CardEditorShared) {
-  const setItem = (idx: number, patch: Partial<ArchitectureItem>) => {
-    const next = [...value];
-    next[idx] = { ...next[idx], ...patch };
-    onChange(next);
+  const [sel, setSel] = useState<number | null>(null);
+  const empty = (indent: number): ArchitectureItem => ({ path: "", description_ko: "", description_en: "", indent });
+  const subtreeEnd = (arr: ArchitectureItem[], i: number) => {
+    let j = i + 1;
+    while (j < arr.length && arr[j].indent > arr[i].indent) j++;
+    return j;
   };
-  const moveItem = (from: number, dir: -1 | 1) => {
-    const to = from + dir;
-    if (to < 0 || to >= value.length) return;
+  const setItem = (idx: number, patch: Partial<ArchitectureItem>) =>
+    onChange(value.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
+  const addChild = (i: number) => {
     const next = [...value];
-    [next[from], next[to]] = [next[to], next[from]];
-    onChange(next);
+    next.splice(i + 1, 0, empty(Math.min(2, value[i].indent + 1)));
+    onChange(next); setSel(i + 1);
   };
-  const setIndent = (idx: number, delta: -1 | 1) =>
-    setItem(idx, { indent: Math.max(0, Math.min(2, (value[idx].indent ?? 0) + delta)) });
+  const addSibling = (i: number) => {
+    const at = subtreeEnd(value, i);
+    const next = [...value];
+    next.splice(at, 0, empty(value[i].indent));
+    onChange(next); setSel(at);
+  };
+  const addRoot = () => { onChange([...value, empty(0)]); setSel(value.length); };
+  const removeSubtree = (i: number) => {
+    const next = [...value];
+    next.splice(i, subtreeEnd(value, i) - i);
+    onChange(next); setSel(null);
+  };
+  const shift = (i: number, d: -1 | 1) => {
+    if (d === -1 && value[i].indent === 0) return;
+    if (d === 1 && value[i].indent >= 2) return;
+    const end = subtreeEnd(value, i);
+    onChange(value.map((it, k) => (k >= i && k < end ? { ...it, indent: Math.max(0, Math.min(2, it.indent + d)) } : it)));
+  };
+  const move = (i: number, dir: -1 | 1) => {
+    const end = subtreeEnd(value, i);
+    const sub = value.slice(i, end);
+    if (dir === -1) {
+      let k = i - 1;
+      while (k >= 0 && value[k].indent > value[i].indent) k--;
+      if (k < 0 || value[k].indent !== value[i].indent) return;
+      const rest = [...value];
+      rest.splice(i, sub.length);
+      rest.splice(k, 0, ...sub);
+      onChange(rest); setSel(k);
+    } else {
+      if (end >= value.length || value[end].indent !== value[i].indent) return;
+      const nEnd = subtreeEnd(value, end);
+      const nSib = value.slice(end, nEnd);
+      onChange([...value.slice(0, i), ...nSib, ...sub, ...value.slice(nEnd)]);
+      setSel(i + nSib.length);
+    }
+  };
+
+  // flat + indent → 중첩 트리 (flat index 보존)
+  type TNode = { item: ArchitectureItem; index: number; children: TNode[] };
+  const roots: TNode[] = [];
+  const stack: TNode[] = [];
+  value.forEach((item, index) => {
+    const node: TNode = { item, index, children: [] };
+    while (stack.length && stack[stack.length - 1].item.indent >= item.indent) stack.pop();
+    (stack.length ? stack[stack.length - 1].children : roots).push(node);
+    stack.push(node);
+  });
+
+  const renderNode = (node: TNode): React.ReactNode => {
+    const { item, index, children } = node;
+    const isSel = sel === index;
+    return (
+      <div key={index} className={styles.archNodeWrap}>
+        <div className={`${styles.archNode} ${isSel ? styles.archNodeSel : ""}`}>
+          <button type="button" className={styles.archNodeLabel} onClick={() => setSel(isSel ? null : index)}>
+            <span className={styles.archNodeDot} data-empty={!item.path} />
+            {item.path
+              ? <span className={styles.archNodePath}>{item.path}</span>
+              : <span className={styles.archNodeEmpty}>이름 없음</span>}
+            {(item.description_en || item.description_ko) && (
+              <span className={styles.archNodeDesc}>{item.description_en || item.description_ko}</span>
+            )}
+          </button>
+          {item.indent < 2 && (
+            <button type="button" className={styles.archNodeAdd} onClick={() => addChild(index)} aria-label="하위 추가" title="하위 추가">
+              <Plus size={13} />
+            </button>
+          )}
+        </div>
+        {isSel && (
+          <div className={styles.archNodeEdit}>
+            <Input inlineLabel="경로" value={item.path} onChange={(v) => setItem(index, { path: v })} placeholder="src/" />
+            <div className={styles.archDescs}>
+              <Input inlineLabel="EN" value={item.description_en} onChange={(v) => setItem(index, { description_en: v })} placeholder="description" />
+              <Input inlineLabel="KO" value={item.description_ko} onChange={(v) => setItem(index, { description_ko: v })} placeholder="설명" />
+            </div>
+            <div className={styles.archEditBar}>
+              <button type="button" className={styles.archIconBtn} onClick={() => move(index, -1)} aria-label="위로" title="위로"><ChevronUp size={14} /></button>
+              <button type="button" className={styles.archIconBtn} onClick={() => move(index, 1)} aria-label="아래로" title="아래로"><ChevronDown size={14} /></button>
+              <button type="button" className={styles.archIconBtn} onClick={() => shift(index, -1)} disabled={item.indent === 0} aria-label="내어쓰기" title="상위로"><ChevronLeft size={14} /></button>
+              <button type="button" className={styles.archIconBtn} onClick={() => shift(index, 1)} disabled={item.indent >= 2} aria-label="들여쓰기" title="하위로"><ChevronRight size={14} /></button>
+              <button type="button" className={styles.archTextBtn} onClick={() => addSibling(index)}><Plus size={12} /> 형제</button>
+              <button type="button" className={styles.archTextBtn} data-danger onClick={() => removeSubtree(index)}><Trash2 size={12} /> 삭제</button>
+            </div>
+          </div>
+        )}
+        {children.length > 0 && <div className={styles.archChildren}>{children.map(renderNode)}</div>}
+      </div>
+    );
+  };
+
   return (
     <section className={`${styles.section} ${styles.sectionWide}`}>
       <SectionHeader title={t("admin.settings.aboutArchitecture")} paths={["about.architectureItems"]} {...sh} />
       <p className={styles.sectionHint}>{t("admin.settings.aboutArchitectureHint")}</p>
-      {/* 트리 들여쓰기(indent 0/1/2) 로 계층 시각화 — path 는 mono, 설명은 EN/KO 뱃지 인풋, indent ◀▶ + 순서 ↑↓ */}
-      <div className={styles.archList}>
-        {value.map((item, idx) => (
-          <div key={idx} className={styles.archRow} data-indent={item.indent} style={{ marginLeft: (item.indent ?? 0) * 22 }}>
-            <div className={styles.archReorder}>
-              <button type="button" className={styles.archIconBtn} onClick={() => moveItem(idx, -1)} disabled={idx === 0} aria-label="위로"><ChevronUp size={13} /></button>
-              <button type="button" className={styles.archIconBtn} onClick={() => moveItem(idx, 1)} disabled={idx === value.length - 1} aria-label="아래로"><ChevronDown size={13} /></button>
-            </div>
-            <Input className={styles.archPath} value={item.path} onChange={(v) => setItem(idx, { path: v })} placeholder="src/" />
-            <div className={styles.archDescs}>
-              <Input inlineLabel="EN" value={item.description_en} onChange={(v) => setItem(idx, { description_en: v })} placeholder="description" />
-              <Input inlineLabel="KO" value={item.description_ko} onChange={(v) => setItem(idx, { description_ko: v })} placeholder="설명" />
-            </div>
-            <div className={styles.archLevel}>
-              <button type="button" className={styles.archIconBtn} onClick={() => setIndent(idx, -1)} disabled={(item.indent ?? 0) === 0} aria-label="내어쓰기"><ChevronLeft size={13} /></button>
-              <span className={styles.archLevelNum}>L{item.indent ?? 0}</span>
-              <button type="button" className={styles.archIconBtn} onClick={() => setIndent(idx, 1)} disabled={(item.indent ?? 0) === 2} aria-label="들여쓰기"><ChevronRight size={13} /></button>
-            </div>
-            <button type="button" className={styles.archRemove} onClick={() => onChange(value.filter((_, i) => i !== idx))} aria-label="삭제"><X size={14} /></button>
-          </div>
-        ))}
-        <button type="button" className={styles.archAdd} onClick={() => onChange([...value, { path: "", description_ko: "", description_en: "", indent: 1 }])}>
+      {/* 비주얼 트리 에디터 — 노드 클릭 선택 후 인라인 편집, + 로 하위/형제 추가, 툴바로 이동·계층 변경·삭제 */}
+      <div className={styles.archTree}>
+        {roots.map(renderNode)}
+        <button type="button" className={styles.archAdd} onClick={addRoot}>
           <Plus size={14} /> {t("admin.settings.aboutTechStackAdd")}
         </button>
       </div>
     </section>
   );
 }
-
 type FeatureItem = NonNullable<SiteConfigData["about"]["features"]>[number];
 
 function AboutFeaturesEditor({ value, onChange, t, sh, styles }: { value: FeatureItem[]; onChange: (v: FeatureItem[]) => void } & CardEditorShared) {

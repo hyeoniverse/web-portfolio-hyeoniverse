@@ -5919,99 +5919,177 @@ a.tagRelatedItem:hover {
   cursor: pointer;
 }
 
-/* ── Architecture 트리 에디터 ── */
-.archList {
+/* ── Architecture 비주얼 트리 에디터 ── */
+.archTree {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: 3px;
   width: 100%;
 }
-.archRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  min-width: 0;
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: var(--bg-secondary);
-}
-/* 자식(indent>0) 은 좌측 accent 로 중첩감 */
-.archRow[data-indent="1"],
-.archRow[data-indent="2"] {
-  border-left: 2px solid var(--border-light-color);
-}
-.archReorder {
+.archNodeWrap {
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
+  gap: 3px;
 }
-.archIconBtn {
+/* 노드 행 — 클릭으로 선택, hover 시 + 하위추가 노출 */
+.archNode {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  min-width: 0;
+}
+.archNodeLabel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-capsule);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+.archNodeLabel:hover {
+  background: var(--bg-secondary);
+}
+.archNodeSel > .archNodeLabel {
+  background: var(--bg-secondary);
+  box-shadow: inset 0 0 0 1px var(--border-light-color);
+}
+.archNodeDot {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: var(--radius-circle);
+  background: var(--text-tertiary);
+}
+.archNodeDot[data-empty="true"] {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--border-light-color);
+}
+.archNodePath {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.archNodeEmpty {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+.archNodeDesc {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.archNodeAdd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 18px;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
   padding: 0;
   border: none;
   background: transparent;
+  border-radius: var(--radius-circle);
   color: var(--text-tertiary);
   cursor: pointer;
-  border-radius: var(--radius-capsule);
+  opacity: 0;
 }
-.archIconBtn:hover:not(:disabled) {
+.archNode:hover .archNodeAdd {
+  opacity: 1;
+}
+.archNodeAdd:hover {
   color: var(--text-primary);
+  background: var(--bg-secondary);
 }
-.archIconBtn:disabled {
-  opacity: 0.28;
-  cursor: default;
+/* 중첩 — 좌측 가이드선으로 계층 표현 */
+.archChildren {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-left: 11px;
+  padding-left: 14px;
+  border-left: 1px solid var(--border-light-color);
 }
-.archPath {
-  flex: 0 0 180px;
+/* 선택 노드 인라인 편집 패널 */
+.archNodeEdit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin: 2px 0 var(--spacing-xs);
+  padding: var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-secondary);
 }
 .archDescs {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-xs);
-  flex: 1;
   min-width: 0;
 }
-.archLevel {
-  display: inline-flex;
+.archEditBar {
+  display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  flex-shrink: 0;
+  flex-wrap: wrap;
 }
-.archLevelNum {
-  width: 18px;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  font-weight: 600;
-  color: var(--text-tertiary);
-}
-.archRemove {
+.archIconBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 28px;
-  height: 28px;
+  height: 26px;
   padding: 0;
-  flex-shrink: 0;
-  border: none;
+  border: var(--border-light);
   background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
   border-radius: var(--radius-capsule);
+  color: var(--text-secondary);
+  cursor: pointer;
 }
-.archRemove:hover {
+.archIconBtn:hover:not(:disabled) {
   color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+.archIconBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.archTextBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: var(--border-light);
+  background: transparent;
+  border-radius: var(--radius-capsule);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+.archTextBtn + .archTextBtn {
+  margin-left: var(--spacing-2xs);
+}
+.archTextBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
 }
 .archAdd {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
+  margin-top: var(--spacing-2xs);
   padding: var(--spacing-xs) var(--spacing-md);
   border: 1px dashed var(--border-light-color);
   border-radius: var(--radius-capsule);
