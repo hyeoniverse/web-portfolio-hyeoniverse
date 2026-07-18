@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
-import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
+import { Plus, Check, X, Trash2, Filter, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { DndContext, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { normalizeCategories } from "@/lib/categoryTree";
@@ -2196,10 +2196,10 @@ function HeroTypographyMatrix({ about, themeBg, onSet, t }: {
               <div className={`${styles.heroMatrixCell} ${styles.heroMatrixSize}`}>
                 <Slider min={r.min} max={r.max} step={r.step} value={[sizeVal]}
                   onValueChange={([n]) => onSet(`${r.key}FontSize`, `${Math.round(n * 100) / 100}rem`)} />
-                <EditableSliderValue value={sizeVal} display={(v) => `${v}`}
+                <EditableSliderValue value={sizeVal} display={(v) => `${v}rem`}
                   parse={{ toDraft: (v) => String(v), fromDraft: (s) => parseFloat(s) }}
                   onCommit={(n) => onSet(`${r.key}FontSize`, `${n}rem`)}
-                  min={r.min} max={r.max} step={r.step} width={44} />
+                  min={r.min} max={r.max} step={r.step} width={58} />
               </div>
               <div className={styles.heroMatrixCell}>
                 <Select value={about[`${r.key}FontWeight`] || "400"} onChange={(v) => onSet(`${r.key}FontWeight`, v)} options={HERO_WEIGHT_OPTIONS} />
@@ -2416,39 +2416,36 @@ function AboutArchitectureEditor({ value, onChange, t, sh, styles }: { value: Ar
     [next[from], next[to]] = [next[to], next[from]];
     onChange(next);
   };
+  const setIndent = (idx: number, delta: -1 | 1) =>
+    setItem(idx, { indent: Math.max(0, Math.min(2, (value[idx].indent ?? 0) + delta)) });
   return (
     <section className={`${styles.section} ${styles.sectionWide}`}>
       <SectionHeader title={t("admin.settings.aboutArchitecture")} paths={["about.architectureItems"]} {...sh} />
       <p className={styles.sectionHint}>{t("admin.settings.aboutArchitectureHint")}</p>
-      <div className={styles.fields}>
-        {/* compact row 레이아웃 — 25+ 항목이라 ItemCard 로 늘리면 너무 길어짐.
-            한 줄 = [indent select] [path] [en desc] [ko desc] [↑] [↓] [×] */}
+      {/* 트리 들여쓰기(indent 0/1/2) 로 계층 시각화 — path 는 mono, 설명은 EN/KO 뱃지 인풋, indent ◀▶ + 순서 ↑↓ */}
+      <div className={styles.archList}>
         {value.map((item, idx) => (
-          <div key={idx} style={{ display: "grid", gridTemplateColumns: "auto 1.2fr 2fr 2fr auto", gap: "var(--spacing-xs)", alignItems: "center", paddingBlock: "var(--spacing-2xs)" }}>
-            <Select
-              value={String(item.indent)}
-              onChange={(v) => setItem(idx, { indent: parseInt(v, 10) })}
-              options={[
-                { value: "0", label: "L0" },
-                { value: "1", label: "L1" },
-                { value: "2", label: "L2" },
-              ]}
-            />
-            <Input value={item.path} onChange={(v) => setItem(idx, { path: v })} placeholder="src/" />
-            <Input value={item.description_en} onChange={(v) => setItem(idx, { description_en: v })} placeholder="EN description" />
-            <Input value={item.description_ko} onChange={(v) => setItem(idx, { description_ko: v })} placeholder="KO 설명" />
-            <div style={{ display: "flex", gap: "var(--spacing-2xs)" }}>
-              <Button variant="outline" size="2xs" onClick={() => moveItem(idx, -1)} disabled={idx === 0} aria-label="up">↑</Button>
-              <Button variant="outline" size="2xs" onClick={() => moveItem(idx, 1)} disabled={idx === value.length - 1} aria-label="down">↓</Button>
-              <Button variant="outline" size="2xs" onClick={() => onChange(value.filter((_, i) => i !== idx))} aria-label="remove">×</Button>
+          <div key={idx} className={styles.archRow} data-indent={item.indent} style={{ marginLeft: (item.indent ?? 0) * 22 }}>
+            <div className={styles.archReorder}>
+              <button type="button" className={styles.archIconBtn} onClick={() => moveItem(idx, -1)} disabled={idx === 0} aria-label="위로"><ChevronUp size={13} /></button>
+              <button type="button" className={styles.archIconBtn} onClick={() => moveItem(idx, 1)} disabled={idx === value.length - 1} aria-label="아래로"><ChevronDown size={13} /></button>
             </div>
+            <Input className={styles.archPath} value={item.path} onChange={(v) => setItem(idx, { path: v })} placeholder="src/" />
+            <div className={styles.archDescs}>
+              <Input inlineLabel="EN" value={item.description_en} onChange={(v) => setItem(idx, { description_en: v })} placeholder="description" />
+              <Input inlineLabel="KO" value={item.description_ko} onChange={(v) => setItem(idx, { description_ko: v })} placeholder="설명" />
+            </div>
+            <div className={styles.archLevel}>
+              <button type="button" className={styles.archIconBtn} onClick={() => setIndent(idx, -1)} disabled={(item.indent ?? 0) === 0} aria-label="내어쓰기"><ChevronLeft size={13} /></button>
+              <span className={styles.archLevelNum}>L{item.indent ?? 0}</span>
+              <button type="button" className={styles.archIconBtn} onClick={() => setIndent(idx, 1)} disabled={(item.indent ?? 0) === 2} aria-label="들여쓰기"><ChevronRight size={13} /></button>
+            </div>
+            <button type="button" className={styles.archRemove} onClick={() => onChange(value.filter((_, i) => i !== idx))} aria-label="삭제"><X size={14} /></button>
           </div>
         ))}
-        <div>
-          <Button variant="outline" size="sm" onClick={() => onChange([...value, { path: "", description_ko: "", description_en: "", indent: 1 }])}>
-            + {t("admin.settings.aboutTechStackAdd")}
-          </Button>
-        </div>
+        <button type="button" className={styles.archAdd} onClick={() => onChange([...value, { path: "", description_ko: "", description_en: "", indent: 1 }])}>
+          <Plus size={14} /> {t("admin.settings.aboutTechStackAdd")}
+        </button>
       </div>
     </section>
   );
