@@ -93,16 +93,16 @@ export const projectStructure: StructureItem[] = [
   {
     path: "admin/",
     description: {
-      ko: "어드민 대시보드 — 포스트/작업물 CRUD, 설정(콘텐츠·프로필·계정). 미리보기는 공개 상세와 동일한 아티클 뷰 재사용 (single source of truth)",
-      en: "Admin dashboard — posts/works CRUD, settings (content, profile, account). Preview reuses the same article view as the public detail page (single source of truth)",
+      ko: "어드민 대시보드 — 포스트/작업물 CRUD, 설정(콘텐츠·프로필·계정). 계정 탭에서 멤버 관리(초대·역할)를 하며, 역할(소유자/편집자/저자)에 따라 접근 가능한 탭이 갈린다. 미리보기는 공개 상세와 동일한 아티클 뷰 재사용 (single source of truth)",
+      en: "Admin dashboard — posts/works CRUD, settings (content, profile, account). The account tab handles member management (invite, roles); accessible tabs branch by role (owner/editor/author). Preview reuses the same article view as the public detail page (single source of truth)",
     },
     indent: 2,
   },
   {
     path: "api/",
     description: {
-      ko: "API 라우트 — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin",
-      en: "API routes — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin",
+      ko: "API 라우트 — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin(authors 멤버·초대, me). GitHub OAuth 콜백은 app/auth/callback 에서 인가 검사 후 세션 확정",
+      en: "API routes — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin (authors members/invites, me). The GitHub OAuth callback lives at app/auth/callback and finalizes the session after an authorization check",
     },
     indent: 2,
   },

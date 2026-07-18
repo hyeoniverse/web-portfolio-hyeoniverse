@@ -1,5 +1,5 @@
 export const SVG_W = 1800;
-export const SVG_H = 1200;
+export const SVG_H = 1300;
 export const ROW_HEIGHT = 20;
 export const HEADER_HEIGHT = 28;
 export const PADDING_Y = 6;
@@ -29,6 +29,8 @@ export const TABLE_LAYOUT: Record<string, { x: number; y: number; w: number }> =
   likes:               { x: OX + 360,  y: OY + 840, w: COL_W },
   site_visits:         { x: OX + 720,  y: OY + 840, w: COL_W },
   revisions:           { x: OX + 1080, y: OY + 840, w: COL_W },
+  // 관계선 없는 독립 테이블 — site_settings(설정/관리 계열) 아래 빈 공간
+  author_invites:      { x: OX,        y: OY + 1050, w: COL_W },
 };
 
 export const ZOOM_MIN = 1;
