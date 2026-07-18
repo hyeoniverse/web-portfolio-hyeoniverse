@@ -11,6 +11,8 @@ Multi-layered security validation is applied to all public API endpoints.
 | **Authentication** | Comment dual authentication (commenter_hash + bcrypt password), admin comment server-side Supabase Auth re-verification | Comment edit/delete, admin |
 | **RLS** | Supabase Row Level Security policies | All tables |
 | **Route Protection** | Layout-level Supabase Auth session check + access denied page | `/admin/*` |
+| **Role-based authorization** | Owner/editor/author roles + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` re-read `app_metadata` on every request. Site-config tabs are owner-only (a non-owner's `/api/admin/settings` PATCH rejects writes to anything but their own author entry), and the client also exposes only the Account tab | Member management, Settings, admin API |
+| **OAuth authorization gate** | After the session exchange at `/auth/callback`, the email must be `OWNER_EMAIL` / already have a role / have an `author_invites` row to pass — otherwise `signOut()` + service-role `deleteUser()` blocks the un-invited account | GitHub OAuth login |
 | **Duplicate Prevention** | IP-based UNIQUE constraints (votes use `poll_votes(poll_id, option_id, ip)` UNIQUE); comment reactions use `reactor_hash` (below) | Likes, visitor statistics, votes, comment reactions |
 | **service_role Writes** | `/api/polls` votes + related-series writes are handled by the service_role admin client | Votes, related-series editing |
 | **Password Security** | bcrypt (salt round 10), 72-byte limit, minimum 2 characters | Comment passwords |
@@ -79,5 +81,17 @@ Comment images have **no upload path and accept only externally hosted URLs** (t
 **Comment reaction identifier (`reactor_hash`):**
 
 `comment_reactions` never stores a raw IP — only the first 32 chars of `sha256(IP + ":" + UA)`. The IP is resolved as the first segment of `x-forwarded-for`, then `x-real-ip`, then the literal `"unknown"`. Since reactions are login-free, the goal is **everyday duplicate prevention** rather than perfect identification, and the stored value is not itself personally identifying.
+
+**Role / authorization trust boundary (`app_metadata` vs `user_metadata`):**
+
+Member roles (`owner` / `editor` / `author` + `permission_level`) are stored only in `auth.users.app_metadata` — a **service_role-writable-only** field. Putting them in the self-editable `user_metadata` would let a client change its own role and escalate privileges, so the trust boundary is drawn here. The server helpers (`requireOwner` / `requireRole` / `requireAuth` in `src/lib/api/requireRole.ts`) re-read the session's `app_metadata` on every request and never trust a client-sent role/level.
+
+**OAuth authorization gate:**
+
+GitHub OAuth only **authenticates** — any GitHub account can complete the sign-in itself. The actual authorization happens at `/auth/callback`, right after `exchangeCodeForSession`: the email must be `OWNER_EMAIL`, already have a role, or have an `author_invites` row; if none of the three, the account is deleted via `signOut()` + service-role `deleteUser()` and it redirects back to login with an error. An un-invited user is left with neither a session nor an account. Password login (`signInWithPassword`) remains as the owner fallback.
+
+**Cross-tab logout / session propagation:**
+
+`AdminAuthSync` subscribes to Supabase `onAuthStateChange` and redirects to `/admin/login` on a `SIGNED_OUT` event. Because Supabase broadcasts auth state across tabs, logging out in one tab — or signing out everywhere (`signOut({ scope: "global" })`) — drops every open tab to the login screen immediately, whereas previously an invalidated session lingered in other tabs until a manual refresh.
 
 

@@ -190,14 +190,28 @@ As a complement, `usePostPresence` detects other sessions over a Supabase Realti
 | `posts.cover_position` | `real NOT NULL DEFAULT 50` | Vertical focal point (%) of the cover image — persists the position dragged in the editor |
 | `posts.cover_zoom` | `real NOT NULL DEFAULT 1` | Cover image zoom factor |
 | `posts.icon` | `text NOT NULL DEFAULT ''` | Post icon (EmojiPicker value — native / `img:url` / `icon:id`) |
-| `posts.author_ids` | `text[] NOT NULL DEFAULT '{}'` | Multiple authors — references `authors[]` ids in `site.config.ts` |
+| `posts.author_ids` | `text[] NOT NULL DEFAULT '{}'` | Per-post author linkage — an array of member profile ids (members/roles are managed via Supabase `app_metadata` + `author_invites`; see below) |
 | `works.icon` | `text NOT NULL DEFAULT ''` | Mirror of `posts.icon` |
 
 `cover_position` is meant to be 0–100 and `cover_zoom` 1–2.5, but these are **ranges in comments, not CHECK constraints** (the editor UI does the validating).
 
-Why `author_ids` isn't normalized into an `authors` table plus a join table: the author list is a small, fixed set living in site settings (`site.config.ts`), and there is no query demand that justifies adding a join to every post read. A `text[]` is enough for list rendering, even without a GIN index.
+Why `author_ids` isn't normalized into an `authors` table plus a join table: author (member) identity and permissions already live in Supabase Auth — roles in `auth.users.app_metadata`, invites in the `author_invites` table (no longer the static `authors[]` in `site.config.ts`). `posts.author_ids` is just a thin id array linking those members to a post, so there's no query demand that justifies a join on every post read, and a `text[]` is enough for list rendering.
 
 > The list card layout (`magazine` / `grid` / `list` / `compact` / `masonry` / `featured`) is **a site setting, not a DB column** — `siteConfig.posts.layout`, applied site-wide rather than per post.
+
+### Author invites + roles: `app_metadata` / `author_invites`
+
+Members (owner/editor/author) and their permissions are **delegated to Supabase Auth** instead of a dedicated `members` table.
+
+| Store | What | Why |
+|--------|------|------|
+| `auth.users.app_metadata` | Role (`owner` / `editor` / `author`) + `permission_level` (editor 2 / author 1) | **service_role-writable only** — putting it in the self-editable `user_metadata` would allow privilege escalation |
+| `author_invites` table | Invite queue (`email` PK, `author_id` text — references the profile id in site_settings.profile, `permission_level` int, `invited_by` text, `created_at`, `consumed_at`) | An invite may not have an account yet, so it can't be a user row — the email is reserved ahead of time as the PK. RLS is service_role-only |
+
+- **Email is the PK**: at OAuth login the invite is looked up by the authenticated email to grant the role, so the email is the natural key.
+- **`consumed_at`**: when the invite was consumed — filled in once login grants the role, preventing reuse and distinguishing pending vs. completed invites.
+- **Owner is bootstrapped from env**: the owner isn't in the invite table but is set via the `OWNER_EMAIL` env var — sidestepping the chicken-and-egg problem of "who invites the first owner."
+- **Authorization is enforced at `/auth/callback`**: since OAuth only authenticates, the email must be `OWNER_EMAIL`, already have a role, or be in `author_invites` to pass — otherwise the account is deleted.
 
 ### Title Length CHECK Constraints
 

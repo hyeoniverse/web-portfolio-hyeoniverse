@@ -74,9 +74,9 @@
 | **인터랙션** | 무한 스크롤 루프, 마우스 패럴랙스, StaggerText, Three.js 3D 커피잔 + 라떼아트, 방향별 Scroll Cascade |
 | **Works** | 6종 레이아웃 (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) |
 | **Blog** | SSR + ISR, 시리즈, 배너 슬라이더, 6종 목록 레이아웃, 게스트 댓글 (마크다운 + 이모지 반응) 또는 giscus 전환 |
-| **Admin** | Plate.js 에디터 (캘린더 · 다이어그램 · 코드 플레이그라운드 블록), `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리, 낙관적 동시성 제어 |
+| **Admin** | Plate.js 에디터 (캘린더 · 다이어그램 · 코드 플레이그라운드 블록), `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리, 낙관적 동시성 제어, GitHub OAuth 로그인 + 멤버 관리 (이메일 초대 · 소유자/편집자/저자 역할) |
 | **성능** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic 카운터 + AbortController + bulk Promise.all |
-| **보안** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin 체크 (production fail-closed), middleware admin 다층 가드, 5회 실패 잠금 + 새 기기 이메일 승인 + 전기기 로그아웃 |
+| **보안** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin 체크 (production fail-closed), middleware admin 다층 가드, 5회 실패 잠금 + 새 기기 이메일 승인 + 전기기 로그아웃, 역할 기반 접근 제어 (app_metadata) + OAuth 콜백 인가 게이트 + 크로스탭 로그아웃 |
 | **디자인 시스템** | 4-tier 토큰 (Raw → Semantic → Component → Context) + 라이브 프리뷰, **전체 색 토큰 OKLCH 전환** (culori 정확 변환, hue 무관 균일한 지각 밝기) |
 
 ---
@@ -142,7 +142,7 @@
 - **Posts 서브네비 (`PostsSubnav`)**: All / Series / Tags / History 캡슐 서브네비로 `/posts` 하위 인덱스를 통합 진입
 - **목록 레이아웃 6종**: `siteConfig.posts.layout` (Admin 설정) 으로 전환 — magazine(기본, bento masonry) · grid · list · compact · masonry · featured. 글마다가 아니라 **사이트 전역 설정**이며, 사이즈 변주(wide/banner/square/portrait) + JS row-span packing 은 magazine 에만 적용. `/posts/history` 는 timeline 전용
 - **카테고리 2단계 트리**: 플랫 목록 → 2단계 트리로 전환 (개발 > 프론트엔드/백엔드/DevOps, 학습 > 알고리즘/CS, 인사이트/회고/일상/기타). 저장은 leaf 만 하고 부모는 `src/lib/categoryTree.ts` 로 도출 — DB 마이그레이션 0. **카테고리 다중 선택**(OR, `?category=a,b`) + `facets` 사이드바 지원
-- **다중 작성자**: `posts.author_ids text[]` + Admin `AuthorsEditor` — `site.config.ts` 의 `authors[]` 를 참조
+- **다중 작성자 / 멤버**: 작성자(멤버)는 Supabase `app_metadata` 에 역할(소유자/편집자/저자)과 함께 저장되고, 이메일 초대(`author_invites` 테이블)로 추가하며, Settings → Account 탭에서 관리합니다. 인증은 GitHub OAuth, 소유자는 `OWNER_EMAIL` 로 부트스트랩. `posts.author_ids text[]` 는 그대로 글별 작성자 연결로 유지됩니다
 - **시리즈(Series)**: 포스트를 시리즈로 묶어 순서대로 발행 — `/series` 별도 페이지 폐지 후 `/posts` 안으로 통합, 카테고리 필터 후 타임라인(스텝 번호 + 세로 connector) 형태로 노출, 상세 페이지 이전/다음 네비게이션
 - **Series Deck Cards**: 가로 스크롤 row — 카드를 hover 하면 0.8s 후 deck 형태로 펼쳐지며 소속 글 4개의 미리보기 layer가 0.4s 간격 stagger로 순차 등장 (transform 기반 stack offset, JS state 기반 timer 로 CSS transition-delay snap 회피), 펼침 상태에서 우측으로 next 카드를 밀어내고 `::after` pseudo 로 hit-area 확장해 flicker 없이 hover 유지. **deck 가 가로 스크롤 컨테이너 우측 밖으로 넘치면 rAF 루프로 매 프레임 `scrollLeft` 직접 증가** — 카드 `margin-right` 가 transition 으로 점차 늘어나면서 `scrollWidth` 도 함께 커지므로 단발 `scrollBy` 는 시작 시점 `maxScrollLeft` 에 즉시 clamp 되어 부족함. auto-scroll 종료 후 `card.matches(":hover")` 한번 더 확인해 cursor 가 떠나 있으면 deck 닫음(스크롤로 카드가 cursor 밑에서 빠져나간 false-positive mouseleave 방지)
 - **Series Auto Cover**: cover/소속 글 cover 둘 다 없는 시리즈는 SSR 시점에 Unsplash 에서 자동으로 cover 1장 fetch → `series.auto_cover_url` 컬럼에 영구 캐시 (다음 요청부터 외부 호출 0회)
@@ -279,6 +279,9 @@
 - **시스템 알림 9종 확장**: 기존 댓글·좋아요·신고만 다루던 `admin_notifications` 를 운영·보안·인프라까지 커버. 신규 type 9종 — `device_login`(새 기기 로그인, pending 진입) · `device_approved`(승인 토큰 사용) · `login_lockout`(5회 실패 잠금) · `signout_all`(전기기 로그아웃) · `ai_failure`(AI 요약/번역 전 provider 실패) · `email_failure`(Resend 메일 발송 실패, `opts.type === "email_failure"` 가드로 무한루프 차단) · `cron_error`(pg_cron 실행 중 예외) · `config_changed`(siteConfig 저장 시 prev JSON.stringify diff 후 변경된 키만) · `migration_applied`(schema migration 최초 적용). pg_cron silent failure 는 `safe_publish_scheduled` / `safe_purge_trash_scheduled` PL/pgSQL wrapper 가 EXCEPTION 블록에서 catch 후 알림 insert, migration 추적은 `applied_migrations` 테이블 + `log_migration_applied(name, description)` 헬퍼가 `GET DIAGNOSTICS was_new = ROW_COUNT` 로 첫 적용만 감지해 알림 발생
 - **Settings 충돌 리스트 리디자인**: 양옆 트인 flat list(border-top + 행별 border-bottom, 좌·우 border 없음, capsule row 제거) 로 통일
 - **Admin 로그인 잠금**: 5회 실패 → 15분 잠금 (`admin_login_attempts` 테이블 기반 서버 사이드 체크). 로그인 UI 는 남은 시도 횟수 + 잠금 카운트다운 메시지 표시. `/api/admin/auth` 와 `/api/admin/auth/approve-device` 는 middleware public-paths 에 추가해 인증 전 호출 허용
+- **GitHub OAuth 로그인 + 멤버 관리**: 소유자·편집자·저자가 GitHub OAuth (`supabase.auth.signInWithOAuth` → `/auth/callback` → `exchangeCodeForSession`) 로 로그인 — 비밀번호 로그인(`signInWithPassword`)은 소유자 폴백으로 유지. `/auth/callback` 에 **인가 게이트**: OAuth 는 인증만 하고, 서버가 이메일이 `OWNER_EMAIL` 이거나 이미 역할이 있거나 `author_invites` 초대 행이 있는지 확인 — 아니면 `signOut()` + service-role `deleteUser()` 로 계정을 삭제하고 에러와 함께 로그인으로 리다이렉트(초대받지 않은 GitHub 사용자는 진입 불가). 역할(소유자 / 편집자 permission_level 2 / 저자 1)은 `auth.users.app_metadata` (service_role 만 쓰기 — 사용자가 자가 편집 가능한 `user_metadata` 아님)에 저장하고, 소유자는 `OWNER_EMAIL` 로 부트스트랩. 서버 헬퍼 `requireOwner()` / `requireRole()` / `requireAuth()` (`src/lib/api/requireRole.ts`) 가 매 요청 app_metadata 를 재조회 — 클라이언트가 보낸 값은 신뢰하지 않음. Settings → **Account 탭**에서 소유자가 멤버 목록(아바타 · RoleBadge · ProviderChips[GitHub/이메일] · 마지막 로그인) + CRUD(추가/수정/삭제 · 이메일 초대 · 권한 변경)를 관리. **비소유자는 Account 탭만** 보이며, 사이트 설정 탭은 클라이언트 + 서버(`/api/admin/settings` PATCH 가 비소유자의 타 항목 쓰기를 거부) 양쪽에서 소유자 전용
+- **이메일 초대 (Resend)**: 소유자가 이메일로 초대 → `author_invites` 행 insert + Resend 안내 메일 발송(인증된 도메인 필요). 해당 이메일로 OAuth 로그인 시 역할이 app_metadata 에 부여되고 초대는 소비됨(`consumed_at`)
+- **크로스탭 로그아웃**: `AdminAuthSync`(admin 대시보드 layout 에 마운트)가 Supabase `onAuthStateChange` 를 구독 — `SIGNED_OUT` 시 `/admin/login` 으로 리다이렉트. Supabase 가 탭 간 auth 변경을 브로드캐스트하므로 한 탭에서 로그아웃하면 열린 모든 탭이 자동으로 로그아웃(기존엔 수동 새로고침 필요)
 - **모든 기기에서 로그아웃**: Settings → Account → Security 의 신규 버튼 — Supabase `signOut({ scope: "global" })` 호출로 모든 디바이스 세션 일괄 무효화
 - **새 기기 인증**: UA 지문(SHA-256) 을 `admin_known_devices` 테이블과 비교 — 미등록 기기는 자동 signOut + 승인 토큰(24h TTL) 이메일 발송. 링크 클릭 시 기기 승인 → 로그인 페이지에서 비밀번호 재입력. 승인 응답 HTML 페이지는 `error.tsx` 패턴(원형 border 아이콘 + Instrument Serif 헤딩 + 캡슐 버튼 + 데코 ovals) 으로 리디자인, Accept-Language 헤더 ko/en 자동 감지
 - **이메일 템플릿 헬퍼**: `src/lib/mail/template.ts` — 새 기기 알림 + 보안 알림 메일이 공유하는 레이아웃(Space Grotesk + Instrument Serif Google Fonts, 캡슐 CTA, prefers-color-scheme dark/light)
@@ -406,7 +409,7 @@ GITHUB_TOKEN=ghp_...
 
 Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
 
-**생성되는 테이블 (22개) + RPC 함수:**
+**생성되는 테이블 (23개) + RPC 함수:**
 
 | 테이블 | 용도 |
 |--------|------|
@@ -432,6 +435,7 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | `admin_login_attempts` | 관리자 로그인 실패 카운터 (5회 실패 → 15분 잠금) |
 | `admin_known_devices` | 승인된 관리자 기기 UA 지문 (SHA-256, 미등록 기기는 이메일 승인 24h TTL) |
 | `applied_migrations` | 적용된 schema migration 추적 (최초 적용 시 알림 발생) |
+| `author_invites` | 이메일 저자 초대 (email PK, author_id — site_settings.profile 의 프로필 id 참조, permission_level 1=저자/2=편집자, invited_by, created_at, consumed_at, RLS service_role 전용) |
 
 **RPC 함수**: `sum_post_views()` (누적 조회수 합계), `daily_post_views(start, end)` (일별 시계열), `publish_scheduled()` (예약 시간 도달한 게시물/작품 발행 + 알림 + 이메일 — **pg_cron 매분**), `purge_trash_scheduled()` (`purge_after` 지난 휴지통 hard delete + 알림 — **pg_cron 매일 KST 03:00**)
 
@@ -467,6 +471,8 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 > **Upload API**: `POST /api/upload` (서버 경유, MIME 별 크기 제한 + 절대 상한 200MB), `POST /api/upload/signed-url` (Storage 직접 업로드용 signed URL 발급 — 파일명·타입만 전송해 요청 본문 크기 제한 회피)
 >
 > **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (GitHub GraphQL 로 repoId + Discussion 카테고리 조회, `GITHUB_TOKEN` 필요)
+>
+> **Auth & Members API**: `GET /auth/callback` (OAuth 콜백 + 인가 게이트 — 미초대 계정 삭제), `GET /api/admin/me` (현재 사용자 email/role/level/isOwner — settings 탭 게이팅), `GET|PATCH|DELETE /api/admin/authors/members` (소유자 전용 — 멤버 + 대기 초대 목록 / 권한 변경·저자 프로필 연결 / 계정 삭제), `GET /api/admin/authors/context` (requireAuth, 비소유자 접근 가능 — ownerEmail + 멤버 author-id/email 반환해 비소유자도 소유자 전용 403 없이 멤버 목록 렌더), `POST /api/admin/authors/invite` (소유자 전용 — author_invites insert + Resend 메일)
 >
 > **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (목록, snapshot 제외), `POST /api/revisions` (저장 + 50개 초과 정리), `GET /api/revisions/[id]` (snapshot 포함 단건), `DELETE /api/revisions/[id]`
 >
@@ -511,6 +517,16 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - Email과 Password 입력
 - **Auto Confirm User** 체크 (이메일 인증 건너뛰기)
 
+**소유자 계정 (`OWNER_EMAIL`)**: 위에서 만든 이메일을 환경변수 `OWNER_EMAIL` 에 지정하면 그 계정이 부트스트랩 소유자가 됩니다 (초대 테이블 없이 자동으로 전체 권한). 나머지 멤버는 이메일 초대로 추가합니다 (5번 참고).
+
+**GitHub OAuth 로그인 설정** — 멤버는 GitHub OAuth 로 로그인합니다:
+
+1. **GitHub OAuth App 생성** — GitHub → Settings → Developer settings → OAuth Apps → New OAuth App. Authorization callback URL 에 `https://<PROJECT_REF>.supabase.co/auth/v1/callback` 입력
+2. Supabase Dashboard → **Authentication → Providers → GitHub** 를 활성화하고 위 OAuth App 의 Client ID + Secret 붙여넣기
+3. Supabase **Authentication → URL Configuration → Redirect URLs** 에 사이트의 `/auth/callback` 추가
+
+> 초대 안내 메일은 Resend (인증된 도메인) 를 사용합니다 — Services 탭 / pg_cron 이메일 설정과 동일한 Resend 키를 공유합니다.
+
 ### 5. Admin 로그인 방법
 
 사이트에 별도 로그인 버튼은 없습니다. 관리자만 URL을 직접 입력하여 접속합니다.
@@ -523,6 +539,14 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 > 로그인 폼: 에러/정보 메시지를 submit 버튼 아래 전용 행으로 분리(기존엔 "이메일 기억" 체크박스 옆에 끼어 있음) + `min-height` 예약으로 메시지 표시/숨김 시 레이아웃 시프트 없음. 이메일·비밀번호 input 은 `.inputGroup` 으로 묶어 form gap (`xl → md`) 축소. 5회 실패 시 잠금 안내가 같은 행에 표시됨
 
+**GitHub OAuth 로그인** (멤버 표준 경로):
+
+1. `/admin/login` 에서 **GitHub 로 로그인** → `supabase.auth.signInWithOAuth` → GitHub 인증 → `/auth/callback` 으로 리다이렉트
+2. `/auth/callback` 인가 게이트가 이메일이 `OWNER_EMAIL` 이거나 역할을 보유했거나 `author_invites` 초대가 있는지 확인 — 통과 시 역할이 app_metadata 에 부여되고 초대는 소비됨. 미초대면 계정을 삭제하고 에러와 함께 로그인으로 복귀
+3. 성공 → `/admin/settings` 리다이렉트
+
+**멤버 추가 (이메일 초대)**: 소유자가 Settings → **Account 탭**에서 이메일로 멤버를 초대하면 `author_invites` 행 + Resend 안내 메일이 발송됩니다. 초대받은 사람이 같은 이메일의 GitHub 로 OAuth 로그인하면 자동으로 저자/편집자 권한을 얻습니다. Account 탭에서 소유자가 멤버 목록·역할·권한을 관리합니다 (비소유자는 Account 탭만 접근).
+
 **로그인 후 사용 가능한 기능:**
 
 - `/admin/posts` — 포스트 목록 (발행/비공개 상태 확인, 호버 미리보기, 행 번호, 썸네일)
@@ -533,7 +557,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서, 썸네일, .md 업로드)
 - `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)
 - `/admin/works/[id]/edit` — 기존 작업물 수정
-- `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). General 탭에서 브랜드·SEO·푸터 저작권·BGM 파일 업로드·음원 출처(곡명/아티스트/URL) 관리. Content 탭은 Home/Profile/About/Posts/Works 서브 네비게이션으로 분리. Services 탭에서 이메일 서비스, AI 커버, reCAPTCHA 설정 및 API 키 편집. Account 탭에서 관리자 이메일/비밀번호 변경
+- `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). General 탭에서 브랜드·SEO·푸터 저작권·BGM 파일 업로드·음원 출처(곡명/아티스트/URL) 관리. Content 탭은 Home/Profile/About/Posts/Works 서브 네비게이션으로 분리. Services 탭에서 이메일 서비스, AI 커버, reCAPTCHA 설정 및 API 키 편집. Account 탭에서 관리자 이메일/비밀번호 변경 + 멤버 관리(소유자 전용 — 멤버 목록·역할[소유자/편집자/저자]·이메일 초대·권한 변경, 비소유자는 Account 탭만 노출)
 
 ### 6. Cover Image Picker 사용법
 
@@ -630,7 +654,16 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 **인증 플로우:**
 
 ```
-/admin/login (폼 제출)
+/admin/login (GitHub 로 로그인)
+  → supabase.auth.signInWithOAuth({ provider: "github" })
+    → GitHub 인증 → GET /auth/callback
+      → exchangeCodeForSession (인증만 수행)
+      → 인가 게이트: 이메일이 OWNER_EMAIL || 역할 보유 || author_invites 초대?
+        → 통과 → app_metadata 에 역할 부여 + 초대 소비(consumed_at)
+        → 실패 → signOut() + service-role deleteUser() → 에러와 함께 /admin/login
+  → /admin/settings 로 리다이렉트
+
+/admin/login (폼 제출 — 소유자 폴백)
   → POST /api/admin/auth
     → supabase.auth.signInWithPassword()
     → 세션 쿠키 설정
@@ -639,7 +672,8 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 /admin/* 접속 시
   → Dashboard layout에서 세션 확인
   → 세션 없으면 → /admin/denied (접근 거부 페이지)
-  → 세션 있으면 → 정상 접근
+  → 세션 있으면 → 정상 접근 (서버 헬퍼가 app_metadata 역할 재확인)
+  → AdminAuthSync 가 onAuthStateChange 구독 → 다른 탭에서 SIGNED_OUT 시 /admin/login (크로스탭 로그아웃)
 
 /admin/login 접속 시
   → Auth layout에서 세션 확인
