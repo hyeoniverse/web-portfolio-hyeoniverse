@@ -298,7 +298,8 @@ function serializeNode(node: SlateNode): string {
          에디터는 HTML 로 저장하므로 여기서 안 내보내면 다시 열 때 유실돼서,
          나란히 보던 다이어그램이 코드만 보이는 상태로 열린다. */
       const gv = el.graphView ? ` data-graph-view="${esc(String(el.graphView))}"` : "";
-      return `<div class="code-block-wrap"><pre${gv}><code${lang}>${children}</code></pre></div>`;
+      /* data-lenis-prevent — Lenis 스무스 스크롤이 wheel 을 가로채 코드블록 내부 세로 스크롤이 죽는 것 방지 */
+      return `<div class="code-block-wrap"><pre data-lenis-prevent${gv}><code${lang}>${children}</code></pre></div>`;
     }
     case "code_line":
       return `${children}\n`;

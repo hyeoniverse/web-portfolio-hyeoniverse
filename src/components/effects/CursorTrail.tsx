@@ -191,8 +191,24 @@ export default function CursorTrail() {
       const dataCursor = activeDateCursor
         || target?.closest("[data-cursor]")?.getAttribute("data-cursor") as CursorType | null;
 
+      // 네이티브 resize 그립 감지 — resize CSS 가 걸린 요소(코드블록 등)의 우하단 grip 코너 영역이면
+      // 리사이즈 커서로. (data-cursor 오버레이 없이 native resize + 커스텀 커서를 양립시킴)
+      let nativeResize: CursorType | null = null;
+      for (let el: Element | null = target, i = 0; el && i < 6; el = el.parentElement, i++) {
+        const rz = getComputedStyle(el).resize;
+        if (rz && rz !== "none") {
+          const r = el.getBoundingClientRect();
+          const GRIP = 18;
+          if (mx >= r.right - GRIP && mx <= r.right && my >= r.bottom - GRIP && my <= r.bottom) {
+            nativeResize = rz === "both" ? "resizeDiag" : rz === "horizontal" ? "resizeH" : "resizeV";
+          }
+          break;
+        }
+      }
+
       const next: CursorType = isDraggable ? "grab"
         : isDisabled ? "disabled"
+        : nativeResize ? nativeResize
         : dataCursor ? dataCursor
         : (isClickable || hasMore) ? "big"
         : isText ? "text"
