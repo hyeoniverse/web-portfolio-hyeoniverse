@@ -13,7 +13,7 @@ async function sendInviteEmail(email: string, loginUrl: string): Promise<{ sent:
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Portfolio <onboarding@resend.dev>",
+        from: "Hyeoniverse <noreply@hyeoniverse.com>",
         to: email,
         subject: "작성자로 초대되었습니다 · You've been invited as an author",
         html: `
@@ -27,7 +27,11 @@ async function sendInviteEmail(email: string, loginUrl: string): Promise<{ sent:
         `,
       }),
     });
-    return { sent: res.ok, reason: res.ok ? undefined : `HTTP ${res.status}` };
+    if (res.ok) return { sent: true };
+    // 실패 시 Resend 가 본문에 담아주는 사유까지 그대로 전달(도메인 미인증 등 원인 파악용)
+    const detail = await res.json().catch(() => null);
+    const msg = detail?.message || detail?.error?.message || detail?.name;
+    return { sent: false, reason: msg ? `HTTP ${res.status} — ${msg}` : `HTTP ${res.status}` };
   } catch (e) {
     return { sent: false, reason: e instanceof Error ? e.message : "unknown" };
   }
