@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import { content, type Language, type Section } from "@/data/privacy";
+import { content, lastUpdatedDate, type Language, type Section } from "@/data/privacy";
 import DetailLayout from "@/components/layout/DetailLayout";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import { AnimatedSection } from "./components";
@@ -71,11 +71,11 @@ export default function PrivacyClient() {
   const t = content[lang];
 
   const formatDate = (locale: string) => {
-    return new Date().toLocaleDateString(locale === "ko" ? "ko-KR" : "en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    // 항상 실제 최종 개정일 기준. 로컬 자정으로 파싱(날짜 문자열만 넘기면 UTC 로 해석돼 하루 밀릴 수 있음).
+    return new Date(`${lastUpdatedDate}T00:00:00`).toLocaleDateString(
+      locale === "ko" ? "ko-KR" : "en-US",
+      { year: "numeric", month: "long", day: "numeric" },
+    );
   };
 
   return (
