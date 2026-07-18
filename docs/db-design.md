@@ -192,6 +192,7 @@ RLS 는 `FOR ALL` service_role 정책 **하나뿐**이라 공개 읽기 정책�
 | `posts.icon` | `text NOT NULL DEFAULT ''` | 글 아이콘 (EmojiPicker 값 — native / `img:url` / `icon:id`) |
 | `posts.author_ids` | `text[] NOT NULL DEFAULT '{}'` | 글별 작성자 연결 — 멤버 프로필 id 배열 (멤버/역할은 Supabase `app_metadata` + `author_invites` 로 관리, 아래 참고) |
 | `works.icon` | `text NOT NULL DEFAULT ''` | `posts.icon` 미러 |
+| `works.title_en` | `text NOT NULL DEFAULT ''` | 작품 제목 영문 (`title`=국문/기본, 빈 값이면 반대 언어로 fallback) |
 
 `cover_position` 은 0–100, `cover_zoom` 은 1–2.5 를 의도하지만 **CHECK 제약은 없고 주석상의 범위**입니다 (검증은 에디터 UI 담당).
 
