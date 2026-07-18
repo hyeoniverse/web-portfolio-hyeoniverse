@@ -408,7 +408,7 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
                     />
                   </div>
                 )}
-                <span className={styles.workRowTitle}>{w.title}</span>
+                <span className={styles.workRowTitle}>{(language === "ko" ? w.title : w.title_en) || (language === "ko" ? w.title_en : w.title)}</span>
                 <span className={styles.workRowSubtitle}>
                   {(language === "ko" ? w.subtitle_ko : w.subtitle_en) || (language === "ko" ? w.subtitle_en : w.subtitle_ko)}
                 </span>

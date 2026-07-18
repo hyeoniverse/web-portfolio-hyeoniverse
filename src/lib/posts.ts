@@ -236,7 +236,7 @@ export async function getTagPageData(tag: string, perPage: number = TAG_PER_PAGE
     // 통합 태그 페이지 — 같은 tag(=tech) 를 쓰는 published works (공유 어휘)
     admin
       .from("works")
-      .select("id, title, slug, subtitle_ko, subtitle_en, image, tech, year")
+      .select("id, title, title_en, slug, subtitle_ko, subtitle_en, image, tech, year")
       .eq("published", true)
       .contains("tech", [tag])
       .order("sort_order", { ascending: true })
@@ -277,6 +277,7 @@ export async function getTagPageData(tag: string, perPage: number = TAG_PER_PAGE
 export interface TagWork {
   id: string;
   title: string;
+  title_en: string;
   slug: string;
   subtitle_ko: string;
   subtitle_en: string;
