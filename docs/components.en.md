@@ -184,6 +184,16 @@ A reusable **centered "not found" state** shown when an admin edit/detail page c
 
 ---
 
+### MembersList · RoleBadge · ProviderChips
+
+The **member-management UI primitives** in Settings → Account tab. `MembersList` renders the member card list (avatar · name/email · last sign-in · pending invites), attaching a `RoleBadge` (owner/editor/author role badge) and `ProviderChips` (GitHub / email sign-in method chips) to each row. Only the owner gets CRUD (invite / change role / delete); data loads from `/api/admin/authors/members` (owner) and `/api/admin/authors/context` (non-owner).
+
+**Path**: `src/components/admin/MembersList.tsx`, `src/components/admin/MemberBadges.tsx` (`RoleBadge` / `ProviderChips`)
+
+**Used by**: `admin/(dashboard)/settings` Account tab (wired to MemberDetailModal / MemberEditModal)
+
+---
+
 ### processRichtextHtml (util)
 
 A **shared utility** for post-processing richtext HTML. All processing is centralized here so the detail page and preview **render the body identically**.

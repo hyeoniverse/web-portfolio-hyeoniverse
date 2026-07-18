@@ -11,6 +11,9 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
 
+# Bootstrap owner email — this account gets owner permission automatically, no invite needed (GitHub OAuth login / member management)
+OWNER_EMAIL=you@example.com
+
 # Production domain — the baseline for the middleware's CSRF Origin check
 # If unset in production, every admin mutation is 403 (fail-closed). Dev passes even when empty
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
@@ -40,6 +43,8 @@ GITHUB_TOKEN=ghp_...
 
 > `GITHUB_TOKEN` prefers the secret saved in the admin Services tab, falling back to the environment variable (`getSecret("GITHUB_TOKEN")`).
 
+> `OWNER_EMAIL` designates the bootstrap owner (full permissions automatically, without an invite row). GitHub OAuth itself (Client ID/Secret) is configured not in `.env.local` but in the Supabase dashboard under **Authentication → Providers → GitHub** (see step 4). Member invite emails use Resend (with a verified domain).
+
 **How to find the values:**
 
 1. [Supabase Dashboard](https://supabase.com/dashboard) -> Select your project
@@ -56,7 +61,7 @@ The [`supabase/setup.sql`](supabase/setup.sql) file contains all table creation 
 
 Copy the file contents and run them at once in Supabase Dashboard -> **SQL Editor**.
 
-**Tables created (22):**
+**Tables created (23):**
 
 | Table | Purpose |
 |--------|------|
@@ -82,6 +87,7 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 | `admin_login_attempts` | Admin login failure counter (5 failures → 15-minute lockout) |
 | `admin_known_devices` | Approved admin device UA fingerprints (SHA-256; unknown devices need email approval, 24h TTL) |
 | `applied_migrations` | Tracks applied schema migrations (fires a notification on first application) |
+| `author_invites` | Email author invites (email PK, author_id references the profile id in site_settings.profile, permission_level 1=author/2=editor, invited_by, created_at, consumed_at, service_role-only RLS). On OAuth login the role is granted into app_metadata and the invite is consumed |
 
 > Uses `IF NOT EXISTS` so existing tables are skipped. Missing columns (commenter_hash, updated_at, etc.) in existing deployed DBs are safely added via `ALTER TABLE ADD COLUMN IF NOT EXISTS` in the migration section at the bottom of the file.
 
@@ -117,6 +123,8 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 > **Upload API**: `POST /api/upload` (server-proxied upload, per-MIME size limits + a 200MB absolute cap), `POST /api/upload/signed-url` (issues a signed URL for direct Storage upload — only the filename and type transit, sidestepping the request body size cap)
 >
 > **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (looks up repoId + Discussion categories via GitHub GraphQL, requires `GITHUB_TOKEN`)
+>
+> **Auth & Members API**: `GET /auth/callback` (OAuth callback + authorization gate — deletes un-invited accounts), `GET /api/admin/me` (current user's email/role/level/isOwner — settings tab gating), `GET|PATCH|DELETE /api/admin/authors/members` (owner-only — list members + pending invites / change permission or link author profile / delete account), `GET /api/admin/authors/context` (requireAuth, non-owner accessible — returns ownerEmail + member author-ids/emails), `POST /api/admin/authors/invite` (owner-only — insert author_invites + Resend email)
 >
 > **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (list, excluding snapshots), `POST /api/revisions` (save + cleanup beyond 50), `GET /api/revisions/[id]` (single with snapshot), `DELETE /api/revisions/[id]`
 >
@@ -161,15 +169,31 @@ Supabase Dashboard -> **Authentication** -> **Users** -> **Add user**:
 - Enter Email and Password
 - Check **Auto Confirm User** (skip email verification)
 
+**Owner account (`OWNER_EMAIL`)**: Set the email you just created as the `OWNER_EMAIL` env var and that account becomes the bootstrap owner (full permissions automatically, without an invite row). All other members are added by email invite (see step 5).
+
+**GitHub OAuth login setup** — members sign in with GitHub OAuth:
+
+1. **Create a GitHub OAuth App** — GitHub → Settings → Developer settings → OAuth Apps → New OAuth App. Set the Authorization callback URL to `https://<PROJECT_REF>.supabase.co/auth/v1/callback`
+2. In Supabase Dashboard → **Authentication → Providers → GitHub**, enable it and paste the OAuth App's Client ID + Secret
+3. Add your site's `/auth/callback` to Supabase **Authentication → URL Configuration → Redirect URLs**
+
 ### 5. Admin Login Method
 
 There is no login button on the site. Only the admin accesses it by entering the URL directly.
 
-**Login:**
+**GitHub OAuth login** (standard path for members):
+
+1. On `/admin/login`, click **Sign in with GitHub** → `supabase.auth.signInWithOAuth` → GitHub auth → redirect to `/auth/callback`
+2. The `/auth/callback` authorization gate checks the email is `OWNER_EMAIL`, already has a role, or has an `author_invites` row — on pass, the role is granted into app_metadata and the invite is consumed. If un-invited, the account is deleted and it redirects back to login with an error
+3. Success -> Redirect to `/admin/settings`
+
+**Password login** (owner fallback):
 
 1. Go to `/admin/login`
 2. Enter the email/password created in Supabase
 3. Login success -> Redirect to `/admin/settings`
+
+**Adding members (email invite)**: From Settings → the **Account tab**, the owner invites a member by email, which inserts an `author_invites` row and sends a Resend notice email. When the invitee signs in via GitHub OAuth with that same email, they automatically gain author/editor permission. The owner manages the member list, roles, and permissions from the Account tab (non-owners see only the Account tab).
 
 **Features available after login:**
 
@@ -181,7 +205,7 @@ There is no login button on the site. Only the admin accesses it by entering the
 - `/admin/works` — Works list (table view, publish/private toggle, sort order, thumbnails, .md upload)
 - `/admin/works/new` — Create new work (single content editor + template, Korean/English bilingual, tech stack, gallery)
 - `/admin/works/[id]/edit` — Edit existing work
-- `/admin/settings` — Site settings (General, Content, Appearance, Services, Account — 5 tabs). General tab for brand/SEO/footer copyright/BGM file upload/audio source (track name/artist/URL) management. Content tab split into Home/Profile/About/Posts/Works sub-navigation. Services tab for email service, AI cover, reCAPTCHA settings and API key editing. Account tab for admin email/password changes
+- `/admin/settings` — Site settings (General, Content, Appearance, Services, Account — 5 tabs). General tab for brand/SEO/footer copyright/BGM file upload/audio source (track name/artist/URL) management. Content tab split into Home/Profile/About/Posts/Works sub-navigation. Services tab for email service, AI cover, reCAPTCHA settings and API key editing. Account tab for admin email/password changes + member management (owner-only — member list, roles [owner/editor/author], email invites, permission changes; non-owners see only the Account tab)
 
 ### 6. Cover Image Picker Usage
 
@@ -288,7 +312,16 @@ Used solely to auto-load a repository's Discussion categories in the admin setti
 **Authentication flow:**
 
 ```
-/admin/login (form submit)
+/admin/login (Sign in with GitHub)
+  -> supabase.auth.signInWithOAuth({ provider: "github" })
+    -> GitHub auth -> GET /auth/callback
+      -> exchangeCodeForSession (authenticates only)
+      -> authorization gate: email is OWNER_EMAIL || has a role || author_invites row?
+        -> pass -> grant role into app_metadata + consume invite (consumed_at)
+        -> fail -> signOut() + service-role deleteUser() -> /admin/login with an error
+  -> Redirect to /admin/settings
+
+/admin/login (form submit — owner fallback)
   -> POST /api/admin/auth
     -> supabase.auth.signInWithPassword()
     -> Set session cookie
@@ -297,7 +330,8 @@ Used solely to auto-load a repository's Discussion categories in the admin setti
 Accessing /admin/*
   -> Dashboard layout checks session
   -> No session -> /admin/denied (access denied page)
-  -> Session exists -> Normal access
+  -> Session exists -> Normal access (server helpers re-check the app_metadata role)
+  -> AdminAuthSync subscribes to onAuthStateChange -> SIGNED_OUT in another tab -> /admin/login (cross-tab logout)
 
 Accessing /admin/login
   -> Auth layout checks session
