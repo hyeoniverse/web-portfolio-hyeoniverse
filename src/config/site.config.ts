@@ -145,6 +145,9 @@ export const siteConfig = {
       "frontend developer, portfolio, React, Next.js, TypeScript, web development, UI/UX",
     author: "Kim JeongHyeon",
     locale: "ko_KR",
+    // 콘텐츠 작성 기본 언어 — admin 폼에서 어느 언어를 필수 항목 기준으로 둘지 결정.
+    // (방문자에게 보이는 언어와 무관 — 그건 LanguageProvider 가 브라우저/토글로 처리)
+    defaultLanguage: "ko" as "ko" | "en",
   },
 
   // ---------------------------------------------------------------------------
