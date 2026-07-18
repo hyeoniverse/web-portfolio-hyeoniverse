@@ -699,6 +699,8 @@
       "aboutPanelShowAll": "Show all",
       "aboutPanelHideAll": "Hide all",
       "aboutHeroTextGroup": "Text",
+      "aboutHeroTypography": "Typography",
+      "aboutHeroTypoElement": "Element",
       "aboutTechStack": "Tech Stack Panel",
       "aboutTechStackHint": "Click a chip to edit its name, category, and icon. Use + Add to quickly pick from presets (with icons) or enter your own.",
       "aboutTechStackName": "Name (e.g., Next.js 15)",
