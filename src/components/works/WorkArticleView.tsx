@@ -22,6 +22,7 @@ import ShareButton from "@/components/ui/ShareButton";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import Tooltip from "@/components/ui/Tooltip";
 import T from "@/components/ui/T";
+import { pickLocalized } from "@/types/common";
 import type { Project } from "@/data/projects";
 import { getBentoClass } from "@/app/works/_utils";
 import styles from "@/app/works/[slug]/WorkDetail.module.css";
@@ -144,7 +145,7 @@ export function WorkArticleHeader({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.6 }}
       >
-        {project.title}
+        <T ko={project.title.ko} en={project.title.en} />
       </motion.h1>
 
       {/* ── Description ── */}
@@ -442,7 +443,7 @@ export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
               >
                 <ProgressiveImage
                   src={src}
-                  alt={`${project.title} ${i + 1}`}
+                  alt={`${pickLocalized(project.title, viewLang)} ${i + 1}`}
                   fill
                   sizes="(max-width: 768px) 100vw, 800px"
                   className={styles.galleryImage}
@@ -459,7 +460,7 @@ export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
         index={galleryViewer.index}
         open={galleryViewer.open}
         onClose={() => setGalleryViewer({ open: false, index: 0 })}
-        title={project.title}
+        title={pickLocalized(project.title, viewLang)}
       />
 
       {/* Prose ImageViewer */}
@@ -468,7 +469,7 @@ export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
         index={proseViewer.index}
         open={proseViewer.open}
         onClose={closeProseViewer}
-        title={project.title}
+        title={pickLocalized(project.title, viewLang)}
       />
     </>
   );

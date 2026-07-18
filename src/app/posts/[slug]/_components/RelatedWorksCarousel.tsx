@@ -11,6 +11,7 @@ export type RelatedWork = {
   id: string;
   slug?: string;
   title: string;
+  title_en: string;
   subtitle_ko: string;
   subtitle_en: string;
   image: string;
@@ -39,6 +40,7 @@ export default function RelatedWorksCarousel({
       </div>
       <HorizontalCarousel className={styles.relatedGrid}>
         {works.map((w) => {
+          const title = viewLang === "en" ? (w.title_en || w.title) : (w.title || w.title_en);
           const subtitle = viewLang === "en" ? (w.subtitle_en || w.subtitle_ko) : (w.subtitle_ko || w.subtitle_en);
           const cats = viewLang === "en"
             ? (w.categories_en?.length ? w.categories_en : w.categories_ko ?? [])
@@ -48,7 +50,7 @@ export default function RelatedWorksCarousel({
             <div
               key={w.id}
               onClick={(e) => onNavigate(`/works/${w.slug || w.id}`, w.image || "", e.currentTarget.getBoundingClientRect())}
-              onMouseEnter={(e) => show({ title: w.title, image: w.image || undefined, category: category || undefined, desc: subtitle || undefined }, e.currentTarget)}
+              onMouseEnter={(e) => show({ title, image: w.image || undefined, category: category || undefined, desc: subtitle || undefined }, e.currentTarget)}
               onMouseLeave={hide}
               style={{ cursor: "pointer" }}
               className={styles.relatedCard}
@@ -65,7 +67,7 @@ export default function RelatedWorksCarousel({
                       preload="metadata"
                     />
                   ) : (
-                    <Image src={w.image} alt={w.title} fill sizes="(max-width: 768px) 50vw, 220px" className={styles.relatedCardImg} />
+                    <Image src={w.image} alt={title} fill sizes="(max-width: 768px) 50vw, 220px" className={styles.relatedCardImg} />
                   )
                 ) : (
                   <ImageIcon className={styles.relatedCardPlaceholder} size={32} strokeWidth={1.5} />
@@ -76,7 +78,7 @@ export default function RelatedWorksCarousel({
                   {w.year && <span className={styles.relatedCardOrder}>{w.year}</span>}
                   {category && <span className={styles.relatedCardCategory}>{category}</span>}
                 </div>
-                <span className={styles.relatedCardTitle}>{w.title}</span>
+                <span className={styles.relatedCardTitle}>{title}</span>
                 {subtitle && <span className={styles.relatedCardExcerpt}>{subtitle}</span>}
               </div>
             </div>

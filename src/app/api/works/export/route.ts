@@ -5,6 +5,7 @@ import { requireAuth } from "@/lib/api/requireAuth";
 function toFrontmatter(work: Record<string, unknown>): string {
   const lines: string[] = ["---"];
   if (work.title) lines.push(`title: "${work.title}"`);
+  if (work.title_en) lines.push(`title_en: "${work.title_en}"`);
   if (work.subtitle_ko) lines.push(`subtitle: "${work.subtitle_ko}"`);
   const catsKo = Array.isArray(work.categories_ko) ? work.categories_ko as string[] : [];
   if (catsKo.length > 0) lines.push(`category: ${catsKo.join(", ")}`);

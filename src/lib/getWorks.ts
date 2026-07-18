@@ -14,7 +14,8 @@ async function seedWorksFromStatic(supabase: ReturnType<typeof import("@/lib/sup
   if (count && count > 0) return;
 
   const rows = projects.map((p, i) => ({
-    title: p.title,
+    title: p.title.ko,
+    title_en: p.title.en,
     subtitle_ko: p.subtitle.ko,
     subtitle_en: p.subtitle.en,
     categories_ko: p.categories?.ko ?? (p.category.ko ? [p.category.ko] : []),

@@ -4,6 +4,8 @@ import { useRef, useLayoutEffect, useState, useEffect, useCallback } from "react
 import MediaThumb from "@/components/ui/MediaThumb";
 import gsap from "gsap";
 import T from "@/components/ui/T";
+import { pickLocalized } from "@/types/common";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import type { WorksLayoutProps } from "./shared";
 import styles from "./CinematicLayout.module.css";
@@ -27,6 +29,7 @@ export default function CinematicLayout({ projects, onProjectClick }: WorksLayou
   const panelsRef = useRef<PanelRefs[]>([]);
   const [progress, setProgress] = useState(0);
   const [activeIdx, setActiveIdx] = useState(0);
+  const { language } = useLanguage();
   const { setInfinite } = useLenis();
   const allProjects = Array(SETS).fill(projects).flat();
 
@@ -136,7 +139,7 @@ export default function CinematicLayout({ projects, onProjectClick }: WorksLayou
             onClick={() => handleClick(i)}
           >
             <div className={styles.image}>
-              <MediaThumb src={p.image} alt={p.title} fill sizes="100vw" priority={i === 0} fallbackSeed={p.id} />
+              <MediaThumb src={p.image} alt={pickLocalized(p.title, language)} fill sizes="100vw" priority={i === 0} fallbackSeed={p.id} />
             </div>
             <div className={styles.overlay} />
             <div className={styles.meta}>
@@ -144,7 +147,7 @@ export default function CinematicLayout({ projects, onProjectClick }: WorksLayou
               <div className={styles.metaCategory}>
                 <T ko={p.category.ko} en={p.category.en} />
               </div>
-              <h2 className={styles.metaTitle}>{p.title}</h2>
+              <h2 className={styles.metaTitle}><T ko={p.title.ko} en={p.title.en} /></h2>
               <p className={styles.metaSub}>
                 <T ko={p.subtitle.ko} en={p.subtitle.en} />
               </p>

@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Project } from "@/data/projects";
+import { pickLocalized } from "@/types/common";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import { extractHeadings } from "../_utils";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
@@ -67,7 +68,7 @@ export default function WorkDetailClient({
       backLabel={t("workDetail.back")}
       heroImage={project.image}
       heroIcon={project.icon}
-      heroAlt={project.title}
+      heroAlt={pickLocalized(project.title, language)}
       headings={headings}
       header={
         <WorkArticleHeader
@@ -84,12 +85,12 @@ export default function WorkDetailClient({
       adjacentConfig={{
         prev: prevProject ? {
           href: `/works/${prevProject.slug || prevProject.id}`,
-          title: prevProject.title,
+          title: pickLocalized(prevProject.title, language),
           image: prevProject.image,
         } : null,
         next: nextProject ? {
           href: `/works/${nextProject.slug || nextProject.id}`,
-          title: nextProject.title,
+          title: pickLocalized(nextProject.title, language),
           image: nextProject.image,
         } : null,
         prevLabelKey: "workDetail.previous",

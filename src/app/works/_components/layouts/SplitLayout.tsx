@@ -5,12 +5,15 @@ import MediaThumb from "@/components/ui/MediaThumb";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useLenis } from "@/providers/LenisProvider";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { pickLocalized } from "@/types/common";
 import T from "@/components/ui/T";
 import type { WorksLayoutProps } from "./shared";
 import styles from "./SplitLayout.module.css";
 
 export default function SplitLayout({ projects, onProjectClick }: WorksLayoutProps) {
   const [active, setActive] = useState(-1);
+  const { language } = useLanguage();
   const siteConfig = useSiteConfig();
   const w = siteConfig.works;
   const introVideoSrc = w.introVideoUrl || "/cover/videos/bg-1.mp4";
@@ -223,21 +226,21 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
             >
               <MediaThumb
                 src={proj.image}
-                alt={proj.title}
+                alt={pickLocalized(proj.title, language)}
                 fill
                 sizes="55vw"
                 priority={i === 0}
                 loading={i === 0 ? "eager" : "lazy"}
                 fallbackSeed={proj.id}
               />
-              <h2 className={styles.imageCardTitle}>{proj.title}</h2>
+              <h2 className={styles.imageCardTitle}><T ko={proj.title.ko} en={proj.title.en} /></h2>
               <div className={styles.imageOverlay}>
                 <div className={styles.imageYear}>{proj.year}</div>
               </div>
               {/* 모바일용 메타 오버레이 */}
               <div className={styles.imageMeta}>
                 <span className={styles.imageMetaNumber}>{proj.number}</span>
-                <h3 className={styles.imageMetaTitle}>{proj.title}</h3>
+                <h3 className={styles.imageMetaTitle}><T ko={proj.title.ko} en={proj.title.en} /></h3>
                 <p className={styles.imageMetaSub}>
                   <T ko={proj.subtitle.ko} en={proj.subtitle.en} />
                 </p>
