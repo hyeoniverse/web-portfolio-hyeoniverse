@@ -5867,9 +5867,9 @@ a.tagRelatedItem:hover {
 }
 .heroMatrix {
   display: grid;
-  grid-template-columns: minmax(72px, 0.7fr) 44px minmax(150px, 1.4fr) minmax(116px, 1fr) minmax(124px, 1.1fr);
+  grid-template-columns: minmax(76px, 0.7fr) 62px minmax(160px, 1.5fr) minmax(120px, 1fr) minmax(128px, 1.1fr);
   align-items: center;
-  min-width: 620px;
+  min-width: 640px;
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   overflow: hidden;
@@ -5880,11 +5880,17 @@ a.tagRelatedItem:hover {
 .heroMatrixHead > span {
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  white-space: nowrap;
   color: var(--text-tertiary);
   background: var(--bg-secondary);
   padding: var(--spacing-2xs) var(--spacing-sm);
+}
+/* 색 스와치 셀 — 스와치를 셀 안에서 좌측 정렬(헤더와 라인 맞춤) */
+.heroMatrixRow > .heroMatrixCell:nth-child(2) {
+  display: flex;
+  align-items: center;
 }
 .heroMatrixRow {
   display: contents;
@@ -5911,6 +5917,111 @@ a.tagRelatedItem:hover {
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   cursor: pointer;
+}
+
+/* ── Architecture 트리 에디터 ── */
+.archList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  width: 100%;
+}
+.archRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-secondary);
+}
+/* 자식(indent>0) 은 좌측 accent 로 중첩감 */
+.archRow[data-indent="1"],
+.archRow[data-indent="2"] {
+  border-left: 2px solid var(--border-light-color);
+}
+.archReorder {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.archIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-radius: var(--radius-capsule);
+}
+.archIconBtn:hover:not(:disabled) {
+  color: var(--text-primary);
+}
+.archIconBtn:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+.archPath {
+  flex: 0 0 180px;
+}
+.archDescs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 0;
+}
+.archLevel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-shrink: 0;
+}
+.archLevelNum {
+  width: 18px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+.archRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-radius: var(--radius-capsule);
+}
+.archRemove:hover {
+  color: var(--text-primary);
+}
+.archAdd {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px dashed var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+.archAdd:hover {
+  color: var(--text-primary);
 }
 
 /* Tech stack row (legacy) */
