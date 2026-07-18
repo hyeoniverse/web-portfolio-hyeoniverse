@@ -18,6 +18,8 @@ import ContentTab from "./_components/ContentTab";
 import AppearanceTab from "./_components/AppearanceTab";
 import ServicesTab from "./_components/ServicesTab";
 import AccountTab from "./_components/AccountTab";
+import SectionHeader from "./_components/SectionHeader";
+import AuthorsEditor from "./_components/AuthorsEditor";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
@@ -38,7 +40,7 @@ const PROFILE_SECTION_LABELS: Record<string, string> = {
 
 
 export default function SettingsPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   useStaticPageScroll();
   const { openModal, closeModal } = useModalStore();
   const [config, setConfig] = useState<SiteConfigData>(
@@ -74,6 +76,19 @@ export default function SettingsPage() {
       ? (sub as ContentSubTab)
       : "home";
   });
+  // 권한 게이팅 — 사이트 설정 탭은 소유자 전용, 비owner 는 account(본인 계정/프로필)만
+  const [isOwnerUser, setIsOwnerUser] = useState<boolean | null>(null); // null=확인 전
+  useEffect(() => {
+    fetch("/api/admin/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setIsOwnerUser(!!d?.isOwner))
+      .catch(() => setIsOwnerUser(false));
+  }, []);
+  const allowedTabs: TabId[] = isOwnerUser === false ? ["account"] : [...TAB_IDS];
+  // 비owner 가 허용 안 된 탭에 있으면 account 로 강제
+  useEffect(() => {
+    if (isOwnerUser === false && activeTab !== "account") setActiveTab("account");
+  }, [isOwnerUser, activeTab]);
   /* 탭/서브탭 → URL 동기화 — 새로고침/북마크/공유 가능. push 아닌 replace 라 history 안 늘어남.
      첫 mount 는 skip (초기화 그대로 두기). */
   const tabSyncedRef = useRef(false);
@@ -515,7 +530,13 @@ export default function SettingsPage() {
               <Button
                 variant="primary"
                 size="md"
-                disabled={account.accountSaving}
+                disabled={
+                  account.accountSaving ||
+                  !(
+                    (account.accountNewEmail.trim() !== "" && account.accountNewEmail !== account.accountEmail) ||
+                    account.accountPassword !== ""
+                  )
+                }
                 onClick={() => {
                   if (account.accountPassword && account.accountPassword !== account.accountConfirm) {
                     account.setAccountMessage(t("admin.settings.passwordMismatch"));
@@ -598,7 +619,7 @@ export default function SettingsPage() {
       <div className={styles.layout}>
         {/* ── Side Nav ── */}
         <nav className={styles.sideNav}>
-          {TAB_IDS.map((id) => {
+          {TAB_IDS.filter((id) => allowedTabs.includes(id)).map((id) => {
             const tabCount = allConflicts.filter((c) => c.tab === id).length;
             return (
               <div key={id}>
@@ -809,6 +830,29 @@ export default function SettingsPage() {
               )}
               {activeTab === "account" && (
                 <div className={styles.tabGrid}>
+                {/* 멤버 — 작성자 프로필 + 로그인 계정 관리. owner=전체 관리 / 비owner=목록 + 본인 프로필만 수정 (이슈 #334) */}
+                <section className={`${styles.section} ${styles.sectionWide}`}>
+                  <SectionHeader
+                    title={language === "ko" ? "멤버" : "Members"}
+                    paths={["authors"]}
+                    config={config}
+                    savedConfig={savedConfigRef.current}
+                    saveSection={saveSection}
+                    revertSection={revertSection}
+                    resetSection={resetSection}
+                    savingPaths={savingPaths}
+                    titleClassName={styles.sectionTitle}
+                  />
+                  <p className={styles.sectionHint}>
+                    {language === "ko"
+                      ? "작성자 프로필과 로그인 권한을 함께 관리합니다. 이메일로 초대하면 동일한 GitHub 계정으로 로그인 시 권한이 부여됩니다."
+                      : "Manage author profiles and login access together. Invite by email — access is granted when they sign in with the matching GitHub account."}
+                  </p>
+                  <AuthorsEditor
+                    authors={config.authors ?? []}
+                    onChange={(authors) => setConfig((prev) => ({ ...prev, authors }))}
+                  />
+                </section>
                 <AccountTab
                   accountEmail={account.accountEmail}
                   accountNewEmail={account.accountNewEmail}

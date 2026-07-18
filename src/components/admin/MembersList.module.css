@@ -1,0 +1,239 @@
+.wrap {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+}
+
+.title {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.count {
+  padding: 0 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.empty {
+  padding: var(--spacing-md) 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: var(--border-light);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+  border-bottom: var(--border-light);
+}
+/* 마지막 멤버 — 리스트 하단 이중선 방지 */
+.row:last-child {
+  border-bottom: none;
+}
+
+.rowPending {
+  opacity: 0.72;
+}
+
+/* ── Avatar ── */
+.avatar {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-circle);
+  overflow: hidden;
+  border: var(--border-light);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitial {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+}
+
+/* ── Info ── */
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+
+.name {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: 2px;
+}
+
+.email {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.since {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+/* ── Role badge ── */
+.role {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px;
+  border-radius: var(--radius-capsule);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.roleOwner {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+.roleEditor {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.roleAuthor,
+.roleMember {
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+}
+
+.rolePendingBadge {
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+/* ── Provider chips ── */
+.providers {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+.provider {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-capsule);
+  border: var(--border-light);
+  background: var(--bg-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+}
+
+.providerGithub {
+  color: var(--text-primary);
+}
+
+/* 행 우측 액션 버튼 그룹 (수정/삭제) — AuthorsEditor 리스트에서 사용 */
+.rowActions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+/* 클릭 가능한 행 — 상세 모달 오픈 */
+.rowClickable {
+  cursor: pointer;
+}
+.rowClickable:hover .name {
+  text-decoration: underline;
+}
+.rowClickable:focus-visible {
+  outline: 2px solid var(--border-strong-color, var(--text-accent));
+  outline-offset: 2px;
+  border-radius: var(--radius-2xl);
+}
+
+/* ── Footer "more" link ── */
+.more {
+  display: inline-block;
+  margin-top: var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-accent);
+  text-decoration: none;
+}
+
+.more:hover {
+  text-decoration: underline;
+}

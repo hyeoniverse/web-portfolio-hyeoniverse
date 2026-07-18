@@ -26,7 +26,6 @@ import Field, { ColorField, ResumeUpload, ServiceItemsEditor } from "./SettingsF
 import CategoriesEditor from "./CategoriesEditor";
 import WorksCategoriesEditor from "./WorksCategoriesEditor";
 import SeriesManager from "./SeriesManager";
-import AuthorsEditor from "./AuthorsEditor";
 import SocialLinksEditor from "./SocialLinksEditor";
 import CalendarManager from "./CalendarManager";
 import WorksIntroVideoPicker from "./WorksIntroVideoPicker";
@@ -804,14 +803,6 @@ export default function ContentTab({
             />
           </section>
 
-          {/* Authors — 작성자 관리. 게시물 에디터에서 author_ids 로 참조 */}
-          <section className={styles.section}>
-            <SectionHeader title={language === "ko" ? "작성자" : "Authors"} paths={["authors"]} {...sh} />
-            <AuthorsEditor
-              authors={config.authors ?? []}
-              onChange={(authors) => setConfig((prev) => ({ ...prev, authors }))}
-            />
-          </section>
         </>
       )}
 

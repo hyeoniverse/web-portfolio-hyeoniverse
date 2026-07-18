@@ -2,8 +2,68 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
+import { getUserRole } from "@/lib/api/roles";
 import { notifyAdmin } from "@/lib/adminNotify";
 import { getTabForConfigPath } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
+import { siteConfig } from "@/config/site.config";
+import type { Author } from "@/types/author";
+
+// config 는 { delta, savedDefaults } wrapper 구조 — 실제 값은 delta 안에 있음
+function unwrapDelta(cfg: unknown): Record<string, unknown> {
+  if (cfg && typeof cfg === "object") {
+    const c = cfg as Record<string, unknown>;
+    return ("delta" in c && c.delta && typeof c.delta === "object")
+      ? (c.delta as Record<string, unknown>)
+      : c;
+  }
+  return {};
+}
+
+/**
+ * 비owner 저장 권한 검사 — 사이트 설정은 소유자 전용.
+ * 비owner 는 `authors` 중 "본인 항목"만 추가/수정/삭제 가능. 그 외 변경은 차단.
+ * 통과면 null, 위반이면 사유 문자열 반환.
+ */
+function checkNonOwnerConfig(
+  oldCfg: unknown,
+  newCfg: unknown,
+  myAuthorId: string | null,
+  myEmail: string | null | undefined,
+): string | null {
+  const oldDelta = unwrapDelta(oldCfg);
+  const newDelta = unwrapDelta(newCfg);
+  const email = myEmail?.toLowerCase() ?? null;
+  const isMine = (a: Author) =>
+    (!!myAuthorId && a.id === myAuthorId) || (!!email && !!a.email && a.email.toLowerCase() === email);
+
+  // authors 외 다른 키가 바뀌면 차단
+  for (const k of new Set([...Object.keys(oldDelta), ...Object.keys(newDelta)])) {
+    if (k === "authors") continue;
+    if (JSON.stringify(oldDelta[k]) !== JSON.stringify(newDelta[k])) {
+      return "사이트 설정은 소유자만 변경할 수 있습니다.";
+    }
+  }
+
+  // authors — 실제 값(delta 없으면 기본값) 기준으로 본인 항목만 변경 허용
+  const defaults = ((siteConfig as { authors?: Author[] }).authors ?? []);
+  const oldAuthors = (Array.isArray(oldDelta.authors) ? oldDelta.authors : defaults) as Author[];
+  const newAuthors = (Array.isArray(newDelta.authors) ? newDelta.authors : defaults) as Author[];
+  const oldById = new Map(oldAuthors.map((a) => [a.id, a]));
+  const newById = new Map(newAuthors.map((a) => [a.id, a]));
+
+  for (const [id, oldA] of oldById) {
+    const newA = newById.get(id);
+    if (!newA) {
+      if (!isMine(oldA)) return "다른 사람의 프로필은 삭제할 수 없습니다.";
+    } else if (JSON.stringify(oldA) !== JSON.stringify(newA)) {
+      if (!isMine(oldA) && !isMine(newA)) return "다른 사람의 프로필은 수정할 수 없습니다.";
+    }
+  }
+  for (const [id, newA] of newById) {
+    if (!oldById.has(id) && !isMine(newA)) return "본인 프로필만 추가할 수 있습니다.";
+  }
+  return null;
+}
 
 // GET /api/admin/settings — 설정 조회 (공개)
 export async function GET() {
@@ -21,20 +81,27 @@ export async function GET() {
   return NextResponse.json(data);
 }
 
-// PATCH /api/admin/settings — 설정 업데이트 (인증 필수)
+// PATCH /api/admin/settings — 설정 업데이트 (인증 필수, 비owner 는 본인 프로필만)
 export async function PATCH(request: Request) {
-  const { error: authError } = await requireAuth();
-  if (authError) return authError;
+  const auth = await requireAuth();
+  if (auth.error) return auth.error;
 
   const body = await request.json();
   const admin = createAdminClient();
 
-  // 변경 감지용 — 이전 config 와 비교해 changed 된 top-level keys 만 알림
+  // 변경 감지/권한 검사용 — 이전 config
   const { data: prev } = await admin
     .from("site_settings")
     .select("config")
     .eq("id", "default")
     .single<{ config: Record<string, unknown> }>();
+
+  // 비owner 는 사이트 설정 변경 불가 — 본인 프로필(authors)만 허용
+  const role = getUserRole(auth.user);
+  if (!role.isOwner) {
+    const violation = checkNonOwnerConfig(prev?.config, body.config, role.authorId, auth.user.email);
+    if (violation) return NextResponse.json({ error: "Forbidden", reason: violation }, { status: 403 });
+  }
 
   const { data, error } = await admin
     .from("site_settings")
@@ -49,19 +116,8 @@ export async function PATCH(request: Request) {
 
   revalidatePath("/", "layout");
 
-  // 설정 변경 알림 — 큰 설정(theme/contact/services/translation/aiSummary/seo 등) 수정 기록.
-  // config 는 { delta, savedDefaults } wrapper 구조이므로 delta 내부 키로 비교해야
-  // "delta, savedDefaults" 같은 무의미한 wrapper 키 대신 실제 변경된 섹션이 보임.
+  // 설정 변경 알림 — delta 내부 키로 실제 변경된 섹션만 기록
   try {
-    const unwrapDelta = (cfg: unknown): Record<string, unknown> => {
-      if (cfg && typeof cfg === "object") {
-        const c = cfg as Record<string, unknown>;
-        return ("delta" in c && c.delta && typeof c.delta === "object")
-          ? (c.delta as Record<string, unknown>)
-          : c;
-      }
-      return {};
-    };
     const oldDelta = unwrapDelta(prev?.config);
     const newDelta = unwrapDelta(body.config);
     const allKeys = new Set([...Object.keys(oldDelta), ...Object.keys(newDelta)]);
@@ -70,7 +126,6 @@ export async function PATCH(request: Request) {
       if (JSON.stringify(oldDelta[k]) !== JSON.stringify(newDelta[k])) changed.push(k);
     }
     if (changed.length > 0) {
-      // 변경된 키들이 모두 같은 탭에 속하면 해당 탭으로 직접 이동, 아니면 settings 루트
       const tabs = new Set(changed.map((k) => getTabForConfigPath(k)));
       const url = tabs.size === 1
         ? `/admin/settings?tab=${[...tabs][0]}`

@@ -6224,15 +6224,149 @@ a.tagRelatedItem:hover {
   flex-wrap: wrap;
   gap: var(--spacing-sm);
 }
-.authorInviteOk {
-  color: var(--text-success);
-  font-size: var(--font-size-xs);
-}
+/* 상태 메시지 — 행 아래. 성공/실패 모두 accent 로 강조 */
+.authorInviteOk,
 .authorInviteErr {
-  color: var(--text-error);
+  color: var(--text-accent);
   font-size: var(--font-size-xs);
 }
-/* 초대 hint 는 강조 — accent */
+/* 라벨 아래 설명 — secondary */
 .authorInvite .fieldHint {
-  color: var(--text-accent);
+  color: var(--text-secondary);
+}
+/* 가입된 멤버의 로그인 상태 줄 (역할·provider·최근 로그인) */
+.authorMemberStatus {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+/* 작성자와 연결 안 된 로그인 계정 그룹 */
+.authorUnlinked {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: var(--border-light);
+}
+/* 멤버 편집 모달 내부 레이아웃 — 좌우/하단 패딩(모달 header 좌측 정렬), 버튼은 모달 footer 슬롯 사용 */
+.memberModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+}
+/* GitHub 정보 불러오기 버튼 + 안내 */
+.memberGithubLoad {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-2xs);
+}
+.memberGithubLoad .fieldHint {
+  color: var(--text-tertiary);
+}
+
+/* ── 멤버 상세 모달 (읽기 전용) ── */
+.memberDetail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+}
+.memberDetailHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+.memberDetailAvatar {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-circle);
+  overflow: hidden;
+  border: var(--border-light);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+}
+.memberDetailAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.memberDetailHeadInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  min-width: 0;
+}
+.memberDetailNameRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+.memberDetailName {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+.memberDetailRole {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.memberDetailMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+.memberDetailMetaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.memberDetailMetaLabel {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+.memberDetailMetaLink {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.memberDetailMetaLink:hover {
+  text-decoration: underline;
+}
+.memberDetailBio {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+}
+.memberDetailLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+.memberDetailLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-capsule);
+  border: var(--border-light);
+  background: var(--bg-secondary);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.memberDetailLink:hover {
+  color: var(--text-primary);
 }

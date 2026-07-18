@@ -53,6 +53,7 @@ import {
   List,
   ListItem,
 } from "./components";
+import MembersList from "@/components/admin/MembersList";
 import styles from "./Dashboard.module.css";
 
 interface DashboardData {
@@ -149,6 +150,8 @@ export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // 멤버 섹션 표시 여부 — MembersList 가 owner 아님(403)을 확인하면 false 로 섹션째 숨김
+  const [membersVisible, setMembersVisible] = useState(true);
   // Devices drill-down 선택 상태 — 부모로 끌어올려서 Traffic Sources 패널을 접고 Devices를 풀폭으로 확장 가능
   const [deviceDrillKind, setDeviceDrillKind] = useState<
     "desktop" | "mobile" | "tablet" | null
@@ -890,6 +893,17 @@ export default function AdminDashboard() {
                 )}
               </Panel>
             )}
+          </Panel>
+        </Section>
+      )}
+
+      {/* ━━━━━━━━━━ 그룹: 멤버 ━━━━━━━━━━ */}
+      {/* ── 인증된 관리자·작성자 (owner 전용 — 비owner 면 onResolved(false)로 섹션째 숨김) ── */}
+      {membersVisible && (
+        <Section>
+          <SectionHeader>{language === "ko" ? "멤버" : "Members"}</SectionHeader>
+          <Panel className={styles.panelCell}>
+            <MembersList limit={5} hideHeader onResolved={setMembersVisible} />
           </Panel>
         </Section>
       )}
