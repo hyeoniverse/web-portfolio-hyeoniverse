@@ -74,9 +74,9 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 | **Interaction** | Infinite scroll loop, mouse parallax, StaggerText, Three.js 3D coffee cup + latte art, directional scroll cascade |
 | **Works** | 6 layouts (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) |
 | **Blog** | SSR + ISR, series, banner slider, 6 list layouts, guest comments (markdown + emoji reactions) or switch to giscus |
-| **Admin** | Plate.js editor (calendar · diagram · code playground blocks), `.md` sync + export, AI translation/summary, revision history, optimistic concurrency control |
+| **Admin** | Plate.js editor (calendar · diagram · code playground blocks), `.md` sync + export, AI translation/summary, revision history, optimistic concurrency control, GitHub OAuth login + member management (email invites · owner/editor/author roles) |
 | **Performance** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic counters + AbortController + bulk Promise.all |
-| **Security** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin check (production fail-closed), middleware admin multi-layer gate, 5-fails lockout + new-device email approval + sign-out all devices |
+| **Security** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin check (production fail-closed), middleware admin multi-layer gate, 5-fails lockout + new-device email approval + sign-out all devices, role-based access control (app_metadata) + OAuth callback authorization gate + cross-tab logout |
 | **Design System** | 4-tier tokens (Raw → Semantic → Component → Context) + live preview, **all color tokens migrated to OKLCH** (precise culori conversion, perceptually uniform brightness across hues) |
 
 ---
@@ -142,7 +142,7 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 - **Posts subnav (`PostsSubnav`)**: An All / Series / Tags / History capsule subnav unifies entry into the `/posts` sub-indexes
 - **6 list layouts**: Switched via `siteConfig.posts.layout` (Admin settings) — magazine (default, bento masonry) · grid · list · compact · masonry · featured. This is a **site-wide setting, not per post**, and the size variants (wide/banner/square/portrait) plus JS row-span packing apply only to magazine. `/posts/history` is timeline-only
 - **2-level category tree**: Moved from a flat list to a 2-level tree (Development > Frontend/Backend/DevOps, Learning > Algorithms/CS, Insights/Retrospective/Life/Etc). Only the leaf is stored and the parent is derived via `src/lib/categoryTree.ts` — zero DB migration. Supports **multi-select categories** (OR, `?category=a,b`) plus a `facets` sidebar
-- **Multiple authors**: `posts.author_ids text[]` + the Admin `AuthorsEditor` — references `authors[]` in `site.config.ts`
+- **Multiple authors / members**: Authors (members) now live in Supabase `app_metadata` with roles (owner/editor/author), are added by email invite (the `author_invites` table), and are managed in the Settings → Account tab. Authentication is GitHub OAuth, and the owner is bootstrapped from `OWNER_EMAIL`. `posts.author_ids text[]` remains the per-post author linkage
 - **Series**: Group posts into series for sequential publishing — `/series` page removed; series now live inside `/posts` as a timeline (numbered step + vertical connector) revealed after a category filter, with previous/next navigation on detail pages
 - **Series Deck Cards**: Horizontal-scroll row — hovering a card waits 800ms then unfolds a deck of up to 4 preview layers in 0.4s staggered sequence (transform-based stack offset, JS-state timer instead of CSS `transition-delay` to avoid snap perception). The unfolded deck pushes the next card right and uses an `::after` pseudo to extend the hit area, eliminating flicker between layers. **If the unfolded deck overflows the horizontal scroll container, an rAF loop directly increments `scrollLeft` per frame** — the card's `margin-right` grows via CSS transition, so `scrollWidth` keeps growing too; a single `scrollBy({ behavior: "smooth" })` would clamp to the small initial `maxScrollLeft`. After auto-scroll ends, `card.matches(":hover")` is checked once more — if the cursor truly left, the deck closes (defending against false-positive `mouseleave` from the card sliding out from under a stationary cursor)
 - **Series Auto Cover**: Series with neither a cover nor any post cover get a single Unsplash image fetched at SSR time and persisted permanently in `series.auto_cover_url` — zero external calls on subsequent loads
@@ -281,6 +281,9 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 - **9 new system notification types**: Extended `admin_notifications` beyond comments/likes/reports to cover ops/security/infra. New types — `device_login` (new device login, pending state) · `device_approved` (approval token used) · `login_lockout` (5-failure lockout) · `signout_all` (global signout) · `ai_failure` (all AI summary/translation providers failed) · `email_failure` (Resend send failure, guarded against infinite loop via `opts.type === "email_failure"` skip) · `cron_error` (pg_cron exception) · `config_changed` (siteConfig save — diff prev via JSON.stringify per top-level key, only changed keys notify) · `migration_applied` (schema migration first-time apply). pg_cron silent failures are caught by `safe_publish_scheduled` / `safe_purge_trash_scheduled` PL/pgSQL wrappers whose EXCEPTION block inserts the notification; migrations are tracked via an `applied_migrations` table + `log_migration_applied(name, description)` helper that uses `GET DIAGNOSTICS was_new = ROW_COUNT` to detect first-time application before notifying
 - **Settings conflict-list redesign**: Flattened to a single open-sided list (border-top + per-row border-bottom, no left/right border, no capsule rows)
 - **Admin login lockout**: 5 failed attempts → 15-minute lockout via server-side check against the `admin_login_attempts` table. The login UI surfaces remaining attempts and a lockout countdown. `/api/admin/auth` and `/api/admin/auth/approve-device` are added to middleware public-paths so pre-auth calls aren't blocked
+- **GitHub OAuth login + member management**: Owner/editor/author members sign in with GitHub OAuth (`supabase.auth.signInWithOAuth` → `/auth/callback` → `exchangeCodeForSession`) — password login (`signInWithPassword`) remains as an owner fallback. `/auth/callback` carries an **authorization gate**: OAuth only *authenticates*, then the server checks the email is `OWNER_EMAIL`, already has a role, or has an `author_invites` row — otherwise it `signOut()`s + service-role `deleteUser()`s the account and redirects to login with an error (un-invited GitHub users cannot get in). Roles (owner / editor permission_level 2 / author 1) are stored in `auth.users.app_metadata` (service_role-writable only — not the self-editable `user_metadata`), and the owner is bootstrapped from `OWNER_EMAIL`. Server helpers `requireOwner()` / `requireRole()` / `requireAuth()` (`src/lib/api/requireRole.ts`) re-read app_metadata on every request — client-sent values are never trusted. In Settings → the **Account tab**, the owner manages a member list (avatar · RoleBadge · ProviderChips [GitHub/email] · last sign-in) + CRUD (add/edit/delete · email invite · permission change). **Non-owners see only the Account tab**, and the site-config tabs are owner-only, enforced both client-side and server-side (`/api/admin/settings` PATCH rejects a non-owner writing anything but their own author entry)
+- **Email invite (Resend)**: The owner invites an email → inserts an `author_invites` row + sends a notice email via Resend (needs a verified domain). On OAuth login with that email, the role is granted into app_metadata and the invite is marked consumed (`consumed_at`)
+- **Cross-tab logout**: `AdminAuthSync` (mounted in the admin dashboard layout) subscribes to Supabase `onAuthStateChange` — on `SIGNED_OUT` it redirects to `/admin/login`. Because Supabase broadcasts auth changes across tabs, logging out in one tab logs out every open tab automatically (previously required a manual refresh)
 - **Sign-out all devices**: New button in Settings → Account → Security — calls Supabase `signOut({ scope: "global" })` to invalidate every session on every device
 - **New-device authentication**: A SHA-256 UA fingerprint is compared against the `admin_known_devices` table — unknown devices trigger an automatic `signOut` plus an approval email (24h TTL token). Clicking the link approves the device, then the user re-enters password on the login page. The approval HTML response page mirrors the site's `error.tsx` pattern (circle border icon + Instrument Serif heading + capsule button + decorative ovals) and auto-detects ko/en from the Accept-Language header
 - **Email template helper**: `src/lib/mail/template.ts` — shared layout for the new-device and security-alert emails (Space Grotesk + Instrument Serif via Google Fonts, capsule CTA button, prefers-color-scheme dark/light)
@@ -406,7 +409,7 @@ The [`supabase/setup.sql`](supabase/setup.sql) file contains all table creation 
 
 Copy the file contents and run them at once in Supabase Dashboard -> **SQL Editor**.
 
-**Tables created (22) + RPC functions:**
+**Tables created (23) + RPC functions:**
 
 | Table | Purpose |
 |--------|------|
@@ -432,6 +435,7 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 | `admin_login_attempts` | Admin login failure counter (5 fails → 15-minute lockout) |
 | `admin_known_devices` | Approved admin device UA fingerprints (SHA-256; unknown devices require email approval, 24h TTL) |
 | `applied_migrations` | Tracks applied schema migrations (fires a notification on first application) |
+| `author_invites` | Email author invites (email PK, author_id references the profile id in site_settings.profile, permission_level 1=author/2=editor, invited_by, created_at, consumed_at, service_role-only RLS) |
 
 **RPC functions**: `sum_post_views()` (cumulative view total), `daily_post_views(start, end)` (daily time series), `publish_scheduled()` (publishes posts/works whose scheduled time has arrived + admin notifications + email — **pg_cron every minute**), `purge_trash_scheduled()` (hard-deletes trash past `purge_after` + notifications — **pg_cron daily at KST 03:00**)
 
@@ -467,6 +471,8 @@ You also need to enable `pg_cron` and `pg_net` in `Database > Extensions` (setup
 > **Upload API**: `POST /api/upload` (server-proxied, per-MIME size limits + a 200MB absolute cap), `POST /api/upload/signed-url` (issues a signed URL for direct Storage upload — only the filename and type transit, sidestepping the request body size cap)
 >
 > **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (looks up repoId + Discussion categories via GitHub GraphQL, requires `GITHUB_TOKEN`)
+>
+> **Auth & Members API**: `GET /auth/callback` (OAuth callback + authorization gate — deletes un-invited accounts), `GET /api/admin/me` (current user's email/role/level/isOwner — settings tab gating), `GET|PATCH|DELETE /api/admin/authors/members` (owner-only — list members + pending invites / change permission or link author profile / delete account), `GET /api/admin/authors/context` (requireAuth, non-owner accessible — returns ownerEmail + member author-ids/emails so non-owners can render the member list without the owner-only 403 endpoint), `POST /api/admin/authors/invite` (owner-only — insert author_invites + Resend email)
 >
 > **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (list, excluding snapshots), `POST /api/revisions` (save + cleanup beyond 50), `GET /api/revisions/[id]` (single with snapshot), `DELETE /api/revisions/[id]`
 >
@@ -511,6 +517,16 @@ Supabase Dashboard -> **Authentication** -> **Users** -> **Add user**:
 - Enter Email and Password
 - Check **Auto Confirm User** (skip email verification)
 
+**Owner account (`OWNER_EMAIL`)**: Set the email you just created as the `OWNER_EMAIL` env var and that account becomes the bootstrap owner (full permissions automatically, without an invite row). All other members are added by email invite (see step 5).
+
+**GitHub OAuth login setup** — members sign in with GitHub OAuth:
+
+1. **Create a GitHub OAuth App** — GitHub → Settings → Developer settings → OAuth Apps → New OAuth App. Set the Authorization callback URL to `https://<PROJECT_REF>.supabase.co/auth/v1/callback`
+2. In Supabase Dashboard → **Authentication → Providers → GitHub**, enable it and paste the OAuth App's Client ID + Secret
+3. Add your site's `/auth/callback` to Supabase **Authentication → URL Configuration → Redirect URLs**
+
+> Invite notice emails use Resend (with a verified domain) — sharing the same Resend key as the Services tab / pg_cron email setup.
+
 ### 5. Admin Login Method
 
 There is no login button on the site. Only the admin accesses it by entering the URL directly.
@@ -523,6 +539,14 @@ There is no login button on the site. Only the admin accesses it by entering the
 
 > Login form: the error/info message moved into its own row below the submit button (previously wedged next to "remember email"), with a reserved `min-height` so layout doesn't shift when the message appears/disappears. Email + password inputs are grouped under `.inputGroup` with a tighter gap (form gap `xl → md`). The 5-fails-then-15-min-lockout warning surfaces in the same row
 
+**GitHub OAuth login** (standard path for members):
+
+1. On `/admin/login`, click **Sign in with GitHub** → `supabase.auth.signInWithOAuth` → GitHub auth → redirect to `/auth/callback`
+2. The `/auth/callback` authorization gate checks the email is `OWNER_EMAIL`, already has a role, or has an `author_invites` row — on pass, the role is granted into app_metadata and the invite is consumed. If un-invited, the account is deleted and it redirects back to login with an error
+3. Success → redirect to `/admin/settings`
+
+**Adding members (email invite)**: From Settings → the **Account tab**, the owner invites a member by email, which inserts an `author_invites` row and sends a Resend notice email. When the invitee signs in via GitHub OAuth with that same email, they automatically gain author/editor permission. The owner manages the member list, roles, and permissions from the Account tab (non-owners see only the Account tab).
+
 **Features available after login:**
 
 - `/admin/posts` — Post list (publish/private status, hover preview, row numbers, thumbnails)
@@ -533,7 +557,7 @@ There is no login button on the site. Only the admin accesses it by entering the
 - `/admin/works` — Works list (table view, publish/private toggle, sort order, thumbnails, .md upload)
 - `/admin/works/new` — Create new work (single content editor + template, Korean/English bilingual, tech stack, gallery)
 - `/admin/works/[id]/edit` — Edit existing work
-- `/admin/settings` — Site settings (General, Content, Appearance, Services, Account — 5 tabs). General tab for brand/SEO/footer copyright/BGM file upload/audio source (track name/artist/URL) management. Content tab split into Home/Profile/About/Posts/Works sub-navigation. Services tab for email service, AI cover, reCAPTCHA settings and API key editing. Account tab for admin email/password changes
+- `/admin/settings` — Site settings (General, Content, Appearance, Services, Account — 5 tabs). General tab for brand/SEO/footer copyright/BGM file upload/audio source (track name/artist/URL) management. Content tab split into Home/Profile/About/Posts/Works sub-navigation. Services tab for email service, AI cover, reCAPTCHA settings and API key editing. Account tab for admin email/password changes + member management (owner-only — member list, roles [owner/editor/author], email invites, permission changes; non-owners see only the Account tab)
 
 ### 6. Cover Image Picker Usage
 
@@ -630,7 +654,16 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 **Authentication flow:**
 
 ```
-/admin/login (form submit)
+/admin/login (Sign in with GitHub)
+  -> supabase.auth.signInWithOAuth({ provider: "github" })
+    -> GitHub auth -> GET /auth/callback
+      -> exchangeCodeForSession (authenticates only)
+      -> authorization gate: email is OWNER_EMAIL || has a role || author_invites row?
+        -> pass -> grant role into app_metadata + consume invite (consumed_at)
+        -> fail -> signOut() + service-role deleteUser() -> /admin/login with an error
+  -> Redirect to /admin/settings
+
+/admin/login (form submit — owner fallback)
   -> POST /api/admin/auth
     -> supabase.auth.signInWithPassword()
     -> Set session cookie
@@ -639,7 +672,8 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 Accessing /admin/*
   -> Dashboard layout checks session
   -> No session -> /admin/denied (access denied page)
-  -> Session exists -> Normal access
+  -> Session exists -> Normal access (server helpers re-check the app_metadata role)
+  -> AdminAuthSync subscribes to onAuthStateChange -> SIGNED_OUT in another tab -> /admin/login (cross-tab logout)
 
 Accessing /admin/login
   -> Auth layout checks session

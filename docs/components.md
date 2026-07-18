@@ -184,6 +184,16 @@ import StaggerText from "@/components/effects/StaggerText";
 
 ---
 
+### MembersList · RoleBadge · ProviderChips
+
+Settings → Account 탭의 **멤버 관리 UI 프리미티브**. `MembersList` 가 멤버 카드 목록(아바타 · 이름/이메일 · 마지막 로그인 · 대기 초대)을 렌더하고, 각 행에 `RoleBadge`(소유자/편집자/저자 역할 배지)와 `ProviderChips`(GitHub / 이메일 로그인 수단 칩)를 붙입니다. 소유자만 CRUD(초대 / 역할 변경 / 삭제)가 가능하고, 데이터는 `/api/admin/authors/members`(소유자) · `/api/admin/authors/context`(비소유자) 로 로드합니다.
+
+**경로**: `src/components/admin/MembersList.tsx`, `src/components/admin/MemberBadges.tsx` (`RoleBadge` / `ProviderChips`)
+
+**사용처**: `admin/(dashboard)/settings` Account 탭 (MemberDetailModal / MemberEditModal 연동)
+
+---
+
 ### processRichtextHtml (util)
 
 richtext HTML을 후처리하는 **공용 유틸**. 상세 페이지와 미리보기가 본문을 **동일하게 렌더**하도록 처리를 한곳으로 모았다.
