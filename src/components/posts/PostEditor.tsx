@@ -283,6 +283,8 @@ export default function PostEditor({ post }: PostEditorProps) {
     onUpdate: (patch) => setForm((prev) => ({ ...prev, ...patch })),
     onStatus: (msg, type) => { setStatus(msg); setStatusType(type); },
     onError: setError,
+    // 콘텐츠 작성 기본 언어로 편집 시작 (en 기본이면 영문 탭부터)
+    initialLang: config.metadata.defaultLanguage as "ko" | "en",
   });
 
   const te = useCallback(

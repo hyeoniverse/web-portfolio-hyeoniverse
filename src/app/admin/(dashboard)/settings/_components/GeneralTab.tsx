@@ -4,6 +4,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import type { SettingsTabProps } from "../_types";
 import Field, { AudioUpload, TagField } from "./SettingsFormFields";
 import SectionHeader from "./SectionHeader";
+import Select from "@/components/ui/Select";
 import styles from "../Settings.module.css";
 
 export default function GeneralTab({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths }: SettingsTabProps) {
@@ -40,6 +41,21 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
           </div>
           <div className={styles.fieldNarrow}>
             <Field label={t("admin.settings.author")} value={config.metadata.author} onChange={(v) => update("metadata", "author", v)} maxHint={80} />
+          </div>
+          <div className={styles.fieldRow}>
+            <label className={styles.fieldLabel}>
+              <span className={styles.fieldLabelText}>{t("admin.settings.defaultLanguage")}</span>
+              <span className={styles.fieldLabelHint}>{t("admin.settings.defaultLanguageHint")}</span>
+            </label>
+            <Select
+              value={config.metadata.defaultLanguage}
+              onChange={(v) => update("metadata", "defaultLanguage", v as "ko" | "en")}
+              width="min"
+              options={[
+                { value: "ko", label: "한국어" },
+                { value: "en", label: "English" },
+              ]}
+            />
           </div>
         </div>
       </section>
