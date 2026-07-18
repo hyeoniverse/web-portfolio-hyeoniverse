@@ -32,6 +32,9 @@ export interface PrivacyContent {
 
 export type Language = "en" | "ko";
 
+// 실제 최종 개정일 (YYYY-MM-DD) — 표시는 항상 이 값 기준. 정책을 고칠 때마다 갱신.
+export const lastUpdatedDate = "2026-07-18";
+
 // 콘텐츠 번역
 export const content: Record<Language, PrivacyContent> = {
   en: {
@@ -64,6 +67,10 @@ export const content: Record<Language, PrivacyContent> = {
             strong: "Technical Data:",
             text: "Basic analytics data such as page views and device type for improving the site experience.",
           },
+          {
+            strong: "Administrator Sign-In:",
+            text: "When a site operator signs in with GitHub, their GitHub email, username, avatar image, and profile URL are stored for author attribution. This applies only to administrators, not visitors.",
+          },
         ],
       },
       {
@@ -95,6 +102,30 @@ export const content: Record<Language, PrivacyContent> = {
             link: {
               text: "Privacy Policy",
               url: "https://policies.google.com/privacy",
+            },
+          },
+          {
+            strong: "GitHub (OAuth):",
+            text: "Used for administrator and author sign-in. Only site operators authenticate via GitHub; visitors are never asked to log in.",
+            link: {
+              text: "Privacy Statement",
+              url: "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
+            },
+          },
+          {
+            strong: "Supabase:",
+            text: "Hosts the database and file storage. Comments, post data, and uploaded media are stored on Supabase infrastructure.",
+            link: {
+              text: "Privacy Policy",
+              url: "https://supabase.com/privacy",
+            },
+          },
+          {
+            strong: "Resend:",
+            text: "Delivers reply-notification and administrator emails. Only the email address you provide is used to send them.",
+            link: {
+              text: "Privacy Policy",
+              url: "https://resend.com/legal/privacy-policy",
             },
           },
           {
@@ -155,6 +186,10 @@ export const content: Record<Language, PrivacyContent> = {
             strong: "기술 데이터:",
             text: "사이트 경험 개선을 위한 페이지 조회수, 기기 유형 등 기본적인 분석 데이터를 수집합니다.",
           },
+          {
+            strong: "관리자 로그인:",
+            text: "사이트 운영자가 GitHub로 로그인하면 작성자 표기를 위해 GitHub 이메일, 사용자명, 아바타 이미지, 프로필 URL이 저장됩니다. 방문자가 아닌 관리자에게만 해당됩니다.",
+          },
         ],
       },
       {
@@ -186,6 +221,30 @@ export const content: Record<Language, PrivacyContent> = {
             link: {
               text: "개인정보 처리방침",
               url: "https://policies.google.com/privacy",
+            },
+          },
+          {
+            strong: "GitHub (OAuth):",
+            text: "관리자 및 작성자 로그인에 사용됩니다. 사이트 운영자만 GitHub로 인증하며, 방문자에게는 로그인을 요구하지 않습니다.",
+            link: {
+              text: "개인정보 처리방침",
+              url: "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
+            },
+          },
+          {
+            strong: "Supabase:",
+            text: "데이터베이스와 파일 저장소를 호스팅합니다. 댓글, 게시물 데이터, 업로드된 미디어가 Supabase 인프라에 저장됩니다.",
+            link: {
+              text: "개인정보 처리방침",
+              url: "https://supabase.com/privacy",
+            },
+          },
+          {
+            strong: "Resend:",
+            text: "답글 알림 및 관리자 이메일을 발송합니다. 제공하신 이메일 주소는 발송 용도로만 사용됩니다.",
+            link: {
+              text: "개인정보 처리방침",
+              url: "https://resend.com/legal/privacy-policy",
             },
           },
           {
