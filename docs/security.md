@@ -11,6 +11,8 @@
 | **인증** | 댓글 이중 인증 (commenter_hash + bcrypt password), 관리자 댓글 서버 측 Supabase Auth 재검증 | 댓글 수정/삭제, 관리자 |
 | **RLS** | Supabase Row Level Security 정책 | 모든 테이블 |
 | **경로 보호** | Layout 레벨 Supabase Auth 세션 확인 + 접근 거부 페이지 | `/admin/*` |
+| **역할 기반 인가** | 소유자/편집자/저자 역할 + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` 가 매 요청 `app_metadata` 재조회. 사이트 설정 탭은 소유자 전용(비소유자는 `/api/admin/settings` PATCH 가 본인 author 항목 외 쓰기 거부), 클라이언트도 Account 탭만 노출 | 멤버 관리, Settings, admin API |
+| **OAuth 인가 게이트** | `/auth/callback` 에서 세션 교환 후 이메일이 `OWNER_EMAIL` / 역할 보유 / `author_invites` 초대 중 하나여야 통과 — 아니면 `signOut()` + service-role `deleteUser()` 로 미초대 계정 차단 | GitHub OAuth 로그인 |
 | **중복 방지** | IP 기반 UNIQUE 제약조건 (투표는 `poll_votes(poll_id, option_id, ip)` UNIQUE), 댓글 반응은 `reactor_hash` (아래) | 좋아요, 방문자 통계, 투표, 댓글 반응 |
 | **service_role 쓰기** | `/api/polls` 투표 + related-series 쓰기는 service_role admin client 로 처리 | 투표, 관련 시리즈 편집 |
 | **비밀번호 보안** | bcrypt (salt round 10), 72바이트 제한, 최소 2자 | 댓글 비밀번호 |
@@ -79,5 +81,17 @@
 **댓글 반응 식별자 (`reactor_hash`):**
 
 `comment_reactions` 는 원문 IP 를 저장하지 않고 `sha256(IP + ":" + UA)` 의 앞 32자만 보관합니다. IP 는 `x-forwarded-for` 첫 세그먼트 → `x-real-ip` → `"unknown"` 순으로 해석합니다. 로그인 없는 반응이므로 완벽한 식별이 아니라 **일상적 중복 차단**이 목표이고, 저장값 자체는 개인 식별정보가 아닙니다.
+
+**역할 · 인가 신뢰 경계 (`app_metadata` vs `user_metadata`):**
+
+멤버 역할(`owner` / `editor` / `author` + `permission_level`)은 `auth.users.app_metadata` 에만 저장합니다 — **service_role 만 쓸 수 있는** 필드입니다. 사용자가 직접 편집할 수 있는 `user_metadata` 에 넣으면 클라이언트가 자기 역할을 바꿔 권한 상승이 가능하므로 신뢰 경계가 여기서 갈립니다. 서버 헬퍼(`src/lib/api/requireRole.ts` 의 `requireOwner` / `requireRole` / `requireAuth`)는 매 요청 세션의 `app_metadata` 를 재조회하고, 클라이언트가 보낸 role/level 값은 절대 신뢰하지 않습니다.
+
+**OAuth 인가 게이트:**
+
+GitHub OAuth 는 **인증만** 합니다 — 아무 GitHub 계정이나 로그인 자체는 통과합니다. 실제 인가는 `/auth/callback` 이 `exchangeCodeForSession` 직후 수행: 이메일이 `OWNER_EMAIL` 이거나 이미 역할이 있거나 `author_invites` 초대 행이 있어야 하고, 셋 다 아니면 `signOut()` + service-role `deleteUser()` 로 계정을 삭제한 뒤 에러와 함께 로그인으로 되돌립니다. 초대받지 않은 사용자는 세션도 계정도 남지 않습니다. 비밀번호 로그인(`signInWithPassword`)은 소유자 폴백으로 유지됩니다.
+
+**크로스탭 로그아웃 / 세션 전파:**
+
+`AdminAuthSync` 가 Supabase `onAuthStateChange` 를 구독해 `SIGNED_OUT` 이벤트에 `/admin/login` 으로 보냅니다. Supabase 가 auth 상태를 탭 간 브로드캐스트하므로 한 탭에서 로그아웃하거나 전기기 로그아웃(`signOut({ scope: "global" })`)하면 열린 모든 탭이 즉시 로그인 화면으로 떨어집니다 — 이전엔 무효화된 세션이 다른 탭에 수동 새로고침 전까지 남아 있었습니다.
 
 

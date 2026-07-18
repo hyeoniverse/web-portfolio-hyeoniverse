@@ -190,14 +190,28 @@ RLS 는 `FOR ALL` service_role 정책 **하나뿐**이라 공개 읽기 정책�
 | `posts.cover_position` | `real NOT NULL DEFAULT 50` | 커버 이미지 세로 초점(%) — 에디터에서 드래그한 위치 영속화 |
 | `posts.cover_zoom` | `real NOT NULL DEFAULT 1` | 커버 이미지 확대 배율 |
 | `posts.icon` | `text NOT NULL DEFAULT ''` | 글 아이콘 (EmojiPicker 값 — native / `img:url` / `icon:id`) |
-| `posts.author_ids` | `text[] NOT NULL DEFAULT '{}'` | 다중 작성자 — `site.config.ts` 의 `authors[]` id 참조 |
+| `posts.author_ids` | `text[] NOT NULL DEFAULT '{}'` | 글별 작성자 연결 — 멤버 프로필 id 배열 (멤버/역할은 Supabase `app_metadata` + `author_invites` 로 관리, 아래 참고) |
 | `works.icon` | `text NOT NULL DEFAULT ''` | `posts.icon` 미러 |
 
 `cover_position` 은 0–100, `cover_zoom` 은 1–2.5 를 의도하지만 **CHECK 제약은 없고 주석상의 범위**입니다 (검증은 에디터 UI 담당).
 
-`author_ids` 를 별도 `authors` 테이블 + 조인 테이블로 정규화하지 않은 이유: 작성자 목록이 사이트 설정(`site.config.ts`)에 사는 소수의 고정 항목이고, 글 조회마다 조인을 추가할 만큼의 쿼리 요구가 없습니다. `text[]` + GIN 없이도 목록 렌더에 충분합니다.
+`author_ids` 를 별도 `authors` 테이블 + 조인 테이블로 정규화하지 않은 이유: 작성자(멤버) 신원과 권한은 이미 Supabase Auth 에 삽니다 — 역할은 `auth.users.app_metadata`, 초대는 `author_invites` 테이블이 관리합니다 (더 이상 `site.config.ts` 의 정적 `authors[]` 가 아님). `posts.author_ids` 는 그 멤버들을 글에 연결하는 얇은 id 배열일 뿐이라 글 조회마다 조인을 추가할 만큼의 쿼리 요구가 없고, `text[]` 만으로 목록 렌더에 충분합니다.
 
 > 목록 카드 레이아웃(`magazine` / `grid` / `list` / `compact` / `masonry` / `featured`)은 **DB 컬럼이 아니라 사이트 설정** `siteConfig.posts.layout` 입니다 — 글마다가 아니라 사이트 전역으로 적용됩니다.
+
+### 저자 초대 + 역할: `app_metadata` / `author_invites`
+
+멤버(소유자/편집자/저자)와 권한을 별도 `members` 테이블로 두지 않고 **Supabase Auth 에 위임**합니다.
+
+| 저장소 | 무엇 | 이유 |
+|--------|------|------|
+| `auth.users.app_metadata` | 역할 (`owner` / `editor` / `author`) + `permission_level` (편집자 2 / 저자 1) | **service_role 만 쓰기 가능** — 사용자가 스스로 편집할 수 있는 `user_metadata` 에 넣으면 권한 상승이 가능해짐 |
+| `author_invites` 테이블 | 초대 대기열 (`email` PK, `author_id` text — site_settings.profile 프로필 id 참조, `permission_level` int, `invited_by` text, `created_at`, `consumed_at`) | 초대는 아직 계정이 없을 수 있어 user row 로 표현 불가 — 이메일을 PK 로 미리 예약. RLS 는 service_role 전용 |
+
+- **이메일이 PK**: OAuth 로그인 시점에 인증된 이메일로 초대를 조회해 역할을 부여하므로, 이메일이 자연 키입니다.
+- **`consumed_at`**: 초대 소비 시각 — 로그인으로 역할이 부여되면 채워지며, 재사용을 막고 대기/완료 초대를 구분합니다.
+- **소유자는 env 로 부트스트랩**: 소유자는 초대 테이블에 없고 `OWNER_EMAIL` 환경변수로 지정합니다 — "첫 소유자를 초대할 사람이 없는" 닭과 달걀 문제를 회피.
+- **인가는 `/auth/callback` 에서 강제**: OAuth 는 인증만 하므로, 이메일이 `OWNER_EMAIL` 이거나 이미 역할이 있거나 `author_invites` 에 있어야 통과하고, 아니면 계정을 삭제합니다.
 
 ### 제목 길이 CHECK 제약
 

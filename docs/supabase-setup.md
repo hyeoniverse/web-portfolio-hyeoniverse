@@ -11,6 +11,9 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
 
+# 부트스트랩 소유자 이메일 — 이 계정은 초대 없이 자동으로 소유자 권한 (GitHub OAuth 로그인 / 멤버 관리)
+OWNER_EMAIL=you@example.com
+
 # production 도메인 — middleware 의 CSRF Origin 체크 기준
 # production 에 미설정 시 admin mutation 이 모두 403 (fail-closed). dev 는 비워둬도 통과
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
@@ -40,6 +43,8 @@ GITHUB_TOKEN=ghp_...
 
 > `GITHUB_TOKEN` 은 admin Services 탭에 저장한 시크릿이 우선이고, 없으면 환경변수를 씁니다 (`getSecret("GITHUB_TOKEN")`).
 
+> `OWNER_EMAIL` 은 부트스트랩 소유자를 지정합니다 (초대 테이블 없이 자동으로 전체 권한). GitHub OAuth 자체(Client ID/Secret)는 `.env.local` 이 아니라 Supabase 대시보드의 **Authentication → Providers → GitHub** 에서 설정합니다 (4번 참고). 멤버 초대 메일은 Resend (인증된 도메인) 를 사용합니다.
+
 **값 확인 방법:**
 
 1. [Supabase Dashboard](https://supabase.com/dashboard) → 프로젝트 선택
@@ -56,7 +61,7 @@ GITHUB_TOKEN=ghp_...
 
 Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 번에 실행하면 됩니다.
 
-**생성되는 테이블 (22개):**
+**생성되는 테이블 (23개):**
 
 | 테이블 | 용도 |
 |--------|------|
@@ -82,6 +87,7 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 | `admin_login_attempts` | 관리자 로그인 실패 카운터 (5회 실패 → 15분 잠금) |
 | `admin_known_devices` | 승인된 관리자 기기 UA 지문 (SHA-256, 미등록 기기는 이메일 승인 24h TTL) |
 | `applied_migrations` | 적용된 schema migration 추적 (최초 적용 시 알림 발생) |
+| `author_invites` | 이메일 저자 초대 (email PK, author_id — site_settings.profile 의 프로필 id 참조, permission_level 1=저자/2=편집자, invited_by, created_at, consumed_at, RLS service_role 전용). OAuth 로그인 시 역할이 app_metadata 에 부여되고 초대 소비 |
 
 > `IF NOT EXISTS`를 사용하므로 이미 존재하는 테이블은 건너뜁니다. 기존 배포 DB에 누락된 컬럼(commenter_hash, updated_at 등)은 파일 하단의 마이그레이션 섹션에서 `ALTER TABLE ADD COLUMN IF NOT EXISTS`로 안전하게 추가됩니다.
 
@@ -117,6 +123,8 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 > **Upload API**: `POST /api/upload` (서버 경유 업로드, MIME 별 크기 제한 + 절대 상한 200MB), `POST /api/upload/signed-url` (Storage 직접 업로드용 signed URL 발급 — 파일명·타입만 전송해 요청 본문 크기 제한 회피)
 >
 > **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (GitHub GraphQL 로 repoId + Discussion 카테고리 조회, `GITHUB_TOKEN` 필요)
+>
+> **Auth & Members API**: `GET /auth/callback` (OAuth 콜백 + 인가 게이트 — 미초대 계정 삭제), `GET /api/admin/me` (현재 사용자 email/role/level/isOwner — settings 탭 게이팅), `GET|PATCH|DELETE /api/admin/authors/members` (소유자 전용 — 멤버 + 대기 초대 목록 / 권한 변경·저자 프로필 연결 / 계정 삭제), `GET /api/admin/authors/context` (requireAuth, 비소유자 접근 가능 — ownerEmail + 멤버 author-id/email 반환), `POST /api/admin/authors/invite` (소유자 전용 — author_invites insert + Resend 메일)
 >
 > **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (목록, snapshot 제외), `POST /api/revisions` (저장 + 50개 초과 정리), `GET /api/revisions/[id]` (snapshot 포함 단건), `DELETE /api/revisions/[id]`
 >
@@ -161,15 +169,31 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - Email과 Password 입력
 - **Auto Confirm User** 체크 (이메일 인증 건너뛰기)
 
+**소유자 계정 (`OWNER_EMAIL`)**: 위에서 만든 이메일을 환경변수 `OWNER_EMAIL` 에 지정하면 그 계정이 부트스트랩 소유자가 됩니다 (초대 테이블 없이 자동으로 전체 권한). 나머지 멤버는 이메일 초대로 추가합니다 (5번 참고).
+
+**GitHub OAuth 로그인 설정** — 멤버는 GitHub OAuth 로 로그인합니다:
+
+1. **GitHub OAuth App 생성** — GitHub → Settings → Developer settings → OAuth Apps → New OAuth App. Authorization callback URL 에 `https://<PROJECT_REF>.supabase.co/auth/v1/callback` 입력
+2. Supabase Dashboard → **Authentication → Providers → GitHub** 를 활성화하고 위 OAuth App 의 Client ID + Secret 붙여넣기
+3. Supabase **Authentication → URL Configuration → Redirect URLs** 에 사이트의 `/auth/callback` 추가
+
 ### 5. Admin 로그인 방법
 
 사이트에 별도 로그인 버튼은 없습니다. 관리자만 URL을 직접 입력하여 접속합니다.
 
-**로그인:**
+**GitHub OAuth 로그인** (멤버 표준 경로):
+
+1. `/admin/login` 에서 **GitHub 로 로그인** → `supabase.auth.signInWithOAuth` → GitHub 인증 → `/auth/callback` 으로 리다이렉트
+2. `/auth/callback` 인가 게이트가 이메일이 `OWNER_EMAIL` 이거나 역할을 보유했거나 `author_invites` 초대가 있는지 확인 — 통과 시 역할이 app_metadata 에 부여되고 초대는 소비됨. 미초대면 계정을 삭제하고 에러와 함께 로그인으로 복귀
+3. 성공 → `/admin/settings` 리다이렉트
+
+**비밀번호 로그인** (소유자 폴백):
 
 1. `/admin/login` 접속
 2. Supabase에서 생성한 이메일/비밀번호 입력
 3. 로그인 성공 → `/admin/settings` (설정)으로 리다이렉트
+
+**멤버 추가 (이메일 초대)**: 소유자가 Settings → **Account 탭**에서 이메일로 멤버를 초대하면 `author_invites` 행 + Resend 안내 메일이 발송됩니다. 초대받은 사람이 같은 이메일의 GitHub 로 OAuth 로그인하면 자동으로 저자/편집자 권한을 얻습니다. Account 탭에서 소유자가 멤버 목록·역할·권한을 관리합니다 (비소유자는 Account 탭만 접근).
 
 **로그인 후 사용 가능한 기능:**
 
@@ -181,7 +205,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - `/admin/works` — 작업물 목록 (테이블 뷰, 발행/비공개 토글, 정렬 순서, 썸네일, .md 업로드)
 - `/admin/works/new` — 새 작업물 생성 (단일 콘텐츠 에디터 + 템플릿, 한/영 이중 언어, 기술 스택, 갤러리)
 - `/admin/works/[id]/edit` — 기존 작업물 수정
-- `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). General 탭에서 브랜드·SEO·푸터 저작권·BGM 파일 업로드·음원 출처(곡명/아티스트/URL) 관리. Content 탭은 Home/Profile/About/Posts/Works 서브 네비게이션으로 분리. Services 탭에서 이메일 서비스, AI 커버, reCAPTCHA 설정 및 API 키 편집. Account 탭에서 관리자 이메일/비밀번호 변경
+- `/admin/settings` — 사이트 설정 (General, Content, Appearance, Services, Account 5개 탭). General 탭에서 브랜드·SEO·푸터 저작권·BGM 파일 업로드·음원 출처(곡명/아티스트/URL) 관리. Content 탭은 Home/Profile/About/Posts/Works 서브 네비게이션으로 분리. Services 탭에서 이메일 서비스, AI 커버, reCAPTCHA 설정 및 API 키 편집. Account 탭에서 관리자 이메일/비밀번호 변경 + 멤버 관리(소유자 전용 — 멤버 목록·역할[소유자/편집자/저자]·이메일 초대·권한 변경, 비소유자는 Account 탭만 노출)
 
 ### 6. Cover Image Picker 사용법
 
@@ -288,7 +312,16 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 **인증 플로우:**
 
 ```
-/admin/login (폼 제출)
+/admin/login (GitHub 로 로그인)
+  → supabase.auth.signInWithOAuth({ provider: "github" })
+    → GitHub 인증 → GET /auth/callback
+      → exchangeCodeForSession (인증만 수행)
+      → 인가 게이트: 이메일이 OWNER_EMAIL || 역할 보유 || author_invites 초대?
+        → 통과 → app_metadata 에 역할 부여 + 초대 소비(consumed_at)
+        → 실패 → signOut() + service-role deleteUser() → 에러와 함께 /admin/login
+  → /admin/settings 로 리다이렉트
+
+/admin/login (폼 제출 — 소유자 폴백)
   → POST /api/admin/auth
     → supabase.auth.signInWithPassword()
     → 세션 쿠키 설정
@@ -297,7 +330,8 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 /admin/* 접속 시
   → Dashboard layout에서 세션 확인
   → 세션 없으면 → /admin/denied (접근 거부 페이지)
-  → 세션 있으면 → 정상 접근
+  → 세션 있으면 → 정상 접근 (서버 헬퍼가 app_metadata 역할 재확인)
+  → AdminAuthSync 가 onAuthStateChange 구독 → 다른 탭에서 SIGNED_OUT 시 /admin/login (크로스탭 로그아웃)
 
 /admin/login 접속 시
   → Auth layout에서 세션 확인
