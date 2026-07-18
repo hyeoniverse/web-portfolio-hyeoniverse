@@ -29,6 +29,8 @@ interface UseEditorTranslationOptions {
   onStatus?: (msg: string, type: "info" | "success") => void;
   /** Callback for error messages */
   onError?: (msg: string) => void;
+  /** 초기 편집 언어 — 콘텐츠 작성 기본 언어(siteConfig) 기준. 미지정 시 "ko" */
+  initialLang?: "ko" | "en";
 }
 
 export function useEditorTranslation({
@@ -40,8 +42,9 @@ export function useEditorTranslation({
   onUpdate,
   onStatus,
   onError,
+  initialLang = "ko",
 }: UseEditorTranslationOptions) {
-  const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
+  const [editorLang, setEditorLang] = useState<"ko" | "en">(initialLang);
   const [translating, setTranslating] = useState(false);
 
   // Keep a ref so callbacks don't go stale on `form`

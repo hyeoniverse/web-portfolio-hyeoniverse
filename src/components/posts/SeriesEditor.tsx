@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Series } from "@/types/post";
 import Checkbox from "@/components/ui/Checkbox";
 import Textarea from "@/components/ui/Textarea";
@@ -37,11 +38,13 @@ interface SeriesEditorProps {
 export default function SeriesEditor({ series }: SeriesEditorProps) {
   const router = useRouter();
   const { t } = useLanguage();
+  // 콘텐츠 작성 기본 언어 — 필수 항목/초기 편집 언어의 기준 (방문자 언어와 무관)
+  const primaryLang = useSiteConfig().metadata.defaultLanguage as "ko" | "en";
   const isEdit = !!series;
 
   const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
 
-  const [editorLang, setEditorLang] = useState<"ko" | "en">("ko");
+  const [editorLang, setEditorLang] = useState<"ko" | "en">(primaryLang);
   const [form, setForm] = useState<SeriesForm>({
     title: series?.title ?? "",
     title_en: series?.title_en ?? "",
@@ -150,7 +153,8 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
 
   const handleSave = useCallback(
     async (asPublished: boolean) => {
-      if (!form.title.trim()) {
+      // 필수 제목은 기본 언어 기준 (en 기본이면 영문 제목이 필수)
+      if (!(primaryLang === "en" ? form.title_en : form.title).trim()) {
         setError(ts("titleRequired"));
         return;
       }

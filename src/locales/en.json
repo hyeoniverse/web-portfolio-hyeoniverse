@@ -354,6 +354,8 @@
       "blog": "Blog",
       "siteTitle": "Site Title",
       "siteTitleHint": "Used in browser tab & SEO",
+      "defaultLanguage": "Default Language",
+      "defaultLanguageHint": "Which language is required when authoring content · unrelated to what visitors see",
       "description": "Description",
       "descriptionHint": "Shown in search engine results",
       "keywords": "Keywords",

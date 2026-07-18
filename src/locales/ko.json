@@ -356,6 +356,8 @@
       "blog": "블로그",
       "siteTitle": "사이트 제목",
       "siteTitleHint": "브라우저 탭 및 SEO에 사용",
+      "defaultLanguage": "기본 언어",
+      "defaultLanguageHint": "콘텐츠 작성 시 필수 항목의 기준 언어 · 방문자에게 보이는 언어와 무관",
       "description": "설명",
       "descriptionHint": "검색 엔진 결과에 표시",
       "keywords": "키워드",

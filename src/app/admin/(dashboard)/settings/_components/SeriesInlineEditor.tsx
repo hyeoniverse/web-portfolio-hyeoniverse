@@ -6,6 +6,7 @@ import { ChevronUp, ChevronDown, ExternalLink, GripVertical, Plus, Unlink, Trash
 import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
 import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { BilingualCategory } from "@/types/common";
 import { Switch } from "@/components/ui/Switch";
 import { SERIES_TITLE_MAX, type Series, type SeriesPostItem } from "@/types/post";
@@ -62,6 +63,8 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
 }, ref) {
   const { t } = useLanguage();
   const ts = (key: string) => t(`admin.posts.seriesModal.${key}`);
+  // 콘텐츠 작성 기본 언어 — 필수 제목의 기준 (en 기본이면 영문 제목이 필수)
+  const primaryLang = useSiteConfig().metadata.defaultLanguage as "ko" | "en";
   const isEdit = !!series;
 
   /* 초기값 — revert 시 이 값으로 복원. series prop 변경 시 갱신.
@@ -322,7 +325,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
   };
 
   const handleSave = async () => {
-    if (!form.title.trim()) {
+    if (!(primaryLang === "en" ? form.title_en : form.title).trim()) {
       setError(ts("titleRequired"));
       return;
     }
@@ -463,8 +466,8 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
         </div>
       )}
       <div className={styles.fieldPair}>
-        <Field label={ts("titleLabel")} langBadge="ko" value={form.title} onChange={(v) => updateField("title", v)} required maxHint={SERIES_TITLE_MAX} maxLength={SERIES_TITLE_MAX} />
-        <Field label={ts("titleLabel")} langBadge="en" value={form.title_en} onChange={(v) => updateField("title_en", v)} maxHint={SERIES_TITLE_MAX} maxLength={SERIES_TITLE_MAX} />
+        <Field label={ts("titleLabel")} langBadge="ko" value={form.title} onChange={(v) => updateField("title", v)} required={primaryLang === "ko"} maxHint={SERIES_TITLE_MAX} maxLength={SERIES_TITLE_MAX} />
+        <Field label={ts("titleLabel")} langBadge="en" value={form.title_en} onChange={(v) => updateField("title_en", v)} required={primaryLang === "en"} maxHint={SERIES_TITLE_MAX} maxLength={SERIES_TITLE_MAX} />
       </div>
       <div className={styles.fieldPair}>
         <Field label={ts("descLabel")} langBadge="ko" value={form.description} onChange={(v) => updateField("description", v)} multiline maxHint={200} />
