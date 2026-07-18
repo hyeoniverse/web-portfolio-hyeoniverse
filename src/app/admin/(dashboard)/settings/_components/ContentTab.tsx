@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
-import { Plus, Check, X, Trash2, Filter, ChevronDown, Sliders } from "lucide-react";
+import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
 import { DndContext, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { normalizeCategories } from "@/lib/categoryTree";
@@ -17,6 +17,7 @@ import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { Slider } from "@/components/ui/Slider";
 import Popover from "@/components/ui/Popover";
+import ColorPicker from "@/components/ui/ColorPicker";
 import Chip from "@/components/ui/Chip";
 import Button from "@/components/ui/Button";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
@@ -595,20 +596,6 @@ export default function ContentTab({
         </>
       )}
 
-      {contentSubTab === "about" && (
-        <section className={styles.section}>
-          <SectionHeader title="About" paths={["about.infiniteScroll"]} {...sh} />
-          <p className={styles.sectionHint}><T k="admin.settings.aboutInfiniteScrollHint" /></p>
-          <div className={styles.fields}>
-            <Switch
-              size="md"
-              label={t("admin.settings.aboutInfiniteScroll")}
-              checked={config.about?.infiniteScroll !== false}
-              onCheckedChange={(v) => update("about", "infiniteScroll", v)}
-            />
-          </div>
-        </section>
-      )}
 
       {contentSubTab === "posts" && (
         <>
@@ -977,129 +964,33 @@ export default function ContentTab({
           </section>
 
           {/* Hero 패널 — 시각적 구분선 옆 (1행 우측). bilingual 입력은 BilingualInputPair 로 ko/en 한 라벨 아래 묶음 */}
-          <section className={styles.section}>
-            <SectionHeader title={t("admin.settings.aboutHero")} paths={["about.heroLine1", "about.heroLine1_ko", "about.heroLine2", "about.heroLine2_ko", "about.heroWatermark", "about.heroWatermark_ko", "about.heroLine1Color", "about.heroLine1FontSize", "about.heroLine1FontWeight", "about.heroLine1FontFamily", "about.heroLine2Color", "about.heroLine2FontSize", "about.heroLine2FontWeight", "about.heroLine2FontFamily", "about.heroSubtitleColor", "about.heroSubtitleFontSize", "about.heroSubtitleFontWeight", "about.heroSubtitleFontFamily", "about.heroWatermarkColor", "about.heroWatermarkFontSize", "about.heroWatermarkFontWeight", "about.heroWatermarkFontFamily", "about.heroBackground", "about.heroBgColor", "about.heroBgGradientFrom", "about.heroBgGradientTo", "about.heroBgGradientAngle", "about.heroBgOpacity", "about.heroVideoOverlayColor", "about.heroVideoOverlayStrength"]} {...sh} />
+          <section className={`${styles.section} ${styles.sectionWide}`}>
+            <SectionHeader title={t("admin.settings.aboutHero")} paths={HERO_PATHS} {...sh} />
             <div className={styles.fields}>
               <p className={styles.fieldGroupTitle}>{t("admin.settings.aboutHeroTextGroup")}</p>
-              {/* Line 1 — ko/en + ⚙ style 버튼 (popover 안 색/크기/굵기/폰트) */}
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroLine1")}</label>
-                <div className={styles.aboutHeroField}>
-                  <div className={styles.aboutHeroFieldMain}>
-                    <BilingualInputPair
-                      layout="row"
-                      value={{ ko: config.about.heroLine1_ko ?? "", en: config.about.heroLine1 ?? "" }}
-                      onChange={(v) => { update("about", "heroLine1", v.en); update("about", "heroLine1_ko", v.ko); }}
-                    />
-                  </div>
-                  <TextStyleButton sheetTitle={`${t("admin.settings.aboutHeroLine1")} · ${t("admin.settings.aboutHeroStylePopoverTitle")}`}>
-                    <TextStyleControls
-                      t={t}
-                      themeFallback={themeBg.primary}
-                      color={config.about.heroLine1Color ?? ""}
-                      onColorChange={(v) => update("about", "heroLine1Color", v)}
-                      fontSize={config.about.heroLine1FontSize ?? ""}
-                      onFontSizeChange={(v) => update("about", "heroLine1FontSize", v)}
-                      fontWeight={config.about.heroLine1FontWeight ?? ""}
-                      onFontWeightChange={(v) => update("about", "heroLine1FontWeight", v)}
-                      fontFamily={config.about.heroLine1FontFamily ?? ""}
-                      onFontFamilyChange={(v) => update("about", "heroLine1FontFamily", v)}
-                      fontSizeMin={2}
-                      fontSizeMax={20}
-                      fontSizeStep={0.25}
-                    />
-                  </TextStyleButton>
+              <div className={styles.heroTextGrid}>
+                <div className={styles.fieldRow}>
+                  <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroLine1")}</label>
+                  <BilingualInputPair layout="row" value={{ ko: config.about.heroLine1_ko ?? "", en: config.about.heroLine1 ?? "" }} onChange={(v) => { update("about", "heroLine1", v.en); update("about", "heroLine1_ko", v.ko); }} />
+                </div>
+                <div className={styles.fieldRow}>
+                  <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroLine2")}</label>
+                  <BilingualInputPair layout="row" value={{ ko: config.about.heroLine2_ko ?? "", en: config.about.heroLine2 ?? "" }} onChange={(v) => { update("about", "heroLine2", v.en); update("about", "heroLine2_ko", v.ko); }} />
+                </div>
+                <div className={styles.fieldRow}>
+                  <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroWatermark")}</label>
+                  <BilingualInputPair layout="row" value={{ ko: config.about.heroWatermark_ko ?? "", en: config.about.heroWatermark ?? "" }} onChange={(v) => { update("about", "heroWatermark", v.en); update("about", "heroWatermark_ko", v.ko); }} />
                 </div>
               </div>
 
-              {/* Line 2 (accent) */}
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroLine2")}</label>
-                <div className={styles.aboutHeroField}>
-                  <div className={styles.aboutHeroFieldMain}>
-                    <BilingualInputPair
-                      layout="row"
-                      value={{ ko: config.about.heroLine2_ko ?? "", en: config.about.heroLine2 ?? "" }}
-                      onChange={(v) => { update("about", "heroLine2", v.en); update("about", "heroLine2_ko", v.ko); }}
-                    />
-                  </div>
-                  <TextStyleButton sheetTitle={`${t("admin.settings.aboutHeroLine2")} · ${t("admin.settings.aboutHeroStylePopoverTitle")}`}>
-                    <TextStyleControls
-                      t={t}
-                      themeFallback={themeBg.accent}
-                      color={config.about.heroLine2Color ?? ""}
-                      onColorChange={(v) => update("about", "heroLine2Color", v)}
-                      fontSize={config.about.heroLine2FontSize ?? ""}
-                      onFontSizeChange={(v) => update("about", "heroLine2FontSize", v)}
-                      fontWeight={config.about.heroLine2FontWeight ?? ""}
-                      onFontWeightChange={(v) => update("about", "heroLine2FontWeight", v)}
-                      fontFamily={config.about.heroLine2FontFamily ?? ""}
-                      onFontFamilyChange={(v) => update("about", "heroLine2FontFamily", v)}
-                      fontSizeMin={2}
-                      fontSizeMax={20}
-                      fontSizeStep={0.25}
-                    />
-                  </TextStyleButton>
-                </div>
-              </div>
-
-              {/* 서브타이틀 — 인풋 없음 (i18n aboutPage.description), 스타일 버튼만 */}
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroSubtitle")}</label>
-                <div className={`${styles.aboutHeroField} ${styles.aboutHeroFieldCenter}`}>
-                  <span className={styles.aboutHeroSubtitleHint}>
-                    {t("admin.settings.aboutHeroSubtitleHint")}
-                  </span>
-                  <TextStyleButton sheetTitle={`${t("admin.settings.aboutHeroSubtitle")} · ${t("admin.settings.aboutHeroStylePopoverTitle")}`}>
-                    <TextStyleControls
-                      t={t}
-                      themeFallback={themeBg.primary}
-                      color={config.about.heroSubtitleColor ?? ""}
-                      onColorChange={(v) => update("about", "heroSubtitleColor", v)}
-                      fontSize={config.about.heroSubtitleFontSize ?? ""}
-                      onFontSizeChange={(v) => update("about", "heroSubtitleFontSize", v)}
-                      fontWeight={config.about.heroSubtitleFontWeight ?? ""}
-                      onFontWeightChange={(v) => update("about", "heroSubtitleFontWeight", v)}
-                      fontFamily={config.about.heroSubtitleFontFamily ?? ""}
-                      onFontFamilyChange={(v) => update("about", "heroSubtitleFontFamily", v)}
-                      fontSizeMin={0.75}
-                      fontSizeMax={3}
-                      fontSizeStep={0.05}
-                    />
-                  </TextStyleButton>
-                </div>
-              </div>
-
-              {/* Watermark */}
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroWatermark")}</label>
-                <div className={styles.aboutHeroField}>
-                  <div className={styles.aboutHeroFieldMain}>
-                    <BilingualInputPair
-                      layout="row"
-                      value={{ ko: config.about.heroWatermark_ko ?? "", en: config.about.heroWatermark ?? "" }}
-                      onChange={(v) => { update("about", "heroWatermark", v.en); update("about", "heroWatermark_ko", v.ko); }}
-                    />
-                  </div>
-                  <TextStyleButton sheetTitle={`${t("admin.settings.aboutHeroWatermark")} · ${t("admin.settings.aboutHeroStylePopoverTitle")}`}>
-                    <TextStyleControls
-                      t={t}
-                      themeFallback={themeBg.primary}
-                      color={config.about.heroWatermarkColor ?? ""}
-                      onColorChange={(v) => update("about", "heroWatermarkColor", v)}
-                      fontSize={config.about.heroWatermarkFontSize ?? ""}
-                      onFontSizeChange={(v) => update("about", "heroWatermarkFontSize", v)}
-                      fontWeight={config.about.heroWatermarkFontWeight ?? ""}
-                      onFontWeightChange={(v) => update("about", "heroWatermarkFontWeight", v)}
-                      fontFamily={config.about.heroWatermarkFontFamily ?? ""}
-                      onFontFamilyChange={(v) => update("about", "heroWatermarkFontFamily", v)}
-                      fontSizeMin={3}
-                      fontSizeMax={20}
-                      fontSizeStep={0.5}
-                    />
-                  </TextStyleButton>
-                </div>
-              </div>
+              <hr className={styles.sectionDivider} />
+              <p className={styles.fieldGroupTitle}>{t("admin.settings.aboutHeroTypography")}</p>
+              <HeroTypographyMatrix
+                about={config.about as unknown as Record<string, string | undefined>}
+                themeBg={themeBg}
+                onSet={(key, value) => update("about", key as keyof SiteConfigData["about"], value as SiteConfigData["about"][keyof SiteConfigData["about"]])}
+                t={t}
+              />
 
               <hr className={styles.sectionDivider} />
               {/* 패널 배경 — media (cover picker) + solid color + gradient + video opacity, 전부 UI 컨트롤 */}
@@ -2227,123 +2118,100 @@ type CardEditorShared = {
 
 /* Hero text 줄별 스타일 컨트롤 — color / fontSize / fontWeight / fontFamily.
    ⚙ 버튼 안 Popover (desktop dropdown / mobile bottom sheet 자동 전환) 안에 렌더. */
-function TextStyleControls({
-  t,
-  themeFallback,
-  color, onColorChange,
-  fontSize, onFontSizeChange,
-  fontWeight, onFontWeightChange,
-  fontFamily, onFontFamilyChange,
-  fontSizeMin = 1,
-  fontSizeMax = 20,
-  fontSizeStep = 0.25,
-}: {
+/* Hero 타이포그래피 매트릭스 — 라인별 ⚙ popover 4개(색/크기/굵기/폰트 숨김)를
+   요소×속성 인라인 표 하나로. 한눈에 비교·편집. 행 = Line1/Line2/Subtitle/Watermark. */
+const HERO_WEIGHT_OPTIONS = [
+  { value: "100", label: "100 · Thin" },
+  { value: "200", label: "200 · ExtraLight" },
+  { value: "300", label: "300 · Light" },
+  { value: "400", label: "400 · Regular" },
+  { value: "500", label: "500 · Medium" },
+  { value: "600", label: "600 · SemiBold" },
+  { value: "700", label: "700 · Bold" },
+  { value: "800", label: "800 · ExtraBold" },
+  { value: "900", label: "900 · Black" },
+];
+const heroFamilyOptions = (t: (k: string) => string) => [
+  { value: "", label: t("admin.settings.aboutHeroDefault") },
+  { value: "var(--font-display)", label: "Display (Playfair)" },
+  { value: "var(--font-grotesk)", label: "Grotesk (Space Grotesk)" },
+  { value: "var(--font-sans)", label: "Sans" },
+  { value: "var(--font-serif)", label: "Serif" },
+  { value: "var(--font-mono)", label: "Mono" },
+  { value: "var(--font-instrument)", label: "Instrument (Italic)" },
+];
+const HERO_TYPO_ROWS = [
+  { key: "heroLine1", labelKey: "admin.settings.aboutHeroLine1", fb: "primary", min: 2, max: 20, step: 0.25 },
+  { key: "heroLine2", labelKey: "admin.settings.aboutHeroLine2", fb: "accent", min: 2, max: 20, step: 0.25 },
+  { key: "heroSubtitle", labelKey: "admin.settings.aboutHeroSubtitle", fb: "primary", min: 0.75, max: 3, step: 0.05 },
+  { key: "heroWatermark", labelKey: "admin.settings.aboutHeroWatermark", fb: "primary", min: 3, max: 20, step: 0.5 },
+] as const;
+
+const HERO_TEXT_KEYS = ["heroLine1", "heroLine1_ko", "heroLine2", "heroLine2_ko", "heroWatermark", "heroWatermark_ko"];
+const HERO_BG_KEYS = ["heroBackground", "heroBgColor", "heroBgGradientFrom", "heroBgGradientTo", "heroBgGradientAngle", "heroBgOpacity", "heroVideoOverlayColor", "heroVideoOverlayStrength"];
+// Hero 섹션 SectionHeader 의 저장/dirty 범위 — 텍스트+타이포(요소×속성)+배경 키를 생성 (수기 30개 나열 제거)
+const HERO_PATHS = [
+  ...HERO_TEXT_KEYS,
+  ...HERO_TYPO_ROWS.flatMap((r) => [`${r.key}Color`, `${r.key}FontSize`, `${r.key}FontWeight`, `${r.key}FontFamily`]),
+  ...HERO_BG_KEYS,
+].map((k) => `about.${k}`);
+
+function HeroTypographyMatrix({ about, themeBg, onSet, t }: {
+  about: Record<string, string | undefined>;
+  themeBg: { primary: string; secondary: string; accent: string };
+  onSet: (key: string, value: string) => void;
   t: (k: string) => string;
-  themeFallback: string;
-  color: string;
-  onColorChange: (v: string) => void;
-  fontSize: string;
-  onFontSizeChange: (v: string) => void;
-  fontWeight: string;
-  onFontWeightChange: (v: string) => void;
-  fontFamily: string;
-  onFontFamilyChange: (v: string) => void;
-  fontSizeMin?: number;
-  fontSizeMax?: number;
-  fontSizeStep?: number;
 }) {
-  const sizeNum = parseFloat(fontSize) || (fontSizeMin + fontSizeMax) / 2;
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-sm)", minWidth: "280px" }}>
-      <ColorField
-        label={t("admin.settings.aboutHeroStyleColor")}
-        value={color || themeFallback}
-        onChange={onColorChange}
-      />
-      <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroStyleSize")}</label>
-        <div style={{ display: "flex", gap: "var(--spacing-sm)", alignItems: "center" }}>
-          <div style={{ flex: 1 }}>
-            <Slider
-              min={fontSizeMin}
-              max={fontSizeMax}
-              step={fontSizeStep}
-              value={[sizeNum]}
-              onValueChange={([n]) => onFontSizeChange(`${Math.round(n * 100) / 100}rem`)}
-            />
-          </div>
-          <EditableSliderValue
-            value={sizeNum}
-            display={(v) => `${v}rem`}
-            parse={{ toDraft: (v) => String(v), fromDraft: (s) => parseFloat(s) }}
-            onCommit={(n) => onFontSizeChange(`${n}rem`)}
-            min={fontSizeMin}
-            max={fontSizeMax}
-            step={fontSizeStep}
-            width={64}
-          />
+    <div className={styles.heroMatrixWrap}>
+      <div className={styles.heroMatrix}>
+        <div className={styles.heroMatrixHead}>
+          <span>{t("admin.settings.aboutHeroTypoElement")}</span>
+          <span>{t("admin.settings.aboutHeroStyleColor")}</span>
+          <span>{t("admin.settings.aboutHeroStyleSize")}</span>
+          <span>{t("admin.settings.aboutHeroStyleWeight")}</span>
+          <span>{t("admin.settings.aboutHeroStyleFamily")}</span>
         </div>
-      </div>
-      <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroStyleWeight")}</label>
-        <Select
-          value={fontWeight || "400"}
-          onChange={onFontWeightChange}
-          options={[
-            { value: "100", label: "100 · Thin" },
-            { value: "200", label: "200 · ExtraLight" },
-            { value: "300", label: "300 · Light" },
-            { value: "400", label: "400 · Regular" },
-            { value: "500", label: "500 · Medium" },
-            { value: "600", label: "600 · SemiBold" },
-            { value: "700", label: "700 · Bold" },
-            { value: "800", label: "800 · ExtraBold" },
-            { value: "900", label: "900 · Black" },
-          ]}
-        />
-      </div>
-      <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}>{t("admin.settings.aboutHeroStyleFamily")}</label>
-        <Select
-          value={fontFamily || ""}
-          onChange={onFontFamilyChange}
-          options={[
-            { value: "", label: t("admin.settings.aboutHeroDefault") },
-            { value: "var(--font-display)", label: "Display (Playfair)" },
-            { value: "var(--font-grotesk)", label: "Grotesk (Space Grotesk)" },
-            { value: "var(--font-sans)", label: "Sans" },
-            { value: "var(--font-serif)", label: "Serif" },
-            { value: "var(--font-mono)", label: "Mono" },
-            { value: "var(--font-instrument)", label: "Instrument (Italic)" },
-          ]}
-        />
+        {HERO_TYPO_ROWS.map((r) => {
+          const fb = themeBg[r.fb];
+          const colorVal = about[`${r.key}Color`] || "";
+          const sizeVal = parseFloat(about[`${r.key}FontSize`] || "") || (r.min + r.max) / 2;
+          return (
+            <div className={styles.heroMatrixRow} key={r.key}>
+              <span className={styles.heroMatrixLabel}>{t(r.labelKey)}</span>
+              <div className={styles.heroMatrixCell}>
+                <ColorPicker value={colorVal || fb} onChange={(c) => onSet(`${r.key}Color`, c.hex)}>
+                  {({ toggle }) => (
+                    <button
+                      type="button"
+                      className={styles.heroMatrixSwatch}
+                      style={{ background: colorVal || fb }}
+                      onClick={toggle}
+                      title={colorVal || t("admin.settings.aboutHeroDefault")}
+                      aria-label={t("admin.settings.aboutHeroStyleColor")}
+                    />
+                  )}
+                </ColorPicker>
+              </div>
+              <div className={`${styles.heroMatrixCell} ${styles.heroMatrixSize}`}>
+                <Slider min={r.min} max={r.max} step={r.step} value={[sizeVal]}
+                  onValueChange={([n]) => onSet(`${r.key}FontSize`, `${Math.round(n * 100) / 100}rem`)} />
+                <EditableSliderValue value={sizeVal} display={(v) => `${v}`}
+                  parse={{ toDraft: (v) => String(v), fromDraft: (s) => parseFloat(s) }}
+                  onCommit={(n) => onSet(`${r.key}FontSize`, `${n}rem`)}
+                  min={r.min} max={r.max} step={r.step} width={44} />
+              </div>
+              <div className={styles.heroMatrixCell}>
+                <Select value={about[`${r.key}FontWeight`] || "400"} onChange={(v) => onSet(`${r.key}FontWeight`, v)} options={HERO_WEIGHT_OPTIONS} />
+              </div>
+              <div className={styles.heroMatrixCell}>
+                <Select value={about[`${r.key}FontFamily`] || ""} onChange={(v) => onSet(`${r.key}FontFamily`, v)} options={heroFamilyOptions(t)} />
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
-  );
-}
-
-/* ⚙ 버튼 + Popover wrapper — TextStyleControls 를 안에 렌더.
-   Popover trigger span 이 inline-flex 라 부모 flex 안에서 shrink 될 수 있어 className 으로 flex-shrink 0 강제. */
-function TextStyleButton({ sheetTitle, children }: { sheetTitle: string; children: React.ReactNode }) {
-  return (
-    <Popover
-      placement="bottom-end"
-      sheetTitle={sheetTitle}
-      className={styles.textStyleTrigger}
-      contentClassName={styles.textStylePopover}
-      trigger={
-        <button
-          type="button"
-          className={styles.textStyleBtn}
-          aria-label={sheetTitle}
-          title={sheetTitle}
-        >
-          <Sliders size={14} strokeWidth={2} />
-        </button>
-      }
-    >
-      {children}
-    </Popover>
   );
 }
 

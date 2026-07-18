@@ -603,44 +603,6 @@
   padding-bottom: 0;
 }
 
-/* Popover trigger wrapper (span) — flex 안에서 줄어들지 않게 + 32px 라인에 input 첫 줄과 정렬. */
-.textStyleTrigger {
-  flex-shrink: 0;
-  align-self: flex-start;
-  margin-top: 0;
-}
-
-/* Hero text 줄별 ⚙ 스타일 버튼 — input pair 옆 작은 아이콘 버튼. */
-.textStyleBtn {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-h-md);
-  height: var(--control-h-md);
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition:
-    color var(--duration-base) ease,
-    border-color var(--duration-base) ease;
-}
-
-.textStyleBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--text-primary);
-}
-
-/* Popover 안 스타일 컨트롤 padding + 너비 */
-.textStylePopover {
-  padding: var(--spacing-md);
-  min-width: 320px;
-  max-width: 360px;
-}
-
 /* ─────────────────────────────────────────────────────────────────────────
    Settings Hierarchy (3 levels)
    ─────────────────────────────────────────────────────────────────────────
@@ -5888,6 +5850,67 @@ a.tagRelatedItem:hover {
   gap: var(--spacing-2xs);
   cursor: pointer;
   font-size: var(--font-size-sm);
+}
+
+/* ── Hero 텍스트 + 타이포 매트릭스 ── */
+/* 텍스트 입력 3줄(line1/line2/watermark) — 라벨 위, 이중언어 인풋 아래 */
+.heroTextGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+/* 매트릭스 — 요소×속성 표. popover 4개 대신 한눈에 비교·편집. 좁으면 가로 스크롤. */
+.heroMatrixWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+.heroMatrix {
+  display: grid;
+  grid-template-columns: minmax(72px, 0.7fr) 44px minmax(150px, 1.4fr) minmax(116px, 1fr) minmax(124px, 1.1fr);
+  align-items: center;
+  min-width: 620px;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+}
+.heroMatrixHead {
+  display: contents;
+}
+.heroMatrixHead > span {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  background: var(--bg-secondary);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+}
+.heroMatrixRow {
+  display: contents;
+}
+.heroMatrixRow > * {
+  border-top: var(--border-light);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  min-width: 0;
+}
+.heroMatrixLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.heroMatrixSize {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+.heroMatrixSwatch {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  cursor: pointer;
 }
 
 /* Tech stack row (legacy) */
