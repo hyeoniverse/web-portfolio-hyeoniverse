@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import AdminAuthSync from "@/components/common/AdminAuthSync";
 
 export const metadata: Metadata = {
   title: {
@@ -24,5 +25,10 @@ export default async function AdminLayout({
     redirect("/admin/denied");
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <AdminAuthSync />
+      {children}
+    </>
+  );
 }
