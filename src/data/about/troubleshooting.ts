@@ -135,6 +135,10 @@ const itemMeta: Record<
   },
   "이미지 깨짐 placeholder — `dangerouslySetInnerHTML` 로 렌더된 markdown img 에는 React onError 가 안 붙음": { section: "I", difficulty: 3 },
   // Component System
+  "필수 이중언어 제목이 한쪽만 채워지면 반대 언어에서 빈칸으로 표시됨": {
+    section: "C", difficulty: 1, recommended: true,
+    recommendReason: { ko: "`??` 와 `||` 의 차이가 이중언어 fallback 을 가른 사례 — 작은 연산자 선택이 필수 필드를 빈칸으로 만든 걸 보여드리려 골랐습니다.", en: "Picked this because the difference between `??` and `||` decided the bilingual fallback — a tiny operator choice that blanked a required field." },
+  },
   "Admin 리스트(시리즈/휴지통/게시물)의 UI 코드 중복과 스타일 불일치": { section: "C", difficulty: 2 },
   "커스텀 ColorPicker popover 가 trigger 위치에 안 붙음 — wrapper `<span>` 이 0×0 으로 collapse": { section: "C", difficulty: 2 },
   "Supabase auth subscription cleanup — `.then()` 안의 `return` 은 useEffect cleanup 이 아니다": {
@@ -3136,6 +3140,27 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "**When two systems can collide over the same resource, preventing the collision is cheaper than reconciling it afterward.** Decoration and marks are each fine alone and break only when they meet — a class of defect that testing the two features separately will never surface.\n\nWhat made the call easy here is that **blocking it was also the correct behavior**. Adding a constraint usually costs you a capability, but when the combination is meaningless to begin with, the constraint isn't a loss — it's **making the intent explicit**. Worth asking, when picking how to fix a crash, which option is the more honest model.",
     },
     tags: ["plate", "react-hooks", "decorate", "marks", "code-block", "crash"],
+  },
+  {
+    section: { ko: "i18n", en: "i18n" },
+    problem: { ko: "필수 이중언어 제목이 한쪽만 채워지면 반대 언어에서 빈칸으로 표시됨", en: "A required bilingual title renders blank in the other language when only one side is filled" },
+    definition: {
+      ko: "작품 제목을 ko/en 이중언어로 바꾼 뒤, **국문 제목만 채운 작품을 영어로 보니 제목이 빈칸**으로 떴습니다. 부제목·설명은 비어도 티가 안 났지만 제목은 항상 보여야 하는 필수 필드라 바로 드러났습니다.",
+      en: "After making the work title bilingual (ko/en), **a work with only the Korean title rendered a blank title in English**. Empty subtitle/description went unnoticed, but the title — a required, always-visible field — exposed it immediately.",
+    },
+    cause: {
+      ko: "표시에 쓰는 `<T ko en>` 컴포넌트가 `en ?? ko` **nullish 병합(`??`)** 으로 fallback 합니다. `??` 는 `null`·`undefined` 만 fallback 하고 **빈 문자열 `\"\"` 은 \"값\" 으로 취급**해 그대로 렌더합니다. 번역 안 된 `title_en` 은 `null` 이 아니라 `\"\"`(DEFAULT '') 이므로, 영어에서 `\"\" ?? 국문` → `\"\"` → 빈칸이 됩니다.",
+      en: "The display component `<T ko en>` falls back with `en ?? ko` — **nullish coalescing (`??`)**. `??` only falls back on `null`/`undefined` and treats an **empty string `\"\"` as a real value**, rendering it as-is. An untranslated `title_en` is not `null` but `\"\"` (DEFAULT ''), so in English `\"\" ?? ko` → `\"\"` → blank.",
+    },
+    solution: {
+      ko: "이중언어를 조립하는 mapper(`workToProject`)에서 **한쪽이 비면 반대 언어로 채우도록** `||` 로 fallback 했습니다: `title: loc(w.title || w.title_en, w.title_en || w.title)`. `||` 는 빈 문자열도 falsy 로 보고 넘어가므로 양쪽이 항상 채워집니다. 문자열 컨텍스트(alt/title 속성)용 `pickLocalized` 도 같은 `||` 기반입니다.",
+      en: "In the mapper that assembles the bilingual value (`workToProject`), I fell back with `||` so **an empty side is filled from the other**: `title: loc(w.title || w.title_en, w.title_en || w.title)`. `||` treats the empty string as falsy, so both sides are always populated. The string-context helper `pickLocalized` (for `alt`/`title` attributes) uses the same `||` fallback.",
+    },
+    keyInsight: {
+      ko: "**`??` 와 `||` 의 차이가 이중언어 fallback 을 가릅니다.** \"번역 안 된 필드는 비어있다(`\"\"`)\" 가 유효한 상태라면 fallback 은 `??` 가 아니라 `||` 여야 합니다 — 특히 항상 표시돼야 하는 필수 필드는. 선택 필드(부제목)에서 안 보이던 버그가 필수 필드(제목)로 옮기자 드러난 것도 같은 이유입니다.",
+      en: "**The choice between `??` and `||` decides bilingual fallback.** If \"an untranslated field is empty (`\"\"`)\" is a valid state, the fallback must be `||`, not `??` — especially for a required, always-shown field. The same bug hiding in an optional field (subtitle) surfaced the moment it moved to a required one (title).",
+    },
+    tags: ["i18n", "LocalizedText", "fallback", "nullish", "번역"],
   },
 ];
 
