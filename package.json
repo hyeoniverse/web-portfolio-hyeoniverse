@@ -122,7 +122,7 @@
     "tailwindcss": "^4.1.14",
     "tsx": "^4.23.1",
     "type-coverage": "^2.29.7",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   }
 }
