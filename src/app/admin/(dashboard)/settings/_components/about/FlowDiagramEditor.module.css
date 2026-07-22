@@ -1,0 +1,94 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  flex: 1;
+  min-width: 0;
+}
+.toolbar {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.hint {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+.canvasWrap {
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  overflow: auto;
+  background: var(--bg-secondary);
+}
+.canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 18rem;
+}
+/* 드래그 대상임을 커서로 드러낸다 */
+.node {
+  cursor: grab;
+}
+.node:active {
+  cursor: grabbing;
+}
+.edge {
+  cursor: pointer;
+}
+/* 선택 항목 편집 줄 */
+.inspect {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  padding: var(--box-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+}
+.inspectTitle {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+}
+.inspectField {
+  flex-shrink: 0;
+  width: 8rem;
+}
+.inspectInput {
+  flex: 1;
+  min-width: 0;
+  padding: var(--box-xs);
+  border: 0;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  outline: none;
+}
+.inspectInput:focus {
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+
+/* 타입 범례 — 모양만으로 구분이 안 되는 start/end 를 색으로 */
+.legend {
+  display: inline-flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  margin-left: auto;
+}
+.legendItem {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+}
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+}

@@ -79,7 +79,9 @@ export default function SectionHeader({
   const isAtDefault = configAtDefault && !resetForceEnabled;
 
   return (
-    <div className={localStyles.wrap}>
+    /* data-settings-section — SectionJumpNav 가 패널 안 섹션을 스캔·점프하는 앵커.
+       scroll-margin-top 은 sticky 탭바 아래로 정확히 멈추게 한다. */
+    <div className={localStyles.wrap} data-settings-section>
       <div className={`${localStyles.row} ${rowClassName ?? ""}`.trim()}>
         <h2 className={titleClassName}>{title}</h2>
         {extra}
