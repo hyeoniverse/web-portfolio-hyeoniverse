@@ -70,7 +70,7 @@
   cursor: pointer;
 }
 .focusBtn:hover {
-  background: var(--bg-hover);
+  background: var(--bg-tertiary);
   color: var(--text-accent);
 }
 

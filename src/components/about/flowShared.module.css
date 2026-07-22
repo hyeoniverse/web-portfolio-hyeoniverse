@@ -21,10 +21,10 @@
   border-bottom: 0;
   background: transparent;
   color: var(--text-secondary);
-  transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+  transition: background var(--duration-fast) var(--ease-material), color var(--duration-fast) var(--ease-material);
 }
 .controls :global(.react-flow__controls-button):hover {
-  background: var(--bg-hover);
+  background: var(--bg-tertiary);
   color: var(--text-accent);
 }
 .controls :global(.react-flow__controls-button svg) {
