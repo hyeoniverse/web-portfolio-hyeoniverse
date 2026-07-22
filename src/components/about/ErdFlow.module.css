@@ -1,0 +1,194 @@
+/* 스키마 ERD (React Flow).
+   노드 치수는 layoutErd() 상수와 반드시 같아야 한다 — 어긋나면 겹치거나 선이 행을 빗나간다.
+   그래서 값을 CSS 변수로 주입받아 쓴다. */
+
+.wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+/* marker 정의 전용 — 화면에는 안 보인다 */
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.marker {
+  stroke: var(--border-strong-color);
+  stroke-width: 1.4;
+  fill: none;
+}
+
+.bg {
+  color: var(--border-light-color);
+}
+
+/* ── 테이블 노드 ── */
+.node {
+  width: var(--erd-col-w);
+  padding-bottom: var(--erd-pad-y);
+  border: 1px solid var(--border-light-color);
+  border-radius: 10px;
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+.node:hover {
+  box-shadow: var(--shadow-md);
+}
+.nodeOn {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--bg-accent-subtle), var(--shadow-md);
+}
+.nodeRel {
+  border-color: var(--border-accent-color);
+  box-shadow: var(--shadow-md);
+}
+.nodeDim {
+  opacity: 0.25;
+}
+
+.head {
+  height: var(--erd-head-h);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-xs);
+  border-bottom: 1px solid var(--border-light-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.01em;
+}
+
+/* 조인 테이블 배지 — 이 테이블이 개념상 M:N 관계라는 표시 */
+.junction {
+  margin-left: auto;
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+  font-size: 8px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+
+/* 컬럼 표기 — Chen 의 이중 타원(다중값) / 점선 타원(파생)에 해당 */
+.kindMulti,
+.kindDerived {
+  padding: 0 4px;
+  border-radius: var(--radius-capsule);
+  font-size: 8px;
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+.kindMulti {
+  border: 1px double var(--text-info);
+  color: var(--text-info);
+}
+.kindDerived {
+  border: 1px dashed var(--text-accent);
+  color: var(--text-accent);
+}
+
+.row {
+  position: relative;
+  height: var(--erd-row-h);
+  display: grid;
+  grid-template-columns: 24px 1fr auto auto;
+  gap: var(--spacing-3xs);
+  align-items: center;
+  padding: 0 var(--spacing-sm);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1;
+}
+.row:hover {
+  background: var(--bg-hover);
+}
+
+.key {
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+.keyPk { color: var(--text-accent); }
+.keyFk { color: var(--text-info); }
+
+.colName {
+  color: var(--text-secondary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.colNamePk {
+  color: var(--text-primary);
+}
+.colType {
+  color: var(--text-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* handle 은 연결 지점일 뿐 — 보이면 점만 잔뜩 찍힌다 */
+.handle {
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  pointer-events: none;
+}
+
+/* React Flow 의 엣지 svg 가 computed width 0px 로 잡혀 관계선이 아예 페인트되지 않았다.
+   (overflow:visible 이어도 뷰포트 면적이 0이면 Chrome 은 SVG 내용을 그리지 않는다)
+   컨테이너와 svg 에 크기를 명시해 뷰포트를 확보한다. */
+.wrap :global(.react-flow__edges) {
+  width: 100%;
+  height: 100%;
+}
+.wrap :global(.react-flow__edges > svg) {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* 관계선 라벨 — 개념 겹쳐보기에서 "무슨 관계인가".
+   선 위에 그대로 얹으면 글자가 선에 묻히므로 캡슐 배경을 깐다. */
+.wrap :global(.react-flow__edge-textbg) {
+  fill: var(--bg-primary);
+  stroke: var(--border-accent-color);
+  stroke-width: 1;
+}
+.wrap :global(.react-flow__edge-text) {
+  fill: var(--text-accent);
+  font-family: var(--font-space-grotesk);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+}
+
+/* ── 관계선 ── */
+.edge :global(.react-flow__edge-path) {
+  stroke: var(--border-strong-color);
+  stroke-width: 1.4;
+}
+.edgeOn :global(.react-flow__edge-path) {
+  stroke: var(--color-accent);
+  stroke-width: 2.2;
+}
+.edgeDim {
+  opacity: 0.18;
+}
+
+/* 선택한 테이블 옆 설명 카드 — 폭은 내용(호출 측)이 정한다 */
+.note {
+  pointer-events: none;
+}

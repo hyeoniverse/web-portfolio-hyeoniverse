@@ -1,0 +1,39 @@
+/* 공개 About 패널의 줌 컨트롤 디자인 — 가로 캡슐 + 원형 버튼 */
+
+.controls {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  padding: var(--box-xs);
+  border: var(--border-default);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  border: var(--border-default);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.btn:hover {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.level {
+  min-width: var(--button-h-md);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  text-align: center;
+}

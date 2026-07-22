@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Language } from "@/providers/LanguageProvider";
 import { projectStructure } from "@/data/about/architecture";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { usePanelTitle } from "../../_hooks/usePanelTitle";
 import type { StructureItem } from "@/data/about/types";
 import {
   buildGraph,
@@ -37,6 +38,7 @@ const VIEW_MODES: { key: ViewMode; label: string }[] = [
 function ArchitecturePanel({ language }: ArchitecturePanelProps) {
   /* admin 에서 architectureItems 수정 가능 — 비어있으면 정적 fallback 사용 */
   const cfg = useSiteConfig();
+  const titleOverride = usePanelTitle("architecture");
   const cfgItems = (cfg.about as { architectureItems?: Array<{ path: string; description_ko: string; description_en: string; indent: number }> })?.architectureItems;
   const structure: StructureItem[] = useMemo(() => {
     if (!cfgItems || cfgItems.length === 0) return projectStructure;
@@ -228,7 +230,7 @@ function ArchitecturePanel({ language }: ArchitecturePanelProps) {
   return (
     <div className={`${styles.panel} ${styles.panelFlush}`}>
       <div className={styles.titleRowCompact}>
-        <h3 className={`${styles.panelTitle} ${styles.archTitle} ${styles.animate}`}><T k="aboutPage.panels.architecture" /></h3>
+        <h3 className={`${styles.panelTitle} ${styles.archTitle} ${styles.animate}`}>{titleOverride ?? <T k="aboutPage.panels.architecture" />}</h3>
       </div>
 
       {/* ── 데스크톱: 인터랙티브 맵 ── */}

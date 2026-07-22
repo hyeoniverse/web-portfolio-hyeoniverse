@@ -3,6 +3,8 @@
 import { useCallback, useRef, useState, useEffect, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import { backendItems } from "@/data/about/backend";
+import type { BackendItem } from "@/data/about/types";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { renderDetail } from "./BackendDetail";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
@@ -21,7 +23,10 @@ function BackendPanel({
   language,
   scrollBy,
 }: BackendPanelProps) {
-  const items = backendItems;
+  /* admin(about.backend) override — 비어있으면 정적 데이터 */
+  const cfg = useSiteConfig();
+  const cfgItems = (cfg.about as { backend?: BackendItem[] }).backend;
+  const items = cfgItems && cfgItems.length > 0 ? cfgItems : backendItems;
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
@@ -175,6 +180,7 @@ function BackendPanel({
     <div ref={panelRef} className={`${styles.panel} ${styles.panelExtraWide}`}>
       <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
+          panelKey="backend"
          
           title={<T k="aboutPage.panels.backend" />}
           compact
