@@ -19,6 +19,7 @@ import AppearanceTab from "./_components/AppearanceTab";
 import ServicesTab from "./_components/ServicesTab";
 import AccountTab from "./_components/AccountTab";
 import SectionHeader from "./_components/SectionHeader";
+import SectionJumpNav from "./_components/SectionJumpNav";
 import AuthorsEditor from "./_components/AuthorsEditor";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
@@ -65,6 +66,23 @@ export default function SettingsPage() {
   const [message, setMessage] = useState("");
   const savedConfigRef = useRef<SiteConfigData>(structuredClone(siteConfig) as unknown as SiteConfigData);
   const savedProfileRef = useRef<ProfileData>(structuredClone(profileDefaults));
+  // 섹션 바로가기(SectionJumpNav) 가 스캔할 패널 컨테이너 ref.
+  const panelRef = useRef<HTMLDivElement>(null);
+  // 탭바가 고정(pin)됐는지 — sentinel 이 사이트 nav 밑으로 사라지면 스크롤한 것.
+  // 고정되면 상단(nav 영역 포함)에 frost blur 를 깐다 (edit 페이지와 같은 방식).
+  const navSentinelRef = useRef<HTMLDivElement>(null);
+  const [navPinned, setNavPinned] = useState(false);
+  useEffect(() => {
+    const el = navSentinelRef.current;
+    if (!el) return; // 로딩 스켈레톤 동안엔 sentinel 이 없다 — loading 이 풀리면 재실행된다
+    const io = new IntersectionObserver(
+      ([e]) => setNavPinned(!e.isIntersecting),
+      /* 고정선 = 사이트 nav 높이(--header-height, 64px). 그 위로 sentinel 이 넘어가면 pin */
+      { rootMargin: "-64px 0px 0px 0px", threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [loading]);
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     const tab = searchParams.get("tab");
@@ -616,8 +634,12 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* 탭바 고정 감지용 sentinel — 탭바 자연 위치에 두는 0 높이 마커 */}
+      <div ref={navSentinelRef} aria-hidden />
       <div className={styles.layout}>
-        {/* ── Side Nav ── */}
+        {/* ── Side Nav ── edit 페이지 topBar 처럼, sticky+frost 는 이 래퍼가 맡고
+            가로 스크롤(overflow)은 안쪽 nav 가 맡는다 (overflow 가 ::before frost 를 안 자르게). */}
+        <div className={`${styles.tabBarSticky} ${navPinned ? styles.tabBarPinned : ""}`}>
         <nav className={styles.sideNav}>
           {TAB_IDS.filter((id) => allowedTabs.includes(id)).map((id) => {
             const tabCount = allConflicts.filter((c) => c.tab === id).length;
@@ -667,9 +689,36 @@ export default function SettingsPage() {
             );
           })}
         </nav>
+        </div>
 
         {/* ── Panel ── */}
-        <div className={styles.panel}>
+        <div className={styles.panel} ref={panelRef}>
+          {/* Content 하위탭(HOME/PROFILE/ABOUT/…) — 태블릿 이하에서만 보이는 가로 줄.
+              섹션 바로가기(SectionJumpNav)는 이 하위탭 "아래"에 와야 계층이 맞다. */}
+          {activeTab === "content" && (
+            <div className={styles.mobileSubNav}>
+              {CONTENT_SUBTABS.map((sub) => {
+                const subCount = allConflicts.filter((c) => c.tab === "content" && c.subTab === sub).length;
+                return (
+                  <button
+                    key={sub}
+                    type="button"
+                    className={`${styles.mobileSubItem} ${contentSubTab === sub ? styles.mobileSubItemActive : ""}`}
+                    onClick={() => {
+                      setContentSubTab(sub);
+                      setConflictExpanded(false);
+                      setCheckedConflicts(new Set());
+                    }}
+                  >
+                    {t(`admin.settings.contentSub.${sub}`)}
+                    {subCount > 0 && <span className={styles.navConflictBadge} />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {/* 섹션 바로가기 — 섹션이 여럿이면 하위탭 아래 가로 점프 링크. 탭으로 감추지 않고 이동만. */}
+          <SectionJumpNav panelRef={panelRef} scanKey={`${activeTab}:${contentSubTab}`} pinned={navPinned} />
           {/* ── 통합 충돌 배너 (탭별 필터) ── */}
           {tabConflicts.length > 0 && (() => {
             const PREVIEW_COUNT = 3;
@@ -779,26 +828,6 @@ export default function SettingsPage() {
               )}
               {activeTab === "content" && (
                 <>
-                  <div className={styles.mobileSubNav}>
-                    {CONTENT_SUBTABS.map((sub) => {
-                      const subCount = allConflicts.filter((c) => c.tab === "content" && c.subTab === sub).length;
-                      return (
-                        <button
-                          key={sub}
-                          type="button"
-                          className={`${styles.mobileSubItem} ${contentSubTab === sub ? styles.mobileSubItemActive : ""}`}
-                          onClick={() => {
-                            setContentSubTab(sub);
-                            setConflictExpanded(false);
-                            setCheckedConflicts(new Set());
-                          }}
-                        >
-                          {t(`admin.settings.contentSub.${sub}`)}
-                          {subCount > 0 && <span className={styles.navConflictBadge} />}
-                        </button>
-                      );
-                    })}
-                  </div>
                 <div className={styles.tabGrid}>
                   <ContentTab
                     config={config}

@@ -18,6 +18,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* 좁은 폭에서 타이틀·토글·액션 버튼이 한 줄에 못 들어가면 접힌다 —
+     nowrap 이면 서로 겹쳐버린다 */
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-md);
   margin-bottom: var(--spacing-2xl);
 }
 
@@ -35,6 +39,7 @@
 .titleIcon {
   color: var(--text-secondary);
 }
+
 
 .headerRight {
   display: flex;
@@ -378,6 +383,15 @@
   gap: var(--spacing-lg);
 }
 
+/* 탭바 sticky 래퍼 — edit 페이지 topBar 와 같은 방식.
+   데스크탑에선 래퍼를 없는 셈 치고(sideNav 가 직접 세로 사이드바), 태블릿 이하에서만
+   이 래퍼가 sticky + frost 를 맡는다. 스크롤(overflow)은 안쪽 sideNav 라 ::before 가 안 잘린다. */
+.tabBarSticky {
+  display: contents;
+}
+
+/* 데스크탑(>1024): 세로 sticky 사이드바. 태블릿·모바일(≤1024)에서는 아래
+   미디어쿼리에서 가로 스크롤 탭바로 바뀐다. */
 .sideNav {
   display: flex;
   flex-direction: column;
@@ -484,6 +498,11 @@
   gap: 0 var(--spacing-2xl);
   max-width: 1040px;
   margin: 0 auto;
+}
+/* Content 탭 — WYSIWYG 스튜디오라 콘텐츠 폭 전체 사용(우측 여백을 nav 와 동일한 page-px 로 정렬) */
+.tabGridFull {
+  max-width: none;
+  margin: 0;
 }
 
 /* ── Section ── */
@@ -3765,37 +3784,51 @@
   transform: rotate(-45deg);
 }
 
-/* tablet (769~1024px): sideNav 200px 유지하고 panel 내부 컨텐츠만 좁은 너비에 맞게 정리.
-   - 2열 grid → 1열, gap 축소
-   - layout 사이 간격 살짝 축소해 panel 가용폭 확보 */
+/* tablet (769~1024px): sideNav 는 아래에서 가로 탭바로 바뀌고, panel 은 전체 폭을
+   쓴다. 여기서는 2열 grid 만 1열로 정리한다(좁은 폭에서 잘림 방지). */
 @media (min-width: 769px) and (max-width: 1024px) {
-  /* container padding-x 축소 — page-px: 8vw 가 tablet 에서 너무 커서 panel 가용폭 부족 */
-  .container {
-    padding-left: 4vw;
-    padding-right: 4vw;
-  }
-
-  .layout {
-    gap: var(--spacing-lg);
-  }
-
-  /* sideNav 도 좁게 — panel 가용폭 더 확보 */
-  .sideNav {
-    width: 160px;
-  }
-
-  /* 2열 grid 들 → 1열 (좁은 panel 에서 잘림 방지) */
   .fieldPair,
   .profileGrid {
     grid-template-columns: 1fr;
   }
 }
 
-/* 모바일 (≤768px): vertical layout + 가로 스크롤 sideNav */
-@media (max-width: 768px) {
+/* 태블릿·모바일 (≤1024px): 세로 사이드바 대신 상단 가로 스크롤 탭바.
+   전체화면 드로어는 설정 섹션을 바꾸는 데 과했다 — 밑줄 탭이 가볍고 익숙하다.
+   콘텐츠 하위탭은 아래 .mobileSubNav 가 별도 탭 줄로 보여준다. */
+@media (max-width: 1024px) {
   .layout {
     flex-direction: column;
     gap: 0;
+  }
+
+  /* ── 탭바 래퍼: sticky + frost (edit 페이지 topBar 와 동일) ── */
+  .tabBarSticky {
+    display: block;
+    position: sticky;
+    top: var(--header-height);
+    /* frost(::before)가 사이트 nav 뒤로 깔리고 nav 는 그 위에 보이도록 nav 보다 한 단계 아래 */
+    z-index: calc(var(--z-nav) - 1);
+  }
+  /* 고정(pin) 시 nav 영역까지 위로 확장해 blur — 배경색 없이 backdrop-filter 만.
+     overflow 는 안쪽 sideNav 라 이 ::before 는 안 잘린다. */
+  .tabBarSticky::before {
+    content: "";
+    position: absolute;
+    top: calc(-1 * var(--header-height));
+    left: calc(-1 * var(--page-px));
+    right: calc(-1 * var(--page-px));
+    bottom: 0;
+    z-index: -1;
+    backdrop-filter: var(--blur-glass);
+    /* nav + 탭바 영역(≈0~탭바하단) 을 꽉 덮고, 탭바 밑 얇게만 페이드 */
+    mask-image: linear-gradient(to bottom, #000 90%, transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--duration-base) ease;
+  }
+  .tabBarPinned::before {
+    opacity: 1;
   }
 
   .sideNav {
@@ -3805,12 +3838,14 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    /* sticky/frost 는 래퍼(.tabBarSticky)가 맡는다 — 여기선 스크롤만 */
     position: static;
     gap: 0;
     padding: 0;
     border-top: none;
     border-bottom: var(--border-light);
   }
+
 
   .sideNav::-webkit-scrollbar {
     display: none;
@@ -3842,7 +3877,9 @@
   .mobileSubNav {
     display: flex;
     gap: 0;
-    margin-bottom: var(--spacing-lg);
+    /* 바로 아래 섹션 점프바와 딱 붙게 — 예전 lg 는 그 사이가 너무 떴다.
+       점프바가 없는 하위탭(섹션 1개)일 때의 콘텐츠 간격은 tabGrid margin-top 이 맡는다. */
+    margin-bottom: var(--spacing-2xs);
     border-bottom: var(--border-light);
     overflow-x: auto;
     scrollbar-width: none;
@@ -3868,6 +3905,18 @@
   .mobileSubItemActive {
     color: var(--text-accent);
     border-bottom-color: var(--text-accent);
+  }
+
+  /* sub 탭이 없는 탭(General·Appearance·Services·Account)은 탭바와 첫 섹션 사이
+     여백이 없어 딱 붙었다. tabGrid 에 상단 여백을 준다. Content 는 위 mobileSubNav
+     의 margin-bottom 이 이미 그 여백을 주므로, subNav 바로 뒤 tabGrid 는 예외로 둬
+     2단 탭(메인 + 하위)이 붙어 보이게 유지한다. */
+  .tabGrid {
+    margin-top: var(--spacing-lg);
+  }
+
+  .mobileSubNav + .tabGrid {
+    margin-top: 0;
   }
 
   .skeletonNav {
@@ -5957,7 +6006,6 @@ a.tagRelatedItem:hover {
   background: var(--bg-secondary);
 }
 .archNodeSel > .archNodeLabel {
-  background: var(--bg-secondary);
   box-shadow: inset 0 0 0 1px var(--border-light-color);
 }
 .archNodeDot {
@@ -6582,3 +6630,4 @@ a.tagRelatedItem:hover {
 .memberDetailLink:hover {
   color: var(--text-primary);
 }
+
