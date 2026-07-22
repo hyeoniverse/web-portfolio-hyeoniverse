@@ -23,6 +23,17 @@ export interface CodeExample {
   code: string;
   language: string;
   media?: string;
+  /** 왼쪽 데모 칸 — "media"(업로드) / "sandbox"(실행 코드). 미설정이면 표시 안 함 */
+  demoMode?: "media" | "sandbox";
+  /** demoMode="media" 일 때 GIF/영상/이미지 URL */
+  demoMedia?: string;
+  /** demoMode="sandbox" 일 때 실행용 파일 맵(경로 → 코드). 좌측 표시용 code 와 별개.
+   *  /styles.css 를 넣으면 템플릿 index.tsx 가 import 하므로 스타일이 그대로 적용된다. */
+  demoFiles?: Record<string, string>;
+  /** sandbox 템플릿 (기본 react-ts) */
+  demoTemplate?: string;
+  /** 데모 칸 배경색. 미설정이면 투명(패널 배경이 비침) */
+  demoBg?: string;
 }
 
 export interface TroubleshootingDiagram {
@@ -76,6 +87,9 @@ export interface TroubleShootingItem {
   difficulty?: TroubleshootingDifficulty;
   /** 핵심 추천 항목 — 별표 뱃지 표시 */
   recommended?: boolean;
+  /** 대표 항목 — 하나라도 있으면 패널이 이것들만 보여준다.
+   *  89개 전부는 읽히지 않아서, 원본은 남겨두고 표시할 것만 골라내는 용도. */
+  featured?: boolean;
   /** 왜 추천하는지 — IDE 에디터의 @recommended 라인에 표시 */
   recommendReason?: LocalizedText;
 }

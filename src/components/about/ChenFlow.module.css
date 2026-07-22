@@ -1,0 +1,151 @@
+/* 개념 ERD (Chen 표기).
+   엔티티=사각형 / 속성=타원 / 관계=마름모 — 도형이 의미를 나르므로 형태를 또렷하게 둔다.
+   치수는 erdConceptual 의 상수와 같아야 배치가 어긋나지 않는다. */
+
+.wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.bg {
+  color: var(--border-light-color);
+}
+
+/* handle 은 연결 지점일 뿐 — 보이면 점만 잔뜩 찍힌다 */
+.handle {
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  pointer-events: none;
+}
+
+/* 엔티티 — 가장 강한 윤곽 */
+.entity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 168px;
+  height: 52px;
+  border: 1.6px solid var(--text-primary);
+  border-radius: 4px;
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: var(--font-weight-bold);
+}
+
+/* 스키마 뷰로 넘어갈 수 있는 엔티티 */
+.entityClickable {
+  cursor: pointer;
+  transition: box-shadow var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+}
+.entityClickable:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md);
+}
+
+/* 속성 */
+.attr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 116px;
+  height: 46px;
+  padding: 0 var(--spacing-xs);
+  border: 1px solid var(--border-strong-color);
+  /* Chen 표기의 속성은 타원 — 캡슐(알약)이 아니라 진짜 ellipse */
+  border-radius: 50%;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-align: center;
+}
+.attrLabel {
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 다중값 속성 — 이중 타원 (배열 컬럼) */
+.attrMulti .attrInner {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--border-strong-color);
+  border-radius: 50%;
+}
+
+/* 파생 속성 — 점선 타원 (원본에서 계산되는 캐시 값) */
+.attrDerived {
+  border-style: dashed;
+}
+/* 기본키는 밑줄 — Chen 표기의 관례 */
+.attrKey {
+  color: var(--text-primary);
+}
+.attrKey .attrLabel {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* 관계 — 마름모는 사각형을 45° 회전. 글자는 회전하면 안 되니 레이어를 나눈다 */
+.diamondWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 116px;
+  height: 74px;
+}
+.diamondShape {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-accent-subtle);
+  border: 1.4px solid var(--color-accent);
+  /* 마름모 = 네 꼭짓점 */
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+.diamondLabel {
+  position: relative;
+  color: var(--text-accent);
+  font-family: var(--font-space-grotesk);
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+/* 연결선 */
+.edge :global(.react-flow__edge-path) {
+  stroke: var(--border-strong-color);
+  stroke-width: 1.2;
+}
+.edge :global(.react-flow__edge-text) {
+  fill: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+  paint-order: stroke;
+  stroke: var(--bg-secondary);
+  stroke-width: 4px;
+}
+
+/* ErdFlow 와 같은 문제 — 엣지 svg 가 width 0 이면 선이 아예 페인트되지 않는다 */
+.wrap :global(.react-flow__edges) {
+  width: 100%;
+  height: 100%;
+}
+.wrap :global(.react-flow__edges > svg) {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
