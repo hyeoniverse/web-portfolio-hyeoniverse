@@ -38,6 +38,9 @@ interface SelectProps {
   dropdownClassName?: string;
   disabled?: boolean;
   variant?: SelectVariant;
+  /** dropdown 정렬 — "active"(기본, 선택 항목을 trigger 에 맞춤, native select 식) /
+   *  "below"(trigger 아래로 연다. floating bar 처럼 위를 덮으면 안 되는 자리) */
+  dropAlign?: "active" | "below";
   children?: ReactNode | ((ctx: { close: () => void }) => ReactNode);
   /** Combobox mode — trigger 가 input. typing + free text add + suggestion 선택 모두 지원 */
   combobox?: boolean;
@@ -85,6 +88,7 @@ export default function Select({
   dropdownClassName,
   disabled,
   variant = "default",
+  dropAlign = "active",
   children,
   combobox,
   inputValue = "",
@@ -199,13 +203,15 @@ export default function Select({
     const naturalH = dropdown.offsetHeight; // CSS max-height 로 이미 cap 된 값
     const dropH = Math.min(naturalH, availH);
     // 선택 항목이 있으면 그 center 를 trigger center 에 맞춤 (compact 뿐 아니라 모든 variant)
-    const activeEl = dropdown.querySelector("[data-active]") as HTMLElement | null;
+    const activeEl = dropAlign === "below"
+      ? null
+      : (dropdown.querySelector("[data-active]") as HTMLElement | null);
     const offset = activeEl ? activeEl.offsetTop + activeEl.offsetHeight / 2 + triggerRect.height / 2 : 0;
     let top = triggerRect.bottom - offset;
     top = Math.max(MARGIN, Math.min(top, vh - dropH - MARGIN)); // 위·아래 뷰포트 안으로
     setDropTop(top);
     setDropMaxH(naturalH > availH ? availH : undefined);
-  }, [visible, value, options, variant, bubble]);
+  }, [visible, value, options, variant, bubble, dropAlign]);
 
   const handleTransitionEnd = () => {
     if (!open) setVisible(false);
@@ -345,7 +351,22 @@ export default function Select({
       };
 
   return (
-    <div className={`${styles.root} ${isCompact ? styles.rootCompact : ""} ${open ? styles.rootOpen : ""} ${disabled ? styles.rootDisabled : ""} ${width === "full" ? styles.rootFull : ""} ${className ?? ""}`} ref={ref}>
+    <div
+      className={`${styles.root} ${isCompact ? styles.rootCompact : ""} ${open ? styles.rootOpen : ""} ${disabled ? styles.rootDisabled : ""} ${width === "full" ? styles.rootFull : ""} ${className ?? ""}`}
+      ref={ref}
+      /* 열린 dropdown 이 Escape 를 소비한다.
+         안 끊으면 document 까지 올라가 바깥 레이어(Modal 등)가 같이 닫힌다 —
+         Escape 는 가장 안쪽 열린 레이어 하나만 닫아야 한다.
+         portal dropdown 도 React 트리상 이 div 의 자식이라 여기서 함께 잡힌다. */
+      onKeyDown={(e) => {
+        if (e.key !== "Escape" || e.nativeEvent.isComposing) return;
+        if (!open && !editing) return;
+        e.stopPropagation();
+        e.preventDefault();
+        setOpen(false);
+        setEditing(false);
+      }}
+    >
       {combobox ? (
         <>
           <input

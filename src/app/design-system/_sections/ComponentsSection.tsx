@@ -10,6 +10,8 @@ import DetailActionButton from "@/components/ui/DetailActionButton";
 import SortControl from "@/components/ui/SortControl";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import FontPicker from "@/components/ui/FontPicker";
+import MenuDots from "@/components/ui/MenuDots";
+import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import HighlightedText from "@/components/ui/HighlightedText";
 import EditableInput from "@/components/ui/EditableInput";
 import MediaThumb from "@/components/ui/MediaThumb";
@@ -69,6 +71,8 @@ interface ComponentsSectionProps {
 
 function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd }: ComponentsSectionProps) {
   const { openModal } = useModalStore();
+  const [menuDotsOpen, setMenuDotsOpen] = useState(false);
+  const [searchDemo, setSearchDemo] = useState("");
   const [sliderValue, setSliderValue] = useState([40]);
   const [rangeValue, setRangeValue] = useState([20, 80]);
   const [numBasic, setNumBasic] = useState(50);
@@ -1482,6 +1486,52 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                 },
               ]}
               fallbackLabel="Default"
+            />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* MenuDots */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>MenuDots</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "메뉴 버튼 아이콘 — 9-dot 격자가 눌리면 X 로 모였다 흩어진다. 사이트 Navigation 메뉴 버튼과 admin/settings 서랍 토글이 같은 아이콘을 쓰도록 공용화했다. viewBox 8×8 의 vector circle 이라 어떤 크기에서도 원을 유지한다(작은 span 은 subpixel 안티앨리어싱이 dot 마다 달라 타원처럼 보였다). 클릭해 보세요."
+            : "A menu-button icon — a 9-dot grid that collapses into an X when opened, and back out when closing. Shared so the site Navigation menu button and the admin/settings drawer toggle use one icon. Vector circles in an 8×8 viewBox keep perfect circles at any size (tiny spans made subpixel anti-aliasing differ per dot, so they read as ovals). Click it."}
+        </p>
+        <div className={styles.componentRow}>
+          <motion.button
+            type="button"
+            variants={staggerItemX}
+            {...scrollChildX(0, 1)}
+            onClick={() => setMenuDotsOpen((v) => !v)}
+            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, border: "var(--border-light)", borderRadius: "var(--radius-capsule)", background: "transparent", cursor: "pointer", color: "var(--text-primary)" }}
+            aria-label="Toggle menu"
+            aria-expanded={menuDotsOpen}
+          >
+            <MenuDots open={menuDotsOpen} size={16} />
+          </motion.button>
+        </div>
+      </motion.div>
+
+      {/* SearchCapsule */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>SearchCapsule</div>
+        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+          {language === "ko"
+            ? "검색 캡슐 — 접힌 아이콘에서 펼쳐지는 인풋. 지우개·검색 이력(`historyKey`)·문법 도움말(`showHelp`)을 자체 내장해, 목록/필터 바에서 raw input 을 다시 짜지 않는다. `align` 으로 좌/우 정렬, `size` 로 sm/md."
+            : "A search capsule — an input that expands from a collapsed icon. It bundles its own clear button, search history (`historyKey`), and syntax help (`showHelp`), so list/filter bars never re-implement a raw input. `align` sets left/right, `size` sets sm/md."}
+        </p>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 240 }}>
+            <SearchCapsule
+              search={searchDemo}
+              onSearchChange={setSearchDemo}
+              placeholder={language === "ko" ? "검색" : "Search"}
+              size="sm"
+              align="left"
+              historyKey={null}
+              showHelp={false}
             />
           </motion.div>
         </div>

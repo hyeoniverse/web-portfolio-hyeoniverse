@@ -429,15 +429,20 @@
    --------------------------------------------------------------------------- */
 .variant-difference {
   background: transparent;
-  border: none;
+  /* hover 테두리 자리 미리 확보(투명) — 나타날 때 레이아웃 shift 방지 */
+  border: 1px solid transparent;
   color: var(--text-white);
   mix-blend-mode: difference;
 }
 
 .variant-difference.btn {
-  transition: backdrop-filter var(--duration-base) ease;
+  transition:
+    backdrop-filter var(--duration-base) ease,
+    border-color var(--duration-base) ease;
 }
 
+/* hover: 테두리 표시 (mix-blend-difference 라 배경 대비 자동 반전) */
 .variant-difference.btn:hover:not(:disabled) {
   backdrop-filter: blur(8px);
+  border-color: var(--text-white);
 }

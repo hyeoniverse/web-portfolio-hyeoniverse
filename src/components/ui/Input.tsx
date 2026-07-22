@@ -56,6 +56,7 @@ export default function Input({
   addAriaLabel = "Add",
   trailingAction,
   onKeyDown,
+  required,
   ...rest
 }: InputProps) {
   const hasAdd = !!onAdd;
@@ -109,6 +110,7 @@ export default function Input({
       {label && (
         <label className={styles.label} htmlFor={id}>
           {label}
+          {required && <span className={styles.requiredDot} aria-hidden />}
         </label>
       )}
       <div className={`${styles.fieldWrap} ${isGrouped ? styles.fieldWrapGrouped : ""} ${isGrouped && size === "sm" ? styles.fieldWrapGroupedSm : ""} ${isGrouped && size === "xs" ? styles.fieldWrapGroupedXs : ""}`}>
@@ -119,6 +121,7 @@ export default function Input({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
+          required={required}
           {...rest}
         />
         {showClear && (
