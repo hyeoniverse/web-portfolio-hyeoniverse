@@ -1496,6 +1496,7 @@ END $$;
 --   _get_vault_secret(name)                       : Vault secret 안전 조회 (없으면 NULL)
 --   _send_admin_email(subject, html)              : Resend 이메일 발송 (Vault 비어있으면 skip)
 --   normalize_series_order(p_series_id)           : series_order 0-based sequential 재정렬 (trigger 호출)
+--   about_erd_valid(cfg jsonb)                    : About Studio ERD 설정 형태 검증 (site_settings CHECK 제약, IMMUTABLE)
 --
 -- Trigger:
 --   posts_normalize_series_order                  : posts INSERT/UPDATE/DELETE 시 series_order 자동 정합화
@@ -1508,6 +1509,96 @@ END $$;
 --   uploads (public)                              : admin/upload — logos/, resume/, bgm/, covers/, images/ ...
 --   posts   (public)                              : upload · cover(ai-generate · unsplash download) — 게시물/커버 이미지
 -- ============================================================
+
+
+-- ────────────────────────────────────────────────────────────
+-- About Studio ERD 설정 검증 — site_settings.config CHECK
+-- ────────────────────────────────────────────────────────────
+-- About 페이지 ERD 는 About Studio 에서 편집돼 site_settings.config JSONB 안에 저장된다.
+-- UI(ErdTableModal) · API(src/lib/api/validateAboutErd.ts) 와 동일 규칙을 DB 에서도 강제:
+--   테이블 이름 필수 / 테이블 이름 중복 금지
+--   테이블당 컬럼 1개 이상
+--   컬럼 이름·타입 필수 / 컬럼 이름 중복 금지 (테이블 내)
+-- 공개 About 패널이 col.type 을 그대로 SVG 에 그리므로, 비면 배포된 ERD 에 빈 칸이 남는다.
+-- 3중 검증(UI·API·DB)은 이 저장소 관례 — posts_title_len(2026_07_13) 과 동일.
+--
+-- config 는 { delta, savedDefaults } wrapper 구조.
+-- 읽기 경로(src/lib/getSiteConfig.ts)의 `config.delta ?? config` 와 똑같이 언랩한다.
+CREATE OR REPLACE FUNCTION public.about_erd_valid(cfg jsonb)
+RETURNS boolean
+LANGUAGE plpgsql
+IMMUTABLE
+AS $fn$
+DECLARE
+  tables jsonb;
+  t      jsonb;
+  c      jsonb;
+  tname  text;
+  cname  text;
+  ctype  text;
+  tnames text[] := '{}';
+  cnames text[];
+BEGIN
+  IF cfg IS NULL OR jsonb_typeof(cfg) <> 'object' THEN
+    RETURN true;
+  END IF;
+
+  tables := COALESCE(cfg #> '{delta,about,erdTables}', cfg #> '{about,erdTables}');
+
+  -- ERD 를 건드리지 않는 저장(대부분의 설정 변경)은 그대로 통과
+  IF tables IS NULL OR jsonb_typeof(tables) = 'null' THEN
+    RETURN true;
+  END IF;
+  IF jsonb_typeof(tables) <> 'array' THEN
+    RETURN false;
+  END IF;
+
+  FOR t IN SELECT * FROM jsonb_array_elements(tables) LOOP
+    IF jsonb_typeof(t) <> 'object' THEN
+      RETURN false;
+    END IF;
+
+    tname := lower(btrim(COALESCE(t ->> 'name', '')));
+    IF tname = '' OR tname = ANY(tnames) THEN
+      RETURN false;
+    END IF;
+    tnames := tnames || tname;
+
+    IF jsonb_typeof(t -> 'columns') <> 'array' OR jsonb_array_length(t -> 'columns') = 0 THEN
+      RETURN false;
+    END IF;
+
+    cnames := '{}';
+    FOR c IN SELECT * FROM jsonb_array_elements(t -> 'columns') LOOP
+      IF jsonb_typeof(c) <> 'object' THEN
+        RETURN false;
+      END IF;
+      cname := lower(btrim(COALESCE(c ->> 'name', '')));
+      ctype := btrim(COALESCE(c ->> 'type', ''));
+      IF cname = '' OR ctype = '' OR cname = ANY(cnames) THEN
+        RETURN false;
+      END IF;
+      cnames := cnames || cname;
+    END LOOP;
+  END LOOP;
+
+  RETURN true;
+END;
+$fn$;
+
+-- NOT VALID — 기존 행은 검사하지 않고 앞으로의 INSERT/UPDATE 에만 적용.
+-- fresh install 은 site_settings 가 비어 있어 차이 없지만 migration 파일과 동일하게 유지.
+-- 기존 행까지 확정하려면 아래를 먼저 확인하고 VALIDATE 한다:
+--   SELECT id FROM site_settings WHERE NOT public.about_erd_valid(config);
+--   ALTER TABLE site_settings VALIDATE CONSTRAINT site_settings_about_erd_valid;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'site_settings_about_erd_valid') THEN
+    ALTER TABLE site_settings
+      ADD CONSTRAINT site_settings_about_erd_valid
+      CHECK (public.about_erd_valid(config)) NOT VALID;
+  END IF;
+END $$;
 
 
 -- ────────────────────────────────────────────────────────────
@@ -1551,7 +1642,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_07_14_comment_reactions',             'comment_reactions — 댓글 이모지 반응 (giscus 식 고정 8종)'),
   ('2026_07_14_posts_author_ids',              'posts.author_ids text[] — 다중 작성자'),
   ('2026_07_17_author_invites',                'author_invites — 저자 이메일 초대 + OAuth 매칭 권한 부여 (이슈 #334)'),
-  ('2026_07_18_works_title_en',                'works.title_en — 작품 제목 영문 (title 이중언어화)')
+  ('2026_07_18_works_title_en',                'works.title_en — 작품 제목 영문 (title 이중언어화)'),
+  ('2026_07_21_about_erd_valid',               'site_settings.config About ERD 필수값 CHECK (테이블·컬럼 이름/타입)')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.
