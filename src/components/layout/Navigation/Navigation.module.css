@@ -119,13 +119,21 @@
 }
 
 /* Center navigation links — 로고와 액션 사이 남는 공간의 가운데로 배치
-   (뷰포트 절대중앙 고정 시 우측이 길어지면 겹쳤던 문제 해결) */
+   (뷰포트 절대중앙 고정 시 우측이 길어지면 겹쳤던 문제 해결)
+
+   로고는 position:fixed 라 흐름에서 빠져 있어 이 flex 박스는 로고 밑(page-px)
+   에서 시작한다. 그래서 justify-content:center 는 로고를 없는 셈 치고 중앙을
+   잡고, 우측 액션이 넓어지거나(로그인 시 벨·로그아웃 추가) 로고가 길어지면
+   (admin 배지) 첫 링크가 로고 밑으로 파고든다. margin-inline-start 로 로고
+   폭만큼 시작점을 밀어 "로고와 액션 사이"에서 중앙을 잡게 한다 — 대칭 padding
+   은 중앙을 그대로 둬서 효과가 없고, 비대칭 시작 여백이라야 실제로 비켜난다. */
 .navCenter {
   position: relative;
   flex: 1;
   display: flex;
   justify-content: center;
   gap: var(--spacing-4xl);
+  margin-inline-start: var(--_logo-reserve, 0px);
   clip-path: inset(0 -20px 0 -20px);
   transition:
     clip-path var(--duration-moderate) var(--ease-material),
@@ -587,6 +595,9 @@
   isolation: isolate;
   clip-path: inset(0 0 100% 0);
   transition: clip-path 0.8s cubic-bezier(0.4, 0, 0.6, 1);
+  /* 드로어 배경 — backdrop 뿐 아니라 sticky 헤더/푸터도 같은 색을 깔아야
+     스크롤되는 링크가 그 뒤로 비쳐 보이지 않는다. 그래서 상위로 올렸다. */
+  --_menu-bg: oklch(21.71% 0.0096 97.80);
 }
 
 .menuClipOpen.menuClipOpen {
@@ -597,27 +608,33 @@
 .menuBackdrop {
   position: absolute;
   inset: 0;
-  --_menu-bg: oklch(21.71% 0.0096 97.80);
   background: var(--_menu-bg);
 }
 
+/* 항목이 화면 높이보다 많아지면(admin 은 Dashboard·Settings·하위·Works·Posts·
+   Notifications·Logout 등) 넘친다. 예전엔 justify-content:center + absolute
+   헤더/푸터라, 넘칠 때 위쪽 항목이 헤더 뒤로 잘려 닿지 않고(스크롤도 안 됨)
+   아래는 푸터를 덮었다. 이제 드로어가 스크롤 컨테이너고, 헤더/푸터는 sticky 로
+   위·아래에 고정되며, menuNav 는 margin-block:auto 로 맞으면 가운데·넘치면
+   위에서부터 스크롤된다. */
 .menuDrawer {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   height: 100%;
-  padding: 0 var(--page-px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 
-/* Header: 풀로고 가운데 정렬 */
+/* Header: 풀로고 가운데 정렬. sticky 로 스크롤 시 상단 고정 —
+   뒤로 지나가는 링크를 가리려 드로어와 같은 배경을 깐다. */
 .menuHeader {
-  position: absolute;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
+  z-index: 1;
+  background: var(--_menu-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -632,12 +649,12 @@
   letter-spacing: -0.02em;
 }
 
-/* Footer: email */
+/* Footer: email. sticky 로 스크롤 시 하단 고정 — 헤더와 같은 이유로 배경을 깐다. */
 .menuFooter {
-  position: absolute;
+  position: sticky;
   bottom: 0;
-  left: 0;
-  right: 0;
+  z-index: 1;
+  background: var(--_menu-bg);
   padding: var(--spacing-2xl) var(--page-px);
   display: flex;
   flex-direction: column;
@@ -811,6 +828,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  /* 맞으면 가운데 정렬, 넘치면 여백이 접혀 위부터 스크롤 (menuDrawer 주석 참고) */
+  margin-block: auto;
+  /* 드로어에서 좌우 padding 을 뺐으므로(헤더/푸터가 각자 관리) 링크 들여쓰기는 여기서 */
+  padding-inline: var(--page-px);
 }
 
 .menuLink {
@@ -1135,6 +1156,8 @@
 
 .navAdmin {
   /* mix-blend-mode: difference 유지 */
+  /* navCenter 시작 여백(--_logo-reserve)은 좁은 화면에서만 켠다 — 아래 미디어쿼리.
+     넓은 화면은 링크가 로고 근처에 올 일이 없어 예약하면 오히려 우측으로 치우친다. */
 }
 
 /* Notification bell — .actionBtn 위에 덧씌우는 bell 전용 보강
@@ -1489,6 +1512,16 @@
   .adminEmail {
     max-width: 0;
     opacity: 0;
+  }
+}
+
+/* Admin 링크가 로고("H (ADMIN)")를 침범하는 건 폭이 좁아 navCenter 의 중앙
+   콘텐츠가 로고 밑까지 밀려올 때뿐이다(로그인 시 우측 벨·로그아웃까지 붙어
+   더 심하다). 그 구간에서만 로고 폭만큼 시작 여백을 줘 비켜나게 한다.
+   navCenter 는 768 이하에서 사라지므로 이 예약은 769~1024 구간에만 작동한다. */
+@media (max-width: 1024px) {
+  .navAdmin {
+    --_logo-reserve: var(--size-6xl);
   }
 }
 

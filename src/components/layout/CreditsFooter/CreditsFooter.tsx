@@ -16,8 +16,16 @@ export default function CreditsFooter({
   className,
 }: CreditsFooterProps) {
   const siteConfig = useSiteConfig();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  /* 저작자 표시 문구는 로케일 고정 — admin 에서 덮어쓸 수 없다.
+     덧붙이는 것만 허용: 공동 제작자 이름(creditsNames) + 아래 한 줄(creditsNote) */
+  const about = siteConfig.about as {
+    creditsNames?: string[]; creditsNote?: string; creditsNote_ko?: string;
+    creditsNoteFontSize?: string; creditsNoteFontFamily?: string; creditsNoteLineHeight?: string; creditsNoteAlign?: string;
+  };
   const parts = t("aboutPage.credits").split("❤");
+  const names = [siteConfig.personal.nickname, ...(about.creditsNames ?? []).map((n) => n.trim()).filter(Boolean)];
+  const note = (language === "ko" ? about.creditsNote_ko : about.creditsNote)?.trim();
 
   return (
     <div
@@ -26,8 +34,18 @@ export default function CreditsFooter({
       <p className={styles.text}>
         {parts[0]}
         <span className={styles.heart}>❤</span>
-        {parts[1]} {siteConfig.personal.nickname}
+        {parts[1]} {names.join(", ")}
       </p>
+      {note && (
+        <p className={styles.note} style={{
+          fontSize: about.creditsNoteFontSize || undefined,
+          fontFamily: about.creditsNoteFontFamily || undefined,
+          lineHeight: about.creditsNoteLineHeight || undefined,
+          textAlign: (about.creditsNoteAlign as "left" | "center" | "right") || "left",
+        }}>
+          {note}
+        </p>
+      )}
       {variant === "panel" && (
         <TextLink href="/design-system" external className={styles.designSystemLink}>
           Design System
