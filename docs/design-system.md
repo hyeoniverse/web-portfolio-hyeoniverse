@@ -407,6 +407,20 @@ admin 편집/상세에서 항목을 찾지 못했을 때 쓰는 **중앙 정렬 
 - `Tooltip` 로 "임의 순서로 섞기, 누를 때마다 새로 셔플" 설명 명시
 - 시드는 `Date.now()` 또는 페이지 키로 — mulberry32 셔플로 같은 시드 / 같은 페이지 = 같은 결과(페이지 이동 시 안정성)
 
+### MenuDots (`src/components/ui/MenuDots/`)
+
+사이트 공용 **메뉴 아이콘** — 3×3 = 9개의 점(dot) grid. 열리면 X 로 모이는 morph 애니메이션. Navigation 의 메뉴 버튼과 admin/settings 탭바 토글이 **같은 모양**을 쓰도록 공용화한 SVG 컴포넌트.
+
+- 상태만 받는 순수 프레젠테이션 — `open`(열림, dot 이 X 로 모임) · `closing`(닫히는 중, 모였다 다시 펼쳐지는 트랜지션) · `size`(px, 생략 시 12px)
+- 색·트랜지션은 CSS Module 이 담당, 크기는 `--_size` 컨텍스트 토큰으로 주입 → 어디에 놓아도 톤 유지
+- `aria-hidden` — 아이콘 자체는 의미 전달 안 함, 감싸는 버튼이 `aria-label` 을 갖는다
+
+```tsx
+<button aria-label={t("nav.menu")} aria-expanded={open}>
+  <MenuDots open={open} size={16} />
+</button>
+```
+
 ---
 
 ## 11. 파일 위치 참조
