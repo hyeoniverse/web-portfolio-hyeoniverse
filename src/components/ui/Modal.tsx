@@ -78,6 +78,10 @@ export default function Modal() {
   const draggingRef = useRef(false);
   const dismissingRef = useRef(false); // 아래로 드래그 중 (dismiss 모드)
   const modalElRef = useRef<HTMLDivElement | null>(null);
+  // backdrop 을 눌러서 시작한 클릭인지 — 눌린 곳과 뗀 곳이 다르면 click 은
+  // 두 타깃의 공통 조상(=backdrop)에서 발생한다. 그걸 "바깥 클릭"으로 오인하면
+  // 모달 안을 누르다 레이아웃이 밀리기만 해도 모달이 닫힌다.
+  const backdropDownRef = useRef(false);
   const expandedRef = useRef(false);
   const baseHeightRef = useRef(0); // 드래그 시작 시 실제 모달 높이
 
@@ -267,7 +271,13 @@ export default function Modal() {
           animate={{ opacity: 1, backdropFilter: "blur(10px)" }}
           exit={{ opacity: 0, backdropFilter: "blur(0px)", transition: { duration: 0.3 } }}
           transition={{ duration: 0.35 }}
-          onClick={() => { if (!swipingRef.current) handleClose(id); }}
+          onMouseDown={(e) => { backdropDownRef.current = e.target === e.currentTarget; }}
+          onClick={(e) => {
+            if (swipingRef.current) return;
+            // 눌린 곳·뗀 곳 모두 backdrop 일 때만 닫는다
+            if (!backdropDownRef.current || e.target !== e.currentTarget) return;
+            handleClose(id);
+          }}
           onWheel={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
         >
