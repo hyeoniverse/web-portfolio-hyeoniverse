@@ -728,6 +728,14 @@ export const siteConfig = {
       { value: "15+", label_ko: "라이브러리", label_en: "Libraries" },
     ] as Array<{ value: string; label_ko: string; label_en: string }>,
     /* ── Hero panel — 첫 화면 큰 글자. bilingual (기본값은 한=영 통일, admin 에서 언어별로 분기 가능) ── */
+    /* 상단 라벨 — 비어있으면 i18n aboutPage.title ("The Making Of") 사용 */
+    heroLabel: "",
+    heroLabel_ko: "",
+    /* 부제목 문장 — 비어있으면 i18n aboutPage.description 사용 */
+    heroSubtitle: "",
+    heroSubtitle_ko: "",
+    /* 제목 아래 액센트 밑줄 색 — 비어있으면 기본 accent */
+    heroAccentColor: "",
     heroLine1: "Behind",
     heroLine1_ko: "Behind",
     heroLine2: "the Scenes",
@@ -735,6 +743,11 @@ export const siteConfig = {
     /* 화면 우측 하단 워터마크 텍스트 */
     heroWatermark: "the build",
     heroWatermark_ko: "the build",
+    /* ── Hero 콘텐츠 정렬 — 가로 left/center/right, 세로 top/center/bottom ── */
+    heroAlignH: "left",
+    heroAlignV: "center",
+    /* ── Hero 텍스트 요소 숨김 — key: label / line1 / line2 / subtitle / watermark ── */
+    heroHidden: [] as string[],
     /* ── Hero 스타일 override — 비어있으면 기본 (CSS 변수) 사용 ──
      * 각 텍스트 요소 (line1 / line2 / subtitle / watermark) 별로 color / fontSize / fontWeight / fontFamily 독립 설정. */
     heroLine1Color: "",
@@ -751,16 +764,21 @@ export const siteConfig = {
     heroWatermarkFontFamily: "",
     /* hero 패널 media URL — CoverImagePicker 로 선택. 이미지 (.jpg/.png/.webp) 또는 동영상 (.mp4/.webm/.mov/.ogv). 빈 문자열이면 미적용. */
     heroBackground: "",
-    /* hero 패널 solid 배경색 (hex, 예 "#1a1a1a"). 빈 문자열이면 미적용 (패널 테마 색 사용) */
+    /* hero 패널 solid 배경색 (hex, 예 "#1a1a1a"). 빈 문자열이면 미적용 (패널 테마 색 사용).
+       색·그라디언트는 라이트/다크 테마별로 따로 지정 — _dark 는 다크 테마에서만 적용 (미디어는 공용). */
     heroBgColor: "",
+    heroBgColor_dark: "",
     /* hero 서브타이틀 override — 비어있으면 text-secondary / 기본 typography. */
     heroSubtitleColor: "",
     heroSubtitleFontSize: "",
     heroSubtitleFontWeight: "",
     heroSubtitleFontFamily: "",
-    /* hero 패널 gradient — from + to 둘 다 채우면 활성. angle 은 deg (기본 135) */
+    /* hero 패널 gradient — from + to 둘 다 채우면 활성. angle 은 deg (기본 135, 테마 공용).
+       색상만 라이트/다크 분리 (_dark), 각도는 공용. */
     heroBgGradientFrom: "",
     heroBgGradientTo: "",
+    heroBgGradientFrom_dark: "",
+    heroBgGradientTo_dark: "",
     heroBgGradientAngle: 135,
     /* 배경 미디어 (이미지/동영상) opacity (0~1). 기본 0.8. 패널 표면색/그라디언트 위에 비치는 정도. */
     heroBgOpacity: 0.8,
@@ -772,6 +790,10 @@ export const siteConfig = {
      * keys: hero, overview, architecture, userflow, features, designSystem, process, visualBreak,
      *       techStack, backend, erd, codeHighlights, troubleshooting, security, credits */
     hiddenPanels: [] as string[],
+    /* ── Panel 순서 — panel key 배열. 비어있으면 기본 순서. hero 는 항상 맨 앞, credits 는 항상 맨 뒤로 강제. ── */
+    panelOrder: [] as string[],
+    /* ── Panel 표시 제목 override — key → { ko, en }. 미설정 시 각 패널 기본 제목 사용. ── */
+    panelTitles: {} as Record<string, { ko?: string; en?: string }>,
     /* ── Tech stack — TechStackPanel 항목. admin 에서 자유롭게 추가/수정/삭제 ── */
     /* icon: simple-icons slug (예 "react") 또는 업로드/링크된 이미지 URL. 빈 값이면 이니셜 표시. */
     techStack: [
@@ -827,7 +849,31 @@ export const siteConfig = {
       { layer: "Duplication", icon: "fingerprint", title_ko: "중복 방지", title_en: "Duplication Prevention", description_ko: "좋아요·방문자 통계에 **IP 기반 UNIQUE 제약조건**을 적용합니다. `UNIQUE(target_type, target_id, ip)` 하나로 모든 엔티티의 중복을 DB 레벨에서 차단합니다.", description_en: "**IP-based UNIQUE constraints** prevent duplicate likes and visit counts. A single `UNIQUE(target_type, target_id, ip)` blocks all entity duplicates at the DB level.", scope_ko: "좋아요, 방문자 통계", scope_en: "Likes, visit stats" },
       { layer: "Secrets", icon: "key", title_ko: "시크릿 관리", title_en: "Secrets Management", description_ko: "API 키는 DB `site_settings`에 **암호화 저장**되며, `SUPABASE_SERVICE_ROLE_KEY`는 서버 사이드에서만 접근 가능합니다. 클라이언트에 노출되는 키는 `NEXT_PUBLIC_` 접두사만 허용합니다.", description_en: "API keys are stored **encrypted** in DB `site_settings`. `SUPABASE_SERVICE_ROLE_KEY` is accessible only server-side. Only `NEXT_PUBLIC_` prefixed keys are exposed to the client.", scope_ko: "환경변수, API 키", scope_en: "Env vars, API keys" },
     ] as Array<{ layer: string; icon: string; title_ko: string; title_en: string; description_ko: string; description_en: string; scope_ko: string; scope_en: string }>,
+    /* ── Design System 패널 — 컨셉 항목. 비어있으면 기본 정적 데이터(designConcepts) 사용 ── */
+    designSystem: [] as Array<{ id: string; title: string; subtitle_ko: string; subtitle_en: string; description_ko: string; description_en: string; image: string }>,
+    /* ── Code Highlights 패널 — 코드 예시. 비어있으면 기본 정적 데이터(codeExamples) 사용 ── */
+    codeHighlights: [] as Array<{ title: string; description_ko: string; description_en: string; language: string; code: string }>,
+    /* ── Credits 문구 override — 비어있으면 로케일 기본값(aboutPage.credits) ── */
+    /* 저작자 표시 문구 자체는 로케일에 고정 — admin 에서 바꿀 수 없다.
+       덧붙이는 것만 허용한다: 공동 제작자 이름 + 아래 한 줄 메모. */
+    creditsNames: [] as string[],
+    creditsNote: "",
+    creditsNote_ko: "",
+    /* 덧붙일 문구의 타이포 — 미설정이면 기본 스타일 */
+    creditsNoteFontSize: "",
+    creditsNoteFontFamily: "",
+    creditsNoteLineHeight: "",
+    creditsNoteAlign: "left",
     /* ── Architecture 패널 — 프로젝트 디렉토리 구조 목록. indent 0/1/2 로 계층 표현 ── */
+    /* Backend — 비어있으면 정적 데이터(data/about/backend) 사용 */
+    backend: [] as unknown[],
+    /* User Flow — 비어있으면 정적 데이터(data/about/architecture.userFlows) 사용 */
+    userFlows: [] as unknown[],
+    /* Troubleshooting — 비어있으면 정적 데이터(data/about/troubleshooting) 사용 */
+    troubleshooting: [] as unknown[],
+    /* ERD — 비어있으면 정적 데이터(data/about/erd) 사용 */
+    erdTables: [] as unknown[],
+    erdRelations: [] as unknown[],
     architectureItems: [
       { path: "src/", description_ko: "소스 코드 루트", description_en: "Source code root", indent: 0 },
       { path: "app/", description_ko: "Next.js App Router — 페이지 & API 라우트", description_en: "Next.js App Router — pages & API routes", indent: 1 },
@@ -855,6 +901,11 @@ export const siteConfig = {
       { path: "data/", description_ko: "정적 데이터 — projects, services, profile, about", description_en: "Static data — projects, services, profile, about", indent: 1 },
       { path: "locales/", description_ko: "i18n 번역 파일 — ko.json, en.json", description_en: "i18n translation files — ko.json, en.json", indent: 1 },
     ] as Array<{ path: string; description_ko: string; description_en: string; indent: number }>,
+    /* Architecture 다이어그램(기술 그래프) — 비어있으면 코드의 기본 노드/엣지 사용. admin 스튜디오에서 편집. */
+    archDiagram: { nodes: [], edges: [] } as {
+      nodes: Array<{ id: string; label: string; x: number; y: number; w: number; h: number; icon: string; group?: string }>;
+      edges: Array<{ from: string; to: string; dashed?: boolean }>;
+    },
   },
 
   // ---------------------------------------------------------------------------

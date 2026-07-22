@@ -1,0 +1,269 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+.toolbar {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  flex-wrap: wrap;
+}
+/* 공통 SearchCapsule — 폭만 잡는다 */
+.search {
+  flex-shrink: 0;
+}
+.count {
+  margin-left: auto;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+}
+
+/* 그리드 — 카드는 한 줄 요약만. 편집은 모달에서 하므로 높이가 일정하다 */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--spacing-sm);
+}
+.card {
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  /* transform 은 전역 theme transition 목록에 없어 compound 로 올려야 살아남는다 (.grid .card) */
+  transition: border-color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+.grid .card {
+  transition: border-color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+/* hover 중인 테이블 — 기준점이라 가장 강하게 */
+.cardOn {
+  border-color: var(--border-accent-strong-color);
+  box-shadow: 0 0 0 3px var(--bg-accent-subtle), var(--shadow-md);
+}
+
+/* 연결된 테이블 — 흐림의 반대편이 아니라 그 자체로 표시가 있어야 읽힌다 */
+.grid .cardRel {
+  border-color: var(--border-accent-color);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+/* 관계없는 것들은 확실히 뒤로 물린다 — 0.35 로는 구분이 약했다 */
+.cardDim {
+  opacity: 0.18;
+}
+
+/* 방향 배지 — 아이콘 + 짧은 말. 화살표만으로는 어느 쪽이 참조하는지 안 읽힌다 */
+.dirTag {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 1px var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+}
+.cardMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  width: 100%;
+  padding: var(--box-md);
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.cardTop {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: baseline;
+  justify-content: space-between;
+}
+.cardName {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* 단위를 붙인 통계 — 숫자만으로는 컬럼 수인지 관계 수인지 알 수 없다 */
+.stat {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+}
+/* 두 번째 줄 — 컬럼/관계 수와 PK. 카드만 보고도 테이블 성격이 읽히게 */
+.cardSub {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  min-height: 1.2em;
+  overflow: hidden;
+}
+.pkTag {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  min-width: 0;
+  padding: 1px 8px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: var(--box-lg);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+/* ── 뷰 전환 ── */
+.viewSwitch {
+  display: inline-flex;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+}
+.viewBtn {
+  display: inline-flex;
+  gap: var(--spacing-3xs);
+  align-items: center;
+  padding: var(--box-xs);
+  border: 0;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  cursor: pointer;
+}
+.viewBtn:hover {
+  color: var(--text-primary);
+}
+.viewBtnOn,
+.viewBtnOn:hover {
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+}
+
+/* ── 다이어그램 미리보기 — 공개 ErdPanel 과 같은 layoutErd() 좌표 ── */
+.diagram {
+  max-height: 34rem;
+  overflow: auto;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-secondary);
+}
+.svg {
+  display: block;
+  /* viewBox 비율 유지 — 폭에 맞춰 축소된다 */
+  width: 100%;
+  height: auto;
+}
+
+/* 관계선 — 컬럼 행에 붙는다 */
+.linkLine {
+  stroke: var(--border-default-color);
+  stroke-width: 1.5;
+  fill: none;
+}
+/* crow's foot / 막대 — 선과 같은 굵기로 그려야 한 기호로 읽힌다 */
+.linkSymbol {
+  stroke: var(--border-default-color);
+  stroke-width: 1.5;
+  fill: none;
+}
+.linkOn .linkLine {
+  stroke: var(--color-accent);
+  stroke-width: 2.5;
+}
+.linkOn .linkSymbol {
+  stroke: var(--color-accent);
+  stroke-width: 2.5;
+}
+.linkDim {
+  opacity: 0.2;
+}
+
+/* 테이블 박스 */
+.node {
+  cursor: pointer;
+}
+.nodeDim {
+  opacity: 0.25;
+}
+.nodeBox {
+  fill: var(--bg-primary);
+  stroke: var(--border-light-color);
+  stroke-width: 1.5;
+}
+.nodeBoxRel {
+  stroke: var(--border-accent-color);
+}
+.nodeBoxOn {
+  stroke: var(--color-accent);
+  stroke-width: 2.5;
+}
+.nodeHead {
+  fill: var(--bg-tertiary);
+}
+.nodeName {
+  fill: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: var(--font-weight-bold);
+}
+.col {
+  fill: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.colPk {
+  fill: var(--text-accent);
+}
+.colType {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+/* PK / FK 뱃지 — ERD 에서 컬럼 이름만큼 중요한 정보 */
+.keyPk,
+.keyFk {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: var(--font-weight-bold);
+}
+.keyPk {
+  fill: var(--text-accent);
+}
+.keyFk {
+  fill: var(--text-info);
+}
+
+/* React Flow 는 크기가 정해진 컨테이너가 필요하다 */
+.flowBox {
+  height: 34rem;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+}

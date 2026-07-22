@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
+import { checkAboutErd } from "@/lib/api/validateAboutErd";
 import { getUserRole } from "@/lib/api/roles";
 import { notifyAdmin } from "@/lib/adminNotify";
 import { getTabForConfigPath } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
@@ -87,6 +88,16 @@ export async function PATCH(request: Request) {
   if (auth.error) return auth.error;
 
   const body = await request.json();
+
+  if (!body || typeof body !== "object" || !body.config || typeof body.config !== "object") {
+    return NextResponse.json({ error: "config 가 없습니다." }, { status: 400 });
+  }
+
+  /* 필수값 검사 — 클라이언트를 거치지 않은 요청도 같은 규칙으로 막는다.
+     사유를 error 에 담아야 설정 화면 저장 실패 메시지에 그대로 노출된다. */
+  const erdViolation = checkAboutErd(body.config);
+  if (erdViolation) return NextResponse.json({ error: erdViolation }, { status: 400 });
+
   const admin = createAdminClient();
 
   // 변경 감지/권한 검사용 — 이전 config
