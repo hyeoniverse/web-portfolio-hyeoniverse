@@ -44,6 +44,11 @@ updates:
       # typescript-eslint 가 TS7 을 지원하면 해제.
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
+      # katex 0.18+ — marked-katex-extension(최신 5.1.10)의 peer 가 katex ">=0.16 <0.18"
+      # 라 0.18 로 올리면 npm ci 가 ERESOLVE 로 실패한다 (매주 재발: #351 → #363).
+      # 0.17.x 패치는 계속 받도록 minor+major 만 무시. marked-katex-extension 이 0.18 지원하면 해제.
+      - dependency-name: "katex"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
 
   # GitHub Actions — 매월 1회
   - package-ecosystem: github-actions
