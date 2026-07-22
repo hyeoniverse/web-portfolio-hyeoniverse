@@ -24,6 +24,8 @@ interface FontPickerProps {
   renderValue?: () => React.ReactNode;
   /** match 안 되는 value 일 때의 fallback 라벨 (예: "Default") */
   fallbackLabel?: string;
+  /** dropdown 을 trigger 아래로 열기 (Select 로 전달) */
+  dropAlign?: "active" | "below";
   triggerClassName?: string;
   dropdownClassName?: string;
   /** value 가 그룹 내 entry.value 와 일치하는지 정규화 (예: CSS quote 차이 보정).
@@ -51,7 +53,7 @@ function subsequenceMatch(text: string, query: string): boolean {
  *  Select trigger + 드롭다운 안 검색 input + 그룹화된 폰트 목록 + Google Fonts 검색 결과 */
 export default function FontPicker({
   value, onChange, groups,
-  preferEn, enableGoogleSearch = true,
+  preferEn, enableGoogleSearch = true, dropAlign,
   renderValue, fallbackLabel,
   triggerClassName, dropdownClassName,
   resolveMatch,
@@ -150,6 +152,7 @@ export default function FontPicker({
           {currentEntry?.label ?? fallbackLabel ?? value}
         </span>
       ))}
+      dropAlign={dropAlign}
       className={triggerClassName}
       dropdownClassName={dropdownClassName}
     >
@@ -165,6 +168,10 @@ export default function FontPicker({
               autoFocus
             />
           </div>
+          {/* 목록에 없는 폰트도 Google Fonts 에 있으면 검색으로 찾을 수 있음을 알린다 */}
+          {enableGoogleSearch && (
+            <p className={styles.searchHint}>{t("editor.fontSearchHint")}</p>
+          )}
           <div
             data-lenis-prevent
             className={styles.list}
