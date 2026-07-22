@@ -20,6 +20,9 @@ const itemMeta: Record<
     section: keyof typeof SECTION;
     difficulty: TroubleshootingDifficulty;
     recommended?: boolean;
+    /** 대표 항목 — 하나라도 지정되면 패널이 이것들만 보여준다.
+     *  89개를 다 늘어놓으면 읽히지 않아, 원본은 남기고 표시할 것만 고른다. */
+    featured?: boolean;
     /** 추천 이유 — 항목별 차별점. IDE 에디터 @recommended 라인에 표시 */
     recommendReason?: { ko: string; en: string };
   }
@@ -39,9 +42,9 @@ const itemMeta: Record<
     section: "A", difficulty: 2, recommended: true,
     recommendReason: { ko: "이름이 비슷한 두 저장소의 신뢰 수준 차이가 곧 권한 시스템의 출발점이었던 사례라 골랐습니다.", en: "Picked this because the trust gap between two similarly-named stores was the very foundation of the permission system." },
   },
-  "GitHub OAuth 는 계정만 있으면 누구나 로그인 시도가 성공한다": { section: "A", difficulty: 2 },
+  "GitHub OAuth 는 계정만 있으면 누구나 로그인 시도가 성공한다": { featured: true, section: "A", difficulty: 2 },
   // Performance
-  "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)": { section: "P", difficulty: 3 },
+  "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)": { featured: true, section: "P", difficulty: 3 },
   "mousemove마다 React 리렌더 (60fps 성능 저하)": { section: "P", difficulty: 2 },
   "커스텀 커서의 무거운 hit-test가 가벼운 위치 보간을 함께 느리게 만듦": {
     section: "P", difficulty: 3, recommended: true,
@@ -53,7 +56,7 @@ const itemMeta: Record<
   "Menu drawer 폰트가 fallback 으로 굳음 — `display: optional` + `preload: false` 부작용": { section: "P", difficulty: 1 },
   // Layout & CSS
   "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐": { section: "L", difficulty: 2 },
-  "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀": {
+  "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀": { featured: true,
     section: "L", difficulty: 2, recommended: true,
     recommendReason: { ko: "원인이 코드가 아닌 CSS 명세에 있던 케이스 — spec 단위까지 파고드는 디버깅 습관을 보여드리려 골랐습니다.", en: "Bug lived in the CSS spec, not in the code — picked this to show spec-level debugging." },
   },
@@ -80,6 +83,20 @@ const itemMeta: Record<
     section: "L", difficulty: 2, recommended: true,
     recommendReason: { ko: "UA 가 그리는 요소의 페인트 순서(자식 위·형제 아래)까지 파고들어야 풀리던 CSS 함정이라 골랐습니다.", en: "Picked this CSS trap because it only resolved once I dug into the paint order of UA-drawn chrome (above children, below siblings)." },
   },
+  "모바일에서 ERD 다이어그램이 높이 0 으로 접혀 아무것도 안 보임": { featured: true,
+    section: "L", difficulty: 2, recommended: true,
+    recommendReason: {
+      ko: "`height:100%` 가 0 으로 죽는 원인을 CSS 명세의 definite height 규칙까지 거슬러 올라가 짚은 사례라 골랐습니다.",
+      en: "Picked this because I traced why `height:100%` collapses to 0 all the way back to the CSS spec's definite-height rule.",
+    },
+  },
+  "스크롤 시 상단 탭바에 frost(blur) 를 깔려는데 blur 가 안 보이거나 잘림": { featured: true,
+    section: "L", difficulty: 3, recommended: true,
+    recommendReason: {
+      ko: "`overflow-x:auto` 의 양축 클립과 Lenis transform 스크롤 위 `backdrop-filter` 라는 두 함정이 겹친 걸 분리해 푼 사례라 골랐습니다.",
+      en: "Picked this because two traps stacked — `overflow-x:auto` clipping both axes and `backdrop-filter` under Lenis's transform scroll — and I separated them to solve it.",
+    },
+  },
   // Plate Editor
   "Richtext 게시물에서 코드 하이라이팅·줄바꿈 버튼이 사라짐": { section: "E", difficulty: 2 },
   "Plate 에디터에서 컨텍스트 툴바 표시 시 커서가 멋대로 튐": { section: "E", difficulty: 3 },
@@ -87,7 +104,7 @@ const itemMeta: Record<
     section: "E", difficulty: 3, recommended: true,
     recommendReason: { ko: "라이브러리 기본값을 의심하고 검증해 사용자 데이터 손실을 막은 경험입니다.", en: "Questioned and verified a library default to prevent user data loss." },
   },
-  "코드블록 하이라이팅이 브라우저에서만 죽음 — 빌드·테스트는 전부 통과": {
+  "코드블록 하이라이팅이 브라우저에서만 죽음 — 빌드·테스트는 전부 통과": { featured: true,
     section: "E", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "빌드도 테스트도 통과하는데 브라우저에서만 죽는 버그를, 증거가 나올 때까지 추적해 라이브러리 밖에서 해결한 사례라 골랐습니다.",
@@ -150,10 +167,10 @@ const itemMeta: Record<
     section: "A", difficulty: 3, recommended: true,
     recommendReason: { ko: "\"클라가 강제한다\" 와 \"서버가 강제한다\" 의 간극을 위협 모델 관점에서 다시 짚은 보안 사례입니다.", en: "Picked this for the threat-model gap between \"client enforces\" and \"server enforces\" — and how OR-ing auth paths collapses to the weakest." },
   },
-  "공개 API 의 `?all=true` 쿼리로 비공개 글 / 휴지통이 인증 없이 전부 노출": {
+  "공개 API 의 `?all=true` 쿼리로 비공개 글 / 휴지통이 인증 없이 전부 노출": { featured: true,
     section: "A", difficulty: 3,
   },
-  "인기글 정의가 3 곳에 분산 — UI 의 HOT 배지와 admin 삭제 보호가 서로 다른 \"인기\"": {
+  "인기글 정의가 3 곳에 분산 — UI 의 HOT 배지와 admin 삭제 보호가 서로 다른 \"인기\"": { featured: true,
     section: "A", difficulty: 2, recommended: true,
     recommendReason: { ko: "같은 도메인 개념 (\"인기\") 의 정의가 silent 하게 분산된 상태를 single source of truth 로 통합한 경험 — reasoning 비용과 모순 위험을 동시에 줄인 사례입니다.", en: "Caught the same domain concept (\"popular\") silently fragmented across three call sites and unified it into a single source of truth — cut both reasoning cost and the risk of contradiction." },
   },
@@ -172,7 +189,7 @@ const itemMeta: Record<
   },
 
   // Architecture — autosave / draft / revision overhaul (v2)
-  "자동저장 v2 — 글자 단위 draft + 리비전을 명시적 save point 로 재정의": {
+  "자동저장 v2 — 글자 단위 draft + 리비전을 명시적 save point 로 재정의": { featured: true,
     section: "A", difficulty: 3, recommended: true,
     recommendReason: { ko: "한 번 리팩토링한 시스템이라도 사용해 보면 새 결함이 보인다는 걸 보여드리고 싶어 골랐습니다 — 같은 도메인을 두 번째로 다시 설계한 과정입니다.", en: "Picked this because even a 'refactored' system shows new flaws once it's lived in — a second pass at the same domain." },
   },
@@ -194,7 +211,7 @@ const itemMeta: Record<
   },
 
   // Layout & CSS — OKLCH color system migration
-  "HSL 기반 색 토큰이 hue 별로 지각 밝기가 달라 같은 lightness 끼리도 톤이 들쭉날쭉": {
+  "HSL 기반 색 토큰이 hue 별로 지각 밝기가 달라 같은 lightness 끼리도 톤이 들쭉날쭉": { featured: true,
     section: "L", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "\"수학적 평균\" 과 \"지각 밝기\" 가 다르다는 색 공간 차원의 문제를 색 시스템 전반에 OKLCH 로 옮기고, sRGB clipping 회피 위한 hue 별 safeChroma 까지 명시한 사례입니다.",
@@ -284,7 +301,7 @@ const itemMeta: Record<
   },
 
   // Architecture — 번들러가 라이브러리 정규식을 깨뜨림
-  "댓글에 코드 하이라이팅을 붙이자 게시물 페이지 전체가 크래시 — 빌드는 통과": {
+  "댓글에 코드 하이라이팅을 붙이자 게시물 페이지 전체가 크래시 — 빌드는 통과": { featured: true,
     section: "A", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "빌드가 통과했는데 런타임에만 터진 케이스 — \"내 코드\" 가 아니라 번들러 산출물을 의심해야 풀렸습니다. CI 가 잡아주지 못하는 층이 있다는 걸 보여드리고 싶어 골랐습니다.",
@@ -307,7 +324,7 @@ const itemMeta: Record<
   },
 
   // Plate Editor — decorate leaf + mark leaf hook 순서 충돌
-  "코드블록 안 텍스트에 서식을 넣으면 에디터가 크래시 — \"change in the order of Hooks\"": {
+  "코드블록 안 텍스트에 서식을 넣으면 에디터가 크래시 — \"change in the order of Hooks\"": { featured: true,
     section: "E", difficulty: 3,
   },
 };
@@ -3162,6 +3179,52 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
     tags: ["i18n", "LocalizedText", "fallback", "nullish", "번역"],
   },
+  {
+    problem: {
+      ko: "모바일에서 ERD 다이어그램이 높이 0 으로 접혀 아무것도 안 보임",
+      en: "On mobile the ERD diagram collapses to height 0 — nothing renders",
+    },
+    definition: {
+      ko: "React Flow 캔버스가 담긴 컨테이너는 미디어쿼리에서 `min-height` 로만 높이를 받는데, 그 안의 캔버스는 `height: 100%` 라서 0 으로 계산돼 다이어그램(노드 23개는 DOM 에 다 있음)이 통째로 안 보였습니다. 데스크탑에선 멀쩡했습니다.",
+      en: "The container holding the React Flow canvas only gets its height from a `min-height` in a media query, while the canvas inside uses `height: 100%` — which resolved to 0, so the whole diagram (all 23 nodes present in the DOM) was invisible. Desktop was fine.",
+    },
+    cause: {
+      ko: "CSS 에서 `height: 100%` 는 부모의 **definite height (확정된 높이)** 를 기준으로 계산됩니다. 그런데 `min-height` 로만 만들어진 높이는 definite 가 아니라 `auto` 로 취급되어, 자식의 `100%` 가 `auto` 기준 → 0 이 됩니다. 데스크탑에서 우연히 살아있던 건 그쪽은 flex 부모가 실제 높이를 갖고 있었기 때문이고, 문제를 가렸습니다.",
+      en: "In CSS, `height: 100%` resolves against the parent's **definite height**. A height made only from `min-height` is not definite — it's treated as `auto`, so the child's `100%` resolves against `auto` and becomes 0. It happened to work on desktop only because there a flex parent carried a real height, which masked the bug.",
+    },
+    solution: {
+      ko: "컨테이너를 flex 컨테이너(`display: flex; flex-direction: column`)로 만들어 자식이 flex stretch 로 늘어나게 했습니다. flex 의 stretch 는 부모 높이가 definite 인지와 무관하게 동작하므로, `min-height` 만으로도 자식이 그 높이를 꽉 채웁니다.",
+      en: "Make the container a flex container (`display: flex; flex-direction: column`) so the child stretches to fill it. Flex stretch works regardless of whether the parent's height is definite, so the child fills the `min-height`-derived box.",
+    },
+    keyInsight: {
+      ko: "`height: 100%` 가 0 으로 죽으면 **부모가 `min-height` 로만 높이를 갖는지** 부터 의심하세요. percentage height 는 definite height 를 요구하고, `min-height` 는 그 조건을 만족시키지 못합니다. definite 높이를 만들 수 없는 상황이라면 percentage 대신 **flex/grid 의 stretch** 로 우회하는 게 안전합니다.",
+      en: "When `height: 100%` dies to 0, first suspect that **the parent's height comes only from `min-height`**. Percentage heights require a definite height, and `min-height` doesn't satisfy that. When you can't give a definite height, route around it with **flex/grid stretch** instead of percentages.",
+    },
+    tags: ["css", "height", "min-height", "flexbox", "react-flow", "responsive"],
+  },
+  {
+    problem: {
+      ko: "스크롤 시 상단 탭바에 frost(blur) 를 깔려는데 blur 가 안 보이거나 잘림",
+      en: "A frosted blur on the sticky top bar won't show — or gets clipped",
+    },
+    definition: {
+      ko: "가로 스크롤 탭바(sticky)에 `::before` 로 frost 를 붙였더니 위쪽 nav 영역까지 안 뻗고 잘렸고, 이를 피하려 `position: fixed` 오버레이로 바꿨더니 이번엔 Lenis 스무스 스크롤 위에서 `backdrop-filter` 가 밑을 지나가는 콘텐츠를 전혀 안 흐렸습니다.",
+      en: "Adding a frost via `::before` on the horizontally-scrolling sticky tab bar got clipped and never reached the nav area above; switching to a `position: fixed` overlay to avoid that made `backdrop-filter` stop blurring the content passing underneath, because the page uses Lenis smooth scroll.",
+    },
+    cause: {
+      ko: "두 가지가 겹쳤습니다. (1) 탭바에 가로 스크롤용 `overflow-x: auto` 가 걸려 있으면 명세상 `overflow-y` 도 `auto` 로 승격되어 **양축 모두 클립** 됩니다 — 그래서 박스 밖으로 뻗어야 하는 `::before` 가 잘립니다. (2) `position: fixed` 요소의 `backdrop-filter` 는 뷰포트 기준으로 backdrop 을 샘플링하는데, Lenis 는 콘텐츠를 `transform` 으로 밀어 스크롤하므로 fixed 오버레이가 그 transform 된 콘텐츠를 제대로 못 샘플링합니다.",
+      en: "Two things stacked. (1) `overflow-x: auto` on the tab bar (for horizontal tab scroll) promotes `overflow-y` to `auto` too per spec, so it **clips on both axes** — clipping a `::before` that needs to extend outside the box. (2) `backdrop-filter` on a `position: fixed` element samples the backdrop relative to the viewport, but Lenis scrolls by `transform`-ing the content, so the fixed overlay can't sample that transformed content.",
+    },
+    solution: {
+      ko: "에디터(topBar) 페이지와 같은 패턴으로 재구성했습니다 — **sticky + frost 는 overflow 가 없는 래퍼**가 맡고, 가로 스크롤은 안쪽 요소가 맡습니다(그러면 `::before` 가 안 잘림). frost 는 `fixed` 가 아니라 **sticky 요소의 `::before`** 로 두고, `top: calc(-1 * var(--header-height))` 로 nav 영역까지 위로 확장 + 마스크로 아래를 페이드했습니다. 배경색 없이 `backdrop-filter` 만으로 blur 를 냅니다.",
+      en: "Rebuilt it with the same pattern as the editor's topBar — a **wrapper with no overflow owns the sticky + frost**, while an inner element owns the horizontal scroll (so the `::before` isn't clipped). The frost is the **sticky element's `::before`** (not `fixed`), extended up over the nav with `top: calc(-1 * var(--header-height))` and faded at the bottom with a mask. Pure `backdrop-filter`, no background fill.",
+    },
+    keyInsight: {
+      ko: "**`overflow-x: auto` 는 y 축까지 클립합니다** — 밖으로 나가는 `::before`/그림자를 쓰려면 스크롤과 오버레이의 책임을 다른 요소로 분리하세요. 그리고 **transform 기반 스무스 스크롤(Lenis 등) 위에서는 `backdrop-filter` 를 `fixed` 가 아니라 `sticky` 요소에 걸어야** backdrop 을 제대로 샘플링합니다.",
+      en: "**`overflow-x: auto` clips the y-axis too** — if you need a `::before`/shadow that bleeds outside, split the scroll and the overlay onto different elements. And **on transform-based smooth scroll (Lenis et al.), attach `backdrop-filter` to a `sticky` element, not a `fixed` one**, so it samples the backdrop correctly.",
+    },
+    tags: ["css", "sticky", "overflow", "backdrop-filter", "lenis", "frost"],
+  },
 ];
 
 // ── 후처리 — 메타 적용 + 섹션 정렬 + 난이도 정렬 + 중복/숨김 필터 ─────────
@@ -3244,9 +3307,15 @@ export const troubleShootingItems: TroubleShootingItem[] = (() => {
         section: SECTION[meta.section],
         difficulty: meta.difficulty,
         ...(meta.recommended ? { recommended: true } : {}),
+        ...(meta.featured ? { featured: true } : {}),
         ...(meta.recommendReason ? { recommendReason: meta.recommendReason } : {}),
       };
     });
+
+  /* 대표 항목이 지정돼 있으면 그것만 보여준다.
+     89개를 다 늘어놓으면 읽히지 않는다. 원본은 그대로 두고 여기서 골라낸다. */
+  const featured = enriched.filter((i) => i.featured);
+  const shown = featured.length > 0 ? featured : enriched;
 
   const sectionIndex = (sec?: { ko: string; en: string }) => {
     if (!sec) return 99;
@@ -3254,7 +3323,7 @@ export const troubleShootingItems: TroubleShootingItem[] = (() => {
     return found < 0 ? 99 : found;
   };
 
-  return enriched.sort((a, b) => {
+  return shown.sort((a, b) => {
     const dSec = sectionIndex(a.section) - sectionIndex(b.section);
     if (dSec !== 0) return dSec;
     return (a.difficulty ?? 2) - (b.difficulty ?? 2);
