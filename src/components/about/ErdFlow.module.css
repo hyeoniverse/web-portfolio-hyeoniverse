@@ -111,7 +111,7 @@
   line-height: 1;
 }
 .row:hover {
-  background: var(--bg-hover);
+  background: var(--bg-tertiary);
 }
 
 .key {
