@@ -1,0 +1,148 @@
+/* ERD 탐색기 — 공개/admin 공유. 노트 카드와 포커스 바가 두 화면에서 같아진다. */
+
+/* flex 부모(공개 ErdPanel)에서는 flex 로, block 부모(admin .flowBox, height 고정)
+   에서는 height:100% 로 찬다. 둘 다 필요 — 하나만 두면 다른 쪽이 0 으로 접힌다. */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.flow {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── 나란히 보기 ── */
+.split {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex: 1;
+  min-height: 0;
+}
+.pane {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+/* 좁으면 위아래로 — 반씩 나누면 둘 다 못 읽는다 */
+@media (max-width: 900px) {
+  .split {
+    flex-direction: column;
+  }
+}
+
+/* ── 포커스 칩 — 캔버스 안 좌상단에 떠 있다 ── */
+.focusChip {
+  display: flex;
+  gap: var(--spacing-3xs);
+  align-items: center;
+  padding: var(--spacing-3xs) var(--spacing-3xs) var(--spacing-3xs) var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-md);
+}
+.focusTitle {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+.focusTitle strong {
+  color: var(--text-accent);
+}
+.focusBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--control-h-sm);
+  padding: 0 var(--spacing-xs);
+  border: 0;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+.focusBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text-accent);
+}
+
+/* ── 설계 노트 — 다이어그램 안, 포커스한 테이블 옆 ── */
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  width: 300px;
+}
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  padding: var(--box-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-md);
+}
+.noteTitle {
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+}
+.noteTag {
+  align-self: flex-start;
+  padding: var(--box-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  word-break: break-all;
+}
+.noteDesc {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ── 개념 / 스키마 전환 — 캔버스 안 우상단 ── */
+.viewSwitch {
+  display: flex;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-md);
+}
+.viewBtn {
+  display: inline-flex;
+  gap: var(--spacing-3xs);
+  align-items: center;
+  padding: var(--box-xs);
+  border: 0;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.viewBtn:hover {
+  color: var(--text-primary);
+}
+.viewBtnOn,
+.viewBtnOn:hover {
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+}

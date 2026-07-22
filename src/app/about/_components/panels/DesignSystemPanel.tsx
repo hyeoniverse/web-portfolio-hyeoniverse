@@ -6,6 +6,7 @@ import gsap from "gsap";
 import Image from "next/image";
 import type { Language } from "@/providers/LanguageProvider";
 import type { DesignConceptItem, DcTransitionMode } from "@/data/about";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
@@ -38,12 +39,27 @@ const demoMap: Record<string, React.FC> = {
   icons: IconographyDemo,
 };
 
+/* admin (siteConfig.about.designSystem) flat shape → DesignConceptItem nested shape 변환 */
+type CfgConcept = { id: string; title: string; subtitle_ko: string; subtitle_en: string; description_ko: string; description_en: string; image: string };
+function adaptConcepts(list: CfgConcept[]): DesignConceptItem[] {
+  return list.map((c) => ({
+    id: c.id,
+    title: c.title,
+    subtitle: { ko: c.subtitle_ko, en: c.subtitle_en },
+    description: { ko: c.description_ko, en: c.description_en },
+    image: c.image || undefined,
+  }));
+}
+
 function DesignSystemPanel({
   language,
   concepts,
   mode = "strip",
   scrollBy,
 }: DesignSystemPanelProps) {
+  const cfg = useSiteConfig();
+  const cfgConcepts = (cfg.about as { designSystem?: CfgConcept[] }).designSystem;
+  if (cfgConcepts && cfgConcepts.length > 0) concepts = adaptConcepts(cfgConcepts);
   const stripRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
   const mobileBgRef = useRef<HTMLDivElement>(null);
@@ -243,6 +259,7 @@ function DesignSystemPanel({
           </div>
         )}
         <PinnedTitleRow
+          panelKey="designSystem"
           className={isMobile ? styles.dcTitleRow : undefined}
           title={<T k="aboutPage.panels.designSystem" />}
           rightContent={

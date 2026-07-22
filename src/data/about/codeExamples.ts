@@ -1,4 +1,5 @@
 import type { CodeExample } from "./types";
+import { codeDemoFiles } from "./codeDemoFiles";
 
 export const codeExamples: CodeExample[] = [
   {
@@ -18,6 +19,8 @@ const delay = isHovered ? forwardDelay : reverseDelay;
 .char { transition: color 0.01s step-end; }
 .charHovered { color: transparent; -webkit-text-stroke: 1px; }
 .charExiting { -webkit-text-stroke: 1px; } // stroke 유지`,
+    demoMode: "sandbox",
+    demoFiles: codeDemoFiles.staggerText,
   },
   {
     title: "SSR + ISR Server Component",
@@ -25,7 +28,7 @@ const delay = isHovered ? forwardDelay : reverseDelay;
       ko: "블로그 목록과 상세 페이지를 **Server Component로 전환**하여 초기 데이터를 서버에서 렌더링합니다. 목록은 **60초마다 재검증(ISR)**하고, 상세 페이지는 빌드 시 **35개 이상의 정적 HTML을 미리 생성**합니다. 클라이언트에서 4개의 API를 순차 호출하던 워터폴이 서버에서 **`Promise.all` 병렬 fetch로 대체**되어 TTFB가 크게 개선됩니다.",
       en: "Blog list and detail pages are converted to **Server Components** that render initial data on the server. The list **revalidates every 60 seconds (ISR)**, while detail pages **pre-generate 35+ static HTML files** at build time. The client-side waterfall of 4 sequential API calls is replaced by **`Promise.all` parallel fetch on the server**, significantly improving TTFB.",
     },
-    language: "javascript",
+    language: "tsx",
     code: `// 서버 컴포넌트 — 빌드 시 정적 생성 + ISR 재검증
 export const revalidate = 300;
 
@@ -41,6 +44,8 @@ export default async function PostDetailPage({ params }) {
   return <PostDetailClient post={post} />;
 }
 // → 클라이언트는 이미 렌더된 HTML을 받아 즉시 표시`,
+    demoMode: "sandbox",
+    demoFiles: codeDemoFiles.magnetic,
   },
   {
     title: "Infinite Scroll Wrapping",
@@ -62,35 +67,46 @@ while (scrollX < -oneSetWidth * 3) {
   scrollX += oneSetWidth;
   targetScrollX += oneSetWidth;
 }`,
+    demoMode: "sandbox",
+    demoFiles: codeDemoFiles.infiniteScroll,
   },
   {
-    title: "API Route Factory Pattern",
+    title: "Pinned Scroll Panels",
     description: {
-      ko: "Post와 Work의 좋아요·댓글 API가 **테이블명·FK만 다를 뿐 로직이 동일**했습니다. `createLikeHandlers({ targetType })` 팩토리로 공통 로직을 추출하고, 각 route는 **옵션만 넘기는 5줄 래퍼**로 축소했습니다. 좋아요 route 2개 + 댓글 route 4개에서 **~630줄 → ~130줄**로 줄었습니다.",
-      en: "Post and Work like/comment APIs had **identical logic differing only in table names and FKs**. A `createLikeHandlers({ targetType })` factory extracts the shared logic, reducing each route to a **5-line wrapper** that just passes options. Six routes went from **~630 lines to ~130 lines**.",
+      ko: "About 페이지의 패널은 **화면보다 넓게** 만들어 두고, 세로로 스크롤하면 가로로 지나갑니다. 그대로 두면 글자가 같이 밀려나가므로 **밀려난 만큼 콘텐츠를 반대로 되밀어** 제자리에 고정된 것처럼 보이게 했습니다. 진행도는 **0~1로 환산해 현재 항목 번호**가 되고, 점을 누르면 그 위치로 스크롤합니다.",
+      en: "About page panels are built **wider than the screen**, so scrolling down moves them sideways. Left alone the text would slide away, so the content is **pushed back by exactly the amount it shifted**, making it look pinned in place. Progress maps to **0-1 and becomes the active index**, and clicking a dot scrolls to that position.",
     },
     language: "javascript",
-    code: `// lib/api/likeHandler.ts — 팩토리 함수
-export function createLikeHandlers({ targetType, countSyncTable }) {
-  async function GET(request, context) {
-    const { id } = await context.params;
-    const [{ count }, { data: myLike }] = await Promise.all([
-      admin.from("likes").select("*", { count: "exact", head: true })
-        .eq("target_type", targetType).eq("target_id", id),
-      admin.from("likes").select("id")
-        .eq("target_type", targetType).eq("target_id", id).eq("ip", ip)
-        .maybeSingle(),
-    ]);
-    return jsonOk({ count: count ?? 0, liked: !!myLike });
-  }
-  async function POST(request, context) { /* toggle + countSync */ }
-  return { GET, POST };
-}
+    code: `// _hooks/usePinnedScroll.ts — 카운터 트랜슬레이션 + 진행도 → activeIndex
+const update = () => {
+  const rect = panelRef.current.getBoundingClientRect();
+  // 패널이 뷰포트보다 넓은 만큼이 "지나갈 거리"
+  const extraWidth = rect.width - window.innerWidth;
 
-// posts/[id]/like/route.ts — 5줄 래퍼
-export const { GET, POST } = createLikeHandlers({
-  targetType: "post", countSyncTable: "posts",
-});`,
+  if (extraWidth > 0) {
+    // 왼쪽으로 밀려난 만큼 콘텐츠를 오른쪽으로 되밀어 고정된 것처럼
+    const offset = Math.max(0, Math.min(-rect.left, extraWidth));
+    contentRef.current.style.transform = \`translateX(\${offset}px)\`;
+
+    // 진행도 0~1 → 현재 항목 번호
+    const progress = Math.max(0, Math.min(1, -rect.left / extraWidth));
+    const newIndex = Math.min(itemCount - 1, Math.floor(progress * itemCount));
+    if (newIndex !== prevIndex) {
+      prevIndex = newIndex;
+      setActiveIndex(newIndex);
+    }
+  }
+  rafId = requestAnimationFrame(update);
+};
+
+// 점 클릭 → 해당 항목이 화면 중앙에 오도록 스크롤
+const scrollToItem = (index) => {
+  const targetProgress = (index + 0.5) / itemCount;
+  const delta = rect.left - -(targetProgress * extraWidth);
+  scrollBy ? scrollBy(delta) : window.scrollTo({ top: scrollY + delta });
+};`,
+    demoMode: "sandbox",
+    demoFiles: codeDemoFiles.pinnedScroll,
   },
   {
     title: "3D Scroll Torus (Lissajous Curve)",
@@ -98,7 +114,7 @@ export const { GET, POST } = createLikeHandlers({
       ko: "스크롤할 때마다 3D 토러스가 **화면 안에서 끝없이 떠다니는** 효과입니다. X와 Y 축에 **서로 다른 주파수의 사인파**를 적용하여 리사주 곡선을 그리며, 화면 밖으로 나가지 않으면서도 **반복되지 않는 유기적인 궤적**을 만듭니다. Lenis 무한 스크롤의 **누적 거리를 추적**하여 스크롤 방향에 관계없이 연속적으로 움직입니다.",
       en: "A 3D torus that **floats endlessly within the viewport** as you scroll. By applying **sine waves with different frequencies** to the X and Y axes, it traces a Lissajous curve — staying on-screen while creating an **organic, non-repeating trajectory**. It tracks **cumulative Lenis scroll distance** so the torus moves continuously regardless of scroll direction.",
     },
-    language: "javascript",
+    language: "tsx",
     code: `// Lenis 누적 스크롤 추적 (무한 스크롤 래핑 감지)
 const currentNorm = scroll / limit;
 let delta = currentNorm - lastNorm;
@@ -117,5 +133,7 @@ const z = Math.sin(t * 0.4 * Math.PI * 2) * 1.5 - 2;
 <meshStandardMaterial
   metalness={1.0} roughness={0.08}
   envMapIntensity={1.5} />`,
+    demoMode: "sandbox",
+    demoFiles: codeDemoFiles.scrollTorus,
   },
 ];

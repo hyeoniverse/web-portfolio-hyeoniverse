@@ -3,6 +3,7 @@ import type { Language } from "@/providers/LanguageProvider";
 import type { SecurityItem } from "@/data/about";
 import { renderHighlight } from "../renderHighlight";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { usePanelTitle } from "../../_hooks/usePanelTitle";
 import shared from "../AboutSection.module.css";
 import local from "./SecurityPanel.module.css";
 const styles = { ...shared, ...local };
@@ -19,8 +20,8 @@ function adaptSecurity(cfgList: CfgSecurity[]): SecurityItem[] {
   }));
 }
 
-/* Inline lucide-style SVG icons */
-const icons: Record<string, React.ReactNode> = {
+/* Inline lucide-style SVG icons — admin 스튜디오 프리뷰에서도 재사용 */
+export const securityIcons: Record<string, React.ReactNode> = {
   db: (
     <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
       <ellipse cx="12" cy="5" rx="9" ry="3" />
@@ -87,18 +88,19 @@ interface SecurityPanelProps {
 
 function SecurityPanel({ language, items }: SecurityPanelProps) {
   const cfg = useSiteConfig();
+  const titleOverride = usePanelTitle("security");
   const cfgList = (cfg.about as { security?: CfgSecurity[] }).security;
   if (cfgList && cfgList.length > 0) items = adaptSecurity(cfgList);
   return (
     <div className={styles.panel}>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>
-        Security.
+        {titleOverride ?? "Security."}
       </h3>
       <div className={styles.secGrid}>
         {items.map((item, index) => (
           <div key={index} className={`${styles.secItem} ${styles.animate}`}>
             <div className={styles.secHeader}>
-              <span className={styles.secIcon}>{icons[item.icon]}</span>
+              <span className={styles.secIcon}>{securityIcons[item.icon]}</span>
               <span className={styles.secTitle}>{item.title[language]}</span>
             </div>
             <p className={styles.secDesc}>

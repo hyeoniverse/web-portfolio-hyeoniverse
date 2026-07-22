@@ -1,0 +1,34 @@
+/* React Flow 기본 Controls 를 사이트 톤에 맞춘다 — 세로 캡슐.
+   ErdFlow / ChenFlow 가 함께 쓴다. */
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-md);
+}
+
+/* 기본 스타일(사각 버튼 + 하단 border)을 덮는다 */
+.controls :global(.react-flow__controls-button) {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-bottom: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+.controls :global(.react-flow__controls-button):hover {
+  background: var(--bg-hover);
+  color: var(--text-accent);
+}
+.controls :global(.react-flow__controls-button svg) {
+  width: 11px;
+  height: 11px;
+  fill: currentColor;
+}

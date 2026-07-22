@@ -4,6 +4,8 @@ import { useState, useCallback, useMemo, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { FlowNode } from "@/data/about";
 import { userFlows } from "@/data/about/architecture";
+import type { UserFlow } from "@/data/about/types";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
@@ -37,7 +39,11 @@ function UserFlowPanel({
   language,
   scrollBy,
 }: UserFlowPanelProps) {
-  const flowCount = userFlows.length;
+  /* admin(about.userFlows) override — 비어있으면 정적 데이터 */
+  const cfg = useSiteConfig();
+  const cfgFlows = (cfg.about as { userFlows?: UserFlow[] }).userFlows;
+  const flows = cfgFlows && cfgFlows.length > 0 ? cfgFlows : userFlows;
+  const flowCount = flows.length;
   const isMobile = useMobileLayout();
 
   /* ── Pinned Scroll ── */
@@ -57,7 +63,7 @@ function UserFlowPanel({
   );
 
   const currentIdx = isMobile ? mobileActiveIdx : activeIndex;
-  const activeFlow = userFlows[currentIdx] ?? userFlows[0];
+  const activeFlow = flows[currentIdx] ?? flows[0];
 
   /* ── Node map for edge lookups ── */
   const nodeMap = useMemo(() => {
@@ -107,13 +113,14 @@ function UserFlowPanel({
         className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
       >
         <PinnedTitleRow
+          panelKey="userflow"
           className={isMobile ? styles.ufTitleRow : undefined}
           title={<T k="aboutPage.panels.userFlow" />}
           dotNav={{
             count: flowCount,
             activeIndex: currentIdx,
             onDotClick: (i) => scrollToItem(i, mobileStRef),
-            labels: userFlows.map((f) => f.title),
+            labels: flows.map((f) => f.title),
           }}
           rightContent={
             <div className={styles.ufFlowLegend}>
@@ -387,7 +394,7 @@ function UserFlowPanel({
 
         {/* ── Mobile: simplified flow list ── */}
         <div className={styles.ufMobileList}>
-          {userFlows.map((flow, fi) => {
+          {flows.map((flow, fi) => {
             const isActive = fi === currentIdx;
             return (
               <div
