@@ -67,7 +67,8 @@ export default function MobileMenu({
         className={styles.menuBackdrop}
         onClick={onClose}
       />
-      <div className={styles.menuDrawer}>
+      {/* data-lenis-prevent — 넘칠 때 이 컨테이너가 직접 스크롤되도록 Lenis 휠 가로채기 해제 */}
+      <div className={styles.menuDrawer} data-lenis-prevent>
         {/* Header: 풀로고 가운데 */}
         <div className={styles.menuHeader} onClick={onClose}>
           <Logo variant="full" as="link" className={styles.menuLogo} />
