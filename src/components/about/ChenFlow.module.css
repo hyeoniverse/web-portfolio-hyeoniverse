@@ -46,7 +46,7 @@
 /* 스키마 뷰로 넘어갈 수 있는 엔티티 */
 .entityClickable {
   cursor: pointer;
-  transition: box-shadow var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+  transition: box-shadow var(--duration-fast) var(--ease-material), border-color var(--duration-fast) var(--ease-material);
 }
 .entityClickable:hover {
   border-color: var(--color-accent);
