@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.28.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.27.0...v1.28.0) (2026-07-22)
+
+
+### Features
+
+* **about:** 공개 About 페이지 리워크 — 패널 분리 + 코드 데모 샌드박스 + ERD/아키텍처 다이어그램 ([d292b22](https://github.com/hyeoniverse/web-portfolio-oval/commit/d292b22bec25a207d9c6ae180d1a1fc22d1c37b8))
+* **settings:** About Studio 비주얼 에디터 + ERD 검증 (DB CHECK) ([edee4ed](https://github.com/hyeoniverse/web-portfolio-oval/commit/edee4eda854795d0677be9ada1f68eaf41e4f71d))
+* **ui:** MenuDots 컴포넌트 + 공통 컴포넌트 보강 + design-system 쇼케이스 ([5671c1e](https://github.com/hyeoniverse/web-portfolio-oval/commit/5671c1e26b551e8afeb6e3ad8577550c42c55bc0))
+
+
+### Bug Fixes
+
+* **about:** ERD 컴포넌트 미정의 CSS 토큰 교체 ([c8ed6e5](https://github.com/hyeoniverse/web-portfolio-oval/commit/c8ed6e5c8bb8992568bad60b19170f2d105bbc1e))
+
 ## [1.27.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.26.0...v1.27.0) (2026-07-18)
 
 
