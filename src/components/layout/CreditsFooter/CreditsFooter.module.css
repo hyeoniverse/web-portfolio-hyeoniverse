@@ -67,3 +67,11 @@
     padding: var(--spacing-3xl) var(--m-lg) var(--spacing-2xl);
   }
 }
+
+/* 저작자 표시 아래 덧붙이는 한 줄 — 표시 문구보다 약하게 */
+.note {
+  margin: var(--spacing-xs) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  opacity: 0.75;
+}
