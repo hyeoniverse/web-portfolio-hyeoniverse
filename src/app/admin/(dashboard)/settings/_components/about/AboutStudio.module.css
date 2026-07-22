@@ -1,0 +1,1814 @@
+/* ─────────────────────────────────────────────────────────────
+   About Studio — WYSIWYG. 폼이 아니라 "결과물 위에서 직접 편집".
+   Hero 는 실제 렌더 + 인라인 텍스트 편집 + 플로팅 타입 툴바 + 배경 직접 조작.
+   나머지 패널도 결과 형태로 렌더하고 텍스트를 그 자리에서 고친다.
+   ───────────────────────────────────────────────────────────── */
+
+.studio {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* SegmentedControl 을 내용 폭에 맞게 (부모 flex 의 stretch 방지) */
+.segFit {
+  align-self: flex-start;
+}
+
+/* 활성 Hero 요소 위에 뜨는 floating 타입 툴바 — stage overflow 밖(studio 기준)에서 렌더해 안 잘림 */
+.floatBar {
+  position: absolute;
+  z-index: 50;
+}
+
+/* ── 상단 바 — 언어 토글 + 안내 ── */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+.barHint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* ── 편집 가능 텍스트 프리미티브 ── */
+.edit {
+  margin: 0;
+  border: 0;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm, 6px);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  resize: none;
+  outline: none;
+  /* 내용에 맞춰 자동 크기 (지원 브라우저) */
+  field-sizing: content;
+  min-width: 2ch;
+  max-width: 100%;
+  box-shadow: inset 0 0 0 1px transparent;
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+}
+.edit::placeholder {
+  color: inherit;
+  opacity: 0.4;
+}
+.edit:hover {
+  box-shadow: inset 0 0 0 1px var(--border-light-color);
+}
+.edit:focus {
+  background: var(--color-accent-alpha-10);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+/* 여러 줄(textarea)·높이가 큰 input 은 radius 2xl */
+textarea.edit {
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+}
+
+/* ── Hero 라이브 프리뷰 — 브라우저 크롬 + 뷰포트(실제 Hero 스케일 다운) ── */
+.stageWrap {
+  position: relative;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+.chrome {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  height: 38px;
+  padding: 0 var(--spacing-md);
+  border-bottom: var(--border-light);
+  background: var(--bg-secondary);
+}
+.chromeDots {
+  display: inline-flex;
+  gap: 5px;
+}
+.chromeDots i {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-circle);
+  background: var(--border-light-color);
+}
+.chromeUrl {
+  padding: 3px var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+.chromeLive {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+.chromeLive i {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-success-solid);
+}
+.stageViewport {
+  position: relative;
+  overflow: hidden;
+}
+/* 스테이지 안 편집 입력 — 포커스 시에만 은은한 강조, 기본은 무테 */
+.stageWrap .edit:hover {
+  box-shadow: inset 0 0 0 1px var(--border-light-color);
+}
+
+/* ── (구) Hero 스테이지 근사 — 미사용 ── */
+.stage {
+  position: relative;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  aspect-ratio: 16 / 8;
+  min-height: 340px;
+}
+.stageBg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+.stageBg video,
+.stageBg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.stageOverlay {
+  position: absolute;
+  inset: 0;
+}
+.stageContent {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: clamp(24px, 5vw, 56px);
+}
+.heroWatermark {
+  position: absolute;
+  right: 2%;
+  bottom: -6%;
+  z-index: 1;
+  pointer-events: auto;
+  white-space: nowrap;
+}
+.heroLine {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  max-width: 100%;
+}
+/* 라인 옆 스타일 편집 트리거 (커서 hover 시) */
+.lineTools {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.heroLine:hover .lineTools,
+.heroLineActive .lineTools {
+  opacity: 1;
+}
+
+/* ── 타입 툴바 — stage 밖 도킹 바 안에 렌더 (overflow 로 안 잘림) ── */
+.dock {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  padding: var(--spacing-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+}
+.dockLabel {
+  padding-left: var(--spacing-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.typeToolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-primary);
+  white-space: nowrap;
+}
+/* 툴바 좌측 요소 라벨 (Line 1 / Watermark 등) */
+.ttLabel {
+  padding-right: var(--spacing-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-tertiary);
+}
+.ttSwatch {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  flex-shrink: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  cursor: pointer;
+}
+/* Hero 액센트 밑줄 클릭 영역 — 얇은 선이라 hit 영역을 넉넉히 (선 위치는 그대로) */
+.accentHit {
+  display: block;
+  width: fit-content;
+  margin: 0;
+  padding: var(--spacing-xs) var(--spacing-2xl) var(--spacing-xs) 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.ttStepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.ttBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.ttBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+.ttVal {
+  min-width: 52px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+}
+.ttDivider {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 0;
+  background: var(--border-light-color);
+}
+
+/* ── Hero 배경 컨트롤 (스테이지 우상단 Popover) ── */
+.stageBgBtn {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  z-index: 3;
+  display: flex;
+  gap: var(--spacing-2xs);
+}
+/* Hero 레이아웃 팝오버 — 정렬 + 표시 요소 */
+.layoutPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: min(360px, 62vw);
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+}
+/* Popover 안 배경 편집 패널 — 폭 제한 + 넘치면 스크롤 → 사이드바 침범 방지 */
+.bgPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: min(560px, 60vw);
+  max-height: 66vh;
+  padding: var(--spacing-md);
+  overflow: auto;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+}
+.bgSliderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+.gradGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+/* 배경(단색/그라데이션) 프리뷰 + 색 필드 */
+.bgPreview {
+  width: 100%;
+  height: 68px;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+.gradStops {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+/* 배경 색·그라디언트 라이트/다크 2열 편집 */
+.bgThemeRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+.bgThemeCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+.bgThemeLabel {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.swatchField {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  min-width: 0;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  cursor: pointer;
+}
+.swatchField:hover {
+  border-color: var(--text-primary);
+}
+.swatchChip {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+}
+.swatchLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.swatchVal {
+  margin-left: auto;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mediaActions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+/* ── 패널 스트립 (표시/숨김 + 편집 이동) ── */
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+.stripHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+.stripTitle {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.stripChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+/* 패널 칩 — 드래그로 순서 변경(중간 패널) + 클릭으로 표시 토글 */
+.chipDrag {
+  cursor: grab;
+  touch-action: none;
+}
+.chipDrag:active {
+  cursor: grabbing;
+}
+.chipDragging {
+  opacity: 0.9;
+  box-shadow: var(--shadow-md);
+}
+/* hero/credits — 순서 고정(드래그 불가), 클릭 토글은 유지 */
+.chipLocked {
+  cursor: pointer;
+}
+.chipLock {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+/* 칩 더블클릭 이름 편집 인풋 — 칩과 같은 모양 */
+.chipEdit {
+  min-width: 90px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+}
+.chipEdit:focus {
+  border-color: var(--color-accent);
+}
+.stripHint {
+  margin: 0;
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+/* Design System — 이미지 선택 행 */
+.mediaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.mediaName {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 패널별 저장 헤더 — 라벨 + dirty 점 + 저장 버튼(우측) */
+.psHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-lg);
+}
+/* 패널 섹션 타이틀 — 다른 탭 SectionHeader(.sectionTitle) 와 동일 크기 */
+
+.psLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+.psDot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  margin-right: auto;
+  border-radius: var(--radius-circle);
+  background: transparent;
+}
+.psDotOn {
+  background: var(--color-accent);
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+.chipOn {
+  border-color: var(--color-accent);
+  color: var(--text-primary);
+}
+.chipOff {
+  color: var(--text-tertiary);
+  opacity: 0.6;
+}
+.chipDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--text-tertiary);
+}
+.chipOn .chipDot {
+  background: var(--color-accent);
+}
+
+/* ── 결과형 편집 블록 (Overview/Features/Process/Security) ── */
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-light);
+}
+.blockHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.blockKicker {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+.blockTitle {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.blockHint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+.blockHint code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--bg-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+}
+
+/* ── 패널 라이브 프리뷰 (실제 패널 CSS 그대로 + 인라인 편집) ── */
+.panelStage {
+  position: relative;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+.editTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.editTagX {
+  display: inline-flex;
+  opacity: 0;
+}
+.editTag:hover .editTagX {
+  opacity: 1;
+}
+/* 태그 옆 + — 주변 highlight 태그(.overviewTag)와 같은 box(padding/font/line-height)로 높이 일치.
+   inline-block + 상속 line-height 로 태그와 동일한 라인박스 높이 확보(아이콘만으론 라인박스가 안 생겨 낮아짐). */
+.addTagBtn {
+  display: inline-block;
+  padding: var(--box-md);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--_fs-label);
+  line-height: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.addTagBtn svg {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+}
+.addTagBtn:hover {
+  color: var(--text-primary);
+}
+.addTagBtn:hover {
+  color: var(--text-primary);
+}
+.editStat {
+  position: relative;
+}
+/* 삭제 버튼 wrapper — 박스/색은 공통 Button, 여기선 위치와 counter-scale(--tool-scale)만.
+   패널이 scale 다운돼도 버튼 크기는 동일하게 보이도록. */
+.editStatX {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: inline-flex;
+  opacity: 0;
+  transform: scale(var(--tool-scale));
+  transform-origin: top right;
+}
+.editStat:hover .editStatX,
+.editSecItem:hover .editStatX,
+.procRow:hover .editStatX {
+  opacity: 1;
+}
+.addStatBtn {
+  grid-column: 1 / -1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+.addStatBtn:hover {
+  color: var(--text-primary);
+}
+
+/* Overview 지표 추가 — stat 셀 하나 크기의 버튼(Key Features add 셀처럼).
+   overviewStats 그리드의 다음 셀을 차지하고, 높이는 stat 행(--_fs-lead 리드 + 상하 패딩)과 동일. */
+.addStatCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+  min-height: calc(var(--_fs-lead) * var(--_lh-title) + 2 * clamp(0.6rem, 1vh, 1rem));
+  padding: 0;
+  /* overviewStat 과 동일한 border-bottom line 모델 — flush, radius/여백 없음, 겹침 없이 1px */
+  border-bottom: var(--_line-secondary);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+}
+.addStatCell:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+/* Security 프리뷰 — 폰트만 키움. display:contents 라 레이아웃 영향 없이
+   editorial 변수만 override → 스튜디오 프리뷰에만 적용(공개 About 페이지 불변). */
+.secStage {
+  display: contents;
+  --_fs-body: calc(var(--editorial-fs-body) * 1.25);
+  --_fs-small: calc(var(--editorial-fs-small) * 1.28);
+  --_fs-caption: calc(var(--editorial-fs-caption) * 1.2);
+}
+/* Security 항목 추가 — secItem 셀 하나 크기의 버튼 */
+.addSecCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+  min-height: 7rem;
+  padding: clamp(0.8rem, 1.5vh, 1.4rem) clamp(0.6rem, 1.5vw, 1.5rem);
+  /* secItem 과 동일한 line 모델(bottom+right) — gap:0 그리드에서 인접 border 와 겹쳐 굵어지지 않고 항상 1px */
+  border-bottom: var(--_line-secondary);
+  border-right: var(--_line-secondary);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+}
+.addSecCell:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+/* Security 아이콘 피커 (Popover) */
+.editSecItem {
+  position: relative;
+}
+.iconPickPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 236px;
+  padding: var(--spacing-sm);
+}
+.iconPickGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-2xs);
+}
+.iconPickBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 18px;
+  cursor: pointer;
+}
+.iconPickBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+.iconPickOn {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.iconPickLabel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+.iconPickInput {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+/* Features — 실제 DynamicFrameLayout 흉내: 동적 fr 그리드(hover 확장) + hover reveal + blur */
+.featGrid {
+  display: grid;
+  gap: 0;
+  flex: 1;
+  min-height: clamp(360px, 58vh, 600px);
+  margin-top: var(--spacing-xl);
+  transition: grid-template-columns 0.4s ease, grid-template-rows 0.4s ease;
+}
+.featCell {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg-tertiary);
+  transition: transform 0.4s ease;
+}
+.featImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.featNoImg {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-tertiary-alt);
+}
+.featInfo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: auto;
+  transition: backdrop-filter 0.3s ease;
+}
+.featCell:hover .featInfo {
+  backdrop-filter: blur(6px);
+}
+/* 설명·기술 — 평소엔 접힘, hover/편집 시 펼침 (실제 hover reveal 재현) */
+.featDetails {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.35s ease, opacity 0.35s ease;
+}
+.featCell:hover .featDetails,
+.featCell:focus-within .featDetails {
+  max-height: 12rem;
+  opacity: 1;
+}
+.featTools {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transform: scale(var(--tool-scale));
+  transform-origin: top right;
+}
+.featCell:hover .featTools,
+.featCell:focus-within .featTools {
+  opacity: 1;
+}
+.featToolBtn {
+  flex-shrink: 0;
+}
+.featAdd {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-light-color);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+/* Process 정적 프리뷰 — 타임라인 + 편집용 스텝 리스트 */
+.procList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-2xl);
+}
+.procRow {
+  position: relative;
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: baseline;
+  padding-right: 28px;
+  padding-bottom: var(--spacing-lg);
+  border-bottom: var(--border-light);
+}
+.procNum {
+  flex-shrink: 0;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-3xl);
+  font-weight: 400;
+  color: var(--color-accent);
+  opacity: 0.55;
+}
+.procBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+.procTitle {
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-2xl);
+  font-style: italic;
+  color: var(--text-primary);
+}
+.procDesc {
+  font-size: var(--font-size-xl);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+/* Process 제목 아래 ** 강조 문법 안내 — hint 색은 accent */
+.procHint {
+  margin: var(--spacing-2xs) 0 var(--spacing-xl);
+  font-size: var(--font-size-lg);
+  color: var(--text-accent);
+}
+/* Process 타임라인(dot rail) — 스튜디오 프리뷰만 확대. double-class 로 실제 proc 클래스보다 우선. */
+.procTrack.procTrack {
+  height: 4px;
+}
+.procDotWrap.procDotWrap {
+  width: 34px;
+  height: 34px;
+}
+.procDot.procDot {
+  width: 20px;
+  height: 20px;
+}
+.procNodeLabel.procNodeLabel {
+  font-size: var(--font-size-md);
+}
+/* 단계 추가 — 리스트 폭 전체 flush 버튼(radius/여백 없음). 위 procRow 의 border-bottom 이 구분선. */
+.addStepBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+  width: 100%;
+  margin-top: calc(-1 * var(--spacing-lg));
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: var(--border-light);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+}
+.addStepBtn:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+/* Overview */
+.ovGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+}
+.ovLang {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+.ovLangLabel {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+.ovDesc {
+  font-size: var(--font-size-sm);
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.statTiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--spacing-sm);
+}
+.statTile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-md);
+  padding-right: 32px;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+.statValue {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.statLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+.tileRemove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  opacity: 0;
+  cursor: pointer;
+}
+.statTile:hover .tileRemove {
+  opacity: 1;
+}
+.tileRemove:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+/* Features / Process / Security 결과형 카드 */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-md);
+}
+.rcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  padding-right: 34px;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+.rcardTop {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.rcardBadge {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 var(--spacing-2xs);
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-accent-subtle);
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: 700;
+}
+.rcardBadge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rcardTitle {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+.rcardTech {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+.rcardDesc {
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.rcardMedia {
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+  aspect-ratio: 16 / 9;
+  border: var(--border-light);
+}
+.rcardMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.rcardRemove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.rcardRemove:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+.rcardScope {
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+/* add 버튼 */
+.add {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+.add:hover {
+  color: var(--text-primary);
+}
+.addTile {
+  min-height: 72px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Architecture 트리 재사용 톤 */
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* 편집 힌트 뱃지 (텍스트 클릭 안내) */
+.editHint {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+/* ═══════════ Design System — 실제 풀블리드 슬라이드 프리뷰 ═══════════ */
+.dsSlide {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+}
+.dsBg {
+  position: absolute;
+  inset: 0;
+  background: var(--color-neutral-900);
+}
+.dsBg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  /* 실제 .dcCardBg img 와 동일 — 흰 텍스트 가독성용 스크림 */
+  filter: brightness(0.35) saturate(0.5);
+}
+/* 실제는 vh 기반(헤더+15vh) — 스테이지는 1440×860 고정 설계라 실측 px 로 동일 비율 재현 */
+.dsOverlay.dsOverlay {
+  padding: 240px 96px 160px;
+}
+
+/* ═══════════ Code Highlights — 실제 단일 패인 레이아웃 ═══════════ */
+.chStage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+  /* chTools 가 패널 우상단에 붙도록 기준점 */
+  position: relative;
+}
+.chPane {
+  position: relative;
+  padding-bottom: var(--spacing-2xl);
+  border-bottom: var(--border-light);
+}
+.chPane:last-of-type {
+  border-bottom: 0;
+}
+/* 실제 .codeSingleMeta h4 와 동일 — EditableText 는 input 이라 선택자가 안 걸림 */
+.chTitle {
+  margin-bottom: var(--_space-line);
+  width: 100%;
+  font-family: var(--_font-grotesk);
+  font-size: inherit;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+}
+.chBody.chBody {
+  height: 380px;
+  padding-bottom: 0;
+}
+/* 코드 편집 — 하이라이팅된 pre 위에 투명 textarea 를 정확히 겹친다.
+   metric(폰트/줄높이/패딩/whitespace)이 pre 와 1px 이라도 어긋나면 커서가 글자와 안 맞으므로 전부 동일하게. */
+
+
+/* 코드 하이라이팅 언어 선택 — 실제 페이지엔 안 나오고 prism 토큰 기준으로만 쓰인다 */
+.chLang {
+  flex-shrink: 0;
+}
+
+/* ═══════════ 슬라이드/패인 공용 툴 ═══════════ */
+.slideTools,
+.chTools {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  z-index: 2;
+  transform: scale(var(--tool-scale));
+  transform-origin: top right;
+}
+.chTools {
+  top: 0;
+  right: 0;
+  /* 편집 도구 — 평소엔 숨기고 hover 시에만. 안 그러면 language 값이 페이지 내용처럼 읽힌다 */
+  opacity: 0;
+}
+.chStage:hover .chTools,
+.chStage:focus-within .chTools {
+  opacity: 1;
+}
+.addPaneBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xs);
+  min-height: 6rem;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+}
+.addPaneBtn:hover {
+  color: var(--text-accent);
+}
+
+/* Design System — 컨셉 전환 탭 스트립(실제도 한 장씩 넘겨 보는 strip 이라 나열 대신 탭) */
+.slideTabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ── Code Highlights 데모 칸 편집 컨트롤 ── */
+/* 채워진 데모 위 편집 바 — 데모 하단 hint 와 겹치지 않게 좌상단.
+   z-index 필수: 샌드박스(iframe·sp-loading)가 위를 덮어 클릭이 안 닿는다. */
+.demoEdit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  opacity: 0;
+  transform: scale(var(--tool-scale));
+  transform-origin: top left;
+}
+.chPane:hover .demoEdit,
+.chPane:focus-within .demoEdit {
+  opacity: 1;
+}
+
+
+/* ── 스테이지 전환 스트립 — 항목이 늘어도 폭이 고정 ── */
+.stageTabs {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+.stageDots {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.stageDot {
+  padding: var(--box-sm);
+  border: 0;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+.stageDot:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+.stageDotOn,
+.stageDotOn:hover {
+  background: var(--bg-accent);
+  color: var(--text-white);
+}
+/* 제목은 남는 폭만 쓰고 넘치면 줄임표 — 이게 없으면 긴 제목이 스트립을 밀어낸다 */
+.stageTabLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  margin-left: var(--spacing-2xs);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.demoUploadErr {
+  color: var(--text-accent);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+
+.demoEditorLoading {
+  padding: var(--box-md);
+  width: 40rem;
+  max-width: 84vw;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* 데모 칸 기준 위치 — 실제 .codeDemo 는 static 이라 스튜디오에서만 relative.
+   이게 없으면 편집 바가 패인 기준으로 잡혀 칸 밖으로 나간다. */
+.chPane :global([class*="codeDemo"]) {
+  position: relative;
+}
+
+/* ── 데모 빈 상태 — 칸 한가운데서 어떤 데모를 만들지 고르게 ── */
+.demoEmpty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  border: 1px solid var(--border-light-color);
+  color: var(--text-tertiary);
+}
+/* 파일을 끌어다 놓는 중 */
+.demoEmptyOver {
+  border-color: var(--color-accent);
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+}
+/* 스테이지가 scale 다운돼도 컨트롤은 실제 크기로 */
+.demoEmptyInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  transform: scale(var(--tool-scale));
+}
+.demoEmptyLabel {
+  font-size: var(--font-size-sm);
+}
+.demoEmptyActions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+.demoSwitch {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--text-accent);
+  font-size: var(--font-size-xs);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* 데모 배경색 스와치 — 미설정이면 투명임을 체커보드로 보여준다 */
+.demoBgSwatch {
+  flex-shrink: 0;
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  padding: 0;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-circle);
+  background-image:
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--border-light-color) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--border-light-color) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--border-light-color) 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+  cursor: pointer;
+}
+
+/* ── Credits — 한 줄 문구라 패널 스테이지 없이 컴팩트하게 ── */
+/* 원작자 표기 유지 안내 — 문장이 길어 헤더 아래 block hint.
+   규격은 다른 탭의 sectionHint(Space Grotesk / xs / tertiary)와 동일. */
+.creditsNotice {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: flex-start;
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+  color: var(--text-tertiary);
+}
+.creditsNotice svg {
+  flex-shrink: 0;
+  margin-top: 0.15em;
+}
+/* 내용과 무관하게 폭 고정 — 이름 추가로 줄이 길어져도 textarea 너비가 안 변한다 */
+.creditsBody {
+  width: min(100%, 46rem);
+}
+/* 문구 영역 기본 타이포 — 인라인 noteStyle 이 이 위에 얹힌다 */
+.creditsNoteWrap {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+.creditsPreview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 내용 길이와 무관하게 폭 유지 */
+  width: 100%;
+  padding: var(--box-y-xl);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  /* 실제 About 패널은 배경이 투명(패널 바탕이 그대로 비침) — 회색 칠하면 실제와 달라진다 */
+  background: transparent;
+  /* 폰트도 실제와 동일하게. About 패널(.section)이 mono 를 걸어서 크레딧도 mono 로 렌더된다 */
+  font-family: var(--font-mono);
+}
+/* 고정 문구 — 편집 대상이 아님을 커서로 드러낸다 */
+.creditsLocked {
+  cursor: not-allowed;
+  user-select: none;
+}
+/* 덧붙이는 문구 — 공통 Textarea 래퍼. 폭만 잡고 나머지는 컴포넌트 규격을 따른다.
+   타이포는 중간 래퍼에서 끊기지 않게 여기서도 상속시킨다. */
+.creditsNote,
+.creditsNote * {
+  font-family: inherit;
+  font-size: inherit;
+  text-align: inherit;
+}
+.creditsNote {
+  margin-top: var(--spacing-sm);
+  width: 100%;
+}
+/* 비편집 상태 — 같은 요소를 유지한 채 편집 chrome 만 숨긴다(높이 불변) */
+.creditsNoteQuiet :global([class*="editableWrap"]),
+.creditsNoteQuiet :global([class*="resizeOverlay"]) {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+.creditsNoteQuiet :global([class*="bottomRow"]) {
+  opacity: 0;
+  pointer-events: none;
+}
+/* rows 로 높이를 고정해 글자 수가 늘어도 프리뷰 박스가 출렁이지 않는다.
+   Textarea 내부 폰트 규칙이 상속을 덮어서, 래퍼가 내려준 --note-* 로 확정한다. */
+.creditsNoteInput {
+  font-family: var(--note-ff, inherit) !important;
+  font-size: var(--note-fs, inherit) !important;
+  line-height: var(--note-lh, inherit) !important;
+  text-align: var(--note-align, inherit) !important;
+  color: var(--text-tertiary);
+  resize: none;
+}
+/* 소유자 이름 — 프로필 설정에서 오는 고정값이라 편집 대상이 아님을 형태로 드러낸다 */
+.creditsFixed {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.1em 0.6em;
+  box-sizing: border-box;
+  min-height: 1.7em;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+/* 추가된 이름 chip — 크레딧 줄의 폰트/크기를 그대로 상속받아야 주변과 안 튄다.
+   공통 Chip 기본은 12px/28px 라 두면 고정 칩(20px/34px)보다 작다. */
+.creditsChip {
+  margin-left: 0.5em;
+  vertical-align: middle;
+  box-sizing: border-box;
+  height: 1.7em;
+  min-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-family: inherit;
+  font-size: inherit;
+}
+.creditsChip *,
+.creditsChip button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* 이름 추가 — 껍데기(캡슐)는 유지하고 폭만 늘어나며 버튼→입력으로 morph.
+   width 는 전역 theme transition 목록에 없어서 단일 클래스로는 덮인다 → 복합 선택자(0,2,0)로 건다. */
+.creditsNameAdd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  margin-left: 0.5em;
+  width: 2.4em;
+  height: 1.7em;
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  vertical-align: middle;
+}
+.creditsBody .creditsNameAdd {
+  transition: width var(--duration-base) var(--ease-material),
+    border-color var(--duration-base) ease;
+}
+.creditsNameAdd:hover {
+  border-color: var(--color-accent);
+  color: var(--text-accent);
+}
+/* 입력 상태 — 실선 + accent 로 바뀌며 폭이 늘어난다 */
+.creditsNameAddOpen {
+  width: 8em;
+  border-style: solid;
+  border-color: var(--color-accent);
+  background: var(--bg-primary);
+}
+.creditsNameAddBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.creditsNameInput {
+  width: 100%;
+  padding: 0 0.6em;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  outline: none;
+}
+
+
+/* floating bar 안 컨트롤 — 배경/높이를 서로 맞춘다.
+   NumberInput 은 기본이 bg-tertiary 라 혼자 옅은 판이 깔려 튄다. */
+.barStepper,
+.fontTrigger {
+  height: 28px;
+  background: transparent;
+}
+/* triggerClassName 은 FontPicker root 에 붙고 실제 버튼은 그 안쪽 —
+   버튼까지 내려가야 주변 컨트롤과 높이가 맞는다 */
+.fontTrigger {
+  max-width: 10rem;
+}
+.fontTrigger button {
+  height: 28px;
+  min-height: 28px;
+  background: transparent;
+}
+.fontDropdown {
+  min-width: 12rem;
+}
+
+
+/* floating bar 그룹 구분선 — 타이포 컨트롤 / 정렬 사이 */
+.barDivider {
+  align-self: center;
+  width: 1px;
+  height: 18px;
+  margin: 0 var(--spacing-2xs);
+  background: var(--border-light-color);
+}
+
+/* 채워진 데모 위로 파일을 끌어다 놓는 중 */
+.demoDropOver {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+.demoDropErr {
+  position: absolute;
+  bottom: var(--spacing-xs);
+  left: 50%;
+  translate: -50% 0;
+  z-index: 4;
+  color: var(--text-accent);
+  font-size: var(--font-size-xs);
+  transform: scale(var(--tool-scale));
+}
+
+/* ── Backend ── */
+.bkStage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  position: relative;
+}
+.bkBody {
+  display: flex;
+  gap: var(--spacing-2xl);
+  min-height: 0;
+}
+.bkBody > :first-child {
+  flex: 0 0 34%;
+}
+.bkBody > :last-child {
+  flex: 1;
+  min-width: 0;
+}
+.bkDesc,
+.bkNote {
+  color: var(--text-secondary);
+}
+.bkNote {
+  color: var(--text-tertiary);
+  font-size: var(--_fs-small);
+}
+/* 엔드포인트/컬럼 한 줄 — 삭제 버튼은 hover 시에만 */
+.bkRow {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+.bkRow button {
+  opacity: 0;
+  flex-shrink: 0;
+}
+.bkRow:hover button,
+.bkRow:focus-within button {
+  opacity: 1;
+}
+.bkMethod {
+  width: 5ch;
+  color: var(--text-accent);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+/* ── User Flow ── */
+.ufStage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  position: relative;
+}
+.ufEdit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  flex: 1;
+  min-width: 0;
+}
+.ufGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+.ufId {
+  width: 6ch;
+  font-family: var(--font-mono);
+  color: var(--text-accent);
+}
+.ufType {
+  flex-shrink: 0;
+  width: 8rem;
+}
+.ufLabel {
+  min-width: 0;
+}
+.ufArrow {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
+/* ── ERD ── */
+.erdImport {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+/* 펼침/접힘 — grid-template-rows 0fr↔1fr 이 auto 높이에도 트랜지션이 걸린다.
+   width/height 와 달리 전역 theme transition 목록에 없어 복합 선택자로 건다. */
+.erdPanel {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+.erdImport .erdPanel {
+  transition: grid-template-rows var(--duration-base) var(--ease-material);
+}
+.erdPanel > * {
+  min-height: 0;
+  overflow: hidden;
+}
+/* 파일을 끌어다 놓는 중 — outline 이라 레이아웃이 밀리지 않는다 */
+.erdImportOver {
+  outline: 2px solid var(--color-accent);
+  outline-offset: var(--spacing-xs);
+  border-radius: var(--radius-2xl);
+}
+.hiddenFile {
+  display: none;
+}
+.erdHint {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+/* 드롭 존 겸 붙여넣기 대상 — 포커스를 받아야 paste 이벤트가 온다 */
+.erdDrop {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding: var(--box-sm);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-2xl);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  cursor: text;
+  outline: none;
+}
+.erdDrop:hover {
+  border-color: var(--border-default-color);
+}
+.erdDrop:focus-visible,
+.erdDrop:focus {
+  border-color: var(--color-accent);
+  color: var(--text-secondary);
+}
+.erdSql {
+  width: 100%;
+}
+.erdActions {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.erdResult {
+  margin-left: auto;
+  color: var(--text-success);
+  font-size: var(--font-size-sm);
+}
+.erdErr {
+  color: var(--text-accent);
+  font-size: var(--font-size-sm);
+}
+
+/* ERD 그리드 — 폭에 맞춰 흐르므로 가로 스크롤이 없다. 세로만 제한. */
+/* overflow-y:auto 는 클리핑 박스를 만든다 (x 축도 visible 이 아니게 됨) —
+   여백이 없으면 카드 hover 그림자와 1px 띄움이 가장자리에서 잘린다. */
+.erdCanvasScroll {
+  overflow-y: auto;
+  max-height: 40rem;
+  /* --shadow-md 의 blur 가 12px 라 그만큼은 비워야 잘리지 않는다 */
+  padding: var(--spacing-sm);
+  margin: calc(var(--spacing-sm) * -1);
+}
+
+/* ── Troubleshooting ── */
+.tsStage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  position: relative;
+}
+.tsBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+.tsField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+.tsText {
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+.tsTags {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.tsTag {
+  font-size: var(--font-size-sm);
+}
+.tsMeta {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}

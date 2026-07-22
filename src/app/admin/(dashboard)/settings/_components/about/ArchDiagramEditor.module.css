@@ -1,0 +1,108 @@
+/* Architecture 다이어그램 비주얼 캔버스 에디터 */
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+.hint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.canvasWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 560;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background:
+    radial-gradient(var(--border-light-color) 0.6px, transparent 0.6px) 0 0 / 22px 22px;
+}
+.canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.node {
+  cursor: grab;
+}
+.node:active {
+  cursor: grabbing;
+}
+.edge {
+  cursor: pointer;
+}
+
+/* 선택 요소 편집 패널 */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+}
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+.panelTitle {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  min-width: 0;
+}
+.fieldLabel {
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+.panelActions {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+/* add 버튼 */
+.add {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+.add:hover {
+  color: var(--text-primary);
+}
+.connectOn {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
