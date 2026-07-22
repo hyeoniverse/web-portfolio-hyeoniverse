@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Star, Maximize2, ImageIcon, ZoomIn, ZoomOut, RotateCcw, X, ChevronDown, Folder, FileText, Filter, Check } from "lucide-react";
 import type { Language } from "@/providers/LanguageProvider";
 import { troubleShootingItems } from "@/data/about/troubleshooting";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { TroubleshootingDifficulty, TroubleshootingDiagram, TroubleshootingImage, TroubleShootingItem } from "@/data/about/types";
 import { renderHighlight } from "../renderHighlight";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
@@ -282,7 +283,10 @@ function TroubleshootingPanel({
   language,
   scrollBy,
 }: TroubleshootingPanelProps) {
-  const items = troubleShootingItems;
+  /* admin(about.troubleshooting) override — 비어있으면 정적 데이터 */
+  const cfg = useSiteConfig();
+  const cfgItems = (cfg.about as { troubleshooting?: TroubleShootingItem[] }).troubleshooting;
+  const items = cfgItems && cfgItems.length > 0 ? cfgItems : troubleShootingItems;
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);
   const [detailIndex, setDetailIndex] = useState(0);
@@ -948,6 +952,7 @@ function TroubleshootingPanel({
           모바일에서는 useMobilePinScroll 가 contentRef 를 핀 → 100vh 뷰포트 */}
       <div ref={contentRef} className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}>
         <PinnedTitleRow
+          panelKey="troubleshooting"
           className={`${styles.titleRowCompact} ${local.troublePinTitleRow}`}
           title={<T k="aboutPage.panels.troubleShooting" />}
           compact

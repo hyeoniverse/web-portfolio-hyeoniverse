@@ -20,11 +20,28 @@ import styles from "./AboutSection.module.css";
 
 const REPETITIONS = 3;
 
+/* panelOrder(key 배열) 로 패널 정렬. hero 는 항상 맨 앞, credits 는 항상 맨 뒤로 강제.
+   order 에 없는 key 는 나머지 끝(credits 앞)에 안정적으로 유지. */
+function orderPanels<T extends { key: string }>(panels: T[], order: string[]): T[] {
+  if (!order.length) return panels;
+  const rank = (k: string) => {
+    if (k === "hero") return -1;
+    if (k === "credits") return Number.MAX_SAFE_INTEGER;
+    const i = order.indexOf(k);
+    return i === -1 ? order.length : i;
+  };
+  return [...panels].sort((a, b) => rank(a.key) - rank(b.key));
+}
+
 export default function AboutSection() {
   const siteConfig = useSiteConfig();
   const infiniteScroll = siteConfig.about.infiniteScroll;
   const hiddenPanels = useMemo(
     () => new Set((siteConfig.about as { hiddenPanels?: string[] }).hiddenPanels ?? []),
+    [siteConfig.about],
+  );
+  const panelOrder = useMemo(
+    () => (siteConfig.about as { panelOrder?: string[] }).panelOrder ?? [],
     [siteConfig.about],
   );
 
@@ -72,7 +89,7 @@ export default function AboutSection() {
       ));
 
   const panelSet = (repeatKey: number) => (
-    <Fragment key={repeatKey}>{renderPanels(desktopPanels)}</Fragment>
+    <Fragment key={repeatKey}>{renderPanels(orderPanels(desktopPanels, panelOrder))}</Fragment>
   );
 
   return (
@@ -117,7 +134,7 @@ export default function AboutSection() {
                 transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
                 onAnimationComplete={handleTabAnimComplete}
               >
-                {renderPanels(mobileTabPanels[mobileTab] ?? [])}
+                {renderPanels(orderPanels(mobileTabPanels[mobileTab] ?? [], panelOrder))}
               </motion.div>
             </AnimatePresence>
           ) : infiniteScroll ? (

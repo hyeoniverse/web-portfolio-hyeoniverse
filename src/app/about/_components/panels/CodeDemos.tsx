@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import StaggerText from "@/components/effects/StaggerText/StaggerText";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
-import { DemoMagnetic, DemoInfiniteScroll, DemoFrameGrid } from "./DemoComponents";
+export { DemoMagnetic, DemoInfiniteScroll, DemoFrameGrid } from "./DemoComponents";
 import shared from "../AboutSection.module.css";
 import local from "./CodeHighlightsPanel.module.css";
 const styles = { ...shared, ...local };
 
-const LazyDemoScrollTorus = dynamic(() => import("./DemoScrollTorus"), {
+export const LazyDemoScrollTorus = dynamic(() => import("./DemoScrollTorus"), {
   ssr: false,
   loading: () => <div className={styles.codeDemoInner} />,
 });
@@ -19,7 +19,7 @@ const LazyDemoScrollTorus = dynamic(() => import("./DemoScrollTorus"), {
    데스크탑: 호버 시 스트로크 시차 트리거
    모바일: 동일한 아웃라인→채우기 효과 자동 순환
    ========================================================================= */
-function DemoStaggerText() {
+export function DemoStaggerText() {
   const isMobile = useMobileLayout();
   const text = "Hover Me";
   const chars = text.split("");
@@ -112,19 +112,7 @@ function DemoStaggerText() {
 }
 
 
-/* =========================================================================
-   내보내기: getCodeDemo(index)
-   ========================================================================= */
-const demos = [
-  DemoStaggerText,
-  DemoMagnetic,
-  DemoInfiniteScroll,
-  DemoFrameGrid,
-  LazyDemoScrollTorus,
-];
-
-export function getCodeDemo(index: number): React.ReactNode {
-  const Demo = demos[index];
-  if (!Demo) return null;
-  return <Demo />;
-}
+/* ── 데모 registry 제거됨 ──
+   데모는 이제 스니펫별 media 업로드 / sandbox 실행 코드(CodeDemoSlot)로 대체된다.
+   아래 컴포넌트들은 어디서도 참조하지 않지만, 되살리거나 sandbox 코드로 옮길 때 쓰려고
+   삭제하지 않고 export 로 남겨둔다. */

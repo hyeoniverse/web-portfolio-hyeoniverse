@@ -5,9 +5,12 @@ import { flushSync } from "react-dom";
 import type Lenis from "@studio-freight/lenis";
 import type { Language } from "@/providers/LanguageProvider";
 import { codeExamples } from "@/data/about/codeExamples";
+import type { CodeExample } from "@/data/about/types";
+import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import CodeHighlight from "../CodeHighlight";
 import { renderHighlight } from "../renderHighlight";
-import { getCodeDemo } from "./CodeDemos";
+import CodeDemoSlot, { type CodeDemoMode } from "./CodeDemoSlot";
+import { detectCodeLanguage } from "./detectCodeLanguage";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
 import shared from "../AboutSection.module.css";
@@ -19,12 +22,32 @@ interface CodeHighlightsPanelProps {
   scrollBy?: (deltaX: number) => void;
 }
 
+/* admin (siteConfig.about.codeHighlights) flat shape → CodeExample nested shape 변환 */
+type CfgCode = { title: string; description_ko: string; description_en: string; language: string; code: string;
+  demoMode?: CodeDemoMode; demoMedia?: string; demoFiles?: Record<string, string>; demoTemplate?: string; demoBg?: string };
+function adaptCode(list: CfgCode[]): CodeExample[] {
+  return list.map((c) => ({
+    title: c.title,
+    description: { ko: c.description_ko, en: c.description_en },
+    language: c.language,
+    code: c.code,
+    demoMode: c.demoMode,
+    demoMedia: c.demoMedia,
+    demoFiles: c.demoFiles,
+    demoTemplate: c.demoTemplate,
+    demoBg: c.demoBg,
+  }));
+}
+
 function CodeHighlightsPanel({
   language,
   scrollBy,
 }: CodeHighlightsPanelProps) {
+  const cfg = useSiteConfig();
+  const cfgCode = (cfg.about as { codeHighlights?: CfgCode[] }).codeHighlights;
+  const examples = cfgCode && cfgCode.length > 0 ? adaptCode(cfgCode) : codeExamples;
   const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
-    codeExamples.length,
+    examples.length,
     undefined,
     scrollBy,
   );
@@ -141,21 +164,22 @@ function CodeHighlightsPanel({
       {/* 내부 래퍼: 고정된 것처럼 보이도록 카운터 트랜슬레이션 */}
       <div ref={contentRef} className={styles.pinnedContent}>
         <PinnedTitleRow
+          panelKey="codeHighlights"
           className={`${styles.titleRowCompact} ${local.codePinTitleRow}`}
           title="Code Highlights."
           compact
           animate
           dotNav={{
-            count: codeExamples.length,
+            count: examples.length,
             activeIndex,
             onDotClick: scrollToItem,
-            labels: codeExamples.map((e) => e.title),
+            labels: examples.map((e) => e.title),
           }}
         />
 
         {/* 데스크톱: 단일 패인 뷰 — 한 번에 하나씩 */}
         <div className={`${styles.codeSingleView} ${styles.animate}`}>
-          {codeExamples.map((example, index) => (
+          {examples.map((example, index) => (
             <div
               key={index}
               className={`${styles.codeSinglePane} ${
@@ -174,7 +198,7 @@ function CodeHighlightsPanel({
                 </div>
               </div>
               <div className={styles.codeSingleBody}>
-                <div className={styles.codeDemo}>{getCodeDemo(index)}</div>
+                <div className={styles.codeDemo} style={example.demoBg ? { background: example.demoBg } : undefined}><CodeDemoSlot mode={example.demoMode} media={example.demoMedia} files={example.demoFiles} template={example.demoTemplate} active={index === activeIndex} /></div>
                 <div
                   ref={(el) => {
                     codeWrapRefs.current[index] = el;
@@ -183,7 +207,7 @@ function CodeHighlightsPanel({
                 >
                   <CodeHighlight
                     code={example.code}
-                    language={example.language}
+                    language={example.language || detectCodeLanguage(example.code)}
                   />
                   {codePage.total > 1 && index === activeIndex && (
                     <div className={styles.codePageNav}>
@@ -216,7 +240,7 @@ function CodeHighlightsPanel({
 
         {/* 모바일: 하단 구분선이 있는 목록 */}
         <div className={styles.codeListMobile}>
-          {codeExamples.map((example, index) => {
+          {examples.map((example, index) => {
             const isOpen = expandedMobileCode === index;
             return (
               <div key={index} className={styles.codeItemMobile}>
@@ -244,11 +268,11 @@ function CodeHighlightsPanel({
                   className={`${styles.codeMobileBody} ${isOpen ? styles.codeMobileBodyOpen : ""}`}
                 >
                   <div className={styles.codeRevealContent}>
-                    <div className={styles.codeDemo}>{getCodeDemo(index)}</div>
+                    <div className={styles.codeDemo} style={example.demoBg ? { background: example.demoBg } : undefined}><CodeDemoSlot mode={example.demoMode} media={example.demoMedia} files={example.demoFiles} template={example.demoTemplate} active={isOpen} /></div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <CodeHighlight
                         code={example.code}
-                        language={example.language}
+                        language={example.language || detectCodeLanguage(example.code)}
                       />
                     </div>
                   </div>

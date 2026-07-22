@@ -7,6 +7,15 @@
   z-index: 1;
 }
 
+/* hero 패널 커스텀 배경(색/그라디언트) — 라이트/다크 각각. marker 클래스가 붙은 테마에만 적용,
+   미설정 테마는 패널 기본 표면색 유지. data-theme 로 전환돼 JS 없이 테마 반응. */
+html[data-theme="light"] .heroBgLight {
+  background: var(--_hero-bg-light);
+}
+html[data-theme="dark"] .heroBgDark {
+  background: var(--_hero-bg-dark);
+}
+
 /* admin 에서 heroBackground 로 미디어 URL (이미지/동영상) 지정 시 panel 위 full cover 로 렌더.
    둘 다 같은 클래스로 통일 — opacity 도 공통 (--_hero-bg-opacity). */
 .heroBgMedia {
@@ -53,7 +62,7 @@
 }
 
 .heroMediaMode .heroAccentLine {
-  background: var(--color-accent-light);
+  background: var(--_hero-accent-color, var(--color-accent-light));
 }
 
 /* video 모드에선 ::after 의 우상단 accent glow 숨김 — overlay 가 같은 영역 담당하므로 중복 제거 */
@@ -98,8 +107,11 @@
   font-weight: var(--_hero-subtitle-font-weight, inherit);
   font-family: var(--_hero-subtitle-font-family, inherit);
   line-height: var(--line-height-loose);
-  /* 기본값: 흰색 + mix-blend difference (배경 동영상/이미지/색에 따라 자동 inverted).
-     admin 에서 heroSubtitleColor override 시 그 색이 difference 와 함께 적용됨. */
+  /* 기본: 테마 대비색 (밝은 배경에서도 읽힘). admin heroSubtitleColor override 시 그 색 적용. */
+  color: var(--_hero-subtitle-color, var(--text-secondary));
+}
+/* 미디어(이미지/동영상) 배경일 때만 흰색 + mix-blend difference — 배경 밝기에 따라 자동 inverted */
+.heroMediaMode .heroSubtitle {
   color: var(--_hero-subtitle-color, var(--color-white-alpha-100));
   mix-blend-mode: difference;
 }
@@ -176,7 +188,7 @@
   width: 0;
   height: 2px;
   margin-top: var(--spacing-lg);
-  background: var(--bg-accent-solid);
+  background: var(--_hero-accent-color, var(--bg-accent-solid));
   border-radius: var(--spacing-4xs);
   opacity: 0;
 }

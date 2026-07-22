@@ -1,5 +1,7 @@
 /* ==========================================================================
-   ERD Panel — Zoom / Pan Interactive Diagram
+   ERD Panel — 다이어그램 바깥 껍데기만 담당한다.
+   테이블 카드·관계선·줌 컨트롤·설계 노트는 전부 React Flow(ErdFlow/ErdExplorer)
+   쪽으로 옮겨갔다. 여기 남은 건 패널 뼈대와 조작 힌트뿐이다.
    ========================================================================== */
 
 /* ── Viewport ── */
@@ -11,7 +13,12 @@
   padding-top: var(--spacing-xs);
 }
 
+/* flex 컨테이너여야 한다 — 아래 미디어쿼리에서 높이를 min-height 로 주는데,
+   min-height 로 만들어진 높이는 definite 가 아니라서 자식의 height:100% 가
+   auto 기준으로 계산돼 0 이 된다. flex stretch 는 definite 여부와 무관하다. */
 .erdZoomViewport {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   position: relative;
   overflow: hidden;
@@ -23,119 +30,6 @@
 
 .erdZoomViewport:active {
   cursor: grabbing;
-}
-
-/* ── SVG Canvas ── */
-.erdSvg {
-  width: 100%;
-  height: 100%;
-  transform-origin: center center;
-  opacity: 1;
-  image-rendering: auto;
-  shape-rendering: geometricPrecision;
-  text-rendering: optimizeLegibility;
-}
-
-/* ── Table cards ── */
-.erdTableGroup {
-  opacity: 1;
-}
-
-/* Compound selector (0,2,0) — 글로벌 theme transition 무효화 */
-.erdSvg .erdTableGroup {
-  transition: opacity 0.3s ease !important;
-}
-
-.erdTableDimmed {
-  opacity: 0.4;
-}
-
-.erdTableBg {
-  fill: var(--bg-primary);
-  stroke: var(--border-strong-color);
-  stroke-width: 1;
-  transition: stroke 0.3s ease, stroke-width 0.3s ease;
-}
-
-.erdTableBgActive {
-  stroke: var(--text-accent);
-  stroke-width: 2;
-}
-
-.erdTableGroup:hover .erdTableBg:not(.erdTableBgActive) {
-  stroke: var(--text-secondary);
-  stroke-width: 1.5;
-}
-
-.erdHeaderLine {
-  stroke: var(--border-default-color);
-  stroke-width: 0.5;
-}
-
-.erdTableName {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  fill: var(--text-primary);
-  letter-spacing: 0.04em;
-}
-
-.erdColName {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  fill: var(--text-secondary);
-}
-
-.erdColType {
-  font-family: var(--font-mono);
-  font-size: 8.5px;
-  fill: var(--text-muted);
-}
-
-.erdColPk {
-  font-family: var(--font-mono);
-  font-size: 7.5px;
-  font-weight: 700;
-  fill: var(--color-success);
-}
-
-.erdColFk {
-  font-family: var(--font-mono);
-  font-size: 7.5px;
-  font-weight: 700;
-  fill: var(--text-accent);
-}
-
-/* ── Relation lines ── */
-.erdRelLine {
-  stroke: var(--border-strong-color);
-  stroke-width: 1;
-  transition: stroke 0.3s ease, stroke-width 0.3s ease;
-}
-
-.erdRelLineHighlight {
-  stroke: var(--text-accent);
-  stroke-width: 2;
-}
-
-.erdRelLabel {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  fill: var(--text-muted);
-}
-
-.erdRelLabelHighlight {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  fill: var(--text-accent);
-}
-
-.erdArrowFill {
-  fill: var(--border-strong-color);
-}
-
-.erdArrowHighlight {
-  fill: var(--text-accent);
 }
 
 /* ── Hint ── */
@@ -159,130 +53,34 @@
   letter-spacing: 0.04em;
 }
 
-/* ── Zoom controls ── */
-.erdZoomControls {
-  position: absolute;
-  bottom: var(--spacing-md);
-  right: var(--spacing-md);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--box-xs);
-  background: var(--bg-primary);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  z-index: 5;
-}
-
-.erdZoomBtn {
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  border: var(--border-default);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.erdZoomBtn:hover {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
-.erdZoomLevel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-muted);
-  min-width: var(--button-h-md);
-  text-align: center;
-}
-
-/* ── Note overlay (inside SVG foreignObject) ── */
-.erdNoteOverlay {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: flex-start;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: var(--border-default);
-  border-radius: var(--radius-2xl);
-  background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
-  backdrop-filter: blur(8px);
-  pointer-events: none;
-  width: max-content;
-  max-width: 280px;
-}
-
-.erdNoteNum {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  border-radius: var(--radius-circle);
-  background: var(--bg-accent-solid);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-white);
-  font-weight: var(--font-weight-bold);
-}
-
-.erdNoteTitle {
-  display: block;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-3xs);
-}
-
-.erdNoteTag {
-  display: inline-block;
-  padding: var(--box-3xs-xs);
-  background: var(--bg-tertiary-alt);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-accent);
-  margin-bottom: var(--spacing-xs);
-}
-
-.erdNoteDesc {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-relaxed);
-  color: var(--text-secondary);
-}
-
 /* ── Mobile title row ── */
 .erdTitleRow {
   /* no-op on desktop */
 }
 
 /* ── Responsive ── */
+/* 테이블 노드 하나가 실제 ~800px 높이다. 창을 400px 로 두면 한 개도 세로로
+   안 들어가 팬만 하게 된다. fitView 는 답이 아니다 — 전체를 맞추면 0.12배까지
+   줄어 글자가 안 읽힌다(ErdFlow 의 defaultViewport 주석 참고). 창을 키운다. */
 @media (max-width: 1024px) {
   .erdZoomViewport {
-    min-height: 400px;
-  }
-
-  .erdZoomControls {
-    bottom: var(--spacing-xs);
-    right: var(--spacing-xs);
+    min-height: max(460px, 60vh);
   }
 }
 
 @media (max-width: 768px) {
   .erdZoomViewport {
-    min-height: 300px;
+    min-height: max(420px, 70vh);
   }
 
-  .erdNotePanel {
-    padding: var(--spacing-sm);
+  /* 좁은 폭에서 가운데 하단은 세 곳과 부딪힌다 — 우하단 컨트롤바, 그리고
+     페이지 좌하단에 떠 있는 스크롤 버튼(힌트 끝줄을 덮는다).
+     좌상단만 비어 있다. 우상단 뷰 전환이 폭의 52% 지점부터라 48% 로 자른다. */
+  .erdHint {
+    top: var(--spacing-sm);
+    bottom: auto;
+    left: var(--spacing-sm);
+    max-width: 48%;
+    transform: none;
   }
 }

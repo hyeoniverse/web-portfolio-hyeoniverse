@@ -2,6 +2,7 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import { motion, useSpring, useMotionValue } from "framer-motion";
+import { usePanelTitle } from "../_hooks/usePanelTitle";
 import styles from "./AboutSection.module.css";
 
 interface DotNavConfig {
@@ -16,6 +17,8 @@ interface DotNavConfig {
 
 interface PinnedTitleRowProps {
   title: React.ReactNode;
+  /** admin 패널 제목 override 를 읽을 panel key (있으면 panelTitles[key] 우선, 없으면 title 사용) */
+  panelKey?: string;
   /** panelTitleCompact 클래스 적용 여부 */
   compact?: boolean;
   /** animate 클래스 적용 여부 */
@@ -31,12 +34,14 @@ interface PinnedTitleRowProps {
 /** 패널 상단 타이틀 행 — 제목 + 선택적 점 네비게이션 */
 export default function PinnedTitleRow({
   title,
+  panelKey,
   compact = false,
   animate = false,
   dotNav,
   rightContent,
   className,
 }: PinnedTitleRowProps) {
+  const titleOverride = usePanelTitle(panelKey ?? "");
   const animateClass = animate ? ` ${styles.animate}` : "";
   const titleClasses = `${styles.panelTitle}${compact ? ` ${styles.panelTitleCompact}` : ""}${animateClass}`;
 
@@ -81,7 +86,7 @@ export default function PinnedTitleRow({
   return (
     <div className={`${styles.pinnedTitleRow}${className ? ` ${className}` : ""}`}>
       <div className={styles.titleRowLeft}>
-        <h3 className={titleClasses}>{title}</h3>
+        <h3 className={titleClasses}>{titleOverride ?? title}</h3>
         {rightContent}
       </div>
       {dotNav && (
