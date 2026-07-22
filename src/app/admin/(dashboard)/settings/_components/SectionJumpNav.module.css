@@ -1,0 +1,94 @@
+/* 섹션 바로가기 — 하위탭 바로 아래, 메인/하위 탭과 같은 "밑줄 탭" 언어.
+   밑줄은 항목마다가 아니라 활성 항목을 따라 미끄러지는 하나의 밑줄(ink) — scroll-spy 연결.
+   메인탭·하위탭과 같은 accent(핑크) 를 쓴다. 고정(pin) 되면 아래로 지나가는 콘텐츠가
+   frost(::before) 로 흐려져 배경 없이도 읽힌다. */
+/* 래퍼 — sticky + frost (탭바 .tabBarSticky 와 같은 방식).
+   overflow 는 안쪽 .jumpNav 라 이 ::before 는 안 잘린다. */
+.jumpWrap {
+  position: sticky;
+  /* 데스크탑: 고정 사이트 nav 아래. 태블릿 이하는 위 가로 탭바까지 비켜야 해 아래 미디어쿼리에서 더 내린다. */
+  top: calc(var(--header-height) + var(--spacing-sm));
+  z-index: 4;
+}
+/* 고정(pin) 시 섹션바 영역에 frost — 위 탭바 frost 와 이어지도록 살짝 위로 확장.
+   배경색 없이 backdrop-filter 만, 아래는 콘텐츠로 페이드. */
+.jumpWrap::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--spacing-sm));
+  left: calc(-1 * var(--page-px));
+  right: calc(-1 * var(--page-px));
+  bottom: 0;
+  z-index: -1;
+  backdrop-filter: var(--blur-glass);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-base) ease;
+}
+.jumpPinned::before {
+  opacity: 1;
+}
+
+.jumpNav {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-lg);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: var(--spacing-2xs) 0;
+  margin-bottom: 0;
+}
+
+.jumpNav::-webkit-scrollbar {
+  display: none;
+}
+
+/* 미끄러지는 활성 밑줄 — accent(핑크). 스크롤 컨테이너 안 absolute 라 항목과 같이 가로 스크롤. */
+.ink {
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text-accent);
+  pointer-events: none;
+}
+/* compound (0,2,0) 로 글로벌 theme transition shorthand 를 이겨 left/width 가 애니메이션 */
+.jumpNav .ink {
+  transition:
+    left var(--duration-moderate) var(--ease-material),
+    width var(--duration-moderate) var(--ease-material);
+}
+
+.item {
+  flex-shrink: 0;
+  padding: var(--spacing-3xs) 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.01em;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+
+.item:hover {
+  color: var(--text-primary);
+}
+
+/* 활성 — 메인·하위 탭과 같은 accent. 밑줄은 위 ink 가 담당. */
+.itemActive,
+.itemActive:hover {
+  color: var(--text-accent);
+}
+
+/* 태블릿·모바일 — 위에 메인 가로 탭바(≈45px)가 sticky 로 있으니 그 아래로 내린다. */
+@media (max-width: 1024px) {
+  .jumpWrap {
+    top: calc(var(--header-height) + 2.9rem);
+  }
+}
