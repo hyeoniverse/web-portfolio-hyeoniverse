@@ -12,6 +12,17 @@
   letter-spacing: 0.03em;
 }
 
+/* 필수 입력 표시 dot */
+.requiredDot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-left: 4px;
+  border-radius: var(--radius-circle);
+  background: var(--text-accent);
+  vertical-align: middle;
+}
+
 /* base = md (default) — height 명시, 4-pt grid.
    border 는 light 가 default (sm/xs 도 override 안 해도 됨). strong 필요한 경우 callsite 에서 className 으로 추가 */
 .input {
