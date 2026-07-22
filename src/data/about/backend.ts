@@ -525,8 +525,8 @@ if (!allowed) {
       en: "Site settings + profile data table. Purpose distinguished by id column: 'default' (site settings), 'profile' (profile data). Flexible schema via JSONB.",
     },
     designNote: {
-      ko: "**JSONB 블롭 저장**: 프로필 데이터(경력, 스킬 등)는 깊이 중첩된 이중 언어 구조여서 개별 컬럼보다 **JSONB로 통째로 저장**하는 것이 유연합니다. site_settings 테이블을 재활용하여 `id='profile'` 행에 저장합니다.",
-      en: "**JSONB blob storage**: Profile data (experiences, skills, etc.) has deeply nested bilingual structures, making **JSONB storage** more flexible than individual columns. Reuses site_settings table with `id='profile'` row.",
+      ko: "**JSONB 블롭 저장**: 프로필 데이터(경력, 스킬 등)는 깊이 중첩된 이중 언어 구조여서 개별 컬럼보다 **JSONB로 통째로 저장**하는 것이 유연합니다. site_settings 테이블을 재활용하여 `id='profile'` 행에 저장합니다.\n\n**JSONB 여도 DB가 형태를 검증한다**: About 페이지의 ERD/아키텍처는 관리자 설정(About Studio)에서 편집돼 `config` JSONB 안에 저장되는데, 스키마가 자유롭다고 아무 값이나 들어오면 안 됩니다. `about_erd_valid(config)` IMMUTABLE 함수 + `CHECK` 제약으로 **테이블 이름·컬럼 이름/타입이 비어있거나 중복이면 DB가 거부**합니다 — 앱 검증이 뚫려도 마지막 방어선이 남습니다.",
+      en: "**JSONB blob storage**: Profile data (experiences, skills, etc.) has deeply nested bilingual structures, making **JSONB storage** more flexible than individual columns. Reuses site_settings table with `id='profile'` row.\n\n**Even JSONB gets shape-checked by the DB**: the About page's ERD/architecture is edited in admin settings (About Studio) and stored inside the `config` JSONB — but a free schema shouldn't accept just anything. An `about_erd_valid(config)` IMMUTABLE function + a `CHECK` constraint make **the DB reject empty or duplicate table names and column names/types** — a last line of defense even if the app-level validation is bypassed.",
     },
     columns: [
       { name: "id", type: "TEXT", constraint: "PK", description: { ko: "'default' | 'profile'", en: "'default' | 'profile'" } },
