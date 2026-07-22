@@ -39,6 +39,11 @@ updates:
       # 향후 `next lint` 제거하고 eslint CLI 직접 사용으로 migration 후 해제.
       - dependency-name: "eslint"
         update-types: ["version-update:semver-major"]
+      # typescript 7 — typescript-eslint(eslint-config-next 경유)가 아직 미지원.
+      # tsc 는 통과하지만 ESLint 단계가 "does not support TS 7.0" 로 실패한다.
+      # typescript-eslint 가 TS7 을 지원하면 해제.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions — 매월 1회
   - package-ecosystem: github-actions
