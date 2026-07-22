@@ -225,4 +225,31 @@ Members (owner/editor/author) and their permissions are **delegated to Supabase 
 
 > **Note:** `posts_title_len` / `posts_title_en_len` exist only in the migration file, not in `setup.sql`. A DB provisioned from `setup.sql` alone has no post title length constraint.
 
+### About Studio ERD config validation: about_erd_valid
+
+The About page's ERD is edited in the admin **About Studio**, and the result is stored inside `site_settings.config` JSONB as `about.erdTables` / `about.erdRelations`. JSONB gives a free schema, but the public About panel draws `col.type` straight into the SVG, so an empty value leaves a blank cell in the deployed diagram. Hence a **three-tier UI · API · DB validation** (same convention as the [title length CHECK constraints](#title-length-check-constraints)).
+
+| Tier | Location | Role |
+|------|----------|------|
+| UI | `ErdTableModal` | Blocks during editing and shows the reason |
+| API | `checkAboutErd` (`src/lib/api/validateAboutErd.ts`) | Checks on `/api/admin/settings` PATCH — defends against client bypass |
+| DB | `about_erd_valid(cfg jsonb)` + `site_settings_about_erd_valid` CHECK | Last line of defense when even the API is bypassed (manual SQL, etc.) |
+
+**Validation rules** (identical across tiers):
+- Table name required · no duplicate table names (case-insensitive)
+- At least one column per table
+- Column name · **type** required · no duplicate column names within a table
+- (API-only addition) relation (`erdRelations`) `from`/`to` must reference existing tables
+
+**Implementation notes:**
+- `config` is a `{ delta, savedDefaults }` wrapper, so the DB function unwraps it exactly like the read path (`config.delta ?? config` in `getSiteConfig.ts`): `cfg #> '{delta,about,erdTables}'` → `cfg #> '{about,erdTables}'`.
+- Most settings saves don't touch the ERD, so `erdTables` is absent and the function simply `RETURN true`s — the rules only apply to a save that actually changes the ERD.
+- The function is `IMMUTABLE` and the constraint is added `NOT VALID`: if an already-stored config has an empty type, `ADD CONSTRAINT` would fail immediately and block the deploy. To also enforce it on existing rows, check for violations first, then `VALIDATE`:
+  ```sql
+  SELECT id FROM site_settings WHERE NOT public.about_erd_valid(config);
+  ALTER TABLE site_settings VALIDATE CONSTRAINT site_settings_about_erd_valid;
+  ```
+
+> This function and constraint are also included in `setup.sql`, so a DB provisioned from `setup.sql` from the start enforces it identically.
+
 

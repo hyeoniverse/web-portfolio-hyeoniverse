@@ -225,4 +225,31 @@ RLS 는 `FOR ALL` service_role 정책 **하나뿐**이라 공개 읽기 정책�
 
 > **주의:** `posts_title_len` / `posts_title_en_len` 은 마이그레이션 파일에만 있고 `setup.sql` 에는 없습니다. `setup.sql` 로만 세팅한 DB 에는 제목 길이 제약이 걸리지 않습니다.
 
+### About Studio ERD 설정 검증: about_erd_valid
+
+About 페이지의 ERD 는 관리자 설정의 **About Studio** 에서 편집하며, 그 결과는 `site_settings.config` JSONB 안에 `about.erdTables` / `about.erdRelations` 로 저장됩니다. JSONB 라 스키마가 자유롭지만, 공개 About 패널이 `col.type` 을 그대로 SVG 에 그리기 때문에 값이 비면 배포된 다이어그램에 빈 칸이 남습니다. 그래서 **UI · API · DB 3중 검증**을 둡니다 ([제목 길이 CHECK 제약](#제목-길이-check-제약)과 같은 관례).
+
+| 계층 | 위치 | 역할 |
+|------|------|------|
+| UI | `ErdTableModal` | 편집 중 즉시 막고 사유 표시 |
+| API | `checkAboutErd` (`src/lib/api/validateAboutErd.ts`) | `/api/admin/settings` PATCH 에서 검사 — 클라이언트 우회 방어 |
+| DB | `about_erd_valid(cfg jsonb)` + `site_settings_about_erd_valid` CHECK | 수동 SQL 등 API 도 우회한 경우의 최종 방어선 |
+
+**검사 규칙** (세 계층 동일):
+- 테이블 이름 필수 · 테이블 간 중복 금지 (대소문자 무시)
+- 테이블당 컬럼 1개 이상
+- 컬럼 이름 · **타입** 필수 · 테이블 내 컬럼 이름 중복 금지
+- (API 추가) 관계(`erdRelations`)의 `from`/`to` 는 실재하는 테이블만 가리킬 것
+
+**구현 노트:**
+- `config` 는 `{ delta, savedDefaults }` wrapper 구조라, DB 함수도 읽기 경로(`getSiteConfig.ts` 의 `config.delta ?? config`)와 똑같이 `cfg #> '{delta,about,erdTables}'` → `cfg #> '{about,erdTables}'` 순으로 언랩합니다.
+- ERD 를 건드리지 않는 대부분의 설정 저장은 `erdTables` 가 없으므로 `RETURN true` 로 그냥 통과합니다 — ERD 를 실제로 바꾼 저장에만 규칙이 걸립니다.
+- 함수는 `IMMUTABLE`, 제약은 `NOT VALID` 로 추가합니다. 이미 저장된 config 에 빈 타입이 있으면 `ADD CONSTRAINT` 가 즉시 실패해 배포가 막히기 때문입니다. 기존 행까지 확정하려면 먼저 위반 행을 확인한 뒤 `VALIDATE` 합니다:
+  ```sql
+  SELECT id FROM site_settings WHERE NOT public.about_erd_valid(config);
+  ALTER TABLE site_settings VALIDATE CONSTRAINT site_settings_about_erd_valid;
+  ```
+
+> 이 함수·제약은 `setup.sql` 에도 포함되어, 처음부터 `setup.sql` 로 세팅한 DB 에서도 동일하게 적용됩니다.
+
 
