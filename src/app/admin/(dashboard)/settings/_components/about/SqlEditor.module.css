@@ -1,0 +1,117 @@
+/* CodeMirror 는 기본이 내용만큼 늘어나는 auto-height 라 높이를 밖에서 확정해야
+   넘치는 만큼 내부 스크롤이 생긴다 (CodeBlockEditor 와 같은 이유로 relative + absolute). */
+.wrap {
+  position: relative;
+  /* 실제 편집기처럼 넉넉하게 — 스키마는 길다 */
+  height: 20rem;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  /* 회색 배경을 쓰지 않는다 — 본문과 같은 바탕 위에서 코드만 도드라지게 */
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+/* Sandpack 은 스타일을 런타임에 주입해 모듈 CSS 를 덮는다 — 박스 확정엔 !important 가 필요하다
+   (블로그 PlaygroundElement·CodeBlockEditor 도 같은 이유로 쓴다) */
+.editor {
+  position: absolute !important;
+  inset: 0 !important;
+  height: auto !important;
+}
+.editor :global(.sp-code-editor),
+.editor :global(.cm-editor) {
+  height: 100% !important;
+  background: transparent;
+}
+.editor :global(.cm-scroller) {
+  height: 100% !important;
+  overflow: auto !important;
+  background: transparent;
+}
+.editor :global(.cm-content),
+.editor :global(.cm-line),
+.editor :global(.cm-gutters) {
+  font-family: var(--font-mono), monospace;
+  font-size: var(--font-size-sm);
+  line-height: 1.7;
+}
+.editor :global(.cm-gutters) {
+  border-right: 0;
+  background: transparent;
+  color: var(--text-muted);
+}
+.editor :global(.cm-activeLine),
+.editor :global(.cm-activeLineGutter) {
+  background: transparent;
+}
+
+/* 현재 줄 강조 — 회색 배경 대신 왼쪽 레일.
+   inset box-shadow 라 border 와 달리 글자를 밀지 않고, 줄 번호도 같이 진해진다. */
+.editor :global(.cm-activeLine) {
+  background: transparent;
+  box-shadow: inset var(--border-width-thick) 0 0 var(--border-accent-color);
+}
+.editor :global(.cm-activeLineGutter) {
+  background: transparent;
+  color: var(--text-accent);
+}
+
+/* 선택한 낱말과 같은 것들 — 배경 대신 밑줄로 짚는다 */
+.editor :global(.cm-selectionMatch) {
+  background: transparent;
+  box-shadow: inset 0 -1px 0 var(--border-accent-color);
+}
+
+/* 진단 밑줄 — CodeMirror 기본은 물결 이미지를 깔아 테마를 안 탄다 */
+.editor :global(.cm-lintRange-error) {
+  background: none;
+  border-bottom: var(--border-width-thick) dotted var(--text-error);
+}
+.editor :global(.cm-lintRange-warning) {
+  background: none;
+  border-bottom: var(--border-width-thick) dotted var(--text-warning);
+}
+/* 진단 말풍선 · 자동완성 목록 · 찾기 패널 — 편집기 밖 UI 라 토큰을 따로 물려야 한다 */
+.editor :global(.cm-tooltip),
+.editor :global(.cm-panels) {
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.editor :global(.cm-tooltip-autocomplete > ul > li) {
+  padding: var(--box-3xs-sm);
+  font-family: var(--font-mono), monospace;
+}
+.editor :global(.cm-tooltip-autocomplete > ul > li[aria-selected]) {
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+}
+.editor :global(.cm-completionDetail) {
+  color: var(--text-muted);
+  font-style: normal;
+}
+.editor :global(.cm-diagnostic) {
+  border-left-color: var(--border-accent-color);
+  padding: var(--box-3xs-sm);
+}
+.editor :global(.cm-panels) {
+  padding: var(--box-3xs-xs);
+}
+.editor :global(.cm-panel.cm-search input),
+.editor :global(.cm-panel.cm-search button) {
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  padding: var(--box-3xs-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+}
+.editor :global(.cm-panel.cm-search label) {
+  color: var(--text-secondary);
+}

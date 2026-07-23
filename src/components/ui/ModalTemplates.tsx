@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useModalStore } from "@/stores/modalStore";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -56,6 +56,8 @@ interface ModalConfirmProps {
   cancelText?: string;
   danger?: boolean;
   onConfirm: () => void;
+  /** desc 아래에 덧붙일 상세 — 무엇이 바뀌는지 목록으로 보여줄 때 (선택) */
+  children?: ReactNode;
 }
 
 export function ModalConfirm({
@@ -64,6 +66,7 @@ export function ModalConfirm({
   cancelText,
   danger = false,
   onConfirm,
+  children,
 }: ModalConfirmProps) {
   const { closeModal } = useModalStore();
   const { language } = useLanguage();
@@ -73,6 +76,7 @@ export function ModalConfirm({
   return (
     <div className={styles.body}>
       <p className={styles.desc}>{desc}</p>
+      {children}
       {footerEl && createPortal(
         <>
           <Button variant="outline" size="sm" soundDisabled onClick={() => closeModal()}>
