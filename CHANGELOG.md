@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.29.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.29.0...v1.29.1) (2026-07-23)
+
+
+### Performance Improvements
+
+* **bundle:** admin 번역을 지연 로드로 분리 — shell 27.5 kB 감소 ([813ec03](https://github.com/hyeoniverse/web-portfolio-oval/commit/813ec03bea8bf02280f8c2e8c95a6576239087a0)), closes [#376](https://github.com/hyeoniverse/web-portfolio-oval/issues/376)
+* **bundle:** SiteConfigProvider 기본값 제거 — shell 25.6 kB 감소 ([40aa3ef](https://github.com/hyeoniverse/web-portfolio-oval/commit/40aa3efd6d43a9e8307566a5ad42f0a8876edce8)), closes [#376](https://github.com/hyeoniverse/web-portfolio-oval/issues/376)
+* **bundle:** tailwind-merge 제거 — 전 라우트 shell 8.9 kB 감소 ([fcaf7c0](https://github.com/hyeoniverse/web-portfolio-oval/commit/fcaf7c0b3be40348e5ee08c486042f1dbaccbd40)), closes [#376](https://github.com/hyeoniverse/web-portfolio-oval/issues/376)
+
 ## [1.29.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.28.0...v1.29.0) (2026-07-23)
 
 
