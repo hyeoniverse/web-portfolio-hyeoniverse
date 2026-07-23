@@ -749,7 +749,7 @@ npm run test:visual:admin  # admin routes (requires a login session — see belo
 
 Two traps worth knowing: the full-screen `LoadingScreen` must be awaited or a "black screen + logo" frame gets baked into the baseline, and masking a WebGL canvas paints a rectangle *over* it — turning the whole page into a solid block (use `visibility: hidden` instead). Full notes and coverage gaps are in **[docs/perf-baseline.md](./docs/perf-baseline.md#시각-회귀-baseline)**.
 
-**Admin routes** need a login session. Create a test account in Supabase, put `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` in `.env.local`, then run `npm run test:visual:admin`. A new-device approval gate means **the first run requires clicking an email link**; after that the stored session (`e2e/.auth/` — auth tokens, git-ignored) is reused.
+**Admin routes** need a login session. Put `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` in `.env.local` (use the owner account — a freshly created one has no role and gets rejected), then run `npm run test:visual:admin`. The new-device gate makes the first run fail; flip `approved` to `true` on the new `admin_known_devices` row to clear it (**no real inbox needed** — that is all the approval link does). After that the stored session (`e2e/.auth/` — auth tokens, git-ignored) is reused.
 
 > **Refactoring docs**: [Refactoring guide](./docs/refactoring-guide.md) · [Performance baseline](./docs/perf-baseline.md) · [Dead code inventory](./docs/dead-code-inventory.md)
 
