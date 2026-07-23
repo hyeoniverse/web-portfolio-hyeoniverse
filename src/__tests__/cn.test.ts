@@ -19,8 +19,11 @@ describe("cn", () => {
     expect(cn("base", isActive && "active")).toBe("base active");
   });
 
-  it("Tailwind 충돌 클래스를 병합한다", () => {
-    expect(cn("px-2", "px-4")).toBe("px-4");
+  /* tailwind-merge 를 걷어냈으므로 Tailwind 충돌 해결은 더 이상 하지 않는다.
+     CSS Modules 프로젝트라 cn() 에 들어오는 건 전부 해시 클래스이고, 실제 호출 중
+     Tailwind 유틸을 병합하는 곳이 없었다. 둘 다 그대로 남는 것이 현재 동작이다. */
+  it("클래스를 병합하지 않고 그대로 이어붙인다", () => {
+    expect(cn("px-2", "px-4")).toBe("px-2 px-4");
   });
 
   it("빈 입력에서 빈 문자열을 반환한다", () => {
