@@ -2,9 +2,9 @@
 
 > CSS 네이밍 컨벤션 · 토큰 구조 · 컴포넌트 스타일링 규칙
 
-> **관련 문서**
-> — 컴포넌트를 어느 폴더에 둘지(배치 기준)는 [리팩토링 가이드 Phase 3](./refactoring-guide.md#phase-3)
-> — "CSS 모듈은 담당 컴포넌트와 1:1" 원칙과 CSS 정리 진행 상황은 [리팩토링 가이드 Phase 4](./refactoring-guide.md#phase-4)
+> **관련 문서** — [리팩토링 방법론](./refactoring-guide.md)
+> — 컴포넌트를 어느 폴더에 둘지: [컴포넌트 배치 기준](./refactoring-guide.md#배치-기준)
+> — "CSS 모듈은 담당 컴포넌트와 1:1" 등 리팩토링 시 코드 기준: [코드 기준선](./refactoring-guide.md#3-코드-기준선)
 
 ---
 
