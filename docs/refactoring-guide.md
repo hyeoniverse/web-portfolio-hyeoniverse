@@ -190,12 +190,19 @@ Phase 0 실측으로 확정된 순서. **수치는 전부 gzip 기준**(= 실제
 
 > 소스맵 원본 크기는 압축 전이라 8~10배 크게 보인다. 목표와 성과는 gzip 으로만 말한다.
 
-- [ ] **gsap 격리 (43 kB)** — 최우선. 단독 chunk 라 가장 깔끔하다. 원인 확인 완료 ↓
-- [ ] **framer-motion + motion-dom (55 kB)** — 절감액은 가장 크지만 난이도도 가장 높다
+**완료 — 누적 380.0 → 318.0 kB (−62 kB, −16.3%)**
+
+- [x] **`tailwind-merge` 제거 (−8.9 kB)** — `75a9a185`
+- [x] **`site.config.ts` 경계 (−25.6 kB)** — `SiteConfigProvider` 의 context 기본값이 원인. `f98cd849`
+- [x] **admin 번역 지연 로드 (−27.5 kB)** — 사전의 66%가 `admin.*`. `e20ed3bf`
+
+**남음**
+
+- [ ] **gsap 격리 (43 kB)** — 단독 chunk 라 분리 자체는 깔끔하나, Lenis rAF 가 `gsap.ticker` 에 묶여 있어 전역 스크롤 구조 변경이 선행돼야 한다. 상세 ↓
+- [ ] **framer-motion + motion-dom (55 kB)** — 절감액 최대, 난이도도 최대
 - [ ] **client 경계 재설정** — `use client` page.tsx 15개를 서버 컴포넌트로 내리고, 클라이언트 경계를 상호작용이 실제 필요한 리프까지 밀어내기
-- [ ] **`site.config.ts` 경계 (26 kB)** — 설정 파일이 통째로 클라이언트 번들에 들어감
-- [ ] **locales 분리 (~20 kB)** — 현재 ko/en 을 전 라우트에서 동시 로드
-- [ ] **`tailwind-merge` (9 kB)** — CSS Modules 프로젝트인데 전 라우트 로드. 실사용처 확인 후 `clsx` 대체 검토
+- [ ] **라우트별 `site.config` 잔여분** — `/posts`·`/profile`·`/privacy` 는 `useCategories.ts` / `data/*.ts` 가 config 를 직접 import 해 여전히 라우트 번들에 싣는다
+- [ ] **`PeriodPicker` 라벨을 `admin` 네임스페이스 밖으로** — 공개 컴포넌트가 admin 키를 읽고 있다
 - [ ] **라우트별 스플리팅** — `three` / `@react-three` / `mermaid` / `@ffmpeg` / `shiki` / `katex` / `@xyflow/react` / Plate → `next/dynamic`
 - [ ] `optimizePackageImports` 에서 미사용 `@tiptap/*` 12개 제거
 - [ ] `productionBrowserSourceMaps: true` 재검토 — 소스맵 90 MB, 프로덕션 소스 노출
