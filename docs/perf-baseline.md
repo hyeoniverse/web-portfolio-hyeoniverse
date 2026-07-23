@@ -106,6 +106,60 @@ npx next build --experimental-analyze
 - `next.config.ts` 의 `optimizePackageImports` 에 **미사용 `@tiptap/*` 12개** 잔재 (의존성에 없음)
 - `next.config.ts` 의 `webpack:` 훅 — Turbopack 빌드에서 무시됨 (`.md` asset/source 룰이 죽어 있음)
 
+## Phase 2 진행 결과
+
+> 위 baseline 표는 **착수 시점 기준선이므로 갱신하지 않는다.** 성과는 여기에 누적한다.
+
+| 단계 | 공통 shell (gzip) | 변화 | 커밋 |
+| --- | ---: | ---: | --- |
+| 기준선 | 380.0 kB | — | — |
+| tailwind-merge 제거 | 371.1 kB | −8.9 | `75a9a185` |
+| SiteConfigProvider 기본값 제거 | 345.5 kB | −25.6 | `f98cd849` |
+| admin 번역 지연 로드 | **318.0 kB** | −27.5 | `e20ed3bf` |
+
+**누적 −62.0 kB (−16.3%)**, 32개 라우트 전부에 적용. 라우트 평균 −53.5 kB.
+
+| 라우트 | 전 | 후 | Δ |
+| --- | ---: | ---: | ---: |
+| /admin/settings | 1578 | 1542 | −36 |
+| /design-system | 950 | 889 | −61 |
+| /posts/[slug] | 783 | 747 | −36 |
+| /works/[slug] | 774 | 712 | −62 |
+| /profile | 650 | 614 | −36 |
+| /privacy | 537 | 501 | −36 |
+| /posts | 463 | 427 | −36 |
+| /about | 429 | 367 | −62 |
+| /works | 406 | 344 | −62 |
+| / | 386 | 324 | −62 |
+| /_not-found | 380 | 318 | −62 |
+
+−36 kB 그룹과 −62 kB 그룹으로 갈리는 이유: `/posts`·`/profile`·`/privacy`·`/posts/[slug]` 는
+`useCategories.ts` / `data/privacy.ts` / `data/profile.ts` 가 `site.config` 를 직접 import 해
+라우트 번들에 따로 싣기 때문이다. 이들에서 필요한 값만 추리는 건 남은 작업.
+
+### 세 건 모두 "쓰지 않는 것을 전 라우트가 받고 있던" 문제였다
+
+- `cn()` 의 `twMerge` — CSS Modules 프로젝트라 병합할 Tailwind 클래스가 없었다
+- `SiteConfigProvider` 의 context **기본값** — Provider 가 `<body>` 전체를 감싸 한 번도 안 쓰였다
+- `admin.*` 번역 — 사전의 66%인데 방문자는 쓰지 않는다
+
+기능을 줄인 게 아니라 **죽은 비용을 걷어낸 것**이라 시각 회귀 40장이 전부 그대로 통과했다.
+
+### 검증에서 배운 것
+
+`/design-system` 이 `PeriodPicker` 를 전시하는데 그 컴포넌트가 라벨을 `admin.settings.profile.*`
+키로 읽는다. admin 사전을 지연 로드로 돌리자 이 페이지에서 번역 키가 노출될 상황이었는데,
+**`/design-system` 은 시각 회귀에서 제외한 페이지라 자동으로 잡히지 않았다.**
+`grep` 으로 admin 키 사용처를 훑다가 발견했다.
+
+→ 이후 번역·설정처럼 **전역 사전을 건드리는 변경은 시각 회귀만 믿지 말고**
+아래처럼 키 누출을 직접 확인한다.
+
+```js
+// 각 라우트에서 실행 — 번역 누락 시 getNestedValue 가 키를 그대로 반환한다
+document.body.innerText.match(/\b(admin|editor)\.[a-zA-Z0-9_.]+/g)
+```
+
 ## Lighthouse
 
 미측정. `next start` 기동 후 주요 5개 라우트에 대해 별도 기록 예정.
