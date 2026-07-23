@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.29.2](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.29.1...v1.29.2) (2026-07-23)
+
+
+### Bug Fixes
+
+* **ci:** CSS Module 타입 선언 + type-coverage 실패 원인이 로그에 남게 ([c072205](https://github.com/hyeoniverse/web-portfolio-oval/commit/c0722052d619cdd3402bbbb29857b40fa0712a80)), closes [#379](https://github.com/hyeoniverse/web-portfolio-oval/issues/379)
+* **ci:** type-coverage 를 CI 실측치(97.78%)에 맞춰 락 ([7ce2a20](https://github.com/hyeoniverse/web-portfolio-oval/commit/7ce2a20e79e17a7f716d637449d685f608a31d9d)), closes [#379](https://github.com/hyeoniverse/web-portfolio-oval/issues/379)
+
 ## [1.29.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.29.0...v1.29.1) (2026-07-23)
 
 
