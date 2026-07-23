@@ -735,9 +735,10 @@ npm run test:watch
 리팩토링이 화면을 바꾸지 않았는지 픽셀 단위로 검증합니다. baseline 스크린샷 24장을 `e2e/visual.spec.ts-snapshots/` 에 커밋해 두고, 실행할 때마다 비교합니다.
 
 ```bash
-npm run build          # 프로덕션 산출물 필요 (dev 서버는 baseline 이 흔들림)
+npm run build              # 프로덕션 산출물 필요 (dev 서버는 baseline 이 흔들림)
 npm run test:visual        # 비교
 npm run test:visual:update # baseline 갱신 (의도된 design 변경일 때만)
+npm run test:visual:admin  # admin 라우트 (로그인 세션 필요 — 아래 참고)
 ```
 
 | 항목 | 값 |
@@ -746,7 +747,9 @@ npm run test:visual:update # baseline 갱신 (의도된 design 변경일 때만)
 | 검증 | 스크린샷 diff + 페이지 런타임 에러 |
 | 안정성 | 3회 연속 24/24 통과 (flaky 0) |
 
-셋업 과정에서 부딪힌 함정 — 전 페이지를 덮는 `LoadingScreen` 을 안 기다리면 "검은 화면 + 로고" 가 baseline 으로 박히고, WebGL canvas 를 `mask` 로 가리면 그 위에 사각형이 덮여 페이지 전체가 단색이 됩니다(`visibility: hidden` 으로 처리). 전체 목록과 커버리지 한계(`/works`·`/posts` 는 뷰포트만, `/admin/*` 은 인증 미셋업으로 제외)는 **[docs/perf-baseline.md](./docs/perf-baseline.md#시각-회귀-baseline)** 에 정리되어 있습니다.
+셋업 과정에서 부딪힌 함정 — 전 페이지를 덮는 `LoadingScreen` 을 안 기다리면 "검은 화면 + 로고" 가 baseline 으로 박히고, WebGL canvas 를 `mask` 로 가리면 그 위에 사각형이 덮여 페이지 전체가 단색이 됩니다(`visibility: hidden` 으로 처리). 전체 목록과 커버리지 한계는 **[docs/perf-baseline.md](./docs/perf-baseline.md#시각-회귀-baseline)** 에 정리되어 있습니다.
+
+**admin 라우트**는 로그인 세션이 필요합니다. Supabase 에 테스트 계정을 만들고 `.env.local` 에 `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` 를 넣은 뒤 `npm run test:visual:admin` 을 실행합니다. 새 기기 승인 게이트 때문에 **최초 1회는 메일 링크 승인이 필요**하고, 이후에는 저장된 세션(`e2e/.auth/` — 인증 토큰이라 커밋 제외)을 재사용합니다.
 
 > **리팩토링 문서**: [리팩토링 가이드](./docs/refactoring-guide.md) · [성능 baseline](./docs/perf-baseline.md) · [데드코드 인벤토리](./docs/dead-code-inventory.md)
 

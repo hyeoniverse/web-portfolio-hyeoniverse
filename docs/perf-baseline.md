@@ -153,9 +153,41 @@ npm run test:visual:update   # baseline 갱신 (의도된 design 변경일 때�
 | `/posts` | 배너·사이드바 마스킹 | 상단 `PostsBanner` 가 자동 회전 캐러셀, 사이드바는 랜덤 추천·최근 댓글 (`RandomPosts` 가 `PopularPosts.module.css` 를 공유해 분리 불가). 카드 목록은 검증됨 |
 | `/posts/[slug]` | 뷰포트만 | 본문 lazy 이미지·코드 하이라이트가 모바일에서 늦게 붙음 |
 | `/design-system` | **완전 제외** | 2만 px 초장문 + 인터랙티브 데모(useState 59개). fullPage 도 뷰포트도 안정화 실패 |
-| `/admin/*` | 전부 미포함 | Supabase 인증 필요 — **Phase 4-1 착수 전 반드시 셋업** |
+| `/admin/*` | 셋업 완료, baseline 미생성 | 테스트 계정 credential 필요 — 아래 참고 |
 
 → 위 라우트의 하단 영역은 **수동 QA 체크리스트로 커버**한다.
+
+### admin 시각 회귀 (Phase 4-1 안전망)
+
+admin 슬라이스가 40,586줄이라 시각 회귀 없이 착수하면 안전망이 수동 QA뿐이다.
+스펙([e2e/admin.spec.ts](../e2e/admin.spec.ts))과 로그인 셋업([e2e/auth.setup.ts](../e2e/auth.setup.ts))은
+준비돼 있고, **계정 credential 만 넣으면 baseline 을 찍을 수 있다.**
+
+대상 7개: `/admin` · `/admin/settings` · `/admin/posts` · `/admin/works` · `/admin/comments` ·
+`/admin/notifications` · `/admin/reports`
+(편집 화면은 Plate 에디터라 캡처가 불안정하고 Phase 4-4 대상이라 제외)
+
+**로그인에 보안 게이트가 두 겹 있다:**
+
+1. Supabase 이메일/비밀번호
+2. **새 기기(UA fingerprint) 승인** — 처음 보는 기기면 즉시 `signOut` 하고 승인 메일을 보낸다
+   ([api/admin/auth/route.ts](../src/app/api/admin/auth/route.ts))
+
+2번은 사람이 메일 링크를 눌러야 통과한다. 그래서 최초 1회만 수동 승인하고 세션을
+`e2e/.auth/admin.json` 에 저장해 재사용한다. fingerprint 는 UA 기반이라 같은 Playwright
+브라우저를 쓰는 한 재승인이 필요 없다. **이 파일에는 인증 토큰이 들어 있어 `.gitignore` 대상이다.**
+
+```bash
+# 1. Supabase Dashboard → Authentication → Users → Add user (Auto Confirm 체크)
+# 2. .env.local 에 credential 추가
+#    E2E_ADMIN_EMAIL=...
+#    E2E_ADMIN_PASSWORD=...
+# 3. 첫 실행 — "승인 대기" 로 실패한다
+npm run test:visual:admin
+# 4. 해당 계정 메일함의 승인 링크 클릭
+# 5. baseline 생성
+npm run test:visual:admin -- -u
+```
 
 ### 알려진 결함 (착수 전부터 존재)
 
