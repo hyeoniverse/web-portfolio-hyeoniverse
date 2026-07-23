@@ -186,14 +186,16 @@ eslint warning 435개 분류 — **Phase 4의 실제 작업 목록이다**:
 
 파일 수는 적고 효과는 가장 크다. 슬라이스 순회보다 먼저 한다.
 
-Phase 0 실측으로 확정된 순서. 위에서부터 효과가 크다.
+Phase 0 실측으로 확정된 순서. **수치는 전부 gzip 기준**(= 실제 전송량).
 
-- [ ] **gsap 격리 (368 kB)** — 최우선. 원인 확인 완료 ↓
-- [ ] **framer-motion + motion-dom 격리 (551 kB)** — 사용처를 리프로 좁히고 `next/dynamic`
+> 소스맵 원본 크기는 압축 전이라 8~10배 크게 보인다. 목표와 성과는 gzip 으로만 말한다.
+
+- [ ] **gsap 격리 (43 kB)** — 최우선. 단독 chunk 라 가장 깔끔하다. 원인 확인 완료 ↓
+- [ ] **framer-motion + motion-dom (55 kB)** — 절감액은 가장 크지만 난이도도 가장 높다
 - [ ] **client 경계 재설정** — `use client` page.tsx 15개를 서버 컴포넌트로 내리고, 클라이언트 경계를 상호작용이 실제 필요한 리프까지 밀어내기
-- [ ] **locales 분리 (113 kB)** — 현재 ko/en 을 전 라우트에서 동시 로드
-- [ ] **`site.config.ts` 경계 (80 kB)** — 설정 파일이 통째로 클라이언트 번들에 들어감
-- [ ] **`tailwind-merge` (128 kB)** — CSS Modules 프로젝트인데 전 라우트 로드. 실사용처 확인 후 `clsx` 대체 검토
+- [ ] **`site.config.ts` 경계 (26 kB)** — 설정 파일이 통째로 클라이언트 번들에 들어감
+- [ ] **locales 분리 (~20 kB)** — 현재 ko/en 을 전 라우트에서 동시 로드
+- [ ] **`tailwind-merge` (9 kB)** — CSS Modules 프로젝트인데 전 라우트 로드. 실사용처 확인 후 `clsx` 대체 검토
 - [ ] **라우트별 스플리팅** — `three` / `@react-three` / `mermaid` / `@ffmpeg` / `shiki` / `katex` / `@xyflow/react` / Plate → `next/dynamic`
 - [ ] `optimizePackageImports` 에서 미사용 `@tiptap/*` 12개 제거
 - [ ] `productionBrowserSourceMaps: true` 재검토 — 소스맵 90 MB, 프로덕션 소스 노출
@@ -201,32 +203,44 @@ Phase 0 실측으로 확정된 순서. 위에서부터 효과가 크다.
 - [ ] 이미지: `OptimizedImage`/`ProgressiveImage` 사용률 점검, raw `<img>` 제거
 
 **게이트:** 주요 라우트 First Load JS가 [perf-baseline.md](perf-baseline.md) 대비 감소. PR마다 수치 기재.
-**목표:** 공통 shell 380 kB → 200 kB 이하.
+
+**목표:** 공통 shell 380 kB → **280~300 kB**.
+`next` 160 kB 는 손댈 수 없어 이론적 하한이 약 200 kB 이고, 그건 framer-motion 을 완전히
+제거했을 때의 값이라 비현실적이다. 달성 가능한 선으로 잡는다.
 
 #### 2-1. gsap 격리 — 원인과 접근
 
 **원인:** `src/providers/LenisProvider.tsx` 가 루트 레이아웃에 있는 전역 프로바이더인데
 gsap + ScrollTrigger 를 정적 import 한다. Lenis 스크롤과 ScrollTrigger 를 동기화하는 용도
 (`gsap.ticker`, `ScrollTrigger.scrollerProxy`, `ScrollTrigger.update`).
-이것 하나 때문에 gsap 368 kB 가 32개 라우트 전부에 실린다.
+이것 하나 때문에 gsap 이 32개 라우트 전부에 실린다.
 
-**gsap 실사용처 10개 파일:**
+**까다로운 지점:** Lenis 의 rAF 루프를 `gsap.ticker` 가 돌린다
+([LenisProvider.tsx:85-90](../src/providers/LenisProvider.tsx#L85-L90)).
+즉 지금 구조에서는 **gsap 없이는 스무스 스크롤 자체가 동작하지 않는다.**
+먼저 rAF 를 자체 루프로 바꿔 Lenis 를 gsap 에서 떼어내야 한다.
 
-| 파일 | 성격 |
+**gsap 실사용 라우트** (전부 제거는 불가, 아래 라우트는 계속 필요):
+
+| 라우트 | 사용처 |
 | --- | --- |
-| `providers/LenisProvider.tsx` | **전역** — 여기가 원인 |
-| `hooks/useHorizontalScroll.ts` | 공용 훅 (사용처 확인 필요) |
-| `components/common/KineticHeroTitle.tsx` | 공용 컴포넌트 (사용처 확인 필요) |
-| `app/(home)/HomeClient.tsx` | home 전용 |
-| `app/works/_components/WorksSection.tsx` · `layouts/CinematicLayout.tsx` | works 전용 |
-| `app/about/_components/panels/FeaturesPanel.tsx` · `DesignSystemPanel.tsx` | about 전용 |
-| `app/about/_hooks/useMobileTabNavigation.ts` · `useMobilePinScroll.ts` | about 전용 |
+| `/` (home) | `HomeClient` |
+| `/about` | `FeaturesPanel` · `ProcessPanel` · `TechStackPanel` · `DesignSystemPanel` · `usePinnedScroll` · `useMobileTabNavigation` · `useMobilePinScroll` · `AboutSection`(useHorizontalScroll) |
+| `/works` | `WorksSection` · `CinematicLayout` |
+| `/profile` | `ProfileMeSection` (KineticHeroTitle + useHorizontalScroll) |
+| `/admin/settings` | `AboutStudio` (KineticHeroTitle) |
 
-**접근:** ScrollTrigger 동기화를 LenisProvider 본체에서 떼어내고, gsap 이 실제로 필요한
-라우트에서만 활성화되게 한다 (동적 import + 필요 시점 등록). 세부 설계는 착수 시 결정.
+**절감 대상 라우트** — gsap 이 전혀 필요 없는 곳:
+`/posts` 계열 6개 · `/privacy` · `/design-system` · `/_not-found` · admin 대부분(settings 제외)
 
-**검증:** `/privacy`·`/_not-found` 같이 애니메이션이 없는 라우트의 First Load JS 가
-368 kB 만큼 줄어야 한다. 시각 회귀 24장 전부 통과해야 한다 (스크롤 동작 보존).
+`ImageViewer` 는 주석에서만 GSAP 를 언급하고 실제로 쓰지 않는다.
+
+**접근:** ① Lenis rAF 를 `gsap.ticker` → 자체 `requestAnimationFrame` 으로 교체
+② ScrollTrigger 연동을 동적 import 로 분리하고 gsap 이 필요한 라우트에서만 활성화
+
+**검증:** `/posts`·`/privacy` 등 gsap 불필요 라우트의 First Load JS 가 43 kB 줄어야 한다.
+시각 회귀 40장 전부 통과해야 한다. **다만 스크롤 애니메이션 동작은 정지 스크린샷으로
+검증되지 않으므로 수동 QA 가 필수다** — home/about/works/profile 의 스크롤 시퀀스를 직접 확인한다.
 
 ### Phase 3 — 구조 (1~2일)
 
