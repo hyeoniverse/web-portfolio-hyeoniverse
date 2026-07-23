@@ -156,16 +156,34 @@ export interface UserFlow {
 
 /* ── ERD (Entity Relationship Diagram) ── */
 
-interface ErdColumn {
+/* 아래 선택 필드들은 SQL 가져오기가 채운다.
+   전부 optional 이라 기존에 저장된 ERD 는 그대로 유효하다 — 마이그레이션이 필요 없다. */
+export interface ErdColumn {
   name: string;
   type: string;
   pk?: boolean;
   fk?: string; // e.g. "series.id"
+  /** NOT NULL */
+  required?: boolean;
+  /** UNIQUE 제약 또는 UNIQUE 인덱스 */
+  unique?: boolean;
+  /** 인덱스가 걸린 컬럼 */
+  indexed?: boolean;
+  /** DEFAULT 식 — 값이 아니라 원문 그대로 보여준다 (now(), 'draft' 등) */
+  defaultValue?: string;
+  /** COMMENT ON COLUMN */
+  comment?: string;
+  /** 타입이 ENUM 이면 그 값들 — 타입 이름만으로는 무엇이 들어가는지 알 수 없다 */
+  enumValues?: string[];
 }
 
 export interface ErdTable {
   name: string;
   columns: ErdColumn[];
+  /** 뷰는 실체 테이블과 구분해 표시한다 (기본은 테이블) */
+  kind?: "view";
+  /** COMMENT ON TABLE */
+  comment?: string;
 }
 
 export interface ErdRelation {

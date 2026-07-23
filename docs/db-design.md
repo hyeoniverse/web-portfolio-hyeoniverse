@@ -250,6 +250,30 @@ About 페이지의 ERD 는 관리자 설정의 **About Studio** 에서 편집하
   ALTER TABLE site_settings VALIDATE CONSTRAINT site_settings_about_erd_valid;
   ```
 
+**컬럼이 담는 것** — SQL 가져오기가 채우는 선택 필드입니다. 전부 optional 이라 기존에 저장된 ERD 는 그대로 유효하고 마이그레이션이 필요 없습니다.
+
+| 필드 | 출처 SQL | 표시 |
+|------|----------|------|
+| `required` | `NOT NULL` (PK 는 정의상 참) | 컬럼 이름 뒤 `*` |
+| `unique` | 컬럼/테이블 `UNIQUE`, `CREATE UNIQUE INDEX` | `U` 배지 |
+| `indexed` | `CREATE INDEX` | `IX` 배지 |
+| `defaultValue` | `DEFAULT …`, `serial`, `GENERATED … IDENTITY/STORED` | 타입 뒤 `=값` |
+| `comment` | `COMMENT ON COLUMN` | 호버 |
+| `enumValues` | `CREATE TYPE … AS ENUM`, `ALTER TYPE … ADD VALUE` | 호버 |
+| (테이블) `kind` | `CREATE [MATERIALIZED] VIEW` | 머리글 `VIEW` 배지 |
+| (테이블) `comment` | `COMMENT ON TABLE` | 호버 |
+
+DB 함수도 같은 규칙을 검사합니다 — 있으면 타입이 맞아야 하고(`required`/`unique`/`indexed` 는 boolean, `defaultValue`/`comment` 는 문자열, `enumValues` 는 문자열 배열), 테이블 `kind` 는 `'view'` 외의 값을 받지 않습니다. 없으면 그냥 통과합니다.
+
+**병합의 의미론** — 가져오기는 **병합(기본)** 과 **교체** 두 모드가 있고, 되돌리기가 없어 규칙을 코드가 아니라 테스트로 고정해 둡니다(`src/__tests__/mergeErd.test.ts`).
+
+1. 같은 이름 테이블은 **컬럼 병합** — ERD 에만 있던 컬럼은 지우지 않는다
+2. 같은 컬럼이 양쪽에 있으면 **SQL 값으로 갱신** — 타입·PK·FK 는 SQL 이 정답
+3. 컬럼 순서는 **SQL 정의 순서**, SQL 에 없는 기존 전용 컬럼은 그 뒤에
+4. SQL 에 없는 테이블은 손대지 않는다
+
+단 `DROP TABLE` · `DROP COLUMN` · `RENAME` 은 예외입니다. **"SQL 에 없음"과 "SQL 이 지웠음"은 다르므로** 파서가 삭제를 따로 보고하고(`removedTables` / `removedColumns`), 병합이 그것만 실제로 지웁니다. 구별하지 않으면 규칙 1·4 가 삭제를 조용히 되살립니다.
+
 > 이 함수·제약은 `setup.sql` 에도 포함되어, 처음부터 `setup.sql` 로 세팅한 DB 에서도 동일하게 적용됩니다.
 
 

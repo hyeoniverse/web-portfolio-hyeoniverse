@@ -90,6 +90,7 @@ const { data } = await admin.from("comments")
     endpoints: [
       { method: "POST", path: "/api/admin/auth", description: { ko: "어드민 로그인 (Supabase Auth)", en: "Admin login (Supabase Auth)" } },
       { method: "GET", path: "/api/admin/settings", description: { ko: "사이트 설정 조회 (public)", en: "Get site settings (public)" } },
+      { method: "PATCH", path: "/api/admin/settings", description: { ko: "사이트 설정 저장 (admin) — About ERD 는 checkAboutErd 로 형태 검증 후 통과", en: "Save site settings (admin) — About ERD passes through checkAboutErd shape validation" } },
       { method: "GET", path: "/api/admin/account", description: { ko: "관리자 계정 정보 조회", en: "Get admin account info" } },
       { method: "PATCH", path: "/api/admin/account", description: { ko: "관리자 이메일/비밀번호 변경", en: "Update admin email/password" } },
       { method: "POST", path: "/api/admin/upload", description: { ko: "파일 업로드 (인증 필요)", en: "File upload (auth required)" } },

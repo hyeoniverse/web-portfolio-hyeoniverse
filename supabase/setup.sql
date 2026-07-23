@@ -1519,7 +1519,11 @@ END $$;
 --   테이블 이름 필수 / 테이블 이름 중복 금지
 --   테이블당 컬럼 1개 이상
 --   컬럼 이름·타입 필수 / 컬럼 이름 중복 금지 (테이블 내)
+--   선택 필드의 타입 (required/unique/indexed = bool, defaultValue/comment = text,
+--                    enumValues = text[], 테이블 kind = 'view' 만)
 -- 공개 About 패널이 col.type 을 그대로 SVG 에 그리므로, 비면 배포된 ERD 에 빈 칸이 남는다.
+-- 선택 필드는 SQL 가져오기가 채우는 값이라 손으로 넣을 일이 없지만, API 를 직접 부르면
+-- 아무 타입이나 들어올 수 있고 공개 패널이 그걸 그대로 그린다.
 -- 3중 검증(UI·API·DB)은 이 저장소 관례 — posts_title_len(2026_07_13) 과 동일.
 --
 -- config 는 { delta, savedDefaults } wrapper 구조.
@@ -1538,6 +1542,8 @@ DECLARE
   ctype  text;
   tnames text[] := '{}';
   cnames text[];
+  bkey   text;
+  skey   text;
 BEGIN
   IF cfg IS NULL OR jsonb_typeof(cfg) <> 'object' THEN
     RETURN true;
@@ -1579,7 +1585,36 @@ BEGIN
         RETURN false;
       END IF;
       cnames := cnames || cname;
+
+      -- 선택 필드 — 없으면 통과, 있으면 타입이 맞아야 한다
+      FOREACH bkey IN ARRAY ARRAY['pk', 'required', 'unique', 'indexed'] LOOP
+        IF c ? bkey AND jsonb_typeof(c -> bkey) NOT IN ('boolean', 'null') THEN
+          RETURN false;
+        END IF;
+      END LOOP;
+      FOREACH skey IN ARRAY ARRAY['fk', 'defaultValue', 'comment'] LOOP
+        IF c ? skey AND jsonb_typeof(c -> skey) NOT IN ('string', 'null') THEN
+          RETURN false;
+        END IF;
+      END LOOP;
+      IF c ? 'enumValues' AND jsonb_typeof(c -> 'enumValues') NOT IN ('array', 'null') THEN
+        RETURN false;
+      END IF;
+      IF jsonb_typeof(c -> 'enumValues') = 'array' AND EXISTS (
+        SELECT 1 FROM jsonb_array_elements(c -> 'enumValues') v
+        WHERE jsonb_typeof(v) <> 'string'
+      ) THEN
+        RETURN false;
+      END IF;
     END LOOP;
+
+    -- 테이블 선택 필드 — kind 는 뷰 표시에만 쓰이므로 'view' 외 값을 받지 않는다
+    IF t ? 'kind' AND COALESCE(t ->> 'kind', 'view') <> 'view' THEN
+      RETURN false;
+    END IF;
+    IF t ? 'comment' AND jsonb_typeof(t -> 'comment') NOT IN ('string', 'null') THEN
+      RETURN false;
+    END IF;
   END LOOP;
 
   RETURN true;
@@ -1643,7 +1678,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_07_14_posts_author_ids',              'posts.author_ids text[] — 다중 작성자'),
   ('2026_07_17_author_invites',                'author_invites — 저자 이메일 초대 + OAuth 매칭 권한 부여 (이슈 #334)'),
   ('2026_07_18_works_title_en',                'works.title_en — 작품 제목 영문 (title 이중언어화)'),
-  ('2026_07_21_about_erd_valid',               'site_settings.config About ERD 필수값 CHECK (테이블·컬럼 이름/타입)')
+  ('2026_07_21_about_erd_valid',               'site_settings.config About ERD 필수값 CHECK (테이블·컬럼 이름/타입)'),
+  ('2026_07_23_about_erd_fields',              'about_erd_valid 확장 — 컬럼 제약(required/unique/indexed/defaultValue/comment/enumValues)·테이블 kind 타입 검증')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.
