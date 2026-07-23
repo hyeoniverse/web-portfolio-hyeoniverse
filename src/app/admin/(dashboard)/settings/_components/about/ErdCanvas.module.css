@@ -21,33 +21,50 @@
 }
 
 /* 그리드 — 카드는 한 줄 요약만. 편집은 모달에서 하므로 높이가 일정하다 */
+/* ── 목록 뷰 ──
+   카드를 다이어그램 노드의 축소판으로 만든다 — 머리글 띠 + 앞쪽 컬럼 몇 줄.
+   두 뷰가 같은 물건의 다른 밀도로 읽히고, 개수만 보던 카드보다 테이블 성격이 바로 잡힌다.
+   장식(그림자·리프트)은 쓰지 않고 테두리와 배경만으로 상태를 말한다.
+   서체 배분은 AdminTable 과 같다 — 식별자는 mono, 라벨·수치는 space grotesk. */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-  gap: var(--spacing-sm);
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--spacing-xs);
 }
 .card {
+  position: relative;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  /* 각진 모서리 — 표·다이어그램 노드처럼 '자료' 로 읽히게 한다 */
+  border-radius: 0;
   background: var(--bg-primary);
-  /* transform 은 전역 theme transition 목록에 없어 compound 로 올려야 살아남는다 (.grid .card) */
-  transition: border-color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
+  /* opacity 는 전역 theme transition 목록에 없어 compound(.grid .card)로 올려야 살아남는다 */
 }
 .grid .card {
-  transition: border-color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-material),
+    background-color var(--duration-fast) var(--ease-material),
+    opacity var(--duration-fast) var(--ease-material);
+}
+/* 카드는 뜨지 않는다 — 배경만 한 단계 올려 눌리는 자리임을 알린다 */
+.card:hover {
+  background: var(--bg-secondary);
 }
 
-/* hover 중인 테이블 — 기준점이라 가장 강하게 */
-.cardOn {
+/* hover 중인 테이블 — 관계 강조의 기준점이라 가장 강하게.
+   링과 그림자 대신 테두리 굵기와 배경으로 단계를 만든다. */
+.cardOn,
+.cardOn:hover {
   border-color: var(--border-accent-strong-color);
-  box-shadow: 0 0 0 3px var(--bg-accent-subtle), var(--shadow-md);
+  background: var(--bg-accent-subtle);
 }
-
-/* 연결된 테이블 — 흐림의 반대편이 아니라 그 자체로 표시가 있어야 읽힌다 */
-.grid .cardRel {
+.cardOn .cardName {
+  color: var(--text-accent);
+}
+/* 연결된 테이블 — 흐림의 반대편이 아니라 그 자체로 표시가 있어야 읽힌다.
+   1px 테두리는 색만 바꾸면 약해서 같은 색을 한 겹 덧댄다(레이아웃은 그대로). */
+.cardRel {
   border-color: var(--border-accent-color);
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1px var(--border-accent-color);
 }
 
 /* 관계없는 것들은 확실히 뒤로 물린다 — 0.35 로는 구분이 약했다 */
@@ -55,36 +72,30 @@
   opacity: 0.18;
 }
 
-/* 방향 배지 — 아이콘 + 짧은 말. 화살표만으로는 어느 쪽이 참조하는지 안 읽힌다 */
-.dirTag {
-  display: inline-flex;
-  gap: 3px;
-  align-items: center;
-  flex-shrink: 0;
-  padding: 1px var(--spacing-2xs);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-accent-subtle);
-  color: var(--text-accent);
-  font-size: var(--font-size-2xs);
-  white-space: nowrap;
-}
 .cardMain {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
   width: 100%;
-  padding: var(--box-md);
+  height: 100%;
+  padding: 0;
   border: 0;
-  border-radius: inherit;
   background: transparent;
   text-align: left;
   cursor: pointer;
 }
-.cardTop {
+
+/* 머리글 띠 — 다이어그램 노드(ErdFlow .head)와 같은 바탕색·서체 */
+.cardHead {
   display: flex;
-  gap: var(--spacing-sm);
-  align-items: baseline;
-  justify-content: space-between;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  padding: var(--box-3xs-sm);
+  border-bottom: var(--border-light);
+  background: var(--bg-tertiary);
+}
+.cardOn .cardHead {
+  border-bottom-color: var(--border-accent-color);
+  background: transparent;
 }
 .cardName {
   overflow: hidden;
@@ -94,6 +105,81 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+/* 컬럼 미리보기 — 다이어그램 노드의 행과 같은 3열 구성 */
+.cardCols {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--box-3xs-sm);
+}
+.col {
+  display: grid;
+  /* 타입도 줄어들 수 있는 트랙에 둔다 — auto 로 두면 긴 타입이 카드를 넘어가 잘린다 */
+  grid-template-columns: 1.4rem minmax(0, 1fr) minmax(0, auto);
+  gap: var(--spacing-2xs);
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  line-height: 1.7;
+}
+.colKey {
+  color: transparent;
+  font-size: 9px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+.colKeyPk { color: var(--text-accent); }
+.colKeyFk { color: var(--text-info); }
+.colName {
+  overflow: hidden;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.colType {
+  overflow: hidden;
+  color: var(--text-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 바닥 줄 — 전체 규모. 미리보기에 안 담긴 나머지가 몇 개인지 먼저 말한다 */
+.cardSub {
+  display: flex;
+  /* 통계는 줄어들지 않는다 — 좁은 카드에서 넘쳐 잘리느니 줄을 바꾼다 */
+  flex-wrap: wrap;
+  gap: 2px var(--spacing-xs);
+  align-items: center;
+  min-width: 0;
+  padding: var(--box-3xs-sm);
+  border-top: var(--border-light);
+}
+.cardOn .cardSub {
+  border-top-color: var(--border-accent-color);
+}
+
+/* 방향 배지 — 아이콘 + 짧은 말. 화살표만으로는 어느 쪽이 참조하는지 안 읽힌다 */
+.dirTag {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 1px var(--spacing-2xs);
+  border-radius: 0;
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+}
+/* 선택된 카드는 바탕이 이미 강조색이라 배지가 묻힌다 — 바탕을 비워 글자로만 읽히게 */
+.cardOn .dirTag {
+  padding-inline: 0;
+  background: transparent;
+}
+
 /* 단위를 붙인 통계 — 숫자만으로는 컬럼 수인지 관계 수인지 알 수 없다 */
 .stat {
   display: inline-flex;
@@ -101,39 +187,44 @@
   align-items: center;
   flex-shrink: 0;
   color: var(--text-tertiary);
+  font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
 }
-/* 두 번째 줄 — 컬럼/관계 수와 PK. 카드만 보고도 테이블 성격이 읽히게 */
-.cardSub {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: center;
-  min-height: 1.2em;
-  overflow: hidden;
-}
-.pkTag {
-  display: inline-flex;
-  gap: 3px;
-  align-items: center;
-  min-width: 0;
-  padding: 1px 8px;
-  border-radius: var(--radius-capsule);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* 나머지 컬럼 수는 맨 오른쪽으로 — 미리보기가 잘렸다는 신호다 */
+.stat:first-child {
+  order: 1;
+  margin-left: auto;
+  color: var(--text-muted);
 }
 
-.empty {
-  grid-column: 1 / -1;
-  margin: 0;
-  padding: var(--box-lg);
-  color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
+/* 빈 상태 — 목록/다이어그램 공통. "처음이라 없음"과 "검색 결과 없음"이 같은 껍데기를 쓴다. */
+.emptyBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  min-height: 220px;
+  padding: var(--box-xl);
+  border: 1px dashed var(--border-light-color);
+  border-radius: var(--radius-2xl);
   text-align: center;
+}
+
+.emptyTitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.emptyHint {
+  margin: 0 0 var(--spacing-2xs);
+  max-width: 42ch;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  line-height: 1.6;
 }
 
 /* ── 뷰 전환 ── */
@@ -266,4 +357,27 @@
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   overflow: hidden;
+}
+
+/* 검증 경고 — 저장(DB CHECK)이 거부할 테이블을 카드에서 먼저 드러낸다 */
+.warnTag {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 1px var(--spacing-2xs);
+  border-radius: 0;
+  background: var(--bg-warning-soft);
+  color: var(--text-warning);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+}
+
+/* 툴바 요약 — 몇 개가 문제인지 */
+.warnCount {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  color: var(--text-warning);
+  font-size: var(--font-size-xs);
 }

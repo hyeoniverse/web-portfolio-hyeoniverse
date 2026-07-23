@@ -118,9 +118,15 @@ interface ChenModel {
 }
 
 /** 실제 스키마에서 개념 모델을 뽑는다 */
+/** 좁혀 볼 때 펼치는 속성 상한 — 전부 펼치면(posts 27개) 부채꼴에 안 들어가고 서로 겹친다.
+ *  PK → 다중값/파생(Chen 표기에서 의미가 있는 것) → 나머지 순으로 채운다. */
+const FOCUS_ATTR_MAX = 12;
+
 export function buildChenModel(
   tables: ErdTable[] = erdTables,
   relations = erdRelations,
+  /** 좁혀 볼 엔티티 — 이것과 직접 연결된 것만 남기고, 이 엔티티의 속성을 더 펼친다 */
+  focus?: string | null,
 ): ChenModel {
   const byName = new Map(tables.map((t) => [t.name, t]));
   const core = coreEntities(tables, relations);
@@ -186,6 +192,43 @@ export function buildChenModel(
       recursive: true,
     });
   });
+
+  /* ── 좁혀 보기 ─────────────────────────────────────────
+     클릭한 엔티티와 직접 연결된 것만 남기고 나머지는 그림에서 뺀다(흐리게가 아니라 제거).
+     자리가 비는 만큼 그 엔티티의 속성을 더 펼쳐서 "간단 요약 → 상세" 로 이어지게 한다. */
+  if (focus && entities.some((e) => e.name === focus)) {
+    const keep = new Set<string>([focus]);
+    relationships.forEach((r) => {
+      if (r.from === focus) keep.add(r.to);
+      if (r.to === focus) keep.add(r.from);
+    });
+
+    const t = byName.get(focus);
+    const expanded = t
+      ? (() => {
+          const kindOf = (c: ErdTable["columns"][number]) =>
+            /\[\]$/.test(c.type.trim()) ? "multi" as const
+              : /_count$/.test(c.name) ? "derived" as const
+              : "simple" as const;
+          /* PK → 다중값·파생 → 나머지. 상한을 넘으면 뒤쪽(평범한 컬럼)부터 잘린다. */
+          const score = (c: ErdTable["columns"][number]) =>
+            c.pk ? 0 : kindOf(c) !== "simple" ? 1 : 2;
+          return [...t.columns]
+            .map((c, i) => ({ c, i }))
+            .sort((a, b) => score(a.c) - score(b.c) || a.i - b.i)
+            .slice(0, FOCUS_ATTR_MAX)
+            .sort((a, b) => a.i - b.i)
+            .map(({ c }) => ({ name: ATTR_SHORT[c.name] ?? c.name, key: !!c.pk, kind: kindOf(c) }));
+        })()
+      : null;
+
+    return {
+      entities: entities
+        .filter((e) => keep.has(e.name))
+        .map((e) => (e.name === focus && expanded ? { ...e, attributes: expanded } : e)),
+      relationships: relationships.filter((r) => keep.has(r.from) && keep.has(r.to)),
+    };
+  }
 
   return { entities, relationships };
 }
@@ -272,11 +315,19 @@ export function layoutChen(model: ChenModel): ChenPlacement {
     const base = baseAngle.get(e.name) ?? (p.x < CHEN_W / 2 ? Math.PI : 0);
     const dir = base === Math.PI ? -1 : 1;
     const count = e.attributes.length;
+    /* 속성 수에 맞춰 부채꼴을 넓힌다 — 좁혀 보기에서 속성이 펼쳐지면 기본 70° 에는 다 못 들어간다.
+       그래도 모자라면 반경을 번갈아 두 겹으로 나눠 이웃끼리 겹치지 않게 한다. */
+    const rings = count > 7 ? 2 : 1;
+    const perRing = Math.ceil(count / rings);
+    const spread = Math.min(ATTR_SPREAD * Math.max(1, perRing / 3), Math.PI * 1.05);
+    const vertical = Math.abs(Math.cos(base)) < 0.5;
+    const baseRad = vertical ? ATTR_RADIUS_V : ATTR_RADIUS;
     attributes[e.name] = e.attributes.map((_, j) => {
-      const t = count === 1 ? 0 : j / (count - 1) - 0.5;
-      const a = base + t * ATTR_SPREAD * dir;
-      const vertical = Math.abs(Math.cos(base)) < 0.5;
-      const rad = vertical ? ATTR_RADIUS_V : ATTR_RADIUS;
+      const ring = j % rings;
+      const idx = Math.floor(j / rings);
+      const t = perRing === 1 ? 0 : idx / (perRing - 1) - 0.5;
+      const a = base + t * spread * dir;
+      const rad = baseRad + ring * (ATTR_RY * 2 + 30);
       return {
         x: p.x + Math.cos(a) * rad,
         y: p.y + Math.sin(a) * rad,

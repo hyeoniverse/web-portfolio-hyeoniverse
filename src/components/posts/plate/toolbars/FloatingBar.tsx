@@ -143,6 +143,7 @@ export default function FloatingBar({
     <div ref={refs.setFloating} style={floatStyle}>
       <div
         ref={frameRef}
+        data-floating-bar
         className={`${styles.floatingBarFrame}${inline ? ` ${styles.floatingBarFrameInline}` : ""}`}
         style={drag.dx || drag.dy ? { transform: `translate(${drag.dx}px, ${drag.dy}px)` } : undefined}
       >
