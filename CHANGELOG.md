@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.29.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.28.0...v1.29.0) (2026-07-23)
+
+
+### Features
+
+* **about:** ERD 컬럼에 제약·기본값·설명·ENUM, 테이블에 뷰 구분 추가 ([0f12aa1](https://github.com/hyeoniverse/web-portfolio-oval/commit/0f12aa1269797776d43b8ce2554cc3f51f3519a8)), closes [#366](https://github.com/hyeoniverse/web-portfolio-oval/issues/366)
+* **about:** SQL 가져오기가 모든 구문을 읽고 병합 모드를 지원 ([478e865](https://github.com/hyeoniverse/web-portfolio-oval/commit/478e8655f3704228925df980424826d3a4e115a0)), closes [#367](https://github.com/hyeoniverse/web-portfolio-oval/issues/367)
+
 ## [1.28.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.27.0...v1.28.0) (2026-07-22)
 
 
