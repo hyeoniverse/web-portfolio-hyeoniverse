@@ -1695,18 +1695,34 @@ textarea.edit {
   flex-direction: column;
   gap: var(--spacing-sm);
 }
-/* 펼침/접힘 — grid-template-rows 0fr↔1fr 이 auto 높이에도 트랜지션이 걸린다.
-   width/height 와 달리 전역 theme transition 목록에 없어 복합 선택자로 건다. */
 .erdPanel {
-  display: grid;
-  grid-template-rows: 1fr;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
-.erdImport .erdPanel {
+
+/* 펼침/접힘 — height:auto 는 트랜지션이 안 되므로 grid-template-rows 0fr↔1fr 을 쓴다.
+   이 속성은 전역 theme transition 목록에 없어 복합 선택자 (0,2,0) 으로 특이도를 올려야 살아남는다. */
+.erdCollapse {
+  display: grid;
+  grid-template-rows: 0fr;
+}
+.erdImport .erdCollapse {
   transition: grid-template-rows var(--duration-base) var(--ease-material);
 }
-.erdPanel > * {
+.erdCollapseOpen {
+  grid-template-rows: 1fr;
+}
+.erdCollapse > * {
   min-height: 0;
   overflow: hidden;
+}
+
+/* 안내 문구 · textarea · 버튼 사이 간격. 설명과 입력은 한 묶음으로 읽혀야 하므로 촘촘하게. */
+.erdCollapseInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 /* 파일을 끌어다 놓는 중 — outline 이라 레이아웃이 밀리지 않는다 */
 .erdImportOver {
@@ -1730,11 +1746,14 @@ textarea.edit {
   align-items: center;
   flex: 1;
   min-width: 0;
-  padding: var(--box-sm);
+  /* 높이를 옆 버튼(size="md" → --control-h-md)과 정확히 맞춘다 — 한 줄에 나란히 서는 컨트롤이라
+     높이가 다르면 줄이 어긋나 보인다. 폭은 flex:1 로 남는 자리를 채운다. */
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-sm);
   border: 1px solid var(--border-light-color);
   border-radius: var(--radius-2xl);
   color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   cursor: text;
   outline: none;
 }
@@ -1768,10 +1787,11 @@ textarea.edit {
 /* ERD 그리드 — 폭에 맞춰 흐르므로 가로 스크롤이 없다. 세로만 제한. */
 /* overflow-y:auto 는 클리핑 박스를 만든다 (x 축도 visible 이 아니게 됨) —
    여백이 없으면 카드 hover 그림자와 1px 띄움이 가장자리에서 잘린다. */
+/* 높이를 가두지 않는다 — 목록은 페이지와 함께 흐르게 둔다.
+   안쪽에 스크롤 상자를 두면 (1) 전역 Lenis 가 휠을 가로채 안 움직이고
+   (2) 테이블이 많을 때 내용이 잘린 것처럼 보인다.
+   다이어그램 뷰는 .flowBox 가 스스로 높이를 갖고 있어 이 영향을 받지 않는다. */
 .erdCanvasScroll {
-  overflow-y: auto;
-  max-height: 40rem;
-  /* --shadow-md 의 blur 가 12px 라 그만큼은 비워야 잘리지 않는다 */
   padding: var(--spacing-sm);
   margin: calc(var(--spacing-sm) * -1);
 }
@@ -1811,4 +1831,110 @@ textarea.edit {
   color: var(--text-tertiary);
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
+}
+
+/* SQL 가져오기 — 파일 출처 · 파싱 미리보기 · 교체 경고. 결정하는 자리(버튼) 바로 위에 둔다.
+   내용이 없을 땐 높이를 차지하지 않는다(:empty) — 빈 줄이 설명과 입력을 갈라놓았다. */
+.erdMeta {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: var(--font-size-xs);
+}
+.erdMeta:empty {
+  display: none;
+}
+.erdFile {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  max-width: 18rem;
+  padding: 1px var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.erdPreviewOk {
+  color: var(--text-success);
+}
+.erdPreviewMuted {
+  color: var(--text-tertiary);
+}
+.erdPreviewNone {
+  color: var(--text-tertiary);
+}
+/* 가져오기는 병합이 아니라 교체다 — 누르기 전에 보이게 */
+.erdReplaceWarn {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-warning-soft);
+  color: var(--text-warning);
+  font-size: var(--font-size-2xs);
+}
+
+/* 파일 선택 — 열림/닫힘 두 상태에서 늘 액션 행의 오른쪽 끝.
+   (닫힘에선 flex:1 드롭존이 밀어주고, 열림에선 이 margin 이 민다) */
+.erdFileBtn {
+  margin-left: auto;
+}
+
+/* 가져오기 적용 전 경고 — 무엇이 덮어써지고 사라지는지 목록으로 */
+.planList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin: var(--spacing-sm) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-xs);
+}
+.planList li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--text-secondary);
+}
+.planDanger strong {
+  color: var(--text-warning);
+}
+.planNames {
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  word-break: break-all;
+}
+/* 전 → 후 비교 — 스키마가 길면 스스로 스크롤한다 */
+.planDiff {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 11rem;
+  overflow-y: auto;
+  margin-top: 2px;
+}
+.planDiffRow {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+}
+.planDiffRow code {
+  color: var(--text-primary);
+}
+.planBefore {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+}
+.planAfter {
+  color: var(--text-warning);
 }
