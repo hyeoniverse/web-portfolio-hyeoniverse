@@ -175,16 +175,30 @@ error 가 0 이면 eslint 는 성공으로 끝낸다. CI 는 그 신호만 보�
 + "lint": "eslint --max-warnings 435"
 
 - "type-coverage": "type-coverage --strict --at-least 97"
-+ "type-coverage": "type-coverage --strict --at-least 97.7"
++ "type-coverage": "type-coverage --strict --ignore-files \".next/**\" --at-least 97.78"
 ```
 
-`type-coverage`(타입이 제대로 붙은 비율)는 현재 97.71% 인데 기준이 97 로 느슨했다.
-0.71%p 만큼 후퇴해도 통과한다는 뜻이라 현재 수치에 붙였다.
-CI 에서 `continue-on-error: true` 였던 것도 제거해 **차단으로 승격**했다.
+`type-coverage`(타입이 제대로 붙은 비율)는 기준이 97 로 느슨해 0.7%p 후퇴해도 통과했다.
+현재 수치에 붙이고, CI 에서 `continue-on-error: true` 였던 것도 제거해 **차단으로 승격**했다.
 
-이제 warning 이 436개가 되거나 커버리지가 97.69% 로 떨어지면 CI 가 실패한다.
-**둘 다 실제로 실패하는지 확인했다** — `--max-warnings 434` / `--at-least 97.8` 로
+이제 warning 이 436개가 되거나 커버리지가 97.77% 로 떨어지면 CI 가 실패한다.
+**둘 다 실제로 실패하는지 확인했다** — `--max-warnings 434` / `--at-least 97.79` 로
 모의 실행해 exit 1 을 검증.
+
+> **함정 하나 — 게이트 기준은 로컬이 아니라 CI 다.**
+>
+> 처음엔 로컬 수치(97.71%)를 그대로 임계치로 박았는데 **CI 에서 실패했다.**
+> 같은 명령이 환경에 따라 다른 값을 냈기 때문이다.
+>
+> 원인은 두 가지였다.
+> 1. `global.d.ts` 에 `declare module "*.css";` 만 있어 CSS Module 의 `styles` 가 **타입 없는 any** 였다.
+>    로컬에서는 `next-env.d.ts` 가 참조하는 `.next/types/routes.d.ts` 가 Next 의 CSS 타입을 보충해
+>    가려져 있었지만, **빌드하지 않는 CI 에는 그 파일이 없다**
+> 2. `.next/**` 의 Next 생성 타입 파일이 분모에 섞여 로컬에서만 수치가 0.07%p 낮았다
+>
+> `*.module.css` 를 클래스명 맵으로 직접 선언하고 `.next/**` 를 집계에서 제외해
+> **로컬과 CI 가 같은 값(97.78%)** 을 내도록 맞췄다.
+> 앞으로 게이트를 추가할 때는 **CI 에서 한 번 돌려 값을 확인한 뒤 임계치를 정한다.**
 
 #### 왜 435개를 그대로 두나
 
@@ -330,6 +344,32 @@ gsap + ScrollTrigger 를 정적 import 한다. Lenis 스크롤과 ScrollTrigger 
 - [ ] `lib` / `utils` / `hooks` / `constants` / `config` 경계 재정의 (현재 중복 의심)
 
 **주의:** 이 Phase는 diff가 거대해 보이지만 내용은 이동뿐이어야 한다. 로직 수정 금지.
+
+#### 상수·타입 정리는 "기준만 여기서, 이동은 Phase 4 에서"
+
+현재 상태를 보면 이렇다.
+
+| | |
+| --- | --- |
+| `src/constants/` | 116줄 4파일 |
+| 코드 전역에 흩어진 대문자 상수 export | **130곳** |
+| `src/types/` | 615줄 9파일 |
+
+`constants/` 디렉토리가 사실상 제 역할을 못 하고 있으니 "지금 다 모으자" 가 답 같지만,
+**그러면 두 번 일하게 된다.**
+
+Phase 4 에서 `PostsClient.tsx`(1,972줄) · `AboutStudio.tsx`(2,508줄) 같은 파일을 쪼개면
+그 안에 박힌 상수와 타입도 함께 재배치된다. 지금 미리 옮겨놔도 그때 또 움직여야 한다.
+
+**따라서:**
+
+- **Phase 3 에서는 배치 기준만 정한다** — 한 파일에서만 쓰면 그 파일 안에,
+  한 도메인이면 도메인 폴더, 진짜 전역이면 `constants/` · `types/`
+- **실제 이동은 Phase 4 에서 파일을 쪼갤 때 함께 한다** — 어차피 그 파일을 손대고 있으니
+  추가 비용이 거의 없다
+- 미사용 타입 20개 삭제도 슬라이스에서 처리 ([dead-code-inventory.md](dead-code-inventory.md) E)
+
+원칙 P6(보이스카웃 금지)과도 맞는다. 지나가다 상수를 하나씩 옮기면 diff 가 오염된다.
 
 ### Phase 4 — 도메인 슬라이스 순회 (전체의 70%)
 
