@@ -146,3 +146,16 @@
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
 }
+
+/* 편집 경로 안내 — admin 에서만 뜬다(공개 패널은 onEdit 이 없어 렌더 안 됨).
+   포커스 중엔 칩이 그 자리를 대신하므로 감춘다. */
+.editHint {
+  padding: 3px 8px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.01em;
+  pointer-events: none;
+}

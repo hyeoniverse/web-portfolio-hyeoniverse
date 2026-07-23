@@ -27,6 +27,23 @@ const itemMeta: Record<
     recommendReason?: { ko: string; en: string };
   }
 > = {
+  "부모의 마운트 fitView 가 자식 effect 의 카메라 제어를 매번 덮어씀": {
+    featured: true, section: "I", difficulty: 3, recommended: true,
+    recommendReason: {
+      ko: "\"아무 일도 안 일어남\" 의 원인이 호출 누락이 아니라 실행 순서였던 사례라 골랐습니다.",
+      en: "Picked this because the cause of \"nothing happens\" wasn't a missing call but effect ordering.",
+    },
+  },
+  "SQL 가져오기에서 DROP 이 조용히 무시됨 — 파서가 \"남은 것\" 만 돌려줬기 때문": {
+    featured: true, section: "A", difficulty: 3, recommended: true,
+    recommendReason: {
+      ko: "부재로 의도를 표현하려던 자료 구조가 어디서 무너지는지 보여드리고 싶어 골랐습니다.",
+      en: "Picked this to show where a data shape that encodes intent as absence falls apart.",
+    },
+  },
+  "표 안의 아이콘 버튼을 늘렸더니 그 행만 높이가 달라짐": {
+    featured: true, section: "L", difficulty: 2,
+  },
   // Architecture & Backend
   "포스트 실수 삭제 시 복구 불가": { section: "A", difficulty: 3 },
   "AI 번역/요약이 provider 장애 시 완전 중단": { section: "A", difficulty: 3 },
@@ -330,6 +347,75 @@ const itemMeta: Record<
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
+  {
+    problem: {
+      ko: "부모의 마운트 fitView 가 자식 effect 의 카메라 제어를 매번 덮어씀",
+      en: "The parent's mount-time fitView silently overwrote the child's camera control",
+    },
+    definition: {
+      ko: "ERD 다이어그램에서 테이블을 누르면 연결된 것들이 한 화면에 담기게 하려고, React Flow 안에 작은 컴포넌트를 두고 `useEffect` 에서 `fitView()` 를 불렀습니다. 코드도 배선도 맞는데 화면은 늘 같은 배율·같은 자리에 착지했습니다. 두 번을 고쳐도 증상이 그대로였습니다.",
+      en: "To frame a table with everything it connects to, a small component inside React Flow called `fitView()` from a `useEffect`. The code and the wiring were both correct, yet the camera always landed at the same zoom and position. Two rounds of fixes changed nothing.",
+    },
+    cause: {
+      ko: "`<ReactFlow>` 에 `fitView` prop 이 걸려 있었고, 포커스가 바뀔 때마다 `key` 가 바뀌어 **리마운트**되므로 그 초기 fit 이 매번 실행됐습니다. 결정적인 건 순서입니다 — **React 는 자식의 effect 를 부모보다 먼저 실행합니다.** 자식(`fitView` 호출)이 먼저 돌고, 곧바로 부모 ReactFlow 의 마운트 fit 이 그 결과를 덮어썼습니다. 아무 에러도 나지 않으니 \"내 코드가 안 불린다\" 고 의심하게 됩니다.",
+      en: "`<ReactFlow>` had the `fitView` prop, and since `key` changed on every focus change the component **remounted**, re-running that initial fit each time. The decisive part is ordering — **React runs child effects before parent effects.** The child's `fitView()` ran first and the parent's mount fit immediately overwrote it. Nothing errors, so you start suspecting your own handler never fires.",
+    },
+    solution: {
+      ko: "카메라를 잡는 곳을 하나로 만들었습니다. 명령형 effect 를 걷어내고 `fitViewOptions` 를 상태에 따라 바꿔, React Flow 가 자기 타이밍에 알아서 맞추게 했습니다. 노드 측정이 끝났는지 기다릴 필요도 사라졌습니다.",
+      en: "Give the camera a single owner. Drop the imperative effect and vary `fitViewOptions` by state so React Flow performs the fit on its own schedule. Waiting for nodes to be measured stopped being a concern too.",
+    },
+    keyInsight: {
+      ko: "라이브러리가 선언형 prop 으로 이미 제어하는 것을 명령형 API 로 또 만지면, 둘 중 **나중에 실행되는 쪽이 이깁니다.** 그리고 자식 effect 는 부모보다 먼저 돌기 때문에, 라이브러리 컴포넌트 안에 넣은 내 제어는 구조적으로 항상 집니다. 증상이 \"아무 일도 안 일어남\" 이면 코드가 안 불리는 게 아니라 **불린 뒤 덮어써지는 것**을 먼저 의심하세요.",
+      en: "When a library already controls something through a declarative prop and you also poke it imperatively, **whichever runs last wins.** And since child effects run before parent effects, control placed inside the library's own component structurally always loses. When the symptom is \"nothing happens\", suspect that your code ran and was overwritten — not that it never ran.",
+    },
+    tags: ["react", "useEffect", "react-flow", "declarative-vs-imperative", "effect-order"],
+  },
+  {
+    problem: {
+      ko: "SQL 가져오기에서 DROP 이 조용히 무시됨 — 파서가 \"남은 것\" 만 돌려줬기 때문",
+      en: "DROP was silently ignored on SQL import — because the parser only returned what remained",
+    },
+    definition: {
+      ko: "About ERD 의 SQL 가져오기에 병합 모드를 넣은 뒤, `DROP TABLE junk;` 를 넣어도 테이블이 그대로 남고 `ALTER TABLE posts DROP COLUMN legacy;` 를 넣으면 지운 컬럼이 **되살아났습니다.** 오류도 경고도 없었습니다.",
+      en: "After adding merge mode to the About ERD's SQL import, `DROP TABLE junk;` left the table in place and `ALTER TABLE posts DROP COLUMN legacy;` made the dropped column **come back.** No error, no warning.",
+    },
+    cause: {
+      ko: "파서가 처리 결과로 **남아 있는 테이블·컬럼만** 돌려주고 있었습니다. 그러면 병합하는 쪽에서는 \"SQL 에 없음\" 이 *언급하지 않았음(유지)* 인지 *지웠음(삭제)* 인지 구별할 수 없습니다. 병합 규칙은 잃지 않는 쪽이 기본이라 둘 다 \"유지\" 로 처리했고, 삭제가 전부 되돌려졌습니다. 같은 뿌리에서 `RENAME TO` 도 옛 이름과 새 이름이 **둘 다 남는** 버그가 나왔습니다.",
+      en: "The parser returned only the tables and columns that **remained**. That leaves the merge step unable to tell whether \"absent from the SQL\" means *not mentioned (keep)* or *deleted (remove)*. Merge defaults to not losing data, so both became \"keep\" and every deletion was undone. The same root cause made `RENAME TO` leave **both** the old and the new name behind.",
+    },
+    solution: {
+      ko: "삭제를 결과의 부재로 표현하지 않고 **명시적으로 보고**하도록 바꿨습니다(`removedTables` / `removedColumns`, `RENAME` 은 옛 이름을 삭제로 보고). 병합은 이 목록만 실제로 지웁니다. 최종 상태 기준이라 `DROP` 뒤에 다시 `CREATE` 하면 삭제로 치지 않고, 사라진 대상에 걸려 있던 관계선도 함께 끊습니다.",
+      en: "Stop expressing deletion as absence and **report it explicitly** (`removedTables` / `removedColumns`; `RENAME` reports the old name as removed). Merge then removes exactly that list. It reflects the final state, so a `DROP` followed by a `CREATE` isn't a deletion, and relations attached to anything removed are cut with it.",
+    },
+    keyInsight: {
+      ko: "결과에서 **빠져 있다는 사실만으로는 의도를 전달할 수 없습니다.** \"없음\" 이 \"관심 없음\" 과 \"지워라\" 를 동시에 뜻하는 자료 구조는, 그 둘을 구별해야 하는 순간 반드시 한쪽을 조용히 틀리게 처리합니다. 두 상태를 다르게 다뤄야 한다면 표현도 둘로 나눠야 합니다.",
+      en: "**Absence alone cannot carry intent.** A data shape where \"missing\" means both \"didn't touch it\" and \"delete it\" will silently get one of them wrong the moment the two must be distinguished. If two states need different handling, they need different representations.",
+    },
+    tags: ["parser", "merge", "data-modeling", "sql", "semantics"],
+  },
+  {
+    problem: {
+      ko: "표 안의 아이콘 버튼을 늘렸더니 그 행만 높이가 달라짐",
+      en: "Adding icon buttons to a table cell made only that row taller",
+    },
+    definition: {
+      ko: "ERD 컬럼 편집 표의 제약 칸에 버튼을 하나에서 셋으로 늘리면서 간격을 주려고 `<td>` 에 `display: flex` 를 줬습니다. 그러자 그 행만 다른 행보다 높아지고 셀 정렬이 어긋났습니다.",
+      en: "Going from one button to three in the constraints cell of the ERD column editor, I set `display: flex` on the `<td>` to get spacing. That row alone became taller than the rest and the cells stopped lining up.",
+    },
+    cause: {
+      ko: "원인이 두 겹이었습니다. ① `<td>` 를 flex 컨테이너로 만들면 그 셀은 **표 레이아웃 알고리즘에서 빠져나와** 행 높이 계산에 정상적으로 참여하지 못합니다. ② 버튼이 `inline-flex` 라 기본이 baseline 정렬인데, baseline 아래로 descender 공간이 남아 셀 높이를 밀어 올립니다. 버튼이 하나일 때는 눈에 안 띄다가 셋이 되면서 드러났습니다.",
+      en: "Two layers. ① Making a `<td>` a flex container **pulls it out of the table layout algorithm**, so it no longer participates properly in row-height calculation. ② The buttons are `inline-flex`, which aligns to the baseline by default, and the descender space below the baseline pushes the cell taller. With one button it was invisible; three made it obvious.",
+    },
+    solution: {
+      ko: "셀은 `table-cell` 로 두고 버튼끼리만 `margin` 으로 간격을 줬습니다. 그리고 버튼에 `vertical-align: middle` 을 명시해 baseline 여백을 없앴습니다. 나중에 버튼이 툴팁 래퍼(`span`) 안으로 들어가면서 인접 선택자가 깨졌는데, 요소 종류를 가리지 않는 `.cell > * + *` 로 바꿔 같은 문제가 재발하지 않게 했습니다.",
+      en: "Leave the cell as `table-cell` and space the buttons with `margin`, then set `vertical-align: middle` on them to kill the baseline gap. When the buttons were later wrapped in tooltip `span`s the adjacent-sibling selector broke, so it became `.cell > * + *` — element-agnostic, so the same problem can't return.",
+    },
+    keyInsight: {
+      ko: "`<td>` 의 `display` 를 바꾸는 건 그 셀 하나의 문제가 아니라 **표 전체의 레이아웃 계약을 깨는 일**입니다. 표 안에서 배치가 필요하면 셀이 아니라 셀 **안쪽 요소**에 flex 를 걸어야 합니다. 그리고 inline 계열 요소는 기본이 baseline 정렬이라, 높이가 이상하면 `vertical-align` 을 먼저 의심하세요.",
+      en: "Changing a `<td>`'s `display` isn't a local tweak — it **breaks the table's layout contract**. When you need layout inside a table, put flex on an element *inside* the cell, never on the cell. And inline-level elements align to the baseline by default, so when heights look wrong, suspect `vertical-align` first.",
+    },
+    tags: ["css", "table-layout", "flexbox", "vertical-align", "baseline"],
+  },
   /* ── 멀티 저자 / OAuth (Phase 1b) + 코드블록 ── */
   {
     section: { ko: "Backend / Auth", en: "Backend / Auth" },

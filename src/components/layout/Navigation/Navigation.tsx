@@ -271,44 +271,57 @@ export default function Navigation() {
   const navCenterRef = useRef<HTMLDivElement>(null);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
 
-  // ── Posts nav hover 드롭다운 (Series/Tags/History) — .nav 직속 자식으로 렌더해 difference blend 상속 ──
-  const postsChildren = navItems.find((i) => i.key === "posts")?.children ?? [];
-  const [postsMenuOpen, setPostsMenuOpen] = useState(false);
-  const [postsMenuPos, setPostsMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
-  const postsMenuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  // ── nav hover 드롭다운 — children 있는 항목의 하위 메뉴 (사용자 Posts / admin Settings).
+  //    .nav 직속 자식으로 렌더해 difference blend 상속. subMenuKey = 현재 열린 부모 항목 key. ──
+  const [subMenuKey, setSubMenuKey] = useState<string | null>(null);
+  const [subMenuPos, setSubMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const subMenuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  const openPostsMenu = useCallback(() => {
-    if (postsMenuCloseTimer.current) clearTimeout(postsMenuCloseTimer.current);
-    const el = navLinkRefs.current["posts"];
+  const openSubMenu = useCallback((key: string) => {
+    if (subMenuCloseTimer.current) clearTimeout(subMenuCloseTimer.current);
+    const el = navLinkRefs.current[key];
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    // .nav(position:fixed, top/left 0) padding box 기준 = viewport 좌표. Posts 링크 좌측 정렬.
-    setPostsMenuPos({ top: rect.bottom + 3, left: rect.left });
-    setPostsMenuOpen(true);
+    // .nav(position:fixed, top/left 0) padding box 기준 = viewport 좌표. 부모 링크 좌측 정렬.
+    setSubMenuPos({ top: rect.bottom + 3, left: rect.left });
+    setSubMenuKey(key);
   }, []);
 
-  const schedulePostsMenuClose = useCallback(() => {
-    if (postsMenuCloseTimer.current) clearTimeout(postsMenuCloseTimer.current);
-    postsMenuCloseTimer.current = setTimeout(() => setPostsMenuOpen(false), 160);
+  const scheduleSubMenuClose = useCallback(() => {
+    if (subMenuCloseTimer.current) clearTimeout(subMenuCloseTimer.current);
+    subMenuCloseTimer.current = setTimeout(() => setSubMenuKey(null), 160);
   }, []);
 
-  const cancelPostsMenuClose = useCallback(() => {
-    if (postsMenuCloseTimer.current) clearTimeout(postsMenuCloseTimer.current);
+  const cancelSubMenuClose = useCallback(() => {
+    if (subMenuCloseTimer.current) clearTimeout(subMenuCloseTimer.current);
   }, []);
 
   // pathname 변경(라우팅) / resize / Escape 시 닫기 — nav 가 fixed 라 scroll 은 무시
-  useEffect(() => { setPostsMenuOpen(false); }, [pathname]);
+  useEffect(() => { setSubMenuKey(null); }, [pathname]);
   useEffect(() => {
-    if (!postsMenuOpen) return;
-    const close = () => setPostsMenuOpen(false);
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setPostsMenuOpen(false); };
+    if (!subMenuKey) return;
+    const close = () => setSubMenuKey(null);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSubMenuKey(null); };
     window.addEventListener("resize", close);
     document.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("resize", close);
       document.removeEventListener("keydown", onKey);
     };
-  }, [postsMenuOpen]);
+  }, [subMenuKey]);
+
+  /* 하위 항목 활성 여부 — 일반 경로는 pathname 비교, 쿼리형 href(settings ?tab=)는
+     경로 + tab 파라미터 비교. settings 는 tab 미지정 시 general 이 기본.
+     window.location.search 로 읽어 전역 nav 가 useSearchParams 로 static 렌더를 deopt 하지 않게 한다.
+     (드롭다운은 hover 시에만 렌더돼 SSR 되지 않으므로 hydration 불일치 없음) */
+  const isChildActive = (href: string) => {
+    const qIdx = href.indexOf("?");
+    if (qIdx === -1) return pathname === href || pathname.startsWith(href + "/");
+    if (pathname !== href.slice(0, qIdx)) return false;
+    const wantTab = new URLSearchParams(href.slice(qIdx + 1)).get("tab");
+    const curTab = (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tab") : null) ?? "general";
+    return curTab === wantTab;
+  };
 
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
   // resize 중엔 transition 비활성화 — 그래야 indicator 가 메뉴 위치를 즉시 따라감
@@ -316,6 +329,29 @@ export default function Navigation() {
 
   // active key from pathname (detail 페이지도 부모 경로로 매칭)
   const currentNavItems = isAdminPage ? adminNavItems : navItems;
+  // 현재 열린 하위 메뉴의 children (없으면 빈 배열 → 드롭다운 미표시)
+  const subMenuChildren = (subMenuKey ? currentNavItems.find((i) => i.key === subMenuKey)?.children : undefined) ?? [];
+  // 서브메뉴가 열려 선택된 자식이 있으면 메인 인디케이터를 감추고, ▶ 가 부모 항목에서 그 자식으로 타고 내려온다.
+  const subMenuHandoff = subMenuKey != null && subMenuChildren.some((c) => isChildActive(c.href));
+
+  // ── travel 인디케이터 — ▶ 가 부모 항목 위치에서 선택된 서브 항목까지 타고 내려온다 ──
+  const activeSubItemRef = useRef<HTMLElement | null>(null);
+  const [travelPos, setTravelPos] = useState<{ from: { x: number; y: number }; to: { x: number; y: number } } | null>(null);
+
+  // 부모 nav 링크 rect(출발) + 선택된 서브 항목 rect(도착)을 측정 → 그 값으로 span 을 새로 마운트해 from→to 재생.
+  useLayoutEffect(() => {
+    if (!subMenuHandoff) { setTravelPos(null); return; }
+    const parent = subMenuKey ? navLinkRefs.current[subMenuKey] : null;
+    const child = activeSubItemRef.current;
+    if (!parent || !child) { setTravelPos(null); return; }
+    const pr = parent.getBoundingClientRect();
+    const cr = child.getBoundingClientRect();
+    // ▶ 중심 좌표(viewport = .nav fixed 기준). from = 부모 항목 메인 ▶ 자리, to = 선택 서브 항목 왼쪽.
+    setTravelPos({
+      from: { x: pr.left - 6, y: pr.top + pr.height / 2 },
+      to: { x: cr.left - 7, y: cr.top + cr.height / 2 },
+    });
+  }, [subMenuHandoff, subMenuKey]);
   // 가장 구체적인(긴 href) 항목 우선 매칭 — admin/posts 같은 하위 경로가 admin 보다 우선
   const activeNavKey =
     [...currentNavItems]
@@ -642,17 +678,24 @@ export default function Navigation() {
         onMouseLeave={() => setHoveredNav(null)}
       >
         {isAdminPage
-          ? adminNavItems.map((item) => (
-              <Link
-                key={item.key}
-                href={item.href}
-                ref={(el) => { navLinkRefs.current[item.key] = el; }}
-                className={`${styles.navLink} glith-on-hover`}
-                onMouseEnter={() => setHoveredNav(item.key)}
-              >
-                {item.label}
-              </Link>
-            ))
+          ? adminNavItems.map((item) => {
+              const hasChildren = !!item.children?.length;
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  ref={(el) => { navLinkRefs.current[item.key] = el; }}
+                  className={`${styles.navLink} glith-on-hover`}
+                  onMouseEnter={() => {
+                    setHoveredNav(item.key);
+                    if (hasChildren) openSubMenu(item.key);
+                  }}
+                  onMouseLeave={hasChildren ? scheduleSubMenuClose : undefined}
+                >
+                  {item.label}
+                </Link>
+              );
+            })
           : navItems.map((item) => {
               const hasChildren = !!item.children?.length;
               const link = (
@@ -663,9 +706,9 @@ export default function Navigation() {
                   className={`${styles.navLink} glith-on-hover`}
                   onMouseEnter={() => {
                     setHoveredNav(item.key);
-                    if (hasChildren) openPostsMenu();
+                    if (hasChildren) openSubMenu(item.key);
                   }}
-                  onMouseLeave={hasChildren ? schedulePostsMenuClose : undefined}
+                  onMouseLeave={hasChildren ? scheduleSubMenuClose : undefined}
                 >
                   {item.label}
                 </Link>
@@ -684,10 +727,16 @@ export default function Navigation() {
                 </Tooltip>
               );
             })}
-        <span
-          className={`${styles.navIndicator} ${indicatorStyle.opacity === 0 ? styles.navIndicatorHidden : ""}`}
-          style={indicatorInstant ? { ...indicatorStyle, transition: "none" } : indicatorStyle}
-        />
+        {(() => {
+          // 서브메뉴로 넘길 땐 메인 인디케이터를 숨긴다(opacity 0 → 선택 항목의 ▶ 가 대신).
+          const effStyle = subMenuHandoff ? { ...indicatorStyle, opacity: 0 } : indicatorStyle;
+          return (
+            <span
+              className={`${styles.navIndicator} ${effStyle.opacity === 0 ? styles.navIndicatorHidden : ""}`}
+              style={indicatorInstant ? { ...effStyle, transition: "none" } : effStyle}
+            />
+          );
+        })()}
       </div>
 
       <div className={styles.navActions}>
@@ -979,58 +1028,78 @@ export default function Navigation() {
         onLogout={handleLogout}
       />
 
-      {/* Posts nav 하위 드롭다운 (Series/Tags/History) — .nav 직속 자식 → difference blend 상속.
-         카드 없이 흰 텍스트가 page backdrop 과 blend (nav 링크와 동일 언어) */}
-      {postsChildren.length > 0 && (
-        <AnimatePresence>
-          {postsMenuOpen && (
-            <motion.div
-              key="posts-nav-dropdown"
-              className={styles.postsNavDropdown}
-              role="menu"
-              style={{ top: postsMenuPos.top, left: postsMenuPos.left }}
-              onMouseEnter={cancelPostsMenuClose}
-              onMouseLeave={schedulePostsMenuClose}
-              initial="hidden"
-              animate="show"
-              exit="hidden"
-              variants={{
-                hidden: { transition: { staggerChildren: 0.04, staggerDirection: -1 } },
-                show: { transition: { staggerChildren: 0.055, delayChildren: 0.02 } },
-              }}
-            >
-              {/* 연결선 — 먼저 위→아래로 draw */}
-              <motion.span
-                className={styles.postsNavDropdownLine}
-                aria-hidden="true"
-                variants={{ hidden: { scaleY: 0, opacity: 0 }, show: { scaleY: 1, opacity: 1 } }}
-                transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-              />
-              {postsChildren.map((child) => {
-                const active =
-                  pathname === child.href || pathname.startsWith(child.href + "/");
-                return (
-                  <motion.div
-                    key={child.key}
-                    className={styles.postsNavDropdownItemWrap}
-                    variants={{ hidden: { opacity: 0, x: -12 }, show: { opacity: 1, x: 0 } }}
-                    transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+      {/* nav 하위 드롭다운 — children 있는 항목(사용자 Posts / admin Settings) hover 시.
+         .nav 직속 자식 → difference blend 상속. 카드 없이 흰 텍스트가 page backdrop 과 blend. */}
+      <AnimatePresence>
+        {subMenuChildren.length > 0 && (
+          <motion.div
+            key={`sub-nav-dropdown-${subMenuKey}`}
+            className={styles.subNavDropdown}
+            role="menu"
+            style={{ top: subMenuPos.top, left: subMenuPos.left }}
+            onMouseEnter={cancelSubMenuClose}
+            onMouseLeave={scheduleSubMenuClose}
+            initial="hidden"
+            animate="show"
+            exit="hidden"
+            variants={{
+              hidden: { transition: { staggerChildren: 0.04, staggerDirection: -1 } },
+              show: { transition: { staggerChildren: 0.055, delayChildren: 0.02 } },
+            }}
+          >
+            {/* 연결선 — 먼저 위→아래로 draw */}
+            <motion.span
+              className={styles.subNavDropdownLine}
+              aria-hidden="true"
+              variants={{ hidden: { scaleY: 0, opacity: 0 }, show: { scaleY: 1, opacity: 1 } }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            />
+            {subMenuChildren.map((child) => {
+              const active = isChildActive(child.href);
+              return (
+                <motion.div
+                  key={child.key}
+                  className={styles.subNavDropdownItemWrap}
+                  /* 선택 항목은 스태거(x offset) 제외 — travel ink 가 도착할 위치를 안정적으로 측정하기 위해 */
+                  variants={active ? undefined : { hidden: { opacity: 0, x: -12 }, show: { opacity: 1, x: 0 } }}
+                  initial={active ? { opacity: 0 } : undefined}
+                  animate={active ? { opacity: 1 } : undefined}
+                  transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <Link
+                    ref={active ? (el) => { activeSubItemRef.current = el; } : undefined}
+                    href={child.href}
+                    role="menuitem"
+                    className={`${styles.subNavDropdownItem} ${active ? styles.subNavDropdownItemActive : ""}`}
+                    onClick={() => setSubMenuKey(null)}
                   >
-                    <Link
-                      href={child.href}
-                      role="menuitem"
-                      className={`${styles.postsNavDropdownItem} ${active ? styles.postsNavDropdownItemActive : ""}`}
-                      onClick={() => setPostsMenuOpen(false)}
-                    >
-                      {child.label}
-                    </Link>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      )}
+                    {child.label}
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* travel 인디케이터 — 부모 항목의 ▶ 자리에서 선택된 서브 항목으로 타고 내려온다.
+         .nav 직속 자식이라 difference blend 상속 + clip 밖(뷰포트 좌표)이라 안 잘림.
+         key 를 subMenuKey 로 둬 부모가 바뀌면 새로 마운트 → 매번 from→to 재생. */}
+      <AnimatePresence>
+        {travelPos && (
+          <motion.span
+            key={`travel-${subMenuKey}`}
+            className={styles.travelInk}
+            aria-hidden
+            initial={{ x: travelPos.from.x, y: travelPos.from.y, opacity: 1 }}
+            animate={{ x: travelPos.to.x, y: travelPos.to.y, opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+          >
+            ▶︎
+          </motion.span>
+        )}
+      </AnimatePresence>
     </nav>
     </>
   );

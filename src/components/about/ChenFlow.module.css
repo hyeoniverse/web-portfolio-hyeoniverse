@@ -149,3 +149,17 @@
   height: 100%;
   overflow: visible;
 }
+
+/* 좁혀 보기 전환 — 노드가 새 자리로 미끄러진다.
+   React Flow 는 노드마다 transform: translate() 를 쓰므로 거기에 트랜지션을 건다.
+   (팬/줌은 viewport 를 옮기므로 여기에 영향받지 않는다)
+   최초 마운트는 이전 값이 없어 애니메이션이 생기지 않는다. */
+.wrap :global(.react-flow__node) {
+  transition: transform var(--duration-slow) var(--ease-material);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrap :global(.react-flow__node) {
+    transition: none;
+  }
+}
