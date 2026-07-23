@@ -132,7 +132,7 @@ Phase 4에서 파일을 분해할 때 목표치. 절대 규칙이 아니라 **�
 
 **핵심 발견:**
 
-- 최저 라우트(`/_not-found`)조차 First Load JS 380 kB gzip — 모든 페이지가 권장선의 2배에서 시작
+- 최저 라우트(`/_not-found`)조차 First Load JS 380 kB gzip — 그중 160.7 kB 는 프레임워크 바닥이고, **앱 코드 219 kB 를 모든 페이지가 무조건 받는다**
 - 그중 **gsap 368 kB + framer-motion 계열 551 kB** 가 전 라우트에 무조건 로드됨
 - 소스맵 90 MB vs JS 25 MB (`productionBrowserSourceMaps: true`)
 - `next.config.ts` 의 `webpack:` 훅과 `@next/bundle-analyzer` 는 Turbopack 빌드에서 죽어 있음
@@ -222,9 +222,18 @@ Phase 0 실측으로 확정된 순서. **수치는 전부 gzip 기준**(= 실제
 
 **게이트:** 주요 라우트 First Load JS가 [perf-baseline.md](perf-baseline.md) 대비 감소. PR마다 수치 기재.
 
-**목표:** 공통 shell 380 kB → **280~300 kB**.
-`next` 160 kB 는 손댈 수 없어 이론적 하한이 약 200 kB 이고, 그건 framer-motion 을 완전히
-제거했을 때의 값이라 비현실적이다. 달성 가능한 선으로 잡는다.
+**목표:** 공통 shell 380 kB → **220~250 kB** (현재 318 kB).
+
+shell 의 절반은 손댈 수 없는 바닥이다 — React 19 + Next 16 런타임이 **160.7 kB**.
+빈 프로젝트를 새로 만들어도 여기서 시작한다.
+
+그래서 판단 기준은 **앱 코드(= shell − 160.7)** 다. 착수 시점 219 kB → 현재 157 kB 인데,
+그중 gsap(42.9)과 framer-motion 계열(54.9)이 **97.8 kB, 62%** 를 차지한다.
+둘을 필요한 라우트로 격리하면 앱 코드가 59 kB 로 줄어 총 220 kB 가 된다.
+
+> 흔히 인용되는 "First Load JS 100~200 kB" 기준은 이 프로젝트에 적용되지 않는다.
+> 그 수치는 프레임워크를 포함한 총량이고 Next 13~15 시절 기준이라, 바닥이 160.7 kB 인
+> 여기서는 도달 불가능하다. 자세한 근거는 [perf-baseline.md](perf-baseline.md#이-프로젝트에서-적당한-크기란) 참조.
 
 #### 2-1. gsap 격리 — 원인과 접근
 
