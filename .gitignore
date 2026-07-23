@@ -52,3 +52,5 @@ src/config/hyeon.config.ts
 # playwright 시각 회귀 — baseline 스냅샷(e2e/**/*-snapshots)만 커밋하고 실행 산출물은 제외
 /e2e/.results/
 /e2e/.report/
+# admin 로그인 세션 — 인증 토큰이 들어 있다. 절대 커밋 금지
+/e2e/.auth/

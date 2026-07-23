@@ -21,8 +21,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "prepare": "husky",
-    "test:visual": "playwright test",
-    "test:visual:update": "playwright test --update-snapshots"
+    "test:visual": "playwright test --project=desktop --project=mobile",
+    "test:visual:update": "playwright test --project=desktop --project=mobile --update-snapshots",
+    "test:visual:admin": "playwright test --project=admin"
   },
   "dependencies": {
     "@codemirror/autocomplete": "6.20.3",

@@ -1,4 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+
+// admin 로그인 credential(E2E_ADMIN_*)을 읽는다. Next 와 달리 Playwright 는 자동 로드하지 않는다.
+dotenv.config({ path: ".env.local" });
 
 /**
  * 리팩토링 시각 회귀 전용 설정. docs/refactoring-guide.md 의 원칙 P1(픽셀 보존) 검증용.
@@ -43,12 +47,29 @@ export default defineConfig({
   projects: [
     {
       name: "desktop",
+      testMatch: /visual\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
     },
     {
       // works/webflow 가 1024px 에서 가로스크롤 → 세로스택으로 분기해서 모바일도 잡는다.
       name: "mobile",
+      testMatch: /visual\.spec\.ts/,
       use: { ...devices["Pixel 7"] },
+    },
+
+    // admin 은 로그인 세션이 필요하다. setup 이 한 번 로그인해 storageState 를 남기고
+    // admin 프로젝트가 그걸 재사용한다. 최초 1회 기기 승인 절차는 e2e/auth.setup.ts 참고.
+    // 재시도 안 함 — 여기서 나는 실패는 credential 누락이나 기기 승인 대기라 사람이 손봐야 한다
+    { name: "setup", testMatch: /auth\.setup\.ts/, retries: 0 },
+    {
+      name: "admin",
+      testMatch: /admin\.spec\.ts/,
+      dependencies: ["setup"],
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 900 },
+        storageState: "e2e/.auth/admin.json",
+      },
     },
   ],
 

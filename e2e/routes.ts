@@ -59,6 +59,22 @@ export const PUBLIC_ROUTES: Route[] = [
 ];
 
 /**
+ * 로그인이 필요한 admin 라우트. Phase 4-1(admin 슬라이스, 40,586줄)의 안전망이다.
+ *
+ * 편집 화면(`/admin/posts/new` 등)은 Plate 에디터라 캡처가 불안정하고 Phase 4-4 대상이므로
+ * 목록·설정 위주로 잡는다. 실행 전 `e2e/auth.setup.ts` 참고.
+ */
+export const ADMIN_ROUTES: Route[] = [
+  { path: "/admin", name: "admin-dashboard" },
+  { path: "/admin/settings", name: "admin-settings" },
+  { path: "/admin/posts", name: "admin-posts" },
+  { path: "/admin/works", name: "admin-works" },
+  { path: "/admin/comments", name: "admin-comments" },
+  { path: "/admin/notifications", name: "admin-notifications" },
+  { path: "/admin/reports", name: "admin-reports" },
+];
+
+/**
  * 전 라우트 공통 마스크 — 실행마다 값이 달라져 diff 를 오염시키는 영역.
  * 여기 넣는다는 건 "이 영역의 회귀는 시각 테스트로 못 잡는다"는 뜻이니 최소로 유지한다.
  */
