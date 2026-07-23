@@ -123,17 +123,22 @@ Phase 4에서 파일을 분해할 때 목표치. 절대 규칙이 아니라 **�
 
 ### 진행 현황 — 각 Phase 를 실행한 PR
 
-| Phase | 내용 | 상태 | 실행 PR | 관련 이슈 |
-| --- | --- | --- | --- | --- |
-| [0](#phase-0) | 기준선·시각 회귀 40장 | ✅ 완료 | [#377](https://github.com/hyeoniverse/web-portfolio-oval/pull/377) | [#375](https://github.com/hyeoniverse/web-portfolio-oval/issues/375) · [#373](https://github.com/hyeoniverse/web-portfolio-oval/issues/373) · [#374](https://github.com/hyeoniverse/web-portfolio-oval/issues/374) |
-| [1](#phase-1) | 품질 게이트 | ✅ 완료 | [#380](https://github.com/hyeoniverse/web-portfolio-oval/pull/380) · [#382](https://github.com/hyeoniverse/web-portfolio-oval/pull/382) | [#379](https://github.com/hyeoniverse/web-portfolio-oval/issues/379) |
-| [2](#phase-2) | shell 번들 −62 kB | ✅ 완료 | [#378](https://github.com/hyeoniverse/web-portfolio-oval/pull/378) · [#382](https://github.com/hyeoniverse/web-portfolio-oval/pull/382) | [#376](https://github.com/hyeoniverse/web-portfolio-oval/issues/376) |
-| [3](#phase-3) | 구조 조사 (이동 없음) | ✅ 완료 | [#386](https://github.com/hyeoniverse/web-portfolio-oval/pull/386) | — |
-| [4](#phase-4) | 도메인 슬라이스 | 🔄 진행 중 (4-1 admin) | [#387](https://github.com/hyeoniverse/web-portfolio-oval/pull/387) | [#384](https://github.com/hyeoniverse/web-portfolio-oval/issues/384) · [#385](https://github.com/hyeoniverse/web-portfolio-oval/issues/385) |
-| [5](#phase-5) | 게이트 잠금 | ⏳ 예정 | — | — |
+> 전체 진행을 추적하는 상위 이슈: **[#388](https://github.com/hyeoniverse/web-portfolio-oval/issues/388)**
+> (이 표와 같은 내용을 이슈에서도 본다. 리팩토링 중 발견한 결함도 거기에 모아둔다.)
 
-> 이 표가 **"어느 Phase 가 어느 글로 정리·실행됐는지"** 의 인덱스다.
-> 전체 리팩토링을 추적하는 상위 이슈는 [#375](https://github.com/hyeoniverse/web-portfolio-oval/issues/375).
+| Phase | 내용 | 상태 | 실행 PR |
+| --- | --- | --- | --- |
+| [0](#phase-0) | 기준선·시각 회귀 40장 | ✅ 완료 | [#377](https://github.com/hyeoniverse/web-portfolio-oval/pull/377) |
+| [1](#phase-1) | 품질 게이트 | ✅ 완료 | [#380](https://github.com/hyeoniverse/web-portfolio-oval/pull/380) · [#382](https://github.com/hyeoniverse/web-portfolio-oval/pull/382) |
+| [2](#phase-2) | shell 번들 −62 kB | ✅ 완료 | [#378](https://github.com/hyeoniverse/web-portfolio-oval/pull/378) · [#382](https://github.com/hyeoniverse/web-portfolio-oval/pull/382) |
+| [3](#phase-3) | 구조 조사 (이동 없음) | ✅ 완료 | [#386](https://github.com/hyeoniverse/web-portfolio-oval/pull/386) |
+| [4-1](#phase-4) | admin — `Settings.module.css` 정리 | 🔄 진행 중 | [#387](https://github.com/hyeoniverse/web-portfolio-oval/pull/387) (1단계 완료) · [#384](https://github.com/hyeoniverse/web-portfolio-oval/issues/384) |
+| [5](#phase-5) | 게이트 잠금 | ⏳ 예정 | — |
+
+**리팩토링 중 발견한 결함** (원칙 P1 — 별도 이슈로 분리):
+[#373](https://github.com/hyeoniverse/web-portfolio-oval/issues/373) 미선언 의존성 ·
+[#374](https://github.com/hyeoniverse/web-portfolio-oval/issues/374) `/profile` hydration ·
+[#385](https://github.com/hyeoniverse/web-portfolio-oval/issues/385) admin baseline (✅ #387 에서 해결)
 
 <a id="phase-0"></a>
 ### Phase 0 — 기준선 ✅ 완료 (2026-07-23)
