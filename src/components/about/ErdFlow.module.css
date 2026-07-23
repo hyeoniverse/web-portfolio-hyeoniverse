@@ -68,15 +68,31 @@
   letter-spacing: -0.01em;
 }
 
-/* 조인 테이블 배지 — 이 테이블이 개념상 M:N 관계라는 표시 */
+/* 테이블 이름 — 길면 줄임표. 이름이 길어도 오른쪽 관계 배지를 밀어내지 않게. */
+.headName {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 조인 테이블 배지 — 이 테이블이 개념상 M:N 관계라는 표시.
+   노드 폭(--erd-col-w)과 헤더 높이(--erd-head-h)가 고정이라, 줄바꿈되거나 눌리면
+   캡슐 모양이 깨진다 → nowrap + 자체 max-width/줄임표 + shrink 금지. */
 .junction {
+  flex-shrink: 0;
   margin-left: auto;
+  max-width: 62%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   padding: 1px 6px;
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
   font-size: 8px;
   font-weight: var(--font-weight-bold);
+  line-height: 1.7;
   letter-spacing: 0.02em;
 }
 
@@ -102,7 +118,11 @@
   position: relative;
   height: var(--erd-row-h);
   display: grid;
-  grid-template-columns: 24px 1fr auto auto;
+  /* 앞 두 칸만 고정하고 뒤따르는 배지는 개수만큼 자동으로 칸을 만든다 —
+     고정 칸 수로 두면 배지가 하나 늘 때 다음 줄로 떨어져 표가 무너진다 */
+  grid-auto-flow: column;
+  grid-template-columns: 24px minmax(0, 1fr);
+  grid-auto-columns: auto;
   gap: var(--spacing-3xs);
   align-items: center;
   padding: 0 var(--spacing-sm);
@@ -110,7 +130,10 @@
   font-size: 13px;
   line-height: 1;
 }
-.row:hover {
+/* hover 배경은 **조작할 수 있을 때만**. 읽기 전용에서는 눌리는 것처럼 보이기만 하고
+   실제로는 노드 클릭(=테이블 포커스)으로 올라가 화면이 튄다.
+   admin(연결 가능)에서는 이 행의 handle 이 함께 드러나므로 신호가 정직하다. */
+.wrapConnectable .row:hover {
   background: var(--bg-tertiary);
 }
 
@@ -137,6 +160,49 @@
   white-space: nowrap;
 }
 
+/* NOT NULL — 기호 하나. 행 너비를 늘리지 않으면서 필수임을 보여준다 */
+.req {
+  color: var(--text-accent);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+/* UNIQUE / 인덱스 — 배지는 작게, 인덱스는 더 옅게 (제약이 아니라 조회 경로다) */
+.flag,
+.flagSoft {
+  border-radius: var(--radius-capsule);
+  padding: 1px 4px;
+  font-size: 9px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+.flag {
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+}
+.flagSoft {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+.colDefault {
+  color: var(--text-muted);
+  font-size: 10px;
+  white-space: nowrap;
+  opacity: 0.75;
+}
+
+/* 뷰 — 실체 테이블이 아님을 머리글에서 바로 알 수 있게 */
+.kindView {
+  flex: none;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  padding: 1px 6px;
+  color: var(--text-info);
+  font-size: 9px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+}
+
 /* handle 은 연결 지점일 뿐 — 보이면 점만 잔뜩 찍힌다 */
 .handle {
   opacity: 0;
@@ -146,6 +212,21 @@
   min-height: 0;
   border: 0;
   pointer-events: none;
+}
+
+/* admin(관계 생성 가능)에서만 handle 을 실제로 잡을 수 있게 키운다.
+   평소엔 투명하게 두고, 그 행에 hover 할 때만 점으로 드러내 다이어그램을 어지럽히지 않는다. */
+.wrapConnectable .handle {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  pointer-events: auto;
+  cursor: crosshair;
+  transition: opacity var(--duration-fast) var(--ease-material);
+}
+.wrapConnectable .row:hover .handle {
+  opacity: 0.9;
 }
 
 /* React Flow 의 엣지 svg 가 computed width 0px 로 잡혀 관계선이 아예 페인트되지 않았다.
@@ -191,4 +272,9 @@
 /* 선택한 테이블 옆 설명 카드 — 폭은 내용(호출 측)이 정한다 */
 .note {
   pointer-events: none;
+}
+
+/* 노트도 클릭 대상 — 누르면 그 노트가 화면에 잡힌다 */
+.noteNode {
+  cursor: pointer;
 }

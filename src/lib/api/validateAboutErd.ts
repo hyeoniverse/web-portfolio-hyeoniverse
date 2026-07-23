@@ -56,6 +56,30 @@ export function checkAboutErd(cfg: unknown): string | null {
       const cKey = cName.toLowerCase();
       if (seenCol.has(cKey)) return `테이블 "${tName}" 의 컬럼 이름 "${cName}" 이 중복되었습니다.`;
       seenCol.add(cKey);
+
+      /* SQL 가져오기가 채우는 선택 필드 — 전부 optional 이지만 타입은 맞아야
+         공개 패널이 예상 못 한 값을 그대로 그리는 일이 없다. */
+      for (const k of ["pk", "required", "unique", "indexed"] as const) {
+        if (col[k] !== undefined && typeof col[k] !== "boolean") {
+          return `테이블 "${tName}" 의 컬럼 "${cName}" 의 ${k} 는 true/false 여야 합니다.`;
+        }
+      }
+      for (const k of ["fk", "defaultValue", "comment"] as const) {
+        if (col[k] !== undefined && typeof col[k] !== "string") {
+          return `테이블 "${tName}" 의 컬럼 "${cName}" 의 ${k} 는 문자열이어야 합니다.`;
+        }
+      }
+      if (col.enumValues !== undefined
+        && (!Array.isArray(col.enumValues) || col.enumValues.some((v) => typeof v !== "string"))) {
+        return `테이블 "${tName}" 의 컬럼 "${cName}" 의 enumValues 는 문자열 배열이어야 합니다.`;
+      }
+    }
+
+    if (row.kind !== undefined && row.kind !== "view") {
+      return `테이블 "${tName}" 의 kind 는 "view" 만 쓸 수 있습니다.`;
+    }
+    if (row.comment !== undefined && typeof row.comment !== "string") {
+      return `테이블 "${tName}" 의 comment 는 문자열이어야 합니다.`;
     }
   }
 
