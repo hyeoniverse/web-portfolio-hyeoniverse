@@ -147,51 +147,100 @@ Phase 4에서 파일을 분해할 때 목표치. 절대 규칙이 아니라 **�
 | `/profile` hydration mismatch | 해당 트리가 클라이언트에서 재생성됨. 리팩토링 중 발생하면 원인이 섞여 추적 불가 |
 | `knip.json` entry 오류 (`src/middleware.ts` → `src/proxy.ts`) | ✅ Phase 0에서 수정 |
 
-### Phase 1 — 게이트 구축 (1일)
+### Phase 1 — 게이트 구축 ✅ 완료
 
-**현재 baseline** (2026-07-23 측정):
+**요지: 코드 품질이 지금보다 나빠지면 CI 가 막게 만든다.** 코드를 고치는 단계가 아니라
+감시 장치를 설치하는 단계다.
 
-| 게이트 | 현재 | 비고 |
-| --- | --- | --- |
-| `tsc --noEmit` | ✅ 통과 | |
-| `eslint` | 0 error / **435 warning** | 아래 분류 |
-| `stylelint` | ✅ 통과 | 하드코딩 값 룰이 이미 작동 중 |
-| `type-coverage` | **97.71%** (306,266 / 313,431) | 임계치 97 |
-| `knip` | 미사용 파일 5 · export 57 · 타입 20 | [dead-code-inventory.md](dead-code-inventory.md) |
-| 시각 회귀 | 26/26 통과 | 공개 라우트 13 × 2 viewport |
+#### 무엇이 문제였나
 
-eslint warning 435개 분류 — **Phase 4의 실제 작업 목록이다**:
+CI 는 typecheck · eslint · stylelint · 유닛 테스트를 모두 돌리고 있었다. 그런데
+**eslint 가 실질적으로 아무것도 막지 못했다.**
 
-| 개수 | 룰 | 의미 |
+```
+✖ 435 problems (0 errors, 435 warnings)
+```
+
+error 가 0 이면 eslint 는 성공으로 끝낸다. CI 는 그 신호만 보고 통과시킨다.
+**warning 이 435개든 500개든 초록불이었다는 뜻이다.**
+
+당장은 문제가 없다. 문제는 Phase 4 다. 3,000줄짜리 파일을 쪼개기 시작하면 컴포넌트가
+수십 개씩 새로 생기는데, 그때 warning 이 늘어나도 아무도 모른다. 나중에 발견해도
+어느 PR 이 원인인지 추적할 수 없다. 원칙 P4 를 적어놓고 정작 그 기계가 놀고 있었다.
+
+#### 무엇을 했나 — 현재 수치를 그대로 상한으로 박았다
+
+```diff
+- "lint": "eslint"
++ "lint": "eslint --max-warnings 435"
+
+- "type-coverage": "type-coverage --strict --at-least 97"
++ "type-coverage": "type-coverage --strict --at-least 97.7"
+```
+
+`type-coverage`(타입이 제대로 붙은 비율)는 현재 97.71% 인데 기준이 97 로 느슨했다.
+0.71%p 만큼 후퇴해도 통과한다는 뜻이라 현재 수치에 붙였다.
+CI 에서 `continue-on-error: true` 였던 것도 제거해 **차단으로 승격**했다.
+
+이제 warning 이 436개가 되거나 커버리지가 97.69% 로 떨어지면 CI 가 실패한다.
+**둘 다 실제로 실패하는지 확인했다** — `--max-warnings 434` / `--at-least 97.8` 로
+모의 실행해 exit 1 을 검증.
+
+#### 왜 435개를 그대로 두나
+
+지금 다 고치는 건 불가능하다. 대부분(159개) `useEffect` 안에서 `setState` 하는 패턴인데
+컴포넌트 구조를 바꿔야 해결된다. **그게 Phase 4 에서 할 일이다.**
+
+그래서 "지금 다 고친다" 가 아니라 **"여기서 더 나빠지지 않게 막는다"** 를 택했다.
+계단에 미끄럼 방지 턱을 대는 것에 가깝다. 슬라이스를 돌면서 435 → 400 → 350 으로 내려간다.
+
+> **운영 규칙:** warning 을 줄였으면 `--max-warnings` 도 **같은 PR 에서 함께 내린다.**
+> 커버리지를 올렸으면 `--at-least` 도 같이 올린다. 안 그러면 400 으로 줄여놓고
+> 다시 435 까지 늘어나는 일이 벌어진다. 개선한 만큼 즉시 잠가야 의미가 있다.
+
+#### 일부러 하지 않은 것
+
+**`max-lines` 룰을 넣지 않았다.** 3,000줄 넘는 파일이 여럿이라 300줄 상한을 켜면
+warning 이 수백 개 한꺼번에 생긴다. 그러면 방금 만든 총량 락이 무의미해지고, 새로
+유입되는 warning 이 기존 노이즈에 묻힌다. 감시 장치를 만들면서 그 장치를 먹통으로
+만드는 셈이다. 파일 크기는 위 "코드 기준선" 으로 두고 슬라이스마다 사람이 판단한다.
+
+**knip 은 보조 신호로 뒀다.** 미사용 export 57개가 남아 있어 지금 차단하면 바로 빨간불이다.
+선언 안 된 의존성(#373)이 먼저 해결돼야 한다.
+
+**시각 회귀는 CI 에 연결하지 않았다.** 스냅샷 파일명에 `-darwin` 이 붙어
+macOS 에서 찍은 baseline 을 Linux runner 에서 쓸 수 없다. macOS runner 를 쓰거나
+Linux 용 baseline 을 따로 관리해야 하는데 둘 다 비용이 크다. 로컬 실행을 전제로 두고
+PR 체크리스트로 대신한다.
+
+#### 락한 warning 435개의 정체 — Phase 4 의 실제 작업 목록
+
+| 개수 | 룰 | 무슨 뜻인가 |
 | ---: | --- | --- |
-| 159 | `react-hooks/set-state-in-effect` | effect 안에서 setState — 파생 상태를 동기화하는 안티패턴. 코드 기준선의 "파생 상태를 effect로 동기화하지 않는다"가 여기 대응 |
-| 118 | `react-hooks/refs` | 렌더 중 ref 접근 등 |
-| 49 | `react-hooks/immutability` | |
-| 29 | `react-hooks/static-components` | 컴포넌트 안에서 컴포넌트 정의 — 매 렌더 재생성 |
-| 23 | `react-hooks/preserve-manual-memoization` | |
+| 159 | `react-hooks/set-state-in-effect` | `useEffect` 안에서 `setState` — 다른 상태에서 계산할 수 있는 값을 effect 로 동기화하는 패턴. 렌더가 한 번 더 돈다 |
+| 118 | `react-hooks/refs` | 렌더 도중 ref 를 읽거나 쓰는 경우 |
+| 49 | `react-hooks/immutability` | 상태를 직접 변경 |
+| 29 | `react-hooks/static-components` | 컴포넌트 안에서 컴포넌트를 정의 — 매 렌더마다 새로 만들어져 자식이 통째로 리마운트된다 |
+| 23 | `react-hooks/preserve-manual-memoization` | 수동 메모이제이션이 깨지는 패턴 |
 | 20 | `react-hooks/purity` | 렌더 중 부수효과 |
-| 17 | `react-hooks/exhaustive-deps` | |
-| 9 | `@typescript-eslint/no-explicit-any` | (전체 `any` 308곳 중 린트가 잡는 것만) |
+| 17 | `react-hooks/exhaustive-deps` | 의존성 배열 누락 |
+| 9 | `@typescript-eslint/no-explicit-any` | 명시적 `any` (전체 `any` 308곳 중 린트가 잡는 것만) |
 | 6 | `react-hooks/use-memo` | |
-| 5 | `@next/next/no-img-element` | raw `<img>` — Phase 2 이미지 항목 |
+| 5 | `@next/next/no-img-element` | raw `<img>` — `next/image` 미사용 |
 
-**구축 완료:**
+대부분 React Compiler 대비 룰(`eslint-plugin-react-hooks` v7)이다. 지금은 Compiler 를
+쓰지 않지만, 이 항목들이 리팩토링 때 정리할 실질적인 목록이 된다.
 
-- [x] **eslint warning 총량 락** — `eslint --max-warnings 435`. 한 개라도 늘면 CI 실패
-- [x] **type-coverage 97 → 97.7 락** + CI 에서 `continue-on-error` 제거해 차단으로 승격
-- [x] 룰별 baseline 문서화 (아래 표 = Phase 4 작업 목록)
-- [ ] knip 차단 승격 — 미사용 export 57개 정리 후. 선언 안 된 의존성(#373)이 우선
-- [ ] 시각 회귀 CI 연결 — 스냅샷이 `-darwin` 접미사라 Linux runner 에서 재사용 불가.
-      로컬 실행이 전제이므로 PR 체크리스트로 대신한다
+#### 착수 시점 게이트 현황 (2026-07-23)
 
-**게이트를 내릴 때의 규칙:** warning 을 줄였거나 커버리지를 올렸으면
-`package.json` 의 `--max-warnings` / `--at-least` 도 **같은 PR 에서 함께 조인다.**
-안 그러면 다시 후퇴할 여지가 남는다.
-
-**`max-lines` 는 추가하지 않는다.** 300줄 상한을 걸면 수백 개 warning 이 한꺼번에 생겨
-총량 락이 무의미해진다. 파일 크기 기준은 위 "코드 기준선"으로 두고 슬라이스마다 사람이 판단한다.
-
-**산출물:** 원칙 P1~P8 중 기계화 가능한 것 전부 자동화.
+| 게이트 | 값 |
+| --- | --- |
+| `tsc --noEmit` | 통과 |
+| `eslint` | 0 error / 435 warning |
+| `stylelint` | 통과 (하드코딩 값 룰이 이미 작동 중) |
+| `type-coverage` | 97.71% |
+| `knip` | 미사용 파일 5 · export 57 · 타입 20 |
+| 시각 회귀 | 40장 (공개 24 + admin 16) |
 
 ### Phase 2 — 성능 (2~3일) ⚡ ROI 최고
 
