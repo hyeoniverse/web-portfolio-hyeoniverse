@@ -738,6 +738,7 @@ Verifies pixel-for-pixel that a refactor did not change the rendered page. 24 ba
 npm run build              # production output required (a dev server makes the baseline unstable)
 npm run test:visual        # compare
 npm run test:visual:update # refresh the baseline (only for intentional design changes)
+npm run test:visual:admin  # admin routes (requires a login session — see below)
 ```
 
 | Item | Value |
@@ -746,7 +747,9 @@ npm run test:visual:update # refresh the baseline (only for intentional design c
 | Checks | Screenshot diff + page runtime errors |
 | Stability | 24/24 across 3 consecutive runs (zero flakes) |
 
-Two traps worth knowing: the full-screen `LoadingScreen` must be awaited or a "black screen + logo" frame gets baked into the baseline, and masking a WebGL canvas paints a rectangle *over* it — turning the whole page into a solid block (use `visibility: hidden` instead). Full notes and coverage gaps (`/works` and `/posts` are viewport-only, `/admin/*` is excluded pending auth setup) are in **[docs/perf-baseline.md](./docs/perf-baseline.md#시각-회귀-baseline)**.
+Two traps worth knowing: the full-screen `LoadingScreen` must be awaited or a "black screen + logo" frame gets baked into the baseline, and masking a WebGL canvas paints a rectangle *over* it — turning the whole page into a solid block (use `visibility: hidden` instead). Full notes and coverage gaps are in **[docs/perf-baseline.md](./docs/perf-baseline.md#시각-회귀-baseline)**.
+
+**Admin routes** need a login session. Create a test account in Supabase, put `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` in `.env.local`, then run `npm run test:visual:admin`. A new-device approval gate means **the first run requires clicking an email link**; after that the stored session (`e2e/.auth/` — auth tokens, git-ignored) is reused.
 
 > **Refactoring docs**: [Refactoring guide](./docs/refactoring-guide.md) · [Performance baseline](./docs/perf-baseline.md) · [Dead code inventory](./docs/dead-code-inventory.md)
 
