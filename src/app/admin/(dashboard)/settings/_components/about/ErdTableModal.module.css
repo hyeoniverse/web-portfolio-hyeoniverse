@@ -81,7 +81,7 @@
 }
 /* 열 폭 — 타입/참조는 고정, 남는 폭을 이름이 가져간다.
    타입 셀이 % 로 커지면 이름이 잘린다. */
-.thPk, .tdPk { width: 40px; text-align: center; }
+.thPk, .tdPk { width: 96px; text-align: center; }
 .thX, .tdX { width: 40px; text-align: center; }
 .thType, .tdType { width: 11rem; }
 .thTail, .tdTail { width: 11rem; }
@@ -107,6 +107,8 @@
 }
 .pk {
   display: inline-flex;
+  /* inline 요소는 기본이 baseline 정렬이라 아래에 여백이 생겨 이 행만 높아진다 */
+  vertical-align: middle;
   align-items: center;
   justify-content: center;
   width: 26px;
@@ -296,4 +298,101 @@ html[data-theme="dark"] .relGroup .rel {
   color: var(--text-accent);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
+}
+
+/* ── 컬럼 순서 변경 (drag) ── */
+.thGrip,
+.tdGrip {
+  width: 22px;
+  padding: 0;
+  text-align: center;
+}
+
+/* 드래그는 이 핸들에서만 시작 — 행 전체를 draggable 로 두면 입력 텍스트 선택이 막힌다 */
+.grip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: grab;
+  transition: color var(--duration-fast) var(--ease-material);
+}
+.grip:hover {
+  color: var(--text-secondary);
+}
+.grip:active {
+  cursor: grabbing;
+}
+
+.rowDragging {
+  opacity: 0.45;
+}
+
+/* 제약 칸 — PK·필수·고유 토글 세 개가 들어간다 (폭은 위 열 정의에서 함께 잡는다).
+   td 를 flex 로 만들면 표 셀에서 빠져나가 그 행만 높이가 달라진다 —
+   셀은 table-cell 로 두고 버튼끼리만 간격을 준다. */
+.tdPk {
+  white-space: nowrap;
+}
+/* 버튼이 Tooltip 래퍼(span) 안에 들어가 있어 요소 종류를 가리지 않는 선택자를 쓴다.
+   inline 요소는 기본이 baseline 정렬이라 아래 여백이 생겨 이 행만 높아진다 → middle 로 맞춘다. */
+.tdGrip > *,
+.tdPk > *,
+.tdMore > * {
+  vertical-align: middle;
+}
+.tdPk > * + * {
+  margin-left: var(--spacing-3xs);
+}
+/* 잠긴 토글(PK 라서 항상 NOT NULL)은 켜져 있음을 보여주되 누를 수 없음을 알린다 */
+.pk:disabled {
+  cursor: default;
+}
+.thMore, .tdMore { width: 32px; text-align: center; }
+.more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-capsule);
+  padding: var(--spacing-3xs);
+  background: none;
+  color: var(--text-muted);
+  transition: transform var(--duration-fast) var(--ease-material);
+}
+.table tbody tr:hover .more { color: var(--text-secondary); }
+.moreOn {
+  color: var(--text-accent);
+  transform: rotate(180deg);
+}
+
+/* 상세 행 — 열로 두면 이름 칸이 잘려서 아래로 뺀다 */
+.detailRow td {
+  padding: 0 var(--spacing-sm) var(--spacing-2xs) 96px;
+}
+.detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs) var(--spacing-sm);
+  align-items: center;
+}
+.detailField {
+  display: flex;
+  flex: 1 1 12rem;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  min-width: 0;
+}
+.detailField > span {
+  flex: none;
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+}
+.detailFlag {
+  border-radius: var(--radius-capsule);
+  padding: var(--box-3xs-xs);
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
 }

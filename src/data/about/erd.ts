@@ -343,6 +343,15 @@ export const erdRelations: ErdRelation[] = [
 
 export const erdDesignNotes: ErdDesignNote[] = [
   {
+    title: { ko: "이 다이어그램 자체가 site_settings 안에 있다", en: "This Diagram Itself Lives in site_settings" },
+    tag: "config.about.erdTables · SQL 가져오기 · UI/API/DB 3중 검증",
+    description: {
+      ko: "지금 보고 계신 ERD 는 코드에 박힌 그림이 아니라 site_settings.config JSONB 안의 데이터입니다. 관리자 About Studio 에서 SQL 을 붙여넣으면 파서가 CREATE·ALTER·DROP·VIEW·ENUM·INDEX·COMMENT 와 DO 블록 안의 DDL 까지 문서 순서대로 적용해 이 그림을 만듭니다. NOT NULL·UNIQUE·인덱스·기본값·설명·ENUM 값은 컬럼에 그대로 남아 배지와 호버로 보입니다. 되돌리기가 없는 동작이라 적용 전에 무엇이 추가·갱신·삭제되는지 이름과 전/후 값까지 보여주고, 저장 시 UI·API·DB(about_erd_valid CHECK) 세 곳에서 형태를 검증합니다.",
+      en: "The ERD you're looking at isn't a picture baked into the code — it's data inside the site_settings.config JSONB. Paste SQL into the admin About Studio and the parser applies CREATE, ALTER, DROP, VIEW, ENUM, INDEX, COMMENT, and even DDL inside DO blocks in document order to build it. NOT NULL, UNIQUE, indexes, defaults, descriptions, and ENUM values stay on the column and surface as badges and hovers. There's no undo, so before applying it names every table and column being added, updated, or removed with before/after values, and saving is validated in three places: UI, API, and the DB (about_erd_valid CHECK).",
+    },
+    relatedTable: "site_settings",
+  },
+  {
     title: { ko: "조회수 — 생성 컬럼으로 KST 하루 집계", en: "View Counts — Generated Column for KST Days" },
     tag: "viewed_date GENERATED · UNIQUE (post_id, ip, viewed_date)",
     description: {
