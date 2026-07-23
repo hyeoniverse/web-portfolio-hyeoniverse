@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { Mail, Send, Star, ArrowRight, Zap, RotateCcw, Hash, Code, Minus, Plus, BookOpen, ExternalLink } from "lucide-react";
@@ -602,7 +602,31 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               </Button>
             </Tooltip>
           </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 3)}>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}>
+            {/* children — 확인 전에 "무엇이 바뀌는지" 를 목록으로. 문장으로 뭉개면 되돌릴 수 없는 동작에서 판단 근거가 사라진다 */}
+            <Tooltip content="ModalConfirm with children — list what changes">
+              <Button
+                variant="outline"
+                tone="danger"
+                onClick={() => handleOpenModal("Apply Changes", (
+                  <ModalConfirm
+                    desc="Applying this replaces part of the current data. This cannot be undone."
+                    confirmText="Apply"
+                    onConfirm={() => {}}
+                  >
+                    <ul className={styles.modalChangeList}>
+                      <li><strong>2 tables</strong> will be removed — <code>legacy_tags</code>, <code>old_views</code></li>
+                      <li><strong>1 column</strong> will be overwritten — <code>posts.title</code> <code>text → varchar(200)</code></li>
+                      <li><strong>18 tables</strong> stay untouched</li>
+                    </ul>
+                  </ModalConfirm>
+                ))}
+              >
+                Confirm with detail
+              </Button>
+            </Tooltip>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}>
             <Tooltip content="Modal with icon + centered layout">
               <Button
                 variant="outline"
@@ -619,7 +643,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               </Button>
             </Tooltip>
           </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}>
+          <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}>
             <Tooltip content="ModalAlert template">
               <Button
                 variant="outline"
@@ -1524,15 +1548,19 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </p>
         <div className={styles.componentRow}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 240 }}>
-            <SearchCapsule
-              search={searchDemo}
-              onSearchChange={setSearchDemo}
-              placeholder={language === "ko" ? "검색" : "Search"}
-              size="sm"
-              align="left"
-              historyKey={null}
-              showHelp={false}
-            />
+            {/* SearchCapsule 은 내부에서 useSearchParams() 를 쓴다 — 이 페이지는 정적 프리렌더
+                대상이라 Suspense 로 감싸지 않으면 빌드가 CSR bailout 으로 실패한다. */}
+            <Suspense fallback={null}>
+              <SearchCapsule
+                search={searchDemo}
+                onSearchChange={setSearchDemo}
+                placeholder={language === "ko" ? "검색" : "Search"}
+                size="sm"
+                align="left"
+                historyKey={null}
+                showHelp={false}
+              />
+            </Suspense>
           </motion.div>
         </div>
       </motion.div>

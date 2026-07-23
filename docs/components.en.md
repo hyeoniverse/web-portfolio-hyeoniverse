@@ -396,6 +396,22 @@ export const usePortalContainer = () => useContext(PortalContainerContext);
 
 ---
 
+### SqlEditor (About Studio only)
+
+`src/app/admin/(dashboard)/settings/_components/about/SqlEditor.tsx` — the ERD import input. It does not overlay a transparent `textarea` on a `<pre>`: the two render through different paths, so caret, scroll, and wrapping drift apart (the same reason noted in `CodeBlockEditor`). Editing is left to CodeMirror.
+
+| Feature | How |
+| ------- | --- |
+| SQL highlighting | `sqlLanguage.ts` — a hand-written `StreamLanguage`. `@codemirror/lang-sql` wasn't added because all that's needed is "colour so it reads" (dollar quoting `$fn$ … $fn$` included) |
+| Autocomplete | Table and column names from the current ERD, plus SQL keywords. Typing `posts.` narrows to that table's columns. The keyword list is **shared with the highlighter** |
+| Diagnostics | No second SQL parser — it surfaces **wherever `parseSqlErd` failed to read**, so the squiggles can't disagree with the result. Errors (syntax, parens, column defs) / warnings (missing ALTER target, a dropped `REFERENCES`) |
+| Find & replace | `⌘F` (`@codemirror/search`) |
+| Tab indent | Tab accepts the completion first when the popup is open. `Escape` is bound at **low precedence** so it only releases focus when there's no panel to close — keyboard users never get trapped |
+
+To keep diagnostic positions aligned with the source, the parser **blanks comments with spaces of the same length instead of removing them**. Deleting characters would shift every later offset and draw squiggles on the wrong lines.
+
+---
+
 ### Shared components — props added this cycle
 
 | Component | Addition | Details |
@@ -410,5 +426,6 @@ export const usePortalContainer = () => useContext(PortalContainerContext);
 | `NumberInput` | `gauge` | Default `false`. Active only when both `min` and `max` are set; tints the number by where the value sits (low/mid/high). No bar is drawn |
 | `Textarea` | `tabIndent` | Opt-in. Tab inserts a 2-space indent — via `execCommand("insertText")` to preserve the native undo stack, skipped during IME composition, and Shift+Tab keeps native focus traversal. Works **only in EditableTextarea mode**, which requires `maxHint` |
 | `Select` | (viewport clamp) | Aligns the selected item's center to the trigger's center, then clamps into the viewport with an 8px margin, setting `max-height` only when the natural height exceeds the available height. On outside scroll it **closes** rather than repositioning |
+| `ModalConfirm` | `children` | Optional, rendered after `desc`. For listing **what is about to change** before confirming — About ERD import uses it to name every table/column being removed or overwritten, with before/after values |
 
 ---
