@@ -173,21 +173,32 @@ admin 슬라이스가 40,586줄이라 시각 회귀 없이 착수하면 안전�
 2. **새 기기(UA fingerprint) 승인** — 처음 보는 기기면 즉시 `signOut` 하고 승인 메일을 보낸다
    ([api/admin/auth/route.ts](../src/app/api/admin/auth/route.ts))
 
-2번은 사람이 메일 링크를 눌러야 통과한다. 그래서 최초 1회만 수동 승인하고 세션을
-`e2e/.auth/admin.json` 에 저장해 재사용한다. fingerprint 는 UA 기반이라 같은 Playwright
-브라우저를 쓰는 한 재승인이 필요 없다. **이 파일에는 인증 토큰이 들어 있어 `.gitignore` 대상이다.**
+2번은 최초 1회만 통과시키면 되고, 이후에는 세션을 `e2e/.auth/admin.json` 에 저장해 재사용한다.
+fingerprint 는 UA 기반이라 같은 Playwright 브라우저를 쓰는 한 재승인이 필요 없다.
+**이 파일에는 인증 토큰이 들어 있어 `.gitignore` 대상이다.**
+
+**계정은 소유자(`OWNER_EMAIL`)를 쓴다.** 전용 계정을 새로 만들면 `app_metadata` 가 비어 있어
+role 이 없고(`getUserRole` → level 0) admin 접근이 거부된다. 쓰려면 service role 로
+`app_metadata.role` 을 심거나 초대 절차를 거쳐야 해서 오히려 손이 더 간다.
+
+**실물 이메일은 필요 없다.** 승인 링크가 하는 일은 `admin_known_devices.approved` 를
+`true` 로 바꾸는 것뿐이고, 기기 판정도 그 컬럼만 본다 — Table Editor 에서 직접 토글하면 된다.
 
 ```bash
-# 1. Supabase Dashboard → Authentication → Users → Add user (Auto Confirm 체크)
-# 2. .env.local 에 credential 추가
-#    E2E_ADMIN_EMAIL=...
+# 1. .env.local 에 credential 추가
+#    E2E_ADMIN_EMAIL=<OWNER_EMAIL 과 동일>
 #    E2E_ADMIN_PASSWORD=...
-# 3. 첫 실행 — "승인 대기" 로 실패한다
+# 2. 첫 실행 — "승인 대기" 로 실패한다 (정상)
 npm run test:visual:admin
-# 4. 해당 계정 메일함의 승인 링크 클릭
-# 5. baseline 생성
+# 3. Supabase Table Editor → admin_known_devices → 방금 생긴 row 의 approved 를 true 로
+#    (또는 메일함의 승인 링크 클릭)
+# 4. baseline 생성
 npm run test:visual:admin -- -u
 ```
+
+> `.env.local` 에 관리자 비밀번호가 평문으로 들어간다. 같은 파일의 `SUPABASE_SERVICE_ROLE_KEY`
+> (사실상 DB 전권) 보다 민감도가 낮고 파일은 git 에서 제외되지만, **비밀번호를 변경하면
+> `.env.local` 도 함께 갱신**해야 한다. 시각 회귀는 페이지를 열기만 하므로 데이터는 바꾸지 않는다.
 
 ### 알려진 결함 (착수 전부터 존재)
 
