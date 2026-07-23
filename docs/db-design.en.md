@@ -250,6 +250,30 @@ The About page's ERD is edited in the admin **About Studio**, and the result is 
   ALTER TABLE site_settings VALIDATE CONSTRAINT site_settings_about_erd_valid;
   ```
 
+**What a column carries** — optional fields filled in by SQL import. All optional, so previously saved ERDs stay valid and no migration is needed.
+
+| Field | Source SQL | Shown as |
+|-------|-----------|----------|
+| `required` | `NOT NULL` (true by definition for PKs) | `*` after the column name |
+| `unique` | column/table `UNIQUE`, `CREATE UNIQUE INDEX` | `U` badge |
+| `indexed` | `CREATE INDEX` | `IX` badge |
+| `defaultValue` | `DEFAULT …`, `serial`, `GENERATED … IDENTITY/STORED` | `=value` after the type |
+| `comment` | `COMMENT ON COLUMN` | hover |
+| `enumValues` | `CREATE TYPE … AS ENUM`, `ALTER TYPE … ADD VALUE` | hover |
+| (table) `kind` | `CREATE [MATERIALIZED] VIEW` | `VIEW` badge in the header |
+| (table) `comment` | `COMMENT ON TABLE` | hover |
+
+The DB function checks the same rules — present values must have the right type (`required`/`unique`/`indexed` boolean, `defaultValue`/`comment` string, `enumValues` string array), and a table `kind` may only be `'view'`. Absent fields simply pass.
+
+**Merge semantics** — import runs in **merge (default)** or **replace** mode. There is no undo, so the rules are pinned by tests rather than prose (`src/__tests__/mergeErd.test.ts`).
+
+1. Same-named tables **merge columns** — columns that exist only in the ERD are never dropped
+2. A column present on both sides is **updated from SQL** — type, PK, and FK follow the SQL
+3. Column order follows the **SQL definition**, with ERD-only columns appended after
+4. Tables absent from the SQL are left untouched
+
+`DROP TABLE`, `DROP COLUMN`, and `RENAME` are the exception. **"Absent from the SQL" and "deleted by the SQL" are not the same thing**, so the parser reports deletions separately (`removedTables` / `removedColumns`) and only those are actually removed. Without that distinction, rules 1 and 4 silently resurrect what the SQL deleted.
+
 > This function and constraint are also included in `setup.sql`, so a DB provisioned from `setup.sql` from the start enforces it identically.
 
 

@@ -6,17 +6,19 @@
  * 좁은 카드 폭 안에서 이름·타입 입력이 다닥다닥 붙어 읽기 어려웠다.
  * 편집은 넓은 자리가 필요하니 모달로 분리한다. */
 
-import { useContext, useEffect, useRef, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Plus, KeyRound, ArrowRight } from "lucide-react";
+import { Plus, KeyRound, ArrowRight, GripVertical, Asterisk, Fingerprint, ChevronDown } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Chip from "@/components/ui/Chip";
 import CloseButton from "@/components/ui/CloseButton";
 import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import { ModalFooterContext } from "@/components/ui/Modal";
+import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { useModalStore } from "@/stores/modalStore";
 import type { ErdTable, ErdRelation } from "@/data/about/types";
+import Tooltip from "@/components/ui/Tooltip";
 import css from "./ErdTableModal.module.css";
 
 type Lang = "ko" | "en";
@@ -90,6 +92,7 @@ export default function ErdTableModal({
   lang: Lang;
 }) {
   const closeModal = useModalStore((s) => s.closeModal);
+  const openModal = useModalStore((s) => s.openModal);
   /* 액션 버튼은 모달 템플릿의 footer 슬롯으로 — 본문 안에 두면 내용이 길 때 같이 스크롤된다 */
   const footerEl = useContext(ModalFooterContext);
   /* 모달 안에서만 편집하고 닫을 때 반영 — 매 키 입력마다 바깥 그리드가 다시 그려지면 느리다 */
@@ -99,6 +102,21 @@ export default function ErdTableModal({
   const outgoing = relations.filter((r) => r.from === table.name);
   const incoming = relations.filter((r) => r.to === table.name);
   const setCols = (columns: ErdTable["columns"]) => setDraft({ ...draft, columns });
+
+  /* 컬럼 순서 = 공개 ERD 에 그려지는 순서. 잘못 넣었다고 지웠다 다시 만들 일은 없어야 한다.
+     입력의 텍스트 선택을 방해하지 않도록 드래그는 핸들에서만 시작하고, 행은 드롭 대상만 맡는다. */
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  /* 기본값·설명 상세 행 — 값이 있으면 접어두지 않는다(모르는 채 저장되는 걸 막는다) */
+  const [openRows, setOpenRows] = useState<Set<number>>(new Set());
+  const detailOpen = (c: ErdTable["columns"][number], i: number) =>
+    openRows.has(i) || !!c.defaultValue || !!c.comment || !!c.indexed || !!c.enumValues?.length;
+  const moveCol = (from: number, to: number) => {
+    if (from === to) return;
+    const next = [...draft.columns];
+    const [m] = next.splice(from, 1);
+    next.splice(to, 0, m);
+    setCols(next);
+  };
 
   /* 다중 선택 — 인덱스로 들고 있다가 삭제 시 한 번에 처리 */
   const [picked, setPicked] = useState<Set<number>>(new Set());
@@ -225,13 +243,16 @@ export default function ErdTableModal({
           <table className={css.table}>
             <thead>
               <tr>
+                <th scope="col" className={css.thGrip}>
+                  <span className={css.srOnly}>{lang === "ko" ? "순서" : "Order"}</span>
+                </th>
                 <th scope="col" className={css.thPick}>
                   <Checkbox shape="square" checked={allPicked}
                     indeterminate={picked.size > 0 && !allPicked}
                     onChange={(v) => setPicked(v ? new Set(draft.columns.map((_, i) => i)) : new Set())} />
                 </th>
                 <th scope="col" className={css.thPk}>
-                  <span className={css.srOnly}>{lang === "ko" ? "기본키" : "Primary key"}</span>
+                  <span className={css.srOnly}>{lang === "ko" ? "제약" : "Constraints"}</span>
                 </th>
                 <th scope="col">
                   {lang === "ko" ? "이름" : "Name"}<span className={css.req} aria-hidden>*</span>
@@ -240,22 +261,66 @@ export default function ErdTableModal({
                   {lang === "ko" ? "타입" : "Type"}<span className={css.req} aria-hidden>*</span>
                 </th>
                 <th scope="col" className={css.thTail}>{lang === "ko" ? "참조" : "Ref"}</th>
+                <th scope="col" className={css.thMore}><span className={css.srOnly}>—</span></th>
                 <th scope="col" className={css.thX}><span className={css.srOnly}>—</span></th>
               </tr>
             </thead>
             <tbody>
               {draft.columns.map((c, i) => (
-                <tr key={i} className={picked.has(i) ? css.rowPicked : ""}>
+                <Fragment key={i}>
+                <tr
+                  className={`${picked.has(i) ? css.rowPicked : ""} ${dragIdx === i ? css.rowDragging : ""}`.trim()}
+                  onDragOver={(e) => { if (dragIdx != null) e.preventDefault(); }}
+                  onDrop={(e) => {
+                    if (dragIdx == null) return;
+                    e.preventDefault();
+                    moveCol(dragIdx, i);
+                    setDragIdx(null);
+                  }}
+                >
+                  <td className={css.tdGrip}>
+                    <Tooltip content={lang === "ko" ? "끌어서 순서 변경" : "Drag to reorder"} delay={300}>
+                      <span
+                        className={css.grip}
+                        draggable
+                        data-cursor="grab"
+                        onDragStart={(e) => { setDragIdx(i); e.dataTransfer.effectAllowed = "move"; }}
+                        onDragEnd={() => setDragIdx(null)}
+                      >
+                        <GripVertical size={12} />
+                      </span>
+                    </Tooltip>
+                  </td>
                   <td className={css.tdPick}>
                     <Checkbox shape="square" checked={picked.has(i)} onChange={() => togglePick(i)} />
                   </td>
                   <td className={css.tdPk}>
-                    <button type="button" className={`${css.pk} ${c.pk ? css.pkOn : ""}`}
-                      title={lang === "ko" ? "기본키" : "Primary key"}
-                      aria-label={lang === "ko" ? "기본키" : "Primary key"} aria-pressed={!!c.pk}
-                      onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, pk: !x.pk } : x)))}>
-                      <KeyRound size={13} />
-                    </button>
+                    <Tooltip content={lang === "ko" ? "기본키" : "Primary key"} delay={200}>
+                      <button type="button" className={`${css.pk} ${c.pk ? css.pkOn : ""}`}
+                        aria-label={lang === "ko" ? "기본키" : "Primary key"} aria-pressed={!!c.pk}
+                        onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, pk: !x.pk } : x)))}>
+                        <KeyRound size={13} />
+                      </button>
+                    </Tooltip>
+                    {/* PK 는 정의상 NOT NULL 이라 따로 끌 수 없다 — 왜 잠겼는지 툴팁으로 말한다 */}
+                    <Tooltip delay={200}
+                      content={c.pk
+                        ? (lang === "ko" ? "기본키라 항상 필수입니다" : "Always required — it's the primary key")
+                        : (lang === "ko" ? "필수 (NOT NULL)" : "Required (NOT NULL)")}>
+                      <button type="button" className={`${css.pk} ${c.required || c.pk ? css.pkOn : ""}`}
+                        aria-label={lang === "ko" ? "필수" : "Required"} aria-pressed={!!(c.required || c.pk)}
+                        disabled={!!c.pk}
+                        onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, required: !x.required || undefined } : x)))}>
+                        <Asterisk size={13} />
+                      </button>
+                    </Tooltip>
+                    <Tooltip content={lang === "ko" ? "고유 (UNIQUE)" : "Unique"} delay={200}>
+                      <button type="button" className={`${css.pk} ${c.unique ? css.pkOn : ""}`}
+                        aria-label={lang === "ko" ? "고유" : "Unique"} aria-pressed={!!c.unique}
+                        onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, unique: !x.unique || undefined } : x)))}>
+                        <Fingerprint size={13} />
+                      </button>
+                    </Tooltip>
                   </td>
                   <td>
                     <input
@@ -288,11 +353,56 @@ export default function ErdTableModal({
                         setFkEdits((prev) => ({ ...prev, [c.name]: v }));
                       }} />
                   </td>
+                  <td className={css.tdMore}>
+                    <Tooltip content={lang === "ko" ? "기본값·설명" : "Default & description"} delay={200}>
+                    <button type="button"
+                      className={`${css.more} ${detailOpen(c, i) ? css.moreOn : ""}`}
+                      aria-label={lang === "ko" ? "기본값·설명" : "Default & description"}
+                      aria-expanded={detailOpen(c, i)}
+                      onClick={() => setOpenRows((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(i)) next.delete(i); else next.add(i);
+                        return next;
+                      })}>
+                      <ChevronDown size={13} />
+                    </button>
+                    </Tooltip>
+                  </td>
                   <td className={css.tdX}>
                     <CloseButton size="xs" ariaLabel={lang === "ko" ? "컬럼 삭제" : "Remove column"}
                       onClick={() => setCols(draft.columns.filter((_, j) => j !== i))} />
                   </td>
                 </tr>
+                {/* 기본값·설명·인덱스·ENUM — 매 행에 열로 두면 이름 칸이 잘린다.
+                    SQL 로 들어온 값이 있으면 자동으로 펼쳐 보이지 않는 채로 저장되는 일이 없게 한다. */}
+                {detailOpen(c, i) && (
+                  <tr className={css.detailRow}>
+                    <td colSpan={9}>
+                      <div className={css.detail}>
+                        <label className={css.detailField}>
+                          <span>{lang === "ko" ? "기본값" : "Default"}</span>
+                          <input className={css.cell} value={c.defaultValue ?? ""}
+                            placeholder={lang === "ko" ? "now(), 'draft' …" : "now(), 'draft' …"}
+                            onChange={(e) => setCols(draft.columns.map((x, j) =>
+                              (j === i ? { ...x, defaultValue: e.target.value || undefined } : x)))} />
+                        </label>
+                        <label className={css.detailField}>
+                          <span>{lang === "ko" ? "설명" : "Description"}</span>
+                          <input className={css.cell} value={c.comment ?? ""}
+                            placeholder={lang === "ko" ? "이 컬럼이 무엇인지" : "what this column is"}
+                            onChange={(e) => setCols(draft.columns.map((x, j) =>
+                              (j === i ? { ...x, comment: e.target.value || undefined } : x)))} />
+                        </label>
+                        {/* 인덱스·ENUM 은 SQL 에서만 오는 값이라 표시만 한다 */}
+                        {c.indexed && <span className={css.detailFlag}>INDEX</span>}
+                        {!!c.enumValues?.length && (
+                          <span className={css.detailFlag}>ENUM {c.enumValues.join(" | ")}</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
               ))}
             </tbody>
           </table>
@@ -363,7 +473,22 @@ export default function ErdTableModal({
           )}
           <div className={css.footer}>
             <Button variant="subtle" size="sm" tone="danger"
-              onClick={() => { onDelete(table.name); closeModal(); }}>
+              /* 테이블 삭제는 연결된 관계까지 즉시 지운다 — 되돌릴 길이 없으니 한 번 묻는다.
+                 모달 스택이라 확인창이 위에 쌓이고, 확인 시 확인창(자체) → 이 모달 순으로 닫힌다. */
+              onClick={() => {
+                const relCount = relations.filter((r) => r.from === table.name || r.to === table.name).length;
+                openModal(
+                  <ModalConfirm
+                    desc={lang === "ko"
+                      ? `"${table.name}" 테이블을 삭제합니다.${relCount > 0 ? ` 연결된 관계 ${relCount}개도 함께 사라집니다.` : ""} 되돌릴 수 없습니다.`
+                      : `Delete table "${table.name}".${relCount > 0 ? ` ${relCount} linked relation(s) will be removed as well.` : ""} This cannot be undone.`}
+                    confirmText={lang === "ko" ? "삭제" : "Delete"}
+                    danger
+                    onConfirm={() => { onDelete(table.name); closeModal(); }}
+                  />,
+                  { width: "min(90vw, 460px)" },
+                );
+              }}>
               {lang === "ko" ? "테이블 삭제" : "Delete table"}
             </Button>
             <span className={css.footerRight}>
