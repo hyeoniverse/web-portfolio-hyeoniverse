@@ -26,7 +26,9 @@ jobs:
       - name: TypeScript typecheck
         run: npm run typecheck
 
-      - name: ESLint
+      # warning 총량이 락돼 있다 (--max-warnings). 한 개라도 늘면 실패한다.
+      # 줄였다면 package.json 의 상한도 함께 내려 되돌아가지 못하게 한다.
+      - name: ESLint (warning 총량 락)
         run: npm run lint
 
       - name: Stylelint (CSS token compliance)
@@ -35,12 +37,13 @@ jobs:
       - name: Unit tests
         run: npm test
 
-      # Knip 과 type-coverage 는 회귀 추적 — 실패 시 build 차단 대신 PR 코멘트로 노출되도록
-      # 임계값 초과한 케이스만 fail. 지금은 보조 신호로만 사용.
+      # Knip 은 아직 보조 신호 — 미사용 export 57개가 남아 있어 슬라이스별로 정리 중이다.
+      # 선언되지 않은 의존성(#373) 이 정리되면 차단으로 승격한다.
       - name: Knip (unused exports / files / deps)
         run: npx knip --no-exit-code
         continue-on-error: true
 
-      - name: type-coverage
+      # 임계치를 현재 수준(97.7%)에 붙여 락했으므로 차단으로 승격한다.
+      # 올렸다면 package.json 의 --at-least 도 함께 올려 되돌아가지 못하게 한다.
+      - name: type-coverage (97.7% 락)
         run: npm run type-coverage
-        continue-on-error: true
