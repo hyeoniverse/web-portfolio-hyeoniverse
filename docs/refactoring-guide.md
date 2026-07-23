@@ -121,7 +121,24 @@ Phase 4에서 파일을 분해할 때 목표치. 절대 규칙이 아니라 **�
 
 ## 4. 실행 계획
 
+### 진행 현황 — 각 Phase 를 실행한 PR
+
+| Phase | 내용 | 상태 | 실행 PR | 관련 이슈 |
+| --- | --- | --- | --- | --- |
+| [0](#phase-0) | 기준선·시각 회귀 40장 | ✅ 완료 | [#377](https://github.com/hyeoniverse/web-portfolio-oval/pull/377) | [#375](https://github.com/hyeoniverse/web-portfolio-oval/issues/375) · [#373](https://github.com/hyeoniverse/web-portfolio-oval/issues/373) · [#374](https://github.com/hyeoniverse/web-portfolio-oval/issues/374) |
+| [1](#phase-1) | 품질 게이트 | ✅ 완료 | [#380](https://github.com/hyeoniverse/web-portfolio-oval/pull/380) · [#382](https://github.com/hyeoniverse/web-portfolio-oval/pull/382) | [#379](https://github.com/hyeoniverse/web-portfolio-oval/issues/379) |
+| [2](#phase-2) | shell 번들 −62 kB | ✅ 완료 | [#378](https://github.com/hyeoniverse/web-portfolio-oval/pull/378) · [#382](https://github.com/hyeoniverse/web-portfolio-oval/pull/382) | [#376](https://github.com/hyeoniverse/web-portfolio-oval/issues/376) |
+| [3](#phase-3) | 구조 조사 (이동 없음) | ✅ 완료 | [#386](https://github.com/hyeoniverse/web-portfolio-oval/pull/386) | — |
+| [4](#phase-4) | 도메인 슬라이스 | 🔄 진행 중 (4-1 admin) | [#387](https://github.com/hyeoniverse/web-portfolio-oval/pull/387) | [#384](https://github.com/hyeoniverse/web-portfolio-oval/issues/384) · [#385](https://github.com/hyeoniverse/web-portfolio-oval/issues/385) |
+| [5](#phase-5) | 게이트 잠금 | ⏳ 예정 | — | — |
+
+> 이 표가 **"어느 Phase 가 어느 글로 정리·실행됐는지"** 의 인덱스다.
+> 전체 리팩토링을 추적하는 상위 이슈는 [#375](https://github.com/hyeoniverse/web-portfolio-oval/issues/375).
+
+<a id="phase-0"></a>
 ### Phase 0 — 기준선 ✅ 완료 (2026-07-23)
+
+> 📋 실행: [PR #377](https://github.com/hyeoniverse/web-portfolio-oval/pull/377)
 
 - [x] 라우트별 First Load JS 기록 → [perf-baseline.md](perf-baseline.md)
 - [x] 공통 shell 380 kB 의 라이브러리별 구성 분석 → Phase 2 타깃 확정
@@ -147,7 +164,10 @@ Phase 4에서 파일을 분해할 때 목표치. 절대 규칙이 아니라 **�
 | `/profile` hydration mismatch | 해당 트리가 클라이언트에서 재생성됨. 리팩토링 중 발생하면 원인이 섞여 추적 불가 |
 | `knip.json` entry 오류 (`src/middleware.ts` → `src/proxy.ts`) | ✅ Phase 0에서 수정 |
 
+<a id="phase-1"></a>
 ### Phase 1 — 게이트 구축 ✅ 완료
+
+> 📋 실행: [PR #380](https://github.com/hyeoniverse/web-portfolio-oval/pull/380) · 문서 정정 [PR #382](https://github.com/hyeoniverse/web-portfolio-oval/pull/382)
 
 **요지: 코드 품질이 지금보다 나빠지면 CI 가 막게 만든다.** 코드를 고치는 단계가 아니라
 감시 장치를 설치하는 단계다.
@@ -256,7 +276,10 @@ PR 체크리스트로 대신한다.
 | `knip` | 미사용 파일 5 · export 57 · 타입 20 |
 | 시각 회귀 | 40장 (공개 24 + admin 16) |
 
+<a id="phase-2"></a>
 ### Phase 2 — 성능 (2~3일) ⚡ ROI 최고
+
+> 📋 실행: [PR #378](https://github.com/hyeoniverse/web-portfolio-oval/pull/378) · 문서 정정 [PR #382](https://github.com/hyeoniverse/web-portfolio-oval/pull/382)
 
 파일 수는 적고 효과는 가장 크다. 슬라이스 순회보다 먼저 한다.
 
@@ -332,7 +355,10 @@ gsap + ScrollTrigger 를 정적 import 한다. Lenis 스크롤과 ScrollTrigger 
 시각 회귀 40장 전부 통과해야 한다. **다만 스크롤 애니메이션 동작은 정지 스크린샷으로
 검증되지 않으므로 수동 QA 가 필수다** — home/about/works/profile 의 스크롤 시퀀스를 직접 확인한다.
 
+<a id="phase-3"></a>
 ### Phase 3 — 구조 ✅ 조사 완료, **파일 이동은 하지 않는다**
+
+> 📋 실행: [PR #386](https://github.com/hyeoniverse/web-portfolio-oval/pull/386)
 
 > **Phase 3 이란:** 파일이 올바른 위치에 있는지(폴더 배치·`lib`/`utils` 경계·배럴)만 보는 단계다.
 > 코드 로직은 건드리지 않는다. 아래 "배치 기준" 은 앞으로 새 파일을 어디 둘지 판단할 때 쓴다 —
@@ -407,7 +433,10 @@ Phase 4 에서 `PostsClient.tsx`(1,972줄) · `AboutStudio.tsx`(2,508줄) 같은
 
 원칙 P6(보이스카웃 금지)과도 맞는다. 지나가다 상수를 하나씩 옮기면 diff 가 오염된다.
 
+<a id="phase-4"></a>
 ### Phase 4 — 도메인 슬라이스 순회 (전체의 70%)
+
+> 📋 실행: [PR #387](https://github.com/hyeoniverse/web-portfolio-oval/pull/387) (4-1 admin, 진행 중)
 
 순서: **admin → posts → about/works → 에디터**
 
@@ -451,6 +480,7 @@ admin baseline 은 **DB 데이터에 의존**한다. 리팩토링 세션 중 글
 `PlateEditor.tsx` 3,561줄 / `eslint-disable` 85개 / `RichTextEditor.module.css` 5,184줄.
 가장 아프고 가장 어렵다. 앞 슬라이스에서 패턴이 확립된 뒤에 착수한다.
 
+<a id="phase-5"></a>
 ### Phase 5 — 잠금
 
 - [ ] Phase 1 게이트를 warn → error 승격
