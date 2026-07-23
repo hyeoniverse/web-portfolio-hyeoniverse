@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import AdminAuthSync from "@/components/common/AdminAuthSync";
+import AdminTranslationsGate from "@/components/common/AdminTranslationsGate";
 
 export const metadata: Metadata = {
   title: {
@@ -28,7 +29,7 @@ export default async function AdminLayout({
   return (
     <>
       <AdminAuthSync />
-      {children}
+      <AdminTranslationsGate>{children}</AdminTranslationsGate>
     </>
   );
 }
