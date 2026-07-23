@@ -744,8 +744,9 @@ npm run test:visual:admin  # admin 라우트 (로그인 세션 필요 — 아래
 | 항목 | 값 |
 | --- | --- |
 | 대상 | 공개 라우트 12개 × desktop(1440×900) / mobile(Pixel 7) = **24장** |
+| | admin 라우트 16개 (목록 6 + settings 탭 10) = **16장** |
 | 검증 | 스크린샷 diff + 페이지 런타임 에러 |
-| 안정성 | 3회 연속 24/24 통과 (flaky 0) |
+| 안정성 | 공개 3회 연속 24/24 · admin 2회 연속 16/16 (flaky 0) |
 
 셋업 과정에서 부딪힌 함정 — 전 페이지를 덮는 `LoadingScreen` 을 안 기다리면 "검은 화면 + 로고" 가 baseline 으로 박히고, WebGL canvas 를 `mask` 로 가리면 그 위에 사각형이 덮여 페이지 전체가 단색이 됩니다(`visibility: hidden` 으로 처리). 전체 목록과 커버리지 한계는 **[docs/perf-baseline.md](./docs/perf-baseline.md#시각-회귀-baseline)** 에 정리되어 있습니다.
 

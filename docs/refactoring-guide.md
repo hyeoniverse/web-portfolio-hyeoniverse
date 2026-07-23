@@ -127,8 +127,8 @@ Phase 4에서 파일을 분해할 때 목표치. 절대 규칙이 아니라 **�
 - [x] 공통 shell 380 kB 의 라이브러리별 구성 분석 → Phase 2 타깃 확정
 - [x] Playwright 시각 회귀 셋업 + 공개 라우트 13개 × 2 viewport baseline
 - [x] `npm run knip` 결과 전량 기록 → [dead-code-inventory.md](dead-code-inventory.md)
+- [x] admin 라우트 시각 회귀 16장 (목록 6 + settings 탭 10) — Phase 4-1 안전망 확보
 - [ ] 주요 라우트 Lighthouse 점수 (미측정 — 번들 수치로 Phase 2 착수 가능)
-- [ ] admin 라우트 시각 회귀 (Supabase 인증 셋업 필요 — Phase 4-1 착수 전까지)
 
 **핵심 발견:**
 
@@ -250,6 +250,16 @@ gsap + ScrollTrigger 를 정적 import 한다. Lenis 스크롤과 ScrollTrigger 
 #### 4-1. admin (40,586줄 / 100 파일)
 
 `settings/`가 admin의 73%(29,572줄)를 차지한다. 여기가 핵심.
+
+**안전망 확보됨** — 시각 회귀 16장 (목록 6 + settings 탭 10). 착수 전 반드시:
+
+```bash
+npm run build && npm run test:visual:admin   # 현재 상태가 baseline 과 같은지 먼저 확인
+```
+
+admin baseline 은 **DB 데이터에 의존**한다. 리팩토링 세션 중 글·댓글을 만들면 가짜 diff 가 난다.
+데이터가 바뀌었으면 리팩토링 전 상태에서 `-u` 로 다시 찍고 시작한다
+([perf-baseline.md](perf-baseline.md#admin-baseline-의-한계--공개-라우트보다-취약하다)).
 
 | 순서 | 대상 | 규모 |
 | --- | --- | --- |
