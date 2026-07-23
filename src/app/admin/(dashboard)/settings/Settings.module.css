@@ -80,12 +80,6 @@
   margin-bottom: var(--spacing-md);
 }
 
-.conflictDivider {
-  border: none;
-  border-top: var(--border-light);
-  margin: var(--spacing-md) 0 var(--spacing-xl);
-}
-
 .conflictToggle {
   width: 100%;
   background: none;
@@ -500,10 +494,6 @@
   margin: 0 auto;
 }
 /* Content 탭 — WYSIWYG 스튜디오라 콘텐츠 폭 전체 사용(우측 여백을 nav 와 동일한 page-px 로 정렬) */
-.tabGridFull {
-  max-width: none;
-  margin: 0;
-}
 
 /* ── Section ── */
 .section {
@@ -517,14 +507,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-}
-.authorCard {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
 }
 .authorCardHead {
   display: flex;
@@ -587,9 +569,6 @@
   color: var(--text-primary);
 }
 /* 삭제 버튼 — 카드 상단(start)에 붙임 (아바타가 커서 center 면 중앙에 뜸) */
-.authorRemoveBtn {
-  align-self: flex-start;
-}
 .authorCardFields {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -598,17 +577,6 @@
 .authorLinksEditor {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
-}
-.authorLinksHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.authorLinkRow {
-  display: grid;
-  grid-template-columns: 1fr 2fr auto;
-  align-items: end;
   gap: var(--spacing-2xs);
 }
 
@@ -661,11 +629,6 @@
 }
 
 /* ── Fields List — 1열 고정 ── */
-.fieldsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-lg);
-}
 
 .fields {
   display: flex;
@@ -867,17 +830,9 @@
 /* single-line Field counter — Input 박스 안 우측. clear 버튼이 right edge 점유 (20px),
    counter 는 그 좌측에 작은 글자로 부드럽게 표시 (clearable 유지).
    클래스 이름이 fieldInputWrap (TagField 등 다른 컴포넌트에서 flex container 로 이미 사용됨) 과 충돌하지 않도록 fieldCounterWrap 으로 분리. */
-.fieldCounterWrap {
-  position: relative;
-  /* 부모 (.fieldNarrow > div > :last-child 등) 에서 받은 폭을 Input 에 전달 — Input.wrapper 가 100% 차지하도록 block 레이아웃 */
-  width: 100%;
-}
 
 /* counter + (선택) clearBtn 모두 우측 차지 — EditableInput 은 자체 padding-right 80px 이라 override 불필요.
    native Input fallback 만 위해 input 셀렉터로 유지. */
-.fieldInputWithCounter input {
-  padding-right: 80px;
-}
 
 .fieldCounter {
   position: absolute;
@@ -947,66 +902,7 @@
   letter-spacing: 0.02em;
 }
 
-.fieldInput,
-.fieldSelect {
-  flex: 1;
-  min-width: 0;
-  height: var(--control-h-md);
-  box-sizing: border-box;
-  padding: 0 var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  outline: none;
-  line-height: 1;
-}
-
 /* Field input + Eraser clearBtn wrapper — input flex 차지, clearBtn 우측 absolute */
-.fieldInputWrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 0;
-}
-
-.fieldInputWrap > .fieldInput {
-  width: 100%;
-}
-
-.fieldInputHasClear {
-  padding-right: calc(var(--spacing-sm) + 20px);
-}
-
-.fieldClearBtn {
-  position: absolute;
-  right: var(--spacing-2xs);
-  top: 50%;
-  transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  opacity: 0.7;
-  transition:
-    opacity var(--duration-base) ease,
-    color var(--duration-base) ease;
-}
-
-.fieldClearBtn:hover {
-  opacity: 1;
-  color: var(--text-primary);
-}
 
 .fieldTextarea {
   flex: 1;
@@ -1026,18 +922,8 @@
   overscroll-behavior: contain;
 }
 
-.fieldInput:focus,
-.fieldTextarea:focus,
-.fieldSelect:focus {
+.fieldTextarea:focus {
   border-color: var(--text-primary);
-}
-
-.fieldSelect {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right var(--spacing-sm) center;
-  padding-right: var(--spacing-xl);
 }
 
 .skeletonFields {
@@ -1565,29 +1451,6 @@
 }
 
 /* ── 태그 삭제 대기 표시 ── */
-.tagPendingDeleteBar {
-  margin: 0 0 var(--spacing-sm);
-  padding: var(--spacing-2xs) 0;
-}
-
-.tagPendingDeleteToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-secondary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-accent);
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-}
-
-.tagPendingDeleteToggle:hover {
-  border-color: var(--text-accent);
-}
 
 .tagPendingDeleteList {
   display: flex;
@@ -1723,33 +1586,6 @@
 }
 
 /* textarea 의 lang 배지 — textarea 좌측 외부에 배치 (textarea 첫 줄과 안 겹침) */
-.fieldTextareaWithBadge {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: flex-start;
-}
-
-.fieldTextareaWithBadge > :last-child {
-  flex: 1;
-  min-width: 0;
-}
-
-.fieldLangBadgeOutside {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  padding: 0 var(--spacing-2xs);
-  height: 20px;
-  margin-top: var(--spacing-xs);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-tertiary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-}
 
 /* 라벨 텍스트와 dot 을 가로 한 줄로 묶는 컨테이너 (.fieldLabel 이 column 이라 필요) */
 .fieldLabelText {
@@ -1790,14 +1626,6 @@
 }
 
 /* ── Fallback Priority List ── */
-.fallbackLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  margin: 0 0 var(--spacing-xs);
-  font-weight: 500;
-  letter-spacing: 0.02em;
-}
 
 .priorityList {
   display: flex;
@@ -2000,90 +1828,8 @@
 }
 
 /* ── Categories Editor ── */
-.catList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-sm);
-}
-
-.catTag {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--box-sm);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  user-select: none;
-}
-
-.catGrip {
-  flex-shrink: 0;
-  color: var(--text-tertiary);
-}
-
-.catTagDragging {
-  opacity: 0.4;
-}
-
-.catTagOver {
-  outline: 2px solid var(--color-accent);
-  outline-offset: -1px;
-}
-
-.catRemove {
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-  padding: 0;
-  line-height: 1;
-}
-
-.catList .catRemove:hover {
-  color: var(--text-accent);
-}
-
-.catInput {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: flex-end;
-}
-
-.catInputGroup {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
-}
 
 /* ── Profile Sections (embedded in Content tab) ── */
-.profileDivider {
-  padding: var(--spacing-xl) 0;
-  margin-bottom: var(--spacing-xl);
-  border-top: 2px solid var(--border-light-color);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-
-.profileDivider span {
-  font-family: var(--font-instrument);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
-.profileDivider::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--border-light-color);
-}
 
 /* sub-section 시각적 중첩 — section h2 아래 h3 그룹을 들여쓰기 + 좌측 라인 */
 .subSection {
@@ -2106,91 +1852,10 @@
   gap: var(--spacing-sm);
 }
 
-.profileCardHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.profileCardTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.profileRemoveBtn {
-  width: var(--button-h-xs);
-  height: var(--button-h-xs);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  line-height: 1;
-  color: var(--text-secondary);
-}
-
-.profileRemoveBtn:hover {
-  border-color: var(--text-accent);
-  color: var(--text-accent);
-}
-
 .profileGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--spacing-sm);
-}
-
-.profileFieldLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  color: var(--text-tertiary);
-  letter-spacing: 0.02em;
-  margin-bottom: var(--spacing-2xs);
-  display: block;
-}
-
-.profileFieldInput {
-  width: 100%;
-  padding: var(--input-p);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  outline: none;
-}
-
-.profileFieldInput:focus {
-  border-color: var(--text-primary);
-}
-
-.profileFieldTextarea {
-  width: 100%;
-  padding: var(--box-xs-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  outline: none;
-  resize: vertical;
-  min-height: 60px;
-  max-height: 200px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-.profileFieldTextarea:focus {
-  border-color: var(--text-primary);
 }
 
 .profileAddBtn {
@@ -2207,33 +1872,9 @@
   cursor: pointer;
 }
 
-.profileToolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: var(--spacing-md);
-}
-
 .section .profileAddBtn:hover {
   border-color: var(--text-primary);
   color: var(--text-primary);
-}
-
-.profileNested {
-  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-sm)
-    var(--spacing-md);
-  border-left: 2px solid var(--border-light-color);
-  border-radius: 0;
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.profileNestedTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text-secondary);
 }
 
 /* ── Account ── */
@@ -2242,14 +1883,6 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-}
-
-.accountActions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-md);
-  padding-top: var(--spacing-lg);
 }
 
 /* ── Password Confirm Dialog ── */
@@ -2329,48 +1962,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-}
-
-.seriesPagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding-top: var(--spacing-sm);
-}
-
-.seriesPageBtn {
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-}
-
-.seriesPagination .seriesPageBtn:hover:not(:disabled) {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
-.seriesPageBtnActive {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-.seriesPagination .seriesPageBtnActive:hover {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-}
-
-.seriesPageBtn:disabled {
-  opacity: 0.75;
 }
 
 .seriesCardHead {
@@ -2964,21 +2555,6 @@
   padding-block: var(--spacing-xs);
 }
 
-.seriesPostsAddBtn {
-  margin-left: auto;
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  padding: 0;
-  white-space: nowrap;
-}
-
-.seriesPostsAddBtn:hover {
-  color: var(--text-primary);
-}
-
 /* ── Add Post Modal ── */
 .addPostModal {
   display: grid;
@@ -3357,27 +2933,6 @@
   color: var(--text-tertiary);
 }
 
-.seriesPostRemove {
-  flex-shrink: 0;
-  border: none;
-  background: transparent;
-  font-size: var(--font-size-md);
-  color: var(--text-secondary);
-  padding: 0;
-  line-height: 1;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-circle);
-}
-
-.seriesPostRemove:hover {
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
-}
-
 /* ── Social Links Editor ── */
 .socialEditor {
   display: flex;
@@ -3482,53 +3037,11 @@
   color: var(--text-muted);
 }
 
-.fieldInputError.fieldInputError {
-  border-color: var(--text-accent);
-}
-
-.fieldInputError.fieldInputError:focus {
-  border-color: var(--text-accent);
-}
-
-.fieldInputError::placeholder {
-  color: var(--text-accent);
-}
-
 /* 아이콘 URL input + 업로드 버튼 캡슐 그룹 */
-.socialIconUpload {
-  display: flex;
-  align-items: stretch;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-  background: transparent;
-  transition: border-color var(--duration-base) ease;
-}
-
-.socialIconUpload:focus-within {
-  border-color: var(--text-primary);
-}
 
 /* 내부 input — 외곽 캡슐이 border 담당하므로 자체 border 제거 */
-.socialIconUpload .fieldInput {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-}
 
 /* 업로드 버튼 — 32×32 정사각형, 아이콘 가운데 */
-.socialIconUpload .socialIconUploadBtn {
-  flex-shrink: 0;
-  width: 32px !important;
-  height: 32px !important;
-  aspect-ratio: 1 !important;
-  border: none !important;
-  border-left: var(--border-light) !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-}
 
 .socialRemoveBtn {
   width: 32px;
@@ -3938,24 +3451,6 @@
 }
 
 /* ── Font Preview (inside Select renderOption) ── */
-.fontOption {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
-}
-
-.fontSample {
-  font-size: var(--font-size-lg);
-  color: var(--text-primary);
-  line-height: 1.3;
-}
-
-.fontName {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  letter-spacing: 0.02em;
-}
 
 /* ── Font Picker — editor 의 FontPicker 패턴 (Select + dropdown 내부 search + 필터링 목록) ── */
 .fontPickerSelect {
@@ -3981,103 +3476,7 @@
     transform 0.18s ease;
 }
 
-.fontDropSearch {
-  padding: var(--box-xs);
-  border-bottom: var(--border-light);
-}
-
-.fontDropSearchInput {
-  width: 100%;
-  border: none;
-  outline: none;
-  font-size: var(--font-size-sm);
-  font-family: inherit;
-  background: transparent;
-  color: var(--text-primary);
-  padding: var(--box-y-sm);
-}
-
-.fontDropList {
-  max-height: 320px;
-  overflow-y: auto;
-  padding: var(--spacing-3xs) 0;
-}
-
-.fontDropGroup {
-  padding: var(--spacing-3xs) var(--spacing-xs) 2px;
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.fontDropItem {
-  padding: var(--box-xs);
-  border-radius: var(--radius-sm);
-  margin: var(--spacing-4xs) var(--spacing-3xs);
-  font-size: var(--font-size-sm);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  color: var(--text-primary);
-}
-
-.fontDropItem:hover {
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
-}
-
-.fontDropItemActive {
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
-}
-
-.fontDropFooter {
-  border-top: var(--border-light);
-  padding: var(--box-xs);
-}
-
-.fontDropFooterLink {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  text-decoration: none;
-}
-
-.fontDropFooterLink:hover {
-  color: var(--text-primary);
-}
-
-.fontDropHint {
-  padding: var(--box-3xs-sm);
-  font-size: var(--font-size-2xs);
-  color: var(--text-muted);
-}
-
-.fontDropHintInline {
-  font-size: var(--font-size-2xs);
-  color: var(--text-muted);
-  margin-left: var(--spacing-2xs);
-}
-
 /* (legacy) unused fontSelectGroup/fontSuggestions — removed after FontPicker rewrite */
-.fontSuggestionItem {
-  padding: var(--box-xs-sm);
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  text-align: left;
-  width: 100%;
-}
-
-.fontSuggestions .fontSuggestionItem:hover {
-  background: var(--bg-tertiary);
-}
 
 /* ── Env Var Editor — 단일 column 의 table-like layout. 라벨 좌측 fixed, input flex, actions 우측. ── */
 .envGroup {
@@ -4119,13 +3518,6 @@
 }
 
 /* env 액션 바 — section 저장 / 기본값 (SectionHeader 의 spacer 와 같은 스타일) */
-.envActionBar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  margin-bottom: var(--spacing-sm);
-}
 
 /* ── 상단 status overview ── */
 .envStatusBar {
@@ -4381,23 +3773,6 @@
   letter-spacing: 0.01em;
 }
 
-.envCancelBtn {
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--font-size-md);
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.envCancelBtn:hover {
-  border-color: var(--text-accent);
-  color: var(--text-accent);
-}
-
 .envRevealBtn,
 .envDeleteBtn {
   width: var(--button-h-sm);
@@ -4507,31 +3882,6 @@
   color: var(--text-success);
 }
 
-.envSaveBtn {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--button-p-sm);
-  border: var(--border-accent-strong);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  color: var(--text-accent);
-}
-
-.envSaveBtn:hover {
-  background: var(--bg-accent-light);
-}
-
-.envSaveBtn:disabled {
-  opacity: 0.5;
-}
-
-.pwSubmitBtn:disabled {
-  opacity: 0.5;
-}
-
 /* ── Pending Email Banner ── */
 .pendingEmailBanner {
   display: flex;
@@ -4579,17 +3929,6 @@
 }
 
 /* ── Tag Input (media settings) ── */
-.tagInputWrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.tagList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
 
 .tag {
   display: inline-flex;
@@ -4602,16 +3941,6 @@
   font-size: var(--font-size-2xs);
   color: var(--text-secondary);
   background: var(--bg-secondary);
-}
-
-.tagRemove {
-  border: none;
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
 }
 
 .section .tagRemove:hover {
@@ -4652,27 +3981,11 @@
   cursor: not-allowed;
 }
 
-.tagRemoveBtn {
-  border: none;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  padding: var(--spacing-3xs);
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
 .section .tagRemoveBtn:hover {
   color: var(--text-accent);
 }
 
 /* ── MIME row — horizontal layout (label 좌 / Select 우). 카드 제거 후엔 살짝 indent. */
-.mimeRow {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
 
 .mimeRow .fieldRow {
   padding: 0;
@@ -4698,16 +4011,8 @@
 }
 
 /* 카드 제거 후 chip grid 도 indent 통일 */
-.mimeLimitGroup > .mimeChipGrid {
-  margin-top: var(--spacing-2xs);
-}
 
 /* MediaLimits 컨테이너 — 카테고리별 단순 stacked 리스트. */
-.mediaLimitsGrid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-}
 
 /* ── Drag-and-Drop size bucket 레이아웃 ──
    카드 X, 카테고리 헤더 + top border 구분선만. drop hover 는 배경색으로 표시. */
@@ -4931,113 +4236,14 @@
 }
 
 /* 미디어 group — 카드 없음. 첫 group 제외 top border 로 시각적 분리. */
-.mimeLimitGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  background: transparent;
-}
-
-.mimeLimitGroup:not(:first-child) {
-  padding-top: var(--spacing-lg);
-  border-top: var(--border-light);
-}
 
 /* group header — icon + uppercase label, rows 위에 작게 위치 */
-.mimeLimitGroupHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  color: var(--text-tertiary);
-  margin-bottom: var(--spacing-xs);
-}
-
-.mimeLimitGroupHeader > svg {
-  flex-shrink: 0;
-  color: var(--text-tertiary);
-}
-
-.mimeLimitGroupLabel {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-2xs);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-}
-
-.mediaLimitsGrid > .mimeAddBlock {
-  grid-column: 1 / -1;
-}
-
-.mimeAddedChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-secondary);
-  background: transparent;
-}
-
-.mimeAddedChipRemove {
-  display: inline-flex;
-  align-items: center;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-}
 
 .section .mimeAddedChipRemove:hover {
   color: var(--text-accent);
 }
 
 /* ── MIME add chip grid ── */
-.mimeAddBlock {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.mimeChipGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
-
-.mimeChipGroupLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.mimeChipGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
-
-.mimeChipBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-xs);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  cursor: pointer;
-}
 
 .section .mimeChipBtn:hover {
   background: var(--bg-inverse);
@@ -5045,75 +4251,14 @@
   color: var(--text-inverse);
 }
 
-.mimeChipPlus {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  line-height: 1;
-}
-
-.tagError {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-accent);
-}
-
 /* ── Limits Grid (media settings) ── */
-.limitsGrid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
-
-.limitRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.limitMime {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-secondary);
-  min-width: 140px;
-  flex-shrink: 0;
-}
-
-.limitInput {
-  width: 70px;
-  padding: var(--input-p);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  text-align: right;
-}
 
 .section .limitInput:focus {
   border-color: var(--text-primary);
   outline: none;
 }
 
-.limitUnit {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-}
-
 /* ── Tag descriptions editor — bilingual + search/sort/pagination ── */
-.tagDescEditor {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.tagDescToolbar {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
 
 /* 필터 row — 정렬/검색 row 와 분리된 별도 줄. 그룹 사이 divider. */
 .tagDescFilterRow {
@@ -5176,12 +4321,6 @@
 }
 
 /* 우측 끝 정렬 — 정렬 group 같은 거 (margin-left:auto 로 row 의 남는 공간 차지). */
-.tagDescFilterGroupEnd {
-  margin-left: auto;
-  /* border 와 충돌 방지 — 끝쪽이라 좌측 divider 제거 */
-  padding-left: 0 !important;
-  border-left: none !important;
-}
 
 /* 검색창 — filter row 의 마지막 item. wrap 안 됐을 땐 margin-left:auto 로 우측 끝.
    wrap 됐을 땐 새 줄의 끝쪽 (justify-content: flex-end 효과는 width 100% 로). */
@@ -5225,31 +4364,9 @@
 
 /* toolbar 내 count — SegmentedControl 오른쪽, search (margin-left:auto) 앞 자연 배치. */
 
-.tagDescRow {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-sm);
-  min-width: 0;
-  padding: var(--spacing-2xs) 0;
-}
-
 /* tag row 안 — 이름 / 설명 BilingualInputPair 두 줄 stacked */
-.tagDescFields {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
 
 /* 새 태그 추가 행 — toolbar 아래, 구분선 */
-.tagDescAddRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding-bottom: var(--spacing-sm);
-  border-bottom: var(--border-light);
-}
 
 .tagDescCount {
   font-family: var(--font-mono);
@@ -5383,12 +4500,6 @@ a.tagRelatedItem:hover {
   margin: 0;
 }
 
-.tagDeleteRelated {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
-
 .tagDeleteConfirmActions {
   display: flex;
   justify-content: flex-end;
@@ -5443,11 +4554,6 @@ a.tagRelatedItem:hover {
 }
 
 /* n-col auto-fit — 폭에 따라 1~n 컬럼 자동 reflow. 각 cell min 220px */
-.fieldsGridAuto {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--spacing-md);
-}
 
 /* narrow field — input 자체는 fit-content 이지만 fieldNarrow override 로 부모 폭 50% 강제.
    counter / clear 가 input 안 absolute (overflow 없음). multiline / TagField / single-line 모두 50%. */
@@ -5464,28 +4570,6 @@ a.tagRelatedItem:hover {
 }
 
 /* 카테고리 설명 편집 list */
-.catDescList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  margin-block: var(--spacing-md);
-  padding-block: var(--spacing-sm);
-  border-top: var(--border-light);
-  border-bottom: var(--border-light);
-}
-
-.catDescRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.catDescLabel {
-  flex: 0 0 120px;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-}
 
 /* Select width fit-content — pagination 처럼 짧은 값만 선택하는 경우 */
 .fitSelect {
@@ -5663,80 +4747,6 @@ a.tagRelatedItem:hover {
   opacity: 1;
 }
 
-.worksIntroVideoGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: var(--spacing-sm);
-}
-
-.worksIntroVideoCard {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  background: var(--bg-primary);
-  cursor: pointer;
-  overflow: hidden;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.worksIntroVideoCard:hover {
-  border-color: var(--text-tertiary);
-}
-
-.worksIntroVideoCardSelected {
-  border-color: var(--text-accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text-accent) 25%, transparent);
-}
-
-.worksIntroVideoThumb {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  background: var(--bg-tertiary);
-}
-
-.worksIntroVideoCheck {
-  position: absolute;
-  top: var(--spacing-2xs);
-  right: var(--spacing-2xs);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: var(--radius-circle);
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
-}
-
-.worksIntroVideoMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  font-family: var(--font-space-grotesk);
-  text-align: left;
-}
-
-.worksIntroVideoName {
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.worksIntroVideoSize {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-3xs);
-  color: var(--text-tertiary);
-}
-
 .worksIntroVideoActions {
   display: flex;
   align-items: center;
@@ -5790,375 +4800,33 @@ a.tagRelatedItem:hover {
    About 패널 — 인라인 스타일 추출 (간격·정렬을 토큰으로 일관화)
    ───────────────────────────────────────────────────────────────────────── */
 /* 미디어 프리뷰 + 액션 (VisualBreak / Hero 배경 공용) */
-.aboutMediaRow {
-  display: flex;
-  gap: var(--spacing-md);
-  align-items: center;
-}
-.aboutMediaThumb {
-  width: 160px;
-  height: 90px;
-  border-radius: var(--radius-2xl);
-  overflow: hidden;
-  border: var(--border-light);
-  flex-shrink: 0;
-  background: var(--bg-tertiary);
-}
-.aboutMediaThumb img,
-.aboutMediaThumb video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.aboutMediaActions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
 
 /* Hero 텍스트 필드 (입력 + ⚙ 스타일 버튼) */
-.aboutHeroField {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: flex-start;
-  width: 100%;
-}
-.aboutHeroFieldMain {
-  flex: 1;
-  min-width: 0;
-}
 /* 서브타이틀처럼 단일 라인이면 가운데 정렬 */
-.aboutHeroFieldCenter {
-  align-items: center;
-}
-.aboutHeroSubtitleHint {
-  flex: 1;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-}
 
 /* Hero 배경 그룹 */
-.aboutBgGroup {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-.aboutSliderRow {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: center;
-}
-.aboutSliderTrack {
-  flex: 1;
-}
-.aboutGradientGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-sm);
-}
-.aboutGradientAngle {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: center;
-  margin-top: var(--spacing-xs);
-}
-.aboutGradientAngleLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  min-width: 56px;
-}
 
 /* 체크박스 row (무한 스크롤) */
-.aboutCheckRow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  cursor: pointer;
-}
 
 /* 패널 표시여부 그리드 */
-.aboutPanelHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-sm);
-}
-.aboutPanelGrid {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--spacing-xs) var(--spacing-md);
-}
-.aboutPanelToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-}
 
 /* ── Hero 텍스트 + 타이포 매트릭스 ── */
 /* 텍스트 입력 3줄(line1/line2/watermark) — 라벨 위, 이중언어 인풋 아래 */
-.heroTextGrid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  width: 100%;
-}
 /* 매트릭스 — 요소×속성 표. popover 4개 대신 한눈에 비교·편집. 좁으면 가로 스크롤. */
-.heroMatrixWrap {
-  width: 100%;
-  overflow-x: auto;
-}
-.heroMatrix {
-  display: grid;
-  grid-template-columns: minmax(76px, 0.7fr) 62px minmax(160px, 1.5fr) minmax(120px, 1fr) minmax(128px, 1.1fr);
-  align-items: center;
-  min-width: 640px;
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  overflow: hidden;
-}
-.heroMatrixHead {
-  display: contents;
-}
-.heroMatrixHead > span {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--text-tertiary);
-  background: var(--bg-secondary);
-  padding: var(--spacing-2xs) var(--spacing-sm);
-}
 /* 색 스와치 셀 — 스와치를 셀 안에서 좌측 정렬(헤더와 라인 맞춤) */
-.heroMatrixRow > .heroMatrixCell:nth-child(2) {
-  display: flex;
-  align-items: center;
-}
-.heroMatrixRow {
-  display: contents;
-}
-.heroMatrixRow > * {
-  border-top: var(--border-light);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  min-width: 0;
-}
-.heroMatrixLabel {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-.heroMatrixSize {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-.heroMatrixSwatch {
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  cursor: pointer;
-}
 
 /* ── Architecture 비주얼 트리 에디터 ── */
-.archTree {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  width: 100%;
-}
-.archNodeWrap {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
 /* 노드 행 — 클릭으로 선택, hover 시 + 하위추가 노출 */
-.archNode {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  min-width: 0;
-}
-.archNodeLabel {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  border: none;
-  background: transparent;
-  border-radius: var(--radius-capsule);
-  color: var(--text-primary);
-  font-size: var(--font-size-sm);
-  text-align: left;
-  cursor: pointer;
-}
-.archNodeLabel:hover {
-  background: var(--bg-secondary);
-}
-.archNodeSel > .archNodeLabel {
-  box-shadow: inset 0 0 0 1px var(--border-light-color);
-}
-.archNodeDot {
-  width: 7px;
-  height: 7px;
-  flex-shrink: 0;
-  border-radius: var(--radius-circle);
-  background: var(--text-tertiary);
-}
-.archNodeDot[data-empty="true"] {
-  background: transparent;
-  box-shadow: inset 0 0 0 1px var(--border-light-color);
-}
 .archNodePath {
   flex-shrink: 0;
   font-family: var(--font-mono);
   font-weight: 600;
   white-space: nowrap;
 }
-.archNodeEmpty {
-  color: var(--text-tertiary);
-  font-style: italic;
-}
-.archNodeDesc {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.archNodeAdd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  flex-shrink: 0;
-  padding: 0;
-  border: none;
-  background: transparent;
-  border-radius: var(--radius-circle);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  opacity: 0;
-}
-.archNode:hover .archNodeAdd {
-  opacity: 1;
-}
-.archNodeAdd:hover {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
 /* 중첩 — 좌측 가이드선으로 계층 표현 */
-.archChildren {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-left: 11px;
-  padding-left: 14px;
-  border-left: 1px solid var(--border-light-color);
-}
 /* 선택 노드 인라인 편집 패널 */
-.archNodeEdit {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  margin: 2px 0 var(--spacing-xs);
-  padding: var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: var(--bg-secondary);
-}
-.archDescs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-xs);
-  min-width: 0;
-}
-.archEditBar {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  flex-wrap: wrap;
-}
-.archIconBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 26px;
-  padding: 0;
-  border: var(--border-light);
-  background: transparent;
-  border-radius: var(--radius-capsule);
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-.archIconBtn:hover:not(:disabled) {
-  color: var(--text-primary);
-  border-color: var(--text-primary);
-}
-.archIconBtn:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-.archTextBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: auto;
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  border: var(--border-light);
-  background: transparent;
-  border-radius: var(--radius-capsule);
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-  cursor: pointer;
-}
-.archTextBtn + .archTextBtn {
-  margin-left: var(--spacing-2xs);
-}
-.archTextBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--text-primary);
-}
-.archAdd {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  margin-top: var(--spacing-2xs);
-  padding: var(--spacing-xs) var(--spacing-md);
-  border: 1px dashed var(--border-light-color);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-}
-.archAdd:hover {
-  color: var(--text-primary);
-}
 
 /* Tech stack row (legacy) */
-.aboutTechRow {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: center;
-}
-.aboutTechCol {
-  flex: 1;
-}
 
 /* ── Tech stack — chip editor ── */
 /* 카테고리별 그룹 — 그룹들을 n열 그리드로 배치 (압축). 라벨 밑줄로 구분감. */
