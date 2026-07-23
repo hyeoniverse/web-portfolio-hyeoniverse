@@ -175,10 +175,21 @@ eslint warning 435개 분류 — **Phase 4의 실제 작업 목록이다**:
 | 6 | `react-hooks/use-memo` | |
 | 5 | `@next/next/no-img-element` | raw `<img>` — Phase 2 이미지 항목 |
 
-- [ ] eslint: `max-lines`(컴포넌트 300, warn) · `max-depth` 추가
-- [ ] warning 총량 락 — 435를 상한으로 고정하고 슬라이스마다 내린다 (늘면 CI 실패)
-- [ ] `type-coverage` 97 → 97.7로 즉시 상향(이미 달성) → 슬라이스마다 +0.5
-- [ ] CI에 `audit:full` + 시각 회귀 워크플로 연결
+**구축 완료:**
+
+- [x] **eslint warning 총량 락** — `eslint --max-warnings 435`. 한 개라도 늘면 CI 실패
+- [x] **type-coverage 97 → 97.7 락** + CI 에서 `continue-on-error` 제거해 차단으로 승격
+- [x] 룰별 baseline 문서화 (아래 표 = Phase 4 작업 목록)
+- [ ] knip 차단 승격 — 미사용 export 57개 정리 후. 선언 안 된 의존성(#373)이 우선
+- [ ] 시각 회귀 CI 연결 — 스냅샷이 `-darwin` 접미사라 Linux runner 에서 재사용 불가.
+      로컬 실행이 전제이므로 PR 체크리스트로 대신한다
+
+**게이트를 내릴 때의 규칙:** warning 을 줄였거나 커버리지를 올렸으면
+`package.json` 의 `--max-warnings` / `--at-least` 도 **같은 PR 에서 함께 조인다.**
+안 그러면 다시 후퇴할 여지가 남는다.
+
+**`max-lines` 는 추가하지 않는다.** 300줄 상한을 걸면 수백 개 warning 이 한꺼번에 생겨
+총량 락이 무의미해진다. 파일 크기 기준은 위 "코드 기준선"으로 두고 슬라이스마다 사람이 판단한다.
 
 **산출물:** 원칙 P1~P8 중 기계화 가능한 것 전부 자동화.
 
