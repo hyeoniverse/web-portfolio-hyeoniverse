@@ -332,18 +332,50 @@ gsap + ScrollTrigger 를 정적 import 한다. Lenis 스크롤과 ScrollTrigger 
 시각 회귀 40장 전부 통과해야 한다. **다만 스크롤 애니메이션 동작은 정지 스크린샷으로
 검증되지 않으므로 수동 QA 가 필수다** — home/about/works/profile 의 스크롤 시퀀스를 직접 확인한다.
 
-### Phase 3 — 구조 (1~2일)
+### Phase 3 — 구조 ✅ 조사 완료, **파일 이동은 하지 않는다**
 
-- [ ] **배치 기준 확정 및 문서화**
-  - `src/components/ui` — 도메인 무관 프리미티브
-  - `src/components/<domain>` — 2개 이상 라우트에서 쓰는 도메인 컴포넌트
-  - `src/app/<route>/_components` — 해당 라우트 전용
-  - 판단 기준: **사용처가 1곳이면 콜로케이션, 2곳 이상이면 승격**
-- [ ] 기준 위반 파일 이동 (import 경로만 바뀌는 순수 이동 PR)
-- [ ] 배럴(`index.ts`) 44개 점검 — 트리셰이킹 방해하는 재export 정리
-- [ ] `lib` / `utils` / `hooks` / `constants` / `config` 경계 재정의 (현재 중복 의심)
+착수 전 실측해보니 **고칠 게 거의 없었다.** 계획 단계에서 "중복 의심" 이라고 적어둔 것들이
+실제로는 대체로 지켜지고 있었다. diff 만 크고 이득 없는 이동은 하지 않는다.
 
-**주의:** 이 Phase는 diff가 거대해 보이지만 내용은 이동뿐이어야 한다. 로직 수정 금지.
+#### 배치 기준 (확정)
+
+| 위치 | 용도 |
+| --- | --- |
+| `src/components/ui` | 도메인 무관 프리미티브 |
+| `src/components/<domain>` | **2개 이상 라우트**에서 쓰는 도메인 컴포넌트 |
+| `src/app/<route>/_components` | 해당 라우트 전용 |
+
+**판단 기준: 쓰는 라우트가 1곳이면 콜로케이션, 2곳 이상이면 승격.**
+
+"파일 하나에서만 import 되면 콜로케이션" 이 아니다. 부모 컴포넌트를 쪼개서 생긴 자식은
+사용처가 1곳이어도 그 자리가 맞다. **라우트 단위로 센다.**
+
+#### 실측 결과 — 위반 없음
+
+| 도메인 | 쓰는 라우트 | 판단 |
+| --- | --- | --- |
+| `about` | about · admin | 공유 정당 |
+| `works` | works · admin | 공유 정당 |
+| `posts` | posts · admin · works · design-system | 정당 |
+| `layout` | 거의 전 라우트 | 정당 |
+| `effects` | home · about · design-system | 정당 |
+| `admin` | admin · design-system | 정당 (design-system 은 전시용) |
+
+#### `lib` vs `utils` — 이미 갈려 있다
+
+| | 서버 의존 파일 | 성격 |
+| --- | ---: | --- |
+| `src/lib` | 7개 (Supabase · env · `next/headers`) | 데이터 접근 · 외부 서비스 · 도메인 로직 |
+| `src/utils` | **0개** | 순수 함수 |
+
+`lib` 에 순수 함수가 일부 섞여 있지만(`dedupe` · `koSearch` · `categoryTree` 등)
+옮겨봐야 import 경로만 바뀐다. **슬라이스에서 그 파일을 손댈 때 함께 정리한다.**
+
+#### 배럴 — 손댈 것 없음
+
+`index.ts` 44개 중 대부분이 `components/ui/<Component>/index.ts` 형태로 정상 패턴이다.
+`utils/index.ts` 는 5줄에 re-export 2개뿐이고, 실제로도 배럴 경로(9곳)보다
+개별 경로(95곳)로 훨씬 많이 쓴다. 트리셰이킹을 방해할 규모가 아니다.
 
 #### 상수·타입 정리는 "기준만 여기서, 이동은 Phase 4 에서"
 
