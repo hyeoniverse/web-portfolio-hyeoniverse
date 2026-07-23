@@ -730,6 +730,28 @@ npm run test:watch
 
 ---
 
+**시각 회귀 (Playwright)**
+
+리팩토링이 화면을 바꾸지 않았는지 픽셀 단위로 검증합니다. baseline 스크린샷 24장을 `e2e/visual.spec.ts-snapshots/` 에 커밋해 두고, 실행할 때마다 비교합니다.
+
+```bash
+npm run build          # 프로덕션 산출물 필요 (dev 서버는 baseline 이 흔들림)
+npm run test:visual        # 비교
+npm run test:visual:update # baseline 갱신 (의도된 design 변경일 때만)
+```
+
+| 항목 | 값 |
+| --- | --- |
+| 대상 | 공개 라우트 12개 × desktop(1440×900) / mobile(Pixel 7) = **24장** |
+| 검증 | 스크린샷 diff + 페이지 런타임 에러 |
+| 안정성 | 3회 연속 24/24 통과 (flaky 0) |
+
+셋업 과정에서 부딪힌 함정 — 전 페이지를 덮는 `LoadingScreen` 을 안 기다리면 "검은 화면 + 로고" 가 baseline 으로 박히고, WebGL canvas 를 `mask` 로 가리면 그 위에 사각형이 덮여 페이지 전체가 단색이 됩니다(`visibility: hidden` 으로 처리). 전체 목록과 커버리지 한계(`/works`·`/posts` 는 뷰포트만, `/admin/*` 은 인증 미셋업으로 제외)는 **[docs/perf-baseline.md](./docs/perf-baseline.md#시각-회귀-baseline)** 에 정리되어 있습니다.
+
+> **리팩토링 문서**: [리팩토링 가이드](./docs/refactoring-guide.md) · [성능 baseline](./docs/perf-baseline.md) · [데드코드 인벤토리](./docs/dead-code-inventory.md)
+
+---
+
 
 </details>
 
