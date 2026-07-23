@@ -94,7 +94,6 @@
     "sharp": "^0.35.3",
     "shiki": "^4.3.1",
     "slate-react": "^0.126.0",
-    "tailwind-merge": "^3.6.0",
     "three": "^0.185.1",
     "zustand": "^5.0.14"
   },
