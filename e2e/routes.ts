@@ -66,12 +66,25 @@ export const PUBLIC_ROUTES: Route[] = [
  */
 export const ADMIN_ROUTES: Route[] = [
   { path: "/admin", name: "admin-dashboard" },
-  { path: "/admin/settings", name: "admin-settings" },
   { path: "/admin/posts", name: "admin-posts" },
   { path: "/admin/works", name: "admin-works" },
   { path: "/admin/comments", name: "admin-comments" },
   { path: "/admin/notifications", name: "admin-notifications" },
   { path: "/admin/reports", name: "admin-reports" },
+
+  /* settings 는 탭 UI 라 URL 하나로는 General 탭만 잡힌다. admin 슬라이스의 73%(29,572줄)가
+     여기 있고 Phase 4-1 대상 파일(AboutStudio 2,508 · ContentTab 2,168 · ServicesTab 1,447 …)이
+     각 탭에 흩어져 있어 탭별로 캡처해야 안전망이 된다. ?tab= / ?sub= 로 주소 지정이 가능하다. */
+  { path: "/admin/settings?tab=general", name: "admin-settings-general" },
+  { path: "/admin/settings?tab=content&sub=home", name: "admin-settings-content-home" },
+  { path: "/admin/settings?tab=content&sub=profile", name: "admin-settings-content-profile" },
+  { path: "/admin/settings?tab=content&sub=about", name: "admin-settings-content-about" },
+  { path: "/admin/settings?tab=content&sub=works", name: "admin-settings-content-works" },
+  { path: "/admin/settings?tab=content&sub=posts", name: "admin-settings-content-posts" },
+  { path: "/admin/settings?tab=content&sub=calendars", name: "admin-settings-content-calendars" },
+  { path: "/admin/settings?tab=appearance", name: "admin-settings-appearance" },
+  { path: "/admin/settings?tab=services", name: "admin-settings-services" },
+  { path: "/admin/settings?tab=account", name: "admin-settings-account" },
 ];
 
 /**
