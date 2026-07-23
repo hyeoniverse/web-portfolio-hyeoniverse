@@ -86,6 +86,14 @@
   color: var(--text-accent);
 }
 
+/* 데스크탑(사이드바 있는 >1024): 세로 사이드바가 메인 내비게이션을 맡으므로
+   섹션 바로가기 바는 감춘다 — 태블릿·모바일(가로 탭바로 접힐 때)에서만 노출. */
+@media (min-width: 1025px) {
+  .jumpWrap {
+    display: none;
+  }
+}
+
 /* 태블릿·모바일 — 위에 메인 가로 탭바(≈45px)가 sticky 로 있으니 그 아래로 내린다. */
 @media (max-width: 1024px) {
   .jumpWrap {
