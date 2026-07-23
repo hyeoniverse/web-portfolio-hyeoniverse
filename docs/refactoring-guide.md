@@ -133,7 +133,7 @@ Phase 4에서 파일을 분해할 때 목표치. 절대 규칙이 아니라 **�
 **핵심 발견:**
 
 - 최저 라우트(`/_not-found`)조차 First Load JS 380 kB gzip — 그중 160.7 kB 는 프레임워크 바닥이고, **앱 코드 219 kB 를 모든 페이지가 무조건 받는다**
-- 그중 **gsap 368 kB + framer-motion 계열 551 kB** 가 전 라우트에 무조건 로드됨
+- 그 앱 코드의 45%가 애니메이션 라이브러리다 — **gsap 42.9 kB + framer-motion 계열 54.9 kB**(gzip)가 전 라우트에 무조건 로드됨
 - 소스맵 90 MB vs JS 25 MB (`productionBrowserSourceMaps: true`)
 - `next.config.ts` 의 `webpack:` 훅과 `@next/bundle-analyzer` 는 Turbopack 빌드에서 죽어 있음
 - 선언 안 된 의존성 4개 (`@codemirror/lang-*`, `@lezer/highlight`) — 빌드가 깨질 수 있는 결함
@@ -201,7 +201,7 @@ Phase 0 실측으로 확정된 순서. **수치는 전부 gzip 기준**(= 실제
 
 > 소스맵 원본 크기는 압축 전이라 8~10배 크게 보인다. 목표와 성과는 gzip 으로만 말한다.
 
-**완료 — 누적 380.0 → 318.0 kB (−62 kB, −16.3%)**
+**완료 — shell 380.0 → 318.0 kB (−62 kB). 앱 코드로는 219.3 → 157.3 kB (−28.3%)**
 
 - [x] **`tailwind-merge` 제거 (−8.9 kB)** — `75a9a185`
 - [x] **`site.config.ts` 경계 (−25.6 kB)** — `SiteConfigProvider` 의 context 기본값이 원인. `f98cd849`
