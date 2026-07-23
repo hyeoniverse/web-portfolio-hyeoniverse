@@ -21,7 +21,6 @@ export interface SettingsTabProps {
   resetSection: (paths: string[]) => void;
   /** 현재 저장 중인 paths (UI 비활성/스피너용). null 이면 idle. */
   savingPaths: string[] | null;
-  styles: Record<string, string>;
 }
 
 export interface AccountTabProps {
@@ -45,5 +44,4 @@ export interface AccountTabProps {
   onCancelPendingEmail: () => void;
   passwordPolicy: string;
   onPasswordPolicyChange: (v: string) => void;
-  styles: Record<string, string>;
 }

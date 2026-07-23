@@ -823,7 +823,7 @@ export default function SettingsPage() {
             <>
               {activeTab === "general" && (
                 <div className={styles.tabGrid}>
-                  <GeneralTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} styles={styles} />
+                  <GeneralTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} />
                 </div>
               )}
               {activeTab === "content" && (
@@ -842,19 +842,18 @@ export default function SettingsPage() {
                     profileExpanded={profileExpanded}
                     setProfileExpanded={setProfileExpanded}
                     contentSubTab={contentSubTab}
-                    styles={styles}
                   />
                 </div>
                 </>
               )}
               {activeTab === "appearance" && (
                 <div className={styles.tabGrid}>
-                  <AppearanceTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
+                  <AppearanceTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} setConfig={setConfig} />
                 </div>
               )}
               {activeTab === "services" && (
                 <div className={styles.tabGrid}>
-                  <ServicesTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} setConfig={setConfig} styles={styles} />
+                  <ServicesTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} setConfig={setConfig} />
                 </div>
               )}
               {activeTab === "account" && (
@@ -909,7 +908,6 @@ export default function SettingsPage() {
                     savedConfigRef.current = structuredClone(merged);
                     await saveDelta(merged);
                   }}
-                  styles={styles}
                 />
                 </div>
               )}
