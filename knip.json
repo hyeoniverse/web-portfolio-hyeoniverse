@@ -3,7 +3,6 @@
   "entry": [
     "src/app/**/{page,layout,loading,error,not-found,template,default}.{ts,tsx}",
     "src/app/**/route.ts",
-    "src/middleware.ts",
     "next.config.{js,ts,mjs}",
     "scripts/**/*.{ts,mjs}",
     "src/__tests__/**/*.{ts,tsx}",
