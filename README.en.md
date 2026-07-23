@@ -730,6 +730,28 @@ Config: `vitest.config.ts` (jsdom, `@platejs/*` inlined so the full EditorKit lo
 
 ---
 
+**Visual regression (Playwright)**
+
+Verifies pixel-for-pixel that a refactor did not change the rendered page. 24 baseline screenshots live in `e2e/visual.spec.ts-snapshots/` and are compared on every run.
+
+```bash
+npm run build              # production output required (a dev server makes the baseline unstable)
+npm run test:visual        # compare
+npm run test:visual:update # refresh the baseline (only for intentional design changes)
+```
+
+| Item | Value |
+| --- | --- |
+| Scope | 12 public routes × desktop (1440×900) / mobile (Pixel 7) = **24 shots** |
+| Checks | Screenshot diff + page runtime errors |
+| Stability | 24/24 across 3 consecutive runs (zero flakes) |
+
+Two traps worth knowing: the full-screen `LoadingScreen` must be awaited or a "black screen + logo" frame gets baked into the baseline, and masking a WebGL canvas paints a rectangle *over* it — turning the whole page into a solid block (use `visibility: hidden` instead). Full notes and coverage gaps (`/works` and `/posts` are viewport-only, `/admin/*` is excluded pending auth setup) are in **[docs/perf-baseline.md](./docs/perf-baseline.md#시각-회귀-baseline)**.
+
+> **Refactoring docs**: [Refactoring guide](./docs/refactoring-guide.md) · [Performance baseline](./docs/perf-baseline.md) · [Dead code inventory](./docs/dead-code-inventory.md)
+
+---
+
 
 </details>
 
