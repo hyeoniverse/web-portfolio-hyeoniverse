@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import AdminTranslationsGate from "@/components/common/AdminTranslationsGate";
 
 export const metadata: Metadata = {
   title: {
@@ -24,5 +25,5 @@ export default async function PreviewLayout({
     redirect("/admin/login");
   }
 
-  return <>{children}</>;
+  return <AdminTranslationsGate>{children}</AdminTranslationsGate>;
 }
