@@ -66,29 +66,38 @@ npx next build --experimental-analyze
 
 ## 공통 shell 380 kB 의 구성
 
-전 32개 라우트에 예외 없이 로드되는 20개 chunk. 소스맵의 `sourcesContent` 기준 원본 비중:
+전 32개 라우트에 예외 없이 로드되는 20개 chunk.
 
-| 비중 | 원본 크기 | 모듈 | 메모 |
-| ---: | ---: | --- | --- |
-| 53.1% | 1753 kB | `next` | 프레임워크. 대상 아님 |
-| 12.0% | 397 kB | `motion-dom` | framer-motion 런타임 |
-| 11.1% | 368 kB | `gsap` | **works 가로스크롤 전용인데 전 라우트 로드** |
-| 4.7% | 154 kB | `framer-motion` | |
-| 3.9% | 128 kB | `tailwind-merge` | CSS Modules 기반인데 전 라우트 로드 |
-| 2.4% | 80 kB | `src/components/layout` | Navigation 등 |
-| 2.4% | 80 kB | `src/config/site.config.ts` | 설정 파일이 클라이언트 번들에 통째로 |
-| 1.9% | 63 kB | `src/locales/en.json` | |
-| 1.5% | 50 kB | `src/locales/ko.json` | **두 언어 동시 로드** |
-| 0.9% | 30 kB | `@swc/helpers` | |
-| 0.8% | 26 kB | `src/components/ui` | |
+> **원본 크기와 gzip 을 혼동하지 말 것.** 소스맵 `sourcesContent` 기준 원본 크기는 압축 전이라
+> 실제 전송량보다 8~10배 크게 보인다. **개선 효과는 gzip 열로 판단한다.**
+> (gzip 열 = chunk 의 실측 gzip 크기를 그 chunk 안 모듈의 원본 비중대로 배분한 추정치)
 
-### Phase 2 타깃 (예상 효과 순)
+| gzip | 비중 | 원본 | 모듈 | 메모 |
+| ---: | ---: | ---: | --- | --- |
+| 160 kB | 42.2% | 1753 kB | `next` | 프레임워크. 대상 아님 |
+| **43 kB** | 11.3% | 368 kB | `gsap` | **단독 chunk.** home/about/works/profile 전용인데 전 라우트 로드 |
+| 39 kB | 10.2% | 397 kB | `motion-dom` | framer-motion 런타임 |
+| 26 kB | 6.7% | 80 kB | `src/config/site.config.ts` | 설정 파일이 클라이언트 번들에 통째로 |
+| 24 kB | 6.4% | 63 kB | `src/locales/en.json` | |
+| 19 kB | 5.0% | 50 kB | `src/locales/ko.json` | **두 언어 동시 로드** |
+| 16 kB | 4.3% | 154 kB | `framer-motion` | |
+| 12 kB | 3.1% | 80 kB | `src/components/layout` | Navigation 등 |
+| 9 kB | 2.3% | 128 kB | `tailwind-merge` | CSS Modules 기반인데 전 라우트 로드 |
+| 4 kB | 1.1% | 30 kB | `@swc/helpers` | |
+| 4 kB | 1.0% | 26 kB | `src/components/ui` | |
 
-1. **gsap 격리** — 368 kB. `works` / webflow 가로스크롤에서만 필요. 전 라우트에서 제거
-2. **framer-motion + motion-dom 격리** — 551 kB. 사용처를 리프 컴포넌트로 좁히고 `next/dynamic`
-3. **locales 언어별 분리** — 113 kB. 현재 ko/en 동시 로드
-4. **site.config.ts 경계** — 80 kB. 서버 전용 필드가 클라이언트로 새는지 확인
-5. **tailwind-merge** — 128 kB. CSS Modules 프로젝트에서 실제 사용처 확인 후 `clsx` 로 대체 가능한지
+### Phase 2 타깃 (gzip 절감 순)
+
+| 순위 | 타깃 | 절감 상한 | 난이도 |
+| --- | --- | ---: | --- |
+| 1 | **gsap 격리** | 43 kB | 낮음 — 단독 chunk 라 깔끔히 분리됨 |
+| 2 | **framer-motion + motion-dom** | 55 kB | 높음 — 페이지 전환·홈 애니메이션에 광범위하게 쓰임 |
+| 3 | **locales 언어별 분리** | ~20 kB | 중간 — 두 언어 중 하나만 로드 |
+| 4 | **site.config.ts 경계** | 26 kB | 중간 — 서버 전용 필드가 클라이언트로 새는지 확인 |
+| 5 | **tailwind-merge** | 9 kB | 낮음 — 실사용처 확인 후 `clsx` 대체 검토 |
+
+`next` 160 kB 는 손댈 수 없으므로 **이론적 하한은 약 200 kB**, 위 5개를 전부 이상적으로
+처리했을 때의 값이다. framer-motion 완전 제거는 비현실적이므로 **현실적 목표는 280~300 kB.**
 
 ### 그 외 확인된 낭비
 
