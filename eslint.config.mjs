@@ -2,6 +2,11 @@ import coreWebVitals from "eslint-config-next/core-web-vitals";
 import typescript from "eslint-config-next/typescript";
 
 const eslintConfig = [
+  {
+    // Playwright 실행 산출물 — 리포트에 번들된 서드파티 JS 라 린트 대상이 아니다.
+    // 검사하면 audit:full 이 수천 건의 가짜 에러로 오염된다.
+    ignores: ["e2e/.report/**", "e2e/.results/**", "e2e/.auth/**"],
+  },
   ...coreWebVitals,
   ...typescript,
   {
