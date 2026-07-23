@@ -429,3 +429,80 @@ export const usePortalContainer = () => useContext(PortalContainerContext);
 | `ModalConfirm` | `children` | 선택. `desc` 뒤에 렌더. 확인 전에 **무엇이 바뀌는지 목록으로** 보여줄 때 — About ERD 가져오기가 삭제/덮어쓰기 대상을 이름과 전/후 값으로 나열하는 데 쓴다 |
 
 ---
+
+## 공용 UI 컴포넌트 (design-system.md 에서 이관)
+
+> 스타일 규칙(토큰·네이밍)이 아니라 컴포넌트 사용법이므로 이 문서로 옮겼다.
+
+### SearchCapsule (`src/components/ui/SearchCapsule/`)
+
+캡슐형 검색 입력. 정렬·태그 캡슐 버튼과 톤 / 높이를 통일해 한 줄에 같이 놓을 수 있음.
+
+- **`searchType` prop optional** — 지정 시 좌측에 type select(예: 제목 / 본문) 노출, 미지정 시 단순 입력 캡슐
+- **높이 `var(--control-h-md)`** (Layer 3 Component 토큰, 32px) — Select / 일반 input 과 동일 높이
+- 내부 Select 컴포넌트가 동일 토큰을 쓰므로 별도 override 없이 자연스럽게 정렬됨
+
+```tsx
+<SearchCapsule
+  value={query}
+  onChange={setQuery}
+  placeholder={t("posts.searchPlaceholder")}
+  // 옵션 — 검색 타입 셀렉트 동시 노출
+  searchType={searchType}
+  onSearchTypeChange={setSearchType}
+  searchTypes={[{ value: "all", label: t("posts.searchAll") }, { value: "title", label: t("posts.searchTitle") }]}
+/>
+```
+
+> **이전 위치**: `src/components/admin/SearchCapsule/` (admin 전용으로 시작) → 일반 UI 로 승격하면서 `components/ui/` 로 이동. PostsClient · `/admin/comments` 등 모든 인라인 검색 input 이 이 컴포넌트로 통일됨.
+
+### Tooltip + `<T>` 합성
+
+번역 가능한 텍스트 + 짧은 설명을 같은 hover 에 노출하기 위해 두 컴포넌트를 합성하는 표준 패턴:
+
+```tsx
+import T from "@/components/ui/T";
+import Tooltip from "@/components/ui/Tooltip";
+
+<Tooltip content={t("posts.sortDateTooltip")}>
+  <T ko="최신순" en="Latest" />
+</Tooltip>
+```
+
+- `<T>` — short hover(< 600ms) 시 현재 언어, long hover(>= 600ms) 시 반대 언어 노출
+- `<Tooltip>` — 같은 hover 에 짧은 설명(rule of thumb: 한 문장) 노출
+- 두 트리거가 같은 hover 영역을 공유하므로 사용자에게는 "한 번 hover → 번역 + 설명 동시 표시" 로 보임. 모바일은 터치 토글로 동일 결과
+- **언제 쓰나** — capsule 버튼·아이콘 only 트리거·축약된 라벨 등 시각만으로 의미가 즉시 전달되지 않는 자리에 의무화
+
+### 캡슐형 정렬 버튼 패턴 (sortBtn)
+
+`/posts` 의 정렬 컨트롤 — 같은 정렬 키를 다시 누르면 방향(asc / desc) toggle.
+
+- 활성 상태에서만 `sortDirIcon` 화살표(▲ / ▼) 노출, `transform: rotate(180deg)` + transition 으로 부드러운 회전
+- `display: inline-flex; white-space: nowrap` 으로 화살표가 줄바꿈으로 떨어지는 사고 방지
+- hover indicator 는 Framer Motion `layoutId` 로 캡슐 사이를 슬라이드
+- "랜덤" 처럼 방향 개념이 없는 정렬은 **별도 Shuffle 아이콘 버튼** 으로 분리(같은 컨트롤 row 의 마지막에 배치)
+
+### Shuffle 버튼 패턴
+
+랜덤 정렬은 누를 때마다 새 시드로 셔플되는 동작이 본질이므로 `sortBtn` 의 toggle 의미와 충돌. 별도 캡슐 아이콘 버튼으로 분리:
+
+- `<Shuffle />` 아이콘 + 활성 시 accent border + 가벼운 회전 hint
+- `Tooltip` 로 "임의 순서로 섞기, 누를 때마다 새로 셔플" 설명 명시
+- 시드는 `Date.now()` 또는 페이지 키로 — mulberry32 셔플로 같은 시드 / 같은 페이지 = 같은 결과(페이지 이동 시 안정성)
+
+### MenuDots (`src/components/ui/MenuDots/`)
+
+사이트 공용 **메뉴 아이콘** — 3×3 = 9개의 점(dot) grid. 열리면 X 로 모이는 morph 애니메이션. Navigation 의 메뉴 버튼과 admin/settings 탭바 토글이 **같은 모양**을 쓰도록 공용화한 SVG 컴포넌트.
+
+- 상태만 받는 순수 프레젠테이션 — `open`(열림, dot 이 X 로 모임) · `closing`(닫히는 중, 모였다 다시 펼쳐지는 트랜지션) · `size`(px, 생략 시 12px)
+- 색·트랜지션은 CSS Module 이 담당, 크기는 `--_size` 컨텍스트 토큰으로 주입 → 어디에 놓아도 톤 유지
+- `aria-hidden` — 아이콘 자체는 의미 전달 안 함, 감싸는 버튼이 `aria-label` 을 갖는다
+
+```tsx
+<button aria-label={t("nav.menu")} aria-expanded={open}>
+  <MenuDots open={open} size={16} />
+</button>
+```
+
+---
