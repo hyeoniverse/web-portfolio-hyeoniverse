@@ -1,18 +1,47 @@
 # 성능 baseline
 
-리팩토링 착수 시점의 기준선. [refactoring-guide.md](refactoring-guide.md) P3 — 모든 성능 PR은 이 표에 대고 전/후를 비교한다.
+**리팩토링이 무언가를 망가뜨리지 않았는지 판단하는 두 가지 기준을 담은 문서다.**
+하나는 번들 크기, 다른 하나는 화면 스크린샷이다.
 
-- **측정일**: 2026-07-23
-- **커밋**: `878560ab` (branch `design/about-erd-explorer-ux`)
-- **명령**: `npx next build --experimental-analyze`
-- **환경**: Next.js 16.2.11 (Turbopack), Node 23.10.0, darwin
-- **gzip**: `firstLoadChunkPaths` 의 각 chunk 를 gzip -9 로 압축해 합산 (실제 전송량 근사)
+성능 작업을 할 때는 [refactoring-guide.md](refactoring-guide.md) 의 원칙 P3 에 따라
+**여기 적힌 수치에 대고 전/후를 비교**하고 그 결과를 PR 에 적는다.
 
-## 측정 방법 주의
+### 어디를 보면 되나
 
-`npm run analyze`(= `@next/bundle-analyzer`)는 **이 프로젝트에서 아무것도 생성하지 않는다.**
-Next 16의 `next build`는 Turbopack이 기본이고, bundle-analyzer는 webpack 플러그인이라 무시된다.
-`next.config.ts` 의 `webpack:` 훅도 같은 이유로 죽어 있다.
+| 하려는 일 | 볼 곳 |
+| --- | --- |
+| 번들이 커졌는지/작아졌는지 확인 | [라우트별 First Load JS](#라우트별-first-load-js) · [Phase 2 진행 결과](#phase-2-진행-결과) |
+| "이 정도면 큰 건가?" 판단 | [이 프로젝트에서 "적당한 크기"란](#이-프로젝트에서-적당한-크기란) |
+| 다음에 뭘 줄일지 고르기 | [공통 shell 의 구성](#착수-시점-공통-shell-380-kb-의-구성) · [Phase 2 타깃](#phase-2-타깃-gzip-절감-순) |
+| 화면이 바뀌었는지 검사 | [시각 회귀 baseline](#시각-회귀-baseline) |
+| admin 화면 검사 셋업 | [admin 시각 회귀](#admin-시각-회귀-phase-4-1-안전망--baseline-확보) |
+| 스크린샷이 이상하게 나올 때 | [셋업 과정에서 부딪힌 것](#셋업-과정에서-부딪힌-것-같은-함정-반복-방지) |
+
+### 이 문서의 수치를 읽는 법
+
+- **모든 크기는 gzip 기준**이다 (= 실제로 네트워크를 타는 양).
+  소스맵의 원본 크기는 압축 전이라 8~10배 크게 보이므로 목표·성과에 쓰지 않는다
+- **"착수 시점" 표는 갱신하지 않는다.** 비교 기준이므로 고정해두고,
+  개선 성과는 [Phase 2 진행 결과](#phase-2-진행-결과) 에 누적한다
+
+### 측정 조건
+
+| | |
+| --- | --- |
+| 측정일 | 2026-07-23 |
+| 기준 커밋 | `878560ab` (현재는 master 에 머지됨) |
+| 명령 | `npx next build --experimental-analyze` |
+| 환경 | Next.js 16.2.11 (Turbopack), Node 23.10.0, darwin |
+| gzip 계산 | `firstLoadChunkPaths` 의 각 chunk 를 gzip -9 로 압축해 합산 |
+
+## 번들을 측정할 때 — `npm run analyze` 를 쓰면 안 된다
+
+`package.json` 에 `analyze` 스크립트가 있지만 **이 프로젝트에서는 아무것도 만들어내지 않는다.**
+실행해도 조용히 끝나서 "분석이 안 되나 보다" 하고 넘어가기 쉽다.
+
+이유는 이렇다. 그 스크립트는 `@next/bundle-analyzer` 를 쓰는데, 이건 **webpack 플러그인**이다.
+그런데 Next 16 부터 `next build` 는 **Turbopack 이 기본**이라 webpack 설정 자체를 타지 않는다.
+같은 이유로 `next.config.ts` 의 `webpack:` 훅도 죽어 있다.
 
 → Turbopack 전용 플래그를 쓴다:
 
@@ -78,7 +107,10 @@ npx next build --experimental-analyze
 
 즉 문제는 "380 이 크다"가 아니라 **모든 페이지가 앱 코드 219 kB 를 무조건 받는다**는 것이다.
 
-## 공통 shell 380 kB 의 구성
+## 착수 시점 공통 shell 380 kB 의 구성
+
+> 아래는 **착수 시점(380 kB) 기준**이다. 현재 값은 318 kB —
+> 어떻게 줄었는지는 [Phase 2 진행 결과](#phase-2-진행-결과) 참조.
 
 전 32개 라우트에 예외 없이 로드되는 20개 chunk.
 
