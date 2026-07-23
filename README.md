@@ -749,7 +749,7 @@ npm run test:visual:admin  # admin 라우트 (로그인 세션 필요 — 아래
 
 셋업 과정에서 부딪힌 함정 — 전 페이지를 덮는 `LoadingScreen` 을 안 기다리면 "검은 화면 + 로고" 가 baseline 으로 박히고, WebGL canvas 를 `mask` 로 가리면 그 위에 사각형이 덮여 페이지 전체가 단색이 됩니다(`visibility: hidden` 으로 처리). 전체 목록과 커버리지 한계는 **[docs/perf-baseline.md](./docs/perf-baseline.md#시각-회귀-baseline)** 에 정리되어 있습니다.
 
-**admin 라우트**는 로그인 세션이 필요합니다. Supabase 에 테스트 계정을 만들고 `.env.local` 에 `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` 를 넣은 뒤 `npm run test:visual:admin` 을 실행합니다. 새 기기 승인 게이트 때문에 **최초 1회는 메일 링크 승인이 필요**하고, 이후에는 저장된 세션(`e2e/.auth/` — 인증 토큰이라 커밋 제외)을 재사용합니다.
+**admin 라우트**는 로그인 세션이 필요합니다. `.env.local` 에 `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` (소유자 계정 — 새 계정은 role 이 없어 접근이 거부됨) 를 넣고 `npm run test:visual:admin` 을 실행합니다. 새 기기 승인 게이트 때문에 첫 실행은 실패하는데, `admin_known_devices` 의 해당 row 에서 `approved` 를 `true` 로 바꾸면 통과합니다 (**실물 메일 수신은 불필요** — 승인 링크가 하는 일이 그것뿐입니다). 이후에는 저장된 세션(`e2e/.auth/` — 인증 토큰이라 커밋 제외)을 재사용합니다.
 
 > **리팩토링 문서**: [리팩토링 가이드](./docs/refactoring-guide.md) · [성능 baseline](./docs/perf-baseline.md) · [데드코드 인벤토리](./docs/dead-code-inventory.md)
 
