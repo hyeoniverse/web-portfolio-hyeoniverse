@@ -3,8 +3,8 @@
 > CSS 네이밍 컨벤션 · 토큰 구조 · 컴포넌트 스타일링 규칙
 
 > **관련 문서**
-> — 컴포넌트를 어느 폴더에 둘지(배치 기준)는 [리팩토링 가이드 Phase 3](./refactoring-guide.md#phase-3--구조--조사-완료-파일-이동은-하지-않는다)
-> — "CSS 모듈은 담당 컴포넌트와 1:1" 원칙과 CSS 정리 진행 상황은 [리팩토링 가이드 Phase 4](./refactoring-guide.md#phase-4--도메인-슬라이스-순회-전체의-70)
+> — 컴포넌트를 어느 폴더에 둘지(배치 기준)는 [리팩토링 가이드 Phase 3](./refactoring-guide.md#phase-3)
+> — "CSS 모듈은 담당 컴포넌트와 1:1" 원칙과 CSS 정리 진행 상황은 [리팩토링 가이드 Phase 4](./refactoring-guide.md#phase-4)
 
 ---
 
