@@ -10,7 +10,7 @@
     "lint": "eslint --max-warnings 435",
     "lint:css": "stylelint \"src/**/*.css\"",
     "typecheck": "tsc --noEmit",
-    "type-coverage": "type-coverage --strict --at-least 97.7 --detail",
+    "type-coverage": "type-coverage --strict --ignore-files \".next/**\" --at-least 97.78",
     "knip": "knip",
     "audit:full": "npm run typecheck && npm run lint && npm run lint:css && npm run knip",
     "sync-posts": "tsx scripts/sync-posts.ts",
