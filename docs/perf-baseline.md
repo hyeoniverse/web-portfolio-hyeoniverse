@@ -153,19 +153,35 @@ npm run test:visual:update   # baseline 갱신 (의도된 design 변경일 때�
 | `/posts` | 배너·사이드바 마스킹 | 상단 `PostsBanner` 가 자동 회전 캐러셀, 사이드바는 랜덤 추천·최근 댓글 (`RandomPosts` 가 `PopularPosts.module.css` 를 공유해 분리 불가). 카드 목록은 검증됨 |
 | `/posts/[slug]` | 뷰포트만 | 본문 lazy 이미지·코드 하이라이트가 모바일에서 늦게 붙음 |
 | `/design-system` | **완전 제외** | 2만 px 초장문 + 인터랙티브 데모(useState 59개). fullPage 도 뷰포트도 안정화 실패 |
-| `/admin/*` | 셋업 완료, baseline 미생성 | 테스트 계정 credential 필요 — 아래 참고 |
+| `/admin/*` | baseline 확보 (16장) | 단 DB 데이터에 의존 — 아래 한계 참고 |
 
 → 위 라우트의 하단 영역은 **수동 QA 체크리스트로 커버**한다.
 
-### admin 시각 회귀 (Phase 4-1 안전망)
+### admin 시각 회귀 (Phase 4-1 안전망) ✅ baseline 확보
 
-admin 슬라이스가 40,586줄이라 시각 회귀 없이 착수하면 안전망이 수동 QA뿐이다.
-스펙([e2e/admin.spec.ts](../e2e/admin.spec.ts))과 로그인 셋업([e2e/auth.setup.ts](../e2e/auth.setup.ts))은
-준비돼 있고, **계정 credential 만 넣으면 baseline 을 찍을 수 있다.**
+**16장, 검증 2회 연속 16/16 통과.** 스펙 [e2e/admin.spec.ts](../e2e/admin.spec.ts) ·
+로그인 셋업 [e2e/auth.setup.ts](../e2e/auth.setup.ts)
 
-대상 7개: `/admin` · `/admin/settings` · `/admin/posts` · `/admin/works` · `/admin/comments` ·
-`/admin/notifications` · `/admin/reports`
-(편집 화면은 Plate 에디터라 캡처가 불안정하고 Phase 4-4 대상이라 제외)
+| 그룹 | 라우트 |
+| --- | --- |
+| 목록·대시보드 (6) | `/admin` · `/admin/posts` · `/admin/works` · `/admin/comments` · `/admin/notifications` · `/admin/reports` |
+| settings 탭 (10) | `?tab=general` · `?tab=content&sub=` {home, profile, about, works, posts, calendars} · `?tab=appearance` · `?tab=services` · `?tab=account` |
+
+settings 를 탭별로 쪼갠 이유: admin 의 73%(29,572줄)가 settings 이고 Phase 4-1 대상 파일
+(`AboutStudio` 2,508 · `ContentTab` 2,168 · `ServicesTab` 1,447 · `AppearanceTab` 904)이
+각 탭에 흩어져 있다. URL 하나로는 General 탭만 잡혀 안전망이 되지 못한다.
+`?tab=` / `?sub=` 로 주소 지정이 가능해 탭별 캡처가 된다 (16장 전부 해시가 달라 실제로 다른 화면임을 확인).
+
+편집 화면(`/admin/posts/new` 등)은 Plate 에디터라 캡처가 불안정하고 Phase 4-4 대상이라 제외.
+
+#### admin baseline 의 한계 — 공개 라우트보다 취약하다
+
+- **실제 DB 데이터에 의존한다.** 글을 쓰거나 댓글·알림이 쌓이면 그 자체로 diff 가 난다.
+  → **리팩토링 세션 중에는 admin 으로 데이터를 만들지 않는다.** 데이터가 바뀌었으면
+  리팩토링 전 상태에서 `-u` 로 다시 찍고 시작한다
+- `/admin/reports` 는 현재 데이터가 없어 **빈 상태만 검증**한다 (42 kB). 목록 렌더링 회귀는 못 잡는다
+- 스냅샷에 **소유자 이메일과 사이트 설정값이 그대로 담긴다.** 현재 리포지토리가 private 이라
+  문제 없지만, **public 으로 전환한다면 이 스냅샷들을 먼저 정리해야 한다**
 
 **로그인에 보안 게이트가 두 겹 있다:**
 
