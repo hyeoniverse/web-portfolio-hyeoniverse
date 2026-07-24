@@ -635,6 +635,9 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-sm);
+  /* 부모(섹션) 폭을 확정으로 채운다 — 없으면 flex-start 로 shrink 돼 자식 fieldRow 의
+     width:100% 가 '좁아진 .fields 기준'이 되어 input 이 값 길이만큼 쪼그라든다. */
+  width: 100%;
 }
 
 .fieldGroup {
@@ -823,6 +826,9 @@
   flex-direction: column;
   align-items: stretch;
   gap: var(--spacing-2xs);
+  /* .fields(align-items:flex-start) 부모 안에서도 열 폭을 채우도록 — 없으면 input 이
+     내용 길이만큼 줄어 필드마다 폭이 제각각이 된다. */
+  width: 100%;
   /* flex/grid 부모 안에서 content (긴 input value) 따라 grow 방지 */
   min-width: 0;
 }
@@ -4554,13 +4560,6 @@ a.tagRelatedItem:hover {
 }
 
 /* n-col auto-fit — 폭에 따라 1~n 컬럼 자동 reflow. 각 cell min 220px */
-
-/* narrow field — input 자체는 fit-content 이지만 fieldNarrow override 로 부모 폭 50% 강제.
-   counter / clear 가 input 안 absolute (overflow 없음). multiline / TagField / single-line 모두 50%. */
-.fieldNarrow > div > :last-child {
-  width: 50%;
-  max-width: 100%;
-}
 
 @media (max-width: 768px) {
   .fieldsGrid2,
