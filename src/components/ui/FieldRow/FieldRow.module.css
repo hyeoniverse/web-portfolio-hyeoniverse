@@ -1,0 +1,55 @@
+/* 라벨 + 임의 control 을 세로로 묶는 폼 행.
+   admin/settings 의 raw `<div className={styles.fieldRow}>...` 패턴을 공통화한 것.
+   기존 SettingsFormFields 의 Field(입력 전용)와 달리 control 을 children 으로 받는다. */
+
+.fieldRow {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-2xs);
+  /* flex/grid 부모 안에서 긴 input value 따라 grow 방지 */
+  min-width: 0;
+}
+
+/* control 을 label 에 겹쳐 배치하는 변형 (예: 우측 상단 액션) */
+.fieldRowInline {
+  position: relative;
+  gap: 0;
+}
+
+.fieldLabel {
+  width: auto;
+  font-family: var(--font-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.fieldLabelText {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+/* label 아래 보조 설명 (작은 글씨) */
+.fieldLabelHint {
+  font-weight: 400;
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+/* label 옆 ? 도움말 아이콘 (Tooltip 트리거) */
+.fieldHelp {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-tertiary);
+  cursor: help;
+}
+
+.fieldHelp:hover {
+  color: var(--text-secondary);
+}
