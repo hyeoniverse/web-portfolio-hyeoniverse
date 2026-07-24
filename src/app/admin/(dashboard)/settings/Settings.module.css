@@ -1271,6 +1271,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--spacing-md);
+  /* .fields(align-items:flex-start) 안에서 shrink 되지 않게 — 없으면 폭이 좁아져
+     Text/BG shadow 카드가 1열로 세로로 쌓인다. */
+  width: 100%;
 }
 
 .faviconShadowCard {
