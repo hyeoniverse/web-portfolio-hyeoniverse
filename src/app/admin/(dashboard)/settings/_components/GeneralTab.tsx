@@ -29,8 +29,8 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
         </div>
       </section>
 
-      {/* SEO / Metadata */}
-      <section className={styles.section} style={{ gridRow: "span 2" }}>
+      {/* SEO / Metadata — 폼이 길어 2단에 넣으면 옆(BGM)이 비므로 전체 폭 세로 배치 */}
+      <section className={`${styles.section} ${styles.sectionWide}`}>
         <SectionHeader title={t("admin.settings.seoMetadata")} paths={["metadata"]} {...sh} />
         <div className={styles.fields}>
           <Field label={t("admin.settings.siteTitle")} hint={t("admin.settings.siteTitleHint")} value={config.metadata.title} onChange={(v) => update("metadata", "title", v)} maxHint={60} />
