@@ -3,6 +3,13 @@
   margin-bottom: var(--spacing-md);
 }
 
+/* 부가설명(hint) — 제목 옆이 아니라 제목 아래 줄에 둔다. 제목 옆에 두면 액션 버튼과 함께
+   제목을 밀어내 "MAIN B…" 처럼 심하게 잘린다. */
+.extraRow {
+  margin-top: var(--spacing-2xs);
+  min-width: 0;
+}
+
 .row {
   display: flex;
   align-items: center;
