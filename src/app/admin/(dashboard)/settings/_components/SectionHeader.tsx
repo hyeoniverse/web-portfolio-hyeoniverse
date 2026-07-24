@@ -84,7 +84,6 @@ export default function SectionHeader({
     <div className={localStyles.wrap} data-settings-section>
       <div className={`${localStyles.row} ${rowClassName ?? ""}`.trim()}>
         <h2 className={titleClassName}>{title}</h2>
-        {extra}
         {customActions ? (
           <div className={localStyles.spacer}>
             {spacerExtra}
@@ -133,6 +132,7 @@ export default function SectionHeader({
           </div>
         )}
       </div>
+      {extra != null && <div className={localStyles.extraRow}>{extra}</div>}
       {below}
     </div>
   );
