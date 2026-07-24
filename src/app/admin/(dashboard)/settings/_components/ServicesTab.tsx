@@ -910,20 +910,14 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 </div>
               </div>
               {giscusCats.length > 0 ? (
-                <div className={styles.fieldRow}>
-                  <label className={styles.fieldLabel}>
-                    <span className={styles.fieldLabelText}>
-                      {t("admin.settings.giscusCategory")}
-                      <FieldHelp content={categoryHelp} />
-                    </span>
-                  </label>
+                <FieldRow label={t("admin.settings.giscusCategory")} help={categoryHelp}>
                   <Select
                     value={giscus.category || ""}
                     placeholder={t("admin.settings.giscusCategoryPick")}
                     options={giscusCats.map((c) => ({ value: c.name, label: `${c.emoji ? c.emoji + " " : ""}${c.name}` }))}
                     onChange={selectGiscusCategory}
                   />
-                </div>
+                </FieldRow>
               ) : (
                 <Field
                   label={t("admin.settings.giscusCategory")}
@@ -959,16 +953,10 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   )}
                 />
               </div>
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}>
-                  <span className={styles.fieldLabelText}>
-                    <T k="admin.settings.giscusMapping" />
-                    <FieldHelp content={L(
-                      "페이지와 Discussion 을 연결하는 방식입니다. pathname(경로)을 권장하며, 글 제목을 바꿔도 댓글이 유지됩니다.",
-                      "How pages map to Discussions. pathname is recommended — comments survive title edits.",
-                    )} />
-                  </span>
-                </label>
+              <FieldRow label={<T k="admin.settings.giscusMapping" />} help={L(
+                "페이지와 Discussion 을 연결하는 방식입니다. pathname(경로)을 권장하며, 글 제목을 바꿔도 댓글이 유지됩니다.",
+                "How pages map to Discussions. pathname is recommended — comments survive title edits.",
+              )}>
                 <Select
                   value={giscus.mapping || "pathname"}
                   options={[
@@ -979,17 +967,11 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   ]}
                   onChange={(v) => updateGiscus("mapping", v as SiteConfigData["comments"]["giscus"]["mapping"])}
                 />
-              </div>
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}>
-                  <span className={styles.fieldLabelText}>
-                    <T k="admin.settings.giscusInputPosition" />
-                    <FieldHelp content={L(
-                      "댓글 입력창을 목록 위/아래 중 어디에 둘지 선택합니다.",
-                      "Whether the comment box sits above or below the list.",
-                    )} />
-                  </span>
-                </label>
+              </FieldRow>
+              <FieldRow label={<T k="admin.settings.giscusInputPosition" />} help={L(
+                "댓글 입력창을 목록 위/아래 중 어디에 둘지 선택합니다.",
+                "Whether the comment box sits above or below the list.",
+              )}>
                 <SegmentedControl<"top" | "bottom">
                   items={[
                     { value: "top", label: t("admin.settings.giscusInputTop") },
@@ -998,7 +980,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   value={giscus.inputPosition === "top" ? "top" : "bottom"}
                   onChange={(v) => updateGiscus("inputPosition", v as SiteConfigData["comments"]["giscus"]["inputPosition"])}
                 />
-              </div>
+              </FieldRow>
               <div className={styles.switchHelpRow}>
                 <Switch
                   size="md"
@@ -1129,8 +1111,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           {...sh}
         />
         <div className={`${styles.fields} ${styles.fieldPair}`}>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}><T k="admin.settings.aiCoverProvider" /></label>
+          <FieldRow label={<T k="admin.settings.aiCoverProvider" />}>
             <Select
               value={config.aiCover.provider}
               options={AI_COVER_OPTIONS}
@@ -1154,7 +1135,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 });
               }}
             />
-          </div>
+          </FieldRow>
           <Switch
             size="sm"
             showStateText
@@ -1231,8 +1212,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           {...sh}
         />
         <div className={`${styles.fields} ${styles.fieldPair}`}>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}><T k="admin.settings.aiSummaryProvider" /></label>
+          <FieldRow label={<T k="admin.settings.aiSummaryProvider" />}>
             <Select
               value={config.aiSummary?.provider ?? "gemini"}
               options={AI_SUMMARY_OPTIONS}
@@ -1256,7 +1236,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 });
               }}
             />
-          </div>
+          </FieldRow>
           <Switch
             size="sm"
             label={t("admin.settings.fallbackEnabled")}
@@ -1329,8 +1309,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           {...sh}
         />
         <div className={`${styles.fields} ${styles.fieldPair}`}>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}><T k="admin.settings.translationProvider" /></label>
+          <FieldRow label={<T k="admin.settings.translationProvider" />}>
             <Select
               value={config.translation?.provider ?? "deepl"}
               options={TRANSLATION_OPTIONS}
@@ -1354,7 +1333,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 });
               }}
             />
-          </div>
+          </FieldRow>
           <Switch
             size="sm"
             label={t("admin.settings.fallbackEnabled")}
