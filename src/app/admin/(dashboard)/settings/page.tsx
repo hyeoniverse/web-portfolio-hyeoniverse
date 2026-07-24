@@ -828,7 +828,7 @@ export default function SettingsPage() {
               )}
               {activeTab === "content" && (
                 <>
-                <div className={styles.tabGrid}>
+                <div className={`${styles.tabGrid} ${contentSubTab === "home" ? styles.tabGridSingle : ""}`}>
                   <ContentTab
                     config={config}
                     savedConfig={savedConfigRef.current}
