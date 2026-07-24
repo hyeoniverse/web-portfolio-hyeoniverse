@@ -4033,10 +4033,12 @@
 
 /* ── Drag-and-Drop size bucket 레이아웃 ──
    카드 X, 카테고리 헤더 + top border 구분선만. drop hover 는 배경색으로 표시. */
+/* 크기 버킷 8개+INACTIVE 를 세로로만 쌓으면 매우 길어진다. 2열 grid 로 나란히 배치해
+   세로 길이를 줄인다(버킷 사이 구분선 대신 gap 으로 분리). */
 .sizeBucketStack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-lg) var(--spacing-md);
 }
 
 .sizeBucket,
@@ -4051,8 +4053,9 @@
 }
 
 /* 첫 버킷 제외 top border 로 구분 */
-.sizeBucketStack > .sizeBucket:not(:first-child),
+/* INACTIVE 풀 버킷은 전체 폭(전 크기 공통이라 나란히 두지 않음) */
 .sizeBucketStack > .sizePoolBucket {
+  grid-column: 1 / -1;
   padding-top: var(--spacing-lg);
   border-top: var(--border-light);
 }
