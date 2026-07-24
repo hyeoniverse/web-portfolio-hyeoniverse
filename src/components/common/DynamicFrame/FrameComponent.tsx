@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import styles from "./FrameComponent.module.css";
 
 export interface FrameComponentProps {
   video?: string;
@@ -46,17 +47,17 @@ export function FrameComponent({
 
   return (
     <div
-      className={`relative ${className}`}
+      className={`${styles.root} ${className}`}
       style={{
         width,
         height,
         transition: "width 0.3s ease-in-out, height 0.3s ease-in-out",
       }}
     >
-      <div className="relative w-full h-full overflow-hidden">
+      <div className={styles.viewport}>
         {/* Media with Border */}
         <div
-          className="absolute inset-0 flex items-center justify-center"
+          className={styles.mediaBox}
           style={{
             zIndex: 1,
             transition: "all 0.3s ease-in-out",
@@ -68,7 +69,7 @@ export function FrameComponent({
           }}
         >
           <div
-            className="w-full h-full overflow-hidden"
+            className={styles.mediaInner}
             style={{
               transform: `scale(${mediaSize})`,
               transformOrigin: "center",
@@ -77,7 +78,7 @@ export function FrameComponent({
           >
             {image ? (
               <Image
-                className="w-full h-full object-cover"
+                className={styles.media}
                 src={image}
                 alt=""
                 fill
@@ -86,7 +87,7 @@ export function FrameComponent({
               />
             ) : video ? (
               <video
-                className="w-full h-full object-cover"
+                className={styles.media}
                 src={video}
                 loop
                 muted
