@@ -488,7 +488,9 @@
    max-width 1040px 안에서 2 col 폭이 ~440px 미만이면 1열. */
 .tabGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  /* min(440px, 100%) — 뷰포트가 440px 보다 좁으면(모바일) 트랙이 100% 로 줄어 가로 오버플로우
+     방지. 넓으면 440px min 으로 2 col wrap 기준 유지. */
+  grid-template-columns: repeat(auto-fit, minmax(min(440px, 100%), 1fr));
   gap: 0 var(--spacing-2xl);
   max-width: 1040px;
   margin: 0 auto;
