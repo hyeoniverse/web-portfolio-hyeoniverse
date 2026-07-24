@@ -4,6 +4,9 @@
 .group {
   display: inline-flex;
   align-items: center;
+  /* flex 부모(FieldRow 등)의 align-items:stretch 로 가로로 늘어나지 않고 내용 폭(fit-content) 유지.
+     세그먼트 컨트롤은 버튼 몇 개짜리라 stretch 되면 어색하다. */
+  align-self: flex-start;
   padding: 2px;
   border-radius: var(--radius-capsule);
   box-shadow: inset 0 0 0 1px var(--border-default-color);
