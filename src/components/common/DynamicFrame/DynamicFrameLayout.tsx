@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { FrameComponent } from "./FrameComponent";
+import styles from "./DynamicFrameLayout.module.css";
 
 export interface Frame {
   id: number;
@@ -192,9 +193,9 @@ export default function DynamicFrameLayout({
   };
 
   return (
-    <div className="space-y-4 w-full h-full">
+    <div className={styles.root}>
       <div
-        className="relative w-full h-full"
+        className={styles.grid}
         style={{
           display: "grid",
           gridTemplateRows: getRowSizes(),
@@ -246,7 +247,7 @@ export default function DynamicFrameLayout({
                     image={frame.image}
                     width="100%"
                     height="100%"
-                    className="absolute inset-0"
+                    className={styles.cell}
                     mediaSize={frame.mediaSize}
                     borderThickness={frame.borderThickness}
                     borderSize={frame.borderSize}
