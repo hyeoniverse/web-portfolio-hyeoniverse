@@ -15,6 +15,7 @@ import Field, { FieldHelp } from "./SettingsFormFields";
 import EnvVarFields from "./EnvVarFields";
 import SectionHeader from "./SectionHeader";
 import GiscusHelp from "./GiscusHelp";
+import FieldRow from "@/components/ui/FieldRow";
 import { showToast } from "@/stores/toastStore";
 import styles from "../Settings.module.css";
 
@@ -665,13 +666,7 @@ function GiscusThemeField({ label, value, defaultPreset, customLabel, urlPlaceho
   const selectValue = custom ? "__custom__" : (value || defaultPreset);
   return (
     <>
-      <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}>
-          <span className={styles.fieldLabelText}>
-            {label}
-            {help && <FieldHelp content={help} />}
-          </span>
-        </label>
+      <FieldRow label={label} help={help}>
         <Select
           value={selectValue}
           options={[
@@ -692,7 +687,7 @@ function GiscusThemeField({ label, value, defaultPreset, customLabel, urlPlaceho
             }
           }}
         />
-      </div>
+      </FieldRow>
       {custom && (
         <Field label={customLabel} value={value} onChange={onChange} placeholder={urlPlaceholder} maxHint={null} />
       )}
@@ -772,8 +767,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         <SectionHeader title={t("admin.settings.emailSettings")} paths={["emailService"]} {...sh} />
         <div className={`${styles.fields} ${styles.fieldPair}`}>
           <p className={styles.fieldHint}>{t("admin.settings.emailFileUploadHint")}</p>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}><T k="admin.settings.emailServiceProvider" /></label>
+          <FieldRow label={<T k="admin.settings.emailServiceProvider" />}>
             <Select
               value={config.emailService.provider}
               options={[
@@ -783,7 +777,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               ]}
               onChange={(v) => update("emailService", "provider", v as SiteConfigData["emailService"]["provider"])}
             />
-          </div>
+          </FieldRow>
           <Switch
             size="sm"
             label={t("admin.settings.emailFileUpload")}
@@ -852,8 +846,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       <section className={styles.section}>
         <SectionHeader title={t("admin.settings.commentSystem")} paths={["comments"]} {...sh} />
         <div className={styles.fields}>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}><T k="admin.settings.commentProvider" /></label>
+          <FieldRow label={<T k="admin.settings.commentProvider" />}>
             <SegmentedControl<"system" | "giscus">
               items={[
                 { value: "system", label: t("admin.settings.commentProviderSystem") },
@@ -862,11 +855,10 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               value={config.comments?.provider === "giscus" ? "giscus" : "system"}
               onChange={(v) => update("comments", "provider", v as SiteConfigData["comments"]["provider"])}
             />
-          </div>
+          </FieldRow>
 
           {config.comments?.provider !== "giscus" && (
-            <div className={styles.fieldRow}>
-              <label className={styles.fieldLabel}>{t("admin.settings.giscusInputPosition")}</label>
+            <FieldRow label={t("admin.settings.giscusInputPosition")}>
               <SegmentedControl<"top" | "bottom">
                 items={[
                   { value: "top", label: t("admin.settings.giscusInputTop") },
@@ -875,7 +867,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 value={config.comments?.systemInputPosition === "top" ? "top" : "bottom"}
                 onChange={(v) => update("comments", "systemInputPosition", v as SiteConfigData["comments"]["systemInputPosition"])}
               />
-            </div>
+            </FieldRow>
           )}
 
           {config.comments?.provider === "giscus" && (
@@ -1097,8 +1089,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           {...sh}
         />
         <div className={styles.fields}>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}><T k="admin.settings.recaptchaVersion" /></label>
+          <FieldRow label={<T k="admin.settings.recaptchaVersion" />}>
             <Select
               value={config.recaptcha.version}
               options={[
@@ -1107,7 +1098,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               ]}
               onChange={(v) => update("recaptcha", "version", v as SiteConfigData["recaptcha"]["version"])}
             />
-          </div>
+          </FieldRow>
         </div>
       </section>
 
