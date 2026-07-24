@@ -82,17 +82,30 @@ export async function captureRoute(page: Page, route: Route) {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
-  // three.js·폴링이 도는 페이지가 있어 networkidle 은 영원히 안 온다. load 로 잡고 settle 에서 안정화.
-  const res = await page.goto(route.path, { waitUntil: "load" });
+  // admin 화면은 client 에서 config 를 fetch 해 폼 값을 채운다. load 로 잡으면 그 fetch 시작 전에
+  // 넘어가 입력칸이 빈 초기 레이아웃으로 굳은 채 캡처된다. admin 은 폴링이 없어 networkidle 이
+  // 확실히 오므로 goto 를 networkidle 로 대기한다. public 은 three.js/폴링으로 안 와 load 로 잡는다.
+  const isAdmin = route.path.startsWith("/admin");
+  const res = await page.goto(route.path, { waitUntil: isAdmin ? "networkidle" : "load" });
   expect(res?.status(), `${route.path} 응답 상태`).toBeLessThan(400);
 
   await settle(page, route.skipScroll);
+
+  // fullPage:true 스크린샷은 캡처 순간 뷰포트를 페이지 높이로 리사이즈하는데, 그 리플로우가
+  // auto-fit 그리드(.tabGrid)를 재계산시켜 EditableInput 입력칸이 좁아진다(실제 화면과 다름).
+  // → admin 은 뷰포트를 페이지 높이로 미리 키워 안정화한 뒤 정적(fullPage:false)으로 캡처한다.
+  if (isAdmin) {
+    const h = await page.evaluate(() => document.documentElement.scrollHeight);
+    await page.setViewportSize({ width: 1440, height: Math.min(h + 40, 6000) });
+    await page.waitForTimeout(300);
+  }
+
   await page.addStyleTag({ content: HIDE_CSS });
 
   const masks = [...GLOBAL_MASKS, ...(route.mask ?? [])].map((s) => page.locator(s));
 
   await expect(page).toHaveScreenshot(`${route.name}.png`, {
-    fullPage: route.fullPage ?? true,
+    fullPage: isAdmin ? false : (route.fullPage ?? true),
     mask: masks,
   });
 
