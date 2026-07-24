@@ -13,6 +13,7 @@ import Input from "@/components/ui/Input";
 import EditableInput from "@/components/ui/EditableInput";
 import Textarea, { type MaxHintPreset } from "@/components/ui/Textarea";
 import Tooltip from "@/components/ui/Tooltip";
+import { uploadFile } from "@/lib/adminUpload";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "../Settings.module.css";
 
@@ -148,9 +149,32 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
   );
 }
 
-/* ── LogoUpload ── */
+/* ── UploadField ──
+   로고(이미지)·이력서(PDF)·BGM(오디오) 업로드를 하나로 통합. kind 별로 업로드 폴더·
+   accept·미리보기 방식만 프리셋에서 갈라진다. (기존 LogoUpload/ResumeUpload/AudioUpload
+   세 벌 복제를 대체) */
 
-interface LogoUploadProps {
+type UploadKind = "logo" | "resume" | "audio";
+
+interface UploadPreset {
+  folder: string;
+  accept: string;
+  /** image: 썸네일 미리보기 / file: 파일명 링크 */
+  preview: "image" | "file";
+  /** file 미리보기 링크 앞 아이콘 */
+  icon?: React.ReactNode;
+  /** URL 에서 파일명을 못 뽑을 때 표시할 기본값 */
+  fallbackName?: string;
+}
+
+const UPLOAD_PRESETS: Record<UploadKind, UploadPreset> = {
+  logo: { folder: "logos", accept: "image/*", preview: "image" },
+  resume: { folder: "resume", accept: "application/pdf", preview: "file", icon: <ExternalLink size={14} />, fallbackName: "resume.pdf" },
+  audio: { folder: "bgm", accept: "audio/*", preview: "file", icon: <Volume2 size={14} />, fallbackName: "audio.mp3" },
+};
+
+interface UploadFieldProps {
+  kind: UploadKind;
   label: string;
   url: string;
   uploadLabel: string;
@@ -160,31 +184,15 @@ interface LogoUploadProps {
   hint?: string;
 }
 
-export function LogoUpload({
-  label,
-  url,
-  uploadLabel,
-  removeLabel,
-  onUploaded,
-  onRemove,
-  hint,
-}: LogoUploadProps) {
+export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint }: UploadFieldProps) {
+  const { folder, accept, preview, icon, fallbackName } = UPLOAD_PRESETS[kind];
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
   const handleUpload = async (file: File) => {
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "logos");
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
-      onUploaded(data.url);
+      onUploaded(await uploadFile(file, folder));
     } catch {
       // silent fail
     } finally {
@@ -199,101 +207,18 @@ export function LogoUpload({
         {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
       </label>
       <div className={styles.logoUpload}>
-        {url && (
+        {url && (preview === "image" ? (
           <div className={styles.logoPreview}>
-            <Image src={url} alt="Logo" width={80} height={32} unoptimized className={styles.logoPreviewImage} />
+            <Image src={url} alt={label} width={80} height={32} unoptimized className={styles.logoPreviewImage} />
           </div>
-        )}
-        <div className={styles.logoActions}>
-          <Button
-            variant="outline"
-            size="md"
-            onClick={() => fileRef.current?.click()}
-            loading={uploading}
-          >
-            {uploadLabel}
-          </Button>
-          {url && (
-            <Button variant="outline" size="md" tone="danger" onClick={onRemove}>
-              {removeLabel}
-            </Button>
-          )}
-        </div>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleUpload(file);
-            e.target.value = "";
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-/* ── ResumeUpload ── */
-
-export function ResumeUpload({
-  label,
-  url,
-  uploadLabel,
-  removeLabel,
-  onUploaded,
-  onRemove,
-  hint,
-}: LogoUploadProps) {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-
-  const handleUpload = async (file: File) => {
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "resume");
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
-      onUploaded(data.url);
-    } catch {
-      // silent fail
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div className={styles.fieldRow}>
-      <label className={styles.fieldLabel}>
-        {label}
-        {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
-      </label>
-      <div className={styles.logoUpload}>
-        {url && (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.resumeFile}
-          >
-            <ExternalLink size={14} />
-            <span>{decodeURIComponent(url.split("/").pop() ?? "resume.pdf")}</span>
+        ) : (
+          <a href={url} target="_blank" rel="noopener noreferrer" className={styles.resumeFile}>
+            {icon}
+            <span>{decodeURIComponent(url.split("/").pop() ?? fallbackName ?? "")}</span>
           </a>
-        )}
+        ))}
         <div className={styles.logoActions}>
-          <Button
-            variant="outline"
-            size="md"
-            onClick={() => fileRef.current?.click()}
-            loading={uploading}
-          >
+          <Button variant="outline" size="md" onClick={() => fileRef.current?.click()} loading={uploading}>
             {uploadLabel}
           </Button>
           {url && (
@@ -305,90 +230,7 @@ export function ResumeUpload({
         <input
           ref={fileRef}
           type="file"
-          accept="application/pdf"
-          hidden
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleUpload(file);
-            e.target.value = "";
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-/* ── AudioUpload ── */
-
-export function AudioUpload({
-  label,
-  url,
-  uploadLabel,
-  removeLabel,
-  onUploaded,
-  onRemove,
-  hint,
-}: LogoUploadProps) {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-
-  const handleUpload = async (file: File) => {
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "bgm");
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
-      onUploaded(data.url);
-    } catch {
-      // silent fail
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div className={styles.fieldRow}>
-      <label className={styles.fieldLabel}>
-        {label}
-        {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
-      </label>
-      <div className={styles.logoUpload}>
-        {url && (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.resumeFile}
-          >
-            <Volume2 size={14} />
-            {decodeURIComponent(url.split("/").pop() ?? "audio.mp3")}
-          </a>
-        )}
-        <div className={styles.logoActions}>
-          <Button
-            variant="outline"
-            size="md"
-            onClick={() => fileRef.current?.click()}
-            loading={uploading}
-          >
-            {uploadLabel}
-          </Button>
-          {url && (
-            <Button variant="outline" size="md" tone="danger" onClick={onRemove}>
-              {removeLabel}
-            </Button>
-          )}
-        </div>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="audio/*"
+          accept={accept}
           hidden
           onChange={(e) => {
             const file = e.target.files?.[0];

@@ -12,6 +12,7 @@ import T from "@/components/ui/T";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
+import { uploadFile } from "@/lib/adminUpload";
 import styles from "../Settings.module.css";
 
 const DEFAULT_MAX = 6;
@@ -180,13 +181,7 @@ function SocialIconArea({ link, isCustom, onUploaded }: {
   const handleFile = async (file: File) => {
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "icons");
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      if (!res.ok) return;
-      const data = await res.json();
-      onUploaded(data.url);
+      onUploaded(await uploadFile(file, "icons"));
     } catch {
       // upload failed
     } finally {
@@ -247,17 +242,7 @@ function SocialIconUploadRow({ icon, onIconChange, onUploaded, placeholder }: {
     setUploading(true);
     setError("");
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "icons");
-      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        setError(err.error || "Upload failed");
-        return;
-      }
-      const data = await res.json();
-      onUploaded(data.url);
+      onUploaded(await uploadFile(file, "icons"));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed");
     } finally {

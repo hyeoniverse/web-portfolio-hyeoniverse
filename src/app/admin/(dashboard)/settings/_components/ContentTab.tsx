@@ -21,7 +21,7 @@ import AboutStudio from "./about/AboutStudio";
 import Chip from "@/components/ui/Chip";
 import Button from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
-import Field, { ResumeUpload, ServiceItemsEditor } from "./SettingsFormFields";
+import Field, { UploadField, ServiceItemsEditor } from "./SettingsFormFields";
 import CategoriesEditor from "./CategoriesEditor";
 import WorksCategoriesEditor from "./WorksCategoriesEditor";
 import SeriesManager from "./SeriesManager";
@@ -41,6 +41,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { findDuplicate } from "@/lib/dedupe";
 import { normalizeTechName } from "@/data/techIcons";
 import { matchesSearch } from "@/lib/koSearch";
+import { uploadFile } from "@/lib/adminUpload";
 import { getInitial, KO_INITIALS, EN_INITIALS } from "@/lib/initial";
 import LetterFilter from "@/components/ui/LetterFilter";
 import styles from "../Settings.module.css";
@@ -511,7 +512,8 @@ export default function ContentTab({
                 <Field label={t("admin.settings.ctaButtonText")} langBadge="en" value={config.cta.buttonText} onChange={(v) => update("cta", "buttonText", v)} />
                 <Field label={t("admin.settings.ctaButtonText")} langBadge="ko" value={config.cta.buttonText_ko} onChange={(v) => update("cta", "buttonText_ko", v)} />
               </div>
-              <ResumeUpload
+              <UploadField
+                kind="resume"
                 label={t("admin.settings.resumeFile")}
                 hint={t("admin.settings.resumeUploadHint")}
                 url={config.cta.resumeUrl}
@@ -1927,15 +1929,13 @@ function DroppableTechGroup({ cat, children, styles }: { cat: string; children: 
   );
 }
 
-/* tech 아이콘 업로드 — /api/admin/upload (folder: icons) */
+/* tech 아이콘 업로드 — 실패해도 throw 대신 null (호출부가 조용히 무시) */
 async function uploadTechIcon(file: File): Promise<string | null> {
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("folder", "icons");
-  const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-  if (!res.ok) return null;
-  const data = await res.json().catch(() => null);
-  return data?.url ?? null;
+  try {
+    return await uploadFile(file, "icons");
+  } catch {
+    return null;
+  }
 }
 
 /* 프리셋 grid — 검색 필터 + 클릭 시 onPick */
