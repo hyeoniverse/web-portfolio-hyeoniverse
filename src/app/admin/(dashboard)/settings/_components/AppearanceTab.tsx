@@ -34,7 +34,7 @@ import { FONT_GROUPS, FONT_FAMILIES_FLAT } from "@/components/posts/plate/consta
 import { showToast } from "@/stores/toastStore";
 import type { SiteConfigData } from "@/config/site.config";
 import type { SettingsTabProps } from "../_types";
-import Field, { ColorField, LogoUpload } from "./SettingsFormFields";
+import Field, { ColorField, UploadField } from "./SettingsFormFields";
 import FontSelect from "./FontSelect";
 import SectionHeader from "./SectionHeader";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -819,8 +819,8 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
             <div>
               <h4 className={styles.fieldGroupTitle}>{t("admin.settings.logoLightMode")}</h4>
               <div className={styles.fieldPair}>
-                <LogoUpload label={t("admin.settings.logoShort")} url={config.brand.logoShortUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortUrl", url)} onRemove={() => update("brand", "logoShortUrl", "")} />
-                <LogoUpload label={t("admin.settings.logoFull")} url={config.brand.logoFullUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullUrl", url)} onRemove={() => update("brand", "logoFullUrl", "")} />
+                <UploadField kind="logo" label={t("admin.settings.logoShort")} url={config.brand.logoShortUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortUrl", url)} onRemove={() => update("brand", "logoShortUrl", "")} />
+                <UploadField kind="logo" label={t("admin.settings.logoFull")} url={config.brand.logoFullUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullUrl", url)} onRemove={() => update("brand", "logoFullUrl", "")} />
               </div>
             </div>
             <div>
@@ -829,8 +829,8 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                 <span className={styles.fieldGroupTitleHint}>{t("admin.settings.logoDarkHint")}</span>
               </h4>
               <div className={styles.fieldPair}>
-                <LogoUpload label={t("admin.settings.logoShort")} url={config.brand.logoShortDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortDarkUrl", url)} onRemove={() => update("brand", "logoShortDarkUrl", "")} />
-                <LogoUpload label={t("admin.settings.logoFull")} url={config.brand.logoFullDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullDarkUrl", url)} onRemove={() => update("brand", "logoFullDarkUrl", "")} />
+                <UploadField kind="logo" label={t("admin.settings.logoShort")} url={config.brand.logoShortDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoShortDarkUrl", url)} onRemove={() => update("brand", "logoShortDarkUrl", "")} />
+                <UploadField kind="logo" label={t("admin.settings.logoFull")} url={config.brand.logoFullDarkUrl} uploadLabel={t("admin.settings.uploadLogo")} removeLabel={t("admin.settings.removeLogo")} onUploaded={(url) => update("brand", "logoFullDarkUrl", url)} onRemove={() => update("brand", "logoFullDarkUrl", "")} />
               </div>
             </div>
           </div>

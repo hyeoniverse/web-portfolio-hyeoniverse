@@ -2,7 +2,7 @@
 
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { SettingsTabProps } from "../_types";
-import Field, { AudioUpload, TagField } from "./SettingsFormFields";
+import Field, { UploadField, TagField } from "./SettingsFormFields";
 import SectionHeader from "./SectionHeader";
 import Select from "@/components/ui/Select";
 import FieldRow from "@/components/ui/FieldRow";
@@ -64,7 +64,8 @@ export default function GeneralTab({ config, savedConfig, update, saveSection, r
       <section className={styles.section}>
         <SectionHeader title={t("admin.settings.bgm")} paths={["bgm"]} {...sh} />
         <div className={styles.fields}>
-          <AudioUpload
+          <UploadField
+            kind="audio"
             label={t("admin.settings.bgmFile")}
             hint={t("admin.settings.bgmUploadHint")}
             url={config.bgm.url}
