@@ -495,6 +495,12 @@
   max-width: 1040px;
   margin: 0 auto;
 }
+
+/* Content home 은 짧은 섹션(3D·Footer)과 긴 섹션이 섞여 2단이면 빈 공간이 생긴다.
+   섹션 높이가 제각각이라 grid(row 기반)로는 못 메우므로 1컬럼 세로로 배치한다. */
+.tabGridSingle {
+  grid-template-columns: 1fr;
+}
 /* Content 탭 — WYSIWYG 스튜디오라 콘텐츠 폭 전체 사용(우측 여백을 nav 와 동일한 page-px 로 정렬) */
 
 /* ── Section ── */
