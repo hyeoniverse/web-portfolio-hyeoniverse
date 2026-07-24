@@ -15,6 +15,7 @@ import ProfileSections, { type ProfileExpandState } from "@/components/admin/Pro
 import type { SettingsTabProps } from "../_types";
 import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
+import FieldRow from "@/components/ui/FieldRow";
 import Popover from "@/components/ui/Popover";
 import AboutStudio from "./about/AboutStudio";
 import Chip from "@/components/ui/Chip";
@@ -580,8 +581,7 @@ export default function ContentTab({
           <section className={styles.section}>
             <SectionHeader title={t("admin.settings.banner")} paths={["posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]} {...sh} />
             <div className={`${styles.fields} ${styles.fieldsGrid3}`}>
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}><T k="admin.settings.bannerLayout" /></label>
+              <FieldRow label={<T k="admin.settings.bannerLayout" />}>
                 <Select
                   value={config.posts.bannerLayout ?? "fullwidth"}
                   options={[
@@ -592,9 +592,8 @@ export default function ContentTab({
                   ]}
                   onChange={(v) => update("posts", "bannerLayout", v as SiteConfigData["posts"]["bannerLayout"])}
                 />
-              </div>
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}><T k="admin.settings.bannerStyle" /></label>
+              </FieldRow>
+              <FieldRow label={<T k="admin.settings.bannerStyle" />}>
                 <Select
                   value={config.posts.bannerStyle ?? "editorial"}
                   options={[
@@ -605,9 +604,8 @@ export default function ContentTab({
                   ]}
                   onChange={(v) => update("posts", "bannerStyle", v as SiteConfigData["posts"]["bannerStyle"])}
                 />
-              </div>
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}><T k="admin.settings.bannerTransition" /></label>
+              </FieldRow>
+              <FieldRow label={<T k="admin.settings.bannerTransition" />}>
                 <Select
                   value={config.posts.bannerTransition ?? "default"}
                   options={[
@@ -616,7 +614,7 @@ export default function ContentTab({
                   ]}
                   onChange={(v) => update("posts", "bannerTransition", v as SiteConfigData["posts"]["bannerTransition"])}
                 />
-              </div>
+              </FieldRow>
             </div>
           </section>
 
@@ -624,8 +622,7 @@ export default function ContentTab({
           <section className={styles.section}>
             <SectionHeader title={language === "ko" ? "카드 레이아웃" : "Card layout"} paths={["posts.layout"]} {...sh} />
             <div className={styles.fields}>
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}>{language === "ko" ? "목록 배치" : "Grid style"}</label>
+              <FieldRow label={language === "ko" ? "목록 배치" : "Grid style"}>
                 <Select
                   value={config.posts.layout ?? "magazine"}
                   options={[
@@ -638,7 +635,7 @@ export default function ContentTab({
                   ]}
                   onChange={(v) => update("posts", "layout", v as SiteConfigData["posts"]["layout"])}
                 />
-              </div>
+              </FieldRow>
             </div>
           </section>
 
@@ -646,8 +643,7 @@ export default function ContentTab({
           <section className={styles.section}>
             <SectionHeader title={t("admin.settings.pagination")} paths={["posts.perPage", "posts.adminPerPage"]} {...sh} />
             <div className={`${styles.fields} ${styles.fieldsGrid2}`}>
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}><T k="admin.settings.postsPerPage" /></label>
+              <FieldRow label={<T k="admin.settings.postsPerPage" />}>
                 <Select
                   className={styles.fitSelect}
                   value={String(config.posts.perPage ?? 10)}
@@ -659,9 +655,8 @@ export default function ContentTab({
                   ]}
                   onChange={(v) => update("posts", "perPage", Number(v))}
                 />
-              </div>
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}><T k="admin.settings.adminPerPage" /></label>
+              </FieldRow>
+              <FieldRow label={<T k="admin.settings.adminPerPage" />}>
                 <Select
                   className={styles.fitSelect}
                   value={String(config.posts.adminPerPage ?? 20)}
@@ -673,7 +668,7 @@ export default function ContentTab({
                   ]}
                   onChange={(v) => update("posts", "adminPerPage", Number(v))}
                 />
-              </div>
+              </FieldRow>
             </div>
           </section>
 
@@ -778,8 +773,7 @@ export default function ContentTab({
           <section className={styles.section}>
             <SectionHeader title={`${t("admin.settings.worksLayout")} & ${t("admin.settings.pagination")}`} paths={["works.layout", "works.adminPerPage", "works.infiniteScroll"]} {...sh} />
             <div className={`${styles.fields} ${styles.fieldsGrid2}`}>
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}><T k="admin.settings.worksLayout" /></label>
+              <FieldRow label={<T k="admin.settings.worksLayout" />}>
                 <Select
                   value={config.works.layout ?? "flow"}
                   options={[
@@ -792,9 +786,8 @@ export default function ContentTab({
                   ]}
                   onChange={(v) => update("works", "layout", v)}
                 />
-              </div>
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}><T k="admin.settings.adminPerPage" /></label>
+              </FieldRow>
+              <FieldRow label={<T k="admin.settings.adminPerPage" />}>
                 <Select
                   className={styles.fitSelect}
                   value={String(config.works.adminPerPage ?? 20)}
@@ -806,7 +799,7 @@ export default function ContentTab({
                   ]}
                   onChange={(v) => update("works", "adminPerPage", Number(v))}
                 />
-              </div>
+              </FieldRow>
             </div>
             <hr className={styles.sectionDivider} />
             <div className={styles.fields}>
@@ -883,15 +876,12 @@ export default function ContentTab({
                 />
               </div>
               {/* Intro 미디어 picker — public/cover/{videos,images} 공용 풀 + 업로드 + cover picker (이미지/영상 모두) */}
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel}>
-                  <span className={styles.fieldLabelText}>Intro 미디어</span>
-                </label>
+              <FieldRow label="Intro 미디어">
                 <WorksIntroVideoPicker
                   value={config.works.introVideoUrl ?? ""}
                   onChange={(v) => update("works", "introVideoUrl", v)}
                 />
-              </div>
+              </FieldRow>
             </div>
           </section>
 

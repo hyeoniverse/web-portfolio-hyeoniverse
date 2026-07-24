@@ -15,6 +15,7 @@ import RadioGroup from "@/components/ui/RadioGroup";
 import Select from "@/components/ui/Select";
 import { Switch } from "@/components/ui/Switch";
 import NumberInput from "@/components/ui/NumberInput";
+import FieldRow from "@/components/ui/FieldRow";
 import FontPicker from "@/components/ui/FontPicker";
 import {
   resolveFavicon,
@@ -76,8 +77,7 @@ function FaviconShadowControls({
       </div>
       {value.enabled && (
         <div className={styles.faviconShadowBody}>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>{t("admin.settings.faviconShadowSize")}</label>
+          <FieldRow label={t("admin.settings.faviconShadowSize")}>
             <Select
               value={value.size}
               onChange={(v) => onChange({ ...value, size: v as FaviconShadowSize })}
@@ -89,21 +89,19 @@ function FaviconShadowControls({
                 { value: "custom", label: t("admin.settings.faviconShadowSizeCustom") },
               ]}
             />
-          </div>
+          </FieldRow>
           {value.size === "custom" && (
-            <div className={styles.fieldRow}>
-              <label className={styles.fieldLabel}>{t("admin.settings.faviconShadowCustom")}</label>
+            <FieldRow label={t("admin.settings.faviconShadowCustom")}>
               <Input
                 value={value.custom}
                 onChange={(v) => onChange({ ...value, custom: v })}
                 placeholder={t("admin.settings.faviconShadowCustomPlaceholder")}
                 maxLength={4}
               />
-            </div>
+            </FieldRow>
           )}
           {/* 방향 — 8방향 세그먼트 (나침반식: 0=위, 시계방향). 화살표와 실제 그림자 방향 일치 */}
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>{t("admin.settings.faviconShadowDirection")}</label>
+          <FieldRow label={t("admin.settings.faviconShadowDirection")}>
             <SegmentedControl<string>
               size="sm"
               className={styles.faviconDirControl}
@@ -111,13 +109,12 @@ function FaviconShadowControls({
               value={value.angle || "135"}
               onChange={(v) => onChange({ ...value, angle: v })}
             />
-          </div>
+          </FieldRow>
           <label className={styles.inlineToggle}>
             {t("admin.settings.faviconShadowInset")}
             <Checkbox checked={value.inset} onChange={(v) => onChange({ ...value, inset: v })} shape="square" />
           </label>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>{t("admin.settings.faviconShadowColor")}</label>
+          <FieldRow label={t("admin.settings.faviconShadowColor")}>
             <div className={styles.colorField}>
               <ColorPicker
                 value={value.color || "rgba(0,0,0,0.4)"}
@@ -131,7 +128,7 @@ function FaviconShadowControls({
                 placeholder={t("admin.settings.faviconShadowColorPlaceholder")}
               />
             </div>
-          </div>
+          </FieldRow>
         </div>
       )}
     </div>
@@ -375,8 +372,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
         <div className={styles.subSection}>
           <h3 className={styles.sectionSubTitle}>{t("admin.settings.logoColorSection")}</h3>
           <div className={styles.fields}>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>{t("admin.settings.logoColorPresets")}</label>
+          <FieldRow label={t("admin.settings.logoColorPresets")}>
             <div className={styles.logoColorPresets}>
               {presets.map((p, i) => (
                 <div key={`${p.name}-${i}`} className={styles.logoColorPresetWrap}>
@@ -420,10 +416,9 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                 </button>
               )}
             </div>
-          </div>
+          </FieldRow>
           <div className={styles.fieldPair}>
-            <div className={styles.fieldRow}>
-              <label className={styles.fieldLabel}>{t("admin.settings.logoColor")}</label>
+            <FieldRow label={t("admin.settings.logoColor")}>
               <div className={styles.colorField}>
                 <ColorPicker value={config.brand.logoColor || "#000000"} onChange={(c) => update("brand", "logoColor", c.hex)} triggerClassName={styles.colorPicker} />
                 <Input
@@ -434,9 +429,8 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                   maxLength={7}
                 />
               </div>
-            </div>
-            <div className={styles.fieldRow}>
-              <label className={styles.fieldLabel}>{t("admin.settings.logoColorDark")}</label>
+            </FieldRow>
+            <FieldRow label={t("admin.settings.logoColorDark")}>
               <div className={styles.colorField}>
                 <ColorPicker value={config.brand.logoColorDark || "#ffffff"} onChange={(c) => update("brand", "logoColorDark", c.hex)} triggerClassName={styles.colorPicker} />
                 <Input
@@ -447,7 +441,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                   maxLength={7}
                 />
               </div>
-            </div>
+            </FieldRow>
           </div>
           </div>
           {/* 프리셋 이름 입력 row — .fields 바깥, 위 구분선 + AnimatePresence (펼침/접힘 height/opacity 애니메이션) */}
@@ -593,8 +587,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                 })}
               </div>
               <div className={styles.faviconControls}>
-                <div className={styles.fieldRow}>
-                  <label className={styles.fieldLabel}>{t("admin.settings.faviconShape")}</label>
+                <FieldRow label={t("admin.settings.faviconShape")}>
                   <RadioGroup<"circle" | "square" | "none">
                     value={(config.brand.faviconShape ?? "circle") as "circle" | "square" | "none"}
                     onChange={(v) => {
@@ -619,10 +612,9 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                       { value: "none", label: "None" },
                     ]}
                   />
-                </div>
+                </FieldRow>
                 {/* 로고 폰트 — 로고와 favicon 둘 다 결정. FontPicker (Google Fonts 검색 + 부분매칭). */}
-                <div className={styles.fieldRow}>
-                  <label className={styles.fieldLabel}>{t("admin.settings.logoFont")}</label>
+                <FieldRow label={t("admin.settings.logoFont")}>
                   <FontPicker
                     value={config.brand.logoFont ?? ""}
                     onChange={(v) => update("brand", "logoFont", v)}
@@ -646,9 +638,8 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                     }}
                     toGoogleValue={(name) => `'${name}', sans-serif`}
                   />
-                </div>
-                <div className={styles.fieldRow}>
-                  <label className={styles.fieldLabel}>{t("admin.settings.faviconWeight")}</label>
+                </FieldRow>
+                <FieldRow label={t("admin.settings.faviconWeight")}>
                   <RadioGroup<"light" | "regular" | "bold">
                     value={(config.brand.faviconWeight ?? "light") as "light" | "regular" | "bold"}
                     onChange={(v) => update("brand", "faviconWeight", v)}
@@ -658,10 +649,9 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                       { value: "bold", label: "Bold" },
                     ]}
                   />
-                </div>
+                </FieldRow>
                 {/* 장평 — 폰트 가로 너비 (scaleX 배수). 로고/favicon 모두 적용. 더블클릭 시 자유 입력 */}
-                <div className={styles.fieldRow}>
-                  <label className={styles.fieldLabel}>{t("admin.settings.logoFontStretch")}</label>
+                <FieldRow label={t("admin.settings.logoFontStretch")}>
                   <Select
                     value={config.brand.logoFontStretch ?? "0.8"}
                     onChange={(v) => update("brand", "logoFontStretch", v)}
@@ -675,10 +665,9 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                       { value: "1.2", label: "1.2 (+20%)" },
                     ]}
                   />
-                </div>
+                </FieldRow>
                 {/* 폰트 크기 — 프리셋 Select + "직접 입력" 선택 시 stepper(NumberInput) 노출. 8~30 clamp */}
-                <div className={styles.fieldRow}>
-                  <label className={styles.fieldLabel}>{t("admin.settings.faviconFontSize")}</label>
+                <FieldRow label={t("admin.settings.faviconFontSize")}>
                   <div className={styles.faviconFontSizeControl}>
                     <Select
                       value={fontSizeCustom ? "custom" : (config.brand.faviconFontSize ?? "20")}
@@ -709,10 +698,9 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                       />
                     )}
                   </div>
-                </div>
+                </FieldRow>
                 <div className={styles.faviconBgRow}>
-                  <div className={styles.fieldRow}>
-                    <label className={styles.fieldLabel}>{t("admin.settings.faviconBgLight")}</label>
+                  <FieldRow label={t("admin.settings.faviconBgLight")}>
                     <div className={styles.colorField}>
                       <ColorPicker
                         value={config.brand.faviconBgLight || config.brand.logoColorDark || "#f5f5f0"}
@@ -727,9 +715,8 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                         maxLength={7}
                       />
                     </div>
-                  </div>
-                  <div className={styles.fieldRow}>
-                    <label className={styles.fieldLabel}>{t("admin.settings.faviconBgDark")}</label>
+                  </FieldRow>
+                  <FieldRow label={t("admin.settings.faviconBgDark")}>
                     <div className={styles.colorField}>
                       <ColorPicker
                         value={config.brand.faviconBgDark || config.brand.logoColor || "#0a0a0a"}
@@ -744,12 +731,11 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                         maxLength={7}
                       />
                     </div>
-                  </div>
+                  </FieldRow>
                 </div>
                 {/* 글자색 — favicon 텍스트 색 override. 빈 값이면 preset 자동 계산 (하위호환) */}
                 <div className={styles.faviconBgRow}>
-                  <div className={styles.fieldRow}>
-                    <label className={styles.fieldLabel}>{t("admin.settings.faviconTextColorLight")}</label>
+                  <FieldRow label={t("admin.settings.faviconTextColorLight")}>
                     <div className={styles.colorField}>
                       <ColorPicker
                         value={config.brand.faviconColor || config.brand.logoColor || config.theme.lightText}
@@ -764,9 +750,8 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                         maxLength={7}
                       />
                     </div>
-                  </div>
-                  <div className={styles.fieldRow}>
-                    <label className={styles.fieldLabel}>{t("admin.settings.faviconTextColorDark")}</label>
+                  </FieldRow>
+                  <FieldRow label={t("admin.settings.faviconTextColorDark")}>
                     <div className={styles.colorField}>
                       <ColorPicker
                         value={config.brand.faviconColorDark || config.brand.logoColorDark || config.theme.darkText}
@@ -781,7 +766,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                         maxLength={7}
                       />
                     </div>
-                  </div>
+                  </FieldRow>
                 </div>
               </div>
             </div>

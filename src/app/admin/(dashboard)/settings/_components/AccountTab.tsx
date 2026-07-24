@@ -10,6 +10,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import CloseButton from "@/components/ui/CloseButton";
 import Select from "@/components/ui/Select";
+import FieldRow from "@/components/ui/FieldRow";
 import TextLink from "@/components/ui/TextLink";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { parseUA } from "@/lib/auth/uaParser";
@@ -273,10 +274,9 @@ export default function AccountTab({
         )}
 
         <div className={styles.fields}>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}><T k="admin.settings.currentEmail" /></label>
+          <FieldRow label={<T k="admin.settings.currentEmail" />}>
             <span className={styles.fieldValue}>{accountEmail}</span>
-          </div>
+          </FieldRow>
           <Field
             label={t("admin.settings.newEmail")}
             value={accountNewEmail}
@@ -299,8 +299,7 @@ export default function AccountTab({
         </ul>
         <div className={styles.fields}>
           <div className={styles.fieldPair}>
-            <div className={styles.fieldRow}>
-              <label className={styles.fieldLabel}><T k="admin.settings.passwordPolicyLabel" /></label>
+            <FieldRow label={<T k="admin.settings.passwordPolicyLabel" />}>
               <Select
                 value={passwordPolicy}
                 options={[
@@ -309,27 +308,25 @@ export default function AccountTab({
                 ]}
                 onChange={onPasswordPolicyChange}
               />
-            </div>
+            </FieldRow>
           </div>
           <div className={styles.fieldPair}>
-            <div className={styles.fieldRow}>
-              <label className={styles.fieldLabel}><T k="admin.settings.newPassword" /></label>
+            <FieldRow label={<T k="admin.settings.newPassword" />}>
               <Input
                 type="password"
                 value={accountPassword}
                 onChange={setAccountPassword}
                 placeholder={t("admin.settings.leaveBlank")}
               />
-            </div>
-            <div className={styles.fieldRow}>
-              <label className={styles.fieldLabel}><T k="admin.settings.confirmPassword" /></label>
+            </FieldRow>
+            <FieldRow label={<T k="admin.settings.confirmPassword" />}>
               <Input
                 type="password"
                 value={accountConfirm}
                 onChange={setAccountConfirm}
                 placeholder={t("admin.settings.confirmPlaceholder")}
               />
-            </div>
+            </FieldRow>
           </div>
         </div>
       </section>
@@ -399,8 +396,7 @@ export default function AccountTab({
         </div>
 
         <div className={styles.fields}>
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}><T k="admin.settings.signOutAllLabel" /></label>
+          <FieldRow label={<T k="admin.settings.signOutAllLabel" />}>
             <Button
               variant="outline"
               size="md"
@@ -410,7 +406,7 @@ export default function AccountTab({
             >
               {signingOutAll ? <T k="admin.settings.saving" /> : <T k="admin.settings.signOutAllAction" />}
             </Button>
-          </div>
+          </FieldRow>
         </div>
       </section>
 
