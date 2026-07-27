@@ -146,9 +146,9 @@ API 유지(`title` · `extra`(제목 아래 hint) · actions). public(about/post
 - 이후 각 도메인 슬라이스(admin → posts → works → about) 리팩토링 시 해당 도메인의 반복을 프리미티브로 흡수.
 - 시각 회귀(admin baseline)로 픽셀 무변화 확인. 값-복사 매핑이라 대부분 무변화.
 
-## 6. 열린 결정 (합의 필요)
+## 6. 결정 (합의 완료)
 
-- **Card**: 컴포넌트(A) vs 토큰 표준화(B) vs 하이브리드 — 어디까지?
-- **align/justify prop 이름**: `start/center/end` 축약 vs `flex-start` 정식 — 컨벤션 통일.
-- **프리미티브 위치**: `src/components/ui/` (기존 UI 컴포넌트 옆) vs `src/components/layout/` (page-chrome 과 섞임 주의).
-- **채택 강제 범위**: 신규 코드만 강제 vs 기존도 점진 마이그레이션 목표 설정.
+- **프리미티브 위치**: `src/components/ui/` — 기존 UI 컴포넌트 옆. page-chrome 과 안 섞음.
+- **align/justify prop 이름**: `start/center/end` 축약 — 내부에서 `flex-start` 등으로 매핑.
+- **Card**: 하이브리드 — `--radius-card`·`--card-padding` 표준 토큰을 먼저 깔고 `<Card>` 가 그 토큰을 사용.
+- **채택 범위**: 점진 — 신설 PR 은 파일럿 2~3곳만, 이후 도메인 리팩토링 때 rule of three 로 흡수(전면 마이그레이션 강제 안 함).
