@@ -338,13 +338,69 @@
   padding: var(--spacing-sm);
 }
 
+/* 색(반투명 가능)을 checkerboard 위에 얹어 투명도가 보이게. 색 레이어가 최상단, 아래 2겹이 격자 */
 .preview {
   flex-shrink: 0;
   width: var(--button-h-sm);
   height: var(--button-h-sm);
   border-radius: var(--radius-circle);
   border: 1px solid var(--border-light-color);
-  background: var(--_preview-color, transparent);
+  background-color: var(--bg-primary);
+  background-image:
+    linear-gradient(var(--_preview-color, transparent), var(--_preview-color, transparent)),
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
+  background-size: auto, 8px 8px, 8px 8px;
+  background-position: 0 0, 0 0, 4px 4px;
+}
+
+/* 기본 swatch trigger — alpha<1 일 때만 적용 (불투명은 inline background) */
+.triggerAlpha {
+  background-color: var(--bg-primary);
+  background-image:
+    linear-gradient(var(--_preview-color, transparent), var(--_preview-color, transparent)),
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
+  background-size: auto, 8px 8px, 8px 8px;
+  background-position: 0 0, 0 0, 4px 4px;
+}
+
+/* ── Alpha(투명도) row — slider + % 입력 ── */
+.alphaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 0 var(--spacing-sm);
+}
+
+/* Hue slider 와 같은 lineup. 투명→불투명 그라디언트를 checkerboard 위에 */
+.alphaSlider {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 12px;
+  margin: 3px 0;
+  border-radius: var(--radius-capsule);
+  cursor: ew-resize;
+  touch-action: none;
+  background-color: var(--bg-primary);
+  background-image:
+    linear-gradient(to right, transparent, var(--_alpha-color, transparent)),
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
+  background-size: auto, 8px 8px, 8px 8px;
+  background-position: 0 0, 0 0, 4px 4px;
+}
+
+/* % 입력 — pickerInput 폭 override (3자리 "100") */
+.alphaInput {
+  width: calc(4ch + var(--spacing-xs) * 2 + 2px);
+}
+
+.alphaUnit {
+  flex-shrink: 0;
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
 }
 
 .rgbRow {
