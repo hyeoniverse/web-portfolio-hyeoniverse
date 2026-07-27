@@ -14,6 +14,17 @@ import { useContactStore } from "@/stores/contactStore";
 import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
+import {
+  resolveFaviconShadow,
+  firstGrapheme,
+  graphemes,
+  FaviconBadge,
+  DEFAULT_FAVICON_TEXT_SHADOW,
+  DEFAULT_FAVICON_BG_SHADOW,
+  type FaviconRenderInput,
+  type FaviconShape,
+  type FaviconWeight,
+} from "@/lib/favicon";
 // Supabase client는 admin 페이지에서만 동적으로 로드 (630KB 번들 절약)
 const loadSupabaseClient = () => import("@/lib/supabase/client").then(m => m.createClient());
 import Image from "next/image";
@@ -60,10 +71,12 @@ export default function Navigation() {
   const siteConfig = useSiteConfig();
   const router = useRouter();
 
-  // Loading logo: full display name with per-letter animation
-  const LOGO_TEXT = siteConfig.brand.logoText || "H";
+  // Loading logo: full display name with per-letter animation.
+  // logoText(숏 글리프)가 브랜드명 첫 글자를 대체 — 비면 브랜드명 첫 글자 그대로. 이모지 보존 위해 grapheme 단위.
   const DISPLAY_NAME = siteConfig.brand.logoFullText || siteConfig.loading.displayName;
-  const EXTRA_LETTERS = DISPLAY_NAME.slice(LOGO_TEXT.length).split("");
+  const NAME_GRAPHEMES = graphemes(DISPLAY_NAME);
+  const LOGO_TEXT = firstGrapheme(siteConfig.brand.logoText) || NAME_GRAPHEMES[0] || "";
+  const EXTRA_LETTERS = NAME_GRAPHEMES.slice(1);
 
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
@@ -76,6 +89,56 @@ export default function Navigation() {
   const hasImageLogo = !!shortLogoUrl;
   const loadingLogoUrl = fullLogoUrl || shortLogoUrl;
   const hasDistinctFullLogo = !!fullLogoUrl && fullLogoUrl !== shortLogoUrl;
+  // 업로드 로고 리컬러 색 (설정 지정 시) — 이미지를 마스크로 그 색 채움. 빈 값 = 원본
+  const shortTint = (isDark ? siteConfig.brand.logoShortColorDark : siteConfig.brand.logoShortColor) || "";
+  const fullTint = (isDark ? siteConfig.brand.logoFullColorDark : siteConfig.brand.logoFullColor) || "";
+  const loadingTint = hasDistinctFullLogo ? fullTint : shortTint;
+  // 업로드 favicon 옵션의 그림자 — 로고 이미지(숏·풀)에 CSS drop-shadow 로 적용 (favicon SVG 와 별개로 nav/loading 에도).
+  // drop-shadow 는 outer 만 지원하므로 inset 이면 미적용.
+  const _imgShadow = resolveFaviconShadow(siteConfig.brand.faviconImageShadow);
+  const logoShadowFilter = _imgShadow && !_imgShadow.inset
+    ? `drop-shadow(${_imgShadow.dx}px ${_imgShadow.dy}px ${_imgShadow.blur}px ${_imgShadow.color})`
+    : undefined;
+
+  // nav 로고를 favicon 배지(배경+글리프)로 — 브라우저 탭 아이콘과 통일. 배경 없음(shape=none)이거나
+  // 업로드 이미지 로고면 미적용(각각 텍스트 리빌 / 이미지 유지).
+  const navVariant: "light" | "dark" = isDark ? "dark" : "light";
+  const useBadgeLogo = !hasImageLogo && (siteConfig.brand.faviconShape ?? "circle") !== "none";
+  const navFaviconInput: FaviconRenderInput = {
+    shape: (siteConfig.brand.faviconShape ?? "circle") as FaviconShape,
+    faviconRadius: siteConfig.brand.faviconRadius ?? "",
+    faviconBgRatio: siteConfig.brand.faviconBgRatio ?? "1",
+    faviconBorderWidth: siteConfig.brand.faviconBorderWidth ?? "0",
+    faviconBorderColorLight: siteConfig.brand.faviconBorderColorLight ?? "",
+    faviconBorderColorDark: siteConfig.brand.faviconBorderColorDark ?? "",
+    weight: (siteConfig.brand.faviconWeight ?? "light") as FaviconWeight,
+    logoText: siteConfig.brand.logoText ?? "",
+    logoFont: siteConfig.brand.logoFont ?? "",
+    logoFontStretch: siteConfig.brand.logoFontStretch ?? "",
+    faviconBgLight: siteConfig.brand.faviconBgLight ?? "",
+    faviconBgDark: siteConfig.brand.faviconBgDark ?? "",
+    faviconFontSize: siteConfig.brand.faviconFontSize ?? "20",
+    faviconColor: siteConfig.brand.faviconColor ?? "",
+    faviconColorDark: siteConfig.brand.faviconColorDark ?? "",
+    faviconTextShadow: siteConfig.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW,
+    faviconBgShadow: siteConfig.brand.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW,
+    presetLight: siteConfig.brand.logoColor || siteConfig.theme.lightText,
+    presetDark: siteConfig.brand.logoColorDark || siteConfig.theme.darkText,
+  };
+  // 리컬러 있으면 숨긴 img 로 폭 확보 + mask 로 tint 채움, 없으면 원본 Image. 그림자는 공통 적용.
+  const renderLogoImg = (src: string, w: number, altText: string, tintColor: string) =>
+    tintColor ? (
+      <span
+        className={styles.logoImageTinted}
+        style={{ backgroundColor: tintColor, maskImage: `url("${src}")`, WebkitMaskImage: `url("${src}")`, filter: logoShadowFilter }}
+        role="img"
+        aria-label={altText}
+      >
+        <Image src={src} alt="" width={w} height={32} unoptimized />
+      </span>
+    ) : (
+      <Image src={src} alt={altText} width={w} height={32} className={styles.logoImage} unoptimized style={logoShadowFilter ? { filter: logoShadowFilter } : undefined} />
+    );
   const { isLoading, isTransitioning } = useLoadingScreen();
   const { isMuted, toggleMute } = useSoundStore();
   const { openForm } = useContactStore();
@@ -556,14 +619,17 @@ export default function Navigation() {
         전체가 page backdrop 과 한 번에 blend (자식에 두면 부모 stacking context 안에서 갇혀 무효) */}
     <Link
       href={isAdminPage ? "/admin" : "/"}
+      aria-label={useBadgeLogo ? DISPLAY_NAME : undefined}
       className={`${styles.logoNavBar} ${siteConfig.brand.logoDifference === false ? styles.logoNavBarNoDifference : ""} ${showLoadingLogo || elevatedZ ? styles.logoNavBarElevated : ""} ${siteConfig.brand.logoGlitch ? "glith-on-hover" : ""}`}
     >
         {(() => {
-          // 장평 — scaleX. 빈/invalid 면 0.8 default.
+          // 장평 — scaleX. 빈/invalid 면 0.8 default. 배지 로고(SVG)는 정사각이라 장평 미적용(1).
           const rawStretch = parseFloat(siteConfig.brand.logoFontStretch ?? "");
-          const stretchN = Number.isFinite(rawStretch) && rawStretch > 0 ? rawStretch : 0.8;
-          // 로고 색상 (테마별 override)
-          const color = isDark ? siteConfig.brand.logoColorDark : siteConfig.brand.logoColor;
+          const stretchN = useBadgeLogo ? 1 : (Number.isFinite(rawStretch) && rawStretch > 0 ? rawStretch : 0.8);
+          // 로고 색상 (테마별 override). 커스텀 미지정(기본)이고 difference 를 끈 상태면
+          // 블렌드가 없어 색 기준이 사라지므로 text-primary 로 명시.
+          const customColor = isDark ? siteConfig.brand.logoColorDark : siteConfig.brand.logoColor;
+          const color = customColor || (siteConfig.brand.logoDifference === false ? "var(--text-primary)" : "");
           const inlineStyle: React.CSSProperties = {
             transformOrigin: "left center",
             visibility: showLoadingLogo && !logoMeasured ? "hidden" : "visible",
@@ -603,7 +669,7 @@ export default function Navigation() {
                   }}
                   style={{ position: "absolute" }}
                 >
-                  <Image src={loadingLogoUrl!} alt={DISPLAY_NAME} width={120} height={32} className={styles.logoImage} unoptimized />
+                  {renderLogoImg(loadingLogoUrl!, 120, DISPLAY_NAME, loadingTint)}
                 </motion.span>
               )}
               {/* 숏 로고 이미지 */}
@@ -619,9 +685,17 @@ export default function Navigation() {
                   filter: { duration: 1.0, delay: 0.1, ease: "easeOut" },
                 }}
               >
-                <Image src={shortLogoUrl!} alt={LOGO_TEXT} width={32} height={32} className={styles.logoImage} unoptimized />
+                {renderLogoImg(shortLogoUrl!, 32, LOGO_TEXT, shortTint)}
               </motion.span>
             </>
+          ) : useBadgeLogo ? (
+            <FaviconBadge
+              input={navFaviconInput}
+              variant={navVariant}
+              size={34}
+              idPrefix="navfav"
+              className={styles.logoBadge}
+            />
           ) : (
             <>
               {LOGO_TEXT}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { useLenis } from "@/providers/LenisProvider";
 import css from "./SectionJumpNav.module.css";
 
@@ -28,7 +28,6 @@ export default function SectionJumpNav({
   const { scrollTo } = useLenis();
   const [sections, setSections] = useState<Section[]>([]);
   const [activeIdx, setActiveIdx] = useState(0);
-  const [ink, setInk] = useState({ left: 0, width: 0 });
   const navRef = useRef<HTMLDivElement>(null);
 
   /* 콘텐츠가 그려진 뒤 스캔 — rAF 로 한 프레임 미룬다. */
@@ -70,16 +69,6 @@ export default function SectionJumpNav({
     return () => io.disconnect();
   }, [sections]);
 
-  /* 활성 밑줄(ink)을 활성 항목 위치로 이동 + 그 항목을 가로 스크롤 안에 보이게.
-     항목 위치는 스크롤/리사이즈/폰트로드에 안 변하지만, 초기 측정만 rAF 로 확실히. */
-  useLayoutEffect(() => {
-    const bar = navRef.current;
-    const btn = bar?.querySelectorAll<HTMLElement>("button")[activeIdx];
-    if (!btn) return;
-    setInk({ left: btn.offsetLeft, width: btn.offsetWidth });
-    btn.scrollIntoView({ inline: "nearest", block: "nearest" });
-  }, [activeIdx, sections]);
-
   if (sections.length < 2) return null;
 
   const jump = (s: Section, idx: number) => {
@@ -97,16 +86,16 @@ export default function SectionJumpNav({
        (overflow 가 ::before frost 를 자르지 않게). */
     <div className={`${css.jumpWrap} ${pinned ? css.jumpPinned : ""}`}>
       <div ref={navRef} className={css.jumpNav} role="navigation" aria-label="섹션 바로가기">
-        {/* 활성 항목을 따라 미끄러지는 밑줄 — scroll-spy 를 시각적으로 이어준다 */}
-        <span className={css.ink} style={{ left: ink.left, width: ink.width }} aria-hidden />
         {sections.map((s, i) => (
           <button
             key={`${s.label}-${i}`}
             type="button"
             className={`${css.item} ${i === activeIdx ? css.itemActive : ""}`}
             onClick={() => jump(s, i)}
+            title={s.label}
           >
-            {s.label}
+            <span className={css.label}>{s.label}</span>
+            <span className={css.dot} aria-hidden />
           </button>
         ))}
       </div>
