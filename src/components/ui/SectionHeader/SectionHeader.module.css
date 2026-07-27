@@ -1,0 +1,38 @@
+/* 범용 섹션 헤더 — 제목 row(제목 + 우측 액션) + 아래 부가설명. gap 은 토큰 스케일. */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  min-width: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+/* 우측 액션 그룹 — 제목에 안 밀리게 shrink 방지 */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-shrink: 0;
+}
+
+.sub {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
