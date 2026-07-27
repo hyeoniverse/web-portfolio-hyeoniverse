@@ -1,38 +1,49 @@
-/* wrap — row + below 를 하나의 시각 단위로 묶음. margin 은 wrap 에 부여 */
-.wrap {
-  margin-bottom: var(--spacing-md);
-}
-
-/* 부가설명(hint) — 제목 옆이 아니라 제목 아래 줄에 둔다. 제목 옆에 두면 액션 버튼과 함께
-   제목을 밀어내 "MAIN B…" 처럼 심하게 잘린다. */
-.extraRow {
-  margin-top: var(--spacing-2xs);
-  min-width: 0;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  /* row-gap column-gap — column 은 md, row 는 wrap 안 하므로 무의미 */
-  gap: var(--spacing-2xs) var(--spacing-md);
-}
-
-.row > h2 {
+/* 제목·액션 둘 다 섹션 직속 sticky 요소(부모 .section grid). containing block 이 섹션 전체라
+   스크롤 내내 함께 붙어 있고, sticky 조상에 안 갇힌다.
+   difference 는 제목(.title)에만 — 페이지 콘텐츠와 반전. 액션(.spacer)·hint 는 정상 색.
+   data-settings-section — SectionJumpNav 스캔·점프 앵커. */
+.title {
+  grid-column: 1;
+  grid-row: 1;
   margin: 0;
+  padding: 0;
+  position: sticky;
+  top: calc(var(--header-height) + var(--spacing-lg));
+  /* 프리셋 카드 등 positioned 콘텐츠 위로 (Settings 패널 z 사다리 참조) */
+  z-index: calc(var(--z-nav) - 3);
+  mix-blend-mode: difference;
+  color: var(--text-white);
   line-height: 1;
-  /* 좁은 컨테이너에서 title 이 길어 spacer 가 줄바꿈 되는 거 방지 — title 만 ellipsis */
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* spacer (action 버튼들) — margin-left: auto 로 우측 정렬. 절대 줄바꿈 X. */
+/* 액션(버튼/링크) — 우측 열, 제목과 같이 sticky. blend 밖이라 정상 색. */
 .spacer {
-  margin-left: auto;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  position: sticky;
+  top: calc(var(--header-height) + var(--spacing-lg));
+  z-index: calc(var(--z-nav) - 3);
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
   flex-shrink: 0;
+}
+
+/* 태블릿·모바일 — 위에 가로 탭바(≈45px)까지 있으니 그 아래로 더 내린다 */
+@media (max-width: 1024px) {
+  .title,
+  .spacer {
+    top: calc(var(--header-height) + 2.9rem + var(--spacing-md));
+  }
+}
+
+/* 부가설명(hint) — 제목 바로 아래 줄. row-gap(md) 을 상쇄해 tight(2xs) 하게 붙인다. */
+.extraRow {
+  margin-top: calc(var(--spacing-2xs) - var(--spacing-md));
+  min-width: 0;
 }

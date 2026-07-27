@@ -29,6 +29,8 @@ interface SectionHeaderProps {
   below?: ReactNode;
   /** 섹션 타이틀 row 의 className — 기존 sectionTitleRow 와 호환 */
   rowClassName?: string;
+  /** wrap(sticky+difference) 의 className — 특정 섹션에서 blend 를 끄는 등 override 용 */
+  wrapClassName?: string;
   /** 타이틀 className */
   titleClassName?: string;
   /** paths 외 추가 dirty 신호 — pending list 등 client-side side-effect 가 있을 때 활성화. */
@@ -59,6 +61,7 @@ export default function SectionHeader({
   spacerExtra,
   below,
   rowClassName,
+  wrapClassName,
   titleClassName,
   extraDirty = false,
   beforeSave,
@@ -79,61 +82,63 @@ export default function SectionHeader({
   const isAtDefault = configAtDefault && !resetForceEnabled;
 
   return (
-    /* data-settings-section — SectionJumpNav 가 패널 안 섹션을 스캔·점프하는 앵커.
-       scroll-margin-top 은 sticky 탭바 아래로 정확히 멈추게 한다. */
-    <div className={localStyles.wrap} data-settings-section>
-      <div className={`${localStyles.row} ${rowClassName ?? ""}`.trim()}>
-        <h2 className={titleClassName}>{title}</h2>
-        {customActions ? (
-          <div className={localStyles.spacer}>
-            {spacerExtra}
-            {customActions}
-          </div>
-        ) : paths.length > 0 && (
-          <div className={localStyles.spacer}>
-            {spacerExtra}
-            {resetSection && (
-              <Button
-                variant="outline"
-                size="2xs"
-                disabled={isAtDefault || isSavingOther || isSavingThis}
-                onClick={() => (onResetOverride ? onResetOverride() : resetSection(paths))}
-                title={t("admin.settings.resetSection")}
-              >
-                {t("admin.settings.resetSection")}
-              </Button>
-            )}
-            {revertSection && (
-              <Button
-                variant="outline"
-                size="2xs"
-                disabled={!dirty || isSavingOther || isSavingThis}
-                onClick={() => { revertSection(paths); extraRevert?.(); }}
-                title={t("admin.settings.revertSection")}
-              >
-                {t("admin.settings.revertSection")}
-              </Button>
-            )}
+    /* 제목만 sticky + difference — 섹션 직속 요소라야 containing block 이 섹션(높이 전체)이 되어
+       스크롤 내내 붙어 있고, sticky 조상에 갇히지 않아 페이지 콘텐츠와 반전된다.
+       액션(버튼/링크)·hint 는 blend 밖 형제라 정상 색으로 렌더된다.
+       data-settings-section — SectionJumpNav 스캔·점프 앵커(+scroll-margin-top). */
+    <>
+      <h2 className={`${localStyles.title} ${wrapClassName ?? ""} ${titleClassName ?? ""}`.trim()} data-settings-section>
+        {title}
+      </h2>
+      {customActions ? (
+        <div className={`${localStyles.spacer} ${rowClassName ?? ""}`.trim()}>
+          {spacerExtra}
+          {customActions}
+        </div>
+      ) : paths.length > 0 && (
+        <div className={localStyles.spacer}>
+          {spacerExtra}
+          {resetSection && (
             <Button
               variant="outline"
               size="2xs"
-              disabled={!dirty || isSavingOther}
-              loading={isSavingThis}
-              loadingVariant="wave"
-              onClick={async () => {
-                if (beforeSave) {
-                  try { await beforeSave(); } catch { return; }
-                }
-                await saveSection(paths);
-              }}
+              disabled={isAtDefault || isSavingOther || isSavingThis}
+              onClick={() => (onResetOverride ? onResetOverride() : resetSection(paths))}
+              title={t("admin.settings.resetSection")}
             >
-              {t("admin.settings.saveSection")}
+              {t("admin.settings.resetSection")}
             </Button>
-          </div>
-        )}
-      </div>
+          )}
+          {revertSection && (
+            <Button
+              variant="outline"
+              size="2xs"
+              disabled={!dirty || isSavingOther || isSavingThis}
+              onClick={() => { revertSection(paths); extraRevert?.(); }}
+              title={t("admin.settings.revertSection")}
+            >
+              {t("admin.settings.revertSection")}
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            size="2xs"
+            disabled={!dirty || isSavingOther}
+            loading={isSavingThis}
+            loadingVariant="wave"
+            onClick={async () => {
+              if (beforeSave) {
+                try { await beforeSave(); } catch { return; }
+              }
+              await saveSection(paths);
+            }}
+          >
+            {t("admin.settings.saveSection")}
+          </Button>
+        </div>
+      )}
       {extra != null && <div className={localStyles.extraRow}>{extra}</div>}
       {below}
-    </div>
+    </>
   );
 }

@@ -5,7 +5,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
-import { ExternalLink, Volume2, HelpCircle } from "lucide-react";
+import { ExternalLink, Volume2, HelpCircle, Upload } from "lucide-react";
 import type { SiteConfigData } from "@/config/site.config";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Button from "@/components/ui/Button";
@@ -182,12 +182,22 @@ interface UploadFieldProps {
   onUploaded: (url: string) => void;
   onRemove: () => void;
   hint?: string;
+  /** 업로드 이미지 리컬러 색 (config 값, "" = 원본). onTintChange 와 함께 있으면 카드에 색 피커 노출 */
+  tint?: string;
+  /** 리컬러 색 변경 콜백 — config 에 저장되게 update 로 연결 (저장 표시 뜨게) */
+  onTintChange?: (color: string) => void;
+  /** 원본 상태에서 피커를 열 때 초기 색 */
+  defaultTint?: string;
+  /** 리컬러 피커 title, 원본 리셋 라벨 */
+  recolorLabel?: string;
+  originalLabel?: string;
 }
 
-export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint }: UploadFieldProps) {
+export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUploaded, onRemove, hint, tint, onTintChange, defaultTint, recolorLabel, originalLabel }: UploadFieldProps) {
   const { folder, accept, preview, icon, fallbackName } = UPLOAD_PRESETS[kind];
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const handleUpload = async (file: File) => {
     setUploading(true);
@@ -200,6 +210,96 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
     }
   };
 
+  const fileInput = (
+    <input
+      ref={fileRef}
+      type="file"
+      accept={accept}
+      hidden
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) handleUpload(file);
+        e.target.value = "";
+      }}
+    />
+  );
+
+  // 이미지(로고) — 넓은 dropzone. 클릭/드래그 업로드, 파일 있으면 미리보기 + 교체/삭제.
+  if (preview === "image") {
+    const openPicker = () => fileRef.current?.click();
+    return (
+      <div className={styles.fieldRow}>
+        <label className={styles.fieldLabel}>
+          {label}
+          {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
+        </label>
+        <div
+          className={`${styles.logoDropzone}${dragOver ? ` ${styles.logoDropzoneOver}` : ""}${url ? ` ${styles.logoDropzoneFilled}` : ""}`}
+          role="button"
+          tabIndex={0}
+          onClick={url ? undefined : openPicker}
+          onKeyDown={(e) => {
+            if (!url && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openPicker(); }
+          }}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            const file = e.dataTransfer.files?.[0];
+            if (file) handleUpload(file);
+          }}
+        >
+          {url ? (
+            <>
+              <div className={styles.logoPreviewGroup}>
+                <div className={styles.logoPreview}>
+                  {tint ? (
+                    <span
+                      className={styles.logoPreviewTint}
+                      style={{ maskImage: `url("${url}")`, WebkitMaskImage: `url("${url}")`, backgroundColor: tint }}
+                      role="img"
+                      aria-label={label}
+                    />
+                  ) : (
+                    <Image src={url} alt={label} width={120} height={48} unoptimized className={styles.logoPreviewImage} />
+                  )}
+                </div>
+                {onTintChange && (
+                  <div className={styles.logoTintControl}>
+                    <span className={styles.logoPreviewColor} title={recolorLabel}>
+                      <ColorPicker value={tint || defaultTint || "#000000"} onChange={(c) => onTintChange(c.hex)} triggerClassName={styles.logoPreviewColorBtn} />
+                    </span>
+                    {tint && (
+                      <button type="button" className={styles.logoTintReset} onClick={() => onTintChange("")}>
+                        {originalLabel}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className={styles.logoActions}>
+                <Button variant="outline" size="sm" onClick={openPicker} loading={uploading}>
+                  {uploadLabel}
+                </Button>
+                <Button variant="outline" size="sm" tone="danger" onClick={onRemove}>
+                  {removeLabel}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className={styles.logoDropzoneEmpty}>
+              <Upload size={18} />
+              <span className={styles.logoDropzoneHint}>{uploadLabel}</span>
+            </div>
+          )}
+          {fileInput}
+        </div>
+      </div>
+    );
+  }
+
+  // 파일(이력서·BGM) — 파일명 링크 + 버튼
   return (
     <div className={styles.fieldRow}>
       <label className={styles.fieldLabel}>
@@ -207,16 +307,12 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
         {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
       </label>
       <div className={styles.logoUpload}>
-        {url && (preview === "image" ? (
-          <div className={styles.logoPreview}>
-            <Image src={url} alt={label} width={80} height={32} unoptimized className={styles.logoPreviewImage} />
-          </div>
-        ) : (
+        {url && (
           <a href={url} target="_blank" rel="noopener noreferrer" className={styles.resumeFile}>
             {icon}
             <span>{decodeURIComponent(url.split("/").pop() ?? fallbackName ?? "")}</span>
           </a>
-        ))}
+        )}
         <div className={styles.logoActions}>
           <Button variant="outline" size="md" onClick={() => fileRef.current?.click()} loading={uploading}>
             {uploadLabel}
@@ -227,17 +323,7 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
             </Button>
           )}
         </div>
-        <input
-          ref={fileRef}
-          type="file"
-          accept={accept}
-          hidden
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleUpload(file);
-            e.target.value = "";
-          }}
-        />
+        {fileInput}
       </div>
     </div>
   );

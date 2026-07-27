@@ -497,8 +497,9 @@ export default function EnvVarFields({
               </span>
             </Tooltip>
           )}
-          {/* 소스 배지 (.env / DB / 편집중) + Read-only 배지 — 같은 위치에 인접 배치, 동일 스타일 */}
-          {sourceForBadge !== "none" && (
+          {/* 소스 배지 (.env / DB / 편집중). readOnly 는 어차피 .env 확정이라 소스 배지 생략하고
+             Read-only 배지만 — 배지 2개가 좁은 라벨 칸에서 줄바꿈되는 것 방지 */}
+          {sourceForBadge !== "none" && !isReadOnly && (
             <span className={styles.envSourceBadge} data-source={sourceForBadge}>
               {sourceForBadge === "env" && ".env"}
               {sourceForBadge === "db" && "DB"}

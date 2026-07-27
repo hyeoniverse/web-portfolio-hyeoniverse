@@ -107,6 +107,12 @@
   will-change: transform;
 }
 
+/* favicon 배지 로고 (nav === 브라우저 탭 아이콘) — SVG 자체 width/height 로 크기 결정 */
+.logoBadge {
+  display: block;
+  flex-shrink: 0;
+}
+
 .logoImageWrap {
   display: flex;
   align-items: center;
@@ -116,6 +122,25 @@
   height: 1.2em;
   width: auto;
   object-fit: contain;
+}
+
+/* 리컬러 로고 — 숨긴 img 로 폭(종횡비) 확보 + mask 로 그 형태를 tint 색으로 채움 */
+.logoImageTinted {
+  display: inline-block;
+  height: 1.2em;
+  width: auto;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+}
+.logoImageTinted img {
+  display: block;
+  height: 100%;
+  width: auto;
+  visibility: hidden;
 }
 
 /* Center navigation links — 로고와 액션 사이 남는 공간의 가운데로 배치
