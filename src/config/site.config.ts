@@ -53,9 +53,14 @@ export const siteConfig = {
     logoGlitch: true, // 로고 글리치 효과 on/off
     logoDifference: true, // 네비 mix-blend-mode: difference on/off (배경에 따라 자동 반전)
     faviconShape: "circle" as "circle" | "square" | "none", // 브라우저 탭 favicon 배경 모양
+    faviconRadius: "", // 배경 모서리 반경 override (0~16, viewBox 0~32 기준). 빈 값 = shape 기본값(circle=16/square=4)
+    faviconBgRatio: "1", // 배경 종횡비 w/h (0.5~2). 1=정사각, >1=가로 길쭉(타원/직사각), <1=세로 길쭉. 콘텐츠는 중심 고정
     faviconWeight: "light" as "light" | "regular" | "bold", // favicon 텍스트 weight (default 가장 얇은 light)
     faviconBgLight: "", // 라이트 favicon 배경색 (빈 값 = preset.dark 자동 사용)
     faviconBgDark: "", // 다크 favicon 배경색 (빈 값 = preset.light 자동 사용)
+    faviconBorderWidth: "0", // 배경 테두리 두께 (px, viewBox 0~32 기준). 0 = 없음
+    faviconBorderColorLight: "", // 라이트 favicon 테두리색 (빈 값 = 없음)
+    faviconBorderColorDark: "", // 다크 favicon 테두리색 (빈 값 = 없음)
     faviconFontSize: "20", // favicon 텍스트 폰트 크기 (px, viewBox 0~32 기준). 8~30 clamp
     faviconColor: "", // 라이트 favicon 글자색 override (빈 값 = preset 자동 계산)
     faviconColorDark: "", // 다크 favicon 글자색 override (빈 값 = preset 자동 계산)
@@ -63,14 +68,26 @@ export const siteConfig = {
     faviconTextShadow: { enabled: false, inset: false, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
     // favicon 배경(rect) 그림자 — 32×32 라 outer 공간 없어 inset 기본. enabled=false 면 미적용
     faviconBgShadow: { enabled: false, inset: true, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
+    // 업로드 favicon(이미지) 전용 — 텍스트 favicon 과 별도. 배경색 빈 값 = 투명(로고만)
+    faviconImageBgLight: "", // 업로드 favicon 배경색 (라이트, 빈 값 = 투명)
+    faviconImageBgDark: "", // 업로드 favicon 배경색 (다크, 빈 값 = 투명)
+    // 업로드 favicon 로고 그림자(드롭)
+    faviconImageShadow: { enabled: false, inset: false, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
+    // 업로드 favicon 배경(rect) 그림자 — 배경색 있을 때만 의미
+    faviconImageBgShadow: { enabled: false, inset: true, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
     logoShortUrl: "", // 빈 문자열 = 텍스트 로고(logoText) 사용
     logoShortDarkUrl: "", // 다크 모드 숏 로고 (빈 문자열 = logoShortUrl 사용)
     logoFullUrl: "", // 빈 문자열 = 텍스트 로고(displayName) 사용
     logoFullDarkUrl: "", // 다크 모드 풀 로고 (빈 문자열 = logoFullUrl 사용)
+    // 업로드 로고 리컬러 — 업로드 이미지를 마스크로 이 색을 입혀 표시(모노 로고용). 빈 값 = 원본 그대로
+    logoShortColor: "", // 숏 로고(라이트) 리컬러 색
+    logoShortColorDark: "", // 숏 로고(다크) 리컬러 색
+    logoFullColor: "", // 풀 로고(라이트) 리컬러 색
+    logoFullColorDark: "", // 풀 로고(다크) 리컬러 색
     // 로고 색상 프리셋 — 관리자가 추가/삭제 가능. 빈 light/dark = "기본 텍스트 색상" 의미
     logoColorPresets: [
       { name: "Default", light: "", dark: "" },
-      { name: "Accent", light: "#d40063", dark: "#ff4d8d" },
+      { name: "Accent", light: "#7a0038", dark: "#ffb0d0" },
       { name: "Navy", light: "#1c3d5a", dark: "#a8c8e8" },
       { name: "Forest", light: "#2a4035", dark: "#b0be97" },
       { name: "Warm", light: "#5c3a1a", dark: "#f5cac3" },

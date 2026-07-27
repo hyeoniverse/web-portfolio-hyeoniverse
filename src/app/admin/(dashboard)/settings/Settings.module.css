@@ -371,6 +371,17 @@
   color: var(--text-primary);
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   패널 z-index 사다리 — 전부 글로벌 nav(--z-nav) "아래". 하드코딩 정수 대신
+   --z-nav 기준 오프셋으로 상대 순서를 명시한다(탭바가 이미 쓰던 방식으로 통일).
+
+     content(auto) < 섹션 제목 sticky(-3) < 드래그 항목(-2) < 탭바·자(ruler)(-1) < nav
+
+   - 섹션 제목은 프리셋 카드 등 positioned 콘텐츠(auto)보다 위여야 안 가려진다.
+   - 드래그 중 항목은 제목보다 위(들려 보임), 단 탭바/nav 아래.
+   - SectionJumpNav(자, fixed)·tabBarSticky 는 각 모듈에서 같은 오프셋을 참조.
+   ────────────────────────────────────────────────────────────────────────── */
+
 /* ── Layout: Side Nav + Panel ── */
 .layout {
   display: flex;
@@ -504,10 +515,21 @@
 /* Content 탭 — WYSIWYG 스튜디오라 콘텐츠 폭 전체 사용(우측 여백을 nav 와 동일한 page-px 로 정렬) */
 
 /* ── Section ── */
+/* 섹션을 grid(1fr auto)로 — 헤더의 제목/액션이 각각 섹션 직속 sticky 요소라야
+   섹션 높이만큼 함께 붙는다(둘 다 sticky, 제목만 difference). 나머지 자식은 전폭 span. */
 .section {
   padding-bottom: var(--spacing-2xl);
   margin-bottom: var(--spacing-2xl);
   border-bottom: var(--border-light);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--spacing-md);
+  row-gap: var(--spacing-md);
+  align-items: center;
+}
+/* 기본: 모든 섹션 직속 자식 전폭. :where 로 0 specificity → SectionHeader 의 .title/.spacer 배치가 이긴다. */
+:where(.section) > * {
+  grid-column: 1 / -1;
 }
 
 /* ── 작성자(Authors) 에디터 ── */
@@ -592,6 +614,13 @@
   grid-column: 1 / -1;
 }
 
+/* 노트북/PC(2열) 마지막 행 좌측 섹션 — 하단 border 제거(우측 섹션은 last-child 라 이미 없음) */
+@media (min-width: 1025px) {
+  .sectionFlushDesktop {
+    border-bottom: none;
+  }
+}
+
 .section:last-child {
   border-bottom: none;
   margin-bottom: 0;
@@ -612,7 +641,7 @@
   font-size: var(--font-size-md);
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-md);
+  margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -628,12 +657,48 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--spacing-2xs) var(--spacing-md);
-  margin-bottom: var(--spacing-md);
+  margin: 0;
 }
 
 .sectionTitleRow .sectionTitle,
 .sectionTitleRow .sectionSubTitle {
   margin-bottom: 0;
+}
+
+/* Design System 섹션 제목 우측(customActions): [hint] | [열기 링크] 한 줄, 우측 정렬. */
+.dsActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+
+/* DS 액션은 이제 blend 밖(정상 색) — 테마 적응 토큰 그대로 쓴다. */
+.dsHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+/* 세로 구분선 — hint 와 링크 사이 */
+.dsDivider {
+  width: 1px;
+  height: 0.9em;
+  flex-shrink: 0;
+  background: var(--border-strong-color);
+}
+
+/* external link — rest 는 읽히는 기본색, hover 는 accent. (0,2,0)/(0,3,0) 로 TextLink 규칙을 이긴다. */
+.section .dsLink {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+.section .dsLink:hover {
+  color: var(--text-accent);
+}
+.section .dsLink:hover::after {
+  background: var(--text-accent);
 }
 
 /* ── Fields List — 1열 고정 ── */
@@ -681,6 +746,49 @@
   .fieldPair {
     grid-template-columns: 1fr;
   }
+}
+
+/* 로고 Light/Dark 모드 그룹 — .fields(align-items:flex-start) 안에서 shrink 되지 않게.
+   없으면 그룹 div 가 content 폭(~200px)으로 줄어 안쪽 fieldPair·Upload 가 쪼그라든다. */
+.logoModeGroup {
+  width: 100%;
+}
+
+/* 로고 dropzone(Short/Full) — 공용 fieldPair(768↓ 1열)와 달리 항상 2열 유지(모바일 포함).
+   compound (0,2,0) 로 공용 미디어쿼리를 이긴다. */
+.logoModeGroup .fieldPair {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Light/Dark 라벨 높이 통일 — Dark 에만 hint("미설정 시 라이트 버전")가 있어 라벨이 더 높으면
+   두 드롭존의 top 이 어긋난다. hint 1줄 높이를 항상 예약해 드롭존이 같은 선에서 시작하게. */
+.logoModeGroup .fieldLabel {
+  min-height: 2.6em;
+}
+
+/* 브랜드 로고 파트 (Favicon/풀) — head + 컨트롤을 한 덩어리로 묶어, 파트 안은 좁게(xs)
+   파트 사이는 .fields gap(sm) 으로 벌린다. head 라벨과 그 컨트롤이 시각적으로 붙도록. */
+.logoPart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  width: 100%;
+}
+.logoPartHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs) var(--spacing-md);
+}
+.logoPartHead .fieldGroupTitle {
+  margin-bottom: 0;
+}
+
+/* 시스템 로고 그룹 내 풀로고 파트 — 위 Favicon 파트(그림자 카드)와 붙지 않게 구분선+여백 */
+.logoTextPart {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-light);
 }
 
 /* ── Devices list — 보안 section, admin_known_devices 표시 ── */
@@ -989,6 +1097,14 @@
   gap: var(--spacing-xs);
 }
 
+/* 통합된 Theme Colors — 프리셋(빠른 선택) 그리드와 개별 색상 입력 사이 구분선.
+   .fields 가 .presetGrid 바로 뒤에 올 때만(= 통합 섹션) 적용된다. */
+.presetGrid + .fields {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  border-top: var(--border-light);
+}
+
 .presetCard {
   display: flex;
   align-items: center;
@@ -1203,21 +1319,28 @@
   flex: 0 0 200px;
 }
 
-/* Favicon — 좌측 미리보기 (light/dark 가로) + 우측 모양/폰트 RadioGroup 2개 */
+/* Favicon — 미리보기(light/dark)를 상단 스트립으로, 아래 컨트롤을 풀폭 2열로.
+   기존엔 미리보기 좌 + 컨트롤 우(~500px)라 minmax(280) 이 1열로 붕괴 → 좌측 큰 빈 공간.
+   세로로 쌓아 컨트롤이 풀폭을 받게 해 2열로 채운다. */
 .faviconLayout {
   display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-xl);
+  flex-direction: column;
+  gap: var(--spacing-md);
+  /* 부모 .fields 가 align-items:flex-start 라 명시 안 하면 content 폭으로 줄어
+     안쪽 auto-fit grid 가 1열로 붕괴한다. 풀폭 확정 → 컨트롤 2열. */
+  width: 100%;
 }
 
-/* 좌측 미리보기 슬롯 — light/dark variant 가로 nowrap flex */
+/* 상단 미리보기 스트립 — light/dark 가로, 아래 컨트롤과 구분선으로 분리 */
 .faviconPreviewSlot {
-  flex-shrink: 0;
+  align-self: stretch;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-xl);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: var(--border-light);
 }
 
 .faviconPreviewCell {
@@ -1242,13 +1365,370 @@
   letter-spacing: 0.05em;
 }
 
-/* n열 auto-fit grid — 폭에 따라 1~n 컬럼 자동 reflow. 각 row 의 min 280px */
+/* 풀폭 auto-fit grid — 상단 스트립 아래. 각 열 min 260px → 보통 2열로 채움 */
 .faviconControls {
-  flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   align-items: start;
-  gap: var(--spacing-sm) var(--spacing-xl);
+  gap: var(--spacing-sm) var(--spacing-lg);
+}
+
+/* ── Favicon 정렬 폼 — 모든 컨트롤을 '라벨 │ 컨트롤' 행으로 통일.
+   각 FieldRow 를 display:contents 로 풀어 라벨/컨트롤을 이 그리드의 셀로 편입 →
+   라벨은 max-content 공통열에 정렬되고 컨트롤은 우측 1fr(최대 30rem)을 채워 좌우 라인이 맞는다. */
+.faviconForm {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 30rem);
+  align-items: center;
+  gap: var(--spacing-sm) var(--spacing-lg);
+  width: 100%;
+}
+.faviconForm .faviconFormRow {
+  display: contents;
+}
+/* 라벨 셀 — 위로 쌓던 기본(FieldRow) margin 제거, 컨트롤과 수직 가운데 */
+.faviconForm > label {
+  align-self: center;
+  margin: 0;
+}
+
+/* 라이트/다크 색을 한 행에 — 각 색 위에 작은 캡션 */
+.faviconColorDuo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xs) var(--spacing-md);
+  width: 100%;
+}
+.faviconColorItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  min-width: 0;
+}
+
+/* 라이트/다크 색 편의 버튼 (맞추기·서로 바꾸기·지우기) — duo 두 칼럼 아래 우측 툴바 */
+.faviconColorTools {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3xs);
+}
+
+.faviconColorTool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-capsule);
+  color: var(--text-tertiary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.faviconColorTool:hover {
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+}
+.faviconColorCaption {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* 숏 텍스트처럼 짧은 입력은 폭 제한 (풀폭이면 4자 필드가 휑함) */
+.faviconTextInputWrap {
+  width: 100%;
+  max-width: 14rem;
+}
+.brandTextInputWrap {
+  width: 100%;
+  max-width: 22rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Brand 로고 설정 — 일관 레이아웃 (그룹 → 파트 → 컨트롤).
+   간격·정렬·높이를 한 규칙으로 통일해 섹션 전체가 정돈돼 보이도록.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* 그룹 (업로드 / 시스템) — 그룹 사이 구분선으로 분리 */
+.brandGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+.brandGroup + .brandGroup {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  border-top: var(--border-light);
+}
+.brandGroupHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+}
+.brandGroupTitle {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0;
+}
+.brandGroupHint {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+/* 파트 (Favicon / 풀로고) — 탭 안 top-level 서브섹션 */
+.brandPart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+/* 그룹 탭 — 언더라인 스타일 (세그먼트 pill 과 다른 결로 계층 구분) */
+.brandTabs {
+  display: flex;
+  gap: var(--spacing-lg);
+  border-bottom: var(--border-light);
+}
+.brandTab {
+  padding: var(--spacing-xs) 0;
+  margin-bottom: -1px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.brandTab:hover {
+  color: var(--text-secondary);
+}
+.brandTabActive {
+  color: var(--text-primary);
+  font-weight: 700;
+  border-bottom-color: var(--text-primary);
+}
+/* 그룹 탭 아래 활성 그룹 설명 */
+.brandTabHint {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+/* 파트 사이 구분선 — 그룹 안에서 Favicon/풀로고 구획 (그룹 구분선보다 약하게) */
+.brandPart + .brandPart {
+  padding-top: var(--spacing-md);
+  border-top: var(--border-light);
+}
+/* 파트 헤더 — 라벨(좌) + 액션/토글(우). min-height 로 액션 유무와 무관하게 높이 일정 */
+.brandPartHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs) var(--spacing-md);
+  min-height: var(--control-h-md);
+}
+.brandPartTitle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.brandPartTitleHint {
+  font-size: var(--font-size-xs);
+  font-weight: 400;
+  color: var(--text-tertiary);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.brandPartHeadEnd {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-md);
+}
+
+/* 로고 효과(글리치·Difference) — 탭 밖 섹션 레벨(브랜드 상단). nav 로고 전체(숏 배지·풀 텍스트)에 적용됨을 나타냄 */
+.logoEffectsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: var(--border-light);
+}
+
+.logoEffectsLabel {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+
+.logoEffectsToggles {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-lg);
+}
+
+/* 풀로고(텍스트) 미리보기 — 라이트/다크 배경 박스에 폰트·색·장평 적용한 로고 텍스트 + 아래 캡션 */
+.fullLogoPreview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+.fullLogoPreviewCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  min-width: 0;
+}
+.fullLogoPreviewBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  padding: var(--box-md);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+}
+.fullLogoPreviewText {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-2xl);
+  line-height: 1;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  transform-origin: center;
+}
+.fullLogoPreviewCap {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.fullLogoPreviewMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* 드롭존 2열 — 라이트/다크. 각 UploadField 는 라벨 1줄 + 고정높이 박스라 나란히 정렬 */
+.brandDrops {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+@media (max-width: 640px) {
+  .brandDrops {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 업로드 favicon 전용 옵션 — 박스(테두리/배경) 안 쓰고, accent eyebrow 헤더(라벨 + 라인)
+   와 여백만으로 새 구분. 카드가 아니라 '섹션 표제' 결. */
+.faviconImageOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xl);
+}
+.faviconImageOptionsTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.faviconImageOptionsTitle::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-light-color);
+}
+.faviconImageOptionsHint {
+  margin: 0 0 var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+/* 배경색 — 라이트/다크 컴팩트 인라인 (좁은 hex 입력) */
+.faviconImageBgRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-lg);
+}
+.faviconImageBgLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 3rem;
+}
+.faviconImageBgFields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-lg);
+}
+.faviconImageBgField {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+.faviconImageBgCap {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.faviconImageBgField .colorField {
+  flex: 0 0 auto;
+}
+/* 투명/없음 표시 격자무늬 — RichTextEditor .checkerBg 와 동일 패턴 (모듈 스코프라 복제). 색 없을 때 스와치에 적용 */
+.checkerBg {
+  background-color: var(--bg-primary);
+  background-image:
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
+  background-size: 6px 6px;
+  background-position: 0 0, 3px 3px;
+}
+.faviconImageBgField .colorInput {
+  width: 8rem;
+  flex: 0 0 auto;
 }
 
 /* faviconBg light/dark — 항상 한 줄 (외부 grid 와 무관). grid 셀 하나가 sub-grid 2열 */
@@ -1266,52 +1746,222 @@
   }
 }
 
-/* ── Favicon 그림자 컨트롤 — 텍스트 / 배경 카드 2열 (폭 좁으면 1열) ── */
-.faviconShadowGroup {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--spacing-md);
-  /* .fields(align-items:flex-start) 안에서 shrink 되지 않게 — 없으면 폭이 좁아져
-     Text/BG shadow 카드가 1열로 세로로 쌓인다. */
-  width: 100%;
-}
-
+/* ── Favicon 그림자 컨트롤 — 세그먼트 탭 전환, 플랫(카드/그리드 아님). 세그먼트 pill 이 앵커.
+   .fields(align-items:flex-start) 안에서 shrink 되지 않게 .faviconShadowCard 가 width:100%. ── */
 .faviconShadowCard {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--box-md);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: var(--bg-secondary);
 }
 
 .faviconShadowHead {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-}
-
-.faviconShadowTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--text-primary);
+  /* space-between 은 세그먼트와 토글을 양 끝으로 벌려 거리가 과함 → 토글을 세그먼트 바로 옆에 */
+  justify-content: flex-start;
+  gap: var(--spacing-lg);
 }
 
 .faviconShadowBody {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding-top: var(--spacing-xs);
-  border-top: var(--border-light);
+  flex-direction: row;
+  /* flex-start — 세부 조정 펼쳐 우측이 길어져도 좌측 미리보기가 늘어나지 않아 위치 고정 */
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  /* 구분선 없이 head 와 gap 으로만 분리 (카드 gap: sm) */
+  padding-top: var(--spacing-2xs);
 }
 
-/* 방향 8방향 세그먼트 — 좁은 카드 안에서 넘치면 가로 스크롤 */
-.faviconDirControl {
-  max-width: 100%;
-  overflow-x: auto;
+/* 우측 컨트롤 — 2열로 채워 넓은 카드에서 빈 공간 최소화. 프리셋은 상단 풀폭. */
+.shadowControls {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: var(--spacing-sm) var(--spacing-lg);
+}
+.shadowControls > .shadowPresetRadio {
+  grid-column: 1 / -1;
+}
+
+/* 좁으면 미리보기/컨트롤 세로 스택 + 컨트롤 1열 */
+@media (max-width: 640px) {
+  .faviconShadowBody {
+    flex-direction: column;
+  }
+  .shadowControls {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 카드 안 각 컨트롤 행 — 라벨 좌측 고정폭 + 컨트롤 우측 (FieldRow 세로 배치 override).
+   FieldRow 는 자체 module 의 .fieldRow(flex column)라 className 으로 전달된 .faviconShadowRow
+   를 compound (0,2,0)로 눌러 grid 로 바꾼다. 4개 행 라벨 열 폭 고정 → 컨트롤 시작점 정렬. */
+.faviconShadowBody .faviconShadowRow {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  align-items: center;
+  gap: var(--spacing-sm) var(--spacing-md);
+  width: 100%;
+}
+
+/* blur stepper — grid 셀에서 stretch 되지 않게 fit-content 유지 */
+.shadowBlurInput {
+  justify-self: start;
+}
+
+/* ── 실시간 그림자 미리보기 ──
+   그림자 색은 보통 검정 rgba 라, 캔버스가 테마 따라 어두워지면 그림자가 안 보인다.
+   favicon 은 light/dark 배경이 고정이므로 미리보기도 favicon light 톤으로 고정한다.
+   (테마 반전되는 --color-* 토큰을 못 쓰는 자리 — 그림자 에디터의 라이트 캔버스 예외) */
+.shadowPreview {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(150px, 26%, 172px);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-2xl);
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+
+/* 그림자 방향 핸들 — 커서를 따라오는 점. glow 로 만질 수 있는 점임을 표시 */
+.shadowLight {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  border: 3px solid var(--bg-secondary);
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--text-accent) 20%, transparent);
+  transform: translate(-50%, -50%);
+  cursor: grab;
+}
+
+.shadowLight:active {
+  cursor: grabbing;
+}
+
+/* 드래그 안내 문구 */
+.shadowDragHint {
+  margin-top: auto;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+/* 흰 원 — 그림자(box-shadow)가 적용되는 미리보기 대상. flat + 그림자로 떠 보이게 */
+.shadowPreviewCircle {
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--radius-circle);
+}
+
+/* ── 그림자 프리셋 — 밑줄형 텍스트 토글(미니멀). 선택 시 accent 밑줄 ── */
+.shadowPresetRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.shadowPresetChip {
+  padding: var(--spacing-3xs) 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color var(--duration-base) ease, border-color var(--duration-base) ease;
+}
+
+.shadowPresetChip:hover {
+  color: var(--text-primary);
+}
+
+.shadowPresetChipActive {
+  color: var(--text-accent);
+  border-bottom-color: var(--text-accent);
+}
+
+/* 세부 조정 토글 */
+.shadowCustomToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  align-self: flex-start;
+  padding: var(--spacing-2xs) 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.shadowCustomToggle:hover {
+  color: var(--text-primary);
+}
+
+.shadowChev {
+  transition: transform var(--duration-base) ease;
+}
+
+.shadowChevUp {
+  transform: rotate(180deg);
+  transition: transform var(--duration-base) ease;
+}
+
+.shadowCustomBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-light);
+  /* height 0↔auto 애니메이션(framer-motion) 중 내용이 삐져나오지 않게 */
+  overflow: hidden;
+}
+
+/* 그림자 컨트롤 inline row — FieldRow 오른쪽에 컨트롤+보조요소(커스텀 blur/각도값/inset)를 가로 배치 */
+.faviconShadowInlineRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.faviconShadowCustomInput {
+  width: 4.5rem;
+}
+
+.faviconShadowSlider {
+  flex: 1;
+  min-width: 120px;
+  max-width: 180px;
+}
+
+.faviconShadowDirValue {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  min-width: 3.5rem;
+}
+
+/* 방향 화살표 — 각도 변경 시 부드럽게 회전 */
+.dirArrow {
+  transition: transform var(--duration-base) var(--ease-out-expo);
 }
 
 /* 폰트 크기 — Select + (커스텀 모드) stepper 가로 배치 */
@@ -1320,6 +1970,29 @@
   align-items: center;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
+}
+
+/* ── Favicon 배경 반경/크기 슬라이더 (슬라이더 + 값 라벨) ── */
+.faviconSliderControl {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.faviconSlider {
+  flex: 1;
+  min-width: 0;
+}
+
+.faviconSliderValue {
+  flex-shrink: 0;
+  min-width: 3ch;
+  text-align: right;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Favicon 대비율 / WCAG 배지 (미리보기 셀 하단) ── */
@@ -1378,12 +2051,11 @@
   flex-wrap: wrap;
 }
 
+/* 업로드된 로고 미리보기 — 박스 스타일(배경·border·radius) 없이 로고만. 배경 투명 그대로 노출. */
 .logoPreview {
-  width: 80px;
-  height: var(--button-h-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+  height: 52px;
+  min-width: 88px;
+  max-width: 190px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1392,14 +2064,104 @@
 
 .logoPreviewImage {
   width: auto;
+  max-width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* 로고 리컬러 — 업로드 이미지를 마스크로 써서 고른 색으로 채워 표시 (모노 로고용) */
+.logoPreviewTint {
+  display: block;
+  width: 100%;
+  height: 100%;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
 }
 
 .logoActions {
   display: flex;
   gap: var(--spacing-2xs);
   flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* 업로드된 로고 리컬러 — 카드에서 로고 자체 색을 골라 확인 (로컬, 저장 안 함) */
+.logoPreviewGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+.logoTintControl {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-shrink: 0;
+}
+.logoPreviewColor {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.logoPreviewColorBtn {
+  width: 22px;
+  height: 22px;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  cursor: pointer;
+}
+.logoTintReset {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.logoTintReset:hover {
+  color: var(--text-primary);
+}
+
+/* ── 로고 dropzone — 넓은 박스 클릭/드래그 업로드 (실선 border, 배경 없음).
+   height 고정: 빈/채워진(미리보기+버튼) 상태가 같은 높이여야 나란한 드롭존이 어긋나지 않는다. ── */
+.logoDropzone {
+  width: 100%;
+  min-width: 0;
+  /* height 고정 — 빈/채워진(미리보기+버튼) 상태 동일 높이로 나란한 드롭존이 어긋나지 않게.
+     flex:1 을 쓰면 flex-basis:0 이 주축(세로) 크기를 지배해 height 가 무시되므로 쓰지 않는다. */
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--box-sm);
+  /* border·radius·그림자 없이 완전 플랫 */
+  cursor: pointer;
+}
+
+/* 파일 있을 때 — 미리보기 좌 + 액션 우, 카드 클릭 비활성(버튼만) */
+.logoDropzoneFilled {
+  justify-content: space-between;
+  cursor: default;
+}
+
+.logoDropzoneEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  color: var(--text-tertiary);
+}
+
+.logoDropzoneHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
 }
 
 /* 고정 너비 280px — 텍스트 줄바꿈 안 되고 길면 ellipsis */
@@ -1788,7 +2550,8 @@
 
 .serviceItemDragging {
   background: var(--bg-secondary);
-  z-index: 10;
+  /* 드래그 중 항목 — 섹션 제목 위로 들려 보이되 탭바/nav 아래 (패널 z 사다리 참조) */
+  z-index: calc(var(--z-nav) - 2);
 }
 
 .serviceItemDrag {
@@ -2970,7 +3733,8 @@
 
 .socialItemDragging {
   background: var(--bg-secondary);
-  z-index: 10;
+  /* 드래그 중 항목 — 섹션 제목 위로 들려 보이되 탭바/nav 아래 (패널 z 사다리 참조) */
+  z-index: calc(var(--z-nav) - 2);
 }
 
 .socialDragHandle {
@@ -3154,7 +3918,8 @@
 
 .sortableItemDragging {
   background: var(--bg-secondary);
-  z-index: 10;
+  /* 드래그 중 항목 — 섹션 제목 위로 들려 보이되 탭바/nav 아래 (패널 z 사다리 참조) */
+  z-index: calc(var(--z-nav) - 2);
 }
 
 .skillDragHandle {
@@ -3348,11 +4113,12 @@
     top: calc(-1 * var(--header-height));
     left: calc(-1 * var(--page-px));
     right: calc(-1 * var(--page-px));
-    bottom: 0;
+    /* 탭바 밑줄(하단 indicator)까지 blur 를 균일하게 — 페이드는 탭바 아래 여백에서만.
+       예전엔 bottom:0 + 90% 라 밑줄이 페이드 구간에 걸려 그 부분만 blur 가 약했다. */
+    bottom: calc(-1 * var(--spacing-md));
     z-index: -1;
     backdrop-filter: var(--blur-glass);
-    /* nav + 탭바 영역(≈0~탭바하단) 을 꽉 덮고, 탭바 밑 얇게만 페이드 */
-    mask-image: linear-gradient(to bottom, #000 90%, transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--spacing-md)), transparent);
     pointer-events: none;
     opacity: 0;
     transition: opacity var(--duration-base) ease;
@@ -3473,6 +4239,13 @@
 .fontPickerSelect {
   flex: 1;
   min-width: 0;
+}
+
+/* Typography 등 .fields 안 FontSelect — Select 기본 width:max-content 를 눌러 열 폭을
+   채운다(0,2,0). 3개(Heading/Body/Code) Select 너비 통일. favicon logoFont 는 .fields
+   밖이라 영향 없음. */
+.fields .fontPickerSelect {
+  width: 100%;
 }
 
 /* compound (0,2,0) — Select 의 .dropdown/.dropdownCompact (0,1,0) padding 을 이김.
@@ -3862,7 +4635,7 @@
 /* env row — 가로 grid: 라벨 좌측 fixed, input + actions 우측 flex (전체 폭 활용) */
 .envFieldRow {
   display: grid;
-  grid-template-columns: minmax(180px, 220px) 1fr;
+  grid-template-columns: minmax(200px, 260px) 1fr;
   align-items: center;
   gap: var(--spacing-md);
   /* .fieldRow base (flex column) override */
@@ -4052,7 +4825,6 @@
   transition: background var(--duration-base) ease;
 }
 
-/* 첫 버킷 제외 top border 로 구분 */
 /* INACTIVE 풀 버킷은 전체 폭(전 크기 공통이라 나란히 두지 않음) */
 .sizeBucketStack > .sizePoolBucket {
   grid-column: 1 / -1;

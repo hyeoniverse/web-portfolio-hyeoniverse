@@ -13,6 +13,8 @@ interface FieldRowProps {
   help?: ReactNode;
   /** control 을 라벨에 겹쳐 배치하는 변형 */
   inline?: boolean;
+  /** 행 컨테이너에 추가할 클래스 (레이아웃 override 등) */
+  className?: string;
   /** 폼 control (Select · Switch · SegmentedControl · 커스텀 등 무엇이든) */
   children: ReactNode;
 }
@@ -24,9 +26,9 @@ interface FieldRowProps {
  * Select·Switch 같은 다른 control 을 담을 땐 매번 `<div className={styles.fieldRow}>` 를
  * 손으로 짰다. 그 raw 패턴을 공통화한다.
  */
-export default function FieldRow({ label, hint, help, inline, children }: FieldRowProps) {
+export default function FieldRow({ label, hint, help, inline, className, children }: FieldRowProps) {
   return (
-    <div className={cn(styles.fieldRow, inline && styles.fieldRowInline)}>
+    <div className={cn(styles.fieldRow, inline && styles.fieldRowInline, className)}>
       <label className={styles.fieldLabel}>
         <span className={styles.fieldLabelText}>
           {label}
