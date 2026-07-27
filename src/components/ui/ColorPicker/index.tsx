@@ -24,7 +24,9 @@ import {
   hslToHex,
   hsvToHex,
   maxSafeChroma,
-  normalizeHex,
+  normalizeHexAlpha,
+  parseAlpha,
+  withAlpha,
   oklchToHex,
   oklchToRgbRaw,
   OKLCH_C_MAX,
@@ -62,8 +64,12 @@ const FORMAT_INFO: Record<InputFormat, string> = {
 
 /** onChange 가 emit 하는 통합 결과 — consumer 가 .hex / .oklch 등 원하는 format 골라 사용 */
 export interface ColorResult {
-  /** `#rrggbb` (sRGB clip) */
+  /** `#rrggbb` (sRGB clip, alpha 무시) — 기존 소비자 호환용 */
   hex: string;
+  /** alpha<1 이면 `#rrggbbaa`, 불투명이면 `#rrggbb` — 투명도 저장하려면 이 값을 사용 */
+  hexa: string;
+  /** 투명도 0(투명)~1(불투명) */
+  alpha: number;
   /** `oklch(L% C H)` CSS 문자열 (wide-gamut 보존) */
   oklch: string;
   /** 0-255 */
@@ -121,6 +127,10 @@ export default function ColorPicker({
   // source of truth — OKLCH
   const [oklch, setOklch] = useState<OKLCH>(() => parseAnyToOklch(value));
   const [format, setFormat] = useState<InputFormat>(defaultFormat);
+  /* 투명도 0~1 — 색(OKLCH)과 독립. alphaRef 로 즉시값 보관(emit/drag 클로저에서 최신값 참조). */
+  const [alpha, setAlpha] = useState<number>(() => parseAlpha(value) ?? 1);
+  const alphaRef = useRef(alpha);
+  useEffect(() => { alphaRef.current = alpha; }, [alpha]);
 
   // 외부 value sync — 동일 색이면 내부 state 유지 (c=0 이어도 hue 보존)
   useEffect(() => {
@@ -133,9 +143,13 @@ export default function ColorPicker({
       ) return prev;
       return incoming;
     });
+    // alpha 토큰이 명시된 value 만 반영 — 불투명(#rrggbb 등) 소비자가 alpha 를 1로 리셋하지 않도록 null 무시
+    const a = parseAlpha(value);
+    if (a != null) setAlpha(a);
   }, [value]);
 
   const hex = oklchToHex(oklch);
+  const hexDisplay = withAlpha(hex, alpha); // 텍스트 입력·복사용 (alpha<1 이면 8자리)
   const rgb = hexToRgb(hex);
   const hsl = hexToHsl(hex);
   const hsv = hexToHsv(hex);
@@ -240,10 +254,12 @@ export default function ColorPicker({
     };
   }, [open, useSheet, lenisStop, lenisStart]);
 
-  const toResult = useCallback((next: OKLCH): ColorResult => {
+  const toResult = useCallback((next: OKLCH, a: number = alphaRef.current): ColorResult => {
     const h = oklchToHex(next);
     return {
       hex: h,
+      hexa: withAlpha(h, a),
+      alpha: a,
       oklch: formatOklch(next),
       rgb: hexToRgb(h),
       hsl: hexToHsl(h),
@@ -461,6 +477,30 @@ export default function ColorPicker({
     attachDrag(apply);
   };
 
+  // ── Alpha(투명도) slider drag — 색(oklch)은 그대로, alpha 만 조정 후 emit ──
+  const alphaBarRef = useRef<HTMLDivElement>(null);
+  const emitAlpha = useCallback((a: number) => {
+    const clamped = clamp(Math.round(a * 100) / 100, 0, 1);
+    alphaRef.current = clamped;
+    setAlpha(clamped);
+    const res = toResult(oklch, clamped);
+    latestRef.current = res;
+    onChange(res);
+    return res;
+  }, [oklch, onChange, toResult]);
+  const onAlphaDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    const bar = alphaBarRef.current;
+    if (!bar) return;
+    const rect = bar.getBoundingClientRect();
+    const apply = (ev: PointerEvent) => {
+      emitAlpha(clamp((ev.clientX - rect.left) / rect.width, 0, 1));
+    };
+    apply(e.nativeEvent);
+    attachDrag(apply);
+  };
+
   // ── OKLCH L / C 독립 슬라이더 (Hue 외에도 L, C 만 단독 조정 가능) ──
   const lSliderRef = useRef<HTMLDivElement>(null);
   const onLSliderDown = (e: React.PointerEvent) => {
@@ -499,8 +539,8 @@ export default function ColorPicker({
 
   // ── Format 별 input handler 들 ──
   // HEX
-  const [hexDraft, setHexDraft] = useState(hex);
-  useEffect(() => { setHexDraft(hex); }, [hex]);
+  const [hexDraft, setHexDraft] = useState(hexDisplay);
+  useEffect(() => { setHexDraft(hexDisplay); }, [hexDisplay]);
   // 잘못된 입력 시 popover 흔들기 — HEX commit 실패 / 붙여넣기 실패 공통
   const [shaking, setShaking] = useState(false);
   const triggerShake = useCallback(() => {
@@ -510,13 +550,15 @@ export default function ColorPicker({
   }, []);
 
   const commitHex = (raw: string) => {
-    const n = normalizeHex(raw);
-    if (n) {
-      const next = hexToOklch(n);
+    const parsed = normalizeHexAlpha(raw); // #rgb·#rgba·#rrggbb·#rrggbbaa 모두 허용
+    if (parsed) {
+      const next = hexToOklch(parsed.hex);
+      alphaRef.current = parsed.alpha; // emit 이 최신 alpha 쓰도록 동기 반영
+      setAlpha(parsed.alpha);
       update(next);
-      onChangeComplete?.(toResult(next));
+      onChangeComplete?.(toResult(next, parsed.alpha));
     } else {
-      setHexDraft(hex);
+      setHexDraft(hexDisplay);
       triggerShake();
       showToast("HEX 형식이 올바르지 않습니다. 예: #ff0000", "warning");
     }
@@ -527,14 +569,18 @@ export default function ColorPicker({
   const [pasteFlash, setPasteFlash] = useState<"ok" | "fail" | null>(null);
 
   const formatForCopy = useCallback((): string => {
+    const a = Math.round(alpha * 100) / 100;
+    const r = Math.round(rgb.r), g = Math.round(rgb.g), b = Math.round(rgb.b);
     switch (format) {
-      case "hex": return hex;
-      case "rgb": return `rgb(${Math.round(rgb.r)}, ${Math.round(rgb.g)}, ${Math.round(rgb.b)})`;
-      case "hsl": return `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`;
+      case "hex": return hexDisplay;
+      case "rgb": return a < 1 ? `rgba(${r}, ${g}, ${b}, ${a})` : `rgb(${r}, ${g}, ${b})`;
+      case "hsl": return a < 1
+        ? `hsla(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%, ${a})`
+        : `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`;
       case "hsv": return `hsv(${Math.round(hsv.h)}, ${Math.round(hsv.s)}%, ${Math.round(hsv.v)}%)`;
-      case "oklch": return formatOklch(oklch);
+      case "oklch": return a < 1 ? formatOklch(oklch).replace(/\)$/, ` / ${a})`) : formatOklch(oklch);
     }
-  }, [format, hex, rgb, hsl, hsv, oklch]);
+  }, [format, hexDisplay, rgb, hsl, hsv, oklch, alpha]);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -551,8 +597,10 @@ export default function ColorPicker({
       const text = (await navigator.clipboard.readText()).trim();
       const next = parseAnyColorToOklch(text);
       if (next) {
+        const a = parseAlpha(text);
+        if (a != null) { alphaRef.current = a; setAlpha(a); }
         update(next);
-        onChangeComplete?.(toResult(next));
+        onChangeComplete?.(toResult(next, a ?? alphaRef.current));
         setPasteFlash("ok");
       } else {
         setPasteFlash("fail");
@@ -668,8 +716,10 @@ export default function ColorPicker({
   ) : (
     <button
       type="button"
-      className={triggerClassName}
-      style={{ ...triggerStyle, background: hex }}
+      className={`${triggerClassName ?? ""}${alpha < 1 ? ` ${styles.triggerAlpha}` : ""}`}
+      style={alpha < 1
+        ? ({ ...triggerStyle, "--_preview-color": hexDisplay } as CSSProperties)
+        : { ...triggerStyle, background: hex }}
       onClick={() => setOpen((v) => !v)}
       aria-label="Pick color"
     />
@@ -751,7 +801,7 @@ export default function ColorPicker({
 
           {/* preview swatch + format select + info tooltip */}
           <div className={styles.inputs}>
-            <span className={styles.preview} style={{ "--_preview-color": hex } as CSSProperties} aria-hidden />
+            <span className={styles.preview} style={{ "--_preview-color": hexDisplay } as CSSProperties} aria-hidden />
             <Select
               value={format}
               options={FORMAT_OPTIONS}
@@ -793,6 +843,37 @@ export default function ColorPicker({
                 {pasteFlash === "ok" ? <Check size={14} strokeWidth={2} /> : <ClipboardPaste size={14} strokeWidth={2} />}
               </button>
             </Tooltip>
+          </div>
+
+          {/* Alpha(투명도) — 색과 독립. 체커보드 위 투명→불투명 그라디언트 + 우측 % 입력 */}
+          <div className={styles.alphaRow}>
+            <div
+              ref={alphaBarRef}
+              className={styles.alphaSlider}
+              onPointerDown={onAlphaDown}
+              style={{ "--_alpha-color": hex } as CSSProperties}
+              role="slider"
+              aria-label="투명도"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(alpha * 100)}
+            >
+              <span
+                className={styles.hueThumb}
+                style={{ left: `${alpha * 100}%`, "--_hue-color": hexDisplay } as CSSProperties}
+              />
+            </div>
+            <Input
+              size="xs"
+              type="number"
+              min={0}
+              max={100}
+              value={String(Math.round(alpha * 100))}
+              onChange={(v) => emitAlpha(clamp(parseInt(v, 10) || 0, 0, 100) / 100)}
+              clearable={false}
+              className={`${styles.pickerInput} ${styles.pickerInputCenter} ${styles.alphaInput}`}
+            />
+            <span className={styles.alphaUnit}>%</span>
           </div>
 
           {/* format 별 입력 영역 — 공통 Input 컴포넌트 (size="xs") 사용 */}
@@ -1102,10 +1183,10 @@ function parseAnyColorToOklch(input: string): OKLCH | null {
   // 1. oklch(...)
   if (s.startsWith("oklch")) return parseOklchString(s);
 
-  // 2. hex (with or without #) — 정확히 3 또는 6 자리
-  if (s.startsWith("#") || /^[0-9a-f]{3}$|^[0-9a-f]{6}$/.test(s)) {
-    const n = normalizeHex(s.startsWith("#") ? s : `#${s}`);
-    if (n) return hexToOklch(n);
+  // 2. hex (with or without #) — 3/4/6/8 자리 (alpha 포함). 색만 OKLCH 로, alpha 는 parseAlpha 가 별도 추출
+  if (s.startsWith("#") || /^[0-9a-f]{3,4}$|^[0-9a-f]{6}$|^[0-9a-f]{8}$/.test(s)) {
+    const parsed = normalizeHexAlpha(s.startsWith("#") ? s : `#${s}`);
+    if (parsed) return hexToOklch(parsed.hex);
   }
 
   // 3. rgb(r, g, b) / rgba(r, g, b, a) — 0~255, alpha 무시
