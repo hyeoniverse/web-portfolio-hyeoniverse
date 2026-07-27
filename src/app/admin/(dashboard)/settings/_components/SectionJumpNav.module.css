@@ -1,102 +1,108 @@
-/* 섹션 바로가기 — 하위탭 바로 아래, 메인/하위 탭과 같은 "밑줄 탭" 언어.
-   밑줄은 항목마다가 아니라 활성 항목을 따라 미끄러지는 하나의 밑줄(ink) — scroll-spy 연결.
-   메인탭·하위탭과 같은 accent(핑크) 를 쓴다. 고정(pin) 되면 아래로 지나가는 콘텐츠가
-   frost(::before) 로 흐려져 배경 없이도 읽힌다. */
-/* 래퍼 — sticky + frost (탭바 .tabBarSticky 와 같은 방식).
-   overflow 는 안쪽 .jumpNav 라 이 ::before 는 안 잘린다. */
+/* 섹션 바로가기 — 태블릿/모바일에서 상단 가로 탭바를 대체하는 세로 자(ruler) floating.
+   데스크탑(>1024)은 좌측 설정 사이드바가 네비를 맡으므로 숨긴다.
+   본문과 별개(fixed)로 화면 우측에 떠서 스크롤과 무관하게 고정된다. */
 .jumpWrap {
-  position: sticky;
-  /* 데스크탑: 고정 사이트 nav 아래. 태블릿 이하는 위 가로 탭바까지 비켜야 해 아래 미디어쿼리에서 더 내린다. */
-  top: calc(var(--header-height) + var(--spacing-sm));
-  z-index: 4;
-}
-/* 고정(pin) 시 섹션바 영역에 frost — 위 탭바 frost 와 이어지도록 살짝 위로 확장.
-   배경색 없이 backdrop-filter 만, 아래는 콘텐츠로 페이드. */
-.jumpWrap::before {
-  content: "";
-  position: absolute;
-  top: calc(-1 * var(--spacing-sm));
-  left: calc(-1 * var(--page-px));
-  right: calc(-1 * var(--page-px));
-  bottom: 0;
-  z-index: -1;
-  backdrop-filter: var(--blur-glass);
-  mask-image: linear-gradient(to bottom, #000 60%, transparent);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--duration-base) ease;
-}
-.jumpPinned::before {
-  opacity: 1;
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  /* 플로팅 자(ruler) — 콘텐츠 위, 글로벌 nav 아래 (Settings 패널 z 사다리와 동일 오프셋) */
+  z-index: calc(var(--z-nav) - 1);
+  /* 투명 패딩 = hover trigger 영역 확대 (화면 우측 가장자리·상하 여백까지 다가오면 펼침) */
+  padding: var(--spacing-2xl) var(--spacing-md);
 }
 
 .jumpNav {
   position: relative;
   display: flex;
-  align-items: stretch;
-  gap: var(--spacing-lg);
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: var(--spacing-2xs) 0;
-  margin-bottom: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-2xs);
 }
 
-.jumpNav::-webkit-scrollbar {
-  display: none;
-}
-
-/* 미끄러지는 활성 밑줄 — accent(핑크). 스크롤 컨테이너 안 absolute 라 항목과 같이 가로 스크롤. */
-.ink {
-  position: absolute;
-  bottom: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--text-accent);
-  pointer-events: none;
-}
-/* compound (0,2,0) 로 글로벌 theme transition shorthand 를 이겨 left/width 가 애니메이션 */
-.jumpNav .ink {
-  transition:
-    left var(--duration-moderate) var(--ease-material),
-    width var(--duration-moderate) var(--ease-material);
-}
-
+/* 각 섹션 = tick(가로 선) + 라벨. active 일수록 tick 이 길고 accent — 자(ruler) 눈금 느낌 */
 .item {
-  flex-shrink: 0;
-  padding: var(--spacing-3xs) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-4xs) 0;
   border: none;
   background: transparent;
+  cursor: pointer;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 눈금 선 — 컨테이너(.dot 18px)는 고정, 선 길이만 변해 전체 폭이 active 에 안 흔들린다 */
+.dot::before {
+  content: "";
+  width: 10px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--text-tertiary);
+  transition: width var(--duration-base) ease, background var(--duration-base) ease;
+}
+
+/* 라벨 — 기본은 숨김(tick 만 보임), ruler 근처에 마우스가 오면 나타난다.
+   max-width 는 항상 확보하고 opacity 만 토글 → 폭이 안 변해 경계에서 깜빡이지 않는다. */
+.label {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: 0.01em;
+  font-size: var(--font-size-3xs);
   color: var(--text-tertiary);
   white-space: nowrap;
-  cursor: pointer;
-  transition: color var(--duration-fast) ease;
+  max-width: 12rem;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateX(6px);
+  transition:
+    opacity var(--duration-slow) ease,
+    transform var(--duration-slow) var(--ease-out-expo),
+    color var(--duration-base) ease;
 }
 
-.item:hover {
-  color: var(--text-primary);
+.jumpNav:hover .label {
+  opacity: 1;
+  transform: translateX(0);
 }
 
-/* 활성 — 메인·하위 탭과 같은 accent. 밑줄은 위 ink 가 담당. */
-.itemActive,
-.itemActive:hover {
+/* 위→아래 순차(stagger) — 펼침·접힘 모두 이 지연을 타 순서대로 천천히 움직인다 */
+.item:nth-child(1) .label { transition-delay: 0ms; }
+.item:nth-child(2) .label { transition-delay: 60ms; }
+.item:nth-child(3) .label { transition-delay: 120ms; }
+.item:nth-child(4) .label { transition-delay: 180ms; }
+.item:nth-child(5) .label { transition-delay: 240ms; }
+.item:nth-child(6) .label { transition-delay: 300ms; }
+.item:nth-child(7) .label { transition-delay: 360ms; }
+.item:nth-child(8) .label { transition-delay: 420ms; }
+
+.item:hover .dot::before {
+  width: 14px;
+  background: var(--text-secondary);
+}
+.item:hover .label {
+  color: var(--text-secondary);
+}
+.itemActive .dot::before {
+  width: 18px;
+  background: var(--text-accent);
+}
+.itemActive .label {
   color: var(--text-accent);
 }
 
-/* 데스크탑(사이드바 있는 >1024): 세로 사이드바가 메인 내비게이션을 맡으므로
-   섹션 바로가기 바는 감춘다 — 태블릿·모바일(가로 탭바로 접힐 때)에서만 노출. */
+/* ruler 는 tick 으로 활성 표시 — ink(밑줄) 미사용 */
+.ink {
+  display: none;
+}
+
+/* 데스크탑(>1024): 좌측 설정 사이드바가 네비 — 숨김 */
 @media (min-width: 1025px) {
   .jumpWrap {
     display: none;
-  }
-}
-
-/* 태블릿·모바일 — 위에 메인 가로 탭바(≈45px)가 sticky 로 있으니 그 아래로 내린다. */
-@media (max-width: 1024px) {
-  .jumpWrap {
-    top: calc(var(--header-height) + 2.9rem);
   }
 }

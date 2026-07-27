@@ -8,6 +8,7 @@ import { siteConfig } from "@/config/site.config";
 import type { SiteConfigData } from "@/config/site.config";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { SkeletonLine } from "@/components/ui/Skeleton";
+import { FAVICON_REFRESH_EVENT } from "@/components/layout/FaviconSync";
 import DiffResolver from "./_components/DiffResolver";
 import SettingsSkeleton from "./_components/SettingsSkeleton";
 import { profileDefaults, isProfileAllOpen, toggleProfileAll, type ProfileExpandState } from "@/components/admin/ProfileSections";
@@ -346,6 +347,8 @@ export default function SettingsPage() {
       setCheckedConflicts(new Set());
 
       setMessage(t("admin.settings.saveSuccess"));
+      // 탭 favicon 즉시 갱신 (reload 전에도 최신 반영)
+      try { window.dispatchEvent(new Event(FAVICON_REFRESH_EVENT)); } catch {}
       try {
         const bc = new BroadcastChannel("settings-updated");
         bc.postMessage({ type: "settings-updated", timestamp: Date.now() });

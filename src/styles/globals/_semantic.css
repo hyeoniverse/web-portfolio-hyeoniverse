@@ -245,7 +245,6 @@
   --editorial-ls-title: var(--letter-spacing-tight);
   --editorial-line-primary: var(--border-strong);
   --editorial-line-secondary: var(--border-default);
-
 }
 
 /* ==========================================================================
@@ -257,20 +256,22 @@
 :root {
   /* Control padding — capsule 모양 컨트롤의 사이즈는 padding 으로 결정 (--box-* shorthand 참조).
      원 / 사각 아이콘 버튼은 padding 으로 못 잡으므로 --button-h-* 별도 유지. */
-  --button-p-xs: var(--box-3xs-sm);  /* 2 12 → 약 20px */
-  --button-p-sm: var(--box-2xs-md);  /* 4 16 → 약 26px (일반 button) */
-  --button-p-md: var(--box-xs-lg);   /* 8 20 → 약 36px (primary CTA) */
-  --button-p-lg: var(--box-sm-xl);   /* 12 24 → 약 44px (hero CTA) */
+  --button-p-xs: var(--box-3xs-sm); /* 2 12 → 약 20px */
+  --button-p-sm: var(--box-2xs-md); /* 4 16 → 약 26px (일반 button) */
+  --button-p-md: var(--box-xs-lg); /* 8 20 → 약 36px (primary CTA) */
+  --button-p-lg: var(--box-sm-xl); /* 12 24 → 약 44px (hero CTA) */
 
-  --input-p: var(--box-2xs-md);      /* 4 16 → 약 26px — input / select 기본 */
-  --textarea-p: var(--box-sm-md);    /* 12 16 — multi-line 이라 vertical 여유 더 필요 */
+  --input-p: var(--box-2xs-md); /* 4 16 → 약 26px — input / select 기본 */
+  --textarea-p: var(
+    --box-sm-md
+  ); /* 12 16 — multi-line 이라 vertical 여유 더 필요 */
 
   /* Icon-only btn (circle/square) — padding 으로 사이즈 못 잡으니 명시 width/height 용.
      capsule 컨트롤의 natural height 와 같은 시각 라인 유지. */
-  --button-h-xs: var(--size-2xs);  /* 20 — icon-only xs */
-  --button-h-sm: var(--size-xs);   /* 24 — icon-only sm */
-  --button-h-md: var(--size-md);   /* 38 — icon-only md */
-  --button-h-lg: var(--size-lg);   /* 46 — icon-only lg */
+  --button-h-xs: var(--size-2xs); /* 20 — icon-only xs */
+  --button-h-sm: var(--size-xs); /* 24 — icon-only sm */
+  --button-h-md: var(--size-md); /* 38 — icon-only md */
+  --button-h-lg: var(--size-lg); /* 46 — icon-only lg */
 
   /* Control height (button/input/select capsule) — 4-pt grid, md 가 default.
      기존 --button-h-* / --size-* 는 icon-only 등 기존 용도 유지, 이건 capsule controls 전용. */
@@ -280,10 +281,10 @@
   --control-h-lg: 36px;
 
   /* Skeleton 라인/필 높이 — 텍스트 한 줄·캡슐 컨트롤 흉내. raw px 하드코딩 방지 */
-  --skeleton-h-line: var(--font-size-sm);   /* 14px — 텍스트 한 줄 */
+  --skeleton-h-line: var(--font-size-sm); /* 14px — 텍스트 한 줄 */
   --skeleton-h-line-sm: var(--font-size-xs); /* 12px — 작은 메타 텍스트 */
   --skeleton-h-line-lg: var(--font-size-lg); /* 18px — 헤더 텍스트 */
-  --skeleton-h-pill: var(--button-h-sm);    /* 24 — 태그/뱃지 */
+  --skeleton-h-pill: var(--button-h-sm); /* 24 — 태그/뱃지 */
 }
 
 /* --------------------------------------------------------------------------
