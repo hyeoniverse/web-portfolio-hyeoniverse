@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.30.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.29.2...v1.30.0) (2026-07-27)
+
+
+### Features
+
+* **admin/settings:** 브랜드 섹션·favicon·nav 로고 재설계 ([462d265](https://github.com/hyeoniverse/web-portfolio-oval/commit/462d265ccbc2b43bfcad70570fc2aac2628e1fbe))
+* **ui:** ColorPicker 색 투명도(alpha) 지원 ([cccb88d](https://github.com/hyeoniverse/web-portfolio-oval/commit/cccb88d86c237728f05ba6d21ceb4db0bcaa35e8))
+
 ## [1.29.2](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.29.1...v1.29.2) (2026-07-23)
 
 
