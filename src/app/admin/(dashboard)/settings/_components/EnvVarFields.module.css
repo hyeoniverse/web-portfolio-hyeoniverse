@@ -1,0 +1,314 @@
+/*  EnvVarFields 전용 스타일 — Settings.module.css 에서 분리(Phase 4-1 2단계).
+   공유 클래스(fieldLabel·fieldRow·fields)와 경계-교차 클래스(envFieldRow·envInputRow)는 Settings.module.css 에 남아 있어 그쪽에서 import  */
+.envGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.envGroupLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+  margin: 0 0 var(--spacing-2xs);
+}
+
+.envGroupLabel > svg {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+.envGroupCount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: none;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.envGroupCount[data-ok] {
+  color: var(--bg-success-solid);
+}
+.envStatusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-2xs);
+}
+.envRowSaveBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--bg-success-solid);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-base) ease,
+    background var(--duration-base) ease;
+}
+
+.envRowSaveBtn:hover {
+  border-color: var(--bg-success-solid);
+  background: color-mix(in oklch, var(--bg-success-solid) 12%, transparent);
+}
+
+.envRowSaveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.envStatusSummary {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.envStatusCount {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.envStatusCount strong {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.envStatusChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.envStatusChip[data-warn] {
+  color: var(--text-accent);
+}
+
+.envSourceDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  background: var(--text-tertiary);
+}
+
+.envSourceDot[data-source="env"] {
+  background: var(--bg-success-solid);
+}
+.envSourceDot[data-source="db"] {
+  background: var(--text-primary);
+}
+.envSourceDot[data-source="edit"] {
+  background: var(--bg-warning-solid, var(--text-accent));
+}
+.envSourceDot[data-source="none"] {
+  background: transparent;
+  border: 1.5px solid var(--text-accent);
+}
+
+.envFieldLabelText {
+  font-weight: 500;
+}
+.envFieldRowMissing {
+  border-left: 2px solid var(--text-accent);
+  padding-left: var(--spacing-sm);
+  margin-left: calc(var(--spacing-sm) * -1 - 2px);
+}
+.envProgressBar {
+  height: 3px;
+  background: var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  margin-bottom: var(--spacing-md);
+}
+
+.envProgressFill {
+  height: 100%;
+  background: var(--bg-success-solid);
+  transition:
+    width var(--duration-base) ease,
+    background var(--duration-base) ease;
+}
+.envMetaIcon,
+.envMetaWarn {
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--spacing-3xs);
+  color: var(--text-tertiary);
+  cursor: help;
+  transition: color var(--duration-base) ease;
+}
+
+.envMetaIcon:hover {
+  color: var(--text-primary);
+}
+
+.envMetaWarn {
+  color: var(--text-warning, var(--text-accent));
+  cursor: help;
+}
+
+.envMetaLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  /* tooltip 안 (bg-inverse + text-inverse) 에서도 보이도록 부모 텍스트 색 그대로 상속 + underline 으로 link 표식 */
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.envPasteModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+}
+
+.envPasteHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.envPasteTextarea {
+  width: 100%;
+  min-height: 200px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+  transition: border-color var(--duration-base) ease;
+}
+
+.envPasteTextarea:focus {
+  border-color: var(--text-primary);
+}
+
+.envPasteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+}
+
+.envGroupDivider {
+  border: none;
+  border-top: 1px solid var(--border-light-color);
+  margin: 0;
+}
+
+.envLabelMissing {
+  color: var(--text-accent);
+}
+
+.envFieldRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.envRevealBtn,
+.envDeleteBtn {
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.envRevealBtn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.envDeleteBtn:hover {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}
+
+.envDeleteBtnDisabled {
+  opacity: 0.35;
+}
+
+.envDeleteBtnDisabled:hover {
+  border-color: var(--border-light-color);
+  color: var(--text-tertiary);
+}
+
+.envHintMobile {
+  display: none;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-top: var(--spacing-2xs);
+  line-height: 1.4;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .envHintMobile {
+    display: block;
+  }
+}
+
+.envSourceBadge {
+  padding: var(--spacing-4xs) var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  font-size: var(--font-size-2xs);
+  font-weight: 500;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.envSourceBadge[data-source="env"] {
+  color: var(--bg-success-solid);
+}
+.envSourceBadge[data-source="db"] {
+  color: var(--text-primary);
+}
+.envSourceBadge[data-source="edit"] {
+  color: var(--text-accent);
+}
+
+.envActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+}
+
+.envMsg {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-success);
+}

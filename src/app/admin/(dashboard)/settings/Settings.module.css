@@ -4269,242 +4269,22 @@
 /* (legacy) unused fontSelectGroup/fontSuggestions — removed after FontPicker rewrite */
 
 /* ── Env Var Editor — 단일 column 의 table-like layout. 라벨 좌측 fixed, input flex, actions 우측. ── */
-.envGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
-
-.envGroupLabel {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.02em;
-  margin: 0 0 var(--spacing-2xs);
-}
-
-.envGroupLabel > svg {
-  flex-shrink: 0;
-  color: var(--text-tertiary);
-}
 
 /* 그룹별 set/total — 라벨 옆 작은 mono 카운터. 모두 set 이면 accent 색 ✓ */
-.envGroupCount {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-3xs);
-  font-weight: 500;
-  color: var(--text-tertiary);
-  text-transform: none;
-  letter-spacing: 0;
-  font-variant-numeric: tabular-nums;
-}
-
-.envGroupCount[data-ok] {
-  color: var(--bg-success-solid);
-}
 
 /* env 액션 바 — section 저장 / 기본값 (SectionHeader 의 spacer 와 같은 스타일) */
 
 /* ── 상단 status overview ── */
-.envStatusBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-2xs);
-}
 
 /* row 개별 저장 버튼 — Check 아이콘, 편집 중 노출 */
-.envRowSaveBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--bg-success-solid);
-  cursor: pointer;
-  transition:
-    border-color var(--duration-base) ease,
-    background var(--duration-base) ease;
-}
-
-.envRowSaveBtn:hover {
-  border-color: var(--bg-success-solid);
-  background: color-mix(in oklch, var(--bg-success-solid) 12%, transparent);
-}
-
-.envRowSaveBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.envStatusSummary {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
-}
-
-.envStatusCount {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
-
-.envStatusCount strong {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-.envStatusChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-}
-
-.envStatusChip[data-warn] {
-  color: var(--text-accent);
-}
-
-.envSourceDot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-circle);
-  background: var(--text-tertiary);
-}
-
-.envSourceDot[data-source="env"] {
-  background: var(--bg-success-solid);
-}
-.envSourceDot[data-source="db"] {
-  background: var(--text-primary);
-}
-.envSourceDot[data-source="edit"] {
-  background: var(--bg-warning-solid, var(--text-accent));
-}
-.envSourceDot[data-source="none"] {
-  background: transparent;
-  border: 1.5px solid var(--text-accent);
-}
-
-.envFieldLabelText {
-  font-weight: 500;
-}
 
 /* 누락 row 강조 — left accent 보더 + 들여쓰기 */
-.envFieldRowMissing {
-  border-left: 2px solid var(--text-accent);
-  padding-left: var(--spacing-sm);
-  margin-left: calc(var(--spacing-sm) * -1 - 2px);
-}
 
 /* progress 바 — set ratio */
-.envProgressBar {
-  height: 3px;
-  background: var(--border-light-color);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-  margin-bottom: var(--spacing-md);
-}
-
-.envProgressFill {
-  height: 100%;
-  background: var(--bg-success-solid);
-  transition:
-    width var(--duration-base) ease,
-    background var(--duration-base) ease;
-}
 
 /* info icon + warn icon — label 옆 작게 */
-.envMetaIcon,
-.envMetaWarn {
-  display: inline-flex;
-  align-items: center;
-  margin-left: var(--spacing-3xs);
-  color: var(--text-tertiary);
-  cursor: help;
-  transition: color var(--duration-base) ease;
-}
-
-.envMetaIcon:hover {
-  color: var(--text-primary);
-}
-
-.envMetaWarn {
-  color: var(--text-warning, var(--text-accent));
-  cursor: help;
-}
-
-.envMetaLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  /* tooltip 안 (bg-inverse + text-inverse) 에서도 보이도록 부모 텍스트 색 그대로 상속 + underline 으로 link 표식 */
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
 
 /* .env paste 모달 */
-.envPasteModal {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-}
-
-.envPasteHint {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  margin: 0;
-}
-
-.envPasteTextarea {
-  width: 100%;
-  min-height: 200px;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  outline: none;
-  resize: vertical;
-  transition: border-color var(--duration-base) ease;
-}
-
-.envPasteTextarea:focus {
-  border-color: var(--text-primary);
-}
-
-.envPasteActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-xs);
-}
-
-.envGroupDivider {
-  border: none;
-  border-top: 1px solid var(--border-light-color);
-  margin: 0;
-}
 
 /* fieldHint 안에서 env var key 클릭 시 해당 입력 필드로 스크롤. underline + monospace 로 link 임을 명확히 */
 .envKeyLink {
@@ -4533,17 +4313,6 @@
   transition: color var(--duration-base) ease;
 }
 
-.envLabelMissing {
-  color: var(--text-accent);
-}
-
-.envFieldRight {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
 .envInputRow {
   display: flex;
   align-items: center;
@@ -4563,74 +4332,7 @@
   letter-spacing: 0.01em;
 }
 
-.envRevealBtn,
-.envDeleteBtn {
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.envRevealBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
-.envDeleteBtn:hover {
-  border-color: var(--text-accent);
-  color: var(--text-accent);
-}
-
-.envDeleteBtnDisabled {
-  opacity: 0.35;
-}
-
-.envDeleteBtnDisabled:hover {
-  border-color: var(--border-light-color);
-  color: var(--text-tertiary);
-}
-
-.envHintMobile {
-  display: none;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  margin-top: var(--spacing-2xs);
-  line-height: 1.4;
-}
-
-@media (hover: none) and (pointer: coarse) {
-  .envHintMobile {
-    display: block;
-  }
-}
-
-.envSourceBadge {
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  border-radius: var(--radius-capsule);
-  font-size: var(--font-size-2xs);
-  font-weight: 500;
-  background: var(--bg-tertiary);
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-}
-
 /* 소스별 텍스트 색 차별화 — env(녹색), db(기본), edit(액센트). Read-only 는 data-source 없어 기본 tertiary 유지 */
-.envSourceBadge[data-source="env"] {
-  color: var(--bg-success-solid);
-}
-.envSourceBadge[data-source="db"] {
-  color: var(--text-primary);
-}
-.envSourceBadge[data-source="edit"] {
-  color: var(--text-accent);
-}
 
 /* env row — 가로 grid: 라벨 좌측 fixed, input + actions 우측 flex (전체 폭 활용) */
 .envFieldRow {
@@ -4656,20 +4358,6 @@
     grid-template-columns: 1fr;
     gap: var(--spacing-2xs);
   }
-}
-
-.envActions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-md);
-  padding-top: var(--spacing-sm);
-}
-
-.envMsg {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-success);
 }
 
 /* ── Pending Email Banner ── */

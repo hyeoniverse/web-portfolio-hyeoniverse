@@ -12,7 +12,8 @@ import { ModalPrompt, ModalConfirm } from "@/components/ui/ModalTemplates";
 import Tooltip from "@/components/ui/Tooltip";
 import SectionHeader from "./SectionHeader";
 import type { SiteConfigData } from "@/config/site.config";
-import styles from "../Settings.module.css";
+import styles from "./EnvVarFields.module.css";
+import shared from "../Settings.module.css";
 
 /* env var 메타 — description / 발급 docs URL / value prefix (typo 감지용).
    prefix 가 정의된 키만 prefix mismatch 경고. 없는 키는 검증 skip. */
@@ -470,9 +471,9 @@ export default function EnvVarFields({
       <div
         key={key}
         id={`env-${key}`}
-        className={`${styles.fieldRow} ${styles.envFieldRow} ${rowMissing ? styles.envFieldRowMissing : ""}`}
+        className={`${shared.fieldRow} ${shared.envFieldRow} ${rowMissing ? styles.envFieldRowMissing : ""}`}
       >
-        <label className={`${styles.fieldLabel}${rowMissing ? ` ${styles.envLabelMissing}` : ""}`}>
+        <label className={`${shared.fieldLabel}${rowMissing ? ` ${styles.envLabelMissing}` : ""}`}>
           <span className={styles.envFieldLabelText}>{label}</span>
           {meta && (
             <Tooltip
@@ -521,7 +522,7 @@ export default function EnvVarFields({
           )}
         </label>
         <div className={styles.envFieldRight}>
-        <div className={styles.envInputRow}>
+        <div className={shared.envInputRow}>
           <Input
             value={isReadOnly ? "" : displayValue}
             placeholder={placeholder}
@@ -626,7 +627,7 @@ export default function EnvVarFields({
   );
 
   return (
-    <div className={styles.fields}>
+    <div className={shared.fields}>
       {sectionHeader && (
         <SectionHeader
           title={sectionHeader.title}
