@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, useLayoutEffect } from "react";
+import { useState, useEffect, useRef, useMemo, useLayoutEffect, useCallback } from "react";
 import { Check, ExternalLink } from "lucide-react";
 import Select from "@/components/ui/Select";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import styles from "./FontPicker.module.css";
 
-export type FontEntry = { label: string; value: string; googleName?: string };
+export type FontEntry = { label: string; value: string; googleName?: string; /** 한글 지원 폰트 — 목록에 "가" 배지 표시 */ korean?: boolean };
 export type FontGroup = { group: string; fonts: FontEntry[] };
 
 interface FontPickerProps {
@@ -69,6 +69,20 @@ export default function FontPicker({
   // (auto height 는 transition 불가, motion layout 은 FLIP transform 이라 footer 점프함)
   const listInnerRef = useRef<HTMLDivElement>(null);
   const [listHeight, setListHeight] = useState<number | null>(null);
+  // iOS 식 섹션 헤더 — 현재 최상단 그룹명을 목록(.list) 위 고정 영역에 표시. 항목은 .list 안에서 clip.
+  const listRef = useRef<HTMLDivElement>(null);
+  const [curGroup, setCurGroup] = useState("");
+  const updateCurGroup = useCallback(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const listTop = list.getBoundingClientRect().top;
+    let cur = "";
+    for (const gd of list.querySelectorAll<HTMLElement>("[data-group]")) {
+      if (gd.getBoundingClientRect().top <= listTop + 4) cur = gd.dataset.group || "";
+      else break;
+    }
+    setCurGroup(cur);
+  }, []);
 
   // flat list — useMemo 로 안정화 (groups 자체는 호출 측에서 재생성될 수 있어 ref 로 latest 추적).
   // useEffect deps 에 넣지 않음 → 매 렌더 effect 재실행으로 debounce 가 cancel 되던 버그 fix.
@@ -78,6 +92,8 @@ export default function FontPicker({
 
   const matchedValue = resolveMatch ? resolveMatch(value, flat) : value;
   const currentEntry = flat.find((f) => f.value === matchedValue);
+  // 열리자마자(스크롤 전) 최상단에 올 그룹 = 현재 선택 폰트의 그룹 — 헤더 초기값으로 써서 툭 나타나지 않게.
+  const activeGroup = groups.find((g) => g.fonts.some((f) => f.value === matchedValue))?.group ?? "";
 
   // 검색어 변경 시 Google Fonts 검색 (debounce) — preset 매칭 여부와 무관하게 항상 fire.
   // /api/fonts/search 가 부분 매칭 지원 — "robo" 면 Roboto, Roboto Mono, Roboto Slab 등 반환.
@@ -140,13 +156,14 @@ export default function FontPicker({
     if (!listInnerRef.current) return;
     const next = Math.min(listInnerRef.current.scrollHeight, 320);
     setListHeight(next);
-  }, [filtered, query, googleMatches, loading]);
+    updateCurGroup();
+  }, [filtered, query, googleMatches, loading, updateCurGroup]);
 
   return (
     <Select
       value={matchedValue}
       onChange={() => {}}
-      variant="compact"
+      showCheck
       renderValue={renderValue ?? (() => (
         <span style={{ fontFamily: currentEntry?.value || value || undefined }}>
           {currentEntry?.label ?? fallbackLabel ?? value}
@@ -172,15 +189,19 @@ export default function FontPicker({
           {enableGoogleSearch && (
             <p className={styles.searchHint}>{t("editor.fontSearchHint")}</p>
           )}
+          {/* 현재 그룹 헤더 — 목록 위 고정 영역(hint 처럼). 항목은 .list 안에서 clip 되어 안 겹침.
+              curGroup 이 아직 없으면 activeGroup 으로 — 열리자마자 툭 나타나지 않고 처음부터 보임. */}
+          {(curGroup || activeGroup) && <div className={styles.stickyGroup}>{curGroup || activeGroup}</div>}
           <div
+            ref={listRef}
             data-lenis-prevent
             className={styles.list}
             style={{ height: listHeight !== null ? listHeight : undefined }}
+            onScroll={updateCurGroup}
           >
             <div ref={listInnerRef} className={styles.listInner}>
             {filtered.map((g) => (
-              <div key={g.group}>
-                {g.group && <div className={styles.groupLabel}>{g.group}</div>}
+              <div key={g.group} data-group={g.group || undefined}>
                 {g.fonts.map((f) => {
                   const active = matchedValue === f.value;
                   return (
@@ -192,6 +213,7 @@ export default function FontPicker({
                       style={{ fontFamily: f.value || undefined }}
                       onMouseEnter={() => { if (f.googleName) loadGoogleFont(f.googleName); }}
                     >
+                      {f.korean && <span className={styles.itemKr} aria-label="한글 지원">가</span>}
                       <span className={styles.itemLabel}>{f.label}</span>
                       {active && <Check className={styles.itemCheck} size={14} strokeWidth={2.5} />}
                     </div>
@@ -205,8 +227,7 @@ export default function FontPicker({
               const uniqueGoogle = googleMatches.filter((n) => !presetNames.has(n.toLowerCase()));
               if (uniqueGoogle.length === 0) return null;
               return (
-                <div>
-                  <div className={styles.groupLabel}>Google Fonts</div>
+                <div data-group="Google Fonts">
                   {uniqueGoogle.map((name) => (
                     <div
                       key={name}

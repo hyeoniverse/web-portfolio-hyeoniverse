@@ -20,15 +20,22 @@ export type HelpButtonProps = Omit<
 > & {
   /** 기본 "sm"(28px). 폼 라벨 옆처럼 좁은 자리는 "2xs"(20px) / "xs"(24px) */
   size?: HelpButtonSize;
+  /** 표시 글리프 — 도움말 "?"(기본) 또는 정보 "i". 둘 다 circle 규격 공유 */
+  symbol?: "?" | "i";
+  /** 기본 "subtle"(옅은 보더 칩). 이미지 뷰어 툴바처럼 투명 아이콘 버튼들과 톤을 맞춰야 하는
+   *  표면은 "ghost"(투명·저강조) 로 얹는다. 그 외 시각 override 는 여전히 금지. */
+  variant?: "subtle" | "ghost";
+  /** 팝오버 등이 열려 있을 때 눌린 상태 표시 (Button.active 로 전달) */
+  active?: boolean;
   /** 배치용 className 만 (색·보더·radius·padding 시각 override 금지 — 필요하면 부모 래퍼로) */
   className?: string;
   soundDisabled?: boolean;
 };
 
 const HelpButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, HelpButtonProps>(
-  ({ size = "sm", ...props }, ref) => (
-    <Button ref={ref} variant="subtle" shape="circle" size={size} {...props}>
-      ?
+  ({ size = "sm", symbol = "?", variant = "subtle", ...props }, ref) => (
+    <Button ref={ref} variant={variant} shape="circle" size={size} {...props}>
+      {symbol}
     </Button>
   ),
 );

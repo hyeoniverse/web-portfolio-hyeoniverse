@@ -216,7 +216,7 @@ function CategoryInput({ value, onChange, currentCats, t }: {
   return (
     <Select
       combobox
-      bubble
+      variant="bubble"
       size="sm"
       value={value}
       inputValue={draft}

@@ -1,8 +1,11 @@
-/* 범용 섹션 헤더 — 제목 row(제목 + 우측 액션) + 아래 부가설명. gap 은 토큰 스케일. */
+/* 범용 섹션 헤더 — 제목 row(제목 + 우측 액션) + 아래 부가설명. 아래 구분선으로 섹션을 나눈다. */
 .header {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2xs);
+  padding-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  border-bottom: var(--border-strong);
 }
 
 .row {
@@ -17,7 +20,7 @@
   margin: 0;
   min-width: 0;
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   line-height: 1.2;
   color: var(--text-primary);
 }

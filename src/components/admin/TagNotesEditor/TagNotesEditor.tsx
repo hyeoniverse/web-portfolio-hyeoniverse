@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, GripVertical, Pencil } from "lucide-react";
 import Chip from "@/components/ui/Chip";
@@ -68,6 +68,46 @@ function GroupToggleButton({
         </AnimatePresence>
       </span>
     </button>
+  );
+}
+
+/** 설명 body 펼침/접힘 래퍼 — 콘텐츠 높이를 측정해 framer 로 실제 px 를 애니메이션.
+ *  (framer 의 height:"auto" 는 이 프로젝트에서 트랜지션이 안 먹고, grid 1fr 은 콘텐츠 변경 시
+ *   즉시 스냅돼 편집(readonly→input) resize 가 안 되므로 — ResizeObserver 로 높이를 추적.)
+ *  animateEnter=false(페이지 로드로 이미 있던 항목)면 첫 측정 반영을 즉시 처리해 로드 시 펼침 flash 방지. */
+function CollapsibleBody({ animateEnter, children }: { animateEnter: boolean; children: React.ReactNode }) {
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [h, setH] = useState(0);
+  const [firstDone, setFirstDone] = useState(false);
+  // 콘텐츠 높이를 매 렌더마다 동기 측정 — 편집으로 내용이 바뀌면 즉시 새 높이 반영.
+  // (framer 의 height:"auto"/numeric height 는 이 프로젝트에서 mount 후 resize 가 스냅되지만,
+  //  grid-template-rows 의 px 값은 tween 되므로 그걸 애니메이션 대상으로 쓴다.)
+  // 매 렌더 측정이 의도라 deps 없음.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => {
+    const el = innerRef.current;
+    if (el && el.scrollHeight !== h) setH(el.scrollHeight);
+  });
+  // 첫 측정(0→h)을 duration 0 으로 흘려보내 framer 가 grid-rows motion value 를 만들게 하되(이래야
+  // 이후 편집 resize 가 tween 됨) 로드된 항목은 그 첫 반영이 눈에 안 띄게(instant) — 즉, firstDone 이후만 부드럽게.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { if (h > 0 && !firstDone) setFirstDone(true); }, [h, firstDone]);
+  const instantFirst = !animateEnter && !firstDone;
+  return (
+    <motion.div
+      style={{ display: "grid", overflow: "hidden" }}
+      initial={{ gridTemplateRows: "0px", opacity: 0 }}
+      animate={{ gridTemplateRows: `${h}px`, opacity: 1 }}
+      exit={{ gridTemplateRows: "0px", opacity: 0 }}
+      transition={{
+        gridTemplateRows: { duration: instantFirst ? 0 : 0.26, ease: [0.4, 0, 0.2, 1] },
+        opacity: { duration: instantFirst ? 0 : 0.18, ease: "easeOut" },
+      }}
+    >
+      {/* align-self: start — grid 자식이 row 높이로 stretch 되면 scrollHeight 가 늘어난 채 고정돼
+          접힐 때(내용이 줄어도) 측정이 안 바뀌는 버그. start 로 두면 항상 내용 높이로 측정됨. */}
+      <div ref={innerRef} style={{ minHeight: 0, alignSelf: "start" }}>{children}</div>
+    </motion.div>
   );
 }
 
@@ -155,6 +195,10 @@ export default function TagNotesEditor({
   onIndexChange: _onIndexChange,
 }: TagNotesEditorProps) {
   const { language } = useLanguage();
+  // 최초 마운트 이후 추가되는 설명만 펼침 애니메이션 — 로드로 이미 있던 설명은 조용히 표시(CollapsibleBody).
+  const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setMounted(true); }, []);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dropPos, setDropPos] = useState<{ idx: number; side: "top" | "bottom" } | null>(null);
   const resetDrag = useCallback(() => { setDragIdx(null); setDropPos(null); }, []);
@@ -418,12 +462,45 @@ export default function TagNotesEditor({
                       onEditClick(item);
                       return;
                     }
+                    // entry + editing 을 같은 렌더에 — body 가 처음부터 input 상태로 mount 돼야
+                    // framer 가 최종 height 를 재서 0→full 로 펼침 애니메이션이 제대로 동작한다.
                     setEntry({ ko: "", en: "" });
+                    setEditMode("all");
+                    setEditingItem(item);
                     focusLastPairInput(item);
                   }}
                 />
               ) : (
                 <div className={styles.headerActions}>
+                  {/* + 설명 추가 — 편집 모드(editingItem===item)일 때만, 편집 버튼 왼쪽.
+                      나타남/사라짐은 width 0↔auto + opacity 로 슬라이드. */}
+                  <AnimatePresence initial={false}>
+                    {multiLine && editingItem === item && (
+                      <motion.button
+                        type="button"
+                        className={styles.standaloneAddBtn}
+                        data-cursor="big"
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: "auto" }}
+                        exit={{ opacity: 0, width: 0 }}
+                        transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+                        style={{ overflow: "hidden", whiteSpace: "nowrap", flexShrink: 0 }}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEntry({
+                            ko: entry.ko + "\n",
+                            en: entry.en + "\n",
+                          });
+                          focusLastPairInput(item);
+                        }}
+                      >
+                        <Plus size={10} strokeWidth={2.5} />
+                        {addLabel}
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
                   {/* 편집/취소 + 일괄삭제 capsule group */}
                   <div className={styles.capsuleGroup} data-cursor="big">
                     {multiLine && editingItem === item && selectedIdxs.size > 0 && (
@@ -476,31 +553,6 @@ export default function TagNotesEditor({
                       }}
                     />
                   </div>
-                  {/* + 설명 추가 — 항상 분리, 가장 오른쪽 */}
-                  {multiLine && (
-                    <button
-                      type="button"
-                      className={styles.standaloneAddBtn}
-                      data-cursor="big"
-                      onMouseDown={(e) => e.stopPropagation()}
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEntry({
-                          ko: entry.ko + "\n",
-                          en: entry.en + "\n",
-                        });
-                        if (editingItem !== item) {
-                          setEditMode("newest");
-                          setEditingItem(item);
-                        }
-                        focusLastPairInput(item);
-                      }}
-                    >
-                      <Plus size={10} strokeWidth={2.5} />
-                      {addLabel}
-                    </button>
-                  )}
                 </div>
               )}
             </div>
@@ -514,20 +566,16 @@ export default function TagNotesEditor({
                 설명 좌측 여백은 grip 까지만 맞추고 indexBadge 폭은 제외(너무 벌어져서) → 번호 아래쯤에서 시작. */}
             <AnimatePresence initial={false}>
               {entry && (
-                <motion.ul
-                  key="body"
-                  className={styles.readonly}
-                  style={{
-                    paddingLeft: !disableReorder
-                      ? "calc(14px + var(--spacing-2xs))"
-                      : "var(--spacing-2xs)",
-                  }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.16 }}
-                  onDoubleClick={editingItem !== item ? (e) => { e.stopPropagation(); setEditingItem(item); } : undefined}
-                >
+                <CollapsibleBody key="body" animateEnter={mounted}>
+                  <ul
+                    className={styles.readonly}
+                    style={{
+                      paddingLeft: !disableReorder
+                        ? "calc(14px + var(--spacing-2xs))"
+                        : "var(--spacing-2xs)",
+                    }}
+                    onDoubleClick={editingItem !== item ? (e) => { e.stopPropagation(); setEditingItem(item); } : undefined}
+                  >
                   {(() => {
                     const closeEdit = () => {
                       const normalized = normalizeEntry(entry);
@@ -681,7 +729,8 @@ export default function TagNotesEditor({
                       );
                     });
                   })()}
-                </motion.ul>
+                  </ul>
+                </CollapsibleBody>
               )}
             </AnimatePresence>
             </div>

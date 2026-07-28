@@ -23,7 +23,7 @@ interface SelectOption {
   searchTerms?: string[];
 }
 
-type SelectVariant = "default" | "compact";
+type SelectVariant = "default" | "bubble";
 
 interface SelectProps {
   value: string;
@@ -37,7 +37,10 @@ interface SelectProps {
   triggerClassName?: string;
   dropdownClassName?: string;
   disabled?: boolean;
+  /** "default"(아래로 여는 글래스 드롭다운) / "bubble"(trigger 오른쪽에 꼬리 달린 말풍선). */
   variant?: SelectVariant;
+  /** 옵션 왼쪽에 선택 표시 ✓ 를 붙인다. (variant 와 무관하게 조합 가능) */
+  showCheck?: boolean;
   /** dropdown 정렬 — "active"(기본, 선택 항목을 trigger 에 맞춤, native select 식) /
    *  "below"(trigger 아래로 연다. floating bar 처럼 위를 덮으면 안 되는 자리) */
   dropAlign?: "active" | "below";
@@ -69,16 +72,18 @@ interface SelectProps {
     /** input commit 직전 값 정규화 (예: 숫자만, 0 padding 등) */
     sanitize?: (raw: string) => string;
   };
-  /** 말풍선 dropdown — 아래가 아니라 trigger 오른쪽에 solid 말풍선(꼬리 포함)으로 연다. */
-  bubble?: boolean;
   /** floating toolbar 등 "포커스가 풀리면 사라지는" 컨테이너 안에서 쓸 때 — trigger·옵션
    *  클릭 시 mousedown preventDefault 로 에디터 포커스를 유지한다(클릭으로 닫히는 것 방지). */
   preserveFocus?: boolean;
 }
 
+/* 기본값을 매 렌더 새 [] 로 두면 위치/스크롤 effect 의 deps(options)가 매번 바뀌어
+   재실행 → FontPicker 처럼 스크롤 중 리렌더가 잦은 경우 active 로 계속 되돌아간다. 안정 참조로 고정. */
+const EMPTY_OPTIONS: SelectOption[] = [];
+
 export default function Select({
   value,
-  options = [],
+  options = EMPTY_OPTIONS,
   onChange,
   placeholder,
   renderOption,
@@ -88,6 +93,7 @@ export default function Select({
   dropdownClassName,
   disabled,
   variant = "default",
+  showCheck = false,
   dropAlign = "active",
   children,
   combobox,
@@ -99,9 +105,9 @@ export default function Select({
   editable,
   editableInputProps,
   width,
-  bubble = false,
   preserveFocus = false,
 }: SelectProps) {
+  const bubble = variant === "bubble";
   // 오버레이(모달) 안이면 그 stacking context 로 portal → 전역 z override 없이 모달 위에 뜬다.
   const portalContainer = usePortalContainer();
   // editable + value 비어있으면 mount 시 default editing (= 직접 입력 mode 부터 시작).
@@ -193,8 +199,17 @@ export default function Select({
 
   // dropdown 세로 위치 — 선택 항목 center 를 trigger center 에 맞추고(native select 처럼),
   // 뷰포트 밖으로 안 나가게 clamp. (bubble 은 자체 로직 사용.)
+  // 위치/내부 스크롤은 "열릴 때 한 번"만 — 이후 리렌더(예: 목록 스크롤로 인한 부모 setState)에서
+  // 다시 active 로 스크롤하면 사용자가 스크롤을 못 하고 계속 되돌아간다.
+  const positionedRef = useRef(false);
   useLayoutEffect(() => {
-    if (bubble || !visible || !dropdownRef.current || !ref.current) { setDropTop(null); setDropMaxH(undefined); return; }
+    if (bubble || !visible || !dropdownRef.current || !ref.current) {
+      setDropTop(null); setDropMaxH(undefined);
+      positionedRef.current = false;
+      return;
+    }
+    if (positionedRef.current) return;
+    positionedRef.current = true;
     const dropdown = dropdownRef.current;
     const triggerRect = ref.current.getBoundingClientRect();
     const vh = window.innerHeight;
@@ -206,8 +221,35 @@ export default function Select({
     const activeEl = dropAlign === "below"
       ? null
       : (dropdown.querySelector("[data-active]") as HTMLElement | null);
-    const offset = activeEl ? activeEl.offsetTop + activeEl.offsetHeight / 2 + triggerRect.height / 2 : 0;
-    let top = triggerRect.bottom - offset;
+    // active 항목의 실제 스크롤 컨테이너 — FontPicker 처럼 dropdown 안에 검색창/헤더 + 자체 overflow 영역(.list)이 있을 수 있다.
+    let scroller: HTMLElement = dropdown;
+    if (activeEl) {
+      let s: HTMLElement | null = activeEl.parentElement;
+      while (s && s !== dropdown) {
+        const oy = getComputedStyle(s).overflowY;
+        if (oy === "auto" || oy === "scroll") { scroller = s; break; }
+        s = s.parentElement;
+      }
+    }
+    const scrollable = !!activeEl && scroller.scrollHeight > scroller.clientHeight + 1;
+    let top: number;
+    if (activeEl) {
+      // 목록이 길면(스크롤 가능) active 를 스크롤 컨테이너 상단(sticky 그룹 헤더 바로 아래)으로 먼저 스크롤 →
+      // 드롭다운이 뷰포트 최상단까지 밀리지 않으면서 active 가 보인다.
+      if (scrollable) {
+        const label = activeEl.parentElement?.firstElementChild as HTMLElement | null;
+        const labelH = label && /grouplabel/i.test(label.className) ? label.offsetHeight : 0;
+        const delta = activeEl.getBoundingClientRect().top - (scroller.getBoundingClientRect().top + labelH);
+        scroller.scrollTo({ top: scroller.scrollTop + delta });
+      }
+      // active 중심을 트리거 중심에 맞춤 — active 위의 검색창·헤더 높이는 실측 위치에 이미 반영됨.
+      const aRect = activeEl.getBoundingClientRect();
+      const dRect = dropdown.getBoundingClientRect();
+      const activeCenterInDrop = aRect.top + aRect.height / 2 - dRect.top;
+      top = triggerRect.top + triggerRect.height / 2 - activeCenterInDrop;
+    } else {
+      top = triggerRect.bottom; // active 없음(또는 dropAlign=below) → 트리거 아래로
+    }
     top = Math.max(MARGIN, Math.min(top, vh - dropH - MARGIN)); // 위·아래 뷰포트 안으로
     setDropTop(top);
     setDropMaxH(naturalH > availH ? availH : undefined);
@@ -233,7 +275,6 @@ export default function Select({
   }, [open, visible]);
 
   const selected = options.find((o) => o.value === value);
-  const isCompact = variant === "compact";
   const hasChildren = children != null;
   /* fit-content 시 trigger width — 모든 옵션 label 을 sizer 로 stack 해서
      가장 넓은 자연 width 가 grid track 결정 (글자수 length 비교 X — 실제 렌더 width 기준). */
@@ -293,7 +334,7 @@ export default function Select({
           setOpen(false);
         }}
       >
-        {isCompact && (<span className={styles.check} style={{ visibility: isActive ? "visible" : "hidden" }}>{"✓"}</span>)}
+        {showCheck && (<span className={styles.check} style={{ visibility: isActive ? "visible" : "hidden" }}>{"✓"}</span>)}
         {renderOption ? renderOption(opt, isActive) : (
           <span className={styles.optionContent}>
             {opt.icon && <span className={styles.optionIcon}>{opt.icon}</span>}
@@ -352,7 +393,7 @@ export default function Select({
 
   return (
     <div
-      className={`${styles.root} ${isCompact ? styles.rootCompact : ""} ${open ? styles.rootOpen : ""} ${disabled ? styles.rootDisabled : ""} ${width === "full" ? styles.rootFull : ""} ${className ?? ""}`}
+      className={`${styles.root} ${open ? styles.rootOpen : ""} ${disabled ? styles.rootDisabled : ""} ${width === "full" ? styles.rootFull : ""} ${className ?? ""}`}
       ref={ref}
       /* 열린 dropdown 이 Escape 를 소비한다.
          안 끊으면 document 까지 올라가 바깥 레이어(Modal 등)가 같이 닫힌다 —
@@ -483,7 +524,7 @@ export default function Select({
       {visible && createPortal(
         <div
           ref={dropdownRef}
-          className={`${styles.dropdown} ${isCompact ? styles.dropdownCompact : ""} ${bubble ? `${styles.bubble} ${styles.bubbleRight}` : ""} ${animateOpen ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
+          className={`${styles.dropdown} ${showCheck ? styles.dropdownChecked : ""} ${bubble ? `${styles.bubble} ${styles.bubbleRight}` : ""} ${animateOpen ? styles.dropdownOpen : styles.dropdownClose} ${dropdownClassName ?? ""}`}
           style={portalStyle}
           onTransitionEnd={handleTransitionEnd}
           // 부모 popover(공통 Popover)의 outside-click 이 이 dropdown 클릭을 "바깥"으로 보고 닫는 것 방지 —
@@ -501,7 +542,7 @@ export default function Select({
       {mounted && createPortal(
         <div
           ref={probeRef}
-          className={`${styles.dropdown} ${isCompact ? styles.dropdownCompact : ""} ${dropdownClassName ?? ""}`}
+          className={`${styles.dropdown} ${showCheck ? styles.dropdownChecked : ""} ${dropdownClassName ?? ""}`}
           style={{ position: "absolute", top: -9999, left: -9999, visibility: "hidden", pointerEvents: "none", opacity: 0 }}
           aria-hidden
         >

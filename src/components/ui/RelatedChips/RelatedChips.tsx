@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Image as ImageIcon } from "lucide-react";
 import MediaThumb from "@/components/ui/MediaThumb";
@@ -38,40 +39,60 @@ export default function RelatedChips({
   const { show, hide, node } = useHoverPreview();
 
   if (!items.length) return null;
-  const shown = showAll ? items : items.slice(0, limit);
-  const remaining = items.length - shown.length;
+  const base = items.slice(0, limit);
+  const extra = items.slice(limit);
+  const hasMore = extra.length > 0;
+
+  const renderChip = (it: RelatedChipItem) => (
+    <Link
+      key={it.id}
+      href={it.href}
+      className={styles.chip}
+      onMouseEnter={(e) => show({ title: it.title, image: it.image, category: it.category, desc: it.desc }, e.currentTarget)}
+      onMouseLeave={hide}
+    >
+      <span className={styles.thumb}>
+        {it.image ? (
+          <MediaThumb src={it.image} alt="" fill sizes="32px" className={styles.img} />
+        ) : (
+          <ImageIcon size={12} strokeWidth={1.8} />
+        )}
+      </span>
+      <span className={styles.title}>{it.title}</span>
+      {it.category && <span className={styles.cat}>{it.category}</span>}
+    </Link>
+  );
 
   return (
     <>
       <div className={styles.chips}>
-        {shown.map((it) => (
-          <Link
-            key={it.id}
-            href={it.href}
-            className={styles.chip}
-            onMouseEnter={(e) => show({ title: it.title, image: it.image, category: it.category, desc: it.desc }, e.currentTarget)}
-            onMouseLeave={hide}
+        {base.map(renderChip)}
+        {/* 추가 칩 — 펼칠 때 등장 / 접을 때 퇴장 (opacity + scale) */}
+        <AnimatePresence initial={false}>
+          {showAll && extra.map((it) => (
+            <motion.div
+              key={it.id}
+              layout
+              style={{ display: "inline-flex" }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+            >
+              {renderChip(it)}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        {/* 더보기/접기 하나로 토글 — layout 으로 칩 추가·제거 시 위치가 부드럽게 이동 */}
+        {hasMore && (
+          <motion.button
+            layout
+            type="button"
+            className={styles.more}
+            onClick={() => setShowAll((v) => !v)}
           >
-            <span className={styles.thumb}>
-              {it.image ? (
-                <MediaThumb src={it.image} alt="" fill sizes="32px" className={styles.img} />
-              ) : (
-                <ImageIcon size={12} strokeWidth={1.8} />
-              )}
-            </span>
-            <span className={styles.title}>{it.title}</span>
-            {it.category && <span className={styles.cat}>{it.category}</span>}
-          </Link>
-        ))}
-        {remaining > 0 && (
-          <button type="button" className={styles.more} onClick={() => setShowAll(true)}>
-            +{remaining} {moreLabel}
-          </button>
-        )}
-        {showAll && items.length > limit && (
-          <button type="button" className={styles.more} onClick={() => setShowAll(false)}>
-            {lessLabel}
-          </button>
+            {showAll ? lessLabel : `+${extra.length} ${moreLabel}`}
+          </motion.button>
         )}
       </div>
 

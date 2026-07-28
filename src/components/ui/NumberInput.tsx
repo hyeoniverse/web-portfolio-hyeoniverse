@@ -23,8 +23,6 @@ interface NumberInputProps {
   label?: ReactNode;
   /** 우측 단위 표시 (예: "px", "%") — 옵션, 값 없으면 미표시. 숫자와 같은 크기 + 옅은 색. */
   unit?: ReactNode;
-  /** 상하 스텝퍼 노출 (기본 true) */
-  stepper?: boolean;
   /** input 폭 px (기본 40) */
   width?: number;
   /** 전체 높이 px (기본 24) */
@@ -39,7 +37,7 @@ interface NumberInputProps {
 /** 캡슐형 숫자 입력 — 타이핑 중엔 로컬 draft, blur/Enter 에만 확정. 스텝퍼는 즉시 확정. */
 export default function NumberInput({
   value, onCommit, min, max, step = 1, emptyValue = 0,
-  placeholder, label, unit, stepper = true, width = 40, height = 28,
+  placeholder, label, unit, width = 40, height = 28,
   ariaLabel, className, gauge = false,
 }: NumberInputProps) {
   const [draft, setDraft] = useState("");
@@ -110,9 +108,7 @@ export default function NumberInput({
 
   return (
     <span className={`${styles.root}${focused ? ` ${styles.focused}` : ""}${className ? ` ${className}` : ""}`} style={rootStyle}>
-      {stepper && (
-        <SpinButton className={styles.stepBtn} ariaLabel="감소" onStep={() => spin(-1)}><Minus size={12} strokeWidth={2.5} /></SpinButton>
-      )}
+      <SpinButton className={styles.stepBtn} ariaLabel="감소" onStep={() => spin(-1)}><Minus size={12} strokeWidth={2.5} /></SpinButton>
       {label != null && <span className={styles.label}>{label}</span>}
       <input
         type="number"
@@ -142,9 +138,7 @@ export default function NumberInput({
           </span>
         </Tooltip>
       )}
-      {stepper && (
-        <SpinButton className={styles.stepBtn} ariaLabel="증가" onStep={() => spin(1)}><Plus size={12} strokeWidth={2.5} /></SpinButton>
-      )}
+      <SpinButton className={styles.stepBtn} ariaLabel="증가" onStep={() => spin(1)}><Plus size={12} strokeWidth={2.5} /></SpinButton>
     </span>
   );
 }

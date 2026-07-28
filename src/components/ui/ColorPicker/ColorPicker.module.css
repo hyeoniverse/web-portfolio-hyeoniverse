@@ -6,7 +6,8 @@
   position: fixed;
   z-index: var(--z-dropdown);
   width: 260px;
-  padding: var(--spacing-sm);
+  /* 좌우 패딩은 .controls 래퍼가 전담 — pad/hueSlider 는 full-bleed, 컨트롤 행만 inset */
+  padding: var(--spacing-sm) 0;
   background: var(--bg-primary);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
@@ -45,8 +46,17 @@
 
 /* 시트 컨테이너 시각은 글로벌 .ui-sheet (styles/globals/_sheet.css). 여기선 content padding + select 차단만. */
 .sheet {
-  padding: 0 var(--spacing-sm) var(--spacing-xl);
+  /* 좌우 패딩은 .controls 래퍼가 전담. 하단 여백만 유지(홈 인디케이터/썸 여유) */
+  padding: 0 0 var(--spacing-xl);
   user-select: none;
+}
+
+/* ── 컨트롤 행 래퍼 — hueSlider·inputs·alpha·format 행 공통 좌우 패딩 단일 소스 ── */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: 0 var(--spacing-sm);
 }
 
 /* handle bar 는 글로벌 .ui-sheet-handle / .ui-sheet-handle-bar 사용 */
@@ -229,7 +239,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
 }
 
 .oklchRow {
@@ -335,7 +345,16 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+}
+
+/* i·복사·붙여넣기 버튼 묶음 — format select 와 확실히 분리 */
+.inputActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-shrink: 0;
+  margin-left: var(--spacing-md);
 }
 
 /* 색(반투명 가능)을 checkerboard 위에 얹어 투명도가 보이게. 색 레이어가 최상단, 아래 2겹이 격자 */
@@ -344,25 +363,30 @@
   width: var(--button-h-sm);
   height: var(--button-h-sm);
   border-radius: var(--radius-circle);
-  border: 1px solid var(--border-light-color);
-  background-color: var(--bg-primary);
+  /* solid 테두리 — 반투명(border-light)이면 색이 가장자리에서 배경과 섞여 덜 찬 것처럼 보임 */
+  border: 1px solid var(--color-neutral-300);
+  /* 색 레이어(위) + 격자(아래) — 반투명 색의 투명도가 비쳐 보이게.
+     격자는 테마 무관 고정 뉴트럴이어야 "투명"으로 읽힘 (presets.ts CHECKER_BG 와 동일 패턴). */
   background-image:
     linear-gradient(var(--_preview-color, transparent), var(--_preview-color, transparent)),
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
-  background-size: auto, 8px 8px, 8px 8px;
-  background-position: 0 0, 0 0, 4px 4px;
+    repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%);
+  background-size: auto, 6px 6px;
+  background-position: 0 0;
+  /* 격자 레이어(2번째)만 타일링 — 기본이 no-repeat 라 명시 안 하면 한 칸만 찍힘 */
+  background-repeat: no-repeat, repeat;
 }
 
 /* 기본 swatch trigger — alpha<1 일 때만 적용 (불투명은 inline background) */
 .triggerAlpha {
-  background-color: var(--bg-primary);
+  /* 색 레이어(위) + 격자(아래) — 반투명 색의 투명도가 비쳐 보이게.
+     격자는 테마 무관 고정 뉴트럴이어야 "투명"으로 읽힘 (presets.ts CHECKER_BG 와 동일 패턴). */
   background-image:
     linear-gradient(var(--_preview-color, transparent), var(--_preview-color, transparent)),
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
-  background-size: auto, 8px 8px, 8px 8px;
-  background-position: 0 0, 0 0, 4px 4px;
+    repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%);
+  background-size: auto, 6px 6px;
+  background-position: 0 0;
+  /* 격자 레이어(2번째)만 타일링 — 기본이 no-repeat 라 명시 안 하면 한 칸만 찍힘 */
+  background-repeat: no-repeat, repeat;
 }
 
 /* ── Alpha(투명도) row — slider + % 입력 ── */
@@ -370,7 +394,6 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: 0 var(--spacing-sm);
 }
 
 /* Hue slider 와 같은 lineup. 투명→불투명 그라디언트를 checkerboard 위에 */
@@ -383,18 +406,21 @@
   border-radius: var(--radius-capsule);
   cursor: ew-resize;
   touch-action: none;
-  background-color: var(--bg-primary);
+  /* 투명→불투명 그라디언트(위) + 격자(아래). presets.ts CHECKER_BG 와 동일 패턴. */
   background-image:
     linear-gradient(to right, transparent, var(--_alpha-color, transparent)),
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
-  background-size: auto, 8px 8px, 8px 8px;
-  background-position: 0 0, 0 0, 4px 4px;
+    repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%);
+  background-size: auto, 6px 6px;
+  background-position: 0 0;
+  /* 격자 레이어(2번째)만 타일링 — 기본이 no-repeat 라 명시 안 하면 한 칸만 찍힘 */
+  background-repeat: no-repeat, repeat;
 }
 
 /* % 입력 — pickerInput 폭 override (3자리 "100") */
 .alphaInput {
   width: calc(4ch + var(--spacing-xs) * 2 + 2px);
+  /* slider 와 붙지 않게 간격 (% 단위는 input 에 붙여 둠) */
+  margin-left: var(--spacing-sm);
 }
 
 .alphaUnit {
@@ -406,7 +432,7 @@
 .rgbRow {
   display: flex;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
 }
 
 /* row 직속 자식 — flex grow 끄고 picker input 자체 width 가 결정. HEX 도 다른 채널 input 과 같은 폭. */
