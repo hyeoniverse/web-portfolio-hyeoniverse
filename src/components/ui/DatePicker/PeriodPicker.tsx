@@ -140,7 +140,7 @@ function DatePart({
       options={options}
       onChange={onChange}
       disabled={disabled}
-      variant="compact"
+      showCheck
       size="sm"
       width="min"
       editable

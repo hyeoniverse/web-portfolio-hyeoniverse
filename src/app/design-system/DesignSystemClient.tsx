@@ -8,6 +8,7 @@ import { useLenis } from "@/providers/LenisProvider";
 import TOC from "@/components/ui/TOC/TOC";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";
 import Button from "@/components/ui/Button";
+import SectionHeader from "@/components/ui/SectionHeader";
 import { Typography } from "@/components/ui/Typography";
 import Tooltip from "@/components/ui/Tooltip";
 import T from "@/components/ui/T";
@@ -161,14 +162,14 @@ export default function DesignSystemClient() {
 
           {/* ─── Principles ─── */}
           <section id="principles" ref={setSectionRef("principles")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Principles</h2>
+            <SectionHeader title="Principles" />
 
             {/* Principle items — SVG + text rows */}
             {[
               {
                 title: "4-Tier Abstraction",
                 desc: language === "ko"
-                  ? "Raw → Semantic → Component → Context. 원시 값을 직접 쓰지 않고 4단계 계층으로 변경의 영향 범위를 제어합니다. Component 토큰은 button/input 같은 컴포넌트 typing 으로 실수를 방지하는 레일 역할."
+                  ? "원시 값을 직접 쓰지 않고 Raw → Semantic → Component → Context 네 단계로 감싸기 때문에, 어디를 바꿔도 영향 범위가 그 계층 안에서 통제됩니다. Component 토큰은 button·input 처럼 컴포넌트마다 타입이 정해져 있어서, 엉뚱한 값을 골라 일관성이 깨지는 실수를 막아 줍니다."
                   : "Raw → Semantic → Component → Context. Four layers control the blast radius of any change. Component tokens (typed by button/input/etc.) act as guardrails against inconsistency.",
                 icon: (
                   <svg viewBox="0 0 160 80" fill="none" className={styles.pIcon}>
@@ -237,7 +238,7 @@ export default function DesignSystemClient() {
               {
                 title: language === "ko" ? "컴포넌트에 raw 값 금지" : "No Raw Values in Components",
                 desc: language === "ko"
-                  ? "직접 #hex, rgba 사용 금지. 반드시 토큰을 통해 참조합니다. 모든 시각적 결정이 추적 가능합니다."
+                  ? "#hex 나 rgba 를 직접 쓰지 않고 반드시 토큰을 거쳐 참조합니다. 그래서 모든 시각적 결정을 토큰 단위로 되짚어 추적할 수 있습니다."
                   : "No raw #hex or rgba. Always reference through tokens. Every visual decision becomes traceable.",
                 icon: (
                   <svg viewBox="0 0 80 80" fill="none" className={styles.pIcon}>
@@ -298,7 +299,7 @@ export default function DesignSystemClient() {
 
           {/* ─── Colors ─── */}
           <section id="colors" ref={setSectionRef("colors")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Colors</h2>
+            <SectionHeader title="Colors" />
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem} style={{ marginTop: 0 }}>Presets</motion.p>
             <motion.div className={styles.presetBar} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {THEME_PRESETS.map((p, i) => (
@@ -337,7 +338,7 @@ export default function DesignSystemClient() {
 
           {/* ─── Alpha Variants ─── */}
           <section id="alpha" ref={setSectionRef("alpha")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Alpha Variants</h2>
+            <SectionHeader title="Alpha Variants" />
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Accent Alpha</motion.p>
             <motion.div className={styles.alphaRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {alphaSteps.map((a, i) => (
@@ -360,7 +361,7 @@ export default function DesignSystemClient() {
 
           {/* ─── Semantic Colors ─── */}
           <section id="semantic" ref={setSectionRef("semantic")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Semantic Colors</h2>
+            <SectionHeader title="Semantic Colors" />
             <motion.div className={styles.semanticGrid} initial="hidden" {...vpGroup(nd())} variants={innerStaggerFast}>
               {semanticColors.map((c, i) => (
                 <motion.div key={c.name} className={styles.semanticItem} variants={staggerItemX} {...scrollChildX(i, semanticColors.length)}>
@@ -376,7 +377,7 @@ export default function DesignSystemClient() {
 
           {/* ─── Typography ─── */}
           <section id="typography" ref={setSectionRef("typography")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Typography</h2>
+            <SectionHeader title="Typography" />
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Variants</motion.p>
             <motion.div className={styles.typoRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {typoVariants.map((v, i) => (
@@ -422,7 +423,7 @@ export default function DesignSystemClient() {
 
           {/* ─── Spacing ─── */}
           <section id="spacing" ref={setSectionRef("spacing")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Spacing</h2>
+            <SectionHeader title="Spacing" />
             <motion.div className={styles.spacingRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {spacingScale.map((s, i) => (
                 <motion.div key={s.name} className={styles.spacingItem} variants={staggerItem} {...scrollChildY(i)}>
@@ -436,7 +437,7 @@ export default function DesignSystemClient() {
 
           {/* ─── Radius ─── */}
           <section id="radius" ref={setSectionRef("radius")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Border Radius</h2>
+            <SectionHeader title="Border Radius" />
             <motion.div className={styles.radiusGrid} initial="hidden" {...vpGroup(nd())} variants={innerStaggerFast}>
               {radiusScale.map((r, i) => {
                 const h = 64;
@@ -453,7 +454,7 @@ export default function DesignSystemClient() {
 
           {/* ─── Shadows ─── */}
           <section id="shadows" ref={setSectionRef("shadows")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Shadows</h2>
+            <SectionHeader title="Shadows" />
             <motion.div className={styles.shadowGrid} initial="hidden" {...vpGroup(nd())} variants={innerStagger}>
               {shadowScale.map((s, i) => (
                 <motion.div key={s} className={styles.shadowItem} variants={staggerItemX} {...scrollChildX(i, shadowScale.length)}>
@@ -466,7 +467,7 @@ export default function DesignSystemClient() {
 
           {/* ─── Motion ─── */}
           <section id="motion" ref={setSectionRef("motion")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Motion</h2>
+            <SectionHeader title="Motion" />
             <motion.div initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <p className={styles.sectionSub}>Duration</p>
               <div className={styles.motionGrid}>
@@ -495,7 +496,7 @@ export default function DesignSystemClient() {
 
           {/* ─── Z-index ─── */}
           <section id="z-index" ref={setSectionRef("z-index")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Z-Index</h2>
+            <SectionHeader title="Z-Index" />
             <motion.div initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.zStack}>
                 {zScale.map((z, i) => (
@@ -516,7 +517,7 @@ export default function DesignSystemClient() {
 
           {/* ─── 3D (Three.js) ─── */}
           <section id="threejs" ref={setSectionRef("threejs")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>3D (Three.js)</h2>
+            <SectionHeader title="3D (Three.js)" />
 
             {/* ── Coffee Cup ── */}
             <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-3xl)", marginTop: "var(--spacing-2xl)" }}>
@@ -528,7 +529,7 @@ export default function DesignSystemClient() {
                 <h3 style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Coffee Cup</h3>
                 <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
-                    ? "LatheGeometry로 컵·소서 프로파일, TorusGeometry 손잡이, CylinderGeometry 액면 구성. Canvas 2D로 parametric heart curve + 80-band cream↔coffee wave + blur 엽맥 라떼아트 텍스처를 생성해 MeshPhysicalMaterial에 매핑. 마우스 추적 lerp 회전."
+                    ? "컵과 소서는 LatheGeometry, 손잡이는 TorusGeometry, 액면은 CylinderGeometry 로 만듭니다. Canvas 2D 로 parametric heart curve 와 80-band cream↔coffee wave, blur 엽맥 라떼아트 텍스처를 생성해 MeshPhysicalMaterial 에 매핑합니다. 마우스를 따라 lerp 로 부드럽게 회전합니다."
                     : "LatheGeometry cup/saucer profiles, TorusGeometry handle, CylinderGeometry liquid. Canvas 2D parametric heart curve + 80-band cream↔coffee wave + blur vein latte art texture mapped to MeshPhysicalMaterial. Mouse-tracked lerp rotation."}
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-xs)" }}>
@@ -556,7 +557,7 @@ export default function DesignSystemClient() {
                 <h3 style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Scroll Torus</h3>
                 <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
-                    ? "누적 스크롤 기반 리사주 곡선(X·Y·Z 주파수 차이) 경로로 끝없이 순환하는 메탈릭 토러스. 테마별 색상·emissive 전환, 커서 근접 시 자석 끌림 + 원거리 반발 물리 인터랙션."
+                    ? "누적 스크롤을 따라 리사주 곡선(X·Y·Z 주파수 차이) 경로를 끝없이 순환하는 메탈릭 토러스입니다. 테마에 따라 색상과 emissive 가 바뀌고, 커서가 가까우면 자석처럼 끌리고 멀면 반발하는 물리 인터랙션이 동작합니다."
                     : "Metallic torus orbiting endlessly along Lissajous curve (X·Y·Z frequency offset) driven by cumulative scroll. Theme-specific color/emissive switching, cursor proximity magnet attraction + far-range repulsion physics."}
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-xs)" }}>
@@ -584,7 +585,7 @@ export default function DesignSystemClient() {
                 <h3 style={{ fontSize: 24, fontFamily: "var(--font-instrument)", fontWeight: 400, margin: 0 }}>Bunny Character</h3>
                 <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>
                   {language === "ko"
-                    ? "LatheGeometry(몸·귀·팔·발) + SphereGeometry(머리·눈·꼬리) + CapsuleGeometry(찡그린 눈) 조합 마스코트. 자동 깜빡임 + 클릭 표정 전환(놀람/기쁨). RAF 물리 기반 벽 바운스 이동, 충돌 사운드."
+                    ? "몸·귀·팔·발은 LatheGeometry, 머리·눈·꼬리는 SphereGeometry, 찡그린 눈은 CapsuleGeometry 로 조합한 마스코트입니다. 자동으로 눈을 깜빡이고, 클릭하면 놀람·기쁨 표정으로 전환됩니다. RAF 물리 기반으로 벽에 부딪혀 튕기며 이동하고, 충돌 시 사운드가 재생됩니다."
                     : "LatheGeometry (body/ears/arms/feet) + SphereGeometry (head/eyes/tail) + CapsuleGeometry (squint eyes) mascot. Auto-blink + click expression toggle (surprise/happy). RAF physics wall-bounce movement, collision sounds."}
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "var(--spacing-xs)" }}>
@@ -607,7 +608,7 @@ export default function DesignSystemClient() {
 
           {/* ─── Tooltip ─── */}
           <section id="tooltip" ref={setSectionRef("tooltip")} className={styles.section}>
-            <h2 className={styles.sectionTitle}>Tooltip</h2>
+            <SectionHeader title="Tooltip" />
             <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Basic</div>
               <div className={styles.componentRow}>
@@ -629,7 +630,7 @@ export default function DesignSystemClient() {
             </motion.div>
             <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Translation Tooltip — &lt;T&gt;</div>
-              <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>{language === "ko" ? "Hover 시 반대 언어 번역 표시 (delay: 0ms / 600ms)" : "Shows opposite language on hover (delay: 0ms / 600ms)"}</p>
+              <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>{language === "ko" ? "마우스를 올리면 반대 언어 번역을 보여 줍니다. (지연: 0ms / 600ms)" : "Shows opposite language on hover (delay: 0ms / 600ms)"}</p>
               <div className={styles.componentRow}>
                 <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><T k="contact.title" delay={0} className={styles.tooltipDemoText} /></motion.div>
                 <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}><T k="contact.send" delay={0} className={styles.tooltipDemoText} /></motion.div>

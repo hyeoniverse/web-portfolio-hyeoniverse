@@ -325,3 +325,7 @@
   border-color: var(--border-strong-color);
   background: var(--bg-tertiary);
 }
+/* footer 맨 아래 별도 줄 — 모든 화면 크기에서 우측 정렬 (.content 는 항상 세로 컬럼) */
+.content > .viewModeBtn {
+  align-self: flex-end;
+}

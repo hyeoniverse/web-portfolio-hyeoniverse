@@ -90,6 +90,41 @@ a {
   color: inherit;
 }
 
+/* 인라인 코드 — 사이트 공통 칩 룩 (포스트 본문 기준으로 통일). 문맥별로 흩어져 있던 스타일의 단일 소스.
+   코드 블록(pre code)은 바로 아래에서 리셋 + _hljs.css 의 .code-block-wrap/.slate-code_block 규칙으로 제외. */
+code {
+  /* inline-block — 인라인이면 세로 padding 이 line box 를 못 넓혀 위/아래 줄 칩과 겹친다.
+     inline-block 이면 칩 높이가 line box 에 반영돼(+margin) 줄이 벌어져 안 겹침. */
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  line-height: 1.15;
+  padding: var(--box-2xs-lg);
+  margin-block: 1px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  text-transform: none;
+}
+
+/* 코드 블록 안의 code 는 인라인 칩 스타일 제외 — 신택스 하이라이트/프레임 유지 */
+pre code {
+  display: inline;
+  line-height: inherit;
+  margin: 0;
+  font-size: inherit;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  box-decoration-break: slice;
+  -webkit-box-decoration-break: slice;
+}
+
 body {
   overflow-x: hidden;
   position: relative;

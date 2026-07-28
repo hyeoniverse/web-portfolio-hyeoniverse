@@ -151,9 +151,7 @@
 
 /* portal 로 document.body 에 옮긴 후엔 capsuleFocused 가 dropdown 자체에 직접 적용 */
 .capsuleFocused .historyDropdown,
-.capsuleFocused .helpDropdown,
-.historyDropdown.capsuleFocused,
-.helpDropdown.capsuleFocused {
+.historyDropdown.capsuleFocused {
   border: var(--border-strong);
 }
 
@@ -301,29 +299,6 @@
   width: 360px;
   max-width: calc(100vw - 32px);
   padding: var(--spacing-md) var(--spacing-xs);
-}
-
-/* ── help dropdown (history dropdown 과 동일 스타일) ── */
-.helpDropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  /* 위아래 충분한 여백 — 마지막 section 의 콘텐츠가 popover 끝 가까이서 안 잘림 */
-  padding: var(--spacing-md) var(--spacing-xs);
-  border: var(--border-default);
-  border-radius: var(--radius-xl);
-  background: transparent;
-  backdrop-filter: blur(20px);
-  box-shadow: var(--shadow-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  /* 콘텐츠가 길면 스크롤 — dvh 로 모바일 주소창 변동까지 대응 */
-  max-height: 70dvh;
-  overflow-y: auto;
-  scrollbar-gutter: stable;
 }
 
 .helpSection {

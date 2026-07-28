@@ -23,6 +23,8 @@ interface FooterProps {
 
 export default function Footer({ className, variant = "full" }: FooterProps) {
   const pathname = usePathname();
+  // design-system(쇼케이스)에선 데스크톱에서도 footer 의 ViewModeToggle 을 보이게 강제.
+  const isDesignSystem = !!pathname?.startsWith("/design-system");
   const { language } = useLanguage();
   const siteConfig = useSiteConfig();
   const [visits, setVisits] = useState<{ today: number; total: number } | null>(null);
@@ -177,7 +179,6 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
               {copyrightText}
             </div>
             <div className={styles.bottomRight}>
-              <ViewModeToggle />
               <div className={styles.visits}>
                 <Link href="/privacy" className={styles.adminLink}>Privacy</Link>
                 <span className={styles.divider}>✧</span>
@@ -247,13 +248,13 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                 {copyrightText}
               </div>
               <div className={styles.bottomRight}>
-                <ViewModeToggle />
                 {visitsBlock}
                 {musicCreditText}
               </div>
             </div>
           </>
         )}
+        <ViewModeToggle forceShow={isDesignSystem} />
       </div>
     </footer>
   );

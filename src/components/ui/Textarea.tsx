@@ -299,7 +299,7 @@ function EditableTextarea({
 
   /* maxLength 초과분 잘라내고, DOM 이 이미 그린 초과분도 즉시 제거 (capped 값이 기존 value 와
      같으면 value effect 가 안 돌아 DOM 이 초과 상태로 남는 것 방지). caret 은 끝으로.
-     멀티라인 — 줄바꿈은 보존 (EditableInput 의 \r\n 제거 로직 미이식). */
+     멀티라인 — 줄바꿈은 보존 (HighlightInput 의 \r\n 제거 로직 미이식). */
   const capAndSync = useCallback(
     (root: HTMLDivElement, raw: string): string => {
       if (maxLength == null || raw.length <= maxLength) return raw;

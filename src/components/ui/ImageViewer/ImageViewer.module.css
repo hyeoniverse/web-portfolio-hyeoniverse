@@ -13,6 +13,9 @@
 }
 
 .viewer {
+  /* 사이드바(list) 폭 — .thumbList 와 밀려나는 .toolbar/.imageArea 가 함께 참조해야 하므로
+     공통 부모인 .viewer 에 선언한다(자식에만 선언하면 형제 스코프 밖이라 margin 이 안 먹음). */
+  --_list-width: 140px;
   position: fixed;
   inset: 0;
   z-index: var(--z-modal);
@@ -54,6 +57,37 @@
 .toolbarLeft {
   min-width: 0;
   overflow: hidden;
+}
+
+/* 닫기(X) 왼쪽 액션 묶음 (도움말 ? / 정보 i) */
+.helpInfoActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+  margin-right: var(--spacing-2xs);
+}
+
+/* 뷰어 툴바 도움말/정보 버튼 상태 —
+   rest: 진한 보더 / hover: 옅은 배경 / active(팝오버 열림, aria-expanded): 배경-텍스트 반전.
+   공통 Button(subtle)의 variant 규칙을 이 문맥에서만 덮으므로 !important 로 확정한다. */
+.ctrlBtn {
+  border: var(--border-strong) !important;
+  color: var(--text-secondary) !important;
+  background: transparent !important;
+}
+
+.ctrlBtn:hover:not(:disabled) {
+  background: var(--bg-tertiary-alt) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--text-primary) !important;
+}
+
+.ctrlBtn[aria-expanded="true"],
+.ctrlBtn[aria-expanded="true"]:hover:not(:disabled) {
+  background: var(--bg-inverse) !important;
+  color: var(--text-inverse) !important;
+  border-color: var(--bg-inverse) !important;
 }
 
 .toolbarRight {
@@ -256,6 +290,8 @@
   align-items: center;
   justify-content: center;
   min-height: 0;
+  /* 메인 이미지 좌우 여백 — 사이드바/화면 가장자리에 붙지 않게 */
+  padding-inline: var(--spacing-xl);
   touch-action: none;
 }
 
@@ -302,24 +338,21 @@
 /* ==========================================================================
    Keyboard Shortcuts Overlay
    ========================================================================== */
-.shortcutsOverlay {
+/* 도움말 ? 버튼에 앵커되는 단축키 팝오버 (info 팝오버와 동일 규격) */
+.shortcutsPopover {
   position: absolute;
-  inset: 0;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-overlay);
-  backdrop-filter: blur(4px);
-}
-
-.shortcutsPanel {
-  padding: var(--box-y-xl);
-  border-radius: var(--radius-lg);
+  top: 100%;
+  right: 0;
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-sm) 0;
+  border-radius: var(--radius-2xl);
   background: var(--bg-primary);
   border: var(--border-light);
-  box-shadow: 0 12px 40px oklch(0.00% 0.0000 0.00 / 0.15);
+  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.25);
+  z-index: 20;
+  width: max-content;
   min-width: 240px;
+  overflow: hidden;
 }
 
 .shortcutsTitle {
@@ -399,6 +432,76 @@
   box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.25);
   z-index: 20;
   min-width: 160px;
+}
+
+/* Tooltip/Popover portal 타깃 — 자리 차지 안 하고, 내부 fixed 툴팁만 host. 클릭은 통과(interactive 툴팁은 자체로 auto) */
+.tooltipLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+/* ── Image info popover ── */
+.infoWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.infoPopover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: var(--spacing-xs);
+  padding: var(--box-lg);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-primary);
+  border: var(--border-light);
+  box-shadow: 0 8px 24px oklch(0.00% 0.0000 0.00 / 0.25);
+  z-index: 20;
+  width: max-content;
+  min-width: 220px;
+  max-width: 340px;
+}
+
+.infoTitle {
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-sm);
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin: 0;
+}
+
+.infoRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-md);
+}
+
+.infoKey {
+  flex-shrink: 0;
+  width: 62px;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.infoVal {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
 }
 
 .autoplaySection {
@@ -518,13 +621,6 @@
 .fullscreen .navBtn { color: var(--text-primary); }
 .fullscreen .navBtn:hover { color: var(--text-inverse); }
 .fullscreen .loaderSpinner { border-color: var(--border-ghost-light); border-top-color: var(--text-white-muted); }
-.fullscreen .shortcutsPanel { --_panel-bg: oklch(23.50% 0.0000 0.00 / 0.95); background: var(--_panel-bg); border-color: var(--border-ghost-light); }
-.fullscreen .shortcutsTitle { color: var(--text-white); }
-.fullscreen .shortcutsSection { color: var(--text-white-muted); }
-.fullscreen .shortcutsItem { color: var(--text-white-muted); }
-.fullscreen .shortcutsItem:hover { background: var(--bg-glass-subtle); }
-.fullscreen .shortcutsItem kbd { border-color: var(--border-ghost); background: var(--bg-glass-subtle); color: var(--text-white); }
-.fullscreen .shortcutsDivider { background: var(--bg-glass); }
 
 /* ─── Loader ─── */
 .loader {
@@ -629,7 +725,6 @@
    Thumbnail List (sidebar)
    ========================================================================== */
 .thumbList {
-  --_list-width: 140px;
   position: absolute;
   top: 0;
   left: 0;
@@ -700,6 +795,72 @@
 .hasListPanel .toolbar,
 .hasListPanel .imageArea {
   margin-left: var(--_list-width);
+}
+
+/* ==========================================================================
+   Gallery (grid of all images)
+   ========================================================================== */
+.galleryOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow-y: auto;
+  padding: 0;
+  background: var(--bg-primary);
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-muted) transparent;
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0;
+  width: 100%;
+}
+
+.galleryItem {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  cursor: pointer;
+  opacity: 0.85;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: opacity 0.15s, outline-color 0.15s;
+}
+
+.galleryItem:hover {
+  opacity: 1;
+}
+
+.galleryItemActive {
+  opacity: 1;
+  outline-color: var(--color-accent);
+}
+
+.galleryImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.galleryLabel {
+  position: absolute;
+  left: var(--spacing-2xs);
+  bottom: var(--spacing-2xs);
+  padding: var(--box-3xs-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ==========================================================================
@@ -845,9 +1006,8 @@
     height: 68px;
   }
 
-  .thumbList {
+  .viewer {
     --_list-width: 100px;
-    width: var(--_list-width);
   }
 
   .thumbListInner {
@@ -922,4 +1082,10 @@
 .viewer .toolbar,
 .viewer .imageArea {
   transition: margin-left 0.45s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* 사이드바 펼칠 때는 하단 strip 이 먼저 닫히도록 콘텐츠 밀림을 살짝 늦춘다 (닫힐 땐 지연 없이 바로) */
+.viewer.hasListPanel .toolbar,
+.viewer.hasListPanel .imageArea {
+  transition-delay: 0.2s;
 }

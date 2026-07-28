@@ -10,7 +10,7 @@ import TextLink from "@/components/ui/TextLink";
 import Checkbox from "@/components/ui/Checkbox";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Input from "@/components/ui/Input";
-import EditableInput from "@/components/ui/EditableInput";
+import HighlightInput from "@/components/ui/HighlightInput";
 import Button from "@/components/ui/Button";
 import RadioGroup from "@/components/ui/RadioGroup";
 import Select from "@/components/ui/Select";
@@ -772,7 +772,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                 <FieldRow label={t("admin.settings.logoText")} className={styles.faviconFormRow}>
                   <div className={styles.faviconTextInputWrap}>
                     {/* favicon 은 한 grapheme 만 렌더 → 마지막 입력 글자로 덮어쓰기(이모지 보존). 4글자 제한 제거 */}
-                    <EditableInput
+                    <HighlightInput
                       value={config.brand.logoText}
                       onChange={(v) => update("brand", "logoText", lastGrapheme(v))}
                       placeholder={t("admin.settings.logoTextPlaceholder")}
@@ -1151,7 +1151,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
             <div className={styles.faviconForm}>
               <FieldRow label={t("admin.settings.logoFullText")} className={styles.faviconFormRow}>
                 <div className={styles.brandTextInputWrap}>
-                  <EditableInput value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} maxHint={20} maxLength={20} />
+                  <HighlightInput value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} maxHint={20} maxLength={20} />
                 </div>
               </FieldRow>
               {/* 로고 색상 — 프리셋 + Light/Dark override (풀로고·텍스트 로고 색) */}

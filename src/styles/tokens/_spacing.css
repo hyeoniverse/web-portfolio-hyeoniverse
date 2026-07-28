@@ -158,6 +158,7 @@
 
   /* Box - Compound (Y-X explicit naming) */
   --box-2xs-md: var(--spacing-2xs) var(--spacing-md);
+  --box-2xs-lg: var(--spacing-2xs) var(--spacing-lg);
   --box-2xs-xl: var(--spacing-2xs) var(--spacing-xl);
   --box-xs-sm: var(--spacing-xs) var(--spacing-sm);
   --box-xs-lg: var(--spacing-xs) var(--spacing-lg);

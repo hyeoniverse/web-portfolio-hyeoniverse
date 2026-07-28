@@ -27,7 +27,7 @@ function applyViewport(mode: "pc" | "mobile") {
   meta.setAttribute("content", mode === "pc" ? PC_VIEWPORT : MOBILE_VIEWPORT);
 }
 
-export default function ViewModeToggle() {
+export default function ViewModeToggle({ forceShow = false }: { forceShow?: boolean }) {
   const { language } = useLanguage();
   const { isMobile, isTouch } = useIsMobile();
   const [forced, setForced] = useState<"pc" | "mobile" | null>(null);
@@ -53,7 +53,8 @@ export default function ViewModeToggle() {
 
   // 터치 기기(모바일/태블릿)에서만 노출 — 데스크톱은 viewport 오버라이드가 무효라 의미 없음.
   // isTouch 는 viewport 폭이 아닌 pointer:coarse 기준이라 PC 모드로 전환해도 계속 표시됨(되돌리기 가능).
-  if (!isTouch) return null;
+  // forceShow: design-system 등 showcase 에서 데스크톱에서도 컴포넌트를 볼 수 있게 게이트 무시.
+  if (!isTouch && !forceShow) return null;
 
   const label = target === "pc"
     ? (language === "ko" ? "PC 모드" : "Desktop mode")

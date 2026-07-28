@@ -411,20 +411,7 @@
   color: var(--text-secondary);
 }
 
-.prose code {
-  font-family: var(--font-mono);
-  font-size: 0.85em;
-  padding: var(--box-3xs-xs);
-  color: var(--text-accent);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
-  box-shadow: var(--shadow-xs);
-  line-height: inherit;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
-
-/* 코드블록(pre/code) 프레임·스크롤은 globals/_hljs.css 의 .code-block-wrap 규칙으로 공통화 */
+/* 인라인 코드(.prose code)·코드블록 스타일은 globals/_base.css(전역 code) + _hljs.css(.code-block-wrap) 로 공통화 */
 
 .prose ul,
 .prose ol {

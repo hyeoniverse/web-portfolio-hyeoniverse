@@ -32,12 +32,13 @@
   transition: height var(--duration-moderate) var(--ease-material);
 }
 
-/* 실제 content wrapper — 상하 spacing-sm (12px), 좌우 spacing-xs (8px) */
+/* 실제 content wrapper — 상하 spacing-sm (12px), 좌우 spacing-xs (8px).
+   gap(md) 은 그룹 사이 간격 — 그룹 내 항목 간격(2xs)보다 크게 줘 구분감 확보. */
 .listInner {
   padding: var(--box-sm-xs);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-md);
 }
 
 /* 그룹 div 도 flex column + gap — items 가 같은 간격 유지 */
@@ -47,11 +48,25 @@
   gap: var(--spacing-2xs);
 }
 
-.groupLabel {
-  padding: var(--spacing-3xs) var(--spacing-xs) 2px;
+/* 현재 그룹 헤더 — 목록(.list) 위 고정 영역(검색 hint 처럼 non-scroll).
+   항목은 .list 안에서 clip 되므로 배경색·blur 없이도 안 겹친다. */
+.stickyGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-2xs);
   font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* 그룹 구분감 — 라벨 오른쪽으로 남는 폭을 채우는 얇은 라인 */
+.stickyGroup::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-light-color);
 }
 
 .item {
@@ -80,15 +95,32 @@
   text-overflow: ellipsis;
 }
 
+/* 한글 지원 배지 "가" — 미리보기 폰트 말고 중립 폰트로 라벨화, 옅은 캡슐 */
+.itemKr {
+  flex-shrink: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-3xs);
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+}
+
+/* hover 는 중립(bg-tertiary), 선택은 옅은 accent 캡슐 + accent 텍스트 — Select 드롭다운과 톤 통일.
+   (기존 solid accent 바 + 흰 텍스트는 목록에서 혼자 너무 강했음) */
 .item:hover {
-  background: var(--bg-accent-light);
+  background: var(--bg-tertiary);
   color: var(--text-primary);
 }
 
-.itemActive,
+.itemActive {
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+}
+
 .itemActive:hover {
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
+  background: var(--bg-accent-light);
 }
 
 .hint {

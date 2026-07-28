@@ -307,6 +307,9 @@ export default function Modal() {
               <span className={styles.sheetHandleBar} />
             </div>
 
+            {/* 우측 컨트롤(subButtons + X)은 헤더가 있으면 헤더 우측 flow(액션 옆)에 합류시키고,
+                없을 때만 절대배치 topRight 로. 예전엔 header.actions(flow)와 topRight(absolute)가
+                따로라, subButtons 가 있으면 topRight 가 예약폭(56px)보다 넓어져 액션과 겹쳤음(근본 수정). */}
             {header && (
               <div className={styles.modalHeader}>
                 <div className={styles.headerContent}>
@@ -317,17 +320,31 @@ export default function Modal() {
                     <h2 id={`modal-title-${id}`} className={styles.modalTitle}>{header.title}</h2>
                   )}
                 </div>
-                {header.actions && (
-                  <div className={styles.headerActions}>{header.actions}</div>
+                {(header.actions || subButtons || (closeButton && !isMobile)) && (
+                  <div className={styles.headerActions}>
+                    {header.actions}
+                    {(subButtons || (closeButton && !isMobile)) && (
+                      <div className={styles.rightCluster}>
+                        {subButtons && <div className={styles.subButtons}>{subButtons}</div>}
+                        {closeButton && !isMobile && (
+                          <CloseButton
+                            className={styles.closeButton}
+                            size="md"
+                            onClick={() => handleClose(id)}
+                            ariaLabel="닫기"
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             )}
 
-            {((closeButton && !isMobile) || subButtons) && (
+            {/* 헤더 없을 때만 절대배치 (모바일은 X 숨김 — 아래로 드래그 + grabber 로 닫음) */}
+            {!header && ((closeButton && !isMobile) || subButtons) && (
               <div className={styles.topRight}>
                 {subButtons && <div className={styles.subButtons}>{subButtons}</div>}
-                {/* 모바일은 bottom sheet 모드 — 아래로 드래그해서 닫는 게 기본 제스처이고
-                    상단에 grabber 도 있으므로 X 버튼은 숨긴다 (데스크톱에서만 노출) */}
                 {closeButton && !isMobile && (
                   <CloseButton
                     className={styles.closeButton}

@@ -485,8 +485,60 @@
   margin-bottom: var(--spacing-sm);
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* 컴포넌트 안 변형 소제목 (한 컴포넌트를 Variants/Sizes/States 등으로 나눌 때).
+   컴포넌트명(.componentGroupTitle)보다 작고 옅게 — 하위임을 드러낸다. */
+.componentSubLabel {
+  margin: var(--spacing-xl) 0 var(--spacing-sm);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+/* 제목 바로 다음 첫 소제목은 간격을 좁혀 컴포넌트에 붙인다 */
+.componentGroupTitle + .componentSubLabel {
+  margin-top: var(--spacing-xs);
+}
+
+/* 컴포넌트 설명 — 위치(제목/소제목 바로 아래), 크기(sm), 색(tertiary) 통일.
+   기존에 흩어져 있던 sectionSub 블록 + 인라인 span 설명을 이 하나로 통일. */
+.componentDesc {
+  margin: 0 0 var(--spacing-md);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: var(--text-tertiary);
+}
+.componentDesc :global(code) {
+  font-size: 0.8em;
+}
+
+/* 컴포넌트 카테고리 구분 헤더 — accent 대문자 라벨 + 가로 구분선 */
+.componentCategory {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: var(--spacing-5xl) 0 var(--spacing-xl);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+.componentCategory:first-of-type {
+  margin-top: var(--spacing-xl);
+}
+.componentCategory::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-light-color);
 }
 
 /* Semantic color map */
@@ -577,6 +629,45 @@
   text-align: center;
 }
 
+/* ModalConfirm children — "무엇이 바뀌는지" 목록.
+   기본 ul(padding-left 40px, margin 1em, disc)이 그대로 먹어 bullet 이 본문 밖으로 튀고
+   desc 와 간격이 과했음 → 리셋 후 커스텀 dot + desc 와 정렬.
+   margin-top 음수는 desc 의 margin-bottom(3xl)과 상쇄돼 실제 간격 = lg. */
+.modalChangeList {
+  margin: calc(var(--spacing-lg) - var(--spacing-3xl)) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.modalChangeList li {
+  position: relative;
+  padding-left: var(--spacing-md);
+}
+
+/* 커스텀 dot — desc 왼쪽선에 맞춰 살짝 안쪽, 텍스트는 md 들여쓰기(hanging indent) */
+.modalChangeList li::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0.62em;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-circle);
+  background: var(--text-tertiary);
+}
+
+.modalChangeList strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 /* TypeWriter demo */
 .typewriterDemo {
   position: relative;
@@ -586,9 +677,7 @@
 }
 
 .replayBtn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -658,10 +747,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-md);
-  align-items: center;
+  align-items: flex-start;
   padding: var(--box-lg);
+  /* 팝오버가 아래로 열려 배경 위에 겹쳐 보이도록 높이 확보 (배경 이미지는 JSX inline) */
+  min-height: 200px;
   border-radius: var(--radius-2xl);
-  background: var(--gradient-accent-soft);
+  background: var(--bg-secondary);
 }
 
 .popoverNote {
