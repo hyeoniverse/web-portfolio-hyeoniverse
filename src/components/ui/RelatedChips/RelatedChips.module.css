@@ -64,7 +64,9 @@
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  min-height: 1.5rem;
+  /* chip 과 같은 높이 고정 — chip 은 thumb(1.5rem)+세로padding(3xs*2)+border(2px)=30px.
+     min-height 만 두면 혼자 줄바꿈될 때 24px 로 줄어 chip 과 크기가 달라 보임. */
+  min-height: calc(1.5rem + var(--spacing-3xs) * 2 + 2px);
   padding: var(--spacing-3xs) var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);

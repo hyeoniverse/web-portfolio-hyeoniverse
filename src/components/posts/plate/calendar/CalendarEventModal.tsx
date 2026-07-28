@@ -9,7 +9,7 @@ import { ModalFooterContext } from "@/components/ui/Modal";
 import TimePickerPopover from "@/components/ui/DatePicker/TimePickerPopover";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import Input from "@/components/ui/Input";
-import EditableInput from "@/components/ui/EditableInput";
+import HighlightInput from "@/components/ui/HighlightInput";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -377,10 +377,10 @@ export default function CalendarEventModal({
     )}
     <div className={styles.modalForm}>
       <div className={styles.modalCol}>
-      {/* 제목 (필수) — 카운터는 input 내부(EditableInput), 초과 입력 시 toast */}
+      {/* 제목 (필수) — 카운터는 input 내부(HighlightInput), 초과 입력 시 toast */}
       <div className={`${styles.section} ${styles.sectionFull}`}>
         <span className={styles.sectionLabel}>{t("제목", "Title")}<span className={styles.reqDot} aria-hidden /></span>
-        <EditableInput
+        <HighlightInput
           value={title}
           onChange={setTitle}
           placeholder={t("이벤트 제목", "Event title")}

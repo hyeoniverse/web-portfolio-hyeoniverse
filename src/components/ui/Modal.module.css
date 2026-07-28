@@ -64,9 +64,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* 좌측 padding 줄여 본문 (modalBody / 외부 content) 시작점과 어색하지 않게 정렬.
-     우측은 close button 영역 확보 위해 그대로. */
-  padding: var(--spacing-xl) 56px var(--spacing-2xs) var(--spacing-lg);
+  /* 우측 컨트롤(X·subButtons)이 헤더 flow 에 합류하므로 고정 56px 예약 불필요 — 좌우 동일 lg.
+     상단 여백은 md 로 줄여 title·버튼이 (수직 중앙 정렬 유지한 채) 조금 더 위에 오게. */
+  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-2xs);
 }
 
 .headerContent {
@@ -85,6 +85,15 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+/* subButtons + X 묶음 — 헤더 flow(headerActions 안) 또는 절대배치(topRight) 양쪽에서 재사용.
+   내부는 tight(2xs) — subButtons 가 X 에 바로 붙게. */
+.rightCluster {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
   flex-shrink: 0;
 }
 
@@ -135,7 +144,8 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
+  /* 좌우를 md 로 줄여 버튼↔모달 우측 여백을 하단 여백(padding-bottom md)과 같게 */
+  padding: var(--spacing-md);
   flex-shrink: 0;
 }
 

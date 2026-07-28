@@ -493,8 +493,10 @@ export default function ColorPicker({
     e.preventDefault();
     const bar = alphaBarRef.current;
     if (!bar) return;
-    const rect = bar.getBoundingClientRect();
     const apply = (ev: PointerEvent) => {
+      // 팝오버 진입 애니메이션(scale) 중엔 rect 가 최종 위치와 달라, 열자마자 바로 드래그하면
+      // 첫 측정값에 고정돼 어긋난다 → 이동마다 재측정해 자기보정 (애니메이션 끝나면 정확해짐)
+      const rect = bar.getBoundingClientRect();
       emitAlpha(clamp((ev.clientX - rect.left) / rect.width, 0, 1));
     };
     apply(e.nativeEvent);
@@ -785,6 +787,7 @@ export default function ColorPicker({
               />
             </div>
           )}
+          <div className={styles.controls}>
           {/* linear Hue slider — wheel/OKLCH 모드 제외 (wheel=ring, OKLCH=H 행에 통합) */}
           {padType !== "wheel" && padType !== "lc" && (
             <div
@@ -806,10 +809,11 @@ export default function ColorPicker({
               value={format}
               options={FORMAT_OPTIONS}
               onChange={(v) => setFormat(v as InputFormat)}
-              variant="compact"
+              showCheck
               size="sm"
               className={styles.formatSelect}
             />
+            <div className={styles.inputActions}>
             <Tooltip content={FORMAT_INFO[format]} placement="top">
               <button
                 type="button"
@@ -843,6 +847,7 @@ export default function ColorPicker({
                 {pasteFlash === "ok" ? <Check size={14} strokeWidth={2} /> : <ClipboardPaste size={14} strokeWidth={2} />}
               </button>
             </Tooltip>
+            </div>
           </div>
 
           {/* Alpha(투명도) — 색과 독립. 체커보드 위 투명→불투명 그라디언트 + 우측 % 입력 */}
@@ -851,6 +856,7 @@ export default function ColorPicker({
               ref={alphaBarRef}
               className={styles.alphaSlider}
               onPointerDown={onAlphaDown}
+              data-cursor="grab"
               style={{ "--_alpha-color": hex } as CSSProperties}
               role="slider"
               aria-label="투명도"
@@ -1097,6 +1103,7 @@ export default function ColorPicker({
             </div>
           )}
 
+          </div>
     </>
   );
 

@@ -55,6 +55,54 @@
   filter: invert(1);
 }
 
+/* ── arrow(말풍선 tail) — trigger 를 가리키는 삼각형(회전 정사각형) ──
+   패널과 같은 bg + 바깥쪽 두 변만 border. 안쪽 두 변은 border 없이 패널 bg 와 같은 색이라
+   패널 위에 얹혀도 seam 없이 이어져 보인다(= z-index 트릭 불필요 → 어느 stacking context 에서도 안정).
+   arrowSide 방향(패널이 trigger 반대편)에 따라 붙는 모서리·튀어나오는 방향이 달라진다.
+   margin 은 tail(11px)의 절반(-5.5px)만큼 당겨 arrowLeft/arrowTop 좌표에 센터.
+   overflow visible 은 index.tsx 가 bubble 사용 시 inline 으로 처리. solid(bg-primary) 기준. */
+.arrow {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  background: var(--bg-primary);
+  border: 0 solid var(--border-light-color);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+/* 패널이 trigger 아래 → 위 모서리 tail (위 가리킴) */
+.arrowTop {
+  top: -5.5px;
+  margin-left: -5.5px;
+  border-top-width: var(--border-width-thin);
+  border-left-width: var(--border-width-thin);
+}
+/* 패널이 trigger 위 → 아래 모서리 tail */
+.arrowBottom {
+  bottom: -5.5px;
+  margin-left: -5.5px;
+  border-right-width: var(--border-width-thin);
+  border-bottom-width: var(--border-width-thin);
+}
+/* 패널이 trigger 오른쪽 → 왼쪽 모서리 tail (왼쪽=trigger 가리킴). Select 오른쪽 말풍선과 동일 */
+.arrowLeft {
+  left: -5.5px;
+  margin-top: -5.5px;
+  border-left-width: var(--border-width-thin);
+  border-bottom-width: var(--border-width-thin);
+}
+/* 패널이 trigger 왼쪽 → 오른쪽 모서리 tail */
+.arrowRight {
+  right: -5.5px;
+  margin-top: -5.5px;
+  border-top-width: var(--border-width-thin);
+  border-right-width: var(--border-width-thin);
+}
+.dropdownGlass .arrow {
+  background: var(--bg-glass-panel);
+  backdrop-filter: var(--blur-glass);
+}
+
 /* ── Bottom Sheet (touch) ──
    컨테이너/배경/핸들 시각은 글로벌 .ui-sheet* (styles/globals/_sheet.css) 가 담당.
    여기선 header / body 등 Popover 고유 부분만. */

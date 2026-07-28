@@ -33,10 +33,19 @@ export function useChipReorder(onReorder: (from: number, to: number) => void) {
       dragIdx !== null && dragIdx !== i && dropPos?.idx === i
         ? dropPos.side
         : null,
-    onDragStart: () => setDragIdx(i),
+    onDragStart: (e: DragEvent<HTMLSpanElement>) => {
+      setDragIdx(i);
+      // Safari/Firefox 는 dragstart 에서 dataTransfer 를 설정하지 않으면 drag 를 아예 시작하지 않는다
+      // (→ indicator·이동 모두 안 됨). Chromium 은 관대하지만 크로스브라우저 위해 항상 설정.
+      if (e.dataTransfer) {
+        e.dataTransfer.setData("text/plain", String(i));
+        e.dataTransfer.effectAllowed = "move";
+      }
+    },
     onDragOver: (e: DragEvent<HTMLSpanElement>) => {
       if (dragIdx === null) return;
       e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
       const rect = e.currentTarget.getBoundingClientRect();
       const mid = rect.left + rect.width / 2;
       setDropPos({ idx: i, side: e.clientX < mid ? "left" : "right" });

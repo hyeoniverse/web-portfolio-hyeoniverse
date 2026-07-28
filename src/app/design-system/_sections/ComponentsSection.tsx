@@ -1,21 +1,18 @@
 "use client";
 
-import { memo, useState, useCallback, Suspense } from "react";
+import { memo, useState, useCallback, Suspense, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Mail, Send, Star, ArrowRight, Zap, RotateCcw, Hash, Code, Minus, Plus, BookOpen, ExternalLink } from "lucide-react";
+import { Mail, Send, Star, ArrowRight, Zap, RotateCcw, Hash, Code, Minus, Plus, ExternalLink } from "lucide-react";
 import Button from "@/components/ui/Button";
 import HelpButton from "@/components/ui/HelpButton";
-import DetailActionButton from "@/components/ui/DetailActionButton";
 import SortControl from "@/components/ui/SortControl";
 import SegmentedControl from "@/components/ui/SegmentedControl";
-import FontPicker from "@/components/ui/FontPicker";
+import FontPicker, { type FontGroup } from "@/components/ui/FontPicker";
 import MenuDots from "@/components/ui/MenuDots";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import HighlightedText from "@/components/ui/HighlightedText";
-import EditableInput from "@/components/ui/EditableInput";
-import MediaThumb from "@/components/ui/MediaThumb";
-import PageTitle from "@/components/ui/PageTitle";
+import HighlightInput from "@/components/ui/HighlightInput";
 import SpinButton from "@/components/ui/SpinButton";
 import Collapsible from "@/components/ui/Collapsible";
 import { Typography } from "@/components/ui/Typography";
@@ -30,8 +27,8 @@ import { useModalStore } from "@/stores/modalStore";
 import { showToast } from "@/stores/toastStore";
 import { ModalConfirm, ModalAlert } from "@/components/ui/ModalTemplates";
 import ColorPicker from "@/components/ui/ColorPicker";
+import SectionHeader from "@/components/ui/SectionHeader";
 import CloseButton from "@/components/ui/CloseButton";
-import CloseIcon from "@/components/ui/CloseIcon";
 import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
 import type { DatePeriod } from "@/data/profile";
 import Logo from "@/components/common/Logo";
@@ -42,17 +39,11 @@ import { MoreVertical, ChevronsLeft, ChevronsRight, Pencil, Trash2 } from "lucid
 import TextLink from "@/components/ui/TextLink";
 import Pagination from "@/components/ui/Pagination";
 import Chip, { useChipReorder } from "@/components/ui/Chip";
-import BilingualInputPair, { type BilingualValue } from "@/components/admin/BilingualInputPair";
-import TagNotesEditor, { type TagNote } from "@/components/admin/TagNotesEditor";
-import AdminNotFound from "@/components/admin/AdminNotFound";
-import { RoleBadge, ProviderChips } from "@/components/admin/MemberBadges";
-import { LikeButton } from "@/components/layout/DetailLayout";
 import HeartIcon from "@/components/ui/HeartIcon";
 import Textarea from "@/components/ui/Textarea";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import EmojiPicker, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
-import ViewModeToggle from "@/components/layout/ViewModeToggle";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
 
@@ -69,20 +60,79 @@ interface ComponentsSectionProps {
   nd: () => number;
 }
 
+/** 설명 문자열 안의 인라인 마크다운을 렌더 — **굵게** → <strong>, `코드` → <code>. */
+function md(text: string): ReactNode {
+  const parts: ReactNode[] = [];
+  const re = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  let k = 0;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    const tok = m[0];
+    if (tok.startsWith("**")) parts.push(<strong key={k++}>{tok.slice(2, -2)}</strong>);
+    else parts.push(<code key={k++}>{tok.slice(1, -1)}</code>);
+    last = m.index + tok.length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
+
+/** FontPicker 데모용 폰트 목록 — 사이트 로드 폰트(var) + 인기 Google Fonts.
+ *  googleName 지정분은 dropdown 에서 hover / 선택 시 자동 로드되어 실제 폰트로 보인다. */
+const gf = (label: string, fallback: string) => ({ label, value: `'${label}', ${fallback}`, googleName: label });
+const gfk = (label: string, fallback: string) => ({ ...gf(label, fallback), korean: true });
+const FONT_DEMO_GROUPS: FontGroup[] = [
+  { group: "Korean (한글)", fonts: [
+    // Google Fonts 의 korean subset 지원 전체 (38 families) — 사이트 라이브 메타데이터 기준
+    gfk("Noto Sans KR", "sans-serif"), gfk("Nanum Gothic", "sans-serif"), gfk("Gothic A1", "sans-serif"),
+    gfk("IBM Plex Sans KR", "sans-serif"), gfk("Gowun Dodum", "sans-serif"), gfk("Sunflower", "sans-serif"),
+    gfk("Stylish", "sans-serif"), gfk("Asta Sans", "sans-serif"), gfk("Do Hyeon", "sans-serif"),
+    gfk("Jua", "sans-serif"), gfk("Dongle", "sans-serif"),
+    gfk("Noto Serif KR", "serif"), gfk("Nanum Myeongjo", "serif"), gfk("Gowun Batang", "serif"),
+    gfk("Song Myung", "serif"), gfk("Hahmlet", "serif"), gfk("Diphylleia", "serif"),
+    gfk("Grandiflora One", "serif"), gfk("Moirai One", "serif"),
+    gfk("Black Han Sans", "sans-serif"), gfk("Gugi", "sans-serif"), gfk("Gasoek One", "sans-serif"),
+    gfk("Bagel Fat One", "sans-serif"), gfk("Orbit", "sans-serif"), gfk("Black And White Picture", "sans-serif"),
+    gfk("Cute Font", "sans-serif"), gfk("Nanum Gothic Coding", "monospace"),
+    gfk("Nanum Pen Script", "cursive"), gfk("Nanum Brush Script", "cursive"), gfk("Gaegu", "cursive"),
+    gfk("Hi Melody", "cursive"), gfk("Gamja Flower", "cursive"), gfk("Poor Story", "cursive"),
+    gfk("Single Day", "cursive"), gfk("Dokdo", "cursive"), gfk("East Sea Dokdo", "cursive"),
+    gfk("Kirang Haerang", "cursive"), gfk("Yeon Sung", "cursive"),
+  ] },
+  { group: "Sans", fonts: [
+    { label: "Space Grotesk", value: "var(--font-space-grotesk)" },
+    ...["Inter", "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Work Sans", "Nunito", "Raleway", "DM Sans", "Manrope", "Rubik", "Mulish", "Josefin Sans", "Quicksand"].map((n) => gf(n, "sans-serif")),
+  ] },
+  { group: "Serif", fonts: [
+    { label: "Instrument Serif", value: "var(--font-instrument)" },
+    ...["Playfair Display", "Merriweather", "Lora", "PT Serif", "Cormorant", "EB Garamond", "Bitter", "Crimson Text", "Libre Baskerville", "Source Serif 4"].map((n) => gf(n, "serif")),
+  ] },
+  { group: "Display", fonts: ["Oswald", "Bebas Neue", "Abril Fatface", "Righteous", "Lobster", "Pacifico", "Comfortaa", "Fredoka", "Anton"].map((n) => gf(n, "sans-serif")) },
+  { group: "Mono", fonts: [
+    { label: "Mono", value: "var(--font-mono)" },
+    ...["JetBrains Mono", "Fira Code", "Source Code Pro", "IBM Plex Mono", "Space Mono"].map((n) => gf(n, "monospace")),
+  ] },
+  { group: "Handwriting", fonts: ["Caveat", "Dancing Script", "Shadows Into Light", "Satisfy"].map((n) => gf(n, "cursive")) },
+];
+
 function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd }: ComponentsSectionProps) {
   const { openModal } = useModalStore();
   const [menuDotsOpen, setMenuDotsOpen] = useState(false);
+  const [menuDotsClosing, setMenuDotsClosing] = useState(false);
+  const [twReplay, setTwReplay] = useState(0);
   const [searchDemo, setSearchDemo] = useState("");
+  const [searchScoped, setSearchScoped] = useState("");
+  const [searchScope, setSearchScope] = useState("all");
+  const [searchMorph, setSearchMorph] = useState("");
   const [sliderValue, setSliderValue] = useState([40]);
   const [rangeValue, setRangeValue] = useState([20, 80]);
   const [numBasic, setNumBasic] = useState(50);
   const [numWidth, setNumWidth] = useState(320);
-  const [numPlain, setNumPlain] = useState(12);
   const [numGauge, setNumGauge] = useState(50);
   // SpinButton 데모 — 누르고 있으면 가속 반복되는 걸 카운터로 보여줌
   const [spinCount, setSpinCount] = useState(0);
   // Textarea tabIndent 데모
-  const [tabDemo, setTabDemo] = useState("");
   const [sortDemo, setSortDemo] = useState<"registered" | "reactions">("registered");
   const [sortDirDemo, setSortDirDemo] = useState<"asc" | "desc">("asc");
   const [segDemo, setSegDemo] = useState("all");
@@ -92,8 +142,8 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [editableLimitDemo, setEditableLimitDemo] = useState("글자수 권장 한도를 넘겨 보세요");
   const [switchOn, setSwitchOn] = useState(false);
   const [switchAccent, setSwitchAccent] = useState(true);
-  const [switchMd, setSwitchMd] = useState(true);
   const [switchLabeled, setSwitchLabeled] = useState(true);
+  const [switchStateText, setSwitchStateText] = useState(true);
   const [inputValue, setInputValue] = useState("");
   const [inputUnderline, setInputUnderline] = useState("");
   const [inputSm, setInputSm] = useState("");
@@ -104,7 +154,6 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [checkIndet, setCheckIndet] = useState(false);
   const [selectValue, setSelectValue] = useState("option1");
   const [selectCompact, setSelectCompact] = useState("option1");
-  const [selectChildren, setSelectChildren] = useState("b");
   const [selectEmpty, setSelectEmpty] = useState("");
   const [comboInput, setComboInput] = useState("");
   const [comboTags, setComboTags] = useState<string[]>(["React"]);
@@ -112,19 +161,9 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [dpFormat, setDpFormat] = useState<"year" | "yearMonth" | "date">("date");
   const [dpDate, setDpDate] = useState({ year: "2024", month: "03", day: "15" });
   const [period, setPeriod] = useState<DatePeriod>({ start: "2024-03", end: "2024-12", format: "yearMonth" });
-  const [twReplay, setTwReplay] = useState(0);
   const [paginationPage, setPaginationPage] = useState(3);
   const [pickerColor, setPickerColor] = useState("#d01046");
   const [dragTags, setDragTags] = useState(["React", "Next.js", "TypeScript", "GSAP"]);
-  const [bilingualValue, setBilingualValue] = useState<BilingualValue>({ ko: "", en: "" });
-  const [tagItems, setTagItems] = useState(["react", "typescript", "framer-motion"]);
-  const [tagNotes, setTagNotes] = useState<Record<string, TagNote>>({
-    react: { ko: "서버 컴포넌트로 초기 페이로드 절감", en: "Reduced initial payload via server components" },
-  });
-  // LikeButton demo state — 좋아요 toggle + busy (wave 채우기 / 비우기) 시뮬레이션
-  const [likeCount, setLikeCount] = useState(42);
-  const [liked, setLiked] = useState(false);
-  const [likeBusy, setLikeBusy] = useState(false);
   // HeartIcon 단독 데모 (size 별)
   const [iconLiked, setIconLiked] = useState(false);
   const [iconBusy, setIconBusy] = useState(false);
@@ -141,16 +180,6 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   // EmojiPicker 데모
   const [dsEmojiOpen, setDsEmojiOpen] = useState(false);
   const [dsEmoji, setDsEmoji] = useState("");
-  const handleLikeToggle = useCallback(() => {
-    setLikeBusy(true);
-    setLiked((prev) => {
-      const next = !prev;
-      setLikeCount((c) => c + (next ? 1 : -1));
-      return next;
-    });
-    // 데모용 — 실제 페이지에선 API 응답까지 busy 유지. 여기선 200ms 후 해제 → LikeButton 안의 minDuration(2s) 로직이 wave 완료까지 유지
-    setTimeout(() => setLikeBusy(false), 200);
-  }, []);
   const { itemProps: tagItemProps } = useChipReorder((from, to) => {
     setDragTags((prev) => {
       const next = [...prev];
@@ -177,6 +206,8 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
     <section id="components" ref={setSectionRef("components")} className={styles.section}>
       <h2 className={styles.sectionTitle}>Components</h2>
 
+      <h3 className={styles.componentCategory}>Layout & Brand</h3>
+
       {/* Logo */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Logo</div>
@@ -192,25 +223,73 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </div>
       </motion.div>
 
-      {/* PageTitle */}
+      {/* SectionHeader */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>PageTitle</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "posts 계열 브라우즈 페이지 공통 대형 타이틀 — instrument italic. icon 은 타이틀 font-size 에 em 비례로 같이 커지고, 기울지 않는다(텍스트만 italic)."
-            : "Shared large title for the posts browse pages — instrument italic. The icon scales with the title font-size in em units and stays upright (only the text is italic)."}
+        <div className={styles.componentGroupTitle}>SectionHeader</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "제목과 선택적 부가설명, 선택적 우측 액션 슬롯으로 구성됩니다. 여러 곳에 흩어져 있던 `<h2>제목</h2> + <p>부가설명</p>` 인라인 패턴을 흡수합니다. 저장/되돌리기와 dirty 계산이 결합된 admin 설정의 SectionHeader 와 달리, 이 컴포넌트는 프레젠테이션 전용입니다."
+            : "Title + optional sub + optional right-side action slot. Absorbs the scattered inline `<h2>` + `<p>` pattern. Presentation-only — unlike the settings `SectionHeader` which is coupled to save/dirty logic.")}
         </p>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
-          <PageTitle>Posts</PageTitle>
-        </motion.div>
-        <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ marginTop: "var(--spacing-md)" }}>
-          <PageTitle icon={<BookOpen />}>Series</PageTitle>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xl)", width: "100%", maxWidth: 520 }}>
+          <SectionHeader
+            title={language === "ko" ? "섹션 제목" : "Section title"}
+            sub={language === "ko" ? "제목 아래 부가설명이 들어갑니다." : "A subtitle sits below the title."}
+          />
+          <SectionHeader
+            title={language === "ko" ? "액션 있는 헤더" : "With actions"}
+            sub={language === "ko" ? "우측에 버튼 슬롯이 붙습니다." : "A button slot on the right."}
+            actions={<Button variant="outline" size="sm">{language === "ko" ? "액션" : "Action"}</Button>}
+          />
         </motion.div>
       </motion.div>
 
-      {/* Button — Variants */}
+      {/* Collapsible */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Button — Variants</div>
+        <div className={styles.componentGroupTitle}>Collapsible</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "내용이 maxHeight 를 넘을 때만 접고 더보기를 붙입니다. 넘치지 않으면 버튼도 페이드도 없어서 짧은 내용에는 흔적이 남지 않습니다. 높이는 ResizeObserver 로 추적합니다. 마크다운 이미지는 늦게 로드돼 그때 높이가 바뀌는데, 한 번만 재면 \"로드 전 = 안 넘침\" 상태로 굳어 긴 댓글이 접히지 않기 때문입니다. 첫 클램프에는 애니메이션을 걸지 않아, 글이 저절로 접히는 듯한 연출을 피합니다."
+            : "Clamps and adds a show-more only when the content exceeds maxHeight — no button, no fade otherwise, so short content shows no trace of it. Height is tracked with a ResizeObserver: markdown images load late and change the height, and measuring once would freeze \"not overflowing\" from before the load, leaving long comments unclamped. The first clamp skips the animation so posts don't appear to fold themselves up.")}
+        </p>
+        <motion.div className={styles.collapsibleDemo} variants={staggerItemX} {...scrollChildX(0, 1)}>
+          <Collapsible
+            maxHeight={140}
+            expandLabel={language === "ko" ? "더보기" : "Show more"}
+            collapseLabel={language === "ko" ? "접기" : "Show less"}
+          >
+            <div className={styles.collapsibleBody}>
+              <p>
+                {language === "ko"
+                  ? "이 문단은 maxHeight(140px)보다 길어서 접힙니다. 잘린 아래쪽 페이드가 \"여기서 끝이 아니다\"를 알리는 유일한 시각 단서입니다 — 버튼만 있으면 딱 잘린 글자 줄이 그냥 마지막 줄처럼 읽힙니다."
+                  : "This block is taller than maxHeight (140px), so it clamps. The fade at the cut is the only cue that there's more below — with just a button, the clipped line reads as the last line."}
+              </p>
+              <p>
+                {language === "ko"
+                  ? "클램프는 바깥(.clip)이 하고 측정은 안쪽(.inner)이 합니다. 같은 요소가 둘 다 하면 max-height 에 눌린 높이를 재게 되어 항상 \"딱 맞음\"이 나옵니다."
+                  : "The outer element (.clip) does the clamping while an inner one measures. If one element did both, it would measure the height already squashed by max-height and always report \"fits\"."}
+              </p>
+              <p>
+                {language === "ko"
+                  ? "펼친 뒤 높이는 실제로 auto 입니다 — framer-motion 이 height: \"auto\" 를 실측해 애니메이트하기 때문에, 나중에 이미지가 더 로드돼 내용이 길어져도 잘리지 않습니다."
+                  : "Once expanded the height is genuinely auto — framer-motion measures height: \"auto\" to animate it, so late-loading images can grow the content without it getting cut off."}
+              </p>
+              <p>
+                {language === "ko"
+                  ? "chevron 회전 transition 은 .root .chevron 처럼 compound 셀렉터로 씁니다. 전역 theme transition(html[data-theme-ready] *)이 shorthand 라 단일 클래스로는 transform transition 이 통째로 덮어써집니다."
+                  : "The chevron's rotation transition uses a compound selector (.root .chevron). The global theme transition (html[data-theme-ready] *) is a shorthand, so a single-class selector would have its transform transition wiped out entirely."}
+              </p>
+            </div>
+          </Collapsible>
+        </motion.div>
+      </motion.div>
+
+      <h3 className={styles.componentCategory}>Buttons & Actions</h3>
+
+      {/* Button */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Button</div>
+        <div className={styles.componentSubLabel}>Variants</div>
         <div className={styles.componentRow}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 7)}><Tooltip content="variant: primary"><Button variant="primary">Primary</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 7)}><Tooltip content="variant: outline"><Button variant="outline">Outline</Button></Tooltip></motion.div>
@@ -220,11 +299,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <motion.div variants={staggerItemX} {...scrollChildX(5, 7)}><Tooltip content="variant: difference — mix-blend-mode + hover backdrop blur"><Button variant="difference">Difference</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(6, 7)}><Tooltip content="disabled"><Button disabled>Disabled</Button></Tooltip></motion.div>
         </div>
-      </motion.div>
-
-      {/* Button — Sizes */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Button — Sizes</div>
+        <div className={styles.componentSubLabel}>Sizes</div>
         <div className={styles.componentRow}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 6)}><Tooltip content="size: 2xs"><Button variant="outline" size="2xs">2XS</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 6)}><Tooltip content="size: xs"><Button variant="outline" size="xs">XS</Button></Tooltip></motion.div>
@@ -233,36 +308,24 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <motion.div variants={staggerItemX} {...scrollChildX(4, 6)}><Tooltip content="size: lg"><Button variant="outline" size="lg">Large</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(5, 6)}><Tooltip content="size: xl"><Button variant="outline" size="xl">XL</Button></Tooltip></motion.div>
         </div>
-      </motion.div>
-
-      {/* Button — Shapes */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Button — Shapes</div>
+        <div className={styles.componentSubLabel}>Shapes</div>
         <div className={styles.componentRow}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 3)}><Tooltip content="shape: circle, primary"><Button variant="primary" shape="circle" icon={<Star size={16} />} /></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 3)}><Tooltip content="shape: circle, outline"><Button variant="outline" shape="circle" icon={<Mail size={16} />} /></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(2, 3)}><Tooltip content="shape: square, ghost"><Button variant="ghost" shape="square" icon={<Zap size={16} />} /></Tooltip></motion.div>
         </div>
-      </motion.div>
-
-      {/* Button — Icons & States */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Button — Icons & States</div>
+        <div className={styles.componentSubLabel}>Icons & States</div>
         <div className={styles.componentRow}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><Tooltip content="icon + text"><Button variant="primary" icon={<Send size={16} />}>Send</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}><Tooltip content="iconPosition: right"><Button variant="outline" icon={<ArrowRight size={16} />} iconPosition="right">Next</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}><Tooltip content="active state"><Button variant="outline" active>Active</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(3, 4)}><Tooltip content="fullWidth"><Button variant="outline" fullWidth>Full Width</Button></Tooltip></motion.div>
         </div>
-      </motion.div>
-
-      {/* Button — Tones */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Button — Tones</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "tone 은 variant 위에 의미(색)를 얹는다 — 모든 조합이 정의된 건 아니고 쓰이는 조합만 있다. accent 와 danger 는 둘 다 ghost 에서 색이 시작하지만 hover 방향이 반대다: accent 는 text-primary 로 가라앉고(강조 → 평상), danger 는 text-error 로 올라온다(평상 → 경고)."
-            : "tone layers meaning (color) on top of variant — only the combinations actually used are defined. accent and danger both start colored on ghost but hover in opposite directions: accent settles to text-primary (emphasis → calm), danger rises to text-error (calm → warning)."}
+        <div className={styles.componentSubLabel}>Tones</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "tone 은 variant 위에 의미를 나타내는 색을 얹습니다. 모든 조합이 정의돼 있지는 않고 실제로 쓰이는 조합만 존재합니다. accent 와 danger 는 둘 다 ghost 에서 색이 시작하지만 hover 방향은 반대입니다. accent 는 text-primary 로 가라앉고(강조 → 평상), danger 는 text-error 로 올라옵니다(평상 → 경고)."
+            : "tone layers meaning (color) on top of variant — only the combinations actually used are defined. accent and danger both start colored on ghost but hover in opposite directions: accent settles to text-primary (emphasis → calm), danger rises to text-error (calm → warning).")}
         </p>
         <div className={styles.componentRow}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 5)}><Tooltip content='ghost + tone="accent" — accent 로 시작, hover 시 text-primary'><Button variant="ghost" tone="accent">Accent</Button></Tooltip></motion.div>
@@ -276,10 +339,10 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* HelpButton */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>HelpButton</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "도움말 `?` 버튼 — Button subtle/circle 고정 wrapper. variant·shape·children 은 통일이 목적이라 못 바꾸고 size 만 연다(폼 라벨 옆은 2xs, 섹션 헤더는 sm). 나머지 props 는 Button 으로 그대로 흘려보내서 Popover/Tooltip trigger 로 바로 쓸 수 있다."
-            : "The help `?` button — a fixed Button subtle/circle wrapper. variant/shape/children are locked for consistency; only size is open (2xs next to a form label, sm in a section header). All other props pass through to Button, so it works directly as a Popover/Tooltip trigger."}
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "도움말 `?` 버튼으로, Button 의 subtle/circle 을 고정한 wrapper 입니다. variant·shape·children 은 일관성을 위해 고정하고 size 만 열어 둡니다(폼 라벨 옆에는 2xs, 섹션 헤더에는 sm 을 씁니다). 나머지 props 는 Button 으로 그대로 흘려보내므로 Popover/Tooltip 의 trigger 로 바로 쓸 수 있습니다."
+            : "The help `?` button — a fixed Button subtle/circle wrapper. variant/shape/children are locked for consistency; only size is open (2xs next to a form label, sm in a section header). All other props pass through to Button, so it works directly as a Popover/Tooltip trigger.")}
         </p>
         <div className={styles.componentRow}>
           {(["2xs", "xs", "sm", "md", "lg", "xl"] as const).map((s, i, arr) => (
@@ -296,7 +359,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             >
               <div className={styles.popoverNote} style={{ maxWidth: 220 }}>
                 {language === "ko"
-                  ? "Popover trigger 로 쓴 예 — HelpButton 이 ref/onClick 을 그대로 넘겨받는다."
+                  ? "Popover 의 trigger 로 쓴 예입니다. HelpButton 이 ref/onClick 을 그대로 넘겨받습니다."
                   : "Used as a Popover trigger — HelpButton forwards ref/onClick untouched."}
               </div>
             </Popover>
@@ -305,33 +368,96 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </div>
       </motion.div>
 
-      {/* DetailActionButton */}
+      {/* TextLink */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>DetailActionButton</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "상세 페이지 하단 액션 버튼 껍데기 — 좋아요·공유가 공유하는 단일 소스. 예전엔 각자 CSS 에 값이 따로 적혀 있어서 share 만 작고(28 vs 47) 진했다. active 는 두 버튼 모두 accent(좋아요=누름, 공유=복사됨). 공통 Button 을 못 쓰는 이유는 size 가 md 32 / lg 36 / xl 40 뿐이라 이 47px 규격이 없어서다."
-            : "The shell for detail-page bottom actions — the single source shared by like and share. Their values used to live in each component's CSS, so share alone was smaller (28 vs 47) and heavier. active is accent for both (like = liked, share = copied). The shared Button can't be used: its sizes are md 32 / lg 36 / xl 40 — there is no 47px."}
-        </p>
+        <div className={styles.componentGroupTitle}>TextLink</div>
         <div className={styles.componentRow}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
-            <DetailActionButton onClick={() => {}}><HeartIcon size={18} liked={false} /><span>Like</span></DetailActionButton>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>default</span>
-          </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
-            <DetailActionButton active onClick={() => {}}><HeartIcon size={18} liked /><span>Liked</span></DetailActionButton>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>active</span>
-          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}><TextLink href="/design-system">Internal Link</TextLink></motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)}><TextLink href="https://fonts.google.com" external>External Link</TextLink></motion.div>
         </div>
       </motion.div>
+
+      {/* SpinButton — long-press 가속 반복 */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>SpinButton</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "누르고 있으면 action 을 가속하며 반복합니다. 클릭하면 즉시 한 번 실행하고, 380ms 이상 누르고 있으면 반복을 시작합니다(130ms 에서 28ms 로 점점 빨라집니다). 버튼 밖에서 손을 떼도 pointerCapture 로 안전하게 멈춥니다. 자체 시각 스타일은 없고, 놓이는 자리의 모양을 className 으로 받습니다(NumberInput 의 스텝퍼가 그 예입니다)."
+            : "Hold to repeat the action with acceleration — one immediate fire, then repeat after a 380ms hold (130ms → 28ms, speeding up). pointerCapture stops it safely even if you release outside the button. It ships no visual style — the host passes the look via className (NumberInput's stepper being the example).")}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+          <SpinButton className={styles.spinBtn} ariaLabel="감소" onStep={() => setSpinCount((n) => n - 1)}>
+            <Minus size={14} strokeWidth={2.5} />
+          </SpinButton>
+          <span className={styles.spinValue}>{spinCount}</span>
+          <SpinButton className={styles.spinBtn} ariaLabel="증가" onStep={() => setSpinCount((n) => n + 1)}>
+            <Plus size={14} strokeWidth={2.5} />
+          </SpinButton>
+          <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)", marginLeft: "var(--spacing-sm)" }}>
+            {language === "ko" ? "꾹 눌러보세요" : "Press and hold"}
+          </span>
+        </motion.div>
+      </motion.div>
+
+      {/* CloseButton */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>CloseButton</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "닫기 버튼입니다. 평소엔 minus(하단 line 하나)였다가 hover 하면 두 line 이 X 로 morph 합니다(`[data-active]` 로 강제 X 상태도 가능). vector line 을 `top: 50%; left: 50%` + negative margin 으로 sub-pixel 정렬해 어느 크기에서도 정확히 겹칩니다. 아래 버튼에 마우스를 올려 보세요."
+            : "A close button — a single minus line at rest that morphs into an X on hover (or force the X via `[data-active]`). The lines are sub-pixel aligned with `top: 50%; left: 50%` + negative margins so they meet cleanly at any size. Hover the buttons below.")}
+        </p>
+        <div className={styles.componentRow} style={{ gap: "var(--spacing-2xl)", alignItems: "flex-end" }}>
+          {([["xs", "20px"], ["sm", "24px"], ["md", "32px"], ["lg", "38px"]] as const).map(([size, px], i) => (
+            <motion.div key={size} variants={staggerItemX} {...scrollChildX(i, 4)} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
+              <CloseButton size={size} onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>{size} · {px}</span>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* MenuDots */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>MenuDots</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "메뉴 버튼 아이콘입니다. 9-dot 격자가 눌리면 X 로 모였다가 닫힐 때 다시 흩어집니다. 사이트 Navigation 메뉴 버튼과 admin/settings 서랍 토글이 같은 아이콘을 쓰도록 공용화했습니다. viewBox 8×8 의 vector circle 이라 어떤 크기에서도 완전한 원을 유지합니다(작은 span 에서는 subpixel 안티앨리어싱이 dot 마다 달라 타원처럼 보였습니다). 클릭해 보세요."
+            : "A menu-button icon — a 9-dot grid that collapses into an X when opened, and back out when closing. Shared so the site Navigation menu button and the admin/settings drawer toggle use one icon. Vector circles in an 8×8 viewBox keep perfect circles at any size (tiny spans made subpixel anti-aliasing differ per dot, so they read as ovals). Click it.")}
+        </p>
+        <div className={styles.componentRow}>
+          <motion.button
+            type="button"
+            variants={staggerItemX}
+            {...scrollChildX(0, 1)}
+            onClick={() => {
+              if (menuDotsOpen) {
+                setMenuDotsOpen(false);
+                setMenuDotsClosing(true);
+                setTimeout(() => setMenuDotsClosing(false), 800);
+              } else {
+                setMenuDotsClosing(false);
+                setMenuDotsOpen(true);
+              }
+            }}
+            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, border: "none", borderRadius: "var(--radius-capsule)", background: "transparent", cursor: "pointer", color: "var(--text-primary)" }}
+            aria-label="Toggle menu"
+            aria-expanded={menuDotsOpen}
+          >
+            <MenuDots open={menuDotsOpen} closing={menuDotsClosing} size={16} />
+          </motion.button>
+        </div>
+      </motion.div>
+
+      <h3 className={styles.componentCategory}>Toggles & Selection</h3>
 
       {/* SortControl */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>SortControl</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "정렬 필드 Select + 역순 토글을 하나의 pill 로 결합. 달력 블록 툴바와 댓글이 같이 쓴다 — 예전엔 달력은 pill, 댓글은 gap 배치 + 고정 아이콘이라 같은 기능이 서로 다르게 보였다. 역순 아이콘은 현재 방향을 반영한다(고정 아이콘은 '누르면 뒤집힌다'만 알려줄 뿐 지금 방향을 못 알려준다)."
-            : "A sort-field Select joined with a reverse toggle in one pill. Shared by the calendar block toolbar and comments — the calendar used a pill while comments used a gap layout with a fixed icon, so the same feature looked different in each. The reverse icon reflects the current direction (a fixed icon only says 'this flips', never which way you are)."}
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "정렬 필드 Select 와 역순 토글을 하나의 pill 로 결합합니다. 달력 블록 툴바와 댓글이 함께 씁니다. 예전에는 달력은 pill, 댓글은 gap 배치에 고정 아이콘이라 같은 기능이 서로 다르게 보였습니다. 역순 아이콘은 현재 정렬 방향을 그대로 반영합니다(고정 아이콘은 '누르면 뒤집힌다'만 알려줄 뿐 지금 방향은 알려주지 못합니다)."
+            : "A sort-field Select joined with a reverse toggle in one pill. Shared by the calendar block toolbar and comments — the calendar used a pill while comments used a gap layout with a fixed icon, so the same feature looked different in each. The reverse icon reflects the current direction (a fixed icon only says 'this flips', never which way you are).")}
         </p>
         <div className={styles.componentRow}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
@@ -352,10 +478,10 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* SegmentedControl */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>SegmentedControl</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "캡슐 안에서 하나를 고르는 컨트롤 — posts 정렬 · 시리즈/태그 필터 · 달력 뷰 전환 등 33곳이 쓴다. 테두리를 border 가 아니라 inset box-shadow 로 그린다: border 는 layout 에 영향을 줘서 전체 높이 = 버튼 높이 + padding 으로 못 잡기 때문이다(그래서 색만 바꾸려 해도 border-color 로는 안 먹는다). variant 는 테두리 세기만 가른다 — subtle 은 주변이 전부 border-light 결인 자리(달력 블록)에서 기본값이 혼자 진하게 튀는 걸 막는다."
-            : "A capsule control for picking one of several — used in 33 places (post sorting, series/tag filters, calendar view switching). Its outline is an inset box-shadow, not a border: a real border affects layout and breaks the \"total height = button height + padding\" rule (which is also why border-color won't override it). variant only changes outline weight — subtle keeps the default from standing out where everything around it is border-light, like the calendar block."}
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "캡슐 안에서 하나를 고르는 컨트롤로, posts 정렬·시리즈/태그 필터·달력 뷰 전환 등 33곳에서 씁니다. 테두리를 border 가 아니라 inset box-shadow 로 그립니다. border 는 layout 에 영향을 줘서 '전체 높이 = 버튼 높이 + padding' 규칙을 지킬 수 없기 때문입니다(그래서 색만 바꾸려 해도 border-color 로는 먹지 않습니다). variant 는 테두리 세기만 가릅니다. subtle 은 주변이 전부 border-light 결인 자리(달력 블록)에서 기본값이 혼자 진하게 튀는 것을 막아 줍니다."
+            : "A capsule control for picking one of several — used in 33 places (post sorting, series/tag filters, calendar view switching). Its outline is an inset box-shadow, not a border: a real border affects layout and breaks the \"total height = button height + padding\" rule (which is also why border-color won't override it). variant only changes outline weight — subtle keeps the default from standing out where everything around it is border-light, like the calendar block.")}
         </p>
         <div className={styles.componentRow}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
@@ -384,64 +510,6 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               size="sm"
             />
             <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>subtle</span>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* TextLink */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>TextLink</div>
-        <div className={styles.componentRow}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}><TextLink href="/design-system">Internal Link</TextLink></motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)}><TextLink href="https://fonts.google.com" external>External Link ↗</TextLink></motion.div>
-        </div>
-      </motion.div>
-
-      {/* Input — Variants */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Input — Variants</div>
-        <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 4)}>
-            <Tooltip content="variant: capsule (default)">
-              <Input label="Label" value={inputValue} onChange={setInputValue} placeholder="Type something..." />
-            </Tooltip>
-          </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 4)}>
-            <Tooltip content="variant: underline">
-              <Input label="Underline" value={inputUnderline} onChange={setInputUnderline} variant="underline" placeholder="Underline style..." />
-            </Tooltip>
-          </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 4)}>
-            <Tooltip content="inlineLabel">
-              <Input inlineLabel="EN" value={inputInline} onChange={setInputInline} placeholder="Inline label..." />
-            </Tooltip>
-          </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(3, 4)}>
-            <Tooltip content="onAdd — Enter / + 클릭 시 commit, focus-within 시 + 도 strong border">
-              <Input label="Add" value={inputAdd} onChange={setInputAdd} onAdd={(v) => { showToast(`Added: ${v}`, "info"); setInputAdd(""); }} placeholder="Type then Enter / +" />
-            </Tooltip>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* Input — Sizes & States */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Input — Sizes & States</div>
-        <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
-            <Tooltip content="size: md (default)">
-              <Input label="Medium" value="" onChange={() => {}} placeholder="Default size" />
-            </Tooltip>
-          </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
-            <Tooltip content="size: sm">
-              <Input label="Small" value={inputSm} onChange={setInputSm} size="sm" placeholder="Small input..." />
-            </Tooltip>
-          </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
-            <Tooltip content="disabled">
-              <Input value="Read-only value" onChange={() => {}} disabled />
-            </Tooltip>
           </motion.div>
         </div>
       </motion.div>
@@ -478,14 +546,14 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Disabled On</span>
           </motion.div>
         </div>
-        {/* size="md" + label — form row 용. admin 설정에 쓰던 Toggle 컴포넌트가 이 두 prop 으로 흡수됨 */}
-        <div className={styles.componentRow} style={{ marginTop: "var(--spacing-sm)" }}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
-            <Switch size="md" checked={switchMd} onCheckedChange={setSwitchMd} />
-            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>size=&quot;md&quot;</span>
-          </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ minWidth: 220 }}>
+        {/* label(옆 form-row 라벨) vs showStateText(토글 안 ON/OFF 텍스트) */}
+        <div className={styles.componentRow} style={{ marginTop: "var(--spacing-sm)", gap: "var(--spacing-2xl)" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "inline-flex" }}>
             <Switch size="md" label="With label" checked={switchLabeled} onCheckedChange={setSwitchLabeled} />
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
+            <Switch size="md" showStateText checked={switchStateText} onCheckedChange={setSwitchStateText} />
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>showStateText (ON/OFF)</span>
           </motion.div>
         </div>
       </motion.div>
@@ -501,6 +569,54 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
             <LanguageToggle lang={langSm} onLangChange={setLangSm} size="sm" />
             <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>size=&quot;sm&quot; (22px)</span>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      <h3 className={styles.componentCategory}>Inputs & Fields</h3>
+
+      {/* Input */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Input</div>
+        <div className={styles.componentSubLabel}>Variants</div>
+        <div className={styles.sliderRow}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 4)}>
+            <Tooltip content="variant: capsule (default)">
+              <Input label="Label" value={inputValue} onChange={setInputValue} placeholder="Type something..." />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 4)}>
+            <Tooltip content="variant: underline">
+              <Input label="Underline" value={inputUnderline} onChange={setInputUnderline} variant="underline" placeholder="Underline style..." />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 4)}>
+            <Tooltip content="inlineLabel">
+              <Input inlineLabel="EN" value={inputInline} onChange={setInputInline} placeholder="Inline label..." />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(3, 4)}>
+            <Tooltip content="onAdd — Enter / + 클릭 시 commit, focus-within 시 + 도 strong border">
+              <Input label="Add" value={inputAdd} onChange={setInputAdd} onAdd={(v) => { showToast(`Added: ${v}`, "info"); setInputAdd(""); }} placeholder="Type then Enter / +" />
+            </Tooltip>
+          </motion.div>
+        </div>
+        <div className={styles.componentSubLabel}>Sizes & States</div>
+        <div className={styles.sliderRow}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
+            <Tooltip content="size: md (default)">
+              <Input label="Medium" value="" onChange={() => {}} placeholder="Default size" />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
+            <Tooltip content="size: sm">
+              <Input label="Small" value={inputSm} onChange={setInputSm} size="sm" placeholder="Small input..." />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
+            <Tooltip content="disabled">
+              <Input value="Read-only value" onChange={() => {}} disabled />
+            </Tooltip>
           </motion.div>
         </div>
       </motion.div>
@@ -527,6 +643,11 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* NumberInput — 캡슐형 숫자 입력 (타이핑 중엔 draft, blur/Enter/스텝퍼에만 확정) */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>NumberInput</div>
+        <p className={styles.componentDesc}>
+          {language === "ko"
+            ? "스텝퍼는 SpinButton 이라 누르고 있으면 가속하며 반복합니다. 경계값에 닿으면 toast 로 알리되, hold-repeat 로 도배되는 것을 막으려고 1.2초당 한 번만 띄웁니다."
+            : "The steppers are SpinButtons — hold to repeat with acceleration. Hitting a bound raises a toast, throttled to once per 1.2s so hold-repeat can't spam it."}
+        </p>
         <div className={styles.sliderRow}>
           <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 4)}>
             <span className={styles.sliderLabel}>Basic — {numBasic} · 스텝퍼 + blur/Enter 확정</span>
@@ -546,41 +667,509 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               <NumberInput value={numGauge} onCommit={setNumGauge} min={0} max={100} unit="%" width={48} gauge />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(3, 4)}>
-            <span className={styles.sliderLabel}>No stepper — {numPlain}</span>
-            <Tooltip content="stepper={false} — ↑/↓ 키로만 증감">
-              <NumberInput value={numPlain} onCommit={setNumPlain} min={0} stepper={false} />
+        </div>
+      </motion.div>
+
+      {/* Textarea */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Textarea</div>
+        {/* maxHint 와 tabIndent 는 같은 contenteditable 모드라 한 컴포넌트에 동시 적용 — 데모는 하나로,
+            label·설명은 옵션별로 각각 유지. */}
+        <div className={styles.componentSubLabel}>maxHint (contenteditable highlight)</div>
+        <p className={styles.componentDesc}>
+          maxHint 설정 시 contenteditable=&quot;plaintext-only&quot; 모드로 자동 전환 — 초과 글자에 inline &lt;mark&gt; highlight · preset (short 200 / basic 500 / long 2000) 또는 숫자 · 카운터 80% 부터 warning, 100% 부터 over · native resize 핸들 위 투명 overlay 로 커스텀 cursor 표시
+        </p>
+        <div className={styles.componentSubLabel}>tabIndent</div>
+        <p className={styles.componentDesc}>
+          {language === "ko"
+            ? "tabIndent 는 opt-in 입니다. 키보드로 폼을 빠져나갈 수 있으려면 기본적으로 Tab 이 다음 포커스로 동작해야 하기 때문입니다(a11y). 그래서 코드나 마크다운을 입력하는 칸(댓글 작성란 등)에서만 켭니다. maxHint 가 있어야 켜지는 contenteditable 모드 전용입니다."
+            : "tabIndent is opt-in — Tab must default to next-focus so keyboard users can leave the form (a11y). Turn it on only where code/markdown gets typed (the comment box, etc.). Requires the contenteditable mode, which maxHint enables."}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ maxWidth: 480 }}>
+          <Textarea
+            value={excerptDemo}
+            onChange={setExcerptDemo}
+            placeholder={language === "ko" ? "200자를 넘기면 초과한 부분이 강조되고, Tab 을 누르면 2칸 들여쓰기 됩니다." : "Type past 200 characters and the overflow is highlighted; press Tab to indent two spaces."}
+            rows={4}
+            maxHint="short"
+            tabIndent
+          />
+        </motion.div>
+      </motion.div>
+
+      {/* SearchCapsule */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>SearchCapsule</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "접힌 아이콘에서 펼쳐지는 검색 인풋입니다. 지우개·검색 이력·문법 도움말을 자체 내장해서, 목록이나 필터 바에서 raw input 을 다시 짤 필요가 없습니다."
+            : "A search capsule — an input that expands from a collapsed icon. It bundles its own clear button, search history, and syntax help, so list/filter bars never re-implement a raw input.")}
+        </p>
+
+        {/* SearchCapsule 은 내부에서 useSearchParams() 를 쓴다 — 이 페이지는 정적 프리렌더
+            대상이라 Suspense 로 감싸지 않으면 빌드가 CSR bailout 으로 실패한다. */}
+        <div className={styles.componentSubLabel}>typeSelector · historyKey · showHelp</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "실제 필터 바는 이 옵션들을 한꺼번에 씁니다. 왼쪽 `typeSelector` 로 검색 범위를, 오른쪽 `?`(`showHelp`) 말풍선으로 문법·매칭 강도(prefix/regex) 도움말을 열고, `historyKey` 로 최근 검색을 저장합니다(검색어 입력 → Enter → 빈 상태로 다시 포커스하면 이력이 뜹니다)."
+            : "A real filter bar uses these together: `typeSelector` scopes the search on the left, the `?` (`showHelp`) bubble opens syntax + match-strength (prefix/regex) help on the right, and `historyKey` persists recent searches (type → Enter → refocus empty to see history).")}
+        </p>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 360 }}>
+            <Suspense fallback={null}>
+              <SearchCapsule
+                search={searchScoped}
+                onSearchChange={setSearchScoped}
+                placeholder={language === "ko" ? "검색 (Enter 로 이력 저장)" : "Search (Enter saves history)"}
+                align="left"
+                historyKey="design-system-search"
+                showHelp
+                typeSelector={{
+                  value: searchScope,
+                  onChange: setSearchScope,
+                  options: [
+                    { value: "all", label: language === "ko" ? "전체" : "All" },
+                    { value: "title", label: language === "ko" ? "제목" : "Title" },
+                    { value: "body", label: language === "ko" ? "본문" : "Body" },
+                  ],
+                }}
+              />
+            </Suspense>
+          </motion.div>
+        </div>
+
+        <div className={styles.componentSubLabel}>collapsible</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "`collapsible` 은 접힌 원형 아이콘에서 클릭 시 캡슐로 펼쳐지고, 비었을 때 blur 하면 다시 접힙니다. compact 배치용 — 펼침 너비는 `expandedWidth` 로 조정합니다."
+            : "`collapsible` starts as a circle icon, expands to a capsule on click, and folds back on blur when empty. For compact bars — expanded width via `expandedWidth`.")}
+        </p>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
+            <Suspense fallback={null}>
+              <SearchCapsule
+                search={searchMorph}
+                onSearchChange={setSearchMorph}
+                placeholder={language === "ko" ? "클릭해서 펼치기" : "Click to expand"}
+                align="left"
+                historyKey={null}
+                collapsible
+              />
+            </Suspense>
+          </motion.div>
+        </div>
+
+        <div className={styles.componentSubLabel}>size</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "`size` 는 캡슐 높이를 정합니다 — sm(28) · md(32, 기본). `align` 은 dropdown 정렬을 좌/우로 잡습니다."
+            : "`size` sets the capsule height — sm(28) / md(32, default). `align` anchors the dropdown left/right.")}
+        </p>
+        <div className={styles.componentRow} style={{ gap: "var(--spacing-lg)" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 200 }}>
+            <Suspense fallback={null}>
+              <SearchCapsule
+                search={searchDemo}
+                onSearchChange={setSearchDemo}
+                placeholder="size sm"
+                size="sm"
+                align="left"
+                historyKey={null}
+              />
+            </Suspense>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 200 }}>
+            <Suspense fallback={null}>
+              <SearchCapsule
+                search={searchDemo}
+                onSearchChange={setSearchDemo}
+                placeholder={language === "ko" ? "size md (기본)" : "size md (default)"}
+                size="md"
+                align="left"
+                historyKey={null}
+              />
+            </Suspense>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* HighlightInput */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>HighlightInput</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "native `<input>` 은 텍스트 **일부만** 색칠할 수 없어서, 초과 글자에 inline `<mark>` 하이라이트를 하려면 contentEditable 이 필요합니다 — 그걸 위한 단일행 contentEditable input 입니다(native 가 공짜로 주는 caret·IME·autofill 을 대신 손으로 재구현하는 대신 하이라이트를 얻는 트레이드오프). 하이라이트가 필요할 때만 이걸 직접 쓰고, 그 외엔 native `Input` 을 씁니다 — 둘은 완전히 분리돼 있고 서로를 모릅니다. 제한은 두 갈래 — `maxHint` 는 **권장** 한도라 초과분에 `<mark>` 와 카운터만 띄우고 자르진 않으며(붙여넣은 긴 제목 보존), `maxLength` 는 **하드** 상한이라 입력·붙여넣기 시점에 잘라냅니다. `inlineLabel` 로 KO/EN 배지를 input 안에 넣습니다."
+            : "A native `<input>` can't style **part** of its text, so inline `<mark>` highlighting of overflow needs contentEditable — this is that single-line contentEditable input (the trade-off: you re-implement caret/IME/autofill that native gives for free, in exchange for the highlight). Reach for it only when you need the highlight; otherwise use native `Input` — the two are fully separate and don't know about each other. Two-tier limit: `maxHint` is a **soft** cap (marks the overflow + counter, never truncates a long pasted title), `maxLength` is a **hard** cap enforced on type/paste. `inlineLabel` adds a badge like KO/EN inside the field.")}
+        </p>
+        <div className={styles.componentRow} style={{ flexDirection: "column", alignItems: "stretch", gap: "var(--spacing-sm)", maxWidth: 380 }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
+            <HighlightInput value={editableDemo} onChange={setEditableDemo} inlineLabel="KO" placeholder={language === "ko" ? "제목" : "Title"} />
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)}>
+            <HighlightInput value={editableLimitDemo} onChange={setEditableLimitDemo} maxHint={20} placeholder={language === "ko" ? "권장 20자" : "20 chars suggested"} />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      <h3 className={styles.componentCategory}>Pickers & Selects</h3>
+
+      {/* Select */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Select</div>
+        <div className={styles.componentSubLabel}>Variants</div>
+        <div className={styles.sliderRow}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
+            <Tooltip content="variant: default">
+              <Select
+                value={selectValue}
+                options={[
+                  { value: "option1", label: "Option One" },
+                  { value: "option2", label: "Option Two" },
+                  { value: "option3", label: "Option Three" },
+                ]}
+                onChange={setSelectValue}
+                placeholder="Choose..."
+              />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
+            <Tooltip content="showCheck — 선택 항목에 ✓ 표시">
+              <Select
+                value={selectCompact}
+                options={[
+                  { value: "option1", label: "Option One" },
+                  { value: "option2", label: "Option Two" },
+                  { value: "option3", label: "Option Three" },
+                ]}
+                onChange={setSelectCompact}
+                showCheck
+              />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
+            <Tooltip content='variant="bubble" — 오른쪽 말풍선'>
+              <Select
+                variant="bubble"
+                value={bubbleVal}
+                onChange={setBubbleVal}
+                options={[
+                  { value: "happy", label: "😊 Happy" },
+                  { value: "normal", label: "😐 Normal" },
+                  { value: "sad", label: "😢 Sad" },
+                ]}
+              />
             </Tooltip>
           </motion.div>
         </div>
-        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
-          {language === "ko"
-            ? "스텝퍼는 SpinButton — 누르고 있으면 가속 반복. 경계값에 닿으면 toast 로 알리되 hold-repeat 도배를 막으려 1.2초당 1회만."
-            : "The steppers are SpinButtons — hold to repeat with acceleration. Hitting a bound raises a toast, throttled to once per 1.2s so hold-repeat can't spam it."}
-        </span>
+        <div className={styles.componentSubLabel}>States</div>
+        <div className={styles.sliderRow}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)}>
+            <Tooltip content="placeholder state">
+              <Select
+                value={selectEmpty}
+                options={[
+                  { value: "a", label: "Option A" },
+                  { value: "b", label: "Option B" },
+                ]}
+                onChange={setSelectEmpty}
+                placeholder="No selection"
+              />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)}>
+            <Tooltip content="disabled">
+              <Select
+                value="option1"
+                options={[{ value: "option1", label: "Disabled" }]}
+                onChange={() => {}}
+                disabled
+              />
+            </Tooltip>
+          </motion.div>
+        </div>
+        <div className={styles.componentSubLabel}>Combobox</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "combobox 는 input 을 trigger 로 씁니다. label 과 searchTerms(한글 alias)로 필터하고, Enter 나 쉼표로 free text 를 추가하며, 지우개 버튼과 화살표 키 이동, group/icon 옵션을 지원합니다."
+            : "combobox — an input trigger. Filter by label + searchTerms (Korean alias), add free text with Enter/comma, plus a clear button, arrow-key nav, and grouped options with icons.")}
+        </p>
+        <div className={styles.sliderRow}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
+            <Tooltip content="combobox — filter + free-text add">
+              <Select
+                combobox
+                value=""
+                inputValue={comboInput}
+                onInputChange={setComboInput}
+                onChange={() => {}}
+                onAdd={(v) => { const t = v.trim(); if (t && !comboTags.includes(t)) setComboTags((p) => [...p, t]); setComboInput(""); }}
+                options={[
+                  { value: "React", label: "React", searchTerms: ["리액트"] },
+                  { value: "Next.js", label: "Next.js", searchTerms: ["넥스트"] },
+                  { value: "TypeScript", label: "TypeScript", icon: <Code size={12} /> },
+                  { value: "GSAP", label: "GSAP", group: "Animation" },
+                  { value: "Framer Motion", label: "Framer Motion", group: "Animation" },
+                ].map((o) => ({ ...o, selected: comboTags.includes(o.value) }))}
+                placeholder={language === "ko" ? "입력해 필터 / 추가" : "Type to filter / add"}
+              />
+            </Tooltip>
+            {comboTags.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-2xs)" }}>
+                {comboTags.map((tag, i) => (
+                  <Chip key={tag} variant="capsule" onRemove={() => setComboTags((p) => p.filter((_, j) => j !== i))}>{tag}</Chip>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </div>
       </motion.div>
 
-      {/* SpinButton — long-press 가속 반복 */}
+      {/* ColorPicker */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>SpinButton</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "누르고 있으면 action 을 가속 반복 — 클릭 시 즉시 1회, 380ms 유지하면 반복 시작(130ms → 28ms 로 점점 빠르게). 버튼 밖에서 떼도 pointerCapture 로 안전하게 멈춘다. 시각 스타일은 없다 — 놓이는 자리 모양을 className 으로 받는다(NumberInput 스텝퍼가 그 예)."
-            : "Hold to repeat the action with acceleration — one immediate fire, then repeat after a 380ms hold (130ms → 28ms, speeding up). pointerCapture stops it safely even if you release outside the button. It ships no visual style — the host passes the look via className (NumberInput's stepper being the example)."}
+        <div className={styles.componentGroupTitle}>ColorPicker</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "render-prop trigger 와 portal popover 로 이뤄집니다. trigger 를 호출부가 직접 그리기 때문에 스와치·버튼·칩 등 무엇이든 될 수 있습니다. **모바일(≤768px)에서는 dropdown 대신 bottom sheet 으로 바뀝니다.** 색을 고르려면 두 손가락만 한 면적이 필요한데, 작은 화면의 popover 로는 그만한 공간이 나오지 않기 때문입니다. `inline` 모드는 이미 제자리에 펼쳐진 형태라 sheet 전환에서 제외됩니다."
+            : "A render-prop trigger with a portal popover — the caller draws the trigger, so it can be a swatch, a button, or a chip. **On mobile (≤768px) it becomes a bottom sheet instead of a dropdown** — picking a color needs roughly two fingers' worth of area, which a popover on a small screen can't give. `inline` mode is already expanded in place, so it opts out of the sheet.")}
         </p>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
-          <SpinButton className={styles.spinBtn} ariaLabel="감소" onStep={() => setSpinCount((n) => n - 1)}>
-            <Minus size={14} strokeWidth={2.5} />
-          </SpinButton>
-          <span className={styles.spinValue}>{spinCount}</span>
-          <SpinButton className={styles.spinBtn} ariaLabel="증가" onStep={() => setSpinCount((n) => n + 1)}>
-            <Plus size={14} strokeWidth={2.5} />
-          </SpinButton>
-          <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)", marginLeft: "var(--spacing-sm)" }}>
-            {language === "ko" ? "꾹 눌러보세요" : "Press and hold"}
-          </span>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-md)", flexWrap: "wrap" }}>
+          <Tooltip content="render-prop trigger + portal popover">
+            <ColorPicker value={pickerColor} onChange={(c) => setPickerColor(c.hex)}>
+              {({ toggle }) => (
+                <button
+                  type="button"
+                  onClick={toggle}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    padding: 0,
+                    border: "1px solid var(--color-neutral-300)",
+                    borderRadius: "var(--radius-circle)",
+                    background: pickerColor,
+                    cursor: "pointer",
+                  }}
+                  aria-label="Pick color"
+                />
+              )}
+            </ColorPicker>
+          </Tooltip>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-sm)", color: "var(--text-secondary)" }}>{pickerColor}</span>
         </motion.div>
       </motion.div>
+
+      {/* DatePicker */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>DatePicker</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>Format</span>
+            <div style={{ display: "flex", border: "var(--border-light)", borderRadius: "var(--radius-capsule)", overflow: "hidden" }}>
+              {(["year", "yearMonth", "date"] as const).map((f, i, arr) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setDpFormat(f)}
+                  style={{
+                    padding: "var(--spacing-2xs) var(--spacing-sm)",
+                    border: "none",
+                    borderRight: i < arr.length - 1 ? "var(--border-light)" : "none",
+                    borderRadius: 0,
+                    background: dpFormat === f ? "var(--text-primary)" : "transparent",
+                    color: dpFormat === f ? "var(--bg-primary)" : "var(--text-secondary)",
+                    fontSize: "var(--font-size-xs)",
+                    fontFamily: "var(--font-space-grotesk)",
+                    cursor: "pointer",
+                  }}
+                >
+                  {f === "year" ? (language === "ko" ? "연도" : "Year") : f === "yearMonth" ? (language === "ko" ? "연.월" : "Y.M") : (language === "ko" ? "연.월.일" : "Y.M.D")}
+                </button>
+              ))}
+            </div>
+            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-primary)", marginLeft: "var(--spacing-xs)", fontFamily: "var(--font-space-grotesk)", fontWeight: 600 }}>
+              {dpFormat === "year" ? dpDate.year : dpFormat === "yearMonth" ? `${dpDate.year}.${dpDate.month}` : `${dpDate.year}.${dpDate.month}.${dpDate.day}`}
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: "var(--spacing-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+            <div style={{ minWidth: 230 }}>
+              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Spinner</div>
+              <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
+                <DatePicker
+                  year={dpDate.year}
+                  month={dpDate.month}
+                  day={dpDate.day}
+                  format={dpFormat}
+                  mode="spinner"
+                  language={language as "ko" | "en"}
+                  onSelect={(y, m, d) => setDpDate({ year: y, month: m, day: d })}
+                />
+              </div>
+            </div>
+            <div style={{ minWidth: 230 }}>
+              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Calendar</div>
+              <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
+                <DatePicker
+                  year={dpDate.year}
+                  month={dpDate.month}
+                  day={dpDate.day}
+                  format={dpFormat}
+                  mode="calendar"
+                  language={language as "ko" | "en"}
+                  onSelect={(y, m, d) => setDpDate({ year: y, month: m, day: d })}
+                />
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* PeriodPicker */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>PeriodPicker</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)", maxWidth: 540 }}>
+          <PeriodPicker value={period} onChange={setPeriod} />
+        </motion.div>
+      </motion.div>
+
+      {/* EmojiPicker */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>EmojiPicker</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "이모지·아이콘·커스텀 이미지를 선택합니다. 탭 전환과 검색, 셔플, 최근 사용 목록을 제공합니다."
+            : "Pick an emoji, icon, or custom image — tabbed, with search, shuffle, and recents.")}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ position: "relative", display: "flex", alignItems: "center", gap: "var(--spacing-md)" }}>
+          <Tooltip content="open EmojiPicker">
+            <Button variant="outline" onClick={() => setDsEmojiOpen((v) => !v)}>
+              {language === "ko" ? "선택하기" : "Pick"}
+            </Button>
+          </Tooltip>
+          {dsEmoji && <EmojiIcon value={dsEmoji} />}
+          <EmojiPicker
+            open={dsEmojiOpen}
+            onClose={() => setDsEmojiOpen(false)}
+            onSelect={(v) => { setDsEmoji(v); setDsEmojiOpen(false); }}
+            currentValue={dsEmoji}
+          />
+        </motion.div>
+      </motion.div>
+
+      {/* FontPicker */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>FontPicker</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "폰트를 고르는 드롭다운입니다. 각 항목이 그 폰트 그대로 렌더되기 때문에, 고르기 전에 실제 생김새를 미리 볼 수 있습니다. 폰트를 `groups` 로 묶어 넘기면 그룹마다 라벨(예: 영문·고정폭)이 붙고, 그룹이 하나뿐일 때는 `group: \"\"` 로 그 라벨만 숨길 수 있습니다. 어떤 항목에 `googleName` 을 지정해 두면 그 폰트를 고르는 순간 컴포넌트가 해당 Google Font 를 알아서 불러오므로, 호출부에서 따로 로드하지 않아도 됩니다. `preferEn` 을 켜면 한글 그룹이 목록 맨 뒤로 밀려서 영문 UI 를 우선하는 자리에 맞출 수 있습니다."
+            : "A dropdown for picking a font. Each option is rendered in the very font it represents, so you can see how it actually looks before you choose. Group the options with `groups` to give each set a label (e.g. Latin, Mono); when there's only one group, pass `group: \"\"` to hide that label. Give an option a `googleName` and the component loads that Google Font automatically the moment it's chosen — the caller never has to load it. Turn on `preferEn` to push Korean groups to the end of the list for English-first surfaces.")}
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)", maxWidth: "560px", marginTop: "var(--spacing-xl)" }}>
+          {/* 선택한 폰트 미리보기 — 맨 위, 프레임 없이 텍스트만 (폭 제한으로 넘침 방지) */}
+          <motion.div
+            variants={staggerItemX}
+            {...scrollChildX(0, 2)}
+            style={{
+              fontFamily: fontDemo,
+              fontSize: "var(--font-size-2xl)",
+              color: "var(--text-primary)",
+              lineHeight: 1.3,
+              /* 2줄 높이로 고정 — 폰트를 바꿔 줄바꿈돼도 높이가 안 변해 레이아웃이 안 흔들림 */
+              height: "calc(var(--font-size-2xl) * 1.3 * 2)",
+              overflow: "hidden",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {language === "ko" ? "다람쥐 헌 쳇바퀴에 타고파 · The quick brown fox 0123" : "The quick brown fox jumps · 다람쥐 헌 쳇바퀴 0123"}
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ alignSelf: "flex-start" }}>
+            <FontPicker
+              value={fontDemo}
+              onChange={(v) => setFontDemo(v)}
+              groups={FONT_DEMO_GROUPS}
+              fallbackLabel="Default"
+            />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      <h3 className={styles.componentCategory}>Chips</h3>
+
+      {/* Chip */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Chip</div>
+        <div className={styles.componentSubLabel}>draggable capsule</div>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
+          {dragTags.map((tag, i) => {
+            const { dragging, dropSide, ...handlers } = tagItemProps(i);
+            return (
+              <Chip
+                key={`${tag}-${i}`}
+                variant="capsule"
+                showHandle
+                onRemove={() => setDragTags((prev) => prev.filter((_, j) => j !== i))}
+                dragging={dragging}
+                dropSide={dropSide}
+                dragHandlers={{ draggable: true, ...handlers }}
+              >
+                {tag}
+              </Chip>
+            );
+          })}
+        </motion.div>
+        <div className={styles.componentSubLabel}>variants & states</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "variant 는 capsule 또는 bare 를 고르고, leftIcon·active(편집 중)·onClick(button) 을 지원합니다. 핸들 위에 커서를 올리면 data-cursor 로 \"Drag\" 커서가 나타납니다."
+            : "variant capsule|bare · leftIcon · active(editing) · onClick(button) · grip shows a \"Drag\" cursor via data-cursor.")}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)", alignItems: "center" }}>
+          <Tooltip content="variant: capsule + leftIcon">
+            <Chip variant="capsule" leftIcon={<Hash size={11} />}>react</Chip>
+          </Tooltip>
+          <Tooltip content="variant: bare (text-only)">
+            <Chip variant="bare">#tag</Chip>
+          </Tooltip>
+          <Tooltip content="active — edit drawer open">
+            <Chip variant="capsule" active>editing…</Chip>
+          </Tooltip>
+          <Tooltip content="onClick (button mode)">
+            <Chip variant="capsule" onClick={() => showToast(language === "ko" ? "칩 클릭" : "chip clicked", "info")}>clickable</Chip>
+          </Tooltip>
+          <Tooltip content="showHandle — grip + Drag cursor">
+            <Chip variant="capsule" showHandle leftIcon={<Star size={11} />}>draggable</Chip>
+          </Tooltip>
+        </motion.div>
+      </motion.div>
+
+      {/* RelatedChips */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>RelatedChips</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "관련 글이나 프로젝트를 보여 주는 칩입니다. 썸네일·제목·카테고리를 담고, `+N 더보기` 토글을 제공하며, 데스크톱에서는 hover 시 미리보기 카드를 띄웁니다."
+            : "Related post / project chips — thumbnail + title + category, `+N more` toggle, hover preview card (desktop).")}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
+          <RelatedChips
+            moreLabel={language === "ko" ? "더보기" : "More"}
+            lessLabel={language === "ko" ? "접기" : "Less"}
+            items={[
+              { id: "1", title: "Design Tokens 정리", href: "#", category: "CSS", image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=200&h=200&fit=crop", desc: "raw → semantic → component → context 4-tier 토큰 시스템" },
+              { id: "2", title: "Plate Editor 마이그레이션", href: "#", category: "Editor", image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200&h=200&fit=crop", desc: "Tiptap 에서 Plate 로 — IME workaround 포함" },
+              { id: "3", title: "Lenis Smooth Scroll", href: "#", category: "UX" },
+              { id: "4", title: "Framer Motion Stagger", href: "#", category: "Animation" },
+              { id: "5", title: "GSAP Horizontal Scroll", href: "#", category: "Animation" },
+              { id: "6", title: "Admin 리스트 리팩토링", href: "#", category: "Admin" },
+              { id: "7", title: "TOC 공통 컴포넌트", href: "#", category: "Refactor" },
+              { id: "8", title: "이모지 Picker SVG", href: "#", category: "Editor" },
+              { id: "9", title: "Autosave Debounce", href: "#", category: "Editor" },
+              { id: "10", title: "Theme Provider", href: "#", category: "System" },
+            ]}
+          />
+        </motion.div>
+      </motion.div>
+
+      <h3 className={styles.componentCategory}>Overlays & Popovers</h3>
 
       {/* Modal */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
@@ -666,7 +1255,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                   <div className={styles.modalContentCenter}>
                     <Typography variant="body2" color="secondary">
                       {language === "ko"
-                        ? "header.actions 는 헤더 우측 액션 영역(닫기 왼쪽), subButtons 는 X 버튼에 바로 붙는 자리 — 뒤로/앞으로 같은 네비게이션용."
+                        ? "header.actions 는 헤더 우측의 액션 영역(닫기 버튼 왼쪽)에 들어가고, subButtons 는 X 버튼에 바로 붙는 자리에 들어갑니다. 뒤로/앞으로 같은 네비게이션에 씁니다."
                         : "header.actions fills the header's right-hand action area (left of close); subButtons sits flush against the X — for back/forward style navigation."}
                     </Typography>
                   </div>
@@ -688,460 +1277,14 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </div>
       </motion.div>
 
-      {/* Select — Variants */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Select — Variants</div>
-        <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
-            <Tooltip content="variant: default">
-              <Select
-                value={selectValue}
-                options={[
-                  { value: "option1", label: "Option One" },
-                  { value: "option2", label: "Option Two" },
-                  { value: "option3", label: "Option Three" },
-                ]}
-                onChange={setSelectValue}
-                placeholder="Choose..."
-              />
-            </Tooltip>
-          </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
-            <Tooltip content="variant: compact">
-              <Select
-                value={selectCompact}
-                options={[
-                  { value: "option1", label: "Option One" },
-                  { value: "option2", label: "Option Two" },
-                  { value: "option3", label: "Option Three" },
-                ]}
-                onChange={setSelectCompact}
-                variant="compact"
-              />
-            </Tooltip>
-          </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
-            <Tooltip content="children (custom content)">
-              <Select
-                value={selectChildren}
-                onChange={setSelectChildren}
-                variant="compact"
-                renderValue={() => selectChildren === "a" ? "Option A" : selectChildren === "b" ? "Option B" : "Option C"}
-              >
-                {({ close }) => (
-                  <>
-                    <div style={{ padding: "var(--spacing-3xs) var(--spacing-xs)", fontSize: "var(--font-size-xs)", fontWeight: 600, color: "var(--text-muted)" }}>Group</div>
-                    {[{ value: "a", label: "Option A" }, { value: "b", label: "Option B" }, { value: "c", label: "Option C" }].map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        data-active={selectChildren === opt.value ? "" : undefined}
-                        style={{
-                          display: "flex", alignItems: "center", gap: "var(--spacing-2xs)",
-                          padding: "var(--spacing-2xs) var(--spacing-sm)",
-                          border: "none", borderRadius: "var(--radius-capsule)",
-                          background: selectChildren === opt.value ? "#1E90FF" : "transparent",
-                          color: selectChildren === opt.value ? "#fff" : "var(--text-primary)",
-                          fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-sm)",
-                          width: "100%", textAlign: "left", cursor: "default",
-                        }}
-                        onMouseEnter={(e) => { if (selectChildren !== opt.value) { e.currentTarget.style.background = "#1E90FF"; e.currentTarget.style.color = "#fff"; } }}
-                        onMouseLeave={(e) => { if (selectChildren !== opt.value) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-primary)"; } }}
-                        onClick={() => { setSelectChildren(opt.value); close(); }}
-                      >
-                        <span style={{ width: "1em", textAlign: "center", fontSize: "1.6em", lineHeight: 0 }}>{selectChildren === opt.value ? "✓" : "\u2002"}</span>
-                        {opt.label}
-                      </button>
-                    ))}
-                  </>
-                )}
-              </Select>
-            </Tooltip>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* Select — States */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Select — States</div>
-        <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)}>
-            <Tooltip content="placeholder state">
-              <Select
-                value={selectEmpty}
-                options={[
-                  { value: "a", label: "Option A" },
-                  { value: "b", label: "Option B" },
-                ]}
-                onChange={setSelectEmpty}
-                placeholder="No selection"
-              />
-            </Tooltip>
-          </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)}>
-            <Tooltip content="disabled">
-              <Select
-                value="option1"
-                options={[{ value: "option1", label: "Disabled" }]}
-                onChange={() => {}}
-                disabled
-              />
-            </Tooltip>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* Select — Combobox & Bubble */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Select — Combobox & Bubble</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "combobox — input trigger. label + searchTerms(한글 alias) 필터, Enter/쉼표로 free text 추가, 지우개 버튼, ↑↓ 키보드 이동, group/icon 옵션. bubble — 아래가 아니라 trigger 오른쪽에 꼬리 달린 말풍선으로 열림."
-            : "combobox — input trigger. filter by label + searchTerms (Korean alias), Enter/comma to add free text, clear button, ↑↓ nav, grouped options w/ icons. bubble — opens as a tailed speech-bubble to the trigger's right."}
-        </p>
-        <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
-            <Tooltip content="combobox — filter + free-text add">
-              <Select
-                combobox
-                value=""
-                inputValue={comboInput}
-                onInputChange={setComboInput}
-                onChange={() => {}}
-                onAdd={(v) => { const t = v.trim(); if (t && !comboTags.includes(t)) setComboTags((p) => [...p, t]); setComboInput(""); }}
-                options={[
-                  { value: "React", label: "React", searchTerms: ["리액트"] },
-                  { value: "Next.js", label: "Next.js", searchTerms: ["넥스트"] },
-                  { value: "TypeScript", label: "TypeScript", icon: <Code size={12} /> },
-                  { value: "GSAP", label: "GSAP", group: "Animation" },
-                  { value: "Framer Motion", label: "Framer Motion", group: "Animation" },
-                ].map((o) => ({ ...o, selected: comboTags.includes(o.value) }))}
-                placeholder={language === "ko" ? "입력해 필터 / 추가" : "Type to filter / add"}
-              />
-            </Tooltip>
-            {comboTags.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-2xs)" }}>
-                {comboTags.map((tag, i) => (
-                  <Chip key={tag} variant="capsule" onRemove={() => setComboTags((p) => p.filter((_, j) => j !== i))}>{tag}</Chip>
-                ))}
-              </div>
-            )}
-          </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)} style={{ paddingLeft: "var(--spacing-md)" }}>
-            <Tooltip content="bubble — right-anchored speech bubble">
-              <Select
-                bubble
-                variant="compact"
-                value={bubbleVal}
-                onChange={setBubbleVal}
-                options={[
-                  { value: "happy", label: "😊 Happy" },
-                  { value: "normal", label: "😐 Normal" },
-                  { value: "sad", label: "😢 Sad" },
-                ]}
-              />
-            </Tooltip>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* ColorPicker */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>ColorPicker</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "render-prop trigger + portal popover — trigger 를 호출부가 그리므로 스와치·버튼·칩 무엇이든 될 수 있다. **모바일(≤768px)에선 dropdown 대신 bottom sheet 으로 바뀐다** — 색을 고르려면 두 손가락만 한 면적이 필요한데 작은 화면의 popover 로는 그게 안 나온다. `inline` 모드는 이미 제자리에 펼쳐진 형태라 sheet 전환에서 제외된다."
-            : "A render-prop trigger with a portal popover — the caller draws the trigger, so it can be a swatch, a button, or a chip. **On mobile (≤768px) it becomes a bottom sheet instead of a dropdown** — picking a color needs roughly two fingers' worth of area, which a popover on a small screen can't give. `inline` mode is already expanded in place, so it opts out of the sheet."}
-        </p>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-md)", flexWrap: "wrap" }}>
-          <Tooltip content="render-prop trigger + portal popover">
-            <ColorPicker value={pickerColor} onChange={(c) => setPickerColor(c.hex)}>
-              {({ toggle }) => (
-                <button
-                  type="button"
-                  onClick={toggle}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    padding: 0,
-                    border: "var(--border-light)",
-                    borderRadius: "var(--radius-circle)",
-                    background: pickerColor,
-                    cursor: "pointer",
-                  }}
-                  aria-label="Pick color"
-                />
-              )}
-            </ColorPicker>
-          </Tooltip>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-sm)", color: "var(--text-secondary)" }}>{pickerColor}</span>
-        </motion.div>
-      </motion.div>
-
-      {/* Toast */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Toast</div>
-        <div className={styles.componentRow}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 5)}>
-            <Tooltip content="variant: success"><Button variant="outline" onClick={() => showToast("Saved successfully", "success")}>Success</Button></Tooltip>
-          </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 5)}>
-            <Tooltip content="variant: error (accent — 진짜 실패)"><Button variant="outline" onClick={() => showToast("Something went wrong", "error")}>Error</Button></Tooltip>
-          </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(2, 5)}>
-            <Tooltip content="variant: warning (amber — 검증·중복)"><Button variant="outline" onClick={() => showToast("Already exists", "warning")}>Warning</Button></Tooltip>
-          </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(3, 5)}>
-            <Tooltip content="variant: info"><Button variant="outline" onClick={() => showToast("Just so you know", "info")}>Info</Button></Tooltip>
-          </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(4, 5)}>
-            <Tooltip content="스택 — 하나에 hover 하면 pauseAllToasts 로 전체 타이머 정지">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  showToast("Uploading cover…", "info");
-                  showToast("Cover uploaded", "success");
-                  showToast("Draft saved", "success");
-                }}
-              >
-                Stack ×3
-              </Button>
-            </Tooltip>
-          </motion.div>
-        </div>
-        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
-          {language === "ko"
-            ? "스택 중 하나에 hover 하면 그 토스트만이 아니라 전체가 멈춘다(pauseAllToasts) — 하나씩만 멈추면 다른 토스트가 사라지며 스택이 재배치돼 커서가 저절로 벗어난다. 클릭하면 즉시 dismiss."
-            : "Hovering any toast pauses the whole stack, not just that one (pauseAllToasts) — pausing only the hovered one lets the others expire, and the stack reflows out from under the cursor. Click to dismiss immediately."}
-        </span>
-      </motion.div>
-
-      {/* Pagination */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Pagination</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
-          <Tooltip content="default — `showJump` auto-enables when totalPages > 5"><div><Pagination page={paginationPage} totalPages={12} onChange={setPaginationPage} /></div></Tooltip>
-          <Tooltip content="showJump={false} — hide the Go-to input"><div><Pagination page={paginationPage} totalPages={12} onChange={setPaginationPage} showJump={false} /></div></Tooltip>
-          <Pagination page={1} totalPages={1} onChange={() => {}} />
-        </motion.div>
-      </motion.div>
-
-      {/* Chip — variant capsule (draggable, with × remove) */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Chip — draggable capsule</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
-          {dragTags.map((tag, i) => {
-            const { dragging, dropSide, ...handlers } = tagItemProps(i);
-            return (
-              <Chip
-                key={`${tag}-${i}`}
-                variant="capsule"
-                showHandle
-                onRemove={() => setDragTags((prev) => prev.filter((_, j) => j !== i))}
-                dragging={dragging}
-                dropSide={dropSide}
-                dragHandlers={{ draggable: true, ...handlers }}
-              >
-                {tag}
-              </Chip>
-            );
-          })}
-        </motion.div>
-      </motion.div>
-
-      {/* Chip — variant capsule with href + count (TagPill 대체) */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Chip — href + count</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "캡슐 chip — Link 로 wrap, `# + 태그명` + 선택적 카운트. 클릭 시 `/posts/tags/[tag]` 로 이동."
-            : "Capsule chip — Link wrap with `# + name` + optional count. Navigates to `/posts/tags/[tag]` on click."}
-        </p>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
-          {["React", "Next.js", "TypeScript"].map((tag) => (
-            <Tooltip key={tag} content="basic — name only">
-              <Chip variant="capsule" href={`/posts/tags/${encodeURIComponent(tag)}`}>
-                <span>#{tag}</span>
-              </Chip>
-            </Tooltip>
-          ))}
-        </motion.div>
-        <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)" }}>
-          {[["GSAP", 12], ["CSS", 47], ["Plate", 3]].map(([tag, count]) => (
-            <Tooltip key={tag} content="with count badge">
-              <Chip variant="capsule" href={`/posts/tags/${encodeURIComponent(tag as string)}`} count={count as number}>
-                <span>#{tag}</span>
-              </Chip>
-            </Tooltip>
-          ))}
-        </motion.div>
-      </motion.div>
-
-      {/* Chip — variants & states */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Chip — variants & states</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "variant capsule|bare · leftIcon · active(편집중) · onClick(button) · 핸들 위에 올리면 data-cursor 로 \"Drag\" 커서."
-            : "variant capsule|bare · leftIcon · active(editing) · onClick(button) · grip shows a \"Drag\" cursor via data-cursor."}
-        </p>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)", alignItems: "center" }}>
-          <Tooltip content="variant: capsule + leftIcon">
-            <Chip variant="capsule" leftIcon={<Hash size={11} />}>react</Chip>
-          </Tooltip>
-          <Tooltip content="variant: bare (text-only)">
-            <Chip variant="bare">#tag</Chip>
-          </Tooltip>
-          <Tooltip content="active — edit drawer open">
-            <Chip variant="capsule" active>editing…</Chip>
-          </Tooltip>
-          <Tooltip content="onClick (button mode)">
-            <Chip variant="capsule" onClick={() => showToast(language === "ko" ? "칩 클릭" : "chip clicked", "info")}>clickable</Chip>
-          </Tooltip>
-          <Tooltip content="showHandle — grip + Drag cursor">
-            <Chip variant="capsule" showHandle leftIcon={<Star size={11} />}>draggable</Chip>
-          </Tooltip>
-        </motion.div>
-      </motion.div>
-
-      {/* RelatedChips */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>RelatedChips</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "관련 글 / 프로젝트 칩 — 썸네일 + 제목 + 카테고리, `+N 더보기` 토글, hover 시 미리보기 카드(데스크톱)."
-            : "Related post / project chips — thumbnail + title + category, `+N more` toggle, hover preview card (desktop)."}
-        </p>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
-          <RelatedChips
-            moreLabel={language === "ko" ? "더보기" : "More"}
-            lessLabel={language === "ko" ? "접기" : "Less"}
-            items={[
-              { id: "1", title: "Design Tokens 정리", href: "#", category: "CSS", image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=200&h=200&fit=crop", desc: "raw → semantic → component → context 4-tier 토큰 시스템" },
-              { id: "2", title: "Plate Editor 마이그레이션", href: "#", category: "Editor", image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200&h=200&fit=crop", desc: "Tiptap 에서 Plate 로 — IME workaround 포함" },
-              { id: "3", title: "Lenis Smooth Scroll", href: "#", category: "UX" },
-              { id: "4", title: "Framer Motion Stagger", href: "#", category: "Animation" },
-              { id: "5", title: "GSAP Horizontal Scroll", href: "#", category: "Animation" },
-              { id: "6", title: "Admin 리스트 리팩토링", href: "#", category: "Admin" },
-              { id: "7", title: "TOC 공통 컴포넌트", href: "#", category: "Refactor" },
-              { id: "8", title: "이모지 Picker SVG", href: "#", category: "Editor" },
-              { id: "9", title: "Autosave Debounce", href: "#", category: "Editor" },
-              { id: "10", title: "Theme Provider", href: "#", category: "System" },
-            ]}
-          />
-        </motion.div>
-      </motion.div>
-
-      {/* DatePicker */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>DatePicker</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
-            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>Format</span>
-            <div style={{ display: "flex", border: "var(--border-light)", borderRadius: "var(--radius-capsule)", overflow: "hidden" }}>
-              {(["year", "yearMonth", "date"] as const).map((f, i, arr) => (
-                <button
-                  key={f}
-                  type="button"
-                  onClick={() => setDpFormat(f)}
-                  style={{
-                    padding: "var(--spacing-2xs) var(--spacing-sm)",
-                    border: "none",
-                    borderRight: i < arr.length - 1 ? "var(--border-light)" : "none",
-                    borderRadius: 0,
-                    background: dpFormat === f ? "var(--text-primary)" : "transparent",
-                    color: dpFormat === f ? "var(--bg-primary)" : "var(--text-secondary)",
-                    fontSize: "var(--font-size-xs)",
-                    fontFamily: "var(--font-space-grotesk)",
-                    cursor: "pointer",
-                  }}
-                >
-                  {f === "year" ? (language === "ko" ? "연도" : "Year") : f === "yearMonth" ? (language === "ko" ? "연.월" : "Y.M") : (language === "ko" ? "연.월.일" : "Y.M.D")}
-                </button>
-              ))}
-            </div>
-            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-primary)", marginLeft: "var(--spacing-xs)", fontFamily: "var(--font-space-grotesk)", fontWeight: 600 }}>
-              {dpFormat === "year" ? dpDate.year : dpFormat === "yearMonth" ? `${dpDate.year}.${dpDate.month}` : `${dpDate.year}.${dpDate.month}.${dpDate.day}`}
-            </span>
-          </div>
-          <div style={{ display: "flex", gap: "var(--spacing-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ minWidth: 230 }}>
-              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Spinner</div>
-              <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
-                <DatePicker
-                  year={dpDate.year}
-                  month={dpDate.month}
-                  day={dpDate.day}
-                  format={dpFormat}
-                  mode="spinner"
-                  language={language as "ko" | "en"}
-                  onSelect={(y, m, d) => setDpDate({ year: y, month: m, day: d })}
-                />
-              </div>
-            </div>
-            <div style={{ minWidth: 230 }}>
-              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Calendar</div>
-              <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
-                <DatePicker
-                  year={dpDate.year}
-                  month={dpDate.month}
-                  day={dpDate.day}
-                  format={dpFormat}
-                  mode="calendar"
-                  language={language as "ko" | "en"}
-                  onSelect={(y, m, d) => setDpDate({ year: y, month: m, day: d })}
-                />
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-
-      {/* PeriodPicker */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>PeriodPicker</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)", maxWidth: 540 }}>
-          <PeriodPicker value={period} onChange={setPeriod} />
-        </motion.div>
-      </motion.div>
-
-      {/* CloseButton */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>CloseButton</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
-          <div style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) var(--spacing-md)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>
-              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>xs (20px)</span>
-              <CloseButton size="xs" onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
-            </div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) var(--spacing-md)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>
-              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>sm (24px)</span>
-              <CloseButton size="sm" onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
-            </div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) var(--spacing-md)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>
-              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>md (32px)</span>
-              <CloseButton size="md" onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
-            </div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)", padding: "var(--spacing-xs) var(--spacing-md)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>
-              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>lg (38px)</span>
-              <CloseButton size="lg" onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center" }}>
-            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>X ↔ minus morph (hover):</span>
-            <div data-close-trigger style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, borderRadius: "50%", border: "var(--border-light)" }}>
-              <CloseIcon />
-            </div>
-          </div>
-          <span style={{ fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)" }}>
-            기본 상태는 minus(하단 line 만), hover/`[data-active]` 시 두 line 이 X 로 morph. stacking 회피 위해 line 위치는 `top: 50%; left: 50%` + negative margin 으로 sub-pixel 정렬.
-          </span>
-        </motion.div>
-      </motion.div>
-
       {/* ImageViewer */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>ImageViewer</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "아래 이미지를 클릭하면 뷰어가 열립니다. 확대·이동·썸네일 탐색·풀스크린을 지원합니다."
+            : "Click any image below to open the viewer. Supports zoom, pan, thumbnail navigation, and fullscreen.")}
+        </p>
         <div
           style={{
             display: "inline-flex",
@@ -1186,7 +1329,11 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* Popover */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Popover</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center" }}>
+        <div className={styles.componentSubLabel}>base</div>
+        <p className={styles.componentDesc}>
+          anchor + portal · outside click / ESC 자동 닫힘 · 터치 디바이스에선 bottom sheet 로 자동 분기 · 모달 안에선 그 stacking context 로 portal 돼 전역 z-index 없이도 모달 위에 뜬다
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", gap: "var(--spacing-md)", alignItems: "center" }}>
           <Popover
             trigger={<Button variant="outline" shape="square" icon={<MoreVertical size={16} />} aria-label="Row actions" />}
             sheetTitle="Row actions"
@@ -1201,21 +1348,19 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               </div>
             )}
           </Popover>
-          <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
-            anchor + portal · outside click / ESC 자동 닫힘 · 터치 디바이스에선 bottom sheet 로 자동 분기 · 모달 안에선 그 stacking context 로 portal 돼 전역 z-index 없이도 모달 위에 뜬다
-          </span>
         </motion.div>
-      </motion.div>
-
-      {/* Popover — variants */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Popover — variants</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "예전엔 호출부마다 유리 배경을 제각각 override 했다 → variant 로 흡수. glass(기본)는 반투명 scrim + blur 라 안쪽 색이 그대로 살고, solid 는 뒤가 전혀 비치면 안 될 때, difference 는 패널째 뒤 페이지와 반전 합성해 밑에 뭐가 깔리든 대비가 자동으로 잡힌다. 대신 difference 는 subtree 가 한 덩어리로 합성돼 안쪽 색 구분이 사라지고, 배경이 임의 색이면 색이 틀어진다 — 그래서 기본이 glass. 아래 그라데이션 위에 열어 비교해보세요."
-            : "Each call site used to override its own glass background → absorbed into variant. glass (default) is a translucent scrim + blur, so inner colors survive; solid is for when nothing behind may show through; difference blends the whole panel against the page so contrast holds over anything. The trade-off: difference composites the subtree as one mass, losing inner color distinctions, and shifts hue over arbitrary backgrounds — hence glass as the default. Open them over the gradient below to compare."}
+        <div className={styles.componentSubLabel}>variants</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "예전에는 호출부마다 유리 배경을 제각각 override 했는데, 이를 variant 로 흡수했습니다. glass(기본)는 반투명 scrim 과 blur 라 안쪽 색이 그대로 살아납니다. solid 는 뒤가 전혀 비치면 안 될 때 씁니다. difference 는 패널째 뒤 페이지와 반전 합성해서 밑에 무엇이 깔리든 대비가 자동으로 잡힙니다. 다만 difference 는 subtree 가 한 덩어리로 합성돼 안쪽 색 구분이 사라지고, 배경이 임의의 색이면 색이 틀어집니다. 그래서 기본값은 glass 입니다. 아래 그라데이션 위에 열어 비교해 보세요."
+            : "Each call site used to override its own glass background → absorbed into variant. glass (default) is a translucent scrim + blur, so inner colors survive; solid is for when nothing behind may show through; difference blends the whole panel against the page so contrast holds over anything. The trade-off: difference composites the subtree as one mass, losing inner color distinctions, and shifts hue over arbitrary backgrounds — hence glass as the default. Open them over the gradient below to compare.")}
         </p>
-        <motion.div className={styles.popoverBackdrop} variants={staggerItemX} {...scrollChildX(0, 1)}>
+        <motion.div
+          className={styles.popoverBackdrop}
+          variants={staggerItemX}
+          {...scrollChildX(0, 1)}
+          style={{ backgroundImage: "url(https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&h=400&fit=crop)", backgroundSize: "cover", backgroundPosition: "center" }}
+        >
           {([
             { v: "glass", label: language === "ko" ? "Glass (기본)" : "Glass (default)" },
             { v: "solid", label: "Solid" },
@@ -1224,7 +1369,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             <Popover
               key={o.v}
               variant={o.v}
-              trigger={<Button variant="outline" size="sm">{o.label}</Button>}
+              trigger={<Button variant="primary" size="sm">{o.label}</Button>}
               placement="bottom-start"
               sheetTitle={o.label}
             >
@@ -1236,15 +1381,11 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             </Popover>
           ))}
         </motion.div>
-      </motion.div>
-
-      {/* Popover — openOnHover */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Popover — openOnHover</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "데스크톱에서 hover 로 열림 — 열림은 즉시, 닫힘은 500ms 지연이라 trigger↔content 사이를 지나가도 안 닫힌다. hover popover 는 한 번에 하나만 열린다(둘을 번갈아 올려보세요). 클릭도 그대로 동작하고, hover 개념이 없는 터치/sheet 모드에선 무시된다."
-            : "Opens on hover on desktop — instantly on enter, with a 500ms close delay so crossing from trigger to content doesn't dismiss it. Only one hover popover stays open at a time (try alternating between the two). Click still works, and it's ignored in touch/sheet mode where hover doesn't exist."}
+        <div className={styles.componentSubLabel}>openOnHover</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "데스크톱에서는 hover 로 열립니다. 열림은 즉시 이뤄지고 닫힘은 500ms 지연되므로, trigger 와 content 사이를 지나가도 닫히지 않습니다. hover popover 는 한 번에 하나만 열립니다(둘을 번갈아 올려 보세요). 클릭도 그대로 동작하며, hover 개념이 없는 터치/sheet 모드에서는 무시됩니다."
+            : "Opens on hover on desktop — instantly on enter, with a 500ms close delay so crossing from trigger to content doesn't dismiss it. Only one hover popover stays open at a time (try alternating between the two). Click still works, and it's ignored in touch/sheet mode where hover doesn't exist.")}
         </p>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", gap: "var(--spacing-sm)", alignItems: "center" }}>
           {["Format", "Insert"].map((label) => (
@@ -1255,7 +1396,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               placement="bottom-start"
             >
               {({ close }) => (
-                <div style={{ minWidth: 160 }}>
+                <div style={{ minWidth: 160, padding: "var(--spacing-sm)" }}>
                   <MenuItem icon={<Star size={14} />} label={`${label} A`} onClick={close} />
                   <MenuItem icon={<Zap size={14} />} label={`${label} B`} onClick={close} />
                 </div>
@@ -1265,77 +1406,71 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </motion.div>
       </motion.div>
 
-      {/* EmojiPicker */}
+      <h3 className={styles.componentCategory}>Feedback & Display</h3>
+
+      {/* Toast */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>EmojiPicker</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
+        <div className={styles.componentGroupTitle}>Toast</div>
+        <p className={styles.componentDesc}>
           {language === "ko"
-            ? "이모지 · 아이콘 · 커스텀 이미지 선택 — 탭 전환 + 검색 + 셔플 + 최근 사용."
-            : "Pick an emoji, icon, or custom image — tabbed, with search, shuffle, and recents."}
+            ? "스택 중 하나에 hover 하면 그 토스트만이 아니라 전체가 멈춥니다(pauseAllToasts). 하나씩만 멈추면 다른 토스트가 사라지면서 스택이 재배치되고, 커서가 저절로 벗어나기 때문입니다. 클릭하면 즉시 사라집니다."
+            : "Hovering any toast pauses the whole stack, not just that one (pauseAllToasts) — pausing only the hovered one lets the others expire, and the stack reflows out from under the cursor. Click to dismiss immediately."}
         </p>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ position: "relative", display: "flex", alignItems: "center", gap: "var(--spacing-md)" }}>
-          <Tooltip content="open EmojiPicker">
-            <Button variant="outline" onClick={() => setDsEmojiOpen((v) => !v)}>
-              {language === "ko" ? "선택하기" : "Pick"}
-            </Button>
-          </Tooltip>
-          {dsEmoji && (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
-              <EmojiIcon value={dsEmoji} />
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>{dsEmoji}</span>
-            </span>
-          )}
-          <EmojiPicker
-            open={dsEmojiOpen}
-            onClose={() => setDsEmojiOpen(false)}
-            onSelect={(v) => { setDsEmoji(v); setDsEmojiOpen(false); }}
-            currentValue={dsEmoji}
-          />
-        </motion.div>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 5)}>
+            <Tooltip content="variant: success"><Button variant="outline" onClick={() => showToast("Saved successfully", "success")}>Success</Button></Tooltip>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 5)}>
+            <Tooltip content="variant: error (accent — 진짜 실패)"><Button variant="outline" onClick={() => showToast("Something went wrong", "error")}>Error</Button></Tooltip>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(2, 5)}>
+            <Tooltip content="variant: warning (amber — 검증·중복)"><Button variant="outline" onClick={() => showToast("Already exists", "warning")}>Warning</Button></Tooltip>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(3, 5)}>
+            <Tooltip content="variant: info"><Button variant="outline" onClick={() => showToast("Just so you know", "info")}>Info</Button></Tooltip>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(4, 5)}>
+            <Tooltip content="스택 — 하나에 hover 하면 pauseAllToasts 로 전체 타이머 정지">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  showToast("Uploading cover…", "info");
+                  showToast("Cover uploaded", "success");
+                  showToast("Draft saved", "success");
+                }}
+              >
+                Stack ×3
+              </Button>
+            </Tooltip>
+          </motion.div>
+        </div>
       </motion.div>
 
-      {/* ViewModeToggle */}
+      {/* Pagination */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>ViewModeToggle</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "터치 기기(모바일/태블릿)에서만 노출 — PC / 모바일 viewport 를 전환. 데스크톱 브라우저에선 viewport 오버라이드가 무효라 렌더되지 않음."
-            : "Only appears on touch devices (mobile/tablet) — toggles PC / mobile viewport. Renders nothing on desktop browsers, where the viewport override has no effect."}
-        </p>
+        <div className={styles.componentGroupTitle}>Pagination</div>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
-          <ViewModeToggle />
+          <Pagination page={paginationPage} totalPages={12} onChange={setPaginationPage} />
         </motion.div>
       </motion.div>
 
       {/* TypeWriter */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>TypeWriter</div>
-        <motion.div className={styles.typewriterDemo} variants={staggerItemX} {...scrollChildX(0, 1)}>
-          <TypeWriter text="Design tokens bring consistency." typingSpeed={80} caption="— Design System" fontSize="var(--font-size-xl)" align="center" replayTrigger={twReplay} />
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)", marginBottom: "var(--spacing-sm)" }}>
+          <div className={styles.componentGroupTitle} style={{ marginBottom: 0 }}>TypeWriter</div>
           <button className={styles.replayBtn} onClick={() => setTwReplay((n) => n + 1)} aria-label="Replay">
             <RotateCcw size={14} />
           </button>
+        </div>
+        <motion.div className={styles.typewriterDemo} variants={staggerItemX} {...scrollChildX(0, 1)}>
+          <TypeWriter text="Design tokens bring consistency." typingSpeed={80} caption="— Design System" fontSize="var(--font-size-xl)" align="center" replayTrigger={twReplay} />
         </motion.div>
-      </motion.div>
-
-      {/* BilingualInputPair */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>BilingualInputPair</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ maxWidth: 360 }}>
-          <BilingualInputPair
-            value={bilingualValue}
-            onChange={setBilingualValue}
-            placeholder="값을 입력하세요"
-          />
-        </motion.div>
-        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
-          KO / EN 배지 in-input · 값 있을 때 X 클리어 · IME composition 안전 onEnter
-        </span>
       </motion.div>
 
       {/* HeartIcon — wave fill + burst (size 별 단독 데모) */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>HeartIcon</div>
+        <p className={styles.componentDesc}>state machine (empty / filling / filled / draining) · 3-layer wave fill (SVG path d 애니메이션) · 채우기 완료 시 burst 1회 · burst 거리/크기 size 비례 스케일 · stroke / fill 모두 currentColor 상속 (부모 color 따라감)</p>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-2xl)", cursor: "pointer", color: iconLiked ? "var(--text-accent)" : "var(--text-secondary)" }} onClick={toggleIcon}>
           <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
             <HeartIcon liked={iconLiked} busy={iconBusy} size={14} />
@@ -1350,228 +1485,15 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>size 32</span>
           </span>
         </motion.div>
-        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
-          state machine (empty / filling / filled / draining) · 3-layer wave fill (SVG path d 애니메이션) · 채우기 완료 시 burst 1회 · burst 거리/크기 size 비례 스케일 · stroke / fill 모두 currentColor 상속 (부모 color 따라감)
-        </span>
-      </motion.div>
-
-      {/* LikeButton — HeartIcon + count + button wrapper (detail 페이지 패턴) */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>LikeButton</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
-          <LikeButton config={{ count: likeCount, liked, busy: likeBusy, onToggle: handleLikeToggle }} />
-        </motion.div>
-        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
-          HeartIcon (size=20) 를 wrap — count + outline button + hover scale. config props (count / liked / busy / onToggle) 만 받음
-        </span>
-      </motion.div>
-
-      {/* Textarea (with maxHint) — contenteditable 모드 + inline highlight */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Textarea — maxHint (contenteditable highlight)</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ maxWidth: 480 }}>
-          <Textarea
-            value={excerptDemo}
-            onChange={setExcerptDemo}
-            placeholder="200자 (short) 넘게 입력하면 초과 portion 만 accent bg highlight"
-            rows={3}
-            maxHint="short"
-          />
-        </motion.div>
-        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
-          maxHint 설정 시 contenteditable=&quot;plaintext-only&quot; 모드로 자동 전환 — 초과 글자에 inline &lt;mark&gt; highlight · preset (short 200 / basic 500 / long 2000) 또는 숫자 · 카운터 80% 부터 warning, 100% 부터 over · native resize 핸들 위 투명 overlay 로 커스텀 cursor 표시
-        </span>
-      </motion.div>
-
-      {/* Textarea — tabIndent */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Textarea — tabIndent</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ maxWidth: 480 }}>
-          <Textarea
-            value={tabDemo}
-            onChange={setTabDemo}
-            placeholder={language === "ko" ? "Tab 을 눌러 2칸 들여쓰기" : "Press Tab to indent two spaces"}
-            rows={4}
-            maxHint="basic"
-            tabIndent
-          />
-        </motion.div>
-        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
-          {language === "ko"
-            ? "tabIndent 는 opt-in — 기본값은 Tab=다음 포커스여야 키보드로 폼을 빠져나갈 수 있다(a11y). 코드·마크다운을 치는 칸(댓글 작성란 등)에서만 켠다. maxHint 가 있어야 동작하는 contenteditable 모드 전용."
-            : "tabIndent is opt-in — Tab must default to next-focus so keyboard users can leave the form (a11y). Turn it on only where code/markdown gets typed (the comment box, etc.). Requires the contenteditable mode, which maxHint enables."}
-        </span>
-      </motion.div>
-
-      {/* Collapsible */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>Collapsible</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "maxHeight 를 넘을 때만 접고 더보기를 붙인다 — 안 넘치면 버튼도 페이드도 없어 짧은 내용엔 흔적이 없다. 높이 판단은 ResizeObserver: 마크다운 이미지는 늦게 로드돼 그때 높이가 바뀌는데, 한 번만 재면 \"로드 전 = 안 넘침\"으로 굳어 긴 댓글이 안 접힌다. 첫 클램프엔 애니메이션을 안 걸어 글이 저절로 접히는 연출을 피한다."
-            : "Clamps and adds a show-more only when the content exceeds maxHeight — no button, no fade otherwise, so short content shows no trace of it. Height is tracked with a ResizeObserver: markdown images load late and change the height, and measuring once would freeze \"not overflowing\" from before the load, leaving long comments unclamped. The first clamp skips the animation so posts don't appear to fold themselves up."}
-        </p>
-        <motion.div className={styles.collapsibleDemo} variants={staggerItemX} {...scrollChildX(0, 1)}>
-          <Collapsible
-            maxHeight={140}
-            expandLabel={language === "ko" ? "더보기" : "Show more"}
-            collapseLabel={language === "ko" ? "접기" : "Show less"}
-          >
-            <div className={styles.collapsibleBody}>
-              <p>
-                {language === "ko"
-                  ? "이 문단은 maxHeight(140px)보다 길어서 접힙니다. 잘린 아래쪽 페이드가 \"여기서 끝이 아니다\"를 알리는 유일한 시각 단서입니다 — 버튼만 있으면 딱 잘린 글자 줄이 그냥 마지막 줄처럼 읽힙니다."
-                  : "This block is taller than maxHeight (140px), so it clamps. The fade at the cut is the only cue that there's more below — with just a button, the clipped line reads as the last line."}
-              </p>
-              <p>
-                {language === "ko"
-                  ? "클램프는 바깥(.clip)이 하고 측정은 안쪽(.inner)이 합니다. 같은 요소가 둘 다 하면 max-height 에 눌린 높이를 재게 되어 항상 \"딱 맞음\"이 나옵니다."
-                  : "The outer element (.clip) does the clamping while an inner one measures. If one element did both, it would measure the height already squashed by max-height and always report \"fits\"."}
-              </p>
-              <p>
-                {language === "ko"
-                  ? "펼친 뒤 높이는 실제로 auto 입니다 — framer-motion 이 height: \"auto\" 를 실측해 애니메이트하기 때문에, 나중에 이미지가 더 로드돼 내용이 길어져도 잘리지 않습니다."
-                  : "Once expanded the height is genuinely auto — framer-motion measures height: \"auto\" to animate it, so late-loading images can grow the content without it getting cut off."}
-              </p>
-              <p>
-                {language === "ko"
-                  ? "chevron 회전 transition 은 .root .chevron 처럼 compound 셀렉터로 씁니다. 전역 theme transition(html[data-theme-ready] *)이 shorthand 라 단일 클래스로는 transform transition 이 통째로 덮어써집니다."
-                  : "The chevron's rotation transition uses a compound selector (.root .chevron). The global theme transition (html[data-theme-ready] *) is a shorthand, so a single-class selector would have its transform transition wiped out entirely."}
-              </p>
-            </div>
-          </Collapsible>
-        </motion.div>
-      </motion.div>
-
-      {/* TagNotesEditor */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>TagNotesEditor</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ maxWidth: 480 }}>
-          <TagNotesEditor
-            items={tagItems}
-            notes={tagNotes}
-            onItemsChange={setTagItems}
-            onNotesChange={setTagNotes}
-            prefix="#"
-            notePlaceholder="이 태그에 대한 설명"
-            addLabel="설명 추가"
-            cancelLabel="취소"
-            editLabel="편집"
-            removeTitle="태그 제거"
-            multiLine
-          />
-        </motion.div>
-        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
-          item drag-reorder · KO / EN bilingual notes · multiLine 모드 (항목 추가 / 체크박스 일괄 삭제 / 항목별 drag)
-        </span>
-      </motion.div>
-
-      {/* AdminNotFound — 중앙 정렬 not-found / empty state */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>AdminNotFound</div>
-        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ border: "var(--border-light)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
-          <AdminNotFound
-            title={language === "ko" ? "게시물을 찾을 수 없습니다" : "Post not found"}
-            backHref="#components"
-            backLabel={language === "ko" ? "목록으로" : "Back to list"}
-          />
-        </motion.div>
-        <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
-          {language === "ko"
-            ? "icon + 메시지 + 돌아가기 링크 중앙 정렬 — admin 편집/상세에서 항목을 못 찾았을 때 쓰는 empty state 패턴"
-            : "Centered icon + message + back link — empty-state pattern for when an admin edit/detail view can't find the item"}
-        </span>
-      </motion.div>
-
-      {/* FontPicker */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>FontPicker</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "폰트 선택 드롭다운 — 각 항목이 그 폰트로 렌더돼 고르기 전에 생김새를 본다. `groups` 로 넘기면 그룹 라벨이 붙고, 단일 그룹이면 `group: \"\"` 로 라벨을 숨긴다. `googleName` 이 있는 항목은 고르는 순간 컴포넌트가 Google Font 를 알아서 로드하므로 호출부가 신경 쓸 게 없다. `preferEn` 은 한글 그룹을 뒤로 미는 스위치 (영문 UI 우선인 자리용)."
-            : "A font dropdown where every option renders in its own face, so you see it before you pick it. Pass `groups` to get group labels; a single group with `group: \"\"` hides them. Options carrying a `googleName` load the Google Font themselves the moment they're chosen, so callers don't have to. `preferEn` pushes Korean groups to the back for English-first surfaces."}
-        </p>
-        <div className={styles.componentRow}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
-            <FontPicker
-              value={fontDemo}
-              onChange={(v) => setFontDemo(v)}
-              groups={[
-                {
-                  group: language === "ko" ? "영문" : "Latin",
-                  fonts: [
-                    { label: "Instrument Serif", value: "var(--font-instrument)" },
-                    { label: "Space Grotesk", value: "var(--font-space-grotesk)" },
-                  ],
-                },
-                {
-                  group: language === "ko" ? "고정폭" : "Mono",
-                  fonts: [{ label: "Mono", value: "var(--font-mono)" }],
-                },
-              ]}
-              fallbackLabel="Default"
-            />
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* MenuDots */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>MenuDots</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "메뉴 버튼 아이콘 — 9-dot 격자가 눌리면 X 로 모였다 흩어진다. 사이트 Navigation 메뉴 버튼과 admin/settings 서랍 토글이 같은 아이콘을 쓰도록 공용화했다. viewBox 8×8 의 vector circle 이라 어떤 크기에서도 원을 유지한다(작은 span 은 subpixel 안티앨리어싱이 dot 마다 달라 타원처럼 보였다). 클릭해 보세요."
-            : "A menu-button icon — a 9-dot grid that collapses into an X when opened, and back out when closing. Shared so the site Navigation menu button and the admin/settings drawer toggle use one icon. Vector circles in an 8×8 viewBox keep perfect circles at any size (tiny spans made subpixel anti-aliasing differ per dot, so they read as ovals). Click it."}
-        </p>
-        <div className={styles.componentRow}>
-          <motion.button
-            type="button"
-            variants={staggerItemX}
-            {...scrollChildX(0, 1)}
-            onClick={() => setMenuDotsOpen((v) => !v)}
-            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, border: "var(--border-light)", borderRadius: "var(--radius-capsule)", background: "transparent", cursor: "pointer", color: "var(--text-primary)" }}
-            aria-label="Toggle menu"
-            aria-expanded={menuDotsOpen}
-          >
-            <MenuDots open={menuDotsOpen} size={16} />
-          </motion.button>
-        </div>
-      </motion.div>
-
-      {/* SearchCapsule */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>SearchCapsule</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "검색 캡슐 — 접힌 아이콘에서 펼쳐지는 인풋. 지우개·검색 이력(`historyKey`)·문법 도움말(`showHelp`)을 자체 내장해, 목록/필터 바에서 raw input 을 다시 짜지 않는다. `align` 으로 좌/우 정렬, `size` 로 sm/md."
-            : "A search capsule — an input that expands from a collapsed icon. It bundles its own clear button, search history (`historyKey`), and syntax help (`showHelp`), so list/filter bars never re-implement a raw input. `align` sets left/right, `size` sets sm/md."}
-        </p>
-        <div className={styles.componentRow}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 240 }}>
-            {/* SearchCapsule 은 내부에서 useSearchParams() 를 쓴다 — 이 페이지는 정적 프리렌더
-                대상이라 Suspense 로 감싸지 않으면 빌드가 CSR bailout 으로 실패한다. */}
-            <Suspense fallback={null}>
-              <SearchCapsule
-                search={searchDemo}
-                onSearchChange={setSearchDemo}
-                placeholder={language === "ko" ? "검색" : "Search"}
-                size="sm"
-                align="left"
-                historyKey={null}
-                showHelp={false}
-              />
-            </Suspense>
-          </motion.div>
-        </div>
       </motion.div>
 
       {/* HighlightedText */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>HighlightedText</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "검색 매치 부분만 `<mark>` 로 감싼다. `query` 를 안 주면 SearchHighlightProvider context 의 것을 쓰므로, 리스트의 각 행이 검색어를 일일이 넘겨받을 필요가 없다. query 가 비면 그냥 평문이라 조건 분기 없이 항상 이걸 쓰면 된다."
-            : "Wraps only the matched span in `<mark>`. Without an explicit `query` it reads the one from `SearchHighlightProvider` context, so list rows don't each have to thread the search term through. An empty query renders plain text, so you can use it unconditionally."}
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "검색어와 일치하는 부분만 `<mark>` 로 감쌉니다. `query` 를 주지 않으면 SearchHighlightProvider context 의 값을 쓰므로, 리스트의 각 행이 검색어를 일일이 넘겨받을 필요가 없습니다. query 가 비면 그냥 평문으로 렌더되므로, 조건 분기 없이 항상 이 컴포넌트를 쓰면 됩니다."
+            : "Wraps only the matched span in `<mark>`. Without an explicit `query` it reads the one from `SearchHighlightProvider` context, so list rows don't each have to thread the search term through. An empty query renders plain text, so you can use it unconditionally.")}
         </p>
         <div className={styles.componentRow} style={{ flexDirection: "column", alignItems: "flex-start", gap: "var(--spacing-2xs)" }}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
@@ -1583,72 +1505,6 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </div>
       </motion.div>
 
-      {/* EditableInput */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>EditableInput</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "인라인 편집 input. 글자수 제한이 두 갈래인 게 핵심이다 — `maxHint` 는 **권장** 한도라 넘겨도 막지 않고 초과분에 `<mark>` + 카운터만 띄우고(붙여넣은 긴 제목을 잘라버리지 않는다), `maxLength` 는 **하드** 상한이라 입력·붙여넣기 시점에 잘라낸다. `inlineLabel` 로 KO/EN 같은 배지를 input 안에 넣을 수 있다."
-            : "An inline-editing input. The two-tier length limit is the point: `maxHint` is a **soft** cap — exceeding it isn't blocked, it just marks the overflow and shows a counter (so a long pasted title isn't silently truncated), while `maxLength` is a **hard** cap enforced on type and paste. `inlineLabel` puts a badge like KO/EN inside the field."}
-        </p>
-        <div className={styles.componentRow} style={{ flexDirection: "column", alignItems: "stretch", gap: "var(--spacing-sm)", maxWidth: 380 }}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
-            <EditableInput value={editableDemo} onChange={setEditableDemo} inlineLabel="KO" placeholder={language === "ko" ? "제목" : "Title"} />
-          </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)}>
-            <EditableInput value={editableLimitDemo} onChange={setEditableLimitDemo} maxHint={20} placeholder={language === "ko" ? "권장 20자" : "20 chars suggested"} />
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* MediaThumb */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>MediaThumb</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "썸네일 하나로 이미지·영상·빈 값을 다 받는다 — URL 이 영상이면 `<video>`, 아니면 `next/image`, src 가 없으면 `fallbackSeed` 로 gradient 를 만든다. 호출부가 매번 확장자를 보고 분기하던 걸 흡수한 것. `unoptimized` 는 admin 미리보기처럼 외부 도메인이라 optimizer 를 우회해야 할 때."
-            : "One thumbnail that takes images, video, or nothing — a video URL renders `<video>`, anything else goes through `next/image`, and a missing src falls back to a seeded gradient. It absorbs the extension-sniffing every caller used to do. `unoptimized` is for cases like admin previews where the domain is external and the optimizer must be bypassed."}
-        </p>
-        <div className={styles.componentRow}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
-            <div style={{ position: "relative", width: 96, height: 64, borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
-              <MediaThumb src="" fallbackSeed="design-system" fill alt="" />
-            </div>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>src 없음 → gradient</span>
-          </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
-            <div style={{ position: "relative", width: 96, height: 64, borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
-              <MediaThumb src="/images/profile_pic.webp" fill alt="" />
-            </div>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>image</span>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* MemberBadges (RoleBadge · ProviderChips) */}
-      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
-        <div className={styles.componentGroupTitle}>MemberBadges</div>
-        <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>
-          {language === "ko"
-            ? "관리자 멤버 배지 — 역할(RoleBadge)과 로그인 수단(ProviderChips). 멤버 목록·상세·대시보드가 공유하는 시각 프리미티브다. 역할은 아이콘+색으로 소유자/편집자/저자/멤버를 구분하고, 로그인 수단은 GitHub OAuth·이메일을 칩으로 표시한다. (MembersList 는 이 둘로 조립된 owner 전용 데이터 위젯)"
-            : "Admin member badges — role (RoleBadge) and sign-in method (ProviderChips). Visual primitives shared by the member list, detail, and dashboard. Roles read as icon + color (owner/editor/author/member); sign-in methods show GitHub OAuth / email as chips. (MembersList is an owner-only data widget composed from these two.)"}
-        </p>
-        <div className={styles.componentRow} style={{ gap: "var(--spacing-sm)", flexWrap: "wrap" }}>
-          {(["owner", "editor", "author", "member"] as const).map((role, i) => (
-            <motion.div key={role} variants={staggerItemX} {...scrollChildX(i, 4)}>
-              <RoleBadge role={role} />
-            </motion.div>
-          ))}
-        </div>
-        <div className={styles.componentRow} style={{ gap: "var(--spacing-sm)", flexWrap: "wrap", marginTop: "var(--spacing-sm)" }}>
-          <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
-            <ProviderChips providers={["github"]} />
-          </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)}>
-            <ProviderChips providers={["email"]} />
-          </motion.div>
-        </div>
-      </motion.div>
     </section>
   );
 }

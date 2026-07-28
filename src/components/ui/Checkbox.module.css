@@ -46,16 +46,11 @@
   border-color: var(--bg-inverse);
 }
 
-/* Indeterminate — circle */
-.box.circle.indeterminate {
-  background: var(--text-muted);
-  border-color: var(--text-muted);
-}
-
-/* Indeterminate — square */
+/* Indeterminate — accent (부분 선택은 활성 상태라 muted/inverse 대신 accent 로 강조) */
+.box.circle.indeterminate,
 .box.square.indeterminate {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
+  background: var(--bg-accent-solid);
+  border-color: var(--text-accent);
 }
 
 /* ── Icons ── */
@@ -69,9 +64,8 @@
   color: var(--text-white);
 }
 
-/* square checked: bg-inverse(다크=밝음) 위에 어두운 아이콘 */
-.box.square.checked .icon,
-.box.square.indeterminate .icon {
+/* square checked: bg-inverse(다크=밝음) 위에 어두운 아이콘. indeterminate 는 accent bg 라 흰 아이콘(기본) 유지 */
+.box.square.checked .icon {
   color: var(--text-inverse);
 }
 

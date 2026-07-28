@@ -8,7 +8,9 @@ import { cn } from "@/utils/cn";
 import { usePortalContainer } from "../portalContainer";
 import styles from "./Popover.module.css";
 
-export type PopoverPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end" | "right-start" | "left-start";
+// "bubble" = Select 식 오른쪽 말풍선(solid 패널 + trigger 를 가리키는 꼬리, trigger 세로 중심 정렬).
+// 위치가 아니라 "모양"을 정하는 값 — 별도 shape/variant prop 없이 이 하나로 버블이 된다.
+export type PopoverPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end" | "right-start" | "left-start" | "bubble";
 
 interface PopoverRenderProps {
   close: () => void;
@@ -71,12 +73,12 @@ let activeHoverPopover: { close: () => void } | null = null;
 export default function Popover({
   trigger,
   children,
-  placement = "bottom-end",
+  placement: placementProp = "bottom-end",
   offset = 4,
   open: controlledOpen,
   onOpenChange,
   className,
-  variant = "glass",
+  variant: variantProp = "glass",
   contentClassName,
   responsive = true,
   sheetTitle,
@@ -84,6 +86,12 @@ export default function Popover({
   maxHeight: maxHeightProp,
   openOnHover = false,
 }: PopoverProps) {
+  // placement="bubble" 이면 Select 식 오른쪽 말풍선 — 오른쪽 배치·solid·꼬리를 한 번에(공간 없으면 왼쪽 flip).
+  //   별도 shape/variant prop 없이 placement 값 하나로 버블이 된다.
+  const isBubble = placementProp === "bubble";
+  const placement = isBubble ? "right-start" : placementProp;
+  const variant = isBubble ? "solid" : variantProp;
+  const arrow = isBubble;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? !!controlledOpen : uncontrolledOpen;
@@ -136,7 +144,12 @@ export default function Popover({
   // responsive 시 터치 디바이스뿐 아니라 좁은 뷰포트(모바일 모드)에서도 bottom sheet 로 전환
   const useSheet = responsive && (isTouch || isMobile);
 
-  const [pos, setPos] = useState<{ top: number; left: number; origin: string; maxHeight?: number }>({
+  const [pos, setPos] = useState<{
+    top: number; left: number; origin: string; maxHeight?: number;
+    // 말풍선 tail — arrowSide 는 tail 이 붙는 패널 모서리(=trigger 를 가리키는 방향).
+    // top/bottom 은 arrowLeft(가로), left/right 는 arrowTop(세로)로 tail 위치를 잡는다.
+    arrowSide?: "top" | "bottom" | "left" | "right"; arrowLeft?: number; arrowTop?: number;
+  }>({
     top: 0,
     left: 0,
     origin: "top right",
@@ -167,9 +180,20 @@ export default function Popover({
       sideLeft = Math.max(MARGIN, Math.min(sideLeft, vw - cw - MARGIN));
       const availSide = vh - MARGIN * 2;
       const sideMaxH = Math.max(120, Math.min(ch || availSide, availSide));
-      let sideTop = rect.top; // start 정렬(트리거 상단)
-      sideTop = Math.max(MARGIN, Math.min(sideTop, vh - Math.min(ch, sideMaxH) - MARGIN));
-      setPos({ top: sideTop, left: sideLeft, origin: `top ${placeLeft ? "right" : "left"}`, maxHeight: sideMaxH });
+      const panelH = Math.min(ch || sideMaxH, sideMaxH);
+      const cy = rect.top + rect.height / 2;
+      // arrow(말풍선)면 trigger 세로 중심에 정렬(Select bubble 과 동일), 아니면 start(트리거 상단)
+      let sideTop = arrow ? cy - panelH / 2 : rect.top;
+      sideTop = Math.max(MARGIN, Math.min(sideTop, vh - panelH - MARGIN));
+      // tail 세로 위치 — tip 이 trigger 중심을 가리키게, 패널 안(위아래 12px)으로 clamp
+      const arrowTop = Math.max(12, Math.min(cy - sideTop, panelH - 12));
+      setPos({
+        top: sideTop, left: sideLeft,
+        origin: placeLeft ? "center right" : "center left",
+        maxHeight: sideMaxH,
+        arrowSide: placeLeft ? "right" : "left",
+        arrowTop,
+      });
       return;
     }
 
@@ -195,7 +219,9 @@ export default function Popover({
     left = Math.max(MARGIN, Math.min(left, vw - cw - MARGIN));
 
     const origin = `${placeTop ? "bottom" : "top"} ${wantEnd ? "right" : "left"}`;
-    setPos({ top, left, origin, maxHeight });
+    // 말풍선 tail 의 가로 위치 — trigger 중심을 가리키되 패널 안(양끝 16px 여백)으로 clamp
+    const arrowLeft = Math.max(16, Math.min(rect.left + rect.width / 2 - left, cw - 16));
+    setPos({ top, left, origin, maxHeight, arrowSide: placeTop ? "bottom" : "top", arrowLeft });
   };
 
   useLayoutEffect(() => {
@@ -249,6 +275,9 @@ export default function Popover({
   const renderedContent = typeof children === "function" ? children({ close, isSheet: useSheet }) : children;
   // maxHeight prop: false → 캡 없음(스크롤 X), number → 고정, undefined → 자동 계산값
   const effMaxHeight = maxHeightProp === false ? undefined : (maxHeightProp ?? pos.maxHeight);
+  // 말풍선 tail — placement 방향에 맞춰 표시. tail 이 잘리지 않게 overflow 를 visible 로.
+  const showArrow = arrow && pos.arrowSide != null;
+  const sideArrow = pos.arrowSide === "left" || pos.arrowSide === "right";
 
   return (
     <>
@@ -310,7 +339,15 @@ export default function Popover({
                 )}
                 /* Lenis 가 wheel 을 가로채 내부 스크롤이 막히는 것 방지 */
                 data-lenis-prevent
-                style={{ top: pos.top, left: pos.left, maxHeight: effMaxHeight, overflowY: effMaxHeight != null ? "auto" : "visible", transformOrigin: pos.origin }}
+                style={{
+                  top: pos.top,
+                  left: pos.left,
+                  transformOrigin: pos.origin,
+                  // arrow 사용 시엔 beak 이 잘리지 않도록 overflow visible + maxHeight cap 해제
+                  ...(showArrow
+                    ? { overflow: "visible" }
+                    : { maxHeight: effMaxHeight, overflowY: effMaxHeight != null ? "auto" : "visible" }),
+                }}
                 initial={{ opacity: 0, scale: 0.92, y: placement.startsWith("bottom") ? -4 : 4 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.92, y: placement.startsWith("bottom") ? -4 : 4 }}
@@ -319,6 +356,19 @@ export default function Popover({
                 onMouseEnter={cancelHoverClose}
                 onMouseLeave={hoverScheduleClose}
               >
+                {showArrow && (
+                  <span
+                    className={cn(
+                      styles.arrow,
+                      pos.arrowSide === "top" && styles.arrowTop,
+                      pos.arrowSide === "bottom" && styles.arrowBottom,
+                      pos.arrowSide === "left" && styles.arrowLeft,
+                      pos.arrowSide === "right" && styles.arrowRight,
+                    )}
+                    style={sideArrow ? { top: pos.arrowTop } : { left: pos.arrowLeft }}
+                    aria-hidden
+                  />
+                )}
                 <div ref={innerRef}>{renderedContent}</div>
               </motion.div>
             )

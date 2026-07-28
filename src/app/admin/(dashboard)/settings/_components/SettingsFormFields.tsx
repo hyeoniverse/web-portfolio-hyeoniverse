@@ -10,7 +10,7 @@ import type { SiteConfigData } from "@/config/site.config";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import EditableInput from "@/components/ui/EditableInput";
+import HighlightInput from "@/components/ui/HighlightInput";
 import Textarea, { type MaxHintPreset } from "@/components/ui/Textarea";
 import Tooltip from "@/components/ui/Tooltip";
 import { uploadFile } from "@/lib/adminUpload";
@@ -97,8 +97,8 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
       {multiline ? (
         <Textarea size="md" value={value} onChange={onChange} placeholder={placeholder} maxHint={hintNum} />
       ) : hintNum != null ? (
-        /* EditableInput — counter / clear / inline mark 모두 내부 처리 (외부 wrap 불필요) */
-        <EditableInput
+        /* HighlightInput — counter / clear / inline mark 모두 내부 처리 (외부 wrap 불필요) */
+        <HighlightInput
           value={value}
           onChange={onChange}
           placeholder={placeholder}

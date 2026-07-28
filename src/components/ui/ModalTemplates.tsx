@@ -27,7 +27,7 @@ export function ModalAlert({
   const footerEl = useContext(ModalFooterContext);
 
   return (
-    <div className={styles.body}>
+    <div className={`${styles.body} ${styles.alertBody}`}>
       <p className={styles.desc}>{desc}</p>
       {footerEl && createPortal(
         <Button

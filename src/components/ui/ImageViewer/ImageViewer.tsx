@@ -3,24 +3,35 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { HelpCircle, MoreVertical, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Plus, Minus, MoreVertical, RotateCcw } from "lucide-react";
 import { useLenis } from "@/providers/LenisProvider";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import CloseButton from "@/components/ui/CloseButton";
+import HelpButton from "@/components/ui/HelpButton";
 import Tooltip from "@/components/ui/Tooltip";
 import { Switch } from "@/components/ui/Switch";
+import { PortalContainerContext } from "@/components/ui/portalContainer";
 import {
   ChevronLeftIcon, ChevronRightIcon, ZoomInIcon, ZoomOutIcon,
-  FullscreenIcon, ExitFullscreenIcon, ThumbStripIcon, ThumbListIcon,
+  FullscreenIcon, ExitFullscreenIcon,
+  ThumbHiddenIcon, ThumbStripIcon, ThumbListIcon, ThumbGalleryIcon,
   PlayIcon, PauseIcon,
 } from "./icons";
 import {
   SWIPE_THRESHOLD, DISMISS_THRESHOLD, IDLE_MS,
   MIN_ZOOM, MAX_ZOOM, ZOOM_STEP, AUTOPLAY_INTERVALS, SLIDE_OFFSET,
+  CLICK_MOVE_TOLERANCE,
 } from "./constants";
 import styles from "./ImageViewer.module.css";
 
-type ThumbMode = "hidden" | "strip" | "list";
+type ThumbMode = "hidden" | "strip" | "list" | "gallery";
+
+const THUMB_MODE_META: Record<ThumbMode, { Icon: () => React.ReactNode; label: string }> = {
+  hidden: { Icon: ThumbHiddenIcon, label: "Thumbnails: Off  T" },
+  strip: { Icon: ThumbStripIcon, label: "Thumbnails: Strip  T" },
+  list: { Icon: ThumbListIcon, label: "Thumbnails: Sidebar  T" },
+  gallery: { Icon: ThumbGalleryIcon, label: "Thumbnails: Gallery  T" },
+};
 
 interface ImageViewerProps {
   images: string[];
@@ -52,6 +63,8 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const [showAutoSettings, setShowAutoSettings] = useState(false);
   const [hoveredInterval, setHoveredInterval] = useState<(typeof AUTOPLAY_INTERVALS)[number] | null>(null);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+  const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
   const [closing, setClosing] = useState(false);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const PLACEHOLDER_SRC = "/images/placeholder.svg";
@@ -62,22 +75,43 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   };
 
   const viewerRef = useRef<HTMLDivElement>(null);
+  // Tooltip/Popover 가 뷰어(z-modal)보다 낮은 z-tooltip 으로 body 에 떠 가려지는 문제 →
+  // 뷰어 안에 portal 타깃(아래 tooltipLayer div)을 두고 그 노드를 컨텍스트로 내려, 툴팁이 뷰어 stacking context
+  // 안(=콘텐츠 위)에 뜨게 한다. 풀스크린에서도 유지됨. setState 를 콜백 ref 로 바로 넘겨 ref 직접 쓰기 없이 연결.
+  const [portalHost, setPortalHost] = useState<HTMLDivElement | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
   const panStart = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
+  // 배경 클릭으로 닫기 판정용 — pointerdown 위치를 기억했다가 up 지점과의 이동량으로 드래그/클릭 구분
+  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const thumbListRef = useRef<HTMLDivElement>(null);
   const zoomInputRef = useRef<HTMLInputElement>(null);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoSettingsRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+  const infoRef = useRef<HTMLSpanElement>(null);
+  const shortcutsRef = useRef<HTMLSpanElement>(null);
   const [direction, setDirection] = useState(1);
 
   const handleClose = useCallback(() => {
     if (closing) return;
     setClosing(true);
   }, [closing]);
+
+  // 배경(빈 공간) 클릭으로만 닫기. 이미지를 팬(드래그)한 뒤 배경에서 손을 떼면
+  // 그 위치에 click 이 발생하는데, pointerdown→up 이동량이 크면 클릭이 아니라 드래그로 보고 닫지 않는다.
+  const handleViewerPointerDown = useCallback((e: React.PointerEvent) => {
+    pointerDownPos.current = { x: e.clientX, y: e.clientY };
+  }, []);
+
+  const handleViewerClick = useCallback((e: React.MouseEvent) => {
+    const down = pointerDownPos.current;
+    pointerDownPos.current = null;
+    if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > CLICK_MOVE_TOLERANCE) return;
+    handleClose();
+  }, [handleClose]);
 
   // Delay actual close until exit animation finishes
   useEffect(() => {
@@ -371,6 +405,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     setThumbMode((m) => {
       if (m === "hidden") return "strip";
       if (m === "strip") return "list";
+      if (m === "list") return "gallery";
       return "hidden";
     });
   }, []);
@@ -386,6 +421,30 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [showMoreMenu]);
+
+  // Close info popover on outside click
+  useEffect(() => {
+    if (!showInfo) return;
+    const handler = (e: MouseEvent) => {
+      if (infoRef.current && !infoRef.current.contains(e.target as Node)) {
+        setShowInfo(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showInfo]);
+
+  // Close shortcuts popover on outside click
+  useEffect(() => {
+    if (!showShortcuts) return;
+    const handler = (e: MouseEvent) => {
+      if (shortcutsRef.current && !shortcutsRef.current.contains(e.target as Node)) {
+        setShowShortcuts(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showShortcuts]);
 
   // Close autoplay popover on outside click
   useEffect(() => {
@@ -412,6 +471,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
       setAutoPlay(false);
       setShowAutoSettings(false);
       setShowMoreMenu(false);
+      setShowInfo(false);
       setClosing(false);
       if (document.fullscreenElement) document.exitFullscreen?.();
     }
@@ -423,6 +483,8 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const dismissOpacity = isDragging ? Math.max(0.2, 1 - dragY / 300) : 1;
   const zoomPct = Math.round(zoom * 100);
   const fileName = images[current]?.split("/").pop()?.split("?")[0] ?? "";
+  const currentIsVideo = isVideoUrl(images[current] ?? "");
+  const fileExt = fileName.includes(".") ? fileName.split(".").pop()!.toUpperCase() : (currentIsVideo ? "VIDEO" : "IMAGE");
 
   /* ── Action buttons ── */
   const ActionBtn = ({ onClick, label, children, className }: { onClick: () => void; label: string; children: React.ReactNode; className?: string }) => (
@@ -455,12 +517,14 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={handleClose}
+          onPointerDown={handleViewerPointerDown}
+          onClick={handleViewerClick}
           onMouseMove={isFullscreen ? showControls : undefined}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
+          <PortalContainerContext.Provider value={portalHost}>
           {/* ── Top toolbar ── */}
           <div className={`${styles.toolbar} ${hideControls ? styles.controlsHidden : ""}`}>
             <motion.div
@@ -472,11 +536,6 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
               {hasMultiple && (
                 <span className={styles.counter}>{current + 1}<span className={styles.counterSep}>/</span>{images.length}</span>
               )}
-              <span className={styles.toolbarCollapsible}>
-                <ActionBtn onClick={() => setShowShortcuts((v) => !v)} label="Shortcuts  ?">
-                  <HelpCircle size={16} />
-                </ActionBtn>
-              </span>
               {(title || fileName) && (
                 <span className={styles.viewerTitle}>
                   {title && <span className={styles.viewerTitleMain}>{title}</span>}
@@ -611,8 +670,8 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                         )}
                       </AnimatePresence>
                     </span>
-                    <ActionBtn onClick={cycleThumbMode} label="Thumbnails  T">
-                      {thumbMode === "list" ? <ThumbListIcon /> : <ThumbStripIcon />}
+                    <ActionBtn onClick={cycleThumbMode} label={THUMB_MODE_META[thumbMode].label}>
+                      {THUMB_MODE_META[thumbMode].Icon()}
                     </ActionBtn>
                   </>
                 )}
@@ -698,6 +757,102 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                     )}
                   </AnimatePresence>
                 </span>
+                {/* 닫기(X) 왼쪽: 도움말 ? / 정보 i (공통 HelpButton) */}
+                <span className={styles.helpInfoActions}>
+                  <span ref={shortcutsRef} className={`${styles.infoWrap} ${styles.toolbarCollapsible}`}>
+                    <Tooltip content="Shortcuts  ?" placement="bottom">
+                      <HelpButton
+                        size="2xs"
+                        className={styles.ctrlBtn}
+                        aria-label="Shortcuts"
+                        aria-expanded={showShortcuts}
+                        onClick={(e) => { e.stopPropagation(); setShowShortcuts((v) => !v); }}
+                      />
+                    </Tooltip>
+                    <AnimatePresence>
+                      {showShortcuts && (
+                        <motion.div
+                          className={styles.shortcutsPopover}
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          transition={{ duration: 0.15 }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className={styles.shortcutsTitle}>Keyboard Shortcuts</div>
+                          <ul className={styles.shortcutsList}>
+                            <li className={styles.shortcutsSection}>Navigation</li>
+                            <li className={styles.shortcutsItem}><kbd><ArrowLeft size={12} /></kbd><span>Previous</span></li>
+                            <li className={styles.shortcutsItem}><kbd><ArrowRight size={12} /></kbd><span>Next</span></li>
+                            <li className={styles.shortcutsDivider} />
+                            <li className={styles.shortcutsSection}>Zoom</li>
+                            <li className={styles.shortcutsItem}><kbd><Plus size={12} /></kbd><span>Zoom in</span></li>
+                            <li className={styles.shortcutsItem}><kbd><Minus size={12} /></kbd><span>Zoom out</span></li>
+                            <li className={styles.shortcutsItem}><kbd>0</kbd><span>Reset zoom</span></li>
+                            <li className={styles.shortcutsDivider} />
+                            <li className={styles.shortcutsSection}>View</li>
+                            <li className={styles.shortcutsItem}><kbd>F</kbd><span>Fullscreen</span></li>
+                            <li className={styles.shortcutsItem}><kbd>P</kbd><span>Autoplay</span></li>
+                            <li className={styles.shortcutsItem}><kbd>T</kbd><span>Thumbnails</span></li>
+                            <li className={styles.shortcutsDivider} />
+                            <li className={styles.shortcutsItem}><kbd>?</kbd><span>Shortcuts</span></li>
+                            <li className={styles.shortcutsItem}><kbd>Esc</kbd><span>Close</span></li>
+                          </ul>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </span>
+                  <span ref={infoRef} className={styles.infoWrap}>
+                    <Tooltip content="Image info" placement="bottom">
+                      <HelpButton
+                        size="2xs"
+                        symbol="i"
+                        className={styles.ctrlBtn}
+                        aria-label="Image info"
+                        aria-expanded={showInfo}
+                        onClick={(e) => { e.stopPropagation(); setShowInfo((v) => !v); }}
+                      />
+                    </Tooltip>
+                    <AnimatePresence>
+                      {showInfo && (
+                        <motion.div
+                          className={styles.infoPopover}
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          transition={{ duration: 0.15 }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className={styles.infoTitle}>Image info</div>
+                          <dl className={styles.infoList}>
+                            <div className={styles.infoRow}>
+                              <dt className={styles.infoKey}>File</dt>
+                              <dd className={styles.infoVal}>{fileName || "—"}</dd>
+                            </div>
+                            <div className={styles.infoRow}>
+                              <dt className={styles.infoKey}>Type</dt>
+                              <dd className={styles.infoVal}>{fileExt}</dd>
+                            </div>
+                            <div className={styles.infoRow}>
+                              <dt className={styles.infoKey}>Size</dt>
+                              <dd className={styles.infoVal}>{!loading && naturalSize ? `${naturalSize.w} × ${naturalSize.h} px` : "…"}</dd>
+                            </div>
+                            {hasMultiple && (
+                              <div className={styles.infoRow}>
+                                <dt className={styles.infoKey}>Position</dt>
+                                <dd className={styles.infoVal}>{current + 1} / {images.length}</dd>
+                              </div>
+                            )}
+                            <div className={styles.infoRow}>
+                              <dt className={styles.infoKey}>Zoom</dt>
+                              <dd className={styles.infoVal}>{zoomPct}%</dd>
+                            </div>
+                          </dl>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </span>
+                </span>
                 <Tooltip content="Close  Esc" placement="bottom">
                   <CloseButton className={`${styles.actionBtn} ${styles.closeBtnAction}`} onClick={(e) => { e.stopPropagation(); handleClose(); }} ariaLabel="Close" />
                 </Tooltip>
@@ -708,7 +863,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
           {/* ── Image area ── */}
           <div className={styles.imageArea}>
             {/* ── Nav arrows ── */}
-            {hasMultiple && (
+            {hasMultiple && thumbMode !== "gallery" && (
               <motion.div
                 className={`${styles.navArrows} ${hideControls ? styles.controlsHidden : ""}`}
                 initial={{ opacity: 0 }}
@@ -771,7 +926,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                     onPointerMove={handlePanMove}
                     onPointerUp={handlePanEnd}
                     onPointerCancel={handlePanEnd}
-                    onLoadedData={() => setLoading(false)}
+                    onLoadedData={(e) => { setLoading(false); setNaturalSize({ w: e.currentTarget.videoWidth, h: e.currentTarget.videoHeight }); }}
                     onError={() => { markError(images[current]); setLoading(false); }}
                     controls
                     autoPlay
@@ -796,7 +951,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                     onPointerMove={handlePanMove}
                     onPointerUp={handlePanEnd}
                     onPointerCancel={handlePanEnd}
-                    onLoad={() => setLoading(false)}
+                    onLoad={(e) => { setLoading(false); setNaturalSize({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight }); }}
                     onError={() => { markError(images[current]); setLoading(false); }}
                     draggable={false}
                   />
@@ -805,38 +960,35 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
             </AnimatePresence>
             </motion.div>
 
-            {/* ── Shortcuts overlay ── */}
+            {/* ── Gallery overlay (grid of all images) ── */}
             <AnimatePresence>
-              {showShortcuts && (
+              {hasMultiple && thumbMode === "gallery" && (
                 <motion.div
-                  className={styles.shortcutsOverlay}
+                  className={styles.galleryOverlay}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  onClick={(e) => { e.stopPropagation(); setShowShortcuts(false); }}
+                  transition={{ duration: 0.18 }}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <div className={styles.shortcutsPanel} onClick={(e) => e.stopPropagation()}>
-                    <h3 className={styles.shortcutsTitle}>Keyboard Shortcuts</h3>
-                    <div className={styles.shortcutsDivider} />
-                    <ul className={styles.shortcutsList}>
-                      <li className={styles.shortcutsSection}>Navigation</li>
-                      <li className={styles.shortcutsItem}><kbd>←</kbd><span>Previous</span></li>
-                      <li className={styles.shortcutsItem}><kbd>→</kbd><span>Next</span></li>
-                      <li className={styles.shortcutsDivider} />
-                      <li className={styles.shortcutsSection}>Zoom</li>
-                      <li className={styles.shortcutsItem}><kbd>+</kbd><span>Zoom in</span></li>
-                      <li className={styles.shortcutsItem}><kbd>−</kbd><span>Zoom out</span></li>
-                      <li className={styles.shortcutsItem}><kbd>0</kbd><span>Reset zoom</span></li>
-                      <li className={styles.shortcutsDivider} />
-                      <li className={styles.shortcutsSection}>View</li>
-                      <li className={styles.shortcutsItem}><kbd>F</kbd><span>Fullscreen</span></li>
-                      <li className={styles.shortcutsItem}><kbd>P</kbd><span>Autoplay</span></li>
-                      <li className={styles.shortcutsItem}><kbd>T</kbd><span>Thumbnails</span></li>
-                      <li className={styles.shortcutsDivider} />
-                      <li className={styles.shortcutsItem}><kbd>?</kbd><span>Shortcuts</span></li>
-                      <li className={styles.shortcutsItem}><kbd>Esc</kbd><span>Close</span></li>
-                    </ul>
+                  <div className={styles.galleryGrid} ref={thumbListRef} onWheel={(e) => e.stopPropagation()}>
+                    {images.map((src, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        data-idx={i}
+                        className={`${styles.galleryItem} ${i === current ? styles.galleryItemActive : ""}`}
+                        onClick={(e) => { e.stopPropagation(); goTo(i); setThumbMode("strip"); }}
+                      >
+                        {isVideoUrl(src) && !imgErrors.has(src) ? (
+                          <video src={src} className={styles.galleryImg} muted playsInline preload="metadata" onError={() => markError(src)} />
+                        ) : (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img src={resolveSrc(src)} alt="" className={styles.galleryImg} draggable={false} onError={() => markError(src)} />
+                        )}
+                        <span className={styles.galleryLabel}>{i + 1}</span>
+                      </button>
+                    ))}
                   </div>
                 </motion.div>
               )}
@@ -851,14 +1003,14 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                 className={styles.thumbStrip}
                 initial={{ height: 0 }}
                 animate={closing ? { height: 0 } : { height: 120 }}
-                exit={{ height: 0 }}
+                exit={{ height: 0, transition: { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] } }}
                 transition={closing ? { duration: 0.12, delay: 0.80 } : { duration: 0.25, delay: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
               >
                 <motion.div
                   className={styles.thumbStripRow}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: closing ? 0 : 1 }}
-                  exit={{ opacity: 0 }}
+                  exit={{ opacity: 0, transition: { duration: 0.12 } }}
                   transition={closing ? { duration: 0.12, delay: 0.68 } : { duration: 0.2, delay: 0.65, ease: [0.25, 0.1, 0.25, 1] }}
                 >
                   <button type="button" className={`${styles.navBtn} ${styles.stripNavBtn}`} onClick={(e) => { e.stopPropagation(); handlePrev(); }} aria-label="Previous">
@@ -923,8 +1075,8 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                 className={styles.thumbList}
                 initial={{ clipPath: "inset(0 100% 0 0)" }}
                 animate={{ clipPath: "inset(0 0 0 0)" }}
-                exit={{ clipPath: "inset(0 100% 0 0)", transition: { duration: 0.18, delay: 0.30 } }}
-                transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+                exit={{ clipPath: "inset(0 100% 0 0)", transition: { duration: 0.18 } }}
+                transition={{ duration: 0.4, delay: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className={styles.thumbListInner} ref={thumbListRef} onWheel={(e) => e.stopPropagation()}>
@@ -956,6 +1108,9 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
               </motion.div>
             )}
           </AnimatePresence>
+          {/* Tooltip/Popover portal 타깃 — 뷰어 stacking context 안이라 z-modal 위에 정상 표시 */}
+          <div ref={setPortalHost} aria-hidden className={styles.tooltipLayer} />
+          </PortalContainerContext.Provider>
         </motion.div>
       )}
     </AnimatePresence>,

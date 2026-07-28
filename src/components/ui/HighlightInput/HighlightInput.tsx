@@ -14,12 +14,12 @@ import {
 import { Eraser } from "lucide-react";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
-import styles from "./EditableInput.module.css";
+import styles from "./HighlightInput.module.css";
 
 /** maxLength 하드컷 발생 시 built-in toast 문구 (onOverflow 미제공 시) */
 const LIMIT_TOAST = { ko: "글자수 제한에 도달했습니다.", en: "Character limit reached." };
 
-interface EditableInputProps {
+interface HighlightInputProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
@@ -99,7 +99,7 @@ function setCaretOffset(root: HTMLElement, offset: number): void {
  * 단일행 contentEditable input — 초과 글자 inline <mark> highlight 가능.
  * Input(native) 의 single-line 동작 모방: Enter 차단, paste 시 줄바꿈 제거, capsule 스타일.
  */
-export default function EditableInput({
+export default function HighlightInput({
   value,
   onChange,
   placeholder,
@@ -116,7 +116,7 @@ export default function EditableInput({
   autoFocus,
   onEnter,
   onOverflow,
-}: EditableInputProps) {
+}: HighlightInputProps) {
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
   const isComposingRef = useRef(false);

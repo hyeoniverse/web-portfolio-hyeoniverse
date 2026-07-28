@@ -5,6 +5,12 @@
   padding: 0 var(--spacing-lg) var(--spacing-2xl);
 }
 
+/* Alert 은 헤더가 없어 우측 상단 X(top:12, 32px)가 본문 위에 뜬다 →
+   텍스트가 X 라인 아래에서 시작하도록 top 여백 확보 (modalScroll padding-top md 위에 추가). */
+.alertBody {
+  padding-top: var(--spacing-2xl);
+}
+
 .desc {
   margin: 0 0 var(--spacing-3xl);
   font-family: var(--font-space-grotesk);

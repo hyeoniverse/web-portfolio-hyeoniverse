@@ -133,8 +133,8 @@ export const projectStructure: StructureItem[] = [
   {
     path: "ui/",
     description: {
-      ko: "Button, Modal, Typography, OptimizedImage, Chip, EditableInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
-      en: "Button, Modal, Typography, OptimizedImage, Chip, EditableInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
+      ko: "Button, Modal, Typography, OptimizedImage, Chip, HighlightInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
+      en: "Button, Modal, Typography, OptimizedImage, Chip, HighlightInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
     },
     indent: 2,
   },

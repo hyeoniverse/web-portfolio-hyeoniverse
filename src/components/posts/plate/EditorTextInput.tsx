@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Eraser } from "lucide-react";
 import styles from "@/components/ui/Input.module.css";
-// 단일 줄 input 의 "카운터/지우개를 캡슐 안 flex child 로" 레이아웃은 공통 EditableInput 과 동일 모듈 재사용
-import ei from "@/components/ui/EditableInput/EditableInput.module.css";
+// 단일 줄 input 의 "카운터/지우개를 캡슐 안 flex child 로" 레이아웃은 공통 HighlightInput 과 동일 모듈 재사용
+import ei from "@/components/ui/HighlightInput/HighlightInput.module.css";
 
 /**
  * EditorTextInput — Slate 에디터 *안*에 두는 격리된 텍스트 입력 프리미티브(에디터 전용 공통 컴포넌트).
@@ -204,7 +204,7 @@ export function EditorTextInput({
     );
   }
 
-  // 단일 줄 — label(위) + [ input · 지우개 · 카운터 ] 를 캡슐 border 안 flex child 로(공통 EditableInput 과 동일).
+  // 단일 줄 — label(위) + [ input · 지우개 · 카운터 ] 를 캡슐 border 안 flex child 로(공통 HighlightInput 과 동일).
   return (
     <div className={`${ei.wrapper} ${wrapperClassName ?? ""}`.trim()} contentEditable={false}>
       {label && <label className={styles.label}>{label}</label>}

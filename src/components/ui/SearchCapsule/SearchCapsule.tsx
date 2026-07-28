@@ -8,10 +8,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Eraser, History, HelpCircle } from "lucide-react";
 import Select from "@/components/ui/Select";
 import CloseButton from "@/components/ui/CloseButton";
-import type { SearchOptions, SyntaxMode } from "@/lib/searchQuery";
+import Popover from "@/components/ui/Popover";
+import type { SearchOptions } from "@/lib/searchQuery";
 import { useSearchHistory } from "./useSearchHistory";
 import { useSearchOptions } from "./useSearchOptions";
 import SearchSyntaxHelpButton from "./SearchSyntaxHelpButton";
+import SearchSyntaxHelpContent from "./SearchSyntaxHelpContent";
 import styles from "./SearchCapsule.module.css";
 
 export interface SearchCapsuleProps {
@@ -132,9 +134,8 @@ export default function SearchCapsule({
      setState 매 프레임 호출 시 React commit 1프레임 lag → search 입력과 dropdown 사이 bounce 발생. */
   const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null);
   const historyDropdownRef = useRef<HTMLDivElement>(null);
-  const helpDropdownRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!focused && !helpOpen) { setDropdownRect(null); return; }
+    if (!focused) { setDropdownRect(null); return; }
     const measure = () => {
       const el = rootRef.current;
       if (!el) return null;
@@ -148,7 +149,7 @@ export default function SearchCapsule({
       rafId = null;
       const m = measure();
       if (!m) return;
-      for (const dd of [historyDropdownRef.current, helpDropdownRef.current]) {
+      for (const dd of [historyDropdownRef.current]) {
         if (!dd) continue;
         dd.style.top = `${m.top}px`;
         dd.style.left = `${m.left}px`;
@@ -166,23 +167,22 @@ export default function SearchCapsule({
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", onScroll);
     };
-  }, [focused, helpOpen]);
+  }, [focused]);
 
   const [portalMounted, setPortalMounted] = useState(false);
   useEffect(() => { setPortalMounted(true); }, []);
 
   /* 바깥 클릭으로 dropdown 닫기 */
   useEffect(() => {
-    if (!focused && !helpOpen) return;
+    if (!focused) return;
     const handler = (e: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
         setFocused(false);
-        setHelpOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [focused, helpOpen]);
+  }, [focused]);
 
   const commit = (q: string) => {
     if (enabled) addHistory(q);
@@ -261,20 +261,27 @@ export default function SearchCapsule({
         <Eraser size={11} strokeWidth={2} />
       </button>
       {showHelp && (
-        <button
-          type="button"
-          className={styles.helpBtn}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={(e) => {
-            e.stopPropagation();
-            setHelpOpen((v) => !v);
-            if (!helpOpen) setFocused(false);
-          }}
-          aria-label="검색 문법 도움말"
-          title="검색 문법 + 옵션"
+        // 문법 도움말 — 공통 Popover 의 말풍선(arrow) variant. ? 버튼을 beak 으로 가리킨다.
+        // (예전엔 helpDropdown 을 손으로 portal + 위치계산했는데 공통 Popover 재구현이라 제거)
+        <Popover
+          open={helpOpen}
+          onOpenChange={(o) => { setHelpOpen(o); if (o) setFocused(false); }}
+          placement="bubble"
+          openOnHover
+          contentClassName={styles.searchHelpPopover}
+          trigger={
+            <button
+              type="button"
+              className={styles.helpBtn}
+              aria-label="검색 문법 도움말"
+              title="검색 문법 + 옵션"
+            >
+              <HelpCircle size={12} strokeWidth={2} />
+            </button>
+          }
         >
-          <HelpCircle size={12} strokeWidth={2} />
-        </button>
+          <SearchSyntaxHelpContent options={searchOptions} update={updateSearchOptions} />
+        </Popover>
       )}
 
       {portalMounted && createPortal(
@@ -338,113 +345,6 @@ export default function SearchCapsule({
                 </li>
               ))}
             </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {helpOpen && dropdownRect && (
-          <motion.div
-            ref={helpDropdownRef}
-            className={`${styles.helpDropdown} ${focused ? styles.capsuleFocused : ""}`}
-            initial={{ opacity: 0, y: -6, scaleY: 0.92 }}
-            animate={{ opacity: 1, y: 0, scaleY: 1 }}
-            exit={{ opacity: 0, y: -4, scaleY: 0.96 }}
-            transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-            style={{
-              transformOrigin: "top center",
-              position: "fixed",
-              top: dropdownRect.top,
-              left: dropdownRect.left,
-              width: dropdownRect.width,
-            }}
-            onMouseDown={(e) => e.preventDefault()}
-          >
-            {/* 공통 문법 */}
-            <div className={styles.helpSection}>
-              <div className={styles.helpSectionLabel}>공통</div>
-              <ul className={styles.helpList}>
-                <li className={styles.helpRow}>
-                  <code className={styles.helpKey}>a b</code>
-                  <span className={styles.helpDesc}>a 와 b 가 모두 포함된 결과만 (AND)</span>
-                </li>
-                <li className={styles.helpRow}>
-                  <code className={styles.helpKey}>+a</code>
-                  <span className={styles.helpDesc}>a 가 반드시 들어가야 함 (명시적 AND, naked term 과 동일)</span>
-                </li>
-                <li className={styles.helpRow}>
-                  <code className={styles.helpKey}>-a</code>
-                  <span className={styles.helpDesc}>a 가 들어간 결과는 모두 제외</span>
-                </li>
-                <li className={styles.helpRow}>
-                  <code className={styles.helpKey}>&quot;a b&quot;</code>
-                  <span className={styles.helpDesc}>a b 가 공백 포함해 정확히 그 순서로 붙어있는 결과만</span>
-                </li>
-                <li className={styles.helpRow}>
-                  <code className={styles.helpKey}>a OR b</code>
-                  <span className={styles.helpDesc}>a 또는 b 중 하나만 있어도 매칭 (대문자 OR 필수)</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* 모드별 매칭 강도 문법 — label 줄 우측에 prefix/regex 토글 */}
-            <div className={styles.helpSection}>
-              <div className={styles.helpSectionHeader}>
-                <div className={styles.helpSectionLabel}>매칭 강도</div>
-                <div className={styles.helpModeToggle}>
-                  {(["prefix", "regex"] as SyntaxMode[]).map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      className={`${styles.helpModeBtn} ${searchOptions.syntaxMode === m ? styles.helpModeBtnActive : ""}`}
-                      onClick={() => updateSearchOptions({ syntaxMode: m })}
-                    >
-                      {m === "prefix" ? "Prefix" : "Regex"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {searchOptions.syntaxMode === "prefix" ? (
-                <ul className={styles.helpList}>
-                  <li className={styles.helpRow}>
-                    <code className={styles.helpKey}>c:a</code>
-                    <span className={styles.helpDesc}>대소문자까지 정확히 (a 매칭, A 는 제외)</span>
-                  </li>
-                  <li className={styles.helpRow}>
-                    <code className={styles.helpKey}>w:a</code>
-                    <span className={styles.helpDesc}>단어 자체만 (apple 매칭, apples / pineapple 제외)</span>
-                  </li>
-                  <li className={styles.helpRow}>
-                    <code className={styles.helpKey}>cw:a</code>
-                    <span className={styles.helpDesc}>대소문자 + 단어 단위 둘 다 적용 (가장 엄격)</span>
-                  </li>
-                  <li className={styles.helpRow}>
-                    <code className={styles.helpKey}>c:&quot;a b&quot;</code>
-                    <span className={styles.helpDesc}>구문 매칭에 대소문자 조건까지 적용 (조합 가능)</span>
-                  </li>
-                </ul>
-              ) : (
-                <>
-                  <ul className={styles.helpList}>
-                    <li className={styles.helpRow}>
-                      <code className={styles.helpKey}>/a/</code>
-                      <span className={styles.helpDesc}>regex 패턴 매칭 (기본은 대소문자 구분)</span>
-                    </li>
-                    <li className={styles.helpRow}>
-                      <code className={styles.helpKey}>/a/i</code>
-                      <span className={styles.helpDesc}><code>i</code> 플래그 = case insensitive</span>
-                    </li>
-                    <li className={styles.helpRow}>
-                      <code className={styles.helpKey}>/\ba\b/</code>
-                      <span className={styles.helpDesc}>단어 boundary — 합성어 제외</span>
-                    </li>
-                  </ul>
-                  <p className={styles.helpFootnote}>
-                    JS regex 표준 그대로 지원 — <code>.</code> <code>*</code> <code>+</code> <code>|</code> <code>^</code> <code>$</code> <code>\d</code> <code>\w</code> <code>\s</code> 등. 메타문자를 글자로 찾으려면 <code>\</code> escape (예: <code>\.</code>)
-                  </p>
-                </>
-              )}
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
