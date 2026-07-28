@@ -296,10 +296,9 @@
 .dropdown .optionSelected { color: var(--text-primary); }
 .dropdown .optionActive .optionTrailing,
 .dropdown .optionSelected .optionTrailing { color: var(--text-primary); }
-/* 현재 선택 항목 라벨은 accent text — difference 끄고 진짜 accent 색으로 표시.
-   compact 는 선택 배경이 accent-solid(흰 글자)라 제외. */
-.dropdown:not(.dropdownCompact) .optionActive .optionLabel,
-.dropdown:not(.dropdownCompact) .optionSelected .optionLabel {
+/* 현재 선택 항목 라벨은 accent text — difference 끄고 진짜 accent 색으로 표시. */
+.dropdown .optionActive .optionLabel,
+.dropdown .optionSelected .optionLabel {
   color: var(--text-accent);
   mix-blend-mode: normal;
 }
@@ -361,37 +360,7 @@
   color: var(--text-tertiary);
 }
 
-/* ── Variant: compact ── */
-
-.dropdownCompact {
-  background: var(--bg-glass-strong);
-  backdrop-filter: var(--blur-glass);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  box-shadow: 0 2px 8px oklch(0% 0 0 / 0.15);
-  padding: var(--box-sm);
-}
-
-.dropdownCompact .option {
-  border-radius: var(--radius-capsule);
-  margin: var(--spacing-4xs) var(--spacing-3xs);
-  width: calc(100% - var(--spacing-3xs) * 2);
-}
-
-.dropdownCompact .option:hover {
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
-}
-
-.dropdownCompact .optionActive {
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
-}
-
-.dropdownCompact .optionActive:hover {
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
-}
+/* ── showCheck — 옵션 왼쪽 선택 표시 ✓ ── */
 
 .check {
   flex-shrink: 0;
@@ -400,9 +369,11 @@
   font-size: 1.6em;
   line-height: 0;
   margin-right: var(--spacing-2xs);
+  color: var(--text-accent);
 }
 
-.dropdownCompact .option {
+/* 체크가 있으면 옵션을 flex 로 — ✓ 와 라벨이 세로 중앙 정렬 */
+.dropdownChecked .option {
   display: flex;
   align-items: center;
 }

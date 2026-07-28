@@ -2,7 +2,6 @@
 
 import type { InputHTMLAttributes, KeyboardEvent, ReactNode } from "react";
 import { Eraser, Plus } from "lucide-react";
-import EditableInput from "./EditableInput/EditableInput";
 import styles from "./Input.module.css";
 
 type Variant = "capsule" | "underline";
@@ -17,9 +16,6 @@ interface InputProps
   variant?: Variant;
   size?: Size;
   className?: string;
-  /** Soft 글자수 권장 한도 — 지정 시(그리고 onAdd/trailingAction 없을 때) EditableInput 에 위임하여
-   *  Textarea 와 동일한 초과 highlight + counter 를 얻음. 미지정 시 기존 native input 경로 그대로. */
-  maxHint?: number;
   /** 입력값 지우기 (Eraser) 버튼 — value 있을 때 우측 표시. 기본 true.
    *  onAdd 가 있으면 자동으로 false (+ 버튼이 우측 점유 + Enter 로 값 처리). */
   clearable?: boolean;
@@ -50,7 +46,6 @@ export default function Input({
   className,
   id,
   clearable = true,
-  maxHint,
   onAdd,
   addDisabled,
   addAriaLabel = "Add",
@@ -62,27 +57,6 @@ export default function Input({
   const hasAdd = !!onAdd;
   const hasTrailing = !!trailingAction;
   const isGrouped = hasAdd || hasTrailing;
-
-  /* maxHint 지정 + grouped 아님 → EditableInput 에 위임 (초과 highlight + counter parity).
-     grouped(+버튼/trailingAction)는 EditableInput 이 미지원이라 native 유지. maxHint 미지정 시 기존 경로 그대로.
-     label 은 위임 대상 아님 — maxHint 는 신규 prop 이라 기존 조합 없음(회귀 0). */
-  if (maxHint != null && !isGrouped) {
-    return (
-      <EditableInput
-        value={value}
-        onChange={onChange}
-        placeholder={rest.placeholder}
-        inlineLabel={inlineLabel}
-        maxHint={maxHint}
-        maxLength={rest.maxLength}
-        variant={variant}
-        size={size}
-        clearable={clearable}
-        disabled={rest.disabled}
-        className={className}
-      />
-    );
-  }
 
   const showClear = !isGrouped && clearable && !!value && !rest.disabled && !rest.readOnly;
   const isAddDisabled = addDisabled ?? !value.trim();
