@@ -1,9 +1,32 @@
-/*  EnvVarFields 전용 스타일 — Settings.module.css 에서 분리(Phase 4-1 2단계).
-   공유 클래스(fieldLabel·fieldRow·fields)와 경계-교차 클래스(envFieldRow·envInputRow)는 Settings.module.css 에 남아 있어 그쪽에서 import  */
+/*  EnvVarFields 전용 스타일 — Settings.module.css 에서 분리(#411).
+   공유(fieldLabel·fieldRow·fields)·경계(envFieldRow·envFieldHighlight·envKeyLink)는 Settings 에 남아 shared 로 import  */
+.envGroupCols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--spacing-2xl);
+  /* 자식(열)이 container-type 로 intrinsic 폭 0 이 되므로, grid 가 content 기준으로
+     줄지 않도록 명시적 폭을 강제한다 */
+  width: 100%;
+}
+
+@media (max-width: 992px) {
+  .envGroupCols {
+    grid-template-columns: 1fr;
+  }
+}
+
+.envGroupCol {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  min-width: 0;
+}
+
 .envGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-xs);
 }
 
 .envGroupLabel {
@@ -15,7 +38,7 @@
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.02em;
-  margin: 0 0 var(--spacing-2xs);
+  margin: 0 0 var(--spacing-xs);
 }
 
 .envGroupLabel > svg {
@@ -152,7 +175,6 @@
 .envMetaWarn {
   display: inline-flex;
   align-items: center;
-  margin-left: var(--spacing-3xs);
   color: var(--text-tertiary);
   cursor: help;
   transition: color var(--duration-base) ease;
@@ -215,21 +237,31 @@
   gap: var(--spacing-xs);
 }
 
-.envGroupDivider {
-  border: none;
-  border-top: 1px solid var(--border-light-color);
-  margin: 0;
-}
-
 .envLabelMissing {
   color: var(--text-accent);
 }
-
-.envFieldRight {
-  flex: 1;
+.envInputCell {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: var(--spacing-2xs);
+}
+.envInputCell > div:first-child {
+  width: 100%;
+  min-width: 0;
+}
+.envActionCol {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-2xs);
+}
+.envBadgeSlot {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  flex-shrink: 0;
 }
 
 .envRevealBtn,

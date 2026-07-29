@@ -4269,6 +4269,10 @@
 /* (legacy) unused fontSelectGroup/fontSuggestions — removed after FontPicker rewrite */
 
 /* ── Env Var Editor — 단일 column 의 table-like layout. 라벨 좌측 fixed, input flex, actions 우측. ── */
+/* 그룹을 2열 그리드로 (JS 가 균형 분배). 각 열은 container 라, 열 폭이 좁아지면
+   필드 행이 컨테이너 쿼리로 스스로 접혀(라벨 위로) 넘치지 않는다 — 스크롤바·마진과 무관. */
+
+/* 태블릿 이하는 1열 (열이 전체폭이라 입력이 넓음) */
 
 /* 그룹별 set/total — 라벨 옆 작은 mono 카운터. 모두 set 이면 accent 색 ✓ */
 
@@ -4313,33 +4317,23 @@
   transition: color var(--duration-base) ease;
 }
 
-.envInputRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
+/* 입력 셀 — grid 2번째 열. Input + 모바일 힌트. min-width:0 로 grid 가 줄일 수 있게 */
 
-/* Input wrapper (첫 자식 div) — flex 1 로 envInputRow 의 남은 공간 모두 차지 */
-.envInputRow > div:first-child {
-  flex: 1;
-  min-width: 0;
-}
+/* Input wrapper(첫 자식 div) — 셀 폭 전체 차지 */
 
-.envInputRow .fieldInput {
-  flex: 1;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  letter-spacing: 0.01em;
-}
+/* 액션 셀 — grid 3번째 열. 버튼 우측 정렬. 열 폭은 .envFieldRow 에서 고정 → 버튼 시작 위치 일정 */
+
+/* 소스/경고 배지 슬롯 — 라벨 텍스트 뒤 우측 정렬로 몰아 입력 앞에서 세로선 정렬 */
 
 /* 소스별 텍스트 색 차별화 — env(녹색), db(기본), edit(액센트). Read-only 는 data-source 없어 기본 tertiary 유지 */
 
 /* env row — 가로 grid: 라벨 좌측 fixed, input + actions 우측 flex (전체 폭 활용) */
 .envFieldRow {
   display: grid;
-  grid-template-columns: minmax(200px, 260px) 1fr;
+  /* 라벨 고정폭 → 입력 시작 위치 일정 · 입력 minmax 로 최소너비 보장 · 액션 고정폭(항상 예약) → 입력 너비·버튼 위치 일정 */
+  grid-template-columns: 12.5rem minmax(7rem, 1fr) 3.75rem;
   align-items: center;
-  gap: var(--spacing-md);
+  column-gap: var(--spacing-sm);
   /* .fieldRow base (flex column) override */
   flex-direction: row;
 }
@@ -4353,10 +4347,16 @@
   min-width: 0;
 }
 
-@media (max-width: 768px) {
+/* 열 폭이 3열(라벨·입력·액션)을 담기 좁아지면(스크롤바·마진 포함 실측 폭 기준)
+   라벨을 전체폭 위로, 아래 입력 | 액션. .envGroupCol 이 container 라 뷰포트가 아닌
+   실제 열 폭 기준 → 어떤 태블릿/모바일 폭에서도 넘치지 않는다. */
+@container (max-width: 25rem) {
   .envFieldRow {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-2xs);
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: var(--spacing-2xs);
+  }
+  .envFieldRow > .fieldLabel {
+    grid-column: 1 / -1;
   }
 }
 
