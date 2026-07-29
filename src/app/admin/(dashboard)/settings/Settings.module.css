@@ -1767,101 +1767,8 @@
 }
 
 /* Switch + ? 도움말 나란히 배치 (Switch 공통 컴포넌트 미변경, 감싸서 처리) */
-.switchHelpRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
 
 /* ── Fallback Priority List ── */
-
-.priorityList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
-
-.priorityList :is(input, .priorityItem) {
-  width: 100%;
-}
-
-.priorityRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.priorityItem {
-  width: 280px;
-  max-width: 100%;
-  min-width: 0;
-  height: var(--control-h-md);
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  overflow: hidden;
-  user-select: none;
-}
-
-.priorityItemOver {
-  border-color: var(--text-accent);
-  background: var(--bg-accent-subtle);
-}
-
-.priorityBadge {
-  width: var(--control-h-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  align-self: stretch;
-  border-right: var(--border-light);
-  background: var(--bg-tertiary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: 600;
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-}
-
-.priorityLabel {
-  flex: 1;
-  padding: var(--box-xs-sm);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  min-width: 0;
-}
-
-.priorityLabelDisabled {
-  color: var(--text-muted);
-  text-decoration: line-through;
-}
-
-.priorityGrip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: var(--control-h-md);
-  padding: 0;
-  color: var(--text-muted);
-  flex-shrink: 0;
-  cursor: grab;
-  touch-action: none;
-}
-
-.priorityGrip:active {
-  cursor: grabbing;
-}
-
-.priorityBtns {
-  display: flex;
-  flex-shrink: 0;
-  align-self: stretch;
-  border-left: var(--border-light);
-}
 
 .priorityBtn {
   display: flex;
@@ -3650,23 +3557,6 @@
 /* .env paste 모달 */
 
 /* fieldHint 안에서 env var key 클릭 시 해당 입력 필드로 스크롤. underline + monospace 로 link 임을 명확히 */
-.envKeyLink {
-  display: inline;
-  padding: 0;
-  border: none;
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: inherit;
-  color: var(--text-primary);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-  transition: color var(--duration-base) ease;
-}
-
-.envKeyLink:hover {
-  color: var(--text-accent);
-}
 
 /* env var 필드 클릭 후 라벨 text 만 accent — 다음 인터랙션 까지 지속.
    (0,2,0) — .envFieldRow .fieldLabel 등 기존 색상 override */
@@ -3855,91 +3745,12 @@
    카드 X, 카테고리 헤더 + top border 구분선만. drop hover 는 배경색으로 표시. */
 /* 크기 버킷 8개+INACTIVE 를 세로로만 쌓으면 매우 길어진다. 2열 grid 로 나란히 배치해
    세로 길이를 줄인다(버킷 사이 구분선 대신 gap 으로 분리). */
-.sizeBucketStack {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--spacing-lg) var(--spacing-md);
-}
-
-.sizeBucket,
-.sizePoolBucket {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  background: transparent;
-  /* drop hover 영역 안정성 위한 padding */
-  padding: var(--spacing-2xs) 0;
-  transition: background var(--duration-base) ease;
-}
 
 /* INACTIVE 풀 버킷은 전체 폭(전 크기 공통이라 나란히 두지 않음) */
-.sizeBucketStack > .sizePoolBucket {
-  grid-column: 1 / -1;
-  padding-top: var(--spacing-lg);
-  border-top: var(--border-light);
-}
 
 /* drop hover — 옅은 accent 배경만 (radius-md 안에서) */
-.sizeBucketHover {
-  background: color-mix(in oklch, var(--text-accent) 8%, transparent);
-}
-
-.sizeBucketHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-xs);
-}
-
-.sizeBucketLabel {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-2xs);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-}
-
-.sizeBucketCount {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-3xs);
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-}
-
-.sizeBucketBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  min-height: 24px;
-}
-
-.sizeBucketEmpty {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-3xs);
-  color: var(--text-tertiary);
-  opacity: 0.5;
-}
 
 /* 버킷 안 카테고리별 row — icon 좌측 + chip wrap 우측 */
-.sizeBucketCategory {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-xs);
-  color: var(--text-tertiary);
-}
-
-.sizeBucketCategory > svg {
-  flex-shrink: 0;
-  margin-top: 4px;
-}
-
-.sizeBucketChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-  flex: 1 1 auto;
-}
 
 /* draggable format chip — radius-capsule, 보더 only */
 .sizeChip {
@@ -3971,11 +3782,6 @@
 }
 
 /* built-in chip 이 비활성 풀로 drop 됐을 때 잠깐 흔들림 — 비활성화 불가 시각 피드백 */
-.sizeChipShake {
-  animation: sizeChipShakeKf 0.42s var(--ease-out-expo);
-  border-color: var(--text-accent) !important;
-  color: var(--text-accent) !important;
-}
 
 @keyframes sizeChipShakeKf {
   0%,
@@ -3995,52 +3801,6 @@
 }
 
 /* 사용자 정의 MIME 추가 UI — input + size Select + add 버튼 */
-.customMimeAdder {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-lg);
-  border-top: var(--border-light);
-}
-
-.customMimeLabel {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-2xs);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-}
-
-.customMimeRow {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: center;
-}
-
-.customMimeInput {
-  flex: 1 1 auto;
-  min-width: 0;
-  height: var(--control-h-md);
-  padding: 0 var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  outline: none;
-  transition: border-color var(--duration-base) ease;
-}
-
-.customMimeInput:focus {
-  border-color: var(--text-primary);
-}
-
-.customMimeInput::placeholder {
-  color: var(--text-tertiary);
-}
 
 .customMimeAddBtn {
   display: inline-flex;
@@ -4065,13 +3825,6 @@
 .section .customMimeAddBtn:hover {
   border-color: var(--text-primary);
   color: var(--text-primary);
-}
-
-.customMimeError {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-accent);
-  margin: 0;
 }
 
 /* 미디어 group — 카드 없음. 첫 group 제외 top border 로 시각적 분리. */
