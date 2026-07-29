@@ -445,9 +445,10 @@ export default function AccountTab({
                   variant="primary"
                   size="md"
                   disabled={accountSaving || !accountCurrentPassword}
+                  loading={accountSaving}
                   onClick={handleAccountUpdate}
                 >
-                  {accountSaving ? <T k="admin.settings.saving" /> : <T k="admin.settings.confirm" />}
+                  <T k="admin.settings.confirm" />
                 </Button>
               </div>
             </div>
