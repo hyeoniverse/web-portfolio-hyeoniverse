@@ -44,7 +44,8 @@ import FontSelect from "./FontSelect";
 import SectionHeader from "./SectionHeader";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { THEME_PRESETS } from "../_data/settingsConstants";
-import styles from "../Settings.module.css";
+import styles from "./AppearanceTab.module.css";
+import shared from "../Settings.module.css";
 
 type LogoColorPreset = { name: string; light: string; dark: string };
 
@@ -254,14 +255,14 @@ function FaviconShadowControls({
               />
             </FieldRow>
             <FieldRow label={t("admin.settings.faviconShadowColor")} className={styles.faviconShadowRow}>
-              <div className={styles.colorField}>
+              <div className={shared.colorField}>
                 <ColorPicker
                   value={value.color || "rgba(0,0,0,0.4)"}
                   onChange={(c) => onChange({ ...value, color: c.hex })}
-                  triggerClassName={styles.colorPicker}
+                  triggerClassName={shared.colorPicker}
                 />
                 <Input
-                  className={styles.colorInput}
+                  className={shared.colorInput}
                   value={value.color}
                   onChange={(v) => onChange({ ...value, color: v })}
                   placeholder={t("admin.settings.faviconShadowColorPlaceholder")}
@@ -288,7 +289,7 @@ interface AppearanceTabProps extends SettingsTabProps {
 export default function AppearanceTab({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths, setConfig }: AppearanceTabProps) {
   const { t } = useLanguage();
 
-  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, titleClassName: styles.sectionTitle };
+  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, titleClassName: shared.sectionTitle };
 
   const presets: LogoColorPreset[] = config.brand.logoColorPresets ?? LOGO_COLOR_PRESETS_FALLBACK;
   const currentLight = config.brand.logoColor;
@@ -328,16 +329,16 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
   return (
     <>
       {/* Design System Preview Link */}
-      <section className={`${styles.section} ${styles.sectionWide}`}>
+      <section className={`${shared.section} ${shared.sectionWide}`}>
         <SectionHeader
           title={t("admin.settings.designSystem")}
           paths={[]}
-          rowClassName={styles.sectionTitleRow}
+          rowClassName={shared.sectionTitleRow}
           customActions={
             <div className={styles.dsActions}>
               <span className={styles.dsHint}><T k="admin.settings.designSystemPreview" /></span>
               <span className={styles.dsDivider} aria-hidden />
-              <TextLink className={styles.dsLink} href="/design-system" external><T k="admin.settings.openDesignSystem" /></TextLink>
+              <TextLink className={shared.dsLink} href="/design-system" external><T k="admin.settings.openDesignSystem" /></TextLink>
             </div>
           }
           {...sh}
@@ -346,10 +347,10 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
 
       {/* Theme Colors — 프리셋(빠른 선택) + 개별 색상 미세조정 통합.
           프리셋 선택은 theme + brand.logoColor 를 함께 바꾸므로 섹션 paths 에 포함. */}
-      <section className={`${styles.section} ${styles.sectionWide}`}>
+      <section className={`${shared.section} ${shared.sectionWide}`}>
         <SectionHeader title={t("admin.settings.themeColors")} paths={["theme", "brand.logoColor", "brand.logoColorDark"]} {...sh} />
         {/* 프리셋 빠른 선택 (테마색 + 로고색 한 번에) */}
-        <div className={styles.presetGrid}>
+        <div className={shared.presetGrid}>
           {(() => {
             const userPresets = config.theme.presets ?? [];
             const allPresets = [
@@ -367,10 +368,10 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
             return (
               <>
                 {allPresets.map((preset, idx) => (
-                  <div key={`${preset.name}-${idx}`} className={styles.presetCardWrap}>
+                  <div key={`${preset.name}-${idx}`} className={shared.presetCardWrap}>
                     <button
                       type="button"
-                      className={`${styles.presetCard} ${matchesCurrent(preset) ? styles.presetCardActive : ""}`}
+                      className={`${shared.presetCard} ${matchesCurrent(preset) ? shared.presetCardActive : ""}`}
                       onClick={() =>
                         setConfig((prev) => ({
                           ...prev,
@@ -388,12 +389,12 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                         <span className={styles.presetSwatch} style={{ background: preset.theme.accentColor }} />
                         <span className={styles.presetSwatch} style={{ background: preset.theme.lightBg }} />
                       </div>
-                      <span className={styles.presetName}>{preset.name}</span>
+                      <span className={shared.presetName}>{preset.name}</span>
                     </button>
                     {preset.removable && (
                       <button
                         type="button"
-                        className={styles.presetCardRemove}
+                        className={shared.presetCardRemove}
                         onClick={() => {
                           const next = userPresets.filter((_, i) => i !== idx - THEME_PRESETS.length);
                           update("theme", "presets", next);
@@ -423,16 +424,16 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
           })()}
         </div>
         {/* 개별 색상 미세조정 — 강조색 단독 1행, 라이트(bg+text) / 다크(bg+text) 각각 2열 */}
-        <div className={styles.fields}>
+        <div className={shared.fields}>
           {/* 강조색은 fieldPair 의 1번째 컬럼만 차지 (2번째 컬럼은 빈 공간) */}
-          <div className={styles.fieldPair}>
+          <div className={shared.fieldPair}>
             <ColorField label={t("admin.settings.accentColor")} value={config.theme.accentColor} onChange={(v) => update("theme", "accentColor", v)} />
           </div>
-          <div className={styles.fieldPair}>
+          <div className={shared.fieldPair}>
             <ColorField label={t("admin.settings.lightBg")} value={config.theme.lightBg} onChange={(v) => update("theme", "lightBg", v)} />
             <ColorField label={t("admin.settings.lightText")} value={config.theme.lightText} onChange={(v) => update("theme", "lightText", v)} />
           </div>
-          <div className={styles.fieldPair}>
+          <div className={shared.fieldPair}>
             <ColorField label={t("admin.settings.darkBg")} value={config.theme.darkBg} onChange={(v) => update("theme", "darkBg", v)} />
             <ColorField label={t("admin.settings.darkText")} value={config.theme.darkText} onChange={(v) => update("theme", "darkText", v)} />
           </div>
@@ -497,7 +498,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
       </section>
 
       {/* Brand — 로고. 소스(업로드 이미지 vs 시스템 텍스트) × 종류(숏=Favicon / 풀) 2×2 */}
-      <section className={`${styles.section} ${styles.sectionWide}`}>
+      <section className={`${shared.section} ${shared.sectionWide}`}>
         <SectionHeader title={t("admin.settings.brand")} paths={["brand"]} {...sh} />
 
         {/* 그룹 탭 — 언더라인 탭(세그먼트 pill 과 구분). 업로드 로고 / 시스템 로고(텍스트) */}
@@ -602,26 +603,26 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
               <div className={styles.faviconImageBgRow}>
                 <span className={styles.faviconImageBgLabel}>{t("admin.settings.faviconBg")}</span>
                 <div className={styles.faviconImageBgFields}>
-                  <div className={styles.faviconImageBgField}>
+                  <div className={shared.faviconImageBgField}>
                     <span className={styles.faviconImageBgCap}>{t("admin.settings.faviconVariantLight")}</span>
-                    <div className={styles.colorField}>
+                    <div className={shared.colorField}>
                       <ColorPicker value={config.brand.faviconImageBgLight || "#ffffff"} onChange={(c) => update("brand", "faviconImageBgLight", c.hex)}>
                         {({ toggle }) => (
-                          <button type="button" className={`${styles.colorPicker}${config.brand.faviconImageBgLight ? "" : ` ${styles.checkerBg}`}`} style={config.brand.faviconImageBgLight ? { background: config.brand.faviconImageBgLight } : undefined} onClick={toggle} aria-label={t("admin.settings.faviconBg")} />
+                          <button type="button" className={`${shared.colorPicker}${config.brand.faviconImageBgLight ? "" : ` ${styles.checkerBg}`}`} style={config.brand.faviconImageBgLight ? { background: config.brand.faviconImageBgLight } : undefined} onClick={toggle} aria-label={t("admin.settings.faviconBg")} />
                         )}
                       </ColorPicker>
-                      <Input className={styles.colorInput} value={config.brand.faviconImageBgLight} onChange={(v) => update("brand", "faviconImageBgLight", v)} placeholder={t("admin.settings.faviconImageBgPlaceholder")} maxLength={7} />
+                      <Input className={shared.colorInput} value={config.brand.faviconImageBgLight} onChange={(v) => update("brand", "faviconImageBgLight", v)} placeholder={t("admin.settings.faviconImageBgPlaceholder")} maxLength={7} />
                     </div>
                   </div>
-                  <div className={styles.faviconImageBgField}>
+                  <div className={shared.faviconImageBgField}>
                     <span className={styles.faviconImageBgCap}>{t("admin.settings.faviconVariantDark")}</span>
-                    <div className={styles.colorField}>
+                    <div className={shared.colorField}>
                       <ColorPicker value={config.brand.faviconImageBgDark || "#0a0a0a"} onChange={(c) => update("brand", "faviconImageBgDark", c.hex)}>
                         {({ toggle }) => (
-                          <button type="button" className={`${styles.colorPicker}${config.brand.faviconImageBgDark ? "" : ` ${styles.checkerBg}`}`} style={config.brand.faviconImageBgDark ? { background: config.brand.faviconImageBgDark } : undefined} onClick={toggle} aria-label={t("admin.settings.faviconBg")} />
+                          <button type="button" className={`${shared.colorPicker}${config.brand.faviconImageBgDark ? "" : ` ${styles.checkerBg}`}`} style={config.brand.faviconImageBgDark ? { background: config.brand.faviconImageBgDark } : undefined} onClick={toggle} aria-label={t("admin.settings.faviconBg")} />
                         )}
                       </ColorPicker>
-                      <Input className={styles.colorInput} value={config.brand.faviconImageBgDark} onChange={(v) => update("brand", "faviconImageBgDark", v)} placeholder={t("admin.settings.faviconImageBgPlaceholder")} maxLength={7} />
+                      <Input className={shared.colorInput} value={config.brand.faviconImageBgDark} onChange={(v) => update("brand", "faviconImageBgDark", v)} placeholder={t("admin.settings.faviconImageBgPlaceholder")} maxLength={7} />
                     </div>
                   </div>
                 </div>
@@ -862,8 +863,8 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                     value={config.brand.logoFont ?? ""}
                     onChange={(v) => update("brand", "logoFont", v)}
                     groups={FONT_GROUPS}
-                    triggerClassName={styles.fontPickerSelect}
-                    dropdownClassName={styles.fontPickerDropdown}
+                    triggerClassName={shared.fontPickerSelect}
+                    dropdownClassName={shared.fontPickerDropdown}
                     renderValue={() => {
                       const v = config.brand.logoFont ?? "";
                       const matched = FONT_FAMILIES_FLAT.find((f) => f.value === v);
@@ -947,14 +948,14 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                   <div className={styles.faviconColorDuo}>
                     <div className={styles.faviconColorItem}>
                       <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantLight")}</span>
-                      <div className={styles.colorField}>
+                      <div className={shared.colorField}>
                         <ColorPicker
                           value={config.brand.faviconBgLight || config.brand.logoColorDark || "#f5f5f0"}
                           onChange={(c) => update("brand", "faviconBgLight", c.hex)}
-                          triggerClassName={styles.colorPicker}
+                          triggerClassName={shared.colorPicker}
                         />
                         <Input
-                          className={styles.colorInput}
+                          className={shared.colorInput}
                           value={config.brand.faviconBgLight}
                           onChange={(v) => update("brand", "faviconBgLight", v)}
                           placeholder={t("admin.settings.faviconBgPlaceholder")}
@@ -964,14 +965,14 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                     </div>
                     <div className={styles.faviconColorItem}>
                       <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantDark")}</span>
-                      <div className={styles.colorField}>
+                      <div className={shared.colorField}>
                         <ColorPicker
                           value={config.brand.faviconBgDark || config.brand.logoColor || "#0a0a0a"}
                           onChange={(c) => update("brand", "faviconBgDark", c.hex)}
-                          triggerClassName={styles.colorPicker}
+                          triggerClassName={shared.colorPicker}
                         />
                         <Input
-                          className={styles.colorInput}
+                          className={shared.colorInput}
                           value={config.brand.faviconBgDark}
                           onChange={(v) => update("brand", "faviconBgDark", v)}
                           placeholder={t("admin.settings.faviconBgPlaceholder")}
@@ -1009,14 +1010,14 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                     <div className={styles.faviconColorDuo}>
                       <div className={styles.faviconColorItem}>
                         <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantLight")}</span>
-                        <div className={styles.colorField}>
+                        <div className={shared.colorField}>
                           <ColorPicker
                             value={config.brand.faviconBorderColorLight || "#0a0a0a"}
                             onChange={(c) => update("brand", "faviconBorderColorLight", c.hex)}
-                            triggerClassName={styles.colorPicker}
+                            triggerClassName={shared.colorPicker}
                           />
                           <Input
-                            className={styles.colorInput}
+                            className={shared.colorInput}
                             value={config.brand.faviconBorderColorLight}
                             onChange={(v) => update("brand", "faviconBorderColorLight", v)}
                             placeholder={t("admin.settings.faviconBgPlaceholder")}
@@ -1026,14 +1027,14 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                       </div>
                       <div className={styles.faviconColorItem}>
                         <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantDark")}</span>
-                        <div className={styles.colorField}>
+                        <div className={shared.colorField}>
                           <ColorPicker
                             value={config.brand.faviconBorderColorDark || "#f5f5f0"}
                             onChange={(c) => update("brand", "faviconBorderColorDark", c.hex)}
-                            triggerClassName={styles.colorPicker}
+                            triggerClassName={shared.colorPicker}
                           />
                           <Input
-                            className={styles.colorInput}
+                            className={shared.colorInput}
                             value={config.brand.faviconBorderColorDark}
                             onChange={(v) => update("brand", "faviconBorderColorDark", v)}
                             placeholder={t("admin.settings.faviconBgPlaceholder")}
@@ -1056,14 +1057,14 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                   <div className={styles.faviconColorDuo}>
                     <div className={styles.faviconColorItem}>
                       <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantLight")}</span>
-                      <div className={styles.colorField}>
+                      <div className={shared.colorField}>
                         <ColorPicker
                           value={config.brand.faviconColor || config.brand.logoColor || config.theme.lightText}
                           onChange={(c) => update("brand", "faviconColor", c.hex)}
-                          triggerClassName={styles.colorPicker}
+                          triggerClassName={shared.colorPicker}
                         />
                         <Input
-                          className={styles.colorInput}
+                          className={shared.colorInput}
                           value={config.brand.faviconColor}
                           onChange={(v) => update("brand", "faviconColor", v)}
                           placeholder={t("admin.settings.faviconBgPlaceholder")}
@@ -1073,14 +1074,14 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                     </div>
                     <div className={styles.faviconColorItem}>
                       <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantDark")}</span>
-                      <div className={styles.colorField}>
+                      <div className={shared.colorField}>
                         <ColorPicker
                           value={config.brand.faviconColorDark || config.brand.logoColorDark || config.theme.darkText}
                           onChange={(c) => update("brand", "faviconColorDark", c.hex)}
-                          triggerClassName={styles.colorPicker}
+                          triggerClassName={shared.colorPicker}
                         />
                         <Input
-                          className={styles.colorInput}
+                          className={shared.colorInput}
                           value={config.brand.faviconColorDark}
                           onChange={(v) => update("brand", "faviconColorDark", v)}
                           placeholder={t("admin.settings.faviconBgPlaceholder")}
@@ -1162,7 +1163,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                   <button
                     type="button"
                     title={p.name}
-                    className={`${styles.logoColorPresetBtn} ${
+                    className={`${shared.logoColorPresetBtn} ${
                       config.brand.logoColor === p.light && config.brand.logoColorDark === p.dark
                         ? styles.logoColorPresetBtnActive : ""
                     }`}
@@ -1204,16 +1205,16 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                 <div className={styles.faviconColorDuo}>
                   <div className={styles.faviconColorItem}>
                     <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantLight")}</span>
-                    <div className={styles.colorField}>
-                      <ColorPicker value={config.brand.logoColor || "#000000"} onChange={(c) => update("brand", "logoColor", c.hex)} triggerClassName={styles.colorPicker} />
-                      <Input className={styles.colorInput} value={config.brand.logoColor || "#000000"} onChange={(v) => update("brand", "logoColor", v)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
+                    <div className={shared.colorField}>
+                      <ColorPicker value={config.brand.logoColor || "#000000"} onChange={(c) => update("brand", "logoColor", c.hex)} triggerClassName={shared.colorPicker} />
+                      <Input className={shared.colorInput} value={config.brand.logoColor || "#000000"} onChange={(v) => update("brand", "logoColor", v)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
                     </div>
                   </div>
                   <div className={styles.faviconColorItem}>
                     <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantDark")}</span>
-                    <div className={styles.colorField}>
-                      <ColorPicker value={config.brand.logoColorDark || "#ffffff"} onChange={(c) => update("brand", "logoColorDark", c.hex)} triggerClassName={styles.colorPicker} />
-                      <Input className={styles.colorInput} value={config.brand.logoColorDark || "#ffffff"} onChange={(v) => update("brand", "logoColorDark", v)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
+                    <div className={shared.colorField}>
+                      <ColorPicker value={config.brand.logoColorDark || "#ffffff"} onChange={(c) => update("brand", "logoColorDark", c.hex)} triggerClassName={shared.colorPicker} />
+                      <Input className={shared.colorInput} value={config.brand.logoColorDark || "#ffffff"} onChange={(v) => update("brand", "logoColorDark", v)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
                     </div>
                   </div>
                 </div>
@@ -1264,7 +1265,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
       </section>
 
       {/* Date Picker Style — 노트북/PC(2열)에서 마지막 행 좌측이라 하단 border 제거 */}
-      <section className={`${styles.section} ${styles.sectionFlushDesktop}`}>
+      <section className={`${shared.section} ${styles.sectionFlushDesktop}`}>
         <SectionHeader title={t("admin.settings.datePickerStyle")} paths={["datePickerStyle"]} {...sh} />
         <SegmentedControl<"spinner" | "calendar">
           items={[
@@ -1277,18 +1278,18 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
       </section>
 
       {/* Typography */}
-      <section className={styles.section}>
+      <section className={shared.section}>
         <SectionHeader
           title={t("admin.settings.typography")}
           paths={["typography"]}
-          rowClassName={styles.sectionTitleRow}
+          rowClassName={shared.sectionTitleRow}
           extra={<TextLink href="https://fonts.google.com" external>Google Fonts</TextLink>}
           {...sh}
         />
-        <p className={styles.sectionHint}>
+        <p className={shared.sectionHint}>
           <T k="admin.settings.fontHint" />
         </p>
-        <div className={styles.fields}>
+        <div className={shared.fields}>
           <FontSelect
             label={t("admin.settings.headingFont")}
             value={config.typography?.headingFont ?? "Instrument Serif"}
