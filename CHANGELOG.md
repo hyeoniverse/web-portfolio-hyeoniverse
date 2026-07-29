@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.31.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.30.0...v1.31.0) (2026-07-29)
+
+
+### Features
+
+* **admin/settings:** 환경변수 값 확인 버그 수정 + 섹션 레이아웃 개편 ([4ccf275](https://github.com/hyeoniverse/web-portfolio-oval/commit/4ccf275accad8b87777c3673c0aacc133967e965))
+* **ui:** 비밀번호 입력 마스크 토글 + 확인 버튼 loading ([817c012](https://github.com/hyeoniverse/web-portfolio-oval/commit/817c0122a1aa421309b6fbf458f2b40f8bd9cf23))
+
 ## [1.30.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.29.2...v1.30.0) (2026-07-27)
 
 
