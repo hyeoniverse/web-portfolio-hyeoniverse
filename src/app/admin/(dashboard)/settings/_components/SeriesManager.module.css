@@ -1,0 +1,248 @@
+/*  SeriesManager 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
+   공유·경계 클래스는 Settings 에 남아 shared 로 import  */
+.seriesList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.seriesCardHead {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--box-sm-md);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  /* 접힐 때: 접기(0.35s) 끝나고 모서리 둥글게(0.25s) */
+  transition:
+    border-radius 0.25s ease 0.35s,
+    border-color 0.2s ease,
+    background-size 0.3s ease;
+}
+
+.seriesList .seriesCardHead:hover {
+  border-color: var(--border-light-color);
+}
+
+.seriesCard {
+  border-radius: var(--radius-2xl);
+  position: relative;
+  /* grip 핸들 + 카드 본체(head + collapse) 가로 배치.
+     2열은 minmax(0, 1fr) — 1fr 의 기본 min-width:auto 는 content 따라 grow → 긴 타이틀이 truncate 안됨. */
+  display: grid;
+  grid-template-columns: var(--spacing-xl) minmax(0, 1fr);
+  align-items: stretch;
+}
+.seriesCard > .seriesCardHead,
+.seriesCard > .seriesCardCollapse {
+  grid-column: 2;
+}
+.seriesCardHandle {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  color: var(--text-tertiary);
+  cursor: move;
+  user-select: none;
+  /* head padding 의 top 값에 맞춰 grip 이 카드 head 첫 줄과 정렬 */
+  padding-top: var(--spacing-sm);
+  align-self: stretch;
+  min-height: 56px;
+}
+
+.seriesCardHandle:hover {
+  color: var(--text-primary);
+}
+
+.seriesCard[draggable="true"] {
+  cursor: grabbing;
+}
+
+.seriesCardDragging {
+  opacity: 0.5;
+}
+.seriesCardDropAbove::before,
+.seriesCardDropBelow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--bg-accent-solid);
+  border-radius: 1px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.seriesCardDropAbove::before {
+  top: -7px;
+}
+
+.seriesCardDropBelow::after {
+  bottom: -7px;
+}
+
+.seriesCardDeleteBtn.seriesCardDeleteBtn.seriesCardDeleteBtn {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: var(--border-default);
+  transition:
+    background 0.25s ease,
+    backdrop-filter 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.seriesCardDeleteBtn.seriesCardDeleteBtn.seriesCardDeleteBtn:hover {
+  background: transparent;
+  backdrop-filter: blur(8px);
+  color: var(--text-white);
+  border-color: var(--text-white);
+}
+
+.seriesCardHeadCover {
+  background-size: 100%;
+  background-position: center;
+  background-origin: padding-box;
+  background-clip: padding-box;
+  position: relative;
+  overflow: hidden;
+  transition:
+    background-size 0.3s ease,
+    border-radius 0.25s ease,
+    border-color 0.2s ease;
+}
+
+.seriesCardHeadCover:hover {
+  background-size: 108%;
+}
+
+.seriesCardHeadCover .seriesCardInfo,
+.seriesCardHeadCover .seriesChevron {
+  position: relative;
+  z-index: 1;
+}
+
+.seriesCardHeadCover .seriesCardName {
+  color: var(--text-inverse);
+  text-shadow: var(--shadow-text-strong);
+}
+
+.seriesCardHeadCover .seriesCardMeta {
+  color: var(--text-white);
+}
+
+.seriesCardHeadCover .seriesChevron {
+  color: var(--text-white);
+}
+
+.seriesCardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    oklch(0% 0 0 / 0.2) 0%,
+    oklch(0% 0 0 / 0.5) 100%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+.seriesCardHeadExpanded {
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  /* 펼칠 때: 모서리 먼저 각지게(0.25s), delay 없음 */
+  transition:
+    border-radius 0.25s ease,
+    border-color 0.2s ease,
+    background-size 0.3s ease;
+}
+
+.seriesCardInfo {
+  flex: 1;
+  min-width: 0;
+}
+.seriesCardNameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+
+.seriesCardName {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.seriesCardMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-top: var(--spacing-sm);
+}
+
+.seriesBadgeCat {
+  padding: var(--spacing-4xs) var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  font-size: var(--font-size-2xs);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.seriesChevron {
+  flex-shrink: 0;
+  /* parent align-items: flex-start. chevron(14px) 의 center 를 button(xs=24px) 의 center 와 정렬:
+     margin-top = (24 - 14) / 2 = 5px. */
+  margin-top: calc((var(--control-h-xs) - 14px) / 2);
+  color: var(--text-tertiary);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.seriesChevronOpen {
+  transform: rotate(90deg);
+}
+
+.seriesCardCollapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  /* 접힐 때: 즉시 접기 시작 (0.35s) */
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.seriesCardCollapseOpen {
+  grid-template-rows: 1fr;
+  /* 펼칠 때: 모서리 전환(0.25s) 완료 후 펼치기 시작 */
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s;
+}
+
+.seriesCardCollapse > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.seriesCardCollapseOpen > * {
+  overflow: visible;
+}
+.newSeriesShellDivider {
+  display: inline-block;
+  width: 1px;
+  height: 1.25em;
+  background: var(--border-light-color);
+  margin: 0 var(--spacing-2xs);
+}
