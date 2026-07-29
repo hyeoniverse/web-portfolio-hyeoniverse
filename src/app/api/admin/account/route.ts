@@ -1,3 +1,4 @@
+import { createClient as createStatelessClient } from "@supabase/supabase-js";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -90,8 +91,15 @@ export async function PATCH(request: Request) {
     return jsonError("Current password is required", 400);
   }
 
-  // 현재 비밀번호로 재인증
-  const { error: signInError } = await supabase.auth.signInWithPassword({
+  // 현재 비밀번호로 재인증 — 세션 미-persist 전용 클라이언트로 검증한다.
+  // SSR 클라이언트로 signInWithPassword 하면 현재 admin 세션이 회전되는 부작용이 있고,
+  // 세션 저장 단계의 예외가 자격증명 오류로 뭉개져 맞는 비번도 거부될 수 있다(secrets 와 동일).
+  const verifier = createStatelessClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  );
+  const { error: signInError } = await verifier.auth.signInWithPassword({
     email: user.email!,
     password: body.currentPassword,
   });
