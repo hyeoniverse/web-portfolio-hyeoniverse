@@ -11,7 +11,7 @@ import { RoleBadge, ProviderChips } from "@/components/admin/MemberBadges";
 import { SOCIAL_ICONS } from "@/data/socialIcons";
 import type { Author } from "@/types/author";
 import type { Member, MemberRole } from "@/types/member";
-import styles from "../Settings.module.css";
+import styles from "./MemberDetailModal.module.css";
 import mStyles from "@/components/admin/MembersList.module.css";
 
 interface Props {
