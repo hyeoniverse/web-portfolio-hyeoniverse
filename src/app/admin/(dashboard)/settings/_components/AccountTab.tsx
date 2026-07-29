@@ -16,7 +16,8 @@ import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { parseUA } from "@/lib/auth/uaParser";
 import type { AccountTabProps } from "../_types";
 import Field from "./SettingsFormFields";
-import styles from "../Settings.module.css";
+import styles from "./AccountTab.module.css";
+import shared from "../Settings.module.css";
 
 interface DeviceRow {
   id: string;
@@ -213,17 +214,17 @@ export default function AccountTab({
 
   return (
     <>
-      <section className={`${styles.section} ${styles.sectionWide}`}>
-        <div className={styles.sectionTitleRow}>
-          <h2 className={styles.sectionTitle}><T k="admin.settings.authSettingsTitle" /></h2>
+      <section className={`${shared.section} ${shared.sectionWide}`}>
+        <div className={shared.sectionTitleRow}>
+          <h2 className={shared.sectionTitle}><T k="admin.settings.authSettingsTitle" /></h2>
           <TextLink href="https://supabase.com/docs/guides/auth/passwords" external>
             Supabase Auth Docs
           </TextLink>
         </div>
-        <p className={styles.sectionHint}>
+        <p className={shared.sectionHint}>
           <T k="admin.settings.authSettingsDesc" />
         </p>
-        <ul className={styles.sectionHintList}>
+        <ul className={shared.sectionHintList}>
           <li>
             <span className={styles.hintLabel}>Secure email change, Secure password change, Email OTP Expiration</span>
             <br />
@@ -237,9 +238,9 @@ export default function AccountTab({
         </ul>
       </section>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.email" /></h2>
-        <ul className={styles.sectionHintList}>
+      <section className={shared.section}>
+        <h2 className={shared.sectionTitle}><T k="admin.settings.email" /></h2>
+        <ul className={shared.sectionHintList}>
           <li><T k="admin.settings.secureEmailChangeHint1" /></li>
           <li><T k="admin.settings.secureEmailChangeHint2" /></li>
         </ul>
@@ -273,7 +274,7 @@ export default function AccountTab({
           </div>
         )}
 
-        <div className={styles.fields}>
+        <div className={shared.fields}>
           <FieldRow label={<T k="admin.settings.currentEmail" />}>
             <span className={styles.fieldValue}>{accountEmail}</span>
           </FieldRow>
@@ -286,9 +287,9 @@ export default function AccountTab({
         </div>
       </section>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.password" /></h2>
-        <ul className={styles.sectionHintList}>
+      <section className={shared.section}>
+        <h2 className={shared.sectionTitle}><T k="admin.settings.password" /></h2>
+        <ul className={shared.sectionHintList}>
           <li><T k="admin.settings.securePasswordChangeHint" /></li>
           <li>
             {passwordPolicy === "secure"
@@ -297,8 +298,8 @@ export default function AccountTab({
             }
           </li>
         </ul>
-        <div className={styles.fields}>
-          <div className={styles.fieldPair}>
+        <div className={shared.fields}>
+          <div className={shared.fieldPair}>
             <FieldRow label={<T k="admin.settings.passwordPolicyLabel" />}>
               <Select
                 value={passwordPolicy}
@@ -310,7 +311,7 @@ export default function AccountTab({
               />
             </FieldRow>
           </div>
-          <div className={styles.fieldPair}>
+          <div className={shared.fieldPair}>
             <FieldRow label={<T k="admin.settings.newPassword" />}>
               <Input
                 type="password"
@@ -332,9 +333,9 @@ export default function AccountTab({
       </section>
 
       {/* Security — sessions / devices */}
-      <section className={`${styles.section} ${styles.sectionWide}`}>
-        <h2 className={styles.sectionTitle}><T k="admin.settings.securityTitle" /></h2>
-        <ul className={styles.sectionHintList}>
+      <section className={`${shared.section} ${shared.sectionWide}`}>
+        <h2 className={shared.sectionTitle}><T k="admin.settings.securityTitle" /></h2>
+        <ul className={shared.sectionHintList}>
           <li><T k="admin.settings.signOutAllHint" /></li>
         </ul>
 
@@ -395,7 +396,7 @@ export default function AccountTab({
           )}
         </div>
 
-        <div className={styles.fields}>
+        <div className={shared.fields}>
           <FieldRow label={<T k="admin.settings.signOutAllLabel" />}>
             <Button
               variant="outline"
@@ -436,7 +437,7 @@ export default function AccountTab({
                 }}
               />
               {accountMessage && (
-                <span className={`${styles.message} ${accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
+                <span className={`${shared.message} ${accountMessage.startsWith("Error") ? shared.messageError : shared.messageSuccess}`}>
                   {accountMessage}
                 </span>
               )}
