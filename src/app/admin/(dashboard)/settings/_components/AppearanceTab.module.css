@@ -1,0 +1,646 @@
+/*  AppearanceTab 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
+   공유·경계 클래스(section·fields·colorField·preset·dsLink 등)는 Settings 에 남아 shared 로 import  */
+
+@media (min-width: 1025px) {
+  .sectionFlushDesktop {
+    border-bottom: none;
+  }
+}
+.dsActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+}
+.dsHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+.dsDivider {
+  width: 1px;
+  height: 0.9em;
+  flex-shrink: 0;
+  background: var(--border-strong-color);
+}
+.presetCardAddBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  border: var(--border-light);
+  border-style: dashed;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.presetCardAddBtn:hover {
+  border-color: var(--text-accent);
+  color: var(--text-accent);
+}
+
+.presetSwatches {
+  display: flex;
+  width: 140px;
+  height: 100%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-right: var(--border-light);
+}
+
+.presetSwatch {
+  flex: 1;
+}
+.logoColorPresets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.logoColorPresetBtnActive {
+  border-color: var(--text-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.logoColorPresetHalf {
+  flex: 1;
+}
+.logoColorPresetWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.logoColorPresetRemove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--border-strong-color);
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.logoColorPresetWrap:hover .logoColorPresetRemove {
+  opacity: 1;
+}
+
+.logoColorPresetRemove:hover {
+  color: var(--text-accent);
+  border-color: var(--color-accent);
+}
+.logoColorPresetAddBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-md);
+  height: 20px;
+  border: var(--border-light);
+  border-style: dashed;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    color var(--duration-base) ease,
+    border-color var(--duration-base) ease;
+}
+
+.logoColorPresetAddBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+.logoColorPresetAddRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: var(--border-light);
+}
+
+.logoColorPresetNameInput {
+  flex: 0 0 200px;
+}
+.faviconLayout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  /* 부모 .fields 가 align-items:flex-start 라 명시 안 하면 content 폭으로 줄어
+     안쪽 auto-fit grid 가 1열로 붕괴한다. 풀폭 확정 → 컨트롤 2열. */
+  width: 100%;
+}
+.faviconPreviewSlot {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--spacing-xl);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: var(--border-light);
+}
+
+.faviconPreviewCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  /* 대비 배지 텍스트 폭 변화가 셀·슬롯 레이아웃을 흔들지 않게 고정 폭 확보 */
+  min-width: 8rem;
+}
+.faviconPreview {
+  display: block;
+}
+
+.faviconPreviewLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.faviconForm {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 30rem);
+  align-items: center;
+  gap: var(--spacing-sm) var(--spacing-lg);
+  width: 100%;
+}
+.faviconForm .faviconFormRow {
+  display: contents;
+}
+.faviconForm > label {
+  align-self: center;
+  margin: 0;
+}
+.faviconColorDuo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xs) var(--spacing-md);
+  width: 100%;
+}
+.faviconColorItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  min-width: 0;
+}
+.faviconColorTools {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3xs);
+}
+
+.faviconColorTool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-capsule);
+  color: var(--text-tertiary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.faviconColorTool:hover {
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+}
+.faviconColorCaption {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.faviconTextInputWrap {
+  width: 100%;
+  max-width: 14rem;
+}
+.brandTextInputWrap {
+  width: 100%;
+  max-width: 22rem;
+}
+.brandGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+.brandGroup + .brandGroup {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  border-top: var(--border-light);
+}
+.brandPart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+.brandTabs {
+  display: flex;
+  gap: var(--spacing-lg);
+  border-bottom: var(--border-light);
+}
+.brandTab {
+  padding: var(--spacing-xs) 0;
+  margin-bottom: -1px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.brandTab:hover {
+  color: var(--text-secondary);
+}
+.brandTabActive {
+  color: var(--text-primary);
+  font-weight: 700;
+  border-bottom-color: var(--text-primary);
+}
+.brandTabHint {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+.brandPart + .brandPart {
+  padding-top: var(--spacing-md);
+  border-top: var(--border-light);
+}
+.brandPartHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs) var(--spacing-md);
+  min-height: var(--control-h-md);
+}
+.brandPartTitle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.brandPartTitleHint {
+  font-size: var(--font-size-xs);
+  font-weight: 400;
+  color: var(--text-tertiary);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.brandPartHeadEnd {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-md);
+}
+.logoEffectsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: var(--border-light);
+}
+
+.logoEffectsLabel {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+
+.logoEffectsToggles {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-lg);
+}
+.fullLogoPreview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+.fullLogoPreviewCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  min-width: 0;
+}
+.fullLogoPreviewBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  padding: var(--box-md);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+}
+.fullLogoPreviewText {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-2xl);
+  line-height: 1;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  transform-origin: center;
+}
+.fullLogoPreviewCap {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.fullLogoPreviewMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+.brandDrops {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 640px) {
+  .brandDrops {
+    grid-template-columns: 1fr;
+  }
+}
+.faviconImageOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xl);
+}
+.faviconImageOptionsTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.faviconImageOptionsTitle::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-light-color);
+}
+.faviconImageOptionsHint {
+  margin: 0 0 var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+.faviconImageBgRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-lg);
+}
+.faviconImageBgLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 3rem;
+}
+.faviconImageBgFields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-lg);
+}
+.faviconImageBgCap {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.checkerBg {
+  background-color: var(--bg-primary);
+  background-image:
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
+  background-size: 6px 6px;
+  background-position: 0 0, 3px 3px;
+}
+
+@media (max-width: 640px) {
+  .faviconLayout {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+.faviconShadowCard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.faviconShadowHead {
+  display: flex;
+  align-items: center;
+  /* space-between 은 세그먼트와 토글을 양 끝으로 벌려 거리가 과함 → 토글을 세그먼트 바로 옆에 */
+  justify-content: flex-start;
+  gap: var(--spacing-lg);
+}
+
+.faviconShadowBody {
+  display: flex;
+  flex-direction: row;
+  /* flex-start — 세부 조정 펼쳐 우측이 길어져도 좌측 미리보기가 늘어나지 않아 위치 고정 */
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  /* 구분선 없이 head 와 gap 으로만 분리 (카드 gap: sm) */
+  padding-top: var(--spacing-2xs);
+}
+.shadowControls {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: var(--spacing-sm) var(--spacing-lg);
+}
+.shadowControls > .shadowPresetRadio {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  .faviconShadowBody {
+    flex-direction: column;
+  }
+  .shadowControls {
+    grid-template-columns: 1fr;
+  }
+}
+.faviconShadowBody .faviconShadowRow {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  align-items: center;
+  gap: var(--spacing-sm) var(--spacing-md);
+  width: 100%;
+}
+.shadowBlurInput {
+  justify-self: start;
+}
+.shadowPreview {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(150px, 26%, 172px);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-2xl);
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+.shadowLight {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  border: 3px solid var(--bg-secondary);
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--text-accent) 20%, transparent);
+  transform: translate(-50%, -50%);
+  cursor: grab;
+}
+
+.shadowLight:active {
+  cursor: grabbing;
+}
+.shadowDragHint {
+  margin-top: auto;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+.shadowPreviewCircle {
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--radius-circle);
+}
+.faviconFontSizeControl {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+.faviconSliderControl {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.faviconSlider {
+  flex: 1;
+  min-width: 0;
+}
+
+.faviconSliderValue {
+  flex-shrink: 0;
+  min-width: 3ch;
+  text-align: right;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.faviconContrast {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-3xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  line-height: 1;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.faviconContrastRatio {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.faviconContrastMuted {
+  color: var(--text-tertiary);
+}
+
+.faviconContrastBadge {
+  padding: 2px var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.faviconContrastPass {
+  color: var(--text-success);
+  background: var(--bg-success-soft);
+}
+
+.faviconContrastFail {
+  color: var(--text-error);
+  background: var(--bg-error-soft);
+}
+
+.inlineToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
