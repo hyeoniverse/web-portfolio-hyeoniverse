@@ -6,7 +6,7 @@ import type { ConfigConflict } from "../_data/settingsConstants";
 import { buildDiffOps, groupIntoBlocks } from "../_data/diffUtils";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
-import styles from "../Settings.module.css";
+import styles from "./DiffResolver.module.css";
 
 export default function DiffResolver({
   conflict,

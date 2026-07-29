@@ -1,0 +1,177 @@
+/*  DiffResolver 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
+   공유·경계 클래스는 Settings 에 남아 shared 로 import  */
+.conflictDiffModal {
+  position: relative;
+  padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-lg);
+}
+
+.conflictDiffBtns {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.conflictCloseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  padding: 0;
+  border: var(--border-strong);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.conflictCloseIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.conflictCloseLine {
+  position: absolute;
+  width: 14px;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: var(--radius-2xs);
+}
+.conflictCloseBtn .conflictCloseLine {
+  transition: transform var(--duration-base) var(--ease-material);
+}
+
+.conflictCloseBtn:hover {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  border-color: var(--bg-inverse);
+}
+
+.conflictCloseBtn:hover .conflictCloseLine:first-child {
+  transform: rotate(45deg);
+}
+
+.conflictCloseBtn:hover .conflictCloseLine:last-child {
+  transform: rotate(-45deg);
+}
+
+.conflictDiffHeader {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: 0 calc(-1 * var(--spacing-lg));
+  padding: var(--box-lg);
+  background: var(--bg-white);
+  z-index: 3;
+}
+
+.conflictDiffTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conflictDiffPre {
+  margin: 0;
+  padding: var(--spacing-md);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  line-height: 1.7;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.diffLineNum {
+  display: inline-block;
+  width: var(--button-h-sm);
+  text-align: right;
+  padding-right: var(--spacing-sm);
+  color: var(--text-muted);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.diffLineRemoved {
+  background: var(--bg-error);
+  color: var(--text-error);
+  margin: 0 calc(-1 * var(--spacing-md));
+  padding: 0 var(--spacing-md);
+}
+
+.diffLineAdded {
+  background: var(--bg-success);
+  color: var(--text-success);
+  margin: 0 calc(-1 * var(--spacing-md));
+  padding: 0 var(--spacing-md);
+}
+
+.diffLineContext {
+  display: block;
+  color: var(--text-tertiary);
+}
+
+.diffLineResolved {
+  display: block;
+  color: var(--text-secondary);
+  margin: 0 calc(-1 * var(--spacing-md));
+  padding: 0 var(--spacing-md);
+  background: var(--bg-success);
+}
+.diffHunk {
+  position: relative;
+  margin: var(--spacing-2xs) calc(-1 * var(--spacing-md));
+  padding: 0 var(--spacing-md) 0 calc(var(--spacing-md) + 20px);
+}
+
+.diffHunkOverlay {
+  position: absolute;
+  left: var(--spacing-xs);
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+}
+
+.diffHunk:hover .diffHunkOverlay {
+  opacity: 1;
+}
+
+.diffHunkFloatBtn {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  font-size: var(--font-size-xs);
+  line-height: 1;
+}
+
+.diffHunkFloatAccept,
+.diffHunkFloatRevert {
+  background: var(--bg-tertiary-alt);
+  color: var(--text-secondary);
+}
+
+.diffHunk .diffHunkFloatAccept:hover,
+.diffHunk .diffHunkFloatRevert:hover {
+  background: var(--bg-secondary-alt);
+  color: var(--text-primary);
+}
