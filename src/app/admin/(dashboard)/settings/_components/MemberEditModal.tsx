@@ -14,7 +14,8 @@ import type { Author } from "@/types/author";
 import type { Member, PendingMember } from "@/types/member";
 import Field from "./SettingsFormFields";
 import SocialLinksEditor from "./SocialLinksEditor";
-import styles from "../Settings.module.css";
+import styles from "./MemberEditModal.module.css";
+import shared from "../Settings.module.css";
 import mStyles from "@/components/admin/MembersList.module.css";
 
 interface Outcome { ok: boolean; msg: string }
@@ -133,11 +134,11 @@ export default function MemberEditModal({
       </div>
 
       {ghHasData && (
-        <div className={styles.memberGithubLoad}>
+        <div className={shared.memberGithubLoad}>
           <Button variant="outline" size="xs" icon={<SiGithub size={13} />} onClick={loadGithub}>
             {L("GitHub 정보 불러오기", "Load from GitHub")}
           </Button>
-          <span className={styles.fieldHint}>
+          <span className={shared.fieldHint}>
             {L("이름·아바타·GitHub 소셜 링크를 GitHub 계정 정보로 채웁니다.", "Fills name, avatar and GitHub social link from the GitHub account.")}
           </span>
         </div>
@@ -153,8 +154,8 @@ export default function MemberEditModal({
 
       {/* 접근 권한 — owner 만 (비owner 는 본인 프로필만 편집) */}
       {canManageAccess && (
-      <div className={styles.authorInvite}>
-        <span className={styles.fieldLabel}>{L("접근 권한", "Access")}</span>
+      <div className={shared.authorInvite}>
+        <span className={shared.fieldLabel}>{L("접근 권한", "Access")}</span>
 
         {member ? (
           <>
@@ -177,7 +178,7 @@ export default function MemberEditModal({
           </>
         ) : linkMemberId ? (
           <>
-            <span className={styles.fieldHint}>
+            <span className={shared.fieldHint}>
               {L("이미 로그인한 계정입니다. 저장하면 이 프로필과 연결하고 권한을 부여합니다.", "This account has already signed in. Saving links it to this profile and grants access.")}
             </span>
             <div className={styles.authorInviteRow}>
@@ -186,7 +187,7 @@ export default function MemberEditModal({
           </>
         ) : (
           <>
-            <span className={styles.fieldHint}>
+            <span className={shared.fieldHint}>
               {localInvited
                 ? L("초대를 보냈습니다. 동일한 GitHub 계정으로 로그인하면 권한이 부여됩니다.", "Invite sent. Access is granted when they sign in with the matching GitHub account.")
                 : L("이 이메일과 동일한 GitHub 계정으로 로그인하면 권한이 부여됩니다.", "Access is granted when they sign in with the GitHub account that uses this email.")}
@@ -204,13 +205,13 @@ export default function MemberEditModal({
         )}
 
         {status && (
-          <span className={status.ok ? styles.authorInviteOk : styles.authorInviteErr}>{status.msg}</span>
+          <span className={status.ok ? shared.authorInviteOk : shared.authorInviteErr}>{status.msg}</span>
         )}
       </div>
       )}
 
       <div className={styles.authorLinksEditor}>
-        <span className={styles.fieldLabel}>{L("링크", "Links")}</span>
+        <span className={shared.fieldLabel}>{L("링크", "Links")}</span>
         <SocialLinksEditor links={draft.links} onChange={(links) => set({ links })} max={8} />
       </div>
 
