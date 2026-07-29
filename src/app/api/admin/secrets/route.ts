@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createStatelessClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
@@ -133,14 +133,22 @@ export async function POST(request: Request) {
     return jsonError("Password and key required", 400);
   }
 
-  // 비밀번호 재확인 — requireAuth 이후라 user 보장됨
-  const supabase = await createClient();
-  const { error: signInError } = await supabase.auth.signInWithPassword({
+  // 비밀번호 재확인 — requireAuth 이후라 user 보장됨.
+  // 세션 미-persist 전용 클라이언트로 검증한다: SSR 클라이언트로 signInWithPassword 하면
+  // 현재 admin 세션이 회전되는 부작용이 있고, 세션 저장 단계의 예외가 자격증명 오류처럼
+  // 뭉개질 수 있다. 여기선 검증만 필요하므로 세션을 저장하지 않는다.
+  const verifier = createStatelessClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  );
+  const { error: signInError } = await verifier.auth.signInWithPassword({
     email: user.email!,
     password,
   });
 
-  if (signInError) return jsonError("Invalid password", 403);
+  // 실제 원인을 그대로 노출 — "Invalid password" 로 뭉개면 이메일 미확인·rate limit 등을 구분 못 함
+  if (signInError) return jsonError(signInError.message || "Invalid password", 403);
 
   if (!ALLOWED_KEYS.includes(key as (typeof ALLOWED_KEYS)[number])) {
     return jsonError("Invalid key", 400);
