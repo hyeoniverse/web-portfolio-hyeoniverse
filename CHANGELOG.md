@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.31.0...v1.31.1) (2026-07-29)
+
+
+### Bug Fixes
+
+* **admin/account:** 비밀번호 변경 재인증을 세션 미-persist 클라이언트로 ([b9a95fc](https://github.com/hyeoniverse/web-portfolio-oval/commit/b9a95fc8dd82b58f55065c0f8ad1bc8e12c82ba6))
+
 ## [1.31.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.30.0...v1.31.0) (2026-07-29)
 
 
