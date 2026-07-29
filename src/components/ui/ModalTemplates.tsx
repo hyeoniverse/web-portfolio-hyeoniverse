@@ -117,7 +117,8 @@ interface ModalPromptProps {
   error?: string;
   /** false면 onConfirm에서 직접 모달을 닫아야 함 (비동기 검증 등) */
   closeOnConfirm?: boolean;
-  onConfirm: (value: string) => void;
+  /** Promise 반환 시(closeOnConfirm=false) 확인 버튼에 loading 표시 */
+  onConfirm: (value: string) => void | Promise<void>;
 }
 
 export function ModalPrompt({
@@ -134,6 +135,7 @@ export function ModalPrompt({
   onConfirm,
 }: ModalPromptProps) {
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const { closeModal } = useModalStore();
   const { language } = useLanguage();
   const footerEl = useContext(ModalFooterContext);
@@ -141,10 +143,20 @@ export function ModalPrompt({
 
   const isValid = validate ? validate(input) : input.trim().length > 0;
 
-  const handleConfirm = () => {
-    if (!isValid) return;
-    if (closeOnConfirm) closeModal();
-    onConfirm(input);
+  const handleConfirm = async () => {
+    if (!isValid || loading) return;
+    if (closeOnConfirm) {
+      closeModal();
+      onConfirm(input);
+      return;
+    }
+    // 비동기 검증 — 완료까지 확인 버튼에 loading
+    setLoading(true);
+    try {
+      await onConfirm(input);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -165,7 +177,7 @@ export function ModalPrompt({
       {error && <p className={styles.error}>{error}</p>}
       {footerEl && createPortal(
         <>
-          <Button variant="outline" size="sm" soundDisabled onClick={() => closeModal()}>
+          <Button variant="outline" size="sm" soundDisabled disabled={loading} onClick={() => closeModal()}>
             {cancel}
           </Button>
           <Button
@@ -173,7 +185,8 @@ export function ModalPrompt({
             size="sm"
             soundDisabled
             className={danger ? styles.dangerBtn : undefined}
-            disabled={!isValid}
+            disabled={!isValid || loading}
+            loading={loading}
             onClick={handleConfirm}
           >
             {confirmText}

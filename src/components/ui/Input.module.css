@@ -323,3 +323,12 @@
 .hasClear {
   padding-right: calc(var(--spacing-sm) + 20px);
 }
+
+/* 지우개 + 눈 토글 공존 — 눈은 맨 우측(clearBtn 기본), 지우개는 그 왼쪽으로 shift */
+.clearBtnShift {
+  right: calc(var(--spacing-2xs) + 22px);
+}
+
+.hasClear2 {
+  padding-right: calc(var(--spacing-sm) + 42px);
+}

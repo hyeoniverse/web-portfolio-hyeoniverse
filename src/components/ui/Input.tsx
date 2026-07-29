@@ -1,7 +1,7 @@
 "use client";
 
-import type { InputHTMLAttributes, KeyboardEvent, ReactNode } from "react";
-import { Eraser, Plus } from "lucide-react";
+import { useState, type InputHTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
+import { Eraser, Eye, EyeOff, Plus } from "lucide-react";
 import styles from "./Input.module.css";
 
 type Variant = "capsule" | "underline";
@@ -52,12 +52,17 @@ export default function Input({
   trailingAction,
   onKeyDown,
   required,
+  type,
   ...rest
 }: InputProps) {
   const hasAdd = !!onAdd;
   const hasTrailing = !!trailingAction;
   const isGrouped = hasAdd || hasTrailing;
 
+  const isPassword = type === "password";
+  const [showPassword, setShowPassword] = useState(false);
+  // password 면 눈 토글(마스크 해제) 버튼. clear(지우개)와 공존 — 지우개는 맨 우측, 눈은 그 왼쪽
+  const showReveal = isPassword && !isGrouped && !rest.disabled && !rest.readOnly;
   const showClear = !isGrouped && clearable && !!value && !rest.disabled && !rest.readOnly;
   const isAddDisabled = addDisabled ?? !value.trim();
 
@@ -75,7 +80,7 @@ export default function Input({
     size === "sm" ? styles.sm : "",
     size === "xs" ? styles.xs : "",
     inlineLabel ? styles.hasInlineLabel : "",
-    showClear ? styles.hasClear : "",
+    showClear && showReveal ? styles.hasClear2 : (showClear || showReveal) ? styles.hasClear : "",
     isGrouped ? styles.inputGrouped : "",
   ].filter(Boolean).join(" ");
 
@@ -93,6 +98,7 @@ export default function Input({
           id={id}
           className={inputCls}
           value={value}
+          type={isPassword && showPassword ? "text" : type}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           required={required}
@@ -101,7 +107,7 @@ export default function Input({
         {showClear && (
           <button
             type="button"
-            className={styles.clearBtn}
+            className={`${styles.clearBtn}${showReveal ? ` ${styles.clearBtnShift}` : ""}`}
             data-cursor="big"
             onMouseDown={(e) => e.preventDefault()}
             onClick={(e) => {
@@ -113,6 +119,19 @@ export default function Input({
             title="지우기"
           >
             <Eraser size={11} strokeWidth={2} />
+          </button>
+        )}
+        {showReveal && (
+          <button
+            type="button"
+            className={styles.clearBtn}
+            data-cursor="big"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setShowPassword((s) => !s)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            title={showPassword ? "숨기기" : "표시"}
+          >
+            {showPassword ? <EyeOff size={13} strokeWidth={2} /> : <Eye size={13} strokeWidth={2} />}
           </button>
         )}
         {hasAdd && (
