@@ -17,7 +17,8 @@ import { SkeletonLine } from "@/components/ui/Skeleton";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import { matchesSearch } from "@/lib/koSearch";
-import styles from "../Settings.module.css";
+import styles from "./SeriesInlineEditor.module.css";
+import shared from "../Settings.module.css";
 
 /* ── SeriesInlineEditor ── */
 
@@ -432,7 +433,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
       {isStandalone && !hideStandaloneHeader && (
         <div className={styles.seriesStandaloneHeader}>
           <h3 className={styles.seriesStandaloneTitle}>
-            <span className={styles.seriesCardOrderPrefix}>
+            <span className={shared.seriesCardOrderPrefix}>
               #
               <EditableRowNumber
                 value={form.desiredPosition}
@@ -445,13 +446,13 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
             <T k="admin.posts.seriesModal.newTitle" />
           </h3>
           <div className={styles.seriesStandaloneActions}>
-            <div className={styles.publishToggle}>
+            <div className={shared.publishToggle}>
               <Switch
                 size="md"
                 checked={form.published}
                 onCheckedChange={(v) => updateField("published", v)}
               />
-              <span key={form.published ? "pub" : "draft"} className={styles.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
+              <span key={form.published ? "pub" : "draft"} className={shared.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
             </div>
             <Button variant="outline" size="sm" onClick={handleRevert} disabled={!isDirty || saving} soundDisabled>
               <T k="admin.posts.seriesModal.revert" />
@@ -465,22 +466,22 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
           </div>
         </div>
       )}
-      <div className={styles.fieldPair}>
+      <div className={shared.fieldPair}>
         <Field label={ts("titleLabel")} langBadge="ko" value={form.title} onChange={(v) => updateField("title", v)} required={primaryLang === "ko"} maxHint={SERIES_TITLE_MAX} maxLength={SERIES_TITLE_MAX} />
         <Field label={ts("titleLabel")} langBadge="en" value={form.title_en} onChange={(v) => updateField("title_en", v)} required={primaryLang === "en"} maxHint={SERIES_TITLE_MAX} maxLength={SERIES_TITLE_MAX} />
       </div>
-      <div className={styles.fieldPair}>
+      <div className={shared.fieldPair}>
         <Field label={ts("descLabel")} langBadge="ko" value={form.description} onChange={(v) => updateField("description", v)} multiline maxHint={200} />
         <Field label={ts("descLabel")} langBadge="en" value={form.description_en} onChange={(v) => updateField("description_en", v)} multiline maxHint={200} />
       </div>
       {/* 순서 — fieldPair (시리즈 카테고리 필드 제거: 카테고리는 멤버 글에서 도출) */}
-      <div className={styles.fieldPair}>
+      <div className={shared.fieldPair}>
         {!isEdit && (
-          <div className={styles.fieldRow}>
-            <label className={styles.fieldLabel}>
-              <span className={styles.fieldLabelText}>
+          <div className={shared.fieldRow}>
+            <label className={shared.fieldLabel}>
+              <span className={shared.fieldLabelText}>
                 순서
-                <span className={styles.fieldRequiredDot} aria-label="필수">•</span>
+                <span className={shared.fieldRequiredDot} aria-label="필수">•</span>
               </span>
             </label>
             <div onClick={(e) => e.stopPropagation()}>
@@ -495,24 +496,24 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
         )}
       </div>
       {!hideInlinePublishToggle && (!isStandalone || (hideStandaloneHeader && !hideBottomActions)) && (
-        <div className={styles.fieldRow}>
-          <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.published" /></label>
-          <div className={styles.publishToggle}>
+        <div className={shared.fieldRow}>
+          <label className={shared.fieldLabel}><T k="admin.posts.seriesModal.published" /></label>
+          <div className={shared.publishToggle}>
             <Switch
               size="md"
               checked={form.published}
               onCheckedChange={(v) => updateField("published", v)}
             />
-            <span key={form.published ? "pub" : "draft"} className={styles.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
+            <span key={form.published ? "pub" : "draft"} className={shared.publishLabel}>{form.published ? ts("publishedLabel") : ts("draftLabel")}</span>
           </div>
         </div>
       )}
-      <div className={styles.fieldRow}>
-        <label className={styles.fieldLabel}><T k="admin.posts.seriesModal.coverImage" /></label>
+      <div className={shared.fieldRow}>
+        <label className={shared.fieldLabel}><T k="admin.posts.seriesModal.coverImage" /></label>
         {form.cover_image ? (
-          <div className={styles.logoUpload}>
-            <div className={styles.seriesCoverPreview}>
-              <Image src={form.cover_image} alt="" width={288} height={162} className={styles.logoPreviewImage} unoptimized />
+          <div className={shared.logoUpload}>
+            <div className={shared.seriesCoverPreview}>
+              <Image src={form.cover_image} alt="" width={288} height={162} className={shared.logoPreviewImage} unoptimized />
             </div>
             <Button variant="outline" size="md" tone="danger" onClick={() => updateField("cover_image", "")}>
               <T k="admin.posts.seriesModal.remove" />
@@ -550,7 +551,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
       {/* 포함된 글 — edit 시 기존 글 표시 + 추가/제거. 새 시리즈 시 미리 연결할 글 추가 가능. */}
       <div className={styles.seriesPostsSection}>
           <div className={styles.seriesPostsHeader}>
-            <label className={styles.fieldLabel} style={{ flexDirection: "row", gap: "4px", whiteSpace: "nowrap" }}><T k="admin.posts.seriesModal.posts" /> ({posts.length})</label>
+            <label className={shared.fieldLabel} style={{ flexDirection: "row", gap: "4px", whiteSpace: "nowrap" }}><T k="admin.posts.seriesModal.posts" /> ({posts.length})</label>
             <Button
               variant="ghost"
               size="xs"
@@ -822,7 +823,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
           )}
         </div>
 
-      {error && <p className={styles.sectionHint} style={{ color: "var(--color-accent)" }}>{error}</p>}
+      {error && <p className={shared.sectionHint} style={{ color: "var(--color-accent)" }}>{error}</p>}
 
       {/* standalone 모드는 상단 header 에 cancel/create 가 있어 하단 버튼 중복 방지로 숨김
          단, 외부 shell 이 헤더를 대체할 때(hideStandaloneHeader)는 하단 버튼을 다시 표시
