@@ -1,7 +1,7 @@
 "use client";
 
-import { Fragment, useState, useEffect, useCallback, useMemo } from "react";
-import { Trash2, Eye, EyeOff, Info, ExternalLink, ClipboardPaste, AlertTriangle, Database, Mail, Shield, Image as ImageIcon, Sparkles, Languages, Bell, Check, MessageSquare, type LucideIcon } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Trash2, Eye, EyeOff, Info, ExternalLink, ClipboardPaste, AlertTriangle, Lock, Database, Mail, Shield, Image as ImageIcon, Sparkles, Languages, Bell, Check, MessageSquare, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { showToast } from "@/stores/toastStore";
@@ -270,13 +270,14 @@ export default function EnvVarFields({
             body: JSON.stringify({ password, key }),
           });
           if (!res.ok) {
-            // Re-open with error
+            // 서버가 준 실제 사유를 노출 (자격증명 오류 외에 이메일 미확인·rate limit 등도 구분)
+            const data = await res.json().catch(() => null);
             openModal(
               <ModalPrompt
                 placeholder={t("admin.settings.enterPassword")}
                 inputType="password"
                 confirmText={t("admin.settings.confirm")}
-                error={t("admin.settings.wrongPassword")}
+                error={data?.error || t("admin.settings.wrongPassword")}
                 closeOnConfirm={false}
                 onConfirm={doReveal}
               />,
@@ -475,54 +476,61 @@ export default function EnvVarFields({
       >
         <label className={`${shared.fieldLabel}${rowMissing ? ` ${styles.envLabelMissing}` : ""}`}>
           <span className={styles.envFieldLabelText}>{label}</span>
-          {meta && (
-            <Tooltip
-              content={
-                <span>
-                  {meta.description}
-                  {meta.docsUrl && (
-                    <>
-                      {" · "}
-                      <a href={meta.docsUrl} target="_blank" rel="noopener noreferrer" className={styles.envMetaLink}>
-                        {t("admin.settings.envVarDocs")} <ExternalLink size={10} />
-                      </a>
-                    </>
-                  )}
+          {/* 메타(소스 배지·경고·info)를 우측 정렬 슬롯에 모아 라벨 길이와 무관하게 정렬.
+             info(ⓘ)는 맨 끝(최우측)에 둬 모든 행에서 같은 x 에 오게 한다. 배지는 그 왼쪽에서 정렬. */}
+          <span className={styles.envBadgeSlot}>
+            {sourceForBadge !== "none" && !isReadOnly && (
+              <span className={styles.envSourceBadge} data-source={sourceForBadge}>
+                {sourceForBadge === "env" && ".env"}
+                {sourceForBadge === "db" && "DB"}
+                {sourceForBadge === "edit" && t("admin.settings.envSourceEdit")}
+              </span>
+            )}
+            {isReadOnly && (
+              <Tooltip content={t("admin.settings.envVarReadOnlyHint")} placement="top">
+                <span className={styles.envMetaIcon} role="button" tabIndex={0} aria-label="Read-only">
+                  <Lock size={11} />
                 </span>
-              }
-              placement="top"
-              interactive={!!meta.docsUrl}
-            >
-              <span className={styles.envMetaIcon} role="button" tabIndex={0}>
-                <Info size={12} />
-              </span>
-            </Tooltip>
-          )}
-          {/* 소스 배지 (.env / DB / 편집중). readOnly 는 어차피 .env 확정이라 소스 배지 생략하고
-             Read-only 배지만 — 배지 2개가 좁은 라벨 칸에서 줄바꿈되는 것 방지 */}
-          {sourceForBadge !== "none" && !isReadOnly && (
-            <span className={styles.envSourceBadge} data-source={sourceForBadge}>
-              {sourceForBadge === "env" && ".env"}
-              {sourceForBadge === "db" && "DB"}
-              {sourceForBadge === "edit" && t("admin.settings.envSourceEdit")}
-            </span>
-          )}
-          {isReadOnly && (
-            <span className={styles.envSourceBadge}>Read-only</span>
-          )}
-          {prefixMismatch && (
-            <Tooltip
-              content={t("admin.settings.envVarPrefixMismatch").replace("{prefix}", meta!.prefix!)}
-              placement="top"
-            >
-              <span className={styles.envMetaWarn} role="button" tabIndex={0}>
-                <AlertTriangle size={12} />
-              </span>
-            </Tooltip>
-          )}
+              </Tooltip>
+            )}
+            {prefixMismatch && (
+              <Tooltip
+                content={t("admin.settings.envVarPrefixMismatch").replace("{prefix}", meta!.prefix!)}
+                placement="top"
+              >
+                <span className={styles.envMetaWarn} role="button" tabIndex={0}>
+                  <AlertTriangle size={12} />
+                </span>
+              </Tooltip>
+            )}
+            {meta && (
+              <Tooltip
+                content={
+                  <span>
+                    {meta.description}
+                    {meta.docsUrl && (
+                      <>
+                        {" · "}
+                        <a href={meta.docsUrl} target="_blank" rel="noopener noreferrer" className={styles.envMetaLink}>
+                          {t("admin.settings.envVarDocs")} <ExternalLink size={10} />
+                        </a>
+                      </>
+                    )}
+                  </span>
+                }
+                placement="top"
+                interactive={!!meta.docsUrl}
+              >
+                <span className={styles.envMetaIcon} role="button" tabIndex={0}>
+                  <Info size={12} />
+                </span>
+              </Tooltip>
+            )}
+          </span>
         </label>
-        <div className={styles.envFieldRight}>
-        <div className={shared.envInputRow}>
+
+        {/* 입력 셀 — grid 2번째 열. min-width 로 최소 너비 보장, 시작·너비 항상 일정 */}
+        <div className={styles.envInputCell}>
           <Input
             value={isReadOnly ? "" : displayValue}
             placeholder={placeholder}
@@ -539,6 +547,13 @@ export default function EnvVarFields({
             readOnly={isReadOnly}
             disabled={isReadOnly}
           />
+          {source === "env" && !isEditing && (
+            <span className={styles.envHintMobile}>{t("admin.settings.envVarEnvHint")}</span>
+          )}
+        </div>
+
+        {/* 액션 셀 — grid 3번째 열. 버튼 유무와 무관하게 항상 예약(고정폭)돼 입력 너비·버튼 시작 위치가 일정 */}
+        <div className={styles.envActionCol}>
           {/* 개별 row 저장 — 편집 중일 때만 노출 */}
           {isEditing && (
             <Tooltip content={t("admin.settings.envSaveOne")} placement="top">
@@ -553,16 +568,11 @@ export default function EnvVarFields({
               </button>
             </Tooltip>
           )}
-          {/* 삭제 버튼 — UI 일관성 위해 항상 렌더. 비활성 조건: editing / readOnly / env source / none */}
-          {(() => {
-            const deleteDisabled = isEditing || isReadOnly || source === "env" || source === "none";
-            const tooltipContent = isReadOnly
-              ? t("admin.settings.envVarReadOnlyHint")
-              : source === "env"
-                ? t("admin.settings.envVarEnvHint")
-                : source === "none"
-                  ? undefined
-                  : undefined;
+          {/* 삭제 버튼 — read-only 키는 삭제 불가라 미렌더. 나머지는 항상 렌더하되
+             비활성 조건: editing / env source / none */}
+          {!isReadOnly && (() => {
+            const deleteDisabled = isEditing || source === "env" || source === "none";
+            const tooltipContent = source === "env" ? t("admin.settings.envVarEnvHint") : undefined;
             return (
               <Tooltip content={tooltipContent} disabled={!tooltipContent} placement="top">
                 <button
@@ -578,24 +588,18 @@ export default function EnvVarFields({
               </Tooltip>
             );
           })()}
-          {/* reveal (눈) 버튼 — UI 일관성 위해 항상 렌더. source none 또는 editing 시 비활성 */}
-          <button
-            type="button"
-            className={styles.envRevealBtn}
-            onClick={() => handleReveal(key)}
-            disabled={source === "none" || isEditing}
-            title={isRevealed ? "Hide" : "Reveal"}
-          >
-            {isRevealed ? (
-              <EyeOff size={16} />
-            ) : (
-              <Eye size={16} />
-            )}
-          </button>
-        </div>
-        {source === "env" && !isEditing && (
-          <span className={styles.envHintMobile}>{t("admin.settings.envVarEnvHint")}</span>
-        )}
+          {/* reveal (눈) 버튼 — read-only 키는 값 확인 불가라 미렌더. 편집 중엔 어차피 비활성이라 숨김 */}
+          {!isReadOnly && !isEditing && (
+            <button
+              type="button"
+              className={styles.envRevealBtn}
+              onClick={() => handleReveal(key)}
+              disabled={source === "none"}
+              title={isRevealed ? "Hide" : "Reveal"}
+            >
+              {isRevealed ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          )}
         </div>
       </div>
     );
@@ -672,26 +676,43 @@ export default function EnvVarFields({
         <div className={styles.envProgressFill} style={{ width: `${stats.total ? (stats.set / stats.total) * 100 : 0}%` }} />
       </div>
 
-      {visibleGroups.map((group, i) => {
-        const grpSet = group.rows.filter((r) => rowStatusOf(r.key) !== "none").length;
-        const grpTotal = group.rows.length;
-        const GroupIcon = group.icon;
+      {/* 그룹을 2열로 균형 분배(행 수 가중치 greedy) — full-width 섹션 폭을 채운다.
+         각 열은 container 라, 열이 좁아지면 필드 행이 컨테이너 쿼리로 스스로 접힌다(라벨 위로).
+         태블릿/모바일은 CSS 로 1열. */}
+      {(() => {
+        const cols: (typeof visibleGroups)[] = [[], []];
+        const colWeight = [0, 0];
+        for (const g of visibleGroups) {
+          const i = colWeight[0] <= colWeight[1] ? 0 : 1;
+          cols[i].push(g);
+          colWeight[i] += g.rows.length + 1;
+        }
         return (
-          <Fragment key={group.label}>
-            {i > 0 && <hr className={styles.envGroupDivider} />}
-            <div className={styles.envGroup}>
-              <h3 className={styles.envGroupLabel}>
-                <GroupIcon size={14} strokeWidth={2} />
-                <span>{group.label}</span>
-                <span className={styles.envGroupCount} data-ok={grpSet === grpTotal || undefined}>
-                  {grpSet}/{grpTotal}
-                </span>
-              </h3>
-              {group.rows.map(({ key, label }) => renderField(key, label))}
-            </div>
-          </Fragment>
+          <div className={styles.envGroupCols}>
+            {cols.map((colGroups, ci) => (
+              <div className={styles.envGroupCol} key={ci}>
+                {colGroups.map((group) => {
+                  const grpSet = group.rows.filter((r) => rowStatusOf(r.key) !== "none").length;
+                  const grpTotal = group.rows.length;
+                  const GroupIcon = group.icon;
+                  return (
+                    <div className={styles.envGroup} key={group.label}>
+                      <h3 className={styles.envGroupLabel}>
+                        <GroupIcon size={14} strokeWidth={2} />
+                        <span>{group.label}</span>
+                        <span className={styles.envGroupCount} data-ok={grpSet === grpTotal || undefined}>
+                          {grpSet}/{grpTotal}
+                        </span>
+                      </h3>
+                      {group.rows.map(({ key, label }) => renderField(key, label))}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         );
-      })}
+      })()}
       {msg && <div className={styles.envActions}><span className={styles.envMsg}>{msg}</span></div>}
     </div>
   );
