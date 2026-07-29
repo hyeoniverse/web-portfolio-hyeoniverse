@@ -21,7 +21,8 @@ import { AnimatePresence } from "framer-motion";
 import SeriesInlineEditor, { type SeriesInlineEditorHandle } from "./SeriesInlineEditor";
 import { Switch } from "@/components/ui/Switch";
 import SeriesDeleteModal from "./SeriesDeleteModal";
-import styles from "../Settings.module.css";
+import styles from "./SeriesManager.module.css";
+import shared from "../Settings.module.css";
 
 /* ── SeriesManager ── */
 
@@ -191,13 +192,13 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
   return (
     <div className={styles.seriesList}>
       {title && (
-        <div className={styles.sectionTitleRow}>
-          <h2 className={styles.sectionTitle}>{title}</h2>
+        <div className={shared.sectionTitleRow}>
+          <h2 className={shared.sectionTitle}>{title}</h2>
         </div>
       )}
       {/* Toolbar 묶음 — filterRow + drawer (태그/카테고리와 동일 패턴) */}
-      <div className={styles.tagDescToolbarWrap}>
-        <div className={styles.tagDescFilterRow}>
+      <div className={shared.tagDescToolbarWrap}>
+        <div className={shared.tagDescFilterRow}>
           <Button
             variant={filterExpanded || activeFilterCount > 0 ? "primary" : "outline"}
             size="sm"
@@ -221,7 +222,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
             sortDir={sortDir}
             size="sm"
           />
-          <div className={styles.tagDescSearchEnd}>
+          <div className={shared.tagDescSearchEnd}>
             <SearchCapsule
               typeSelector={{
                 value: searchType,
@@ -244,16 +245,16 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
           {filterExpanded && (
             <motion.div
               key="series-filter-drawer"
-              className={styles.tagDescFilterDrawerWrap}
+              className={shared.tagDescFilterDrawerWrap}
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               style={{ overflow: "hidden" }}
             >
-              <div className={styles.tagDescFilterDrawer}>
-                <div className={styles.tagDescFilterGroup}>
-                  <span className={styles.tagDescFilterGroupLabel}>발행</span>
+              <div className={shared.tagDescFilterDrawer}>
+                <div className={shared.tagDescFilterGroup}>
+                  <span className={shared.tagDescFilterGroupLabel}>발행</span>
                   <Button
                     variant={publishFilter === "published" ? "primary" : "outline"}
                     size="md"
@@ -265,8 +266,8 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                     onClick={() => setPublishFilter((p) => p === "draft" ? "all" : "draft")}
                   >미발행</Button>
                 </div>
-                <div className={styles.tagDescFilterGroup}>
-                  <span className={styles.tagDescFilterGroupLabel}>설명</span>
+                <div className={shared.tagDescFilterGroup}>
+                  <span className={shared.tagDescFilterGroupLabel}>설명</span>
                   <Button
                     variant={descFilter === "with" ? "primary" : "outline"}
                     size="md"
@@ -293,7 +294,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
           ))}
         </>
       ) : seriesList.length === 0 ? (
-        <p className={styles.sectionHint} style={{ padding: "var(--spacing-md)", textAlign: "center" }}>
+        <p className={shared.sectionHint} style={{ padding: "var(--spacing-md)", textAlign: "center" }}>
           {debouncedSearch
             ? t("admin.posts.searchNoResult")
             : t("admin.posts.seriesEmpty")}
@@ -367,7 +368,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                   <div className={styles.seriesCardNameRow}>
                     <p className={styles.seriesCardName}>
                       <span
-                        className={styles.seriesCardOrderPrefix}
+                        className={shared.seriesCardOrderPrefix}
                         onClick={(e) => e.stopPropagation()}
                         onMouseDown={(e) => e.stopPropagation()}
                       >
@@ -491,12 +492,12 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
 
       <div
         ref={newFormRef}
-        className={`${styles.newSeriesShell} ${creatingNew ? styles.newSeriesShellOpen : ""}`}
+        className={`${shared.newSeriesShell} ${creatingNew ? shared.newSeriesShellOpen : ""}`}
       >
-        <div className={styles.newSeriesShellHead}>
+        <div className={shared.newSeriesShellHead}>
           <button
             type="button"
-            className={styles.newSeriesShellTitle}
+            className={shared.newSeriesShellTitle}
             onClick={!creatingNew ? () => {
               setCreatingNew(true);
               setExpandedId(null);
@@ -506,10 +507,10 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
             } : undefined}
             disabled={creatingNew}
           >
-            <span className={styles.newSeriesShellPlus} aria-hidden="true"><Plus size={14} strokeWidth={2.2} /></span>
+            <span className={shared.newSeriesShellPlus} aria-hidden="true"><Plus size={14} strokeWidth={2.2} /></span>
             <T k="admin.posts.seriesModal.newTitle" />
           </button>
-          <div className={styles.newSeriesShellActions}>
+          <div className={shared.newSeriesShellActions}>
             <Button variant="outline" size="sm" onClick={() => setCreatingNew(false)} soundDisabled>
               <T k="admin.posts.seriesModal.cancel" />
             </Button>
@@ -524,8 +525,8 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
               <T k="admin.posts.seriesModal.create" />
             </Button>
             <span className={styles.newSeriesShellDivider} aria-hidden="true" />
-            <div className={styles.publishToggle}>
-              <span key={newEditorPublished ? "pub" : "draft"} className={styles.publishLabel}>
+            <div className={shared.publishToggle}>
+              <span key={newEditorPublished ? "pub" : "draft"} className={shared.publishLabel}>
                 {newEditorPublished ? t("admin.posts.seriesModal.publishedLabel") : t("admin.posts.seriesModal.draftLabel")}
               </span>
               <Switch
