@@ -1,0 +1,249 @@
+/*  ServicesTab 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
+   공유·경계 클래스(section·fields·priorityBtn·sizeChip 등)는 Settings 에 남아 shared 로 import  */
+.switchHelpRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.priorityList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.priorityList :is(input, .priorityItem) {
+  width: 100%;
+}
+
+.priorityRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.priorityItem {
+  width: 280px;
+  max-width: 100%;
+  min-width: 0;
+  height: var(--control-h-md);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+}
+
+.priorityItemOver {
+  border-color: var(--text-accent);
+  background: var(--bg-accent-subtle);
+}
+
+.priorityBadge {
+  width: var(--control-h-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  border-right: var(--border-light);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.priorityLabel {
+  flex: 1;
+  padding: var(--box-xs-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.priorityLabelDisabled {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.priorityGrip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--control-h-md);
+  padding: 0;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.priorityGrip:active {
+  cursor: grabbing;
+}
+
+.priorityBtns {
+  display: flex;
+  flex-shrink: 0;
+  align-self: stretch;
+  border-left: var(--border-light);
+}
+.envKeyLink {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: inherit;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color var(--duration-base) ease;
+}
+
+.envKeyLink:hover {
+  color: var(--text-accent);
+}
+.sizeBucketStack {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-lg) var(--spacing-md);
+}
+
+.sizeBucket,
+.sizePoolBucket {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  background: transparent;
+  /* drop hover 영역 안정성 위한 padding */
+  padding: var(--spacing-2xs) 0;
+  transition: background var(--duration-base) ease;
+}
+.sizeBucketStack > .sizePoolBucket {
+  grid-column: 1 / -1;
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-light);
+}
+.sizeBucketHover {
+  background: color-mix(in oklch, var(--text-accent) 8%, transparent);
+}
+
+.sizeBucketHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+}
+
+.sizeBucketLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.sizeBucketCount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sizeBucketBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  min-height: 24px;
+}
+
+.sizeBucketEmpty {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  opacity: 0.5;
+}
+.sizeBucketCategory {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  color: var(--text-tertiary);
+}
+
+.sizeBucketCategory > svg {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.sizeBucketChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  flex: 1 1 auto;
+}
+.sizeChipShake {
+  animation: sizeChipShakeKf 0.42s var(--ease-out-expo);
+  border-color: var(--text-accent) !important;
+  color: var(--text-accent) !important;
+}
+.customMimeAdder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-light);
+}
+
+.customMimeLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.customMimeRow {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+.customMimeInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--duration-base) ease;
+}
+
+.customMimeInput:focus {
+  border-color: var(--text-primary);
+}
+
+.customMimeInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.customMimeError {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-accent);
+  margin: 0;
+}

@@ -17,7 +17,8 @@ import SectionHeader from "./SectionHeader";
 import GiscusHelp from "./GiscusHelp";
 import FieldRow from "@/components/ui/FieldRow";
 import { showToast } from "@/stores/toastStore";
-import styles from "../Settings.module.css";
+import styles from "./ServicesTab.module.css";
+import shared from "../Settings.module.css";
 
 type AICoverProvider = "nanobanana" | "huggingface";
 type AISummaryProvider = "gemini" | "openai" | "claude";
@@ -160,14 +161,14 @@ function PriorityList<T extends string>({ primary, priority, excluded, options, 
               <div className={styles.priorityBtns}>
                 <button
                   type="button"
-                  className={styles.priorityBtn}
+                  className={shared.priorityBtn}
                   disabled={idx === 0}
                   onClick={() => move(idx, -1)}
                   aria-label="Move up"
                 ><ChevronUp size={12} strokeWidth={2.5} /></button>
                 <button
                   type="button"
-                  className={styles.priorityBtn}
+                  className={shared.priorityBtn}
                   disabled={idx === ordered.length - 1}
                   onClick={() => move(idx, 1)}
                   aria-label="Move down"
@@ -463,7 +464,7 @@ function MediaLimitsEditor({ config, setConfig, t }: {
             {inCat.map((f) => (
               <span
                 key={f.key}
-                className={`${styles.sizeChip} ${shakeKey === f.key ? styles.sizeChipShake : ""}`}
+                className={`${shared.sizeChip} ${shakeKey === f.key ? styles.sizeChipShake : ""}`}
                 role="button"
                 tabIndex={0}
                 draggable
@@ -589,7 +590,7 @@ function CustomMimeAdder({
           placeholder={t("admin.settings.customMimePlaceholder")}
         />
         <Select size="sm" value={size} options={SIZE_OPTIONS} onChange={setSize} />
-        <button type="button" className={styles.customMimeAddBtn} onClick={handleAdd}>
+        <button type="button" className={shared.customMimeAddBtn} onClick={handleAdd}>
           <Plus size={12} strokeWidth={2.4} />
           {t("admin.settings.add")}
         </button>
@@ -626,13 +627,13 @@ function AutoCoverMigrator({ t }: { t: (k: string) => string }) {
   };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)", marginTop: "var(--spacing-md)" }}>
-      <p className={styles.fieldHint}>{t("admin.settings.autoCoverHint")}</p>
+      <p className={shared.fieldHint}>{t("admin.settings.autoCoverHint")}</p>
       <div style={{ display: "flex", gap: "var(--spacing-xs)", alignItems: "center", flexWrap: "wrap" }}>
         <Button variant="outline" size="sm" onClick={handleRun} loading={running} loadingVariant="wave">
           {t("admin.settings.autoCoverRun")}
         </Button>
         {lastResult && (
-          <span className={styles.fieldHint} style={{ margin: 0 }}>
+          <span className={shared.fieldHint} style={{ margin: 0 }}>
             {t("admin.settings.autoCoverResult")
               .replace("{processed}", String(lastResult.processed))
               .replace("{succeeded}", String(lastResult.succeeded))
@@ -699,7 +700,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
   const { t, language } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en); // giscus 필드 툴팁 inline 다국어
 
-  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, titleClassName: styles.sectionTitle };
+  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, titleClassName: shared.sectionTitle };
 
   const giscus = config.comments?.giscus ?? { repo: "", repoId: "", category: "", categoryId: "", mapping: "pathname", reactionsEnabled: true, inputPosition: "bottom", strict: false, emitMetadata: false, lazyLoading: true, themeLight: "", themeDark: "" };
   /* comments.giscus 는 2단계 중첩이라 update("comments","giscus", 전체객체) 로 갱신 */
@@ -763,10 +764,10 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
   return (
     <>
       {/* Email Service */}
-      <section className={styles.section}>
+      <section className={shared.section}>
         <SectionHeader title={t("admin.settings.emailSettings")} paths={["emailService"]} {...sh} />
-        <div className={`${styles.fields} ${styles.fieldPair}`}>
-          <p className={styles.fieldHint}>{t("admin.settings.emailFileUploadHint")}</p>
+        <div className={`${shared.fields} ${shared.fieldPair}`}>
+          <p className={shared.fieldHint}>{t("admin.settings.emailFileUploadHint")}</p>
           <FieldRow label={<T k="admin.settings.emailServiceProvider" />}>
             <Select
               value={config.emailService.provider}
@@ -789,11 +790,11 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       </section>
 
       {/* Comment Notifications */}
-      <section className={styles.section}>
+      <section className={shared.section}>
         <SectionHeader
           title={t("admin.settings.commentNotifications")}
           paths={["commentEmailNotify"]}
-          rowClassName={styles.sectionTitleRow}
+          rowClassName={shared.sectionTitleRow}
           extra={
             <Switch
               size="sm"
@@ -804,8 +805,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           }
           {...sh}
         />
-        <div className={styles.fields}>
-          <p className={styles.fieldHint}>
+        <div className={shared.fields}>
+          <p className={shared.fieldHint}>
             {(() => {
               const parts = t("admin.settings.commentEmailNotifyDesc").split("RESEND_API_KEY");
               return (
@@ -818,12 +819,12 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                       const el = document.getElementById("env-RESEND_API_KEY");
                       if (!el) return;
                       el.scrollIntoView({ behavior: "smooth", block: "center" });
-                      el.classList.add(styles.envFieldHighlight);
+                      el.classList.add(shared.envFieldHighlight);
                       /* 다음 인터랙션(클릭/키 입력) 시 highlight 제거.
                          이 버튼 자체의 click bubble 이 끝난 다음 tick 에 listener 등록. */
                       window.setTimeout(() => {
                         const clear = () => {
-                          el.classList.remove(styles.envFieldHighlight);
+                          el.classList.remove(shared.envFieldHighlight);
                           document.removeEventListener("click", clear, true);
                           document.removeEventListener("keydown", clear, true);
                         };
@@ -843,9 +844,9 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       </section>
 
       {/* Comment System — 내장 커스텀 vs giscus */}
-      <section className={styles.section}>
+      <section className={shared.section}>
         <SectionHeader title={t("admin.settings.commentSystem")} paths={["comments"]} {...sh} />
-        <div className={styles.fields}>
+        <div className={shared.fields}>
           <FieldRow label={<T k="admin.settings.commentProvider" />}>
             <SegmentedControl<"system" | "giscus">
               items={[
@@ -873,7 +874,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           {config.comments?.provider === "giscus" && (
             <>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--spacing-sm)" }}>
-                <p className={styles.fieldHint} style={{ margin: 0 }}>{t("admin.settings.giscusHint")}</p>
+                <p className={shared.fieldHint} style={{ margin: 0 }}>{t("admin.settings.giscusHint")}</p>
                 <GiscusHelp />
               </div>
               <Field
@@ -888,8 +889,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 )}
               />
               {/* 저장소 불러오기 — repoId + 카테고리 목록 자동 획득 */}
-              <div className={styles.fieldRow}>
-                <label className={styles.fieldLabel} />
+              <div className={shared.fieldRow}>
+                <label className={shared.fieldLabel} />
                 <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)", flexWrap: "wrap" }}>
                   <Button variant="outline" size="sm" onClick={loadGiscusRepo} disabled={giscusLoading || !giscus.repo.trim()}>
                     {giscusLoading ? t("admin.settings.giscusLoading") : t("admin.settings.giscusLoadRepo")}
@@ -929,7 +930,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                 />
               )}
               {/* repoId / categoryId — 불러오기로 자동 채워짐 (수동 입력 fallback 도 가능) */}
-              <div className={styles.fieldPair}>
+              <div className={shared.fieldPair}>
                 <Field
                   label={t("admin.settings.giscusRepoId")}
                   value={giscus.repoId}
@@ -1055,11 +1056,11 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       </section>
 
       {/* Security */}
-      <section className={styles.section}>
+      <section className={shared.section}>
         <SectionHeader
           title={t("admin.settings.securitySettings")}
           paths={["recaptcha"]}
-          rowClassName={styles.sectionTitleRow}
+          rowClassName={shared.sectionTitleRow}
           extra={
             <Switch
               size="sm"
@@ -1070,7 +1071,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           }
           {...sh}
         />
-        <div className={styles.fields}>
+        <div className={shared.fields}>
           <FieldRow label={<T k="admin.settings.recaptchaVersion" />}>
             <Select
               value={config.recaptcha.version}
@@ -1085,9 +1086,9 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       </section>
 
       {/* Media Upload — 좌측에 3행 span, 우측에 AI 3개 (커버/요약/번역) 배치 */}
-      <section className={styles.section} style={{ gridColumnStart: 1, gridRow: "span 3", borderBottom: "none" }}>
+      <section className={shared.section} style={{ gridColumnStart: 1, gridRow: "span 3", borderBottom: "none" }}>
         <SectionHeader title={t("admin.settings.mediaUpload")} paths={["media"]} {...sh} />
-        <ul className={styles.sectionHintList}>
+        <ul className={shared.sectionHintList}>
           <li>{t("admin.settings.mediaUploadHint")}</li>
           <li>{t("admin.settings.mediaUploadDescDnD")}</li>
         </ul>
@@ -1095,11 +1096,11 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       </section>
 
       {/* AI Cover */}
-      <section className={styles.section} style={{ borderBottom: "none" }}>
+      <section className={shared.section} style={{ borderBottom: "none" }}>
         <SectionHeader
           title={t("admin.settings.aiSettings")}
           paths={["aiCover"]}
-          rowClassName={styles.sectionTitleRow}
+          rowClassName={shared.sectionTitleRow}
           extra={
             <Switch
               size="sm"
@@ -1110,7 +1111,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           }
           {...sh}
         />
-        <div className={`${styles.fields} ${styles.fieldPair}`}>
+        <div className={`${shared.fields} ${shared.fieldPair}`}>
           <FieldRow label={<T k="admin.settings.aiCoverProvider" />}>
             <Select
               value={config.aiCover.provider}
@@ -1162,7 +1163,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             }}
           />
           {(config.aiCover?.fallback?.enabled) && (
-            <div className={styles.fallbackSection}>
+            <div className={shared.fallbackSection}>
               <PriorityList<AICoverProvider>
                 primary={(config.aiCover?.provider ?? "nanobanana") as AICoverProvider}
                 priority={(config.aiCover?.fallback?.priority ?? []) as AICoverProvider[]}
@@ -1196,11 +1197,11 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       </section>
 
       {/* AI Summary */}
-      <section className={styles.section}>
+      <section className={shared.section}>
         <SectionHeader
           title={t("admin.settings.aiSummarySettings")}
           paths={["aiSummary"]}
-          rowClassName={styles.sectionTitleRow}
+          rowClassName={shared.sectionTitleRow}
           extra={
             <Switch
               size="sm"
@@ -1211,7 +1212,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           }
           {...sh}
         />
-        <div className={`${styles.fields} ${styles.fieldPair}`}>
+        <div className={`${shared.fields} ${shared.fieldPair}`}>
           <FieldRow label={<T k="admin.settings.aiSummaryProvider" />}>
             <Select
               value={config.aiSummary?.provider ?? "gemini"}
@@ -1262,7 +1263,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             }}
           />
           {(config.aiSummary?.fallback?.enabled) && (
-            <div className={styles.fallbackSection}>
+            <div className={shared.fallbackSection}>
               <PriorityList<AISummaryProvider>
                 primary={(config.aiSummary?.provider ?? "gemini") as AISummaryProvider}
                 priority={(config.aiSummary?.fallback?.priority ?? []) as AISummaryProvider[]}
@@ -1293,11 +1294,11 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       </section>
 
       {/* Translation */}
-      <section className={styles.section} style={{ borderBottom: "none" }}>
+      <section className={shared.section} style={{ borderBottom: "none" }}>
         <SectionHeader
           title={t("admin.settings.translationSettings")}
           paths={["translation"]}
-          rowClassName={styles.sectionTitleRow}
+          rowClassName={shared.sectionTitleRow}
           extra={
             <Switch
               size="sm"
@@ -1308,7 +1309,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
           }
           {...sh}
         />
-        <div className={`${styles.fields} ${styles.fieldPair}`}>
+        <div className={`${shared.fields} ${shared.fieldPair}`}>
           <FieldRow label={<T k="admin.settings.translationProvider" />}>
             <Select
               value={config.translation?.provider ?? "deepl"}
@@ -1359,7 +1360,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             }}
           />
           {(config.translation?.fallback?.enabled) && (
-            <div className={styles.fallbackSection}>
+            <div className={shared.fallbackSection}>
               <PriorityList<TranslationProvider>
                 primary={(config.translation?.provider ?? "deepl") as TranslationProvider}
                 priority={(config.translation?.fallback?.priority ?? []) as TranslationProvider[]}
@@ -1390,7 +1391,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       </section>
 
       {/* Environment Variables — 자체 PATCH API 로 별도 저장. SectionHeader 는 EnvVarFields 내부에서 customActions 로 렌더 → 액션 버튼이 title 라인에 위치. */}
-      <section className={`${styles.section} ${styles.sectionWide}`}>
+      <section className={`${shared.section} ${shared.sectionWide}`}>
         <EnvVarFields
           provider={config.emailService.provider}
           aiProvider={config.aiCover.provider}
@@ -1408,7 +1409,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
             savedConfig: sh.savedConfig,
             saveSection: sh.saveSection,
             savingPaths: sh.savingPaths,
-            titleClassName: styles.sectionTitle,
+            titleClassName: shared.sectionTitle,
           }}
         />
       </section>
