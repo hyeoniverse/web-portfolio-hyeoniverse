@@ -13,7 +13,8 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import { uploadFile } from "@/lib/adminUpload";
-import styles from "../Settings.module.css";
+import styles from "./SocialLinksEditor.module.css";
+import shared from "../Settings.module.css";
 
 const DEFAULT_MAX = 6;
 
@@ -129,7 +130,7 @@ export default function SocialLinksEditor({ links, onChange, max = DEFAULT_MAX }
             icon={<Plus size={14} strokeWidth={2} />}
             onClick={addLink}
             disabled={links.length >= max}
-            className={styles.profileAddBtn}
+            className={shared.profileAddBtn}
           >
             <T k="admin.settings.addSocial" /> ({links.length}/{max})
           </Button>

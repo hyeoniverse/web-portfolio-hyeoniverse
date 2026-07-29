@@ -191,185 +191,10 @@
 }
 
 /* ── Conflict diff modal ── */
-.conflictDiffModal {
-  position: relative;
-  padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-lg);
-}
-
-.conflictDiffBtns {
-  display: flex;
-  gap: var(--spacing-xs);
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.conflictCloseBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  padding: 0;
-  border: var(--border-strong);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-primary);
-}
-
-.conflictCloseIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.conflictCloseLine {
-  position: absolute;
-  width: 14px;
-  height: 1.5px;
-  background: currentColor;
-  border-radius: var(--radius-2xs);
-}
 
 /* compound (0,2,0) to beat global theme transition */
-.conflictCloseBtn .conflictCloseLine {
-  transition: transform var(--duration-base) var(--ease-material);
-}
-
-.conflictCloseBtn:hover {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-  border-color: var(--bg-inverse);
-}
-
-.conflictCloseBtn:hover .conflictCloseLine:first-child {
-  transform: rotate(45deg);
-}
-
-.conflictCloseBtn:hover .conflictCloseLine:last-child {
-  transform: rotate(-45deg);
-}
-
-.conflictDiffHeader {
-  position: sticky;
-  top: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin: 0 calc(-1 * var(--spacing-lg));
-  padding: var(--box-lg);
-  background: var(--bg-white);
-  z-index: 3;
-}
-
-.conflictDiffTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.conflictDiffPre {
-  margin: 0;
-  padding: var(--spacing-md);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  line-height: 1.7;
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-md);
-  white-space: pre;
-  overflow-x: auto;
-}
-
-.diffLineNum {
-  display: inline-block;
-  width: var(--button-h-sm);
-  text-align: right;
-  padding-right: var(--spacing-sm);
-  color: var(--text-muted);
-  user-select: none;
-  flex-shrink: 0;
-}
-
-.diffLineRemoved {
-  background: var(--bg-error);
-  color: var(--text-error);
-  margin: 0 calc(-1 * var(--spacing-md));
-  padding: 0 var(--spacing-md);
-}
-
-.diffLineAdded {
-  background: var(--bg-success);
-  color: var(--text-success);
-  margin: 0 calc(-1 * var(--spacing-md));
-  padding: 0 var(--spacing-md);
-}
-
-.diffLineContext {
-  display: block;
-  color: var(--text-tertiary);
-}
-
-.diffLineResolved {
-  display: block;
-  color: var(--text-secondary);
-  margin: 0 calc(-1 * var(--spacing-md));
-  padding: 0 var(--spacing-md);
-  background: var(--bg-success);
-}
 
 /* ── Diff hunk with hover float button ── */
-.diffHunk {
-  position: relative;
-  margin: var(--spacing-2xs) calc(-1 * var(--spacing-md));
-  padding: 0 var(--spacing-md) 0 calc(var(--spacing-md) + 20px);
-}
-
-.diffHunkOverlay {
-  position: absolute;
-  left: var(--spacing-xs);
-  top: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  opacity: 0;
-}
-
-.diffHunk:hover .diffHunkOverlay {
-  opacity: 1;
-}
-
-.diffHunkFloatBtn {
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-circle);
-  font-size: var(--font-size-xs);
-  line-height: 1;
-}
-
-.diffHunkFloatAccept,
-.diffHunkFloatRevert {
-  background: var(--bg-tertiary-alt);
-  color: var(--text-secondary);
-}
-
-.diffHunk .diffHunkFloatAccept:hover,
-.diffHunk .diffHunkFloatRevert:hover {
-  background: var(--bg-secondary-alt);
-  color: var(--text-primary);
-}
 
 /* ──────────────────────────────────────────────────────────────────────────
    패널 z-index 사다리 — 전부 글로벌 nav(--z-nav) "아래". 하드코딩 정수 대신
@@ -538,77 +363,8 @@
   flex-direction: column;
   gap: var(--spacing-md);
 }
-.authorCardHead {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
 /* 아바타 = 이미지 업로드 trigger (클릭 시 파일 선택). 우상단 + 배지로 버튼임을 표시 */
-.authorAvatarUpload {
-  position: relative;
-  width: 64px;
-  height: 64px;
-  flex-shrink: 0;
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  background: var(--bg-tertiary);
-  cursor: pointer;
-  overflow: visible;
-  transition: border-color 0.2s;
-}
-.authorAvatarUpload:hover {
-  border-color: var(--text-tertiary);
-}
-.authorAvatarImg,
-.authorAvatarInitial {
-  width: 100%;
-  height: 100%;
-  border-radius: var(--radius-circle);
-  object-fit: cover;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.authorAvatarInitial {
-  font-family: var(--font-space-grotesk);
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-lg);
-  color: var(--text-tertiary);
-}
-.authorAvatarPlus {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: var(--radius-circle);
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
-  border: 2px solid var(--bg-primary);
-}
-.authorCardName {
-  flex: 1;
-  min-width: 0;
-  font-family: var(--font-space-grotesk);
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-}
 /* 삭제 버튼 — 카드 상단(start)에 붙임 (아바타가 커서 center 면 중앙에 뜸) */
-.authorCardFields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-sm);
-}
-.authorLinksEditor {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
 
 .sectionWide {
   grid-column: 1 / -1;
@@ -2091,109 +1847,8 @@
 /* 헤더의 seriesBadgePublished/Draft 와 동일 색 — 시각적 일관성 */
 
 /* ── Social Links Editor ── */
-.socialEditor {
-  display: flex;
-  flex-direction: column;
-}
-
-.socialItem {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) 0;
-  transition: background-color 0.2s ease;
-}
-
-.socialItem + .socialItem {
-  border-top: var(--border-light);
-}
-
-.socialItemDragging {
-  background: var(--bg-secondary);
-  /* 드래그 중 항목 — 섹션 제목 위로 들려 보이되 탭바/nav 아래 (패널 z 사다리 참조) */
-  z-index: calc(var(--z-nav) - 2);
-}
-
-.socialDragHandle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 16px;
-  height: 32px;
-  color: var(--text-muted);
-  touch-action: none;
-}
-
-.socialDragHandle:active {
-}
-
-.socialDragHandle svg {
-  width: 14px;
-  height: 14px;
-}
-
-.socialIcon {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  color: var(--text-tertiary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.socialIcon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.socialItemFields {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.socialIconClickable {
-  position: relative;
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  transition: border-color 0.2s ease;
-}
-
-.socialIconClickable:hover {
-  border-color: var(--text-primary);
-}
 
 /* 업로드 trigger 임을 알리는 우상단 + 배지 */
-.socialIconPlus {
-  position: absolute;
-  top: -3px;
-  right: -3px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 15px;
-  height: 15px;
-  border-radius: var(--radius-circle);
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
-  border: 1.5px solid var(--bg-primary);
-}
-
-.socialIconImg {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  border-radius: var(--radius-circle);
-}
-
-.socialIconSpinner {
-  font-size: var(--font-size-2xs);
-  color: var(--text-muted);
-}
 
 /* 아이콘 URL input + 업로드 버튼 캡슐 그룹 */
 
@@ -2201,47 +1856,7 @@
 
 /* 업로드 버튼 — 32×32 정사각형, 아이콘 가운데 */
 
-.socialRemoveBtn {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-  transition: background-color 0.2s ease;
-}
-
-.socialRemoveBtn:hover {
-  background: var(--bg-tertiary-alt);
-  color: var(--text-primary);
-}
-
 /* — → × rotate animation */
-.socialRemoveBtn {
-  position: relative;
-}
-
-.socialRemoveLine {
-  position: absolute;
-  width: 12px;
-  height: 1.5px;
-  background: currentColor;
-  border-radius: var(--spacing-4xs);
-  transition: transform 0.25s ease;
-  transform: rotate(0deg);
-}
-
-.socialRemoveBtn:hover .socialRemoveLine:first-child {
-  transform: rotate(45deg);
-}
-
-.socialRemoveBtn:hover .socialRemoveLine:last-child {
-  transform: rotate(-45deg);
-}
 
 /* ── Skills Editor (table / line layout) ──
    섹션 내부 간격 일관성: sortableList gap + profileAddBtn margin-top
@@ -3798,12 +3413,6 @@ a.tagRelatedItem:hover {
   gap: var(--spacing-2xs);
   margin-top: var(--spacing-sm);
 }
-.authorInviteRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-}
 /* 상태 메시지 — 행 아래. 성공/실패 모두 accent 로 강조 */
 .authorInviteOk,
 .authorInviteErr {
@@ -3815,12 +3424,6 @@ a.tagRelatedItem:hover {
   color: var(--text-secondary);
 }
 /* 가입된 멤버의 로그인 상태 줄 (역할·provider·최근 로그인) */
-.authorMemberStatus {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
 /* 작성자와 연결 안 된 로그인 계정 그룹 */
 .authorUnlinked {
   margin-top: var(--spacing-lg);
@@ -3828,12 +3431,6 @@ a.tagRelatedItem:hover {
   border-top: var(--border-light);
 }
 /* 멤버 편집 모달 내부 레이아웃 — 좌우/하단 패딩(모달 header 좌측 정렬), 버튼은 모달 footer 슬롯 사용 */
-.memberModal {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: 0 var(--spacing-lg) var(--spacing-lg);
-}
 /* GitHub 정보 불러오기 버튼 + 안내 */
 .memberGithubLoad {
   display: flex;
@@ -3846,108 +3443,4 @@ a.tagRelatedItem:hover {
 }
 
 /* ── 멤버 상세 모달 (읽기 전용) ── */
-.memberDetail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: 0 var(--spacing-lg) var(--spacing-lg);
-}
-.memberDetailHead {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-.memberDetailAvatar {
-  flex-shrink: 0;
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-circle);
-  overflow: hidden;
-  border: var(--border-light);
-  background: var(--bg-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-secondary);
-}
-.memberDetailAvatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.memberDetailHeadInfo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  min-width: 0;
-}
-.memberDetailNameRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-}
-.memberDetailName {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-}
-.memberDetailRole {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
-.memberDetailMeta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-.memberDetailMetaRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
-.memberDetailMetaLabel {
-  color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
-}
-.memberDetailMetaLink {
-  color: var(--text-secondary);
-  text-decoration: none;
-}
-.memberDetailMetaLink:hover {
-  text-decoration: underline;
-}
-.memberDetailBio {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  line-height: 1.6;
-  color: var(--text-secondary);
-  white-space: pre-wrap;
-}
-.memberDetailLinks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-}
-.memberDetailLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: var(--radius-capsule);
-  border: var(--border-light);
-  background: var(--bg-secondary);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  text-decoration: none;
-}
-.memberDetailLink:hover {
-  color: var(--text-primary);
-}
 

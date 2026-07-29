@@ -1,0 +1,89 @@
+/*  MemberEditModal 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
+   공유·경계 클래스는 Settings 에 남아 shared 로 import  */
+.authorCardHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.authorAvatarUpload {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-circle);
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  overflow: visible;
+  transition: border-color 0.2s;
+}
+.authorAvatarUpload:hover {
+  border-color: var(--text-tertiary);
+}
+.authorAvatarImg,
+.authorAvatarInitial {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-circle);
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.authorAvatarInitial {
+  font-family: var(--font-space-grotesk);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg);
+  color: var(--text-tertiary);
+}
+.authorAvatarPlus {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  color: var(--text-white);
+  border: 2px solid var(--bg-primary);
+}
+.authorCardName {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-space-grotesk);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+.authorCardFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+.authorLinksEditor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+.authorInviteRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+.authorMemberStatus {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+.memberModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+}
