@@ -26,7 +26,7 @@ import AdminEditorShell, {
 } from "@/components/admin/AdminEditorShell";
 import { useRevisions } from "@/hooks/useRevisions";
 import { useEditorAutoSave } from "@/hooks/useEditorAutoSave";
-import { useEditorDraft } from "@/hooks/useEditorDraft";
+import { useEditorDraft, draftKey } from "@/hooks/useEditorDraft";
 import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useEditorTranslation } from "@/hooks/useEditorTranslation";
 import CoverImagePicker from "./CoverImagePicker";
@@ -198,7 +198,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   const [draftCover] = useState<{ cover_image?: string; cover_position?: number; cover_zoom?: number } | null>(() => {
     if (typeof window === "undefined") return null;
     try {
-      const raw = window.localStorage.getItem(`editor-draft:post:${post?.id ?? "draft-new-post"}`);
+      const raw = window.localStorage.getItem(draftKey("post", post?.id ?? "draft-new-post"));
       if (!raw) return null;
       const d = JSON.parse(raw) as Partial<PostFormData>;
       return { cover_image: d.cover_image, cover_position: d.cover_position, cover_zoom: d.cover_zoom };

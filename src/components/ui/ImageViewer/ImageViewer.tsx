@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { Size, Point } from "@/types";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Plus, Minus, MoreVertical, RotateCcw } from "lucide-react";
@@ -64,7 +65,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const [hoveredInterval, setHoveredInterval] = useState<(typeof AUTOPLAY_INTERVALS)[number] | null>(null);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
+  const [naturalSize, setNaturalSize] = useState<Size | null>(null);
   const [closing, setClosing] = useState(false);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const PLACEHOLDER_SRC = "/images/placeholder.svg";
@@ -84,7 +85,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
   const panStart = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   // 배경 클릭으로 닫기 판정용 — pointerdown 위치를 기억했다가 up 지점과의 이동량으로 드래그/클릭 구분
-  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
+  const pointerDownPos = useRef<Point | null>(null);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const thumbListRef = useRef<HTMLDivElement>(null);
   const zoomInputRef = useRef<HTMLInputElement>(null);

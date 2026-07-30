@@ -4,6 +4,7 @@
  */
 
 import { formatDateValue } from "./plate/dateUtils";
+import { ALIGN_TO_JUSTIFY } from "./plate/constants";
 
 let _wrapLabel = "↩ Wrap";
 let _scrollLabel = "↔ Scroll";
@@ -442,7 +443,7 @@ function serializeNode(node: SlateNode): string {
       const imgCaption = el.caption as string | undefined;
       const imgLayout = (el.layout as string) || "inline";
       const imgLockAspect = (el.lockAspect as boolean) ?? true;
-      const justifyMap: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
+      const justifyMap = ALIGN_TO_JUSTIFY;
       const isFloat = imgLayout === "float-left" || imgLayout === "float-right";
       const figStyle = isFloat
         ? `float:${imgLayout === "float-left" ? "left" : "right"};margin:${imgLayout === "float-left" ? "0 24px 24px 0" : "0 0 24px 24px"}`
