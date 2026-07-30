@@ -8,6 +8,7 @@
    ───────────────────────────────────────────────────────────── */
 
 import dynamic from "next/dynamic";
+import { ABOUT_PANELS } from "./aboutPanels";
 import type { TFunction } from "@/providers/LanguageProvider";
 import type { Language } from "@/types";
 import { useState, useEffect, useMemo, useRef, useDeferredValue, type CSSProperties, type Dispatch, type FocusEvent, type ReactNode, type SetStateAction } from "react";
@@ -104,23 +105,6 @@ type SecurityItem = NonNullable<SiteConfigData["about"]["security"]>[number];
 type ArchitectureItem = { path: string; description_ko: string; description_en: string; indent: number };
 
 /* ═══════════ 상수 ═══════════ */
-const ABOUT_PANELS: { key: string; label: string; editable?: boolean }[] = [
-  { key: "hero", label: "Intro", editable: true },
-  { key: "overview", label: "Overview", editable: true },
-  { key: "architecture", label: "Architecture", editable: true },
-  { key: "userflow", label: "User Flow", editable: true },
-  { key: "features", label: "Features", editable: true },
-  { key: "designSystem", label: "Design System", editable: true },
-  { key: "process", label: "Process", editable: true },
-  { key: "visualBreak", label: "Break Image", editable: true },
-  { key: "techStack", label: "Tech Stack", editable: true },
-  { key: "backend", editable: true, label: "Backend" },
-  { key: "erd", label: "ERD", editable: true },
-  { key: "codeHighlights", label: "Code Highlights", editable: true },
-  { key: "troubleshooting", label: "Troubleshooting", editable: true },
-  { key: "security", label: "Security", editable: true },
-  { key: "credits", label: "Credits", editable: true },
-];
 const WEIGHTS = [
   { value: "100", label: "100 · Thin" }, { value: "200", label: "200 · ExtraLight" },
   { value: "300", label: "300 · Light" }, { value: "400", label: "400 · Regular" },

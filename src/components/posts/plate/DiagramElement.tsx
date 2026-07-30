@@ -29,7 +29,8 @@ import {
   type EdgeChange,
   type NodeProps,
 } from "@xyflow/react";
-import { Plus, FileCode2, Trash2, Maximize2, Minimize2, ArrowRight, ChevronRight, Minus, ArrowLeftRight, Type, Spline, Waypoints } from "lucide-react";
+import { Plus, FileCode2, Trash2, Maximize2, Minimize2, Type } from "lucide-react";
+import { SHAPES, COLORS, DIRS, HEADS, LINES, CURVES, FONT_SIZES, type EdgeDir } from "./diagramOptions";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
@@ -132,50 +133,9 @@ function ShapeNode({ id, data, selected, isConnectable }: NodeProps) {
 }
 const NODE_TYPES = { shape: ShapeNode };
 
-const SHAPES: { v: DiagramNodeShape; label: string; en: string }[] = [
-  { v: "rect", label: "사각", en: "Rectangle" },
-  { v: "round", label: "둥근", en: "Rounded" },
-  { v: "stadium", label: "알약", en: "Stadium" },
-  { v: "circle", label: "원", en: "Circle" },
-  { v: "ellipse", label: "타원", en: "Ellipse" },
-  { v: "diamond", label: "마름모", en: "Diamond" },
-  { v: "hexagon", label: "육각형", en: "Hexagon" },
-  { v: "parallelogram", label: "평행사변형", en: "Parallelogram" },
-  { v: "trapezoid", label: "사다리꼴", en: "Trapezoid" },
-  { v: "subroutine", label: "서브루틴", en: "Subroutine" },
-  { v: "cylinder", label: "원통(DB)", en: "Cylinder" },
-  { v: "text", label: "텍스트", en: "Text" },
-];
-const COLORS = ["", "#e0556a", "#5b8def", "#22c39a", "#f4a43b", "#9b6dd6", "#7a8aa0"];
 
-type EdgeDir = "end" | "both" | "none";
-const DIRS: { v: EdgeDir; label: string; en: string; icon: React.ReactNode }[] = [
-  { v: "end", label: "끝", en: "End", icon: <ArrowRight size={14} strokeWidth={2.4} /> },
-  { v: "both", label: "양방향", en: "Both", icon: <ArrowLeftRight size={14} strokeWidth={2.4} /> },
-  { v: "none", label: "화살표 없음", en: "No arrow", icon: <Minus size={14} /> },
-];
-// 화살촉 모양 (화살표가 있을 때 적용)
-const HEADS: { v: DiagramArrow; label: string; en: string; icon: React.ReactNode }[] = [
-  { v: "arrowclosed", label: "채운", en: "Filled", icon: <ArrowRight size={14} strokeWidth={2.8} /> },
-  { v: "arrow", label: "열린", en: "Open", icon: <ChevronRight size={14} /> },
-];
-const LINES: { v: DiagramLine; label: string; en: string; dash?: string }[] = [
-  { v: "solid", label: "실선", en: "Solid" },
-  { v: "dashed", label: "파선", en: "Dashed", dash: "6 4" },
-  { v: "dotted", label: "점선", en: "Dotted", dash: "1.5 4" },
-];
-// 선 모양 (직선/꺾은선/곡선) — RF edge type 매핑
-const CURVES: { v: DiagramCurve; label: string; en: string; icon: React.ReactNode }[] = [
-  { v: "bezier", label: "곡선", en: "Curved", icon: <Spline size={14} /> },
-  { v: "smoothstep", label: "꺾은선", en: "Step", icon: <Waypoints size={14} /> },
-  { v: "straight", label: "직선", en: "Straight", icon: <Minus size={14} /> },
-];
 function curveToType(c?: DiagramCurve): string { return c === "straight" ? "straight" : c === "smoothstep" ? "smoothstep" : "default"; }
 function curveFromEdge(e: RFEdge): DiagramCurve { return e.type === "straight" ? "straight" : e.type === "smoothstep" ? "smoothstep" : "bezier"; }
-// 텍스트 글자 크기 프리셋
-const FONT_SIZES: { v: number; label: string }[] = [
-  { v: 12, label: "S" }, { v: 14, label: "M" }, { v: 18, label: "L" }, { v: 24, label: "XL" },
-];
 // 도형별 기본 크기(리사이즈 전) — .dnode 가 100% 채우도록 노드에 항상 크기 부여
 function defaultSize(shape?: DiagramNodeShape): Size {
   switch (shape) {
