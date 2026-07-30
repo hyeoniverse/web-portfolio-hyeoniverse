@@ -285,7 +285,7 @@ function TroubleshootingPanel({
 }: TroubleshootingPanelProps) {
   /* admin(about.troubleshooting) override — 비어있으면 정적 데이터 */
   const cfg = useSiteConfig();
-  const cfgItems = (cfg.about as { troubleshooting?: TroubleShootingItem[] }).troubleshooting;
+  const cfgItems = cfg.about.troubleshooting;
   const items = cfgItems && cfgItems.length > 0 ? cfgItems : troubleShootingItems;
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);

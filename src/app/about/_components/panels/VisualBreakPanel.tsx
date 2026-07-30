@@ -7,7 +7,7 @@ import local from "./VisualBreakPanel.module.css";
 
 export default function VisualBreakPanel() {
   const cfg = useSiteConfig();
-  const src = (cfg.about as { visualBreakImage?: string } | undefined)?.visualBreakImage
+  const src = cfg.about.visualBreakImage
     || "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&h=1000&fit=crop";
   return (
     <div className={`${shared.breakPanel} ${local.visualBreak}`}>

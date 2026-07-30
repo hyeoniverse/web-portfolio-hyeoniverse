@@ -582,8 +582,8 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
 
       {/* ── Architecture ── */}
       <PanelSaveHeader label={panelTitleOf("architecture") ?? "Architecture"} paths={savePathsFor("architecture")} {...saveHdr} />
-      <ArchitectureBlock value={((about as { architectureItems?: ArchitectureItem[] }).architectureItems) ?? []} onChange={setArch}
-        diagram={((about as { archDiagram?: ArchDiagramData }).archDiagram) ?? { nodes: [], edges: [] }}
+      <ArchitectureBlock value={(about.architectureItems) ?? []} onChange={setArch}
+        diagram={(about.archDiagram) ?? { nodes: [], edges: [] }}
         onDiagramChange={(v) => setAny("archDiagram", v)} t={t} lang={lang} />
 
       {/* ── User Flow ── */}
@@ -742,9 +742,9 @@ function PanelManager({ about, setAny, t, lang }: {
   about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; t: TFunction; lang: Language;
 }) {
   const hidden = (about.hiddenPanels ?? []) as string[];
-  const titles = (about as { panelTitles?: Record<string, { ko?: string; en?: string }> }).panelTitles ?? {};
+  const titles = about.panelTitles ?? {};
   const allKeys = ABOUT_PANELS.map((p) => p.key);
-  const savedOrder = ((about as { panelOrder?: string[] }).panelOrder ?? []).filter((k) => allKeys.includes(k));
+  const savedOrder = (about.panelOrder ?? []).filter((k) => allKeys.includes(k));
   const ordered = [...savedOrder, ...allKeys.filter((k) => !savedOrder.includes(k))];
   const middle = ordered.filter((k) => !LOCKED_PANELS.has(k));
   const defaultLabel = (k: string) => ABOUT_PANELS.find((p) => p.key === k)?.label ?? k;
@@ -2191,7 +2191,7 @@ function CreditsBlock({ about, setAny, lang, nickname, t }: {
     "--note-align": noteAlign,
   } as CSSProperties;
 
-  const names = ((about as { creditsNames?: string[] }).creditsNames ?? []);
+  const names = (about.creditsNames ?? []);
   const setNames = (v: string[]) => setAny("creditsNames", v);
   const MAX_NAMES = 8;
   const [adding, setAdding] = useState(false);

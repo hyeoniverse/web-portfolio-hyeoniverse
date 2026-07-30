@@ -49,7 +49,7 @@ export default function TechStackPanel({ techStack }: TechStackPanelProps) {
   const cfg = useSiteConfig();
   const titleOverride = usePanelTitle("techStack");
   /* admin 편집 가능한 siteConfig.about.techStack 우선. 없으면(legacy) prop 으로 fallback. */
-  const cfgStack = (cfg.about as { techStack?: TechStackItem[] }).techStack;
+  const cfgStack = cfg.about.techStack;
   const list = cfgStack ?? techStack;
   return (
     <div className={`${styles.panel} ${styles.panelCompact}`}>

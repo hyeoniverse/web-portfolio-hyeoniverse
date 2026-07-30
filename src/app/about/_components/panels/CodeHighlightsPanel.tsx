@@ -44,7 +44,7 @@ function CodeHighlightsPanel({
   scrollBy,
 }: CodeHighlightsPanelProps) {
   const cfg = useSiteConfig();
-  const cfgCode = (cfg.about as { codeHighlights?: CfgCode[] }).codeHighlights;
+  const cfgCode = cfg.about.codeHighlights;
   const examples = cfgCode && cfgCode.length > 0 ? adaptCode(cfgCode) : codeExamples;
   const { panelRef, contentRef, activeIndex, scrollToItem } = usePinnedScroll(
     examples.length,
