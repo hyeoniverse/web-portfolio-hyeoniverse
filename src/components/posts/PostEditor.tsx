@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import type { UploadResponse } from "@/types";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -565,7 +566,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
     const res = await fetch("/api/upload", { method: "POST", body: formData });
     // 빈/비JSON 응답(413·게이트웨이 오류 등)에서도 의미 있는 에러를 던지도록 방어적 파싱
-    const data: { url?: string; error?: string } = await res.json().catch(() => ({}));
+    const data: UploadResponse = await res.json().catch(() => ({}));
 
     if (!res.ok) throw new Error(data.error || `업로드 실패 (${res.status})`);
     if (!data.url) throw new Error(data.error || "업로드 응답을 받지 못했습니다");
@@ -1575,7 +1576,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: 9999,
+          zIndex: "var(--z-top)",
           background: "transparent",
           cursor: "wait",
         }}

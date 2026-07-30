@@ -8,6 +8,18 @@ export interface RevisionItem {
   title: string;
 }
 
+/** POST /api/revisions 응답 — 직전 리비전과 동일하면 skipped=true */
+interface RevisionSaveResponse {
+  skipped?: boolean;
+  id: string;
+  created_at: string;
+}
+
+/** GET /api/revisions/[id] 응답 — 단건 snapshot 포함 */
+interface RevisionSnapshotResponse<T> {
+  snapshot: T;
+}
+
 interface UseRevisionsOptions {
   entityType: "post" | "work";
   entityId: string | undefined;
@@ -73,7 +85,7 @@ export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
           }),
         });
         if (!res.ok) return false;
-        const data = (await res.json()) as { skipped?: boolean; id: string; created_at: string };
+        const data = (await res.json()) as RevisionSaveResponse;
         if (data.skipped) return false; // 직전 리비전과 동일 — 새로 추가하지 않음
         setRevisions((prev) =>
           [
@@ -99,7 +111,7 @@ export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
       try {
         const res = await fetch(`/api/revisions/${revisionId}`);
         if (!res.ok) return null;
-        const data = (await res.json()) as { snapshot: T };
+        const data = (await res.json()) as RevisionSnapshotResponse<T>;
         return data.snapshot;
       } catch {
         return null;

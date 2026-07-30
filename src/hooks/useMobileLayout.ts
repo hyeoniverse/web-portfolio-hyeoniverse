@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
+import { BREAKPOINT } from "@/constants";
 
-export const MOBILE_WIDTH = 1024;
+export const MOBILE_WIDTH = BREAKPOINT.tablet;
 export const MIN_DESKTOP_HEIGHT = 700;
 
 /**
