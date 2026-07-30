@@ -2,6 +2,7 @@
 // (일부 파일은 런타임 값도 export: pickLocalized·workFormToProject 등 — 순환 없음 검증됨)
 export * from "./app";
 export * from "./api";
+export * from "./dashboard";
 export * from "./author";
 export * from "./common";
 export * from "./member";
