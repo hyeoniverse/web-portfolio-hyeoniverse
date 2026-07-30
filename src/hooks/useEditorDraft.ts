@@ -41,6 +41,11 @@ function stableHash<T>(snapshot: T, ignoredKeys?: readonly (keyof T)[]): string 
   return JSON.stringify(copy);
 }
 
+/** editor draft localStorage 키 — writer/reader 공용 (형식 드리프트 방지) */
+export function draftKey(entityType: string, id: string): string {
+  return `editor-draft:${entityType}:${id}`;
+}
+
 export function useEditorDraft<T>({
   entityType,
   entityId,
@@ -51,7 +56,7 @@ export function useEditorDraft<T>({
   ignoredKeys,
 }: UseEditorDraftOptions<T>) {
   const effectiveId = entityId ?? draftEntityId;
-  const key = effectiveId ? `editor-draft:${entityType}:${effectiveId}` : null;
+  const key = effectiveId ? draftKey(entityType, effectiveId) : null;
   const restoredRef = useRef(false); // mount restore 결정 완료 여부
   const applyDraftRef = useRef(applyDraft);
   const ignoredKeysRef = useRef(ignoredKeys);

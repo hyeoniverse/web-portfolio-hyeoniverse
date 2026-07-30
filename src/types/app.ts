@@ -64,6 +64,18 @@ export interface SelectOption<T = string> {
   label: string;
 }
 
+/** 크기 (px) */
+export interface Size {
+  w: number;
+  h: number;
+}
+
+/** 2D 좌표 (px) */
+export interface Point {
+  x: number;
+  y: number;
+}
+
 // ============================================
 // 작품 인터랙션 타입
 // ============================================

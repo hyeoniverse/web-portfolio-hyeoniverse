@@ -200,3 +200,10 @@ export const CAPTION_EDIT_EVENT = {
   video: "video-caption-edit",
   table: "tbl-caption-edit",
 } as const;
+
+/** 정렬(align) → flexbox justify-content 매핑 — 직렬화·렌더 공용 */
+export const ALIGN_TO_JUSTIFY: Record<string, string> = {
+  left: "flex-start",
+  center: "center",
+  right: "flex-end",
+};

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
+import type { Point } from "@/types";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -399,7 +400,7 @@ export default function Navigation() {
 
   // ── travel 인디케이터 — ▶ 가 부모 항목 위치에서 선택된 서브 항목까지 타고 내려온다 ──
   const activeSubItemRef = useRef<HTMLElement | null>(null);
-  const [travelPos, setTravelPos] = useState<{ from: { x: number; y: number }; to: { x: number; y: number } } | null>(null);
+  const [travelPos, setTravelPos] = useState<{ from: Point; to: Point } | null>(null);
 
   // 부모 nav 링크 rect(출발) + 선택된 서브 항목 rect(도착)을 측정 → 그 값으로 span 을 새로 마운트해 from→to 재생.
   useLayoutEffect(() => {
