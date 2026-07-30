@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { SEARCH_DEBOUNCE_MS } from "@/constants";
 import type { SortDirection } from "@/types";
 import { useSearchParams } from "next/navigation";
 import { ChevronRight, GripVertical, Trash2, Eye, EyeOff, Plus } from "lucide-react";
@@ -124,7 +125,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
 
   /* search debounce — 300ms */
   useEffect(() => {
-    const tid = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    const tid = setTimeout(() => setDebouncedSearch(search.trim()), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(tid);
   }, [search]);
 

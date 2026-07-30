@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { STATUS_MESSAGE_DISMISS_MS } from "@/constants";
 import type { TFunction } from "@/providers/LanguageProvider";
 
 export function useAccountSettings(t: TFunction) {
@@ -56,7 +57,7 @@ export function useAccountSettings(t: TFunction) {
       setAccountConfirm("");
       setShowPasswordConfirm(false);
       if (!data.emailConfirmationSent) {
-        setTimeout(() => setAccountMessage(""), 3000);
+        setTimeout(() => setAccountMessage(""), STATUS_MESSAGE_DISMISS_MS);
       }
     } catch (err) {
       setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
