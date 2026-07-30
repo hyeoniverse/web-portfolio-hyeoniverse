@@ -29,7 +29,7 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import CloseButton from "@/components/ui/CloseButton";
@@ -1308,7 +1308,7 @@ function DailyViewsChart({
 }: {
   data: { day: string; views: number }[];
   language: "ko" | "en";
-  t: (key: string) => string;
+  t: TFunction;
 }) {
   // 기본 범위: 최근 14일 (rawData 의 마지막 14개)
   const defaultRange = useMemo(() => {
@@ -1947,7 +1947,7 @@ function DayDetailPanel({
   selectedIdx: number;
   onClose: () => void;
   language: "ko" | "en";
-  t: (key: string) => string;
+  t: TFunction;
 }) {
   const [topPosts, setTopPosts] = useState<DayTopPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(false);
@@ -2511,7 +2511,7 @@ function CategoryDonut({
 }: {
   data: { name: string; postCount: number; views: number }[];
   language: "ko" | "en";
-  t: (key: string) => string;
+  t: TFunction;
 }) {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const [expandedCat, setExpandedCat] = useState<string | null>(null);

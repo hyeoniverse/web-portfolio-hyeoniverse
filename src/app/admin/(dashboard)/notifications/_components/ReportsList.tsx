@@ -11,25 +11,7 @@ import Button from "@/components/ui/Button";
 import { SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import styles from "../../reports/Reports.module.css";
-
-interface Report {
-  id: string;
-  comment_id: string;
-  comment_type: "post" | "work";
-  reason: string;
-  status: "pending" | "resolved" | "dismissed";
-  created_at: string;
-  resolved_at: string | null;
-  comment: {
-    content: string;
-    nickname: string;
-    is_deleted: boolean;
-    parentSlug: string | null;
-    parentTitle: string | null;
-  } | null;
-}
-
-type StatusFilter = "pending" | "resolved" | "dismissed" | "all";
+import type { Report, StatusFilter } from "../../reports/_types";
 
 function ReportsSkeleton() {
   return (

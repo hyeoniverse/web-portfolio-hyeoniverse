@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, X, Equal, ArrowLeftRight } from "lucide-react";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import TextLink from "@/components/ui/TextLink";
 import Checkbox from "@/components/ui/Checkbox";
@@ -112,7 +112,7 @@ function FaviconShadowControls({
   bgShadow: FaviconShadow;
   onChangeText: (v: FaviconShadow) => void;
   onChangeBg: (v: FaviconShadow) => void;
-  t: (key: string) => string;
+  t: TFunction;
   textLabel?: string;
   bgLabel?: string;
 }) {

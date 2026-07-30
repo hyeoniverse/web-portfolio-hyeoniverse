@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { MessageSquare } from "lucide-react";
 import T from "@/components/ui/T";
@@ -18,7 +18,7 @@ interface RecentComment {
   post_slug: string;
 }
 
-function timeAgo(dateStr: string, t: (k: string) => string) {
+function timeAgo(dateStr: string, t: TFunction) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return t("postsPage.justNow");

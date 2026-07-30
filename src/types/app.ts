@@ -51,6 +51,12 @@ export type Theme = "dark" | "light" | "system" | null;
 export type Language = "ko" | "en";
 /** 정렬 방향 — 오름/내림 공용 primitive */
 export type SortDirection = "asc" | "desc";
+/** 목차 heading 항목 — TOC 렌더 · 본문 heading 파싱 공용 */
+export interface TocHeading {
+  id: string;
+  text: string;
+  level: number;
+}
 
 // ============================================
 // 작품 인터랙션 타입

@@ -1,4 +1,4 @@
-import type { TocHeading } from "@/components/layout/DetailLayout";
+import type { TocHeading } from "@/types";
 import { slugify } from "@/components/posts/MarkdownRenderer";
 
 /** Extract h2 headings from content for TOC */

@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useEffect } from "react";
 import type { SortDirection } from "@/types";
+import type { BilingualDescription } from "@/types/common";
+import type { PostMetaInfo } from "../_types";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -21,12 +23,10 @@ import LetterFilter from "@/components/ui/LetterFilter";
 import styles from "../Settings.module.css";
 
 /** legacy `description: string` → bilingual `{ko, en}` 자동 정규화. */
-type LegacyDesc = string;
-type BilingualDesc = { ko: string; en: string };
 interface WorksCategory {
   ko: string;
   en: string;
-  description?: BilingualDesc | LegacyDesc;
+  description?: BilingualDescription | string;
 }
 
 interface WorksCategoriesEditorProps {
@@ -34,7 +34,7 @@ interface WorksCategoriesEditorProps {
   onChange: (cats: WorksCategory[]) => void;
 }
 
-function normalizeDesc(d: WorksCategory["description"]): BilingualDesc {
+function normalizeDesc(d: WorksCategory["description"]): BilingualDescription {
   if (!d) return { ko: "", en: "" };
   if (typeof d === "string") return { ko: "", en: d };
   return { ko: d.ko ?? "", en: d.en ?? "" };
@@ -51,7 +51,7 @@ interface WorksInfo {
 }
 
 /** Work row 의 메타 (발행상태 + 날짜) */
-function WorkMeta({ w }: { w: { published: boolean; published_at: string | null; created_at: string | null } }) {
+function WorkMeta({ w }: { w: PostMetaInfo }) {
   const date = w.published_at || w.created_at;
   const dateStr = date ? new Date(date).toLocaleDateString("ko-KR", { year: "2-digit", month: "2-digit", day: "2-digit" }).replace(/\.\s/g, ".").replace(/\.$/, "") : "";
   return (
@@ -223,7 +223,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
   const pageItems = filtered.slice(pageStart, pageStart + perPage);
 
   const notes = useMemo(() => {
-    const map: Record<string, BilingualDesc> = {};
+    const map: Record<string, BilingualDescription> = {};
     for (const c of categories) {
       const d = normalizeDesc(c.description);
       if (d.ko.trim() || d.en.trim()) map[c.en] = d;
@@ -258,8 +258,8 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
 
   // ── 하단 통합 add/edit box ──
   const [editingEn, setEditingEn] = useState<string | null>(null);
-  const [pair, setPair] = useState<BilingualDesc>({ ko: "", en: "" });
-  const [desc, setDesc] = useState<BilingualDesc>({ ko: "", en: "" });
+  const [pair, setPair] = useState<BilingualDescription>({ ko: "", en: "" });
+  const [desc, setDesc] = useState<BilingualDescription>({ ko: "", en: "" });
   const [isShaking, setIsShaking] = useState(false);
   const triggerShake = () => { setIsShaking(true); setTimeout(() => setIsShaking(false), 450); };
 

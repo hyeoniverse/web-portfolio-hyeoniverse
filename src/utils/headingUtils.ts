@@ -1,4 +1,4 @@
-import type { TocHeading } from "@/components/layout/DetailLayout";
+import type { TocHeading } from "@/types";
 import { slugify } from "@/components/posts/MarkdownRenderer";
 
 export function extractHeadings(content: string, isMarkdown: boolean): TocHeading[] {
