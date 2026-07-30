@@ -3,6 +3,7 @@
 // ── 코드 플레이그라운드 블록 (void) — Sandpack(CodeSandbox 식) ──
 // 무거운 Sandpack 은 lazy-load. el.data 에 { template, files, dependencies } 저장.
 import React, { useCallback, useMemo, useRef, useState } from "react";
+import { PLAYGROUND_STACKS } from "./playgroundStacks";
 import { createPortal } from "react-dom";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
 import { SquareCode } from "lucide-react";
@@ -17,14 +18,6 @@ import styles from "./PlaygroundElement.module.css";
 const PlaygroundSandpack = React.lazy(() => import("./playground/PlaygroundSandpack"));
 const PlaygroundRunner = React.lazy(() => import("./playground/PlaygroundRunner"));
 
-// 스택 = 실행 엔진 + 스타터. 생성(빈 블록) 시 1회만 고른다(이후 고정) — html=자체 러너(오프라인·즉시),
-// 나머지=Sandpack(번들러). 파일 언어는 확장자로 자동 렌더되므로 툴바엔 별도 선택이 없다.
-const STACKS: { value: string; label: string; ko: string; en: string }[] = [
-  { value: "html", label: "HTML / CSS / JS", ko: "오프라인·즉시 실행", en: "offline · instant" },
-  { value: "vanilla-ts", label: "TypeScript", ko: "번들러 실행", en: "bundler" },
-  { value: "react-ts", label: "React (TS)", ko: "번들러 실행", en: "bundler" },
-  { value: "react", label: "React", ko: "번들러 실행", en: "bundler" },
-];
 
 export function PlaygroundElement(props: PlateElementProps) {
   const editor = useEditorRef();
@@ -129,7 +122,7 @@ export function PlaygroundElement(props: PlateElementProps) {
         <div className={styles.pgPicker} onMouseDown={(e) => e.stopPropagation()}>
           <div className={styles.pgPickerTitle}>{t("어떤 스택으로 시작할까요?", "Pick a stack to start")}</div>
           <div className={styles.pgPickerGrid}>
-            {STACKS.map((s) => (
+            {PLAYGROUND_STACKS.map((s) => (
               <button key={s.value} type="button" className={styles.pgPickerBtn} onClick={() => setTemplate(s.value)}>
                 <span className={styles.pgPickerLabel}>{s.label}</span>
                 <span className={styles.pgPickerDesc}>{language === "ko" ? s.ko : s.en}</span>

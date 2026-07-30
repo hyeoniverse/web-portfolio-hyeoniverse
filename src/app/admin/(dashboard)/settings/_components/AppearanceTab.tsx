@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { FAVICON_FONT_SIZE_PRESETS, FAVICON_SHADOW_PRESETS, FAVICON_SIZE_BLUR } from "../_data/faviconPresets";
 import type { Dispatch, SetStateAction } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, X, Equal, ArrowLeftRight } from "lucide-react";
@@ -83,20 +84,6 @@ const LOGO_COLOR_PRESETS_FALLBACK: LogoColorPreset[] = [
   { name: "Default", light: "", dark: "" },
 ];
 
-/** favicon 폰트 크기 프리셋 (px). 이 목록에 없는 값이면 "직접 입력"(stepper) 모드 */
-const FAVICON_FONT_SIZE_PRESETS = ["14", "18", "20", "24", "28"];
-
-/** 그림자 프리셋 — 빠른 세팅용 칩. 이후 광원 드래그/blur 로 미세 조정. */
-const FAVICON_SHADOW_PRESETS = [
-  { key: "soft", label: "소프트", custom: "2", angle: "135", color: "rgba(0,0,0,0.25)", inset: false },
-  { key: "medium", label: "미디엄", custom: "4", angle: "135", color: "rgba(0,0,0,0.4)", inset: false },
-  { key: "hard", label: "하드", custom: "7", angle: "135", color: "rgba(0,0,0,0.55)", inset: false },
-  { key: "long", label: "롱", custom: "11", angle: "135", color: "rgba(0,0,0,0.3)", inset: false },
-  { key: "inset", label: "인셋", custom: "4", angle: "135", color: "rgba(0,0,0,0.45)", inset: true },
-] as const;
-
-/** legacy size(sm/md/lg) → blur px fallback. 지금은 직접입력(custom) 이지만 하위호환용. */
-const FAVICON_SIZE_BLUR: Record<string, string> = { sm: "1", md: "2", lg: "3" };
 
 /** 텍스트/배경 그림자 — 미리보기 안 광원(빛)을 드래그해 방향·거리(blur)를 정하고, 색/inset 은 옆에서 조정. */
 function FaviconShadowControls({
