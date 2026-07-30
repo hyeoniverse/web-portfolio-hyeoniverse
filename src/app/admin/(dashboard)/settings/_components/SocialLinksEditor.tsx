@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { Upload, Plus, GripDotsIcon } from "@/components/icons";
+import { Upload, Plus, GripDotsIcon, SocialBrandIcon } from "@/components/icons";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -18,21 +18,10 @@ import shared from "../Settings.module.css";
 
 const DEFAULT_MAX = 6;
 
-/* social platform select option — 라벨 옆에 brand SVG icon */
-export function SocialIconSvg({ name }: { name: string }) {
-  const icon = SOCIAL_ICONS[name];
-  if (!icon) return null;
-  return icon.stroke ? (
-    <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={icon.path} /></svg>
-  ) : (
-    <svg viewBox="0 0 24 24" width={14} height={14}><path d={icon.path} fill="currentColor" /></svg>
-  );
-}
-
 const SOCIAL_PLATFORM_OPTIONS_WITH_ICON = Object.entries(SOCIAL_ICONS).map(([value, { label }]) => ({
   value,
   label,
-  icon: <SocialIconSvg name={value} />,
+  icon: <SocialBrandIcon name={value} size={14} />,
 }));
 
 interface Props {
@@ -183,7 +172,6 @@ function SocialIconArea({ link, isCustom, onUploaded }: {
     }
   };
 
-  const icon = SOCIAL_ICONS[link.platform];
 
   return (
     <>
@@ -197,11 +185,9 @@ function SocialIconArea({ link, isCustom, onUploaded }: {
         ) : link.icon ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={link.icon} alt="" className={styles.socialIconImg} />
-        ) : icon?.stroke ? (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={icon.path} /></svg>
-        ) : icon ? (
-          <svg viewBox="0 0 24 24"><path d={icon.path} fill="currentColor" /></svg>
-        ) : null}
+        ) : (
+          <SocialBrandIcon name={link.platform} />
+        )}
         {isCustom && (
           <span className={styles.socialIconPlus} aria-hidden>
             <Plus size={9} strokeWidth={2.5} />

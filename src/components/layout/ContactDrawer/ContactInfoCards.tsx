@@ -1,6 +1,7 @@
 "use client";
 
-import { Copy, Check } from "@/components/icons";
+import { Copy, Check, SocialBrandIcon } from "@/components/icons";
+import { SOCIAL_ICONS } from "@/data/socialIcons";
 import { COPY_FEEDBACK_MS } from "@/constants";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
@@ -8,7 +9,6 @@ import T from "@/components/ui/T";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import CloseButton from "@/components/ui/CloseButton";
 import Logo from "@/components/common/Logo";
-import { SOCIAL_ICONS } from "@/data/socialIcons";
 import styles from "./ContactDrawer.module.css";
 
 interface ContactInfoCardsProps {
@@ -94,8 +94,7 @@ export default function ContactInfoCards({
         <div className={styles.socialCard}>
           <div className={styles.socialIcons}>
             {siteConfig.socialLinks.filter((l) => l.url).map((link, i) => {
-              const icon = SOCIAL_ICONS[link.platform];
-              const label = icon?.label ?? link.label ?? link.platform;
+              const label = SOCIAL_ICONS[link.platform]?.label ?? link.label ?? link.platform;
               return (
                 <a
                   key={`${link.platform}-${i}`}
@@ -108,11 +107,9 @@ export default function ContactInfoCards({
                   {link.icon ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={link.icon} alt="" />
-                  ) : icon?.stroke ? (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={icon.path} /></svg>
-                  ) : icon ? (
-                    <svg viewBox="0 0 24 24"><path d={icon.path} /></svg>
-                  ) : null}
+                  ) : (
+                    <SocialBrandIcon name={link.platform} />
+                  )}
                 </a>
               );
             })}
