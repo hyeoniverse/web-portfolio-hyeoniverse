@@ -1,17 +1,11 @@
 import type { Language } from "./app";
 
-/** 한국어/영어 이중언어 텍스트 (description 용 — 카테고리/태그 공용) */
-export interface BilingualDescription {
-  ko: string;
-  en: string;
-}
-
 /** 한국어/영어 이중언어 카테고리 */
 export interface BilingualCategory {
   ko: string;
   en: string;
   /** 카테고리 설명 (선택) — list/hero 등에 표시. legacy: string (= en) / 신규: { ko, en } */
-  description?: string | BilingualDescription;
+  description?: string | LocalizedText;
   /**
    * 소분류 (2단계 카테고리). 대분류(top-level)만 가질 수 있고 최대 1단계까지 중첩.
    * 없으면 flat 카테고리(= leaf). posts.category 에는 항상 leaf 문자열이 저장되고

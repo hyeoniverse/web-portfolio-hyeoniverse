@@ -9,17 +9,18 @@
    ────────────────────────────────────────────────────────────────────────── */
 
 import type { Language } from "@/providers/LanguageProvider";
+import type { LocalizedText } from "@/types/common";
 
 export interface TagMeta {
   ko: string;
   en: string;
-  description: { ko: string; en: string };
+  description: LocalizedText;
 }
 
 export type StoredTagMeta =
   | string
-  | { ko: string; en: string }
-  | { ko?: string; en?: string; description?: { ko: string; en: string } };
+  | LocalizedText
+  | { ko?: string; en?: string; description?: LocalizedText };
 
 /** 다양한 legacy 포맷 모두 받아서 normalized shape 반환. */
 export function normalizeTagMeta(d: StoredTagMeta | undefined): TagMeta {

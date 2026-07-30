@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import type { LocalizedText } from "@/types/common";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -623,7 +624,7 @@ function CategoryMultiPicker({
 }: {
   selectedKos: string[];
   selectedEns: string[];
-  presets: { ko: string; en: string }[];
+  presets: LocalizedText[];
   editorLang: "ko" | "en";
   customMode: boolean;
   setCustomMode: (v: boolean) => void;
@@ -1917,7 +1918,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                       .filter(Boolean);
                     const koMap = (form.contributions_ko ?? {}) as Record<string, string[]>;
                     const enMap = (form.contributions_en ?? {}) as Record<string, string[]>;
-                    const notesMap: Record<string, { ko: string; en: string }> = {};
+                    const notesMap: Record<string, LocalizedText> = {};
                     // entry 존재 여부 보존 — 둘 중 한 쪽에라도 key 가 있으면 (빈 문자열이라도) entry 유지
                     for (const r of rolesArr) {
                       if (r in koMap || r in enMap) {
@@ -2447,7 +2448,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 .filter(Boolean);
               const koMap = team.memberContribsKo as Record<string, string[]>;
               const enMap = team.memberContribsEn as Record<string, string[]>;
-              const notesMap: Record<string, { ko: string; en: string }> = {};
+              const notesMap: Record<string, LocalizedText> = {};
               for (const r of rolesArr) {
                 if (r in koMap || r in enMap) {
                   notesMap[r] = {

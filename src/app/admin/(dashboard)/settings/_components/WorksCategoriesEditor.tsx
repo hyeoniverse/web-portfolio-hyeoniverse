@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import type { SortDirection } from "@/types";
-import type { BilingualDescription } from "@/types/common";
+import type { LocalizedText } from "@/types/common";
 import type { PostMetaInfo } from "../_types";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -26,7 +26,7 @@ import styles from "../Settings.module.css";
 interface WorksCategory {
   ko: string;
   en: string;
-  description?: BilingualDescription | string;
+  description?: LocalizedText | string;
 }
 
 interface WorksCategoriesEditorProps {
@@ -34,7 +34,7 @@ interface WorksCategoriesEditorProps {
   onChange: (cats: WorksCategory[]) => void;
 }
 
-function normalizeDesc(d: WorksCategory["description"]): BilingualDescription {
+function normalizeDesc(d: WorksCategory["description"]): LocalizedText {
   if (!d) return { ko: "", en: "" };
   if (typeof d === "string") return { ko: "", en: d };
   return { ko: d.ko ?? "", en: d.en ?? "" };
@@ -223,7 +223,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
   const pageItems = filtered.slice(pageStart, pageStart + perPage);
 
   const notes = useMemo(() => {
-    const map: Record<string, BilingualDescription> = {};
+    const map: Record<string, LocalizedText> = {};
     for (const c of categories) {
       const d = normalizeDesc(c.description);
       if (d.ko.trim() || d.en.trim()) map[c.en] = d;
@@ -258,8 +258,8 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
 
   // ── 하단 통합 add/edit box ──
   const [editingEn, setEditingEn] = useState<string | null>(null);
-  const [pair, setPair] = useState<BilingualDescription>({ ko: "", en: "" });
-  const [desc, setDesc] = useState<BilingualDescription>({ ko: "", en: "" });
+  const [pair, setPair] = useState<LocalizedText>({ ko: "", en: "" });
+  const [desc, setDesc] = useState<LocalizedText>({ ko: "", en: "" });
   const [isShaking, setIsShaking] = useState(false);
   const triggerShake = () => { setIsShaking(true); setTimeout(() => setIsShaking(false), 450); };
 

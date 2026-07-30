@@ -3,6 +3,7 @@
 // React Flow(다이어그램 블록) core 스타일 — 에디터 루트에서 전역 로드(pane/handle/edge 동작에 필수)
 import "@xyflow/react/dist/style.css";
 import React, { useState, useCallback, useEffect, useRef, useImperativeHandle, useMemo } from "react";
+import type { LocalizedText } from "@/types/common";
 import {
   Plate,
   PlateContent,
@@ -2654,7 +2655,7 @@ export default function PlateEditor({
               const colChildren = ((columnGroupForRender.node as any).children || []) as { width?: string; widthPx?: number; colMode?: string }[];
               const activePath = columnGroupNode?.path || columnGroupForRender.path;
               const colCount = colChildren.length;
-              const nm = (c: { ko: string; en: string }) => (language === "ko" ? c.ko : c.en);
+              const nm = (c: LocalizedText) => (language === "ko" ? c.ko : c.en);
               const setColBg = (v: string | undefined) => editor.tf.setNodes({ columnBg: v }, { at: activePath });
               const setColDiv = (v: string | undefined) => editor.tf.setNodes({ columnDivider: v }, { at: activePath });
               const L2 = (ko: string, en: string) => (language === "ko" ? ko : en);

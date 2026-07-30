@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import type { LocalizedText } from "@/types/common";
 import type { GithubImportResponse } from "@/types";
 import { PREVIEW_KEY, QUERY_PARAM } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -166,7 +167,7 @@ export default function AdminPostsPage() {
     const res = await fetch("/api/admin/settings");
     if (!res.ok) return;
     const { config } = await res.json();
-    const existing = (config.posts?.categories ?? []) as { ko: string; en: string }[];
+    const existing = (config.posts?.categories ?? []) as LocalizedText[];
     const updated = [...existing, ...newCats.map((c) => ({ ko: c, en: c }))];
     await fetch("/api/admin/settings", {
       method: "PATCH",

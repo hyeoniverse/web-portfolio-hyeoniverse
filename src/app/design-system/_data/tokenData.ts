@@ -1,4 +1,5 @@
 import type { BannerLayout } from "@/app/posts/_components/PostsBanner/PostsBanner";
+import type { LocalizedText } from "@/types/common";
 import type { Post } from "@/types/post";
 
 // ─── Color Data ───
@@ -125,7 +126,7 @@ export const tocSections = [
 
 // ─── Banner mock data ───
 export const BANNER_LAYOUTS: BannerLayout[] = ["fullwidth", "split", "cards", "ticker"];
-export const BANNER_LAYOUT_LABELS: Record<BannerLayout, { ko: string; en: string }> = {
+export const BANNER_LAYOUT_LABELS: Record<BannerLayout, LocalizedText> = {
   fullwidth: { ko: "Fullwidth — 풀 와이드 캐러셀 (Default / Cylinder)", en: "Fullwidth — Full-width Carousel (Default / Cylinder)" },
   split: { ko: "Split — 이미지 세로 슬라이드 + 텍스트 fade (무한 루프)", en: "Split — Vertical Image Slide + Text Fade (Infinite Loop)" },
   cards: { ko: "Cards — 중앙 포커스 카드", en: "Cards — Center-focus Card Stack" },

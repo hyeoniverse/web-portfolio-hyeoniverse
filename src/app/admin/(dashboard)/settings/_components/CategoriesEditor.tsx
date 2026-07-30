@@ -5,7 +5,7 @@ import type { SortDirection } from "@/types";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
-import type { BilingualCategory, BilingualDescription } from "@/types/common";
+import type { BilingualCategory, LocalizedText } from "@/types/common";
 import type { AdminPostUsageInfo, PostMetaInfo } from "../_types";
 import CategoryReassignModal from "@/components/admin/CategoryReassignModal";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
@@ -27,7 +27,7 @@ import styles from "../Settings.module.css";
 
 /** legacy `description: string` → bilingual `{ko, en}` 자동 정규화. */
 interface PostCategoryExt extends Omit<BilingualCategory, "description"> {
-  description?: BilingualDescription | string;
+  description?: LocalizedText | string;
 }
 
 interface CategoriesEditorProps {
@@ -35,7 +35,7 @@ interface CategoriesEditorProps {
   onChange: (cats: PostCategoryExt[]) => void;
 }
 
-function normalizeDesc(d: PostCategoryExt["description"]): BilingualDescription {
+function normalizeDesc(d: PostCategoryExt["description"]): LocalizedText {
   if (!d) return { ko: "", en: "" };
   if (typeof d === "string") return { ko: d, en: "" };
   return { ko: d.ko ?? "", en: d.en ?? "" };
@@ -275,7 +275,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   const pageItems = filtered.slice(pageStart, pageStart + perPage);
 
   const notes = useMemo(() => {
-    const map: Record<string, BilingualDescription> = {};
+    const map: Record<string, LocalizedText> = {};
     for (const c of categories) {
       const d = normalizeDesc(c.description);
       /* 빈 description 은 제외 — entry 없음 으로 인식돼야 chip 옆 + 설명추가 / drawer 미생성 */
@@ -348,8 +348,8 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
 
   // ── 하단 통합 add/edit box ──
   const [editingEn, setEditingEn] = useState<string | null>(null);
-  const [pair, setPair] = useState<BilingualDescription>({ ko: "", en: "" });
-  const [desc, setDesc] = useState<BilingualDescription>({ ko: "", en: "" });
+  const [pair, setPair] = useState<LocalizedText>({ ko: "", en: "" });
+  const [desc, setDesc] = useState<LocalizedText>({ ko: "", en: "" });
   /* 소속 대분류(parent) EN. null = 최상위(대분류). */
   const [parentEn, setParentEn] = useState<string | null>(null);
   /* 순서 (1-based). add = categories.length + 1 (맨 뒤 default). edit = 현재 위치. */

@@ -1,3 +1,5 @@
+import type { LocalizedText } from "@/types/common";
+
 /**
  * 투표 결과 화면(도넛 원형 + 항목별 막대 범례 + 정렬) — 리더와 에디터 미리보기의 **단일 렌더러**.
  *
@@ -170,7 +172,7 @@ export function buildPollResult(d: PollResultData): HTMLElement {
 }
 
 /** 정렬 라벨 — 에디터(SegmentedControl)·리더(vanilla) 공용 텍스트 소스 */
-export const POLL_SORT_LABELS: Record<PollSortKey, { ko: string; en: string }> = {
+export const POLL_SORT_LABELS: Record<PollSortKey, LocalizedText> = {
   order: { ko: "기본순", en: "Default" },
   votes: { ko: "득표순", en: "Most votes" },
   alpha: { ko: "철자순", en: "A–Z" },
