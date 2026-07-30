@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { COPY_FEEDBACK_MS } from "@/constants";
 import { AnimatePresence, motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLenis } from "@/providers/LenisProvider";
@@ -588,7 +589,7 @@ export default function ColorPicker({
     try {
       await navigator.clipboard.writeText(formatForCopy());
       setCopied(true);
-      setTimeout(() => setCopied(false), 1200);
+      setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
     } catch {
       /* clipboard 권한 / 보안 컨텍스트 실패 — 조용히 무시 */
     }

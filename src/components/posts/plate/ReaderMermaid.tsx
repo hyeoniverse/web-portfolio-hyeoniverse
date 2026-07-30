@@ -3,6 +3,7 @@
 // 리더용 mermaid 블록 — 에디터와 동일한 SegmentedControl + MermaidPreview + split 레이아웃 재사용.
 // 뷰 토글(다이어그램/코드/스플릿) + 코드 복사는 우상단.
 import React, { useRef, useState } from "react";
+import { COPY_FEEDBACK_MS } from "@/constants";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import MermaidPreview from "./MermaidPreview";
 import styles from "../RichTextEditor.module.css";
@@ -45,7 +46,7 @@ export default function ReaderMermaid({ code, labels }: {
   const copy = () => {
     try { navigator.clipboard?.writeText(code); } catch { /* noop */ }
     setCopied(true);
-    window.setTimeout(() => setCopied(false), 1200);
+    window.setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
   };
 
   return (

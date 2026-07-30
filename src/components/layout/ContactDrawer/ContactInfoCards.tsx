@@ -1,6 +1,7 @@
 "use client";
 
 import { Copy, Check } from "lucide-react";
+import { COPY_FEEDBACK_MS } from "@/constants";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import T from "@/components/ui/T";
@@ -46,7 +47,7 @@ export default function ContactInfoCards({
             onClick={() => {
               navigator.clipboard?.writeText(siteConfig.contact.email);
               setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
+              setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
             }}
           >
             <span

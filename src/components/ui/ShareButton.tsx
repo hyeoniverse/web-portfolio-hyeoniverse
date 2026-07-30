@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { COPY_FEEDBACK_MS } from "@/constants";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
@@ -37,7 +38,7 @@ export default function ShareButton({ className, variant = "compact" }: ShareBut
       await navigator.clipboard.writeText(url);
       setCopied(true);
       showToast(t("editor.linkCopied"), "success");
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
     } catch {
       /* clipboard not available */
     }
