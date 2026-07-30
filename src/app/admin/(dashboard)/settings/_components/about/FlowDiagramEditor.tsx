@@ -10,6 +10,7 @@
  * 그래야 공개 페이지에서 다른 플로우들과 배치 규칙이 어긋나지 않는다. */
 
 import { useRef, useState } from "react";
+import type { Language } from "@/types";
 import { Plus, X, Link2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
@@ -20,7 +21,6 @@ import {
 } from "@/app/about/_components/_utils/flowLayout";
 import css from "./FlowDiagramEditor.module.css";
 
-type Lang = "ko" | "en";
 const NODE_TYPES = ["start", "action", "decision", "end"] as const;
 /* 타입별 테두리 색 — 모양만으로는 start/end 구분이 안 된다 */
 const TYPE_TONE: Record<FlowNode["type"], string> = {
@@ -88,7 +88,7 @@ function fitLabel(text: string, boxW: number, fontSize: number) {
 export default function FlowDiagramEditor({ flow, onChange, lang }: {
   flow: UserFlow;
   onChange: (v: Partial<UserFlow>) => void;
-  lang: Lang;
+  lang: Language;
 }) {
   const { nodes, edges } = flow;
   const [sel, setSel] = useState<string | null>(null);

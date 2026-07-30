@@ -14,7 +14,7 @@ import LanguageToggle from "@/components/ui/LanguageToggle";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./AdminEditorShell.module.css";
-import type { AdminEditorShellProps } from "./types";
+import type { AdminEditorShellProps, RevisionMetaGroup } from "./types";
 import { formatTime, formatStatusTime, lineDiff, wordDiff, isImageUrl, isUrl } from "./utils";
 
 export { default as adminEditorStyles } from "./AdminEditorShell.module.css";
@@ -247,7 +247,7 @@ export default function AdminEditorShell({
 
   const [showRevisions, setShowRevisions] = useState(false);
   const [viewingRevision, setViewingRevision] = useState<number | null>(null);
-  const [revisionDetail, setRevisionDetail] = useState<{ title?: string; subtitle?: string; excerpt?: string; content?: string; meta?: import("./types").RevisionMetaGroup[]; headerLabels?: { title?: string; subtitle?: string; excerpt?: string } } | null>(null);
+  const [revisionDetail, setRevisionDetail] = useState<{ title?: string; subtitle?: string; excerpt?: string; content?: string; meta?: RevisionMetaGroup[]; headerLabels?: { title?: string; subtitle?: string; excerpt?: string } } | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   /** revision panel 전용 lang — 기본 editorLang sync, header 토글로 독립 전환 가능. */
   const [revisionLang, setRevisionLang] = useState<"ko" | "en">(editorLang);
@@ -348,7 +348,7 @@ export default function AdminEditorShell({
   }, [viewingRevision, revisionLang]);
 
   /** revision meta group 한 개 렌더 — items 모드 vs fields 모드 분기. */
-  const renderMetaGroup = (group: import("./types").RevisionMetaGroup) => {
+  const renderMetaGroup = (group: RevisionMetaGroup) => {
     const curGroup = currentSnapshot?.meta?.find((g) => g.label === group.label);
     const emptyLabel = revisionLang === "ko" ? "없음" : "None";
     if (group.items && group.items.length > 0) {

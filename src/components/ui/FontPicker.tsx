@@ -7,7 +7,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import styles from "./FontPicker.module.css";
 
-export type FontEntry = { label: string; value: string; googleName?: string; /** 한글 지원 폰트 — 목록에 "가" 배지 표시 */ korean?: boolean };
+type FontEntry = { label: string; value: string; googleName?: string; /** 한글 지원 폰트 — 목록에 "가" 배지 표시 */ korean?: boolean };
 export type FontGroup = { group: string; fonts: FontEntry[] };
 
 interface FontPickerProps {

@@ -11,6 +11,9 @@ import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import { workFormToProject } from "@/types/work";
 import type { WorkFormData } from "@/types/work";
 
+type RawPost = { id: string; title?: string; title_en?: string; slug?: string; cover_image?: string; excerpt?: string; category?: string; created_at?: string };
+type RawSeries = { id: string; title?: string; title_en?: string; cover_image?: string; category?: string; description?: string; description_en?: string };
+
 export default function WorkPreviewPage() {
   const { t, language } = useLanguage();
   const router = useRouter();
@@ -39,11 +42,9 @@ export default function WorkPreviewPage() {
       ),
     ).then((posts) => {
       if (ac.signal.aborted) return;
-      const items: RelatedPostItem[] = posts
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .filter((p: any) => p?.id)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((p: any) => ({
+      const items: RelatedPostItem[] = (posts as (RawPost | null)[])
+        .filter((p): p is RawPost => !!p?.id)
+        .map((p) => ({
           id: p.id, title: p.title ?? "", title_en: p.title_en, slug: p.slug ?? "",
           cover_image: p.cover_image ?? "", excerpt: p.excerpt ?? "",
           category: p.category ?? "", created_at: p.created_at ?? "",
@@ -65,13 +66,11 @@ export default function WorkPreviewPage() {
       .then((d) => {
         if (ac.signal.aborted) return;
         const list = Array.isArray(d) ? d : (Array.isArray(d?.items) ? d.items : []);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const byId = new Map(list.map((s: any) => [s.id, s]));
+        const byId = new Map((list as RawSeries[]).map((s) => [s.id, s] as const));
         const items: RelatedSeriesItem[] = ids
           .map((id) => byId.get(id))
-          .filter(Boolean)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((s: any) => ({ id: s.id, title: s.title ?? "", title_en: s.title_en, cover_image: s.cover_image, category: s.category, description: s.description, description_en: s.description_en }));
+          .filter((s): s is RawSeries => !!s)
+          .map((s) => ({ id: s.id, title: s.title ?? "", title_en: s.title_en, cover_image: s.cover_image, category: s.category, description: s.description, description_en: s.description_en }));
         setRelatedSeries(items);
       }).catch(() => {});
     return () => ac.abort();

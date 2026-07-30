@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 /** Revision detail meta — nested item (sub-header + 여러 rows). 팀원/기술처럼 항목마다 여러 속성 노출용. */
-export interface RevisionMetaItem {
+interface RevisionMetaItem {
   /** sub-header — 예: 팀원 이름, 기술명. 없으면 항목 구분만. */
   title?: string;
   rows: { label: string; value: string }[];
