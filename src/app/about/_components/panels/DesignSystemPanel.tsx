@@ -58,7 +58,7 @@ function DesignSystemPanel({
   scrollBy,
 }: DesignSystemPanelProps) {
   const cfg = useSiteConfig();
-  const cfgConcepts = (cfg.about as { designSystem?: CfgConcept[] }).designSystem;
+  const cfgConcepts = cfg.about.designSystem;
   if (cfgConcepts && cfgConcepts.length > 0) concepts = adaptConcepts(cfgConcepts);
   const stripRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);

@@ -39,7 +39,7 @@ function ArchitecturePanel({ language }: ArchitecturePanelProps) {
   /* admin 에서 architectureItems 수정 가능 — 비어있으면 정적 fallback 사용 */
   const cfg = useSiteConfig();
   const titleOverride = usePanelTitle("architecture");
-  const cfgItems = (cfg.about as { architectureItems?: Array<{ path: string; description_ko: string; description_en: string; indent: number }> })?.architectureItems;
+  const cfgItems = cfg.about.architectureItems;
   const structure: StructureItem[] = useMemo(() => {
     if (!cfgItems || cfgItems.length === 0) return projectStructure;
     return cfgItems.map((it) => ({

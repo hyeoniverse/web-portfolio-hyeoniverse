@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import {
-  type ArchNode, type ArchDiagramData,
+  type ArchNode,
   ARCH_ICONS, ARCH_GROUP_COLORS, ARCH_GROUP_LABELS, ARCH_VIEW,
   DEFAULT_ARCH_NODES, DEFAULT_ARCH_EDGES, archEdgePoints,
 } from "./archDiagramData";
@@ -11,7 +11,7 @@ import styles from "./ArchDiagram.module.css";
 
 export default function ArchDiagram() {
   const cfg = useSiteConfig();
-  const arch = (cfg.about as { archDiagram?: ArchDiagramData } | undefined)?.archDiagram;
+  const arch = cfg.about.archDiagram;
   // config 에 노드가 있으면 그걸, 없으면 기본값
   const [initNodes] = useState<ArchNode[]>(() => (arch?.nodes?.length ? arch.nodes : DEFAULT_ARCH_NODES));
   const edges = arch?.edges?.length ? arch.edges : DEFAULT_ARCH_EDGES;
