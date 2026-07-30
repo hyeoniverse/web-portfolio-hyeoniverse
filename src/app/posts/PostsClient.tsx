@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, Fragment, type ReactNode } from "react";
+import { type CardType, getCardType } from "@/data/postsBentoTemplates";
 import { BREAKPOINT, SEARCH_DEBOUNCE_MS } from "@/constants";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -116,53 +117,6 @@ const PAGE_SIZE_OPTIONS = [
 
 // Bento variants — 1-col (square/portrait/standard) + 2-col span (wide/banner).
 // 그리드는 auto-fit 으로 col 수가 viewport 따라 변동 (각 col 약 220-300px 고정) → wide 도 절대 폭이 일정.
-type CardType = "wide" | "banner" | "square" | "portrait" | "standard";
-
-// 10 items / 12 cells — 1 wide(2) + 1 banner(2) + 8 singles. dense packing 으로 backfill.
-const TEMPLATE_A: CardType[] = [
-  "banner",
-  "standard",
-  "standard",
-  "wide",
-  "portrait",
-  "square",
-  "standard",
-  "standard",
-  "portrait",
-  "standard",
-];
-const TEMPLATE_B: CardType[] = [
-  "wide",
-  "portrait",
-  "standard",
-  "standard",
-  "square",
-  "banner",
-  "standard",
-  "portrait",
-  "standard",
-  "standard",
-];
-const TEMPLATE_C: CardType[] = [
-  "standard",
-  "square",
-  "portrait",
-  "wide",
-  "standard",
-  "banner",
-  "standard",
-  "portrait",
-  "standard",
-  "standard",
-];
-const TEMPLATES = [TEMPLATE_A, TEMPLATE_B, TEMPLATE_C];
-
-function getCardType(idx: number): CardType {
-  const cycleLen = 10;
-  const cycle = Math.floor(idx / cycleLen);
-  const pos = idx % cycleLen;
-  return TEMPLATES[cycle % TEMPLATES.length][pos];
-}
 
 /* 태그 dropdown letter filter — 공통 LetterFilter 컴포넌트 사용 (constants/util import). */
 const TAG_LETTERS = [...KOREAN_LETTERS, ...ENGLISH_LETTERS, LETTER_ETC];
