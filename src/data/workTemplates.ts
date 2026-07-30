@@ -1,3 +1,5 @@
+import type { LocalizedText } from "@/types/common";
+
 export const SIZES = ["large", "small", "medium", "tall", "wide"] as const;
 
 export interface TechPreset {
@@ -180,9 +182,9 @@ export const TECH_PRESETS: TechPreset[] = [
 
 export interface WorkTemplate {
   id: string;
-  label: { ko: string; en: string };
-  desc: { ko: string; en: string };
-  content: { ko: string; en: string };
+  label: LocalizedText;
+  desc: LocalizedText;
+  content: LocalizedText;
 }
 
 /* ──────────────────────────────────────────────────────────────────────────

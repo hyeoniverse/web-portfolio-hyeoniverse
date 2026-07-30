@@ -1,4 +1,5 @@
 import type { TroubleShootingItem, TroubleshootingDiagram, ComparisonTable, TroubleshootingDifficulty } from "./types";
+import type { LocalizedText } from "@/types/common";
 
 // ── 통합 섹션 6개 ─────────────────────────────────────────────
 // Architecture / Performance / Layout / Editor / Interaction / Component
@@ -24,7 +25,7 @@ const itemMeta: Record<
      *  89개를 다 늘어놓으면 읽히지 않아, 원본은 남기고 표시할 것만 고른다. */
     featured?: boolean;
     /** 추천 이유 — 항목별 차별점. IDE 에디터 @recommended 라인에 표시 */
-    recommendReason?: { ko: string; en: string };
+    recommendReason?: LocalizedText;
   }
 > = {
   "부모의 마운트 fitView 가 자식 effect 의 카메라 제어를 매번 덮어씀": {
@@ -3403,7 +3404,7 @@ export const troubleShootingItems: TroubleShootingItem[] = (() => {
   const featured = enriched.filter((i) => i.featured);
   const shown = featured.length > 0 ? featured : enriched;
 
-  const sectionIndex = (sec?: { ko: string; en: string }) => {
+  const sectionIndex = (sec?: LocalizedText) => {
     if (!sec) return 99;
     const found = SECTION_ORDER.findIndex((k) => SECTION[k].ko === sec.ko);
     return found < 0 ? 99 : found;

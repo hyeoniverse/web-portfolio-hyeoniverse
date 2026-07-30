@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { LocalizedText } from "@/types/common";
 import type { SelectOption } from "@/types";
 import { Calendar } from "lucide-react";
 import type { DatePeriod } from "@/data/profile";
@@ -105,7 +106,7 @@ export function PeriodFormatBar({
 
 type Format = DatePeriod["format"];
 
-const FORMAT_OPTIONS: { value: Format; label: { ko: string; en: string } }[] = [
+const FORMAT_OPTIONS: { value: Format; label: LocalizedText }[] = [
   { value: "year", label: { ko: "연도", en: "Year" } },
   { value: "yearMonth", label: { ko: "연.월", en: "Y.M" } },
   { value: "date", label: { ko: "연.월.일", en: "Y.M.D" } },

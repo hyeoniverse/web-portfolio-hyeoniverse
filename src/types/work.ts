@@ -43,7 +43,7 @@ export interface Work {
   contributions_en?: Record<string, string[]>;
   tech: string[];
   /** 기술별 메모 — 기술마다 ko/en 단일 설명 (TagNotesEditor 와 동일 패턴) */
-  tech_notes?: Record<string, { ko: string; en: string }>;
+  tech_notes?: Record<string, LocalizedText>;
   image: string;
   /** 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단 (posts.icon 미러) */
   icon: string;
@@ -100,7 +100,7 @@ export interface WorkFormData {
   contributions_ko: Record<string, string[]>;
   contributions_en: Record<string, string[]>;
   tech: string[];
-  tech_notes: Record<string, { ko: string; en: string }>;
+  tech_notes: Record<string, LocalizedText>;
   image: string;
   /** 페이지 아이콘(이모지 또는 이미지 URL) — 커버 배너 상단 (posts.icon 미러) */
   icon: string;

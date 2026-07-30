@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
-import type { BilingualDescription } from "@/types/common";
+import type { LocalizedText } from "@/types/common";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, GripVertical, Pencil } from "lucide-react";
 import Chip from "@/components/ui/Chip";
@@ -115,11 +115,11 @@ export interface TagNotesEditorProps {
   /** 표시 + 정렬 순서 source (tags / tech 등) */
   items: string[];
   /** 항목별 ko/en 설명 — entry 없는 항목은 undefined */
-  notes: Record<string, BilingualDescription>;
+  notes: Record<string, LocalizedText>;
   /** items 재정렬 / 항목 제거 후 호출 */
   onItemsChange: (next: string[]) => void;
   /** notes 변경 (entry 추가/수정/삭제) 후 호출 */
-  onNotesChange: (next: Record<string, BilingualDescription>) => void;
+  onNotesChange: (next: Record<string, LocalizedText>) => void;
   /** 라벨 prefix — "#" (tags) 또는 빈 string (tech 등) */
   prefix?: string;
   /** placeholder — KO / EN 인풋 공통 */
@@ -217,11 +217,11 @@ export default function TagNotesEditor({
 
   // entry 의 ko/en 에서 빈 pair (양쪽 모두 trim 시 비어있음) 제거.
   // 모두 비면 null 반환 — entry 자체 제거 시그널
-  const normalizeEntry = useCallback((e: { ko: string; en: string }) => {
+  const normalizeEntry = useCallback((e: LocalizedText) => {
     const ko = e.ko.split("\n");
     const en = e.en.split("\n");
     const len = Math.max(ko.length, en.length);
-    const kept: { ko: string; en: string }[] = [];
+    const kept: LocalizedText[] = [];
     for (let i = 0; i < len; i++) {
       const k = ko[i] ?? "";
       const v = en[i] ?? "";
@@ -351,7 +351,7 @@ export default function TagNotesEditor({
       <AnimatePresence initial={false}>
       {items.map((item, idx) => {
         const entry = notes[item];
-        const setEntry = (next: BilingualDescription | null) => {
+        const setEntry = (next: LocalizedText | null) => {
           const map = { ...notes };
           if (next === null) delete map[item];
           else map[item] = next;
@@ -371,7 +371,7 @@ export default function TagNotesEditor({
               return Array.from({ length: len }, (_, i) => ({ ko: koItems[i] ?? "", en: enItems[i] ?? "" }));
             })()
           : [];
-        const writePairsForItem = (next: { ko: string; en: string }[]) => {
+        const writePairsForItem = (next: LocalizedText[]) => {
           setEntry({ ko: next.map((p) => p.ko).join("\n"), en: next.map((p) => p.en).join("\n") });
         };
         return (
@@ -587,7 +587,7 @@ export default function TagNotesEditor({
                     const enItems = entry.en.split("\n");
                     const len = Math.max(koItems.length, enItems.length, 1);
                     const pairs = Array.from({ length: len }, (_, i) => ({ ko: koItems[i] ?? "", en: enItems[i] ?? "" }));
-                    const writePairs = (next: { ko: string; en: string }[]) => {
+                    const writePairs = (next: LocalizedText[]) => {
                       setEntry({ ko: next.map((p) => p.ko).join("\n"), en: next.map((p) => p.en).join("\n") });
                     };
                     const handlePairDrop = () => {
