@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useState, useCallback, useRef, useEffect } from "react";
+import { PREVIEW_KEY } from "@/constants";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
@@ -83,7 +84,7 @@ function EditorSection({ language, setSectionRef }: EditorSectionProps) {
       series_order: 0,
       github_url: "",
     };
-    sessionStorage.setItem("post-preview", JSON.stringify(form));
+    sessionStorage.setItem(PREVIEW_KEY.post, JSON.stringify(form));
     window.open("/admin/posts/preview", "_blank");
   }, [value]);
 

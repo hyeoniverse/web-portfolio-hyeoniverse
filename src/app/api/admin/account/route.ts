@@ -1,4 +1,5 @@
 import { createClient as createStatelessClient } from "@supabase/supabase-js";
+import { MAIL_FROM } from "@/constants";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { getSiteConfig } from "@/lib/getSiteConfig";
@@ -26,7 +27,7 @@ async function sendSecurityAlert(to: string, action: string, detail?: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Portfolio <onboarding@resend.dev>",
+        from: MAIL_FROM,
         to,
         subject: `[Security] ${action}`,
         html: emailLayout({ title, body, footer }),

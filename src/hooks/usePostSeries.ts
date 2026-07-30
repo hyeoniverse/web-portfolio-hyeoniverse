@@ -19,8 +19,8 @@ export function usePostSeries(
 
   const refetchSeries = useCallback(async () => {
     const res = await fetch("/api/series?all=true");
-    const data = await res.json();
-    setSeriesList(Array.isArray(data) ? data : []);
+    const data: unknown = await res.json();
+    setSeriesList(Array.isArray(data) ? (data as Series[]) : []);
   }, []);
 
   // Fetch all series on mount
