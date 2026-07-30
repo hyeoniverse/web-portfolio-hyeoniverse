@@ -11,8 +11,9 @@ import {
 } from "react";
 import ko from "@/locales/ko.json";
 import en from "@/locales/en.json";
+import type { Language } from "@/types";
 
-export type Language = "ko" | "en";
+export type { Language };
 
 type TranslationValue = string | { [key: string]: TranslationValue };
 export type Translations = { [key: string]: TranslationValue };

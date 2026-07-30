@@ -1,4 +1,4 @@
-import type { Language } from "@/providers/LanguageProvider";
+import type { Language } from "./app";
 
 /** 한국어/영어 이중언어 텍스트 (description 용 — 카테고리/태그 공용) */
 export interface BilingualDescription {

@@ -8,6 +8,7 @@
    ───────────────────────────────────────────────────────────── */
 
 import dynamic from "next/dynamic";
+import type { Language } from "@/types";
 import { useState, useEffect, useMemo, useRef, useDeferredValue, type CSSProperties, type Dispatch, type FocusEvent, type ReactNode, type SetStateAction } from "react";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import {
@@ -83,7 +84,6 @@ import { securityIcons } from "@/app/about/_components/panels/SecurityPanel";
 /* ═══════════ 타입 ═══════════ */
 type ThemeBg = { primary: string; secondary: string; accent: string };
 type Tr = (k: string) => string;
-type Lang = "ko" | "en";
 type AboutStudioProps = {
   config: SiteConfigData;
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
@@ -232,7 +232,7 @@ function StageTabs({ count, active, onSelect, labelOf, addLabel, onAdd, canAdd }
 export default function AboutStudio({ config, setConfig, update, savedConfig, saveSection, revertSection, resetSection, savingPaths, t, themeBg, techStackSlot }: AboutStudioProps) {
   const about = config.about;
   const rec = about as unknown as Record<string, string | undefined>;
-  const [lang, setLang] = useState<Lang>("ko");
+  const [lang, setLang] = useState<Language>("ko");
   const [active, setActive] = useState<ActiveKey | null>(null);
   const [bgTab, setBgTab] = useState<"media" | "color" | "gradient">("media");
   const [scale, setScale] = useState(0.5);
@@ -414,7 +414,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
     <div className={css.studio} style={{ gridColumn: "1 / -1" }}>
       {/* ── 상단 바 ── */}
       <div className={css.bar}>
-        <SegmentedControl<Lang> size="sm" value={lang} onChange={setLang} className={css.segFit}
+        <SegmentedControl<Language> size="sm" value={lang} onChange={setLang} className={css.segFit}
           items={[{ value: "ko", label: "KO" }, { value: "en", label: "EN" }]} />
         <p className={css.barHint}>{t("admin.settings.aboutStudioHint")}</p>
       </div>
@@ -739,7 +739,7 @@ function BgMedia({ media, t, onSet, opacity, onOpacity, overlay, onOverlay, stre
 /* ═══════════ Panel manager — 순서(DnD) + 표시 토글. hero/credits 는 순서 고정 ═══════════ */
 const LOCKED_PANELS = new Set(["hero", "credits"]);
 function PanelManager({ about, setAny, t, lang }: {
-  about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; t: Tr; lang: Lang;
+  about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; t: Tr; lang: Language;
 }) {
   const hidden = (about.hiddenPanels ?? []) as string[];
   const titles = (about as { panelTitles?: Record<string, { ko?: string; en?: string }> }).panelTitles ?? {};
@@ -862,7 +862,7 @@ function PanelSaveHeader({ label, hint, paths, config, savedConfig, saveSection,
 
 /* ═══════════ Overview ═══════════ */
 function OverviewBlock({ about, lang, setAny, t, scale, titleOverride }: {
-  about: SiteConfigData["about"]; lang: Lang; setAny: (k: string, v: unknown) => void; t: Tr; scale: number; titleOverride?: string;
+  about: SiteConfigData["about"]; lang: Language; setAny: (k: string, v: unknown) => void; t: Tr; scale: number; titleOverride?: string;
 }) {
   const stats = (about.overview_stats ?? []) as OverviewStat[];
   const setStats = (v: OverviewStat[]) => setAny("overview_stats", v);
@@ -910,7 +910,7 @@ function OverviewBlock({ about, lang, setAny, t, scale, titleOverride }: {
 
 /* ═══════════ Features ═══════════ */
 function FeaturesBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: FeatureItem[]; onChange: (v: FeatureItem[]) => void; lang: Lang; t: Tr; scale: number; titleOverride?: string;
+  value: FeatureItem[]; onChange: (v: FeatureItem[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
 }) {
   const set = (i: number, p: Partial<FeatureItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const [hovered, setHovered] = useState<{ row: number; col: number } | null>(null);
@@ -964,7 +964,7 @@ function FeaturesBlock({ value, onChange, lang, t, scale, titleOverride }: {
 
 /* ═══════════ Process ═══════════ */
 function ProcessBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: ProcessItem[]; onChange: (v: ProcessItem[]) => void; lang: Lang; t: Tr; scale: number; titleOverride?: string;
+  value: ProcessItem[]; onChange: (v: ProcessItem[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
 }) {
   const set = (i: number, p: Partial<ProcessItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const MAX = 8;
@@ -1011,7 +1011,7 @@ function ProcessBlock({ value, onChange, lang, t, scale, titleOverride }: {
 
 /* ═══════════ Security ═══════════ */
 function SecurityBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: SecurityItem[]; onChange: (v: SecurityItem[]) => void; lang: Lang; t: Tr; scale: number; titleOverride?: string;
+  value: SecurityItem[]; onChange: (v: SecurityItem[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
 }) {
   const set = (i: number, p: Partial<SecurityItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const MAX = 10;
@@ -1075,7 +1075,7 @@ const seedConcepts = (): ConceptItem[] => designConcepts.map((c) => ({
 /* 실제 패널과 동일 — 컨셉 1개 = 배경 이미지 풀블리드 슬라이드 + 흰 오버레이 텍스트.
    실제도 strip 으로 한 장씩 넘겨 보므로 스튜디오도 탭으로 전환하며 한 장씩 편집. */
 function DesignSystemBlock({ value, onChange, lang, t, scale }: {
-  value: ConceptItem[]; onChange: (v: ConceptItem[]) => void; lang: Lang; t: Tr; scale: number;
+  value: ConceptItem[]; onChange: (v: ConceptItem[]) => void; lang: Language; t: Tr; scale: number;
 }) {
   const [tab, setTab] = useState(0);
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -1202,7 +1202,7 @@ const seedCode = (): CodeItem[] => codeExamples.map((c) => ({
 /* 실제 패널과 동일 — 번호 + 제목/설명 헤더, 본문은 데모 + 코드 2단.
    실제도 스크롤로 한 패인씩 넘겨 보므로 스튜디오도 탭으로 전환하며 하나씩 편집. */
 function CodeHighlightsBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: CodeItem[]; onChange: (v: CodeItem[]) => void; lang: Lang; t: Tr; scale: number; titleOverride?: string;
+  value: CodeItem[]; onChange: (v: CodeItem[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
 }) {
   const [dropOver, setDropOver] = useState(false);
 
@@ -1402,7 +1402,7 @@ async function uploadDemoFile(file: File): Promise<string> {
 }
 
 function DemoMediaUpload({ url, onChange, lang }: {
-  url?: string; onChange: (u: string) => void; lang: Lang;
+  url?: string; onChange: (u: string) => void; lang: Language;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -1457,7 +1457,7 @@ const UF_MAX = 8;
 /* 실제 패널과 동일 — 좌측 페르소나 정보 + 우측 플로우 다이어그램.
    다이어그램 좌표(row/col)는 flowLayout 이 계산하므로 여기선 값만 편집한다. */
 function UserFlowBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: UserFlow[]; onChange: (v: UserFlow[]) => void; lang: Lang; t: Tr; scale: number; titleOverride?: string;
+  value: UserFlow[]; onChange: (v: UserFlow[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
 }) {
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
@@ -1533,7 +1533,7 @@ function UserFlowBlock({ value, onChange, lang, t, scale, titleOverride }: {
 /* 테이블이 하나도 안 나올 때 "왜" 를 짚어준다.
    ALTER 를 지원하면서 "CREATE TABLE 을 못 찾았다" 고만 말하면 거짓말이 되고,
    멀쩡한 SQL 을 붙여넣은 사람이 자기 SQL 을 의심하게 된다. */
-function emptyReason(parsed: ParsedErd, sql: string, lang: Lang): string {
+function emptyReason(parsed: ParsedErd, sql: string, lang: Language): string {
   const ko = lang === "ko";
 
   /* ALTER 대상이 없는 건 문법 문제가 아니다 — 원인이 다르니 먼저 말한다 */
@@ -1571,7 +1571,7 @@ function emptyReason(parsed: ParsedErd, sql: string, lang: Lang): string {
 /* 가져오기 적용 전 경고 — 숫자만 보여주면 "무엇이 덮어써지는지" 를 알 수 없다.
    바뀌는 컬럼을 이름과 전/후로 짚어주고, 사라지는 것은 따로 모아 보여준다. */
 function ImportWarning({ plan, lang, onConfirm }: {
-  plan: ImportPlan; lang: Lang; onConfirm: () => void;
+  plan: ImportPlan; lang: Language; onConfirm: () => void;
 }) {
   const ko = lang === "ko";
   const changedCount = plan.updatedTables.reduce((n, t) => n + t.changed.length, 0);
@@ -1627,7 +1627,7 @@ function ImportWarning({ plan, lang, onConfirm }: {
    실제 스키마(CREATE TABLE)를 붙여넣으면 테이블·컬럼·관계를 한 번에 만든다. */
 function ErdBlock({ tables, relations, onChange, lang }: {
   tables: ErdTable[]; relations: ErdRelation[];
-  onChange: (t: ErdTable[], r: ErdRelation[]) => void; lang: Lang;
+  onChange: (t: ErdTable[], r: ErdRelation[]) => void; lang: Language;
 }) {
   const openModal = useModalStore((st) => st.openModal);
   const [sql, setSql] = useState("");
@@ -1897,7 +1897,7 @@ function ErdBlock({ tables, relations, onChange, lang }: {
 const BK_MAX = 12;
 /* 실제 패널과 동일 — 좌측 목록 + 우측 상세. 실제도 한 항목씩 보므로 탭으로 전환. */
 function BackendBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: BackendItem[]; onChange: (v: BackendItem[]) => void; lang: Lang; t: Tr; scale: number; titleOverride?: string;
+  value: BackendItem[]; onChange: (v: BackendItem[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
 }) {
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
@@ -2053,7 +2053,7 @@ const TS_FIELDS = ["problem", "definition", "cause", "solution", "keyInsight"] a
    비교표·다이어그램·이미지는 구조가 깊어 개수만 보여주고 본문 편집에 집중. */
 function TroubleshootingBlock({ value, onChange, lang, scale, titleOverride }: {
   value: TroubleShootingItem[]; onChange: (v: TroubleShootingItem[]) => void;
-  lang: Lang; scale: number; titleOverride?: string;
+  lang: Language; scale: number; titleOverride?: string;
 }) {
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
@@ -2161,7 +2161,7 @@ function TroubleshootingBlock({ value, onChange, lang, scale, titleOverride }: {
 
 /* ═══════════ Credits ═══════════ */
 function CreditsBlock({ about, setAny, lang, nickname, t }: {
-  about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; lang: Lang;
+  about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; lang: Language;
   nickname: string; t: Tr;
 }) {
   /* 저작자 표시 문구(로케일)와 소유자 이름은 고정 — 편집 대상이 아니다.
@@ -2374,7 +2374,7 @@ function BreakBlock({ url, onSet, t }: { url: string; onSet: (u: string) => void
 /* ═══════════ Architecture (비주얼 트리) ═══════════ */
 function ArchitectureBlock({ value, onChange, diagram, onDiagramChange, t, lang }: {
   value: ArchitectureItem[]; onChange: (v: ArchitectureItem[]) => void;
-  diagram: ArchDiagramData; onDiagramChange: (v: ArchDiagramData) => void; t: Tr; lang: Lang;
+  diagram: ArchDiagramData; onDiagramChange: (v: ArchDiagramData) => void; t: Tr; lang: Language;
 }) {
   const [sel, setSel] = useState<number | null>(null);
   const treeRef = useRef<HTMLDivElement>(null);

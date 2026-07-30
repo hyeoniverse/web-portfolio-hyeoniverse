@@ -4,11 +4,10 @@ import { useRef, useEffect, useState, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import DatePicker from "./DatePicker";
+import DatePicker, { type Format } from "./DatePicker";
 import { usePortalContainer } from "../portalContainer";
 import styles from "./DatePicker.module.css";
 
-type Format = "year" | "yearMonth" | "date";
 interface DatePickerPopoverProps {
   year: string;
   month: string;

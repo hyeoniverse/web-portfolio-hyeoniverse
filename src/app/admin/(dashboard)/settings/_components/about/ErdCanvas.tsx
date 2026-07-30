@@ -10,6 +10,7 @@
  * 새 테이블을 추가하면 공개 ERD 에도 곧바로 자리를 잡는다. */
 
 import { useCallback, useMemo, useState } from "react";
+import type { Language } from "@/types";
 import { Plus, Link2, ArrowRight, ArrowLeft, ArrowLeftRight, List, Network, AlertTriangle } from "lucide-react";
 import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
@@ -21,7 +22,6 @@ import type { ErdTable, ErdRelation } from "@/data/about/types";
 import Tooltip from "@/components/ui/Tooltip";
 import css from "./ErdCanvas.module.css";
 
-type Lang = "ko" | "en";
 
 /* 카드에 보여줄 컬럼 수 — 더 늘리면 카드가 다이어그램 노드와 다를 게 없어진다 */
 const PREVIEW_COLS = 3;
@@ -30,7 +30,7 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
   tables: ErdTable[];
   relations: ErdRelation[];
   onChange: (t: ErdTable[], r: ErdRelation[]) => void;
-  lang: Lang;
+  lang: Language;
 }) {
   const openModal = useModalStore((st) => st.openModal);
   const [sel, setSel] = useState<string | null>(null);

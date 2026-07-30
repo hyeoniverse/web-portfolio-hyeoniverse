@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
+import type { Language } from "@/types";
 import { approveDeviceByToken } from "@/lib/auth/knownDevices";
 
-type Lang = "ko" | "en";
 
 /** Accept-Language 헤더 첫 번째 토큰만 확인. ko* 면 한국어, 아니면 영어. */
-function detectLang(acceptLanguage: string | null): Lang {
+function detectLang(acceptLanguage: string | null): Language {
   if (!acceptLanguage) return "en";
   const first = acceptLanguage.split(",")[0]?.trim().toLowerCase() ?? "";
   return first.startsWith("ko") ? "ko" : "en";
@@ -31,7 +31,7 @@ const T = {
     cta: "Back to login",
     htmlLang: "en",
   },
-} satisfies Record<Lang, Record<string, string>>;
+} satisfies Record<Language, Record<string, string>>;
 
 /** GET /api/admin/auth/approve-device?token=xxx
  *  이메일 링크 → token 검증 → device approved=true. 이후 같은 기기 (UA fingerprint) 에서
@@ -60,7 +60,7 @@ export async function GET(request: Request) {
 function htmlResponse(args: {
   ok: boolean;
   message: string;
-  lang: Lang;
+  lang: Language;
   loginUrl?: string;
 }) {
   const { ok, message, lang, loginUrl } = args;

@@ -158,7 +158,7 @@ export interface UserFlow {
 
 /* 아래 선택 필드들은 SQL 가져오기가 채운다.
    전부 optional 이라 기존에 저장된 ERD 는 그대로 유효하다 — 마이그레이션이 필요 없다. */
-export interface ErdColumn {
+interface ErdColumn {
   name: string;
   type: string;
   pk?: boolean;

@@ -27,7 +27,7 @@ export interface IncomingErd {
   removedColumns?: { table: string; column: string }[];
 }
 
-export interface MergeStats {
+interface MergeStats {
   /** SQL 에만 있어 새로 추가된 테이블 */
   addedTables: number;
   /** 양쪽에 있어 컬럼이 합쳐진 테이블 */
@@ -53,8 +53,8 @@ const relKey = (r: ErdRelation) => `${r.from}.${r.fromField}->${r.to}.${r.toFiel
    숫자만 보여주면 "무엇이 덮어써지는지" 를 알 수 없다. 병합도 규칙 2 때문에
    기존 컬럼 정의를 덮으므로, 바뀌는 컬럼을 이름까지 짚어준다. */
 
-export interface ColumnChange { name: string; before: string; after: string }
-export interface TableChange { name: string; added: string[]; changed: ColumnChange[] }
+interface ColumnChange { name: string; before: string; after: string }
+interface TableChange { name: string; added: string[]; changed: ColumnChange[] }
 
 export interface ImportPlan {
   mode: "merge" | "replace";

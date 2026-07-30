@@ -274,7 +274,7 @@ export async function getTagPageData(tag: string, perPage: number = TAG_PER_PAGE
 }
 
 /** 통합 태그 페이지에서 표시할 work 요약 (tech 공유 어휘) */
-export interface TagWork {
+interface TagWork {
   id: string;
   title: string;
   title_en: string;
@@ -408,7 +408,6 @@ export async function getAllSeriesData() {
   };
 }
 
-export type AllSeriesData = Awaited<ReturnType<typeof getAllSeriesData>>;
 
 /** /posts/categories 인덱스 페이지용 — published posts 의 모든 distinct 카테고리 + 글 수 + 첫 글 cover */
 export async function getAllCategoriesData() {
@@ -437,7 +436,6 @@ export async function getAllCategoriesData() {
   };
 }
 
-export type AllCategoriesData = Awaited<ReturnType<typeof getAllCategoriesData>>;
 
 /** /posts/history 타임라인 왼쪽 월 인덱스용 — 전체 published posts 의 유효일(scheduled_at ?? created_at)
  *  문자열만 최신순으로 반환. 월 버킷팅/라벨은 클라이언트에서(브라우저 타임존 기준 marker id 와 일치하도록). */

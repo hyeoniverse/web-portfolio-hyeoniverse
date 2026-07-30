@@ -3,7 +3,7 @@
 import { Eraser } from "lucide-react";
 import styles from "./BilingualInputPair.module.css";
 
-export interface BilingualValue {
+interface BilingualValue {
   ko: string;
   en: string;
 }

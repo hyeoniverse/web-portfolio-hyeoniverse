@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import type { SortDirection } from "@/types";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -157,13 +158,12 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   /* 태그와 동일 패턴 — sortBy + sortDir + usageFilter + descFilter + searchType + filterExpanded.
      카테고리는 사용자 정의순(custom) 추가 — categories prop 의 순서 그대로. */
   type SortBy = "custom" | "freq" | "name";
-  type SortDir = "asc" | "desc";
   type NameLang = "ko" | "en";
   type UsageFilter = "all" | "in-use" | "unused";
   type DescFilter = "all" | "with" | "without";
   const [searchType, setSearchType] = useState<"all" | "name" | "desc">("all");
   const [sortBy, setSortBy] = useState<SortBy>("custom");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortDir, setSortDir] = useState<SortDirection>("asc");
   const [nameLang, setNameLang] = useState<NameLang>("ko");
   const [usageFilter, setUsageFilter] = useState<UsageFilter>("all");
   const [descFilter, setDescFilter] = useState<DescFilter>("all");
