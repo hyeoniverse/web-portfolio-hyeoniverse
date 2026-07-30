@@ -1,9 +1,10 @@
 "use client";
 
 import { forwardRef } from "react";
+import { SOCIAL_ICONS } from "@/data/socialIcons";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Download } from "@/components/icons";
+import { Download, SocialBrandIcon } from "@/components/icons";
 
 const CoffeeCanvas = dynamic(() => import("./CoffeeCanvas"), { ssr: false });
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -13,7 +14,6 @@ import Section from "@/components/ui/Section";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import type { UseMagneticReturn } from "@/hooks/useMagnetic";
-import { SOCIAL_ICONS } from "@/data/socialIcons";
 import styles from "./CTASection.module.css";
 
 interface CTASectionProps {
@@ -124,8 +124,7 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
           {cfg.socialLinks && cfg.socialLinks.filter((l) => l.url).length > 0 && (
             <div className={styles.socialRow}>
               {cfg.socialLinks.filter((l) => l.url).map((link, i) => {
-                const icon = SOCIAL_ICONS[link.platform];
-                const label = icon?.label ?? link.label ?? link.platform;
+                const label = SOCIAL_ICONS[link.platform]?.label ?? link.label ?? link.platform;
                 return (
                   <Tooltip key={`${link.platform}-${i}`} content={label} placement="bottom">
                     <a
@@ -138,11 +137,9 @@ const CTASection = forwardRef<HTMLElement, CTASectionProps>(
                       {link.icon ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={link.icon} alt="" />
-                      ) : icon?.stroke ? (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={icon.path} /></svg>
-                      ) : icon ? (
-                        <svg viewBox="0 0 24 24"><path d={icon.path} /></svg>
-                      ) : null}
+                      ) : (
+                        <SocialBrandIcon name={link.platform} />
+                      )}
                     </a>
                   </Tooltip>
                 );
