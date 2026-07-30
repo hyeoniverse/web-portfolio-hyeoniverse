@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
-import type { SortDirection } from "@/types";
+import { TECH_ICON_PRESETS, type TechIconPreset } from "@/data/techIconPresets";
+import type { SortDirection, SelectOption } from "@/types";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
 import { DndContext, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
@@ -55,134 +56,9 @@ function techIconSrc(icon?: string): string {
   return /^https?:\/\//.test(icon) || icon.startsWith("/") ? icon : `https://cdn.simpleicons.org/${icon}`;
 }
 
-/* Tech stack 프리셋 — slug(아이콘) + 이름 + 카테고리 + ko(한글 별칭, 초성/한글 검색용) */
-type TechPreset = { slug: string; name: string; category: string; ko?: string };
-const TECH_PRESETS: TechPreset[] = [
-  { slug: "nextdotjs", name: "Next.js", category: "Framework", ko: "넥스트" },
-  { slug: "react", name: "React", category: "Library", ko: "리액트" },
-  { slug: "vuedotjs", name: "Vue.js", category: "Framework", ko: "뷰" },
-  { slug: "svelte", name: "Svelte", category: "Framework", ko: "스벨트" },
-  { slug: "typescript", name: "TypeScript", category: "Language", ko: "타입스크립트" },
-  { slug: "javascript", name: "JavaScript", category: "Language", ko: "자바스크립트" },
-  { slug: "python", name: "Python", category: "Language", ko: "파이썬" },
-  { slug: "nodedotjs", name: "Node.js", category: "Runtime", ko: "노드" },
-  { slug: "greensock", name: "GSAP", category: "Animation", ko: "지샙" },
-  { slug: "framer", name: "Framer Motion", category: "Animation", ko: "프레이머모션" },
-  { slug: "tailwindcss", name: "Tailwind CSS", category: "Styling", ko: "테일윈드" },
-  { slug: "css", name: "CSS", category: "Styling", ko: "씨에스에스" },
-  { slug: "sass", name: "Sass", category: "Styling", ko: "사스" },
-  { slug: "threedotjs", name: "Three.js", category: "3D Graphics", ko: "쓰리" },
-  { slug: "supabase", name: "Supabase", category: "Backend", ko: "슈파베이스" },
-  { slug: "firebase", name: "Firebase", category: "Backend", ko: "파이어베이스" },
-  { slug: "postgresql", name: "PostgreSQL", category: "Database", ko: "포스트그레" },
-  { slug: "mongodb", name: "MongoDB", category: "Database", ko: "몽고디비" },
-  { slug: "prisma", name: "Prisma", category: "ORM", ko: "프리즈마" },
-  { slug: "redux", name: "Redux", category: "State Management", ko: "리덕스" },
-  { slug: "vite", name: "Vite", category: "Build", ko: "비트" },
-  { slug: "webpack", name: "Webpack", category: "Build", ko: "웹팩" },
-  { slug: "vitest", name: "Vitest", category: "Testing", ko: "비테스트" },
-  { slug: "jest", name: "Jest", category: "Testing", ko: "제스트" },
-  { slug: "playwright", name: "Playwright", category: "Testing", ko: "플레이라이트" },
-  { slug: "storybook", name: "Storybook", category: "UI", ko: "스토리북" },
-  { slug: "vercel", name: "Vercel", category: "Deployment", ko: "버셀" },
-  { slug: "netlify", name: "Netlify", category: "Deployment", ko: "넷리파이" },
-  { slug: "docker", name: "Docker", category: "DevOps", ko: "도커" },
-  { slug: "git", name: "Git", category: "VCS", ko: "깃" },
-  { slug: "github", name: "GitHub", category: "VCS", ko: "깃허브" },
-  { slug: "figma", name: "Figma", category: "Design", ko: "피그마" },
-  { slug: "openai", name: "OpenAI", category: "AI", ko: "오픈에이아이" },
-  { slug: "huggingface", name: "Hugging Face", category: "AI", ko: "허깅페이스" },
-  { slug: "tiptap", name: "Tiptap", category: "Rich Text Editor", ko: "팁탭" },
-  { slug: "", name: "Plate", category: "Rich Text Editor", ko: "플레이트" },
-  { slug: "slate", name: "Slate", category: "Rich Text Editor", ko: "슬레이트" },
-  { slug: "graphql", name: "GraphQL", category: "API", ko: "그래프큐엘" },
-  { slug: "stripe", name: "Stripe", category: "Payments", ko: "스트라이프" },
-  { slug: "zod", name: "Zod", category: "Validation", ko: "조드" },
-  // ── 언어 ──
-  { slug: "html5", name: "HTML", category: "Markup", ko: "에이치티엠엘" },
-  { slug: "rust", name: "Rust", category: "Language", ko: "러스트" },
-  { slug: "go", name: "Go", category: "Language", ko: "고" },
-  { slug: "cplusplus", name: "C++", category: "Language", ko: "씨쁠쁠" },
-  { slug: "c", name: "C", category: "Language", ko: "씨" },
-  { slug: "openjdk", name: "Java", category: "Language", ko: "자바" },
-  { slug: "kotlin", name: "Kotlin", category: "Language", ko: "코틀린" },
-  { slug: "swift", name: "Swift", category: "Language", ko: "스위프트" },
-  { slug: "ruby", name: "Ruby", category: "Language", ko: "루비" },
-  { slug: "php", name: "PHP", category: "Language", ko: "피에이치피" },
-  { slug: "dart", name: "Dart", category: "Language", ko: "다트" },
-  // ── 프레임워크 (프론트) ──
-  { slug: "angular", name: "Angular", category: "Framework", ko: "앵귤러" },
-  { slug: "solid", name: "Solid", category: "Framework", ko: "솔리드" },
-  { slug: "qwik", name: "Qwik", category: "Framework", ko: "퀵" },
-  { slug: "astro", name: "Astro", category: "Framework", ko: "아스트로" },
-  { slug: "nuxtdotjs", name: "Nuxt", category: "Framework", ko: "넉스트" },
-  { slug: "remix", name: "Remix", category: "Framework", ko: "리믹스" },
-  { slug: "preact", name: "Preact", category: "Framework", ko: "프리액트" },
-  // ── 백엔드 ──
-  { slug: "express", name: "Express", category: "Backend", ko: "익스프레스" },
-  { slug: "nestjs", name: "NestJS", category: "Backend", ko: "네스트" },
-  { slug: "fastify", name: "Fastify", category: "Backend", ko: "패스티파이" },
-  { slug: "django", name: "Django", category: "Backend", ko: "장고" },
-  { slug: "flask", name: "Flask", category: "Backend", ko: "플라스크" },
-  { slug: "fastapi", name: "FastAPI", category: "Backend", ko: "패스트에이피아이" },
-  { slug: "laravel", name: "Laravel", category: "Backend", ko: "라라벨" },
-  { slug: "spring", name: "Spring", category: "Backend", ko: "스프링" },
-  { slug: "dotnet", name: ".NET", category: "Backend", ko: "닷넷" },
-  // ── 모바일 / 데스크탑 / 런타임 ──
-  { slug: "flutter", name: "Flutter", category: "Mobile", ko: "플러터" },
-  { slug: "electron", name: "Electron", category: "Desktop", ko: "일렉트론" },
-  { slug: "tauri", name: "Tauri", category: "Desktop", ko: "타우리" },
-  { slug: "expo", name: "Expo", category: "Mobile", ko: "엑스포" },
-  { slug: "deno", name: "Deno", category: "Runtime", ko: "디노" },
-  { slug: "bun", name: "Bun", category: "Runtime", ko: "번" },
-  // ── 상태 / 스타일 ──
-  { slug: "mobx", name: "MobX", category: "State Management", ko: "몹엑스" },
-  { slug: "reactquery", name: "React Query", category: "State Management", ko: "리액트쿼리" },
-  { slug: "styledcomponents", name: "styled-components", category: "Styling", ko: "스타일드컴포넌츠" },
-  { slug: "mui", name: "MUI", category: "Styling", ko: "엠유아이" },
-  { slug: "chakraui", name: "Chakra UI", category: "Styling", ko: "차크라" },
-  { slug: "radixui", name: "Radix UI", category: "Styling", ko: "라딕스" },
-  { slug: "bootstrap", name: "Bootstrap", category: "Styling", ko: "부트스트랩" },
-  { slug: "postcss", name: "PostCSS", category: "Styling", ko: "포스트씨에스에스" },
-  // ── 빌드 / 도구 / 패키지 ──
-  { slug: "rollupdotjs", name: "Rollup", category: "Build", ko: "롤업" },
-  { slug: "esbuild", name: "esbuild", category: "Build", ko: "이에스빌드" },
-  { slug: "babel", name: "Babel", category: "Build", ko: "바벨" },
-  { slug: "turborepo", name: "Turborepo", category: "Build", ko: "터보레포" },
-  { slug: "eslint", name: "ESLint", category: "Lint", ko: "이에스린트" },
-  { slug: "prettier", name: "Prettier", category: "Lint", ko: "프리티어" },
-  { slug: "npm", name: "npm", category: "Package", ko: "엔피엠" },
-  { slug: "pnpm", name: "pnpm", category: "Package", ko: "피엔피엠" },
-  { slug: "yarn", name: "Yarn", category: "Package", ko: "얀" },
-  // ── 테스트 ──
-  { slug: "cypress", name: "Cypress", category: "Testing", ko: "사이프러스" },
-  { slug: "testinglibrary", name: "Testing Library", category: "Testing", ko: "테스팅라이브러리" },
-  // ── DB / API ──
-  { slug: "mysql", name: "MySQL", category: "Database", ko: "마이에스큐엘" },
-  { slug: "redis", name: "Redis", category: "Database", ko: "레디스" },
-  { slug: "sqlite", name: "SQLite", category: "Database", ko: "에스큐엘라이트" },
-  { slug: "planetscale", name: "PlanetScale", category: "Database", ko: "플래닛스케일" },
-  { slug: "apollographql", name: "Apollo", category: "API", ko: "아폴로" },
-  // ── DevOps / Cloud ──
-  { slug: "kubernetes", name: "Kubernetes", category: "DevOps", ko: "쿠버네티스" },
-  { slug: "githubactions", name: "GitHub Actions", category: "CI", ko: "깃허브액션" },
-  { slug: "gitlab", name: "GitLab", category: "VCS", ko: "깃랩" },
-  { slug: "googlecloud", name: "Google Cloud", category: "Cloud", ko: "구글클라우드" },
-  { slug: "cloudflare", name: "Cloudflare", category: "Cloud", ko: "클라우드플레어" },
-  { slug: "nginx", name: "Nginx", category: "DevOps", ko: "엔진엑스" },
-  // ── AI / 디자인 / 도구 ──
-  { slug: "anthropic", name: "Anthropic", category: "AI", ko: "앤트로픽" },
-  { slug: "ollama", name: "Ollama", category: "AI", ko: "올라마" },
-  { slug: "googlegemini", name: "Gemini", category: "AI", ko: "제미나이" },
-  { slug: "adobephotoshop", name: "Photoshop", category: "Design", ko: "포토샵" },
-  { slug: "blender", name: "Blender", category: "Design", ko: "블렌더" },
-  { slug: "notion", name: "Notion", category: "Tool", ko: "노션" },
-  { slug: "jira", name: "Jira", category: "Tool", ko: "지라" },
-  { slug: "markdown", name: "Markdown", category: "Markup", ko: "마크다운" },
-];
 
-/* 카테고리 프리셋 — TECH_PRESETS 의 distinct 카테고리 (입력 자동완성용) */
-const CATEGORY_PRESETS = Array.from(new Set(TECH_PRESETS.map((p) => p.category))).sort((a, b) => a.localeCompare(b));
+/* 카테고리 프리셋 — TECH_ICON_PRESETS 의 distinct 카테고리 (입력 자동완성용) */
+const CATEGORY_PRESETS = Array.from(new Set(TECH_ICON_PRESETS.map((p) => p.category))).sort((a, b) => a.localeCompare(b));
 
 /* tech 아이콘 렌더 — slug/URL 이미지, 로드 실패하거나 비어있으면 이니셜 폴백 */
 function TechIcon({ icon, name, styles }: { icon?: string; name: string; styles: Record<string, string> }) {
@@ -207,7 +83,7 @@ function CategoryInput({ value, onChange, currentCats, t }: {
   useEffect(() => { setDraft(value); }, [value]);
 
   const seen = new Set<string>();
-  const options: { value: string; label: string }[] = [];
+  const options: SelectOption[] = [];
   for (const c of [...currentCats, ...CATEGORY_PRESETS]) {
     const key = c.trim().toLowerCase();
     if (!c.trim() || seen.has(key)) continue;
@@ -231,7 +107,7 @@ function CategoryInput({ value, onChange, currentCats, t }: {
 }
 
 /* 변형 검색(영문 부분일치 + 한글 + 초성)은 공용 util matchesSearch 사용 */
-function matchTech(p: TechPreset, query: string): boolean {
+function matchTech(p: TechIconPreset, query: string): boolean {
   return matchesSearch(query, p.name, p.slug, p.category, p.ko ?? "");
 }
 
@@ -1931,10 +1807,10 @@ function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
   onPick: (p: { slug: string; name: string; category: string }) => void;
   styles: Record<string, string>;
   /** 이미 추가된 항목 — 중복 추가 방지 (비활성 + 체크 표시) */
-  isAdded?: (p: TechPreset) => boolean;
+  isAdded?: (p: TechIconPreset) => boolean;
   t?: (key: string) => string;
 }) {
-  const list = TECH_PRESETS.filter((p) => matchTech(p, query));
+  const list = TECH_ICON_PRESETS.filter((p) => matchTech(p, query));
   if (list.length === 0) return <div className={styles.techPresetEmpty}>검색 결과 없음</div>;
   return (
     <div className={styles.techPresetScroll}>

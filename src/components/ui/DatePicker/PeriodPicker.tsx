@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { SelectOption } from "@/types";
 import { Calendar } from "lucide-react";
 import type { DatePeriod } from "@/data/profile";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -128,7 +129,7 @@ function DatePart({
   placeholder,
 }: {
   value: string;
-  options: { value: string; label: string }[];
+  options: SelectOption[];
   onChange: (v: string) => void;
   disabled?: boolean;
   maxLength: number;
