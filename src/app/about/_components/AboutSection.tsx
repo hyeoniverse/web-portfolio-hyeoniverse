@@ -37,11 +37,11 @@ export default function AboutSection() {
   const siteConfig = useSiteConfig();
   const infiniteScroll = siteConfig.about.infiniteScroll;
   const hiddenPanels = useMemo(
-    () => new Set((siteConfig.about as { hiddenPanels?: string[] }).hiddenPanels ?? []),
+    () => new Set(siteConfig.about.hiddenPanels ?? []),
     [siteConfig.about],
   );
   const panelOrder = useMemo(
-    () => (siteConfig.about as { panelOrder?: string[] }).panelOrder ?? [],
+    () => siteConfig.about.panelOrder ?? [],
     [siteConfig.about],
   );
 

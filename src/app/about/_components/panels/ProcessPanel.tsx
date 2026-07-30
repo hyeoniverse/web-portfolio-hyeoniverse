@@ -35,7 +35,7 @@ function adaptProcess(cfgList: CfgProcess[]): ProcessStep[] {
 
 function ProcessPanel({ language, process, scrollBy }: ProcessPanelProps) {
   const cfg = useSiteConfig();
-  const cfgList = (cfg.about as { process?: CfgProcess[] }).process;
+  const cfgList = cfg.about.process;
   if (cfgList && cfgList.length > 0) process = adaptProcess(cfgList);
   const isMobile = useMobileLayout();
   const progressRef = useRef<HTMLDivElement>(null);

@@ -89,7 +89,7 @@ interface SecurityPanelProps {
 function SecurityPanel({ language, items }: SecurityPanelProps) {
   const cfg = useSiteConfig();
   const titleOverride = usePanelTitle("security");
-  const cfgList = (cfg.about as { security?: CfgSecurity[] }).security;
+  const cfgList = cfg.about.security;
   if (cfgList && cfgList.length > 0) items = adaptSecurity(cfgList);
   return (
     <div className={styles.panel}>

@@ -11,6 +11,7 @@
  */
 
 import type { Author } from "@/types/author";
+import type { BackendItem, UserFlow, TroubleShootingItem, ErdTable, ErdRelation } from "@/data/about/types";
 
 export const siteConfig = {
   // ---------------------------------------------------------------------------
@@ -883,14 +884,14 @@ export const siteConfig = {
     creditsNoteAlign: "left",
     /* ── Architecture 패널 — 프로젝트 디렉토리 구조 목록. indent 0/1/2 로 계층 표현 ── */
     /* Backend — 비어있으면 정적 데이터(data/about/backend) 사용 */
-    backend: [] as unknown[],
+    backend: [] as BackendItem[],
     /* User Flow — 비어있으면 정적 데이터(data/about/architecture.userFlows) 사용 */
-    userFlows: [] as unknown[],
+    userFlows: [] as UserFlow[],
     /* Troubleshooting — 비어있으면 정적 데이터(data/about/troubleshooting) 사용 */
-    troubleshooting: [] as unknown[],
+    troubleshooting: [] as TroubleShootingItem[],
     /* ERD — 비어있으면 정적 데이터(data/about/erd) 사용 */
-    erdTables: [] as unknown[],
-    erdRelations: [] as unknown[],
+    erdTables: [] as ErdTable[],
+    erdRelations: [] as ErdRelation[],
     architectureItems: [
       { path: "src/", description_ko: "소스 코드 루트", description_en: "Source code root", indent: 0 },
       { path: "app/", description_ko: "Next.js App Router — 페이지 & API 라우트", description_en: "Next.js App Router — pages & API routes", indent: 1 },

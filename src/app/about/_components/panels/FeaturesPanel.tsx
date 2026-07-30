@@ -54,7 +54,7 @@ function FeaturesPanel({
 }: FeaturesPanelProps) {
   const cfg = useSiteConfig();
   const titleOverride = usePanelTitle("features");
-  const cfgList = (cfg.about as { features?: CfgFeature[] }).features;
+  const cfgList = cfg.about.features;
   const effectiveFeatures = cfgList && cfgList.length > 0 ? adaptFeatures(cfgList) : features;
   /* effectiveFeatures 를 이후 모든 사용처에서 features 대신 사용 */
   features = effectiveFeatures;

@@ -3,7 +3,6 @@
 import { useCallback, useRef, useState, useEffect, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import { backendItems } from "@/data/about/backend";
-import type { BackendItem } from "@/data/about/types";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { renderDetail } from "./BackendDetail";
@@ -25,7 +24,7 @@ function BackendPanel({
 }: BackendPanelProps) {
   /* admin(about.backend) override — 비어있으면 정적 데이터 */
   const cfg = useSiteConfig();
-  const cfgItems = (cfg.about as { backend?: BackendItem[] }).backend;
+  const cfgItems = cfg.about.backend;
   const items = cfgItems && cfgItems.length > 0 ? cfgItems : backendItems;
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);

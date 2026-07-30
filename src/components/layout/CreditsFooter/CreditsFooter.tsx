@@ -19,10 +19,7 @@ export default function CreditsFooter({
   const { t, language } = useLanguage();
   /* 저작자 표시 문구는 로케일 고정 — admin 에서 덮어쓸 수 없다.
      덧붙이는 것만 허용: 공동 제작자 이름(creditsNames) + 아래 한 줄(creditsNote) */
-  const about = siteConfig.about as {
-    creditsNames?: string[]; creditsNote?: string; creditsNote_ko?: string;
-    creditsNoteFontSize?: string; creditsNoteFontFamily?: string; creditsNoteLineHeight?: string; creditsNoteAlign?: string;
-  };
+  const about = siteConfig.about;
   const parts = t("aboutPage.credits").split("❤");
   const names = [siteConfig.personal.nickname, ...(about.creditsNames ?? []).map((n) => n.trim()).filter(Boolean)];
   const note = (language === "ko" ? about.creditsNote_ko : about.creditsNote)?.trim();

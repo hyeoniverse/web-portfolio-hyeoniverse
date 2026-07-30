@@ -10,7 +10,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 export function usePanelTitle(key: string): string | undefined {
   const cfg = useSiteConfig();
   const { language } = useLanguage();
-  const titles = (cfg.about as { panelTitles?: Record<string, { ko?: string; en?: string }> }).panelTitles;
+  const titles = cfg.about.panelTitles;
   const v = titles?.[key]?.[language];
   return v && v.trim() ? v : undefined;
 }
