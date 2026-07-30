@@ -7,7 +7,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useEditorRef, PlateElement, type PlateElementProps } from "platejs/react";
-import { CalendarClock, CalendarDays, Loader2, Maximize2, Minimize2, Upload, Download, ChevronLeft, ChevronRight, Keyboard, Check, PanelLeft, X } from "lucide-react";
+import { CalendarClock, CalendarDays, Loader2, Maximize2, Minimize2, Upload, Download, ChevronLeft, ChevronRight, Keyboard, Check, PanelLeft, X } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";

@@ -2,7 +2,7 @@
 
 import { useContext } from "react";
 import { createPortal } from "react-dom";
-import { Mail, Clock, Pencil, ExternalLink } from "lucide-react";
+import { Mail, Clock, Pencil, ExternalLink } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalFooterContext } from "@/components/ui/Modal";

@@ -2,7 +2,7 @@
 
 // ── 화살표 클릭 시 연결된 체인(선행·후속 전체)을 순서대로 — 넘버링 스테퍼 타임라인 ──
 import React from "react";
-import { Check, CalendarDays, Clock } from "lucide-react";
+import { Check, CalendarDays, Clock } from "@/components/icons";
 import { type CalEvent, type EventLabel, type TimeFormat, eventColorVar, eventTimeLabel, findLabel, statusOf, statusName, priorityOf, priorityName } from "./model";
 import { formatDateValue } from "../dateUtils";
 import styles from "./Calendar.module.css";

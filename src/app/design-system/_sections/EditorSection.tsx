@@ -4,7 +4,7 @@ import { memo, useState, useCallback, useRef, useEffect } from "react";
 import { PREVIEW_KEY } from "@/constants";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import { staggerContainer, staggerItem, viewportOpts } from "../_data/animations";
 import { SAMPLE_HTML } from "../_data/editorSampleHtml";

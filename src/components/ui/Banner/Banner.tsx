@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "@/components/icons";
 import styles from "./Banner.module.css";
 
 export interface BannerProps {

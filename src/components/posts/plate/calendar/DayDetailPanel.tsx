@@ -3,7 +3,7 @@
 // ── 일 뷰 우측 인라인 상세/편집 패널 (애플 캘린더식) ──
 // 선택된 이벤트를 인라인으로 빠르게 편집(제목·라벨·상태·중요도·태그). 날짜/시간/반복/본문/관계는 전체 편집(모달).
 import React from "react";
-import { CalendarDays, Clock, Trash2, Pencil, Plus } from "lucide-react";
+import { CalendarDays, Clock, Trash2, Pencil, Plus } from "@/components/icons";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Chip from "@/components/ui/Chip/Chip";

@@ -8,7 +8,7 @@ import HighlightedText from "@/components/ui/HighlightedText";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { parseSearchQuery, matchesQuery, type SyntaxMode } from "@/lib/searchQuery";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Flame, X, ArrowRight, Settings, List } from "lucide-react";
+import { BookOpen, Flame, X, ArrowRight, Settings, List } from "@/components/icons";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import Select from "@/components/ui/Select";

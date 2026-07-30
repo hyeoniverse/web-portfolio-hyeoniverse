@@ -3,7 +3,7 @@
 import React from "react";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Tooltip from "@/components/ui/Tooltip";
-import { Pipette, Dices, Check } from "lucide-react";
+import { Pipette, Dices, Check } from "@/components/icons";
 import { CHECKER_BG } from "./presets";
 import styles from "../RichTextEditor.module.css";
 

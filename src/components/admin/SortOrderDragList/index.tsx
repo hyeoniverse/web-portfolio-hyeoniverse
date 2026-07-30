@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { GripVertical } from "lucide-react";
+import { GripVertical } from "@/components/icons";
 import Pagination from "@/components/ui/Pagination";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import styles from "./SortOrderDragList.module.css";

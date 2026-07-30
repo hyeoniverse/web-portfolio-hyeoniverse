@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import type { Post } from "@/types/post";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
-import { Flame } from "lucide-react";
+import { Flame } from "@/components/icons";
 import T from "@/components/ui/T";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { formatCount } from "@/utils/format";

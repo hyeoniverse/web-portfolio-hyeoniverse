@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, ImagePlus, Expand } from "lucide-react";
+import { Upload, ImagePlus, Expand } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import ImageViewer from "@/components/ui/ImageViewer/ImageViewer";

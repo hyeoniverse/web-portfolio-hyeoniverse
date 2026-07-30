@@ -8,7 +8,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Panel, useReactFlow, useStore } from "@xyflow/react";
-import { Plus, Minus, Frame, Fullscreen, Minimize2 } from "lucide-react";
+import { Plus, Minus, Frame, Fullscreen, Minimize2 } from "@/components/icons";
 import css from "./ErdControls.module.css";
 
 export default function ErdControls({ lang }: { lang: "ko" | "en" }) {

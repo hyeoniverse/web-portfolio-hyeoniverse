@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Sparkles, ChevronDown } from "lucide-react";
+import { Sparkles, ChevronDown } from "@/components/icons";
 import T from "@/components/ui/T";
 import LoadingDots from "@/components/ui/LoadingDots";
 import styles from "./AISummary.module.css";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type PointerEvent as RPE } from "react";
-import { Plus, Trash2, Link2, X } from "lucide-react";
+import { Plus, Trash2, Link2, X } from "@/components/icons";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";

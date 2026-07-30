@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 import { usePathname, useSearchParams } from "next/navigation";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Eraser, History, HelpCircle } from "lucide-react";
+import { Search, Eraser, History, HelpCircle } from "@/components/icons";
 import Select from "@/components/ui/Select";
 import CloseButton from "@/components/ui/CloseButton";
 import Popover from "@/components/ui/Popover";

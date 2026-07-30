@@ -3,7 +3,7 @@
 // ── 주/일 뷰 — 주: 날짜별 심플 리스트(박스 없음) / 일: 시간축 그리드. ──
 import React from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, Link2, Repeat } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, Link2, Repeat } from "@/components/icons";
 import Tooltip from "@/components/ui/Tooltip";
 import { type CalEvent, type EventLabel, type TimeFormat, eventColorVar, eventEndDate, eventTimeLabel, formatClock, formatHourLabel, weekdayLabels, connectedComponent } from "./model";
 import { parseDate, toDateStr, formatDateValue } from "../dateUtils";

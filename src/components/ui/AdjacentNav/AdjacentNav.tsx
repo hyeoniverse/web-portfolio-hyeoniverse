@@ -1,7 +1,7 @@
 "use client";
 
 import MediaThumb from "@/components/ui/MediaThumb";
-import { ImageIcon, ArrowLeft, ArrowRight } from "lucide-react";
+import { ImageIcon, ArrowLeft, ArrowRight } from "@/components/icons";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import T from "@/components/ui/T";
 import styles from "./AdjacentNav.module.css";

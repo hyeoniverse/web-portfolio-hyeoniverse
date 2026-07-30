@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Shuffle, ImagePlus, ClipboardPaste } from "lucide-react";
+import { Check, Shuffle, ImagePlus, ClipboardPaste } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalAlert, ModalPrompt } from "@/components/ui/ModalTemplates";

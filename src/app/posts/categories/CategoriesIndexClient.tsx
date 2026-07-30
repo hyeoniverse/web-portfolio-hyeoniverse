@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutGrid, Sparkles, X, ArrowRight } from "lucide-react";
+import { LayoutGrid, Sparkles, X, ArrowRight } from "@/components/icons";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { useIsMobile } from "@/hooks/useIsMobile";

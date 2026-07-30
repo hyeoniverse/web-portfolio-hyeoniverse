@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import type { SelectOption } from "@/types";
 import type { Outcome } from "../_types";
 import { createPortal } from "react-dom";
-import { Plus, Mail, Clock } from "lucide-react";
+import { Plus, Mail, Clock } from "@/components/icons";
 import { SiGithub } from "react-icons/si";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";

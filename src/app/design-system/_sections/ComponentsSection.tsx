@@ -3,7 +3,7 @@
 import { memo, useState, useCallback, Suspense, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Mail, Send, Star, ArrowRight, Zap, RotateCcw, Hash, Code, Minus, Plus, ExternalLink } from "lucide-react";
+import { Mail, Send, Star, ArrowRight, Zap, RotateCcw, Hash, Code, Minus, Plus, ExternalLink } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import HelpButton from "@/components/ui/HelpButton";
 import SortControl from "@/components/ui/SortControl";
@@ -35,7 +35,7 @@ import Logo from "@/components/common/Logo";
 import TypeWriter from "@/components/effects/TypeWriter";
 import Tooltip from "@/components/ui/Tooltip";
 import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
-import { MoreVertical, ChevronsLeft, ChevronsRight, Pencil, Trash2 } from "lucide-react";
+import { MoreVertical, ChevronsLeft, ChevronsRight, Pencil, Trash2 } from "@/components/icons";
 import TextLink from "@/components/ui/TextLink";
 import Pagination from "@/components/ui/Pagination";
 import Chip, { useChipReorder } from "@/components/ui/Chip";

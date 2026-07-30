@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState, useEffect } from "react";
-import { ChevronRight, GripVertical, ImageIcon, Search } from "lucide-react";
+import { ChevronRight, GripVertical, ImageIcon, Search } from "@/components/icons";
 import { motion, LayoutGroup, AnimatePresence } from "framer-motion";
 import CloseButton from "@/components/ui/CloseButton";
 import styles from "./RelationPicker.module.css";

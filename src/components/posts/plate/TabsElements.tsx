@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useEditorRef, PlateElement, type PlateElementProps } from "platejs/react";
-import { Plus, Smile, Trash2 } from "lucide-react";
+import { Plus, Smile, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";

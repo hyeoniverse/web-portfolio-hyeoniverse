@@ -6,7 +6,7 @@ import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import T from "@/components/ui/T";
 import CategoryLabel from "@/components/ui/CategoryLabel";
-import { BookOpen, ImageIcon, ChevronRight } from "lucide-react";
+import { BookOpen, ImageIcon, ChevronRight } from "@/components/icons";
 import type { RecommendedPost } from "./types";
 import styles from "../PostDetail.module.css";
 

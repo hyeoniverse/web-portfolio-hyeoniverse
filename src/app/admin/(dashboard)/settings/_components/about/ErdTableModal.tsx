@@ -9,7 +9,7 @@
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import type { Language } from "@/types";
 import { createPortal } from "react-dom";
-import { Plus, KeyRound, ArrowRight, GripVertical, Asterisk, Fingerprint, ChevronDown } from "lucide-react";
+import { Plus, KeyRound, ArrowRight, GripVertical, Asterisk, Fingerprint, ChevronDown } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Chip from "@/components/ui/Chip";
 import CloseButton from "@/components/ui/CloseButton";

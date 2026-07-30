@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useCallback, useRef, useLayoutEffect, type ReactNode, type Dispatch, type SetStateAction } from "react";
-import { GripVertical, ChevronRight } from "lucide-react";
+import { GripVertical, ChevronRight } from "@/components/icons";
 import type { DatePeriod } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
 import { profileDefaults } from "@/data/profileDefaults";

@@ -2,7 +2,7 @@
 
 // ── 공유 달력 불러오기 picker (연결형) ──
 import React, { useEffect, useState } from "react";
-import { CalendarPlus, CalendarDays, Settings, Check, Trash2, Loader2, RotateCcw, ChevronDown } from "lucide-react";
+import { CalendarPlus, CalendarDays, Settings, Check, Trash2, Loader2, RotateCcw, ChevronDown } from "@/components/icons";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
 import { type CalendarListItem, listCalendars, deleteCalendar, restoreCalendar } from "./calendarApi";

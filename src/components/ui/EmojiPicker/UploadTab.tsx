@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { ImageIcon, Upload } from "lucide-react";
+import { ImageIcon, Upload } from "@/components/icons";
 import { EMOJI_MIN, EMOJI_MAX, EMOJI_RECOMMENDED } from "./resizeEmojiImage";
 import styles from "./EmojiPicker.module.css";
 

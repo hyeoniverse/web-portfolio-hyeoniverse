@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import type { SortDirection } from "@/types";
-import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
+import { Plus, Check, X, Trash2, Filter, ChevronDown } from "@/components/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory, LocalizedText } from "@/types/common";

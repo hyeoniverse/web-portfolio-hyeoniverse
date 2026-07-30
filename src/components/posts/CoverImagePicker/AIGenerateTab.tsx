@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { COVER_STYLE_OPTIONS, type CoverStyleKey, FALLBACK_COVER_PROMPTS } from "@/data/aiCoverStyles";
-import { Check, Download, RotateCw } from "lucide-react";
+import { Check, Download, RotateCw } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";

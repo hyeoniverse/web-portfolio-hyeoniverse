@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import MediaThumb from "@/components/admin/MediaThumb";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
-import { ImageIcon, Trash2, Upload, Plus, Download, ExternalLink } from "lucide-react";
+import { ImageIcon, Trash2, Upload, Plus, Download, ExternalLink } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { getTrashDaysLeft } from "@/utils/trash";
 import { downloadBlob, downloadFiles } from "@/utils/download";

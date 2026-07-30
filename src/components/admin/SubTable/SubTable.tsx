@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useRef, type ReactNode } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown } from "@/components/icons";
 import Checkbox from "@/components/ui/Checkbox";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import Pagination from "@/components/ui/Pagination";

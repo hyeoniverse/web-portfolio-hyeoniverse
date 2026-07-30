@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type InputHTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
-import { Eraser, Eye, EyeOff, Plus } from "lucide-react";
+import { Eraser, Eye, EyeOff, Plus } from "@/components/icons";
 import styles from "./Input.module.css";
 
 type Variant = "capsule" | "underline";

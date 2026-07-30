@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { Search, Shuffle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Shuffle, ChevronLeft, ChevronRight } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
 import { EMOJI_CATEGORIES, ICON_CATEGORIES, EMOJI_KEYWORDS, iconSvgInner } from "../emojiData";

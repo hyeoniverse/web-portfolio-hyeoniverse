@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion } from "framer-motion";
-import { BookOpen, ImageIcon } from "lucide-react";
+import { BookOpen, ImageIcon } from "@/components/icons";
 import T from "@/components/ui/T";
 import type { RecommendedPost } from "./types";
 import styles from "../PostDetail.module.css";

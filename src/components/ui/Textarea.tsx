@@ -11,7 +11,7 @@ import {
   type CompositionEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { Eraser } from "lucide-react";
+import { Eraser } from "@/components/icons";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./Textarea.module.css";

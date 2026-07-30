@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, AlertCircle, AlertTriangle, Info } from "lucide-react";
+import { Check, AlertCircle, AlertTriangle, Info } from "@/components/icons";
 import { useToastStore, type ToastVariant } from "@/stores/toastStore";
 import styles from "./Toast.module.css";
 

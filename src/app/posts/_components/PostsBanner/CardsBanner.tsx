@@ -10,7 +10,7 @@ import { formatPostTitle, getPostExcerpt } from "@/utils/post";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import { seededGradient } from "@/components/posts/CoverImagePicker/seededGradient";
 import { useAutoSlide } from "./useAutoSlide";
-import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Pause } from "@/components/icons";
 import type { Post } from "@/types/post";
 import styles from "./PostsBanner.module.css";
 

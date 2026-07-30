@@ -11,7 +11,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import type { Language } from "@/types";
-import { Plus, Link2, ArrowRight, ArrowLeft, ArrowLeftRight, List, Network, AlertTriangle } from "lucide-react";
+import { Plus, Link2, ArrowRight, ArrowLeft, ArrowLeftRight, List, Network, AlertTriangle } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { useModalStore } from "@/stores/modalStore";

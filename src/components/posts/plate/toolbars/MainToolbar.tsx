@@ -15,7 +15,7 @@ import FontPicker from "@/components/ui/FontPicker";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
 import { useRecentColors } from "../useRecentColors";
-import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText } from "lucide-react";
+import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText } from "@/components/icons";
 import { genPollId } from "../PollElements";
 import { AlignIcon } from "../icons";
 import {

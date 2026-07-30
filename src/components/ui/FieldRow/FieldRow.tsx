@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle } from "@/components/icons";
 import Tooltip from "@/components/ui/Tooltip";
 import { cn } from "@/utils/cn";
 import styles from "./FieldRow.module.css";

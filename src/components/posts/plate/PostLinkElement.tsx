@@ -6,7 +6,7 @@
 
 import React, { useRef, useState } from "react";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
-import { FileText, ExternalLink, Trash2, Replace } from "lucide-react";
+import { FileText, ExternalLink, Trash2, Replace } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Popover from "@/components/ui/Popover";
 import { cachedPostIcon, fetchPostIcon, primePostIcon, isImageIcon, isVideoIcon } from "./postLinkIcon";

@@ -2,7 +2,7 @@
 
 import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { motion } from "framer-motion";
-import { ArrowUp, ChevronRight, X } from "lucide-react";
+import { ArrowUp, ChevronRight, X } from "@/components/icons";
 import { cn } from "@/utils/cn";
 import Button from "./Button";
 import styles from "./SegmentedControl.module.css";

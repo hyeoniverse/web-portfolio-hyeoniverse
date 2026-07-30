@@ -13,7 +13,7 @@ import {
   ArrowUp, ArrowDown, ArrowLeft, ArrowRight,
   Pilcrow, Heading1, Heading2, Heading3, List, ListOrdered, Quote, Code,
   Baseline, AlignLeft, AlignCenter, AlignRight, ChevronDown, ChevronRight, Smile,
-} from "lucide-react";
+} from "@/components/icons";
 import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
 import Tooltip from "@/components/ui/Tooltip";
 import { CALLOUT_BG_PRESETS, COLUMN_DEFAULT_PX, MAX_COLUMNS, fitColumnsForInsert } from "./presets";

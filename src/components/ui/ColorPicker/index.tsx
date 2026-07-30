@@ -41,7 +41,7 @@ import {
 import Select from "../Select";
 import Input from "../Input";
 import Tooltip from "../Tooltip";
-import { Info, Copy, ClipboardPaste, Check } from "lucide-react";
+import { Info, Copy, ClipboardPaste, Check } from "@/components/icons";
 import { showToast } from "@/stores/toastStore";
 import styles from "./ColorPicker.module.css";
 

@@ -9,7 +9,7 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 function ConditionalLayoutGroup({ enabled, children }: { enabled: boolean; children: ReactNode }) {
   return enabled ? <LayoutGroup>{children}</LayoutGroup> : <>{children}</>;
 }
-import { GripVertical } from "lucide-react";
+import { GripVertical } from "@/components/icons";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";

@@ -1,5 +1,5 @@
 import React from "react";
-import { Lock, Unlock, AlignLeft, AlignCenter, AlignRight, AlignJustify, Trash2 } from "lucide-react";
+import { Lock, Unlock, AlignLeft, AlignCenter, AlignRight, AlignJustify, Trash2 } from "@/components/icons";
 
 // ── SVG Icons ──
 export function LockIcon() {

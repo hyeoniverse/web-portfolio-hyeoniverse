@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { Check, Copy, Download, Palette, Trash2 } from "lucide-react";
+import { Check, Copy, Download, Palette, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";

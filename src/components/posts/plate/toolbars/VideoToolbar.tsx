@@ -4,7 +4,7 @@ import React, { useCallback } from "react";
 import { CAPTION_EDIT_EVENT } from "../constants";
 import FloatingBar from "./FloatingBar";
 import { RxReset } from "react-icons/rx";
-import { Trash2, AlignCenter, Scaling, Type, Play } from "lucide-react";
+import { Trash2, AlignCenter, Scaling, Type, Play } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import TBtn from "../TBtn";
 import Popover from "@/components/ui/Popover";

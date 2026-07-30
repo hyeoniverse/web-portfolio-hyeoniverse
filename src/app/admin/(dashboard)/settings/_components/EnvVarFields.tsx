@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { STATUS_MESSAGE_DISMISS_MS } from "@/constants";
-import { Trash2, Eye, EyeOff, Info, ExternalLink, ClipboardPaste, AlertTriangle, Lock, Database, Mail, Shield, Image as ImageIcon, Sparkles, Languages, Bell, Check, MessageSquare, type LucideIcon } from "lucide-react";
+import { Trash2, Eye, EyeOff, Info, ExternalLink, ClipboardPaste, AlertTriangle, Lock, Database, Mail, Shield, Image as ImageIcon, Sparkles, Languages, Bell, Check, MessageSquare, type LucideIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { showToast } from "@/stores/toastStore";

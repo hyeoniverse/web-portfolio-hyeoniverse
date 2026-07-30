@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import "katex/dist/katex.min.css";
-import { SquarePen, ExternalLink } from "lucide-react";
+import { Pencil, ExternalLink } from "@/components/icons";
 import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
@@ -111,7 +111,7 @@ export function PostArticleHeader({
                   rel="noopener noreferrer"
                   style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
                 >
-                  <SquarePen size={13} />
+                  <Pencil size={13} />
                 </a>
               </Tooltip>
             </>

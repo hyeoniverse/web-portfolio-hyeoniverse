@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Clock } from "lucide-react";
+import { Clock } from "@/components/icons";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Member, MembersResponse, PendingMember } from "@/types/member";

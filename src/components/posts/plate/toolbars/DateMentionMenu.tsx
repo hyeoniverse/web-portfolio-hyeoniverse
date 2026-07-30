@@ -8,7 +8,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { useEditorRef, useEditorSelector, useEditorId, useEventEditorValue } from "platejs/react";
 import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { relativeDateStr, genShortId, _pendingDateMentionOpen } from "../dateUtils";
 import styles from "../../RichTextEditor.module.css";

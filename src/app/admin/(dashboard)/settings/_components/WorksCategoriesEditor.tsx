@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import type { SortDirection } from "@/types";
 import type { LocalizedText } from "@/types/common";
 import type { PostMetaInfo } from "../_types";
-import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
+import { Plus, Check, X, Trash2, Filter, ChevronDown } from "@/components/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";

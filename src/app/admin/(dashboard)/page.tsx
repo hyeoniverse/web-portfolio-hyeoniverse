@@ -28,7 +28,7 @@ import {
   LineChart,
   CalendarDays,
   LayoutDashboard,
-} from "lucide-react";
+} from "@/components/icons";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";

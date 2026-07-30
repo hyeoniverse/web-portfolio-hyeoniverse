@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Bell, ArrowRight } from "lucide-react";
+import { Moon, Sun, Bell, ArrowRight } from "@/components/icons";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useLoadingScreen } from "@/hooks/useLoadingProgress";

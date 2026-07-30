@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
-import { GripVertical } from "lucide-react";
+import { GripVertical } from "@/components/icons";
 import styles from "../../RichTextEditor.module.css";
 
 interface FloatingBarProps {

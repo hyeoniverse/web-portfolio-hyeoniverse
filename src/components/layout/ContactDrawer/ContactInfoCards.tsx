@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Check } from "lucide-react";
+import { Copy, Check } from "@/components/icons";
 import { COPY_FEEDBACK_MS } from "@/constants";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";

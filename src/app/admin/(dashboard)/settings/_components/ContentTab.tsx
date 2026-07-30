@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type 
 import type { LocalizedText } from "@/types/common";
 import { TECH_ICON_PRESETS, type TechIconPreset } from "@/data/techIconPresets";
 import type { SortDirection, SelectOption } from "@/types";
-import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
+import { Plus, Check, X, Trash2, Filter, ChevronDown } from "@/components/icons";
 import { DndContext, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { normalizeCategories } from "@/lib/categoryTree";

@@ -3,7 +3,7 @@
 // ── 이벤트 달력 그리드 (에디터·리더 공용 프레젠테이션) ──
 import React from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Link2, Repeat } from "lucide-react";
+import { ChevronLeft, ChevronRight, Link2, Repeat } from "@/components/icons";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import {
   type CalEvent, type EventLabel, type TimeFormat, eventColorVar, eventDates, eventEndDate, formatClock, monthGrid, monthTitle, weekdayLabels, shiftMonth, parseMonth, connectedComponent,
