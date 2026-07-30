@@ -2,7 +2,7 @@
 
 import { type Dispatch, type SetStateAction, useRef, useState } from "react";
 import type { SelectOption } from "@/types";
-import { ChevronUp, ChevronDown, Plus } from "@/components/icons";
+import { ChevronUp, ChevronDown, Plus, GripDotsIcon } from "@/components/icons";
 import {
   AI_COVER_OPTIONS, AI_SUMMARY_OPTIONS, TRANSLATION_OPTIONS,
   DEFAULT_LIMIT_GROUPS, MIME_GROUP_ORDER, MIME_GROUP_ICON, MIME_ADDABLE_GROUP_KEY, ADDABLE_MIME_GROUPS, SIZE_OPTIONS,
@@ -133,11 +133,7 @@ function PriorityList<T extends string>({ primary, priority, excluded, options, 
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <circle cx="9" cy="6" r="1" fill="currentColor" /><circle cx="15" cy="6" r="1" fill="currentColor" />
-                <circle cx="9" cy="12" r="1" fill="currentColor" /><circle cx="15" cy="12" r="1" fill="currentColor" />
-                <circle cx="9" cy="18" r="1" fill="currentColor" /><circle cx="15" cy="18" r="1" fill="currentColor" />
-              </svg>
+              <GripDotsIcon />
             </span>
             <div
               className={`${styles.priorityItem}${overIdx === idx ? ` ${styles.priorityItemOver}` : ""}`}
