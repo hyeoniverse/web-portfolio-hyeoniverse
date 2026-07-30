@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import { CAPTION_EDIT_EVENT } from "./constants";
 import {
   PlateElement,
   type PlateElementProps,
@@ -513,8 +514,8 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
         }
       });
     };
-    node.addEventListener("tbl-caption-edit", handler);
-    return () => node.removeEventListener("tbl-caption-edit", handler);
+    node.addEventListener(CAPTION_EDIT_EVENT.table, handler);
+    return () => node.removeEventListener(CAPTION_EDIT_EVENT.table, handler);
   }, []);
 
   const setTableAttr = useCallback((attrs: Record<string, unknown>) => {

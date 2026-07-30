@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import type { SelectOption } from "@/types";
+import { CAPTION_EDIT_EVENT } from "./constants";
 import {
   PlateElement,
   type PlateElementProps,
@@ -417,8 +419,8 @@ export function ImageElement(props: PlateElementProps) {
         }
       });
     };
-    el.addEventListener("img-caption-edit", handler);
-    return () => el.removeEventListener("img-caption-edit", handler);
+    el.addEventListener(CAPTION_EDIT_EVENT.image, handler);
+    return () => el.removeEventListener(CAPTION_EDIT_EVENT.image, handler);
   }, []);
 
   useEffect(() => {
@@ -1189,7 +1191,7 @@ function MermaidHelpModal({ language }: { language: string }) {
 }
 
 // 코드블록 언어 — lowlight(all: highlight.js 전체) 지원. terms: 검색 별칭.
-type CodeLang = { value: string; label: string; terms?: string[] };
+type CodeLang = SelectOption & { terms?: string[] };
 const CODE_BLOCK_LANGS: ReadonlyArray<CodeLang> = [
   { value: "plaintext", label: "Plain text", terms: ["text", "txt"] },
   { value: "actionscript", label: "ActionScript", terms: ["as", "flash"] },
@@ -1414,7 +1416,7 @@ function langSearchTerms(l: CodeLang): string[] {
   ];
 }
 // 언어 아이콘 배지 — 브랜드색 + 약어. 색 없으면 중립 배지.
-function LangIcon({ value, label }: { value: string; label: string }) {
+function LangIcon({ value, label }: SelectOption) {
   const meta = LANG_META[value];
   const abbr = meta?.abbr ?? (label.replace(/[^A-Za-z0-9#+.]/g, "").slice(0, 2) || "?");
   if (!meta?.color) {
@@ -2334,8 +2336,8 @@ export function MediaEmbedElement(props: PlateElementProps) {
         }
       });
     };
-    node.addEventListener("video-caption-edit", handler);
-    return () => node.removeEventListener("video-caption-edit", handler);
+    node.addEventListener(CAPTION_EDIT_EVENT.video, handler);
+    return () => node.removeEventListener(CAPTION_EDIT_EVENT.video, handler);
   }, []);
   const [resizeSize, setResizeSize] = useState<{ w: number; h: number } | null>(null);
   const draggingRef = useRef<{ handle: "right" | "bottom" | "corner"; startX: number; startY: number; startW: number; startH: number; ratio: number } | null>(null);

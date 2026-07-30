@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
+import { CAPTION_EDIT_EVENT } from "../constants";
 import {
   insertTableMergeRow,
   insertTableMergeColumn,
@@ -587,7 +588,7 @@ export default React.memo(function TableToolbar({
         onClick={() => {
           try {
             const dom = currentTableInfo ? editor.api.toDOMNode(currentTableInfo.node) : null;
-            (dom as HTMLElement | null)?.dispatchEvent(new CustomEvent("tbl-caption-edit", { bubbles: true }));
+            (dom as HTMLElement | null)?.dispatchEvent(new CustomEvent(CAPTION_EDIT_EVENT.table, { bubbles: true }));
           } catch { /* ignore */ }
         }}>
         <span className={styles.tblBarLabel}><Type size={15} strokeWidth={1.75} />{t("editor.caption")}</span>

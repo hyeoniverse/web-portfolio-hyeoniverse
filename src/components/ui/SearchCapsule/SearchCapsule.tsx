@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useContext } from "react";
+import type { SelectOption } from "@/types";
 import { createPortal } from "react-dom";
 import { usePathname, useSearchParams } from "next/navigation";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
@@ -23,7 +24,7 @@ export interface SearchCapsuleProps {
   /** 검색 타입 selector — 객체로 묶어 "셋 다 또는 0개" 를 타입으로 강제 */
   typeSelector?: {
     value: string;
-    options: { value: string; label: string }[];
+    options: SelectOption[];
     onChange: (value: string) => void;
   };
   align?: "left" | "right";

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useMemo } from "react";
+import { CAPTION_EDIT_EVENT } from "../constants";
 import { ImageUp, AlignCenter, Scaling, Type } from "lucide-react";
 import FloatingBar from "./FloatingBar";
 import { RxReset } from "react-icons/rx";
@@ -102,7 +103,7 @@ export default React.memo(function ImageToolbar({
   const focusCaption = useCallback(() => {
     try {
       const dom = (selectedImage ? editor.api.toDOMNode(selectedImage) : null) as HTMLElement | null;
-      dom?.dispatchEvent(new CustomEvent("img-caption-edit", { bubbles: true }));
+      dom?.dispatchEvent(new CustomEvent(CAPTION_EDIT_EVENT.image, { bubbles: true }));
     } catch { /* ignore */ }
   }, [editor, selectedImage]);
 

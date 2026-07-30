@@ -1,4 +1,5 @@
 "use client";
+import { hexToRgb, lerpRgb, rgbHex } from "@/utils/color";
 
 import {
   createContext,
@@ -143,12 +144,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** hex → [r, g, b] */
-function hexToRgb(hex: string): [number, number, number] | null {
-  const m = hex.match(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
-  if (!m) return null;
-  return [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)];
-}
 
 /** accent 관련 CSS 변수를 모두 세팅 (alpha, dark, light 포함) */
 const ACCENT_ALPHAS = [1, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
@@ -197,21 +192,7 @@ const MID_BLENDS: [number, number][] = [
 ];
 const NEUTRAL_ALPHA_STEPS = [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
 
-function lerpRgb(
-  a: [number, number, number],
-  b: [number, number, number],
-  t: number,
-): [number, number, number] {
-  return [
-    Math.round(a[0] + (b[0] - a[0]) * t),
-    Math.round(a[1] + (b[1] - a[1]) * t),
-    Math.round(a[2] + (b[2] - a[2]) * t),
-  ];
-}
 
-function rgbHex([r, g, b]: [number, number, number]): string {
-  return `#${[r, g, b].map((c) => Math.max(0, Math.min(255, c)).toString(16).padStart(2, "0")).join("")}`;
-}
 
 function applyNeutralScale(root: HTMLElement, bgHex: string, textHex: string) {
   const bg = hexToRgb(bgHex);

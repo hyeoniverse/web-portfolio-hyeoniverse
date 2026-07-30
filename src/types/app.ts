@@ -58,6 +58,12 @@ export interface TocHeading {
   level: number;
 }
 
+/** value/label 선택 옵션 — Select · DatePicker · SegmentedControl 등 공용 */
+export interface SelectOption<T = string> {
+  value: T;
+  label: string;
+}
+
 // ============================================
 // 작품 인터랙션 타입
 // ============================================

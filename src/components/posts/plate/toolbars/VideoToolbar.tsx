@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
+import { CAPTION_EDIT_EVENT } from "../constants";
 import FloatingBar from "./FloatingBar";
 import { RxReset } from "react-icons/rx";
 import { Trash2, AlignCenter, Scaling, Type, Play } from "lucide-react";
@@ -88,7 +89,7 @@ export default React.memo(function VideoToolbar({ editor, visible, selectedMedia
   const focusCaption = () => {
     try {
       const dom = editor.api.toDOMNode(selectedMedia.node) as HTMLElement | null;
-      dom?.dispatchEvent(new CustomEvent("video-caption-edit", { bubbles: true }));
+      dom?.dispatchEvent(new CustomEvent(CAPTION_EDIT_EVENT.video, { bubbles: true }));
     } catch { /* ignore */ }
   };
 

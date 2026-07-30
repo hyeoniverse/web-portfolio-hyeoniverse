@@ -193,3 +193,10 @@ export const MATH_TOOLS: { categoryKey: string; items: { label: string; latex: s
     { label: "text", latex: "\\text{ }", tipKey: "editor.mathTextSpace" },
   ]},
 ];
+
+/** 캡션 편집 CustomEvent 이름 — 툴바(dispatch) ↔ 요소(listen) 계약. 오타 시 무음 파손 */
+export const CAPTION_EDIT_EVENT = {
+  image: "img-caption-edit",
+  video: "video-caption-edit",
+  table: "tbl-caption-edit",
+} as const;
