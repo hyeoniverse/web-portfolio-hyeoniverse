@@ -1,6 +1,6 @@
 "use client";
 
-import { Eraser } from "lucide-react";
+import { Eraser } from "@/components/icons";
 import type { LocalizedText } from "@/types/common";
 import styles from "./BilingualInputPair.module.css";
 

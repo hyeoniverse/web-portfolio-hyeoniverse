@@ -14,7 +14,7 @@ import {
   useSandpack,
   type SandpackTheme,
 } from "@codesandbox/sandpack-react";
-import { Plus, X } from "lucide-react";
+import { Plus, X } from "@/components/icons";
 import css from "./DemoFilesEditor.module.css";
 
 const SP_EDITOR_THEME: SandpackTheme = {

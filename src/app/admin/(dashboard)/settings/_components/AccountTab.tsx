@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { STATUS_MESSAGE_DISMISS_MS } from "@/constants";
 import { useRouter } from "next/navigation";
-import { Monitor, Smartphone, Tablet, Check, Trash2 } from "lucide-react";
+import { Monitor, Smartphone, Tablet, Check, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import T from "@/components/ui/T";

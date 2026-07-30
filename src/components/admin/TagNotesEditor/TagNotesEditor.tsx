@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import type { LocalizedText } from "@/types/common";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, X, GripVertical, Pencil } from "lucide-react";
+import { Plus, X, GripVertical, Pencil } from "@/components/icons";
 import Chip from "@/components/ui/Chip";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import { useLanguage } from "@/providers/LanguageProvider";

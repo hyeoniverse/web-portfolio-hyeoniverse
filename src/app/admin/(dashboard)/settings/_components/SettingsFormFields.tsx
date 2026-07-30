@@ -5,7 +5,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
-import { ExternalLink, Volume2, HelpCircle, Upload } from "lucide-react";
+import { ExternalLink, Volume2, HelpCircle, Upload } from "@/components/icons";
 import type { SiteConfigData } from "@/config/site.config";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Button from "@/components/ui/Button";

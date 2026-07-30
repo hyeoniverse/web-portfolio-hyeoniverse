@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ImageIcon } from "lucide-react";
+import { Check, ImageIcon } from "@/components/icons";
 import CloseButton from "@/components/ui/CloseButton";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";

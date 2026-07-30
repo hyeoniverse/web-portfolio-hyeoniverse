@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useMemo, useEffect } from "react";
-import { ImageOff } from "lucide-react";
+import { ImageOff } from "@/components/icons";
 import { getLqipUrl } from "@/utils/image";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import styles from "./ProgressiveImage.module.css";

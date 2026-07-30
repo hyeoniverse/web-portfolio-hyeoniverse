@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SearchX, ChevronLeft } from "lucide-react";
+import { SearchX, ChevronLeft } from "@/components/icons";
 import styles from "./AdminNotFound.module.css";
 
 interface AdminNotFoundProps {

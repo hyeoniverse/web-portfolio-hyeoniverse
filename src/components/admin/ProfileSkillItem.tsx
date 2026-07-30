@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { LocalizedText } from "@/types/common";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight } from "@/components/icons";
 import T from "@/components/ui/T";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";

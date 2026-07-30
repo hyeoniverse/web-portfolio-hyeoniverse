@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { Settings as SettingsIcon } from "lucide-react";
+import { Settings as SettingsIcon } from "@/components/icons";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { siteConfig } from "@/config/site.config";
 import type { SiteConfigData } from "@/config/site.config";

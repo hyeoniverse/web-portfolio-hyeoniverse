@@ -9,7 +9,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { useEditorRef, useEditorSelector, useEditorId, useEventEditorValue } from "platejs/react";
 import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
-import { FileText, Search, ChevronRight, Loader2 } from "lucide-react";
+import { FileText, Search, ChevronRight, Loader2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Popover from "@/components/ui/Popover";
 import { genShortId } from "../dateUtils";

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Eraser } from "lucide-react";
+import { Eraser } from "@/components/icons";
 import styles from "@/components/ui/Input.module.css";
 // 단일 줄 input 의 "카운터/지우개를 캡슐 안 flex child 로" 레이아웃은 공통 HighlightInput 과 동일 모듈 재사용
 import ei from "@/components/ui/HighlightInput/HighlightInput.module.css";

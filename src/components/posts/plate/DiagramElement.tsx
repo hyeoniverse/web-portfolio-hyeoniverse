@@ -29,7 +29,7 @@ import {
   type EdgeChange,
   type NodeProps,
 } from "@xyflow/react";
-import { Plus, FileCode2, Trash2, Maximize2, Minimize2, Type } from "lucide-react";
+import { Plus, FileCode2, Trash2, Maximize2, Minimize2, Type } from "@/components/icons";
 import { SHAPES, COLORS, DIRS, HEADS, LINES, CURVES, FONT_SIZES, type EdgeDir } from "./diagramOptions";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";

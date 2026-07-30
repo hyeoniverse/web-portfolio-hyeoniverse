@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, AlertTriangle, ChevronRight, Sparkles } from "lucide-react";
+import { Check, AlertTriangle, ChevronRight, Sparkles } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./SeoChecklist.module.css";
 

@@ -20,7 +20,7 @@ import {
   List, ListOrdered, ListChecks,
   Image as ImageIcon, Video, Film,
   Code, Minus, Table as TableIcon, Lightbulb, Columns2, Columns3, ChevronRight, Sigma, ListTree, Workflow, LayoutPanelTop, Vote, Shapes, Smile, SquareCode, CalendarDays, Paperclip, AudioLines, Superscript, FileText,
-} from "lucide-react";
+} from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { genPollId } from "../PollElements";
 import { _imageUploadFn, _uploadErrorFn, _slashOpenTrigger, _emojiPickerTrigger, _postLinkTrigger } from "../utils";

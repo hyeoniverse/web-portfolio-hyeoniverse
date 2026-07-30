@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { Check, FolderOpen, Palette } from "lucide-react";
+import { Check, FolderOpen, Palette } from "@/components/icons";
 import { presets, type CoverPreset } from "./presets";
 import CustomGradientEditor from "./CustomGradientEditor";
 import { renderGradient, type PresetConfig } from "./gradientUtils";

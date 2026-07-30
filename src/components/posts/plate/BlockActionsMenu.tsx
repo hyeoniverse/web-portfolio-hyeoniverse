@@ -2,7 +2,7 @@
 
 // ── 블록 공통 액션 메뉴 (복제 / 이동 / 내용 제거 / 삭제) ──
 // 여러 블록의 floating bar "⋯" popover 에서 공용으로 쓴다. 필요한 액션만 넘기면 그 항목만 렌더.
-import { CopyPlus, ArrowUp, ArrowDown, Eraser, Trash2 } from "lucide-react";
+import { CopyPlus, ArrowUp, ArrowDown, Eraser, Trash2 } from "@/components/icons";
 import type { ReactNode } from "react";
 import styles from "../RichTextEditor.module.css";
 

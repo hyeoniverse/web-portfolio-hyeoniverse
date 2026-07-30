@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown } from "@/components/icons";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";

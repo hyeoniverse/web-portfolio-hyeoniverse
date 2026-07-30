@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown } from "@/components/icons";
 import Button from "./Button";
 import styles from "./Collapsible.module.css";
 

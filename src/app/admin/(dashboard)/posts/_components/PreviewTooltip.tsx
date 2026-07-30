@@ -1,6 +1,6 @@
 "use client";
 
-import { ImageIcon } from "lucide-react";
+import { ImageIcon } from "@/components/icons";
 import MediaThumb from "@/components/admin/MediaThumb";
 import { adminShellStyles as shell } from "@/components/admin/AdminListShell";
 import { formatPostTitle } from "@/utils/post";

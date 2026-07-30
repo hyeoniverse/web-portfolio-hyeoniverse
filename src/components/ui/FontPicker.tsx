@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, useLayoutEffect, useCallback } from "react";
-import { Check, ExternalLink } from "lucide-react";
+import { Check, ExternalLink } from "@/components/icons";
 import Select from "@/components/ui/Select";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
