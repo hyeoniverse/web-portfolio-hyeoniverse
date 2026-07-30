@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { QUERY_PARAM } from "@/constants";
 
 let fontCache: string[] = [];
 let cacheTime = 0;
@@ -23,7 +24,7 @@ async function getFonts(): Promise<string[]> {
 }
 
 export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get("q")?.toLowerCase().trim();
+  const q = req.nextUrl.searchParams.get(QUERY_PARAM.q)?.toLowerCase().trim();
   if (!q || q.length < 2) return NextResponse.json({ fonts: [] });
 
   const fonts = await getFonts();

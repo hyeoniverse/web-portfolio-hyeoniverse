@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { QUERY_PARAM } from "@/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
@@ -9,10 +10,10 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const showAll = searchParams.get("all") === "true"; // admin용
   const showTrash = searchParams.get("trash") === "true"; // 휴지통
-  const page = parseInt(searchParams.get("page") ?? "0");
-  const limit = parseInt(searchParams.get("limit") ?? "0");
-  const sort = searchParams.get("sort") ?? "order";
-  const category = searchParams.get("category");
+  const page = parseInt(searchParams.get(QUERY_PARAM.page) ?? "0");
+  const limit = parseInt(searchParams.get(QUERY_PARAM.limit) ?? "0");
+  const sort = searchParams.get(QUERY_PARAM.sort) ?? "order";
+  const category = searchParams.get(QUERY_PARAM.category);
   const nature = searchParams.get("nature");
   const year = searchParams.get("year");
   const search = searchParams.get("search") ?? "";

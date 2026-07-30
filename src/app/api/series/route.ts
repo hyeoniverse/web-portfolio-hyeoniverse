@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { QUERY_PARAM } from "@/constants";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { expandPostCategoryFilters } from "@/lib/api/validateCategory";
@@ -25,15 +26,15 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient();
 
-  const category = searchParams.get("category");
-  const q = (searchParams.get("q") || "").trim();
+  const category = searchParams.get(QUERY_PARAM.category);
+  const q = (searchParams.get(QUERY_PARAM.q) || "").trim();
   const searchType = (searchParams.get("searchType") || "all") as "all" | "title" | "desc";
   // tags=tag1,tag2,... — 모든 태그를 포함한 글이 있는 시리즈만 (AND semantic, main posts 와 동일)
   const tagsParam = (searchParams.get("tags") || "").trim();
   const tags = tagsParam ? tagsParam.split(",").map((t) => t.trim()).filter(Boolean) : [];
   const findPageId = searchParams.get("findPage");
-  const pageParam = searchParams.get("page");
-  const limitParam = searchParams.get("limit");
+  const pageParam = searchParams.get(QUERY_PARAM.page);
+  const limitParam = searchParams.get(QUERY_PARAM.limit);
   const isPaginated = pageParam !== null;
   const page = Math.max(0, parseInt(pageParam || "0", 10) || 0);
   const limit = Math.max(1, Math.min(100, parseInt(limitParam || "5", 10) || 5));

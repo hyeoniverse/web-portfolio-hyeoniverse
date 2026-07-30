@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef, Fragment, type ReactNode } from "react";
 import { type CardType, getCardType } from "@/data/postsBentoTemplates";
-import { BREAKPOINT, SEARCH_DEBOUNCE_MS } from "@/constants";
+import { BREAKPOINT, SEARCH_DEBOUNCE_MS, QUERY_PARAM } from "@/constants";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -262,7 +262,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   // URL query (?tag=foo,bar / ?category=a,b CSV) 도착 시 초기값 sync — 다중 선택(OR)
   const urlSearchParams = useSearchParams();
   const [activeCategories, setActiveCategories] = useState<string[]>(() => {
-    const raw = urlSearchParams?.get("category");
+    const raw = urlSearchParams?.get(QUERY_PARAM.category);
     return raw ? raw.split(",").map((c) => c.trim()).filter(Boolean) : [];
   });
   const activeCategoryKey = useMemo(
@@ -270,7 +270,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     [activeCategories],
   );
   const [activeTags, setActiveTags] = useState<Set<string>>(() => {
-    const raw = urlSearchParams?.get("tag");
+    const raw = urlSearchParams?.get(QUERY_PARAM.tag);
     return new Set(
       raw
         ? raw
@@ -348,7 +348,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
               : "oldest";
   const [perPage, setPerPage] = useState(siteConf.posts.perPage ?? 10);
   // /posts?series=<id> 로 진입 시(시리즈 카드 클릭) 해당 시리즈로 초기 필터
-  const [activeSeries, setActiveSeries] = useState<string | null>(() => urlSearchParams?.get("series") ?? null);
+  const [activeSeries, setActiveSeries] = useState<string | null>(() => urlSearchParams?.get(QUERY_PARAM.series) ?? null);
   const [seriesList, setSeriesList] = useState<Series[]>(
     initialData.seriesList,
   );
@@ -398,7 +398,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const seriesPerPage = initialData.seriesPerPage;
   // 초기 page 값 URL 의 ?page= 에서 읽음 — 새로고침해도 같은 페이지 유지
   const [page, setPage] = useState(() => {
-    const p = Number(urlSearchParams?.get("page"));
+    const p = Number(urlSearchParams?.get(QUERY_PARAM.page));
     return Number.isFinite(p) && p >= 1 ? p : 1;
   });
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
@@ -407,8 +407,8 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   useEffect(() => {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
-    if (page > 1) url.searchParams.set("page", String(page));
-    else url.searchParams.delete("page");
+    if (page > 1) url.searchParams.set(QUERY_PARAM.page, String(page));
+    else url.searchParams.delete(QUERY_PARAM.page);
     window.history.replaceState(null, "", url.toString());
   }, [page]);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
@@ -548,15 +548,15 @@ export default function PostsClient({ initialData, history = false, archiveMonth
       params.set("searchType", searchType);
       params.set("syntaxMode", syntaxMode);
     }
-    if (activeCategoryKey) params.set("category", activeCategoryKey);
+    if (activeCategoryKey) params.set(QUERY_PARAM.category, activeCategoryKey);
     if (activeTagsKey) params.set("tags", activeTagsKey);
     if (activeSeries) params.set("series_id", activeSeries);
     if (activeAuthor) params.set("author", activeAuthor);
-    params.set("sort", sort);
+    params.set(QUERY_PARAM.sort, sort);
     params.set("sortDir", sortDir);
     if (sort === "random") params.set("seed", String(randomSeed));
-    params.set("page", String(page));
-    params.set("limit", String(perPage));
+    params.set(QUERY_PARAM.page, String(page));
+    params.set(QUERY_PARAM.limit, String(perPage));
 
     // 이전 pending 요청 cancel — 빠른 sort/필터 변경 시 race condition + 중복 카드 방지
     fetchAbortRef.current?.abort();
@@ -663,10 +663,10 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const buildSeriesParams = useCallback(
     (page: number) => {
       const params = new URLSearchParams();
-      if (activeCategoryKey) params.set("category", activeCategoryKey);
+      if (activeCategoryKey) params.set(QUERY_PARAM.category, activeCategoryKey);
       if (activeTagsKey) params.set("tags", activeTagsKey);
-      params.set("page", String(page));
-      params.set("limit", String(seriesPerPage));
+      params.set(QUERY_PARAM.page, String(page));
+      params.set(QUERY_PARAM.limit, String(seriesPerPage));
       // random 은 client-side 셔플이라 API 에 안 보냄 — default 와 같이 처리
       if (seriesSortBy !== "default" && seriesSortBy !== "random") {
         params.set("sortBy", seriesSortBy);
