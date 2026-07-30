@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
+import type { DashboardData } from "@/types";
 
 // GET /api/admin/dashboard — 어드민 대시보드용 집계 데이터
 // posts/works/comments 카운트 + 최근 항목 + 알림 + 인기 게시물 + AI 키 상태를
@@ -284,7 +285,7 @@ export async function GET() {
       deviceModels,
     },
     services,
-  });
+  } satisfies DashboardData);
 }
 
 /** Date → KST 기준 "YYYY-MM-DD" 문자열 (Asia/Seoul timezone) */
