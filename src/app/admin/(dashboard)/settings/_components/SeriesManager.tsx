@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import type { SortDirection } from "@/types";
 import { useSearchParams } from "next/navigation";
 import { ChevronRight, GripVertical, Trash2, Eye, EyeOff, Plus } from "lucide-react";
 import { motion, LayoutGroup } from "framer-motion";
@@ -52,11 +53,10 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
   const [searchType, setSearchType] = useState<"all" | "title" | "desc">("all");
   /* 정렬 + 필터 — 태그/카테고리 패턴과 일관 */
   type SortBy = "default" | "newest" | "title";
-  type SortDir = "asc" | "desc";
   type PublishFilter = "all" | "published" | "draft";
   type DescFilter = "all" | "with" | "without";
   const [sortBy, setSortBy] = useState<SortBy>("default");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortDir, setSortDir] = useState<SortDirection>("asc");
   const [publishFilter, setPublishFilter] = useState<PublishFilter>("all");
   const [descFilter, setDescFilter] = useState<DescFilter>("all");
   const [filterExpanded, setFilterExpanded] = useState(false);

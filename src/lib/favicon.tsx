@@ -39,7 +39,6 @@ export function lastGrapheme(str: string | null | undefined): string {
   const g = graphemes(s);
   return g[g.length - 1] ?? "";
 }
-export type FaviconShadowSize = "sm" | "md" | "lg" | "custom";
 
 export interface FaviconShadow {
   enabled: boolean;
@@ -284,7 +283,7 @@ export function resolveFaviconRatio(raw: string | undefined): number {
 
 /* ── 그림자 <filter> primitive — 단일 소스 (문자열/React 양쪽에서 소비) ── */
 
-export interface FilterPrimitive {
+interface FilterPrimitive {
   tag: string;
   attrs: Record<string, string | number>;
   children?: FilterPrimitive[];

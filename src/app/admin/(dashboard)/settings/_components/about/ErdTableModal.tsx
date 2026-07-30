@@ -7,6 +7,7 @@
  * 편집은 넓은 자리가 필요하니 모달로 분리한다. */
 
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import type { Language } from "@/types";
 import { createPortal } from "react-dom";
 import { Plus, KeyRound, ArrowRight, GripVertical, Asterisk, Fingerprint, ChevronDown } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -21,7 +22,6 @@ import type { ErdTable, ErdRelation } from "@/data/about/types";
 import Tooltip from "@/components/ui/Tooltip";
 import css from "./ErdTableModal.module.css";
 
-type Lang = "ko" | "en";
 
 /* Postgres 에서 흔히 쓰는 타입들. 목록에 없는 값도 직접 입력할 수 있으므로
    여기 없다고 못 쓰는 건 아니고, 자주 쓰는 걸 먼저 보여주는 용도다. */
@@ -89,7 +89,7 @@ export default function ErdTableModal({
   relations: ErdRelation[];
   onChange: (t: ErdTable[], r: ErdRelation[]) => void;
   onDelete: (name: string) => void;
-  lang: Lang;
+  lang: Language;
 }) {
   const closeModal = useModalStore((s) => s.closeModal);
   const openModal = useModalStore((s) => s.openModal);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
+import type { SortDirection } from "@/types";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
 import { DndContext, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
@@ -931,7 +932,6 @@ export default function ContentTab({
    저장 키 = canonical (post.tags 와 매칭). value 는 lib/tagMeta 의 StoredTagMeta 형식.
    write 시 항상 새 포맷 ({ ko, en, description }) 로 저장. */
 type TagSortBy = "freq" | "name";
-type SortDir = "asc" | "desc";
 type NameLang = "ko" | "en";
 type UsageFilter = "all" | "in-use" | "unused";
 type DescFilter = "all" | "with" | "without";
@@ -1100,7 +1100,7 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
   const [search, setSearch] = useState("");
   const [searchType, setSearchType] = useState<"all" | "name" | "desc">("all");
   const [sortBy, setSortBy] = useState<TagSortBy>("freq");
-  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [sortDir, setSortDir] = useState<SortDirection>("desc");
   const [nameLang, setNameLang] = useState<NameLang>("ko");
   const [usageFilter, setUsageFilter] = useState<UsageFilter>("all");
   const [descFilter, setDescFilter] = useState<DescFilter>("all");

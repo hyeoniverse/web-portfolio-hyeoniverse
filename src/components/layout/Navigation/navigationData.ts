@@ -7,7 +7,7 @@ export const navDescs: Record<string, Record<string, string>> = {
   about: { ko: "사이트 소개", en: "About this site" },
 };
 
-export interface NavChild {
+interface NavChild {
   key: string;
   href: string;
   label: string;

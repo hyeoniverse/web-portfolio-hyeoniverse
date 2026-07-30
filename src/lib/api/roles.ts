@@ -9,7 +9,7 @@ import type { User } from "@supabase/supabase-js";
  * 부트스트랩: 기존 owner 계정은 app_metadata 가 비어 있을 수 있으므로 `OWNER_EMAIL` 환경변수로도 owner 를 인정한다.
  */
 
-export type Role = "owner" | "author";
+type Role = "owner" | "author";
 
 /** 권한 레벨 — 숫자가 클수록 넓은 권한. owner 는 별도(전권). */
 export const PERM = {

@@ -9,6 +9,7 @@
 import { autocompletion, completionKeymap, acceptCompletion,
   type CompletionContext, type CompletionResult, type Completion } from "@codemirror/autocomplete";
 import { indentMore, indentLess } from "@codemirror/commands";
+import type { Language } from "@/types";
 import { linter, type Diagnostic } from "@codemirror/lint";
 import { search, searchKeymap, highlightSelectionMatches } from "@codemirror/search";
 import { keymap, type EditorView, type Command } from "@codemirror/view";
@@ -17,7 +18,6 @@ import type { ErdTable } from "@/data/about/types";
 import { parseSqlErd, type SqlIssue } from "./parseSqlErd";
 import { SQL_KEYWORDS, SQL_TYPES } from "./sqlLanguage";
 
-type Lang = "ko" | "en";
 
 /* ── 자동완성 ────────────────────────────────────
    오타 난 테이블 이름은 지금도 "대상 테이블이 없습니다" 로 잡히지만,
@@ -100,7 +100,7 @@ const MESSAGE: Record<SqlIssue["kind"], (name: string | undefined, ko: boolean) 
 const severityOf = (kind: SqlIssue["kind"]): Diagnostic["severity"] =>
   kind === "unknown-ref" || kind === "unresolved" ? "warning" : "error";
 
-function sqlLinter(tables: () => ErdTable[], lang: () => Lang) {
+function sqlLinter(tables: () => ErdTable[], lang: () => Language) {
   return linter((view: EditorView): Diagnostic[] => {
     const doc = view.state.doc;
     const ko = lang() === "ko";
@@ -120,7 +120,7 @@ function sqlLinter(tables: () => ErdTable[], lang: () => Lang) {
 const escapeEditor: Command = (view) => { view.contentDOM.blur(); return true; };
 
 export function sqlEditorExtensions(
-  tables: () => ErdTable[], lang: () => Lang,
+  tables: () => ErdTable[], lang: () => Language,
 ): Extension[] {
   return [
     autocompletion({ override: [sqlCompletions(tables)], icons: false }),

@@ -14,7 +14,7 @@ import Button from "./Button";
    Popover / Tooltip 이 trigger 에 핸들러·ref 를 주입하는 케이스가 깨지지 않도록. */
 type HelpButtonSize = "2xs" | "xs" | "sm" | "md" | "lg" | "xl";
 
-export type HelpButtonProps = Omit<
+type HelpButtonProps = Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   "children"
 > & {

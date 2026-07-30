@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import type { SortDirection } from "@/types";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -91,13 +92,12 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
   /* 검색 / 정렬 / 필터 / 페이지네이션 — posts CategoriesEditor 와 동일 패턴 */
   const [search, setSearch] = useState("");
   type SortBy = "custom" | "freq" | "name";
-  type SortDir = "asc" | "desc";
   type NameLang = "ko" | "en";
   type UsageFilter = "all" | "in-use" | "unused";
   type DescFilter = "all" | "with" | "without";
   const [searchType, setSearchType] = useState<"all" | "name" | "desc">("all");
   const [sortBy, setSortBy] = useState<SortBy>("custom");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortDir, setSortDir] = useState<SortDirection>("asc");
   const [nameLang, setNameLang] = useState<NameLang>("ko");
   const [usageFilter, setUsageFilter] = useState<UsageFilter>("all");
   const [descFilter, setDescFilter] = useState<DescFilter>("all");

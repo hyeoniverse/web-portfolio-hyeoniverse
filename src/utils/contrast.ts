@@ -6,7 +6,7 @@
  * → contrast ratio ((L1+0.05)/(L2+0.05)). 파싱 실패 시 null.
  * =========================================================================== */
 
-export interface RGB {
+interface RGB {
   r: number;
   g: number;
   b: number;

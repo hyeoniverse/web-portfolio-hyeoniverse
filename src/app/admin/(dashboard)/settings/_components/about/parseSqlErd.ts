@@ -55,7 +55,7 @@ export interface ParsedErd {
   removedColumns: { table: string; column: string }[];
 }
 
-export type SqlIssueKind =
+type SqlIssueKind =
   | "unreadable"   // 무엇인지 알아볼 수 없는 문장
   | "unbalanced"   // 괄호가 닫히지 않음
   | "empty-table"  // CREATE TABLE 에서 읽어낸 컬럼이 없음

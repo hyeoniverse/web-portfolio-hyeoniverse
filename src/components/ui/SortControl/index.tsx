@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowDownNarrowWide, ArrowUpNarrowWide } from "lucide-react";
+import type { SortDirection } from "@/types";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
@@ -13,7 +14,6 @@ import styles from "./SortControl.module.css";
    역순 아이콘은 **현재 방향을 반영**한다 — 고정 아이콘(ArrowUpDown)은 "누르면 뒤집힌다"는 것만
    알려줄 뿐 지금이 어느 방향인지 못 알려준다. */
 
-export type SortDirection = "asc" | "desc";
 
 interface SortControlProps<T extends string> {
   value: T;

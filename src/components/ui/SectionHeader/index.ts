@@ -1,1 +1,1 @@
-export { default, type SectionHeaderProps } from "./SectionHeader";
+export { default } from "./SectionHeader";
