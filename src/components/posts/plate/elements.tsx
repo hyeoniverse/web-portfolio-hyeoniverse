@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import type { SelectOption } from "@/types";
+import { ALIGN_TO_JUSTIFY } from "./constants";
+import type { SelectOption, Size } from "@/types";
 import { CAPTION_EDIT_EVENT } from "./constants";
 import {
   PlateElement,
@@ -172,7 +173,7 @@ export function ImageElement(props: PlateElementProps) {
 
   const imgRef = useRef<HTMLImageElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [resizeSize, setResizeSize] = useState<{ w: number; h: number } | null>(null);
+  const [resizeSize, setResizeSize] = useState<Size | null>(null);
   // 이미지 로드 실패 시 placeholder.svg 로 swap
   const [imgErrored, setImgErrored] = useState(false);
   useEffect(() => { setImgErrored(false); }, [url]);
@@ -283,7 +284,7 @@ export function ImageElement(props: PlateElementProps) {
   const fileName = url ? decodeURIComponent(url.split("/").pop()?.split("?")[0] || "") : "";
 
   // 자연 크기 (로드 후)
-  const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
+  const [naturalSize, setNaturalSize] = useState<Size | null>(null);
   const onImgLoad = useCallback(() => {
     const img = imgRef.current;
     if (img) setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight });
@@ -2339,7 +2340,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
     node.addEventListener(CAPTION_EDIT_EVENT.video, handler);
     return () => node.removeEventListener(CAPTION_EDIT_EVENT.video, handler);
   }, []);
-  const [resizeSize, setResizeSize] = useState<{ w: number; h: number } | null>(null);
+  const [resizeSize, setResizeSize] = useState<Size | null>(null);
   const draggingRef = useRef<{ handle: "right" | "bottom" | "corner"; startX: number; startY: number; startW: number; startH: number; ratio: number } | null>(null);
 
   const setMediaAttr = useCallback((attrs: Record<string, unknown>) => {
@@ -2405,7 +2406,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
     document.addEventListener("pointerup", onPointerUp);
   }, [setMediaAttr, vidLock]);
 
-  const justifyMap: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
+  const justifyMap = ALIGN_TO_JUSTIFY;
 
   // iframe 타입 (YouTube 등) — 크기 조절 + 정렬 + 옵션
   const iframeAlign = (el.align as string) || "center";
@@ -2468,7 +2469,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
     document.addEventListener("pointerup", onUp);
   }, [iframeResizeW, setMediaAttr]);
 
-  const iframeJustify: Record<string, string> = { left: "flex-start", center: "center", right: "flex-end" };
+  const iframeJustify = ALIGN_TO_JUSTIFY;
 
   if (isVideo) {
     const isFloat = vidLayout.startsWith("float-");
