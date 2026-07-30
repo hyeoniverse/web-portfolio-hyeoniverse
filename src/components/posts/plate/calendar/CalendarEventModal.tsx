@@ -4,7 +4,7 @@
 // 날짜(필수)·제목(필수)·내용·라벨(필수, 선택/생성/수정/삭제)·태그·시간.
 import React, { useContext, useState } from "react";
 import { createPortal } from "react-dom";
-import { Clock, Trash2, Check, Plus, Pencil, CalendarDays, ArrowLeft, ArrowRight, Repeat, SlidersHorizontal } from "lucide-react";
+import { Clock, Trash2, Check, Plus, Pencil, CalendarDays, ArrowLeft, ArrowRight, Repeat, SlidersHorizontal } from "@/components/icons";
 import { ModalFooterContext } from "@/components/ui/Modal";
 import TimePickerPopover from "@/components/ui/DatePicker/TimePickerPopover";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";

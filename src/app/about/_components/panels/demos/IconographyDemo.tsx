@@ -1,4 +1,4 @@
-import { Code, Palette, LayoutGrid, Zap, Globe, Mail } from "lucide-react";
+import { Code, Palette, LayoutGrid, Zap, Globe, Mail } from "@/components/icons";
 import shared from "../../AboutSection.module.css";
 import local from "../DesignSystemPanel.module.css";
 const styles = { ...shared, ...local };

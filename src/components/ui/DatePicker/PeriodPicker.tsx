@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { LocalizedText } from "@/types/common";
 import type { SelectOption } from "@/types";
-import { Calendar } from "lucide-react";
+import { Calendar } from "@/components/icons";
 import type { DatePeriod } from "@/data/profile";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { formatPeriod } from "@/utils/formatPeriod";

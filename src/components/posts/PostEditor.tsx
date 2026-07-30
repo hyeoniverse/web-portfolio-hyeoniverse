@@ -5,7 +5,7 @@ import type { UploadResponse } from "@/types";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { ChevronRight, ExternalLink, AlertTriangle } from "lucide-react";
+import { ChevronRight, ExternalLink, AlertTriangle } from "@/components/icons";
 import { marked } from "marked";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";

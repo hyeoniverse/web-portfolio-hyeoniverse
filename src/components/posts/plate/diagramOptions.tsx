@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowRight, ArrowLeftRight, Minus, ChevronRight, Spline, Waypoints } from "lucide-react";
+import { ArrowRight, ArrowLeftRight, Minus, ChevronRight, Spline, Waypoints } from "@/components/icons";
 import type { DiagramNodeShape, DiagramArrow, DiagramLine, DiagramCurve } from "./diagram/model";
 
 /** 노드 모양 옵션 */

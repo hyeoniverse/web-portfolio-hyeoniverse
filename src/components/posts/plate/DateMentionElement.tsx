@@ -6,7 +6,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
-import { CalendarDays, Clock, Trash2 } from "lucide-react";
+import { CalendarDays, Clock, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Popover from "@/components/ui/Popover";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";

@@ -5,7 +5,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import TBtn from "../TBtn";
 import FloatingBar from "./FloatingBar";
 import Popover from "@/components/ui/Popover";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight } from "@/components/icons";
 import { TblTrash } from "../icons";
 import { MATH_TOOLS } from "../constants";
 import { _mathSymbolInsert, _mathDeleteNode, _mathToggleMode } from "../utils";

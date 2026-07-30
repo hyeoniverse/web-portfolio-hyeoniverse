@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Tags, X, ArrowRight } from "lucide-react";
+import { Settings, Tags, X, ArrowRight } from "@/components/icons";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { parseSearchQuery, matchesQuery, type SyntaxMode } from "@/lib/searchQuery";
 import Button from "@/components/ui/Button";

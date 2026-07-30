@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { Outcome } from "../_types";
-import { Plus, Trash2, Pencil, Clock, UserPlus } from "lucide-react";
+import { Plus, Trash2, Pencil, Clock, UserPlus } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown } from "@/components/icons";
 import { useLenis } from "@/providers/LenisProvider";
 import styles from "./ScrollButtons.module.css";
 

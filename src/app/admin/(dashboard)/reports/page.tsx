@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Flag, ExternalLink, Check, X } from "lucide-react";
+import { Flag, ExternalLink, Check, X } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";

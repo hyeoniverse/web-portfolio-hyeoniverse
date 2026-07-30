@@ -3,7 +3,7 @@
 import { forwardRef } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Download } from "lucide-react";
+import { Download } from "@/components/icons";
 
 const CoffeeCanvas = dynamic(() => import("./CoffeeCanvas"), { ssr: false });
 import { useLanguage } from "@/providers/LanguageProvider";

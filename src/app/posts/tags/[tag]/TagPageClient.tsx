@@ -5,7 +5,7 @@ import { QUERY_PARAM } from "@/constants";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Hash, ArrowLeft, List, ChevronRight, ArrowUpRight } from "lucide-react";
+import { Hash, ArrowLeft, List, ChevronRight, ArrowUpRight } from "@/components/icons";
 import type { Post } from "@/types/post";
 import type { TagPageData, AllTagsData } from "@/lib/posts";
 import { useLenis } from "@/providers/LenisProvider";

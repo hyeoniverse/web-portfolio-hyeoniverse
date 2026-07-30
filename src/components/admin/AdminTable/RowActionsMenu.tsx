@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MoreHorizontal, ArrowUpDown, Download, ChevronRight, ArrowUpToLine, ArrowDownToLine } from "lucide-react";
+import { MoreHorizontal, ArrowUpDown, Download, ChevronRight, ArrowUpToLine, ArrowDownToLine } from "@/components/icons";
 import Popover, { MenuItem, MenuItemTrailing, MenuDivider } from "@/components/ui/Popover";
 import styles from "./RowActionsMenu.module.css";
 

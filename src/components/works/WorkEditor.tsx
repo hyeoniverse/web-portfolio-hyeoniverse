@@ -6,7 +6,7 @@ import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
-import { ChevronRight, Plus, Star, Check, X, User, Pencil } from "lucide-react";
+import { ChevronRight, Plus, Star, Check, X, User, Pencil } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import CloseButton from "@/components/ui/CloseButton";

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import { Shuffle, Bell, CircleX, Check, Pencil, ChevronRight } from "lucide-react";
+import { Shuffle, Bell, CircleX, Check, Pencil, ChevronRight } from "@/components/icons";
 import { getCommenterId, getIdentity, getRandomIdentity, FALLBACK_AVATAR_EMOJI } from "@/utils/commenterIdentity";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";

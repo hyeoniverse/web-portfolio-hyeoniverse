@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Paperclip } from "lucide-react";
+import { Paperclip } from "@/components/icons";
 import T from "@/components/ui/T";
 import styles from "./ContactDrawer.module.css";
 

@@ -9,7 +9,7 @@ import {
   Sun,
   Mail,
   MessageSquare,
-} from "lucide-react";
+} from "@/components/icons";
 
 const ICON_PROPS = { size: 20, strokeWidth: 1.5 } as const;
 

@@ -2,7 +2,7 @@
 
 // ── 달력 검색/필터/정렬 툴바 (에디터·리더 공용) ──
 import React from "react";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "@/components/icons";
 import Popover from "@/components/ui/Popover";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SortControl from "@/components/ui/SortControl";

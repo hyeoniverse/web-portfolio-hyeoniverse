@@ -2,7 +2,7 @@
 
 import { type Dispatch, type SetStateAction, useRef, useState } from "react";
 import type { SelectOption } from "@/types";
-import { ChevronUp, ChevronDown, Plus } from "lucide-react";
+import { ChevronUp, ChevronDown, Plus } from "@/components/icons";
 import {
   AI_COVER_OPTIONS, AI_SUMMARY_OPTIONS, TRANSLATION_OPTIONS,
   DEFAULT_LIMIT_GROUPS, MIME_GROUP_ORDER, MIME_GROUP_ICON, MIME_ADDABLE_GROUP_KEY, ADDABLE_MIME_GROUPS, SIZE_OPTIONS,

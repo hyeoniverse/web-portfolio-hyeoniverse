@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Check } from "lucide-react";
+import { Check } from "@/components/icons";
 import type { ConfigConflict } from "../_data/settingsConstants";
 import { buildDiffOps, groupIntoBlocks } from "../_data/diffUtils";
 import Button from "@/components/ui/Button";

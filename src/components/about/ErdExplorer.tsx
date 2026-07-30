@@ -10,7 +10,7 @@
  * 바깥에서 다른 것: 헤더(제목/힌트), 줌 컨트롤 모양, 편집 진입 여부. */
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { X, Network, Shapes } from "lucide-react";
+import { X, Network, Shapes } from "@/components/icons";
 import { Panel, type Viewport } from "@xyflow/react";
 import ErdFlow from "./ErdFlow";
 import ChenFlow from "./ChenFlow";

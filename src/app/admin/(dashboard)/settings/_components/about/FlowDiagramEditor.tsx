@@ -11,7 +11,7 @@
 
 import { useRef, useState } from "react";
 import type { Language } from "@/types";
-import { Plus, X, Link2 } from "lucide-react";
+import { Plus, X, Link2 } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import type { FlowNode, UserFlow } from "@/data/about/types";

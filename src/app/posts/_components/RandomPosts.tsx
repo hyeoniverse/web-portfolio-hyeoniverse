@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Post } from "@/types/post";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
-import { Shuffle, RefreshCw } from "lucide-react";
+import { Shuffle, RefreshCw } from "@/components/icons";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import { formatCount } from "@/utils/format";

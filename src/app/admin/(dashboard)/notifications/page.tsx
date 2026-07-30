@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Reply, Heart, Bell, Flag, RefreshCw } from "lucide-react";
+import { MessageCircle, Reply, Heart, Bell, Flag, RefreshCw } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { SkeletonLine, SkeletonCircle } from "@/components/ui/Skeleton";

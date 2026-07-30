@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { HelpCircle, ExternalLink } from "lucide-react";
+import { HelpCircle, ExternalLink } from "@/components/icons";
 import Popover from "@/components/ui/Popover";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./GiscusHelp.module.css";

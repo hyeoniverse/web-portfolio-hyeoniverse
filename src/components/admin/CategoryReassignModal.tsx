@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useContext } from "react";
 import { createPortal } from "react-dom";
-import { Book } from "lucide-react";
+import { Book } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
 import Select from "@/components/ui/Select";

@@ -6,7 +6,7 @@ import type { GithubImportResponse } from "@/types";
 import { PREVIEW_KEY, QUERY_PARAM } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
-import { Trash2, Upload, Plus, Download } from "lucide-react";
+import { Trash2, Upload, Plus, Download } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";

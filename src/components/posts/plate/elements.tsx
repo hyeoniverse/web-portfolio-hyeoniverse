@@ -26,7 +26,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import { useModalStore } from "@/stores/modalStore";
 import { _blockDragPath, _inlineDragPath, _imageUploadFn } from "./utils";
 import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
-import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical, Copy, WrapText, MoreHorizontal, ChevronDown, Search, Sparkles, ExternalLink, ZoomIn, ZoomOut, Maximize, Maximize2, Minimize2 } from "lucide-react";
+import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical, Copy, WrapText, MoreHorizontal, ChevronDown, Search, Sparkles, ExternalLink, ZoomIn, ZoomOut, Maximize, Maximize2, Minimize2 } from "@/components/icons";
 import { createPortal } from "react-dom";
 import Popover from "@/components/ui/Popover";
 import styles from "../RichTextEditor.module.css";

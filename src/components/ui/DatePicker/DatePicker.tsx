@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { SelectOption } from "@/types";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "@/components/icons";
 import styles from "./DatePicker.module.css";
 
 export type Format = "year" | "yearMonth" | "date";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { BadgeCheck, Image as ImageIcon, Film, Download } from "lucide-react";
+import { BadgeCheck, Image as ImageIcon, Film, Download } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import LoadingDots from "@/components/ui/LoadingDots";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";

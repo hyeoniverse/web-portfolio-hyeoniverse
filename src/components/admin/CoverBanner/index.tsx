@@ -13,7 +13,7 @@ import {
   Check,
   X,
   Plus,
-} from "lucide-react";
+} from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import Button from "@/components/ui/Button";

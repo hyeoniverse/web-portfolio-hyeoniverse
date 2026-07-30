@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { X, Check, RotateCcw } from "lucide-react";
+import { X, Check, RotateCcw } from "@/components/icons";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRecaptcha } from "@/providers/RecaptchaProvider";
 import { useLanguage } from "@/providers/LanguageProvider";

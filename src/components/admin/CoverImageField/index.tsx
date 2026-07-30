@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, ImageIcon, X, Palette, Copy } from "lucide-react";
+import { Upload, ImageIcon, X, Palette, Copy } from "@/components/icons";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";

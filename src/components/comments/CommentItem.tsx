@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, SmilePlus, Trash2 } from "lucide-react";
+import { Globe, SmilePlus, Trash2 } from "@/components/icons";
 import Popover from "@/components/ui/Popover";
 import type { Comment } from "@/types/post";
 import { getCommenterId, identityFromHash, FALLBACK_AVATAR_EMOJI } from "@/utils/commenterIdentity";

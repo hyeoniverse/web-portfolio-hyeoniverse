@@ -61,7 +61,7 @@ import DateMentionMenu from "./plate/toolbars/DateMentionMenu";
 import PostLinkMenu from "./plate/toolbars/PostLinkMenu";
 import TBtn from "./plate/TBtn";
 import { TblTrash } from "./plate/icons";
-import { ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, Unlink, Columns3, AlignHorizontalSpaceAround, SlidersHorizontal, CaseSensitive, WholeWord, Regex, StretchHorizontal, Sparkles, Type, Eraser, BetweenHorizontalStart, Trash2 } from "lucide-react";
+import { ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, Unlink, Columns3, AlignHorizontalSpaceAround, SlidersHorizontal, CaseSensitive, WholeWord, Regex, StretchHorizontal, Sparkles, Type, Eraser, BetweenHorizontalStart, Trash2 } from "@/components/icons";
 import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
 
 // Re-export ImagePanel for backward compatibility

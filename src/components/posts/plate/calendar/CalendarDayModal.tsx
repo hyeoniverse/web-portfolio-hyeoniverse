@@ -3,7 +3,7 @@
 // ── 날짜 상세 모달 — 특정 날짜의 모든 일정을 한 번에 (월/타임라인 공용) ──
 import React, { useContext } from "react";
 import { createPortal } from "react-dom";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/icons";
 import { ModalFooterContext } from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import { useModalStore } from "@/stores/modalStore";

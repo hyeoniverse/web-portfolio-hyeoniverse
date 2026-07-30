@@ -5,7 +5,7 @@ import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import HelpButton from "@/components/ui/HelpButton";
 import Button from "@/components/ui/Button";
-import { PanelLeftClose, ArrowDownWideNarrow, ArrowUpNarrowWide, Link2, ChevronDown, Star } from "lucide-react";
+import { PanelLeftClose, ArrowDownWideNarrow, ArrowUpNarrowWide, Link2, ChevronDown, Star } from "@/components/icons";
 import Tooltip from "@/components/ui/Tooltip";
 import Popover from "@/components/ui/Popover";
 import SegmentedControl from "@/components/ui/SegmentedControl";

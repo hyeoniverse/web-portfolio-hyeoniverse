@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Globe, Users, User, Pencil, Link2, Mail } from "lucide-react";
+import { Globe, Users, User, Pencil, Link2, Mail } from "@/components/icons";
 import "katex/dist/katex.min.css";
 import { GithubIcon } from "@/components/icons";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";

@@ -6,7 +6,7 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { PLAYGROUND_STACKS } from "./playgroundStacks";
 import { createPortal } from "react-dom";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
-import { SquareCode } from "lucide-react";
+import { SquareCode } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";

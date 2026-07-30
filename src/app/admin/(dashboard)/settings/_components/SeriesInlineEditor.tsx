@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef, forwardRef, useImperativeHandle } from "react";
 import Image from "next/image";
-import { ChevronUp, ChevronDown, ExternalLink, GripVertical, Plus, Unlink, Trash2 } from "lucide-react";
+import { ChevronUp, ChevronDown, ExternalLink, GripVertical, Plus, Unlink, Trash2 } from "@/components/icons";
 import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
 import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";

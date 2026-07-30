@@ -5,7 +5,7 @@ import type { LocalizedText } from "@/types/common";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import Image from "next/image";
-import { Star, Maximize2, ImageIcon, ZoomIn, ZoomOut, RotateCcw, X, ChevronDown, Folder, FileText, Filter, Check } from "lucide-react";
+import { Star, Maximize2, ImageIcon, ZoomIn, ZoomOut, RotateCcw, X, ChevronDown, Folder, FileText, Filter, Check } from "@/components/icons";
 import type { Language } from "@/providers/LanguageProvider";
 import { troubleShootingItems } from "@/data/about/troubleshooting";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";

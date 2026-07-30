@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Image as ImageIcon } from "lucide-react";
+import { Image as ImageIcon } from "@/components/icons";
 import MediaThumb from "@/components/ui/MediaThumb";
 import { useHoverPreview } from "./useHoverPreview";
 import styles from "./RelatedChips.module.css";

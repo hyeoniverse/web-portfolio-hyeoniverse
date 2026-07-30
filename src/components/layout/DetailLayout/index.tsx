@@ -7,7 +7,7 @@ import Link from "next/link";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { EmojiIcon } from "@/components/ui/EmojiPicker";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/components/icons";
 import { useLenis } from "@/providers/LenisProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import TOC from "@/components/ui/TOC/TOC";

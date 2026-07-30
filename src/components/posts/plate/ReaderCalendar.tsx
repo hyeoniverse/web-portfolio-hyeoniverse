@@ -2,7 +2,7 @@
 
 // ── 리더용 이벤트 달력 — 연결형(calendarId 서버 fetch) 또는 legacy inline. 읽기전용(월 이동만). ──
 import React, { useEffect, useRef, useState } from "react";
-import { CalendarClock } from "lucide-react";
+import { CalendarClock } from "@/components/icons";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import Button from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";

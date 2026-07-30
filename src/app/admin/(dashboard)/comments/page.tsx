@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Trash2 } from "lucide-react";
+import { Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useModalStore } from "@/stores/modalStore";

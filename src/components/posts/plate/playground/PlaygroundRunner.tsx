@@ -4,7 +4,7 @@
 // VSCode 식 파일/폴더 트리(추가·이름변경·삭제) + 탭. 파일맵은 buildSrcdoc 가 엔트리(index.html)
 // 기준으로 조립한다(참조된 css/js 인라인, 조각이면 모든 css/js 번들).
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Code2, Monitor, Terminal, Maximize2, Minimize2, RotateCw, PanelLeft, PanelLeftClose, Minus, Plus, ZoomIn, ZoomOut, Columns2, Rows2, FilePlus, FolderPlus, Pencil, Trash2, ChevronRight, ChevronDown, X, Undo2, Redo2, Scaling, Ban, Download } from "lucide-react";
+import { Code2, Monitor, Terminal, Maximize2, Minimize2, RotateCw, PanelLeft, PanelLeftClose, Minus, Plus, ZoomIn, ZoomOut, Columns2, Rows2, FilePlus, FolderPlus, Pencil, Trash2, ChevronRight, ChevronDown, X, Undo2, Redo2, Scaling, Ban, Download } from "@/components/icons";
 import Tooltip from "@/components/ui/Tooltip";
 import CodeMirrorEditor from "./CodeMirrorEditor";
 import { buildSrcdoc, parseConsoleMessage, type ConsoleMsg } from "./buildSrcdoc";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "lucide-react";
+import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "@/components/icons";
 import styles from "./Pagination.module.css";
 
 interface PaginationProps {

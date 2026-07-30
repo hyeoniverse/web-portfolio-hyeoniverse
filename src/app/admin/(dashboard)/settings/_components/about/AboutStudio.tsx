@@ -16,7 +16,7 @@ import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import {
   Plus, X, Trash2, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Image as ImageIcon, Lock, LayoutTemplate,
   Folder, FolderOpen, FileCode, Code2,
-} from "lucide-react";
+} from "@/components/icons";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, rectSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS as DndCSS } from "@dnd-kit/utilities";

@@ -2,7 +2,7 @@
 
 // ── 이벤트 달력 — 타임라인. 간트(무한 스크롤 날짜축 + 이벤트 바 + 오늘선). ──
 import React from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X } from "@/components/icons";
 import { type CalEvent, type EventLabel, eventColorVar, eventEndDate } from "./model";
 import { toDateStr, parseDate, formatDateValue } from "../dateUtils";
 import EventPreview from "./EventPreview";

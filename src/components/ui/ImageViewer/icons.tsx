@@ -13,7 +13,7 @@ import {
   Images,
   Play,
   Pause,
-} from "lucide-react";
+} from "@/components/icons";
 
 export const ChevronLeftIcon = () => <ChevronLeft size={20} />;
 export const ChevronRightIcon = () => <ChevronRight size={20} />;

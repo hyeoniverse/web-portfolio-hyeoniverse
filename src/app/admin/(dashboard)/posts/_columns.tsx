@@ -1,4 +1,4 @@
-import { ImageIcon, Download, ExternalLink } from "lucide-react";
+import { ImageIcon, Download, ExternalLink } from "@/components/icons";
 import type { TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import HighlightedText from "@/components/ui/HighlightedText";

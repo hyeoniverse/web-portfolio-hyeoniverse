@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Tags, ChevronRight } from "lucide-react";
+import { Tags, ChevronRight } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import styles from "./TagCloud3D.module.css";

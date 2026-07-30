@@ -27,7 +27,7 @@ import { InlineCaption } from "./elements";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import { BlockTailClickZone } from "./elements";
 import styles from "../RichTextEditor.module.css";
-import { GripVertical, GripHorizontal, Grid2x2, Plus } from "lucide-react";
+import { GripVertical, GripHorizontal, Grid2x2, Plus } from "@/components/icons";
 
 // 표 고정(freeze) 상태 — 열=CSS sticky-left, 행=JS transform pin(스크롤에 맞춰 translateY).
 //  colLefts[colIndex] = 그 열의 sticky left(px, 음수면 negative sticky). COL_NOT_FROZEN 이면 비고정.

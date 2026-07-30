@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Monitor, Smartphone } from "lucide-react";
+import { Monitor, Smartphone } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./Footer.module.css";

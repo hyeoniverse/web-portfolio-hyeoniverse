@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo, Fragment, type ReactNode, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
-import { ChevronRight, X } from "lucide-react";
+import { ChevronRight, X } from "@/components/icons";
 import { usePortalContainer } from "./portalContainer";
 import styles from "./Select.module.css";
 
