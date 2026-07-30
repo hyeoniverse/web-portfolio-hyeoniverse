@@ -1,4 +1,5 @@
 import { THEME_PRESETS } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
+import { hexToRgb, lerpRgb, rgbHex } from "@/utils/color";
 
 const ACCENT_ALPHAS = [1, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
 const ACCENT_LIGHT_ALPHAS = [40, 60, 70, 90];
@@ -8,20 +9,6 @@ const MID_BLENDS: [number, number][] = [
   [500, 0.46], [600, 0.65], [700, 0.80], [800, 0.92],
 ];
 const NEUTRAL_ALPHA_STEPS = [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100];
-
-function hexToRgb(hex: string): [number, number, number] | null {
-  const m = hex.match(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
-  if (!m) return null;
-  return [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)];
-}
-
-function lerpRgb(a: [number, number, number], b: [number, number, number], t: number): [number, number, number] {
-  return [Math.round(a[0] + (b[0] - a[0]) * t), Math.round(a[1] + (b[1] - a[1]) * t), Math.round(a[2] + (b[2] - a[2]) * t)];
-}
-
-function rgbHex([r, g, b]: [number, number, number]): string {
-  return `#${[r, g, b].map((c) => Math.max(0, Math.min(255, c)).toString(16).padStart(2, "0")).join("")}`;
-}
 
 function getAllVarKeys(): string[] {
   const keys = ["--color-accent", "--color-accent-dark", "--color-accent-light", "--bg-primary", "--text-primary"];

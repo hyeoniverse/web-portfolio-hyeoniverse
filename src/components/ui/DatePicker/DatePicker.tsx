@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import type { SelectOption } from "@/types";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import styles from "./DatePicker.module.css";
 
@@ -43,7 +44,7 @@ export function SpinnerColumn({
   onChange,
   label,
 }: {
-  items: { value: string; label: string }[];
+  items: SelectOption[];
   value: string;
   onChange: (v: string) => void;
   /** 컬럼 하단에 표시할 라벨 (예: "년", "시", "오전/오후") — optional */
