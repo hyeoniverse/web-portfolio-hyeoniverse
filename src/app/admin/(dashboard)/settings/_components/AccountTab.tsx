@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { STATUS_MESSAGE_DISMISS_MS } from "@/constants";
 import { useRouter } from "next/navigation";
 import { Monitor, Smartphone, Tablet, Check, Trash2 } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -158,7 +159,7 @@ export default function AccountTab({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setAccountMessage(t("admin.settings.emailResent"));
-      setTimeout(() => setAccountMessage(""), 3000);
+      setTimeout(() => setAccountMessage(""), STATUS_MESSAGE_DISMISS_MS);
     } catch (err) {
       setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
     } finally {
@@ -174,7 +175,7 @@ export default function AccountTab({
       if (!res.ok) throw new Error(data.error);
       onCancelPendingEmail();
       setAccountMessage(t("admin.settings.emailChangeCancelled"));
-      setTimeout(() => setAccountMessage(""), 3000);
+      setTimeout(() => setAccountMessage(""), STATUS_MESSAGE_DISMISS_MS);
     } catch (err) {
       setAccountMessage(`Error: ${err instanceof Error ? err.message : "Failed"}`);
     } finally {
