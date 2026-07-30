@@ -9,6 +9,7 @@
  * 여기서 고르는 건 "무엇을 보여줄지"(부분집합과 대표 속성)뿐이다. */
 
 import { erdTables, erdRelations } from "./erd";
+import type { LocalizedText } from "@/types/common";
 import type { ErdTable, ErdRelation } from "./types";
 
 /* 개념 모델에 올릴 엔티티는 고르지 않고 관계에서 도출한다 —
@@ -62,7 +63,7 @@ const JUNCTIONS: Record<string, { a: string; b: string; ko: string; en: string }
 };
 
 /** 자기참조 관계 — 대댓글처럼 같은 엔티티끼리 맺는 재귀 관계 */
-const RECURSIVE_VERB: Record<string, { ko: string; en: string }> = {
+const RECURSIVE_VERB: Record<string, LocalizedText> = {
   comments: { ko: "답글", en: "replies to" },
   work_comments: { ko: "답글", en: "replies to" },
 };
@@ -74,7 +75,7 @@ const ATTR_SHORT: Record<string, string> = {
 };
 
 /** 관계 이름 — FK 컬럼명만으로는 "무슨 관계인지"가 안 읽힌다 */
-const REL_VERB: Record<string, { ko: string; en: string }> = {
+const REL_VERB: Record<string, LocalizedText> = {
   "posts→series": { ko: "속함", en: "belongs to" },
   "comments→posts": { ko: "달림", en: "on" },
   "work_comments→works": { ko: "달림", en: "on" },
@@ -104,7 +105,7 @@ interface ChenRelationship {
   id: string;
   from: string;
   to: string;
-  label: { ko: string; en: string };
+  label: LocalizedText;
   /** from 쪽 · to 쪽 다중도 */
   fromCard: string;
   toCard: string;
@@ -423,9 +424,9 @@ export function layoutChen(model: ChenModel): ChenPlacement {
 
 export interface ErdConceptOverlay {
   /** 관계선 위에 올릴 동사 + 다중도. key = `${from}→${to}:${fromField}` */
-  verbs: Record<string, { label: { ko: string; en: string }; card: string }>;
+  verbs: Record<string, { label: LocalizedText; card: string }>;
   /** 조인 테이블 = 개념상 M:N 관계 */
-  junctions: Record<string, { a: string; b: string; label: { ko: string; en: string } }>;
+  junctions: Record<string, { a: string; b: string; label: LocalizedText }>;
   /** 컬럼 표기 — multi(배열) / derived(카운트 캐시) */
   columnKind: Record<string, "multi" | "derived">;
 }

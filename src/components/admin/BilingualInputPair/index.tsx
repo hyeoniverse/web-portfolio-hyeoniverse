@@ -1,12 +1,12 @@
 "use client";
 
 import { Eraser } from "lucide-react";
-import type { BilingualDescription } from "@/types/common";
+import type { LocalizedText } from "@/types/common";
 import styles from "./BilingualInputPair.module.css";
 
 export interface BilingualInputPairProps {
-  value: BilingualDescription;
-  onChange: (next: BilingualDescription) => void;
+  value: LocalizedText;
+  onChange: (next: LocalizedText) => void;
   /** 공통 placeholder — ko/en 둘 다 동일. 별도 지정 필요 시 koPlaceholder/enPlaceholder 사용 */
   placeholder?: string;
   koPlaceholder?: string;

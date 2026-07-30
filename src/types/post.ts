@@ -1,3 +1,5 @@
+import type { LocalizedText } from "@/types/common";
+
 /** 시리즈 제목(ko/en) 최대 길이 — UI 입력·폼 검사·API·DB CHECK 전 레이어 공통 */
 export const SERIES_TITLE_MAX = 80;
 
@@ -17,7 +19,7 @@ export interface Post {
   icon?: string;
   tags: string[];
   /** 태그별 설명 — 태그당 단일 ko/en 쌍 (Record<tag, {ko,en}>) */
-  tag_notes?: Record<string, { ko: string; en: string }>;
+  tag_notes?: Record<string, LocalizedText>;
   category: string;
   is_pinned: boolean;
   published: boolean;
@@ -63,7 +65,7 @@ export interface PostFormData {
   icon: string;
   tags: string[];
   /** 태그별 설명 — 태그당 단일 ko/en 쌍 */
-  tag_notes: Record<string, { ko: string; en: string }>;
+  tag_notes: Record<string, LocalizedText>;
   category: string;
   is_pinned: boolean;
   published: boolean;

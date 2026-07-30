@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import type { LocalizedText } from "@/types/common";
 import { DndContext, closestCenter, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import T from "@/components/ui/T";
@@ -19,7 +20,7 @@ export default function SkillList({
   addSkill,
   styles,
 }: {
-  group: { skills: { name: string; description: { ko: string; en: string } }[] };
+  group: { skills: { name: string; description: LocalizedText }[] };
   gi: number;
   skillIds: string[];
   sensors: ReturnType<typeof useSensors>;
