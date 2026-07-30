@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, Fragment, type ReactNode } from "react";
+import { BREAKPOINT } from "@/constants";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -57,7 +58,7 @@ function SidebarWrap({
   barHidden: boolean;
   children: React.ReactNode;
 }) {
-  const { isMobile: isCollapsed } = useIsMobile(1024);
+  const { isMobile: isCollapsed } = useIsMobile(BREAKPOINT.tablet);
   const ref = useRef<HTMLElement>(null);
   const [canUp, setCanUp] = useState(false);
   const [canDown, setCanDown] = useState(false);

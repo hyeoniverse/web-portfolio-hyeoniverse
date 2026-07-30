@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import type { GithubImportResponse } from "@/types";
 import { useRouter } from "next/navigation";
 import MediaThumb from "@/components/admin/MediaThumb";
 import HighlightedText from "@/components/ui/HighlightedText";
@@ -258,7 +259,7 @@ export default function AdminWorksPage() {
     try {
       const res = await fetch("/api/works/export?all=true");
       if (!res.ok) return;
-      const { files } = await res.json() as { files: { fileName: string; content: string }[] };
+      const { files } = await res.json() as GithubImportResponse;
       await downloadFiles(files);
     } finally {
       setExporting(false);

@@ -1,3 +1,5 @@
+import { BREAKPOINT } from "./breakpoints";
+
 // 3D Torus 스크롤 경로 및 시각 설정
 
 // Geometry (축소)
@@ -76,7 +78,7 @@ export const TORUS_REPULSION = {
 
 // 모바일 설정
 export const TORUS_MOBILE = {
-  breakpoint: 768,
+  breakpoint: BREAKPOINT.mobile,
   scaleFactor: 0.65,
   xAmplitudeMultiplier: 0.6,
   radialSegments: 24,

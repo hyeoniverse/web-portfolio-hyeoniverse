@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { BREAKPOINT } from "@/constants";
 
 /**
  * 너비(1024/768)와 높이(640) 임계값으로
@@ -11,7 +12,7 @@ function getBreakpoint(): string {
   const width = window.innerWidth;
   const height = window.innerHeight;
 
-  const widthBp = width > 1024 ? "desktop" : "mobile";
+  const widthBp = width > BREAKPOINT.tablet ? "desktop" : "mobile";
   const heightBp = height <= 640 ? "short" : "tall";
 
   return `${widthBp}-${heightBp}`;
@@ -100,7 +101,7 @@ export default function BreakpointGuard({
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: 9998,
+          zIndex: "var(--z-top)",
           background: "var(--bg-primary)",
           opacity: overlayPhase === "solid" ? 1 : 0,
           transition:
