@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import "katex/dist/katex.min.css";
-import { Pencil, ExternalLink } from "@/components/icons";
+import { Pencil, ExternalLink, SocialBrandIcon } from "@/components/icons";
 import { GithubIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
@@ -339,7 +339,7 @@ export function PostArticleAuthors({ authors }: { authors?: Author[] }) {
               <div className={styles.authorFooterLinks}>
                 {a.email && (
                   <TextLink external href={`mailto:${a.email}`}>
-                    <svg viewBox="0 0 24 24" className={styles.authorFooterLinkIcon} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={SOCIAL_ICONS.email.path} /></svg>
+                    <SocialBrandIcon name="email" className={styles.authorFooterLinkIcon} />
                     <span>{a.email}</span>
                   </TextLink>
                 )}
@@ -352,11 +352,7 @@ export function PostArticleAuthors({ authors }: { authors?: Author[] }) {
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={l.icon} alt="" className={styles.authorFooterLinkIcon} />
                       ) : brand ? (
-                        brand.stroke ? (
-                          <svg viewBox="0 0 24 24" className={styles.authorFooterLinkIcon} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={brand.path} /></svg>
-                        ) : (
-                          <svg viewBox="0 0 24 24" className={styles.authorFooterLinkIcon}><path d={brand.path} fill="currentColor" /></svg>
-                        )
+                        <SocialBrandIcon name={l.platform} className={styles.authorFooterLinkIcon} />
                       ) : null}
                       <span>{label}</span>
                     </TextLink>

@@ -220,3 +220,4 @@ export type { LucideIcon } from "lucide-react";
 // ── 커스텀 SVG 아이콘 ──
 export { default as GithubIcon } from "./GithubIcon";
 export { default as GripDotsIcon } from "./GripDotsIcon";
+export { default as SocialBrandIcon } from "./SocialBrandIcon";
