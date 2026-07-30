@@ -14,7 +14,7 @@ import {
   setTableColSize,
   getSelectedCells,
 } from "@platejs/table";
-import { Table, Palette, Type, AlignHorizontalSpaceAround, AlignVerticalSpaceAround, Eraser, Sparkles, StretchHorizontal, PanelTop, PanelLeft, ArrowUpToLine, ArrowLeftToLine, PaintBucket } from "lucide-react";
+import { Table, Palette, Type, AlignHorizontalSpaceAround, AlignVerticalSpaceAround, Eraser, Sparkles, StretchHorizontal, PanelTop, PanelLeft, ArrowUpToLine, ArrowLeftToLine, PaintBucket } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
 import TBtn from "../TBtn";

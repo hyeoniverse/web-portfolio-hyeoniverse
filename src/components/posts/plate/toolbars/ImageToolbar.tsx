@@ -2,7 +2,7 @@
 
 import React, { useCallback, useMemo } from "react";
 import { CAPTION_EDIT_EVENT } from "../constants";
-import { ImageUp, AlignCenter, Scaling, Type } from "lucide-react";
+import { ImageUp, AlignCenter, Scaling, Type } from "@/components/icons";
 import FloatingBar from "./FloatingBar";
 import { RxReset } from "react-icons/rx";
 import { useLanguage } from "@/providers/LanguageProvider";

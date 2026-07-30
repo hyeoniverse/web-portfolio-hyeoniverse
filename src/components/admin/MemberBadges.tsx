@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, ShieldCheck, Crown, PenLine, UserRound } from "lucide-react";
+import { Mail, ShieldCheck, Crown, PenLine, UserRound } from "@/components/icons";
 import { SiGithub } from "react-icons/si";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { MemberRole } from "@/types/member";

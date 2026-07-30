@@ -2,7 +2,7 @@
 
 import { type ReactNode, type HTMLAttributes } from "react";
 import Link from "next/link";
-import { GripVertical } from "lucide-react";
+import { GripVertical } from "@/components/icons";
 import CloseButton from "../CloseButton";
 import styles from "./Chip.module.css";
 

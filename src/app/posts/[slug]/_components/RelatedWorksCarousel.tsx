@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Monitor, Image as ImageIcon } from "lucide-react";
+import { Monitor, Image as ImageIcon } from "@/components/icons";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import { useHoverPreview } from "@/components/ui/RelatedChips/useHoverPreview";
 import { isVideoUrl } from "@/lib/isVideoUrl";

@@ -1,4 +1,4 @@
-import { ImageIcon, Video, Music, FileText, Archive, File, type LucideIcon } from "lucide-react";
+import { ImageIcon, Video, Music, FileText, Archive, File, type LucideIcon } from "@/components/icons";
 import type { SelectOption } from "@/types";
 
 // ── AI 제공자 옵션 ──

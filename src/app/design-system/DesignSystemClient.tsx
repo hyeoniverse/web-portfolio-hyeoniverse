@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/components/icons";
 import { useRouter } from "next/navigation";
 import { useLenis } from "@/providers/LenisProvider";
 import TOC from "@/components/ui/TOC/TOC";

@@ -18,7 +18,7 @@ import {
   FilePlus, FolderPlus, Terminal, PanelLeft, Code2, Monitor,
   Bug, ExternalLink, ChevronRight, ChevronDown, X, WrapText,
   ZoomIn, ZoomOut, Maximize2, Minimize2,
-} from "lucide-react";
+} from "@/components/icons";
 import { EditorSelection } from "@codemirror/state";
 import type { EditorView, KeyBinding } from "@codemirror/view";
 import {

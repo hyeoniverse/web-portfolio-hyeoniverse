@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownNarrowWide, ArrowUpNarrowWide } from "lucide-react";
+import { ArrowDownNarrowWide, ArrowUpNarrowWide } from "@/components/icons";
 import type { SortDirection } from "@/types";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";

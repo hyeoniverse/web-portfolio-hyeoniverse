@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Size, Point } from "@/types";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Plus, Minus, MoreVertical, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Plus, Minus, MoreVertical, RotateCcw } from "@/components/icons";
 import { useLenis } from "@/providers/LenisProvider";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import CloseButton from "@/components/ui/CloseButton";

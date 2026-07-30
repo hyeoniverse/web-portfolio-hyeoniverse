@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
-import { X, Check, CalendarClock, Eye, GripVertical, Undo2, Plus, BarChart3, ChevronDown, ChevronUp } from "lucide-react";
+import { X, Check, CalendarClock, Eye, GripVertical, Undo2, Plus, BarChart3, ChevronDown, ChevronUp } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import PollPeriodEditor from "./PollPeriodEditor";
 import Popover from "@/components/ui/Popover";

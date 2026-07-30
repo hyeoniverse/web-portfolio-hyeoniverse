@@ -2,7 +2,7 @@
 
 // ── 일 뷰 사이드 미니 달력 — 날짜 클릭 이동, 이벤트 개수 표시, 제목 클릭 시 연/월 spinner ──
 import React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { type CalEvent, monthGrid, monthTitle, weekdayLabels, shiftMonth, eventDates } from "./model";

@@ -39,7 +39,7 @@ import {
   Settings,
   List,
   History as HistoryIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import PageTitle from "@/components/ui/PageTitle";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";

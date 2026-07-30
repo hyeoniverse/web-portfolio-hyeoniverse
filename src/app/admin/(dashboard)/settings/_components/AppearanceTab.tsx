@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { FAVICON_FONT_SIZE_PRESETS, FAVICON_SHADOW_PRESETS, FAVICON_SIZE_BLUR } from "../_data/faviconPresets";
 import type { Dispatch, SetStateAction } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, X, Equal, ArrowLeftRight } from "lucide-react";
+import { Plus, X, Equal, ArrowLeftRight } from "@/components/icons";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import TextLink from "@/components/ui/TextLink";

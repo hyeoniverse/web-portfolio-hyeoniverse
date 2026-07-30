@@ -6,7 +6,7 @@
 
 import React, { useRef } from "react";
 import { createPortal } from "react-dom";
-import { Bold, Italic, Underline, Strikethrough, Heading3, List, ListOrdered, Image as ImageIcon, Loader2, CalendarDays, Bookmark } from "lucide-react";
+import { Bold, Italic, Underline, Strikethrough, Heading3, List, ListOrdered, Image as ImageIcon, Loader2, CalendarDays, Bookmark } from "@/components/icons";
 import { showToast } from "@/stores/toastStore";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { formatDateValue } from "../dateUtils";

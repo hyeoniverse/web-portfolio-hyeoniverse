@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Check, Minus } from "lucide-react";
+import { Check, Minus } from "@/components/icons";
 import styles from "./Checkbox.module.css";
 
 type CheckboxShape = "circle" | "square";

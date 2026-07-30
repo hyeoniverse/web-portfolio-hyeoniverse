@@ -23,7 +23,7 @@ import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
-import { ImageIcon, BookOpen, ChevronRight, ArrowLeft, ArrowRight, Languages } from "lucide-react";
+import { ImageIcon, BookOpen, ChevronRight, ArrowLeft, ArrowRight, Languages } from "@/components/icons";
 import styles from "./PostDetail.module.css";
 
 interface AdjacentPost {

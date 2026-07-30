@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare } from "@/components/icons";
 import T from "@/components/ui/T";
 import styles from "./RecentComments.module.css";
 import { stripMarkdown } from "@/utils/stripMarkdown";

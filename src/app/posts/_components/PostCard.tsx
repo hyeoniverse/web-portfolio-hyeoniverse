@@ -13,7 +13,7 @@ import { formatCount } from "@/utils/format";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import HighlightedText from "@/components/ui/HighlightedText";
 import T from "@/components/ui/T";
-import { Flame, Pin, Eye, Heart } from "lucide-react";
+import { Flame, Pin, Eye, Heart } from "@/components/icons";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 import styles from "./PostCard.module.css";

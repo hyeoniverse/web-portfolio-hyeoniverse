@@ -5,7 +5,7 @@
 
 import type React from "react";
 import { SiHtml5, SiCss, SiJavascript, SiTypescript, SiJson, SiMarkdown, SiReact } from "react-icons/si";
-import { FileCode } from "lucide-react";
+import { FileCode } from "@/components/icons";
 import type { CmLang } from "./CodeMirrorEditor";
 
 export type TreeNode = { name: string; path: string; dir: boolean; children: TreeNode[] };
