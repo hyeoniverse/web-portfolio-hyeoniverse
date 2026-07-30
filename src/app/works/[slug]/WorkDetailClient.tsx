@@ -9,7 +9,7 @@ import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout"
 import { extractHeadings } from "../_utils";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
-import { WorkArticleHeader, WorkArticleBody, WorkArticleTeam } from "@/components/works/WorkArticleView";
+import { WorkArticleHeader, WorkArticleBody, WorkArticleTeam, type RelatedPostItem, type RelatedSeriesItem } from "@/components/works/WorkArticleView";
 import styles from "./WorkDetail.module.css";
 
 interface WorkDetailClientProps {
@@ -35,8 +35,8 @@ export default function WorkDetailClient({
   const { count: likeCount, liked, busy: likeBusy, toggle: handleLikeToggle } = useLikeToggle({
     endpoint: `/api/works/${project.id}/like`,
   });
-  const [relatedPosts, setRelatedPosts] = useState<{ id: string; title: string; title_en?: string; slug: string; cover_image: string; excerpt: string; category: string; created_at: string }[]>([]);
-  const [relatedSeries, setRelatedSeries] = useState<{ id: string; title: string; title_en?: string; cover_image?: string; category?: string; description?: string; description_en?: string }[]>([]);
+  const [relatedPosts, setRelatedPosts] = useState<RelatedPostItem[]>([]);
+  const [relatedSeries, setRelatedSeries] = useState<RelatedSeriesItem[]>([]);
 
   useEffect(() => {
     const ac = new AbortController();

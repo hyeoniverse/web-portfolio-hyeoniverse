@@ -5,7 +5,8 @@ import type { SortDirection } from "@/types";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
-import type { BilingualCategory } from "@/types/common";
+import type { BilingualCategory, BilingualDescription } from "@/types/common";
+import type { AdminPostUsageInfo, PostMetaInfo } from "../_types";
 import CategoryReassignModal from "@/components/admin/CategoryReassignModal";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
@@ -25,10 +26,8 @@ import LetterFilter from "@/components/ui/LetterFilter";
 import styles from "../Settings.module.css";
 
 /** legacy `description: string` → bilingual `{ko, en}` 자동 정규화. */
-type LegacyDesc = string;
-type BilingualDesc = { ko: string; en: string };
 interface PostCategoryExt extends Omit<BilingualCategory, "description"> {
-  description?: BilingualDesc | LegacyDesc;
+  description?: BilingualDescription | string;
 }
 
 interface CategoriesEditorProps {
@@ -36,7 +35,7 @@ interface CategoriesEditorProps {
   onChange: (cats: PostCategoryExt[]) => void;
 }
 
-function normalizeDesc(d: PostCategoryExt["description"]): BilingualDesc {
+function normalizeDesc(d: PostCategoryExt["description"]): BilingualDescription {
   if (!d) return { ko: "", en: "" };
   if (typeof d === "string") return { ko: d, en: "" };
   return { ko: d.ko ?? "", en: d.en ?? "" };
@@ -85,21 +84,8 @@ function rebuildTree(flat: FlatNode[]): PostCategoryExt[] {
   return result;
 }
 
-interface CategoryPostInfo {
-  id: string;
-  title: string;
-  title_en: string;
-  category: string;
-  slug: string;
-  published: boolean;
-  published_at: string | null;
-  created_at: string | null;
-  view_count: number;
-  tags: string[];
-}
-
 /** 게시물 row 의 메타 (발행상태 + 날짜 + 조회수) */
-function PostMeta({ p }: { p: { published: boolean; published_at: string | null; created_at: string | null; view_count?: number } }) {
+function PostMeta({ p }: { p: PostMetaInfo }) {
   const date = p.published_at || p.created_at;
   const dateStr = date ? new Date(date).toLocaleDateString("ko-KR", { year: "2-digit", month: "2-digit", day: "2-digit" }).replace(/\.\s/g, ".").replace(/\.$/, "") : "";
   return (
@@ -136,7 +122,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
 
   /* 카테고리별 사용 카운트 + 카테고리별 post 목록 fetch */
   const [catCounts, setCatCounts] = useState<Record<string, number>>({});
-  const [catPosts, setCatPosts] = useState<CategoryPostInfo[]>([]);
+  const [catPosts, setCatPosts] = useState<AdminPostUsageInfo[]>([]);
   useEffect(() => {
     fetch("/api/admin/categories")
       .then((r) => r.ok ? r.json() : { categories: [], counts: {}, posts: [] })
@@ -289,7 +275,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   const pageItems = filtered.slice(pageStart, pageStart + perPage);
 
   const notes = useMemo(() => {
-    const map: Record<string, BilingualDesc> = {};
+    const map: Record<string, BilingualDescription> = {};
     for (const c of categories) {
       const d = normalizeDesc(c.description);
       /* 빈 description 은 제외 — entry 없음 으로 인식돼야 chip 옆 + 설명추가 / drawer 미생성 */
@@ -362,8 +348,8 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
 
   // ── 하단 통합 add/edit box ──
   const [editingEn, setEditingEn] = useState<string | null>(null);
-  const [pair, setPair] = useState<BilingualDesc>({ ko: "", en: "" });
-  const [desc, setDesc] = useState<BilingualDesc>({ ko: "", en: "" });
+  const [pair, setPair] = useState<BilingualDescription>({ ko: "", en: "" });
+  const [desc, setDesc] = useState<BilingualDescription>({ ko: "", en: "" });
   /* 소속 대분류(parent) EN. null = 최상위(대분류). */
   const [parentEn, setParentEn] = useState<string | null>(null);
   /* 순서 (1-based). add = categories.length + 1 (맨 뒤 default). edit = 현재 위치. */
@@ -505,7 +491,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   };
 
   /* 편집 중인 카테고리의 관련 게시물 — post.category 가 EN 또는 KO 저장됐을 수 있으니 둘 다 매칭. */
-  const editingPosts = useMemo<CategoryPostInfo[]>(() => {
+  const editingPosts = useMemo<AdminPostUsageInfo[]>(() => {
     if (!editingEn) return [];
     const editingKo = (koByEn[editingEn] || "").trim();
     return catPosts.filter((p) => {
