@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { QUERY_PARAM } from "@/constants";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -111,7 +112,7 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
       if (extraTagsKey) {
         params.set("tags", `${tag},${extraTagsKey}`);
       } else {
-        params.set("tag", tag);
+        params.set(QUERY_PARAM.tag, tag);
       }
       const res = await fetch(`/api/posts?${params}`);
       if (res.ok) {
