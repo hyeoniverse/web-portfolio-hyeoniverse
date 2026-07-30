@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
+import { COVER_STYLE_OPTIONS, type CoverStyleKey, FALLBACK_COVER_PROMPTS } from "@/data/aiCoverStyles";
 import { Check, Download, RotateCw } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
@@ -15,27 +16,6 @@ interface AIGenerateTabProps {
   postContext?: PostContext;
 }
 
-const styleOptions = [
-  { key: "abstract", label: "Abstract" },
-  { key: "minimal", label: "Minimal" },
-  { key: "geometric", label: "Geometric" },
-  { key: "photographic", label: "Photographic" },
-  { key: "illustration", label: "Illustration" },
-  { key: "watercolor", label: "Watercolor" },
-  { key: "cyberpunk", label: "Cyberpunk" },
-  { key: "vintage", label: "Vintage" },
-  { key: "3d-render", label: "3D Render" },
-  { key: "flat-design", label: "Flat Design" },
-] as const;
-
-type StyleKey = (typeof styleOptions)[number]["key"];
-
-const FALLBACK_PROMPTS = [
-  "serene mountain landscape at golden hour",
-  "futuristic neon cityscape",
-  "calm ocean waves at sunset",
-  "colorful abstract fluid art",
-];
 
 /** 포스트 제목/태그/요약을 기반으로 이미지 프롬프트 후보 생성 */
 function buildPromptSuggestions(ctx: PostContext): string[] {
@@ -77,16 +57,16 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
   const { t } = useLanguage();
   const tc = useCallback((key: string) => t(`admin.posts.coverPicker.${key}`), [t]);
   const [prompt, setPrompt] = useState("");
-  const [style, setStyle] = useState<StyleKey>("abstract");
+  const [style, setStyle] = useState<CoverStyleKey>("abstract");
   const [generating, setGenerating] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [permanentUrl, setPermanentUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   const promptSuggestions = useMemo(() => {
-    if (!postContext) return FALLBACK_PROMPTS;
+    if (!postContext) return FALLBACK_COVER_PROMPTS;
     const built = buildPromptSuggestions(postContext);
-    return built.length > 0 ? built : FALLBACK_PROMPTS;
+    return built.length > 0 ? built : FALLBACK_COVER_PROMPTS;
   }, [postContext]);
 
   const handleGenerate = useCallback(async () => {
@@ -189,7 +169,7 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
       )}
 
       <div className={styles.styleRow}>
-        {styleOptions.map((opt) => (
+        {COVER_STYLE_OPTIONS.map((opt) => (
           <button
             key={opt.key}
             type="button"
