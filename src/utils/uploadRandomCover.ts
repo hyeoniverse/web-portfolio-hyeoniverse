@@ -20,7 +20,7 @@ export async function uploadRandomCover(): Promise<string | null> {
     formData.append("file", new File([blob], `cover-${preset.id}.png`, { type: "image/png" }));
     const res = await fetch("/api/upload", { method: "POST", body: formData });
     if (!res.ok) return null;
-    const data = await res.json();
+    const data = (await res.json()) as { url?: string };
     return data.url ?? null;
   } catch {
     return null;

@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 
-interface TransitionState {
+interface CircleRevealState {
   isTransitioning: boolean;
   circleData: {
     centerX: number;
@@ -19,7 +19,7 @@ interface TransitionState {
   endTransition: () => void;
 }
 
-export const usePageTransition = create<TransitionState>((set) => ({
+export const usePageTransition = create<CircleRevealState>((set) => ({
   isTransitioning: false,
   circleData: null,
   startTransition: (data) => set({ isTransitioning: true, circleData: data }),

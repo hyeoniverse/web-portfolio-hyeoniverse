@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { PREVIEW_KEY } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import DetailLayout from "@/components/layout/DetailLayout";
 import { PostArticleHeader, PostArticleBody, PostArticleAuthors } from "@/components/posts/PostArticleView";
@@ -66,7 +67,7 @@ export default function PostPreviewPage() {
       return;
     }
     try {
-      const raw = sessionStorage.getItem("post-preview");
+      const raw = sessionStorage.getItem(PREVIEW_KEY.post);
       if (raw) setForm(JSON.parse(raw));
     } catch { /* ignore */ }
     setReady(true);

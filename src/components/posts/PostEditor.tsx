@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ChevronRight, ExternalLink, AlertTriangle } from "lucide-react";
@@ -768,7 +769,7 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, [post, router, te]);
 
   const handlePreview = useCallback(() => {
-    sessionStorage.setItem("post-preview", JSON.stringify(form));
+    sessionStorage.setItem(PREVIEW_KEY.post, JSON.stringify(form));
     window.open("/admin/posts/preview", "_blank");
   }, [form]);
 

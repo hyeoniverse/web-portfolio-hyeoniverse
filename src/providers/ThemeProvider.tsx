@@ -11,12 +11,12 @@ import {
 import { useSiteConfig } from "./SiteConfigProvider";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 
-type Theme = "light" | "dark";
+type ResolvedTheme = "light" | "dark";
 
 interface ThemeContextType {
-  theme: Theme;
+  theme: ResolvedTheme;
   toggleTheme: () => void;
-  setTheme: (theme: Theme) => void;
+  setTheme: (theme: ResolvedTheme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -78,14 +78,14 @@ const MONO_FONTS: Record<string, string> = {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const siteConfig = useSiteConfig();
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const [theme, setThemeState] = useState<ResolvedTheme>("dark");
   const [mounted, setMounted] = useState(false);
   const isFirstThemeRef = useRef(true);
 
   // localStorage 또는 시스템 설정에서 테마 초기화
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem("theme") as Theme | null;
+    const stored = localStorage.getItem("theme") as ResolvedTheme | null;
     if (stored) {
       setThemeState(stored);
     } else {
@@ -132,7 +132,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState((prev) => (prev === "dark" ? "light" : "dark"));
   }, []);
 
-  const setTheme = useCallback((newTheme: Theme) => {
+  const setTheme = useCallback((newTheme: ResolvedTheme) => {
     setThemeState(newTheme);
   }, []);
 
@@ -271,7 +271,7 @@ function removeAccentAll(root: HTMLElement) {
 /** 사이트 설정에서 지정한 테마 색상을 CSS 변수로 주입 */
 function applyThemeColors(
   root: HTMLElement,
-  theme: Theme,
+  theme: ResolvedTheme,
   colors: typeof DEFAULTS,
 ) {
   // accent — 기본값과 다를 때만 오버라이드 (alpha, dark, light 전부)

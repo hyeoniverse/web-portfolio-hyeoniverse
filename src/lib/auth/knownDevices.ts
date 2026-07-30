@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "crypto";
+import { MAIL_FROM } from "@/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { emailLayout, escapeHtml } from "@/lib/mail/template";
 import { deviceKey } from "@/lib/auth/uaParser";
@@ -181,7 +182,7 @@ export async function sendNewDeviceEmail(args: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Portfolio <onboarding@resend.dev>",
+        from: MAIL_FROM,
         to: args.to,
         subject: "[Security] New device sign-in",
         html: emailLayout({ title: "New device sign-in", body, footer }),
