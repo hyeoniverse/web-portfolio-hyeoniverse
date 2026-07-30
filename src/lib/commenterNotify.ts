@@ -4,6 +4,7 @@
  */
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { MAIL_FROM } from "@/constants";
 
 interface NotifyCommenterOptions {
   table: "comments" | "work_comments";
@@ -36,7 +37,7 @@ export async function notifyCommenter(opts: NotifyCommenterOptions) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Portfolio <onboarding@resend.dev>",
+        from: MAIL_FROM,
         to: parent.notify_email,
         subject: `New reply to your comment`,
         html: `
