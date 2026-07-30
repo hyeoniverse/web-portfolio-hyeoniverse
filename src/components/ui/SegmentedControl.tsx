@@ -7,7 +7,7 @@ import { cn } from "@/utils/cn";
 import Button from "./Button";
 import styles from "./SegmentedControl.module.css";
 
-export interface SegmentedControlItem<T extends string, S extends string = string> {
+interface SegmentedControlItem<T extends string, S extends string = string> {
   value: T;
   /** label — string 또는 icon 같은 ReactNode 지원 */
   label: ReactNode;

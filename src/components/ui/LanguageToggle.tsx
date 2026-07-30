@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
+import type { Language } from "@/types";
 import { motion, useMotionValue, useMotionValueEvent, animate } from "framer-motion";
 import styles from "./LanguageToggle.module.css";
 
-type Lang = "ko" | "en";
 
 interface LanguageToggleProps {
-  lang: Lang;
-  onLangChange: (lang: Lang) => void;
+  lang: Language;
+  onLangChange: (lang: Language) => void;
   size?: "sm" | "md";
 }
 
@@ -21,8 +21,8 @@ const animationConfig = {
 };
 
 export default function LanguageToggle({ lang, onLangChange, size = "md" }: LanguageToggleProps) {
-  const [hoveredBtn, setHoveredBtn] = useState<Lang | null>(null);
-  const [indicatorAt, setIndicatorAt] = useState<Lang>(lang);
+  const [hoveredBtn, setHoveredBtn] = useState<Language | null>(null);
+  const [indicatorAt, setIndicatorAt] = useState<Language>(lang);
   const [locked, setLocked] = useState(false);
   const enBtnRef = useRef<HTMLSpanElement>(null);
   const enPosRef = useRef(0);

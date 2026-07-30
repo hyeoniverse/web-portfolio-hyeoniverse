@@ -34,7 +34,7 @@ import ei from "@/components/ui/HighlightInput/HighlightInput.module.css";
 type Variant = "bare" | "capsule" | "underline";
 type Size = "xs" | "sm" | "md";
 
-export type EditorTextInputProps = {
+type EditorTextInputProps = {
   /** 현재 커밋된 값. clearOnCommit 모드에선 무시(항상 빈 칸에서 시작). */
   value: string;
   /** blur/Enter 시 변경된 값을 상위로 커밋. */

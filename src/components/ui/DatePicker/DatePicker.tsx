@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import styles from "./DatePicker.module.css";
 
-type Format = "year" | "yearMonth" | "date";
+export type Format = "year" | "yearMonth" | "date";
 
 export interface DatePickerProps {
   year: string;
