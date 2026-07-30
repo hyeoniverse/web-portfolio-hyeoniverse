@@ -6,6 +6,7 @@
 import "@xyflow/react/dist/style.css";
 
 import React, { useCallback, useContext, useMemo, useRef, useState } from "react";
+import type { Size, Point } from "@/types";
 import { useEditorRef, useSelected, PlateElement, type PlateElementProps } from "platejs/react";
 import {
   ReactFlow,
@@ -46,7 +47,7 @@ function genId(): string {
 }
 
 /** anchor 위치에서 가장 가까운 노드 id (없으면 null) */
-function nearestId(anchor: { x: number; y: number } | null, list: RFNode[]): string | null {
+function nearestId(anchor: Point | null, list: RFNode[]): string | null {
   if (!anchor || !list.length) return null;
   let best = Infinity;
   let id: string | null = null;
@@ -176,7 +177,7 @@ const FONT_SIZES: { v: number; label: string }[] = [
   { v: 12, label: "S" }, { v: 14, label: "M" }, { v: 18, label: "L" }, { v: 24, label: "XL" },
 ];
 // 도형별 기본 크기(리사이즈 전) — .dnode 가 100% 채우도록 노드에 항상 크기 부여
-function defaultSize(shape?: DiagramNodeShape): { w: number; h: number } {
+function defaultSize(shape?: DiagramNodeShape): Size {
   switch (shape) {
     case "text": return { w: 100, h: 40 };
     case "circle": return { w: 84, h: 84 };

@@ -35,7 +35,12 @@ export const TAB_CONFIG_KEYS: Record<string, (keyof SiteConfigData)[]> = {
 
 export type TabId = (typeof TAB_IDS)[number];
 
-export const THEME_PRESETS: { name: string; theme: Omit<SiteConfigData["theme"], "presets"> }[] = [
+export interface ThemePreset {
+  name: string;
+  theme: Omit<SiteConfigData["theme"], "presets">;
+}
+
+export const THEME_PRESETS: ThemePreset[] = [
   {
     name: "Default",
     theme: { accentColor: "#d40063", lightBg: "#f5f5f0", lightText: "#1a1a1a", darkBg: "#0a0a0a", darkText: "#f5f5f0" },
