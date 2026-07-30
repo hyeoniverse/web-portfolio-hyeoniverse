@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { Upload, Plus } from "@/components/icons";
+import { Upload, Plus, GripDotsIcon } from "@/components/icons";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -156,14 +156,7 @@ function SortableSocialItem({ id, children }: { id: string; children: React.Reac
       {...attributes}
     >
       <button type="button" className={styles.socialDragHandle} {...listeners} aria-label="Drag to reorder">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="9" cy="6" r="1.5" />
-          <circle cx="15" cy="6" r="1.5" />
-          <circle cx="9" cy="12" r="1.5" />
-          <circle cx="15" cy="12" r="1.5" />
-          <circle cx="9" cy="18" r="1.5" />
-          <circle cx="15" cy="18" r="1.5" />
-        </svg>
+        <GripDotsIcon />
       </button>
       {children}
     </div>
