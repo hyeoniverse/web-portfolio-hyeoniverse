@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { QUERY_PARAM } from "@/constants";
 import { revalidatePath } from "next/cache";
 import { titleTooLong, POST_TITLE_MAX } from "@/lib/postConstants";
 import { createClient } from "@/lib/supabase/server";
@@ -12,12 +13,12 @@ import type { PostFormData } from "@/types/post";
 // GET /api/posts — 목록 조회
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get("page") ?? "1");
-  const limit = parseInt(searchParams.get("limit") ?? "12");
-  const tag = searchParams.get("tag");
+  const page = parseInt(searchParams.get(QUERY_PARAM.page) ?? "1");
+  const limit = parseInt(searchParams.get(QUERY_PARAM.limit) ?? "12");
+  const tag = searchParams.get(QUERY_PARAM.tag);
   // 다중 태그 CSV — tags=a,b,c → 모두 포함된 게시물만 (교집합)
   const tagsParam = searchParams.get("tags");
-  const category = searchParams.get("category");
+  const category = searchParams.get(QUERY_PARAM.category);
   const search = searchParams.get("search");
   const searchType = searchParams.get("searchType") ?? "title"; // title | all
   const slug = searchParams.get("slug");
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
 
   const supabase = showAll || showTrash ? createAdminClient() : await createClient();
 
-  const sort = searchParams.get("sort") ?? "newest";
+  const sort = searchParams.get(QUERY_PARAM.sort) ?? "newest";
   // popular 정렬의 역방향 지원 — sortDir=asc 면 score 작은 순(비인기순)
   const sortDir = searchParams.get("sortDir") === "asc" ? "asc" : "desc";
 

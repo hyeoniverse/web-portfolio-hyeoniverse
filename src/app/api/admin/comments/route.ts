@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { QUERY_PARAM } from "@/constants";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonOk } from "@/lib/api/response";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
@@ -26,8 +27,8 @@ export async function GET(request: Request) {
   const status = (searchParams.get("status") ?? "active") as "active" | "deleted" | "all";
   const search = searchParams.get("search")?.trim() ?? "";
   const syntaxMode = (searchParams.get("syntaxMode") === "regex" ? "regex" : "prefix") as SyntaxMode;
-  const page = Math.max(1, Number(searchParams.get("page")) || 1);
-  const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit")) || 20));
+  const page = Math.max(1, Number(searchParams.get(QUERY_PARAM.page)) || 1);
+  const limit = Math.min(100, Math.max(1, Number(searchParams.get(QUERY_PARAM.limit)) || 20));
   const offset = (page - 1) * limit;
 
   const admin = createAdminClient();
