@@ -2,7 +2,12 @@
 
 import { type Dispatch, type SetStateAction, useRef, useState } from "react";
 import type { SelectOption } from "@/types";
-import { ChevronUp, ChevronDown, ImageIcon, Video, Music, FileText, Archive, File, Plus, type LucideIcon } from "lucide-react";
+import { ChevronUp, ChevronDown, Plus } from "lucide-react";
+import {
+  AI_COVER_OPTIONS, AI_SUMMARY_OPTIONS, TRANSLATION_OPTIONS,
+  DEFAULT_LIMIT_GROUPS, MIME_GROUP_ORDER, MIME_GROUP_ICON, MIME_ADDABLE_GROUP_KEY, ADDABLE_MIME_GROUPS, SIZE_OPTIONS,
+  type AICoverProvider, type AISummaryProvider, type TranslationProvider, type MimeGroupKey,
+} from "../_data/servicesUploadConfig";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
@@ -21,27 +26,9 @@ import { showToast } from "@/stores/toastStore";
 import styles from "./ServicesTab.module.css";
 import shared from "../Settings.module.css";
 
-type AICoverProvider = "nanobanana" | "huggingface";
-type AISummaryProvider = "gemini" | "openai" | "claude";
-type TranslationProvider = "gemini" | "google" | "deepl" | "claude";
 
-const AI_COVER_OPTIONS: { value: AICoverProvider; label: string }[] = [
-  { value: "nanobanana", label: "NanoBanana (Gemini)" },
-  { value: "huggingface", label: "Hugging Face (FLUX)" },
-];
 
-const AI_SUMMARY_OPTIONS: { value: AISummaryProvider; label: string }[] = [
-  { value: "gemini", label: "Gemini 2.0 Flash" },
-  { value: "openai", label: "OpenAI GPT-4o mini" },
-  { value: "claude", label: "Claude Haiku 4.5" },
-];
 
-const TRANSLATION_OPTIONS: { value: TranslationProvider; label: string }[] = [
-  { value: "gemini", label: "Gemini 2.0 Flash" },
-  { value: "google", label: "Google Cloud Translation" },
-  { value: "deepl", label: "DeepL API Free" },
-  { value: "claude", label: "Claude Haiku 4.5" },
-];
 
 interface PriorityListProps<T extends string> {
   primary: T;
@@ -183,109 +170,9 @@ function PriorityList<T extends string>({ primary, priority, excluded, options, 
   );
 }
 
-type MimeGroupKey = "image" | "video" | "audio" | "document" | "archive";
-const DEFAULT_LIMIT_GROUPS: { label: string; key: string; keys?: string[]; group: MimeGroupKey }[] = [
-  // image
-  { label: "JPEG / PNG / WebP", key: "image/jpeg", keys: ["image/jpeg", "image/png", "image/webp"], group: "image" },
-  { label: "SVG", key: "image/svg+xml", group: "image" },
-  { label: "GIF", key: "image/gif", group: "image" },
-  // video — MOV (iOS 흔함) 추가
-  { label: "MP4 / WebM / MOV", key: "video/mp4", keys: ["video/mp4", "video/webm", "video/quicktime"], group: "video" },
-  // audio
-  { label: "Audio (MP3/WAV/OGG)", key: "audio/mpeg", keys: ["audio/mpeg", "audio/wav", "audio/ogg"], group: "audio" },
-  // document — 흔히 쓰는 텍스트/Office 모두 built-in 으로 승격
-  { label: "PDF", key: "application/pdf", group: "document" },
-  { label: "DOCX", key: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", group: "document" },
-  { label: "XLSX", key: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", group: "document" },
-  { label: "PPTX", key: "application/vnd.openxmlformats-officedocument.presentationml.presentation", group: "document" },
-  { label: "TXT / MD / CSV", key: "text/plain", keys: ["text/plain", "text/markdown", "text/csv"], group: "document" },
-  // archive
-  { label: "ZIP", key: "application/zip", group: "archive" },
-];
 
-const MIME_GROUP_ORDER: MimeGroupKey[] = ["image", "video", "audio", "document", "archive"];
-const _MIME_GROUP_LABEL_KEY: Record<MimeGroupKey, string> = {
-  image: "admin.settings.mimeGroupImage",
-  video: "admin.settings.mimeGroupVideo",
-  audio: "admin.settings.mimeGroupAudio",
-  document: "admin.settings.mimeGroupDocument",
-  archive: "admin.settings.mimeGroupArchive",
-};
-const MIME_GROUP_ICON: Record<MimeGroupKey | "other", LucideIcon> = {
-  image: ImageIcon,
-  video: Video,
-  audio: Music,
-  document: FileText,
-  archive: Archive,
-  other: File,
-};
-const MIME_ADDABLE_GROUP_KEY: Record<string, MimeGroupKey> = {
-  "admin.settings.mimeGroupImage": "image",
-  "admin.settings.mimeGroupVideo": "video",
-  "admin.settings.mimeGroupAudio": "audio",
-  "admin.settings.mimeGroupDocument": "document",
-  "admin.settings.mimeGroupArchive": "archive",
-};
 
-const SIZE_OPTIONS = [
-  { value: "1", label: "1 MB" },
-  { value: "2", label: "2 MB" },
-  { value: "5", label: "5 MB" },
-  { value: "10", label: "10 MB" },
-  { value: "20", label: "20 MB" },
-  { value: "50", label: "50 MB" },
-  { value: "100", label: "100 MB" },
-];
 
-const ADDABLE_MIME_GROUPS: { labelKey: string; targetKey: string; mimes: SelectOption[] }[] = [
-  {
-    labelKey: "admin.settings.mimeGroupImage",
-    targetKey: "image/jpeg",
-    mimes: [
-      { value: "image/avif", label: "AVIF" },
-      { value: "image/bmp", label: "BMP" },
-      { value: "image/heic", label: "HEIC" },
-      { value: "image/tiff", label: "TIFF" },
-    ],
-  },
-  {
-    labelKey: "admin.settings.mimeGroupVideo",
-    targetKey: "video/mp4",
-    mimes: [
-      { value: "video/AV1", label: "WebM AV1" },
-      { value: "video/H265", label: "HEVC" },
-    ],
-  },
-  {
-    labelKey: "admin.settings.mimeGroupAudio",
-    targetKey: "audio/mpeg",
-    mimes: [
-      { value: "audio/flac", label: "FLAC" },
-      { value: "audio/x-m4a", label: "M4A" },
-    ],
-  },
-  {
-    labelKey: "admin.settings.mimeGroupDocument",
-    targetKey: "application/pdf",
-    mimes: [
-      { value: "application/epub+zip", label: "EPUB" },
-      { value: "application/json", label: "JSON" },
-      /* 레거시 binary Office (DOC/XLS/PPT) — 거의 안 쓰이지만 호환성 위해 addable 로 유지 */
-      { value: "application/msword", label: "DOC" },
-      { value: "application/vnd.ms-excel", label: "XLS" },
-      { value: "application/vnd.ms-powerpoint", label: "PPT" },
-    ],
-  },
-  {
-    labelKey: "admin.settings.mimeGroupArchive",
-    targetKey: "application/zip",
-    mimes: [
-      { value: "application/x-rar-compressed", label: "RAR" },
-      { value: "application/x-7z-compressed", label: "7Z" },
-      { value: "application/gzip", label: "GZ" },
-    ],
-  },
-];
 
 /* 번들 라벨 ("JPEG / PNG / WebP") → 개별 MIME 라벨 매핑. drag chip 은 1개 MIME = 1개 chip 이라 필요. */
 const MIME_LABEL: Record<string, string> = {
