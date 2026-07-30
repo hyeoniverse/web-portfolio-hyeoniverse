@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { BLOCK_COLORS, BLOCK_HIGHLIGHTS } from "./blockStyleData";
 import { useDraggable } from "@platejs/dnd";
 import type { TElement } from "platejs";
 import type { RenderNodeWrapperProps, RenderNodeWrapperFunction } from "platejs/react";
@@ -36,24 +37,6 @@ const TURN_INTO: { value: string; labelKey: string; icon: React.ReactNode }[] = 
 ];
 
 // 블록 텍스트 색상 스와치 (default = 색 제거)
-const BLOCK_COLORS: { key: string; value: string | null }[] = [
-  { key: "default", value: null },
-  { key: "red", value: "var(--color-red-500, #ef4444)" },
-  { key: "orange", value: "var(--color-orange-500, #f97316)" },
-  { key: "green", value: "var(--color-green-500, #22c55e)" },
-  { key: "blue", value: "var(--color-blue-500, #3b82f6)" },
-  { key: "purple", value: "var(--color-purple-500, #a855f7)" },
-];
-
-// 글자 배경색(형광펜) 스와치 — 파스텔 톤 (default = 제거). 색 이름 키는 BLOCK_COLORS 와 공유(i18n 재사용).
-const BLOCK_HIGHLIGHTS: { key: string; value: string | null }[] = [
-  { key: "default", value: null },
-  { key: "red", value: "var(--color-red-200, #fecdd3)" },
-  { key: "orange", value: "var(--color-orange-200, #fed7aa)" },
-  { key: "green", value: "var(--color-green-200, #bbf7d0)" },
-  { key: "blue", value: "var(--color-blue-200, #bfdbfe)" },
-  { key: "purple", value: "var(--color-purple-200, #e9d5ff)" },
-];
 
 // 전환/색상(글자색·형광펜) 을 표시할 "텍스트 계열" 블록. 나머지(코드·이미지·표·구분선·영상·토글·열 등)엔 숨김.
 const TEXT_LIKE_BLOCKS = new Set(["p", "h1", "h2", "h3", "blockquote", "callout"]);
