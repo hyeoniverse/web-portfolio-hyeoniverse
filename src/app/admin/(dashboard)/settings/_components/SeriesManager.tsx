@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { SEARCH_DEBOUNCE_MS } from "@/constants";
+import { SEARCH_DEBOUNCE_MS, QUERY_PARAM } from "@/constants";
 import type { SortDirection } from "@/types";
 import { useSearchParams } from "next/navigation";
 import { ChevronRight, GripVertical, Trash2, Eye, EyeOff, Plus } from "lucide-react";
@@ -40,7 +40,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
   const { t } = useLanguage();
   const { openModal, closeAll } = useModalStore();
   const searchParams = useSearchParams();
-  const targetSeriesId = searchParams.get("series");
+  const targetSeriesId = searchParams.get(QUERY_PARAM.series);
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -145,7 +145,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
       params.set("sortBy", sortBy);
       params.set("sortDir", sortDir);
       if (debouncedSearch) {
-        params.set("q", debouncedSearch);
+        params.set(QUERY_PARAM.q, debouncedSearch);
         params.set("searchType", searchType);
       }
       const res = await fetch(`/api/series?${params}`);

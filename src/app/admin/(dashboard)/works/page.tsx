@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { QUERY_PARAM } from "@/constants";
 import type { GithubImportResponse } from "@/types";
 import { useRouter } from "next/navigation";
 import MediaThumb from "@/components/admin/MediaThumb";
@@ -188,7 +189,7 @@ export default function AdminWorksPage() {
       limit: String(perPage),
       sort,
     });
-    if (filterCategory) params.set("category", filterCategory);
+    if (filterCategory) params.set(QUERY_PARAM.category, filterCategory);
     if (filterNature) params.set("nature", filterNature);
     if (filterYear) params.set("year", filterYear);
     if (search) {

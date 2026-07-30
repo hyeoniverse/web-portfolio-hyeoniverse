@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { QUERY_PARAM } from "@/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const entityType = searchParams.get("entity_type");
   const entityId = searchParams.get("entity_id");
-  const limit = parseInt(searchParams.get("limit") ?? "50");
+  const limit = parseInt(searchParams.get(QUERY_PARAM.limit) ?? "50");
   // 편집기 진입 시 — list + 가장 최근 non-dismissed snapshot 을 한 번에 받아 modal 까지 round-trip 절반으로
   const withLatestSnapshot = searchParams.get("with_latest_snapshot") === "1";
 

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { QUERY_PARAM } from "@/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 // GET /api/comments/recent?limit=5
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const limit = Math.min(Number(searchParams.get("limit")) || 5, 20);
+  const limit = Math.min(Number(searchParams.get(QUERY_PARAM.limit)) || 5, 20);
 
   const admin = createAdminClient();
 

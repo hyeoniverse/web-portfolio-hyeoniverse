@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import type { GithubImportResponse } from "@/types";
-import { PREVIEW_KEY } from "@/constants";
+import { PREVIEW_KEY, QUERY_PARAM } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { Trash2, Upload, Plus, Download } from "lucide-react";
@@ -112,7 +112,7 @@ export default function AdminPostsPage() {
       limit: String(perPage),
       sort,
     });
-    if (filterCategory) params.set("category", filterCategory);
+    if (filterCategory) params.set(QUERY_PARAM.category, filterCategory);
     if (filterSeries) params.set("series_id", filterSeries);
     if (search) {
       params.set("search", search);

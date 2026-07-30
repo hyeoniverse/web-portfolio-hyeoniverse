@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { QUERY_PARAM } from "@/constants";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk } from "@/lib/api/response";
 import { getSecret } from "@/lib/getSecret";
@@ -54,8 +55,8 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const q = searchParams.get("q");
-  const page = searchParams.get("page") || "1";
+  const q = searchParams.get(QUERY_PARAM.q);
+  const page = searchParams.get(QUERY_PARAM.page) || "1";
 
   if (!q) return jsonError("Query required", 400);
 
