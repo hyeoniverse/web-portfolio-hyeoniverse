@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, Fragment, type ReactNode } from "react";
-import { BREAKPOINT } from "@/constants";
+import { BREAKPOINT, SEARCH_DEBOUNCE_MS } from "@/constants";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -793,7 +793,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
       if (page === 1 && !hasUrlFilter) return; // SSR 와 동일(무필터 page 1) → 재요청 불필요
     }
     setLoading(true);
-    const debounce = setTimeout(fetchPosts, 300);
+    const debounce = setTimeout(fetchPosts, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(debounce);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchPosts, isInitial]);

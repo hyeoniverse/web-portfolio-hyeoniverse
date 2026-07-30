@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { STATUS_MESSAGE_DISMISS_MS } from "@/constants";
 import { Trash2, Eye, EyeOff, Info, ExternalLink, ClipboardPaste, AlertTriangle, Lock, Database, Mail, Shield, Image as ImageIcon, Sparkles, Languages, Bell, Check, MessageSquare, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
@@ -373,7 +374,7 @@ export default function EnvVarFields({
       setMsg(t("admin.settings.envVarSaved"));
       const fresh = await fetch("/api/admin/secrets").then((r) => r.json());
       setSecrets(fresh.secrets ?? {});
-      setTimeout(() => setMsg(""), 3000);
+      setTimeout(() => setMsg(""), STATUS_MESSAGE_DISMISS_MS);
     } catch {
       setMsg(t("admin.settings.saveError"));
     } finally {
