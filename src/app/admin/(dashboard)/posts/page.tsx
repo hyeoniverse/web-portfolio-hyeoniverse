@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import type { GithubImportResponse } from "@/types";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
@@ -219,7 +220,7 @@ export default function AdminPostsPage() {
     try {
       const res = await fetch("/api/posts/export?all=true");
       if (!res.ok) return;
-      const { files } = await res.json() as { files: { fileName: string; content: string }[] };
+      const { files } = await res.json() as GithubImportResponse;
       await downloadFiles(files);
     } finally {
       setExporting(false);
@@ -495,7 +496,7 @@ export default function AdminPostsPage() {
   const handleExportSeries = useCallback(async (seriesId: string) => {
     const res = await fetch(`/api/posts/export?series_id=${seriesId}`);
     if (!res.ok) return;
-    const { files } = await res.json() as { files: { fileName: string; content: string }[] };
+    const { files } = await res.json() as GithubImportResponse;
     await downloadFiles(files);
   }, []);
 
@@ -546,7 +547,7 @@ export default function AdminPostsPage() {
               for (const sid of ids) {
                 const res = await fetch(`/api/posts/export?series_id=${sid}`);
                 if (!res.ok) continue;
-                const { files } = await res.json() as { files: { fileName: string; content: string }[] };
+                const { files } = await res.json() as GithubImportResponse;
                 await downloadFiles(files);
               }
             },

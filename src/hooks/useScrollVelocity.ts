@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { BREAKPOINT } from "@/constants";
 import { useMotionValue, useSpring, MotionValue } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import { SCROLL_VELOCITY, SPRING_CONFIG } from "@/constants/animation";
@@ -37,7 +38,7 @@ export function useScrollVelocity(hasMounted: boolean): UseScrollVelocityReturn 
 
       if (Math.abs(velocity) > 0.05) {
         const width = window.innerWidth;
-        const scale = width <= 768 ? 0.3 : width <= 1024 ? 0.6 : 1;
+        const scale = width <= BREAKPOINT.mobile ? 0.3 : width <= BREAKPOINT.tablet ? 0.6 : 1;
         const scaledMaxOffset = maxOffset * scale;
         const scaledWorkMultiplier = workMultiplier * scale;
 

@@ -2597,7 +2597,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: 9999,
+          zIndex: "var(--z-top)",
           background: "transparent",
           cursor: "wait",
         }}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useLayoutEffect, useEffect, memo } from "react";
+import { BREAKPOINT } from "@/constants";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -110,7 +111,7 @@ function FeaturesPanel({
 
       const count = wraps.length;
       const slots = count - 1;
-      const isTabletLayout = window.innerWidth >= 768;
+      const isTabletLayout = window.innerWidth >= BREAKPOINT.mobile;
       const spacing = tabH + (isTabletLayout ? 48 : 32); // 탭 + 여백 (태블릿은 더 넓게)
       const vh = window.innerHeight - 120; // padding-top 120px 반영
 
@@ -186,7 +187,7 @@ function FeaturesPanel({
       if (ctx) ctx.revert();
 
       const { spacing, firstCollapsedIdx } = collapseRef.current;
-      const isTablet = window.innerWidth >= 768;
+      const isTablet = window.innerWidth >= BREAKPOINT.mobile;
       const scrollPerCard = isTablet ? 450 : 350;
 
       const count = cards.length;

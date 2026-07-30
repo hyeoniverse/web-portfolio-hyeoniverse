@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useCallback, useMemo, useState } from "react";
+import { BREAKPOINT } from "@/constants";
 import { Canvas, useFrame, useThree, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -151,7 +152,7 @@ function VerticalCylinder({ allImages, segAngle, arc, scrollRef, mouseRef, actua
 
     const s = scrollRef.current ?? 0;
     const m = mouseRef.current ?? { x: 0, y: 0 };
-    const isDesktop = window.innerWidth > 1024;
+    const isDesktop = window.innerWidth > BREAKPOINT.tablet;
 
     const targetRotX = s * segAngle * count + Math.PI;
     const sRot = scrollGroupRef.current.rotation;
