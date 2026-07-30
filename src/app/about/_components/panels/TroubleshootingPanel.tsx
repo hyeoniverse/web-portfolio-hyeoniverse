@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useRef, useState, useEffect, useMemo, memo } from "react";
+import type { LocalizedText } from "@/types/common";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import Image from "next/image";
@@ -27,9 +28,9 @@ const styles = { ...shared, ...local };
 const DIFFICULTY_META: Record<
   TroubleshootingDifficulty,
   {
-    label: { ko: string; en: string };
+    label: LocalizedText;
     tone: "easy" | "medium" | "hard";
-    desc: { ko: string; en: string };
+    desc: LocalizedText;
   }
 > = {
   1: {
@@ -336,7 +337,7 @@ function TroubleshootingPanel({
       });
   }, [items, filterMode]);
 
-  const FILTER_OPTIONS: { key: FilterMode; label: { ko: string; en: string } }[] = [
+  const FILTER_OPTIONS: { key: FilterMode; label: LocalizedText }[] = [
     { key: "all", label: { ko: "전체", en: "All" } },
     { key: "recommended", label: { ko: "추천만", en: "Recommended" } },
     { key: 1, label: { ko: "쉬움", en: "Easy" } },

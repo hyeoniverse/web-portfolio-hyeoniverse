@@ -1,7 +1,9 @@
+import type { LocalizedText } from "@/types/common";
+
 /** 카테고리별 이모지 데이터 (자체 관리) */
 export interface EmojiCategory {
   id: string;
-  label: { ko: string; en: string };
+  label: LocalizedText;
   emojis: string[];
 }
 
@@ -87,7 +89,7 @@ export function iconSvgInner(ic: IconEntry): string {
 
 export interface IconCategory {
   id: string;
-  label: { ko: string; en: string };
+  label: LocalizedText;
   icons: IconEntry[];
 }
 

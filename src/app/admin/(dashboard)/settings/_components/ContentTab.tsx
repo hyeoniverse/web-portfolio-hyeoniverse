@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
+import type { LocalizedText } from "@/types/common";
 import { TECH_ICON_PRESETS, type TechIconPreset } from "@/data/techIconPresets";
 import type { SortDirection, SelectOption } from "@/types";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
@@ -202,8 +203,8 @@ export default function ContentTab({
     const raw = config.posts?.categories ?? [];
     return (raw as unknown[]).map((item) =>
       typeof item === "string"
-        ? { ko: item, en: item, description: undefined as { ko: string; en: string } | string | undefined }
-        : (item as { ko: string; en: string; description?: { ko: string; en: string } | string }),
+        ? { ko: item, en: item, description: undefined as LocalizedText | string | undefined }
+        : (item as { ko: string; en: string; description?: LocalizedText | string }),
     );
   }, [config.posts?.categories]);
 
@@ -211,8 +212,8 @@ export default function ContentTab({
     const raw = config.works?.categories ?? [];
     return (raw as unknown[]).map((item) =>
       typeof item === "string"
-        ? { ko: item, en: item, description: undefined as { ko: string; en: string } | string | undefined }
-        : (item as { ko: string; en: string; description?: { ko: string; en: string } | string }),
+        ? { ko: item, en: item, description: undefined as LocalizedText | string | undefined }
+        : (item as { ko: string; en: string; description?: LocalizedText | string }),
     );
   }, [config.works?.categories]);
 
@@ -819,13 +820,13 @@ const TAGS_PER_PAGE_DENSE = 8;
 /** TagMeta → 저장용 객체. 빈 필드 정리. 모두 비어있으면 null 반환 (entry 자체 삭제).
  *  CRITICAL: description 키는 항상 포함 — read 시 legacy {ko,en} 형식 (= 설명만 있던 시절)
  *  과 구분하는 disambiguation marker. 빈 description 이라도 객체 형태 유지. */
-function metaToStored(m: TagMeta): { ko?: string; en?: string; description: { ko: string; en: string } } | null {
+function metaToStored(m: TagMeta): { ko?: string; en?: string; description: LocalizedText } | null {
   const ko = m.ko.trim();
   const en = m.en.trim();
   const dko = m.description.ko.trim();
   const den = m.description.en.trim();
   if (!ko && !en && !dko && !den) return null;
-  const out: { ko?: string; en?: string; description: { ko: string; en: string } } = {
+  const out: { ko?: string; en?: string; description: LocalizedText } = {
     description: { ko: dko, en: den },
   };
   if (ko) out.ko = ko;
@@ -1079,8 +1080,8 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
   /* TagNotesEditor items = canonical key 배열. notes = {[key]: bilingual description}.
      description 만 TagNotesEditor 의 onNotesChange 로 직접 편집 가능 (drawer).
      이름 ko/en 은 별도 하단 박스에서 편집. */
-  const notesForEditor = useMemo<Record<string, { ko: string; en: string }>>(() => {
-    const map: Record<string, { ko: string; en: string }> = {};
+  const notesForEditor = useMemo<Record<string, LocalizedText>>(() => {
+    const map: Record<string, LocalizedText> = {};
     for (const tag of allTags) {
       const m = normalizeTagMeta(value[tag]);
       /* 빈 description 은 제외 — entry 없음 으로 인식돼야 + 설명추가 / drawer 미생성 */
@@ -1234,8 +1235,8 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
   /* ── 하단 통합 add/edit box ──
      canonical key (post.tags 매칭용) 는 신규 추가 시 EN (없으면 KO) 에서 자동 도출 — 별도 입력 X. */
   const [editingTag, setEditingTag] = useState<string | null>(null);
-  const [pairNames, setPairNames] = useState<{ ko: string; en: string }>({ ko: "", en: "" });
-  const [pairDesc, setPairDesc] = useState<{ ko: string; en: string }>({ ko: "", en: "" });
+  const [pairNames, setPairNames] = useState<LocalizedText>({ ko: "", en: "" });
+  const [pairDesc, setPairDesc] = useState<LocalizedText>({ ko: "", en: "" });
   const [isShaking, setIsShaking] = useState(false);
   const triggerShake = () => {
     setIsShaking(true);

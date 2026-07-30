@@ -1,8 +1,10 @@
+import type { LocalizedText } from "@/types/common";
+
 export interface PostTemplate {
   id: string;
-  label: { ko: string; en: string };
-  desc: { ko: string; en: string };
-  content: { ko: string; en: string };
+  label: LocalizedText;
+  desc: LocalizedText;
+  content: LocalizedText;
 }
 
 export const POST_TEMPLATES: PostTemplate[] = [

@@ -11,6 +11,7 @@
  */
 
 import type { Author } from "@/types/author";
+import type { LocalizedText } from "@/types/common";
 import type { BackendItem, UserFlow, TroubleShootingItem, ErdTable, ErdRelation } from "@/data/about/types";
 
 export const siteConfig = {
@@ -1629,8 +1630,8 @@ export const siteConfig = {
   } as Record<
     string,
     | string
-    | { ko: string; en: string }
-    | { ko?: string; en?: string; description?: { ko: string; en: string } }
+    | LocalizedText
+    | { ko?: string; en?: string; description?: LocalizedText }
   >,
 } as const;
 

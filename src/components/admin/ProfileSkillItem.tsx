@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { LocalizedText } from "@/types/common";
 import { ChevronRight } from "lucide-react";
 import T from "@/components/ui/T";
 import Input from "@/components/ui/Input";
@@ -8,7 +9,7 @@ import Textarea from "@/components/ui/Textarea";
 import { ExpandablePanel } from "./ProfileSections";
 
 export default function SkillItemContent({ skill, gi, si, updateSkill, removeSkill, styles }: {
-  skill: { name: string; description: { ko: string; en: string } };
+  skill: { name: string; description: LocalizedText };
   gi: number;
   si: number;
   updateSkill: (gi: number, si: number, field: string, value: string) => void;
