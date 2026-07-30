@@ -1,4 +1,5 @@
 import { ImageIcon, Download, ExternalLink } from "lucide-react";
+import type { TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { formatPostTitle } from "@/utils/post";
@@ -14,9 +15,8 @@ import type { BilingualCategory } from "@/hooks/useCategories";
 import { translateCategory } from "@/hooks/useCategories";
 import styles from "./AdminPosts.module.css";
 
-type TFn = (key: string) => string;
 
-export function createPostColumns(t: TFn): AdminTableColumn<Post>[] {
+export function createPostColumns(t: TFunction): AdminTableColumn<Post>[] {
   return [
     {
       key: "thumb",
@@ -102,7 +102,7 @@ export function createPostColumns(t: TFn): AdminTableColumn<Post>[] {
 }
 
 export function createTrashColumns(
-  t: TFn,
+  t: TFunction,
   getDaysLeft: (deletedAt: string, purgeAfter?: string | null) => number,
   handleRestore: (id: string) => void,
   handlePurge: (id: string, title: string) => void,
@@ -176,7 +176,7 @@ export function createTrashColumns(
 }
 
 export function createSeriesColumns(
-  t: TFn,
+  t: TFunction,
   handleDeleteSeries: (s: Series) => void,
   handleExportSeries?: (seriesId: string) => void,
   language: "ko" | "en" = "ko",

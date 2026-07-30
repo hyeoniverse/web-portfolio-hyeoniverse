@@ -6,14 +6,14 @@ import { Plus, Check, X, Trash2, Filter, ChevronDown } from "lucide-react";
 import { DndContext, pointerWithin, KeyboardSensor, PointerSensor, useSensor, useSensors, useDraggable, useDroppable, DragOverlay, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { normalizeCategories } from "@/lib/categoryTree";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import T from "@/components/ui/T";
 import Input from "@/components/ui/Input";
 import { siteConfig, type SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
 import ProfileSections, { type ProfileExpandState } from "@/components/admin/ProfileSections";
-import type { SettingsTabProps } from "../_types";
+import type { SettingsTabProps, AdminPostUsageInfo, PostMetaInfo } from "../_types";
 import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import FieldRow from "@/components/ui/FieldRow";
@@ -201,7 +201,7 @@ function CategoryInput({ value, onChange, currentCats, t }: {
   value: string;
   onChange: (v: string) => void;
   currentCats: string[];
-  t: (key: string) => string;
+  t: TFunction;
 }) {
   const [draft, setDraft] = useState(value);
   useEffect(() => { setDraft(value); }, [value]);
@@ -963,21 +963,8 @@ type SavedTagValue = Record<string, SavedTagMeta>;
 
 /* WorksCategoriesEditor 와 동일 패턴 — TagNotesEditor (chip + drag) + 하단 add/edit box.
    tag canonical key 는 post.tags 와 매칭되는 string. 편집은 표시이름(ko/en) + 설명(ko/en) 만. */
-interface TagPostInfo {
-  id: string;
-  title: string;
-  title_en: string;
-  tags: string[];
-  slug: string;
-  category: string;
-  published: boolean;
-  published_at: string | null;
-  created_at: string | null;
-  view_count: number;
-}
-
 /** 게시물 리스트 row 의 메타 데이터 (발행상태 / 날짜 / 조회수) */
-function PostMeta({ p }: { p: { published: boolean; published_at: string | null; created_at: string | null; view_count?: number } }) {
+function PostMeta({ p }: { p: PostMetaInfo }) {
   const date = p.published_at || p.created_at;
   const dateStr = date ? new Date(date).toLocaleDateString("ko-KR", { year: "2-digit", month: "2-digit", day: "2-digit" }).replace(/\.\s/g, ".").replace(/\.$/, "") : "";
   return (
@@ -993,7 +980,7 @@ function PostMeta({ p }: { p: { published: boolean; published_at: string | null;
 function TagResetConfirmBody({ inUse, tagCounts, tagPosts, affectedCount, onConfirm }: {
   inUse: string[];
   tagCounts: Record<string, number>;
-  tagPosts: TagPostInfo[];
+  tagPosts: AdminPostUsageInfo[];
   affectedCount: number;
   onConfirm: () => void;
 }) {
@@ -1056,7 +1043,7 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
 }) {
   const [postTags, setPostTags] = useState<string[]>([]);
   const [tagCounts, setTagCounts] = useState<Record<string, number>>({});
-  const [tagPosts, setTagPosts] = useState<TagPostInfo[]>([]);
+  const [tagPosts, setTagPosts] = useState<AdminPostUsageInfo[]>([]);
   const [fetchStatus, setFetchStatus] = useState<"idle" | "loading" | "ok" | "error">("loading");
   const [fetchError, setFetchError] = useState<string>("");
 
@@ -1486,7 +1473,7 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
   };
 
   /* 편집 중인 태그의 관련 게시물 */
-  const editingPosts = useMemo<TagPostInfo[]>(() => {
+  const editingPosts = useMemo<AdminPostUsageInfo[]>(() => {
     if (!editingTag) return [];
     return tagPosts.filter((p) => p.tags.includes(editingTag));
   }, [editingTag, tagPosts]);
@@ -1752,7 +1739,7 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
 function AboutTechStackEditor({ items, onChange, t, styles }: {
   items: TechItem[];
   onChange: (v: TechItem[]) => void;
-  t: (key: string) => string;
+  t: TFunction;
   styles: Record<string, string>;
 }) {
   const patch = (idx: number, p: Partial<TechItem>) => onChange(items.map((it, i) => (i === idx ? { ...it, ...p } : it)));
@@ -1983,7 +1970,7 @@ function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
 function TechIconEditor({ icon, onIconChange, t, styles, showSearch = true }: {
   icon: string;
   onIconChange: (icon: string) => void;
-  t: (key: string) => string;
+  t: TFunction;
   styles: Record<string, string>;
   showSearch?: boolean;
 }) {
@@ -2062,7 +2049,7 @@ function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
   existing: TechItem[];
   onAdd: (it: TechItem) => void;
   currentCats: string[];
-  t: (key: string) => string;
+  t: TFunction;
   styles: Record<string, string>;
 }) {
   const [q, setQ] = useState("");
@@ -2143,7 +2130,7 @@ function TechEditPanel({ item, onChange, currentCats, t, styles }: {
   item: TechItem;
   onChange: (p: Partial<TechItem>) => void;
   currentCats: string[];
-  t: (key: string) => string;
+  t: TFunction;
   styles: Record<string, string>;
 }) {
   return (

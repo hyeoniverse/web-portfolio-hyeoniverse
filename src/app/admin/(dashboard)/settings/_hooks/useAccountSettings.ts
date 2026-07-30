@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
+import type { TFunction } from "@/providers/LanguageProvider";
 
-export function useAccountSettings(t: (key: string) => string) {
+export function useAccountSettings(t: TFunction) {
   const [accountEmail, setAccountEmail] = useState("");
   const [accountNewEmail, setAccountNewEmail] = useState("");
   const [accountPassword, setAccountPassword] = useState("");

@@ -23,6 +23,34 @@ export interface SettingsTabProps {
   savingPaths: string[] | null;
 }
 
+/** 카테고리·태그가 사용된 게시물 정보 — CategoriesEditor · ContentTab 리스트 공용 */
+export interface AdminPostUsageInfo {
+  id: string;
+  title: string;
+  title_en: string;
+  category: string;
+  slug: string;
+  published: boolean;
+  published_at: string | null;
+  created_at: string | null;
+  view_count: number;
+  tags: string[];
+}
+
+/** 게시물/작품 row 메타 표시용 (발행상태 · 날짜 · 조회수). view_count 없으면 미표시 */
+export interface PostMetaInfo {
+  published: boolean;
+  published_at: string | null;
+  created_at: string | null;
+  view_count?: number;
+}
+
+/** 저장/수정 작업 결과 (성공 여부 + 메시지) */
+export interface Outcome {
+  ok: boolean;
+  msg: string;
+}
+
 export interface AccountTabProps {
   accountEmail: string;
   accountNewEmail: string;

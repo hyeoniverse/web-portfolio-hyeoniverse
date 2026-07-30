@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import type { BilingualDescription } from "@/types/common";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, GripVertical, Pencil } from "lucide-react";
 import Chip from "@/components/ui/Chip";
@@ -8,7 +9,6 @@ import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./TagNotesEditor.module.css";
 
-export type TagNote = { ko: string; en: string };
 
 /** 3-state toggle 버튼 — header 우측 */
 function GroupToggleButton({
@@ -115,11 +115,11 @@ export interface TagNotesEditorProps {
   /** 표시 + 정렬 순서 source (tags / tech 등) */
   items: string[];
   /** 항목별 ko/en 설명 — entry 없는 항목은 undefined */
-  notes: Record<string, TagNote>;
+  notes: Record<string, BilingualDescription>;
   /** items 재정렬 / 항목 제거 후 호출 */
   onItemsChange: (next: string[]) => void;
   /** notes 변경 (entry 추가/수정/삭제) 후 호출 */
-  onNotesChange: (next: Record<string, TagNote>) => void;
+  onNotesChange: (next: Record<string, BilingualDescription>) => void;
   /** 라벨 prefix — "#" (tags) 또는 빈 string (tech 등) */
   prefix?: string;
   /** placeholder — KO / EN 인풋 공통 */
@@ -351,7 +351,7 @@ export default function TagNotesEditor({
       <AnimatePresence initial={false}>
       {items.map((item, idx) => {
         const entry = notes[item];
-        const setEntry = (next: TagNote | null) => {
+        const setEntry = (next: BilingualDescription | null) => {
           const map = { ...notes };
           if (next === null) delete map[item];
           else map[item] = next;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { Outcome } from "../_types";
 import { Plus, Trash2, Pencil, Clock, UserPlus } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -18,8 +19,6 @@ interface Props {
   authors: Author[];
   onChange: (authors: Author[]) => void;
 }
-
-interface Outcome { ok: boolean; msg: string }
 
 /** 멤버 관리 (이슈 #334) — 작성자 프로필 + 로그인 접근을 리스트로 표시.
  *  owner = 전체 관리(추가/초대/권한/삭제). 비owner = 목록 열람 + 본인 프로필만 수정.
