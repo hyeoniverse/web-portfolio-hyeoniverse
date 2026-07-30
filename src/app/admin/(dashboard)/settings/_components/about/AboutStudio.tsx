@@ -8,6 +8,7 @@
    ───────────────────────────────────────────────────────────── */
 
 import dynamic from "next/dynamic";
+import type { TFunction } from "@/providers/LanguageProvider";
 import type { Language } from "@/types";
 import { useState, useEffect, useMemo, useRef, useDeferredValue, type CSSProperties, type Dispatch, type FocusEvent, type ReactNode, type SetStateAction } from "react";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
@@ -83,7 +84,6 @@ import { securityIcons } from "@/app/about/_components/panels/SecurityPanel";
 
 /* ═══════════ 타입 ═══════════ */
 type ThemeBg = { primary: string; secondary: string; accent: string };
-type Tr = (k: string) => string;
 type AboutStudioProps = {
   config: SiteConfigData;
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
@@ -93,7 +93,7 @@ type AboutStudioProps = {
   revertSection: SettingsTabProps["revertSection"];
   resetSection: SettingsTabProps["resetSection"];
   savingPaths: SettingsTabProps["savingPaths"];
-  t: Tr;
+  t: TFunction;
   themeBg: ThemeBg;
   techStackSlot: ReactNode;
 };
@@ -705,7 +705,7 @@ function SwatchField({ label, value, onChange }: { label: string; value: string;
   );
 }
 function BgMedia({ media, t, onSet, opacity, onOpacity, overlay, onOverlay, strength, onStrength }: {
-  media: string; t: Tr; onSet: (u: string) => void;
+  media: string; t: TFunction; onSet: (u: string) => void;
   opacity: number; onOpacity: (n: number) => void;
   overlay: string; onOverlay: (c: string) => void;
   strength: number; onStrength: (n: number) => void;
@@ -739,7 +739,7 @@ function BgMedia({ media, t, onSet, opacity, onOpacity, overlay, onOverlay, stre
 /* ═══════════ Panel manager — 순서(DnD) + 표시 토글. hero/credits 는 순서 고정 ═══════════ */
 const LOCKED_PANELS = new Set(["hero", "credits"]);
 function PanelManager({ about, setAny, t, lang }: {
-  about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; t: Tr; lang: Language;
+  about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; t: TFunction; lang: Language;
 }) {
   const hidden = (about.hiddenPanels ?? []) as string[];
   const titles = (about as { panelTitles?: Record<string, { ko?: string; en?: string }> }).panelTitles ?? {};
@@ -832,7 +832,7 @@ function PanelSortChip({ id, className, label, onToggle, onEdit }: { id: string;
 function PanelSaveHeader({ label, hint, paths, config, savedConfig, saveSection, revertSection, resetSection, savingPaths, t }: {
   label: string; hint?: ReactNode; paths: string[]; config: SiteConfigData; savedConfig: SiteConfigData;
   saveSection: SettingsTabProps["saveSection"]; revertSection: SettingsTabProps["revertSection"];
-  resetSection: SettingsTabProps["resetSection"]; savingPaths: SettingsTabProps["savingPaths"]; t: Tr;
+  resetSection: SettingsTabProps["resetSection"]; savingPaths: SettingsTabProps["savingPaths"]; t: TFunction;
 }) {
   const dirty = paths.some((p) => !deepEqual(getByPath(config, p), getByPath(savedConfig, p)));
   /* 이미 기본값이면 "기본값" 버튼은 할 일이 없다 */
@@ -862,7 +862,7 @@ function PanelSaveHeader({ label, hint, paths, config, savedConfig, saveSection,
 
 /* ═══════════ Overview ═══════════ */
 function OverviewBlock({ about, lang, setAny, t, scale, titleOverride }: {
-  about: SiteConfigData["about"]; lang: Language; setAny: (k: string, v: unknown) => void; t: Tr; scale: number; titleOverride?: string;
+  about: SiteConfigData["about"]; lang: Language; setAny: (k: string, v: unknown) => void; t: TFunction; scale: number; titleOverride?: string;
 }) {
   const stats = (about.overview_stats ?? []) as OverviewStat[];
   const setStats = (v: OverviewStat[]) => setAny("overview_stats", v);
@@ -910,7 +910,7 @@ function OverviewBlock({ about, lang, setAny, t, scale, titleOverride }: {
 
 /* ═══════════ Features ═══════════ */
 function FeaturesBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: FeatureItem[]; onChange: (v: FeatureItem[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
+  value: FeatureItem[]; onChange: (v: FeatureItem[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
 }) {
   const set = (i: number, p: Partial<FeatureItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const [hovered, setHovered] = useState<{ row: number; col: number } | null>(null);
@@ -964,7 +964,7 @@ function FeaturesBlock({ value, onChange, lang, t, scale, titleOverride }: {
 
 /* ═══════════ Process ═══════════ */
 function ProcessBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: ProcessItem[]; onChange: (v: ProcessItem[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
+  value: ProcessItem[]; onChange: (v: ProcessItem[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
 }) {
   const set = (i: number, p: Partial<ProcessItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const MAX = 8;
@@ -1011,7 +1011,7 @@ function ProcessBlock({ value, onChange, lang, t, scale, titleOverride }: {
 
 /* ═══════════ Security ═══════════ */
 function SecurityBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: SecurityItem[]; onChange: (v: SecurityItem[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
+  value: SecurityItem[]; onChange: (v: SecurityItem[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
 }) {
   const set = (i: number, p: Partial<SecurityItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const MAX = 10;
@@ -1075,7 +1075,7 @@ const seedConcepts = (): ConceptItem[] => designConcepts.map((c) => ({
 /* 실제 패널과 동일 — 컨셉 1개 = 배경 이미지 풀블리드 슬라이드 + 흰 오버레이 텍스트.
    실제도 strip 으로 한 장씩 넘겨 보므로 스튜디오도 탭으로 전환하며 한 장씩 편집. */
 function DesignSystemBlock({ value, onChange, lang, t, scale }: {
-  value: ConceptItem[]; onChange: (v: ConceptItem[]) => void; lang: Language; t: Tr; scale: number;
+  value: ConceptItem[]; onChange: (v: ConceptItem[]) => void; lang: Language; t: TFunction; scale: number;
 }) {
   const [tab, setTab] = useState(0);
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -1202,7 +1202,7 @@ const seedCode = (): CodeItem[] => codeExamples.map((c) => ({
 /* 실제 패널과 동일 — 번호 + 제목/설명 헤더, 본문은 데모 + 코드 2단.
    실제도 스크롤로 한 패인씩 넘겨 보므로 스튜디오도 탭으로 전환하며 하나씩 편집. */
 function CodeHighlightsBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: CodeItem[]; onChange: (v: CodeItem[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
+  value: CodeItem[]; onChange: (v: CodeItem[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
 }) {
   const [dropOver, setDropOver] = useState(false);
 
@@ -1457,7 +1457,7 @@ const UF_MAX = 8;
 /* 실제 패널과 동일 — 좌측 페르소나 정보 + 우측 플로우 다이어그램.
    다이어그램 좌표(row/col)는 flowLayout 이 계산하므로 여기선 값만 편집한다. */
 function UserFlowBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: UserFlow[]; onChange: (v: UserFlow[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
+  value: UserFlow[]; onChange: (v: UserFlow[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
 }) {
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
@@ -1897,7 +1897,7 @@ function ErdBlock({ tables, relations, onChange, lang }: {
 const BK_MAX = 12;
 /* 실제 패널과 동일 — 좌측 목록 + 우측 상세. 실제도 한 항목씩 보므로 탭으로 전환. */
 function BackendBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: BackendItem[]; onChange: (v: BackendItem[]) => void; lang: Language; t: Tr; scale: number; titleOverride?: string;
+  value: BackendItem[]; onChange: (v: BackendItem[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
 }) {
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
@@ -2162,7 +2162,7 @@ function TroubleshootingBlock({ value, onChange, lang, scale, titleOverride }: {
 /* ═══════════ Credits ═══════════ */
 function CreditsBlock({ about, setAny, lang, nickname, t }: {
   about: SiteConfigData["about"]; setAny: (k: string, v: unknown) => void; lang: Language;
-  nickname: string; t: Tr;
+  nickname: string; t: TFunction;
 }) {
   /* 저작자 표시 문구(로케일)와 소유자 이름은 고정 — 편집 대상이 아니다.
      문구를 자유롭게 바꿀 수 있으면 이름만 잠가봐야 표시 자체가 무력화된다. */
@@ -2352,7 +2352,7 @@ function CreditsBlock({ about, setAny, lang, nickname, t }: {
 }
 
 /* ═══════════ Break image ═══════════ */
-function BreakBlock({ url, onSet, t }: { url: string; onSet: (u: string) => void; t: Tr }) {
+function BreakBlock({ url, onSet, t }: { url: string; onSet: (u: string) => void; t: TFunction }) {
   const [pick, setPick] = useState(false);
   return (
     <section className={css.block}>
@@ -2374,7 +2374,7 @@ function BreakBlock({ url, onSet, t }: { url: string; onSet: (u: string) => void
 /* ═══════════ Architecture (비주얼 트리) ═══════════ */
 function ArchitectureBlock({ value, onChange, diagram, onDiagramChange, t, lang }: {
   value: ArchitectureItem[]; onChange: (v: ArchitectureItem[]) => void;
-  diagram: ArchDiagramData; onDiagramChange: (v: ArchDiagramData) => void; t: Tr; lang: Language;
+  diagram: ArchDiagramData; onDiagramChange: (v: ArchDiagramData) => void; t: TFunction; lang: Language;
 }) {
   const [sel, setSel] = useState<number | null>(null);
   const treeRef = useRef<HTMLDivElement>(null);

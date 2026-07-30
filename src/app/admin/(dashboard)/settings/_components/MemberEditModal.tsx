@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useState } from "react";
+import type { Outcome } from "../_types";
 import { createPortal } from "react-dom";
 import { Plus, Mail, Clock } from "lucide-react";
 import { SiGithub } from "react-icons/si";
@@ -17,8 +18,6 @@ import SocialLinksEditor from "./SocialLinksEditor";
 import styles from "./MemberEditModal.module.css";
 import shared from "../Settings.module.css";
 import mStyles from "@/components/admin/MembersList.module.css";
-
-interface Outcome { ok: boolean; msg: string }
 
 interface Props {
   initial: Author;

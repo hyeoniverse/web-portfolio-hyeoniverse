@@ -17,6 +17,7 @@ import T from "@/components/ui/T";
 import AISummary from "@/components/ui/AISummary";
 import RecommendedToast from "./_components/RecommendedToast";
 import RecommendedSection from "./_components/RecommendedSection";
+import type { RecommendedPost } from "./_components/types";
 import RelatedWorksCarousel from "./_components/RelatedWorksCarousel";
 import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
@@ -67,7 +68,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const [seriesOpen, setSeriesOpen] = useState(false);
   const [seriesPreview, setSeriesPreview] = useState<{ post: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at" | "excerpt" | "excerpt_en" | "tags">; top: number; left: number } | null>(null);
   const [adjacentPosts, setAdjacentPosts] = useState<{ prev: AdjacentPost | null; next: AdjacentPost | null }>({ prev: null, next: null });
-  const [recommendedPosts, setRecommendedPosts] = useState<{ id: string; title: string; slug: string; cover_image: string; title_en: string; excerpt: string; excerpt_en: string; category: string; tags: string[] }[]>([]);
+  const [recommendedPosts, setRecommendedPosts] = useState<RecommendedPost[]>([]);
   const [relatedWorks, setRelatedWorks] = useState<{ id: string; slug?: string; title: string; title_en: string; subtitle_ko: string; subtitle_en: string; image: string; year: string; categories_ko?: string[]; categories_en?: string[] }[]>([]);
   const { containerRef: proseViewerRef, viewerState: proseViewer, closeViewer: closeProseViewer } = useProseImageViewer();
   const isAdmin = useIsAuthenticated();

@@ -2,7 +2,7 @@
 
 import { type Dispatch, type SetStateAction, useRef, useState } from "react";
 import { ChevronUp, ChevronDown, ImageIcon, Video, Music, FileText, Archive, File, Plus, type LucideIcon } from "lucide-react";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import type { SiteConfigData } from "@/config/site.config";
 import { Switch } from "@/components/ui/Switch";
@@ -365,7 +365,7 @@ const GROUP_RECOMMENDED: Record<MimeGroupKey, number> = {
 function MediaLimitsEditor({ config, setConfig, t }: {
   config: SiteConfigData;
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
-  t: (k: string) => string;
+  t: TFunction;
 }) {
   const limits = ((config.media as Record<string, unknown>)?.limits ?? {}) as Record<string, number>;
   const blockedMimes = ((config.media as Record<string, unknown>)?.blockedMimes ?? []) as string[];
@@ -547,7 +547,7 @@ function CustomMimeAdder({
   blockedMimes: string[];
   existingKeys: string[];
   onAdd: (mime: string, size: number) => void;
-  t: (k: string) => string;
+  t: TFunction;
 }) {
   const [mime, setMime] = useState("");
   const [size, setSize] = useState("20");
@@ -602,7 +602,7 @@ function CustomMimeAdder({
 
 /* 발행 글 자동 cover 일괄 배정 — 기존 published + cover-less 글에 키워드 기반 Unsplash/Pexels 이미지 자동 배정.
    POST /api/posts/auto-cover. 결과 toast 로 표시. */
-function AutoCoverMigrator({ t }: { t: (k: string) => string }) {
+function AutoCoverMigrator({ t }: { t: TFunction }) {
   const [running, setRunning] = useState(false);
   const [lastResult, setLastResult] = useState<{ processed: number; succeeded: number; failed: number } | null>(null);
   const handleRun = async () => {

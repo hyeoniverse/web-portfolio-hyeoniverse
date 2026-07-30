@@ -15,6 +15,9 @@ import type { Language } from "@/types";
 
 export type { Language };
 
+/** 번역 함수 시그니처 — t/tAlt 및 t 를 prop 으로 받는 컴포넌트 공용 */
+export type TFunction = (key: string) => string;
+
 type TranslationValue = string | { [key: string]: TranslationValue };
 export type Translations = { [key: string]: TranslationValue };
 
@@ -33,8 +36,8 @@ interface LanguageContextType {
   language: Language;
   toggleLanguage: () => void;
   setLanguage: (language: Language) => void;
-  t: (key: string) => string;
-  tAlt: (key: string) => string;
+  t: TFunction;
+  tAlt: TFunction;
   tLang: (key: string, lang: Language) => string;
   /** 지연 로드한 사전을 병합한다 (admin 번역 등). 같은 키는 나중 것이 이긴다. */
   addTranslations: (extra: Record<Language, Translations>) => void;

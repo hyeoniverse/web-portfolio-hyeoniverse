@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, type ReactNode } from "react";
+import type { TocHeading } from "@/types";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
@@ -24,11 +25,7 @@ import styles from "./DetailLayout.module.css";
 const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
 const Giscus = dynamic(() => import("@/components/comments/Giscus"), { ssr: false });
 
-export interface TocHeading {
-  id: string;
-  text: string;
-  level: number;
-}
+export type { TocHeading };
 
 interface LikeConfig {
   count: number;
