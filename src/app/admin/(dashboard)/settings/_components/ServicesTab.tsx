@@ -1,6 +1,7 @@
 "use client";
 
 import { type Dispatch, type SetStateAction, useRef, useState } from "react";
+import type { SelectOption } from "@/types";
 import { ChevronUp, ChevronDown, ImageIcon, Video, Music, FileText, Archive, File, Plus, type LucideIcon } from "lucide-react";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
@@ -46,7 +47,7 @@ interface PriorityListProps<T extends string> {
   primary: T;
   priority: T[];
   excluded: T[];
-  options: { value: T; label: string }[];
+  options: SelectOption<T>[];
   onChange: (next: T[]) => void;
   onExcludedChange: (next: T[]) => void;
 }
@@ -236,7 +237,7 @@ const SIZE_OPTIONS = [
   { value: "100", label: "100 MB" },
 ];
 
-const ADDABLE_MIME_GROUPS: { labelKey: string; targetKey: string; mimes: { value: string; label: string }[] }[] = [
+const ADDABLE_MIME_GROUPS: { labelKey: string; targetKey: string; mimes: SelectOption[] }[] = [
   {
     labelKey: "admin.settings.mimeGroupImage",
     targetKey: "image/jpeg",

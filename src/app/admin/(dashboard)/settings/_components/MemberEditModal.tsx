@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useState } from "react";
+import type { SelectOption } from "@/types";
 import type { Outcome } from "../_types";
 import { createPortal } from "react-dom";
 import { Plus, Mail, Clock } from "lucide-react";
@@ -25,7 +26,7 @@ interface Props {
   invited?: PendingMember;
   /** 프로필 없이 로그인만 한 계정을 이 프로필에 연결할 때의 대상 계정 id (GitHub 데이터로 pre-fill). */
   linkMemberId?: string;
-  levels: { value: string; label: string }[];
+  levels: SelectOption[];
   onSaveProfile: (author: Author) => void;
   onInvite: (author: Author, level: number) => Promise<Outcome>;
   onChangeLevel: (memberId: string, authorId: string, level: number) => Promise<Outcome>;
