@@ -4,7 +4,6 @@ import { useState, useCallback, useMemo, memo } from "react";
 import type { Language } from "@/providers/LanguageProvider";
 import type { FlowNode } from "@/data/about";
 import { userFlows } from "@/data/about/architecture";
-import type { UserFlow } from "@/data/about/types";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
@@ -41,7 +40,7 @@ function UserFlowPanel({
 }: UserFlowPanelProps) {
   /* admin(about.userFlows) override — 비어있으면 정적 데이터 */
   const cfg = useSiteConfig();
-  const cfgFlows = (cfg.about as { userFlows?: UserFlow[] }).userFlows;
+  const cfgFlows = cfg.about.userFlows;
   const flows = cfgFlows && cfgFlows.length > 0 ? cfgFlows : userFlows;
   const flowCount = flows.length;
   const isMobile = useMobileLayout();
