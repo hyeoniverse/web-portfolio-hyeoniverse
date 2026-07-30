@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { PREVIEW_KEY } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import DetailLayout, { type TocHeading } from "@/components/layout/DetailLayout";
 import { WorkArticleHeader, WorkArticleBody, type RelatedPostItem, type RelatedSeriesItem } from "@/components/works/WorkArticleView";
@@ -124,7 +125,7 @@ export default function WorkPreviewPage() {
       return;
     }
     try {
-      const raw = sessionStorage.getItem("work-preview");
+      const raw = sessionStorage.getItem(PREVIEW_KEY.work);
       if (raw) setForm(JSON.parse(raw));
     } catch { /* ignore */ }
     setReady(true);

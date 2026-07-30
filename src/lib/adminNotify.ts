@@ -4,6 +4,7 @@
  */
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { MAIL_FROM } from "@/constants";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 
 /** 알림 type 분류
@@ -69,7 +70,7 @@ async function sendEmail(opts: NotifyOptions) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Portfolio <onboarding@resend.dev>",
+        from: MAIL_FROM,
         to: toEmail,
         subject: `[Portfolio] ${opts.title}`,
         html: `

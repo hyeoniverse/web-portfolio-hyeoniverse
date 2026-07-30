@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import MediaThumb from "@/components/ui/MediaThumb";
 
 /* ── Types ── */
-interface TransitionState {
+interface MorphTransitionState {
   image: string;
   /* image 가 없을 때 morph 블록의 background — caller 에서 카드 cover 색을 넘기면 그걸,
      안 넘기면 빈 문자열 (placeholder 적용) */
@@ -55,7 +55,7 @@ const SAFETY_MS = 5000;
 const NAV_DELAY = EXPAND_MS;
 
 export function PageTransitionProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<TransitionState | null>(null);
+  const [state, setState] = useState<MorphTransitionState | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   /* 새 페이지가 morph 보다 먼저 준비되면 morph 끝나는 즉시 done 으로 직행 */
   const endRequestedRef = useRef(false);
@@ -135,8 +135,8 @@ function TransitionOverlay({
   onPhase,
   endRequestedRef,
 }: {
-  state: TransitionState;
-  onPhase: (phase: TransitionState["phase"]) => void;
+  state: MorphTransitionState;
+  onPhase: (phase: MorphTransitionState["phase"]) => void;
   endRequestedRef: React.MutableRefObject<boolean>;
 }) {
   const elRef = useRef<HTMLDivElement>(null);

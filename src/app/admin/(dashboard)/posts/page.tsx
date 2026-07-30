@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { PREVIEW_KEY } from "@/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { Trash2, Upload, Plus, Download } from "lucide-react";
@@ -444,7 +445,7 @@ export default function AdminPostsPage() {
         onRowLeave={handleRowLeave}
         onRowClick={(post) => {
           hideTooltip();
-          sessionStorage.setItem("post-preview", JSON.stringify({
+          sessionStorage.setItem(PREVIEW_KEY.post, JSON.stringify({
             title: formatPostTitle(post) || t("admin.posts.untitled"),
             content: post.content || "",
             content_type: post.content_type || "markdown",

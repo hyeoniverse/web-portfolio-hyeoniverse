@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
@@ -1515,7 +1516,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   }, [work, router, tw]);
 
   const handlePreview = useCallback(() => {
-    sessionStorage.setItem("work-preview", JSON.stringify(form));
+    sessionStorage.setItem(PREVIEW_KEY.work, JSON.stringify(form));
     window.open("/admin/works/preview", "_blank");
   }, [form]);
 

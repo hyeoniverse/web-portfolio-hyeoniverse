@@ -73,7 +73,7 @@ export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
           }),
         });
         if (!res.ok) return false;
-        const data = await res.json();
+        const data = (await res.json()) as { skipped?: boolean; id: string; created_at: string };
         if (data.skipped) return false; // 직전 리비전과 동일 — 새로 추가하지 않음
         setRevisions((prev) =>
           [
@@ -99,8 +99,8 @@ export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
       try {
         const res = await fetch(`/api/revisions/${revisionId}`);
         if (!res.ok) return null;
-        const data = await res.json();
-        return data.snapshot as T;
+        const data = (await res.json()) as { snapshot: T };
+        return data.snapshot;
       } catch {
         return null;
       }
