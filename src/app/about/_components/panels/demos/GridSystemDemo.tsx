@@ -1,12 +1,13 @@
 import shared from "../../AboutSection.module.css";
+import { BREAKPOINT } from "@/constants";
 import local from "../DesignSystemPanel.module.css";
 const styles = { ...shared, ...local };
 
 const breakpoints = [
   { name: "XS", px: 320 },
   { name: "SM", px: 480 },
-  { name: "MD", px: 768 },
-  { name: "LG", px: 1024 },
+  { name: "MD", px: BREAKPOINT.mobile },
+  { name: "LG", px: BREAKPOINT.tablet },
   { name: "XL", px: 1280 },
   { name: "2XL", px: 1440 },
   { name: "4K", px: 1920 },

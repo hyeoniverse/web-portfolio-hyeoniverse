@@ -9,6 +9,7 @@ import {
   Fragment,
 } from "react";
 import { useSearchParams } from "next/navigation";
+import { BREAKPOINT } from "@/constants";
 import dynamic from "next/dynamic";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import MediaThumb from "@/components/ui/MediaThumb";
@@ -96,7 +97,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
 
   // 훅
   const { setInfinite } = useLenis();
-  const { isMobile: isVerticalLayout } = useIsMobile(1024, 700);
+  const { isMobile: isVerticalLayout } = useIsMobile(BREAKPOINT.tablet, 700);
   const { navigateWithTransition, isTransitioning } = usePageTransition();
 
   // 마운트 시 Lenis 무한 스크롤 비활성화 — Lenis 단독 infinite 는 깜빡임 발생.
@@ -582,7 +583,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
         <AnimatePresence>
           {transitionData && (
             <motion.div
-              style={{ position: "fixed", inset: 0, zIndex: 9999, background: "var(--bg-primary)", pointerEvents: "none" }}
+              style={{ position: "fixed", inset: 0, zIndex: "var(--z-top)", background: "var(--bg-primary)", pointerEvents: "none" }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}

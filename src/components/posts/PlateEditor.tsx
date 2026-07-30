@@ -3449,7 +3449,7 @@ export default function PlateEditor({
                 background: "var(--color-accent)",
                 borderRadius: 1,
                 pointerEvents: "none",
-                zIndex: 9998,
+                zIndex: "var(--z-top)",
                 opacity: 0,
                 transition: "opacity 0.1s",
               }}

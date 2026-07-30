@@ -344,7 +344,7 @@ export function ImageElement(props: PlateElementProps) {
         if (imgEl) {
           ghost = document.createElement("div");
           const w = Math.min(imgEl.getBoundingClientRect().width || 120, 160);
-          ghost.style.cssText = `position:fixed;left:0;top:0;width:${w}px;pointer-events:none;z-index:9999;opacity:0.7;border-radius:6px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.35);will-change:transform;`;
+          ghost.style.cssText = `position:fixed;left:0;top:0;width:${w}px;pointer-events:none;z-index:var(--z-top);opacity:0.7;border-radius:6px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.35);will-change:transform;`;
           const clone = imgEl.cloneNode(true) as HTMLImageElement;
           clone.style.cssText = "width:100%;height:auto;display:block;";
           ghost.appendChild(clone);

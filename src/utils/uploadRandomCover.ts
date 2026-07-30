@@ -1,5 +1,6 @@
 import { presets } from "@/components/posts/CoverImagePicker/presets";
 import { renderGradient } from "@/components/posts/CoverImagePicker/gradientUtils";
+import type { UploadResponse } from "@/types";
 
 /**
  * 프리셋 중 랜덤으로 하나를 선택하여 Canvas 렌더링 → 업로드 → URL 반환.
@@ -20,7 +21,7 @@ export async function uploadRandomCover(): Promise<string | null> {
     formData.append("file", new File([blob], `cover-${preset.id}.png`, { type: "image/png" }));
     const res = await fetch("/api/upload", { method: "POST", body: formData });
     if (!res.ok) return null;
-    const data = (await res.json()) as { url?: string };
+    const data = (await res.json()) as UploadResponse;
     return data.url ?? null;
   } catch {
     return null;
