@@ -29,7 +29,9 @@ import Tooltip from "@/components/ui/Tooltip";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { useModalStore } from "@/stores/modalStore";
 import { useAccountSettings } from "./_hooks/useAccountSettings";
-import styles from "./Settings.module.css";
+import shared from "./Settings.module.css";
+import local from "./page.module.css";
+const styles = { ...shared, ...local };
 
 const PROFILE_SECTION_LABELS: Record<string, string> = {
   experiences: "Experience",

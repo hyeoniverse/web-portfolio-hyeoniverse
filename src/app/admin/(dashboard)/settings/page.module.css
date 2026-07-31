@@ -1,0 +1,261 @@
+/*  page 전용 스타일 — Settings.module.css 에서 분리(#384)  */
+
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+.conflictDesc {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-md);
+}
+
+.conflictToggle {
+  width: 100%;
+  background: none;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  color: var(--text-primary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  padding: var(--box-xs-sm);
+  font-weight: var(--font-weight-medium);
+}
+.conflictList {
+  display: flex;
+  flex-direction: column;
+  border-top: var(--border-light);
+}
+
+.conflictPreviewItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  font-size: var(--font-size-xs);
+  border-bottom: var(--border-light);
+  border-radius: 0;
+}
+
+.conflictPreviewItem:hover {
+  background: var(--bg-secondary);
+}
+
+.conflictSelectAll {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.conflictSelectAllLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+}
+
+.conflictPath {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  min-width: 160px;
+  flex-shrink: 0;
+}
+
+.conflictValues {
+  display: flex;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.conflictValueDB,
+.conflictValueCode {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.conflictValueDB::before {
+  content: "DB ";
+  font-weight: var(--font-weight-semibold);
+}
+
+.conflictValueCode::before {
+  content: "Code ";
+  font-weight: var(--font-weight-semibold);
+}
+
+.conflictFooter {
+  display: flex;
+  justify-content: center;
+}
+.tabBarSticky {
+  display: contents;
+}
+
+.navConflictBadge {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-solid);
+  flex-shrink: 0;
+}
+.navSub { display: flex; flex-direction: column;
+}
+
+.navSubItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* navItem 과 동일 min-height — 폰트 크기는 작지만 row 높이 일관 */
+  min-height: calc(var(--control-h-md) + var(--spacing-sm));
+  padding: 0 0 0 var(--spacing-md);
+  border: none;
+  border-bottom: var(--border-light);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: left;
+  letter-spacing: 0.02em;
+  width: 100%;
+}
+
+.navSub .navSubItem:hover {
+  color: var(--text-accent);
+}
+
+.navSubItemActive {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+
+.mobileSubNav {
+  display: none;
+}
+.tabGrid {
+  display: grid;
+  /* min(440px, 100%) — 뷰포트가 440px 보다 좁으면(모바일) 트랙이 100% 로 줄어 가로 오버플로우
+     방지. 넓으면 440px min 으로 2 col wrap 기준 유지. */
+  grid-template-columns: repeat(auto-fit, minmax(min(440px, 100%), 1fr));
+  gap: 0 var(--spacing-2xl);
+  max-width: 1040px;
+  margin: 0 auto;
+}
+.tabGridSingle {
+  grid-template-columns: 1fr;
+}
+
+.skeletonFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+.skeletonNav { display: flex; flex-direction: column; gap: var(--spacing-xs);
+}
+
+.skeletonSection {
+  padding-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  border-bottom: var(--border-light);
+}
+
+.skeletonSection:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 1024px) {
+  .tabBarSticky {
+    display: block;
+    position: sticky;
+    top: var(--header-height);
+    /* frost(::before)가 사이트 nav 뒤로 깔리고 nav 는 그 위에 보이도록 nav 보다 한 단계 아래 */
+    z-index: calc(var(--z-nav) - 1);
+  }
+  .tabBarSticky::before {
+    content: "";
+    position: absolute;
+    top: calc(-1 * var(--header-height));
+    left: calc(-1 * var(--page-px));
+    right: calc(-1 * var(--page-px));
+    /* 탭바 밑줄(하단 indicator)까지 blur 를 균일하게 — 페이드는 탭바 아래 여백에서만.
+       예전엔 bottom:0 + 90% 라 밑줄이 페이드 구간에 걸려 그 부분만 blur 가 약했다. */
+    bottom: calc(-1 * var(--spacing-md));
+    z-index: -1;
+    backdrop-filter: var(--blur-glass);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--spacing-md)), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--duration-base) ease;
+  }
+  .tabBarPinned::before {
+    opacity: 1;
+  }
+
+  .navSub {
+    display: none;
+  }
+
+  .mobileSubNav {
+    display: flex;
+    gap: 0;
+    /* 바로 아래 섹션 점프바와 딱 붙게 — 예전 lg 는 그 사이가 너무 떴다.
+       점프바가 없는 하위탭(섹션 1개)일 때의 콘텐츠 간격은 tabGrid margin-top 이 맡는다. */
+    margin-bottom: var(--spacing-2xs);
+    border-bottom: var(--border-light);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .mobileSubNav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobileSubItem {
+    flex-shrink: 0;
+    padding: var(--box-md);
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    font-family: var(--font-space-grotesk);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  .mobileSubItemActive {
+    color: var(--text-accent);
+    border-bottom-color: var(--text-accent);
+  }
+  .tabGrid {
+    margin-top: var(--spacing-lg);
+  }
+
+  .mobileSubNav + .tabGrid {
+    margin-top: 0;
+  }
+
+  .skeletonNav {
+    flex-direction: row;
+  }
+}
