@@ -396,14 +396,6 @@
 }
 
 /* count 숫자만 상태별 색상 — "/ max" 는 항상 tertiary. */
-.fieldCounterWarn {
-  color: var(--text-warning);
-}
-
-.fieldCounterOver {
-  color: var(--text-accent);
-  font-weight: 500;
-}
 
 /* overflow 시 시각 indicator 는 EditableInput 의 inline <mark> highlight + counter accent 색 — 별도 border rule 불필요. */
 
@@ -833,13 +825,6 @@
 }
 
 /* 업로드된 로고 미리보기 — 박스 스타일(배경·border·radius) 없이 로고만. 배경 투명 그대로 노출. */
-.logoPreview {
-  composes: uCenter;
-  height: 52px;
-  min-width: 88px;
-  max-width: 190px;
-  flex-shrink: 0;
-}
 
 .logoPreviewImage {
   width: auto;
@@ -849,93 +834,13 @@
 }
 
 /* 로고 리컬러 — 업로드 이미지를 마스크로 써서 고른 색으로 채워 표시 (모노 로고용) */
-.logoPreviewTint {
-  display: block;
-  width: 100%;
-  height: 100%;
-  mask-size: contain;
-  mask-repeat: no-repeat;
-  mask-position: center;
-  -webkit-mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-}
-
-.logoActions {
-  composes: uRowWrap2xs;
-  flex-shrink: 0;
-}
 
 /* 업로드된 로고 리컬러 — 카드에서 로고 자체 색을 골라 확인 (로컬, 저장 안 함) */
-.logoPreviewGroup {
-  composes: uRowSm;
-  min-width: 0;
-}
-.logoTintControl {
-  composes: uRow2xs;
-  flex-shrink: 0;
-}
-.logoPreviewColor {
-  display: inline-flex;
-  flex-shrink: 0;
-}
-.logoPreviewColorBtn {
-  width: 22px;
-  height: 22px;
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  cursor: pointer;
-}
-.logoTintReset {
-  padding: 0;
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.logoTintReset:hover {
-  color: var(--text-primary);
-}
 
 /* ── 로고 dropzone — 넓은 박스 클릭/드래그 업로드 (실선 border, 배경 없음).
    height 고정: 빈/채워진(미리보기+버튼) 상태가 같은 높이여야 나란한 드롭존이 어긋나지 않는다. ── */
-.logoDropzone {
-  width: 100%;
-  min-width: 0;
-  /* height 고정 — 빈/채워진(미리보기+버튼) 상태 동일 높이로 나란한 드롭존이 어긋나지 않게.
-     flex:1 을 쓰면 flex-basis:0 이 주축(세로) 크기를 지배해 height 가 무시되므로 쓰지 않는다. */
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  padding: var(--box-sm);
-  /* border·radius·그림자 없이 완전 플랫 */
-  cursor: pointer;
-}
 
 /* 파일 있을 때 — 미리보기 좌 + 액션 우, 카드 클릭 비활성(버튼만) */
-.logoDropzoneFilled {
-  justify-content: space-between;
-  cursor: default;
-}
-
-.logoDropzoneEmpty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  color: var(--text-tertiary);
-}
-
-.logoDropzoneHint {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-}
 
 /* 고정 너비 280px — 텍스트 줄바꿈 안 되고 길면 ellipsis */
 .resumeFile {
@@ -1058,21 +963,6 @@
 }
 
 /* 언어 배지 — Field label 옆 KO/EN 표시 */
-.fieldLangBadge {
-  display: inline-flex;
-  align-items: center;
-  margin-left: var(--spacing-2xs);
-  padding: 0 var(--spacing-2xs);
-  height: 16px;
-  border-radius: var(--radius-capsule);
-  background: var(--bg-tertiary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-}
 
 /* textarea 의 lang 배지 — textarea 좌측 외부에 배치 (textarea 첫 줄과 안 겹침) */
 
@@ -1135,8 +1025,6 @@
 }
 
 /* ── Service Items Editor ── */
-.serviceItems { composes: uCol;
-}
 
 .serviceItem {
   display: flex;
@@ -1156,60 +1044,6 @@
 
 .serviceItem + .serviceItem {
   border-top: var(--border-light);
-}
-
-.serviceItemDragging {
-  background: var(--bg-secondary);
-  /* 드래그 중 항목 — 섹션 제목 위로 들려 보이되 탭바/nav 아래 (패널 z 사다리 참조) */
-  z-index: calc(var(--z-nav) - 2);
-}
-
-.serviceItemDrag {
-  composes: uCenter;
-  flex-shrink: 0;
-  width: 16px;
-  height: var(--button-h-sm);
-  color: var(--text-muted);
-  border: none;
-  background: transparent;
-  padding: 0;
-  touch-action: none;
-}
-
-.serviceItemDrag:active {
-}
-
-.serviceItemNum {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  color: var(--text-tertiary);
-  min-width: 24px;
-  height: var(--button-h-sm);
-}
-
-.slotDigit {
-  display: inline-block;
-  height: 1em;
-  overflow: hidden;
-  line-height: 1;
-}
-
-.slotReel {
-  composes: uCol;
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.slotChar {
-  display: block;
-  height: 1em;
-  line-height: 1;
-}
-
-.serviceItemFields {
-  composes: uColXs;
-  flex: 1;
 }
 
 /* ── Categories Editor ── */
