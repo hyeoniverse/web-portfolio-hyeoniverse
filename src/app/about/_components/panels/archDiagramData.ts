@@ -68,7 +68,7 @@ export const DEFAULT_ARCH_NODES: ArchNode[] = [
   { id: "user", label: "User", x: 880, y: 210, w: 72, h: 72, icon: "user" },
   { id: "nextjs", label: "Next.js 16", x: 640, y: 100, w: 120, h: 48, icon: "nextjs", group: "frontend" },
   { id: "react", label: "React 19", x: 640, y: 200, w: 120, h: 48, icon: "react", group: "frontend" },
-  { id: "css", label: "CSS Modules", x: 640, y: 300, w: 120, h: 48, icon: "css", group: "frontend" },
+  { id: "css", label: "CSS Modules + Tailwind", x: 628, y: 300, w: 144, h: 48, icon: "css", group: "frontend" },
   { id: "gsap", label: "GSAP", x: 470, y: 100, w: 100, h: 40, icon: "gsap", group: "animation" },
   { id: "framer", label: "Framer", x: 470, y: 155, w: 100, h: 40, icon: "framer", group: "animation" },
   { id: "threejs", label: "Three.js", x: 470, y: 210, w: 100, h: 40, icon: "threejs", group: "animation" },
