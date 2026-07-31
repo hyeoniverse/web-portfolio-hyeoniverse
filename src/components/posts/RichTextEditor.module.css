@@ -88,14 +88,6 @@
 }
 
 /* External column resize indicator — positioned outside contenteditable */
-.colResizeIndicator {
-  position: absolute;
-  width: 3px;
-  background: var(--bg-accent-solid);
-  pointer-events: none;
-  z-index: 20;
-  border-radius: var(--radius-2xs);
-}
 
 /* 컬럼 드래그 중 rowResizeHandle hover 방지 */
 .wrapper[data-col-dragging] .rowResizeHandle {
@@ -447,14 +439,6 @@
   overflow: visible;
 }
 /* 컨트롤 — 정렬 + 카테고리 필터 */
-.postLinkControls {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
-  padding: 2px 2px var(--spacing-2xs);
-  margin-bottom: var(--spacing-3xs);
-  border-bottom: var(--border-light);
-}
 .postLinkSort {
   align-self: flex-start;
   display: inline-flex;
@@ -489,7 +473,6 @@
   transition: color 0.12s ease, background-color 0.12s ease;
 }
 .postLinkCat:hover { color: var(--text-primary); }
-.postLinkCatOn { background: var(--bg-accent); color: var(--text-accent); }
 .postLinkList {
   display: flex;
   flex-direction: column;
@@ -941,18 +924,6 @@
   border-color: var(--border-strong-color);
 }
 /* 기본 문법 설명 */
-.mermaidHelpBasics {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-.mermaidHelpBasicsTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-}
 .mermaidHelpBasicsIntro {
   margin: 0;
   font-size: var(--font-size-sm);
@@ -1126,12 +1097,6 @@
   max-width: none;
 }
 /* 확대/축소/전체화면 컨트롤 */
-.mermaidHelpExampleActions {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  flex-shrink: 0;
-}
 .mermaidHelpIconBtn {
   display: inline-flex;
   align-items: center;
@@ -1347,50 +1312,6 @@
 }
 
 /* ── Font picker dropdown ── */
-.fontDrop {
-  position: absolute;
-  left: 0;
-  z-index: var(--z-nav);
-  width: 280px;
-  background: var(--bg-glass-strong);
-  backdrop-filter: blur(4px);
-  border: var(--border-light);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px oklch(0% 0 0 / 0.15);
-  padding: var(--box-y-sm);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-}
-
-.fontDropSearch {
-  padding: var(--box-xs);
-  border-bottom: var(--border-light);
-}
-
-.fontDropSearchInput {
-  width: 100%;
-  border: none;
-  outline: none;
-  font-size: var(--font-size-sm);
-  font-family: inherit;
-  background: transparent;
-  color: var(--text-primary);
-  padding: var(--box-y-sm);
-}
-
-.fontDropList {
-  max-height: 280px;
-  overflow-y: auto;
-  padding: var(--spacing-3xs) 0;
-}
-
-.fontDropGroup {
-  padding: var(--spacing-3xs) var(--spacing-xs) 2px;
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text-muted);
-}
 
 .fontDropItem {
   padding: var(--box-xs);
@@ -1407,16 +1328,6 @@
   color: var(--text-white);
 }
 
-.fontDropItemActive {
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
-}
-
-.fontDropFooter {
-  border-top: var(--border-light);
-  padding: var(--box-xs);
-}
-
 .fontDropFooterLink {
   display: flex;
   align-items: center;
@@ -1428,12 +1339,6 @@
 
 .fontDropFooterLink:hover {
   color: var(--text-primary);
-}
-
-.fontDropHint {
-  padding: var(--box-3xs-sm);
-  font-size: var(--font-size-2xs);
-  color: var(--text-muted);
 }
 
 /* Width overrides for narrower selects */
@@ -1481,27 +1386,8 @@
 }
 
 /* Input mode: hide arrow, reduce right padding */
-.selectWrapEditing::after {
-  display: none;
-}
-
-.metricInput {
-  padding-right: var(--spacing-sm);
-}
 
 /* Embed start time */
-.embedStartLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  padding: var(--box-x-sm);
-  border-right: var(--border-light);
-  line-height: 1;
-  user-select: none;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-}
 
 .embedTimeInput {
   width: 24px;
@@ -1520,15 +1406,6 @@
 .embedTimeInput::-webkit-inner-spin-button,
 .embedTimeInput::-webkit-outer-spin-button {
   display: none;
-}
-
-.embedTimeSep {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 600;
-  color: var(--text-muted);
-  padding: 0 3px;
-  line-height: 1;
 }
 
 /* Table controls group */
@@ -1748,26 +1625,6 @@
 .colMenuTrigger:hover {
   border-color: var(--text-primary);
 }
-.colMenu {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs);
-  min-width: 11rem;
-}
-.colMenuDots {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
-.colMenuPicker {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-  padding-top: var(--spacing-2xs);
-  border-top: 1px solid var(--border-light-color);
-}
 
 /* ── 열블록 색상 popover (BG / Line) 개선판 ── */
 /* .colorMenuPopover 제거 — 하는 일이 `background: var(--bg-primary)` 하나였는데
@@ -1875,9 +1732,6 @@
   box-shadow: 0 0 0 1.5px var(--bg-primary), 0 0 0 3px var(--color-accent);
 }
 /* "없음(선 숨김)" — 격자 없이 X 아이콘만 */
-.swatchNone {
-  background: var(--bg-secondary);
-}
 /* 현재색 = 스포이드 — 캡슐 버튼: [스포이드 아이콘 | 현재색]. 클릭 시 인라인 피커 펼침 */
 .pickerCapsule {
   display: inline-flex;
@@ -2000,19 +1854,6 @@
 .swatchCheckDark { color: #1a1a1a; }
 .swatchCheckLight { color: #fff; }
 /* tooltip 내용 — 이름 + HEX 두 줄 */
-.swatchTip {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  line-height: 1.25;
-}
-.swatchTipHex {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  opacity: 0.72;
-  letter-spacing: 0.02em;
-}
 
 
 /* Link / Embed input wrapper — matches .tableGroup capsule style */
@@ -2110,23 +1951,6 @@
 }
 
 /* Color picker inline cell */
-.colorPickerCell {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: 0 4px;
-  border-left: var(--border-light);
-}
-
-.colorDot {
-  width: 12px;
-  height: 12px;
-  border-radius: var(--radius-circle);
-  border: var(--border-light);
-  flex-shrink: 0;
-  align-self: center;
-}
 
 /* Inline preset dots (inside tableGroup, no extra padding wrapper) */
 .presetDotInline {
@@ -2151,30 +1975,6 @@
 }
 
 /* 빈 슬롯 — 투명 표시용 격자무늬 */
-.presetDotEmpty {
-  background-color: var(--bg-primary);
-  background-image:
-    linear-gradient(
-      45deg,
-      var(--border-light-color) 25%,
-      transparent 25%,
-      transparent 75%,
-      var(--border-light-color) 75%
-    ),
-    linear-gradient(
-      45deg,
-      var(--border-light-color) 25%,
-      transparent 25%,
-      transparent 75%,
-      var(--border-light-color) 75%
-    );
-  background-size: 6px 6px;
-  background-position:
-    0 0,
-    3px 3px;
-  pointer-events: none;
-  opacity: 0.6;
-}
 
 /* Caption input */
 .captionInput {
@@ -2261,19 +2061,6 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  flex-wrap: wrap;
-}
-
-.borderColorDivider {
-  width: 1px;
-  height: 16px;
-  background: var(--border-light-color);
-}
-
-.borderColorPresets {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
   flex-wrap: wrap;
 }
 
@@ -2400,40 +2187,6 @@
   position: relative;
 }
 
-.borderDropPanel {
-  position: absolute;
-  top: 0;
-  left: calc(100% + 4px);
-  z-index: var(--z-tooltip);
-  background: var(--bg-primary);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-sm);
-  box-shadow: var(--shadow-lg);
-  min-width: 220px;
-  /* 닫힘 상태: 숨김 */
-  opacity: 0;
-  transform: translateX(-6px);
-  pointer-events: none;
-  visibility: hidden;
-  /* 닫힐 때: visibility는 transition 끝난 후 hidden */
-  transition:
-    opacity 0.18s var(--ease-out-expo),
-    transform 0.18s var(--ease-out-expo),
-    visibility 0s 0.18s;
-}
-
-.borderDropPanelOpen {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
-  visibility: visible;
-  /* 열릴 때: visibility 즉시 */
-  transition:
-    opacity 0.18s var(--ease-out-expo),
-    transform 0.18s var(--ease-out-expo);
-}
-
 /* (0,2,0) — 글로벌 transition (0,1,1) 보다 높아서 transform transition 유지 */
 .borderDropWrap .borderDropArrow {
   transform-box: fill-box;
@@ -2441,70 +2194,10 @@
   transition: transform 0.22s var(--ease-out-expo);
 }
 
-.borderDropArrowOpen {
-  transform: rotate(90deg);
-}
-
-.borderDropInner {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: flex-start;
-}
-
-.borderPresetGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 26px);
-  gap: var(--spacing-3xs);
-  flex-shrink: 0;
-}
-
-.borderPresetBtn {
-  border-radius: var(--radius-xs) !important;
-  padding: var(--spacing-2xs) !important;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-}
-
-.borderControls {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  min-width: 120px;
-}
-
-.borderControlLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0;
-  padding-top: var(--spacing-2xs);
-}
-
-.borderStyleRow {
-  display: flex;
-  gap: var(--spacing-4xs);
-}
-
-.borderWidthRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-}
-
 .borderColorRow {
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-}
-
-.borderColorValue {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
 }
 
 /* Color picker group */
@@ -2545,12 +2238,6 @@
 }
 
 /* Preset color dots */
-.presetColors {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: 0 var(--spacing-2xs);
-}
 
 .presetDot {
   width: 14px;
@@ -2762,12 +2449,6 @@
   content: "캡션을 입력하세요";
   color: var(--text-muted);
   pointer-events: none;
-}
-
-.figureSelected img {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-  border-radius: var(--radius-md);
 }
 
 .figCaption {
@@ -3274,17 +2955,6 @@
   opacity: 1;
 }
 
-.blockDropIndicator {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--bg-accent-solid);
-  border-radius: var(--spacing-4xs);
-  z-index: 10;
-  pointer-events: none;
-}
-
 /* ── 공식 @platejs/dnd 블록 드래그 (BlockDraggable aboveNodes) ── */
 .blockDraggable {
   position: relative;
@@ -3670,19 +3340,6 @@
 
 /* ── Embed / Link modal ── */
 /* Modal content (embed / link) — 공통 Modal 컴포넌트 안에 들어가는 content */
-.embedModalBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: 0 var(--spacing-2xl) var(--spacing-2xl);
-}
-
-.embedModalDesc {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  line-height: var(--line-height-relaxed);
-}
 
 .embedModalInput {
   width: 100%;
@@ -3703,13 +3360,6 @@
 
 .embedModalInput::placeholder {
   color: var(--text-tertiary);
-}
-
-.embedModalActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-2xs);
 }
 
 .embedModalCancel {
@@ -3784,22 +3434,6 @@
   box-shadow: var(--shadow-md);
 }
 
-.mathSymbolGroup {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-}
-
-.mathSymbolLabel {
-  font-size: var(--font-size-xs);
-  font-family: var(--font-mono);
-  font-weight: 500;
-  color: var(--text-tertiary);
-  padding: var(--box-xs);
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .mathFloating {
   position: absolute;
   z-index: 4;
@@ -3853,14 +3487,6 @@
   color: var(--text-muted);
   font-style: italic;
   font-size: var(--font-size-sm);
-}
-
-.mathFloatingTools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-3xs) var(--spacing-2xs);
-  padding-bottom: var(--spacing-xs);
-  border-bottom: var(--border-light);
 }
 
 .mathFloatingToolGroup {
@@ -3941,19 +3567,6 @@
 
 /* Math modal */
 /* ── Math Toolbar Panel (inline, no modal) ── */
-.mathPanel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--box-xs-sm);
-  border-top: var(--border-light);
-}
-
-.mathPanelRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
 
 .mathPanelInput {
   flex: 1;
@@ -3973,26 +3586,6 @@
 
 .mathPanelInput:focus {
   border-color: var(--text-primary);
-}
-
-.mathPanelPreview {
-  min-width: 60px;
-  max-width: 200px;
-  min-height: var(--button-h-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-tertiary);
-  border: var(--border-light);
-  border-radius: var(--radius-sm);
-  padding: var(--box-xs);
-  overflow-x: auto;
-  font-size: var(--font-size-xs);
-}
-
-.mathPanelModes {
-  display: flex;
-  gap: var(--spacing-3xs);
 }
 
 .mathPanelModeBtn {
@@ -4047,43 +3640,6 @@
   opacity: 0.85;
 }
 
-.mathModalBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: 0 var(--spacing-2xl) var(--spacing-2xl);
-}
-
-.mathToolGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-}
-
-.mathToolCategory {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-2xs);
-}
-
-.mathToolCatLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-  padding-top: var(--spacing-2xs);
-  min-width: var(--button-h-md);
-}
-
-.mathToolItems {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-3xs);
-}
-
 .mathToolBtn {
   padding: var(--box-xs);
   border: none;
@@ -4099,32 +3655,6 @@
 .mathSymbolBar .mathToolBtn:hover {
   background: var(--bg-tertiary-alt);
   color: var(--text-primary);
-}
-
-.mathModeRow {
-  display: flex;
-  gap: var(--spacing-xs);
-}
-
-.mathModeBtn {
-  flex: 1;
-  padding: var(--box-xs-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-secondary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  transition:
-    background-color 0.15s,
-    border-color 0.15s,
-    color 0.15s;
-}
-
-.mathModeBtnActive {
-  background: var(--text-primary);
-  border-color: var(--text-primary);
-  color: var(--bg-primary);
 }
 
 .mathModalInput {
@@ -4148,18 +3678,6 @@
   border-color: var(--text-primary);
 }
 
-.mathPreview {
-  min-height: 54px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-tertiary);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md);
-  overflow-x: auto;
-}
-
 .mathPreviewError {
 }
 
@@ -4168,15 +3686,6 @@
 
 /* Code block wrap toggle */
 /* 코드블록 우상단 컨트롤 — 언어 select + wrap 토글 한 줄 */
-.codeControls {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  z-index: 2;
-}
 
 /* 복사 / "..." 컨트롤 — 밝은 중립 원형 버튼(언어 select 와 배경 통일) */
 .codeCtrlBtn {
@@ -4230,10 +3739,6 @@
 }
 
 /* "..." 밖 별개 언어 Select — 우측 버튼 그룹과 간격 벌림 */
-.codeLangSelectWrap {
-  display: inline-flex;
-  margin-right: var(--spacing-xs);
-}
 
 /* 복사/더보기 버튼(.codeCtrlBtn)과 배경 통일 — 밝은 중립 캡슐 */
 .codeLangTrigger {
@@ -4313,20 +3818,6 @@
   height: 1px;
   background: var(--border-light-color);
   margin: var(--spacing-2xs) var(--spacing-2xs);
-}
-
-.codeMenuBack {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
 }
 
 .codeMenuSearch {
@@ -4872,12 +4363,6 @@
   text-decoration: underline;
 }
 
-.footnoteRefSelected {
-  background: var(--bg-accent);
-  border-radius: var(--radius-xs);
-  padding: var(--spacing-4xs) var(--spacing-3xs);
-}
-
 .footnoteEditInput {
   border: none;
   outline: none;
@@ -4949,19 +4434,6 @@
 /* 삭제 버튼: 우상단, 호버 시만 */
 
 /* 이미지 floating toolbar — ⋯ 오버플로 내부 */
-.imgMoreMenu {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  min-width: 240px;
-  padding: var(--spacing-xs);
-}
-
-.imgMoreRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-}
 /* 이미지 이동 핸들 — CSS :hover 로 표시(자손 hover 시에도 조상 :hover 유지되어 깜빡임 없음) */
 .imgMoveHandle {
   position: absolute;
@@ -5023,26 +4495,6 @@
   display: flex;
   justify-content: center;
   gap: var(--spacing-2xs);
-}
-
-.imgDimLabel {
-  font-size: 8px;
-  font-weight: 600;
-  color: var(--text-muted);
-  padding: 0 3px;
-}
-
-.imgDimInput {
-  width: 44px;
-  margin: 0 2px;
-  padding: 1px 2px;
-  border: var(--border-light);
-  border-radius: var(--radius-2xs);
-  background: var(--bg-primary);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  text-align: center;
-  color: var(--text-primary);
 }
 
 .imgCaptionInput {

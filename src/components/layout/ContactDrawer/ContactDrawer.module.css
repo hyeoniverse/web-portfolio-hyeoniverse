@@ -442,13 +442,6 @@
   opacity: 1;
 }
 
-.formError {
-  margin-top: var(--_gap-md);
-  font-size: var(--_font-size-sm);
-  color: var(--text-accent);
-  text-align: center;
-}
-
 /* ---------------------------------------------------------------------------
   Success View
   --------------------------------------------------------------------------- */

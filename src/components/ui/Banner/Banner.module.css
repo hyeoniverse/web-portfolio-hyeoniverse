@@ -73,15 +73,6 @@
   overflow: hidden;
 }
 
-.cylinderPrev,
-.cylinderNext {
-  z-index: 1;
-}
-
-.cylinderCenter {
-  z-index: 2;
-}
-
 /* Dark overlay on side slides */
 .cylinderOverlay {
   position: absolute;

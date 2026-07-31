@@ -23,11 +23,6 @@
   flex: 1;
   min-height: 0;
 }
-.pane {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
-}
 /* 좁으면 위아래로 — 반씩 나누면 둘 다 못 읽는다 */
 @media (max-width: 900px) {
   .split {

@@ -355,13 +355,6 @@
   border-bottom: none;
 }
 
-.dbMobileHeader {
-  display: flex;
-  gap: var(--spacing-md);
-  align-items: baseline;
-  margin-bottom: var(--spacing-sm);
-}
-
 /* ==========================================================================
    Mobile overrides (1024px)
    ========================================================================== */

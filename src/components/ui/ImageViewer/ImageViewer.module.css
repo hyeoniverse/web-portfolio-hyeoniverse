@@ -1046,10 +1046,6 @@
   }
 
   /* Shortcuts panel mobile */
-  .shortcutsPanel {
-    min-width: 200px;
-    padding: var(--box-y-lg);
-  }
 
   .shortcutsTitle {
     font-size: var(--font-size-xs);

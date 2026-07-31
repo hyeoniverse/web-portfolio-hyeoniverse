@@ -19,13 +19,6 @@
 /* contribRoleGroup 들을 너비 따라 multi-col 로 분배.
    auto-fill: 빈 track 유지 → 1 개일 때도 stretch 하지 않고 일정 너비.
    280px 미만 → 1 col, 280~560 → 2 col, 560+ → 3+ col */
-.contribRoleGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
-  align-items: start;
-  min-width: 0;
-}
 
 /* title + 예약 발행 묶음 — section 의 spacing-lg gap 보다 작게 (관련 필드라 가까이) */
 .titleGroup {
@@ -82,13 +75,6 @@
 .row3 {
   display: grid;
   grid-template-columns: var(--grid-cols-3);
-  gap: var(--spacing-xl);
-  align-items: start;
-}
-
-.row2 {
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-xl);
   align-items: start;
 }
@@ -179,13 +165,6 @@
 }
 
 /* tech chip 안 brand 아이콘 — 라벨 왼쪽 inline */
-.techTagIcon {
-  display: inline-flex;
-  align-items: center;
-  margin-right: 6px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-}
 
 /* 기술별 메모 list — tech tag 아래, 각 기술마다 [라벨 + input] row */
 .techNotesList {
@@ -195,22 +174,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-}
-
-.techNoteRow {
-  display: grid;
-  grid-template-columns: minmax(120px, auto) 1fr;
-  gap: var(--spacing-sm);
-  align-items: center;
-}
-
-.techNoteLabel {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  font-weight: 600;
 }
 
 /* + 버튼은 공통 Button (shape="circle") 사용 — Button.module.css 가 정사각 강제 */
@@ -539,11 +502,6 @@
 }
 
 /* 선택된 chip row — input 과 별개 row, 자유롭게 wrap */
-.roleMSChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
 
 /* chip 자체가 button — 어디 눌러도 제거. hover 시 accent 톤으로 명확한 피드백 */
 .roleMSChip {
@@ -613,10 +571,6 @@
   border-color: var(--text-primary);
 }
 
-.roleMSInputWrapOpen {
-  border-color: var(--text-primary);
-}
-
 .roleMSInput {
   flex: 1;
   min-width: 0;
@@ -634,18 +588,6 @@
 }
 
 /* dropdown — capsule 아래 popover. capsule 너비 + min-width 으로 좁아도 충분히 펼쳐짐 */
-.roleMSPopover {
-  z-index: var(--z-dropdown);
-  display: flex;
-  flex-direction: column;
-  min-width: 280px;
-  background: var(--bg-primary);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  box-shadow: 0 8px 24px oklch(0% 0 0 / 0.08);
-  overflow: hidden;
-  animation: roleMSPopoverIn 0.16s ease-out;
-}
 
 @keyframes roleMSPopoverIn {
   from {
@@ -702,14 +644,6 @@
 
 .roleMSItemAdd .roleMSItemIcon {
   color: var(--text-secondary);
-}
-
-.roleMSItemLabel {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .galleryCount {
@@ -910,22 +844,8 @@
 }
 
 /* form — 카드와 통합된 외형 (border + radius + padding). 입력 가능한 빈 카드 형태 */
-.memberForm {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-}
 
 /* form 첫 row — [avatar | name input | role select]. memberCard 의 chip-row 와 동일 구조 */
-.memberFormHeaderRow {
-  display: grid;
-  grid-template-columns: auto 1fr 1fr;
-  align-items: center;
-  gap: var(--spacing-md);
-}
 
 /* avatar 가 더블클릭 가능할 때 — cursor + hover overlay.
  * overflow: visible 은 (0,2,0) compound 로 .memberAvatar 의 hidden 보다 우선 적용 (+ 뱃지가 밖으로 나가야 함) */
@@ -978,11 +898,6 @@
   grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-xs);
   align-items: center;
-}
-
-.memberFormField {
-  flex: 1;
-  min-width: 0;
 }
 
 .memberFormRow input {
@@ -1341,9 +1256,6 @@
 }
 
 /* dragging 시 opacity 낮춤 */
-.contribRoleGroupDragging {
-  opacity: 0.4;
-}
 
 /* drop indicator — group 위/아래에 accent 막대 */
 .contribRoleGroupDropTop::before,
@@ -1395,11 +1307,6 @@
 
 .contribRoleDragHandle:active {
   cursor: grabbing;
-}
-
-.contribRoleLabel {
-  /* chip 안 본문 텍스트 — header 의 font 상속 */
-  letter-spacing: 0;
 }
 
 /* + 추가 버튼 — chip 안 X 옆. text-accent 톤으로 구분 (action 의미) */
@@ -1510,9 +1417,6 @@
 }
 
 /* dragging 상태 — opacity 낮춰서 시각적 피드백 */
-.contribItemDragging {
-  opacity: 0.4;
-}
 
 /* drop indicator — 위/아래에 accent 막대 표시.
  * ::before 는 bullet (.contribItem::before, width: 4px) 과 같은 pseudo 공유 →

@@ -56,16 +56,6 @@
 }
 
 /* browse 서브페이지(History) 타이틀 — posts/series·posts/tags 와 동일 스타일(아이콘 + 중간 크기 instrument). */
-.browseTitle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin: 0;
-  font-family: var(--font-instrument);
-  font-size: clamp(2.25rem, 5vw, 3.25rem);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-primary);
-}
 
 .subtitle {
   font-family: var(--font-space-grotesk);
@@ -184,54 +174,8 @@
 }
 
 /* popular sub-options — variant="outline" 이 색/외형 처리. 여기는 size 만 줄임. */
-.popularSubSort button {
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  font-size: var(--font-size-2xs);
-}
 
 /* 메인 SortGroup 과 sub 사이 화살표 — "이 옵션의 세부 선택" 의미 */
-.popularSubArrow {
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-}
-
-.sortBtn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--box-sm);
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  white-space: nowrap;
-}
-
-.sortBtnActive {
-  color: var(--text-inverse);
-}
-
-.sortIndicator {
-  position: absolute;
-  inset: 2px;
-  border-radius: var(--radius-capsule);
-  background: var(--bg-tertiary-alt);
-}
-
-.sortIndicatorActive {
-  background: var(--bg-inverse);
-}
-
-.sortBtnText {
-  position: relative;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  white-space: nowrap;
-}
 
 /* 셔플(랜덤) 버튼 — Button shape="circle" size="sm" + border light override + active 회전 */
 .shuffleBtn {
@@ -609,12 +553,6 @@
   transform: translateX(3px);
 }
 
-.sortDirIcon {
-  flex-shrink: 0;
-  /* 방향 전환 시 부드러운 회전 애니메이션 */
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 /* series sort — label 바로 오른쪽 옆에 배치 (gap 으로 자연스럽게 떨어짐).
    size 는 filter bar 의 sortGroup 과 동일 (font-2xs + filter-row-h 통일 높이). */
 .seriesSortAlignEnd {
@@ -627,9 +565,6 @@
 }
 
 /* series 검색 — seriesLabel 행 우측 끝으로. width 는 filter bar 의 SearchCapsule 과 동일 */
-.seriesSearchInput {
-  margin-left: auto;
-}
 
 /* 시리즈 검색 — 공통 SearchCapsule collapsible(morph). 헤더 우측 정렬만. */
 .seriesSearchCapsule {
@@ -844,13 +779,6 @@
   color: var(--text-primary);
   background: color-mix(in srgb, var(--text-primary) 6%, transparent);
   transform: translateY(-4px);
-}
-
-.seriesMoreCount {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
 }
 
 /* Empty state — .seriesRow 의 sibling 으로 .seriesRowWrap 안에 absolute.

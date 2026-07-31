@@ -192,9 +192,6 @@
   white-space: nowrap;
   pointer-events: none;
 }
-.pgToolbarSpacer {
-  flex: 1;
-}
 /* 스택 피커 — 빈 블록(엔진 미선택)일 때 생성 시 1회 스택을 고르는 화면 */
 .pgPicker {
   display: flex;

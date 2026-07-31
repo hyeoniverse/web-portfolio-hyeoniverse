@@ -314,19 +314,6 @@
   pointer-events: none;
 }
 
-.schemeBaseInput {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  opacity: 0;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
 /* scheme 조합 chip 들 — 가로 wrap, 컴팩트 capsule */
 .schemeChips {
   display: inline-flex;
@@ -555,20 +542,6 @@
 }
 
 /* native color input — handle 전체에 absolute 로 깔려 있어 click trigger 만 담당 */
-.stopHandleInput {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  opacity: 0;
-  appearance: none;
-  -webkit-appearance: none;
-}
 
 /* + 버튼 — bar 우측. bar 와 동일한 22px 높이 + 원형 — 같은 top 라인 + 중심선 정렬 */
 .stopAddBtn {
@@ -603,54 +576,11 @@
   cursor: not-allowed;
 }
 
-.customColorChip {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  height: var(--size-2xs);
-  /* 좌측 padding 컴팩트 — chip 곡률(10px) 안에 swatch(16px) 가 concentric 하게 수납 */
-  padding: 0 var(--spacing-2xs) 0 2px;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-}
-
 /* chip 안의 클릭 영역 = swatch + hex 전체. native picker 는 input 의 absolute trigger */
-.customColorChipLabel {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 100%;
-  padding: 0 var(--spacing-2xs) 0 0;
-  cursor: pointer;
-}
 
 /* 원형 swatch — 시각적인 색 표시 */
-.customColorSwatch {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border-radius: var(--radius-circle);
-  border: 1px solid var(--border-light-color);
-  pointer-events: none;
-}
 
 /* native color input — label 전체 영역에 absolute (시각적으로 사라짐, click trigger 만) */
-.customColorInput {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  opacity: 0;
-  appearance: none;
-  -webkit-appearance: none;
-}
 
 .customColorHex {
   font-family: var(--font-mono);
@@ -674,15 +604,6 @@
   flex: 1;
   height: 4px;
   accent-color: var(--text-primary);
-}
-
-.customColorPosLabel {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-  min-width: var(--button-h-sm);
-  text-align: right;
 }
 
 /* 좁은 컨트롤 영역에서 hex 숨김 — color swatch 만으로도 식별 가능 */
@@ -1011,11 +932,6 @@
   background: var(--bg-accent-solid);
   color: var(--text-white);
   z-index: 2;
-}
-
-.presetUploading {
-  opacity: 0.5;
-  pointer-events: none;
 }
 
 /* ── Tab section (탭 공통 padded wrapper)
@@ -1368,52 +1284,12 @@
   border-top: var(--border-light);
 }
 
-.aiHistoryHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.aiHistoryLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.aiHistoryCount {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 16px;
-  padding: 0 5px;
-  border-radius: var(--radius-capsule);
-  background: var(--bg-tertiary);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-
-.aiHistoryGrid {
-  display: grid;
-  grid-template-columns: var(--grid-cols-4);
-  gap: var(--spacing-2xs);
-}
-
 .aiHistoryItem {
   position: relative;
   aspect-ratio: 16 / 9;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   overflow: hidden;
-}
-
-.aiHistoryItemActive {
-  border-color: var(--text-accent);
 }
 
 .aiHistoryThumb {
@@ -1472,35 +1348,8 @@
 }
 
 /* active 표시 — 우하단 작은 체크 배지 */
-.aiHistoryActiveBadge {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: var(--radius-circle);
-  background: var(--text-accent);
-  color: var(--bg-primary);
-}
 
 /* source 라벨 — 좌하단 (AI / Unsplash / Preset) */
-.aiHistorySource {
-  position: absolute;
-  bottom: 4px;
-  left: 4px;
-  padding: 2px 6px;
-  border-radius: var(--radius-capsule);
-  background: var(--bg-overlay);
-  font-family: var(--font-space-grotesk);
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--text-inverse);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
 
 /* ── History grid items (preset/unsplash grid 와 동일 cell, overlay 다름) ── */
 .historyGridItem {
@@ -1802,12 +1651,6 @@
 }
 
 /* ── Local Files Tab ── */
-.localFilesGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-}
 
 .localFileCard {
   position: relative;
@@ -1826,53 +1669,4 @@
 
 .localFileCard:hover {
   border-color: var(--text-tertiary);
-}
-
-.localFileCardSelected {
-  border-color: var(--text-accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text-accent) 25%, transparent);
-}
-
-.localFileThumb {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  background: var(--bg-tertiary);
-}
-
-.localFileCheck {
-  position: absolute;
-  top: var(--spacing-2xs);
-  right: var(--spacing-2xs);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: var(--radius-circle);
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
-}
-
-.localFileMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  font-family: var(--font-space-grotesk);
-  text-align: left;
-}
-
-.localFileName {
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.localFileSize {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-3xs);
-  color: var(--text-tertiary);
 }

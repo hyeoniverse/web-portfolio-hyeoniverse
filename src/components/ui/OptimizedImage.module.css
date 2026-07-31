@@ -12,11 +12,6 @@
   user-select: none;
 }
 
-.draggableFalse {
-  -webkit-user-drag: none;
-  user-select: none;
-}
-
 .placeholder {
   display: flex;
   align-items: center;

@@ -97,10 +97,6 @@ html[data-theme="dark"] .heroBgDark {
   letter-spacing: var(--_ls-title);
 }
 
-.heroTitleAccent {
-  color: var(--text-accent);
-}
-
 .heroSubtitle {
   margin: 0;
   font-size: var(--_hero-subtitle-font-size, var(--_fs-subhead));

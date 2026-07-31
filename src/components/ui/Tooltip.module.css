@@ -53,8 +53,3 @@
 }
 
 /* 번역 툴팁 언어 라벨 */
-.langLabel {
-  font-size: 0.85em;
-  font-weight: var(--font-weight-medium);
-  margin-right: var(--spacing-2xs);
-}

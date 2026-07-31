@@ -237,17 +237,7 @@
   color: var(--text-primary);
 }
 
-.dropdownItemActive {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
 /* ── End row (inline: date + ongoing checkbox) ── */
-.endRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
 
 /* ── Preview ── 자체 wrapper 로 다음 줄에 떨어짐 (label + text 묶음 유지) */
 .preview {
@@ -591,12 +581,6 @@
   transition:
     background 0.18s ease,
     color 0.18s ease;
-}
-
-.timeFormatBtnActive {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-  font-weight: 600;
 }
 
 /* ── Calendar shared ── */

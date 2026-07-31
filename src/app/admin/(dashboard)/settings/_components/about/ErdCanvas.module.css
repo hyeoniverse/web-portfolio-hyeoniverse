@@ -291,9 +291,6 @@
   stroke: var(--color-accent);
   stroke-width: 2.5;
 }
-.linkDim {
-  opacity: 0.2;
-}
 
 /* 테이블 박스 */
 .node {
@@ -301,21 +298,6 @@
 }
 .nodeDim {
   opacity: 0.25;
-}
-.nodeBox {
-  fill: var(--bg-primary);
-  stroke: var(--border-light-color);
-  stroke-width: 1.5;
-}
-.nodeBoxRel {
-  stroke: var(--border-accent-color);
-}
-.nodeBoxOn {
-  stroke: var(--color-accent);
-  stroke-width: 2.5;
-}
-.nodeHead {
-  fill: var(--bg-tertiary);
 }
 .nodeName {
   fill: var(--text-primary);
@@ -327,9 +309,6 @@
   fill: var(--text-secondary);
   font-family: var(--font-mono);
   font-size: 11px;
-}
-.colPk {
-  fill: var(--text-accent);
 }
 .colType {
   fill: var(--text-muted);

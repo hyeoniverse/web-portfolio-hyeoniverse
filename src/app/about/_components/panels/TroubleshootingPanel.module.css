@@ -135,19 +135,6 @@
 }
 
 /* Page navigation — fixed at bottom of sidebar */
-.troublePageNav {
-  display: flex;
-  flex: none;
-  gap: var(--_space-block);
-  align-items: center;
-  justify-content: center;
-  padding: var(--box-md);
-  border-top: var(--_line-secondary);
-  background: var(--bg-primary);
-  font-family: var(--font-mono);
-  font-size: var(--_fs-label);
-  color: var(--text-primary);
-}
 
 .troublePageBtn {
   display: flex;
@@ -384,51 +371,10 @@
 /* tooltip bubble 자체에 직접 적용 — 기본 .bubble 의 max-width 280px 보다 넓게.
    같은 (0,1,0) 인 .bubble 을 안전하게 이기려고 클래스 두 번 명시 (0,2,0).
    width 를 명시해 \"쉬움\" 같은 짧은 설명에서도 항상 넓은 폭으로 보이게. */
-.difficultyTooltipBubble.difficultyTooltipBubble {
-  width: clamp(320px, 60vw, 520px);
-  max-width: 90vw;
-  padding: var(--box-sm);
-}
 
 /* tooltip 안 안내 — color · font-size · font-family 등은 부모 .bubble 상속 */
-.difficultyTooltip {
-  line-height: 1.6;
-}
-
-.difficultyTooltipTitle {
-  font-weight: 700;
-  margin-bottom: 4px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  opacity: 0.7;
-  font-size: var(--font-size-2xs);
-}
-
-.difficultyTooltipBody {
-  /* 부모 bubble 의 font-size · color 상속 */
-}
 
 /* 상세 패널 헤더 옆 뱃지 묶음 */
-.troubleHeaderBadges {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.troubleHeaderRecommended {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: var(--radius-capsule);
-  background: var(--bg-accent-subtle);
-  color: var(--text-accent);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: 500;
-}
 
 /* ── Right: detail content (세로 연속 스크롤) ── */
 .troubleDetail {
@@ -442,16 +388,6 @@
 
 .troubleDetail::-webkit-scrollbar {
   display: none;
-}
-
-.troubleDetailItem {
-  min-height: 100%;
-  box-sizing: border-box;
-  padding-bottom: var(--_space-section);
-}
-
-.troubleDetailItemActive {
-  /* 좌측 리스트 연동용 — 시각 변경 없음 */
 }
 
 /* detailHeader / detailNumber → shared (AboutSection.module.css) */
@@ -490,11 +426,6 @@
   line-height: var(--_lh-body);
   color: var(--text-secondary);
   white-space: pre-line;
-}
-
-.troubleInsightText {
-  font-style: italic;
-  opacity: 0.85;
 }
 
 /* ── Section label (그룹 헤더) ── */
@@ -645,27 +576,11 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.troubleComparisonDesc {
-  margin: 0;
-  padding-top: var(--_space-line);
-  font-family: var(--_font-grotesk);
-  font-size: var(--_fs-body);
-  line-height: var(--_lh-body);
-  color: var(--text-secondary);
-  border-top: var(--_line-secondary);
-}
-
 /* ── Flow diagrams ── */
 .troubleDiagrams {
   display: flex;
   flex-direction: column;
   gap: var(--_space-block);
-}
-
-.troubleDiagramWrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--_space-line);
 }
 
 .troubleDiagramTitle {
@@ -948,9 +863,6 @@
 }
 
 /* 클릭 가능한 diagram wrap — 위치 컨텍스트만 제공. 실제 클릭은 .ideDiagramHint 버튼 */
-.ideDiagramClickable {
-  position: relative;
-}
 
 /* per-diagram outer (image 의 troubleImageWrap 과 동일 패턴) — hint 가 frame 밖에 위치하도록 */
 .troubleDiagramItem {
@@ -1154,10 +1066,6 @@
 }
 
 /* 섹션 블록 — 줄 사이 간격 */
-.ideBlock {
-  margin: var(--spacing-md) 0;
-  padding-left: 0;
-}
 
 /* Status bar (하단) */
 .ideStatusBar {
@@ -1237,98 +1145,12 @@
 
 /* ===== Spotlight / Stage ===== */
 /* wrap — 한 카드 풀스크린, 배경에 거대 번호 watermark */
-.spotlightWrap {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.spotlightCard {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  padding: var(--spacing-md) var(--spacing-sm);
-  will-change: transform, opacity, filter;
-}
 
 /* 거대 배경 번호 — Helvetica/Display 거대 typography, 매우 흐릿한 accent */
-.spotlightBgNumber {
-  position: absolute;
-  right: -0.05em;
-  bottom: -0.18em;
-  pointer-events: none;
-  font-family: var(--_font-display);
-  font-size: clamp(14rem, 60vw, 28rem);
-  font-weight: var(--font-weight-regular);
-  line-height: 0.85;
-  color: var(--text-accent);
-  opacity: 0.07;
-  user-select: none;
-  z-index: 0;
-}
 
 /* 상단 행 — 섹션 태그 + 진행도 카운터 */
-.spotlightTopRow {
-  display: flex;
-  flex: none;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-md);
-  position: relative;
-  z-index: 1;
-}
-
-.spotlightSection {
-  display: inline-block;
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border: 1px solid var(--border-accent);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-accent);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.spotlightCounter {
-  font-family: var(--font-mono);
-  font-size: var(--_fs-label);
-  color: var(--text-tertiary);
-  letter-spacing: 0.04em;
-}
 
 /* 헤더 — 타이틀 + 뱃지 */
-.spotlightHeader {
-  display: flex;
-  flex: none;
-  gap: var(--spacing-md);
-  align-items: baseline;
-  flex-wrap: wrap;
-  margin-bottom: var(--spacing-lg);
-  position: relative;
-  z-index: 1;
-}
-
-.spotlightTitle {
-  flex: 1;
-  min-width: 0;
-  margin: 0;
-  font-family: var(--_font-grotesk);
-  font-size: clamp(1.2rem, 5vw, 2rem);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  line-height: var(--line-height-snug);
-}
-
-.spotlightBadges {
-  display: flex;
-  flex: none;
-  gap: var(--spacing-xs);
-  align-items: center;
-}
 
 /* 본문 — staggered reveal */
 .spotlightBody {
@@ -1349,84 +1171,10 @@
 
 /* ===== Bento Reveal (split layout) ===== */
 /* wrap — flex column: 상단 detail 영역 + 하단 grid 영역 */
-.bentoWrap {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
 
 /* 상단 detail 영역 — flex 1 로 남는 공간 모두 차지 (긴 본문도 충분히) */
-.bentoDetailArea {
-  position: relative;
-  flex: 1 1 0;
-  min-height: 0;
-}
 
 /* detail 카드 — 활성 항목의 풀 컨텐츠. detailArea 전체를 채움 */
-.bentoDetailCard {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-default);
-  padding: var(--spacing-lg);
-  box-shadow: 0 16px 40px oklch(0.00% 0.0000 0.00 / 0.18);
-  will-change: transform, width, height;
-}
-
-.bentoDetailHeader {
-  display: flex;
-  flex: none;
-  gap: var(--spacing-md);
-  align-items: baseline;
-  margin-bottom: var(--spacing-md);
-}
-
-.bentoDetailNumber {
-  flex: none;
-  font-family: var(--_font-display);
-  font-size: clamp(2rem, 7vw, 3.5rem);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-accent);
-  line-height: 1;
-}
-
-.bentoDetailHeaderInfo {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
-}
-
-.bentoDetailSection {
-  font-family: var(--font-mono);
-  font-size: var(--_fs-label);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-tertiary);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.bentoDetailTitle {
-  margin: 0;
-  font-family: var(--_font-grotesk);
-  font-size: clamp(1rem, 4vw, 1.4rem);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  line-height: var(--line-height-snug);
-}
-
-.bentoDetailBadges {
-  display: flex;
-  flex: none;
-  gap: var(--spacing-xs);
-  align-items: center;
-}
 
 .bentoDetailBody {
   flex: 1 1 0;
@@ -1443,51 +1191,6 @@
 }
 
 /* 하단 grid — 모든 항목 컴팩트 타일. 5 cols, 가로 넓은 비율 → grid 자체 높이 짧게 → detail 영역 충분 확보. 활성 타일은 invisible (자리만) */
-.bentoGrid {
-  flex: none;
-  display: grid;
-  grid-template-columns: var(--grid-cols-5);
-  gap: var(--spacing-xs);
-}
-
-.bentoTile {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-2xs);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-default);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  min-height: 0;
-  overflow: hidden;
-  cursor: pointer;
-  will-change: transform;
-}
-
-.bentoTileActive {
-  visibility: hidden; /* 자리는 차지하되 시각적으로 안 보임 — detail 이 그 자리에서 morph 출발 */
-}
-
-.bentoTileNumber {
-  flex: none;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-accent);
-  line-height: 1;
-}
-
-.bentoTileTitle {
-  flex: 1;
-  min-width: 0;
-  font-family: var(--_font-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-snug);
-  color: var(--text-secondary);
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
 
 /* ===== Stack Cards ===== */
 /* wrap — 카드들을 absolute 로 쌓기 위한 컨테이너. perspective 로 3D 회전 깊이감.
@@ -1520,59 +1223,6 @@
   transition:
     transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
     opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.troubleStackCardActive {
-  cursor: default;
-}
-
-.troubleStackCardHeader {
-  display: flex;
-  flex: none;
-  align-items: baseline;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-sm);
-}
-
-.troubleStackCardNumber {
-  font-family: var(--_font-display);
-  font-size: clamp(2rem, 7vw, 3.5rem);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-accent);
-  line-height: 0.9;
-}
-
-.troubleStackCardSection {
-  font-family: var(--font-mono);
-  font-size: var(--_fs-label);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-tertiary);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.troubleStackCardCounter {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: var(--_fs-label);
-  color: var(--text-tertiary);
-}
-
-.troubleStackCardTitle {
-  flex: none;
-  margin: 0 0 var(--spacing-sm);
-  font-family: var(--_font-grotesk);
-  font-size: clamp(1rem, 4vw, 1.4rem);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  line-height: var(--line-height-snug);
-}
-
-.troubleStackCardBadges {
-  display: flex;
-  flex: none;
-  gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-md);
 }
 
 .troubleStackCardBody {
@@ -1638,25 +1288,8 @@
 
 /* 리스트 — translateY 로 활성 헤더를 wrap 세로 중앙에 anchor.
      transform 트랜지션은 body 의 max-height 와 같은 0.55s ease-out 곡선 → 함께 움직여 sync */
-.troubleAccordionList {
-  display: flex;
-  flex-direction: column;
-  will-change: transform;
-  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
 
 /* 섹션 구분 라벨 — 그룹 헤더. 호흡 있는 패딩 */
-.troubleAccordionSection {
-  flex: none;
-  padding: var(--spacing-md) 0 var(--spacing-xs);
-  font-family: var(--font-mono);
-  font-size: var(--_fs-label);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-accent);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border-bottom: var(--_line-secondary);
-}
 
 /* 항목 wrapper — flex column 자식으로 자연 높이 */
 .troubleAccordionWrap .troubleAccordionItem {
@@ -1665,13 +1298,6 @@
 }
 
 /* 헤더 — 호흡 있는 행. 위/아래 spacing-md */
-.troubleAccordionHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) 0;
-  cursor: pointer;
-}
 
 .troubleAccordionTitle {
   flex: 1;
@@ -1715,10 +1341,6 @@
 
 .troubleAccordionBodyOuter::-webkit-scrollbar {
   display: none;
-}
-
-.troubleAccordionBodyInner {
-  padding-bottom: var(--spacing-lg);
 }
 
 /* watermarkNumber base → shared; panel-specific size override: */

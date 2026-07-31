@@ -946,14 +946,6 @@
   z-index: 1;
 }
 
-.menuCloseBtnInner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-}
-
 .menuCloseDots {
   display: grid;
   grid-template-columns: repeat(3, 2px);

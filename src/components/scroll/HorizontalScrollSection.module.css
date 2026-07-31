@@ -38,10 +38,6 @@
   transition: opacity var(--duration-base) ease;
 }
 
-.progressActive {
-  opacity: 1;
-}
-
 .progressBar {
   height: 100%;
   width: 100%;

@@ -23,12 +23,6 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.shareRow {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: var(--spacing-lg);
-}
-
 .tagsShareRow {
   display: flex;
   align-items: center;
@@ -1133,15 +1127,6 @@
   overflow: hidden;
 }
 
-.relatedCardDate {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-muted);
-  letter-spacing: 0.04em;
-  margin-top: auto;
-  padding-top: var(--spacing-xs);
-}
-
 .relatedSection .relatedCard:hover .relatedCardTitle {
   color: var(--text-accent);
 }
@@ -1416,9 +1401,6 @@
 }
 
 /* ── Comments section ── */
-.commentSection {
-  padding: 0 0 var(--spacing-3xl);
-}
 
 /* ── Footer nav ── */
 .footerNav {

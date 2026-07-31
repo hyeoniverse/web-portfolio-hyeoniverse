@@ -102,9 +102,6 @@
 .cell:focus {
   box-shadow: inset 0 0 0 1px var(--color-accent);
 }
-.cellType {
-  color: var(--text-tertiary);
-}
 .pk {
   display: inline-flex;
   /* inline 요소는 기본이 baseline 정렬이라 아래에 여백이 생겨 이 행만 높아진다 */

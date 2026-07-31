@@ -24,11 +24,6 @@
   text-align: center;
 }
 
-.errorFooter {
-  z-index: 1;
-  margin-top: auto;
-}
-
 /* Icon */
 .iconWrapper {
   margin-bottom: var(--spacing-2xl);
@@ -79,23 +74,6 @@
 }
 
 /* Error Details */
-.errorDetails {
-  margin-bottom: var(--spacing-xl);
-  padding: var(--spacing-md);
-  border: var(--border-width-default) solid var(--border-strong-color);
-  overflow-x: auto;
-  width: 100%;
-  background: var(--bg-white);
-  text-align: left;
-  border-radius: var(--radius-md);
-}
-
-.errorCode {
-  font-family: var(--font-mono), monospace;
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  word-break: break-word;
-}
 
 /* Actions */
 .actions {
