@@ -38,7 +38,7 @@
 --   2026_05_22  publish_scheduled + purge_trash_scheduled pg_cron + pg_net + Vault
 --   2026_05_22  works.categories_ko/en TEXT[] (다중 카테고리)
 --   2026_05_22  works.nature_ko/en (제작 동기)
---   2026_05_22  works.slug UNIQUE
+--   2026_05_22  works.slug 인덱스 (비-unique, /works/[slug] 라우팅)
 --   2026_05_23  works.contributions / tech_notes jsonb
 --   2026_05_24  posts.tag_notes jsonb (태그별 설명)
 --   2026_05_26  applied_migrations + log_migration_applied 헬퍼
@@ -62,6 +62,8 @@
 --   2026_07_14  posts.author_ids — 다중 작성자
 --   2026_07_17  author_invites — 저자 초대(이메일→권한) + OAuth 매칭 (이슈 #334)
 --   2026_07_18  works.title_en — 작품 제목 영문 (title 이중언어화)
+--   2026_07_21  about_erd_valid — About Studio ERD 설정 CHECK 제약
+--   2026_07_23  about_erd_valid 확장 — 컬럼 제약·테이블 kind 검증
 --
 -- 마이그레이션 파일이 없는 것 (setup.sql 에만 존재):
 --   custom_emojis — 에디터 이모지 picker 의 커스텀 아이콘 기록
@@ -1455,7 +1457,7 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 22개 테이블 + 6개 RPC 함수 + 2개 pg_cron job 생성됨.
+-- 완료! 총 23개 테이블 + 16개 함수 + 2개 pg_cron job 생성됨.
 --
 -- 테이블:
 --   site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
@@ -1639,12 +1641,12 @@ END $$;
 -- ────────────────────────────────────────────────────────────
 -- Applied migrations log — setup.sql 이 흡수한 마이그레이션 마킹
 -- ────────────────────────────────────────────────────────────
--- 위 파일의 모든 구조는 아래 마이그레이션 18건을 통합한 결과입니다.
+-- 위 파일의 모든 구조는 아래 마이그레이션 34건을 통합한 결과입니다.
 -- fresh install 환경에서 setup.sql 실행 직후, supabase/migrations/ 의 .sql 을
 -- 단일 실행해도 was_new = false 로 skip 되도록 record 만 미리 남깁니다.
 --
 -- log_migration_applied 대신 직접 INSERT — fresh install 시점엔 admin 이 아직
--- 없어서 알림이 의미 없고, 18건 알림이 한꺼번에 쌓이는 노이즈도 회피.
+-- 없어서 알림이 의미 없고, 34건 알림이 한꺼번에 쌓이는 노이즈도 회피.
 INSERT INTO applied_migrations (name, description) VALUES
   ('2026_05_14_post_views_kst',                'post_views — KST timezone + atomic dedup + race-free counter'),
   ('2026_05_18_admin_known_devices',           '새 기기 인증 (admin_known_devices) — UA fingerprint + approve token'),
@@ -1655,7 +1657,7 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_05_22_works_categories_multi',        'works.categories_ko/en TEXT[] (다중 카테고리)'),
   ('2026_05_22_works_nature',                  'works.nature_ko/en (제작 동기 축)'),
   ('2026_05_22_works_nature_backfill',         'works.nature backfill — fresh install 은 데이터 없어 no-op'),
-  ('2026_05_22_works_slug',                    'works.slug UNIQUE — /works/[slug] 라우팅'),
+  ('2026_05_22_works_slug',                    'works.slug 인덱스 — /works/[slug] 라우팅'),
   ('2026_05_23_works_contributions_tech_notes','works.contributions / tech_notes jsonb'),
   ('2026_05_24_posts_tag_notes',               'posts.tag_notes jsonb (태그별 설명)'),
   ('2026_05_26_a_migration_applied_helper',    'applied_migrations 테이블 + log_migration_applied 헬퍼'),
