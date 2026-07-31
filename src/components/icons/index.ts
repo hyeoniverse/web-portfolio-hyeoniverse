@@ -221,3 +221,8 @@ export type { LucideIcon } from "lucide-react";
 export { default as GithubIcon } from "./GithubIcon";
 export { default as GripDotsIcon } from "./GripDotsIcon";
 export { default as SocialBrandIcon } from "./SocialBrandIcon";
+export { default as PinIcon } from "./PinIcon";
+export { default as ZoomInIcon } from "./ZoomInIcon";
+export { default as SearchEmptyIcon } from "./SearchEmptyIcon";
+export { default as CaretRightIcon } from "./CaretRightIcon";
+export { default as EmojiOffIcon } from "./EmojiOffIcon";

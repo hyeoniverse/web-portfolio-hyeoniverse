@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ZoomInIcon } from "@/components/icons";
 import clsx from "clsx";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./CursorTrail.module.css";
@@ -376,12 +377,7 @@ export default function CursorTrail() {
       <div className={styles.cursorInner}>
         <span className={styles.cursorText}>{displayLabel}</span>
         {cursorType === "zoom" && (
-          <svg className={styles.zoomIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="7" />
-            <line x1="21" y1="21" x2="16.6" y2="16.6" />
-            <line x1="11" y1="8" x2="11" y2="14" />
-            <line x1="8" y1="11" x2="14" y2="11" />
-          </svg>
+          <ZoomInIcon className={styles.zoomIcon} />
         )}
       </div>
     </div>
