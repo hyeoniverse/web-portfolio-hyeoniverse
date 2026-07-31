@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.32.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.31.1...v1.32.0) (2026-07-31)
+
+
+### Features
+
+* **design-system:** --grid-cols-* 토큰 쇼케이스 추가 ([88d1792](https://github.com/hyeoniverse/web-portfolio-oval/commit/88d179205b946bf0c19573ba672a42072b118cc6)), closes [#431](https://github.com/hyeoniverse/web-portfolio-oval/issues/431)
+* **styles:** Tailwind v4 도입 — CSS Modules 와 공존 ([ad1671f](https://github.com/hyeoniverse/web-portfolio-oval/commit/ad1671f40aee2a01b181175a7b862d9f563da349))
+
 ## [1.31.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.31.0...v1.31.1) (2026-07-29)
 
 
