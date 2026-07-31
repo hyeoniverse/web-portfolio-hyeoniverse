@@ -602,7 +602,7 @@ export default function CylinderLayout({ projects, onProjectClick }: WorksLayout
         <span className={styles.introOvalInner} aria-hidden="true" />
         <span className={styles.introLabel}><T ko={w.introLabel_ko} en={w.introLabel} /></span>
         <h1 className={styles.introTitle}><T ko={w.introTitle_ko} en={w.introTitle} /></h1>
-        <span className={styles.introRule} aria-hidden="true">
+        <span className="tw:flex tw:items-center tw:gap-sm" aria-hidden="true">
           <span className={styles.introRuleLine} />
           <span className={styles.introRuleDot} />
           <span className={styles.introRuleLine} />

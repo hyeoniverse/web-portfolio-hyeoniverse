@@ -135,7 +135,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
           <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
             <T k="profilePage.experience" />
           </h3>
-          <div className={styles.expTimeline}>
+          <div className="tw:flex tw:gap-0 tw:flex-col">
             {experiences.map((exp, index) => (
               <div
                 key={index}
@@ -192,7 +192,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
                 </p>
               </div>
 
-              <div className={styles.skillPanelList}>
+              <div className="tw:flex tw:gap-0 tw:flex-col">
                 {group.skills.map((skill, si) => (
                   <div
                     key={si}
@@ -223,7 +223,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
           <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
             <T k="profilePage.principles" />
           </h3>
-          <div className={styles.philosophyStack}>
+          <div className="tw:flex tw:gap-0 tw:flex-col">
             {philosophy.map((item, index) => (
               <div
                 key={index}
@@ -253,7 +253,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
           <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
             <T k="profilePage.workflow" />
           </h3>
-          <div className={styles.approachStack}>
+          <div className="tw:flex tw:gap-0 tw:flex-col">
             {approachSteps.map((step, index) => (
               <div
                 key={index}
@@ -280,11 +280,11 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
             <T k="profilePage.certsAndAwards" />
           </h3>
           <div className={styles.credentialColumns}>
-            <div className={styles.credentialColumn}>
+            <div className="tw:flex tw:flex-col">
               <h4 className={`${styles.credentialHeading} ${styles.animate}`}>
                 <T k="profilePage.certifications" />
               </h4>
-              <div className={styles.credentialList}>
+              <div className="tw:flex tw:gap-0 tw:flex-col">
                 {certifications.map((cert, index) => (
                   <div
                     key={index}
@@ -303,11 +303,11 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
                 ))}
               </div>
             </div>
-            <div className={styles.credentialColumn}>
+            <div className="tw:flex tw:flex-col">
               <h4 className={`${styles.credentialHeading} ${styles.animate}`}>
                 <T k="profilePage.awards" />
               </h4>
-              <div className={styles.credentialList}>
+              <div className="tw:flex tw:gap-0 tw:flex-col">
                 {awards.map((award, index) => (
                   <div
                     key={index}

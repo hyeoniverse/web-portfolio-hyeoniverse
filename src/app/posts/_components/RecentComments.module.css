@@ -16,11 +16,6 @@
   border-bottom: var(--border-light);
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-}
-
 .item {
   display: flex;
   flex-direction: column;
@@ -54,12 +49,6 @@
 
 .section .item:hover .content {
   color: var(--text-primary);
-}
-
-.itemTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .nickname {

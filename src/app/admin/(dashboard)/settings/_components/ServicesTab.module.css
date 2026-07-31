@@ -1,10 +1,5 @@
 /*  ServicesTab 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
    공유·경계 클래스(section·fields·priorityBtn·sizeChip 등)는 Settings 에 남아 shared 로 import  */
-.switchHelpRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
 
 .priorityList {
   display: flex;
@@ -14,12 +9,6 @@
 
 .priorityList :is(input, .priorityItem) {
   width: 100%;
-}
-
-.priorityRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
 }
 
 .priorityItem {
@@ -135,13 +124,6 @@
   background: color-mix(in oklch, var(--text-accent) 8%, transparent);
 }
 
-.sizeBucketHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-xs);
-}
-
 .sizeBucketLabel {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-2xs);
@@ -210,12 +192,6 @@
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
   text-transform: uppercase;
-}
-
-.customMimeRow {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: center;
 }
 
 .customMimeInput {

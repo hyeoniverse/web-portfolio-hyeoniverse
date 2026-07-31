@@ -73,7 +73,7 @@ export default function CalendarToolbar({
         }>
         {labels.length > 0 && <>
           <div className={styles.filterGroupLabel}>{t("라벨", "Label")}</div>
-          <div className={styles.filterChips}>
+          <div className="tw:flex tw:flex-wrap tw:gap-3xs">
             {labels.map((l) => (
               <button key={l.id} type="button" className={`${styles.filterChip}${activeLabels.has(l.id) ? ` ${styles.filterChipOn}` : ""}`} style={{ ["--_lc" as string]: colorVar(l.color) }} onClick={() => onToggleLabel(l.id)}>
                 <span className={styles.filterDot} />{l.name}
@@ -83,14 +83,14 @@ export default function CalendarToolbar({
         </>}
         {tags.length > 0 && <>
           <div className={styles.filterGroupLabel}>{t("태그", "Tags")}</div>
-          <div className={styles.filterChips}>
+          <div className="tw:flex tw:flex-wrap tw:gap-3xs">
             {tags.map((tg) => (
               <button key={tg} type="button" className={`${styles.filterTag}${activeTags.has(tg) ? ` ${styles.filterTagOn}` : ""}`} onClick={() => onToggleTag(tg)}>#{tg}</button>
             ))}
           </div>
         </>}
         <div className={styles.filterGroupLabel}>{t("중요도", "Priority")}</div>
-        <div className={styles.filterChips}>
+        <div className="tw:flex tw:flex-wrap tw:gap-3xs">
           {EVENT_PRIORITIES.map((p) => (
             <button key={p.key} type="button" className={`${styles.filterChip}${activePriorities.has(p.key) ? ` ${styles.filterChipOn}` : ""}`} style={{ ["--_lc" as string]: p.color }} onClick={() => onTogglePriority(p.key)}>
               <span className={styles.filterDot} />{language === "ko" ? p.name[0] : p.name[1]}

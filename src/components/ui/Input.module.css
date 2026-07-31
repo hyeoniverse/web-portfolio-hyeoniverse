@@ -62,12 +62,6 @@
 }
 
 /* ── 글자수 카운터 — 공통 Textarea 와 동일 룩(EditorTextInput 등에서 재사용). 우측 정렬 ── */
-.bottomRow {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-2xs);
-}
 /* (0,2,0) 으로 전역 theme transition 오버라이드 */
 .wrapper .counter {
   font-family: var(--font-space-grotesk), sans-serif;

@@ -154,7 +154,7 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
       </div>
 
       {!prompt && !previewUrl && (
-        <div className={styles.suggestions}>
+        <div className="tw:flex tw:flex-wrap tw:gap-2xs">
           {promptSuggestions.map((s) => (
             <button
               key={s}
@@ -168,7 +168,7 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
         </div>
       )}
 
-      <div className={styles.styleRow}>
+      <div className="tw:flex tw:gap-xs tw:flex-wrap">
         {COVER_STYLE_OPTIONS.map((opt) => (
           <button
             key={opt.key}

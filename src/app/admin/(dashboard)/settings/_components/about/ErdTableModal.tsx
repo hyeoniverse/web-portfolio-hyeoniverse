@@ -223,7 +223,7 @@ export default function ErdTableModal({
 
   return (
     <div className={css.body}>
-      <label className={css.field}>
+      <label className="tw:flex tw:flex-col tw:gap-2xs">
         <span className={css.label}>
           {lang === "ko" ? "테이블 이름" : "Table name"}
           <span className={css.req} aria-hidden>*</span>
@@ -234,7 +234,7 @@ export default function ErdTableModal({
           onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
       </label>
 
-      <div className={css.field}>
+      <div className="tw:flex tw:flex-col tw:gap-2xs">
         <span className={css.label}>
           {lang === "ko" ? `컬럼 ${draft.columns.length}` : `${draft.columns.length} columns`}
         </span>
@@ -407,7 +407,7 @@ export default function ErdTableModal({
             </tbody>
           </table>
         </div>
-        <div className={css.colActions}>
+        <div className="tw:flex tw:gap-2xs tw:items-center">
           <Button variant="subtle" size="sm" icon={<Plus size={14} />} onClick={addColumn}>
             {lang === "ko" ? "컬럼 추가" : "Add column"}
           </Button>
@@ -423,7 +423,7 @@ export default function ErdTableModal({
           → 참조하는 쪽 / 참조당하는 쪽을 아예 그룹으로 나누고,
             chip 안 화살표는 늘 "참조하는 컬럼 → 참조되는 컬럼" 방향으로 고정한다. */}
       {(outgoing.length > 0 || incoming.length > 0) && (
-        <div className={css.field}>
+        <div className="tw:flex tw:flex-col tw:gap-2xs">
           <span className={css.label}>{lang === "ko" ? "관계" : "Relations"}</span>
 
           {outgoing.length > 0 && (
@@ -431,7 +431,7 @@ export default function ErdTableModal({
               <span className={css.relLabel}>
                 {lang === "ko" ? "이 테이블이 참조하는 곳" : "References"}
               </span>
-              <div className={css.rels}>
+              <div className="tw:flex tw:gap-2xs tw:items-center tw:flex-wrap">
                 {outgoing.map((r, i) => (
                   <Chip key={`o${i}`} className={css.rel}
                     onRemove={() => onChange(tables, relations.filter((x) => x !== r))}>
@@ -449,7 +449,7 @@ export default function ErdTableModal({
               <span className={css.relLabel}>
                 {lang === "ko" ? "이 테이블을 참조하는 곳" : "Referenced by"}
               </span>
-              <div className={css.rels}>
+              <div className="tw:flex tw:gap-2xs tw:items-center tw:flex-wrap">
                 {incoming.map((r, i) => (
                   <Chip key={`i${i}`} className={css.rel}
                     onRemove={() => onChange(tables, relations.filter((x) => x !== r))}>
@@ -471,7 +471,7 @@ export default function ErdTableModal({
               {issues.map((m) => <span key={m}>{m}</span>)}
             </p>
           )}
-          <div className={css.footer}>
+          <div className="tw:flex tw:gap-sm tw:items-center tw:justify-between">
             <Button variant="subtle" size="sm" tone="danger"
               /* 테이블 삭제는 연결된 관계까지 즉시 지운다 — 되돌릴 길이 없으니 한 번 묻는다.
                  모달 스택이라 확인창이 위에 쌓이고, 확인 시 확인창(자체) → 이 모달 순으로 닫힌다. */
@@ -491,7 +491,7 @@ export default function ErdTableModal({
               }}>
               {lang === "ko" ? "테이블 삭제" : "Delete table"}
             </Button>
-            <span className={css.footerRight}>
+            <span className="tw:inline-flex tw:gap-2xs">
               <Button variant="subtle" size="sm" onClick={() => closeModal()}>
                 {lang === "ko" ? "취소" : "Cancel"}
               </Button>

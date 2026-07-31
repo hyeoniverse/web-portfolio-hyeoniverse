@@ -540,7 +540,7 @@ export default function SettingsPage() {
           <SettingsIcon size={26} strokeWidth={1.6} aria-hidden className={styles.titleIcon} />
           <T k="admin.settings.title" />
         </h1>
-        <div className={styles.headerRight}>
+        <div className="tw:flex tw:items-center tw:gap-md">
           {activeTab === "account" ? (
             <>
               {account.accountMessage && (
@@ -797,7 +797,7 @@ export default function SettingsPage() {
                     })}
                   </div>
                 </div>
-                <div className={styles.conflictFooter}>
+                <div className="tw:flex tw:justify-center">
                   {!conflictExpanded && tabConflicts.length > PREVIEW_COUNT ? (
                     <button
                       type="button"

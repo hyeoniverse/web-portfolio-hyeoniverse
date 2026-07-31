@@ -464,7 +464,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                 <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
               </span>
               {hasNumCol && (
-                <span className={styles.rowNum}>
+                <span className="tw:flex tw:items-center">
                   {onRowLabelEdit && getRowLabel ? (
                     <EditableRowNumber
                       value={getRowLabel(item, i)}

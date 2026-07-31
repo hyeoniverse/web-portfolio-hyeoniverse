@@ -267,8 +267,8 @@ export default function DesignSystemClient() {
 
             {/* Token file tree */}
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Token Files</motion.p>
-            <motion.div className={styles.pFileTree} initial="hidden" {...vp(nd())} variants={staggerItem}>
-              <div className={styles.pFileRoot}>
+            <motion.div className="tw:flex tw:flex-col tw:gap-md" initial="hidden" {...vp(nd())} variants={staggerItem}>
+              <div className="tw:flex tw:flex-col">
                 <span className={styles.pFileFolder}>src/styles/tokens/</span>
                 {[
                   { file: "_color.css", desc: language === "ko" ? "브랜드·중립·알파" : "brand, neutral, alpha" },
@@ -287,7 +287,7 @@ export default function DesignSystemClient() {
                   </div>
                 ))}
               </div>
-              <div className={styles.pFileRoot}>
+              <div className="tw:flex tw:flex-col">
                 <span className={styles.pFileFolder}>src/styles/globals/</span>
                 <div className={styles.pFileItem}>
                   <code className={styles.pFileName}>_semantic.css</code>
@@ -319,7 +319,7 @@ export default function DesignSystemClient() {
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Brand</motion.p>
             <motion.div className={styles.brandRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {brandColors.map((c, i) => (
-                <motion.div key={c.name} className={styles.brandSwatch} variants={staggerItemX} {...scrollChildX(i, brandColors.length)}>
+                <motion.div key={c.name} className="tw:flex tw:flex-col tw:items-center tw:gap-xs" variants={staggerItemX} {...scrollChildX(i, brandColors.length)}>
                   <div className={styles.brandBox} style={{ background: `var(${c.var})` }} />
                   <span className={styles.colorLabel}>{c.name}</span>
                 </motion.div>
@@ -328,7 +328,7 @@ export default function DesignSystemClient() {
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Neutral Scale</motion.p>
             <motion.div className={styles.colorGrid} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {neutralScale.map((n, i) => (
-                <motion.div key={n} className={styles.colorSwatch} variants={staggerItemX} {...scrollChildX(i, neutralScale.length)}>
+                <motion.div key={n} className="tw:flex tw:flex-col tw:items-center tw:gap-xs" variants={staggerItemX} {...scrollChildX(i, neutralScale.length)}>
                   <div className={`${styles.colorBox} ${styles.colorBoxBordered}`} style={{ background: `var(--color-neutral-${n})` }} />
                   <span className={styles.colorLabel}>{n}</span>
                 </motion.div>
@@ -379,7 +379,7 @@ export default function DesignSystemClient() {
           <section id="typography" ref={setSectionRef("typography")} className={styles.section}>
             <SectionHeader title="Typography" />
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Variants</motion.p>
-            <motion.div className={styles.typoRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+            <motion.div className="tw:flex tw:flex-col tw:gap-lg" initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {typoVariants.map((v, i) => (
                 <motion.div key={v} className={styles.typoItem} variants={staggerItem} {...scrollChildY(i)}>
                   <span className={styles.typoLabel}>{v}</span>
@@ -388,7 +388,7 @@ export default function DesignSystemClient() {
               ))}
             </motion.div>
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Colors</motion.p>
-            <motion.div className={styles.typoRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+            <motion.div className="tw:flex tw:flex-col tw:gap-lg" initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {typoColors.map((c, i) => (
                 <motion.div key={c} className={styles.typoItem} variants={staggerItem} {...scrollChildY(i)}>
                   <span className={styles.typoLabel}>{c}</span>
@@ -412,7 +412,7 @@ export default function DesignSystemClient() {
               </motion.div>
             </motion.div>
             <motion.p className={styles.sectionSub} initial="hidden" {...vp(nd())} variants={staggerItem}>Weights</motion.p>
-            <motion.div className={styles.componentRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+            <motion.div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center" initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {(["light", "normal", "medium", "semibold", "bold"] as const).map((w, i) => (
                 <motion.div key={w} variants={staggerItemX} {...scrollChildX(i, 5)}>
                   <Typography variant="body1" weight={w}>{w}</Typography>
@@ -424,9 +424,9 @@ export default function DesignSystemClient() {
           {/* ─── Spacing ─── */}
           <section id="spacing" ref={setSectionRef("spacing")} className={styles.section}>
             <SectionHeader title="Spacing" />
-            <motion.div className={styles.spacingRow} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+            <motion.div className="tw:flex tw:flex-col tw:gap-xs" initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               {spacingScale.map((s, i) => (
-                <motion.div key={s.name} className={styles.spacingItem} variants={staggerItem} {...scrollChildY(i)}>
+                <motion.div key={s.name} className="tw:flex tw:items-center tw:gap-sm" variants={staggerItem} {...scrollChildY(i)}>
                   <span className={styles.spacingLabel}>{s.name.replace("--spacing-", "")}</span>
                   <div className={styles.spacingBar} style={{ width: `var(${s.name})` }} />
                   <span className={styles.spacingValue}>{s.value}</span>
@@ -438,12 +438,12 @@ export default function DesignSystemClient() {
           {/* ─── Radius ─── */}
           <section id="radius" ref={setSectionRef("radius")} className={styles.section}>
             <SectionHeader title="Border Radius" />
-            <motion.div className={styles.radiusGrid} initial="hidden" {...vpGroup(nd())} variants={innerStaggerFast}>
+            <motion.div className="tw:flex tw:flex-wrap tw:gap-md" initial="hidden" {...vpGroup(nd())} variants={innerStaggerFast}>
               {radiusScale.map((r, i) => {
                 const h = 64;
                 const w = r.name === "capsule" ? 160 : r.name === "circle" ? 64 : Math.min(96, Math.max(64, parseInt(r.value, 10) * 3));
                 return (
-                  <motion.div key={r.name} className={styles.radiusItem} variants={staggerItemX} {...scrollChildX(i, radiusScale.length)}>
+                  <motion.div key={r.name} className="tw:flex tw:flex-col tw:items-center tw:gap-xs" variants={staggerItemX} {...scrollChildX(i, radiusScale.length)}>
                     <div className={styles.radiusBox} style={{ borderRadius: `var(${r.var})`, width: w, height: h }} />
                     <span className={styles.radiusLabel}>{r.name}<br />{r.value}</span>
                   </motion.div>
@@ -457,7 +457,7 @@ export default function DesignSystemClient() {
             <SectionHeader title="Shadows" />
             <motion.div className={styles.shadowGrid} initial="hidden" {...vpGroup(nd())} variants={innerStagger}>
               {shadowScale.map((s, i) => (
-                <motion.div key={s} className={styles.shadowItem} variants={staggerItemX} {...scrollChildX(i, shadowScale.length)}>
+                <motion.div key={s} className="tw:flex tw:flex-col tw:items-center tw:gap-sm" variants={staggerItemX} {...scrollChildX(i, shadowScale.length)}>
                   <div className={styles.shadowBox} style={{ boxShadow: `var(${s})` }} />
                   <span className={styles.shadowLabel}>{s.replace("--shadow-", "")}</span>
                 </motion.div>
@@ -611,7 +611,7 @@ export default function DesignSystemClient() {
             <SectionHeader title="Tooltip" />
             <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Basic</div>
-              <div className={styles.componentRow}>
+              <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
                 <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}>
                   <Tooltip content="Instant tooltip"><Button variant="outline" size="sm">Hover me</Button></Tooltip>
                 </motion.div>
@@ -631,7 +631,7 @@ export default function DesignSystemClient() {
             <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
               <div className={styles.componentGroupTitle}>Translation Tooltip — &lt;T&gt;</div>
               <p className={styles.sectionSub} style={{ marginTop: -4, textTransform: "none" }}>{language === "ko" ? "마우스를 올리면 반대 언어 번역을 보여 줍니다. (지연: 0ms / 600ms)" : "Shows opposite language on hover (delay: 0ms / 600ms)"}</p>
-              <div className={styles.componentRow}>
+              <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
                 <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><T k="contact.title" delay={0} className={styles.tooltipDemoText} /></motion.div>
                 <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}><T k="contact.send" delay={0} className={styles.tooltipDemoText} /></motion.div>
                 <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}><T k="contact.successTitle" className={styles.tooltipDemoText} /></motion.div>

@@ -30,11 +30,6 @@
 }
 
 /* Profile card — avatar + name/story */
-.ufFlowProfile {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
 
 .ufFlowAvatar {
   display: flex;
@@ -47,12 +42,6 @@
   border: 1.5px solid var(--color-accent);
   color: var(--text-accent);
   flex-shrink: 0;
-}
-
-.ufFlowProfileText {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4xs);
 }
 
 .ufFlowTitle {
@@ -388,4 +377,16 @@
   .ufMobileList {
     display: none;
   }
+}
+
+.ufFlowProfile {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.ufFlowProfileText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4xs);
 }

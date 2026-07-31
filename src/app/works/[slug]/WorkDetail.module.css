@@ -77,11 +77,6 @@
 }
 
 /* 팀/개인 + 성격 배지 묶음 — metaLeft 의 lg gap 영향 안 받도록 sub-group */
-.tagGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
 
 /* 팀/개인 배지 — 아이콘 + 라벨 inline. 다른 tag 보다 약간 흐린 톤 */
 .tagSolo,
@@ -156,11 +151,6 @@
 }
 
 /* ── 본인 역할별 작업 (Contributions) ── items 있는 grid + 없는 한 줄 */
-.ownContribsWrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
 
 /* items 있는 role 그룹 — grid auto-fill 로 좁으면 1열, 넓으면 2-3 열 */
 .ownContribsGrid {
@@ -191,17 +181,6 @@
 }
 
 /* ── Tech ── 설명 있는 list + 설명 없는 chip wrap 두 그룹 */
-.techSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.techPlainGroup {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
 
 /* ── Tech Notes ── tech chip + KO/EN 설명 inline row */
 /* 너비 충분하면 multi-col 자동 wrap (ownContribsGrid 와 동일 패턴) */
@@ -446,11 +425,6 @@
 }
 
 /* 본인 contributions (ownContribsGroups) 안에서 공유. 팀원 카드는 .teamCardContrib* 별도 사용 */
-.teamContribsGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
 
 .teamContribsRoleLabel {
   font-family: var(--font-space-grotesk);

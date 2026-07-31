@@ -46,7 +46,7 @@ export default function MemberDetailModal({ author, member, isOwnerProfile, show
 
   return (
     <div className={styles.memberDetail}>
-      <div className={styles.memberDetailHead}>
+      <div className="tw:flex tw:items-center tw:gap-md">
         <span className={styles.memberDetailAvatar}>
           {author.avatar ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -56,7 +56,7 @@ export default function MemberDetailModal({ author, member, isOwnerProfile, show
           )}
         </span>
         <div className={styles.memberDetailHeadInfo}>
-          <div className={styles.memberDetailNameRow}>
+          <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-xs">
             <span className={styles.memberDetailName}>{author.name || L("(이름 없음)", "(unnamed)")}</span>
             {badgeRole && <RoleBadge role={badgeRole} />}
           </div>
@@ -64,7 +64,7 @@ export default function MemberDetailModal({ author, member, isOwnerProfile, show
         </div>
       </div>
 
-      <div className={styles.memberDetailMeta}>
+      <div className="tw:flex tw:flex-col tw:gap-xs">
         {author.email && (
           <div className={styles.memberDetailMetaRow}>
             <Mail size={13} strokeWidth={1.8} />
@@ -95,7 +95,7 @@ export default function MemberDetailModal({ author, member, isOwnerProfile, show
       {author.bio && <p className={styles.memberDetailBio}>{author.bio}</p>}
 
       {links.length > 0 && (
-        <div className={styles.memberDetailLinks}>
+        <div className="tw:flex tw:flex-wrap tw:gap-xs">
           {links.map((l, i) => {
             const meta = SOCIAL_ICONS[l.platform];
             const label = l.label || meta?.label || l.platform;
