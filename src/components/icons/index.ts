@@ -214,6 +214,8 @@ export {
   Zap,
   ZoomIn,
   ZoomOut,
+  Key,
+  Route,
 } from "lucide-react";
 export type { LucideIcon } from "lucide-react";
 
