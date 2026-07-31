@@ -18,7 +18,7 @@ export default function SearchSyntaxHelpContent({
   return (
     <>
       {/* 공통 문법 */}
-      <div className={styles.helpSection}>
+      <div className="tw:flex tw:flex-col tw:gap-xs">
         <div className={styles.helpSectionLabel}>공통</div>
         <ul className={styles.helpList}>
           <li className={styles.helpRow}>
@@ -45,8 +45,8 @@ export default function SearchSyntaxHelpContent({
       </div>
 
       {/* 매칭 강도 + mode 토글 */}
-      <div className={styles.helpSection}>
-        <div className={styles.helpSectionHeader}>
+      <div className="tw:flex tw:flex-col tw:gap-xs">
+        <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
           <div className={styles.helpSectionLabel}>매칭 강도</div>
           <div className={styles.helpModeToggle}>
             {(["prefix", "regex"] as SyntaxMode[]).map((m) => (

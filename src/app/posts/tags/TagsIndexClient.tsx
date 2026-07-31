@@ -174,7 +174,7 @@ export default function TagsIndexClient({ tags }: Props) {
         <BackLink href="/posts" label={language === "en" ? "Posts" : "글 목록"} />
       </div>
       <header className={styles.header}>
-        <div className={styles.headerTitleRow}>
+        <div className="tw:flex tw:items-center tw:justify-between tw:gap-md">
           <PageTitle icon={<Tags size={40} strokeWidth={1.6} aria-hidden />}>
             Tags.
           </PageTitle>
@@ -192,7 +192,7 @@ export default function TagsIndexClient({ tags }: Props) {
         <p className={styles.meta}>
           <strong>{filtered.length.toLocaleString()}</strong>개의 태그
         </p>
-        <div className={styles.searchSortRow}>
+        <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-sm">
           <SegmentedControl<"popular" | "alphabetical", "ko" | "en">
             items={[
               { value: "popular", label: "인기순" },
@@ -255,7 +255,7 @@ export default function TagsIndexClient({ tags }: Props) {
           return (
             <li
               key={t.tag}
-              className={styles.tagItem}
+              className="tw:inline-flex"
               onMouseEnter={() => setHoveredTag(t.tag)}
               onMouseLeave={() => setHoveredTag(null)}
             >
@@ -320,7 +320,7 @@ export default function TagsIndexClient({ tags }: Props) {
               >
                 <X size={18} aria-hidden />
               </button>
-              <div className={styles.sheetHeader}>
+              <div className="tw:flex tw:items-baseline tw:gap-sm">
                 <h2 className={styles.sheetTitle}>#{sheetTag.tag}</h2>
                 <span className={styles.sheetCount}>{sheetTag.count}개의 글</span>
               </div>
@@ -328,9 +328,9 @@ export default function TagsIndexClient({ tags }: Props) {
                 <p className={styles.sheetDesc}>{sheetTag.description}</p>
               )}
               {sheetTag.related.length > 0 && (
-                <div className={styles.sheetRelated}>
+                <div className="tw:flex tw:flex-col tw:gap-xs">
                   <span className={styles.sheetSectionLabel}>연관 태그</span>
-                  <div className={styles.sheetRelatedPills}>
+                  <div className="tw:flex tw:flex-wrap tw:gap-2xs">
                     {sheetTag.related.map((r) => (
                       <Chip
                         key={r}

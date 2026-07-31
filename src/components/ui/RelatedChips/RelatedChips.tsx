@@ -65,7 +65,7 @@ export default function RelatedChips({
 
   return (
     <>
-      <div className={styles.chips}>
+      <div className="tw:flex tw:flex-wrap tw:gap-2xs">
         {base.map(renderChip)}
         {/* 추가 칩 — 펼칠 때 등장 / 접을 때 퇴장 (opacity + scale) */}
         <AnimatePresence initial={false}>

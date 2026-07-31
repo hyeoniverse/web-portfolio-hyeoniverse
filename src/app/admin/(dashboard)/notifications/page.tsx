@@ -201,7 +201,7 @@ export default function NotificationsPage() {
             </Tooltip>
           )}
         </h1>
-        <div className={styles.headerActions}>
+        <div className="tw:flex tw:gap-sm">
           <Tooltip content={t("admin.notifications.tipRefresh")} placement="bottom" delay={250}>
             <Button
               variant="outline"

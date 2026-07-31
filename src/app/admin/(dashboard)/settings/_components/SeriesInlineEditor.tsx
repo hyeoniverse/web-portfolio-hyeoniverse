@@ -445,7 +445,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
             </span>
             <T k="admin.posts.seriesModal.newTitle" />
           </h3>
-          <div className={styles.seriesStandaloneActions}>
+          <div className="tw:flex tw:items-center tw:gap-xs">
             <div className={shared.publishToggle}>
               <Switch
                 size="md"
@@ -829,7 +829,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
          단, 외부 shell 이 헤더를 대체할 때(hideStandaloneHeader)는 하단 버튼을 다시 표시
          외부에서 actions 를 직접 렌더할 때(hideBottomActions)는 양쪽 모두 숨김 */}
       {(!isStandalone || hideStandaloneHeader) && !hideBottomActions && (
-        <div className={styles.seriesCardActions}>
+        <div className="tw:flex tw:items-center tw:gap-sm">
           <div style={{ flex: 1 }} />
           <Button variant="outline" size="sm" onClick={handleRevert} disabled={!isDirty || saving}>
             <T k="admin.posts.seriesModal.revert" />

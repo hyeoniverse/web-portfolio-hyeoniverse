@@ -653,7 +653,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
                 ? (nodeByEn.get(node.parentEn)?.[nameLang === "ko" ? "ko" : "en"] ?? node.parentEn)
                 : null;
               return (
-                <span className={styles.worksCatChipLabel}>
+                <span className="tw:inline-flex tw:items-center tw:gap-2xs">
                   {parentName && (
                     <span style={{ color: "var(--text-tertiary)", marginRight: 2 }}>{parentName} ›</span>
                   )}
@@ -687,7 +687,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
       <div className={`${styles.worksCatAddBox} ${isEdit ? styles.worksCatAddBoxEdit : ""} ${isShaking ? styles.shakeAlert : ""}`}>
         <div className={styles.worksCatAddLabel}>
           {isEdit ? <T k="admin.settings.edit" /> : <T k="admin.settings.addCategory" />}
-          <div className={styles.worksCatAddActions}>
+          <div className="tw:inline-flex tw:items-center tw:gap-2xs">
             {isEdit && (
               <>
                 <Button

@@ -42,7 +42,7 @@ export default function RandomPosts() {
           </button>
         </Tooltip>
       </div>
-      <div className={styles.list} data-more="true" data-clickable="true">
+      <div className="tw:flex tw:flex-col" data-more="true" data-clickable="true">
         {posts.map((post, idx) => (
           <div
             key={post.id}

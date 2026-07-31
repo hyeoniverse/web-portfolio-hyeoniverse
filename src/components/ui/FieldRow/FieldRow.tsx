@@ -30,7 +30,7 @@ export default function FieldRow({ label, hint, help, inline, className, childre
   return (
     <div className={cn(styles.fieldRow, inline && styles.fieldRowInline, className)}>
       <label className={styles.fieldLabel}>
-        <span className={styles.fieldLabelText}>
+        <span className="tw:flex tw:items-center tw:gap-2xs">
           {label}
           {help != null && (
             <Tooltip content={help} placement="top">

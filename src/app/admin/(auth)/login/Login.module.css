@@ -24,18 +24,8 @@
 }
 
 /* email + password 두 input 묶음 — 서로 가깝게 (form 전체 gap 보다 좁게) */
-.inputGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
 
 /* bottomRow 는 아이디 저장만 — 메시지는 별도 줄(.messageRow) 로 분리 */
-.bottomRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 
 /* 메시지 줄 — 비어있어도 min-height 유지해서 button 위치 변동 없게.
    3줄 텍스트 (한국어 안내문 길이) 정도 확보. */
@@ -63,9 +53,6 @@
 }
 
 /* Wave animation */
-.wave {
-  display: inline-flex;
-}
 
 .waveChar {
   display: inline-block;
@@ -99,9 +86,4 @@
   flex: 1;
   height: 1px;
   background: var(--border-light-color);
-}
-.oauthBtnInner {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
 }

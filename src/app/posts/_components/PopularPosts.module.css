@@ -57,11 +57,6 @@
   font-size: var(--font-size-2xs);
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-}
-
 .item {
   display: flex;
   align-items: center;

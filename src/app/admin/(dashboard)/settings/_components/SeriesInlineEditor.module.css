@@ -36,18 +36,6 @@
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
-
-.seriesStandaloneActions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.seriesCardActions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
 .seriesPostsSection {
   display: flex;
   flex-direction: column;

@@ -113,11 +113,6 @@
   flex-shrink: 0;
 }
 
-.logoImageWrap {
-  display: flex;
-  align-items: center;
-}
-
 .logoImage {
   height: 1.2em;
   width: auto;
@@ -255,10 +250,6 @@
   opacity: 0.4;
   transform-origin: top;
   pointer-events: none;
-}
-
-.subNavDropdownItemWrap {
-  display: flex;
 }
 
 .subNavDropdownItem {
@@ -1441,12 +1432,6 @@
 }
 
 /* L1: time(좌) + title(우 끝, 작게) — flex space-between */
-.notifDropdownItemTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-xs);
-}
 
 .notifDropdownItemTime {
   font-family: var(--font-mono);

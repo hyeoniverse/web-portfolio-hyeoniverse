@@ -95,7 +95,7 @@ export function DateMentionElement(props: PlateElementProps) {
               onSelect={(y, mo, da) => setDatePart(Number(y), Number(mo), Number(da))}
               onClose={() => { /* inline — 닫힘은 popover 가 관리 */ }}
             />
-            <div className={styles.timeRow}>
+            <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
               <button type="button" className={`${styles.timeToggle}${time ? ` ${styles.timeToggleOn}` : ""}`} onClick={toggleTime}>
                 <Clock size={13} aria-hidden />
                 {time ? t("시간 포함", "Include time") : t("시간 추가", "Add time")}
