@@ -642,7 +642,7 @@
 /* ② 요일 구역 */
 .weekRow {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: var(--grid-cols-7);
   padding: var(--spacing-2xs) 0;
   border-bottom: var(--border-light);
 }
@@ -673,7 +673,7 @@
 .week {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: var(--grid-cols-7);
   min-height: 104px;
   overflow: hidden;
 }
@@ -694,7 +694,7 @@
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: var(--grid-cols-7);
   grid-auto-rows: 20px;
   row-gap: var(--spacing-3xs);
   align-content: start;
@@ -1343,7 +1343,7 @@
   transition: background-color 0.12s ease, color 0.12s ease;
 }
 .miniCalNav:hover { background: var(--bg-secondary); color: var(--text-primary); }
-.miniCalWeek, .miniCalGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.miniCalWeek, .miniCalGrid { display: grid; grid-template-columns: var(--grid-cols-7); gap: 2px; }
 .miniCalDow { text-align: center; font-size: var(--font-size-3xs); font-weight: 600; color: var(--text-tertiary); padding-bottom: 2px; }
 .miniCalDow.sun { color: var(--color-accent); }
 .miniCalDow.sat { color: var(--color-info); }
@@ -1416,7 +1416,7 @@
 .dayPanelTime { color: var(--text-accent); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
 .dayPanelField { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
 .dayPanelLabel { font-size: var(--font-size-3xs); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-tertiary); }
-.dayPanelDuo { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm); }
+.dayPanelDuo { display: grid; grid-template-columns: var(--grid-cols-2); gap: var(--spacing-sm); }
 .dayPanelChips { display: flex; flex-wrap: wrap; gap: var(--spacing-2xs); }
 .dayPanelMuted { font-size: var(--font-size-sm); color: var(--text-muted); }
 .dayPanelDesc {
@@ -1994,7 +1994,7 @@
 /* 폭을 고정·가운데 정렬 → 셀(1fr)이 좁아져 원끼리 촘촘. 위아래 여백으로 주변 요소와 분리 */
 .recurDayGrid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: var(--grid-cols-7);
   gap: var(--spacing-3xs);
   width: 210px;
   max-width: 100%;
@@ -2016,7 +2016,7 @@
 /* 날짜 grid 와 gap·위아래 여백 동일. 4열이라 폭만 좁게(셀은 day 와 비슷한 원 크기) */
 .recurMonthGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: var(--grid-cols-4);
   gap: var(--spacing-3xs);
   width: 120px;
   flex-shrink: 0;

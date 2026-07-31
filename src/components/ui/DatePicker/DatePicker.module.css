@@ -644,14 +644,14 @@
 /* Year grid (4x3) */
 .calYearGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: var(--grid-cols-4);
   gap: var(--spacing-2xs);
 }
 
 /* Month grid (4x3) */
 .calMonthGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: var(--grid-cols-4);
   gap: var(--spacing-2xs);
 }
 
@@ -686,7 +686,7 @@
 /* Day calendar (7-col) */
 .calDayGrid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: var(--grid-cols-7);
   gap: var(--spacing-4xs);
 }
 

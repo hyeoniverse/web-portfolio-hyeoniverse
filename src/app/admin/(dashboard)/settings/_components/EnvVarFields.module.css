@@ -2,7 +2,7 @@
    공유(fieldLabel·fieldRow·fields)·경계(envFieldRow·envFieldHighlight·envKeyLink)는 Settings 에 남아 shared 로 import  */
 .envGroupCols {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: var(--grid-cols-2);
   column-gap: var(--spacing-2xl);
   /* 자식(열)이 container-type 로 intrinsic 폭 0 이 되므로, grid 가 content 기준으로
      줄지 않도록 명시적 폭을 강제한다 */

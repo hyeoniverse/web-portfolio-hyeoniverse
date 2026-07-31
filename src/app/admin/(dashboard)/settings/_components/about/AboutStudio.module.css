@@ -333,7 +333,7 @@ textarea.edit {
 }
 .gradGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-sm);
 }
 
@@ -346,13 +346,13 @@ textarea.edit {
 }
 .gradStops {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-sm);
 }
 /* 배경 색·그라디언트 라이트/다크 2열 편집 */
 .bgThemeRow {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-md);
 }
 .bgThemeCol {
@@ -732,7 +732,7 @@ textarea.edit {
 }
 .iconPickGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: var(--grid-cols-4);
   gap: var(--spacing-2xs);
 }
 .iconPickBtn {
@@ -937,7 +937,7 @@ textarea.edit {
 /* Overview */
 .ovGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-lg);
 }
 .ovLang {

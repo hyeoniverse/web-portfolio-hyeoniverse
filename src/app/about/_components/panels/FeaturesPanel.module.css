@@ -73,7 +73,7 @@
 .featureGrid {
   display: none;
   gap: var(--spacing-2xl) var(--spacing-xl);
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: var(--grid-cols-4);
 }
 
 .featureGridPinned {

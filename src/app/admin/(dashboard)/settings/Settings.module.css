@@ -466,7 +466,7 @@
    minmax(0, 1fr) — 자식 (긴 input value) 따라 column grow 방지. */
 .fieldPair {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-xs) var(--spacing-md);
 }
 
@@ -490,7 +490,7 @@
 /* 로고 dropzone(Short/Full) — 공용 fieldPair(768↓ 1열)와 달리 항상 2열 유지(모바일 포함).
    compound (0,2,0) 로 공용 미디어쿼리를 이긴다. */
 .logoModeGroup .fieldPair {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: var(--grid-cols-2);
 }
 
 /* Light/Dark 라벨 높이 통일 — Dark 에만 hint("미설정 시 라이트 버전")가 있어 라벨이 더 높으면
@@ -882,7 +882,7 @@
 .faviconBgRow {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-sm) var(--spacing-xl);
 }
 
@@ -1519,7 +1519,7 @@
 
 .profileGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-sm);
 }
 
@@ -2817,13 +2817,13 @@ a.tagRelatedItem:hover {
 /* section fields 내부 grid utility — 2-col / 3-col */
 .fieldsGrid2 {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-md);
 }
 
 .fieldsGrid3 {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: var(--grid-cols-3);
   gap: var(--spacing-md);
 }
 

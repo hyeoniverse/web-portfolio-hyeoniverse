@@ -901,7 +901,7 @@
 /* ── Preset Grid (gap·padding 없이 picker 외곽과 flush) ── */
 .presetGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: var(--grid-cols-4);
   gap: 0;
 }
 
@@ -1148,7 +1148,7 @@
 /* ── Unsplash Grid (preset 과 동일 — 4-col, 1200:630 aspect, 같은 오버레이) ── */
 .unsplashGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: var(--grid-cols-4);
   gap: 0;
 }
 
@@ -1400,7 +1400,7 @@
 
 .aiHistoryGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: var(--grid-cols-4);
   gap: var(--spacing-2xs);
 }
 
@@ -1775,11 +1775,11 @@
 
   /* preset / unsplash grid — 모바일에선 3열 (이전엔 2열) */
   .presetGrid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: var(--grid-cols-3);
   }
 
   .unsplashGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: var(--grid-cols-2);
   }
 
   /* 3-col 이라 nth-child(3n) 가 우측 열. 우측 border 제거 (4n PC 룰 무력화) */

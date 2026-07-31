@@ -836,7 +836,7 @@
 /* 2열 배치 */
 .helpCommonRows {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-3xs) var(--spacing-xl);
 }
 @media (max-width: 768px) {
@@ -890,7 +890,7 @@
 
 .helpGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-xl) var(--spacing-2xl);
   padding: 0 var(--spacing-lg) var(--spacing-2xl);
 }
@@ -903,7 +903,7 @@
 }
 .helpSectionWide .helpRows {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-sm) var(--spacing-2xl);
 }
 

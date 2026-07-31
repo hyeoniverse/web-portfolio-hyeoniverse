@@ -19,7 +19,7 @@
 .grid {
   display: grid;
   gap: var(--spacing-sm);
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: var(--grid-cols-5);
   grid-template-rows: repeat(5, 1fr);
 }
 
@@ -184,7 +184,7 @@
 
   .grid {
     gap: var(--spacing-md);
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: var(--grid-cols-5);
   }
 
   .titleCell {
@@ -208,7 +208,7 @@
 
   .grid {
     gap: var(--spacing-sm);
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: var(--grid-cols-5);
   }
 
   .titleCell {

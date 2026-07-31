@@ -634,7 +634,7 @@
 /* Gallery — Bento grid (3-col) */
 .gallery {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: var(--grid-cols-3);
   grid-auto-rows: 160px;
   grid-auto-flow: dense;
   gap: var(--spacing-sm);
@@ -643,7 +643,7 @@
 
 /* item 정확히 2개 — 2-col grid 으로 (각 item full width 의 1/2) */
 .gallery:has(> .galleryItem:nth-child(2):last-child) {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
 }
 
 .gallery:has(> .galleryItem:nth-child(2):last-child) > .galleryItem {
@@ -974,7 +974,7 @@
   }
 
   .infoGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: var(--grid-cols-2);
   }
 }
 
@@ -994,7 +994,7 @@
   }
 
   .infoGrid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: var(--grid-cols-2);
     gap: var(--spacing-xl) var(--spacing-lg);
     padding: var(--spacing-xl) 0;
     margin-bottom: var(--spacing-3xl);
@@ -1005,7 +1005,7 @@
   }
 
   .gallery {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: var(--grid-cols-2);
     grid-auto-rows: 120px;
   }
 
