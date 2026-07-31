@@ -28,6 +28,11 @@
 }
 
 /* title + slug + 예약 발행 묶음 — meta 의 spacing-xl gap 보다 작게 (관련 필드라 가까이) */
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
 
 .excerptInput {
   padding: var(--box-xs-sm);
@@ -612,6 +617,12 @@
   margin: 0 0 var(--spacing-md);
 }
 
+.templateList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
 .templateItem {
   display: flex;
   flex-direction: column;
@@ -865,6 +876,9 @@
 }
 
 /* 두 탭 패널을 같은 grid 셀에 겹쳐 — 컨테이너 높이가 항상 더 큰 패널 기준 → 탭 전환 시 높이 안 변함 */
+.helpPanels {
+  display: grid;
+}
 .helpPanel {
   grid-area: 1 / 1;
   min-width: 0;
@@ -924,6 +938,14 @@
 /* 라벨(첫 span) — 남는 폭을 채워 키를 오른쪽으로 밀되, 키가 안 들어가면 다음 줄로 */
 .helpRow > span:first-child {
   margin-right: auto;
+}
+
+.helpKeys {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap; /* 폭 부족 시 badge 줄바꿈 허용 */
+  justify-content: flex-end;
+  gap: var(--spacing-4xs);
 }
 
 .helpKeyPlus {

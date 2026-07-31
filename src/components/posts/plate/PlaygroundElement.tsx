@@ -121,7 +121,7 @@ export function PlaygroundElement(props: PlateElementProps) {
         /* 스택 미선택(빈 블록) — 스택 피커. 고르면 스타터로 채우고 이후 고정. */
         <div className={styles.pgPicker} onMouseDown={(e) => e.stopPropagation()}>
           <div className={styles.pgPickerTitle}>{t("어떤 스택으로 시작할까요?", "Pick a stack to start")}</div>
-          <div className="tw:flex tw:flex-wrap tw:justify-center tw:gap-sm">
+          <div className={styles.pgPickerGrid}>
             {PLAYGROUND_STACKS.map((s) => (
               <button key={s.value} type="button" className={styles.pgPickerBtn} onClick={() => setTemplate(s.value)}>
                 <span className={styles.pgPickerLabel}>{s.label}</span>

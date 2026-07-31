@@ -582,6 +582,12 @@
   gap: var(--spacing-sm);
 }
 /* 툴바 — [이동·들여쓰기] [추가] … [삭제] */
+.nodeEditBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
 .nodeMoveGroup,
 .nodeAddGroup {
   display: inline-flex;

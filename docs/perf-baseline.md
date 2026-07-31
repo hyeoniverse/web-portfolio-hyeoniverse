@@ -213,7 +213,7 @@ npx next build --experimental-analyze
 
 ### 세 건 모두 "쓰지 않는 것을 전 라우트가 받고 있던" 문제였다
 
-- `cn()` 의 `twMerge` — 제거 당시엔 Tailwind 유틸을 안 써서 병합할 게 없었다 (이후 Tailwind v4 를 `tw:` 프리픽스로 도입했지만, 동적으로 상충하는 유틸을 합치는 `cn()` 호출은 여전히 없어 `clsx` 만으로 충분)
+- `cn()` 의 `twMerge` — CSS Modules 프로젝트라 병합할 Tailwind 클래스가 없었다
 - `SiteConfigProvider` 의 context **기본값** — Provider 가 `<body>` 전체를 감싸 한 번도 안 쓰였다
 - `admin.*` 번역 — 사전의 66%인데 방문자는 쓰지 않는다
 

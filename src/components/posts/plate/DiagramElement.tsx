@@ -583,7 +583,7 @@ export function DiagramElement(props: PlateElementProps) {
                 {nodes.map((n) => {
                   const dd = n.data as ShapeNodeData;
                   return (
-                    <div key={n.id} className="tw:flex tw:flex-wrap tw:items-center tw:gap-2xs">
+                    <div key={n.id} className={styles.diagramFormRow}>
                       <Input className={styles.diagramFormGrow} value={dd.label || ""} placeholder={t("라벨", "Label")} variant="capsule" size="sm" clearable={false}
                         onChange={(v) => patchNode(n.id, { label: v })} />
                       <Select value={dd.shape || "rect"} width="s" onChange={(v) => patchNode(n.id, { shape: v as DiagramNodeShape })}
@@ -607,13 +607,13 @@ export function DiagramElement(props: PlateElementProps) {
                   const nodeOpts = nodes.map((n) => ({ value: n.id, label: (n.data as ShapeNodeData).label || n.id }));
                   return (
                     <div key={e.id} className={styles.diagramFormEdge}>
-                      <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-2xs">
+                      <div className={styles.diagramFormRow}>
                         <div className={styles.diagramFormGrow}><Select width="full" value={e.source} onChange={(v) => patchEdge(e.id, { source: v })} options={nodeOpts} /></div>
                         <span className={styles.diagramFormArrow}>→</span>
                         <div className={styles.diagramFormGrow}><Select width="full" value={e.target} onChange={(v) => patchEdge(e.id, { target: v })} options={nodeOpts} /></div>
                         <Button variant="ghost" tone="danger" size="sm" shape="square" icon={<Trash2 size={14} />} onClick={() => removeEdge(e.id)} aria-label={t("삭제", "Delete")} />
                       </div>
-                      <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-2xs">
+                      <div className={styles.diagramFormRow}>
                         <Input className={styles.diagramFormGrow} value={typeof e.label === "string" ? e.label : ""} placeholder={t("라벨(선택)", "Label (opt)")} variant="capsule" size="sm" clearable={false}
                           onChange={(v) => patchEdge(e.id, { label: v })} />
                         <Select width="s" value={dirOf(e)} onChange={(v) => patchEdge(e.id, dirPatch(e, v as EdgeDir))} options={DIRS.map((d) => ({ value: d.v, label: t(d.label, d.en) }))} />

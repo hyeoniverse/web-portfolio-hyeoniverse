@@ -157,8 +157,8 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
   };
 
   return (
-    <div className="tw:flex tw:flex-col tw:gap-sm">
-      <div className="tw:flex tw:gap-xs tw:items-center tw:flex-wrap">
+    <div className={css.wrap}>
+      <div className={css.toolbar}>
         {/* 공통 SearchCapsule — 지우개·이력 UI 를 자체 구현할 이유가 없다.
             이력/도움말은 이 자리에 불필요해서 끈다. */}
         <SearchCapsule size="sm" search={q} onSearchChange={setQ}

@@ -64,7 +64,7 @@ export default function DayDetailPanel({
   return (
     <div className={styles.dayPanel}>
       {/* 헤더 — 라벨 색 점 + 제목 */}
-      <div className="tw:flex tw:items-center tw:gap-sm">
+      <div className={styles.dayPanelHead}>
         <span className={styles.dayPanelDot} style={{ ["--_c" as string]: colorVar(label?.color) }} />
         {editable ? (
           <input
@@ -95,10 +95,10 @@ export default function DayDetailPanel({
       </div>
 
       {/* 라벨 */}
-      <div className="tw:flex tw:flex-col tw:gap-2xs">
+      <div className={styles.dayPanelField}>
         <span className={styles.dayPanelLabel}>{t("라벨", "Label")}</span>
         {editable ? (
-          <div className="tw:flex tw:flex-wrap tw:gap-2xs">
+          <div className={styles.dayPanelChips}>
             {labels.map((l) => (
               <button
                 key={l.id} type="button"
@@ -116,8 +116,8 @@ export default function DayDetailPanel({
       </div>
 
       {/* 상태 · 중요도 */}
-      <div className="tw:grid tw:grid-cols-2 tw:gap-sm">
-        <div className="tw:flex tw:flex-col tw:gap-2xs">
+      <div className={styles.dayPanelDuo}>
+        <div className={styles.dayPanelField}>
           <span className={styles.dayPanelLabel}>{t("상태", "Status")}</span>
           {editable ? (
             <Select
@@ -128,7 +128,7 @@ export default function DayDetailPanel({
             />
           ) : <span className={styles.dayPanelMuted}>{event.status ? statusName(event.status, language) : t("없음", "None")}</span>}
         </div>
-        <div className="tw:flex tw:flex-col tw:gap-2xs">
+        <div className={styles.dayPanelField}>
           <span className={styles.dayPanelLabel}>{t("중요도", "Priority")}</span>
           {editable ? (
             <Select
@@ -142,14 +142,14 @@ export default function DayDetailPanel({
       </div>
 
       {/* 태그 */}
-      <div className="tw:flex tw:flex-col tw:gap-2xs">
+      <div className={styles.dayPanelField}>
         <span className={styles.dayPanelLabel}>{t("태그", "Tags")}</span>
         {editable && (
           <Input value={tagInput} onChange={setTagInput} placeholder={t("태그 입력 후 Enter", "Type a tag, Enter")} size="sm" clearable={false}
             onKeyDown={(e) => { if ((e.key === "Enter" || e.key === ",") && !e.nativeEvent.isComposing) { e.preventDefault(); addTag(tagInput); } }} />
         )}
         {tags.length > 0 ? (
-          <div className="tw:flex tw:flex-wrap tw:gap-2xs">
+          <div className={styles.dayPanelChips}>
             {tags.map((tg) => <Chip key={tg} variant="capsule" onRemove={editable ? () => removeTag(tg) : undefined}>{tg}</Chip>)}
           </div>
         ) : !editable ? <span className={styles.dayPanelMuted}>{t("없음", "None")}</span> : null}
@@ -157,7 +157,7 @@ export default function DayDetailPanel({
 
       {/* 본문 (읽기전용 렌더 — 편집은 전체 편집) */}
       {event.desc && (
-        <div className="tw:flex tw:flex-col tw:gap-2xs">
+        <div className={styles.dayPanelField}>
           <span className={styles.dayPanelLabel}>{t("내용", "Details")}</span>
           <div className={styles.dayPanelDesc} dangerouslySetInnerHTML={{ __html: event.desc }} />
         </div>

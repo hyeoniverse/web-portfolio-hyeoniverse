@@ -30,7 +30,7 @@ function ReportsSkeleton() {
             <SkeletonLine width="92%" />
             <SkeletonLine width="68%" />
           </div>
-          <div className="tw:flex tw:gap-2xs">
+          <div className={styles.skelActions}>
             <SkeletonPill width={72} />
             <SkeletonPill width={84} />
             <SkeletonPill width={64} />
@@ -185,7 +185,7 @@ export default function ReportsPage() {
                     <span className={styles.reasonLabel}><T k="admin.reports.reason" />:</span> {r.reason}
                   </p>
                 )}
-                <div className="tw:flex tw:flex-wrap tw:gap-2xs">
+                <div className={styles.itemActions}>
                   {url && (
                     <Tooltip content={t("admin.reports.viewTooltip")} placement="top" delay={200}>
                       <Button

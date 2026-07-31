@@ -471,7 +471,7 @@ export default function TagNotesEditor({
                   }}
                 />
               ) : (
-                <div className="tw:inline-flex tw:items-center tw:gap-xs">
+                <div className={styles.headerActions}>
                   {/* + 설명 추가 — 편집 모드(editingItem===item)일 때만, 편집 버튼 왼쪽.
                       나타남/사라짐은 width 0↔auto + opacity 로 슬라이드. */}
                   <AnimatePresence initial={false}>

@@ -270,6 +270,12 @@
   transition: backdrop-filter 0.3s ease;
 }
 
+.badgeRow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
 .badgeSep {
   color: var(--text-white);
   font-size: var(--font-size-2xs);

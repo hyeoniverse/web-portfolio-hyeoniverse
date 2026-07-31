@@ -852,7 +852,7 @@ export default function ColorPicker({
           </div>
 
           {/* Alpha(투명도) — 색과 독립. 체커보드 위 투명→불투명 그라디언트 + 우측 % 입력 */}
-          <div className="tw:flex tw:items-center tw:gap-2xs">
+          <div className={styles.alphaRow}>
             <div
               ref={alphaBarRef}
               className={styles.alphaSlider}
@@ -906,7 +906,7 @@ export default function ColorPicker({
                 const startHex = rgbToHex({ ...rgb, [ch]: 0 });
                 const endHex = rgbToHex({ ...rgb, [ch]: 255 });
                 return (
-                  <div key={ch} className="tw:flex tw:items-center tw:gap-sm">
+                  <div key={ch} className={styles.oklchRow}>
                     <span className={styles.oklchChLabel}>{ch}</span>
                     <Input
                       size="xs"
@@ -946,7 +946,7 @@ export default function ColorPicker({
                   ? `linear-gradient(to right, ${[0, 60, 120, 180, 240, 300, 360].map((h) => hslToHex({ ...hsl, h })).join(",")})`
                   : `linear-gradient(to right, ${startHex}, ${endHex})`;
                 return (
-                  <div key={ch} className="tw:flex tw:items-center tw:gap-sm">
+                  <div key={ch} className={styles.oklchRow}>
                     <span className={styles.oklchChLabel}>{ch}</span>
                     <Input
                       size="xs"
@@ -985,7 +985,7 @@ export default function ColorPicker({
                   ? `linear-gradient(to right, ${[0, 60, 120, 180, 240, 300, 360].map((h) => hsvToHex({ ...hsv, h })).join(",")})`
                   : `linear-gradient(to right, ${startHex}, ${endHex})`;
                 return (
-                  <div key={ch} className="tw:flex tw:items-center tw:gap-sm">
+                  <div key={ch} className={styles.oklchRow}>
                     <span className={styles.oklchChLabel}>{ch}</span>
                     <Input
                       size="xs"
@@ -1018,7 +1018,7 @@ export default function ColorPicker({
             /* oklch-picker / okcolor 패턴 — 각 채널 (L/C/H) 마다 [label + input + slider] row */
             <div className={styles.oklchStack}>
               {/* L row */}
-              <div className="tw:flex tw:items-center tw:gap-sm">
+              <div className={styles.oklchRow}>
                 <span className={styles.oklchChLabel}>L</span>
                 <Input
                   size="xs"
@@ -1047,7 +1047,7 @@ export default function ColorPicker({
                 </div>
               </div>
               {/* C row — scale 은 sRGB safe max (maxC) 기준. L/H 따라 동적. */}
-              <div className="tw:flex tw:items-center tw:gap-sm">
+              <div className={styles.oklchRow}>
                 <span className={styles.oklchChLabel}>C</span>
                 <Input
                   size="xs"
@@ -1076,7 +1076,7 @@ export default function ColorPicker({
                 </div>
               </div>
               {/* H row */}
-              <div className="tw:flex tw:items-center tw:gap-sm">
+              <div className={styles.oklchRow}>
                 <span className={styles.oklchChLabel}>H</span>
                 <Input
                   size="xs"

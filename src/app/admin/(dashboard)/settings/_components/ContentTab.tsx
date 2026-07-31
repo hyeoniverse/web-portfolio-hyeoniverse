@@ -901,7 +901,7 @@ function TagResetConfirmBody({ inUse, tagCounts, tagPosts, affectedCount, onConf
           )}
         </List>
       )}
-      <div className="tw:flex tw:justify-end tw:gap-sm">
+      <div className={styles.tagDeleteConfirmActions}>
         <Button variant="primary" size="md" tone="danger" onClick={onConfirm}>
           기본값으로 초기화
         </Button>
@@ -1145,7 +1145,7 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
             </ListItem>
           ))}
         </List>
-        <div className="tw:flex tw:justify-end tw:gap-sm">
+        <div className={styles.tagDeleteConfirmActions}>
           <Button
             variant="primary"
             size="md"
@@ -1340,7 +1340,7 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
     const en = m.en.trim() || tag;
     const count = tagCounts[tag] ?? 0;
     return (
-      <span className="tw:inline-flex tw:items-center tw:gap-2xs">
+      <span className={styles.worksCatChipLabel}>
         <span>{ko}</span>
         {ko !== en && <span className={styles.worksCatChipSep}>·</span>}
         {ko !== en && <span>{en}</span>}
@@ -1529,7 +1529,7 @@ function TagDescriptionsEditor({ value, onChange, pendingDeletes, onPendingDelet
       <div className={`${styles.worksCatAddBox} ${isEdit ? styles.worksCatAddBoxEdit : ""} ${isShaking ? styles.shakeAlert : ""}`}>
         <div className={styles.worksCatAddLabel}>
           {isEdit ? `편집 — #${editingTag}` : "새 태그 추가"}
-          <div className="tw:inline-flex tw:items-center tw:gap-2xs">
+          <div className={styles.worksCatAddActions}>
             {isEdit && (
               <>
                 <Button

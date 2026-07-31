@@ -39,7 +39,7 @@ export default function CalendarDayModal({
         {sorted.length === 0 ? (
           <div className={styles.dayModalEmpty}>{t("일정이 없습니다", "No events")}</div>
         ) : (
-          <div className="tw:flex tw:flex-col">
+          <div className={styles.dayModalList}>
             {sorted.map((ev) => {
               const st = statusOf(ev.status);
               const pr = priorityOf(ev.priority);

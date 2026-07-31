@@ -528,6 +528,12 @@
   max-width: var(--page-max-width);
 }
 
+.expTimeline {
+  display: flex;
+  gap: 0;
+  flex-direction: column;
+}
+
 .expRow {
   display: grid;
   gap: 2rem;
@@ -654,6 +660,12 @@
   color: var(--text-tertiary);
 }
 
+.skillPanelList {
+  display: flex;
+  gap: 0;
+  flex-direction: column;
+}
+
 .skillPanelItem {
   padding: 1.5rem 0;
   border-bottom: 1px solid var(--border-default);
@@ -681,6 +693,11 @@
 }
 
 /* ── Panel: Philosophy (bold typographic) ── */
+.philosophyStack {
+  display: flex;
+  gap: 0;
+  flex-direction: column;
+}
 
 .philosophyRow {
   display: grid;
@@ -730,6 +747,11 @@
 }
 
 /* ── Panel: My Approach (bold typographic) ── */
+.approachStack {
+  display: flex;
+  gap: 0;
+  flex-direction: column;
+}
 
 .approachRow {
   display: grid;
@@ -785,12 +807,23 @@
   grid-template-columns: var(--grid-cols-2);
 }
 
+.credentialColumn {
+  display: flex;
+  flex-direction: column;
+}
+
 .credentialHeading {
   margin: 0 0 1.5rem;
   font-family: var(--font-instrument), serif;
   font-size: 1.25rem;
   font-weight: 400;
   color: var(--text-primary);
+}
+
+.credentialList {
+  display: flex;
+  gap: 0;
+  flex-direction: column;
 }
 
 .credentialItem {

@@ -108,7 +108,7 @@ function PriorityList<T extends string>({ primary, priority, excluded, options, 
       {ordered.map((val, idx) => {
         const label = options.find((o) => o.value === val)?.label ?? val;
         return (
-          <div key={val} className="tw:flex tw:items-center tw:gap-xs">
+          <div key={val} className={styles.priorityRow}>
             <Checkbox
               shape="square"
               checked={!excluded.includes(val)}
@@ -380,7 +380,7 @@ function MediaLimitsEditor({ config, setConfig, t }: {
             onDragLeave={() => setDragOverSize(null)}
             onDrop={(e) => handleBucketDrop(e, size)}
           >
-            <div className="tw:flex tw:items-center tw:justify-between tw:gap-xs">
+            <div className={styles.sizeBucketHead}>
               <span className={styles.sizeBucketLabel}>{opt.label}</span>
               <span className={styles.sizeBucketCount}>{inBucket.length}</span>
             </div>
@@ -400,7 +400,7 @@ function MediaLimitsEditor({ config, setConfig, t }: {
         onDragLeave={() => setDragOverPool(false)}
         onDrop={handlePoolDrop}
       >
-        <div className="tw:flex tw:items-center tw:justify-between tw:gap-xs">
+        <div className={styles.sizeBucketHead}>
           <span className={styles.sizeBucketLabel}>{t("admin.settings.sizePoolLabel")}</span>
           <span className={styles.sizeBucketCount}>{availableFormats.length}</span>
         </div>
@@ -464,7 +464,7 @@ function CustomMimeAdder({
   return (
     <div className={styles.customMimeAdder}>
       <span className={styles.customMimeLabel}>{t("admin.settings.customMimeAdd")}</span>
-      <div className="tw:flex tw:gap-xs tw:items-center">
+      <div className={styles.customMimeRow}>
         <input
           className={styles.customMimeInput}
           type="text"
@@ -866,7 +866,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   onChange={(v) => updateGiscus("inputPosition", v as SiteConfigData["comments"]["giscus"]["inputPosition"])}
                 />
               </FieldRow>
-              <div className="tw:flex tw:items-center tw:gap-xs">
+              <div className={styles.switchHelpRow}>
                 <Switch
                   size="md"
                   label={t("admin.settings.giscusReactions")}
@@ -878,7 +878,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   "Shows the main post's emoji reactions above comments.",
                 )} />
               </div>
-              <div className="tw:flex tw:items-center tw:gap-xs">
+              <div className={styles.switchHelpRow}>
                 <Switch
                   size="md"
                   label={t("admin.settings.giscusStrict")}
@@ -890,7 +890,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   "Matches pages and Discussions more strictly to avoid collisions.",
                 )} />
               </div>
-              <div className="tw:flex tw:items-center tw:gap-xs">
+              <div className={styles.switchHelpRow}>
                 <Switch
                   size="md"
                   label={t("admin.settings.giscusEmitMetadata")}
@@ -902,7 +902,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                   "Sends Discussion metadata to the parent page. Usually fine to leave off.",
                 )} />
               </div>
-              <div className="tw:flex tw:items-center tw:gap-xs">
+              <div className={styles.switchHelpRow}>
                 <Switch
                   size="md"
                   label={t("admin.settings.giscusLazyLoading")}

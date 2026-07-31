@@ -166,6 +166,17 @@
 }
 
 /* Visitor counter */
+.visits {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.visitItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2xs);
+}
 
 .visitLabel {
   font-size: var(--font-size-3xs);

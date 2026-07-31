@@ -81,6 +81,10 @@
   gap: var(--spacing-2xs);
   margin-bottom: var(--spacing-md);
 }
+.skelActions {
+  display: flex;
+  gap: var(--spacing-2xs);
+}
 
 .list {
   list-style: none;
@@ -167,6 +171,12 @@
   font-weight: 600;
   color: var(--text-tertiary);
   margin-right: var(--spacing-2xs);
+}
+
+.itemActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
 }
 
 /* Notifications 페이지의 "신고" 탭에서 사용되는 내부 status 필터 행 */

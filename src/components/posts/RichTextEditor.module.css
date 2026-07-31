@@ -906,6 +906,12 @@
   gap: var(--spacing-2xs);
   min-width: 0;
 }
+.mermaidHelpLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
 .mermaidHelpLabel {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-md);
@@ -954,6 +960,11 @@
   color: var(--text-secondary);
 }
 /* 문법/고급문법/예시 — label 을 분리한 섹션 */
+.mermaidHelpSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
 /* 규칙 목록 — 배경·테두리 없이 얇은 구분선만(문서 표처럼 가볍게) */
 .mermaidHelpRules {
   display: flex;
@@ -994,6 +1005,11 @@
   }
 }
 /* 코드(위) + 그래프(아래) 세로 배치 */
+.mermaidHelpExampleBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
 .mermaidHelpCode {
   margin: 0;
   padding: var(--spacing-sm) var(--spacing-md);
@@ -1011,6 +1027,11 @@
 .mermaidHelpTabs {
   overflow-x: auto;
   padding-bottom: var(--spacing-3xs);
+}
+.mermaidHelpTabBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
 }
 /* 차트 뷰포트 래퍼 — 컨트롤을 스크롤 밖 우상단에 고정 */
 .mermaidHelpDiagramWrap {
@@ -1796,6 +1817,12 @@
   gap: 7px;
 }
 /* 라벨 + 토글 버튼을 한 줄에 (예: 줄무늬 on/off) */
+.colorMenuHeadRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
 .colorMenuFooter {
   display: flex;
   align-items: center;
@@ -1912,6 +1939,12 @@
   padding: var(--spacing-sm);
   min-width: 14rem;
 }
+.colLayoutRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
 /* 열별 너비 입력 목록 (%/px) — 세로 스택 */
 .colWidthList {
   display: flex;
@@ -1923,6 +1956,11 @@
   scrollbar-gutter: stable;
   /* overflow 스크롤 컨테이너라 세로 패딩 없으면 첫/끝 행 NumberInput 포커스 링이 잘림 */
   padding-block: var(--spacing-2xs);
+}
+.colWidthRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
 }
 .colWidthIdx {
   width: 16px;
@@ -2167,6 +2205,12 @@
   gap: var(--spacing-sm);
 }
 
+.borderPopTopRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
 .borderPopRightStack {
   display: flex;
   flex-direction: column;
@@ -2231,6 +2275,12 @@
   align-items: center;
   gap: var(--spacing-3xs);
   flex-wrap: wrap;
+}
+
+.borderPopSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 
 .borderPopLabel {
@@ -4968,6 +5018,11 @@
   font-size: var(--font-size-xs);
   color: var(--text-primary);
   text-align: center;
+}
+.imgConfirmActions {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-2xs);
 }
 
 .imgDimLabel {

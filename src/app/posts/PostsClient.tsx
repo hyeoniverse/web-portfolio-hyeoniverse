@@ -1390,7 +1390,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <div className="tw:flex tw:items-baseline tw:gap-sm tw:flex-wrap">
+                  <div className={styles.activeSeriesMetaTop}>
                     <h3 className={styles.activeSeriesMetaTitle}>
                       {language === "en" ? (activeSeriesObj.title_en || activeSeriesObj.title) : activeSeriesObj.title}
                     </h3>
@@ -1588,7 +1588,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                     return (
                       <motion.div
                         key={group.year}
-                        className="tw:flex tw:flex-col tw:gap-4xs"
+                        className={styles.timelineIndexGroup}
                         variants={{ hidden: {}, show: { transition: { staggerChildren: 0.02 } } }}
                       >
                         <motion.div
@@ -1898,7 +1898,7 @@ function PostsSkeletonCards({
                 <SkeletonLine width="100%" height={14} />
                 <SkeletonLine width="84%" height={14} />
                 {/* tags row */}
-                <div className="tw:flex tw:flex-wrap tw:gap-2xs">
+                <div className={styles.skeletonTagsRow}>
                   <SkeletonPill width={50} height={20} />
                   <SkeletonPill width={66} height={20} />
                   <SkeletonPill width={44} height={20} />

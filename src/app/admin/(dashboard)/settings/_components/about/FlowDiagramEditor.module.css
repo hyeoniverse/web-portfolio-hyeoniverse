@@ -5,6 +5,12 @@
   flex: 1;
   min-width: 0;
 }
+.toolbar {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  flex-wrap: wrap;
+}
 .hint {
   margin: 0;
   color: var(--text-tertiary);

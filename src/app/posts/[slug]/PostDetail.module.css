@@ -29,6 +29,13 @@
   margin-top: var(--spacing-lg);
 }
 
+.tagsShareRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
 .meta {
   display: flex;
   flex-wrap: wrap;
@@ -178,6 +185,12 @@
   gap: var(--spacing-2xs);
   min-width: 0;
 }
+.authorFooterNameRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
 .authorFooterName {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-lg);
@@ -230,6 +243,12 @@
   .authorFooterName {
     font-size: var(--font-size-md);
   }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 
 .tag {

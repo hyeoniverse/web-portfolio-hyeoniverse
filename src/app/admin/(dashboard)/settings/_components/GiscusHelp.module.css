@@ -31,10 +31,23 @@
   font-family: var(--font-space-grotesk);
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
 .title {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
+}
+
+.sec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
 .secTitle {

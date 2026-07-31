@@ -399,7 +399,7 @@ function CommentItem({
         {/* 거터 — 삭제된 댓글이라 아바타가 없다. 자리는 유지해야 아래 답글들의 거터/줄 위치가
             일반 댓글과 어긋나지 않으므로, 빈 칸 대신 휴지통 아이콘으로 삭제됨을 표시한다
             (빈 박스로 두면 아바타 로딩 실패처럼 보임) */}
-        <div className="tw:flex tw:flex-col tw:items-center tw:gap-2xs">
+        <div className={styles.gutter}>
           <span className={`${styles.avatar} ${styles.avatarDeleted}`} aria-hidden="true">
             <Trash2 size={14} />
           </span>
@@ -489,7 +489,7 @@ function CommentItem({
       )}
 
       {/* 거터 — 아바타 + 그 아래로 흐르는 스레드 줄. 줄은 답글이 붙을 때만 (답글 목록 / 답글 폼) */}
-      <div className="tw:flex tw:flex-col tw:items-center tw:gap-2xs">
+      <div className={styles.gutter}>
         <span className={styles.avatar}>{identity.emoji}</span>
         {(hasReplies || showReply) && <span className={styles.threadLine} />}
       </div>
@@ -611,7 +611,7 @@ function CommentItem({
       </AnimatePresence>
 
       <div className={styles.commentBottom}>
-        <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-sm">
+        <div className={styles.reactionBar}>
           {/* 추가 버튼이 맨 앞(왼쪽) — 반응 칩은 이 버튼 오른쪽에 하나씩 붙는다 */}
           <Popover
             placement="bottom-start"
@@ -629,7 +629,7 @@ function CommentItem({
             }
           >
             {({ close }) => (
-              <div className="tw:flex tw:gap-4xs">
+              <div className={styles.reactionPicker}>
                 {REACTION_EMOJIS.map((emoji) => (
                   <button
                     key={emoji}
@@ -644,7 +644,7 @@ function CommentItem({
             )}
           </Popover>
           {/* 칩들은 별도 그룹 — 추가 버튼과의 간격(.reactionBar gap)과 칩끼리 간격(.reactionChips gap)을 분리 */}
-          <div className="tw:inline-flex tw:items-center tw:flex-wrap tw:gap-xs">
+          <div className={styles.reactionChips}>
             {/* REACTION_EMOJIS 의 지정된 순서대로 삽입 (반응한 시각과 무관하게 항상 같은 자리) */}
             {REACTION_EMOJIS.filter((emoji) => (reactions[emoji] ?? 0) > 0).map((emoji) => (
               <button
@@ -660,7 +660,7 @@ function CommentItem({
           </div>
         </div>
 
-        <div className="tw:flex tw:items-center">
+        <div className={styles.commentActions}>
           {canTranslate && <Button
             variant="ghost"
             size="sm"
@@ -801,7 +801,7 @@ function CommentItem({
                 <T k="comments.reportThanks" />
               </p>
             ) : (
-              <div className="tw:flex tw:items-center tw:justify-end tw:gap-xs">
+              <div className={styles.reportRow}>
                 {/* 남는 폭 채우기는 래퍼가 담당 — 공통 Input 엔 스타일 클래스를 붙이지 않는다 */}
                 <div className={styles.reportField}>
                   <Input

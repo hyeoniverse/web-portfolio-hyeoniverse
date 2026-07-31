@@ -228,8 +228,8 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
       labels={labels}
     >
       <div className={styles.container}>
-        <div className="tw:flex tw:flex-col tw:gap-md">
-          <div className="tw:flex tw:flex-col tw:gap-2xs">
+        <div className={styles.body}>
+          <div className={styles.fieldGroup}>
             <label className={styles.label}><T k="admin.posts.seriesModal.titleKO" /></label>
             <input
               className={styles.input}
@@ -239,7 +239,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
             />
           </div>
 
-          <div className="tw:flex tw:flex-col tw:gap-2xs">
+          <div className={styles.fieldGroup}>
             <label className={styles.label}><T k="admin.posts.seriesModal.titleEN" /></label>
             <input
               className={styles.input}
@@ -249,7 +249,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
             />
           </div>
 
-          <div className="tw:flex tw:flex-col tw:gap-2xs">
+          <div className={styles.fieldGroup}>
             <label className={styles.label}><T k="admin.posts.seriesModal.descriptionKO" /></label>
             <Textarea
               textareaClassName={styles.textarea}
@@ -260,7 +260,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
             />
           </div>
 
-          <div className="tw:flex tw:flex-col tw:gap-2xs">
+          <div className={styles.fieldGroup}>
             <label className={styles.label}><T k="admin.posts.seriesModal.descriptionEN" /></label>
             <Textarea
               textareaClassName={styles.textarea}
@@ -273,7 +273,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
 
           <div className={styles.row}>
             {/* 시리즈 카테고리 필드 제거 — 카테고리는 멤버 글들에서 도출(각 글이 자기 카테고리 보유) */}
-            <div className="tw:flex tw:flex-col tw:gap-2xs">
+            <div className={styles.fieldGroup}>
               <label className={styles.label}><T k="admin.posts.seriesModal.published" /></label>
               <div className={styles.toggle}>
                 <Checkbox
@@ -285,10 +285,10 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
             </div>
           </div>
 
-          <div className="tw:flex tw:flex-col tw:gap-2xs">
+          <div className={styles.fieldGroup}>
             <label className={styles.label}><T k="admin.posts.seriesModal.coverImage" /></label>
             {form.cover_image ? (
-              <div className="tw:flex tw:items-center tw:gap-sm">
+              <div className={styles.coverPreview}>
                 <Image
                   src={form.cover_image}
                   alt="Series cover"
@@ -306,7 +306,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
               </div>
             ) : (
               <>
-                <div className="tw:flex tw:gap-xs">
+                <div className={styles.coverActions}>
                   <button
                     type="button"
                     className={styles.uploadBtn}
@@ -344,7 +344,7 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
               ) : posts.length === 0 ? (
                 <p className={styles.postsEmpty}><T k="admin.posts.seriesModal.postsEmpty" /></p>
               ) : (
-                <div className="tw:flex tw:flex-col tw:gap-3xs">
+                <div className={styles.postsList}>
                   {posts.map((post, idx) => (
                     <div key={post.id} className={styles.postItem}>
                       <div className={styles.postOrder}>

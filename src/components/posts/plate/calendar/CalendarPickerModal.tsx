@@ -67,7 +67,7 @@ export default function CalendarPickerModal({
 
   return (
     <div className={styles.pickerModal}>
-      <div className="tw:flex tw:items-center tw:gap-xs">
+      <div className={styles.pickerActions}>
         <button type="button" className={styles.pickerNew} onClick={() => { onCreateNew(); close(); }}>
           <CalendarPlus size={15} />{t("새 달력 만들기", "New calendar")}
         </button>
