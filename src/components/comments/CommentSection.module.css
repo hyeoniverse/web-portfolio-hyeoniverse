@@ -99,19 +99,6 @@
   margin-bottom: var(--spacing-md);
 }
 
-.headingRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-}
-
-.headingLeft {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
 /* 정렬 Select + 역순 토글을 한 덩어리로 */
 /* 역순 토글 / 선택 / 일괄삭제 / 더보기 버튼은 공통 Button 컴포넌트를 사용.
    variant="outline" + active(inverse 채움) / tone="danger" / loading(자동 disabled + 너비 보존)
@@ -137,7 +124,3 @@
 }
 
 /* 더보기 버튼 래퍼 — 스타일은 공통 Button 이 가지고, 가운데 정렬만 래퍼가 담당 */
-.loadMoreRow {
-  display: flex;
-  justify-content: center;
-}

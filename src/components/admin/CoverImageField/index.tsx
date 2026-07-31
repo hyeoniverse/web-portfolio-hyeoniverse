@@ -109,7 +109,7 @@ export default function CoverImageField({
 
   // 라벨 라인의 inline 액션 버튼들 — 공통 Button (ghost) + className 으로 현재 크기 유지
   const inlineActions = (
-    <div className={styles.inlineActions}>
+    <div className="tw:inline-flex tw:items-center tw:gap-2xs">
       <Button
         variant="ghost"
         size="xs"
@@ -164,14 +164,14 @@ export default function CoverImageField({
 
   return (
     <div className={styles.field} data-seo={seoId}>
-      <div className={styles.labelRow}>
+      <div className="tw:flex tw:items-center tw:gap-xs tw:justify-between">
         <label className={`${es.fieldLabel}${hasError ? ` ${es.fieldLabelError}` : ""}`}>
           {label}
         </label>
         {inlineActions}
       </div>
       {value && (
-        <div className={styles.previewRow}>
+        <div className="tw:flex tw:items-center tw:gap-sm tw:flex-wrap">
           <button
             type="button"
             className={styles.previewBtn}

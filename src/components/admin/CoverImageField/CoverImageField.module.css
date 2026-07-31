@@ -10,19 +10,8 @@
 }
 
 /* 라벨 row — 라벨 + inline 액션 버튼들 */
-.labelRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  justify-content: space-between;
-}
 
 /* 라벨 옆 inline 버튼 그룹 — border 없이 컴팩트 */
-.inlineActions {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-}
 
 .inlineBtn {
   display: inline-flex;
@@ -56,12 +45,6 @@
 }
 
 /* 썸네일 + 추출된 팔레트 가로 배치 */
-.previewRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
-}
 
 /* 썸네일 — 클릭 시 picker 열림 (편집창) */
 .previewBtn {

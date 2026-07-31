@@ -163,7 +163,7 @@ export default function SegmentedControl<T extends string, S extends string = st
   /* ── Inline 모드: main + [divider + sub items] 같은 row ── */
   if (hasSub && subVariant === "inline" && activeItem) {
     return (
-      <div className={styles.subInlineWrap}>
+      <div className="tw:inline-flex tw:items-center tw:gap-xs">
         {mainGroup}
         <span aria-hidden className={styles.nestedDivider} />
         <SegmentedControl<S>

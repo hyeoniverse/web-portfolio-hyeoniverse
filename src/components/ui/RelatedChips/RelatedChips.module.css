@@ -1,9 +1,4 @@
 /* 관련 글/프로젝트 칩 — 썸네일 + 제목 + 카테고리, wrap, hover 미리보기 */
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
 .chip {
   display: inline-flex;
   align-items: center;

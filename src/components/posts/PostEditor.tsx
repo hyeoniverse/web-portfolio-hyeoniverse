@@ -916,7 +916,7 @@ export default function PostEditor({ post }: PostEditorProps) {
     openModal(
       <div className={styles.templateModal}>
         <p className={styles.templateModalDesc}>{te("templateDesc")}</p>
-        <div className={styles.templateList}>
+        <div className="tw:flex tw:flex-col tw:gap-xs">
           {POST_TEMPLATES.map((tmpl) => (
             <button
               key={tmpl.id}
@@ -1045,7 +1045,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       )}
       <div className={styles.meta}>
         {/* title + slug + 예약 발행 — 컴팩트 그룹 (gap 작게) */}
-        <div className={styles.titleGroup}>
+        <div className="tw:flex tw:flex-col tw:gap-sm">
           <div className={es.field} data-seo="title" data-required="title">
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--spacing-xs)" }}>
               <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>

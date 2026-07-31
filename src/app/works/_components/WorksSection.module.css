@@ -206,12 +206,6 @@
   pointer-events: none;
 }
 
-.activeInfoInner {
-  display: flex;
-  gap: var(--spacing-xs);
-  flex-direction: column;
-}
-
 .activeNumber {
   font-family: var(--font-instrument), serif;
   font-size: var(--font-size-sm);

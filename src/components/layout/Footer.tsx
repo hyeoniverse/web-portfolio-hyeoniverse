@@ -126,13 +126,13 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
   const isMinimal = variant === "minimal";
 
   const visitsBlock = visits && (
-    <div className={styles.visits}>
-      <span className={styles.visitItem}>
+    <div className="tw:flex tw:items-center tw:gap-sm">
+      <span className="tw:flex tw:items-baseline tw:gap-2xs">
         <span className={styles.visitLabel}>Today</span>
         <span className={styles.visitCount}>{visits.today.toLocaleString()}</span>
       </span>
       <span className={styles.visitDot} />
-      <span className={styles.visitItem}>
+      <span className="tw:flex tw:items-baseline tw:gap-2xs">
         <span className={styles.visitLabel}>Total</span>
         <span className={styles.visitCount}>{visits.total.toLocaleString()}</span>
       </span>
@@ -179,7 +179,7 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
               {copyrightText}
             </div>
             <div className={styles.bottomRight}>
-              <div className={styles.visits}>
+              <div className="tw:flex tw:items-center tw:gap-sm">
                 <Link href="/privacy" className={styles.adminLink}>Privacy</Link>
                 <span className={styles.divider}>✧</span>
                 <Link href="/design-system" target="_blank" className={styles.adminLink}>Design System</Link>
@@ -192,12 +192,12 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                 {visits && (
                   <>
                     <span className={styles.stretchLine} />
-                    <span className={styles.visitItem}>
+                    <span className="tw:flex tw:items-baseline tw:gap-2xs">
                       <span className={styles.visitLabel}>Today</span>
                       <span className={styles.visitCount}>{visits.today.toLocaleString()}</span>
                     </span>
                     <span className={styles.visitDot} />
-                    <span className={styles.visitItem}>
+                    <span className="tw:flex tw:items-baseline tw:gap-2xs">
                       <span className={styles.visitLabel}>Total</span>
                       <span className={styles.visitCount}>{visits.total.toLocaleString()}</span>
                     </span>

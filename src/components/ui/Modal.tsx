@@ -325,7 +325,7 @@ export default function Modal() {
                     {header.actions}
                     {(subButtons || (closeButton && !isMobile)) && (
                       <div className={styles.rightCluster}>
-                        {subButtons && <div className={styles.subButtons}>{subButtons}</div>}
+                        {subButtons && <div className="tw:inline-flex tw:items-center tw:gap-3xs">{subButtons}</div>}
                         {closeButton && !isMobile && (
                           <CloseButton
                             className={styles.closeButton}
@@ -344,7 +344,7 @@ export default function Modal() {
             {/* 헤더 없을 때만 절대배치 (모바일은 X 숨김 — 아래로 드래그 + grabber 로 닫음) */}
             {!header && ((closeButton && !isMobile) || subButtons) && (
               <div className={styles.topRight}>
-                {subButtons && <div className={styles.subButtons}>{subButtons}</div>}
+                {subButtons && <div className="tw:inline-flex tw:items-center tw:gap-3xs">{subButtons}</div>}
                 {closeButton && !isMobile && (
                   <CloseButton
                     className={styles.closeButton}

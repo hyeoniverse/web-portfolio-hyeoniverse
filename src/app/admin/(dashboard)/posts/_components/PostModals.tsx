@@ -24,7 +24,7 @@ export function PurgeModal({ title, onConfirm }: { title: string; onConfirm: () 
         onChange={setInput}
         onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing && valid) { closeAll(); onConfirm(); } }}
       />
-      <div className={styles.seriesDeleteActions}>
+      <div className="tw:flex tw:justify-end tw:gap-xs">
         <Button variant="outline" size="xs" onClick={closeAll}>{t("admin.posts.cancel")}</Button>
         <Button variant="primary" size="xs" tone="danger" disabled={!valid} onClick={() => { closeAll(); onConfirm(); }}>{t("admin.posts.trashPurge")}</Button>
       </div>
@@ -57,7 +57,7 @@ export function SeriesDeleteModal({ series, deletePostsRef, onConfirm }: {
         onChange={setInput}
         onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing && valid) { closeAll(); onConfirm(); } }}
       />
-      <div className={styles.seriesDeleteActions}>
+      <div className="tw:flex tw:justify-end tw:gap-xs">
         <Button variant="outline" size="xs" onClick={closeAll}>{t("admin.posts.cancel")}</Button>
         <Button variant="primary" size="xs" tone="danger" disabled={!valid} onClick={() => { closeAll(); onConfirm(); }}>{t("admin.posts.delete")}</Button>
       </div>

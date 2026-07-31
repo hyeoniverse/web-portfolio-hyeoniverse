@@ -255,7 +255,7 @@ export default function CalendarEventModal({
   const monthShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   // "n번째 요일" 조건 select 2개 (월·연 공통)
   const ordCondRow = (
-    <div className={styles.recurOrdRow}>
+    <div className="tw:flex tw:items-center tw:gap-2xs tw:flex-wrap">
       <Select value={String(repeatBysetpos ?? 1)} onChange={(v) => setRepeatBysetpos(parseInt(v, 10))} width="s" size="sm" dropdownClassName={styles.selectAboveModal} options={ordinalOpts} />
       <Select value={repeatOrdDay} onChange={setRepeatOrdDay} width="m" size="sm" dropdownClassName={styles.selectAboveModal} options={weekdayOpts} />
     </div>
@@ -273,7 +273,7 @@ export default function CalendarEventModal({
     >
     {viewing ? (
       <div className={styles.viewDetail}>
-        <div className={styles.vdHead} style={{ ["--_c" as string]: colorVar(curLabel?.color) }}>
+        <div className="tw:flex tw:items-stretch tw:gap-sm" style={{ ["--_c" as string]: colorVar(curLabel?.color) }}>
           <span className={styles.vdBar} />
           <h3 className={styles.vdTitle}>{title || t("(제목 없음)", "(Untitled)")}</h3>
         </div>
@@ -316,7 +316,7 @@ export default function CalendarEventModal({
         <div className={`${styles.vdSection} ${styles.vdDividerBottom}`}>
           <span className={styles.vdLabel}>{t("태그", "Tags")}</span>
           {tags.length > 0 ? (
-            <div className={styles.vdTags}>{tags.map((tg) => <span key={tg} className={styles.previewTag}>#{tg}</span>)}</div>
+            <div className="tw:flex tw:flex-wrap tw:gap-2xs">{tags.map((tg) => <span key={tg} className={styles.previewTag}>#{tg}</span>)}</div>
           ) : <span className={styles.vdEmpty}>{t("비어있음", "Empty")}</span>}
         </div>
         <div className={styles.vdSection}>
@@ -359,7 +359,7 @@ export default function CalendarEventModal({
         </div>
       </div>
     ) : (
-    <div className={styles.modalBody}>
+    <div className="tw:flex tw:flex-col">
     {recurring && (
       <div className={styles.recurScopeBar}>
         <span className={styles.recurScopeLabel}>{t("적용 범위", "Apply to")}</span>
@@ -395,7 +395,7 @@ export default function CalendarEventModal({
       {/* 라벨 (필수, 선택/생성/수정/삭제) — 날짜 위, 아래 구분선 */}
       <div className={`${styles.section} ${styles.sectionFull} ${styles.grpDividerBottom}`}>
         <span className={styles.sectionLabel}>{t("라벨", "Label")}<span className={styles.reqDot} aria-hidden /></span>
-        <div className={styles.labelRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-2xs tw:items-center">
           {labels.map((l) => (
             <span key={l.id} className={`${styles.labelChip}${labelId === l.id ? ` ${styles.labelChipOn}` : ""}`} style={{ ["--_lc" as string]: colorVar(l.color) }}>
               <button type="button" className={styles.labelChipSelect} onClick={() => setLabelId(labelId === l.id ? null : l.id)}>
@@ -419,7 +419,7 @@ export default function CalendarEventModal({
               autoFocus
               onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) { e.preventDefault(); submitLabel(); } }}
             />
-            <div className={styles.colorRow}>
+            <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-xs">
               {EVENT_COLORS.map((c) => (
                 <button key={c.key} type="button" className={`${styles.swatch}${lColor === c.key ? ` ${styles.swatchOn}` : ""}`} style={{ ["--_sw" as string]: c.var }} onClick={() => setLColor(c.key)} aria-label={c.key} />
               ))}
@@ -448,13 +448,13 @@ export default function CalendarEventModal({
 
       {/* 날짜 (필수, 2열 전체) — 시작 + 선택적 종료(기간 토글) */}
       <div className={`${styles.section} ${styles.sectionFull}`}>
-        <div className={styles.sectionLabelRow}>
+        <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
           <span className={styles.sectionLabel}>{t("날짜", "Date")}<span className={styles.reqDot} aria-hidden /></span>
           <Button size="2xs" variant="subtle" className={endDate != null ? styles.rangeToggleOn : undefined} onClick={() => setEndDate((prev) => (prev ? null : date))}>
             {t("기간", "Range")}
           </Button>
         </div>
-        <div className={styles.dateRow}>
+        <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-2xs">
           <span className={styles.monthNavWrap}>
             <button type="button" className={styles.dateTrigger} onClick={() => { setStartOpen((o) => !o); setEndOpen(false); }}>
               <CalendarDays size={14} />{formatDateValue(date, null, language)}
@@ -494,7 +494,7 @@ export default function CalendarEventModal({
 
       {/* 시간 (시작 ~ 종료) */}
       <div className={`${styles.section} ${styles.sectionFull}`}>
-        <div className={styles.sectionLabelRow}>
+        <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
           <span className={styles.sectionLabel}>{t("시간", "Time")}</span>
           {time && (
             <Button size="2xs" variant="subtle" onClick={() => { setTime(null); setEndTime(null); setStartTimeOpen(false); setEndTimeOpen(false); }}>{t("제거", "Clear")}</Button>
@@ -505,7 +505,7 @@ export default function CalendarEventModal({
             <Clock size={13} />{t("시간 추가", "Add time")}
           </button>
         ) : (
-          <div className={styles.dateRow}>
+          <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-2xs">
             <span className={styles.monthNavWrap}>
               <button type="button" className={`${styles.dateTrigger} ${styles.timeToggleOn}`} onClick={() => { setStartTimeOpen((o) => !o); setEndTimeOpen(false); }}>
                 <Clock size={14} />{formatClock(time, timeFormat)}
@@ -543,7 +543,7 @@ export default function CalendarEventModal({
       {!(recurring && recurScope === "this") && (
       <div className={`${styles.section} ${styles.sectionFull}`}>
         <span className={styles.sectionLabel}>{t("반복", "Repeat")}</span>
-        <div className={styles.dateRow}>
+        <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-2xs">
           <Select
             value={repeatCustom ? "custom" : repeatFreq}
             onChange={(v) => {
@@ -587,7 +587,7 @@ export default function CalendarEventModal({
             >
               <div className={styles.recurPopBody}>
                 {repeatCustom && (
-                  <div className={styles.recurCustom}>
+                  <div className="tw:flex tw:flex-col tw:gap-2xs">
                     <div className={styles.recurCustomRow}>
                       <span className={styles.recurText}>{t("매", "Every")}</span>
                       <NumberInput
@@ -618,7 +618,7 @@ export default function CalendarEventModal({
                       <span className={styles.recurText}>{repeatFreq === "weekly" ? t("마다 해당 요일에", "on") : repeatFreq === "yearly" ? t("마다 해당 달에", "in") : t("마다", "")}</span>
                     </div>
                     {repeatFreq === "weekly" && (
-                      <div className={styles.recurWeekdays}>
+                      <div className="tw:flex tw:gap-3xs tw:flex-wrap">
                         {[t("일", "S"), t("월", "M"), t("화", "T"), t("수", "W"), t("목", "T"), t("금", "F"), t("토", "S")].map((w, i) => (
                           <button
                             key={i} type="button"
@@ -630,7 +630,7 @@ export default function CalendarEventModal({
                     )}
                     {/* 월간 — 날짜 지정(bymonthday) / 조건 지정(n번째 요일) */}
                     {repeatFreq === "monthly" && (
-                      <div className={styles.recurAdv}>
+                      <div className="tw:flex tw:flex-col tw:gap-2xs">
                         <SegmentedControl<"day" | "ordinal">
                           variant="subtle"
                           className={styles.recurModeSeg}
@@ -656,7 +656,7 @@ export default function CalendarEventModal({
                     )}
                     {/* 연간 — 해당 달(bymonth) grid + 선택적 조건 지정 */}
                     {repeatFreq === "yearly" && (
-                      <div className={styles.recurAdv}>
+                      <div className="tw:flex tw:flex-col tw:gap-2xs">
                         <div className={styles.recurYearCols}>
                           <div className={styles.recurMonthGrid}>
                             {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
@@ -780,14 +780,14 @@ export default function CalendarEventModal({
           }}
         />
         {tags.length > 0 && (
-          <div className={styles.tagRow}>
+          <div className="tw:flex tw:flex-wrap tw:gap-2xs">
             {tags.map((tg, i) => (
               <Chip key={`${tg}-${i}`} variant="capsule" onRemove={() => removeTag(i)}>{tg}</Chip>
             ))}
           </div>
         )}
         {suggestable.length > 0 && (
-          <div className={styles.tagSuggest}>
+          <div className="tw:flex tw:flex-wrap tw:gap-2xs">
             {suggestable.map((s) => (
               <Chip key={s} variant="capsule" className={styles.suggestChip} leftIcon={<Plus size={11} />} onClick={() => addTag(s)}>{s}</Chip>
             ))}

@@ -356,12 +356,6 @@
   color: var(--text-primary);
   border-color: var(--border-strong-color);
 }
-.diagramFormRow {
-  display: flex;
-  flex-wrap: wrap; /* 좁으면 줄바꿈 — 컨트롤이 넘쳐 레이아웃 깨지지 않게 */
-  align-items: center;
-  gap: var(--spacing-2xs);
-}
 /* 늘어나는 컨트롤(라벨 input, 노드 select) — 최소폭 0 이라 긴 텍스트에도 무한 확장 안 함 */
 .diagramFormGrow {
   flex: 1 1 120px;

@@ -37,12 +37,6 @@
   color: var(--text-muted);
 }
 
-.headerRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
 /* ── Collapsible body ── */
 .body {
   display: grid;
