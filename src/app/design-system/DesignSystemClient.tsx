@@ -23,7 +23,7 @@ import {
 } from "./_data/animations";
 import {
   brandColors, neutralScale, alphaSteps, semanticColors,
-  typoVariants, typoColors, spacingScale, radiusScale,
+  typoVariants, typoColors, spacingScale, radiusScale, gridColsScale,
   shadowScale, durations, easings, zScale, tocSections,
 } from "./_data/tokenData";
 import dynamic from "next/dynamic";
@@ -449,6 +449,23 @@ export default function DesignSystemClient() {
                   </motion.div>
                 );
               })}
+            </motion.div>
+          </section>
+
+          {/* ─── Grid ─── */}
+          <section id="grid" ref={setSectionRef("grid")} className={styles.section}>
+            <SectionHeader title="Grid Templates" />
+            <motion.div className="tw:flex tw:flex-col tw:gap-md" initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+              {gridColsScale.map((g, i) => (
+                <motion.div key={g.name} className="tw:flex tw:flex-col tw:gap-2xs" variants={staggerItem} {...scrollChildY(i)}>
+                  <span className={styles.spacingLabel}>{g.name.replace("--grid-cols-", "")} cols · repeat({g.cols}, minmax(0, 1fr))</span>
+                  <div className="tw:grid tw:gap-2xs" style={{ gridTemplateColumns: `var(${g.name})` }}>
+                    {Array.from({ length: g.cols }).map((_, c) => (
+                      <div key={c} style={{ height: "1.75rem", background: "var(--bg-accent-solid)", borderRadius: "var(--radius-sm)" }} />
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
             </motion.div>
           </section>
 
