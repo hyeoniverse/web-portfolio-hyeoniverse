@@ -5,7 +5,6 @@
 .uRowSm { composes: uRow; gap: var(--spacing-sm); }
 .uRow2xs { composes: uRow; gap: var(--spacing-2xs); }
 .uRowWrapSm { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
-.uRowWrap2xs { display: flex; flex-wrap: wrap; gap: var(--spacing-2xs); }
 .uCol { display: flex; flex-direction: column; }
 .uColXs { composes: uCol; gap: var(--spacing-xs); }
 .uColSm { composes: uCol; gap: var(--spacing-sm); }
@@ -332,10 +331,6 @@
 
 /* 브랜드 로고 파트 (Favicon/풀) — head + 컨트롤을 한 덩어리로 묶어, 파트 안은 좁게(xs)
    파트 사이는 .fields gap(sm) 으로 벌린다. head 라벨과 그 컨트롤이 시각적으로 붙도록. */
-.logoPart {
-  composes: uColXs;
-  width: 100%;
-}
 .logoPartHead {
   display: flex;
   align-items: center;
@@ -347,11 +342,6 @@
 }
 
 /* 시스템 로고 그룹 내 풀로고 파트 — 위 Favicon 파트(그림자 카드)와 붙지 않게 구분선+여백 */
-.logoTextPart {
-  margin-top: var(--spacing-xl);
-  padding-top: var(--spacing-lg);
-  border-top: var(--border-light);
-}
 
 /* ── Devices list — 보안 section, admin_known_devices 표시 ── */
 
@@ -610,12 +600,6 @@
 /* SVG inline 렌더 — /api/favicon 출력과 동일 구조라 픽셀 일치. width/height 는 attr 로 set. */
 
 /* 풀폭 auto-fit grid — 상단 스트립 아래. 각 열 min 260px → 보통 2열로 채움 */
-.faviconControls {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  align-items: start;
-  gap: var(--spacing-sm) var(--spacing-lg);
-}
 
 /* ── Favicon 정렬 폼 — 모든 컨트롤을 '라벨 │ 컨트롤' 행으로 통일.
    각 FieldRow 를 display:contents 로 풀어 라벨/컨트롤을 이 그리드의 셀로 편입 →
@@ -634,23 +618,6 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 /* 그룹 (업로드 / 시스템) — 그룹 사이 구분선으로 분리 */
-.brandGroupHead { composes: uCol3xs;
-}
-.brandGroupTitle {
-  margin: 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 0;
-}
-.brandGroupHint {
-  margin: 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  line-height: 1.4;
-}
 
 /* 파트 (Favicon / 풀로고) — 탭 안 top-level 서브섹션 */
 /* 그룹 탭 — 언더라인 스타일 (세그먼트 pill 과 다른 결로 계층 구분) */
@@ -679,12 +646,6 @@
 }
 
 /* faviconBg light/dark — 항상 한 줄 (외부 grid 와 무관). grid 셀 하나가 sub-grid 2열 */
-.faviconBgRow {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-sm) var(--spacing-xl);
-}
 
 /* ── Favicon 그림자 컨트롤 — 세그먼트 탭 전환, 플랫(카드/그리드 아님). 세그먼트 pill 이 앵커.
    .fields(align-items:flex-start) 안에서 shrink 되지 않게 .faviconShadowCard 가 width:100%. ── */
@@ -711,11 +672,6 @@
 /* 흰 원 — 그림자(box-shadow)가 적용되는 미리보기 대상. flat + 그림자로 떠 보이게 */
 
 /* ── 그림자 프리셋 — 밑줄형 텍스트 토글(미니멀). 선택 시 accent 밑줄 ── */
-.shadowPresetRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-}
 
 .shadowPresetChip {
   padding: var(--spacing-3xs) 0;
@@ -731,11 +687,6 @@
 
 .shadowPresetChip:hover {
   color: var(--text-primary);
-}
-
-.shadowPresetChipActive {
-  color: var(--text-accent);
-  border-bottom-color: var(--text-accent);
 }
 
 /* 세부 조정 토글 */
@@ -757,52 +708,9 @@
   color: var(--text-primary);
 }
 
-.shadowChev {
-  transition: transform var(--duration-base) ease;
-}
-
-.shadowChevUp {
-  transform: rotate(180deg);
-  transition: transform var(--duration-base) ease;
-}
-
-.shadowCustomBody {
-  composes: uColSm;
-  padding-top: var(--spacing-sm);
-  border-top: var(--border-light);
-  /* height 0↔auto 애니메이션(framer-motion) 중 내용이 삐져나오지 않게 */
-  overflow: hidden;
-}
-
 /* 그림자 컨트롤 inline row — FieldRow 오른쪽에 컨트롤+보조요소(커스텀 blur/각도값/inset)를 가로 배치 */
-.faviconShadowInlineRow { composes: uRowWrapSm;
-}
-
-.faviconShadowCustomInput {
-  width: 4.5rem;
-}
-
-.faviconShadowSlider {
-  flex: 1;
-  min-width: 120px;
-  max-width: 180px;
-}
-
-.faviconShadowDirValue {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  white-space: nowrap;
-  min-width: 3.5rem;
-}
 
 /* 방향 화살표 — 각도 변경 시 부드럽게 회전 */
-.dirArrow {
-  transition: transform var(--duration-base) var(--ease-out-expo);
-}
 
 /* 폰트 크기 — Select + (커스텀 모드) stepper 가로 배치 */
 
@@ -811,11 +719,6 @@
 /* ── Favicon 대비율 / WCAG 배지 (미리보기 셀 하단) ── */
 
 /* 토글 그룹 — sectionTitleRow 우측 여러 toggle 같이 묶음 */
-.inlineToggleGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
 
 /* ── Logo Upload ── */
 .logoUpload {
@@ -946,14 +849,6 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin: 0 0 var(--spacing-xs);
-}
-
-.fieldGroupTitleHint {
-  font-size: var(--font-size-xs);
-  font-weight: 400;
-  color: var(--text-tertiary);
-  text-transform: none;
-  letter-spacing: 0;
 }
 
 .fieldLabelHint {
