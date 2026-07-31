@@ -26,7 +26,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import { useModalStore } from "@/stores/modalStore";
 import { _blockDragPath, _inlineDragPath, _imageUploadFn } from "./utils";
 import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
-import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical, Copy, WrapText, MoreHorizontal, ChevronDown, Search, Sparkles, ExternalLink, ZoomIn, ZoomOut, Maximize, Maximize2, Minimize2 } from "@/components/icons";
+import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical, Copy, WrapText, MoreHorizontal, ChevronDown, Search, Sparkles, ExternalLink, ZoomIn, ZoomOut, Maximize, Maximize2, Minimize2, CaretRightIcon } from "@/components/icons";
 import { createPortal } from "react-dom";
 import Popover from "@/components/ui/Popover";
 import styles from "../RichTextEditor.module.css";
@@ -3205,7 +3205,7 @@ export function ToggleElement(props: PlateElementProps) {
                     display: "flex", alignItems: "center", flexShrink: 0,
                     height: "1.4em",
                   }} onMouseDown={(e) => e.preventDefault()} onClick={toggleOpen}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M9 6l6 6-6 6z" /></svg>
+                    <CaretRightIcon />
                   </button>
                   <div style={{ flex: 1, minWidth: 0 }}>{child}</div>
                 </div>
