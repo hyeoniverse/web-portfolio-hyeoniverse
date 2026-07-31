@@ -730,15 +730,14 @@ npm run test:watch
 
 ---
 
-**시각 회귀 (Playwright)**
+**스모크 e2e (Playwright)**
 
-리팩토링이 화면을 바꾸지 않았는지 픽셀 단위로 검증합니다. baseline 스크린샷 24장을 `e2e/visual.spec.ts-snapshots/` 에 커밋해 두고, 실행할 때마다 비교합니다.
+리팩토링이 화면을 **깨뜨리지 않았는지** 검증합니다 (픽셀 비교 아님 — UI 변경은 허용). 각 라우트에서 페이지 로드(status < 400)·런타임 에러·에러 바운더리 노출·빈 화면만 잡습니다.
 
 ```bash
-npm run build              # 프로덕션 산출물 필요 (dev 서버는 baseline 이 흔들림)
-npm run test:visual        # 비교
-npm run test:visual:update # baseline 갱신 (의도된 design 변경일 때만)
-npm run test:visual:admin  # admin 라우트 (로그인 세션 필요 — 아래 참고)
+npm run build              # 프로덕션 산출물 필요 (dev 서버는 오버레이로 불안정)
+npm run test:smoke         # 공개 라우트
+npm run test:smoke:admin   # admin 라우트 (로그인 세션 필요 — 아래 참고)
 ```
 
 | 항목 | 값 |
@@ -750,7 +749,7 @@ npm run test:visual:admin  # admin 라우트 (로그인 세션 필요 — 아래
 
 셋업 과정에서 부딪힌 함정 — 전 페이지를 덮는 `LoadingScreen` 을 안 기다리면 "검은 화면 + 로고" 가 baseline 으로 박히고, WebGL canvas 를 `mask` 로 가리면 그 위에 사각형이 덮여 페이지 전체가 단색이 됩니다(`visibility: hidden` 으로 처리). 전체 목록과 커버리지 한계는 **[docs/perf-baseline.md](./docs/perf-baseline.md#시각-회귀-baseline)** 에 정리되어 있습니다.
 
-**admin 라우트**는 로그인 세션이 필요합니다. `.env.local` 에 `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` (소유자 계정 — 새 계정은 role 이 없어 접근이 거부됨) 를 넣고 `npm run test:visual:admin` 을 실행합니다. 새 기기 승인 게이트 때문에 첫 실행은 실패하는데, `admin_known_devices` 의 해당 row 에서 `approved` 를 `true` 로 바꾸면 통과합니다 (**실물 메일 수신은 불필요** — 승인 링크가 하는 일이 그것뿐입니다). 이후에는 저장된 세션(`e2e/.auth/` — 인증 토큰이라 커밋 제외)을 재사용합니다.
+**admin 라우트**는 로그인 세션이 필요합니다. `.env.local` 에 `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` (소유자 계정 — 새 계정은 role 이 없어 접근이 거부됨) 를 넣고 `npm run test:smoke:admin` 을 실행합니다. 새 기기 승인 게이트 때문에 첫 실행은 실패하는데, `admin_known_devices` 의 해당 row 에서 `approved` 를 `true` 로 바꾸면 통과합니다 (**실물 메일 수신은 불필요** — 승인 링크가 하는 일이 그것뿐입니다). 이후에는 저장된 세션(`e2e/.auth/` — 인증 토큰이라 커밋 제외)을 재사용합니다.
 
 > **리팩토링 문서**: [리팩토링 가이드](./docs/refactoring-guide.md) · [성능 baseline](./docs/perf-baseline.md) · [데드코드 인벤토리](./docs/dead-code-inventory.md)
 
