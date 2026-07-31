@@ -165,21 +165,6 @@
 }
 
 /* editMode="newest" 시 기존 pair 의 readonly inline 표시 — input 아닌 텍스트 */
-.readonlyInline {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 4px 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-}
-
-.readonlyInlineLine {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
 
 /* 공통 row layout — itemRow (input pair) / readonlyLine (readonly KO·EN) */
 .itemRow,
@@ -308,10 +293,6 @@
 
 /* readonly bullet — 비표시 (덜어내기), 자리는 0 으로 collapse */
 .readonlyBulletInline {
-  display: none;
-}
-
-.readonlyBulletSpacer {
   display: none;
 }
 

@@ -151,9 +151,6 @@
 }
 
 /* 줄바꿈 보존 — 역할/담당 업무처럼 여러 줄 텍스트 */
-.infoValueMultiline {
-  white-space: pre-line;
-}
 
 /* ── 본인 역할별 작업 (Contributions) ── items 있는 grid + 없는 한 줄 */
 .ownContribsWrap {
@@ -501,14 +498,6 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-tertiary);
-}
-
-.sectionText {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-md);
-  line-height: 1.8;
-  color: var(--text-secondary);
-  white-space: pre-line;
 }
 
 /* Prose (markdown-rendered content) */
@@ -881,15 +870,6 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.relatedCardDate {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-muted);
-  letter-spacing: 0.04em;
-  margin-top: auto;
-  padding-top: var(--spacing-xs);
 }
 
 .relatedSection .relatedCard:hover .relatedCardTitle {

@@ -59,29 +59,6 @@
 }
 
 /* Content group (category & series) */
-.contentGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-  padding: var(--spacing-lg);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-}
-
-.contentGroupHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.contentGroupLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
 
 .manageLink {
   display: inline-flex;
@@ -197,12 +174,6 @@
 }
 
 /* ── Number input with custom spinner ── */
-.numberInput {
-  display: flex;
-  align-items: stretch;
-  gap: var(--spacing-xs);
-  width: 100%;
-}
 
 .numberInputField {
   -moz-appearance: textfield;
@@ -288,9 +259,6 @@
 }
 
 /* Pin toggle */
-.pinToggle {
-  padding: var(--spacing-xs) 0;
-}
 
 /* Tag input row */
 /* Select + button capsule group — 외부 wrapper 가 border + capsule, 내부는 border 제거.
@@ -360,27 +328,8 @@
 }
 
 /* ── Tag notes (per-tag description) — 태그당 단일 ko/en 쌍 ── */
-.tagNotesSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
-}
-
-.tagNoteGroup {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  padding-left: var(--spacing-sm);
-  border-left: var(--border-light);
-  transition: opacity 0.15s ease;
-}
 
 /* 드래그 중인 group — 흐릿하게 */
-.tagNoteGroupDragging {
-  opacity: 0.4;
-}
 
 /* drop indicator — group 위/아래에 accent 막대 */
 .tagNoteGroupDropTop::before,
@@ -420,13 +369,6 @@
 }
 
 /* [#tagname ×] ────────── [+ Add description] — 좌측 묶음 + 우측 add 버튼 */
-.tagNoteHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-  min-height: 28px;
-}
 
 /* #tagname 과 × 버튼 한 덩어리 */
 .tagNoteTagGroup {
@@ -472,50 +414,10 @@
 }
 
 /* 아이콘 슬롯 — 고정 10x10 위치, 내부 motion 은 position:absolute 로 자리 떨림 방지 */
-.tagNoteAddIconSlot {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 10px;
-  height: 10px;
-  margin-right: 4px;
-  flex-shrink: 0;
-}
-
-.tagNoteAddIconInner {
-  position: absolute;
-  inset: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
 
 /* 라벨 슬롯 — 현재 라벨 폭 기준 (sizer) — fit content 면서 motion swap 중 자리 유지 */
-.tagNoteAddLabelSlot {
-  position: relative;
-  display: inline-grid;
-  align-items: center;
-  height: 1em;
-  line-height: 1;
-}
 
 /* sizer — 화면엔 안 보이지만 슬롯 폭 결정 (현재 활성 라벨 텍스트) */
-.tagNoteAddLabelSizer {
-  visibility: hidden;
-  white-space: nowrap;
-  grid-area: 1 / 1;
-}
-
-.tagNoteAddLabelInner {
-  position: absolute;
-  inset: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  white-space: nowrap;
-}
 
 .tagNoteAdd:hover {
   border-color: var(--text-primary);
@@ -538,12 +440,6 @@
 }
 
 /* KO / EN input 두 줄 (또는 좁으면 wrap) — clip-path 애니메이션은 framer-motion 으로 */
-.tagNoteInputs {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-  overflow: hidden;
-}
 
 /* 공통 input 라인 (capsule + border-light, height 28) — KO/EN 배지 + input bare 를 내부에 포함 */
 .tagNoteInputWrap {
@@ -564,21 +460,6 @@
 }
 
 /* KO / EN 배지 — input 안쪽 좌측 inline pill */
-.tagNoteBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 20px;
-  padding: 0 6px;
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
-}
 
 .tagNoteInputBare {
   flex: 1;
@@ -820,19 +701,8 @@
   color: var(--text-inverse);
 }
 
-.editorHelpBtnActive {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
 /* ── Shortcuts modal content ── */
 /* 공통 블록 단축키 — 탭 위 고정 섹션 */
-.helpCommon {
-  margin: 0 var(--spacing-lg) var(--spacing-md);
-  padding-bottom: var(--spacing-md);
-  border-bottom: var(--border-light);
-}
 /* 2열 배치 */
 .helpCommonRows {
   display: grid;
@@ -984,10 +854,4 @@
 .helpDesc {
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-}
-
-.helpMdHint {
-  margin-top: var(--spacing-sm);
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
 }

@@ -329,14 +329,8 @@ a.statCard:hover .statValue {
 }
 
 /* Modifier: slim (4px) — 비율 바 같은 inline 작은 막대 */
-.barSlim {
-  height: 4px;
-}
 
 /* Modifier: 약한 톤 background (border-light) — light context */
-.barLight {
-  background: var(--border-light-color);
-}
 
 /* Modifier: tertiary 배경 (deviceDrill) */
 .barTertiaryBg {
@@ -357,13 +351,6 @@ a.statCard:hover .statValue {
 }
 
 /* ── 시각화: 인기 게시물 미니 막대 ── */
-.miniBars {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: var(--button-h-sm);
-  margin-top: var(--spacing-2xs);
-}
 
 .miniBar {
   flex: 1;
@@ -701,12 +688,6 @@ a.statCard:hover .statValue {
 }
 
 /* ── Stat card 내부: label + WoW trend 배지 한 줄 ── */
-.statValueRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-xs);
-}
 
 /* ── Trend 배지 (↑/↓ 퍼센트) ── */
 .trendBadge {

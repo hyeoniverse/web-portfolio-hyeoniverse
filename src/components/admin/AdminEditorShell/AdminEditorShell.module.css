@@ -1080,12 +1080,6 @@
 }
 
 /* Tag exit animation (last tag shrinks when collapsing) */
-.tagExiting {
-  overflow: hidden;
-  white-space: nowrap;
-  pointer-events: none;
-  animation: tagExit 0.3s ease forwards;
-}
 
 @keyframes tagExit {
   to {

@@ -413,12 +413,6 @@
   line-height: var(--line-height-snug);
 }
 
-.relatedTagCount {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-}
-
 /* ══ 통합 태그 — 같은 tech 를 쓴 작업물 섹션 (tags↔tech 공유) ══ */
 .worksSection {
   margin-top: var(--spacing-5xl);

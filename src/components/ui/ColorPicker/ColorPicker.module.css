@@ -441,22 +441,6 @@
   min-width: 0;
 }
 
-.rgbField {
-  display: flex;
-  flex-direction: column;
-  /* stretch 로 자식 Input wrapper 가 field 폭 100% 채워 채널 input 균등 분할 */
-  align-items: stretch;
-  gap: 2px;
-}
-
-.rgbLabel {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  text-align: center;
-}
-
 /* ── 공통 Input 컴포넌트 override — ColorPicker 안 좁은 input 전용 ── */
 .pickerInput input {
   font-family: var(--font-mono);

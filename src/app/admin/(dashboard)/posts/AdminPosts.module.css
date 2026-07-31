@@ -39,13 +39,6 @@
   color: inherit;
 }
 
-.seriesMeta {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  flex-wrap: wrap;
-}
-
 .seriesRowCat {
   padding: var(--spacing-4xs) var(--spacing-xs);
   background: var(--bg-tertiary);
