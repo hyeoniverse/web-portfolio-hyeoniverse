@@ -58,6 +58,16 @@ export const radiusScale = [
   { name: "circle", var: "--radius-circle", value: "50%" },
 ];
 
+// ─── Grid Templates Data ───
+// 등분 컬럼 토큰. minmax(0,1fr) 로 자식이 트랙을 밀어 grid blowout 나는 것 방지 (overflow-safe)
+export const gridColsScale = [
+  { name: "--grid-cols-2", cols: 2 },
+  { name: "--grid-cols-3", cols: 3 },
+  { name: "--grid-cols-4", cols: 4 },
+  { name: "--grid-cols-5", cols: 5 },
+  { name: "--grid-cols-7", cols: 7 },
+];
+
 // ─── Shadow Data ───
 export const shadowScale = [
   "--shadow-xs",
@@ -114,6 +124,7 @@ export const tocSections = [
   { id: "typography", label: "Typography" },
   { id: "spacing", label: "Spacing" },
   { id: "radius", label: "Radius" },
+  { id: "grid", label: "Grid" },
   { id: "shadows", label: "Shadows" },
   { id: "motion", label: "Motion" },
   { id: "z-index", label: "Z-Index" },
