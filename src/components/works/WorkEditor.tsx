@@ -169,7 +169,7 @@ function useRoleMultiPicker({
     />
   );
   const chipsNode = tokens.length > 0 ? (
-    <div className="tw:flex tw:flex-wrap tw:gap-xs">
+    <div className={styles.categoryChipList}>
       {tokens.map((t, i) => {
         const { dragging, dropSide, ...handlers } = itemProps(i);
         return (
@@ -491,11 +491,11 @@ function TeamMemberCard({
         </div>
         {/* contribs — 역할 label 마다 개별 토글. 기본 접힘 → 클릭하면 해당 역할의 작업만 펼침 */}
         {contribsToShow.length > 0 && (
-          <div className="tw:flex tw:flex-col tw:gap-sm">
+          <div className={styles.memberContribsWrap}>
             {contribsToShow.map(({ role, items }) => {
               const open = expandedRoles.has(role);
               return (
-                <div key={role} className="tw:flex tw:flex-col tw:gap-3xs">
+                <div key={role} className={styles.memberContribsGroup}>
                   <button
                     type="button"
                     className={`${styles.memberContribsToggle} ${open ? styles.memberContribsToggleOpen : ""}`}
@@ -686,7 +686,7 @@ function CategoryMultiPicker({
       </div>
       {/* 아래쪽 — 선택된 chip 들 (공통 Chip + drag reorder) */}
       {selectedKos.length > 0 && (
-        <div className="tw:flex tw:flex-wrap tw:gap-xs">
+        <div className={styles.categoryChipList}>
           {selectedKos.map((k, i) => {
             const { dragging, dropSide, ...handlers } = itemProps(i);
             return (
@@ -1304,7 +1304,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     openModal(
       <div className={styles.templateModal}>
         <p className={styles.templateModalDesc}>{tw("templateDesc") || (lang === "ko" ? "삽입할 템플릿을 선택하세요. 기존 내용이 있으면 아래에 추가됩니다." : "Choose a template. If content exists, it will be appended below.")}</p>
-        <div className="tw:flex tw:flex-col tw:gap-xs">
+        <div className={styles.templateList}>
           {WORK_TEMPLATES.map((tmpl) => (
             <button
               key={tmpl.id}
@@ -1904,8 +1904,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 />
               </div>
               <div className={styles.optionalSplitRight}>
-                <div className="tw:flex tw:flex-col tw:gap-sm">
-                  <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
+                <div className={styles.memberFormBlock}>
+                  <div className={styles.memberSubLabelRow}>
                     <span className={styles.memberSubLabel}>{tw("role")}</span>
                   </div>
                   {/* multi-select — chip 은 아래 TeamContribsByRole 가 담당 (selectNode 만 사용) */}
@@ -2086,7 +2086,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         </div>
 
         <div className={es.field}>
-          <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
+          <div className={styles.galleryLabelRow}>
             <label className={es.fieldLabel} style={{ marginBottom: 0 }}>
               {tw("gallery")}
               {form.gallery.length > 0 && (
@@ -2306,7 +2306,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <h2 className={styles.sectionTitle}>{tw("teamMembers")}</h2>
         {/* 추가된 팀원 — 저장된 멤버가 있을 때만 */}
         {form.team_members.length > 0 && (
-          <div className="tw:flex tw:flex-col tw:gap-sm">
+          <div className={styles.memberListBlock}>
             <div className={styles.memberSubLabel}>{tw("memberListLabel")}</div>
             <List className={styles.memberList}>
               {form.team_members.map((m, i) => (
@@ -2327,15 +2327,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           </div>
         )}
         {/* 새 팀원 추가 — add-mode 카드 */}
-        <div className="tw:flex tw:flex-col tw:gap-sm">
-          <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
+        <div className={styles.memberFormBlock}>
+          <div className={styles.memberSubLabelRow}>
             <span className={styles.memberSubLabel}>
               {team.editingIdx !== null
                 ? (editorLang === "ko" ? "팀원 편집" : "Edit member")
                 : tw("memberFormLabel")}
             </span>
             {team.editingIdx !== null ? (
-              <div className="tw:inline-flex tw:items-center tw:gap-2xs">
+              <div className={styles.memberFormActions}>
                 <Button
                   variant="outline"
                   size="xs"

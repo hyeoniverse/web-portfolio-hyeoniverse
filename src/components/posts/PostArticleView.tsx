@@ -146,9 +146,9 @@ export function PostArticleHeader({
       </div>
       <h1 className={styles.articleTitle}>{data.displayTitle}</h1>
       {data.displayExcerpt && <p className={styles.excerpt}>{data.displayExcerpt}</p>}
-      <div className="tw:flex tw:items-center tw:justify-between tw:gap-md">
+      <div className={styles.tagsShareRow}>
         {data.tags.length > 0 && (
-          <div className="tw:flex tw:flex-wrap tw:gap-xs">
+          <div className={styles.tags}>
             {data.tags.map((tag) => (
               <Link key={tag} href={`/posts/tags/${encodeURIComponent(tag)}`} className={styles.tag}>
                 <span className={styles.tagHash} aria-hidden>#</span>{tag}
@@ -330,7 +330,7 @@ export function PostArticleAuthors({ authors }: { authors?: Author[] }) {
             </span>
           )}
           <div className={styles.authorFooterBody}>
-            <div className="tw:flex tw:items-baseline tw:flex-wrap tw:gap-sm">
+            <div className={styles.authorFooterNameRow}>
               <span className={styles.authorFooterName}>{a.name}</span>
               {a.role && <span className={styles.authorFooterRole}>{a.role}</span>}
             </div>

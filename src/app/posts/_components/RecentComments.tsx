@@ -53,10 +53,10 @@ export default function RecentComments() {
       {comments.length === 0 ? (
         <p className={styles.empty}><T k="postsPage.noCommentsYet" /></p>
       ) : (
-        <div className="tw:flex tw:flex-col">
+        <div className={styles.list}>
           {comments.map((c) => (
             <div key={c.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${c.post_slug}`, "", rect); }} style={{ cursor: "pointer" }} className={styles.item}>
-              <div className="tw:flex tw:items-center tw:justify-between">
+              <div className={styles.itemTop}>
                 <span className={styles.nickname}>
                   {c.nickname}
                   {c.is_admin && <span className={styles.adminBadge}>Admin</span>}

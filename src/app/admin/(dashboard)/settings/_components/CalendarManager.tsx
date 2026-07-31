@@ -157,8 +157,8 @@ export default function CalendarManager() {
 
   return (
     <section className={settings.section}>
-      <div className="tw:flex tw:flex-col tw:gap-md">
-        <div className="tw:flex tw:items-center tw:gap-sm tw:flex-wrap">
+      <div className={styles.wrap}>
+        <div className={styles.headRow}>
           <h2 className={settings.sectionTitle}>{t("달력 관리", "Calendars")}</h2>
           {items && <span className={styles.headCount}>{items.length}</span>}
           <div className={styles.headSearch}>
@@ -173,7 +173,7 @@ export default function CalendarManager() {
         </p>
 
         {filtered === null ? (
-          <div className="tw:flex tw:flex-col tw:gap-2xs">
+          <div className={styles.list}>
             {[0, 1, 2].map((i) => (
               <div key={i} className={styles.row}><SkeletonLine width="55%" height={14} /></div>
             ))}
@@ -181,7 +181,7 @@ export default function CalendarManager() {
         ) : filtered.length === 0 ? (
           <p className={styles.empty}>{search ? t("검색 결과가 없습니다", "No results") : t("저장된 달력이 없습니다", "No calendars yet")}</p>
         ) : (
-          <div className="tw:flex tw:flex-col tw:gap-2xs">
+          <div className={styles.list}>
             {filtered.map((it) => {
               const b = badge(it.month);
               const isEditing = editingId === it.id;

@@ -588,7 +588,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
         {/* customRow + customSliders 를 하나의 그룹으로 묶음 — 모바일 layout 분기/정렬 단위 */}
         <div className={styles.customGroup}>
         {/* 줄1: 타입 토글 + 사용 버튼 */}
-        <div className="tw:flex tw:items-center tw:justify-start tw:gap-sm tw:flex-wrap">
+        <div className={styles.customRow}>
           <div className={styles.customTypeToggle}>
             <button
               type="button"
@@ -635,7 +635,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
           </button>
         </div>
         {/* 줄2: 각도(radial 일 때 비활성화) / 크기 / 속도 slider — 항상 동일 row 수 유지해 높이 변하지 않게 */}
-        <div className="tw:flex tw:flex-col tw:gap-2xs">
+        <div className={styles.customSliders}>
           <label className={`${styles.customSlider} ${type !== "linear" ? styles.customSliderDisabled : ""}`}>
             <span className={styles.customSliderLabel}>{tc("angle") || "각도"}</span>
             <input

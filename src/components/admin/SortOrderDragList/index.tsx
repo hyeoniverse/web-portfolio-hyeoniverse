@@ -176,9 +176,9 @@ export default function SortOrderDragList({
   return (
     <div className={`${styles.wrap} ${className ?? ""}`}>
       {/* 헤더 — label + 위치 input + 맨앞/맨뒤 jump (한 라인) */}
-      <div className="tw:flex tw:items-center tw:justify-between tw:gap-md">
+      <div className={styles.header}>
         <label className={es.fieldLabel}>{label}</label>
-        <div className="tw:inline-flex tw:items-center tw:gap-sm">
+        <div className={styles.controls}>
           <span className={styles.pos}>
             <input
               type="number"

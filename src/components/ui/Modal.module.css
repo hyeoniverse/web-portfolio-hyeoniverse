@@ -12,6 +12,11 @@
   align-items: center;
   gap: var(--spacing-2xs);
 }
+.subButtons {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+}
 
 @media (max-width: 768px) {
   /* 모바일 시트에선 닫기 버튼만 숨김(스와이프로 닫음), 서브 버튼은 유지 */

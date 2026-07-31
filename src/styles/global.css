@@ -1,13 +1,6 @@
 /* Reset stack — sanitize.css (normalize 의 후속, opinionated defaults) 단독 사용. */
 @import "sanitize.css";
 
-/* Tailwind v4 — theme + utilities 만(preflight 제외: sanitize.css 와 이중 리셋 방지).
-   prefix(tw): 기존 global 클래스(.grid/.hidden/.visible)·CSS Modules 스캔 오탐과의 충돌을
-   원천 차단 → 유틸은 tw:flex / tw:gap-md 형태로만 생성됨. */
-@layer theme, base, components, utilities;
-@import "tailwindcss/theme.css" layer(theme) prefix(tw);
-@import "tailwindcss/utilities.css" layer(utilities) prefix(tw);
-
 @import "./tokens/_index.css";
 @import "./globals/_animations.css";
 @import "./globals/_semantic.css";
@@ -20,24 +13,3 @@
 @import "./globals/_tabs.css";
 @import "./globals/_poll.css";
 @import "./globals/_overrides.css";
-
-/* ── Tailwind 토큰 브리지 ──
-   기존 디자인 토큰(--spacing-*)을 Tailwind spacing 스케일로 노출 → tw:gap-md / tw:p-sm 등.
-   prefix(tw) 로 emit 되는 변수는 --tw-spacing-* 라서, 값으로 앱 토큰 var(--spacing-*)을
-   참조해도 순환이 아니다(단일 소스 유지). static: 미사용 키도 emit. */
-@theme static {
-  --spacing-zero: var(--spacing-zero);
-  --spacing-4xs: var(--spacing-4xs);
-  --spacing-3xs: var(--spacing-3xs);
-  --spacing-2xs: var(--spacing-2xs);
-  --spacing-xs: var(--spacing-xs);
-  --spacing-sm: var(--spacing-sm);
-  --spacing-md: var(--spacing-md);
-  --spacing-lg: var(--spacing-lg);
-  --spacing-xl: var(--spacing-xl);
-  --spacing-2xl: var(--spacing-2xl);
-  --spacing-3xl: var(--spacing-3xl);
-  --spacing-4xl: var(--spacing-4xl);
-  --spacing-5xl: var(--spacing-5xl);
-  --spacing-6xl: var(--spacing-6xl);
-}

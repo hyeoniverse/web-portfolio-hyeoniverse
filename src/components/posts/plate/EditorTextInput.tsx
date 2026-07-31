@@ -193,7 +193,7 @@ export function EditorTextInput({
         <div className={styles.fieldBody}>
           {field}
           {wantCount && (
-            <div className="tw:flex tw:items-center tw:justify-end tw:gap-2xs">
+            <div className={styles.bottomRow}>
               <span className={`${styles.counter}${overLimit ? ` ${styles.counterOver}` : nearLimit ? ` ${styles.counterWarn}` : ""}`} aria-live="polite">
                 <span>{draft.length}</span>{" / "}{maxLength}
               </span>

@@ -364,6 +364,12 @@
   }
 }
 
+.introRule {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 .introRuleLine {
   width: 32px;
   height: 1px;

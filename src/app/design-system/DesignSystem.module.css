@@ -224,6 +224,13 @@
   gap: var(--spacing-xs);
 }
 
+.colorSwatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
 .colorBox {
   width: 100%;
   aspect-ratio: 1;
@@ -250,6 +257,13 @@
   margin-bottom: var(--spacing-xl);
 }
 
+.brandSwatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
 .brandBox {
   width: 100px;
   height: 64px;
@@ -257,6 +271,11 @@
 }
 
 /* Typography showcase */
+.typoRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
 
 .typoItem {
   display: flex;
@@ -274,6 +293,17 @@
 }
 
 /* Spacing showcase */
+.spacingRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.spacingItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
 
 .spacingBar {
   height: 20px;
@@ -301,7 +331,37 @@
   color: var(--text-muted);
 }
 
+/* Grid showcase */
+.gridDemoList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.gridDemoItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.gridDemoRow {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+
 /* Radius showcase */
+.radiusGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.radiusItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
 
 .radiusBox {
   width: 64px;
@@ -322,6 +382,13 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: var(--spacing-xl);
+}
+
+.shadowItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .shadowBox {
@@ -421,6 +488,12 @@
 }
 
 /* Component showcase */
+.componentRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
 
 .componentGroup {
   margin-bottom: var(--spacing-2xl);
@@ -558,6 +631,12 @@
 }
 
 /* Modal demo */
+.modalDemo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
 
 .modalContentCenter {
   display: flex;
@@ -708,6 +787,12 @@
   max-width: 400px;
 }
 
+.sliderItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
 .sliderLabel {
   font-family: var(--font-mono), monospace;
   font-size: var(--font-size-xs);
@@ -715,6 +800,18 @@
 }
 
 /* Logo showcase */
+.logoRow {
+  display: flex;
+  gap: var(--spacing-2xl);
+  align-items: center;
+}
+
+.logoItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
 
 .logoLabel {
   font-family: var(--font-mono), monospace;
@@ -898,6 +995,16 @@
 }
 
 /* Token files — 파일 트리 */
+.pFileTree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.pFileRoot {
+  display: flex;
+  flex-direction: column;
+}
 
 .pFileFolder {
   font-family: var(--font-mono);

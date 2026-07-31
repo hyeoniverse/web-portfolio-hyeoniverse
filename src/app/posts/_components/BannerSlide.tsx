@@ -86,7 +86,7 @@ export default function BannerSlide({
           </span>
           <div className={styles.meta}>
             {(post.category || showLangHint) && (
-              <span className="tw:inline-flex tw:items-center tw:gap-xs">
+              <span className={styles.badgeRow}>
                 {post.category && (
                   <span className={styles.category}><CategoryLabel category={post.category} /></span>
                 )}
@@ -114,7 +114,7 @@ export default function BannerSlide({
         <div className={styles.overlayMinimal} />
         <div className={styles.contentMinimal}>
           {(post.category || showLangHint) && (
-            <span className="tw:inline-flex tw:items-center tw:gap-xs">
+            <span className={styles.badgeRow}>
               {post.category && (
                 <span className={styles.categoryBadge}><CategoryLabel category={post.category} /></span>
               )}
@@ -139,7 +139,7 @@ export default function BannerSlide({
         <div className={styles.overlayCinematic} />
         <div className={styles.contentCinematic}>
           {(post.category || showLangHint) && (
-            <span className="tw:inline-flex tw:items-center tw:gap-xs">
+            <span className={styles.badgeRow}>
               {post.category && (
                 <span className={styles.categoryCinematic}><CategoryLabel category={post.category} /></span>
               )}
@@ -166,7 +166,7 @@ export default function BannerSlide({
       <div className={styles.contentMagazine}>
         <div className={styles.magazineCard}>
           {(post.category || showLangHint) && (
-            <span className="tw:inline-flex tw:items-center tw:gap-xs">
+            <span className={styles.badgeRow}>
               {post.category && (
                 <span className={styles.category}><CategoryLabel category={post.category} /></span>
               )}

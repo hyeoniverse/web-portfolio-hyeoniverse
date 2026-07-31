@@ -31,7 +31,7 @@ export default function GiscusHelp() {
       }
     >
       <div className={styles.panel}>
-        <div className="tw:flex tw:items-center tw:justify-between tw:gap-md">
+        <div className={styles.titleRow}>
           <h4 className={styles.title}>{L("giscus 설정 방법", "How to set up giscus")}</h4>
           <Ext href="https://giscus.app/ko">giscus.app</Ext>
         </div>
@@ -42,7 +42,7 @@ export default function GiscusHelp() {
           {L(" 속성에서 복사해 확인할 수 있습니다. 이 값들은 giscus 홈페이지에서 저장소 이름을 입력하면 생성되는 스크립트 템플릿에 들어 있습니다.", " attributes of the script template giscus.app generates once you enter your repository name.")}
         </p>
 
-        <section className="tw:flex tw:flex-col tw:gap-sm">
+        <section className={styles.sec}>
           <span className={styles.secTitle}>{L("설정하는 방법", "How to set it up")}</span>
           <ol className={styles.steps}>
             <li>
@@ -70,7 +70,7 @@ export default function GiscusHelp() {
           </ol>
         </section>
 
-        <section className="tw:flex tw:flex-col tw:gap-sm">
+        <section className={styles.sec}>
           <span className={styles.subTitle}>{L("방법 A — 자동 (권장)", "Option A — Automatic (recommended)")}</span>
           <ol className={styles.steps} start={3}>
             <li>
@@ -88,7 +88,7 @@ export default function GiscusHelp() {
           </ol>
         </section>
 
-        <section className="tw:flex tw:flex-col tw:gap-sm">
+        <section className={styles.sec}>
           <span className={styles.subTitle}>{L("방법 B — 수동", "Option B — Manual")}</span>
           <ol className={styles.steps} start={3}>
             <li>

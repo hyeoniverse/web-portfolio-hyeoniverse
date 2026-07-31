@@ -9,6 +9,11 @@
   width: min(58rem, 92vw);
   box-sizing: border-box;
 }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
 .label {
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
@@ -139,6 +144,13 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+.rels {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  flex-wrap: wrap;
+}
 /* 방향별 그룹 — 라벨이 화살표의 의미를 대신한다 */
 .relGroup {
   display: flex;
@@ -190,6 +202,16 @@ html[data-theme="dark"] .relGroup .rel {
   width: 100%;
   min-width: 0;
 }
+.footer {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  justify-content: space-between;
+}
+.footerRight {
+  display: inline-flex;
+  gap: var(--spacing-2xs);
+}
 
 /* 다중 선택 — .table th (0,1,1) 가 .thPick (0,1,0) 을 이겨 padding 이 안 먹는다.
    th/td 를 함께 써서 특이도를 맞추고 좌우 padding 을 0 으로 통일한다. */
@@ -209,6 +231,11 @@ html[data-theme="dark"] .relGroup .rel {
 }
 .rowPicked {
   background: var(--bg-accent-subtle);
+}
+.colActions {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
 }
 
 /* 표 안 Select — 셀처럼 보이게. width="full" 로 폭은 Select 가 맞추고,

@@ -165,7 +165,7 @@ export default function CategoryReassignModal({
   /* 공통 Modal 의 content 로 사용 — overlay/modal/header/footer 는 Modal 컴포넌트가 처리.
      X 버튼/배경 클릭 dismiss/일관된 radius 모두 공통 Modal 가 책임. */
   return (
-    <div className="tw:flex tw:flex-col">
+    <div className={styles.body}>
         <p className={styles.subtitle}>
           <span className={styles.catBadge}>{catLabel}</span>
           <T k="admin.settings.reassignModal.description" />

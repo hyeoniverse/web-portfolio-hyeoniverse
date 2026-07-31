@@ -85,7 +85,7 @@ export default function PinnedTitleRow({
 
   return (
     <div className={`${styles.pinnedTitleRow}${className ? ` ${className}` : ""}`}>
-      <div className="tw:flex tw:items-baseline tw:gap-md">
+      <div className={styles.titleRowLeft}>
         <h3 className={titleClasses}>{titleOverride ?? title}</h3>
         {rightContent}
       </div>

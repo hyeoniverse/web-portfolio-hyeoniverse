@@ -84,7 +84,7 @@ export function PeriodFormatBar({
           </button>
         ))}
       </div>
-      <div className="tw:flex tw:items-center tw:gap-sm">
+      <div className={styles.formatChecks}>
         <Checkbox
           checked={hasRange}
           onChange={toggleRange}
@@ -392,7 +392,7 @@ export default function PeriodPicker({
               </button>
             ))}
           </div>
-          <div className="tw:flex tw:items-center tw:gap-sm">
+          <div className={styles.formatChecks}>
             <Checkbox
               checked={hasRange}
               onChange={toggleRange}

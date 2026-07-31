@@ -151,7 +151,7 @@ export default function SubTable<T extends { id: string }>({
   return (
     <div className={styles.section}>
       {/* Toggle header */}
-      <div className="tw:flex tw:items-center tw:justify-between">
+      <div className={styles.headerRow}>
         <button type="button" className={styles.toggle} onClick={onToggle}>
           {icon}
           <span>

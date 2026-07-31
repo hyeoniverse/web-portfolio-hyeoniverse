@@ -102,7 +102,7 @@ export default function MonthCalendar({
   return (
     <div className={styles.calendar} contentEditable={false}>
       <div className={styles.header}>
-        <div className="tw:flex tw:items-center tw:gap-md">
+        <div className={styles.navGroup}>
           <Tooltip content={t("이전 달", "Previous month")} placement="top">
             <button type="button" className={styles.navBtn} onClick={() => navMonth(-1)} aria-label="prev">
               <ChevronLeft size={16} />

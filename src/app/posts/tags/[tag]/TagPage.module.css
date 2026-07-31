@@ -179,6 +179,11 @@
 }
 
 /* perPage 그룹(아이콘 + select) — 검색창 왼쪽에 위치 */
+.perPageGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
 .perPageIcon {
   flex-shrink: 0;
   color: var(--text-tertiary);
@@ -254,6 +259,11 @@
 }
 
 /* 첫 줄 — "관련 태그" label + 다중 선택 toggle */
+.relatedHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
 
 /* 다중 선택 Button — outline variant 의 border-strong 을 border-light 로.
    compound (0,2,0) 로 .variant-outline (0,1,0) 이김 */
@@ -300,6 +310,12 @@
 .allTagsEmpty {
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
+}
+
+.relatedTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
 }
 
 .relatedTag {

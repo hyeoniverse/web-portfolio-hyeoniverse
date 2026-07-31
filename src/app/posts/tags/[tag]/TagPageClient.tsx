@@ -202,7 +202,7 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
             />
           </div>
           <div className={styles.searchPerPageGroup}>
-            <div className="tw:inline-flex tw:items-center tw:gap-2xs">
+            <div className={styles.perPageGroup}>
               <List size={14} strokeWidth={1.8} className={styles.perPageIcon} aria-hidden />
               <Select
                 className={styles.perPageSelect}
@@ -248,7 +248,7 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
         </p>
         {initialData.relatedTags.length > 0 && (
           <div className={styles.relatedRow}>
-            <div className="tw:flex tw:items-center tw:gap-sm">
+            <div className={styles.relatedHeader}>
               <Tooltip
                 placement="top"
                 delay={200}
@@ -293,7 +293,7 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
                 다중 선택
               </Button>
             </div>
-            <div className="tw:flex tw:flex-wrap tw:gap-2xs">
+            <div className={styles.relatedTags}>
               {selectMode && (
                 <button
                   type="button"

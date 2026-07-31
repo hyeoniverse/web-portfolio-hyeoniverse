@@ -48,9 +48,9 @@ export default function CalendarChainModal({
                 {pr && <span className={styles.chainChip} style={{ ["--_sc" as string]: pr.color }}><span className={styles.statusDot} />{priorityName(ev.priority, language)}</span>}
               </span>
               <span className={styles.chainStepMeta}>
-                <span className="tw:inline-flex tw:items-center tw:gap-3xs"><CalendarDays size={12} />{formatDateValue(ev.date, null, language)}</span>
-                {ev.time && <span className="tw:inline-flex tw:items-center tw:gap-3xs"><Clock size={12} />{eventTimeLabel(ev, timeFormat)}</span>}
-                {label && <span className="tw:inline-flex tw:items-center tw:gap-3xs"><span className={styles.chainLabelDot} style={{ background: eventColorVar(ev, labels) }} />{label.name}</span>}
+                <span className={styles.chainMetaItem}><CalendarDays size={12} />{formatDateValue(ev.date, null, language)}</span>
+                {ev.time && <span className={styles.chainMetaItem}><Clock size={12} />{eventTimeLabel(ev, timeFormat)}</span>}
+                {label && <span className={styles.chainMetaItem}><span className={styles.chainLabelDot} style={{ background: eventColorVar(ev, labels) }} />{label.name}</span>}
               </span>
             </span>
           </button>

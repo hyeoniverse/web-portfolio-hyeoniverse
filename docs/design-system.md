@@ -9,6 +9,18 @@
 
 ---
 
+## 0. 대원칙
+
+1. **한 시스템 — CSS Modules + 디자인 토큰.** 유틸리티 프레임워크(Tailwind)·런타임 CSS-in-JS(styled-components/Emotion) 안 씀. **두 시스템 반반 혼용이 안티패턴** — Tailwind 를 한 번 도입했다가 같은 flex row 인데 어디는 `tw:flex`, 어디는 `styles.row` 인 split-brain 이 돼서 되돌렸다.
+2. **토큰이 값의 유일한 출처.** 색·간격·크기·모션 전부 토큰(§1). 하드코딩 금지(§9).
+3. **반복은 CSS 가 아니라 React 컴포넌트로.** 공유 CSS 유틸/레이아웃 프리미티브를 만들지 않는다 — 관용구(`flex` 등)는 각 module 에 인라인이 낫다. 3곳+ 반복이 확인되면 `components/ui/` 로 컴포넌트 추출.
+4. **co-location.** 한 컴포넌트 ↔ 한 `.module.css`, 같은 폴더.
+5. **모던 네이티브 CSS 적극.** nesting·`:has()`·container query·cascade layer 로 JS·프레임워크 의존을 줄인다(§11).
+
+> **왜 CSS Modules 인가**: 이 프로젝트는 커스텀 애니메이션·GSAP·Three.js·정교한 CSS 이펙트가 핵심이라 bespoke CSS 가 유리하다. Tailwind 는 표준 UI 를 빠르게 조립할 때 강하지만 여기선 이점이 작고, 이미 성숙한 토큰 시스템이 있다. RSC 안전·무런타임·Next 네이티브라는 것도 장점.
+
+---
+
 ## 1. 토큰 4-레이어 구조
 
 ```
@@ -136,15 +148,6 @@ Raw Tokens           →  Semantic Tokens          →  Component Tokens        
 - **CSS Modules** 사용 — 모든 클래스는 자동으로 해시됨
 - **camelCase** — BEM(`__`, `--`) 미사용
 - **의미 기반** 이름 — 시각적 설명보다 역할/용도 우선
-
-### Tailwind v4 병용 (`tw:` 프리픽스)
-
-CSS Modules 와 **Tailwind v4 유틸리티를 함께** 쓴다. 충돌·스캐너 오탐을 막기 위해 유틸은 전부 `tw:` 프리픽스(`tw:flex`, `tw:gap-md`) — 프리픽스 없는 `grid`·`hidden`·`visible` 등은 기존 전역 클래스이므로 절대 섞이지 않는다.
-
-- **유틸을 쓰는 경우** — "그냥 컨테이너"인 순수 레이아웃(자식 배치 + gap): `<div className="tw:flex tw:flex-col tw:gap-sm">`. 클래스명·CSS 규칙을 새로 만들 필요가 없다.
-- **CSS Modules 를 쓰는 경우** — padding·border·position 등이 얽힌 "스타일 입은 영역", 하위 셀렉터(`.card:hover .x`)·변형·상태가 있는 것. 유틸로 쪼개면 오히려 나빠진다.
-- **토큰 브리지** — 유틸은 값을 새로 만들지 않고 기존 디자인 토큰을 참조한다: `tw:gap-md` → `var(--tw-spacing-md)` → `var(--spacing-md)`. `global.css` 의 `@theme static` 이 `--spacing-*` 를 노출(단일 소스 유지, 미사용도 emit 돼 `--box-*` 의존 안전).
-- **설정** — `global.css` 가 진입점: preflight 제외(sanitize.css 와 이중), `@import "tailwindcss/utilities.css" … prefix(tw)` + `@theme static` 브리지.
 
 ### 클래스 분류별 컨벤션
 
@@ -329,6 +332,13 @@ getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-md') /
 | `--ease-bounce` | cubic-bezier(.34,1.56,.64,1) | 탄성 효과 |
 | `--ease-out-expo` | cubic-bezier(.16,1,.3,1) | 등장 애니메이션 |
 
+**`prefers-reduced-motion` 존중** — 큰 이동·회전·시차 애니메이션은 접근성을 위해 축소/제거:
+```css
+@media (prefers-reduced-motion: reduce) {
+  .parallax { animation: none; transform: none; }
+}
+```
+
 ---
 
 ## 9. 금지 사항
@@ -350,11 +360,50 @@ z-index: 9999;
 /* ✗ BEM 클래스 */
 .card__title { }
 .card--active { }
+
+/* ✗ Tailwind·유틸리티 클래스 — CSS Modules 단일 시스템(§0) */
+/* <div class="tw:flex tw:gap-md"> */
+
+/* ✗ 런타임 CSS-in-JS (styled-components / Emotion) — RSC 비호환·런타임 비용 */
+
+/* ✗ -webkit-backdrop-filter — Chrome parser 가 꼬여 blur 자체가 안 보임. backdrop-filter 만 */
+-webkit-backdrop-filter: blur(10px);
+
+/* ✗ inline style — 단, 동적 토큰 주입 style={{ "--_h": "var(--button-h-sm)" }} 만 허용 */
 ```
 
 ---
 
-## 10. 파일 위치 참조
+## 10. 레이아웃 · Grid · 모던 CSS · 접근성
+
+### 레이아웃
+- flex/grid 는 담당 module 안에 co-located. 같은 레이아웃이 3곳+ 반복되면 **React 컴포넌트로 추출**(공유 CSS 유틸 X — §0).
+- 재사용 레이아웃에 `id` 선택자 금지 (유일 page-shell 만 예외).
+
+### Grid
+- **등분 grid → `--grid-cols-*` 토큰** (`repeat(N, minmax(0,1fr))`, overflow-safe). bare `1fr` 금지 — 자식 콘텐츠가 트랙을 밀면 grid blowout.
+- **카드/타일 grid → intrinsic auto-fit**: 미디어쿼리 없이 폭 따라 열 수 자동 + 모바일 안 터짐.
+  ```css
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  ```
+- **고정 N열이 진짜 필요할 때만**(달력 7열·폼 2열 페어 등) `--grid-cols-N` 유지.
+
+### 모던 네이티브 CSS (적극 사용)
+- **nesting** — 네이티브 중첩으로 BEM 대체.
+- **`:has()`** — 부모 상태 스타일링(JS 클래스 토글 대신).
+- **container query** — 컴포넌트 레벨 반응형. 함정: `container-type` 은 multicol 자식·grid intrinsic 에서 붕괴 → **명시적 열 요소 + `width:100%`** 로 감쌈.
+- **cascade layer** / `@property` — 전역 우선순위 정리·커스텀 프로퍼티 애니메이션.
+- 목표: JS·프레임워크로 하던 걸 CSS 로 내려 단순화.
+
+### 접근성
+- **`:focus-visible`** 스타일 필수 — 키보드 포커스 링을 없애지 말고 커스텀 링 제공.
+- **`prefers-reduced-motion`** 존중(§8).
+- **`.sr-only`** — 시각 숨김 + 스크린리더 노출 텍스트.
+- 클릭 타깃 최소 크기·대비(WCAG) 유지.
+
+---
+
+## 11. 파일 위치 참조
 
 ```
 src/styles/

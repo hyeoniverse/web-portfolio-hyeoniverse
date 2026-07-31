@@ -490,7 +490,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
             const single = koRaw || enRaw;
             const count = catCounts[en] ?? 0;
             return (
-              <span className="tw:inline-flex tw:items-center tw:gap-2xs">
+              <span className={styles.worksCatChipLabel}>
                 <span>{showBoth ? koRaw : single}</span>
                 {showBoth && <span className={styles.worksCatChipSep}>·</span>}
                 {showBoth && <span>{enRaw}</span>}
@@ -515,7 +515,7 @@ export default function WorksCategoriesEditor({ categories, onChange }: WorksCat
       <div className={`${styles.worksCatAddBox} ${isEdit ? styles.worksCatAddBoxEdit : ""} ${isShaking ? styles.shakeAlert : ""}`}>
         <div className={styles.worksCatAddLabel}>
           {isEdit ? <T k="admin.settings.edit" /> : <T k="admin.settings.addCategory" />}
-          <div className="tw:inline-flex tw:items-center tw:gap-2xs">
+          <div className={styles.worksCatAddActions}>
             {isEdit && (
               <>
                 <Button

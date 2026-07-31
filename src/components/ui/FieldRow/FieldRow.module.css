@@ -31,6 +31,12 @@
   letter-spacing: 0.02em;
 }
 
+.fieldLabelText {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
 /* label 아래 보조 설명 (작은 글씨) */
 .fieldLabelHint {
   font-weight: 400;

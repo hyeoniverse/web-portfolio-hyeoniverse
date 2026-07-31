@@ -84,7 +84,7 @@ export default function TagListField({
   };
 
   return (
-    <div className="tw:flex tw:flex-col tw:items-stretch tw:gap-sm">
+    <div className={styles.field}>
       {label && (
         <label className={styles.label}>
           {label}
@@ -92,7 +92,7 @@ export default function TagListField({
         </label>
       )}
       {tags.length > 0 && (
-        <div className="tw:flex tw:flex-wrap tw:gap-xs">
+        <div className={styles.tags}>
           {tags.map((tag, i) => {
             const { dragging, dropSide, ...handlers } = itemProps(i);
             return (

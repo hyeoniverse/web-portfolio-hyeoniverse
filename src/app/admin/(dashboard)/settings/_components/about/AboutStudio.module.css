@@ -23,6 +23,12 @@
 }
 
 /* ── 상단 바 — 언어 토글 + 안내 ── */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
 .barHint {
   margin: 0;
   font-size: var(--font-size-xs);
@@ -344,6 +350,11 @@ textarea.edit {
   gap: var(--spacing-sm);
 }
 /* 배경 색·그라디언트 라이트/다크 2열 편집 */
+.bgThemeRow {
+  display: grid;
+  grid-template-columns: var(--grid-cols-2);
+  gap: var(--spacing-md);
+}
 .bgThemeCol {
   display: flex;
   flex-direction: column;
@@ -394,14 +405,34 @@ textarea.edit {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.mediaActions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
 
 /* ── 패널 스트립 (표시/숨김 + 편집 이동) ── */
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+.stripHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
 .stripTitle {
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-tertiary);
+}
+.stripChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 
 /* 패널 칩 — 드래그로 순서 변경(중간 패널) + 클릭으로 표시 토글 */
@@ -698,6 +729,11 @@ textarea.edit {
   gap: var(--spacing-sm);
   width: 236px;
   padding: var(--spacing-sm);
+}
+.iconPickGrid {
+  display: grid;
+  grid-template-columns: var(--grid-cols-4);
+  gap: var(--spacing-2xs);
 }
 .iconPickBtn {
   display: inline-flex;
@@ -1201,6 +1237,12 @@ textarea.edit {
 }
 
 /* Design System — 컨셉 전환 탭 스트립(실제도 한 장씩 넘겨 보는 strip 이라 나열 대신 탭) */
+.slideTabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  flex-wrap: wrap;
+}
 
 /* ── Code Highlights 데모 칸 편집 컨트롤 ── */
 /* 채워진 데모 위 편집 바 — 데모 하단 hint 와 겹치지 않게 좌상단.
@@ -1316,6 +1358,10 @@ textarea.edit {
 }
 .demoEmptyLabel {
   font-size: var(--font-size-sm);
+}
+.demoEmptyActions {
+  display: flex;
+  gap: var(--spacing-xs);
 }
 .demoSwitch {
   border: 0;
@@ -1649,6 +1695,11 @@ textarea.edit {
   flex-direction: column;
   gap: var(--spacing-sm);
 }
+.erdPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
 
 /* 펼침/접힘 — height:auto 는 트랜지션이 안 되므로 grid-template-rows 0fr↔1fr 을 쓴다.
    이 속성은 전역 theme transition 목록에 없어 복합 선택자 (0,2,0) 으로 특이도를 올려야 살아남는다. */
@@ -1668,6 +1719,11 @@ textarea.edit {
 }
 
 /* 안내 문구 · textarea · 버튼 사이 간격. 설명과 입력은 한 묶음으로 읽혀야 하므로 촘촘하게. */
+.erdCollapseInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
 /* 파일을 끌어다 놓는 중 — outline 이라 레이아웃이 밀리지 않는다 */
 .erdImportOver {
   outline: 2px solid var(--color-accent);
@@ -1712,6 +1768,12 @@ textarea.edit {
 .erdSql {
   width: 100%;
 }
+.erdActions {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  flex-wrap: wrap;
+}
 .erdResult {
   margin-left: auto;
   color: var(--text-success);
@@ -1741,9 +1803,25 @@ textarea.edit {
   gap: var(--spacing-xl);
   position: relative;
 }
+.tsBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+.tsField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
 .tsText {
   color: var(--text-secondary);
   line-height: var(--line-height-relaxed);
+}
+.tsTags {
+  display: flex;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  flex-wrap: wrap;
 }
 .tsTag {
   font-size: var(--font-size-sm);

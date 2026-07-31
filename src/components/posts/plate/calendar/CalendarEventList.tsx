@@ -112,7 +112,7 @@ export default function CalendarEventList({
     <aside className={styles.evSidebar} contentEditable={false}>
       <div className={styles.evSidebarHead}>
         <span className={styles.evSidebarTitle}>{t("이벤트", "Events")}</span>
-        <span className="tw:inline-flex tw:items-center tw:gap-3xs">
+        <span className={styles.evSidebarActions}>
           <Tooltip content={sortDir === "desc" ? t("최신순", "Newest first") : t("오래된순", "Oldest first")} placement="top">
             <Button
               variant="ghost" shape="circle" size="sm" soundDisabled
@@ -155,20 +155,20 @@ export default function CalendarEventList({
         >
           {() => (
             <div className={styles.evHelp}>
-              <div className="tw:flex tw:flex-col tw:gap-2xs">
+              <div className={styles.evHelpGroup}>
                 <span className={styles.evHelpTitle}>{t("상태", "Status")}</span>
                 <span className={styles.evHelpRow}><span className={styles.evHelpIcon}><span className={`${styles.evItemDot} ${styles.evItemDotTodo} ${styles.evHelpDot}`} /></span>{t("예정", "To-do")}</span>
                 <span className={styles.evHelpRow}><span className={styles.evHelpIcon}><span className={`${styles.evItemDot} ${styles.evItemDotDoing} ${styles.evHelpDot}`} /></span>{t("진행 중", "In progress")}</span>
                 <span className={styles.evHelpRow}><span className={styles.evHelpIcon}><span className={`${styles.evItemDot} ${styles.evItemDotDone} ${styles.evHelpDot}`} /></span>{t("완료", "Done")}</span>
                 <span className={styles.evHelpRow}><span className={styles.evHelpIcon}><span className={`${styles.evItemDot} ${styles.evItemDotHold} ${styles.evHelpDot}`} /></span>{t("중단", "On hold")}</span>
               </div>
-              <div className="tw:flex tw:flex-col tw:gap-2xs">
+              <div className={styles.evHelpGroup}>
                 <span className={styles.evHelpTitle}>{t("중요도", "Priority")}</span>
                 <span className={styles.evHelpRow}><span className={styles.evHelpIcon}><span className={styles.evHelpStar}><Star size={13} strokeWidth={1.75} /></span></span>{t("낮음", "Low")}</span>
                 <span className={styles.evHelpRow}><span className={styles.evHelpIcon}><span className={`${styles.evHelpStar} ${styles.evStarHalf}`}><Star size={13} strokeWidth={1.75} /><Star size={13} fill="currentColor" strokeWidth={1.75} className={styles.evStarHalfFill} /></span></span>{t("보통", "Normal")}</span>
                 <span className={styles.evHelpRow}><span className={styles.evHelpIcon}><span className={styles.evHelpStar}><Star size={13} fill="currentColor" strokeWidth={1.75} /></span></span>{t("높음", "High")}</span>
               </div>
-              <div className="tw:flex tw:flex-col tw:gap-2xs">
+              <div className={styles.evHelpGroup}>
                 {/* 앞 두 그룹과 같은 결로 제목을 붙인다 — 여기만 없으면 마지막 줄이 떠 보인다 */}
                 <span className={styles.evHelpTitle}>{t("연결", "Links")}</span>
                 <span className={styles.evHelpRow}><span className={styles.evHelpIcon}><Link2 size={13} className={styles.evHelpLink} /></span>{t("연결된 작업 · 눌러서 펼치기", "Connected tasks · click to expand")}</span>
@@ -191,7 +191,7 @@ export default function CalendarEventList({
                 const chain = chainByEvent.get(ev.id);
                 const expanded = expandedId === ev.id;
                 return (
-                  <div key={ev.id} className="tw:flex tw:flex-col">
+                  <div key={ev.id} className={styles.evRow}>
                     <div className={styles.evRowMain}>
                       {eventBtn(ev)}
                       {chain && (

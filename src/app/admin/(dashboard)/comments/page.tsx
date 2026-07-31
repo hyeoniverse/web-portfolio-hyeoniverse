@@ -226,7 +226,7 @@ export default function CommentsModerationPage() {
       </div>
 
       {loading ? (
-        <div className="tw:flex tw:flex-col" aria-busy="true">
+        <div className={styles.list} aria-busy="true">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className={styles.row}>
               <Skeleton width={16} height={16} borderRadius="var(--radius-sm)" />
@@ -242,7 +242,7 @@ export default function CommentsModerationPage() {
       ) : items.length === 0 ? (
         <p className={styles.empty}><T k="admin.comments.empty" /></p>
       ) : (
-        <div className="tw:flex tw:flex-col">
+        <div className={styles.list}>
           {items.map((c) => (
             <div key={c.id} className={`${styles.row} ${c.is_deleted ? styles.rowDeleted : ""}`}>
               <span className={styles.colCheck}>

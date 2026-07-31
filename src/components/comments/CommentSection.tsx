@@ -219,8 +219,8 @@ export default function CommentSection({ commentType, targetId, translationEnabl
 
   return (
     <div className={styles.section}>
-      <div className="tw:flex tw:items-center tw:justify-between tw:gap-md">
-        <div className="tw:flex tw:items-center tw:gap-sm">
+      <div className={styles.headingRow}>
+        <div className={styles.headingLeft}>
           <h2 className={styles.heading}>
             <T k="comments.heading" />
             {comments.length > 0 && (
@@ -324,7 +324,7 @@ export default function CommentSection({ commentType, targetId, translationEnabl
 
       {remaining > 0 && (
         /* 가운데 정렬은 래퍼가 담당 — Button 자체엔 배치 클래스를 붙이지 않는다 */
-        <div className="tw:flex tw:justify-center">
+        <div className={styles.loadMoreRow}>
           <Button
             variant="outline"
             size="sm"

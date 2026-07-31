@@ -710,11 +710,11 @@ function MermaidExample({ label, code, wide, ko, onCopy }: { label: string; code
   }, [full]);
   return (
     <div className={`${styles.mermaidHelpExample}${wide ? ` ${styles.mermaidHelpExampleWide}` : ""}`}>
-      <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
+      <div className={styles.mermaidHelpLabelRow}>
         <div className={styles.mermaidHelpLabel}>{label}</div>
         <button type="button" className={styles.mermaidHelpCopy} onClick={() => onCopy(code)}><Copy size={13} />{ko ? "코드 복사" : "Copy code"}</button>
       </div>
-      <div className="tw:flex tw:flex-col tw:gap-sm">
+      <div className={styles.mermaidHelpExampleBody}>
         <MermaidCode code={code} className={styles.mermaidHelpCode} />
         {/* 차트 컨테이너 — 우상단에 확대/축소/전체화면 컨트롤(스크롤에 안 딸려가게 뷰포트 밖) */}
         <div className={styles.mermaidHelpDiagramWrap}>
@@ -1159,10 +1159,10 @@ function MermaidHelpModal({ language }: { language: string }) {
         />
       </div>
       {/* 선택된 종류의 설명 + 문법 + 고급 문법 + 예시 (각 섹션 label 분리) */}
-      <div className="tw:flex tw:flex-col tw:gap-lg">
+      <div className={styles.mermaidHelpTabBody}>
         <p className={styles.mermaidHelpBasicsIntro}>{active.intro}</p>
-        <section className="tw:flex tw:flex-col tw:gap-2xs">
-          <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm"><span className={styles.mermaidHelpLabel}>{ko ? "문법" : "Syntax"}</span></div>
+        <section className={styles.mermaidHelpSection}>
+          <div className={styles.mermaidHelpLabelRow}><span className={styles.mermaidHelpLabel}>{ko ? "문법" : "Syntax"}</span></div>
           <ul className={styles.mermaidHelpRules}>
             {active.rules.map((r) => (
               <li key={r.code} className={styles.mermaidHelpRule}>
@@ -1173,8 +1173,8 @@ function MermaidHelpModal({ language }: { language: string }) {
           </ul>
         </section>
         {active.advanced.length > 0 && (
-          <section className="tw:flex tw:flex-col tw:gap-2xs">
-            <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm"><span className={styles.mermaidHelpLabel}>{ko ? "고급 문법" : "Advanced"}</span></div>
+          <section className={styles.mermaidHelpSection}>
+            <div className={styles.mermaidHelpLabelRow}><span className={styles.mermaidHelpLabel}>{ko ? "고급 문법" : "Advanced"}</span></div>
             <ul className={styles.mermaidHelpRules}>
               {active.advanced.map((r) => (
                 <li key={r.code} className={styles.mermaidHelpRule}>

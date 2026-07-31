@@ -23,6 +23,12 @@
   min-width: 0;
 }
 
+.envGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
 .envGroupLabel {
   display: flex;
   align-items: center;
@@ -85,6 +91,13 @@
 .envRowSaveBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.envStatusSummary {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 
 .envStatusCount {
@@ -218,6 +231,12 @@
   border-color: var(--text-primary);
 }
 
+.envPasteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+}
+
 .envLabelMissing {
   color: var(--text-accent);
 }
@@ -230,6 +249,12 @@
 .envInputCell > div:first-child {
   width: 100%;
   min-width: 0;
+}
+.envActionCol {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-2xs);
 }
 .envBadgeSlot {
   margin-left: auto;

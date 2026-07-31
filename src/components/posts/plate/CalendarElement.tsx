@@ -576,7 +576,7 @@ export function CalendarElement(props: PlateElementProps) {
         id: modalId,
         header: { title: t("이벤트", "Event") },
         subButtons: (
-          <span className="tw:inline-flex tw:items-center tw:gap-4xs">
+          <span className={styles.navBtns}>
             <Tooltip content={t("뒤로", "Back")} placement="bottom">
               <button type="button" className={styles.navBtn} disabled={nav.back.length === 0} onClick={navBack} aria-label={t("뒤로", "Back")}><ChevronLeft size={15} /></button>
             </Tooltip>

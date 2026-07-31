@@ -1,4 +1,15 @@
 /* Architecture 다이어그램 비주얼 캔버스 에디터 */
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
 .hint {
   margin: 0;
   font-size: var(--font-size-xs);
@@ -41,12 +52,23 @@
   border: var(--border-light);
   border-radius: var(--radius-2xl);
 }
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
 .panelTitle {
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-tertiary);
+}
+.row {
+  display: grid;
+  grid-template-columns: var(--grid-cols-2);
+  gap: var(--spacing-sm);
 }
 .field {
   display: flex;
@@ -57,6 +79,11 @@
 .fieldLabel {
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
+}
+.panelActions {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
 }
 
 /* add 버튼 */

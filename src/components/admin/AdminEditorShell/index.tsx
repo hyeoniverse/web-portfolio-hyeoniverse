@@ -1022,7 +1022,7 @@ export default function AdminEditorShell({
         {/* ── 둘째 줄: 저장 그룹 ── */}
         <div className={styles.topBarRow}>
           {topBarSecondRowLeft && <div style={{ marginRight: "auto", display: "flex", alignItems: "flex-end" }}>{topBarSecondRowLeft}</div>}
-          <div className="tw:inline-flex tw:items-center tw:flex-nowrap tw:gap-sm">
+          <div className={styles.saveGroup}>
             {renderSaveGroup(showScheduleTop, setShowScheduleTop)}
           </div>
         </div>
@@ -1032,7 +1032,7 @@ export default function AdminEditorShell({
 
       {/* ── Bottom Bar: 미리보기 / 임시저장 / 저장 ── */}
       <div className={styles.bottomBar}>
-        <div className="tw:inline-flex tw:items-center tw:flex-nowrap tw:gap-sm">
+        <div className={styles.saveGroup}>
           {renderSaveGroup(showScheduleBottom, setShowScheduleBottom, "top-end")}
         </div>
       </div>

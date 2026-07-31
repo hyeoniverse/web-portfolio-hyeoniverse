@@ -330,7 +330,7 @@ export default function AdminDashboard() {
                   <T k="admin.dashboard.totalViews" />
                 </span>
               </Tooltip>
-              <div className="tw:inline-flex tw:items-baseline tw:gap-md tw:flex-wrap">
+              <div className={styles.heroValueRow}>
                 <span className={styles.heroValue}>
                   <CountUp value={data.stats.totalPostViews} duration={1400} />
                 </span>
@@ -830,7 +830,7 @@ export default function AdminDashboard() {
         </SectionHeader>
         <Panel variant="grid" cols="repeat(2, 1fr)" insetItems>
           {Object.entries(data.services).map(([key, status]) => (
-            <Item key={key} className="tw:flex tw:items-center tw:gap-xs">
+            <Item key={key} className={styles.serviceItem}>
               <span
                 className={`${styles.statusDot} ${status === "configured" ? styles.dotOk : styles.dotMissing}`}
                 aria-hidden
@@ -1544,8 +1544,8 @@ function DailyViewsChart({
 
       {/* Row 2: 날짜 범위 선택기 (line mode 만) — 별도 행으로 분리해서 너비 변해도 row1 영향 X */}
       {viewMode === "line" && (
-        <div className="tw:flex tw:items-center">
-          <div className="tw:inline-flex tw:items-center tw:gap-2xs">
+        <div className={styles.dailyChartHeaderSub}>
+          <div className={styles.periodRange}>
             <DateRangeTrigger
               label={language === "ko" ? "시작일" : "Start"}
               date={startDate}
@@ -1991,7 +1991,7 @@ function DayDetailPanel({
       key={selectedIdx /* 다른 날짜 클릭 시 애니메이션 재실행 */}
     >
       <header className={styles.panelHeader} style={{ gridColumn: "1 / -1" }}>
-        <div className="tw:inline-flex tw:items-baseline tw:gap-sm tw:flex-wrap">
+        <div className={styles.dayDetailHeading}>
           <span className={styles.dayDetailDate}>{fullDate}</span>
           <span className={styles.dayDetailRank}>
             {language === "ko"
@@ -2349,7 +2349,7 @@ function CalendarHeatmap({
         />
       </header>
 
-      <div className="tw:grid tw:grid-cols-7">
+      <div className={styles.calendarDowRow}>
         {dowLabels.map((d, i) => (
           <span key={i} className={styles.calendarDow}>
             {d}
@@ -2736,7 +2736,7 @@ function DashboardSkeleton() {
           <div className={styles.heroStat}>
             <div className={styles.heroLeft}>
               <SkeletonLine width={80} height="var(--skeleton-h-line-sm)" />
-              <div className="tw:inline-flex tw:items-baseline tw:gap-md tw:flex-wrap">
+              <div className={styles.heroValueRow}>
                 <SkeletonLine width={140} height={48} />
                 <SkeletonPill width={56} height={20} />
               </div>
@@ -2936,7 +2936,7 @@ function DashboardSkeleton() {
         </SectionHeader>
         <Panel variant="grid" cols="repeat(2, 1fr)" insetItems>
           {Array.from({ length: 8 }).map((_, i) => (
-            <Item key={i} className="tw:flex tw:items-center tw:gap-xs">
+            <Item key={i} className={styles.serviceItem}>
               <SkeletonCircle size={8} />
               <SkeletonLine width="60%" />
               <SkeletonLine width={40} height="var(--skeleton-h-line-sm)" />

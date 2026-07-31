@@ -425,7 +425,7 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
           )}
         </span>
         <div className={mStyles.info}>
-          <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-2xs">
+          <div className={mStyles.nameRow}>
             <span className={mStyles.name}>{a.name || L("(이름 없음)", "(unnamed)")}</span>
             {statusBadge(a, member, invited)}
           </div>
@@ -502,7 +502,7 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
                 )}
               </span>
               <div className={mStyles.info}>
-                <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-2xs">
+                <div className={mStyles.nameRow}>
                   <span className={mStyles.name}>{ctx?.ownerName || ctx?.ownerEmail}</span>
                   <RoleBadge role="owner" />
                 </div>
@@ -540,7 +540,7 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
                 )}
               </span>
               <div className={mStyles.info}>
-                <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-2xs">
+                <div className={mStyles.nameRow}>
                   <span className={mStyles.name}>{ctx?.myName || ctx?.email}</span>
                 </div>
                 <div className={mStyles.meta}>
@@ -588,7 +588,7 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
                   )}
                 </span>
                 <div className={mStyles.info}>
-                  <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-2xs">
+                  <div className={mStyles.nameRow}>
                     <span className={mStyles.name}>{m.name || m.email}</span>
                     <RoleBadge role={m.role} />
                   </div>

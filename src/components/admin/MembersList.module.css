@@ -93,6 +93,13 @@
   min-width: 0;
 }
 
+.nameRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+
 .name {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);

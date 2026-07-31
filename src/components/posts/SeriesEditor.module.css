@@ -4,6 +4,18 @@
   padding: var(--spacing-2xl) var(--page-px);
 }
 
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
 .label {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -61,6 +73,17 @@
   padding: var(--spacing-xs) 0;
 }
 
+.coverActions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.coverPreview {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 .coverThumb {
   border-radius: var(--radius-sm);
   object-fit: cover;
@@ -113,6 +136,12 @@
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   padding: var(--spacing-sm) 0;
+}
+
+.postsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
 }
 
 .postItem {
