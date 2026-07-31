@@ -28,6 +28,13 @@ const itemMeta: Record<
     recommendReason?: LocalizedText;
   }
 > = {
+  "CSS Modules 프로젝트에 Tailwind 를 얹자 유틸이 토큰을 못 쓰고, 안 쓴 유틸이 생기고, 기존 전역 클래스와 충돌했다": {
+    featured: true, section: "L", difficulty: 3, recommended: true,
+    recommendReason: {
+      ko: "새 도구를 기존 코드베이스에 얹을 때 마찰의 정체가 도구가 아니라 도구가 가정하는 '전역 네임스페이스' 였던 사례라 골랐습니다.",
+      en: "Picked because the friction of adding a new tool to an existing codebase turned out to be the global namespace the tool silently assumes — not the tool itself.",
+    },
+  },
   "부모의 마운트 fitView 가 자식 effect 의 카메라 제어를 매번 덮어씀": {
     featured: true, section: "I", difficulty: 3, recommended: true,
     recommendReason: {
@@ -348,6 +355,29 @@ const itemMeta: Record<
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
+  {
+    problem: {
+      ko: "CSS Modules 프로젝트에 Tailwind 를 얹자 유틸이 토큰을 못 쓰고, 안 쓴 유틸이 생기고, 기존 전역 클래스와 충돌했다",
+      en: "Adding Tailwind to a CSS-Modules project: utilities ignored the tokens, unused utilities appeared on their own, and they collided with existing global classes",
+    },
+    definition: {
+      ko: "레이아웃 스타일 재사용을 위해 기존 CSS Modules + 커스텀 디자인 토큰 위에 Tailwind v4 를 얹었습니다. 데모에선 한 줄 설정이면 되는데, 이 저장소에선 세 가지가 동시에 어긋났습니다 — (1) `tw:gap-md` 는 생성되는데 기존 `--spacing-md` 토큰을 참조하지 않았고, (2) 아무도 안 쓴 `.grid`·`.absolute`·`.sticky` 유틸이 멋대로 생겼으며, (3) 그게 프로젝트의 기존 전역 `.grid`·`.hidden`·`.visible` 과 충돌했습니다.",
+      en: "To reuse layout styles, Tailwind v4 was layered on top of the existing CSS Modules + custom design tokens. In demos it's a one-line setup, but in this repo three things broke at once — (1) `tw:gap-md` was generated but didn't reference the existing `--spacing-md` token, (2) utilities nobody wrote (`.grid`, `.absolute`, `.sticky`) appeared on their own, and (3) they collided with the project's existing global `.grid`/`.hidden`/`.visible`.",
+    },
+    cause: {
+      ko: "세 증상의 뿌리는 하나입니다 — **Tailwind 는 전역 클래스 네임스페이스와 토큰 네임스페이스를 자기가 소유한다고 가정**하는데, 하이브리드 저장소에선 이미 다른 주인이 있습니다. 토큰: `@theme inline { --spacing-md: var(--spacing-md) }` 는 양변 이름이 같아 자기참조로 취급돼 버려지고, 그냥 `@theme` 는 유틸에 안 쓰인 변수를 tree-shake 해서 `var(--spacing-*)` 를 참조하는 `--box-*` 를 무너뜨립니다. 스캐너: Tailwind 는 소스 텍스트에서 클래스 후보를 긁는데 `styles.grid`(CSS Module 접근)와 진짜 `grid` 유틸을 **구분하지 못해** 헛 유틸을 만들고, 그 이름이 기존 전역 클래스와 겹칩니다.",
+      en: "All three share one root — **Tailwind assumes it owns both the global class namespace and the token namespace**, but in a hybrid repo those already have other owners. Tokens: `@theme inline { --spacing-md: var(--spacing-md) }` is self-referential (same name on both sides) so Tailwind drops it, and plain `@theme` tree-shakes vars unused by utilities — which would collapse the `--box-*` tokens that reference `var(--spacing-*)`. Scanner: Tailwind harvests class candidates from source text and **can't tell `styles.grid` (a CSS-module access) from a real `grid` utility**, so it fabricates utilities whose names clash with the existing global classes.",
+    },
+    solution: {
+      ko: "경계를 명시했습니다. 토큰은 `@theme static` 으로 기존 `--spacing-*` 을 노출해 미사용도 emit 되게 하고(단일 소스 유지), `prefix(tw)` 를 켜면 emit 되는 변수가 `--tw-spacing-md` 로 리네임돼 `@theme { --spacing-md: var(--spacing-md) }` 가 더 이상 자기참조가 아니게 됩니다. 스캐너·충돌은 같은 `prefix(tw)` 하나로 해결 — 이제 `tw:` 붙은 것만 유틸이 되니 `styles.grid` 는 매칭되지 않고 헛 유틸이 사라지며, `tw:grid` 는 기존 `.grid` 와 절대 겹치지 않습니다. preflight 는 기존 sanitize.css 와 이중이라 뺐습니다.",
+      en: "Make the boundary explicit. For tokens, `@theme static` exposes the existing `--spacing-*` and forces emission even when unused (keeping a single source); and turning on `prefix(tw)` renames the emitted var to `--tw-spacing-md`, so `@theme { --spacing-md: var(--spacing-md) }` is no longer self-referential. The scanner and collision problems fall to the same `prefix(tw)` — only `tw:`-prefixed tokens become utilities, so `styles.grid` no longer matches, the phantom utilities vanish, and `tw:grid` can never clash with the existing `.grid`. Preflight was dropped since it doubles the existing sanitize.css reset.",
+    },
+    keyInsight: {
+      ko: "마찰의 정체는 Tailwind 가 아니라, Tailwind 가 조용히 가정하는 **전역 네임스페이스(클래스+토큰)** 가 이미 임자 있는 저장소를 만난 지점이었습니다. 프리픽스와 명시적 토큰 브리지는 \"Tailwind 가 전부를 소유\" 를 \"`tw:` 로 표시된 것만 소유\" 로 바꾸고, 그 경계가 하이브리드 도입을 안전하게 만듭니다. 어떤 도구가 데모에선 잘 되는데 내 저장소와 싸운다면, 그 도구가 말없이 소유한다고 가정하는 전역 네임스페이스부터 찾으세요.",
+      en: "The friction wasn't Tailwind — it was the point where the **global namespace (classes + tokens)** Tailwind silently assumes met a repo that already occupied it. A prefix and an explicit token bridge turn \"Tailwind owns everything\" into \"Tailwind owns only what's marked `tw:`\", and that boundary is what makes hybrid adoption safe. When a tool works in demos but fights your repo, look first for the global namespace it assumes it owns.",
+    },
+    tags: ["tailwind", "css-modules", "design-tokens", "build-tooling", "namespace-collision"],
+  },
   {
     problem: {
       ko: "부모의 마운트 fitView 가 자식 effect 의 카메라 제어를 매번 덮어씀",
