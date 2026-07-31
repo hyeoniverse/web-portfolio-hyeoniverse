@@ -97,13 +97,13 @@
 /* ── Quick Actions — 4-col edge-to-edge 행, 셀 사이만 vertical divider, 자체 위쪽 hairline ── */
 .quickActions {
   composes: panelGrid from "./components/Panel.module.css";
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: var(--grid-cols-4);
   border-top: var(--border-light);
 }
 
 @media (max-width: 768px) {
   .quickActions {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: var(--grid-cols-2);
   }
 }
 
@@ -430,7 +430,7 @@ a.statCard:hover .statValue {
    깔리면 border (alpha-30) 와 합성돼 alpha 0.51 로 진해짐. padding-box 로 border 영역 제외. */
 .twoCol {
   composes: panelGrid from "./components/Panel.module.css";
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   background-clip: padding-box;
   /* grid-template-columns transition: 기기 분석 확장 시 부드럽게 */
   transition: grid-template-columns 0.4s var(--ease-material);
@@ -896,7 +896,7 @@ a.statCard:hover .statValue {
    explicit border 두면 stats 섹션 안에 hairline 이 많이 쌓여 bottom 쪽이 시각적으로 무거워짐. */
 .calendarDowRow {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: var(--grid-cols-7);
 }
 
 .calendarDow {
@@ -913,7 +913,7 @@ a.statCard:hover .statValue {
    처리 (border 와 gap 의 rendering 차이 통일 — subpixel 차이로 다르게 보이는 문제 방지) */
 .calendarGrid {
   composes: panelGrid from "./components/Panel.module.css";
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: var(--grid-cols-7);
   gap: 1px;
   background: var(--border-light-color);
   padding-block: 1px;
