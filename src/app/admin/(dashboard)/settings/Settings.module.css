@@ -1,3 +1,17 @@
+/* ── 레이아웃 공유 유틸 (중복 flex/grid 패턴 통합) ── */
+.uCenter { display: flex; align-items: center; justify-content: center; }
+.uRow { display: flex; align-items: center; }
+.uRowXs { composes: uRow; gap: var(--spacing-xs); }
+.uRowSm { composes: uRow; gap: var(--spacing-sm); }
+.uRow2xs { composes: uRow; gap: var(--spacing-2xs); }
+.uRowWrapSm { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+.uRowWrap2xs { display: flex; flex-wrap: wrap; gap: var(--spacing-2xs); }
+.uCol { display: flex; flex-direction: column; }
+.uColXs { composes: uCol; gap: var(--spacing-xs); }
+.uColSm { composes: uCol; gap: var(--spacing-sm); }
+.uColMd { composes: uCol; gap: var(--spacing-md); }
+.uCol3xs { composes: uCol; gap: var(--spacing-3xs); }
+
 .container {
   max-width: var(--page-max-width);
   margin: 0 auto;
@@ -26,9 +40,7 @@
 }
 
 .title {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowSm;
   margin: 0;
   font-family: var(--font-instrument);
   font-size: var(--font-size-3xl);
@@ -109,15 +121,12 @@
 /* 양옆이 트인 flat list — 좌우 border 없음, 위/각 row 아래에만 border.
    notifications 페이지의 list 와 같은 패턴. */
 .conflictList {
-  display: flex;
-  flex-direction: column;
+  composes: uCol;
   border-top: var(--border-light);
 }
 
 .conflictPreviewItem {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowSm;
   padding: var(--spacing-xs) 0;
   font-size: var(--font-size-xs);
   border-bottom: var(--border-light);
@@ -129,9 +138,7 @@
 }
 
 .conflictSelectAll {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowSm;
   padding: var(--spacing-xs) 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -223,8 +230,7 @@
 /* 데스크탑(>1024): 세로 sticky 사이드바. 태블릿·모바일(≤1024)에서는 아래
    미디어쿼리에서 가로 스크롤 탭바로 바뀐다. */
 .sideNav {
-  display: flex;
-  flex-direction: column;
+  composes: uCol;
   width: 200px;
   flex-shrink: 0;
   position: sticky;
@@ -277,9 +283,7 @@
 }
 
 /* ── Nav Sub-items (Content → Home / Profile / About) ── */
-.navSub {
-  display: flex;
-  flex-direction: column;
+.navSub { composes: uCol;
 }
 
 .navSubItem {
@@ -358,10 +362,7 @@
 }
 
 /* ── 작성자(Authors) 에디터 ── */
-.authorsEditor {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+.authorsEditor { composes: uColMd;
 }
 /* 아바타 = 이미지 업로드 trigger (클릭 시 파일 선택). 우상단 + 배지로 버튼임을 표시 */
 /* 삭제 버튼 — 카드 상단(start)에 붙임 (아바타가 커서 center 면 중앙에 뜸) */
@@ -446,9 +447,7 @@
   width: 100%;
 }
 
-.fieldGroup {
-  display: flex;
-  flex-direction: column;
+.fieldGroup { composes: uCol;
 }
 
 .fieldGroup > .fieldRow {
@@ -456,10 +455,7 @@
 }
 
 /* profile expandable panel 안 fieldGroup 들 사이 간격 */
-.profileExpandableInner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+.profileExpandableInner { composes: uColMd;
 }
 
 /* ── Field Pair (EN/KO group — 2열 나란히).
@@ -502,9 +498,7 @@
 /* 브랜드 로고 파트 (Favicon/풀) — head + 컨트롤을 한 덩어리로 묶어, 파트 안은 좁게(xs)
    파트 사이는 .fields gap(sm) 으로 벌린다. head 라벨과 그 컨트롤이 시각적으로 붙도록. */
 .logoPart {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  composes: uColXs;
   width: 100%;
 }
 .logoPartHead {
@@ -603,13 +597,11 @@
 }
 
 .fieldLabel {
+  composes: uCol3xs;
   width: auto;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: 500;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -639,17 +631,13 @@
 }
 
 .skeletonFields {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: uColSm;
   margin-top: var(--spacing-lg);
 }
 
 /* ── Color Field ── */
 .colorField {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  composes: uRowXs;
   flex: 1;
   min-width: 0;
 }
@@ -696,9 +684,7 @@
 }
 
 .presetCard {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowSm;
   height: 52px;
   padding: 0 var(--spacing-md) 0 0;
   border: var(--border-light);
@@ -730,6 +716,7 @@
 }
 
 .presetCardRemove {
+  composes: uCenter;
   position: absolute;
   top: -4px;
   right: -4px;
@@ -739,9 +726,6 @@
   border: none;
   background: var(--bg-primary);
   color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
   box-shadow: 0 1px 4px oklch(0% 0 0 / 0.15);
   opacity: 0;
@@ -828,10 +812,7 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 /* 그룹 (업로드 / 시스템) — 그룹 사이 구분선으로 분리 */
-.brandGroupHead {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
+.brandGroupHead { composes: uCol3xs;
 }
 .brandGroupTitle {
   margin: 0;
@@ -864,10 +845,7 @@
 /* 업로드 favicon 전용 옵션 — 박스(테두리/배경) 안 쓰고, accent eyebrow 헤더(라벨 + 라인)
    와 여백만으로 새 구분. 카드가 아니라 '섹션 표제' 결. */
 /* 배경색 — 라이트/다크 컴팩트 인라인 (좁은 hex 입력) */
-.faviconImageBgField {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
+.faviconImageBgField { composes: uRow2xs;
 }
 .faviconImageBgField .colorField {
   flex: 0 0 auto;
@@ -967,9 +945,7 @@
 }
 
 .shadowCustomBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: uColSm;
   padding-top: var(--spacing-sm);
   border-top: var(--border-light);
   /* height 0↔auto 애니메이션(framer-motion) 중 내용이 삐져나오지 않게 */
@@ -977,11 +953,7 @@
 }
 
 /* 그림자 컨트롤 inline row — FieldRow 오른쪽에 컨트롤+보조요소(커스텀 blur/각도값/inset)를 가로 배치 */
-.faviconShadowInlineRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
+.faviconShadowInlineRow { composes: uRowWrapSm;
 }
 
 .faviconShadowCustomInput {
@@ -1025,22 +997,17 @@
 
 /* ── Logo Upload ── */
 .logoUpload {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowWrapSm;
   flex: 1;
   min-width: 0;
-  flex-wrap: wrap;
 }
 
 /* 업로드된 로고 미리보기 — 박스 스타일(배경·border·radius) 없이 로고만. 배경 투명 그대로 노출. */
 .logoPreview {
+  composes: uCenter;
   height: 52px;
   min-width: 88px;
   max-width: 190px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
 }
 
@@ -1065,23 +1032,17 @@
 }
 
 .logoActions {
-  display: flex;
-  gap: var(--spacing-2xs);
-  flex-wrap: wrap;
+  composes: uRowWrap2xs;
   flex-shrink: 0;
 }
 
 /* 업로드된 로고 리컬러 — 카드에서 로고 자체 색을 골라 확인 (로컬, 저장 안 함) */
 .logoPreviewGroup {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowSm;
   min-width: 0;
 }
 .logoTintControl {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
+  composes: uRow2xs;
   flex-shrink: 0;
 }
 .logoPreviewColor {
@@ -1214,9 +1175,7 @@
 /* ── 태그 삭제 대기 표시 ── */
 
 .tagPendingDeleteList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  composes: uRowWrap2xs;
   margin-top: var(--spacing-2xs);
   padding: var(--spacing-2xs) 0;
 }
@@ -1265,6 +1224,7 @@
 }
 
 .sectionHintList {
+  composes: uCol3xs;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
@@ -1272,9 +1232,6 @@
   margin-top: 0;
   padding-left: var(--spacing-lg);
   list-style: disc;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
 }
 
 .fieldHint {
@@ -1345,10 +1302,7 @@
 /* textarea 의 lang 배지 — textarea 좌측 외부에 배치 (textarea 첫 줄과 안 겹침) */
 
 /* 라벨 텍스트와 dot 을 가로 한 줄로 묶는 컨테이너 (.fieldLabel 이 column 이라 필요) */
-.fieldLabelText {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
+.fieldLabelText { composes: uRow2xs;
 }
 
 /* 필수 입력 표시 dot — 텍스트 글리프 대신 실제 원형 element 로 그려서
@@ -1380,9 +1334,7 @@
 /* ── Fallback Priority List ── */
 
 .priorityBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  composes: uCenter;
   height: 100%;
   aspect-ratio: 1;
   border: none;
@@ -1408,9 +1360,7 @@
 }
 
 /* ── Service Items Editor ── */
-.serviceItems {
-  display: flex;
-  flex-direction: column;
+.serviceItems { composes: uCol;
 }
 
 .serviceItem {
@@ -1440,9 +1390,7 @@
 }
 
 .serviceItemDrag {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  composes: uCenter;
   flex-shrink: 0;
   width: 16px;
   height: var(--button-h-sm);
@@ -1474,8 +1422,7 @@
 }
 
 .slotReel {
-  display: flex;
-  flex-direction: column;
+  composes: uCol;
   transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -1486,10 +1433,8 @@
 }
 
 .serviceItemFields {
+  composes: uColXs;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
 }
 
 /* ── Categories Editor ── */
@@ -1508,13 +1453,11 @@
 }
 
 .profileCard {
+  composes: uColSm;
   padding: var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
 }
 
 .profileGrid {
@@ -1539,10 +1482,7 @@
 /* position 만 — size/style 은 CloseButton md 가 책임 */
 
 /* ── Skeleton (tab layout) ── */
-.skeletonNav {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+.skeletonNav { composes: uColXs;
 }
 
 .skeletonSection {
@@ -1579,14 +1519,12 @@
 /* 펼친 시리즈 카드 헤더 — 삭제 버튼. parent flex 의 align-items:center 로 자연 정렬 (chevron 과 수직 중심 일치). */
 
 .seriesCoverPreview {
+  composes: uCenter;
   width: 210px;
   aspect-ratio: 16 / 9;
   border: var(--border-light);
   border-radius: var(--radius-sm);
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .seriesCoverPreview .logoPreviewImage {
@@ -1597,9 +1535,7 @@
 
 /* ── Series Delete Modal ── */
 .seriesDeleteModal {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  composes: uColMd;
   padding: 0 var(--spacing-xl) var(--spacing-xl);
 }
 
@@ -1611,9 +1547,7 @@
 }
 
 .seriesDeleteCheck {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  composes: uRowXs;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
@@ -1621,10 +1555,7 @@
 
 /* 타이틀 + 발행 배지 한 줄 — 타이틀 truncate(min-width:0), 배지는 우측 끝 (flex 정렬). */
 
-.publishToggle {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+.publishToggle { composes: uRowXs;
 }
 
 .publishLabel {
@@ -1718,9 +1649,7 @@
 
 /* 제목 — 버튼 ↔ 헤더 사이에서 styling 만 변하면서 morph */
 .newSeriesShellTitle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  composes: uCenter;
   width: 100%;
   padding: var(--box-md);
   border: none;
@@ -1791,9 +1720,7 @@
 /* actions(토글/취소/만들기) — 닫힘 상태에서는 column 0fr 로 안 보임,
    열림 상태에서 fade in */
 .newSeriesShellActions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  composes: uRowXs;
   padding-right: var(--spacing-md);
   white-space: nowrap;
   overflow: hidden;
@@ -1862,10 +1789,7 @@
    섹션 내부 간격 일관성: sortableList gap + profileAddBtn margin-top
    = 모두 spacing-md(16px). title row → first item, item ↔ item, last item →
    add button 모두 동일하게 적용. */
-.sortableList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+.sortableList { composes: uColMd;
 }
 
 /* ── Expand/collapse animation ──
@@ -1885,10 +1809,7 @@
 }
 
 /* ── Field group (label + inputs) ── */
-.fieldGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+.fieldGroup { composes: uColXs;
 }
 
 .fieldGroupLabel {
@@ -1901,10 +1822,8 @@
 }
 
 .sortableItem {
+  composes: uColXs;
   --_skill-row-h: 36px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
   transition: background-color 0.2s ease;
 }
 
@@ -1915,9 +1834,7 @@
 }
 
 .skillDragHandle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  composes: uCenter;
   flex-shrink: 0;
   width: 16px;
   height: var(--_skill-row-h);
@@ -1940,26 +1857,20 @@
 }
 
 .skillFields {
+  composes: uColSm;
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
 }
 
 .skillGroupHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  composes: uRowXs;
   min-height: var(--_skill-row-h);
 }
 
 .skillExpandBtn {
+  composes: uCenter;
   width: 20px;
   height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border: none;
   background: transparent;
   color: var(--text-tertiary);
@@ -2032,15 +1943,13 @@
 
 /* — → × rotate animation (skill remove) */
 .skillRemoveBtn {
+  composes: uCenter;
   position: relative;
   width: var(--_skill-row-h);
   min-height: var(--_skill-row-h);
   max-height: var(--_skill-row-h);
   flex-shrink: 0;
   align-self: flex-start;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border: none;
   border-radius: var(--radius-circle);
   background: transparent;
@@ -2356,10 +2265,7 @@
   color: var(--text-accent);
 }
 
-.tagInputRow {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: center;
+.tagInputRow { composes: uRowXs;
 }
 
 .tagAddBtn {
@@ -2535,11 +2441,7 @@
 /* ── Tag descriptions editor — bilingual + search/sort/pagination ── */
 
 /* 필터 row — 정렬/검색 row 와 분리된 별도 줄. 그룹 사이 divider. */
-.tagDescFilterRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
+.tagDescFilterRow { composes: uRowWrapSm;
 }
 
 /* 필터 버튼 안 활성 개수 배지 — primary 버튼 위에 밝은 pill + 중립 숫자 (accent 미사용) */
@@ -2605,9 +2507,7 @@
 }
 
 /* filterRow + filterDrawer 묶음 컨테이너 */
-.tagDescToolbarWrap {
-  display: flex;
-  flex-direction: column;
+.tagDescToolbarWrap { composes: uCol;
 }
 
 /* 필터 펼침 wrap — height 애니메이션 (overflow: hidden 으로 child clip) */
@@ -2617,10 +2517,7 @@
 
 /* 필터 펼침 영역 — toolbar 아래에 inline 노출 (배경/radius/border 없이 깔끔) */
 .tagDescFilterDrawer {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  composes: uRowWrapSm;
   margin-top: var(--spacing-xs);
 }
 
@@ -2630,10 +2527,7 @@
 }
 
 /* chip 영역 + count 묶음 — count 는 chip block 끝에 중앙 정렬 */
-.tagDescChipsBlock {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+.tagDescChipsBlock { composes: uColMd;
 }
 
 /* toolbar 내 count — SegmentedControl 오른쪽, search (margin-left:auto) 앞 자연 배치. */
@@ -2760,9 +2654,7 @@ a.tagRelatedItem:hover {
 
 /* 태그 삭제 confirm 모달 — 질문 + 관련 게시물 chip 목록 + 삭제 버튼 */
 .tagDeleteConfirmBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  composes: uColMd;
   padding: var(--spacing-md);
 }
 
@@ -2782,9 +2674,7 @@ a.tagRelatedItem:hover {
 
 /* 기본값 초기화 모달 chip — 클릭 시 해당 태그 사용 게시물 노출. 취소선 없음(삭제 대기 chip 과 구분). */
 .tagResetChipRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  composes: uRowWrap2xs;
   margin: var(--spacing-sm) 0;
 }
 .tagResetChip {
@@ -2868,10 +2758,7 @@ a.tagRelatedItem:hover {
 }
 
 /* 새 카테고리 추가 영역 — 헤더 (label + Add 버튼) + label | input form-style row */
-.worksCatAddBox {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+.worksCatAddBox { composes: uColSm;
 }
 
 /* 중복 등 잘못된 입력 시 시각 알림 — 가로 흔들림 */
@@ -3014,11 +2901,7 @@ a.tagRelatedItem:hover {
   opacity: 1;
 }
 
-.worksIntroVideoActions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
+.worksIntroVideoActions { composes: uRowWrapSm;
 }
 
 /* CoverImagePicker drawer 가 grid 두 컬럼 모두 차지하도록 */
@@ -3028,16 +2911,12 @@ a.tagRelatedItem:hover {
 
 /* ── Compress Video Modal ── */
 .compressModalBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  composes: uColMd;
   padding: var(--spacing-md) var(--spacing-lg);
 }
 
 .compressProgress {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  composes: uColXs;
   margin-top: var(--spacing-sm);
 }
 
@@ -3104,9 +2983,7 @@ a.tagRelatedItem:hover {
   align-items: start;
 }
 .techGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  composes: uColXs;
   min-width: 0;
 }
 .techGroupLabel {
@@ -3200,9 +3077,7 @@ a.tagRelatedItem:hover {
 
 /* ── 추가 / 편집 popover 내부 ── */
 .techPanel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: uColSm;
   width: min(340px, 86vw);
   /* dropdown 자체엔 padding 이 없어 content 가 padding 을 가짐 */
   padding: var(--spacing-md);
@@ -3223,9 +3098,7 @@ a.tagRelatedItem:hover {
   overflow-x: hidden;
 }
 /* preset — 좌우 트인 표(row 리스트). circle 아이콘 + 이름 + 카테고리. 가로 구분선만. */
-.techPresetList {
-  display: flex;
-  flex-direction: column;
+.techPresetList { composes: uCol;
 }
 .techPresetRow {
   display: grid;
@@ -3267,6 +3140,7 @@ a.tagRelatedItem:hover {
 }
 /* 직접 추가 — sticky footer. 프리셋 스크롤해도 popover 하단에 항상 고정 */
 .techCustomFooter {
+  composes: uColSm;
   position: sticky;
   bottom: 0;
   margin: var(--spacing-xs) calc(-1 * var(--spacing-md))
@@ -3274,15 +3148,9 @@ a.tagRelatedItem:hover {
   padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
   background: var(--bg-primary);
   border-top: var(--border-light);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
 }
 /* 아이콘 편집 — circle 미리보기(클릭=업로드/교체) + 링크 입력 한 줄 */
-.techIconRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+.techIconRow { composes: uRowSm;
 }
 .techIconCircleWrap {
   position: relative;
