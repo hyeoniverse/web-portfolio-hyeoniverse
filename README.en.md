@@ -730,15 +730,14 @@ Config: `vitest.config.ts` (jsdom, `@platejs/*` inlined so the full EditorKit lo
 
 ---
 
-**Visual regression (Playwright)**
+**Smoke e2e (Playwright)**
 
-Verifies pixel-for-pixel that a refactor did not change the rendered page. 24 baseline screenshots live in `e2e/visual.spec.ts-snapshots/` and are compared on every run.
+Verifies a refactor did not **break** the page (not a pixel comparison — UI changes are allowed). Each route is checked for page load (status < 400), runtime errors, error-boundary render, and empty screens.
 
 ```bash
-npm run build              # production output required (a dev server makes the baseline unstable)
-npm run test:visual        # compare
-npm run test:visual:update # refresh the baseline (only for intentional design changes)
-npm run test:visual:admin  # admin routes (requires a login session — see below)
+npm run build              # production output required (a dev server is unstable due to overlays)
+npm run test:smoke         # public routes
+npm run test:smoke:admin   # admin routes (requires a login session — see below)
 ```
 
 | Item | Value |
@@ -750,7 +749,7 @@ npm run test:visual:admin  # admin routes (requires a login session — see belo
 
 Two traps worth knowing: the full-screen `LoadingScreen` must be awaited or a "black screen + logo" frame gets baked into the baseline, and masking a WebGL canvas paints a rectangle *over* it — turning the whole page into a solid block (use `visibility: hidden` instead). Full notes and coverage gaps are in **[docs/perf-baseline.md](./docs/perf-baseline.md#시각-회귀-baseline)**.
 
-**Admin routes** need a login session. Put `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` in `.env.local` (use the owner account — a freshly created one has no role and gets rejected), then run `npm run test:visual:admin`. The new-device gate makes the first run fail; flip `approved` to `true` on the new `admin_known_devices` row to clear it (**no real inbox needed** — that is all the approval link does). After that the stored session (`e2e/.auth/` — auth tokens, git-ignored) is reused.
+**Admin routes** need a login session. Put `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` in `.env.local` (use the owner account — a freshly created one has no role and gets rejected), then run `npm run test:smoke:admin`. The new-device gate makes the first run fail; flip `approved` to `true` on the new `admin_known_devices` row to clear it (**no real inbox needed** — that is all the approval link does). After that the stored session (`e2e/.auth/` — auth tokens, git-ignored) is reused.
 
 > **Refactoring docs**: [Refactoring guide](./docs/refactoring-guide.md) · [Performance baseline](./docs/perf-baseline.md) · [Dead code inventory](./docs/dead-code-inventory.md)
 
