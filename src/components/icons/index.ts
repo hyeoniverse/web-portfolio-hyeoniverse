@@ -228,3 +228,6 @@ export { default as ZoomInIcon } from "./ZoomInIcon";
 export { default as SearchEmptyIcon } from "./SearchEmptyIcon";
 export { default as CaretRightIcon } from "./CaretRightIcon";
 export { default as EmojiOffIcon } from "./EmojiOffIcon";
+export { default as ColumnLayoutIcon } from "./ColumnLayoutIcon";
+export { default as FootnoteIcon } from "./FootnoteIcon";
+export { default as MarkdownMarkIcon } from "./MarkdownMarkIcon";

@@ -4,7 +4,7 @@ import { useState } from "react";
 import Popover from "@/components/ui/Popover";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
-import MarkdownMarkIcon from "./MarkdownMarkIcon";
+import { MarkdownMarkIcon } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./CommentEditor.module.css";
 
