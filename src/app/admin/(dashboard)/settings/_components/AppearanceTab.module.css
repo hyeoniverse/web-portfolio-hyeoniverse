@@ -192,7 +192,7 @@
 }
 .faviconColorDuo {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-xs) var(--spacing-md);
   width: 100%;
 }
@@ -353,7 +353,7 @@
 }
 .fullLogoPreview {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-md);
   width: 100%;
 }
@@ -394,7 +394,7 @@
 }
 .brandDrops {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-md);
 }
 
@@ -503,7 +503,7 @@
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: var(--grid-cols-2);
   align-content: start;
   gap: var(--spacing-sm) var(--spacing-lg);
 }

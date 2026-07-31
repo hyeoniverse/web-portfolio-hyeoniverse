@@ -12,7 +12,7 @@
 
 /* layout=row — 컨테이너 좁아도 wrap 안하고 항상 ko/en 1:1 분할로 강제 (auto-fit override) */
 .pairRow {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
 }
 
 /* capsule + border-light. 기본 height md (32px) — 다른 control 들과 통일. */

@@ -1848,7 +1848,7 @@
 
   /* 태블릿 — 3 col 고정 (auto-fit 이 좁은 폭에서 4 col 잡는 거 방지) */
   .grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: var(--grid-cols-3);
   }
 }
 
@@ -1906,7 +1906,7 @@
 @media (max-width: 640px) {
   /* 모바일 — 2 col, 좁은 gap */
   .grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: var(--grid-cols-2);
     gap: var(--spacing-sm);
   }
 

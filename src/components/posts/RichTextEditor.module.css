@@ -893,7 +893,7 @@
 /* 예시 2열 그리드 */
 .mermaidHelpGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-lg);
 }
 /* 간트처럼 가로가 긴 항목은 2열 다 차지 */
