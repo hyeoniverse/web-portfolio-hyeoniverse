@@ -15,7 +15,9 @@ import Textarea, { type MaxHintPreset } from "@/components/ui/Textarea";
 import Tooltip from "@/components/ui/Tooltip";
 import { uploadFile } from "@/lib/adminUpload";
 import { useLanguage } from "@/providers/LanguageProvider";
-import styles from "../Settings.module.css";
+import shared from "../Settings.module.css";
+import local from "./SettingsFormFields.module.css";
+const styles = { ...shared, ...local };
 
 /* ── FieldHelp — 라벨 옆 ? 아이콘 + Tooltip. 필드 값·옵션 설명용 (raw label/Switch 케이스도 재사용). ── */
 export function FieldHelp({ content }: { content: React.ReactNode }) {
