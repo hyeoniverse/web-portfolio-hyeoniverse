@@ -15,7 +15,7 @@ import FontPicker from "@/components/ui/FontPicker";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
 import { useRecentColors } from "../useRecentColors";
-import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText } from "@/components/icons";
+import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText, ColumnLayoutIcon, FootnoteIcon } from "@/components/icons";
 import { genPollId } from "../PollElements";
 import { AlignIcon } from "../icons";
 import {
@@ -573,11 +573,7 @@ export default React.memo(function MainToolbar({
             setTimeout(() => editor.tf.focus(), 0);
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
-            {cols === 2 && <><rect x="1" y="2" width="6" height="12" rx="1" /><rect x="9" y="2" width="6" height="12" rx="1" /></>}
-            {cols === 3 && <><rect x="0.5" y="2" width="4" height="12" rx="1" /><rect x="6" y="2" width="4" height="12" rx="1" /><rect x="11.5" y="2" width="4" height="12" rx="1" /></>}
-            {cols === 4 && <><rect x="0.5" y="2" width="3" height="12" rx="0.5" /><rect x="4.5" y="2" width="3" height="12" rx="0.5" /><rect x="8.5" y="2" width="3" height="12" rx="0.5" /><rect x="12.5" y="2" width="3" height="12" rx="0.5" /></>}
-          </svg>
+          <ColumnLayoutIcon cols={cols} />
         </TBtn>
       ))}
       <TBtn onClick={() => editor.tf.insertNodes({ type: "hr", children: [{ text: "" }] })} tooltip={t("editor.insertHr")}>HR</TBtn>
@@ -750,7 +746,7 @@ export default React.memo(function MainToolbar({
           children: [{ text: language === "ko" ? "각주 내용" : "Footnote text" }],
         }, { at: lastPath });
       }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 016.5 2H20v20H6.5a2.5 2.5 0 010-5H20"/><text x="9" y="15" fontSize="10" fill="currentColor" stroke="none" fontFamily="serif">1</text></svg>
+        <FootnoteIcon />
       </TBtn>
     </div>
   );
