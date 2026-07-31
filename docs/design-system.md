@@ -36,7 +36,7 @@ Raw Tokens           →  Semantic Tokens          →  Component Tokens        
 | `_motion.css` | `--duration-*`, `--ease-*`, `--delay-*` | `--duration-base`, `--ease-material` |
 | `_radius.css` | `--radius-*` | `--radius-md`, `--radius-capsule` |
 | `_shadow.css` | `--shadow-*` | `--shadow-sm`, `--shadow-glow` |
-| `_sizing.css` | `--size-*`, `--breakpoint-*`, `--width-*`, `--icon-*` | `--size-md`, `--breakpoint-lg`, `--width-xl` |
+| `_sizing.css` | `--size-*`, `--breakpoint-*`, `--width-*`, `--icon-*`, `--grid-cols-*` | `--size-md`, `--breakpoint-lg`, `--grid-cols-2` |
 | `_z-index.css` | `--z-*` | `--z-nav` (100), `--z-modal` (8000) |
 
 **박스 토큰 (`--box-*`)**: padding/margin 복합값 (spacing 토큰 참조)
@@ -136,6 +136,15 @@ Raw Tokens           →  Semantic Tokens          →  Component Tokens        
 - **CSS Modules** 사용 — 모든 클래스는 자동으로 해시됨
 - **camelCase** — BEM(`__`, `--`) 미사용
 - **의미 기반** 이름 — 시각적 설명보다 역할/용도 우선
+
+### Tailwind v4 병용 (`tw:` 프리픽스)
+
+CSS Modules 와 **Tailwind v4 유틸리티를 함께** 쓴다. 충돌·스캐너 오탐을 막기 위해 유틸은 전부 `tw:` 프리픽스(`tw:flex`, `tw:gap-md`) — 프리픽스 없는 `grid`·`hidden`·`visible` 등은 기존 전역 클래스이므로 절대 섞이지 않는다.
+
+- **유틸을 쓰는 경우** — "그냥 컨테이너"인 순수 레이아웃(자식 배치 + gap): `<div className="tw:flex tw:flex-col tw:gap-sm">`. 클래스명·CSS 규칙을 새로 만들 필요가 없다.
+- **CSS Modules 를 쓰는 경우** — padding·border·position 등이 얽힌 "스타일 입은 영역", 하위 셀렉터(`.card:hover .x`)·변형·상태가 있는 것. 유틸로 쪼개면 오히려 나빠진다.
+- **토큰 브리지** — 유틸은 값을 새로 만들지 않고 기존 디자인 토큰을 참조한다: `tw:gap-md` → `var(--tw-spacing-md)` → `var(--spacing-md)`. `global.css` 의 `@theme static` 이 `--spacing-*` 를 노출(단일 소스 유지, 미사용도 emit 돼 `--box-*` 의존 안전).
+- **설정** — `global.css` 가 진입점: preflight 제외(sanitize.css 와 이중), `@import "tailwindcss/utilities.css" … prefix(tw)` + `@theme static` 브리지.
 
 ### 클래스 분류별 컨벤션
 
