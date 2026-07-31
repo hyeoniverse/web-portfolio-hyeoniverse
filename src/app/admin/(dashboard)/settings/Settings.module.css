@@ -398,12 +398,6 @@
   letter-spacing: 0.06em;
 }
 
-.sectionDivider {
-  border: none;
-  border-top: var(--border-light);
-  margin: var(--spacing-md) 0;
-}
-
 .sectionTitleRow {
   display: flex;
   align-items: center;
@@ -1160,63 +1154,8 @@
 
 /* SectionHeader row 에 inline 으로 들어갈 때 — margin 모두 제거, line-height 1.
    title 과의 간격은 SectionHeader 의 row gap 이 담당. 모바일에선 flex-basis 100% 로 줄바꿈. */
-.sectionHintInline {
-  margin: 0;
-  line-height: 1;
-}
-
-@media (max-width: 768px) {
-  .sectionHintInline {
-    flex-basis: 100%;
-    order: 99;
-  }
-}
 
 /* ── 태그 삭제 대기 표시 ── */
-
-.tagPendingDeleteList {
-  composes: uRowWrap2xs;
-  margin-top: var(--spacing-2xs);
-  padding: var(--spacing-2xs) 0;
-}
-
-.tagPendingDeleteChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-3xs) var(--spacing-2xs) var(--spacing-3xs)
-    var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-primary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  text-decoration: line-through;
-  text-decoration-color: var(--text-muted);
-}
-
-.tagPendingDeleteUndo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    background 0.15s ease;
-}
-
-.tagPendingDeleteUndo:hover {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
 
 .sectionTitle + .sectionHint,
 .sectionTitle + .sectionHintList {
@@ -2653,56 +2592,8 @@ a.tagRelatedItem:hover {
 }
 
 /* 태그 삭제 confirm 모달 — 질문 + 관련 게시물 chip 목록 + 삭제 버튼 */
-.tagDeleteConfirmBody {
-  composes: uColMd;
-  padding: var(--spacing-md);
-}
-
-.tagDeleteConfirmDesc {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  line-height: 1.5;
-  margin: 0;
-}
-
-.tagDeleteConfirmActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-sm);
-}
 
 /* 기본값 초기화 모달 chip — 클릭 시 해당 태그 사용 게시물 노출. 취소선 없음(삭제 대기 chip 과 구분). */
-.tagResetChipRow {
-  composes: uRowWrap2xs;
-  margin: var(--spacing-sm) 0;
-}
-.tagResetChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-primary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-.tagResetChip:hover {
-  border-color: var(--text-tertiary);
-  color: var(--text-primary);
-}
-.tagResetChipActive {
-  border-color: var(--text-primary);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
-.tagResetChipCount {
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-}
 
 /* section fields 내부 grid utility — 2-col / 3-col */
 .fieldsGrid2 {
@@ -2729,13 +2620,6 @@ a.tagRelatedItem:hover {
 /* 카테고리 설명 편집 list */
 
 /* Select width fit-content — pagination 처럼 짧은 값만 선택하는 경우 */
-.fitSelect {
-  flex: 0 0 auto;
-  width: auto;
-}
-.fitSelect > button {
-  width: auto;
-}
 
 /* ── Works Categories Editor (TagNotesEditor 그대로 사용) ── */
 .worksCatEditor {
@@ -2976,272 +2860,32 @@ a.tagRelatedItem:hover {
 
 /* ── Tech stack — chip editor ── */
 /* 카테고리별 그룹 — 그룹들을 n열 그리드로 배치 (압축). 라벨 밑줄로 구분감. */
-.techGroups {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--spacing-md) var(--spacing-xl);
-  align-items: start;
-}
-.techGroup {
-  composes: uColXs;
-  min-width: 0;
-}
-.techGroupLabel {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-tertiary);
-  padding-bottom: var(--spacing-2xs);
-  border-bottom: var(--border-light);
-}
 /* 그룹 내 chip 들 — wrap. min-height 로 빈 그룹도 drop 영역 확보 */
-.techChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-  align-items: center;
-  min-width: 0;
-  min-height: var(--control-h-sm);
-}
 /* 빈 그룹 placeholder — "여기로 드래그" */
-.techGroupEmpty {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  color: var(--text-muted);
-  font-style: italic;
-}
 /* ── 칩 drag&drop (그룹 이동) ── */
-.techDragWrap {
-  display: inline-flex;
-  touch-action: none; /* dnd-kit pointer drag — 스크롤 간섭 방지(칩 전체 draggable) */
-}
-.techDragSource {
-  opacity: 0.4;
-}
 /* 드래그가 위에 올라온 그룹 — 하이라이트 */
-.techGroupOver {
-  outline: var(--border-accent);
-  outline-style: dashed;
-  outline-offset: 3px;
-  border-radius: var(--radius-md);
-  background: var(--bg-accent-light);
-}
 /* 드래그 중 따라다니는 칩 오버레이 */
-.techDragOverlay {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: 4px 10px 4px 4px;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-secondary);
-  box-shadow: var(--shadow-md);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: grabbing;
-}
 /* 아이콘 타일 — circle, 브랜드 컬러가 양쪽 테마에서 보이도록 밝은 중립 타일 위에 */
-.techIconTile {
-  width: 20px;
-  height: 20px;
-  border-radius: var(--radius-circle);
-  background: var(--color-neutral-50);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-.techIconTile img {
-  width: 13px;
-  height: 13px;
-  object-fit: contain;
-}
 /* 아이콘 없을 때 이니셜 */
-.techIconInitial {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: 700;
-  color: var(--text-tertiary);
-}
 /* + 추가 chip (점선) — 그룹 그리드 전체 너비 차지 */
 /* + 추가 — 공통 Button(ghost) 사용 (외곽선 없음) */
-.techAddRow {
-  grid-column: 1 / -1;
-  padding-top: var(--spacing-xs);
-}
 
 /* ── 추가 / 편집 popover 내부 ── */
-.techPanel {
-  composes: uColSm;
-  width: min(340px, 86vw);
-  /* dropdown 자체엔 padding 이 없어 content 가 padding 을 가짐 */
-  padding: var(--spacing-md);
-}
-.techPanelTitle {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-secondary);
-}
 /* preset 스크롤 영역 — 좌우 트임(full-bleed) + 높이 제한(내부 스크롤). Lenis 는 dropdown 의 data-lenis-prevent 로 무시됨 */
-.techPresetScroll {
-  margin: 0 calc(-1 * var(--spacing-md));
-  max-height: 200px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
 /* preset — 좌우 트인 표(row 리스트). circle 아이콘 + 이름 + 카테고리. 가로 구분선만. */
-.techPresetList { composes: uCol;
-}
-.techPresetRow {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: var(--spacing-sm);
-  width: 100%;
-  padding: var(--spacing-xs) var(--spacing-md);
-  border: none;
-  border-bottom: var(--border-light);
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.12s;
-}
-.techPresetRow:last-child {
-  border-bottom: none;
-}
-.techPresetRow:hover {
-  background: var(--bg-tertiary);
-}
-.techPresetRowName {
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.techPresetRowCat {
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  white-space: nowrap;
-}
-.techPresetEmpty {
-  padding: var(--spacing-md);
-  text-align: center;
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-}
 /* 직접 추가 — sticky footer. 프리셋 스크롤해도 popover 하단에 항상 고정 */
-.techCustomFooter {
-  composes: uColSm;
-  position: sticky;
-  bottom: 0;
-  margin: var(--spacing-xs) calc(-1 * var(--spacing-md))
-    calc(-1 * var(--spacing-md));
-  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
-  background: var(--bg-primary);
-  border-top: var(--border-light);
-}
 /* 아이콘 편집 — circle 미리보기(클릭=업로드/교체) + 링크 입력 한 줄 */
-.techIconRow { composes: uRowSm;
-}
-.techIconCircleWrap {
-  position: relative;
-  flex-shrink: 0;
-}
-.techIconCircleBtn {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-circle);
-  background: var(--color-neutral-50);
-  border: var(--border-strong);
-  border-style: dashed;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  overflow: hidden;
-  cursor: pointer;
-  color: var(--text-tertiary);
-  transition:
-    border-color 0.15s,
-    color 0.15s;
-}
-.techIconCircleBtn:hover {
-  border-color: var(--border-accent-color);
-  color: var(--text-accent);
-}
-.techIconCircleBtn:disabled {
-  cursor: default;
-  opacity: 0.6;
-}
-.techIconCircleBtn img {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-}
 /* 아이콘 있을 때 테두리 실선 */
-.techIconCircleWrap:has(img) .techIconCircleBtn {
-  border-style: solid;
-  border-color: var(--border-light-color);
-}
-.techIconSpinner {
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--border-strong-color);
-  border-top-color: var(--text-accent);
-  border-radius: var(--radius-circle);
-  animation: techSpin 0.7s linear infinite;
-}
 @keyframes techSpin {
   to {
     transform: rotate(360deg);
   }
 }
 /* × 제거 — circle 우상단 */
-.techIconClear {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 16px;
-  height: 16px;
-  border-radius: var(--radius-circle);
-  border: var(--border-light);
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-}
-.techIconClear:hover {
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
-}
 /* 직접 추가 — 중복 이름 힌트 */
-.techAddDupHint {
-  font-size: var(--font-size-2xs);
-  color: var(--text-accent);
-  margin: 0;
-}
 /* 중복 이름 입력 — 단일 accent 테두리. focus(.input:focus → text-primary)까지
    이기도록 :focus 도 명시(0,2,1 > 0,1,1). box-shadow 안 씀(검정 보더와 겹쳐 탁해짐 방지) */
-.techNameDup input,
-.techNameDup input:focus {
-  border-color: var(--border-accent-strong-color);
-}
 /* 중복 추가 시도 — shake (transform 은 글로벌 transition 영향 없음) */
-.techNameShake {
-  animation: techNameShake 0.45s ease;
-}
 @keyframes techNameShake {
   0%,
   100% {
@@ -3257,22 +2901,6 @@ a.tagRelatedItem:hover {
   }
 }
 /* 이미 추가된 preset row — 비활성 + 체크 */
-.techPresetRowAdded {
-  cursor: default;
-  opacity: 0.55;
-}
-.techPresetRowAdded:hover {
-  background: transparent;
-}
-.techPresetCheck {
-  color: var(--text-accent);
-  justify-self: end;
-}
-.techDivider {
-  border: none;
-  border-top: var(--border-light);
-  margin: 0;
-}
 
 /* ── Author 초대 (이슈 #334 P1-c) ── */
 .authorInvite {

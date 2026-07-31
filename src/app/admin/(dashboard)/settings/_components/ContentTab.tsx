@@ -47,7 +47,9 @@ import { matchesSearch } from "@/lib/koSearch";
 import { uploadFile } from "@/lib/adminUpload";
 import { getInitial, KO_INITIALS, EN_INITIALS } from "@/lib/initial";
 import LetterFilter from "@/components/ui/LetterFilter";
-import styles from "../Settings.module.css";
+import shared from "../Settings.module.css";
+import local from "./ContentTab.module.css";
+const styles = { ...shared, ...local };
 
 /* About 페이지 패널 목록 — 표시여부 토글 + 전체선택 계산에 공용 */
 
