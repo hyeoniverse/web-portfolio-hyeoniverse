@@ -11,7 +11,9 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import CompressVideoModal from "./CompressVideoModal";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
-import styles from "../Settings.module.css";
+import shared from "../Settings.module.css";
+import local from "./WorksIntroVideoPicker.module.css";
+const styles = { ...shared, ...local };
 
 /* 기본 업로드 제한 (api/upload 의 DEFAULT_LIMIT_MB 와 맞춤). */
 const UPLOAD_LIMIT_MB = 20;

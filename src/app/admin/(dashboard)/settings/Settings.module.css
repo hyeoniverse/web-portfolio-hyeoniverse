@@ -202,8 +202,6 @@
 }
 
 /* ── 작성자(Authors) 에디터 ── */
-.authorsEditor { composes: uColMd;
-}
 /* 아바타 = 이미지 업로드 trigger (클릭 시 파일 선택). 우상단 + 배지로 버튼임을 표시 */
 /* 삭제 버튼 — 카드 상단(start)에 붙임 (아바타가 커서 center 면 중앙에 뜸) */
 
@@ -2208,102 +2206,12 @@ a.tagRelatedItem:hover {
 }
 
 /* ── Works Intro Video Picker — 2 column grid: preview | actions, 그 아래 picker drawer full width ── */
-.worksIntroVideoPicker {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  column-gap: var(--spacing-lg);
-  row-gap: var(--spacing-md);
-  align-items: start;
-  width: 100%;
-}
 
 /* 선택된 커버 미리보기 — 클릭 가능. grid 첫 컬럼. */
-.worksIntroPreview {
-  position: relative;
-  display: block;
-  width: 240px;
-  aspect-ratio: 16 / 9;
-  padding: 0;
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: var(--bg-tertiary);
-  cursor: pointer;
-  overflow: hidden;
-  transition: outline 0.15s ease;
-}
-
-.worksIntroPreview:hover {
-  outline: 2px solid var(--text-primary);
-  outline-offset: -1px;
-}
-
-.worksIntroPreviewThumb {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.worksIntroPreviewExpand {
-  position: absolute;
-  top: var(--spacing-2xs);
-  right: var(--spacing-2xs);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-circle);
-  background: var(--bg-overlay);
-  color: var(--text-inverse);
-  opacity: 0.85;
-  transition: opacity 0.15s ease;
-}
-
-.worksIntroPreview:hover .worksIntroPreviewExpand {
-  opacity: 1;
-}
-
-.worksIntroVideoActions { composes: uRowWrapSm;
-}
 
 /* CoverImagePicker drawer 가 grid 두 컬럼 모두 차지하도록 */
-.worksIntroPickerWrap {
-  grid-column: 1 / -1;
-}
 
 /* ── Compress Video Modal ── */
-.compressModalBody {
-  composes: uColMd;
-  padding: var(--spacing-md) var(--spacing-lg);
-}
-
-.compressProgress {
-  composes: uColXs;
-  margin-top: var(--spacing-sm);
-}
-
-.compressProgressBar {
-  width: 100%;
-  height: 8px;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-capsule);
-  overflow: hidden;
-}
-
-.compressProgressFill {
-  height: 100%;
-  background: var(--bg-accent-solid);
-  border-radius: var(--radius-capsule);
-  transition: width 0.2s ease;
-}
-
-.compressProgressText {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-  text-align: center;
-}
 
 /* ─────────────────────────────────────────────────────────────────────────
    About 패널 — 인라인 스타일 추출 (간격·정렬을 토큰으로 일관화)
@@ -2400,11 +2308,6 @@ a.tagRelatedItem:hover {
 }
 /* 가입된 멤버의 로그인 상태 줄 (역할·provider·최근 로그인) */
 /* 작성자와 연결 안 된 로그인 계정 그룹 */
-.authorUnlinked {
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-md);
-  border-top: var(--border-light);
-}
 /* 멤버 편집 모달 내부 레이아웃 — 좌우/하단 패딩(모달 header 좌측 정렬), 버튼은 모달 footer 슬롯 사용 */
 /* GitHub 정보 불러오기 버튼 + 안내 */
 .memberGithubLoad {
