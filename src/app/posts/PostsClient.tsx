@@ -39,6 +39,7 @@ import {
   Settings,
   List,
   History as HistoryIcon,
+  SearchEmptyIcon,
 } from "@/components/icons";
 import PageTitle from "@/components/ui/PageTitle";
 import Button from "@/components/ui/Button";
@@ -1547,20 +1548,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                   </div>
                 ) : (
                   <div className={styles.emptyState}>
-                    <svg
-                      width="32"
-                      height="32"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <circle cx="11" cy="11" r="8" />
-                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                      <line x1="8" y1="11" x2="14" y2="11" />
-                    </svg>
+                    <SearchEmptyIcon />
                     <p className={styles.emptyTitle}>{t("postsPage.noPostsYet")}</p>
                     {(search ||
                       activeTags.size > 0 ||

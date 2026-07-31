@@ -61,7 +61,7 @@ import DateMentionMenu from "./plate/toolbars/DateMentionMenu";
 import PostLinkMenu from "./plate/toolbars/PostLinkMenu";
 import TBtn from "./plate/TBtn";
 import { TblTrash } from "./plate/icons";
-import { ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, Unlink, Columns3, AlignHorizontalSpaceAround, SlidersHorizontal, CaseSensitive, WholeWord, Regex, StretchHorizontal, Sparkles, Type, Eraser, BetweenHorizontalStart, Trash2 } from "@/components/icons";
+import { ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, Unlink, Columns3, AlignHorizontalSpaceAround, SlidersHorizontal, CaseSensitive, WholeWord, Regex, StretchHorizontal, Sparkles, Type, Eraser, BetweenHorizontalStart, Trash2, EmojiOffIcon } from "@/components/icons";
 import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
 
 // Re-export ImagePanel for backward compatibility
@@ -3256,7 +3256,7 @@ export default function PlateEditor({
                   {/* 이모지 제거/추가 · 서식 초기화 · 삭제 */}
                   {calloutNode.node.icon ? (
                     <TBtn square onClick={() => editor.tf.setNodes({ icon: undefined }, { at: calloutNode.path })} tooltip={t("editor.removeEmoji")}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/><line x1="4" y1="4" x2="20" y2="20"/></svg>
+                      <EmojiOffIcon />
                     </TBtn>
                   ) : (
                     <TBtn onClick={() => editor.tf.setNodes({ icon: "💡" }, { at: calloutNode.path })} tooltip={t("editor.addEmoji")}>😀</TBtn>

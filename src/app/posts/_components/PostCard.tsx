@@ -13,7 +13,7 @@ import { formatCount } from "@/utils/format";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import HighlightedText from "@/components/ui/HighlightedText";
 import T from "@/components/ui/T";
-import { Flame, Pin, Eye, Heart } from "@/components/icons";
+import { Flame, Pin, Eye, Heart, PinIcon } from "@/components/icons";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 import styles from "./PostCard.module.css";
@@ -198,10 +198,7 @@ export default function PostCard({
           {post.is_pinned && (
             <span className={styles.timelinePinInline} aria-label="Pinned">
               {/* lucide Pin 기반 — 바늘 길게, CSS 로 기울임. 제목 텍스트에 인라인(글자처럼) */}
-              <svg viewBox="0 0 24 34" fill="currentColor" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
-                <line x1="12" x2="12" y1="17" y2="32" />
-              </svg>
+              <PinIcon />
             </span>
           )}
           <HighlightedText text={displayTitle} />
@@ -250,10 +247,7 @@ export default function PostCard({
           <span className={styles.compactPin} aria-label={post.is_pinned ? "Pinned" : undefined}>
             {post.is_pinned && (
               /* lucide Pin 기반 + 바늘(line) 더 길게 (viewBox 세로 확장으로 안 잘리게) */
-              <svg width="13" height="15" viewBox="0 0 24 28" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
-                <line x1="12" x2="12" y1="17" y2="26" />
-              </svg>
+              <PinIcon height={15} />
             )}
           </span>
           {category && <span className={styles.compactCat}><CategoryLabel category={category} /></span>}
