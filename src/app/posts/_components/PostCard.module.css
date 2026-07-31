@@ -210,12 +210,6 @@
 }
 
 /* ── Badge row ── */
-.badgeRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  flex-wrap: wrap;
-}
 
 /* ── Category badge ── */
 .categoryBadge {
@@ -311,11 +305,6 @@
 }
 
 /* 아이콘 + 숫자 inline 묶음 */
-.metaItem {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-}
 
 .dot {
   color: var(--text-tertiary);

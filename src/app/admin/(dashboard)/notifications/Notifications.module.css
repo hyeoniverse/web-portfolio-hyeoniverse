@@ -61,11 +61,6 @@
   color: var(--text-white);
 }
 
-.headerActions {
-  display: flex;
-  gap: var(--spacing-sm);
-}
-
 
 .empty {
   display: flex;

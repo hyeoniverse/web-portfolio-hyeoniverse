@@ -720,13 +720,6 @@
   border-bottom: var(--border-light);
 }
 
-.activeSeriesMetaTop {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
-}
-
 .activeSeriesMetaTitle {
   margin: 0;
   font-family: var(--font-instrument);
@@ -1511,12 +1504,6 @@
   display: none;
 }
 
-.timelineIndexGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4xs);
-}
-
 /* 연도 헤더 — 월 그룹 상단 */
 .timelineIndexYear {
   font-family: var(--font-space-grotesk), sans-serif;
@@ -1802,11 +1789,6 @@
 }
 
 /* tags row — pill 들 가로 배치 */
-.skeletonTagsRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {

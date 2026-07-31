@@ -101,7 +101,7 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
                 )}
               </span>
               <div className={styles.info}>
-                <div className={styles.nameRow}>
+                <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-2xs">
                   <span className={styles.name}>{m.name || m.email}</span>
                   <RoleBadge role={m.role} />
                 </div>
@@ -125,7 +125,7 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
                 </span>
               </span>
               <div className={styles.info}>
-                <div className={styles.nameRow}>
+                <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-2xs">
                   <span className={styles.name}>{iv.email}</span>
                   <span className={`${styles.role} ${styles.rolePendingBadge}`}>
                     {L("초대됨 · 미가입", "Invited · pending")}

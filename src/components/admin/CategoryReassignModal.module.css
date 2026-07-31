@@ -1,12 +1,6 @@
 /* ── Category Reassign Modal — content body (공통 Modal 의 child) ── */
 /* 공통 Modal 의 overlay/wrapper/header (제목/X 닫기) 가 처리하고, 여기선 body 만. */
 
-.body {
-  display: flex;
-  flex-direction: column;
-  /* 공통 Modal 의 scroll 영역 (modalScroll) 안에 들어가니 자체 max-height/scroll 불필요 */
-}
-
 /* modal 안 Select dropdown — z 는 Modal 의 PortalContainerContext(layer portal)가 처리하므로 override 불필요.
    불투명 배경만 유지(가독성). */
 .selectDropdownAboveModal {

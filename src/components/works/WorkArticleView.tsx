@@ -97,7 +97,7 @@ export function WorkArticleHeader({
         <div className={styles.metaLeft}>
           <span className={styles.projectNumber}>#{project.number}</span>
           {/* 팀/개인 + 성격 배지는 한 묶음 (좁은 gap) — metaLeft 의 lg gap 영향 안 받게 */}
-          <div className={styles.tagGroup}>
+          <div className="tw:inline-flex tw:items-center tw:gap-xs">
             {(() => {
               const teamCount = project.teamMembers?.length ?? 0;
               // 본인 포함 = teamCount + 1
@@ -224,7 +224,7 @@ export function WorkArticleHeader({
           return (
             <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
               <span className={styles.infoLabel}><T k="workDetail.tech" /></span>
-              <div className={styles.techSection}>
+              <div className="tw:flex tw:flex-col tw:gap-md">
                 {withText.length > 0 && (
                   <ul className={styles.techNotesList}>
                     {withText.map(({ tech, text }) => (
@@ -236,7 +236,7 @@ export function WorkArticleHeader({
                   </ul>
                 )}
                 {plain.length > 0 && (
-                  <div className={styles.techPlainGroup}>
+                  <div className="tw:flex tw:flex-wrap tw:gap-2xs">
                     {plain.map((tech) => (
                       <span key={tech} className={styles.techNoteTag}>{tech}</span>
                     ))}
@@ -259,7 +259,7 @@ export function WorkArticleHeader({
           return (
             <div className={`${styles.infoBlock} ${styles.infoBlockFull}`}>
               <span className={styles.infoLabel}><T k="workDetail.role" /></span>
-              <div className={styles.ownContribsWrap}>
+              <div className="tw:flex tw:flex-col tw:gap-md">
                 {entries.length === 0 ? (
                   // contributions 아예 없으면 project.role 단독 표시
                   <div className={styles.ownContribsPlain}>
@@ -272,7 +272,7 @@ export function WorkArticleHeader({
                     {withItems.length > 0 && (
                       <div className={styles.ownContribsGrid}>
                         {withItems.map(([role, items]) => (
-                          <div key={role} className={styles.teamContribsGroup}>
+                          <div key={role} className="tw:flex tw:flex-col tw:gap-2xs">
                             <div className={styles.teamContribsRoleLabel}>{role}</div>
                             <ul className={styles.teamContribs}>
                               {items.map((c, ci) => (

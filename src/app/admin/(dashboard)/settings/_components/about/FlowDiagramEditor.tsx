@@ -159,7 +159,7 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
 
   return (
     <div className={css.editor}>
-      <div className={css.toolbar}>
+      <div className="tw:flex tw:gap-xs tw:items-center tw:flex-wrap">
         <Button variant="subtle" size="xs" icon={<Plus size={13} />} onClick={addNode}>
           {lang === "ko" ? "노드 추가" : "Add node"}
         </Button>

@@ -109,14 +109,14 @@ const ServicesSection = forwardRef<HTMLElement, ServicesSectionProps>(
 
     return (
       <Section className={styles.services} ref={ref}>
-        <div className={styles.header} ref={headerRef}>
+        <div className="tw:flex tw:items-center tw:gap-2xl" ref={headerRef}>
           <span className={styles.label}>
             <T ko={cfg.services.label_ko} en={cfg.services.label} />
           </span>
           <div className={`${styles.headerLine} horizontal-rule`} />
         </div>
 
-        <div className={styles.list}>
+        <div className="tw:flex tw:flex-col">
           {cfg.services.items.map((service, index) => (
             <motion.div
               key={service.num}

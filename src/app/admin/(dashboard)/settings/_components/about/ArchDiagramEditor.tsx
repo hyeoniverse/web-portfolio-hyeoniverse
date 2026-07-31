@@ -96,8 +96,8 @@ export default function ArchDiagramEditor({ value, onChange }: {
   const sel = selNode ? nodes.find((n) => n.id === selNode) : null;
 
   return (
-    <div className={css.editor}>
-      <div className={css.toolbar}>
+    <div className="tw:flex tw:flex-col tw:gap-md">
+      <div className="tw:flex tw:items-center tw:gap-sm tw:flex-wrap">
         <button type="button" className={css.add} onClick={addNode}><Plus size={14} /> 노드 추가</button>
         <p className={css.hint}>노드를 드래그해 배치, 클릭해 편집. 엣지는 선을 클릭해 선택.</p>
       </div>
@@ -150,11 +150,11 @@ export default function ArchDiagramEditor({ value, onChange }: {
 
       {sel && (
         <div className={css.panel}>
-          <div className={css.panelHead}>
+          <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
             <span className={css.panelTitle}>노드 · {sel.id}</span>
             <Button variant="outline" size="2xs" onClick={() => setSelNode(null)} aria-label="close"><X size={13} /></Button>
           </div>
-          <div className={css.row}>
+          <div className="tw:grid tw:grid-cols-2 tw:gap-sm">
             <div className={css.field}><span className={css.fieldLabel}>라벨</span>
               <Input value={sel.label} onChange={(v) => setNodeField(sel.id, { label: v })} /></div>
             <div className={css.field}><span className={css.fieldLabel}>아이콘</span>
@@ -162,7 +162,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
           </div>
           <div className={css.field}><span className={css.fieldLabel}>그룹</span>
             <Select value={sel.group ?? ""} onChange={(v) => setNodeField(sel.id, { group: v || undefined })} options={groupOptions} /></div>
-          <div className={css.panelActions}>
+          <div className="tw:flex tw:gap-xs tw:flex-wrap">
             <button type="button" className={`${css.add} ${connectFrom === sel.id ? css.connectOn : ""}`}
               onClick={() => setConnectFrom(connectFrom === sel.id ? null : sel.id)}>
               <Link2 size={13} /> {connectFrom === sel.id ? "연결할 노드 클릭…" : "엣지 연결"}
@@ -174,11 +174,11 @@ export default function ArchDiagramEditor({ value, onChange }: {
 
       {selEdge != null && edges[selEdge] && (
         <div className={css.panel}>
-          <div className={css.panelHead}>
+          <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
             <span className={css.panelTitle}>엣지 · {edges[selEdge].from} → {edges[selEdge].to}</span>
             <Button variant="outline" size="2xs" onClick={() => setSelEdge(null)} aria-label="close"><X size={13} /></Button>
           </div>
-          <div className={css.panelActions}>
+          <div className="tw:flex tw:gap-xs tw:flex-wrap">
             <Button variant="outline" size="sm" active={!!edges[selEdge].dashed}
               onClick={() => commit(nodes, edges.map((e, x) => (x === selEdge ? { ...e, dashed: !e.dashed } : e)))}>점선</Button>
             <Button variant="outline" size="sm" tone="danger" icon={<Trash2 size={13} />}

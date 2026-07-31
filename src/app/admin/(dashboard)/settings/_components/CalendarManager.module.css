@@ -1,16 +1,4 @@
 /* ── 달력 관리 (settings > 달력 관리 탭) ── */
-.wrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.headRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
-}
 .headCount {
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
@@ -19,12 +7,6 @@
 .headSearch {
   margin-left: auto;
   width: min(260px, 100%);
-}
-
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
 }
 .empty {
   padding: var(--spacing-xl) var(--spacing-md);

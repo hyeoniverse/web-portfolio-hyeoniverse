@@ -18,13 +18,6 @@
   margin-bottom: var(--spacing-md);
 }
 
-.headerTitleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-}
-
 .title {
   display: inline-flex;
   align-items: center;
@@ -56,12 +49,6 @@
 }
 
 /* 검색 + 정렬 같은 줄 */
-.searchSortRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
 
 /* ── 컨트롤 row — 정렬 + 알파벳 인덱스 ── */
 .controlRow {
@@ -99,10 +86,6 @@
   list-style: none;
   padding: 0;
   margin: 0;
-}
-
-.tagItem {
-  display: inline-flex;
 }
 
 .tagItemPill {
@@ -172,12 +155,6 @@
   background: var(--bg-tertiary-alt);
 }
 
-.sheetHeader {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-sm);
-}
-
 .sheetTitle {
   margin: 0;
   font-family: var(--font-instrument);
@@ -200,12 +177,6 @@
   color: var(--text-secondary);
 }
 
-.sheetRelated {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
 .sheetSectionLabel {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
@@ -213,12 +184,6 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-}
-
-.sheetRelatedPills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
 }
 
 .sheetCta {

@@ -440,7 +440,7 @@ export default React.memo(function TableToolbar({
         {() => (
           <div className={styles.colorMenu} onMouseDown={(e) => e.preventDefault()}>
             {/* 줄무늬 */}
-            <div className={styles.colorMenuHeadRow}>
+            <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
               <span className={styles.colorMenuLabel}>{t("editor.zebra")}</span>
               <TBtn square active={isZebraActive} onClick={() => toggleZebraStripe()} tooltip={t("editor.zebraHint")}><TblZebra /></TBtn>
             </div>
@@ -488,8 +488,8 @@ export default React.memo(function TableToolbar({
       >
         {() => (
           <>
-            <div className={styles.borderPopTopRow}>
-                <div className={styles.borderPopSection}>
+            <div className="tw:flex tw:items-start tw:gap-md">
+                <div className="tw:flex tw:flex-col tw:gap-2xs">
                   <div className={styles.borderPopSectionHeader}>
                     <span className={styles.borderPopLabel}>{t("editor.borderPosition")}</span>
                   </div>
@@ -528,7 +528,7 @@ export default React.memo(function TableToolbar({
                   </div>
                 </div>
                 <div className={styles.borderPopRightStack}>
-                  <div className={styles.borderPopSection}>
+                  <div className="tw:flex tw:flex-col tw:gap-2xs">
                     <div className={styles.borderPopSectionHeader}>
                       <span className={styles.borderPopLabel}>{t("editor.borderStyle")}</span>
                       <Tooltip content={t("editor.borderClear")} placement="top">
@@ -551,7 +551,7 @@ export default React.memo(function TableToolbar({
                       ))}
                     </select>
                   </div>
-                  <div className={styles.borderPopSection}>
+                  <div className="tw:flex tw:flex-col tw:gap-2xs">
                     <span className={styles.borderPopLabel}>{t("editor.borderWidth")}</span>
                     <div className={styles.borderWidthCapsule}>
                       {bp.mixed.width && <span className={styles.borderMixedLabel}>{t("editor.borderMixed")}</span>}

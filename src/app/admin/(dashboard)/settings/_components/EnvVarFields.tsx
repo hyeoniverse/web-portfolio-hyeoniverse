@@ -232,7 +232,7 @@ export default function EnvVarFields({
           onChange={(e) => { text = e.target.value; }}
           rows={10}
         />
-        <div className={styles.envPasteActions}>
+        <div className="tw:flex tw:justify-end tw:gap-xs">
           <Button variant="outline" size="sm" onClick={() => closeModal(modalId)}>
             {t("admin.settings.cancel")}
           </Button>
@@ -554,7 +554,7 @@ export default function EnvVarFields({
         </div>
 
         {/* 액션 셀 — grid 3번째 열. 버튼 유무와 무관하게 항상 예약(고정폭)돼 입력 너비·버튼 시작 위치가 일정 */}
-        <div className={styles.envActionCol}>
+        <div className="tw:flex tw:items-center tw:justify-end tw:gap-2xs">
           {/* 개별 row 저장 — 편집 중일 때만 노출 */}
           {isEditing && (
             <Tooltip content={t("admin.settings.envSaveOne")} placement="top">
@@ -648,7 +648,7 @@ export default function EnvVarFields({
 
       {/* ── 상단 status overview ── */}
       <div className={styles.envStatusBar}>
-        <div className={styles.envStatusSummary}>
+        <div className="tw:flex tw:items-center tw:gap-sm tw:flex-wrap">
           <span className={styles.envStatusCount}>
             <strong>{stats.set}</strong>/{stats.total} <T k="admin.settings.envStatSet" />
           </span>
@@ -697,7 +697,7 @@ export default function EnvVarFields({
                   const grpTotal = group.rows.length;
                   const GroupIcon = group.icon;
                   return (
-                    <div className={styles.envGroup} key={group.label}>
+                    <div className="tw:flex tw:flex-col tw:gap-xs" key={group.label}>
                       <h3 className={styles.envGroupLabel}>
                         <GroupIcon size={14} strokeWidth={2} />
                         <span>{group.label}</span>

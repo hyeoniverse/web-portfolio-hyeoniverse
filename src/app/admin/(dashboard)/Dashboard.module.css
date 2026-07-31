@@ -183,13 +183,6 @@
   color: var(--text-tertiary);
 }
 
-.heroValueRow {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
-}
-
 .heroValue {
   font-family: var(--font-space-grotesk);
   font-size: clamp(2.5rem, 6vw, 4.25rem);
@@ -628,11 +621,6 @@ a.statCard:hover .statValue {
 /* Service status row — dot + 이름 + 상태 한 줄 정렬.
    Item 자체는 display: block (Panel.item) 이라 inline span 들이 너비 무시됨 (dot 안 보임).
    여기서 flex 로 override + child 들 정렬/spacing 책임. */
-.serviceItem {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
 
 .statusDot {
   /* inline span 의 width/height 활성화 — flex parent 가 아닐 때도 안전 */
@@ -766,10 +754,6 @@ a.statCard:hover .statValue {
 }
 
 /* Row 2: date pickers — 자체 행. 너무 좁으면 자체적으로 wrap */
-.dailyChartHeaderSub {
-  display: flex;
-  align-items: center;
-}
 
 /* 각 stat 항목 — label 과 값을 가로로 나란히 (baseline 정렬).
    panelHeader 안에서 sibling stat 들 사이 divider (parent 무관 selector) */
@@ -814,11 +798,6 @@ a.statCard:hover .statValue {
 }
 
 /* ── 날짜 범위 선택기 — 시작일 / 종료일 trigger + DatePickerPopover ── */
-.periodRange {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-}
 
 .periodTrigger {
   position: relative; /* DatePickerPopover (absolute) 가 이 trigger 기준 anchor */
@@ -894,10 +873,6 @@ a.statCard:hover .statValue {
 
 /* DOW header row — 셀과 동일한 grid bg trick 으로 자연스러운 hairline (별도 border 제거).
    explicit border 두면 stats 섹션 안에 hairline 이 많이 쌓여 bottom 쪽이 시각적으로 무거워짐. */
-.calendarDowRow {
-  display: grid;
-  grid-template-columns: var(--grid-cols-7);
-}
 
 .calendarDow {
   font-family: var(--font-mono);
@@ -1451,13 +1426,6 @@ a.statCard:hover .statValue {
 .dayIndicatorHover {
   background: var(--bg-tertiary);
   transform: translate(-50%, -50%) scale(1.05);
-}
-
-.dayDetailHeading {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
 }
 
 .dayDetailDate {

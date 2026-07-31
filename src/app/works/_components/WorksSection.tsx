@@ -683,7 +683,7 @@ export default function WorksSection({ projects: projectsProp }: WorksSectionPro
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className={styles.activeInfoInner}
+            className="tw:flex tw:gap-xs tw:flex-col"
           >
             <span className={styles.activeNumber}>{projects[activeIndex]?.number}</span>
             <h2 className={styles.activeTitle}>

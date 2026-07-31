@@ -38,12 +38,6 @@
   gap: var(--spacing-sm);
   min-width: 240px;
 }
-.timeRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-}
 .timeToggle,
 .removeBtn {
   display: inline-flex;

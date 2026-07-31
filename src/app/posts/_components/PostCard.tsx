@@ -324,7 +324,7 @@ export default function PostCard({
           {icon && (
             <span className={`${styles.cardIcon} ${styles.cardIconInline}`}><EmojiIcon value={icon} size={34} /></span>
           )}
-          <div className={styles.badgeRow}>
+          <div className="tw:flex tw:items-center tw:gap-xs tw:flex-wrap">
             {category && (
               <span className={styles.heroBadge}><CategoryLabel category={category} /></span>
             )}
@@ -342,12 +342,12 @@ export default function PostCard({
               <span>{readTime} {t("postDetail.minRead")}</span>
             </span>
             <span className={styles.metaGroup}>
-              <span className={styles.metaItem}>
+              <span className="tw:inline-flex tw:items-center tw:gap-2xs">
                 <Eye size={11} strokeWidth={1.75} />
                 {formatCount(post.view_count ?? 0)} {t("postDetail.views")}
               </span>
               <span className={styles.heroDot}>&middot;</span>
-              <span className={styles.metaItem}>
+              <span className="tw:inline-flex tw:items-center tw:gap-2xs">
                 <Heart size={11} strokeWidth={1.75} />
                 {formatCount(post.like_count ?? 0)} {t("postDetail.likes")}
               </span>
@@ -450,7 +450,7 @@ export default function PostCard({
       <div className={styles.body}>
         {/* category — cover/placeholder 무관 항상 body 에 표시. lang 은 이미지 위로 이동 */}
         {category && (
-          <div className={styles.badgeRow}>
+          <div className="tw:flex tw:items-center tw:gap-xs tw:flex-wrap">
             <span className={styles.categoryBadge}><CategoryLabel category={category} /></span>
           </div>
         )}
@@ -496,12 +496,12 @@ export default function PostCard({
             <span>{readTime} {t("postDetail.minRead")}</span>
           </span>
           <span className={styles.metaGroup}>
-            <span className={styles.metaItem}>
+            <span className="tw:inline-flex tw:items-center tw:gap-2xs">
               <Eye size={11} strokeWidth={1.75} />
               {post.view_count ?? 0} {t("postDetail.views")}
             </span>
             <span className={styles.dot}>&middot;</span>
-            <span className={styles.metaItem}>
+            <span className="tw:inline-flex tw:items-center tw:gap-2xs">
               <Heart size={11} strokeWidth={1.75} />
               {post.like_count ?? 0} {t("postDetail.likes")}
             </span>

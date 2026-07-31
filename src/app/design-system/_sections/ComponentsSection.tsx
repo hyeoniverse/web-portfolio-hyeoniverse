@@ -211,12 +211,12 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* Logo */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Logo</div>
-        <div className={styles.logoRow}>
-          <motion.div className={styles.logoItem} variants={staggerItemX} {...scrollChildX(0, 2)}>
+        <div className="tw:flex tw:gap-2xl tw:items-center">
+          <motion.div className="tw:flex tw:flex-col tw:items-center tw:gap-xs" variants={staggerItemX} {...scrollChildX(0, 2)}>
             <Logo variant="short" as="span" />
             <span className={styles.logoLabel}>short</span>
           </motion.div>
-          <motion.div className={styles.logoItem} variants={staggerItemX} {...scrollChildX(1, 2)}>
+          <motion.div className="tw:flex tw:flex-col tw:items-center tw:gap-xs" variants={staggerItemX} {...scrollChildX(1, 2)}>
             <Logo variant="full" as="span" />
             <span className={styles.logoLabel}>full</span>
           </motion.div>
@@ -290,7 +290,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Button</div>
         <div className={styles.componentSubLabel}>Variants</div>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 7)}><Tooltip content="variant: primary"><Button variant="primary">Primary</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 7)}><Tooltip content="variant: outline"><Button variant="outline">Outline</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(2, 7)}><Tooltip content="variant: subtle — 옅은 보더 저강조. HelpButton 이 이걸 쓴다"><Button variant="subtle">Subtle</Button></Tooltip></motion.div>
@@ -300,7 +300,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <motion.div variants={staggerItemX} {...scrollChildX(6, 7)}><Tooltip content="disabled"><Button disabled>Disabled</Button></Tooltip></motion.div>
         </div>
         <div className={styles.componentSubLabel}>Sizes</div>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 6)}><Tooltip content="size: 2xs"><Button variant="outline" size="2xs">2XS</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 6)}><Tooltip content="size: xs"><Button variant="outline" size="xs">XS</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(2, 6)}><Tooltip content="size: sm"><Button variant="outline" size="sm">Small</Button></Tooltip></motion.div>
@@ -309,13 +309,13 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <motion.div variants={staggerItemX} {...scrollChildX(5, 6)}><Tooltip content="size: xl"><Button variant="outline" size="xl">XL</Button></Tooltip></motion.div>
         </div>
         <div className={styles.componentSubLabel}>Shapes</div>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 3)}><Tooltip content="shape: circle, primary"><Button variant="primary" shape="circle" icon={<Star size={16} />} /></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 3)}><Tooltip content="shape: circle, outline"><Button variant="outline" shape="circle" icon={<Mail size={16} />} /></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(2, 3)}><Tooltip content="shape: square, ghost"><Button variant="ghost" shape="square" icon={<Zap size={16} />} /></Tooltip></motion.div>
         </div>
         <div className={styles.componentSubLabel}>Icons & States</div>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><Tooltip content="icon + text"><Button variant="primary" icon={<Send size={16} />}>Send</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}><Tooltip content="iconPosition: right"><Button variant="outline" icon={<ArrowRight size={16} />} iconPosition="right">Next</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}><Tooltip content="active state"><Button variant="outline" active>Active</Button></Tooltip></motion.div>
@@ -327,7 +327,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "tone 은 variant 위에 의미를 나타내는 색을 얹습니다. 모든 조합이 정의돼 있지는 않고 실제로 쓰이는 조합만 존재합니다. accent 와 danger 는 둘 다 ghost 에서 색이 시작하지만 hover 방향은 반대입니다. accent 는 text-primary 로 가라앉고(강조 → 평상), danger 는 text-error 로 올라옵니다(평상 → 경고)."
             : "tone layers meaning (color) on top of variant — only the combinations actually used are defined. accent and danger both start colored on ghost but hover in opposite directions: accent settles to text-primary (emphasis → calm), danger rises to text-error (calm → warning).")}
         </p>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 5)}><Tooltip content='ghost + tone="accent" — accent 로 시작, hover 시 text-primary'><Button variant="ghost" tone="accent">Accent</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 5)}><Tooltip content='ghost + tone="danger" — hover 시 text-error'><Button variant="ghost" tone="danger">Danger</Button></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(2, 5)}><Tooltip content='outline + tone="danger"'><Button variant="outline" tone="danger">Danger</Button></Tooltip></motion.div>
@@ -344,7 +344,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "도움말 `?` 버튼으로, Button 의 subtle/circle 을 고정한 wrapper 입니다. variant·shape·children 은 일관성을 위해 고정하고 size 만 열어 둡니다(폼 라벨 옆에는 2xs, 섹션 헤더에는 sm 을 씁니다). 나머지 props 는 Button 으로 그대로 흘려보내므로 Popover/Tooltip 의 trigger 로 바로 쓸 수 있습니다."
             : "The help `?` button — a fixed Button subtle/circle wrapper. variant/shape/children are locked for consistency; only size is open (2xs next to a form label, sm in a section header). All other props pass through to Button, so it works directly as a Popover/Tooltip trigger.")}
         </p>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           {(["2xs", "xs", "sm", "md", "lg", "xl"] as const).map((s, i, arr) => (
             <motion.div key={s} variants={staggerItemX} {...scrollChildX(i, arr.length + 1)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
               <HelpButton size={s} aria-label={`help ${s}`} />
@@ -371,7 +371,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* TextLink */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>TextLink</div>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}><TextLink href="/design-system">Internal Link</TextLink></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 2)}><TextLink href="https://fonts.google.com" external>External Link</TextLink></motion.div>
         </div>
@@ -407,7 +407,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "닫기 버튼입니다. 평소엔 minus(하단 line 하나)였다가 hover 하면 두 line 이 X 로 morph 합니다(`[data-active]` 로 강제 X 상태도 가능). vector line 을 `top: 50%; left: 50%` + negative margin 으로 sub-pixel 정렬해 어느 크기에서도 정확히 겹칩니다. 아래 버튼에 마우스를 올려 보세요."
             : "A close button — a single minus line at rest that morphs into an X on hover (or force the X via `[data-active]`). The lines are sub-pixel aligned with `top: 50%; left: 50%` + negative margins so they meet cleanly at any size. Hover the buttons below.")}
         </p>
-        <div className={styles.componentRow} style={{ gap: "var(--spacing-2xl)", alignItems: "flex-end" }}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center" style={{ gap: "var(--spacing-2xl)", alignItems: "flex-end" }}>
           {([["xs", "20px"], ["sm", "24px"], ["md", "32px"], ["lg", "38px"]] as const).map(([size, px], i) => (
             <motion.div key={size} variants={staggerItemX} {...scrollChildX(i, 4)} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
               <CloseButton size={size} onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
@@ -425,7 +425,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "메뉴 버튼 아이콘입니다. 9-dot 격자가 눌리면 X 로 모였다가 닫힐 때 다시 흩어집니다. 사이트 Navigation 메뉴 버튼과 admin/settings 서랍 토글이 같은 아이콘을 쓰도록 공용화했습니다. viewBox 8×8 의 vector circle 이라 어떤 크기에서도 완전한 원을 유지합니다(작은 span 에서는 subpixel 안티앨리어싱이 dot 마다 달라 타원처럼 보였습니다). 클릭해 보세요."
             : "A menu-button icon — a 9-dot grid that collapses into an X when opened, and back out when closing. Shared so the site Navigation menu button and the admin/settings drawer toggle use one icon. Vector circles in an 8×8 viewBox keep perfect circles at any size (tiny spans made subpixel anti-aliasing differ per dot, so they read as ovals). Click it.")}
         </p>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.button
             type="button"
             variants={staggerItemX}
@@ -459,7 +459,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "정렬 필드 Select 와 역순 토글을 하나의 pill 로 결합합니다. 달력 블록 툴바와 댓글이 함께 씁니다. 예전에는 달력은 pill, 댓글은 gap 배치에 고정 아이콘이라 같은 기능이 서로 다르게 보였습니다. 역순 아이콘은 현재 정렬 방향을 그대로 반영합니다(고정 아이콘은 '누르면 뒤집힌다'만 알려줄 뿐 지금 방향은 알려주지 못합니다)."
             : "A sort-field Select joined with a reverse toggle in one pill. Shared by the calendar block toolbar and comments — the calendar used a pill while comments used a gap layout with a fixed icon, so the same feature looked different in each. The reverse icon reflects the current direction (a fixed icon only says 'this flips', never which way you are).")}
         </p>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
             <SortControl
               value={sortDemo}
@@ -483,7 +483,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "캡슐 안에서 하나를 고르는 컨트롤로, posts 정렬·시리즈/태그 필터·달력 뷰 전환 등 33곳에서 씁니다. 테두리를 border 가 아니라 inset box-shadow 로 그립니다. border 는 layout 에 영향을 줘서 '전체 높이 = 버튼 높이 + padding' 규칙을 지킬 수 없기 때문입니다(그래서 색만 바꾸려 해도 border-color 로는 먹지 않습니다). variant 는 테두리 세기만 가릅니다. subtle 은 주변이 전부 border-light 결인 자리(달력 블록)에서 기본값이 혼자 진하게 튀는 것을 막아 줍니다."
             : "A capsule control for picking one of several — used in 33 places (post sorting, series/tag filters, calendar view switching). Its outline is an inset box-shadow, not a border: a real border affects layout and breaks the \"total height = button height + padding\" rule (which is also why border-color won't override it). variant only changes outline weight — subtle keeps the default from standing out where everything around it is border-light, like the calendar block.")}
         </p>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
             <SegmentedControl<string>
               items={[
@@ -517,7 +517,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* Checkbox */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Checkbox</div>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 4)}><Tooltip content="shape: square"><Checkbox checked={checkSquare} onChange={setCheckSquare} shape="square" label="Square" /></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 4)}><Tooltip content="shape: circle"><Checkbox checked={checkCircle} onChange={setCheckCircle} shape="circle" label="Circle" /></Tooltip></motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(2, 4)}><Tooltip content="indeterminate"><Checkbox checked={checkIndet} onChange={setCheckIndet} indeterminate label="Indeterminate" /></Tooltip></motion.div>
@@ -528,7 +528,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* Switch */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Switch</div>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
             <Switch checked={switchOn} onCheckedChange={setSwitchOn} />
             <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Default (sm)</span>
@@ -547,7 +547,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           </motion.div>
         </div>
         {/* label(옆 form-row 라벨) vs showStateText(토글 안 ON/OFF 텍스트) */}
-        <div className={styles.componentRow} style={{ marginTop: "var(--spacing-sm)", gap: "var(--spacing-2xl)" }}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center" style={{ marginTop: "var(--spacing-sm)", gap: "var(--spacing-2xl)" }}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "inline-flex" }}>
             <Switch size="md" label="With label" checked={switchLabeled} onCheckedChange={setSwitchLabeled} />
           </motion.div>
@@ -561,7 +561,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* LanguageToggle — 사이즈 md / sm */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>LanguageToggle</div>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
             <LanguageToggle lang={langMd} onLangChange={setLangMd} />
             <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Default (md, 28px)</span>
@@ -580,22 +580,22 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <div className={styles.componentGroupTitle}>Input</div>
         <div className={styles.componentSubLabel}>Variants</div>
         <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 4)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(0, 4)}>
             <Tooltip content="variant: capsule (default)">
               <Input label="Label" value={inputValue} onChange={setInputValue} placeholder="Type something..." />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 4)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(1, 4)}>
             <Tooltip content="variant: underline">
               <Input label="Underline" value={inputUnderline} onChange={setInputUnderline} variant="underline" placeholder="Underline style..." />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 4)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(2, 4)}>
             <Tooltip content="inlineLabel">
               <Input inlineLabel="EN" value={inputInline} onChange={setInputInline} placeholder="Inline label..." />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(3, 4)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(3, 4)}>
             <Tooltip content="onAdd — Enter / + 클릭 시 commit, focus-within 시 + 도 strong border">
               <Input label="Add" value={inputAdd} onChange={setInputAdd} onAdd={(v) => { showToast(`Added: ${v}`, "info"); setInputAdd(""); }} placeholder="Type then Enter / +" />
             </Tooltip>
@@ -603,17 +603,17 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </div>
         <div className={styles.componentSubLabel}>Sizes & States</div>
         <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(0, 3)}>
             <Tooltip content="size: md (default)">
               <Input label="Medium" value="" onChange={() => {}} placeholder="Default size" />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(1, 3)}>
             <Tooltip content="size: sm">
               <Input label="Small" value={inputSm} onChange={setInputSm} size="sm" placeholder="Small input..." />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(2, 3)}>
             <Tooltip content="disabled">
               <Input value="Read-only value" onChange={() => {}} disabled />
             </Tooltip>
@@ -625,15 +625,15 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Slider</div>
         <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(0, 3)}>
             <span className={styles.sliderLabel}>Single — {sliderValue[0]}</span>
             <Slider value={sliderValue} onValueChange={setSliderValue} max={100} step={1} />
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(1, 3)}>
             <span className={styles.sliderLabel}>Range — {rangeValue[0]}~{rangeValue[1]}</span>
             <Slider value={rangeValue} onValueChange={setRangeValue} max={100} step={1} />
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(2, 3)}>
             <span className={styles.sliderLabel}>Disabled</span>
             <Slider defaultValue={[60]} max={100} disabled />
           </motion.div>
@@ -649,19 +649,19 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             : "The steppers are SpinButtons — hold to repeat with acceleration. Hitting a bound raises a toast, throttled to once per 1.2s so hold-repeat can't spam it."}
         </p>
         <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 4)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(0, 4)}>
             <span className={styles.sliderLabel}>Basic — {numBasic} · 스텝퍼 + blur/Enter 확정</span>
             <Tooltip content="value + onCommit (min/max clamp)">
               <NumberInput value={numBasic} onCommit={setNumBasic} min={0} max={100} />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 4)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(1, 4)}>
             <span className={styles.sliderLabel}>Label + unit — {numWidth}px</span>
             <Tooltip content="label='W' · unit='px' · width — unit 이 잘리면 그때만 툴팁으로 전체 표시">
               <NumberInput value={numWidth} onCommit={setNumWidth} min={1} label="W" unit="px" width={56} />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 4)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(2, 4)}>
             <span className={styles.sliderLabel}>Gauge — {numGauge}% (0~100 중 위치에 따라 숫자 색)</span>
             <Tooltip content="gauge — min·max 사이 위치를 낮음/중간/높음 색으로. 바 없이 숫자 색만">
               <NumberInput value={numGauge} onCommit={setNumGauge} min={0} max={100} unit="%" width={48} gauge />
@@ -714,7 +714,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "실제 필터 바는 이 옵션들을 한꺼번에 씁니다. 왼쪽 `typeSelector` 로 검색 범위를, 오른쪽 `?`(`showHelp`) 말풍선으로 문법·매칭 강도(prefix/regex) 도움말을 열고, `historyKey` 로 최근 검색을 저장합니다(검색어 입력 → Enter → 빈 상태로 다시 포커스하면 이력이 뜹니다)."
             : "A real filter bar uses these together: `typeSelector` scopes the search on the left, the `?` (`showHelp`) bubble opens syntax + match-strength (prefix/regex) help on the right, and `historyKey` persists recent searches (type → Enter → refocus empty to see history).")}
         </p>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 360 }}>
             <Suspense fallback={null}>
               <SearchCapsule
@@ -744,7 +744,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "`collapsible` 은 접힌 원형 아이콘에서 클릭 시 캡슐로 펼쳐지고, 비었을 때 blur 하면 다시 접힙니다. compact 배치용 — 펼침 너비는 `expandedWidth` 로 조정합니다."
             : "`collapsible` starts as a circle icon, expands to a capsule on click, and folds back on blur when empty. For compact bars — expanded width via `expandedWidth`.")}
         </p>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
             <Suspense fallback={null}>
               <SearchCapsule
@@ -765,7 +765,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "`size` 는 캡슐 높이를 정합니다 — sm(28) · md(32, 기본). `align` 은 dropdown 정렬을 좌/우로 잡습니다."
             : "`size` sets the capsule height — sm(28) / md(32, default). `align` anchors the dropdown left/right.")}
         </p>
-        <div className={styles.componentRow} style={{ gap: "var(--spacing-lg)" }}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center" style={{ gap: "var(--spacing-lg)" }}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ minWidth: 200 }}>
             <Suspense fallback={null}>
               <SearchCapsule
@@ -801,7 +801,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "native `<input>` 은 텍스트 **일부만** 색칠할 수 없어서, 초과 글자에 inline `<mark>` 하이라이트를 하려면 contentEditable 이 필요합니다 — 그걸 위한 단일행 contentEditable input 입니다(native 가 공짜로 주는 caret·IME·autofill 을 대신 손으로 재구현하는 대신 하이라이트를 얻는 트레이드오프). 하이라이트가 필요할 때만 이걸 직접 쓰고, 그 외엔 native `Input` 을 씁니다 — 둘은 완전히 분리돼 있고 서로를 모릅니다. 제한은 두 갈래 — `maxHint` 는 **권장** 한도라 초과분에 `<mark>` 와 카운터만 띄우고 자르진 않으며(붙여넣은 긴 제목 보존), `maxLength` 는 **하드** 상한이라 입력·붙여넣기 시점에 잘라냅니다. `inlineLabel` 로 KO/EN 배지를 input 안에 넣습니다."
             : "A native `<input>` can't style **part** of its text, so inline `<mark>` highlighting of overflow needs contentEditable — this is that single-line contentEditable input (the trade-off: you re-implement caret/IME/autofill that native gives for free, in exchange for the highlight). Reach for it only when you need the highlight; otherwise use native `Input` — the two are fully separate and don't know about each other. Two-tier limit: `maxHint` is a **soft** cap (marks the overflow + counter, never truncates a long pasted title), `maxLength` is a **hard** cap enforced on type/paste. `inlineLabel` adds a badge like KO/EN inside the field.")}
         </p>
-        <div className={styles.componentRow} style={{ flexDirection: "column", alignItems: "stretch", gap: "var(--spacing-sm)", maxWidth: 380 }}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center" style={{ flexDirection: "column", alignItems: "stretch", gap: "var(--spacing-sm)", maxWidth: 380 }}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
             <HighlightInput value={editableDemo} onChange={setEditableDemo} inlineLabel="KO" placeholder={language === "ko" ? "제목" : "Title"} />
           </motion.div>
@@ -818,7 +818,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <div className={styles.componentGroupTitle}>Select</div>
         <div className={styles.componentSubLabel}>Variants</div>
         <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 3)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(0, 3)}>
             <Tooltip content="variant: default">
               <Select
                 value={selectValue}
@@ -832,7 +832,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 3)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(1, 3)}>
             <Tooltip content="showCheck — 선택 항목에 ✓ 표시">
               <Select
                 value={selectCompact}
@@ -846,7 +846,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(2, 3)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(2, 3)}>
             <Tooltip content='variant="bubble" — 오른쪽 말풍선'>
               <Select
                 variant="bubble"
@@ -863,7 +863,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </div>
         <div className={styles.componentSubLabel}>States</div>
         <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(0, 2)}>
             <Tooltip content="placeholder state">
               <Select
                 value={selectEmpty}
@@ -876,7 +876,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               />
             </Tooltip>
           </motion.div>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(1, 2)}>
             <Tooltip content="disabled">
               <Select
                 value="option1"
@@ -894,7 +894,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             : "combobox — an input trigger. Filter by label + searchTerms (Korean alias), add free text with Enter/comma, plus a clear button, arrow-key nav, and grouped options with icons.")}
         </p>
         <div className={styles.sliderRow}>
-          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
+          <motion.div className="tw:flex tw:flex-col tw:gap-xs" variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
             <Tooltip content="combobox — filter + free-text add">
               <Select
                 combobox
@@ -1174,7 +1174,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       {/* Modal */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>Modal</div>
-        <div className={styles.modalDemo}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 3)}>
             <Tooltip content="ModalConfirm template">
               <Button
@@ -1416,7 +1416,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "스택 중 하나에 hover 하면 그 토스트만이 아니라 전체가 멈춥니다(pauseAllToasts). 하나씩만 멈추면 다른 토스트가 사라지면서 스택이 재배치되고, 커서가 저절로 벗어나기 때문입니다. 클릭하면 즉시 사라집니다."
             : "Hovering any toast pauses the whole stack, not just that one (pauseAllToasts) — pausing only the hovered one lets the others expire, and the stack reflows out from under the cursor. Click to dismiss immediately."}
         </p>
-        <div className={styles.componentRow}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center">
           <motion.div variants={staggerItemX} {...scrollChildX(0, 5)}>
             <Tooltip content="variant: success"><Button variant="outline" onClick={() => showToast("Saved successfully", "success")}>Success</Button></Tooltip>
           </motion.div>
@@ -1495,7 +1495,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             ? "검색어와 일치하는 부분만 `<mark>` 로 감쌉니다. `query` 를 주지 않으면 SearchHighlightProvider context 의 값을 쓰므로, 리스트의 각 행이 검색어를 일일이 넘겨받을 필요가 없습니다. query 가 비면 그냥 평문으로 렌더되므로, 조건 분기 없이 항상 이 컴포넌트를 쓰면 됩니다."
             : "Wraps only the matched span in `<mark>`. Without an explicit `query` it reads the one from `SearchHighlightProvider` context, so list rows don't each have to thread the search term through. An empty query renders plain text, so you can use it unconditionally.")}
         </p>
-        <div className={styles.componentRow} style={{ flexDirection: "column", alignItems: "flex-start", gap: "var(--spacing-2xs)" }}>
+        <div className="tw:flex tw:flex-wrap tw:gap-sm tw:items-center" style={{ flexDirection: "column", alignItems: "flex-start", gap: "var(--spacing-2xs)" }}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
             <HighlightedText text={language === "ko" ? "검색어가 들어간 문장입니다" : "A sentence containing the search term"} query={language === "ko" ? "검색어" : "search"} />
           </motion.div>

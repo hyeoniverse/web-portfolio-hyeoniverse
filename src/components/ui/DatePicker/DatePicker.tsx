@@ -240,7 +240,7 @@ function CalendarView({
           <span>{years[0]}–{years[11]}</span>
           <button type="button" onClick={() => setViewYear(viewYear + 12)} aria-label="Next"><ChevronRight size={14} strokeWidth={2} /></button>
         </div>
-        <div className={styles.calYearGrid}>
+        <div className="tw:grid tw:grid-cols-4 tw:gap-2xs">
           {years.map((y) => (
             <button
               key={y} type="button"
@@ -262,7 +262,7 @@ function CalendarView({
           <span>{viewYear}</span>
           <button type="button" onClick={() => setViewYear(viewYear + 1)} aria-label="Next year"><ChevronRight size={14} strokeWidth={2} /></button>
         </div>
-        <div className={styles.calMonthGrid}>
+        <div className="tw:grid tw:grid-cols-4 tw:gap-2xs">
           {mLabels.map((label, i) => {
             const mv = String(i + 1).padStart(2, "0");
             const active = String(viewYear) === year && mv === month;
@@ -309,7 +309,7 @@ function CalendarView({
         <button type="button" onClick={nextMonth} aria-label="Next month"><ChevronRight size={14} strokeWidth={2} /></button>
         <button type="button" onClick={() => setViewYear(viewYear + 1)} aria-label="Next year"><ChevronsRight size={14} strokeWidth={2} /></button>
       </div>
-      <div className={styles.calDayGrid}>
+      <div className="tw:grid tw:grid-cols-7 tw:gap-4xs">
         {weekdays.map((wd) => (
           <span key={wd} className={styles.calWeekday}>{wd}</span>
         ))}

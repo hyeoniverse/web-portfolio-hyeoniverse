@@ -481,12 +481,6 @@
   margin: 0;
 }
 
-.infoRow {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-md);
-}
-
 .infoKey {
   flex-shrink: 0;
   width: 62px;
@@ -502,12 +496,6 @@
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   word-break: break-all;
-}
-
-.autoplaySection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
 }
 
 .autoplayLabel {

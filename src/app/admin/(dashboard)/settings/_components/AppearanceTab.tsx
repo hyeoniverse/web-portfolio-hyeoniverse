@@ -180,7 +180,7 @@ function FaviconShadowControls({
 
   return (
     <div className={styles.faviconShadowCard}>
-      <div className={styles.faviconShadowHead}>
+      <div className="tw:flex tw:items-center tw:justify-start tw:gap-lg">
         <SegmentedControl<"text" | "bg">
           size="md"
           items={[
@@ -899,7 +899,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                 </FieldRow>
                 {/* 폰트 크기 — 프리셋 Select + "직접 입력" 선택 시 stepper(NumberInput) 노출. 8~30 clamp */}
                 <FieldRow label={t("admin.settings.faviconFontSize")} className={styles.faviconFormRow}>
-                  <div className={styles.faviconFontSizeControl}>
+                  <div className="tw:flex tw:items-center tw:gap-sm tw:flex-wrap">
                     <Select
                       value={fontSizeCustom ? "custom" : (config.brand.faviconFontSize ?? "20")}
                       onChange={(v) => {
@@ -1121,7 +1121,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                         {config.brand.logoFullText || "LOGO"}
                       </span>
                     </div>
-                    <span className={styles.fullLogoPreviewMeta}>
+                    <span className="tw:flex tw:items-center tw:gap-xs">
                       <span className={styles.fullLogoPreviewCap}>{variant}</span>
                       {ratio != null && level != null && (
                         <span className={styles.faviconContrast}>
@@ -1144,7 +1144,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
               </FieldRow>
               {/* 로고 색상 — 프리셋 + Light/Dark override (풀로고·텍스트 로고 색) */}
               <FieldRow label={t("admin.settings.logoColorPresets")} className={styles.faviconFormRow}>
-            <div className={styles.logoColorPresets}>
+            <div className="tw:flex tw:flex-wrap tw:gap-xs">
               {presets.map((p, i) => (
                 <div key={`${p.name}-${i}`} className={styles.logoColorPresetWrap}>
                   <button

@@ -110,7 +110,7 @@ export default function MemberEditModal({
 
   return (
     <div className={styles.memberModal}>
-      <div className={styles.authorCardHead}>
+      <div className="tw:flex tw:items-center tw:gap-sm">
         <button
           type="button"
           className={styles.authorAvatarUpload}
@@ -144,7 +144,7 @@ export default function MemberEditModal({
         </div>
       )}
 
-      <div className={styles.authorCardFields}>
+      <div className="tw:grid tw:grid-cols-2 tw:gap-sm">
         <Field label={L("이름", "Name")} value={draft.name} onChange={(v) => set({ name: v })} />
         <Field label={L("아바타 URL", "Avatar URL")} value={draft.avatar} onChange={(v) => set({ avatar: v })} placeholder="https://..." maxHint={null} />
         <Field label={L("역할", "Role")} value={draft.role} onChange={(v) => set({ role: v })} placeholder={L("예: 프론트엔드 개발자", "e.g. Frontend Developer")} />
@@ -159,7 +159,7 @@ export default function MemberEditModal({
 
         {member ? (
           <>
-            <div className={styles.authorMemberStatus}>
+            <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-2xs">
               <RoleBadge role={member.role} />
               <ProviderChips providers={member.providers} />
               {member.lastSignInAt && (
@@ -171,7 +171,7 @@ export default function MemberEditModal({
             </div>
             {/* owner 는 전권이라 레벨 조정 불가 */}
             {member.role !== "owner" && (
-              <div className={styles.authorInviteRow}>
+              <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-sm">
                 <Select value={memberLevel} options={levels} size="sm" disabled={busy} onChange={changeLevel} />
               </div>
             )}
@@ -181,7 +181,7 @@ export default function MemberEditModal({
             <span className={shared.fieldHint}>
               {L("이미 로그인한 계정입니다. 저장하면 이 프로필과 연결하고 권한을 부여합니다.", "This account has already signed in. Saving links it to this profile and grants access.")}
             </span>
-            <div className={styles.authorInviteRow}>
+            <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-sm">
               <Select value={inviteLevel} options={levels} size="sm" disabled={busy} onChange={setInviteLevel} />
             </div>
           </>
@@ -192,7 +192,7 @@ export default function MemberEditModal({
                 ? L("초대를 보냈습니다. 동일한 GitHub 계정으로 로그인하면 권한이 부여됩니다.", "Invite sent. Access is granted when they sign in with the matching GitHub account.")
                 : L("이 이메일과 동일한 GitHub 계정으로 로그인하면 권한이 부여됩니다.", "Access is granted when they sign in with the GitHub account that uses this email.")}
             </span>
-            <div className={styles.authorInviteRow}>
+            <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-sm">
               <Select value={inviteLevel} options={levels} size="sm" onChange={setInviteLevel} />
               <Button variant="outline" size="sm" icon={<Mail size={14} />} disabled={busy || !draft.email} onClick={invite}>
                 {busy ? L("초대하고 있습니다…", "Sending…") : localInvited ? L("초대 다시 보내기", "Resend invite") : L("이메일로 초대", "Invite by email")}
@@ -210,7 +210,7 @@ export default function MemberEditModal({
       </div>
       )}
 
-      <div className={styles.authorLinksEditor}>
+      <div className="tw:flex tw:flex-col tw:gap-2xs">
         <span className={shared.fieldLabel}>{L("링크", "Links")}</span>
         <SocialLinksEditor links={draft.links} onChange={(links) => set({ links })} max={8} />
       </div>

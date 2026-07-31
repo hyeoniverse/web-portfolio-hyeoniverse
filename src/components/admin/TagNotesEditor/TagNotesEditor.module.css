@@ -365,11 +365,6 @@
 }
 
 /* header 우측 actions wrapper — [편집/삭제 capsule] + [+ 설명 추가 standalone] */
-.headerActions {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
 
 /* 편집/취소/삭제 capsule group — 하나의 capsule 안 분할 셀 (+ 설명 추가 는 제외) */
 .capsuleGroup {

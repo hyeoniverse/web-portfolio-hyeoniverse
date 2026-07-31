@@ -107,11 +107,11 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
         </div>
       </div>
 
-      <div className={styles.splitControls}>
+      <div className="tw:flex tw:gap-sm tw:items-center tw:justify-center">
         <button className={styles.splitArrowBtn} onClick={prev} aria-label="Previous slide" data-cursor="prev">
           <ChevronLeft size={14} />
         </button>
-        <div className={styles.splitDots}>
+        <div className="tw:flex tw:gap-xs tw:items-center">
           {posts.map((p, i) => (
             <button
               key={p.id}

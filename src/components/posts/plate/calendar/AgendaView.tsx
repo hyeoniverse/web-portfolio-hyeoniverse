@@ -338,7 +338,7 @@ export default function AgendaView({
   return (
     <div className={styles.calendar} contentEditable={false}>
       <div className={`${styles.header} ${styles.agendaHeader}`}>
-        <div className={styles.navGroup}>
+        <div className="tw:flex tw:items-center tw:gap-md">
           <Tooltip content={mode === "week" ? t("이전 주", "Previous week") : t("이전 날", "Previous day")} placement="top">
             <button type="button" className={styles.navBtn} onClick={() => nav(-1)} aria-label="prev"><ChevronLeft size={16} /></button>
           </Tooltip>
@@ -348,7 +348,7 @@ export default function AgendaView({
           </Tooltip>
           {todayButton}
         </div>
-        <div className={styles.agendaHeadRight}>
+        <div className="tw:flex tw:items-center tw:gap-sm">
           {!readOnly && onAdd && (
             <button type="button" className={styles.agendaHeadAdd} onClick={() => onAdd(date)}>
               <Plus size={14} />{t("이벤트 추가", "Add event")}

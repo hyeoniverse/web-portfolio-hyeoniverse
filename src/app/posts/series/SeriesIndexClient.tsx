@@ -144,7 +144,7 @@ export default function SeriesIndexClient({ series }: Props) {
         <BackLink href="/posts" label={language === "en" ? "Posts" : "글 목록"} />
       </div>
       <header className={styles.header}>
-        <div className={styles.headerTitleRow}>
+        <div className="tw:flex tw:items-center tw:justify-between tw:gap-md">
           <PageTitle icon={<BookOpen size={40} strokeWidth={1.6} aria-hidden />}>
             Series.
           </PageTitle>
@@ -164,7 +164,7 @@ export default function SeriesIndexClient({ series }: Props) {
           {" · "}
           총 <strong>{totalPosts.toLocaleString()}</strong>개의 글
         </p>
-        <div className={styles.searchSortRow}>
+        <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-sm">
           <SegmentedControl<SortBy>
             className={styles.sortControl}
             size="sm"
@@ -177,7 +177,7 @@ export default function SeriesIndexClient({ series }: Props) {
             onChange={(v) => setSortBy(v)}
           />
           <div className={styles.searchTools}>
-            <div className={styles.perPageGroup}>
+            <div className="tw:inline-flex tw:items-center tw:gap-2xs">
               <List size={14} strokeWidth={1.8} className={styles.perPageIcon} aria-hidden />
               <Select
                 className={styles.perPageSelect}
@@ -335,7 +335,7 @@ export default function SeriesIndexClient({ series }: Props) {
               >
                 <X size={18} aria-hidden />
               </button>
-              <div className={styles.sheetHeader}>
+              <div className="tw:flex tw:items-baseline tw:gap-sm">
                 <h2 className={styles.sheetTitle}>
                   {language === "en" ? (sheetSeries.title_en || sheetSeries.title) : sheetSeries.title}
                 </h2>

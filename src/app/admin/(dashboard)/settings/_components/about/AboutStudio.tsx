@@ -397,7 +397,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
   return (
     <div className={css.studio} style={{ gridColumn: "1 / -1" }}>
       {/* ── 상단 바 ── */}
-      <div className={css.bar}>
+      <div className="tw:flex tw:items-center tw:gap-md tw:flex-wrap">
         <SegmentedControl<Language> size="sm" value={lang} onChange={setLang} className={css.segFit}
           items={[{ value: "ko", label: "KO" }, { value: "en", label: "EN" }]} />
         <p className={css.barHint}>{t("admin.settings.aboutStudioHint")}</p>
@@ -487,7 +487,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
               </div>
               <div className={css.field}>
                 <span className={css.fieldLabel}>{lang === "ko" ? "표시 요소" : "Elements"}</span>
-                <div className={css.stripChips}>
+                <div className="tw:flex tw:flex-wrap tw:gap-xs">
                   {HERO_ELEMENTS.map((el) => {
                     const on = !heroHidden.has(el.key);
                     return (
@@ -513,7 +513,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
                 overlay={overlayColor || themeBg.accent} onOverlay={(c) => setAny("heroVideoOverlayColor", c)}
                 strength={overlayStrength} onStrength={(n) => setAny("heroVideoOverlayStrength", n)} />}
               {bgTab === "color" && (
-                <div className={css.bgThemeRow}>
+                <div className="tw:grid tw:grid-cols-2 tw:gap-md">
                   <div className={css.bgThemeCol}>
                     <span className={css.bgThemeLabel}>{t("admin.settings.aboutHeroThemeLight")}</span>
                     <div className={css.bgPreview} style={{ background: about.heroBgColor || themeBg.primary }} />
@@ -528,7 +528,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
               )}
               {bgTab === "gradient" && (
                 <>
-                  <div className={css.bgThemeRow}>
+                  <div className="tw:grid tw:grid-cols-2 tw:gap-md">
                     <div className={css.bgThemeCol}>
                       <span className={css.bgThemeLabel}>{t("admin.settings.aboutHeroThemeLight")}</span>
                       <div className={css.bgPreview} style={{ background: `linear-gradient(${grA}deg, ${about.heroBgGradientFrom || themeBg.primary}, ${about.heroBgGradientTo || themeBg.secondary})` }} />
@@ -697,7 +697,7 @@ function BgMedia({ media, t, onSet, opacity, onOpacity, overlay, onOverlay, stre
   const [pick, setPick] = useState(false);
   return (
     <>
-      <div className={css.mediaActions}>
+      <div className="tw:flex tw:gap-xs">
         <Button variant="outline" size="sm" onClick={() => setPick((v) => !v)}>
           {pick ? t("admin.posts.seriesModal.closePicker") : t("admin.posts.seriesModal.chooseCover")}
         </Button>
@@ -777,15 +777,15 @@ function PanelManager({ about, setAny, t, lang }: {
   );
 
   return (
-    <div className={css.strip}>
-      <div className={css.stripHead}>
+    <div className="tw:flex tw:flex-col tw:gap-sm">
+      <div className="tw:flex tw:items-baseline tw:justify-between tw:gap-sm">
         <span className={css.stripTitle}>{t("admin.settings.aboutPanelVisibility")} · {shownCount}/{allKeys.length}</span>
         <Switch checked={about.infiniteScroll ?? false} onCheckedChange={(v) => setAny("infiniteScroll", v)}
           label={t("admin.settings.aboutInfiniteScrollLabel")} size="sm" showStateText stateLabels={{ on: "ON", off: "OFF" }} />
       </div>
       <p className={css.stripHint}>{lang === "ko" ? "드래그로 순서 변경 · 더블클릭으로 이름 수정 · 클릭으로 표시 전환" : "Drag to reorder · Double-click to rename · Click to toggle"}</p>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-        <div className={css.stripChips}>
+        <div className="tw:flex tw:flex-wrap tw:gap-xs">
           {editKey === "hero" ? editInput("hero") : lockedChip("hero")}
           <SortableContext items={middle} strategy={rectSortingStrategy}>
             {middle.map((k) => (
@@ -861,7 +861,7 @@ function OverviewBlock({ about, lang, setAny, t, scale, titleOverride }: {
           <div className={ov.overviewTop}>
             <EditableText multiline className={ov.overviewDesc} value={rec[descKey] ?? ""} onChange={(v) => setAny(descKey, v)}
               placeholder={t("admin.settings.aboutOverviewDesc")} ariaLabel="overview description" style={{ width: "100%" }} />
-            <div className={ov.overviewHighlights}>
+            <div className="tw:flex tw:gap-sm tw:flex-wrap">
               {highlights.map((tag, i) => (
                 <span key={i} className={`${ov.overviewTag} ${css.editTag}`}>
                   <EditableText value={tag} onChange={(v) => { const n = [...highlights]; n[i] = v; setHighlights(n); }} ariaLabel="highlight" />
@@ -1006,14 +1006,14 @@ function SecurityBlock({ value, onChange, lang, t, scale, titleOverride }: {
       <div className={secu.secGrid}>
         {value.map((it, i) => (
           <div key={i} className={`${secu.secItem} ${css.editSecItem}`}>
-            <div className={secu.secHeader}>
+            <div className="tw:flex tw:gap-md tw:items-center">
               <Popover placement="bottom-start" trigger={
                 <button type="button" className={secu.secIcon} style={{ border: 0, background: "transparent", padding: 0, cursor: "pointer" }} title={it.layer || "아이콘 · 분류"}>
                   {securityIcons[it.icon] ?? securityIcons.shield}
                 </button>
               }>
                 <div className={css.iconPickPanel}>
-                  <div className={css.iconPickGrid}>
+                  <div className="tw:grid tw:grid-cols-4 tw:gap-2xs">
                     {Object.keys(securityIcons).map((k) => (
                       <button key={k} type="button" className={`${css.iconPickBtn} ${it.icon === k ? css.iconPickOn : ""}`} onClick={() => set(i, { icon: k })} aria-label={k}>
                         {securityIcons[k]}
@@ -1090,7 +1090,7 @@ function DesignSystemBlock({ value, onChange, lang, t, scale }: {
   };
   return (
     <section className={css.block}>
-      <div className={css.slideTabs} ref={tabsRef}>
+      <div className="tw:flex tw:gap-sm tw:items-center tw:flex-wrap" ref={tabsRef}>
         <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
           canAdd={value.length < MAX}
           addLabel={lang === "ko" ? "컨셉 추가" : "Add concept"}
@@ -1231,7 +1231,7 @@ function CodeHighlightsBlock({ value, onChange, lang, t, scale, titleOverride }:
   };
   return (
     <section className={css.block}>
-      <div className={css.slideTabs} ref={tabsRef}>
+      <div className="tw:flex tw:gap-sm tw:items-center tw:flex-wrap" ref={tabsRef}>
         <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
           canAdd={value.length < MAX}
           addLabel={lang === "ko" ? "코드 추가" : "Add snippet"}
@@ -1340,7 +1340,7 @@ function CodeHighlightsBlock({ value, onChange, lang, t, scale, titleOverride }:
                       ) : (
                         <>
                           <span className={css.demoEmptyLabel}>{lang === "ko" ? "데모 추가" : "Add a demo"}</span>
-                          <div className={css.demoEmptyActions}>
+                          <div className="tw:flex tw:gap-xs">
                             <Button variant="outline" size="sm" icon={<ImageIcon size={16} />}
                               onClick={() => setDemoMode("media")}>
                               {lang === "ko" ? "미디어 업로드" : "Upload media"}
@@ -1470,7 +1470,7 @@ function UserFlowBlock({ value, onChange, lang, t, scale, titleOverride }: {
 
   return (
     <section className={css.block}>
-      <div className={css.slideTabs}>
+      <div className="tw:flex tw:gap-sm tw:items-center tw:flex-wrap">
         <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
           canAdd={value.length < UF_MAX}
           addLabel={lang === "ko" ? "플로우 추가" : "Add flow"}
@@ -1492,8 +1492,8 @@ function UserFlowBlock({ value, onChange, lang, t, scale, titleOverride }: {
                 <EditableText className={uf.ufFlowTitle} value={it.title}
                   onChange={(v) => set({ title: v })} placeholder={lang === "ko" ? "플로우 이름" : "Flow title"}
                   ariaLabel="title" autoFocus={isEmpty(it)} />
-                <div className={uf.ufFlowProfile}>
-                  <div className={uf.ufFlowProfileText}>
+                <div className="tw:flex tw:items-center tw:gap-sm">
+                  <div className="tw:flex tw:flex-col tw:gap-4xs">
                     <EditableText className={uf.ufFlowPersona} value={it.persona[lang] ?? ""}
                       onChange={(v) => setLocal("persona", v)}
                       placeholder={lang === "ko" ? "페르소나" : "Persona"} ariaLabel="persona" />
@@ -1737,9 +1737,9 @@ function ErdBlock({ tables, relations, onChange, lang }: {
             e.target.value = "";
           }} />
 
-        <div className={css.erdPanel}>
+        <div className="tw:flex tw:flex-col tw:gap-sm">
         {!importOpen && (
-          <div className={css.erdActions}>
+          <div className="tw:flex tw:gap-xs tw:items-center tw:flex-wrap">
             {/* 붙여넣기에는 실제로 포커스를 받는 대상이 필요하다.
                 이 영역이 드롭 존이자 붙여넣기 대상 — 클릭해 포커스한 뒤 붙여넣으면 된다. */}
             {/* 포커스하는 순간 입력창으로 펼친다 — 뭔가 붙여넣어야 바뀌면 동작을 알 수 없다 */}
@@ -1778,7 +1778,7 @@ function ErdBlock({ tables, relations, onChange, lang }: {
         {/* 항상 마운트해 두고 높이만 0↔auto — 열 때 새로 마운트하면 트랜지션이 걸리지 않는다.
             닫혀 있을 땐 inert 로 탭 이동·클릭에서 빠진다. */}
         <div className={`${css.erdCollapse} ${importOpen ? css.erdCollapseOpen : ""}`}>
-          <div className={css.erdCollapseInner} ref={sqlBoxRef} inert={!importOpen}>
+          <div className="tw:flex tw:flex-col tw:gap-2xs" ref={sqlBoxRef} inert={!importOpen}>
             <p className={css.erdHint}>
               {lang === "ko"
                 ? "CREATE TABLE · ALTER TABLE · DROP TABLE 을 순서대로 적용합니다. PRIMARY KEY 와 REFERENCES 로 키와 관계를 인식하고, 인덱스·정책·함수 등은 무시합니다."
@@ -1837,7 +1837,7 @@ function ErdBlock({ tables, relations, onChange, lang }: {
                 </span>
               )}
             </div>
-            <div className={css.erdActions}>
+            <div className="tw:flex tw:gap-xs tw:items-center tw:flex-wrap">
               {/* 기존이 없으면 모드가 의미 없다 — 그냥 생성 */}
               {tables.length > 0 && (
                 <SegmentedControl<"merge" | "replace"> size="sm" value={mode} onChange={setMode}
@@ -1914,7 +1914,7 @@ function BackendBlock({ value, onChange, lang, t, scale, titleOverride }: {
 
   return (
     <section className={css.block}>
-      <div className={css.slideTabs}>
+      <div className="tw:flex tw:gap-sm tw:items-center tw:flex-wrap">
         <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
           canAdd={value.length < BK_MAX}
           addLabel={lang === "ko" ? "항목 추가" : "Add item"}
@@ -2079,7 +2079,7 @@ function TroubleshootingBlock({ value, onChange, lang, scale, titleOverride }: {
 
   return (
     <section className={css.block}>
-      <div className={css.slideTabs}>
+      <div className="tw:flex tw:gap-sm tw:items-center tw:flex-wrap">
         <StageTabs count={value.length} active={cur} onSelect={selectTab} onAdd={add}
           canAdd={value.length < TS_MAX}
           addLabel={lang === "ko" ? "항목 추가" : "Add item"}
@@ -2103,9 +2103,9 @@ function TroubleshootingBlock({ value, onChange, lang, scale, titleOverride }: {
             </div>
             <h3 className={sec.panelTitle}>{titleOverride ?? "Troubleshooting."}</h3>
 
-            <div className={css.tsBody}>
+            <div className="tw:flex tw:flex-col tw:gap-lg">
               {TS_FIELDS.map((k) => (
-                <div key={k} className={css.tsField}>
+                <div key={k} className="tw:flex tw:flex-col tw:gap-2xs">
                   <span className={bk.entryLabel}>{label(k)}</span>
                   <EditableText multiline className={css.tsText} value={it[k]?.[lang] ?? ""}
                     onChange={(v) => setLocal(k, v)}
@@ -2113,9 +2113,9 @@ function TroubleshootingBlock({ value, onChange, lang, scale, titleOverride }: {
                 </div>
               ))}
 
-              <div className={css.tsField}>
+              <div className="tw:flex tw:flex-col tw:gap-2xs">
                 <span className={bk.entryLabel}>TAGS</span>
-                <div className={css.tsTags}>
+                <div className="tw:flex tw:gap-2xs tw:items-center tw:flex-wrap">
                   {tags.map((tg, i) => (
                     <Chip key={i} className={css.tsTag}
                       onRemove={() => set({ tags: tags.filter((_, j) => j !== i) })}>
@@ -2343,7 +2343,7 @@ function BreakBlock({ url, onSet, t }: { url: string; onSet: (u: string) => void
       <div className={css.rcardMedia} style={{ maxWidth: 480 }}>
         {url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={url} alt="" /> : null}
       </div>
-      <div className={css.mediaActions}>
+      <div className="tw:flex tw:gap-xs">
         <Button variant="outline" size="sm" onClick={() => setPick((v) => !v)}>{pick ? t("admin.posts.seriesModal.closePicker") : t("admin.posts.seriesModal.chooseCover")}</Button>
         {url && <Button variant="outline" size="sm" onClick={() => onSet("")}>{t("admin.settings.aboutHeroBgClear")}</Button>}
       </div>
@@ -2455,7 +2455,7 @@ function ArchitectureBlock({ value, onChange, diagram, onDiagramChange, t, lang 
         value={lang === "ko" ? item.description_ko : item.description_en}
         onChange={(v) => setItem(index, lang === "ko" ? { description_ko: v } : { description_en: v })}
         placeholder={lang === "ko" ? "소스 코드 루트" : "Source code root"} />
-      <div className={sub.nodeEditBar}>
+      <div className="tw:flex tw:items-center tw:gap-sm tw:flex-wrap">
         <div className={sub.nodeMoveGroup}>
           <Button variant="subtle" size="xs" shape="circle" icon={<ChevronUp size={14} />} onClick={() => move(index, -1)} aria-label="위로" />
           <Button variant="subtle" size="xs" shape="circle" icon={<ChevronDown size={14} />} onClick={() => move(index, 1)} aria-label="아래로" />

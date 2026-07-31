@@ -44,7 +44,7 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
   };
 
   return (
-    <div className={styles.cards} onMouseEnter={pause} onMouseLeave={resume} data-cursor="stop">
+    <div className="tw:flex tw:flex-col tw:items-center tw:gap-lg" onMouseEnter={pause} onMouseLeave={resume} data-cursor="stop">
       <div className={styles.cardsTrack}>
         {posts.map((post, i) => {
           const offset = getOffset(i);
@@ -108,11 +108,11 @@ export default function CardsBanner({ posts, imgErrors, onImgError }: CardsBanne
         })}
       </div>
 
-      <div className={styles.splitControls}>
+      <div className="tw:flex tw:gap-sm tw:items-center tw:justify-center">
         <button className={styles.splitArrowBtn} onClick={prev} aria-label="Previous slide" data-cursor="prev">
           <ChevronLeft size={14} />
         </button>
-        <div className={styles.splitDots}>
+        <div className="tw:flex tw:gap-xs tw:items-center">
           {posts.map((p, i) => (
             <button
               key={p.id}

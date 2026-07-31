@@ -222,7 +222,7 @@ export default React.memo(function ImageToolbar({
         {({ close }) => (
           <div onMouseDown={(e) => e.preventDefault()} className={styles.imgConfirm}>
             <span className={styles.imgConfirmMsg}>{t("editor.deleteImageConfirm")}</span>
-            <div className={styles.imgConfirmActions}>
+            <div className="tw:flex tw:justify-center tw:gap-2xs">
               <TBtn onClick={close}>{t("editor.cancel")}</TBtn>
               <TBtn className={styles.tableDangerBtn} onClick={() => { deleteImage(); close(); }}>{t("editor.delete")}</TBtn>
             </div>
