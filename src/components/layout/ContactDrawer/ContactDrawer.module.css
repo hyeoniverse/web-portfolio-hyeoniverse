@@ -138,7 +138,7 @@
 .formRow {
   display: grid;
   gap: var(--_gap-md);
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
 }
 
 .input {

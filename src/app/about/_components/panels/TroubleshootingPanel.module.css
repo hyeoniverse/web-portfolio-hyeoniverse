@@ -1446,7 +1446,7 @@
 .bentoGrid {
   flex: none;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: var(--grid-cols-5);
   gap: var(--spacing-xs);
 }
 

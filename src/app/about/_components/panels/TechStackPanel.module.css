@@ -3,7 +3,7 @@
   gap: 0 var(--spacing-3xl);
   border-top: var(--_line-primary);
   max-width: clamp(500px, 80vw, 1200px);
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: var(--grid-cols-2);
 }
 
 .techItem {

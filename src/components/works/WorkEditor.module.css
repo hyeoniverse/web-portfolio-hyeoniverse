@@ -81,14 +81,14 @@
 
 .row3 {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: var(--grid-cols-3);
   gap: var(--spacing-xl);
   align-items: start;
 }
 
 .row2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-xl);
   align-items: start;
 }
@@ -492,7 +492,7 @@
 /* Optional 섹션 split — 좌: 정렬순서 (세로 1열 전체), 우: 다른 필드들 stack */
 .optionalSplit {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-xl);
   align-items: start;
   min-width: 0;
@@ -975,7 +975,7 @@
 
 .memberFormRow {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-xs);
   align-items: center;
 }
