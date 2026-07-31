@@ -9,8 +9,19 @@
 }
 
 /* 헤더 — fieldLabel 과 위치/Jump 컨트롤이 같은 라인 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
 
 /* 컨트롤 그룹 — 위치 input + 맨앞/맨뒤 jump */
+.controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
 
 .pos {
   display: inline-flex;

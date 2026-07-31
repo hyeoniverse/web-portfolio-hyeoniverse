@@ -739,6 +739,14 @@
   color: var(--bg-primary);
 }
 
+.customRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
 /* type toggle (linear / radial) — 작은 capsule 그룹 */
 .customTypeToggle {
   display: inline-flex;
@@ -784,6 +792,11 @@
 }
 
 /* 슬라이더 그룹 — 각도/크기/속도 가로 wrap */
+.customSliders {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
 
 /* customRow + customSliders 를 묶는 wrapper — 모바일 layout 분기 단위 */
 .customGroup {
@@ -1260,6 +1273,12 @@
   padding-bottom: 0;
 }
 
+.styleRow {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
 .styleChip {
   padding: var(--box-sm);
   border: var(--border-default);
@@ -1657,6 +1676,12 @@
 }
 
 /* ── Suggestions ── */
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  /* margin 제거 — 부모 .tabSection 의 gap 이 처리 */
+}
 
 .suggestionChip {
   padding: var(--box-sm);

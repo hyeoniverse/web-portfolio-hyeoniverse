@@ -93,7 +93,7 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
           <AnimatePresence mode="wait">
             <motion.div
               key={post.id}
-              className="tw:flex tw:flex-col tw:gap-md"
+              className={styles.splitContentInner}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -109,11 +109,11 @@ export default function SplitBanner({ posts, imgErrors, onImgError }: SplitBanne
         </div>
       </div>
 
-      <div className="tw:flex tw:gap-sm tw:items-center tw:justify-center">
+      <div className={styles.splitControls}>
         <button className={styles.splitArrowBtn} onClick={prev} aria-label="Previous slide" data-cursor="prev">
           <ChevronLeft size={14} />
         </button>
-        <div className="tw:flex tw:gap-xs tw:items-center">
+        <div className={styles.splitDots}>
           {posts.map((p, i) => (
             <button key={p.id} className={`${styles.splitDot} ${i === index ? styles.splitDotActive : ""}`} onClick={() => go(i)} aria-label={`Slide ${i + 1}`} />
           ))}

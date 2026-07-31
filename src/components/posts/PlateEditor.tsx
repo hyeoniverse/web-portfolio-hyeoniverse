@@ -247,7 +247,7 @@ function ColumnWidthControls({ colChildren, colCount, activePath, editor, langua
   return (
     <div className={styles.colWidthList}>
       {colChildren.map((_, i) => (
-        <div key={i} className="tw:flex tw:items-center tw:gap-2xs">
+        <div key={i} className={styles.colWidthRow}>
           <span className={styles.colWidthIdx}>{i + 1}</span>
           <NumberInput value={Math.max(1, Math.round((pxs[i] / totalPx) * 100))} onCommit={(n) => applyPercent(i, n)} min={1} max={99} step={1} unit="%" width={26} height={24} ariaLabel={L(`열 ${i + 1} 너비 %`, `Column ${i + 1} width %`)} />
           <NumberInput value={clampPx(pxs[i])} onCommit={(n) => setPxWidth(i, n)} min={COLUMN_MIN_PX} max={COLUMN_MAX_PX} step={10} unit="px" width={40} height={24} ariaLabel={L(`열 ${i + 1} 너비 px`, `Column ${i + 1} width px`)} />
@@ -2857,12 +2857,12 @@ export default function PlateEditor({
                             {measureColumnPxs(editor, activePath, colCount).reduce((a, b) => a + b, 0)}px
                           </span>
                         </div>
-                        <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
+                        <div className={styles.colLayoutRow}>
                           <span className={styles.fieldLabel}>{L2("열 개수", "Columns")}</span>
                           <NumberInput value={colCount} onCommit={setColumnCount} min={2} max={12} width={30} height={24} ariaLabel={L2("열 개수", "Columns")} />
                         </div>
                         <span className={styles.colorMenuDivider} />
-                        <div className="tw:flex tw:items-center tw:justify-between tw:gap-sm">
+                        <div className={styles.colLayoutRow}>
                           <span className={styles.fieldLabel}>{L2("열 폭", "Column width")}</span>
                         </div>
                         <ColumnWidthControls

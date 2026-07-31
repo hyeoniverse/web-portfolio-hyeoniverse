@@ -242,6 +242,14 @@
   padding: var(--spacing-sm) 0;
 }
 
+.oklchRow {
+  display: flex;
+  align-items: center;
+  /* thumb 가 0%/100% 일 때 translateX(-50%) 로 slider 좌/우 7px 침범 +
+   * input/popover 와 시각적 여유까지 위해 thumb 반경보다 넉넉히 */
+  gap: var(--spacing-sm);
+}
+
 .oklchChLabel {
   flex-shrink: 0;
   width: 12px;
@@ -382,6 +390,11 @@
 }
 
 /* ── Alpha(투명도) row — slider + % 입력 ── */
+.alphaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
 
 /* Hue slider 와 같은 lineup. 투명→불투명 그라디언트를 checkerboard 위에 */
 .alphaSlider {

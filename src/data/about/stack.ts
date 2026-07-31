@@ -8,7 +8,6 @@ export const techStack: TechStackItem[] = [
   { name: "Lenis Smooth Scroll", category: "Scroll" },
   { name: "Framer Motion", category: "Interaction" },
   { name: "CSS Modules", category: "Styling" },
-  { name: "Tailwind CSS v4", category: "Utility Styling" },
   { name: "CSS Variables", category: "Design Tokens" },
   { name: "Three.js / R3F", category: "3D Graphics" },
   { name: "Zustand", category: "State Management" },

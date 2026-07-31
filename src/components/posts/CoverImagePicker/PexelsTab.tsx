@@ -222,7 +222,7 @@ export default function PexelsTab({
         />
 
         {!hasResults && !loading && (
-          <div className="tw:flex tw:flex-wrap tw:gap-2xs">
+          <div className={styles.suggestions}>
             {suggestions.map((kw) => (
               <button
                 key={kw}

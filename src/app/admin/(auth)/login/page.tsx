@@ -118,7 +118,7 @@ export default function AdminLoginPage() {
       <form className={styles.form} onSubmit={handleSubmit}>
         <h1 className={styles.title}><T k="admin.login.title" /></h1>
 
-        <div className="tw:flex tw:flex-col tw:gap-xs">
+        <div className={styles.inputGroup}>
           <Input
             id="email"
             type="email"
@@ -140,7 +140,7 @@ export default function AdminLoginPage() {
           />
         </div>
 
-        <div className="tw:flex tw:items-center tw:justify-between">
+        <div className={styles.bottomRow}>
           <Checkbox
             checked={rememberEmail}
             onChange={setRememberEmail}
@@ -151,7 +151,7 @@ export default function AdminLoginPage() {
 
         <Button type="submit" fullWidth disabled={loading} soundDisabled>
           {loading ? (
-            <span className="tw:inline-flex">
+            <span className={styles.wave}>
               {t("admin.login.signingIn").split("").map((char, i) => (
                 <span
                   key={i}
@@ -172,7 +172,7 @@ export default function AdminLoginPage() {
           <span>{language === "ko" ? "또는" : "or"}</span>
         </div>
         <Button type="button" variant="outline" fullWidth onClick={handleGithub} soundDisabled>
-          <span className="tw:inline-flex tw:items-center tw:gap-2xs">
+          <span className={styles.oauthBtnInner}>
             <SiGithub size={16} />
             {language === "ko" ? "GitHub 로 로그인" : "Sign in with GitHub"}
           </span>

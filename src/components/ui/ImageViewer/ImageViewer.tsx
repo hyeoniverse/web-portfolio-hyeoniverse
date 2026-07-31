@@ -633,7 +633,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                             transition={{ duration: 0.15 }}
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <div className="tw:flex tw:flex-col tw:gap-xs">
+                            <div className={styles.autoplaySection}>
                               <span className={styles.autoplayLabel}>Interval</span>
                               <div className={styles.intervalTrack} onMouseLeave={() => setHoveredInterval(null)}>
                                 <motion.div
@@ -826,25 +826,25 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                         >
                           <div className={styles.infoTitle}>Image info</div>
                           <dl className={styles.infoList}>
-                            <div className="tw:flex tw:items-baseline tw:gap-md">
+                            <div className={styles.infoRow}>
                               <dt className={styles.infoKey}>File</dt>
                               <dd className={styles.infoVal}>{fileName || "—"}</dd>
                             </div>
-                            <div className="tw:flex tw:items-baseline tw:gap-md">
+                            <div className={styles.infoRow}>
                               <dt className={styles.infoKey}>Type</dt>
                               <dd className={styles.infoVal}>{fileExt}</dd>
                             </div>
-                            <div className="tw:flex tw:items-baseline tw:gap-md">
+                            <div className={styles.infoRow}>
                               <dt className={styles.infoKey}>Size</dt>
                               <dd className={styles.infoVal}>{!loading && naturalSize ? `${naturalSize.w} × ${naturalSize.h} px` : "…"}</dd>
                             </div>
                             {hasMultiple && (
-                              <div className="tw:flex tw:items-baseline tw:gap-md">
+                              <div className={styles.infoRow}>
                                 <dt className={styles.infoKey}>Position</dt>
                                 <dd className={styles.infoVal}>{current + 1} / {images.length}</dd>
                               </div>
                             )}
-                            <div className="tw:flex tw:items-baseline tw:gap-md">
+                            <div className={styles.infoRow}>
                               <dt className={styles.infoKey}>Zoom</dt>
                               <dd className={styles.infoVal}>{zoomPct}%</dd>
                             </div>

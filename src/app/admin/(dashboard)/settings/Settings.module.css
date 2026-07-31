@@ -52,6 +52,13 @@
   color: var(--text-secondary);
 }
 
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
 .message {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -183,6 +190,11 @@
 .conflictValueCode::before {
   content: "Code ";
   font-weight: var(--font-weight-semibold);
+}
+
+.conflictFooter {
+  display: flex;
+  justify-content: center;
 }
 
 /* ── Conflict diff modal ── */
@@ -2654,6 +2666,12 @@ a.tagRelatedItem:hover {
   margin: 0;
 }
 
+.tagDeleteConfirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+}
+
 /* 기본값 초기화 모달 chip — 클릭 시 해당 태그 사용 게시물 노출. 취소선 없음(삭제 대기 chip 과 구분). */
 .tagResetChipRow {
   composes: uRowWrap2xs;
@@ -2728,6 +2746,11 @@ a.tagRelatedItem:hover {
 }
 
 /* chip 라벨 — KO 이름 + separator + EN 이름 둘 다 표시 */
+.worksCatChipLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
 
 .worksCatChipSep {
   color: var(--text-tertiary);
@@ -2782,6 +2805,11 @@ a.tagRelatedItem:hover {
 }
 
 /* 우측 actions — edit 모드는 Cancel + Save 2개 */
+.worksCatAddActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
 
 /* edit 모드 — 박스가 카테고리 편집 중임을 시각적으로 강조 (좌 accent 보더) */
 .worksCatAddBoxEdit {

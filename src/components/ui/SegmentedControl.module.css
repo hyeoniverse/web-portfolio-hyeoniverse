@@ -119,6 +119,11 @@
 }
 
 /* inline 모드 — main group + chevron + sub group 같은 row */
+.subInlineWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
 
 /* framer-motion indicator — hover 시 bg-tertiary-alt, active 시 bg-inverse */
 .indicator {

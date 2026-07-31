@@ -66,7 +66,7 @@ export default function SocialLinksEditor({ links, onChange, max = DEFAULT_MAX }
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-        <div className="tw:flex tw:flex-col">
+        <div className={styles.socialEditor}>
           {links.map((link, idx) => (
             <SortableSocialItem key={ids[idx]} id={ids[idx]}>
               <SocialIconArea
