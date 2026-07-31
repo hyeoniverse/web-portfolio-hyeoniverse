@@ -265,14 +265,6 @@
   transform: translateY(0);
 }
 
-.metaDot {
-  width: 3px;
-  height: 3px;
-  border-radius: var(--radius-circle);
-  background: var(--text-muted);
-  flex-shrink: 0;
-}
-
 /* ── Intro item (metaItem과 동일한 위치 시스템) ── */
 .introItem {
   position: fixed;
@@ -475,25 +467,6 @@
 .floatingBubble:hover {
   opacity: 1;
   border-color: var(--color-white-alpha-30);
-}
-
-.bubbleHeader {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.bubbleType {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: var(--font-weight-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 1px 4px;
-  border-radius: var(--radius-2xs);
-  background: var(--color-white-alpha-20);
-  color: var(--text-white);
-  opacity: 0.7;
 }
 
 .bubbleNick {

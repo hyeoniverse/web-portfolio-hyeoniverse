@@ -340,13 +340,6 @@
   transition: font-family var(--duration-base) ease;
 }
 
-.demoFontLabel {
-  margin-top: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: clamp(0.55rem, 0.6vw, 0.75rem);
-  color: var(--text-tertiary);
-}
-
 /* ── Demo 4: Magnetic Hover ── */
 .demoMagneticBtn {
   display: flex;
@@ -363,40 +356,6 @@
 }
 
 /* ── Demo 5: ClipPath Direction Reveal ── */
-.demoClipBox {
-  overflow: hidden;
-  position: relative;
-  width: clamp(90px, 8vw, 140px);
-  height: clamp(90px, 8vw, 140px);
-  border-radius: var(--radius-circle);
-}
-
-.demoClipBase {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: var(--border-light);
-  width: 100%;
-  height: 100%;
-  font-family: var(--font-mono);
-  font-size: var(--_fs-small);
-  color: var(--text-tertiary);
-  border-radius: var(--radius-circle);
-}
-
-.demoClipOverlay {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  background: var(--bg-accent-strong);
-  font-family: var(--font-mono);
-  font-size: var(--_fs-small);
-  color: var(--text-primary);
-  inset: 0;
-  border-radius: var(--radius-circle);
-  will-change: clip-path;
-}
 
 /* ── Demo 6: Infinite Scroll ── */
 /* 12 blocks per set × (40px + 6px gap) = 552px per set */
@@ -428,24 +387,6 @@
 }
 
 /* ── Demo 8: Loading Progress ── */
-.demoLoadingNumber {
-  font-family: var(--font-display);
-  font-size: clamp(0.8rem, min(2vw, 3.5vh), 2.8rem);
-  font-weight: 700;
-  line-height: 1;
-  color: var(--text-accent);
-  letter-spacing: 0.05em;
-}
-
-.demoLoadingTrack {
-  margin-top: var(--spacing-sm);
-  overflow: hidden;
-  width: clamp(90px, 8vw, 140px);
-  height: 2px;
-  background: var(--text-tertiary);
-  opacity: 0.2;
-  border-radius: var(--spacing-4xs);
-}
 
 .demoLoadingBar {
   width: 100%;
@@ -476,42 +417,6 @@
   }
 }
 
-.demoI18nCol {
-  flex: 1;
-  min-width: 0;
-}
-
-.demoI18nLabel {
-  display: block;
-  margin-bottom: 0.3rem;
-  font-size: clamp(0.5rem, 0.55vw, 0.7rem);
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.demoI18nTextBox {
-  padding: var(--spacing-xs);
-  border: var(--_line-secondary);
-  font-size: var(--_fs-caption);
-  line-height: 1.5;
-  word-break: break-word;
-  border-radius: var(--radius-sm);
-}
-
-.demoI18nBar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 0.4rem;
-  border: var(--border-accent);
-  border-style: dashed;
-  height: 1.5rem;
-  font-size: clamp(0.5rem, 0.55vw, 0.7rem);
-  color: var(--text-tertiary);
-  border-radius: var(--radius-sm);
-}
-
 /* ── Demo 11: Unit Test Runner ── */
 .demoTestRunner {
   display: flex;
@@ -526,42 +431,6 @@
   border-radius: var(--radius-sm);
 }
 
-.demoTestHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 0.3rem;
-  border-bottom: var(--_line-secondary);
-}
-
-.demoTestTitle {
-  font-weight: 600;
-  color: var(--text-success);
-  letter-spacing: 0.05em;
-}
-
-.demoTestCount {
-  color: var(--text-tertiary);
-}
-
-.demoTestList {
-  display: flex;
-  gap: 0.2rem;
-  flex-direction: column;
-}
-
-.demoTestRow {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-}
-
-.demoTestIcon {
-  width: 1.2em;
-  color: var(--text-tertiary);
-  text-align: center;
-}
-
 .demoTestPass {
   color: var(--text-success);
 }
@@ -569,15 +438,6 @@
 /* Compound selector (0,2,0) to override global theme transition */
 .codeDemoInner .demoTestPass {
   transition: color var(--duration-fast) ease;
-}
-
-.demoTestName {
-  flex: 1;
-  min-width: 0;
-}
-
-.demoTestSuite {
-  color: var(--text-tertiary);
 }
 
 @media (max-width: 1024px), (max-height: 700px) {

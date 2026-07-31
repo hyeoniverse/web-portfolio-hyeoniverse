@@ -40,12 +40,6 @@
   font-weight: 600;
   letter-spacing: -0.01em;
 }
-.cardHeadActions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  margin-left: auto;
-}
 /* SectionHeader 를 헤더 우측 폭 전체로 늘려 spacer(margin-left:auto)가 버튼을 끝으로 밀게 함.
    내부 wrap 의 margin-bottom 은 헤더 세로 정렬을 깨므로 0 으로 눌러줌. */
 .cardHeadMain {
@@ -54,12 +48,6 @@
 }
 .cardHeadMain > div {
   margin-bottom: 0;
-}
-.cardBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
 }
 .hint {
   margin: 0;
@@ -122,11 +110,6 @@
   color: var(--text-secondary);
   font-weight: 500;
 }
-.bilingual {
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-sm);
-}
 .divider {
   height: 1px;
   border: 0;
@@ -135,16 +118,6 @@
 }
 
 /* ── 타이포 매트릭스 ── */
-.matrixWrap {
-  width: 100%;
-  overflow-x: auto;
-}
-.matrix {
-  display: grid;
-  grid-template-columns: minmax(76px, 0.7fr) 60px minmax(160px, 1.5fr) minmax(122px, 1fr) minmax(130px, 1.1fr);
-  align-items: center;
-  min-width: 640px;
-}
 .matrixHead {
   display: contents;
 }
@@ -165,17 +138,6 @@
   border-top: var(--border-light);
   min-width: 0;
 }
-.matrixCell {
-  display: flex;
-  align-items: center;
-}
-.matrixLabel {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-}
-.matrixSize {
-  gap: var(--spacing-xs);
-}
 .swatch {
   width: 26px;
   height: 26px;
@@ -186,11 +148,6 @@
 }
 
 /* ── 미디어(커버) ── */
-.mediaRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
 .mediaThumb {
   width: 132px;
   height: 74px;
@@ -212,39 +169,9 @@
 }
 
 /* 세그먼트(배경 종류) */
-.seg {
-  display: inline-flex;
-  gap: 2px;
-  padding: 3px;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  align-self: flex-start;
-}
-.segBtn {
-  padding: var(--spacing-2xs) var(--spacing-md);
-  border: 0;
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  cursor: pointer;
-}
-.segBtnOn {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
 .sliderRow {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-}
-.sliderTrack {
-  flex: 1;
-}
-.gradGrid {
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-sm);
 }
 
@@ -262,33 +189,6 @@
 }
 .panelRow:first-child {
   border-top: 0;
-}
-.panelName {
-  flex: 1;
-  min-width: 0;
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-}
-.panelBadge {
-  padding: 3px var(--spacing-xs);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-.panelBadgeEdit {
-  background: var(--bg-accent-subtle);
-  color: var(--color-accent);
-}
-.panelBadgeStatic {
-  background: var(--bg-tertiary);
-  color: var(--text-tertiary);
-}
-.panelGrip {
-  display: inline-flex;
-  flex-shrink: 0;
-  color: var(--text-tertiary);
 }
 .panelEditBtn {
   display: inline-flex;
@@ -310,25 +210,8 @@
   opacity: 0.3;
   cursor: default;
 }
-.panelHeadRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-2xs);
-}
-.panelCount {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
-}
 
 /* ── 리스트 에디터(카드형) — Overview stats / Features / Process / Security 공용 ── */
-.itemList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
 .item {
   position: relative;
   display: flex;
@@ -358,12 +241,6 @@
 .itemRemove:hover {
   color: var(--text-primary);
   background: var(--bg-secondary);
-}
-.statRow {
-  display: grid;
-  grid-template-columns: 96px 1fr 1fr auto;
-  gap: var(--spacing-sm);
-  align-items: center;
 }
 
 /* add 버튼 */
@@ -556,19 +433,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.editEmpty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
-  padding: var(--spacing-lg);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
-  text-align: center;
-  line-height: 1.5;
-}
 /* 경로 입력 — mono, 조금 더 큰 글자 */
 .pathInput input {
   font-family: var(--font-mono);
@@ -576,11 +440,6 @@
   font-size: var(--font-size-md);
 }
 /* 설명 EN/KO — 좁은 편집 패널이라 세로 스택 */
-.nodeEditDescs {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
 /* 툴바 — [이동·들여쓰기] [추가] … [삭제] */
 .nodeEditBar {
   display: flex;
@@ -599,11 +458,6 @@
 }
 
 /* ── 통일 리스트 에디터 — compact 행(접힘) + 클릭 시 인라인 편집(펼침) ── */
-.lrow {
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  overflow: hidden;
-}
 .lrowHead {
   display: flex;
   align-items: center;
@@ -640,32 +494,6 @@
   height: 100%;
   object-fit: cover;
 }
-.lrowMeta {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.lrowTitle {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.lrowTitleEmpty {
-  color: var(--text-tertiary);
-  font-weight: 400;
-  font-style: italic;
-}
-.lrowSub {
-  margin-top: 1px;
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .lrowChevron {
   flex-shrink: 0;
   color: var(--text-tertiary);
@@ -692,19 +520,8 @@
   color: var(--text-primary);
   background: var(--bg-secondary);
 }
-.lrowBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-}
 
 /* 미디어 필드 — 썸네일 + 액션 (Features 이미지 등) */
-.fieldMediaRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
 .fieldMediaThumb {
   width: 120px;
   height: 68px;

@@ -96,9 +96,6 @@
 }
 
 /* ruler 는 tick 으로 활성 표시 — ink(밑줄) 미사용 */
-.ink {
-  display: none;
-}
 
 /* 데스크탑(>1024): 좌측 설정 사이드바가 네비 — 숨김 */
 @media (min-width: 1025px) {
