@@ -238,15 +238,15 @@ document.body.innerText.match(/\b(admin|editor)\.[a-zA-Z0-9_.]+/g)
 
 미측정. `next start` 기동 후 주요 5개 라우트에 대해 별도 기록 예정.
 
-## 시각 회귀 baseline
+## 스모크 e2e
 
-- 설정: [playwright.config.ts](../playwright.config.ts) · 스펙: [e2e/visual.spec.ts](../e2e/visual.spec.ts) · 대상: [e2e/routes.ts](../e2e/routes.ts)
-- 공개 라우트 12개 × desktop(1440×900) / mobile(Pixel 7) = **스냅샷 24장**
-- **안정성: 3회 연속 24/24 통과 (flaky 0)** — 아래 함정을 전부 잡고 난 뒤의 결과다
+> 원래 픽셀 단위 시각 회귀였으나, '변경 OK·깨짐만 방지' 방침과 안 맞고(baseline 갱신을 안 해 stale 이 됨) 노이즈가 커서 **스모크 e2e 로 교체**했다. 픽셀 비교 없이 로드·런타임 에러·에러 바운더리·빈 화면만 잡는다.
+
+- 설정: [playwright.config.ts](../playwright.config.ts) · 스펙: [e2e/smoke.spec.ts](../e2e/smoke.spec.ts) · 대상: [e2e/routes.ts](../e2e/routes.ts)
+- 공개 라우트 12개 × desktop(1440×900) / mobile(Pixel 7) = **24 검증**, ~22초
 
 ```bash
-npm run test:visual          # 비교
-npm run test:visual:update   # baseline 갱신 (의도된 design 변경일 때만)
+npm run test:smoke          # 공개 라우트
 ```
 
 ### 셋업 과정에서 부딪힌 것 (같은 함정 반복 방지)
@@ -342,11 +342,11 @@ role 이 없고(`getUserRole` → level 0) admin 접근이 거부된다. 쓰려�
 #    E2E_ADMIN_EMAIL=<OWNER_EMAIL 과 동일>
 #    E2E_ADMIN_PASSWORD=...
 # 2. 첫 실행 — "승인 대기" 로 실패한다 (정상)
-npm run test:visual:admin
+npm run test:smoke:admin
 # 3. Supabase Table Editor → admin_known_devices → 방금 생긴 row 의 approved 를 true 로
 #    (또는 메일함의 승인 링크 클릭)
 # 4. baseline 생성
-npm run test:visual:admin -- -u
+npm run test:smoke:admin -- -u
 ```
 
 > `.env.local` 에 관리자 비밀번호가 평문으로 들어간다. 같은 파일의 `SUPABASE_SERVICE_ROLE_KEY`
