@@ -49,7 +49,7 @@ export default function PopularPosts() {
           className={styles.metricControl}
         />
       </div>
-      <div className={styles.list} data-more="true" data-clickable="true">
+      <div className="tw:flex tw:flex-col" data-more="true" data-clickable="true">
         {posts.map((post, idx) => (
           <div key={post.id} onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, "", rect); }} className={styles.item}>
             <span className={`${styles.rank} ${idx === 0 ? styles.rankTop : idx <= 2 ? styles.rankHigh : ""}`}>

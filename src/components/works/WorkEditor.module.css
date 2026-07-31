@@ -350,12 +350,6 @@
 }
 
 /* ── Gallery ── */
-.galleryLabelRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-}
 
 /* 카테고리 picker — 위쪽 Select + 아래쪽 chip 리스트 (column) */
 .categoryPicker {
@@ -384,11 +378,6 @@
 }
 
 /* 선택된 chip 들 — DraggableTag 공통 컴포넌트 wrap */
-.categoryChipList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-}
 
 /* + 버튼은 공통 Button (shape="circle") 사용 */
 
@@ -402,12 +391,6 @@
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   margin: 0 0 var(--spacing-md);
-}
-
-.templateList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
 }
 
 .templateItem {
@@ -888,26 +871,10 @@
 }
 
 /* label + 추가 버튼 한 줄 — label 좌측, 버튼 우측 */
-.memberSubLabelRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-}
 
 /* label row + form 묶음 — section gap 보다 작은 gap 으로 그룹 형성 */
-.memberFormBlock {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
 
 /* list label + list 묶음 — formBlock 과 동일 패턴 */
-.memberListBlock {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
 
 /* form — 카드와 통합된 외형 (border + radius + padding). 입력 가능한 빈 카드 형태 */
 .memberForm {
@@ -1047,11 +1014,6 @@
 }
 
 /* edit 모드 일 때 — Save + Cancel 버튼 묶음 */
-.memberFormActions {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-}
 
 /* List — 너비 충분하면 multi-col grid (auto-fill minmax). border 없음 */
 .memberList.memberList {
@@ -1242,11 +1204,6 @@
 
 /* 작업 표시 (read-only) — memberHeaderRow 의 sibling, memberHeader 안에서 full-width.
  * 각 역할별 그룹: [memberItemRole 스타일 label] + [ul]. */
-.memberContribsGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
-}
 
 /* 작업 ul — 들여쓰기 + 좌측 vertical hairline 으로 role 과 시각적 grouping (카드 없이) */
 .memberContribsList {
@@ -1269,11 +1226,6 @@
 }
 
 /* contribs wrap — role group 들 column stack */
-.memberContribsWrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
 
 /* role 마다 토글 버튼 — chevron + role label. 클릭 시 해당 role 의 작업 ul 펼침/접힘.
  * width: 100% 로 row 전체 클릭 가능하게 */

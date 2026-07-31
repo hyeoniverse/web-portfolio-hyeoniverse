@@ -20,12 +20,6 @@
   border-right: var(--_line-secondary);
 }
 
-.secHeader {
-  display: flex;
-  gap: var(--spacing-md);
-  align-items: center;
-}
-
 .secIcon {
   flex-shrink: 0;
   width: 20px;
@@ -74,4 +68,10 @@
   .secItem:nth-child(odd) {
     border-right: none;
   }
+}
+
+.secHeader {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
 }

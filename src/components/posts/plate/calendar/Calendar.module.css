@@ -156,11 +156,6 @@
   cursor: pointer;
 }
 .searchClear:hover { color: var(--text-primary); }
-.filterChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-3xs);
-}
 .filterChip {
   display: inline-flex;
   align-items: center;
@@ -373,11 +368,6 @@
   flex-direction: column;
   gap: var(--spacing-md);
   padding: var(--spacing-lg);
-}
-.pickerActions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
 }
 .pickerNew {
   flex: 1;
@@ -600,11 +590,6 @@
   gap: var(--spacing-sm) var(--spacing-md);
   padding: var(--spacing-sm) var(--spacing-md);
   border-bottom: var(--border-light);
-}
-.navGroup {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
 }
 .title {
   min-width: 8em;
@@ -930,7 +915,6 @@
   padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
 }
 .evSidebarTitle { font-size: var(--font-size-lg); font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
-.evSidebarActions { display: inline-flex; align-items: center; gap: var(--spacing-3xs); }
 /* 사이드바 아이콘 버튼(도움말·정렬·닫기)은 공통 HelpButton / Button(ghost circle)로 옮겼다.
    여기에 다시 쓰면 공통 규격을 덮어써서 또 갈라진다. */
 /* 필터 줄 — SegmentedControl + 오른쪽 끝 도움말 */
@@ -1014,13 +998,6 @@
   min-width: 180px;
 }
 
-.evHelpGroup {
-  display: flex;
-  flex-direction: column;
-  /* 행 사이 — 아이콘이 10~13px 라 2xs(4px) 는 있어야 답답하지 않다 (기존 3xs=2px 는 촘촘했다) */
-  gap: var(--spacing-2xs);
-}
-
 /* 그룹 제목 — 항목과 크기가 같으면(둘 다 10px) 위계가 안 선다.
    3xs(8px) uppercase 라벨로 낮추되 tertiary(항목 muted 보다 진함)로 스캔 기준선을 준다. */
 .evHelpTitle {
@@ -1068,7 +1045,6 @@
 }
 
 /* ── 사이드바 — 연결된 이벤트 인라인 펼침 ── */
-.evRow { display: flex; flex-direction: column; }
 .evRowMain { display: flex; align-items: center; gap: var(--spacing-3xs); }
 .evRowMain > .evItem { flex: 1; min-width: 0; }
 /* 연결 토글 — 링크 아이콘 + 개수 + chevron */
@@ -1171,11 +1147,9 @@
   font-size: var(--font-size-2xs); font-weight: 500; color: var(--text-secondary); white-space: nowrap;
 }
 .chainStepMeta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-3xs) var(--spacing-md); font-size: var(--font-size-2xs); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
-.chainMetaItem { display: inline-flex; align-items: center; gap: var(--spacing-3xs); }
 .chainLabelDot { width: 6px; height: 6px; border-radius: var(--radius-circle); }
 
 /* ── 이벤트 추가/편집 모달 폼 ── 좌(제목~상태) | 우(내용~태그), 모바일 1열 */
-.modalBody { display: flex; flex-direction: column; }
 .recurScopeBar {
   display: flex; align-items: center; gap: var(--spacing-sm);
   padding: 0 0 var(--spacing-2xs); padding-left: var(--spacing-lg); margin-bottom: var(--spacing-sm);
@@ -1212,7 +1186,6 @@
   gap: var(--spacing-md);
   padding: var(--spacing-lg);
 }
-.vdHead { display: flex; align-items: stretch; gap: var(--spacing-sm); }
 .vdBar {
   flex-shrink: 0;
   width: 4px;
@@ -1238,7 +1211,6 @@
   color: var(--text-secondary);
 }
 .vdIcon { flex-shrink: 0; color: var(--text-tertiary); }
-.vdTags { display: flex; flex-wrap: wrap; gap: var(--spacing-2xs); }
 .vdSection { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
 .vdDividerTop { padding-top: var(--spacing-md); margin-top: var(--spacing-2xs); border-top: var(--border-light); }
 .vdDividerBottom { padding-bottom: var(--spacing-md); margin-bottom: var(--spacing-2xs); border-bottom: var(--border-light); }
@@ -1280,7 +1252,6 @@
 /* ── 주/일 아젠다 뷰 — 고정 높이(이벤트 수 무관) + 컬럼 내부 스크롤 ── */
 /* 일/주 뷰 헤더 — 월뷰(.header 공유)보다 컴팩트 + 우측 이벤트 추가 버튼 */
 .agendaHeader { padding: var(--spacing-xs) var(--spacing-md); }
-.agendaHeadRight { display: flex; align-items: center; gap: var(--spacing-sm); }
 .agendaHeadAdd {
   display: inline-flex; align-items: center; gap: var(--spacing-3xs);
   height: var(--control-h-sm);
@@ -1392,7 +1363,6 @@
 }
 .dayPanelEmptyText { font-size: var(--font-size-xs); color: var(--text-tertiary); line-height: 1.5; }
 /* 헤더 — 색 점 + 제목 한 줄 (dot 과 제목 사이 넉넉히) */
-.dayPanelHead { display: flex; align-items: center; gap: var(--spacing-sm); }
 .dayPanelDot { flex-shrink: 0; width: 11px; height: 11px; border-radius: var(--radius-circle); background: var(--_c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--_c) 20%, transparent); }
 .dayPanelTitle {
   flex: 1; min-width: 0; border: none; background: transparent;
@@ -1414,10 +1384,7 @@
 .dayPanelRow { display: flex; align-items: center; gap: var(--spacing-xs); font-size: var(--font-size-sm); color: var(--text-secondary); }
 .dayPanelIcon { color: var(--text-tertiary); flex-shrink: 0; }
 .dayPanelTime { color: var(--text-accent); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
-.dayPanelField { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
 .dayPanelLabel { font-size: var(--font-size-3xs); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-tertiary); }
-.dayPanelDuo { display: grid; grid-template-columns: var(--grid-cols-2); gap: var(--spacing-sm); }
-.dayPanelChips { display: flex; flex-wrap: wrap; gap: var(--spacing-2xs); }
 .dayPanelMuted { font-size: var(--font-size-sm); color: var(--text-muted); }
 .dayPanelDesc {
   font-size: var(--font-size-xs); color: var(--text-secondary); line-height: 1.55;
@@ -1762,7 +1729,6 @@
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
 }
-.dayModalList { display: flex; flex-direction: column; }
 /* 미니멀 agenda 행 — 시간 · 라벨색 dot · 제목 · muted 서브텍스트 (상태·중요도) */
 .dayRow {
   display: flex;
@@ -1844,7 +1810,6 @@
 }
 
 /* ── 이벤트 모달 헤더 back/forward ── */
-.navBtns { display: inline-flex; align-items: center; gap: var(--spacing-4xs); }
 .navBtn {
   display: inline-flex;
   align-items: center;
@@ -1905,12 +1870,6 @@
 @media (max-width: 560px) {
   .modalForm { flex-direction: column; gap: var(--spacing-md); }
 }
-.sectionLabelRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-}
 /* 두 필드를 나란히 (상태·중요도). 모바일은 세로 */
 .sectionRow {
   display: flex;
@@ -1967,11 +1926,6 @@
   padding-top: var(--spacing-sm);
   border-top: var(--border-light);
 }
-.recurCustom {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
-}
 .recurCustomRow {
   display: flex;
   flex-wrap: wrap;
@@ -1984,10 +1938,8 @@
 .recurCountWrap .recurStepper { background: transparent; }
 /* 종료일 버튼 — 다른 컨트롤(28px)과 높이 통일 */
 .recurDateBtn { height: var(--control-h-sm); }
-.recurWeekdays { display: flex; gap: var(--spacing-3xs); flex-wrap: wrap; }
 
 /* ── 고급 반복 (월: 날짜/조건, 연: 월 grid + 조건) ── */
-.recurAdv { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
 /* 날짜/조건 SegmentedControl — flex column 에서 100% 로 늘어나지 않게 내용 폭만 */
 .recurModeSeg { align-self: flex-start; }
 /* 월간 날짜 그리드 1~31 (7열) */
@@ -2038,7 +1990,6 @@
 .recurYearCols { display: flex; align-items: flex-start; gap: var(--spacing-md); margin-top: var(--spacing-sm); }
 .recurYearCond { display: flex; flex-direction: column; gap: var(--spacing-2xs); min-width: 0; }
 /* n번째 요일 조건 select 행 */
-.recurOrdRow { display: flex; align-items: center; gap: var(--spacing-2xs); flex-wrap: wrap; }
 /* 연간 "조건 지정" 체크박스 행 */
 .recurCondToggle { display: inline-flex; align-items: center; gap: var(--spacing-2xs); cursor: pointer; }
 .recurWd {
@@ -2092,12 +2043,6 @@
 .dateTriggerText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 /* 반복 종료(횟수/날짜/계속) — 요약 chip 밖 별도 표시 */
 .recurEndLabel { font-size: var(--font-size-xs); color: var(--text-tertiary); white-space: nowrap; }
-.dateRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--spacing-2xs);
-}
 .dateTilde { color: var(--text-tertiary); }
 .rangeToggle {
   height: var(--control-h-sm);
@@ -2128,12 +2073,6 @@
 }
 
 /* 라벨 (이름+색) */
-.labelRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-  align-items: center;
-}
 /* 라벨 칩 컨테이너 — [반구+이름 선택버튼][수정버튼] */
 .labelChip {
   display: inline-flex;
@@ -2244,11 +2183,6 @@
 }
 
 /* 태그 (텍스트) */
-.tagRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
 .tagChip {
   display: inline-flex;
   align-items: center;
@@ -2270,11 +2204,6 @@
   cursor: pointer;
 }
 .tagRemove:hover { color: var(--text-primary); }
-.tagSuggest {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
 /* 태그 제안 칩 — 추가 칩(공통 Chip capsule)과 같은 크기 + 대시 외곽선으로 구분 */
 .suggestChip {
   border-style: dashed !important;
@@ -2304,13 +2233,6 @@
 
 /* 내용 textarea — 하단 우측 리사이즈 핸들과 겹치는 우상단 지우개 버튼 숨김 (글자수 카운터는 별도 표시) */
 .descTextarea [aria-label="clear"] { display: none; }
-
-.colorRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
 .swatch {
   flex-shrink: 0;
   width: 22px;
@@ -2880,11 +2802,6 @@
   object-fit: contain;
   pointer-events: none;
 }
-.previewTop {
-  display: flex;
-  align-items: stretch;
-  gap: var(--spacing-2xs);
-}
 .previewBar {
   flex-shrink: 0;
   width: 4px;
@@ -2902,7 +2819,6 @@
   font-size: var(--font-size-2xs);
   color: var(--text-secondary);
 }
-.previewStatusRow { display: flex; flex-wrap: wrap; gap: var(--spacing-3xs); }
 .previewStatus {
   display: inline-flex;
   align-items: center;

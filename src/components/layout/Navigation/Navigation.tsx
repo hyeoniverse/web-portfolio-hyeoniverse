@@ -59,7 +59,7 @@ function renderNotifItem(n: NotifItemData, language: "ko" | "en", onClick: () =>
       className={styles.notifDropdownItemLink}
       onClick={onClick}
     >
-      <div className={styles.notifDropdownItemTop}>
+      <div className="tw:flex tw:items-center tw:justify-between tw:gap-xs">
         <span className={styles.notifDropdownItemTitle}>{n.title}</span>
         <span className={styles.notifDropdownItemTime}>{formatTime(n.created_at)}</span>
       </div>
@@ -658,7 +658,7 @@ export default function Navigation() {
               {/* 로딩 중 풀 로고 이미지 (숏과 다를 때만) */}
               {showLoadingLogo && hasDistinctFullLogo && (
                 <motion.span
-                  className={styles.logoImageWrap}
+                  className="tw:flex tw:items-center"
                   initial={{ opacity: 0, filter: "blur(12px)" }}
                   animate={{
                     opacity: isTransitioning ? 0 : 1,
@@ -675,7 +675,7 @@ export default function Navigation() {
               )}
               {/* 숏 로고 이미지 */}
               <motion.span
-                className={styles.logoImageWrap}
+                className="tw:flex tw:items-center"
                 initial={showLoadingLogo ? { opacity: 0, filter: "blur(12px)" } : false}
                 animate={{
                   opacity: showLoadingLogo && hasDistinctFullLogo && !isTransitioning ? 0 : 1,
@@ -1134,7 +1134,7 @@ export default function Navigation() {
               return (
                 <motion.div
                   key={child.key}
-                  className={styles.subNavDropdownItemWrap}
+                  className="tw:flex"
                   /* 선택 항목은 스태거(x offset) 제외 — travel ink 가 도착할 위치를 안정적으로 측정하기 위해 */
                   variants={active ? undefined : { hidden: { opacity: 0, x: -12 }, show: { opacity: 1, x: 0 } }}
                   initial={active ? { opacity: 0 } : undefined}

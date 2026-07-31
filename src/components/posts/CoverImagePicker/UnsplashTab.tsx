@@ -191,7 +191,7 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
         />
 
         {photos.length === 0 && !loading && (
-          <div className={styles.suggestions}>
+          <div className="tw:flex tw:flex-wrap tw:gap-2xs">
             {suggestions.map((kw) => (
               <button
                 key={kw}

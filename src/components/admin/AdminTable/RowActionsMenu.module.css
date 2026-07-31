@@ -57,11 +57,6 @@
   color: var(--text-primary);
 }
 
-.quickRow {
-  display: flex;
-  gap: var(--spacing-xs);
-}
-
 .quickBtn {
   flex: 1;
   display: inline-flex;
@@ -82,11 +77,6 @@
 .moveBody .quickBtn:hover {
   border-color: var(--border-strong-color);
   color: var(--text-primary);
-}
-
-.posRow {
-  display: flex;
-  gap: var(--spacing-xs);
 }
 
 .posInput {

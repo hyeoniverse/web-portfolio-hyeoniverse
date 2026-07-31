@@ -42,7 +42,7 @@ function KeyBadges({ combo }: { combo: string }) {
   const modLabels = isMac ? MOD_LABELS_MAC : MOD_LABELS_WIN;
   const keys = splitKeys(combo);
   return (
-    <span className={styles.helpKeys}>
+    <span className="tw:inline-flex tw:items-center tw:flex-wrap tw:justify-end tw:gap-4xs">
       {keys.flatMap((k, i) => {
         const plus = i === 0 ? [] : [<span key={`p${i}`} className={styles.helpKeyPlus}>+</span>];
         // 방향키 묶음(↑↓←→)은 각 화살표를 개별 badge 로, + 없이 촘촘하게 (뭉쳐놓으면 못생김)
@@ -78,7 +78,7 @@ export default function ShortcutsModalContent() {
         <button type="button" className={`${styles.helpTab} ${tab === "md" ? styles.helpTabActive : ""}`} onClick={() => setTab("md")}>Markdown</button>
       </div>
 
-      <div className={styles.helpPanels}>
+      <div className="tw:grid">
         {/* ── 블록 (이동·선택) + 삽입 트리거 ── */}
         <div className={blockCls}>
         <div className={styles.helpGrid}>

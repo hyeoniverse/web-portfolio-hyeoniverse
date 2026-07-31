@@ -47,7 +47,7 @@ function MovePanelBody({
       <div className={styles.meta}>
         {labels.moveCurrent ?? "현재 위치"}: <strong>{currentOrder}</strong>{" / "}{totalCount}
       </div>
-      <div className={styles.quickRow}>
+      <div className="tw:flex tw:gap-xs">
         <button type="button" className={styles.quickBtn} onClick={() => apply(1)}>
           <ArrowUpToLine size={12} />
           {labels.moveToTop ?? "맨 앞"}
@@ -57,7 +57,7 @@ function MovePanelBody({
           {labels.moveToBottom ?? "맨 뒤"}
         </button>
       </div>
-      <div className={styles.posRow}>
+      <div className="tw:flex tw:gap-xs">
         <input
           type="number"
           min={1}

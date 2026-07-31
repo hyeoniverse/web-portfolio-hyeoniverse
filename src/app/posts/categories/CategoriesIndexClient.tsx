@@ -64,7 +64,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <div className={styles.headerTitleRow}>
+        <div className="tw:flex tw:items-center tw:justify-between tw:gap-md">
           <h1 className={styles.title}>
             <LayoutGrid size={22} strokeWidth={1.8} aria-hidden />
             카테고리 모음
@@ -75,7 +75,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
           {" · "}
           총 <strong>{totalPosts.toLocaleString()}</strong>개의 글
         </p>
-        <div className={styles.searchSortRow}>
+        <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-sm">
           <SegmentedControl<SortBy>
             items={[
               { value: "popular", label: "인기순" },
@@ -176,7 +176,7 @@ export default function CategoriesIndexClient({ categories }: Props) {
               >
                 <X size={18} aria-hidden />
               </button>
-              <div className={styles.sheetHeader}>
+              <div className="tw:flex tw:items-baseline tw:gap-sm">
                 <h2 className={styles.sheetTitle}>{sheetCat.name}</h2>
                 <span className={styles.sheetCount}>{sheetCat.count}개의 글</span>
               </div>
