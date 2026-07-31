@@ -1,0 +1,60 @@
+/*  WorksIntroVideoPicker 전용 — Settings.module.css 에서 분리(#384)  */
+.worksIntroVideoPicker {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: var(--spacing-lg);
+  row-gap: var(--spacing-md);
+  align-items: start;
+  width: 100%;
+}
+.worksIntroPreview {
+  position: relative;
+  display: block;
+  width: 240px;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  overflow: hidden;
+  transition: outline 0.15s ease;
+}
+
+.worksIntroPreview:hover {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -1px;
+}
+
+.worksIntroPreviewThumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.worksIntroPreviewExpand {
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-2xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-overlay);
+  color: var(--text-inverse);
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+
+.worksIntroPreview:hover .worksIntroPreviewExpand {
+  opacity: 1;
+}
+
+.worksIntroVideoActions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm);
+}
+.worksIntroPickerWrap {
+  grid-column: 1 / -1;
+}

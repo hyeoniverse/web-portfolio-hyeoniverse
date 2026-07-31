@@ -12,7 +12,9 @@ import type { Author } from "@/types/author";
 import type { Member, MembersResponse, PendingMember } from "@/types/member";
 import MemberEditModal from "./MemberEditModal";
 import MemberDetailModal from "./MemberDetailModal";
-import styles from "../Settings.module.css";
+import shared from "../Settings.module.css";
+import local from "./AuthorsEditor.module.css";
+const styles = { ...shared, ...local };
 import mStyles from "@/components/admin/MembersList.module.css";
 
 interface Props {

@@ -1,0 +1,8 @@
+/*  AuthorsEditor 전용 — Settings.module.css 에서 분리(#384)  */
+.authorsEditor { display: flex; flex-direction: column; gap: var(--spacing-md);
+}
+.authorUnlinked {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: var(--border-light);
+}

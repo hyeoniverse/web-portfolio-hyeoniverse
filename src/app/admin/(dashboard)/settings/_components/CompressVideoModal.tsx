@@ -6,7 +6,9 @@ import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import { ModalFooterContext } from "@/components/ui/Modal";
 import { compressVideo, formatBytes, type TargetFormat } from "@/lib/videoCompress";
-import styles from "../Settings.module.css";
+import shared from "../Settings.module.css";
+import local from "./CompressVideoModal.module.css";
+const styles = { ...shared, ...local };
 
 interface Props {
   file: File;
