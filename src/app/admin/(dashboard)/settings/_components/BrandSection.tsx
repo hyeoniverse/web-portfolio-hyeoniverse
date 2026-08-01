@@ -364,10 +364,9 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 <FieldHelp content={t("admin.settings.wcagHelp")} />
               </h4>
             </div>
-            {/* 프리뷰 스트립 + 아래 정렬 폼 (숏 텍스트 → 브라우저 탭 아이콘) */}
-            <div className={styles.faviconLayout}>
-              <div className={styles.faviconPreviewSlot}>
-                <div className={styles.faviconPreviewSticky}>
+            {/* 프리뷰(상단 가로 카드) + 컨트롤 2패널(글자·모양 | 색상) + 그림자 카드 */}
+            <div className={styles.faviconStudio}>
+              <div className={styles.faviconPreviewBar}>
                 {(["light", "dark"] as const).map((variant) => {
                   // preset 색 — 미리보기는 theme.lightText/darkText 로 fallback (route.ts 와 동일 계산 구조)
                   const presetLight = config.brand.logoColor || config.theme.lightText;
@@ -428,10 +427,11 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                     </div>
                   );
                 })}
-                </div>
               </div>
-              <div className={styles.faviconForm}>
-                <FieldRow label={t("admin.settings.logoText")} className={styles.faviconFormRow}>
+              <div className={styles.faviconPanels}>
+                <div className={styles.faviconPanel}>
+                  <h5 className={styles.faviconPanelTitle}>{t("admin.settings.faviconGroupGlyph")}</h5>
+                <FieldRow label={t("admin.settings.logoText")}>
                   <div className={styles.faviconTextInputWrap}>
                     {/* favicon 은 한 grapheme 만 렌더 → 마지막 입력 글자로 덮어쓰기(이모지 보존). 4글자 제한 제거 */}
                     <HighlightInput
@@ -441,7 +441,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                     />
                   </div>
                 </FieldRow>
-                <FieldRow label={t("admin.settings.faviconShape")} className={styles.faviconFormRow}>
+                <FieldRow label={t("admin.settings.faviconShape")}>
                   <RadioGroup<"circle" | "square" | "none">
                     // 선택 표시는 radius 에서 파생 — 슬라이더로 반경 바꾸면 원/사각 하이라이트가 따라 이동
                     value={
@@ -481,7 +481,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 </FieldRow>
                 {/* 배경 모서리 반경 — shape 프리셋 기본값을 미세 조정 (배경 있을 때만). 0=각짐 ~ 16=완전 둥금 */}
                 {config.brand.faviconShape !== "none" && (
-                  <FieldRow label={t("admin.settings.faviconRadius")} className={styles.faviconFormRow}>
+                  <FieldRow label={t("admin.settings.faviconRadius")}>
                     <div className={styles.faviconSliderControl}>
                       <Slider
                         min={0}
@@ -499,7 +499,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 )}
                 {/* 배경 종횡비 — 배경 모양을 정사각/타원/직사각으로 (콘텐츠는 중심 고정). 세로 1:2 ~ 가로 2:1 */}
                 {config.brand.faviconShape !== "none" && (
-                  <FieldRow label={t("admin.settings.faviconBgRatio")} className={styles.faviconFormRow}>
+                  <FieldRow label={t("admin.settings.faviconBgRatio")}>
                     <div className={styles.faviconSliderControl}>
                       <Slider
                         min={50}
@@ -519,7 +519,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                   </FieldRow>
                 )}
                 {/* 로고 폰트 — 로고와 favicon 둘 다 결정. FontPicker (Google Fonts 검색 + 부분매칭). */}
-                <FieldRow label={t("admin.settings.logoFont")} className={styles.faviconFormRow}>
+                <FieldRow label={t("admin.settings.logoFont")}>
                   <FontPicker
                     value={config.brand.logoFont ?? ""}
                     onChange={(v) => update("brand", "logoFont", v)}
@@ -544,7 +544,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                     toGoogleValue={(name) => `'${name}', sans-serif`}
                   />
                 </FieldRow>
-                <FieldRow label={t("admin.settings.faviconWeight")} className={styles.faviconFormRow}>
+                <FieldRow label={t("admin.settings.faviconWeight")}>
                   <RadioGroup<"light" | "regular" | "bold">
                     value={(config.brand.faviconWeight ?? "light") as "light" | "regular" | "bold"}
                     onChange={(v) => update("brand", "faviconWeight", v)}
@@ -556,7 +556,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                   />
                 </FieldRow>
                 {/* 장평 — 폰트 가로 너비 (scaleX 배수). 로고/favicon 모두 적용. 더블클릭 시 자유 입력 */}
-                <FieldRow label={t("admin.settings.logoFontStretch")} className={styles.faviconFormRow}>
+                <FieldRow label={t("admin.settings.logoFontStretch")}>
                   <Select
                     value={config.brand.logoFontStretch ?? "0.8"}
                     onChange={(v) => update("brand", "logoFontStretch", v)}
@@ -572,7 +572,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                   />
                 </FieldRow>
                 {/* 폰트 크기 — 프리셋 Select + "직접 입력" 선택 시 stepper(NumberInput) 노출. 8~30 clamp */}
-                <FieldRow label={t("admin.settings.faviconFontSize")} className={styles.faviconFormRow}>
+                <FieldRow label={t("admin.settings.faviconFontSize")}>
                   <div className={styles.faviconFontSizeControl}>
                     <Select
                       value={fontSizeCustom ? "custom" : (config.brand.faviconFontSize ?? "20")}
@@ -604,8 +604,11 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                     )}
                   </div>
                 </FieldRow>
+                </div>
+                <div className={styles.faviconPanel}>
+                  <h5 className={styles.faviconPanelTitle}>{t("admin.settings.faviconGroupColor")}</h5>
                 {/* 배경 — 라이트/다크 한 행 (캡션 + 색) */}
-                <FieldRow label={t("admin.settings.faviconBg")} className={styles.faviconFormRow}>
+                <FieldRow label={t("admin.settings.faviconBg")}>
                   <ColorDuoRow
                     t={t}
                     placeholder={t("admin.settings.faviconBgPlaceholder")}
@@ -615,7 +618,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                   />
                 </FieldRow>
                 {/* 배경 테두리 — 두께(px) + variant 색. 두께 0 이면 미표시 */}
-                <FieldRow label={t("admin.settings.faviconBorder")} className={styles.faviconFormRow}>
+                <FieldRow label={t("admin.settings.faviconBorder")}>
                   <div className={styles.faviconSliderControl}>
                     <Slider
                       min={0}
@@ -631,7 +634,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                   </div>
                 </FieldRow>
                 {(Number(config.brand.faviconBorderWidth) || 0) > 0 && (
-                  <FieldRow label={t("admin.settings.faviconBorderColor")} className={styles.faviconFormRow}>
+                  <FieldRow label={t("admin.settings.faviconBorderColor")}>
                     <ColorDuoRow
                       t={t}
                       placeholder={t("admin.settings.faviconBgPlaceholder")}
@@ -642,7 +645,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                   </FieldRow>
                 )}
                 {/* 글자색 — favicon 텍스트 색 override. 빈 값이면 preset 자동 계산 (하위호환) */}
-                <FieldRow label={t("admin.settings.faviconTextColor")} className={styles.faviconFormRow}>
+                <FieldRow label={t("admin.settings.faviconTextColor")}>
                   <ColorDuoRow
                     t={t}
                     placeholder={t("admin.settings.faviconBgPlaceholder")}
@@ -651,16 +654,9 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                     tools
                   />
                 </FieldRow>
+                </div>
               </div>
             </div>
-            {/* 그림자 — 텍스트/배경 통합 카드 (세그먼트 탭으로 편집 대상 전환) */}
-            <FaviconShadowControls
-              textShadow={config.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
-              bgShadow={config.brand.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW}
-              onChangeText={(v) => update("brand", "faviconTextShadow", v)}
-              onChangeBg={(v) => update("brand", "faviconBgShadow", v)}
-              t={t}
-            />
           </div>
 
           {/* 풀로고(메인) — 긴 텍스트 + 로고 색상 + 효과. 이미지 없을 때 로딩/네비 로고 */}
@@ -703,13 +699,13 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               })}
             </div>
             <div className={styles.faviconForm}>
-              <FieldRow label={t("admin.settings.logoFullText")} className={styles.faviconFormRow}>
+              <FieldRow label={t("admin.settings.logoFullText")}>
                 <div className={styles.brandTextInputWrap}>
                   <HighlightInput value={config.brand.logoFullText} onChange={(v) => update("brand", "logoFullText", v)} maxHint={20} maxLength={20} />
                 </div>
               </FieldRow>
               {/* 로고 색상 — 프리셋 + Light/Dark override (풀로고·텍스트 로고 색) */}
-              <FieldRow label={t("admin.settings.logoColorPresets")} className={styles.faviconFormRow}>
+              <FieldRow label={t("admin.settings.logoColorPresets")}>
             <div className={styles.logoColorPresets}>
               {presets.map((p, i) => (
                 <div key={`${p.name}-${i}`} className={styles.logoColorPresetWrap}>
@@ -754,7 +750,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
               )}
             </div>
           </FieldRow>
-              <FieldRow label={t("admin.settings.logoColorLabel")} className={styles.faviconFormRow}>
+              <FieldRow label={t("admin.settings.logoColorLabel")}>
                 <ColorDuoRow
                   t={t}
                   placeholder={t("admin.settings.logoColorPlaceholder")}
@@ -773,15 +769,37 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
             onSave={addCurrentAsPreset}
             t={t}
           />
-          {/* nav·로딩 로고 그림자 — favicon(브라우저 탭)과 별개. 토글 ON 이면 이 값을, OFF 면 favicon 텍스트 그림자를 상속 */}
-          <FaviconShadowControls
-            single
-            textShadow={config.brand.logoShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
-            onChangeText={(v) => update("brand", "logoShadow", v)}
-            t={t}
-            textLabel={t("admin.settings.navLogoShadow")}
-          />
-          <p className={styles.faviconImageOptionsHint}>{t("admin.settings.navLogoShadowHint")}</p>
+          </div>
+
+          {/* ══ 그림자 — favicon(탭 아이콘) + 네비게이션 로고. 풀로고(로딩) 아래 별도 섹션 ══ */}
+          <div className={styles.brandPart}>
+            <div className={styles.brandPartHead}>
+              <h4 className={styles.brandPartTitle}>{t("admin.settings.faviconGroupShadow")}</h4>
+            </div>
+            <div className={styles.faviconShadowGroup}>
+              <div className={styles.faviconShadowItem}>
+                <span className={styles.faviconShadowSubLabel}>{t("admin.settings.logoFaviconPart")}</span>
+                <FaviconShadowControls
+                  textShadow={config.brand.faviconTextShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
+                  bgShadow={config.brand.faviconBgShadow ?? DEFAULT_FAVICON_BG_SHADOW}
+                  onChangeText={(v) => update("brand", "faviconTextShadow", v)}
+                  onChangeBg={(v) => update("brand", "faviconBgShadow", v)}
+                  t={t}
+                />
+              </div>
+              {/* 네비게이션 로고 그림자 — favicon(브라우저 탭)과 별개. ON 이면 이 값, OFF 면 favicon 텍스트 그림자 상속 */}
+              <div className={styles.faviconShadowItem}>
+                <span className={styles.faviconShadowSubLabel}>{t("admin.settings.navLogoShadow")}</span>
+                <FaviconShadowControls
+                  single
+                  textLabel=""
+                  textShadow={config.brand.logoShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
+                  onChangeText={(v) => update("brand", "logoShadow", v)}
+                  t={t}
+                />
+                <p className={styles.faviconImageOptionsHint}>{t("admin.settings.navLogoShadowHint")}</p>
+              </div>
+            </div>
           </div>
         </motion.div>
         )}
