@@ -79,6 +79,7 @@ export default function MemberEditModal({
   };
 
   const save = async () => {
+    if (!draft.name.trim()) { setStatus({ ok: false, msg: L("이름을 입력해 주세요.", "Please enter a name.") }); return; }
     onSaveProfile(draft);
     if (linkMemberId && onLink) {
       setBusy(true);
@@ -90,6 +91,7 @@ export default function MemberEditModal({
   };
 
   const invite = async () => {
+    if (!draft.name.trim()) { setStatus({ ok: false, msg: L("이름을 입력해 주세요.", "Please enter a name.") }); return; }
     if (!draft.email) { setStatus({ ok: false, msg: L("이메일을 먼저 입력해 주세요.", "Please enter an email first.") }); return; }
     setBusy(true);
     onSaveProfile(draft); // author_id 정합성 위해 프로필 먼저 저장
@@ -145,7 +147,7 @@ export default function MemberEditModal({
       )}
 
       <div className={styles.authorCardFields}>
-        <Field label={L("이름", "Name")} value={draft.name} onChange={(v) => set({ name: v })} />
+        <Field label={L("이름", "Name")} value={draft.name} onChange={(v) => set({ name: v })} required />
         <Field label={L("아바타 URL", "Avatar URL")} value={draft.avatar} onChange={(v) => set({ avatar: v })} placeholder="https://..." maxHint={null} />
         <Field label={L("역할", "Role")} value={draft.role} onChange={(v) => set({ role: v })} placeholder={L("예: 프론트엔드 개발자", "e.g. Frontend Developer")} />
         <Field label={L("이메일", "Email")} value={draft.email} onChange={(v) => set({ email: v })} placeholder="name@example.com" maxHint={null} />
@@ -218,7 +220,7 @@ export default function MemberEditModal({
       {footerEl && createPortal(
         <>
           <Button variant="outline" size="sm" soundDisabled onClick={() => closeModal("member-edit")}>{L("취소", "Cancel")}</Button>
-          <Button variant="primary" size="sm" soundDisabled disabled={busy} onClick={save}>{L("저장", "Save")}</Button>
+          <Button variant="primary" size="sm" soundDisabled disabled={busy || !draft.name.trim()} onClick={save}>{L("저장", "Save")}</Button>
         </>,
         footerEl,
       )}

@@ -21,6 +21,8 @@ export interface SettingsTabProps {
   resetSection: (paths: string[]) => void;
   /** 현재 저장 중인 paths (UI 비활성/스피너용). null 이면 idle. */
   savingPaths: string[] | null;
+  /** 현재 탭의 필수값 위반 메시지 (없으면 null). 있으면 섹션 저장 버튼도 비활성화. */
+  validationError?: string | null;
 }
 
 /** 카테고리·태그가 사용된 게시물 정보 — CategoriesEditor · ContentTab 리스트 공용 */

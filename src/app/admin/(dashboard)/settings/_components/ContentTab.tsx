@@ -65,6 +65,7 @@ export default function ContentTab({
   revertSection,
   resetSection,
   savingPaths,
+  validationError,
   profileData,
   setProfileData,
   profileExpanded,
@@ -75,7 +76,7 @@ export default function ContentTab({
   const { t, language } = useLanguage();
   const { theme } = useTheme();
 
-  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, titleClassName: styles.sectionTitle };
+  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: styles.sectionTitle };
 
   /* Hero 배경 color picker 빈 값 fallback — 실제 패널 표면색 (테마 변수) 를 표시. */
   const [themeBg, setThemeBg] = useState<{ primary: string; secondary: string; accent: string }>({ primary: "#ffffff", secondary: "#f5f5f5", accent: "#d01046" });

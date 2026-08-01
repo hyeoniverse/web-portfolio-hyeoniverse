@@ -46,6 +46,8 @@ interface SectionHeaderProps {
   resetForceEnabled?: boolean;
   /** 기본값(reset) 버튼 클릭 시 resetSection(paths) 대신 실행할 커스텀 핸들러. */
   onResetOverride?: () => void;
+  /** 현재 탭에 필수값 위반이 있으면 저장 버튼 비활성화 (빈값 저장 차단 — saveSection 가드와 동일 규칙). */
+  validationError?: string | null;
 }
 
 export default function SectionHeader({
@@ -69,6 +71,7 @@ export default function SectionHeader({
   customActions,
   resetForceEnabled = false,
   onResetOverride,
+  validationError,
 }: SectionHeaderProps) {
   const { t } = useLanguage();
 
@@ -123,7 +126,7 @@ export default function SectionHeader({
           <Button
             variant="outline"
             size="2xs"
-            disabled={!dirty || isSavingOther}
+            disabled={!dirty || isSavingOther || !!validationError}
             loading={isSavingThis}
             loadingVariant="wave"
             onClick={async () => {

@@ -390,9 +390,43 @@ export default function SettingsPage() {
     });
   }, []);
 
+  /* 필수값 검사 — 현재 탭 기준. 빈값이면 전역 "저장" 버튼 disable + 섹션 저장도 차단(아래 saveSection).
+     하드 강제는 API(validateRequiredSettings) · DB CHECK 가 담당하고, 여기선 UX 용 사전 차단. */
+  const validationError = useMemo(() => {
+    if (activeTab === "general") {
+      if (!String(config.personal?.name ?? "").trim()) return t("admin.settings.nameRequired");
+      if (!String(config.metadata?.title ?? "").trim()) return t("admin.settings.siteTitleRequired");
+      const email = String(config.contact?.email ?? "").trim();
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return t("admin.settings.emailInvalid");
+    }
+    if (activeTab === "appearance") {
+      const th = (config.theme ?? {}) as Record<string, unknown>;
+      const colors: Array<[string, string]> = [
+        ["accentColor", "액센트 색상"], ["lightBg", "라이트 배경색"], ["lightText", "라이트 텍스트색"],
+        ["darkBg", "다크 배경색"], ["darkText", "다크 텍스트색"],
+      ];
+      for (const [k, label] of colors) {
+        if (!String(th[k] ?? "").trim()) return `${label}을(를) 비워둘 수 없습니다.`;
+      }
+    }
+    if (activeTab === "services") {
+      if (config.comments?.provider === "giscus") {
+        const g = (config.comments?.giscus ?? {}) as Record<string, unknown>;
+        const req: Array<[string, string]> = [["repo", "repo"], ["repoId", "repoId"], ["category", "category"], ["categoryId", "categoryId"]];
+        for (const [k, label] of req) {
+          if (!String(g[k] ?? "").trim()) return `giscus ${label}을(를) 입력해야 합니다. (giscus 사용 시 필수)`;
+        }
+      }
+    }
+    return null;
+  }, [activeTab, config, t]);
+
   /** 특정 dot-path 들만 부분 저장 — 섹션 헤더의 저장 버튼이 호출 */
   const saveSection = useCallback(async (paths: string[]) => {
     if (paths.length === 0) return;
+    // 빈 필수값이면 섹션 저장도 막는다 (전역 저장 버튼과 동일 규칙 — 섹션 저장이 검증을 우회하던 버그 차단).
+    // validationError 메시지는 이미 화면에 표시 중이라 여기선 조용히 중단만 한다.
+    if (validationError) return;
     setSavingPaths(paths);
     setMessage("");
     try {
@@ -420,7 +454,7 @@ export default function SettingsPage() {
     } finally {
       setSavingPaths(null);
     }
-  }, [config, saveDelta, t]);
+  }, [config, saveDelta, t, validationError]);
 
   // 단일 충돌 resolve (머지 결과 적용)
   const resolveConflict = useCallback(async (c: ConfigConflict, mergedValue: unknown) => {
@@ -479,16 +513,6 @@ export default function SettingsPage() {
     if (activeTab === "content" && !deepEqual(profileData, savedProfileRef.current)) return true;
     return false;
   }, [activeTab, config, profileData]);
-
-  const validationError = useMemo(() => {
-    if (activeTab === "general") {
-      if (!String(config.personal?.name ?? "").trim()) return t("admin.settings.nameRequired");
-      if (!String(config.metadata?.title ?? "").trim()) return t("admin.settings.siteTitleRequired");
-      const email = String(config.contact?.email ?? "").trim();
-      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return t("admin.settings.emailInvalid");
-    }
-    return null;
-  }, [activeTab, config, t]);
 
   const update = <S extends keyof SiteConfigData>(
     section: S,
@@ -828,7 +852,7 @@ export default function SettingsPage() {
             <>
               {activeTab === "general" && (
                 <div className={styles.tabGrid}>
-                  <GeneralTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} />
+                  <GeneralTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} validationError={validationError} />
                 </div>
               )}
               {activeTab === "content" && (
@@ -841,6 +865,7 @@ export default function SettingsPage() {
                     saveSection={saveSection}
                     revertSection={revertSection} resetSection={resetSection}
                     savingPaths={savingPaths}
+                    validationError={validationError}
                     setConfig={setConfig}
                     profileData={profileData}
                     setProfileData={setProfileData}
@@ -853,12 +878,12 @@ export default function SettingsPage() {
               )}
               {activeTab === "appearance" && (
                 <div className={styles.tabGrid}>
-                  <AppearanceTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} setConfig={setConfig} />
+                  <AppearanceTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} setConfig={setConfig} validationError={validationError} />
                 </div>
               )}
               {activeTab === "services" && (
                 <div className={styles.tabGrid}>
-                  <ServicesTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} setConfig={setConfig} />
+                  <ServicesTab config={config} savedConfig={savedConfigRef.current} update={update} saveSection={saveSection} revertSection={revertSection} resetSection={resetSection} savingPaths={savingPaths} setConfig={setConfig} validationError={validationError} />
                 </div>
               )}
               {activeTab === "account" && (

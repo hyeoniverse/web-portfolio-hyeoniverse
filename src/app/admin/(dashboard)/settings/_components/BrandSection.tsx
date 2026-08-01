@@ -153,10 +153,10 @@ function FaviconPreviewSvg({ render, textShadowId, bgShadowId }: {
   );
 }
 
-export default function BrandSection({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths, setConfig }: BrandSectionProps) {
+export default function BrandSection({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths, setConfig, validationError }: BrandSectionProps) {
   const { t } = useLanguage();
 
-  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, titleClassName: shared.sectionTitle };
+  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: shared.sectionTitle };
 
   const presets: LogoColorPreset[] = config.brand.logoColorPresets ?? LOGO_COLOR_PRESETS_FALLBACK;
   const currentLight = config.brand.logoColor;

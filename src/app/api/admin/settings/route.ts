@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { checkAboutErd } from "@/lib/api/validateAboutErd";
+import { checkRequiredSettings } from "@/lib/api/validateRequiredSettings";
 import { getUserRole } from "@/lib/api/roles";
 import { notifyAdmin } from "@/lib/adminNotify";
 import { getTabForConfigPath } from "@/app/admin/(dashboard)/settings/_data/settingsConstants";
@@ -97,6 +98,9 @@ export async function PATCH(request: Request) {
      사유를 error 에 담아야 설정 화면 저장 실패 메시지에 그대로 노출된다. */
   const erdViolation = checkAboutErd(body.config);
   if (erdViolation) return NextResponse.json({ error: erdViolation }, { status: 400 });
+
+  const requiredViolation = checkRequiredSettings(body.config);
+  if (requiredViolation) return NextResponse.json({ error: requiredViolation }, { status: 400 });
 
   const admin = createAdminClient();
 
