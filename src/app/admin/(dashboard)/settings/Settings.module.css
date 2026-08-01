@@ -1620,22 +1620,6 @@
 
 /* built-in chip 이 비활성 풀로 drop 됐을 때 잠깐 흔들림 — 비활성화 불가 시각 피드백 */
 
-@keyframes sizeChipShakeKf {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  15%,
-  45%,
-  75% {
-    transform: translateX(-3px);
-  }
-  30%,
-  60%,
-  90% {
-    transform: translateX(3px);
-  }
-}
 
 /* 사용자 정의 MIME 추가 UI — input + size Select + add 버튼 */
 

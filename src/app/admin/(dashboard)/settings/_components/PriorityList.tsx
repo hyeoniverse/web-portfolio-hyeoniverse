@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import type { SelectOption } from "@/types";
 import { ChevronUp, ChevronDown, GripDotsIcon } from "@/components/icons";
 import Checkbox from "@/components/ui/Checkbox";
-import styles from "./ServicesTab.module.css";
+import styles from "./PriorityList.module.css";
 import shared from "../Settings.module.css";
 
 interface PriorityListProps<T extends string> {

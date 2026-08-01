@@ -1,0 +1,89 @@
+/* PriorityList 전용 스타일 (ServicesTab.module.css 에서 분리) */
+
+.priorityList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.priorityList :is(input, .priorityItem) {
+  width: 100%;
+}
+
+.priorityRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.priorityItem {
+  width: 280px;
+  max-width: 100%;
+  min-width: 0;
+  height: var(--control-h-md);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+}
+
+.priorityItemOver {
+  border-color: var(--text-accent);
+  background: var(--bg-accent-subtle);
+}
+
+.priorityBadge {
+  width: var(--control-h-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  border-right: var(--border-light);
+  background: var(--bg-tertiary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.priorityLabel {
+  flex: 1;
+  padding: var(--box-xs-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.priorityLabelDisabled {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.priorityGrip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--control-h-md);
+  padding: 0;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.priorityGrip:active {
+  cursor: grabbing;
+}
+
+.priorityBtns {
+  display: flex;
+  flex-shrink: 0;
+  align-self: stretch;
+  border-left: var(--border-light);
+}
