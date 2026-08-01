@@ -746,10 +746,12 @@
       "logoRecolor": "로고 색",
       "logoOriginal": "원본",
       "faviconLogoShadow": "로고 그림자",
+      "navLogoShadow": "Nav·로딩 로고 그림자",
+      "navLogoShadowHint": "미설정 시 아래 favicon 로고 그림자를 그대로 상속합니다.",
       "faviconImageOptions": "업로드 favicon 옵션",
       "faviconImageBgPlaceholder": "투명",
       "uploadedLogoOptions": "업로드 로고 옵션",
-      "uploadedLogoOptionsHint": "배경은 favicon(브라우저 탭)에만, 그림자는 모든 업로드 로고에 적용됩니다.",
+      "uploadedLogoOptionsHint": "배경은 favicon(브라우저 탭)에만 적용됩니다. 그림자는 nav·로딩 로고와 favicon 을 따로 설정할 수 있습니다.",
       "wcagHelp": "WCAG는 웹 콘텐츠 접근성 지침입니다. 이 값은 로고 색과 배경의 대비율이며, 높을수록 잘 읽힙니다. 7:1 이상은 AAA, 4.5:1 이상은 AA, 3:1 이상은 그래픽 최소 기준을 만족하고, 3:1 미만은 미달입니다."
     },
     "posts": {

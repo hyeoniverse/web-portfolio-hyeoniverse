@@ -55,21 +55,26 @@ export function FaviconShadowControls({
   t,
   textLabel,
   bgLabel,
+  single = false,
 }: {
   textShadow: FaviconShadow;
-  bgShadow: FaviconShadow;
+  bgShadow?: FaviconShadow;
   onChangeText: (v: FaviconShadow) => void;
-  onChangeBg: (v: FaviconShadow) => void;
+  onChangeBg?: (v: FaviconShadow) => void;
   t: TFunction;
   textLabel?: string;
   bgLabel?: string;
+  /** 단일 그림자 모드 — text/bg 탭 없이 그림자 하나만 편집(배경 없는 nav 로고용) */
+  single?: boolean;
 }) {
   const [tab, setTab] = useState<"text" | "bg">("text");
   // 드래그 중엔 로컬 drag 값으로 미리보기(이 컴포넌트)만 갱신 → 가볍다. 놓을 때 config 에 commit.
   const [drag, setDrag] = useState<{ angle: string; blur: string; hx: number; hy: number } | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
-  const value = tab === "text" ? textShadow : bgShadow;
-  const onChange = tab === "text" ? onChangeText : onChangeBg;
+  // single 모드면 항상 text(단일) 그림자만 편집. bg 는 favicon 처럼 배경 rect 있을 때만 의미.
+  const useBg = !single && tab === "bg";
+  const value = useBg ? bgShadow! : textShadow;
+  const onChange = useBg ? onChangeBg! : onChangeText;
   const angle = drag?.angle ?? (value.angle || "135");
   const sizeBlur = drag?.blur ?? (value.size === "custom" ? value.custom : (FAVICON_SIZE_BLUR[value.size] ?? "2"));
   const blurN = parseFloat(sizeBlur) || 2;
@@ -142,15 +147,19 @@ export function FaviconShadowControls({
   return (
     <div className={styles.faviconShadowCard}>
       <div className={styles.faviconShadowHead}>
-        <SegmentedControl<"text" | "bg">
-          size="md"
-          items={[
-            { value: "text", label: textLabel ?? t("admin.settings.faviconTextShadow") },
-            { value: "bg", label: bgLabel ?? t("admin.settings.faviconBgShadow") },
-          ]}
-          value={tab}
-          onChange={setTab}
-        />
+        {single ? (
+          <span className={styles.faviconShadowSingleLabel}>{textLabel ?? t("admin.settings.faviconTextShadow")}</span>
+        ) : (
+          <SegmentedControl<"text" | "bg">
+            size="md"
+            items={[
+              { value: "text", label: textLabel ?? t("admin.settings.faviconTextShadow") },
+              { value: "bg", label: bgLabel ?? t("admin.settings.faviconBgShadow") },
+            ]}
+            value={tab}
+            onChange={setTab}
+          />
+        )}
         <Switch
           checked={value.enabled}
           onCheckedChange={(v) => onChange({ ...value, enabled: v })}
