@@ -4,6 +4,8 @@ import { type Dispatch, type SetStateAction, useState } from "react";
 import { ADDABLE_MIME_GROUPS, DEFAULT_LIMIT_GROUPS, MIME_ADDABLE_GROUP_KEY, MIME_GROUP_ICON, MIME_GROUP_ORDER, type MimeGroupKey, SIZE_OPTIONS } from "../_data/servicesUploadConfig";
 import { Plus } from "@/components/icons";
 import Select from "@/components/ui/Select";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import type { SiteConfigData } from "@/config/site.config";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
@@ -306,19 +308,17 @@ function CustomMimeAdder({
     <div className={styles.customMimeAdder}>
       <span className={styles.customMimeLabel}>{t("admin.settings.customMimeAdd")}</span>
       <div className={styles.customMimeRow}>
-        <input
-          className={styles.customMimeInput}
-          type="text"
+        <Input
+          size="sm"
           value={mime}
-          onChange={(e) => { setMime(e.target.value); if (error) setError(""); }}
+          onChange={(v) => { setMime(v); if (error) setError(""); }}
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAdd(); } }}
           placeholder={t("admin.settings.customMimePlaceholder")}
         />
         <Select size="sm" value={size} options={SIZE_OPTIONS} onChange={setSize} />
-        <button type="button" className={shared.customMimeAddBtn} onClick={handleAdd}>
-          <Plus size={12} strokeWidth={2.4} />
+        <Button variant="outline" size="sm" icon={<Plus size={12} strokeWidth={2.4} />} onClick={handleAdd}>
           {t("admin.settings.add")}
-        </button>
+        </Button>
       </div>
       {error && <p className={styles.customMimeError}>{error}</p>}
     </div>

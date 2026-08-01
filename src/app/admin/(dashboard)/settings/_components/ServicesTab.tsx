@@ -437,13 +437,9 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                     {giscusLoading ? t("admin.settings.giscusLoading") : t("admin.settings.giscusLoadRepo")}
                   </Button>
                   {needsToken
-                    ? <button
-                        type="button"
-                        onClick={goToGithubTokenField}
-                        style={{ fontSize: "var(--font-size-xs)", color: "var(--text-accent)", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline", textAlign: "left" }}
-                      >
+                    ? <Button variant="link" size="xs" onClick={goToGithubTokenField}>
                         {t("admin.settings.giscusNeedsToken")}
-                      </button>
+                      </Button>
                     : giscusErr
                       ? <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-error)" }}>{giscusErr}</span>
                       : giscusCats.length > 0
