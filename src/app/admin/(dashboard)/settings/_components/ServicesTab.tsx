@@ -13,6 +13,7 @@ import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import type { SettingsTabProps } from "../_types";
+import type { SelectOption } from "@/types";
 import Field, { FieldHelp } from "./SettingsFormFields";
 import EnvVarFields from "./EnvVarFields";
 import SectionHeader from "./SectionHeader";
@@ -118,6 +119,121 @@ function GiscusThemeField({ label, value, defaultPreset, customLabel, urlPlaceho
         <Field label={customLabel} value={value} onChange={onChange} placeholder={urlPlaceholder} maxHint={null} />
       )}
     </>
+  );
+}
+
+/** provider + fallback 우선순위 config 슬라이스 공통 형태 (aiCover·aiSummary·translation) */
+type ProviderFallback<P extends string> = {
+  enabled?: boolean;
+  provider?: P;
+  fallback?: { enabled?: boolean; priority?: P[]; excluded?: P[] };
+};
+
+/** SectionHeader 로 그대로 전달하는 저장/타이틀 공통 props(sh 번들) */
+type SectionShared = {
+  config: SiteConfigData;
+  savedConfig: SiteConfigData;
+  saveSection: (paths: string[]) => Promise<void>;
+  revertSection?: (paths: string[]) => void;
+  resetSection?: (paths: string[]) => void;
+  savingPaths: string[] | null;
+  titleClassName?: string;
+};
+
+/**
+ * provider 선택 + fallback 우선순위 리스트 섹션 — aiCover·aiSummary·translation 이 동일 구조라 하나로.
+ * provider 를 바꾸면 이전 provider 를 fallback priority 로 편입(reconcile), fallback 켜면 나머지 provider 로 기본 우선순위 구성.
+ * onChange 는 setConfig 처럼 updater(prev)→next 를 받아 최신 슬라이스 기준으로 갱신한다.
+ */
+function ProviderFallbackSection<P extends string>({
+  t, sh, title, paths, providerLabelKey, options, defaultProvider, value, onChange, borderless, children,
+}: {
+  t: TFunction;
+  sh: SectionShared;
+  title: string;
+  paths: string[];
+  providerLabelKey: string;
+  options: SelectOption<P>[];
+  defaultProvider: P;
+  value: ProviderFallback<P> | undefined;
+  onChange: (updater: (prev: ProviderFallback<P> | undefined) => ProviderFallback<P>) => void;
+  borderless?: boolean;
+  children?: React.ReactNode;
+}) {
+  const provider = value?.provider ?? defaultProvider;
+  const fallbackEnabled = value?.fallback?.enabled ?? false;
+  return (
+    <section className={shared.section} style={borderless ? { borderBottom: "none" } : undefined}>
+      <SectionHeader
+        title={title}
+        paths={paths}
+        rowClassName={shared.sectionTitleRow}
+        extra={
+          <Switch
+            size="sm"
+            showStateText
+            checked={value?.enabled !== false}
+            onCheckedChange={(v) => onChange((prev) => ({ ...prev, enabled: v }))}
+          />
+        }
+        {...sh}
+      />
+      <div className={`${shared.fields} ${shared.fieldPair}`}>
+        <FieldRow label={<T k={providerLabelKey} />}>
+          <Select
+            value={provider}
+            options={options}
+            onChange={(v) => {
+              const newProvider = v as P;
+              onChange((prev) => {
+                const oldProvider = prev?.provider ?? defaultProvider;
+                const oldPriority = prev?.fallback?.priority ?? [];
+                const newPriority = [
+                  ...oldPriority.filter((p) => p !== newProvider),
+                  ...(oldPriority.includes(oldProvider) ? [] : [oldProvider]),
+                ].filter((p) => p !== newProvider);
+                return {
+                  ...prev,
+                  provider: newProvider,
+                  fallback: prev?.fallback ? { ...prev.fallback, priority: newPriority } : prev?.fallback,
+                };
+              });
+            }}
+          />
+        </FieldRow>
+        <Switch
+          size="sm"
+          showStateText
+          label={t("admin.settings.fallbackEnabled")}
+          labelPosition="top"
+          checked={fallbackEnabled}
+          onCheckedChange={(v) => {
+            const defaultPriority = options.filter((o) => o.value !== provider).map((o) => o.value);
+            onChange((prev) => ({
+              ...prev,
+              fallback: {
+                enabled: v,
+                priority: prev?.fallback?.priority?.length ? prev.fallback.priority : defaultPriority,
+                excluded: prev?.fallback?.excluded ?? [],
+              },
+            }));
+          }}
+        />
+        {fallbackEnabled && (
+          <div className={shared.fallbackSection}>
+            <PriorityList<P>
+              primary={provider}
+              priority={value?.fallback?.priority ?? []}
+              excluded={value?.fallback?.excluded ?? []}
+              options={options}
+              onChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: true, priority: next } }))}
+              onExcludedChange={(next) => onChange((prev) => ({ ...prev, fallback: { ...prev?.fallback, enabled: true, excluded: next } }))}
+            />
+          </div>
+        )}
+        {children}
+      </div>
+    </section>
   );
 }
 
@@ -521,299 +637,48 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
       </section>
 
       {/* AI Cover */}
-      <section className={shared.section} style={{ borderBottom: "none" }}>
-        <SectionHeader
-          title={t("admin.settings.aiSettings")}
-          paths={["aiCover"]}
-          rowClassName={shared.sectionTitleRow}
-          extra={
-            <Switch
-              size="sm"
-              showStateText
-              checked={config.aiCover?.enabled !== false}
-              onCheckedChange={(v) => setConfig((prev) => ({ ...prev, aiCover: { ...prev.aiCover, enabled: v } }))}
-            />
-          }
-          {...sh}
-        />
-        <div className={`${shared.fields} ${shared.fieldPair}`}>
-          <FieldRow label={<T k="admin.settings.aiCoverProvider" />}>
-            <Select
-              value={config.aiCover.provider}
-              options={AI_COVER_OPTIONS}
-              onChange={(v) => {
-                const newProvider = v as AICoverProvider;
-                setConfig((prev) => {
-                  const oldProvider = (prev.aiCover?.provider ?? "nanobanana") as AICoverProvider;
-                  const oldPriority = (prev.aiCover?.fallback?.priority ?? []) as AICoverProvider[];
-                  const newPriority = [
-                    ...oldPriority.filter((p) => p !== newProvider),
-                    ...(oldPriority.includes(oldProvider) ? [] : [oldProvider]),
-                  ].filter((p) => p !== newProvider);
-                  return {
-                    ...prev,
-                    aiCover: {
-                      ...prev.aiCover,
-                      provider: newProvider,
-                      fallback: prev.aiCover?.fallback ? { ...prev.aiCover.fallback, priority: newPriority } : prev.aiCover?.fallback,
-                    },
-                  };
-                });
-              }}
-            />
-          </FieldRow>
-          <Switch
-            size="sm"
-            showStateText
-            label={t("admin.settings.fallbackEnabled")}
-            labelPosition="top"
-            checked={config.aiCover?.fallback?.enabled ?? false}
-            onCheckedChange={(v) => {
-              const defaultPriority = AI_COVER_OPTIONS
-                .filter((o) => o.value !== (config.aiCover?.provider ?? "nanobanana"))
-                .map((o) => o.value) as AICoverProvider[];
-              setConfig((prev) => ({
-                ...prev,
-                aiCover: {
-                  ...prev.aiCover,
-                  fallback: {
-                    enabled: v,
-                    priority: prev.aiCover?.fallback?.priority?.length
-                      ? prev.aiCover.fallback.priority
-                      : defaultPriority,
-                    excluded: prev.aiCover?.fallback?.excluded ?? [],
-                  },
-                },
-              }));
-            }}
-          />
-          {(config.aiCover?.fallback?.enabled) && (
-            <div className={shared.fallbackSection}>
-              <PriorityList<AICoverProvider>
-                primary={(config.aiCover?.provider ?? "nanobanana") as AICoverProvider}
-                priority={(config.aiCover?.fallback?.priority ?? []) as AICoverProvider[]}
-                excluded={(config.aiCover?.fallback?.excluded ?? []) as AICoverProvider[]}
-                options={AI_COVER_OPTIONS}
-                onChange={(next) =>
-                  setConfig((prev) => ({
-                    ...prev,
-                    aiCover: {
-                      ...prev.aiCover,
-                      fallback: { ...prev.aiCover?.fallback, enabled: true, priority: next },
-                    },
-                  }))
-                }
-                onExcludedChange={(next) =>
-                  setConfig((prev) => ({
-                    ...prev,
-                    aiCover: {
-                      ...prev.aiCover,
-                      fallback: { ...prev.aiCover?.fallback, enabled: true, excluded: next },
-                    },
-                  }))
-                }
-              />
-            </div>
-          )}
-
-          {/* 자동 cover (Unsplash/Pexels 키워드 기반) — 기존 발행 글 일괄 적용 */}
-          <AutoCoverMigrator t={t} />
-        </div>
-      </section>
+      <ProviderFallbackSection<AICoverProvider>
+        t={t}
+        sh={sh}
+        title={t("admin.settings.aiSettings")}
+        paths={["aiCover"]}
+        providerLabelKey="admin.settings.aiCoverProvider"
+        options={AI_COVER_OPTIONS}
+        defaultProvider="nanobanana"
+        value={config.aiCover as ProviderFallback<AICoverProvider>}
+        onChange={(u) => setConfig((prev) => ({ ...prev, aiCover: u(prev.aiCover as ProviderFallback<AICoverProvider>) as typeof prev.aiCover }))}
+        borderless
+      >
+        {/* 자동 cover (Unsplash/Pexels 키워드 기반) — 기존 발행 글 일괄 적용 */}
+        <AutoCoverMigrator t={t} />
+      </ProviderFallbackSection>
 
       {/* AI Summary */}
-      <section className={shared.section}>
-        <SectionHeader
-          title={t("admin.settings.aiSummarySettings")}
-          paths={["aiSummary"]}
-          rowClassName={shared.sectionTitleRow}
-          extra={
-            <Switch
-              size="sm"
-              showStateText
-              checked={config.aiSummary?.enabled !== false}
-              onCheckedChange={(v) => setConfig((prev) => ({ ...prev, aiSummary: { ...prev.aiSummary, enabled: v } }))}
-            />
-          }
-          {...sh}
-        />
-        <div className={`${shared.fields} ${shared.fieldPair}`}>
-          <FieldRow label={<T k="admin.settings.aiSummaryProvider" />}>
-            <Select
-              value={config.aiSummary?.provider ?? "gemini"}
-              options={AI_SUMMARY_OPTIONS}
-              onChange={(v) => {
-                const newProvider = v as AISummaryProvider;
-                setConfig((prev) => {
-                  const oldProvider = (prev.aiSummary?.provider ?? "gemini") as AISummaryProvider;
-                  const oldPriority = (prev.aiSummary?.fallback?.priority ?? []) as AISummaryProvider[];
-                  const newPriority = [
-                    ...oldPriority.filter((p) => p !== newProvider),
-                    ...(oldPriority.includes(oldProvider) ? [] : [oldProvider]),
-                  ].filter((p) => p !== newProvider);
-                  return {
-                    ...prev,
-                    aiSummary: {
-                      ...prev.aiSummary,
-                      provider: newProvider,
-                      fallback: prev.aiSummary?.fallback ? { ...prev.aiSummary.fallback, priority: newPriority } : prev.aiSummary?.fallback,
-                    },
-                  };
-                });
-              }}
-            />
-          </FieldRow>
-          <Switch
-            size="sm"
-            label={t("admin.settings.fallbackEnabled")}
-            labelPosition="top"
-            checked={config.aiSummary?.fallback?.enabled ?? false}
-            onCheckedChange={(v) => {
-              const defaultPriority = AI_SUMMARY_OPTIONS
-                .filter((o) => o.value !== (config.aiSummary?.provider ?? "gemini"))
-                .map((o) => o.value) as AISummaryProvider[];
-              setConfig((prev) => ({
-                ...prev,
-                aiSummary: {
-                  ...prev.aiSummary,
-                  fallback: {
-                    enabled: v,
-                    priority: prev.aiSummary?.fallback?.priority?.length
-                      ? prev.aiSummary.fallback.priority
-                      : defaultPriority,
-                    excluded: prev.aiSummary?.fallback?.excluded ?? [],
-                  },
-                },
-              }));
-            }}
-          />
-          {(config.aiSummary?.fallback?.enabled) && (
-            <div className={shared.fallbackSection}>
-              <PriorityList<AISummaryProvider>
-                primary={(config.aiSummary?.provider ?? "gemini") as AISummaryProvider}
-                priority={(config.aiSummary?.fallback?.priority ?? []) as AISummaryProvider[]}
-                excluded={(config.aiSummary?.fallback?.excluded ?? []) as AISummaryProvider[]}
-                options={AI_SUMMARY_OPTIONS}
-                onChange={(next) =>
-                  setConfig((prev) => ({
-                    ...prev,
-                    aiSummary: {
-                      ...prev.aiSummary,
-                      fallback: { ...prev.aiSummary?.fallback, enabled: true, priority: next },
-                    },
-                  }))
-                }
-                onExcludedChange={(next) =>
-                  setConfig((prev) => ({
-                    ...prev,
-                    aiSummary: {
-                      ...prev.aiSummary,
-                      fallback: { ...prev.aiSummary?.fallback, enabled: true, excluded: next },
-                    },
-                  }))
-                }
-              />
-            </div>
-          )}
-        </div>
-      </section>
+      <ProviderFallbackSection<AISummaryProvider>
+        t={t}
+        sh={sh}
+        title={t("admin.settings.aiSummarySettings")}
+        paths={["aiSummary"]}
+        providerLabelKey="admin.settings.aiSummaryProvider"
+        options={AI_SUMMARY_OPTIONS}
+        defaultProvider="gemini"
+        value={config.aiSummary as ProviderFallback<AISummaryProvider>}
+        onChange={(u) => setConfig((prev) => ({ ...prev, aiSummary: u(prev.aiSummary as ProviderFallback<AISummaryProvider>) as typeof prev.aiSummary }))}
+      />
 
       {/* Translation */}
-      <section className={shared.section} style={{ borderBottom: "none" }}>
-        <SectionHeader
-          title={t("admin.settings.translationSettings")}
-          paths={["translation"]}
-          rowClassName={shared.sectionTitleRow}
-          extra={
-            <Switch
-              size="sm"
-              showStateText
-              checked={config.translation?.enabled !== false}
-              onCheckedChange={(v) => setConfig((prev) => ({ ...prev, translation: { ...prev.translation, enabled: v } }))}
-            />
-          }
-          {...sh}
-        />
-        <div className={`${shared.fields} ${shared.fieldPair}`}>
-          <FieldRow label={<T k="admin.settings.translationProvider" />}>
-            <Select
-              value={config.translation?.provider ?? "deepl"}
-              options={TRANSLATION_OPTIONS}
-              onChange={(v) => {
-                const newProvider = v as TranslationProvider;
-                setConfig((prev) => {
-                  const oldProvider = (prev.translation?.provider ?? "deepl") as TranslationProvider;
-                  const oldPriority = (prev.translation?.fallback?.priority ?? []) as TranslationProvider[];
-                  const newPriority = [
-                    ...oldPriority.filter((p) => p !== newProvider),
-                    ...(oldPriority.includes(oldProvider) ? [] : [oldProvider]),
-                  ].filter((p) => p !== newProvider);
-                  return {
-                    ...prev,
-                    translation: {
-                      ...prev.translation,
-                      provider: newProvider,
-                      fallback: prev.translation?.fallback ? { ...prev.translation.fallback, priority: newPriority } : prev.translation?.fallback,
-                    },
-                  };
-                });
-              }}
-            />
-          </FieldRow>
-          <Switch
-            size="sm"
-            label={t("admin.settings.fallbackEnabled")}
-            labelPosition="top"
-            checked={config.translation?.fallback?.enabled ?? false}
-            onCheckedChange={(v) => {
-              const defaultPriority = TRANSLATION_OPTIONS
-                .filter((o) => o.value !== (config.translation?.provider ?? "deepl"))
-                .map((o) => o.value) as TranslationProvider[];
-              setConfig((prev) => ({
-                ...prev,
-                translation: {
-                  ...prev.translation,
-                  fallback: {
-                    enabled: v,
-                    priority: prev.translation?.fallback?.priority?.length
-                      ? prev.translation.fallback.priority
-                      : defaultPriority,
-                    excluded: prev.translation?.fallback?.excluded ?? [],
-                  },
-                },
-              }));
-            }}
-          />
-          {(config.translation?.fallback?.enabled) && (
-            <div className={shared.fallbackSection}>
-              <PriorityList<TranslationProvider>
-                primary={(config.translation?.provider ?? "deepl") as TranslationProvider}
-                priority={(config.translation?.fallback?.priority ?? []) as TranslationProvider[]}
-                excluded={(config.translation?.fallback?.excluded ?? []) as TranslationProvider[]}
-                options={TRANSLATION_OPTIONS}
-                onChange={(next) =>
-                  setConfig((prev) => ({
-                    ...prev,
-                    translation: {
-                      ...prev.translation,
-                      fallback: { ...prev.translation?.fallback, enabled: true, priority: next },
-                    },
-                  }))
-                }
-                onExcludedChange={(next) =>
-                  setConfig((prev) => ({
-                    ...prev,
-                    translation: {
-                      ...prev.translation,
-                      fallback: { ...prev.translation?.fallback, enabled: true, excluded: next },
-                    },
-                  }))
-                }
-              />
-            </div>
-          )}
-        </div>
-      </section>
+      <ProviderFallbackSection<TranslationProvider>
+        t={t}
+        sh={sh}
+        title={t("admin.settings.translationSettings")}
+        paths={["translation"]}
+        providerLabelKey="admin.settings.translationProvider"
+        options={TRANSLATION_OPTIONS}
+        defaultProvider="deepl"
+        value={config.translation as ProviderFallback<TranslationProvider>}
+        onChange={(u) => setConfig((prev) => ({ ...prev, translation: u(prev.translation as ProviderFallback<TranslationProvider>) as typeof prev.translation }))}
+        borderless
+      />
 
       {/* Environment Variables — 자체 PATCH API 로 별도 저장. SectionHeader 는 EnvVarFields 내부에서 customActions 로 렌더 → 액션 버튼이 title 라인에 위치. */}
       <section className={`${shared.section} ${shared.sectionWide}`}>
