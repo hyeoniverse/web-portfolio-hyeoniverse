@@ -21,6 +21,7 @@ import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import { List, ListItem } from "@/app/admin/(dashboard)/components";
 import type { AdminPostUsageInfo, PostMetaInfo } from "../_types";
+import { formatAdminShortDate } from "@/utils/format";
 import shared from "../Settings.module.css";
 import own from "./TagDescriptionsEditor.module.css";
 
@@ -63,14 +64,33 @@ type SavedTagValue = Record<string, SavedTagMeta>;
    tag canonical key 는 post.tags 와 매칭되는 string. 편집은 표시이름(ko/en) + 설명(ko/en) 만. */
 /** 게시물 리스트 row 의 메타 데이터 (발행상태 / 날짜 / 조회수) */
 function PostMeta({ p }: { p: PostMetaInfo }) {
-  const date = p.published_at || p.created_at;
-  const dateStr = date ? new Date(date).toLocaleDateString("ko-KR", { year: "2-digit", month: "2-digit", day: "2-digit" }).replace(/\.\s/g, ".").replace(/\.$/, "") : "";
+  const dateStr = formatAdminShortDate(p.published_at || p.created_at);
   return (
     <span className={styles.tagRelatedMeta}>
       {!p.published && <span className={styles.tagRelatedMetaDraft}>draft</span>}
       {dateStr && <span>{dateStr}</span>}
       {typeof p.view_count === "number" && p.view_count > 0 && <span>{p.view_count} views</span>}
     </span>
+  );
+}
+
+/** 태그가 쓰인 게시물 목록 — 편집 링크 + 메타. emptyLabel 없으면 빈 목록은 비워둔다. */
+function RelatedPostList({ posts, emptyLabel }: { posts: AdminPostUsageInfo[]; emptyLabel?: string }) {
+  return (
+    <List className={styles.tagRelatedPosts} data-lenis-prevent>
+      {posts.length === 0 && emptyLabel ? (
+        <ListItem className={styles.tagRelatedEmpty}>{emptyLabel}</ListItem>
+      ) : (
+        posts.map((p) => (
+          <ListItem key={p.id} layout="column">
+            <a href={`/admin/posts/${p.id}/edit`} target="_blank" rel="noopener noreferrer" className={styles.tagRelatedItem}>
+              <span className={styles.tagRelatedTitle}>{p.title || p.title_en || "(no title)"}</span>
+              <PostMeta p={p} />
+            </a>
+          </ListItem>
+        ))
+      )}
+    </List>
   );
 }
 
@@ -107,20 +127,7 @@ function TagResetConfirmBody({ inUse, tagCounts, tagPosts, affectedCount, onConf
         ))}
       </div>
       {selectedTag && (
-        <List className={styles.tagRelatedPosts} data-lenis-prevent>
-          {selectedPosts.length === 0 ? (
-            <ListItem className={styles.tagRelatedEmpty}>이 태그를 사용하는 게시물이 없습니다.</ListItem>
-          ) : (
-            selectedPosts.map((p) => (
-              <ListItem key={p.id} layout="column">
-                <a href={`/admin/posts/${p.id}/edit`} target="_blank" rel="noopener noreferrer" className={styles.tagRelatedItem}>
-                  <span className={styles.tagRelatedTitle}>{p.title || p.title_en || "(no title)"}</span>
-                  <PostMeta p={p} />
-                </a>
-              </ListItem>
-            ))
-          )}
-        </List>
+        <RelatedPostList posts={selectedPosts} emptyLabel="이 태그를 사용하는 게시물이 없습니다." />
       )}
       <div className={styles.tagDeleteConfirmActions}>
         <Button variant="primary" size="md" tone="danger" onClick={onConfirm}>
@@ -351,23 +358,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
             삭제 대기열에 추가됩니다. 섹션 저장 시 모든 게시물의 tags 에서 함께 제거됩니다. 되돌리기로 취소할 수 있습니다.
           </span>
         </p>
-        <List className={styles.tagRelatedPosts} data-lenis-prevent>
-          {inUse.map((p) => (
-            <ListItem key={p.id} layout="column">
-              <a
-                href={`/admin/posts/${p.id}/edit`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.tagRelatedItem}
-              >
-                <span className={styles.tagRelatedTitle}>
-                  {p.title || p.title_en || "(no title)"}
-                </span>
-                <PostMeta p={p} />
-              </a>
-            </ListItem>
-          ))}
-        </List>
+        <RelatedPostList posts={inUse} />
         <div className={styles.tagDeleteConfirmActions}>
           <Button
             variant="primary"
@@ -802,27 +793,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
         {isEdit && (
           <div className={styles.worksCatAddRow}>
             <span className={styles.worksCatAddRowLabel}>게시물 ({editingPosts.length})</span>
-            <List className={styles.tagRelatedPosts} data-lenis-prevent>
-              {editingPosts.length === 0 ? (
-                <ListItem className={styles.tagRelatedEmpty}>이 태그를 사용하는 게시물 없음</ListItem>
-              ) : (
-                editingPosts.map((p) => (
-                  <ListItem key={p.id} layout="column">
-                    <a
-                      href={`/admin/posts/${p.id}/edit`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.tagRelatedItem}
-                    >
-                      <span className={styles.tagRelatedTitle}>
-                        {p.title || p.title_en || "(no title)"}
-                      </span>
-                      <PostMeta p={p} />
-                    </a>
-                  </ListItem>
-                ))
-              )}
-            </List>
+            <RelatedPostList posts={editingPosts} emptyLabel="이 태그를 사용하는 게시물 없음" />
           </div>
         )}
       </div>
