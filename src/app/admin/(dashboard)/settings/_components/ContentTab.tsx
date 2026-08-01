@@ -369,8 +369,8 @@ export default function ContentTab({
 
       {contentSubTab === "posts" && (
         <>
-          {/* Banner Settings — 내부 3-col */}
-          <section className={styles.section}>
+          {/* Banner Settings — 전폭 얇은 바(셀렉트 3개 한 줄) */}
+          <section className={`${styles.section} ${shared.sectionWide}`}>
             <SectionHeader title={t("admin.settings.banner")} paths={["posts.bannerLayout", "posts.bannerStyle", "posts.bannerTransition"]} {...sh} />
             <div className={`${styles.fields} ${styles.fieldsGrid3}`}>
               <FieldRow label={<T k="admin.settings.bannerLayout" />}>
@@ -410,8 +410,8 @@ export default function ContentTab({
             </div>
           </section>
 
-          {/* 목록 카드 레이아웃 */}
-          <section className={styles.section}>
+          {/* 목록 카드 레이아웃 — 전폭 얇은 바 */}
+          <section className={`${styles.section} ${shared.sectionWide}`}>
             <SectionHeader title={language === "ko" ? "카드 레이아웃" : "Card layout"} paths={["posts.layout"]} {...sh} />
             <div className={styles.fields}>
               <FieldRow label={language === "ko" ? "목록 배치" : "Grid style"}>
@@ -431,8 +431,8 @@ export default function ContentTab({
             </div>
           </section>
 
-          {/* Pagination — 내부 2-col */}
-          <section className={styles.section}>
+          {/* Pagination — 전폭 얇은 바 */}
+          <section className={`${styles.section} ${shared.sectionWide}`}>
             <SectionHeader title={t("admin.settings.pagination")} paths={["posts.perPage", "posts.adminPerPage"]} {...sh} />
             <div className={`${styles.fields} ${styles.fieldsGrid2}`}>
               <FieldRow label={<T k="admin.settings.postsPerPage" />}>
@@ -545,8 +545,8 @@ export default function ContentTab({
             </div>
           </section>
 
-          {/* Series — SeriesManager 가 자체 API 저장 + 자체 헤더(title + search) 그림 */}
-          <section className={styles.section}>
+          {/* Series — 태그|카테고리(2열) 아래 전폭. SeriesManager 가 자체 API 저장 + 자체 헤더 그림 */}
+          <section className={`${styles.section} ${shared.sectionWide}`}>
             <SeriesManager
               title={t("admin.posts.series")}
               // 2단계 트리(children 포함) 그대로 전달 — strip 하면 소분류가 series 픽커에서 사라짐
