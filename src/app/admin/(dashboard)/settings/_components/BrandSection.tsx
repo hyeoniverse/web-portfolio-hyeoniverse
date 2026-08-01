@@ -3,7 +3,7 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, X } from "@/components/icons";
-import { useLanguage } from "@/providers/LanguageProvider";
+import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Input from "@/components/ui/Input";
 import HighlightInput from "@/components/ui/HighlightInput";
@@ -50,6 +50,53 @@ const LOGO_COLOR_PRESETS_FALLBACK: LogoColorPreset[] = [
 type BrandSectionProps = SettingsTabProps & {
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
 };
+
+/** hex 색 입력 한 칸 — ColorPicker(트리거) + 직접 입력 Input. picker/input 값을 따로 받아
+ *  "빈 값이면 fallback 색으로 미리보기"(picker) vs "빈 값은 빈 채로 표시"(input) 차이를 표현. */
+function HexColorField({ pickerValue, inputValue, onChange, placeholder }: {
+  pickerValue: string;
+  inputValue: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div className={shared.colorField}>
+      <ColorPicker value={pickerValue} onChange={(c) => onChange(c.hex)} triggerClassName={shared.colorPicker} />
+      <Input className={shared.colorInput} value={inputValue} onChange={onChange} placeholder={placeholder} maxLength={7} />
+    </div>
+  );
+}
+
+/** 라이트/다크 색 한 쌍 — 캡션 + HexColorField ×2, 옵션으로 ColorDuoTools(맞추기/스왑/지우기). */
+function ColorDuoRow({ t, placeholder, light, dark, tools = false }: {
+  t: TFunction;
+  placeholder?: string;
+  light: { picker: string; input: string; onChange: (v: string) => void };
+  dark: { picker: string; input: string; onChange: (v: string) => void };
+  tools?: boolean;
+}) {
+  return (
+    <div className={styles.faviconColorDuo}>
+      <div className={styles.faviconColorItem}>
+        <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantLight")}</span>
+        <HexColorField pickerValue={light.picker} inputValue={light.input} onChange={light.onChange} placeholder={placeholder} />
+      </div>
+      <div className={styles.faviconColorItem}>
+        <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantDark")}</span>
+        <HexColorField pickerValue={dark.picker} inputValue={dark.input} onChange={dark.onChange} placeholder={placeholder} />
+      </div>
+      {tools && (
+        <ColorDuoTools
+          light={light.input}
+          dark={dark.input}
+          onLight={light.onChange}
+          onDark={dark.onChange}
+          labels={{ match: t("admin.settings.colorMatch"), swap: t("admin.settings.colorSwap"), clear: t("admin.settings.colorClear") }}
+        />
+      )}
+    </div>
+  );
+}
 
 export default function BrandSection({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths, setConfig }: BrandSectionProps) {
   const { t } = useLanguage();
@@ -546,49 +593,13 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 </FieldRow>
                 {/* 배경 — 라이트/다크 한 행 (캡션 + 색) */}
                 <FieldRow label={t("admin.settings.faviconBg")} className={styles.faviconFormRow}>
-                  <div className={styles.faviconColorDuo}>
-                    <div className={styles.faviconColorItem}>
-                      <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantLight")}</span>
-                      <div className={shared.colorField}>
-                        <ColorPicker
-                          value={config.brand.faviconBgLight || config.brand.logoColorDark || "#f5f5f0"}
-                          onChange={(c) => update("brand", "faviconBgLight", c.hex)}
-                          triggerClassName={shared.colorPicker}
-                        />
-                        <Input
-                          className={shared.colorInput}
-                          value={config.brand.faviconBgLight}
-                          onChange={(v) => update("brand", "faviconBgLight", v)}
-                          placeholder={t("admin.settings.faviconBgPlaceholder")}
-                          maxLength={7}
-                        />
-                      </div>
-                    </div>
-                    <div className={styles.faviconColorItem}>
-                      <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantDark")}</span>
-                      <div className={shared.colorField}>
-                        <ColorPicker
-                          value={config.brand.faviconBgDark || config.brand.logoColor || "#0a0a0a"}
-                          onChange={(c) => update("brand", "faviconBgDark", c.hex)}
-                          triggerClassName={shared.colorPicker}
-                        />
-                        <Input
-                          className={shared.colorInput}
-                          value={config.brand.faviconBgDark}
-                          onChange={(v) => update("brand", "faviconBgDark", v)}
-                          placeholder={t("admin.settings.faviconBgPlaceholder")}
-                          maxLength={7}
-                        />
-                      </div>
-                    </div>
-                    <ColorDuoTools
-                      light={config.brand.faviconBgLight}
-                      dark={config.brand.faviconBgDark}
-                      onLight={(v) => update("brand", "faviconBgLight", v)}
-                      onDark={(v) => update("brand", "faviconBgDark", v)}
-                      labels={{ match: t("admin.settings.colorMatch"), swap: t("admin.settings.colorSwap"), clear: t("admin.settings.colorClear") }}
-                    />
-                  </div>
+                  <ColorDuoRow
+                    t={t}
+                    placeholder={t("admin.settings.faviconBgPlaceholder")}
+                    light={{ picker: config.brand.faviconBgLight || config.brand.logoColorDark || "#f5f5f0", input: config.brand.faviconBgLight, onChange: (v) => update("brand", "faviconBgLight", v) }}
+                    dark={{ picker: config.brand.faviconBgDark || config.brand.logoColor || "#0a0a0a", input: config.brand.faviconBgDark, onChange: (v) => update("brand", "faviconBgDark", v) }}
+                    tools
+                  />
                 </FieldRow>
                 {/* 배경 테두리 — 두께(px) + variant 색. 두께 0 이면 미표시 */}
                 <FieldRow label={t("admin.settings.faviconBorder")} className={styles.faviconFormRow}>
@@ -608,96 +619,24 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 </FieldRow>
                 {(Number(config.brand.faviconBorderWidth) || 0) > 0 && (
                   <FieldRow label={t("admin.settings.faviconBorderColor")} className={styles.faviconFormRow}>
-                    <div className={styles.faviconColorDuo}>
-                      <div className={styles.faviconColorItem}>
-                        <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantLight")}</span>
-                        <div className={shared.colorField}>
-                          <ColorPicker
-                            value={config.brand.faviconBorderColorLight || "#0a0a0a"}
-                            onChange={(c) => update("brand", "faviconBorderColorLight", c.hex)}
-                            triggerClassName={shared.colorPicker}
-                          />
-                          <Input
-                            className={shared.colorInput}
-                            value={config.brand.faviconBorderColorLight}
-                            onChange={(v) => update("brand", "faviconBorderColorLight", v)}
-                            placeholder={t("admin.settings.faviconBgPlaceholder")}
-                            maxLength={7}
-                          />
-                        </div>
-                      </div>
-                      <div className={styles.faviconColorItem}>
-                        <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantDark")}</span>
-                        <div className={shared.colorField}>
-                          <ColorPicker
-                            value={config.brand.faviconBorderColorDark || "#f5f5f0"}
-                            onChange={(c) => update("brand", "faviconBorderColorDark", c.hex)}
-                            triggerClassName={shared.colorPicker}
-                          />
-                          <Input
-                            className={shared.colorInput}
-                            value={config.brand.faviconBorderColorDark}
-                            onChange={(v) => update("brand", "faviconBorderColorDark", v)}
-                            placeholder={t("admin.settings.faviconBgPlaceholder")}
-                            maxLength={7}
-                          />
-                        </div>
-                      </div>
-                      <ColorDuoTools
-                        light={config.brand.faviconBorderColorLight}
-                        dark={config.brand.faviconBorderColorDark}
-                        onLight={(v) => update("brand", "faviconBorderColorLight", v)}
-                        onDark={(v) => update("brand", "faviconBorderColorDark", v)}
-                        labels={{ match: t("admin.settings.colorMatch"), swap: t("admin.settings.colorSwap"), clear: t("admin.settings.colorClear") }}
-                      />
-                    </div>
+                    <ColorDuoRow
+                      t={t}
+                      placeholder={t("admin.settings.faviconBgPlaceholder")}
+                      light={{ picker: config.brand.faviconBorderColorLight || "#0a0a0a", input: config.brand.faviconBorderColorLight, onChange: (v) => update("brand", "faviconBorderColorLight", v) }}
+                      dark={{ picker: config.brand.faviconBorderColorDark || "#f5f5f0", input: config.brand.faviconBorderColorDark, onChange: (v) => update("brand", "faviconBorderColorDark", v) }}
+                      tools
+                    />
                   </FieldRow>
                 )}
                 {/* 글자색 — favicon 텍스트 색 override. 빈 값이면 preset 자동 계산 (하위호환) */}
                 <FieldRow label={t("admin.settings.faviconTextColor")} className={styles.faviconFormRow}>
-                  <div className={styles.faviconColorDuo}>
-                    <div className={styles.faviconColorItem}>
-                      <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantLight")}</span>
-                      <div className={shared.colorField}>
-                        <ColorPicker
-                          value={config.brand.faviconColor || config.brand.logoColor || config.theme.lightText}
-                          onChange={(c) => update("brand", "faviconColor", c.hex)}
-                          triggerClassName={shared.colorPicker}
-                        />
-                        <Input
-                          className={shared.colorInput}
-                          value={config.brand.faviconColor}
-                          onChange={(v) => update("brand", "faviconColor", v)}
-                          placeholder={t("admin.settings.faviconBgPlaceholder")}
-                          maxLength={7}
-                        />
-                      </div>
-                    </div>
-                    <div className={styles.faviconColorItem}>
-                      <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantDark")}</span>
-                      <div className={shared.colorField}>
-                        <ColorPicker
-                          value={config.brand.faviconColorDark || config.brand.logoColorDark || config.theme.darkText}
-                          onChange={(c) => update("brand", "faviconColorDark", c.hex)}
-                          triggerClassName={shared.colorPicker}
-                        />
-                        <Input
-                          className={shared.colorInput}
-                          value={config.brand.faviconColorDark}
-                          onChange={(v) => update("brand", "faviconColorDark", v)}
-                          placeholder={t("admin.settings.faviconBgPlaceholder")}
-                          maxLength={7}
-                        />
-                      </div>
-                    </div>
-                    <ColorDuoTools
-                      light={config.brand.faviconColor}
-                      dark={config.brand.faviconColorDark}
-                      onLight={(v) => update("brand", "faviconColor", v)}
-                      onDark={(v) => update("brand", "faviconColorDark", v)}
-                      labels={{ match: t("admin.settings.colorMatch"), swap: t("admin.settings.colorSwap"), clear: t("admin.settings.colorClear") }}
-                    />
-                  </div>
+                  <ColorDuoRow
+                    t={t}
+                    placeholder={t("admin.settings.faviconBgPlaceholder")}
+                    light={{ picker: config.brand.faviconColor || config.brand.logoColor || config.theme.lightText, input: config.brand.faviconColor, onChange: (v) => update("brand", "faviconColor", v) }}
+                    dark={{ picker: config.brand.faviconColorDark || config.brand.logoColorDark || config.theme.darkText, input: config.brand.faviconColorDark, onChange: (v) => update("brand", "faviconColorDark", v) }}
+                    tools
+                  />
                 </FieldRow>
               </div>
             </div>
@@ -803,22 +742,12 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
             </div>
           </FieldRow>
               <FieldRow label={t("admin.settings.logoColorLabel")} className={styles.faviconFormRow}>
-                <div className={styles.faviconColorDuo}>
-                  <div className={styles.faviconColorItem}>
-                    <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantLight")}</span>
-                    <div className={shared.colorField}>
-                      <ColorPicker value={config.brand.logoColor || "#000000"} onChange={(c) => update("brand", "logoColor", c.hex)} triggerClassName={shared.colorPicker} />
-                      <Input className={shared.colorInput} value={config.brand.logoColor || "#000000"} onChange={(v) => update("brand", "logoColor", v)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
-                    </div>
-                  </div>
-                  <div className={styles.faviconColorItem}>
-                    <span className={styles.faviconColorCaption}>{t("admin.settings.faviconVariantDark")}</span>
-                    <div className={shared.colorField}>
-                      <ColorPicker value={config.brand.logoColorDark || "#ffffff"} onChange={(c) => update("brand", "logoColorDark", c.hex)} triggerClassName={shared.colorPicker} />
-                      <Input className={shared.colorInput} value={config.brand.logoColorDark || "#ffffff"} onChange={(v) => update("brand", "logoColorDark", v)} placeholder={t("admin.settings.logoColorPlaceholder")} maxLength={7} />
-                    </div>
-                  </div>
-                </div>
+                <ColorDuoRow
+                  t={t}
+                  placeholder={t("admin.settings.logoColorPlaceholder")}
+                  light={{ picker: config.brand.logoColor || "#000000", input: config.brand.logoColor || "#000000", onChange: (v) => update("brand", "logoColor", v) }}
+                  dark={{ picker: config.brand.logoColorDark || "#ffffff", input: config.brand.logoColorDark || "#ffffff", onChange: (v) => update("brand", "logoColorDark", v) }}
+                />
               </FieldRow>
             </div>
           {/* 프리셋 이름 입력 row — .fields 바깥, 위 구분선 + AnimatePresence (펼침/접힘 height/opacity 애니메이션) */}
