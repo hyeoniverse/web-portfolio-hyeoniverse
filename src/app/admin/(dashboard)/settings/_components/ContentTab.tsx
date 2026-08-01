@@ -730,7 +730,6 @@ export default function ContentTab({
               items={(config.about.techStack ?? []) as TechItem[]}
               onChange={(v) => update("about", "techStack", v as SiteConfigData["about"]["techStack"])}
               t={t}
-              styles={styles}
             />
           }
         />
