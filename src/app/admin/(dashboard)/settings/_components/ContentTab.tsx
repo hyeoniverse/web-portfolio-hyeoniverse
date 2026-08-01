@@ -346,17 +346,21 @@ export default function ContentTab({
 
       {contentSubTab === "profile" && (
         <>
-          {/* Profile 페이지 동작 */}
-          <section className={styles.section}>
-            <SectionHeader title="Profile" paths={["profile.infiniteScroll"]} {...sh} />
-            <div className={styles.fields}>
-              <Switch
-                size="md"
-                label={t("admin.settings.profileInfiniteScroll")}
-                checked={config.profile?.infiniteScroll !== false}
-                onCheckedChange={(v) => update("profile", "infiniteScroll", v)}
-              />
-            </div>
+          {/* Profile 페이지 동작 — 토글 하나뿐이라 전폭 얇은 바(헤더에 인라인) */}
+          <section className={`${styles.section} ${shared.sectionWide}`}>
+            <SectionHeader
+              title="Profile"
+              paths={["profile.infiniteScroll"]}
+              extra={
+                <Switch
+                  size="sm"
+                  label={t("admin.settings.profileInfiniteScroll")}
+                  checked={config.profile?.infiniteScroll !== false}
+                  onCheckedChange={(v) => update("profile", "infiniteScroll", v)}
+                />
+              }
+              {...sh}
+            />
           </section>
           <ProfileSections data={profileData} setData={setProfileData} expanded={profileExpanded} setExpanded={setProfileExpanded} styles={styles} />
         </>
@@ -557,9 +561,21 @@ export default function ContentTab({
 
       {contentSubTab === "works" && (
         <>
-          {/* Works Layout + Pagination — 단일 column 으로 stack */}
-          <section className={styles.section}>
-            <SectionHeader title={`${t("admin.settings.worksLayout")} & ${t("admin.settings.pagination")}`} paths={["works.layout", "works.adminPerPage", "works.infiniteScroll"]} {...sh} />
+          {/* Works Layout + Pagination — 전폭 얇은 바. 레이아웃·페이지수 셀렉트 + 무한스크롤 토글은 헤더에 인라인 */}
+          <section className={`${styles.section} ${shared.sectionWide}`}>
+            <SectionHeader
+              title={`${t("admin.settings.worksLayout")} & ${t("admin.settings.pagination")}`}
+              paths={["works.layout", "works.adminPerPage", "works.infiniteScroll"]}
+              extra={
+                <Switch
+                  size="sm"
+                  label={t("admin.settings.worksInfiniteScroll")}
+                  checked={config.works.infiniteScroll !== false}
+                  onCheckedChange={(v) => update("works", "infiniteScroll", v)}
+                />
+              }
+              {...sh}
+            />
             <div className={`${styles.fields} ${styles.fieldsGrid2}`}>
               <FieldRow label={<T k="admin.settings.worksLayout" />}>
                 <Select
@@ -588,15 +604,6 @@ export default function ContentTab({
                   onChange={(v) => update("works", "adminPerPage", Number(v))}
                 />
               </FieldRow>
-            </div>
-            <hr className={styles.sectionDivider} />
-            <div className={styles.fields}>
-              <Switch
-                size="md"
-                label={t("admin.settings.worksInfiniteScroll")}
-                checked={config.works.infiniteScroll !== false}
-                onCheckedChange={(v) => update("works", "infiniteScroll", v)}
-              />
             </div>
           </section>
 
