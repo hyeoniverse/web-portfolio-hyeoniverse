@@ -18,6 +18,7 @@ import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import { matchesSearch } from "@/lib/koSearch";
 import styles from "./SeriesInlineEditor.module.css";
+import EmptyState from "@/components/ui/EmptyState";
 import shared from "../Settings.module.css";
 
 /* ── SeriesInlineEditor ── */
@@ -595,7 +596,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                     matchesSearch(addSearch, p.title ?? "")
                   );
                   return filtered.length === 0 ? (
-                    <p className={styles.addPostEmpty}>{t("admin.posts.seriesModal.noAvailablePosts")}</p>
+                    <EmptyState pad="sm">{t("admin.posts.seriesModal.noAvailablePosts")}</EmptyState>
                   ) : (
                     filtered.map((p, i) => (
                       <div
@@ -654,7 +655,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
               {[0, 1, 2].map((i) => <SkeletonLine key={i} width="100%" height={32} />)}
             </div>
           ) : posts.length === 0 ? (
-            <p className={styles.seriesPostsEmpty}><T k="admin.posts.seriesModal.postsEmpty" /></p>
+            <EmptyState pad="sm"><T k="admin.posts.seriesModal.postsEmpty" /></EmptyState>
           ) : (
             <LayoutGroup>
             <div className={styles.seriesPostsList}>

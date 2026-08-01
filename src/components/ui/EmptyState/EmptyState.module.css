@@ -1,0 +1,24 @@
+.empty {
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.sm {
+  font-size: var(--font-size-sm);
+}
+
+.xs {
+  font-size: var(--font-size-xs);
+}
+
+.pad-xl {
+  padding: var(--spacing-xl) 0;
+}
+
+.pad-sm {
+  padding: var(--spacing-sm) 0;
+}
+
+.pad-none {
+  padding: 0;
+}

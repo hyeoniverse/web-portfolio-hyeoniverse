@@ -47,6 +47,7 @@ import { matchesSearch } from "@/lib/koSearch";
 import { uploadFile } from "@/lib/adminUpload";
 import { getInitial, KO_INITIALS, EN_INITIALS } from "@/lib/initial";
 import LetterFilter from "@/components/ui/LetterFilter";
+import EmptyState from "@/components/ui/EmptyState";
 import shared from "../Settings.module.css";
 import local from "./ContentTab.module.css";
 const styles = { ...shared, ...local };
@@ -1814,7 +1815,7 @@ function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
   t?: (key: string) => string;
 }) {
   const list = TECH_ICON_PRESETS.filter((p) => matchTech(p, query));
-  if (list.length === 0) return <div className={styles.techPresetEmpty}>검색 결과 없음</div>;
+  if (list.length === 0) return <EmptyState size="xs" pad="sm">검색 결과 없음</EmptyState>;
   return (
     <div className={styles.techPresetScroll}>
       <div className={styles.techPresetList}>
