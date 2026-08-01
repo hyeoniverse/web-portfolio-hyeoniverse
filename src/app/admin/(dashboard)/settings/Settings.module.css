@@ -287,8 +287,6 @@
 }
 
 /* profile expandable panel 안 fieldGroup 들 사이 간격 */
-.profileExpandableInner { composes: uColMd;
-}
 
 /* ── Field Pair (EN/KO group — 2열 나란히).
    minmax(0, 1fr) — 자식 (긴 input value) 따라 column grow 방지. */
@@ -944,15 +942,7 @@
 /* ── Profile Sections (embedded in Content tab) ── */
 
 /* sub-section 시각적 중첩 — section h2 아래 h3 그룹을 들여쓰기 + 좌측 라인 */
-.subSection {
-  padding-left: var(--spacing-md);
-  border-left: 2px solid var(--border-light-color);
-  margin-bottom: var(--spacing-xl);
-}
 
-.subSection:last-child {
-  margin-bottom: 0;
-}
 
 .profileCard {
   composes: uColSm;
@@ -1279,24 +1269,11 @@
    섹션 내부 간격 일관성: sortableList gap + profileAddBtn margin-top
    = 모두 spacing-md(16px). title row → first item, item ↔ item, last item →
    add button 모두 동일하게 적용. */
-.sortableList { composes: uColMd;
-}
 
 /* ── Expand/collapse animation ──
    ExpandablePanel(JS)이 height 를 직접 측정·설정해 transition.
    여기서는 transition 속성과 기본 height/overflow 만 정의. */
-.sortableList .skillExpandable {
-  height: 0;
-  overflow: hidden;
-  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-left: var(--spacing-xl);
-}
 
-.sortableList .skillExpandable > * {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
 
 /* ── Field group (label + inputs) ── */
 .fieldGroup { composes: uColXs;
@@ -1311,164 +1288,20 @@
   border-bottom: var(--border-light);
 }
 
-.sortableItem {
-  composes: uColXs;
-  --_skill-row-h: 36px;
-  transition: background-color 0.2s ease;
-}
-
-.sortableItemDragging {
-  background: var(--bg-secondary);
-  /* 드래그 중 항목 — 섹션 제목 위로 들려 보이되 탭바/nav 아래 (패널 z 사다리 참조) */
-  z-index: calc(var(--z-nav) - 2);
-}
-
-.skillDragHandle {
-  composes: uCenter;
-  flex-shrink: 0;
-  width: 16px;
-  height: var(--_skill-row-h);
-  align-self: flex-start;
-  color: var(--text-muted);
-  touch-action: none;
-}
-
-.skillDragHandle:active {
-}
-
-.skillDragHandle svg {
-  width: 14px;
-  height: 14px;
-}
-
-.skillDragHandleSm svg {
-  width: 14px;
-  height: 14px;
-}
-
-.skillFields {
-  composes: uColSm;
-  flex: 1;
-  min-width: 0;
-}
-
-.skillGroupHeader {
-  composes: uRowXs;
-  min-height: var(--_skill-row-h);
-}
-
-.skillExpandBtn {
-  composes: uCenter;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: transparent;
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.skillExpandBtn svg {
-  width: 14px;
-  height: 14px;
-  transition: transform 0.2s ease;
-}
-
-.skillExpandBtn:hover {
-  color: var(--text-primary);
-}
 
 /* row 헤더 inline title editor — 공통 Input variant="underline" 사용.
    wrapper 에만 flex 적용 (row 참여), 내부 input 의 underline 스타일은 Input.module.css 가 담당.
    기존 font-weight 600 + 더 가벼운 border-default 는 유지 (callsite 차별성). */
-.skillFieldInline {
-  flex: 1;
-  min-width: 0;
-}
 
-.skillFieldInline input {
-  font-weight: 600;
-  border-bottom: var(--border-default);
-}
-
-.skillFieldInline input:hover {
-  border-bottom-color: var(--border-default-color);
-}
 
 /* 헤더 우측 meta 표시 — 기술 스택 개수, 연도 등. 작고 깔끔한 mono caption. */
-.skillCount,
-.periodBadge {
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  font-variant-numeric: tabular-nums;
-  color: var(--text-tertiary);
-  white-space: nowrap;
-  letter-spacing: 0.04em;
-}
 
 /* 연도 표기 — "nnnn", "nnnn -", "nnnn - nnnn" 모두 같은 width 로 정렬.
    border-box + 좌우 padding 포함해 "nnnn - nnnn" (11자) 까지 안 잘리게 충분히 확보. */
-.periodBadge {
-  display: inline-block;
-  width: 9em;
-  padding: 0 var(--spacing-sm);
-  text-align: left;
-}
 
-.skillNested {
-  padding-left: var(--spacing-sm);
-}
-
-.skillNestedRow {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) 0;
-}
-
-.skillNestedRow + .skillNestedRow {
-  border-top: var(--border-light);
-}
 
 /* — → × rotate animation (skill remove) */
-.skillRemoveBtn {
-  composes: uCenter;
-  position: relative;
-  width: var(--_skill-row-h);
-  min-height: var(--_skill-row-h);
-  max-height: var(--_skill-row-h);
-  flex-shrink: 0;
-  align-self: flex-start;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  color: var(--text-tertiary);
-  transition: background-color 0.2s ease;
-}
 
-.skillRemoveBtn:hover {
-  background: var(--bg-tertiary-alt);
-  color: var(--text-primary);
-}
-
-.skillRemoveLine {
-  position: absolute;
-  width: 12px;
-  height: 1.5px;
-  background: currentColor;
-  border-radius: var(--spacing-4xs);
-  transition: transform 0.25s ease;
-  transform: rotate(0deg);
-}
-
-.skillRemoveBtn:hover .skillRemoveLine:first-child {
-  transform: rotate(45deg);
-}
-
-.skillRemoveBtn:hover .skillRemoveLine:last-child {
-  transform: rotate(-45deg);
-}
 
 /* tablet (769~1024px): sideNav 는 아래에서 가로 탭바로 바뀌고, panel 은 전체 폭을
    쓴다. 여기서는 2열 grid 만 1열로 정리한다(좁은 폭에서 잘림 방지). */

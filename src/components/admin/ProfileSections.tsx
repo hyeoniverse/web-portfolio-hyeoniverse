@@ -14,6 +14,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import SkillList from "./ProfileSkillList";
+import skillStyles from "./ProfileSkill.module.css";
 
 export { profileDefaults };
 
@@ -89,7 +90,11 @@ function setAllExpanded(items: unknown[], open: boolean): Record<number, boolean
   return Object.fromEntries(items.map((_, i) => [i, open]));
 }
 
-export default function ProfileSections({ data, setData, expanded, setExpanded, styles }: ProfileSectionsProps) {
+export default function ProfileSections({ data, setData, expanded, setExpanded, styles: baseStyles }: ProfileSectionsProps) {
+  // skill/profile 전용 클래스는 ProfileSkill.module.css 로 분리됨 — Settings 에서 내려온
+  // 공유 스타일과 병합해 기존 styles.X 참조를 그대로 유지하고 자식에게도 그대로 전달한다.
+  const styles = useMemo(() => ({ ...baseStyles, ...skillStyles }), [baseStyles]);
+
   /* ── Experiences ── */
   const updateExperience = (idx: number, field: string, value: unknown) =>
     setData((prev) => ({ ...prev, experiences: updateArrayItem(prev.experiences, idx, field, value) }));
