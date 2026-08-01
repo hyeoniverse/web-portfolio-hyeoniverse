@@ -294,6 +294,9 @@
   display: grid;
   grid-template-columns: var(--grid-cols-2);
   gap: var(--spacing-xs) var(--spacing-md);
+  /* .fields(align-items:flex-start) 안에서 grid 가 content 폭으로 shrink 되는 것 방지 —
+     없으면 en/ko 필드가 값 길이만큼 좁아지고 우측이 크게 빈다. */
+  width: 100%;
 }
 
 .fieldPair > .fieldHint,
