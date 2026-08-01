@@ -22,9 +22,9 @@ import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import { List, ListItem } from "@/app/admin/(dashboard)/components";
 import type { AdminPostUsageInfo, PostMetaInfo } from "../_types";
 import shared from "../Settings.module.css";
-import local from "./ContentTab.module.css";
+import own from "./TagDescriptionsEditor.module.css";
 
-const styles = { ...shared, ...local };
+const styles = { ...shared, ...own };
 
 /* ── Tag editor — bilingual 이름 + bilingual 설명, search/sort/pagination ──
    저장 키 = canonical (post.tags 와 매칭). value 는 lib/tagMeta 의 StoredTagMeta 형식.
