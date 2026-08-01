@@ -276,4 +276,24 @@ The DB function checks the same rules — present values must have the right typ
 
 > This function and constraint are also included in `setup.sql`, so a DB provisioned from `setup.sql` from the start enforces it identically.
 
+### Site settings required-value validation: settings_required_valid
+
+Admin settings (General·Appearance·Services tabs) contain required values that break the site render or a feature if left blank. Previously only the global "Save" button had partial validation, and **the per-section Save buttons bypassed it** — so the site title, theme colors, etc. could be saved empty. So we guard it with the same **UI · API · DB three-layer validation** as the ERD.
+
+| Layer | Location | Role |
+|-------|----------|------|
+| UI | `validationError` (`settings/page.tsx`) + `SectionHeader` save guard | Empty value disables both global and per-section Save buttons + shows the reason |
+| API | `checkRequiredSettings` (`src/lib/api/validateRequiredSettings.ts`) | Checked in `/api/admin/settings` PATCH — returns 400 on violation |
+| DB | `settings_required_valid(cfg jsonb)` + `site_settings_required_valid` CHECK | Last line of defense when even the API is bypassed (manual SQL, etc.) |
+
+**Validation rules** (identical across the three layers):
+- **Site title** (`metadata.title`) · **name** (`personal.name`) · **five theme colors** (`theme.accentColor`/`lightBg`/`lightText`/`darkBg`/`darkText`) — cannot be empty
+- **Email** (`contact.email`) — must be well-formed if provided (empty is allowed)
+- When the comment provider is `giscus`, `repo`·`repoId`·`category`·`categoryId` are required
+- Each **member** (`authors`) item's name is required
+
+**Implementation notes:**
+- Like `about_erd_valid`, it unwraps the `{ delta, savedDefaults }` wrapper of `config`. Fields whose default is non-empty (title/name/theme colors) are flagged only when "present in the delta AND blank" — a save that didn't touch them just passes. giscus fields default to `""`, so they are checked by effective value when the provider is `giscus`.
+- The function is `IMMUTABLE` and the constraint is added `NOT VALID` (existing rows unchecked). It is also in `setup.sql`, so a DB set up from scratch enforces it identically. Migration file: `2026_08_02_settings_required.sql`.
+
 

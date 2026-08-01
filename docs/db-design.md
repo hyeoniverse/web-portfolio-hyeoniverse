@@ -276,4 +276,24 @@ DB 함수도 같은 규칙을 검사합니다 — 있으면 타입이 맞아야 
 
 > 이 함수·제약은 `setup.sql` 에도 포함되어, 처음부터 `setup.sql` 로 세팅한 DB 에서도 동일하게 적용됩니다.
 
+### 사이트 설정 필수값 검증: settings_required_valid
+
+관리자 설정(General·Appearance·Services 탭)에는 비워두면 사이트 렌더나 기능이 깨지는 필수 값이 있습니다. 예전엔 전역 "저장" 버튼에만 부분 검증이 있었고 **섹션별 저장 버튼이 그 검증을 우회**해서, 사이트 제목·테마 색상 등을 빈 값으로 저장할 수 있었습니다. 그래서 ERD 검증과 같은 **UI · API · DB 3중 검증**으로 막습니다.
+
+| 계층 | 위치 | 역할 |
+|------|------|------|
+| UI | `validationError` (`settings/page.tsx`) + `SectionHeader` 저장 가드 | 빈 값이면 전역·섹션 저장 버튼 모두 비활성 + 사유 표시 |
+| API | `checkRequiredSettings` (`src/lib/api/validateRequiredSettings.ts`) | `/api/admin/settings` PATCH 에서 검사 — 위반 시 400 |
+| DB | `settings_required_valid(cfg jsonb)` + `site_settings_required_valid` CHECK | 수동 SQL 등 API 도 우회한 경우의 최종 방어선 |
+
+**검사 규칙** (세 계층 동일):
+- **사이트 제목**(`metadata.title`) · **이름**(`personal.name`) · **테마 색상 5종**(`theme.accentColor`/`lightBg`/`lightText`/`darkBg`/`darkText`) — 비울 수 없음
+- **이메일**(`contact.email`) — 입력했다면 형식이 맞아야 함 (빈 값은 허용)
+- 댓글 provider 가 `giscus` 면 `repo`·`repoId`·`category`·`categoryId` 필수
+- **멤버**(`authors`) 각 항목의 이름 필수
+
+**구현 노트:**
+- `about_erd_valid` 와 같이 `config` 의 `{ delta, savedDefaults }` wrapper 를 언랩합니다. 기본값이 비어있지 않은 필드(제목·이름·테마색)는 "delta 에 있으면서 빈 값"일 때만 위반으로 봅니다 — 건드리지 않은 저장은 그냥 통과합니다. giscus 필드는 기본값이 `""` 라 provider 가 `giscus` 일 때 실효값으로 검사합니다.
+- 함수는 `IMMUTABLE`, 제약은 `NOT VALID` 로 추가합니다(기존 행 미검사). `setup.sql` 에도 포함되어 처음부터 세팅한 DB 에서도 동일하게 적용됩니다. 마이그레이션 파일: `2026_08_02_settings_required.sql`.
+
 

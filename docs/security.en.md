@@ -46,6 +46,7 @@ Multi-layered security validation is applied to all public API endpoints.
 | `POST /api/contact` | Name (100 chars), email format/length, message (5000 chars) |
 | `POST /api/translate` | Text (2000 chars), targetLang enum |
 | `POST /api/posts/reassign-category` | `requireAuth()` — auth required, since it bulk-updates `posts.category` through the admin client |
+| `PATCH /api/admin/settings` | About ERD shape (`checkAboutErd`) + **required values (`checkRequiredSettings`)** — empty title/name/theme-colors/member-names, giscus required fields, email format. Returns 400 on violation. Guards against client bypass (incl. per-section save) + DB CHECK (`settings_required_valid`) as the last line |
 
 **Comment markdown sanitize (`CommentMarkdown.tsx`):**
 

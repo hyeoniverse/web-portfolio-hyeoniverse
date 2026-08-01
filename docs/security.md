@@ -46,6 +46,7 @@
 | `POST /api/contact` | 이름 (100자), 이메일 포맷/길이, 메시지 (5000자) |
 | `POST /api/translate` | 텍스트 (2000자), targetLang enum |
 | `POST /api/posts/reassign-category` | `requireAuth()` — admin client 로 `posts.category` 를 대량 변경하므로 인증 필수 |
+| `PATCH /api/admin/settings` | About ERD 형태(`checkAboutErd`) + **필수값(`checkRequiredSettings`)** — 제목·이름·테마색·멤버이름 빈값, giscus 필수 필드, 이메일 형식. 위반 시 400. 클라이언트(섹션 저장 포함) 우회 방어 + DB CHECK(`settings_required_valid`) 최종선 |
 
 **댓글 마크다운 sanitize (`CommentMarkdown.tsx`):**
 

@@ -64,6 +64,7 @@
 --   2026_07_18  works.title_en — 작품 제목 영문 (title 이중언어화)
 --   2026_07_21  about_erd_valid — About Studio ERD 설정 CHECK 제약
 --   2026_07_23  about_erd_valid 확장 — 컬럼 제약·테이블 kind 검증
+--   2026_08_02  settings_required — 설정 필수값 CHECK (제목·이름·테마색·giscus·멤버이름)
 --
 -- 마이그레이션 파일이 없는 것 (setup.sql 에만 존재):
 --   custom_emojis — 에디터 이모지 picker 의 커스텀 아이콘 기록
@@ -1457,7 +1458,7 @@ END $$;
 
 
 -- ============================================================
--- 완료! 총 23개 테이블 + 16개 함수 + 2개 pg_cron job 생성됨.
+-- 완료! 총 23개 테이블 + 17개 함수 + 2개 pg_cron job 생성됨.
 --
 -- 테이블:
 --   site_settings        : 사이트 설정 + 프로필 데이터 + 시크릿/API 키 (JSONB)
@@ -1499,6 +1500,7 @@ END $$;
 --   _send_admin_email(subject, html)              : Resend 이메일 발송 (Vault 비어있으면 skip)
 --   normalize_series_order(p_series_id)           : series_order 0-based sequential 재정렬 (trigger 호출)
 --   about_erd_valid(cfg jsonb)                    : About Studio ERD 설정 형태 검증 (site_settings CHECK 제약, IMMUTABLE)
+--   settings_required_valid(cfg jsonb)            : 사이트 설정 필수값 검증 — 제목·이름·테마색·giscus·멤버이름 (site_settings CHECK 제약, IMMUTABLE)
 --
 -- Trigger:
 --   posts_normalize_series_order                  : posts INSERT/UPDATE/DELETE 시 series_order 자동 정합화
@@ -1638,15 +1640,99 @@ BEGIN
 END $$;
 
 
+-- site_settings.config 필수값 검증 (2026_08_02_settings_required)
+-- UI(설정 화면 validationError·섹션 저장 가드) · API(validateRequiredSettings → 400) 와 동일 규칙:
+--   사이트 제목 / 이름 / 테마 색상 5종 — 비울 수 없음
+--   이메일 — 입력 시 형식 검사 (빈 값 허용)
+--   댓글 provider 가 giscus 면 repo·repoId·category·categoryId 필수
+--   멤버(authors) 각 항목 이름 필수
+-- config 는 { delta, savedDefaults } wrapper — "delta 에 있으면서 빈 값"이면 위반.
+CREATE OR REPLACE FUNCTION public.settings_required_valid(cfg jsonb)
+RETURNS boolean
+LANGUAGE plpgsql
+IMMUTABLE
+AS $fn$
+DECLARE
+  provider text;
+  email    text;
+  authors  jsonb;
+  a        jsonb;
+  gpath    text;
+  gval     text;
+  tpath    text;
+  tval     text;
+BEGIN
+  IF cfg IS NULL OR jsonb_typeof(cfg) <> 'object' THEN
+    RETURN true;
+  END IF;
+
+  FOREACH tpath IN ARRAY ARRAY[
+    'metadata,title', 'personal,name',
+    'theme,accentColor', 'theme,lightBg', 'theme,lightText', 'theme,darkBg', 'theme,darkText'
+  ] LOOP
+    tval := COALESCE(
+      cfg #>> ('{delta,' || tpath || '}')::text[],
+      cfg #>> ('{' || tpath || '}')::text[]
+    );
+    IF tval IS NOT NULL AND btrim(tval) = '' THEN
+      RETURN false;
+    END IF;
+  END LOOP;
+
+  email := COALESCE(cfg #>> '{delta,contact,email}', cfg #>> '{contact,email}');
+  IF email IS NOT NULL AND btrim(email) <> '' AND btrim(email) !~ '^[^@ ]+@[^@ ]+\.[^@ ]+$' THEN
+    RETURN false;
+  END IF;
+
+  provider := COALESCE(cfg #>> '{delta,comments,provider}', cfg #>> '{comments,provider}', 'system');
+  IF provider = 'giscus' THEN
+    FOREACH gpath IN ARRAY ARRAY[
+      'comments,giscus,repo', 'comments,giscus,repoId', 'comments,giscus,category', 'comments,giscus,categoryId'
+    ] LOOP
+      gval := COALESCE(
+        cfg #>> ('{delta,' || gpath || '}')::text[],
+        cfg #>> ('{' || gpath || '}')::text[],
+        ''
+      );
+      IF btrim(gval) = '' THEN
+        RETURN false;
+      END IF;
+    END LOOP;
+  END IF;
+
+  authors := COALESCE(cfg #> '{delta,authors}', cfg #> '{authors}');
+  IF authors IS NOT NULL AND jsonb_typeof(authors) = 'array' THEN
+    FOR a IN SELECT * FROM jsonb_array_elements(authors) LOOP
+      IF jsonb_typeof(a) <> 'object' OR btrim(COALESCE(a ->> 'name', '')) = '' THEN
+        RETURN false;
+      END IF;
+    END LOOP;
+  END IF;
+
+  RETURN true;
+END;
+$fn$;
+
+-- NOT VALID — 기존 행은 검사하지 않고 앞으로의 INSERT/UPDATE 에만 적용 (about_erd_valid 와 동일).
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'site_settings_required_valid') THEN
+    ALTER TABLE site_settings
+      ADD CONSTRAINT site_settings_required_valid
+      CHECK (public.settings_required_valid(config)) NOT VALID;
+  END IF;
+END $$;
+
+
 -- ────────────────────────────────────────────────────────────
 -- Applied migrations log — setup.sql 이 흡수한 마이그레이션 마킹
 -- ────────────────────────────────────────────────────────────
--- 위 파일의 모든 구조는 아래 마이그레이션 34건을 통합한 결과입니다.
+-- 위 파일의 모든 구조는 아래 마이그레이션 35건을 통합한 결과입니다.
 -- fresh install 환경에서 setup.sql 실행 직후, supabase/migrations/ 의 .sql 을
 -- 단일 실행해도 was_new = false 로 skip 되도록 record 만 미리 남깁니다.
 --
 -- log_migration_applied 대신 직접 INSERT — fresh install 시점엔 admin 이 아직
--- 없어서 알림이 의미 없고, 34건 알림이 한꺼번에 쌓이는 노이즈도 회피.
+-- 없어서 알림이 의미 없고, 35건 알림이 한꺼번에 쌓이는 노이즈도 회피.
 INSERT INTO applied_migrations (name, description) VALUES
   ('2026_05_14_post_views_kst',                'post_views — KST timezone + atomic dedup + race-free counter'),
   ('2026_05_18_admin_known_devices',           '새 기기 인증 (admin_known_devices) — UA fingerprint + approve token'),
@@ -1681,7 +1767,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_07_17_author_invites',                'author_invites — 저자 이메일 초대 + OAuth 매칭 권한 부여 (이슈 #334)'),
   ('2026_07_18_works_title_en',                'works.title_en — 작품 제목 영문 (title 이중언어화)'),
   ('2026_07_21_about_erd_valid',               'site_settings.config About ERD 필수값 CHECK (테이블·컬럼 이름/타입)'),
-  ('2026_07_23_about_erd_fields',              'about_erd_valid 확장 — 컬럼 제약(required/unique/indexed/defaultValue/comment/enumValues)·테이블 kind 타입 검증')
+  ('2026_07_23_about_erd_fields',              'about_erd_valid 확장 — 컬럼 제약(required/unique/indexed/defaultValue/comment/enumValues)·테이블 kind 타입 검증'),
+  ('2026_08_02_settings_required',             'site_settings.config 필수값 CHECK (제목·이름·테마색·giscus·멤버이름)')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.
