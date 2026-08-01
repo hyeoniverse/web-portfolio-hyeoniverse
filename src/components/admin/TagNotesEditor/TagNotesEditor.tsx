@@ -5,6 +5,7 @@ import type { LocalizedText } from "@/types/common";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, GripVertical, Pencil } from "@/components/icons";
 import Chip from "@/components/ui/Chip";
+import Popover from "@/components/ui/Popover";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./TagNotesEditor.module.css";
@@ -145,6 +146,10 @@ export interface TagNotesEditorProps {
   onEditClick?: (item: string) => void;
   /** 외부 편집 패널에서 현재 active 인 item — 해당 chip 강조 표시 (active class). */
   activeItem?: string | null;
+  /** 제공 시 편집 트리거(chip 편집 버튼)를 Popover 로 감싼다 — 편집 UI 를 해당 chip 옆 팝오버로 띄움.
+   *  열림 여부는 activeItem === item (= onEditClick 이 설정한 편집 대상) 로 제어된다.
+   *  close 로 팝오버를 닫을 수 있다(편집 취소는 caller 가 onEditClick 재호출로 처리). */
+  renderEditPopover?: (item: string, close: () => void) => React.ReactNode;
   /** true 면 drag handle (grip) 숨기고 reorder 비활성. 순서가 의미 없는 목록(태그 등) 에 사용. */
   disableReorder?: boolean;
   /** true 면 chip 들을 1열 strict — 정렬 순서가 위→아래 명확. 기본은 auto-fill multi-col. */
@@ -186,6 +191,7 @@ export default function TagNotesEditor({
   onItemClick,
   onEditClick,
   activeItem,
+  renderEditPopover,
   disableReorder = false,
   singleColumn = false,
   showIndex = false,
@@ -374,6 +380,49 @@ export default function TagNotesEditor({
         const writePairsForItem = (next: LocalizedText[]) => {
           setEntry({ ko: next.map((p) => p.ko).join("\n"), en: next.map((p) => p.en).join("\n") });
         };
+        // 편집 트리거를 팝오버로 감싼다(renderEditPopover 제공 시). 열림은 activeItem 로 제어,
+        // 닫힘(outside/ESC)은 편집 대상일 때 onEditClick 재호출로 편집 종료.
+        const wrapEdit = (btn: React.ReactNode) =>
+          renderEditPopover ? (
+            <Popover
+              open={activeItem === item}
+              onOpenChange={(o) => { if (!o && activeItem === item) onEditClick?.(item); }}
+              placement="bottom-end"
+              trigger={btn}
+              contentClassName={styles.editPopover}
+            >
+              {({ close }) => renderEditPopover(item, close)}
+            </Popover>
+          ) : btn;
+        // entry 있는 chip 의 편집/취소 토글 (capsuleGroup 안 or 팝오버 트리거).
+        const entryEditToggle = wrapEdit(
+          <GroupToggleButton
+            /* 팝오버 편집이면 트리거는 계속 '편집' 유지 (취소 중복 방지) */
+            state={renderEditPopover ? "edit" : ((editingItem === item || activeItem === item) ? "cancel" : "edit")}
+            addLabel={addLabel}
+            cancelLabel={cancelLabel}
+            editLabel={editLabel}
+            onClick={() => {
+              if (onEditClick) {
+                onEditClick(item);
+                return;
+              }
+              if (editingItem === item) {
+                const normalized = normalizeEntry(entry);
+                if (normalized === null) setEntry(null);
+                else if (normalized.ko !== entry.ko || normalized.en !== entry.en) setEntry(normalized);
+                setEditingItem(null);
+              } else {
+                const normalized = normalizeEntry(entry);
+                if (normalized && (normalized.ko !== entry.ko || normalized.en !== entry.en)) {
+                  setEntry(normalized);
+                }
+                setEditMode("all");
+                setEditingItem(item);
+              }
+            }}
+          />
+        );
         return (
           <motion.div
             key={item}
@@ -452,24 +501,28 @@ export default function TagNotesEditor({
               </span>
               {!entry ? (
                 /* 신규 entry — 단일 + 설명 추가 / 외부 편집 중이면 취소 표시 */
-                <GroupToggleButton
-                  state={activeItem === item ? "cancel" : "add"}
-                  addLabel={addLabel}
-                  cancelLabel={cancelLabel}
-                  editLabel={editLabel}
-                  onClick={() => {
-                    if (onEditClick) {
-                      onEditClick(item);
-                      return;
-                    }
-                    // entry + editing 을 같은 렌더에 — body 가 처음부터 input 상태로 mount 돼야
-                    // framer 가 최종 height 를 재서 0→full 로 펼침 애니메이션이 제대로 동작한다.
-                    setEntry({ ko: "", en: "" });
-                    setEditMode("all");
-                    setEditingItem(item);
-                    focusLastPairInput(item);
-                  }}
-                />
+                wrapEdit(
+                  <GroupToggleButton
+                    /* 팝오버 편집이면 트리거는 계속 add(+편집) 유지 — 팝오버가 자체 취소/저장을 가지므로
+                       트리거까지 '취소'로 바뀌면 취소 버튼이 두 개로 겹쳐 보인다. */
+                    state={renderEditPopover ? "add" : (activeItem === item ? "cancel" : "add")}
+                    addLabel={addLabel}
+                    cancelLabel={cancelLabel}
+                    editLabel={editLabel}
+                    onClick={() => {
+                      if (onEditClick) {
+                        onEditClick(item);
+                        return;
+                      }
+                      // entry + editing 을 같은 렌더에 — body 가 처음부터 input 상태로 mount 돼야
+                      // framer 가 최종 height 를 재서 0→full 로 펼침 애니메이션이 제대로 동작한다.
+                      setEntry({ ko: "", en: "" });
+                      setEditMode("all");
+                      setEditingItem(item);
+                      focusLastPairInput(item);
+                    }}
+                  />
+                )
               ) : (
                 <div className={styles.headerActions}>
                   {/* + 설명 추가 — 편집 모드(editingItem===item)일 때만, 편집 버튼 왼쪽.
@@ -501,58 +554,42 @@ export default function TagNotesEditor({
                       </motion.button>
                     )}
                   </AnimatePresence>
-                  {/* 편집/취소 + 일괄삭제 capsule group */}
-                  <div className={styles.capsuleGroup} data-cursor="big">
-                    {multiLine && editingItem === item && selectedIdxs.size > 0 && (
-                      <button
-                        type="button"
-                        className={styles.capsuleAddBtn}
-                        data-cursor="big"
-                        onMouseDown={(e) => e.stopPropagation()}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const filtered = pairsForItem.filter((_, i) => !selectedIdxs.has(i));
-                          if (filtered.length === 0) {
-                            setEntry(null);
-                            setEditingItem(null);
-                          } else {
-                            writePairsForItem(filtered);
-                          }
-                          setSelectedIdxs(new Set());
-                        }}
-                        title="선택 삭제"
-                      >
-                        <X size={10} strokeWidth={2.5} />
-                        삭제 ({selectedIdxs.size})
-                      </button>
-                    )}
-                    <GroupToggleButton
-                      state={(editingItem === item || activeItem === item) ? "cancel" : "edit"}
-                      addLabel={addLabel}
-                      cancelLabel={cancelLabel}
-                      editLabel={editLabel}
-                      onClick={() => {
-                        if (onEditClick) {
-                          onEditClick(item);
-                          return;
-                        }
-                        if (editingItem === item) {
-                          const normalized = normalizeEntry(entry);
-                          if (normalized === null) setEntry(null);
-                          else if (normalized.ko !== entry.ko || normalized.en !== entry.en) setEntry(normalized);
-                          setEditingItem(null);
-                        } else {
-                          const normalized = normalizeEntry(entry);
-                          if (normalized && (normalized.ko !== entry.ko || normalized.en !== entry.en)) {
-                            setEntry(normalized);
-                          }
-                          setEditMode("all");
-                          setEditingItem(item);
-                        }
-                      }}
-                    />
-                  </div>
+                  {/* 편집/취소 + 일괄삭제 capsule group.
+                      팝오버 편집(renderEditPopover) 이면 capsuleGroup 로 감싸지 않는다 — Popover 의 trigger
+                      span 이 끼면 `.capsuleGroup > *` 의 border 제거가 span 에만 걸려 안쪽 toggleBtn 자체
+                      테두리가 살아 '버튼 뒤에 버튼'처럼 캡슐이 이중으로 보인다. (이 경우 multiLine=false 라
+                      일괄삭제 버튼도 없어 capsuleGroup 자체가 불필요하다.) */}
+                  {renderEditPopover ? (
+                    entryEditToggle
+                  ) : (
+                    <div className={styles.capsuleGroup} data-cursor="big">
+                      {multiLine && editingItem === item && selectedIdxs.size > 0 && (
+                        <button
+                          type="button"
+                          className={styles.capsuleAddBtn}
+                          data-cursor="big"
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const filtered = pairsForItem.filter((_, i) => !selectedIdxs.has(i));
+                            if (filtered.length === 0) {
+                              setEntry(null);
+                              setEditingItem(null);
+                            } else {
+                              writePairsForItem(filtered);
+                            }
+                            setSelectedIdxs(new Set());
+                          }}
+                          title="선택 삭제"
+                        >
+                          <X size={10} strokeWidth={2.5} />
+                          삭제 ({selectedIdxs.size})
+                        </button>
+                      )}
+                      {entryEditToggle}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
