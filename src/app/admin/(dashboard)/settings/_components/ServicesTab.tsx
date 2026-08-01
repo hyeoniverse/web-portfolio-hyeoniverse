@@ -622,8 +622,8 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         </div>
       </section>
 
-      {/* Media Upload — 좌측에 3행 span, 우측에 AI 3개 (커버/요약/번역) 배치 */}
-      <section className={shared.section} style={{ gridColumnStart: 1, gridRow: "span 3", borderBottom: "none" }}>
+      {/* Media Upload — 드래그앤드롭 버킷은 넓은 폭이 필요해 전폭으로. AI 섹션들은 아래로 흐른다. */}
+      <section className={`${shared.section} ${shared.sectionWide}`}>
         <SectionHeader title={t("admin.settings.mediaUpload")} paths={["media"]} {...sh} />
         <ul className={shared.sectionHintList}>
           <li>{t("admin.settings.mediaUploadHint")}</li>
