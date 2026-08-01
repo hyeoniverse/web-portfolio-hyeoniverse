@@ -490,6 +490,13 @@
   gap: var(--spacing-lg);
 }
 
+/* single 모드 — 세그먼트 대신 그림자 대상 라벨 하나만 */
+.faviconShadowSingleLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
 .faviconShadowBody {
   display: flex;
   flex-direction: row;
