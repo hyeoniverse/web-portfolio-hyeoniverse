@@ -23,10 +23,10 @@ interface AppearanceTabProps extends SettingsTabProps {
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
 }
 
-export default function AppearanceTab({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths, setConfig }: AppearanceTabProps) {
+export default function AppearanceTab({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths, setConfig, validationError }: AppearanceTabProps) {
   const { t } = useLanguage();
 
-  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, titleClassName: shared.sectionTitle };
+  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: shared.sectionTitle };
 
   const [addingThemePreset, setAddingThemePreset] = useState(false);
   const [newThemePresetName, setNewThemePresetName] = useState("");
@@ -183,6 +183,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
         resetSection={resetSection}
         savingPaths={savingPaths}
         setConfig={setConfig}
+        validationError={validationError}
       />
 
       {/* Date Picker Style — 노트북/PC(2열)에서 마지막 행 좌측이라 하단 border 제거 */}

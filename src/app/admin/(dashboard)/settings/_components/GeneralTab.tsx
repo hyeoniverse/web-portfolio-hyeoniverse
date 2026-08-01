@@ -8,11 +8,11 @@ import Select from "@/components/ui/Select";
 import FieldRow from "@/components/ui/FieldRow";
 import styles from "../Settings.module.css";
 
-export default function GeneralTab({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths }: SettingsTabProps) {
+export default function GeneralTab({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths, validationError }: SettingsTabProps) {
   const { t } = useLanguage();
 
   /** 공통 props 묶음 — SectionHeader 에 spread */
-  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, titleClassName: styles.sectionTitle };
+  const sh = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, validationError, titleClassName: styles.sectionTitle };
 
   return (
     <>
