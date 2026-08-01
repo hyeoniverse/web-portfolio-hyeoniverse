@@ -6,6 +6,7 @@ import { Equal, ArrowLeftRight, X } from "@/components/icons";
 import { type TFunction } from "@/providers/LanguageProvider";
 import ColorPicker from "@/components/ui/ColorPicker";
 import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import RadioGroup from "@/components/ui/RadioGroup";
 import { Switch } from "@/components/ui/Switch";
@@ -236,5 +237,48 @@ export function FaviconShadowControls({
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+/** 프리셋 이름 입력 row — 펼침/접힘 애니메이션 + 이름 Input + 저장/취소 버튼.
+ *  테마 프리셋·로고색 프리셋 추가에 공용. open 조건·값·저장 동작만 호출부가 결정. */
+export function PresetNameAddRow({ open, value, onChange, onSave, onCancel, saveDisabled, t }: {
+  open: boolean;
+  value: string;
+  onChange: (v: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
+  saveDisabled: boolean;
+  t: TFunction;
+}) {
+  return (
+    <AnimatePresence initial={false}>
+      {open && (
+        <motion.div
+          key="preset-add-row"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+          style={{ overflow: "hidden" }}
+        >
+          <div className={styles.logoColorPresetAddRow}>
+            <Input
+              className={styles.logoColorPresetNameInput}
+              placeholder={t("admin.settings.presetNamePlaceholder")}
+              value={value}
+              onChange={onChange}
+              autoFocus
+            />
+            <Button variant="outline" size="md" onClick={onSave} disabled={saveDisabled}>
+              {t("admin.settings.saveEdit")}
+            </Button>
+            <Button variant="outline" size="md" onClick={onCancel}>
+              {t("admin.settings.cancel")}
+            </Button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

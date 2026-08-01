@@ -36,7 +36,7 @@ import type { SiteConfigData } from "@/config/site.config";
 import type { SettingsTabProps } from "../_types";
 import { UploadField, FieldHelp } from "./SettingsFormFields";
 import SectionHeader from "./SectionHeader";
-import { ColorDuoTools, FaviconShadowControls } from "./FaviconControls";
+import { ColorDuoTools, FaviconShadowControls, PresetNameAddRow } from "./FaviconControls";
 import styles from "./AppearanceTab.module.css";
 import shared from "../Settings.module.css";
 
@@ -750,44 +750,16 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 />
               </FieldRow>
             </div>
-          {/* 프리셋 이름 입력 row — .fields 바깥, 위 구분선 + AnimatePresence (펼침/접힘 height/opacity 애니메이션) */}
-          <AnimatePresence initial={false}>
-            {addingPresetName && (
-              <motion.div
-                key="preset-add-row"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                style={{ overflow: "hidden" }}
-              >
-                <div className={styles.logoColorPresetAddRow}>
-                  <Input
-                    className={styles.logoColorPresetNameInput}
-                    placeholder={t("admin.settings.presetNamePlaceholder")}
-                    value={newPresetName}
-                    onChange={setNewPresetName}
-                    autoFocus
-                  />
-                  <Button
-                    variant="outline"
-                    size="md"
-                    onClick={addCurrentAsPreset}
-                    disabled={!newPresetName.trim() || presets.some((p) => p.name === newPresetName.trim())}
-                  >
-                    {t("admin.settings.saveEdit")}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="md"
-                    onClick={() => { setAddingPresetName(false); setNewPresetName(""); }}
-                  >
-                    {t("admin.settings.cancel")}
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* 프리셋 이름 입력 row — .fields 바깥 */}
+          <PresetNameAddRow
+            open={addingPresetName}
+            value={newPresetName}
+            onChange={setNewPresetName}
+            saveDisabled={!newPresetName.trim() || presets.some((p) => p.name === newPresetName.trim())}
+            onCancel={() => { setAddingPresetName(false); setNewPresetName(""); }}
+            onSave={addCurrentAsPreset}
+            t={t}
+          />
           </div>
         </motion.div>
         )}
