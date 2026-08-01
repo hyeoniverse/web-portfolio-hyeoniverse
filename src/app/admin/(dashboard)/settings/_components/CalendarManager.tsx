@@ -18,6 +18,7 @@ import { monthTitle, relTimeLabel } from "@/components/posts/plate/calendar/mode
 import { getTrashDaysLeft } from "@/utils/trash";
 import settings from "../Settings.module.css";
 import styles from "./CalendarManager.module.css";
+import EmptyState from "@/components/ui/EmptyState";
 
 // 무거운 캘린더 뷰 스택 — 클릭 시 모달 미리보기에서만 필요하므로 지연 로드.
 // (settings 초기 번들에서 제외 → Turbopack chunk 안정화 + 초기 로드 경량화)
@@ -179,7 +180,7 @@ export default function CalendarManager() {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <p className={styles.empty}>{search ? t("검색 결과가 없습니다", "No results") : t("저장된 달력이 없습니다", "No calendars yet")}</p>
+          <EmptyState pad="sm">{search ? t("검색 결과가 없습니다", "No results") : t("저장된 달력이 없습니다", "No calendars yet")}</EmptyState>
         ) : (
           <div className={styles.list}>
             {filtered.map((it) => {
@@ -256,7 +257,7 @@ export default function CalendarManager() {
               {trash === null ? (
                 <div className={styles.row}><SkeletonLine width="45%" height={12} /></div>
               ) : trash.length === 0 ? (
-                <p className={styles.empty}>{t("휴지통이 비었습니다", "Trash is empty")}</p>
+                <EmptyState pad="sm">{t("휴지통이 비었습니다", "Trash is empty")}</EmptyState>
               ) : (
                 trash.map((it) => {
                   const b = badge(it.month);

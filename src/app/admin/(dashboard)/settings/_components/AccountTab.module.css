@@ -31,13 +31,6 @@
   color: var(--text-tertiary);
 }
 
-.devicesEmpty {
-  padding: var(--spacing-md) 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-}
-
 .devicesList {
   list-style: none;
   margin: 0;

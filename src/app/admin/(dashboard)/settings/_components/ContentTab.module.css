@@ -261,12 +261,6 @@
   color: var(--text-tertiary);
   white-space: nowrap;
 }
-.techPresetEmpty {
-  padding: var(--spacing-md);
-  text-align: center;
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-}
 .techCustomFooter {
   display: flex;
   flex-direction: column;
