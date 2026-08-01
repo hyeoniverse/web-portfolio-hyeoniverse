@@ -55,58 +55,8 @@
   color: var(--text-primary);
   background: var(--bg-secondary);
 }
-.tagDeleteConfirmBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-}
 
-.tagDeleteConfirmDesc {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  line-height: 1.5;
-  margin: 0;
-}
 
-.tagDeleteConfirmActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-sm);
-}
-.tagResetChipRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-  margin: var(--spacing-sm) 0;
-}
-.tagResetChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-primary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-.tagResetChip:hover {
-  border-color: var(--text-tertiary);
-  color: var(--text-primary);
-}
-.tagResetChipActive {
-  border-color: var(--text-primary);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
-.tagResetChipCount {
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-}
 .fitSelect {
   flex: 0 0 auto;
   width: auto;
