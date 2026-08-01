@@ -149,7 +149,10 @@ export function FaviconShadowControls({
     <div className={styles.faviconShadowCard}>
       <div className={styles.faviconShadowHead}>
         {single ? (
-          <span className={styles.faviconShadowSingleLabel}>{textLabel ?? t("admin.settings.faviconTextShadow")}</span>
+          // textLabel="" 이면 내부 라벨 생략 — 바깥에서 라벨을 따로 줄 때(대칭 배치) 사용
+          textLabel === "" ? null : (
+            <span className={styles.faviconShadowSingleLabel}>{textLabel ?? t("admin.settings.faviconTextShadow")}</span>
+          )
         ) : (
           <SegmentedControl<"text" | "bg">
             size="md"

@@ -138,47 +138,78 @@
 .logoColorPresetNameInput {
   flex: 0 0 200px;
 }
-.faviconLayout {
-  /* 폼(좌) | 미리보기(우, sticky). 예전엔 미리보기가 폼 위에 쌓여 조정하며 결과를
-     볼 수 없었고 우측이 비었다 → 빈 우측에 미리보기를 sticky 로 붙인다. */
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+/* favicon(숏) 스튜디오 — 프리뷰(상단 가로 카드) + 컨트롤 2패널(글자·모양 | 색상) + 그림자.
+   예전엔 우측 sticky 프리뷰 + 좌측 13행 단일 컬럼이라 벽처럼 길었다 → 프리뷰를 위로 올리고
+   컨트롤을 성격별 2패널로 갈라 세로 길이를 반으로 줄이고 좌우 폭을 쓴다. */
+.faviconStudio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  width: 100%;
+}
+/* flat — 카드(테두리/배경) 없이 구분선(divider)으로만 나눈다. */
+.faviconPreviewBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
   gap: var(--spacing-2xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: var(--border-light);
+}
+.faviconPanels {
+  display: grid;
+  grid-template-columns: var(--grid-cols-2);
+  gap: var(--spacing-xl) var(--spacing-2xl);
   align-items: start;
   width: 100%;
 }
-.faviconPreviewSlot {
-  grid-column: 2;
-  grid-row: 1;
-  /* grid item 은 셀(행=폼 높이) 전체를 채운다 → 안쪽 sticky div 가 이 범위에서 pin 된다.
-     (grid item 자체에 sticky 를 걸면 pin 이 안 되는 브라우저 이슈 회피) */
-  align-self: stretch;
-}
-
-.faviconPreviewSticky {
-  /* 폼을 스크롤하는 동안에도 결과가 보이도록 우측에 sticky. LIGHT/DARK 는 세로로 쌓는다.
-     top 은 고정 nav(96px) 아래로. */
-  position: sticky;
-  top: 7rem;
+.faviconPanel {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+/* 두 컬럼 사이 세로 구분선 (넓은 뷰에서만) — 카드 대신 얇은 rule 로 분리 */
+@media (min-width: 901px) {
+  .faviconPanel + .faviconPanel {
+    padding-left: var(--spacing-2xl);
+    border-left: var(--border-light);
+  }
+}
+.faviconPanelTitle {
+  margin: 0;
+  padding-bottom: var(--spacing-2xs);
+  border-bottom: var(--border-light);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
 }
 
-@media (max-width: 768px) {
-  .faviconLayout {
+@media (max-width: 900px) {
+  .faviconPanels {
     grid-template-columns: 1fr;
   }
-  .faviconPreviewSlot {
-    grid-column: 1;
-  }
-  .faviconPreviewSticky {
-    position: static;
-    flex-direction: row;
-    padding-bottom: var(--spacing-sm);
-    border-bottom: var(--border-light);
-  }
+}
+/* 그림자 — favicon(탭 아이콘) + 네비게이션 로고. 풀로고 아래 별도 brandPart 섹션. */
+.faviconShadowGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+.faviconShadowItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+/* 그림자 대상 라벨 — favicon / nav·로딩 을 구분. single 모드 내부 라벨과 같은 톤. */
+.faviconShadowSubLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .faviconPreviewCell {
@@ -200,21 +231,12 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+/* 풀로고(메인) 폼 — 라벨 위·컨트롤 아래 stacked (FieldRow 기본). */
 .faviconForm {
-  grid-column: 1;
-  grid-row: 1;
-  display: grid;
-  grid-template-columns: max-content minmax(0, 30rem);
-  align-items: center;
-  gap: var(--spacing-sm) var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
   width: 100%;
-}
-.faviconForm .faviconFormRow {
-  display: contents;
-}
-.faviconForm > label {
-  align-self: center;
-  margin: 0;
 }
 .faviconColorDuo {
   display: grid;
@@ -495,12 +517,6 @@
   background-position: 0 0, 3px 3px;
 }
 
-@media (max-width: 640px) {
-  .faviconLayout {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
 .faviconShadowCard {
   width: 100%;
   display: flex;
