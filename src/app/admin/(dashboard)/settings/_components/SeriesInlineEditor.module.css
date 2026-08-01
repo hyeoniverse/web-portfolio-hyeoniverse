@@ -193,14 +193,6 @@
   text-decoration: underline;
 }
 
-.addPostEmpty {
-  padding: var(--box-md-sm);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  text-align: center;
-}
-
 .seriesPostOrderInput {
   width: var(--button-h-sm);
   padding: var(--spacing-4xs) var(--spacing-3xs);
@@ -256,13 +248,6 @@
   background: var(--text-primary);
   border-color: var(--text-primary);
   color: var(--bg-primary);
-}
-
-.seriesPostsEmpty {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  padding: var(--spacing-xs) 0;
 }
 
 .seriesPostsList {

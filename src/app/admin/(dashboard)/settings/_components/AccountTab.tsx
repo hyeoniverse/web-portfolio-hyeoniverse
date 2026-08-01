@@ -18,6 +18,7 @@ import { parseUA } from "@/lib/auth/uaParser";
 import type { AccountTabProps } from "../_types";
 import Field from "./SettingsFormFields";
 import styles from "./AccountTab.module.css";
+import EmptyState from "@/components/ui/EmptyState";
 import shared from "../Settings.module.css";
 
 interface DeviceRow {
@@ -349,9 +350,9 @@ export default function AccountTab({
             <span className={styles.devicesCount}>{devices.length}</span>
           </div>
           {devicesLoading ? (
-            <div className={styles.devicesEmpty}><T k="admin.settings.devicesLoading" /></div>
+            <EmptyState size="xs" pad="none"><T k="admin.settings.devicesLoading" /></EmptyState>
           ) : devices.length === 0 ? (
-            <div className={styles.devicesEmpty}><T k="admin.settings.devicesEmpty" /></div>
+            <EmptyState size="xs" pad="none"><T k="admin.settings.devicesEmpty" /></EmptyState>
           ) : (
             <ul className={styles.devicesList}>
               {devices.map((d) => {
