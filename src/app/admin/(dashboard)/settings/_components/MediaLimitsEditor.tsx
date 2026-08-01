@@ -7,7 +7,7 @@ import Select from "@/components/ui/Select";
 import type { SiteConfigData } from "@/config/site.config";
 import { type TFunction } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
-import styles from "./ServicesTab.module.css";
+import styles from "./MediaLimitsEditor.module.css";
 import shared from "../Settings.module.css";
 
 /* 번들 라벨 ("JPEG / PNG / WebP") → 개별 MIME 라벨 매핑. drag chip 은 1개 MIME = 1개 chip 이라 필요. */

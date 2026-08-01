@@ -1,0 +1,162 @@
+/* MediaLimitsEditor 전용 스타일 (ServicesTab.module.css 에서 분리)
+   sizeChipShake 애니메이션 keyframes 도 Settings.module.css 에서 co-locate. */
+
+.sizeBucketStack {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-lg) var(--spacing-md);
+}
+
+.sizeBucket,
+.sizePoolBucket {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  background: transparent;
+  /* drop hover 영역 안정성 위한 padding */
+  padding: var(--spacing-2xs) 0;
+  transition: background var(--duration-base) ease;
+}
+
+.sizeBucketStack > .sizePoolBucket {
+  grid-column: 1 / -1;
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-light);
+}
+
+.sizeBucketHover {
+  background: color-mix(in oklch, var(--text-accent) 8%, transparent);
+}
+
+.sizeBucketHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+}
+
+.sizeBucketLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.sizeBucketCount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sizeBucketBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  min-height: 24px;
+}
+
+.sizeBucketEmpty {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  color: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+.sizeBucketCategory {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  color: var(--text-tertiary);
+}
+
+.sizeBucketCategory > svg {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.sizeBucketChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  flex: 1 1 auto;
+}
+
+.sizeChipShake {
+  animation: sizeChipShakeKf 0.42s var(--ease-out-expo);
+  border-color: var(--text-accent) !important;
+  color: var(--text-accent) !important;
+}
+
+.customMimeAdder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-light);
+}
+
+.customMimeLabel {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.customMimeRow {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+.customMimeInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: var(--control-h-md);
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--duration-base) ease;
+}
+
+.customMimeInput:focus {
+  border-color: var(--text-primary);
+}
+
+.customMimeInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+.customMimeError {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-accent);
+  margin: 0;
+}
+
+@keyframes sizeChipShakeKf {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15%,
+  45%,
+  75% {
+    transform: translateX(-3px);
+  }
+  30%,
+  60%,
+  90% {
+    transform: translateX(3px);
+  }
+}
