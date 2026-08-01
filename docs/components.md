@@ -427,6 +427,7 @@ export const usePortalContainer = () => useContext(PortalContainerContext);
 | `Textarea` | `tabIndent` | opt-in. Tab 으로 2칸 공백 들여쓰기 — `execCommand("insertText")` 로 native undo 스택 보존, IME 조합 중 skip, Shift+Tab 은 native 포커스 이동 유지. **`maxHint` 가 설정된 EditableTextarea 모드에서만** 동작 |
 | `Select` | (viewport clamp) | 선택 항목 중앙을 트리거 중앙에 맞춘 뒤 여백 8px 로 뷰포트 안에 clamp, 자연 높이가 가용 높이를 넘을 때만 `max-height` 부여. 외부 스크롤 시 재배치가 아니라 **닫음** |
 | `ModalConfirm` | `children` | 선택. `desc` 뒤에 렌더. 확인 전에 **무엇이 바뀌는지 목록으로** 보여줄 때 — About ERD 가져오기가 삭제/덮어쓰기 대상을 이름과 전/후 값으로 나열하는 데 쓴다 |
+| `TagNotesEditor` | `renderEditPopover` | 선택 `(item, close) => ReactNode`. 제공 시 각 chip 의 편집 트리거를 공용 `Popover` 로 감싸 편집 UI 를 chip 옆 팝오버로 띄운다(열림은 `activeItem` 로 제어). 하위호환 — 미제공 시 기존 인라인 drawer 동작. 설정 > Content 의 태그·카테고리·작품 카테고리 에디터가 하단 고정 편집 박스 대신 이 팝오버 편집을 쓴다 |
 
 ---
 

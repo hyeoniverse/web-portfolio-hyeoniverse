@@ -28,6 +28,13 @@ const itemMeta: Record<
     recommendReason?: LocalizedText;
   }
 > = {
+  "2열로 놓인 두 설정 섹션의 툴바가 한쪽만 아래로 밀려 어긋남": {
+    featured: true, section: "L", difficulty: 2, recommended: true,
+    recommendReason: {
+      ko: "어긋난 요소가 아니라 \"부모가 왜 콘텐츠보다 큰가\" 를 봐야 했던, 정렬 문제의 전형이라 골랐습니다.",
+      en: "Picked as the archetypal alignment bug where the answer is \"why is the parent taller than its content\", not the shifted element.",
+    },
+  },
   "부모의 마운트 fitView 가 자식 effect 의 카메라 제어를 매번 덮어씀": {
     featured: true, section: "I", difficulty: 3, recommended: true,
     recommendReason: {
@@ -348,6 +355,29 @@ const itemMeta: Record<
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
+  {
+    problem: {
+      ko: "2열로 놓인 두 설정 섹션의 툴바가 한쪽만 아래로 밀려 어긋남",
+      en: "In a two-column settings layout, one section's toolbar sat lower than its neighbor's",
+    },
+    definition: {
+      ko: "태그·카테고리 두 에디터를 2열 그리드에 나란히 놨는데, 같은 높이에 있어야 할 툴바·검색창·칩 목록이 한쪽(태그)만 아래로 밀려 있었습니다. 좌우 DOM 구조도 CSS 도 똑같았고, 밀린 쪽 요소에는 그럴 만한 margin·padding 이 없었습니다.",
+      en: "Two editors (tags, categories) sat side by side in a two-column grid, yet the toolbar / search / chip list that should line up were pushed down on one side (tags) only. The DOM and CSS were identical on both columns, and the shifted elements had no margin/padding to explain it.",
+    },
+    cause: {
+      ko: "두 섹션은 부모 그리드에서 같은 행이라 **같은 높이로 stretch** 됩니다. 태그 에디터가 카테고리보다 짧아 그 섹션엔 남는 세로 공간이 생겼는데, 섹션 내부도 그리드였고 `align-content` 기본값이 `stretch` 라 그 **남는 높이를 헤더·hint·툴바·에디터 각 행에 똑같이 분배**했습니다. `grid-template-rows` 를 실측하니 짧은 쪽만 행마다 ~36px 씩 커져 있었고, 그만큼 툴바가 아래로 내려간 것이었습니다. 밀린 요소 자체엔 아무 스타일도 없으니 원인이 안 보입니다.",
+      en: "The two sections are in the same parent-grid row, so they **stretch to equal height**. The tags editor was shorter than the categories one, leaving spare vertical space in that section — but the section is itself a grid, and `align-content` defaults to `stretch`, so it **spread that spare height equally across its rows** (header · hint · toolbar · editor). Measuring `grid-template-rows` showed each row on the shorter side was ~36px taller, which is exactly how far the toolbar had dropped. The shifted element has no style of its own, so the cause is invisible if you only look at it.",
+    },
+    solution: {
+      ko: "섹션 그리드에 `align-content: start` 한 줄. 남는 높이가 행 사이로 분배되지 않고 섹션 하단에 그대로 남아, 두 열의 헤더·툴바·칩이 같은 Y 에서 시작합니다. 내용을 억지로 같은 높이로 맞추거나 툴바 위치를 하드코딩하는 대신, **남는 공간이 어디로 갈지**만 정한 것입니다.",
+      en: "One line on the section grid: `align-content: start`. The spare height stays at the bottom of the section instead of being spread between rows, so both columns' headers/toolbars/chips start at the same Y. Rather than forcing content to equal heights or hardcoding the toolbar position, it just decides **where the slack goes**.",
+    },
+    keyInsight: {
+      ko: "정렬이 어긋나면 어긋난 요소가 아니라 **그것이 든 컨테이너에 남는 공간이 있는지**를 먼저 보세요. grid 의 `align-content` 기본값은 stretch 라, 컨테이너가 콘텐츠보다 크면 그 차이를 행 사이 간격으로 조용히 흘려보냅니다. 진짜 질문은 \"이 요소가 왜 밀렸나\" 가 아니라 \"**부모가 왜 콘텐츠보다 큰가**\" 였습니다.",
+      en: "When alignment drifts, look not at the misaligned element but at whether **its container has spare space**. A grid's `align-content` defaults to `stretch`, so when the container is taller than its content it quietly leaks the difference into the gaps between rows. The real question wasn't \"why did this element move\" but \"**why is the parent taller than its content**\".",
+    },
+    tags: ["css-grid", "align-content", "stretch", "alignment", "layout"],
+  },
   {
     problem: {
       ko: "부모의 마운트 fitView 가 자식 effect 의 카메라 제어를 매번 덮어씀",
