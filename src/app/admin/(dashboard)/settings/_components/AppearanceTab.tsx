@@ -2,13 +2,10 @@
 
 import { useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { Plus, X } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import TextLink from "@/components/ui/TextLink";
-import Input from "@/components/ui/Input";
-import Button from "@/components/ui/Button";
 import { showToast } from "@/stores/toastStore";
 import type { SiteConfigData } from "@/config/site.config";
 import type { SettingsTabProps } from "../_types";
@@ -16,6 +13,7 @@ import { ColorField } from "./SettingsFormFields";
 import FontSelect from "./FontSelect";
 import SectionHeader from "./SectionHeader";
 import BrandSection from "./BrandSection";
+import { PresetNameAddRow } from "./FaviconControls";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { THEME_PRESETS } from "../_data/settingsConstants";
 import styles from "./AppearanceTab.module.css";
@@ -145,63 +143,35 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
             <ColorField label={t("admin.settings.darkText")} value={config.theme.darkText} onChange={(v) => update("theme", "darkText", v)} />
           </div>
         </div>
-        {/* 테마 프리셋 이름 input row — 테마 색상 .fields 바깥 (아래) 에 배치. 위 구분선 + 펼침/접힘 애니메이션 */}
-        <AnimatePresence initial={false}>
-          {addingThemePreset && (
-            <motion.div
-              key="theme-preset-add-row"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-              style={{ overflow: "hidden" }}
-            >
-              <div className={styles.logoColorPresetAddRow}>
-                <Input
-                  className={styles.logoColorPresetNameInput}
-                  placeholder={t("admin.settings.presetNamePlaceholder")}
-                  value={newThemePresetName}
-                  onChange={setNewThemePresetName}
-                  autoFocus
-                />
-                <Button
-                  variant="outline"
-                  size="md"
-                  onClick={() => {
-                    const name = newThemePresetName.trim();
-                    const userPresets = config.theme.presets ?? [];
-                    if (!name || userPresets.some((p) => p.name === name) || THEME_PRESETS.some((p) => p.name === name)) return;
-                    update("theme", "presets", [
-                      ...userPresets,
-                      {
-                        name,
-                        theme: {
-                          accentColor: config.theme.accentColor,
-                          lightBg: config.theme.lightBg,
-                          lightText: config.theme.lightText,
-                          darkBg: config.theme.darkBg,
-                          darkText: config.theme.darkText,
-                        },
-                      },
-                    ]);
-                    setNewThemePresetName("");
-                    setAddingThemePreset(false);
-                  }}
-                  disabled={!newThemePresetName.trim()}
-                >
-                  {t("admin.settings.saveEdit")}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="md"
-                  onClick={() => { setAddingThemePreset(false); setNewThemePresetName(""); }}
-                >
-                  {t("admin.settings.cancel")}
-                </Button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* 테마 프리셋 이름 input row — 테마 색상 .fields 바깥 (아래) 에 배치 */}
+        <PresetNameAddRow
+          open={addingThemePreset}
+          value={newThemePresetName}
+          onChange={setNewThemePresetName}
+          saveDisabled={!newThemePresetName.trim()}
+          onCancel={() => { setAddingThemePreset(false); setNewThemePresetName(""); }}
+          onSave={() => {
+            const name = newThemePresetName.trim();
+            const userPresets = config.theme.presets ?? [];
+            if (!name || userPresets.some((p) => p.name === name) || THEME_PRESETS.some((p) => p.name === name)) return;
+            update("theme", "presets", [
+              ...userPresets,
+              {
+                name,
+                theme: {
+                  accentColor: config.theme.accentColor,
+                  lightBg: config.theme.lightBg,
+                  lightText: config.theme.lightText,
+                  darkBg: config.theme.darkBg,
+                  darkText: config.theme.darkText,
+                },
+              },
+            ]);
+            setNewThemePresetName("");
+            setAddingThemePreset(false);
+          }}
+          t={t}
+        />
       </section>
 
       <BrandSection
