@@ -773,6 +773,15 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
             onSave={addCurrentAsPreset}
             t={t}
           />
+          {/* nav·로딩 로고 그림자 — favicon(브라우저 탭)과 별개. 토글 ON 이면 이 값을, OFF 면 favicon 텍스트 그림자를 상속 */}
+          <FaviconShadowControls
+            single
+            textShadow={config.brand.logoShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
+            onChangeText={(v) => update("brand", "logoShadow", v)}
+            t={t}
+            textLabel={t("admin.settings.navLogoShadow")}
+          />
+          <p className={styles.faviconImageOptionsHint}>{t("admin.settings.navLogoShadowHint")}</p>
           </div>
         </motion.div>
         )}
