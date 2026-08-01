@@ -259,20 +259,22 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
     }
     const sorted = [...list];
     const dirSign = sortDir === "asc" ? 1 : -1;
-    sorted.sort((a, b) => {
-      if (sortBy === "freq") {
+    if (sortBy === "name") {
+      // name — nameLang(ko/en) 기준. 이름 키를 1회 decorate 해 비교마다 normalizeTagMeta 재호출을 피한다.
+      const nameKey = new Map(sorted.map((tag) => {
+        const m = normalizeTagMeta(value[tag]);
+        return [tag, (nameLang === "ko" ? m.ko : m.en).trim() || tag] as const;
+      }));
+      const loc = nameLang === "ko" ? "ko" : "en";
+      sorted.sort((a, b) => nameKey.get(a)!.localeCompare(nameKey.get(b)!, loc) * dirSign);
+    } else {
+      sorted.sort((a, b) => {
         const ac = tagCounts[a] ?? 0;
         const bc = tagCounts[b] ?? 0;
         if (ac !== bc) return (ac - bc) * dirSign;
         return a.localeCompare(b, "ko"); // tiebreak 가나다
-      }
-      // name — nameLang(ko/en) 기준. 빈 값이면 tag canonical 폴백
-      const am = normalizeTagMeta(value[a]);
-      const bm = normalizeTagMeta(value[b]);
-      const aName = (nameLang === "ko" ? am.ko : am.en).trim() || a;
-      const bName = (nameLang === "ko" ? bm.ko : bm.en).trim() || b;
-      return aName.localeCompare(bName, nameLang === "ko" ? "ko" : "en") * dirSign;
-    });
+      });
+    }
     return sorted;
   }, [allTags, search, searchType, sortBy, sortDir, nameLang, usageFilter, descFilter, letterFilters, value, postTagSet, tagCounts]);
 
@@ -828,8 +830,5 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
   );
 }
 
-/* ─── About panel inline editors ─────────────────────────────────────────
- * features/process/security 항목을 inline UI (Field + Input + 카드) 로 편집.
- * 각 row 는 카드 박스 안에 필드 stack + 우상단 삭제 버튼. 하단 + 버튼으로 추가. */
 
 
