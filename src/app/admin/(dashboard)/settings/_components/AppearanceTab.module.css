@@ -139,22 +139,46 @@
   flex: 0 0 200px;
 }
 .faviconLayout {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  /* 부모 .fields 가 align-items:flex-start 라 명시 안 하면 content 폭으로 줄어
-     안쪽 auto-fit grid 가 1열로 붕괴한다. 풀폭 확정 → 컨트롤 2열. */
+  /* 폼(좌) | 미리보기(우, sticky). 예전엔 미리보기가 폼 위에 쌓여 조정하며 결과를
+     볼 수 없었고 우측이 비었다 → 빈 우측에 미리보기를 sticky 로 붙인다. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-2xl);
+  align-items: start;
   width: 100%;
 }
 .faviconPreviewSlot {
+  grid-column: 2;
+  grid-row: 1;
+  /* grid item 은 셀(행=폼 높이) 전체를 채운다 → 안쪽 sticky div 가 이 범위에서 pin 된다.
+     (grid item 자체에 sticky 를 걸면 pin 이 안 되는 브라우저 이슈 회피) */
   align-self: stretch;
+}
+
+.faviconPreviewSticky {
+  /* 폼을 스크롤하는 동안에도 결과가 보이도록 우측에 sticky. LIGHT/DARK 는 세로로 쌓는다.
+     top 은 고정 nav(96px) 아래로. */
+  position: sticky;
+  top: 7rem;
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  flex-direction: column;
   align-items: center;
-  gap: var(--spacing-xl);
-  padding-bottom: var(--spacing-sm);
-  border-bottom: var(--border-light);
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+  .faviconLayout {
+    grid-template-columns: 1fr;
+  }
+  .faviconPreviewSlot {
+    grid-column: 1;
+  }
+  .faviconPreviewSticky {
+    position: static;
+    flex-direction: row;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: var(--border-light);
+  }
 }
 
 .faviconPreviewCell {
@@ -177,6 +201,8 @@
   letter-spacing: 0.05em;
 }
 .faviconForm {
+  grid-column: 1;
+  grid-row: 1;
   display: grid;
   grid-template-columns: max-content minmax(0, 30rem);
   align-items: center;

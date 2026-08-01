@@ -367,6 +367,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
             {/* 프리뷰 스트립 + 아래 정렬 폼 (숏 텍스트 → 브라우저 탭 아이콘) */}
             <div className={styles.faviconLayout}>
               <div className={styles.faviconPreviewSlot}>
+                <div className={styles.faviconPreviewSticky}>
                 {(["light", "dark"] as const).map((variant) => {
                   // preset 색 — 미리보기는 theme.lightText/darkText 로 fallback (route.ts 와 동일 계산 구조)
                   const presetLight = config.brand.logoColor || config.theme.lightText;
@@ -427,6 +428,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                     </div>
                   );
                 })}
+                </div>
               </div>
               <div className={styles.faviconForm}>
                 <FieldRow label={t("admin.settings.logoText")} className={styles.faviconFormRow}>
