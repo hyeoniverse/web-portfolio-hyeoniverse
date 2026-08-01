@@ -98,6 +98,61 @@ function ColorDuoRow({ t, placeholder, light, dark, tools = false }: {
   );
 }
 
+/** favicon 미리보기 SVG — resolveFavicon 결과(render)를 배경 rect + 글자 + 그림자 filter 로 그린다. 순수 표현. */
+function FaviconPreviewSvg({ render, textShadowId, bgShadowId }: {
+  render: ReturnType<typeof resolveFavicon>;
+  textShadowId: string;
+  bgShadowId: string;
+}) {
+  return (
+    <svg
+      className={styles.faviconPreview}
+      viewBox="0 0 32 32"
+      width="48"
+      height="48"
+      aria-hidden
+      style={render.shape === "none" ? { overflow: "visible", border: "1px dashed var(--border-light-color)", borderRadius: 4 } : { overflow: "visible" }}
+    >
+      {(render.textShadow || render.bgShadow) && (
+        <defs>
+          {render.bgShadow && <FaviconFilter resolved={render.bgShadow} id={bgShadowId} />}
+          {render.textShadow && <FaviconFilter resolved={render.textShadow} id={textShadowId} />}
+        </defs>
+      )}
+      <g transform={faviconContentTransform(render.contentScale) || undefined}>
+        {render.hasBg && (
+          <rect
+            x={render.bgX}
+            y={render.bgY}
+            width={render.bgW}
+            height={render.bgH}
+            rx={render.radius}
+            ry={render.radius}
+            fill={render.bgColor}
+            stroke={render.borderWidth > 0 ? render.borderColor : undefined}
+            strokeWidth={render.borderWidth > 0 ? render.borderWidth : undefined}
+            filter={render.bgShadow ? `url(#${bgShadowId})` : undefined}
+          />
+        )}
+        <text
+          x="50%"
+          y="50%"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontFamily={render.fontFamily}
+          fontSize={render.fontSize}
+          fontWeight={render.fontWeight}
+          fill={render.fgColor}
+          transform={render.transform}
+          filter={render.textShadow ? `url(#${textShadowId})` : undefined}
+        >
+          {render.logoText}
+        </text>
+      </g>
+    </svg>
+  );
+}
+
 export default function BrandSection({ config, savedConfig, update, saveSection, revertSection, resetSection, savingPaths, setConfig }: BrandSectionProps) {
   const { t } = useLanguage();
 
@@ -347,51 +402,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                   const level = ratio != null ? contrastLevel(ratio) : null;
                   return (
                     <div key={variant} className={styles.faviconPreviewCell}>
-                      <svg
-                        className={styles.faviconPreview}
-                        viewBox="0 0 32 32"
-                        width="48"
-                        height="48"
-                        aria-hidden
-                        style={render.shape === "none" ? { overflow: "visible", border: "1px dashed var(--border-light-color)", borderRadius: 4 } : { overflow: "visible" }}
-                      >
-                        {(render.textShadow || render.bgShadow) && (
-                          <defs>
-                            {render.bgShadow && <FaviconFilter resolved={render.bgShadow} id={bgShadowId} />}
-                            {render.textShadow && <FaviconFilter resolved={render.textShadow} id={textShadowId} />}
-                          </defs>
-                        )}
-                        <g transform={faviconContentTransform(render.contentScale) || undefined}>
-                          {render.hasBg && (
-                            <rect
-                              x={render.bgX}
-                              y={render.bgY}
-                              width={render.bgW}
-                              height={render.bgH}
-                              rx={render.radius}
-                              ry={render.radius}
-                              fill={render.bgColor}
-                              stroke={render.borderWidth > 0 ? render.borderColor : undefined}
-                              strokeWidth={render.borderWidth > 0 ? render.borderWidth : undefined}
-                              filter={render.bgShadow ? `url(#${bgShadowId})` : undefined}
-                            />
-                          )}
-                          <text
-                            x="50%"
-                            y="50%"
-                            textAnchor="middle"
-                            dominantBaseline="central"
-                            fontFamily={render.fontFamily}
-                            fontSize={render.fontSize}
-                            fontWeight={render.fontWeight}
-                            fill={render.fgColor}
-                            transform={render.transform}
-                            filter={render.textShadow ? `url(#${textShadowId})` : undefined}
-                          >
-                            {render.logoText}
-                          </text>
-                        </g>
-                      </svg>
+                      <FaviconPreviewSvg render={render} textShadowId={textShadowId} bgShadowId={bgShadowId} />
                       <span className={styles.faviconPreviewLabel}>{variant}</span>
                       {/* 대비율 + WCAG 배지 — favicon 은 그래픽 글리프라 3:1(1.4.11)이 실질 최소 */}
                       <span className={styles.faviconContrast}>

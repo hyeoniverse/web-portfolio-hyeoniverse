@@ -114,29 +114,6 @@
   align-items: center;
 }
 
-.customMimeInput {
-  flex: 1 1 auto;
-  min-width: 0;
-  height: var(--control-h-md);
-  padding: 0 var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  outline: none;
-  transition: border-color var(--duration-base) ease;
-}
-
-.customMimeInput:focus {
-  border-color: var(--text-primary);
-}
-
-.customMimeInput::placeholder {
-  color: var(--text-tertiary);
-}
-
 .customMimeError {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-2xs);
