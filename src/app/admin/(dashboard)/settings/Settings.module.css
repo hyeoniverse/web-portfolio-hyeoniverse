@@ -195,6 +195,10 @@
   column-gap: var(--spacing-md);
   row-gap: var(--spacing-md);
   align-items: center;
+  /* 2열로 나란히 놓인 섹션(태그·카테고리 등)은 부모 grid 가 둘을 같은 높이로 stretch 하는데,
+     기본 align-content(stretch) 는 그 남는 높이를 각 행에 분배해 헤더·hint·툴바를 아래로 밀어
+     옆 열과 어긋나게 만든다. start 로 고정 → 행은 콘텐츠 높이 유지, 남는 공간은 섹션 하단에. */
+  align-content: start;
 }
 /* 기본: 모든 섹션 직속 자식 전폭. :where 로 0 specificity → SectionHeader 의 .title/.spacer 배치가 이긴다. */
 :where(.section) > * {
@@ -793,6 +797,12 @@
   margin-bottom: var(--spacing-md);
   margin-top: 0;
   line-height: 1.4;
+}
+
+/* 태그·카테고리(2열) hint — 두 열의 에디터 툴바가 같은 Y 에서 시작하도록 2줄 높이를 예약.
+   (한쪽 hint 가 1줄이어도 최소 2줄 공간을 차지 → 옆 열과 수직 정렬) */
+.taxonomyHint { composes: sectionHint;
+  min-height: 2.8em; /* line-height 1.4 × 2줄 */
 }
 
 /* SectionHeader row 에 inline 으로 들어갈 때 — margin 모두 제거, line-height 1.
@@ -1710,9 +1720,10 @@
 /* 검색창 — filter row 의 마지막 item. wrap 안 됐을 땐 margin-left:auto 로 우측 끝.
    wrap 됐을 땐 새 줄의 끝쪽 (justify-content: flex-end 효과는 width 100% 로). */
 .tagDescSearchEnd {
-  margin-left: auto;
-  width: 280px;
-  max-width: 100%;
+  /* 필터·정렬 줄 아래 전폭 둘째 줄로 — 컬럼 폭에 따라 wrap 여부가 달라져 태그/카테고리가
+     어긋나 보이던 문제 방지(항상 자기 줄 전폭). */
+  flex-basis: 100%;
+  width: 100%;
 }
 
 /* filterRow + filterDrawer 묶음 컨테이너 */
@@ -2098,3 +2109,29 @@ a.tagRelatedItem:hover {
 
 /* ── 멤버 상세 모달 (읽기 전용) ── */
 
+
+/* 태그·카테고리 추가 popover — 툴바 트리거(우측 정렬) + popover 안 폼 */
+/* posts subtab 태그/카테고리 에디터 공용 — toolbar 우측 끝 add 트리거 + popover 폼 */
+.addPopoverTrigger {
+  margin-left: auto;
+}
+.addPopoverForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  min-width: 24rem;
+  max-width: 90vw;
+}
+/* 편집 헤더(제목+삭제/취소/저장) 아래 필드와의 구분선 — 액션 영역과 입력 영역 분리 */
+.addPopoverForm > .worksCatAddLabel {
+  padding-bottom: var(--spacing-sm);
+  border-bottom: var(--border-light);
+}
+/* 팝오버 안에서는 라벨을 상단 정렬 — ko/en 인풋이 세로로 쌓일 때 라벨이 가운데 뜨지 않게 */
+.addPopoverForm .worksCatAddRow {
+  align-items: start;
+}
+.addPopoverForm .worksCatAddRowLabel {
+  padding-top: var(--spacing-2xs); /* 첫 인풋 텍스트 라인에 맞춰 살짝 내림 */
+}

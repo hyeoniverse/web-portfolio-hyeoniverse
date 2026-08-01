@@ -470,3 +470,9 @@
 .inputBare::placeholder {
   color: var(--text-tertiary);
 }
+
+/* ── 편집 팝오버(renderEditPopover) — 내부 폼(.addPopoverForm)이 padding/min-width 담당,
+   여기선 posts 리스트까지 담기게 폭 상한만 넉넉히. */
+.editPopover {
+  max-width: min(32rem, 92vw);
+}
