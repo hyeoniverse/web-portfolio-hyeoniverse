@@ -42,6 +42,21 @@ interface ContentTabProps extends SettingsTabProps {
   contentSubTab: "home" | "profile" | "about" | "works" | "posts" | "calendars";
 }
 
+/** en/ko 한 쌍의 Field(같은 label, langBadge 만 다름) — fieldPair 레이아웃 + Field ×2. */
+function BilingualFieldPair({ label, en, ko, multiline }: {
+  label: string;
+  en: { value: string; onChange: (v: string) => void };
+  ko: { value: string; onChange: (v: string) => void };
+  multiline?: boolean;
+}) {
+  return (
+    <div className={styles.fieldPair}>
+      <Field label={label} langBadge="en" value={en.value} onChange={en.onChange} multiline={multiline} />
+      <Field label={label} langBadge="ko" value={ko.value} onChange={ko.onChange} multiline={multiline} />
+    </div>
+  );
+}
+
 export default function ContentTab({
   config,
   savedConfig,
@@ -152,42 +167,23 @@ export default function ContentTab({
               {...sh}
             />
             <div className={styles.fields}>
-              <div className={styles.fieldPair}>
-                <Field
-                  label={t("admin.settings.heroHeadline")}
-                  langBadge="en"
-                  value={config.hero.headline.join("\n")}
-                  onChange={(v) => update("hero", "headline", v.split("\n"))}
-                  multiline
-                />
-                <Field
-                  label={t("admin.settings.heroHeadline")}
-                  langBadge="ko"
-                  value={config.hero.headline_ko.join("\n")}
-                  onChange={(v) => update("hero", "headline_ko", v.split("\n"))}
-                  multiline
-                />
-              </div>
-              <div className={styles.fieldPair}>
-                <Field
-                  label={t("admin.settings.heroSubtext")}
-                  langBadge="en"
-                  value={config.hero.subtext.join("\n")}
-                  onChange={(v) => update("hero", "subtext", v.split("\n"))}
-                  multiline
-                />
-                <Field
-                  label={t("admin.settings.heroSubtext")}
-                  langBadge="ko"
-                  value={config.hero.subtext_ko.join("\n")}
-                  onChange={(v) => update("hero", "subtext_ko", v.split("\n"))}
-                  multiline
-                />
-              </div>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.scrollLabel")} langBadge="en" value={config.hero.scrollLabel} onChange={(v) => update("hero", "scrollLabel", v)} />
-                <Field label={t("admin.settings.scrollLabel")} langBadge="ko" value={config.hero.scrollLabel_ko} onChange={(v) => update("hero", "scrollLabel_ko", v)} />
-              </div>
+              <BilingualFieldPair
+                label={t("admin.settings.heroHeadline")}
+                en={{ value: config.hero.headline.join("\n"), onChange: (v) => update("hero", "headline", v.split("\n")) }}
+                ko={{ value: config.hero.headline_ko.join("\n"), onChange: (v) => update("hero", "headline_ko", v.split("\n")) }}
+                multiline
+              />
+              <BilingualFieldPair
+                label={t("admin.settings.heroSubtext")}
+                en={{ value: config.hero.subtext.join("\n"), onChange: (v) => update("hero", "subtext", v.split("\n")) }}
+                ko={{ value: config.hero.subtext_ko.join("\n"), onChange: (v) => update("hero", "subtext_ko", v.split("\n")) }}
+                multiline
+              />
+              <BilingualFieldPair
+                label={t("admin.settings.scrollLabel")}
+                en={{ value: config.hero.scrollLabel, onChange: (v) => update("hero", "scrollLabel", v) }}
+                ko={{ value: config.hero.scrollLabel_ko, onChange: (v) => update("hero", "scrollLabel_ko", v) }}
+              />
             </div>
           </section>
 
@@ -226,14 +222,18 @@ export default function ContentTab({
               {...sh}
             />
             <div className={styles.fields}>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.fieldTagline")} langBadge="en" value={config.homeIntro.tagline} onChange={(v) => update("homeIntro", "tagline", v)} multiline />
-                <Field label={t("admin.settings.fieldTagline")} langBadge="ko" value={config.homeIntro.tagline_ko} onChange={(v) => update("homeIntro", "tagline_ko", v)} multiline />
-              </div>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.fieldDescription")} langBadge="en" value={config.homeIntro.description} onChange={(v) => update("homeIntro", "description", v)} multiline />
-                <Field label={t("admin.settings.fieldDescription")} langBadge="ko" value={config.homeIntro.description_ko} onChange={(v) => update("homeIntro", "description_ko", v)} multiline />
-              </div>
+              <BilingualFieldPair
+                label={t("admin.settings.fieldTagline")}
+                en={{ value: config.homeIntro.tagline, onChange: (v) => update("homeIntro", "tagline", v) }}
+                ko={{ value: config.homeIntro.tagline_ko, onChange: (v) => update("homeIntro", "tagline_ko", v) }}
+                multiline
+              />
+              <BilingualFieldPair
+                label={t("admin.settings.fieldDescription")}
+                en={{ value: config.homeIntro.description, onChange: (v) => update("homeIntro", "description", v) }}
+                ko={{ value: config.homeIntro.description_ko, onChange: (v) => update("homeIntro", "description_ko", v) }}
+                multiline
+              />
             </div>
           </section>
 
@@ -241,10 +241,11 @@ export default function ContentTab({
           <section className={styles.section} style={{ gridRow: "span 2", borderBottom: "none" }}>
             <SectionHeader title={t("admin.settings.servicesLabel")} paths={["services"]} {...sh} />
             <div className={styles.fields}>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.fieldSectionTitle")} langBadge="en" value={config.services.label} onChange={(v) => update("services", "label", v)} />
-                <Field label={t("admin.settings.fieldSectionTitle")} langBadge="ko" value={config.services.label_ko} onChange={(v) => update("services", "label_ko", v)} />
-              </div>
+              <BilingualFieldPair
+                label={t("admin.settings.fieldSectionTitle")}
+                en={{ value: config.services.label, onChange: (v) => update("services", "label", v) }}
+                ko={{ value: config.services.label_ko, onChange: (v) => update("services", "label_ko", v) }}
+              />
             </div>
             <hr className={styles.sectionDivider} />
             <ServiceItemsEditor
@@ -262,20 +263,11 @@ export default function ContentTab({
               {...sh}
             />
             <div className={styles.fields}>
-              <div className={styles.fieldPair}>
-                <Field
-                  label={t("admin.settings.fieldWords")}
-                  langBadge="en"
-                  value={config.marquee.words.join(", ")}
-                  onChange={(v) => update("marquee", "words", v.split(",").map((s) => s.trim()))}
-                />
-                <Field
-                  label={t("admin.settings.fieldWords")}
-                  langBadge="ko"
-                  value={config.marquee.words_ko.join(", ")}
-                  onChange={(v) => update("marquee", "words_ko", v.split(",").map((s) => s.trim()))}
-                />
-              </div>
+              <BilingualFieldPair
+                label={t("admin.settings.fieldWords")}
+                en={{ value: config.marquee.words.join(", "), onChange: (v) => update("marquee", "words", v.split(",").map((s) => s.trim())) }}
+                ko={{ value: config.marquee.words_ko.join(", "), onChange: (v) => update("marquee", "words_ko", v.split(",").map((s) => s.trim())) }}
+              />
             </div>
           </section>
 
@@ -288,30 +280,22 @@ export default function ContentTab({
               {...sh}
             />
             <div className={styles.fields}>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.ctaLabel")} langBadge="en" value={config.cta.label} onChange={(v) => update("cta", "label", v)} />
-                <Field label={t("admin.settings.ctaLabel")} langBadge="ko" value={config.cta.label_ko} onChange={(v) => update("cta", "label_ko", v)} />
-              </div>
-              <div className={styles.fieldPair}>
-                <Field
-                  label={t("admin.settings.ctaTitle")}
-                  langBadge="en"
-                  value={config.cta.title.join("\n")}
-                  onChange={(v) => update("cta", "title", v.split("\n"))}
-                  multiline
-                />
-                <Field
-                  label={t("admin.settings.ctaTitle")}
-                  langBadge="ko"
-                  value={config.cta.title_ko.join("\n")}
-                  onChange={(v) => update("cta", "title_ko", v.split("\n"))}
-                  multiline
-                />
-              </div>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.ctaButtonText")} langBadge="en" value={config.cta.buttonText} onChange={(v) => update("cta", "buttonText", v)} />
-                <Field label={t("admin.settings.ctaButtonText")} langBadge="ko" value={config.cta.buttonText_ko} onChange={(v) => update("cta", "buttonText_ko", v)} />
-              </div>
+              <BilingualFieldPair
+                label={t("admin.settings.ctaLabel")}
+                en={{ value: config.cta.label, onChange: (v) => update("cta", "label", v) }}
+                ko={{ value: config.cta.label_ko, onChange: (v) => update("cta", "label_ko", v) }}
+              />
+              <BilingualFieldPair
+                label={t("admin.settings.ctaTitle")}
+                en={{ value: config.cta.title.join("\n"), onChange: (v) => update("cta", "title", v.split("\n")) }}
+                ko={{ value: config.cta.title_ko.join("\n"), onChange: (v) => update("cta", "title_ko", v.split("\n")) }}
+                multiline
+              />
+              <BilingualFieldPair
+                label={t("admin.settings.ctaButtonText")}
+                en={{ value: config.cta.buttonText, onChange: (v) => update("cta", "buttonText", v) }}
+                ko={{ value: config.cta.buttonText_ko, onChange: (v) => update("cta", "buttonText_ko", v) }}
+              />
               <UploadField
                 kind="resume"
                 label={t("admin.settings.resumeFile")}
@@ -322,10 +306,11 @@ export default function ContentTab({
                 onUploaded={(url) => update("cta", "resumeUrl", url)}
                 onRemove={() => update("cta", "resumeUrl", "")}
               />
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.resumeButtonText")} langBadge="en" value={config.cta.resumeButtonText} onChange={(v) => update("cta", "resumeButtonText", v)} />
-                <Field label={t("admin.settings.resumeButtonText")} langBadge="ko" value={config.cta.resumeButtonText_ko} onChange={(v) => update("cta", "resumeButtonText_ko", v)} />
-              </div>
+              <BilingualFieldPair
+                label={t("admin.settings.resumeButtonText")}
+                en={{ value: config.cta.resumeButtonText, onChange: (v) => update("cta", "resumeButtonText", v) }}
+                ko={{ value: config.cta.resumeButtonText_ko, onChange: (v) => update("cta", "resumeButtonText_ko", v) }}
+              />
             </div>
           </section>
 
@@ -333,10 +318,11 @@ export default function ContentTab({
           <section className={styles.section}>
             <SectionHeader title="Footer" paths={["footer"]} {...sh} />
             <div className={styles.fields}>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.footerCopyright")} langBadge="en" value={config.footer.copyright} onChange={(v) => update("footer", "copyright", v)} />
-                <Field label={t("admin.settings.footerCopyright")} langBadge="ko" value={config.footer.copyright_ko} onChange={(v) => update("footer", "copyright_ko", v)} />
-              </div>
+              <BilingualFieldPair
+                label={t("admin.settings.footerCopyright")}
+                en={{ value: config.footer.copyright, onChange: (v) => update("footer", "copyright", v) }}
+                ko={{ value: config.footer.copyright_ko, onChange: (v) => update("footer", "copyright_ko", v) }}
+              />
               <div className={styles.fieldPair}>
                 <Field label={t("admin.settings.musicCreditTitle")} value={config.footer.musicCreditTitle} onChange={(v) => update("footer", "musicCreditTitle", v)} placeholder="Ghost Duet" />
                 <Field label={t("admin.settings.musicCreditArtist")} value={config.footer.musicCreditArtist} onChange={(v) => update("footer", "musicCreditArtist", v)} placeholder="Louie Zong" />
@@ -631,30 +617,38 @@ export default function ContentTab({
               {...sh}
             />
             <div className={styles.fields}>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.worksIntroLabel")} langBadge="en" value={config.works.introLabel} onChange={(v) => update("works", "introLabel", v)} />
-                <Field label={t("admin.settings.worksIntroLabel")} langBadge="ko" value={config.works.introLabel_ko} onChange={(v) => update("works", "introLabel_ko", v)} />
-              </div>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.worksIntroTitle")} langBadge="en" value={config.works.introTitle} onChange={(v) => update("works", "introTitle", v)} />
-                <Field label={t("admin.settings.worksIntroTitle")} langBadge="ko" value={config.works.introTitle_ko} onChange={(v) => update("works", "introTitle_ko", v)} />
-              </div>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.worksIntroTagline")} langBadge="en" value={config.works.introTagline} onChange={(v) => update("works", "introTagline", v)} />
-                <Field label={t("admin.settings.worksIntroTagline")} langBadge="ko" value={config.works.introTagline_ko} onChange={(v) => update("works", "introTagline_ko", v)} />
-              </div>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.worksIntroDesc")} langBadge="en" value={config.works.introDesc} onChange={(v) => update("works", "introDesc", v)} multiline />
-                <Field label={t("admin.settings.worksIntroDesc")} langBadge="ko" value={config.works.introDesc_ko} onChange={(v) => update("works", "introDesc_ko", v)} multiline />
-              </div>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.worksIntroDetail")} langBadge="en" value={config.works.introDetail} onChange={(v) => update("works", "introDetail", v)} multiline />
-                <Field label={t("admin.settings.worksIntroDetail")} langBadge="ko" value={config.works.introDetail_ko} onChange={(v) => update("works", "introDetail_ko", v)} multiline />
-              </div>
-              <div className={styles.fieldPair}>
-                <Field label={t("admin.settings.worksIntroQuote")} langBadge="en" value={config.works.introQuote} onChange={(v) => update("works", "introQuote", v)} />
-                <Field label={t("admin.settings.worksIntroQuote")} langBadge="ko" value={config.works.introQuote_ko} onChange={(v) => update("works", "introQuote_ko", v)} />
-              </div>
+              <BilingualFieldPair
+                label={t("admin.settings.worksIntroLabel")}
+                en={{ value: config.works.introLabel, onChange: (v) => update("works", "introLabel", v) }}
+                ko={{ value: config.works.introLabel_ko, onChange: (v) => update("works", "introLabel_ko", v) }}
+              />
+              <BilingualFieldPair
+                label={t("admin.settings.worksIntroTitle")}
+                en={{ value: config.works.introTitle, onChange: (v) => update("works", "introTitle", v) }}
+                ko={{ value: config.works.introTitle_ko, onChange: (v) => update("works", "introTitle_ko", v) }}
+              />
+              <BilingualFieldPair
+                label={t("admin.settings.worksIntroTagline")}
+                en={{ value: config.works.introTagline, onChange: (v) => update("works", "introTagline", v) }}
+                ko={{ value: config.works.introTagline_ko, onChange: (v) => update("works", "introTagline_ko", v) }}
+              />
+              <BilingualFieldPair
+                label={t("admin.settings.worksIntroDesc")}
+                en={{ value: config.works.introDesc, onChange: (v) => update("works", "introDesc", v) }}
+                ko={{ value: config.works.introDesc_ko, onChange: (v) => update("works", "introDesc_ko", v) }}
+                multiline
+              />
+              <BilingualFieldPair
+                label={t("admin.settings.worksIntroDetail")}
+                en={{ value: config.works.introDetail, onChange: (v) => update("works", "introDetail", v) }}
+                ko={{ value: config.works.introDetail_ko, onChange: (v) => update("works", "introDetail_ko", v) }}
+                multiline
+              />
+              <BilingualFieldPair
+                label={t("admin.settings.worksIntroQuote")}
+                en={{ value: config.works.introQuote, onChange: (v) => update("works", "introQuote", v) }}
+                ko={{ value: config.works.introQuote_ko, onChange: (v) => update("works", "introQuote_ko", v) }}
+              />
               <div className={styles.fieldPair}>
                 <TagListField
                   label={t("admin.settings.worksIntroScope")}
