@@ -522,7 +522,7 @@ export default function ContentTab({
               )}
               {...sh}
             />
-            <p className={styles.sectionHint}>
+            <p className={styles.taxonomyHint}>
               모든 게시물에 사용된 태그 목록과 각 태그별 설명입니다. 설명은 /posts/tags/[tag] 페이지의 hero 영역에 표시됩니다.
             </p>
             <TagDescriptionsEditor
@@ -537,6 +537,9 @@ export default function ContentTab({
           {/* Post Categories */}
           <section className={styles.section}>
             <SectionHeader title={t("admin.settings.postCategories")} paths={["posts.categories"]} {...sh} />
+            <p className={styles.taxonomyHint}>
+              게시물을 분류하는 카테고리 목록입니다. 대분류 아래 소분류까지 2단계로 구성되며, 게시물에는 최하위 카테고리가 저장됩니다.
+            </p>
             <div className={styles.fields}>
               <CategoriesEditor
                 categories={normalizedPostCats}

@@ -17,6 +17,7 @@ import Pagination from "@/components/ui/Pagination";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import LetterFilter from "@/components/ui/LetterFilter";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import Popover from "@/components/ui/Popover";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import { List, ListItem } from "@/app/admin/(dashboard)/components";
@@ -449,6 +450,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
   /* ── 하단 통합 add/edit box ──
      canonical key (post.tags 매칭용) 는 신규 추가 시 EN (없으면 KO) 에서 자동 도출 — 별도 입력 X. */
   const [editingTag, setEditingTag] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
   const [pairNames, setPairNames] = useState<LocalizedText>({ ko: "", en: "" });
   const [pairDesc, setPairDesc] = useState<LocalizedText>({ ko: "", en: "" });
   const [isShaking, setIsShaking] = useState(false);
@@ -518,6 +520,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
       const dup = findDuplicate(allTags, [newCanonical], (t) => [t]);
       if (dup) {
         showToast(`"${dup}" 과 같은 태그입니다`, "warning");
+        setAdding(false); // add 팝오버 닫고 중복 항목 편집 팝오버로 이동
         triggerShake();
         focusDuplicate(dup);
         return;
@@ -529,11 +532,31 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
       onChange(base);
       setPairNames({ ko: "", en: "" });
       setPairDesc({ ko: "", en: "" });
+      setAdding(false);
     }
   };
 
   /* 중복은 disabled 대신 submit 시 toast + shake 로 알림 — 버튼은 비어있을 때만 disabled */
   const submitEnabled = isEdit || !!newCanonical;
+
+  /* add popover · edit box 공용 필드 (이름 + 설명) */
+  const renderFields = () => (
+    <>
+      <div className={styles.worksCatAddRow}>
+        <span className={styles.worksCatAddRowLabel}>이름</span>
+        <BilingualInputPair
+          value={pairNames}
+          onChange={setPairNames}
+          onEnter={submit}
+          placeholder={isEdit ? "" : "태그 이름"}
+        />
+      </div>
+      <div className={styles.worksCatAddRow}>
+        <span className={styles.worksCatAddRowLabel}>설명</span>
+        <BilingualInputPair value={pairDesc} onChange={setPairDesc} onEnter={submit} placeholder="설명" />
+      </div>
+    </>
+  );
 
   const sortItems = [
     { value: "freq" as const, label: "빈도순" },
@@ -569,6 +592,32 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
     return tagPosts.filter((p) => p.tags.includes(editingTag));
   }, [editingTag, tagPosts]);
 
+  /* chip 옆 편집 팝오버 내용 — 헤더(삭제/취소/저장) + 필드 + 관련 게시물.
+     취소/저장/삭제는 editingTag 을 지워 팝오버를 자동으로 닫으므로 close() 는 부르지 않는다. */
+  const renderEditPanel = () => (
+    <div className={`${styles.addPopoverForm} ${isShaking ? styles.shakeAlert : ""}`}>
+      <div className={styles.worksCatAddLabel}>
+        {`편집 — #${editingTag}`}
+        <div className={styles.worksCatAddActions}>
+          <Button variant="outline" size="xs" tone="danger" onClick={deleteEditingTag} icon={<Trash2 size={12} strokeWidth={2} />}>
+            삭제
+          </Button>
+          <Button variant="outline" size="xs" onClick={cancelEdit} icon={<X size={12} strokeWidth={2.5} />}>
+            취소
+          </Button>
+          <Button variant="outline" size="xs" onClick={submit} disabled={!submitEnabled} icon={<Check size={12} strokeWidth={2.5} />}>
+            저장
+          </Button>
+        </div>
+      </div>
+      {renderFields()}
+      <div className={styles.worksCatAddRow}>
+        <span className={styles.worksCatAddRowLabel}>게시물 ({editingPosts.length})</span>
+        <RelatedPostList posts={editingPosts} emptyLabel="이 태그를 사용하는 게시물 없음" />
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.worksCatEditor}>
       {/* Toolbar 묶음 — filterRow + filterDrawer 한 컨테이너 안 stack */}
@@ -602,6 +651,28 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
           size="sm"
         />
         <span className={styles.tagDescCount}>{filtered.length} / {allTags.length}</span>
+        <Popover
+          open={adding}
+          onOpenChange={(o) => {
+            setAdding(o);
+            if (o) { setEditingTag(null); setPairNames({ ko: "", en: "" }); setPairDesc({ ko: "", en: "" }); }
+          }}
+          placement="bottom-end"
+          sheetTitle="새 태그 추가"
+          className={styles.addPopoverTrigger}
+          trigger={
+            <Button variant="outline" size="sm" icon={<Plus size={12} strokeWidth={2} />}>
+              추가
+            </Button>
+          }
+        >
+          <div className={styles.addPopoverForm}>
+            {renderFields()}
+            <Button variant="primary" size="sm" onClick={submit} disabled={!submitEnabled} icon={<Plus size={12} strokeWidth={2} />}>
+              추가
+            </Button>
+          </div>
+        </Popover>
         <div className={styles.tagDescSearchEnd}>
           <SearchCapsule
             typeSelector={{
@@ -718,6 +789,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
             onItemClick={(tag) => setEditingTag(tag === editingTag ? null : tag)}
             onEditClick={(tag) => setEditingTag(tag === editingTag ? null : tag)}
             activeItem={editingTag}
+            renderEditPopover={() => renderEditPanel()}
             disableReorder
             showIndex
             startIndex={pageStart}
@@ -739,64 +811,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
         className={styles.tagDescPagination}
       />
 
-      {/* 하단 통합 add/edit box — editingTag 있으면 편집 모드, 아니면 추가 모드 */}
-      <div className={`${styles.worksCatAddBox} ${isEdit ? styles.worksCatAddBoxEdit : ""} ${isShaking ? styles.shakeAlert : ""}`}>
-        <div className={styles.worksCatAddLabel}>
-          {isEdit ? `편집 — #${editingTag}` : "새 태그 추가"}
-          <div className={styles.worksCatAddActions}>
-            {isEdit && (
-              <>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  tone="danger"
-                  onClick={deleteEditingTag}
-                  icon={<Trash2 size={12} strokeWidth={2} />}
-                >
-                  삭제
-                </Button>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={cancelEdit}
-                  icon={<X size={12} strokeWidth={2.5} />}
-                >
-                  취소
-                </Button>
-              </>
-            )}
-            <Button
-              variant="outline"
-              size="xs"
-              onClick={submit}
-              disabled={!submitEnabled}
-              icon={isEdit ? <Check size={12} strokeWidth={2.5} /> : <Plus size={12} strokeWidth={2} />}
-            >
-              {isEdit ? "저장" : "추가"}
-            </Button>
-          </div>
-        </div>
-        <div className={styles.worksCatAddRow}>
-          <span className={styles.worksCatAddRowLabel}>이름</span>
-          <BilingualInputPair
-            value={pairNames}
-            onChange={setPairNames}
-            onEnter={submit}
-            placeholder={isEdit ? "" : "태그 이름"}
-          />
-        </div>
-        <div className={styles.worksCatAddRow}>
-          <span className={styles.worksCatAddRowLabel}>설명</span>
-          <BilingualInputPair value={pairDesc} onChange={setPairDesc} onEnter={submit} placeholder="설명" />
-        </div>
-        {/* 편집 모드 — 관련 게시물 (ul/li 리스트, count 항상 표시 even 0) */}
-        {isEdit && (
-          <div className={styles.worksCatAddRow}>
-            <span className={styles.worksCatAddRowLabel}>게시물 ({editingPosts.length})</span>
-            <RelatedPostList posts={editingPosts} emptyLabel="이 태그를 사용하는 게시물 없음" />
-          </div>
-        )}
-      </div>
+      {/* 편집은 chip 옆 팝오버(renderEditPanel)로 처리 — 하단 고정 박스 제거. 추가는 툴바 popover. */}
     </div>
   );
 }

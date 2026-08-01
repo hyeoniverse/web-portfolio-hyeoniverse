@@ -17,6 +17,7 @@ import Select from "@/components/ui/Select";
 import Pagination from "@/components/ui/Pagination";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
+import Popover from "@/components/ui/Popover";
 import { List, ListItem } from "@/app/admin/(dashboard)/components";
 import { showToast } from "@/stores/toastStore";
 import { useModalStore } from "@/stores/modalStore";
@@ -155,6 +156,8 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
   const [descFilter, setDescFilter] = useState<DescFilter>("all");
   const [letterFilters, setLetterFilters] = useState<Set<string>>(new Set());
   const [filterExpanded, setFilterExpanded] = useState(false);
+  /* 추가 popover 열림 — 편집(editingEn)과 함께 add/edit 박스의 open 을 결정 */
+  const [adding, setAdding] = useState(false);
   const [page, setPage] = useState(1);
   useEffect(() => { setPage(1); }, [search, searchType, sortBy, sortDir, nameLang, usageFilter, descFilter, letterFilters]);
   useEffect(() => { setLetterFilters(new Set()); }, [nameLang]);
@@ -449,6 +452,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
       const dup = findDuplicate(categories, [ko, en], (c) => [c.ko, c.en]);
       if (dup) {
         showToast(`"${dup.ko}/${dup.en}" 카테고리가 이미 있습니다`, "warning");
+        setAdding(false); // add 팝오버 닫고 중복 항목 편집 팝오버로 이동
         triggerShake();
         focusDuplicate(dup.en);
         return;
@@ -457,11 +461,44 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
       setPair({ ko: "", en: "" });
       setDesc({ ko: "", en: "" });
       setParentEn(null);
+      setAdding(false);
     }
   };
 
   /* 한쪽만 입력돼도 활성 */
   const submitEnabled = !!pair.ko.trim() || !!pair.en.trim();
+
+  /* 이름·대분류·설명 입력 필드 — 추가(popover)와 편집(인라인 박스)이 공유. */
+  const renderFields = () => (
+    <>
+      <div className={styles.worksCatAddRow}>
+        <span className={styles.worksCatAddRowLabel}>
+          <T k="admin.settings.name" />
+        </span>
+        <BilingualInputPair value={pair} onChange={setPair} onEnter={submit} />
+      </div>
+      <div className={styles.worksCatAddRow}>
+        <span className={styles.worksCatAddRowLabel}>대분류</span>
+        <Select
+          value={parentEn ?? ""}
+          options={parentSelectOptions}
+          onChange={(v) => setParentEn(v || null)}
+          disabled={editingHasChildren}
+        />
+        {editingHasChildren && (
+          <span style={{ fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>
+            소분류를 가진 대분류는 최상위 고정
+          </span>
+        )}
+      </div>
+      <div className={styles.worksCatAddRow}>
+        <span className={styles.worksCatAddRowLabel}>
+          <T k="admin.settings.categoryDescPlaceholder" />
+        </span>
+        <BilingualInputPair value={desc} onChange={setDesc} onEnter={submit} />
+      </div>
+    </>
+  );
 
   /* openModal 안 callback 이 stale closure 안 보게 ref 로 latest 유지 */
   const handleReassignConfirmRef = useRef<(
@@ -500,6 +537,53 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
     });
   }, [editingEn, catPosts, koByEn]);
 
+  /* chip 옆 편집 팝오버 내용 — 헤더(삭제/취소/저장) + 필드 + 관련 게시물.
+     취소/저장/삭제는 editingEn 을 지워 팝오버를 자동으로 닫으므로 close() 는 부르지 않는다
+     (close → onEditClick 재토글로 다시 열리는 것 방지). */
+  const renderEditPanel = () => (
+    <div className={`${styles.addPopoverForm} ${isShaking ? styles.shakeAlert : ""}`}>
+      <div className={styles.worksCatAddLabel}>
+        <T k="admin.settings.edit" />
+        <div className={styles.worksCatAddActions}>
+          <Button variant="outline" size="xs" tone="danger" onClick={deleteEditingCategory} icon={<Trash2 size={12} strokeWidth={2} />}>
+            삭제
+          </Button>
+          <Button variant="outline" size="xs" onClick={cancelEdit} icon={<X size={12} strokeWidth={2.5} />}>
+            <T k="admin.settings.cancel" />
+          </Button>
+          <Button variant="outline" size="xs" onClick={submit} disabled={!submitEnabled} icon={<Check size={12} strokeWidth={2.5} />}>
+            <T k="admin.settings.saveEdit" />
+          </Button>
+        </div>
+      </div>
+      {renderFields()}
+      <div className={styles.worksCatAddRow}>
+        <span className={styles.worksCatAddRowLabel}>게시물 ({editingPosts.length})</span>
+        <List className={styles.tagRelatedPosts} data-lenis-prevent>
+          {editingPosts.length === 0 ? (
+            <ListItem className={styles.tagRelatedEmpty}>이 카테고리를 사용하는 게시물 없음</ListItem>
+          ) : (
+            editingPosts.map((p) => (
+              <ListItem key={p.id} layout="column">
+                <a
+                  href={`/admin/posts/${p.id}/edit`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.tagRelatedItem}
+                >
+                  <span className={styles.tagRelatedTitle}>
+                    {p.title || p.title_en || "(no title)"}
+                  </span>
+                  <PostMeta p={p} />
+                </a>
+              </ListItem>
+            ))
+          )}
+        </List>
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.worksCatEditor}>
       {/* Toolbar 묶음 — filterRow + filterDrawer 한 컨테이너 */}
@@ -533,6 +617,28 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
             size="sm"
           />
           <span className={styles.tagDescCount}>{filtered.length} / {categories.length}</span>
+          <Popover
+            open={adding}
+            onOpenChange={(o) => {
+              setAdding(o);
+              if (o) { setEditingEn(null); setPair({ ko: "", en: "" }); setDesc({ ko: "", en: "" }); setParentEn(null); }
+            }}
+            placement="bottom-end"
+            sheetTitle={<T k="admin.settings.addCategory" />}
+            className={styles.addPopoverTrigger}
+            trigger={
+              <Button variant="outline" size="sm" icon={<Plus size={12} strokeWidth={2} />}>
+                <T k="admin.settings.addCategory" />
+              </Button>
+            }
+          >
+            <div className={styles.addPopoverForm}>
+              {renderFields()}
+              <Button variant="primary" size="sm" onClick={submit} disabled={!submitEnabled} icon={<Plus size={12} strokeWidth={2} />}>
+                <T k="admin.settings.addCategory" />
+              </Button>
+            </div>
+          </Popover>
           <div className={styles.tagDescSearchEnd}>
             <SearchCapsule
               typeSelector={{
@@ -667,6 +773,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
             onItemClick={(en) => setEditingEn(en === editingEn ? null : en)}
             onEditClick={(en) => setEditingEn(en === editingEn ? null : en)}
             activeItem={editingEn}
+            renderEditPopover={() => renderEditPanel()}
             showIndex
             startIndex={pageStart}
             /* 숫자 label 은 정렬·필터·페이지에 무관하게 카테고리 정의 순서 (customOrderIndex+1) 고정 */
@@ -684,98 +791,8 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
         className={styles.tagDescPagination}
       />
 
-      <div className={`${styles.worksCatAddBox} ${isEdit ? styles.worksCatAddBoxEdit : ""} ${isShaking ? styles.shakeAlert : ""}`}>
-        <div className={styles.worksCatAddLabel}>
-          {isEdit ? <T k="admin.settings.edit" /> : <T k="admin.settings.addCategory" />}
-          <div className={styles.worksCatAddActions}>
-            {isEdit && (
-              <>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  tone="danger"
-                  onClick={deleteEditingCategory}
-                  icon={<Trash2 size={12} strokeWidth={2} />}
-                >
-                  삭제
-                </Button>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={cancelEdit}
-                  icon={<X size={12} strokeWidth={2.5} />}
-                >
-                  <T k="admin.settings.cancel" />
-                </Button>
-              </>
-            )}
-            <Button
-              variant="outline"
-              size="xs"
-              onClick={submit}
-              disabled={!submitEnabled}
-              icon={isEdit ? <Check size={12} strokeWidth={2.5} /> : <Plus size={12} strokeWidth={2} />}
-            >
-              {isEdit ? <T k="admin.settings.saveEdit" /> : <T k="admin.settings.addCategory" />}
-            </Button>
-          </div>
-        </div>
-        <div className={styles.worksCatAddRow}>
-          <span className={styles.worksCatAddRowLabel}>
-            <T k="admin.settings.name" />
-          </span>
-          <BilingualInputPair value={pair} onChange={setPair} onEnter={submit} />
-        </div>
-        <div className={styles.worksCatAddRow}>
-          <span className={styles.worksCatAddRowLabel}>대분류</span>
-          <Select
-            value={parentEn ?? ""}
-            options={parentSelectOptions}
-            onChange={(v) => setParentEn(v || null)}
-            disabled={editingHasChildren}
-          />
-          {editingHasChildren && (
-            <span style={{ fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>
-              소분류를 가진 대분류는 최상위 고정
-            </span>
-          )}
-        </div>
-        <div className={styles.worksCatAddRow}>
-          <span className={styles.worksCatAddRowLabel}>
-            <T k="admin.settings.categoryDescPlaceholder" />
-          </span>
-          <BilingualInputPair value={desc} onChange={setDesc} onEnter={submit} />
-        </div>
-        {/* 편집 모드 — 관련 게시물 (ul/li 리스트) */}
-        {isEdit && (
-          <div className={styles.worksCatAddRow}>
-            <span className={styles.worksCatAddRowLabel}>게시물 ({editingPosts.length})</span>
-            <List className={styles.tagRelatedPosts} data-lenis-prevent>
-              {editingPosts.length === 0 ? (
-                <ListItem className={styles.tagRelatedEmpty}>이 카테고리를 사용하는 게시물 없음</ListItem>
-              ) : (
-                editingPosts.map((p) => (
-                  <ListItem key={p.id} layout="column">
-                    <a
-                      href={`/admin/posts/${p.id}/edit`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.tagRelatedItem}
-                    >
-                      <span className={styles.tagRelatedTitle}>
-                        {p.title || p.title_en || "(no title)"}
-                      </span>
-                      <PostMeta p={p} />
-                    </a>
-                  </ListItem>
-                ))
-              )}
-            </List>
-          </div>
-        )}
-      </div>
-
-      {/* CategoryReassignModal 은 openModal() 로 띄움 — X close / 일관 radius 는 공통 Modal 책임 */}
+      {/* 편집은 chip 옆 팝오버(renderEditPanel)로 처리 — 하단 고정 박스 제거.
+          CategoryReassignModal 은 openModal() 로 띄움 — X close / 일관 radius 는 공통 Modal 책임 */}
     </div>
   );
 }
