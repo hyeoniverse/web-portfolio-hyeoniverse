@@ -33,9 +33,6 @@ import shared from "../Settings.module.css";
 import local from "./ContentTab.module.css";
 const styles = { ...shared, ...local };
 
-/* About 페이지 패널 목록 — 표시여부 토글 + 전체선택 계산에 공용 */
-
-
 interface ContentTabProps extends SettingsTabProps {
   profileData: ProfileData;
   setProfileData: Dispatch<SetStateAction<ProfileData>>;
@@ -138,6 +135,9 @@ export default function ContentTab({
         : (item as { ko: string; en: string; description?: LocalizedText | string }),
     );
   }, [config.works?.categories]);
+
+  // SeriesManager 로 넘길 2단계 카테고리 트리 — 매 렌더 새 배열이면 자식 memo 가 무의미해지므로 stable 화.
+  const seriesCategories = useMemo(() => normalizeCategories(config.posts?.categories ?? []), [config.posts?.categories]);
 
   return (
     <>
@@ -560,7 +560,7 @@ export default function ContentTab({
             <SeriesManager
               title={t("admin.posts.series")}
               // 2단계 트리(children 포함) 그대로 전달 — strip 하면 소분류가 series 픽커에서 사라짐
-              categories={normalizeCategories(config.posts?.categories ?? [])}
+              categories={seriesCategories}
             />
           </section>
 
