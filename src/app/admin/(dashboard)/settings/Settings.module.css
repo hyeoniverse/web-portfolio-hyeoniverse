@@ -2096,30 +2096,13 @@ a.tagRelatedItem:hover {
 /* 직접 추가 — sticky footer. 프리셋 스크롤해도 popover 하단에 항상 고정 */
 /* 아이콘 편집 — circle 미리보기(클릭=업로드/교체) + 링크 입력 한 줄 */
 /* 아이콘 있을 때 테두리 실선 */
-@keyframes techSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 /* × 제거 — circle 우상단 */
 /* 직접 추가 — 중복 이름 힌트 */
 /* 중복 이름 입력 — 단일 accent 테두리. focus(.input:focus → text-primary)까지
    이기도록 :focus 도 명시(0,2,1 > 0,1,1). box-shadow 안 씀(검정 보더와 겹쳐 탁해짐 방지) */
 /* 중복 추가 시도 — shake (transform 은 글로벌 transition 영향 없음) */
-@keyframes techNameShake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  15%,
-  55% {
-    transform: translateX(-5px);
-  }
-  35%,
-  75% {
-    transform: translateX(5px);
-  }
-}
+
 /* 이미 추가된 preset row — 비활성 + 체크 */
 
 /* ── Author 초대 (이슈 #334 P1-c) ── */

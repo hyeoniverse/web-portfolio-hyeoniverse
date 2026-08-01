@@ -1,0 +1,281 @@
+/* AboutTechStackEditor 전용 스타일
+   기술스택 편집기(칩 그룹 · 프리셋 표 · 아이콘 편집) 전용 클래스 + 애니메이션.
+   ContentTab.module.css 에서 분리 (다른 컴포넌트와 공유하지 않음). */
+
+.techGroups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-md) var(--spacing-xl);
+  align-items: start;
+}
+.techGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+.techGroupLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  padding-bottom: var(--spacing-2xs);
+  border-bottom: var(--border-light);
+}
+.techChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  align-items: center;
+  min-width: 0;
+  min-height: var(--control-h-sm);
+}
+.techGroupEmpty {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-muted);
+  font-style: italic;
+}
+.techDragWrap {
+  display: inline-flex;
+  touch-action: none; /* dnd-kit pointer drag — 스크롤 간섭 방지(칩 전체 draggable) */
+}
+.techDragSource {
+  opacity: 0.4;
+}
+.techGroupOver {
+  outline: var(--border-accent);
+  outline-style: dashed;
+  outline-offset: 3px;
+  border-radius: var(--radius-md);
+  background: var(--bg-accent-light);
+}
+.techDragOverlay {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 4px 10px 4px 4px;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: grabbing;
+}
+.techIconTile {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-circle);
+  background: var(--color-neutral-50);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.techIconTile img {
+  width: 13px;
+  height: 13px;
+  object-fit: contain;
+}
+.techIconInitial {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: 700;
+  color: var(--text-tertiary);
+}
+.techAddRow {
+  grid-column: 1 / -1;
+  padding-top: var(--spacing-xs);
+}
+.techPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: min(340px, 86vw);
+  /* dropdown 자체엔 padding 이 없어 content 가 padding 을 가짐 */
+  padding: var(--spacing-md);
+}
+.techPanelTitle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+.techPresetScroll {
+  margin: 0 calc(-1 * var(--spacing-md));
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.techPresetList { display: flex; flex-direction: column;
+}
+.techPresetRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: none;
+  border-bottom: var(--border-light);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+.techPresetRow:last-child {
+  border-bottom: none;
+}
+.techPresetRow:hover {
+  background: var(--bg-tertiary);
+}
+.techPresetRowName {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.techPresetRowCat {
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.techCustomFooter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  position: sticky;
+  bottom: 0;
+  margin: var(--spacing-xs) calc(-1 * var(--spacing-md))
+    calc(-1 * var(--spacing-md));
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  background: var(--bg-primary);
+  border-top: var(--border-light);
+}
+.techIconRow { display: flex; align-items: center; gap: var(--spacing-sm);
+}
+.techIconCircleWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.techIconCircleBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-circle);
+  background: var(--color-neutral-50);
+  border: var(--border-strong);
+  border-style: dashed;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+.techIconCircleBtn:hover {
+  border-color: var(--border-accent-color);
+  color: var(--text-accent);
+}
+.techIconCircleBtn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.techIconCircleBtn img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+.techIconCircleWrap:has(img) .techIconCircleBtn {
+  border-style: solid;
+  border-color: var(--border-light-color);
+}
+.techIconSpinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border-strong-color);
+  border-top-color: var(--text-accent);
+  border-radius: var(--radius-circle);
+  animation: techSpin 0.7s linear infinite;
+}
+.techIconClear {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-circle);
+  border: var(--border-light);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.techIconClear:hover {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+.techAddDupHint {
+  font-size: var(--font-size-2xs);
+  color: var(--text-accent);
+  margin: 0;
+}
+.techNameDup input,
+.techNameDup input:focus {
+  border-color: var(--border-accent-strong-color);
+}
+.techNameShake {
+  animation: techNameShake 0.45s ease;
+}
+.techPresetRowAdded {
+  cursor: default;
+  opacity: 0.55;
+}
+.techPresetRowAdded:hover {
+  background: transparent;
+}
+.techPresetCheck {
+  color: var(--text-accent);
+  justify-self: end;
+}
+.techDivider {
+  border: none;
+  border-top: var(--border-light);
+  margin: 0;
+}
+
+@keyframes techSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes techNameShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15%,
+  55% {
+    transform: translateX(-5px);
+  }
+  35%,
+  75% {
+    transform: translateX(5px);
+  }
+}

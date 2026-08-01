@@ -17,6 +17,7 @@ import { showToast } from "@/stores/toastStore";
 import { normalizeTechName } from "@/data/techIcons";
 import { matchesSearch } from "@/lib/koSearch";
 import { uploadFile } from "@/lib/adminUpload";
+import styles from "./AboutTechStackEditor.module.css";
 
 export type TechItem = { name: string; category: string; icon?: string };
 
@@ -30,7 +31,7 @@ function techIconSrc(icon?: string): string {
 const CATEGORY_PRESETS = Array.from(new Set(TECH_ICON_PRESETS.map((p) => p.category))).sort((a, b) => a.localeCompare(b));
 
 /* tech 아이콘 렌더 — slug/URL 이미지, 로드 실패하거나 비어있으면 이니셜 폴백 */
-function TechIcon({ icon, name, styles }: { icon?: string; name: string; styles: Record<string, string> }) {
+function TechIcon({ icon, name }: { icon?: string; name: string }) {
   const src = techIconSrc(icon);
   const [brokenSrc, setBrokenSrc] = useState<string | null>(null);
   if (src && brokenSrc !== src) {
@@ -80,11 +81,10 @@ function matchTech(p: TechIconPreset, query: string): boolean {
   return matchesSearch(query, p.name, p.slug, p.category, p.ko ?? "");
 }
 
-export default function AboutTechStackEditor({ items, onChange, t, styles }: {
+export default function AboutTechStackEditor({ items, onChange, t }: {
   items: TechItem[];
   onChange: (v: TechItem[]) => void;
   t: TFunction;
-  styles: Record<string, string>;
 }) {
   const patch = (idx: number, p: Partial<TechItem>) => onChange(items.map((it, i) => (i === idx ? { ...it, ...p } : it)));
   const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
@@ -160,7 +160,7 @@ export default function AboutTechStackEditor({ items, onChange, t, styles }: {
           showHandle
           leftIcon={
             <span className={styles.techIconTile}>
-              <TechIcon icon={item.icon} name={item.name} styles={styles} />
+              <TechIcon icon={item.icon} name={item.name} />
             </span>
           }
           onRemove={() => remove(idx)}
@@ -169,7 +169,7 @@ export default function AboutTechStackEditor({ items, onChange, t, styles }: {
         </Chip>
       }
     >
-      <TechEditPanel item={item} onChange={(p) => patch(idx, p)} currentCats={currentCats} t={t} styles={styles} />
+      <TechEditPanel item={item} onChange={(p) => patch(idx, p)} currentCats={currentCats} t={t} />
     </Popover>
   );
 
@@ -182,7 +182,7 @@ export default function AboutTechStackEditor({ items, onChange, t, styles }: {
           // 무카테고리("") 그룹은 비면 숨김(라벨도 없어 빈 박스가 어색). named 그룹은 비어도 유지.
           if (cat === "" && chips.length === 0) return null;
           return (
-            <DroppableTechGroup key={cat || "__none"} cat={cat} styles={styles}>
+            <DroppableTechGroup key={cat || "__none"} cat={cat}>
               {cat && <span className={styles.techGroupLabel}>{cat}</span>}
               <div className={styles.techChips}>
                 {chips.length === 0 && <span className={styles.techGroupEmpty}>{t("admin.settings.aboutTechStackEmptyGroup")}</span>}
@@ -190,7 +190,7 @@ export default function AboutTechStackEditor({ items, onChange, t, styles }: {
                   // layoutId 는 항목별 안정 키여야 FLIP 이 동작(배열 index 는 이동 시 바뀜) → 이름 기준
                   const layoutId = item.name ? `tech-${item.name}` : `tech-empty-${idx}`;
                   return (
-                    <DraggableTechChip key={layoutId} idx={idx} layoutId={layoutId} styles={styles}>
+                    <DraggableTechChip key={layoutId} idx={idx} layoutId={layoutId}>
                       {renderChip(item, idx)}
                     </DraggableTechChip>
                   );
@@ -210,7 +210,7 @@ export default function AboutTechStackEditor({ items, onChange, t, styles }: {
               </Button>
             }
           >
-            <TechAddPanel existing={items} onAdd={add} currentCats={currentCats} t={t} styles={styles} />
+            <TechAddPanel existing={items} onAdd={add} currentCats={currentCats} t={t} />
           </Popover>
         </div>
       </div>
@@ -219,7 +219,7 @@ export default function AboutTechStackEditor({ items, onChange, t, styles }: {
         {dragIdx != null && items[dragIdx] ? (
           <span className={styles.techDragOverlay}>
             <span className={styles.techIconTile}>
-              <TechIcon icon={items[dragIdx].icon} name={items[dragIdx].name} styles={styles} />
+              <TechIcon icon={items[dragIdx].icon} name={items[dragIdx].name} />
             </span>
             {items[dragIdx].name || "—"}
           </span>
@@ -232,7 +232,7 @@ export default function AboutTechStackEditor({ items, onChange, t, styles }: {
 /* drag 가능한 칩 wrapper — listeners 는 chip 전체에(activationConstraint distance 로 클릭 공존).
    data-cursor="grab" 도 chip 전체 → 어디에 올려도 커스텀 커서가 "Drag" 로 표시.
    layout/layoutId(framer-motion) → drop 으로 위치·그룹 바뀔 때 FLIP 애니메이션. */
-function DraggableTechChip({ idx, layoutId, children, styles }: { idx: number; layoutId: string; children: ReactNode; styles: Record<string, string> }) {
+function DraggableTechChip({ idx, layoutId, children }: { idx: number; layoutId: string; children: ReactNode }) {
   const { setNodeRef, listeners, attributes, isDragging } = useDraggable({ id: `techchip:${idx}` });
   return (
     <motion.div
@@ -251,7 +251,7 @@ function DraggableTechChip({ idx, layoutId, children, styles }: { idx: number; l
 }
 
 /* drop 가능한 그룹 — 위에 드래그하면 하이라이트, drop 시 해당 카테고리로 이동 */
-function DroppableTechGroup({ cat, children, styles }: { cat: string; children: ReactNode; styles: Record<string, string> }) {
+function DroppableTechGroup({ cat, children }: { cat: string; children: ReactNode }) {
   const { setNodeRef, isOver } = useDroppable({ id: `techgroup:${cat}` });
   return (
     <div ref={setNodeRef} className={`${styles.techGroup} ${isOver ? styles.techGroupOver : ""}`}>
@@ -270,10 +270,9 @@ async function uploadTechIcon(file: File): Promise<string | null> {
 }
 
 /* 프리셋 grid — 검색 필터 + 클릭 시 onPick */
-function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
+function TechPresetGrid({ query, onPick, isAdded, t }: {
   query: string;
   onPick: (p: { slug: string; name: string; category: string }) => void;
-  styles: Record<string, string>;
   /** 이미 추가된 항목 — 중복 추가 방지 (비활성 + 체크 표시) */
   isAdded?: (p: TechIconPreset) => boolean;
   t?: (key: string) => string;
@@ -295,7 +294,7 @@ function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
               title={added ? (t?.("admin.settings.aboutTechStackAdded") ?? "Added") : p.name}
             >
               <span className={styles.techIconTile}>
-                <TechIcon icon={p.slug} name={p.name} styles={styles} />
+                <TechIcon icon={p.slug} name={p.name} />
               </span>
               <span className={styles.techPresetRowName}>{p.name}</span>
               {added
@@ -311,11 +310,10 @@ function TechPresetGrid({ query, onPick, styles, isAdded, t }: {
 
 /* 아이콘 편집 공용 — circle 미리보기(클릭=업로드/교체) + 링크 + (옵션)프리셋 검색.
    showSearch=false 면 검색 숨김 (직접 추가용 — 검색되는 건 프리셋으로 추가하면 됨). */
-function TechIconEditor({ icon, onIconChange, t, styles, showSearch = true }: {
+function TechIconEditor({ icon, onIconChange, t, showSearch = true }: {
   icon: string;
   onIconChange: (icon: string) => void;
   t: TFunction;
-  styles: Record<string, string>;
   showSearch?: boolean;
 }) {
   const [q, setQ] = useState("");
@@ -373,7 +371,7 @@ function TechIconEditor({ icon, onIconChange, t, styles, showSearch = true }: {
       {showSearch && (
         <>
           <Input value={q} onChange={setQ} placeholder={t("admin.settings.aboutTechStackSearch")} size="sm" clearable />
-          {q.trim() && <TechPresetGrid query={q} onPick={(p) => { onIconChange(p.slug); setQ(""); }} styles={styles} />}
+          {q.trim() && <TechPresetGrid query={q} onPick={(p) => { onIconChange(p.slug); setQ(""); }} />}
         </>
       )}
     </>
@@ -389,12 +387,11 @@ function techDupKey(name: string): string {
 }
 
 /* 추가 패널 — 프리셋 표 + 직접 입력(이름·카테고리·아이콘) */
-function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
+function TechAddPanel({ existing, onAdd, currentCats, t }: {
   existing: TechItem[];
   onAdd: (it: TechItem) => void;
   currentCats: string[];
   t: TFunction;
-  styles: Record<string, string>;
 }) {
   const [q, setQ] = useState("");
   const [draft, setDraft] = useState<TechItem>({ name: "", category: "", icon: "" });
@@ -429,7 +426,6 @@ function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
         onPick={(p) => { if (!has(p.name)) onAdd({ name: p.name, category: p.category, icon: p.slug }); }}
         isAdded={(p) => has(p.name)}
         t={t}
-        styles={styles}
       />
       {/* 직접 추가 — sticky footer (프리셋 스크롤해도 항상 보임). 검색은 없음(프리셋으로 추가). */}
       <div className={styles.techCustomFooter}>
@@ -460,7 +456,7 @@ function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
           )}
         </AnimatePresence>
         <CategoryInput value={draft.category} onChange={(v) => setDraft((d) => ({ ...d, category: v }))} currentCats={currentCats} t={t} />
-        <TechIconEditor icon={draft.icon ?? ""} onIconChange={(icon) => setDraft((d) => ({ ...d, icon }))} t={t} styles={styles} showSearch={false} />
+        <TechIconEditor icon={draft.icon ?? ""} onIconChange={(icon) => setDraft((d) => ({ ...d, icon }))} t={t} showSearch={false} />
         <Button variant="primary" size="xs" fullWidth disabled={!canAdd} onClick={submitCustom} icon={<Plus size={14} strokeWidth={2.5} />}>
           {t("admin.settings.aboutTechStackAdd")}
         </Button>
@@ -470,12 +466,11 @@ function TechAddPanel({ existing, onAdd, currentCats, t, styles }: {
 }
 
 /* 편집 패널 — 이름/카테고리 + 아이콘 */
-function TechEditPanel({ item, onChange, currentCats, t, styles }: {
+function TechEditPanel({ item, onChange, currentCats, t }: {
   item: TechItem;
   onChange: (p: Partial<TechItem>) => void;
   currentCats: string[];
   t: TFunction;
-  styles: Record<string, string>;
 }) {
   return (
     <div className={styles.techPanel}>
@@ -483,7 +478,7 @@ function TechEditPanel({ item, onChange, currentCats, t, styles }: {
       <CategoryInput value={item.category} onChange={(v) => onChange({ category: v })} currentCats={currentCats} t={t} />
       <hr className={styles.techDivider} />
       <p className={styles.techPanelTitle}>{t("admin.settings.aboutTechStackIcon")}</p>
-      <TechIconEditor icon={item.icon ?? ""} onIconChange={(icon) => onChange({ icon })} t={t} styles={styles} />
+      <TechIconEditor icon={item.icon ?? ""} onIconChange={(icon) => onChange({ icon })} t={t} />
     </div>
   );
 }
