@@ -251,9 +251,8 @@
     margin-top: var(--spacing-lg);
   }
 
-  .mobileSubNav + .tabGrid {
-    margin-top: 0;
-  }
+  /* 점프바(SectionJumpNav)가 없는 하위탭은 tabGrid margin-top 이 탭 메뉴와의 간격을 담당한다.
+     (점프바가 있으면 그 element 가 사이에 들어가 이 인접 선택자가 매칭되지 않으므로 영향 없음) */
 
   .skeletonNav {
     flex-direction: row;
