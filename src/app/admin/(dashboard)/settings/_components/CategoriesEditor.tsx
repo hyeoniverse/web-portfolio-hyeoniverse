@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory, LocalizedText } from "@/types/common";
 import type { AdminPostUsageInfo, PostMetaInfo } from "../_types";
+import { formatAdminShortDate } from "@/utils/format";
 import CategoryReassignModal from "@/components/admin/CategoryReassignModal";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
@@ -86,8 +87,7 @@ function rebuildTree(flat: FlatNode[]): PostCategoryExt[] {
 
 /** 게시물 row 의 메타 (발행상태 + 날짜 + 조회수) */
 function PostMeta({ p }: { p: PostMetaInfo }) {
-  const date = p.published_at || p.created_at;
-  const dateStr = date ? new Date(date).toLocaleDateString("ko-KR", { year: "2-digit", month: "2-digit", day: "2-digit" }).replace(/\.\s/g, ".").replace(/\.$/, "") : "";
+  const dateStr = formatAdminShortDate(p.published_at || p.created_at);
   return (
     <span className={styles.tagRelatedMeta}>
       {!p.published && <span className={styles.tagRelatedMetaDraft}>draft</span>}

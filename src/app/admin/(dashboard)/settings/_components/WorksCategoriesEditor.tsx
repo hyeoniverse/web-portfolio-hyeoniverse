@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import type { SortDirection } from "@/types";
 import type { LocalizedText } from "@/types/common";
 import type { PostMetaInfo } from "../_types";
+import { formatAdminShortDate } from "@/utils/format";
 import { Plus, Check, X, Trash2, Filter, ChevronDown } from "@/components/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -52,8 +53,7 @@ interface WorksInfo {
 
 /** Work row 의 메타 (발행상태 + 날짜) */
 function WorkMeta({ w }: { w: PostMetaInfo }) {
-  const date = w.published_at || w.created_at;
-  const dateStr = date ? new Date(date).toLocaleDateString("ko-KR", { year: "2-digit", month: "2-digit", day: "2-digit" }).replace(/\.\s/g, ".").replace(/\.$/, "") : "";
+  const dateStr = formatAdminShortDate(w.published_at || w.created_at);
   return (
     <span className={styles.tagRelatedMeta}>
       {!w.published && <span className={styles.tagRelatedMetaDraft}>draft</span>}
