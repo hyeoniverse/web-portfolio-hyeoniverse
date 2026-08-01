@@ -86,6 +86,19 @@ const GROUP_RECOMMENDED: Record<MimeGroupKey, number> = {
   archive: 50,
 };
 
+type FormatItem = { key: string; label: string; group: MimeGroupKey; isAdded: boolean };
+/* 전체 format 카탈로그 — built-in(DEFAULT_LIMIT_GROUPS) + addable(ADDABLE_MIME_GROUPS) 평탄화.
+   입력이 모듈 상수뿐이라 렌더마다 재계산할 필요 없이 1회만 만든다. */
+const FORMAT_CATALOG: FormatItem[] = [
+  ...DEFAULT_LIMIT_GROUPS.flatMap((g) => {
+    const ks = g.keys ?? [g.key];
+    return ks.map((k) => ({ key: k, label: MIME_LABEL[k] ?? k, group: g.group, isAdded: false }));
+  }),
+  ...ADDABLE_MIME_GROUPS.flatMap((g) =>
+    g.mimes.map((m) => ({ key: m.value, label: m.label, group: MIME_ADDABLE_GROUP_KEY[g.labelKey], isAdded: true })),
+  ),
+];
+
 export function MediaLimitsEditor({ config, setConfig, t }: {
   config: SiteConfigData;
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
@@ -113,20 +126,8 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
     });
   };
 
-  /* 전체 format 카탈로그 — built-in (DEFAULT_LIMIT_GROUPS) + addable (ADDABLE_MIME_GROUPS) 단일 평탄화 */
-  type FormatItem = { key: string; label: string; group: MimeGroupKey; isAdded: boolean };
-  const allFormats: FormatItem[] = [
-    ...DEFAULT_LIMIT_GROUPS.flatMap((g) => {
-      const ks = g.keys ?? [g.key];
-      return ks.map((k) => ({ key: k, label: MIME_LABEL[k] ?? k, group: g.group, isAdded: false }));
-    }),
-    ...ADDABLE_MIME_GROUPS.flatMap((g) =>
-      g.mimes.map((m) => ({ key: m.value, label: m.label, group: MIME_ADDABLE_GROUP_KEY[g.labelKey], isAdded: true })),
-    ),
-  ];
-
-  const enabledFormats = allFormats.filter((f) => f.key in limits);
-  const availableFormats = allFormats.filter((f) => f.isAdded && !(f.key in limits));
+  const enabledFormats = FORMAT_CATALOG.filter((f) => f.key in limits);
+  const availableFormats = FORMAT_CATALOG.filter((f) => f.isAdded && !(f.key in limits));
 
   /* click (drag 아님) 시 자동 배정 — 추천 사이즈 → fallback 그룹 추천 → 20MB */
   const getRecommendedSize = (key: string, group: MimeGroupKey): number =>
@@ -164,7 +165,7 @@ export function MediaLimitsEditor({ config, setConfig, t }: {
     setDragOverPool(false);
     const key = e.dataTransfer.getData("text/plain");
     if (!key) return;
-    const f = allFormats.find((x) => x.key === key);
+    const f = FORMAT_CATALOG.find((x) => x.key === key);
     /* 활성화된 added MIME 만 비활성화 가능. built-in 은 거부 → shake + toast */
     if (f?.isAdded && key in limits) {
       removeMime(key);

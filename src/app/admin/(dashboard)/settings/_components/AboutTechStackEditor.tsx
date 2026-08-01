@@ -277,7 +277,7 @@ function TechPresetGrid({ query, onPick, isAdded, t }: {
   isAdded?: (p: TechIconPreset) => boolean;
   t?: (key: string) => string;
 }) {
-  const list = TECH_ICON_PRESETS.filter((p) => matchTech(p, query));
+  const list = useMemo(() => TECH_ICON_PRESETS.filter((p) => matchTech(p, query)), [query]);
   if (list.length === 0) return <EmptyState size="xs" pad="sm">검색 결과 없음</EmptyState>;
   return (
     <div className={styles.techPresetScroll}>

@@ -35,16 +35,21 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
     onChange(next);
   };
 
+  // 항목을 from → to 로 이동(splice). desktop drop / touch end 공용.
+  const reorder = (from: number, to: number) => {
+    const next = [...ordered];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    onChange(next);
+  };
+
   /* ── HTML5 drag (desktop) ── */
   const handleDragStart = (idx: number) => { dragIdx.current = idx; };
   const handleDragOver = (e: React.DragEvent, idx: number) => { e.preventDefault(); setOverIdx(idx); };
   const handleDrop = (idx: number) => {
     const from = dragIdx.current;
     if (from === null || from === idx) return;
-    const next = [...ordered];
-    const [moved] = next.splice(from, 1);
-    next.splice(idx, 0, moved);
-    onChange(next);
+    reorder(from, idx);
     dragIdx.current = null;
     setOverIdx(null);
   };
@@ -71,10 +76,7 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
 
   const handleTouchEnd = () => {
     if (dragIdx.current !== null && overIdx !== null && dragIdx.current !== overIdx) {
-      const next = [...ordered];
-      const [moved] = next.splice(dragIdx.current, 1);
-      next.splice(overIdx, 0, moved);
-      onChange(next);
+      reorder(dragIdx.current, overIdx);
     }
     dragIdx.current = null;
     setOverIdx(null);
@@ -84,11 +86,12 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
     <div className={styles.priorityList} ref={listRef}>
       {ordered.map((val, idx) => {
         const label = options.find((o) => o.value === val)?.label ?? val;
+        const isEnabled = !excluded.includes(val);
         return (
           <div key={val} className={styles.priorityRow}>
             <Checkbox
               shape="square"
-              checked={!excluded.includes(val)}
+              checked={isEnabled}
               onChange={(checked) => {
                 onExcludedChange(
                   checked
@@ -118,7 +121,7 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
               onDrop={() => handleDrop(idx)}
             >
               <span className={styles.priorityBadge}>{idx + 1}</span>
-              <span className={`${styles.priorityLabel} ${excluded.includes(val) ? styles.priorityLabelDisabled : ""}`}>{label}</span>
+              <span className={`${styles.priorityLabel} ${isEnabled ? "" : styles.priorityLabelDisabled}`}>{label}</span>
               <div className={styles.priorityBtns}>
                 <button
                   type="button"
