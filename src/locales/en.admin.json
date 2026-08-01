@@ -744,10 +744,12 @@
       "logoRecolor": "Logo color",
       "logoOriginal": "Original",
       "faviconLogoShadow": "Logo shadow",
+      "navLogoShadow": "Nav / loading logo shadow",
+      "navLogoShadowHint": "Inherits the favicon logo shadow below when left off.",
       "faviconImageOptions": "Uploaded favicon options",
       "faviconImageBgPlaceholder": "Transparent",
       "uploadedLogoOptions": "Uploaded logo options",
-      "uploadedLogoOptionsHint": "Background applies to the favicon (browser tab) only; shadow applies to all uploaded logos.",
+      "uploadedLogoOptionsHint": "Background applies to the favicon (browser tab) only. Shadows can be set separately for the nav/loading logo and the favicon.",
       "wcagHelp": "WCAG is the Web Content Accessibility Guidelines. This value is the contrast ratio between the logo color and its background; the higher it is, the more legible it reads. 7:1 or above is AAA, 4.5:1 or above is AA, 3:1 or above meets the minimum for graphics, and below 3:1 fails."
     },
     "posts": {

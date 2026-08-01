@@ -77,6 +77,8 @@ export const siteConfig = {
     faviconImageShadow: { enabled: false, inset: false, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
     // 업로드 favicon 배경(rect) 그림자 — 배경색 있을 때만 의미
     faviconImageBgShadow: { enabled: false, inset: true, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
+    // nav + 로딩스크린 로고 그림자(드롭) — favicon 과 별개. 미설정 시 faviconImageShadow 로 fallback(기존 동작 보존)
+    logoShadow: { enabled: false, inset: false, size: "md", custom: "", color: "", angle: "135" } as { enabled: boolean; inset: boolean; size: "sm" | "md" | "lg" | "custom"; custom: string; color: string; angle: string },
     logoShortUrl: "", // 빈 문자열 = 텍스트 로고(logoText) 사용
     logoShortDarkUrl: "", // 다크 모드 숏 로고 (빈 문자열 = logoShortUrl 사용)
     logoFullUrl: "", // 빈 문자열 = 텍스트 로고(displayName) 사용

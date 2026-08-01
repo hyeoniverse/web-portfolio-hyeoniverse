@@ -94,9 +94,11 @@ export default function Navigation() {
   const shortTint = (isDark ? siteConfig.brand.logoShortColorDark : siteConfig.brand.logoShortColor) || "";
   const fullTint = (isDark ? siteConfig.brand.logoFullColorDark : siteConfig.brand.logoFullColor) || "";
   const loadingTint = hasDistinctFullLogo ? fullTint : shortTint;
-  // 업로드 favicon 옵션의 그림자 — 로고 이미지(숏·풀)에 CSS drop-shadow 로 적용 (favicon SVG 와 별개로 nav/loading 에도).
+  // nav/loading 로고 그림자 — 로고 이미지(숏·풀)에 CSS drop-shadow 로 적용. favicon SVG 와 별개 설정.
+  // logoShadow 가 활성이면 그 값을, 미설정이면 favicon 로고 그림자(faviconImageShadow)를 상속(기존 동작 보존).
   // drop-shadow 는 outer 만 지원하므로 inset 이면 미적용.
-  const _imgShadow = resolveFaviconShadow(siteConfig.brand.faviconImageShadow);
+  const _logoShadowCfg = siteConfig.brand.logoShadow?.enabled ? siteConfig.brand.logoShadow : siteConfig.brand.faviconImageShadow;
+  const _imgShadow = resolveFaviconShadow(_logoShadowCfg);
   const logoShadowFilter = _imgShadow && !_imgShadow.inset
     ? `drop-shadow(${_imgShadow.dx}px ${_imgShadow.dy}px ${_imgShadow.blur}px ${_imgShadow.color})`
     : undefined;

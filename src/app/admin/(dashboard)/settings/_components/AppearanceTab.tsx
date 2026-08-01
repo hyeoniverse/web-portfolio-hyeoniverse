@@ -402,6 +402,14 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                 </div>
               </div>
               <FaviconShadowControls
+                single
+                textShadow={config.brand.logoShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
+                onChangeText={(v) => update("brand", "logoShadow", v)}
+                t={t}
+                textLabel={t("admin.settings.navLogoShadow")}
+              />
+              <p className={styles.faviconImageOptionsHint}>{t("admin.settings.navLogoShadowHint")}</p>
+              <FaviconShadowControls
                 textShadow={config.brand.faviconImageShadow ?? DEFAULT_FAVICON_TEXT_SHADOW}
                 bgShadow={config.brand.faviconImageBgShadow ?? DEFAULT_FAVICON_BG_SHADOW}
                 onChangeText={(v) => update("brand", "faviconImageShadow", v)}
