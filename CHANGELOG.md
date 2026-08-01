@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.33.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.32.0...v1.33.0) (2026-08-01)
+
+
+### Features
+
+* **admin/appearance:** nav·로딩 로고 그림자를 favicon 그림자와 분리 ([82b2e82](https://github.com/hyeoniverse/web-portfolio-oval/commit/82b2e82914b54157fd3f32fa93bcd67aab08ac19))
+
 ## [1.32.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.31.1...v1.32.0) (2026-07-31)
 
 
