@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.35.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.34.0...v1.35.0) (2026-08-02)
+
+
+### Features
+
+* **admin/dashboard:** 댓글 신고 내역 표시 + 진입점(대시보드·알림·nav) ([4f00710](https://github.com/hyeoniverse/web-portfolio-oval/commit/4f00710dda27861c50e09f1c781e46aace69cac8))
+
 ## [1.34.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.33.0...v1.34.0) (2026-08-01)
 
 
