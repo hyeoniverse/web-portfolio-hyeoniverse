@@ -100,6 +100,10 @@ export default function BridgeSection({
           <span className={heroStyles.availabilityWrapper}>
             <T ko={cfg.hero.subtext_ko[1]} en={cfg.hero.subtext[1]} />
             <span className={heroStyles.pulseDot} />
+            {/* Hero 와 동일 구조 유지 — 이 pulse div 가 flex gap 을 하나 더 먹어
+                availabilityWrapper 폭이 12px 커진다. 없으면 래핑 시 "Open to Opportunities"
+                가 가로로 6px 어긋나 움찔거린다. */}
+            <div className="pulse" />
           </span>
         </div>
       </div>

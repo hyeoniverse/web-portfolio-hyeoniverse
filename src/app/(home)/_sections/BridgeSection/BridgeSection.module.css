@@ -17,3 +17,12 @@
 /* ---------------------------------------------------------------------------
    Responsive - Must match Hero section
    --------------------------------------------------------------------------- */
+/* Hero 는 ≤768px 에서 .content 에 padding-bottom(spacing-6xl)을 준다. Bridge 의
+   .content 는 자체 클래스라 그 규칙을 못 받아 콘텐츠가 128px 짧아졌고, 무한스크롤
+   래핑 시 Hero↔Bridge 가 세로로 어긋나 "부자연스럽게 끊기는" 점프가 생겼다. 동일 규칙을
+   맞춰 seamless 하게 한다. (meta 등 나머지는 heroStyles 클래스를 공유해 이미 일치) */
+@media (max-width: 768px) {
+  .content {
+    padding-bottom: var(--spacing-6xl);
+  }
+}
