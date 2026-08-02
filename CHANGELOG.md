@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.36.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.35.0...v1.36.0) (2026-08-02)
+
+
+### Features
+
+* **admin/services:** 허용 파일 형식 UI 개편 + 확장자 기반 전환 ([dea0c01](https://github.com/hyeoniverse/web-portfolio-oval/commit/dea0c01cb6da72c080eb53a061af8fbdbc8d183f))
+* **favicon:** 브라우저 색상 설정(prefers-color-scheme)을 따르게 ([55673e4](https://github.com/hyeoniverse/web-portfolio-oval/commit/55673e4366ba2369b36d04dcdd7807545950c5f0))
+
 ## [1.35.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.34.0...v1.35.0) (2026-08-02)
 
 
