@@ -364,6 +364,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                 <FieldHelp content={t("admin.settings.wcagHelp")} />
               </h4>
             </div>
+            <p className={styles.faviconImageOptionsHint}>{t("admin.settings.faviconThemeHint")}</p>
             {/* 프리뷰(상단 가로 카드) + 컨트롤 2패널(글자·모양 | 색상) + 그림자 카드 */}
             <div className={styles.faviconStudio}>
               <div className={styles.faviconPreviewBar}>

@@ -54,7 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
       index: true,
       follow: true,
     },
-    // icons 는 FaviconSync (client) 가 site theme 에 맞춰 동적으로 교체 — metadata 에선 미설정
+    // icons 는 FaviconSync (client) 가 브라우저 prefers-color-scheme 에 맞춰 동적 교체 — metadata 에선 미설정
   };
 }
 
