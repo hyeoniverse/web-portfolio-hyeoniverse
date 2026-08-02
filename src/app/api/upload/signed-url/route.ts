@@ -31,7 +31,6 @@ export async function POST(request: Request) {
   }
 
   const fileName = String(body?.fileName || "");
-  const contentType = String(body?.contentType || "");
   const ext = (fileName.split(".").pop() || "").toLowerCase();
   if (!ext) return jsonError("파일 확장자가 필요합니다.", 400);
 
@@ -50,9 +49,10 @@ export async function POST(request: Request) {
 
   if (blockedExt.has(ext)) return jsonError(`차단된 파일 형식: .${ext}`, 400);
 
+  // 확장자 화이트리스트 (limits 는 확장자 키). 브라우저 MIME 은 드문 형식에서 빈 값이라 확장자 기준.
   const hasLimits = Object.keys(limits).length > 0;
-  if (hasLimits && !(contentType in limits) && !("_default" in limits)) {
-    return jsonError(`허용되지 않은 형식입니다: ${contentType}`, 400);
+  if (hasLimits && !(ext in limits) && !("_default" in limits)) {
+    return jsonError(`허용되지 않은 형식입니다: .${ext}`, 400);
   }
 
   // ── 서명 URL 발급 ──
