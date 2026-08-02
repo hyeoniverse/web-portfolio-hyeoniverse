@@ -47,6 +47,10 @@
       "newWork": "새 프로젝트",
       "openSettings": "설정 열기",
       "viewNotifications": "알림 보기",
+      "viewReports": "신고 관리",
+      "reports": "신고 내역",
+      "noPendingReports": "대기 중인 신고가 없습니다",
+      "viewAllReports": "전체 신고 보기",
       "stats": "통계",
       "posts": "게시물",
       "works": "프로젝트",
@@ -116,7 +120,9 @@
       "searchPlaceholder": "제목·메시지 검색",
       "searchEmpty": "검색 결과가 없습니다",
       "refresh": "새로고침",
-      "tipRefresh": "알림 다시 불러오기"
+      "tipRefresh": "알림 다시 불러오기",
+      "reportsPage": "신고 페이지",
+      "tipReportsPage": "신고 관리 페이지 열기"
     },
     "reports": {
       "title": "댓글 신고",

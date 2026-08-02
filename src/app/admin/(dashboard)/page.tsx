@@ -10,6 +10,7 @@ import {
 } from "react";
 import Link from "next/link";
 import type { DashboardData } from "@/types";
+import type { Report } from "./reports/_types";
 import {
   Plus,
   Settings,
@@ -28,6 +29,7 @@ import {
   LineChart,
   CalendarDays,
   LayoutDashboard,
+  Flag,
 } from "@/components/icons";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
@@ -104,6 +106,24 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // 댓글 신고 — 대시보드 미리보기 + pending 배지. 기존 /api/admin/reports 재사용(대시보드 API 와 분리).
+  const [reports, setReports] = useState<Report[]>([]);
+  const [reportPendingCount, setReportPendingCount] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/admin/reports?status=pending")
+      .then((r) => r.json())
+      .then((j) => {
+        if (!alive) return;
+        setReports((j.reports ?? []) as Report[]);
+        setReportPendingCount(j.pendingCount ?? 0);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   /* Total Views 카드용 WoW (week-over-week) — 최근 7일 vs 이전 7일.
      Rules of Hooks: 반드시 early return 앞에서 호출. (Daily Chart 의 WoW 는 차트 내부에서 따로 계산 — 기간 선택에 따라 달라지므로) */
@@ -288,6 +308,36 @@ export default function AdminDashboard() {
                   <span className={styles.badge}>
                     {data.notifications.unreadCount}
                   </span>
+                </span>
+              )}
+            </Button>
+          </Tooltip>
+          <Tooltip
+            content={
+              language === "ko"
+                ? "댓글 신고 관리 페이지로 이동"
+                : "Open comment reports"
+            }
+            placement="top"
+            delay={250}
+            wrapperStyle={{ display: "block", width: "100%" }}
+          >
+            <Button
+              href="/admin/reports"
+              variant="ghost"
+              size="md"
+              fullWidth
+              icon={<Flag size={18} strokeWidth={1.6} />}
+              className={styles.actionBtn}
+            >
+              <T k="admin.dashboard.viewReports" />
+              {reportPendingCount > 0 && (
+                <span
+                  className={styles.badgeWrap}
+                  aria-label={`${reportPendingCount} pending`}
+                >
+                  <span className={styles.badgePulse} aria-hidden />
+                  <span className={styles.badge}>{reportPendingCount}</span>
                 </span>
               )}
             </Button>
@@ -613,6 +663,60 @@ export default function AdminDashboard() {
               ))}
             </List>
           )}
+        </Panel>
+      </Section>
+
+      {/* ━━━━━━━━━━ 그룹: 신고 ━━━━━━━━━━ */}
+      {/* ── 댓글 신고 내역 — pending 미리보기(표시) + 관리 페이지 링크(진입점) ── */}
+      <Section>
+        <SectionHeader>
+          <T k="admin.dashboard.reports" />
+          {reportPendingCount > 0 && (
+            <span className={styles.headerBadge}>{reportPendingCount}</span>
+          )}
+        </SectionHeader>
+        <Panel className={styles.panelCell}>
+          {reports.length === 0 ? (
+            <p className={styles.muted}>
+              <T k="admin.dashboard.noPendingReports" />
+            </p>
+          ) : (
+            <List>
+              {reports.slice(0, 5).map((r) => (
+                <ListItem key={r.id} layout="column">
+                  <div className={styles.commentMeta}>
+                    <span className={styles.commentAuthor}>
+                      {r.comment?.nickname ?? "—"}
+                    </span>
+                    <span className={styles.timeAgo}>{fmtDate(r.created_at)}</span>
+                  </div>
+                  {r.comment?.content && (
+                    <p className={styles.commentBody}>{r.comment.content}</p>
+                  )}
+                  {r.reason && (
+                    <p className={styles.reportReason}>
+                      <Flag size={11} strokeWidth={1.8} /> {r.reason}
+                    </p>
+                  )}
+                  {r.comment?.parentSlug ? (
+                    <Link
+                      href={`/${r.comment_type === "work" ? "works" : "posts"}/${r.comment.parentSlug}`}
+                      className={styles.commentSource}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      ↗ {r.comment.parentTitle}
+                    </Link>
+                  ) : (
+                    <span className={styles.commentSource}>&nbsp;</span>
+                  )}
+                </ListItem>
+              ))}
+            </List>
+          )}
+          <Link href="/admin/reports" className={styles.reportViewAll}>
+            <T k="admin.dashboard.viewAllReports" /> →
+          </Link>
         </Panel>
       </Section>
 

@@ -64,6 +64,7 @@ export const adminNavItems: NavItem[] = [
 export const adminMenuItems = [
   ...adminNavItems,
   { key: "admin-notifications", href: "/admin/notifications", label: "Notifications" },
+  { key: "admin-reports", href: "/admin/reports", label: "Reports" },
   { key: "logout", href: null as string | null, label: "Logout" },
 ];
 

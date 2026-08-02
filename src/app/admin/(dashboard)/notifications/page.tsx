@@ -202,6 +202,16 @@ export default function NotificationsPage() {
           )}
         </h1>
         <div className={styles.headerActions}>
+          <Tooltip content={t("admin.notifications.tipReportsPage")} placement="bottom" delay={250}>
+            <Button
+              href="/admin/reports"
+              variant="outline"
+              size="md"
+              icon={<Flag size={13} strokeWidth={1.8} />}
+            >
+              <T k="admin.notifications.reportsPage" />
+            </Button>
+          </Tooltip>
           <Tooltip content={t("admin.notifications.tipRefresh")} placement="bottom" delay={250}>
             <Button
               variant="outline"
