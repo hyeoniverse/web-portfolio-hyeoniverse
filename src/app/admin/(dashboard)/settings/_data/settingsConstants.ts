@@ -108,45 +108,6 @@ export const THEME_PRESETS: ThemePreset[] = [
   },
 ];
 
-/** font display name -> CSS variable for preview rendering */
-const FONT_CSS_VARS: Record<string, string> = {
-  "Instrument Serif": "var(--font-instrument)",
-  "Noto Serif KR": "var(--font-noto-serif-kr)",
-  "Nanum Myeongjo": "var(--font-nanum-myeongjo)",
-  "Gowun Batang": "var(--font-gowun-batang)",
-  "Hahmlet": "var(--font-hahmlet)",
-  "Space Grotesk": "var(--font-space-grotesk)",
-  "Noto Sans KR": "var(--font-noto-sans-kr)",
-  "Gothic A1": "var(--font-gothic-a1)",
-  "IBM Plex Sans KR": "var(--font-ibm-plex-sans-kr)",
-  "Gowun Dodum": "var(--font-gowun-dodum)",
-  "Nanum Gothic": "var(--font-nanum-gothic)",
-  "JetBrains Mono": "var(--font-mono)",
-  "Fira Code": "var(--font-fira-code)",
-  "Source Code Pro": "var(--font-source-code-pro)",
-  "IBM Plex Mono": "var(--font-ibm-plex-mono)",
-  "Roboto Mono": "var(--font-roboto-mono)",
-  "Inconsolata": "var(--font-inconsolata)",
-  "Nanum Gothic Coding": "var(--font-nanum-gothic-coding)",
-  "Playfair Display": "var(--font-playfair)",
-  "Cormorant Garamond": "var(--font-cormorant)",
-  "Lora": "var(--font-lora)",
-  "EB Garamond": "var(--font-eb-garamond)",
-  "Merriweather": "var(--font-merriweather)",
-  "Inter": "var(--font-inter)",
-  "DM Sans": "var(--font-dm-sans)",
-  "Poppins": "var(--font-poppins)",
-  "Nunito": "var(--font-nunito)",
-  "Ubuntu Mono": "var(--font-ubuntu-mono)",
-  "DM Mono": "var(--font-dm-mono)",
-  "Courier Prime": "var(--font-courier-prime)",
-};
-
-/** preset -> CSS var, custom -> font name as-is */
-export function getFontFamily(name: string) {
-  return FONT_CSS_VARS[name] ?? `"${name}", sans-serif`;
-}
-
 /**
  * siteConfig conflict path → 해당 탭 매핑
  */

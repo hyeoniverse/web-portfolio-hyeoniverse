@@ -147,7 +147,7 @@ export default function FontPicker({
   // 영문 우선 — 한글 그룹을 뒤로
   const orderedGroups = (() => {
     if (!preferEn) return allGroups;
-    const ko = ["Sans (한글)", "Serif (한글)", "Display (한글)"];
+    const ko = ["Korean (한글)"];
     return [
       ...allGroups.filter((g) => !ko.includes(g.group)),
       ...allGroups.filter((g) => ko.includes(g.group)),
