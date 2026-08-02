@@ -81,19 +81,19 @@ export default function HomeClient() {
     };
   }, [isLoading, setInfinite]);
 
-  // ScrollTorus 지연 마운트: 사용자 인터랙션 후 로드 (Three.js ~300KB 지연)
+  // ScrollTorus 지연 마운트: 로딩 직후 유휴 시간에 미리 마운트 (Three.js ~300KB 지연 로드).
+  // Three.js/WebGL 초기화는 첫 마운트에서 프레임이 수십 ms 튄다. 예전엔 scroll 이벤트로
+  // 트리거해서, 스크롤 도중 마운트되면 페이지 "중간"에서 눈에 띄게 끊겼다(무한스크롤 시 특히).
+  // 스크롤과 분리해 로딩 직후 유휴 구간에 미리 마운트하면, 초기화 비용이 스크롤 전 조용한
+  // 시점으로 옮겨져 스크롤 중 끊김이 사라진다.
   const [showTorus, setShowTorus] = useState(false);
   useEffect(() => {
     if (isLoading || showTorus || !cfg.home3d.scrollTorus) return;
-    const load = () => { setShowTorus(true); };
-    window.addEventListener("scroll", load, { once: true, passive: true });
-    window.addEventListener("mousemove", load, { once: true, passive: true });
+    const mount = () => setShowTorus(true);
     const idleId = "requestIdleCallback" in window
-      ? requestIdleCallback(() => { setTimeout(load, 2000); }, { timeout: 4000 })
-      : setTimeout(load, 3000);
+      ? requestIdleCallback(mount, { timeout: 800 })
+      : setTimeout(mount, 300);
     return () => {
-      window.removeEventListener("scroll", load);
-      window.removeEventListener("mousemove", load);
       if ("requestIdleCallback" in window) cancelIdleCallback(idleId as number);
       else clearTimeout(idleId as ReturnType<typeof setTimeout>);
     };
