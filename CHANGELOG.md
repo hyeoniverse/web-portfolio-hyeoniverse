@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.37.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.36.0...v1.37.0) (2026-08-02)
+
+
+### Features
+
+* **admin:** 설정 페이지에 스크롤 top/bottom 버튼 추가 ([79611f3](https://github.com/hyeoniverse/web-portfolio-oval/commit/79611f34490d613fd97850d18239ddaf57f2620b))
+
+
+### Bug Fixes
+
+* **bgm:** 숨겨진 탭에서 음소거·재생 인계를 즉시 반영 ([95df9dc](https://github.com/hyeoniverse/web-portfolio-oval/commit/95df9dc29277658b8a9d50165e5e60d67bc660c2))
+
 ## [1.36.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.35.0...v1.36.0) (2026-08-02)
 
 
