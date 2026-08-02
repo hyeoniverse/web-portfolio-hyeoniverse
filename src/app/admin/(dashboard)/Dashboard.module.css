@@ -97,7 +97,7 @@
 /* ── Quick Actions — 4-col edge-to-edge 행, 셀 사이만 vertical divider, 자체 위쪽 hairline ── */
 .quickActions {
   composes: panelGrid from "./components/Panel.module.css";
-  grid-template-columns: var(--grid-cols-4);
+  grid-template-columns: var(--grid-cols-5);
   border-top: var(--border-light);
 }
 
@@ -1700,6 +1700,55 @@ a.commentBody:hover {
 
 a.commentSource:hover {
   color: var(--text-accent);
+}
+
+/* ── 신고 내역 — 신고 사유(accent) · 섹션 헤더 pending 카운트 · 전체보기 링크 ── */
+.reportReason {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-accent);
+  line-height: 16px;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.headerBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4em;
+  height: 1.4em;
+  padding: 0 var(--spacing-3xs);
+  margin-left: var(--spacing-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--text-accent);
+  color: var(--bg-primary);
+  font-size: var(--font-size-2xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.reportViewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  margin-top: var(--spacing-sm);
+  padding: var(--box-xs-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-capsule);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+.reportViewAll:hover {
+  color: var(--text-accent);
+  background: var(--bg-secondary);
 }
 
 /* chip 대신 inline 텍스트 + accent dot 으로 시각 포인트 추가 */

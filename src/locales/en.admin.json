@@ -47,6 +47,10 @@
       "newWork": "New Project",
       "openSettings": "Open Settings",
       "viewNotifications": "View Notifications",
+      "viewReports": "Reports",
+      "reports": "Reports",
+      "noPendingReports": "No pending reports",
+      "viewAllReports": "View all reports",
       "stats": "Stats",
       "posts": "Posts",
       "works": "Projects",
@@ -114,7 +118,9 @@
       "searchPlaceholder": "Search title / message",
       "searchEmpty": "No matching notifications",
       "refresh": "Refresh",
-      "tipRefresh": "Reload notifications"
+      "tipRefresh": "Reload notifications",
+      "reportsPage": "Reports page",
+      "tipReportsPage": "Open the reports management page"
     },
     "reports": {
       "title": "Comment Reports",
