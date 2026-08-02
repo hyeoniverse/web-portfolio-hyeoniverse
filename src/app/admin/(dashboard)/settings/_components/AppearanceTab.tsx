@@ -11,6 +11,7 @@ import type { SiteConfigData } from "@/config/site.config";
 import type { SettingsTabProps } from "../_types";
 import { ColorField } from "./SettingsFormFields";
 import FontSelect from "./FontSelect";
+import CustomFontsField from "./CustomFontsField";
 import SectionHeader from "./SectionHeader";
 import BrandSection from "./BrandSection";
 import { PresetNameAddRow } from "./FaviconControls";
@@ -231,6 +232,14 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
             onChange={(v) => update("typography", "monoFont", v)}
           />
         </div>
+        {/* 커스텀 폰트 — 업로드(Storage) + public/fonts 스캔. 위 3개 선택 + 로고·에디터 FontPicker 전체에 노출 */}
+        <p className={shared.sectionHint} style={{ marginTop: "var(--spacing-lg)" }}>
+          <T k="admin.settings.customFontsLabel" />
+        </p>
+        <CustomFontsField
+          fonts={config.typography?.customFonts ?? []}
+          onChange={(v) => update("typography", "customFonts", v)}
+        />
       </section>
 
     </>

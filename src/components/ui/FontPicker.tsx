@@ -5,6 +5,8 @@ import { Check, ExternalLink } from "@/components/icons";
 import Select from "@/components/ui/Select";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
+import { useCustomFonts } from "@/hooks/useCustomFonts";
+import { injectFontFace } from "@/lib/customFonts";
 import styles from "./FontPicker.module.css";
 
 type FontEntry = { label: string; value: string; googleName?: string; /** 한글 지원 폰트 — 목록에 "가" 배지 표시 */ korean?: boolean };
@@ -84,16 +86,36 @@ export default function FontPicker({
     setCurGroup(cur);
   }, []);
 
+  // ── 커스텀 폰트(업로드 + public/fonts 스캔) — 맨 앞 "Custom" 그룹으로 합치고 @font-face 주입 ──
+  // value 는 toGoogleValue 규약을 따른다 (타이포=display name, 에디터/로고=CSS 문자열).
+  const customFonts = useCustomFonts();
+  useEffect(() => {
+    customFonts.forEach(injectFontFace);
+  }, [customFonts]);
+  const allGroups = useMemo<FontGroup[]>(() => {
+    if (customFonts.length === 0) return groups;
+    return [
+      {
+        group: "Custom",
+        fonts: customFonts.map((f) => ({
+          label: f.name,
+          value: toGoogleValue ? toGoogleValue(f.name) : f.name,
+        })),
+      },
+      ...groups,
+    ];
+  }, [customFonts, groups, toGoogleValue]);
+
   // flat list — useMemo 로 안정화 (groups 자체는 호출 측에서 재생성될 수 있어 ref 로 latest 추적).
   // useEffect deps 에 넣지 않음 → 매 렌더 effect 재실행으로 debounce 가 cancel 되던 버그 fix.
-  const flat = useMemo(() => groups.flatMap((g) => g.fonts), [groups]);
+  const flat = useMemo(() => allGroups.flatMap((g) => g.fonts), [allGroups]);
   const flatRef = useRef(flat);
   flatRef.current = flat;
 
   const matchedValue = resolveMatch ? resolveMatch(value, flat) : value;
   const currentEntry = flat.find((f) => f.value === matchedValue);
   // 열리자마자(스크롤 전) 최상단에 올 그룹 = 현재 선택 폰트의 그룹 — 헤더 초기값으로 써서 툭 나타나지 않게.
-  const activeGroup = groups.find((g) => g.fonts.some((f) => f.value === matchedValue))?.group ?? "";
+  const activeGroup = allGroups.find((g) => g.fonts.some((f) => f.value === matchedValue))?.group ?? "";
 
   // 검색어 변경 시 Google Fonts 검색 (debounce) — preset 매칭 여부와 무관하게 항상 fire.
   // /api/fonts/search 가 부분 매칭 지원 — "robo" 면 Roboto, Roboto Mono, Roboto Slab 등 반환.
@@ -124,11 +146,11 @@ export default function FontPicker({
 
   // 영문 우선 — 한글 그룹을 뒤로
   const orderedGroups = (() => {
-    if (!preferEn) return groups;
+    if (!preferEn) return allGroups;
     const ko = ["Sans (한글)", "Serif (한글)", "Display (한글)"];
     return [
-      ...groups.filter((g) => !ko.includes(g.group)),
-      ...groups.filter((g) => ko.includes(g.group)),
+      ...allGroups.filter((g) => !ko.includes(g.group)),
+      ...allGroups.filter((g) => ko.includes(g.group)),
     ];
   })();
 

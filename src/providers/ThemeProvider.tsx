@@ -11,6 +11,8 @@ import {
 } from "react";
 import { useSiteConfig } from "./SiteConfigProvider";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
+import { LOCAL_FONTS } from "@/config/localFonts.generated";
+import type { CustomFont } from "@/lib/customFonts";
 
 type ResolvedTheme = "light" | "dark";
 
@@ -35,6 +37,7 @@ interface TypographyConfig {
   headingFont: string;
   bodyFont: string;
   monoFont: string;
+  customFonts?: CustomFont[];
 }
 
 /** font display name → CSS font-family string (empty = use preloaded default) */
@@ -289,9 +292,16 @@ function applyFontOverrides(
 ) {
   if (!typography) return;
 
-  applyFont(root, "--font-instrument", typography.headingFont, HEADING_FONTS, "serif");
-  applyFont(root, "--font-space-grotesk", typography.bodyFont, BODY_FONTS, "sans-serif");
-  applyFont(root, "--font-mono", typography.monoFont, MONO_FONTS, "monospace");
+  // 업로드/로컬 커스텀 폰트 이름 — 이건 Google 이 아니라 @font-face(CustomFontsLoader)로 주입되므로
+  // loadGoogleFont(404 유발) 를 건너뛴다.
+  const customSet = new Set<string>([
+    ...LOCAL_FONTS.map((f) => f.name),
+    ...(typography.customFonts ?? []).map((f) => f.name),
+  ]);
+
+  applyFont(root, "--font-instrument", typography.headingFont, HEADING_FONTS, "serif", customSet);
+  applyFont(root, "--font-space-grotesk", typography.bodyFont, BODY_FONTS, "sans-serif", customSet);
+  applyFont(root, "--font-mono", typography.monoFont, MONO_FONTS, "monospace", customSet);
 }
 
 function applyFont(
@@ -300,6 +310,7 @@ function applyFont(
   fontName: string,
   lookup: Record<string, string>,
   fallback: string,
+  customSet: Set<string>,
 ) {
   const mapped = lookup[fontName];
   if (mapped !== undefined) {
@@ -310,8 +321,8 @@ function applyFont(
       root.style.removeProperty(cssVar);
     }
   } else if (fontName) {
-    // 커스텀 폰트: Google Fonts에서 동적 로드 후 CSS var 주입
-    loadGoogleFont(fontName);
+    // 커스텀 폰트: 업로드/로컬(@font-face)이면 그대로, 그 외엔 Google Fonts 동적 로드
+    if (!customSet.has(fontName)) loadGoogleFont(fontName);
     root.style.setProperty(cssVar, `"${fontName}", ${fallback}`);
   } else {
     root.style.removeProperty(cssVar);

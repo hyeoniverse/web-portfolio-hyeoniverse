@@ -12,6 +12,7 @@ const CursorTrail = dynamic(() => import("@/components/effects/CursorTrail"), { 
 const BGMController = dynamic(() => import("@/components/common/BGMController"), { ssr: false });
 const VisitTracker = dynamic(() => import("@/components/common/VisitTracker"), { ssr: false });
 const SettingsSync = dynamic(() => import("@/components/common/SettingsSync"), { ssr: false });
+const CustomFontsLoader = dynamic(() => import("@/components/common/CustomFontsLoader"), { ssr: false });
 
 export default function ClientOverlays() {
   return (
@@ -25,6 +26,7 @@ export default function ClientOverlays() {
       <BGMController />
       <VisitTracker />
       <SettingsSync />
+      <CustomFontsLoader />
     </aside>
   );
 }
