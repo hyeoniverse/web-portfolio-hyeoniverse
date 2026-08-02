@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "fonts:scan": "node scripts/scan-fonts.mjs",
+    "prebuild": "node scripts/scan-fonts.mjs",
     "build": "next build",
     "analyze": "ANALYZE=true next build",
     "start": "next start",
