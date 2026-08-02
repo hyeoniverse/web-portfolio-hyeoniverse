@@ -26,6 +26,7 @@ import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import Tooltip from "@/components/ui/Tooltip";
+import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { useModalStore } from "@/stores/modalStore";
 import { useAccountSettings } from "./_hooks/useAccountSettings";
@@ -945,6 +946,7 @@ export default function SettingsPage() {
           )}
         </div>
       </div>
+      <ScrollButtons threshold={0} />
     </div>
   );
 }
