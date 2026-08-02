@@ -693,3 +693,86 @@
   color: var(--text-tertiary);
   cursor: pointer;
 }
+
+/* ── 커스텀 폰트 업로드·목록 ── */
+.customFonts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+.customFontsHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-md);
+}
+.customFontsHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+.customFontsList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--border-light);
+}
+.customFontRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--box-y-sm);
+  border-bottom: var(--border-light);
+}
+.customFontName {
+  flex: 0 0 auto;
+  min-width: 8rem;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.customFontPreview {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.customFontBadge {
+  flex: 0 0 auto;
+  padding: 2px var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+.customFontRemove {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    color var(--duration-base) ease,
+    background-color var(--duration-base) ease;
+}
+.customFontRemove:hover {
+  color: var(--text-error);
+  background: var(--bg-error-soft);
+}

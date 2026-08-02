@@ -17,23 +17,32 @@ export async function POST(request: Request) {
   // 파일 크기 제한
   const isResume = folder === "resume";
   const isBgm = folder === "bgm";
-  const maxSize = isBgm ? 10 * 1024 * 1024 : isResume ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
-  const maxLabel = isBgm ? "10MB" : isResume ? "5MB" : "2MB";
+  const isFont = folder === "fonts";
+  const maxSize = isBgm
+    ? 10 * 1024 * 1024
+    : isFont || isResume
+      ? 5 * 1024 * 1024
+      : 2 * 1024 * 1024;
+  const maxLabel = isBgm ? "10MB" : isFont || isResume ? "5MB" : "2MB";
   if (file.size > maxSize) {
     return jsonError(`File too large (max ${maxLabel})`, 400);
   }
 
-  // MIME 타입 검증
+  // 타입 검증 — 폰트는 MIME 이 브라우저마다 제각각(빈 값 포함)이라 확장자로 검사
   const mimeOk = isBgm
     ? file.type.startsWith("audio/")
     : isResume
       ? file.type === "application/pdf"
-      : file.type.startsWith("image/");
+      : isFont
+        ? /\.(woff2?|ttf|otf)$/i.test(file.name)
+        : file.type.startsWith("image/");
   const mimeError = isBgm
     ? "Only audio files allowed"
     : isResume
       ? "Only PDF files allowed"
-      : "Only image files allowed";
+      : isFont
+        ? "Only font files (woff2, woff, ttf, otf) allowed"
+        : "Only image files allowed";
   if (!mimeOk) return jsonError(mimeError, 400);
 
   // HEIC/HEIF/TIFF → WebP 변환 (브라우저 호환성)

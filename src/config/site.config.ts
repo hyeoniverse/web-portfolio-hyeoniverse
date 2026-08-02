@@ -13,6 +13,7 @@
 import type { Author } from "@/types/author";
 import type { LocalizedText } from "@/types/common";
 import type { BackendItem, UserFlow, TroubleShootingItem, ErdTable, ErdRelation } from "@/data/about/types";
+import type { CustomFont } from "@/lib/customFonts";
 
 export const siteConfig = {
   // ---------------------------------------------------------------------------
@@ -362,6 +363,9 @@ export const siteConfig = {
     headingFont: "Instrument Serif", // Display/Heading 폰트
     bodyFont: "Space Grotesk", // Body/UI 폰트
     monoFont: "JetBrains Mono", // Monospace 폰트
+    // 업로드한 커스텀 폰트 (Supabase Storage) — public/fonts 빌드 스캔 폰트와 합쳐
+    // FontPicker(제목·본문·코드·로고·에디터) 와 @font-face 렌더에 노출
+    customFonts: [] as CustomFont[],
   },
 
   // ---------------------------------------------------------------------------
