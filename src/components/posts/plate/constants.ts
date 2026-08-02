@@ -1,71 +1,62 @@
-type FontEntry = { label: string; value: string; googleName?: string };
-type FontGroup = { group: string; fonts: FontEntry[] };
+export type FontEntry = { label: string; value: string; googleName?: string; /** 한글 지원 — 목록에 "가" 배지 */ korean?: boolean };
+export type FontGroup = { group: string; fonts: FontEntry[] };
+
+// 폰트 선택 카탈로그 — 단일 소스(single source of truth).
+// 로고·에디터·about·타이포그래피·디자인시스템이 모두 이 목록을 참조한다.
+// value 는 CSS font-family 문자열(로고/favicon 이 그대로 사용하고 역방향 조회 키로도 쓰인다).
+// googleName 지정분은 FontPicker 가 hover/선택 시 자동 로드 — 자체 호스팅 폰트도 같은 규약으로 통일.
+const gf = (label: string, fallback: string): FontEntry => ({ label, value: `'${label}', ${fallback}`, googleName: label });
+const gfk = (label: string, fallback: string): FontEntry => ({ ...gf(label, fallback), korean: true });
 
 export const FONT_GROUPS: FontGroup[] = [
   {
-    group: "기본",
+    group: "Korean (한글)",
+    // Google Fonts 의 한글 subset 지원 전반 (사이트 라이브 메타데이터 기준)
     fonts: [
-      { label: "Space Grotesk", value: "'Space Grotesk', sans-serif", googleName: "Space Grotesk" },
-      { label: "Instrument Serif", value: "'Instrument Serif', serif", googleName: "Instrument Serif" },
-      { label: "Inter", value: "'Inter', sans-serif", googleName: "Inter" },
-      { label: "Noto Sans KR", value: "'Noto Sans KR', sans-serif", googleName: "Noto Sans KR" },
-      { label: "Noto Serif KR", value: "'Noto Serif KR', serif", googleName: "Noto Serif KR" },
-      { label: "JetBrains Mono", value: "'JetBrains Mono', monospace", googleName: "JetBrains Mono" },
+      gfk("Noto Sans KR", "sans-serif"), gfk("Nanum Gothic", "sans-serif"), gfk("Gothic A1", "sans-serif"),
+      gfk("IBM Plex Sans KR", "sans-serif"), gfk("Gowun Dodum", "sans-serif"), gfk("Sunflower", "sans-serif"),
+      gfk("Stylish", "sans-serif"), gfk("Asta Sans", "sans-serif"), gfk("Do Hyeon", "sans-serif"),
+      gfk("Jua", "sans-serif"), gfk("Dongle", "sans-serif"),
+      gfk("Noto Serif KR", "serif"), gfk("Nanum Myeongjo", "serif"), gfk("Gowun Batang", "serif"),
+      gfk("Song Myung", "serif"), gfk("Hahmlet", "serif"), gfk("Diphylleia", "serif"),
+      gfk("Grandiflora One", "serif"), gfk("Moirai One", "serif"),
+      gfk("Black Han Sans", "sans-serif"), gfk("Gugi", "sans-serif"), gfk("Gasoek One", "sans-serif"),
+      gfk("Bagel Fat One", "sans-serif"), gfk("Orbit", "sans-serif"), gfk("Black And White Picture", "sans-serif"),
+      gfk("Cute Font", "sans-serif"), gfk("Nanum Gothic Coding", "monospace"),
+      gfk("Nanum Pen Script", "cursive"), gfk("Nanum Brush Script", "cursive"), gfk("Gaegu", "cursive"),
+      gfk("Hi Melody", "cursive"), gfk("Gamja Flower", "cursive"), gfk("Poor Story", "cursive"),
+      gfk("Single Day", "cursive"), gfk("Dokdo", "cursive"), gfk("East Sea Dokdo", "cursive"),
+      gfk("Kirang Haerang", "cursive"), gfk("Yeon Sung", "cursive"),
     ],
   },
   {
-    group: "Sans (한글)",
+    group: "Sans",
     fonts: [
-      { label: "Gothic A1", value: "'Gothic A1', sans-serif", googleName: "Gothic A1" },
-      { label: "Nanum Gothic", value: "'Nanum Gothic', sans-serif", googleName: "Nanum Gothic" },
-      { label: "Gowun Dodum", value: "'Gowun Dodum', sans-serif", googleName: "Gowun Dodum" },
-      { label: "IBM Plex Sans KR", value: "'IBM Plex Sans KR', sans-serif", googleName: "IBM Plex Sans KR" },
-      { label: "Pretendard", value: "'Pretendard Variable', sans-serif", googleName: "Pretendard Variable" },
-      { label: "Spoqa Han Sans Neo", value: "'Spoqa Han Sans Neo', sans-serif" },
+      gf("Space Grotesk", "sans-serif"),
+      ...["Inter", "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Work Sans", "Nunito", "Raleway", "DM Sans", "Manrope", "Rubik", "Mulish", "Josefin Sans", "Quicksand"].map((n) => gf(n, "sans-serif")),
     ],
   },
   {
-    group: "Serif (한글)",
+    group: "Serif",
     fonts: [
-      { label: "Nanum Myeongjo", value: "'Nanum Myeongjo', serif", googleName: "Nanum Myeongjo" },
-      { label: "Gowun Batang", value: "'Gowun Batang', serif", googleName: "Gowun Batang" },
-      { label: "KoPub Batang", value: "'KoPubWorldBatang', serif" },
+      gf("Instrument Serif", "serif"),
+      ...["Playfair Display", "Merriweather", "Lora", "PT Serif", "Cormorant", "EB Garamond", "Bitter", "Crimson Text", "Libre Baskerville", "Source Serif 4"].map((n) => gf(n, "serif")),
     ],
   },
   {
-    group: "Display (한글)",
-    fonts: [
-      { label: "Black Han Sans", value: "'Black Han Sans', sans-serif", googleName: "Black Han Sans" },
-      { label: "Jua", value: "'Jua', sans-serif", googleName: "Jua" },
-      { label: "Do Hyeon", value: "'Do Hyeon', sans-serif", googleName: "Do Hyeon" },
-      { label: "Gaegu", value: "'Gaegu', cursive", googleName: "Gaegu" },
-      { label: "Hi Melody", value: "'Hi Melody', cursive", googleName: "Hi Melody" },
-      { label: "Sunflower", value: "'Sunflower', sans-serif", googleName: "Sunflower" },
-      { label: "Dokdo", value: "'Dokdo', cursive", googleName: "Dokdo" },
-    ],
-  },
-  {
-    group: "Sans (영문)",
-    fonts: [
-      { label: "Roboto", value: "'Roboto', sans-serif", googleName: "Roboto" },
-      { label: "Open Sans", value: "'Open Sans', sans-serif", googleName: "Open Sans" },
-    ],
-  },
-  {
-    group: "Serif (영문)",
-    fonts: [
-      { label: "Playfair Display", value: "'Playfair Display', serif", googleName: "Playfair Display" },
-      { label: "Lora", value: "'Lora', serif", googleName: "Lora" },
-      { label: "Merriweather", value: "'Merriweather', serif", googleName: "Merriweather" },
-    ],
+    group: "Display",
+    fonts: ["Oswald", "Bebas Neue", "Abril Fatface", "Righteous", "Lobster", "Pacifico", "Comfortaa", "Fredoka", "Anton"].map((n) => gf(n, "sans-serif")),
   },
   {
     group: "Mono",
     fonts: [
-      { label: "Fira Code", value: "'Fira Code', monospace", googleName: "Fira Code" },
-      { label: "Source Code Pro", value: "'Source Code Pro', monospace", googleName: "Source Code Pro" },
-      { label: "D2Coding", value: "'D2Coding', monospace", googleName: "D2Coding" },
+      gf("JetBrains Mono", "monospace"),
+      ...["Fira Code", "Source Code Pro", "IBM Plex Mono", "Space Mono"].map((n) => gf(n, "monospace")),
     ],
+  },
+  {
+    group: "Handwriting",
+    fonts: ["Caveat", "Dancing Script", "Shadows Into Light", "Satisfy"].map((n) => gf(n, "cursive")),
   },
 ];
 

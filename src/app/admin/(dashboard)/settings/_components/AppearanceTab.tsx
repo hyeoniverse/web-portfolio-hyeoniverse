@@ -216,19 +216,16 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
           <FontSelect
             label={t("admin.settings.headingFont")}
             value={config.typography?.headingFont ?? "Instrument Serif"}
-            options={["Instrument Serif", "Noto Serif KR", "Nanum Myeongjo", "Gowun Batang", "Hahmlet", "Playfair Display", "Cormorant Garamond", "Lora", "EB Garamond", "Merriweather"]}
             onChange={(v) => update("typography", "headingFont", v)}
           />
           <FontSelect
             label={t("admin.settings.bodyFont")}
             value={config.typography?.bodyFont ?? "Space Grotesk"}
-            options={["Space Grotesk", "Noto Sans KR", "Gothic A1", "IBM Plex Sans KR", "Nanum Gothic", "Gowun Dodum", "Inter", "DM Sans", "Poppins", "Nunito"]}
             onChange={(v) => update("typography", "bodyFont", v)}
           />
           <FontSelect
             label={t("admin.settings.monoFont")}
             value={config.typography?.monoFont ?? "JetBrains Mono"}
-            options={["JetBrains Mono", "Fira Code", "Source Code Pro", "IBM Plex Mono", "Roboto Mono", "Inconsolata", "Nanum Gothic Coding", "Ubuntu Mono", "DM Mono", "Courier Prime"]}
             onChange={(v) => update("typography", "monoFont", v)}
           />
         </div>
