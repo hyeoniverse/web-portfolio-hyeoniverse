@@ -401,6 +401,7 @@
       "systemLogoHint": "Builds the logo from text when no image is uploaded.",
       "logoFaviconPart": "Favicon",
       "logoFaviconPartHint": "short · browser tab",
+      "faviconThemeHint": "Switches automatically with the browser's dark/light mode. The favicon works independently of the site theme.",
       "faviconGroupGlyph": "Glyph & shape",
       "faviconGroupColor": "Colors (background · border · text)",
       "faviconGroupShadow": "Shadow",
