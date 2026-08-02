@@ -8,7 +8,8 @@ import Button from "@/components/ui/Button";
 import HelpButton from "@/components/ui/HelpButton";
 import SortControl from "@/components/ui/SortControl";
 import SegmentedControl from "@/components/ui/SegmentedControl";
-import FontPicker, { type FontGroup } from "@/components/ui/FontPicker";
+import FontPicker from "@/components/ui/FontPicker";
+import { FONT_GROUPS } from "@/components/posts/plate/constants";
 import MenuDots from "@/components/ui/MenuDots";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import HighlightedText from "@/components/ui/HighlightedText";
@@ -78,43 +79,7 @@ function md(text: string): ReactNode {
   return parts;
 }
 
-/** FontPicker 데모용 폰트 목록 — 사이트 로드 폰트(var) + 인기 Google Fonts.
- *  googleName 지정분은 dropdown 에서 hover / 선택 시 자동 로드되어 실제 폰트로 보인다. */
-const gf = (label: string, fallback: string) => ({ label, value: `'${label}', ${fallback}`, googleName: label });
-const gfk = (label: string, fallback: string) => ({ ...gf(label, fallback), korean: true });
-const FONT_DEMO_GROUPS: FontGroup[] = [
-  { group: "Korean (한글)", fonts: [
-    // Google Fonts 의 korean subset 지원 전체 (38 families) — 사이트 라이브 메타데이터 기준
-    gfk("Noto Sans KR", "sans-serif"), gfk("Nanum Gothic", "sans-serif"), gfk("Gothic A1", "sans-serif"),
-    gfk("IBM Plex Sans KR", "sans-serif"), gfk("Gowun Dodum", "sans-serif"), gfk("Sunflower", "sans-serif"),
-    gfk("Stylish", "sans-serif"), gfk("Asta Sans", "sans-serif"), gfk("Do Hyeon", "sans-serif"),
-    gfk("Jua", "sans-serif"), gfk("Dongle", "sans-serif"),
-    gfk("Noto Serif KR", "serif"), gfk("Nanum Myeongjo", "serif"), gfk("Gowun Batang", "serif"),
-    gfk("Song Myung", "serif"), gfk("Hahmlet", "serif"), gfk("Diphylleia", "serif"),
-    gfk("Grandiflora One", "serif"), gfk("Moirai One", "serif"),
-    gfk("Black Han Sans", "sans-serif"), gfk("Gugi", "sans-serif"), gfk("Gasoek One", "sans-serif"),
-    gfk("Bagel Fat One", "sans-serif"), gfk("Orbit", "sans-serif"), gfk("Black And White Picture", "sans-serif"),
-    gfk("Cute Font", "sans-serif"), gfk("Nanum Gothic Coding", "monospace"),
-    gfk("Nanum Pen Script", "cursive"), gfk("Nanum Brush Script", "cursive"), gfk("Gaegu", "cursive"),
-    gfk("Hi Melody", "cursive"), gfk("Gamja Flower", "cursive"), gfk("Poor Story", "cursive"),
-    gfk("Single Day", "cursive"), gfk("Dokdo", "cursive"), gfk("East Sea Dokdo", "cursive"),
-    gfk("Kirang Haerang", "cursive"), gfk("Yeon Sung", "cursive"),
-  ] },
-  { group: "Sans", fonts: [
-    { label: "Space Grotesk", value: "var(--font-space-grotesk)" },
-    ...["Inter", "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Work Sans", "Nunito", "Raleway", "DM Sans", "Manrope", "Rubik", "Mulish", "Josefin Sans", "Quicksand"].map((n) => gf(n, "sans-serif")),
-  ] },
-  { group: "Serif", fonts: [
-    { label: "Instrument Serif", value: "var(--font-instrument)" },
-    ...["Playfair Display", "Merriweather", "Lora", "PT Serif", "Cormorant", "EB Garamond", "Bitter", "Crimson Text", "Libre Baskerville", "Source Serif 4"].map((n) => gf(n, "serif")),
-  ] },
-  { group: "Display", fonts: ["Oswald", "Bebas Neue", "Abril Fatface", "Righteous", "Lobster", "Pacifico", "Comfortaa", "Fredoka", "Anton"].map((n) => gf(n, "sans-serif")) },
-  { group: "Mono", fonts: [
-    { label: "Mono", value: "var(--font-mono)" },
-    ...["JetBrains Mono", "Fira Code", "Source Code Pro", "IBM Plex Mono", "Space Mono"].map((n) => gf(n, "monospace")),
-  ] },
-  { group: "Handwriting", fonts: ["Caveat", "Dancing Script", "Shadows Into Light", "Satisfy"].map((n) => gf(n, "cursive")) },
-];
+// FontPicker 데모는 공용 카탈로그(FONT_GROUPS, 단일 소스)를 그대로 사용한다.
 
 function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd }: ComponentsSectionProps) {
   const { openModal } = useModalStore();
@@ -1085,7 +1050,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             <FontPicker
               value={fontDemo}
               onChange={(v) => setFontDemo(v)}
-              groups={FONT_DEMO_GROUPS}
+              groups={FONT_GROUPS}
               fallbackLabel="Default"
             />
           </motion.div>
