@@ -42,6 +42,15 @@ export function useBGM(bgmUrl?: string) {
       const audio = audioRef.current;
       if (!audio) return;
 
+      // 백그라운드(hidden) 탭은 브라우저가 requestAnimationFrame 을 얼려 fade step 이 안 돈다.
+      // 그러면 다른 탭의 음소거·재생 인계가 이 탭이 보일 때까지 반영되지 않으므로,
+      // 숨겨진 탭에서는 페이드를 건너뛰고 볼륨/정지를 즉시 적용한다. (보이는 탭은 아래 rAF 로 부드럽게)
+      if (document.hidden) {
+        audio.volume = to;
+        if (to === 0) audio.pause();
+        return;
+      }
+
       const from = audio.volume;
       const start = performance.now();
 
