@@ -274,43 +274,27 @@ export const siteConfig = {
   // 미디어 업로드
   // ---------------------------------------------------------------------------
   media: {
-    // 파일 형식별 최대 업로드 크기 (MB)
+    // 파일 형식별 최대 업로드 크기 (MB) — 확장자 키.
+    // (브라우저 MIME 은 드문 형식에서 빈 값이라, 업로드 검증의 신뢰 가능한 키는 확장자다)
     limits: {
       // image
-      "image/jpeg": 5,
-      "image/png": 5,
-      "image/webp": 5,
-      "image/svg+xml": 2,
-      "image/gif": 10,
+      jpg: 5, jpeg: 5, png: 5, webp: 5, svg: 2, gif: 10,
       // video
-      "video/mp4": 200,
-      "video/webm": 200,
-      "video/quicktime": 200, // MOV (iOS 흔함)
+      mp4: 200, webm: 200, mov: 200, // MOV (iOS 흔함)
       // audio
-      "audio/mpeg": 20,
-      "audio/wav": 20,
-      "audio/ogg": 20,
-      // document — 텍스트
-      "text/markdown": 1,
-      "text/plain": 1,
-      "text/csv": 5,
-      // document — PDF / Office
-      "application/pdf": 20,
-      "application/msword": 20, // DOC
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": 20, // DOCX
-      "application/vnd.ms-excel": 20, // XLS
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": 20, // XLSX
-      "application/vnd.ms-powerpoint": 50, // PPT
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation": 50, // PPTX
+      mp3: 20, wav: 20, ogg: 20,
+      // document
+      md: 1, txt: 1, csv: 5, pdf: 20, docx: 20, xlsx: 20, pptx: 50,
       // archive
-      "application/zip": 50,
+      zip: 50,
     } as Record<string, number>,
-    // 차단 확장자 — 업로드 자체를 거부
+    // 차단 확장자 — 업로드 자체를 거부 (실행/스크립트/웹페이지·XSS 위험 등)
     blockedExtensions: [
       "exe", "bat", "cmd", "com", "msi", "scr", "pif",
       "sh", "bash", "csh", "ksh",
       "vbs", "vbe", "js", "jse", "wsf", "wsh", "ps1",
       "dll", "sys", "drv",
+      "html", "htm", "xhtml", "svgz", "jar", "swf", "jnlp",
     ] as string[],
     // 차단 MIME — admin 이 limits 에 추가하려 해도 차단되는 보안 정책 (XSS / 실행 파일 / 스크립트 등)
     blockedMimes: [
