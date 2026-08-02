@@ -1612,6 +1612,12 @@
     padding: var(--spacing-md) var(--page-px);
   }
 
+  /* .nav 패딩이 줄면(--spacing-2xl→--spacing-md) 버튼 행이 위로 올라간다.
+     로고는 별도 fixed 요소라 top 을 같이 줄여야 버튼과 수직 중심이 맞는다. */
+  .logoNavBar {
+    top: var(--spacing-md);
+  }
+
   .navActions {
     gap: 0;
   }
