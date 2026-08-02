@@ -73,6 +73,11 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       wheelMultiplier: options.wheelMultiplier ?? 1,
       touchMultiplier: options.touchMultiplier ?? 2,
       infinite: infiniteOverrideRef.current ?? (options.infinite ?? false),
+      // 무한스크롤은 Lenis 가 터치 스크롤을 직접 제어(syncTouch)할 때만 감긴다.
+      // syncTouch 가 꺼져 있으면 터치는 브라우저 네이티브 스크롤이라 위치가 [0,limit] 로
+      // clamp 돼 bottom→top 래핑이 실행되지 않는다(터치에서 무한스크롤이 안 되던 원인).
+      // → infinite 와 항상 같이 켜고, 홈에서만 활성(아래 setInfinite 로 토글).
+      syncTouch: infiniteOverrideRef.current ?? (options.infinite ?? false),
     });
 
     lenisRef.current = lenisInstance;
@@ -116,10 +121,13 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
       (window as typeof window & { lenis?: Lenis }).lenis = lenisInstance;
     }
 
-    // 리사이즈 시 infinite 토글 — Lenis 의 runtime options 필드는 public 타입에 노출 안 됨
-    type LenisWithOptions = Lenis & { options: { infinite: boolean } };
+    // 리사이즈 시 infinite/syncTouch 토글 — Lenis 의 runtime options 필드는 public 타입에 노출 안 됨
+    type LenisWithOptions = Lenis & { options: { infinite: boolean; syncTouch: boolean } };
     const handleResize = () => {
-      (lenisInstance as LenisWithOptions).options.infinite = infiniteOverrideRef.current ?? (options.infinite ?? false);
+      const on = infiniteOverrideRef.current ?? (options.infinite ?? false);
+      const opts = (lenisInstance as LenisWithOptions).options;
+      opts.infinite = on;
+      opts.syncTouch = on; // 무한스크롤과 항상 동반 (터치 래핑 조건)
     };
     window.addEventListener("resize", handleResize);
 
@@ -166,7 +174,11 @@ export function LenisProvider({ children, options = {} }: LenisProviderProps) {
   const setInfinite = useCallback((value: boolean) => {
     infiniteOverrideRef.current = value;
     if (lenisRef.current) {
-      (lenisRef.current as Lenis & { options: { infinite: boolean } }).options.infinite = value;
+      const opts = (lenisRef.current as Lenis & { options: { infinite: boolean; syncTouch: boolean } }).options;
+      opts.infinite = value;
+      // 터치에서 래핑이 동작하려면 Lenis 가 터치를 제어해야 한다 — 홈(무한스크롤)에서만 동반 활성.
+      // syncTouch 는 이벤트마다 live read 라 런타임 토글이 즉시 반영된다.
+      opts.syncTouch = value;
       // Lenis는 옵션 변경 후 stop→start 해야 즉시 반영
       lenisRef.current.stop();
       lenisRef.current.start();
