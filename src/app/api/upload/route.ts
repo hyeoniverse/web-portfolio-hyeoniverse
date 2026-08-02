@@ -112,13 +112,15 @@ export async function POST(request: Request) {
     return jsonError(`Blocked file type: .${ext}`, 400);
   }
 
-  // ── 2. MIME 타입 화이트리스트 (limits에 있는 타입만 허용) ──
+  // ── 2. 확장자 화이트리스트 (limits 에 있는 확장자만 허용) ──
+  //  브라우저 MIME(file.type)은 드문 형식에서 빈 값이라 확장자를 기준으로 한다.
   const hasLimits = Object.keys(limits).length > 0;
-  if (hasLimits && !(file.type in limits) && !("_default" in limits)) {
-    return jsonError(`File type not allowed: ${file.type}`, 400);
+  if (hasLimits && !(ext in limits) && !("_default" in limits)) {
+    return jsonError(`File type not allowed: .${ext}`, 400);
   }
 
-  // ── 3. MIME 타입 ↔ 확장자 일치 검증 (스푸핑 방지) ──
+  // ── 3. MIME 타입 ↔ 확장자 일치 검증 (스푸핑 방지, best-effort) ──
+  //  브라우저가 알려진 MIME 을 준 경우에만 검사 — file.type 이 빈 값이면 건너뛴다.
   const allowedExts = MIME_EXT_MAP[file.type];
   if (allowedExts && !allowedExts.includes(ext)) {
     return jsonError(`MIME type (${file.type}) does not match extension (.${ext})`, 400);
@@ -126,7 +128,7 @@ export async function POST(request: Request) {
 
   // ── 4. 파일 크기 검증 ──
   let limitMB = hasLimits
-    ? (limits[file.type] ?? limits._default ?? DEFAULT_LIMIT_MB)
+    ? (limits[ext] ?? limits._default ?? DEFAULT_LIMIT_MB)
     : DEFAULT_LIMIT_MB;
   limitMB = Math.min(limitMB, MAX_ABSOLUTE_MB);
   const limitBytes = limitMB * 1024 * 1024;
