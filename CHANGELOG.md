@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.37.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.37.0...v1.37.1) (2026-08-02)
+
+
+### Bug Fixes
+
+* **home:** ScrollTorus 마운트를 스크롤과 분리해 중간 프레임 프리즈 제거 ([a80a9d2](https://github.com/hyeoniverse/web-portfolio-oval/commit/a80a9d22f100ce82a14905298e91af1465111e00))
+* **home:** 무한 루프 seam 에서 Hero·Bridge 픽셀 정렬 ([f89dc4f](https://github.com/hyeoniverse/web-portfolio-oval/commit/f89dc4fc3b360d74d92be310a4149ef64d3e9168))
+* **home:** 터치에서 무한스크롤이 감기도록 syncTouch 활성 ([0aa0290](https://github.com/hyeoniverse/web-portfolio-oval/commit/0aa02903b20141fa222d60c1e69c9a3d1cb44602))
+
 ## [1.37.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.36.0...v1.37.0) (2026-08-02)
 
 
