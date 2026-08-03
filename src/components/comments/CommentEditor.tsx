@@ -86,7 +86,9 @@ export default function CommentEditor({
         </div>
       ) : (
         // height 를 작성창과 동일하게 고정 → 넘치는 내용은 스크롤. 아직 못 쟀으면 CSS min-height 로 폴백.
-        <div className={styles.previewArea} style={writeHeight ? { height: writeHeight } : undefined}>
+        // data-lenis-prevent — Lenis 스무스 스크롤이 wheel/touch 를 가로채 안쪽 overflow 스크롤을
+        // 막던 것 방지 (코드블록 pre 와 동일 처리).
+        <div className={styles.previewArea} data-lenis-prevent style={writeHeight ? { height: writeHeight } : undefined}>
           {value.trim() ? (
             <CommentMarkdown content={value} />
           ) : (
