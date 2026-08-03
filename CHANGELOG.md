@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.39.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.38.1...v1.39.0) (2026-08-03)
+
+
+### Features
+
+* **admin/dashboard:** SectionHeader·PanelTitle 에 href — 타이틀 자체를 이동 링크로 ([3af50f0](https://github.com/hyeoniverse/web-portfolio-oval/commit/3af50f06704f406e808112617fa69c9137b26dfa))
+
+
+### Bug Fixes
+
+* **visits:** site_visits 트래픽 메타 컬럼 누락으로 방문이 하나도 기록 안 되던 문제 ([e0bb309](https://github.com/hyeoniverse/web-portfolio-oval/commit/e0bb3098c420bebfe89d80da65228b77f509dd32))
+
 ## [1.38.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.38.0...v1.38.1) (2026-08-03)
 
 
