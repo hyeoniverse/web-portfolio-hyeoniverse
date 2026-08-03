@@ -2,6 +2,8 @@ import { useEffect, type RefObject } from "react";
 import {
   highlightCodeBlocks,
   attachCodeWrapToggle,
+  applyColorSwatches,
+  highlightInlineCode,
 } from "@/components/posts/highlightCodeBlocks";
 import { renderMathNodes } from "@/components/posts/renderMathNodes";
 import { useLanguage } from "@/providers/LanguageProvider";
@@ -70,6 +72,8 @@ export function useRichtextEnhance(
       copied: t("common.codeCopied"),
     });
     renderMathNodes(root);
+    applyColorSwatches(root);
+    highlightInlineCode(root);
     const detachFallback = attachImageFallback(root);
     return () => { detachFallback(); };
   }, [ref, t, trigger]);

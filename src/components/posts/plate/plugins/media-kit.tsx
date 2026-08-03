@@ -1,7 +1,32 @@
 "use client";
 
 import { ImagePlugin, MediaEmbedPlugin } from "@platejs/media/react";
+import { createPlatePlugin } from "platejs/react";
 import { ImageElement, MediaEmbedElement } from "../elements";
+
+// 마크다운 입력: `![alt](url)` 을 치고 닫는 `)` 를 누르면 이미지 노드로 변환.
+// (@platejs/media 엔 이미지용 markdown 규칙이 없어 직접 구현 — img 는 inline void 노드)
+const ImageMarkdownKit = createPlatePlugin({ key: "imageMarkdown" }).overrideEditor(
+  ({ editor, tf: { insertText } }) => ({
+    transforms: {
+      insertText(text, options) {
+        if (text === ")" && editor.api.isCollapsed() && editor.selection) {
+          const focus = editor.selection.focus;
+          const leaf = editor.api.node(focus.path);
+          const raw = typeof leaf?.[0]?.text === "string" ? (leaf[0].text as string) : "";
+          const before = raw.slice(0, focus.offset);
+          const m = /!\[([^\]]*)\]\(([^)\s]+)$/.exec(before);
+          if (m && m[2]) {
+            editor.tf.delete({ unit: "character", reverse: true, distance: m[0].length });
+            editor.tf.insertNodes({ type: "img", url: m[2], ...(m[1] ? { alt: m[1] } : {}), children: [{ text: "" }] });
+            return;
+          }
+        }
+        insertText(text, options);
+      },
+    },
+  }),
+);
 
 /** <video> → media_embed 노드 복원 (크기·정렬·float·재생옵션·시작위치·다운로드방지·캡션).
  *  figure 로 감싼 경우(=대부분) figureEl 로 정렬/캡션을 읽는다. */
@@ -127,4 +152,5 @@ export const MediaKit = [
       },
     },
   }),
+  ImageMarkdownKit, // ![alt](url) → 이미지 자동변환
 ];

@@ -35,6 +35,95 @@ export function highlightCodeBlocks(container: HTMLElement) {
   });
 }
 
+/* ── 인라인 코드 색상 스와치 (GitHub 스타일) ──
+   `#hex` / `rgb(...)` / `hsl(...)` 만 담긴 인라인 코드 앞에 실제 색 원을 붙인다.
+   포맷 게이트는 정규식 — 이름색(red)·currentColor 등은 제외(GitHub 도 안 붙임).
+   채널 범위까진 안 따지고(브라우저가 clamp) 형식만 확인 → 색은 검증된 문자열이라 style 주입 안전. */
+const HEX_RE = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const RGB_RE = /^rgba?\(\s*[\d.]+%?\s*(?:,\s*|\s+)[\d.]+%?\s*(?:,\s*|\s+)[\d.]+%?\s*(?:(?:,|\/)\s*[\d.]+%?\s*)?\)$/i;
+const HSL_RE = /^hsla?\(\s*[\d.]+(?:deg)?\s*(?:,\s*|\s+)[\d.]+%\s*(?:,\s*|\s+)[\d.]+%\s*(?:(?:,|\/)\s*[\d.]+%?\s*)?\)$/i;
+
+export function parseInlineColor(text: string): string | null {
+  const t = text.trim();
+  if (t.length > 40) return null; // 방어 — 색 문자열이 이보다 길 일은 없다
+  return HEX_RE.test(t) || RGB_RE.test(t) || HSL_RE.test(t) ? t : null;
+}
+
+/** 컨테이너 안 인라인 `<code>` 중 내용이 색상값인 것 앞에 색 스와치(원)를 삽입. 멱등. */
+export function applyColorSwatches(container: HTMLElement) {
+  container.querySelectorAll("code").forEach((code) => {
+    if (code.closest("pre")) return; // 블록 코드(pre) 제외 — 인라인만
+    if (code.querySelector(":scope > .color-swatch")) return; // 이미 처리
+    const color = parseInlineColor(code.textContent ?? "");
+    if (!color) return;
+    const dot = document.createElement("span");
+    dot.className = "color-swatch";
+    dot.setAttribute("aria-hidden", "true");
+    dot.style.background = color; // parseInlineColor 로 검증된 색만
+    code.insertBefore(dot, code.firstChild);
+  });
+}
+
+/** 인라인 `<code>` 도 syntax highlight — 언어를 안 적으므로 detectCodeLanguage 로 추론하고,
+ *  추론에 성공(=명확한 코드)했을 때만 토큰을 입힌다. 짧은 것(<12자)·색상값·비코드는 자동으로 평문 유지. */
+export function highlightInlineCode(container: HTMLElement) {
+  container.querySelectorAll("code").forEach((code) => {
+    const el = code as HTMLElement;
+    if (el.closest("pre")) return; // 블록 코드는 highlightCodeBlocks 담당
+    if (el.dataset.inlineHl || el.querySelector(".token")) return; // 이미 처리
+    const text = el.textContent ?? "";
+    if (parseInlineColor(text)) return; // 색상값은 스와치가 담당 → highlight 안 함
+    el.dataset.inlineHl = "1"; // 시도했음을 표시(멱등) — 추론 실패해도 재시도 안 함
+    const { html, lang } = highlightCode(text); // 언어 미지정 → 휴리스틱 추론
+    if (lang) el.innerHTML = html; // 명확히 코드로 추론됐을 때만 토큰 적용
+  });
+}
+
+/* 코드블록 wheel 축(axis) 라우팅 — Lenis(스무스 스크롤) 환경에서:
+   - 가로 의도(shift+wheel or |dx|>|dy|) → 블록이 가로로 넘치면 블록을 가로 스크롤(끝이면 멈춤)
+   - 세로 의도 → 블록이 세로로 스크롤 가능하고 끝이 아니면 블록을, 아니면 fall-through → Lenis 가 페이지 스크롤
+   Lenis 는 window(bubble)에서 wheel 을 듣고 composedPath 로 처리하므로, 여기서 stopPropagation 하면
+   Lenis 가 그 이벤트를 건너뛴다. 반대로 아무것도 안 하면(fall-through) Lenis 가 페이지를 부드럽게 굴린다.
+   data-lenis-prevent 로 통째로 막던 방식은 세로로 굴릴 때 페이지가 안 움직이는 문제가 있었다. */
+function attachWheelRouting(pre: HTMLElement) {
+  if (pre.dataset.wheelRouted) return; // 재렌더로 여러 번 호출돼도 리스너는 pre 당 1회
+  pre.dataset.wheelRouted = "1";
+  pre.addEventListener(
+    "wheel",
+    (e) => {
+      const absX = Math.abs(e.deltaX);
+      const absY = Math.abs(e.deltaY);
+      const horizontalIntent = e.shiftKey || absX > absY;
+      if (horizontalIntent) {
+        const max = pre.scrollWidth - pre.clientWidth;
+        if (max > 0) {
+          const delta = absX > absY ? e.deltaX : e.deltaY; // shift+wheel 은 deltaY 로 온다
+          const next = Math.max(0, Math.min(max, pre.scrollLeft + delta));
+          if (next !== pre.scrollLeft) {
+            pre.scrollLeft = next;
+            e.preventDefault();
+            e.stopPropagation(); // Lenis(window) 로 안 흘러가게 → 페이지 세로 스크롤 방지
+          }
+        }
+        return; // 가로 제스처는 페이지 세로 스크롤로 넘기지 않는다
+      }
+      // 세로 의도 — 블록이 세로로 스크롤 가능하고 그 방향 끝이 아니면 블록 내부를
+      const max = pre.scrollHeight - pre.clientHeight;
+      if (max > 0) {
+        const next = Math.max(0, Math.min(max, pre.scrollTop + e.deltaY));
+        if (next !== pre.scrollTop) {
+          pre.scrollTop = next;
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+      }
+      // 짧은 블록/경계 → fall-through: stopPropagation 안 하므로 Lenis 가 페이지를 스크롤
+    },
+    { passive: false },
+  );
+}
+
 /**
  * 코드블록 줄바꿈 토글 — 이벤트 위임 (컨테이너에 한 번만 등록)
  * HTML 내 `<button data-wrap-btn>` 클릭 시 동작
@@ -48,8 +137,11 @@ export function attachCodeWrapToggle(
   container.querySelectorAll("pre").forEach((pre) => {
     // mermaid 코드블록은 enhanceReaderExtras 가 그래프+메뉴로 따로 처리 → 코드 컨트롤 주입 안 함
     if (pre.querySelector("code.language-mermaid")) return;
-    // Lenis 스무스 스크롤이 wheel 을 가로채 코드블록 내부 세로 스크롤이 죽는 것 방지
-    pre.setAttribute("data-lenis-prevent", "");
+    // 터치는 네이티브 스크롤에 맡긴다(Lenis 비관여) — 모바일 코드블록 스크롤.
+    // wheel 은 통째로 막지 않고 축(axis) 기준으로 라우팅한다(attachWheelRouting) — 세로로 굴렸는데
+    // 블록이 세로로 못 움직이면 페이지가 스크롤되도록.
+    pre.setAttribute("data-lenis-prevent-touch", "");
+    attachWheelRouting(pre);
     // 중복 주입 방지는 pre 단위로 판정 — 한 wrap 에 pre 가 여러 개여도 각 pre 가 바를 받도록.
     //   (wrap.querySelector 로 판정하면 첫 pre 의 바를 보고 이후 pre 를 건너뛰는 오탐이 생김)
     if (pre.previousElementSibling?.classList.contains("code-block-bar")) return;

@@ -1,7 +1,7 @@
 "use client";
 
 import { LinkPlugin } from "@platejs/link/react";
-import { upsertLink } from "@platejs/link";
+import { upsertLink, LinkRules } from "@platejs/link";
 import { KEYS, isUrl } from "platejs";
 import { createPlatePlugin } from "platejs/react";
 import { LinkElement } from "../elements";
@@ -30,10 +30,11 @@ const LinkPasteKit = createPlatePlugin({ key: "linkPasteSelection" }).overrideEd
   }),
 );
 
-/** 링크 */
+/** 링크 — 마크다운 입력: `[텍스트](url)` 자동 링크화 */
 export const LinkKit = [
   LinkPlugin.configure({
     render: { node: LinkElement },
+    inputRules: [LinkRules.markdown()],
   }),
   LinkPasteKit,
 ];

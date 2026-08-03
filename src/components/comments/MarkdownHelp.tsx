@@ -11,8 +11,8 @@ import styles from "./CommentEditor.module.css";
 /* 댓글 마크다운 치트시트 — 댓글 헤딩 우측 도움말 버튼 → 공통 Popover.
    locale 키 추가 금지 규칙에 따라 문구는 inline 다국어.
 
-   여기 나열하는 문법은 전부 CommentMarkdown(marked gfm+breaks → DOMPurify 화이트리스트)이
-   실제로 렌더하는 것만. 화이트리스트에 없는 건(예: 각주·수식) 적지 않는다 —
+   여기 나열하는 문법은 전부 CommentMarkdown(marked gfm+breaks+alert+footnote+emoji → DOMPurify
+   화이트리스트)이 실제로 렌더하는 것만. 화이트리스트에 없는 건(예: 수식) 적지 않는다 —
    도움말이 되는 게 아니라 안 되는 걸 알려주는 꼴이 된다. */
 
 export default function MarkdownHelp() {
@@ -27,7 +27,13 @@ export default function MarkdownHelp() {
     { syntax: `# ${ko ? "제목" : "heading"}`, label: ko ? "제목 (# ~ ######)" : "Heading (# – ######)" },
     { syntax: `**${ko ? "굵게" : "bold"}**`, label: ko ? "굵게" : "Bold" },
     { syntax: `*${ko ? "기울임" : "italic"}*`, label: ko ? "기울임" : "Italic" },
+    { syntax: `***${ko ? "굵게+기울임" : "bold italic"}***`, label: ko ? "굵게 + 기울임" : "Bold + italic" },
     { syntax: `~~${ko ? "취소선" : "strike"}~~`, label: ko ? "취소선" : "Strikethrough" },
+    { syntax: `<ins>${ko ? "밑줄" : "underline"}</ins>`, label: ko ? "밑줄" : "Underline" },
+    { syntax: `<sup>${ko ? "위" : "sup"}</sup>`, label: ko ? "위첨자" : "Superscript" },
+    { syntax: `<sub>${ko ? "아래" : "sub"}</sub>`, label: ko ? "아래첨자" : "Subscript" },
+    { syntax: `<mark>${ko ? "형광" : "mark"}</mark>`, label: ko ? "형광펜" : "Highlight" },
+    { syntax: `<kbd>${ko ? "키" : "key"}</kbd>`, label: ko ? "키 입력" : "Keyboard" },
     { syntax: `\`${ko ? "코드" : "code"}\``, label: ko ? "인라인 코드" : "Inline code" },
     { syntax: `\`\`\`js\n${ko ? "코드 블록" : "code block"}\n\`\`\``, label: ko ? "코드 블록 (언어명 선택)" : "Code block (language optional)" },
     { syntax: `[${ko ? "텍스트" : "text"}](url)`, label: ko ? "링크" : "Link" },
@@ -38,6 +44,9 @@ export default function MarkdownHelp() {
     { syntax: `> ${ko ? "인용" : "quote"}`, label: ko ? "인용" : "Quote" },
     { syntax: `| a | b |\n| --- | --- |\n| 1 | 2 |`, label: ko ? "표" : "Table" },
     { syntax: `---`, label: ko ? "구분선" : "Divider" },
+    { syntax: `:tada: :+1:`, label: ko ? "이모지" : "Emoji" },
+    { syntax: `> [!NOTE]\n> ${ko ? "참고 내용" : "note text"}`, label: ko ? "알림 (NOTE·TIP·IMPORTANT·WARNING·CAUTION)" : "Alert (NOTE/TIP/IMPORTANT/WARNING/CAUTION)" },
+    { syntax: `${ko ? "본문" : "text"}[^1]\n\n[^1]: ${ko ? "각주 내용" : "footnote"}`, label: ko ? "각주" : "Footnote" },
   ];
 
   return (

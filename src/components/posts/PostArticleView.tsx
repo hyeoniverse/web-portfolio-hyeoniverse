@@ -239,7 +239,7 @@ export function PostArticleBody({
 
     const apply = async () => {
       if (cancelled || !el.isConnected) return;
-      const [{ renderMathNodes }, { attachCodeWrapToggle }, { enhanceReaderExtras }] = await Promise.all([
+      const [{ renderMathNodes }, { attachCodeWrapToggle, applyColorSwatches, highlightInlineCode }, { enhanceReaderExtras }] = await Promise.all([
         import("@/components/posts/renderMathNodes"),
         import("@/components/posts/highlightCodeBlocks"),
         import("@/components/posts/enhanceReaderExtras"),
@@ -256,6 +256,10 @@ export function PostArticleBody({
         copy: tRef.current("common.codeCopy"),
         copied: tRef.current("common.codeCopied"),
       });
+      // 인라인 코드 색상값(`#hex`·`rgb()`·`hsl()`) 앞에 색 스와치
+      applyColorSwatches(el);
+      // 인라인 코드도 syntax highlight (명확히 코드로 추론될 때만)
+      highlightInlineCode(el);
       extrasCleanup?.();
       extrasCleanup = enhanceReaderExtras(el, {
         viewCode: tRef.current("common.mermaidViewCode"),

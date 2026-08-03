@@ -1,11 +1,16 @@
 "use client";
 
-import { useCallback, type ReactNode, type RefObject } from "react";
+import { useCallback, useRef, useState, type ReactNode, type RefObject } from "react";
 import {
   Heading,
   Bold,
   Italic,
+  Underline,
   Strikethrough,
+  Superscript,
+  Subscript,
+  Highlighter,
+  Keyboard,
   Code,
   SquareCode,
   Link as LinkIcon,
@@ -16,10 +21,15 @@ import {
   Quote,
   Table,
   Minus,
+  Smile,
+  Palette,
 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
+import EmojiPicker from "@/components/ui/EmojiPicker";
+import ColorPicker from "@/components/ui/ColorPicker";
+import CommentPostLinkPicker from "./CommentPostLinkPicker";
 import MarkdownHelp from "./MarkdownHelp";
 import styles from "./CommentEditor.module.css";
 
@@ -37,7 +47,9 @@ type MdAction =
   /** 줄머리에 prefix. placeholder — 빈 줄에서 눌렀을 때 채울 예시 텍스트 */
   | { kind: "prefix"; prefix: string; placeholder: string }
   /** 표·구분선처럼 선택과 무관하게 통째로 넣는 블록. select 가 있으면 삽입 후 그 부분을 선택 */
-  | { kind: "block"; text: string; select?: string };
+  | { kind: "block"; text: string; select?: string }
+  /** 커서 자리에 text 를 그대로 삽입(선택 있으면 대체). 이모지·색상 픽커용 */
+  | { kind: "insert"; text: string };
 
 /** 블록 요소는 자기 줄에서 시작해야 마크다운으로 파싱된다 (`breaks: true` 라도 펜스/표는 줄머리 기준).
  *  커서 앞이 줄 시작이 아니면 필요한 만큼 줄바꿈을 채워 넣는다. */
@@ -96,12 +108,24 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
   const { language } = useLanguage();
   const ko = language === "ko";
 
+  // 이모지 픽커(사이트 공통) / 색상 픽커(사이트 공통) — 둘 다 커서 자리에 삽입
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const emojiAnchorRef = useRef<HTMLSpanElement>(null);
+  // 색상 — 공통 ColorPicker. 픽커가 닫히는 순간 이번에 고른 최종 색을 `#hex` 인라인 코드로 1회 삽입.
+  const [colorVal, setColorVal] = useState("#0969da");
+  const pickedColorRef = useRef<string | null>(null); // 이번에 실제로 바꾼 색 (열고 그냥 닫으면 null → 삽입 안 함)
+  const colorWasOpenRef = useRef(false);
+  // 픽커(검색 input·색상 input 등)로 포커스가 옮겨가면 에디터 선택이 풀린다.
+  // 버튼을 누르는 순간(포커스 이동 직전) 선택 위치를 저장해 두고, 삽입 때 그 자리에 넣는다.
+  const savedSelRef = useRef<{ start: number; end: number } | null>(null);
+
   const apply = useCallback(
     (action: MdAction) => {
       const root = containerRef.current?.querySelector<HTMLElement>("[contenteditable]");
       if (!root) return;
-      const sel = getSelectionOffsets(root);
-      // 선택이 에디터 밖이면 끝에 삽입
+      // 라이브 선택 우선, 없으면(픽커 input 에 포커스 등) 버튼 누를 때 저장한 선택, 그것도 없으면 끝
+      const sel = getSelectionOffsets(root) ?? savedSelRef.current;
+      savedSelRef.current = null;
       const start = sel ? sel.start : content.length;
       const end = sel ? sel.end : content.length;
       const selected = content.slice(start, end);
@@ -138,6 +162,9 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
           // 선택할 자리가 없으면(구분선 등) 삽입한 블록 끝에 caret
           selStart = selEnd = start + lead.length + action.text.length;
         }
+      } else if (action.kind === "insert") {
+        next = content.slice(0, start) + action.text + content.slice(end);
+        selStart = selEnd = start + action.text.length; // 삽입 텍스트 끝에 caret
       } else {
         // prefix — 선택 범위의 각 줄 앞에 prefix
         const lineStart = content.lastIndexOf("\n", start - 1) + 1;
@@ -170,6 +197,12 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
     [containerRef, content, onChange],
   );
 
+  // 픽커 버튼을 누르는 순간(포커스가 검색·색상 input 으로 옮겨가기 전) 에디터 선택 저장
+  const saveSelection = useCallback(() => {
+    const root = containerRef.current?.querySelector<HTMLElement>("[contenteditable]");
+    savedSelRef.current = root ? getSelectionOffsets(root) : null;
+  }, [containerRef]);
+
   type Item = { key: string; icon: ReactNode; label: string; action: MdAction };
 
   /* 하는 일 기준 4묶음 — 14개가 균일하게 늘어서면 뭘 찾는지 모른다.
@@ -183,8 +216,13 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
       items: [
         { key: "bold", icon: <Bold size={14} />, label: ko ? "굵게" : "Bold", action: { kind: "wrap", before: "**", after: "**", placeholder: ko ? "굵게" : "bold" } },
         { key: "italic", icon: <Italic size={14} />, label: ko ? "기울임" : "Italic", action: { kind: "wrap", before: "*", after: "*", placeholder: ko ? "기울임" : "italic" } },
+        { key: "underline", icon: <Underline size={14} />, label: ko ? "밑줄" : "Underline", action: { kind: "wrap", before: "<ins>", after: "</ins>", placeholder: ko ? "밑줄" : "underline" } },
         { key: "strike", icon: <Strikethrough size={14} />, label: ko ? "취소선" : "Strikethrough", action: { kind: "wrap", before: "~~", after: "~~", placeholder: ko ? "취소선" : "strikethrough" } },
         { key: "code", icon: <Code size={14} />, label: ko ? "인라인 코드" : "Inline code", action: { kind: "wrap", before: "`", after: "`", placeholder: ko ? "코드" : "code" } },
+        { key: "sup", icon: <Superscript size={14} />, label: ko ? "위첨자" : "Superscript", action: { kind: "wrap", before: "<sup>", after: "</sup>", placeholder: ko ? "위" : "sup" } },
+        { key: "sub", icon: <Subscript size={14} />, label: ko ? "아래첨자" : "Subscript", action: { kind: "wrap", before: "<sub>", after: "</sub>", placeholder: ko ? "아래" : "sub" } },
+        { key: "mark", icon: <Highlighter size={14} />, label: ko ? "형광펜" : "Highlight", action: { kind: "wrap", before: "<mark>", after: "</mark>", placeholder: ko ? "형광" : "highlight" } },
+        { key: "kbd", icon: <Keyboard size={14} />, label: ko ? "키 입력" : "Keyboard", action: { kind: "wrap", before: "<kbd>", after: "</kbd>", placeholder: ko ? "키" : "key" } },
       ],
     },
     {
@@ -256,6 +294,70 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
           ))}
         </div>
       ))}
+      {/* 이모지 · 색상 — 액션(applyAction) 이 아니라 픽커 기반이라 groups 밖에서 따로 렌더 */}
+      <div className={styles.toolbarGroup} role="group" aria-label={ko ? "삽입" : "Insert"}>
+        <span className={styles.toolbarGroupLabel} aria-hidden="true">{ko ? "삽입" : "Insert"}</span>
+        <Tooltip content={ko ? "이모지" : "Emoji"} placement="top" delay={200}>
+          <span ref={emojiAnchorRef} style={{ display: "inline-flex" }}>
+            <Button
+              variant="ghost"
+              shape="circle"
+              size="sm"
+              icon={<Smile size={14} />}
+              onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
+              onClick={() => setEmojiOpen((o) => !o)}
+              aria-label={ko ? "이모지" : "Emoji"}
+            />
+          </span>
+        </Tooltip>
+        {/* 색상 — 사이트 공통 ColorPicker(HEX/RGB/HSL/HSV/OKLCH). 픽커 안에서 색을 바꾸면
+            pickedColorRef 에 최신 hex 기록 → 팝오버가 닫히는 순간 `#hex` 로 1회 삽입한다.
+            드래그 중(onChange 연속)마다 삽입하지 않으려고 "닫힘 시점" 을 삽입 트리거로 삼는다. */}
+        <ColorPicker
+          value={colorVal}
+          defaultFormat="hex"
+          onChange={(c) => { setColorVal(c.hex); pickedColorRef.current = c.hex; }}
+        >
+          {({ open, toggle }) => {
+            if (open) {
+              colorWasOpenRef.current = true;
+            } else if (colorWasOpenRef.current) {
+              colorWasOpenRef.current = false;
+              const picked = pickedColorRef.current;
+              pickedColorRef.current = null;
+              // 렌더 중 부모 setState(onChange) 금지 → microtask 로 미뤄 삽입
+              if (picked) void Promise.resolve().then(() => apply({ kind: "insert", text: `\`${picked}\`` }));
+            }
+            return (
+              <Tooltip content={ko ? "색상" : "Color"} placement="top" delay={200}>
+                <Button
+                  variant="ghost"
+                  shape="circle"
+                  size="sm"
+                  icon={<Palette size={14} />}
+                  onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
+                  onClick={toggle}
+                  aria-label={ko ? "색상" : "Color"}
+                />
+              </Tooltip>
+            );
+          }}
+        </ColorPicker>
+        {/* 게시물 링크 — 다른 게시물을 검색해 [제목](/posts/slug) 상대링크로 삽입 (GitHub 상대경로처럼) */}
+        <CommentPostLinkPicker
+          onInsert={(md) => apply({ kind: "insert", text: md })}
+          onArm={saveSelection}
+        />
+      </div>
+      <EmojiPicker
+        open={emojiOpen}
+        onClose={() => setEmojiOpen(false)}
+        onSelect={(v) => {
+          apply({ kind: "insert", text: v });
+          setEmojiOpen(false);
+        }}
+        getAnchorRect={() => emojiAnchorRef.current?.getBoundingClientRect() ?? null}
+      />
       {/* 도움말 — 서식 버튼이 아니라 툴바 맨 오른쪽 끝(margin-left: auto)에 따로 떨어져 앉는다 */}
       <MarkdownHelp />
     </div>
