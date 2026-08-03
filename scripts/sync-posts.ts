@@ -39,13 +39,21 @@ const CONTENT_DIR = path.resolve(process.cwd(), "content/posts");
 
 interface ParsedPost {
   title: string;
+  title_en?: string;
   slug: string;
   content: string;
   content_type: "markdown";
   category: string;
   tags?: string[];
   excerpt?: string;
+  excerpt_en?: string;
   cover_image?: string;
+  cover_position?: number;
+  cover_zoom?: number;
+  icon?: string;
+  github_url?: string;
+  language?: "ko" | "en";
+  is_pinned?: boolean;
   created_at?: string;
   published: boolean;
 }
@@ -89,7 +97,19 @@ function parseMdPost(raw: string, fileName: string): ParsedPost {
   if (meta.tags)
     post.tags = Array.isArray(meta.tags) ? meta.tags : [meta.tags as string];
   if (meta.excerpt) post.excerpt = meta.excerpt as string;
+  if (meta.excerpt_en) post.excerpt_en = meta.excerpt_en as string;
   if (meta.cover_image) post.cover_image = meta.cover_image as string;
+  if (meta.title_en) post.title_en = meta.title_en as string;
+  if (meta.icon) post.icon = meta.icon as string;
+  if (meta.github_url) post.github_url = meta.github_url as string;
+  if (meta.language === "ko" || meta.language === "en") post.language = meta.language;
+  const pinnedRaw = String((meta.pinned ?? meta.is_pinned) ?? "").trim().toLowerCase();
+  if (["true", "yes", "on", "1"].includes(pinnedRaw)) post.is_pinned = true;
+  else if (["false", "no", "off", "0"].includes(pinnedRaw)) post.is_pinned = false;
+  const cp = Number(meta.cover_position);
+  if (meta.cover_position != null && !Number.isNaN(cp)) post.cover_position = cp;
+  const cz = Number(meta.cover_zoom);
+  if (meta.cover_zoom != null && !Number.isNaN(cz)) post.cover_zoom = cz;
   if (meta.date) {
     const d = new Date(meta.date as string);
     if (!isNaN(d.getTime())) post.created_at = d.toISOString();

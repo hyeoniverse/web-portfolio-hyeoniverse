@@ -80,12 +80,15 @@ GET /api/works/export?all=true        # 전체 작업물 JSON 반환
 ```markdown
 ---
 title: 포트폴리오 웹사이트
+title_en: Portfolio Website
 subtitle: 인터랙티브 웹 포트폴리오
-category: 웹
+category: 웹, 프론트엔드
+nature: 개인 프로젝트
 year: 2024
 tech: [Next.js, TypeScript, GSAP, Three.js]
 description: GSAP 가로 스크롤 갤러리와 Three.js 3D 오브젝트를 활용한 포트폴리오
 role: 풀스택 개발
+icon: 🎨
 image: https://example.com/thumb.jpg
 live_url: https://example.com
 github_url: https://github.com/user/repo
@@ -96,17 +99,22 @@ github_url: https://github.com/user/repo
 본문 내용...
 ```
 
+> `_en` 접미사 필드로 영문도 함께 넣을 수 있습니다 (`title_en`, `subtitle_en`, `category_en`, `nature_en`, `description_en`, `role_en`).
+
 ### 지원 필드
 
 | 필드 | 타입 | 설명 | 기본값 |
 |------|------|------|--------|
-| `title` | string | 프로젝트명 | 파일명 |
-| `subtitle` | string | 부제목 | 없음 |
-| `category` | string | 카테고리 | 없음 |
+| `title` / `title_en` | string | 프로젝트명 (한/영) | 파일명 |
+| `subtitle` / `subtitle_en` | string | 부제목 (한/영) | 없음 |
+| `slug` | string | URL 슬러그 | 제목에서 자동 생성 |
+| `category` / `category_en` | string | 카테고리 (쉼표로 여러 개) | 없음 |
+| `nature` / `nature_en` | string | 프로젝트 성격 | 없음 |
 | `year` | string | 연도 | 없음 |
 | `tech` | string[] | 기술 스택 (예: `[React, TypeScript]`) | 없음 |
-| `description` | string | 프로젝트 설명 | 없음 |
-| `role` | string | 역할 | 없음 |
+| `description` / `description_en` | string | 프로젝트 설명 (한/영) | 없음 |
+| `role` / `role_en` | string | 역할 (한/영) | 없음 |
+| `icon` | string | 페이지 아이콘 (이모지 또는 이미지 URL) | 없음 |
 | `image` | string | 대표 이미지 URL | 없음 |
 | `live_url` | string | 라이브 URL | 없음 |
 | `github_url` | string | GitHub URL | 없음 |
