@@ -260,3 +260,19 @@
   font-variant-numeric: tabular-nums;
   color: currentColor;
 }
+
+/* 더보기 — 목록 하단 페이지네이션 (전체 총계 중 로드된 개수 표시) */
+.loadMoreRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.loadMoreCount {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
