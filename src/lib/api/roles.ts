@@ -36,7 +36,7 @@ export function getUserRole(user: User | null | undefined): UserRole {
   const meta = (user.app_metadata ?? {}) as Record<string, unknown>;
   const authorId = typeof meta.author_id === "string" ? meta.author_id : null;
 
-  const ownerEmail = process.env.OWNER_EMAIL?.toLowerCase();
+  const ownerEmail = process.env.OWNER_EMAIL?.trim().toLowerCase();
   const isOwner = meta.role === "owner" || (!!ownerEmail && user.email?.toLowerCase() === ownerEmail);
   if (isOwner) return { role: "owner", level: Number.POSITIVE_INFINITY, authorId, isOwner: true };
 
