@@ -5,7 +5,7 @@
 .loadingScreen {
   position: fixed;
   inset: 0;
-  z-index: var(--z-overlay);
+  z-index: var(--z-loading); /* 드로어(--z-overlay)보다 위 — 로딩 중엔 드로어를 덮어야 함 */
   pointer-events: auto;
   will-change: opacity;
   /* (0,1,0) → 글로벌 theme transition (0,1,1)에 덮임 → !important로 opacity 보호 */
