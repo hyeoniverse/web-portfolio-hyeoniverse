@@ -12,7 +12,7 @@
 | **RLS** | Supabase Row Level Security 정책 | 모든 테이블 |
 | **경로 보호** | Layout 레벨 Supabase Auth 세션 확인 + 접근 거부 페이지 | `/admin/*` |
 | **역할 기반 인가** | 소유자/편집자/저자 역할 + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` 가 매 요청 `app_metadata` 재조회. 사이트 설정 탭은 소유자 전용(비소유자는 `/api/admin/settings` PATCH 가 본인 author 항목 외 쓰기 거부), 클라이언트도 Account 탭만 노출 | 멤버 관리, Settings, admin API |
-| **OAuth 인가 게이트** | `/auth/callback` 에서 세션 교환 후 이메일이 `OWNER_EMAIL` / 역할 보유 / `author_invites` 초대 중 하나여야 통과 — 아니면 `signOut()` + service-role `deleteUser()` 로 미초대 계정 차단 | GitHub OAuth 로그인 |
+| **OAuth 인가 게이트** | `/auth/callback` 에서 세션 교환 후 이메일이 `OWNER_EMAIL` / 역할 보유 / `author_invites` 초대 중 하나여야 통과 — 아니면 `signOut()` + service-role `deleteUser()` 로 미초대 계정 차단. 단 `OWNER_EMAIL` 미설정 시엔 삭제하지 않고 설정 에러만 표시(부트스트랩 락아웃 방지) | GitHub OAuth 로그인 |
 | **중복 방지** | IP 기반 UNIQUE 제약조건 (투표는 `poll_votes(poll_id, option_id, ip)` UNIQUE), 댓글 반응은 `reactor_hash` (아래) | 좋아요, 방문자 통계, 투표, 댓글 반응 |
 | **service_role 쓰기** | `/api/polls` 투표 + related-series 쓰기는 service_role admin client 로 처리 | 투표, 관련 시리즈 편집 |
 | **비밀번호 보안** | bcrypt (salt round 10), 72바이트 제한, 최소 2자 | 댓글 비밀번호 |
@@ -90,6 +90,8 @@
 **OAuth 인가 게이트:**
 
 GitHub OAuth 는 **인증만** 합니다 — 아무 GitHub 계정이나 로그인 자체는 통과합니다. 실제 인가는 `/auth/callback` 이 `exchangeCodeForSession` 직후 수행: 이메일이 `OWNER_EMAIL` 이거나 이미 역할이 있거나 `author_invites` 초대 행이 있어야 하고, 셋 다 아니면 `signOut()` + service-role `deleteUser()` 로 계정을 삭제한 뒤 에러와 함께 로그인으로 되돌립니다. 초대받지 않은 사용자는 세션도 계정도 남지 않습니다. 비밀번호 로그인(`signInWithPassword`)은 소유자 폴백으로 유지됩니다.
+
+**소유자 부트스트랩 (claim-and-close):** `OWNER_EMAIL` 로 인정된 소유자가 **처음 로그인**하면 그 시점에 `app_metadata.role="owner"` 를 DB 에 1회 못박습니다(`src/lib/api/ownerBootstrap.ts`). 이후엔 env 판정에 의존하지 않고 저장된 역할로 소유권이 유지되므로, `OWNER_EMAIL` 이 바뀌거나 비어도 소유자가 락아웃되지 않습니다. 한편 `OWNER_EMAIL` 자체가 **미설정**이면 소유자를 판정할 수 없는 상태이므로, 미인가 처리에서 계정을 삭제하지 않고(그 계정이 곧 소유자가 돼야 할 수 있으므로) "OWNER_EMAIL 미설정" 설정 에러만 표시합니다 — env 를 지정하고 다시 로그인하면 소유자로 확정됩니다(배포 초기 자기 자신 삭제/락아웃 방지).
 
 **크로스탭 로그아웃 / 세션 전파:**
 

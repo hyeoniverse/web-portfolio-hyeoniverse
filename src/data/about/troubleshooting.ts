@@ -68,6 +68,10 @@ const itemMeta: Record<
     recommendReason: { ko: "이름이 비슷한 두 저장소의 신뢰 수준 차이가 곧 권한 시스템의 출발점이었던 사례라 골랐습니다.", en: "Picked this because the trust gap between two similarly-named stores was the very foundation of the permission system." },
   },
   "GitHub OAuth 는 계정만 있으면 누구나 로그인 시도가 성공한다": { featured: true, section: "A", difficulty: 2 },
+  "OWNER_EMAIL 을 안 넣고 첫 로그인하면 소유자 계정이 지워진다": { featured: true,
+    section: "A", difficulty: 2, recommended: true,
+    recommendReason: { ko: "설정 실수 하나가 계정 삭제로 이어지던 함정 — 부트스트랩을 fail-safe 하게 설계하는 관점을 보여드리려 골랐습니다.", en: "A single config slip deleted the account — picked to show designing bootstrap to fail safe, not fail destructive." },
+  },
   // Performance
   "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)": { featured: true, section: "P", difficulty: 3 },
   "mousemove마다 React 리렌더 (60fps 성능 저하)": { section: "P", difficulty: 2 },
@@ -489,6 +493,27 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "**Authentication and authorization are different problems.** Wiring up OAuth only delegates identity verification; admission is still a call our own server has to make in the callback.",
     },
     tags: ["OAuth", "Auth", "GitHub", "인가"],
+  },
+  {
+    section: { ko: "Backend / Auth", en: "Backend / Auth" },
+    problem: { ko: "OWNER_EMAIL 을 안 넣고 첫 로그인하면 소유자 계정이 지워진다", en: "Forgetting OWNER_EMAIL deletes the owner's account on first login" },
+    definition: {
+      ko: "배포 직후 소유자가 GitHub 로 처음 로그인했는데, 계정이 만들어지자마자 삭제되고 \"초대받지 않은 계정\" 에러로 튕겨 나왔습니다. env 에 `OWNER_EMAIL` 을 아직 넣지 않은 상태였습니다.",
+      en: "Right after deploy the owner signs in with GitHub for the first time — and the just-created account is deleted, bounced out with an \"un-invited account\" error. `OWNER_EMAIL` hadn't been set in the env yet.",
+    },
+    cause: {
+      ko: "인가 게이트는 이메일이 `OWNER_EMAIL` 이거나, 이미 역할이 있거나, `author_invites` 초대 행이 있어야 통과시키고, 미통과면 방금 만들어진 계정을 `deleteUser()` 로 지웁니다(미초대 GitHub 유저를 남기지 않으려는 anti-abuse). 그런데 `OWNER_EMAIL` 이 비어 있으면 소유자 **본인도** 이 셋 중 아무것에도 안 걸려 미초대로 분류되고, 그대로 계정이 삭제됩니다. 배포 초기에 자기 자신을 락아웃시키는 함정이었습니다.",
+      en: "The gate admits an email that is `OWNER_EMAIL`, already has a role, or has an `author_invites` row, and otherwise `deleteUser()`s the just-created account (anti-abuse, so un-invited GitHub users don't linger). But when `OWNER_EMAIL` is empty the owner **themselves** matches none of the three, is classed as un-invited, and gets deleted — a footgun that locks you out of your own fresh deployment.",
+    },
+    solution: {
+      ko: "두 겹으로 막았습니다.\n\n**① 미설정 방어** — 미통과 처리에서 `OWNER_EMAIL` 이 비어 있으면 계정을 삭제하지 않고(그 계정이 곧 소유자가 돼야 할 수 있으므로) \"OWNER_EMAIL 미설정\" 설정 에러만 돌려줍니다. env 를 넣고 다시 로그인하면 소유자로 확정됩니다.\n\n**② claim-and-close** — `OWNER_EMAIL` 소유자가 처음 통과하면 `app_metadata.role=\"owner\"` 를 DB 에 1회 못박습니다(`ensureOwnerRole`). 이후 소유권은 env 판정이 아니라 저장된 역할로 유지되어, `OWNER_EMAIL` 이 바뀌거나 비어도 소유자가 사라지지 않습니다.",
+      en: "Two layers.\n\n**① Unset guard** — in the reject path, if `OWNER_EMAIL` is empty the account is *not* deleted (it may be the account that should become the owner); only an \"OWNER_EMAIL not set\" config error is returned. Set the env and sign in again to be confirmed as owner.\n\n**② Claim-and-close** — when the `OWNER_EMAIL` owner first passes, `app_metadata.role=\"owner\"` is persisted to the DB once (`ensureOwnerRole`). Ownership then rests on the stored role rather than the env check, so it survives `OWNER_EMAIL` later changing or being removed.",
+    },
+    keyInsight: {
+      ko: "**부트스트랩 실패는 fail-safe 여야지 fail-destructive 여선 안 됩니다.** 설정이 빠졌을 때 계정을 지우는 건 복구 불가능한 방향으로 실패하는 것 — 미설정이면 아무것도 파괴하지 말고 안내만 하고, 최초 설정은 한 번 성공하면 DB 에 못박아 되돌아가지 않게 합니다.",
+      en: "**A failed bootstrap should fail safe, not fail destructive.** Deleting the account when config is missing fails in an unrecoverable direction — when unset, destroy nothing and just guide; and once initial setup succeeds, pin it in the DB so it can't regress.",
+    },
+    tags: ["Auth", "OWNER_EMAIL", "bootstrap", "app_metadata", "fail-safe"],
   },
   {
     section: { ko: "Frontend / CSS", en: "Frontend / CSS" },

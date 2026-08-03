@@ -43,7 +43,7 @@ GITHUB_TOKEN=ghp_...
 
 > `GITHUB_TOKEN` 은 admin Services 탭에 저장한 시크릿이 우선이고, 없으면 환경변수를 씁니다 (`getSecret("GITHUB_TOKEN")`).
 
-> `OWNER_EMAIL` 은 부트스트랩 소유자를 지정합니다 (초대 테이블 없이 자동으로 전체 권한). GitHub OAuth 자체(Client ID/Secret)는 `.env.local` 이 아니라 Supabase 대시보드의 **Authentication → Providers → GitHub** 에서 설정합니다 (4번 참고). 멤버 초대 메일은 Resend (인증된 도메인) 를 사용합니다.
+> `OWNER_EMAIL` 은 부트스트랩 소유자를 지정합니다 (초대 테이블 없이 자동으로 전체 권한). **첫 로그인 전에 반드시 지정하세요** — 소유자가 처음 로그인하면 `owner` 역할이 `app_metadata` 에 1회 영속화되어(claim-and-close), 이후 이 값이 바뀌거나 비어도 소유권이 유지됩니다. GitHub OAuth 자체(Client ID/Secret)는 `.env.local` 이 아니라 Supabase 대시보드의 **Authentication → Providers → GitHub** 에서 설정합니다 (4번 참고). 멤버 초대 메일은 Resend (인증된 도메인) 를 사용합니다.
 
 **값 확인 방법:**
 
@@ -124,7 +124,7 @@ Supabase Dashboard → **SQL Editor**에서 파일 내용을 복사하여 한 �
 >
 > **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (GitHub GraphQL 로 repoId + Discussion 카테고리 조회, `GITHUB_TOKEN` 필요)
 >
-> **Auth & Members API**: `GET /auth/callback` (OAuth 콜백 + 인가 게이트 — 미초대 계정 삭제), `GET /api/admin/me` (현재 사용자 email/role/level/isOwner — settings 탭 게이팅), `GET|PATCH|DELETE /api/admin/authors/members` (소유자 전용 — 멤버 + 대기 초대 목록 / 권한 변경·저자 프로필 연결 / 계정 삭제), `GET /api/admin/authors/context` (requireAuth, 비소유자 접근 가능 — ownerEmail + 멤버 author-id/email 반환), `POST /api/admin/authors/invite` (소유자 전용 — author_invites insert + Resend 메일)
+> **Auth & Members API**: `GET /auth/callback` (OAuth 콜백 + 인가 게이트 — 소유자 첫 로그인 시 owner 역할 영속화 · 미초대 계정 삭제, 단 `OWNER_EMAIL` 미설정 시엔 삭제 없이 설정 에러), `GET /api/admin/me` (현재 사용자 email/role/level/isOwner — settings 탭 게이팅), `GET|PATCH|DELETE /api/admin/authors/members` (소유자 전용 — 멤버 + 대기 초대 목록 / 권한 변경·저자 프로필 연결 / 계정 삭제), `GET /api/admin/authors/context` (requireAuth, 비소유자 접근 가능 — ownerEmail + 멤버 author-id/email 반환), `POST /api/admin/authors/invite` (소유자 전용 — author_invites insert + Resend 메일)
 >
 > **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (목록, snapshot 제외), `POST /api/revisions` (저장 + 50개 초과 정리), `GET /api/revisions/[id]` (snapshot 포함 단건), `DELETE /api/revisions/[id]`
 >
@@ -169,7 +169,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - Email과 Password 입력
 - **Auto Confirm User** 체크 (이메일 인증 건너뛰기)
 
-**소유자 계정 (`OWNER_EMAIL`)**: 위에서 만든 이메일을 환경변수 `OWNER_EMAIL` 에 지정하면 그 계정이 부트스트랩 소유자가 됩니다 (초대 테이블 없이 자동으로 전체 권한). 나머지 멤버는 이메일 초대로 추가합니다 (5번 참고).
+**소유자 계정 (`OWNER_EMAIL`)**: 위에서 만든 이메일을 환경변수 `OWNER_EMAIL` 에 지정하면 그 계정이 부트스트랩 소유자가 됩니다 (초대 테이블 없이 자동으로 전체 권한). **첫 로그인 전에 반드시 지정하세요** — 미설정 상태로 로그인하면 소유자를 판정할 수 없어 진입이 막힙니다(이때는 계정을 삭제하지 않고 설정 안내만 표시하므로, env 지정 후 다시 로그인하면 됩니다). 소유자가 처음 로그인하면 `owner` 역할이 `app_metadata` 에 1회 영속화되어(claim-and-close) 이후 `OWNER_EMAIL` 이 바뀌거나 비어도 소유권이 유지됩니다. 나머지 멤버는 이메일 초대로 추가합니다 (5번 참고).
 
 **GitHub OAuth 로그인 설정** — 멤버는 GitHub OAuth 로 로그인합니다:
 
@@ -184,7 +184,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 **GitHub OAuth 로그인** (멤버 표준 경로):
 
 1. `/admin/login` 에서 **GitHub 로 로그인** → `supabase.auth.signInWithOAuth` → GitHub 인증 → `/auth/callback` 으로 리다이렉트
-2. `/auth/callback` 인가 게이트가 이메일이 `OWNER_EMAIL` 이거나 역할을 보유했거나 `author_invites` 초대가 있는지 확인 — 통과 시 역할이 app_metadata 에 부여되고 초대는 소비됨. 미초대면 계정을 삭제하고 에러와 함께 로그인으로 복귀
+2. `/auth/callback` 인가 게이트가 이메일이 `OWNER_EMAIL` 이거나 역할을 보유했거나 `author_invites` 초대가 있는지 확인 — 통과 시 역할이 app_metadata 에 부여되고(소유자 첫 로그인이면 `owner` 역할을 1회 영속화) 초대는 소비됨. 미초대면 계정을 삭제하고 에러와 함께 로그인으로 복귀 (단 `OWNER_EMAIL` 미설정이면 삭제하지 않고 설정 안내 에러만 표시)
 3. 성공 → `/admin/settings` 리다이렉트
 
 **비밀번호 로그인** (소유자 폴백):
@@ -318,7 +318,9 @@ HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       → exchangeCodeForSession (인증만 수행)
       → 인가 게이트: 이메일이 OWNER_EMAIL || 역할 보유 || author_invites 초대?
         → 통과 → app_metadata 에 역할 부여 + 초대 소비(consumed_at)
-        → 실패 → signOut() + service-role deleteUser() → 에러와 함께 /admin/login
+                 (소유자 첫 로그인이면 owner 역할을 app_metadata 에 1회 영속화)
+        → 실패 & OWNER_EMAIL 설정됨 → signOut() + service-role deleteUser() → 에러와 함께 /admin/login
+        → 실패 & OWNER_EMAIL 미설정 → 삭제 없이 "OWNER_EMAIL 미설정" 설정 에러 (env 지정 후 재로그인하면 소유자)
   → /admin/settings 로 리다이렉트
 
 /admin/login (폼 제출 — 소유자 폴백)
