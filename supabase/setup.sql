@@ -1768,7 +1768,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_07_18_works_title_en',                'works.title_en — 작품 제목 영문 (title 이중언어화)'),
   ('2026_07_21_about_erd_valid',               'site_settings.config About ERD 필수값 CHECK (테이블·컬럼 이름/타입)'),
   ('2026_07_23_about_erd_fields',              'about_erd_valid 확장 — 컬럼 제약(required/unique/indexed/defaultValue/comment/enumValues)·테이블 kind 타입 검증'),
-  ('2026_08_02_settings_required',             'site_settings.config 필수값 CHECK (제목·이름·테마색·giscus·멤버이름)')
+  ('2026_08_02_settings_required',             'site_settings.config 필수값 CHECK (제목·이름·테마색·giscus·멤버이름)'),
+  ('2026_08_03_site_visits_traffic_meta',      'site_visits 트래픽 메타 컬럼(referrer/user_agent/device_kind/os/browser/device_model) + 인덱스 — 옛 DB 누락분')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

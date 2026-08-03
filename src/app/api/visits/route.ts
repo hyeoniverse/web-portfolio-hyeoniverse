@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   // 봇은 통계 노이즈 → 기록 안 함
   if (parsed.device === "bot") return jsonOk({ success: true, skipped: "bot" });
 
-  await admin
+  const { error } = await admin
     .from("site_visits")
     .upsert(
       {
@@ -59,6 +59,13 @@ export async function POST(request: Request) {
       },
       { onConflict: "ip,date", ignoreDuplicates: true },
     );
+
+  // 스키마 드리프트(예: 메타 컬럼 누락)로 insert 가 조용히 실패하던 사고 재발 방지 —
+  // 실패를 서버 로그로 드러낸다. (기존엔 에러를 안 보고 무조건 success 를 반환해 today 0 인 걸 못 잡았음)
+  if (error) {
+    console.warn("[api/visits] insert failed:", error.message);
+    return jsonOk({ success: false });
+  }
 
   return jsonOk({ success: true });
 }
