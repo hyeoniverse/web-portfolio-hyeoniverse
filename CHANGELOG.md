@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.40.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.40.0...v1.40.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* **comments:** 상호작용 재렌더 시 코드블록 프레임이 풀리던 flash 제거 ([00bb9f5](https://github.com/hyeoniverse/web-portfolio-oval/commit/00bb9f5f766132e5ed96fc59b58ec1f30f8a38b0))
+* **comments:** 편집 중 미리보기 안쪽 스크롤이 안 되던 문제 ([d985aee](https://github.com/hyeoniverse/web-portfolio-oval/commit/d985aee35b34229774cc3236094187d1d39deb69))
+
 ## [1.40.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.39.0...v1.40.0) (2026-08-03)
 
 
