@@ -197,7 +197,7 @@
 /* ── blockquote — accent 바 + 들여쓰기 ── */
 .commentMarkdown blockquote {
   margin: var(--box-y-md);
-  margin-left: var(--spacing-md);
+  margin-left: var(--spacing-sm);
   padding-left: var(--spacing-md);
   border-left: 2px solid var(--color-accent);
   color: var(--text-secondary);
