@@ -12,7 +12,7 @@ Multi-layered security validation is applied to all public API endpoints.
 | **RLS** | Supabase Row Level Security policies | All tables |
 | **Route Protection** | Layout-level Supabase Auth session check + access denied page | `/admin/*` |
 | **Role-based authorization** | Owner/editor/author roles + `permission_level` — `requireOwner()` / `requireRole()` / `requireAuth()` re-read `app_metadata` on every request. Site-config tabs are owner-only (a non-owner's `/api/admin/settings` PATCH rejects writes to anything but their own author entry), and the client also exposes only the Account tab | Member management, Settings, admin API |
-| **OAuth authorization gate** | After the session exchange at `/auth/callback`, the email must be `OWNER_EMAIL` / already have a role / have an `author_invites` row to pass — otherwise `signOut()` + service-role `deleteUser()` blocks the un-invited account | GitHub OAuth login |
+| **OAuth authorization gate** | After the session exchange at `/auth/callback`, the email must be `OWNER_EMAIL` / already have a role / have an `author_invites` row to pass — otherwise `signOut()` + service-role `deleteUser()` blocks the un-invited account. When `OWNER_EMAIL` is unset, the account is kept and only a config error is shown (prevents bootstrap lockout) | GitHub OAuth login |
 | **Duplicate Prevention** | IP-based UNIQUE constraints (votes use `poll_votes(poll_id, option_id, ip)` UNIQUE); comment reactions use `reactor_hash` (below) | Likes, visitor statistics, votes, comment reactions |
 | **service_role Writes** | `/api/polls` votes + related-series writes are handled by the service_role admin client | Votes, related-series editing |
 | **Password Security** | bcrypt (salt round 10), 72-byte limit, minimum 2 characters | Comment passwords |
@@ -90,6 +90,8 @@ Member roles (`owner` / `editor` / `author` + `permission_level`) are stored onl
 **OAuth authorization gate:**
 
 GitHub OAuth only **authenticates** — any GitHub account can complete the sign-in itself. The actual authorization happens at `/auth/callback`, right after `exchangeCodeForSession`: the email must be `OWNER_EMAIL`, already have a role, or have an `author_invites` row; if none of the three, the account is deleted via `signOut()` + service-role `deleteUser()` and it redirects back to login with an error. An un-invited user is left with neither a session nor an account. Password login (`signInWithPassword`) remains as the owner fallback.
+
+**Owner bootstrap (claim-and-close):** when the owner recognized via `OWNER_EMAIL` **signs in for the first time**, `app_metadata.role="owner"` is persisted to the DB once at that point (`src/lib/api/ownerBootstrap.ts`). Ownership then rests on the stored role rather than the env check, so the owner is never locked out even if `OWNER_EMAIL` later changes or is removed. Conversely, when `OWNER_EMAIL` itself is **unset** the owner cannot be resolved, so the un-authorized path does *not* delete the account (it may be the account that should become the owner) and only surfaces an "OWNER_EMAIL not set" config error — set the env var and sign in again to be confirmed as owner (this prevents deleting/locking out yourself during initial deployment).
 
 **Cross-tab logout / session propagation:**
 

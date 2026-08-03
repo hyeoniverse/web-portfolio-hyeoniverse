@@ -519,7 +519,7 @@ Supabase Dashboard -> **Authentication** -> **Users** -> **Add user**:
 - Enter Email and Password
 - Check **Auto Confirm User** (skip email verification)
 
-**Owner account (`OWNER_EMAIL`)**: Set the email you just created as the `OWNER_EMAIL` env var and that account becomes the bootstrap owner (full permissions automatically, without an invite row). All other members are added by email invite (see step 5).
+**Owner account (`OWNER_EMAIL`)**: Set the email you just created as the `OWNER_EMAIL` env var and that account becomes the bootstrap owner (full permissions automatically, without an invite row). **Set it before the first login** — signing in while it's unset can't resolve an owner and is blocked (the account is *not* deleted in that case, only a config error is shown, so you can set the env var and sign in again). On the owner's first login the `owner` role is persisted into `app_metadata` once (claim-and-close), so ownership survives even if `OWNER_EMAIL` later changes or is removed. All other members are added by email invite (see step 5).
 
 **GitHub OAuth login setup** — members sign in with GitHub OAuth:
 
@@ -544,7 +544,7 @@ There is no login button on the site. Only the admin accesses it by entering the
 **GitHub OAuth login** (standard path for members):
 
 1. On `/admin/login`, click **Sign in with GitHub** → `supabase.auth.signInWithOAuth` → GitHub auth → redirect to `/auth/callback`
-2. The `/auth/callback` authorization gate checks the email is `OWNER_EMAIL`, already has a role, or has an `author_invites` row — on pass, the role is granted into app_metadata and the invite is consumed. If un-invited, the account is deleted and it redirects back to login with an error
+2. The `/auth/callback` authorization gate checks the email is `OWNER_EMAIL`, already has a role, or has an `author_invites` row — on pass, the role is granted into app_metadata (the owner's `owner` role is persisted once) and the invite is consumed. If un-invited, the account is deleted and it redirects back to login with an error — except when `OWNER_EMAIL` is unset, where the account is kept and only a config error is shown
 3. Success → redirect to `/admin/settings`
 
 **Adding members (email invite)**: From Settings → the **Account tab**, the owner invites a member by email, which inserts an `author_invites` row and sends a Resend notice email. When the invitee signs in via GitHub OAuth with that same email, they automatically gain author/editor permission. The owner manages the member list, roles, and permissions from the Account tab (non-owners see only the Account tab).

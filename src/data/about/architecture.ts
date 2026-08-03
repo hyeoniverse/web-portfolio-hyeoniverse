@@ -101,8 +101,8 @@ export const projectStructure: StructureItem[] = [
   {
     path: "api/",
     description: {
-      ko: "API 라우트 — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin(authors 멤버·초대, me). GitHub OAuth 콜백은 app/auth/callback 에서 인가 검사 후 세션 확정",
-      en: "API routes — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin (authors members/invites, me). The GitHub OAuth callback lives at app/auth/callback and finalizes the session after an authorization check",
+      ko: "API 라우트 — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin(authors 멤버·초대, me). GitHub OAuth 콜백은 app/auth/callback 에서 인가 검사 후 세션 확정 — 소유자 첫 로그인이면 owner 역할을 app_metadata 에 1회 못박음(claim-and-close)",
+      en: "API routes — posts, comments, comment-reactions, likes, contact, cover, calendars, custom-emojis, upload/signed-url, admin (authors members/invites, me). The GitHub OAuth callback lives at app/auth/callback and finalizes the session after an authorization check — on the owner's first login it pins the owner role into app_metadata once (claim-and-close)",
     },
     indent: 2,
   },

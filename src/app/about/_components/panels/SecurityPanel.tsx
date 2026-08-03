@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Database, Shield, SquareCheck, Lock, Rows2, Route, Fingerprint, Key } from "@/components/icons";
+import { Database, Shield, SquareCheck, Lock, Rows2, Route, Fingerprint, Key, Crown } from "@/components/icons";
 import type { Language } from "@/providers/LanguageProvider";
 import type { SecurityItem } from "@/data/about";
 import { renderHighlight } from "../renderHighlight";
@@ -31,6 +31,7 @@ export const securityIcons: Record<string, React.ReactNode> = {
   route: <Route size="1em" />,
   fingerprint: <Fingerprint size="1em" />,
   key: <Key size="1em" />,
+  crown: <Crown size="1em" />,
 };
 
 interface SecurityPanelProps {

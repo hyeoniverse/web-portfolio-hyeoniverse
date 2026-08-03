@@ -211,8 +211,8 @@ Members (owner/editor/author) and their permissions are **delegated to Supabase 
 
 - **Email is the PK**: at OAuth login the invite is looked up by the authenticated email to grant the role, so the email is the natural key.
 - **`consumed_at`**: when the invite was consumed — filled in once login grants the role, preventing reuse and distinguishing pending vs. completed invites.
-- **Owner is bootstrapped from env**: the owner isn't in the invite table but is set via the `OWNER_EMAIL` env var — sidestepping the chicken-and-egg problem of "who invites the first owner."
-- **Authorization is enforced at `/auth/callback`**: since OAuth only authenticates, the email must be `OWNER_EMAIL`, already have a role, or be in `author_invites` to pass — otherwise the account is deleted.
+- **Owner is bootstrapped from env, then pinned in the DB (claim-and-close)**: the owner isn't in the invite table but is set via the `OWNER_EMAIL` env var — sidestepping the chicken-and-egg problem of "who invites the first owner." On the owner's first login, `app_metadata.role="owner"` is persisted once at that point, so ownership survives even if `OWNER_EMAIL` later changes or is removed.
+- **Authorization is enforced at `/auth/callback`**: since OAuth only authenticates, the email must be `OWNER_EMAIL`, already have a role, or be in `author_invites` to pass — otherwise the account is deleted. When `OWNER_EMAIL` is unset the owner can't be resolved, so the account is kept and only a config error is shown (prevents deleting the owner during initial deployment).
 
 ### Title Length CHECK Constraints
 

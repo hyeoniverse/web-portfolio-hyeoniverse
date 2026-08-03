@@ -360,11 +360,11 @@ const { error } = await admin.from("site_settings")
       en: "Multi-author auth + member management APIs. Handles GitHub OAuth login, email invites, and role-based access control. Roles (owner/editor/author) live in auth.users.app_metadata and are updated server-side only. Un-invited OAuth logins are blocked at the callback, and logout propagates across all tabs.",
     },
     designNote: {
-      ko: "**인증 ≠ 인가**: OAuth 는 신원만 확인하므로, 콜백(`/auth/callback`)에서 세션 교환 직후 이메일이 `OWNER_EMAIL`·기존 역할·`author_invites` 초대 중 하나에 해당하는지 서버에서 재검사합니다. 아니면 `signOut()` + service_role `deleteUser()` 로 계정을 즉시 제거합니다. **역할은 `app_metadata`(service_role 전용)** 에만 저장해 클라이언트 조작을 원천 차단하고, 소유자는 `OWNER_EMAIL` env 로 부트스트랩합니다. 비소유자는 계정 탭만 접근 가능하며 설정 변경은 서버에서도 막습니다.",
-      en: "**AuthN ≠ AuthZ**: OAuth only verifies identity, so the callback (`/auth/callback`) re-checks server-side, right after the session exchange, whether the email is `OWNER_EMAIL`, already has a role, or has an `author_invites` row. Otherwise it `signOut()`s and `deleteUser()`s the account immediately. **Roles live only in `app_metadata` (service_role only)** to block client tampering, and the owner is bootstrapped from `OWNER_EMAIL`. Non-owners can reach only the account tab, and settings writes are refused server-side too.",
+      ko: "**인증 ≠ 인가**: OAuth 는 신원만 확인하므로, 콜백(`/auth/callback`)에서 세션 교환 직후 이메일이 `OWNER_EMAIL`·기존 역할·`author_invites` 초대 중 하나에 해당하는지 서버에서 재검사합니다. 아니면 `signOut()` + service_role `deleteUser()` 로 계정을 즉시 제거합니다. **역할은 `app_metadata`(service_role 전용)** 에만 저장해 클라이언트 조작을 원천 차단하고, 소유자는 `OWNER_EMAIL` env 로 부트스트랩합니다. **소유자 확정은 claim-and-close** — `OWNER_EMAIL` 소유자가 처음 로그인하면 `role=owner` 를 `app_metadata` 에 1회 못박아 이후 env 가 바뀌어도 소유권이 유지되고, `OWNER_EMAIL` 이 미설정이면 소유자를 판정할 수 없으므로 계정을 삭제하지 않고 설정 에러만 표시해 배포 초기 자기 삭제를 막습니다. 비소유자는 계정 탭만 접근 가능하며 설정 변경은 서버에서도 막습니다.",
+      en: "**AuthN ≠ AuthZ**: OAuth only verifies identity, so the callback (`/auth/callback`) re-checks server-side, right after the session exchange, whether the email is `OWNER_EMAIL`, already has a role, or has an `author_invites` row. Otherwise it `signOut()`s and `deleteUser()`s the account immediately. **Roles live only in `app_metadata` (service_role only)** to block client tampering, and the owner is bootstrapped from `OWNER_EMAIL`. **Owner confirmation is claim-and-close** — on the `OWNER_EMAIL` owner's first login, `role=owner` is persisted into `app_metadata` once so ownership survives later env changes, and when `OWNER_EMAIL` is unset the owner can't be resolved so the account is kept (only a config error is shown) to avoid self-deletion during initial deployment. Non-owners can reach only the account tab, and settings writes are refused server-side too.",
     },
     endpoints: [
-      { method: "GET", path: "/auth/callback", description: { ko: "OAuth 콜백 — 세션 교환 후 허용 검사(owner/역할/초대), 미허용 시 계정 삭제 + 실패 리다이렉트", en: "OAuth callback — exchange session, allow-check (owner/role/invite), delete account + fail-redirect if not allowed" } },
+      { method: "GET", path: "/auth/callback", description: { ko: "OAuth 콜백 — 세션 교환 후 허용 검사(owner/역할/초대), 소유자 첫 로그인 시 owner 역할 영속화, 미허용 시 계정 삭제(단 OWNER_EMAIL 미설정이면 설정 에러) + 실패 리다이렉트", en: "OAuth callback — exchange session, allow-check (owner/role/invite), persist owner role on first login, delete account if not allowed (config error instead when OWNER_EMAIL unset) + fail-redirect" } },
       { method: "GET", path: "/api/admin/me", description: { ko: "현재 로그인 사용자의 이메일·역할·레벨·소유자 여부 (설정 탭 게이팅)", en: "Current user's email/role/level/owner flag (settings tab gating)" } },
       { method: "GET", path: "/api/admin/authors/members", description: { ko: "OAuth 인증 멤버 + 대기중 초대 목록 (owner 전용)", en: "OAuth-authed members + pending invites (owner only)" } },
       { method: "PATCH", path: "/api/admin/authors/members", description: { ko: "멤버 권한 변경 / 저자 프로필 연결 (owner 전용)", en: "Change member permission / link author profile (owner only)" } },
@@ -373,23 +373,28 @@ const { error } = await admin.from("site_settings")
       { method: "POST", path: "/api/admin/authors/invite", description: { ko: "저자 이메일 초대 — author_invites 등록 + Resend 안내 메일 (owner 전용)", en: "Invite author by email — insert author_invites + Resend notice (owner only)" } },
     ],
     exampleQuery: {
-      title: "OAuth Callback — AuthZ Gate",
+      title: "OAuth Callback — AuthZ Gate + Owner Bootstrap",
       code: `// 콜백: 인증(OAuth)은 끝났지만 인가는 우리가 판정한다
 const { data: { session } } = await supabase.auth
   .exchangeCodeForSession(code);
-const email = session.user.email;
+const role = getUserRole(session.user); // OWNER_EMAIL + app_metadata
 
 const allowed =
-  email === process.env.OWNER_EMAIL ||
-  hasRole(session.user.app_metadata) ||
+  role.isOwner || role.role !== null ||
   (await admin.from("author_invites")
     .select("email").eq("email", email).maybeSingle()).data;
 
 if (!allowed) {
   await supabase.auth.signOut();
-  await admin.auth.admin.deleteUser(session.user.id);
+  // OWNER_EMAIL 미설정 → 이 계정이 곧 소유자일 수 있으니 삭제 금지
+  if (!process.env.OWNER_EMAIL?.trim())
+    return redirect("/admin/login?error=owner_email_unset");
+  await admin.auth.admin.deleteUser(session.user.id); // 미초대
   return redirect("/admin/login?error=not_invited");
-}`,
+}
+
+// claim-and-close: 소유자 첫 로그인 → role=owner 를 DB 에 1회 못박음
+if (role.isOwner) await ensureOwnerRole(admin, session.user);`,
       language: "javascript",
     },
   },

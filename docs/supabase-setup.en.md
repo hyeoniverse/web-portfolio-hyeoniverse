@@ -43,7 +43,7 @@ GITHUB_TOKEN=ghp_...
 
 > `GITHUB_TOKEN` prefers the secret saved in the admin Services tab, falling back to the environment variable (`getSecret("GITHUB_TOKEN")`).
 
-> `OWNER_EMAIL` designates the bootstrap owner (full permissions automatically, without an invite row). GitHub OAuth itself (Client ID/Secret) is configured not in `.env.local` but in the Supabase dashboard under **Authentication → Providers → GitHub** (see step 4). Member invite emails use Resend (with a verified domain).
+> `OWNER_EMAIL` designates the bootstrap owner (full permissions automatically, without an invite row). **Set it before the first login** — on the owner's first sign-in the `owner` role is persisted into `app_metadata` once (claim-and-close), so ownership survives even if this value later changes or is removed. GitHub OAuth itself (Client ID/Secret) is configured not in `.env.local` but in the Supabase dashboard under **Authentication → Providers → GitHub** (see step 4). Member invite emails use Resend (with a verified domain).
 
 **How to find the values:**
 
@@ -124,7 +124,7 @@ Copy the file contents and run them at once in Supabase Dashboard -> **SQL Edito
 >
 > **Admin API**: `POST /api/admin/auth`, `GET/PATCH /api/admin/settings`, `GET/PATCH /api/admin/profile`, `GET/PATCH /api/admin/account`, `GET/PUT /api/admin/secrets`, `POST /api/admin/upload`, `POST /api/admin/translate`, `GET /api/admin/giscus-repo?repo=owner/name` (looks up repoId + Discussion categories via GitHub GraphQL, requires `GITHUB_TOKEN`)
 >
-> **Auth & Members API**: `GET /auth/callback` (OAuth callback + authorization gate — deletes un-invited accounts), `GET /api/admin/me` (current user's email/role/level/isOwner — settings tab gating), `GET|PATCH|DELETE /api/admin/authors/members` (owner-only — list members + pending invites / change permission or link author profile / delete account), `GET /api/admin/authors/context` (requireAuth, non-owner accessible — returns ownerEmail + member author-ids/emails), `POST /api/admin/authors/invite` (owner-only — insert author_invites + Resend email)
+> **Auth & Members API**: `GET /auth/callback` (OAuth callback + authorization gate — persists the owner role on the owner's first login · deletes un-invited accounts, except when `OWNER_EMAIL` is unset where it shows a config error without deleting), `GET /api/admin/me` (current user's email/role/level/isOwner — settings tab gating), `GET|PATCH|DELETE /api/admin/authors/members` (owner-only — list members + pending invites / change permission or link author profile / delete account), `GET /api/admin/authors/context` (requireAuth, non-owner accessible — returns ownerEmail + member author-ids/emails), `POST /api/admin/authors/invite` (owner-only — insert author_invites + Resend email)
 >
 > **Revisions API**: `GET /api/revisions?entity_type=&entity_id=` (list, excluding snapshots), `POST /api/revisions` (save + cleanup beyond 50), `GET /api/revisions/[id]` (single with snapshot), `DELETE /api/revisions/[id]`
 >
@@ -169,7 +169,7 @@ Supabase Dashboard -> **Authentication** -> **Users** -> **Add user**:
 - Enter Email and Password
 - Check **Auto Confirm User** (skip email verification)
 
-**Owner account (`OWNER_EMAIL`)**: Set the email you just created as the `OWNER_EMAIL` env var and that account becomes the bootstrap owner (full permissions automatically, without an invite row). All other members are added by email invite (see step 5).
+**Owner account (`OWNER_EMAIL`)**: Set the email you just created as the `OWNER_EMAIL` env var and that account becomes the bootstrap owner (full permissions automatically, without an invite row). **Set it before the first login** — signing in while it's unset can't resolve an owner and is blocked (the account is *not* deleted in that case, only a config error is shown, so you can set the env var and sign in again). On the owner's first login the `owner` role is persisted into `app_metadata` once (claim-and-close), so ownership survives even if `OWNER_EMAIL` later changes or is removed. All other members are added by email invite (see step 5).
 
 **GitHub OAuth login setup** — members sign in with GitHub OAuth:
 
@@ -184,7 +184,7 @@ There is no login button on the site. Only the admin accesses it by entering the
 **GitHub OAuth login** (standard path for members):
 
 1. On `/admin/login`, click **Sign in with GitHub** → `supabase.auth.signInWithOAuth` → GitHub auth → redirect to `/auth/callback`
-2. The `/auth/callback` authorization gate checks the email is `OWNER_EMAIL`, already has a role, or has an `author_invites` row — on pass, the role is granted into app_metadata and the invite is consumed. If un-invited, the account is deleted and it redirects back to login with an error
+2. The `/auth/callback` authorization gate checks the email is `OWNER_EMAIL`, already has a role, or has an `author_invites` row — on pass, the role is granted into app_metadata (on the owner's first login the `owner` role is persisted once) and the invite is consumed. If un-invited, the account is deleted and it redirects back to login with an error — except when `OWNER_EMAIL` is unset, where the account is kept and only a config error is shown
 3. Success -> Redirect to `/admin/settings`
 
 **Password login** (owner fallback):
@@ -318,7 +318,9 @@ Used solely to auto-load a repository's Discussion categories in the admin setti
       -> exchangeCodeForSession (authenticates only)
       -> authorization gate: email is OWNER_EMAIL || has a role || author_invites row?
         -> pass -> grant role into app_metadata + consume invite (consumed_at)
-        -> fail -> signOut() + service-role deleteUser() -> /admin/login with an error
+                   (on the owner's first login, persist the owner role into app_metadata once)
+        -> fail & OWNER_EMAIL set   -> signOut() + service-role deleteUser() -> /admin/login with an error
+        -> fail & OWNER_EMAIL unset -> no delete, "OWNER_EMAIL not set" config error (set env, sign in again to become owner)
   -> Redirect to /admin/settings
 
 /admin/login (form submit — owner fallback)
