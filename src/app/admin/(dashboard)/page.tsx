@@ -30,6 +30,7 @@ import {
   CalendarDays,
   LayoutDashboard,
   Flag,
+  UserRound,
 } from "@/components/icons";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useLanguage, type TFunction } from "@/providers/LanguageProvider";
@@ -278,6 +279,27 @@ export default function AdminDashboard() {
               className={styles.actionBtn}
             >
               <T k="admin.dashboard.openSettings" />
+            </Button>
+          </Tooltip>
+          <Tooltip
+            content={
+              language === "ko"
+                ? "계정 편집 (이메일·비밀번호·멤버)"
+                : "Edit account (email, password, members)"
+            }
+            placement="top"
+            delay={250}
+            wrapperStyle={{ display: "block", width: "100%" }}
+          >
+            <Button
+              href="/admin/settings?tab=account"
+              variant="ghost"
+              size="md"
+              fullWidth
+              icon={<UserRound size={18} strokeWidth={1.6} />}
+              className={styles.actionBtn}
+            >
+              {language === "ko" ? "계정 편집" : "Edit account"}
             </Button>
           </Tooltip>
           <Tooltip
@@ -669,12 +691,22 @@ export default function AdminDashboard() {
       {/* ━━━━━━━━━━ 그룹: 신고 ━━━━━━━━━━ */}
       {/* ── 댓글 신고 내역 — pending 미리보기(표시) + 관리 페이지 링크(진입점) ── */}
       <Section>
-        <SectionHeader>
-          <T k="admin.dashboard.reports" />
-          {reportPendingCount > 0 && (
-            <span className={styles.headerBadge}>{reportPendingCount}</span>
-          )}
-        </SectionHeader>
+        <div className={styles.secHeaderRow}>
+          <SectionHeader>
+            <T k="admin.dashboard.reports" />
+            {reportPendingCount > 0 && (
+              <span className={styles.headerBadge}>{reportPendingCount}</span>
+            )}
+          </SectionHeader>
+          <Button
+            href="/admin/reports"
+            variant="ghost"
+            size="2xs"
+            icon={<Flag size={12} strokeWidth={1.6} />}
+          >
+            <T k="admin.dashboard.viewAllReports" />
+          </Button>
+        </div>
         <Panel className={styles.panelCell}>
           {reports.length === 0 ? (
             <p className={styles.muted}>
@@ -714,9 +746,6 @@ export default function AdminDashboard() {
               ))}
             </List>
           )}
-          <Link href="/admin/reports" className={styles.reportViewAll}>
-            <T k="admin.dashboard.viewAllReports" /> →
-          </Link>
         </Panel>
       </Section>
 
@@ -919,7 +948,17 @@ export default function AdminDashboard() {
       {/* ── 인증된 관리자·작성자 (owner 전용 — 비owner 면 onResolved(false)로 섹션째 숨김) ── */}
       {membersVisible && (
         <Section>
-          <SectionHeader>{language === "ko" ? "멤버" : "Members"}</SectionHeader>
+          <div className={styles.secHeaderRow}>
+            <SectionHeader>{language === "ko" ? "멤버" : "Members"}</SectionHeader>
+            <Button
+              href="/admin/settings?tab=account"
+              variant="ghost"
+              size="2xs"
+              icon={<Settings size={12} strokeWidth={1.6} />}
+            >
+              {language === "ko" ? "관리" : "Manage"}
+            </Button>
+          </div>
           <Panel className={styles.panelCell}>
             <MembersList limit={5} hideHeader onResolved={setMembersVisible} />
           </Panel>

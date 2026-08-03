@@ -41,6 +41,10 @@
   padding: 0;
   display: flex;
   flex-direction: column;
+}
+/* 상단 구분선은 내부 헤더가 있을 때(hideHeader 아님)만 — 헤더와 리스트를 나눈다.
+   대시보드처럼 헤더 없이 섹션 안에 들어갈 땐 섹션 자체 divider 와 겹쳐 2px 로 두꺼워지므로 생략. */
+.list:not(:first-child) {
   border-top: var(--border-light);
 }
 

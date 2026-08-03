@@ -77,6 +77,15 @@
   margin-left: auto;
 }
 
+/* 섹션 제목 line 에 우측 액션 버튼을 얹는 flex row (예: 멤버 섹션 "관리").
+   패딩 없이 SectionHeader(h2) 의 padding-block 이 높이를 정해 다른 섹션과 title 위치가 같다. */
+.secHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
 /* "데이터 없음" 텍스트 — List 의 item 과 동일 vertical dimension. border 는 없음 (단독 child) */
 .muted {
   composes: item from "./components/List.module.css";
@@ -97,13 +106,18 @@
 /* ── Quick Actions — 4-col edge-to-edge 행, 셀 사이만 vertical divider, 자체 위쪽 hairline ── */
 .quickActions {
   composes: panelGrid from "./components/Panel.module.css";
-  grid-template-columns: var(--grid-cols-5);
+  /* 6개 버튼 → 3×2. gap 1px + background 트릭으로 셀 사이·행 사이 hairline 균일 표시.
+     padding-box 로 이 bg 가 섹션 divider border 와 합성돼 진해지는 것 방지. */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background-color: var(--border-light-color);
+  background-clip: padding-box;
   border-top: var(--border-light);
 }
 
 @media (max-width: 768px) {
   .quickActions {
-    grid-template-columns: var(--grid-cols-2);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -112,6 +126,7 @@
 .quickActions .actionBtn {
   border-radius: 0;
   border: none;
+  background: var(--bg-primary); /* 셀 불투명 → grid gap(1px)이 hairline 으로 노출 */
   justify-content: flex-start;
   height: auto;
   padding: var(--box-md-md);
@@ -452,7 +467,10 @@ a.statCard:hover .statValue {
 @media (min-width: 769px) {
   .twoCol {
     column-gap: 1px;
-    background: var(--border-light-color);
+    /* background-color 롱핸드 사용 — background 단축속성은 background-clip 을 border-box 로
+       리셋해서 base 의 padding-box 가 풀리고, 그럼 이 bg(alpha-30)가 섹션 divider border(alpha-30)
+       와 합성돼 그 구분선만 진해진다(통계/최근활동/인기 등). 롱핸드로 padding-box 유지. */
+    background-color: var(--border-light-color);
   }
   .twoCol > .panelCell {
     background: var(--bg-primary);

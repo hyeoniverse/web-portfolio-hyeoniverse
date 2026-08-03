@@ -4,8 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { Clock } from "@/components/icons";
 import Link from "next/link";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useModalStore } from "@/stores/modalStore";
 import type { Member, MembersResponse, PendingMember } from "@/types/member";
+import type { Author } from "@/types/author";
 import { RoleBadge, ProviderChips } from "./MemberBadges";
+import MemberDetailModal from "@/app/admin/(dashboard)/settings/_components/MemberDetailModal";
 import styles from "./MembersList.module.css";
 
 interface Props {
@@ -23,6 +26,24 @@ interface Props {
 export default function MembersList({ limit, showInvites = true, hideHeader = false, onResolved }: Props) {
   const { language } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
+  const openModal = useModalStore((s) => s.openModal);
+
+  // 멤버 행 클릭 → 상세 모달 (접근 정보 위주). 프로필(bio/링크)은 대시보드엔 없어 최소 정보만.
+  const openDetail = (m: Member) => {
+    const author: Author = {
+      id: m.authorId ?? m.id,
+      name: m.name ?? "",
+      avatar: m.avatar ?? "",
+      role: "",
+      email: m.email,
+      bio: "",
+      links: [],
+    };
+    openModal(
+      <MemberDetailModal author={author} member={m} isOwnerProfile={m.role === "owner"} showAccess />,
+      { id: "member-detail", header: { title: L("멤버 상세", "Member") }, closeButton: true, width: "480px" },
+    );
+  };
   const [data, setData] = useState<MembersResponse | null>(null);
   const [state, setState] = useState<"loading" | "ok" | "hidden">("loading");
   const onResolvedRef = useRef(onResolved);
@@ -89,7 +110,16 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
       ) : (
         <ul className={styles.list}>
           {shown.map((m: Member) => (
-            <li key={m.id} className={styles.row}>
+            <li
+              key={m.id}
+              className={`${styles.row} ${styles.rowClickable}`}
+              role="button"
+              tabIndex={0}
+              onClick={() => openDetail(m)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(m); }
+              }}
+            >
               <span className={styles.avatar}>
                 {m.avatar ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -146,7 +176,7 @@ export default function MembersList({ limit, showInvites = true, hideHeader = fa
       )}
 
       {overflow > 0 && (
-        <Link href="/admin/settings" className={styles.more}>
+        <Link href="/admin/settings?tab=account" className={styles.more}>
           {L(`외 ${overflow}명 더 보기`, `+${overflow} more`)}
         </Link>
       )}
