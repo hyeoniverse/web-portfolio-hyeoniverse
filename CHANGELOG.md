@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.37.3](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.37.2...v1.37.3) (2026-08-03)
+
+
+### Bug Fixes
+
+* **nav:** 서브메뉴 인디케이터 hover 추적 + 접힘 4단계 순차 애니 ([7e8b4b4](https://github.com/hyeoniverse/web-portfolio-oval/commit/7e8b4b480a479e6768cb5c29e67f567069bf8407))
+
 ## [1.37.2](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.37.1...v1.37.2) (2026-08-03)
 
 
