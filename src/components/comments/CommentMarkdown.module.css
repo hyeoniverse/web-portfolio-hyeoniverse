@@ -124,8 +124,10 @@
    그렇다고 자손 조합자(`:has(input)`)로 퉁치면 반대로 과하게 잡혀서,
    일반 불릿 목록 안에 체크박스 하위목록이 있을 때 그 "부모" 목록의 불릿까지 사라진다.
    → 직계 경로 두 개만 명시. ── */
+/* list-style:none 이라 불릿 자리를 위한 좌측 padding 이 불필요 — 체크박스가 곧 마커라
+   본문과 거의 flush 로(기본 task-list 처럼). */
 .commentMarkdown ul:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"]) {
-  padding-left: var(--spacing-md);
+  padding-left: 0;
   list-style: none;
 }
 
