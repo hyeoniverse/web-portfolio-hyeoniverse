@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 
 import { Marked } from "marked";
 import DOMPurify from "isomorphic-dompurify";
@@ -99,8 +99,13 @@ export default function CommentMarkdown({ content, className }: CommentMarkdownP
 
   /* 코드블록 상단 바(언어 라벨 + 복사 + 줄바꿈 토글) — 게시물 본문과 같은 컴포넌트를 그대로 쓴다.
      라벨은 위 renderer 가 심은 `pre[data-lang]` 에서 읽는다.
-     (mermaid 스킵·중복 주입 방지는 attachCodeWrapToggle 내부에 있음) */
-  useEffect(() => {
+     (mermaid 스킵·중복 주입 방지는 attachCodeWrapToggle 내부에 있음)
+
+     useLayoutEffect + deps 없음: 펼치기·편집 등 상호작용으로 재렌더되면 dangerouslySetInnerHTML
+     이 innerHTML 을 원본(감싸기 전)으로 되돌려 코드블록 프레임이 순간 풀린다. paint **전**에
+     매 렌더마다 다시 씌워(layout effect) 풀린 프레임이 화면에 안 보이게 한다. attachCodeWrapToggle
+     은 idempotent(이미 감싼 pre 는 건너뜀)라 반복 호출이 안전. (댓글은 클라 fetch 라 SSR 없음) */
+  useLayoutEffect(() => {
     const root = containerRef.current;
     if (!root) return;
     attachCodeWrapToggle(root, {
@@ -111,7 +116,7 @@ export default function CommentMarkdown({ content, className }: CommentMarkdownP
       copy: t("common.codeCopy"),
       copied: t("common.codeCopied"),
     });
-  }, [html, t, containerRef]);
+  });
 
   return (
     <>
