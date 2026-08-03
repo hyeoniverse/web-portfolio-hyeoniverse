@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.42.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.41.1...v1.42.0) (2026-08-03)
+
+
+### Features
+
+* **editor,comments:** GitHub 마크다운 문법 확장 + 인라인 코드·코드블록 개선 ([0ebe262](https://github.com/hyeoniverse/web-portfolio-oval/commit/0ebe2622b0aaa324c11707dbd2bddadf079b7a22))
+
 ## [1.41.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.41.0...v1.41.1) (2026-08-03)
 
 
