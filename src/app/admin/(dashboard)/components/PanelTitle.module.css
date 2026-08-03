@@ -1,5 +1,6 @@
-/* uppercase xs 라벨. padding-top 만 — 아래는 다음 item 의 padding-top 이 책임 (중복 spacing 방지).
-   horizontal padding 은 cascade var (외부에서 --_item-inline-start/end 설정 가능, List.item 과 동일 패턴) */
+/* uppercase xs 라벨. 위아래 padding-sm + 아래 hairline 으로 부제목을 콘텐츠와 구분한다
+   (섹션 헤더와 동일 언어). horizontal padding 은 cascade var (외부에서 --_item-inline-start/end
+   설정 가능, List.item 과 동일 패턴) */
 .title {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
@@ -7,15 +8,19 @@
   color: var(--text-tertiary);
   margin: 0;
   padding-top: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: var(--border-light);
   padding-inline-start: var(--_item-inline-start, 0);
   padding-inline-end: var(--_item-inline-end, 0);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-/* inset — panelHeader 등 wrapper 안에 들어갈 때. wrapper 가 padding 책임 */
+/* inset — panelHeader 등 wrapper 안에 들어갈 때. wrapper 가 padding·구분선 책임 → 자체 divider 없음 */
 .inset {
   padding-top: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 /* framed — 아래 padding + border-bottom 으로 self-contained header (opt-in) */
