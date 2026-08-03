@@ -188,9 +188,11 @@ A reusable **centered "not found" state** shown when an admin edit/detail page c
 
 The **member-management UI primitives** in Settings → Account tab. `MembersList` renders the member card list (avatar · name/email · last sign-in · pending invites), attaching a `RoleBadge` (owner/editor/author role badge) and `ProviderChips` (GitHub / email sign-in method chips) to each row. Only the owner gets CRUD (invite / change role / delete); data loads from `/api/admin/authors/members` (owner) and `/api/admin/authors/context` (non-owner).
 
+It also embeds on the dashboard home via `limit` + `hideHeader` to show a top-N summary (with an "+N more" link → Account tab when it overflows); there each member row is a `role="button"` that is clickable and keyboard-navigable (Enter/Space) and opens a `MemberDetailModal` focused on access info (role · sign-in method · last sign-in). When `hideHeader` is set, the list's top border is dropped so it doesn't stack with the section's own divider into a 2px line. The members section is owner-only, so for a non-owner it hides the whole section via `onResolved(false)`.
+
 **Path**: `src/components/admin/MembersList.tsx`, `src/components/admin/MemberBadges.tsx` (`RoleBadge` / `ProviderChips`)
 
-**Used by**: `admin/(dashboard)/settings` Account tab (wired to MemberDetailModal / MemberEditModal)
+**Used by**: `admin/(dashboard)/settings` Account tab · admin dashboard home members section (both open MemberDetailModal on row click; the Account tab also wires MemberEditModal)
 
 ---
 

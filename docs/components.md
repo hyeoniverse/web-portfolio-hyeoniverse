@@ -188,9 +188,11 @@ import StaggerText from "@/components/effects/StaggerText";
 
 Settings → Account 탭의 **멤버 관리 UI 프리미티브**. `MembersList` 가 멤버 카드 목록(아바타 · 이름/이메일 · 마지막 로그인 · 대기 초대)을 렌더하고, 각 행에 `RoleBadge`(소유자/편집자/저자 역할 배지)와 `ProviderChips`(GitHub / 이메일 로그인 수단 칩)를 붙입니다. 소유자만 CRUD(초대 / 역할 변경 / 삭제)가 가능하고, 데이터는 `/api/admin/authors/members`(소유자) · `/api/admin/authors/context`(비소유자) 로 로드합니다.
 
+대시보드 홈에도 `limit` + `hideHeader` 로 임베드되어 상위 N명 요약을 보여주며(초과 시 "외 N명" 링크 → Account 탭), 이때 각 멤버 행은 `role="button"` 으로 클릭·키보드(Enter/Space) 진입이 가능해 접근 정보(역할 · 로그인 수단 · 마지막 로그인) 위주의 `MemberDetailModal` 을 엽니다. `hideHeader` 일 땐 리스트 상단 border 를 생략해 섹션 자체 divider 와 겹쳐 2px 로 두꺼워지는 것을 막습니다. 멤버 섹션은 소유자 전용이라 비소유자면 `onResolved(false)` 로 섹션째 숨깁니다.
+
 **경로**: `src/components/admin/MembersList.tsx`, `src/components/admin/MemberBadges.tsx` (`RoleBadge` / `ProviderChips`)
 
-**사용처**: `admin/(dashboard)/settings` Account 탭 (MemberDetailModal / MemberEditModal 연동)
+**사용처**: `admin/(dashboard)/settings` Account 탭 · admin 대시보드 홈 멤버 섹션 (둘 다 행 클릭 → MemberDetailModal, Account 탭은 MemberEditModal 연동)
 
 ---
 
