@@ -1,0 +1,35 @@
+/* 타이틀 전체를 감싸는 이동 링크 — 색은 타이틀에서 상속, 끝에 chevron.
+   hover 시 텍스트 밝아지고 chevron 이 우측으로 살짝 이동 + accent (quick action 버튼과 동일 언어). */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.link:hover {
+  color: var(--text-primary);
+}
+
+.chevron {
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition:
+    transform 0.2s var(--ease-material),
+    opacity 0.2s ease,
+    color 0.2s ease;
+}
+
+.link:hover .chevron {
+  transform: translateX(2px);
+  opacity: 1;
+  color: var(--text-accent);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-2xl);
+}
