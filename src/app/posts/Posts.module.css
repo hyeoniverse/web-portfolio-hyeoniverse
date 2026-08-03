@@ -465,6 +465,43 @@
   z-index: 1;
 }
 
+/* fade 안의 스크롤 버튼 — fade 자체는 pointer-events:none 이라 그라디언트 영역 클릭은
+   뒤 링크로 통과하지만, 이 버튼만 pointer-events:auto 로 클릭을 받아 사이드바를 스크롤한다.
+   (예전엔 chevron 클릭이 뒤 게시물 링크로 새던 버그) */
+.sidebarScrollBtn {
+  pointer-events: auto;
+  cursor: pointer;
+  /* 클릭 영역을 fade 그라디언트 높이(48px)만큼 가로 full + 세로로 크게. chevron 자체는
+     원래 strip 위치(가장자리)에 유지. (예전엔 chevron 32px 만 클릭돼 뒤 링크로 새던 버그) */
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 48px;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  transition: color var(--duration-fast) ease;
+}
+
+.sidebarFadeTop .sidebarScrollBtn {
+  top: 0;
+  align-items: flex-start;
+  padding-top: calc((var(--button-h-sm) - 14px) / 2);
+}
+.sidebarFadeBottom .sidebarScrollBtn {
+  bottom: 0;
+  align-items: flex-end;
+  padding-bottom: calc((var(--button-h-sm) - 14px) / 2);
+}
+
+.sidebarScrollBtn:hover {
+  color: var(--text-primary);
+}
+
 .sidebarFadeTop {
   top: 0;
 }
