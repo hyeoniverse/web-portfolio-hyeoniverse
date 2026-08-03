@@ -74,6 +74,22 @@ export const securityItems: SecurityItem[] = [
     icon: "lock",
   },
   {
+    layer: "Authorization",
+    title: {
+      ko: "역할 기반 인가 + 소유자 부트스트랩",
+      en: "Role-based Authorization + Owner Bootstrap",
+    },
+    description: {
+      ko: "역할(소유자/편집자/저자)은 **`app_metadata`(service_role 전용)** 에만 저장해 클라이언트가 자기 권한을 못 올립니다. `requireOwner()`/`requireRole()` 가 매 요청 재조회하고, GitHub OAuth 는 인증만 하므로 `/auth/callback` 에서 초대 여부를 재검사합니다. **소유자는 `OWNER_EMAIL` 로 부트스트랩 후 첫 로그인 시 DB 에 1회 못박고(claim-and-close)**, `OWNER_EMAIL` 미설정 시엔 계정을 삭제하지 않아 배포 초기 자기 락아웃을 막습니다.",
+      en: "Roles (owner/editor/author) live only in **`app_metadata` (service_role only)** so a client can't elevate itself. `requireOwner()`/`requireRole()` re-read them every request, and since GitHub OAuth only authenticates, `/auth/callback` re-checks the invite. **The owner is bootstrapped from `OWNER_EMAIL` then pinned in the DB on first login (claim-and-close)**; when `OWNER_EMAIL` is unset the account is kept, preventing self-lockout during initial deployment.",
+    },
+    scope: {
+      ko: "멤버 관리, 관리자 API",
+      en: "Member management, admin API",
+    },
+    icon: "crown",
+  },
+  {
     layer: "RLS",
     title: {
       ko: "Row Level Security",

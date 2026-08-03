@@ -520,7 +520,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 - Email과 Password 입력
 - **Auto Confirm User** 체크 (이메일 인증 건너뛰기)
 
-**소유자 계정 (`OWNER_EMAIL`)**: 위에서 만든 이메일을 환경변수 `OWNER_EMAIL` 에 지정하면 그 계정이 부트스트랩 소유자가 됩니다 (초대 테이블 없이 자동으로 전체 권한). 나머지 멤버는 이메일 초대로 추가합니다 (5번 참고).
+**소유자 계정 (`OWNER_EMAIL`)**: 위에서 만든 이메일을 환경변수 `OWNER_EMAIL` 에 지정하면 그 계정이 부트스트랩 소유자가 됩니다 (초대 테이블 없이 자동으로 전체 권한). **첫 로그인 전에 반드시 설정하세요** — 미설정 상태로 로그인하면 소유자를 판정할 수 없어 진입이 막힙니다(이때는 계정을 삭제하지 않고 설정 안내만 표시하므로, env 지정 후 다시 로그인하면 됩니다). 소유자가 처음 로그인하면 `owner` 역할이 `app_metadata` 에 1회 영속화되어(claim-and-close) 이후 `OWNER_EMAIL` 이 바뀌거나 비어도 소유권이 유지됩니다. 나머지 멤버는 이메일 초대로 추가합니다 (5번 참고).
 
 **GitHub OAuth 로그인 설정** — 멤버는 GitHub OAuth 로 로그인합니다:
 
@@ -545,7 +545,7 @@ Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 **GitHub OAuth 로그인** (멤버 표준 경로):
 
 1. `/admin/login` 에서 **GitHub 로 로그인** → `supabase.auth.signInWithOAuth` → GitHub 인증 → `/auth/callback` 으로 리다이렉트
-2. `/auth/callback` 인가 게이트가 이메일이 `OWNER_EMAIL` 이거나 역할을 보유했거나 `author_invites` 초대가 있는지 확인 — 통과 시 역할이 app_metadata 에 부여되고 초대는 소비됨. 미초대면 계정을 삭제하고 에러와 함께 로그인으로 복귀
+2. `/auth/callback` 인가 게이트가 이메일이 `OWNER_EMAIL` 이거나 역할을 보유했거나 `author_invites` 초대가 있는지 확인 — 통과 시 역할이 app_metadata 에 부여되고(소유자는 `owner` 역할이 1회 영속화됨) 초대는 소비됨. 미초대면 계정을 삭제하고 에러와 함께 로그인으로 복귀 (단 `OWNER_EMAIL` 이 미설정이면 삭제하지 않고 설정 안내 에러만 표시)
 3. 성공 → `/admin/settings` 리다이렉트
 
 **멤버 추가 (이메일 초대)**: 소유자가 Settings → **Account 탭**에서 이메일로 멤버를 초대하면 `author_invites` 행 + Resend 안내 메일이 발송됩니다. 초대받은 사람이 같은 이메일의 GitHub 로 OAuth 로그인하면 자동으로 저자/편집자 권한을 얻습니다. Account 탭에서 소유자가 멤버 목록·역할·권한을 관리합니다 (비소유자는 Account 탭만 접근).
