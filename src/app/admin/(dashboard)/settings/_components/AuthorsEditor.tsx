@@ -47,8 +47,12 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
   const [members, setMembers] = useState<Member[]>([]);
   const [pending, setPending] = useState<PendingMember[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
+  // /members 는 owner 전용(403 self-gate). 200 으로 로드됐다면 곧 owner 확정이다.
+  const [membersLoaded, setMembersLoaded] = useState(false);
 
-  const isOwner = ctx?.isOwner ?? false;
+  // isOwner: context 가 실패해도(설정 페이지 동시 인증요청 중 세션회전 401 등) members 가
+  // 로드됐으면 owner 로 본다. 그래야 "그 외 로그인 계정" 그룹·전체 목록이 계속 표시된다.
+  const isOwner = (ctx?.isOwner ?? false) || membersLoaded;
 
   const LEVELS = [
     { value: "1", label: L("자기 글만 (작성자)", "Own posts (Author)") },
@@ -63,20 +67,23 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
       const data = (await res.json()) as MembersResponse;
       setMembers(data.members ?? []);
       setPending(data.pendingInvites ?? []);
+      setMembersLoaded(true); // 200 = owner 확정 → isOwner 표시 게이트 통과
     } catch {
       /* noop */
     }
   }, []);
 
-  // 컨텍스트(누구인지·owner 인지·owner 이메일·실제 가입멤버) — 비owner 도 접근. owner 면 상세 멤버도 로드.
+  // 멤버 목록은 context 성공 여부와 무관하게 직접 로드한다 (/members 가 403 으로 self-gate).
+  // 예전엔 context fetch 성공 + isOwner 게이트 뒤에 체이닝돼서, 설정 페이지가 동시에 쏘는
+  // 인증 요청 중 하나가 세션 회전으로 401 나면 멤버가 통째로 사라졌다. (대시보드 MembersList 는
+  // /members 를 직접 fetch 라 멀쩡 — 여기도 같게 맞춘다.) context 는 ownerEmail 등 부가정보용.
   useEffect(() => {
     (async () => {
+      refetchMembers(); // context 성공 여부와 무관하게 먼저 발사 (자체 fetch)
       try {
         const res = await fetch("/api/admin/authors/context");
         if (!res.ok) return;
-        const c = (await res.json()) as Ctx;
-        setCtx(c);
-        if (c.isOwner) refetchMembers();
+        setCtx((await res.json()) as Ctx);
       } catch {
         /* noop */
       }
@@ -98,9 +105,11 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
       (!!ctx?.email && !!a.email && a.email.toLowerCase() === ctx.email.toLowerCase())
     );
   };
+  // 본인 계정 판별은 이메일로만 한다. authorId 는 여러 멤버가 "owner" 를 공유하는 잘못된
+  // 링크가 있을 수 있어(memberForAuthor 도 owner 는 이메일로만 매칭), authorId 로 매칭하면
+  // 다른 멤버가 "내 계정" 으로 잘못 걸러져 "그 외 로그인 계정" 목록에서 통째로 사라진다.
   const isMineMember = (m: Member) =>
-    (!!ctx?.authorId && m.authorId === ctx.authorId) ||
-    (!!ctx?.email && !!m.email && m.email.toLowerCase() === ctx.email.toLowerCase());
+    !!ctx?.email && !!m.email && m.email.toLowerCase() === ctx.email.toLowerCase();
 
   const memberByAuthorId = new Map(members.filter((m) => m.authorId).map((m) => [m.authorId as string, m]));
   const memberByEmail = new Map(members.filter((m) => m.email).map((m) => [m.email.toLowerCase(), m]));
