@@ -3,15 +3,26 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonOk, jsonError } from "@/lib/api/response";
 
-// GET /api/admin/notifications — 알림 목록 (최근 50개)
+// 댓글 계열 알림 타입 (탭 "댓글" 묶음)
+const COMMENT_TYPES = ["comment", "reply", "like"];
+
+// GET /api/admin/notifications — 알림 목록
+//   ?offset=0&limit=50  페이지네이션 (기본 최근 50). "더보기" 로 offset 을 늘려 append.
+//   ?meta=1             전체·타입별 실제 총계(totalCount·typeCounts) + hasMore 포함.
+//                       알림 페이지 전용 — nav 폴링(무param)은 계산을 생략해 가볍게 유지.
 // 테이블이 없거나 query 실패 시에도 200 + 빈 리스트로 graceful degradation —
 // nav 폴링이 매번 401/500 으로 콘솔을 도배하지 않게 함.
 // 인증 없을 때도 200 + 빈 리스트 (info leak 없음, polling 콘솔 노이즈 제거).
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) return jsonOk({ notifications: [], unreadCount: 0 });
+
+  const { searchParams } = new URL(request.url);
+  const limit = Math.min(Math.max(Number(searchParams.get("limit")) || 50, 1), 100);
+  const offset = Math.max(Number(searchParams.get("offset")) || 0, 0);
+  const withMeta = searchParams.get("meta") === "1";
 
   try {
     const admin = createAdminClient();
@@ -19,19 +30,39 @@ export async function GET() {
       .from("admin_notifications")
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(50);
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.warn("[admin/notifications] query failed:", error.message);
       return jsonOk({ notifications: [], unreadCount: 0 });
     }
 
-    const { count } = await admin
+    const { count: unread } = await admin
       .from("admin_notifications")
       .select("*", { count: "exact", head: true })
       .eq("read", false);
+    const unreadCount = unread ?? 0;
 
-    return jsonOk({ notifications: data ?? [], unreadCount: count ?? 0 });
+    if (!withMeta) {
+      return jsonOk({ notifications: data ?? [], unreadCount });
+    }
+
+    // 알림 페이지용 — 탭 카운트가 로드된 50개가 아니라 실제 총계를 반영하도록 전체·타입별 count 를 함께 반환.
+    const [totalRes, reportRes, commentRes] = await Promise.all([
+      admin.from("admin_notifications").select("*", { count: "exact", head: true }),
+      admin.from("admin_notifications").select("*", { count: "exact", head: true }).eq("type", "report"),
+      admin.from("admin_notifications").select("*", { count: "exact", head: true }).in("type", COMMENT_TYPES),
+    ]);
+    const total = totalRes.count ?? 0;
+    const report = reportRes.count ?? 0;
+    const comment = commentRes.count ?? 0;
+    return jsonOk({
+      notifications: data ?? [],
+      unreadCount,
+      totalCount: total,
+      typeCounts: { all: total, comment, report, system: Math.max(total - report - comment, 0) },
+      hasMore: offset + (data?.length ?? 0) < total,
+    });
   } catch (e) {
     console.warn("[admin/notifications] unexpected error:", e);
     return jsonOk({ notifications: [], unreadCount: 0 });
