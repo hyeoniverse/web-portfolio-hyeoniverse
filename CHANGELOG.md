@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.38.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.38.0...v1.38.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* **admin/notifications:** "전체" 탭을 실제 총계로 + 더보기 페이지네이션 ([25dcdb5](https://github.com/hyeoniverse/web-portfolio-oval/commit/25dcdb510a6a6b37f8a102a8dc963327c2d0b20b))
+* **admin/notifications:** 목록 API 페이지네이션 + 전체·타입별 실제 총계 반환 ([9d42750](https://github.com/hyeoniverse/web-portfolio-oval/commit/9d427503258d6faf163856674f50f5fcc602f6ee))
+
 ## [1.38.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.37.3...v1.38.0) (2026-08-03)
 
 
