@@ -77,15 +77,6 @@
   margin-left: auto;
 }
 
-/* 섹션 제목 line 에 우측 액션 버튼을 얹는 flex row (예: 멤버 섹션 "관리").
-   패딩 없이 SectionHeader(h2) 의 padding-block 이 높이를 정해 다른 섹션과 title 위치가 같다. */
-.secHeaderRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-}
-
 /* "데이터 없음" 텍스트 — List 의 item 과 동일 vertical dimension. border 는 없음 (단독 child) */
 .muted {
   composes: item from "./components/List.module.css";
