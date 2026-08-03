@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.41.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.41.0...v1.41.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* **editor:** 리스트 항목 placeholder 는 숨기지 말고 마커 폭만큼 들여쓰기 ([172ff4e](https://github.com/hyeoniverse/web-portfolio-oval/commit/172ff4e6704c5d6118768cc918c639c8c6592534))
+
 ## [1.41.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.40.1...v1.41.0) (2026-08-03)
 
 
