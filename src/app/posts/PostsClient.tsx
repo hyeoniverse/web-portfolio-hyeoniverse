@@ -85,13 +85,63 @@ function SidebarWrap({
     };
   }, [check]);
 
+  // fade 의 chevron: 짧게 클릭 → 한 화면(약 70%) 스크롤, 롱프레스(꾹) → 누르는 동안 연속 스크롤.
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const holdRaf = useRef<number | undefined>(undefined);
+  const longPressed = useRef(false);
+
+  const stopHold = useCallback(() => {
+    if (holdTimer.current) { clearTimeout(holdTimer.current); holdTimer.current = undefined; }
+    if (holdRaf.current) { cancelAnimationFrame(holdRaf.current); holdRaf.current = undefined; }
+  }, []);
+
+  // 누르기 시작 — 300ms 넘게 유지되면 연속 스크롤 시작(그 전에 떼면 일반 클릭으로 처리)
+  const pressStart = useCallback((dir: 1 | -1) => {
+    longPressed.current = false;
+    holdTimer.current = setTimeout(() => {
+      longPressed.current = true;
+      const step = () => {
+        const el = ref.current;
+        if (!el) return;
+        el.scrollTop += dir * 12; // 프레임당 연속 이동
+        holdRaf.current = requestAnimationFrame(step);
+      };
+      holdRaf.current = requestAnimationFrame(step);
+    }, 300);
+  }, []);
+
+  const handleClick = useCallback((dir: 1 | -1) => {
+    if (longPressed.current) { longPressed.current = false; return; } // 롱프레스였으면 클릭 스크롤 스킵
+    const el = ref.current;
+    if (!el) return;
+    el.scrollBy({ top: dir * el.clientHeight * 0.7, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => stopHold, [stopHold]); // 언마운트 시 타이머/rAF 정리
+
+  const btnHandlers = (dir: 1 | -1) => ({
+    onPointerDown: () => pressStart(dir),
+    onPointerUp: stopHold,
+    onPointerLeave: stopHold,
+    onPointerCancel: stopHold,
+    onClick: () => handleClick(dir),
+  });
+
   return (
     <div
       className={`${styles.sidebarWrap} ${barHidden ? styles.sidebarUp : ""}`}
     >
       {canUp && (
         <div className={styles.sidebarFadeTop}>
-          <ChevronUp size={14} />
+          <button
+            type="button"
+            className={styles.sidebarScrollBtn}
+            {...btnHandlers(-1)}
+            aria-label="위로 스크롤"
+            data-clickable="true"
+          >
+            <ChevronUp size={14} />
+          </button>
         </div>
       )}
       <aside
@@ -103,7 +153,15 @@ function SidebarWrap({
       </aside>
       {canDown && (
         <div className={styles.sidebarFadeBottom}>
-          <ChevronDown size={14} />
+          <button
+            type="button"
+            className={styles.sidebarScrollBtn}
+            {...btnHandlers(1)}
+            aria-label="아래로 스크롤"
+            data-clickable="true"
+          >
+            <ChevronDown size={14} />
+          </button>
         </div>
       )}
     </div>
