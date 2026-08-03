@@ -72,6 +72,7 @@ const itemMeta: Record<
     section: "A", difficulty: 2, recommended: true,
     recommendReason: { ko: "설정 실수 하나가 계정 삭제로 이어지던 함정 — 부트스트랩을 fail-safe 하게 설계하는 관점을 보여드리려 골랐습니다.", en: "A single config slip deleted the account — picked to show designing bootstrap to fail safe, not fail destructive." },
   },
+  "소유자로 로그인해도 설정 계정 탭에서만 다른 멤버가 안 보인다": { featured: true, section: "A", difficulty: 2 },
   // Performance
   "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)": { featured: true, section: "P", difficulty: 3 },
   "mousemove마다 React 리렌더 (60fps 성능 저하)": { section: "P", difficulty: 2 },
@@ -89,6 +90,7 @@ const itemMeta: Record<
     section: "L", difficulty: 2, recommended: true,
     recommendReason: { ko: "원인이 코드가 아닌 CSS 명세에 있던 케이스 — spec 단위까지 파고드는 디버깅 습관을 보여드리려 골랐습니다.", en: "Bug lived in the CSS spec, not in the code — picked this to show spec-level debugging." },
   },
+  "일부 섹션 구분선만 유독 진하다 — background 단축속성이 background-clip 을 리셋": { featured: true, section: "L", difficulty: 2 },
   "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴": { section: "L", difficulty: 3 },
   "CSS 토큰 미정의 — 11개 파일에서 참조하지만 선언 없음": { section: "L", difficulty: 1 },
   "CTA 버튼 `backdrop-filter`가 Chrome에서 동작하지 않음": {
@@ -514,6 +516,27 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "**A failed bootstrap should fail safe, not fail destructive.** Deleting the account when config is missing fails in an unrecoverable direction — when unset, destroy nothing and just guide; and once initial setup succeeds, pin it in the DB so it can't regress.",
     },
     tags: ["Auth", "OWNER_EMAIL", "bootstrap", "app_metadata", "fail-safe"],
+  },
+  {
+    section: { ko: "Backend / Auth", en: "Backend / Auth" },
+    problem: { ko: "소유자로 로그인해도 설정 계정 탭에서만 다른 멤버가 안 보인다", en: "Logged in as owner, yet other members show only on the dashboard, not the account tab" },
+    definition: {
+      ko: "같은 소유자 계정으로 로그인했는데, 대시보드 멤버 섹션엔 다른 멤버가 보이고 설정 계정 탭에선 \"그 외 로그인 계정\" 목록이 통째로 비어 있었습니다.",
+      en: "Signed in as the same owner, the dashboard members section listed the other members while the account tab's \"other login accounts\" group was completely empty.",
+    },
+    cause: {
+      ko: "두 원인이 겹쳤습니다.\n\n**① 인가 뒤에 데이터 로드를 체이닝** — 계정 탭은 멤버 상세 로드를 `/context` 응답의 `isOwner` 뒤에 매달아 뒀습니다. 그런데 설정 페이지가 마운트되며 여러 인증 요청을 동시에 쏘고, 그중 하나가 세션 회전으로 401 나면 `/context` 가 실패해 멤버가 통째로 사라졌습니다. (대시보드 `MembersList` 는 `/members` 를 직접 fetch 라 멀쩡했습니다.)\n\n**② 공유된 authorId 로 본인 오인** — \"내 계정\"을 목록에서 빼는 `isMineMember` 가 `authorId` 로도 매칭했는데, 여러 멤버가 저자 프로필 링크로 `\"owner\"` 를 공유하는 데이터가 있어, 다른 멤버가 \"내 계정\"으로 오인돼 \"그 외\" 목록에서 제외됐습니다.",
+      en: "Two causes overlapped.\n\n**① Data load chained behind authorization** — the account tab hung the member fetch off the `isOwner` field of the `/context` response. But the settings page fires several auth requests at once on mount, and if one 401s from session rotation, `/context` fails and the members vanish wholesale. (The dashboard `MembersList` fetches `/members` directly and was fine.)\n\n**② Self mis-identified via a shared authorId** — `isMineMember`, which removes \"my account\" from the list, also matched by `authorId`; some members shared `\"owner\"` as their author-profile link, so another member was mistaken for \"my account\" and excluded from the \"others\" list.",
+    },
+    solution: {
+      ko: "① 멤버 목록을 `/context` 성공 여부와 무관하게 **직접 fetch** 하도록 분리하고(대시보드와 동일), `/members` 가 200(=소유자 self-gate 통과)이면 표시 게이트를 통과시켰습니다. ② `isMineMember` 를 authorId 대신 **이메일로만** 매칭하게 바꿔, 공유된 authorId 로 인한 오인 제외를 없앴습니다.",
+      en: "① Decoupled the member list to fetch **directly**, independent of `/context` (same as the dashboard); a 200 from `/members` (owner self-gate passed) flips the display gate on. ② Changed `isMineMember` to match by **email only**, not authorId, removing the mis-exclusion from a shared authorId.",
+    },
+    keyInsight: {
+      ko: "**데이터 로드를 별도 인가 요청 뒤에 체이닝하면, 그 요청이 흔들릴 때(세션 회전 등) 데이터가 통째로 사라집니다.** 스스로 403 self-gate 하는 엔드포인트는 직접 부르는 게 견고하고, 신원 대조는 여러 행이 공유할 수 있는 링크(authorId)가 아니라 안정적 자연 키(이메일)로 합니다.",
+      en: "**Chaining a data load behind a separate authorization request means one shaky request (e.g. session rotation) can wipe the data entirely.** An endpoint that self-gates with 403 is more robust called directly, and identity comparisons should key off a stable natural key (email), not a link that multiple rows can share (authorId).",
+    },
+    tags: ["auth", "session-rotation", "data-fetch", "race", "React"],
   },
   {
     section: { ko: "Frontend / CSS", en: "Frontend / CSS" },
@@ -1147,6 +1170,27 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
   },
 
   /* ── CSS / Styling ── */
+  {
+    section: { ko: "CSS / Styling", en: "CSS / Styling" },
+    problem: { ko: "일부 섹션 구분선만 유독 진하다 — background 단축속성이 background-clip 을 리셋", en: "Only some section dividers look darker — the background shorthand reset background-clip" },
+    definition: {
+      ko: "대시보드에서 grid gap hairline 트릭(`gap: 1px` + 셀 배경색)으로 얇은 구분선을 그리는데, 통계·최근활동·인기 같은 몇몇 섹션의 title 아래 구분선만 다른 곳보다 눈에 띄게 진하게 보였습니다.",
+      en: "The dashboard draws thin dividers with a grid-gap hairline trick (`gap: 1px` + a cell background), but under a few sections' titles — Stats, Recent activity, Popular — that one divider looked noticeably darker than elsewhere.",
+    },
+    cause: {
+      ko: "베이스에서 `background-clip: padding-box` 로 배경을 padding 안쪽까지만 칠하도록 제한해 뒀는데, 반응형 규칙에서 색만 바꾸려고 `background: var(--border-light-color)` **단축속성**을 썼습니다. `background` 는 shorthand 라 명시하지 않은 하위 속성을 전부 초깃값으로 리셋 → `background-clip` 이 `border-box` 로 되돌아갑니다. 그러면 반투명(alpha 0.3) 배경이 border 영역까지 깔리고, 그 위에 얹힌 섹션 divider 의 반투명 `border-top`(alpha 0.3)과 **합성(alpha compositing)** 되어 그 선만 더 진해졌습니다(0.3 위 0.3 ≈ 0.51).",
+      en: "The base pins `background-clip: padding-box` so the background only paints inside the padding, but a responsive rule changed just the color with the `background: var(--border-light-color)` **shorthand**. `background` is a shorthand, so it resets every sub-property it doesn't mention to its initial value — `background-clip` snaps back to `border-box`. The semi-transparent (alpha 0.3) background then bleeds under the border area and **composites** with the section divider's semi-transparent `border-top` (alpha 0.3) sitting on top, so that one line reads darker (0.3 over 0.3 ≈ 0.51).",
+    },
+    solution: {
+      ko: "색만 바꿀 때는 `background` 단축속성 대신 `background-color` **롱핸드**를 씁니다. 그러면 베이스의 `background-clip: padding-box` 가 그대로 유지돼 배경이 border 밑으로 새지 않고, border 와의 합성도 사라져 모든 구분선이 같은 농도로 보입니다.",
+      en: "When only the color changes, use the `background-color` **longhand** instead of the `background` shorthand. The base's `background-clip: padding-box` is then preserved, so the background never bleeds under the border, the compositing goes away, and every divider reads at the same weight.",
+    },
+    keyInsight: {
+      ko: "**CSS 단축속성은 \"지정 안 한 하위 속성\"을 유지하지 않고 초깃값으로 리셋합니다.** `background`·`transition`·`font` 같은 shorthand 로 한 가지만 바꾸려다 옆에 세팅해 둔 다른 하위 속성(`background-clip`, `transition-property` 등)을 조용히 날리기 쉽습니다 — 한 속성만 바꿀 땐 대응하는 롱핸드를 씁니다.",
+      en: "**A CSS shorthand doesn't keep the sub-properties you omit — it resets them to their initial values.** Reaching for `background`/`transition`/`font` to change one thing quietly wipes the neighbouring sub-property you'd set (`background-clip`, `transition-property`, …) — to change one property, use its longhand.",
+    },
+    tags: ["css", "background-clip", "shorthand", "border", "compositing"],
+  },
   {
     section: { ko: "CSS / Styling", en: "CSS / Styling" },
     problem: { ko: "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀", en: "Global Transition Shorthand Overriding Component Transitions" },
