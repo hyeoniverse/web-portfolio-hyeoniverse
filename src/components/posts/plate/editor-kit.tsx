@@ -7,6 +7,7 @@
 
 import { BasicBlocksKit } from "./plugins/basic-blocks-kit";
 import { BasicMarksKit } from "./plugins/basic-marks-kit";
+import { EmojiShortcodeKit } from "./plugins/emoji-shortcode-kit";
 import { NoCodeMarksKit } from "./plugins/no-code-marks-kit";
 import { ColumnKit } from "./plugins/column-kit";
 import { ColumnWidthFixKit } from "./plugins/column-width-fix-kit";
@@ -27,6 +28,7 @@ import { CalendarKit } from "./plugins/calendar-kit";
 import { DiagramKit } from "./plugins/diagram-kit";
 import { PlaygroundKit } from "./plugins/playground-kit";
 import { FootnoteKit } from "./plugins/footnote-kit";
+import { GithubSyntaxKit } from "./plugins/github-syntax-kit";
 import { TocKit } from "./plugins/toc-kit";
 import { FontKit } from "./plugins/font-kit";
 import { DndKit } from "./plugins/dnd-kit";
@@ -39,6 +41,7 @@ export const EditorKit = [
   ...MarkdownKit,     // md 직렬화 API + 붙여넣기 파싱
   ...BasicBlocksKit,  // paragraph, heading, blockquote, hr
   ...BasicMarksKit,   // bold, italic, ... code, kbd
+  ...EmojiShortcodeKit, // :name: → 이모지 즉시 변환 (GitHub 식)
   ...NoCodeMarksKit,  // 코드블록 안 mark 차단 (syntax leaf + mark leaf 섞임 → hook 순서 crash 방지)
   ...ColumnKit,
   ...ColumnWidthFixKit, // ColumnKit 뒤 — 열 너비를 항상 정수 합=100 으로 정규화(소수 재분배 무한루프 차단)
@@ -59,6 +62,7 @@ export const EditorKit = [
   ...DiagramKit,      // diagram(data: 위치보존 노드/엣지) — void, React Flow 캔버스
   ...PlaygroundKit,   // playground(data: html/css/js) — void, sandboxed iframe 라이브 실행
   ...FootnoteKit,     // footnote_ref, footnote_content
+  ...GithubSyntaxKit, // [!NOTE] → 콜아웃(알림), [^1] → 각주 자동변환
   ...TocKit,          // 목차 블록
   ...FontKit,         // color/bg/family/size/line-height/text-align
 ];

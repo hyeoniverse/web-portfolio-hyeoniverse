@@ -42,13 +42,13 @@
 }
 
 [data-theme="dark"] pre code .hljs-keyword,
-[data-theme="dark"] pre code .token.keyword,
+[data-theme="dark"] code .token.keyword,
 [data-theme="dark"] pre code .hljs-selector-tag,
-[data-theme="dark"] pre code .token.selector,
+[data-theme="dark"] code .token.selector,
 [data-theme="dark"] pre code .hljs-built_in,
-[data-theme="dark"] pre code .token.builtin,
-[data-theme="dark"] pre code .token.atrule,
-[data-theme="dark"] pre code .token.rule,
+[data-theme="dark"] code .token.builtin,
+[data-theme="dark"] code .token.atrule,
+[data-theme="dark"] code .token.rule,
 [data-theme="dark"] pre code .hljs-selector-class,
 [data-theme="dark"] pre code .hljs-selector-id,
 [data-theme="dark"] pre code .hljs-selector-pseudo {
@@ -56,56 +56,56 @@
 }
 
 [data-theme="dark"] pre code .hljs-string,
-[data-theme="dark"] pre code .token.string,
-[data-theme="dark"] pre code .token.char,
-[data-theme="dark"] pre code .token.attr-value,
+[data-theme="dark"] code .token.string,
+[data-theme="dark"] code .token.char,
+[data-theme="dark"] code .token.attr-value,
 [data-theme="dark"] pre code .hljs-link,
-[data-theme="dark"] pre code .token.url {
+[data-theme="dark"] code .token.url {
   color: oklch(84.25% 0.0844 75.06);
 }
 
 [data-theme="dark"] pre code .hljs-number,
-[data-theme="dark"] pre code .token.number,
+[data-theme="dark"] code .token.number,
 [data-theme="dark"] pre code .hljs-literal,
-[data-theme="dark"] pre code .token.boolean,
-[data-theme="dark"] pre code .token.constant {
+[data-theme="dark"] code .token.boolean,
+[data-theme="dark"] code .token.constant {
   color: oklch(74.86% 0.1381 37.46);
 }
 
 [data-theme="dark"] pre code .hljs-comment,
-[data-theme="dark"] pre code .token.comment,
-[data-theme="dark"] pre code .token.prolog,
-[data-theme="dark"] pre code .token.cdata,
+[data-theme="dark"] code .token.comment,
+[data-theme="dark"] code .token.prolog,
+[data-theme="dark"] code .token.cdata,
 [data-theme="dark"] pre code .hljs-quote,
-[data-theme="dark"] pre code .token.doctype {
+[data-theme="dark"] code .token.doctype {
   color: oklch(55.31% 0.0236 196.49);
   font-style: italic;
 }
 
 [data-theme="dark"] pre code .hljs-title,
-[data-theme="dark"] pre code .token.function,
+[data-theme="dark"] code .token.function,
 [data-theme="dark"] pre code .hljs-title.function_,
-[data-theme="dark"] pre code .token.function-variable,
+[data-theme="dark"] code .token.function-variable,
 [data-theme="dark"] pre code .hljs-section,
-[data-theme="dark"] pre code .token.title {
+[data-theme="dark"] code .token.title {
   color: oklch(74.41% 0.1311 264.28);
 }
 
 [data-theme="dark"] pre code .hljs-variable,
-[data-theme="dark"] pre code .token.variable,
+[data-theme="dark"] code .token.variable,
 [data-theme="dark"] pre code .hljs-template-variable,
 [data-theme="dark"] pre code .hljs-code,
-[data-theme="dark"] pre code .token.code-snippet {
+[data-theme="dark"] code .token.code-snippet {
   color: oklch(83.44% 0.1534 127.38);
 }
 
 [data-theme="dark"] pre code .hljs-type,
-[data-theme="dark"] pre code .token.tag {
+[data-theme="dark"] code .token.tag {
   color: oklch(70.09% 0.1567 18.62);
 }
 
 [data-theme="dark"] pre code .hljs-name,
-[data-theme="dark"] pre code .token.symbol {
+[data-theme="dark"] code .token.symbol {
   color: oklch(70.09% 0.1567 18.62);
 }
 
@@ -119,32 +119,32 @@
 }
 
 [data-theme="dark"] pre code .hljs-operator,
-[data-theme="dark"] pre code .token.operator,
+[data-theme="dark"] code .token.operator,
 [data-theme="dark"] pre code .hljs-punctuation,
-[data-theme="dark"] pre code .token.punctuation {
+[data-theme="dark"] code .token.punctuation {
   color: oklch(85.61% 0.0943 225.87);
 }
 
 [data-theme="dark"] pre code .hljs-property,
-[data-theme="dark"] pre code .token.property,
-[data-theme="dark"] pre code .token.attr-name,
+[data-theme="dark"] code .token.property,
+[data-theme="dark"] code .token.attr-name,
 [data-theme="dark"] pre code .hljs-attr,
 [data-theme="dark"] pre code .hljs-attribute {
   color: oklch(82.92% 0.0920 180.70);
 }
 
 [data-theme="dark"] pre code .hljs-regexp,
-[data-theme="dark"] pre code .token.regex {
+[data-theme="dark"] code .token.regex {
   color: oklch(70.53% 0.1170 245.09);
 }
 
 [data-theme="dark"] pre code .hljs-deletion,
-[data-theme="dark"] pre code .token.deleted {
+[data-theme="dark"] code .token.deleted {
   color: oklch(65.39% 0.1926 25.14);
 }
 
 [data-theme="dark"] pre code .hljs-addition,
-[data-theme="dark"] pre code .token.inserted {
+[data-theme="dark"] code .token.inserted {
   color: oklch(83.44% 0.1534 127.38);
 }
 
@@ -171,13 +171,13 @@
 }
 
 [data-theme="light"] pre code .hljs-keyword,
-[data-theme="light"] pre code .token.keyword,
+[data-theme="light"] code .token.keyword,
 [data-theme="light"] pre code .hljs-selector-tag,
-[data-theme="light"] pre code .token.selector,
+[data-theme="light"] code .token.selector,
 [data-theme="light"] pre code .hljs-built_in,
-[data-theme="light"] pre code .token.builtin,
-[data-theme="light"] pre code .token.atrule,
-[data-theme="light"] pre code .token.rule,
+[data-theme="light"] code .token.builtin,
+[data-theme="light"] code .token.atrule,
+[data-theme="light"] code .token.rule,
 [data-theme="light"] pre code .hljs-selector-class,
 [data-theme="light"] pre code .hljs-selector-id,
 [data-theme="light"] pre code .hljs-selector-pseudo {
@@ -185,56 +185,56 @@
 }
 
 [data-theme="light"] pre code .hljs-string,
-[data-theme="light"] pre code .token.string,
-[data-theme="light"] pre code .token.char,
-[data-theme="light"] pre code .token.attr-value,
+[data-theme="light"] code .token.string,
+[data-theme="light"] code .token.char,
+[data-theme="light"] code .token.attr-value,
 [data-theme="light"] pre code .hljs-link,
-[data-theme="light"] pre code .token.url {
+[data-theme="light"] code .token.url {
   color: oklch(62.80% 0.1251 22.49);
 }
 
 [data-theme="light"] pre code .hljs-number,
-[data-theme="light"] pre code .token.number,
+[data-theme="light"] code .token.number,
 [data-theme="light"] pre code .hljs-literal,
-[data-theme="light"] pre code .token.boolean,
-[data-theme="light"] pre code .token.constant {
+[data-theme="light"] code .token.boolean,
+[data-theme="light"] code .token.constant {
   color: oklch(49.77% 0.2095 342.46);
 }
 
 [data-theme="light"] pre code .hljs-comment,
-[data-theme="light"] pre code .token.comment,
-[data-theme="light"] pre code .token.prolog,
-[data-theme="light"] pre code .token.cdata,
+[data-theme="light"] code .token.comment,
+[data-theme="light"] code .token.prolog,
+[data-theme="light"] code .token.cdata,
 [data-theme="light"] pre code .hljs-quote,
-[data-theme="light"] pre code .token.doctype {
+[data-theme="light"] code .token.doctype {
   color: oklch(69.79% 0.0159 196.79);
   font-style: italic;
 }
 
 [data-theme="light"] pre code .hljs-title,
-[data-theme="light"] pre code .token.function,
+[data-theme="light"] code .token.function,
 [data-theme="light"] pre code .hljs-title.function_,
-[data-theme="light"] pre code .token.function-variable,
+[data-theme="light"] code .token.function-variable,
 [data-theme="light"] pre code .hljs-section,
-[data-theme="light"] pre code .token.title {
+[data-theme="light"] code .token.title {
   color: oklch(58.19% 0.1557 263.15);
 }
 
 [data-theme="light"] pre code .hljs-variable,
-[data-theme="light"] pre code .token.variable,
+[data-theme="light"] code .token.variable,
 [data-theme="light"] pre code .hljs-template-variable,
 [data-theme="light"] pre code .hljs-code,
-[data-theme="light"] pre code .token.code-snippet {
+[data-theme="light"] code .token.code-snippet {
   color: oklch(61.22% 0.1023 199.06);
 }
 
 [data-theme="light"] pre code .hljs-type,
-[data-theme="light"] pre code .token.tag {
+[data-theme="light"] code .token.tag {
   color: oklch(56.39% 0.1860 311.73);
 }
 
 [data-theme="light"] pre code .hljs-name,
-[data-theme="light"] pre code .token.symbol {
+[data-theme="light"] code .token.symbol {
   color: oklch(56.39% 0.1860 311.73);
 }
 
@@ -248,32 +248,32 @@
 }
 
 [data-theme="light"] pre code .hljs-operator,
-[data-theme="light"] pre code .token.operator,
+[data-theme="light"] code .token.operator,
 [data-theme="light"] pre code .hljs-punctuation,
-[data-theme="light"] pre code .token.punctuation {
+[data-theme="light"] code .token.punctuation {
   color: oklch(47.72% 0.2870 264.37);
 }
 
 [data-theme="light"] pre code .hljs-property,
-[data-theme="light"] pre code .token.property,
-[data-theme="light"] pre code .token.attr-name,
+[data-theme="light"] code .token.property,
+[data-theme="light"] code .token.attr-name,
 [data-theme="light"] pre code .hljs-attr,
 [data-theme="light"] pre code .hljs-attribute {
   color: oklch(61.22% 0.1023 199.06);
 }
 
 [data-theme="light"] pre code .hljs-regexp,
-[data-theme="light"] pre code .token.regex {
+[data-theme="light"] code .token.regex {
   color: oklch(58.19% 0.1557 263.15);
 }
 
 [data-theme="light"] pre code .hljs-deletion,
-[data-theme="light"] pre code .token.deleted {
+[data-theme="light"] code .token.deleted {
   color: oklch(60.05% 0.1983 26.06);
 }
 
 [data-theme="light"] pre code .hljs-addition,
-[data-theme="light"] pre code .token.inserted {
+[data-theme="light"] code .token.inserted {
   color: oklch(61.22% 0.1023 199.06);
 }
 
@@ -353,18 +353,18 @@
    색을 안 주면 문자열 색을 그대로 물려받는다 → 코드인데 문자열처럼 보인다.
    기본 텍스트색으로 되돌려야 한다(--text-primary 가 이미 테마를 따라가므로 테마별로 나눌 필요 없음). */
 pre code .hljs-subst,
-pre code .token.interpolation {
+code .token.interpolation {
   color: var(--text-primary);
 }
 
 /* markdown — 색이 아니라 형태로 구분되는 토큰 */
 pre code .hljs-strong,
-pre code .token.bold {
+code .token.bold {
   font-weight: var(--font-weight-bold);
 }
 
 pre code .hljs-emphasis,
-pre code .token.italic {
+code .token.italic {
   font-style: italic;
 }
 
@@ -540,27 +540,13 @@ pre code .token.italic {
    라벨 유무와 무관하게 flow 상 controls 를 오른쪽으로 민다. */
 .code-block-bar .code-block-controls { margin-left: auto; }
 
-/* 코드블록 컨트롤 = 버튼 묶음 캡슐 (참고 이미지의 뒤로/앞으로 버튼 그룹처럼).
-   라벨(주소창)과 같은 스타일 — 파인 배경 + shadow-inner + 캡슐. 안의 버튼은 개별로 얹힌다. */
+/* 코드블록 컨트롤 = 복사·스크롤 두 버튼 묶음. 하나의 캡슐 트랙에 담지 않고, 각 버튼을
+   언어 라벨과 같은 "떠오른 타일"(bg + 캡슐 + drop shadow)로 얹어 emboss 로 구분한다.
+   컨테이너는 배치와 타일 사이 여백(gap)만 담당 — 선도 홈도 없다. */
 .code-block-controls {
   display: flex;
   align-items: stretch;
-  gap: 0;
-  /* 세그먼트 pill — 언어 라벨(주소창)과 같은 결: 파인 배경(bg-primary) + 진한 inner shadow + 캡슐.
-     바깥만 둥글고(overflow hidden) 안쪽 버튼 맞닿는 모서리는 직선. */
-  background: var(--bg-primary);
-  border-radius: var(--radius-capsule);
-  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.06), 0 2px 4px oklch(0% 0 0 / 0.06);
-  overflow: hidden;
-  transition: box-shadow 0.15s ease;
-}
-/* hover 시 pill 이 살짝 떠오르게 — 드롭 섀도 짙게 */
-.code-block-controls:hover {
-  box-shadow: 0 1px 3px oklch(0% 0 0 / 0.13), 0 3px 8px oklch(0% 0 0 / 0.13);
-}
-/* 세그먼트 버튼 사이 구분선 — (복사 | 스크롤) */
-.code-block-controls > * + * {
-  box-shadow: inset 1px 0 0 var(--border-light-color);
+  gap: var(--spacing-3xs); /* 타일 사이 여백 — 이 틈 + 각자의 그림자로 구분 */
 }
 /* 현재 언어 라벨 (비상호작용 태그) — 바 좌측 */
 /* 언어 라벨 — 터미널 헤더의 제목처럼 조용한 텍스트. 캡슐 배지(bg-inverse)는 헤더 안에서
@@ -593,15 +579,16 @@ pre code .token.italic {
   height: var(--_bar-ctl-h);
   padding: 0 var(--_bar-ctl-px);
   border: none;
-  border-radius: 0;              /* 세그먼트 — 그룹 캡슐이 바깥 라운드를 만든다 */
-  background: transparent;
+  border-radius: var(--radius-capsule);  /* 개별 타일 — 각자 캡슐 */
+  background: var(--bg-primary);
+  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.06), 0 2px 4px oklch(0% 0 0 / 0.06); /* 살짝 떠오름 */
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: var(--_bar-ctl-fs);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 .code-copy-icon { flex-shrink: 0; }
 /* copy/copied 두 라벨을 grid 로 겹쳐 넓은 쪽이 폭을 잡는다 → 상태 전환에도 너비 불변 */
@@ -617,6 +604,7 @@ pre code .token.italic {
 
 .code-block-wrap .code-copy-btn:hover {
   background: var(--bg-tertiary-alt);
+  box-shadow: 0 1px 3px oklch(0% 0 0 / 0.13), 0 3px 8px oklch(0% 0 0 / 0.13);
   color: var(--text-primary);
 }
 
@@ -636,8 +624,9 @@ pre code .token.italic {
   height: var(--_bar-ctl-h);
   padding: 0 var(--_bar-ctl-px);
   border: none;
-  border-radius: 0;              /* 복사 버튼과 동일 — 세그먼트 */
-  background: transparent;
+  border-radius: var(--radius-capsule);  /* 복사 버튼과 동일 — 개별 타일 */
+  background: var(--bg-primary);
+  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.06), 0 2px 4px oklch(0% 0 0 / 0.06);
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: var(--_bar-ctl-fs);
@@ -645,10 +634,11 @@ pre code .token.italic {
   white-space: nowrap;
   overflow: hidden;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 .code-block-wrap .code-wrap-toggle:hover {
   background: var(--bg-tertiary-alt);
+  box-shadow: 0 1px 3px oklch(0% 0 0 / 0.13), 0 3px 8px oklch(0% 0 0 / 0.13);
   color: var(--text-primary);
 }
 

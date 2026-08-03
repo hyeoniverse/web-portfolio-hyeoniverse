@@ -15,7 +15,7 @@ import FontPicker from "@/components/ui/FontPicker";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
 import { useRecentColors } from "../useRecentColors";
-import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText, ColumnLayoutIcon, FootnoteIcon } from "@/components/icons";
+import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText, ColumnLayoutIcon, FootnoteIcon, Highlighter, Smile } from "@/components/icons";
 import { genPollId } from "../PollElements";
 import { AlignIcon } from "../icons";
 import {
@@ -35,7 +35,7 @@ import {
   resolvedFontSize,
   resolvedLineHeight,
 } from "../hooks";
-import { _imageUploadFn, _uploadErrorFn, _postLinkTrigger } from "../utils";
+import { _imageUploadFn, _uploadErrorFn, _postLinkTrigger, _emojiPickerTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
 
 interface MainToolbarProps {
@@ -241,9 +241,12 @@ export default React.memo(function MainToolbar({
       </TBtn>
       <div className={styles.divider} />
 
-      {/* Superscript / Subscript */}
+      {/* Superscript / Subscript / Highlight */}
       <TBtn active={hasMark("superscript")} onClick={() => editor.tf.toggleMark("superscript")} tooltip={t("editor.superscript")}>x²</TBtn>
       <TBtn active={hasMark("subscript")} onClick={() => editor.tf.toggleMark("subscript")} tooltip={t("editor.subscript")}>x₂</TBtn>
+      <TBtn active={hasMark("highlight")} onClick={() => editor.tf.toggleMark("highlight")} tooltip={t("editor.highlight")}>
+        <Highlighter size={14} />
+      </TBtn>
       <div className={styles.divider} />
 
       {/* Font family — 검색 가능 드롭다운 */}
@@ -505,6 +508,7 @@ export default React.memo(function MainToolbar({
       >
         Link
       </TBtn>
+      <TBtn onClick={() => _emojiPickerTrigger.current?.()} tooltip={t("editor.insertEmoji")}><Smile size={14} /></TBtn>
       <TBtn onClick={onAddImage} tooltip={t("editor.insertImage")}>Image</TBtn>
       <TBtn onClick={() => {
         // 동영상 파일 업로드 → media_embed(video url) 삽입 (SlashMenu 와 동일)

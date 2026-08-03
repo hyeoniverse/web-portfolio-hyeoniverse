@@ -5,7 +5,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-md);
   color: var(--text-primary);
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -33,9 +33,25 @@
   font-style: italic;
 }
 
+/* 취소선 — 텍스트는 본문색 그대로, 선(line-through)만 accent 로. opacity 로 통째로 흐리면
+   선도 같이 죽어 accent 가 안 사므로 opacity 대신 decoration 색만 바꾼다. */
 .commentMarkdown del,
 .commentMarkdown s {
-  opacity: 0.65;
+  text-decoration-line: line-through;
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 2px;
+}
+
+/* GitHub inline HTML 서식 — 밑줄(ins)·형광(mark). sub/sup 은 브라우저 기본, kbd 는 전역 kbd 상속.
+   mark 는 에디터(.editorContent mark)와 동일하게 radius/padding 만(배경은 기본 하이라이트). */
+.commentMarkdown ins {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.commentMarkdown mark {
+  padding: 0 2px;
+  border-radius: var(--radius-2xs);
 }
 
 .commentMarkdown a {
@@ -281,4 +297,79 @@
 /* 마지막 행 아래 규칙 제거 → 표 아래쪽도 트임 (giscus `table tr:last-child td { border-bottom: 0 }`) */
 .commentMarkdown tr:last-child td {
   border-bottom: none;
+}
+
+/* ── GitHub 알림(Alerts) — > [!NOTE/TIP/IMPORTANT/WARNING/CAUTION] ──
+   variant 마다 --_alert-color 만 바꾸고 좌측 바·제목색·옅은 배경(color-mix)을 파생. */
+.commentMarkdown .markdown-alert {
+  margin: var(--box-y-md);
+  padding: var(--box-xs-sm);
+  border-left: 3px solid var(--_alert-color);
+  border-radius: var(--radius-2xs);
+  background: color-mix(in srgb, var(--_alert-color) 10%, transparent);
+  color: var(--text-secondary);
+}
+
+.commentMarkdown .markdown-alert > :first-child {
+  margin-top: 0;
+}
+
+.commentMarkdown .markdown-alert > :last-child {
+  margin-bottom: 0;
+}
+
+.commentMarkdown .markdown-alert-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin-bottom: var(--spacing-2xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--_alert-color);
+}
+
+.commentMarkdown .markdown-alert-note {
+  --_alert-color: var(--color-info);
+}
+
+.commentMarkdown .markdown-alert-tip {
+  --_alert-color: var(--color-success);
+}
+
+.commentMarkdown .markdown-alert-important {
+  --_alert-color: var(--color-accent);
+}
+
+.commentMarkdown .markdown-alert-warning {
+  --_alert-color: var(--color-warning);
+}
+
+.commentMarkdown .markdown-alert-caution {
+  --_alert-color: var(--color-error);
+}
+
+/* ── GitHub 각주(Footnotes) — 본문 [^1] 참조 + 하단 목록 ── */
+.commentMarkdown sup a[data-footnote-ref] {
+  padding: 0 1px;
+  text-decoration: none;
+  color: var(--text-accent);
+}
+
+.commentMarkdown .footnotes {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-light);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.commentMarkdown .footnotes .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.commentMarkdown a[data-footnote-backref] {
+  text-decoration: none;
 }

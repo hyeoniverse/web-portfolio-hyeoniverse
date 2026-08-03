@@ -5,7 +5,7 @@ import { marked } from "marked";
 import markedFootnote from "marked-footnote";
 import markedAlert from "marked-alert";
 import markedKatex from "marked-katex-extension";
-import { attachCodeWrapToggle } from "./highlightCodeBlocks";
+import { attachCodeWrapToggle, applyColorSwatches, highlightInlineCode } from "./highlightCodeBlocks";
 import { highlightCode } from "@/utils/prismHighlight";
 import { useLanguage } from "@/providers/LanguageProvider";
 
@@ -116,6 +116,10 @@ export default function MarkdownRenderer({
       copy: t("common.codeCopy"),
       copied: t("common.codeCopied"),
     });
+    // 인라인 코드 색상값(`#hex`·`rgb()`·`hsl()`) 앞에 색 스와치
+    applyColorSwatches(root);
+    // 인라인 코드도 syntax highlight (명확히 코드로 추론될 때만)
+    highlightInlineCode(root);
   }, [html, t]);
 
   // 깨진 이미지 → /images/placeholder.svg 로 swap. MutationObserver 로 동적 추가 img 도 추적
