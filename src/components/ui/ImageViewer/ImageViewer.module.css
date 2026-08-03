@@ -60,15 +60,6 @@
      여기에 걸면 title 오른쪽 info(i) 팝오버가 아래로 열릴 때 잘린다. */
 }
 
-/* 닫기(X) 왼쪽 액션 묶음 (도움말 ? / 정보 i) */
-.helpInfoActions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  flex-shrink: 0;
-  margin-right: var(--spacing-2xs);
-}
-
 /* 뷰어 툴바 도움말/정보 버튼 상태 —
    rest: 진한 보더 / hover: 옅은 배경 / active(팝오버 열림, aria-expanded): 배경-텍스트 반전.
    공통 Button(subtle)의 variant 규칙을 이 문맥에서만 덮으므로 !important 로 확정한다. */
@@ -120,8 +111,8 @@
   color: var(--text-primary);
 }
 
-.zoomLevel,
-.zoomInput {
+/* zoom 값 표시 — stepper(⊖ 값 ⊕)의 가운데, 읽기 전용 */
+.zoomLevel {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-xs);
   color: var(--text-primary);
@@ -131,25 +122,6 @@
   padding: var(--box-y-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
-  background: transparent;
-  outline: none;
-}
-
-.zoomLevel {
-}
-
-.zoomLevel:hover {
-  background: var(--bg-tertiary-alt);
-  color: var(--text-secondary);
-}
-
-.zoomInput {
-  border-color: var(--border-default-color);
-  background: var(--bg-tertiary);
-}
-
-.zoomInput:focus {
-  border-color: var(--border-strong-color);
 }
 
 .toolbarDivider {

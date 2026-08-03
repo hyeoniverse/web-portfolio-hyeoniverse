@@ -55,8 +55,6 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const [controlsVisible, setControlsVisible] = useState(true);
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [editingZoom, setEditingZoom] = useState(false);
-  const [zoomInput, setZoomInput] = useState("");
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [autoPlay, setAutoPlay] = useState(false);
   const [autoInterval, setAutoInterval] = useState<(typeof AUTOPLAY_INTERVALS)[number]>(4000);
@@ -88,7 +86,6 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   const pointerDownPos = useRef<Point | null>(null);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const thumbListRef = useRef<HTMLDivElement>(null);
-  const zoomInputRef = useRef<HTMLInputElement>(null);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoSettingsRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
@@ -296,22 +293,6 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
     setPanOffset({ x: 0, y: 0 });
   }, []);
 
-  // Zoom level direct input
-  const startZoomEdit = useCallback(() => {
-    setZoomInput(String(Math.round(zoom * 100)));
-    setEditingZoom(true);
-    requestAnimationFrame(() => zoomInputRef.current?.select());
-  }, [zoom]);
-
-  const commitZoomEdit = useCallback(() => {
-    setEditingZoom(false);
-    const val = parseInt(zoomInput, 10);
-    if (isNaN(val)) return;
-    const clamped = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, val / 100));
-    setZoom(clamped);
-    if (clamped === 1) setPanOffset({ x: 0, y: 0 });
-  }, [zoomInput]);
-
   // Mouse wheel zoom
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.stopPropagation();
@@ -468,7 +449,6 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
       setIsDragging(false);
       setThumbMode(images.length > 1 ? "strip" : "hidden");
       setShowShortcuts(false);
-      setEditingZoom(false);
       setAutoPlay(false);
       setShowAutoSettings(false);
       setShowMoreMenu(false);
@@ -544,8 +524,15 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                   {fileName && <span className={styles.viewerTitleFile}>{fileName}</span>}
                 </span>
               )}
-              {/* 정보(i) — 타이틀 오른쪽 (팝오버는 아래로 열림) */}
-              <span ref={infoRef} className={styles.infoWrap}>
+              {(title || fileName) && <span className={styles.toolbarDivider} />}
+              {/* 정보(i) — 타이틀 오른쪽. 팝오버는 아래로, hover·click 둘 다로 열림.
+                 (팝오버가 이 span 안에 있어 버튼→팝오버로 이동해도 mouseLeave 안 남) */}
+              <span
+                ref={infoRef}
+                className={styles.infoWrap}
+                onMouseEnter={() => setShowInfo(true)}
+                onMouseLeave={() => setShowInfo(false)}
+              >
                 <Tooltip content="Image info" placement="bottom">
                   <HelpButton
                     size="2xs"
@@ -597,46 +584,67 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
               </span>
             </motion.div>
             <div className={styles.toolbarRight}>
-              {/* ── Zoom controls ── */}
+              {/* ── Shortcuts(?) + Zoom controls ── */}
               <motion.span
                 className={styles.toolbarCollapsible}
                 initial={{ opacity: 0, y: -10 }}
                 animate={closing ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
                 transition={closing ? { duration: 0.10, delay: 0.34 } : { duration: 0.2, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
               >
-                <ActionBtn onClick={zoomOut} label="Zoom out  −"><ZoomOutIcon /></ActionBtn>
-                {editingZoom ? (
-                  <input
-                    ref={zoomInputRef}
-                    className={styles.zoomInput}
-                    type="text"
-                    inputMode="numeric"
-                    value={zoomInput}
-                    onChange={(e) => setZoomInput(e.target.value.replace(/[^0-9]/g, ""))}
-                    onBlur={commitZoomEdit}
-                    onKeyDown={(e) => {
-                      e.stopPropagation();
-                      if (e.key === "Enter") commitZoomEdit();
-                      if (e.key === "Escape") setEditingZoom(false);
-                      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-                        e.preventDefault();
-                        const step = e.shiftKey ? 10 : 1;
-                        const delta = e.key === "ArrowUp" ? step : -step;
-                        setZoomInput((v) => {
-                          const next = Math.min(MAX_ZOOM * 100, Math.max(MIN_ZOOM * 100, (parseInt(v, 10) || 100) + delta));
-                          return String(next);
-                        });
-                      }
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                ) : (
-                  <Tooltip content={<>Click to edit · 0 to reset<br />↑↓ ±1% · Shift ±10%</>} placement="bottom">
-                    <button type="button" className={styles.zoomLevel} onClick={(e) => { e.stopPropagation(); startZoomEdit(); }}>
-                      {zoomPct}%
-                    </button>
+                {/* 단축키(?) — 확대/축소 왼쪽. hover·click 둘 다로 열림 */}
+                <span
+                  ref={shortcutsRef}
+                  className={styles.infoWrap}
+                  onMouseEnter={() => setShowShortcuts(true)}
+                  onMouseLeave={() => setShowShortcuts(false)}
+                >
+                  <Tooltip content="Shortcuts  ?" placement="bottom">
+                    <HelpButton
+                      size="2xs"
+                      className={styles.ctrlBtn}
+                      aria-label="Shortcuts"
+                      aria-expanded={showShortcuts}
+                      onClick={(e) => { e.stopPropagation(); setShowShortcuts((v) => !v); }}
+                    />
                   </Tooltip>
-                )}
+                  <AnimatePresence>
+                    {showShortcuts && (
+                      <motion.div
+                        className={styles.shortcutsPopover}
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.15 }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className={styles.shortcutsTitle}>Keyboard Shortcuts</div>
+                        <ul className={styles.shortcutsList}>
+                          <li className={styles.shortcutsSection}>Navigation</li>
+                          <li className={styles.shortcutsItem}><kbd><ArrowLeft size={12} /></kbd><span>Previous</span></li>
+                          <li className={styles.shortcutsItem}><kbd><ArrowRight size={12} /></kbd><span>Next</span></li>
+                          <li className={styles.shortcutsDivider} />
+                          <li className={styles.shortcutsSection}>Zoom</li>
+                          <li className={styles.shortcutsItem}><kbd><Plus size={12} /></kbd><span>Zoom in</span></li>
+                          <li className={styles.shortcutsItem}><kbd><Minus size={12} /></kbd><span>Zoom out</span></li>
+                          <li className={styles.shortcutsItem}><kbd>0</kbd><span>Reset zoom</span></li>
+                          <li className={styles.shortcutsDivider} />
+                          <li className={styles.shortcutsSection}>View</li>
+                          <li className={styles.shortcutsItem}><kbd>F</kbd><span>Fullscreen</span></li>
+                          <li className={styles.shortcutsItem}><kbd>P</kbd><span>Autoplay</span></li>
+                          <li className={styles.shortcutsItem}><kbd>T</kbd><span>Thumbnails</span></li>
+                          <li className={styles.shortcutsDivider} />
+                          <li className={styles.shortcutsItem}><kbd>?</kbd><span>Shortcuts</span></li>
+                          <li className={styles.shortcutsItem}><kbd>Esc</kbd><span>Close</span></li>
+                        </ul>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </span>
+                <span className={styles.toolbarDivider} />
+                <ActionBtn onClick={zoomOut} label="Zoom out  −"><ZoomOutIcon /></ActionBtn>
+                <Tooltip content={<>− / + or scroll to zoom · 0 to reset</>} placement="bottom">
+                  <span className={styles.zoomLevel}>{zoomPct}%</span>
+                </Tooltip>
                 <ActionBtn onClick={zoomIn} label="Zoom in  +"><ZoomInIcon /></ActionBtn>
                 <span className={styles.toolbarDivider} />
               </motion.span>
@@ -808,52 +816,6 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </span>
-                {/* 닫기(X) 왼쪽: 도움말 ? / 정보 i (공통 HelpButton) */}
-                <span className={styles.helpInfoActions}>
-                  <span ref={shortcutsRef} className={`${styles.infoWrap} ${styles.toolbarCollapsible}`}>
-                    <Tooltip content="Shortcuts  ?" placement="bottom">
-                      <HelpButton
-                        size="2xs"
-                        className={styles.ctrlBtn}
-                        aria-label="Shortcuts"
-                        aria-expanded={showShortcuts}
-                        onClick={(e) => { e.stopPropagation(); setShowShortcuts((v) => !v); }}
-                      />
-                    </Tooltip>
-                    <AnimatePresence>
-                      {showShortcuts && (
-                        <motion.div
-                          className={styles.shortcutsPopover}
-                          initial={{ opacity: 0, y: -4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -4 }}
-                          transition={{ duration: 0.15 }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className={styles.shortcutsTitle}>Keyboard Shortcuts</div>
-                          <ul className={styles.shortcutsList}>
-                            <li className={styles.shortcutsSection}>Navigation</li>
-                            <li className={styles.shortcutsItem}><kbd><ArrowLeft size={12} /></kbd><span>Previous</span></li>
-                            <li className={styles.shortcutsItem}><kbd><ArrowRight size={12} /></kbd><span>Next</span></li>
-                            <li className={styles.shortcutsDivider} />
-                            <li className={styles.shortcutsSection}>Zoom</li>
-                            <li className={styles.shortcutsItem}><kbd><Plus size={12} /></kbd><span>Zoom in</span></li>
-                            <li className={styles.shortcutsItem}><kbd><Minus size={12} /></kbd><span>Zoom out</span></li>
-                            <li className={styles.shortcutsItem}><kbd>0</kbd><span>Reset zoom</span></li>
-                            <li className={styles.shortcutsDivider} />
-                            <li className={styles.shortcutsSection}>View</li>
-                            <li className={styles.shortcutsItem}><kbd>F</kbd><span>Fullscreen</span></li>
-                            <li className={styles.shortcutsItem}><kbd>P</kbd><span>Autoplay</span></li>
-                            <li className={styles.shortcutsItem}><kbd>T</kbd><span>Thumbnails</span></li>
-                            <li className={styles.shortcutsDivider} />
-                            <li className={styles.shortcutsItem}><kbd>?</kbd><span>Shortcuts</span></li>
-                            <li className={styles.shortcutsItem}><kbd>Esc</kbd><span>Close</span></li>
-                          </ul>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </span>
                 </span>
                 <Tooltip content="Close  Esc" placement="bottom">
                   <CloseButton className={`${styles.actionBtn} ${styles.closeBtnAction}`} onClick={(e) => { e.stopPropagation(); handleClose(); }} ariaLabel="Close" />
