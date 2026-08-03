@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Logo from "@/components/common/Logo";
@@ -22,6 +22,7 @@ interface MenuItem {
 interface MobileMenuProps {
   showMenu: boolean;
   menuClipOpen: boolean;
+  clipWrapperRef: RefObject<HTMLDivElement | null>;
   menuMounted: boolean;
   pathname: string;
   isAdminPage: boolean;
@@ -35,6 +36,7 @@ interface MobileMenuProps {
 export default function MobileMenu({
   showMenu,
   menuClipOpen,
+  clipWrapperRef,
   menuMounted,
   pathname,
   isAdminPage,
@@ -61,6 +63,7 @@ export default function MobileMenu({
 
   return createPortal(
     <div
+      ref={clipWrapperRef}
       className={`${styles.menuClipWrapper} ${menuClipOpen ? styles.menuClipOpen : ""}`}
     >
       <div

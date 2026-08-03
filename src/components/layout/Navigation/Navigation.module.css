@@ -645,6 +645,9 @@
   isolation: isolate;
   clip-path: inset(0 0 100% 0);
   transition: clip-path 0.8s cubic-bezier(0.4, 0, 0.6, 1);
+  /* iOS Safari 는 합성 레이어가 없으면 clip-path 트랜지션을 스킵(즉시 점프)하는 경우가 있다.
+     will-change 로 레이어를 승격해 터치 디바이스에서도 애니가 재생되게 한다. */
+  will-change: clip-path;
   /* 드로어 배경 — backdrop 뿐 아니라 sticky 헤더/푸터도 같은 색을 깔아야
      스크롤되는 링크가 그 뒤로 비쳐 보이지 않는다. 그래서 상위로 올렸다. */
   --_menu-bg: oklch(21.71% 0.0096 97.80);
