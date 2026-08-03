@@ -544,6 +544,57 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                   {fileName && <span className={styles.viewerTitleFile}>{fileName}</span>}
                 </span>
               )}
+              {/* 정보(i) — 타이틀 오른쪽 (팝오버는 아래로 열림) */}
+              <span ref={infoRef} className={styles.infoWrap}>
+                <Tooltip content="Image info" placement="bottom">
+                  <HelpButton
+                    size="2xs"
+                    symbol="i"
+                    className={styles.ctrlBtn}
+                    aria-label="Image info"
+                    aria-expanded={showInfo}
+                    onClick={(e) => { e.stopPropagation(); setShowInfo((v) => !v); }}
+                  />
+                </Tooltip>
+                <AnimatePresence>
+                  {showInfo && (
+                    <motion.div
+                      className={styles.infoPopover}
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.15 }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className={styles.infoTitle}>Image info</div>
+                      <dl className={styles.infoList}>
+                        <div className={styles.infoRow}>
+                          <dt className={styles.infoKey}>File</dt>
+                          <dd className={styles.infoVal}>{fileName || "—"}</dd>
+                        </div>
+                        <div className={styles.infoRow}>
+                          <dt className={styles.infoKey}>Type</dt>
+                          <dd className={styles.infoVal}>{fileExt}</dd>
+                        </div>
+                        <div className={styles.infoRow}>
+                          <dt className={styles.infoKey}>Size</dt>
+                          <dd className={styles.infoVal}>{!loading && naturalSize ? `${naturalSize.w} × ${naturalSize.h} px` : "…"}</dd>
+                        </div>
+                        {hasMultiple && (
+                          <div className={styles.infoRow}>
+                            <dt className={styles.infoKey}>Position</dt>
+                            <dd className={styles.infoVal}>{current + 1} / {images.length}</dd>
+                          </div>
+                        )}
+                        <div className={styles.infoRow}>
+                          <dt className={styles.infoKey}>Zoom</dt>
+                          <dd className={styles.infoVal}>{zoomPct}%</dd>
+                        </div>
+                      </dl>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </span>
             </motion.div>
             <div className={styles.toolbarRight}>
               {/* ── Zoom controls ── */}
@@ -799,56 +850,6 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                             <li className={styles.shortcutsItem}><kbd>?</kbd><span>Shortcuts</span></li>
                             <li className={styles.shortcutsItem}><kbd>Esc</kbd><span>Close</span></li>
                           </ul>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </span>
-                  <span ref={infoRef} className={styles.infoWrap}>
-                    <Tooltip content="Image info" placement="bottom">
-                      <HelpButton
-                        size="2xs"
-                        symbol="i"
-                        className={styles.ctrlBtn}
-                        aria-label="Image info"
-                        aria-expanded={showInfo}
-                        onClick={(e) => { e.stopPropagation(); setShowInfo((v) => !v); }}
-                      />
-                    </Tooltip>
-                    <AnimatePresence>
-                      {showInfo && (
-                        <motion.div
-                          className={styles.infoPopover}
-                          initial={{ opacity: 0, y: -4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -4 }}
-                          transition={{ duration: 0.15 }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className={styles.infoTitle}>Image info</div>
-                          <dl className={styles.infoList}>
-                            <div className={styles.infoRow}>
-                              <dt className={styles.infoKey}>File</dt>
-                              <dd className={styles.infoVal}>{fileName || "—"}</dd>
-                            </div>
-                            <div className={styles.infoRow}>
-                              <dt className={styles.infoKey}>Type</dt>
-                              <dd className={styles.infoVal}>{fileExt}</dd>
-                            </div>
-                            <div className={styles.infoRow}>
-                              <dt className={styles.infoKey}>Size</dt>
-                              <dd className={styles.infoVal}>{!loading && naturalSize ? `${naturalSize.w} × ${naturalSize.h} px` : "…"}</dd>
-                            </div>
-                            {hasMultiple && (
-                              <div className={styles.infoRow}>
-                                <dt className={styles.infoKey}>Position</dt>
-                                <dd className={styles.infoVal}>{current + 1} / {images.length}</dd>
-                              </div>
-                            )}
-                            <div className={styles.infoRow}>
-                              <dt className={styles.infoKey}>Zoom</dt>
-                              <dd className={styles.infoVal}>{zoomPct}%</dd>
-                            </div>
-                          </dl>
                         </motion.div>
                       )}
                     </AnimatePresence>
