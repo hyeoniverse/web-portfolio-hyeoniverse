@@ -4100,35 +4100,19 @@
   display: none;
 }
 
-.editorContent code {
-  font-family: var(--font-mono);
-  font-size: 0.85em;
-  padding: var(--box-3xs-xs);
-  color: var(--text-accent);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
-  box-shadow: var(--shadow-xs);
-  line-height: inherit;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
+/* 인라인 코드 전용 스타일 없음 — 전역 `code`(globals/_base.css)를 그대로 쓴다.
+   리더뷰(.prose)·댓글(.commentMarkdown)도 같은 전역 규칙을 받아 세 군데가 자동 통일된다.
+   여기서 override 하면 특정도가 높아 셋이 갈라진다 — 조정은 전역 규칙에서. */
+
 /* 코드블록 프레임/신택스 팔레트는 globals/_hljs.css 의 단일 소스가 담당한다.
    (.slate-code_block / .code-block-wrap pre 를 같은 규칙이 받는다 — 에디터·리더뷰·댓글 공통)
    여기에 다시 쓰면 특정도가 높아 전역을 덮어써서 셋이 또 갈라진다. */
 .editorContent pre code {
+  /* 블록 코드는 flex 로 pre 를 채우고 자체 스크롤 — inline pill 리셋(padding·bg·shadow 등)은
+     전역 pre code 가 담당하므로 여기선 레이아웃 속성만 둔다. */
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
-  padding: 0;
-  background: transparent;
-  border: none;
-  color: inherit;
-  border-radius: 0;
-  /* 인라인 코드(.editorContent code)의 box-shadow + box-decoration-break:clone 이 블록 코드로 새서
-     wrapper 전체(또는 줄마다) 그림자가 생기는 것 방지 */
-  box-shadow: none;
-  -webkit-box-decoration-break: slice;
-  box-decoration-break: slice;
 }
 .editorContent img {
   max-width: 100%;
@@ -4171,6 +4155,13 @@
 
 .editorContent li > input[type="checkbox"] {
   margin-right: var(--spacing-2xs);
+}
+/* 체크리스트(todo) — 체크박스가 마커 역할이므로 리스트 번호를 없앤다.
+   ListPlugin 이 todo 항목을 ol 로 감싸는데(list-style-type:todo 는 존재하지 않는 counter-style
+   이라 decimal 로 폴백돼 li 에 숫자가 찍힘), 이 인라인 값을 이기려면 !important 필요. */
+.editorContent ol[style*="list-style-type: todo"],
+.editorContent ul[style*="list-style-type: todo"] {
+  list-style-type: none !important;
 }
 /* Plate indent list (div with listStyleType) */
 .editorContent :global([data-slate-node="element"][style*="list-style-type"]) {
