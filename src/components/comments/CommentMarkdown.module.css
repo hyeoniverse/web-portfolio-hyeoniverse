@@ -133,21 +133,38 @@
   list-style: none;
 }
 
+/* 커스텀 accent 체크박스 — native(appearance:auto)+disabled 는 accent-color 가 "체크된 것"만
+   칠하고 그마저 흐려서, unchecked/native 박스가 회색으로 보였다. appearance:none 으로 직접 그려
+   테두리·채움을 항상 accent 로 (앱 Checkbox 컴포넌트 미러). task-list 는 disabled 라도 색 유지. */
 .commentMarkdown li input[type="checkbox"] {
-  /* _base.css 전역 reset(`input { border: none; background: none }`)이 native 체크박스를 지운다.
-     appearance: auto 만으론 부족 — 배경/보더가 죽은 채로 그려져 빈 자리처럼 보인다.
-     revert = UA 기본 스타일로 되돌림 → native 체크박스가 그대로 복원된다.
-     (background/border 는 shorthand 라 stylelint declaration-strict-value 대상이 아니다) */
-  appearance: auto;
-  background: revert;
-  border: revert;
+  appearance: none;
   width: 1em;
   height: 1em;
+  flex-shrink: 0;
   margin-right: var(--spacing-2xs);
-  vertical-align: middle;
-  accent-color: var(--bg-accent-solid);
-  opacity: 1;
+  vertical-align: -0.1em;
+  border: 1.5px solid var(--text-accent);
+  border-radius: var(--radius-xs);
+  background: transparent;
   cursor: default;
+  position: relative;
+}
+
+.commentMarkdown li input[type="checkbox"]:checked {
+  background: var(--bg-accent-solid);
+}
+
+/* 체크마크 — accent 채움 위 밝은 색 (rotated border 트릭) */
+.commentMarkdown li input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 0.3em;
+  top: 0.12em;
+  width: 0.2em;
+  height: 0.42em;
+  border: solid var(--bg-primary);
+  border-width: 0 0.13em 0.13em 0;
+  transform: rotate(45deg);
 }
 
 /* loose list 는 항목이 <p> 로 감싸진다 — 그 문단 여백까지 그대로 두면 체크박스 줄이 뚝뚝 떨어진다 */
