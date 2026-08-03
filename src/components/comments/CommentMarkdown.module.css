@@ -124,10 +124,10 @@
    그렇다고 자손 조합자(`:has(input)`)로 퉁치면 반대로 과하게 잡혀서,
    일반 불릿 목록 안에 체크박스 하위목록이 있을 때 그 "부모" 목록의 불릿까지 사라진다.
    → 직계 경로 두 개만 명시. ── */
-/* list-style:none 이라 불릿 자리를 위한 좌측 padding 이 불필요 — 체크박스가 곧 마커라
-   본문과 거의 flush 로(기본 task-list 처럼). */
+/* 일반 리스트와 같은 padding-left(xl) → 텍스트 시작점이 불릿 리스트와 정렬된다.
+   체크박스는 아래에서 음수 margin 으로 그 indent(불릿 자리) 안으로 당겨 마커 역할. */
 .commentMarkdown ul:has(> li > input[type="checkbox"], > li > p > input[type="checkbox"]) {
-  padding-left: 0;
+  padding-left: var(--spacing-xl);
   list-style: none;
 }
 
@@ -143,6 +143,8 @@
   width: 1em;
   height: 1em;
   flex-shrink: 0;
+  /* indent(불릿 자리) 안으로 당겨, 뒤따르는 텍스트가 리스트 텍스트와 같은 x 에서 시작하게 */
+  margin-left: calc(-1em - var(--spacing-2xs));
   margin-right: var(--spacing-2xs);
   vertical-align: -0.1em;
   border: 1.5px solid var(--text-accent);
@@ -216,7 +218,8 @@
 /* ── blockquote — accent 바 + 들여쓰기 ── */
 .commentMarkdown blockquote {
   margin: var(--box-y-md);
-  margin-left: var(--spacing-sm);
+  /* 텍스트 시작점을 리스트(padding-left xl)와 정렬 — bar+padding(md) 만큼 빼서 들여쓴다 */
+  margin-left: calc(var(--spacing-xl) - var(--spacing-md));
   padding-left: var(--spacing-md);
   border-left: 2px solid var(--color-accent);
   color: var(--text-secondary);
