@@ -106,7 +106,7 @@
 }
 
 .commentMarkdown li::marker {
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 /* 중첩 목록 — 살짝 촘촘하게 (들여쓰기는 부모 padding-left 가 담당) */
@@ -172,6 +172,26 @@
 
    폭/폰트를 댓글에 맞춰 줄이고 싶어도 여기서 override 하지 말 것 — 그 순간 공유가 깨진다.
    조정이 필요하면 전역 규칙을 고쳐 세 군데(에디터·리더뷰·댓글)가 같이 움직이게 한다. */
+
+/* fallback 프레임 — attachCodeWrapToggle 이 아직 감싸기 전(또는 못 감쌌을 때)의 "맨 <pre>" 도
+   최소한의 프레임을 갖게 한다. 감싸진 뒤엔 pre 가 .code-block-wrap 안이라 직계(>)가 아니게 되어
+   이 규칙은 매치 안 됨 → 전역 프레임(바+복사 버튼)이 그대로 담당한다(공유 안 깨짐). */
+.commentMarkdown > pre {
+  margin: var(--box-y-md);
+  padding: var(--box-md);
+  background: var(--bg-tertiary);
+  border: var(--border-light);
+  border-radius: var(--radius-2xl);
+  overflow-x: auto;
+}
+
+/* code block 안의 <code> 는 inline code pill(배경·라운드·패딩)을 벗는다 */
+.commentMarkdown pre code {
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  font-size: 0.9em;
+}
 
 /* ── blockquote ── */
 .commentMarkdown blockquote {
