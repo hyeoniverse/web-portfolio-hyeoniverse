@@ -691,22 +691,12 @@ export default function AdminDashboard() {
       {/* ━━━━━━━━━━ 그룹: 신고 ━━━━━━━━━━ */}
       {/* ── 댓글 신고 내역 — pending 미리보기(표시) + 관리 페이지 링크(진입점) ── */}
       <Section>
-        <div className={styles.secHeaderRow}>
-          <SectionHeader>
-            <T k="admin.dashboard.reports" />
-            {reportPendingCount > 0 && (
-              <span className={styles.headerBadge}>{reportPendingCount}</span>
-            )}
-          </SectionHeader>
-          <Button
-            href="/admin/reports"
-            variant="ghost"
-            size="2xs"
-            icon={<Flag size={12} strokeWidth={1.6} />}
-          >
-            <T k="admin.dashboard.viewAllReports" />
-          </Button>
-        </div>
+        <SectionHeader href="/admin/reports">
+          <T k="admin.dashboard.reports" />
+          {reportPendingCount > 0 && (
+            <span className={styles.headerBadge}>{reportPendingCount}</span>
+          )}
+        </SectionHeader>
         <Panel className={styles.panelCell}>
           {reports.length === 0 ? (
             <p className={styles.muted}>
@@ -757,7 +747,7 @@ export default function AdminDashboard() {
         </SectionHeader>
         <Panel variant="grid" className={styles.twoCol}>
           <Panel className={styles.panelCell}>
-            <PanelTitle>
+            <PanelTitle href="/admin/posts">
               <T k="admin.dashboard.popularPosts" />
             </PanelTitle>
             {data.stats.popularPosts.length === 0 ? (
@@ -830,7 +820,7 @@ export default function AdminDashboard() {
           </Panel>
 
           <Panel className={styles.panelCell}>
-            <PanelTitle>
+            <PanelTitle href="/posts/tags" external>
               <T k="admin.dashboard.topTags" />
             </PanelTitle>
             {data.stats.tags.length === 0 ? (
@@ -948,17 +938,9 @@ export default function AdminDashboard() {
       {/* ── 인증된 관리자·작성자 (owner 전용 — 비owner 면 onResolved(false)로 섹션째 숨김) ── */}
       {membersVisible && (
         <Section>
-          <div className={styles.secHeaderRow}>
-            <SectionHeader>{language === "ko" ? "멤버" : "Members"}</SectionHeader>
-            <Button
-              href="/admin/settings?tab=account"
-              variant="ghost"
-              size="2xs"
-              icon={<Settings size={12} strokeWidth={1.6} />}
-            >
-              {language === "ko" ? "관리" : "Manage"}
-            </Button>
-          </div>
+          <SectionHeader href="/admin/settings?tab=account">
+            {language === "ko" ? "멤버" : "Members"}
+          </SectionHeader>
           <Panel className={styles.panelCell}>
             <MembersList limit={5} hideHeader onResolved={setMembersVisible} />
           </Panel>
