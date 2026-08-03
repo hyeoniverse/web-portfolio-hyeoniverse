@@ -154,15 +154,10 @@
   margin: 0;
 }
 
-/* ── inline code ── */
-.commentMarkdown code {
-  padding: var(--box-3xs-xs);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-tertiary);
-  font-family: var(--font-mono);
-  font-size: 0.85em;
-  color: var(--text-primary);
-}
+/* ── inline code ──
+   댓글 전용 스타일 없음 — 전역 `code`(globals/_base.css)를 그대로 쓴다.
+   에디터(.editorContent)·리더뷰(.prose)도 같은 전역 규칙을 받으므로 세 군데가 자동 통일된다.
+   여기서 override 하면 그 순간 셋이 갈라진다 — 조정은 전역 규칙에서. (코드블록과 같은 원칙) */
 
 /* ── code block ──
    댓글 전용 스타일 없음 — 에디터/리더뷰 코드블록과 **완전히 공유**한다.
