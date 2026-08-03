@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.41.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.40.1...v1.41.0) (2026-08-03)
+
+
+### Features
+
+* **editor:** 인라인코드 스페이스 확정 변환·뒤 백스페이스 해제, [] 체크박스 ([b8fc3a6](https://github.com/hyeoniverse/web-portfolio-oval/commit/b8fc3a673a128fe9ab1b932945ecc087469ee67b))
+
+
+### Bug Fixes
+
+* **editor:** placeholder 겹침·오판 수정, 열블록 핸들 노출, 인라인코드 CSS 통일 ([0986769](https://github.com/hyeoniverse/web-portfolio-oval/commit/09867690375f3979f4090b42a06891f3229560b7))
+
 ## [1.40.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.40.0...v1.40.1) (2026-08-03)
 
 
