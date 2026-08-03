@@ -2344,7 +2344,7 @@
   min-height: 400px;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
   color: var(--text-primary);
   font-synthesis: style; /* 글로벌 font-synthesis: none 우회 — italic 합성 허용 */
 }
@@ -4023,7 +4023,7 @@
   min-height: 400px;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-md);
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-normal);
   color: var(--text-primary);
   font-synthesis: style;
   flex: 1;

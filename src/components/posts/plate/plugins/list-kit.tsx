@@ -5,6 +5,7 @@ import { IndentPlugin } from "@platejs/indent/react";
 import { BulletedListRules, OrderedListRules } from "@platejs/list";
 import { createPlatePlugin } from "platejs/react";
 import { KEYS } from "platejs";
+import type { TElement, SlateEditor, Path, AnyInputRule } from "platejs";
 
 // 들여쓰기 레벨별 마커 — Google Docs / 한글 처럼 단계마다 자동 전환
 const UL_CYCLE = ["disc", "circle", "square"];
@@ -23,16 +24,15 @@ function cycleListStyle(current: string, level: number): string | null {
  */
 const ListMarkerCycleKit = createPlatePlugin({
   key: "listMarkerCycle",
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-}).overrideEditor(({ editor, tf: { normalizeNode } }: any) => {
+}).overrideEditor(({ editor, tf: { normalizeNode } }) => {
   return {
     transforms: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      normalizeNode(entry: any) {
+      normalizeNode(entry) {
         const [node, path] = entry;
-        const cur = node?.listStyleType;
+        const el = node as TElement;
+        const cur = el.listStyleType;
         if (typeof cur === "string") {
-          const level = (node.indent as number) || 1;
+          const level = (el.indent as number) || 1;
           const desired = cycleListStyle(cur, level);
           if (desired && desired !== cur) {
             editor.tf.setNodes({ listStyleType: desired }, { at: path });
@@ -48,28 +48,49 @@ const ListMarkerCycleKit = createPlatePlugin({
 // [] / [ ] / [x] → 체크리스트. 라이브러리 TaskListRules 는 라이브러리 리스트(ol/li)를 만들어
 // 프로젝트 체크박스(ParagraphElement 의 checked 렌더)를 안 거치고 li 번호만 나온다.
 // 슬래시/툴바 todo 와 동일하게 { checked, listStyleType:"todo" } 를 세팅해 실제 체크박스가 되게.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const todoMarkdownRule: any = {
+type TodoMatch = { path: Path; checked: boolean };
+const todoMarkdownRule: AnyInputRule<TodoMatch, SlateEditor> = {
   target: "insertText",
   trigger: " ",
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  resolve: ({ editor, text }: any) => {
+  resolve: ({ editor, text }: { editor: SlateEditor; text: string }): TodoMatch | undefined => {
     if (text !== " " || !editor.selection || !editor.api.isCollapsed()) return;
     const entry = editor.api.block();
     if (!entry) return;
     const path = entry[1];
-    const before = editor.api.string({ anchor: editor.api.start(path), focus: editor.selection.anchor });
+    const before = editor.api.string({ anchor: editor.api.start(path)!, focus: editor.selection.anchor });
     const m = /^\[([ xX]?)\]$/.exec(before);
     if (!m) return;
     return { path, checked: /x/i.test(m[1] ?? "") };
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply: ({ editor }: any, match: any) => {
-    editor.tf.delete({ at: { anchor: editor.api.start(match.path), focus: editor.api.end(match.path) } });
+  apply: ({ editor }: { editor: SlateEditor }, match: TodoMatch) => {
+    editor.tf.delete({ at: { anchor: editor.api.start(match.path)!, focus: editor.api.end(match.path)! } });
     editor.tf.setNodes({ checked: match.checked, listStyleType: "todo" }, { at: match.path });
     return true;
   },
 };
+
+// 빈 리스트/todo 항목에서 Enter → 새 항목을 만들지 않고 리스트·todo 속성을 해제(일반 문단으로 나감).
+// 프로젝트 todo 는 listStyleType:"todo"+checked 라 라이브러리의 리스트 Enter 처리를 안 타서,
+// 기본 insertBreak 이 속성을 물려받아 빈 todo 가 계속 복제되던 문제를 여기서 잡는다.
+const ListEmptyExitKit = createPlatePlugin({ key: "listEmptyExit" }).overrideEditor(
+  ({ editor, tf: { insertBreak } }) => ({
+    transforms: {
+      insertBreak() {
+        const entry = editor.api.block();
+        if (entry && editor.api.isCollapsed()) {
+          const [node, path] = entry;
+          const isListItem = typeof (node as TElement).listStyleType === "string" || Object.hasOwn(node, "checked");
+          const isEmpty = (editor.api.string(path) ?? "") === "";
+          if (isListItem && isEmpty) {
+            editor.tf.unsetNodes(["listStyleType", "checked", "listType", "listStart", "indent"], { at: path });
+            return;
+          }
+        }
+        insertBreak();
+      },
+    },
+  })
+);
 
 /** 리스트 + 들여쓰기 — 마크다운 입력: "- " 불릿, "1. " 번호, "[] " 체크(체크박스) */
 export const ListKit = [
@@ -110,4 +131,5 @@ export const ListKit = [
     },
   }),
   ListMarkerCycleKit,
+  ListEmptyExitKit, // 빈 리스트/todo 에서 Enter → 속성 해제(일반 문단으로 나감)
 ];

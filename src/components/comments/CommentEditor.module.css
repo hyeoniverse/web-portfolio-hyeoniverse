@@ -152,6 +152,15 @@
   line-height: 1.6;
   color: var(--text-primary);
   white-space: pre;
+  overflow-x: auto;
+  /* 전역 code 칩(inline-block + 캡슐 라운드 + 세로 margin)을 재정의한다.
+     캡슐은 코드블록·표 같은 멀티라인 문법에서 늘어져 어색해서, 좌우로 트인
+     "코드 예시 박스" 결(작은 라운드 + 옅은 배경)로 통일한다. */
+  margin: 0;
+  padding: var(--box-3xs-sm);
+  border: none;
+  border-radius: var(--radius-2xs);
+  background: var(--bg-tertiary);
 }
 
 .helpDesc {
@@ -196,4 +205,112 @@
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
   font-style: italic;
+}
+
+/* ── 게시물 링크 피커 (CommentPostLinkPicker) ── */
+.postPickerPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  width: 300px;
+  max-width: 88vw;
+  padding: var(--spacing-2xs);
+}
+
+/* 검색 행 — 좌측 돋보기 + Input + 로딩 스피너 */
+.postPickerSearch {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: 0 var(--spacing-2xs);
+  color: var(--text-tertiary);
+}
+
+.postPickerSearchIcon {
+  flex-shrink: 0;
+}
+
+.postPickerInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.postPickerSpin {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  animation: postPickerSpin 0.7s linear infinite;
+}
+
+@keyframes postPickerSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 결과 목록 — 세로 스크롤. Lenis 가 wheel 가로채지 않게 data-lenis-prevent 는 Popover 가 관리 */
+.postPickerList {
+  display: flex;
+  flex-direction: column;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* 결과 행 — 썸네일 + 제목 + 카테고리. hover 배경은 capsule (공통 규칙) */
+.postPickerRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  width: 100%;
+  padding: var(--box-3xs-xs);
+  border-radius: var(--radius-capsule);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.postPickerRow:hover,
+.postPickerRow:focus-visible {
+  background: var(--bg-tertiary);
+}
+
+/* 썸네일 — 이모지/기본 아이콘 담는 정사각 */
+.postPickerThumb {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-2xs);
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.postPickerTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 카테고리 태그 — 약한 위계 */
+.postPickerCat {
+  flex-shrink: 0;
+  padding: var(--box-3xs-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+}
+
+.postPickerEmpty {
+  padding: var(--spacing-sm);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  text-align: center;
 }

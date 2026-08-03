@@ -142,7 +142,7 @@ export default function ShortcutsModalContent() {
           <div className={`${styles.helpSection} ${styles.helpSectionWide}`}>
             <p className={styles.helpSectionTitle}>{t("editor.helpMdBlock")}</p>
             <div className={styles.helpRows}>
-              {([[t("editor.helpMdHeading"), "# ~ ###### + Space"], [t("editor.helpMdQuote"), "> + Space"], [t("editor.helpMdDivider"), "---"], [t("editor.helpBulletList"), "- + Space"], [t("editor.helpOrderedList"), "1. + Space"], [t("editor.helpMdTask"), "[] + Space"], [t("editor.helpMdCodeBlock"), "``` + Enter"]]).map(([label, key]) => (
+              {([[t("editor.helpMdHeading"), "# ~ ###### + Space"], [t("editor.helpMdQuote"), "> + Space"], [t("editor.helpMdDivider"), "---"], [t("editor.helpBulletList"), "- + Space"], [t("editor.helpOrderedList"), "1. + Space"], [t("editor.helpMdTask"), "[] + Space"], [t("editor.helpMdCodeBlock"), "``` + Enter"], [L("알림", "Alert"), "[!NOTE] · [!TIP] · [!WARNING] …"], [L("각주", "Footnote"), "[^1]"]]).map(([label, key]) => (
                 <div key={label} className={styles.helpRow}><span>{label}</span><KeyBadges combo={key} /></div>
               ))}
             </div>
@@ -150,7 +150,7 @@ export default function ShortcutsModalContent() {
           <div className={`${styles.helpSection} ${styles.helpSectionWide}`}>
             <p className={styles.helpSectionTitle}>{t("editor.helpMdInlineFormat")}</p>
             <div className={styles.helpRows}>
-              {([[t("editor.bold"), "**…**"], [t("editor.italic"), "*…*"], [t("editor.strikethrough"), "~~…~~"], [t("editor.highlight"), "==…=="], [t("editor.inlineCode"), "`…`"]]).map(([label, key]) => (
+              {([[t("editor.bold"), "**…**"], [t("editor.italic"), "*…*"], [t("editor.strikethrough"), "~~…~~"], [t("editor.highlight"), "==…=="], [t("editor.inlineCode"), "`…`"], [L("링크", "Link"), "[…](url)"], [L("이미지", "Image"), "![…](url)"], [L("이모지", "Emoji"), ":name:"]]).map(([label, key]) => (
                 <div key={label} className={styles.helpRow}><span>{label}</span><KeyBadges combo={key} /></div>
               ))}
             </div>

@@ -184,6 +184,7 @@ export {
   Star,
   StretchHorizontal,
   Strikethrough,
+  Subscript,
   Sun,
   Superscript,
   Table,
