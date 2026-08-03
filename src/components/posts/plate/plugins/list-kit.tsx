@@ -2,7 +2,7 @@
 
 import { ListPlugin } from "@platejs/list/react";
 import { IndentPlugin } from "@platejs/indent/react";
-import { BulletedListRules, OrderedListRules, TaskListRules } from "@platejs/list";
+import { BulletedListRules, OrderedListRules } from "@platejs/list";
 import { createPlatePlugin } from "platejs/react";
 import { KEYS } from "platejs";
 
@@ -45,13 +45,39 @@ const ListMarkerCycleKit = createPlatePlugin({
   };
 });
 
-/** 리스트 + 들여쓰기 — 마크다운 입력: "- " 불릿, "1. " 번호, "[] " 체크 */
+// [] / [ ] / [x] → 체크리스트. 라이브러리 TaskListRules 는 라이브러리 리스트(ol/li)를 만들어
+// 프로젝트 체크박스(ParagraphElement 의 checked 렌더)를 안 거치고 li 번호만 나온다.
+// 슬래시/툴바 todo 와 동일하게 { checked, listStyleType:"todo" } 를 세팅해 실제 체크박스가 되게.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const todoMarkdownRule: any = {
+  target: "insertText",
+  trigger: " ",
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  resolve: ({ editor, text }: any) => {
+    if (text !== " " || !editor.selection || !editor.api.isCollapsed()) return;
+    const entry = editor.api.block();
+    if (!entry) return;
+    const path = entry[1];
+    const before = editor.api.string({ anchor: editor.api.start(path), focus: editor.selection.anchor });
+    const m = /^\[([ xX]?)\]$/.exec(before);
+    if (!m) return;
+    return { path, checked: /x/i.test(m[1] ?? "") };
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  apply: ({ editor }: any, match: any) => {
+    editor.tf.delete({ at: { anchor: editor.api.start(match.path), focus: editor.api.end(match.path) } });
+    editor.tf.setNodes({ checked: match.checked, listStyleType: "todo" }, { at: match.path });
+    return true;
+  },
+};
+
+/** 리스트 + 들여쓰기 — 마크다운 입력: "- " 불릿, "1. " 번호, "[] " 체크(체크박스) */
 export const ListKit = [
   ListPlugin.configure({
     inputRules: [
       BulletedListRules.markdown(),
       OrderedListRules.markdown(),
-      TaskListRules.markdown(),
+      todoMarkdownRule,
     ],
   }),
   // Tab 들여쓰기 — 리스트뿐 아니라 문단·제목·인용도 대상.
