@@ -39,6 +39,11 @@ import {
 } from "./navigationData";
 import styles from "./Navigation.module.css";
 
+// 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
+const MotionLink = motion.create(Link);
+// 서브메뉴 열림/접힘 공통 ease
+const SUB_EASE = [0.22, 1, 0.36, 1] as const;
+
 /* notification dropdown 항목 — 5개 + 추가 5개에서 동일하게 사용되도록 helper 로 추출 */
 type NotifItemData = { id: string; type: string; title: string; message: string; metadata: Record<string, string>; read: boolean; created_at: string };
 function renderNotifItem(n: NotifItemData, language: "ko" | "en", onClick: () => void) {
@@ -360,6 +365,8 @@ export default function Navigation() {
   const navLinkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const navCenterRef = useRef<HTMLDivElement>(null);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+  // 서브메뉴(드롭다운)에서 hover 중인 항목 — 이게 있으면 ▶ 가 그 항목으로 이동하고 메인 인디케이터는 숨는다
+  const [hoveredSubKey, setHoveredSubKey] = useState<string | null>(null);
 
   // ── nav hover 드롭다운 — children 있는 항목의 하위 메뉴 (사용자 Posts / admin Settings).
   //    .nav 직속 자식으로 렌더해 difference blend 상속. subMenuKey = 현재 열린 부모 항목 key. ──
@@ -424,24 +431,35 @@ export default function Navigation() {
   // 서브메뉴가 열려 선택된 자식이 있으면 메인 인디케이터를 감추고, ▶ 가 부모 항목에서 그 자식으로 타고 내려온다.
   const subMenuHandoff = subMenuKey != null && subMenuChildren.some((c) => isChildActive(c.href));
 
-  // ── travel 인디케이터 — ▶ 가 부모 항목 위치에서 선택된 서브 항목까지 타고 내려온다 ──
-  const activeSubItemRef = useRef<HTMLElement | null>(null);
+  // ── travel 인디케이터 — ▶ 가 부모 항목 위치에서 대상 서브 항목까지 타고 내려온다 ──
+  // 서브 항목별 wrap ref (위치 측정). active 뿐 아니라 hover 대상도 재려면 전부 필요.
+  const subItemRefs = useRef<Record<string, HTMLElement | null>>({});
   const [travelPos, setTravelPos] = useState<{ from: Point; to: Point } | null>(null);
 
-  // 부모 nav 링크 rect(출발) + 선택된 서브 항목 rect(도착)을 측정 → 그 값으로 span 을 새로 마운트해 from→to 재생.
+  // ▶ 도착 대상: hover 중인 서브 항목 우선, 없으면 현재 선택된 서브 항목.
+  const activeChildKey = subMenuKey
+    ? subMenuChildren.find((c) => isChildActive(c.href))?.key ?? null
+    : null;
+  const travelTargetKey = hoveredSubKey ?? activeChildKey;
+
+  // 부모 nav 링크 rect(출발) + 대상 서브 항목 rect(도착)을 측정 → span 을 그 값으로 애니.
   useLayoutEffect(() => {
-    if (!subMenuHandoff) { setTravelPos(null); return; }
     const parent = subMenuKey ? navLinkRefs.current[subMenuKey] : null;
-    const child = activeSubItemRef.current;
+    const child = travelTargetKey ? subItemRefs.current[travelTargetKey] : null;
     if (!parent || !child) { setTravelPos(null); return; }
     const pr = parent.getBoundingClientRect();
     const cr = child.getBoundingClientRect();
-    // ▶ 중심 좌표(viewport = .nav fixed 기준). from = 부모 항목 메인 ▶ 자리, to = 선택 서브 항목 왼쪽.
+    // ▶ 중심 좌표(viewport = .nav fixed 기준). from = 부모 항목 ▶ 자리, to = 대상 서브 항목 왼쪽.
     setTravelPos({
       from: { x: pr.left - 6, y: pr.top + pr.height / 2 },
       to: { x: cr.left - 7, y: cr.top + cr.height / 2 },
     });
-  }, [subMenuHandoff, subMenuKey]);
+  }, [subMenuKey, travelTargetKey]);
+
+  // 드롭다운이 바뀌거나 닫히면 hover 서브 상태 초기화
+  useEffect(() => {
+    setHoveredSubKey(null);
+  }, [subMenuKey]);
   // 가장 구체적인(긴 href) 항목 우선 매칭 — admin/posts 같은 하위 경로가 admin 보다 우선
   const activeNavKey =
     [...currentNavItems]
@@ -831,8 +849,9 @@ export default function Navigation() {
               );
             })}
         {(() => {
-          // 서브메뉴로 넘길 땐 메인 인디케이터를 숨긴다(opacity 0 → 선택 항목의 ▶ 가 대신).
-          const effStyle = subMenuHandoff ? { ...indicatorStyle, opacity: 0 } : indicatorStyle;
+          // 서브메뉴로 넘어갈 땐(선택 항목이 있거나 서브 항목을 hover 중) 메인 인디케이터를
+          // 숨긴다 — ▶ (travelInk)가 그 서브 항목에서 대신 표시된다.
+          const effStyle = subMenuHandoff || hoveredSubKey != null ? { ...indicatorStyle, opacity: 0 } : indicatorStyle;
           return (
             <span
               className={`${styles.navIndicator} ${effStyle.opacity === 0 ? styles.navIndicatorHidden : ""}`}
@@ -1135,55 +1154,69 @@ export default function Navigation() {
       {/* nav 하위 드롭다운 — children 있는 항목(사용자 Posts / admin Settings) hover 시.
          .nav 직속 자식 → difference blend 상속. 카드 없이 흰 텍스트가 page backdrop 과 blend. */}
       <AnimatePresence>
-        {subMenuChildren.length > 0 && (
-          <motion.div
-            key={`sub-nav-dropdown-${subMenuKey}`}
-            className={styles.subNavDropdown}
-            role="menu"
-            style={{ top: subMenuPos.top, left: subMenuPos.left }}
-            onMouseEnter={cancelSubMenuClose}
-            onMouseLeave={scheduleSubMenuClose}
-            initial="hidden"
-            animate="show"
-            exit="hidden"
-            variants={{
-              hidden: { transition: { staggerChildren: 0.04, staggerDirection: -1 } },
-              show: { transition: { staggerChildren: 0.055, delayChildren: 0.02 } },
-            }}
-          >
-            {/* 연결선 — 먼저 위→아래로 draw */}
-            <motion.span
-              className={styles.subNavDropdownLine}
-              aria-hidden="true"
-              variants={{ hidden: { scaleY: 0, opacity: 0 }, show: { scaleY: 1, opacity: 1 } }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            />
-            {subMenuChildren.map((child) => {
-              const active = isChildActive(child.href);
-              return (
-                <motion.div
-                  key={child.key}
-                  className={styles.subNavDropdownItemWrap}
-                  /* 선택 항목은 스태거(x offset) 제외 — travel ink 가 도착할 위치를 안정적으로 측정하기 위해 */
-                  variants={active ? undefined : { hidden: { opacity: 0, x: -12 }, show: { opacity: 1, x: 0 } }}
-                  initial={active ? { opacity: 0 } : undefined}
-                  animate={active ? { opacity: 1 } : undefined}
-                  transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <Link
-                    ref={active ? (el) => { activeSubItemRef.current = el; } : undefined}
-                    href={child.href}
-                    role="menuitem"
-                    className={`${styles.subNavDropdownItem} ${active ? styles.subNavDropdownItemActive : ""}`}
-                    onClick={() => setSubMenuKey(null)}
+        {subMenuChildren.length > 0 && (() => {
+          // 접힘 4단계 타이밍: 1) active bold 해제 → 2) indent 해제 + 화살표 접기 →
+          // 3) 항목을 아래→위 순차 접기 → 4) 왼쪽 줄 마지막에 접기.
+          const n = subMenuChildren.length;
+          const STAGGER = 0.05;
+          const ITEMS_BASE = 0.24; // bold·indent·화살표(1·2단계) 뒤 항목 접기(3단계) 시작
+          const itemExitDelay = (i: number) => ITEMS_BASE + (n - 1 - i) * STAGGER; // 아래(마지막)부터
+          const lineExitDelay = ITEMS_BASE + n * STAGGER + 0.03; // 줄은 항목 다 접힌 뒤
+          return (
+            <motion.div
+              key={`sub-nav-dropdown-${subMenuKey}`}
+              className={styles.subNavDropdown}
+              role="menu"
+              style={{ top: subMenuPos.top, left: subMenuPos.left }}
+              onMouseEnter={cancelSubMenuClose}
+              onMouseLeave={() => { scheduleSubMenuClose(); setHoveredSubKey(null); }}
+            >
+              {/* 왼쪽 연결선 — 열릴 때 위→아래 draw, 접힐 때 맨 마지막(4단계)에 위로 접힘 */}
+              <motion.span
+                className={styles.subNavDropdownLine}
+                aria-hidden="true"
+                initial={{ scaleY: 0, opacity: 0 }}
+                animate={{ scaleY: 1, opacity: 1, transition: { duration: 0.32, ease: SUB_EASE } }}
+                exit={{ scaleY: 0, opacity: 0, transition: { duration: 0.24, delay: lineExitDelay, ease: SUB_EASE } }}
+              />
+              {subMenuChildren.map((child, index) => {
+                const active = isChildActive(child.href);
+                return (
+                  <motion.div
+                    key={child.key}
+                    ref={(el) => { subItemRefs.current[child.key] = el; }}
+                    className={styles.subNavDropdownItemWrap}
+                    /* 열림: 위→아래 스태거. active 는 x offset 제외(travelInk 도착 위치 안정 측정). */
+                    initial={{ opacity: 0, x: active ? 0 : -12 }}
+                    animate={{ opacity: 1, x: 0, transition: { duration: 0.34, delay: 0.04 + index * 0.055, ease: SUB_EASE } }}
+                    exit={{ opacity: 0, x: -12, transition: { duration: 0.22, delay: itemExitDelay(index), ease: SUB_EASE } }}
                   >
-                    {child.label}
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        )}
+                    <MotionLink
+                      href={child.href}
+                      role="menuitem"
+                      className={`${styles.subNavDropdownItem} ${active ? styles.subNavDropdownItemActive : ""}`}
+                      onMouseEnter={() => setHoveredSubKey(child.key)}
+                      onClick={() => setSubMenuKey(null)}
+                      /* bold/indent 는 CSS(.subNavDropdownItemActive) 가 steady 상태를 담당.
+                         접힐 때만 framer 가 이어받아 1) bold 해제(즉시) → 2) indent 해제(약간 뒤) 순으로 푼다. */
+                      initial={false}
+                      exit={active ? {
+                        fontWeight: 400,
+                        marginLeft: 0,
+                        transition: {
+                          fontWeight: { duration: 0.14 },
+                          marginLeft: { duration: 0.18, delay: 0.1, ease: SUB_EASE },
+                        },
+                      } : undefined}
+                    >
+                      {child.label}
+                    </MotionLink>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          );
+        })()}
       </AnimatePresence>
 
       {/* travel 인디케이터 — 부모 항목의 ▶ 자리에서 선택된 서브 항목으로 타고 내려온다.
@@ -1195,10 +1228,11 @@ export default function Navigation() {
             key={`travel-${subMenuKey}`}
             className={styles.travelInk}
             aria-hidden
-            initial={{ x: travelPos.from.x, y: travelPos.from.y, opacity: 1 }}
-            animate={{ x: travelPos.to.x, y: travelPos.to.y, opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ x: travelPos.from.x, y: travelPos.from.y, opacity: 1, scale: 1 }}
+            animate={{ x: travelPos.to.x, y: travelPos.to.y, opacity: 1, scale: 1 }}
+            /* 접힘 2단계 — indent 해제와 함께 화살표를 접는다(shrink + fade) */
+            exit={{ opacity: 0, scale: 0.2, transition: { duration: 0.2, delay: 0.1, ease: SUB_EASE } }}
+            transition={{ duration: 0.42, ease: SUB_EASE }}
           >
             ▶︎
           </motion.span>
