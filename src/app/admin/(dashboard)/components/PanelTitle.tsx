@@ -1,5 +1,6 @@
 import { type CSSProperties, type ReactNode } from "react";
 import { cn } from "@/utils/cn";
+import TitleLink from "./TitleLink";
 import styles from "./PanelTitle.module.css";
 
 type Props = {
@@ -10,9 +11,13 @@ type Props = {
   variant?: "default" | "inset" | "framed";
   className?: string;
   style?: CSSProperties;
+  /** 지정 시 타이틀 전체가 이 경로로 이동하는 링크가 되고 끝에 chevron 이 붙는다. */
+  href?: string;
+  /** href 가 외부/공개 라우트일 때 새 탭으로 연다. */
+  external?: boolean;
 };
 
-export default function PanelTitle({ children, variant = "default", className, style }: Props) {
+export default function PanelTitle({ children, variant = "default", className, style, href, external }: Props) {
   return (
     <h2
       className={cn(
@@ -23,7 +28,13 @@ export default function PanelTitle({ children, variant = "default", className, s
       )}
       style={style}
     >
-      {children}
+      {href ? (
+        <TitleLink href={href} external={external}>
+          {children}
+        </TitleLink>
+      ) : (
+        children
+      )}
     </h2>
   );
 }
