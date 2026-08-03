@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.37.3...v1.38.0) (2026-08-03)
+
+
+### Features
+
+* **auth:** 소유자 claim-and-close 부트스트랩 + OWNER_EMAIL 미설정 방어 ([a0b8d62](https://github.com/hyeoniverse/web-portfolio-oval/commit/a0b8d62bb98631a9b4dcfc4ea8f2a6d4588b6804))
+
 ## [1.37.3](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.37.2...v1.37.3) (2026-08-03)
 
 
