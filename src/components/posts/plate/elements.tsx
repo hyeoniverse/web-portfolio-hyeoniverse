@@ -2084,13 +2084,23 @@ export function ParagraphElement(props: PlateElementProps) {
   const selected = useSelected();
   const el = props.element as Record<string, unknown>;
   const hasTodo = Object.hasOwn(el, "checked");
+  // 리스트 항목(불릿·번호 등)은 placeholder 안 띄운다 — 마커(list-style-position:inside, 콘텐츠
+  // 좌측 left:0)와 placeholder(absolute left:0)가 같은 자리라 글자 위에 마커가 겹쳐 그려진다.
+  // 마커 자체가 "여기 입력" 힌트라 placeholder 불필요(일반 에디터 관례). todo 는 hasTodo 로 이미 제외.
+  const isListItem = typeof el.listStyleType === "string";
   // 포커스된 빈 문단, 또는 문서가 빈 단일 블록일 때(=빈 에디터) placeholder 표시.
   // 단 여러 블록을 선택(드래그)한 상태에선 숨김.
   const sel0 = editor.selection;
   const multiBlock = !!sel0 && sel0.anchor.path[0] !== sel0.focus.path[0];
   // 확장(range) 선택 — 표 여러 셀 선택 등. 이때는 커서가 아니므로 placeholder 숨김.
   const collapsed = !!sel0 && sel0.anchor.offset === sel0.focus.offset && sel0.anchor.path.join() === sel0.focus.path.join();
-  const showPlaceholder = !hasTodo && !multiBlock && isEmptyBlock(props.element) && ((selected && collapsed) || editor.children.length === 1);
+  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
+  // "빈 에디터" 판정은 **최상위 단일 블록**일 때만. 최상위가 컨테이너(column_group·toggle·callout·
+  // tabs 등) 하나뿐이면 editor.children.length===1 이 그 안의 모든 빈 중첩 문단에도 참이 되어,
+  // 포커스가 없는데도 placeholder 가 여러 곳에 동시에 떠 위치가 어긋나 보인다. elPath.length===1
+  // (=최상위 블록)로 좁혀 중첩 문단의 오탐을 막는다.
+  const isEmptyEditor = elPath?.length === 1 && editor.children.length === 1;
+  const showPlaceholder = !hasTodo && !isListItem && !multiBlock && isEmptyBlock(props.element) && ((selected && collapsed) || isEmptyEditor);
 
   // table 안에 Slate가 삽입하는 빈 paragraph → <div>가 <tbody> 안에 들어가면 안 됨
   const parentType = (() => {
@@ -2103,7 +2113,6 @@ export function ParagraphElement(props: PlateElementProps) {
     } catch { return null; }
   })();
   const isInsideTable = parentType === "table" || parentType === "tr";
-  const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
 
   if (!hasTodo) {
     if (isInsideTable) {
@@ -3047,10 +3056,11 @@ export function ColumnGroupElement(props: PlateElementProps) {
     paddingRight: 8,
     position: "relative",
     overflowX: scrollOn ? "auto" : "hidden",
-    // 좌측 40px(핸들 확보용 paddingLeft)로 스크롤된 콘텐츠가 새어 보이던 것 차단 —
-    // overflow 는 확장된 box 끝(시각 좌측 -40px)에서 잘려서 그 40px 구역에 콘텐츠가 노출됐다.
-    // 시각 좌측 경계(=paddingLeft 안쪽)에서 클립. 우측 8px(핸들 여백)은 유지(right inset 0).
-    clipPath: "inset(0 0 0 40px)",
+    // 스크롤된 콘텐츠가 좌측 paddingLeft 구역으로 새어 보이는 걸 막는 클립.
+    // 단, 좌측 40px 전부를 클립하면 첫 열 내부 블록의 드래그 핸들(gutter left:-40px)까지 잘린다.
+    // → 핸들이 보이도록 좌측 클립을 12px 로 완화. 트레이드오프: 열 가로 스크롤 시 12~40px 구역으로
+    //   콘텐츠가 약간 새어 보일 수 있다(핸들 노출 우선).
+    clipPath: "inset(0 0 0 12px)",
     "--_col-shrink": scrollOn ? 0 : 1, // px 열의 flex-shrink — OFF 면 1(줄어들어 fit)
     "--_col-bg": colBgVal,
     "--_col-divider": dividerColor,
