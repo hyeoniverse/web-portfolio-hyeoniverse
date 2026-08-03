@@ -11,8 +11,9 @@
   --z-popover: 600; /* 팝오버 (페이지 레벨 — 드롭다운 위, 오버레이 아래). 모달 안이면 layer portal 로 모달 위에 뜸 */
   --z-tooltip: 700; /* 툴팁 (팝오버 위, 오버레이 아래). 모달 안이면 layer portal 로 모달 위에 뜸 */
   --z-modal: 8000; /* 모달, 이미지 뷰어 */
-  --z-overlay: 9000; /* 전체화면 오버레이 (drawer, loading) */
+  --z-overlay: 9000; /* 전체화면 오버레이 (drawer) */
   --z-fullscreen: 9500; /* 에디터 블록 전체화면 (playground/diagram/mermaid help) */
+  --z-loading: 9800; /* 로딩 스크린 — 드로어/오버레이 위에 덮어야 함 */
   --z-top: 10000; /* 페이지 전환 */
   --z-cursor: 10100; /* 커스텀 커서 — 항상 최상단 */
 }
