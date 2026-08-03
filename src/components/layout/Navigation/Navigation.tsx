@@ -295,6 +295,8 @@ export default function Navigation() {
   const [showMenu, setShowMenu] = useState(false);
   const [menuClipOpen, setMenuClipOpen] = useState(false);
   const [menuMounted, setMenuMounted] = useState(false);
+  // 드로어 clip 래퍼 ref — 마운트 후 강제 reflow 로 "닫힘" 상태를 트랜지션 시작점으로 확정하는 데 사용
+  const clipWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMenuMounted(true), []);
   useEffect(() => setIsMenuOpen(false), [pathname]);
@@ -309,11 +311,20 @@ export default function Navigation() {
 
     if (isMenuOpen) {
       setShowMenu(true);
-      rafId = requestAnimationFrame(() => {
-        rafId = requestAnimationFrame(() => {
-          setMenuClipOpen(true);
-        });
-      });
+      // 드로어가 마운트(clip 닫힘)돼 ref 가 붙을 때까지 rAF 로 기다린 뒤, 강제 reflow 로 닫힘
+      // 상태를 트랜지션 시작점으로 확정하고 연다. 예전 더블 rAF 는 마운트 커밋 전에 open 이
+      // 세팅되면 두 렌더가 배칭돼 드로어가 처음부터 열린 채 마운트→트랜지션 스킵되는 레이스가
+      // 있었다(헤드리스에선 거의 안 걸리지만 실기기 스케줄링에선 자주 걸려 "가끔만 애니됨").
+      const openWhenReady = () => {
+        const el = clipWrapperRef.current;
+        if (!el) {
+          rafId = requestAnimationFrame(openWhenReady);
+          return;
+        }
+        void el.offsetHeight; // 강제 reflow — 닫힘 clip 을 확정
+        setMenuClipOpen(true);
+      };
+      rafId = requestAnimationFrame(openWhenReady);
     } else {
       setMenuClipOpen(false);
       unmountTimer = setTimeout(() => {
@@ -1110,6 +1121,7 @@ export default function Navigation() {
       <MobileMenu
         showMenu={showMenu}
         menuClipOpen={menuClipOpen}
+        clipWrapperRef={clipWrapperRef}
         menuMounted={menuMounted}
         pathname={pathname}
         isAdminPage={isAdminPage}
