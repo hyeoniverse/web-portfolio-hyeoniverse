@@ -106,12 +106,10 @@
 /* ── Quick Actions — 4-col edge-to-edge 행, 셀 사이만 vertical divider, 자체 위쪽 hairline ── */
 .quickActions {
   composes: panelGrid from "./components/Panel.module.css";
-  /* 6개 버튼 → 3×2. gap 1px + background 트릭으로 셀 사이·행 사이 hairline 균일 표시.
-     padding-box 로 이 bg 가 섹션 divider border 와 합성돼 진해지는 것 방지. */
+  /* 6개 버튼 → 3×2. 셀 사이(행·열) hairline 은 gridHairlines(gap trick)가 담당 —
+     바깥 테두리엔 선이 안 생긴다. 여긴 열 수와 상단 divider 만 지정. */
+  composes: gridHairlines from "./components/Panel.module.css";
   grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background-color: var(--border-light-color);
-  background-clip: padding-box;
   border-top: var(--border-light);
 }
 
@@ -152,22 +150,8 @@
   color: var(--text-accent);
 }
 
-/* Tooltip wrapper span 으로 감싸도 동작하도록 universal selector */
-.quickActions > * + * {
-  border-left: var(--border-light);
-}
-
-@media (max-width: 768px) {
-  .quickActions > * + * {
-    border-left: none;
-  }
-  .quickActions > *:nth-child(2n) {
-    border-left: var(--border-light);
-  }
-  .quickActions > *:nth-child(n + 3) {
-    border-top: var(--border-light);
-  }
-}
+/* (셀 사이 hairline 은 gridHairlines 의 gap trick 이 desktop 3-col·mobile 2-col 모두 자동 처리
+   — 열 수와 무관하게 gap 이 셀 "사이"에만 생기고 바깥 테두리엔 안 생긴다.) */
 
 .badge {
   background: var(--text-accent);
