@@ -540,17 +540,9 @@
   color: var(--text-muted);
 }
 
-.sectionProse code {
-  font-family: var(--font-mono);
-  font-size: 0.88em;
-  padding: var(--box-3xs-xs);
-  color: var(--text-accent);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-capsule);
-  box-shadow: var(--shadow-xs);
-}
-
-/* 코드블록(pre/code) 프레임·스크롤은 globals/_hljs.css 의 .code-block-wrap 규칙으로 공통화 */
+/* 인라인 코드 전용 스타일 없음 — 전역 `code`(globals/_base.css)를 그대로 쓴다.
+   게시물 본문(.prose)·에디터(.editorContent)·댓글(.commentMarkdown)과 같은 규칙으로 통일.
+   코드블록(pre/code) 프레임·스크롤도 globals/_hljs.css 의 .code-block-wrap 규칙으로 공통화. */
 
 .sectionProse blockquote {
   border-left: 4px solid var(--text-accent);
