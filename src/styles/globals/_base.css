@@ -100,7 +100,7 @@ code {
   font-family: var(--font-mono);
   font-size: 0.85em;
   line-height: 1.15;
-  padding: var(--box-2xs-lg);
+  padding: var(--box-3xs-xs);
   margin-block: 1px;
   color: var(--text-secondary);
   background: transparent;
