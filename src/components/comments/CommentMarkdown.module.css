@@ -194,9 +194,10 @@
   font-size: 0.9em;
 }
 
-/* ── blockquote — accent 바로 강조 ── */
+/* ── blockquote — accent 바 + 들여쓰기 ── */
 .commentMarkdown blockquote {
   margin: var(--box-y-md);
+  margin-left: var(--spacing-md);
   padding-left: var(--spacing-md);
   border-left: 2px solid var(--color-accent);
   color: var(--text-secondary);
