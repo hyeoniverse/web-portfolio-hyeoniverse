@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.37.2](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.37.1...v1.37.2) (2026-08-03)
+
+
+### Bug Fixes
+
+* **loading:** 로딩 스크린을 드로어보다 위로 (z-index 분리) ([59bfe90](https://github.com/hyeoniverse/web-portfolio-oval/commit/59bfe90c7b2dc5a5d3c4dade88dd02319a37d1a2))
+* **nav:** 터치에서 드로어 펼침 애니가 간헐적으로 스킵되던 레이스 제거 ([2f3e508](https://github.com/hyeoniverse/web-portfolio-oval/commit/2f3e50882eae12f498b57d4e5d3361cb33df8648))
+
 ## [1.37.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.37.0...v1.37.1) (2026-08-02)
 
 
