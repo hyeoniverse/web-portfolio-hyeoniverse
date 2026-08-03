@@ -105,8 +105,9 @@
   margin: var(--spacing-3xs) 0;
 }
 
+/* 리스트 마커는 본문색(검정) — accent 는 인용문·체크박스 등에만 (종류별 구분) */
 .commentMarkdown li::marker {
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 /* 중첩 목록 — 살짝 촘촘하게 (들여쓰기는 부모 padding-left 가 담당) */
@@ -193,11 +194,11 @@
   font-size: 0.9em;
 }
 
-/* ── blockquote ── */
+/* ── blockquote — accent 바로 강조 ── */
 .commentMarkdown blockquote {
   margin: var(--box-y-md);
   padding-left: var(--spacing-md);
-  border-left: var(--border-light-2);
+  border-left: 2px solid var(--color-accent);
   color: var(--text-secondary);
 }
 
