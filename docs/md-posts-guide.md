@@ -81,10 +81,14 @@ GET /api/posts/export?series_id=<series-id> # 시리즈 내 포스트 JSON 반�
 ```markdown
 ---
 title: Next.js 15 마이그레이션 가이드
+title_en: Migrating to Next.js 15
 slug: nextjs-15-migration
-category: Development
+category: 개발
 tags: [Next.js, React, Migration]
 excerpt: Next.js 14에서 15로 마이그레이션 정리
+icon: 🚀
+github_url: https://github.com/me/next15-demo
+pinned: true
 cover_image: https://example.com/image.jpg
 date: 2024-03-15
 ---
@@ -94,16 +98,25 @@ date: 2024-03-15
 본문 내용...
 ```
 
+> 발행하려면 **제목 · 슬러그 · 카테고리 · 본문**이 필요합니다. 초안은 제목만 있어도 생성됩니다.
+
 ### 지원 필드
 
 | 필드 | 타입 | 설명 | 기본값 |
 |------|------|------|--------|
 | `title` | string | 포스트 제목 | 파일명 |
+| `title_en` | string | 영문 제목 | 없음 |
 | `slug` | string | URL 슬러그 | 제목에서 자동 생성 |
-| `category` | string | 카테고리 (사이트에 등록된 카테고리명) | 기타 |
+| `category` | string | 카테고리 — 2단계 중 **소분류**(대분류는 자동 도출) | 기타 |
 | `tags` | string[] | 태그 목록 | 없음 |
-| `excerpt` | string | 요약/발췌문 | 없음 |
+| `excerpt` / `excerpt_en` | string | 요약/발췌문 (한/영) | 없음 |
+| `language` | `ko` \| `en` | 기본 언어 | ko |
+| `icon` | string | 페이지 아이콘 (이모지 또는 이미지 URL) | 없음 |
+| `github_url` | string | 연결할 GitHub URL | 없음 |
+| `pinned` | boolean | 상단 고정 (`true`/`false`) | false |
 | `cover_image` | string | 커버 이미지 URL | 없음 |
+| `cover_position` | number | 커버 세로 위치 % (0~100) | 50 |
+| `cover_zoom` | number | 커버 확대 배율 (1~2.5) | 1 |
 | `date` | string | 작성 날짜/시간 (ISO 8601 또는 `YYYY-MM-DD`) | 업로드 시점 |
 
 ### 날짜/태그 작성법
