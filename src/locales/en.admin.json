@@ -117,6 +117,7 @@
       },
       "searchPlaceholder": "Search title / message",
       "searchEmpty": "No matching notifications",
+      "loadMore": "Load more",
       "refresh": "Refresh",
       "tipRefresh": "Reload notifications",
       "reportsPage": "Reports page",

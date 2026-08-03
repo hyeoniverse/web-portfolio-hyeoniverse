@@ -37,11 +37,27 @@ const TYPE_KEYS: Record<string, string> = {
   system: "admin.notifications.typeSystem",
 };
 
+const PAGE_SIZE = 50;
+const ZERO_COUNTS: Record<TabKey, number> = { all: 0, comment: 0, system: 0, report: 0 };
+
+interface NotifResponse {
+  notifications?: Notification[];
+  unreadCount?: number;
+  totalCount?: number;
+  typeCounts?: Record<TabKey, number>;
+  hasMore?: boolean;
+}
+
 export default function NotificationsPage() {
   const { language, t } = useLanguage();
   const { openModal } = useModalStore();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  // 탭 카운트·전체 총계는 서버 실제 count (로드된 목록 길이가 아님). 목록은 더보기로 50개씩 누적.
+  const [typeCounts, setTypeCounts] = useState<Record<TabKey, number>>(ZERO_COUNTS);
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<TabKey>("all");
   const [search, setSearch] = useState("");
@@ -61,35 +77,52 @@ export default function NotificationsPage() {
     return result.filter((n) => matchesSearch(q, n.title ?? "", n.message ?? ""));
   }, [notifications, tab, search]);
 
-  const tabCounts = useMemo(() => {
-    const counts: Record<TabKey, number> = { all: 0, comment: 0, system: 0, report: 0 };
-    for (const n of notifications) {
-      counts.all += 1;
-      if (["comment", "reply", "like"].includes(n.type)) counts.comment += 1;
-      else if (n.type === "report") counts.report += 1;
-      else counts.system += 1;
-    }
-    return counts;
-  }, [notifications]);
-
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/notifications");
+      const res = await fetch(`/api/admin/notifications?offset=0&limit=${PAGE_SIZE}&meta=1`);
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as NotifResponse;
         setNotifications(data.notifications ?? []);
         setUnreadCount(data.unreadCount ?? 0);
+        setTotalCount(data.totalCount ?? 0);
+        setTypeCounts(data.typeCounts ?? ZERO_COUNTS);
+        setHasMore(!!data.hasMore);
       } else {
         setNotifications([]);
         setUnreadCount(0);
+        setTotalCount(0);
+        setTypeCounts(ZERO_COUNTS);
+        setHasMore(false);
       }
     } catch {
       setNotifications([]);
       setUnreadCount(0);
+      setTotalCount(0);
+      setTypeCounts(ZERO_COUNTS);
+      setHasMore(false);
     }
     setLoading(false);
   }, []);
+
+  // 더보기 — 현재 로드된 개수를 offset 으로 다음 50개를 append.
+  const loadMore = useCallback(async () => {
+    setLoadingMore(true);
+    try {
+      const res = await fetch(`/api/admin/notifications?offset=${notifications.length}&limit=${PAGE_SIZE}&meta=1`);
+      if (res.ok) {
+        const data = (await res.json()) as NotifResponse;
+        setNotifications((prev) => [...prev, ...(data.notifications ?? [])]);
+        setUnreadCount(data.unreadCount ?? 0);
+        setTotalCount(data.totalCount ?? 0);
+        setTypeCounts(data.typeCounts ?? ZERO_COUNTS);
+        setHasMore(!!data.hasMore);
+      }
+    } catch {
+      /* noop */
+    }
+    setLoadingMore(false);
+  }, [notifications.length]);
 
   useEffect(() => {
     fetchNotifications();
@@ -245,10 +278,10 @@ export default function NotificationsPage() {
       <div className={styles.tabsRow}>
         <SegmentedControl<TabKey>
           items={[
-            { value: "all", label: <>{t("admin.notifications.tab.all")} <span className={styles.tabCount}>{tabCounts.all}</span></> },
-            { value: "comment", label: <>{t("admin.notifications.tab.comment")} <span className={styles.tabCount}>{tabCounts.comment}</span></> },
-            { value: "system", label: <>{t("admin.notifications.tab.system")} <span className={styles.tabCount}>{tabCounts.system}</span></> },
-            { value: "report", label: <>{t("admin.notifications.tab.report")} <span className={styles.tabCount}>{tabCounts.report}</span></> },
+            { value: "all", label: <>{t("admin.notifications.tab.all")} <span className={styles.tabCount}>{typeCounts.all}</span></> },
+            { value: "comment", label: <>{t("admin.notifications.tab.comment")} <span className={styles.tabCount}>{typeCounts.comment}</span></> },
+            { value: "system", label: <>{t("admin.notifications.tab.system")} <span className={styles.tabCount}>{typeCounts.system}</span></> },
+            { value: "report", label: <>{t("admin.notifications.tab.report")} <span className={styles.tabCount}>{typeCounts.report}</span></> },
           ]}
           value={tab}
           onChange={setTab}
@@ -353,6 +386,15 @@ export default function NotificationsPage() {
             })}
           </AnimatePresence>
         </motion.div>
+      )}
+
+      {tab !== "report" && !loading && hasMore && (
+        <div className={styles.loadMoreRow}>
+          <Button variant="outline" size="md" onClick={loadMore} disabled={loadingMore}>
+            <T k="admin.notifications.loadMore" />
+          </Button>
+          <span className={styles.loadMoreCount}>{notifications.length} / {totalCount}</span>
+        </div>
       )}
     </div>
   );
