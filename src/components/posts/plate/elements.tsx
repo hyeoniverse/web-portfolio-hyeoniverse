@@ -2065,13 +2065,16 @@ function isEmptyBlock(element: unknown): boolean {
   return !!ch && ch.length === 1 && (ch[0]?.text ?? "") === "";
 }
 // 커서가 놓인 빈 블록에 뜨는 placeholder (contentEditable=false, 흐름 밖)
-function BlockPlaceholder({ text }: { text: string }) {
+// listIndent — 리스트 항목이면 마커 폭(~1.1em)만큼 오른쪽으로 밀어 실제 텍스트 시작점과 정렬한다
+// (안 그러면 마커가 placeholder 첫 글자 위에 겹쳐 그려진다).
+function BlockPlaceholder({ text, listIndent }: { text: string; listIndent?: boolean }) {
+  const left = listIndent ? "calc(var(--float-edge, 0px) + 1.15em)" : "var(--float-edge, 0px)";
   return (
     <span
       contentEditable={false}
       className={styles.blockPlaceholder}
       // right:0 + overflow ellipsis — 열 너비가 좁으면 잘리는 대신 말줄임표(…)
-      style={{ position: "absolute", left: "var(--float-edge, 0px)", right: 0, top: 0, pointerEvents: "none", color: "var(--text-muted)", opacity: 0.45, userSelect: "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}
+      style={{ position: "absolute", left, right: 0, top: 0, pointerEvents: "none", color: "var(--text-muted)", opacity: 0.45, userSelect: "none", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}
     >
       {text}
     </span>
@@ -2084,9 +2087,8 @@ export function ParagraphElement(props: PlateElementProps) {
   const selected = useSelected();
   const el = props.element as Record<string, unknown>;
   const hasTodo = Object.hasOwn(el, "checked");
-  // 리스트 항목(불릿·번호 등)은 placeholder 안 띄운다 — 마커(list-style-position:inside, 콘텐츠
-  // 좌측 left:0)와 placeholder(absolute left:0)가 같은 자리라 글자 위에 마커가 겹쳐 그려진다.
-  // 마커 자체가 "여기 입력" 힌트라 placeholder 불필요(일반 에디터 관례). todo 는 hasTodo 로 이미 제외.
+  // 리스트 항목(불릿·번호)이면 placeholder 를 마커 폭만큼 들여쓴다 — 마커가 콘텐츠 left:0 에
+  // 그려져서 offset 없이 두면 placeholder 첫 글자 위에 마커가 겹친다. (BlockPlaceholder listIndent)
   const isListItem = typeof el.listStyleType === "string";
   // 포커스된 빈 문단, 또는 문서가 빈 단일 블록일 때(=빈 에디터) placeholder 표시.
   // 단 여러 블록을 선택(드래그)한 상태에선 숨김.
@@ -2100,7 +2102,7 @@ export function ParagraphElement(props: PlateElementProps) {
   // 포커스가 없는데도 placeholder 가 여러 곳에 동시에 떠 위치가 어긋나 보인다. elPath.length===1
   // (=최상위 블록)로 좁혀 중첩 문단의 오탐을 막는다.
   const isEmptyEditor = elPath?.length === 1 && editor.children.length === 1;
-  const showPlaceholder = !hasTodo && !isListItem && !multiBlock && isEmptyBlock(props.element) && ((selected && collapsed) || isEmptyEditor);
+  const showPlaceholder = !hasTodo && !multiBlock && isEmptyBlock(props.element) && ((selected && collapsed) || isEmptyEditor);
 
   // table 안에 Slate가 삽입하는 빈 paragraph → <div>가 <tbody> 안에 들어가면 안 됨
   const parentType = (() => {
@@ -2121,7 +2123,7 @@ export function ParagraphElement(props: PlateElementProps) {
     return (
       <BlockDropZone path={elPath}>
         <PlateElement {...props} as="div" style={{ marginBottom: "var(--spacing-xs)", ...props.style, position: "relative" }}>
-          {showPlaceholder && <BlockPlaceholder text={t("editor.phParagraph")} />}
+          {showPlaceholder && <BlockPlaceholder text={t("editor.phParagraph")} listIndent={isListItem} />}
           {props.children}
         </PlateElement>
       </BlockDropZone>
