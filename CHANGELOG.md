@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.40.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.39.0...v1.40.0) (2026-08-03)
+
+
+### Features
+
+* **image-viewer:** 툴바 정리 — info 구분선·shortcut 위치·zoom stepper·hover popover ([49eae68](https://github.com/hyeoniverse/web-portfolio-oval/commit/49eae688200a96fdf83d1d82cde9f2fec96fa5ea))
+* **md-upload:** posts/works 추가 필드를 MD frontmatter 형식에 반영 ([ca95b33](https://github.com/hyeoniverse/web-portfolio-oval/commit/ca95b338a040bc6fe4dff3c954db130f648032ab))
+
+
+### Bug Fixes
+
+* **comments:** 코드블록 프레임 fallback + 리스트 마커 색 개선 ([2965447](https://github.com/hyeoniverse/web-portfolio-oval/commit/2965447f6182238e63b00b630f0eb2b8124e904b))
+
 ## [1.39.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.38.1...v1.39.0) (2026-08-03)
 
 
