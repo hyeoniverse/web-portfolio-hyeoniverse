@@ -56,7 +56,8 @@
 
 .toolbarLeft {
   min-width: 0;
-  overflow: hidden;
+  /* overflow 는 걸지 않는다 — 타이틀 truncation 은 .viewerTitle 이 자체 처리하고,
+     여기에 걸면 title 오른쪽 info(i) 팝오버가 아래로 열릴 때 잘린다. */
 }
 
 /* 닫기(X) 왼쪽 액션 묶음 (도움말 ? / 정보 i) */
@@ -452,7 +453,7 @@
 .infoPopover {
   position: absolute;
   top: 100%;
-  right: 0;
+  left: 0;
   margin-top: var(--spacing-xs);
   padding: var(--box-lg);
   border-radius: var(--radius-2xl);
