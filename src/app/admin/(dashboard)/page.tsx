@@ -305,6 +305,36 @@ export default function AdminDashboard() {
           <Tooltip
             content={
               language === "ko"
+                ? "댓글 신고 관리 페이지로 이동"
+                : "Open comment reports"
+            }
+            placement="top"
+            delay={250}
+            wrapperStyle={{ display: "block", width: "100%" }}
+          >
+            <Button
+              href="/admin/reports"
+              variant="ghost"
+              size="md"
+              fullWidth
+              icon={<Flag size={18} strokeWidth={1.6} />}
+              className={styles.actionBtn}
+            >
+              <T k="admin.dashboard.viewReports" />
+              {reportPendingCount > 0 && (
+                <span
+                  className={styles.badgeWrap}
+                  aria-label={`${reportPendingCount} pending`}
+                >
+                  <span className={styles.badgePulse} aria-hidden />
+                  <span className={styles.badge}>{reportPendingCount}</span>
+                </span>
+              )}
+            </Button>
+          </Tooltip>
+          <Tooltip
+            content={
+              language === "ko"
                 ? "댓글/시스템 알림 보기"
                 : "View comments and system notifications"
             }
@@ -330,36 +360,6 @@ export default function AdminDashboard() {
                   <span className={styles.badge}>
                     {data.notifications.unreadCount}
                   </span>
-                </span>
-              )}
-            </Button>
-          </Tooltip>
-          <Tooltip
-            content={
-              language === "ko"
-                ? "댓글 신고 관리 페이지로 이동"
-                : "Open comment reports"
-            }
-            placement="top"
-            delay={250}
-            wrapperStyle={{ display: "block", width: "100%" }}
-          >
-            <Button
-              href="/admin/reports"
-              variant="ghost"
-              size="md"
-              fullWidth
-              icon={<Flag size={18} strokeWidth={1.6} />}
-              className={styles.actionBtn}
-            >
-              <T k="admin.dashboard.viewReports" />
-              {reportPendingCount > 0 && (
-                <span
-                  className={styles.badgeWrap}
-                  aria-label={`${reportPendingCount} pending`}
-                >
-                  <span className={styles.badgePulse} aria-hidden />
-                  <span className={styles.badge}>{reportPendingCount}</span>
                 </span>
               )}
             </Button>
