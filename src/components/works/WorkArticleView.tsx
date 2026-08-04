@@ -410,9 +410,9 @@ export function WorkArticleBody({ project, viewLang }: WorkArticleViewProps) {
         >
           <div ref={proseRef}>
             {isRichtext ? (
-              <div ref={richtextRef} className={styles.sectionProse} dangerouslySetInnerHTML={{ __html: content }} />
+              <div ref={richtextRef} className={`${styles.sectionProse} prose-content`} dangerouslySetInnerHTML={{ __html: content }} />
             ) : (
-              <MarkdownRenderer content={content} className={styles.sectionProse} />
+              <MarkdownRenderer content={content} className={`${styles.sectionProse} prose-content`} />
             )}
           </div>
           {isRichtext && <DateMentionPeek containerRef={richtextRef} language={language} />}
