@@ -102,12 +102,12 @@ h6 {
   line-height: var(--heading-lh);
   padding: 0;
 }
-h1 { font-size: var(--font-size-2xl); margin: var(--spacing-2xl) 0 var(--spacing-sm); }
-h2 { font-size: var(--font-size-xl); margin: var(--spacing-xl) 0 var(--spacing-sm); }
-h3 { font-size: var(--font-size-lg); margin: var(--spacing-lg) 0 var(--spacing-xs); }
-h4 { font-size: var(--font-size-md); margin: var(--spacing-md) 0 var(--spacing-xs); }
-h5 { font-size: var(--font-size-sm); margin: var(--spacing-sm) 0 var(--spacing-2xs); }
-h6 { font-size: var(--font-size-xs); margin: var(--spacing-sm) 0 var(--spacing-2xs); }
+h1 { font-size: var(--font-size-2xl); margin: var(--spacing-lg) 0 var(--spacing-xs); }
+h2 { font-size: var(--font-size-xl); margin: var(--spacing-md) 0 var(--spacing-xs); }
+h3 { font-size: var(--font-size-lg); margin: var(--spacing-sm) 0 var(--spacing-2xs); }
+h4 { font-size: var(--font-size-md); margin: var(--spacing-sm) 0 var(--spacing-2xs); }
+h5 { font-size: var(--font-size-sm); margin: var(--spacing-xs) 0 var(--spacing-2xs); }
+h6 { font-size: var(--font-size-xs); margin: var(--spacing-xs) 0 var(--spacing-2xs); }
 
 /* 인라인 코드 — 사이트 공통 칩 룩 (포스트 본문 기준으로 통일). 문맥별로 흩어져 있던 스타일의 단일 소스.
    코드 블록(pre code)은 바로 아래에서 리셋 + _hljs.css 의 .code-block-wrap/.slate-code_block 규칙으로 제외. */
