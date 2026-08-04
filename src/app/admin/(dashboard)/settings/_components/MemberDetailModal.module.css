@@ -39,10 +39,7 @@
   min-width: 0;
 }
 .memberDetailNameRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  composes: uRowWrapXs from "../Settings.module.css";
 }
 .memberDetailName {
   font-family: var(--font-space-grotesk);

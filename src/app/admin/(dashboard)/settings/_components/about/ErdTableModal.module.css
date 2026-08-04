@@ -226,9 +226,7 @@ html[data-theme="dark"] .relGroup .rel {
   background: var(--bg-accent-subtle);
 }
 .colActions {
-  display: flex;
-  gap: var(--spacing-2xs);
-  align-items: center;
+  composes: uRow2xs from "../../Settings.module.css";
 }
 
 /* 표 안 Select — 셀처럼 보이게. width="full" 로 폭은 Select 가 맞추고,

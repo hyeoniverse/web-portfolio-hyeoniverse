@@ -1,9 +1,7 @@
 /*  MemberEditModal 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
    공유·경계 클래스는 Settings 에 남아 shared 로 import  */
 .authorCardHead {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowSm from "../Settings.module.css";
 }
 .authorAvatarUpload {
   position: relative;
@@ -68,10 +66,7 @@
   composes: uCol2xs from "../Settings.module.css";
 }
 .authorInviteRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  composes: uRowWrapSm from "../Settings.module.css";
 }
 .authorMemberStatus {
   display: flex;

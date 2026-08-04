@@ -38,15 +38,11 @@
 }
 
 .seriesStandaloneActions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  composes: uRowXs from "../Settings.module.css";
 }
 
 .seriesCardActions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowSm from "../Settings.module.css";
 }
 .seriesPostsSection {
   display: flex;

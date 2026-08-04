@@ -9,9 +9,7 @@
 }
 
 .priorityRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  composes: uRowXs from "../Settings.module.css";
 }
 
 .priorityItem {
