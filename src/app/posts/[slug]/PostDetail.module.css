@@ -313,17 +313,12 @@
 .prose h1,
 .prose h2,
 .prose h3 {
-  font-family: var(--font-instrument);
   letter-spacing: -0.01em;
 }
 
 .prose h2 {
   padding-bottom: var(--spacing-sm);
   border-bottom: var(--border-light);
-}
-
-.prose h3 {
-  font-weight: var(--font-weight-medium);
 }
 
 .prose p {

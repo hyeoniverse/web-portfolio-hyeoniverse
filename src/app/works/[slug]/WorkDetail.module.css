@@ -584,11 +584,10 @@
   margin-top: var(--spacing-sm);
 }
 
-/* 크기·여백·줄간격·굵기는 전역 base + .prose-content 공통 — 여기선 문맥 고유 폰트만 */
+/* 폰트·크기·여백·줄간격·굵기는 base + .prose-content 공통 — 여기선 색만(컨테이너가 secondary라 override) */
 .sectionProse h1,
 .sectionProse h2,
 .sectionProse h3 {
-  font-family: var(--font-instrument), serif;
   color: var(--text-primary);
 }
 
