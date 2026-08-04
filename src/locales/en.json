@@ -197,6 +197,7 @@
     "deletedComment": "This comment has been deleted.",
     "deletedCommentByAdmin": "This comment was removed by the admin.",
     "hardDelete": "Remove permanently",
+    "restore": "Restore",
     "firstCommentCelebration": "🎉 You left the first comment on this post!",
     "emailClear": "Clear input",
     "disclaimer": "Inappropriate comments may be removed without notice.",
