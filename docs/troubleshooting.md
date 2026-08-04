@@ -1915,3 +1915,53 @@ Plate 가 이 throw 를 catch 해서 **조용히 plaintext 로 떨구므로** �
 **핵심 인사이트**: 두 프로세스가 같은 산출물 디렉터리를 쓰면 "빌드 검증" 이 곧 "dev 환경 파괴" 가 된다 — 빌드 통과 여부를 확인하려면 dev 를 내리거나 산출물 경로를 분리해야 한다
 
 </details>
+
+<details>
+<summary><strong>65. Lenis 스무스 스크롤 환경에서 코드블록 위 세로 스크롤이 먹히던 문제</strong></summary>
+
+**문제**: 코드블록 위에 마우스를 두고 세로로 휠을 굴리면 페이지가 안 움직였다 — 코드블록만 스크롤을 삼키는 느낌.
+
+**원인**: 코드블록 `<pre>` 에 `data-lenis-prevent` 를 통째로 걸었다. 가로 스크롤(넓은 코드)을 살리려는 의도였는데, Lenis 가 그 요소 위 wheel 을 아예 무시하다 보니 블록이 세로로 안 넘칠 때 세로로 굴려도 페이지가 안 움직였다(Lenis 는 body 를 직접 스크롤하지 않아 native 세로 스크롤로도 안 빠진다).
+
+**해결**: 통짜 prevent 대신 축(axis) 기반 wheel 라우팅으로 교체.
+
+1. 가로 제스처(`|deltaX|>|deltaY|` 또는 shift+wheel) → 블록이 가로로 넘치면 블록을 가로 스크롤
+2. 세로 제스처 → 블록이 세로로 스크롤 가능하고 끝이 아니면 블록을, 아니면 이벤트를 그냥 흘려보냄(fall-through)
+3. Lenis 는 window(bubble)에서 wheel 을 듣고 `composedPath` 로 처리 — 블록 내부에서 `stopPropagation` 하면 Lenis 가 그 이벤트를 건너뛰고, 안 하면 Lenis 가 페이지를 굴린다. 터치는 `data-lenis-prevent-touch` 로 네이티브 유지
+
+**핵심 인사이트**: 스무스 스크롤 위에서 "특정 영역만 자기 스크롤" 을 만들 때 통짜 prevent 는 세로 통과까지 막는다 — 축·경계를 판단해 필요한 방향만 가로채고 나머지는 라이브러리로 흘려보내야 중첩 스크롤이 자연스럽다
+
+</details>
+
+<details>
+<summary><strong>66. 테두리 있는 인라인 코드는 여러 줄로 줄바꿈되지 않는다</strong></summary>
+
+**문제**: 긴 인라인 코드가 컨테이너 폭을 넘어도 줄바꿈되지 않고 한 줄로 삐져나오거나 잘렸다.
+
+**원인**: 인라인 코드 칩을 `display: inline-block` 으로 만들었다. inline-block 은 세로 padding 이 line box 에 반영돼 위아래 줄과 안 겹치는 장점이 있지만, **원자 박스라 내부에서 줄바꿈이 안 된다**.
+
+**해결**: `display: inline` + `box-decoration-break` 로 바꾸고, 최종적으로 배경형(Notion 식)으로 재설계.
+
+1. `display: inline` 이면 wrap 은 되지만 세로 padding 이 line box 를 못 넓혀 위아래 줄과 겹칠 위험 + 테두리 캡슐이 줄바꿈 지점에서 조각나거나(`clone`) 열린 채 끊긴다(`slice`)
+2. 테두리를 없애고 은은한 배경만 남기니 wrap 돼도 하이라이트가 자연스럽게 흐른다 — 양끝만 캡슐(`slice`), line-height 는 문맥(1.6) 상속(하드코딩 X)
+
+**핵심 인사이트**: "칩처럼 보이는 인라인 요소" 는 inline-block(안 wrap) vs inline(wrap 되나 padding 이 줄을 안 넓힘)의 트레이드오프가 있다 — 여러 줄 wrap 이 필요하면 테두리 캡슐보다 배경형이 근본적으로 맞다
+
+</details>
+
+<details>
+<summary><strong>67. 삭제된 댓글을 복구하려는데 내용이 이미 지워져 있던 문제</strong></summary>
+
+**문제**: 삭제(tombstone)된 댓글을 되살리는 기능을 만들려는데, `is_deleted` 만 되돌려도 내용이 빈 댓글이 복구됐다.
+
+**원인**: 댓글 삭제가 tombstone 시 `content`·`password_hash`·`commenter_hash` 를 전부 빈 값으로 덮어썼다(프라이버시 목적). 복구할 원문 자체가 DB 에 없었다.
+
+**해결**: 삭제 시 내용을 보존하되, 공개 API 에서 가린다.
+
+1. tombstone 은 `is_deleted`/`deleted_by` 만 세팅하고 content 는 보존
+2. 공개 GET 은 `is_deleted` 행의 `content`·`commenter_hash` 를 응답에서 빈 값으로 마스킹(UI 는 어차피 placeholder 를 그림), 관리자 GET 은 원문 유지 → 복구 미리보기에 사용
+3. 복구 엔드포인트는 `is_deleted=true` 행만 매칭 — 하드 삭제로 행이 사라진 "완전 삭제" 는 자연히 404
+
+**핵심 인사이트**: "복구" 는 "삭제 시 무엇을 지웠는가" 에 달렸다 — 되살릴 수 있으려면 삭제가 데이터를 파괴하지 않아야 하고, 그 대신 노출은 API 응답 레이어에서 가려야 프라이버시와 복구성이 양립한다
+
+</details>
