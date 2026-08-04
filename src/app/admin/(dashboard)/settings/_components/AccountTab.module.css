@@ -208,9 +208,7 @@
 }
 
 .pendingEmailInfo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
+  composes: uCol3xs from "../Settings.module.css";
   min-width: 0;
 }
 

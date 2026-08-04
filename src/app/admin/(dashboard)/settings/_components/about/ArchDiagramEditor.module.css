@@ -48,10 +48,7 @@
   border-radius: var(--radius-2xl);
 }
 .panelHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
+  composes: uRowSmBetween from "../../Settings.module.css";
 }
 .panelTitle {
   font-family: var(--font-mono);
@@ -61,14 +58,10 @@
   color: var(--text-tertiary);
 }
 .row {
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-sm);
+  composes: uGrid2Sm from "../../Settings.module.css";
 }
 .field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+  composes: uCol2xs from "../../Settings.module.css";
   min-width: 0;
 }
 .fieldLabel {
@@ -76,9 +69,7 @@
   color: var(--text-tertiary);
 }
 .panelActions {
-  display: flex;
-  gap: var(--spacing-xs);
-  flex-wrap: wrap;
+  composes: uWrapXs from "../../Settings.module.css";
 }
 
 /* add 버튼 */

@@ -58,9 +58,7 @@
   color: var(--text-primary);
 }
 .authorCardFields {
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-sm);
+  composes: uGrid2Sm from "../Settings.module.css";
 }
 .authorLinksEditor {
   composes: uCol2xs from "../Settings.module.css";
@@ -69,10 +67,7 @@
   composes: uRowWrapSm from "../Settings.module.css";
 }
 .authorMemberStatus {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
+  composes: uRowWrap2xs from "../Settings.module.css";
 }
 .memberModal {
   display: flex;

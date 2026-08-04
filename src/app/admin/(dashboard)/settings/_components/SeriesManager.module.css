@@ -164,9 +164,7 @@
   composes: uFill from "../Settings.module.css";
 }
 .seriesCardNameRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowSm from "../Settings.module.css";
   min-width: 0;
 }
 

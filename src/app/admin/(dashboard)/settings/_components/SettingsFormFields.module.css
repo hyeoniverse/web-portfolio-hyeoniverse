@@ -35,9 +35,7 @@
   flex-shrink: 0;
 }
 .logoPreviewGroup {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowSm from "../Settings.module.css";
   min-width: 0;
 }
 .logoTintControl {

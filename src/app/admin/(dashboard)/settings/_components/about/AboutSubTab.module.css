@@ -97,9 +97,7 @@
   color: var(--text-tertiary);
 }
 .field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+  composes: uCol2xs from "../../Settings.module.css";
   min-width: 0;
 }
 .fieldLabel {
@@ -265,9 +263,7 @@
   gap: 3px;
 }
 .node {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
+  composes: uRow2xs from "../../Settings.module.css";
   min-width: 0;
 }
 .nodeLabel {
@@ -528,10 +524,7 @@
 
 /* 슬라이더 값 라벨 행 (오버레이 세기 등) */
 .sliderLabelRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
+  composes: uRowSmBetween from "../../Settings.module.css";
 }
 .sliderValue {
   font-family: var(--font-mono);
