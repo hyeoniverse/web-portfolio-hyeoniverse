@@ -1914,3 +1914,53 @@ Plate catches the throw and **silently falls back to plaintext**, so the UI only
 **Key insight**: When two processes write to the same output directory, "verifying the build" becomes "destroying the dev environment" — to check whether a build passes, either stop dev or split the output path.
 
 </details>
+
+<details>
+<summary><strong>65. Vertical scroll over a code block got eaten under Lenis smooth scroll</strong></summary>
+
+**Problem**: Hovering a code block and scrolling vertically didn't move the page — the code block felt like it was swallowing the scroll.
+
+**Cause**: The code block `<pre>` had a blanket `data-lenis-prevent`. It was meant to keep horizontal scroll alive (wide code), but Lenis ignores wheel over that element entirely, so when the block didn't overflow vertically, scrolling vertically moved nothing (Lenis doesn't scroll the body directly, so native vertical scroll doesn't kick in either).
+
+**Solution**: Replace the blanket prevent with axis-based wheel routing.
+
+1. Horizontal gesture (`|deltaX|>|deltaY|` or shift+wheel) → scroll the block horizontally if it overflows
+2. Vertical gesture → scroll the block if it can scroll vertically and isn't at the edge, otherwise let the event fall through
+3. Lenis listens for wheel on `window` (bubble) and uses `composedPath` — calling `stopPropagation` inside the block makes Lenis skip that event; not calling it lets Lenis scroll the page. Touch stays native via `data-lenis-prevent-touch`
+
+**Key insight**: On a smooth-scroll library, a blanket prevent to make "one region scroll itself" also blocks vertical pass-through — you have to judge axis/boundary, intercept only the direction you need, and let the rest fall through to the library for nested scrolling to feel natural.
+
+</details>
+
+<details>
+<summary><strong>66. Bordered inline code doesn't wrap across lines</strong></summary>
+
+**Problem**: Long inline code overflowed the container as a single line (or got clipped) instead of wrapping.
+
+**Cause**: The inline-code chip used `display: inline-block`. inline-block reflects vertical padding into the line box (so it doesn't overlap neighboring lines), but it's an **atomic box, so its content doesn't wrap**.
+
+**Solution**: Switch to `display: inline` + `box-decoration-break`, and ultimately redesign it as a background style (Notion-like).
+
+1. With `display: inline` it wraps, but vertical padding can't widen the line box (risk of overlapping neighbors), and a bordered capsule fragments at wrap points (`clone`) or gets cut open (`slice`)
+2. Dropping the border and keeping only a subtle background makes the highlight flow naturally even when wrapped — capsule caps only at the two ends (`slice`), line-height inherited from context (1.6, not hardcoded)
+
+**Key insight**: A "chip-like" inline element has a trade-off between inline-block (no wrap) and inline (wraps, but padding doesn't widen the line) — if multi-line wrapping is required, a background style fits fundamentally better than a bordered capsule.
+
+</details>
+
+<details>
+<summary><strong>67. Restoring a deleted comment, but its content was already wiped</strong></summary>
+
+**Problem**: Building a feature to bring back a deleted (tombstoned) comment, flipping `is_deleted` back restored an empty-content comment.
+
+**Cause**: Comment delete overwrote `content`·`password_hash`·`commenter_hash` with empty strings on tombstone (for privacy). The original text to restore simply wasn't in the DB.
+
+**Solution**: Preserve the content on delete, but hide it in the public API.
+
+1. Tombstone sets only `is_deleted`/`deleted_by` and keeps `content`
+2. The public GET masks `content`·`commenter_hash` to empty for `is_deleted` rows (the UI draws a placeholder anyway); the admin GET keeps the original for the restore preview
+3. The restore endpoint matches only `is_deleted=true` rows — a hard-deleted ("permanently deleted") row is gone, so it naturally 404s
+
+**Key insight**: "Restore" depends entirely on "what did delete erase" — for something to be restorable, delete must not destroy the data, and exposure must instead be masked at the API-response layer so privacy and restorability coexist.
+
+</details>
