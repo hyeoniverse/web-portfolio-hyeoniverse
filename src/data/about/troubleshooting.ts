@@ -28,6 +28,20 @@ const itemMeta: Record<
     recommendReason?: LocalizedText;
   }
 > = {
+  // ── 최근 추가 (에디터 마크다운·인라인 코드·댓글 복구) ──
+  "Lenis 스무스 스크롤 위에서 코드블록 세로 스크롤이 페이지로 안 넘어감": {
+    featured: true, section: "I", difficulty: 2,
+  },
+  "테두리 있는 인라인 코드가 여러 줄로 줄바꿈되지 않음": {
+    featured: true, section: "L", difficulty: 2,
+  },
+  "삭제된 댓글을 복구하려는데 내용이 이미 지워져 있었음": {
+    featured: true, section: "A", difficulty: 2, recommended: true,
+    recommendReason: {
+      ko: "\"복구\" 기능의 성패가 삭제 구현에 달렸다는 걸 보여주는, 데이터 보존 vs 노출 차단의 전형이라 골랐습니다.",
+      en: "Picked because a restore feature's success hinges on how delete was built — the archetype of data-retention vs exposure-masking.",
+    },
+  },
   "2열로 놓인 두 설정 섹션의 툴바가 한쪽만 아래로 밀려 어긋남": {
     featured: true, section: "L", difficulty: 2, recommended: true,
     recommendReason: {
@@ -3410,6 +3424,75 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       en: "**`overflow-x: auto` clips the y-axis too** — if you need a `::before`/shadow that bleeds outside, split the scroll and the overlay onto different elements. And **on transform-based smooth scroll (Lenis et al.), attach `backdrop-filter` to a `sticky` element, not a `fixed` one**, so it samples the backdrop correctly.",
     },
     tags: ["css", "sticky", "overflow", "backdrop-filter", "lenis", "frost"],
+  },
+  {
+    problem: {
+      ko: "Lenis 스무스 스크롤 위에서 코드블록 세로 스크롤이 페이지로 안 넘어감",
+      en: "Vertical scroll over a code block didn't pass through to the page under Lenis",
+    },
+    definition: {
+      ko: "코드블록 위에 마우스를 두고 세로로 휠을 굴리면 페이지가 안 움직이고, 코드블록만 스크롤을 삼키는 느낌이었습니다.",
+      en: "Hovering a code block and scrolling vertically moved nothing — the block felt like it was swallowing the scroll.",
+    },
+    cause: {
+      ko: "코드블록 `<pre>` 에 `data-lenis-prevent` 를 통째로 걸어 뒀습니다. 가로 스크롤(넓은 코드)을 살리려는 의도였는데, Lenis 가 그 요소 위 wheel 을 아예 무시하다 보니 블록이 세로로 안 넘칠 때 세로로 굴려도 페이지가 안 움직였습니다 — Lenis 는 body 를 직접 스크롤하지 않아 native 세로 스크롤로도 안 빠집니다.",
+      en: "The `<pre>` had a blanket `data-lenis-prevent` to keep horizontal scroll (wide code) alive. But Lenis ignores wheel over that element entirely, so when the block didn't overflow vertically, scrolling vertically moved nothing — Lenis doesn't scroll the body directly, so native vertical scroll doesn't kick in either.",
+    },
+    solution: {
+      ko: "통짜 prevent 대신 **축(axis) 기반 wheel 라우팅**으로 바꿨습니다. 가로 제스처는 블록이 가로로 넘칠 때 블록을, 세로 제스처는 블록이 세로로 스크롤 가능하고 끝이 아닐 때만 블록을 스크롤하고, 아니면 이벤트를 흘려보냅니다. Lenis 는 window(bubble)에서 wheel 을 듣고 `composedPath` 로 처리하므로, 블록에서 `stopPropagation` 하면 Lenis 가 건너뛰고 안 하면 페이지를 굴립니다. 터치는 `data-lenis-prevent-touch` 로 네이티브 유지.",
+      en: "Replaced the blanket prevent with **axis-based wheel routing**. A horizontal gesture scrolls the block when it overflows horizontally; a vertical gesture scrolls the block only when it can scroll vertically and isn't at the edge, otherwise the event falls through. Lenis listens for wheel on `window` (bubble) and uses `composedPath`, so `stopPropagation` inside the block makes Lenis skip it, while not calling it lets Lenis scroll the page. Touch stays native via `data-lenis-prevent-touch`.",
+    },
+    keyInsight: {
+      ko: "스무스 스크롤 위에서 \"특정 영역만 자기 스크롤\" 을 만들 때 통짜 prevent 는 세로 통과까지 막습니다 — 축·경계를 판단해 필요한 방향만 가로채고 나머지는 라이브러리로 흘려보내야 중첩 스크롤이 자연스럽습니다.",
+      en: "On smooth scroll, a blanket prevent to make \"one region scroll itself\" also blocks vertical pass-through — judge axis/boundary, intercept only the direction you need, and let the rest fall through to the library.",
+    },
+    tags: ["lenis", "wheel", "scroll", "code-block", "nested-scroll"],
+  },
+  {
+    problem: {
+      ko: "테두리 있는 인라인 코드가 여러 줄로 줄바꿈되지 않음",
+      en: "Bordered inline code wouldn't wrap across lines",
+    },
+    definition: {
+      ko: "긴 인라인 코드가 컨테이너 폭을 넘어도 한 줄로 삐져나오거나 잘렸습니다.",
+      en: "Long inline code overflowed as a single line (or got clipped) instead of wrapping.",
+    },
+    cause: {
+      ko: "인라인 코드 칩을 `display: inline-block` 으로 만들었습니다. inline-block 은 세로 padding 이 line box 에 반영돼 위아래 줄과 안 겹치는 장점이 있지만, **원자 박스라 내부에서 줄바꿈이 안 됩니다**.",
+      en: "The chip used `display: inline-block`. inline-block reflects vertical padding into the line box (so it doesn't overlap neighbors), but it's an **atomic box, so its content doesn't wrap**.",
+    },
+    solution: {
+      ko: "`display: inline` + `box-decoration-break` 로 바꾸고, 최종적으로 **배경형(Notion 식)**으로 재설계했습니다. inline 이면 wrap 은 되지만 테두리 캡슐이 줄바꿈 지점에서 조각나거나 열린 채 끊깁니다 — 테두리를 없애고 은은한 배경만 남기니 wrap 돼도 하이라이트가 자연스럽게 흐릅니다. 양끝만 캡슐(`slice`), line-height 는 문맥(1.6) 상속.",
+      en: "Switched to `display: inline` + `box-decoration-break`, then redesigned it as a **background style (Notion-like)**. inline wraps, but a bordered capsule fragments or cuts open at wrap points — dropping the border and keeping only a subtle background makes the highlight flow naturally even wrapped. Capsule caps only at the two ends (`slice`), line-height inherited from context (1.6).",
+    },
+    keyInsight: {
+      ko: "\"칩처럼 보이는 인라인 요소\" 는 inline-block(안 wrap) vs inline(wrap 되나 padding 이 줄을 안 넓힘)의 트레이드오프가 있습니다 — 여러 줄 wrap 이 필요하면 테두리 캡슐보다 배경형이 근본적으로 맞습니다.",
+      en: "A \"chip-like\" inline element trades off inline-block (no wrap) vs inline (wraps, but padding doesn't widen the line) — if multi-line wrapping is needed, a background style fits better than a bordered capsule.",
+    },
+    tags: ["css", "inline-code", "box-decoration-break", "wrap", "display"],
+  },
+  {
+    problem: {
+      ko: "삭제된 댓글을 복구하려는데 내용이 이미 지워져 있었음",
+      en: "Restoring a deleted comment, but its content was already wiped",
+    },
+    definition: {
+      ko: "삭제(tombstone)된 댓글을 되살리는 기능을 만들려는데, `is_deleted` 만 되돌려도 내용이 빈 댓글이 복구됐습니다.",
+      en: "Building a restore for a deleted (tombstoned) comment, flipping `is_deleted` back brought back an empty-content comment.",
+    },
+    cause: {
+      ko: "댓글 삭제가 tombstone 시 `content`·`password_hash`·`commenter_hash` 를 전부 빈 값으로 덮어썼습니다(프라이버시 목적). 복구할 원문 자체가 DB 에 없었습니다.",
+      en: "On tombstone, delete overwrote `content`·`password_hash`·`commenter_hash` with empty strings (for privacy). The original text to restore simply wasn't in the DB.",
+    },
+    solution: {
+      ko: "삭제 시 내용을 보존하되 공개 API 에서 가렸습니다. tombstone 은 `is_deleted`/`deleted_by` 만 세팅하고 content 는 보존, 공개 GET 은 `is_deleted` 행의 `content`·`commenter_hash` 를 응답에서 빈 값으로 마스킹(UI 는 어차피 placeholder), 관리자 GET 은 원문 유지(복구 미리보기). 복구 엔드포인트는 `is_deleted=true` 행만 매칭 — 하드 삭제로 사라진 완전 삭제는 자연히 404.",
+      en: "Preserve the content on delete but mask it in the public API. Tombstone sets only `is_deleted`/`deleted_by` and keeps `content`; the public GET masks `content`·`commenter_hash` to empty for `is_deleted` rows (the UI draws a placeholder anyway), while the admin GET keeps the original for the restore preview. The restore endpoint matches only `is_deleted=true` rows — a hard-deleted comment is gone, so it naturally 404s.",
+    },
+    keyInsight: {
+      ko: "\"복구\" 는 \"삭제 시 무엇을 지웠는가\" 에 달렸습니다 — 되살릴 수 있으려면 삭제가 데이터를 파괴하지 않아야 하고, 대신 노출은 API 응답 레이어에서 가려야 프라이버시와 복구성이 양립합니다.",
+      en: "\"Restore\" depends entirely on \"what did delete erase\" — for it to be restorable, delete must not destroy the data, and exposure must instead be masked at the API-response layer so privacy and restorability coexist.",
+    },
+    tags: ["comments", "soft-delete", "restore", "privacy", "supabase"],
   },
 ];
 
