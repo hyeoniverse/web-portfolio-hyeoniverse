@@ -301,11 +301,11 @@ export function PostArticleBody({
   return (
     <div ref={proseViewerRef}>
       {isMarkdown ? (
-        <MarkdownRenderer content={content} className={styles.prose} />
+        <MarkdownRenderer content={content} className={`${styles.prose} prose-content`} />
       ) : (
         <div
           ref={richtextRef}
-          className={styles.prose}
+          className={`${styles.prose} prose-content`}
           dangerouslySetInnerHTML={{ __html: processedRichtextHtml }}
         />
       )}

@@ -584,18 +584,13 @@
   margin-top: var(--spacing-sm);
 }
 
-/* 크기·줄간격은 전역 heading base(_base.css) 상속. 폰트 + 콘텐츠 제목 여백(비대칭)만 여기서 */
+/* 크기·여백·줄간격·굵기는 전역 base + .prose-content 공통 — 여기선 문맥 고유 폰트만 */
 .sectionProse h1,
 .sectionProse h2,
 .sectionProse h3 {
   font-family: var(--font-instrument), serif;
-  font-weight: var(--font-weight-regular);
   color: var(--text-primary);
 }
-.sectionProse h1 { margin: var(--prose-h1-margin); }
-.sectionProse h2 { margin: var(--prose-h2-margin); }
-.sectionProse h3 { margin: var(--prose-h3-margin); }
-.sectionProse > :first-child { margin-top: 0; }
 
 .sectionImage {
   position: relative;

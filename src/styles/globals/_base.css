@@ -102,6 +102,7 @@ h6 {
   margin: 0;
   padding: 0;
   line-height: var(--heading-lh);
+  font-weight: var(--font-weight-regular);
 }
 h1 { font-size: var(--font-size-2xl); }
 h2 { font-size: var(--font-size-xl); }
@@ -109,6 +110,13 @@ h3 { font-size: var(--font-size-lg); }
 h4 { font-size: var(--font-size-md); }
 h5 { font-size: var(--font-size-sm); }
 h6 { font-size: var(--font-size-xs); }
+
+/* 콘텐츠(글) 제목 여백 — .prose-content 클래스 하나로 에디터·게시글·work 공통 적용.
+   비대칭(위 넉넉 / 아래 좁게, Notion 결). 비콘텐츠 제목은 위 base 의 margin 0 유지. */
+.prose-content h1 { margin: var(--prose-h1-margin); }
+.prose-content h2 { margin: var(--prose-h2-margin); }
+.prose-content h3 { margin: var(--prose-h3-margin); }
+.prose-content > :first-child { margin-top: 0; }
 
 /* 인라인 코드 — 사이트 공통 칩 룩 (포스트 본문 기준으로 통일). 문맥별로 흩어져 있던 스타일의 단일 소스.
    코드 블록(pre code)은 바로 아래에서 리셋 + _hljs.css 의 .code-block-wrap/.slate-code_block 규칙으로 제외. */
