@@ -65,9 +65,13 @@
 --   2026_07_21  about_erd_valid — About Studio ERD 설정 CHECK 제약
 --   2026_07_23  about_erd_valid 확장 — 컬럼 제약·테이블 kind 검증
 --   2026_08_02  settings_required — 설정 필수값 CHECK (제목·이름·테마색·giscus·멤버이름)
+--   2026_08_03  site_visits — 트래픽 메타 (referrer/user_agent/device_kind/os/browser/device_model) + 인덱스
 --
 -- 마이그레이션 파일이 없는 것 (setup.sql 에만 존재):
 --   custom_emojis — 에디터 이모지 picker 의 커스텀 아이콘 기록
+--
+-- 흡수하지 않은 것 (일회성 데이터 리셋 — 스키마 변경 아님, fresh install 엔 리셋할 데이터가 없어 무의미):
+--   2026_07_13_category_reset, 2026_07_13_tag_descriptions_reset
 -- ============================================================
 
 
@@ -1727,7 +1731,7 @@ END $$;
 -- ────────────────────────────────────────────────────────────
 -- Applied migrations log — setup.sql 이 흡수한 마이그레이션 마킹
 -- ────────────────────────────────────────────────────────────
--- 위 파일의 모든 구조는 아래 마이그레이션 35건을 통합한 결과입니다.
+-- 위 파일의 모든 구조는 아래 마이그레이션 36건을 통합한 결과입니다.
 -- fresh install 환경에서 setup.sql 실행 직후, supabase/migrations/ 의 .sql 을
 -- 단일 실행해도 was_new = false 로 skip 되도록 record 만 미리 남깁니다.
 --
