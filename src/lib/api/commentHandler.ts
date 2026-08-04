@@ -45,7 +45,16 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
     }
 
     if (error) return jsonServerError(error);
-    return jsonOk(data);
+    // 내용 보존형 삭제라 tombstone 행에도 DB엔 원문·commenter_hash 가 남아 있다.
+    // 공개 응답에선 비워서 노출을 막는다 (UI 는 is_deleted 면 placeholder 를 그림).
+    // 관리자 GET(/api/admin/comments)은 원문을 그대로 반환해 복구 미리보기에 쓴다.
+    const rows = Array.isArray(data)
+      ? data.map((r) => {
+          const row = r as unknown as Record<string, unknown>;
+          return row.is_deleted ? { ...row, content: "", commenter_hash: "" } : row;
+        })
+      : data;
+    return jsonOk(rows);
   }
 
   async function POST(request: Request) {

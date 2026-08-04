@@ -242,6 +242,12 @@ function CommentItem({
 
   const apiBase = commentType === "work" ? "/api/work-comments" : "/api/comments";
 
+  // 삭제(tombstone) 댓글 복구 — 관리자만. 내용 보존형 삭제라 원문까지 되살아난다.
+  const handleRestore = useCallback(async () => {
+    const res = await fetch(`${apiBase}/${comment.id}/restore`, { method: "POST" });
+    if (res.ok) onRefresh();
+  }, [apiBase, comment.id, onRefresh]);
+
   const handleTranslate = useCallback(async () => {
     if (translatedText !== null) {
       setTranslatedText(null);
@@ -413,14 +419,19 @@ function CommentItem({
           <p className={styles.deletedPlaceholder}>
             <T k={tombstoneKey} />
           </p>
-          {comment.deleted_by === "admin" && isAdmin && !selectMode && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={openHardDeleteModal}
-            >
-              <T k="comments.hardDelete" />
-            </Button>
+          {isAdmin && !selectMode && (
+            <span className={styles.deletedActions}>
+              {/* 복구 — 내용 보존형 삭제라 원문까지 되살아난다. 모든 tombstone(관리자/작성자) 대상. */}
+              <Button variant="ghost" size="sm" onClick={handleRestore}>
+                <T k="comments.restore" />
+              </Button>
+              {/* 완전 삭제 — admin tombstone 만(되돌릴 수 없고 답글까지 CASCADE) */}
+              {comment.deleted_by === "admin" && (
+                <Button variant="ghost" size="sm" onClick={openHardDeleteModal}>
+                  <T k="comments.hardDelete" />
+                </Button>
+              )}
+            </span>
           )}
         </div>
         {hasReplies && (

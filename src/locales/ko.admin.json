@@ -35,6 +35,7 @@
       "bulkDeleteDesc": "선택한 {{count}}개 댓글을 삭제할까요?",
       "deletedByAdmin": "(관리자가 삭제함)",
       "deletedBySelf": "(작성자가 삭제함)",
+      "restore": "복구",
       "empty": "댓글이 없습니다"
     },
     "dashboard": {

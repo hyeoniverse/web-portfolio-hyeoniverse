@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Trash2 } from "@/components/icons";
+import { Trash2, RotateCcw } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useModalStore } from "@/stores/modalStore";
@@ -132,6 +132,13 @@ export default function CommentsModerationPage() {
     );
   };
 
+  // 삭제(tombstone) 댓글 복구 — 관리자 전용. 하드 삭제로 사라진 "완전 삭제" 댓글은 대상이 아니다.
+  const handleRestore = async (id: string, src: "posts" | "works") => {
+    const path = src === "posts" ? `/api/comments/${id}/restore` : `/api/work-comments/${id}/restore`;
+    await fetch(path, { method: "POST" });
+    fetchComments();
+  };
+
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -257,9 +264,16 @@ export default function CommentsModerationPage() {
               </span>
               <span className={styles.content}>
                 {c.is_deleted ? (
-                  <em className={styles.deletedNote}>
-                    {c.deleted_by === "admin" ? t("admin.comments.deletedByAdmin") : t("admin.comments.deletedBySelf")}
-                  </em>
+                  <>
+                    <em className={styles.deletedNote}>
+                      {c.deleted_by === "admin" ? t("admin.comments.deletedByAdmin") : t("admin.comments.deletedBySelf")}
+                    </em>
+                    {c.content && (
+                      <span className={styles.deletedContent}>
+                        {c.content.length > 120 ? c.content.slice(0, 120) + "…" : c.content}
+                      </span>
+                    )}
+                  </>
                 ) : (
                   c.content.length > 120 ? c.content.slice(0, 120) + "…" : c.content
                 )}
@@ -273,7 +287,11 @@ export default function CommentsModerationPage() {
               </span>
               <span className={styles.date}>{fmtDate(c.created_at)}</span>
               <span className={styles.actions}>
-                {!c.is_deleted && (
+                {c.is_deleted ? (
+                  <button className={styles.restoreBtn} onClick={() => handleRestore(c.id, c.source)} aria-label={t("admin.comments.restore")} title={t("admin.comments.restore")}>
+                    <RotateCcw size={14} strokeWidth={1.6} />
+                  </button>
+                ) : (
                   <button className={styles.deleteBtn} onClick={() => handleDelete(c.id, c.source)} aria-label="Delete">
                     <Trash2 size={14} strokeWidth={1.6} />
                   </button>

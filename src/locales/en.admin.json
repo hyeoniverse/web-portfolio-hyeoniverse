@@ -35,6 +35,7 @@
       "bulkDeleteDesc": "Delete {{count}} selected comments?",
       "deletedByAdmin": "(removed by admin)",
       "deletedBySelf": "(removed by author)",
+      "restore": "Restore",
       "empty": "No comments"
     },
     "dashboard": {

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import bcrypt from "bcryptjs";
 import { isValidUUID } from "@/utils/commentValidation";
+import { requireAuth } from "./requireAuth";
 import { jsonOk, jsonError, jsonServerError } from "./response";
 
 interface CommentDetailHandlerOptions {
@@ -39,15 +40,14 @@ async function softOrHardDelete(
   if (forceHard && deletedBy === "admin" && !hasReplies) {
     // hard delete 후 부모 정리 로직으로 진행
   } else if (hasReplies || deletedBy === "admin") {
-    // tombstone: 답글 있거나 admin 삭제 — 닉네임 유지
+    // tombstone: 답글 있거나 admin 삭제 — 닉네임 유지.
+    // content/password_hash/commenter_hash 는 지우지 않고 보존한다(복구용). 공개 API 는
+    // is_deleted 행의 content·commenter_hash 를 응답에서 비워서(commentHandler GET) 노출을 막는다.
     const { error } = await admin
       .from(table)
       .update({
         is_deleted: true,
         deleted_by: deletedBy,
-        content: "",
-        password_hash: "",
-        commenter_hash: "",
       })
       .eq("id", id);
     return { error };
@@ -151,4 +151,36 @@ export function createCommentDeleteHandler(opts: CommentDetailHandlerOptions) {
   }
 
   return { DELETE };
+}
+
+/**
+ * 삭제(tombstone)된 댓글 복구 — 관리자 전용.
+ * is_deleted=true 인 행만 대상: 하드 삭제로 행이 사라진 "완전 삭제" 댓글은 매칭이 없어 404.
+ * 내용 보존형 삭제라 content 가 DB 에 남아 있어 복구 시 원문까지 되살아난다.
+ */
+export function createCommentRestoreHandler(opts: CommentDetailHandlerOptions) {
+  const { table } = opts;
+
+  async function POST(_request: Request, context: RouteContext) {
+    const { id } = await context.params;
+    if (!isValidUUID(id)) return jsonError("Invalid id");
+
+    const { error: authError } = await requireAuth();
+    if (authError) return authError;
+
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from(table)
+      .update({ is_deleted: false, deleted_by: null })
+      .eq("id", id)
+      .eq("is_deleted", true)
+      .select("id")
+      .maybeSingle();
+
+    if (error) return jsonServerError(error);
+    if (!data) return jsonError("Comment not found or not deleted", 404);
+    return jsonOk({ success: true });
+  }
+
+  return { POST };
 }

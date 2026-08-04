@@ -171,6 +171,14 @@
   min-height: var(--_gutter-w);
 }
 
+/* tombstone 우측 액션(복구 / 완전 삭제) — 나란히 */
+.deletedActions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
 .deletedPlaceholder {
   margin: 0;
   min-width: 0;

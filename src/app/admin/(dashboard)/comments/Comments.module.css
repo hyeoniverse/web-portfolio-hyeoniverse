@@ -245,6 +245,33 @@
   color: var(--text-accent);
 }
 
+/* 복구 버튼 — 삭제(tombstone) 행에만. deleteBtn 과 같은 결, hover 는 accent */
+.restoreBtn {
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-radius: var(--radius-capsule);
+}
+
+.restoreBtn:hover {
+  background: var(--bg-accent-subtle);
+  color: var(--text-accent);
+}
+
+/* 삭제 행의 보존 원문 미리보기 — 복구 판단용. note 아래 옅게 */
+.deletedContent {
+  display: block;
+  margin-top: var(--spacing-3xs);
+  color: var(--text-tertiary);
+  opacity: 0.7;
+}
+
 /* ── Empty / Pagination ── */
 .empty {
   display: flex;
