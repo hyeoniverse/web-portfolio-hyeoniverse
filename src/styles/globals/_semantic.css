@@ -238,12 +238,6 @@
   /* 제목(h1~h6) 공통 줄간격 — 전역 heading base 단일 소스. 조정은 여기 한 줄. */
   --heading-lh: var(--line-height-tight);
 
-  /* 콘텐츠(에디터·게시글·work) 제목 여백 — 비대칭(위 넉넉 / 아래 좁게, Notion 결).
-     비콘텐츠(hero·카드 등) 제목은 base 의 margin 0 유지. 조정은 여기 3줄. */
-  --prose-h1-margin: var(--spacing-2xl) 0 var(--spacing-xs);
-  --prose-h2-margin: var(--spacing-xl) 0 var(--spacing-xs);
-  --prose-h3-margin: var(--spacing-lg) 0 var(--spacing-2xs);
-
   /* Spacing */
   --editorial-space-section: clamp(1rem, min(3.5vh, 2vw), 3.5rem);
   --editorial-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);

@@ -314,7 +314,6 @@
 .prose h2,
 .prose h3 {
   font-family: var(--font-instrument);
-  color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
