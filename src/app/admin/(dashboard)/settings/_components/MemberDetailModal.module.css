@@ -55,9 +55,7 @@
   color: var(--text-secondary);
 }
 .memberDetailMeta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  composes: uColXs from "../Settings.module.css";
 }
 .memberDetailMetaRow {
   display: flex;

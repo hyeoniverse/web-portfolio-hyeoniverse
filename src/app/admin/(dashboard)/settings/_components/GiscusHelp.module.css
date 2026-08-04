@@ -45,9 +45,7 @@
 }
 
 .sec {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: uColSm from "../Settings.module.css";
 }
 
 .secTitle {

@@ -35,8 +35,7 @@
 }
 
 .mediaFormatList {
-  display: flex;
-  flex-direction: column;
+  composes: uCol from "../Settings.module.css";
 }
 
 .mediaFormatRow {

@@ -116,7 +116,8 @@
   background: var(--bg-accent-solid);
   flex-shrink: 0;
 }
-.navSub { display: flex; flex-direction: column;
+.navSub {
+  composes: uCol from "./Settings.module.css";
 }
 
 .navSubItem {
@@ -170,7 +171,8 @@
   gap: var(--spacing-sm);
   margin-top: var(--spacing-lg);
 }
-.skeletonNav { display: flex; flex-direction: column; gap: var(--spacing-xs);
+.skeletonNav {
+  composes: uColXs from "./Settings.module.css";
 }
 
 .skeletonSection {

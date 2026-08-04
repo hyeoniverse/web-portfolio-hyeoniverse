@@ -316,9 +316,7 @@ textarea.edit {
 
 /* ── 패널 스트립 (표시/숨김 + 편집 이동) ── */
 .strip {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: uColSm from "../../Settings.module.css";
 }
 .stripHead {
   display: flex;
@@ -1473,14 +1471,10 @@ textarea.edit {
 
 /* ── ERD ── */
 .erdImport {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: uColSm from "../../Settings.module.css";
 }
 .erdPanel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: uColSm from "../../Settings.module.css";
 }
 
 /* 펼침/접힘 — height:auto 는 트랜지션이 안 되므로 grid-template-rows 0fr↔1fr 을 쓴다.
@@ -1502,9 +1496,7 @@ textarea.edit {
 
 /* 안내 문구 · textarea · 버튼 사이 간격. 설명과 입력은 한 묶음으로 읽혀야 하므로 촘촘하게. */
 .erdCollapseInner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+  composes: uCol2xs from "../../Settings.module.css";
 }
 /* 파일을 끌어다 놓는 중 — outline 이라 레이아웃이 밀리지 않는다 */
 .erdImportOver {
@@ -1588,9 +1580,7 @@ textarea.edit {
   gap: var(--spacing-lg);
 }
 .tsField {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+  composes: uCol2xs from "../../Settings.module.css";
 }
 .tsText {
   color: var(--text-secondary);

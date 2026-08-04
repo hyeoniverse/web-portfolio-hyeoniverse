@@ -10,9 +10,7 @@
   box-sizing: border-box;
 }
 .field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+  composes: uCol2xs from "../../Settings.module.css";
 }
 .label {
   color: var(--text-tertiary);
@@ -150,9 +148,7 @@
 }
 /* 방향별 그룹 — 라벨이 화살표의 의미를 대신한다 */
 .relGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+  composes: uCol2xs from "../../Settings.module.css";
 }
 .relGroup + .relGroup {
   margin-top: var(--spacing-sm);

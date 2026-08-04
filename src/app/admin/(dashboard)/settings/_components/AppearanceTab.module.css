@@ -201,9 +201,7 @@
   gap: var(--spacing-lg);
 }
 .faviconShadowItem {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  composes: uColXs from "../Settings.module.css";
 }
 /* 그림자 대상 라벨 — favicon / nav·로딩 을 구분. single 모드 내부 라벨과 같은 톤. */
 .faviconShadowSubLabel {
@@ -301,9 +299,7 @@
   border-top: var(--border-light);
 }
 .brandPart {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: uColSm from "../Settings.module.css";
 }
 .brandTabs {
   display: flex;
@@ -696,9 +692,7 @@
 
 /* ── 커스텀 폰트 업로드·목록 ── */
 .customFonts {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: uColSm from "../Settings.module.css";
 }
 .customFontsHead {
   display: flex;

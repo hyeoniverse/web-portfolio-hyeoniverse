@@ -65,9 +65,7 @@
   gap: var(--spacing-sm);
 }
 .authorLinksEditor {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+  composes: uCol2xs from "../Settings.module.css";
 }
 .authorInviteRow {
   display: flex;

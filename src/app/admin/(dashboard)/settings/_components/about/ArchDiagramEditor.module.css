@@ -1,8 +1,6 @@
 /* Architecture 다이어그램 비주얼 캔버스 에디터 */
 .editor {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  composes: uColMd from "../../Settings.module.css";
 }
 .toolbar {
   display: flex;
