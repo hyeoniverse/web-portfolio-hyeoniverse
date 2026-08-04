@@ -2,10 +2,7 @@
   composes: uColSm from "../../Settings.module.css";
 }
 .toolbar {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: center;
-  flex-wrap: wrap;
+  composes: uRowWrapXs from "../../Settings.module.css";
 }
 /* 공통 SearchCapsule — 폭만 잡는다 */
 .search {

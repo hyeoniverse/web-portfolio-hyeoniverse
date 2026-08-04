@@ -162,7 +162,8 @@
   background: var(--bg-primary);
   border-top: var(--border-light);
 }
-.techIconRow { display: flex; align-items: center; gap: var(--spacing-sm);
+.techIconRow {
+  composes: uRowSm from "../Settings.module.css";
 }
 .techIconCircleWrap {
   position: relative;

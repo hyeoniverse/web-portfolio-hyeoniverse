@@ -1051,10 +1051,7 @@ textarea.edit {
 
 /* Design System — 컨셉 전환 탭 스트립(실제도 한 장씩 넘겨 보는 strip 이라 나열 대신 탭) */
 .slideTabs {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: center;
-  flex-wrap: wrap;
+  composes: uRowWrapSm from "../../Settings.module.css";
 }
 
 /* ── Code Highlights 데모 칸 편집 컨트롤 ── */
@@ -1442,9 +1439,7 @@ textarea.edit {
 }
 /* 엔드포인트/컬럼 한 줄 — 삭제 버튼은 hover 시에만 */
 .bkRow {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: center;
+  composes: uRowXs from "../../Settings.module.css";
 }
 .bkRow button {
   opacity: 0;
@@ -1540,10 +1535,7 @@ textarea.edit {
   color: var(--text-secondary);
 }
 .erdActions {
-  display: flex;
-  gap: var(--spacing-xs);
-  align-items: center;
-  flex-wrap: wrap;
+  composes: uRowWrapXs from "../../Settings.module.css";
 }
 .erdResult {
   margin-left: auto;

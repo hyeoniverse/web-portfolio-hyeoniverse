@@ -1,9 +1,7 @@
 /*  ServicesTab 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
    공유·경계 클래스(section·fields·priorityBtn·sizeChip 등)는 Settings 에 남아 shared 로 import  */
 .switchHelpRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  composes: uRowXs from "../Settings.module.css";
 }
 
 

@@ -4,10 +4,7 @@
 }
 
 .headRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
+  composes: uRowWrapSm from "../Settings.module.css";
 }
 .headCount {
   font-size: var(--font-size-xs);
@@ -97,7 +94,8 @@
 
 /* 인라인 rename */
 .renameForm { display: flex; align-items: center; gap: var(--spacing-2xs); flex: 1; min-width: 0; }
-.renameInput { flex: 1; min-width: 0; }
+.renameInput {
+  composes: uFill from "../Settings.module.css"; }
 .spin { animation: calMgrSpin 0.7s linear infinite; }
 @keyframes calMgrSpin { to { transform: rotate(360deg); } }
 

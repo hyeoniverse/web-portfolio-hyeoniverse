@@ -53,7 +53,8 @@
   opacity: 1;
 }
 
-.worksIntroVideoActions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm);
+.worksIntroVideoActions {
+  composes: uRowWrapSm from "../Settings.module.css";
 }
 .worksIntroPickerWrap {
   grid-column: 1 / -1;

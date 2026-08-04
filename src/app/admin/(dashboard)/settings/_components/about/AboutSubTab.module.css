@@ -43,8 +43,7 @@
 /* SectionHeader 를 헤더 우측 폭 전체로 늘려 spacer(margin-left:auto)가 버튼을 끝으로 밀게 함.
    내부 wrap 의 margin-bottom 은 헤더 세로 정렬을 깨므로 0 으로 눌러줌. */
 .cardHeadMain {
-  flex: 1;
-  min-width: 0;
+  composes: uFill from "../../Settings.module.css";
 }
 .cardHeadMain > div {
   margin-bottom: 0;
@@ -166,9 +165,7 @@
 
 /* 세그먼트(배경 종류) */
 .sliderRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowSm from "../../Settings.module.css";
 }
 
 /* ── 패널 관리자 리스트 ── */
@@ -437,10 +434,7 @@
 /* 설명 EN/KO — 좁은 편집 패널이라 세로 스택 */
 /* 툴바 — [이동·들여쓰기] [추가] … [삭제] */
 .nodeEditBar {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
+  composes: uRowWrapSm from "../../Settings.module.css";
 }
 .nodeMoveGroup,
 .nodeAddGroup {
