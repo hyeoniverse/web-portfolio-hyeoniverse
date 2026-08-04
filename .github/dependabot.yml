@@ -49,6 +49,11 @@ updates:
       # 0.17.x 패치는 계속 받도록 minor+major 만 무시. marked-katex-extension 이 0.18 지원하면 해제.
       - dependency-name: "katex"
         update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      # jsdom 30+ — Node 20 지원을 끊음 (요구: ^22.22.2 || ^24.15.0 || >=26.0.0).
+      # 테스트 전용 dev dep 하나 때문에 Node 베이스라인을 22+ 로 올리는 건 과해서 major 는 무시.
+      # 29.x 패치/마이너는 계속 받는다. 프로젝트를 Node 22+ 로 이전하면 해제. (#526)
+      - dependency-name: "jsdom"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions — 매월 1회
   - package-ecosystem: github-actions
