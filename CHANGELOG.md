@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.43.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.42.0...v1.43.0) (2026-08-04)
+
+
+### Features
+
+* **comments:** 삭제(tombstone)된 댓글 복구 기능 ([5507c09](https://github.com/hyeoniverse/web-portfolio-oval/commit/5507c093618568ccb07f730fdbb420afd8db39d8))
+
 ## [1.42.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.41.1...v1.42.0) (2026-08-03)
 
 
