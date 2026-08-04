@@ -149,7 +149,7 @@
 .envFieldRowMissing {
   border-left: 2px solid var(--text-accent);
   padding-left: var(--spacing-sm);
-  margin-left: calc(var(--spacing-sm) * -1 - 2px);
+  margin-left: calc(var(--spacing-sm) * -1 - var(--spacing-3xs));
 }
 .envProgressBar {
   height: 3px;
@@ -187,7 +187,7 @@
 .envMetaLink {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   /* tooltip 안 (bg-inverse + text-inverse) 에서도 보이도록 부모 텍스트 색 그대로 상속 + underline 으로 link 표식 */
   color: inherit;
   text-decoration: underline;
@@ -296,7 +296,7 @@
   font-size: var(--font-size-xs);
   color: var(--text-muted);
   margin-top: var(--spacing-2xs);
-  line-height: 1.4;
+  line-height: var(--line-height-snug);
 }
 
 @media (hover: none) and (pointer: coarse) {

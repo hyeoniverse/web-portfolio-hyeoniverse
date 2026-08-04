@@ -134,7 +134,7 @@
 .diffHunk {
   position: relative;
   margin: var(--spacing-2xs) calc(-1 * var(--spacing-md));
-  padding: 0 var(--spacing-md) 0 calc(var(--spacing-md) + 20px);
+  padding: 0 var(--spacing-md) 0 calc(var(--spacing-md) + var(--spacing-lg));
 }
 
 .diffHunkOverlay {
@@ -161,7 +161,7 @@
   border: none;
   border-radius: var(--radius-circle);
   font-size: var(--font-size-xs);
-  line-height: 1;
+  line-height: var(--line-height-fit);
 }
 
 .diffHunkFloatAccept,

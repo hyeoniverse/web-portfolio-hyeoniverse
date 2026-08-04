@@ -33,7 +33,7 @@
 .edit {
   margin: 0;
   border: 0;
-  padding: 2px 4px;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
   border-radius: var(--radius-sm, 6px);
   background: transparent;
   color: inherit;
@@ -76,7 +76,7 @@ textarea.edit {
 }
 .chromeDots {
   display: inline-flex;
-  gap: 5px;
+  gap: var(--spacing-2xs);
 }
 .chromeDots i {
   width: 9px;
@@ -87,7 +87,7 @@ textarea.edit {
 .chromeLive {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--spacing-2xs);
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   font-weight: 600;
@@ -449,8 +449,8 @@ textarea.edit {
   color: var(--text-tertiary);
 }
 .blockHint code {
-  padding: 1px 5px;
-  border-radius: 5px;
+  padding: var(--spacing-4xs) var(--spacing-2xs);
+  border-radius: var(--radius-sm);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
@@ -467,7 +467,7 @@ textarea.edit {
 .editTag {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
 }
 .editTagX {
   display: inline-flex;
@@ -617,7 +617,7 @@ textarea.edit {
   border-radius: var(--radius-2xl);
   background: transparent;
   color: var(--text-secondary);
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   cursor: pointer;
 }
 .iconPickBtn:hover {
@@ -700,7 +700,7 @@ textarea.edit {
   top: 6px;
   right: 6px;
   display: flex;
-  gap: 6px;
+  gap: var(--spacing-xs);
   opacity: 0;
   transform: scale(var(--tool-scale));
   transform-origin: top right;
@@ -810,9 +810,9 @@ textarea.edit {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   padding: var(--spacing-md);
-  padding-right: 32px;
+  padding-right: var(--spacing-2xl);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
 }
@@ -931,7 +931,7 @@ textarea.edit {
 .tree {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: var(--spacing-2xs);
 }
 
 /* 편집 힌트 뱃지 (텍스트 클릭 안내) */
@@ -1077,7 +1077,7 @@ textarea.edit {
 }
 .stageDots {
   display: flex;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   align-items: center;
   flex-shrink: 0;
 }
@@ -1198,7 +1198,7 @@ textarea.edit {
   margin: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
-  line-height: 1.4;
+  line-height: var(--line-height-snug);
   color: var(--text-tertiary);
 }
 .creditsNotice svg {
@@ -1270,7 +1270,7 @@ textarea.edit {
 .creditsFixed {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   padding: 0.1em 0.6em;
   box-sizing: border-box;
   min-height: 1.7em;
@@ -1589,10 +1589,10 @@ textarea.edit {
 }
 .erdFile {
   display: inline-flex;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   align-items: center;
   max-width: 18rem;
-  padding: 1px var(--spacing-2xs);
+  padding: var(--spacing-4xs) var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   color: var(--text-secondary);
@@ -1615,7 +1615,7 @@ textarea.edit {
 .erdReplaceWarn {
   display: inline-flex;
   align-items: center;
-  padding: 1px var(--spacing-2xs);
+  padding: var(--spacing-4xs) var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-warning-soft);
   color: var(--text-warning);
@@ -1641,7 +1641,7 @@ textarea.edit {
 .planList li {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   color: var(--text-secondary);
 }
 .planDanger strong {
@@ -1657,10 +1657,10 @@ textarea.edit {
 .planDiff {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   max-height: 11rem;
   overflow-y: auto;
-  margin-top: 2px;
+  margin-top: var(--spacing-3xs);
 }
 .planDiffRow {
   display: flex;
