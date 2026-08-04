@@ -141,10 +141,7 @@
 }
 
 .rels {
-  display: flex;
-  gap: var(--spacing-2xs);
-  align-items: center;
-  flex-wrap: wrap;
+  composes: uRowWrap2xs from "../../Settings.module.css";
 }
 /* 방향별 그룹 — 라벨이 화살표의 의미를 대신한다 */
 .relGroup {
@@ -196,10 +193,7 @@ html[data-theme="dark"] .relGroup .rel {
   min-width: 0;
 }
 .footer {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: center;
-  justify-content: space-between;
+  composes: uRowSmBetween from "../../Settings.module.css";
 }
 .footerRight {
   display: inline-flex;

@@ -5,10 +5,8 @@
    ───────────────────────────────────────────────────────────── */
 
 .studio {
+  composes: uColXl from "../../Settings.module.css";
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
 }
 
 /* SegmentedControl 을 내용 폭에 맞게 (부모 flex 의 stretch 방지) */
@@ -255,14 +253,10 @@ textarea.edit {
 }
 /* 배경 색·그라디언트 라이트/다크 2열 편집 */
 .bgThemeRow {
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-md);
+  composes: uGrid2Md from "../../Settings.module.css";
 }
 .bgThemeCol {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: uColSm from "../../Settings.module.css";
   min-width: 0;
 }
 .bgThemeLabel {
@@ -332,9 +326,7 @@ textarea.edit {
   color: var(--text-tertiary);
 }
 .stripChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  composes: uWrapXs from "../../Settings.module.css";
 }
 
 /* 패널 칩 — 드래그로 순서 변경(중간 패널) + 클릭으로 표시 토글 */
@@ -1412,9 +1404,7 @@ textarea.edit {
 
 /* ── Backend ── */
 .bkStage {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
+  composes: uColXl from "../../Settings.module.css";
   position: relative;
 }
 .bkBody {
@@ -1458,9 +1448,7 @@ textarea.edit {
 
 /* ── User Flow ── */
 .ufStage {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
+  composes: uColXl from "../../Settings.module.css";
   position: relative;
 }
 
@@ -1561,15 +1549,11 @@ textarea.edit {
 
 /* ── Troubleshooting ── */
 .tsStage {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
+  composes: uColXl from "../../Settings.module.css";
   position: relative;
 }
 .tsBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
+  composes: uColLg from "../../Settings.module.css";
 }
 .tsField {
   composes: uCol2xs from "../../Settings.module.css";
@@ -1579,10 +1563,7 @@ textarea.edit {
   line-height: var(--line-height-relaxed);
 }
 .tsTags {
-  display: flex;
-  gap: var(--spacing-2xs);
-  align-items: center;
-  flex-wrap: wrap;
+  composes: uRowWrap2xs from "../../Settings.module.css";
 }
 .tsTag {
   font-size: var(--font-size-sm);

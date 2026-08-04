@@ -4,15 +4,23 @@
 .uRowXs { composes: uRow; gap: var(--spacing-xs); }
 .uRowSm { composes: uRow; gap: var(--spacing-sm); }
 .uRow2xs { composes: uRow; gap: var(--spacing-2xs); }
+.uRowSmBetween { composes: uRowSm; justify-content: space-between; }
 .uRowWrapSm { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
 .uRowWrapXs { composes: uRow; flex-wrap: wrap; gap: var(--spacing-xs); }
+.uRowWrap2xs { composes: uRow; flex-wrap: wrap; gap: var(--spacing-2xs); }
+.uWrapXs { display: flex; flex-wrap: wrap; gap: var(--spacing-xs); }
+.uInlineRow2xs { display: inline-flex; align-items: center; gap: var(--spacing-2xs); }
 .uFill { flex: 1; min-width: 0; }
 .uCol { display: flex; flex-direction: column; }
 .uColXs { composes: uCol; gap: var(--spacing-xs); }
 .uColSm { composes: uCol; gap: var(--spacing-sm); }
 .uColMd { composes: uCol; gap: var(--spacing-md); }
+.uColLg { composes: uCol; gap: var(--spacing-lg); }
+.uColXl { composes: uCol; gap: var(--spacing-xl); }
 .uCol2xs { composes: uCol; gap: var(--spacing-2xs); }
 .uCol3xs { composes: uCol; gap: var(--spacing-3xs); }
+.uGrid2Sm { display: grid; gap: var(--spacing-sm); grid-template-columns: var(--grid-cols-2); }
+.uGrid2Md { display: grid; gap: var(--spacing-md); grid-template-columns: var(--grid-cols-2); }
 
 .container {
   max-width: var(--page-max-width);
@@ -964,10 +972,7 @@
   margin-bottom: var(--spacing-md);
 }
 
-.profileGrid {
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-sm);
+.profileGrid { composes: uGrid2Sm;
 }
 
 .profileAddBtn {
@@ -1684,10 +1689,7 @@
   transform: rotate(180deg);
 }
 
-.tagDescFilterGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
+.tagDescFilterGroup { composes: uInlineRow2xs;
 }
 
 .tagDescFilterGroupLabel {
@@ -1873,10 +1875,7 @@ a.tagRelatedItem:hover {
 /* 기본값 초기화 모달 chip — 클릭 시 해당 태그 사용 게시물 노출. 취소선 없음(삭제 대기 chip 과 구분). */
 
 /* section fields 내부 grid utility — 2-col / 3-col */
-.fieldsGrid2 {
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-md);
+.fieldsGrid2 { composes: uGrid2Md;
 }
 
 .fieldsGrid3 {
@@ -1907,10 +1906,7 @@ a.tagRelatedItem:hover {
 }
 
 /* chip 라벨 — KO 이름 + separator + EN 이름 둘 다 표시 */
-.worksCatChipLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
+.worksCatChipLabel { composes: uInlineRow2xs;
 }
 
 .worksCatChipSep {
@@ -1966,10 +1962,7 @@ a.tagRelatedItem:hover {
 }
 
 /* 우측 actions — edit 모드는 Cancel + Save 2개 */
-.worksCatAddActions {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
+.worksCatAddActions { composes: uInlineRow2xs;
 }
 
 /* edit 모드 — 박스가 카테고리 편집 중임을 시각적으로 강조 (좌 accent 보더) */
