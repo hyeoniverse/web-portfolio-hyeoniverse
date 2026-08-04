@@ -4070,12 +4070,7 @@
   background: var(--text-muted);
 }
 
-/* 크기·굵기·줄간격은 전역 base, 여백은 .prose-content 공통 규칙 — 여기선 문맥 고유 폰트만 */
-.editorContent h1,
-.editorContent h2,
-.editorContent h3 {
-  font-family: var(--font-instrument);
-}
+/* 제목은 전역 base + .prose-content 공통(폰트·크기·여백·줄간격·굵기)만 받음 — 에디터 전용 규칙 없음 */
 .editorContent p {
   margin-bottom: var(--spacing-md);
 }

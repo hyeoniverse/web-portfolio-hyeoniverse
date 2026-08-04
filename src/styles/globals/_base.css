@@ -111,9 +111,14 @@ h4 { font-size: var(--font-size-md); }
 h5 { font-size: var(--font-size-sm); }
 h6 { font-size: var(--font-size-xs); }
 
-/* 콘텐츠(글) 제목 여백 — .prose-content 클래스 하나로 에디터·게시글·work 공통 적용.
-   비대칭(위 넉넉 / 아래 좁게, Notion 결). top≠bottom 이라 box 토큰(대칭)이 안 맞아
-   방향별 단일 spacing 으로. 비콘텐츠 제목은 위 base 의 margin 0 유지. */
+/* 콘텐츠(글) 제목 — .prose-content 클래스 하나로 에디터·게시글·work 공통.
+   폰트(serif)와 비대칭 여백(위 넉넉 / 아래 좁게, Notion 결). 비콘텐츠 제목은 base 만(margin 0).
+   여백은 top≠bottom 이라 box 토큰(대칭)이 안 맞아 방향별 단일 spacing 으로. */
+.prose-content h1,
+.prose-content h2,
+.prose-content h3 {
+  font-family: var(--font-instrument), serif;
+}
 .prose-content h1 { margin-top: var(--spacing-2xl); margin-bottom: var(--spacing-xs); }
 .prose-content h2 { margin-top: var(--spacing-xl); margin-bottom: var(--spacing-xs); }
 .prose-content h3 { margin-top: var(--spacing-lg); margin-bottom: var(--spacing-2xs); }

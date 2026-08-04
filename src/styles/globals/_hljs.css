@@ -819,9 +819,6 @@ span.math-element-wrap .math-katex-content {
   margin: 0;
   padding: 0;
 }
-.toggle-title-wrap h1,
-.toggle-title-wrap h2,
-.toggle-title-wrap h3 { font-family: var(--font-instrument); font-weight: var(--font-weight-regular); }
 
 /* ── reader 비주얼 다이어그램 (data-diagram → SVG, 위치 보존 읽기전용) ── */
 .reader-diagram {
