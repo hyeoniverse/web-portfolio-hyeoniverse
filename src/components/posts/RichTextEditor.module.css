@@ -4070,16 +4070,12 @@
   background: var(--text-muted);
 }
 
-/* 크기·줄간격은 전역 heading base(_base.css) 상속. 폰트 + 콘텐츠 제목 여백(비대칭)만 여기서 */
+/* 크기·굵기·줄간격은 전역 base, 여백은 .prose-content 공통 규칙 — 여기선 문맥 고유 폰트만 */
 .editorContent h1,
 .editorContent h2,
 .editorContent h3 {
   font-family: var(--font-instrument);
-  font-weight: var(--font-weight-regular);
 }
-.editorContent h1 { margin: var(--prose-h1-margin); }
-.editorContent h2 { margin: var(--prose-h2-margin); }
-.editorContent h3 { margin: var(--prose-h3-margin); }
 .editorContent p {
   margin-bottom: var(--spacing-md);
 }

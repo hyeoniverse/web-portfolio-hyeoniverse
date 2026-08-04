@@ -3456,7 +3456,7 @@ export default function PlateEditor({
               }}
             />
             <PlateContent
-              className={styles.editorContent}
+              className={`${styles.editorContent} prose-content`}
               style={{ minHeight: 300, paddingBottom: 40 }}
               data-lenis-prevent
               onKeyDown={handleContentKeyDown}
