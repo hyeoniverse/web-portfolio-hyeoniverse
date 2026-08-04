@@ -88,9 +88,7 @@
 
 /* ── 필드 ── */
 .group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+  composes: uColSm from "../../Settings.module.css";
 }
 .groupLabel {
   font-family: var(--font-mono);
@@ -163,9 +161,7 @@
   object-fit: cover;
 }
 .mediaActions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  composes: uColXs from "../../Settings.module.css";
 }
 
 /* 세그먼트(배경 종류) */
@@ -177,8 +173,7 @@
 
 /* ── 패널 관리자 리스트 ── */
 .panelList {
-  display: flex;
-  flex-direction: column;
+  composes: uCol from "../../Settings.module.css";
 }
 .panelRow {
   display: flex;

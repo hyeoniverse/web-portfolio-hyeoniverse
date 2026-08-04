@@ -115,7 +115,8 @@
   overflow-y: auto;
   overflow-x: hidden;
 }
-.techPresetList { display: flex; flex-direction: column;
+.techPresetList {
+  composes: uCol from "../Settings.module.css";
 }
 .techPresetRow {
   display: grid;
