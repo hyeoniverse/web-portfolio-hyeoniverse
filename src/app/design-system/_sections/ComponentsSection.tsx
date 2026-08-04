@@ -1470,6 +1470,47 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </div>
       </motion.div>
 
+      {/* Inline Color Swatch */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Inline Color Swatch</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "인라인 `code` 의 내용이 색상값(`#hex` · `rgb()` · `hsl()`)이면 앞에 색 원(스와치)이 붙습니다 — GitHub 스타일. 렌더 후 `applyColorSwatches` 가 인라인 코드를 스캔해 **검증된 색만** 배경으로 주입하므로, 이름색·비색상은 평문으로 남습니다. 인라인 코드 자체는 Notion 식 배경형(보더 없음)."
+            : "When inline `code` holds a color value (`#hex` · `rgb()` · `hsl()`), a color dot (swatch) is prepended — GitHub style. After render, `applyColorSwatches` scans inline code and injects **only validated colors**, so named colors / non-colors stay plain. The inline code itself is Notion-style (borderless background).")}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-sm)", alignItems: "center", lineHeight: 2.2 }}>
+          <code><span className="color-swatch" style={{ background: "#e11d48" }} aria-hidden />#e11d48</code>
+          <code><span className="color-swatch" style={{ background: "rgb(46, 204, 113)" }} aria-hidden />rgb(46, 204, 113)</code>
+          <code><span className="color-swatch" style={{ background: "hsl(280, 70%, 55%)" }} aria-hidden />hsl(280, 70%, 55%)</code>
+          <code>not-a-color</code>
+        </motion.div>
+      </motion.div>
+
+      {/* Code Block Controls */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Code Block Controls</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "리더/미리보기에서 코드블록 위에 붙는 바 — 좌측 언어 라벨 + 우측 복사·줄바꿈 토글. 두 버튼은 각자 떠오른 **emboss 타일**로 구분되고, 코드블록 위 세로 스크롤은 페이지로 통과합니다(축 기반 wheel 라우팅). 런타임엔 `attachCodeWrapToggle` 이 주입합니다."
+            : "The bar above a code block in the reader/preview — a language label on the left, copy and wrap toggles on the right. The two buttons read as raised **emboss tiles**, and vertical scroll over a code block passes through to the page (axis-based wheel routing). At runtime it's injected by `attachCodeWrapToggle`.")}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)}>
+          <div className="code-block-wrap has-code-bar" style={{ maxWidth: 440 }}>
+            <div className="code-block-bar" style={{ position: "relative" }}>
+              <span className="code-lang-label">css</span>
+              <div className="code-block-controls">
+                <button className="code-copy-btn" type="button" tabIndex={-1} aria-hidden>
+                  <span className="code-copy-labels"><span className="code-copy-default">Copy</span></span>
+                </button>
+                <button className="code-wrap-toggle" type="button" tabIndex={-1} aria-hidden>
+                  <span className="code-wrap-label-default">↔ Scroll</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+
     </section>
   );
 }
