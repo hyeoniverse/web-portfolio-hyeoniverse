@@ -319,13 +319,24 @@
   letter-spacing: -0.01em;
 }
 
+.prose h1 {
+  margin: var(--prose-h1-margin);
+}
+
 .prose h2 {
+  margin: var(--prose-h2-margin);
   padding-bottom: var(--spacing-sm);
   border-bottom: var(--border-light);
 }
 
 .prose h3 {
+  margin: var(--prose-h3-margin);
   font-weight: var(--font-weight-medium);
+}
+
+/* 콘텐츠 최상단 제목은 위 여백 제거(컨테이너 상단에 딱 붙게) */
+.prose > :first-child {
+  margin-top: 0;
 }
 
 .prose p {
