@@ -9,6 +9,7 @@
 .uColXs { composes: uCol; gap: var(--spacing-xs); }
 .uColSm { composes: uCol; gap: var(--spacing-sm); }
 .uColMd { composes: uCol; gap: var(--spacing-md); }
+.uCol2xs { composes: uCol; gap: var(--spacing-2xs); }
 .uCol3xs { composes: uCol; gap: var(--spacing-3xs); }
 
 .container {

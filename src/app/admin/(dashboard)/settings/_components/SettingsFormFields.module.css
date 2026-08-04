@@ -117,7 +117,8 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
 }
-.serviceItems { display: flex; flex-direction: column;
+.serviceItems {
+  composes: uCol from "../Settings.module.css";
 }
 
 .serviceItemDragging {

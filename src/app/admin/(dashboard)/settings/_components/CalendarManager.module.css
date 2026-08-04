@@ -1,8 +1,6 @@
 /* ── 달력 관리 (settings > 달력 관리 탭) ── */
 .wrap {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  composes: uColMd from "../Settings.module.css";
 }
 
 .headRow {
@@ -22,9 +20,7 @@
 }
 
 .list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+  composes: uCol2xs from "../Settings.module.css";
 }
 
 .row {
