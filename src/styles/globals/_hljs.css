@@ -812,17 +812,18 @@ span.math-element-wrap .math-katex-content {
 
 /* ── Toggle title: heading 스타일 ── */
 .toggle-title-wrap h1,
+/* 토글 제목은 compact — margin/padding 0 으로 heading base 여백 제거, 크기·줄간격은 base 상속 */
+.toggle-title-wrap h1,
 .toggle-title-wrap h2,
 .toggle-title-wrap h3,
 .toggle-title-wrap p,
 .toggle-title-wrap [data-slate-node] {
   margin: 0;
   padding: 0;
-  line-height: 1.4;
 }
-.toggle-title-wrap h1 { font-size: var(--font-size-2xl); font-family: var(--font-instrument); font-weight: var(--font-weight-regular); }
-.toggle-title-wrap h2 { font-size: var(--font-size-lg); font-family: var(--font-instrument); font-weight: var(--font-weight-regular); }
-.toggle-title-wrap h3 { font-size: var(--font-size-md); font-family: var(--font-instrument); font-weight: var(--font-weight-regular); }
+.toggle-title-wrap h1,
+.toggle-title-wrap h2,
+.toggle-title-wrap h3 { font-family: var(--font-instrument); font-weight: var(--font-weight-regular); }
 
 /* ── reader 비주얼 다이어그램 (data-diagram → SVG, 위치 보존 읽기전용) ── */
 .reader-diagram {
