@@ -810,9 +810,7 @@ span.math-element-wrap .math-katex-content {
   transform: translate(-50%, -50%);
 }
 
-/* ── Toggle title: heading 스타일 ── */
-.toggle-title-wrap h1,
-/* 토글 제목은 compact — margin/padding 0 으로 heading base 여백 제거, 크기·줄간격은 base 상속 */
+/* ── Toggle title: compact — margin/padding 0 으로 heading base·prose-content 여백 제거, 크기·줄간격은 base 상속 ── */
 .toggle-title-wrap h1,
 .toggle-title-wrap h2,
 .toggle-title-wrap h3,
