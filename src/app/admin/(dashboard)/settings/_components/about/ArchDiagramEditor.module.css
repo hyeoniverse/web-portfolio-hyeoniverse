@@ -3,10 +3,7 @@
   composes: uColMd from "../../Settings.module.css";
 }
 .toolbar {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
+  composes: uRowWrapSm from "../../Settings.module.css";
 }
 .hint {
   margin: 0;

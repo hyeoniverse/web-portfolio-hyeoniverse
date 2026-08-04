@@ -161,8 +161,7 @@
 }
 
 .seriesCardInfo {
-  flex: 1;
-  min-width: 0;
+  composes: uFill from "../Settings.module.css";
 }
 .seriesCardNameRow {
   display: flex;

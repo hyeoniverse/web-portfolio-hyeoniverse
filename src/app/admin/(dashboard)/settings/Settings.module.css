@@ -5,6 +5,8 @@
 .uRowSm { composes: uRow; gap: var(--spacing-sm); }
 .uRow2xs { composes: uRow; gap: var(--spacing-2xs); }
 .uRowWrapSm { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+.uRowWrapXs { composes: uRow; flex-wrap: wrap; gap: var(--spacing-xs); }
+.uFill { flex: 1; min-width: 0; }
 .uCol { display: flex; flex-direction: column; }
 .uColXs { composes: uCol; gap: var(--spacing-xs); }
 .uColSm { composes: uCol; gap: var(--spacing-sm); }
@@ -172,9 +174,7 @@
 
 /* ── Nav Sub-items (Content → Home / Profile / About) ── */
 
-.panel {
-  flex: 1;
-  min-width: 0;
+.panel { composes: uFill;
 }
 
 /* ── Tab grid — auto-fit: 컬럼 폭이 minmax min 이하로 좁아지면 자동으로 1열 wrap.
@@ -479,9 +479,7 @@
 
 /* ColorField / 로고 색상 hex Input — flex 1 로 ColorPicker 옆에서 stretch.
    공통 Input 컴포넌트 사용 (height 등 control 시스템 따라감) */
-.colorInput {
-  flex: 1;
-  min-width: 0;
+.colorInput { composes: uFill;
 }
 
 /* ── Theme Presets ── */
@@ -1399,9 +1397,7 @@
 /* ── Font Preview (inside Select renderOption) ── */
 
 /* ── Font Picker — editor 의 FontPicker 패턴 (Select + dropdown 내부 search + 필터링 목록) ── */
-.fontPickerSelect {
-  flex: 1;
-  min-width: 0;
+.fontPickerSelect { composes: uFill;
 }
 
 /* Typography 등 .fields 안 FontSelect — Select 기본 width:max-content 를 눌러 열 폭을
