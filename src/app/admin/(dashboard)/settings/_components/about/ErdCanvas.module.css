@@ -120,7 +120,7 @@
 }
 .colKey {
   color: transparent;
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.02em;
 }
@@ -144,7 +144,7 @@
   display: flex;
   /* 통계는 줄어들지 않는다 — 좁은 카드에서 넘쳐 잘리느니 줄을 바꾼다 */
   flex-wrap: wrap;
-  gap: 2px var(--spacing-xs);
+  gap: var(--spacing-3xs) var(--spacing-xs);
   align-items: center;
   min-width: 0;
   padding: var(--box-3xs-sm);
@@ -157,11 +157,11 @@
 /* 방향 배지 — 아이콘 + 짧은 말. 화살표만으로는 어느 쪽이 참조하는지 안 읽힌다 */
 .dirTag {
   display: inline-flex;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   align-items: center;
   flex-shrink: 0;
   margin-left: auto;
-  padding: 1px var(--spacing-2xs);
+  padding: var(--spacing-4xs) var(--spacing-2xs);
   border-radius: 0;
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
@@ -178,7 +178,7 @@
 /* 단위를 붙인 통계 — 숫자만으로는 컬럼 수인지 관계 수인지 알 수 없다 */
 .stat {
   display: inline-flex;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   align-items: center;
   flex-shrink: 0;
   color: var(--text-tertiary);
@@ -297,25 +297,25 @@
 .nodeName {
   fill: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
 }
 .col {
   fill: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 .colType {
   fill: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-2xs);
 }
 
 /* PK / FK 뱃지 — ERD 에서 컬럼 이름만큼 중요한 정보 */
 .keyPk,
 .keyFk {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   font-weight: var(--font-weight-bold);
 }
 .keyPk {
@@ -336,10 +336,10 @@
 /* 검증 경고 — 저장(DB CHECK)이 거부할 테이블을 카드에서 먼저 드러낸다 */
 .warnTag {
   display: inline-flex;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   align-items: center;
   flex-shrink: 0;
-  padding: 1px var(--spacing-2xs);
+  padding: var(--spacing-4xs) var(--spacing-2xs);
   border-radius: 0;
   background: var(--bg-warning-soft);
   color: var(--text-warning);
@@ -350,7 +350,7 @@
 /* 툴바 요약 — 몇 개가 문제인지 */
 .warnCount {
   display: inline-flex;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   align-items: center;
   color: var(--text-warning);
   font-size: var(--font-size-xs);

@@ -22,7 +22,7 @@
 }
 
 .devicesCount {
-  padding: 0 6px;
+  padding: 0 var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
@@ -83,8 +83,8 @@
 .deviceCurrentBadge {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 1px 6px;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-light);
   font-size: var(--font-size-2xs);
@@ -95,7 +95,7 @@
 }
 
 .devicePendingBadge {
-  padding: 1px 6px;
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   font-size: var(--font-size-2xs);
@@ -108,7 +108,7 @@
 .deviceMeta {
   display: flex;
   gap: var(--spacing-sm);
-  margin-top: 2px;
+  margin-top: var(--spacing-3xs);
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
@@ -187,7 +187,7 @@
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.5;
+  line-height: var(--line-height-normal);
 }
 
 .confirmActions {

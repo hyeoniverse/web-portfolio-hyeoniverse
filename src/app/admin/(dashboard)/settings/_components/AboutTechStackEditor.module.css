@@ -54,7 +54,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: 4px 10px 4px 4px;
+  padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-2xs) var(--spacing-2xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
