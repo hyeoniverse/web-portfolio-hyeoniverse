@@ -22,7 +22,7 @@
 /* ── VS Code 식 탭 바 ── */
 .tabs {
   display: flex;
-  gap: 1px;
+  gap: var(--spacing-4xs);
   align-items: stretch;
   padding-right: var(--spacing-2xs);
   border-bottom: var(--border-light);
@@ -32,7 +32,7 @@
 .tab {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   flex-shrink: 0;
   /* 탭 = 컨트롤과 같은 높이. Button size="xs" 가 --control-h-xs 를 쓰므로 같은 토큰 */
   height: var(--control-h-xs);
@@ -108,7 +108,7 @@
 .addTab {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   flex-shrink: 0;
   height: var(--control-h-xs);
   padding: 0 var(--spacing-sm);

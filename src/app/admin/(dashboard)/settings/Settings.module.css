@@ -772,7 +772,7 @@
   text-decoration: none;
   width: 280px;
   max-width: 100%;
-  line-height: 1;
+  line-height: var(--line-height-fit);
   overflow: hidden;
   white-space: nowrap;
   flex-shrink: 1;
@@ -803,7 +803,7 @@
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-md);
   margin-top: 0;
-  line-height: 1.4;
+  line-height: var(--line-height-snug);
 }
 
 /* 태그·카테고리(2열) hint — 두 열의 에디터 툴바가 같은 Y 에서 시작하도록 2줄 높이를 예약.
@@ -919,7 +919,7 @@
   color: var(--text-tertiary);
   font-size: var(--font-size-xs);
   padding: 0;
-  line-height: 1;
+  line-height: var(--line-height-fit);
 }
 
 .priorityBtn + .priorityBtn {
@@ -1006,7 +1006,7 @@
   font-family: var(--font-mono);
   color: var(--text-white);
   mix-blend-mode: difference;
-  margin-right: 2px;
+  margin-right: var(--spacing-3xs);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1154,7 +1154,7 @@
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
-  line-height: 1;
+  line-height: var(--line-height-fit);
   color: var(--text-tertiary);
   text-align: center;
   cursor: pointer;
@@ -1192,7 +1192,7 @@
   align-items: center;
   justify-content: center;
   max-width: 14px;
-  margin-right: 4px;
+  margin-right: var(--spacing-2xs);
   opacity: 1;
   overflow: hidden;
   white-space: nowrap;
@@ -1540,7 +1540,7 @@
   background: transparent;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-md);
-  line-height: 1;
+  line-height: var(--line-height-fit);
   color: var(--text-secondary);
   cursor: pointer;
   flex-shrink: 0;
@@ -1607,7 +1607,7 @@
 .sizeChip {
   display: inline-flex;
   align-items: center;
-  padding: 2px var(--spacing-xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -1677,7 +1677,7 @@
   color: var(--text-primary);
   font-size: var(--font-size-2xs);
   font-weight: 700;
-  line-height: 1;
+  line-height: var(--line-height-fit);
   font-variant-numeric: tabular-nums;
 }
 /* 필터 버튼 chevron — 펼침 시 회전. 전역 theme transition(0,1,1)이 transform 미포함이라
@@ -1861,11 +1861,11 @@ a.tagRelatedItem:hover {
 }
 
 .tagRelatedMetaDraft {
-  padding: 1px var(--spacing-2xs);
+  padding: var(--spacing-4xs) var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
-  font-size: 9px;
+  font-size: var(--font-size-2xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }

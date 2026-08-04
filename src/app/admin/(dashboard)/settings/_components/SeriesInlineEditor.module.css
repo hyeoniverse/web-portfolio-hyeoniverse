@@ -107,7 +107,7 @@
 .addPostHeader button[class] {
   padding: var(--box-3xs-xs);
   font-size: var(--font-size-2xs);
-  line-height: 1;
+  line-height: var(--line-height-fit);
 }
 
 .addPostSearch {
@@ -367,7 +367,7 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-tertiary);
-  line-height: 1;
+  line-height: var(--line-height-fit);
 }
 
 .seriesPostTitle {

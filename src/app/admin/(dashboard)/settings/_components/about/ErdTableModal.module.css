@@ -258,7 +258,7 @@ html[data-theme="dark"] .relGroup .rel {
 }
 
 .req {
-  margin-left: 2px;
+  margin-left: var(--spacing-3xs);
   color: var(--text-accent);
   font-weight: var(--font-weight-bold);
 }
@@ -353,7 +353,7 @@ html[data-theme="dark"] .relGroup .rel {
 
 /* 상세 행 — 열로 두면 이름 칸이 잘려서 아래로 뺀다 */
 .detailRow td {
-  padding: 0 var(--spacing-sm) var(--spacing-2xs) 96px;
+  padding: 0 var(--spacing-sm) var(--spacing-2xs) var(--spacing-5xl);
 }
 .detail {
   display: flex;

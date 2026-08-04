@@ -83,8 +83,8 @@
 .memberDetailLink {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
   border-radius: var(--radius-capsule);
   border: var(--border-light);
   background: var(--bg-secondary);

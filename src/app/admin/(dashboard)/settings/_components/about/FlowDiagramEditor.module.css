@@ -78,7 +78,7 @@
 }
 .legendItem {
   display: inline-flex;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   align-items: center;
   color: var(--text-tertiary);
   font-family: var(--font-mono);

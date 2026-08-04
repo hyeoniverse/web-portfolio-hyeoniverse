@@ -52,14 +52,14 @@
   margin: 0;
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
-  line-height: 1.5;
+  line-height: var(--line-height-normal);
 }
 
 /* 카드 헤더 save/revert/reset — 작은 텍스트 버튼 */
 .headBtn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   padding: var(--spacing-2xs) var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
@@ -255,12 +255,12 @@
 .tree {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: var(--spacing-2xs);
 }
 .nodeWrap {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: var(--spacing-2xs);
 }
 .node {
   composes: uRow2xs from "../../Settings.module.css";
@@ -361,7 +361,7 @@
 .nodeCount {
   flex-shrink: 0;
   min-width: 18px;
-  padding: 0 5px;
+  padding: 0 var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
@@ -373,9 +373,9 @@
 .children {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  margin-left: 11px;
-  padding-left: 14px;
+  gap: var(--spacing-2xs);
+  margin-left: var(--spacing-sm);
+  padding-left: var(--spacing-md);
   border-left: 1px solid var(--border-light-color);
 }
 /* master-detail — 기본은 트리만(단일 열). 노드 선택 시에만 우측 편집 패널이 펼쳐짐(고정 빈 필드 없음). */

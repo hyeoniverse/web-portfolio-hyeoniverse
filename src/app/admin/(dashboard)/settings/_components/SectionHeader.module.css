@@ -13,7 +13,7 @@
   z-index: calc(var(--z-nav) - 3);
   mix-blend-mode: difference;
   color: var(--text-white);
-  line-height: 1;
+  line-height: var(--line-height-fit);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
