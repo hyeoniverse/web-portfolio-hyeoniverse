@@ -33,9 +33,7 @@
   object-fit: cover;
 }
 .memberDetailHeadInfo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
+  composes: uCol2xs from "../Settings.module.css";
   min-width: 0;
 }
 .memberDetailNameRow {
@@ -80,9 +78,7 @@
   white-space: pre-wrap;
 }
 .memberDetailLinks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  composes: uWrapXs from "../Settings.module.css";
 }
 .memberDetailLink {
   display: inline-flex;

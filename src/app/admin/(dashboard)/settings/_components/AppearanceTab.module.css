@@ -7,9 +7,7 @@
   }
 }
 .dsActions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  composes: uRowSm from "../Settings.module.css";
   min-width: 0;
 }
 .dsHint {
@@ -58,9 +56,7 @@
   flex: 1;
 }
 .logoColorPresets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  composes: uWrapXs from "../Settings.module.css";
 }
 
 .logoColorPresetBtnActive {
@@ -165,9 +161,7 @@
   width: 100%;
 }
 .faviconPanel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  composes: uColMd from "../Settings.module.css";
   min-width: 0;
 }
 /* 두 컬럼 사이 세로 구분선 (넓은 뷰에서만) — 카드 대신 얇은 rule 로 분리 */
@@ -196,9 +190,7 @@
 }
 /* 그림자 — favicon(탭 아이콘) + 네비게이션 로고. 풀로고 아래 별도 brandPart 섹션. */
 .faviconShadowGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
+  composes: uColLg from "../Settings.module.css";
 }
 .faviconShadowItem {
   composes: uColXs from "../Settings.module.css";
@@ -243,9 +235,7 @@
   width: 100%;
 }
 .faviconColorItem {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
+  composes: uCol3xs from "../Settings.module.css";
   min-width: 0;
 }
 .faviconColorTools {
@@ -289,9 +279,7 @@
   max-width: 22rem;
 }
 .brandGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
+  composes: uColLg from "../Settings.module.css";
 }
 .brandGroup + .brandGroup {
   margin-top: var(--spacing-xl);
@@ -402,9 +390,7 @@
   width: 100%;
 }
 .fullLogoPreviewCell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
+  composes: uCol3xs from "../Settings.module.css";
   min-width: 0;
 }
 .fullLogoPreviewBox {
@@ -435,9 +421,7 @@
   composes: uRowXs from "../Settings.module.css";
 }
 .brandDrops {
-  display: grid;
-  grid-template-columns: var(--grid-cols-2);
-  gap: var(--spacing-md);
+  composes: uGrid2Md from "../Settings.module.css";
 }
 
 @media (max-width: 640px) {

@@ -236,10 +236,8 @@
   color: var(--text-accent);
 }
 .envInputCell {
+  composes: uCol2xs from "../Settings.module.css";
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2xs);
 }
 .envInputCell > div:first-child {
   width: 100%;
