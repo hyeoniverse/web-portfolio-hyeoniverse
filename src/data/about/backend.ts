@@ -52,8 +52,8 @@ await admin.from("posts")
     name: "Comments API",
     kind: "api",
     description: {
-      ko: "게스트 댓글 시스템 API. 닉네임+비밀번호로 작성하며, 삭제 시 비밀번호 검증 또는 어드민 세션 인증이 필요합니다. 관리자는 비밀번호 없이 편집/삭제가 가능합니다. 본문은 마크다운으로 작성하고, 댓글마다 giscus 식 고정 8종 이모지 반응을 달 수 있습니다.",
-      en: "Guest comment system API. Create with nickname + password. Deletion requires password verification or admin session. Admins can edit/delete without password. Bodies are written in markdown, and each comment accepts a fixed giscus-style set of 8 emoji reactions.",
+      ko: "게스트 댓글 시스템 API. 닉네임+비밀번호로 작성하며, 삭제 시 비밀번호 검증 또는 어드민 세션 인증이 필요합니다. 관리자는 비밀번호 없이 편집/삭제가 가능합니다. 삭제는 답글이 있거나 관리자 삭제면 **내용 보존형 tombstone** 으로 남아 관리자가 **복구**할 수 있고(공개 API 엔 내용이 안 보임), 답글 없는 익명 self 삭제는 하드 삭제됩니다. 본문은 마크다운으로 작성하고, 댓글마다 giscus 식 고정 8종 이모지 반응을 달 수 있습니다.",
+      en: "Guest comment system API. Create with nickname + password. Deletion requires password verification or admin session. Admins can edit/delete without password. A delete leaves a **content-preserving tombstone** — **restorable** by admins (content hidden from the public API) — when the comment has replies or is admin-deleted, while a reply-less anonymous self-delete is hard-deleted. Bodies are written in markdown, and each comment accepts a fixed giscus-style set of 8 emoji reactions.",
     },
     designNote: {
       ko: "**반응이 좋아요를 대체**: 댓글의 단일 좋아요를 giscus 식 고정 8종(👍👎😄🎉😕❤️🚀👀) 반응으로 교체했습니다. 반응자는 IP+UA 의 SHA-256(`reactor_hash`)으로 식별하고, `UNIQUE(comment_id, comment_type, emoji, reactor_hash)` 로 **같은 이모지 중복만** 막습니다 — 서로 다른 이모지는 여러 개 달 수 있습니다. 토글은 낙관적 업데이트로 즉시 반영하고 실패 시 롤백합니다.",
@@ -64,6 +64,7 @@ await admin.from("posts")
       { method: "POST", path: "/api/comments", description: { ko: "댓글 작성 (비밀번호 bcrypt 해시 저장)", en: "Create comment (password stored as bcrypt hash)" } },
       { method: "PATCH", path: "/api/comments/[id]", description: { ko: "댓글 수정 (비밀번호 검증 or admin 세션)", en: "Edit comment (password verify or admin session)" } },
       { method: "DELETE", path: "/api/comments/[id]", description: { ko: "댓글 삭제 (비밀번호 검증 or admin 세션)", en: "Delete comment (password verify or admin session)" } },
+      { method: "POST", path: "/api/comments/[id]/restore", description: { ko: "삭제(tombstone)된 댓글 복구 (admin)", en: "Restore a soft-deleted (tombstoned) comment (admin)" } },
       { method: "GET", path: "/api/comment-reactions?comment_type=&comment_ids=", description: { ko: "여러 댓글의 반응 집계 + 내가 누른 반응 (한 번에 조회)", en: "Reaction aggregates for many comments + my own reactions (single round-trip)" } },
       { method: "POST", path: "/api/comment-reactions", description: { ko: "반응 토글 (reactor_hash = IP+UA SHA-256)", en: "Toggle a reaction (reactor_hash = SHA-256 of IP+UA)" } },
     ],
