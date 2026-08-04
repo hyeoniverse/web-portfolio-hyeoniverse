@@ -235,6 +235,9 @@
   --editorial-lh-prose: var(--line-height-loose);
   --editorial-lh-code: var(--line-height-normal);
 
+  /* 제목(h1~h6) 공통 줄간격 — 전역 heading base 단일 소스. 조정은 여기 한 줄. */
+  --heading-lh: var(--line-height-tight);
+
   /* Spacing */
   --editorial-space-section: clamp(1rem, min(3.5vh, 2vw), 3.5rem);
   --editorial-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);

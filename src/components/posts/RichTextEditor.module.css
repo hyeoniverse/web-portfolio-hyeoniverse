@@ -4070,18 +4070,12 @@
   background: var(--text-muted);
 }
 
+/* 크기·여백·줄간격은 전역 heading base(_base.css) 상속 — 여기선 문맥 고유 폰트만 */
 .editorContent h1,
 .editorContent h2,
 .editorContent h3 {
   font-family: var(--font-instrument);
   font-weight: var(--font-weight-regular);
-  margin: var(--spacing-lg) 0 var(--spacing-sm);
-}
-.editorContent h1 {
-  font-size: var(--font-size-2xl);
-}
-.editorContent h2 {
-  font-size: var(--font-size-lg);
 }
 .editorContent p {
   margin-bottom: var(--spacing-md);

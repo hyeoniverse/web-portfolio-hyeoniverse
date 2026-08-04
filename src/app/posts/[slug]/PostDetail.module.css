@@ -309,29 +309,22 @@
   display: none;
 }
 
+/* 크기·여백·줄간격은 전역 heading base(_base.css) 상속 — 여기선 문맥 고유 속성만 */
 .prose h1,
 .prose h2,
 .prose h3 {
   font-family: var(--font-instrument);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
-  margin-top: var(--spacing-3xl);
-  margin-bottom: var(--spacing-md);
   letter-spacing: -0.01em;
 }
 
-.prose h1 {
-  font-size: var(--font-size-2xl);
-}
-
 .prose h2 {
-  font-size: var(--font-size-xl);
   padding-bottom: var(--spacing-sm);
   border-bottom: var(--border-light);
 }
 
 .prose h3 {
-  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
 }
 
