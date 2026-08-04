@@ -90,24 +90,25 @@ a {
   color: inherit;
 }
 
-/* 제목 공통 base — 사이트 전역 h1~h6 의 크기·여백·패딩·줄간격 단일 소스.
-   특수 제목(hero 등)은 자기 클래스로 이 base 를 덮는다(실무 표준: base + override).
-   font-family/weight/color 는 문맥별로 유지하므로 여기서 안 건드린다. */
+/* 제목 공통 base — 크기·줄간격만. 여백은 주지 않는다(리셋 표준: h 태그 margin 0).
+   블록 사이 간격은 문맥(문단 margin 등)이 담당하고, 특수 제목은 자기 클래스로 크기를 덮는다.
+   font-family/weight/color 는 문맥별 유지라 여기서 안 건드린다. */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  line-height: var(--heading-lh);
+  margin: 0;
   padding: 0;
+  line-height: var(--heading-lh);
 }
-h1 { font-size: var(--font-size-2xl); margin: var(--spacing-lg) 0 var(--spacing-xs); }
-h2 { font-size: var(--font-size-xl); margin: var(--spacing-md) 0 var(--spacing-xs); }
-h3 { font-size: var(--font-size-lg); margin: var(--spacing-sm) 0 var(--spacing-2xs); }
-h4 { font-size: var(--font-size-md); margin: var(--spacing-sm) 0 var(--spacing-2xs); }
-h5 { font-size: var(--font-size-sm); margin: var(--spacing-xs) 0 var(--spacing-2xs); }
-h6 { font-size: var(--font-size-xs); margin: var(--spacing-xs) 0 var(--spacing-2xs); }
+h1 { font-size: var(--font-size-2xl); }
+h2 { font-size: var(--font-size-xl); }
+h3 { font-size: var(--font-size-lg); }
+h4 { font-size: var(--font-size-md); }
+h5 { font-size: var(--font-size-sm); }
+h6 { font-size: var(--font-size-xs); }
 
 /* 인라인 코드 — 사이트 공통 칩 룩 (포스트 본문 기준으로 통일). 문맥별로 흩어져 있던 스타일의 단일 소스.
    코드 블록(pre code)은 바로 아래에서 리셋 + _hljs.css 의 .code-block-wrap/.slate-code_block 규칙으로 제외. */
