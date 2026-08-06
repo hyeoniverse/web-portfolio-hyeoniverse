@@ -106,19 +106,6 @@ export default function AdminEditorShell({
     schedulePlacement: PopoverPlacement = "bottom-end",
   ) => (
     <>
-      {viewHref && (
-        <Button
-          variant="ghost"
-          size="sm"
-          shape="circle"
-          icon={<ExternalLink size={16} />}
-          href={viewHref}
-          external
-          soundDisabled
-          title={labels.view ?? "View"}
-          aria-label={labels.view ?? "View"}
-        />
-      )}
       {onPreview && (
         <Button
           variant="outline"
@@ -527,6 +514,20 @@ export default function AdminEditorShell({
         {/* ── 왼쪽: BackLink + extra(Checkbox) + LanguageToggle 한 묶음 ── */}
         <div className={styles.navGroup}>
           <BackLink href={backHref} label={backLabel} />
+          {/* 발행글이면 공개 글로 나가는 링크 — 목록으로(BackLink)와 같은 네비게이션 묶음 */}
+          {viewHref && (
+            <Button
+              variant="ghost"
+              size="sm"
+              shape="circle"
+              icon={<ExternalLink size={16} />}
+              href={viewHref}
+              external
+              soundDisabled
+              title={labels.view ?? "View"}
+              aria-label={labels.view ?? "View"}
+            />
+          )}
           {topBarFirstRowExtra}
           <LanguageToggle lang={editorLang} onLangChange={onEditorLangChange} />
         </div>
