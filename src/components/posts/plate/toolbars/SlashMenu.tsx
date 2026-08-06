@@ -220,7 +220,7 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
   // IME 조합 중엔 현재 블록의 DOM 텍스트를 실시간으로 읽어 composing 에 저장(모델이 아직 안 갱신됨).
   // 조합이 끝나면 null → blockText(모델)이 이어받는다. 에디터 밖 입력(검색창 등)은 무시.
   React.useEffect(() => {
-    const onUpdate = (e: Event) => {
+    const readComposing = (e: Event) => {
       let root: HTMLElement | null = null;
       try { root = editor.api.toDOMNode(editor as any) as HTMLElement; } catch { /* ignore */ }
       if (!root || !(e.target instanceof Node) || !root.contains(e.target)) return;
@@ -231,11 +231,17 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
         setComposing((dom.textContent ?? "").replace(ZERO_WIDTH, ""));
       } catch { /* ignore */ }
     };
+    // input 은 DOM 갱신 "후" 발생 → 조합 중 텍스트를 지연 없이 정확히 읽는다.
+    // (compositionupdate 는 DOM 갱신 "전"에 올 수 있어 한 글자 뒤처져 "코"가 "ㅋ"로 필터돼 안 뜨던 버그.
+    //  그래서 input(조합 중)을 주 트리거로, compositionupdate 는 폴백으로 둔다.)
+    const onInput = (e: Event) => { if ((e as InputEvent).isComposing) readComposing(e); };
     const onEnd = () => setComposing(null);
-    document.addEventListener("compositionupdate", onUpdate, true);
+    document.addEventListener("input", onInput, true);
+    document.addEventListener("compositionupdate", readComposing, true);
     document.addEventListener("compositionend", onEnd, true);
     return () => {
-      document.removeEventListener("compositionupdate", onUpdate, true);
+      document.removeEventListener("input", onInput, true);
+      document.removeEventListener("compositionupdate", readComposing, true);
       document.removeEventListener("compositionend", onEnd, true);
     };
   }, [editor]);
@@ -273,6 +279,7 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
   }, [query, t]);
   const items = React.useMemo(() => groups.flatMap((g) => g.items), [groups]);
 
+  // open 은 항상 정확히 계산(조합 중에도 필터 결과를 그대로 표시 — 한 글자만으로도 검색되게).
   const open = query != null && items.length > 0 && focused;
 
   const { refs, style, update } = useVirtualFloating({
@@ -291,7 +298,11 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
     document.querySelector<HTMLElement>(`[data-slash-nav="${activeIdx}"]`)?.scrollIntoView({ block: "nearest" });
   }, [activeIdx, open]);
   // 슬래시 메뉴 열림/닫힘을 부모에 알림 → floating 포맷 바 숨김
-  React.useEffect(() => { onOpenChange?.(open); }, [open, onOpenChange]);
+  // IME(한글) 조합 중엔 onOpenChange 를 억제한다. 이게 부모(PlateEditor)의 setSlashOpen 을 호출하는데,
+  // 조합 중 open 이 뒤집혀(첫 자모가 아무 명령과 안 맞아 items=0) setSlashOpen 이 불리면 PlateEditor 가
+  // 재렌더되고, 형제인 Slate Editable 이 조합 도중 재조정돼 "첫 글자가 2번 입력"되는 IME 버그가 난다.
+  // open 자체는 정확히 유지(메뉴 표시/필터 정상)하고, 부모 알림만 조합 끝난 뒤로 미룬다(composing 이 dep 이라 자동 sync).
+  React.useEffect(() => { if (composing != null) return; onOpenChange?.(open); }, [open, onOpenChange, composing]);
 
   // 열린 동안 현재(커서) 블록에 옅은 배경 표시
   React.useEffect(() => {

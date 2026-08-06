@@ -377,8 +377,10 @@ code .token.italic {
   position: absolute;
   top: 0;
   left: 0;
-  color: var(--text-tertiary);
-  font-style: italic;
+  /* 일반 블록 placeholder(Space Grotesk / --font-size-md / --text-muted, italic 없음)와 통일 — 코드는 mono·14px라 달랐음 */
+  color: var(--text-muted);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
   pointer-events: none;
   user-select: none;
 }
@@ -402,10 +404,10 @@ code .token.italic {
   resize: vertical;
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
-  /* 라벨·버튼이 공유하는 규격 — 높이·폰트를 한 곳에서 강제해 서로 어긋나지 않게 */
-  --_bar-ctl-h: 30px;
-  --_bar-ctl-fs: var(--font-size-sm);
-  --_bar-ctl-px: 14px;
+  /* 라벨·버튼이 공유하는 규격 — 에디터 코드블록(.codeBarCtrl: 26px/xs/9~10px)과 크기까지 통일 */
+  --_bar-ctl-h: 26px;
+  --_bar-ctl-fs: var(--font-size-xs);
+  --_bar-ctl-px: 10px;
 }
 
 /* 리사이즈 오버레이 — 댓글창 Textarea.resizeOverlay 와 동일. wrap 의 형제로서 네이티브 grip visual 위에
@@ -540,13 +542,46 @@ code .token.italic {
    라벨 유무와 무관하게 flow 상 controls 를 오른쪽으로 민다. */
 .code-block-bar .code-block-controls { margin-left: auto; }
 
-/* 코드블록 컨트롤 = 복사·스크롤 두 버튼 묶음. 하나의 캡슐 트랙에 담지 않고, 각 버튼을
-   언어 라벨과 같은 "떠오른 타일"(bg + 캡슐 + drop shadow)로 얹어 emboss 로 구분한다.
-   컨테이너는 배치와 타일 사이 여백(gap)만 담당 — 선도 홈도 없다. */
+/* 코드블록 컨트롤 = 복사·줄바꿈 버튼을 담는 하나의 캡슐(pill) 트랙.
+   wrapper 가 흰 pill 배경(하나의 매끈한 캡슐), 버튼은 투명 → 버튼이 lift 해도 아래는 같은 흰색 배경이라
+   흰 띠/경계가 안 생긴다. wrapper box-shadow 는 안 준다(뜬 버튼 옆에서 경계처럼 보였음).
+   overflow:hidden 도 없음 — hover 바깥 그림자가 잘리지 않게. pill 모양은 first/last 버튼 개별 라운딩으로 유지. */
 .code-block-controls {
-  display: flex;
-  align-items: stretch;
-  gap: var(--spacing-3xs); /* 타일 사이 여백 — 이 틈 + 각자의 그림자로 구분 */
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-primary);
+  border-radius: var(--radius-capsule);
+}
+/* 각 버튼 = 볼록한 3D 버튼(위 하이라이트 + 아래 그림자). seam 은 first/last 맞닿는 옆면 inset 그림자.
+   --btn-lift = hover 시 버튼을 띄우는 바깥 그림자(기본은 없음). */
+.code-block-controls > * {
+  --btn-raise: inset 0 1px 0.5px -0.5px oklch(100% 0 0 / 0.55), inset 0 -1.5px 2px -1.5px oklch(0% 0 0 / 0.16);
+  --btn-seam: oklch(0% 0 0 / 0.13);
+  --btn-lift: 0 0 0 0 transparent;
+  position: relative;
+  box-shadow: var(--btn-raise), var(--btn-lift);
+}
+.code-block-controls > :first-child {
+  border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
+  box-shadow: var(--btn-raise), inset -2px 0 2px -2px var(--btn-seam), var(--btn-lift);
+}
+.code-block-controls > :last-child {
+  border-radius: 0 var(--radius-capsule) var(--radius-capsule) 0;
+  box-shadow: var(--btn-raise), inset 2px 0 2px -2px var(--btn-seam), var(--btn-lift);
+}
+[data-theme="dark"] .code-block-controls > * {
+  --btn-raise: inset 0 1px 0.5px -0.5px oklch(100% 0 0 / 0.16), inset 0 -1.5px 2px -1.5px oklch(0% 0 0 / 0.45);
+  --btn-seam: oklch(0% 0 0 / 0.4);
+}
+/* hover: translateY 대신 바깥 그림자(--btn-lift)로 띄운다 — 아래로 pill 흰 배경이 비치지 않고 진짜 떠오르는 느낌.
+   z-index 로 lift 그림자를 이웃 버튼 위에 얹는다. 배경색(paler)은 .code-copy-btn:hover 등이 담당. */
+.code-block-controls > *:hover {
+  --btn-lift: 0 7px 14px -4px oklch(0% 0 0 / 0.34), 0 3px 6px -2px oklch(0% 0 0 / 0.22);
+  transform: translateY(-2px);
+  z-index: 1;
+}
+[data-theme="dark"] .code-block-controls > *:hover {
+  --btn-lift: 0 9px 18px -4px oklch(0% 0 0 / 0.65), 0 3px 7px -2px oklch(0% 0 0 / 0.55);
 }
 /* 현재 언어 라벨 (비상호작용 태그) — 바 좌측 */
 /* 언어 라벨 — 터미널 헤더의 제목처럼 조용한 텍스트. 캡슐 배지(bg-inverse)는 헤더 안에서
@@ -559,7 +594,7 @@ code .token.italic {
   padding: 0 var(--_bar-ctl-px);
   background: var(--bg-primary);
   border-radius: var(--radius-capsule);
-  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.06), 0 2px 4px oklch(0% 0 0 / 0.06);
+  box-shadow: var(--shadow-xs);            /* 컨트롤 pill 과 같은 그림자 톤 */
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: var(--_bar-ctl-fs);
@@ -579,16 +614,15 @@ code .token.italic {
   height: var(--_bar-ctl-h);
   padding: 0 var(--_bar-ctl-px);
   border: none;
-  border-radius: var(--radius-capsule);  /* 개별 타일 — 각자 캡슐 */
-  background: var(--bg-primary);
-  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.06), 0 2px 4px oklch(0% 0 0 / 0.06); /* 살짝 떠오름 */
-  color: var(--text-primary);
+  background: transparent;
+  color: var(--text-tertiary);
   font-family: var(--font-mono);
   font-size: var(--_bar-ctl-fs);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  /* transform·box-shadow 도 transition — hover lift 가 양방향 부드럽게. 2-class 라 전역 테마 transition(0,1,1) 을 이김 */
+  transition: background 0.15s ease, color 0.15s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
 }
 .code-copy-icon { flex-shrink: 0; }
 /* copy/copied 두 라벨을 grid 로 겹쳐 넓은 쪽이 폭을 잡는다 → 상태 전환에도 너비 불변 */
@@ -604,7 +638,6 @@ code .token.italic {
 
 .code-block-wrap .code-copy-btn:hover {
   background: var(--bg-tertiary-alt);
-  box-shadow: 0 1px 3px oklch(0% 0 0 / 0.13), 0 3px 8px oklch(0% 0 0 / 0.13);
   color: var(--text-primary);
 }
 
@@ -624,21 +657,18 @@ code .token.italic {
   height: var(--_bar-ctl-h);
   padding: 0 var(--_bar-ctl-px);
   border: none;
-  border-radius: var(--radius-capsule);  /* 복사 버튼과 동일 — 개별 타일 */
-  background: var(--bg-primary);
-  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.06), 0 2px 4px oklch(0% 0 0 / 0.06);
-  color: var(--text-primary);
+  background: transparent;
+  color: var(--text-tertiary);
   font-family: var(--font-mono);
   font-size: var(--_bar-ctl-fs);
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
 }
 .code-block-wrap .code-wrap-toggle:hover {
   background: var(--bg-tertiary-alt);
-  box-shadow: 0 1px 3px oklch(0% 0 0 / 0.13), 0 3px 8px oklch(0% 0 0 / 0.13);
   color: var(--text-primary);
 }
 

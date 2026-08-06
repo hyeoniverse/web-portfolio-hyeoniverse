@@ -37,7 +37,7 @@ export async function GET(request: Request) {
         .limit(limit),
       admin
         .from("revisions")
-        .select("id, snapshot")
+        .select("id, snapshot, created_at")
         .eq("entity_type", entityType)
         .eq("entity_id", entityId)
         .eq("dismissed", false)
