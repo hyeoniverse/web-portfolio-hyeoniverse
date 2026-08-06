@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
-import { Languages, MessageSquareMore, RotateCcw, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX, Loader2 } from "@/components/icons";
+import { Languages, MessageSquareMore, RotateCcw, Undo2, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX, Loader2 } from "@/components/icons";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
@@ -669,7 +669,7 @@ export default function AdminEditorShell({
                                   }}
                                   aria-label={labels.restore ?? "Restore"}
                                 >
-                                  <RotateCcw size={12} />
+                                  <Undo2 size={12} />
                                 </button>
                               </Tooltip>
                               {onDeleteRevision && (

@@ -23,6 +23,8 @@ const htmlDeserializerCodeBlock = {
     // mermaid 뷰 모드(plateSerializer 가 pre 에 실어 보낸다) 복원 — 없으면 코드만 보기가 기본
     const gv = element.getAttribute("data-graph-view");
     const graphView = gv === "split" || gv === "diagram" || gv === "code" ? gv : undefined;
+    // 줄바꿈(wrap) 토글 상태 복원 — plateSerializer 가 pre[data-wrap="true"] 로 실어 보낸다.
+    const wrap = element.getAttribute("data-wrap") === "true" ? true : undefined;
     const selectText =
       [...element.childNodes].find((n) => n.nodeName === "SELECT")?.textContent || "";
     const textContent = (element.textContent || "").replace(selectText, "");
@@ -32,6 +34,7 @@ const htmlDeserializerCodeBlock = {
       type: KEYS.codeBlock,
       ...(lang ? { lang } : {}),
       ...(graphView ? { graphView } : {}),
+      ...(wrap ? { wrap } : {}),
       children: lines.map((line) => ({ type: KEYS.codeLine, children: [{ text: line }] })),
     };
   },

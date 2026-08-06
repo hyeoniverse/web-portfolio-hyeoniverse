@@ -504,7 +504,7 @@
 .sectionProse {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: var(--font-size-md);
-  line-height: 1.8;
+  line-height: var(--line-height-normal);
   color: var(--text-secondary);
 }
 

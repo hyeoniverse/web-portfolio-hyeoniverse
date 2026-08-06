@@ -613,16 +613,23 @@
   background: var(--bg-tertiary-alt);
 }
 
-/* 슬래시 메뉴가 열린 블록 / 다중 선택 블록 — 옅은 accent 배경 하이라이트.
-   배경을 ::before(텍스트 뒤)로 그려서 텍스트·placeholder 위치엔 영향 없게. 상하 2px / 좌우 8px 확장 */
+/* 블록 하이라이트 — 슬래시메뉴·다중선택·핸들active·indent 그룹(부모+자식) 전부 같은 은은한 accent 배경.
+   배경을 ::before(텍스트 뒤)로 그려 텍스트·placeholder 위치엔 영향 없게. 상하 2px / 좌우 8px 확장. */
 .editorContent :global([data-slash-active]),
-.editorContent :global([data-block-selected]) {
+.editorContent :global([data-block-selected]),
+.editorContent :global([data-group-parent]),
+.editorContent .blockDraggableActive {
   position: relative;
   z-index: 0;
 }
+/* ── 블록 tint (선택·핸들active·슬래시) — 사방 균등 하이라이트 ──
+   모든 tint 블록에 --tint-inset 만큼 상하좌우 "균등"하게 배경을 뻗는다. 값이 모두 같으므로
+   ① tint 모양이 상하좌우 균등 ② 블록 간격도 전부 (블록간격 - 2*inset) 로 동일하게 보인다. */
 .editorContent :global([data-slash-active])::before,
 .editorContent :global([data-block-selected])::before,
-.editorContent :global([data-block-selected])::after {
+.editorContent :global([data-block-selected])::after,
+.editorContent :global([data-group-parent])::before,
+.editorContent .blockDraggableActive::before {
   content: "";
   position: absolute;
   background: var(--bg-accent-subtle);
@@ -631,15 +638,57 @@
   pointer-events: none;
 }
 .editorContent :global([data-slash-active])::before,
-.editorContent :global([data-block-selected])::before {
-  inset: -2px -8px;
-}
-/* 코드블록 선택 시 — 배경 하이라이트 상하좌우 여백을 균등하게 */
-.editorContent :global([data-block-selected]:has(.slate-code_block))::before {
-  inset: -8px;
+.editorContent :global([data-block-selected])::before,
+.editorContent .blockDraggableActive::before {
+  inset: calc(-1 * var(--tint-inset));
 }
 .editorContent :global([data-block-selected])::after {
   display: none;
+}
+
+/* indent 그룹 — 부모 블록 하나의 배경을 그룹 전체 높이(--group-active-h)만큼 늘려 한 덩어리로.
+   자식(안쪽) 블록엔 개별 accent 안 줌. 사방 균등(--tint-inset) 유지. */
+.editorContent :global([data-group-parent])::before {
+  inset: calc(-1 * var(--tint-inset));
+  bottom: auto;
+  height: calc(var(--group-active-h, 0px) + 2 * var(--tint-inset));
+}
+/* 그룹 드래그 중 — 부모의 직접 배경(alpha)과 확장 ::before 가 겹쳐 진해지는 것 방지 → 확장 ::before 한 겹만. */
+.editorContent .blockDragging:global([data-group-parent]) {
+  background: transparent;
+  opacity: 1;
+}
+
+/* 다중 선택 — "묶인 블록"(indent 그룹)끼리만 배경을 이어붙여 하나의 연속 하이라이트로.
+   경계에서 블록 간격(--prose-block-gap) 절반까지 늘려 정확히 meet(겹침 없이). 경계는 평평. */
+.editorContent :global([data-block-selected][data-sel-merge-down]:not([data-float-clip]))::before {
+  bottom: calc(-0.5 * var(--prose-block-gap));
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.editorContent :global([data-block-selected][data-sel-merge-up]:not([data-float-clip]))::before {
+  top: calc(-0.5 * var(--prose-block-gap));
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+/* 중첩 방지 — 하이라이트된 컨테이너(선택·핸들active·드래그·그룹) "안"에 또 하이라이트된 하위 블록이
+   있으면 그 하위 배경 ::before 는 숨긴다. 반투명 accent 가 여러 겹 쌓여 진해지는(중첩) 것 방지 → 바깥 한 겹만.
+   (열블록·토글·콜아웃 등 컨테이너에 선택이 안쪽까지 걸칠 때) */
+.editorContent :global([data-block-selected]) :global([data-block-selected])::before,
+.editorContent :global([data-group-parent]) :global([data-block-selected])::before,
+.editorContent .blockDraggableActive :global([data-block-selected])::before,
+.editorContent .blockDragging :global([data-block-selected])::before {
+  display: none;
+}
+/* 열블록 tint — 열은 (1) 배경 위에 tint 가 보여야 하고(z 양수) (2) 컬럼 overflow 에 위아래가 안 잘려야 해서,
+   표준 ::before(z-1) 대신 바깥 래퍼 .blockDraggable::after "한 겹"으로 fill+wrap 을 동시에 처리한다(아래 규칙).
+   표준 ::before 는 끈다 — 켜두면 그 한 겹과 이중으로 쌓여 진해진다. */
+.editorContent :global([data-block-selected]):has(.colElement)::before,
+.editorContent .blockDraggableActive:has(.colElement)::before {
+  display: none;
+}
+.blockDragging:has(.colElement) {
+  background: transparent;
 }
 /* float 이미지가 겹치는 블록 — 배경을 두 조각으로 나눠 이미지 영역을 실제로 비움(각각 radius 유지).
    ::before = 이미지 옆 영역, ::after = 이미지 아래 영역. 좌표는 JS 가 px 로 설정 */
@@ -691,35 +740,36 @@
   white-space: nowrap;
 }
 
-/* 목차(TOC) 블록 */
+/* 목차(TOC) 블록 — 배경·테두리 없는 심플한 heading 링크 목록.
+   margin: 다른 블록과 같은 --prose-block-gap 간격(tint 겹침 방지). .slate-toc 는 .prose-content 규칙에 없어 자체 지정. */
 .toc {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4xs);
-  padding: var(--box-md);
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
+  margin: var(--prose-block-gap) 0;
 }
-
 .tocEmpty {
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);
 }
 
+/* TOC 항목 = heading 으로 가는 하이퍼링크 → 링크처럼 보이게(accent 색 + 밑줄). */
 .tocItem {
   border: none;
   background: transparent;
   padding: var(--box-y-sm);
   font-size: var(--font-size-sm);
-  color: var(--text-secondary);
+  color: var(--text-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
   text-align: left;
   cursor: pointer;
   width: fit-content;
 }
 
 .tocItem:hover {
-  color: var(--text-accent);
+  text-decoration-thickness: 2px;
 }
 
 .tocItem[data-depth="2"] { padding-left: var(--spacing-md); }
@@ -2960,13 +3010,7 @@
   position: relative;
   border-radius: var(--radius-2xl);
 }
-/* 핸들 popover 열림 — 대상 블록 강조 (배경 틴트 + accent 외곽선, 라이트/다크 공통 토큰) */
-.blockDraggableActive {
-  background: var(--color-accent-alpha-15);
-  outline: 2px solid var(--color-accent-alpha-30);
-  outline-offset: 3px;
-  border-radius: var(--radius-2xl);
-}
+/* 핸들 popover 열림 — 대상 블록 강조. 배경은 [data-block-selected] 와 동일한 subtle ::before 로 통합(위 참조). */
 /* 드래그 중인 원본 블록 — 배경 강조 + ghost(반투명) */
 .blockDragging {
   background: var(--color-accent-alpha-15);
@@ -3299,18 +3343,21 @@
   pointer-events: none;
   z-index: 10;
 }
-/* 블록에 딱 붙지 않고 블록 사이 여백(문단 margin ≈ --spacing-xs) 중앙에 오도록 offset */
+/* 블록에 딱 붙지 않고 블록 사이 여백(--prose-block-gap) 중앙에 오도록 offset */
 .blockDropLineTop {
-  top: calc(var(--spacing-xs) / -2);
+  top: calc(var(--prose-block-gap) / -2);
 }
 .blockDropLineBottom {
-  bottom: calc(var(--spacing-xs) / -2);
+  bottom: calc(var(--prose-block-gap) / -2);
 }
-/* 사이드 드롭(열 생성) — 좌/우 세로선 */
+/* 사이드 드롭(열 생성) — 좌/우 세로선.
+   묶인 블록(indent 그룹)이 타겟이면 --group-active-h(그룹 전체 높이)가 세팅돼 세로선이 그룹 전체를 덮는다.
+   단일 블록이면 var 가 unset → height 가 invalid→auto 로 폴백해 top/bottom 2px 가 적용(=블록 높이). */
 .blockDropSide {
   position: absolute;
   top: 2px;
   bottom: 2px;
+  height: calc(var(--group-active-h) - 4px);
   width: 3px;
   background: var(--bg-accent-solid);
   border-radius: var(--spacing-4xs);
@@ -3335,6 +3382,25 @@
   max-height: 16rem;
   overflow: hidden;
   opacity: 0.65;
+  pointer-events: none;
+}
+/* 묶인 블록(indent 그룹) ghost — 클론들을 하나의 accent 배경으로 감싸 원본처럼 한 덩어리로 보이게.
+   (클론은 .editorContent 밖이라 블록별 ::before 배경이 안 그려짐 → 컨테이너 배경으로 통합) */
+.blockDragLayerGroup {
+  background: var(--bg-accent-subtle);
+  border-radius: var(--radius-2xl);
+  padding: 2px 8px;
+}
+/* 열블록 ghost — 컬럼은 불투명 배경이라 컨테이너 배경이 안 보임 → accent 오버레이를 컬럼 위(z-index)에 얹는다.
+   단 컬럼그룹은 ghost 폭보다 넓어 그룹 기준 ::after 는 오른쪽에서 하드클립됨 → "보이는 ghost 영역"(컨테이너)
+   기준으로 얹어 라운드 코너까지 안 잘리게. 좌측 40px=핸들 자리 제외. opacity(0.65) 보정으로 alpha-10. */
+.blockDragLayerColumn::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 40px;
+  z-index: 5;
+  border-radius: var(--radius-2xl);
+  background: var(--color-accent-alpha-10);
   pointer-events: none;
 }
 
@@ -3764,6 +3830,11 @@
   color: inherit;
   opacity: 0.6;
   flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+/* 펼치면 초기 >(오른쪽)에서 시계방향 90° → 아래를 가리킴 */
+.codeLangCaretOpen {
+  transform: rotate(90deg);
 }
 
 /* ── "..." 메뉴 ── */
@@ -4017,6 +4088,11 @@
 }
 
 .editorContent {
+  /* 블록 tint(선택 하이라이트)가 블록 경계에서 사방으로 뻗는 양 — 상하좌우 균등.
+     블록 간격(--prose-block-gap)에서 tint 는 양쪽으로 inset 만큼 뻗으므로, 선택 시 tint 사이 간격 = gap - 2*inset.
+     블록이 촘촘하게(gap 20) — tint 는 6px 씩 감싸고 tint 간격 8px. */
+  --tint-inset: 6px;
+  --prose-block-gap: 20px;
   /* 좌우 동일 패딩 — 좌측 [+][드래그] gutter 가 패딩 영역 안에 들어가므로 텍스트 여백이 좌우 대칭 */
   padding: var(--spacing-md) var(--spacing-2xl-plus);
   outline: none;
@@ -4071,9 +4147,7 @@
 }
 
 /* 제목은 전역 base + .prose-content 공통(폰트·크기·여백·줄간격·굵기)만 받음 — 에디터 전용 규칙 없음 */
-.editorContent p {
-  margin-bottom: var(--spacing-md);
-}
+/* 문단 여백은 .prose-content 공통 규칙(블록 사이 gap 통일)에서 처리 */
 /* 표 바로 뒤 빈 paragraph 여백 축소 */
 .editorContent [data-table-wrap] + p {
   margin-top: 0;
@@ -4289,19 +4363,45 @@
   position: relative;
   overflow: visible;
 }
+/* 컨테이너 블록(열·탭패널) 안 "마지막 블록"의 아래 margin 제거 — 카드/패널 padding 에 갇혀
+   아래 여백만 과하게 부풀어 이웃 블록과의 간격이 커 보이는 것 방지. (전역 .prose-content > :last-child
+   규칙은 중첩 블록엔 안 닿아 컨테이너 내부는 여기서 처리) */
+.colElement > :last-child :last-child,
+.editorContent :global(.slate-tab_panel) > :last-child :last-child {
+  margin-bottom: 0;
+}
 /* 편집(focus)/hover/블록선택 시 해당 열 배경을 선택 상태(accent-alpha)로 — inset box-shadow 로 기존 배경 위에 덮음.
    블록 선택은 그룹의 ::before tint(z-index:-1)가 컬럼 배경 뒤에 가려지므로, 컬럼에 직접 tint 를 얹어야 보인다. */
 .colElement:hover,
 .colElementActive {
   box-shadow: inset 0 0 0 999px var(--color-accent-alpha-10);
 }
-/* 블록 선택 시엔 그룹 tint(.blockDraggableActive = accent-alpha-15)와 같은 농도로 맞춰 부위별 색차 방지 */
-:global([data-block-selected]) .colElement,
-.blockDraggableActive .colElement,
-.blockDragging .colElement {
-  box-shadow: inset 0 0 0 999px var(--color-accent-alpha-15);
+/* 커서만 든 편집 상태에선 그 열(colElementActive)만 tint 유지(위 규칙).
+   "블록 선택"(핸들active·드래그·멀티블록선택)일 때만 각 열 개별 tint 를 끄고 → 열블록 "전체" 오버레이 한 겹으로. */
+.editorContent .blockDraggableActive .colElement,
+.editorContent .blockDragging .colElement,
+.editorContent :global([data-block-selected]) .colElement {
+  box-shadow: none;
 }
-
+/* 블록 선택 시 열 "전체" tint — 한 겹으로 fill(배경 위, z 양수) + wrap(상하 8px) 겸함.
+   컬럼 컨테이너는 overflow(가로 스크롤) 라 그 안에 얹으면 상하가 잘린다 → 바깥 .blockDraggable 에 얹어 안 잘리게.
+   좌/우는 컬럼 카드 정렬에 맞춤: 컬럼은 marginLeft -52+paddingLeft 40 = 카드가 래퍼보다 12px 왼쪽에서 시작. */
+.editorContent .blockDraggableActive:has(.colElement)::after,
+.editorContent .blockDragging:has(.colElement)::after,
+.editorContent :global([data-block-selected]):has(.colElement)::after {
+  content: "";
+  /* [data-block-selected]::after 기본 display:none(float-clip 전용) 을 덮어 표시 */
+  display: block;
+  position: absolute;
+  top: calc(-1 * var(--tint-inset));
+  bottom: calc(-1 * var(--tint-inset));
+  left: -12px;
+  right: 0;
+  z-index: 2;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-accent-subtle);
+  pointer-events: none;
+}
 .colElement::after {
   content: "";
   position: absolute;
@@ -4493,7 +4593,8 @@
    오버레이가 창의 자식이면 UA resizer 가 그 위에 그려져 시스템 커서가 샌다(리더 .code-block-outer 와 동일). */
 .codeShell {
   position: relative;
-  margin: var(--spacing-md) 0;
+  /* 다른 블록과 같은 블록 간격(에디터 --prose-block-gap=28px) — tint 가 아래 블록에 닿지 않게 */
+  margin: var(--prose-block-gap) 0;
 }
 .codeWindow {
   display: flex;
@@ -4564,15 +4665,14 @@
   transform: translate(-50%, -50%);
   display: inline-flex;
 }
-/* 컨트롤 pill (복사 | 줄바꿈) — 우측 */
+/* 컨트롤 pill (복사 | 줄바꿈) — 우측. wrapper 가 흰 pill 배경, 버튼은 투명 → 버튼 lift 해도 아래는 같은 배경이라
+   흰 띠/경계 안 생김. wrapper box-shadow 는 안 줌(뜬 버튼 옆에서 경계처럼 보였음). 리더(_hljs.css)와 동일. */
 .codeBarControls {
   display: inline-flex;
   align-items: center;
   margin-left: auto;
   background: var(--bg-primary);
   border-radius: var(--radius-capsule);
-  box-shadow: var(--shadow-xs);
-  overflow: hidden;
 }
 .codeBarCtrl {
   display: inline-flex;
@@ -4588,12 +4688,42 @@
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
-.codeBarCtrl + .codeBarCtrl {
-  box-shadow: inset 1px 0 0 var(--border-light-color);
+/* 각 버튼 = 볼록한 3D 버튼(위 하이라이트 + 아래 그림자). seam 은 first/last 옆면 inset 그림자.
+   --btn-lift = hover 시 버튼을 띄우는 바깥 그림자(기본 없음). 리더(_hljs.css)와 동일. */
+.codeBarCtrl {
+  --btn-raise: inset 0 1px 0.5px -0.5px oklch(100% 0 0 / 0.55), inset 0 -1.5px 2px -1.5px oklch(0% 0 0 / 0.16);
+  --btn-seam: oklch(0% 0 0 / 0.13);
+  --btn-lift: 0 0 0 0 transparent;
+  position: relative;
+  box-shadow: var(--btn-raise), var(--btn-lift);
 }
+.codeBarCtrl:first-child {
+  border-radius: var(--radius-capsule) 0 0 var(--radius-capsule);
+  box-shadow: var(--btn-raise), inset -2px 0 2px -2px var(--btn-seam), var(--btn-lift);
+}
+.codeBarCtrl:last-child {
+  border-radius: 0 var(--radius-capsule) var(--radius-capsule) 0;
+  box-shadow: var(--btn-raise), inset 2px 0 2px -2px var(--btn-seam), var(--btn-lift);
+}
+:global([data-theme="dark"]) .codeBarCtrl {
+  --btn-raise: inset 0 1px 0.5px -0.5px oklch(100% 0 0 / 0.16), inset 0 -1.5px 2px -1.5px oklch(0% 0 0 / 0.45);
+  --btn-seam: oklch(0% 0 0 / 0.4);
+}
+/* transform·box-shadow transition — 2-class 라 전역 테마 transition(0,1,1) 을 이겨 hover lift 가 양방향 부드럽게.
+   transform 은 살짝 튀어오르는(overshoot) ease 로 실제 "들어올리는" 느낌. */
+.codeBarControls .codeBarCtrl {
+  transition: background 0.15s ease, color 0.15s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+/* hover: 바깥 아래 그림자(--btn-lift) 강하게 + 실제로 위로 들어올린다(translateY). 리더와 동일. */
 .codeBarCtrl:hover {
-  background: var(--bg-secondary-alt);
+  background: var(--bg-tertiary-alt);
   color: var(--text-primary);
+  --btn-lift: 0 7px 14px -4px oklch(0% 0 0 / 0.34), 0 3px 6px -2px oklch(0% 0 0 / 0.22);
+  transform: translateY(-2px);
+  z-index: 1;
+}
+:global([data-theme="dark"]) .codeBarCtrl:hover {
+  --btn-lift: 0 9px 18px -4px oklch(0% 0 0 / 0.65), 0 3px 7px -2px oklch(0% 0 0 / 0.55);
 }
 .codeBarCtrl[data-on] {
   color: var(--text-accent);
@@ -4601,7 +4731,8 @@
 /* 언어 피커(select)도 컨트롤 pill 과 같은 결로 — 흰 배경 + 그림자 + 캡슐, 테두리 없음, 버튼과 같은 높이/폰트 */
 .codeBarLang .codeLangTrigger {
   height: 26px;
-  padding: 0 10px;
+  /* 좌측 padding = 아이콘(18px) 세로 여백 (26-18)/2 = 4px → 아이콘이 pill 왼쪽 반원과 동심원(곡률 일치)·상하좌우 4px 균등 */
+  padding: 0 10px 0 4px;
   border: none;
   border-radius: var(--radius-capsule);
   background: var(--bg-primary);

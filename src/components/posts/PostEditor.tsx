@@ -113,6 +113,7 @@ function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: stri
       label: L("기본", "Basic"),
       fields: {
         Slug: s.slug || "",
+        [L("작성자", "Authors")]: s.author_ids?.length ? L(`${s.author_ids.length}명`, `${s.author_ids.length}`) : "",
         [L("언어", "Language")]: s.language || "",
         [L("콘텐츠 타입", "Content Type")]: s.content_type || "",
       },
@@ -121,6 +122,7 @@ function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: stri
       label: L("미디어", "Media"),
       secondary: true,
       fields: {
+        [L("아이콘", "Icon")]: s.icon || "",
         [L("커버 이미지", "Cover Image")]: s.cover_image || "",
       },
     },
@@ -159,6 +161,9 @@ function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: stri
     },
   ];
 }
+
+// 새 글을 발행 없이 이탈해도 draft 로 저장 — 이 탭 세션에서 만든 draft id 를 보관해 중복 생성 방지.
+const NEW_DRAFT_SESSION_KEY = "new-post-draft-id";
 
 export default function PostEditor({ post }: PostEditorProps) {
   const router = useRouter();
@@ -249,6 +254,9 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   // 새 글 (post.id 없음) 은 async fetch 없음 → 즉시 ready. 기존 글은 fetch 완료 시 true.
   const [initialLoadsReady, setInitialLoadsReady] = useState(!post?.id);
+
+  // 현재 로그인 사용자를 에디터 작성자 칩에 항상 표시 (설정 authors 가 비어도). /api/admin/authors/context 로 채움.
+  const [currentUserAuthor, setCurrentUserAuthor] = useState<{ id: string; name: string; avatar: string } | null>(null);
 
   // Auto-correct ONLY when category is empty — 직접 입력한 커스텀 카테고리/모드는 유지
   useEffect(() => {
@@ -376,6 +384,11 @@ export default function PostEditor({ post }: PostEditorProps) {
     if (closeCoverPickerTimer.current) clearTimeout(closeCoverPickerTimer.current);
   }, []);
   const initialFormRef = useRef(form);
+  // 최신 form 스냅샷 — 이탈(unmount/unload) 핸들러가 stale closure 없이 현재 값을 읽게.
+  const formRef = useRef(form);
+  formRef.current = form;
+  // 수동 저장/발행이 끝났으면 이탈저장(draft) 을 발동하지 않음 — 발행글을 draft 로 되돌리는 사고 방지.
+  const finalizedRef = useRef(false);
   const isDirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(initialFormRef.current),
     [form],
@@ -424,6 +437,9 @@ export default function PostEditor({ post }: PostEditorProps) {
     ignoredKeys: ["scheduled_at"],
     block: saving || translating,
     onSaved: onAutoSaved,
+    // 마지막 편집 후 3초 멈추면 저장 — 60초는 사실상 자동저장이 아니라 특수블록 넣고 확인하면 아직 저장 전이었다.
+    // debounce 라 연속 타이핑 중엔 저장 안 하고 멈출 때마다 저장(과도하지 않음).
+    debounceMs: 3000,
   });
 
   // 글자 단위 continuous draft (localStorage) — mount 시 silent restore.
@@ -433,13 +449,21 @@ export default function PostEditor({ post }: PostEditorProps) {
     entityId: post?.id,
     draftEntityId,
     snapshot: form,
+    // 로컬 로드 완료 → localStorage 복원 + baseline. 서버 로드 완료 → 서버(cross-device) 복원(단 미편집 시).
     ready: initialLoadsReady,
+    serverReady: revisionsLoaded,
     applyDraft: (draft) => {
       setForm(draft);
       // restored 가 baseline 이 되도록 — 즉시 autosave 가 또 fire 하는 거 방지
       requestAnimationFrame(markBaseline);
     },
     ignoredKeys: ["scheduled_at"],
+    // 서버(cross-device) 자동복원은 현재 비활성 — 기존 글은 과거 저장이 updated_at 을 안 올려(=stale)
+    // "저장본보다 오래된 dismiss 안 된 revision"이 로드 시 복원돼 내용을 옛 버전으로 되돌리는 사고 발생.
+    // localStorage 복원(같은 기기)만 사용 → posts.content 가 진실, 되돌림 없음.
+    // 재활성화 조건: 각 글을 새 코드로 1회 저장(→ 옛 revision dismiss + updated_at 갱신)하거나
+    // 기존 revision 일괄 dismiss 후, latestSnapshot(savedAt>updated_at) 가드로 안전하게 켤 수 있음.
+    serverDraft: null,
   });
 
   // related_work_ids fetch 완료 시 baseline 정합화 + draft restore 활성화
@@ -466,6 +490,89 @@ export default function PostEditor({ post }: PostEditorProps) {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post?.id]);
+
+  // 현재 로그인 사용자를 작성자 칩으로 항상 표시(설정 무관) + 새 글이면 author_ids 에 자동 지정.
+  // 공동 작성자는 아래 칩(현재 사용자 + 설정 authors)에서 추가. author_ids 가 이미 있으면 건드리지 않음.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/admin/authors/context")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((ctx: { email?: string | null; authorId?: string | null; myName?: string | null; myAvatar?: string | null; ownerName?: string | null; ownerAvatar?: string | null } | null) => {
+        if (cancelled || !ctx) return;
+        const authors = (config.authors ?? []) as Array<{ id: string; email?: string }>;
+        const email = ctx.email?.toLowerCase() ?? null;
+        // 서버가 준 authorId 를 우선 신뢰(클라 config.authors 유무와 무관). 없으면 email 매칭.
+        const myId =
+          (typeof ctx.authorId === "string" && ctx.authorId ? ctx.authorId : null) ||
+          (email ? authors.find((a) => a.email?.toLowerCase() === email)?.id ?? null : null);
+        if (!myId) return;
+        setCurrentUserAuthor({
+          id: myId,
+          name: ctx.myName || ctx.ownerName || email || myId,
+          avatar: ctx.myAvatar || ctx.ownerAvatar || "",
+        });
+        if (!post?.id) {
+          setForm((prev) => (prev.author_ids && prev.author_ids.length > 0 ? prev : { ...prev, author_ids: [myId] }));
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post?.id]);
+
+  // ── 새 글: 발행 없이 이탈해도 draft(미발행)로 저장 ──
+  // 이 탭에서 이전에 이탈저장으로 만든 draft 가 있으면 그 id 로 이어서 편집(중복 draft 생성 방지).
+  useEffect(() => {
+    if (post?.id) return;
+    try {
+      const id = window.sessionStorage.getItem(NEW_DRAFT_SESSION_KEY);
+      if (id) savedId.current = id;
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post?.id]);
+
+  // 이탈 시점에 새 글을 draft 로 저장 (내용 있을 때만). keepalive=true → unload(탭닫기/새로고침),
+  // false → SPA 이동/unmount (응답 id 를 세션에 저장해 다음 저장이 갱신되도록).
+  const flushNewDraft = useCallback((keepalive: boolean) => {
+    if (isEdit || finalizedRef.current) return;
+    const f = formRef.current;
+    const meaningful = !!(
+      f.title.trim() || f.title_en.trim() ||
+      stripHtml(f.content || "").trim() || stripHtml(f.content_en || "").trim()
+    );
+    if (!meaningful) return; // 빈 글은 draft 안 만듦
+    const postBody: Record<string, unknown> = { ...f };
+    delete postBody.related_work_ids; // posts 컬럼 아님 — 별도 endpoint 대상(이탈저장에선 생략)
+    const body = JSON.stringify({ ...postBody, published: false });
+    const headers = { "Content-Type": "application/json" };
+    if (savedId.current) {
+      fetch(`/api/posts/${savedId.current}`, { method: "PATCH", headers, body, keepalive }).catch(() => {});
+    } else {
+      const req = fetch("/api/posts", { method: "POST", headers, body, keepalive });
+      if (!keepalive) {
+        req.then((r) => (r.ok ? r.json() : null)).then((d) => {
+          if (d?.id) {
+            savedId.current = d.id;
+            try { window.sessionStorage.setItem(NEW_DRAFT_SESSION_KEY, d.id); } catch { /* ignore */ }
+          }
+        }).catch(() => {});
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit]);
+
+  useEffect(() => {
+    if (isEdit) return;
+    const onBeforeUnload = () => flushNewDraft(true);
+    const onVis = () => { if (document.hidden) flushNewDraft(true); };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      document.removeEventListener("visibilitychange", onVis);
+      flushNewDraft(false); // SPA 이동/unmount
+    };
+  }, [isEdit, flushNewDraft]);
 
   const updateField = useCallback(
     <K extends keyof PostFormData>(key: K, value: PostFormData[K]) => {
@@ -718,6 +825,8 @@ export default function PostEditor({ post }: PostEditorProps) {
         if (typeof data.version === "number") baseVersionRef.current = data.version;
 
         if (!savedId.current) savedId.current = data.id;
+        // 수동 저장 성공 → 이탈저장(draft) 발동 차단 (발행글이 draft 로 되돌아가는 것 방지).
+        finalizedRef.current = true;
 
         // 관계 동기화 — 별도 endpoint
         if (savedId.current && related_work_ids) {
@@ -739,9 +848,18 @@ export default function PostEditor({ post }: PostEditorProps) {
           window.open(`/posts/${savedSlug}`, "_blank");
         }
 
-        // 새 글이었으면 임시 draft revision 정리
+        // 새 글이었으면 임시 draft revision 정리 + 이탈저장 세션 id 정리(다음 새 글은 fresh)
         if (!isEdit) {
           fetch(`/api/revisions?entity_type=post&entity_id=draft-new-post`, { method: "DELETE" }).catch(() => {});
+          try { window.sessionStorage.removeItem(NEW_DRAFT_SESSION_KEY); } catch { /* ignore */ }
+        } else if (savedId.current) {
+          // 기존 글: 이 저장으로 대체된 autosave revision 을 dismiss → 다음 진입 시 저장본이
+          // 옛 autosave 로 되돌아가지 않게(서버 복원은 non-dismissed 최신만 대상).
+          fetch(`/api/revisions`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ entity_type: "post", entity_id: savedId.current, dismissed: true }),
+          }).catch(() => {});
         }
         // 실제 save 성공 — localStorage draft 정리 (DB 가 진실의 원천)
         clearDraft();
@@ -952,6 +1070,12 @@ export default function PostEditor({ post }: PostEditorProps) {
   const contentKey = editorLang === "ko" ? "content" : "content_en";
   const excerptKey = editorLang === "ko" ? "excerpt" : "excerpt_en";
 
+  // 작성자 칩 = 현재 로그인 사용자(항상 표시, 설정 authors 비어도) + 설정 authors(중복 제거).
+  const configAuthors = (config.authors ?? []) as Array<{ id: string; name: string; avatar?: string }>;
+  const authorChips: Array<{ id: string; name: string; avatar?: string }> = currentUserAuthor
+    ? [currentUserAuthor, ...configAuthors.filter((a) => a.id !== currentUserAuthor.id)]
+    : configAuthors;
+
   const koStarted = !!(form.title.trim() || form.content.trim());
   const enStarted = !!(form.title_en.trim() || form.content_en.trim());
   const titleFieldError = showErrors && (
@@ -1132,14 +1256,14 @@ export default function PostEditor({ post }: PostEditorProps) {
             <div className={es.field} style={{ gridColumn: "1 / -1" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
                 <label className={es.fieldLabel}>{language === "en" ? "Authors" : "작성자"}</label>
-                <a href="/admin/settings?tab=content" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
+                <a href="/admin/settings?tab=account" target="_blank" rel="noopener noreferrer" className={styles.manageLink}>
                   {language === "en" ? "Manage authors" : "작성자 관리"}
                   <ExternalLink size={12} />
                 </a>
               </div>
               <div className={styles.authorSelect}>
-                {config.authors && config.authors.length > 0 ? (
-                  config.authors.map((a, i) => {
+                {authorChips.length > 0 ? (
+                  authorChips.map((a, i) => {
                     const ids = form.author_ids ?? [];
                     const actualSelected = ids.includes(a.id);
                     // 미할당(빈 배열)이면 기본 작성자(첫 항목)를 선택된 것처럼 표시 — 리더뷰 fallback 과 일치
