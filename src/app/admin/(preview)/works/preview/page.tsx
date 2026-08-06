@@ -26,7 +26,7 @@ export default function WorkPreviewPage() {
   const [busy, setBusy] = useState(false);
   const { openModal } = useModalStore();
   const [viewLang, setViewLang] = useState<"ko" | "en">(language === "en" ? "en" : "ko");
-  // 발행된 프로젝트면 새창으로 열 href (fetch 프리뷰 한정 — 세션 프리뷰는 미저장이라 없음)
+  // 발행된 프로젝트면 새창으로 열 href (fetch·세션 프리뷰 모두 — 편집 중인 글이 이미 발행 상태면 공개 글이 존재)
   const [publishedHref, setPublishedHref] = useState<string | null>(null);
 
   // 관련 글 — 디테일과 동일하게 info grid 에 표시 (렌더는 공용 WorkArticleHeader, 데이터만 여기서).
@@ -129,7 +129,12 @@ export default function WorkPreviewPage() {
     }
     try {
       const raw = sessionStorage.getItem(PREVIEW_KEY.work);
-      if (raw) setForm(JSON.parse(raw));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setForm(parsed);
+        // 이미 발행된 프로젝트를 편집 중 미리보기(세션 프리뷰)해도 공개 글은 존재 → '글 보기' href 세팅
+        if (parsed?.published && parsed?.slug) setPublishedHref(`/works/${parsed.slug}`);
+      }
     } catch { /* ignore */ }
     setReady(true);
   }, [fetchId]);
