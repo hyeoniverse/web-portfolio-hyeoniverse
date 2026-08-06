@@ -869,7 +869,6 @@ function workSnapshotMeta(s: WorkFormData, lang: "ko" | "en"): import("@/compone
       fields: {
         Slug: s.slug || "",
         [L("연도", "Year")]: s.year || "",
-        [L("콘텐츠 타입", "Content Type")]: s.content_type || "",
       },
     },
     {
@@ -1619,6 +1618,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       deleteConfirmInput: tw("deleteConfirmInput"),
       deleteCancel: tw("deleteCancel"),
       preview: tw("preview"),
+      view: tw("viewPost"),
       saving: tw("saving"),
       saveDraft: tw("saveDraft"),
       update: tw("update"),
@@ -1676,6 +1676,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       scheduledAt={form.scheduled_at}
       onScheduledChange={(iso) => updateField("scheduled_at", iso)}
       onPreview={handlePreview}
+      viewHref={form.published && form.slug ? `/works/${form.slug}` : undefined}
       status={status}
       statusType={statusType}
       error={error}

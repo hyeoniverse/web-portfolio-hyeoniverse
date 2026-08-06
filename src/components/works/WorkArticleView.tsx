@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Globe, Users, User, Pencil, Link2, Mail } from "@/components/icons";
+import { Globe, Users, User, Pencil, Link2, Mail, ExternalLink } from "@/components/icons";
 import "katex/dist/katex.min.css";
 import { GithubIcon } from "@/components/icons";
 import { useRichtextEnhance } from "@/hooks/useRichtextEnhance";
@@ -55,6 +55,8 @@ export interface WorkArticleViewProps {
   isPreview?: boolean;
   /** 어드민 여부 — 편집 링크 노출. 미리보기에선 보통 미사용 */
   isAdmin?: boolean;
+  /** 발행된 프로젝트 공개 URL — 미리보기에서 발행 상태면 새창으로 여는 버튼 노출 */
+  viewHref?: string;
   onLangChange?: (l: "ko" | "en") => void;
   /** 관련 글 — info grid 안에 리스트로 표시 (Header 에서만 사용) */
   relatedPosts?: RelatedPostItem[];
@@ -72,6 +74,7 @@ export function WorkArticleHeader({
   viewLang,
   isAdmin: isAdminProp,
   isPreview,
+  viewHref,
   onLangChange,
   relatedPosts,
   relatedSeries,
@@ -128,6 +131,21 @@ export function WorkArticleHeader({
                   style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
                 >
                   <Pencil size={13} />
+                </a>
+              </Tooltip>
+            </>
+          )}
+          {viewHref && (
+            <>
+              <span className={styles.metaDivider} />
+              <Tooltip content={viewLang === "en" ? "Open published project" : "발행된 프로젝트 열기"} placement="top" delay={200}>
+                <a
+                  href={viewHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: "inline-flex", alignItems: "center", color: "var(--text-tertiary)", textDecoration: "none" }}
+                >
+                  <ExternalLink size={13} />
                 </a>
               </Tooltip>
             </>

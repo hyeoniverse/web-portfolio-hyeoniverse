@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
-import { Languages, MessageSquareMore, RotateCcw, Undo2, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX, Loader2 } from "@/components/icons";
+import { Languages, MessageSquareMore, RotateCcw, Undo2, Clock, ChevronLeft, ChevronRight, Trash2, ChevronDown, CalendarClock, CalendarX, Loader2, ExternalLink } from "@/components/icons";
 import DateTimePicker from "@/components/ui/DatePicker/DateTimePicker";
 import { useLenis } from "@/providers/LenisProvider";
 import { useModalStore } from "@/stores/modalStore";
@@ -34,6 +34,7 @@ export default function AdminEditorShell({
   onSaveDraft,
   onPublish,
   onPreview,
+  viewHref,
   status,
   statusType = "info",
   statusTimestamp,
@@ -105,6 +106,19 @@ export default function AdminEditorShell({
     schedulePlacement: PopoverPlacement = "bottom-end",
   ) => (
     <>
+      {viewHref && (
+        <Button
+          variant="outline"
+          size="sm"
+          className={styles.saveBtn}
+          href={viewHref}
+          external
+          soundDisabled
+        >
+          <ExternalLink size={13} />
+          {labels.view ?? "View"}
+        </Button>
+      )}
       {onPreview && (
         <Button
           variant="outline"

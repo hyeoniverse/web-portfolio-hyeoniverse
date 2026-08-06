@@ -103,7 +103,7 @@ import { POST_TEMPLATES } from "@/data/postTemplates";
 import type { PostTemplate } from "@/data/postTemplates";
 
 /** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
-function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: string }[], lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
+function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: string }[], authorNames: Map<string, string>, lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
   const isKo = lang === "ko";
   const L = (ko: string, en: string) => (isKo ? ko : en);
   const seriesTitle = seriesList.find((x) => x.id === s.series_id)?.title || "";
@@ -113,9 +113,8 @@ function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: stri
       label: L("기본", "Basic"),
       fields: {
         Slug: s.slug || "",
-        [L("작성자", "Authors")]: s.author_ids?.length ? L(`${s.author_ids.length}명`, `${s.author_ids.length}`) : "",
+        [L("작성자", "Authors")]: (s.author_ids ?? []).map((id) => authorNames.get(id) || id).join(", "),
         [L("언어", "Language")]: s.language || "",
-        [L("콘텐츠 타입", "Content Type")]: s.content_type || "",
       },
     },
     {
@@ -257,6 +256,13 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   // 현재 로그인 사용자를 에디터 작성자 칩에 항상 표시 (설정 authors 가 비어도). /api/admin/authors/context 로 채움.
   const [currentUserAuthor, setCurrentUserAuthor] = useState<{ id: string; name: string; avatar: string } | null>(null);
+  // 히스토리 메타의 작성자 표시용 id→이름 맵 (설정 authors + 현재 로그인 사용자).
+  const authorNameById = useMemo(() => {
+    const m = new Map<string, string>();
+    ((config.authors ?? []) as Array<{ id: string; name?: string }>).forEach((a) => { if (a.id) m.set(a.id, a.name || a.id); });
+    if (currentUserAuthor) m.set(currentUserAuthor.id, currentUserAuthor.name || currentUserAuthor.id);
+    return m;
+  }, [config.authors, currentUserAuthor]);
 
   // Auto-correct ONLY when category is empty — 직접 입력한 커스텀 카테고리/모드는 유지
   useEffect(() => {
@@ -922,11 +928,11 @@ export default function PostEditor({ post }: PostEditorProps) {
         title: (isKo ? s.title : s.title_en) || s.title || s.title_en || "",
         excerpt: (isKo ? s.excerpt : s.excerpt_en) || "",
         content: stripHtml((isKo ? s.content : s.content_en) || ""),
-        meta: postSnapshotMeta(s, seriesList, lang),
+        meta: postSnapshotMeta(s, seriesList, authorNameById, lang),
         headerLabels: { title: isKo ? "제목" : "Title", excerpt: isKo ? "요약" : "Excerpt" },
       };
     },
-    [dbRevisions, loadRevisionSnapshot, seriesList],
+    [dbRevisions, loadRevisionSnapshot, seriesList, authorNameById],
   );
 
   const handleDeleteRevision = useCallback(
@@ -984,6 +990,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       deleteConfirmInput: te("deleteConfirmInput"),
       deleteCancel: te("deleteCancel"),
       preview: te("preview"),
+      view: te("viewPost"),
       saving: te("saving"),
       saveDraft: te("saveDraft"),
       update: te("update"),
@@ -1104,6 +1111,7 @@ export default function PostEditor({ post }: PostEditorProps) {
       onSaveDraft={() => handleSave()}
       onPublish={() => handleSave(true)}
       onPreview={handlePreview}
+      viewHref={form.published && form.slug ? `/posts/${form.slug}` : undefined}
       scheduledAt={form.scheduled_at}
       onScheduledChange={(iso) => updateField("scheduled_at", iso)}
       status={status}
@@ -1132,7 +1140,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           title: (isKo ? form.title : form.title_en) || form.title || form.title_en || "",
           excerpt: (isKo ? form.excerpt : form.excerpt_en) || "",
           content: stripHtml((isKo ? form.content : form.content_en) || ""),
-          meta: postSnapshotMeta(form, seriesList, lang),
+          meta: postSnapshotMeta(form, seriesList, authorNameById, lang),
           headerLabels: { title: isKo ? "제목" : "Title", excerpt: isKo ? "요약" : "Excerpt" },
         };
       }}
