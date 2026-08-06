@@ -1965,3 +1965,63 @@ Plate 가 이 throw 를 catch 해서 **조용히 plaintext 로 떨구므로** �
 **핵심 인사이트**: "복구" 는 "삭제 시 무엇을 지웠는가" 에 달렸다 — 되살릴 수 있으려면 삭제가 데이터를 파괴하지 않아야 하고, 그 대신 노출은 API 응답 레이어에서 가려야 프라이버시와 복구성이 양립한다
 
 </details>
+
+<details>
+<summary><strong>68. 자동저장이 기존 글 내용을 옛 버전으로 되돌림</strong></summary>
+
+**문제**: 기존 글에서 블록을 DnD 로 옮기거나 편집하면 자동저장 후 내용이 통째로 옛 버전으로 롤백.
+
+**원인**: 서버(cross-device) 자동복원이 로드 시 "저장본보다 오래된 dismiss 안 된 revision" 을 복원. 기존 글의 과거 저장이 `posts.updated_at` 을 안 올려 stale 판정이 안 됐다.
+
+**해결**: 서버 자동복원 비활성 → localStorage(같은 기기) 복원만 사용, `posts.content` 가 진실. 재활성화는 각 글 1회 저장(옛 revision dismiss + `updated_at` 갱신) 또는 `savedAt>updated_at` 가드 후 가능.
+
+**핵심 인사이트**: 낙관적 복원은 "저장본이 최신" 이라는 신뢰 가능한 시각 비교가 있어야 안전하다.
+
+</details>
+
+<details>
+<summary><strong>69. 새 글 자동저장이 전부 500 (revisions.entity_id uuid)</strong></summary>
+
+**문제**: 새 글(아직 저장 안 됨)에서 자동저장 요청이 전부 500.
+
+**원인**: `revisions.entity_id` 가 uuid 인데, 저장 전 새 글은 `posts.id` 가 없어 draft sentinel 문자열(`"draft-new-post"`) 을 `entity_id` 로 보냄 → uuid 캐스팅 실패.
+
+**해결**: `revisions.entity_id` 를 text 로 변경(마이그레이션 `2026_08_05`). `setup.sql` 도 반영.
+
+**핵심 인사이트**: 아직 존재하지 않는 엔티티의 임시 참조는 uuid 로 못 담는다 — sentinel 을 허용하려면 text.
+
+</details>
+
+<details>
+<summary><strong>70. sticky 유리 헤더의 backdrop blur 가 안 걸리거나 옅음</strong></summary>
+
+**문제**: 어드민 선택 액션 바를 sticky 유리로 만들었는데 뒤 행이 안 흐려지고(오른쪽 셀만 선명) frost 가 옅거나 누리끼리.
+
+**원인**: 세 가지가 겹침
+
+1. 프로스트를 `::before{ z-index:-1; backdrop-filter }` 로 뒀는데 부모 sticky 가 z-index 로 stacking context 를 만들어, `::before` 가 형제인 테이블 행을 backdrop 으로 못 잡음
+2. full-bleed 를 `transform: translateX` 로 하면 transform 이 backdrop-filter 를 깸
+3. saturate 가 뒤 행의 warm 색을 증폭해 누리끼리
+
+**해결**: 격리를 없애고 요소에 직접 blur
+
+1. backdrop-filter 를 `::before` 가 아니라 요소에 직접 — 자식 버튼은 안 흐려짐
+2. full-bleed 는 margin/left-right(`-page-px`), `transform` 금지
+3. saturate 제거하고 blur 만, 배경색은 투명
+
+**핵심 인사이트**: backdrop-filter 는 "요소가 속한 stacking context 밖 형제" 를 backdrop 으로 못 본다 — 격리(z-index/transform) 주의.
+
+</details>
+
+<details>
+<summary><strong>71. IME 조합 중 첫 글자가 두 번 입력</strong></summary>
+
+**문제**: 한글 등 IME 조합 중 슬래시 메뉴/툴바 상호작용에서 첫 글자가 중복 입력.
+
+**원인**: 조합 중 부모(에디터) 재렌더가 조합을 깨서 첫 글자가 재입력됨.
+
+**해결**: 조합 중에는 `onOpenChange` 등 부모 상태 변경을 억제(`open` 자체는 얼리지 않음 — 검색 유지).
+
+**핵심 인사이트**: IME 조합 중 부모 재렌더는 조합을 리셋한다 — 조합 이벤트 동안 상태 커밋을 미룬다.
+
+</details>

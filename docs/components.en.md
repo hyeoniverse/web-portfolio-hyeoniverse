@@ -184,6 +184,28 @@ A reusable **centered "not found" state** shown when an admin edit/detail page c
 
 ---
 
+### StickyGlassBar
+
+A **shared sticky header bar** at the top of the admin list pages. Pinned below the nav, it's a full-bleed (edge-to-edge across the viewport) glass that uses only `backdrop-filter` blur with no background color. A sentinel + scroll detect pinning, so the frost shows **only when pinned**. Extracted from the editor topBar pattern.
+
+**Path**: `src/components/admin/StickyGlassBar/StickyGlassBar.tsx`
+
+**Props**:
+
+| Prop        | Type        | Description          |
+| ----------- | ----------- | -------------------- |
+| `children`  | `ReactNode` | Bar content          |
+| `className` | `string`    | Additional CSS class |
+
+**Notes**:
+
+- `transform` breaks `backdrop-filter`, so the full-bleed stretch to the viewport edges uses margin/left-right (`-page-px`) instead of `transform`
+- To blur the sibling (row) behind the element, apply `backdrop-filter` **directly on the element** rather than a `::before` + `z-index: -1`
+
+**Used by**: admin posts/works list pages
+
+---
+
 ### MembersList · RoleBadge · ProviderChips
 
 The **member-management UI primitives** in Settings → Account tab. `MembersList` renders the member card list (avatar · name/email · last sign-in · pending invites), attaching a `RoleBadge` (owner/editor/author role badge) and `ProviderChips` (GitHub / email sign-in method chips) to each row. Only the owner gets CRUD (invite / change role / delete); data loads from `/api/admin/authors/members` (owner) and `/api/admin/authors/context` (non-owner).

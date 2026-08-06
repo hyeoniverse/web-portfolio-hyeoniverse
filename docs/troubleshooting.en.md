@@ -1964,3 +1964,63 @@ Plate catches the throw and **silently falls back to plaintext**, so the UI only
 **Key insight**: "Restore" depends entirely on "what did delete erase" — for something to be restorable, delete must not destroy the data, and exposure must instead be masked at the API-response layer so privacy and restorability coexist.
 
 </details>
+
+<details>
+<summary><strong>68. Auto-save reverts existing post content to an old version</strong></summary>
+
+**Problem**: Moving a block by DnD or editing it in an existing post rolled the whole content back to an old version after auto-save.
+
+**Cause**: On load, the server (cross-device) auto-restore restored a "non-dismissed revision older than the saved copy." Past saves of an existing post didn't bump `posts.updated_at`, so the staleness check never fired.
+
+**Solution**: Disabled server auto-restore → use only localStorage (same-device) restore; `posts.content` is the truth. Re-enabling is possible after saving each post once (dismisses the old revision + bumps `updated_at`) or behind a `savedAt>updated_at` guard.
+
+**Key insight**: Optimistic restore is only safe when there's a trustworthy timestamp comparison asserting "the saved copy is newest."
+
+</details>
+
+<details>
+<summary><strong>69. New-post auto-save all 500s (revisions.entity_id uuid)</strong></summary>
+
+**Problem**: In a new post (not yet saved), every auto-save request returned 500.
+
+**Cause**: `revisions.entity_id` was uuid, but a pre-save new post has no `posts.id`, so it sends a draft sentinel string (`"draft-new-post"`) as the `entity_id` → the uuid cast fails.
+
+**Solution**: Changed `revisions.entity_id` to text (migration `2026_08_05`). `setup.sql` updated too.
+
+**Key insight**: A temporary reference to an entity that doesn't exist yet can't fit in a uuid — to allow a sentinel, use text.
+
+</details>
+
+<details>
+<summary><strong>70. sticky glass header's backdrop blur doesn't apply or is faint</strong></summary>
+
+**Problem**: The admin selection action bar was made a sticky glass, but the rows behind it didn't blur (only the right-hand cells stayed sharp) and the frost was faint or yellowish.
+
+**Cause**: Three things overlapped
+
+1. The frost sat on `::before{ z-index:-1; backdrop-filter }`, but the parent sticky creates a stacking context via z-index, so the `::before` can't grab its sibling table rows as backdrop
+2. Doing full-bleed with `transform: translateX` breaks backdrop-filter
+3. saturate amplified the warm color of the rows behind, turning it yellowish
+
+**Solution**: Strip the isolation and blur the element directly
+
+1. Put backdrop-filter on the element, not `::before` — child buttons then don't blur
+2. full-bleed via margin/left-right (`-page-px`), no `transform`
+3. Drop saturate, blur only; transparent background color
+
+**Key insight**: backdrop-filter can't see "siblings outside the stacking context the element belongs to" as backdrop — watch out for isolation (z-index/transform).
+
+</details>
+
+<details>
+<summary><strong>71. First character typed twice during IME composition</strong></summary>
+
+**Problem**: During IME composition (Korean, etc.), interacting with the slash menu/toolbar entered the first character twice.
+
+**Cause**: A parent (editor) re-render during composition breaks the composition, so the first character gets re-entered.
+
+**Solution**: During composition, suppress parent state changes like `onOpenChange` (without freezing `open` itself — keeps search working).
+
+**Key insight**: A parent re-render during IME composition resets the composition — defer state commits during composition events.
+
+</details>

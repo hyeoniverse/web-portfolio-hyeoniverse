@@ -302,6 +302,10 @@ return NextResponse.json({ error: lastError.message }, { status: 502 });`,
       ko: "에디터 자동저장 리비전 API. 포스트/작업물의 편집 스냅샷을 저장하고 복원할 수 있습니다. 엔티티당 최대 50개 리비전, 초과 시 오래된 것부터 삭제됩니다.",
       en: "Editor auto-save revisions API. Saves and restores edit snapshots for posts/works. Max 50 revisions per entity, oldest pruned on overflow.",
     },
+    designNote: {
+      ko: "**새 글도 리비전을 남긴다**: `entity_id` 를 uuid 가 아니라 **text** 로 둬, 아직 id 가 없는 새 글은 draft sentinel 을 키로 저장합니다. 편집 중 **3초 debounce** 로 스냅샷을 쌓고, 복원 프롬프트를 닫으면 `dismissed` 플래그로 다시 뜨지 않게 합니다. 새 글 작성 중 이탈해도 draft 로 남아 다음에 이어 쓸 수 있습니다.",
+      en: "**New posts get revisions too**: `entity_id` is **text**, not uuid, so a new post with no id yet is saved under a draft sentinel key. Edits accrue on a **3-second debounce**, and dismissing the restore prompt sets a `dismissed` flag so it won't resurface. Leaving mid-draft still keeps it, so you can resume later.",
+    },
     endpoints: [
       { method: "GET", path: "/api/revisions?entity_type=&entity_id=", description: { ko: "리비전 목록 조회 (최신순)", en: "List revisions (newest first)" } },
       { method: "POST", path: "/api/revisions", description: { ko: "리비전 저장 (스냅샷)", en: "Save revision (snapshot)" } },

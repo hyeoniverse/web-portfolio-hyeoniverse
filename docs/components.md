@@ -184,6 +184,28 @@ import StaggerText from "@/components/effects/StaggerText";
 
 ---
 
+### StickyGlassBar
+
+admin 목록 페이지 상단의 **공통 sticky 헤더 바**. nav 아래에 고정되며, 배경색 없이 `backdrop-filter` blur 만 쓰는 full-bleed(양옆 뷰포트 끝까지) 유리다. sentinel + scroll 로 pin 을 감지해 **pin 됐을 때만** frost 를 표시한다. 에디터 topBar 패턴에서 추출했다.
+
+**경로**: `src/components/admin/StickyGlassBar/StickyGlassBar.tsx`
+
+**Props**:
+
+| Prop        | Type        | Description       |
+| ----------- | ----------- | ----------------- |
+| `children`  | `ReactNode` | 바 내용           |
+| `className` | `string`    | 추가 CSS 클래스   |
+
+**주의**:
+
+- `transform` 은 `backdrop-filter` 를 깨므로 full-bleed 는 `transform` 이 아니라 margin/left-right(`-page-px`)로 뷰포트 끝까지 늘린다
+- 요소 뒤 형제(행)를 blur 하려면 `::before` + `z-index: -1` 가 아니라 **요소에 직접** `backdrop-filter` 를 건다
+
+**사용처**: 어드민 posts/works 목록 페이지
+
+---
+
 ### MembersList · RoleBadge · ProviderChips
 
 Settings → Account 탭의 **멤버 관리 UI 프리미티브**. `MembersList` 가 멤버 카드 목록(아바타 · 이름/이메일 · 마지막 로그인 · 대기 초대)을 렌더하고, 각 행에 `RoleBadge`(소유자/편집자/저자 역할 배지)와 `ProviderChips`(GitHub / 이메일 로그인 수단 칩)를 붙입니다. 소유자만 CRUD(초대 / 역할 변경 / 삭제)가 가능하고, 데이터는 `/api/admin/authors/members`(소유자) · `/api/admin/authors/context`(비소유자) 로 로드합니다.

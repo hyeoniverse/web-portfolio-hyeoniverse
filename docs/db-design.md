@@ -40,7 +40,11 @@ Posts/Works 에디터의 자동저장 시 폼 전체를 JSONB snapshot으로 영
 
 **선택 근거:** 포트폴리오 관리자(1인)가 사용하므로 DB 쓰기 비용은 무시 가능합니다. 기기·탭·세션 간 리비전 공유와 diff 기반 상세 비교가 더 중요합니다. `entity_type` CHECK 컬럼으로 posts/works를 단일 테이블에서 구분하고, 목록 조회 시 snapshot을 제외하여 경량 로딩합니다. JSON.stringify 해시 비교로 동일 snapshot 중복 저장을 방지하며, 상세 뷰에서 카테고리·태그·시리즈 등 메타 항목도 diff로 표시합니다.
 
-**자동저장 주기 결정:** 초기에는 5초 debounce로 구현했으나, Google Docs(OT/diff 방식)·Notion(즉시 저장이지만 서버엔 patch)·WordPress(60초)와 비교했을 때 **전체 스냅샷 방식에서 5초는 너무 잦아** 리비전이 무의미하게 누적되는 문제가 있었습니다. diff 방식은 단일 사용자 환경과 스냅샷 50개 제한(~2.5MB) 규모에서 복잡도 대비 이득이 없어 채택하지 않았습니다. **30초 debounce + 페이지 이탈 시 강제 저장**으로 변경했습니다. 이탈 저장은 두 경로로 처리합니다: 브라우저 닫기·새로고침은 `navigator.sendBeacon`(비동기 보장), Next.js SPA 라우팅은 컴포넌트 언마운트 cleanup에서 `fetch({ keepalive: true })`를 사용합니다.
+`entity_id` 는 uuid 가 아니라 **text** 입니다. 저장 전 새 글은 아직 `posts.id` 가 없어 draft sentinel 문자열(예: `"draft-new-post"`)을 `entity_id` 로 쓰기 때문입니다 — uuid 였을 때 새 글 autosave 가 전부 500 나던 것을, 컬럼을 text 로 바꿔 해결했습니다.
+
+**자동저장 주기 결정:** 초기에는 5초 debounce로 구현했으나, Google Docs(OT/diff 방식)·Notion(즉시 저장이지만 서버엔 patch)·WordPress(60초)와 비교했을 때 **전체 스냅샷 방식에서 5초는 너무 잦아** 리비전이 무의미하게 누적되는 문제가 있었습니다. diff 방식은 단일 사용자 환경과 스냅샷 50개 제한(~2.5MB) 규모에서 복잡도 대비 이득이 없어 채택하지 않았습니다. 현재는 **3초 debounce + 페이지 이탈 시 강제 저장**을 씁니다. 서버 리비전은 **append-only** 로 쌓이고 **dismissed 플래그**로 복원 후보에서만 제외되므로, 잦은 저장이 무의미한 누적으로 남지 않습니다. 이탈 저장은 두 경로로 처리합니다: 브라우저 닫기·새로고침은 `navigator.sendBeacon`(비동기 보장), Next.js SPA 라우팅은 컴포넌트 언마운트 cleanup에서 `fetch({ keepalive: true })`를 사용합니다.
+
+서버(cross-device) 자동복원은 **현재 비활성**이고 localStorage(같은 기기) 복원만 씁니다 — 기존 글의 과거 저장이 `updated_at` 을 올리지 않아, 로드 시 stale revision 이 최신 내용을 옛 버전으로 롤백하는 사고가 있었기 때문입니다.
 
 ### 익명 댓글 이중 인증
 
@@ -196,7 +200,7 @@ RLS 는 `FOR ALL` service_role 정책 **하나뿐**이라 공개 읽기 정책�
 
 `cover_position` 은 0–100, `cover_zoom` 은 1–2.5 를 의도하지만 **CHECK 제약은 없고 주석상의 범위**입니다 (검증은 에디터 UI 담당).
 
-`author_ids` 를 별도 `authors` 테이블 + 조인 테이블로 정규화하지 않은 이유: 작성자(멤버) 신원과 권한은 이미 Supabase Auth 에 삽니다 — 역할은 `auth.users.app_metadata`, 초대는 `author_invites` 테이블이 관리합니다 (더 이상 `site.config.ts` 의 정적 `authors[]` 가 아님). `posts.author_ids` 는 그 멤버들을 글에 연결하는 얇은 id 배열일 뿐이라 글 조회마다 조인을 추가할 만큼의 쿼리 요구가 없고, `text[]` 만으로 목록 렌더에 충분합니다.
+`author_ids` 를 별도 `authors` 테이블 + 조인 테이블로 정규화하지 않은 이유: 작성자(멤버) 신원과 권한은 이미 Supabase Auth 에 삽니다 — 역할은 `auth.users.app_metadata`, 초대는 `author_invites` 테이블이 관리합니다 (더 이상 `site.config.ts` 의 정적 `authors[]` 가 아님). `posts.author_ids` 는 그 멤버들을 글에 연결하는 얇은 id 배열일 뿐이라 글 조회마다 조인을 추가할 만큼의 쿼리 요구가 없고, `text[]` 만으로 목록 렌더에 충분합니다. 에디터는 새 글에 로그인한 사용자를 `author_ids` 로 자동 지정하고, 공동 작성자를 추가할 수 있습니다.
 
 > 목록 카드 레이아웃(`magazine` / `grid` / `list` / `compact` / `masonry` / `featured`)은 **DB 컬럼이 아니라 사이트 설정** `siteConfig.posts.layout` 입니다 — 글마다가 아니라 사이트 전역으로 적용됩니다.
 
