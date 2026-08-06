@@ -96,6 +96,23 @@ On Windows/Linux, `Cmd → Ctrl` and `Opt → Alt`.
 
 ---
 
+## Autosave & Draft Restore
+
+- Autosaves on a 3-second debounce after you stop editing (localStorage draft + server revision).
+- Restore is based on the same device's localStorage. Server (cross-device) auto-restore is currently disabled — this prevents a stale revision from an earlier save reverting the content to an old version on load. `posts.content` is the source of truth.
+- A new post left without publishing (navigating away · closing the tab · refreshing) is saved as a draft (unpublished) as long as it has content, and reopening it in the same tab continues editing that draft (no duplicate drafts). It doesn't fire after you finish publishing/saving, so a published post never reverts to a draft.
+- The history (revision) popup can restore (Undo2 icon) or delete a past snapshot.
+
+---
+
+## Co-author Selection
+
+- Opening a new post automatically assigns the signed-in user as the author (`author_ids`).
+- Adding another member from the author chips makes them a co-author. Even when the authors registered in settings are empty, the signed-in user always appears as a chip.
+- The **"Manage authors"** link goes to the settings (members) screen.
+
+---
+
 ## Comment render pipeline
 
 Comments are rendered through `marked` (gfm + breaks + alert + footnote + emoji extensions) → DOMPurify sanitization. HTML outside the allowed tag/attribute allowlist (scripts, event handlers, arbitrary tags) is removed. Images only pass through external `http(s)` URLs; root-relative paths like internal post links (`/posts/...`) are allowed, while protocol-relative URLs (`//...`) are blocked.

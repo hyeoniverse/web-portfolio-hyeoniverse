@@ -176,7 +176,7 @@ export const erdTables: ErdTable[] = [
     columns: [
       { name: "id", type: "UUID", pk: true },
       { name: "entity_type", type: "TEXT CHECK" },
-      { name: "entity_id", type: "UUID" },
+      { name: "entity_id", type: "TEXT", comment: "새 글 draft sentinel 허용 (uuid 아님)" },
       { name: "snapshot", type: "JSONB" },
       { name: "title", type: "TEXT" },
       { name: "dismissed", type: "BOOL" },

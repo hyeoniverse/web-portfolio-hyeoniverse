@@ -28,6 +28,21 @@ const itemMeta: Record<
     recommendReason?: LocalizedText;
   }
 > = {
+  // ── 최근 추가 (자동저장 롤백·sticky 유리 헤더) ──
+  "기존 글을 편집하자 자동저장이 내용을 통째로 옛 버전으로 되돌림": {
+    featured: true, section: "A", difficulty: 3, recommended: true,
+    recommendReason: {
+      ko: "자동복원이 사용자의 최신 작업을 덮어쓴 데이터 안전 사고 — 낙관적 복원의 전제(신뢰 가능한 최신성 비교)를 짚으려 골랐습니다.",
+      en: "A data-safety incident where auto-restore overwrote the user's latest work — picked to pin down the premise optimistic restore rests on: a trustworthy freshness comparison.",
+    },
+  },
+  "sticky 유리 헤더 뒤 콘텐츠가 안 흐려지고 frost 가 옅음": {
+    featured: true, section: "L", difficulty: 3, recommended: true,
+    recommendReason: {
+      ko: "\"왜 안 흐려지나\" 의 답이 요소가 아니라 stacking context 에 있던, backdrop-filter 의 전형적 함정이라 골랐습니다.",
+      en: "Picked as the archetypal backdrop-filter trap where \"why won't it blur\" is answered by the stacking context, not the element.",
+    },
+  },
   // ── 최근 추가 (에디터 마크다운·인라인 코드·댓글 복구) ──
   "Lenis 스무스 스크롤 위에서 코드블록 세로 스크롤이 페이지로 안 넘어감": {
     featured: true, section: "I", difficulty: 2,
@@ -375,6 +390,52 @@ const itemMeta: Record<
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
+  {
+    problem: {
+      ko: "기존 글을 편집하자 자동저장이 내용을 통째로 옛 버전으로 되돌림",
+      en: "Editing an existing post made auto-save roll its whole content back to an older version",
+    },
+    definition: {
+      ko: "기존 글을 열어 블록 몇 개를 옮기고 저장했는데, 잠시 뒤 자동복원이 끼어들어 본문 전체가 편집 전, 심지어 더 오래된 버전으로 되돌아갔습니다. 새 글에서는 멀쩡했고 기존 글에서만 재현됐습니다.",
+      en: "Opened an existing post, moved a few blocks, and saved — moments later auto-restore stepped in and reverted the whole body to a pre-edit, even older, version. New posts were fine; it only reproduced on existing posts.",
+    },
+    cause: {
+      ko: "서버(교차 기기) 자동복원이 dismiss 되지 않은 리비전 중 가장 최근 것을 골라 복원했는데, 그 리비전이 실제 저장본보다 오래된 것이었습니다. 기존 글의 과거 저장이 `updated_at` 을 올리지 않아 \"저장본이 리비전보다 최신인가\" 판정(updated_at 비교)이 stale 를 걸러내지 못했고, 최신 `posts.content` 위에 옛 스냅샷을 덮어썼습니다.",
+      en: "Server (cross-device) auto-restore picked the newest un-dismissed revision and restored it — but that revision was older than the actual saved post. A past save on the existing post hadn't bumped `updated_at`, so the \"is the saved post newer than the revision\" check (an updated_at comparison) failed to filter the stale one, and an old snapshot got laid over the fresh `posts.content`.",
+    },
+    solution: {
+      ko: "서버 자동복원을 끄고 localStorage 복원만 남겼습니다. `posts.content` 를 유일한 진실로 삼고, 리비전은 사용자가 명시적으로 고를 때만 불러옵니다. 신뢰할 수 있는 최신성 비교가 불가능한 신호(안 올라간 updated_at)에 기대 자동으로 되돌리지 않습니다.",
+      en: "Disabled server auto-restore and kept only localStorage restore. `posts.content` is the single source of truth, and revisions load only when the user explicitly picks one — no automatic rollback that leans on an unreliable freshness signal (an un-bumped updated_at).",
+    },
+    keyInsight: {
+      ko: "낙관적 자동복원은 \"복원본이 정말 더 최신인가\" 를 믿을 수 있게 비교할 수 있을 때만 안전합니다. 최신성 비교의 근거(updated_at)가 항상 갱신된다는 보장이 없으면, 자동복원은 사용자의 최신 작업을 조용히 덮어쓸 수 있습니다.",
+      en: "Optimistic auto-restore is only safe when you can reliably compare \"is the restored copy actually newer\". If the basis of that comparison (updated_at) isn't guaranteed to advance, auto-restore can silently overwrite the user's latest work.",
+    },
+    tags: ["autosave", "revisions", "optimistic-restore"],
+  },
+  {
+    problem: {
+      ko: "sticky 유리 헤더 뒤 콘텐츠가 안 흐려지고 frost 가 옅음",
+      en: "Content behind the sticky glass header wasn't blurred and the frost looked washed-out",
+    },
+    definition: {
+      ko: "관리자 sticky 액션 바를 유리(backdrop blur) 로 만들었는데, 바 뒤로 지나가는 표 행이 전혀 흐려지지 않았고 frost 색도 옅게만 떴습니다. full-bleed 로 nav 위·양옆까지 넓히니 증상이 더 심해졌습니다.",
+      en: "Built the admin sticky action bar as glass (backdrop blur), but the table rows scrolling behind it weren't blurred at all and the frost read washed-out. Making it full-bleed (over the nav and out to both edges) made it worse.",
+    },
+    cause: {
+      ko: "세 가지가 겹쳤습니다. (1) blur 를 `::before{z-index:-1}` 에 걸고 부모에 z-index 를 줘 stacking context 를 만들었더니, backdrop 이 그 context 안으로 격리돼 바깥 형제(표 행)를 보지 못했습니다. (2) full-bleed 를 위해 얹은 `transform` 이 backdrop-filter 를 통째로 깨뜨렸습니다. (3) `saturate()` 가 뒤 배경의 warm 색을 증폭해 frost 가 탁해졌고, 바 자체 배경색이 불투명해 blur 가 보일 여지도 없었습니다.",
+      en: "Three things stacked up. (1) The blur lived on a `::before{z-index:-1}` while the parent had its own z-index, creating a stacking context that isolated the backdrop so it couldn't see its outside siblings (the table rows). (2) A `transform` added for full-bleed broke backdrop-filter entirely. (3) `saturate()` amplified the warm tones of the background so the frost turned muddy, and the bar's own opaque background left no room for the blur to show.",
+    },
+    solution: {
+      ko: "blur 를 `::before` 가 아니라 바 요소 자체에 직접 걸고, full-bleed 는 `transform` 대신 음수 margin(`calc(-1 * var(--page-px))`)으로 넓혔습니다. `saturate` 를 빼고 배경을 반투명으로 낮춰 뒤가 비치게 했습니다.",
+      en: "Put backdrop-filter on the bar element itself instead of a `::before`, and achieve full-bleed with negative margins (`calc(-1 * var(--page-px))`) rather than a `transform`. Drop `saturate` and lower the background to translucent so what's behind shows through.",
+    },
+    keyInsight: {
+      ko: "backdrop-filter 는 자신이 속한 stacking context 밖의 형제를 보지 못합니다. blur 를 격리된 레이어(z-index 준 `::before`·부모)에 두거나 `transform` 을 얹으면 흐릴 대상 자체가 사라집니다. 유리 효과는 격리하지 말고, 흐릴 콘텐츠와 같은 맥락에 둬야 합니다.",
+      en: "backdrop-filter can't see siblings outside its own stacking context. Putting the blur on an isolated layer (a z-indexed `::before` or parent) or adding a `transform` removes the very thing it should blur. Glass effects must not be isolated — they belong in the same context as the content they blur.",
+    },
+    tags: ["backdrop-filter", "stacking-context", "css"],
+  },
   {
     problem: {
       ko: "2열로 놓인 두 설정 섹션의 툴바가 한쪽만 아래로 밀려 어긋남",
