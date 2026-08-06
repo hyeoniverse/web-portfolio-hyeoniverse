@@ -72,6 +72,7 @@
   padding-bottom: var(--spacing-sm);
   opacity: 1;
   overflow: visible;
+  /* sticky+glass 는 공통 <StickyGlassBar> 가 담당 (에디터 topBar 와 동일 패턴). */
 }
 
 

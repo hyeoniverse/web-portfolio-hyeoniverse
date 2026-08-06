@@ -12,6 +12,7 @@ function ConditionalLayoutGroup({ enabled, children }: { enabled: boolean; child
 import { GripVertical } from "@/components/icons";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
+import CloseButton from "@/components/ui/CloseButton";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import Pagination from "@/components/ui/Pagination";
@@ -303,7 +304,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
     <>
       <div className={styles.table} style={gridStyle}>
         <div className={styles.tableInner}>
-        <div className={`${styles.bulkBar} ${selected.size > 0 ? styles.bulkBarOpen : ""}`}>
+        {selected.size > 0 && (
+          <div className={styles.bulkBar}>
           <span>{selected.size}개 선택</span>
           {onBulkPublish && (
             <>
@@ -330,8 +332,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
           {onBulkDelete && (
             <button className={`${styles.bulkActionBtn} ${styles.bulkActionDanger}`} onClick={handleBulkDelete}>{labels.delete}</button>
           )}
-          <button className={styles.bulkCancelBtn} onClick={() => setSelected(new Set())}>✕</button>
-        </div>
+          <CloseButton onClick={() => setSelected(new Set())} ariaLabel="선택 해제" size="sm" className={styles.bulkCancelBtn} />
+          </div>
+        )}
         <div className={styles.tableHeader}>
           <span className={styles.colCheck} onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={allSelected} indeterminate={someSelected} onChange={toggleSelectAll} shape="square" />

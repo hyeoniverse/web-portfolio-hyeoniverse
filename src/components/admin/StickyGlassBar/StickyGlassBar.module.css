@@ -1,0 +1,37 @@
+/* 공통 sticky glass 헤더 — 에디터 AdminEditorShell .topBar 와 동일 패턴 */
+
+.sentinel {
+  height: 0;
+}
+
+.bar {
+  position: sticky;
+  /* 전역 Navigation(고정, top:0, 높이 --header-height) 바로 아래에 붙음 */
+  top: var(--header-height);
+  /* nav 보다 한 단계 아래 — frost 가 nav 뒤로 깔리고 nav 가 그 위에 보이도록 */
+  z-index: calc(var(--z-nav) - 1);
+}
+
+/* glass frost — 위(nav)로 --header-height, 양옆으로 뷰포트 끝까지 확장.
+   blur 는 위에서 진하고 아래로 페이드(mask). pin 되기 전엔 숨김(opacity:0). */
+.bar::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--header-height));
+  /* 필터 바 하단(=액션바 상단)까지 solid — 접점에서 페이드/겹침 없이 액션바로 이어지게(하단 페이드 제거). */
+  bottom: 0;
+  /* 양옆 full-bleed — page-px 만큼 확장(뷰포트 끝까지). transform 은 backdrop-filter 를 깨므로 안 씀. */
+  left: calc(-1 * var(--page-px));
+  right: calc(-1 * var(--page-px));
+  z-index: -1;
+  /* 배경색 없음(완전 투명) — frost 는 오직 blur 로. */
+  background: transparent;
+  backdrop-filter: blur(24px) saturate(1.6);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-base) ease;
+}
+
+.pinned::before {
+  opacity: 1;
+}
