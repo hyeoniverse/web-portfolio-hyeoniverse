@@ -31,6 +31,7 @@ interface EditorLabels {
   deleteCancel?: string;
   deleteRevisionConfirm?: string;
   preview?: string;
+  view?: string;
   saving: string;
   saveDraft: string;
   update: string;
@@ -77,6 +78,8 @@ export interface AdminEditorShellProps {
   onSaveDraft: () => void;
   onPublish: () => void;
   onPreview?: () => void;
+  /** 발행된 글의 공개 URL — 있으면 액션 바에 "글 보기"(새창) 버튼 노출. published+slug 일 때만 전달. */
+  viewHref?: string;
   status?: string;
   statusType?: "info" | "success";
   statusTimestamp?: number;

@@ -26,6 +26,8 @@ export default function WorkPreviewPage() {
   const [busy, setBusy] = useState(false);
   const { openModal } = useModalStore();
   const [viewLang, setViewLang] = useState<"ko" | "en">(language === "en" ? "en" : "ko");
+  // 발행된 프로젝트면 새창으로 열 href (fetch 프리뷰 한정 — 세션 프리뷰는 미저장이라 없음)
+  const [publishedHref, setPublishedHref] = useState<string | null>(null);
 
   // 관련 글 — 디테일과 동일하게 info grid 에 표시 (렌더는 공용 WorkArticleHeader, 데이터만 여기서).
   // 프리뷰는 편집 중 초안(저장 전)일 수 있어 work-id 관계테이블 대신 form 의 related_post_ids 로 각 글을 직접 가져온다.
@@ -118,6 +120,7 @@ export default function WorkPreviewPage() {
               related_post_ids: w.related_post_ids || [],
               _trashId: w.deleted_at ? w.id : undefined,
             });
+            if (w.published && w.slug) setPublishedHref(`/works/${w.slug}`);
           }
         })
         .catch(() => {})
@@ -242,6 +245,7 @@ export default function WorkPreviewPage() {
             viewLang={viewLang}
             onLangChange={setViewLang}
             isPreview
+            viewHref={publishedHref ?? undefined}
             relatedPosts={relatedPosts}
             relatedSeries={relatedSeries}
           />
