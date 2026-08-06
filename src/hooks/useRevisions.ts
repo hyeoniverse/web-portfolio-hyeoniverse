@@ -34,6 +34,8 @@ interface UseRevisionsOptions {
 export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
   const [revisions, setRevisions] = useState<RevisionItem[]>([]);
   const [loaded, setLoaded] = useState(false);
+  // 가장 최근 non-dismissed 서버 스냅샷 — 다른 기기/브라우저에서 진입 시 복원용(cross-device draft).
+  const [latestSnapshot, setLatestSnapshot] = useState<{ snapshot: T; savedAt: number } | null>(null);
   const entityIdRef = useRef(entityId);
   const lastSnapshotHash = useRef<string>("");
 
@@ -41,13 +43,14 @@ export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
     entityIdRef.current = entityId;
   }, [entityId]);
 
-  // 마운트 시 / entityId 변경 시 리비전 로드
+  // 마운트 시 / entityId 변경 시 리비전 로드 (list + 최신 서버 스냅샷을 한 번에)
   useEffect(() => {
-    if (!entityId) { setLoaded(true); return; }
+    if (!entityId) { setLoaded(true); setLatestSnapshot(null); return; }
     setLoaded(false);
+    setLatestSnapshot(null);
 
-    fetch(`/api/revisions?entity_type=${entityType}&entity_id=${entityId}&limit=50`)
-      .then((r) => (r.ok ? r.json() : { revisions: [] }))
+    fetch(`/api/revisions?entity_type=${entityType}&entity_id=${entityId}&limit=50&with_latest_snapshot=1`)
+      .then((r) => (r.ok ? r.json() : { revisions: [], latestUndismissed: null }))
       .then((data) => {
         const list = Array.isArray(data?.revisions) ? data.revisions : Array.isArray(data) ? data : [];
         setRevisions(
@@ -56,6 +59,12 @@ export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
             timestamp: new Date(r.created_at).getTime(),
             title: r.title,
           })),
+        );
+        const lu = data?.latestUndismissed as { snapshot?: T; created_at?: string } | null | undefined;
+        setLatestSnapshot(
+          lu?.snapshot != null
+            ? { snapshot: lu.snapshot, savedAt: lu.created_at ? new Date(lu.created_at).getTime() : 0 }
+            : null,
         );
         setLoaded(true);
       })
@@ -137,5 +146,5 @@ export function useRevisions<T>({ entityType, entityId }: UseRevisionsOptions) {
     [],
   );
 
-  return { revisions, loaded, saveRevision, loadRevisionSnapshot, deleteRevision };
+  return { revisions, loaded, latestSnapshot, saveRevision, loadRevisionSnapshot, deleteRevision };
 }

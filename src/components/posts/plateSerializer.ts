@@ -99,16 +99,22 @@ function serializeNode(node: SlateNode): string {
   if (isText(node)) return serializeLeaf(node);
 
   const el = node as SlateElement;
-  const children = el.children?.map(serializeNode).join("") ?? "";
+  // 자식 직렬화 — 각 자식도 자체 try/catch 로 방어됨(아래). 여기서도 한 번 더 감싸 부모가 안 깨지게.
+  let children = "";
+  try { children = el.children?.map(serializeNode).join("") ?? ""; } catch { children = ""; }
 
-  // Block-level style
-  const blockStyle: string[] = [];
-  if (el.align) blockStyle.push(`text-align: ${el.align}`);
-  if (el.lineHeight) blockStyle.push(`line-height: ${el.lineHeight}`);
-  if (el.indent) blockStyle.push(`margin-left: ${(el.indent as number) * 24}px`);
-  const styleAttr = blockStyle.length ? ` style="${blockStyle.join("; ")}"` : "";
+  // ── 노드별 방어 — 한 블록의 직렬화 실패가 전체 직렬화(=자동저장)를 깨뜨리지 않게.
+  //    특수블록의 예상 못한 속성 상태로 throw 나도 내용(children)은 보존하고 나머지 블록은 정상 저장된다.
+  //    (예전엔 throw 하면 slateToHtml 전체가 실패 → onChange 가 form.content 를 못 갱신 → 자동저장 정지) ──
+  try {
+    // Block-level style
+    const blockStyle: string[] = [];
+    if (el.align) blockStyle.push(`text-align: ${el.align}`);
+    if (el.lineHeight) blockStyle.push(`line-height: ${el.lineHeight}`);
+    if (el.indent) blockStyle.push(`margin-left: ${(el.indent as number) * 24}px`);
+    const styleAttr = blockStyle.length ? ` style="${blockStyle.join("; ")}"` : "";
 
-  switch (el.type) {
+    switch (el.type) {
     // ── Blocks ──
     case "p": {
       const lst = el.listStyleType as string | undefined;
@@ -299,8 +305,12 @@ function serializeNode(node: SlateNode): string {
          에디터는 HTML 로 저장하므로 여기서 안 내보내면 다시 열 때 유실돼서,
          나란히 보던 다이어그램이 코드만 보이는 상태로 열린다. */
       const gv = el.graphView ? ` data-graph-view="${esc(String(el.graphView))}"` : "";
+      /* 줄바꿈(wrap) 토글 상태(el.wrap) 왕복 — 없으면 다시 열 때 유실돼 스크롤 모드로 리셋된다.
+         data-wrap: deserializer 가 노드 attr 복원. inline style: reader(attachCodeWrapToggle)가
+         pre.style.whiteSpace 로 초기 상태를 판정하므로 저장된 wrap 이 상세/미리보기에도 그대로 뜬다. */
+      const wrapAttr = el.wrap ? ` data-wrap="true" style="white-space:pre-wrap;word-break:break-all"` : "";
       /* data-lenis-prevent — Lenis 스무스 스크롤이 wheel 을 가로채 코드블록 내부 세로 스크롤이 죽는 것 방지 */
-      return `<div class="code-block-wrap"><pre data-lenis-prevent${gv}><code${lang}>${children}</code></pre></div>`;
+      return `<div class="code-block-wrap"><pre data-lenis-prevent${gv}${wrapAttr}><code${lang}>${children}</code></pre></div>`;
     }
     case "code_line":
       return `${children}\n`;
@@ -652,13 +662,21 @@ function serializeNode(node: SlateNode): string {
     // ── Fallback ──
     default:
       return children || "";
+    }
+  } catch (err) {
+    if (typeof console !== "undefined") {
+      console.error(`[plateSerializer] "${(el as { type?: string }).type}" 블록 직렬화 실패 — 내용 보존 fallback 으로 대체(자동저장은 계속 동작):`, err);
+    }
+    return children ? `<div>${children}</div>` : "";
   }
 }
 
 /**
- * Slate JSON → HTML 문자열
+ * Slate JSON → HTML 문자열. 노드별 방어는 serializeNode 내부에서 처리(한 블록 실패가 전체를 안 깨뜨림).
  */
 export function slateToHtml(value: SlateNode[]): string {
   if (!value || !Array.isArray(value)) return "";
-  return value.map(serializeNode).join("");
+  return value.map((n) => {
+    try { return serializeNode(n); } catch { return ""; }
+  }).join("");
 }

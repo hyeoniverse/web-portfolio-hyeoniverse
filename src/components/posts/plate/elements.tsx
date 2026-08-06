@@ -26,7 +26,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import { useModalStore } from "@/stores/modalStore";
 import { _blockDragPath, _inlineDragPath, _imageUploadFn } from "./utils";
 import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
-import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical, Copy, WrapText, MoreHorizontal, ChevronDown, Search, Sparkles, ExternalLink, ZoomIn, ZoomOut, Maximize, Maximize2, Minimize2, CaretRightIcon } from "@/components/icons";
+import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical, Copy, WrapText, MoreHorizontal, ChevronRight, Search, Sparkles, ExternalLink, ZoomIn, ZoomOut, Maximize, Maximize2, Minimize2, CaretRightIcon } from "@/components/icons";
 import { createPortal } from "react-dom";
 import Popover from "@/components/ui/Popover";
 import styles from "../RichTextEditor.module.css";
@@ -1466,8 +1466,9 @@ function scoreLang(l: CodeLang, ql: string): number {
 // ── 공통 코드블록 언어 피커 — 트리거(현재 언어) + Popover(검색·최근·자주 쓰는·A–Z). 유일한 언어 선택 UI. ──
 function CodeLangPicker({ value, onChange, language }: { value: string; onChange: (v: string) => void; language: string }) {
   const curLabel = CODE_BLOCK_LANGS.find((l) => l.value === value)?.label ?? "Plain text";
+  const [open, setOpen] = useState(false);
   return (
-    <Popover placement="bottom-start" contentClassName={styles.codeMenuPopover}
+    <Popover open={open} onOpenChange={setOpen} placement="bottom-start" contentClassName={styles.codeMenuPopover}
       trigger={
         <button
           type="button"
@@ -1477,7 +1478,8 @@ function CodeLangPicker({ value, onChange, language }: { value: string; onChange
         >
           <LangIcon value={value} label={curLabel} />
           <span className={styles.codeLangName}>{curLabel}</span>
-          <ChevronDown size={12} className={styles.codeLangCaret} />
+          {/* 초기 > (오른쪽), 펼치면 90° 시계방향 회전 → 아래 */}
+          <ChevronRight size={12} className={`${styles.codeLangCaret}${open ? ` ${styles.codeLangCaretOpen}` : ""}`} />
         </button>
       }
     >
@@ -2102,9 +2104,8 @@ export function ParagraphElement(props: PlateElementProps) {
   // 포커스가 없는데도 placeholder 가 여러 곳에 동시에 떠 위치가 어긋나 보인다. elPath.length===1
   // (=최상위 블록)로 좁혀 중첩 문단의 오탐을 막는다.
   const isEmptyEditor = elPath?.length === 1 && editor.children.length === 1;
-  const showPlaceholder = !hasTodo && !multiBlock && isEmptyBlock(props.element) && ((selected && collapsed) || isEmptyEditor);
 
-  // table 안에 Slate가 삽입하는 빈 paragraph → <div>가 <tbody> 안에 들어가면 안 됨
+  // 부모 타입 — table 삽입 방지 + placeholder 중복 방지에 사용
   const parentType = (() => {
     try {
       const path = editor.api.findPath(props.element);
@@ -2115,6 +2116,7 @@ export function ParagraphElement(props: PlateElementProps) {
     } catch { return null; }
   })();
   const isInsideTable = parentType === "table" || parentType === "tr";
+  const showPlaceholder = !hasTodo && !multiBlock && isEmptyBlock(props.element) && ((selected && collapsed) || isEmptyEditor);
 
   if (!hasTodo) {
     if (isInsideTable) {
@@ -2122,7 +2124,7 @@ export function ParagraphElement(props: PlateElementProps) {
     }
     return (
       <BlockDropZone path={elPath}>
-        <PlateElement {...props} as="div" style={{ marginBottom: "var(--spacing-xs)", ...props.style, position: "relative" }}>
+        <PlateElement {...props} as="div" style={{ ...props.style, position: "relative" }}>
           {showPlaceholder && <BlockPlaceholder text={t("editor.phParagraph")} listIndent={isListItem} />}
           {props.children}
         </PlateElement>
@@ -2494,7 +2496,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
               margin: vidLayout === "float-left" ? "4px 20px 8px 0" : "4px 0 8px 20px",
               display: "block", clear: "none", maxWidth: "60%",
             }
-          : { display: "flex", flexDirection: "column", alignItems: justifyMap[vidAlign] || "center", margin: "var(--spacing-md, 16px) 0" }),
+          : { display: "flex", flexDirection: "column", alignItems: justifyMap[vidAlign] || "center", margin: "var(--prose-block-gap) 0" }),
       }}>
         <BlockDropZone path={elPath}>
           <div {...blockDragProps} contentEditable={false} style={{ display: "inline-block", maxWidth: "100%", position: "relative", cursor: "default", lineHeight: 0, fontSize: 0 }} onClick={selectVideo}>
@@ -2555,7 +2557,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
 
   // iframe / script / link fallback
   return (
-    <PlateElement {...props} style={{ margin: "16px 0", display: "flex", flexDirection: "column", alignItems: iframeWidth > 0 ? (iframeJustify[iframeAlign] || "center") : "stretch", ...props.style }}>
+    <PlateElement {...props} style={{ margin: "var(--prose-block-gap) 0", display: "flex", flexDirection: "column", alignItems: iframeWidth > 0 ? (iframeJustify[iframeAlign] || "center") : "stretch", ...props.style }}>
       <BlockDropZone path={elPath}>
         <div
           {...blockDragProps}
@@ -2721,7 +2723,7 @@ export function FileElement(props: PlateElementProps) {
   };
 
   return (
-    <PlateElement {...props} style={{ margin: "var(--spacing-sm) 0", ...props.style }}>
+    <PlateElement {...props} style={{ margin: "var(--prose-block-gap) 0", ...props.style }}>
       <BlockDropZone path={elPath}>
         <div {...blockDragProps} contentEditable={false} style={{
           maxWidth: hasPreview ? 640 : 480, cursor: "default",
@@ -2825,21 +2827,14 @@ export function HeadingElement(props: PlateElementProps) {
   );
 }
 
-/** Blockquote — 드롭 존 래퍼 */
+/** Blockquote — 드롭 존 래퍼. 열블록처럼 내부에 블록을 담는 컨테이너 → 자체 placeholder 는 안 그리고
+    내부 블록(문단 등)의 placeholder 를 그대로 쓴다(겹침 방지). */
 export function BlockquoteElement(props: PlateElementProps) {
-  const { t } = useLanguage();
   const editor = useEditorRef();
-  const selected = useSelected();
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
-  const sel0 = editor.selection;
-  const multiBlock = !!sel0 && sel0.anchor.path[0] !== sel0.focus.path[0];
-  // 확장(range) 선택 — 표 여러 셀 선택 등. 이때는 커서가 아니므로 placeholder 숨김.
-  const collapsed = !!sel0 && sel0.anchor.offset === sel0.focus.offset && sel0.anchor.path.join() === sel0.focus.path.join();
-  const showPlaceholder = selected && collapsed && !multiBlock && isEmptyBlock(props.element);
   return (
     <BlockDropZone path={elPath}>
       <PlateElement {...props} as="blockquote" style={{ ...props.style, position: "relative" }}>
-        {showPlaceholder && <BlockPlaceholder text={t("editor.phQuote")} />}
         {props.children}
       </PlateElement>
     </BlockDropZone>
@@ -2855,10 +2850,9 @@ export function AudioElement(props: PlateElementProps) {
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   return (
     <BlockDropZone path={elPath}>
-      <PlateElement {...props} style={{ ...props.style }}>
+      <PlateElement {...props} style={{ margin: "var(--prose-block-gap) 0", ...props.style }}>
         <div contentEditable={false} style={{
           maxWidth: 480,
-          margin: "var(--spacing-sm) 0",
         }}>
           {title && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, paddingLeft: 18, color: "var(--text-secondary)" }}>
@@ -2882,8 +2876,8 @@ export function HrElement(props: PlateElementProps) {
   const elPath = (() => { try { const p = editor.api.findPath(props.element); return p ? Array.from(p) : null; } catch { return null; } })();
   return (
     <BlockDropZone path={elPath}>
-      <PlateElement {...props} style={{ ...props.style }}>
-        <hr contentEditable={false} style={{ border: "none", borderTop: "1px solid var(--border-light-color)", margin: "var(--spacing-md) 0", borderRadius: 1, outline: selected && focused ? "2px solid var(--color-accent)" : "none", outlineOffset: 4 }} />
+      <PlateElement {...props} style={{ margin: "var(--prose-block-gap) 0", ...props.style }}>
+        <hr contentEditable={false} style={{ border: "none", borderTop: "1px solid var(--border-light-color)", margin: 0, borderRadius: 1, outline: selected && focused ? "2px solid var(--color-accent)" : "none", outlineOffset: 4 }} />
         <BlockTailClickZone path={elPath} />
         {props.children}
       </PlateElement>
@@ -3047,10 +3041,12 @@ export function ColumnGroupElement(props: PlateElementProps) {
     ...props.style,
     display: "flex",
     gap: "var(--spacing-xs)",
-    marginBlock: "var(--spacing-md)",
-    // 첫 열 블록의 좌측 핸들(gutter left:-40px)이 overflow-x 에 안 잘리게 좌측 40px 공간 확보.
-    // 같은 크기의 음수 margin 으로 시각적 위치는 그대로(그 40px 는 에디터 좌측 여백 안에 들어감).
-    marginLeft: -40,
+    // 다른 블록과 같은 블록 간격(에디터 --prose-block-gap=28px) — 탭·일반블록과 gap 통일, tint 겹침/닿음 방지
+    marginBlock: "var(--prose-block-gap)",
+    // 첫 열 블록의 좌측 핸들(gutter left:-40px)이 overflow-x 에 안 잘리게 좌측 40px 공간(paddingLeft) 확보.
+    // marginLeft 는 컬럼의 내부 padding(spacing-sm=12) 만큼 더 당겨(-52), 첫 열 "텍스트"가 일반 블록과 같은
+    // 왼쪽 시작점에 오게 한다(카드 padding 은 유지, 카드가 12px 왼쪽으로 hang).
+    marginLeft: -52,
     paddingLeft: 40,
     // 마지막 열의 오른쪽 핸들은 콘텐츠 맨 끝에 앉는다 — translateX(-50%) 라 절반(6px)이
     // overflow 에 잘린다. 좌측과 같은 수법으로 우측에도 폭만큼 여유를 준다.
@@ -3204,7 +3200,7 @@ export function ToggleElement(props: PlateElementProps) {
 
   return (
     <BlockDropZone path={elPath}>
-      <div {...blockDragProps} style={{ margin: "var(--spacing-xs) 0" }}>
+      <div {...blockDragProps} style={{ margin: "var(--prose-block-gap) 0" }}>
         <PlateElement {...props} style={{ ...props.style }}>
           {React.Children.map(props.children, (child, i) => {
             if (i === 0) {
@@ -3252,7 +3248,7 @@ export function CalloutElement(props: PlateElementProps) {
 
   return (
     <BlockDropZone path={elPath}>
-      <div {...blockDragProps} style={{ position: "relative", margin: "var(--spacing-md) 0" }}>
+      <div {...blockDragProps} style={{ position: "relative", margin: "var(--prose-block-gap) 0" }}>
         {hasIcon && (
           <span ref={iconRef} contentEditable={false} style={{
             position: "absolute", left: 12, top: "calc(var(--spacing-md) + 2px)", zIndex: 1,

@@ -286,7 +286,7 @@
 .prose {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-md);
-  line-height: 1.8;
+  line-height: var(--line-height-normal);
   color: var(--text-primary);
 }
 
@@ -321,9 +321,7 @@
   border-bottom: var(--border-light);
 }
 
-.prose p {
-  margin-bottom: var(--spacing-lg);
-}
+/* 문단 여백은 .prose-content 공통 규칙(블록 사이 gap 통일)에서 처리 */
 
 .prose a {
   color: var(--text-accent);

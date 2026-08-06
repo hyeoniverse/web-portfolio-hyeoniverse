@@ -1134,6 +1134,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     ignoredKeys: ["scheduled_at"],
     block: saving || translating,
     onSaved: onAutoSaved,
+    // 편집 멈춘 뒤 3초에 저장 — 60초 기본값은 사실상 자동저장 체감이 안 남(post 와 동일 기준).
+    debounceMs: 3000,
   });
 
   // 글자 단위 continuous draft (localStorage) — mount 시 silent restore
@@ -1141,12 +1143,17 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     entityType: "work",
     entityId: work?.id,
     snapshot: form,
+    // 로컬 로드 완료 → localStorage 복원 + baseline. 서버 로드 완료 → 서버(cross-device) 복원(단 미편집 시).
     ready: initialLoadsReady,
+    serverReady: revisionsLoaded,
     applyDraft: (draft) => {
       setForm(draft);
       requestAnimationFrame(markBaseline);
     },
     ignoredKeys: ["scheduled_at"],
+    // 서버(cross-device) 자동복원 비활성 — posts 와 동일 이유(기존 글 stale updated_at → 옛 revision 되돌림).
+    // localStorage 복원(같은 기기)만 사용. 재활성화는 revision 정리 후.
+    serverDraft: null,
   });
 
   const updateField = useCallback(
@@ -1490,7 +1497,15 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           fetch(`/api/works/${savedId.current}/ai-summary`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }).catch(() => {});
         }
 
-        // 실제 save 성공 — localStorage draft 정리
+        // 실제 save 성공 — localStorage draft 정리 + 이 저장으로 대체된 autosave revision dismiss
+        // (다음 진입 시 저장본이 옛 autosave 로 되돌아가지 않게)
+        if (isEdit && savedId.current) {
+          fetch(`/api/revisions`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ entity_type: "work", entity_id: savedId.current, dismissed: true }),
+          }).catch(() => {});
+        }
         clearDraft();
         router.push("/admin/works");
       } catch {

@@ -19,7 +19,7 @@ import "katex/dist/katex.min.css";
 import { slateToHtml, setWrapLabel, setScrollLabel, type SlateNode } from "./plateSerializer";
 import { detectCodeLanguage } from "./plate/lowlightInstance";
 import { useRecentColors } from "./plate/useRecentColors";
-import { makeColumnsFromDrop, addColumnToGroup } from "./plate/BlockDraggable";
+import { makeColumnsFromDrop, addColumnToGroup, getIndentGroupChildIds } from "./plate/BlockDraggable";
 import NumberInput from "@/components/ui/NumberInput";
 import { _dndScrollContainer } from "./plate/utils";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -117,6 +117,35 @@ function isolateFloatImageBlocks(nodes: Array<Record<string, unknown>>): Array<R
     if (hasAfter) out.push(...isolateFloatImageBlocks([{ ...block, type: blockType, children: pad(after) }]));
   }
   return out;
+}
+
+// Plate deserialize 는 블록의 margin-left(들여쓰기)를 버린다 → 저장 HTML 의 margin-left 를 읽어 indent 복원.
+// 최상위 블록 element ↔ 노드를 순서+타입으로 대응(불일치 시 스킵해 안전). 리스트(li+data-indent)는 자체 경로라 제외.
+const INDENT_TAG_TYPE: Record<string, string> = { P: "p", H1: "h1", H2: "h2", H3: "h3", H4: "h4", H5: "h5", H6: "h6", BLOCKQUOTE: "blockquote" };
+function restoreBlockIndent(html: string, nodes: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
+  if (typeof window === "undefined" || !html) return nodes;
+  try {
+    // el.children ↔ node.children 를 병렬로 재귀 순회 → 최상위뿐 아니라 열/탭 등 컨테이너 "안쪽"
+    // 블록의 indent 도 복원. (안 하면 열에 넣은 묶인 블록/들여쓴 블록이 로드 시 풀린다.)
+    const walk = (els: Element[], nodeList: Array<Record<string, unknown>>) => {
+      for (let i = 0; i < Math.min(els.length, nodeList.length); i++) {
+        const el = els[i] as HTMLElement;
+        const node = nodeList[i];
+        if (!el || !node) continue;
+        const t = INDENT_TAG_TYPE[el.tagName];
+        if (t && node.type === t && !node.listStyleType) {
+          const ml = parseInt(el.style.marginLeft || "", 10);
+          if (ml > 0) node.indent = Math.round(ml / 24);
+        }
+        // 컨테이너(열/탭/토글/콜아웃…) 내부로 재귀. 텍스트 리프는 children 이 없어 자동 종료.
+        if (Array.isArray(node.children) && el.children.length) {
+          walk(Array.from(el.children), node.children as Array<Record<string, unknown>>);
+        }
+      }
+    };
+    walk(Array.from(new DOMParser().parseFromString(html, "text/html").body.children), nodes);
+  } catch { /* noop */ }
+  return nodes;
 }
 
 // ── detached(본문에서 제거된) 미디어를 저장 HTML 에 숨김 div 로 round-trip ──
@@ -259,13 +288,27 @@ function ColumnWidthControls({ colChildren, colCount, activePath, editor, langua
 
 // 다중 블록 선택 시 — 텍스트 하이라이트 대신 블록 전체에 배경 표시.
 // selection 이 두 개 이상의 top-level 블록에 걸치면 해당 블록 DOM 에 data-block-selected 부여.
-function MultiBlockHighlight() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function MultiBlockHighlight({ editor }: { editor: any }) {
   useEffect(() => {
     const root = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
     if (!root) return;
     const CLIP_VARS = ["--a-l", "--a-t", "--a-w", "--a-h", "--b-l", "--b-t", "--b-w", "--b-h"];
     const clearClip = (el: HTMLElement) => { el.removeAttribute("data-float-clip"); CLIP_VARS.forEach((v) => el.style.removeProperty(v)); };
-    const clear = () => root.querySelectorAll("[data-block-selected]").forEach((el) => { el.removeAttribute("data-block-selected"); clearClip(el as HTMLElement); });
+    const clear = () => root.querySelectorAll("[data-block-selected]").forEach((el) => {
+      el.removeAttribute("data-block-selected");
+      el.removeAttribute("data-sel-merge-up");
+      el.removeAttribute("data-sel-merge-down");
+      clearClip(el as HTMLElement);
+    });
+    // 블록 래퍼의 indent(px) — 실제 여백은 안쪽 slate element 의 margin-left 에 있다(래퍼는 full-width).
+    // 양수 margin(24·48…)만 indent 로 취급. 열블록 컨테이너의 marginLeft:-40(핸들 공간용 레이아웃 hack) 같은
+    // 음수/0 은 indent 가 아니므로 0 으로 — 안 그러면 열블록 아래 블록이 "더 들여썼다"고 잘못 판정돼 merge 됨.
+    const indentPx = (el: HTMLElement) => {
+      const inner = el.querySelector('[data-slate-node="element"]') as HTMLElement | null;
+      const ml = inner ? parseFloat(inner.style.marginLeft) : 0;
+      return Number.isFinite(ml) && ml > 0 ? ml : 0;
+    };
     // float 이미지가 겹치는 블록은 선택 배경을 2조각(이미지 옆 ::before / 아래 ::after)으로 나눠 이미지 영역을 비움
     const applyClip = (block: HTMLElement, floats: HTMLElement[]) => {
       const br = block.getBoundingClientRect();
@@ -317,17 +360,46 @@ function MultiBlockHighlight() {
       }
       const aB = blockOf(sel.anchorNode);
       const fB = blockOf(sel.focusNode);
-      if (!aB || !fB || aB === fB) { root.removeAttribute("data-multiblock"); return; }
+      if (!aB || !fB) { root.removeAttribute("data-multiblock"); return; }
+      // 단일 블록이면 "통째로"(블록 처음~끝) 선택된 경우만 블록 tint — 부분 텍스트 선택은 그대로 텍스트 하이라이트.
+      // (경계 클릭·블록 전체선택은 start~end 로 선택). slate selection 으로 판정(gutter chrome 영향 없게).
+      if (aB === fB) {
+        let coversFull = false;
+        try {
+          const s = editor.selection;
+          if (s && !editor.api.isCollapsed()) {
+            const topPath = [s.anchor.path[0]];
+            const [pStart, pEnd] = editor.api.edges(s);
+            coversFull = !!editor.api.isStart(pStart, topPath) && !!editor.api.isEnd(pEnd, topPath);
+          }
+        } catch { /* noop */ }
+        if (!coversFull) { root.removeAttribute("data-multiblock"); return; }
+      }
       root.setAttribute("data-multiblock", "");
       const floats = Array.from(root.querySelectorAll("[data-float-side]")) as HTMLElement[];
       let start = aB, end = fB;
       if (aB.compareDocumentPosition(fB) & Node.DOCUMENT_POSITION_PRECEDING) { start = fB; end = aB; }
       let cur: HTMLElement | null = start;
+      const selBlocks: HTMLElement[] = [];
       while (cur) {
         cur.setAttribute("data-block-selected", "");
         if (floats.length) applyClip(cur, floats); else clearClip(cur);
+        selBlocks.push(cur);
         if (cur === end) break;
         cur = cur.nextElementSibling as HTMLElement | null;
+      }
+      // "묶인 블록"(indent 그룹 — 부모 + 더 깊게 들여쓴 자식들)끼리만 배경을 이어붙인다.
+      // merge-down: 아래 블록과 이어짐 / merge-up: 위 블록과 이어짐. 무관한 top-level 블록은 각자 박스로 남긴다.
+      let rootIndent = indentPx(selBlocks[0]);
+      for (let i = 1; i < selBlocks.length; i++) {
+        const ind = indentPx(selBlocks[i]);
+        const prevInd = indentPx(selBlocks[i - 1]);
+        if (ind > rootIndent || (ind === prevInd && ind > 0)) {
+          selBlocks[i].setAttribute("data-sel-merge-up", "");
+          selBlocks[i - 1].setAttribute("data-sel-merge-down", "");
+        } else {
+          rootIndent = ind; // 들여쓰기가 그룹 기준선 이하로 내려오면 새 그룹 시작
+        }
       }
     };
     document.addEventListener("selectionchange", apply);
@@ -336,7 +408,7 @@ function MultiBlockHighlight() {
       root.removeAttribute("data-multiblock");
       clear();
     };
-  }, []);
+  }, [editor]);
   return null;
 }
 
@@ -473,11 +545,18 @@ export default function PlateEditor({
         if (dir === "up" && i > 0) editor.tf.moveNodes({ at: [i], to: [i - 1] });
         else if (dir === "down" && i < len - 1) editor.tf.moveNodes({ at: [i], to: [i + 1] });
         else if (dir === "left" && i > 0) {
+          // 왼쪽으로 = (그룹이) 오른쪽 열, 위 블록(i-1)이 왼쪽 열
           if (nodeAt([i - 1])?.type === "column_group") addColumnToGroup(editor, i, i - 1, "right");
           else makeColumnsFromDrop(editor, i, i - 1, "right");
-        } else if (dir === "right" && i < len - 1) {
-          if (nodeAt([i + 1])?.type === "column_group") addColumnToGroup(editor, i, i + 1, "left");
-          else makeColumnsFromDrop(editor, i, i + 1, "left");
+        } else if (dir === "right") {
+          // 오른쪽으로 = (그룹이) 왼쪽 열, 그룹 "다음" 블록이 오른쪽 열.
+          // 묶인 블록이면 i+1 은 자기 자식이므로 그룹 span 만큼 건너뛴 블록을 대상으로.
+          let span = 0;
+          try { const gid = nodeAt([i])?.id; if (gid != null) span = getIndentGroupChildIds(editor, gid).childIds.length; } catch { /* noop */ }
+          const t = i + span + 1;
+          if (t > len - 1) return false;
+          if (nodeAt([t])?.type === "column_group") addColumnToGroup(editor, i, t, "left");
+          else makeColumnsFromDrop(editor, i, t, "left");
         } else return false;
         return true;
       }
@@ -612,6 +691,43 @@ export default function PlateEditor({
         // 클릭 지점을 감싸는 element wrapper 가 img 면 선택(이미지·핸들·내부 span 어디든).
         // 단 캡션 입력란 클릭은 편집해야 하므로 제외.
         const tgt = e.target as HTMLElement;
+        // ── 블록 경계(왼쪽 gutter = 텍스트 왼쪽 여백) 클릭 → 그 블록 통째로 선택(블록 tint) ──
+        // 버튼/핸들 등 인터랙티브 요소는 제외. 좌클릭만.
+        const eEl = editorEl;
+        if (e.button === 0 && eEl && tgt && !tgt.closest("button, a, input, textarea, select, [data-no-drag]")) {
+          const rootEl = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
+          const er = eEl.getBoundingClientRect();
+          const cs = getComputedStyle(eEl);
+          const padL = parseFloat(cs.paddingLeft || "0");
+          const padR = parseFloat(cs.paddingRight || "0");
+          // 텍스트 밖 좌우 여백(왼쪽 gutter[핸들 제외] / 오른쪽 패딩) = 블록 경계 → 그 블록 통째 선택
+          const inLeftGutter = e.clientX > er.left && e.clientX < er.left + padL;
+          const inRightPad = e.clientX < er.right && e.clientX > er.right - padR;
+          if (rootEl && (inLeftGutter || inRightPad)) {
+            const child = Array.from(rootEl.children).find((c) => {
+              const r = (c as HTMLElement).getBoundingClientRect();
+              return e.clientY >= r.top && e.clientY <= r.bottom;
+            }) as HTMLElement | undefined;
+            const slateEl = child?.matches('[data-slate-node="element"]')
+              ? child
+              : (child?.querySelector('[data-slate-node="element"]') as HTMLElement | null);
+            if (slateEl) {
+              try {
+                const node = ReactEditor.toSlateNode(editor as unknown as ReactEditor, slateEl);
+                const path = node ? ReactEditor.findPath(editor as unknown as ReactEditor, node) : null;
+                const anchor = path ? editor.api.start(path) : null;
+                const focus = path ? editor.api.end(path) : null;
+                if (anchor && focus) {
+                  e.preventDefault();
+                  e.stopImmediatePropagation();
+                  editor.tf.focus();
+                  editor.tf.select({ anchor, focus });
+                  return;
+                }
+              } catch { /* ignore */ }
+            }
+          }
+        }
         // float 이미지는 흐름 밖이라 e.target 이 뒤에 깔린 요소(LI 등)로 잡힘 →
         // 클릭 좌표의 모든 요소 중 <img> 를 찾아 그 이미지 노드를 선택 (stacking 무관).
         if (tgt && !tgt.closest("[data-img-caption]")) {
@@ -1253,15 +1369,17 @@ export default function PlateEditor({
       didInitIsolateRef.current = true;
       try {
         const cur = editor.children as unknown as Array<Record<string, unknown>>;
-        const split = isolateFloatImageBlocks(cur);
-        if (split.length !== cur.length) {
+        // 초기 콘텐츠(mount deserialize)는 블록 margin-left→indent 복원이 안 됐으므로 원본 HTML 로 복원.
+        const restored = restoreBlockIndent(stripDetachedMedia(value || ""), JSON.parse(JSON.stringify(cur)) as Array<Record<string, unknown>>);
+        const split = isolateFloatImageBlocks(restored);
+        if (split.length !== cur.length || JSON.stringify(split) !== JSON.stringify(cur)) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           editor.tf.setValue(split as any);
         }
       } catch { /* ignore */ }
     }, 60);
     return () => clearTimeout(t);
-  }, [editor]);
+  }, [editor, value]);
 
   // ── float/block 이미지 상시 분리 (변경마다) ──
   // 이미지는 inline void 라 텍스트와 한 블록에 공존 가능 → 그대로면 블록 드래그/선택 시 통째로 묶인다.
@@ -1317,7 +1435,8 @@ export default function PlateEditor({
     try {
       // detached 미디어는 본문이 아니라 패널 "삭제됨" 목록으로 복원 → 본문 deserialize 전에 분리
       detachedRef.current = extractDetachedMedia(value || "");
-      const nodes = editor.api.html.deserialize({ element: stripDetachedMedia(value || "<p></p>") });
+      const cleanHtml = stripDetachedMedia(value || "<p></p>");
+      const nodes = restoreBlockIndent(cleanHtml, editor.api.html.deserialize({ element: cleanHtml }) as Array<Record<string, unknown>>);
       // float/block 이미지가 텍스트와 같은 문단에 섞여 있으면(= inline void 라 생기는 현상)
       // 블록 드래그 시 통째로 움직인다. 로드 시점에 이미지를 자기 문단으로 분리해 독립 이동 보장.
       const split = isolateFloatImageBlocks(nodes as Array<Record<string, unknown>>);
@@ -1468,10 +1587,18 @@ export default function PlateEditor({
       }
 
       if (slateValue !== lastSlateValueRef.current) {
+        // 직렬화 먼저 — 실패하면 ref/상태를 건드리지 않고 빠져 다음 변경 때 다시 시도(자동저장 정지 방지).
+        // (serializeNode 는 노드별 방어라 사실상 throw 안 나지만, detached 직렬화 등 만일에 대비한 2차 방어)
+        let html: string;
+        try {
+          // detached 미디어를 숨김 div 로 덧붙여 저장 → 새로고침 후에도 패널에 유지 (없으면 빈 문자열)
+          html = slateToHtml(slateValue) + serializeDetachedMedia(detachedRef.current);
+        } catch (e) {
+          if (typeof console !== "undefined") console.error("[PlateEditor] 본문 직렬화 실패 — 이번 변경은 자동저장에 반영 안 됨:", e);
+          return;
+        }
         lastSlateValueRef.current = slateValue;
         isInternalUpdate.current = true;
-        // detached 미디어를 숨김 div 로 덧붙여 저장 → 새로고침 후에도 패널에 유지 (없으면 빈 문자열)
-        const html = slateToHtml(slateValue) + serializeDetachedMedia(detachedRef.current);
         prevValueRef.current = html;
         onChangeRef.current(html);
       }
@@ -2023,6 +2150,21 @@ export default function PlateEditor({
       setTimeout(() => findInputRef.current?.focus(), 50);
       return;
     }
+    // Ctrl/Cmd+A → 전체 "블록" 선택(한 번에). Slate 기본은 첫 A 가 현재 블록 텍스트만 선택하지만,
+    // 여기서 문서 처음~끝을 한 번에 선택 → 여러 블록에 걸쳐 MultiBlockHighlight 가 블록 tint 를 켜고
+    // 텍스트 하이라이트(::selection)는 [data-multiblock] 로 숨겨진다.
+    if (mod && e.key === "a" && !e.shiftKey && !e.altKey) {
+      try {
+        const s = editor.api.start([]);
+        const en = editor.api.end([]);
+        if (s && en) {
+          e.preventDefault();
+          editor.tf.focus();
+          editor.tf.select({ anchor: s, focus: en });
+          return;
+        }
+      } catch { /* 기본 동작에 맡김 */ }
+    }
     if (e.key === "Escape") {
       // 아래 toolbar부터 순차적으로 닫기: contextual → find
       const inContextual = isInTable || isInColumn || isInToggle || isInCallout || mathEditing || isInImage || isInMediaEmbed;
@@ -2397,7 +2539,7 @@ export default function PlateEditor({
       setHtmlSource(slateToHtml(editor.children as SlateNode[]));
     } else {
       try {
-        const nodes = editor.api.html.deserialize({ element: htmlSource || "<p></p>" });
+        const nodes = restoreBlockIndent(htmlSource || "<p></p>", editor.api.html.deserialize({ element: htmlSource || "<p></p>" }) as Array<Record<string, unknown>>);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         editor.tf.setValue(nodes as any);
         isInternalUpdate.current = true;
@@ -3535,7 +3677,7 @@ export default function PlateEditor({
         <SlashMenu onOpenChange={setSlashOpen} />
 
         {/* 다중 블록 선택 하이라이트 */}
-        <MultiBlockHighlight />
+        <MultiBlockHighlight editor={editor} />
 
         {/* float 이미지 옆 블록의 핸들/placeholder 위치 조정 */}
         <FloatEdgeAdjust />

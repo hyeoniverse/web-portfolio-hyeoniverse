@@ -115,16 +115,17 @@
   border-color: var(--text-tertiary);
   color: var(--text-primary);
 }
+/* 선택 칩 — 모노크롬 채움(inverse). 미선택=외곽선만 → 채움 vs 외곽선으로 깔끔하게 구분 */
 .authorChipSelected {
-  border-color: var(--border-default-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  border-color: var(--bg-inverse);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
 }
 /* 선택된 칩 hover — .authorChip:hover(0,2,0) 가 덮지 않게 동일 specificity 로 유지 */
 .authorChipSelected:hover {
-  border-color: var(--border-strong-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  border-color: var(--bg-inverse-light);
+  background: var(--bg-inverse-light);
+  color: var(--text-inverse);
 }
 .authorChipAvatar {
   width: 22px;

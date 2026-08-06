@@ -111,13 +111,14 @@ h4 { font-size: var(--font-size-md); }
 h5 { font-size: var(--font-size-sm); }
 h6 { font-size: var(--font-size-xs); }
 
-/* 콘텐츠(글) 제목 여백 — .prose-content 클래스 하나로 에디터·게시글·work 공통.
-   폰트는 본문(p)과 동일하게 컨테이너 상속(override 안 함). 여백만 비대칭(위>아래).
-   top≠bottom 이라 box 토큰(대칭) 안 맞아 방향별 단일 spacing. 비콘텐츠 제목은 base 만(margin 0). */
-.prose-content h1 { margin-top: var(--spacing-lg); margin-bottom: var(--spacing-xs); }
-.prose-content h2 { margin-top: var(--spacing-md); margin-bottom: var(--spacing-2xs); }
-.prose-content h3 { margin-top: var(--spacing-sm); margin-bottom: var(--spacing-2xs); }
-.prose-content > :first-child { margin-top: 0; }
+/* 블록 사이 간격 통일 — .prose-content 안 모든 문단 블록(h1~h6·p·blockquote)이 태그 무관 같은 gap.
+   블록 "사이"는 띄우고, 블록 "내부"(line-height)는 컨테이너에서 tight 하게. 에디터·게시글·work 공통 한 곳.
+   폰트는 본문(p)과 동일하게 컨테이너 상속(override 안 함). */
+.prose-content :is(h1, h2, h3, h4, h5, h6, p, blockquote, .slate-p) {
+  margin-top: 0;
+  margin-bottom: var(--prose-block-gap);
+}
+.prose-content > :last-child { margin-bottom: 0; }
 
 /* 인라인 코드 — 사이트 공통 칩 룩 (포스트 본문 기준으로 통일). 문맥별로 흩어져 있던 스타일의 단일 소스.
    코드 블록(pre code)은 바로 아래에서 리셋 + _hljs.css 의 .code-block-wrap/.slate-code_block 규칙으로 제외. */

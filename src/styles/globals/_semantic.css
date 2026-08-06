@@ -238,6 +238,10 @@
   /* 제목(h1~h6) 공통 줄간격 — 전역 heading base 단일 소스. 조정은 여기 한 줄. */
   --heading-lh: var(--line-height-tight);
 
+  /* 콘텐츠(글) 블록 "사이" 간격 — 태그 무관(h·p·blockquote) 통일. 블록 "내부"(line-height)와 대비.
+     .prose-content CSS·에디터 문단 인라인·드롭라인 offset 이 모두 이 토큰 참조. 조정은 여기 한 줄. */
+  --prose-block-gap: var(--spacing-md);
+
   /* Spacing */
   --editorial-space-section: clamp(1rem, min(3.5vh, 2vw), 3.5rem);
   --editorial-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);

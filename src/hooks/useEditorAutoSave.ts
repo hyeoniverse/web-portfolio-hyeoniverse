@@ -35,7 +35,7 @@ interface UseAutosaveOptions<T> {
   saveRevision: (snapshot: T, title: string) => Promise<boolean>;
   /** baseline 비교에서 제외할 키 (저장은 됨, dirty 판정만 제외). */
   ignoredKeys?: (keyof T)[];
-  /** Debounce window — 마지막 키 누른 후 N ms 지나면 save. Default 60s. */
+  /** Debounce window — 마지막 편집 후 N ms 멈추면 save. Default 3s (60s 는 자동저장 체감이 안 남). */
   debounceMs?: number;
   /** baseline 대비 글자수 차이가 이거 미만이면 save skip — typo / 한두 글자 변경 무시. Default 10. */
   minCharDiff?: number;
@@ -60,7 +60,7 @@ export function useEditorAutoSave<T>({
   getTitle,
   saveRevision,
   ignoredKeys,
-  debounceMs = 60_000,
+  debounceMs = 3_000,
   minCharDiff = 10,
   block = false,
   onSaved,
@@ -116,10 +116,21 @@ export function useEditorAutoSave<T>({
     }
   }, [effectiveId]);
 
-  /** baseline 대비 글자수 차이 충분한가? */
+  /** baseline 대비 변경이 충분한가? 총 "길이" 차이만 보면 같은 길이 편집(코드 내용 교체·탭 라벨 변경 등)을
+   *  0 으로 오판해 자동저장을 건너뛴다 → 공통 접두/접미를 제외한 "실제 바뀐 구간" 크기로 판정한다.
+   *  (삽입/삭제/같은길이 교체 모두 정확. 특수블록 수정이 저장에서 누락되던 원인.) */
   const isMeaningfulDiff = useCallback((current: string): boolean => {
-    if (baselineRef.current === null) return false;
-    return Math.abs(current.length - baselineRef.current.length) >= minCharDiff;
+    const base = baselineRef.current;
+    if (base === null) return false;
+    if (current === base) return false;
+    const a = current, b = base;
+    const min = Math.min(a.length, b.length);
+    let p = 0;
+    while (p < min && a[p] === b[p]) p++;
+    let s = 0;
+    while (s < min - p && a[a.length - 1 - s] === b[b.length - 1 - s]) s++;
+    const changed = Math.max(a.length, b.length) - p - s;
+    return changed >= minCharDiff;
   }, [minCharDiff]);
 
   // Initial baseline — entityId 가 처음 valid 해질 때 한 번

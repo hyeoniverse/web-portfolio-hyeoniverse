@@ -1,7 +1,7 @@
 /* ── Tabs block — 에디터 + reader 공용 (글로벌 클래스). 외곽선으로 컨테이너 구분 ── */
 .tabs-block,
 [data-tabs] {
-  margin: var(--spacing-lg) 0;
+  margin: var(--prose-block-gap) 0; /* 일반 블록(p margin-bottom)과 같은 간격 → tint 켜져도 블록 사이 gap 통일 */
   padding: var(--spacing-sm) var(--spacing-lg);
   border: 1px solid var(--border-light-color);
   border-radius: var(--radius-2xl);

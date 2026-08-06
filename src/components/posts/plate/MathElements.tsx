@@ -374,11 +374,11 @@ export function EquationElement(props: PlateElementProps) {
   const { blockDragProps, isDragging: dragReady } = useBlockDrag(elPath);
 
   return (
-    <BlockDropZone path={elPath}>
+    <BlockDropZone path={elPath} style={{ margin: "var(--prose-block-gap) 0" }}>
     <div {...blockDragProps} style={{ cursor: "default" }}>
     <PlateElement {...props} as="div"
       style={{
-        ...props.style, position: "relative", textAlign: "center", margin: "var(--spacing-md, 16px) 0",
+        ...props.style, position: "relative", textAlign: "center",
         background: "var(--bg-tertiary)", borderRadius: "var(--radius-2xl)",
         padding: "var(--spacing-sm) var(--spacing-md)",
       }}

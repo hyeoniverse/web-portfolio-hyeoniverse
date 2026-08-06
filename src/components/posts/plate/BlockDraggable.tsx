@@ -41,22 +41,54 @@ const TURN_INTO: { value: string; labelKey: string; icon: React.ReactNode }[] = 
 // 전환/색상(글자색·형광펜) 을 표시할 "텍스트 계열" 블록. 나머지(코드·이미지·표·구분선·영상·토글·열 등)엔 숨김.
 const TEXT_LIKE_BLOCKS = new Set(["p", "h1", "h2", "h3", "blockquote", "callout"]);
 
+// 최상위 index 의 블록 + 그 indent 그룹 자식(연속된 더 깊은 블록)을 통째로 클론해 반환.
+// 묶인 블록(indent 그룹)은 열 안에서도 한 덩어리로 취급 → 자식까지 같은 열에 넣는다.
+// 열 폭 안에서 과한 좌여백을 막고 상대 구조는 유지하도록 그룹 base indent 를 0 으로 정규화.
+function topLevelGroupNodes(ed: any, idx: number): { nodes: any[]; span: number } {
+  const first = ed.api.node([idx])?.[0];
+  if (!first) return { nodes: [], span: 0 };
+  let childCount = 0;
+  try {
+    const gid = (first as { id?: unknown }).id;
+    if (gid != null) childCount = getIndentGroupChildIds(ed, gid).childIds.length;
+  } catch { /* noop */ }
+  const base = (first as { indent?: number }).indent ?? 0;
+  const nodes: any[] = [];
+  for (let i = 0; i <= childCount; i++) {
+    const n = ed.api.node([idx + i])?.[0];
+    if (!n) continue;
+    const clone = JSON.parse(JSON.stringify(n));
+    if (typeof clone.indent === "number") {
+      const ni = clone.indent - base;
+      if (ni > 0) clone.indent = ni; else delete clone.indent;
+    }
+    nodes.push(clone);
+  }
+  return { nodes, span: childCount };
+}
+
 // 최상위 블록을 좌/우로 드롭 → 드래그한 블록과 대상 블록을 2단 column_group 으로 묶는다.
+// 각 쪽이 indent 그룹이면 그 그룹 전체가 자기 열로 들어간다(하나의 블록처럼).
 export function makeColumnsFromDrop(ed: any, dragIdx: number, targetIdx: number, side: "left" | "right") {
   if (dragIdx === targetIdx) return;
-  const draggedNode = JSON.parse(JSON.stringify(ed.api.node([dragIdx])?.[0]));
-  const targetNode = JSON.parse(JSON.stringify(ed.api.node([targetIdx])?.[0]));
-  // side=left → 드래그한 블록이 왼쪽, side=right → 오른쪽
-  const cols = side === "left" ? [draggedNode, targetNode] : [targetNode, draggedNode];
-  const group = {
-    type: "column_group",
-    children: cols.map((c) => ({ type: "column", width: "50%", children: [c] })),
-  };
-  const hi = Math.max(dragIdx, targetIdx);
+  const dg = topLevelGroupNodes(ed, dragIdx);
+  const tg = topLevelGroupNodes(ed, targetIdx);
+  if (!dg.nodes.length || !tg.nodes.length) return;
+  // 두 그룹 범위가 겹치면(서로의 자식/부모) 열 생성 안 함 — 노드 중복 방지
+  if (dragIdx <= targetIdx + tg.span && targetIdx <= dragIdx + dg.span) return;
+  const draggedCol = { type: "column", width: "50%", children: dg.nodes };
+  const targetCol = { type: "column", width: "50%", children: tg.nodes };
+  // side=left → 드래그한 (그룹) 이 왼쪽, side=right → 오른쪽
+  const cols = side === "left" ? [draggedCol, targetCol] : [targetCol, draggedCol];
+  const group = { type: "column_group", children: cols };
+  // 두 그룹의 모든 최상위 index 를 큰 것부터 제거 → path 유지, 최소 index 에 삽입
+  const all: number[] = [];
+  for (let i = dragIdx; i <= dragIdx + dg.span; i++) all.push(i);
+  for (let i = targetIdx; i <= targetIdx + tg.span; i++) all.push(i);
+  all.sort((a, b) => b - a);
   const lo = Math.min(dragIdx, targetIdx);
   ed.tf.withoutNormalizing(() => {
-    ed.tf.removeNodes({ at: [hi] }); // 큰 index 먼저 → path 유지
-    ed.tf.removeNodes({ at: [lo] });
+    for (const idx of all) ed.tf.removeNodes({ at: [idx] });
     ed.tf.insertNodes(group, { at: [lo] });
   });
 }
@@ -69,7 +101,10 @@ export function addColumnToGroup(ed: any, dragIdx: number, groupIdx: number, sid
   const group = ed.api.node([groupIdx])?.[0];
   if (!group?.children) return false;
   if (group.children.length >= MAX_COLUMNS) return false; // 상한 초과 → 추가 안 함
-  const draggedNode = JSON.parse(JSON.stringify(ed.api.node([dragIdx])?.[0]));
+  // 드래그한 게 indent 그룹이면 그룹 전체를 새 열의 내용으로(하나의 블록처럼)
+  const dg = topLevelGroupNodes(ed, dragIdx);
+  if (!dg.nodes.length) return false;
+  if (groupIdx >= dragIdx && groupIdx <= dragIdx + dg.span) return false; // 방어: 그룹 범위와 겹치면 취소
   const origCount = group.children.length;
   const colCount = origCount + 1;
   const insertColIdx = side === "left" ? 0 : origCount;
@@ -79,15 +114,15 @@ export function addColumnToGroup(ed: any, dragIdx: number, groupIdx: number, sid
   const hasPx = (group.children as { widthPx?: number }[]).some(
     (c) => typeof c?.widthPx === "number" && c.widthPx > 0,
   );
-  const newCol: Record<string, unknown> = { type: "column", width: "50%", children: [draggedNode] };
+  const newCol: Record<string, unknown> = { type: "column", width: "50%", children: dg.nodes };
   // 기존 열 폭은 그대로 두고 새 열만 기본 폭으로 붙인다. 단 블록 상한에 여유가 없으면
   // 그때만 기존 열을 비례로 깎아 자리를 낸다 (fitColumnsForInsert 가 두 규칙을 다 안다).
   const curPx = (group.children as { widthPx?: number }[]).map((c) => c?.widthPx || 0);
   const fit = hasPx ? fitColumnsForInsert(curPx, COLUMN_DEFAULT_PX) : null;
   if (fit) newCol.widthPx = fit.added;
   ed.tf.withoutNormalizing(() => {
-    ed.tf.removeNodes({ at: [dragIdx] });
-    const gIdx = dragIdx < groupIdx ? groupIdx - 1 : groupIdx; // 제거로 인한 index 보정
+    for (let i = dragIdx + dg.span; i >= dragIdx; i--) ed.tf.removeNodes({ at: [i] }); // 그룹 전체 제거(큰 index 먼저)
+    const gIdx = dragIdx < groupIdx ? groupIdx - (dg.span + 1) : groupIdx; // 제거한 블록 수만큼 index 보정
     ed.tf.insertNodes(newCol, { at: [gIdx, insertColIdx] });
     // 자리를 내주느라 깎인 기존 열 반영. 왼쪽에 끼웠으면 기존 열의 index 가 1 씩 밀린다.
     // px 가 없던(유동) 열은 curPx 가 0 이라 깎이지도 않으므로 그대로 건너뛴다 — 여기서 px 를 주면
@@ -156,6 +191,22 @@ export const BlockDraggable = (props: RenderNodeWrapperProps): RenderNodeWrapper
 
 const IS_MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || "");
 
+// 드래그한 블록의 "indent 그룹 자식" — 바로 뒤 최상위 블록 중 indent 가 더 깊은 연속 블록들.
+// 부모보다 얕거나 같은 indent 를 만나면 중단. (Notion 식: 인접+들여쓴 블록을 부모와 함께 이동)
+export function getIndentGroupChildIds(ed: any, draggedId: any): { childIds: any[]; draggedIndent: number } {
+  const de = ed.api.node({ id: draggedId, at: [] });
+  if (!de || de[1].length !== 1) return { childIds: [], draggedIndent: 0 };
+  const draggedIndent = (de[0].indent as number) ?? 0;
+  const root = ed.children as any[];
+  const childIds: any[] = [];
+  for (let i = de[1][0] + 1; i < root.length; i++) {
+    const ind = (root[i]?.indent as number) ?? 0;
+    if (ind > draggedIndent) { if (root[i]?.id != null) childIds.push(root[i].id); }
+    else break;
+  }
+  return { childIds, draggedIndent };
+}
+
 function DraggableBlock({ element, children }: { element: TElement; children: React.ReactNode }) {
   const { t, language } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
@@ -167,6 +218,17 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
 
   const onDropHandler = React.useCallback((ed: any, { id, dragItem, monitor }: any) => {
     setDropDir(null);
+    // 자기 자신(또는 자기 자손) 안으로의 드롭 방지 — 예: 열블록(column_group)을 자기 컬럼 위로 드롭.
+    // Plate 기본 이동(moveNodes)이 "destination is inside itself"([1]→[1,0,0])로 터지므로 no-op 처리.
+    try {
+      const draggedId0 = Array.isArray(dragItem.id) ? dragItem.id[0] : dragItem.id;
+      const dEntry = ed.api.node({ id: draggedId0, at: [] });
+      const tEntry = ed.api.node({ id, at: [] });
+      if (dEntry && tEntry) {
+        const dPath: number[] = dEntry[1], tPath: number[] = tEntry[1];
+        if (dPath.length <= tPath.length && dPath.every((v, i) => v === tPath[i])) return true;
+      }
+    } catch { /* noop */ }
     // ── 사이드 드롭 → 열블록 생성 (최상위 블록끼리) ──
     try {
       const offset = monitor?.getClientOffset?.();
@@ -196,18 +258,24 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
         }
       }
     } catch { /* noop */ }
+    // 타겟이 들여쓰기돼 있으면, 드롭한 (그룹) 전체 indent 를 타겟에 맞춰 이동 — 자식은 상대 offset 유지.
+    // 그룹 이동 자체는 dragItem.id 배열([부모,...자식])로 @platejs/dnd 가 네이티브 처리(아래 useDraggable item).
     try {
       const targetEntry = ed.api.node({ id, at: [] });
       const targetIndent = targetEntry ? ((targetEntry[0]?.indent as number) ?? 0) : 0;
       if (targetIndent > 0) {
-        const draggedId = Array.isArray(dragItem.id) ? dragItem.id[0] : dragItem.id;
+        const ids: any[] = Array.isArray(dragItem.id) ? dragItem.id : [dragItem.id];
         setTimeout(() => {
           try {
-            const de = ed.api.node({ id: draggedId, at: [] });
-            if (!de) return;
-            const [dn, dp] = de;
-            if (dn.listStyleType) return; // 리스트는 제외
-            if (((dn.indent as number) ?? 0) !== targetIndent) ed.tf.setNodes({ indent: targetIndent }, { at: dp });
+            const pe = ed.api.node({ id: ids[0], at: [] });
+            if (!pe || (pe[0] as any).listStyleType) return; // 리스트는 제외
+            const delta = targetIndent - (((pe[0].indent as number) ?? 0));
+            if (delta === 0) return;
+            for (const cid of ids) {
+              const ce = ed.api.node({ id: cid, at: [] });
+              if (!ce || (ce[0] as any).listStyleType) continue;
+              ed.tf.setNodes({ indent: Math.max(0, (((ce[0].indent as number) ?? 0)) + delta) }, { at: ce[1] });
+            }
           } catch { /* noop */ }
         }, 0);
       }
@@ -215,9 +283,64 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
     return false;
   }, []);
   // preview.disable → 네이티브 HTML5 drag image 끄고 커스텀 BlockDragLayer 로 대체
-  const { isDragging, nodeRef, handleRef } = useDraggable({ element, onDropHandler, preview: { disable: true } });
+  // drag.item → 드래그 시작 시 indent 자식이 있으면 id 를 [부모,...자식] 배열로 만들어
+  // @platejs/dnd 가 그룹을 네이티브로 함께 이동(멀티셀렉트 드래그와 동일 경로). 자식 없으면 단일.
+  const { isDragging, nodeRef, handleRef } = useDraggable({
+    element,
+    onDropHandler,
+    preview: { disable: true },
+    drag: {
+      item: (() => {
+        try {
+          const gid = (element as { id?: unknown }).id;
+          if (gid == null) return {};
+          const { childIds } = getIndentGroupChildIds(editor, gid);
+          if (childIds.length > 0) return { id: [gid, ...childIds] };
+        } catch { /* noop */ }
+        return {};
+      }) as any,
+    },
+  } as any);
   // 핸들 popover 열림 → 현재 블록 배경 강조 (어떤 블록에 대한 도구인지 표시)
   const [toolsOpen, setToolsOpen] = React.useState(false);
+
+  // indent 그룹 하이라이트 — 부모가 핸들active(toolsOpen) 또는 드래그 중이면, 부모 블록 하나에만
+  // data-group-parent + 그룹 전체 높이(--group-active-h)를 세팅 → 부모 배경 하나가 그룹 전체를 덮는다.
+  // (안쪽 자식 블록엔 개별 accent 를 안 준다. 노션식 — 그룹 = 한 덩어리 배경.)
+  React.useEffect(() => {
+    // 사이드 드롭(열 생성) 타겟일 때도 그룹 높이를 세팅 → 세로 인디케이터(.blockDropSide)가 묶은 블록 전체를 덮게.
+    const sideTarget = dropDir === "left" || dropDir === "right";
+    if (!(toolsOpen || isDragging || sideTarget)) return;
+    let parentWrapper: HTMLElement | null = null;
+    try {
+      const gid = (element as { id?: unknown }).id;
+      if (gid != null) {
+        const { childIds } = getIndentGroupChildIds(editor, gid);
+        if (childIds.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const wrapperOf = (id: any): HTMLElement | null => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const node = editor.api.node({ id, at: [] })?.[0] as any;
+            const dom = node ? (editor.api.toDOMNode(node) as HTMLElement | null) : null;
+            return (dom?.closest(`.${styles.blockDraggable}`) as HTMLElement | null) ?? null;
+          };
+          parentWrapper = wrapperOf(gid);
+          const lastChild = wrapperOf(childIds[childIds.length - 1]);
+          if (parentWrapper && lastChild) {
+            const h = lastChild.getBoundingClientRect().bottom - parentWrapper.getBoundingClientRect().top;
+            parentWrapper.style.setProperty("--group-active-h", `${Math.round(h)}px`);
+            // 배경 하이라이트(data-group-parent)는 핸들active/드래그 때만 — 드롭 타겟엔 세로선만 늘린다.
+            if (toolsOpen || isDragging) parentWrapper.setAttribute("data-group-parent", "");
+          } else {
+            parentWrapper = null;
+          }
+        }
+      }
+    } catch { /* noop */ }
+    return () => {
+      if (parentWrapper) { parentWrapper.removeAttribute("data-group-parent"); parentWrapper.style.removeProperty("--group-active-h"); }
+    };
+  }, [toolsOpen, isDragging, dropDir, editor, element]);
 
   // 노션식 + 버튼 — 클릭: 아래 / ⌥(Alt)+클릭: 위. 내용 없으면 그 자리에서(전환).
   // focus + 슬래시 메뉴 오픈("/" 텍스트는 넣지 않음).
@@ -225,8 +348,11 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
     try {
       const path = editor.api.findPath(element);
       if (!path) return;
-      const empty = ((editor.api.string(path) as string) ?? "") === "";
-      const insertNew = !(empty && !above); // 빈 블록 + 아래 = 새 블록 없이 현재 블록 전환
+      const type = (element as { type?: string }).type ?? "";
+      // "그 자리에서 전환"은 빈 '일반 문단(p)'을 아래로 추가할 때만. 코드·표·이미지·구분선·투표 등
+      // 텍스트가 없는(api.string 이 "") 블록까지 빈 걸로 오인해 전환되던 문제 → 문단만 전환, 나머진 항상 바로 아래에 추가.
+      const empty = type === "p" && ((editor.api.string(path) as string) ?? "") === "";
+      const insertNew = !(empty && !above); // 빈 문단 + 아래 = 새 블록 없이 그 문단에서 전환
       let target = path as number[];
       if (insertNew) {
         const parent = path.slice(0, -1);

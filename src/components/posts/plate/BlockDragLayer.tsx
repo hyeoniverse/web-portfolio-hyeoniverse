@@ -52,7 +52,8 @@ export function BlockDragLayer() {
     return () => cancelAnimationFrame(raf);
   }, [isDragging]);
 
-  // 드래그 시작 시 원본 블록 DOM 을 복제해 ghost 컨테이너에 주입 (React 바깥에서 직접 DOM 조작)
+  // 드래그 시작 시 원본 블록 DOM 을 복제해 ghost 컨테이너에 주입 (React 바깥에서 직접 DOM 조작).
+  // 그룹 드래그(indent 자식 포함)면 item.id = [부모,...자식] → 전부 클론해 쌓아 그룹째 들리는 것처럼 보이게.
   React.useEffect(() => {
     const container = ref.current;
     if (!container) return;
@@ -60,28 +61,53 @@ export function BlockDragLayer() {
     container.style.width = "";
     if (!isDragging || !el) return;
     try {
-      const dom = editor.api.toDOMNode(el as any) as HTMLElement | null;
-      if (!dom) return;
-      // toDOMNode 는 슬레이트 노드(예: 코드블록 <pre>)만 반환 → mermaid 미리보기처럼 형제로 렌더되는
-      // 부가 요소가 빠진다. 블록 전체 래퍼(.blockDraggable)를 클론하고 드래그 chrome(거터/드롭라인)만 제거.
-      const source = (dom.closest(`.${styles.blockDraggable}`) as HTMLElement | null) ?? dom;
-      const w = source.getBoundingClientRect().width;
-      if (w) container.style.width = `${Math.min(w, 440)}px`;
-      const clone = source.cloneNode(true) as HTMLElement;
-      clone.querySelectorAll(`.${styles.blockDragGutter}, .${styles.blockDropLine}`).forEach((n) => n.remove());
-      clone.style.opacity = "";
-      clone.style.margin = "0";
-      clone.removeAttribute("contenteditable");
-      container.appendChild(clone);
+      const groupIds: any[] = Array.isArray(item?.id) && item.id.length > 1 ? item.id : [];
+      const nodes: any[] = groupIds.length
+        ? groupIds.map((gid) => editor.api.node({ id: gid, at: [] })?.[0]).filter(Boolean)
+        : [el];
+      let maxW = 0;
+      for (const node of nodes) {
+        const dom = editor.api.toDOMNode(node as any) as HTMLElement | null;
+        if (!dom) continue;
+        // toDOMNode 는 슬레이트 노드(예: 코드블록 <pre>)만 반환 → mermaid 미리보기처럼 형제로 렌더되는
+        // 부가 요소가 빠진다. 블록 전체 래퍼(.blockDraggable)를 클론하고 드래그 chrome(거터/드롭라인)만 제거.
+        const source = (dom.closest(`.${styles.blockDraggable}`) as HTMLElement | null) ?? dom;
+        const w = source.getBoundingClientRect().width;
+        if (w > maxW) maxW = w;
+        const clone = source.cloneNode(true) as HTMLElement;
+        clone.querySelectorAll(`.${styles.blockDragGutter}, .${styles.blockDropLine}`).forEach((n) => n.remove());
+        // ghost 는 그룹 컨테이너 배경(.blockDragLayerGroup) 한 겹만 — 클론된 블록/내부 블록에서
+        // 선택·드래그·컬럼 tint 를 전부 걷어낸다(안쪽 블록에 개별 배경/tint 가 겹쳐 보이지 않게).
+        const strip = (elm: Element) => {
+          elm.classList.remove(styles.blockDragging, styles.blockDraggableActive, styles.colElementActive);
+          elm.removeAttribute("data-block-selected");
+          elm.removeAttribute("data-group-parent");
+          elm.removeAttribute("data-sel-merge-up");
+          elm.removeAttribute("data-sel-merge-down");
+        };
+        strip(clone);
+        clone.querySelectorAll("*").forEach(strip);
+        clone.querySelectorAll(`.${styles.colElement}`).forEach((c) => ((c as HTMLElement).style.boxShadow = "none"));
+        clone.style.opacity = "";
+        clone.style.margin = "0";
+        clone.removeAttribute("contenteditable");
+        container.appendChild(clone);
+      }
+      if (maxW) container.style.width = `${Math.min(maxW, 440)}px`;
     } catch { /* noop */ }
-  }, [isDragging, el, editor]);
+  }, [isDragging, el, item, editor]);
 
   if (!isDragging || !offset || !el) return null;
+
+  // 묶인 블록(indent 그룹) 드래그면 클론들을 하나의 배경으로 감싼다.
+  const isGroup = Array.isArray(item?.id) && item.id.length > 1;
+  // 열블록이면 컨테이너에 직접 tint 오버레이(그룹 기준 오버레이는 ghost 폭에서 오른쪽이 잘림).
+  const isColumn = (el as { type?: string })?.type === "column_group";
 
   return createPortal(
     <div
       ref={ref}
-      className={styles.blockDragLayer}
+      className={`${styles.blockDragLayer}${isGroup ? ` ${styles.blockDragLayerGroup}` : ""}${isColumn ? ` ${styles.blockDragLayerColumn}` : ""}`}
       style={{ transform: `translate(${offset.x + 12}px, ${offset.y + 8}px)` }}
       aria-hidden
     />,
