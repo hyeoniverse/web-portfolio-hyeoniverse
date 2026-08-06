@@ -26,6 +26,7 @@ import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
 import AdminTable from "@/components/admin/AdminTable/AdminTable";
+import StickyGlassBar from "@/components/admin/StickyGlassBar/StickyGlassBar";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import BulkCategoryModal from "@/components/admin/BulkCategoryModal";
@@ -364,7 +365,23 @@ export default function AdminPostsPage() {
 
 
   /* ── Table columns ── */
-  const columns = useMemo(() => createPostColumns(t), [t]);
+  // 상태 배지 클릭 → 발행/미발행 토글 (낙관적 업데이트, 실패 시 롤백)
+  const handleTogglePublished = useCallback(async (post: Post) => {
+    const next = !post.published;
+    setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, published: next } : p)));
+    try {
+      const res = await fetch(`/api/posts/${post.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ published: next }),
+      });
+      if (!res.ok) throw new Error("toggle failed");
+    } catch {
+      setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, published: post.published } : p)));
+    }
+  }, []);
+
+  const columns = useMemo(() => createPostColumns(t, handleTogglePublished), [t, handleTogglePublished]);
 
   const labels = useMemo(
     () => ({
@@ -733,7 +750,7 @@ tags: React`}</code></pre>
       afterTable={trashSection}
     >
       {/* Filter bar — sort + filters + perPage 좌측, 검색은 우측 끝 (margin-left:auto) */}
-      <div className={shell.filterBar}>
+      <StickyGlassBar className={shell.filterBar}>
         <SegmentedControl
           items={[
             { value: "date", label: t("admin.posts.sortDate") },
@@ -806,7 +823,7 @@ tags: React`}</code></pre>
           onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
           className={shell.filterPageSize}
         />
-      </div>
+      </StickyGlassBar>
 
       <AdminTable<Post>
         items={posts}

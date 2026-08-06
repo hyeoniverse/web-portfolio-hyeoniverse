@@ -816,6 +816,8 @@
       "viewDetail": "View page",
       "published": "Published",
       "draft": "Draft",
+      "clickToPublish": "Click to publish",
+      "clickToUnpublish": "Click to unpublish",
       "scheduled": "Scheduled",
       "deleteConfirm": "Are you sure you want to delete?",
       "deleteConfirmInput": "Type the exact title to confirm deletion",

@@ -24,6 +24,7 @@ import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
 import T from "@/components/ui/T";
+import StickyGlassBar from "@/components/admin/StickyGlassBar/StickyGlassBar";
 import AdminTable, {
   adminTableStyles as ts,
   type AdminTableColumn,
@@ -369,6 +370,21 @@ export default function AdminWorksPage() {
     fetchWorks();
   }, [fetchWorks]);
 
+  // 상태 배지 클릭 → 발행/미발행 토글 (낙관적 업데이트, 실패 시 롤백)
+  const handleToggleWorkPublished = useCallback(async (work: Work) => {
+    const next = !work.published;
+    setWorks((prev) => prev.map((w) => (w.id === work.id ? { ...w, published: next } : w)));
+    try {
+      const res = await fetch(`/api/works/${work.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ published: next }),
+      });
+      if (!res.ok) throw new Error("toggle failed");
+    } catch {
+      setWorks((prev) => prev.map((w) => (w.id === work.id ? { ...w, published: work.published } : w)));
+    }
+  }, []);
 
   const columns: AdminTableColumn<Work>[] = useMemo(
     () => [
@@ -422,8 +438,24 @@ export default function AdminWorksPage() {
         render: (work) => work.year,
         skeletonWidth: "40px",
       },
+      {
+        key: "status",
+        label: t("admin.works.tableStatus"),
+        className: ts.colMeta,
+        render: (work) => (
+          <button
+            type="button"
+            className={`${ts.statusBadge} ${ts.statusBadgeBtn} ${work.published ? ts.published : ts.draft}`}
+            onClick={(e) => { e.stopPropagation(); handleToggleWorkPublished(work); }}
+            title={work.published ? t("admin.posts.clickToUnpublish") : t("admin.posts.clickToPublish")}
+          >
+            {work.published ? t("admin.works.published") : t("admin.works.draft")}
+          </button>
+        ),
+        skeletonWidth: "50px",
+      },
     ],
-    [t],
+    [t, handleToggleWorkPublished],
   );
 
   const labels = useMemo(
@@ -660,7 +692,7 @@ icon: 🎨
       }
     >
       {/* Filter bar — sort + filters + perPage 좌측, 검색은 우측 끝 (margin-left:auto) */}
-      <div className={shell.filterBar}>
+      <StickyGlassBar className={shell.filterBar}>
         <SegmentedControl
           items={[
             { value: "order", label: t("admin.works.sortOrder") },
@@ -736,7 +768,7 @@ icon: 🎨
           onChange={(v) => { setPerPage(Number(v)); setPage(1); }}
           className={shell.filterPageSize}
         />
-      </div>
+      </StickyGlassBar>
 
       <AdminTable<Work>
         items={works}
@@ -806,7 +838,7 @@ icon: 🎨
           fetchWorks();
         } : undefined}
         rowLabelMax={totalCount || works.length}
-        gridTemplate="64px 1fr 40px 100px 180px"
+        gridTemplate="64px 1fr 40px 100px 100px 180px"
         showRowNumbers
         getRowLabel={(w) => String(w.sort_order)}
         loading={loading}

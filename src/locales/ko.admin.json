@@ -818,6 +818,8 @@
       "viewDetail": "상세 보기",
       "published": "발행",
       "draft": "미발행",
+      "clickToPublish": "클릭하여 발행",
+      "clickToUnpublish": "클릭하여 미발행",
       "scheduled": "예약됨",
       "deleteConfirm": "삭제하시겠습니까?",
       "deleteConfirmInput": "삭제하려면 제목을 정확히 입력하세요",
