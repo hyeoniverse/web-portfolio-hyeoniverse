@@ -108,16 +108,16 @@ export default function AdminEditorShell({
     <>
       {viewHref && (
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className={styles.saveBtn}
+          shape="circle"
+          icon={<ExternalLink size={16} />}
           href={viewHref}
           external
           soundDisabled
-        >
-          <ExternalLink size={13} />
-          {labels.view ?? "View"}
-        </Button>
+          title={labels.view ?? "View"}
+          aria-label={labels.view ?? "View"}
+        />
       )}
       {onPreview && (
         <Button
