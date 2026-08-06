@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.44.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.43.0...v1.44.0) (2026-08-06)
+
+
+### Features
+
+* **admin:** 목록 sticky glass 헤더 + 게시 상태 토글 + 멤버 리스트 통합 ([4902b21](https://github.com/hyeoniverse/web-portfolio-oval/commit/4902b215fd0ab99c7a7d18f29e0744d8d838f83b))
+* **editor:** 자동저장·이탈 draft 안정화 + 작성자 자동지정·공동작성자·블록편집 개선 ([015cd61](https://github.com/hyeoniverse/web-portfolio-oval/commit/015cd6131f440832d46adbe978b2bee991dd4f93))
+
 ## [1.43.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.42.0...v1.43.0) (2026-08-04)
 
 
