@@ -16,7 +16,7 @@ import { translateCategory } from "@/hooks/useCategories";
 import styles from "./AdminPosts.module.css";
 
 
-export function createPostColumns(t: TFunction): AdminTableColumn<Post>[] {
+export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post) => void): AdminTableColumn<Post>[] {
   return [
     {
       key: "thumb",
@@ -90,10 +90,23 @@ export function createPostColumns(t: TFunction): AdminTableColumn<Post>[] {
             </span>
           );
         }
+        // 클릭 토글 — 발행/미발행 전환. onTogglePublished 없으면 정적 배지.
+        if (!onTogglePublished) {
+          return (
+            <span className={`${ts.statusBadge} ${post.published ? ts.published : ts.draft}`}>
+              {post.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
+            </span>
+          );
+        }
         return (
-          <span className={`${ts.statusBadge} ${post.published ? ts.published : ts.draft}`}>
+          <button
+            type="button"
+            className={`${ts.statusBadge} ${ts.statusBadgeBtn} ${post.published ? ts.published : ts.draft}`}
+            onClick={(e) => { e.stopPropagation(); onTogglePublished(post); }}
+            title={post.published ? t("admin.posts.clickToUnpublish") : t("admin.posts.clickToPublish")}
+          >
             {post.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
-          </span>
+          </button>
         );
       },
       skeletonWidth: "50px",

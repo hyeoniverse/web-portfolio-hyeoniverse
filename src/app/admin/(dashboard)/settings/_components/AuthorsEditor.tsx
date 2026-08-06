@@ -24,7 +24,7 @@ interface Props {
 
 /** 멤버 관리 (이슈 #334) — 작성자 프로필 + 로그인 접근을 리스트로 표시.
  *  owner = 전체 관리(추가/초대/권한/삭제). 비owner = 목록 열람 + 본인 프로필만 수정.
- *  작성자와 연결 안 된 로그인 계정(owner 등)은 "그 외 로그인 계정" 그룹으로 표시. */
+ *  작성자 프로필과 연결 안 된 로그인 계정도 별도 그룹 없이 같은 멤버 리스트에 통합 표시(등록/삭제 인라인). */
 export default function AuthorsEditor({ authors, onChange }: Props) {
   const { language } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
@@ -486,9 +486,50 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
     );
   };
 
+  // 프로필과 연결 안 된 로그인 계정(owner 본인·고아 계정) — 별도 그룹 없이 멤버 리스트에 함께 표시.
+  // 프로필이 아직 없어 "등록"(프로필 생성)·"삭제" 만 제공.
+  const renderUnlinkedRow = (m: Member) => (
+    <li key={m.id} className={mStyles.row}>
+      <span className={mStyles.avatar}>
+        {m.avatar ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={m.avatar} alt="" className={mStyles.avatarImg} />
+        ) : (
+          <span className={mStyles.avatarInitial} aria-hidden>
+            {(m.name || m.email || "?").charAt(0).toUpperCase()}
+          </span>
+        )}
+      </span>
+      <div className={mStyles.info}>
+        <div className={mStyles.nameRow}>
+          <span className={mStyles.name}>{m.name || m.email}</span>
+          <RoleBadge role={m.role} />
+        </div>
+        <div className={mStyles.meta}>
+          {m.name && <span className={mStyles.email}>{m.email}</span>}
+          <span className={mStyles.since}>
+            <Clock size={11} strokeWidth={2} />
+            {relative(m.lastSignInAt)}
+          </span>
+        </div>
+      </div>
+      <div className={mStyles.providers}><ProviderChips providers={m.providers} /></div>
+      {m.role !== "owner" && (
+        <div className={mStyles.rowActions}>
+          <Button variant="ghost" size="xs" icon={<UserPlus size={13} />} onClick={() => registerMember(m)}>
+            {L("등록", "Register")}
+          </Button>
+          <Button variant="ghost" size="xs" tone="danger" icon={<Trash2 size={13} />} onClick={() => removeUnlinked(m)}>
+            {L("삭제", "Delete")}
+          </Button>
+        </div>
+      )}
+    </li>
+  );
+
   return (
     <div className={styles.authorsEditor}>
-      {(visibleAuthors.length > 0 || showSyntheticOwner || showMyProfile) && (
+      {(visibleAuthors.length > 0 || showSyntheticOwner || showMyProfile || (isOwner && unlinked.length > 0)) && (
         <ul className={mStyles.list}>
           {/* 소유자 — 항상 최상단. 프로필 있으면 그 행, 없으면 GitHub 정보로 합성 */}
           {ownerProfile ? (
@@ -566,6 +607,8 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
             </li>
           )}
           {restAuthors.map(renderAuthorRow)}
+          {/* 프로필 미연결 로그인 계정도 같은 리스트에 통합 (owner 만) */}
+          {isOwner && unlinked.map(renderUnlinkedRow)}
         </ul>
       )}
 
@@ -577,56 +620,6 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
       )}
 
       {notice && <span className={styles.authorInviteErr}>{notice}</span>}
-
-      {/* 작성자 프로필과 연결 안 된 로그인 계정 (owner 본인·고아 계정) — owner 만 표시 */}
-      {isOwner && unlinked.length > 0 && (
-        <div className={styles.authorUnlinked}>
-          <div className={mStyles.header}>
-            <span className={mStyles.title}>{L("그 외 로그인 계정", "Other login accounts")}</span>
-            <span className={mStyles.count}>{unlinked.length}</span>
-          </div>
-          <ul className={mStyles.list}>
-            {unlinked.map((m) => (
-              <li key={m.id} className={mStyles.row}>
-                <span className={mStyles.avatar}>
-                  {m.avatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={m.avatar} alt="" className={mStyles.avatarImg} />
-                  ) : (
-                    <span className={mStyles.avatarInitial} aria-hidden>
-                      {(m.name || m.email || "?").charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </span>
-                <div className={mStyles.info}>
-                  <div className={mStyles.nameRow}>
-                    <span className={mStyles.name}>{m.name || m.email}</span>
-                    <RoleBadge role={m.role} />
-                  </div>
-                  <div className={mStyles.meta}>
-                    {m.name && <span className={mStyles.email}>{m.email}</span>}
-                    <span className={mStyles.since}>
-                      <Clock size={11} strokeWidth={2} />
-                      {relative(m.lastSignInAt)}
-                    </span>
-                  </div>
-                </div>
-                <div className={mStyles.providers}><ProviderChips providers={m.providers} /></div>
-                {m.role !== "owner" && (
-                  <div className={mStyles.rowActions}>
-                    <Button variant="ghost" size="xs" icon={<UserPlus size={13} />} onClick={() => registerMember(m)}>
-                      {L("등록", "Register")}
-                    </Button>
-                    <Button variant="ghost" size="xs" tone="danger" icon={<Trash2 size={13} />} onClick={() => removeUnlinked(m)}>
-                      {L("삭제", "Delete")}
-                    </Button>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }

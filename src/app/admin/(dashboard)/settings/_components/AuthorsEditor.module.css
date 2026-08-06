@@ -2,8 +2,3 @@
 .authorsEditor {
   composes: uColMd from "../Settings.module.css";
 }
-.authorUnlinked {
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-md);
-  border-top: var(--border-light);
-}

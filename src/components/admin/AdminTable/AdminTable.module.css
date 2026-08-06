@@ -33,28 +33,44 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
-  border-top: var(--border-light);
-  border-bottom: var(--border-light);
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  margin-bottom: 0;
-  transition:
-    max-height 0.25s ease,
-    opacity 0.2s ease,
-    padding 0.25s ease,
-    margin 0.25s ease;
+  /* full-bleed 유리(양옆 뷰포트 끝까지) — margin 으로 빼고 padding 으로 콘텐츠는 본문 폭 유지. */
+  margin-inline: calc(-1 * var(--page-px));
+  padding-inline: var(--page-px);
+  padding-block: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+  /* filter 바(StickyGlassBar, 56px) '아래'에 stack. */
+  position: sticky;
+  top: calc(var(--header-height) + 56px);
+  z-index: calc(var(--z-nav) - 1);
+  /* frost 는 요소에 직접 backdrop-filter — ::before + z-index:-1 로 두면 z-index 스택 컨텍스트(z:99)
+     안에 격리돼 형제인 테이블 '행'을 backdrop 으로 못 잡아 blur 가 안 걸린다(오른쪽 셀만 선명해지는 원인).
+     요소 backdrop-filter 는 자식(버튼)은 안 흐리고 뒤로 스크롤되는 행만 흐린다. 배경색 없이 blur 만.
+     saturate 는 안 씀 — 뒤 '행'(썸네일·텍스트)의 warm 톤을 증폭해 누리끼리하게 뜬다(필터바는 차가운 글로우 위라 무관). */
+  backdrop-filter: blur(24px);
+  animation: bulkBarIn 0.2s ease both;
 }
 
-.bulkBarOpen {
-  max-height: 48px;
-  opacity: 1;
-  padding: var(--spacing-xs) 0;
-  margin-bottom: var(--spacing-xs);
+/* 위/아래 구분선 — frost 는 full-bleed 지만 선은 본문 폭(page-px 인셋). */
+.bulkBar::before,
+.bulkBar::after {
+  content: "";
+  position: absolute;
+  left: var(--page-px);
+  right: var(--page-px);
+  height: 1px;
+  background: var(--border-light-color);
+  pointer-events: none;
+}
+.bulkBar::before { top: 0; }
+.bulkBar::after { bottom: 0; }
+
+/* opacity 만 — transform 을 쓰면 남은 translateY 가 backdrop-filter(blur)를 깬다. */
+@keyframes bulkBarIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .bulkActionBtn {
@@ -254,6 +270,20 @@
   height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+/* 상태 배지를 클릭 토글 버튼으로 — 배지 스타일 유지 + 버튼 리셋 + hover 피드백 */
+.statusBadgeBtn {
+  border: none;
+  cursor: pointer;
+  appearance: none;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.statusBadgeBtn:hover {
+  filter: brightness(1.12);
+}
+.statusBadgeBtn:active {
+  transform: scale(0.94);
 }
 
 .published {

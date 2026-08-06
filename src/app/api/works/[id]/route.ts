@@ -132,7 +132,8 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const { data, error } = await admin
     .from("works")
-    .update(filtered)
+    // updated_at 명시 갱신 — 자동저장 복원이 "마지막 저장보다 새 draft 만" 되돌리게(clock-safe).
+    .update({ ...filtered, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select()
     .single();

@@ -96,7 +96,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (baseVersion !== null) {
     const { data, error } = await admin
       .from("posts")
-      .update({ ...body, version: baseVersion + 1 })
+      // updated_at 명시 갱신 — 자동저장 복원이 "마지막 저장보다 새 draft 만" 되돌리도록 신뢰 가능한 저장시각 필요.
+      .update({ ...body, version: baseVersion + 1, updated_at: new Date().toISOString() })
       .eq("id", id)
       .eq("version", baseVersion)
       .select()
@@ -119,7 +120,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const { data, error } = await admin
     .from("posts")
-    .update(body)
+    .update({ ...body, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select()
     .single();
