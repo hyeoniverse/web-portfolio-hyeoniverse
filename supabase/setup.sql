@@ -66,6 +66,7 @@
 --   2026_07_23  about_erd_valid 확장 — 컬럼 제약·테이블 kind 검증
 --   2026_08_02  settings_required — 설정 필수값 CHECK (제목·이름·테마색·giscus·멤버이름)
 --   2026_08_03  site_visits — 트래픽 메타 (referrer/user_agent/device_kind/os/browser/device_model) + 인덱스
+--   2026_08_05  revisions.entity_id uuid→text — 저장 전 새 글 draft sentinel 허용 (autosave 500 방지)
 --
 -- 마이그레이션 파일이 없는 것 (setup.sql 에만 존재):
 --   custom_emojis — 에디터 이모지 picker 의 커스텀 아이콘 기록
@@ -896,13 +897,14 @@ CREATE POLICY "comment_reports_service_all"
 -- ────────────────────────────────────────────────────────────
 -- 11. revisions — 에디터 리비전 히스토리 (posts + works 공용)
 --     entity_type: 'post' | 'work'
---     entity_id: 대상 posts.id 또는 works.id
+--     entity_id: 대상 posts.id 또는 works.id (uuid), 또는 저장 전 새 글의 draft sentinel
+--                ("draft-new-post" / "draft-new-work") → 그래서 uuid 가 아니라 text.
 --     snapshot: 전체 form 데이터 (JSONB)
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS revisions (
   id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   entity_type text NOT NULL CHECK (entity_type IN ('post', 'work')),
-  entity_id   uuid NOT NULL,
+  entity_id   text NOT NULL,
   snapshot    jsonb NOT NULL DEFAULT '{}',
   title       text NOT NULL DEFAULT '',
   dismissed   boolean NOT NULL DEFAULT false,
@@ -1731,12 +1733,12 @@ END $$;
 -- ────────────────────────────────────────────────────────────
 -- Applied migrations log — setup.sql 이 흡수한 마이그레이션 마킹
 -- ────────────────────────────────────────────────────────────
--- 위 파일의 모든 구조는 아래 마이그레이션 36건을 통합한 결과입니다.
+-- 위 파일의 모든 구조는 아래 마이그레이션 37건을 통합한 결과입니다.
 -- fresh install 환경에서 setup.sql 실행 직후, supabase/migrations/ 의 .sql 을
 -- 단일 실행해도 was_new = false 로 skip 되도록 record 만 미리 남깁니다.
 --
 -- log_migration_applied 대신 직접 INSERT — fresh install 시점엔 admin 이 아직
--- 없어서 알림이 의미 없고, 35건 알림이 한꺼번에 쌓이는 노이즈도 회피.
+-- 없어서 알림이 의미 없고, 36건 알림이 한꺼번에 쌓이는 노이즈도 회피.
 INSERT INTO applied_migrations (name, description) VALUES
   ('2026_05_14_post_views_kst',                'post_views — KST timezone + atomic dedup + race-free counter'),
   ('2026_05_18_admin_known_devices',           '새 기기 인증 (admin_known_devices) — UA fingerprint + approve token'),
@@ -1773,7 +1775,8 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_07_21_about_erd_valid',               'site_settings.config About ERD 필수값 CHECK (테이블·컬럼 이름/타입)'),
   ('2026_07_23_about_erd_fields',              'about_erd_valid 확장 — 컬럼 제약(required/unique/indexed/defaultValue/comment/enumValues)·테이블 kind 타입 검증'),
   ('2026_08_02_settings_required',             'site_settings.config 필수값 CHECK (제목·이름·테마색·giscus·멤버이름)'),
-  ('2026_08_03_site_visits_traffic_meta',      'site_visits 트래픽 메타 컬럼(referrer/user_agent/device_kind/os/browser/device_model) + 인덱스 — 옛 DB 누락분')
+  ('2026_08_03_site_visits_traffic_meta',      'site_visits 트래픽 메타 컬럼(referrer/user_agent/device_kind/os/browser/device_model) + 인덱스 — 옛 DB 누락분'),
+  ('2026_08_05_revisions_entity_id_text',      'revisions.entity_id uuid→text — 저장 전 새 글 draft sentinel 허용 (autosave 500 방지)')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

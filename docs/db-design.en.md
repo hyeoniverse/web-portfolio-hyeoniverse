@@ -40,7 +40,11 @@ A polymorphic table that permanently stores the entire form as a JSONB snapshot 
 
 **Rationale:** Since only one admin uses this, DB write costs are negligible. Cross-device/tab/session revision sharing and diff-based detailed comparison are more important. A `entity_type` CHECK column distinguishes posts/works in a single table, and snapshots are excluded from list queries for lightweight loading. JSON.stringify hash comparison prevents duplicate snapshot storage, and the detail view displays diffs for metadata items like categories, tags, and series.
 
-**Auto-save interval decision:** Initially implemented with a 5-second debounce, but comparing against Google Docs (OT/diff), Notion (immediate save but server receives patches), and WordPress (60 seconds) revealed that **5 seconds is too frequent for a full-snapshot approach** — revisions accumulated meaninglessly. A diff-based approach was considered but rejected: no benefit over the complexity for a single-user environment with a 50-revision cap (~2.5MB). Changed to **30-second debounce + forced save on page leave**. Leave-save is handled via two paths: browser close/refresh uses `navigator.sendBeacon` (async-safe), and Next.js SPA navigation uses `fetch({ keepalive: true })` in the component unmount cleanup.
+`entity_id` is **text**, not uuid. A pre-save new post has no `posts.id` yet, so it uses a draft sentinel string (e.g. `"draft-new-post"`) as the `entity_id` — when it was uuid, new-post autosave all 500'd, which was fixed by changing the column to text.
+
+**Auto-save interval decision:** Initially implemented with a 5-second debounce, but comparing against Google Docs (OT/diff), Notion (immediate save but server receives patches), and WordPress (60 seconds) revealed that **5 seconds is too frequent for a full-snapshot approach** — revisions accumulated meaninglessly. A diff-based approach was considered but rejected: no benefit over the complexity for a single-user environment with a 50-revision cap (~2.5MB). Now uses a **3-second debounce + forced save on page leave**. Server revisions are **append-only** and are only excluded from restore candidates via a **dismissed flag**, so frequent saves don't pile up as meaningless revisions. Leave-save is handled via two paths: browser close/refresh uses `navigator.sendBeacon` (async-safe), and Next.js SPA navigation uses `fetch({ keepalive: true })` in the component unmount cleanup.
+
+Server (cross-device) auto-restore is **currently disabled**, using only localStorage (same-device) restore — because past saves of an existing post don't bump `updated_at`, so on load a stale revision could roll the latest content back to an old version.
 
 ### Anonymous Comment Dual Authentication
 
@@ -196,7 +200,7 @@ As a complement, `usePostPresence` detects other sessions over a Supabase Realti
 
 `cover_position` is meant to be 0–100 and `cover_zoom` 1–2.5, but these are **ranges in comments, not CHECK constraints** (the editor UI does the validating).
 
-Why `author_ids` isn't normalized into an `authors` table plus a join table: author (member) identity and permissions already live in Supabase Auth — roles in `auth.users.app_metadata`, invites in the `author_invites` table (no longer the static `authors[]` in `site.config.ts`). `posts.author_ids` is just a thin id array linking those members to a post, so there's no query demand that justifies a join on every post read, and a `text[]` is enough for list rendering.
+Why `author_ids` isn't normalized into an `authors` table plus a join table: author (member) identity and permissions already live in Supabase Auth — roles in `auth.users.app_metadata`, invites in the `author_invites` table (no longer the static `authors[]` in `site.config.ts`). `posts.author_ids` is just a thin id array linking those members to a post, so there's no query demand that justifies a join on every post read, and a `text[]` is enough for list rendering. The editor auto-assigns the logged-in user as an `author_ids` entry on a new post, and co-authors can be added.
 
 > The list card layout (`magazine` / `grid` / `list` / `compact` / `masonry` / `featured`) is **a site setting, not a DB column** — `siteConfig.posts.layout`, applied site-wide rather than per post.
 
