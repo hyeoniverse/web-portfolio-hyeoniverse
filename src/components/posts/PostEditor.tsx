@@ -1125,6 +1125,7 @@ export default function PostEditor({ post }: PostEditorProps) {
         );
       }}
       onPublish={() => handleSave(true)}
+      hidePublish={!form.published}
       onPreview={handlePreview}
       viewHref={form.published && form.slug ? `/posts/${form.slug}` : undefined}
       scheduledAt={form.scheduled_at}
