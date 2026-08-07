@@ -1108,7 +1108,22 @@ export default function PostEditor({ post }: PostEditorProps) {
       published={form.published}
       onDelete={handleDelete}
       deleteTargetName={post?.title}
-      onSaveDraft={() => handleSave()}
+      onSaveDraft={() => {
+        // 미발행 게시물은 저장 시 발행 여부를 한 번 물어본다 (임시저장=미발행 유지 / 발행하기=바로 발행).
+        if (form.published) { handleSave(); return; }
+        openModal(
+          <ModalConfirm
+            desc={language === "ko"
+              ? "미발행 상태로 저장됩니다. 지금 발행하시겠어요?"
+              : "This will be saved as a draft. Publish it now?"}
+            confirmText={language === "ko" ? "발행하기" : "Publish"}
+            cancelText={language === "ko" ? "임시저장" : "Save draft"}
+            onConfirm={() => handleSave(true)}
+            onCancel={() => handleSave(false)}
+          />,
+          { id: "publish-prompt", header: { title: language === "ko" ? "발행 여부" : "Publish?" } },
+        );
+      }}
       onPublish={() => handleSave(true)}
       onPreview={handlePreview}
       viewHref={form.published && form.slug ? `/posts/${form.slug}` : undefined}
