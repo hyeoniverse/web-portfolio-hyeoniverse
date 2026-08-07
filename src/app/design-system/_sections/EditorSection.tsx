@@ -118,6 +118,61 @@ function EditorSection({ language, setSectionRef }: EditorSectionProps) {
             : "Editor used for posts (image uploads are local preview only)"}
         </motion.p>
 
+        {/* 새 툴바 기능 소개 — 아래 실제 에디터에서 바로 시험해 볼 수 있다 */}
+        <motion.div
+          variants={staggerItem}
+          style={{
+            marginBottom: 24,
+            padding: "var(--spacing-md) var(--spacing-lg)",
+            border: "var(--border-light)",
+            borderRadius: "var(--radius-2xl)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--spacing-xs)",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-space-grotesk)",
+              fontSize: "var(--font-size-xs)",
+              fontWeight: 600,
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+              color: "var(--text-tertiary)",
+            }}
+          >
+            {language === "ko" ? "이번에 추가된 툴바 기능" : "New toolbar features"}
+          </span>
+          <ul
+            style={{
+              margin: 0,
+              paddingLeft: "1.1em",
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--spacing-2xs)",
+              fontSize: "var(--font-size-sm)",
+              color: "var(--text-secondary)",
+              lineHeight: 1.6,
+            }}
+          >
+            <li>
+              {language === "ko"
+                ? "색상 칩 삽입 (팔레트 아이콘) — 고른 #hex 를 인라인 code 로 넣으면 리더에서 앞에 색 스와치가 붙습니다."
+                : "Color chip (palette icon) — insert a picked #hex as inline code; the reader prepends a color swatch to it."}
+            </li>
+            <li>
+              {language === "ko"
+                ? "폰트 크기·줄간격 직접 입력 — 프리셋 셀렉트를 더블클릭하면 입력칸으로 바뀌어 프리셋 밖 값도 타이핑할 수 있습니다 (자간은 프리셋 선택)."
+                : "Direct font-size / line-height entry — double-click the preset select to type a value outside the presets (letter spacing stays preset-based)."}
+            </li>
+            <li>
+              {language === "ko"
+                ? "툴바 그룹 재배치 — 서식·색, 폰트, 정렬·들여쓰기, 제목, 리스트·블록, 삽입을 구분선으로 묶었습니다."
+                : "Regrouped toolbar — formatting/color, font, alignment/indent, headings, lists/blocks, and insert are separated by dividers."}
+            </li>
+          </ul>
+        </motion.div>
+
         {/* Editor */}
         <motion.div variants={staggerItem} className={styles.editorDemo}>
           <PlateEditor
