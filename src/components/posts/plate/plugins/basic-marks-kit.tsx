@@ -18,8 +18,9 @@ import {
   StrikethroughRules,
   HighlightRules,
 } from "@platejs/basic-nodes";
-import { createPlatePlugin } from "platejs/react";
+import { createPlatePlugin, PlateLeaf, type PlateLeafProps } from "platejs/react";
 import { KEYS } from "platejs";
+import { parseInlineColor } from "../../highlightCodeBlocks";
 
 // 마크 규칙은 자기가 붙은 플러그인 key 를 마크 타입으로 쓰므로(config.mark ?? pluginKey)
 // 반드시 owner 플러그인에 부착. super/sub( ^ / ~ )는 strikethrough(~~)·일반 입력과 충돌
@@ -105,6 +106,21 @@ const CodeBackspaceUnwrapKit = createPlatePlugin({ key: "codeBackspaceUnwrap" })
   })
 );
 
+/** 인라인 코드 leaf — 내용이 색상값(#hex·rgb·hsl)이면 앞에 색 스와치(원)를 붙인다.
+   리더(applyColorSwatches)와 동일한 전역 `.color-swatch` 룩 → 색상 칩이 에디터에서도 댓글/리더처럼 보임.
+   contentEditable=false 로 장식만 하고 텍스트(props.children)는 그대로 렌더해 편집/선택에 영향 없음. */
+function CodeLeaf(props: PlateLeafProps) {
+  const color = parseInlineColor(props.leaf.text ?? "");
+  return (
+    <PlateLeaf {...props} as="code">
+      {color && (
+        <span className="color-swatch" contentEditable={false} aria-hidden style={{ background: color }} />
+      )}
+      {props.children}
+    </PlateLeaf>
+  );
+}
+
 /** 기본 인라인 마크 — bold / italic / underline / strike / super·subscript / highlight / code / kbd */
 export const BasicMarksKit = [
   BoldPlugin.configure({ inputRules: [BoldRules.markdown()] }), // **굵게**
@@ -114,7 +130,7 @@ export const BasicMarksKit = [
   SuperscriptPlugin,
   SubscriptPlugin,
   HighlightPlugin.configure({ inputRules: [HighlightRules.markdown()] }), // ==형광==
-  CodePlugin.configure({ inputRules: [codeMarkdownRule] }), // `코드` (스페이스로 확정 + 한글 인접 허용)
+  CodePlugin.configure({ inputRules: [codeMarkdownRule], render: { node: CodeLeaf } }), // `코드` (스페이스로 확정 + 한글 인접 허용) + 색상값이면 스와치
   CodeBackspaceUnwrapKit, // 인라인 코드 뒤 Backspace → 코드 해제
   KbdPlugin,
 ];
