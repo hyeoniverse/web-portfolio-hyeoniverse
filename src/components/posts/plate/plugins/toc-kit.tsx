@@ -10,6 +10,9 @@ import { TocPlugin, useTocElementState } from "@platejs/toc/react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "../../RichTextEditor.module.css";
 
+// headingList 항목 타입 — @platejs/toc 의 useTocElementState 반환에서 파생(내부 타입 직접 import 회피).
+type TocHeading = ReturnType<typeof useTocElementState>["headingList"][number];
+
 function TocElement(props: PlateElementProps) {
   const { t } = useLanguage();
   const editor = useEditorRef();
@@ -18,8 +21,7 @@ function TocElement(props: PlateElementProps) {
 
   // 항목 클릭 → 해당 heading 으로 스크롤. @platejs/toc 기본은 스크롤 컨테이너 판정을 놓치면 window(전체 페이지)를
   // 스크롤한다 → 여기선 에디터 스크롤 컨테이너([data-slate-editor], overflow-y:auto)만 직접 스크롤(페이지 고정).
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const scrollToHeading = React.useCallback((h: any) => {
+  const scrollToHeading = React.useCallback((h: TocHeading) => {
     try {
       const entry = editor.api.node(h.path);
       const dom = entry ? (editor.api.toDOMNode(entry[0]) as HTMLElement | null) : null;

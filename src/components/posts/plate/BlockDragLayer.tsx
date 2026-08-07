@@ -4,10 +4,10 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { useDragLayer } from "react-dnd";
 import { useEditorRef } from "platejs/react";
+import type { TElement } from "platejs";
+import type { ElementDragItemNode } from "@platejs/dnd";
 import { _dndScrollContainer } from "./utils";
 import styles from "../RichTextEditor.module.css";
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
  * 블록 드래그 커스텀 ghost — 드래그 중인 블록의 **실제 DOM 을 복제**해 커서 옆에 그대로 띄운다.
@@ -18,7 +18,7 @@ export function BlockDragLayer() {
   const editor = useEditorRef();
   const ref = React.useRef<HTMLDivElement>(null);
   const { item, offset, isDragging } = useDragLayer((monitor) => ({
-    item: monitor.getItem() as any,
+    item: monitor.getItem() as ElementDragItemNode | null,
     offset: monitor.getClientOffset(),
     isDragging: monitor.isDragging(),
   }));
@@ -61,13 +61,13 @@ export function BlockDragLayer() {
     container.style.width = "";
     if (!isDragging || !el) return;
     try {
-      const groupIds: any[] = Array.isArray(item?.id) && item.id.length > 1 ? item.id : [];
-      const nodes: any[] = groupIds.length
-        ? groupIds.map((gid) => editor.api.node({ id: gid, at: [] })?.[0]).filter(Boolean)
+      const groupIds: string[] = Array.isArray(item?.id) && item.id.length > 1 ? item.id : [];
+      const nodes: TElement[] = groupIds.length
+        ? groupIds.map((gid) => editor.api.node({ id: gid, at: [] })?.[0]).filter((n): n is TElement => Boolean(n))
         : [el];
       let maxW = 0;
       for (const node of nodes) {
-        const dom = editor.api.toDOMNode(node as any) as HTMLElement | null;
+        const dom = editor.api.toDOMNode(node) as HTMLElement | null;
         if (!dom) continue;
         // toDOMNode 는 슬레이트 노드(예: 코드블록 <pre>)만 반환 → mermaid 미리보기처럼 형제로 렌더되는
         // 부가 요소가 빠진다. 블록 전체 래퍼(.blockDraggable)를 클론하고 드래그 chrome(거터/드롭라인)만 제거.
