@@ -74,7 +74,7 @@
 | **인터랙션** | 무한 스크롤 루프, 마우스 패럴랙스, StaggerText, Three.js 3D 커피잔 + 라떼아트, 방향별 Scroll Cascade |
 | **Works** | 6종 레이아웃 (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) |
 | **Blog** | SSR + ISR, 시리즈, 배너 슬라이더, 6종 목록 레이아웃, 게스트 댓글 (마크다운 + 이모지 반응) 또는 giscus 전환 |
-| **Admin** | Plate.js 에디터 (캘린더 · 다이어그램 · 코드 플레이그라운드 블록), `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리, 낙관적 동시성 제어, GitHub OAuth 로그인 + 멤버 관리 (이메일 초대 · 소유자/편집자/저자 역할) |
+| **Admin** | Plate.js 에디터 (캘린더 · 다이어그램 · 코드 플레이그라운드 블록, 작용범위별 그룹 툴바, 색상 칩 삽입, 폰트 크기·줄간격·자간 직접입력), `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리, 낙관적 동시성 제어, 발행 상태 chip + 발행 일원화, GitHub OAuth 로그인 + 멤버 관리 (이메일 초대 · 소유자/편집자/저자 역할) |
 | **성능** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic 카운터 + AbortController + bulk Promise.all |
 | **보안** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin 체크 (production fail-closed), middleware admin 다층 가드, 5회 실패 잠금 + 새 기기 이메일 승인 + 전기기 로그아웃, 역할 기반 접근 제어 (app_metadata) + OAuth 콜백 인가 게이트 + 크로스탭 로그아웃 |
 | **디자인 시스템** | 4-tier 토큰 (Raw → Semantic → Component → Context) + 라이브 프리뷰, **전체 색 토큰 OKLCH 전환** (culori 정확 변환, hue 무관 균일한 지각 밝기) |
