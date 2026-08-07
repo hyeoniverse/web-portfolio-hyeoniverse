@@ -300,6 +300,16 @@ PlateEditor's **floating toolbar shown on block selection**. Closes on interacti
 
 ---
 
+### Publish-status Chip · publish modal (editor)
+
+The top-left of the editor (next to the language toggle) shows the current **publish status** as a shared `Chip` (`variant="capsule"`). A colored dot distinguishes it — Published (success) / Scheduled (warning) / Draft (muted).
+
+A draft **consolidates publishing into a single save button** instead of a separate publish button. Saving while unpublished pops a `ModalConfirm` "Publish now?" for one confirmation, choosing between `Publish` (`onConfirm`) and `Save draft` (`onCancel`). An already-published post saves immediately with no modal.
+
+**Path**: `src/components/admin/AdminEditorShell/index.tsx` (chip) · `src/components/posts/PostEditor.tsx` (publish modal)
+
+---
+
 ### EditorTextInput
 
 An **IME-safe shared primitive** for in-editor form inputs. `contentEditable=false` + commit-on-blur prevents Korean composition from breaking. (Shared by image caption · poll · tab inputs)
@@ -450,7 +460,9 @@ To keep diagnostic positions aligned with the source, the parser **blanks commen
 | `NumberInput` | `gauge` | Default `false`. Active only when both `min` and `max` are set; tints the number by where the value sits (low/mid/high). No bar is drawn |
 | `Textarea` | `tabIndent` | Opt-in. Tab inserts a 2-space indent — via `execCommand("insertText")` to preserve the native undo stack, skipped during IME composition, and Shift+Tab keeps native focus traversal. Works **only in EditableTextarea mode**, which requires `maxHint` |
 | `Select` | (viewport clamp) | Aligns the selected item's center to the trigger's center, then clamps into the viewport with an 8px margin, setting `max-height` only when the natural height exceeds the available height. On outside scroll it **closes** rather than repositioning |
+| `Select` | `editable` + `editableInputProps` | **Direct entry** of values outside the presets. Double-clicking the trigger (two clicks within 250ms) swaps it for an input; type then commit on `Enter`/blur, cancel on `Escape`. `editableInputProps.sanitize` normalizes just before commit (e.g. digits only), plus `maxLength`/`placeholder`. An empty `value` starts in input mode on mount. Used by the editor toolbar's font size, line height, and letter spacing; a current value not in the presets is surfaced as the top option. (For a searchable dropdown with a top input row, use the separate `combobox` mode) |
 | `ModalConfirm` | `children` | Optional, rendered after `desc`. For listing **what is about to change** before confirming — About ERD import uses it to name every table/column being removed or overwritten, with before/after values |
+| `ModalConfirm` | `onCancel` | Optional (backward-compatible). Gives the **cancel button an action** — falls back to plain close when omitted. X/esc/backdrop always stay plain close. The editor's "Publish?" modal uses the cancel button as "Save draft" |
 | `TagNotesEditor` | `renderEditPopover` | Optional `(item, close) => ReactNode`. When provided, wraps each chip's edit trigger in the shared `Popover` so the edit UI appears as a popover next to the chip (open state driven by `activeItem`). Backward-compatible — falls back to the old inline drawer when omitted. The Settings > Content tag / category / work-category editors use this popover edit instead of a fixed bottom edit box |
 
 ---
