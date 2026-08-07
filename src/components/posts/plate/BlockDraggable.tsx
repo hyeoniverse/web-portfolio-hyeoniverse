@@ -3,8 +3,10 @@
 import * as React from "react";
 import { BLOCK_COLORS, BLOCK_HIGHLIGHTS } from "./blockStyleData";
 import { useDraggable } from "@platejs/dnd";
+import type { DragItemNode, ElementDragItemNode } from "@platejs/dnd";
+import type { DropTargetMonitor } from "react-dnd";
 import type { TElement } from "platejs";
-import type { RenderNodeWrapperProps, RenderNodeWrapperFunction } from "platejs/react";
+import type { RenderNodeWrapperProps, RenderNodeWrapperFunction, PlateEditor } from "platejs/react";
 import { useEditorRef } from "platejs/react";
 import { toggleList } from "@platejs/list";
 import { toggleCodeBlock } from "@platejs/code-block";
@@ -23,6 +25,11 @@ import { _slashOpenTrigger } from "./utils";
 import styles from "../RichTextEditor.module.css";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+// 이 파일 전반에서 다루는 Plate 에디터 인스턴스 타입.
+type PlateEd = PlateEditor;
+// listStyleType 을 읽기 위한 최소 노드 형태 (리스트 여부 판정).
+type MaybeListElement = TElement & { listStyleType?: unknown };
 
 // 전환 가능한 블록 타입 (내용 유지)
 const TURN_INTO: { value: string; labelKey: string; icon: React.ReactNode }[] = [
@@ -44,20 +51,20 @@ const TEXT_LIKE_BLOCKS = new Set(["p", "h1", "h2", "h3", "blockquote", "callout"
 // 최상위 index 의 블록 + 그 indent 그룹 자식(연속된 더 깊은 블록)을 통째로 클론해 반환.
 // 묶인 블록(indent 그룹)은 열 안에서도 한 덩어리로 취급 → 자식까지 같은 열에 넣는다.
 // 열 폭 안에서 과한 좌여백을 막고 상대 구조는 유지하도록 그룹 base indent 를 0 으로 정규화.
-function topLevelGroupNodes(ed: any, idx: number): { nodes: any[]; span: number } {
+function topLevelGroupNodes(ed: PlateEd, idx: number): { nodes: TElement[]; span: number } {
   const first = ed.api.node([idx])?.[0];
   if (!first) return { nodes: [], span: 0 };
   let childCount = 0;
   try {
-    const gid = (first as { id?: unknown }).id;
+    const gid = (first as { id?: string }).id;
     if (gid != null) childCount = getIndentGroupChildIds(ed, gid).childIds.length;
   } catch { /* noop */ }
   const base = (first as { indent?: number }).indent ?? 0;
-  const nodes: any[] = [];
+  const nodes: TElement[] = [];
   for (let i = 0; i <= childCount; i++) {
     const n = ed.api.node([idx + i])?.[0];
     if (!n) continue;
-    const clone = JSON.parse(JSON.stringify(n));
+    const clone = JSON.parse(JSON.stringify(n)) as TElement & { indent?: number };
     if (typeof clone.indent === "number") {
       const ni = clone.indent - base;
       if (ni > 0) clone.indent = ni; else delete clone.indent;
@@ -193,15 +200,15 @@ const IS_MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(naviga
 
 // 드래그한 블록의 "indent 그룹 자식" — 바로 뒤 최상위 블록 중 indent 가 더 깊은 연속 블록들.
 // 부모보다 얕거나 같은 indent 를 만나면 중단. (Notion 식: 인접+들여쓴 블록을 부모와 함께 이동)
-export function getIndentGroupChildIds(ed: any, draggedId: any): { childIds: any[]; draggedIndent: number } {
+export function getIndentGroupChildIds(ed: PlateEd, draggedId: string): { childIds: string[]; draggedIndent: number } {
   const de = ed.api.node({ id: draggedId, at: [] });
   if (!de || de[1].length !== 1) return { childIds: [], draggedIndent: 0 };
-  const draggedIndent = (de[0].indent as number) ?? 0;
-  const root = ed.children as any[];
-  const childIds: any[] = [];
+  const draggedIndent = ((de[0] as { indent?: number }).indent) ?? 0;
+  const root = ed.children as Array<TElement & { indent?: number; id?: string }>;
+  const childIds: string[] = [];
   for (let i = de[1][0] + 1; i < root.length; i++) {
-    const ind = (root[i]?.indent as number) ?? 0;
-    if (ind > draggedIndent) { if (root[i]?.id != null) childIds.push(root[i].id); }
+    const ind = (root[i]?.indent) ?? 0;
+    if (ind > draggedIndent) { if (root[i]?.id != null) childIds.push(root[i].id as string); }
     else break;
   }
   return { childIds, draggedIndent };
@@ -216,7 +223,11 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
   // 드래그가 이 블록 위 어느 방향인지 (통합 드롭 인디케이터용)
   const [dropDir, setDropDir] = React.useState<DropDir | null>(null);
 
-  const onDropHandler = React.useCallback((ed: any, { id, dragItem, monitor }: any) => {
+  const onDropHandler = React.useCallback((ed: PlateEd, { id, dragItem, monitor }: {
+    id: string;
+    dragItem: ElementDragItemNode;
+    monitor: DropTargetMonitor<DragItemNode, unknown>;
+  }) => {
     setDropDir(null);
     // 자기 자신(또는 자기 자손) 안으로의 드롭 방지 — 예: 열블록(column_group)을 자기 컬럼 위로 드롭.
     // Plate 기본 이동(moveNodes)이 "destination is inside itself"([1]→[1,0,0])로 터지므로 no-op 처리.
@@ -245,8 +256,8 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
             const dragEntry = ed.api.node({ id: draggedId, at: [] });
             const draggedNode = dragEntry?.[0];
             // 드래그한 게 열블록이면 열 안에 넣지 않음(중첩 방지) → 기본 이동
-            if (dragEntry && dragEntry[1].length === 1 && draggedNode?.type !== "column_group") {
-              if (targetNode.type === "column_group") {
+            if (dragEntry && dragEntry[1].length === 1 && (draggedNode as { type?: string } | undefined)?.type !== "column_group") {
+              if ((targetNode as { type?: string }).type === "column_group") {
                 // 상한 도달 시 false → 기본 이동으로 폴백(열 추가 안 함)
                 if (addColumnToGroup(ed, dragEntry[1][0], targetPath[0], side)) return true;
               } else {
@@ -262,19 +273,19 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
     // 그룹 이동 자체는 dragItem.id 배열([부모,...자식])로 @platejs/dnd 가 네이티브 처리(아래 useDraggable item).
     try {
       const targetEntry = ed.api.node({ id, at: [] });
-      const targetIndent = targetEntry ? ((targetEntry[0]?.indent as number) ?? 0) : 0;
+      const targetIndent = targetEntry ? (((targetEntry[0] as { indent?: number }).indent) ?? 0) : 0;
       if (targetIndent > 0) {
-        const ids: any[] = Array.isArray(dragItem.id) ? dragItem.id : [dragItem.id];
+        const ids: string[] = Array.isArray(dragItem.id) ? dragItem.id : [dragItem.id];
         setTimeout(() => {
           try {
             const pe = ed.api.node({ id: ids[0], at: [] });
-            if (!pe || (pe[0] as any).listStyleType) return; // 리스트는 제외
-            const delta = targetIndent - (((pe[0].indent as number) ?? 0));
+            if (!pe || (pe[0] as MaybeListElement).listStyleType) return; // 리스트는 제외
+            const delta = targetIndent - (((pe[0] as { indent?: number }).indent) ?? 0);
             if (delta === 0) return;
             for (const cid of ids) {
               const ce = ed.api.node({ id: cid, at: [] });
-              if (!ce || (ce[0] as any).listStyleType) continue;
-              ed.tf.setNodes({ indent: Math.max(0, (((ce[0].indent as number) ?? 0)) + delta) }, { at: ce[1] });
+              if (!ce || (ce[0] as MaybeListElement).listStyleType) continue;
+              ed.tf.setNodes({ indent: Math.max(0, (((ce[0] as { indent?: number }).indent) ?? 0) + delta) }, { at: ce[1] });
             }
           } catch { /* noop */ }
         }, 0);
@@ -290,15 +301,15 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
     onDropHandler,
     preview: { disable: true },
     drag: {
-      item: (() => {
+      item: () => {
         try {
-          const gid = (element as { id?: unknown }).id;
+          const gid = (element as { id?: string }).id;
           if (gid == null) return {};
           const { childIds } = getIndentGroupChildIds(editor, gid);
           if (childIds.length > 0) return { id: [gid, ...childIds] };
         } catch { /* noop */ }
         return {};
-      }) as any,
+      },
     },
   } as any);
   // 핸들 popover 열림 → 현재 블록 배경 강조 (어떤 블록에 대한 도구인지 표시)
@@ -313,12 +324,12 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
     if (!(toolsOpen || isDragging || sideTarget)) return;
     let parentWrapper: HTMLElement | null = null;
     try {
-      const gid = (element as { id?: unknown }).id;
+      const gid = (element as { id?: string }).id;
       if (gid != null) {
         const { childIds } = getIndentGroupChildIds(editor, gid);
         if (childIds.length > 0) {
-          const wrapperOf = (id: any): HTMLElement | null => {
-            const node = editor.api.node({ id, at: [] })?.[0] as any;
+          const wrapperOf = (id: string): HTMLElement | null => {
+            const node = editor.api.node({ id, at: [] })?.[0] as TElement;
             const dom = node ? (editor.api.toDOMNode(node) as HTMLElement | null) : null;
             return (dom?.closest(`.${styles.blockDraggable}`) as HTMLElement | null) ?? null;
           };
