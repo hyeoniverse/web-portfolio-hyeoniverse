@@ -28,6 +28,14 @@ const itemMeta: Record<
     recommendReason?: LocalizedText;
   }
 > = {
+  // ── 최근 추가 (에디터 색상 칩 — 인라인 코드로 리더·에디터 공통 렌더) ──
+  "색상 칩을 인라인 코드 하나로 — 에디터·리더·댓글이 같은 렌더를 공유": {
+    featured: true, section: "E", difficulty: 2, recommended: true,
+    recommendReason: {
+      ko: "표시할 화면마다 색 렌더를 새로 짜는 대신, 색을 인라인 코드라는 이동 가능한 토큰으로 표현해 렌더러 하나를 공유한 사례라 골랐습니다.",
+      en: "Picked this because, instead of writing color rendering per surface, it encodes the color as one portable inline-code token so every surface shares a single renderer.",
+    },
+  },
   // ── 최근 추가 (자동저장 롤백·sticky 유리 헤더) ──
   "기존 글을 편집하자 자동저장이 내용을 통째로 옛 버전으로 되돌림": {
     featured: true, section: "A", difficulty: 3, recommended: true,
@@ -390,6 +398,29 @@ const itemMeta: Record<
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
+  {
+    problem: {
+      ko: "색상 칩을 인라인 코드 하나로 — 에디터·리더·댓글이 같은 렌더를 공유",
+      en: "One inline-code token for color chips — editor, reader, and comments share one renderer",
+    },
+    definition: {
+      ko: "에디터 툴바의 색상 칩 도구는 고른 색을 `#hex` 형태의 인라인 코드로 본문에 심습니다. 문제는 이 색을 게시물·에디터 미리보기·댓글 등 렌더되는 곳마다 색 원(칩)으로 보여줘야 한다는 것 — 화면마다 색 파싱·렌더를 따로 두면 코드가 중복되고 표시가 쉽게 어긋납니다.",
+      en: "The editor toolbar's color-chip tool plants the chosen color into the body as an inline-code `#hex`. The catch: that color has to show as a color circle (chip) everywhere it renders — the post, the editor's preview, comments — and giving each surface its own color parsing/rendering means duplicated code that easily drifts apart.",
+    },
+    cause: {
+      ko: "색을 '칩' 전용 노드로 만들면 그 노드를 이해하는 렌더러가 화면마다 필요하고, 직렬화·마크다운 변환·댓글처럼 표시 경로가 늘 때마다 대응 코드도 함께 늘어납니다. 색은 결국 짧은 문자열(`#hex`·`rgb()`·`hsl()`)일 뿐인데, 표현을 무겁게 잡으면 공유가 어려워집니다.",
+      en: "If the color were a dedicated 'chip' node, every surface would need a renderer that understands that node, and each new display path — serialization, markdown conversion, comments — would need its own handling. A color is ultimately just a short string (`#hex` · `rgb()` · `hsl()`); making the representation heavy is what makes it hard to share.",
+    },
+    solution: {
+      ko: "색을 평범한 **인라인 코드**로만 저장하고 렌더는 전역 한 곳에 몰았습니다. `applyColorSwatches` 하나가 인라인 `<code>` 내용이 색상값이면 그 앞에 전역 `.color-swatch` 원을 붙이고(검증된 색만 `background` 로 주입, 멱등), 이 패스를 게시물 리더·리치텍스트 미리보기·댓글이 **똑같이** 돌립니다. 에디터의 색상 칩 도구는 렌더를 직접 하지 않고 `#hex` 토큰만 심어, 이미 있는 공통 렌더러에 그대로 얹힙니다.",
+      en: "Store the color as plain **inline code** and centralize rendering in one global place. A single `applyColorSwatches` pass prepends the global `.color-swatch` circle before any inline `<code>` whose text is a color value (injecting only validated colors as `background`, idempotently), and the post reader, richtext preview, and comments all run the **same** pass. The editor's color-chip tool renders nothing itself — it just plants the `#hex` token and rides on the shared renderer that already exists.",
+    },
+    keyInsight: {
+      ko: "값을 **이동 가능한 평문 토큰**(인라인 코드)으로 표현하면, 렌더러 하나와 전역 스타일 하나로 렌더되는 모든 화면에서 똑같이 그려집니다. 에디터는 토큰을 '심기'만 하고 렌더는 리더 것을 재사용하니 화면별 중복도 어긋남도 없고, 새 표시 경로가 생겨도 칩이 공짜로 따라옵니다. 표현이 가벼울수록 공유되는 범위가 넓어집니다.",
+      en: "Represent a value as a **portable, plain-text token** (inline code) and one renderer plus one global style draw it identically on every surface it appears. The editor only *plants* the token and reuses the reader's rendering, so there's no per-surface duplication or drift — and any new display path gets the chip for free. The lighter the representation, the wider it can be shared.",
+    },
+    tags: ["single-source-of-truth", "inline-code", "color-swatch", "cross-surface-rendering", "plate"],
+  },
   {
     problem: {
       ko: "기존 글을 편집하자 자동저장이 내용을 통째로 옛 버전으로 되돌림",
