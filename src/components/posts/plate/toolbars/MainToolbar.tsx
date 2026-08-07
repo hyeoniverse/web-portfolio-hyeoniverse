@@ -9,13 +9,13 @@ import { toggleList, someList, someTodoList } from "@platejs/list";
 import { indent, outdent } from "@platejs/indent";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Tooltip from "@/components/ui/Tooltip";
-import _Select from "@/components/ui/Select";
+import Select from "@/components/ui/Select";
 import ColorPicker from "@/components/ui/ColorPicker";
 import FontPicker from "@/components/ui/FontPicker";
 import { loadGoogleFont } from "@/lib/loadGoogleFont";
 import TBtn from "../TBtn";
 import { useRecentColors } from "../useRecentColors";
-import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText, ColumnLayoutIcon, FootnoteIcon, Highlighter, Smile } from "@/components/icons";
+import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText, ColumnLayoutIcon, FootnoteIcon, Highlighter, Smile, Palette } from "@/components/icons";
 import { genPollId } from "../PollElements";
 import { AlignIcon } from "../icons";
 import {
@@ -114,6 +114,10 @@ export default React.memo(function MainToolbar({
   const { t, language } = useLanguage();
   const preferEn = language === "en" || postLang === "en";
   const [colorMode, setColorMode] = useState<"text" | "bg" | null>(null);
+  // 색상 칩 삽입용 — 픽커에서 고른 hex 를 팝오버 닫힐 때 1회 삽입 (댓글 편집기와 동일 패턴).
+  const [colorChipVal, setColorChipVal] = useState("#3b82f6");
+  const colorChipPickedRef = React.useRef<string | null>(null);
+  const colorChipWasOpenRef = React.useRef(false);
   // 최근색 — 공통 useRecentColors hook. 저장은 ColorPicker onChangeComplete(드래그 뗄 때)에서만.
   const recentTextColor = useRecentColors("text-mark");
   const recentBgColor = useRecentColors("bg-mark");
@@ -144,57 +148,9 @@ export default React.memo(function MainToolbar({
   const currentFontFamily = markFontFamily || (computed?.fontFamily ?? "");
   const currentFontSize = resolvedFontSize(markFontSize, computed);
   const currentFontSizeNum = currentFontSize.replace("px", "");
-  const currentLineHeight = resolvedLineHeight(blockLineHeight, computed);
-
-  const [fontSizeInput, setFontSizeInput] = useState(false);
-  const [fontSizeVal, setFontSizeVal] = useState("");
-  const [lhInput, setLhInput] = useState(false);
-  const [lhVal, setLhVal] = useState("");
-
-  // document keydown으로 값 입력 (에디터 focus 유지 → selection 보존)
-  useEffect(() => {
-    if (!fontSizeInput && !lhInput) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        e.stopPropagation();
-        if (fontSizeInput) {
-          const n = Number(fontSizeVal);
-          if (fontSizeVal && !isNaN(n) && n >= 1 && n <= 200) editor.tf.addMarks({ fontSize: `${n}px` });
-          setFontSizeInput(false);
-        }
-        if (lhInput) {
-          const n = Number(lhVal);
-          if (lhVal && !isNaN(n) && n >= 0.5 && n <= 5) setLineHeight(editor, n);
-          setLhInput(false);
-        }
-        return;
-      }
-      if (e.key === "Escape") {
-        e.preventDefault();
-        e.stopPropagation();
-        setFontSizeInput(false);
-        setLhInput(false);
-        return;
-      }
-      if (e.key === "Backspace") {
-        e.preventDefault();
-        e.stopPropagation();
-        if (fontSizeInput) setFontSizeVal((p) => p.slice(0, -1));
-        if (lhInput) setLhVal((p) => p.slice(0, -1));
-        return;
-      }
-      if (/^[0-9.]$/.test(e.key)) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (fontSizeInput) setFontSizeVal((p) => p + e.key);
-        if (lhInput) setLhVal((p) => p + e.key);
-        return;
-      }
-    };
-    document.addEventListener("keydown", handler, true);
-    return () => document.removeEventListener("keydown", handler, true);
-  }, [fontSizeInput, lhInput, fontSizeVal, lhVal, editor]);
+  // resolvedLineHeight 반환타입은 string 이지만, setLineHeight 가 숫자를 저장해 노드 lineHeight 가
+  // 런타임엔 number(예: 1.6). 문자열 프리셋과 비교/렌더가 어긋나 중복 key 가 나므로 String 으로 정규화.
+  const currentLineHeight = String(resolvedLineHeight(blockLineHeight, computed));
 
   // ── List active state ──
   let isUL = false, isOL = false, isTodo = false;
@@ -247,122 +203,8 @@ export default React.memo(function MainToolbar({
       <TBtn active={hasMark("highlight")} onClick={() => editor.tf.toggleMark("highlight")} tooltip={t("editor.highlight")}>
         <Highlighter size={14} />
       </TBtn>
-      <div className={styles.divider} />
 
-      {/* Font family — 검색 가능 드롭다운 */}
-      <EditorFontPicker
-        value={currentFontFamily || ""}
-        preferEn={preferEn}
-        onChange={(val, googleName) => {
-          if (val) {
-            if (googleName) loadGoogleFont(googleName);
-            editor.tf.addMarks({ fontFamily: val });
-          } else {
-            editor.tf.removeMarks(["fontFamily"]);
-          }
-          setTimeout(() => editor.tf.focus(), 0);
-        }}
-      />
-
-      {/* Font size */}
-      <div className={styles.selectWrap}>
-        {fontSizeInput ? (
-          <div
-            className={`${styles.fontSelect} ${styles.fontSizeSelect} ${styles.toolbarInlineInput}`}
-          >
-            {fontSizeVal || <span style={{ opacity: 0.4 }}>px</span>}
-            <span className={styles.inlineCursor} />
-          </div>
-        ) : (
-          <select
-            className={`${styles.fontSelect} ${styles.fontSizeSelect}`}
-            value={currentFontSizeNum}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === "__custom__") {
-                setFontSizeVal(currentFontSizeNum || "");
-                setFontSizeInput(true);
-                return;
-              }
-              if (val) editor.tf.addMarks({ fontSize: `${val}px` });
-              else editor.tf.removeMarks(["fontSize"]);
-              setTimeout(() => editor.tf.focus(), 0);
-            }}
-          >
-            {!currentFontSizeNum && <option value="">{t("editor.fontSize")}</option>}
-            {currentFontSizeNum && !FONT_SIZE_PRESETS.includes(Number(currentFontSizeNum)) && (
-              <option value={currentFontSizeNum}>{currentFontSizeNum}px</option>
-            )}
-            {FONT_SIZE_PRESETS.map((s) => <option key={s} value={String(s)}>{s}px</option>)}
-            <option value="__custom__">{t("editor.customInput")}</option>
-          </select>
-        )}
-      </div>
-
-      {/* Line height */}
-      <div className={styles.selectWrap}>
-        {lhInput ? (
-          <div
-            className={`${styles.fontSelect} ${styles.lhSelect} ${styles.toolbarInlineInput}`}
-          >
-            {lhVal || <span style={{ opacity: 0.4 }}>1.6</span>}
-            <span className={styles.inlineCursor} />
-          </div>
-        ) : (
-          <select
-            className={`${styles.fontSelect} ${styles.lhSelect}`}
-            value={currentLineHeight}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === "__custom__") {
-                setLhVal(currentLineHeight || "");
-                setLhInput(true);
-                return;
-              }
-              setLineHeight(editor, val ? Number(val) : 0);
-              setTimeout(() => editor.tf.focus(), 0);
-            }}
-          >
-            {!currentLineHeight && <option value="">{t("editor.lineHeight")}</option>}
-            {currentLineHeight && !LINE_HEIGHT_PRESETS.includes(currentLineHeight) && (
-              <option value={currentLineHeight}>{currentLineHeight}</option>
-            )}
-            {LINE_HEIGHT_PRESETS.map((v) => <option key={v} value={v}>{v}</option>)}
-            <option value="__custom__">{t("editor.customInput")}</option>
-          </select>
-        )}
-      </div>
-
-      {/* Letter spacing */}
-      <div className={styles.selectWrap}>
-        <select
-          className={`${styles.fontSelect} ${styles.lsSelect}`}
-          value={currentLetterSpacing || "0em"}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (!val || val === "0em") editor.tf.removeMarks(["letterSpacing"]);
-            else editor.tf.addMarks({ letterSpacing: val });
-            setTimeout(() => editor.tf.focus(), 0);
-          }}
-        >
-          {!currentLetterSpacing && <option value="">{t("editor.letterSpacing")}</option>}
-          {LETTER_SPACING_PRESETS.map((v) => <option key={v} value={v}>{v}</option>)}
-        </select>
-      </div>
-      <div className={styles.divider} />
-
-      {/* Text alignment */}
-      {(["left", "center", "right", "justify"] as const).map((align) => {
-        const alignLabels = { left: `${t("editor.alignLeft")}\n${kb("⌘⇧L")}`, center: `${t("editor.alignCenter")}\n${kb("⌘⇧E")}`, right: `${t("editor.alignRight")}\n${kb("⌘⇧R")}`, justify: `${t("editor.alignJustify")}\n${kb("⌘⇧J")}` };
-        return (
-          <TBtn square key={align} active={currentAlign === align} onClick={() => setAlign(editor, align)} tooltip={alignLabels[align]}>
-            <AlignIcon align={align} />
-          </TBtn>
-        );
-      })}
-      <div className={styles.divider} />
-
-      {/* Color mode toggle + palette */}
+      {/* Color mode toggle + palette — 문자 서식 그룹 (글자색 A / 배경색 BG) */}
       <div data-color-section style={{ display: "flex", alignItems: "center" }}>
         <TBtn
           active={colorMode === "text"}
@@ -434,7 +276,123 @@ export default React.memo(function MainToolbar({
           );
         })()}
       </div>
+      {/* 색상 칩 — #hex 를 인라인 code 로 삽입 → 리더에서 applyColorSwatches 가 색 스와치 칩으로 렌더 (댓글 편집기와 동일) */}
+      <ColorPicker
+        value={colorChipVal}
+        defaultFormat="hex"
+        onChange={(c) => { setColorChipVal(c.hex); colorChipPickedRef.current = c.hex; }}
+      >
+        {({ open, toggle }) => {
+          if (open) {
+            colorChipWasOpenRef.current = true;
+          } else if (colorChipWasOpenRef.current) {
+            colorChipWasOpenRef.current = false;
+            const picked = colorChipPickedRef.current;
+            colorChipPickedRef.current = null;
+            // 렌더 중 부모 setState 금지 → microtask 로 미뤄 삽입
+            if (picked) void Promise.resolve().then(() => {
+              editor.tf.focus();
+              // code 마크를 켠 상태로 hex 삽입 → 인라인 code(#hex)로 들어감. 이후 입력엔 안 이어지게 해제.
+              editor.tf.addMarks({ code: true });
+              editor.tf.insertText(picked);
+              editor.tf.removeMarks(["code"]);
+            });
+          }
+          return (
+            <TBtn tooltip={language === "ko" ? "색상 칩 (#hex)" : "Color chip (#hex)"} onMouseDown={(e) => e.preventDefault()} onClick={toggle}>
+              <Palette size={14} />
+            </TBtn>
+          );
+        }}
+      </ColorPicker>
+      <div className={styles.divider} />
 
+      {/* Font family — 검색 가능 드롭다운 */}
+      <EditorFontPicker
+        value={currentFontFamily || ""}
+        preferEn={preferEn}
+        onChange={(val, googleName) => {
+          if (val) {
+            if (googleName) loadGoogleFont(googleName);
+            editor.tf.addMarks({ fontFamily: val });
+          } else {
+            editor.tf.removeMarks(["fontFamily"]);
+          }
+          setTimeout(() => editor.tf.focus(), 0);
+        }}
+      />
+
+      {/* Font size */}
+      <Select
+        value={currentFontSizeNum}
+        options={[
+          ...(currentFontSizeNum && !FONT_SIZE_PRESETS.includes(Number(currentFontSizeNum))
+            ? [{ value: currentFontSizeNum, label: `${currentFontSizeNum}px` }]
+            : []),
+          ...FONT_SIZE_PRESETS.map((s) => ({ value: String(s), label: `${s}px` })),
+        ]}
+        onChange={(val) => {
+          if (val) editor.tf.addMarks({ fontSize: `${val}px` });
+          else editor.tf.removeMarks(["fontSize"]);
+          setTimeout(() => editor.tf.focus(), 0);
+        }}
+        size="sm"
+        width="max"
+        preserveFocus
+        placeholder={t("editor.fontSize")}
+        editable
+        editableInputProps={{ maxLength: 3, placeholder: "px", sanitize: (raw) => raw.replace(/[^0-9]/g, "") }}
+      />
+
+      {/* Line height */}
+      <Select
+        value={currentLineHeight}
+        options={[
+          ...(currentLineHeight && !LINE_HEIGHT_PRESETS.map(String).includes(currentLineHeight)
+            ? [{ value: currentLineHeight, label: currentLineHeight }]
+            : []),
+          ...LINE_HEIGHT_PRESETS.map((v) => ({ value: String(v), label: String(v) })),
+        ]}
+        onChange={(val) => {
+          setLineHeight(editor, Number(val) || 0);
+          setTimeout(() => editor.tf.focus(), 0);
+        }}
+        size="sm"
+        width="max"
+        preserveFocus
+        placeholder={t("editor.lineHeight")}
+        editable
+        editableInputProps={{ maxLength: 4, placeholder: "1.6", sanitize: (raw) => raw.replace(/[^0-9.]/g, "") }}
+      />
+
+      {/* Letter spacing */}
+      <Select
+        value={currentLetterSpacing || "0em"}
+        options={LETTER_SPACING_PRESETS.map((v) => ({ value: v, label: v }))}
+        onChange={(val) => {
+          if (!val || val === "0em") editor.tf.removeMarks(["letterSpacing"]);
+          else editor.tf.addMarks({ letterSpacing: val });
+          setTimeout(() => editor.tf.focus(), 0);
+        }}
+        size="sm"
+        width="max"
+        preserveFocus
+        placeholder={t("editor.letterSpacing")}
+      />
+      <div className={styles.divider} />
+
+      {/* Text alignment */}
+      {(["left", "center", "right", "justify"] as const).map((align) => {
+        const alignLabels = { left: `${t("editor.alignLeft")}\n${kb("⌘⇧L")}`, center: `${t("editor.alignCenter")}\n${kb("⌘⇧E")}`, right: `${t("editor.alignRight")}\n${kb("⌘⇧R")}`, justify: `${t("editor.alignJustify")}\n${kb("⌘⇧J")}` };
+        return (
+          <TBtn square key={align} active={currentAlign === align} onClick={() => setAlign(editor, align)} tooltip={alignLabels[align]}>
+            <AlignIcon align={align} />
+          </TBtn>
+        );
+      })}
+      {/* 들여쓰기 — 문단 그룹 */}
+      <TBtn onClick={() => indent(editor)} tooltip={`${t("editor.indent")} (Tab)`}>→|</TBtn>
+      <TBtn onClick={() => outdent(editor)} tooltip={`${t("editor.outdent")} (Shift+Tab)`}>|←</TBtn>
       <div className={styles.divider} />
 
       {/* Headings */}
@@ -444,34 +402,44 @@ export default React.memo(function MainToolbar({
       <div className={styles.divider} />
 
       {/* Lists & blocks */}
-      <div className={styles.selectWrap}>
-        <select className={styles.fontSelect} style={{ width: 76 }} value={isUL ? "disc" : ""} onChange={(e) => { if (e.target.value) toggleList(editor, { listStyleType: e.target.value }); setTimeout(() => editor.tf.focus(), 0); }}>
-          <option value="">● UL</option>
-          <option value="disc">{`● ${t("editor.ulDisc")}`}</option>
-          <option value="circle">{`○ ${t("editor.ulCircle")}`}</option>
-          <option value="square">{`■ ${t("editor.ulSquare")}`}</option>
-          <option value="'- '">{`– ${t("editor.ulDash")}`}</option>
-          <option value="'✓ '">{`✓ ${t("editor.ulCheck")}`}</option>
-          <option value="'→ '">{`→ ${t("editor.ulArrow")}`}</option>
-          <option value="'★ '">{`★ ${t("editor.ulStar")}`}</option>
-          <option value="disclosure-open">{`▽ ${t("editor.ulTriOpen")}`}</option>
-          <option value="disclosure-closed">{`▷ ${t("editor.ulTriClosed")}`}</option>
-        </select>
-      </div>
-      <div className={styles.selectWrap}>
-        <select className={styles.fontSelect} style={{ width: 82 }} value={isOL ? "decimal" : ""} onChange={(e) => { if (e.target.value) toggleList(editor, { listStyleType: e.target.value }); setTimeout(() => editor.tf.focus(), 0); }}>
-          <option value="">1. OL</option>
-          <option value="decimal">1, 2, 3</option>
-          <option value="decimal-leading-zero">01, 02, 03</option>
-          <option value="lower-alpha">a, b, c</option>
-          <option value="upper-alpha">A, B, C</option>
-          <option value="lower-roman">i, ii, iii</option>
-          <option value="upper-roman">I, II, III</option>
-          <option value="lower-greek">α, β, γ</option>
-          <option value="korean-hangul-formal">가, 나, 다</option>
-          <option value="cjk-ideographic">一, 二, 三</option>
-        </select>
-      </div>
+      <Select
+        value={isUL ? "disc" : ""}
+        options={[
+          { value: "disc", label: `● ${t("editor.ulDisc")}` },
+          { value: "circle", label: `○ ${t("editor.ulCircle")}` },
+          { value: "square", label: `■ ${t("editor.ulSquare")}` },
+          { value: "'- '", label: `– ${t("editor.ulDash")}` },
+          { value: "'✓ '", label: `✓ ${t("editor.ulCheck")}` },
+          { value: "'→ '", label: `→ ${t("editor.ulArrow")}` },
+          { value: "'★ '", label: `★ ${t("editor.ulStar")}` },
+          { value: "disclosure-open", label: `▽ ${t("editor.ulTriOpen")}` },
+          { value: "disclosure-closed", label: `▷ ${t("editor.ulTriClosed")}` },
+        ]}
+        onChange={(val) => { if (val) toggleList(editor, { listStyleType: val }); setTimeout(() => editor.tf.focus(), 0); }}
+        size="sm"
+        width="max"
+        preserveFocus
+        placeholder="● UL"
+      />
+      <Select
+        value={isOL ? "decimal" : ""}
+        options={[
+          { value: "decimal", label: "1, 2, 3" },
+          { value: "decimal-leading-zero", label: "01, 02, 03" },
+          { value: "lower-alpha", label: "a, b, c" },
+          { value: "upper-alpha", label: "A, B, C" },
+          { value: "lower-roman", label: "i, ii, iii" },
+          { value: "upper-roman", label: "I, II, III" },
+          { value: "lower-greek", label: "α, β, γ" },
+          { value: "korean-hangul-formal", label: "가, 나, 다" },
+          { value: "cjk-ideographic", label: "一, 二, 三" },
+        ]}
+        onChange={(val) => { if (val) toggleList(editor, { listStyleType: val }); setTimeout(() => editor.tf.focus(), 0); }}
+        size="sm"
+        width="max"
+        preserveFocus
+        placeholder="1. OL"
+      />
       <TBtn square active={isTodo} onClick={() => {
         const entry = editor.api.block();
         if (!entry) return;
@@ -495,11 +463,6 @@ export default React.memo(function MainToolbar({
       <TBtn active={blockType === "code_block"} onClick={() => toggleCodeBlock(editor)} tooltip={`${t("editor.codeBlock")}\n${kb("⌘⌥C")}`}>Code</TBtn>
       <div className={styles.divider} />
 
-      {/* 들여쓰기 */}
-      <TBtn onClick={() => indent(editor)} tooltip={`${t("editor.indent")} (Tab)`}>→|</TBtn>
-      <TBtn onClick={() => outdent(editor)} tooltip={`${t("editor.outdent")} (Shift+Tab)`}>|←</TBtn>
-      <div className={styles.divider} />
-
       {/* Insert */}
       <TBtn
         active={showLinkInput}
@@ -508,7 +471,6 @@ export default React.memo(function MainToolbar({
       >
         Link
       </TBtn>
-      <TBtn onClick={() => _emojiPickerTrigger.current?.()} tooltip={t("editor.insertEmoji")}><Smile size={14} /></TBtn>
       <TBtn onClick={onAddImage} tooltip={t("editor.insertImage")}>Image</TBtn>
       <TBtn onClick={() => {
         // 동영상 파일 업로드 → media_embed(video url) 삽입 (SlashMenu 와 동일)
@@ -526,6 +488,8 @@ export default React.memo(function MainToolbar({
       }} tooltip={t("editor.insertVideo")}>Video</TBtn>
       <TBtn onClick={onAddFile} tooltip={t("editor.insertFile")}>File</TBtn>
       <TBtn onClick={onAddAudio} tooltip={t("editor.insertAudio")}>Audio</TBtn>
+      <div className={styles.divider} />
+      {/* 삽입 · 구조 — 표/레이아웃/블록 */}
       <TBtn active={blockType === "table"} onClick={() => { editor.tf.withMerging(() => { insertTable(editor, { colCount: 3, rowCount: 3, header: true }); }); }} tooltip={t("editor.insertTable")}>Table</TBtn>
       {([2, 3, 4] as const).map((cols) => (
         <TBtn
@@ -635,6 +599,9 @@ export default React.memo(function MainToolbar({
       >
         <LayoutPanelTop size={14} />
       </TBtn>
+      <div className={styles.divider} />
+      {/* 삽입 · 기타 — 이모지/폴/캘린더/글링크/다이어그램/임베드/수식/각주 (아이콘 인서트 묶음) */}
+      <TBtn square onClick={() => _emojiPickerTrigger.current?.()} tooltip={t("editor.insertEmoji")}><Smile size={14} /></TBtn>
       <TBtn
         square
         tooltip={t("editor.insertPoll")}

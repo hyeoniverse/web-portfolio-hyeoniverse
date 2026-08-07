@@ -102,7 +102,8 @@ h6 {
   margin: 0;
   padding: 0;
   line-height: var(--heading-lh);
-  font-weight: var(--font-weight-regular);
+  /* 제목(h1~h6) 굵기 — 본문보다 한 단계 위(regular→medium). 전역 단일 소스. */
+  font-weight: var(--font-weight-medium);
 }
 h1 { font-size: var(--font-size-2xl); }
 h2 { font-size: var(--font-size-xl); }

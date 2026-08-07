@@ -794,7 +794,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
                       <Tooltip key={c.key} content={t(`editor.color_${c.key}`)} placement="top" delay={200}>
                         <button
                           type="button"
-                          className={`${styles.blockToolsSwatch}${c.value ? "" : ` ${styles.blockToolsSwatchNone}`}`}
+                          className={`${styles.blockToolsSwatch}${c.value ? "" : ` ${styles.blockToolsSwatchDefault}`}`}
                           style={c.value ? { background: c.value } : undefined}
                           onClick={() => setBlockColor(c.value, close)}
                         />
