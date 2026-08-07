@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.46.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.45.1...v1.46.0) (2026-08-07)
+
+
+### Features
+
+* **admin:** 에디터 발행 상태 chip + 미발행 저장 시 발행 여부 모달 ([8e9d544](https://github.com/hyeoniverse/web-portfolio-oval/commit/8e9d5443a392aedada2aa31ddcb789dc59f0d1e8))
+* **editor:** 메인 툴바 그룹 재배치 + 색상 칩 삽입 도구 ([3e3c25e](https://github.com/hyeoniverse/web-portfolio-oval/commit/3e3c25e47f06b61de7c55247e5604ad94b10b065))
+
+
+### Bug Fixes
+
+* **admin:** posts # 열 고정폭 + 숫자 줄바꿈 방지 ([0c0c165](https://github.com/hyeoniverse/web-portfolio-oval/commit/0c0c165f6de3adfc88734aa2bd2cee250b60412b))
+
 ## [1.45.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.45.0...v1.45.1) (2026-08-07)
 
 
