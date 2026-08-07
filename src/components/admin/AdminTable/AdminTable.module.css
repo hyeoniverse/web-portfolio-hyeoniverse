@@ -434,6 +434,7 @@
 .rowNum {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 /* text ↔ input 전환 시 크기 동일 — box-sizing border-box + 동일 height/width/padding/border (1px solid).
@@ -441,11 +442,14 @@
 .rowNumText {
   display: inline-block;
   box-sizing: border-box;
-  /* 최소 4ch(1~4자리 정렬), 5자리↑ 은 내용만큼 늘어나 잘리지 않게 — 고정 width 안 씀 */
-  min-width: 4ch;
+  /* 셀(고정 2.5rem 트랙)을 채워 가운데 정렬 — 숫자 자릿수와 무관하게 # 열 너비 일정 + 줄바꿈 금지. */
+  width: 100%;
+  min-width: 0;
   height: 22px;
   line-height: 20px; /* content area = height - border(2) - padding-block(0) = 20 */
-  padding: 0 4px;
+  padding: 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
   border: 1px solid transparent;
   border-bottom-color: var(--text-white);
   border-bottom-style: dashed;
@@ -480,11 +484,12 @@
 .rowNumInput {
   display: inline-block;
   box-sizing: border-box;
-  min-width: 4ch;
-  width: 4ch;
+  min-width: 0;
+  width: 100%;
   height: 22px;
   line-height: 20px;
-  padding: 0 4px;
+  padding: 0 2px;
+  white-space: nowrap;
   border: var(--border-default);
   border-radius: 0;
   background: var(--bg-primary);
