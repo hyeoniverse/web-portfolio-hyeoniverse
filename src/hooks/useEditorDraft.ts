@@ -142,7 +142,6 @@ export function useEditorDraft<T>({
     applyDraftRef.current(sd.snapshot);
     loadedHashRef.current = serverHash;
     lastSnapshotHashRef.current = serverHash;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, ready, serverReady, snapshot]);
 
   // Continuous write — restore 결정 끝난 뒤부터 snapshot 변경마다 localStorage sync.

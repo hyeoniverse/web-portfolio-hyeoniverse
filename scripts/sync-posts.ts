@@ -168,7 +168,6 @@ async function main() {
 
   for (const post of posts) {
     const dbRow = dbMap.get(post.slug);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { filePath, mtime, ...postData } = post;
 
     if (!dbRow) {

@@ -399,7 +399,6 @@ export function ImageElement(props: PlateElementProps) {
     };
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, elPath, props.element]);
 
   // float 시 Plate wrapper div 자체에 float 적용 (useEffect)

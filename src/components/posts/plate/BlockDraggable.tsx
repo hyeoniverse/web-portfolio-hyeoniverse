@@ -317,9 +317,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
       if (gid != null) {
         const { childIds } = getIndentGroupChildIds(editor, gid);
         if (childIds.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const wrapperOf = (id: any): HTMLElement | null => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const node = editor.api.node({ id, at: [] })?.[0] as any;
             const dom = node ? (editor.api.toDOMNode(node) as HTMLElement | null) : null;
             return (dom?.closest(`.${styles.blockDraggable}`) as HTMLElement | null) ?? null;

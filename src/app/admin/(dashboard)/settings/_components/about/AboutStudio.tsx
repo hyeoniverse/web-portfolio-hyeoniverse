@@ -423,7 +423,6 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
           onClick={(e) => { if (e.target === e.currentTarget) closeBar(); }}
         >
           {media && (isVideo
-            // eslint-disable-next-line jsx-a11y/media-has-caption
             ? <video className={hero.heroBgMedia} src={media} autoPlay muted loop playsInline aria-hidden />
             // eslint-disable-next-line @next/next/no-img-element
             : <img className={hero.heroBgMedia} src={media} alt="" aria-hidden />)}
@@ -914,7 +913,7 @@ function FeaturesBlock({ value, onChange, lang, t, scale, titleOverride }: {
           {value.map((it, i) => (
             <div key={i} className={css.featCell} onMouseEnter={() => setHovered({ row: Math.floor(i / cols), col: i % cols })}>
               {it.image
-                ? /* eslint-disable-next-line @next/next/no-img-element */ <img className={css.featImg} src={it.image} alt="" />
+                ? <img className={css.featImg} src={it.image} alt="" />
                 : <div className={css.featNoImg} />}
               <div className={`${feat.featureDfInfo} ${css.featInfo}`}>
                 <EditableText className={feat.featureDfTitle} value={it.title} onChange={(v) => set(i, { title: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel="title" style={{ maxWidth: "100%" }} />
@@ -2341,7 +2340,7 @@ function BreakBlock({ url, onSet, t }: { url: string; onSet: (u: string) => void
   return (
     <section className={css.block}>
       <div className={css.rcardMedia} style={{ maxWidth: 480 }}>
-        {url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={url} alt="" /> : null}
+        {url ? <img src={url} alt="" /> : null}
       </div>
       <div className={css.mediaActions}>
         <Button variant="outline" size="sm" onClick={() => setPick((v) => !v)}>{pick ? t("admin.posts.seriesModal.closePicker") : t("admin.posts.seriesModal.chooseCover")}</Button>
