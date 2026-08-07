@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.45.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.45.0...v1.45.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* **editor:** 이모지 피커 z-index 를 nav 아래로 (로고·네비게이션 덮음 수정) ([4a874d1](https://github.com/hyeoniverse/web-portfolio-oval/commit/4a874d1fb8e4722f84c0da6eada92dfefd386da8))
+
 ## [1.45.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.44.0...v1.45.0) (2026-08-07)
 
 
