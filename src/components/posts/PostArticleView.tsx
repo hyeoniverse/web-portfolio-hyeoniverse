@@ -223,7 +223,6 @@ export function PostArticleBody({
       codeScroll: tRef.current("common.codeScroll"),
       codeWrap: tRef.current("common.codeWrap"),
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- t 는 위 주석대로 의도적으로 제외 (tRef 로 읽음)
   }, [isMarkdown, content]);
 
   /* richtext 후처리 — 수식(KaTeX) / 코드블록 상단 바 / 특수 블록 island(mermaid·다이어그램·달력·플레이그라운드).
