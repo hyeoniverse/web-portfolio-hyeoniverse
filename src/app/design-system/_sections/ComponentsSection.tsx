@@ -81,6 +81,10 @@ function md(text: string): ReactNode {
 
 // FontPicker 데모는 공용 카탈로그(FONT_GROUPS, 단일 소스)를 그대로 사용한다.
 
+// editable Select 데모용 프리셋 — 에디터 툴바의 폰트 크기·줄간격 입력과 같은 구성.
+const FONT_SIZE_DEMO_PRESETS = [14, 15, 16, 18, 20, 24, 28, 32];
+const LINE_HEIGHT_DEMO_PRESETS = [1.4, 1.6, 1.8, 2.0];
+
 function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd }: ComponentsSectionProps) {
   const { openModal } = useModalStore();
   const [menuDotsOpen, setMenuDotsOpen] = useState(false);
@@ -120,6 +124,9 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
   const [selectValue, setSelectValue] = useState("option1");
   const [selectCompact, setSelectCompact] = useState("option1");
   const [selectEmpty, setSelectEmpty] = useState("");
+  // editable Select 데모 — 트리거 더블클릭 시 입력칸으로 전환 (프리셋 밖 값 직접 입력)
+  const [selectFontSize, setSelectFontSize] = useState("16");
+  const [selectLineHeight, setSelectLineHeight] = useState("1.6");
   const [comboInput, setComboInput] = useState("");
   const [comboTags, setComboTags] = useState<string[]>(["React"]);
   const [bubbleVal, setBubbleVal] = useState("normal");
@@ -887,6 +894,52 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
             )}
           </motion.div>
         </div>
+        <div className={styles.componentSubLabel}>editable — 프리셋 밖 값 직접 입력</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "`editable` 을 주면 트리거를 **더블클릭**할 때 입력칸으로 바뀌어, 드롭다운 프리셋에 없는 값도 직접 타이핑할 수 있습니다(에디터 툴바의 폰트 크기·줄간격 입력이 이 방식입니다). 한 번 클릭은 평소대로 드롭다운을 엽니다 — 더블클릭과 구분하려고 첫 클릭을 250ms 지연시킵니다. `editableInputProps` 로 `maxLength`(길이 제한)·`placeholder`·`sanitize`(확정 직전 정규화, 예: 숫자만 · 숫자·점만)를 지정합니다. blur 나 Enter 로 확정, Escape 로 취소하며, 프리셋에 없는 값은 현재 값을 임시 옵션으로 얹어 드롭다운에서도 보이게 합니다. `value` 가 비어 있으면 처음부터 입력 모드로 시작합니다(PeriodPicker 의 연·월·일 칸이 그 예입니다)."
+            : "With `editable`, **double-clicking** the trigger swaps it for a text input, so you can type a value that isn't in the dropdown (the editor toolbar's font-size / line-height inputs work this way). A single click still opens the dropdown — the first click is delayed 250ms to tell the two apart. `editableInputProps` sets `maxLength`, `placeholder`, and `sanitize` (normalize on commit — digits only, digits-and-dot only, etc.). Commit on blur or Enter, cancel on Escape; a non-preset value is kept visible by prepending the current value as a temporary option. An empty `value` starts in input mode (PeriodPicker's year / month / day fields do this).")}
+        </p>
+        <div className={styles.sliderRow}>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)" }}>
+            <span className={styles.sliderLabel}>Font size — {selectFontSize}px · 더블클릭해 직접 입력</span>
+            <Tooltip content="editable · sanitize(숫자만) · maxLength 3">
+              <Select
+                value={selectFontSize}
+                options={[
+                  ...(selectFontSize && !FONT_SIZE_DEMO_PRESETS.includes(Number(selectFontSize))
+                    ? [{ value: selectFontSize, label: `${selectFontSize}px` }]
+                    : []),
+                  ...FONT_SIZE_DEMO_PRESETS.map((s) => ({ value: String(s), label: `${s}px` })),
+                ]}
+                onChange={setSelectFontSize}
+                size="sm"
+                width="max"
+                editable
+                editableInputProps={{ maxLength: 3, placeholder: "px", sanitize: (raw) => raw.replace(/[^0-9]/g, "") }}
+              />
+            </Tooltip>
+          </motion.div>
+          <motion.div className={styles.sliderItem} variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2xs)" }}>
+            <span className={styles.sliderLabel}>Line height — {selectLineHeight} · 더블클릭해 직접 입력</span>
+            <Tooltip content="editable · sanitize(숫자·점) · maxLength 4">
+              <Select
+                value={selectLineHeight}
+                options={[
+                  ...(selectLineHeight && !LINE_HEIGHT_DEMO_PRESETS.map(String).includes(selectLineHeight)
+                    ? [{ value: selectLineHeight, label: selectLineHeight }]
+                    : []),
+                  ...LINE_HEIGHT_DEMO_PRESETS.map((v) => ({ value: String(v), label: String(v) })),
+                ]}
+                onChange={setSelectLineHeight}
+                size="sm"
+                width="max"
+                editable
+                editableInputProps={{ maxLength: 4, placeholder: "1.6", sanitize: (raw) => raw.replace(/[^0-9.]/g, "") }}
+              />
+            </Tooltip>
+          </motion.div>
+        </div>
       </motion.div>
 
       {/* ColorPicker */}
@@ -1103,6 +1156,27 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <Tooltip content="showHandle — grip + Drag cursor">
             <Chip variant="capsule" showHandle leftIcon={<Star size={11} />}>draggable</Chip>
           </Tooltip>
+        </motion.div>
+        <div className={styles.componentSubLabel}>status dot (발행 상태)</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "`variant=\"capsule\"` 에 `leftIcon` 으로 색 dot 을 넣어 상태를 구분합니다. 에디터 상단 바의 발행 상태 표시가 이 패턴입니다 — 발행됨은 success, 예약 발행은 warning, 미발행은 muted 색 dot 입니다. dot 은 7px 원이고 색만 semantic 토큰으로 바뀝니다."
+            : "A colored dot via `leftIcon` on a `variant=\"capsule\"` chip marks the state. The editor top bar's publish indicator uses this — published is success, scheduled is warning, draft is a muted dot. The dot is a 7px circle; only its color swaps via semantic tokens.")}
+        </p>
+        <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-xs)", alignItems: "center" }}>
+          {([
+            { label: language === "ko" ? "발행됨" : "Published", color: "var(--bg-success-solid)" },
+            { label: language === "ko" ? "예약 발행" : "Scheduled", color: "var(--bg-warning-solid)" },
+            { label: language === "ko" ? "미발행" : "Draft", color: "var(--text-tertiary)" },
+          ] as const).map((s) => (
+            <Chip
+              key={s.label}
+              variant="capsule"
+              leftIcon={<span style={{ display: "inline-block", width: 7, height: 7, borderRadius: "var(--radius-circle)", background: s.color }} aria-hidden />}
+            >
+              {s.label}
+            </Chip>
+          ))}
         </motion.div>
       </motion.div>
 
@@ -1475,8 +1549,8 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <div className={styles.componentGroupTitle}>Inline Color Swatch</div>
         <p className={styles.componentDesc}>
           {md(language === "ko"
-            ? "인라인 `code` 의 내용이 색상값(`#hex` · `rgb()` · `hsl()`)이면 앞에 색 원(스와치)이 붙습니다 — GitHub 스타일. 렌더 후 `applyColorSwatches` 가 인라인 코드를 스캔해 **검증된 색만** 배경으로 주입하므로, 이름색·비색상은 평문으로 남습니다. 인라인 코드 자체는 Notion 식 배경형(보더 없음)."
-            : "When inline `code` holds a color value (`#hex` · `rgb()` · `hsl()`), a color dot (swatch) is prepended — GitHub style. After render, `applyColorSwatches` scans inline code and injects **only validated colors**, so named colors / non-colors stay plain. The inline code itself is Notion-style (borderless background).")}
+            ? "인라인 `code` 의 내용이 색상값(`#hex` · `rgb()` · `hsl()`)이면 앞에 색 원(스와치)이 붙습니다 — GitHub 스타일. 렌더 후 `applyColorSwatches` 가 인라인 코드를 스캔해 **검증된 색만** 배경으로 주입하므로, 이름색·비색상은 평문으로 남습니다. 인라인 코드 자체는 Notion 식 배경형(보더 없음)입니다. 에디터에서는 툴바의 **색상 칩** 도구(Palette 아이콘)로 팔레트에서 고른 `#hex` 를 인라인 코드로 삽입하고, 리더가 이걸 그대로 이 스와치로 렌더합니다."
+            : "When inline `code` holds a color value (`#hex` · `rgb()` · `hsl()`), a color dot (swatch) is prepended — GitHub style. After render, `applyColorSwatches` scans inline code and injects **only validated colors**, so named colors / non-colors stay plain. The inline code itself is Notion-style (borderless background). In the editor, the toolbar's **color chip** tool (Palette icon) inserts a picked `#hex` as inline code, and the reader renders exactly that as this swatch.")}
         </p>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexWrap: "wrap", gap: "var(--spacing-sm)", alignItems: "center", lineHeight: 2.2 }}>
           <code><span className="color-swatch" style={{ background: "#e11d48" }} aria-hidden />#e11d48</code>
