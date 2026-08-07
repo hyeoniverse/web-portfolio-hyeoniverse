@@ -112,7 +112,9 @@ export function resolvedLineHeight(blockLineHeight: string | undefined, computed
     const diff = Math.abs(ratio - parseFloat(p));
     if (diff < minDiff) { closest = p; minDiff = diff; }
   }
-  return minDiff < 0.05 ? closest : "";
+  // 프리셋에 근접하면 프리셋으로 스냅, 아니면(제목 1.25 등 프리셋에 없는 값) 실제 비율을
+  // 소수 둘째자리로 반올림해 그대로 표시 — 이전엔 "" 를 반환해 제목(1.25 등) 줄간격이 감지 안 되던 문제.
+  return minDiff < 0.05 ? closest : String(Math.round(ratio * 100) / 100);
 }
 
 // ── useTableInfo: 현재 커서의 테이블/셀 정보 ──
