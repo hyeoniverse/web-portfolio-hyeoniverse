@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.48.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.48.0...v1.48.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* **api:** 초안은 제목·slug 없어도 기본값 채워 저장 ([adc32e7](https://github.com/hyeoniverse/web-portfolio-oval/commit/adc32e7592e47a79845e54a54538295630860f14))
+* **editor:** 새 글은 이탈 후 이전 내용을 복원하지 않는다 ([1bff5f0](https://github.com/hyeoniverse/web-portfolio-oval/commit/1bff5f0c91b719f1758877586fb4fed1b5e29b25))
+
 ## [1.48.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.47.0...v1.48.0) (2026-08-07)
 
 
