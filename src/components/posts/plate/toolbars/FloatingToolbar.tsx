@@ -13,6 +13,7 @@ import { toggleList } from "@platejs/list";
 import { toggleCodeBlock } from "@platejs/code-block";
 import { insertInlineEquation } from "@platejs/math";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import Popover, { MenuItem } from "@/components/ui/Popover";
 import Select from "@/components/ui/Select";
 import ColorPicker from "@/components/ui/ColorPicker";
@@ -163,6 +164,7 @@ function getSelectionRect(): DOMRect {
  */
 export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean }) {
   const { t } = useLanguage();
+  const { isTouch } = useIsMobile();
   const editor = useEditorRef();
   const editorId = useEditorId();
   const focusedEditorId = useEventEditorValue("focus");
@@ -183,7 +185,8 @@ export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean
   const collapsed = React.useMemo(() => {
     try { return editor.api.isCollapsed(); } catch { return true; }
   }, [editor, selection]);
-  const open = focused && selection != null && !collapsed && !hideToolbar && !voidSelected;
+  // 터치: 네이티브 선택 핸들/콜아웃과 충돌 → 플로팅 서식 툴바 숨김(메인 툴바가 서식 담당).
+  const open = focused && selection != null && !collapsed && !hideToolbar && !voidSelected && !isTouch;
 
   return (
     <FloatingBar open={open} getAnchorRect={getSelectionRect} inline>

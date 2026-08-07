@@ -27,6 +27,7 @@ import { InlineCaption } from "./elements";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import { BlockTailClickZone } from "./elements";
 import styles from "../RichTextEditor.module.css";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { GripVertical, GripHorizontal, Grid2x2, Plus } from "@/components/icons";
 
 // 표 고정(freeze) 상태 — 열=CSS sticky-left, 행=JS transform pin(스크롤에 맞춰 translateY).
@@ -363,8 +364,11 @@ function addColumnAtEnd(editor: any, tableElement: any) {
  *  표가 넓어 가로 스크롤 중이면 우측 끝이 화면 밖 → 스크롤로 우측 끝을 보이게 하면 그때 hover 로 접근. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function AddColumnRail({ editor, tableElement, wrapRef }: { editor: any; tableElement: any; wrapRef: React.RefObject<HTMLDivElement | null> }) {
+  const { isTouch } = useIsMobile();
   const [box, setBox] = useState<{ left: number; top: number; height: number } | null>(null);
   const [show, setShow] = useState(false);
+  // 터치: hover 없음 → 열추가 버튼 상시 노출
+  const shown = show || isTouch;
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
@@ -415,8 +419,8 @@ function AddColumnRail({ editor, tableElement, wrapRef }: { editor: any; tableEl
         borderRadius: 999,
         // 평소 숨김 → hover 시 표 우측 끝에서 가로로 펼쳐지며 노출(접힐 땐 반대). 행추가 버튼과 동일한 reveal 성격.
         transformOrigin: "left center",
-        transform: show ? "scaleX(1)" : "scaleX(0.35)",
-        opacity: show ? 1 : 0,
+        transform: shown ? "scaleX(1)" : "scaleX(0.35)",
+        opacity: shown ? 1 : 0,
         transition: "opacity 0.16s ease, transform 0.16s ease",
       }}><Plus size={14} /></div>
     </div>
@@ -463,6 +467,7 @@ function AddRowBtn({ editor, tableElement, hovered }: { editor: any; tableElemen
 }
 
 function TableElementInner({ children, attributes, style, element }: PlateElementProps) {
+  const { isTouch } = useIsMobile();
   const editor = useEditorRef();
   const { props: tableProps } = useTableElement();
   // Plate v53: useTableElement 반환에서 isSelectingCell 가 빠지고 plugin API 로 이동.
@@ -491,6 +496,8 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
     if (rowBtnTimer.current) clearTimeout(rowBtnTimer.current);
     rowBtnTimer.current = setTimeout(() => setRowBtnHovered(false), 400);
   }, []);
+  // 터치: hover 없음 → 행추가 버튼(밴드) 상시 노출
+  const rowBtnShown = rowBtnHovered || isTouch;
   React.useEffect(() => () => { if (rowBtnTimer.current) clearTimeout(rowBtnTimer.current); }, []);
   // 열 고정 누적 left(px) — CSS sticky-left offset. (행 pin·stuck 구분선은 스크롤 중 DOM 직접 처리)
   const [colLefts, setColLefts] = useState<number[]>([]);
@@ -806,14 +813,14 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
           position: "relative",
           width: totalWidth,
           maxWidth: "100%",
-          height: rowBtnHovered ? 24 : 6,
+          height: rowBtnShown ? 24 : 6,
           // 가로 스크롤바(.tblScroll padding-bottom: md)가 행버튼을 밀어내지 않게, 밴드 위로 끌어올려
           // 표에서 항상 2xs 간격에 고정. (스크롤바는 md 밴드 아래에 위치 — 서로 안 밀어냄)
           marginTop: "calc(var(--spacing-2xs) - var(--spacing-md))",
           transition: "height 0.15s ease",
         }}
       >
-        <AddRowBtn editor={editor} tableElement={element} hovered={rowBtnHovered} />
+        <AddRowBtn editor={editor} tableElement={element} hovered={rowBtnShown} />
       </div>
       {showCaption && (
         <div contentEditable={false} style={{ width: totalWidth, maxWidth: "100%" }}>
@@ -1258,8 +1265,8 @@ export function TableCellElement(props: PlateElementProps) {
       {props.children}
       {(selected || focused) && <CellSelectionOverlay edges={selected ? edges : undefined} allSides={!selected && focused} />}
       <CellSelectHandles editor={editor} element={props.element} rowIndex={rowIndex} />
-      <div data-cursor="resizeH" onPointerDown={onRightPointerDown} style={resizeHandleStyle.right} />
-      <div data-cursor="resizeV" onPointerDown={onBottomPointerDown} style={resizeHandleStyle.bottom} />
+      <div className={styles.tblCellResize} data-cursor="resizeH" onPointerDown={onRightPointerDown} style={resizeHandleStyle.right} />
+      <div className={styles.tblCellResize} data-cursor="resizeV" onPointerDown={onBottomPointerDown} style={resizeHandleStyle.bottom} />
     </PlateElement>
   );
 }
@@ -1308,8 +1315,8 @@ export function TableCellHeaderElement(props: PlateElementProps) {
       {props.children}
       {(selected || focused) && <CellSelectionOverlay edges={selected ? edges : undefined} allSides={!selected && focused} />}
       <CellSelectHandles editor={editor} element={props.element} rowIndex={rowIndex} />
-      <div data-cursor="resizeH" onPointerDown={onRightPointerDown} style={resizeHandleStyle.right} />
-      <div data-cursor="resizeV" onPointerDown={onBottomPointerDown} style={resizeHandleStyle.bottom} />
+      <div className={styles.tblCellResize} data-cursor="resizeH" onPointerDown={onRightPointerDown} style={resizeHandleStyle.right} />
+      <div className={styles.tblCellResize} data-cursor="resizeV" onPointerDown={onBottomPointerDown} style={resizeHandleStyle.bottom} />
     </PlateElement>
   );
 }

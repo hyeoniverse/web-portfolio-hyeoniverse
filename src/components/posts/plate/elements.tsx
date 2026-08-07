@@ -11,6 +11,7 @@ import {
 } from "platejs/react";
 import type { TLinkElement } from "platejs";
 import { useLanguage } from "@/providers/LanguageProvider";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { showToast } from "@/stores/toastStore";
 import Tooltip from "@/components/ui/Tooltip";
 import { ReactEditor } from "slate-react";
@@ -153,6 +154,7 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
 
 export function ImageElement(props: PlateElementProps) {
   const { t } = useLanguage();
+  const { isTouch } = useIsMobile();
   const editor = useEditorRef();
   const selected = useSelected();
   const focused = useFocused();
@@ -491,8 +493,8 @@ export function ImageElement(props: PlateElementProps) {
                     {resizeSize.w}×{resizeSize.h}px
                   </span>
                 )}
-                {/* Resize handles */}
-                {isActive && !isDragging && (
+                {/* Resize handles — 터치에선 손가락으로 못 잡는 얇은 핸들이라 숨김 */}
+                {isActive && !isDragging && !isTouch && (
                   <>
                     <span data-cursor="resizeH" onPointerDown={onPointerDown("right")} style={{ position: "absolute", right: -5, top: 0, bottom: 0, width: 10, cursor: "ew-resize", zIndex: 4 }} />
                     <span data-cursor="resizeV" onPointerDown={onPointerDown("bottom")} style={{ position: "absolute", bottom: -5, left: 0, right: 0, height: 10, cursor: "ns-resize", zIndex: 4 }} />
@@ -565,8 +567,8 @@ export function ImageElement(props: PlateElementProps) {
                   {resizeSize.w}×{resizeSize.h}px
                 </div>
               )}
-              {/* Resize handles — 드래그 중 숨김 */}
-              {isActive && !isDragging && (
+              {/* Resize handles — 드래그 중 숨김. 터치에선 얇은 핸들 숨김 */}
+              {isActive && !isDragging && !isTouch && (
                 <>
                   {/* 히트박스 (감지 영역) */}
                   <div data-cursor="resizeH" onPointerDown={onPointerDown("right")} style={{ position: "absolute", right: -5, top: 0, bottom: 0, width: 10, cursor: "ew-resize", zIndex: 4 }} />
@@ -2298,6 +2300,7 @@ function ScriptEmbed({ platform, href }: { platform: string; href: string }) {
 
 /** 미디어 임베드 — iframe / script / video 렌더링 */
 export function MediaEmbedElement(props: PlateElementProps) {
+  const { isTouch } = useIsMobile();
   const editor = useEditorRef();
   const selected = useSelected();
   const focused = useFocused();
@@ -2528,9 +2531,9 @@ export function MediaEmbedElement(props: PlateElementProps) {
                 {resizeSize.w}×{resizeSize.h}px
               </div>
             )}
-            {isActive && (
+            {isActive && !isTouch && (
               <>
-                {/* 히트박스 — 우/하/모서리 (이미지와 동일) */}
+                {/* 히트박스 — 우/하/모서리 (이미지와 동일). 터치에선 얇은 핸들 숨김 */}
                 <div data-cursor="resizeH" onPointerDown={onPointerDown("right")} data-no-drag style={{ position: "absolute", right: -5, top: 0, bottom: 0, width: 10, cursor: "ew-resize", zIndex: 5 }} />
                 <div data-cursor="resizeV" onPointerDown={onPointerDown("bottom")} data-no-drag style={{ position: "absolute", bottom: -5, left: 0, right: 0, height: 10, cursor: "ns-resize", zIndex: 5 }} />
                 <div data-cursor="resizeDiag" onPointerDown={onPointerDown("corner")} data-no-drag style={{ position: "absolute", right: -7, bottom: -7, width: 14, height: 14, cursor: "nwse-resize", zIndex: 6 }} />
@@ -2583,7 +2586,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
-              {iframeActive && (
+              {iframeActive && !isTouch && (
                 <div onPointerDown={onIframeResizeDown} data-no-drag style={{ position: "absolute", right: -5, bottom: -5, width: 10, height: 10, background: "var(--color-accent, #3b82f6)", borderRadius: 3, zIndex: 2 }} />
               )}
             </>
