@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.45.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.44.0...v1.45.0) (2026-08-07)
+
+
+### Features
+
+* **editor/admin:** 발행글 '글 보기' 버튼 + 히스토리 작성자 이름 + posts # 표시 정리 ([ddb2e67](https://github.com/hyeoniverse/web-portfolio-oval/commit/ddb2e679b570290637afeec46ec84cfcee51a3d7))
+
+
+### Bug Fixes
+
+* **editor:** [#549](https://github.com/hyeoniverse/web-portfolio-oval/issues/549) 가 추가한 plate any 타이핑 — type-coverage lock(97.78) 복원 ([b26404e](https://github.com/hyeoniverse/web-portfolio-oval/commit/b26404e75dc7c7b42780ebf571d8e024e619f438))
+* **preview:** 세션 미리보기에서도 발행글이면 '글 보기' href 세팅 ([6ebb926](https://github.com/hyeoniverse/web-portfolio-oval/commit/6ebb926a432877940ba38fd4d271021072dc4130))
+
 ## [1.44.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.43.0...v1.44.0) (2026-08-06)
 
 
