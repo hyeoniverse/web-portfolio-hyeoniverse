@@ -1326,20 +1326,11 @@
   z-index: var(--z-dropdown);
 }
 
-/* trigger */
+/* trigger — 높이/화살표는 공통 Select(size="sm") 그대로 사용. 폰트명 표시용 width·색만 지정. */
 .fontPickerSelect button {
-  height: 24px;
-  min-height: 24px;
-  padding: 0 var(--spacing-xs) 0 var(--spacing-sm);
-  font-size: var(--font-size-2xs);
+  padding: 0 var(--spacing-sm) 0 var(--spacing-md);
   color: var(--text-secondary);
   width: 120px;
-}
-
-.fontPickerSelect button svg {
-  width: 8px;
-  height: 8px;
-  stroke-width: 1.5;
 }
 
 .toolbar .fontPickerSelect button:hover {
@@ -3159,6 +3150,12 @@
 .blockDraggable:hover > .blockDragGutter {
   opacity: 1;
 }
+/* 터치: hover 없음 → 거터 항상 노출. 거터 자체는 pointer-events:none 유지, 버튼(+ · ⋮)만 활성. */
+@media (pointer: coarse) {
+  .blockDraggable > .blockDragGutter {
+    opacity: 1;
+  }
+}
 
 /* ── 표 행/열/전체 선택 핸들 — 블록 핸들처럼 grip 아이콘 버튼. 각 행 왼쪽·열 위·좌상단 코너 가장자리 중앙.
    표 hover 시 노출, hover 시 accent. ── */
@@ -3222,6 +3219,17 @@
   color: var(--color-accent);
   background: var(--bg-accent-light);
   border-color: var(--color-accent);
+}
+/* 터치: hover/mousemove 없음 → 행·열 선택 핸들 항상 노출 + 탭 가능. 셀 리사이즈 핸들은 손가락 부적합 → 숨김. */
+@media (pointer: coarse) {
+  .tblRowSelect,
+  .tblColSelect {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .tblCellResize {
+    display: none;
+  }
 }
 
 /* 행/전체 선택 rail — 스크롤 컨테이너 바깥(wrapper) 에 고정. 가로 스크롤과 무관하게 좌측 유지. */
@@ -4421,6 +4429,13 @@
 
 [data-col-group]:hover .colResizeBar {
   opacity: 1;
+}
+
+/* 터치: 얇은 폭 조절 드래그 바는 손가락으로 못 잡음 → 숨김(콘텐츠는 기존 폭 유지). */
+@media (pointer: coarse) {
+  .colResizeBar {
+    display: none;
+  }
 }
 
 /* ── Footnote ── */
