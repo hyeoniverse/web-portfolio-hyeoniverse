@@ -77,6 +77,8 @@ export interface AdminEditorShellProps {
   deleteTargetName?: string;
   onSaveDraft: () => void;
   onPublish: () => void;
+  /** 별도 '발행' 버튼 숨김 — 미발행 글에서 저장 버튼(+발행 여부 모달)으로 발행을 일원화할 때 true */
+  hidePublish?: boolean;
   onPreview?: () => void;
   /** 발행된 글의 공개 URL — 있으면 액션 바에 "글 보기"(새창) 버튼 노출. published+slug 일 때만 전달. */
   viewHref?: string;

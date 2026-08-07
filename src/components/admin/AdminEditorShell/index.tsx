@@ -34,6 +34,7 @@ export default function AdminEditorShell({
   deleteTargetName,
   onSaveDraft,
   onPublish,
+  hidePublish = false,
   onPreview,
   viewHref,
   status,
@@ -128,7 +129,8 @@ export default function AdminEditorShell({
       >
         {saving ? labels.saving : labels.saveDraft}
       </Button>
-      {canSchedule ? (
+      {/* 미발행 글은 별도 발행 버튼 숨김 — 저장 버튼(+발행 여부 모달)으로 발행 일원화 (hidePublish) */}
+      {!hidePublish && (canSchedule ? (
         <div className={`${styles.splitPublish}${hasSchedule ? ` ${styles.splitPublishScheduled}` : ""}`}>
           <Button
             variant="primary"
@@ -176,7 +178,7 @@ export default function AdminEditorShell({
         >
           {published ? labels.update : labels.publish}
         </Button>
-      )}
+      ))}
     </>
   );
   const { setInfinite, lenis } = useLenis();
@@ -517,28 +519,6 @@ export default function AdminEditorShell({
           <BackLink href={backHref} label={backLabel} />
           {topBarFirstRowExtra}
           <LanguageToggle lang={editorLang} onLangChange={onEditorLangChange} />
-          {/* 발행 상태 표시 chip — dot 색으로 구분(발행=success / 예약=warning / 미발행=muted) */}
-          <Chip
-            variant="capsule"
-            className={styles.statusChip}
-            leftIcon={
-              <span
-                className={`${styles.statusDot} ${
-                  published
-                    ? styles.statusDotPublished
-                    : hasSchedule
-                      ? styles.statusDotScheduled
-                      : styles.statusDotDraft
-                }`}
-              />
-            }
-          >
-            {published
-              ? editorLang === "ko" ? "발행됨" : "Published"
-              : hasSchedule
-                ? editorLang === "ko" ? "예약 발행" : "Scheduled"
-                : editorLang === "ko" ? "미발행" : "Draft"}
-          </Chip>
         </div>
 
         {/* ── 오른쪽: 상태 banner + icon action group (retranslate / summary / revert / revisions / delete) ── */}
@@ -1060,7 +1040,31 @@ export default function AdminEditorShell({
 
         {/* ── 둘째 줄: 저장 그룹 ── */}
         <div className={styles.topBarRow}>
-          {topBarSecondRowLeft && <div style={{ marginRight: "auto", display: "flex", alignItems: "flex-end" }}>{topBarSecondRowLeft}</div>}
+          {/* 발행 상태 chip — 둘째 줄 왼쪽 끝 (저장 그룹은 오른쪽) */}
+          <div style={{ marginRight: "auto", display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+            <Chip
+              variant="capsule"
+              className={styles.statusChip}
+              leftIcon={
+                <span
+                  className={`${styles.statusDot} ${
+                    published
+                      ? styles.statusDotPublished
+                      : hasSchedule
+                        ? styles.statusDotScheduled
+                        : styles.statusDotDraft
+                  }`}
+                />
+              }
+            >
+              {published
+                ? editorLang === "ko" ? "발행됨" : "Published"
+                : hasSchedule
+                  ? editorLang === "ko" ? "예약 발행" : "Scheduled"
+                  : editorLang === "ko" ? "미발행" : "Draft"}
+            </Chip>
+            {topBarSecondRowLeft}
+          </div>
           <div className={styles.saveGroup}>
             {renderSaveGroup(showScheduleTop, setShowScheduleTop)}
           </div>
