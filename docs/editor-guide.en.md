@@ -73,9 +73,29 @@ There are two editors in this project, and the supported syntax differs slightly
 
 **Rich blocks** (slash menu / toolbar): poll, calendar, diagram · mermaid, tabs, toggle, math (KaTeX), code playground (Sandpack), image, column, custom emoji.
 
-**Color** — pick text/background color with the toolbar color picker (recent colors remembered). In comments, choosing a color inserts it as a `` `#hex` `` inline code, rendered with a color swatch.
+**Color** — set text (A) / background (BG) color with the toolbar color picker (recent colors remembered).
+
+**Color chip** — picking a color from the toolbar palette button inserts that value as a `` `#hex` `` inline code, with a color dot (swatch) prepended so it reads as a "chip". It renders as the same chip in the reader, published post, and comments — and **in the editor's editing view** too. Comments insert colors the same way.
 
 **Post link (comment)** — the post-link button in the comment toolbar searches other posts and inserts a `[title](/posts/slug)` relative link (opens in a new tab).
+
+---
+
+## Main toolbar layout
+
+Buttons are grouped **by scope of effect** and separated with vertical dividers.
+
+| Group | Contents |
+|---|---|
+| History | Undo · redo · clear formatting |
+| Character formatting | Bold · italic · underline · strike · inline code · kbd · super/subscript · highlight · color (A text · BG background · color chip) |
+| Typography | Font · size · line height · letter spacing |
+| Paragraph | Alignment · indent |
+| Headings | H1 – H3 |
+| Lists · blocks | Bullet · ordered · checklist · quote · code block |
+| Insert | Media · structure · misc (emoji included) — three clusters |
+
+**Direct-input Selects** — font size, line height, and letter spacing accept values outside the presets. **Double-click** the trigger to switch to input mode, type a value, and confirm with `Enter` (an empty Select starts in input mode). The font Select is a searchable dropdown, so you type the name in the top input as soon as it opens. A current value that doesn't match a preset (e.g. a heading's line height 1.25) is shown at the top of the list as-is.
 
 ---
 

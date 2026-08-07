@@ -300,6 +300,16 @@ PlateEditor 에서 **블록 선택 시 뜨는 플로팅 툴바**. 다른 블록�
 
 ---
 
+### 발행 상태 Chip · 발행 모달 (에디터)
+
+에디터 상단 좌측(언어 토글 옆)에 현재 **발행 상태**를 공용 `Chip`(`variant="capsule"`) 으로 표시한다. dot 색으로 구분 — 발행됨(success) / 예약 발행(warning) / 미발행(muted).
+
+미발행 글은 별도 발행 버튼 대신 **저장 버튼 하나로 발행을 일원화**한다. 미발행 상태에서 저장을 누르면 `ModalConfirm` "지금 발행할까요?" 모달이 한 번 확인하고, `발행하기`(`onConfirm`) / `임시저장`(`onCancel`) 중 고른다. 이미 발행된 글은 모달 없이 바로 저장한다.
+
+**경로**: `src/components/admin/AdminEditorShell/index.tsx` (chip) · `src/components/posts/PostEditor.tsx` (발행 모달)
+
+---
+
 ### EditorTextInput
 
 에디터 내부 폼 입력용 **IME-safe 공용 프리미티브**. `contentEditable=false` + commit-on-blur 로 한글 조합 깨짐을 막는다. (이미지 caption · poll · tab 입력에서 공유)
@@ -450,7 +460,9 @@ export const usePortalContainer = () => useContext(PortalContainerContext);
 | `NumberInput` | `gauge` | 기본 `false`. `min`·`max` 가 둘 다 있을 때만 동작, 값 위치를 숫자 색(낮음/중간/높음)으로 표시 (바는 그리지 않음) |
 | `Textarea` | `tabIndent` | opt-in. Tab 으로 2칸 공백 들여쓰기 — `execCommand("insertText")` 로 native undo 스택 보존, IME 조합 중 skip, Shift+Tab 은 native 포커스 이동 유지. **`maxHint` 가 설정된 EditableTextarea 모드에서만** 동작 |
 | `Select` | (viewport clamp) | 선택 항목 중앙을 트리거 중앙에 맞춘 뒤 여백 8px 로 뷰포트 안에 clamp, 자연 높이가 가용 높이를 넘을 때만 `max-height` 부여. 외부 스크롤 시 재배치가 아니라 **닫음** |
+| `Select` | `editable` + `editableInputProps` | 프리셋 밖 값을 **직접 입력**. 트리거를 더블클릭하면(250ms 안 두 번 클릭) input 으로 바뀌어 타이핑 후 `Enter`/blur 로 commit, `Escape` 로 취소. `editableInputProps.sanitize` 로 commit 직전 정규화(예: 숫자만), `maxLength`/`placeholder` 지정. `value` 가 비어 있으면 mount 시 입력 모드부터 시작. 에디터 툴바의 글꼴 크기·줄간격·자간이 사용하며, 프리셋에 없는 현재 값은 목록 맨 위 옵션으로 노출한다. (드롭다운 상단 입력행이 필요한 검색형은 별도 `combobox` 모드) |
 | `ModalConfirm` | `children` | 선택. `desc` 뒤에 렌더. 확인 전에 **무엇이 바뀌는지 목록으로** 보여줄 때 — About ERD 가져오기가 삭제/덮어쓰기 대상을 이름과 전/후 값으로 나열하는 데 쓴다 |
+| `ModalConfirm` | `onCancel` | 선택(하위호환). **취소 버튼에 동작**을 부여 — 미지정이면 단순 close. X/esc/backdrop 은 항상 단순 close 로 유지. 에디터의 "발행 여부" 모달이 취소 버튼을 '임시저장' 으로 쓴다 |
 | `TagNotesEditor` | `renderEditPopover` | 선택 `(item, close) => ReactNode`. 제공 시 각 chip 의 편집 트리거를 공용 `Popover` 로 감싸 편집 UI 를 chip 옆 팝오버로 띄운다(열림은 `activeItem` 로 제어). 하위호환 — 미제공 시 기존 인라인 drawer 동작. 설정 > Content 의 태그·카테고리·작품 카테고리 에디터가 하단 고정 편집 박스 대신 이 팝오버 편집을 쓴다 |
 
 ---

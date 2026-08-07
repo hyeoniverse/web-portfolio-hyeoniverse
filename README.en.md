@@ -74,7 +74,7 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 | **Interaction** | Infinite scroll loop, mouse parallax, StaggerText, Three.js 3D coffee cup + latte art, directional scroll cascade |
 | **Works** | 6 layouts (Flow · Fullscreen · Cinematic · Grid · Split · Cylinder) |
 | **Blog** | SSR + ISR, series, banner slider, 6 list layouts, guest comments (markdown + emoji reactions) or switch to giscus |
-| **Admin** | Plate.js editor (calendar · diagram · code playground blocks), `.md` sync + export, AI translation/summary, revision history, optimistic concurrency control, GitHub OAuth login + member management (email invites · owner/editor/author roles) |
+| **Admin** | Plate.js editor (calendar · diagram · code playground blocks, scope-grouped toolbar, color-chip insertion, direct-input font size/line height/letter spacing), `.md` sync + export, AI translation/summary, revision history, optimistic concurrency control, publish-status chip + unified publishing, GitHub OAuth login + member management (email invites · owner/editor/author roles) |
 | **Performance** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic counters + AbortController + bulk Promise.all |
 | **Security** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin check (production fail-closed), middleware admin multi-layer gate, 5-fails lockout + new-device email approval + sign-out all devices, role-based access control (app_metadata) + OAuth callback authorization gate + cross-tab logout |
 | **Design System** | 4-tier tokens (Raw → Semantic → Component → Context) + live preview, **all color tokens migrated to OKLCH** (precise culori conversion, perceptually uniform brightness across hues) |
