@@ -146,10 +146,10 @@
   color: var(--text-primary);
 }
 
-/* 목록에 없는 폰트 안내 — 검색창 바로 아래 */
+/* 목록에 없는 폰트 안내 — 검색창 바로 아래 (검색창과 살짝 띄움) */
 .searchHint {
   margin: 0;
-  padding: 0 var(--spacing-sm) var(--spacing-2xs);
+  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-2xs);
   color: var(--text-tertiary);
   font-size: var(--font-size-2xs);
   line-height: 1.4;
