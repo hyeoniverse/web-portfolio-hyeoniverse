@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.48.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.47.0...v1.48.0) (2026-08-07)
+
+
+### Features
+
+* **editor:** 에디터 모바일 터치 대응 ([f05d1be](https://github.com/hyeoniverse/web-portfolio-oval/commit/f05d1be61550d60a67d6cd297039a9d898279cb7))
+
+
+### Bug Fixes
+
+* **editor:** 툴바 Select '직접 입력' 항목 + 폰트 hint 여백 ([c73722a](https://github.com/hyeoniverse/web-portfolio-oval/commit/c73722a8fd297c98c6ca2caf9921486fae50e0d9))
+
 ## [1.47.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.46.0...v1.47.0) (2026-08-07)
 
 
