@@ -985,7 +985,6 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     if (!slugManual && form.title) {
       setForm((prev) => ({ ...prev, slug: generateSlug(prev.title) }));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.title, slugManual]);
 
   const initialFormRef = useRef(form);

@@ -147,7 +147,6 @@ async function main() {
 
   for (const work of works) {
     const dbRow = dbMap.get(work.title);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { filePath, mtime, ...workData } = work;
 
     if (!dbRow) {
