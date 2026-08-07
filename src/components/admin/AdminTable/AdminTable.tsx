@@ -141,8 +141,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
   const hasNumCol = onReorder || showRowNumbers;
   // 체크박스 열은 내용(체크박스)에 맞춰 — 고정 28px 대신 max-content.
-  // 번호 열은 최소 28px(1~4자리) 이되 번호가 커지면(5자리↑) 내용만큼 넓어져 잘리지 않게 minmax.
-  const effectiveGrid = `max-content ${hasNumCol ? "minmax(28px, max-content) " : ""}${gridTemplate}`;
+  // 번호 열은 고정 2.5rem(40px) — 숫자 자릿수와 무관하게 # 열 너비 일정(1~4자리 한 줄 수용).
+  const effectiveGrid = `max-content ${hasNumCol ? "2.5rem " : ""}${gridTemplate}`;
 
   /* ── Selection ── */
   const allSelected = items.length > 0 && items.every((item) => selected.has(item.id));
