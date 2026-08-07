@@ -336,7 +336,7 @@ export default React.memo(function TableToolbar({
   const fitTableToWidth = useCallback(() => {
     if (!currentTableInfo) return;
     const path = currentTableInfo.path;
-    const node = currentTableInfo.node as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const node = currentTableInfo.node as any;
     const dom = editor.api.toDOMNode(currentTableInfo.node) as HTMLElement | null;
     const scroll = dom?.closest("[data-tbl-scroll]") as HTMLElement | null;
     const containerWidth = scroll?.clientWidth ?? dom?.parentElement?.clientWidth ?? 600;
