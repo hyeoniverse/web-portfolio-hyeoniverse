@@ -144,9 +144,9 @@
 
 .emojiAnchor {
   position: relative;
-  /* EmojiPicker 팝업이 sticky topBar(z) 위로 뜨도록 — 커버는 stacking context 가 없어
-     여기서 z-index 를 주면 picker 가 topBar 위 레이어로 올라감 */
-  z-index: var(--z-dropdown);
+  /* picker 는 sticky topBar 위엔 뜨되(emojiAnchor 가 DOM 상 topBar 뒤라 동일 z 에서 위에 그려짐)
+     전역 nav(로고·네비게이션)는 덮지 않게 nav 바로 아래 레이어(nav-1 = topBar 와 동일). */
+  z-index: calc(var(--z-nav) - 1);
 }
 
 .emojiBtn {
