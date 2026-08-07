@@ -100,6 +100,21 @@
   gap: var(--spacing-sm);
 }
 
+/* 발행 상태 chip — 표시 전용(비인터랙티브), 좌측 dot 색으로 상태 구분 */
+.statusChip {
+  flex-shrink: 0;
+}
+.statusDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-circle);
+  background: var(--text-tertiary);
+}
+.statusDotPublished { background: var(--bg-success-solid); }
+.statusDotScheduled { background: var(--bg-warning-solid); }
+.statusDotDraft { background: var(--text-tertiary); }
+
 /* save 묶음 — Preview / SaveDraft / Publish 한 group, no wrap (작은 화면에서도 한 줄 유지) */
 .saveGroup {
   display: inline-flex;

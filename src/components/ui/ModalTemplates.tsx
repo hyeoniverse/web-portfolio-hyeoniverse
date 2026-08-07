@@ -56,6 +56,8 @@ interface ModalConfirmProps {
   cancelText?: string;
   danger?: boolean;
   onConfirm: () => void;
+  /** 취소 버튼에 동작 부여 — 미지정 시 단순 close. (X/esc/backdrop 은 항상 단순 close) */
+  onCancel?: () => void;
   /** desc 아래에 덧붙일 상세 — 무엇이 바뀌는지 목록으로 보여줄 때 (선택) */
   children?: ReactNode;
 }
@@ -66,6 +68,7 @@ export function ModalConfirm({
   cancelText,
   danger = false,
   onConfirm,
+  onCancel,
   children,
 }: ModalConfirmProps) {
   const { closeModal } = useModalStore();
@@ -79,7 +82,7 @@ export function ModalConfirm({
       {children}
       {footerEl && createPortal(
         <>
-          <Button variant="outline" size="sm" soundDisabled onClick={() => closeModal()}>
+          <Button variant="outline" size="sm" soundDisabled onClick={() => { closeModal(); onCancel?.(); }}>
             {cancel}
           </Button>
           <Button
