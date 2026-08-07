@@ -331,27 +331,6 @@
   text-align: center;
 }
 
-/* editable 드롭다운 상단 직접 입력 행 — 프리셋 외 값 타이핑용 */
-.editRow {
-  padding: var(--box-xs);
-  border-bottom: var(--border-default);
-}
-.editInput {
-  width: 100%;
-  height: var(--control-h-sm);
-  padding: 0 var(--spacing-sm);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font: inherit;
-  font-size: var(--font-size-sm);
-  outline: none;
-}
-.editInput:focus {
-  border-color: var(--text-accent);
-}
-
 /* option group — 헤더 + 옵션들 묶음 */
 .optionGroup {
   display: flex;

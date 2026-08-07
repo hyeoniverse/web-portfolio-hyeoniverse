@@ -377,27 +377,21 @@ export default function Select({
               : renderOptionBtn(opt, i)
           ));
 
-  // editable: 드롭다운 상단에 직접 입력 행 — 트리거 더블클릭 외에, 드롭다운을 열어 바로 값을 타이핑해 적용.
+  // editable: 프리셋 목록 맨 위에 "직접 입력" 항목 (다른 옵션과 동일 스타일) —
+  // 클릭하면 트리거가 입력 모드로 바뀌어 프리셋 밖 값을 타이핑. (트리거 더블클릭으로도 동일.)
   const dropdownContent = editable && !hasChildren ? (
     <>
-      <div className={styles.editRow}>
-        <input
-          type="text"
-          className={styles.editInput}
-          defaultValue={value}
-          placeholder={editableInputProps?.placeholder ?? placeholder}
-          maxLength={editableInputProps?.maxLength}
-          onMouseDown={(e) => e.stopPropagation()}
-          onKeyDown={(e) => {
-            if (e.key !== "Enter") return;
-            e.preventDefault();
-            const raw = e.currentTarget.value;
-            const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
-            onChange(v);
-            setOpen(false);
-          }}
-        />
-      </div>
+      <button
+        type="button"
+        className={styles.option}
+        onMouseDown={preserveFocus ? (e) => e.preventDefault() : undefined}
+        onClick={() => { setOpen(false); setEditing(true); }}
+      >
+        {showCheck && (<span className={styles.check} style={{ visibility: "hidden" }}>{"✓"}</span>)}
+        <span className={styles.optionContent}>
+          <span className={styles.optionLabel}>직접 입력</span>
+        </span>
+      </button>
       {optionsContent}
     </>
   ) : optionsContent;
