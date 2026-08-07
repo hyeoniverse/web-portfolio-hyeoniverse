@@ -784,6 +784,18 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
                   </div>
                 </>
               )}
+              {/* 이동 — 최상위 블록: 위/아래 순서 이동 (터치=HTML5 드래그 재정렬 대체). 첫/마지막 블록은 해당 방향 숨김 */}
+              {!inColumn && cp?.length === 1 && (moveInfo.up || moveInfo.down) && (
+                <>
+                  <MenuDivider />
+                  {moveInfo.up && (
+                    <MenuItem icon={<ArrowUp size={15} />} label={L("위로 이동", "Move up")} onClick={() => moveBlock("up", close)} />
+                  )}
+                  {moveInfo.down && (
+                    <MenuItem icon={<ArrowDown size={15} />} label={L("아래로 이동", "Move down")} onClick={() => moveBlock("down", close)} />
+                  )}
+                </>
+              )}
               {/* 색상 — 텍스트 계열 블록만 (글자색 + 글자 배경색/형광펜) */}
               {isTextLike && (
                 <>
