@@ -233,12 +233,21 @@ export async function POST(request: Request) {
 
   const body: PostFormData = await request.json();
 
-  // slug 자동 생성
+  // 초안(draft)은 제목·슬러그 같은 필수값이 없어도 저장되도록 임의 기본값을 채운다.
+  const isDraft = body.published === false;
+  const titleWasEmpty = !(body.title ?? "").trim();
+  if (isDraft && titleWasEmpty) body.title = "제목 없음";
+
+  // slug 자동 생성 (제목 기반)
   if (!body.slug) {
-    body.slug = body.title
+    body.slug = (body.title ?? "")
       .toLowerCase()
       .replace(/[^a-z0-9가-힣]+/g, "-")
       .replace(/^-|-$/g, "");
+  }
+  // 무제목 초안(제목을 기본값으로 채웠거나 slug 가 비면) — 여러 초안이 slug 충돌하지 않도록 유니크 placeholder
+  if (isDraft && (titleWasEmpty || !body.slug)) {
+    body.slug = `untitled-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
   }
 
   // 카테고리 직접 입력 시 자동 등록 (기존 목록에 없으면)
