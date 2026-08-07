@@ -349,7 +349,7 @@ export default function Select({
   // 그룹이 있는 옵션은 group 별로 묶어서 헤더와 함께. 없는 옵션은 그냥 flat.
   const hasGroups = filteredOptions.some((o) => o.group);
   const isEmpty = !hasChildren && filteredOptions.length === 0;
-  const dropdownContent = hasChildren
+  const optionsContent = hasChildren
     ? (typeof children === "function" ? children({ close }) : children)
     : isEmpty
       ? <div className={styles.optionEmpty}>{inputValue.trim() ? `“${inputValue.trim()}” — 프리셋에 없음` : "옵션 없음"}</div>
@@ -376,6 +376,31 @@ export default function Select({
               ? <Fragment key={opt.value}><div className={styles.optionDivider} aria-hidden />{renderOptionBtn(opt, i)}</Fragment>
               : renderOptionBtn(opt, i)
           ));
+
+  // editable: 드롭다운 상단에 직접 입력 행 — 트리거 더블클릭 외에, 드롭다운을 열어 바로 값을 타이핑해 적용.
+  const dropdownContent = editable && !hasChildren ? (
+    <>
+      <div className={styles.editRow}>
+        <input
+          type="text"
+          className={styles.editInput}
+          defaultValue={value}
+          placeholder={editableInputProps?.placeholder ?? placeholder}
+          maxLength={editableInputProps?.maxLength}
+          onMouseDown={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+            const raw = e.currentTarget.value;
+            const v = editableInputProps?.sanitize ? editableInputProps.sanitize(raw) : raw;
+            onChange(v);
+            setOpen(false);
+          }}
+        />
+      </div>
+      {optionsContent}
+    </>
+  ) : optionsContent;
 
   // dropdown 은 trigger 의 width 를 minWidth 로 보장. content 가 더 wide 면 자연 grow.
   // 단 width="full" 일 땐 trigger 가 부모 column 폭에 맞춰져 있으므로 dropdown 도 그 폭을 cap (max-width) 으로 두고

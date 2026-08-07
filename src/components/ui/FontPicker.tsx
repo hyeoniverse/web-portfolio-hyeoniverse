@@ -30,6 +30,8 @@ interface FontPickerProps {
   dropAlign?: "active" | "below";
   triggerClassName?: string;
   dropdownClassName?: string;
+  /** Select trigger 높이 — 툴바 등에서 다른 Select 와 높이 통일 시 "sm" (기본 default) */
+  size?: "default" | "sm";
   /** value 가 그룹 내 entry.value 와 일치하는지 정규화 (예: CSS quote 차이 보정).
    *  반환값은 entries 중 하나의 value (또는 안 맞으면 원본 value). */
   resolveMatch?: (value: string, entries: FontEntry[]) => string;
@@ -57,7 +59,7 @@ export default function FontPicker({
   value, onChange, groups,
   preferEn, enableGoogleSearch = true, dropAlign,
   renderValue, fallbackLabel,
-  triggerClassName, dropdownClassName,
+  triggerClassName, dropdownClassName, size,
   resolveMatch,
   toGoogleValue,
 }: FontPickerProps) {
@@ -192,6 +194,7 @@ export default function FontPicker({
         </span>
       ))}
       dropAlign={dropAlign}
+      size={size}
       className={triggerClassName}
       dropdownClassName={dropdownClassName}
     >

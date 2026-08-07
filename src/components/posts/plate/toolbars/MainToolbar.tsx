@@ -94,6 +94,7 @@ function EditorFontPicker({ value, onChange, preferEn }: { value: string; onChan
       onChange={onChange}
       groups={groups}
       preferEn={preferEn}
+      size="sm"
       triggerClassName={styles.fontPickerSelect}
       dropdownClassName={styles.fontPickerDropdown}
       renderValue={renderValue}
@@ -368,16 +369,25 @@ export default React.memo(function MainToolbar({
       {/* Letter spacing */}
       <Select
         value={currentLetterSpacing || "0em"}
-        options={LETTER_SPACING_PRESETS.map((v) => ({ value: v, label: v }))}
+        options={[
+          ...(currentLetterSpacing && !LETTER_SPACING_PRESETS.includes(currentLetterSpacing)
+            ? [{ value: currentLetterSpacing, label: currentLetterSpacing }]
+            : []),
+          ...LETTER_SPACING_PRESETS.map((v) => ({ value: v, label: v })),
+        ]}
         onChange={(val) => {
-          if (!val || val === "0em") editor.tf.removeMarks(["letterSpacing"]);
-          else editor.tf.addMarks({ letterSpacing: val });
+          const v = (val ?? "").trim();
+          // 직접 입력은 숫자만 들어오므로 단위 없으면 em 을 붙임. 프리셋 선택은 이미 "0.05em" 형태.
+          if (!v || v === "0" || v === "0em") editor.tf.removeMarks(["letterSpacing"]);
+          else editor.tf.addMarks({ letterSpacing: /[a-z%]$/i.test(v) ? v : `${v}em` });
           setTimeout(() => editor.tf.focus(), 0);
         }}
         size="sm"
         width="max"
         preserveFocus
         placeholder={t("editor.letterSpacing")}
+        editable
+        editableInputProps={{ maxLength: 6, placeholder: "0em", sanitize: (raw) => raw.replace(/[^0-9.-]/g, "") }}
       />
       <div className={styles.divider} />
 
