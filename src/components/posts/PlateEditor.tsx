@@ -9,6 +9,7 @@ import {
   PlateContent,
   usePlateEditor,
 } from "platejs/react";
+import type { PlateEditor } from "platejs/react";
 import { ReactEditor, defaultScrollSelectionIntoView } from "slate-react";
 import { insertMediaEmbed } from "@platejs/media";
 import { upsertLink, unwrapLink } from "@platejs/link";
@@ -288,8 +289,7 @@ function ColumnWidthControls({ colChildren, colCount, activePath, editor, langua
 
 // 다중 블록 선택 시 — 텍스트 하이라이트 대신 블록 전체에 배경 표시.
 // selection 이 두 개 이상의 top-level 블록에 걸치면 해당 블록 DOM 에 data-block-selected 부여.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function MultiBlockHighlight({ editor }: { editor: any }) {
+function MultiBlockHighlight({ editor }: { editor: PlateEditor }) {
   useEffect(() => {
     const root = document.querySelector('[data-slate-editor="true"]') as HTMLElement | null;
     if (!root) return;
@@ -369,7 +369,7 @@ function MultiBlockHighlight({ editor }: { editor: any }) {
           const s = editor.selection;
           if (s && !editor.api.isCollapsed()) {
             const topPath = [s.anchor.path[0]];
-            const [pStart, pEnd] = editor.api.edges(s);
+            const [pStart, pEnd] = editor.api.edges(s)!;
             coversFull = !!editor.api.isStart(pStart, topPath) && !!editor.api.isEnd(pEnd, topPath);
           }
         } catch { /* noop */ }
