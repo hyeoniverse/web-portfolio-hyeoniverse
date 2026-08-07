@@ -13,7 +13,9 @@
   /* 내부 스크롤이 끝에 닿아도 페이지(Lenis)로 체이닝 안 되게 */
   overscroll-behavior: contain;
 }
-.fixed { position: fixed; z-index: var(--z-modal); }
+/* 전역 nav(로고·네비게이션) 바로 아래 — 피커는 모달이 아니라 nav 아래에 깔려야 함(에디터 topBar 와 같은 원칙).
+   콘텐츠·에디터 위에는 뜨되 nav 는 덮지 않게 nav-1. */
+.fixed { position: fixed; z-index: calc(var(--z-nav) - 1); }
 .absolute { position: absolute; top: -4px; left: 40px; z-index: 10; }
 
 /* ── 탭 헤더 ── */
