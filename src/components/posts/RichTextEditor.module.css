@@ -3120,22 +3120,19 @@
 }
 /* 기본색(색 제거) 스와치 — 빈 배경 + 빨간 대각선("색 없음" 표준 표시) */
 .blockToolsSwatchNone {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-strong-color);
-  position: relative;
-  overflow: hidden;
+  /* '없음' = 금지선(빨간 슬래시) 대신 투명 체커 스와치 (.checkerBg 와 동일 격자, ColorMenu 와 통일) */
+  background-color: var(--bg-primary);
+  background-image:
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
+    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
+  background-size: 6px 6px;
+  background-position: 0 0, 3px 3px;
+  border: 1px solid var(--border-light-color);
 }
-.blockToolsSwatchNone::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top right,
-    transparent calc(50% - 0.8px),
-    var(--color-red-500, #ef4444) calc(50% - 0.8px),
-    var(--color-red-500, #ef4444) calc(50% + 0.8px),
-    transparent calc(50% + 0.8px)
-  );
+/* 글자색 '기본' — 투명이 아니라 기본 텍스트색이므로 체커 대신 기본색(--text-primary) 스와치로 구분 */
+.blockToolsSwatchDefault {
+  background: var(--text-primary);
+  border: 1px solid var(--border-light-color);
 }
 .blockToolsDanger {
   color: var(--color-danger, #ef4444);

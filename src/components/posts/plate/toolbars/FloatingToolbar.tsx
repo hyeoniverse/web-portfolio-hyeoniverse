@@ -14,6 +14,8 @@ import { toggleCodeBlock } from "@platejs/code-block";
 import { insertInlineEquation } from "@platejs/math";
 import { useLanguage } from "@/providers/LanguageProvider";
 import Popover, { MenuItem } from "@/components/ui/Popover";
+import Select from "@/components/ui/Select";
+import ColorPicker from "@/components/ui/ColorPicker";
 import { useBlockInfo } from "../hooks";
 import TBtn from "../TBtn";
 import FloatingBar from "./FloatingBar";
@@ -71,27 +73,41 @@ function TurnIntoMenu() {
     setTimeout(() => editor.tf.focus(), 0);
   };
 
-  const currentKey = TURN_INTO.find((o) => o.value === current)?.key;
   return (
-    <Popover
-      openOnHover
-      placement="bottom-start"
-      contentClassName={styles.floatingMenu}
-      trigger={<TBtn tooltip={t("editor.turnInto")}>{currentKey ? t(`editor.${currentKey}`) : t("editor.paragraph")} ▾</TBtn>}
+    <Select
+      value={TURN_INTO.some((o) => o.value === current) ? current : "p"}
+      options={TURN_INTO.map((o) => ({
+        value: o.value,
+        label: t(`editor.${o.key}`),
+        icon: <span className={styles.menuIcon}>{o.icon}</span>,
+      }))}
+      onChange={apply}
+      size="sm"
+      width="max"
+      preserveFocus
+      dropAlign="below"
+    />
+  );
+}
+
+/** 글자색 — Palette 대신 A 버튼으로 ColorPicker 팝오버 열어 선택 텍스트에 color 마크 적용.
+   댓글 툴바처럼 선택 툴바에도 색상 도구 제공. mousedown preventDefault 로 에디터 선택 유지. */
+function ColorButton() {
+  const { t } = useLanguage();
+  const editor = useEditorRef();
+  const apply = (color: string) => editor.tf.addMarks({ color });
+  return (
+    <ColorPicker
+      value="#000000"
+      onChange={(c) => apply(c.oklch)}
+      onChangeComplete={(c) => { apply(c.oklch); setTimeout(() => editor.tf.focus(), 0); }}
     >
-      {({ close }) => (
-        <div onMouseDown={(e) => e.preventDefault()}>
-          {TURN_INTO.map((o) => (
-            <MenuItem
-              key={o.value}
-              icon={<span className={styles.menuIcon}>{o.icon}</span>}
-              label={t(`editor.${o.key}`)}
-              onClick={() => { apply(o.value); close(); }}
-            />
-          ))}
-        </div>
+      {({ toggle }) => (
+        <TBtn tooltip={t("editor.textColor")} onMouseDown={(e) => e.preventDefault()} onClick={toggle}>
+          <span style={{ fontWeight: 700 }}>A</span>
+        </TBtn>
       )}
-    </Popover>
+    </ColorPicker>
   );
 }
 
@@ -177,6 +193,7 @@ export default function FloatingToolbar({ hideToolbar }: { hideToolbar?: boolean
       <MarkButton nodeType="underline" tooltip={t("editor.underline")} style={{ textDecoration: "underline" }}>U</MarkButton>
       <MarkButton nodeType="strikethrough" tooltip={t("editor.strikethrough")} style={{ textDecoration: "line-through" }}>S</MarkButton>
       <MarkButton nodeType="code" tooltip={t("editor.inlineCode")}>{"<>"}</MarkButton>
+      <ColorButton />
       <TBtn
         tooltip={t("editor.inlineEquation")}
         onClick={() => { insertInlineEquation(editor); setTimeout(() => editor.tf.focus(), 0); }}
