@@ -11,6 +11,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import Popover, { type PopoverPlacement } from "@/components/ui/Popover";
 import Tooltip from "@/components/ui/Tooltip";
 import LanguageToggle from "@/components/ui/LanguageToggle";
+import Chip from "@/components/ui/Chip";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./AdminEditorShell.module.css";
@@ -516,6 +517,28 @@ export default function AdminEditorShell({
           <BackLink href={backHref} label={backLabel} />
           {topBarFirstRowExtra}
           <LanguageToggle lang={editorLang} onLangChange={onEditorLangChange} />
+          {/* 발행 상태 표시 chip — dot 색으로 구분(발행=success / 예약=warning / 미발행=muted) */}
+          <Chip
+            variant="capsule"
+            className={styles.statusChip}
+            leftIcon={
+              <span
+                className={`${styles.statusDot} ${
+                  published
+                    ? styles.statusDotPublished
+                    : hasSchedule
+                      ? styles.statusDotScheduled
+                      : styles.statusDotDraft
+                }`}
+              />
+            }
+          >
+            {published
+              ? editorLang === "ko" ? "발행됨" : "Published"
+              : hasSchedule
+                ? editorLang === "ko" ? "예약 발행" : "Scheduled"
+                : editorLang === "ko" ? "미발행" : "Draft"}
+          </Chip>
         </div>
 
         {/* ── 오른쪽: 상태 banner + icon action group (retranslate / summary / revert / revisions / delete) ── */}
