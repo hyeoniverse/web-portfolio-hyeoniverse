@@ -527,56 +527,49 @@ export default function PostEditor({ post }: PostEditorProps) {
   }, [post?.id]);
 
   // ── 새 글: 발행 없이 이탈해도 draft(미발행)로 저장 ──
-  // 이 탭에서 이전에 이탈저장으로 만든 draft 가 있으면 그 id 로 이어서 편집(중복 draft 생성 방지).
-  useEffect(() => {
-    if (post?.id) return;
-    try {
-      const id = window.sessionStorage.getItem(NEW_DRAFT_SESSION_KEY);
-      if (id) savedId.current = id;
-    } catch { /* ignore */ }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [post?.id]);
-
-  // 이탈 시점에 새 글을 draft 로 저장 (내용 있을 때만). keepalive=true → unload(탭닫기/새로고침),
-  // false → SPA 이동/unmount (응답 id 를 세션에 저장해 다음 저장이 갱신되도록).
-  const flushNewDraft = useCallback((keepalive: boolean) => {
+  // 새 글은 이전 이탈-draft 를 '이어받지' 않는다. '완전 이탈'(탭 닫기 / SPA 이동) 시 draft 로 저장한 뒤
+  // 새 글 autosave(localStorage · 서버 revision · 세션 id) 를 비워, 다음 '새 글'은 이전 내용을 복원하지
+  // 않고 완전히 새로 시작한다. 탭 전환(hidden)은 복귀 가능성이 있어 draft 만 남기고 autosave 는 유지.
+  const flushNewDraft = useCallback((keepalive: boolean, finalize = false) => {
     if (isEdit || finalizedRef.current) return;
     const f = formRef.current;
     const meaningful = !!(
       f.title.trim() || f.title_en.trim() ||
       stripHtml(f.content || "").trim() || stripHtml(f.content_en || "").trim()
     );
-    if (!meaningful) return; // 빈 글은 draft 안 만듦
+    if (!meaningful) return; // 빈 글은 draft 안 만들고 autosave 도 건드리지 않음
     const postBody: Record<string, unknown> = { ...f };
     delete postBody.related_work_ids; // posts 컬럼 아님 — 별도 endpoint 대상(이탈저장에선 생략)
     const body = JSON.stringify({ ...postBody, published: false });
     const headers = { "Content-Type": "application/json" };
-    if (savedId.current) {
-      fetch(`/api/posts/${savedId.current}`, { method: "PATCH", headers, body, keepalive }).catch(() => {});
+    const url = savedId.current ? `/api/posts/${savedId.current}` : "/api/posts";
+    const method = savedId.current ? "PATCH" : "POST";
+    const req = fetch(url, { method, headers, body, keepalive });
+    // '완전 이탈'(SPA 이동/unmount) 이고 draft 저장이 성공했을 때만 새 글 autosave 를 비운다 →
+    // 다음 '새 글'은 완전히 새로 시작. 저장 실패 시엔 내용을 잃지 않도록 autosave 를 남긴다.
+    if (finalize && !keepalive) {
+      req.then((r) => {
+        if (!r.ok) return;
+        try { window.localStorage.removeItem(draftKey("post", "draft-new-post")); } catch { /* ignore */ }
+        fetch(`/api/revisions?entity_type=post&entity_id=draft-new-post`, { method: "DELETE" }).catch(() => {});
+        try { window.sessionStorage.removeItem(NEW_DRAFT_SESSION_KEY); } catch { /* ignore */ }
+      }).catch(() => {});
     } else {
-      const req = fetch("/api/posts", { method: "POST", headers, body, keepalive });
-      if (!keepalive) {
-        req.then((r) => (r.ok ? r.json() : null)).then((d) => {
-          if (d?.id) {
-            savedId.current = d.id;
-            try { window.sessionStorage.setItem(NEW_DRAFT_SESSION_KEY, d.id); } catch { /* ignore */ }
-          }
-        }).catch(() => {});
-      }
+      req.catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit]);
 
   useEffect(() => {
     if (isEdit) return;
-    const onBeforeUnload = () => flushNewDraft(true);
-    const onVis = () => { if (document.hidden) flushNewDraft(true); };
+    const onBeforeUnload = () => flushNewDraft(true, true);   // 탭 닫기/새로고침 = 완전 이탈
+    const onVis = () => { if (document.hidden) flushNewDraft(true, false); }; // 탭 전환 = 복귀 가능 → 유지
     window.addEventListener("beforeunload", onBeforeUnload);
     document.addEventListener("visibilitychange", onVis);
     return () => {
       window.removeEventListener("beforeunload", onBeforeUnload);
       document.removeEventListener("visibilitychange", onVis);
-      flushNewDraft(false); // SPA 이동/unmount
+      flushNewDraft(false, true); // SPA 이동/unmount = 완전 이탈
     };
   }, [isEdit, flushNewDraft]);
 
