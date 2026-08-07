@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.47.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.46.0...v1.47.0) (2026-08-07)
+
+
+### Features
+
+* **admin:** 미발행 발행 버튼 숨김(저장+모달 일원화) + 발행 chip 위치 ([2c04913](https://github.com/hyeoniverse/web-portfolio-oval/commit/2c04913c4abdd209eb2d55c5cf8cc11b17b1aa30))
+* **editor:** 색상 칩(#hex) 을 에디터에서도 색 스와치로 표시 ([c21b41f](https://github.com/hyeoniverse/web-portfolio-oval/commit/c21b41f191d993aadca8c5849fad4aff00203a09))
+* **editor:** 툴바 Select 높이 통일 + 폰트크기·자간·행간 직접입력 ([18d767a](https://github.com/hyeoniverse/web-portfolio-oval/commit/18d767a23e02d46bbfa2d87f26ce7143c38728c6))
+
+
+### Bug Fixes
+
+* **editor:** 제목 줄간격 값을 툴바가 감지하도록 수정 ([ff6965e](https://github.com/hyeoniverse/web-portfolio-oval/commit/ff6965e34a608dfaa201834bab65e07ad6301153))
+
 ## [1.46.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.45.1...v1.46.0) (2026-08-07)
 
 
