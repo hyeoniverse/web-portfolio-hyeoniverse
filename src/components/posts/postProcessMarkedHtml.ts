@@ -1,3 +1,5 @@
+import { CALLOUT_BY_TYPE, type CalloutType } from "./plate/calloutTypes";
+
 /** HTML 엔티티 디코드 (annotation 안 LaTeX 복원용) */
 function decodeEntities(s: string): string {
   return s
@@ -75,13 +77,13 @@ export function postProcessMarkedHtml(html: string): string {
       return items.join("\n");
     }
   );
-  // ��림 블록 → callout
+  // 알림 블록 → callout (타입별 배경색·아이콘 — 라이브 자동변환과 동일 출처)
   html = html.replace(
     /<div class="markdown-alert markdown-alert-(\w+)">([\s\S]*?)<\/div>/g,
-    (_, type, inner) => {
-      const iconMap: Record<string, string> = { note: "ℹ️", tip: "💡", important: "❗", warning: "⚠️", caution: "🔴" };
+    (_, type: string, inner: string) => {
+      const def = CALLOUT_BY_TYPE[type.toLowerCase() as CalloutType] ?? CALLOUT_BY_TYPE.note;
       const body = inner.replace(/<p class="markdown-alert-title">[\s\S]*?<\/p>/, "").trim();
-      return `<div data-callout data-callout-bg="var(--bg-tertiary)" data-callout-icon="${iconMap[type] || "💡"}">${body}</div>`;
+      return `<div data-callout data-callout-bg="${def.bg}" data-callout-icon="${def.icon}">${body}</div>`;
     }
   );
   // 수식: katex 출력(span.katex-display / span.katex) → data-math-block / data-math-inline.

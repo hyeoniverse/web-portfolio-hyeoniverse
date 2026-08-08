@@ -62,8 +62,9 @@ import DateMentionMenu from "./plate/toolbars/DateMentionMenu";
 import PostLinkMenu from "./plate/toolbars/PostLinkMenu";
 import TBtn from "./plate/TBtn";
 import { TblTrash } from "./plate/icons";
-import { ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, Unlink, Columns3, AlignHorizontalSpaceAround, SlidersHorizontal, CaseSensitive, WholeWord, Regex, StretchHorizontal, Sparkles, Type, Eraser, BetweenHorizontalStart, Trash2, EmojiOffIcon } from "@/components/icons";
+import { ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, ExternalLink, Copy, Columns3, AlignHorizontalSpaceAround, SlidersHorizontal, CaseSensitive, WholeWord, Regex, StretchHorizontal, Sparkles, Type, Eraser, BetweenHorizontalStart, Trash2, EmojiOffIcon } from "@/components/icons";
 import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
+import Select from "@/components/ui/Select";
 
 // Re-export ImagePanel for backward compatibility
 export { ImagePanel } from "./plate/ImagePanel";
@@ -295,12 +296,35 @@ function MultiBlockHighlight({ editor }: { editor: PlateEditor }) {
     if (!root) return;
     const CLIP_VARS = ["--a-l", "--a-t", "--a-w", "--a-h", "--b-l", "--b-t", "--b-w", "--b-h"];
     const clearClip = (el: HTMLElement) => { el.removeAttribute("data-float-clip"); CLIP_VARS.forEach((v) => el.style.removeProperty(v)); };
+    const TBL_VARS = ["--tbl-l", "--tbl-t", "--tbl-w", "--tbl-h"];
+    const clearTbl = (el: HTMLElement) => { el.removeAttribute("data-tbl-tint"); TBL_VARS.forEach((v) => el.style.removeProperty(v)); };
     const clear = () => root.querySelectorAll("[data-block-selected]").forEach((el) => {
       el.removeAttribute("data-block-selected");
       el.removeAttribute("data-sel-merge-up");
       el.removeAttribute("data-sel-merge-down");
       clearClip(el as HTMLElement);
+      clearTbl(el as HTMLElement);
     });
+    // 표 블록 tint — 래퍼(.blockDraggable)는 스크롤 패딩·행밴드·풀폭까지 포함해 표보다 크므로,
+    // 실제 <table> rect 를 재서 tint 를 표에 딱 맞춘다(사방 --tint-inset=6px). float-clip 과 동일 패턴.
+    const applyTableTint = (block: HTMLElement) => {
+      const tbl = block.querySelector("table");
+      if (!tbl) { clearTbl(block); return false; }
+      const cr = block.getBoundingClientRect();
+      const tr = tbl.getBoundingClientRect();
+      // 가로 스크롤(넓은 표)일 때 표 좌/우가 스크롤 뷰포트 밖으로 나가면 tint 가 넘치므로 뷰포트로 클램프.
+      const scroll = block.querySelector("[data-tbl-scroll]") as HTMLElement | null;
+      const sr = scroll ? scroll.getBoundingClientRect() : null;
+      const left = sr ? Math.max(tr.left, sr.left) : tr.left;
+      const right = sr ? Math.min(tr.right, sr.right) : tr.right;
+      const INSET = 6;
+      block.style.setProperty("--tbl-l", `${left - cr.left - INSET}px`);
+      block.style.setProperty("--tbl-t", `${tr.top - cr.top - INSET}px`);
+      block.style.setProperty("--tbl-w", `${Math.max(0, right - left) + 2 * INSET}px`);
+      block.style.setProperty("--tbl-h", `${tr.height + 2 * INSET}px`);
+      block.setAttribute("data-tbl-tint", "");
+      return true;
+    };
     // 블록 래퍼의 indent(px) — 실제 여백은 안쪽 slate element 의 margin-left 에 있다(래퍼는 full-width).
     // 양수 margin(24·48…)만 indent 로 취급. 열블록 컨테이너의 marginLeft:-40(핸들 공간용 레이아웃 hack) 같은
     // 음수/0 은 indent 가 아니므로 0 으로 — 안 그러면 열블록 아래 블록이 "더 들여썼다"고 잘못 판정돼 merge 됨.
@@ -383,7 +407,10 @@ function MultiBlockHighlight({ editor }: { editor: PlateEditor }) {
       const selBlocks: HTMLElement[] = [];
       while (cur) {
         cur.setAttribute("data-block-selected", "");
-        if (floats.length) applyClip(cur, floats); else clearClip(cur);
+        // 표 블록은 실제 표 rect 로 tint 맞춤(float-clip 대신). 나머지는 기존 float-clip.
+        if (applyTableTint(cur)) clearClip(cur);
+        else if (floats.length) applyClip(cur, floats);
+        else clearClip(cur);
         selBlocks.push(cur);
         if (cur === end) break;
         cur = cur.nextElementSibling as HTMLElement | null;
@@ -402,9 +429,21 @@ function MultiBlockHighlight({ editor }: { editor: PlateEditor }) {
         }
       }
     };
+    // tint 좌표(표 rect·float-clip)는 고정 px 라, 리사이즈·스크롤·레이아웃 변경 시 재측정해야 안 어긋난다.
+    // rAF 로 프레임당 1회로 throttle. selection 없으면 apply 가 즉시 early-return 이라 유휴 비용 없음.
+    let raf = 0;
+    const schedule = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; apply(); }); };
     document.addEventListener("selectionchange", apply);
+    window.addEventListener("resize", schedule);
+    window.addEventListener("scroll", schedule, true); // capture — 에디터/표 등 어떤 스크롤 컨테이너든
+    const ro = new ResizeObserver(schedule);
+    ro.observe(root);
     return () => {
       document.removeEventListener("selectionchange", apply);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("scroll", schedule, true);
+      ro.disconnect();
+      if (raf) cancelAnimationFrame(raf);
       root.removeAttribute("data-multiblock");
       clear();
     };
@@ -3439,36 +3478,34 @@ export default function PlateEditor({
             {/* display:contents 래퍼 — 바깥 클릭 감지(data-link-toolbar) + 인풋 focus 위해 mousedown 전파 차단 */}
             <div data-link-toolbar style={{ display: "contents" }} onMouseDown={(e) => e.stopPropagation()}>
               <span className={styles.floatingBarLabel}>LINK</span>
-              {/* 프로토콜 + URL 캡슐 */}
-              <div className={styles.linkCapsule}>
-                <select
-                  className={styles.linkProtocol}
+              {/* 프로토콜 Select + URL input 을 한 pill 로 (triggerClassName 으로 Select 테두리 제거) */}
+              <div className={styles.linkPill}>
+                <Select
                   value={linkForm.protocol}
-                  onChange={(e) => {
-                    const proto = e.target.value;
-                    setLinkForm((f) => ({ ...f, protocol: proto, ...(proto === "" ? { target: "_self" } : {}) }));
-                  }}
-                >
-                  <option value="https://">https://</option>
-                  <option value="http://">http://</option>
-                  <option value="mailto:">mailto:</option>
-                  <option value="tel:">tel:</option>
-                  <option value="">/</option>
-                </select>
+                  options={[
+                    { value: "https://", label: "https://" },
+                    { value: "http://", label: "http://" },
+                    { value: "mailto:", label: "mailto:" },
+                    { value: "tel:", label: "tel:" },
+                    { value: "", label: "/" },
+                  ]}
+                  onChange={(proto) => setLinkForm((f) => ({ ...f, protocol: proto, ...(proto === "" ? { target: "_self" } : {}) }))}
+                  size="sm"
+                  width="max"
+                  triggerClassName={styles.linkPillSelect}
+                  preserveFocus
+                  dropAlign="below"
+                />
                 <input
                   ref={linkUrlRef}
                   type="text"
-                  className={styles.linkCapsuleInput}
+                  className={styles.linkPillInput}
                   placeholder={linkForm.protocol === "" ? "/posts/my-post" : linkForm.protocol.startsWith("mailto") ? "user@example.com" : linkForm.protocol.startsWith("tel") ? "010-1234-5678" : "example.com"}
                   value={linkForm.url}
                   onChange={(e) => {
                     const val = e.target.value;
-                    // URL 붙여넣기 시 프로토콜 자동 분리
                     const protoMatch = val.match(/^(https?:\/\/|mailto:|tel:)(.*)/);
-                    if (protoMatch) {
-                      setLinkForm((f) => ({ ...f, protocol: protoMatch[1], url: protoMatch[2] }));
-                      return;
-                    }
+                    if (protoMatch) { setLinkForm((f) => ({ ...f, protocol: protoMatch[1], url: protoMatch[2] })); return; }
                     setLinkForm((f) => ({ ...f, url: val }));
                   }}
                   onKeyDown={(e) => {
@@ -3477,13 +3514,13 @@ export default function PlateEditor({
                   }}
                 />
               </div>
-              {/* 표시 텍스트 그룹 */}
-              <div className={styles.tableGroup}>
-                <span className={styles.tableGroupLabel}>{t("editor.linkText")}</span>
+              {/* 표시 텍스트 pill */}
+              <div className={styles.linkTextPill}>
+                <span className={styles.linkTextLabel}>{t("editor.linkText")}</span>
                 <input
                   type="text"
-                  className={styles.linkInput}
-                  style={{ width: 100 }}
+                  className={styles.linkPillInput}
+                  style={{ maxWidth: 110 }}
                   placeholder="Text"
                   value={linkForm.text}
                   onChange={(e) => setLinkForm((f) => ({ ...f, text: e.target.value }))}
@@ -3493,39 +3530,33 @@ export default function PlateEditor({
                   }}
                 />
               </div>
-              {/* 타겟 그룹 */}
-              <div className={styles.tableGroup}>
-                <span className={styles.tableGroupLabel}>{t("editor.linkTarget")}</span>
-                <div className={styles.selectWrap}>
-                  <select
-                    className={styles.fontSelect}
-                    style={{ width: 80 }}
-                    value={linkForm.target}
-                    onChange={(e) => setLinkForm((f) => ({ ...f, target: e.target.value }))}
-                  >
-                    <option value="_blank">{t("editor.linkNewTab")}</option>
-                    <option value="_self">{t("editor.linkSameTab")}</option>
-                  </select>
-                </div>
-              </div>
-              {/* 삽입/제거/닫기 그룹 — 오른쪽 끝 */}
+              {/* 타겟 — 공통 Select */}
+              <Select
+                value={linkForm.target}
+                options={[
+                  { value: "_blank", label: t("editor.linkNewTab") },
+                  { value: "_self", label: t("editor.linkSameTab") },
+                ]}
+                onChange={(v) => setLinkForm((f) => ({ ...f, target: v }))}
+                size="sm"
+                width="max"
+                preserveFocus
+                dropAlign="below"
+              />
+              {/* 삽입 / 열기 / 복사 / 제거 / 닫기 — 전부 아이콘 통일, 적용은 accent 강조 */}
               <div className={styles.linkActions}>
-                <TBtn
-                  onClick={() => { if (linkForm.url.trim()) { doInsertLink(linkForm); closeLinkInput(); } }}
-                  tooltip={t("editor.insertLink")}
-                >✓</TBtn>
-                <TBtn
-                  square
-                  onClick={() => {
-                    restoreSelection();
-                    try { unwrapLink(editor); } catch { /* ignore */ }
-                    closeLinkInput();
-                  }}
-                  tooltip={t("editor.removeLink")}
-                >
-                  <Unlink size={12} />
+                <TBtn square className={styles.linkApplyBtn} onClick={() => { if (linkForm.url.trim()) { doInsertLink(linkForm); closeLinkInput(); } }} tooltip={t("editor.insertLink")}>
+                  <Check size={14} />
                 </TBtn>
-                <TBtn onClick={closeLinkInput} tooltip={t("common.cancel")}>×</TBtn>
+                <TBtn square disabled={!linkForm.url.trim()} onClick={() => { const href = (linkForm.protocol || "") + linkForm.url.trim(); if (href) window.open(href, "_blank", "noopener,noreferrer"); }} tooltip={t("editor.openLink")}>
+                  <ExternalLink size={13} />
+                </TBtn>
+                <TBtn square disabled={!linkForm.url.trim()} onClick={() => { const href = (linkForm.protocol || "") + linkForm.url.trim(); if (href) { try { navigator.clipboard?.writeText(href); showToast(t("editor.linkCopied"), "success"); } catch { /* ignore */ } } }} tooltip={t("editor.copyUrl")}>
+                  <Copy size={13} />
+                </TBtn>
+                <TBtn square className={styles.linkRemoveBtn} onClick={() => { restoreSelection(); try { unwrapLink(editor); } catch { /* ignore */ } closeLinkInput(); }} tooltip={t("editor.removeLink")}>
+                  <Trash2 size={13} />
+                </TBtn>
               </div>
             </div>
           </FloatingBar>

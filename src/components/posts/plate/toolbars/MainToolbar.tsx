@@ -17,6 +17,7 @@ import TBtn from "../TBtn";
 import { useRecentColors } from "../useRecentColors";
 import { MessageSquareQuote, ChevronRight, Undo2, Redo2, SquareCheck, LayoutPanelTop, Vote, Shapes, SquareCode, Workflow, CalendarDays, ListTree, FileText, ColumnLayoutIcon, FootnoteIcon, Highlighter, Smile, Palette } from "@/components/icons";
 import { genPollId } from "../PollElements";
+import { DEFAULT_CALLOUT } from "../calloutTypes";
 import { AlignIcon } from "../icons";
 import {
   FONT_GROUPS,
@@ -558,7 +559,7 @@ export default React.memo(function MainToolbar({
       <TBtn
         square
         onClick={() => {
-          const node = { type: "callout", bg: "var(--bg-tertiary)", icon: "💡", children: [{ type: "p", children: [{ text: "" }] }] };
+          const node = { type: "callout", bg: DEFAULT_CALLOUT.bg, icon: DEFAULT_CALLOUT.icon, children: [{ type: "p", children: [{ text: "" }] }] };
           const sel = editor.selection;
           const insertAt = sel ? [sel.anchor.path[0] + 1] : [editor.children.length];
           editor.tf.insertNodes(node, { at: insertAt });

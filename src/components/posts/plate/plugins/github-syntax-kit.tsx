@@ -2,18 +2,11 @@
 
 import { createPlatePlugin } from "platejs/react";
 import type { TElement } from "platejs";
+import { CALLOUT_BY_TYPE, type CalloutType } from "../calloutTypes";
 
 // GitHub 문법 입력 자동변환 — 닫는 `]` 트리거.
 //  1) `[!NOTE/TIP/IMPORTANT/WARNING/CAUTION]` (문단 시작) → 타입별 아이콘·배경의 콜아웃(알림).
 //  2) `[^label]` → 각주 참조(footnote_ref) + 문서 끝 각주 내용(footnote_content). 슬래시 각주와 동일 구조.
-
-const ALERT_TYPES: Record<string, { icon: string; bg: string }> = {
-  note: { icon: "ℹ️", bg: "var(--color-info-soft)" },
-  tip: { icon: "💡", bg: "var(--color-success-soft)" },
-  important: { icon: "❗", bg: "color-mix(in srgb, var(--color-accent) 12%, transparent)" },
-  warning: { icon: "⚠️", bg: "var(--color-warning-soft)" },
-  caution: { icon: "🛑", bg: "var(--color-error-soft)" },
-};
 
 export const GithubSyntaxKit = [
   createPlatePlugin({ key: "githubSyntax" }).overrideEditor(
@@ -30,7 +23,7 @@ export const GithubSyntaxKit = [
               // ── 알림: 문단 전체가 정확히 "[!TYPE" 일 때 → 콜아웃으로 감싼다 ──
               const am = /^\[!(note|tip|important|warning|caution)$/i.exec(before);
               if (am && node.type === "p") {
-                const t = ALERT_TYPES[am[1].toLowerCase()];
+                const t = CALLOUT_BY_TYPE[am[1].toLowerCase() as CalloutType];
                 editor.tf.delete({ at: { anchor: editor.api.start(path)!, focus: editor.api.end(path)! } });
                 editor.tf.wrapNodes({ type: "callout", bg: t.bg, icon: t.icon, children: [] } as TElement, { at: path });
                 return;

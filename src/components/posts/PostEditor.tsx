@@ -6,7 +6,7 @@ import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ChevronRight, ExternalLink, AlertTriangle } from "@/components/icons";
-import { marked } from "marked";
+import { mdToRichHtml } from "./mdToRichHtml";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { validateContentSecurity } from "@/utils/contentSecurity";
@@ -37,7 +37,6 @@ import CoverImageField from "@/components/admin/CoverImageField";
 import CoverBanner from "@/components/admin/CoverBanner";
 import TagNotesEditor from "@/components/admin/TagNotesEditor";
 import { motion, AnimatePresence } from "framer-motion";
-import { postProcessMarkedHtml } from "./postProcessMarkedHtml";
 import { generateSlug, validateSlug } from "@/utils/postSlug";
 import { POST_TITLE_MAX } from "@/lib/postConstants";
 import { useModalStore } from "@/stores/modalStore";
@@ -51,20 +50,6 @@ import styles from "./PostEditor.module.css";
 import "./PostEditor.global.css";
 import "@/components/admin/seoFlash.css";
 import { flashSeoField, clearSeoFlash } from "@/components/admin/seoFlash";
-
-/**
- * 레거시 마크다운 본문 → richtext(HTML) 1회 변환.
- * 에디터는 이제 richtext 단일이라, DB 에 markdown 으로 저장된 옛 글은 열 때 한 번만
- * 변환한다(이미 검증된 md→richtext 단방향). 변환 실패 시 원문 유지.
- */
-function mdToRichHtml(md: string): string {
-  if (!md) return md;
-  try {
-    return postProcessMarkedHtml(marked.parse(md, { async: false }) as string);
-  } catch {
-    return md;
-  }
-}
 
 const Editor = dynamic(() => import("./PlateEditor"), {
   ssr: false,
