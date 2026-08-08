@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.48.1...v1.49.0) (2026-08-08)
+
+
+### Features
+
+* **editor:** 콜아웃 타입·템플릿 개편·표 tint·링크 툴바 개선 ([c69de46](https://github.com/hyeoniverse/web-portfolio-oval/commit/c69de46ce1afa78b0d4a20df79bdfba6880e0ec2))
+
 ## [1.48.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.48.0...v1.48.1) (2026-08-07)
 
 
