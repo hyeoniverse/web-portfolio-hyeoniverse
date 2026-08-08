@@ -20,6 +20,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import TBtn from "../TBtn";
 import FloatingBar from "./FloatingBar";
 import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
+import Select from "@/components/ui/Select";
 import {
   TblRowBefore, TblRowAfter, TblRowRemove,
   TblColBefore, TblColAfter, TblColRemove,
@@ -542,14 +543,21 @@ export default React.memo(function TableToolbar({
                         </button>
                       </Tooltip>
                     </div>
-                    <select value={bp.mixed.style ? "__mixed" : bp.style} onChange={(e) => { if (e.target.value !== "__mixed") bp.setStyle(e.target.value); }} className={styles.borderPopSelect}>
-                      {bp.mixed.style && <option value="__mixed">{t("editor.borderMixed")}</option>}
-                      {TABLE_BORDER_STYLES.map((s) => (
-                        <option key={s.value} value={s.value}>
-                          {s.value === "solid" ? `───  ${t("editor.borderSolid")}` : s.value === "dotted" ? `· · ·  ${t("editor.borderDotted")}` : s.value === "dashed" ? `- - -  ${t("editor.borderDashed")}` : `═══  ${t("editor.borderDouble")}`}
-                        </option>
-                      ))}
-                    </select>
+                    <Select
+                      value={bp.mixed.style ? "__mixed" : bp.style}
+                      options={[
+                        ...(bp.mixed.style ? [{ value: "__mixed", label: t("editor.borderMixed") }] : []),
+                        ...TABLE_BORDER_STYLES.map((s) => ({
+                          value: s.value,
+                          label: s.value === "solid" ? `───  ${t("editor.borderSolid")}` : s.value === "dotted" ? `· · ·  ${t("editor.borderDotted")}` : s.value === "dashed" ? `- - -  ${t("editor.borderDashed")}` : `═══  ${t("editor.borderDouble")}`,
+                        })),
+                      ]}
+                      onChange={(v) => { if (v !== "__mixed") bp.setStyle(v); }}
+                      size="sm"
+                      width="full"
+                      preserveFocus
+                      dropAlign="below"
+                    />
                   </div>
                   <div className={styles.borderPopSection}>
                     <span className={styles.borderPopLabel}>{t("editor.borderWidth")}</span>
