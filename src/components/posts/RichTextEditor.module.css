@@ -633,7 +633,7 @@
   content: "";
   position: absolute;
   background: var(--bg-accent-subtle);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-md); /* 블록 컨테이너 radius(md)와 일치 */
   z-index: -1;
   pointer-events: none;
 }
@@ -784,7 +784,7 @@
   margin-top: var(--spacing-2xs);
   margin-bottom: var(--spacing-lg);
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-md);
   background: var(--bg-primary);
   overflow-x: auto;
 }
@@ -1980,6 +1980,80 @@
   align-items: center;
   gap: var(--spacing-3xs);
   margin-left: auto;
+  flex-shrink: 0;
+}
+/* 입력 pill 그룹 ↔ 액션 아이콘 구분선 */
+.linkActions::before {
+  content: "";
+  align-self: center;
+  width: 1px;
+  height: 16px;
+  background: var(--border-light-color);
+  margin: 0 var(--spacing-2xs) 0 var(--spacing-3xs);
+}
+/* 주 액션(적용) 강조 — accent */
+.linkActions .linkApplyBtn {
+  color: var(--text-accent);
+}
+/* 링크 제거(휴지통) — 위험 색, 다른 삭제 버튼과 톤 통일 */
+.linkActions .linkRemoveBtn {
+  color: var(--text-error);
+}
+
+/* ── 링크 툴바 pill ── 프로토콜 Select + URL input 을 한 pill 로, 텍스트도 pill.
+   모두 28px 로 공통 Select(sm)·툴바 버튼과 높이 통일. */
+.linkPill,
+.linkTextPill {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.linkPill {
+  flex: 1;
+  min-width: 200px;
+  max-width: 260px;
+}
+/* pill 안 Select 트리거 — 자체 테두리·radius 제거, 우측만 구분선(URL 과 분리) */
+.linkPill .linkPillSelect {
+  height: 100%;
+  border: none;
+  border-right: var(--border-light);
+  border-radius: 0;
+}
+.linkPillInput {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  padding: 0 8px;
+  outline: none;
+}
+.linkPillInput::placeholder {
+  color: var(--text-tertiary);
+}
+.linkTextLabel {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 4px 0 8px;
+  border-right: var(--border-light);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* InlineInputToolbar(임베드 등) 공통 Input 폭 — 래퍼가 flex column 이라 폭 지정으로 내부 필드 제약 */
+.linkUrlField {
+  width: 220px;
   flex-shrink: 0;
 }
 
@@ -4403,10 +4477,24 @@
   left: -12px;
   right: 0;
   z-index: 2;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-md); /* 블록 컨테이너 radius(md)와 일치 */
   background: var(--bg-accent-subtle);
   pointer-events: none;
 }
+
+/* ── 표 tint ── 블록 래퍼(.blockDraggable)는 표 + 스크롤 패딩(우 36·아래 md) + 행추가 밴드까지
+   포함하는 풀폭 박스라, 기본 tint(사방 --tint-inset 균등)가 표보다 훨씬 크게 떠 이웃 블록과 어긋난다.
+   → MultiBlockHighlight(JS)가 실제 표(<table>) rect 를 재서 --tbl-* 로 넘기면, 그 좌표로 tint 를
+   표에 딱 맞춘다(사방 --tint-inset 균등, 스크롤 패딩·행밴드·풀폭 무관). float-clip 과 동일한 방식. */
+.editorContent :global([data-block-selected][data-tbl-tint])::before {
+  inset: auto;
+  left: var(--tbl-l);
+  top: var(--tbl-t);
+  width: var(--tbl-w);
+  height: var(--tbl-h);
+  border-radius: var(--radius-md);
+}
+
 .colElement::after {
   content: "";
   position: absolute;
@@ -4614,7 +4702,7 @@
   position: relative;
   max-height: 20rem;
   border: var(--border-light);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-md);
   overflow: hidden;
   /* 창 전체가 세로 리사이즈 — resize 는 창이 가진다(자기 radius 는 자기 그립을 안 자르므로 그립이 보인다).
      오버레이(.codeResizeHandle)는 창의 **형제**(.codeShell 안)라 창의 네이티브 resizer 위에 얹혀 시스템 커서를 가린다. */

@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
+import { Check, X } from "@/components/icons";
+import Input from "@/components/ui/Input";
 import TBtn from "../TBtn";
 import FloatingBar from "./FloatingBar";
 import styles from "../../RichTextEditor.module.css";
@@ -44,36 +46,27 @@ export default React.memo(function InlineInputToolbar({
       {/* display:contents 래퍼 — 바깥 클릭 판별 + 인풋 focus 위해 mousedown 전파 차단 */}
       <div data-inline-input style={{ display: "contents" }} onMouseDown={(e) => e.stopPropagation()}>
         <span className={styles.floatingBarLabel}>{label}</span>
-        <div className={styles.linkInputWrap}>
-          <input
-            ref={ref}
-            type={inputType}
-            className={styles.linkInput}
-            placeholder={placeholder}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && value.trim()) {
-                onSubmit(value.trim());
-                onClose();
-              } else if (e.key === "Escape") {
-                onClose();
-              }
-            }}
-          />
-          <TBtn
-            onClick={() => {
-              if (value.trim()) {
-                onSubmit(value.trim());
-                onClose();
-              }
-            }}
-            tooltip="삽입"
-          >
-            ✓
-          </TBtn>
-          <TBtn onClick={onClose} tooltip="취소">×</TBtn>
-        </div>
+        <Input
+          inputRef={ref}
+          size="sm"
+          clearable={false}
+          className={styles.linkUrlField}
+          type={inputType}
+          placeholder={placeholder}
+          value={value}
+          onChange={(val) => onChange(val)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && value.trim()) { onSubmit(value.trim()); onClose(); }
+            else if (e.key === "Escape") onClose();
+          }}
+        />
+        <TBtn
+          onClick={() => { if (value.trim()) { onSubmit(value.trim()); onClose(); } }}
+          tooltip="삽입"
+        >
+          <Check size={13} />
+        </TBtn>
+        <TBtn square onClick={onClose} tooltip="취소"><X size={12} /></TBtn>
       </div>
     </FloatingBar>
   );

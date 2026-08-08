@@ -15,102 +15,158 @@ export const POST_TEMPLATES: PostTemplate[] = [
     content: {
       ko: `## 개요
 
-이 글에서는 React에서 커스텀 훅을 만드는 방법을 단계별로 알아보겠습니다.
+React 19의 폼 액션으로 서버 뮤테이션을 처리하는 방법을 단계별로 정리합니다. \`useState\` + \`onSubmit\` + 수동 로딩 관리 없이, \`<form action>\` 하나로 제출·검증·대기 상태를 다룹니다.
 
 > [!NOTE]
-> 이 튜토리얼은 React 18 이상을 기준으로 작성되었습니다.
+> React 19 · Next.js 15 App Router 기준입니다.
 
 ## 사전 준비
 
-- Node.js 18 이상
-- React 프로젝트 (CRA, Next.js 등)
-- 기본적인 React Hooks 이해
+- Node.js 20+
+- Next.js 15 (App Router)
+- React 19
 
-## Step 1: 프로젝트 설정
+## Step 1: 서버 액션 정의
 
-프로젝트를 생성하고 필요한 의존성을 설치합니다.
-
-\`\`\`bash
-npx create-next-app@latest my-app
-cd my-app
-\`\`\`
-
-## Step 2: 커스텀 훅 작성
-
-\`src/hooks\` 디렉토리를 만들고 훅 파일을 생성합니다.
+\`"use server"\`로 서버에서만 실행되는 함수를 만듭니다.
 
 \`\`\`typescript
-export function useCustomHook() {
-  // 구현
+// app/actions.ts
+"use server";
+
+export async function subscribe(_prev: unknown, formData: FormData) {
+  const email = String(formData.get("email") ?? "");
+  if (!email.includes("@")) return { ok: false, message: "이메일을 확인해 주세요." };
+  await db.subscriber.create({ data: { email } });
+  return { ok: true, message: "구독 완료!" };
 }
 \`\`\`
 
-## Step 3: 컴포넌트에서 사용
+## Step 2: 폼에 연결
 
-작성한 훅을 컴포넌트에 적용합니다.
+\`useActionState\`로 액션과 결과 상태를 묶습니다.
+
+\`\`\`tsx
+"use client";
+import { useActionState } from "react";
+import { subscribe } from "./actions";
+
+export function SubscribeForm() {
+  const [state, action] = useActionState(subscribe, null);
+  return (
+    <form action={action}>
+      <input name="email" type="email" required />
+      <SubmitButton />
+      {state?.message && <p>{state.message}</p>}
+    </form>
+  );
+}
+\`\`\`
+
+## Step 3: 대기 상태 표시
+
+\`useFormStatus\`로 제출 중 버튼을 비활성화합니다.
+
+\`\`\`tsx
+import { useFormStatus } from "react-dom";
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return <button disabled={pending}>{pending ? "처리 중…" : "구독"}</button>;
+}
+\`\`\`
 
 > [!TIP]
-> 훅 이름은 항상 \`use\`로 시작해야 합니다.
+> \`useFormStatus\`는 반드시 \`<form>\` **안쪽 컴포넌트**에서 호출해야 동작합니다.
 
 ## 결과
 
-| 항목 | 변경 전 | 변경 후 |
+| 항목 | 이전 방식 | 폼 액션 |
 | --- | --- | --- |
-| 코드 중복 | 많음 | 없음 |
-| 재사용성 | 낮음 | 높음 |
+| 로딩 상태 | 수동 \`useState\` | \`useFormStatus\` 자동 |
+| 검증 결과 | 별도 상태 | 액션 반환값 |
+| JS 비활성 | 동작 안 함 | 점진적 향상 |
 
 ## 마치며
 
-커스텀 훅을 활용하면 로직을 깔끔하게 분리할 수 있습니다. 관련 문서는 [React 공식 문서](https://react.dev)를 참고하세요.`,
+폼 액션은 클라이언트 상태를 줄이고 로직을 서버로 모읍니다. 자세한 내용은 [React 문서](https://react.dev/reference/react/useActionState)를 참고하세요.`,
       en: `## Overview
 
-In this post, we'll walk through how to create custom hooks in React, step by step.
+A step-by-step guide to handling server mutations with React 19 form actions. No \`useState\` + \`onSubmit\` + manual loading flags — one \`<form action>\` covers submit, validation, and pending state.
 
 > [!NOTE]
-> This tutorial is based on React 18+.
+> Based on React 19 and the Next.js 15 App Router.
 
 ## Prerequisites
 
-- Node.js 18+
-- A React project (CRA, Next.js, etc.)
-- Basic understanding of React Hooks
+- Node.js 20+
+- Next.js 15 (App Router)
+- React 19
 
-## Step 1: Project Setup
+## Step 1: Define the Server Action
 
-Create a project and install dependencies.
-
-\`\`\`bash
-npx create-next-app@latest my-app
-cd my-app
-\`\`\`
-
-## Step 2: Write the Custom Hook
-
-Create a \`src/hooks\` directory and add the hook file.
+Create a function that runs only on the server with \`"use server"\`.
 
 \`\`\`typescript
-export function useCustomHook() {
-  // implementation
+// app/actions.ts
+"use server";
+
+export async function subscribe(_prev: unknown, formData: FormData) {
+  const email = String(formData.get("email") ?? "");
+  if (!email.includes("@")) return { ok: false, message: "Check your email." };
+  await db.subscriber.create({ data: { email } });
+  return { ok: true, message: "Subscribed!" };
 }
 \`\`\`
 
-## Step 3: Use in a Component
+## Step 2: Wire Up the Form
 
-Apply the hook in your component.
+Bind the action and its result state with \`useActionState\`.
+
+\`\`\`tsx
+"use client";
+import { useActionState } from "react";
+import { subscribe } from "./actions";
+
+export function SubscribeForm() {
+  const [state, action] = useActionState(subscribe, null);
+  return (
+    <form action={action}>
+      <input name="email" type="email" required />
+      <SubmitButton />
+      {state?.message && <p>{state.message}</p>}
+    </form>
+  );
+}
+\`\`\`
+
+## Step 3: Show Pending State
+
+Disable the button while submitting with \`useFormStatus\`.
+
+\`\`\`tsx
+import { useFormStatus } from "react-dom";
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return <button disabled={pending}>{pending ? "Submitting…" : "Subscribe"}</button>;
+}
+\`\`\`
 
 > [!TIP]
-> Hook names must always start with \`use\`.
+> \`useFormStatus\` only works when called from a component **inside** the \`<form>\`.
 
 ## Result
 
-| Metric | Before | After |
+| Aspect | Old way | Form action |
 | --- | --- | --- |
-| Code duplication | High | None |
-| Reusability | Low | High |
+| Loading state | Manual \`useState\` | \`useFormStatus\` |
+| Validation result | Separate state | Action return value |
+| No-JS | Doesn't work | Progressive enhancement |
 
 ## Wrap Up
 
-Custom hooks let you cleanly separate logic. See the [React docs](https://react.dev) for more.`,
+Form actions cut client state and pull logic to the server. See the [React docs](https://react.dev/reference/react/useActionState) for more.`,
     },
   },
   {
@@ -120,120 +176,114 @@ Custom hooks let you cleanly separate logic. See the [React docs](https://react.
     content: {
       ko: `## 문제 상황
 
-Next.js 15로 마이그레이션하던 중 빌드 시 \`Module not found\` 에러가 발생했습니다.
+Next.js 15 App Router에서 배포 후 콘솔에 \`Hydration failed\` 경고가 뜨고, 첫 렌더가 깜빡였습니다.
 
 ## 환경
 
-- Next.js 15.5.3
-- Node.js 22
-- pnpm 9.x
+- Next.js 15.1
+- React 19
+- 배포: Vercel
 
 ## 증상
 
 \`\`\`
-Error: Module not found: Can't resolve '@/lib/utils'
+Hydration failed because the server rendered HTML didn't match the client.
 \`\`\`
 
-- 로컬 \`dev\` 서버에서는 정상 동작
-- \`build\` 시에만 발생
-- 특정 파일에서만 에러
+- 로컬에서는 재현이 어렵고 배포 환경에서만 발생
+- 새로고침마다 경고 위치가 조금씩 달라짐
+
+## 시도한 것들
+
+- \`next build && next start\`로 프로덕션 빌드를 로컬 재현 → 재현됨
+- 의심 컴포넌트를 \`dynamic(() => ..., { ssr: false })\`로 격리 → 경고 사라짐(임시)
 
 ## 원인 분석
 
 > [!WARNING]
-> \`tsconfig.json\`의 \`paths\` 설정과 \`next.config.js\`의 별칭이 충돌할 수 있습니다.
+> 서버와 클라이언트에서 값이 달라지는 코드는 hydration을 깨뜨립니다. \`new Date()\`, \`Math.random()\`, \`localStorage\`, \`window\` 접근이 대표적입니다.
 
-조사 결과, 대소문자가 다른 import 경로가 원인이었습니다.
+문제 컴포넌트가 렌더 도중 \`new Date().toLocaleString()\`으로 시각을 그려, 서버 HTML과 클라이언트 첫 렌더가 어긋났습니다.
 
 ## 해결 방법
 
-1. import 경로의 대소문자를 통일
-2. \`tsconfig.json\`에서 \`paths\` 재설정
+시간에 의존하는 렌더를 \`useEffect\`로 미뤄 클라이언트에서만 그립니다.
 
-\`\`\`json
-{
-  "compilerOptions": {
-    "paths": { "@/*": ["./src/*"] }
-  }
-}
+\`\`\`tsx
+const [now, setNow] = useState<string | null>(null);
+useEffect(() => setNow(new Date().toLocaleString()), []);
+return <time>{now ?? "—"}</time>;
 \`\`\`
 
 ## 결과
 
-빌드 성공. CI/CD 파이프라인 정상 통과.
+경고 제거, 첫 렌더 깜빡임 해소.
 
 ## TL;DR
 
-- 대소문자 구분은 OS마다 다르므로 항상 일관되게 작성할 것
-- CI 환경(Linux)에서 반드시 빌드 테스트할 것
-
-> [!TIP]
-> 비슷한 문제를 겪고 있다면 아래 체크리스트를 확인해보세요.
+- SSR 렌더 함수는 **순수**해야 한다 — 매 렌더 달라지는 값 금지
+- 클라이언트 전용 값은 \`useEffect\`로 미루거나 \`suppressHydrationWarning\`
 
 ### 체크리스트
 
-- [ ] import 경로 대소문자 확인
-- [ ] \`tsconfig.json\` paths 설정 확인
-- [ ] CI 환경에서 빌드 테스트
-- [ ] 에디터 자동완성과 실제 경로 일치 확인`,
+- [ ] 렌더 중 \`Date\`/\`random\`/\`window\`/\`localStorage\` 접근 여부
+- [ ] 프로덕션 빌드로 로컬 재현
+- [ ] 클라이언트 전용 로직을 effect로 이동`,
       en: `## Problem
 
-During migration to Next.js 15, a \`Module not found\` error occurred at build time.
+After deploying on the Next.js 15 App Router, the console showed a \`Hydration failed\` warning and the first render flickered.
 
 ## Environment
 
-- Next.js 15.5.3
-- Node.js 22
-- pnpm 9.x
+- Next.js 15.1
+- React 19
+- Deploy: Vercel
 
 ## Symptoms
 
 \`\`\`
-Error: Module not found: Can't resolve '@/lib/utils'
+Hydration failed because the server rendered HTML didn't match the client.
 \`\`\`
 
-- Works fine in local \`dev\` server
-- Only fails during \`build\`
-- Only affects specific files
+- Hard to reproduce locally, only on the deployed environment
+- The warning location shifts slightly on each refresh
+
+## What I Tried
+
+- Reproduced with a local production build (\`next build && next start\`) → reproduced
+- Isolated the suspect component with \`dynamic(() => ..., { ssr: false })\` → warning gone (temporary)
 
 ## Root Cause
 
 > [!WARNING]
-> \`tsconfig.json\` paths and \`next.config.js\` aliases can conflict.
+> Code that differs between server and client breaks hydration. Common culprits: \`new Date()\`, \`Math.random()\`, \`localStorage\`, and \`window\` access.
 
-Investigation revealed mismatched casing in import paths.
+The component rendered the time with \`new Date().toLocaleString()\` during render, so the server HTML and the client's first render didn't match.
 
 ## Solution
 
-1. Unified import path casing
-2. Reconfigured \`tsconfig.json\` paths
+Defer time-dependent rendering to \`useEffect\` so it runs only on the client.
 
-\`\`\`json
-{
-  "compilerOptions": {
-    "paths": { "@/*": ["./src/*"] }
-  }
-}
+\`\`\`tsx
+const [now, setNow] = useState<string | null>(null);
+useEffect(() => setNow(new Date().toLocaleString()), []);
+return <time>{now ?? "—"}</time>;
 \`\`\`
 
 ## Result
 
-Build successful. CI/CD pipeline passed.
+Warning gone, first-render flicker resolved.
 
 ## TL;DR
 
-- Casing rules differ across OS — always be consistent
-- Always test builds in CI environment (Linux)
-
-> [!TIP]
-> If you're facing a similar issue, check the list below.
+- SSR render functions must be **pure** — no values that change every render
+- Defer client-only values to \`useEffect\`, or use \`suppressHydrationWarning\`
 
 ### Checklist
 
-- [ ] Verify import path casing
-- [ ] Check \`tsconfig.json\` paths config
-- [ ] Test build in CI environment
-- [ ] Confirm editor autocomplete matches actual paths`,
+- [ ] Any \`Date\`/\`random\`/\`window\`/\`localStorage\` access during render?
+- [ ] Reproduce with a production build locally
+- [ ] Move client-only logic into an effect`,
     },
   },
   {
@@ -243,100 +293,120 @@ Build successful. CI/CD pipeline passed.
     content: {
       ko: `## 소개
 
-2개월간 진행한 포트폴리오 웹사이트 리뉴얼 프로젝트를 돌아봅니다.
+2개월간 진행한 포트폴리오 리뉴얼 프로젝트를 돌아봅니다.
 
 ## 목표
 
-- 디자인 시스템 구축
-- 성능 최적화 (Lighthouse 90+ 달성)
-- 다국어 지원
+- 디자인 시스템 + 토큰 구축
+- Core Web Vitals 전 지표 "좋음" 달성
+- 다국어(i18n) 지원
 
 ## 기술 스택
 
 | 분류 | 기술 |
 | --- | --- |
-| 프레임워크 | Next.js 15 |
-| 스타일 | CSS Modules |
-| DB | Supabase |
+| 프레임워크 | Next.js 15 (App Router) |
+| UI | React 19 · CSS Modules |
+| DB | Supabase (Postgres) |
 | 배포 | Vercel |
+
+## 지표
+
+| 지표 | 개선 전 | 개선 후 |
+| --- | --- | --- |
+| LCP | 3.4s | 1.2s |
+| INP | 320ms | 90ms |
+| CLS | 0.21 | 0.02 |
+
+> [!NOTE]
+> 2024년부터 FID가 INP로 대체됐습니다. 상호작용 지연은 이제 INP로 측정합니다.
 
 ## 잘한 점
 
-- **디자인 토큰 시스템**: 일관된 UI를 유지하는 데 큰 도움이 되었습니다
-- **컴포넌트 재사용**: 공통 컴포넌트 분리로 개발 속도 향상
+- **서버 컴포넌트 우선**: 클라이언트 JS를 줄여 INP가 크게 개선됨
+- **디자인 토큰**: 색·간격을 토큰화해 다크모드까지 일관 유지
 
 ## 아쉬운 점
 
-- **테스트 부족**: 유닛 테스트를 작성하지 못한 부분이 아쉽습니다
+- **테스트 부족**: 핵심 플로우에 E2E를 붙이지 못함
 - **일정 초과**: 예상보다 2주 지연
 
 > [!IMPORTANT]
-> 다음 프로젝트에서는 초기 단계부터 테스트를 포함시킬 계획입니다.
+> 다음 프로젝트는 첫 주에 Playwright E2E 골격부터 세운다.
 
 ## 배운 점
 
-1. 초기 설계에 충분한 시간을 투자할 것
+1. 측정 없이 최적화하지 말 것 — 먼저 Lighthouse·Web Vitals로 병목 확인
 2. 작은 단위로 자주 배포할 것
-3. 문서화를 습관적으로 할 것
+3. 문서화를 습관으로
 
 ## 앞으로
 
-접근성(a11y) 개선과 PWA 지원을 다음 목표로 설정했습니다.
+접근성(a11y) 감사와 뷰 트랜지션 도입을 다음 목표로 잡았습니다.
 
-### 다음 프로젝트 체크리스트
+### 다음 체크리스트
 
-- [ ] 초기 설계 문서 작성
-- [ ] 테스트 코드 작성
-- [ ] 주간 회고 진행
-- [ ] 성능 모니터링 설정`,
+- [ ] 첫 주 E2E 골격
+- [ ] a11y 자동 감사(axe) 연결
+- [ ] Web Vitals 실측 모니터링`,
       en: `## Introduction
 
-A look back at the 2-month portfolio website renewal project.
+A look back at a 2-month portfolio renewal project.
 
 ## Goal
 
-- Build a design system
-- Performance optimization (Lighthouse 90+)
-- Internationalization support
+- Build a design system with tokens
+- Reach "Good" across all Core Web Vitals
+- Internationalization (i18n)
 
 ## Tech Stack
 
 | Category | Technology |
 | --- | --- |
-| Framework | Next.js 15 |
-| Styling | CSS Modules |
-| Database | Supabase |
+| Framework | Next.js 15 (App Router) |
+| UI | React 19 · CSS Modules |
+| Database | Supabase (Postgres) |
 | Deployment | Vercel |
+
+## Metrics
+
+| Metric | Before | After |
+| --- | --- | --- |
+| LCP | 3.4s | 1.2s |
+| INP | 320ms | 90ms |
+| CLS | 0.21 | 0.02 |
+
+> [!NOTE]
+> Since 2024, INP has replaced FID. Interaction latency is now measured with INP.
 
 ## What Went Well
 
-- **Design token system**: Helped maintain consistent UI
-- **Component reuse**: Improved dev velocity through shared components
+- **Server Components first**: less client JS greatly improved INP
+- **Design tokens**: tokenized color and spacing stayed consistent, even in dark mode
 
 ## What Could Be Better
 
-- **Lack of tests**: Missed writing unit tests
-- **Schedule overrun**: Delayed by 2 weeks
+- **Lack of tests**: couldn't add E2E to core flows
+- **Schedule overrun**: delayed by 2 weeks
 
 > [!IMPORTANT]
-> Plan to include testing from the initial phase in the next project.
+> Next project: scaffold Playwright E2E in the first week.
 
 ## Lessons Learned
 
-1. Invest enough time in initial design
+1. Don't optimize without measuring — find bottlenecks with Lighthouse/Web Vitals first
 2. Deploy frequently in small increments
 3. Make documentation a habit
 
 ## Next Steps
 
-Accessibility (a11y) improvements and PWA support are set as next goals.
+An accessibility (a11y) audit and adopting View Transitions are the next goals.
 
-### Next Project Checklist
+### Next Checklist
 
-- [ ] Write design documents upfront
-- [ ] Write test code
-- [ ] Conduct weekly retrospectives
-- [ ] Set up performance monitoring`,
+- [ ] E2E scaffold in week one
+- [ ] Wire up an automated a11y audit (axe)
+- [ ] Real-user Web Vitals monitoring`,
     },
   },
   {
@@ -344,54 +414,50 @@ Accessibility (a11y) improvements and PWA support are set as next goals.
     label: { ko: "에세이", en: "Essay" },
     desc: { ko: "자유로운 형식의 글", en: "Free-form writing" },
     content: {
-      ko: `최근 개발을 하면서 느낀 점을 정리해보려 합니다.
+      ko: `개발을 하며 최근 다시 곱씹게 된 생각들을 적어둡니다.
 
 ---
 
-## 첫 번째 생각
+## 좋은 코드란
 
-좋은 코드란 무엇일까요? 단순히 동작하는 코드가 아니라, **읽기 쉽고 변경하기 쉬운 코드**가 좋은 코드라고 생각합니다.
+여전히 **읽기 쉽고 바꾸기 쉬운 코드**라고 생각합니다. 도구가 아무리 좋아져도, 기준은 6개월 뒤의 내가 이해할 수 있느냐입니다.
 
 > "Any fool can write code that a computer can understand. Good programmers write code that humans can understand." — Martin Fowler
 
-## 두 번째 생각
+## AI와 함께 쓰는 코드
 
-완벽을 추구하다 보면 아무것도 완성하지 못하는 경우가 많습니다. *완성된 것이 완벽한 것보다 낫다*는 말을 되새기게 됩니다.
+생성 도구가 초안을 빠르게 뽑아주는 시대에, 개발자의 몫은 *무엇을 남기고 무엇을 지울지 판단하는* 쪽으로 옮겨가는 듯합니다. 코드를 읽고 걸러내는 눈이 그 어느 때보다 중요해졌습니다.
 
-## 세 번째 생각
+## 완성에 대하여
 
-혼자 고민하는 시간도 중요하지만, 때로는 동료에게 물어보는 것이 훨씬 빠른 해결책이 됩니다.
-
----
-
-앞으로도 이런 생각들을 꾸준히 기록해두려 합니다.[^1]
-
-![사진 설명](이미지 URL)
-
-[^1]: 이 글은 개인적인 경험을 바탕으로 작성되었습니다.`,
-      en: `Here are some reflections from my recent development experience.
+완벽을 좇다 아무것도 끝내지 못하는 경우가 많습니다. *완성된 것이 완벽한 것보다 낫다*는 말을 다시 새깁니다.
 
 ---
 
-## First Thought
+이런 기록을 앞으로도 꾸준히 남기려 합니다.[^1]
 
-What makes good code? I believe it's not just code that works, but **code that is easy to read and easy to change**.
+[^1]: 개인적인 경험을 바탕으로 작성한 글입니다.`,
+      en: `Some thoughts I've been chewing on again lately while coding.
+
+---
+
+## What Good Code Is
+
+Still **code that's easy to read and easy to change**. However good the tooling gets, the bar is whether the me of six months from now can understand it.
 
 > "Any fool can write code that a computer can understand. Good programmers write code that humans can understand." — Martin Fowler
 
-## Second Thought
+## Writing Code Alongside AI
 
-Chasing perfection often means nothing gets finished. *Done is better than perfect* keeps coming back to mind.
+In an era where generators draft quickly, the developer's job seems to be shifting toward *deciding what to keep and what to cut*. The eye that reads and filters code matters more than ever.
 
-## Third Thought
+## On Finishing
 
-Time spent thinking alone is valuable, but sometimes asking a colleague is a much faster path to a solution.
+Chasing perfection often means nothing gets done. *Done is better than perfect* — worth remembering again.
 
 ---
 
-I plan to keep recording thoughts like these going forward.[^1]
-
-![Photo description](image URL)
+I plan to keep recording notes like these.[^1]
 
 [^1]: This post is based on personal experience.`,
     },
@@ -403,74 +469,82 @@ I plan to keep recording thoughts like these going forward.[^1]
     content: {
       ko: `## 배운 것
 
-CSS \`has()\` 선택자를 사용하면 자식 요소의 상태에 따라 부모 스타일을 변경할 수 있습니다.
+CSS 컨테이너 쿼리(\`@container\`)를 쓰면 뷰포트가 아니라 **부모 요소의 폭**에 맞춰 스타일을 바꿀 수 있습니다. 같은 카드 컴포넌트를 사이드바에서도, 본문에서도 자연스럽게 재사용할 수 있습니다.
 
 ## 예시
 
 \`\`\`css
-/* input에 focus가 있으면 부모 div에 border 색 변경 */
-.wrapper:has(input:focus) {
-  border-color: blue;
+.card-list {
+  container-type: inline-size;
+}
+
+/* 컨테이너가 400px 이상일 때만 가로 배치 */
+@container (min-width: 400px) {
+  .card {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+  }
 }
 \`\`\`
 
 ## 핵심 정리
 
-- \`has()\`는 **부모 선택자**처럼 동작
-- 모든 모던 브라우저에서 지원 (2023~)
-- 복잡한 JS 없이 상태 기반 스타일링 가능
+- 미디어 쿼리는 **뷰포트**, 컨테이너 쿼리는 **부모 폭** 기준
+- 컴포넌트가 놓인 위치에 따라 자동 대응 → 진짜 재사용 가능한 컴포넌트
+- 모든 주요 브라우저에서 지원 (2023~)
 
 > [!TIP]
-> \`:has()\`는 성능 비용이 있으므로 남용하지 않는 것이 좋습니다.
+> \`cqi\`(container query inline-size) 단위를 쓰면 컨테이너 폭에 비례하는 크기도 지정할 수 있습니다.
 
 ## 참고 자료
 
-- [MDN - :has()](https://developer.mozilla.org/en-US/docs/Web/CSS/:has)
-- [Can I Use](https://caniuse.com/css-has)
-
-> [!CAUTION]
-> IE에서는 지원되지 않습니다. 브라우저 호환성을 반드시 확인하세요.
+- [MDN — Container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries)
+- [Can I Use](https://caniuse.com/css-container-queries)
 
 ## 복습 체크리스트
 
-- [ ] \`:has()\` 문법 숙지
-- [ ] 실제 프로젝트에 적용
-- [ ] 성능 측정 비교`,
+- [ ] \`container-type\` / \`container-name\` 이해
+- [ ] 실제 카드 컴포넌트에 적용
+- [ ] \`cqi\`/\`cqw\` 단위 실험`,
       en: `## What I Learned
 
-CSS \`has()\` selector allows styling a parent element based on the state of its children.
+CSS container queries (\`@container\`) let you style based on a **parent element's width** instead of the viewport. Perfect for reusing the same card component in both a sidebar and the main content.
 
 ## Example
 
 \`\`\`css
-/* Change parent div border when input is focused */
-.wrapper:has(input:focus) {
-  border-color: blue;
+.card-list {
+  container-type: inline-size;
+}
+
+/* Only lay out horizontally when the container is 400px+ */
+@container (min-width: 400px) {
+  .card {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+  }
 }
 \`\`\`
 
 ## Key Points
 
-- \`has()\` works like a **parent selector**
-- Supported in all modern browsers (2023+)
-- Enables state-based styling without complex JS
+- Media queries target the **viewport**; container queries target the **parent width**
+- Components adapt to where they're placed → truly reusable components
+- Supported in all major browsers (2023+)
 
 > [!TIP]
-> \`:has()\` has performance costs, so avoid overusing it.
+> Use \`cqi\` (container query inline-size) units to size things relative to the container width.
 
 ## References
 
-- [MDN - :has()](https://developer.mozilla.org/en-US/docs/Web/CSS/:has)
-- [Can I Use](https://caniuse.com/css-has)
-
-> [!CAUTION]
-> Not supported in IE. Always check browser compatibility.
+- [MDN — Container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries)
+- [Can I Use](https://caniuse.com/css-container-queries)
 
 ## Review Checklist
 
-- [ ] Understand \`:has()\` syntax
-- [ ] Apply in a real project
-- [ ] Compare performance measurements`,
+- [ ] Understand \`container-type\` / \`container-name\`
+- [ ] Apply to a real card component
+- [ ] Experiment with \`cqi\`/\`cqw\` units`,
     },
   },
 ];

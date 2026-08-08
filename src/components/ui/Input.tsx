@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type InputHTMLAttributes, type KeyboardEvent, type ReactNode } from "react";
+import { useState, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type Ref } from "react";
 import { Eraser, Eye, EyeOff, Plus } from "@/components/icons";
 import styles from "./Input.module.css";
 
@@ -16,6 +16,8 @@ interface InputProps
   variant?: Variant;
   size?: Size;
   className?: string;
+  /** 내부 <input> 에 연결할 ref — 포커스 제어 등 (예: 링크 툴바 열릴 때 URL 자동 포커스) */
+  inputRef?: Ref<HTMLInputElement>;
   /** 입력값 지우기 (Eraser) 버튼 — value 있을 때 우측 표시. 기본 true.
    *  onAdd 가 있으면 자동으로 false (+ 버튼이 우측 점유 + Enter 로 값 처리). */
   clearable?: boolean;
@@ -44,6 +46,7 @@ export default function Input({
   variant = "capsule",
   size = "md",
   className,
+  inputRef,
   id,
   clearable = true,
   onAdd,
@@ -95,6 +98,7 @@ export default function Input({
       <div className={`${styles.fieldWrap} ${isGrouped ? styles.fieldWrapGrouped : ""} ${isGrouped && size === "sm" ? styles.fieldWrapGroupedSm : ""} ${isGrouped && size === "xs" ? styles.fieldWrapGroupedXs : ""}`}>
         {inlineLabel && <span className={styles.inlineLabel}>{inlineLabel}</span>}
         <input
+          ref={inputRef}
           id={id}
           className={inputCls}
           value={value}

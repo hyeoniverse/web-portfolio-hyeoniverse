@@ -20,9 +20,11 @@ import {
   List, ListOrdered, ListChecks,
   Image as ImageIcon, Video, Film,
   Code, Minus, Table as TableIcon, Lightbulb, Columns2, Columns3, ChevronRight, Sigma, ListTree, Workflow, LayoutPanelTop, Vote, Shapes, Smile, SquareCode, CalendarDays, Paperclip, AudioLines, Superscript, FileText,
+  Info, AlertCircle, AlertTriangle, Ban,
 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { genPollId } from "../PollElements";
+import { CALLOUT_TYPES, type CalloutType } from "../calloutTypes";
 import { _imageUploadFn, _uploadErrorFn, _slashOpenTrigger, _emojiPickerTrigger, _postLinkTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
 
@@ -37,6 +39,36 @@ type Cmd = {
   keywords: string[];
   run: (editor: any) => void;
 };
+
+// 콜아웃 타입별 메뉴 아이콘·라벨키·검색어 (색/이모지는 calloutTypes 단일 출처)
+const CALLOUT_ICON: Record<CalloutType, React.ReactNode> = {
+  note: <Info size={ICON} />,
+  tip: <Lightbulb size={ICON} />,
+  important: <AlertCircle size={ICON} />,
+  warning: <AlertTriangle size={ICON} />,
+  caution: <Ban size={ICON} />,
+};
+const CALLOUT_LABEL_KEY: Record<CalloutType, string> = {
+  note: "calloutNote", tip: "calloutTip", important: "calloutImportant", warning: "calloutWarning", caution: "calloutCaution",
+};
+const CALLOUT_KEYWORDS: Record<CalloutType, string[]> = {
+  note: ["callout", "콜아웃", "알림", "노트", "note", "info", "정보"],
+  tip: ["callout", "콜아웃", "알림", "팁", "tip", "힌트", "hint"],
+  important: ["callout", "콜아웃", "알림", "중요", "important"],
+  warning: ["callout", "콜아웃", "알림", "경고", "warning", "주의"],
+  caution: ["callout", "콜아웃", "알림", "주의", "caution", "위험", "danger"],
+};
+const calloutItem = (c: (typeof CALLOUT_TYPES)[number]): Cmd => ({
+  key: `callout-${c.type}`,
+  labelKey: CALLOUT_LABEL_KEY[c.type],
+  icon: CALLOUT_ICON[c.type],
+  keywords: CALLOUT_KEYWORDS[c.type],
+  run: (e) => {
+    const sel = e.selection;
+    const at = sel ? [sel.anchor.path[0] + 1] : [e.children.length];
+    e.tf.insertNodes({ type: "callout", bg: c.bg, icon: c.icon, children: [{ type: "p", children: [{ text: "" }] }] }, { at });
+  },
+});
 
 // 다음 블록 위치에 노드 삽입 (현재 블록 다음)
 const insertAfter = (e: any, node: any) => {
@@ -136,8 +168,8 @@ const GROUPS: { labelKey: string; items: Cmd[] }[] = [
     { key: "file", labelKey: "insertFile", icon: <Paperclip size={ICON} />, keywords: ["file", "파일", "attachment", "첨부", "다운로드", "download", "업로드", "upload"], run: (e) => triggerFileUpload(e) },
     { key: "audio", labelKey: "insertAudio", icon: <AudioLines size={ICON} />, keywords: ["audio", "오디오", "음악", "music", "sound", "소리", "mp3"], run: (e) => triggerAudioUpload(e) },
   ] },
+  { labelKey: "groupCallout", items: CALLOUT_TYPES.map(calloutItem) },
   { labelKey: "groupContainer", items: [
-    { key: "callout", labelKey: "insertCallout", icon: <Lightbulb size={ICON} />, keywords: ["callout", "콜아웃", "노트"], run: (e) => { const sel = e.selection; const at = sel ? [sel.anchor.path[0] + 1] : [e.children.length]; e.tf.insertNodes({ type: "callout", bg: "var(--bg-tertiary)", icon: "💡", children: [{ type: "p", children: [{ text: "" }] }] }, { at }); } },
     { key: "toggle", labelKey: "insertToggle", icon: <ChevronRight size={ICON} />, keywords: ["toggle", "토글", "접기", "fold", "accordion"], run: (e) => insertAfter(e, { type: "toggle", open: true, children: [{ type: "p", children: [{ text: "" }] }, { type: "p", children: [{ text: "" }] }] }) },
     { key: "tabs", labelKey: "insertTabs", icon: <LayoutPanelTop size={ICON} />, keywords: ["tabs", "탭", "tab"], run: (e) => insertAfter(e, { type: "tabs", activeTab: 0, children: [{ type: "tab_panel", label: "Tab 1", children: [{ type: "p", children: [{ text: "" }] }] }, { type: "tab_panel", label: "Tab 2", children: [{ type: "p", children: [{ text: "" }] }] }] }) },
   ] },

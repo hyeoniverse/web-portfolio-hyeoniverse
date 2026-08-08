@@ -3166,7 +3166,7 @@ export function ColumnElement(props: PlateElementProps) {
       ...props.style,
       ...(px != null ? { flex: `0 var(--_col-shrink, 0) ${px}px` } : { flex: `${weight} 1 0` }),
       minWidth: COLUMN_MIN_PX,
-      borderRadius: "var(--radius-2xl)",
+      borderRadius: "var(--radius-md)",
       background: `var(--_col-bg, ${COLUMN_DEFAULT_BG})`,
       padding: "var(--spacing-sm)",
     }}>
@@ -3270,7 +3270,7 @@ export function CalloutElement(props: PlateElementProps) {
         <PlateElement {...props} style={{
           ...props.style,
           padding: hasIcon ? "var(--spacing-md) var(--spacing-md) var(--spacing-md) 44px" : "var(--spacing-md)",
-          borderRadius: "var(--radius-2xl)", background: bg,
+          borderRadius: "var(--radius-md)", background: bg,
           border: bg === "var(--bg-primary)" ? "1px solid var(--border-light-color)" : "1px solid transparent",
         }}>
           {props.children}

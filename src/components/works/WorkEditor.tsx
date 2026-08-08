@@ -5,7 +5,7 @@ import type { LocalizedText } from "@/types/common";
 import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { marked } from "marked";
+import { mdToRichHtml } from "@/components/posts/mdToRichHtml";
 import { ChevronRight, Plus, Star, Check, X, User, Pencil } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
@@ -21,7 +21,6 @@ import Chip, { useChipReorder } from "@/components/ui/Chip";
 import AdminEditorShell, {
   adminEditorStyles as es,
 } from "@/components/admin/AdminEditorShell";
-import { postProcessMarkedHtml } from "@/components/posts/postProcessMarkedHtml";
 import SeoChecklist, { type SeoCheckId } from "@/components/admin/SeoChecklist";
 import "@/components/admin/seoFlash.css";
 import { flashSeoField, clearSeoFlash } from "@/components/admin/seoFlash";
@@ -65,16 +64,6 @@ const ImagePanel = dynamic(
   () => import("@/components/posts/PlateEditor").then((m) => ({ default: m.ImagePanel })),
   { ssr: false },
 );
-
-/** 레거시 마크다운 본문 → richtext(HTML) 1회 변환 (에디터가 richtext 단일로 통합됨). */
-function mdToRichHtml(md: string): string {
-  if (!md) return md;
-  try {
-    return postProcessMarkedHtml(marked.parse(md, { async: false }) as string);
-  } catch {
-    return md;
-  }
-}
 
 // ── year ↔ DatePeriod 변환 ──
 // 기존 work.year 는 "2024" 같은 단순 문자열. 이제 "기간" 도 지원하기 위해 JSON 직렬화로 저장.
