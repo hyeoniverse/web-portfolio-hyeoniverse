@@ -529,17 +529,17 @@
 }
 
 /* 확인 버튼 오른쪽 정렬 — .deleteRow 와 동일 규칙. 사유 입력은 flex:1 이라 왼쪽을 채운다 */
-.reportRow {
+/* 신고 폼 — 사유 프리셋(라디오) + 상세 입력 + 액션, 세로 스택 */
+.reportForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+.reportActions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--spacing-xs);
-}
-
-/* 신고 사유 입력(공통 Input) 래퍼 — 남는 폭 채우기만 담당 */
-.reportField {
-  flex: 1 1 auto;
-  min-width: 0;
 }
 
 .reportThanks {
