@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.50.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.49.0...v1.50.0) (2026-08-09)
+
+
+### Features
+
+* **editor:** 찾기 바 개편 + 전 floating bar 규격·스타일 통일 ([1db9d50](https://github.com/hyeoniverse/web-portfolio-oval/commit/1db9d5070a0b5582d687c736d665ece31e5eb9b2))
+
 ## [1.49.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.48.1...v1.49.0) (2026-08-08)
 
 
