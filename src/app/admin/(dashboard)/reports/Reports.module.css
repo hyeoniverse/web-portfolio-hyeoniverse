@@ -50,14 +50,13 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  border-top: var(--border-light);
 }
 
+/* 카드가 아니라 divider 로 구분되는 리스트 행 — 알림·댓글 목록과 같은 규격 */
 .item {
-  padding: var(--spacing-lg);
-  border: var(--border-light);
-  border-radius: var(--radius-lg);
-  background: var(--bg-primary);
+  padding: var(--box-md-sm);
+  border-bottom: var(--border-light);
 }
 
 .status_resolved, .status_dismissed {
@@ -73,6 +72,10 @@
 }
 
 .itemType {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
@@ -81,6 +84,8 @@
 }
 
 .itemDate {
+  flex-shrink: 0;
+  white-space: nowrap;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
