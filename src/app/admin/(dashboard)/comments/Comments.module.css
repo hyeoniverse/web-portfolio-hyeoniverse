@@ -273,29 +273,7 @@
 }
 
 /* ── Empty / Pagination ── */
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  text-align: center;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
-  color: var(--text-tertiary);
-  padding: var(--spacing-4xl) var(--spacing-md);
-}
-
-.empty::before {
-  content: "";
-  display: block;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--bg-secondary);
-  border: var(--border-light);
-  background-image: linear-gradient(135deg, transparent 50%, var(--bg-accent-subtle) 50%);
-}
+/* 빈 상태(장식 원 포함)는 공통 <EmptyState circle> 로 이관됨 */
 
 .pagination {
   display: flex;
