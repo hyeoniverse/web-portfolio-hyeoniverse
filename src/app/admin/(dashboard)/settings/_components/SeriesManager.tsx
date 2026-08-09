@@ -4,19 +4,19 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { SEARCH_DEBOUNCE_MS, QUERY_PARAM } from "@/constants";
 import type { SortDirection } from "@/types";
 import { useSearchParams } from "next/navigation";
-import { ChevronRight, GripVertical, Trash2, Eye, EyeOff, Plus } from "@/components/icons";
+import { ChevronRight, GripVertical, Trash2, Plus } from "@/components/icons";
 import { motion, LayoutGroup } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BilingualCategory } from "@/types/common";
 import type { Series } from "@/types/post";
 import T from "@/components/ui/T";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import { useModalStore } from "@/stores/modalStore";
 import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SegmentedControl from "@/components/ui/SegmentedControl";
-import Tooltip from "@/components/ui/Tooltip";
 import EditableRowNumber from "@/components/admin/AdminTable/EditableRowNumber";
 import { Filter, ChevronDown } from "@/components/icons";
 import { AnimatePresence } from "framer-motion";
@@ -429,33 +429,29 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
                     {t("admin.posts.delete")}
                   </Button>
                 )}
-                {/* 발행 배지 — chevron 바로 앞. 펼침/접기와 무관하게 우측 anchor 유지 (delete 가 좌측에 삽입돼도 position 불변). */}
-                <Tooltip content={s.published ? "클릭해서 발행 해제" : "클릭해서 발행"}>
-                  <Button
-                    variant={s.published ? "primary" : "subtle"}
-                    tone={s.published ? "success" : "default"}
-                    size="xs"
-                    icon={s.published ? <Eye size={10} strokeWidth={2.2} /> : <EyeOff size={10} strokeWidth={2.2} />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const nextPub = !s.published;
-                      if (expanded) {
-                        setExpandedPublished(nextPub);
-                        expandedEditorRef.current?.setPublished(nextPub);
-                      }
-                      setSeriesList((prev) => prev.map((item) => item.id === s.id ? { ...item, published: nextPub } : item));
-                      fetch(`/api/series/${s.id}`, {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ published: nextPub }),
-                      }).catch(() => {
-                        setSeriesList((prev) => prev.map((item) => item.id === s.id ? { ...item, published: s.published } : item));
-                      });
-                    }}
-                  >
-                    {s.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
-                  </Button>
-                </Tooltip>
+                {/* 발행 배지 — chevron 바로 앞. 클릭하면 발행/해제 토글. admin 목록과 같은 공통 StatusBadge 규격. */}
+                <StatusBadge
+                  variant={s.published ? "published" : "draft"}
+                  title={s.published ? "클릭해서 발행 해제" : "클릭해서 발행"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const nextPub = !s.published;
+                    if (expanded) {
+                      setExpandedPublished(nextPub);
+                      expandedEditorRef.current?.setPublished(nextPub);
+                    }
+                    setSeriesList((prev) => prev.map((item) => item.id === s.id ? { ...item, published: nextPub } : item));
+                    fetch(`/api/series/${s.id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ published: nextPub }),
+                    }).catch(() => {
+                      setSeriesList((prev) => prev.map((item) => item.id === s.id ? { ...item, published: s.published } : item));
+                    });
+                  }}
+                >
+                  {s.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
+                </StatusBadge>
                 <ChevronRight className={`${styles.seriesChevron} ${expanded ? styles.seriesChevronOpen : ""}`} size={14} />
               </div>
               <div className={`${styles.seriesCardCollapse} ${expanded ? styles.seriesCardCollapseOpen : ""}`}>
