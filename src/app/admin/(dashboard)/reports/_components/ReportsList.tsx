@@ -184,7 +184,7 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
                   <Button
                     href={url}
                     external
-                    variant="outline"
+                    variant="ghost"
                     size="xs"
                     icon={<ExternalLink size={13} strokeWidth={1.8} />}
                   >
@@ -195,12 +195,12 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
               {r.status === "pending" && (
                 <>
                   {!r.comment?.is_deleted && r.comment && (
-                    <Button variant="outline" size="xs" tone="danger" onClick={() => confirmDeleteComment(r)}>
+                    <Button variant="ghost" size="xs" tone="danger" onClick={() => confirmDeleteComment(r)}>
                       <T k="admin.reports.deleteComment" />
                     </Button>
                   )}
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="xs"
                     icon={<Check size={13} strokeWidth={1.8} />}
                     onClick={() => updateStatus(r.id, "resolved")}
@@ -208,7 +208,7 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
                     <T k="admin.reports.resolve" />
                   </Button>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="xs"
                     icon={<X size={13} strokeWidth={1.8} />}
                     onClick={() => updateStatus(r.id, "dismissed")}
