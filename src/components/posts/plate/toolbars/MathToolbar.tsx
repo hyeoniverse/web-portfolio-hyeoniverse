@@ -25,7 +25,6 @@ export default React.memo(function MathToolbar({ visible, getAnchorRect }: MathT
   return (
     <FloatingBar inline open={visible} getAnchorRect={getAnchorRect}>
       <div data-math-symbols style={{ display: "contents" }}>
-        <span className={styles.floatingBarLabel}>MATH</span>
         {MATH_TOOLS.map((cat) => (
           <Popover
             key={cat.categoryKey}

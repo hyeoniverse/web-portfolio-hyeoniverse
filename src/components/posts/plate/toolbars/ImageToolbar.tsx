@@ -179,7 +179,7 @@ export default React.memo(function ImageToolbar({
                 <span className={styles.tblBarLabel}>{lock ? <LockIcon /> : <UnlockIcon />}{lock ? L("고정", "Locked") : L("해제", "Free")}</span>
               </TBtn>
               <span className={styles.flexSpacer} />
-              <TBtn square onClick={() => { setImageAttr("width", 0); setImageAttr("height", 0); }} tooltip={t("editor.restoreOriginal")}><RxReset size={14} /></TBtn>
+              <TBtn square onClick={() => { setImageAttr("width", 0); setImageAttr("height", 0); }} tooltip={t("editor.restoreOriginal")}><RxReset size={15} /></TBtn>
             </div>
             {wVal > 0 && (
               <>
@@ -214,7 +214,7 @@ export default React.memo(function ImageToolbar({
       </TBtn>
       {/* 교체 */}
       {_imageUploadFn.current && (
-        <TBtn square onClick={replaceImage} tooltip={t("editor.replaceImage")}><ImageUp size={16} strokeWidth={1.75} /></TBtn>
+        <TBtn square onClick={replaceImage} tooltip={t("editor.replaceImage")}><ImageUp size={15} strokeWidth={1.75} /></TBtn>
       )}
       {/* 삭제 — 확인 후 삭제 */}
       <Popover openOnHover placement="bottom-end" offset={12} contentClassName={styles.floatingMenu}
