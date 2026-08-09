@@ -8,9 +8,10 @@ import styles from "./AdminListShell.module.css";
 export { default as adminShellStyles } from "./AdminListShell.module.css";
 
 interface AdminListShellProps {
-  title: string;
-  newHref: string;
-  newLabel: string;
+  title: ReactNode;
+  /** 새 항목 버튼 — 목록형(posts/works)만. 모더레이션 목록(신고 등)은 headerExtra 로 대체하고 생략. */
+  newHref?: string;
+  newLabel?: string;
   saving?: boolean;
   hasChanges?: boolean;
   onSave?: () => void;
@@ -66,7 +67,7 @@ export default function AdminListShell({
             </button>
           )}
           {headerExtra}
-          {!headerExtra && (
+          {!headerExtra && newHref && (
             <Button variant="primary" size="sm" href={newHref} soundDisabled>
               {newLabel}
             </Button>
