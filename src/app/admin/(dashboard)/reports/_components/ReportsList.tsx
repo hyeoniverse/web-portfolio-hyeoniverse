@@ -18,7 +18,7 @@ import type { Report, StatusFilter } from "../_types";
 function ReportsSkeleton() {
   return (
     <ul className={styles.list} aria-busy="true">
-      {Array.from({ length: 3 }).map((_, i) => (
+      {Array.from({ length: 5 }).map((_, i) => (
         <li key={i} className={styles.item}>
           <div className={styles.skelHeader}>
             <SkeletonLine width={160} height="var(--skeleton-h-line-sm)" />

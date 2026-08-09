@@ -257,16 +257,16 @@ export default function NotificationsPage() {
               <T k="admin.notifications.refresh" />
             </Button>
           </Tooltip>
-          {!loading && unreadCount > 0 && (
+          {unreadCount > 0 && (
             <Tooltip content={t("admin.notifications.tipMarkAllRead")} placement="bottom" delay={250}>
-              <Button variant="outline" size="md" onClick={handleMarkAllRead}>
+              <Button variant="outline" size="md" onClick={handleMarkAllRead} disabled={loading}>
                 <T k="admin.notifications.markAllRead" />
               </Button>
             </Tooltip>
           )}
-          {!loading && notifications.length > 0 && (
+          {notifications.length > 0 && (
             <Tooltip content={t("admin.notifications.tipDeleteAll")} placement="bottom" delay={250}>
-              <Button variant="outline" size="md" tone="danger" onClick={handleDeleteAll}>
+              <Button variant="outline" size="md" tone="danger" onClick={handleDeleteAll} disabled={loading}>
                 <T k="admin.notifications.deleteAll" />
               </Button>
             </Tooltip>
@@ -386,7 +386,7 @@ export default function NotificationsPage() {
 
       {tab !== "report" && !loading && hasMore && (
         <div className={styles.loadMoreRow}>
-          <Button variant="outline" size="md" onClick={loadMore} disabled={loadingMore}>
+          <Button variant="outline" size="md" onClick={loadMore} loading={loadingMore} loadingVariant="wave">
             <T k="admin.notifications.loadMore" />
           </Button>
           <span className={styles.loadMoreCount}>{notifications.length} / {totalCount}</span>
