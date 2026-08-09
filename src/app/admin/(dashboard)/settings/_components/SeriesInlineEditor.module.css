@@ -398,24 +398,4 @@
 .seriesPostItem .seriesPostViewBtn:hover {
   color: var(--text-primary);
 }
-.seriesPostStatus {
-  flex-shrink: 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  font-weight: 500;
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-capsule);
-  white-space: nowrap;
-}
-.seriesPostPublished {
-  background: var(--bg-success-solid);
-  color: var(--bg-white);
-}
-
-.seriesPostDraft {
-  background: var(--bg-tertiary-alt);
-  color: var(--text-tertiary);
-}
+/* 발행 상태 배지는 공통 <StatusBadge> 컴포넌트로 이관됨 */

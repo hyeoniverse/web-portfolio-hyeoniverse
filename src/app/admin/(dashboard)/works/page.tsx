@@ -24,6 +24,7 @@ import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
 import T from "@/components/ui/T";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import StickyGlassBar from "@/components/admin/StickyGlassBar/StickyGlassBar";
 import AdminTable, {
   adminTableStyles as ts,
@@ -443,14 +444,13 @@ export default function AdminWorksPage() {
         label: t("admin.works.tableStatus"),
         className: ts.colMeta,
         render: (work) => (
-          <button
-            type="button"
-            className={`${ts.statusBadge} ${ts.statusBadgeBtn} ${work.published ? ts.published : ts.draft}`}
+          <StatusBadge
+            variant={work.published ? "published" : "draft"}
             onClick={(e) => { e.stopPropagation(); handleToggleWorkPublished(work); }}
             title={work.published ? t("admin.posts.clickToUnpublish") : t("admin.posts.clickToPublish")}
           >
             {work.published ? t("admin.works.published") : t("admin.works.draft")}
-          </button>
+          </StatusBadge>
         ),
         skeletonWidth: "50px",
       },

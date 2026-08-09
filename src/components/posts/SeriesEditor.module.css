@@ -202,28 +202,7 @@
   white-space: nowrap;
 }
 
-.postStatus {
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  font-weight: 500;
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-circle);
-}
-
-.postPublished {
-  background: var(--bg-success);
-  color: var(--text-success);
-}
-
-.postDraft {
-  background: var(--bg-tertiary-alt);
-  color: var(--text-tertiary);
-}
+/* 발행 상태 배지는 공통 <StatusBadge> 컴포넌트로 이관됨 */
 
 .postRemoveBtn {
   flex-shrink: 0;
