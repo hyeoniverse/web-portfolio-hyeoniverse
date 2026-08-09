@@ -11,6 +11,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import RadioGroup from "@/components/ui/RadioGroup";
 import Checkbox from "@/components/ui/Checkbox";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { useModalStore } from "@/stores/modalStore";
@@ -56,6 +57,15 @@ const COLLAPSE_HEIGHT = 320;
 
 const INTERACTIVE_SELECTOR =
   'label, button, a, input, textarea, select, img, [role="button"], [contenteditable], [data-no-drag-select]';
+
+/** 신고 사유 프리셋 — 선택 후 상세 입력 가능. "other" 는 직접 입력. */
+const REPORT_REASONS: { value: string; labelKey: string }[] = [
+  { value: "spam", labelKey: "comments.reportReasonSpam" },
+  { value: "abuse", labelKey: "comments.reportReasonAbuse" },
+  { value: "inappropriate", labelKey: "comments.reportReasonInappropriate" },
+  { value: "privacy", labelKey: "comments.reportReasonPrivacy" },
+  { value: "other", labelKey: "comments.reportReasonOther" },
+];
 
 interface CommentItemProps {
   comment: Comment;
@@ -180,6 +190,7 @@ function CommentItem({
 
   // Report state
   const [showReport, setShowReport] = useState(false);
+  const [reportPreset, setReportPreset] = useState("");
   const [reportReason, setReportReason] = useState("");
   const [reporting, setReporting] = useState(false);
   const [reportSubmitted, setReportSubmitted] = useState(false);
@@ -311,13 +322,18 @@ function CommentItem({
   }, [apiBase, comment.id, commenterId, targetId, deletePassword, isAdmin, onRefresh, t]);
 
   const handleReport = useCallback(async () => {
-    if (reporting) return;
+    if (reporting || !reportPreset) return;
+    const detail = reportReason.trim();
+    const presetLabel = t(REPORT_REASONS.find((x) => x.value === reportPreset)?.labelKey ?? "");
+    // "기타" 는 직접 입력만 저장, 프리셋은 라벨(+상세)을 합성해 저장
+    const reason = reportPreset === "other" ? detail : detail ? `${presetLabel} · ${detail}` : presetLabel;
+    if (!reason) return;
     setReporting(true);
     try {
       const res = await fetch(`${apiBase}/${comment.id}/report`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: reportReason.trim() }),
+        body: JSON.stringify({ reason }),
       });
       if (res.ok) {
         setReportSubmitted(true);
@@ -325,6 +341,7 @@ function CommentItem({
         setTimeout(() => {
           setShowReport(false);
           setReportReason("");
+          setReportPreset("");
           setReportSubmitted(false);
         }, 1800);
       }
@@ -333,7 +350,7 @@ function CommentItem({
     } finally {
       setReporting(false);
     }
-  }, [apiBase, comment.id, reportReason, reporting]);
+  }, [apiBase, comment.id, reportReason, reportPreset, reporting, t]);
 
   const handleEdit = useCallback(async () => {
     if (!editContent.trim()) return;
@@ -812,42 +829,53 @@ function CommentItem({
                 <T k="comments.reportThanks" />
               </p>
             ) : (
-              <div className={styles.reportRow}>
-                {/* 남는 폭 채우기는 래퍼가 담당 — 공통 Input 엔 스타일 클래스를 붙이지 않는다 */}
-                <div className={styles.reportField}>
+              <div className={styles.reportForm}>
+                {/* 사유 선택(기본) — 프리셋 라디오. "기타" 는 직접 입력. */}
+                <RadioGroup
+                  direction="vertical"
+                  value={reportPreset}
+                  onChange={setReportPreset}
+                  options={REPORT_REASONS.map((x) => ({ value: x.value, label: t(x.labelKey) }))}
+                />
+                {/* 프리셋 선택 시 상세 입력 — 프리셋이면 선택, "기타" 면 필수 사유 */}
+                {reportPreset && (
                   <Input
                     size="sm"
                     type="text"
                     value={reportReason}
                     onChange={setReportReason}
-                    placeholder={t("comments.reportPlaceholder")}
+                    placeholder={t(reportPreset === "other" ? "comments.reportOtherPlaceholder" : "comments.reportDetailPlaceholder")}
                     maxLength={500}
                     onKeyDown={(e) => {
                       // isComposing: 한글 조합 확정 Enter 가 제출로도 처리되는 것 방지
                       if (e.key === "Enter" && !e.nativeEvent.isComposing) handleReport();
                     }}
                   />
+                )}
+                <div className={styles.reportActions}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowReport(false);
+                      setReportReason("");
+                      setReportPreset("");
+                    }}
+                  >
+                    <T k="comments.cancel" />
+                  </Button>
+                  {/* loading 이 disabled 처리 + 프리셋 미선택/기타 사유 미입력 시 비활성 */}
+                  <Button
+                    variant="outline"
+                    tone="danger"
+                    size="sm"
+                    loading={reporting}
+                    disabled={!reportPreset || (reportPreset === "other" && !reportReason.trim())}
+                    onClick={handleReport}
+                  >
+                    <T k="comments.confirmReport" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setShowReport(false);
-                    setReportReason("");
-                  }}
-                >
-                  <T k="comments.cancel" />
-                </Button>
-                {/* loading 이 disabled 까지 처리 */}
-                <Button
-                  variant="outline"
-                  tone="danger"
-                  size="sm"
-                  loading={reporting}
-                  onClick={handleReport}
-                >
-                  <T k="comments.confirmReport" />
-                </Button>
               </div>
             )}
           </motion.div>
