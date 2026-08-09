@@ -1,6 +1,7 @@
 import { ImageIcon, Download, ExternalLink } from "@/components/icons";
 import type { TFunction } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { formatPostTitle } from "@/utils/post";
 import MediaThumb from "@/components/admin/MediaThumb";
@@ -85,28 +86,27 @@ export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post)
         const isScheduled = !post.published && post.scheduled_at && new Date(post.scheduled_at).getTime() > Date.now();
         if (isScheduled) {
           return (
-            <span className={`${ts.statusBadge} ${ts.scheduled}`} title={post.scheduled_at ?? ""}>
+            <StatusBadge variant="scheduled" title={post.scheduled_at ?? ""}>
               {t("admin.posts.scheduled") || "Scheduled"}
-            </span>
+            </StatusBadge>
           );
         }
         // 클릭 토글 — 발행/미발행 전환. onTogglePublished 없으면 정적 배지.
         if (!onTogglePublished) {
           return (
-            <span className={`${ts.statusBadge} ${post.published ? ts.published : ts.draft}`}>
+            <StatusBadge variant={post.published ? "published" : "draft"}>
               {post.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
-            </span>
+            </StatusBadge>
           );
         }
         return (
-          <button
-            type="button"
-            className={`${ts.statusBadge} ${ts.statusBadgeBtn} ${post.published ? ts.published : ts.draft}`}
+          <StatusBadge
+            variant={post.published ? "published" : "draft"}
             onClick={(e) => { e.stopPropagation(); onTogglePublished(post); }}
             title={post.published ? t("admin.posts.clickToUnpublish") : t("admin.posts.clickToPublish")}
           >
             {post.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
-          </button>
+          </StatusBadge>
         );
       },
       skeletonWidth: "50px",
@@ -262,9 +262,9 @@ export function createSeriesColumns(
       label: t("admin.posts.tableStatus"),
       className: st.colMeta,
       render: (s) => (
-        <span className={`${st.statusBadge} ${s.published ? st.published : st.draft}`}>
+        <StatusBadge variant={s.published ? "published" : "draft"}>
           {s.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
-        </span>
+        </StatusBadge>
       ),
     },
     {
