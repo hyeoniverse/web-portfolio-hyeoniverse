@@ -1,9 +1,9 @@
 "use client";
 
 // ── 블록 공통 액션 메뉴 (복제 / 이동 / 내용 제거 / 삭제) ──
-// 여러 블록의 floating bar "⋯" popover 에서 공용으로 쓴다. 필요한 액션만 넘기면 그 항목만 렌더.
+// 여러 블록의 floating bar "⋯" popover 에서 공용. 공통 MenuItem/MenuDivider 로 다른 popover 와 스타일 통일.
 import { CopyPlus, ArrowUp, ArrowDown, Eraser, Trash2 } from "@/components/icons";
-import type { ReactNode } from "react";
+import { MenuItem, MenuDivider } from "@/components/ui/Popover";
 import styles from "../RichTextEditor.module.css";
 
 export interface BlockActions {
@@ -24,28 +24,18 @@ export default function BlockActionsMenu({
 }) {
   const ko = language === "ko";
   const L = (k: string, e: string) => (ko ? k : e);
-  const item = (on: (() => void) | undefined, icon: ReactNode, label: string, danger = false) =>
-    on ? (
-      <button
-        type="button"
-        className={danger ? `${styles.codeMenuItem} ${styles.codeMenuDanger}` : styles.codeMenuItem}
-        onClick={() => { on(); close(); }}
-      >
-        {icon} {label}
-      </button>
-    ) : null;
-
+  const run = (on?: () => void) => () => { on?.(); close(); };
   const hasMove = actions.onDuplicate || actions.onMoveUp || actions.onMoveDown;
   const hasDestructive = actions.onClear || actions.onDelete;
 
   return (
-    <div className={styles.codeMenu}>
-      {item(actions.onDuplicate, <CopyPlus size={14} />, L("복제", "Duplicate"))}
-      {item(actions.onMoveUp, <ArrowUp size={14} />, L("위로 이동", "Move up"))}
-      {item(actions.onMoveDown, <ArrowDown size={14} />, L("아래로 이동", "Move down"))}
-      {hasMove && hasDestructive && <div className={styles.codeMenuDivider} />}
-      {item(actions.onClear, <Eraser size={14} />, L("내용 제거", "Clear content"))}
-      {item(actions.onDelete, <Trash2 size={14} />, L("삭제", "Delete"), true)}
+    <div onMouseDown={(e) => e.preventDefault()}>
+      {actions.onDuplicate && <MenuItem icon={<CopyPlus size={15} strokeWidth={1.75} />} label={L("복제", "Duplicate")} onClick={run(actions.onDuplicate)} />}
+      {actions.onMoveUp && <MenuItem icon={<ArrowUp size={15} strokeWidth={1.75} />} label={L("위로 이동", "Move up")} onClick={run(actions.onMoveUp)} />}
+      {actions.onMoveDown && <MenuItem icon={<ArrowDown size={15} strokeWidth={1.75} />} label={L("아래로 이동", "Move down")} onClick={run(actions.onMoveDown)} />}
+      {hasMove && hasDestructive && <MenuDivider />}
+      {actions.onClear && <MenuItem icon={<Eraser size={15} strokeWidth={1.75} />} label={L("내용 제거", "Clear content")} onClick={run(actions.onClear)} />}
+      {actions.onDelete && <MenuItem icon={<Trash2 size={15} strokeWidth={1.75} />} className={styles.blockToolsDanger} label={L("삭제", "Delete")} onClick={run(actions.onDelete)} />}
     </div>
   );
 }

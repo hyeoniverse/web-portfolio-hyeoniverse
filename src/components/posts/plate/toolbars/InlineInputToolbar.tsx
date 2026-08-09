@@ -8,7 +8,6 @@ import FloatingBar from "./FloatingBar";
 import styles from "../../RichTextEditor.module.css";
 
 interface InlineInputToolbarProps {
-  label: string;
   visible: boolean;
   value: string;
   onChange: (v: string) => void;
@@ -23,7 +22,7 @@ interface InlineInputToolbarProps {
 
 // 단일 입력 바(임베드 등) — 대상 선택에 앵커된 FloatingBar (도킹형 대체).
 export default React.memo(function InlineInputToolbar({
-  label, visible, value, onChange, onSubmit, onClose, getAnchorRect,
+  visible, value, onChange, onSubmit, onClose, getAnchorRect,
   placeholder = "https://...", inputType = "text", inputRef: externalRef,
 }: InlineInputToolbarProps) {
   const internalRef = useRef<HTMLInputElement>(null);
@@ -45,7 +44,6 @@ export default React.memo(function InlineInputToolbar({
     <FloatingBar inline open={visible} getAnchorRect={getAnchorRect}>
       {/* display:contents 래퍼 — 바깥 클릭 판별 + 인풋 focus 위해 mousedown 전파 차단 */}
       <div data-inline-input style={{ display: "contents" }} onMouseDown={(e) => e.stopPropagation()}>
-        <span className={styles.floatingBarLabel}>{label}</span>
         <Input
           inputRef={ref}
           size="sm"
