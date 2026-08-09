@@ -13,7 +13,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { matchesSearch } from "@/lib/koSearch";
-import ReportsList from "./_components/ReportsList";
+import ReportsList from "../reports/_components/ReportsList";
 import styles from "./Notifications.module.css";
 
 type TabKey = "all" | "comment" | "system" | "report";
