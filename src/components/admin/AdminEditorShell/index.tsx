@@ -11,7 +11,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import Popover, { type PopoverPlacement } from "@/components/ui/Popover";
 import Tooltip from "@/components/ui/Tooltip";
 import LanguageToggle from "@/components/ui/LanguageToggle";
-import Chip from "@/components/ui/Chip";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./AdminEditorShell.module.css";
@@ -1042,27 +1042,13 @@ export default function AdminEditorShell({
         <div className={styles.topBarRow}>
           {/* 발행 상태 chip — 둘째 줄 왼쪽 끝 (저장 그룹은 오른쪽) */}
           <div style={{ marginRight: "auto", display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
-            <Chip
-              variant="capsule"
-              className={styles.statusChip}
-              leftIcon={
-                <span
-                  className={`${styles.statusDot} ${
-                    published
-                      ? styles.statusDotPublished
-                      : hasSchedule
-                        ? styles.statusDotScheduled
-                        : styles.statusDotDraft
-                  }`}
-                />
-              }
-            >
+            <StatusBadge variant={published ? "published" : hasSchedule ? "scheduled" : "draft"}>
               {published
                 ? editorLang === "ko" ? "발행됨" : "Published"
                 : hasSchedule
                   ? editorLang === "ko" ? "예약 발행" : "Scheduled"
                   : editorLang === "ko" ? "미발행" : "Draft"}
-            </Chip>
+            </StatusBadge>
             {topBarSecondRowLeft}
           </div>
           <div className={styles.saveGroup}>
