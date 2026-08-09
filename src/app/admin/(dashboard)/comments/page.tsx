@@ -8,6 +8,7 @@ import { useStaticPageScroll } from "@/hooks/useStaticPageScroll";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import T from "@/components/ui/T";
+import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
@@ -247,7 +248,7 @@ export default function CommentsModerationPage() {
           ))}
         </div>
       ) : items.length === 0 ? (
-        <p className={styles.empty}><T k="admin.comments.empty" /></p>
+        <EmptyState circle><T k="admin.comments.empty" /></EmptyState>
       ) : (
         <div className={styles.list}>
           {items.map((c) => (
