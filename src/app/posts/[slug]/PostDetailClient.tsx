@@ -19,11 +19,10 @@ import RecommendedToast from "./_components/RecommendedToast";
 import RecommendedSection from "./_components/RecommendedSection";
 import type { RecommendedPost } from "./_components/types";
 import RelatedWorksCarousel from "./_components/RelatedWorksCarousel";
-import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
-import { ImageIcon, BookOpen, ChevronRight, ArrowLeft, ArrowRight, Languages } from "@/components/icons";
+import { ImageIcon, ChevronRight, ArrowLeft, ArrowRight, Languages } from "@/components/icons";
 import styles from "./PostDetail.module.css";
 
 interface AdjacentPost {
@@ -175,7 +174,6 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const currentSeriesIdx = seriesPosts.findIndex((p) => p.id === post.id);
   const prevSeriesPost = currentSeriesIdx > 0 ? seriesPosts[currentSeriesIdx - 1] : null;
   const nextSeriesPost = currentSeriesIdx < seriesPosts.length - 1 ? seriesPosts[currentSeriesIdx + 1] : null;
-  const relatedSeriesPosts = seriesPosts.filter((p) => p.id !== post.id);
 
   const handleSeriesHover = useCallback((sp: typeof seriesPosts[number], e: React.MouseEvent) => {
     if (sp.id === post.id) return;
@@ -272,31 +270,6 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       relatedContent={
         <>
           <RelatedWorksCarousel works={relatedWorks} viewLang={viewLang} onNavigate={navigateWithTransition} />
-
-          {relatedSeriesPosts.length > 0 && seriesData && (
-            <section className={styles.relatedSection}>
-              <div className={styles.relatedHeader}>
-                <BookOpen size={16} />
-                <span className={styles.relatedLabel}><T k="postDetail.series" /></span>
-                <span className={styles.relatedSeriesName}>
-                  &mdash; {viewLang === "en" && seriesData.title_en ? seriesData.title_en : seriesData.title}
-                </span>
-              </div>
-              <RelatedChips
-                items={relatedSeriesPosts.map((sp) => ({
-                  id: sp.id,
-                  title: viewLang === "en" && sp.title_en ? sp.title_en : sp.title,
-                  href: `/posts/${sp.slug}`,
-                  image: sp.cover_image || undefined,
-                  category: sp.category || undefined,
-                  desc: (viewLang === "en" ? (sp.excerpt_en || sp.excerpt) : sp.excerpt) || undefined,
-                }))}
-                moreLabel={viewLang === "en" ? "more" : "더보기"}
-                lessLabel={viewLang === "en" ? "Show less" : "접기"}
-              />
-            </section>
-          )}
-
         </>
       }
     >
