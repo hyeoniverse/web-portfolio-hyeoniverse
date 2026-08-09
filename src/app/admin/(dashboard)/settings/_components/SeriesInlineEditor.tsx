@@ -13,6 +13,7 @@ import { SERIES_TITLE_MAX, type Series, type SeriesPostItem } from "@/types/post
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import Field from "./SettingsFormFields";
 import T from "@/components/ui/T";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
@@ -639,9 +640,9 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                         >
                           {p.title || t("admin.posts.seriesModal.untitled")}
                         </span>
-                        <span className={`${styles.seriesPostStatus} ${p.published ? styles.seriesPostPublished : styles.seriesPostDraft}`}>
+                        <StatusBadge variant={p.published ? "published" : "draft"}>
                           {p.published ? t("admin.posts.published") : t("admin.posts.draft")}
-                        </span>
+                        </StatusBadge>
                       </div>
                     ))
                   );
@@ -758,9 +759,9 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                   >
                     {post.title || <T k="admin.posts.seriesModal.untitled" />}
                   </a>
-                  <span className={`${styles.seriesPostStatus} ${post.published ? styles.seriesPostPublished : styles.seriesPostDraft}`}>
+                  <StatusBadge variant={post.published ? "published" : "draft"}>
                     {post.published ? t("admin.posts.published") : t("admin.posts.draft")}
-                  </span>
+                  </StatusBadge>
                   {/* 아이콘 버튼 묶음 — ExternalLink + Unlink + Trash. ghost 스타일, 한 그룹 */}
                   <div
                     className={styles.seriesPostActions}

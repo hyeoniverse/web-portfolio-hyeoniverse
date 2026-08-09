@@ -12,6 +12,7 @@ import Textarea from "@/components/ui/Textarea";
 import AdminEditorShell from "@/components/admin/AdminEditorShell";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import T from "@/components/ui/T";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import styles from "./SeriesEditor.module.css";
 
 interface SeriesForm {
@@ -371,9 +372,9 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
                       <span className={styles.postTitle}>
                         {post.title || <T k="admin.posts.seriesModal.untitled" />}
                       </span>
-                      <span className={`${styles.postStatus} ${post.published ? styles.postPublished : styles.postDraft}`}>
-                        {post.published ? "P" : "D"}
-                      </span>
+                      <StatusBadge variant={post.published ? "published" : "draft"}>
+                        {post.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
+                      </StatusBadge>
                       <button
                         type="button"
                         className={styles.postRemoveBtn}
