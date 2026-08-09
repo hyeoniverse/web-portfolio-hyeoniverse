@@ -11,6 +11,7 @@ import Button from "@/components/ui/Button";
 import { SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import AdminListShell from "@/components/admin/AdminListShell";
+import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import styles from "../Reports.module.css";
 import type { Report, StatusFilter } from "../_types";
 
@@ -144,9 +145,7 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
   const body = loading ? (
     <ReportsSkeleton />
   ) : reports.length === 0 ? (
-    <div className={styles.empty}>
-      <T k="admin.reports.empty" />
-    </div>
+    <EmptyState circle><T k="admin.reports.empty" /></EmptyState>
   ) : (
     <ul className={styles.list}>
       {reports.map((r) => {

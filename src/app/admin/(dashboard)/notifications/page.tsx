@@ -8,6 +8,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { SkeletonLine, SkeletonCircle } from "@/components/ui/Skeleton";
 import Tooltip from "@/components/ui/Tooltip";
 import T from "@/components/ui/T";
+import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import Button from "@/components/ui/Button";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
@@ -313,17 +314,12 @@ export default function NotificationsPage() {
           ))}
         </div>
       ) : filteredNotifs.length === 0 ? (
-        <motion.p
-          className={styles.empty}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
+        <EmptyState circle>
           <span className={styles.emptyTitle}>
             <T k={search ? "admin.notifications.searchEmpty" : "admin.notifications.empty"} />
           </span>
           {!search && <span className={styles.emptyHint}><T k="admin.notifications.emptyHint" /></span>}
-        </motion.p>
+        </EmptyState>
       ) : (
         <motion.div
           className={styles.list}
