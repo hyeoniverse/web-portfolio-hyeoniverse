@@ -152,29 +152,32 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
         const url = commentUrl(r);
         return (
           <li key={r.id} className={`${styles.item} ${styles[`status_${r.status}`] ?? ""}`}>
-            <div className={styles.itemHeader}>
-              <span className={styles.itemType}>
-                {r.comment_type === "post" ? <T k="admin.reports.fromPost" /> : <T k="admin.reports.fromWork" />}
-                {r.comment?.parentTitle && <> · {r.comment.parentTitle}</>}
-              </span>
-              <span className={styles.itemDate}>{formatDate(r.created_at)}</span>
+            <div className={styles.itemMain}>
+              <div className={styles.itemHeader}>
+                <span className={styles.itemType}>
+                  {r.comment_type === "post" ? <T k="admin.reports.fromPost" /> : <T k="admin.reports.fromWork" />}
+                  {r.comment?.parentTitle && <> · {r.comment.parentTitle}</>}
+                </span>
+                <span className={styles.itemDate}>{formatDate(r.created_at)}</span>
+              </div>
+              {r.comment ? (
+                <>
+                  <div className={styles.commentNick}>
+                    {r.comment.nickname}
+                    {r.comment.is_deleted && <span className={styles.deletedBadge}><T k="admin.reports.commentDeleted" /></span>}
+                  </div>
+                  <p className={styles.commentBody}>{r.comment.content || "—"}</p>
+                </>
+              ) : (
+                <p className={styles.commentBody}><T k="admin.reports.commentGone" /></p>
+              )}
+              {r.reason && (
+                <p className={styles.reason}>
+                  <Flag size={12} strokeWidth={1.8} aria-hidden />
+                  <span>{r.reason}</span>
+                </p>
+              )}
             </div>
-            {r.comment ? (
-              <>
-                <div className={styles.commentNick}>
-                  {r.comment.nickname}
-                  {r.comment.is_deleted && <span className={styles.deletedBadge}><T k="admin.reports.commentDeleted" /></span>}
-                </div>
-                <p className={styles.commentBody}>{r.comment.content || "—"}</p>
-              </>
-            ) : (
-              <p className={styles.commentBody}><T k="admin.reports.commentGone" /></p>
-            )}
-            {r.reason && (
-              <p className={styles.reason}>
-                <span className={styles.reasonLabel}><T k="admin.reports.reason" />:</span> {r.reason}
-              </p>
-            )}
             <div className={styles.itemActions}>
               {url && (
                 <Tooltip content={t("admin.reports.viewTooltip")} placement="top" delay={200}>

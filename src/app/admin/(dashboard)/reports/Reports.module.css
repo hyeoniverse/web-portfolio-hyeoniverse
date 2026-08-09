@@ -53,10 +53,18 @@
   border-top: var(--border-light);
 }
 
-/* 카드가 아니라 divider 로 구분되는 리스트 행 — 알림·댓글 목록과 같은 규격 */
+/* divider 리스트 행 — 정보(좌) + 액션(우) 2단 */
 .item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
   padding: var(--box-md-sm);
   border-bottom: var(--border-light);
+}
+
+.itemMain {
+  flex: 1;
+  min-width: 0;
 }
 
 .status_resolved, .status_dismissed {
@@ -112,7 +120,7 @@
 }
 
 .commentBody {
-  margin: 0 0 var(--spacing-sm);
+  margin: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
@@ -120,26 +128,28 @@
   word-break: break-word;
 }
 
+/* 신고 사유 — 박스 대신 flag 아이콘 + 텍스트로 은은하게 */
 .reason {
-  margin: 0 0 var(--spacing-md);
-  padding: var(--spacing-sm);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  margin: var(--spacing-xs) 0 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
 }
-
-.reasonLabel {
-  font-weight: 600;
+.reason > svg {
+  flex-shrink: 0;
   color: var(--text-tertiary);
-  margin-right: var(--spacing-2xs);
 }
 
+/* 우측 액션 열 — 버튼 세로 스택(동일 너비) */
 .itemActions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
   gap: var(--spacing-2xs);
+  flex-shrink: 0;
 }
 
 /* Notifications 페이지의 "신고" 탭에서 사용되는 내부 status 필터 행 */
