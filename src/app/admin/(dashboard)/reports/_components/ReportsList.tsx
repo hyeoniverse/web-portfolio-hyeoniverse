@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
 import { Flag, ExternalLink, Check, X } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
@@ -11,6 +10,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import Button from "@/components/ui/Button";
 import { SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
 import SegmentedControl from "@/components/ui/SegmentedControl";
+import AdminListShell from "@/components/admin/AdminListShell";
 import styles from "../Reports.module.css";
 import type { Report, StatusFilter } from "../_types";
 
@@ -232,23 +232,19 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
     );
   }
 
-  // 독립 페이지 — 제목 헤더(Flag + pending 배지) + 필터를 한 줄에.
+  // 독립 페이지 — 공통 AdminListShell(posts/works 와 같은 제목 헤더 + Lenis 진입). Flag+배지는 title, 필터는 headerExtra.
   return (
-    <div className={styles.container}>
-      <motion.div
-        className={styles.header}
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-      >
-        <h1 className={styles.title}>
+    <AdminListShell
+      title={
+        <span className={styles.titleRow}>
           <Flag size={20} strokeWidth={1.6} aria-hidden />
           <T k="admin.reports.title" />
           {pendingCount > 0 && <span className={styles.badge}>{pendingCount}</span>}
-        </h1>
-        {filterControl}
-      </motion.div>
+        </span>
+      }
+      headerExtra={filterControl}
+    >
       {body}
-    </div>
+    </AdminListShell>
   );
 }

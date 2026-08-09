@@ -1,27 +1,9 @@
-.container {
-  max-width: var(--page-max-width);
-  margin: 0 auto;
-  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-2xl);
-}
-
-.title {
-  display: flex;
+/* 페이지 컨테이너·헤더·제목 폰트는 공통 AdminListShell 이 담당.
+   여기선 제목 안 Flag 아이콘 + pending 배지 정렬만. */
+.titleRow {
+  display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
-  font-family: var(--font-instrument);
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-primary);
-  margin: 0;
 }
 
 .badge {
