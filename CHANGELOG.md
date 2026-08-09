@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.50.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.50.0...v1.50.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* **posts:** 리더뷰 연결 프로젝트가 안 뜨던 버그 수정 ([331602b](https://github.com/hyeoniverse/web-portfolio-oval/commit/331602be21fc1c24d55e263b62a7174a91c87238))
+* **posts:** 연결 프로젝트 워크어라운드 되돌리고 title_en 복원 ([052089f](https://github.com/hyeoniverse/web-portfolio-oval/commit/052089ffc21225c4465818b4f554839e6af52acd))
+
 ## [1.50.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.49.0...v1.50.0) (2026-08-09)
 
 
