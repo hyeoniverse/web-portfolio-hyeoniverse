@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Flag, ExternalLink, Check, X } from "@/components/icons";
+import { Flag, ExternalLink, Check, X, Trash2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
@@ -158,7 +158,6 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
                   {r.comment_type === "post" ? <T k="admin.reports.fromPost" /> : <T k="admin.reports.fromWork" />}
                   {r.comment?.parentTitle && <> · {r.comment.parentTitle}</>}
                 </span>
-                <span className={styles.itemDate}>{formatDate(r.created_at)}</span>
               </div>
               {r.comment ? (
                 <>
@@ -179,44 +178,29 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
               )}
             </div>
             <div className={styles.itemActions}>
-              {url && (
-                <Tooltip content={t("admin.reports.viewTooltip")} placement="top" delay={200}>
-                  <Button
-                    href={url}
-                    external
-                    variant="ghost"
-                    size="xs"
-                    icon={<ExternalLink size={13} strokeWidth={1.8} />}
-                  >
-                    <T k="admin.reports.view" />
-                  </Button>
-                </Tooltip>
-              )}
-              {r.status === "pending" && (
-                <>
-                  {!r.comment?.is_deleted && r.comment && (
-                    <Button variant="ghost" size="xs" tone="danger" onClick={() => confirmDeleteComment(r)}>
-                      <T k="admin.reports.deleteComment" />
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    icon={<Check size={13} strokeWidth={1.8} />}
-                    onClick={() => updateStatus(r.id, "resolved")}
-                  >
-                    <T k="admin.reports.resolve" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    icon={<X size={13} strokeWidth={1.8} />}
-                    onClick={() => updateStatus(r.id, "dismissed")}
-                  >
-                    <T k="admin.reports.dismiss" />
-                  </Button>
-                </>
-              )}
+              <span className={styles.itemDate}>{formatDate(r.created_at)}</span>
+              <div className={styles.itemActionBtns}>
+                {url && (
+                  <Tooltip content={t("admin.reports.view")} placement="top" delay={200}>
+                    <Button href={url} external shape="square" variant="ghost" size="sm" aria-label={t("admin.reports.view")} icon={<ExternalLink size={15} strokeWidth={1.8} />} />
+                  </Tooltip>
+                )}
+                {r.status === "pending" && (
+                  <>
+                    {!r.comment?.is_deleted && r.comment && (
+                      <Tooltip content={t("admin.reports.deleteComment")} placement="top" delay={200}>
+                        <Button shape="square" variant="ghost" size="sm" tone="danger" aria-label={t("admin.reports.deleteComment")} icon={<Trash2 size={15} strokeWidth={1.8} />} onClick={() => confirmDeleteComment(r)} />
+                      </Tooltip>
+                    )}
+                    <Tooltip content={t("admin.reports.resolve")} placement="top" delay={200}>
+                      <Button shape="square" variant="ghost" size="sm" aria-label={t("admin.reports.resolve")} icon={<Check size={15} strokeWidth={1.8} />} onClick={() => updateStatus(r.id, "resolved")} />
+                    </Tooltip>
+                    <Tooltip content={t("admin.reports.dismiss")} placement="top" delay={200}>
+                      <Button shape="square" variant="ghost" size="sm" aria-label={t("admin.reports.dismiss")} icon={<X size={15} strokeWidth={1.8} />} onClick={() => updateStatus(r.id, "dismissed")} />
+                    </Tooltip>
+                  </>
+                )}
+              </div>
             </div>
           </li>
         );
