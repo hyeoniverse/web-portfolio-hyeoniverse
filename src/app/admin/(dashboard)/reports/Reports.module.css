@@ -143,13 +143,15 @@
   color: var(--text-tertiary);
 }
 
-/* 우측 액션 열 — 날짜(위) + 아이콘 액션 행(아래), 우측 정렬 */
+/* 우측 액션 열 — 날짜(위) + 아이콘 액션 행(아래), 우측 정렬.
+   아이콘 개수(보기/삭제/처리/반려 최대 4개)와 무관하게 폭을 고정 → 행마다 본문 너비가 안 달라짐 */
 .itemActions {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: var(--spacing-2xs);
   flex-shrink: 0;
+  width: calc(var(--control-h-sm) * 4 + var(--spacing-3xs) * 3);
 }
 .itemActionBtns {
   display: flex;
