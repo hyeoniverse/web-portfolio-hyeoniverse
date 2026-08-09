@@ -1530,7 +1530,7 @@
      밝은 글자가 묻혀 안 보였음. 85% 불투명 + blur 로 대비 보장하면서 프로스티드 글래스 유지. */
   background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
   backdrop-filter: blur(8px) saturate(1.4);
-  box-shadow: 0 6px 24px oklch(0% 0 0 / 0.14);
+  box-shadow: 0 4px 16px oklch(0% 0 0 / 0.12);
   overflow: hidden;
   z-index: var(--z-dropdown);
 }
@@ -1581,16 +1581,23 @@
   padding-top: 0;
 }
 
-/* 바 앞머리 라벨 (FIND · TOGGLE · CALLOUT · LINK · EMBED · MATH) — mono 소형 */
-.floatingBarLabel {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  user-select: none;
-  flex-shrink: 0;
+/* ── floating bar 컨트롤 규격 통일 — 모든 바(찾기·링크·임베드·표·이미지·비디오·콜아웃·컬럼·탭·토글·
+   수식·코드·포맷)의 버튼·캡슐·입력·셀렉트를 한 높이 control-h-sm(28)로. 공통 Select/Input/Segmented 는
+   size="sm"=28, 링크 pill·codeLangTrigger 도 28 — 어느 바든 한 줄 안에서 높이가 안 어긋나게. ── */
+.floatingBar .toolbarBtn {
+  height: var(--control-h-sm);
+  min-width: var(--control-h-sm);
+}
+.floatingBar .toolbarBtn.toolbarBtnSquare,
+.floatingBar .tableGroup .toolbarBtn.toolbarBtnSquare {
+  width: var(--control-h-sm);
+}
+.floatingBar .tableGroup,
+.floatingBar .findField {
+  height: var(--control-h-sm);
+}
+.floatingBar .fontSelect {
+  height: var(--control-h-sm);
 }
 
 /* 수식 툴바 — 카테고리 popover 안 기호 그리드 (compact) */
@@ -1608,47 +1615,6 @@
   margin: var(--spacing-3xs);
   background: var(--border-light-color);
   flex-shrink: 0;
-}
-
-/* popover 안 옵션 토글 리스트 (Find 검색 옵션 등) */
-.optList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xs);
-  min-width: 12rem;
-}
-.optRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  width: 100%;
-  padding: var(--spacing-2xs) var(--spacing-xs);
-  border: none;
-  border-radius: var(--radius-lg);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-  cursor: pointer;
-  text-align: left;
-  transition: background-color 0.12s ease;
-}
-.optRow:hover {
-  background: var(--bg-secondary);
-}
-.optRow > svg:first-child {
-  flex-shrink: 0;
-  color: var(--text-muted);
-}
-.optRowText {
-  flex: 1;
-  min-width: 0;
-}
-.optRowActive {
-  color: var(--text-primary);
-  background: var(--color-accent-alpha-10);
-}
-.optRowActive > svg:first-child {
-  color: var(--color-accent);
 }
 
 /* ── 컬럼 BG/Line popover 트리거 + 메뉴 ── */
@@ -2006,7 +1972,7 @@
 .linkTextPill {
   display: flex;
   align-items: center;
-  height: 28px;
+  height: var(--control-h-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   overflow: hidden;
@@ -3833,55 +3799,7 @@
 /* 코드블록 우상단 컨트롤 — 언어 select + wrap 토글 한 줄 */
 
 /* 복사 / "..." 컨트롤 — 밝은 중립 원형 버튼(언어 select 와 배경 통일) */
-.codeCtrlBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: var(--border-light);
-  border-radius: var(--radius-circle);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
-}
-
-.codeCtrlBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--border-strong-color);
-}
-/* 토글 활성(예: 줄바꿈 켜짐) — 채움 강조 */
-.codeCtrlBtn[data-on] {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-/* 라벨 있는 코드바 버튼(포맷/줄바꿈) — 아이콘 + 텍스트 캡슐 */
-.codeBarBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  height: 28px;
-  padding: 0 var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
-  cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
-}
-.codeBarBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--border-strong-color);
-}
-.codeBarBtn[data-on] {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
-  color: var(--text-inverse);
-}
+/* 코드 floating bar 버튼은 공통 TBtn(.toolbarBtn)으로 이관됨 — 전용 .codeBarBtn/.codeCtrlBtn 제거 */
 
 /* "..." 밖 별개 언어 Select — 우측 버튼 그룹과 간격 벌림 */
 
@@ -3890,7 +3808,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  height: 28px;
+  height: var(--control-h-sm);
   padding: 0 var(--spacing-xs) 0 var(--spacing-2xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
@@ -3954,20 +3872,6 @@
   margin-left: auto;
   color: var(--text-tertiary);
   font-size: var(--font-size-2xs);
-}
-
-.codeMenuDanger {
-  color: var(--text-accent);
-}
-
-.codeMenuDanger:hover {
-  background: var(--bg-accent-light);
-}
-
-.codeMenuDivider {
-  height: 1px;
-  background: var(--border-light-color);
-  margin: var(--spacing-2xs) var(--spacing-2xs);
 }
 
 .codeMenuSearch {
@@ -4390,12 +4294,27 @@
 }
 
 /* ── Find & Replace 인라인 바 (FloatingBar 안 캡슐 입력) ── */
+/* 찾기/바꾸기 필드 — 입력 + 인라인 옵션 토글(Aa/ab/.*, AB)을 한 캡슐에 (VS Code 패턴) */
+.findField {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  height: var(--control-h-sm);
+  padding-right: var(--spacing-3xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.findField:focus-within {
+  border-color: var(--color-accent);
+}
+
 .findInput {
   flex: 1;
-  min-width: 100px;
-  height: 20px;
-  padding: 0 6px 0 6px;
-  margin-left: var(--spacing-2xs);
+  min-width: 60px;
+  height: 100%;
+  padding: 0 var(--spacing-xs);
   border: none;
   background: transparent;
   font-family: var(--font-mono);
@@ -4404,16 +4323,40 @@
   outline: none;
 }
 
+/* 필드 안 인라인 옵션 토글 — 정사각 아이콘 버튼, 선택 시 accent (hover/선택 배경은 capsule=원형) */
+.findField .findToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--button-h-sm);
+  height: var(--button-h-sm);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.findField .findToggle:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+.findField .findToggleOn,
+.findField .findToggleOn:hover {
+  background: var(--color-accent-alpha-10);
+  color: var(--color-accent);
+}
+
 .findCount {
   font-family: var(--font-mono);
   font-size: var(--font-size-2xs);
   color: var(--text-muted);
-  padding: 0 6px;
+  padding: 0 var(--spacing-2xs);
   flex-shrink: 0;
-  min-width: 56px;
-  text-align: left;
-  border-left: var(--border-light);
-  transition: min-width 0.2s ease;
+  min-width: 3rem;
+  text-align: center;
+  white-space: nowrap;
 }
 
 /* ── n단 블록 hover/focus 시 배경 살짝 (레이아웃 안 밀리게 ::before 오버레이, 컬럼 뒤로) ── */

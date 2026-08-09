@@ -17,6 +17,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import { ReactEditor } from "slate-react";
 import { COLUMN_DEFAULT_BG, COLUMN_MIN_PX, COLUMN_MAX_PX, COLUMN_GROUP_MAX_PX } from "./presets";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
+import TBtn from "./TBtn";
 import { formatCode, isFormattable } from "./formatCode";
 import MermaidPreview from "./MermaidPreview";
 import HelpButton from "@/components/ui/HelpButton";
@@ -1821,12 +1822,17 @@ export function CodeBlockElement(props: PlateElementProps) {
         lang 을 key 로 줘서 변경 시 subtree 를 새로 마운트(leaf 를 fresh 하게)해 비교 자체를 피한다. */}
     <div key={`cb-${lang ?? "plaintext"}`} {...blockDragProps} style={{ cursor: "default" }}>
     {/* 코드블록 floating bar — 선택/포커스 시 코드블록 위에 뜸(다른 블록과 동일 패턴).
-        main: 언어 · 포맷팅 · 줄바꿈 · 복사 / ⋯: 복제·이동·삭제(블록 관리). keepInView 로 스크롤 추적. */}
+        줄바꿈·복사는 항상, 포맷/다이어그램 컨트롤은 조건부, ⋯ 는 블록 관리. keepInView 로 스크롤 추적. */}
     <FloatingBar open={selected || uiFocused} getAnchorRect={getAnchorRect} inline keepInView
       onFocusCapture={() => setUiFocused(true)}
       onBlurCapture={() => setUiFocused(false)}>
-      {/* 다이어그램 뷰 토글(코드/다이어그램/스플릿) — 다이어그램 블록에서만.
-          일반 코드블록은 언어·복사·줄바꿈이 인라인 바(창 헤더)로 이동했고, floating 엔 포맷·⋯ 만 둔다. */}
+      {/* 언어 선택 — 일반 코드블록(다이어그램은 mermaid 고정이라 대신 뷰 토글). */}
+      {!isDiagram && (
+        <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex", marginRight: "var(--spacing-3xs)" }}>
+          <CodeLangPicker value={lang ?? "plaintext"} onChange={setLang} language={language} />
+        </span>
+      )}
+      {/* 다이어그램 뷰 토글(코드/다이어그램/스플릿) — 다이어그램 블록에서만. */}
       {isDiagram && (
         <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex", marginRight: "var(--spacing-3xs)" }}>
           <SegmentedControl<"code" | "diagram" | "split">
@@ -1842,34 +1848,19 @@ export function CodeBlockElement(props: PlateElementProps) {
         </span>
       )}
       {isFormattable(lang) && (
-        <button
-          type="button"
-          className={styles.codeBarBtn}
-          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleFormat(); }}
-        >
-          <Sparkles size={13} />{language === "ko" ? "포맷" : "Format"}
-        </button>
+        <TBtn onClick={handleFormat} tooltip={language === "ko" ? "포맷" : "Format"}>
+          <span className={styles.tblBarLabel}><Sparkles size={15} strokeWidth={1.75} />{language === "ko" ? "포맷" : "Format"}</span>
+        </TBtn>
       )}
+      {/* 줄바꿈 · 복사 — 모든 코드블록에서 항상(창 헤더와 별개로 floating 바에도) */}
+      <TBtn active={wrap} onClick={toggleWrap} tooltip={language === "ko" ? "줄바꿈" : "Wrap"}>
+        <span className={styles.tblBarLabel}><WrapText size={15} strokeWidth={1.75} />{language === "ko" ? "줄바꿈" : "Wrap"}</span>
+      </TBtn>
+      <TBtn square onClick={handleCopy} tooltip={language === "ko" ? "코드 복사" : "Copy code"}>
+        <Copy size={15} strokeWidth={1.75} />
+      </TBtn>
       {isDiagram && (
         <>
-          <button
-            type="button"
-            className={styles.codeBarBtn}
-            data-on={wrap ? "" : undefined}
-            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleWrap(); }}
-          >
-            <WrapText size={13} />{language === "ko" ? "줄바꿈" : "Wrap"}
-          </button>
-          <Tooltip content={language === "ko" ? "코드 복사" : "Copy code"} placement="bottom">
-            <button
-              type="button"
-              className={styles.codeCtrlBtn}
-              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCopy(); }}
-              aria-label={language === "ko" ? "코드 복사" : "Copy code"}
-            >
-              <Copy size={14} />
-            </button>
-          </Tooltip>
           <HelpButton
             size="sm"
             soundDisabled
@@ -1894,14 +1885,9 @@ export function CodeBlockElement(props: PlateElementProps) {
         placement="bottom-end"
         contentClassName={styles.codeMenuPopover}
         trigger={
-          <button
-            type="button"
-            className={styles.codeCtrlBtn}
-            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-            aria-label={language === "ko" ? "더보기" : "More"}
-          >
-            <MoreHorizontal size={16} />
-          </button>
+          <TBtn square tooltip={language === "ko" ? "더보기" : "More"}>
+            <MoreHorizontal size={15} strokeWidth={1.75} />
+          </TBtn>
         }
       >
         {({ close }) => (
@@ -3271,7 +3257,7 @@ export function CalloutElement(props: PlateElementProps) {
           ...props.style,
           padding: hasIcon ? "var(--spacing-md) var(--spacing-md) var(--spacing-md) 44px" : "var(--spacing-md)",
           borderRadius: "var(--radius-md)", background: bg,
-          border: bg === "var(--bg-primary)" ? "1px solid var(--border-light-color)" : "1px solid transparent",
+          border: (bg === "var(--bg-primary)" || bg === "transparent") ? "1px solid var(--border-light-color)" : "1px solid transparent",
         }}>
           {props.children}
         </PlateElement>

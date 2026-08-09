@@ -1,10 +1,15 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useContext, createContext } from "react";
 import { createPortal } from "react-dom";
 import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
 import { GripVertical } from "@/components/icons";
 import styles from "../../RichTextEditor.module.css";
+
+/** 전역 Find 바의 현재 화면 rect. Find 바(FloatingBar)가 매 프레임 스스로 측정해 onRect 로 올리고,
+ *  PlateEditor 가 이 context 로 다시 내려준다. 컨텍스트 바들은 자기 "자연 위치"가 이 rect 와 2D 로
+ *  겹칠 때만 그 아래로 clamp 한다(떠다니되 겹침 회피). null = Find 닫힘. */
+export const FindBarRectContext = createContext<{ top: number; bottom: number; left: number; right: number } | null>(null);
 
 interface FloatingBarProps {
   open: boolean;
@@ -30,6 +35,10 @@ interface FloatingBarProps {
    * 지정하지 않으면 인스턴스 추적을 하지 않고 `open` 토글 시에만 pin 이 리셋된다(기존 동작).
    */
   anchorKey?: string | number | null;
+  /** 전역 Find 바 표시 — 다른 컨텍스트 바들이 이 바와 겹치지 않게 그 아래로 clamp 하는 기준이 된다. */
+  isFindBar?: boolean;
+  /** 지정 시 이 바의 화면 rect 를 매 프레임 상위로 보고(Find 바가 자기 위치를 PlateEditor→context 로 공유). */
+  onRect?: (r: { top: number; bottom: number; left: number; right: number } | null) => void;
 }
 
 /**
@@ -38,8 +47,9 @@ interface FloatingBarProps {
  * keepInView 면 전역 도구(Find)처럼 항상 화면 안에 유지된다.
  */
 export default function FloatingBar({
-  open, getAnchorRect, children, placement = "top", inline, onFocusCapture, onBlurCapture, keepInView = true, anchorKey,
+  open, getAnchorRect, children, placement = "top", inline, onFocusCapture, onBlurCapture, keepInView = true, anchorKey, isFindBar, onRect,
 }: FloatingBarProps) {
+  const findRect = useContext(FindBarRectContext);
   // keepInView: 앵커 rect 를 에디터 뷰포트 안으로 clamp — 매치가 스크롤로 벗어나도 바는 화면 안에 유지.
   const anchorFn = useCallback((): DOMRect => {
     const r = getAnchorRect();
@@ -97,6 +107,38 @@ export default function FloatingBar({
     return () => cancelAnimationFrame(rafId);
   }, [open, anchorFn, update, pinned, keepInView]);
 
+  // 자기 프레임 크기 추적 — 다른 바와의 겹침(2D) 판정에 쓴다(위치와 무관하게 안정적인 w/h).
+  const [selfSize, setSelfSize] = useState<{ w: number; h: number } | null>(null);
+  useEffect(() => {
+    if (!open) { setSelfSize(null); return; }
+    const el = frameRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => {
+      const r = el.getBoundingClientRect();
+      setSelfSize((prev) => (prev && Math.abs(prev.w - r.width) < 1 && Math.abs(prev.h - r.height) < 1 ? prev : { w: r.width, h: r.height }));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [open]);
+
+  // onRect(=Find 바): 자기 화면 rect 를 매 프레임 상위로 보고 → 다른 바가 이걸 피한다. 닫힐 때 null.
+  useEffect(() => {
+    if (!open || !onRect) return;
+    let raf = 0;
+    let last = "";
+    const report = () => {
+      const el = frameRef.current;
+      if (el) {
+        const r = el.getBoundingClientRect();
+        const key = `${Math.round(r.top)}|${Math.round(r.left)}|${Math.round(r.right)}|${Math.round(r.bottom)}`;
+        if (key !== last) { last = key; onRect({ top: r.top, bottom: r.bottom, left: r.left, right: r.right }); }
+      }
+      raf = requestAnimationFrame(report);
+    };
+    raf = requestAnimationFrame(report);
+    return () => { cancelAnimationFrame(raf); onRect(null); };
+  }, [open, onRect]);
+
   if (!open || (outOfView && !pinned)) return null;
 
   const onDown = (e: React.PointerEvent<HTMLButtonElement>) => {
@@ -124,16 +166,25 @@ export default function FloatingBar({
   };
 
   // 메인 툴바 아래로 clamp — 바가 스크롤로 위로 올라가도 상단 툴바를 가리지 않게(툴바 바로 아래에 붙음).
-  const toolbarBottom = (() => {
+  // + Find 바와 실제로 겹칠 때만 그 아래로 clamp — "떠다니되 겹치면 회피". 판정은 이 바의 **자연 위치**
+  //   (앵커 기준, clamp 전 style.top/left) + 안정적인 자기 크기(selfSize) 로 Find rect 와 2D 교차를 본다.
+  //   clamp 후 위치가 아니라 자연 위치로 보므로 아래로 내려간 뒤에도 판정이 불변 → 진동 없음.
+  const clampBottom = (() => {
     if (typeof document === "undefined") return 0;
     const tb = document.querySelector("[data-editor-toolbar]");
-    return tb ? tb.getBoundingClientRect().bottom : 0;
+    const toolbarBottom = tb ? tb.getBoundingClientRect().bottom : 0;
+    if (isFindBar || !findRect || !selfSize || typeof style.top !== "number") return toolbarBottom;
+    const myTop = style.top;
+    const myLeft = typeof style.left === "number" ? style.left : 0;
+    const vOverlap = myTop < findRect.bottom && myTop + selfSize.h > findRect.top;
+    const hOverlap = myLeft < findRect.right && myLeft + selfSize.w > findRect.left;
+    return vOverlap && hOverlap ? Math.max(toolbarBottom, findRect.bottom) : toolbarBottom;
   })();
   const floatStyle: React.CSSProperties = pinned
     ? { position: "fixed", top: pinned.top, left: pinned.left, zIndex: "var(--z-dropdown)" }
     : {
         ...style,
-        top: typeof style.top === "number" ? Math.max(style.top, toolbarBottom + 8) : style.top,
+        top: typeof style.top === "number" ? Math.max(style.top, clampBottom + 8) : style.top,
         zIndex: "var(--z-dropdown)",
       };
 

@@ -190,7 +190,7 @@ export default React.memo(function VideoToolbar({ editor, visible, selectedMedia
                     </span>
                   </TBtn>
                   <span className={styles.flexSpacer} />
-                  <TBtn square onClick={() => setAttr({ width: 0, height: 0 })} tooltip={t("editor.restoreOriginal")}><RxReset size={14} /></TBtn>
+                  <TBtn square onClick={() => setAttr({ width: 0, height: 0 })} tooltip={t("editor.restoreOriginal")}><RxReset size={15} /></TBtn>
                 </div>
                 {wVal > 0 && (
                   <>
@@ -265,7 +265,7 @@ export default React.memo(function VideoToolbar({ editor, visible, selectedMedia
         </>
       )}
       {/* 임베드 전체 초기화 */}
-      <TBtn square onClick={() => setAttr({ width: 0, align: "center", ytStart: 0, ytAutoplay: false, ytLoop: false, ytMute: false, ytControls: true })} tooltip={t("editor.restoreOriginal")}><RxReset size={13} /></TBtn>
+      <TBtn square onClick={() => setAttr({ width: 0, align: "center", ytStart: 0, ytAutoplay: false, ytLoop: false, ytMute: false, ytControls: true })} tooltip={t("editor.restoreOriginal")}><RxReset size={15} /></TBtn>
       <TBtn square className={styles.tableDangerBtn} onClick={deleteMedia} tooltip={t("editor.delete")}><Trash2 size={15} /></TBtn>
       </>
       )}

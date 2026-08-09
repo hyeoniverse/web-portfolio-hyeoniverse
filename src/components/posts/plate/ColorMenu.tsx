@@ -17,12 +17,14 @@ export interface ColorSwatchDef { hex: string; label?: string; }
  * onPick(undefined) = 기본 선택. onPick(removeValue) = 제거. onPick(hex) = 그 색.
  */
 export function ColorMenu({
-  label, hideLabel, value, onPick, onCommit, presets, defaultColor,
+  label, hideLabel, hideDefault, value, onPick, onCommit, presets, defaultColor,
   defaultLabel = "기본", removeValue, removeLabel = "제거", onRandom, recent,
   checkLight, recentSlots, recentLabel = "최근", pickerFallback = "#ffffff",
 }: {
   label: string;
   hideLabel?: boolean;
+  /** 기본색 스와치 숨김 (예: 콜아웃 — 타입별 색이 있어 단일 기본색 개념이 없음) */
+  hideDefault?: boolean;
   value: string | undefined | null;
   onPick: (v: string | undefined) => void;
   onCommit?: (v: string) => void;
@@ -52,7 +54,7 @@ export function ColorMenu({
       {!hideLabel && <div className={styles.colorMenuLabel}>{label}</div>}
       <div className={styles.swatchRow}>
         {/* 현재색 = 스포이드 캡슐 (클릭 시 피커 펼침) */}
-        <ColorPicker inline value={pickerVal} onChange={(c) => onPick(c.oklch)} onChangeComplete={(c) => onCommit?.(c.oklch)}>
+        <ColorPicker inline value={pickerVal} onChange={(c) => onPick(c.alpha < 1 ? c.hexa : c.oklch)} onChangeComplete={(c) => onCommit?.(c.alpha < 1 ? c.hexa : c.oklch)}>
           {({ open, toggle }: { open: boolean; toggle: () => void }) => (
             <button type="button" aria-label="pick" className={`${styles.pickerCapsule} ${open ? styles.pickerCapsuleOpen : ""}`} onClick={toggle}>
               <span className={styles.pickerCapsuleIcon}><Pipette size={11} strokeWidth={2} /></span>
@@ -72,9 +74,11 @@ export function ColorMenu({
           </Tooltip>
         ))}
         <span className={styles.swatchSep} />
-        <Tooltip content={defaultLabel} placement="top" delay={150}>
-          <button type="button" aria-label="default" className={`${styles.swatch} ${isDefault ? styles.swatchActive : ""}`} style={{ background: defaultColor }} onClick={() => onPick(undefined)}>{isDefault && swatchCheck}</button>
-        </Tooltip>
+        {!hideDefault && (
+          <Tooltip content={defaultLabel} placement="top" delay={150}>
+            <button type="button" aria-label="default" className={`${styles.swatch} ${isDefault ? styles.swatchActive : ""}`} style={{ background: defaultColor }} onClick={() => onPick(undefined)}>{isDefault && swatchCheck}</button>
+          </Tooltip>
+        )}
         {removeValue !== undefined && (
           <Tooltip content={removeLabel} placement="top" delay={150}>
             <button type="button" aria-label="remove" className={`${styles.swatch} ${isRemove ? styles.swatchActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => onPick(removeValue)}>{isRemove && swatchCheck}</button>

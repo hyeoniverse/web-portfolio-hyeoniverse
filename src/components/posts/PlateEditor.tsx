@@ -52,7 +52,7 @@ import MainToolbar from "./plate/toolbars/MainToolbar";
 import TableToolbar from "./plate/toolbars/TableToolbar";
 import ImageToolbar from "./plate/toolbars/ImageToolbar";
 import VideoToolbar from "./plate/toolbars/VideoToolbar";
-import FloatingBar from "./plate/toolbars/FloatingBar";
+import FloatingBar, { FindBarRectContext } from "./plate/toolbars/FloatingBar";
 import MathToolbar from "./plate/toolbars/MathToolbar";
 import InlineInputToolbar from "./plate/toolbars/InlineInputToolbar";
 import FloatingToolbar from "./plate/toolbars/FloatingToolbar";
@@ -62,9 +62,10 @@ import DateMentionMenu from "./plate/toolbars/DateMentionMenu";
 import PostLinkMenu from "./plate/toolbars/PostLinkMenu";
 import TBtn from "./plate/TBtn";
 import { TblTrash } from "./plate/icons";
-import { ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, X, ExternalLink, Copy, Columns3, AlignHorizontalSpaceAround, SlidersHorizontal, CaseSensitive, WholeWord, Regex, StretchHorizontal, Sparkles, Type, Eraser, BetweenHorizontalStart, Trash2, EmojiOffIcon } from "@/components/icons";
+import { ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, ReplaceAll, ExternalLink, Copy, Columns3, AlignHorizontalSpaceAround, CaseSensitive, CaseUpper, WholeWord, Regex, TextSelect, StretchHorizontal, Sparkles, Type, Eraser, BetweenHorizontalStart, Trash2 } from "@/components/icons";
 import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
 import Select from "@/components/ui/Select";
+import CloseButton from "@/components/ui/CloseButton";
 
 // Re-export ImagePanel for backward compatibility
 export { ImagePanel } from "./plate/ImagePanel";
@@ -72,6 +73,31 @@ export { ImagePanel } from "./plate/ImagePanel";
 // ── Find highlight leaf renderer (stable reference) ──
 // Plate 의 RenderLeafFn 시그니처를 따르되 leaf 의 동적 hl 필드는 narrow 한 record 로 캐스팅
 type FindLeafExtras = { findHighlight?: boolean; findCurrent?: boolean };
+
+// ── Find & Replace 순수 헬퍼 ──
+type EditorPoint = { path: number[]; offset: number };
+const cmpPath = (p: number[], q: number[]): number => {
+  const n = Math.min(p.length, q.length);
+  for (let i = 0; i < n; i++) if (p[i] !== q[i]) return p[i] < q[i] ? -1 : 1;
+  return p.length - q.length;
+};
+const cmpPoint = (a: EditorPoint, b: EditorPoint): number => {
+  const c = cmpPath(a.path, b.path);
+  return c !== 0 ? c : a.offset - b.offset;
+};
+// scope(선택 영역) 안에 매치가 완전히 포함되는가
+const inScope = (m: { path: number[]; offset: number; length: number }, scope: { start: EditorPoint; end: EditorPoint }): boolean =>
+  cmpPoint({ path: m.path, offset: m.offset }, scope.start) >= 0 && cmpPoint({ path: m.path, offset: m.offset + m.length }, scope.end) <= 0;
+// 원본 대소문자 패턴을 치환어에 이식(preserve case): ALLCAPS / Capitalized / lowercase
+const applyCase = (found: string, repl: string): string => {
+  if (!repl || !found) return repl;
+  if (found === found.toUpperCase() && found !== found.toLowerCase()) return repl.toUpperCase();
+  if (found === found.toLowerCase()) return repl.toLowerCase();
+  if (found[0] === found[0].toUpperCase() && found.slice(1) === found.slice(1).toLowerCase())
+    return repl.charAt(0).toUpperCase() + repl.slice(1).toLowerCase();
+  return repl;
+};
+
 const renderFindLeaf = (props: import("platejs").RenderLeafProps) => {
   const { children, attributes } = props;
   const leaf = props.leaf as typeof props.leaf & FindLeafExtras;
@@ -556,6 +582,16 @@ export default function PlateEditor({
   const [findRegex, setFindRegex] = useState(false);
   const [findIdx, setFindIdx] = useState(0);
   const findInputRef = useRef<HTMLInputElement>(null);
+  // 선택 영역에서 찾기(≡) — 켤 때 현재 선택 범위를 scope 로 캡처, 매치/하이라이트를 그 안으로 한정.
+  const [findInSel, setFindInSel] = useState(false);
+  const [findSelScope, setFindSelScope] = useState<{ start: EditorPoint; end: EditorPoint } | null>(null);
+  // 바꿀 때 원본 대소문자 유지(AB)
+  const [preserveCase, setPreserveCase] = useState(false);
+  // 검색 기록(⇅) — 입력창에서 ↑/↓ 로 이전 검색어 순환. 세션 메모리(ref)라 재렌더 유발 안 함.
+  const findHistoryRef = useRef<string[]>([]);
+  const histIdxRef = useRef(-1);
+  // Find 바가 스스로 보고하는 화면 rect — 컨텍스트 바가 이걸 피해 clamp(FindBarRectContext 로 공유).
+  const [findBarRect, setFindBarRect] = useState<{ top: number; bottom: number; left: number; right: number } | null>(null);
 
   // ── Math editing ──
   const [mathEditing, setMathEditing] = useState(false);
@@ -935,15 +971,16 @@ export default function PlateEditor({
   // ── Find & Replace helpers (editor 필요) ──
   const findMatches = useCallback(() => {
     if (!findQuery || !editor) return [];
-    return findTextMatches(editor.children as unknown[], findQuery, {
+    const all = findTextMatches(editor.children as unknown[], findQuery, {
       caseSensitive: findCase,
       wholeWord: findWord,
       useRegex: findRegex,
     });
-  }, [findQuery, findCase, findWord, findRegex, editor]);
+    return findInSel && findSelScope ? all.filter((m) => inScope(m, findSelScope)) : all;
+  }, [findQuery, findCase, findWord, findRegex, findInSel, findSelScope, editor]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const matches = useMemo(() => findOpen ? findMatches() : [], [findOpen, findQuery, findCase, findWord, findRegex, editor]);
+  const matches = useMemo(() => findOpen ? findMatches() : [], [findOpen, findQuery, findCase, findWord, findRegex, findInSel, findSelScope, editor]);
 
   const decorate = useCallback(({ entry }: { entry: [Record<string, unknown>, number[]] }) => {
     const [node, path] = entry;
@@ -962,18 +999,24 @@ export default function PlateEditor({
     let m: RegExpExecArray | null;
     regex.lastIndex = 0;
     while ((m = regex.exec(node.text)) !== null) {
+      const len = m[0].length;
+      // 선택 영역에서 찾기: scope 밖 매치는 하이라이트 제외
+      if (findInSel && findSelScope && !inScope({ path, offset: m.index, length: len }, findSelScope)) {
+        if (len === 0) regex.lastIndex++;
+        continue;
+      }
       const isCurrent = matches.length > 0 && findIdx < matches.length &&
         matches[findIdx].path.join(",") === path.join(",") && matches[findIdx].offset === m.index;
       ranges.push({
         anchor: { path, offset: m.index },
-        focus: { path, offset: m.index + m[0].length },
+        focus: { path, offset: m.index + len },
         findHighlight: true,
         findCurrent: isCurrent,
       });
-      if (m[0].length === 0) regex.lastIndex++;
+      if (len === 0) regex.lastIndex++;
     }
     return ranges;
-  }, [findOpen, findQuery, findCase, findWord, findRegex, findIdx, matches]);
+  }, [findOpen, findQuery, findCase, findWord, findRegex, findInSel, findSelScope, findIdx, matches]);
 
   const selectAndScroll = useCallback((match: { path: number[]; offset: number; length: number }) => {
     editor.tf.select({
@@ -1012,12 +1055,14 @@ export default function PlateEditor({
     if (m.length === 0) return;
     const idx = Math.min(findIdx, m.length - 1);
     const match = m[idx];
-    editor.tf.select({
+    const range = {
       anchor: { path: match.path, offset: match.offset },
       focus: { path: match.path, offset: match.offset + match.length },
-    });
-    editor.tf.insertText(replaceQuery);
-  }, [findMatches, findIdx, replaceQuery, editor]);
+    };
+    const repl = preserveCase ? applyCase(editor.api.string(range), replaceQuery) : replaceQuery;
+    editor.tf.select(range);
+    editor.tf.insertText(repl);
+  }, [findMatches, findIdx, replaceQuery, preserveCase, editor]);
 
   const doReplaceAll = useCallback(() => {
     const m = findMatches();
@@ -1025,15 +1070,50 @@ export default function PlateEditor({
     editor.tf.withoutNormalizing(() => {
       for (let i = m.length - 1; i >= 0; i--) {
         const match = m[i];
-        editor.tf.select({
+        const range = {
           anchor: { path: match.path, offset: match.offset },
           focus: { path: match.path, offset: match.offset + match.length },
-        });
-        editor.tf.insertText(replaceQuery);
+        };
+        const repl = preserveCase ? applyCase(editor.api.string(range), replaceQuery) : replaceQuery;
+        editor.tf.select(range);
+        editor.tf.insertText(repl);
       }
     });
     setFindIdx(0);
-  }, [findMatches, replaceQuery, editor]);
+  }, [findMatches, replaceQuery, preserveCase, editor]);
+
+  // 선택 영역에서 찾기(≡) 토글 — 켤 때 현재 확장된 선택 범위를 scope 로 캡처
+  const toggleFindInSel = useCallback(() => {
+    if (findInSel) { setFindInSel(false); setFindSelScope(null); return; }
+    const sel = editor.selection;
+    if (!sel) return;
+    const { anchor: a, focus: f } = sel;
+    if (a.path.join() === f.path.join() && a.offset === f.offset) return; // collapsed → 무시
+    const forward = cmpPoint(a, f) <= 0;
+    const start = forward ? a : f;
+    const end = forward ? f : a;
+    setFindSelScope({ start: { path: [...start.path], offset: start.offset }, end: { path: [...end.path], offset: end.offset } });
+    setFindInSel(true);
+    setFindIdx(0);
+  }, [findInSel, editor]);
+
+  // 검색 기록(⇅) — Enter 로 검색을 확정할 때 기록에 push(중복/공백 제거, 최신순, 30개)
+  const commitHistory = useCallback(() => {
+    const q = findQuery.trim();
+    if (!q) return;
+    const h = findHistoryRef.current;
+    findHistoryRef.current = h[0] === q ? h : [q, ...h.filter((x) => x !== q)].slice(0, 30);
+    histIdxRef.current = -1;
+  }, [findQuery]);
+  // ↑(older) / ↓(newer) 로 기록 순환. -1 = 지금 입력값(빈 문자열)
+  const navHistory = useCallback((dir: 1 | -1) => {
+    const h = findHistoryRef.current;
+    if (h.length === 0) return;
+    const idx = Math.max(-1, Math.min(h.length - 1, histIdxRef.current + dir));
+    histIdxRef.current = idx;
+    setFindQuery(idx === -1 ? "" : h[idx]);
+    setFindIdx(0);
+  }, []);
 
   // ── callout/toggle 안에서 Enter → container split 방지 ──
   useEffect(() => {
@@ -2179,6 +2259,7 @@ export default function PlateEditor({
       e.preventDefault();
       setFindOpen(true);
       setFindReplace(false);
+      setFindInSel(false); setFindSelScope(null);
       setTimeout(() => findInputRef.current?.focus(), 50);
       return;
     }
@@ -2186,6 +2267,7 @@ export default function PlateEditor({
       e.preventDefault();
       setFindOpen(true);
       setFindReplace(true);
+      setFindInSel(false); setFindSelScope(null);
       setTimeout(() => findInputRef.current?.focus(), 50);
       return;
     }
@@ -2633,10 +2715,11 @@ export default function PlateEditor({
       return !!(ca && cf && ca[1].join(",") !== cf[1].join(","));
     } catch { return false; }
   })();
+  // find 바는 전역 검색 오버레이 — 블록 컨텍스트 바(table/callout 등)와 독립적으로 공존해야 하므로
+  // activeBar cascade 에 넣지 않고 findOpen 으로 직접 연다.
   const activeBar: string | null =
     showLinkInput ? "link"
       : showEmbedInput ? "embed"
-      : findOpen ? "find"
       : mathEditing ? "math"
       : isInImage ? "image"
       : (isInMediaEmbed && nearestContextType === "media_embed") ? "media"
@@ -2652,6 +2735,7 @@ export default function PlateEditor({
   return (
     <div className={styles.wrapper} data-theme={theme}>
       <Plate editor={editor} onChange={handleChange}>
+        <FindBarRectContext.Provider value={findBarRect}>
 
         <MainToolbar
           editor={editor}
@@ -2719,10 +2803,13 @@ export default function PlateEditor({
             selectedMedia={selectedMediaEmbed}
           />
 
-          {/* Find & Replace — 현재 매치에 앵커. keepInView 로 스크롤해도 항상 화면 안에 유지(전역 도구). */}
+          {/* Find & Replace — 현재 매치에 앵커. keepInView 로 스크롤해도 항상 화면 안에 유지(전역 도구).
+              activeBar 와 독립(findOpen) — 검색 중에도 표/콜아웃 등 컨텍스트 바가 함께 동작. */}
           <FloatingBar
-            open={activeBar === "find"}
+            open={findOpen}
+            isFindBar
             keepInView
+            onRect={setFindBarRect}
             getAnchorRect={() => {
               try {
                 const m = matches[findIdx] || matches[0];
@@ -2742,8 +2829,12 @@ export default function PlateEditor({
             }}
           >
             <div className={styles.floatingBarRow}>
-              <span className={styles.floatingBarLabel}>FIND</span>
-              <div className={styles.tableGroup} style={{ width: 190 }}>
+              {/* 좌측 chevron — 바꾸기 행 펼치기/접기 (VS Code 패턴) */}
+              <TBtn square active={findReplace} onClick={() => setFindReplace(!findReplace)} tooltip={t("editor.replace")}>
+                {findReplace ? <ChevronDown size={15} strokeWidth={1.75} /> : <ChevronRight size={15} strokeWidth={1.75} />}
+              </TBtn>
+              {/* 찾기 필드 — 입력 + 인라인 옵션 토글(Aa / ab / .*) */}
+              <div className={styles.findField} style={{ width: 236 }}>
                 <input
                   ref={findInputRef}
                   type="text"
@@ -2751,52 +2842,41 @@ export default function PlateEditor({
                   placeholder={t("editor.findPlaceholder")}
                   value={findQuery}
                   onMouseDown={(e) => e.stopPropagation()}
-                  onChange={(e) => { setFindQuery(e.target.value); setFindIdx(0); }}
+                  onChange={(e) => { setFindQuery(e.target.value); setFindIdx(0); histIdxRef.current = -1; }}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") { e.preventDefault(); if (e.shiftKey) doFindPrev(); else doFindNext(); }
-                    if (e.key === "Escape") { setFindOpen(false); editor.tf.focus(); }
+                    if (e.key === "Enter") { e.preventDefault(); commitHistory(); if (e.shiftKey) doFindPrev(); else doFindNext(); }
+                    else if (e.key === "ArrowUp") { e.preventDefault(); navHistory(1); }
+                    else if (e.key === "ArrowDown") { e.preventDefault(); navHistory(-1); }
+                    else if (e.key === "Escape") { setFindOpen(false); editor.tf.focus(); }
                   }}
                 />
-                <span className={styles.findCount}>{matches.length > 0 ? `${Math.min(findIdx + 1, matches.length)}/${matches.length}` : "0"}</span>
+                <button type="button" className={`${styles.findToggle}${findCase ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setFindCase(!findCase)} title={t("editor.matchCase")} aria-pressed={findCase}>
+                  <CaseSensitive size={14} strokeWidth={1.75} />
+                </button>
+                <button type="button" className={`${styles.findToggle}${findWord ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setFindWord(!findWord)} title={t("editor.wholeWord")} aria-pressed={findWord}>
+                  <WholeWord size={14} strokeWidth={1.75} />
+                </button>
+                <button type="button" className={`${styles.findToggle}${findRegex ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setFindRegex(!findRegex)} title={t("editor.useRegex")} aria-pressed={findRegex}>
+                  <Regex size={14} strokeWidth={1.75} />
+                </button>
               </div>
-              {/* 검색 옵션 — popover 로 compact (대소문자 / 단어 / 정규식) */}
-              <Popover placement="bottom-start" offset={8}
-                trigger={
-                  <TBtn square active={findCase || findWord || findRegex} tooltip={language === "ko" ? "검색 옵션" : "Options"}>
-                    <SlidersHorizontal size={13} strokeWidth={1.9} />
-                  </TBtn>
-                }>
-                {() => (
-                  <div className={styles.optList} onMouseDown={(e) => e.preventDefault()}>
-                    <button type="button" className={`${styles.optRow} ${findCase ? styles.optRowActive : ""}`} onClick={() => setFindCase(!findCase)}>
-                      <CaseSensitive size={16} strokeWidth={1.9} />
-                      <span className={styles.optRowText}>{language === "ko" ? "대소문자 구분" : "Match case"}</span>
-                      {findCase && <Check size={13} strokeWidth={2.5} />}
-                    </button>
-                    <button type="button" className={`${styles.optRow} ${findWord ? styles.optRowActive : ""}`} onClick={() => setFindWord(!findWord)}>
-                      <WholeWord size={16} strokeWidth={1.9} />
-                      <span className={styles.optRowText}>{language === "ko" ? "단어 단위" : "Whole word"}</span>
-                      {findWord && <Check size={13} strokeWidth={2.5} />}
-                    </button>
-                    <button type="button" className={`${styles.optRow} ${findRegex ? styles.optRowActive : ""}`} onClick={() => setFindRegex(!findRegex)}>
-                      <Regex size={16} strokeWidth={1.9} />
-                      <span className={styles.optRowText}>{language === "ko" ? "정규식" : "Regex"}</span>
-                      {findRegex && <Check size={13} strokeWidth={2.5} />}
-                    </button>
-                  </div>
-                )}
-              </Popover>
+              <span className={styles.findCount}>
+                {findQuery ? (matches.length > 0 ? `${Math.min(findIdx + 1, matches.length)}/${matches.length}` : t("editor.noResults")) : ""}
+              </span>
               <div className={styles.tableGroup}>
-                <TBtn square onClick={doFindPrev} tooltip={t("editor.findPrev")}><ChevronUp size={12} strokeWidth={2.5} /></TBtn>
-                <TBtn square onClick={doFindNext} tooltip={t("editor.findNext")}><ChevronDown size={12} strokeWidth={2.5} /></TBtn>
-                <TBtn square active={findReplace} onClick={() => setFindReplace(!findReplace)} tooltip={t("editor.replace")}><Replace size={12} /></TBtn>
+                <TBtn square onClick={doFindPrev} tooltip={t("editor.findPrev")}><ChevronUp size={15} strokeWidth={1.75} /></TBtn>
+                <TBtn square onClick={doFindNext} tooltip={t("editor.findNext")}><ChevronDown size={15} strokeWidth={1.75} /></TBtn>
               </div>
-              <TBtn square onClick={() => { setFindOpen(false); setFindQuery(""); setReplaceQuery(""); editor.tf.focus(); }} tooltip="Close (Esc)"><X size={12} strokeWidth={2.5} /></TBtn>
+              {/* 선택 영역에서 찾기(≡) */}
+              <TBtn square active={findInSel} onClick={toggleFindInSel} tooltip={t("editor.findInSelection")}><TextSelect size={15} strokeWidth={1.75} /></TBtn>
+              <CloseButton size="sm" title="Close (Esc)" ariaLabel="Close (Esc)" onClick={() => { setFindOpen(false); setFindQuery(""); setReplaceQuery(""); setFindInSel(false); setFindSelScope(null); editor.tf.focus(); }} />
             </div>
             {findReplace && (
               <div className={styles.floatingBarRow}>
-                <span className={styles.floatingBarLabel}>REPL</span>
-                <div className={styles.tableGroup} style={{ width: 190 }}>
+                {/* 찾기 행 좌측 chevron 폭만큼 정렬용 spacer */}
+                <span aria-hidden style={{ width: "var(--control-h-sm)", flexShrink: 0 }} />
+                {/* 바꾸기 필드 — 입력 + 대소문자 유지(AB) 토글 */}
+                <div className={styles.findField} style={{ width: 236 }}>
                   <input
                     type="text"
                     className={styles.findInput}
@@ -2809,9 +2889,14 @@ export default function PlateEditor({
                       if (e.key === "Escape") { setFindOpen(false); editor.tf.focus(); }
                     }}
                   />
+                  <button type="button" className={`${styles.findToggle}${preserveCase ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setPreserveCase(!preserveCase)} title={t("editor.preserveCase")} aria-pressed={preserveCase}>
+                    <CaseUpper size={15} strokeWidth={1.75} />
+                  </button>
                 </div>
-                <TBtn onClick={doReplace} tooltip={t("editor.replaceOne")}>One</TBtn>
-                <TBtn onClick={doReplaceAll} tooltip={t("editor.replaceAll")}>All</TBtn>
+                <div className={styles.tableGroup}>
+                  <TBtn square onClick={doReplace} tooltip={t("editor.replaceOne")}><Replace size={15} strokeWidth={1.75} /></TBtn>
+                  <TBtn square onClick={doReplaceAll} tooltip={t("editor.replaceAll")}><ReplaceAll size={15} strokeWidth={1.75} /></TBtn>
+                </div>
               </div>
             )}
           </FloatingBar>
@@ -3025,7 +3110,7 @@ export default function PlateEditor({
                   <Popover openOnHover placement="bottom-start" offset={8} contentClassName={styles.colLayoutPopover}
                     trigger={
                       <TBtn aria-label="column layout" style={{ padding: "0 10px" }}>
-                        <span className={styles.tblBarLabel}><Columns3 size={13} />{colCount}</span>
+                        <span className={styles.tblBarLabel}><Columns3 size={15} strokeWidth={1.75} />{colCount}</span>
                       </TBtn>
                     }>
                     {() => (
@@ -3073,7 +3158,7 @@ export default function PlateEditor({
                       }
                     }}
                   >
-                    <BetweenHorizontalStart size={13} />
+                    <BetweenHorizontalStart size={15} strokeWidth={1.75} />
                   </TBtn>
                   <TBtn
                     aria-label="remove column"
@@ -3099,7 +3184,7 @@ export default function PlateEditor({
                       );
                     }}
                   >
-                    <Trash2 size={13} />
+                    <Trash2 size={15} strokeWidth={1.75} />
                   </TBtn>
                   <span className={styles.divider} />
                   <TBtn square onClick={equalizeColumns} tooltip={L2("너비 균등", "Equalize widths")} aria-label="equalize widths">
@@ -3180,7 +3265,6 @@ export default function PlateEditor({
               };
               return (
                 <>
-                  <span className={styles.floatingBarLabel}>TABS</span>
                   {/* cleanupMenu — 열 바의 정리·초기화와 같은 규격.
                       blockToolsMenu(220px 고정 + 라벨 padding 2px)를 쓰면 짧은 항목 2개에 비해 과하게 넓고,
                       헤더 라벨이 MenuItem(좌측 --spacing-sm)과 좌측 정렬이 어긋난 채 위 모서리에 붙는다. */}
@@ -3223,7 +3307,6 @@ export default function PlateEditor({
               const headingType = firstChild?.type || "p";
               return (
                 <>
-                  <span className={styles.floatingBarLabel}>TOGGLE</span>
                   {/* 제목 스타일 */}
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>{t("editor.toggleTitle") || "제목"}</span>
@@ -3336,7 +3419,7 @@ export default function PlateEditor({
                           </select>
                         </div>
                         <TBtn square onClick={() => insertListInToggle("todo", true)} tooltip={t("editor.todoList")}>
-                          <ListTodo size={14} />
+                          <ListTodo size={15} strokeWidth={1.75} />
                         </TBtn>
                       </div>
                     );
@@ -3350,7 +3433,7 @@ export default function PlateEditor({
                       onClick={() => editor.tf.setNodes({ open: true }, { at: toggleNode.path })}
                       tooltip={t("editor.expanded") || "Expanded"}
                     >
-                      <ChevronDown size={14} />
+                      <ChevronDown size={15} strokeWidth={1.75} />
                     </TBtn>
                     <TBtn
                       square
@@ -3358,7 +3441,7 @@ export default function PlateEditor({
                       onClick={() => editor.tf.setNodes({ open: false }, { at: toggleNode.path })}
                       tooltip={t("editor.collapsed") || "Collapsed"}
                     >
-                      <ChevronRight size={14} />
+                      <ChevronRight size={15} strokeWidth={1.75} />
                     </TBtn>
                   </div>
                   {/* 서식 초기화 / 삭제 */}
@@ -3397,15 +3480,13 @@ export default function PlateEditor({
           >
             {calloutNode && (() => {
               const cBg = (calloutNode.node.bg as string) || "var(--bg-tertiary)";
-              const isCustomBg = cBg.startsWith("#") || cBg.startsWith("oklch");
               return (
                 <>
-                  <span className={styles.floatingBarLabel}>CALLOUT</span>
-                  {/* BG — popover 로 compact (열블록 색상 popover 와 동일 스타일) */}
-                  <Popover openOnHover placement="bottom-start" offset={8}
+                  {/* BG — 클릭식 popover (색상 피커가 지속 클릭을 요구해 openOnHover 는 피커가 바로 닫힘) */}
+                  <Popover placement="bottom-start" offset={8}
                     trigger={
                       <TBtn aria-label="background" style={{ padding: "0 10px" }}>
-                        <span className={styles.tblBarLabel}>BG<span className={styles.presetDotInline} style={{ background: isCustomBg ? cBg : CHECKER_BG, margin: 0 }} /></span>
+                        <span className={styles.tblBarLabel}>BG<span className={styles.presetDotInline} style={{ background: cBg === "transparent" ? CHECKER_BG : cBg, margin: 0 }} /></span>
                       </TBtn>
                     }>
                     {() => (
@@ -3413,11 +3494,13 @@ export default function PlateEditor({
                         <ColorMenu
                           label={language === "ko" ? "배경 색" : "Background"}
                           value={cBg}
-                          onPick={(v) => editor.tf.setNodes({ bg: v ?? "var(--bg-tertiary)" }, { at: calloutNode.path })}
+                          onPick={(v) => editor.tf.setNodes({ bg: v ?? "transparent" }, { at: calloutNode.path })}
                           onCommit={(v) => recentCallout.addColor(v)}
-                          presets={CALLOUT_BG_PRESETS.map((p) => ({ hex: p.color }))}
+                          presets={CALLOUT_BG_PRESETS.filter((p) => p.color.startsWith("#")).map((p) => ({ hex: p.color }))}
                           defaultColor="var(--bg-tertiary)"
-                          defaultLabel={language === "ko" ? "기본" : "Default"}
+                          hideDefault
+                          removeValue="transparent"
+                          removeLabel={language === "ko" ? "투명 (테두리)" : "Transparent (border)"}
                           recent={recentCallout.colors}
                           recentLabel={language === "ko" ? "최근" : "Recent"}
                         />
@@ -3427,22 +3510,21 @@ export default function PlateEditor({
                   {/* 프리셋 (아이콘 + 배경 세트) */}
                   <div className={styles.tableGroup}>
                     <span className={styles.tableGroupLabel}>Preset</span>
-                    <TBtn onClick={() => editor.tf.setNodes({ bg: "var(--bg-tertiary)", icon: "💡" }, { at: calloutNode.path })} tooltip="Tip" style={{ padding: 0, width: 24, aspectRatio: "1" }}>💡</TBtn>
-                    <TBtn onClick={() => editor.tf.setNodes({ bg: "#fee2e2", icon: "⚠️" }, { at: calloutNode.path })} tooltip="Warning" style={{ padding: 0, width: 24, aspectRatio: "1" }}>⚠️</TBtn>
-                    <TBtn onClick={() => editor.tf.setNodes({ bg: "#dcfce7", icon: "✅" }, { at: calloutNode.path })} tooltip="Success" style={{ padding: 0, width: 24, aspectRatio: "1" }}>✅</TBtn>
-                    <TBtn onClick={() => editor.tf.setNodes({ bg: "#dbeafe", icon: "ℹ️" }, { at: calloutNode.path })} tooltip="Info" style={{ padding: 0, width: 24, aspectRatio: "1" }}>ℹ️</TBtn>
-                    <TBtn onClick={() => editor.tf.setNodes({ bg: "#fef3c7", icon: "📌" }, { at: calloutNode.path })} tooltip="Note" style={{ padding: 0, width: 24, aspectRatio: "1" }}>📌</TBtn>
-                    <TBtn onClick={() => editor.tf.setNodes({ bg: "#e8d0f0", icon: "🔮" }, { at: calloutNode.path })} tooltip="Insight" style={{ padding: 0, width: 24, aspectRatio: "1" }}>🔮</TBtn>
+                    <TBtn onClick={() => editor.tf.setNodes({ bg: "var(--bg-tertiary)", icon: "💡" }, { at: calloutNode.path })} tooltip="Tip" style={{ padding: 0, width: 28, aspectRatio: "1" }}>💡</TBtn>
+                    <TBtn onClick={() => editor.tf.setNodes({ bg: "#fee2e2", icon: "⚠️" }, { at: calloutNode.path })} tooltip="Warning" style={{ padding: 0, width: 28, aspectRatio: "1" }}>⚠️</TBtn>
+                    <TBtn onClick={() => editor.tf.setNodes({ bg: "#dcfce7", icon: "✅" }, { at: calloutNode.path })} tooltip="Success" style={{ padding: 0, width: 28, aspectRatio: "1" }}>✅</TBtn>
+                    <TBtn onClick={() => editor.tf.setNodes({ bg: "#dbeafe", icon: "ℹ️" }, { at: calloutNode.path })} tooltip="Info" style={{ padding: 0, width: 28, aspectRatio: "1" }}>ℹ️</TBtn>
+                    <TBtn onClick={() => editor.tf.setNodes({ bg: "#fef3c7", icon: "📌" }, { at: calloutNode.path })} tooltip="Note" style={{ padding: 0, width: 28, aspectRatio: "1" }}>📌</TBtn>
+                    <TBtn onClick={() => editor.tf.setNodes({ bg: "#e8d0f0", icon: "🔮" }, { at: calloutNode.path })} tooltip="Insight" style={{ padding: 0, width: 28, aspectRatio: "1" }}>🔮</TBtn>
                   </div>
-                  {/* 이모지 제거/추가 · 서식 초기화 · 삭제 */}
+                  {/* 이모지 제거/추가 · 삭제 */}
                   {calloutNode.node.icon ? (
                     <TBtn square onClick={() => editor.tf.setNodes({ icon: undefined }, { at: calloutNode.path })} tooltip={t("editor.removeEmoji")}>
-                      <EmojiOffIcon />
+                      <Eraser size={15} strokeWidth={1.75} />
                     </TBtn>
                   ) : (
                     <TBtn onClick={() => editor.tf.setNodes({ icon: "💡" }, { at: calloutNode.path })} tooltip={t("editor.addEmoji")}>😀</TBtn>
                   )}
-                  <TBtn onClick={() => editor.tf.setNodes({ bg: "var(--bg-tertiary)", icon: "💡" }, { at: calloutNode.path })} tooltip={t("editor.clearFormat")}>Clear</TBtn>
                   <TBtn square className={styles.tableDangerBtn} onClick={() => { if (calloutNode.path) editor.tf.removeNodes({ at: calloutNode.path }); }} tooltip={t("editor.deleteCallout")}>
                     <TblTrash />
                   </TBtn>
@@ -3477,7 +3559,6 @@ export default function PlateEditor({
           >
             {/* display:contents 래퍼 — 바깥 클릭 감지(data-link-toolbar) + 인풋 focus 위해 mousedown 전파 차단 */}
             <div data-link-toolbar style={{ display: "contents" }} onMouseDown={(e) => e.stopPropagation()}>
-              <span className={styles.floatingBarLabel}>LINK</span>
               {/* 프로토콜 Select + URL input 을 한 pill 로 (triggerClassName 으로 Select 테두리 제거) */}
               <div className={styles.linkPill}>
                 <Select
@@ -3546,23 +3627,22 @@ export default function PlateEditor({
               {/* 삽입 / 열기 / 복사 / 제거 / 닫기 — 전부 아이콘 통일, 적용은 accent 강조 */}
               <div className={styles.linkActions}>
                 <TBtn square className={styles.linkApplyBtn} onClick={() => { if (linkForm.url.trim()) { doInsertLink(linkForm); closeLinkInput(); } }} tooltip={t("editor.insertLink")}>
-                  <Check size={14} />
+                  <Check size={15} strokeWidth={1.75} />
                 </TBtn>
                 <TBtn square disabled={!linkForm.url.trim()} onClick={() => { const href = (linkForm.protocol || "") + linkForm.url.trim(); if (href) window.open(href, "_blank", "noopener,noreferrer"); }} tooltip={t("editor.openLink")}>
-                  <ExternalLink size={13} />
+                  <ExternalLink size={15} strokeWidth={1.75} />
                 </TBtn>
                 <TBtn square disabled={!linkForm.url.trim()} onClick={() => { const href = (linkForm.protocol || "") + linkForm.url.trim(); if (href) { try { navigator.clipboard?.writeText(href); showToast(t("editor.linkCopied"), "success"); } catch { /* ignore */ } } }} tooltip={t("editor.copyUrl")}>
-                  <Copy size={13} />
+                  <Copy size={15} strokeWidth={1.75} />
                 </TBtn>
                 <TBtn square className={styles.linkRemoveBtn} onClick={() => { restoreSelection(); try { unwrapLink(editor); } catch { /* ignore */ } closeLinkInput(); }} tooltip={t("editor.removeLink")}>
-                  <Trash2 size={13} />
+                  <Trash2 size={15} strokeWidth={1.75} />
                 </TBtn>
               </div>
             </div>
           </FloatingBar>
 
           <InlineInputToolbar
-            label="EMBED"
             visible={activeBar === "embed"}
             value={embedInputValue}
             onChange={setEmbedInputValue}
@@ -3728,6 +3808,7 @@ export default function PlateEditor({
           <span>·</span>
           <span>{wordCount.toLocaleString()} {t("editor.wordUnit")}</span>
         </div>
+        </FindBarRectContext.Provider>
 
       </Plate>
     </div>
