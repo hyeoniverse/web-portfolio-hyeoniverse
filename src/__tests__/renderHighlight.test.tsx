@@ -3,9 +3,12 @@ import { render } from "@testing-library/react";
 import { renderHighlight } from "@/app/about/_components/renderHighlight";
 
 describe("renderHighlight", () => {
-  it("마크업이 없는 텍스트를 그대로 반환한다", () => {
-    const result = renderHighlight("일반 텍스트");
-    expect(result).toBe("일반 텍스트");
+  /* renderHighlight 는 용어 툴팁이 붙으면서 문자열이 아니라 React.ReactNode 를 돌려준다.
+     반환값 자체를 비교하면 Fragment 와 문자열을 비교하게 되므로, 렌더 결과로 확인한다. */
+  it("마크업이 없는 텍스트는 하이라이트 없이 그대로 렌더된다", () => {
+    const { container } = render(<>{renderHighlight("일반 텍스트")}</>);
+    expect(container.textContent).toBe("일반 텍스트");
+    expect(container.querySelector(".highlighted-text")).toBeNull();
   });
 
   it("**볼드** 마크업을 highlighted-text span으로 변환한다", () => {
@@ -27,8 +30,9 @@ describe("renderHighlight", () => {
     expect(spans[1].textContent).toBe("두 번째");
   });
 
-  it("빈 **** 마크업은 하이라이트 없이 원본 텍스트를 반환한다", () => {
-    const result = renderHighlight("텍스트 **** 여기");
-    expect(result).toBe("텍스트 **** 여기");
+  it("빈 **** 마크업은 하이라이트 없이 원본 텍스트로 렌더된다", () => {
+    const { container } = render(<>{renderHighlight("텍스트 **** 여기")}</>);
+    expect(container.textContent).toBe("텍스트 **** 여기");
+    expect(container.querySelector(".highlighted-text")).toBeNull();
   });
 });

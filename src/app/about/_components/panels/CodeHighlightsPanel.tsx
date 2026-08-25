@@ -22,6 +22,16 @@ interface CodeHighlightsPanelProps {
   scrollBy?: (deltaX: number) => void;
 }
 
+/* 데모가 실제로 있는 항목만 데모 칸을 만든다. 빈 CodeDemoSlot 은 null 을 반환하는데
+   감싼 .codeDemo 가 flex:1 이라, 그냥 두면 아무것도 없는 칸이 폭 절반을 차지한다. */
+function hasDemo(e: CodeExample): boolean {
+  if (e.demoMode === "sandbox") {
+    return !!e.demoFiles && Object.values(e.demoFiles).some((c) => c.trim());
+  }
+  if (e.demoMode === "media") return !!e.demoMedia?.trim();
+  return false;
+}
+
 /* admin (siteConfig.about.codeHighlights) flat shape → CodeExample nested shape 변환 */
 type CfgCode = { title: string; description_ko: string; description_en: string; language: string; code: string;
   demoMode?: CodeDemoMode; demoMedia?: string; demoFiles?: Record<string, string>; demoTemplate?: string; demoBg?: string };
@@ -198,7 +208,9 @@ function CodeHighlightsPanel({
                 </div>
               </div>
               <div className={styles.codeSingleBody}>
-                <div className={styles.codeDemo} style={example.demoBg ? { background: example.demoBg } : undefined}><CodeDemoSlot mode={example.demoMode} media={example.demoMedia} files={example.demoFiles} template={example.demoTemplate} active={index === activeIndex} /></div>
+                {hasDemo(example) && (
+                  <div className={styles.codeDemo} style={example.demoBg ? { background: example.demoBg } : undefined}><CodeDemoSlot mode={example.demoMode} media={example.demoMedia} files={example.demoFiles} template={example.demoTemplate} active={index === activeIndex} /></div>
+                )}
                 <div
                   ref={(el) => {
                     codeWrapRefs.current[index] = el;
@@ -268,7 +280,9 @@ function CodeHighlightsPanel({
                   className={`${styles.codeMobileBody} ${isOpen ? styles.codeMobileBodyOpen : ""}`}
                 >
                   <div className={styles.codeRevealContent}>
-                    <div className={styles.codeDemo} style={example.demoBg ? { background: example.demoBg } : undefined}><CodeDemoSlot mode={example.demoMode} media={example.demoMedia} files={example.demoFiles} template={example.demoTemplate} active={isOpen} /></div>
+                    {hasDemo(example) && (
+                      <div className={styles.codeDemo} style={example.demoBg ? { background: example.demoBg } : undefined}><CodeDemoSlot mode={example.demoMode} media={example.demoMedia} files={example.demoFiles} template={example.demoTemplate} active={isOpen} /></div>
+                    )}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <CodeHighlight
                         code={example.code}

@@ -14,22 +14,17 @@ export const designProcess: ProcessStep[] = [
   },
   {
     step: "02",
-    title: { ko: "핵심 UI 컴포넌트 개발", en: "Core UI Component Development" },
+    title: {
+      ko: "UI 컴포넌트와 인터랙션 구현",
+      en: "UI Components & Interaction",
+    },
     description: {
-      ko: "**Hero** 섹션, **Navigation**, **Contact Drawer**, **Loading Screen** 등 주요 UI 컴포넌트를 구현했습니다. 네비게이션의 언어·테마 버튼에 **flip/pop 애니메이션**을 적용하고, 로딩 화면에 **001→100 카운팅 애니메이션**을 추가하는 등 각 컴포넌트의 인터랙션을 설계했습니다.",
-      en: "Built core UI components including **Hero** section, **Navigation**, **Contact Drawer**, and **Loading Screen**. Applied **flip/pop animations** to the navigation's language and theme buttons, added a **001→100 counting animation** to the loading screen, and designed interactions for each component.",
+      ko: "**Hero** 섹션, **Navigation**, **Contact Drawer**, **Loading Screen** 등 주요 UI 컴포넌트를 구현했습니다. 각 컴포넌트의 움직임은 **GSAP**과 **Framer Motion**으로 처리해 Image Velocity, StaggerText, Mouse Parallax, Magnetic Hover 를 만들었습니다. 스크롤 속도와 마우스 움직임에 **스프링 감쇠**로 반응하도록 해서, 값이 목표치로 점차 수렴하며 멈춥니다.",
+      en: "Built the core UI components — **Hero** section, **Navigation**, **Contact Drawer**, and **Loading Screen**. Their motion runs on **GSAP** and **Framer Motion**: Image Velocity, StaggerText, Mouse Parallax, and Magnetic Hover. Each responds to scroll speed and pointer movement with **spring damping**, so values converge on their target and settle instead of snapping.",
     },
   },
   {
     step: "03",
-    title: { ko: "인터랙션 및 모션 디자인", en: "Interaction & Motion Design" },
-    description: {
-      ko: "**GSAP**과 **Framer Motion**을 활용해 Image Velocity, StaggerText, Mouse Parallax, Magnetic Hover, Direction-Aware ClipPath 등 **물리 기반 인터랙션**을 구현했습니다. 스크롤 속도와 마우스 움직임에 반응하는 **스프링 감쇠 기반 애니메이션**으로 자연스러운 모션을 구현했습니다.",
-      en: "Implemented **physics-based interactions** using **GSAP** and **Framer Motion** — Image Velocity, StaggerText, Mouse Parallax, Magnetic Hover, and Direction-Aware ClipPath. Built natural motion through **spring-damped animations** that respond to scroll speed and mouse movement.",
-    },
-  },
-  {
-    step: "04",
     title: {
       ko: "다국어 지원 및 반응형 최적화",
       en: "Internationalization & Responsive Design",
@@ -40,7 +35,7 @@ export const designProcess: ProcessStep[] = [
     },
   },
   {
-    step: "05",
+    step: "04",
     title: { ko: "성능 최적화", en: "Performance Optimization" },
     description: {
       ko: "**Lighthouse CLI**로 프로덕션 빌드를 측정하며 2차에 걸쳐 최적화를 진행했습니다. reCAPTCHA를 **invisible 모드 + 지연 로딩**으로 전환하고, 미사용 폰트 4종(12파일)을 제거하여 페이지 용량을 **70% 절감**, 모바일 **Performance 98점**을 달성했습니다.",
@@ -48,14 +43,14 @@ export const designProcess: ProcessStep[] = [
     },
   },
   {
-    step: "06",
+    step: "05",
     title: {
       ko: "문서화 및 프로젝트 회고",
       en: "Documentation & Project Retrospective",
     },
     description: {
-      ko: "기술 선택의 이유, 문제 해결 과정, 아키텍처 구조를 기록하는 **About 페이지**를 구현했습니다. Code Highlights, Troubleshooting, Architecture 시각화 등 **6개 패널**을 데스크톱 가로 스크롤과 모바일 세로 레이아웃으로 완성했습니다.",
-      en: "Built the **About page** documenting technology choices, problem-solving processes, and architecture structure. Completed **6 panels** — Code Highlights, Troubleshooting, Architecture visualization, and more — desktop horizontal scroll and mobile vertical layout.",
+      ko: "기술 선택의 이유, 문제 해결 과정, 아키텍처 구조를 기록하는 **About 페이지**를 구현했습니다. Code Highlights, Design Decisions, Architecture 시각화 등 **15개 패널**을 데스크톱 가로 스크롤과 모바일 세로 레이아웃으로 완성했습니다.",
+      en: "Built the **About page** documenting technology choices, problem-solving processes, and architecture structure. Completed **15 panels** — Code Highlights, Design Decisions, Architecture visualization, and more — desktop horizontal scroll and mobile vertical layout.",
     },
   },
 ];

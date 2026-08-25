@@ -1,0 +1,326 @@
+/* 트러블슈팅 시각화 공용 프리미티브 — 아티팩트 비주얼 어휘를 사이트 토큰으로.
+   카드 래퍼 없음(요청대로): figure 는 배경/테두리 없이 콘텐츠만. 노드(기기·박스·구름)는
+   다이어그램 요소라 최소한의 선만. 색은 시맨틱 토큰이라 라이트·다크 자동 대응. 전부 flex-wrap 반응형. */
+
+/* 섹션 본문과 같은 들여쓰기(줄번호 gutter 정렬). 위아래 여백을 넉넉히 줘서 앞뒤 문단과 확실히 분리. */
+.viz {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  /* 상하 여백만 담당한다. 좌측 정렬은 패널이 도형을 본문 줄(.ideLine + 빈 줄번호 칸)로
+     감싸며 맞추므로, 여기서 또 들여쓰면 본문보다 59px 더 밀린다. */
+  margin: var(--spacing-2xl) 0;
+  padding-right: var(--spacing-md);
+}
+
+/* figure — 카드 아님. 콘텐츠 + 캡션만. */
+.fig {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.cap {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+/* 노드 — 기기/개념 박스. 선만, 배경 없음(카드 느낌 최소화). */
+.dev {
+  flex: 0 0 auto;
+  min-width: 120px;
+  text-align: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
+  border-radius: var(--radius-2xl);
+}
+
+.ic {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.nm {
+  margin-top: 6px;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.sub {
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+/* 버전/상태 칩 */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--spacing-xs);
+  padding: 4px 10px;
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-circle);
+  flex: 0 0 auto;
+}
+
+.fresh { background: var(--bg-success-soft); color: var(--color-success); }
+.fresh .dot { background: var(--color-success); }
+.stale { background: var(--bg-warning-soft); color: var(--color-warning); }
+.stale .dot { background: var(--color-warning); }
+.bad { background: var(--bg-error-soft); color: var(--color-error); }
+.bad .dot { background: var(--color-error); }
+.sync { background: var(--bg-tertiary); color: var(--text-accent); }
+.sync .dot { background: var(--text-accent); }
+
+/* 코드/경로 pill — API 경로·코드 조각 */
+.codePill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  white-space: nowrap;
+}
+
+/* 화살표 */
+.arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+  color: var(--text-tertiary);
+}
+.ln { font-size: 20px; line-height: 1; color: var(--text-accent); }
+.xmark { font-size: 20px; line-height: 1; color: var(--color-error); }
+.lb { font-family: var(--font-mono); font-size: var(--font-size-3xs); letter-spacing: 0.02em; text-align: center; }
+
+/* 서버 구름 + 리비전 스택 */
+.cloud {
+  flex: 0 0 auto;
+  min-width: 160px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--text-accent);
+  border-radius: var(--radius-2xl);
+}
+.hd {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-accent);
+  letter-spacing: 0.04em;
+}
+.stack { margin-top: var(--spacing-xs); display: flex; flex-direction: column; gap: 4px; }
+.rev {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: 4px 9px;
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+}
+.rev.top { border-color: var(--color-success); color: var(--color-success); font-weight: var(--font-weight-semibold); }
+
+/* 비교 표 — 얇은 구분선만, 외곽 카드 없음 */
+.cmp {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  border-top: 1px solid color-mix(in srgb, var(--text-secondary) 14%, transparent);
+}
+.ch {
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-3xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  border-top: 1px solid color-mix(in srgb, var(--text-secondary) 10%, transparent);
+}
+.num { justify-content: flex-end; font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-tertiary); }
+.win { background: var(--bg-success-soft); color: var(--color-success); font-weight: var(--font-weight-semibold); }
+.badge { font-family: var(--font-mono); font-size: var(--font-size-2xs); font-weight: var(--font-weight-bold); color: var(--color-success); }
+.dim { color: var(--text-tertiary); }
+
+/* 안내 노트 — 좌측 선만 */
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--spacing-xs) 0 var(--spacing-xs) var(--spacing-md);
+  border-left: 3px solid var(--text-accent);
+}
+.noteT { display: flex; align-items: center; gap: 8px; font-weight: var(--font-weight-semibold); color: var(--text-primary); font-size: var(--font-size-sm); }
+.noteP { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.6; }
+
+/* 결정/가드 박스 — 선만 */
+.guard { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.guardRow { display: flex; align-items: center; gap: var(--spacing-md); flex-wrap: wrap; }
+.box {
+  flex: 0 1 auto;
+  min-width: 140px;
+  max-width: 280px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
+  border-radius: var(--radius-2xl);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.boxQ { font-weight: var(--font-weight-semibold); color: var(--text-primary); font-family: var(--font-mono); }
+.boxOk { border-color: var(--color-success); }
+.boxNo { border-color: color-mix(in srgb, var(--text-secondary) 30%, transparent); }
+
+.strong { color: var(--text-primary); font-weight: var(--font-weight-semibold); }
+
+/* 타임라인 바 — 성능(로드 타이밍) 비교 */
+.bars { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.barRow { display: flex; align-items: center; gap: var(--spacing-sm); }
+.barLabel { flex: 0 0 auto; width: 84px; font-family: var(--font-mono); font-size: var(--font-size-2xs); color: var(--text-secondary); }
+.track { position: relative; flex: 1 1 auto; height: 16px; border-radius: var(--radius-capsule); background: var(--bg-tertiary); overflow: hidden; min-width: 80px; }
+.seg { position: absolute; top: 0; bottom: 0; left: 0; border-radius: var(--radius-capsule); }
+.segBad { background: var(--color-error); }
+.segOk { background: var(--color-success); }
+.barVal { flex: 0 0 auto; width: 52px; text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--font-size-2xs); color: var(--text-secondary); }
+
+/* 파이프라인 스텝 (serialize → deserialize 등) */
+.steps { display: flex; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
+.step {
+  /* 필 안에 라벨과 Chip 이 함께 오는 경우가 많다. inline 흐름으로 두면 둘이 붙어
+     읽히므로 행으로 만들고 간격을 준다. Chip 만, 라벨만 있는 경우도 그대로 동작한다. */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 18%, transparent);
+  border-radius: var(--radius-2xl);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* .chip 의 margin-top 은 세로 흐름(.dev 등)용이다. 행 안에서는 gap 이 대신하므로 끈다. */
+.step .chip {
+  margin-top: 0;
+}
+.stepMono { font-family: var(--font-mono); font-size: var(--font-size-2xs); }
+
+/* 순서 있는 단계 행 — 노드 높이를 맞추고 상단에 번호 배지를 얹는다.
+   .step 필은 내용 길이에 따라 폭·높이가 제각각이라 순서 표현에 안 맞는다.
+   기기 노드(.dev)를 재사용해 아이콘·이름·설명의 세로 리듬을 통일한다. */
+.seq {
+  align-items: stretch;
+}
+
+.seq .dev {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  /* 순서로 읽히려면 세 노드의 폭이 같아야 한다. 내용 길이에 맡기면 설명이 긴 단계만
+     넓어져 크기 차이가 의미처럼 보인다. 폭을 고정하고 긴 설명은 줄바꿈으로 흘린다. */
+  flex: 0 0 168px;
+  width: 168px;
+  padding-top: var(--spacing-md);
+}
+
+/* flex gap 이 리듬을 잡으므로 노드 내부의 개별 margin 은 해제 */
+.seq .dev .nm,
+.seq .dev .sub,
+.seq .dev .chip {
+  margin-top: 0;
+}
+
+/* 화살표는 늘어나지 않고 가운데 정렬 */
+.seq .arrow {
+  align-self: center;
+}
+
+.seqNum {
+  position: absolute;
+  top: calc(-1 * var(--spacing-xs));
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 24%, transparent);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  color: var(--text-tertiary);
+}
+
+/* ── compositing layer 분리 vs 통합 (#3 backdrop-filter) ──
+   점선 error 박스 = GPU 로 승격된 별도 compositing layer. 그 안의 backdrop-filter 는
+   박스 밖(커피 canvas)을 못 본다. 통합되면 canvas 가 같은 박스 안이라 정상 샘플. */
+.layers { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); }
+.layerCol { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+.layerHd { text-align: center; font-family: var(--font-mono); font-size: var(--font-size-2xs); font-weight: var(--font-weight-semibold); }
+.layerHd.cut { color: var(--color-error); }
+.layerHd.thru { color: var(--color-success); }
+.layerBox { display: flex; flex-direction: column; gap: 4px; padding: var(--spacing-xs); border-radius: var(--radius-2xl); }
+.layerBox.cut { border: 1px dashed var(--color-error); }
+.layerBox.thru { border: 1px solid color-mix(in srgb, var(--color-success) 45%, transparent); }
+.zrow {
+  padding: 7px 8px;
+  text-align: center;
+  font-size: var(--font-size-2xs);
+  color: var(--text-secondary);
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 16%, transparent);
+  border-radius: var(--radius-2xl);
+}
+.zrow.canvas { background: var(--bg-tertiary); color: var(--text-primary); font-family: var(--font-mono); }
+.reach { text-align: center; font-family: var(--font-mono); font-size: var(--font-size-3xs); line-height: 1.5; }
+.reach.cut { color: var(--color-error); }
+.reach.thru { color: var(--color-success); }
+.layerFoot { display: flex; justify-content: center; }
+@media (max-width: 560px) { .layers { grid-template-columns: 1fr; } }
+
+/* flex 행 안의 칩은 세로 중앙 정렬 (margin-top 은 .dev 처럼 세로로 쌓는 경우에만 유효) */
+.steps .chip,
+.guardRow > .chip,
+.row > .chip,
+.noteT .chip,
+.cell .chip { margin-top: 0; }

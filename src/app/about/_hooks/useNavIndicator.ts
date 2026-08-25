@@ -77,7 +77,7 @@ export function useNavIndicator(activeSection: number, navMounted = false): {
       { id: 8, label: "Backend" },
       { id: 9, label: "ERD" },
       { id: 10, label: "Code" },
-      { id: 11, label: "Troubleshoot" },
+      { id: 11, label: "Decisions" },
       { id: 12, label: "Security" },
       { id: 13, label: "Credits" },
     ],

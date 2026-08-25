@@ -469,11 +469,11 @@ export const erdDesignNotes: ErdDesignNote[] = [
     relatedTable: "posts",
   },
   {
-    title: { ko: "익명 댓글 이중 인증", en: "Dual Auth for Anonymous Comments" },
-    tag: "commenter_hash (SHA-256) + password_hash (bcrypt)",
+    title: { ko: "익명 댓글의 두 해시", en: "Two Hashes on Anonymous Comments" },
+    tag: "password_hash (bcrypt) = 인증 · commenter_hash = 표시",
     description: {
-      ko: "같은 브라우저에서는 commenter_hash로 자동 인증, 다른 기기에서는 password로 인증합니다.",
-      en: "Same browser auto-authenticates via commenter_hash; other devices authenticate via password.",
+      ko: "수정·삭제 인증은 password_hash 하나로만 합니다. commenter_hash 는 댓글마다 아바타와 닉네임을 정하는 표시용 값이고 인증에 쓰지 않습니다.",
+      en: "Edit and delete authenticate through password_hash alone. commenter_hash only picks each comment's avatar and nickname; it is never used for authentication.",
     },
     relatedTable: "comments",
   },
@@ -517,8 +517,8 @@ export const erdDesignNotes: ErdDesignNote[] = [
     title: { ko: "댓글 구조 재사용", en: "Reused Comment Schema" },
     tag: "work_comments ≈ comments (separate FK)",
     description: {
-      ko: "work_comments는 comments와 동일한 스키마(닉네임, 이중 인증, 대댓글, 좋아요, 알림 이메일)를 별도 테이블로 분리합니다. FK만 works.id를 참조하여 RLS 정책을 독립적으로 적용합니다.",
-      en: "work_comments mirrors the comments schema (nickname, dual auth, threading, likes, notification email) in a separate table. Only the FK references works.id, allowing independent RLS policies.",
+      ko: "work_comments는 comments와 동일한 스키마(닉네임, 비밀번호 인증, 대댓글, 좋아요, 알림 이메일)를 별도 테이블로 분리합니다. FK만 works.id를 참조하여 RLS 정책을 독립적으로 적용합니다.",
+      en: "work_comments mirrors the comments schema (nickname, password auth, threading, likes, notification email) in a separate table. Only the FK references works.id, allowing independent RLS policies.",
     },
     relatedTable: "work_comments",
   },

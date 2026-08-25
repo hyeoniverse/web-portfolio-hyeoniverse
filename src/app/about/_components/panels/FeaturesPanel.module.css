@@ -27,9 +27,14 @@
   display: flex;
   flex-direction: column;
   padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
+  /* 타일 이미지가 밝으면(실제 화면 캡처 등) 흰 라벨이 안 읽힌다. 60% 한 겹만으로는
+     밝은 배경에서 대비가 2.22:1 까지 떨어졌다(본문 기준 4.5:1). 라벨이 놓이는
+     아래쪽 구간을 더 진하게 깔고 위로 가며 사라지게 한다. */
   background: linear-gradient(
     to top,
-    var(--color-gray-alpha-60) 0%,
+    var(--color-gray-alpha-70) 0%,
+    var(--color-gray-alpha-70) 45%,
+    var(--color-gray-alpha-40) 75%,
     transparent 100%
   );
 }

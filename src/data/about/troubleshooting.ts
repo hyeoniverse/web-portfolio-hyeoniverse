@@ -4,7 +4,9 @@ import type { LocalizedText } from "@/types/common";
 // ── 통합 섹션 6개 ─────────────────────────────────────────────
 // Architecture / Performance / Layout / Editor / Interaction / Component
 const SECTION = {
-  A: { ko: "아키텍처 / 백엔드", en: "Architecture & Backend" },
+  A: { ko: "인증 / 인가", en: "Authentication & Authorization" },
+  D: { ko: "데이터 / 정합성", en: "Data & Integrity" },
+  N: { ko: "인프라 / 자동화", en: "Infrastructure & Automation" },
   P: { ko: "성능", en: "Performance" },
   L: { ko: "레이아웃 / CSS", en: "Layout & CSS" },
   E: { ko: "Plate 에디터", en: "Plate Editor" },
@@ -12,275 +14,233 @@ const SECTION = {
   C: { ko: "컴포넌트 시스템", en: "Component System" },
 } as const;
 
-const SECTION_ORDER: Array<keyof typeof SECTION> = ["A", "P", "L", "E", "I", "C"];
+const SECTION_ORDER: Array<keyof typeof SECTION> = ["A", "D", "N", "P", "L", "E", "I", "C"];
 
-/** problem.ko → 새 섹션/난이도/추천 매핑. 항목별 직접 inline 보다 한 곳에서 관리 */
+/** 항목 id → 섹션/난이도/추천 매핑. 항목마다 inline 하지 않고 한 곳에서 관리한다.
+ *  키는 반드시 `id` — 예전엔 problem.ko 문자열로 조인했는데, 한글 원문이 조금만
+ *  달라져도(이스케이프 한 겹) 항목이 조용히 빠졌다. 아래 export 의 orphan 가드가 이를 막는다. */
 const itemMeta: Record<
   string,
   {
     section: keyof typeof SECTION;
     difficulty: TroubleshootingDifficulty;
     recommended?: boolean;
-    /** 대표 항목 — 하나라도 지정되면 패널이 이것들만 보여준다.
-     *  89개를 다 늘어놓으면 읽히지 않아, 원본은 남기고 표시할 것만 고른다. */
-    featured?: boolean;
     /** 추천 이유 — 항목별 차별점. IDE 에디터 @recommended 라인에 표시 */
     recommendReason?: LocalizedText;
   }
 > = {
+  // ── 설계 결정 (현재 노출 중) ──
+  "role-stored-in-app-metadata": { section: "A", difficulty: 2 },
+  "authorization-moves-to-code-when-rls-is-bypassed": { section: "A", difficulty: 3 },
+  "single-auth-path-for-anonymous-comments": { section: "A", difficulty: 3 },
+  "delete-is-a-reversible-state-change": { section: "D", difficulty: 1 },
+  "optimistic-concurrency-with-a-version-counter": { section: "D", difficulty: 3 },
+  "duplicate-prevention-belongs-in-the-database": { section: "D", difficulty: 2 },
+  "revision-history-is-capped-per-entity": { section: "D", difficulty: 1 },
+  "scheduled-jobs-run-inside-the-database": { section: "N", difficulty: 2 },
+  "notification-failure-must-not-fail-the-job": { section: "N", difficulty: 2 },
+
   // ── 최근 추가 (에디터 색상 칩 — 인라인 코드로 리더·에디터 공통 렌더) ──
-  "색상 칩을 인라인 코드 하나로 — 에디터·리더·댓글이 같은 렌더를 공유": {
-    featured: true, section: "E", difficulty: 2, recommended: true,
+  "one-inline-code-token-for-color": {
+    section: "E", difficulty: 2, recommended: true,
     recommendReason: {
       ko: "표시할 화면마다 색 렌더를 새로 짜는 대신, 색을 인라인 코드라는 이동 가능한 토큰으로 표현해 렌더러 하나를 공유한 사례라 골랐습니다.",
       en: "Picked this because, instead of writing color rendering per surface, it encodes the color as one portable inline-code token so every surface shares a single renderer.",
     },
   },
   // ── 최근 추가 (자동저장 롤백·sticky 유리 헤더) ──
-  "기존 글을 편집하자 자동저장이 내용을 통째로 옛 버전으로 되돌림": {
-    featured: true, section: "A", difficulty: 3, recommended: true,
+  "editing-an-existing-post-made-auto": {
+    section: "A", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "자동복원이 사용자의 최신 작업을 덮어쓴 데이터 안전 사고 — 낙관적 복원의 전제(신뢰 가능한 최신성 비교)를 짚으려 골랐습니다.",
-      en: "A data-safety incident where auto-restore overwrote the user's latest work — picked to pin down the premise optimistic restore rests on: a trustworthy freshness comparison.",
+      en: "A data-safety incident where auto-restore overwrote the user's latest work — picked to pin down the premise `optimistic restore` rests on: a trustworthy freshness comparison.",
     },
   },
-  "sticky 유리 헤더 뒤 콘텐츠가 안 흐려지고 frost 가 옅음": {
-    featured: true, section: "L", difficulty: 3, recommended: true,
-    recommendReason: {
-      ko: "\"왜 안 흐려지나\" 의 답이 요소가 아니라 stacking context 에 있던, backdrop-filter 의 전형적 함정이라 골랐습니다.",
-      en: "Picked as the archetypal backdrop-filter trap where \"why won't it blur\" is answered by the stacking context, not the element.",
-    },
-  },
-  // ── 최근 추가 (에디터 마크다운·인라인 코드·댓글 복구) ──
-  "Lenis 스무스 스크롤 위에서 코드블록 세로 스크롤이 페이지로 안 넘어감": {
-    featured: true, section: "I", difficulty: 2,
-  },
-  "테두리 있는 인라인 코드가 여러 줄로 줄바꿈되지 않음": {
-    featured: true, section: "L", difficulty: 2,
-  },
-  "삭제된 댓글을 복구하려는데 내용이 이미 지워져 있었음": {
-    featured: true, section: "A", difficulty: 2, recommended: true,
+  "restoring-a-deleted-comment-but-its": {
+    section: "A", difficulty: 2, recommended: true,
     recommendReason: {
       ko: "\"복구\" 기능의 성패가 삭제 구현에 달렸다는 걸 보여주는, 데이터 보존 vs 노출 차단의 전형이라 골랐습니다.",
       en: "Picked because a restore feature's success hinges on how delete was built — the archetype of data-retention vs exposure-masking.",
     },
   },
-  "2열로 놓인 두 설정 섹션의 툴바가 한쪽만 아래로 밀려 어긋남": {
-    featured: true, section: "L", difficulty: 2, recommended: true,
+  "in-a-two-column-settings-layout": {
+    section: "L", difficulty: 2, recommended: true,
     recommendReason: {
       ko: "어긋난 요소가 아니라 \"부모가 왜 콘텐츠보다 큰가\" 를 봐야 했던, 정렬 문제의 전형이라 골랐습니다.",
       en: "Picked as the archetypal alignment bug where the answer is \"why is the parent taller than its content\", not the shifted element.",
     },
   },
-  "부모의 마운트 fitView 가 자식 effect 의 카메라 제어를 매번 덮어씀": {
-    featured: true, section: "I", difficulty: 3, recommended: true,
+  "the-parent-s-mount-time-fitview": {
+    section: "I", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "\"아무 일도 안 일어남\" 의 원인이 호출 누락이 아니라 실행 순서였던 사례라 골랐습니다.",
       en: "Picked this because the cause of \"nothing happens\" wasn't a missing call but effect ordering.",
     },
   },
-  "SQL 가져오기에서 DROP 이 조용히 무시됨 — 파서가 \"남은 것\" 만 돌려줬기 때문": {
-    featured: true, section: "A", difficulty: 3, recommended: true,
+  "drop-was-silently-ignored-on-sql": {
+    section: "A", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "부재로 의도를 표현하려던 자료 구조가 어디서 무너지는지 보여드리고 싶어 골랐습니다.",
       en: "Picked this to show where a data shape that encodes intent as absence falls apart.",
     },
   },
-  "표 안의 아이콘 버튼을 늘렸더니 그 행만 높이가 달라짐": {
-    featured: true, section: "L", difficulty: 2,
+  "adding-icon-buttons-to-a-table": {
+    section: "L", difficulty: 2,
   },
   // Architecture & Backend
-  "포스트 실수 삭제 시 복구 불가": { section: "A", difficulty: 3 },
-  "AI 번역/요약이 provider 장애 시 완전 중단": { section: "A", difficulty: 3 },
-  "API 키 변경마다 재배포가 필요": { section: "A", difficulty: 2 },
-  "비회원 댓글에서 본인 확인이 번거로움": { section: "A", difficulty: 3 },
-  "에디터 자동저장 주기가 너무 잦아 리비전이 의미 없이 누적됨": { section: "A", difficulty: 2 },
-  "자동저장 — localStorage에서 DB 리비전으로의 진화": {
-    section: "A", difficulty: 3, recommended: true,
-    recommendReason: { ko: "임시방편(localStorage)을 정식 아키텍처(DB 리비전)로 발전시킨 과정을 보여드리고 싶어 골랐습니다.", en: "Picked this to show how I evolved a stopgap (localStorage) into a real architecture (DB revisions)." },
-  },
-  "카테고리 자동 보정으로 리비전 프롬프트가 무한 반복": { section: "A", difficulty: 2 },
-  "멤버 역할을 어디에 저장해야 조작을 막을 수 있나": {
+  "accidental-post-deletion-with-no-recovery": { section: "A", difficulty: 3 },
+  "ai-translation-summary-completely-down-on": { section: "A", difficulty: 3 },
+  "every-api-key-change-requires-redeployment": { section: "A", difficulty: 2 },
+  "tedious-identity-verification-for-guest-comments": { section: "A", difficulty: 3 },
+  "revision-prompt-loops-due-to-category": { section: "A", difficulty: 2 },
+  "where-to-store-member-roles-so": {
     section: "A", difficulty: 2, recommended: true,
     recommendReason: { ko: "이름이 비슷한 두 저장소의 신뢰 수준 차이가 곧 권한 시스템의 출발점이었던 사례라 골랐습니다.", en: "Picked this because the trust gap between two similarly-named stores was the very foundation of the permission system." },
   },
-  "GitHub OAuth 는 계정만 있으면 누구나 로그인 시도가 성공한다": { featured: true, section: "A", difficulty: 2 },
-  "OWNER_EMAIL 을 안 넣고 첫 로그인하면 소유자 계정이 지워진다": { featured: true,
-    section: "A", difficulty: 2, recommended: true,
+  "github-oauth-lets-anyone-with-an": { section: "A", difficulty: 2 },
+  "forgetting-owner-email-deletes-the-owner": { section: "A", difficulty: 2, recommended: true,
     recommendReason: { ko: "설정 실수 하나가 계정 삭제로 이어지던 함정 — 부트스트랩을 fail-safe 하게 설계하는 관점을 보여드리려 골랐습니다.", en: "A single config slip deleted the account — picked to show designing bootstrap to fail safe, not fail destructive." },
   },
-  "소유자로 로그인해도 설정 계정 탭에서만 다른 멤버가 안 보인다": { featured: true, section: "A", difficulty: 2 },
+  "logged-in-as-owner-yet-other": { section: "A", difficulty: 2 },
   // Performance
-  "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)": { featured: true, section: "P", difficulty: 3 },
-  "mousemove마다 React 리렌더 (60fps 성능 저하)": { section: "P", difficulty: 2 },
-  "커스텀 커서의 무거운 hit-test가 가벼운 위치 보간을 함께 느리게 만듦": {
+  "recaptcha-v3-initial-load-performance-degradation": { section: "P", difficulty: 3 },
+  "react-re-render-on-every-mousemove": { section: "P", difficulty: 2 },
+  "heavy-cursor-hit-test-dragging-down": {
     section: "P", difficulty: 3, recommended: true,
     recommendReason: { ko: "측정으로 병목을 찾고 RAF 주기를 분리해 60fps 를 회복한 성능 최적화 경험입니다.", en: "Profiled the bottleneck and split the RAF loop to restore 60fps — measurement-driven optimization." },
   },
-  "Three.js LatheGeometry 컵에 Canvas 2D 라떼아트 텍스처 합성 — 두 개 평면이 만나는 부분의 자연스러운 블렌딩": { section: "P", difficulty: 3 },
-  "GSAP ScrollTrigger 수평 무한 스크롤 — 양방향 무한 wrapping": { section: "P", difficulty: 3 },
-  "LoadingScreen이 SSR에 포함되지 않아 콘텐츠 flash 발생": { section: "P", difficulty: 2 },
-  "Menu drawer 폰트가 fallback 으로 굳음 — `display: optional` + `preload: false` 부작용": { section: "P", difficulty: 1 },
+  "loadingscreen-not-included-in-ssr-content": { section: "P", difficulty: 2 },
+  "menu-drawer-font-stuck-on-fallback": { section: "P", difficulty: 1 },
   // Layout & CSS
-  "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐": { section: "L", difficulty: 2 },
-  "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀": { featured: true,
-    section: "L", difficulty: 2, recommended: true,
+  "layout-jumps-when-toggling-code-block": { section: "L", difficulty: 2 },
+  "global-transition-shorthand-overriding-component-transitions": { section: "L", difficulty: 2, recommended: true,
     recommendReason: { ko: "원인이 코드가 아닌 CSS 명세에 있던 케이스 — spec 단위까지 파고드는 디버깅 습관을 보여드리려 골랐습니다.", en: "Bug lived in the CSS spec, not in the code — picked this to show spec-level debugging." },
   },
-  "일부 섹션 구분선만 유독 진하다 — background 단축속성이 background-clip 을 리셋": { featured: true, section: "L", difficulty: 2 },
-  "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴": { section: "L", difficulty: 3 },
-  "CSS 토큰 미정의 — 11개 파일에서 참조하지만 선언 없음": { section: "L", difficulty: 1 },
-  "CTA 버튼 `backdrop-filter`가 Chrome에서 동작하지 않음": {
+  "only-some-section-dividers-look-darker": { section: "L", difficulty: 2 },
+  "cta-button-backdrop-filter-blurs-nothing": {
     section: "L", difficulty: 3, recommended: true,
     recommendReason: { ko: "GPU compositing layer 까지 추적해 원인을 짚은 사례 — 끝까지 원인을 좇는 태도를 보여드리고 싶었습니다.", en: "Traced it down to the GPU compositing layer — wanted to show I chase the root cause." },
   },
-  "Admin 테이블 모바일 가로 스크롤 시 row border가 중간에서 끊김": { section: "L", difficulty: 3 },
-  "Posts Bento — `grid-template-rows` 만으로는 카드별 높이 차이가 빈칸을 만듦": { section: "L", difficulty: 3 },
-  "sticky filterBar IntersectionObserver — 인기글 사이드바와 1px 어긋남": { section: "L", difficulty: 2 },
-  "Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치를 못 따라감": { section: "L", difficulty: 2 },
-  "커버 이미지 팔레트 등 grid 자식이 viewport 밖으로 잘려 나감 — `.row { grid-template-columns: 1fr 1fr }` 의 함정": { section: "L", difficulty: 2 },
-  "Tooltip 이 drawer 위로 튀어나옴 — inline zIndex 가 토큰을 무시": { section: "L", difficulty: 1 },
-  "CSS `var()` 체인이 JS `getPropertyValue` 로 resolve 안 됨 — Canvas / Three.js 텍스처 배경색이 토큰과 어긋남": {
+  "admin-table-row-border-cuts-off": { section: "L", difficulty: 3 },
+  "posts-bento-grid-template-rows-alone": { section: "L", difficulty: 3 },
+  "sticky-filterbar-intersectionobserver-1px-drift-against": { section: "L", difficulty: 2 },
+  "navigation-menu-overlaps-the-right-actions": { section: "L", difficulty: 2 },
+  "cover-image-palette-and-other-grid": { section: "L", difficulty: 2 },
+  "css-var-chains-don-t-resolve": {
     section: "L", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "DevTools 의 친절한 표시를 그대로 JS API 라고 가정한 함정 — multi-tier 토큰 시스템에서 JS↔CSS 경계가 어디인지 보여주는 사례라 골랐습니다.",
       en: "I assumed DevTools' helpful display matched the JS API — picked this because it shows exactly where the JS↔CSS boundary lives in a multi-tier token system.",
     },
   },
-  "코드블록 리사이즈 그립에서 커스텀 커서 위로 시스템 커서가 계속 새어나옴": {
+  "the-system-resize-cursor-leaks-over": {
     section: "L", difficulty: 2, recommended: true,
     recommendReason: { ko: "UA 가 그리는 요소의 페인트 순서(자식 위·형제 아래)까지 파고들어야 풀리던 CSS 함정이라 골랐습니다.", en: "Picked this CSS trap because it only resolved once I dug into the paint order of UA-drawn chrome (above children, below siblings)." },
   },
-  "모바일에서 ERD 다이어그램이 높이 0 으로 접혀 아무것도 안 보임": { featured: true,
-    section: "L", difficulty: 2, recommended: true,
+  "on-mobile-the-erd-diagram-collapses": { section: "L", difficulty: 2, recommended: true,
     recommendReason: {
       ko: "`height:100%` 가 0 으로 죽는 원인을 CSS 명세의 definite height 규칙까지 거슬러 올라가 짚은 사례라 골랐습니다.",
       en: "Picked this because I traced why `height:100%` collapses to 0 all the way back to the CSS spec's definite-height rule.",
     },
   },
-  "스크롤 시 상단 탭바에 frost(blur) 를 깔려는데 blur 가 안 보이거나 잘림": { featured: true,
-    section: "L", difficulty: 3, recommended: true,
+  "a-frosted-blur-on-the-sticky": { section: "L", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "`overflow-x:auto` 의 양축 클립과 Lenis transform 스크롤 위 `backdrop-filter` 라는 두 함정이 겹친 걸 분리해 푼 사례라 골랐습니다.",
       en: "Picked this because two traps stacked — `overflow-x:auto` clipping both axes and `backdrop-filter` under Lenis's transform scroll — and I separated them to solve it.",
     },
   },
   // Plate Editor
-  "Richtext 게시물에서 코드 하이라이팅·줄바꿈 버튼이 사라짐": { section: "E", difficulty: 2 },
-  "Plate 에디터에서 컨텍스트 툴바 표시 시 커서가 멋대로 튐": { section: "E", difficulty: 3 },
-  "토글·콜아웃·열블록 콘텐츠가 저장 후 사라짐": {
+  "code-highlighting-wrap-button-vanishing-on": { section: "E", difficulty: 2 },
+  "cursor-jumping-randomly-when-contextual-toolbar": { section: "E", difficulty: 3 },
+  "toggle-callout-and-column-block-content": {
     section: "E", difficulty: 3, recommended: true,
     recommendReason: { ko: "라이브러리 기본값을 의심하고 검증해 사용자 데이터 손실을 막은 경험입니다.", en: "Questioned and verified a library default to prevent user data loss." },
   },
-  "코드블록 하이라이팅이 브라우저에서만 죽음 — 빌드·테스트는 전부 통과": { featured: true,
-    section: "E", difficulty: 3, recommended: true,
+  "code-highlighting-dies-only-in-the": { section: "E", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "빌드도 테스트도 통과하는데 브라우저에서만 죽는 버그를, 증거가 나올 때까지 추적해 라이브러리 밖에서 해결한 사례라 골랐습니다.",
       en: "Picked this because build and tests both passed while only the browser broke — traced it to real evidence and fixed it from outside the library.",
     },
   },
-  "코드블록 내용을 전체 선택해 지우면 이후 붙여넣기가 블록 밖으로 샘": { section: "E", difficulty: 3 },
-  "제목(heading) 안 각주가 마크다운 변환 시 처리 안 됨": { section: "E", difficulty: 3 },
-  "Plate inline void 노드에서 클릭 vs 키보드 구분 불가": { section: "E", difficulty: 3 },
-  "인라인 이미지 양옆에 커서 배치·텍스트 입력 불가": { section: "E", difficulty: 3 },
-  "float 이미지 옆 텍스트를 드래그·선택하면 이미지가 같이 묶이고, 화살표·클릭 시 빈 줄에 커서가 떨어짐": {
+  "after-select-all-delete-in-a": { section: "E", difficulty: 3 },
+  "footnotes-inside-headings-not-processed-during": { section: "E", difficulty: 3 },
+  "cannot-distinguish-click-vs-keyboard-for": { section: "E", difficulty: 3 },
+  "cannot-place-cursor-or-type-next": { section: "E", difficulty: 3 },
+  "dragging-selecting-the-text-next-to": {
     section: "E", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "데이터(노드 분리)·레이아웃(CSS float)·입력(capture)을 한꺼번에 다뤄야 풀리는 다층 문제를 끝까지 추적한 사례라 골랐습니다.",
       en: "Picked this as a multi-layer bug — data (node split), layout (CSS float), and input (capture) all had to move together; shows end-to-end root-cause tracing.",
     },
   },
-  "마크다운 각주 번호 꼬임 — heading renderer 충돌": { section: "E", difficulty: 3 },
-  "열블록 스타일 round-trip 유실": { section: "E", difficulty: 3 },
-  "YouTube embed URL — watch URL이 iframe에서 로드 실패": { section: "E", difficulty: 1 },
-  "이미지 리사이즈 핸들 클릭 시 이미지가 삭제됨": { section: "E", difficulty: 2 },
-  "에디터 툴바 active 상태 — wrapper 블록 감지 실패": { section: "E", difficulty: 2 },
-  "각주 참조/내용 정합성 — 한쪽 삭제 시 고아 노드 잔존": { section: "E", difficulty: 2 },
-  "링크 클릭 시 즉시 이동 — 에디터에서 링크 편집 불가": { section: "E", difficulty: 1 },
-  "Plate 인라인 코드에서 방향키 커서 점프": { section: "E", difficulty: 2 },
-  "다중 블록 선택 배경이 float 이미지를 덮음 — z-index·flow-root·clip-path 모두 부적합": {
+  "youtube-embed-url-watch-url-fails": { section: "E", difficulty: 1 },
+  "image-resize-handle-click-deletes-image": { section: "E", difficulty: 2 },
+  "editor-toolbar-active-state-wrapper-block": { section: "E", difficulty: 2 },
+  "footnote-ref-content-integrity-orphan-nodes": { section: "E", difficulty: 2 },
+  "link-click-immediately-navigates-cannot-edit": { section: "E", difficulty: 1 },
+  "plate-inline-code-arrow-key-cursor": { section: "E", difficulty: 2 },
+  "multi-block-selection-background-covers-floated": {
     section: "E", difficulty: 3, recommended: true,
     recommendReason: { ko: "여러 정공법(z-index/BFC/clip-path)이 디자인 제약 때문에 차례로 막힌 끝에, 영역 자체를 둘로 쪼개고 layout 을 관찰해 CSS 변수로 주입한 과정을 보여드리고 싶어 골랐습니다.", en: "Picked this because each textbook fix (z-index / BFC / clip-path) was blocked by a design constraint in turn, ending with splitting the region in two and feeding measured layout into CSS variables." },
   },
-  "float 이미지(인라인 void) 클릭이 엉뚱한 본문 단락을 선택": { section: "E", difficulty: 2 },
+  "clicking-a-floated-image-inline-void": { section: "E", difficulty: 2 },
   // Animation & Interaction
-  "커스텀 커서 리사이즈 모드에서 마우스 방향에 따라 커서 회전": { section: "I", difficulty: 1 },
-  "Page transition 이 hold 단계에서 멈추고 morph 후 skeleton 이 노출": { section: "I", difficulty: 3 },
-  "페이지 트랜지션 morph 가 끝나도 화면이 한참 비어 있어 \"skeleton 이 따로 도는\" 인상": {
+  "page-transition-stuck-at-hold-skeleton": { section: "I", difficulty: 3 },
+  "after-the-transition-morph-clears-the": {
     section: "I", difficulty: 3, recommended: true,
     recommendReason: { ko: "\"두 시스템 사이의 timing mismatch\" 로 가설을 다시 잡고 Next.js Suspense 동작까지 추적한 디버깅 흐름을 보여드리고 싶었습니다.", en: "Reframed the hypothesis from \"one bug\" to \"two systems with mismatched timing\" and traced down Next.js Suspense fallback behavior." },
   },
-  "Series Deck — hover 펼침이 \"사라졌다 나타나는\" 느낌": { section: "I", difficulty: 3 },
-  "Series Deck spread — `setPointerCapture` 가 자식 click 차단 + hit-area 공백으로 flicker": { section: "I", difficulty: 3 },
-  "HTML5 drag 가 pointermove 를 막아 커스텀 커서가 멈추고 type 도 계속 바뀜": { section: "I", difficulty: 3 },
-  "TagCloud3D 클릭이 안 먹힘 — `setPointerCapture` 가 자식 Link click 을 가로챔": { section: "I", difficulty: 2 },
-  "HTML5 D&D 의 quirks 회피 — chip 드래그 정렬을 pointer 기반으로 전환": {
+  "series-deck-hover-unfold-disappears-then": { section: "I", difficulty: 3 },
+  "working-around-html5-d-d-quirks": {
     section: "I", difficulty: 3, recommended: true,
     recommendReason: { ko: "\"표준 API 라서 옳다\" 는 가정을 깨고 도구를 다시 고른 경험을 보여드리고 싶었습니다.", en: "Questioned the \"standard API is best\" assumption and re-picked the tool." },
   },
-  "이미지 깨짐 placeholder — `dangerouslySetInnerHTML` 로 렌더된 markdown img 에는 React onError 가 안 붙음": { section: "I", difficulty: 3 },
+  "image-fallback-react-onerror-doesn-t": { section: "I", difficulty: 3 },
   // Component System
-  "필수 이중언어 제목이 한쪽만 채워지면 반대 언어에서 빈칸으로 표시됨": {
-    section: "C", difficulty: 1, recommended: true,
-    recommendReason: { ko: "`??` 와 `||` 의 차이가 이중언어 fallback 을 가른 사례 — 작은 연산자 선택이 필수 필드를 빈칸으로 만든 걸 보여드리려 골랐습니다.", en: "Picked this because the difference between `??` and `||` decided the bilingual fallback — a tiny operator choice that blanked a required field." },
-  },
-  "Admin 리스트(시리즈/휴지통/게시물)의 UI 코드 중복과 스타일 불일치": { section: "C", difficulty: 2 },
-  "커스텀 ColorPicker popover 가 trigger 위치에 안 붙음 — wrapper `<span>` 이 0×0 으로 collapse": { section: "C", difficulty: 2 },
-  "Supabase auth subscription cleanup — `.then()` 안의 `return` 은 useEffect cleanup 이 아니다": {
-    section: "C", difficulty: 2, recommended: true,
-    recommendReason: { ko: "보이지 않는 leak — \"return 했으니 cleanup 이겠지\" 라는 시각적 착각을 짚고 같은 패턴을 4곳에서 useIsAuthenticated 헬퍼로 통합한 경험입니다.", en: "An invisible leak — the \"looks like cleanup, isn't\" trap. Picked this because I caught it across 4 files and extracted useIsAuthenticated to fix all at once." },
-  },
-  // Architecture & Backend — security
-  "익명 댓글 수정·삭제 — 클라이언트는 비밀번호 강제, 서버는 우회 허용": {
+  "admin-list-series-trash-posts-ui": { section: "C", difficulty: 2 },
+  "custom-colorpicker-popover-anchors-to-the": { section: "C", difficulty: 2 },
+  "anonymous-comment-edit-delete-client-required": {
     section: "A", difficulty: 3, recommended: true,
     recommendReason: { ko: "\"클라가 강제한다\" 와 \"서버가 강제한다\" 의 간극을 위협 모델 관점에서 다시 짚은 보안 사례입니다.", en: "Picked this for the threat-model gap between \"client enforces\" and \"server enforces\" — and how OR-ing auth paths collapses to the weakest." },
   },
-  "공개 API 의 `?all=true` 쿼리로 비공개 글 / 휴지통이 인증 없이 전부 노출": { featured: true,
-    section: "A", difficulty: 3,
+  "public-api-all-true-leaked-all": { section: "A", difficulty: 3,
   },
-  "인기글 정의가 3 곳에 분산 — UI 의 HOT 배지와 admin 삭제 보호가 서로 다른 \"인기\"": { featured: true,
-    section: "A", difficulty: 2, recommended: true,
+  "popular-post-defined-in-three-places": { section: "A", difficulty: 2, recommended: true,
     recommendReason: { ko: "같은 도메인 개념 (\"인기\") 의 정의가 silent 하게 분산된 상태를 single source of truth 로 통합한 경험 — reasoning 비용과 모순 위험을 동시에 줄인 사례입니다.", en: "Caught the same domain concept (\"popular\") silently fragmented across three call sites and unified it into a single source of truth — cut both reasoning cost and the risk of contradiction." },
   },
   // Component System
-  "컴포넌트 이름이 \"첫 사용처\" 에 묶임 — SortGroup 이 sort 외 8 곳에서 쓰이게 되자 의미가 약해짐": {
-    section: "C", difficulty: 1,
-  },
-  // Architecture — Lenis cleanup convention
-  "Lenis 무한 스크롤이 페이지 전환 시 의도치 않게 켜지는 문제 — opt-out 가정 cleanup 의 함정": {
+  "lenis-infinite-scroll-silently-sticks-across": {
     section: "A", difficulty: 2, recommended: true,
     recommendReason: { ko: "convention 자체가 버그의 원인이었던 케이스 — \"cleanup 은 원복\" 이라는 무의식적 가정이 페이지 간 silent state leak 을 만든 경험입니다.", en: "The convention itself was the bug — the unconscious \"cleanup restores\" assumption created a silent cross-page state leak." },
   },
   // Layout & CSS — PostCard meta separator wrap
-  "PostCard meta 가 wrap 될 때 separator 가 새 줄 시작에 어색하게 남는 문제": {
+  "postcard-meta-separator-leaks-to-the": {
     section: "L", difficulty: 2,
   },
 
   // Architecture — autosave / draft / revision overhaul (v2)
-  "자동저장 v2 — 글자 단위 draft + 리비전을 명시적 save point 로 재정의": { featured: true,
-    section: "A", difficulty: 3, recommended: true,
+  "auto-save-v2-character-level-draft": { section: "A", difficulty: 3, recommended: true,
     recommendReason: { ko: "한 번 리팩토링한 시스템이라도 사용해 보면 새 결함이 보인다는 걸 보여드리고 싶어 골랐습니다 — 같은 도메인을 두 번째로 다시 설계한 과정입니다.", en: "Picked this because even a 'refactored' system shows new flaws once it's lived in — a second pass at the same domain." },
   },
 
   // Architecture — Admin works sort_order normalize
-  "Admin works sort_order 정렬 — 부분 shift 가 DB 의 0·중복 잔재를 못 정리": {
+  "admin-works-sort-order-partial-shift": {
     section: "A", difficulty: 2, recommended: true,
     recommendReason: { ko: "\"내가 만진 부분만\" 부분 보정에서 \"전체를 한 번 정리\" 로 관점을 바꾼 사례입니다. 데이터 누적 결함을 부분 패치로 따라가지 않고 매 mutation 마다 dense 1..N 로 normalize 해 시간이 지나도 시작 상태가 같도록 만든 결정을 보여드리고 싶었습니다.", en: "Picked this for the shift from 'fix the parts I touched' to 'normalize the whole table on every mutation' — refusing to chase accumulated data damage with partial patches, and instead making the table's starting state identical no matter how it got there." },
   },
 
   // Cross-platform / UX — Touch device hover
-  "터치 디바이스에 hover 가 없어 데스크탑 전용 인터랙션 (hover glow / tooltip) 이 모바일에서 사라짐": {
+  "touch-devices-have-no-hover-desktop": {
     section: "I", difficulty: 2,
   },
 
   // Custom cursor — draggable row child button
-  "draggable row 안 button hover 시 grab 커서가 박혀 click 으로 돌아가지 않음": {
+  "hovering-a-button-inside-a-draggable": {
     section: "I", difficulty: 2,
   },
 
   // Layout & CSS — OKLCH color system migration
-  "HSL 기반 색 토큰이 hue 별로 지각 밝기가 달라 같은 lightness 끼리도 톤이 들쭉날쭉": { featured: true,
-    section: "L", difficulty: 3, recommended: true,
+  "hsl-color-tokens-look-uneven-across": { section: "L", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "\"수학적 평균\" 과 \"지각 밝기\" 가 다르다는 색 공간 차원의 문제를 색 시스템 전반에 OKLCH 로 옮기고, sRGB clipping 회피 위한 hue 별 safeChroma 까지 명시한 사례입니다.",
       en: "Moved an entire color system from HSL to OKLCH after recognizing the gap between math-average and perceived brightness, then added per-hue safeChroma tables to dodge sRGB clipping.",
@@ -288,7 +248,7 @@ const itemMeta: Record<
   },
 
   // Layout & CSS — CSS Module orphan classes (DetailLayout refactor)
-  "페이지 보일러플레이트를 layout 으로 흡수 후, 일부 영역 (footer 링크) 의 스타일이 통째로 사라짐 — 오류는 없음": {
+  "after-absorbing-page-boilerplate-into-the": {
     section: "L", difficulty: 2, recommended: true,
     recommendReason: {
       ko: "CSS Module 의 dot 접근이 \"없으면 undefined\" 라는 사실 + React 가 undefined className 을 silent 하게 drop 한다는 두 가지가 만나 silent failure 가 되는 함정 — shared component 추출 리팩토링에서 가장 흔합니다.",
@@ -297,12 +257,7 @@ const itemMeta: Record<
   },
 
   // Component System — TSX parser `!` misparse
-  "TSX 안에서 `typeof obj!.field[index]` 처럼 non-null assertion 을 인덱스 표현 안에 쓰면 JSX parser 가 닫는 태그로 오해석": {
-    section: "C", difficulty: 1,
-  },
-
-  // Component System — textarea inline highlight → contenteditable 전환
-  "textarea 의 초과 글자만 background highlight 주려는데 어떤 방법으로도 정확히 안 맞음 — 결국 native textarea 포기하고 contenteditable 로 전환": {
+  "wanted-per-character-background-highlight-inside": {
     section: "C", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "native form element 의 근본 한계를 마주쳤을 때 \"overlay sync\" 가 아니라 \"element replace\" 로 결정한 사례 — 브라우저가 직접 그리는 visual artifact 는 어떤 JS 로도 sync 불가능하다는 원칙.",
@@ -311,7 +266,7 @@ const itemMeta: Record<
   },
 
   // Animation & Interaction — Native cursor 위 custom cursor (overlay 가로채기)
-  "Textarea resize handle 위에서 시스템 cursor (`ns-resize`) 가 우리 custom cursor (CursorTrail) 를 덮어씀 — html.custom-cursor * { cursor: none !important } 로도 안 잡힘": {
+  "on-a-textarea-s-resize-handle": {
     section: "I", difficulty: 2, recommended: true,
     recommendReason: {
       ko: "native UI element 의 cursor 가 일반 CSS 영역 밖이라 가릴 수 없을 때 \"native 인터랙션 자체를 가로채기\" 로 우회한 패턴 — visual 은 native 그대로 두고 pointer 만 가져오는 hybrid 접근.",
@@ -320,7 +275,7 @@ const itemMeta: Record<
   },
 
   // Architecture & Backend — pg_cron + pg_net + Vault
-  "예약 발행 / 휴지통 정리가 Vercel cron 에 묶여 호스팅 의존 + 알림 누락": {
+  "scheduled-publish-trash-purge-bound-to": {
     section: "A", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "\"호스팅 기본 기능으로 빠르게 시작\" 의 단계를 끝내고, 데이터 작업을 데이터가 있는 곳 (DB) 안으로 옮긴 결정입니다. fail-soft 알림 설계 + setup.sql 의 idempotency 까지 같이 보여드리려 골랐습니다.",
@@ -329,19 +284,7 @@ const itemMeta: Record<
   },
 
   // Component System / Animation / CSS — Tech Stack 칩 에디터 세션
-  "칩을 다른 그룹으로 drag 하면 일부는 잘 옮겨지고 일부는 기존 항목과 위치가 바뀜(switch)": {
-    section: "C", difficulty: 2, recommended: true,
-    recommendReason: {
-      ko: "좌표/collision 을 의심하기 쉬운 증상이었지만 진짜 원인은 '파생 순서'였던 케이스 — 표면 증상이 아닌 데이터 모델까지 파고든 디버깅을 보여드리려 골랐습니다.",
-      en: "The symptom screamed coordinates/collision, but the real cause was derived ordering — picked it to show debugging that goes past the symptom into the data model.",
-    },
-  },
-  "drag&drop 후 위치 이동 애니메이션이 안 먹거나 엉뚱한 칩이 튐": { section: "I", difficulty: 2 },
-  "drag 핸들 위에서만 'Drag' 커서가 떠서 사용자가 끌 수 있다는 걸 못 알아챔": { section: "I", difficulty: 1 },
-  "dashed 테두리를 줬는데 테두리가 아예 안 그려짐": { section: "L", difficulty: 1 },
-
-  // Layout & CSS — 에디터 top bar fixed 전환
-  "에디터 top bar 가 `position: sticky` 로 안 붙음 — 본문 내부 스크롤이라 페이지가 안 움직여 핀이 안 걸림": {
+  "editor-top-bar-won-t-pin": {
     section: "L", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "sticky 가 안 되는 이유를 \"스크롤되는 조상이 없다\" 까지 좁히고, fixed + ResizeObserver spacer + capture 단계 scroll 로 우회한 사례 — 증상이 아닌 스크롤 모델까지 파고든 디버깅을 보여드리려 골랐습니다.",
@@ -350,12 +293,7 @@ const itemMeta: Record<
   },
 
   // Animation & Interaction — carousel child click vs drag
-  "HorizontalCarousel 안의 카드 클릭이 안 먹음 — `setPointerCapture` 가 자식 click 을 가로챔": {
-    section: "I", difficulty: 3,
-  },
-
-  // Architecture / Component — preview = detail 공용 컴포넌트화
-  "에디터 미리보기가 게시 상세와 레이아웃이 어긋남 — 단순화 버전이라 계속 drift": {
+  "editor-preview-drifts-from-the-published": {
     section: "A", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "\"미리보기를 본화면에 맞춘다\" 가 아니라 \"같은 컴포넌트·같은 처리 함수를 쓰게 만들어 drift 자체를 불가능하게\" 로 관점을 바꾼 사례입니다.",
@@ -364,21 +302,7 @@ const itemMeta: Record<
   },
 
   // Layout & CSS — float figure margin
-  "float 이미지가 상세 페이지에서 텍스트와 딱 붙음 (간격 0)": {
-    section: "L", difficulty: 2,
-  },
-
-  // Architecture — 번들러가 라이브러리 정규식을 깨뜨림
-  "댓글에 코드 하이라이팅을 붙이자 게시물 페이지 전체가 크래시 — 빌드는 통과": { featured: true,
-    section: "A", difficulty: 3, recommended: true,
-    recommendReason: {
-      ko: "빌드가 통과했는데 런타임에만 터진 케이스 — \"내 코드\" 가 아니라 번들러 산출물을 의심해야 풀렸습니다. CI 가 잡아주지 못하는 층이 있다는 걸 보여드리고 싶어 골랐습니다.",
-      en: "The build passed and only the runtime died — solving it meant suspecting the bundler's output rather than my own code. Picked this because it shows a layer CI simply cannot catch.",
-    },
-  },
-
-  // Architecture — sanitizer 설정 키끼리의 충돌
-  "댓글 마크다운 체크박스가 렌더 안 됨 — DOMPurify 가 허용 목록에 넣은 속성을 조용히 지움": {
+  "comment-markdown-checkboxes-never-rendered-dompurify": {
     section: "A", difficulty: 3, recommended: true,
     recommendReason: {
       ko: "허용 목록에 분명히 넣었는데 사라지는, 에러 한 줄 없는 조용한 실패 — 설정 키 하나가 다른 키의 허용을 덮고 있다는 걸 라이브러리 내부 규칙까지 읽어서 찾아낸 사례입니다.",
@@ -387,18 +311,252 @@ const itemMeta: Record<
   },
 
   // Plate Editor — normalizer 무한루프
-  "열블록 너비를 %로 바꾸면 에디터가 멈춤 — normalize 무한루프": {
+  "switching-column-widths-to-froze-the": {
     section: "E", difficulty: 3,
   },
 
   // Plate Editor — decorate leaf + mark leaf hook 순서 충돌
-  "코드블록 안 텍스트에 서식을 넣으면 에디터가 크래시 — \"change in the order of Hooks\"": { featured: true,
-    section: "E", difficulty: 3,
+  "formatting-text-inside-a-code-block": { section: "E", difficulty: 3,
   },
 };
 
 const rawTroubleShootingItems: TroubleShootingItem[] = [
   {
+    id: "role-stored-in-app-metadata",
+    section: { ko: "Backend / Auth", en: "Backend / Auth" },
+    vizKey: "perm-store",
+    problem: {
+      ko: "역할·권한을 사용자 metadata 중 어디에 저장할 것인가",
+      en: "Where to store roles and permissions in user metadata",
+    },
+    title: { ko: "권한 데이터의 신뢰 경계 설계", en: "Designing the trust boundary for permission data" },
+    definition: {
+      ko: "처음에는 관리자 계정 하나만 존재했기 때문에 별도의 권한 체계가 필요하지 않았다. 하지만 여러 명의 저자를 초대할 수 있도록 기능을 확장하면서, 계정마다 어디까지 관리할 수 있는지 권한을 설정할 필요가 있었다.\n\n권한은 세 단계로 나눴다.\n\n1. 사이트 설정과 저자 관리까지 할 수 있는 소유자\n2. 모든 글을 수정할 수 있는 저자\n3. 자신이 작성한 글만 수정할 수 있는 저자\n\n그러면 서버는 관리자 화면에서 요청을 받을 때마다 최소한 두 가지를 확인해야 한다.\n\n1. 요청을 보낸 계정의 역할이 무엇인가\n2. 그 역할로 요청한 작업을 수행할 수 있는가\n\n여기서 한 가지 결정할 것이 생긴다. **서버가 신뢰해야 하는 역할 정보를 어디에 저장하고, 어떻게 가져올 것인가.**\n\n이 프로젝트는 로그인과 인증에 `Supabase Auth` 를 사용한다. Supabase Auth 는 사용자마다 `user_metadata` 와 `app_metadata` 라는 두 개의 메타데이터 영역을 제공한다. 둘 다 사용자 정보에 포함되고 서비스에서 필요한 데이터를 저장할 수 있다. 따라서 Supabase 가 제공하는 사용자 메타데이터에 저장하는 방법을 우선 생각할 수 있고, 별도의 데이터베이스 테이블에 저장하는 방법도 고려할 수 있다.",
+      en: "With a single admin account there was no need for a permission model. Opening the site up to multiple authors changed that: each account needed a defined reach.\n\nPermissions were split into three tiers.\n\n1. An owner, who also manages site settings and authors\n2. An author who can edit every post\n3. An author who can edit only their own posts\n\nThe server then has to establish at least two things on every admin request.\n\n1. What role does the calling account hold\n2. Does that role allow the requested operation\n\nWhich raises a decision. **Where should the role the server must trust be stored, and how should it be read?**\n\nThis project uses `Supabase Auth` for sign-in. Supabase Auth gives every user two metadata areas, `user_metadata` and `app_metadata`. Both travel with the user record and both can hold whatever a service needs. So the metadata Supabase already provides is the first candidate, and a dedicated database table is the other.",
+    },
+    cause: {
+      ko: "### 1. user_metadata\n\n우선 `user_metadata` 에 저장하는 경우를 가정해 보자. 이미 사용자 정보에 포함되어 있고 별도의 테이블을 만들 필요도 없다. 예를 들어 이런 식으로 저장할 수 있다.\n\n```json\n{ \"role\": \"author\", \"permission_level\": 1 }\n```\n\n그런데 Supabase Auth 는 로그인한 사용자가 자신의 정보를 수정할 수 있도록 `updateUser()` API 를 제공한다.\n\n```ts\nawait supabase.auth.updateUser({\n  data: { displayName: \"새 이름\" },\n});\n```\n\n문제는 이 요청이 **사이트의 API 를 거치지 않고 클라이언트에서 Supabase Auth 로 직접 전달된다**는 것이다. 인증된 세션만 있으면, 사이트가 그 정보를 수정하는 화면을 제공하지 않아도 사용자가 자기 정보를 바꿀 수 있다.\n\n[[viz]]\n\n예를 들어 사용자는 브라우저 콘솔에서 직접 `updateUser()` 를 호출할 수 있다.\n\n```ts\nawait supabase.auth.updateUser({\n  data: { role: \"owner\" },\n});\n```\n\n서버가 `user_metadata.role` 을 기준으로 권한을 판단한다면, 저자가 자신의 역할을 `owner` 로 바꾼 뒤 소유자 권한을 얻을 수 있다. 결국 서버는 그 데이터를 권한 판단의 근거로 신뢰할 수 없다. Supabase 공식 문서도 `user_metadata` 를 **보안에 민감한 정보나 인가 로직에 쓰지 말라**고 명시한다.\n\n**권한 정보를 저장할 때는 사용자가 자신의 권한을 변경할 수 없어야 한다.** 표시 이름이나 알림 설정처럼 사용자가 자유롭게 바꿔도 되는 값과 달리, 권한은 서버가 인가 여부를 판단하기 위해 신뢰해야 하는 값이기 때문이다.\n\n### 2. app_metadata\n\n`app_metadata` 도 사용자 정보에 포함되지만 수정 방식이 다르다. 일반적인 클라이언트 요청으로는 수정할 수 없고, 변경하려면 서버에서 관리자 권한을 사용해야 한다.\n\n[[viz]]\n\n`service-role` 키는 데이터베이스의 접근 제한을 모두 통과하기 때문에 클라이언트에 노출하지 않고 서버에서만 사용한다. 즉 이 구조에서는 **권한을 변경할 수 있는 주체를 서버로 제한할 수 있다**. 따라서 `role` 이나 `permission_level` 처럼 사용자가 임의로 바꿔서는 안 되는 값은 `app_metadata` 에 저장하는 것이 적합하다.\n\nSupabase 공식 문서에서도 `raw_app_meta_data` 는 사용자가 업데이트할 수 없어 인가 데이터를 저장하기에 적합하다고 설명한다. 반대로 `raw_user_meta_data` 는 인증된 사용자가 수정할 수 있어 적합하지 않다고 명시한다.\n\n### 3. 별도의 권한 테이블\n\n역할 정보를 Supabase Auth 의 사용자 정보에 넣지 않고, 애플리케이션 데이터베이스에서 따로 관리하는 방법도 있다.\n\n```sql\nuser_permissions\n  user_id\n  role\n  permission_level\n  author_id\n```\n\n저장과 변경을 모두 서버에서 관리하므로, 이 방법 역시 사용자가 자기 권한을 임의로 바꾸는 문제를 막을 수 있다. 두 방식의 보안 조건이 비슷하다면, 다음은 실제로 권한을 사용하는 과정을 비교할 차례다.\n\n서버가 관리자 요청을 처리할 때는 요청자가 실제로 인증된 사용자인지 먼저 확인해야 한다. 이 프로젝트에서는 `supabase.auth.getUser()` 가 그 역할을 한다. 그리고 `getUser()` 가 돌려주는 사용자 정보에는 `app_metadata` 가 포함되어 있다.\n\n[[viz]]\n\n따라서 `app_metadata` 에 역할을 저장하면 역할을 확인하려고 **조회를 추가할 필요가 없다**. 인증 확인으로 이미 받아 온 사용자 정보 안에 역할이 함께 들어 있기 때문이다. 반면 별도의 권한 테이블을 쓰면 `getUser()` 의 결과만으로는 역할을 알 수 없어, 권한을 확인할 때마다 그 테이블을 한 번씩 더 조회해야 한다.\n\n### 권한이 변경된다면\n\n역할에는 한 가지 특성이 더 있다. **고정된 값이 아니다.** 소유자는 기존 멤버의 권한을 나중에 바꿀 수 있다. 모든 글을 수정할 수 있던 저자를 자기 글만 수정할 수 있는 저자로 내리는 것도 가능하다. 그래서 서버가 오래된 권한으로 요청을 처리하지 않는지도 확인해야 한다.\n\n서버는 브라우저가 들고 있는 세션의 사용자 정보를 그대로 믿는 대신 `supabase.auth.getUser()` 를 호출한다. `getUser()` 는 Auth 서버에 네트워크 요청을 보내 access token 을 검증하고 현재 사용자 정보를 다시 확인한다. 따라서 서버의 권한 판단은 클라이언트가 들고 있는 사용자 객체가 아니라 **Auth 서버에서 확인한 값**을 기준으로 한다.\n\n반면 관리자 화면은 바뀐 권한에 맞춰 메뉴를 다시 그려야 한다. 권한을 바꾸는 쪽(소유자)과 영향을 받는 쪽(대상 계정)이 서로 다른 사용자라 응답으로는 전달할 수 없어서, 권한을 변경한 서버가 대상 계정 채널로 Realtime broadcast 를 보내고 받은 쪽이 세션을 새로 고친다. 다만 이것은 어디까지나 **화면을 최신 권한에 맞추기 위한 처리**다. 실제로 요청을 허용할지는 언제나 서버가 판단한다.",
+      en: "### 1. user_metadata\n\nStart with `user_metadata`. It already travels with the user record and needs no table of its own. It could hold something like this.\n\n```json\n{ \"role\": \"author\", \"permission_level\": 1 }\n```\n\nBut Supabase Auth exposes `updateUser()` so that a signed-in user can edit their own record.\n\n```ts\nawait supabase.auth.updateUser({\n  data: { displayName: \"New name\" },\n});\n```\n\nThe catch is that this request **goes straight from the client to Supabase Auth without passing through the site's API**. An authenticated session is enough; the site does not have to offer an edit screen for the user to change their own record.\n\n[[viz]]\n\nA user can call `updateUser()` from the browser console.\n\n```ts\nawait supabase.auth.updateUser({\n  data: { role: \"owner\" },\n});\n```\n\nIf the server decided permissions from `user_metadata.role`, an author could rewrite their role as `owner` and take owner access. The server cannot treat that value as evidence. Supabase's own documentation says not to use `user_metadata` for security-sensitive information or authorization logic.\n\n**Permission data has to be something the user cannot change about themselves.** Unlike a display name or a notification preference, which the user is free to set, a permission is a value the server must trust in order to authorize.\n\n### 2. app_metadata\n\n`app_metadata` also travels with the user record, but it is written differently. An ordinary client request cannot modify it; changing it requires admin credentials on the server.\n\n[[viz]]\n\nThe `service-role` key clears every access restriction in the database, so it is never exposed to the client and lives only on the server. That structure **confines permission changes to the server**. Values a user must not set for themselves — `role`, `permission_level` — therefore belong in `app_metadata`.\n\nSupabase's documentation says the same: `raw_app_meta_data` cannot be updated by the user and is suitable for authorization data, while `raw_user_meta_data` can be updated by an authenticated user and is not.\n\n### 3. A dedicated permissions table\n\nThe role could also live outside Supabase Auth, in the application's own database.\n\n```sql\nuser_permissions\n  user_id\n  role\n  permission_level\n  author_id\n```\n\nStorage and updates both stay on the server, so this option also prevents a user from rewriting their own permission. With the security properties comparable, the next question is what each costs at read time.\n\nHandling an admin request starts by confirming the caller is authenticated, which in this project is `supabase.auth.getUser()`. The user record it returns already contains `app_metadata`.\n\n[[viz]]\n\nStoring the role in `app_metadata` therefore **adds no query** — the role arrives inside the record the auth check already fetched. With a dedicated table, `getUser()` alone cannot tell you the role, so every permission check costs one more query against that table.\n\n### When permissions change\n\nRoles have one more property: **they are not fixed.** An owner can change an existing member's permission later, demoting an editor to an author who may only touch their own posts. So the server also has to avoid deciding on a stale permission.\n\nRather than trusting the user record held in the browser's session, the server calls `supabase.auth.getUser()`. That call sends a network request to the Auth server, validates the access token, and re-reads the current user record. The server's decision therefore rests on **what the Auth server confirms**, not on the client's copy.\n\nThe admin screen, on the other hand, has to redraw its menus for the new permission. The account making the change (the owner) and the account affected are different users, so the answer cannot carry it. Instead the server broadcasts on the target account's Realtime channel and the receiving client refreshes its session. That is purely **about keeping the screen current**. Whether a request is allowed is always decided by the server.",
+    },
+    solution: {
+      ko: "현재 프로젝트에서 관리할 권한 정보는 `role`, `permission_level`, `author_id` 정도로 복잡하지 않다. 이 정도를 사용자 정보에 함께 저장해도 구조적으로 문제가 없으므로, 권한 확인을 위해 조회를 하나 더 붙이는 것보다 `app_metadata` 에 함께 저장하는 쪽이 이 구조에 더 맞다고 판단했다.\n\n```json\n{\n  \"role\": \"author\",\n  \"permission_level\": 1,\n  \"author_id\": \"...\"\n}\n```\n\n서버는 `getUser()` 로 가져온 사용자 정보에서 `app_metadata` 를 읽어 역할을 판단한다.\n\n```ts\nexport function getUserRole(user: User | null | undefined): UserRole {\n  const meta = (user.app_metadata ?? {}) as Record<string, unknown>;\n  const isOwner = meta.role === \"owner\"\n    || (!!ownerEmail && user.email?.toLowerCase() === ownerEmail);\n  if (isOwner) return { role: \"owner\", level: Infinity, authorId, isOwner: true };\n  ...\n}\n```\n\n결과적으로 요청 처리는 이렇게 정리된다.\n\n[[viz]]\n\n마지막 단계인 대상 글 확인은 `canEditPost` 가 맡는다. 소유자와 모든 글을 수정할 수 있는 저자는 그대로 통과하고, 자기 글만 수정할 수 있는 저자는 글의 `author_ids` 에 자신이 포함된 경우에만 통과한다.",
+      en: "The permission data this project has to manage is not complex — `role`, `permission_level`, `author_id`. Carrying that much inside the user record poses no structural problem, so storing it in `app_metadata` fits this design better than adding a query for every permission check.\n\n```json\n{\n  \"role\": \"author\",\n  \"permission_level\": 1,\n  \"author_id\": \"...\"\n}\n```\n\nThe server reads `app_metadata` off the user record returned by `getUser()` and resolves the role from it.\n\n```ts\nexport function getUserRole(user: User | null | undefined): UserRole {\n  const meta = (user.app_metadata ?? {}) as Record<string, unknown>;\n  const isOwner = meta.role === \"owner\"\n    || (!!ownerEmail && user.email?.toLowerCase() === ownerEmail);\n  if (isOwner) return { role: \"owner\", level: Infinity, authorId, isOwner: true };\n  ...\n}\n```\n\nRequest handling then reduces to this.\n\n[[viz]]\n\nThe final step, the per-post check, is handled by `canEditPost`. An owner and an editor pass straight through; an author passes only when their id appears in the post's `author_ids`.",
+    },
+    keyInsight: {
+      ko: "**서버가 신뢰해야 하는 값은, 신뢰할 수 있는 경계 안에서만 변경되고 확인되도록 설계해야 한다.**\n\n권한 정보는 일반적인 사용자 설정과 다르게 다뤄야 한다. 표시 이름이나 알림 설정은 사용자가 직접 바꿔도 서비스의 권한 판단에 영향을 주지 않는다. 반면 `role` 이나 `permission_level` 은 서버가 요청을 허용할지 결정하는 기준이다.\n\n따라서 두 종류의 데이터를 같은 방식으로 다루면 안 된다. 사용자가 자신의 권한을 바꿀 수 없어야 하고, 권한을 바꾸는 작업 역시 서버가 통제할 수 있어야 한다. 또 권한이 바뀔 수 있는 값이라면 서버가 오래된 정보로 판단하지 않도록 요청 시점의 값을 확인해야 한다.\n\n결국 권한 데이터에서 중요한 것은 단순히 **어디에 저장하는가**가 아니다. **누가 바꿀 수 있고, 서버는 어떤 경로로 그 값을 신뢰할 것인가**를 함께 설계하는 일이다.",
+      en: "**A value the server must trust should only be changed and verified inside a boundary the server can trust.**\n\nPermission data cannot be handled like ordinary user settings. A display name or a notification preference can be changed by the user without affecting any authorization decision. `role` and `permission_level` are what the server decides requests on.\n\nThe two kinds of data therefore cannot share a mechanism. The user must not be able to change their own permission, and changing a permission has to stay under the server's control. And because a permission can change later, the server has to read the value as of the request rather than an older copy.\n\nWhat matters about permission data is not simply **where it is stored**. It is designing **who can change it, and through which path the server comes to trust it**.",
+    }
+  },
+  {
+    id: "authorization-moves-to-code-when-rls-is-bypassed",
+    section: { ko: "Backend / Security", en: "Backend / Security" },
+    vizKey: "all-param-leak",
+    problem: {
+      ko: "공개 API 가 관리자 화면의 초안·휴지통 조회까지 겸할 때 인가를 어디서 할 것인가",
+      en: "Where to authorize when one public API also serves the admin screen's drafts and trash",
+    },
+    title: { ko: "인가 판정을 코드에서 데이터베이스 규칙으로 옮긴다", en: "Moving the authorization decision from code into database rules" },
+    definition: {
+      ko: "글 목록을 내려주는 API 가 하나 있다. 방문자가 목록 화면을 열면 이 API 가 발행된 글을 돌려준다.\n\n관리자 화면도 같은 목록이 필요한데, 여기서는 아직 발행하지 않은 초안과 휴지통에 있는 글까지 보여야 한다. API 를 새로 만드는 대신 같은 API 에 조건을 붙여 쓰기로 했다. 주소 뒤에 `?all=true` 를 붙이면 초안까지, `?trash=true` 를 붙이면 휴지통까지 돌려주는 방식이다.\n\n문제는 이 조건이 붙은 요청에도 **서버가 로그인 여부를 확인하지 않았다**는 점이다. 주소만 알면 누구나 초안을 읽을 수 있었다.",
+      en: "One API returns the list of posts. When a visitor opens the list screen, it returns published posts.\n\nThe admin screen needs the same list, except it also has to show unpublished drafts and everything sitting in the trash. Rather than build a second API, the same one was reused with query parameters: `?all=true` includes drafts, `?trash=true` includes the trash.\n\nThe problem was that the server never checked whether the caller was signed in when those parameters were present. Knowing the URL was enough to read the drafts.",
+    },
+    cause: {
+      ko: "데이터베이스에 접근하는 방법이 두 가지다.\n\n하나는 요청자의 로그인 세션을 그대로 넘기는 방식이다. 이 경우 Row Level Security 가 작동한다. 테이블마다 누가 어떤 행을 볼 수 있는지 규칙을 미리 걸어 두면, 데이터베이스가 요청자를 보고 알아서 걸러 준다. 코드가 조건을 빠뜨려도 데이터베이스가 막는다.\n\n다른 하나는 service-role 키를 쓰는 방식이다. 이 키는 그 규칙을 전부 통과한다.\n\n당시 이 테이블에 걸려 있던 규칙은 하나뿐이었다. **발행된 글만 보인다.** 초안은 그 규칙에 걸리므로, 관리자 화면이 초안을 보려면 규칙을 통과하는 키를 쓸 수밖에 없다고 판단했다.\n\n두 번째를 쓰는 순간 요청자가 관리자인지 확인할 책임이 **데이터베이스에서 API 코드로 넘어온다**. 그 확인이 빠져 있었다.\n\n그런데 이 판단에는 확인하지 않은 전제가 하나 있다. 규칙이 볼 수 있는 것을 **행의 값뿐이라고 여긴 것**이다. 규칙은 그 행이 발행됐는지만이 아니라 요청자가 누구인지도 볼 수 있다. \"발행된 글이거나, 요청자가 관리자이면 보인다\" 를 규칙으로 쓸 수 있다면 우회할 이유 자체가 사라진다.",
+      en: "There are two ways to reach the database.\n\nThe first forwards the caller's session. That keeps Row Level Security in play: each table carries rules about who may see which rows, and the database filters by caller on its own. Even if the code forgets a condition, the database still refuses.\n\nThe second uses the service-role key, which clears all of those rules.\n\nAt the time this table carried exactly one rule: **only published posts are visible.** Drafts fall outside it, so the conclusion was that an admin screen needing drafts had no choice but the key that clears the rule.\n\nThe moment you take that second path, confirming that the caller is an administrator moves from the database into the API code. That confirmation was missing.\n\nBut that conclusion rests on an assumption nobody checked: that a rule can only look at **the values in the row**. A rule can also look at who is asking. If \"visible when the post is published, or when the caller is an administrator\" can be written as a rule, the reason to bypass disappears.",
+    },
+    solution: {
+      ko: "규칙이 요청자를 보려면 요청 안에 역할이 실려 있어야 한다. 이 프로젝트는 역할을 `app_metadata` 에 저장하고, 그 값은 로그인할 때 발급되는 access token 안에 함께 들어간다. 데이터베이스는 그 토큰을 `auth.jwt()` 로 읽을 수 있다. 조회를 따로 붙이지 않아도 규칙이 역할을 알 수 있다는 뜻이다.\n\n그래서 토큰에서 역할을 꺼내는 함수를 만들고, 규칙이 그 함수를 쓰도록 했다.\n\n```sql\nCREATE FUNCTION is_admin() RETURNS boolean AS $$\n  SELECT app_role() = 'owner' OR app_level() >= 2;\n$$;\n\nCREATE FUNCTION can_edit_post(target_author_ids text[]) RETURNS boolean AS $$\n  SELECT is_owner()\n      OR app_level() >= 2\n      OR (app_role() = 'author'\n          AND app_author_id() = ANY (coalesce(target_author_ids, '{}')));\n$$;\n```\n\n글 테이블에는 이 함수를 쓰는 규칙을 걸었다. 조회·수정·삭제가 `can_edit_post` 하나로 묶인다. 소유자와 관리자는 전부, 저자는 자기 글만이다. 기존 공개 규칙은 그대로 남아 있어 발행된 글은 누구에게나 보인다.\n\n```sql\nCREATE POLICY posts_admin_select ON posts\n  FOR SELECT TO authenticated\n  USING (can_edit_post(author_ids));\n```\n\n이제 API 는 요청자의 세션을 그대로 넘긴다. `?all=true` 가 붙어도 클라이언트를 바꾸지 않는다. 무엇이 보이는지는 코드가 아니라 규칙이 정한다.\n\n```ts\nlet supabase = await createClient();\nif (showAll || showTrash) {\n  const auth = await requireAuth();\n  if (auth.error) return auth.error;\n  supabase = auth.supabase;\n}\n```\n\n우회가 여전히 필요한 곳은 남는다. **사이트 전체를 훑는 집계**가 그렇다. 인기글 판정을 요청자의 시야로 좁히면 자기 글만 집계돼 결과가 달라진다. **사이트 설정**도 그렇다. 설정은 한 행짜리 문서인데 저자에게 허용되는 범위가 그 문서 안의 일부라서, 행 단위로 판정하는 규칙으로는 표현할 수 없다. 이런 곳은 우회를 유지하고 왜 유지하는지를 코드에 적어 두었다.",
+      en: "For a rule to see the caller, the request has to carry the role. This project stores the role in `app_metadata`, and that value is embedded in the access token issued at sign-in. The database can read that token with `auth.jwt()`, so a rule can know the role without a query of its own.\n\nSo the role is pulled out of the token by functions, and the rules call those functions.\n\n```sql\nCREATE FUNCTION is_admin() RETURNS boolean AS $$\n  SELECT app_role() = 'owner' OR app_level() >= 2;\n$$;\n\nCREATE FUNCTION can_edit_post(target_author_ids text[]) RETURNS boolean AS $$\n  SELECT is_owner()\n      OR app_level() >= 2\n      OR (app_role() = 'author'\n          AND app_author_id() = ANY (coalesce(target_author_ids, '{}')));\n$$;\n```\n\nThe posts table carries rules built on those functions. Read, update, and delete all resolve through the single `can_edit_post` predicate: owners and administrators reach everything, an author reaches only their own posts. The existing public rule stays in place, so published posts remain visible to everyone.\n\n```sql\nCREATE POLICY posts_admin_select ON posts\n  FOR SELECT TO authenticated\n  USING (can_edit_post(author_ids));\n```\n\nThe API now forwards the caller's session. `?all=true` no longer switches clients; it only changes the filter. What comes back is decided by the rules, not by the code.\n\n```ts\nlet supabase = await createClient();\nif (showAll || showTrash) {\n  const auth = await requireAuth();\n  if (auth.error) return auth.error;\n  supabase = auth.supabase;\n}\n```\n\nSome places still bypass. **Aggregates that span the whole site** are one: narrowing the popularity ranking to the caller's view would count only their own posts and change the result. **Site settings** are another: the settings live in a single-row document, and what an author may change is a slice inside that document, which a row-level rule cannot express. Those places keep the bypass, with the reason written next to it.",
+    },
+    keyInsight: {
+      ko: "우회는 결정이 아니라 출발점이었다. 관리자 화면을 만들 때부터 service-role 로 붙어 있었고, \"이 경로가 왜 규칙을 통과할 수 없는가\" 라는 질문은 데이터가 새고 나서야 나왔다. 규칙이 행의 값만 볼 수 있다고 여긴 전제를 한 번도 확인하지 않은 것이다.\n\n**기본값은 차단이어야 한다.** 전부 열어 둔 채로 코드가 매번 공개 조건을 빠뜨리지 않기를 기대하는 구조는 한 번의 실수로 무너진다. 규칙으로 옮기면 코드가 조건을 빠뜨려도 데이터베이스가 남은 한 겹을 맡는다.\n\n옮긴 대가도 있다. 규칙은 요청에 실린 토큰을 보므로, 권한을 낮춰도 그 계정의 토큰이 갱신될 때까지는 이전 권한이 유효하다. 서버가 매 요청 `getUser()` 로 확인하던 방식은 즉시 반영됐다. 어느 쪽도 무료가 아니고, 무엇을 포기하는지 알고 고르는 것이 다르다.\n\n응답의 모양도 달라진다. 규칙에 걸린 요청은 거부가 아니라 **빈 결과**로 돌아온다. 권한이 없으면 403 이 아니라 404 가 된다. 대상이 있는지조차 알려주지 않는다는 점에서는 나은 동작이지만, 코드가 0행을 \"없음\" 으로 해석하고 있는지는 확인해야 한다.",
+      en: "The bypass was never a decision; it was the starting shape. The admin screens connected with the service-role key from the day they were built, and the question \"why can't this path satisfy the rules?\" only came up after data leaked. The assumption that a rule can only look at values in the row went unexamined the whole time.\n\n**The default has to be blocked.** Leaving everything open and trusting the code never to drop the public-only condition collapses on a single mistake. With the decision in the rules, a forgotten condition still meets one more layer in the database.\n\nMoving it has a cost. A rule reads the token attached to the request, so lowering someone's permission takes effect only once that account's token is refreshed, while the server's per-request `getUser()` check applied immediately. Neither side is free; what differs is knowing what you give up.\n\nThe shape of the response changes too. A request the rules exclude comes back as an **empty result**, not a refusal, so missing permission reads as 404 rather than 403. Not revealing whether the target exists is the better behavior, but the code has to be checked for whether it reads zero rows as \"not found\".",
+    },
+  },
+  {
+    id: "single-auth-path-for-anonymous-comments",
+    section: { ko: "Backend / Security", en: "Backend / Security" },
+    vizKey: "anon-comment-auth",
+    problem: {
+      ko: "로그인 세션이 없는 익명 댓글의 작성자를 무엇으로 확인할 것인가",
+      en: "How to verify the author of an anonymous comment with no session",
+    },
+    title: { ko: "인증 경로를 하나로 둔다", en: "Keep a single authentication path" },
+    definition: {
+      ko: "이 사이트의 댓글은 로그인 없이 쓸 수 있다. 대신 댓글을 쓸 때 비밀번호를 함께 받아 두고, 나중에 고치거나 지울 때 그 비밀번호를 묻는다.\n\n로그인한 사용자라면 서버가 세션을 보고 누구인지 바로 안다. 익명 댓글에는 그 세션이 없다. 수정이나 삭제 요청이 들어오면 서버는 요청자가 그 댓글을 쓴 사람인지 다른 근거로 판정해야 한다.",
+      en: "Comments on this site can be written without signing in. Instead, a password is collected when the comment is written and asked for again when it is edited or deleted.\n\nFor a signed-in user the server reads the session and knows who it is. An anonymous comment has no session. When an edit or delete request arrives, the server has to decide whether the caller wrote that comment using some other evidence.",
+    },
+    cause: {
+      ko: "쓸 수 있는 근거가 둘이었다.\n\n첫 번째는 비밀번호다. 댓글을 쓸 때 받은 비밀번호를 bcrypt 로 해싱해 저장해 둔다. 해싱은 원래 값을 되돌릴 수 없는 형태로 바꾸는 것이라, 저장된 값이 새어 나가도 비밀번호 자체는 드러나지 않는다. 수정 요청이 오면 요청에 담겨 온 비밀번호를 같은 방식으로 처리해 저장된 값과 대조한다.\n\n두 번째는 브라우저 식별자다. 브라우저가 이 사이트에 처음 들어오면 임의의 UUID 를 하나 만들어 `localStorage` 에 넣어 둔다. 이 값과 글 id 를 합쳐 해시를 계산한 결과를 댓글에 함께 저장해 두면, 같은 브라우저에서 온 요청은 비밀번호를 묻지 않고 통과시킬 수 있다. 이 해시는 원래 인증용으로 만든 값이 아니다. 익명 댓글마다 아바타 이모지와 닉네임을 정하려고 계산해 둔 값이라 이미 저장되어 있었다.\n\n초기 구현은 둘을 함께 받아 **어느 한쪽이라도 맞으면 통과**시켰다. 폼은 항상 비밀번호를 함께 보내므로 화면에서는 늘 첫 번째 근거로 인증된다. 폼을 거치지 않고 요청을 직접 만들면 비밀번호를 빼고 해시만 담아 보낼 수 있다.",
+      en: "There were two candidates.\n\nThe first is the password. It is hashed with bcrypt and stored. Hashing turns the value into a form that cannot be reversed, so even if the stored value leaks, the password itself does not. An edit request runs the submitted password through the same process and compares.\n\nThe second is a browser identifier. On its first visit the browser generates a random UUID and keeps it in `localStorage`. Hashing that UUID together with the post id and storing the result on the comment lets requests from the same browser through without a password. That hash was never built for authentication: it exists to pick each anonymous comment's avatar emoji and nickname, so it was already stored.\n\nThe original implementation accepted both and let a request through if either matched. The form always sends a password, so anything done through the UI authenticates on the first one. A request built by hand can leave the password out and send only the hash.",
+    },
+    solution: {
+      ko: "해시 경로가 주는 이득은 **같은 브라우저에서 비밀번호를 한 번 덜 묻는 것**이다. 그 대가로 공개 응답에 실려 나가는 31비트 값 하나로 남의 댓글을 고칠 수 있게 된다. 편의는 작고 손해는 되돌릴 수 없어서, 경로를 남길 이유가 없었다.\n\n해시 경로를 없애고 비밀번호만 남겼다.\n\n```ts\n// commenter_hash 기반 인증 경로는 제거됨 — simpleHash 가 31-bit 비암호 해시라\n// commenter_id 를 brute force 로 위변조 가능했음. 익명 사용자는 비번이 유일한 인증.\nif (!comment.password_hash) return jsonError(\"Password required\", 403);\nif (!password) return jsonError(\"Password required\", 401);\nconst authorized = await bcrypt.compare(password, comment.password_hash);\nif (!authorized) return jsonError(\"Not authorized\", 403);\n```\n\n해시를 만드는 `simpleHash` 는 문자를 하나씩 곱하고 더하는 31비트 함수다. 나올 수 있는 값의 가짓수가 21억 개 남짓이라, 같은 결과가 나오는 UUID 를 임의로 찾아내는 데 오래 걸리지 않는다. bcrypt 는 반대로 한 번 대조하는 데 일부러 시간이 걸리도록 설계되어 있어 같은 시도가 통하지 않는다.\n\n게다가 이 해시는 아바타를 그려야 해서 공개 조회 응답에 그대로 담겨 나간다. 맞춰야 할 값을 공격자가 먼저 받아 볼 수 있다는 뜻이다. 비밀번호 쪽은 반대로 저장된 해시가 응답에 나가지 않는다.",
+      en: "What the hash path buys is **one fewer password prompt in the same browser**. What it costs is that a 31-bit value shipped in the public response can edit somebody else's comment. The convenience is small and the damage is permanent, so there was no case for keeping it.\n\nThe hash path was removed, leaving the password alone.\n\n```ts\n// commenter_hash 기반 인증 경로는 제거됨 — simpleHash 가 31-bit 비암호 해시라\n// commenter_id 를 brute force 로 위변조 가능했음. 익명 사용자는 비번이 유일한 인증.\nif (!comment.password_hash) return jsonError(\"Password required\", 403);\nif (!password) return jsonError(\"Password required\", 401);\nconst authorized = await bcrypt.compare(password, comment.password_hash);\nif (!authorized) return jsonError(\"Not authorized\", 403);\n```\n\n`simpleHash`, which produces that value, is a 31-bit function that multiplies and adds one character at a time. Only about 2.1 billion results are possible, so searching for a UUID that lands on the same one does not take long. bcrypt is built the opposite way: a single comparison is deliberately slow, which makes the same search impractical.\n\nThe hash is also returned in the public read response, since the avatar has to be drawn from it. The value an attacker needs to match is handed to them up front. The stored password hash, by contrast, never leaves the server.",
+    },
+    keyInsight: {
+      ko: "두 인증 수단을 어느 쪽이든 맞으면 통과로 묶으면 **전체 강도는 약한 쪽으로 정해진다**. 강한 쪽을 아무리 잘 만들어도 공격자는 약한 쪽만 상대하면 되기 때문이다.\n\n편의를 위해 경로를 하나 더 여는 판단은 그 경로의 강도까지 함께 정하는 판단이다. 경로를 늘리는 대신 하나로 두고 그 하나를 제대로 만드는 편이 낫다.",
+      en: "Joining two authentication methods with \"either one passes\" fixes the overall strength at the weaker one. However well the strong path is built, an attacker only ever has to face the weak one.\n\nOpening an extra path for convenience is also a decision about how strong that path is. One path, built properly, beats two.",
+    },
+  },
+  {
+    id: "delete-is-a-reversible-state-change",
+    section: { ko: "Backend / Data", en: "Backend / Data" },
+    vizKey: "reversible-delete",
+    problem: {
+      ko: "삭제를 행 제거로 처리할 것인가, 되돌릴 수 있는 상태 변경으로 처리할 것인가",
+      en: "Should deletion remove the row, or become a reversible state change?",
+    },
+    title: { ko: "삭제의 기본값은 복구 가능", en: "Deletion defaults to recoverable" },
+    definition: {
+      ko: "관리자 화면에는 글과 작품을 지우는 버튼이 있다. 본문에 넣는 달력 블록도 지울 수 있다.\n\n이 사이트는 운영자가 한 명이다. 삭제를 실행하기 전에 검토해 주는 절차가 없고, 잘못 지웠을 때 대신 되살려 줄 사람도 없다. **지우는 순간이 곧 마지막 판단**이다.",
+      en: "The admin screens have buttons that delete posts and works. Calendar blocks embedded in a post can be deleted too.\n\nThe site has one operator. Nothing reviews a deletion before it happens, and no one else can restore something removed by mistake. The moment of deleting is the last judgement anyone makes.",
+    },
+    cause: {
+      ko: "두 가지 방식이 있다.\n\n하나는 데이터베이스에서 그 행을 실제로 지우는 것이다. 이후 코드가 단순해진다. 목록을 읽는 쿼리에 조건이 붙지 않고 저장 공간도 늘지 않는다. 대신 되돌릴 방법이 데이터베이스 백업을 통째로 복원하는 것밖에 없다.\n\n다른 하나는 행을 남겨 두고 지워진 시각만 기록하는 것이다. 흔히 soft delete 라고 부른다. 목록에서는 감추되 데이터는 남아 있으므로 되돌릴 수 있다. 대신 데이터를 읽는 모든 쿼리가 지워지지 않은 것만 골라내는 조건을 빠뜨리지 않아야 하고, 지운 행이 계속 쌓인다.",
+      en: "There are two ways to do it.\n\nOne is to actually remove the row. Everything downstream gets simpler: list queries carry no extra condition and storage does not grow. The only way back is restoring an entire database backup.\n\nThe other is to keep the row and record only the time it was deleted, commonly called a soft delete. The row is hidden from lists but the data survives, so it can be restored. In exchange, every read has to remember to select only the rows that are not deleted, and deleted rows keep accumulating.",
+    },
+    solution: {
+      ko: "행을 지우는 쪽이 코드는 단순하지만, 실수했을 때 **백업 복원 말고는 방법이 없다**. 운영자가 한 명이라 그 복원을 대신 해 줄 사람도 없다. 반대로 `deleted_at` 방식의 비용은 조회에 조건이 하나 붙는 것뿐이고, 그건 **코드가 한 번 감당하면 끝난다**.\n\n삭제는 `deleted_at` 에 시각을 기록하는 것으로 처리한다. 휴지통 화면이 그 행들을 모아 보여 주고, 거기서 복구한다. 지울 때 `purge_after` 에 보관 기한도 함께 적어 두고, 그 시각이 지나면 예약 작업이 하루에 한 번 실제로 지운다.\n\n```ts\n// 복구 — 기록해 둔 시각을 지우면 목록에 다시 나타난다\n.update({ deleted_at: null }).eq(\"id\", id)\n\n// 영구 삭제 — 전용 라우트에서만 호출된다\nexport async function purgeForever(table: TableName, id: string) { ... }\n```\n\n영구 삭제는 일반 삭제와 다른 API 로 분리했다. 주소가 `/api/posts/[id]/purge` 로 따로 있고, 휴지통 화면을 거치지 않으면 도달하지 않는다. 행이 쌓이는 문제는 보관 기한이 정리하므로 사람이 따로 챙기지 않는다.",
+      en: "Removing the row keeps the code simpler, but a mistake then has **no remedy short of restoring a backup** — and with a single operator there is nobody else to do that restoring. The cost of the `deleted_at` approach is one extra condition on reads, and **code pays that once**.\n\nDeleting writes a timestamp into `deleted_at`. The trash screen collects those rows and restores from there. The delete also records a retention deadline in `purge_after`; once that time passes, a scheduled job removes the row for real, once a day.\n\n```ts\n// 복구 — 기록해 둔 시각을 지우면 목록에 다시 나타난다\n.update({ deleted_at: null }).eq(\"id\", id)\n\n// 영구 삭제 — 전용 라우트에서만 호출된다\nexport async function purgeForever(table: TableName, id: string) { ... }\n```\n\nPermanent deletion lives behind a different API. It has its own address, `/api/posts/[id]/purge`, and is unreachable without going through the trash screen. The accumulation problem is handled by the retention deadline rather than by remembering to clean up.",
+    },
+    keyInsight: {
+      ko: "**되돌릴 수 없는 동작을 되돌릴 수 있는 동작과 같은 버튼에 두지 않는다.** 두 동작은 실수했을 때의 비용이 다르다.\n\n기본값은 복구 가능한 쪽이어야 한다. 영구 삭제는 기한이 지나 자동으로 일어나거나, 사용자가 따로 한 번 더 지정해야 일어난다.",
+      en: "An irreversible action does not belong on the same button as a reversible one. The cost of a mistake is not the same for both.\n\nThe default has to be the recoverable one. Permanent removal happens either because a retention deadline passed or because the user asked for it a second time, explicitly.",
+    },
+  },
+  {
+    id: "optimistic-concurrency-with-a-version-counter",
+    section: { ko: "Backend / Data", en: "Backend / Data" },
+    vizKey: "optimistic-lock",
+    problem: {
+      ko: "같은 글을 두 곳에서 편집할 때 나중 저장이 앞선 저장을 덮어쓰는 것을 어떻게 막을 것인가",
+      en: "Preventing a later save from silently overwriting an earlier one on the same post",
+    },
+    title: { ko: "충돌은 막지 말고 감지한다", en: "Detect conflicts instead of preventing them" },
+    definition: {
+      ko: "글 편집기는 작성 중인 내용을 주기적으로 자동 저장한다. 그런데 같은 글을 두 곳에서 동시에 열 수 있다. 노트북에서 열어 둔 채 휴대폰에서 다시 여는 경우가 대표적이다.\n\n두 화면이 각자 편집하고 각자 저장하면 나중에 저장한 쪽이 앞선 쪽의 수정을 덮어쓴다. **덮어쓴 쪽도 덮어쓰인 쪽도 그 사실을 모른다.** 두 화면 모두에 저장됐다는 표시만 뜬다.",
+      en: "The editor autosaves while you write. The same post can also be open in two places at once, most often a laptop left open while the post is reopened on a phone.\n\nIf both screens edit and both save, the later save overwrites the earlier one. Neither side learns this happened. Both screens simply show that the post was saved.",
+    },
+    cause: {
+      ko: "막는 방법과 감지하는 방법이 있다.\n\n막는 방법은 잠금이다. 누군가 글을 열면 그 글을 잠가 다른 화면이 열지 못하게 한다. 확실하지만 잠금을 푸는 시점을 정해야 한다. 브라우저를 그냥 닫으면 잠금이 남고, 그 글은 한동안 아무도 고치지 못하게 된다.\n\n감지하는 방법은 버전 번호다. 글마다 수정될 때마다 1씩 오르는 숫자를 둔다. 편집기는 글을 열 때 그 숫자를 함께 받아 두었다가 저장할 때 되돌려 보낸다. 서버는 보내온 숫자가 지금 저장된 숫자와 같을 때만 저장한다. 다르면 그 사이에 누군가 저장했다는 뜻이다.\n\n이쪽은 잠금이 없으므로 열어 두기만 한 화면이 다른 화면을 막지 않는다. 대신 충돌이 났을 때 사용자에게 알리고 어떻게 할지 물어야 한다.",
+      en: "You can either prevent the collision or detect it.\n\nPreventing means locking. Opening a post locks it so no other screen can open it. That is airtight, but it needs a rule for releasing the lock. Closing the browser leaves the lock behind, and the post becomes uneditable for a while.\n\nDetecting means a version number. Each post carries a counter that increases by one on every save. The editor receives that number when it opens the post and sends it back when it saves. The server writes only if the number still matches what is stored. A mismatch means somebody saved in between.\n\nThis way nothing is locked, so a screen left open never blocks another. In exchange, a conflict has to be surfaced to the user with a choice about what to do.",
+    },
+    solution: {
+      ko: "잠금은 확실하지만 **드문 일을 막으려고 상시 비용을 내는 구조**다. 동시 수정은 자주 일어나지 않는데, 잠금을 언제 풀지는 항상 관리해야 하고 브라우저를 그냥 닫으면 남는다. 버전 번호는 평소에 아무것도 하지 않다가 어긋난 순간에만 걸린다.\n\n버전 번호를 쓴다. 저장 조건에 버전 일치를 넣고, 어긋나면 409 를 돌려준다.\n\n```ts\n// baseVersion 이 있으면 조건부 갱신(버전 일치할 때만) + version 증가.\nconst { data, error } = await admin\n  .from(\"posts\")\n  .update({ ...body, version: baseVersion + 1, updated_at: new Date().toISOString() })\n  .eq(\"id\", id)\n  .eq(\"version\", baseVersion)\n```\n\n마지막 줄이 핵심이다. 편집기가 글을 열 때 받아 간 숫자와 지금 저장된 숫자가 같은 행만 갱신된다. 그 사이 다른 화면이 저장했다면 숫자가 이미 올라가 있어 일치하는 행이 없고, 갱신된 행은 0개가 된다. 확인과 저장이 한 문장 안에서 일어나므로 그 사이에 다른 요청이 끼어들 틈이 없다.\n\n갱신이 0행이면 두 가지가 가능하다. 글이 지워졌거나, 버전이 어긋났거나다. 그래서 현재 버전을 한 번 더 읽어 둘을 구분하고, 충돌이면 409 와 현재 버전 번호를 함께 돌려준다.",
+      en: "Locking is airtight but **pays a standing cost to prevent a rare event**. Simultaneous edits are uncommon, yet lock release has to be managed at all times and a closed browser leaves one behind. A version counter does nothing until the moment values diverge.\n\nA version counter. Version equality goes into the save condition, and a mismatch returns 409.\n\n```ts\n// baseVersion 이 있으면 조건부 갱신(버전 일치할 때만) + version 증가.\nconst { data, error } = await admin\n  .from(\"posts\")\n  .update({ ...body, version: baseVersion + 1, updated_at: new Date().toISOString() })\n  .eq(\"id\", id)\n  .eq(\"version\", baseVersion)\n```\n\nThe last line is what does the work. Only a row whose stored version still equals the one the editor took when it opened the post gets updated. If another screen saved in between, the number has already moved on, nothing matches, and zero rows are updated. The check and the write happen in one statement, so no other request can slip between them.\n\nZero updated rows has two possible causes: the post was deleted, or the version diverged. So the current version is read once more to tell them apart, and a conflict returns 409 along with the current version number.",
+    },
+    keyInsight: {
+      ko: "동시 수정은 드물게 일어난다. 드문 일을 막기 위해 항상 잠그면 잠금을 관리하는 비용이 상시로 발생한다.\n\n충돌을 미리 막는 대신 일어났을 때 확실히 감지하는 편이 낫다. 감지에 필요한 것은 숫자 하나이고 저장 조건 한 줄로 끝난다. 중요한 것은 충돌을 없애는 것이 아니라 **조용히 덮어쓰이지 않는 것**이다.",
+      en: "Simultaneous edits are rare. Locking all the time to prevent a rare event means paying the cost of managing locks all the time.\n\nDetecting a conflict when it happens beats preventing it in advance. Detection needs one number and one line in the save condition. The goal was never to eliminate conflicts, only to make sure nothing is overwritten in silence.",
+    },
+  },
+  {
+    id: "duplicate-prevention-belongs-in-the-database",
+    section: { ko: "Backend / Data", en: "Backend / Data" },
+    vizKey: "unique-constraint",
+    problem: {
+      ko: "좋아요와 투표의 중복을 API 코드에서 검사할 것인가, 데이터베이스 제약으로 막을 것인가",
+      en: "Check for duplicate likes and votes in API code, or block them with a database constraint?",
+    },
+    title: { ko: "중복 방지는 데이터베이스에서", en: "Duplicate prevention belongs in the database" },
+    definition: {
+      ko: "글에는 좋아요 버튼이 있고, 본문에는 투표 블록을 넣을 수 있다. 둘 다 로그인 없이 누를 수 있어서 같은 사람이 여러 번 누르는 것을 막아야 한다.\n\n로그인이 없으므로 사람을 구분할 근거는 IP 주소뿐이다. 그래서 규칙은 같은 대상에 같은 IP 는 한 번만이 된다.",
+      en: "Posts have a like button, and a post body can embed a poll block. Both work without signing in, so the same person pressing repeatedly has to be blocked.\n\nWith no sign-in, the only thing distinguishing one person from another is the IP address. The rule becomes: one press per IP per target.",
+    },
+    cause: {
+      ko: "확인을 어디서 하느냐가 갈린다.\n\nAPI 코드에서 할 수 있다. 요청이 오면 먼저 그 IP 의 기록이 있는지 조회하고, 없으면 새로 넣는다. 읽기와 쓰기가 두 단계로 나뉜다.\n\n두 요청이 거의 같은 순간에 도착하면 둘 다 조회 단계에서 기록이 없다고 판단하게 된다. 그러면 **둘 다 넣기로 진행해 중복이 생긴다**. 버튼을 빠르게 두 번 누르거나 네트워크가 요청을 중복 전송하면 실제로 일어난다.\n\n데이터베이스 제약으로 할 수도 있다. 테이블에 이 조합은 중복될 수 없다는 규칙을 걸어 두면 두 번째 삽입은 데이터베이스가 거절한다. 조회와 삽입 사이의 틈이 사라진다.",
+      en: "It comes down to where the check lives.\n\nIt can live in the API code: on each request, look up whether that IP already has a record, and insert if it does not. Reading and writing are two separate steps.\n\nWhen two requests arrive at nearly the same moment, both see no record at the lookup step. Both then proceed to insert, and a duplicate appears. A fast double-press or a network retry is enough to trigger it.\n\nIt can also live in the database as a constraint. Declaring that a combination cannot repeat makes the database itself reject the second insert. The gap between lookup and insert disappears.",
+    },
+    solution: {
+      ko: "API 코드에서 확인해도 대부분은 막힌다. 문제는 **대부분**이라는 점이다. 조회와 삽입 사이의 틈은 요청이 겹칠 때만 열리는데, 겹치는 순간은 고를 수 없다. 제약은 그 틈 자체를 없애고 비용은 **인덱스 하나**뿐이다.\n\n제약을 데이터베이스에 건다.\n\n```sql\n-- 동일 대상에 같은 IP 중복 방지\nCREATE UNIQUE INDEX IF NOT EXISTS idx_likes_unique\n  ON likes (target_type, target_id, ip);\n```\n\n세 값의 조합이 이미 있으면 삽입 자체가 실패한다. 두 요청의 순서가 어떻게 얽히든 살아남는 행은 하나다. 투표 블록에도 같은 방식으로 `(poll_id, option_id, ip)` 조합에 제약을 걸었다.\n\n`target_type` 이 함께 들어간 이유는 좋아요가 글과 작품 양쪽에 붙기 때문이다. 두 테이블의 id 가 우연히 같아도 서로 다른 대상으로 구분된다.",
+      en: "Checking in API code blocks **most** of them — and *most* is the problem. The gap between lookup and insert only opens when requests overlap, and you don't get to choose when that happens. A constraint removes the gap itself, and it costs **one index**.\n\nThe constraint goes into the database.\n\n```sql\n-- 동일 대상에 같은 IP 중복 방지\nCREATE UNIQUE INDEX IF NOT EXISTS idx_likes_unique\n  ON likes (target_type, target_id, ip);\n```\n\nIf that combination of three values already exists, the insert itself fails. However the two requests interleave, exactly one row survives. The poll block got the same treatment on `(poll_id, option_id, ip)`.\n\n`target_type` is part of the key because likes attach to both posts and works. Even if an id happens to coincide across the two tables, they stay distinct targets.",
+    },
+    keyInsight: {
+      ko: "**먼저 확인하고 나서 쓴다**는 방식은 두 요청이 겹치는 순간 깨진다. 확인과 쓰기 사이에 다른 요청이 끼어들 수 있기 때문이다.\n\n같은 규칙을 제약으로 표현하면 그 틈이 없어진다. 데이터가 지켜야 할 규칙은 그 데이터를 다루는 코드마다 반복해 적는 것보다, 데이터가 저장되는 곳에 한 번 적어 두는 편이 낫다.",
+      en: "\"Check first, then write\" breaks the moment two requests overlap, because another request can land between the check and the write.\n\nExpressing the same rule as a constraint removes that gap. A rule the data must satisfy is better written once where the data lives than repeated in every piece of code that touches it.",
+    },
+  },
+  {
+    id: "revision-history-is-capped-per-entity",
+    section: { ko: "Backend / Data", en: "Backend / Data" },
+    vizKey: "revision-cap",
+    problem: {
+      ko: "자동저장 스냅샷이 무한히 쌓이는 것을 어떤 기준으로 정리할 것인가",
+      en: "On what basis should autosave snapshots be pruned instead of growing forever?",
+    },
+    title: { ko: "쌓이기만 하는 데이터에는 상한을 정한다", en: "Data that only accumulates needs a ceiling" },
+    definition: {
+      ko: "편집기는 작성 중인 내용을 서버에도 주기적으로 저장한다. 이 스냅샷을 리비전이라고 부른다. 편집 도중 브라우저가 닫히거나 실수로 문단을 지웠을 때 되돌리는 데 쓴다.\n\n리비전은 저장할 때마다 새로 쌓인다. 긴 글을 오래 편집하면 글 하나에만 수백 개가 생긴다. 아무 제한이 없으면 **늘어나기만 한다**.",
+      en: "The editor also saves snapshots to the server as you write. Each snapshot is called a revision, and they exist for recovering from a closed browser or an accidentally deleted paragraph.\n\nA new revision is stored on every save. Editing a long post over time produces hundreds for that post alone. With no limit, the number only goes up.",
+    },
+    cause: {
+      ko: "보관 정책을 정해야 한다.\n\n시간을 기준으로 자를 수 있다. 30일이 지난 리비전을 지우는 식이다. 이 경우 오래된 글은 리비전이 하나도 남지 않는다. 오래 두었다 다시 손대는 글일수록 되돌릴 근거가 필요한데 그때 아무것도 없다.\n\n개수를 기준으로 자를 수도 있다. 글마다 최근 몇 개만 남긴다. 글이 얼마나 오래됐는지와 무관하게 항상 되돌릴 거리가 남는다. 대신 짧은 시간에 많이 저장하면 그만큼 과거가 빨리 밀려난다.\n\n지우지 않는 선택지도 있다. 저장 공간이 계속 늘고, 리비전 목록을 읽는 조회도 함께 느려진다.",
+      en: "A retention policy has to be chosen.\n\nYou can cut by time, deleting revisions older than thirty days. Then an old post keeps none at all, and a post you return to after a long gap is exactly the case where something to roll back to is most useful.\n\nYou can cut by count, keeping the most recent few per post. Something to roll back to always exists regardless of the post's age. In exchange, a burst of saves pushes older states out faster.\n\nYou can also keep everything. Storage grows without bound, and reading the revision list slows down with it.",
+    },
+    solution: {
+      ko: "기간으로 자르면 오래된 글의 리비전이 **하나도 남지 않는다**. 그런데 오래 두었다 다시 손대는 글이야말로 되돌릴 근거가 필요한 경우다. 가장 필요한 순간에 비어 있는 정책이라 택하지 않았다. 개수 기준은 글의 나이와 무관하게 **최근 것을 항상 남긴다**.\n\n글 하나당 최근 50개만 남긴다. 새 리비전을 넣은 직후에 초과분을 정리한다.\n\n```ts\nconst MAX_REVISIONS = 50;\n\n// 엔티티당 MAX_REVISIONS 초과분 정리\nconst { data: overflow } = await admin\n  .from(\"revisions\")\n  .select(\"id\")\n  .eq(\"entity_type\", entity_type)\n  .eq(\"entity_id\", entity_id)\n  .order(\"created_at\", { ascending: false })\n  .range(MAX_REVISIONS, MAX_REVISIONS + 1000);\n```\n\n최신순으로 정렬한 뒤 51번째부터 골라 지운다. 정리를 별도 예약 작업으로 미루지 않고 저장할 때 함께 처리하므로, 상한을 넘긴 상태로 오래 머무르지 않는다.\n\n리비전은 글과 작품이 한 테이블을 같이 쓴다. `entity_type` 이 어느 쪽인지 구분하고, 본문은 통째로 JSON 스냅샷으로 넣는다. 편집 폼에 항목이 늘어도 테이블 구조를 바꾸지 않아도 된다.",
+      en: "Cutting by time leaves an old post with **nothing at all** — yet a post you return to after a long gap is exactly when something to roll back to matters. A policy that is empty when it is most needed was not worth taking. A count keeps **the recent ones regardless of age**.\n\nFifty per post, and the excess is trimmed right after a new revision is inserted.\n\n```ts\nconst MAX_REVISIONS = 50;\n\n// 엔티티당 MAX_REVISIONS 초과분 정리\nconst { data: overflow } = await admin\n  .from(\"revisions\")\n  .select(\"id\")\n  .eq(\"entity_type\", entity_type)\n  .eq(\"entity_id\", entity_id)\n  .order(\"created_at\", { ascending: false })\n  .range(MAX_REVISIONS, MAX_REVISIONS + 1000);\n```\n\nSorted newest first, everything from the fifty-first onward is selected and deleted. Trimming happens as part of the save rather than in a separate scheduled job, so the table never sits over the limit for long.\n\nPosts and works share one revisions table. `entity_type` says which side a row belongs to, and the body goes in whole as a JSON snapshot. Adding a field to the edit form does not require changing the table.",
+    },
+    keyInsight: {
+      ko: "**자동으로 쌓이는 데이터에는 상한이 필요하다.** 상한이 없으면 문제는 나중에, 데이터가 이미 많아진 뒤에 드러난다.\n\n상한을 개수로 둘지 기간으로 둘지는 그 데이터를 언제 꺼내 쓰는지에 달렸다. 리비전은 방금 편집한 것을 되돌리는 용도라서 최근 몇 개가 남아 있는지가 중요하고, 얼마나 오래 보관했는지는 덜 중요하다.",
+      en: "Data that accumulates on its own needs a ceiling. Without one, the problem surfaces later, once there is already too much of it.\n\nWhether the ceiling is a count or a duration depends on when the data gets used. Revisions exist to undo something you just edited, so what matters is how many recent ones survive, not how long any of them have been kept.",
+    },
+  },
+  {
+    id: "scheduled-jobs-run-inside-the-database",
+    section: { ko: "Backend / Infra", en: "Backend / Infra" },
+    vizKey: "db-cron",
+    problem: {
+      ko: "예약 발행과 휴지통 정리를 호스팅 cron 으로 돌릴 것인가, 데이터베이스 안에서 돌릴 것인가",
+      en: "Run scheduled publishing and trash cleanup on hosting cron, or inside the database?",
+    },
+    title: { ko: "정기 작업은 데이터가 있는 곳에서 돌린다", en: "Run scheduled work where the data lives" },
+    definition: {
+      ko: "사람이 조작하지 않아도 정해진 시각에 돌아야 하는 작업이 둘 있다.\n\n하나는 예약 발행이다. 글을 쓸 때 공개 시각을 미리 지정해 두면, 그 시각이 지났을 때 누군가 글을 공개 상태로 바꿔 줘야 한다.\n\n다른 하나는 휴지통 정리다. 지운 글은 보관 기한이 지나면 실제로 삭제되는데, 기한을 넘긴 행이 있는지 주기적으로 확인할 무언가가 필요하다.\n\n둘 다 **관리자가 화면을 열고 있지 않을 때도** 돌아야 한다.",
+      en: "Two jobs have to run at fixed times without anyone operating them.\n\nThe first is scheduled publishing. A post can be given a future publish time, and once that time passes something has to flip it to public.\n\nThe second is trash cleanup. Deleted rows are removed for real once their retention deadline passes, which means something has to check periodically whether any row is past it.\n\nBoth have to run when no admin has a screen open.",
+    },
+    cause: {
+      ko: "두 가지를 검토했다.\n\n호스팅 서비스가 제공하는 cron 이 있다. 설정 파일에 주기를 적어 두면 플랫폼이 그 시각에 정해진 주소를 호출한다. 이 방식은 작업을 실행하기 위한 주소를 인터넷에 열어 둬야 한다. 그 주소를 아는 사람이 아무 때나 호출할 수 있으므로 **비밀키로 따로 막아야 한다**. 처음에는 이 방식으로 만들었고 주기는 5분이었다.\n\n`pg_cron` 은 데이터베이스 안에서 함수를 직접 실행한다. 주소를 열 필요가 없고, 작업이 다루는 데이터와 실행 주체가 같은 곳에 있다. 대신 확장 기능을 켜야 하고, 실행 주기가 저장소의 코드가 아니라 데이터베이스에 등록된다. 어떤 주기로 도는지 확인하려면 데이터베이스를 봐야 한다.",
+      en: "Two options were on the table.\n\nHosting platforms provide cron. A schedule in a config file makes the platform call a fixed URL at that time. This requires exposing a URL on the internet whose only job is to run the task, which then has to be guarded by a secret since anyone who learns the address can call it. The first version worked this way, on a five-minute schedule.\n\n`pg_cron` runs the function inside the database. No URL is exposed, and the job runs where the data it touches already is. In exchange, an extension has to be enabled, and the schedule lives in the database rather than in the repository, so checking how often something runs means looking at the database.",
+    },
+    solution: {
+      ko: "이 두 작업이 건드리는 대상은 **전부 데이터베이스 안에** 있다. HTTP cron 은 그 안의 일을 시키려고 밖에 입구를 하나 열고, 그 입구를 비밀키로 지키는 코드까지 함께 관리해야 한다. 실행 주체를 데이터가 있는 곳으로 옮기면 **입구도 그 코드도 필요 없어진다**.\n\n두 작업을 `pg_cron` 으로 옮기고 설정 파일의 주기는 비웠다.\n\n```sql\nSELECT cron.schedule(\n  'publish-scheduled',\n  '* * * * *',\n  $cron$ SELECT safe_publish_scheduled(); $cron$\n);\n```\n\n가운데 줄이 실행 주기다. 별표 다섯 개는 매분을 뜻한다. 5분에서 1분으로 줄인 이유는 발행 시각을 분 단위로 지정하기 때문이다. 5분 간격으로 확인하면 지정한 시각보다 최대 5분 늦게 공개된다.\n\n실행 대상은 작업 함수 자체가 아니라 `safe_` 로 감싼 함수다. 안쪽에서 예외가 나면 잡아서 `admin_notifications` 에 오류 내용을 기록한다.\n\n등록 구문도 먼저 `unschedule` 한 뒤 다시 `schedule` 하는 형태로 적어 두었다. 설정 파일 전체를 다시 실행해도 같은 작업이 두 번 등록되지 않는다.",
+      en: "Everything these two jobs touch **already lives inside the database**. HTTP cron opens a door on the outside just to trigger work on the inside, and then adds guarding code to maintain alongside it. Moving the runner to where the data is **removes both the door and that code**.\n\nBoth jobs moved to `pg_cron`, and the schedule list in the config file was emptied.\n\n```sql\nSELECT cron.schedule(\n  'publish-scheduled',\n  '* * * * *',\n  $cron$ SELECT safe_publish_scheduled(); $cron$\n);\n```\n\nThe middle line is the schedule; five asterisks mean every minute. It went from five minutes to one because publish times are chosen to the minute, and checking every five could leave a post up to five minutes late.\n\nWhat the schedule runs is not the job function but a `safe_` wrapper around it. If the inner call raises, the wrapper catches it and records the error in `admin_notifications`.\n\nThe registration statements `unschedule` before they `schedule`, so re-running the whole setup file never registers the same job twice.",
+    },
+    keyInsight: {
+      ko: "정기 작업을 HTTP 로 호출하는 구조는 작업을 실행하기 위한 입구를 인터넷에 하나 더 여는 일이다. 그 입구는 지켜야 하고, 지키는 코드도 관리 대상이 된다.\n\n작업이 다루는 대상이 전부 데이터베이스 안에 있다면 실행도 그 안에서 하는 편이 단순하다. 입구가 없으면 지킬 것도 없다.",
+      en: "Driving a scheduled job over HTTP means opening one more door on the internet whose only purpose is to run that job. The door has to be guarded, and the guarding code becomes something else to maintain.\n\nIf everything the job touches is already inside the database, running it there is simpler. A door that does not exist needs no guard.",
+    },
+  },
+  {
+    id: "notification-failure-must-not-fail-the-job",
+    section: { ko: "Backend / Infra", en: "Backend / Infra" },
+    vizKey: "fail-soft-notify",
+    problem: {
+      ko: "알림 발송이 실패했을 때 본 작업까지 되돌릴 것인가",
+      en: "When sending a notification fails, should the underlying job roll back too?",
+    },
+    title: { ko: "실패할 때 어느 쪽으로 넘어질지 정해 둔다", en: "Decide which way each failure falls" },
+    definition: {
+      ko: "예약 작업이 글을 공개하거나 휴지통을 비우면 무슨 일이 있었는지 관리자에게 이메일로 알린다. 발송은 Resend 라는 외부 서비스를 쓰고, 발송에 필요한 API 키는 Vault 라는 데이터베이스 안의 비밀 저장소에 넣어 둔다.\n\n알림이 실패할 수 있는 상황이 두 가지다. 새 환경에 처음 설치했을 때처럼 키가 아직 등록되지 않은 경우가 하나다. 키는 있는데 외부 서비스가 응답하지 않는 경우가 다른 하나다.\n\n중요한 것은 두 작업이 하나의 데이터베이스 트랜잭션 안에서 돈다는 점이다. 트랜잭션은 그 안에서 한 일을 **전부 성공시키거나 전부 취소**하는 단위다. 이메일 발송도 같은 트랜잭션 안에 있다.",
+      en: "When a scheduled job publishes posts or empties the trash, it emails the admin about what happened. Delivery goes through an external service called Resend, and the API key it needs is kept in Vault, a secret store inside the database.\n\nNotification can fail in two ways. The key may not be registered yet, as on a fresh install. Or the key exists but the external service does not respond.\n\nWhat matters is that both jobs run inside a single database transaction. A transaction is a unit that either commits everything done inside it or cancels all of it. The email send sits inside that same transaction.",
+    },
+    cause: {
+      ko: "알림이 실패했을 때 어떻게 할지 정해야 한다.\n\n오류를 그대로 올리면 트랜잭션이 취소된다. 글은 공개되지 않고 휴지통도 정리되지 않는다. 이메일을 못 보냈다는 이유로 본 작업까지 되돌아가는 셈이다.\n\n무시하면 본 작업은 완료된다. 대신 알림이 오지 않았다는 사실을 아무도 모른다.\n\n두 실패는 성격이 다르다. 이메일은 결과를 전달하는 수단이고, 글을 공개하는 것이 본래 하려던 일이다. 수단이 실패했다고 목적까지 되돌릴 이유는 없다.",
+      en: "A policy has to be chosen for a failed notification.\n\nLetting the error propagate cancels the transaction. Posts do not get published and the trash is not emptied. The real work is undone because an email could not be sent.\n\nSwallowing it lets the real work finish, but then nobody learns the notification never arrived.\n\nThe two failures are not the same kind of thing. Email is the means of reporting a result; publishing the post is the thing you actually set out to do. A failed means is no reason to undo the end.",
+    },
+    solution: {
+      ko: "두 실패의 무게가 다르다. 이메일이 안 가면 관리자가 나중에 화면에서 확인하면 되지만, 발행이 취소되면 **독자가 볼 예정이던 글이 안 올라간다**. 가벼운 쪽의 실패로 무거운 쪽을 되돌릴 이유가 없어서 알림만 삼키기로 했다.\n\n키를 읽는 함수와 이메일을 보내는 함수 모두 실패를 삼키고 넘어간다.\n\n```sql\n-- 유틸: Vault secret 안전 조회 (없으면 NULL)\nCREATE OR REPLACE FUNCTION _get_vault_secret(secret_name text)\n...\nEXCEPTION WHEN OTHERS THEN\n  RETURN NULL;\n\n-- 유틸: Resend 이메일 발송 (Vault 비어있으면 skip, 실패는 무시 — DB 본 작업은 성공해야)\nBEGIN\n  IF api_key IS NULL OR to_email IS NULL OR from_email IS NULL THEN\n    RETURN;\n  END IF;\n```\n\n키가 없으면 조회 함수가 NULL 을 돌려주고, 발송 함수는 그 NULL 을 보고 아무것도 하지 않은 채 끝난다. 오류가 발생하지 않으므로 트랜잭션은 그대로 진행되고 글은 예정대로 공개된다.\n\n이 판단은 알림에만 적용한다. 예약 작업 자체가 실패했을 때는 반대로 반드시 기록을 남긴다. 작업 함수를 감싼 `safe_` 래퍼가 예외를 잡아 `admin_notifications` 에 넣는 것이 그 역할이다.",
+      en: "The two failures do not weigh the same. A missing email means the admin checks the screen later; a rolled-back publish means **a post readers were meant to see never went up**. There was no reason to let the lighter failure undo the heavier one, so only the notification is swallowed.\n\nBoth the function that reads the key and the function that sends the mail swallow their failures.\n\n```sql\n-- 유틸: Vault secret 안전 조회 (없으면 NULL)\nCREATE OR REPLACE FUNCTION _get_vault_secret(secret_name text)\n...\nEXCEPTION WHEN OTHERS THEN\n  RETURN NULL;\n\n-- 유틸: Resend 이메일 발송 (Vault 비어있으면 skip, 실패는 무시 — DB 본 작업은 성공해야)\nBEGIN\n  IF api_key IS NULL OR to_email IS NULL OR from_email IS NULL THEN\n    RETURN;\n  END IF;\n```\n\nWith no key, the lookup returns NULL, and the sender sees that NULL and returns without doing anything. No error is raised, so the transaction proceeds and the post publishes as planned.\n\nThis applies to notifications only. A failure in the scheduled job itself must be recorded instead, which is what the `safe_` wrapper does when it catches an exception and writes it to `admin_notifications`.",
+    },
+    keyInsight: {
+      ko: "실패했을 때 어느 쪽으로 넘어질지는 **그 동작이 목적인지 수단인지**에 따라 다르다.\n\n알림은 수단이므로 실패해도 본 작업을 건드리지 않는다. 본 작업의 실패는 반대로 반드시 드러나야 한다. 둘을 같은 규칙으로 다루면 알림 때문에 글이 공개되지 않거나, 작업이 실패해도 아무도 모르는 상태 중 하나가 된다.",
+      en: "Which way a failure should fall depends on whether the action is an end or a means.\n\nNotification is a means, so its failure leaves the real work alone. Failure of the real work is the opposite: it has to surface. Treating both the same way lands you with either a post that never publishes because of an email, or a job that fails while nobody finds out.",
+    },
+  },
+  {
+    id: "one-inline-code-token-for-color",
     problem: {
       ko: "색상 칩을 인라인 코드 하나로 — 에디터·리더·댓글이 같은 렌더를 공유",
       en: "One inline-code token for color chips — editor, reader, and comments share one renderer",
@@ -422,52 +580,33 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["single-source-of-truth", "inline-code", "color-swatch", "cross-surface-rendering", "plate"],
   },
   {
+    id: "editing-an-existing-post-made-auto",
     problem: {
       ko: "기존 글을 편집하자 자동저장이 내용을 통째로 옛 버전으로 되돌림",
       en: "Editing an existing post made auto-save roll its whole content back to an older version",
     },
+    title: { ko: "교차 기기 최신 로딩과 믿을 수 있는 최신성 신호", en: "Cross-device latest loading and a trustworthy freshness signal" },
     definition: {
-      ko: "기존 글을 열어 블록 몇 개를 옮기고 저장했는데, 잠시 뒤 자동복원이 끼어들어 본문 전체가 편집 전, 심지어 더 오래된 버전으로 되돌아갔습니다. 새 글에서는 멀쩡했고 기존 글에서만 재현됐습니다.",
-      en: "Opened an existing post, moved a few blocks, and saved — moments later auto-restore stepped in and reverted the whole body to a pre-edit, even older, version. New posts were fine; it only reproduced on existing posts.",
+      ko: "글을 쓰는 도중 브라우저가 닫히거나 다른 기기에서 이어 쓰더라도 내용을 잃지 않도록, 이 편집기는 자동저장을 둔다. 편집 중 내용은 두 곳에 백업된다. 하나는 현재 브라우저에만 저장되는 `localStorage`, 다른 하나는 서버에 시점별 스냅샷으로 쌓이는 리비전이다. 리비전은 특정 브라우저에 묶이지 않아, 다른 기기나 다른 브라우저에서 같은 글을 열 때 마지막으로 편집하던 내용을 이어받는 근거가 된다.\n\n여기서 판단이 하나 필요하다. 글을 다시 열 때 화면에 무엇을 되살릴지 — 서버에 저장된 본문인지, 서버 리비전인지, 이 브라우저의 `localStorage` 인지 — 를 골라야 한다. 백업이 저장본보다 새롭다고 미리 가정하고 먼저 되살리는 방식을 `optimistic restore` 라고 하는데, 잘못 고르면 방금 다른 기기에서 이어 쓴 내용 대신 오래된 버전을 화면에 띄운다. 그래서 세 후보 중 무엇이 진짜 최신인지를 믿을 수 있게 판별하는 것이 자동저장 복원의 핵심이 된다.",
+      en: "So that content is not lost when the browser closes or you continue on another device, this editor has auto-save. While editing, the content is backed up in two places: `localStorage`, stored only inside the current browser, and revisions, which accumulate on the server as point-in-time snapshots. Revisions are not tied to a particular browser, so they are the basis for continuing the last edit when the same post is opened on another device or browser.\n\nThis calls for a decision. When a post is reopened, the editor has to choose what to restore on screen — the post saved on the server, a server revision, or this browser's `localStorage`. Restoring up front on the assumption that a backup is newer than the saved post is called `optimistic restore`; choose wrong, and it shows an older version instead of what was just continued on another device. So the core of auto-save restore is telling, reliably, which of the three candidates is truly the newest.",
     },
     cause: {
-      ko: "서버(교차 기기) 자동복원이 dismiss 되지 않은 리비전 중 가장 최근 것을 골라 복원했는데, 그 리비전이 실제 저장본보다 오래된 것이었습니다. 기존 글의 과거 저장이 `updated_at` 을 올리지 않아 \"저장본이 리비전보다 최신인가\" 판정(updated_at 비교)이 stale 를 걸러내지 못했고, 최신 `posts.content` 위에 옛 스냅샷을 덮어썼습니다.",
-      en: "Server (cross-device) auto-restore picked the newest un-dismissed revision and restored it — but that revision was older than the actual saved post. A past save on the existing post hadn't bumped `updated_at`, so the \"is the saved post newer than the revision\" check (an updated_at comparison) failed to filter the stale one, and an old snapshot got laid over the fresh `posts.content`.",
+      ko: "각 후보에는 마지막으로 손댄 시각을 기록한 타임스탬프가 있고, 가장 늦은 것을 최신으로 고르는 것이 자연스러운 방법이다. 글에는 `updated_at`, 리비전에는 만들어진 시각이 그 역할을 한다.\n\n문제는 이 신호를 항상 믿을 수 있는 것은 아니라는 점이다. 저장 경로가 `updated_at` 을 갱신하지 않으면, 실제로는 더 나중에 저장된 본문이 시각상 오래된 것처럼 보인다. 그러면 타임스탬프만 비교하는 순진한 방식은 오래된 리비전을 '가장 최신'으로 오인해, 최신 본문 위에 옛 내용을 덮을 수 있다. 즉 자동복원의 위험은 복원 로직 자체가 아니라, 비교의 근거가 되는 최신성 신호가 부정확할 때 생긴다.",
+      en: "Each candidate has a timestamp recording when it was last touched, and the natural approach is to pick the latest as the newest — `updated_at` on the post, the creation time on a revision.\n\nThe catch is that this signal cannot always be trusted. If a save path fails to refresh `updated_at`, a post that was actually saved later can look older by timestamp. A naive comparison of timestamps alone then mistakes an older revision for the newest and can write old content over the latest post. In other words, the danger of auto-restore comes not from the restore logic itself, but from an inaccurate freshness signal underlying the comparison.",
     },
     solution: {
-      ko: "서버 자동복원을 끄고 localStorage 복원만 남겼습니다. `posts.content` 를 유일한 진실로 삼고, 리비전은 사용자가 명시적으로 고를 때만 불러옵니다. 신뢰할 수 있는 최신성 비교가 불가능한 신호(안 올라간 updated_at)에 기대 자동으로 되돌리지 않습니다.",
-      en: "Disabled server auto-restore and kept only localStorage restore. `posts.content` is the single source of truth, and revisions load only when the user explicitly picks one — no automatic rollback that leans on an unreliable freshness signal (an un-bumped updated_at).",
+      ko: "그래서 두 가지를 맞춘다. 먼저 최신성 신호를 믿을 수 있게 만든다. 글을 저장할 때 `updated_at` 을 반드시 현재 시각으로 갱신하고, 그 저장으로 대체된 이전 자동저장 리비전은 한꺼번에 dismiss 한다. 이러면 서버에 저장된 본문이 항상 가장 최신이 되고, 저장 시점보다 오래된 리비전은 복원 후보에서 빠진다.\n\n그 위에서 교차 기기 최신 로딩이 동작한다. 글을 열면 서버의 가장 최근 리비전을 확인하되, 그 리비전이 만들어진 시각이 저장된 본문의 `updated_at` 보다 실제로 더 나중일 때만(`savedAt > updated_at`) 복원한다. 리비전이 만들어진 시각은 저장 성공 여부와 무관하게 기록돼 신뢰할 수 있고, 이 조건을 통과하는 리비전은 저장 이후 다른 기기에서 이어 편집한 내용뿐이다. 여기에 더해, 사용자가 이미 이 화면에서 편집을 시작했다면 서버 최신본이 더 새로워 보여도 덮지 않는다. 방금 한 작업을 지우지 않는 것이 항상 먼저다.\n\n`localStorage` 임시 저장은 그대로 두어, 창이 닫혀도 같은 기기에서는 곧바로 이어 쓸 수 있다. 정리하면 세 후보(저장된 본문, 서버 최신 리비전, `localStorage`) 중 가장 최신을 고르되, 편집 중이면 덮지 않고, 리비전은 저장본보다 실제로 더 나중일 때만 복원한다.",
+      en: "So two things are lined up. First, the freshness signal is made trustworthy: when a post is saved, `updated_at` is always refreshed to the current time, and the earlier auto-save revisions this save supersedes are dismissed together. This keeps the post on the server always the newest and drops any revision older than the save from the restore candidates.\n\nCross-device latest loading runs on top of that. When a post is opened, the most recent server revision is checked, but restored only when the time it was created is genuinely later than the saved post's `updated_at` (`savedAt > updated_at`). A revision's creation time is recorded regardless of whether the save succeeded, so it is reliable, and the only revisions that pass this test are content continued from another device after the last save. On top of that, if the user has already started editing on this screen, the latest server copy is not applied even if it looks newer — not erasing work just done always comes first.\n\nThe `localStorage` copy is left in place, so writing continues immediately on the same device even after the window closes. In short: among the three candidates (the saved post, the latest server revision, `localStorage`) the newest is chosen, but nothing is overwritten while editing, and a revision is restored only when it is genuinely later than the saved post.",
     },
     keyInsight: {
-      ko: "낙관적 자동복원은 \"복원본이 정말 더 최신인가\" 를 믿을 수 있게 비교할 수 있을 때만 안전합니다. 최신성 비교의 근거(updated_at)가 항상 갱신된다는 보장이 없으면, 자동복원은 사용자의 최신 작업을 조용히 덮어쓸 수 있습니다.",
-      en: "Optimistic auto-restore is only safe when you can reliably compare \"is the restored copy actually newer\". If the basis of that comparison (updated_at) isn't guaranteed to advance, auto-restore can silently overwrite the user's latest work.",
+      ko: "자동으로 최신 버전을 되살리는 기능은, 되살리려는 것이 정말로 더 새로운지 확실히 판별할 수 있을 때에만 안전하다. 판별의 근거인 최신성 신호를 믿을 수 없으면, 그 기능은 사용자가 방금 한 작업을 지울 수 있다.\n\n그래서 안전성은 복원 알고리즘이 아니라 신호의 신뢰도에서 나온다. `updated_at` 을 저장 시 반드시 갱신하고 대체된 리비전을 dismiss 해 '저장본보다 나중'이라는 비교가 언제나 참이 되도록 만든 다음에야, 교차 기기 이어쓰기 같은 `optimistic restore` 를 안전하게 켤 수 있다. 신호를 신뢰할 수 없다면 이런 기능은 켜지 않는 편이 낫다.",
+      en: "A feature that automatically restores the newest version is safe only when it can tell for certain that what it restores is genuinely newer. If the freshness signal behind that judgment cannot be trusted, the feature can erase work a user has just done.\n\nSo the safety comes from the reliability of the signal, not from the restore algorithm. Only after `updated_at` is always refreshed on save and superseded revisions are dismissed — making the comparison 'later than the saved post' always true — can `optimistic restore`, such as cross-device continue, be turned on safely. When the signal cannot be trusted, such a feature is better left off.",
     },
-    tags: ["autosave", "revisions", "optimistic-restore"],
+    vizKey: "cross-device-autosave",
+    tags: ["autosave", "revisions", "optimistic-restore", "cross-device"],
   },
   {
-    problem: {
-      ko: "sticky 유리 헤더 뒤 콘텐츠가 안 흐려지고 frost 가 옅음",
-      en: "Content behind the sticky glass header wasn't blurred and the frost looked washed-out",
-    },
-    definition: {
-      ko: "관리자 sticky 액션 바를 유리(backdrop blur) 로 만들었는데, 바 뒤로 지나가는 표 행이 전혀 흐려지지 않았고 frost 색도 옅게만 떴습니다. full-bleed 로 nav 위·양옆까지 넓히니 증상이 더 심해졌습니다.",
-      en: "Built the admin sticky action bar as glass (backdrop blur), but the table rows scrolling behind it weren't blurred at all and the frost read washed-out. Making it full-bleed (over the nav and out to both edges) made it worse.",
-    },
-    cause: {
-      ko: "세 가지가 겹쳤습니다. (1) blur 를 `::before{z-index:-1}` 에 걸고 부모에 z-index 를 줘 stacking context 를 만들었더니, backdrop 이 그 context 안으로 격리돼 바깥 형제(표 행)를 보지 못했습니다. (2) full-bleed 를 위해 얹은 `transform` 이 backdrop-filter 를 통째로 깨뜨렸습니다. (3) `saturate()` 가 뒤 배경의 warm 색을 증폭해 frost 가 탁해졌고, 바 자체 배경색이 불투명해 blur 가 보일 여지도 없었습니다.",
-      en: "Three things stacked up. (1) The blur lived on a `::before{z-index:-1}` while the parent had its own z-index, creating a stacking context that isolated the backdrop so it couldn't see its outside siblings (the table rows). (2) A `transform` added for full-bleed broke backdrop-filter entirely. (3) `saturate()` amplified the warm tones of the background so the frost turned muddy, and the bar's own opaque background left no room for the blur to show.",
-    },
-    solution: {
-      ko: "blur 를 `::before` 가 아니라 바 요소 자체에 직접 걸고, full-bleed 는 `transform` 대신 음수 margin(`calc(-1 * var(--page-px))`)으로 넓혔습니다. `saturate` 를 빼고 배경을 반투명으로 낮춰 뒤가 비치게 했습니다.",
-      en: "Put backdrop-filter on the bar element itself instead of a `::before`, and achieve full-bleed with negative margins (`calc(-1 * var(--page-px))`) rather than a `transform`. Drop `saturate` and lower the background to translucent so what's behind shows through.",
-    },
-    keyInsight: {
-      ko: "backdrop-filter 는 자신이 속한 stacking context 밖의 형제를 보지 못합니다. blur 를 격리된 레이어(z-index 준 `::before`·부모)에 두거나 `transform` 을 얹으면 흐릴 대상 자체가 사라집니다. 유리 효과는 격리하지 말고, 흐릴 콘텐츠와 같은 맥락에 둬야 합니다.",
-      en: "backdrop-filter can't see siblings outside its own stacking context. Putting the blur on an isolated layer (a z-indexed `::before` or parent) or adding a `transform` removes the very thing it should blur. Glass effects must not be isolated — they belong in the same context as the content they blur.",
-    },
-    tags: ["backdrop-filter", "stacking-context", "css"],
-  },
-  {
+    id: "in-a-two-column-settings-layout",
     problem: {
       ko: "2열로 놓인 두 설정 섹션의 툴바가 한쪽만 아래로 밀려 어긋남",
       en: "In a two-column settings layout, one section's toolbar sat lower than its neighbor's",
@@ -491,52 +630,58 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["css-grid", "align-content", "stretch", "alignment", "layout"],
   },
   {
+    id: "the-parent-s-mount-time-fitview",
     problem: {
       ko: "부모의 마운트 fitView 가 자식 effect 의 카메라 제어를 매번 덮어씀",
       en: "The parent's mount-time fitView silently overwrote the child's camera control",
     },
+    title: { ko: "effect 실행 순서와 제어권 단일화", en: "Effect ordering and single ownership of control" },
+    vizKey: "effect-order",
     definition: {
-      ko: "ERD 다이어그램에서 테이블을 누르면 연결된 것들이 한 화면에 담기게 하려고, React Flow 안에 작은 컴포넌트를 두고 `useEffect` 에서 `fitView()` 를 불렀습니다. 코드도 배선도 맞는데 화면은 늘 같은 배율·같은 자리에 착지했습니다. 두 번을 고쳐도 증상이 그대로였습니다.",
-      en: "To frame a table with everything it connects to, a small component inside React Flow called `fitView()` from a `useEffect`. The code and the wiring were both correct, yet the camera always landed at the same zoom and position. Two rounds of fixes changed nothing.",
+      ko: "이 사이트의 소개 페이지에는 데이터베이스 구조를 보여 주는 ERD 도표가 있다. 표(테이블)를 노드로 그리고 표 사이의 관계를 엣지로 이어 전체 구조를 한눈에 보여 준다. 이 도표는 `react-flow` 라는 도표 렌더링 라이브러리로 그린다.\n\n여기에 노드를 누르면 누른 노드와 그에 연결된 노드들이 화면 안에 함께 들어오도록 도표가 자동으로 확대·이동하는 기능을 추가하려 했다. 이를 위해 특정 범위가 뷰포트에 들어오도록 화면을 맞추는 `fitView` 를 호출하는 코드를 도표 안쪽에 넣었다.\n\n`fitView` 호출도 정상이고 노드·엣지 연결도 제대로 되어 있었으나, 어떤 노드를 눌러도 화면은 항상 같은 배율과 같은 위치에서 멈췄다. 원인을 서로 다르게 짚어 두 차례 수정했지만 화면 동작은 바뀌지 않았다.",
+      en: "This site's About page has an ERD diagram that shows the structure of a database. Tables are drawn as nodes and the relationships between tables as edges, so the whole structure is visible at a glance. The diagram is drawn with `react-flow`, a diagram-rendering library.\n\nThe goal was to add a feature: clicking a node makes the diagram automatically zoom and pan so that the clicked node and the nodes connected to it move into view together. To do this, code that calls `fitView`, which frames the view so a given range fits within the viewport, was placed inside the diagram.\n\nThe `fitView` call was correct and the node and edge connections were wired up properly, yet clicking any node left the view at the same zoom level and the same position every time. The cause was traced along two different paths and fixed twice, but the view's behavior did not change.",
     },
     cause: {
-      ko: "`<ReactFlow>` 에 `fitView` prop 이 걸려 있었고, 포커스가 바뀔 때마다 `key` 가 바뀌어 **리마운트**되므로 그 초기 fit 이 매번 실행됐습니다. 결정적인 건 순서입니다 — **React 는 자식의 effect 를 부모보다 먼저 실행합니다.** 자식(`fitView` 호출)이 먼저 돌고, 곧바로 부모 ReactFlow 의 마운트 fit 이 그 결과를 덮어썼습니다. 아무 에러도 나지 않으니 \"내 코드가 안 불린다\" 고 의심하게 됩니다.",
-      en: "`<ReactFlow>` had the `fitView` prop, and since `key` changed on every focus change the component **remounted**, re-running that initial fit each time. The decisive part is ordering — **React runs child effects before parent effects.** The child's `fitView()` ran first and the parent's mount fit immediately overwrote it. Nothing errors, so you start suspecting your own handler never fires.",
+      ko: "원인은 `react-flow` 컴포넌트 자체에 있었다. 이 라이브러리에는 컴포넌트가 처음 마운트될 때 자동으로 한 번 뷰포트를 맞추는 `fitView` 옵션이 기본으로 켜져 있다. 또한 누르는 노드가 바뀔 때마다 도표 전체가 리렌더됐고, 리렌더될 때마다 이 마운트 시점의 자동 `fitView` 도 매번 다시 실행됐다.\n\n문제의 핵심은 두 동작의 실행 순서였다. 렌더가 끝난 뒤에 실행되도록 예약한 `useEffect` 는 부모 컴포넌트보다 자식 컴포넌트 쪽이 먼저 처리된다. 따라서 안쪽(자식)에 넣어 둔 `fitView` effect 가 먼저 실행되고, 이어서 바깥쪽 `react-flow` 컴포넌트의 기본 `fitView` 가 그 결과를 덮어썼다. 이 과정에서 오류가 발생하지 않으므로, 처음에는 넣어 둔 코드가 실행되지 않는다고 오해하고 엉뚱한 부분을 확인하게 된다.",
+      en: "The cause was in the `react-flow` component itself. The library has a `fitView` option, turned on by default, that automatically frames the viewport once when the component first mounts. In addition, every time the clicked node changed, the whole diagram re-rendered, and each re-render ran that mount-time automatic `fitView` again.\n\nThe core of the problem was the order in which the two actions ran. A `useEffect` scheduled to run after render is processed for the child component before the parent. So the `fitView` effect placed on the inside (the child) ran first, and then the outer `react-flow` component's default `fitView` overwrote the result. Because no error is raised during this process, the added code is at first mistaken for not running at all, which leads to checking the wrong part.",
     },
     solution: {
-      ko: "카메라를 잡는 곳을 하나로 만들었습니다. 명령형 effect 를 걷어내고 `fitViewOptions` 를 상태에 따라 바꿔, React Flow 가 자기 타이밍에 알아서 맞추게 했습니다. 노드 측정이 끝났는지 기다릴 필요도 사라졌습니다.",
-      en: "Give the camera a single owner. Drop the imperative effect and vary `fitViewOptions` by state so React Flow performs the fit on its own schedule. Waiting for nodes to be measured stopped being a concern too.",
+      ko: "뷰포트를 맞추는 동작의 소유권을 하나로 통합했다. `fitView()` 를 직접 호출하던 명령형 코드는 제거했다. 대신 상황에 따라 뷰포트를 어떻게 맞출지에 해당하는 설정값만 선언적으로 지정해 두고, 실제로 뷰포트를 움직이는 동작은 `react-flow` 컴포넌트가 자기 렌더 순서가 됐을 때 스스로 수행하도록 맡겼다.\n\n이렇게 바꾸면 명령하는 쪽과 `react-flow` 컴포넌트가 같은 뷰포트를 두고 서로 덮어쓰는 상황이 사라진다. 각 노드의 크기 측정이 끝났는지 기다릴 필요도 없어진다. 뷰포트를 조작하는 주체가 하나뿐이므로, 어떤 노드를 누르든 의도한 대로 화면이 맞춰진다.",
+      en: "The ownership of the framing action was consolidated into one. The imperative code that called `fitView()` directly was removed. Instead, only the setting for how the viewport should be framed was specified declaratively in advance depending on the situation, and the actual moving of the viewport was left to the `react-flow` component to perform when its own render turn came.\n\nWith this change, the commanding side and the `react-flow` component no longer overwrite each other over the same viewport. There is also no need to wait for each node's size measurement to finish. Because a single subject controls the viewport, clicking any node frames the view as intended.",
     },
     keyInsight: {
-      ko: "라이브러리가 선언형 prop 으로 이미 제어하는 것을 명령형 API 로 또 만지면, 둘 중 **나중에 실행되는 쪽이 이깁니다.** 그리고 자식 effect 는 부모보다 먼저 돌기 때문에, 라이브러리 컴포넌트 안에 넣은 내 제어는 구조적으로 항상 집니다. 증상이 \"아무 일도 안 일어남\" 이면 코드가 안 불리는 게 아니라 **불린 뒤 덮어써지는 것**을 먼저 의심하세요.",
-      en: "When a library already controls something through a declarative prop and you also poke it imperatively, **whichever runs last wins.** And since child effects run before parent effects, control placed inside the library's own component structurally always loses. When the symptom is \"nothing happens\", suspect that your code ran and was overwritten — not that it never ran.",
+      ko: "가져다 쓰는 기성 컴포넌트가 옵션만으로 이미 처리하고 있는 동작을, 그 옆에서 명령형 호출로 다시 건드리면 결국 나중에 실행된 쪽이 반영된다. 게다가 자식 effect 가 부모 effect 보다 먼저 실행되는 구조이므로, 남의 컴포넌트 안쪽에 끼워 넣은 명령은 항상 먼저 실행되고 곧이어 덮어써지는 위치에 놓인다.\n\n따라서 아무 일도 일어나지 않는 증상을 만났을 때는, 코드가 실행조차 되지 않았다고 먼저 의심하기보다 실행은 됐으나 그 뒤에 다른 동작이 결과를 덮어쓴 것은 아닌지 먼저 확인하는 편이 빠르다.",
+      en: "When a ready-made component you borrow already handles something through its options alone, and you also reach in beside it to touch the same thing with an imperative call, the one that runs last is the one that takes effect. And because a child effect runs before a parent effect, a command inserted inside someone else's component always lands in the position where it runs first and is overwritten right after.\n\nSo when you encounter a symptom where nothing happens at all, it is faster to first check whether the code did run and was then overwritten by something else, rather than assuming it never ran in the first place.",
     },
     tags: ["react", "useEffect", "react-flow", "declarative-vs-imperative", "effect-order"],
   },
   {
+    id: "drop-was-silently-ignored-on-sql",
     problem: {
       ko: "SQL 가져오기에서 DROP 이 조용히 무시됨 — 파서가 \"남은 것\" 만 돌려줬기 때문",
       en: "DROP was silently ignored on SQL import — because the parser only returned what remained",
     },
+    title: { ko: "삭제를 부재가 아니라 명시로 표현하기", en: "Encoding deletion as an explicit signal, not absence" },
     definition: {
-      ko: "About ERD 의 SQL 가져오기에 병합 모드를 넣은 뒤, `DROP TABLE junk;` 를 넣어도 테이블이 그대로 남고 `ALTER TABLE posts DROP COLUMN legacy;` 를 넣으면 지운 컬럼이 **되살아났습니다.** 오류도 경고도 없었습니다.",
-      en: "After adding merge mode to the About ERD's SQL import, `DROP TABLE junk;` left the table in place and `ALTER TABLE posts DROP COLUMN legacy;` made the dropped column **come back.** No error, no warning.",
+      ko: "소개 페이지의 ERD 는 SQL 을 붙여넣으면 그 내용을 읽어 스스로 그려진다. 여기에 merge 를 추가했다. 다이어그램을 지우고 새로 그리는 대신, 붙여넣은 SQL 에서 **달라진 부분만 찾아 현재 그림 위에 반영하는** 방식이다.\n\n그런데 `DROP TABLE posts` 를 붙여넣어도 `posts` 상자가 그대로 남았다. 필드를 지우는 SQL 은 지운 필드가 도로 나타났다. **오류나 경고는 없었다.**",
+      en: "The ERD on the about page draws itself by reading SQL you paste in. A merge mode was added on top: instead of wiping the diagram and redrawing it, it **finds only what changed in the pasted SQL and applies that to the current picture.**\n\nBut pasting `DROP TABLE posts` left the `posts` box in place, and SQL removing a field made the field reappear. **No error or warning was shown.**",
     },
     cause: {
-      ko: "파서가 처리 결과로 **남아 있는 테이블·컬럼만** 돌려주고 있었습니다. 그러면 병합하는 쪽에서는 \"SQL 에 없음\" 이 *언급하지 않았음(유지)* 인지 *지웠음(삭제)* 인지 구별할 수 없습니다. 병합 규칙은 잃지 않는 쪽이 기본이라 둘 다 \"유지\" 로 처리했고, 삭제가 전부 되돌려졌습니다. 같은 뿌리에서 `RENAME TO` 도 옛 이름과 새 이름이 **둘 다 남는** 버그가 나왔습니다.",
-      en: "The parser returned only the tables and columns that **remained**. That leaves the merge step unable to tell whether \"absent from the SQL\" means *not mentioned (keep)* or *deleted (remove)*. Merge defaults to not losing data, so both became \"keep\" and every deletion was undone. The same root cause made `RENAME TO` leave **both** the old and the new name behind.",
+      ko: "SQL 을 읽어 ERD 구조로 바꾸는 파서가 따로 있다. 이 파서는 처리를 끝낸 뒤 **살아남은 테이블 목록**을 돌려준다. 무엇을 지웠는지는 알려주지 않는다.\n\nERD 에 `users` 와 `posts` 가 있고 `DROP TABLE posts` 를 붙여넣었다고 하자. 파서는 `[users]` 를 돌려준다. merge 는 이 목록을 받아 `posts` 가 없다는 것을 본다. 그런데 그 사실이 둘 중 무엇인지 알 수 없다.\n1. `DROP TABLE` 로 지웠으니 없애라\n2. 이번 SQL 이 `posts` 를 언급하지 않았을 뿐이니 그대로 두라\n\n**목록에 없는 모습이 두 경우 모두 똑같다.** merge 는 사용자가 만든 데이터를 잃지 않는 것을 첫 원칙으로 삼으므로, 애매하면 2번으로 처리했다. 그래서 모든 삭제가 되돌려졌다. 이름 바꾸기도 옛 이름이 목록에서 사라질 뿐이라 옛 이름과 새 이름이 둘 다 남았다.",
+      en: "A separate parser turns the SQL into the ERD's structure. When it finishes it returns **a list of the tables that survived.** It says nothing about what was deleted.\n\nSuppose the ERD holds `users` and `posts`, and you paste `DROP TABLE posts`. The parser returns `[users]`. Merge receives that list and sees `posts` is absent, but cannot tell which of two things that means.\n1. It was dropped, so remove it.\n2. This SQL simply never mentioned `posts`, so leave it alone.\n\n**Absence looks identical in both cases.** Merge takes as its first principle that data the user built must not be lost, so whenever the judgment was unclear it chose the second. Every deletion was reverted. A rename only makes the old name vanish from the list, so both the old and the new name stayed.",
     },
     solution: {
-      ko: "삭제를 결과의 부재로 표현하지 않고 **명시적으로 보고**하도록 바꿨습니다(`removedTables` / `removedColumns`, `RENAME` 은 옛 이름을 삭제로 보고). 병합은 이 목록만 실제로 지웁니다. 최종 상태 기준이라 `DROP` 뒤에 다시 `CREATE` 하면 삭제로 치지 않고, 사라진 대상에 걸려 있던 관계선도 함께 끊습니다.",
-      en: "Stop expressing deletion as absence and **report it explicitly** (`removedTables` / `removedColumns`; `RENAME` reports the old name as removed). Merge then removes exactly that list. It reflects the final state, so a `DROP` followed by a `CREATE` isn't a deletion, and relations attached to anything removed are cut with it.",
+      ko: "파서가 살아남은 목록만 주는 대신 **지운 것을 따로 적어 넘기도록** 바꿨다. `removedTables` 와 `removedColumns` 를 함께 돌려주고, 이름 바꾸기는 옛 이름을 이 목록에 올린다.\n\n이제 merge 는 추측하지 않는다. **삭제 목록에 적힌 것만 지우고, 목록에 없으면 손대지 않는다.** 앞의 예에서 파서는 `남은 것: [users]` 와 `지운 것: [posts]` 를 함께 주므로 해석이 갈릴 여지가 없다.\n\n판단은 SQL 을 전부 반영한 뒤의 최종 상태로 한다. 지웠다가 곧바로 다시 만든 테이블은 삭제로 세지 않는다.",
+      en: "Instead of returning only the survivors, the parser now **writes down what it removed and passes that along.** It returns `removedTables` and `removedColumns` as well, and a rename puts the old name on that list.\n\nMerge no longer guesses. **It deletes exactly what the removal list names and leaves anything not on it untouched.** In the example above the parser hands over `survived: [users]` together with `removed: [posts]`, so nothing is left to interpret.\n\nThe decision is made against the final state after all the SQL is applied, so a table dropped and immediately recreated does not count as a deletion.",
     },
     keyInsight: {
-      ko: "결과에서 **빠져 있다는 사실만으로는 의도를 전달할 수 없습니다.** \"없음\" 이 \"관심 없음\" 과 \"지워라\" 를 동시에 뜻하는 자료 구조는, 그 둘을 구별해야 하는 순간 반드시 한쪽을 조용히 틀리게 처리합니다. 두 상태를 다르게 다뤄야 한다면 표현도 둘로 나눠야 합니다.",
-      en: "**Absence alone cannot carry intent.** A data shape where \"missing\" means both \"didn't touch it\" and \"delete it\" will silently get one of them wrong the moment the two must be distinguished. If two states need different handling, they need different representations.",
+      ko: "**무언가가 목록에 없다는 사실만으로는 왜 없는지 알 수 없다.** 지워서 없는 것과 애초에 언급되지 않아 없는 것은 모습이 같다.\n\n없음이라는 한 가지 상태에 두 가지 뜻을 담으면, 그 둘을 구분해야 하는 순간에 한쪽을 **아무 신호 없이** 잘못 처리한다. 에러도 경고도 나지 않는다. 이번 경우에는 삭제가 조용히 무시됐다.\n\n다르게 다뤄야 하는 두 상황이면 표현부터 나눠 둔다. 있음과 없음으로 뭉뚱그리는 대신, 지운 것은 지웠다고 적는다.",
+      en: "**The bare fact that something is missing from a list cannot tell you why it is missing.** Gone because it was deleted and gone because it was never mentioned look exactly alike.\n\nLoad one \"absent\" state with two meanings and, at the moment you must separate them, one of them gets handled wrong **with no signal at all.** No error, no warning. Here, deletions were silently ignored.\n\nWhen two situations must be treated differently, separate how they are expressed. Rather than lumping everything into present-or-absent, write down what was removed.",
     },
     tags: ["parser", "merge", "data-modeling", "sql", "semantics"],
   },
   {
+    id: "adding-icon-buttons-to-a-table",
     problem: {
       ko: "표 안의 아이콘 버튼을 늘렸더니 그 행만 높이가 달라짐",
       en: "Adding icon buttons to a table cell made only that row taller",
@@ -561,6 +706,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
   },
   /* ── 멀티 저자 / OAuth (Phase 1b) + 코드블록 ── */
   {
+    id: "where-to-store-member-roles-so",
     section: { ko: "Backend / Auth", en: "Backend / Auth" },
     problem: { ko: "멤버 역할을 어디에 저장해야 조작을 막을 수 있나", en: "Where to store member roles so they can't be tampered with" },
     definition: {
@@ -582,8 +728,11 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["Supabase", "Auth", "app_metadata", "권한"],
   },
   {
+    id: "github-oauth-lets-anyone-with-an",
     section: { ko: "Backend / Auth", en: "Backend / Auth" },
     problem: { ko: "GitHub OAuth 는 계정만 있으면 누구나 로그인 시도가 성공한다", en: "GitHub OAuth lets anyone with an account complete sign-in" },
+    title: { ko: "인증(authN)과 인가(authZ)의 분리", en: "Authentication vs authorization" },
+    vizKey: "oauth-authz",
     definition: {
       ko: "비밀번호 로그인은 관리자가 만든 계정만 들어올 수 있지만, GitHub OAuth 를 붙이자 **GitHub 계정을 가진 누구든** 콜백까지 통과해 세션이 생겨버렸습니다.",
       en: "Password login only admits accounts the admin created, but once GitHub OAuth was wired in, **anyone with a GitHub account** could pass the callback and get a session.",
@@ -603,27 +752,30 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["OAuth", "Auth", "GitHub", "인가"],
   },
   {
+    id: "forgetting-owner-email-deletes-the-owner",
     section: { ko: "Backend / Auth", en: "Backend / Auth" },
     problem: { ko: "OWNER_EMAIL 을 안 넣고 첫 로그인하면 소유자 계정이 지워진다", en: "Forgetting OWNER_EMAIL deletes the owner's account on first login" },
     definition: {
-      ko: "배포 직후 소유자가 GitHub 로 처음 로그인했는데, 계정이 만들어지자마자 삭제되고 \"초대받지 않은 계정\" 에러로 튕겨 나왔습니다. env 에 `OWNER_EMAIL` 을 아직 넣지 않은 상태였습니다.",
-      en: "Right after deploy the owner signs in with GitHub for the first time — and the just-created account is deleted, bounced out with an \"un-invited account\" error. `OWNER_EMAIL` hadn't been set in the env yet.",
+      ko: "이 사이트는 GitHub 로그인을 쓴다. GitHub 계정만 있으면 누구나 로그인 자체는 성공하므로, 콜백에서 **허용 명단**을 확인해 통과하지 못한 계정은 그 자리에서 삭제한다. 초대받지 않은 외부 계정이 쌓이지 않게 하려는 장치다. 관리자는 초대 테이블이 아니라 `OWNER_EMAIL` 환경변수로 지정한다.\n\n처음 배포하고 관리자 본인이 GitHub 으로 첫 로그인을 했다. **계정이 만들어지자마자 삭제되면서 초대받지 않은 계정이라며 쫓겨났다.** `OWNER_EMAIL` 을 아직 넣지 않은 상태였다.",
+      en: "The site signs in with GitHub. Anyone with a GitHub account can complete the sign-in itself, so the callback checks an **allowlist** and deletes any account that fails it on the spot, to keep uninvited outsiders from piling up. The owner is designated not through the invite table but by an `OWNER_EMAIL` environment variable.\n\nRight after the first deploy, the owner signed in with GitHub for the very first time. **The account was deleted the moment it was created, bouncing them out with an \"un-invited account\" message.** `OWNER_EMAIL` had not been filled in yet.",
     },
+    title: { ko: "설정이 없을 때 실패하는 방향", en: "Which way it fails when setup is missing" },
     cause: {
-      ko: "인가 게이트는 이메일이 `OWNER_EMAIL` 이거나, 이미 역할이 있거나, `author_invites` 초대 행이 있어야 통과시키고, 미통과면 방금 만들어진 계정을 `deleteUser()` 로 지웁니다(미초대 GitHub 유저를 남기지 않으려는 anti-abuse). 그런데 `OWNER_EMAIL` 이 비어 있으면 소유자 **본인도** 이 셋 중 아무것에도 안 걸려 미초대로 분류되고, 그대로 계정이 삭제됩니다. 배포 초기에 자기 자신을 락아웃시키는 함정이었습니다.",
-      en: "The gate admits an email that is `OWNER_EMAIL`, already has a role, or has an `author_invites` row, and otherwise `deleteUser()`s the just-created account (anti-abuse, so un-invited GitHub users don't linger). But when `OWNER_EMAIL` is empty the owner **themselves** matches none of the three, is classed as un-invited, and gets deleted — a footgun that locks you out of your own fresh deployment.",
+      ko: "명단은 세 조건 중 하나를 통과해야 들여보낸다.\n1. 이메일이 `OWNER_EMAIL` 과 같다\n2. 이미 역할을 가지고 있다\n3. 초대 기록이 있다\n\n`OWNER_EMAIL` 이 비어 있으면 **관리자 본인도 셋 어디에도 걸리지 않는다.** 1번은 비교할 값이 없고, 2번과 3번은 첫 로그인이라 당연히 해당이 없다. 그래서 초대받지 않은 사람으로 분류되고 계정이 삭제된다.\n\n설정값 하나가 비어 있다는 이유로 **되돌릴 수 없는 동작이 실행됐다.** 배포 첫날 자기 사이트에서 스스로를 잠그는 형태였다.",
+      en: "The allowlist lets you in if one of three conditions holds.\n1. Your email matches `OWNER_EMAIL`\n2. You already have a role\n3. You have an invite on record\n\nWith `OWNER_EMAIL` blank, **even the owner matches none of them.** The first has nothing to compare against, and the second and third cannot apply on a first sign-in. So the owner is classed as uninvited and the account is deleted.\n\nOne empty setting was enough to trigger **an action that cannot be undone.** On day one it locked the owner out of their own site.",
     },
     solution: {
-      ko: "두 겹으로 막았습니다.\n\n**① 미설정 방어** — 미통과 처리에서 `OWNER_EMAIL` 이 비어 있으면 계정을 삭제하지 않고(그 계정이 곧 소유자가 돼야 할 수 있으므로) \"OWNER_EMAIL 미설정\" 설정 에러만 돌려줍니다. env 를 넣고 다시 로그인하면 소유자로 확정됩니다.\n\n**② claim-and-close** — `OWNER_EMAIL` 소유자가 처음 통과하면 `app_metadata.role=\"owner\"` 를 DB 에 1회 못박습니다(`ensureOwnerRole`). 이후 소유권은 env 판정이 아니라 저장된 역할로 유지되어, `OWNER_EMAIL` 이 바뀌거나 비어도 소유자가 사라지지 않습니다.",
-      en: "Two layers.\n\n**① Unset guard** — in the reject path, if `OWNER_EMAIL` is empty the account is *not* deleted (it may be the account that should become the owner); only an \"OWNER_EMAIL not set\" config error is returned. Set the env and sign in again to be confirmed as owner.\n\n**② Claim-and-close** — when the `OWNER_EMAIL` owner first passes, `app_metadata.role=\"owner\"` is persisted to the DB once (`ensureOwnerRole`). Ownership then rests on the stored role rather than the env check, so it survives `OWNER_EMAIL` later changing or being removed.",
+      ko: "두 겹으로 막았다.\n\n**설정값이 비어 있으면 지우지 않는다.** 명단에서 걸러졌더라도 `OWNER_EMAIL` 이 아직 비어 있는 상황이면 그 계정이 곧 관리자가 될 수도 있으므로, 삭제하지 않고 설정값을 넣어 달라는 안내만 보여준다. 설정을 채우고 다시 로그인하면 관리자로 확정된다.\n\n**한 번 관리자가 되면 그 상태를 저장한다.** 관리자가 처음 통과하는 순간 역할을 데이터베이스에 기록하고, 이후로는 환경변수를 매번 확인하지 않고 그 기록으로 관리자를 인정한다. 나중에 설정값이 바뀌거나 비어도 소유권이 사라지지 않는다.",
+      en: "Two layers.\n\n**Nothing is deleted while the setting is blank.** If someone is filtered out but `OWNER_EMAIL` is still empty, that account might be the one meant to become the owner, so it is left alone and the app simply asks for the setting. Fill it in, sign in again, and ownership is confirmed.\n\n**Once you are the owner, that state is saved.** The moment the owner first passes, the role is written to the database, and from then on ownership rests on that record rather than a re-check of the environment variable. It survives the setting later changing or going blank.",
     },
     keyInsight: {
-      ko: "**부트스트랩 실패는 fail-safe 여야지 fail-destructive 여선 안 됩니다.** 설정이 빠졌을 때 계정을 지우는 건 복구 불가능한 방향으로 실패하는 것 — 미설정이면 아무것도 파괴하지 말고 안내만 하고, 최초 설정은 한 번 성공하면 DB 에 못박아 되돌아가지 않게 합니다.",
-      en: "**A failed bootstrap should fail safe, not fail destructive.** Deleting the account when config is missing fails in an unrecoverable direction — when unset, destroy nothing and just guide; and once initial setup succeeds, pin it in the DB so it can't regress.",
+      ko: "**첫 설정이 빠졌을 때는 안전하게 실패해야지 되돌릴 수 없게 실패하면 안 된다.** 설정이 없다고 계정을 지우는 것은 복구가 불가능한 방향으로 무너지는 것이다.\n\n판단에 필요한 값이 없을 때 시스템이 고를 수 있는 답은 둘이다. 모른다는 이유로 가장 강한 조치를 하거나, 모르는 동안에는 아무것도 파괴하지 않고 멈추거나. **후자가 기본값이어야 한다.**\n\n그리고 부트스트랩이 한 번 성공하면 그 결과를 저장해 둔다. 매번 같은 설정값에 다시 의존하면 그 값이 사라지는 순간 시스템이 다시 원점으로 돌아간다.",
+      en: "**When first-time setup is missing, fail safely, not irreversibly.** Deleting an account because a setting is absent collapses in a direction you cannot undo.\n\nWhen the value a decision depends on is missing, a system has two answers available: take the strongest action because it does not know, or destroy nothing while it does not know. **The second should be the default.**\n\nAnd once bootstrap succeeds, save the result. Depending on the same setting again on every check means the system falls back to square one the moment that value disappears.",
     },
     tags: ["Auth", "OWNER_EMAIL", "bootstrap", "app_metadata", "fail-safe"],
   },
   {
+    id: "logged-in-as-owner-yet-other",
     section: { ko: "Backend / Auth", en: "Backend / Auth" },
     problem: { ko: "소유자로 로그인해도 설정 계정 탭에서만 다른 멤버가 안 보인다", en: "Logged in as owner, yet other members show only on the dashboard, not the account tab" },
     definition: {
@@ -645,28 +797,31 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["auth", "session-rotation", "data-fetch", "race", "React"],
   },
   {
+    id: "the-system-resize-cursor-leaks-over",
     section: { ko: "Frontend / CSS", en: "Frontend / CSS" },
     problem: { ko: "코드블록 리사이즈 그립에서 커스텀 커서 위로 시스템 커서가 계속 새어나옴", en: "The system resize cursor leaks over the custom cursor on the code-block grip" },
+    title: { ko: "UA 가 그리는 요소의 페인트 순서", en: "The paint order of UA-drawn chrome" },
     definition: {
-      ko: "사이트 전역이 커스텀 커서(`cursor: none` + 직접 그린 커서)라 `resize` 되는 코드블록 우하단 그립에서도 커스텀 커서만 보여야 하는데 **네이티브 리사이즈 커서(↘)가 계속 같이 떴습니다.** 똑같은 방식인 댓글창은 멀쩡한데 코드블록만 샜습니다.",
+      ko: "사이트 전역이 커스텀 커서(`cursor: none` + 직접 그린 커서)라 `resize` 되는 코드블록 우하단 그립에서도 커스텀 커서만 보여야 하는데 **네이티브 리사이즈 커서(↘)가 계속 같이 떴다.** 똑같은 방식인 댓글창은 멀쩡한데 코드블록만 샜다.",
       en: "The whole site uses a custom cursor (`cursor: none` + a hand-drawn cursor), so the resizable code block's bottom-right grip should show only the custom cursor — but **the native resize cursor (↘) kept bleeding through.** The comment box, built the same way, was fine; only the code block leaked.",
     },
     cause: {
-      ko: "`resize` 그립은 `::-webkit-resizer` 라는 UA 의사요소로 그려지는데, 이건 스크롤바처럼 **그 요소의 자식들보다 위에 페인트** 됩니다. 코드블록은 시스템 커서를 가리려 올려둔 투명 오버레이가 resize 요소의 **자식**이라, resizer 가 오버레이보다 위에 그려져 `cursor: none` 이 안 먹었습니다. 댓글창은 오버레이가 resize 되는 textarea 의 **형제**라 resizer 위에 얹혀 정상이었습니다.",
+      ko: "`resize` 그립은 `::-webkit-resizer` 라는 UA 의사요소로 그려지는데, 이건 스크롤바처럼 **그 요소의 자식들보다 위에 페인트** 된다. 코드블록은 시스템 커서를 가리려 올려둔 투명 오버레이가 resize 요소의 **자식**이라, resizer 가 오버레이보다 위에 그려져 `cursor: none` 이 안 먹었다. 댓글창은 오버레이가 resize 되는 textarea 의 **형제**라 resizer 위에 얹혀 정상이었다.",
       en: "The grip is painted by the `::-webkit-resizer` UA pseudo-element, which — like a scrollbar — **paints above the element's own children.** In the code block, the transparent overlay meant to mask the cursor was a **child** of the resizable element, so the resizer painted on top of it and `cursor: none` never applied. In the comment box the overlay was a **sibling** of the resizable textarea, so it sat above the resizer and worked.",
     },
     solution: {
-      ko: "오버레이를 resize 요소의 **형제**로 옮겼습니다 — 프레임을 바깥 컨테이너(`position: relative`)로 한 겹 감싸고 오버레이를 그 안에 형제로 두면, 오버레이가 resizer 위에 페인트되어 시스템 커서를 가립니다. `resize` 는 자기 border-radius 가 자기 그립을 자르지 않으므로 프레임(자식 아님)에 그대로 둬 네이티브 그립 모양은 유지했습니다.",
+      ko: "오버레이를 resize 요소의 **형제**로 옮겼다. 프레임을 바깥 컨테이너(`position: relative`)로 한 겹 감싸고 오버레이를 그 안에 형제로 두면, 오버레이가 resizer 위에 페인트되어 시스템 커서를 가린다. `resize` 는 자기 border-radius 가 자기 그립을 자르지 않으므로 프레임에 그대로 둬 네이티브 그립 모양은 유지했다.",
       en: "Moved the overlay to be a **sibling** of the resizable element — wrap the frame in an outer `position: relative` container and place the overlay as a sibling inside it, so it paints above the resizer and masks the system cursor. `resize` stays on the frame (whose own border-radius doesn't clip its own grip), keeping the native grip look.",
     },
     keyInsight: {
-      ko: "UA 가 그리는 요소(스크롤바·resizer)는 **자식 위, 형제 아래** 라는 독특한 페인트 순서를 갖습니다. 그 위에 무언가를 얹어야 한다면 자식이 아니라 형제로 둬야 합니다.",
+      ko: "UA 가 그리는 요소(스크롤바·resizer)는 **자식 위, 형제 아래** 라는 독특한 페인트 순서를 갖는다. 그 위에 무언가를 얹어야 한다면 자식이 아니라 형제로 둬야 한다.",
       en: "UA-drawn chrome (scrollbars, resizers) has a peculiar paint order: **above children, below siblings.** To cover one, place your element as a sibling — not a child.",
     },
     tags: ["CSS", "커서", "resize", "webkit"],
   },
   /* ── Backend / Admin ── */
   {
+    id: "accidental-post-deletion-with-no-recovery",
     section: { ko: "Backend / Admin", en: "Backend / Admin" },
     problem: { ko: "포스트 실수 삭제 시 복구 불가", en: "Accidental Post Deletion with No Recovery" },
     definition: {
@@ -715,6 +870,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
+    id: "ai-translation-summary-completely-down-on",
     problem: { ko: "AI 번역/요약이 provider 장애 시 완전 중단", en: "AI Translation/Summary Completely Down on Provider Outage" },
     definition: {
       ko: "AI 번역과 요약 기능은 DeepL, Gemini 같은 외부 회사의 API 를 호출해 처리합니다.\n\n테스트 중 `.env` 의 API 키를 잠시 주석 처리해 봤더니, 번역이나 요약을 시도할 때마다 **\"인증 실패\" 같은 에러 메시지가 사용자 화면에 그대로 노출**되었습니다.\n\n이 사이트는 대부분의 API 를 무료 plan 으로 쓰는 환경이라, **시간당 호출 제한 (rate limit) 도달이나 일시적 장애는 운영 중에도 충분히 발생할 수 있는 시나리오** 였습니다. 테스트로 끝낼 문제가 아니라 실제로 대비가 필요했습니다.",
@@ -786,6 +942,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
+    id: "every-api-key-change-requires-redeployment",
     problem: { ko: "API 키 변경마다 재배포가 필요", en: "Every API Key Change Requires Redeployment" },
     definition: {
       ko: "API 키를 하나 교체하려면 **Vercel 환경변수 수정 → 빌드 → 배포** 전체 과정을 거쳐야 했고, 10개 이상의 키를 이 방식으로 관리해야 했습니다.",
@@ -827,6 +984,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
+    id: "tedious-identity-verification-for-guest-comments",
     problem: { ko: "비회원 댓글에서 본인 확인이 번거로움", en: "Tedious Identity Verification for Guest Comments" },
     definition: {
       ko: "비회원 댓글 수정/삭제 시 **매번 비밀번호를 입력**해야 했고, 다른 기기에서 작성한 댓글은 **본인 확인 자체가 불가능**했습니다.",
@@ -867,126 +1025,29 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
       } satisfies ComparisonTable,
     ],
   },
-  {
-    problem: { ko: "에디터 자동저장 주기가 너무 잦아 리비전이 의미 없이 누적됨", en: "Auto-save Interval Too Frequent — Revisions Accumulated Meaninglessly" },
-    definition: {
-      ko: "자동저장이 **5초마다 실행**되어 한 시간 작업 시 수십 개의 리비전이 쌓였고, 대부분 의미 없는 변경이라 **되돌아갈 시점을 찾기 어려웠습니다**.",
-      en: "Auto-save fired **every 5 seconds**, generating dozens of revisions per hour — most were trivial changes, making it **hard to find meaningful restore points**.",
-    },
-    cause: {
-      ko: "편집 중 변경사항을 보호하기 위해 **5초 debounce**로 자동저장을 구현했습니다. 그런데 5초는 지나치게 짧은 주기여서, **사소한 편집마다 저장이 트리거**되었습니다. 한 시간 작업하면 리비전이 수십 개 쌓였고 대부분 '단어 하나 추가', '오타 수정' 수준으로, 정작 **되돌아가고 싶은 시점을 찾기가 어려웠습니다**.",
-      en: "Auto-save was implemented with a **5-second debounce** to protect edits. But 5 seconds was far too short — **every minor edit triggered a save**. After an hour of writing, dozens of revisions piled up, most just 'added a word' or 'fixed a typo', making it **hard to find the checkpoint you actually wanted**.",
-    },
-    solution: {
-      ko: "다른 서비스들과 비교해 이 프로젝트에 맞는 방식을 정했습니다. diff 방식(변경분만 저장)은 구현이 복잡하고, 단일 사용자·리비전 50개 제한 규모에서는 이득이 없다고 판단해 제외했습니다. 저장 주기를 **30초로 늘리고**, 타이머가 울리기 전에 페이지를 이탈해도 마지막 내용이 날아가지 않도록 **페이지 이탈 시 강제 저장**도 추가했습니다. 페이지를 떠나는 방식이 두 가지이므로 각각 다른 API를 사용합니다.\n- **브라우저 닫기·새로고침**: 탭 자체가 사라지면 진행 중인 fetch도 함께 취소되므로, 브라우저에 전송을 위임하는 `navigator.sendBeacon`을 사용합니다.\n- **Next.js SPA 라우팅**: 브라우저 탭은 그대로이고 자바스크립트가 화면을 교체하는 것이라(예: 에디터에서 네비게이션 링크를 눌러 다른 페이지로 이동) `beforeunload`가 발생하지 않습니다. 대신 에디터 컴포넌트의 언마운트 시점에 `fetch({ keepalive: true })`로 전송하면, 컴포넌트가 사라져도 요청이 중단되지 않습니다.\n\n에디터에 다시 진입하면 자동 저장된 초안이 있는지 확인하고, **확인 팝업을 띄워 사용자가 불러올지 무시할지 선택**할 수 있도록 했습니다. 이전에는 자동으로 복원했지만, 의도하지 않은 복원이 오히려 혼란을 줄 수 있어 **명시적 확인 후 복원**으로 변경했습니다.",
-      en: "Compared with other services to find the right approach. A diff-based approach (saving only changes) was rejected — too complex, no real benefit at single-user scale with a 50-revision cap. Changed to **30-second debounce** + **forced save on page leave**. Two different APIs handle leave-saves depending on how the user leaves:\n- **Browser close/refresh**: The tab itself is destroyed, canceling any in-flight fetch — `navigator.sendBeacon` delegates the send to the browser so it completes even after the tab is gone.\n- **Next.js SPA routing**: The browser tab stays open — JavaScript swaps the view (e.g., clicking a nav link from the editor to another page), so `beforeunload` never fires. Instead, `fetch({ keepalive: true })` is called during the editor component's unmount cleanup, keeping the request alive even after the component is gone.\n\nWhen re-entering the editor, a **confirmation popup asks whether to restore** the auto-saved draft or discard it. Previously drafts were restored automatically, but this could cause confusion — so it was changed to **explicit confirmation before restore**.",
-    },
-    keyInsight: {
-      ko: "저장이 잦다고 좋은 게 아닙니다. **주기가 짧을수록 저장 기록에 잡음이 쌓여** 정작 필요한 시점을 찾기 어렵습니다. 주기적 저장에만 기대면 마지막 편집이 날아갈 수 있으므로, `beforeunload`와 언마운트 cleanup을 **반드시 함께** 구현해야 합니다.",
-      en: "More saves aren't always better. **Shorter intervals increase noise in history**, making it hard to find meaningful checkpoints. Timer-based saves alone can **miss the final edit** on page leave — `beforeunload` and unmount cleanup must be implemented alongside.",
-    },
-    comparisons: [
-      {
-        label: { ko: "서비스별 자동저장 방식 비교", en: "Auto-save comparison by service" },
-        headers: [
-          { ko: "서비스", en: "Service" },
-          { ko: "저장 주기", en: "Interval" },
-          { ko: "저장 방식", en: "Method" },
-          { ko: "비용", en: "Cost" },
-        ],
-        rows: [
-          { cells: [{ ko: "Google Docs", en: "Google Docs" }, { ko: "~초 단위 (서버)", en: "~seconds (server)" }, { ko: "OT diff (변경분만)", en: "OT diff (delta only)" }, { ko: "매우 낮음", en: "Very low" }] },
-          { cells: [{ ko: "Notion", en: "Notion" }, { ko: "즉시", en: "Immediate" }, { ko: "patch (변경분만)", en: "Patch (delta only)" }, { ko: "낮음", en: "Low" }] },
-          { cells: [{ ko: "WordPress", en: "WordPress" }, { ko: "60초", en: "60s" }, { ko: "전체 스냅샷", en: "Full snapshot" }, { ko: "중간", en: "Medium" }] },
-          { cells: [{ ko: "이 프로젝트 (이전)", en: "This project (before)" }, { ko: "5초", en: "5s" }, { ko: "전체 스냅샷", en: "Full snapshot" }, { ko: "⚠ 과다", en: "⚠ Excessive" }] },
-          { cells: [{ ko: "이 프로젝트 (현재)", en: "This project (now)" }, { ko: "30초", en: "30s" }, { ko: "전체 스냅샷", en: "Full snapshot" }, { ko: "적절 ✓", en: "Appropriate ✓" }], highlight: true },
-        ],
-        description: {
-          ko: "Google Docs와 Notion이 짧은 주기로도 비용이 낮은 건 **변경분(diff)만 저장**하기 때문입니다. 반면 WordPress처럼 전체 스냅샷을 저장하는 방식은 주기가 길어야 비용이 적절해집니다. 이 프로젝트는 전체 스냅샷 방식을 쓰면서 5초 주기를 유지하고 있었는데, 이는 '짧은 주기 + 큰 저장 단위'가 겹친 구조로 **가장 비효율적인 조합**이었습니다.",
-          en: "Google Docs and Notion stay low-cost even at short intervals because they **only save the diff (changes)**. Full-snapshot approaches like WordPress need longer intervals to keep costs reasonable. This project was using full snapshots with a 5-second interval — **the worst of both worlds**: short interval combined with large save size.",
-        },
-      } satisfies ComparisonTable,
-      {
-        label: { ko: "Snapshot vs Diff — 전체를 저장할까, 바뀐 부분만 저장할까?", en: "Snapshot vs Diff — save everything, or just what changed?" },
-        headers: [
-          { ko: "비교 항목", en: "Criteria" },
-          { ko: "Snapshot (채택)", en: "Snapshot (adopted)" },
-          { ko: "Diff (미채택)", en: "Diff (rejected)" },
-        ],
-        rows: [
-          { cells: [{ ko: "구현 복잡도", en: "Implementation" }, { ko: "낮음", en: "Low" }, { ko: "높음", en: "High" }] },
-          { cells: [{ ko: "복원 방식", en: "Restore" }, { ko: "즉시 (해당 스냅샷으로)", en: "Instant (apply snapshot)" }, { ko: "전체 재계산 필요", en: "Full replay needed" }] },
-          { cells: [{ ko: "저장 용량", en: "Storage" }, { ko: "~50KB × 50개 ≒ 2.5MB", en: "~50KB × 50 ≒ 2.5MB" }, { ko: "작음", en: "Small" }] },
-          { cells: [{ ko: "다중 사용자 충돌", en: "Multi-user conflicts" }, { ko: "어려움", en: "Difficult" }, { ko: "적합", en: "Suitable" }] },
-          { cells: [{ ko: "이 프로젝트에 적합?", en: "Right for this project?" }, { ko: "✓ 단일 사용자, 소규모", en: "✓ Single-user, small scale" }, { ko: "✗ 복잡도 과다", en: "✗ Over-engineered" }], highlight: true },
-        ],
-        description: {
-          ko: "Diff 방식은 Google Docs처럼 **여러 명이 동시에 편집**하거나 변경 이력이 매우 세밀해야 하는 경우에 빛을 발합니다. 하지만 이 프로젝트는 관리자 혼자 사용하는 단일 사용자 환경이고, 리비전은 최대 50개로 제한되어 있어 전체 저장 용량이 약 2.5MB 수준입니다. diff 방식을 구현하면 복원 시 전체 이력을 재계산해야 하고, 코드 복잡도도 크게 올라갑니다. **이 규모에서는 단순한 스냅샷 방식이 더 실용적**입니다.",
-          en: "Diff works best when **multiple people edit simultaneously** or when very granular change tracking is needed — like Google Docs. But this project is single-user, with a 50-revision cap that keeps total storage around 2.5MB. Implementing diff would require replaying the full history on restore, and adds significant code complexity. **At this scale, a simple snapshot approach is more practical**.",
-        },
-      } satisfies ComparisonTable,
-    ],
-    diagrams: [
-      {
-        title: { ko: "주기적 자동저장 (30s debounce)", en: "Periodic Auto-save (30s debounce)" },
-        nodes: [
-          { id: "start",     type: "start",    row: 0, col: 0, label: { ko: "폼 변경",            en: "Form Change" } },
-          { id: "init",      type: "decision", row: 1, col: 0, label: { ko: "초기\n스킵?",         en: "Init\nSkip?" } },
-          { id: "initskip",  type: "action",   row: 1, col: 1, label: { ko: "스킵\n(플래그 해제)", en: "Skip\n(reset flag)" } },
-          { id: "timer",     type: "action",   row: 2, col: 0, label: { ko: "30s 타이머\n리셋",    en: "Reset 30s\ntimer" } },
-          { id: "busy",      type: "decision", row: 3, col: 0, label: { ko: "저장 중 /\n타이틀 없음?", en: "Busy /\nNo title?" } },
-          { id: "busyskip",  type: "end",      row: 3, col: 1, label: { ko: "무시",               en: "skip" } },
-          { id: "save",      type: "action",   row: 4, col: 0, label: { ko: "saveRevision()\n해시 갱신", en: "saveRevision()\nupdate hash" } },
-          { id: "end",       type: "end",      row: 5, col: 0, label: { ko: "DB 저장 ✓",          en: "Saved to DB ✓" } },
-        ],
-        edges: [
-          { from: "start",    to: "init" },
-          { from: "init",     to: "initskip", label: "Yes" },
-          { from: "init",     to: "timer",    label: "No" },
-          { from: "timer",    to: "busy" },
-          { from: "busy",     to: "busyskip", label: "Yes" },
-          { from: "busy",     to: "save",     label: "No" },
-          { from: "save",     to: "end" },
-        ],
-      } satisfies TroubleshootingDiagram,
-      {
-        title: { ko: "페이지 이탈 시 강제 저장", en: "Forced Save on Page Leave" },
-        nodes: [
-          { id: "start",   type: "start",    row: 0, col: 0, label: { ko: "페이지 이탈",              en: "Page Leave" } },
-          { id: "changed", type: "decision", row: 1, col: 0, label: { ko: "마지막 저장\n이후 변경?",  en: "Changed\nsince save?" } },
-          { id: "skip",    type: "end",      row: 1, col: 1, label: { ko: "무시",                    en: "skip" } },
-          { id: "save",    type: "action",   row: 2, col: 0, label: { ko: "sendBeacon /\nfetch keepalive", en: "sendBeacon /\nfetch keepalive" } },
-          { id: "end",     type: "end",      row: 3, col: 0, label: { ko: "DB 저장 ✓",               en: "Saved ✓" } },
-        ],
-        edges: [
-          { from: "start",   to: "changed" },
-          { from: "changed", to: "skip", label: "No" },
-          { from: "changed", to: "save", label: "Yes" },
-          { from: "save",    to: "end" },
-        ],
-      } satisfies TroubleshootingDiagram,
-    ],
-  },
 
   /* ── Frontend / Performance ── */
   {
+    id: "recaptcha-v3-initial-load-performance-degradation",
     section: { ko: "Frontend / Performance", en: "Frontend / Performance" },
     problem: { ko: "reCAPTCHA v3 초기 로드 성능 저하 (LCP 17.1s, TTI 18.2s)", en: "reCAPTCHA v3 Initial Load Performance Degradation (LCP 17.1s, TTI 18.2s)" },
+    title: { ko: "인터랙션 시점까지 미루는 지연 로딩", en: "Deferring the load until the first interaction" },
+    vizKey: "recaptcha-lazy",
     definition: {
-      ko: "스팸 방지에 사용하는 reCAPTCHA 스크립트 (784KB) 가 페이지 로드 직후 즉시 다운로드되면서 초기 렌더링이 매우 느려졌습니다.\n\n수치로 보면 **LCP 17.1초, TTI 18.2초**. LCP 는 \"페이지에서 가장 큰 콘텐츠가 화면에 그려지기까지 걸린 시간\", TTI 는 \"사용자가 실제로 클릭이나 스크롤 같은 인터랙션을 할 수 있게 되기까지 걸린 시간\" 으로, \"빠른 페이지\" 의 기준은 LCP 2.5초 이하입니다.\n\n17초는 사용자가 \"이 사이트는 동작하지 않는다\" 고 판단하고 떠나기에 충분한 시간입니다.",
-      en: "The reCAPTCHA spam-prevention script (784KB) downloaded immediately on page load, pushing **LCP (the time until the largest content is painted) to 17.1s and TTI (the time until users can actually interact) to 18.2s**.\n\nFor context, the \"fast\" threshold is LCP ≤ 2.5s — 17s is more than enough for a visitor to bounce.",
+      ko: "이 사이트에 접속했을 때 가장 먼저 렌더링되는 화면은 홈 화면이다. 화면에서 가장 큰 이미지나 텍스트 블록이 표시되기까지 걸리는 시간을 LCP(Largest Contentful Paint)라고 하고, 방문자가 클릭이나 스크롤 같은 입력에 실제로 반응할 수 있게 되기까지 걸리는 시간을 TTI(Time to Interactive)라고 한다. 두 값 모두 페이지의 초기 성능을 판단하는 지표다.\n\n이 사이트에는 스팸과 자동 봇을 걸러 내기 위한 reCAPTCHA v3가 포함돼 있다. reCAPTCHA v3는 사용자에게 별도의 문제를 내지 않고 백그라운드에서 동작하는 대신, 클라이언트에서 실행되는 스크립트 용량이 큰 편이다. 이 스크립트는 단일 파일 기준 784KB에 이르는데, 페이지가 열리는 순간 곧바로 다운로드가 시작되면서 첫 화면 렌더링을 지연시켰다.\n\n그 결과 LCP는 17.1초, TTI는 18.2초로 측정됐다. '빠른 페이지'로 평가받는 LCP 기준은 2.5초 이내인데, 17초는 방문자가 빈 화면을 보다가 사이트가 정상 동작하지 않는다고 판단하고 이탈하기에 충분한 시간이다.",
+      en: "When you open this site, the first screen rendered is the home screen. The time it takes for the largest image or text block on the screen to appear is called LCP (Largest Contentful Paint), and the time until a visitor can actually respond to input such as clicking or scrolling is called TTI (Time to Interactive). Both values are metrics for judging a page's initial performance.\n\nThis site includes reCAPTCHA v3 to filter out spam and automated bots. reCAPTCHA v3 runs in the background without presenting a separate challenge to the user, but in return the script it executes on the client is fairly large. This script amounts to 784KB in a single file, and because the download began the moment the page opened, it delayed the rendering of the first screen.\n\nAs a result, LCP measured 17.1 seconds and TTI 18.2 seconds. The LCP benchmark for a page rated as \"fast\" is within 2.5 seconds, so 17 seconds is enough time for a visitor to look at a blank screen, decide the site is not working, and leave.",
     },
     cause: {
-      ko: "Google 공식 문서를 그대로 따라, 앱이 시작하는 시점에 reCAPTCHA 스크립트를 즉시 불러오도록 해 두었습니다.\n\n그런데 reCAPTCHA 가 실제로 필요한 순간은 **컨택트 폼에서 메시지를 전송할 때 단 한 번** 입니다. 페이지를 둘러보기만 하는 대부분의 방문자는 끝까지 한 번도 사용하지 않는 기능입니다. 그런 스크립트를 모든 방문자에게, 매번 784KB 씩 다운로드시키고 있었던 셈입니다.\n\n해당 스크립트의 다운로드와 실행이 **브라우저 메인 스레드를 한참 점유** 하면서, 정작 사용자에게 보여 줘야 할 콘텐츠 렌더링이 뒤로 밀린 것이 원인입니다.",
-      en: "I followed Google's official docs and loaded the reCAPTCHA script at app start.\n\nThe catch: reCAPTCHA is **only needed when someone submits the contact form**. Most visitors who just browse around never use it — but the 784KB script was downloaded for everyone, every time.\n\nDownloading, parsing, and executing 784KB **occupied the main thread**, pushing the actual content rendering to the back of the queue.",
+      ko: "구글이 안내하는 기본 통합 방식을 그대로 적용해, 앱이 초기화되는 시점에 reCAPTCHA v3 스크립트를 즉시 로드하도록 설정돼 있었다.\n\n그러나 이 스크립트가 실제로 필요한 지점은 하나뿐이다. 방문자가 문의를 남기는 contact form에서 메시지를 제출할 때 토큰을 발급받는 순간이다. 페이지를 둘러보기만 하다 이탈하는 대다수 방문자는 이 폼을 사용하지 않는다. 그런데도 784KB 스크립트가 모든 방문자에게, 매 방문마다 다운로드되고 있었다.\n\n브라우저는 자바스크립트를 메인 스레드에서 단일 순서로 실행한다. 용량이 큰 스크립트를 다운로드하고 파싱·실행하는 작업이 메인 스레드를 장시간 점유하면, 사용자에게 먼저 보여 줘야 할 콘텐츠의 렌더링이 그 뒤로 밀린다. 앱 초기화 시점에 즉시 로드된 784KB 스크립트가 메인 스레드를 블로킹한 것이 LCP 17.1초의 원인이었다.",
+      en: "Google's default integration approach was applied as-is, so the reCAPTCHA v3 script was set to load immediately at the moment the app initializes.\n\nHowever, this script is only needed at a single point: the moment a token is issued when a visitor submits a message through the contact form where they leave an inquiry. The majority of visitors, who only look around and leave, do not use this form. Even so, the 784KB script was being downloaded by every visitor, on every visit.\n\nA browser runs JavaScript in a single sequence on the main thread. When downloading, parsing, and executing a large script occupies the main thread for a long time, the rendering of content that should be shown to the user first is pushed behind it. The 784KB script loaded immediately at app initialization blocking the main thread was the cause of the 17.1-second LCP.",
     },
     solution: {
-      ko: "스크립트 로드 시점을 **\"앱 시작\" 이 아니라 \"사용자가 페이지에 처음 인터랙션한 순간 (클릭, 스크롤, 터치)\"** 으로 늦췄습니다.\n\n실제로 컨택트 폼까지 도달하는 사용자는 거의 항상 그 전에 한 번 이상 인터랙션을 하기 때문에, 메시지 전송 버튼을 누를 즈음이면 스크립트는 이미 백그라운드에서 로드가 끝난 상태가 됩니다. \"늦게 로드해서 폼이 한 박자 늦게 동작하지 않을까\" 라는 우려는 사실상 발생하지 않습니다.\n\n추가로, Google 서버와의 TCP/TLS 연결만 미리 열어 두는 **`<link rel=\"preconnect\">`** 를 head 에 추가했습니다. 이렇게 하면 실제 다운로드가 시작될 때 connection 셋업 시간만큼 더 빨라집니다.",
-      en: "Moved the load trigger from **\"app start\"** to **\"the user's first interaction (click / scroll / touch)\"**.\n\nAnyone who actually reaches the contact form has almost certainly interacted at least once before — so by the time they click submit, the script is already loaded in the background.\n\nAdditionally added **`<link rel=\"preconnect\">`** to Google's server in the head, opening the TCP/TLS connection in advance so the eventual download starts faster.",
+      ko: "스크립트를 로드하는 시점을 옮겼다. '앱 초기화 시점'이 아니라 '방문자가 페이지에서 처음으로 인터랙션을 발생시킨 시점'까지 미뤘다. 여기서 인터랙션은 클릭, 스크롤, 터치 이벤트를 의미한다. 문서에 이 이벤트 리스너를 한 번만 실행되도록 `once` 옵션으로 등록하고, 최초 이벤트가 발생하면 그때 reCAPTCHA v3 스크립트를 삽입한다.\n\ncontact form까지 도달하는 사용자는 그전에 최소 한 번은 클릭이나 스크롤을 하게 된다. 따라서 제출 버튼을 누르는 시점에는 스크립트가 이미 백그라운드에서 다운로드를 마치고 준비된 상태가 된다. 지연 로드로 폼이 느리게 뜰 수 있다는 우려는 실제로는 거의 발생하지 않는다. 또한 페이지를 읽기만 하고 이탈하는 대다수 방문자는 이 스크립트를 아예 다운로드하지 않으므로, 첫 화면이 지연되던 문제가 해소된다.\n\n여기에 더해, 실제 다운로드가 시작되기 전에 구글 도메인으로의 preconnect를 문서 `<head>`에 추가했다. preconnect는 스크립트를 실제로 요청하기 전에 DNS/TLS 핸드셰이크를 미리 완료해 두는 리소스 힌트다. 이후 스크립트를 다운로드할 때, 매번 연결을 새로 수립하는 데 드는 왕복 시간만큼 응답이 더 빨리 도착한다.",
+      en: "The moment the script loads was moved. Instead of \"when the app initializes,\" it now waits until \"the first time the visitor triggers an interaction on the page.\" Here, an interaction means a click, scroll, or touch event. The event listeners are registered with the `once` option so they run only one time, and when the first event fires, the reCAPTCHA v3 script is inserted at that point.\n\nAny user who reaches the contact form has clicked or scrolled at least once beforehand. So by the time they press the submit button, the script has already finished downloading in the background and is ready. The concern that deferred loading might make the form appear slowly rarely occurs in practice. In addition, the majority of visitors who only read and leave never download this script at all, so the problem of the first screen being delayed is resolved.\n\nBeyond that, a preconnect to Google's domain was added to the document `<head>` before the actual download begins. Preconnect is a resource hint that completes the DNS/TLS handshake ahead of time, before the script is actually requested. When the script is later downloaded, the response arrives faster by the round-trip time that would otherwise be spent establishing a new connection each time.",
     },
     keyInsight: {
-      ko: "외부 스크립트를 추가하기 전에 **\"이 스크립트가 페이지가 그려지기 전부터 필요한가?\"** 를 먼저 따져 보는 습관이 필요합니다.\n\n당장 사용하지 않는 무거운 파일을 즉시 로드하면, 정작 사용자가 봐야 할 콘텐츠가 수 초씩 뒤로 밀립니다. \"인터랙션 직전까지는 일단 미뤄 두기 (on-demand)\" 가 거의 항상 더 안전한 기본값입니다.\n\n참고로 reCAPTCHA 는 **컨택트 폼에만** 적용했습니다. 댓글은 이미 비밀번호 + IP 해시 이중 인증으로 보호되고 있어서, captcha 를 추가하면 **참여 허들만 높아지고 보안 이득은 한정적** 이라고 판단했습니다.",
-      en: "Before adding any external script, ask **\"does this need to be loaded before the page even renders?\"**.\n\nLoading heavy files upfront that aren't immediately required pushes the actual content several seconds out. Deferring until \"the user is about to interact\" is almost always the better default.\n\nNote: reCAPTCHA was applied **only to the contact form**. Comments already use password + IP-hash dual auth, so adding captcha there **just raises the participation barrier** without much marginal benefit.",
+      ko: "외부에서 가져와 페이지에 삽입하는 서드파티 스크립트를 추가하기 전에, '이것이 첫 렌더링 이전부터 필요한가'를 먼저 확인하는 것이 중요하다.\n\n당장 사용하지 않는 용량이 큰 스크립트를 초기화 시점에 즉시 로드하면, 사용자가 실제로 봐야 할 콘텐츠가 몇 초씩 뒤로 밀린다. 실제로 필요해지기 직전까지 로드를 미루는 것이 대체로 더 안전한 기본값이다.\n\n참고로 이 봇 검사는 contact form에만 적용했다. 댓글은 이미 비밀번호와 접속 IP를 함께 확인하는 방식으로 보호되고 있어서, 여기에 reCAPTCHA v3를 추가하면 댓글을 남기려는 사용자의 문턱만 높아지고 보안상 얻는 이득은 크지 않다고 판단했다.",
+      en: "Before adding any third-party script that is fetched externally and inserted into a page, it is important to first check whether it needs to be present before the first render.\n\nLoading a large script you do not use right away at initialization pushes the content users actually need back by several seconds. Deferring the load until just before it is genuinely needed is generally the safer default.\n\nFor reference, this bot check was applied to the contact form only. Comments are already protected by checking both a password and the visitor's connecting IP, so adding reCAPTCHA v3 on top would only raise the barrier for anyone trying to leave a comment while providing little security benefit.",
     },
     comparisons: [
       {
@@ -1010,21 +1071,12 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         },
       } satisfies ComparisonTable,
     ],
-    images: [
-      {
-        // 홈 페이지 — reCAPTCHA 가 처음 로드되던 위치
-        src: "/images/screenshots/pc/home-light.png",
-        alt: { ko: "홈 페이지 — reCAPTCHA 가 영향을 주던 LCP 측정 대상 컨텐츠", en: "Home page — LCP-target content that reCAPTCHA was blocking" },
-        caption: { ko: "이 컨텐츠가 그려지기 전에 784KB reCAPTCHA 가 먼저 로드되던 구조", en: "This content was blocked behind 784KB of reCAPTCHA loading first" },
-      },
-      {
-        alt: { ko: "Lighthouse 결과 — 수정 전(LCP 17.1s) / 수정 후(LCP < 2.5s)", en: "Lighthouse — Before (LCP 17.1s) / After (LCP < 2.5s)" },
-        placeholderKeyword: "Lighthouse Performance 측정 결과 비교 (수정 전 LCP 17.1s vs 수정 후)",
-      },
-    ],
   },
   {
+    id: "react-re-render-on-every-mousemove",
     problem: { ko: "mousemove마다 React 리렌더 (60fps 성능 저하)", en: "React Re-render on Every mousemove (60fps Performance Degradation)" },
+    title: { ko: "React 리렌더 사이클과 ref 우회", en: "The React re-render cycle and a ref bypass" },
+    vizKey: "mousemove-rerender",
     definition: {
       ko: "홈 Works 섹션에서 마우스를 움직이면 원형 아이템들이 밀려나는 반발 효과가 있는데, 반발 오프셋을 `useState`로 관리하면서 mousemove마다 **25개 이상의 그리드 아이템이 통째로 리렌더**되어 마우스를 빠르게 움직일수록 **애니메이션이 버벅거리고 프레임이 끊겼습니다**.",
       en: "The Works section on the home page has a magnetic repulsion effect where circular items push away from the cursor. Repulsion offsets were managed with `useState`, triggering a **full re-render of 25+ grid items on every mousemove** — the faster the mouse moved, the **more visible the stuttering and frame drops** became.",
@@ -1065,6 +1117,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
+    id: "layout-jumps-when-toggling-code-block",
     problem: { ko: "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐", en: "Layout Jumps When Toggling Code Block Line Wrap" },
     definition: {
       ko: "코드 블록의 줄바꿈을 토글하면 높이가 순간적으로 변하면서, **아래쪽 콘텐츠가 갑자기 밀려나는 레이아웃 시프트**가 발생했습니다.",
@@ -1106,177 +1159,31 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
+    id: "heavy-cursor-hit-test-dragging-down",
     problem: { ko: "커스텀 커서의 무거운 hit-test가 가벼운 위치 보간을 함께 느리게 만듦", en: "Heavy Cursor Hit-Test Dragging Down Lightweight Position Interpolation" },
+    title: { ko: "무거운 작업과 가벼운 작업의 프레임 분리", en: "Separating heavy and light work across frames" },
+    vizKey: "cursor-hittest",
     definition: {
-      ko: "이 사이트는 OS 기본 커서 대신, 마우스를 부드럽게 따라다니는 작은 원 형태의 커스텀 커서를 직접 그립니다.\n\n이 커서는 1초에 60번 다시 그려지는 동안 (60fps) 두 가지 일을 동시에 처리합니다.\n\n**① 위치 부드럽게 따라가기** — 실제 마우스 위치를 향해 한 프레임마다 조금씩 이동. 마우스가 갑자기 멀리 움직여도 커서가 \"여유 있게 따라가는\" 듯한 효과를 만드는 부분입니다.\n\n**② 마우스 아래 요소 판별** — 현재 커서가 클릭 가능한 버튼 위인지, 텍스트 입력 영역인지, 비활성 영역인지, 끌 수 있는 영역인지를 확인하여 커서 모양을 그에 맞게 바꾸는 부분입니다.\n\n두 작업이 매 프레임 (16ms 마다) 같은 함수 안에서 함께 실행되다 보니, **상대적으로 무거운 ② 가 가벼운 ① 까지 함께 늦춰 커서가 끊기듯 움직이는 (stutter) 현상** 이 발생했습니다.",
-      en: "Instead of the OS cursor, the site renders a custom cursor (a small circle that follows the mouse). 60 times per second (60fps), it handles two things together:\n\n**① Position interpolation** — moving the cursor a tiny step toward the actual mouse position each frame. This produces the \"the cursor eases to catch up\" feel even when the mouse moves abruptly.\n\n**② Detecting what's beneath the cursor** — checking whether the cursor is over a clickable button / a text input / a disabled area / a draggable area, and switching the cursor shape accordingly.\n\nBoth ran every frame (≈ 16ms each) inside the same function loop, so the **heavy ② dragged down the light ①, producing visible stutter** in the cursor's motion.",
+      ko: "이 사이트는 OS 커서를 숨기고 직접 그린 커서를 쓴다. 이 커서는 한 프레임 안에서 두 가지를 한다. 마우스 좌표를 향해 조금씩 이동하는 위치 보간과, 지금 어떤 요소 위에 있는지 판별해 모양을 바꾸는 hit-test 다. 마우스를 빠르게 움직이면 **커서 이동이 끊겨 보였다**.",
+      en: "The site hides the OS cursor and draws its own. Within a single frame that cursor does two things: interpolating its position toward the mouse coordinate, and running a hit-test to decide which element it sits over and change shape accordingly. Moving the mouse quickly made the motion **visibly stutter**.",
     },
     cause: {
-      ko: "② 의 \"마우스 아래 요소 판별\" 을 위해 매 프레임마다 **`elementsFromPoint(x, y)`** 라는 브라우저 API 를 호출했습니다. 이 함수는 주어진 좌표 위에 쌓여 있는 모든 HTML 요소를 z-index 역순으로 반환합니다.\n\n그런데 복잡한 레이아웃에서는 한 좌표 위에 수십~수백 개의 요소가 겹쳐 있을 수 있습니다 (배경, wrapper, 카드, 텍스트, 인터랙션 영역 등이 모두 쌓여 있기 때문입니다). 매 프레임 그 목록을 모두 훑다 보니, **한 프레임 16ms 예산 중 몇 ms 가 ② 에만 소비** 되었습니다.\n\n① 의 위치 계산은 코드 자체는 매우 가볍지만, 같은 루프에 묶여 있어 ② 가 끝날 때까지 대기하느라 함께 지연되었습니다. 결과적으로 둘 다 동시에 느려진 셈입니다.",
-      en: "For ② (\"detect what's beneath the cursor\"), the loop called **`elementsFromPoint(x, y)`** every frame. This browser API returns every HTML element stacked at the given coordinate, ordered by z-index.\n\nIn a complex layout, dozens or even hundreds of elements can overlap at a single point (background, wrapper, card, text, interactive surface — they're all stacked). Walking that list every frame consumed **several ms out of each 16ms frame budget**.\n\n① itself is lightweight code, but coupled to the same loop, it had to wait for ② to finish — so both ended up slow at the same time.",
+      ko: "hit-test 는 매 프레임 `elementsFromPoint(x, y)` 를 불렀다. 이 API 는 주어진 좌표에 겹쳐 있는 모든 요소를 배열로 돌려준다. 복잡한 레이아웃에서는 한 점 위에 배경·wrapper·카드·텍스트가 수십에서 수백 개까지 겹치므로, 한 프레임의 16ms 예산 중 **몇 ms 를 여기서 쓴다**.\n\n위치 계산 자체는 가볍지만 **같은 루프에 묶여 있어** hit-test 가 끝날 때까지 기다려, 두 작업이 함께 늦어졌다.",
+      en: "The hit-test called `elementsFromPoint(x, y)` on every frame. That API returns every element stacked at the given coordinate, and in a complex layout dozens to hundreds of them overlap at one point, consuming **several ms of each frame's 16ms budget**.\n\nThe position math is cheap on its own, but **sharing a loop** meant it waited for the hit-test to finish. Both slowed down together.",
     },
     solution: {
-      ko: "두 작업을 **서로 다른 주기로 분리** 했습니다.\n\n**① 위치 따라가기** 는 그대로 매 프레임 (60fps) 실행 — 부드러움 유지.\n\n**② 요소 판별** 은 60ms 간격으로 한 번만 실행하도록 제한 (이 패턴을 \"throttle\" 이라고 합니다 — 자주 호출되는 함수를 일정 시간에 한 번씩만 실행되게 제한하는 방식). 1초에 60번이 아니라 약 16번만 실행되므로 한 프레임당 비용이 거의 0 에 수렴합니다.\n\n② 가 60ms (4 프레임 정도) 늦게 반응하지만, 사람 눈에 4 프레임 정도의 지연은 거의 \"즉시\" 처럼 느껴집니다. 클릭 가능한 버튼에 마우스를 올렸을 때 모양이 \"바로\" 바뀌는 것처럼 보입니다. 반면 ① (위치) 은 한 프레임만 늦어도 stutter 가 즉시 눈에 띄기 때문에, **이쪽만 매 프레임을 사수한 것이 핵심** 입니다.\n\n참고로 터치 기기는 애초에 마우스가 없으므로, 커스텀 커서 자체를 비활성화합니다.",
-      en: "**Decoupled the two tasks across different cadences**:\n\n**① Position interpolation** still runs every frame (60fps) — keeping the smoothness.\n\n**② Element detection** runs only once every 60ms (this pattern is called \"throttle\" — capping a frequently-called function to run at a fixed interval). About 16 calls/sec instead of 60, so its per-frame cost is effectively zero.\n\nDelaying ② means cursor-shape changes lag by 60ms (≈ 4 frames), but to humans that delay is essentially \"instant\" — when you hover a button, the shape still appears to update immediately. ①, on the other hand, shows visible stutter on a single late frame, so **only that one had to stay strict 60fps**.\n\nNote: touch devices don't have a mouse to begin with, so the entire custom cursor is disabled there.",
+      ko: "두 작업의 주기를 분리했다. 위치 보간은 매 프레임 그대로 두고, hit-test 는 **60ms 간격으로 한 번만** 실행되도록 제한했다. 1초에 60번이 아니라 약 16번만 돌아 프레임당 비용이 거의 사라진다.\n\nhit-test 의 반응은 최대 60ms, 약 4 프레임 늦어진다. 커서 모양이 바뀌는 시점의 4 프레임 지연은 눈에 띄지 않는다. 반면 위치는 한 프레임만 늦어도 끊김이 바로 드러나므로 이쪽만 매 프레임을 유지했다.",
+      en: "The two were put on different cadences. Position interpolation still runs every frame; the hit-test is **capped at once per 60ms**, firing about 16 times a second instead of 60, which drops its per-frame cost to near nothing.\n\nThe hit-test now reacts up to 60ms late, about four frames. A four-frame delay in when the cursor changes shape goes unnoticed. Position, by contrast, reveals stutter the moment a single frame is late, so only that task was held to a strict per-frame cadence.",
     },
     keyInsight: {
-      ko: "타이트한 루프 하나에 비용이 다른 두 작업을 함께 묶어 두면, **무거운 쪽이 가벼운 쪽까지 같이 끌어내립니다.**\n\n해결의 출발점은 \"이 작업이 정말 매 프레임 필요한가?\" 라고 한 번 의심해 보는 것입니다.\n\n위치처럼 한 프레임만 늦어도 사람 눈에 즉시 보이는 작업은 **매 프레임 실행 (high-frequency)**, 요소 판별처럼 약간 늦어도 사람이 눈치채지 못하는 작업은 **빈도를 낮춰 분리 (throttle / debounce)** 하는 것이 좋습니다. 같은 함수 안의 작업이라도 비용과 \"체감 속도\" 에 맞춰 주기를 다르게 가져가야 끊기지 않습니다.",
-      en: "When you couple two tasks of different costs in a single tight loop, **the heavy one drags the light one down with it**.\n\nStart by asking: \"does this really need to run every frame?\".\n\nWork like position updates — where a single late frame is immediately visible — needs **per-frame execution (high-frequency)**. Work like element detection — where a small delay is imperceptible — should be **separated to a lower frequency (throttle / debounce)**. Tasks even inside the same function should be cadenced by cost and perceptual sensitivity to stay smooth.",
+      ko: "비용이 다른 두 작업을 하나의 루프에 묶으면 **무거운 쪽이 가벼운 쪽까지 끌어내린다**.\n\n분리의 기준은 **이 작업이 정말 매 프레임 필요한가**다. 한 프레임만 늦어도 눈에 보이는 작업은 매 프레임 두고, 조금 늦어도 감지되지 않는 작업은 빈도를 낮춘다. 같은 함수 안에 있더라도 비용과 체감 민감도가 다르면 주기를 다르게 가져가야 한다.",
+      en: "When two tasks of different cost share one loop, **the heavy one drags the light one down with it.**\n\nThe test for separating them is **whether a task genuinely needs to run every frame**. Work that shows when a single frame is late stays per-frame; work whose delay goes unnoticed moves to a lower frequency. Even inside one function, differing cost and perceptual sensitivity call for differing cadences.",
     },
-    comparisons: [
-      {
-        label: { ko: "커서 상태 감지 전략 비교", en: "Cursor state detection strategy comparison" },
-        headers: [
-          { ko: "비교 항목", en: "Criteria" },
-          { ko: "매 프레임 hit-test", en: "Per-frame hit-test" },
-          { ko: "CSS :hover 위임", en: "CSS :hover delegation" },
-          { ko: "디바운스 분리 (채택)", en: "Debounced separation (adopted)" },
-        ],
-        rows: [
-          { cells: [{ ko: "호출 빈도", en: "Call frequency" }, { ko: "~60/s", en: "~60/s" }, { ko: "이벤트 기반", en: "Event-driven" }, { ko: "~16/s (60ms)", en: "~16/s (60ms)" }] },
-          { cells: [{ ko: "DOM 탐색 비용", en: "DOM traversal cost" }, { ko: "⚠ 매 프레임", en: "⚠ Every frame" }, { ko: "없음", en: "None" }, { ko: "프레임당 0~1회", en: "0-1 per frame" }] },
-          { cells: [{ ko: "커서 위치 부드러움", en: "Cursor smoothness" }, { ko: "느려질 수 있음", en: "Can degrade" }, { ko: "영향 없음", en: "No impact" }, { ko: "항상 60fps", en: "Always 60fps" }] },
-          { cells: [{ ko: "커스텀 커서 모양", en: "Custom cursor shapes" }, { ko: "✓ 다양", en: "✓ Multiple" }, { ko: "✗ 제한적", en: "✗ Limited" }, { ko: "✓ 다양", en: "✓ Multiple" }] },
-          { cells: [{ ko: "이 프로젝트에 적합?", en: "Right for this project?" }, { ko: "✗ 복잡 레이아웃에서 병목", en: "✗ Bottleneck in complex layouts" }, { ko: "✗ 커서 모양 커스텀 불가", en: "✗ Can't customize cursor shapes" }, { ko: "✓ 성능 + 유연성", en: "✓ Performance + flexibility" }], highlight: true },
-        ],
-        description: {
-          ko: "CSS `:hover`는 브라우저가 최적화하지만, **커서 모양을 data-attribute 기반으로 5종류(grab, pointer, text, disabled, default) 전환**하려면 JS가 필요합니다. 매 프레임 `elementsFromPoint()`는 정확하지만 **About 페이지처럼 중첩 요소가 많은 레이아웃에서 수백 개 요소를 탐색**합니다. 60ms 디바운스로 분리하면 호출 횟수를 **75% 줄이면서도** 커서 모양 변화의 지연(최대 60ms)은 **사람 눈에 감지되지 않습니다**.",
-          en: "CSS `:hover` is browser-optimized, but **switching cursor shapes among 5 types (grab, pointer, text, disabled, default) based on data-attributes** requires JS. Per-frame `elementsFromPoint()` is accurate but **traverses hundreds of elements in nested layouts like the About page**. A 60ms debounce reduces calls by **75%** while the cursor shape delay (max 60ms) is **imperceptible to humans**.",
-        },
-      } satisfies ComparisonTable,
-    ],
-    images: [
-      {
-        // 모션/속도 abstract — 60fps stutter 컨셉
-        src: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1200&h=750&fit=crop",
-        alt: { ko: "모션 블러 — 매 프레임 부드러움이 깨지는 stutter 컨셉", en: "Motion blur — concept of frame stutter" },
-        caption: { ko: "한 프레임 늦으면 사람 눈에 즉시 보임", en: "A single late frame is immediately visible" },
-      },
-    ],
-  },
-  {
-    problem: {
-      ko: "커스텀 RichTextEditor의 기능 확장 한계",
-      en: "Custom RichTextEditor Hitting Feature Extension Limits",
-    },
-    definition: {
-      ko: "직접 구현한 RichTextEditor(textarea + 마크다운 프리뷰)는 **인라인 서식 미리보기 불가, 구조화된 콘텐츠 모델 부재, 테이블·수식·임베드 등 기능 추가가 극도로 어려운** 상태였습니다.",
-      en: "The custom-built RichTextEditor (textarea + markdown preview) had **no inline formatting preview, no structured content model, and adding features like tables, math, and embeds was extremely difficult**.",
-    },
-    cause: {
-      ko: "에디터가 **단순 textarea에 마크다운 렌더링을 붙인 구조**였기 때문에, 새로운 기능(테이블, 수식, 코드 블록, 이미지 등)을 추가할 때마다 **커스텀 파싱/렌더링 로직을 직접 구현**해야 했습니다. 각 기능이 독립적인 파싱 규칙을 필요로 하면서 **코드가 취약해지고 유지보수 비용이 누적**되었습니다. 결국 WYSIWYG 프레임워크가 이미 해결한 문제의 **80%를 직접 재구현**하고 있는 상황이었습니다.",
-      en: "The editor was built as a **simple textarea with markdown rendering on preview**. Every new feature (tables, math, code blocks, images) required **custom parsing and rendering logic from scratch**. Each feature needed independent parsing rules, making the **codebase fragile and accumulating maintenance costs**. Ultimately, we were **reimplementing 80% of what WYSIWYG frameworks already solve**.",
-    },
-    solution: {
-      ko: "**Plate.js(Slate.js 기반)**로 마이그레이션했습니다. 구조화된 문서 모델, 플러그인 아키텍처, 인라인 WYSIWYG 편집을 제공합니다. 기존 RichTextEditor의 CSS Module은 **공유 스타일로 유지**하고, 수식(KaTeX), 코드 블록(highlight.js), 테이블, 이미지, 임베드용 **커스텀 플러그인**을 구현했습니다.",
-      en: "Migrated to **Plate.js (built on Slate.js)** — providing a structured document model, plugin architecture, and inline WYSIWYG editing. Kept the old RichTextEditor CSS module as **shared styles**. Built **custom plugins** for math (KaTeX), code blocks (highlight.js), tables, images, and embeds.",
-    },
-    keyInsight: {
-      ko: "전형적인 **\"Build vs Buy\" 의사결정** 문제입니다. 커스텀 솔루션이 성숙한 프레임워크가 제공하는 기능의 80%를 재구현하고 있다면, **마이그레이션 비용이 커스텀 접근법의 지속적 유지보수 비용보다 낮습니다**.",
-      en: "A classic **\"Build vs Buy\" decision** — when the custom solution requires reimplementing 80% of what an established framework provides, the **migration cost is lower than the ongoing maintenance cost** of the custom approach.",
-    },
-    comparisons: [
-      {
-        label: { ko: "에디터 접근 방식 비교", en: "Editor approach comparison" },
-        headers: [
-          { ko: "비교 항목", en: "Criteria" },
-          { ko: "Custom textarea + MD", en: "Custom textarea + MD" },
-          { ko: "Plate.js (채택)", en: "Plate.js (adopted)" },
-        ],
-        rows: [
-          { cells: [{ ko: "인라인 서식 미리보기", en: "Inline formatting preview" }, { ko: "✗ 프리뷰 탭 전환 필요", en: "✗ Requires preview tab switch" }, { ko: "✓ WYSIWYG", en: "✓ WYSIWYG" }] },
-          { cells: [{ ko: "콘텐츠 모델", en: "Content model" }, { ko: "평문 문자열", en: "Plain text string" }, { ko: "구조화된 문서 트리", en: "Structured document tree" }] },
-          { cells: [{ ko: "기능 추가 비용", en: "Feature addition cost" }, { ko: "⚠ 파싱/렌더링 직접 구현", en: "⚠ Custom parsing/rendering" }, { ko: "플러그인으로 확장", en: "Plugin-based extension" }] },
-          { cells: [{ ko: "테이블·수식·임베드", en: "Tables, math, embeds" }, { ko: "✗ 각각 커스텀 파서 필요", en: "✗ Each needs custom parser" }, { ko: "✓ 플러그인 아키텍처", en: "✓ Plugin architecture" }] },
-          { cells: [{ ko: "유지보수 비용", en: "Maintenance cost" }, { ko: "⚠ 기능 추가마다 누적", en: "⚠ Accumulates per feature" }, { ko: "프레임워크가 핵심 로직 관리", en: "Framework handles core logic" }] },
-          { cells: [{ ko: "이 프로젝트에 적합?", en: "Right for this project?" }, { ko: "✗ 확장 한계 도달", en: "✗ Hit extension limits" }, { ko: "✓ 구조화된 편집 + 플러그인", en: "✓ Structured editing + plugins" }], highlight: true },
-        ],
-        description: {
-          ko: "커스텀 textarea 에디터는 초기에는 빠르게 구현할 수 있지만, **기능이 늘어날수록 파싱 로직이 복잡해지고 버그가 늘어납니다**. Plate.js는 Slate.js의 구조화된 문서 모델 위에 플러그인 시스템을 제공하므로, 테이블·수식·코드 블록 같은 복잡한 기능도 **독립적인 플러그인으로 격리**하여 관리할 수 있습니다. 기존 RichTextEditor의 CSS Module을 공유 스타일로 유지하여 **마이그레이션 시 시각적 일관성을 보존**했습니다.",
-          en: "A custom textarea editor is quick to build initially, but **parsing logic grows complex and bugs multiply as features increase**. Plate.js provides a plugin system on top of Slate.js's structured document model, allowing complex features like tables, math, and code blocks to be **isolated as independent plugins**. Keeping the existing RichTextEditor CSS module as shared styles **preserved visual consistency during migration**.",
-        },
-      } satisfies ComparisonTable,
-    ],
-  },
-  {
-    problem: {
-      ko: "이미지 원본 무압축 업로드 — 10MB 초과 실패 + 네트워크 낭비",
-      en: "Uncompressed Image Upload — 10MB Limit Failures + Network Waste",
-    },
-    definition: {
-      ko: "사용자가 선택한 이미지 파일을 **압축 없이 원본 그대로** FormData에 담아 서버로 전송했습니다. 스마트폰 사진(5–15MB)이나 고해상도 스크린샷은 **용량 제한에 걸려 업로드가 거부**되고, 제한 이하인 파일도 **불필요하게 큰 원본이 그대로 전송**되어 네트워크와 스토리지를 낭비했습니다.",
-      en: "Image files were sent to the server **as-is without compression** via FormData. Smartphone photos (5–15MB) and high-resolution screenshots **hit the size limit and failed**, while files under the limit **wasted network bandwidth and storage** by uploading unnecessarily large originals.",
-    },
-    cause: {
-      ko: "업로드 함수에 **클라이언트 압축 로직이 없었고**, 서버에서 용량 초과를 거부하는 것이 유일한 방어선이었습니다. 사용자는 **왜 업로드가 실패하는지 모른 채** 다시 시도하거나 포기하는 상황이 발생했습니다.",
-      en: "The upload function had **no client-side compression logic** — the server's size rejection was the only defense. Users would **retry or give up without understanding** why the upload failed.",
-    },
-    solution: {
-      ko: "업로드 전에 **브라우저에서 단계적 압축 파이프라인**을 실행합니다:\n\n1. **SVG/GIF → 스킵** (벡터/애니메이션은 Canvas 변환 불가)\n2. **용량 이하 → 스킵** (이미 작은 파일은 건드리지 않음)\n3. **WebP 변환** (`canvas.toBlob`, quality 0.85)\n4. **해상도 축소** (긴 변 최대 2560px)\n5. **품질 단계적 하향** (0.05씩 감소, 최저 0.7)\n\n`compressImage()` 유틸리티를 **dynamic import**로 불러와 번들 크기에 영향을 주지 않습니다.",
-      en: "A **step-by-step compression pipeline runs in the browser** before upload:\n\n1. **SVG/GIF → skip** (vector/animation can't be Canvas-converted)\n2. **Under limit → skip** (don't touch already-small files)\n3. **WebP conversion** (`canvas.toBlob`, quality 0.85)\n4. **Resolution reduction** (max 2560px on longest side)\n5. **Quality step-down** (decrease by 0.05, minimum 0.7)\n\nThe `compressImage()` utility is loaded via **dynamic import** to avoid affecting bundle size.",
-    },
-    keyInsight: {
-      ko: "이미지 압축은 **서버보다 클라이언트에서 하는 것이 합리적**입니다. 서버 압축은 이미 **큰 원본이 네트워크를 타고 올라온 뒤** 처리하므로 대역폭 절감 효과가 없고, 서버 CPU도 소모합니다. 클라이언트 압축은 **전송 전에 크기를 줄여** 업로드 시간과 스토리지를 동시에 절약합니다. WebP는 AVIF보다 압축률은 낮지만 **브라우저 인코딩 속도가 3–10배 빠르고 지원률도 높아** 클라이언트 처리에 적합합니다.",
-      en: "Image compression is **more effective on the client than the server**. Server compression processes files **after they've already traveled the network at full size**, offering no bandwidth savings while consuming server CPU. Client compression **reduces size before transmission**, saving both upload time and storage. WebP has lower compression ratios than AVIF but is **3–10× faster to encode in browsers with wider support**, making it ideal for client-side processing.",
-    },
-    comparisons: [
-      {
-        label: { ko: "이미지 업로드 전략 비교", en: "Image upload strategy comparison" },
-        headers: [
-          { ko: "비교 항목", en: "Criteria" },
-          { ko: "원본 전송", en: "Raw upload" },
-          { ko: "서버 압축", en: "Server compression" },
-          { ko: "클라이언트 압축 (채택)", en: "Client compression (adopted)" },
-        ],
-        rows: [
-          { cells: [{ ko: "네트워크 사용량", en: "Network usage" }, { ko: "⚠ 원본 크기 그대로", en: "⚠ Full original size" }, { ko: "⚠ 원본 크기 그대로", en: "⚠ Full original size" }, { ko: "✓ 압축 후 전송", en: "✓ Compressed before send" }] },
-          { cells: [{ ko: "업로드 실패율", en: "Upload failure rate" }, { ko: "⚠ 10MB 초과 시 거부", en: "⚠ Rejected over 10MB" }, { ko: "수용 가능 (제한 완화)", en: "Acceptable (relaxed limit)" }, { ko: "✓ 거의 없음", en: "✓ Near zero" }] },
-          { cells: [{ ko: "서버 부하", en: "Server load" }, { ko: "없음", en: "None" }, { ko: "⚠ CPU 사용", en: "⚠ CPU usage" }, { ko: "없음", en: "None" }] },
-          { cells: [{ ko: "사용자 체감", en: "User experience" }, { ko: "큰 파일 = 긴 대기", en: "Large files = long wait" }, { ko: "업로드 느림 + 서버 처리 대기", en: "Slow upload + server processing" }, { ko: "✓ 빠른 업로드", en: "✓ Fast upload" }] },
-          { cells: [{ ko: "구현 위치", en: "Implementation" }, { ko: "없음", en: "None" }, { ko: "API 라우트 (Sharp 등)", en: "API route (Sharp, etc.)" }, { ko: "Canvas API (브라우저)", en: "Canvas API (browser)" }] },
-          { cells: [{ ko: "이 프로젝트에 적합?", en: "Right for this project?" }, { ko: "✗ 대용량 실패", en: "✗ Large files fail" }, { ko: "△ 대역폭 낭비", en: "△ Bandwidth waste" }, { ko: "✓ 전송 전 최적화", en: "✓ Optimized before transfer" }], highlight: true },
-        ],
-        description: {
-          ko: "원본 전송은 용량 제한에 취약하고, 서버 압축은 이미 큰 파일이 네트워크를 거친 뒤 처리됩니다. **클라이언트 압축은 브라우저에서 WebP 변환 + 리사이즈 + 품질 조절을 수행한 뒤** 작아진 파일만 전송하므로, 업로드 실패를 방지하고 네트워크·스토리지를 동시에 절약합니다.",
-          en: "Raw upload is vulnerable to size limits, and server compression only processes after the large file has already traversed the network. **Client compression performs WebP conversion + resize + quality adjustment in the browser**, sending only the reduced file — preventing upload failures while saving both network bandwidth and storage.",
-        },
-      } satisfies ComparisonTable,
-    ],
-    diagrams: [
-      {
-        title: { ko: "클라이언트 이미지 압축 파이프라인", en: "Client-side Image Compression Pipeline" },
-        nodes: [
-          { id: "start", type: "start", label: { ko: "이미지 선택", en: "Select image" }, row: 0, col: 0 },
-          { id: "check_type", type: "decision", label: { ko: "SVG / GIF?", en: "SVG / GIF?" }, row: 1, col: 0 },
-          { id: "skip", type: "end", label: { ko: "원본 그대로 업로드", en: "Upload original" }, row: 1, col: 1 },
-          { id: "check_size", type: "decision", label: { ko: "용량 초과?", en: "Over limit?" }, row: 2, col: 0 },
-          { id: "webp", type: "action", label: { ko: "WebP 변환 (q: 0.85)", en: "Convert WebP (q: 0.85)" }, row: 3, col: 0 },
-          { id: "check_webp", type: "decision", label: { ko: "아직 큰가?", en: "Still over?" }, row: 4, col: 0 },
-          { id: "resize", type: "action", label: { ko: "해상도 축소 (max 2560px)", en: "Resize (max 2560px)" }, row: 5, col: 0 },
-          { id: "check_resize", type: "decision", label: { ko: "아직 큰가?", en: "Still over?" }, row: 6, col: 0 },
-          { id: "quality", type: "action", label: { ko: "품질 하향 (0.05씩, 최저 0.7)", en: "Quality step-down (−0.05, min 0.7)" }, row: 7, col: 0 },
-          { id: "done", type: "end", label: { ko: "압축 완료 → 업로드", en: "Compressed → Upload" }, row: 8, col: 0 },
-        ],
-        edges: [
-          { from: "start", to: "check_type" },
-          { from: "check_type", to: "skip", label: "Yes" },
-          { from: "check_type", to: "check_size", label: "No" },
-          { from: "check_size", to: "done", label: "No" },
-          { from: "check_size", to: "webp", label: "Yes" },
-          { from: "webp", to: "check_webp" },
-          { from: "check_webp", to: "done", label: "No" },
-          { from: "check_webp", to: "resize", label: "Yes" },
-          { from: "resize", to: "check_resize" },
-          { from: "check_resize", to: "done", label: "No" },
-          { from: "check_resize", to: "quality", label: "Yes" },
-          { from: "quality", to: "done" },
-        ],
-      } satisfies TroubleshootingDiagram,
-    ],
   },
 
   /* ── CSS / Styling ── */
   {
+    id: "only-some-section-dividers-look-darker",
     section: { ko: "CSS / Styling", en: "CSS / Styling" },
     problem: { ko: "일부 섹션 구분선만 유독 진하다 — background 단축속성이 background-clip 을 리셋", en: "Only some section dividers look darker — the background shorthand reset background-clip" },
     definition: {
@@ -1298,23 +1205,26 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["css", "background-clip", "shorthand", "border", "compositing"],
   },
   {
+    id: "global-transition-shorthand-overriding-component-transitions",
     section: { ko: "CSS / Styling", en: "CSS / Styling" },
     problem: { ko: "글로벌 transition shorthand가 컴포넌트 전환 효과를 덮어씀", en: "Global Transition Shorthand Overriding Component Transitions" },
+    title: { ko: "CSS specificity와 shorthand 대체", en: "CSS specificity and shorthand replacement" },
+    vizKey: "transition-shorthand",
     definition: {
-      ko: "다크 / 라이트 테마를 부드럽게 전환하려고 \"모든 요소의 배경색·글자색 변화에 transition\" 을 글로벌로 적용했더니, 의도치 않은 부작용이 따라왔습니다.\n\n컴포넌트마다 따로 만들어 둔 **\"토글 펼침 / 메뉴 슬라이드 / 모달 페이드인\" 같은 애니메이션이 전부 동작하지 않게** 되었습니다. 토글을 눌러도 부드럽게 펼쳐지지 않고 \"툭\" 한 번에 나타나며, 모달도 페이드인 없이 갑자기 표시되었습니다.",
-      en: "To make dark ↔ light theme switching smooth, I applied a global transition (background/text color animation) to every element. The side effect: **every component-level animation — toggle expand, menu slide, fade-in — stopped working**.\n\nToggles popped open with no easing, modals appeared without their fade-in — everything was instant.",
+      ko: "이 사이트는 다크 모드와 라이트 모드를 오갈 수 있다. 테마를 전환하는 순간 색이 한 번에 바뀌면 눈에 부담이 되므로, 색이 부드럽게 넘어가도록 전역 CSS 에 `transition` 규칙을 하나 두었다. 이 규칙은 `html[data-theme-ready] *` 형태로 화면의 모든 요소를 대상으로 삼아, `background-color`, `color`, `border-color` 등의 색 관련 속성이 0.3초에 걸쳐 전환되도록 지정한다.\n\n이 규칙을 적용한 뒤 화면 곳곳의 애니메이션이 동작하지 않는 문제가 나타났다. 메뉴를 접었다 펴는 동작, 옆 패널이 슬라이드로 나오는 동작, 팝업이 서서히 떠오르는 동작이 모두 멈췄다. 버튼은 부드럽게 펼쳐지지 않고 한 번에 나타났고, 팝업도 서서히 표시되는 대신 갑자기 나타났다. 색을 부드럽게 전환하려고 넣은 전역 규칙이, 각 컴포넌트가 `max-height`, `opacity`, `transform` 등에 걸어 둔 개별 `transition` 을 함께 무력화했다.",
+      en: "This site can switch between a dark mode and a light mode. Because flipping the colors all at once at the moment of a theme change is hard on the eyes, a single `transition` rule was added to the global CSS so the colors ease from one to the other. Written as `html[data-theme-ready] *`, the rule targets every element on the page and transitions color-related properties such as `background-color`, `color`, and `border-color` over 0.3 seconds.\n\nAfter this rule was applied, animations across the page stopped working. Menus that folded open and closed, side panels that slid into view, and popups that rose gradually all stopped animating. Buttons snapped in instead of expanding smoothly, and popups appeared abruptly instead of fading in. The global rule added to ease the colors also disabled the individual `transition` declarations that each component had set on `max-height`, `opacity`, `transform`, and similar properties.",
     },
     cause: {
-      ko: "글로벌 규칙은 `html[data-theme-ready] *` 에 걸려 있고, 이 선택자의 **specificity (CSS 우선순위 점수)** 는 `(0,1,1)` 입니다. 반면 컴포넌트의 단일 클래스 (예: `.modal`) 는 `(0,1,0)` 이라 항상 글로벌 규칙에 패배하는 구조였습니다.\n\n또한 `transition` 이 shorthand 속성이라는 점이 결정적이었습니다. 일반 속성처럼 \"내가 적은 것만 덮어쓰는\" 방식이 아니라, **해당 요소의 모든 transition 을 통째로 새로 쓰는 동작** 을 합니다. 즉, 글로벌에서 `transition: background-color 0.3s` 한 줄만 적어도 그 요소가 가진 `max-height transition`, `opacity transition`, `transform transition` 등 다른 transition 이 한꺼번에 모두 사라집니다.",
-      en: "The global rule lives on `html[data-theme-ready] *`, whose **CSS specificity** is `(0,1,1)`. A component's single class (e.g., `.modal`) has `(0,1,0)` and always loses to it.\n\nWorse, `transition` is a shorthand — it doesn't \"add to\" existing transitions, it **fully replaces all transitions on that element**, including ones for properties not listed. The moment the global rule says `transition: background-color 0.3s`, the element's `max-height` transition, `opacity` transition, and `transform` transition all disappear.",
+      ko: "원인은 두 가지가 맞물린 데 있다.\n\n첫째는 selector 의 specificity 다. CSS 에서 두 규칙이 같은 속성을 두고 충돌하면 요소를 더 구체적으로 지목한 쪽, 즉 specificity 가 높은 쪽이 적용된다. 전역 색 전환 규칙에 쓴 `html[data-theme-ready] *` 선택자는 specificity 가 `(0,1,1)` 로, 컴포넌트가 흔히 쓰는 단일 클래스 선택자 `(0,1,0)` 보다 한 단계 높다. 그래서 전역 규칙이 개별 컴포넌트의 `transition` 규칙을 매번 이겼다.\n\n둘째는 `transition` 이 shorthand 속성이라는 점이다. shorthand 는 여러 하위 속성을 한 줄로 묶어 지정하는데, 이렇게 지정하면 기존 값에 더해지지 않고 그 요소의 `transition` 설정 전체를 덮어쓴다. 전역 규칙은 `background-color`, `color` 등 색 관련 속성만 나열했으므로, 이 규칙이 적용되는 순간 컴포넌트가 `max-height` 나 `transform` 에 걸어 둔 `transition` 은 목록에서 사라졌다. 그 결과 색 이외의 애니메이션이 모두 제거됐다.",
+      en: "Two factors combined to cause this.\n\nThe first is selector specificity. In CSS, when two rules conflict over the same property, the one that names the element more specifically, that is, the one with higher specificity, is applied. The `html[data-theme-ready] *` selector used for the global color transition has a specificity of `(0,1,1)`, one step higher than the single-class selectors `(0,1,0)` that components commonly use. As a result, the global rule won over each component's `transition` rule every time.\n\nThe second is that `transition` is a shorthand property. A shorthand packs several sub-properties into one line, and when written this way it does not add to existing values; it overwrites the element's entire `transition` setting. The global rule listed only color-related properties such as `background-color` and `color`, so the moment it applied, the `transition` a component had set on `max-height` or `transform` dropped out of the list. Every animation other than color was removed as a result.",
     },
     solution: {
-      ko: "컴포넌트 쪽 transition 이 글로벌 규칙을 이길 수 있도록, **두 클래스를 묶은 복합 선택자 (specificity `(0,2,0)`)** 로 변경했습니다.\n\n예를 들어 `.modal { transition: opacity 0.3s }` 대신 **`.modalWrap .modal { transition: opacity 0.3s }`** 처럼 작성합니다. 이렇게 하면 specificity 가 `(0,2,0)` 이 되어 글로벌 `(0,1,1)` 보다 한 단계 높아지고, 글로벌 shorthand 를 안전하게 덮어씁니다.\n\n프로젝트의 CLAUDE.md 에도 이 패턴을 \"transition 이 동작하지 않을 때 가장 먼저 의심할 것\" 으로 명시하여, 동일한 함정을 반복하지 않도록 했습니다.",
-      en: "Components now use a **two-class compound selector (specificity `(0,2,0)`)** to outweigh the global rule.\n\nFor example: `.modalWrap .modal { transition: opacity 0.3s }` instead of `.modal { transition: opacity 0.3s }`. `(0,2,0)` > `(0,1,1)`, so it safely overrides the global shorthand.\n\nThe project's CLAUDE.md documents this pattern as \"the first thing to suspect when a transition isn't running\", so the same trap doesn't get sprung again.",
+      ko: "개별 컴포넌트의 `transition` 이 전역 규칙에 밀리지 않도록, 컴포넌트 선택자의 specificity 를 전역 규칙보다 높게 올렸다. 단일 클래스로만 지목하던 것을, 부모와 자식을 함께 적는 복합 선택자로 바꿨다.\n\n예를 들어 `.modal` 하나만 쓰던 규칙을 `.modalWrap .modal` 처럼 부모 클래스와 자식 클래스를 이어 붙였다. 이렇게 하면 specificity 가 `(0,1,0)` 에서 `(0,2,0)` 으로 올라가, 전역 규칙의 `(0,1,1)` 보다 높아진다. 그 결과 전역 색 전환 `transition` 은 그대로 유지되면서, 해당 컴포넌트의 `max-height`, `opacity`, `transform` 애니메이션도 다시 동작했다.\n\n같은 문제가 재발하지 않도록, 애니메이션이 갑자기 멈추면 이 지점을 먼저 확인하라는 내용을 프로젝트 메모에 기록했다.",
+      en: "To keep each component's `transition` from being overridden by the global rule, the component selectors were given a higher specificity than the global rule. Where a selector named an element with a single class, it was changed to a compound selector that names the parent and the child together.\n\nFor example, a rule that used only `.modal` was rewritten as `.modalWrap .modal`, chaining the parent class and the child class. This raises the specificity from `(0,1,0)` to `(0,2,0)`, above the global rule's `(0,1,1)`. As a result, the global color `transition` stayed intact while the component's `max-height`, `opacity`, and `transform` animations worked again.\n\nTo prevent the same problem from recurring, a note was added to the project memo saying that when an animation suddenly stops, this is the first thing to check.",
     },
     keyInsight: {
-      ko: "**CSS 의 `transition` 은 shorthand 속성이므로, 명시하지 않은 속성의 transition 까지 통째로 초기화** 됩니다. 일반 속성과 같은 \"덮어쓰기\" 가 아니라 \"교체\" 에 가깝습니다.\n\n전역에 `*` 선택자로 transition 을 적용할 때는 shorthand 대신 `transition-property` 와 `transition-duration` 을 개별 지정하거나, 영향받을 컴포넌트의 selector specificity 를 미리 한 단계 올려 두는 것이 안전합니다.",
-      en: "**CSS `transition` is a shorthand — it doesn't \"override\", it \"replaces\"**, including transitions for properties you didn't list.\n\nWhen applying transitions globally with `*`, prefer `transition-property` + `transition-duration` written separately, or pre-emptively give affected components a higher-specificity selector so they can win.",
+      ko: "핵심은 `transition` 처럼 shorthand 속성으로 지정하면 기존 값에 더해지지 않고 전체를 교체한다는 점이다. 전역 규칙이 나열하지 않은 속성의 `transition` 은 직접 건드리지 않아도 함께 사라진다.\n\n따라서 전역에 이런 규칙을 걸어야 할 때는 shorthand 로 묶지 말고 `transition-property` 와 `transition-duration` 을 개별 속성으로 나눠 적는 편이 안전하다. 또는 애니메이션이 유지되어야 하는 요소의 선택자를 미리 복합 선택자로 만들어 specificity 를 높여 두면, 전역 규칙에 밀리지 않고 자기 `transition` 을 유지할 수 있다.",
+      en: "The key point is that specifying with a shorthand property like `transition` does not add to existing values; it replaces the whole set. The `transition` for any property the global rule did not list disappears along with it, even though it was never touched directly.\n\nSo when such a rule must be applied globally, it is safer to split it into individual properties such as `transition-property` and `transition-duration` rather than combining them into a shorthand. Alternatively, giving the selectors of elements that must keep their animation a higher specificity in advance, by making them compound selectors, lets them retain their own `transition` instead of being overridden by the global rule.",
     },
     comparisons: [
       {
@@ -1346,25 +1256,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
-    problem: { ko: "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴", en: "CSS Module Hash Collision Collapsing Desktop Layout" },
-    definition: {
-      ko: "데스크톱에서 `display: contents`가 적용되지 않아, About 페이지의 ProcessPanel **레이아웃이 완전히 무너졌습니다**.",
-      en: "On desktop, `display: contents` failed to apply, **completely breaking** the ProcessPanel layout on the About page.",
-    },
-    cause: {
-      ko: "About 페이지의 각 패널은 **공유 CSS Module과 로컬 CSS Module을 `{ ...shared, ...local }`로 병합**하여 사용합니다. ProcessPanel의 `.processBody`는 공유 CSS에서 `display: contents`로 정의되어 있었는데, 로컬 CSS에서 **모바일 미디어 쿼리 안에서만** 같은 이름의 클래스를 정의했습니다. 문제는 CSS Module이 **파일별로 다른 해시를 생성**하기 때문에, 스프레드 병합 시 **로컬 해시가 공유 해시를 덮어써** 데스크톱에서 `display: contents`가 적용되지 않은 것이었습니다.",
-      en: "About page panels merge shared and local CSS Modules via `{ ...shared, ...local }`. ProcessPanel's `.processBody` was defined as `display: contents` in shared CSS, but local CSS only defined the **same class name inside a mobile media query**. Since CSS Modules generate **different hashes per file**, the spread merge caused the **local hash to override the shared hash**, losing `display: contents` on desktop.",
-    },
-    solution: {
-      ko: "로컬 CSS 파일에 **미디어 쿼리 바깥에서도 `.processBody { display: contents }`를 명시적으로 선언**하여, 로컬 해시가 적용되더라도 데스크톱에서 올바른 스타일이 유지되도록 했습니다.",
-      en: "Added an **explicit `.processBody { display: contents }` rule outside the media query** in the local CSS file, ensuring the correct style is maintained on desktop even when the local hash takes over.",
-    },
-    keyInsight: {
-      ko: "`{ ...shared, ...local }` 패턴에서 **같은 클래스명이 양쪽에 존재하면 로컬이 무조건 이깁니다**. 로컬에서 미디어 쿼리 안에서만 정의해도 해시 자체가 달라지므로, **데스크톱 기본 스타일까지 로컬에 복제**해야 합니다.",
-      en: "In the `{ ...shared, ...local }` pattern, **if the same class name exists in both, local always wins**. Even defining it only inside a media query changes the hash, so you must **replicate the desktop default style in local CSS** too.",
-    },
-  },
-  {
+    id: "code-highlighting-wrap-button-vanishing-on",
     problem: { ko: "Richtext 게시물에서 코드 하이라이팅·줄바꿈 버튼이 사라짐", en: "Code Highlighting & Wrap Button Vanishing on Richtext Posts" },
     definition: {
       ko: "Plate 에디터로 작성한 richtext 게시물의 코드블록에서 **구문 하이라이팅과 줄바꿈/스크롤 토글 버튼이 표시되지 않았습니다**. Markdown 게시물에서는 정상 동작했습니다.",
@@ -1419,6 +1311,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── Editor ── */
   {
+    id: "cursor-jumping-randomly-when-contextual-toolbar",
     section: { ko: "Editor", en: "Editor" },
     problem: { ko: "Plate 에디터에서 컨텍스트 툴바 표시 시 커서가 멋대로 튐", en: "Cursor Jumping Randomly When Contextual Toolbar Appears in Plate Editor" },
     definition: {
@@ -1445,22 +1338,25 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
+    id: "toggle-callout-and-column-block-content",
     problem: { ko: "토글·콜아웃·열블록 콘텐츠가 저장 후 사라짐", en: "Toggle, Callout, and Column Block Content Disappearing After Save" },
+    title: { ko: "라이브러리 기본 동작과 명시적 지정의 차이", en: "Library defaults versus explicit overrides" },
+    vizKey: "block-deserialize",
     definition: {
-      ko: "Plate 에디터에서 토글, 콜아웃, 열블록을 작성하고 저장한 뒤 페이지를 다시 열어 보면, **블록 자체는 남아 있는데 내부 콘텐츠만 모두 비어 있는** 이상 현상이 발생했습니다.\n\n예를 들어 \"📝 메모\" 콜아웃 안에 본문 두 줄을 적고 저장했는데, 다시 열어 보면 \"📝 메모\" 박스만 남고 본문은 흔적도 없이 사라진 상태였습니다. 토글, 콜아웃, 열블록 4종 모두에서 동일하게 발생했습니다.",
-      en: "When you wrote toggle, callout, or column blocks in the Plate editor and reopened the page after saving, **the blocks themselves were preserved but their inner content was wiped**.\n\nFor example, you'd write a \"📝 Note\" callout with two lines of body text, save, and reopen — only the \"📝 Note\" frame remained, the body text was gone. The same thing happened across all four block types: toggle, callout, column group, column item.",
+      ko: "이 블로그의 글은 Plate 에디터로 작성합니다. 문단 외에도 몇 가지 블록을 본문 사이에 넣을 수 있는데, 눌러서 접고 펴는 토글, 배경색으로 강조하는 콜아웃, 화면을 여러 칸으로 나누는 두 종류의 열 블록이 여기에 해당합니다. 이 블록들은 바깥 컨테이너 안에 다시 본문 노드를 담는 중첩 구조를 가집니다.\n\n증상은 이 블록 안에 작성한 본문이 저장 후 사라지는 것이었습니다. 에디터에서 콜아웃을 하나 만들고 그 안에 본문을 두 줄 작성한 뒤 저장하고, 페이지를 닫았다가 다시 열면 블록의 바깥 컨테이너는 그대로 남아 있는데 안에 작성한 두 줄은 비어 있었습니다. 저장한 본문이 다시 여는 시점에 사라지므로 겉으로는 저장 자체가 실패한 것처럼 보였습니다. 동일한 증상이 토글과 콜아웃, 그리고 두 종류의 열 블록까지 네 블록 모두에서 나타났습니다.",
+      en: "The posts on this blog are written in the Plate editor. Beyond plain paragraphs, you can insert several kinds of blocks into the body: a toggle you click to fold and unfold, a callout that draws emphasis with a background color, and two kinds of column blocks that divide the screen into lanes. These blocks share a nested structure, an outer container that again holds body nodes inside it.\n\nThe symptom was that body text written inside one of these blocks disappeared after saving. If you created a callout in the editor, wrote two lines of body text inside it, saved, closed the page, and opened it again, the outer container of the block remained while the two lines written inside were empty. Because the saved body vanished at the moment of reopening, from the outside it looked as though the save itself had failed. The same symptom appeared in all four blocks: the toggle, the callout, and the two kinds of column blocks.",
     },
     cause: {
-      ko: "Plate 는 저장된 HTML 을 에디터 트리 (Slate 노드) 로 복원할 때 \"deserializer\" 라는 함수를 호출합니다. 블록 종류마다 자기 deserializer 의 `parse` 함수를 따로 구현할 수 있는데, 거기에 **`children: []` (빈 자식 배열) 를 명시적으로 반환** 하는 코드가 들어가 있던 것이 원인이었습니다.\n\nPlate 의 deserializer 는 두 가지 모드로 동작합니다:\n\n- `parse` 가 `children` 을 **반환하지 않으면** → HTML 안쪽 자식 노드를 **자동으로 재귀 파싱** (기본 동작)\n- `parse` 가 `children` 을 **명시적으로 반환하면** → 그 값을 그대로 사용, 자동 파싱은 비활성화\n\n즉, `children: []` 를 반환하는 순간 Plate 는 \"개발자가 빈 배열을 직접 지정했으니 자동 파싱하지 않는다\" 로 해석합니다. 그 결과 **HTML 안에 본문이 그대로 들어 있었는데도 무시** 하고 빈 상태로 복원했던 것입니다.",
-      en: "When Plate restores saved HTML back into editor nodes (a Slate tree), it calls a per-plugin \"deserializer\". Each block plugin can implement its own `parse` function, and the bug was that each one **explicitly returned `children: []` (an empty children array)**.\n\nPlate's deserializer has two modes:\n\n- If `parse` **doesn't return** `children` → it **automatically recurses** into the HTML's inner nodes (default)\n- If `parse` **explicitly returns** `children` → Plate uses that value verbatim and skips auto-parsing\n\nReturning `children: []` essentially tells Plate \"I'm explicitly setting an empty array, don't auto-parse\" — so the inner HTML body was **ignored even though it was right there in the saved markup**, restoring as empty.",
+      ko: "저장 시 본문은 HTML 문자열로 직렬화되어 데이터베이스에 보관됩니다. 페이지를 다시 열 때 에디터는 이 HTML 을 반대로 읽어 Plate 가 다루는 내부 노드 구조로 되돌리는데, 이 역직렬화를 담당하는 것이 블록마다 등록된 deserializer 입니다.\n\n각 블록 타입은 자신의 deserializer 에서 HTML 요소를 어떤 노드로 복원할지 지정합니다. 네 블록의 deserializer 는 모두 반환하는 노드에 `children: []` 를 함께 지정하고 있었습니다.\n\nPlate 의 deserializer 는 `children` 지정 여부에 따라 두 가지로 동작합니다. `children` 을 지정하지 않으면 Plate 가 해당 HTML 요소의 자식들을 재귀 파싱으로 직접 읽어 노드로 복원합니다. 이것이 기본 동작입니다. 반대로 `children` 을 명시하면 Plate 는 지정된 값만 사용하고 HTML 자식을 스스로 파싱하는 과정은 건너뜁니다.\n\n따라서 `children: []` 는 자식이 빈 배열이라고 명시적으로 지정한 것으로 해석됩니다. 저장된 HTML 안에 본문 노드가 들어 있어도 Plate 는 그 자식을 파싱하지 않고, 지정받은 대로 내부가 빈 블록을 만들었습니다. 네 블록에서 본문이 사라진 원인이 이것이었습니다.",
+      en: "On save, the body is serialized to an HTML string and stored in the database. When the page is opened again, the editor reads that HTML in reverse and turns it back into the internal node structure Plate works with. The deserializer registered for each block is what handles this deserialization.\n\nEach block type specifies, in its deserializer, what node an HTML element should be restored as. The deserializers for all four blocks specified `children: []` on the node they returned.\n\nA Plate deserializer behaves in one of two ways depending on whether `children` is specified. If `children` is not given, Plate reads the children of that HTML element itself through recursive parsing and restores them as nodes. This is the default behavior. If `children` is specified instead, Plate uses only the given value and skips parsing the HTML children on its own.\n\nSo `children: []` is interpreted as explicitly specifying that the children are an empty array. Even though body nodes were present inside the saved HTML, Plate did not parse those children and produced a block with an empty inside, exactly as specified. This was the cause of the body disappearing in all four blocks.",
     },
     solution: {
-      ko: "각 deserializer 의 `parse` 반환 객체에서 **`children: []` 한 줄을 제거** 하면 해결되었습니다.\n\n`children` 필드 자체가 없으면 Plate 의 기본 동작이 작동해, `<div>` 안의 HTML 을 자동으로 재귀 파싱하여 Slate 트리로 변환합니다. 4개 플러그인 (토글, 콜아웃, 열 그룹, 열 아이템) 모두에 동일한 한 줄 수정을 적용해 일괄 해결했습니다.",
-      en: "**Removed the single `children: []` line** from each deserializer's `parse` return.\n\nWithout the `children` field, Plate's default kicks in — auto-parsing the `<div>`'s inner HTML into Slate nodes recursively. The same one-line fix in four plugins (toggle, callout, column group, column item) resolved all of them.",
+      ko: "수정한 부분은 네 블록 deserializer 에서 `children: []` 한 줄을 제거한 것이었습니다.\n\n이 지정이 없어지면 Plate 는 `children` 에 대한 지시를 받지 않은 상태가 되고, 앞서 설명한 기본 동작이 다시 적용됩니다. 즉 저장된 HTML 요소의 자식을 재귀 파싱으로 직접 읽어 본문 노드를 원래대로 복원합니다. 자식을 빈 배열로 고정하는 지정이 사라졌으므로 저장된 본문이 더 이상 버려지지 않습니다. 문제가 있던 토글과 콜아웃, 두 종류의 열 블록에서 동일하게 이 한 줄만 제거해 네 곳을 한 번에 바로잡았습니다.",
+      en: "The change was to remove the single line `children: []` from the deserializers of the four blocks.\n\nWith that specification gone, Plate is left with no instruction about `children`, and the default behavior described earlier applies again: it reads the children of the saved HTML element through recursive parsing and restores the body nodes as they were. Because the specification that fixed the children to an empty array was gone, the saved body is no longer discarded. Removing this one line in the same way from the toggle, the callout, and the two kinds of column blocks corrected all four at once.",
     },
     keyInsight: {
-      ko: "라이브러리의 **\"기본 동작 vs 직접 지정한 동작\"** 의 차이를 인지하지 못하면, 안전해 보이는 코드 한 줄이 자동화 기능을 통째로 꺼 버리는 상황이 발생할 수 있습니다.\n\nPlate 의 `parse` 에서 `children` 을 **생략** 하는 것은 \"자동 파싱 켜짐\", **명시적으로 지정** 하는 것은 \"수동 제어 — 자동 파싱 꺼짐\" 입니다. 빈 배열 `[]` 도 \"자식이 없다\" 라는 **의도적인 선언** 으로 해석됩니다.\n\n\"명시적이 항상 더 안전하다\" 는 직관이 늘 맞지는 않는다는 점, 그리고 라이브러리의 기본값이 어떤 가정 위에서 동작하는지 한 번은 들여다보아야 한다는 교훈을 얻었습니다.",
-      en: "Without understanding the framework's distinction between **\"default behavior vs. explicit behavior\"**, what looks like a safe one-liner can silently turn off the framework's automation.\n\nIn Plate's `parse`, **omitting** `children` means \"auto-parsing on\"; **specifying** it means \"manual mode — auto-parsing off\". Even an empty array `[]` is interpreted as an **intentional declaration of 'no children'**.\n\nThe lesson: \"more explicit is always safer\" isn't always true — and it's worth peeking at what your library's defaults assume before writing over them.",
+      ko: "라이브러리를 가져다 쓸 때, 값을 지정하지 않았을 때의 기본 동작과 값을 명시적으로 지정한 경우를 라이브러리가 내부에서 어떻게 구분하는지 정확히 이해하지 못하면, 안전해 보이는 한 줄이 자동 동작 전체를 꺼 버릴 수 있습니다.\n\n이번 경우 `children` 을 지정하지 않는 것은 Plate 에게 HTML 자식을 알아서 파싱하라는 뜻이었고, `children` 을 지정하는 것은 지정한 값만 쓰고 자동 파싱은 끄라는 뜻이었습니다. `children: []` 처럼 빈 배열을 넣는 것조차 자식이 없다고 의도적으로 지정한 것으로 해석되었습니다.\n\n정리하면, 모든 값을 빠짐없이 명시하는 편이 항상 더 안전하다는 전제가 언제나 옳지는 않다는 것, 그리고 가져다 쓰는 라이브러리가 아무것도 지정하지 않은 기본 상태에서 무엇을 하는지 최소 한 번은 확인해야 한다는 것입니다.",
+      en: "When you bring in a library, if you don't accurately understand how it distinguishes its default behavior with no value given from the case where a value is set explicitly, a single line that looks safe can switch off an entire automatic behavior.\n\nIn this case, not specifying `children` meant telling Plate to parse the HTML children on its own, while specifying `children` meant using only the given value and turning the automatic parsing off. Even putting in an empty array as `children: []` was interpreted as deliberately specifying that there are no children.\n\nThe takeaways are that the premise that spelling out every value in full is always the safer choice is not always correct, and that it is worth checking at least once what a library you rely on does in its untouched default state.",
     },
     comparisons: [
       {
@@ -1502,26 +1398,30 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
   },
   /* ── Editor ── */
   {
+    id: "code-highlighting-dies-only-in-the",
     problem: { ko: "코드블록 하이라이팅이 브라우저에서만 죽음 — 빌드·테스트는 전부 통과", en: "Code Highlighting Dies Only in the Browser — Build and Tests All Pass" },
+    title: { ko: "트랜스파일과 빌드–런타임 간극", en: "Transpilation and the build–runtime gap" },
+    vizKey: "codeblock-highlight",
     definition: {
-      ko: "에디터 코드블록에서 **HTML(xml) 만 색이 하나도 안 붙었습니다.** CSS 같은 다른 언어는 멀쩡했고, 언어 감지도 정상이라 라벨엔 \"HTML / XML\" 이 떴는데 코드는 무채색이었습니다.\n\n`npm run build`, `tsc`, 테스트 전부 통과했습니다. **오직 브라우저에서만** 재현됐습니다.",
-      en: "In the editor's code block, **HTML (xml) got no colors at all.** Other languages like CSS were fine, and detection worked — the label read \"HTML / XML\" — yet the code stayed monochrome.\n\n`npm run build`, `tsc`, and the tests all passed. It reproduced **only in the browser**.",
+      ko: "에디터 코드블록에서 HTML 만 색이 하나도 들어가지 않았다. 언어 판별은 정확했고 CSS 같은 다른 언어는 멀쩡했다. 빌드는 통과했고, 문제는 **브라우저에서 열었을 때만** 나타났다.",
+      en: "In the editor's code blocks, HTML alone came out with no syntax colors. Language detection was correct and other languages such as CSS rendered fine. The build passed, and the problem appeared **only in a real browser**.",
     },
     cause: {
-      ko: "브라우저 콘솔에만 이런 에러가 있었습니다:\n\n```\nSyntaxError: Invalid regular expression: /<(?=[\\u0041-\\u005A…\\u{10000}-\\u{1000B}…\n    at countMatchGroups (core.js:456)\n```\n\n세 가지가 겹쳐야 터지는 문제였습니다.\n\n**1. hljs 문법이 유니코드 속성 이스케이프를 씁니다.** `xml.js` 는 태그명을 `/[\\p{L}_]/u` (모든 유니코드 문자) 로 정의합니다.\n\n**2. 번들러가 그걸 전개합니다.** browserslist 가 최신(chrome 148)인데도 Next 는 node_modules 를 보수적 타깃으로 컴파일합니다. 그래서 `\\p{L}` 이 실제 코드포인트 범위로 풀리고, 거기엔 **아스트랄 영역(`\\u{10000}-…`)** 이 섞입니다. 이 중괄호 형태는 `u` flag 없이는 파싱 자체가 불가능합니다.\n\n**3. hljs 가 그 정규식을 flag 없이 재파싱합니다.** `countMatchGroups` 가 캡처 그룹 수를 세려고 `new RegExp(re.toString() + \"|\")` 를 합니다. 여기서 `u` flag 가 사라져 SyntaxError 가 나고, Plate 는 그걸 catch 해서 조용히 plaintext 로 떨굽니다.\n\n**node 에서 재현이 안 되는 게 핵심입니다.** node 는 트랜스파일되지 않은 원본(`\\p{L}` + `u` flag)을 쓰므로 멀쩡합니다. 전개된 형태는 **브라우저 번들에만 존재**합니다. 그래서 DOM·클래스·CSS·서빙되는 청크까지 전부 검증해도 원인이 안 나왔고, 브라우저 콘솔 스택트레이스를 보고서야 잡혔습니다.\n\nCSS 가 멀쩡했던 건 `css.js` 에 `\\p{}` 가 하나도 없어서였습니다.",
-      en: "The error existed only in the browser console:\n\n```\nSyntaxError: Invalid regular expression: /<(?=[\\u0041-\\u005A…\\u{10000}-\\u{1000B}…\n    at countMatchGroups (core.js:456)\n```\n\nThree things had to line up.\n\n**1. hljs grammars use Unicode property escapes.** `xml.js` defines tag names as `/[\\p{L}_]/u` — any Unicode letter.\n\n**2. The bundler expands them.** Even with a modern browserslist (chrome 148), Next compiles node_modules against a conservative target, so `\\p{L}` becomes explicit code-point ranges — including **astral ranges (`\\u{10000}-…`)**, a braced form that cannot be parsed at all without the `u` flag.\n\n**3. hljs re-parses that regex without flags.** `countMatchGroups` counts capture groups via `new RegExp(re.toString() + \"|\")`. The `u` flag is gone, it throws a SyntaxError, and Plate catches it and silently falls back to plaintext.\n\n**Why node never reproduced it is the crux.** Node uses the untranspiled source (`\\p{L}` + `u` flag) and is fine. The expanded form **exists only in the browser bundle**. Verifying the DOM, the classes, the CSS, even the served chunks turned up nothing — only the browser console's stack trace pinned it.\n\nCSS was unaffected because `css.js` contains no `\\p{}` at all.",
+      ko: "브라우저 콘솔에 정규식이 유효하지 않다는 오류가 한 줄 남아 있었다.\n\n`highlight.js` 는 태그 이름을 판별할 때 모든 언어의 문자를 한 기호로 가리키는 `\\p{L}` 을 쓴다. 번들러가 구형 브라우저용으로 변환하면서 이 표기를 실제 코드포인트 범위의 나열로 풀어쓰는데, 그 목록에는 16비트 두 칸으로 표현되는 상위 평면 문자가 들어간다. 정규식은 `u` 플래그가 켜져 있어야 두 칸을 한 글자로 읽는다. 그런데 `highlight.js` 내부의 `countMatchGroups` 는 이 규칙을 `new RegExp(re.toString() + \"|\")` 로 다시 만들면서 `u` 를 빠뜨린다.\n\n이 재파싱은 언어를 컴파일하는 시점, 즉 `highlight()` 를 부를 때 일어난다. 코드블록을 색칠하려는 순간 SyntaxError 가 나고, **Plate 가 그 예외를 잡아 평문으로 되돌린다.** 페이지는 멀쩡하고 색만 들어오지 않는다. 화면에 드러나는 것이 그게 전부라 진짜 원인은 콘솔에만 남는다.\n\n테스트는 변환 전 원본으로 돌기 때문에 문제의 형태가 **아예 존재하지 않는다**. CSS 가 멀쩡했던 것은 그 규칙에 `\\p{L}` 이 없어서다.",
+      en: "One line in the browser console said a regular expression was invalid.\n\n`highlight.js` identifies tag names with `\\p{L}`, a shorthand standing for every letter in every language. Converting the file for older browsers, the bundler expands that shorthand into a list of actual codepoint ranges, and the list includes astral-plane characters written as two 16-bit units. A regular expression reads those two units as one character only when the `u` flag is on, and `highlight.js`'s internal `countMatchGroups` rebuilds the rule as `new RegExp(re.toString() + \"|\")`, dropping `u`.\n\nThat reparse happens when the language is compiled, which is when `highlight()` is called. A SyntaxError is thrown the moment a code block is about to be colored, and **Plate catches it and falls back to plain text.** The page stays fine; only the color is missing. Since that is all the screen shows, the real cause stays in the console.\n\nThe tests run against the untransformed source, where **the problematic form does not exist**. CSS survived because its rules contain no `\\p{L}`.",
     },
     solution: {
-      ko: "근원은 번들러의 트랜스파일 타깃이지만 node_modules 컴파일은 우리가 못 막습니다. 리더뷰·댓글은 이미 Prism 으로 옮겼지만, 에디터는 Plate 의 code-block 플러그인이 lowlight 인스턴스를 API 로 받아서 교체가 불가능했습니다. 남은 선택지는 **문법 자체를 패치하는 것** 이었고, 실제로 Plate 도 python 에 대해 같은 우회(`ensureStablePythonGrammar`)를 갖고 있습니다.\n\n등록 시 문법 객체를 훑어 아스트랄 이스케이프를 걷어내고 `u` flag 를 뗍니다. 아스트랄 영역의 \"문자\" 는 태그명에 실질적으로 안 쓰이고, **BMP(한글·CJK·라틴 확장)는 그대로 남습니다.**\n\n여기서 한 번 헛수고를 했습니다. 처음엔 `RegExp` 인스턴스만 변환했는데 아무것도 안 고쳐졌습니다. hljs 의 `regex.concat()` 이 **RegExp 가 아니라 소스를 이어붙인 문자열** 을 반환하기 때문입니다(`core.js: return joined`). 아스트랄 이스케이프는 RegExp 객체가 아니라 **문자열 안**에 있었습니다.\n\n검증은 **번들된 형태를 합성**해서 했습니다. node 는 원본을 쓰니 실물 재현이 불가능해서, 번들러가 뱉는 모양을 직접 만들어 (1) 그 입력이 실제로 재파싱을 깨뜨리는지 (2) 변환 후엔 견디는지 (3) 한글이 안 깨지는지를 테스트로 못 박았습니다.",
-      en: "The root cause is the bundler's transpile target, but we can't control how node_modules is compiled. The reader and comments had already moved to Prism; the editor couldn't, because Plate's code-block plugin takes a lowlight instance as its API. That left **patching the grammar itself** — and Plate does exactly this for python (`ensureStablePythonGrammar`).\n\nAt registration we walk the grammar object, strip astral escapes, and drop the `u` flag. Astral-plane \"letters\" are effectively never used in tag names, and **the BMP (Korean, CJK, Latin extended) survives untouched.**\n\nOne wasted attempt is worth recording: transforming only `RegExp` instances fixed nothing. hljs's `regex.concat()` returns **a concatenated source string, not a RegExp** (`core.js: return joined`), so the astral escapes lived **inside strings**.\n\nVerification had to **synthesize the bundled shape**: node uses the original source, so the real failure can't be reproduced. Building the bundler's output by hand let the tests assert that (1) the input really does break the re-parse, (2) the transformed output survives it, and (3) Korean text still highlights.",
+      ko: "규칙을 등록하는 시점에 하나씩 훑어, 문제가 되는 상위 평면 표기를 걷어내고 `u` 플래그도 함께 뗐다. 태그 이름에 상위 평면 문자가 쓰일 일은 거의 없고, 한글·한자처럼 실제로 쓰는 글자는 그대로 남아 정상 색칠된다.\n\n**한 번 헛짚었다**. 처음에는 이미 컴파일된 `RegExp` 객체만 고쳤는데 아무 변화가 없었다. 규칙 조각을 이어 붙일 때 완성된 `RegExp` 가 아니라 **문자열로 넘어가고 있었고**, 문제의 표기는 그 문자열 안에 있었다.\n\n테스트는 원본으로 돌기 때문에 번들된 상태를 재현할 수 없다. 그래서 재현 대신 불변식을 검사하기로 했다. 등록된 문법의 모든 정규식을 모아, hljs 가 내부에서 하는 flag 없는 재파싱(`new RegExp(re.toString() + \"|\")`)을 견디는지 확인한다. 하나라도 깨지면 그 언어는 브라우저에서 죽는다는 뜻이다.",
+      en: "At the point where the rules are registered, each one is scanned and the astral-plane notation is stripped along with the `u` flag. Astral characters are almost never used in tag names, while everyday characters such as Korean and Chinese stay in place and color normally.\n\n**There was one false start.** At first only the already-compiled `RegExp` objects were changed, with no effect. When `highlight.js` joins its rule fragments it passes them as **plain strings** rather than finished `RegExp` objects, and the notation lived inside those strings.\n\nThe tests run against the original source and cannot reproduce the bundled state, so instead of reproducing it they check an invariant. Every regular expression in the registered grammars is collected and put through the flagless reparse hljs performs internally (`new RegExp(re.toString() + \"|\")`). If even one fails, that language dies in the browser.",
     },
     keyInsight: {
-      ko: "**\"테스트가 통과한다\" 가 \"동작한다\" 는 뜻이 아닙니다.** 테스트가 도는 환경(node)과 코드가 실행되는 환경(브라우저 번들)이 다르면, 그 차이 안에 사는 버그는 테스트가 구조적으로 못 잡습니다.\n\n라이브러리가 **삼켜버리는 예외** 도 위험을 키웁니다. Plate 는 하이라이팅 실패를 catch 해서 plaintext 로 떨궜기 때문에, 화면엔 \"색이 안 붙는다\" 로만 보였고 원인은 콘솔에만 있었습니다. 증상과 원인의 거리가 멀수록 **추측 대신 증거** 를 먼저 확보해야 합니다.",
-      en: "**\"The tests pass\" is not \"it works\".** When the environment your tests run in (node) differs from where the code actually runs (the browser bundle), bugs living in that gap are invisible to tests by construction.\n\n**Swallowed exceptions** widen the gap. Plate caught the highlight failure and fell back to plaintext, so the UI only showed \"no colors\" while the cause sat in the console. The further apart the symptom and the cause, the earlier you must stop guessing and **go get evidence**.",
+      ko: "**빌드와 테스트를 통과했다는 것이 정상 동작을 뜻하지는 않는다**. 테스트가 도는 환경과 코드가 실제로 실행되는 환경이 다르면, 그 차이에서 생기는 문제는 **테스트가 처음부터 잡을 수 없다**.\n\n라이브러리가 오류를 조용히 삼키면 거리가 더 벌어진다. 화면에는 색이 안 들어온 것으로만 보이고 진짜 원인은 콘솔에만 남는다. 겉 증상과 실제 원인이 멀 때는 추측보다 콘솔과 번들 산출물을 먼저 확보하는 편이 빠르다.",
+      en: "**Passing the build and the tests does not by itself mean the code works.** When the environment the tests run in differs from the one the code actually runs in, a failure arising from that gap is something **the tests could never catch**.\n\nA library that swallows its errors widens the gap. On screen it looks like the colors simply did not arrive, while the real cause stays in the console. When the visible symptom is far from the cause, gathering evidence from the console and the bundle output beats guessing.",
     },
     tags: ["highlight.js", "Bundler", "RegExp", "Plate"],
   },
   {
+    id: "after-select-all-delete-in-a",
     problem: { ko: "코드블록 내용을 전체 선택해 지우면 이후 붙여넣기가 블록 밖으로 샘", en: "After Select-All-Delete in a Code Block, Pastes Leak Outside the Block" },
     definition: {
       ko: "코드블록에 붙여넣기는 잘 됩니다. 그런데 그 내용을 **Cmd+A 로 전체 선택해 지운 뒤 다시 붙여넣으면**, 첫 줄만 블록 안에 들어가고 **나머지 줄은 블록 아래에 별도 블록으로** 생겼습니다. 게다가 글자가 멀쩡히 있는데도 \"코드를 입력하세요\" placeholder 가 사라지지 않았습니다.\n\n한 번 이 상태가 되면 **계속** 그랬습니다.",
@@ -1542,6 +1442,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["Plate", "Slate", "Normalization", "Paste"],
   },
   {
+    id: "footnotes-inside-headings-not-processed-during",
     section: { ko: "Editor", en: "Editor" },
     problem: { ko: "제목(heading) 안 각주가 마크다운 변환 시 처리 안 됨", en: "Footnotes Inside Headings Not Processed During Markdown Conversion" },
     definition: {
@@ -1562,6 +1463,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
   },
   {
+    id: "cannot-distinguish-click-vs-keyboard-for",
     problem: { ko: "Plate inline void 노드에서 클릭 vs 키보드 구분 불가", en: "Cannot Distinguish Click vs Keyboard for Plate Inline Void Nodes" },
     definition: {
       ko: "각주 참조(`[1]`)를 클릭하면 설명란으로 스크롤해야 하고, 방향키로 진입하면 편집 모드로 들어가야 하는데, `useSelected` 훅이 **두 경우를 구분하지 못해** 클릭해도 편집 모드로 진입하는 문제가 있었습니다.",
@@ -1582,6 +1484,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
   },
   /* ── Admin / Refactoring ── */
   {
+    id: "admin-list-series-trash-posts-ui",
     section: { ko: "Admin / Refactoring", en: "Admin / Refactoring" },
     problem: { ko: "Admin 리스트(시리즈/휴지통/게시물)의 UI 코드 중복과 스타일 불일치", en: "Admin List (Series/Trash/Posts) UI Code Duplication and Style Inconsistency" },
     definition: {
@@ -1630,6 +1533,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
   },
   /* ── Backend / Autosave ── */
   {
+    id: "revision-prompt-loops-due-to-category",
     section: { ko: "Backend / Autosave", en: "Backend / Autosave" },
     problem: { ko: "카테고리 자동 보정으로 리비전 프롬프트가 무한 반복", en: "Revision Prompt Loops Due to Category Auto-Correction" },
     definition: {
@@ -1652,6 +1556,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── Editor ── */
   {
+    id: "cannot-place-cursor-or-type-next",
     section: { ko: "에디터", en: "Editor" },
     problem: { ko: "인라인 이미지 양옆에 커서 배치·텍스트 입력 불가", en: "Cannot Place Cursor or Type Next to Inline Images" },
     definition: {
@@ -1672,94 +1577,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
   },
   {
-    section: { ko: "에디터 / CSS", en: "Editor / CSS" },
-    problem: { ko: "테마 전환 글로벌 transition이 컴포넌트 애니메이션 덮어쓰기", en: "Global Theme Transition Overriding Component Animations" },
-    definition: {
-      ko: "다크/라이트 테마 전환을 위한 글로벌 CSS transition 규칙이, 에디터 toolbar 접기·토글 열기 등 **`max-height`, `opacity`, `transform` transition을 모두 무시**하게 만들었습니다.",
-      en: "A global CSS transition rule for dark/light theme switching caused **`max-height`, `opacity`, `transform` transitions to be silently ignored** in editor toolbar collapse, toggle open, etc.",
-    },
-    cause: {
-      ko: "`transition`은 shorthand 속성이라, `transition: background-color 0.3s` 선언이 컴포넌트의 `transition: max-height 0.3s`를 **완전히 덮어씁니다**. 글로벌 `html[attr] *`의 specificity `(0,1,1)`이 CSS Module 단일 클래스 `(0,1,0)`보다 높아 항상 우선합니다.",
-      en: "`transition` is a shorthand property, so `transition: background-color 0.3s` **completely overwrites** a component's `transition: max-height 0.3s`. The global `html[attr] *` specificity `(0,1,1)` always beats CSS Module single-class `(0,1,0)`.",
-    },
-    solution: {
-      ko: "글로벌 transition을 `data-theme-transitioning` 속성으로 변경하여 **테마 전환 시 350ms 윈도우 동안만 적용**. 평상시에는 비활성이므로 컴포넌트 transition이 정상 동작합니다.",
-      en: "Changed the global transition to a `data-theme-transitioning` attribute **active only during a 350ms window when the theme switches**. During normal operation, component transitions work as expected.",
-    },
-    keyInsight: {
-      ko: "CSS `transition`은 shorthand이므로, 글로벌에서 특정 속성만 지정해도 **컴포넌트의 다른 속성 transition을 전부 제거**합니다. 상시 적용 대신 속성 토글로 필요한 순간에만 활성화해야 합니다.",
-      en: "CSS `transition` is a shorthand — specifying just a few properties globally **removes all other property transitions** from components. Use an attribute toggle to activate only when needed.",
-    },
-  },
-  {
-    section: { ko: "에디터 / 마크다운", en: "Editor / Markdown" },
-    problem: { ko: "마크다운 각주 번호 꼬임 — heading renderer 충돌", en: "Footnote Number Tangling — Heading Renderer Execution Order" },
-    definition: {
-      ko: "마크다운에서 heading(`# 제목`)과 footnote(`[^1]`)를 함께 사용하면 **각주 번호가 꼬이거나 heading 안의 각주가 변환되지 않았습니다**.",
-      en: "Using headings and footnotes together in markdown caused **footnote numbers to tangle or footnotes inside headings to not convert at all**.",
-    },
-    cause: {
-      ko: "커스텀 heading renderer가 `marked-footnote` 확장보다 **먼저 실행**되어, heading 내부의 `[^1]`이 각주로 변환되기 전에 원본 텍스트로 소비되었습니다.",
-      en: "The custom heading renderer executed **before** the `marked-footnote` extension, consuming raw `[^1]` text before it could be converted to footnotes.",
-    },
-    solution: {
-      ko: "heading renderer를 제거하고 `postprocess` hook으로 대체. marked-footnote가 **먼저 모든 각주를 처리한 뒤** heading에 `id` 속성만 후처리합니다. `keepLabels: true`로 사용자 입력 번호도 유지합니다.",
-      en: "Removed the heading renderer, replaced with a `postprocess` hook. marked-footnote **processes all footnotes first**, then headings get `id` attributes afterward. `keepLabels: true` preserves user-specified numbers.",
-    },
-    keyInsight: {
-      ko: "marked 확장과 커스텀 renderer가 같은 구문을 처리할 때 **실행 순서가 결과를 결정**합니다. renderer 대신 postprocess hook을 사용하면 모든 확장이 먼저 처리됩니다.",
-      en: "When marked extensions and custom renderers target the same syntax, **execution order determines the result**. A postprocess hook guarantees all extensions process first.",
-    },
-  },
-  {
-    section: { ko: "에디터 / 자동저장", en: "Editor / Auto-save" },
-    problem: { ko: "글 자동저장을 \"브라우저 임시 저장\" 에서 \"서버 저장 + 버전 기록\" 으로 옮겼습니다", en: "Moving auto-save from \"browser-local\" to \"server with version history\"" },
-    definition: {
-      ko: "에디터에서 글을 작성하는 동안 일정 주기로 자동저장이 동작해야, 갑작스러운 브라우저 종료나 실수로 페이지를 닫아도 작업물이 사라지지 않습니다.\n\n초기에는 이 자동저장을 `localStorage` (브라우저가 자체적으로 가진 로컬 저장 공간) 에 직접 기록하도록 했는데, 시간이 지날수록 다음과 같은 문제가 차례로 드러났습니다.\n\n**① 다른 기기에서는 임시 저장이 보이지 않음** — 집 PC 에서 작성하던 글을 노트북에서 이어 쓰려고 진입해도 아무것도 남아 있지 않습니다.\n\n**② 새로고침만 해도 \"저장됨\" 알림이 표시됨** — 글 내용은 전혀 변경하지 않았는데 시스템이 \"변경됨\" 으로 판단해 매번 새 임시본을 생성합니다.\n\n**③ \"불러올까요?\" 알림이 무한 반복** — 에디터를 다시 열면 \"이전에 저장된 임시본을 불러올까요?\" 가 표시되는데, \"무시\" 를 눌러도 새로고침하면 동일한 내용으로 다시 묻습니다.",
-      en: "While writing in the editor, drafts need to be auto-saved at regular intervals so that a sudden browser crash or accidental navigation doesn't lose work.\n\nInitially these temp saves went to `localStorage` (the browser's built-in local storage area), but over time several issues compounded:\n\n**① Drafts didn't follow you across devices or browsers** — a draft started on your home PC was invisible on your laptop.\n\n**② A plain refresh triggered \"saved\" notifications** — the content hadn't changed at all, but the system marked it as \"changed\" and created another temp save anyway.\n\n**③ Infinite \"Restore draft?\" prompts** — reopening the editor showed \"Restore the previous draft?\". Clicking \"dismiss\" worked once, but a refresh re-prompted with the same content.",
-    },
-    cause: {
-      ko: "원인이 세 가지 겹쳐 있었습니다.\n\n**① localStorage 자체의 한계** — 말 그대로 \"같은 브라우저, 같은 기기\" 안에서만 접근됩니다. 다른 PC 나 모바일에서는 보이지 않는 것이 정상 동작입니다. 임시 저장을 환경 사이로 공유하려면 결국 서버에 저장하는 수밖에 없습니다.\n\n**② \"변경 없음\" 비교 기준이 처음부터 어긋나 있음** — 코드 안에서 \"마지막으로 저장된 내용\" 을 기억하는 변수의 초기값이 빈 문자열 `\"\"` 이었습니다. 그러나 실제 폼 상태를 JSON 으로 변환하면 비어 있어도 `\"{}\"` 가 되므로, 두 값이 다릅니다. 따라서 mount 직후부터 시스템은 \"변경됨\" 으로 판단했고, 새로고침 = 폼 mount 마다 매번 새 임시본이 생성되었습니다.\n\n**③ 사용자가 무시한 임시본을 어디에도 기록하지 않음** — 사용자가 \"불러오기\" 알림을 무시해도 임시본 자체는 DB 에 그대로 남습니다. 다음 진입 시 시스템은 동일한 임시본을 다시 발견하지만, \"새로 알려 주어야 할 것\" 인지 \"이미 무시된 것\" 인지 알 방법이 없어 또 알림을 띄웠습니다.",
-      en: "Three causes compounded:\n\n**① A fundamental limitation of localStorage** — it's only accessible from the same browser on the same device. Drafts can't follow the user across PCs or mobile. To share drafts across environments, the data has to live on the server.\n\n**② The \"unchanged\" comparison was wrong** — the variable tracking \"last saved content\" started as an empty string `\"\"`, but `JSON.stringify(form)` produces `\"{}\"` even for an empty form. The two values differ, so from mount onward the system always thought the form was \"changed\", and every page load (= remount) generated a fresh temp save.\n\n**③ \"Dismissed drafts\" weren't remembered** — when the user dismissed a \"Restore draft?\" prompt, the draft itself stayed in the DB. On next entry, the system found the same draft and prompted again. \"User has already dismissed this one\" was nowhere to be found.",
-    },
-    solution: {
-      ko: "①②③ 을 각각 해결했습니다.\n\n**① 저장소를 서버 DB 로 이전** — `localStorage` 사용을 완전히 제거하고, Supabase 의 `revisions` 테이블 (이전에 저장된 모든 임시본을 row 단위로 보관하는 \"버전 기록\" 테이블) 을 유일한 저장소로 변경했습니다. 이제 다른 기기에서 로그인하면 작성 중이던 글이 그대로 따라옵니다.\n\n**② 비교 기준값을 mount 시점의 실제 값으로 초기화** — \"마지막 저장된 내용\" 변수의 초기값을 빈 문자열이 아니라, **폼이 mount 된 직후의 실제 JSON 값** 으로 설정하도록 수정했습니다. 이로써 \"실제로 변경된 경우\" 만 자동저장이 트리거됩니다.\n\n**③ 무시된 임시본 추적** — 사용자가 \"무시\" 한 임시본의 식별값을 메모리상 `Set` (중복 없는 컬렉션) 에 저장합니다. 시스템이 동일한 임시본을 다시 발견해도 Set 에 이미 들어 있으면 알림을 표시하지 않습니다.\n\n**브라우저 종료 시점의 마지막 저장 보장** — 사용자가 브라우저를 닫거나 다른 페이지로 이동하는 짧은 순간에도 마지막 변경분이 유실되지 않도록, **`navigator.sendBeacon`** (브라우저 종료 중에도 서버로 데이터 전송을 안전하게 완료시키는 표준 API) 과 **`fetch({ keepalive: true })`** (페이지가 사라져도 요청을 끝까지 유지) 를 함께 사용합니다.",
-      en: "Each cause got its own fix:\n\n**① Storage moved to a server DB** — `localStorage` is gone entirely. The sole source of truth is now Supabase's `revisions` table (a \"version history\" table that stores every saved draft as a row). Drafts follow the user across devices the moment they log in.\n\n**② Fixed the \"unchanged\" baseline** — the \"last saved content\" variable now initializes to the **actual serialized form right after mount**, not an empty string. Only real changes trigger an auto-save now.\n\n**③ Track dismissed drafts** — the IDs of dismissed drafts are kept in an in-memory `Set` (a unique collection). When the system finds the same draft again, it checks the Set first and skips the prompt if already dismissed.\n\n**Guaranteed final save on page leave** — for the moment the user closes the browser or navigates away, **`navigator.sendBeacon`** (a standard API that reliably sends data even during browser shutdown) and **`fetch({ keepalive: true })`** (which keeps the request alive after the page is gone) work together to land the final state.",
-    },
-    keyInsight: {
-      ko: "자동저장의 본질은 \"언제 저장할까\" 보다 **\"언제 저장하지 않을까\"** 에 더 가깝습니다.\n\n비교 기준값만 정확히 초기화해도 ② \"변경 없는데 저장하는\" 경우가 사라지고, ③ \"사용자가 무시한 임시본은 다시 묻지 않도록\" 추적까지 더하면 **의미 있는 변경 시점만** 기록에 남게 됩니다.\n\n그렇지 않으면 한 시간 작업했을 때 \"단어 하나 추가\" 짜리 임시본이 수십 개씩 쌓여, 정작 되돌리고 싶은 시점을 찾을 수 없게 됩니다. 직관적으로는 \"많이 저장 = 안전\" 같지만, 실제로는 **\"의미 있는 시점만 저장 = 안전\"** 입니다.",
-      en: "Auto-save is fundamentally less about **\"when to save\"** and more about **\"when NOT to save\"**.\n\nGet the baseline right so ② **\"save with no real change\"** stops, and ③ **dismissed drafts stay dismissed** — that's how only \"meaningful changes\" make it into the history.\n\nOtherwise, an hour of writing leaves dozens of \"added one word\" drafts piled up, and you can't find the checkpoint you actually wanted. The intuition \"save more = safer\" is wrong — the real principle is **\"save only meaningful moments = safer\"**.",
-    },
-    comparisons: [
-      {
-        label: { ko: "수정 전 / 수정 후", en: "Before / After" },
-        headers: [
-          { ko: "비교 항목", en: "Aspect" },
-          { ko: "수정 전", en: "Before" },
-          { ko: "수정 후", en: "After" },
-        ],
-        rows: [
-          { cells: [{ ko: "저장 위치", en: "Storage" }, { ko: "브라우저 localStorage", en: "Browser localStorage" }, { ko: "Supabase DB (revisions 테이블)", en: "Supabase DB (revisions table)" }] },
-          { cells: [{ ko: "다른 기기에서 보기", en: "Cross-device" }, { ko: "✗ 불가능", en: "✗ Impossible" }, { ko: "✓ 로그인하면 따라옴", en: "✓ Follows the user" }] },
-          { cells: [{ ko: "새로고침 시 동작", en: "On refresh" }, { ko: "내용 안 바뀌어도 저장", en: "Saves with no real change" }, { ko: "진짜 변화만 저장", en: "Only real changes save" }] },
-          { cells: [{ ko: "\"불러오기\" 알림 무시 후", en: "After dismissing \"Restore?\"" }, { ko: "새로고침마다 또 물어봄", en: "Re-prompts on every reload" }, { ko: "한 번 무시하면 끝", en: "Stays dismissed" }] },
-          { cells: [{ ko: "브라우저 닫기 직전 변경", en: "Edit just before close" }, { ko: "타이머 못 도달해 유실", en: "Lost — timer didn't fire" }, { ko: "sendBeacon 으로 보장 전송", en: "Guaranteed via sendBeacon" }], highlight: true },
-          { cells: [{ ko: "1시간 작업 후 버전 수", en: "Versions after 1h work" }, { ko: "수십 개 (대부분 사소)", en: "Dozens (mostly trivial)" }, { ko: "의미 있는 변화 시점만", en: "Only meaningful moments" }] },
-        ],
-      } satisfies ComparisonTable,
-    ],
-    images: [
-      {
-        alt: { ko: "Admin 글 편집 화면 — 자동저장 인디케이터 + 리비전 히스토리 사이드 패널", en: "Admin editor — autosave indicator + revision history side panel" },
-        placeholderKeyword: "Admin 글 편집 페이지 — \"방금 저장됨\" 인디케이터 + 우측 리비전 히스토리 목록",
-      },
-      {
-        alt: { ko: "리비전 복원 prompt — 다른 기기 / 새로고침 시 \"이전 임시본 불러올까요?\" 확인 모달", en: "Restore prompt — \"Resume previous draft?\" modal on cross-device / refresh" },
-        placeholderKeyword: "글 편집 페이지 진입 시 \"미저장 임시본이 있습니다\" 복원 prompt 모달",
-      },
-    ],
-  },
-  {
+    id: "auto-save-v2-character-level-draft",
     section: { ko: "에디터 / 자동저장 (v2)", en: "Editor / Auto-save (v2)" },
     problem: { ko: "자동저장 v2 — 글자 단위 draft + 리비전을 명시적 save point 로 재정의", en: "Auto-save v2 — character-level draft + revisions as explicit save points" },
     definition: {
@@ -1798,26 +1616,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
-    section: { ko: "에디터 / 직렬화", en: "Editor / Serialization" },
-    problem: { ko: "열블록 스타일 round-trip 유실", en: "Column Block Styles Lost on Round-Trip" },
-    definition: {
-      ko: "2열/3열 레이아웃 블록의 **배경색, 구분선, 열 비율** 등이 richtext→markdown→richtext 변환 시 모두 사라졌습니다.",
-      en: "Column layout blocks lost **background color, dividers, and column ratios** when converting between richtext and markdown formats.",
-    },
-    cause: {
-      ko: "Plate Column 노드의 `layout`, `columnBg`, `columnDivider` 같은 커스텀 속성은 표준 HTML에 대응하는 개념이 없어, 단순 `<div>` 변환 시 **커스텀 속성이 모두 탈락**했습니다.",
-      en: "Plate Column node custom attributes like `layout`, `columnBg`, `columnDivider` have no standard HTML equivalent, so simple `<div>` conversion **dropped all custom attributes**.",
-    },
-    solution: {
-      ko: "직렬화 시 HTML 주석 + `data-*` 속성으로 이중 인코딩하여 round-trip 보존. 주석이 제거되더라도 `data-*`에서 복원 가능하도록 설계했습니다.",
-      en: "Dual encoding with HTML comments + `data-*` attributes during serialization. Even if comments are stripped, recovery is possible from `data-*` attributes.",
-    },
-    keyInsight: {
-      ko: "표준 HTML에 없는 에디터 고유 속성은 직렬화 시 **명시적으로 인코딩**해야 round-trip이 보존됩니다. `data-*` + HTML 주석 이중 저장으로 강건성을 확보할 수 있습니다.",
-      en: "Editor-specific attributes not in standard HTML must be **explicitly encoded** during serialization for round-trip preservation. Dual `data-*` + HTML comment storage provides robustness.",
-    },
-  },
-  {
+    id: "youtube-embed-url-watch-url-fails",
     section: { ko: "에디터 / 미디어", en: "Editor / Media" },
     problem: { ko: "YouTube embed URL — watch URL이 iframe에서 로드 실패", en: "YouTube Embed URL — Watch URL Fails to Load in iframe" },
     definition: {
@@ -1838,26 +1637,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
   },
   {
-    section: { ko: "에디터 / UI", en: "Editor / UI" },
-    problem: { ko: "커스텀 커서 리사이즈 모드에서 마우스 방향에 따라 커서 회전", en: "Custom Cursor Rotates with Mouse Direction in Resize Mode" },
-    definition: {
-      ko: "이미지·열블록 리사이즈 핸들에 커스텀 커서(↔, ↕, ⤡)를 적용했더니, **마우스 이동 방향에 따라 커서가 회전·찌그러짐**이 발생했습니다.",
-      en: "After applying custom cursors (↔, ↕, ⤡) to image/column resize handles, **the cursor rotated and distorted** based on mouse movement direction.",
-    },
-    cause: {
-      ko: "CursorTrail 애니메이션 루프가 마우스 속도 기반 `angleRef`(회전)·`scaleRef`(스케일)를 계산하는데, 리사이즈 모드 진입 시 이전 값이 남아있었고, classList 기반 감지는 React 렌더 타이밍과 1~2프레임 어긋났습니다.",
-      en: "The CursorTrail animation loop calculated `angleRef`/`scaleRef` from mouse velocity, but previous values persisted on resize entry. classList-based detection was also 1-2 frames behind React render timing.",
-    },
-    solution: {
-      ko: "`cursorTypeRef`(동기 ref)를 추가하여 `setCursorType`과 동시에 갱신하고, 리사이즈 진입 시 즉시 리셋. 애니메이션 루프에서 ref로 리사이즈 여부를 판단하여 회전·스케일을 비활성화했습니다.",
-      en: "Added `cursorTypeRef` (synchronous ref) updated with `setCursorType`, immediately resetting on resize entry. The animation loop checks the ref to disable rotation/scale in resize mode.",
-    },
-    keyInsight: {
-      ko: "React state 기반 감지는 렌더 지연이 있으므로, **requestAnimationFrame 루프에서는 동기 ref**를 사용해야 프레임 정확도를 보장할 수 있습니다.",
-      en: "React state detection has render delays, so **synchronous refs are needed in requestAnimationFrame loops** to guarantee frame-accurate detection.",
-    },
-  },
-  {
+    id: "image-resize-handle-click-deletes-image",
     section: { ko: "에디터 / 이미지", en: "Editor / Image" },
     problem: { ko: "이미지 리사이즈 핸들 클릭 시 이미지가 삭제됨", en: "Image Resize Handle Click Deletes Image" },
     definition: {
@@ -1878,6 +1658,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
   },
   {
+    id: "editor-toolbar-active-state-wrapper-block",
     section: { ko: "에디터 / UI", en: "Editor / UI" },
     problem: { ko: "에디터 툴바 active 상태 — wrapper 블록 감지 실패", en: "Editor Toolbar Active State — Wrapper Block Detection Failure" },
     definition: {
@@ -1898,6 +1679,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
   },
   {
+    id: "footnote-ref-content-integrity-orphan-nodes",
     section: { ko: "에디터 / 각주", en: "Editor / Footnote" },
     problem: { ko: "각주 참조/내용 정합성 — 한쪽 삭제 시 고아 노드 잔존", en: "Footnote Ref/Content Integrity — Orphan Nodes After Partial Deletion" },
     definition: {
@@ -1918,6 +1700,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
   },
   {
+    id: "multi-block-selection-background-covers-floated",
     section: { ko: "에디터 / 선택", en: "Editor / Selection" },
     problem: { ko: "다중 블록 선택 배경이 float 이미지를 덮음 — z-index·flow-root·clip-path 모두 부적합", en: "Multi-block Selection Background Covers Floated Image — z-index, flow-root, clip-path All Fall Short" },
     definition: {
@@ -1938,6 +1721,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
   },
   {
+    id: "clicking-a-floated-image-inline-void",
     section: { ko: "에디터 / 선택", en: "Editor / Selection" },
     problem: { ko: "float 이미지(인라인 void) 클릭이 엉뚱한 본문 단락을 선택", en: "Clicking a Floated Image (Inline Void) Selects the Wrong Paragraph" },
     definition: {
@@ -1958,6 +1742,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
   },
   {
+    id: "link-click-immediately-navigates-cannot-edit",
     section: { ko: "에디터 / 링크", en: "Editor / Link" },
     problem: { ko: "링크 클릭 시 즉시 이동 — 에디터에서 링크 편집 불가", en: "Link Click Immediately Navigates — Cannot Edit Links in Editor" },
     definition: {
@@ -1978,26 +1763,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
   },
   {
-    section: { ko: "CSS / 디자인 토큰", en: "CSS / Design Tokens" },
-    problem: { ko: "CSS 토큰 미정의 — 11개 파일에서 참조하지만 선언 없음", en: "Undefined CSS Token — Referenced in 11 Files but Never Declared" },
-    definition: {
-      ko: "`--box-3xs-xs` 토큰을 11개 CSS 파일에서 `padding: var(--box-3xs-xs)`로 사용하고 있었지만, `_spacing.css`에 실제 정의가 없어 **해당 padding이 모두 무시**되고 있었습니다.",
-      en: "The `--box-3xs-xs` token was used as `padding: var(--box-3xs-xs)` across 11 CSS files, but was **never defined** in `_spacing.css` — causing all those paddings to silently fail.",
-    },
-    cause: {
-      ko: "CSS 토큰 감사 과정에서 `padding: var(--spacing-3xs) var(--spacing-xs)` (2px 8px)를 box shorthand `var(--box-3xs-xs)`로 일괄 치환했으나, `_spacing.css`의 Compound 블록에 해당 토큰 정의를 추가하지 않았습니다. CSS `var()`는 미정의 시 오류 없이 해당 선언을 무효화하므로 **빌드·타입체크에서 감지되지 않았습니다**.",
-      en: "During a CSS token audit, `padding: var(--spacing-3xs) var(--spacing-xs)` (2px 8px) was batch-replaced with the box shorthand `var(--box-3xs-xs)`, but the token definition was never added to the Compound block in `_spacing.css`. CSS `var()` silently invalidates declarations when undefined — **undetectable by build or typecheck**.",
-    },
-    solution: {
-      ko: "`_spacing.css`에 `--box-3xs-xs: var(--spacing-3xs) var(--spacing-xs)` 정의를 추가했습니다. 향후 토큰 치환 시 **사용 파일 grep → 정의 파일 확인** 2단계 검증을 수행합니다.",
-      en: "Added `--box-3xs-xs: var(--spacing-3xs) var(--spacing-xs)` to `_spacing.css`. Future token replacements follow a two-step verification: **grep for usage → confirm definition exists**.",
-    },
-    keyInsight: {
-      ko: "CSS custom property는 **미정의 시 silent fail** — 해당 선언만 무효화되고 에러가 발생하지 않습니다. 토큰 일괄 치환 후 반드시 **정의 존재 여부를 역검증**해야 합니다. stylelint의 `custom-property-no-missing-var-declare` 규칙을 도입하면 CI에서 자동 감지할 수 있습니다.",
-      en: "CSS custom properties **silently fail when undefined** — declarations are invalidated without errors. After batch token replacement, always **reverse-verify that definitions exist**. stylelint's `custom-property-no-missing-var-declare` rule can catch this in CI.",
-    },
-  },
-  {
+    id: "loadingscreen-not-included-in-ssr-content",
     section: { ko: "Frontend / Performance", en: "Frontend / Performance" },
     problem: { ko: "LoadingScreen이 SSR에 포함되지 않아 콘텐츠 flash 발생", en: "LoadingScreen Not Included in SSR — Content Flash Before Loading" },
     definition: {
@@ -2018,22 +1784,25 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
   },
   {
+    id: "cta-button-backdrop-filter-blurs-nothing",
     section: { ko: "Frontend / CSS", en: "Frontend / CSS" },
     problem: {
-      ko: "CTA 버튼 `backdrop-filter`가 Chrome에서 동작하지 않음",
-      en: "CTA Button `backdrop-filter` Not Working in Chrome",
+      ko: "CTA 버튼의 `backdrop-filter` 가 배경을 안 흐림 — 조상의 compositing layer 승격에 막혀서",
+      en: "CTA button `backdrop-filter` blurs nothing — blocked by an ancestor compositing layer",
     },
+    title: { ko: "compositing layer 경계와 backdrop-filter", en: "Compositing layers and backdrop-filter" },
+    vizKey: "backdrop-layer",
     definition: {
-      ko: "홈 화면 CTA 섹션의 \"Contact / Resume\" 버튼은 호버 시 뒤쪽 3D 커피잔이 흐릿하게 비치는 \"유리창 너머\" 효과 (`backdrop-filter: blur()`) 를 사용합니다.\n\n그런데 Chrome 에서만 이 효과가 **전혀 표시되지 않았습니다.** 단순한 반투명 tint 만 약하게 깔리는 정도였습니다. DevTools \"Computed\" 탭에서 `backdrop-filter` 속성은 분명히 적용되어 있는데, 실제 blur 가 발생하는 단계 (\"sampling\") 가 동작하지 않은 것입니다.",
-      en: "The home page CTA section's \"Contact / Resume\" buttons use a \"glass through which the 3D coffee cup behind blurs\" effect (`backdrop-filter: blur()`) on hover.\n\nIn Chrome only, **the blur was completely invisible** — just a faint translucent tint. DevTools Computed showed the `backdrop-filter` property applied, yet no actual sampling occurred.",
+      ko: "홈 화면 CTA 섹션의 \"Contact / Resume\" 버튼은 호버 시 뒤쪽 3D 커피잔이 흐릿하게 비치는 \"유리창 너머\" 효과 (`backdrop-filter: blur()`) 를 사용합니다.\n\n그런데 이 효과가 **전혀 표시되지 않았습니다.** 단순한 반투명 tint 만 약하게 깔리는 정도였습니다. DevTools \"Computed\" 탭에서 `backdrop-filter` 속성은 분명히 적용되어 있는데, 실제 blur 가 발생하는 단계 (\"sampling\") 가 동작하지 않은 것입니다.",
+      en: "The home page CTA section's \"Contact / Resume\" buttons use a \"glass through which the 3D coffee cup behind blurs\" effect (`backdrop-filter: blur()`) on hover.\n\n**The blur was completely invisible** — just a faint translucent tint. DevTools Computed showed the `backdrop-filter` property applied, yet no actual sampling occurred.",
     },
     cause: {
       ko: "홈 진입 애니메이션이 `.home` 래퍼를 `y: '100vh' → 0` 으로 슬라이드 업 하는 **transform 기반** 이었습니다.\n\n애니메이션이 종료된 후에도 framer-motion 이 `transform: translate3d(0,0,0)` 와 `will-change` hint 를 그대로 유지합니다. 사소해 보이지만 이것이 결정적이었습니다. **`.home` 이 자체 compositing layer (브라우저가 내부적으로 별도 GPU 텍스처로 분리해 그리는 layer) 로 승격되는 트리거** 가 되기 때문입니다.\n\n일단 layer 가 분리되면, 내부 자식의 `backdrop-filter` 는 해당 layer **안의 픽셀만** 샘플링할 수 있습니다. layer 바깥에 있는 픽셀 (= 그 아래의 3D 커피 canvas) 은 \"뒤에 아무것도 없는 것\" 으로 처리되므로, blur 자체는 동작하지만 \"비빌 대상\" 이 없어 결과적으로 보이지 않게 됩니다.\n\n추가로 `-webkit-backdrop-filter` 접두사가 환경에 따라 Chrome 의 declaration 파싱을 꼬이게 만드는 경우도 있어 효과를 더 약화시켰습니다.",
       en: "The home entrance animation slid the `.home` wrapper up via a **transform-based** `y: '100vh' → 0`.\n\nAfter the animation finished, framer-motion kept the `transform: translate3d(0,0,0)` and `will-change` hint in place. That sounds harmless, but it's enough to **promote `.home` into its own compositing layer** (a separate GPU texture, internally).\n\nOnce that happens, a descendant's `backdrop-filter` can only sample **inside that layer's boundary** — pixels outside, like the 3D coffee canvas below, are treated as if there's nothing there.\n\nOn top of that, the `-webkit-backdrop-filter` prefix can confuse Chrome's declaration parser in some environments, weakening the effect further.",
     },
     solution: {
-      ko: "진입 애니메이션을 **`y` (transform 기반) → `marginTop` (layout 기반)** 으로 교체했습니다.\n\nmargin / padding / width 같은 layout 속성은 GPU 가 아니라 CPU 에서 처리되며 compositing layer 를 생성하지 않습니다. 따라서 `.home` 이 다시 일반 layer 로 돌아오고, 하위 버튼의 `backdrop-filter` 가 layer 경계 너머의 커피 canvas 까지 정상적으로 샘플링하게 됩니다.\n\n또한 layer 를 분리하는 다른 트리거 (예: `.home` 의 `border-radius` + `overflow: clip` 조합) 도 함께 정리하고, `-webkit-backdrop-filter` 접두사는 제거했습니다. 최신 Chrome 은 표준 `backdrop-filter` 만으로 충분히 동작합니다.",
-      en: "Swapped the entrance from **`y` (transform-based) → `marginTop` (layout-based)**.\n\nLayout properties — margin, padding, width — run on the CPU and don't promote a compositing layer. With that change, `.home` falls back to a normal layer, and descendants' `backdrop-filter` can sample the coffee canvas behind the layer boundary again.\n\nAdditionally removed other promotion triggers like `.home`'s `border-radius` + `overflow: clip` combo, and dropped `-webkit-backdrop-filter` (modern Chrome only needs the standard `backdrop-filter`).",
+      ko: "진입 애니메이션을 **`y` (transform 기반) → `marginTop` (layout 기반)** 으로 교체했습니다.\n\nmargin / padding / width 같은 layout 속성은 GPU 가 아니라 CPU 에서 처리되며 compositing layer 를 생성하지 않습니다. 따라서 `.home` 이 다시 일반 layer 로 돌아오고, 하위 버튼의 `backdrop-filter` 가 layer 경계 너머의 커피 canvas 까지 정상적으로 샘플링하게 됩니다.\n\n또한 layer 를 분리하는 다른 트리거 (예: `.home` 의 `border-radius` + `overflow: clip` 조합) 도 함께 정리하고, `-webkit-backdrop-filter` 접두사는 제거했습니다. 요즘 브라우저는 표준 `backdrop-filter` 만으로 충분히 동작합니다.",
+      en: "Swapped the entrance from **`y` (transform-based) → `marginTop` (layout-based)**.\n\nLayout properties — margin, padding, width — run on the CPU and don't promote a compositing layer. With that change, `.home` falls back to a normal layer, and descendants' `backdrop-filter` can sample the coffee canvas behind the layer boundary again.\n\nAdditionally removed other promotion triggers like `.home`'s `border-radius` + `overflow: clip` combo, and dropped `-webkit-backdrop-filter` (modern browsers only need the standard `backdrop-filter`).",
     },
     keyInsight: {
       ko: "`backdrop-filter` 는 요소와 **동일한 compositing layer 안에 있는 배경만** 샘플링할 수 있습니다.\n\n조상 중 어느 하나라도 `transform`, `will-change: transform`, `filter`, `mask`, `isolation: isolate` 등으로 layer 를 분리하면, 그 경계 너머의 배경은 \"존재하지 않는 것\" 으로 처리됩니다.\n\n버튼 호버처럼 국소적인 blur 가 동작하지 않을 때는, filter 자체를 의심하기 전에 **조상 경로 어디에도 layer 승격 속성이 끼어 있지 않은지** 먼저 확인하는 것이 효율적입니다.\n\n또한 transform 기반 애니메이션은 종료 후에도 compositing hint 를 남기는 경우가 많으므로, 한 번만 실행되는 진입 애니메이션이라면 **layout 속성 (margin / padding / width) 으로 대체 가능한지** 검토할 가치가 있습니다.",
@@ -2050,7 +1819,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         rows: [
           { cells: [{ ko: "진입 애니메이션 속성", en: "Entrance animation property" }, { ko: "y (transform 기반)", en: "y (transform-based)" }, { ko: "marginTop (layout 기반)", en: "marginTop (layout-based)" }] },
           { cells: [{ ko: "별도 GPU layer 생성", en: "Promotes a GPU layer" }, { ko: "✓ 됨 (compositing layer)", en: "✓ Yes (compositing layer)" }, { ko: "✗ 안 됨", en: "✗ No" }] },
-          { cells: [{ ko: "Chrome 호버 blur", en: "Chrome hover blur" }, { ko: "✗ 안 보임", en: "✗ Not visible" }, { ko: "✓ 정상 표시", en: "✓ Works" }] },
+          { cells: [{ ko: "호버 시 유리 blur", en: "Hover glass blur" }, { ko: "✗ 안 보임", en: "✗ Not visible" }, { ko: "✓ 정상 표시", en: "✓ Works" }] },
           { cells: [{ ko: "vendor prefix", en: "Vendor prefix" }, { ko: "-webkit-backdrop-filter 포함", en: "-webkit-backdrop-filter included" }, { ko: "표준 속성만 (제거)", en: "Standard only (removed)" }] },
           { cells: [{ ko: "유리창 너머 커피 canvas 효과", en: "\"Glass over coffee canvas\" effect" }, { ko: "단순 반투명 tint 만", en: "Just a faint tint" }, { ko: "실제 blur 동작", en: "Real blur behavior" }], highlight: true },
         ],
@@ -2063,13 +1832,10 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
         alt: { ko: "홈 페이지 — Contact / Resume 버튼이 있는 CTA 섹션과 뒤쪽 3D 커피잔", en: "Home page — CTA section with Contact/Resume buttons and the 3D coffee cup behind" },
         caption: { ko: "버튼 hover 시 뒤의 커피 canvas 가 blur 되는 \"유리창 너머\" 효과", en: "Hover reveals the \"glass over coffee canvas\" blur effect" },
       },
-      {
-        alt: { ko: "Chrome DevTools Layers 패널 — compositing layer 분리 / 통합 비교", en: "Chrome DevTools Layers panel — compositing layer separation / merge" },
-        placeholderKeyword: "Chrome DevTools > Rendering > Layer borders 켠 화면 (수정 전: .home 이 자체 layer / 수정 후: 일반 layer)",
-      },
     ],
   },
   {
+    id: "plate-inline-code-arrow-key-cursor",
     section: { ko: "Frontend / Editor", en: "Frontend / Editor" },
     problem: {
       ko: "Plate 인라인 코드에서 방향키 커서 점프",
@@ -2094,6 +1860,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["Plate", "Slate", "code mark", "cursor", "affinity"],
   },
   {
+    id: "admin-table-row-border-cuts-off",
     section: { ko: "Frontend / Admin", en: "Frontend / Admin" },
     problem: {
       ko: "Admin 테이블 모바일 가로 스크롤 시 row border가 중간에서 끊김",
@@ -2118,6 +1885,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["CSS Grid", "flex", "overflow-x", "max-content", "mobile", "admin"],
   },
   {
+    id: "page-transition-stuck-at-hold-skeleton",
     section: { ko: "Frontend / Transition", en: "Frontend / Transition" },
     problem: {
       ko: "Page transition 이 hold 단계에서 멈추고 morph 후 skeleton 이 노출",
@@ -2173,6 +1941,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
+    id: "posts-bento-grid-template-rows-alone",
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
     problem: {
       ko: "Posts Bento — `grid-template-rows` 만으로는 카드별 높이 차이가 빈칸을 만듦",
@@ -2222,6 +1991,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
+    id: "sticky-filterbar-intersectionobserver-1px-drift-against",
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
     problem: {
       ko: "sticky filterBar IntersectionObserver — 인기글 사이드바와 1px 어긋남",
@@ -2246,6 +2016,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["IntersectionObserver", "sticky", "rootMargin", "Posts", "filterBar"],
   },
   {
+    id: "series-deck-hover-unfold-disappears-then",
     section: { ko: "Frontend / Animation", en: "Frontend / Animation" },
     problem: {
       ko: "Series Deck — hover 펼침이 \"사라졌다 나타나는\" 느낌",
@@ -2270,74 +2041,28 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["CSS transitions", "stagger", "JS state", "hover", "easing", "Series"],
   },
   {
-    section: { ko: "Frontend / Interaction", en: "Frontend / Interaction" },
-    problem: {
-      ko: "Series Deck spread — `setPointerCapture` 가 자식 click 차단 + hit-area 공백으로 flicker",
-      en: "Series Deck spread — `setPointerCapture` blocks child clicks + hit-area gaps cause flicker",
-    },
-    definition: {
-      ko: "deck 이 펼쳐진 상태에서 (1) layer 카드를 클릭하면 SeriesCard 의 click 이 전혀 발화되지 않고, (2) layer 와 layer 사이 마진을 마우스가 지나갈 때 hover 가 종료되어 deck 이 닫히고 다시 layer 위에 들어가면 펼침이 재시작되는 flicker 가 발생했습니다.",
-      en: "With the deck unfolded, (1) clicking any layer card never dispatched its `onClick` — SeriesCard navigation was dead, and (2) when the cursor crossed the gap between layers (16px), hover ended and the deck collapsed; re-entering a layer triggered the unfold again, producing visible flicker.",
-    },
-    cause: {
-      ko: "① 부모 row 가 가로 스크롤 + 드래그 지원 때문에 `setPointerCapture(e.pointerId)` 를 사용했는데, **pointer 가 캡처된 동안에는 자식의 click 이 부모로 흡수**되어 layer 의 onClick 이 발화되지 않습니다. ② 펼침 시 next 카드를 밀어내려고 `margin-right: 660px` 로 visual 만 확장했는데, `box-sizing: border-box` 와 무관하게 margin 은 element 의 hit-area 를 늘리지 않습니다. layer 와 layer 사이 gap(16px) 위에 마우스가 올라가면 카드 밖으로 인식되어 hover 가 종료됩니다.",
-      en: "① The parent row uses `setPointerCapture(e.pointerId)` to support horizontal drag-scroll. While the parent has captured the pointer, **child clicks are absorbed by the parent** and `onClick` on layers never fires. ② To push the next sibling card aside while unfolding, `margin-right: 660px` was added — but margins move visual position only, they don't extend the element's hit area (regardless of `box-sizing`). When the cursor crossed a gap between layers, it landed outside the card's hit area, ending hover.",
-    },
-    solution: {
-      ko: "① `setPointerCapture` 자체를 제거하고 **document-level `pointermove` / `pointerup` 리스너** 로 드래그 추적. click suppression 은 별도 flag(`draggedRef.current = movement > 5px`)로 구현. ② 펼침 상태일 때만 `::after { position: absolute; left: 0; top: 0; bottom: 0; width: calc(100% + 660px) }` pseudo 를 부여해 layer 끝까지 hit-area 확장. pseudo 는 layer 의 자손이 아니므로 click 을 가로채지 않으면서 hover 만 잡아둡니다.",
-      en: "① Drop `setPointerCapture` entirely. Track drag with **document-level `pointermove` / `pointerup` listeners** and a click-suppression flag (`draggedRef.current = movement > 5px`). ② While unfolded, attach an `::after` pseudo: `position: absolute; left: 0; top: 0; bottom: 0; width: calc(100% + 660px);` — this extends the hit area to the last layer without intercepting clicks, since pseudo-elements aren't event targets for descendants.",
-    },
-    keyInsight: {
-      ko: "① `setPointerCapture` 는 **드래그 추적 시 편리하지만 자식 click 을 모두 흡수**합니다. 자식 클릭이 필요한 컴포넌트라면 document-level pointer 리스너 + 거리 기반 click suppression 이 더 안전합니다. ② **margin 은 visual 위치만 바꾸고 hit-area 는 안 늘립니다.** Hover 영역을 확장하려면 `padding-right`(box-sizing: content-box) 또는 `::after` pseudo 가 표준 패턴이고, content-box 는 다른 layout 부수효과가 크므로 pseudo 가 더 깔끔합니다. ③ Hover 기반 멀티 스텝 인터랙션(deck 펼침 등)은 마우스가 layer 사이를 지나가는 micro-second 라도 hover 가 끊기면 즉시 flicker — **hover area 는 시각적 boundary 보다 한 단계 더 넓게** 잡아야 안정적입니다.",
-      en: "① `setPointerCapture` **is convenient for drag tracking but absorbs all child clicks**. If your component needs child-level clicks, prefer document-level pointer listeners + a distance-based click-suppression flag. ② **Margin moves visual position only — it doesn't extend the hit area.** To enlarge a hover region, use `padding-right` (with `box-sizing: content-box`) or an `::after` pseudo. content-box has too many layout side effects; pseudo is cleaner. ③ Multi-step hover interactions (deck unfold) are exquisitely sensitive — even a microsecond of hover loss between two layers causes flicker, so **define the hover region one step wider than the visual boundary**.",
-    },
-    tags: ["pointer events", "setPointerCapture", "hit-area", "::after", "Series", "deck"],
-  },
-  {
-    section: { ko: "Frontend / Interaction", en: "Frontend / Interaction" },
-    problem: {
-      ko: "HTML5 drag 가 pointermove 를 막아 커스텀 커서가 멈추고 type 도 계속 바뀜",
-      en: "HTML5 drag suppresses `pointermove` — custom cursor freezes and its type keeps flickering mid-drag",
-    },
-    definition: {
-      ko: "RelationPicker / SortOrderDragList / 시리즈 정렬 등에서 HTML5 드래그를 시작하면 (1) `CursorTrail` 이 마우스 위치를 따라가지 않고 그 자리에 멈추고, (2) drag 중 마우스가 다른 요소 위를 지나갈 때마다 cursor type 이 \"text\" / \"big\" / \"\" 등으로 바뀌어 시각적으로 산만해집니다.",
-      en: "Once an HTML5 drag begins (RelationPicker / SortOrderDragList / series reorder), (1) `CursorTrail` stops following the cursor and freezes in place, and (2) as the mouse passes over other elements during the drag, cursor type flickers between \"text\" / \"big\" / \"\" etc., breaking the visual continuity of \"I'm holding something\".",
-    },
-    cause: {
-      ko: "브라우저는 HTML5 drag 진행 중에는 **`pointermove` / `mousemove` 발화를 의도적으로 억제**하고 그 자리를 `dragover` 가 대신 채웁니다. CursorTrail 의 위치 추적은 `pointermove` 만 listen 했으므로 좌표가 업데이트되지 않습니다. 또 `runHitTest` 가 60ms throttle 로 elementFromPoint 결과를 기반으로 cursor type 을 갱신하는데, drag 중에도 그대로 동작하면 \"내가 지금 잡고 있는 것\" 의 cursor 가 hover 한 요소에 따라 매번 바뀌어 일관성이 깨집니다.",
-      en: "Browsers **deliberately suppress `pointermove` / `mousemove` while an HTML5 drag is active**, surfacing `dragover` instead. `CursorTrail` only listens for `pointermove`, so its tracked position freezes the moment the drag starts. Separately, `runHitTest` recomputes cursor type on a 60ms throttle from `elementFromPoint` — keep that running during a drag, and the cursor type ping-pongs between every element the user passes over, instead of staying locked to \"grab\".",
-    },
-    solution: {
-      ko: "두 가지 패치를 함께. ① `dragover` 를 동일 핸들러(`handleMouseMove`)로 forward — DragEvent 와 PointerEvent 가 `clientX/Y` 만 공유한다는 점만 활용해 캐스팅 후 호출. ② `dragstart` 시점에 `isHtml5Dragging = true` + `cursorTypeRef.current = \"grab\"` + `setCursorType(\"grab\")` 으로 type 을 lock 하고, `runHitTest` 진입부에서 dragging 중이면 즉시 return. `dragend` / `drop` 에서 flag 해제.",
-      en: "Two patches together. ① Forward `dragover` into the same `handleMouseMove` handler — `DragEvent` and `PointerEvent` share `clientX/Y`, so a cast is enough. ② On `dragstart`, set `isHtml5Dragging = true`, lock `cursorTypeRef.current = \"grab\"` and `setCursorType(\"grab\")`. Have `runHitTest` early-return whenever dragging is active. Clear the flag on `dragend` / `drop`.",
-    },
-    keyInsight: {
-      ko: "HTML5 native drag 가 활성이면 pointer 이벤트는 **시스템 차원에서 정지**합니다. `dragover` 로 좌표는 받을 수 있지만, drag 시작 자체와 끝을 따로 추적하지 않으면 hit-test 가 \"이 사람이 뭔가 잡고 있다\" 는 의미를 모릅니다. 커스텀 커서처럼 hover 마다 모드를 바꾸는 컴포넌트는 **drag 시작점에 modes 를 동결, drag 끝점에 해제** 하는 ref 기반 lock 이 필수.",
-      en: "While native HTML5 drag is active, pointer events are **suspended at the system level**. `dragover` can keep coordinates flowing, but unless you separately track drag-start and drag-end, your hit-test has no idea the user is mid-drag. For any cursor-state component that flips modes per hover, **freeze the mode on drag-start and release on drag-end via a ref-based lock** — otherwise the cursor's identity collapses into whatever the mouse passes over.",
-    },
-    tags: ["HTML5 drag", "pointermove", "custom cursor", "dragover", "CursorTrail"],
-  },
-  {
+    id: "working-around-html5-d-d-quirks",
     section: { ko: "Frontend / Interaction", en: "Frontend / Interaction" },
     problem: {
       ko: "HTML5 D&D 의 quirks 회피 — chip 드래그 정렬을 pointer 기반으로 전환",
       en: "Working around HTML5 D&D quirks — replacing chip-reorder drag with pointer events",
     },
+    title: { ko: "표준 API 를 버리고 pointer 기반으로", en: "Choosing pointer events over the standard drag API" },
     definition: {
-      ko: "관련글 chip 순서 변경 (RelationPicker) 과 작품 페이지네이션 정렬 (SortOrderDragList) 두 곳에서 \"드래그하여 순서 변경\" 기능을 구현했습니다.\n\n초기에는 HTML5 표준 드래그 앤 드롭 (D&D) 으로 작성했는데, 다음 세 가지 문제가 동시에 발생했습니다.\n\n**① 드래그가 시작되지 않음** — \"현재 잡고 있는 chip 만 draggable 속성을 켜자\" 라는 패턴 (`draggable={dragId === id}`) 이 React 의 batching 으로 인해 DOM 반영이 한 박자 늦습니다. 사용자가 처음 잡는 순간 `draggable=false` 인 상태로 `dragstart` 이벤트가 발생하여 브라우저가 무시합니다.\n\n**② 동일 코드인데 비대칭 동작** — 같은 코드임에도 \"뒤의 chip 을 앞으로\" 는 정상 동작하지만, \"앞의 chip 을 뒤로\" 만 작동하지 않습니다.\n\n**③ 페이지 전환 시 드래그 취소** — 페이지네이션된 리스트에서 항목을 잡고 다음 페이지로 이동하는 순간, 페이지 전환으로 source DOM 이 unmount 됩니다. 브라우저는 \"드래그 대상이 사라졌다\" 고 판단해 드래그 자체를 취소합니다.",
-      en: "Two reorder UIs — RelationPicker chips and SortOrderDragList paged items — were hit by three HTML5 D&D quirks simultaneously:\n\n**① Drag wouldn't start** — the \"only the dragged chip is draggable\" pattern (`draggable={dragId === id}`) lagged behind React's batching. The DOM hadn't updated to `draggable=true` by the time `dragstart` fired, so the browser ignored it.\n\n**② Asymmetric behavior** — with the exact same code, \"back chip → front\" worked, but \"front chip → back\" silently failed.\n\n**③ Cancellation on page switch** — in a paginated list, grabbing an item and dragging it to the next page unmounted the source DOM as soon as the page changed, and the browser cancelled the drag because \"the source disappeared\".",
+      ko: "이 사이트에는 글쓴이가 자기 글과 작품을 직접 관리하는 admin 화면이 있다. 이 화면의 두 곳에서 항목을 끌어 순서를 바꾸는 정렬 기능을 제공한다. 한 곳은 글에 붙는 태그, 즉 그 글의 주제를 짧게 나타내는 라벨을 배치하고 순서를 정하는 곳이고, 다른 한 곳은 여러 작품을 페이지네이션으로 나눠 보여 주면서 어떤 작품을 앞쪽에 둘지 정하는 곳이다.\n\n목표 동작은 단순하다. 항목을 집어 원하는 자리에 끌어다 놓으면 순서가 그에 맞게 바뀌는 것이다. 초기 구현은 브라우저가 표준으로 제공하는 HTML5 드래그 앤 드롭 API 를 그대로 사용했고, 이 방식에서 세 가지 문제가 함께 나타났다.\n\n첫째, 드래그가 시작되지 않았다. 항목을 집어 당겨도 화면에는 변화가 없었고, 특히 집은 직후 바로 당기면 브라우저가 그 동작을 처리하지 않았다.\n\n둘째, 두 곳을 같은 방식으로 구현했는데도 이동 방향에 따라 결과가 달랐다. 뒤쪽 항목을 앞으로 옮기는 것은 정상 동작했지만, 앞쪽 항목을 뒤로 옮기는 것은 동작하지 않았다.\n\n셋째, 페이지를 넘기면 진행 중이던 드래그가 취소되었다. 페이지네이션으로 나뉜 목록에서 항목을 집은 채 다음 페이지로 이동하려 하면, 집고 있던 항목이 화면에서 사라지면서 드래그가 중단되었다.",
+      en: "This site has an admin area where the author manages their own posts and works. Two places inside it let you drag an item to change its order. One arranges the tags on a post, the short labels that indicate what the post is about, and sets their order; the other spreads a set of works across several paginated pages and sets which works appear near the front.\n\nThe intended behavior is simple. You pick up an item, drop it where you want, and the order changes to match. The initial implementation used the browser's standard HTML5 Drag and Drop API, and this approach produced three problems together.\n\nFirst, the drag did not start. Picking up an item and pulling it produced no change on screen, and if the pull began immediately after grabbing the item, the browser did not process the action at all.\n\nSecond, although both places were built the same way, the result depended on the direction of the move. Moving an item from the back toward the front worked, but moving one from the front toward the back did not.\n\nThird, turning the page cancelled the drag in progress. In a paginated list, holding an item while moving to the next page made the held item disappear from the screen, and the drag stopped.",
     },
     cause: {
-      ko: "HTML5 D&D 는 DOM 의 `draggable` 속성을 **드래그 시작 시점에 단 한 번만 읽고**, 이후 속성이 변경되어도 반응하지 않습니다. 따라서 ① 처럼 React state 로 토글하는 방식과는 호환되지 않습니다.\n\n또한 D&D 표준은 source 노드가 드래그 내내 \"마운트 상태로 유지될 것\" 을 가정합니다. source 가 도중에 unmount 되면 즉시 drag session 을 cancel 하는데, 이것이 ③ 의 원인입니다.\n\n② 비대칭 동작도 본질적으로는 ③ 과 동일한 메커니즘입니다. chip 순서가 \"앞 → 뒤\" 로 변경될 때 React 의 key 기반 reconciliation 이 source DOM 을 다른 슬롯으로 \"이동\" 시키는데, 브라우저 입장에서는 이것이 \"unmount 되었다가 다시 mount 된 것\" 과 유사하게 보여 드래그 추적이 끊깁니다.\n\n결국 작은 정렬 UI 에서는 이러한 quirks 가 빠르게 누적됩니다.",
-      en: "HTML5 D&D **reads the DOM `draggable` attribute exactly once at drag-start** and ignores later changes. That's why ① doesn't mix well with React-state-driven toggling.\n\nThe spec also assumes the source node stays mounted for the entire drag. The moment the source unmounts, the session cancels — that's ③.\n\n② is fundamentally the same as ③. Reordering \"front → back\" makes React's key-based reconciliation move the source DOM into a different slot, which from the browser's perspective is similar to unmount-then-remount — breaking the drag tracker.\n\nFor small reorder UIs, the sum of these quirks outweighs the spec's convenience.",
+      ko: "HTML5 드래그 앤 드롭 API 에는 두 가지 성질이 있고, 이 성질들이 구현하려던 동작과 맞지 않았다.\n\n먼저 이 API 는 '이 항목을 끌어도 되는가'를 드래그가 시작되는 순간, 즉 `dragstart` 시점에 `draggable` 속성으로 한 번만 확인하고 그 뒤에는 상태가 바뀌어도 다시 확인하지 않는다. 반면 이번 구현은 지금 집은 항목만 끌 수 있도록 그 시점에 state 로 `draggable` 을 켜는 방식을 썼다. 문제는 React 의 state batching 때문에 상태 변경이 화면에 한 박자 늦게 반영된다는 점이다. 사용자가 항목을 처음 집는 순간에는 아직 `draggable` 이 꺼진 상태가 남아 있고, 브라우저는 그 한 번의 확인에서 끌 수 없다는 값을 읽고 동작을 무시한다. 첫 번째 문제의 원인이 이것이다.\n\n다음으로 이 API 는 드래그 중인 항목이 드래그가 끝날 때까지 화면에 남아 있다고 가정하고, 도중에 그 요소가 화면에서 사라지면(unmount) 드래그를 취소한다. 페이지를 넘기면 집고 있던 항목이 목록에서 빠지며 unmount 되므로, 브라우저는 끌 대상이 없어졌다고 판단하고 드래그를 중단한다. 세 번째 문제의 원인이 이것이다.\n\n방향에 따라 달라지던 두 번째 문제도 원인은 같다. 항목이 앞에서 뒤로 이동하면 화면을 다시 그리는 과정에서 목록이 새로 구성되고, 그 항목은 다른 위치에 다시 그려진다. 브라우저는 이것을 기존 요소가 사라지고 다른 위치에 새 요소가 생긴 것으로 인식해 드래그하던 대상을 놓친다. 작은 순서 바꾸기 하나에 여러 문제가 함께 발생했다.",
+      en: "The HTML5 Drag and Drop API has two traits, and both conflicted with the intended behavior.\n\nFirst, it checks whether an item may be dragged only once, at `dragstart`, by reading the `draggable` attribute, and after that it does not check again no matter how the state changes. This implementation, however, enabled dragging only for the item currently held, turning `draggable` on with state at that moment. The problem is that React's state batching applies the change to the screen a beat late. At the instant the user first grabs an item, `draggable` is still off, and on its single check the browser reads 'not draggable' and ignores the action. This is the cause of the first problem.\n\nSecond, the API assumes the dragged item stays on screen until the drag ends, and it cancels the drag if that element disappears partway through, that is, when it unmounts. Turning the page removes the held item from the list and unmounts it, so the browser concludes the target is gone and stops the drag. This is the cause of the third problem.\n\nThe second problem, which varied with direction, has the same cause. When an item moves from front to back, redrawing rebuilds the list and paints that item in a different position. The browser reads this as the existing element disappearing and a new element appearing elsewhere, so it loses track of what was being dragged. A single small reordering feature produced several problems together.",
     },
     solution: {
-      ko: "두 컴포넌트 모두 **pointer event 기반 드래그** 로 교체했습니다. HTML5 D&D 와 달리 pointer event 는 직접 제어하므로 위의 quirks 가 모두 해당되지 않습니다.\n\n**기본 흐름**: grip handle 에서 `pointerdown` 이 발생하면 document 레벨에 `pointermove` / `pointerup` 리스너를 임시로 부착합니다. move 마다 `elementFromPoint(clientX, clientY)` 로 \"현재 커서가 어떤 chip 위에 있는지\" 를 좌표로 직접 감지하고 (`closest(\"[data-chip-id]\")`), `pointerup` 시점에 source 와 target id 를 비교하여 `selectedIds` 배열을 splice 한 뒤 onChange 를 호출합니다.\n\n**페이지네이션 리스트의 트릭**: 사용자가 list 의 위/아래 edge (60px 영역) 위에 머물면, 단순히 `setPage` 만 호출하지 않고 `apply()` 를 함께 호출하여 source 를 **\"인접 페이지의 첫/마지막 자리\" 로 실제로 reorder** 합니다. 그 결과 페이지가 전환되어도 source 가 unmount 되지 않고, 새 페이지의 첫 항목으로 그대로 유지됩니다.\n\n**주의**: `setPointerCapture` 는 사용하지 않습니다. 캡처하는 순간 부모가 자식의 click 까지 흡수하므로, chip 의 \"× 제거\" 버튼이 동작하지 않게 됩니다.",
-      en: "Replaced both with **pointer-event-based drag** — since we control pointer events ourselves, none of the HTML5 quirks apply.\n\n**Core flow**: on grip-handle `pointerdown`, attach document-level `pointermove` / `pointerup` listeners. On each move, use `elementFromPoint(clientX, clientY)` (and `closest(\"[data-chip-id]\")`) to detect which chip is under the cursor by coordinates. On `pointerup`, compare source and target ids and splice `selectedIds` → onChange.\n\n**Paginated-list trick**: when the user dwells over the list's top/bottom edge (60px zone), don't just `setPage` — call `apply()` to **actually reorder the source into the first/last slot of the adjacent page**. The source survives the page change as the first item of the new page, mounted continuously.\n\n**Caveat**: don't use `setPointerCapture`. It absorbs child clicks at the parent level, killing the chip's \"× remove\" button.",
+      ko: "두 곳 모두 표준 API 를 쓰지 않고, pointer events 로 마우스나 손가락의 움직임을 처음부터 끝까지 직접 추적하는 방식으로 바꿨다. 움직임을 직접 처리하므로 앞서의 문제들이 발생하지 않는다.\n\n동작 방식은 다음과 같다. 항목의 핸들에서 `pointerdown` 이 발생하는 순간, 커서가 화면 어디로 움직이든 따라가고 언제 떼는지 감지하도록 `pointermove` 와 `pointerup` 리스너를 붙인다. 커서가 움직일 때마다 그 좌표를 `elementFromPoint` 에 넘겨 현재 커서가 어느 항목 위에 있는지 직접 계산한다. 손을 떼면 처음 집은 항목과 놓인 위치를 비교해 순서를 새로 정하고 그 결과를 화면에 반영한다.\n\n페이지네이션된 목록에는 처리를 하나 더 추가했다. 사용자가 목록의 위쪽이나 아래쪽 가장자리, 즉 폭이 60픽셀 정도인 좁은 띠 위에 잠시 머무르면 페이지만 넘기는 것이 아니라 그 시점에 집고 있던 항목을 옆 페이지의 맨 앞이나 맨 뒤로 실제로 옮긴다(`apply()`). 이렇게 하면 페이지가 바뀌어도 그 항목이 unmount 되지 않고 새 페이지의 첫 항목으로 남으므로 드래그가 중간에 끊기지 않는다.\n\n의도적으로 사용하지 않은 기능이 하나 있다. 한 요소가 이후의 모든 포인터 입력을 독점하게 하는 `setPointerCapture` 는 쓰지 않았다. 이 기능을 켜면 바깥 컨테이너가 그 안의 작은 버튼을 향한 클릭까지 흡수해, 항목을 삭제하는 `×` 버튼을 눌러도 동작하지 않기 때문이다.",
+      en: "In both places the standard API was dropped and replaced with pointer events that track the movement of the mouse or finger directly, from start to finish. Because the movement is handled directly, the earlier problems do not occur.\n\nIt works as follows. The moment `pointerdown` fires on an item's handle, `pointermove` and `pointerup` listeners are attached to follow the cursor wherever it moves and to detect when it is released. Each time the cursor moves, its coordinates are passed to `elementFromPoint` to compute directly which item it is currently over. On release, the item first picked up is compared with the position where it was dropped, the new order is determined, and the result is applied to the screen.\n\nFor the paginated list, one more piece was added. When the user lingers over the top or bottom edge of the list, a narrow band roughly 60 pixels wide, the page does not simply advance; at that point the held item is actually moved to the first or last slot of the neighboring page via `apply()`. As a result, even when the page changes, the item does not unmount but remains as the first item of the new page, so the drag is not interrupted.\n\nOne feature was deliberately avoided. `setPointerCapture`, which lets a single element take over all subsequent pointer input, was not used. When it is enabled, the outer container absorbs even the clicks aimed at the small buttons inside it, so pressing an item's `×` remove button would no longer respond.",
     },
     keyInsight: {
-      ko: "HTML5 native D&D 는 원래 \"OS 수준에서 이미지나 파일을 다른 앱으로 끌어다 놓는\" 시나리오에 최적화되어 만들어진 표준입니다.\n\n반면 **같은 페이지 안에서 작은 항목 (chip, list item) 의 순서를 변경하는** 용도에는 표준 자체의 quirks 가 너무 빠르게 누적됩니다. state 토글이 호환되지 않는 `draggable`, source unmount 시 cancel, 자식 click 차단, 비대칭 reorder, custom 드래그 이미지 구현의 어려움 등이 그 예입니다.\n\n작은 정렬 UI 는 처음부터 **pointer event 로 직접 구현하는 것이** 결과적으로 코드량도 적고 동작도 더 일관됩니다. \"표준 API 가 존재한다\" 는 사실이 항상 \"이 상황에서도 그 표준 API 를 사용해야 한다\" 와 동의어는 아니라는 좋은 사례였습니다.",
-      en: "Native HTML5 D&D is optimized for \"dragging an image or file from one OS app to another\".\n\nFor **in-page micro-reorder of chips or list items**, the spec's quirks pile up — state-driven `draggable` mismatch, source-unmount cancellation, child-click absorption, asymmetric reorder, awkward custom drag images, and more.\n\nFor small reorder UIs, **writing pointer-event drag from scratch ends up shorter and more consistent**. A useful reminder that \"a standard API exists\" doesn't always mean \"the standard API is the right tool\".",
+      ko: "HTML5 드래그 앤 드롭 API 는 운영체제 차원에서 이미지나 파일을 한 프로그램에서 다른 프로그램으로 옮기는 상황을 전제로 설계되었다. 창과 창을 넘나드는 비교적 큰 단위의 이동에 맞춰져 있다.\n\n그래서 반대되는 용도, 즉 같은 화면 안에서 작은 항목들의 순서만 바꾸는 데 이 API 를 쓰면 원래부터 있던 제약이 곧바로 드러난다. React 의 state 흐름과 어긋나는 점, 요소가 unmount 되는 순간 드래그가 취소되는 점, 안쪽 버튼을 향한 클릭이 가로막히는 점, 이동 방향에 따라 동작이 달라지는 점, 드래그 중 커서를 따라다니는 미리보기 이미지(drag image)를 원하는 모양으로 조정하기 어려운 점이 모두 그런 예다.\n\n작은 순서 바꾸기 정도라면 처음부터 pointer events 로 커서의 움직임을 직접 추적하도록 구현하는 편이 코드도 더 짧고 동작도 더 일관된다. 표준으로 정해진 API 가 존재한다는 사실이 곧 그 상황에서도 그것을 써야 한다는 뜻은 아니라는 점을 이번 사례가 보여 준다.",
+      en: "The HTML5 Drag and Drop API was designed for one situation: moving an image or a file from one program to another at the level of the operating system. It is tuned for the relatively large moves that cross from one window into another.\n\nSo when it is used for the opposite purpose, changing only the order of small items within a single screen, the constraints it has always carried appear right away. Its conflict with React's state flow, its cancelling the moment an element unmounts, its blocking of clicks aimed at the buttons inside, its behavior shifting with the direction of the move, and the difficulty of shaping the preview image that trails the cursor, the drag image, into a desired form are all examples of this.\n\nFor a small reorder, implementing it from the outset with pointer events to follow the cursor's movement directly yields both shorter code and more consistent behavior. This case shows that the mere existence of a standard API does not by itself mean it should be used in every situation.",
     },
     tags: ["HTML5 drag", "pointer events", "drag-and-drop", "chip", "pagination", "elementFromPoint"],
     comparisons: [
@@ -2372,6 +2097,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
+    id: "navigation-menu-overlaps-the-right-actions",
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
     problem: {
       ko: "Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치를 못 따라감",
@@ -2396,6 +2122,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["flex", "absolute positioning", "transition", "resize", "Navigation", "indicator"],
   },
   {
+    id: "image-fallback-react-onerror-doesn-t",
     section: { ko: "Frontend / Image", en: "Frontend / Image" },
     problem: {
       ko: "이미지 깨짐 placeholder — `dangerouslySetInnerHTML` 로 렌더된 markdown img 에는 React onError 가 안 붙음",
@@ -2449,6 +2176,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     ],
   },
   {
+    id: "cover-image-palette-and-other-grid",
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
     problem: {
       ko: "커버 이미지 팔레트 등 grid 자식이 viewport 밖으로 잘려 나감 — `.row { grid-template-columns: 1fr 1fr }` 의 함정",
@@ -2473,6 +2201,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["CSS Grid", "minmax", "min-width: auto", "overflow", "responsive", "1fr"],
   },
   {
+    id: "custom-colorpicker-popover-anchors-to-the",
     section: { ko: "Frontend / Component", en: "Frontend / Component" },
     problem: {
       ko: "커스텀 ColorPicker popover 가 trigger 위치에 안 붙음 — wrapper `<span>` 이 0×0 으로 collapse",
@@ -2528,145 +2257,67 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── Backend / Security ── */
   {
+    id: "anonymous-comment-edit-delete-client-required",
     section: { ko: "Backend / Security", en: "Backend / Security" },
     problem: {
       ko: "익명 댓글 수정·삭제 — 클라이언트는 비밀번호 강제, 서버는 우회 허용",
       en: "Anonymous Comment Edit/Delete — Client Required Password, Server Allowed Bypass",
     },
+    title: { ko: "클라이언트가 아니라 서버가 강제하는 인증", en: "Authorization enforced by the server, not the client" },
+    vizKey: "anon-comment-auth",
     definition: {
-      ko: "익명 사용자가 단 댓글을 수정·삭제하려면 **댓글 작성 시 입력한 비밀번호** 가 필요합니다. 클라이언트의 폼은 비번을 입력하지 않으면 제출 버튼 자체가 막혀 있어, UI 만 따라가는 사용자는 \"비번이 유일한 인증\" 이라고 자연스럽게 받아들이게 됩니다.\n\n그런데 보안 검토 중에 서버 라우트 코드를 다시 읽어 보니, **서버는 비번 검증을 강제하지 않고 있었습니다.** 폼을 거치지 않고 `curl` 로 직접 PATCH/DELETE 를 호출하면 비번 없이도 통과시키는 경로가 살아 있었고, 그 경로는 31-bit 짜리 약한 해시 비교에 의존하고 있어 brute-force 가 현실적으로 가능한 수준이었습니다.",
-      en: "Editing or deleting an anonymous comment requires **the password the commenter set when posting**. The form blocks the submit button unless a password is entered, so UI users naturally assume \"password is the only auth\".\n\nBut while reviewing security I read the server route again — **the server did not actually enforce password verification**. Bypassing the form and hitting PATCH/DELETE with `curl` directly went through a second code path that didn't require the password and relied on comparing a weak 31-bit hash — brute-forceable on a single laptop.",
+      ko: "익명 댓글은 계정이 없으므로, 작성할 때 입력한 **비밀번호로 본인을 확인한다**. 화면은 그 규칙대로 동작한다. 그런데 서버 라우트를 다시 읽어 보니 **비밀번호 없이도 통과하는 경로**가 살아 있었다.",
+      en: "An anonymous comment has no account behind it, so **the password entered when posting is what verifies the author**. The screen follows that rule. Re-reading the server routes, though, showed a path still open that let a request through with no password.",
     },
     cause: {
-      ko: "익명 댓글 시스템은 두 가지 식별 수단을 같이 가지고 있습니다.\n\n**① 비밀번호 (bcrypt 해시 저장)** — 사용자가 직접 입력한 값. 본인 확인의 \"의도된\" 수단.\n**② commenter_hash** — `commenter_id` (브라우저 localStorage) + `target_id` 를 31-bit 비암호 해시로 압축해 저장. 원래 의도는 \"내가 단 댓글에는 수정·삭제 버튼이 보인다\" 같은 UI 표시 용도.\n\n문제는 서버 PATCH/DELETE 의 인증 로직이 **OR 조건** 으로 짜여 있었다는 점입니다.\n\n```ts\nif (password && comment.password_hash) {\n  authorized = await bcrypt.compare(password, comment.password_hash);  // 비번 경로\n} else if (commenter_id && target_id && comment.commenter_hash) {\n  authorized = comment.commenter_hash === identity.hash;               // hash 경로 — 비번 없이도 통과\n}\n```\n\n폼을 통한 정상 요청은 항상 비밀번호를 넣어 보내므로 첫 분기에서 검증을 통과합니다. 그래서 UI 테스트만으로는 두 번째 분기의 위험이 드러나지 않았습니다.\n\n그러나 공격자가 폼을 거치지 않고 `password` 필드를 비운 채 직접 API 를 호출하면, 흐름은 그대로 두 번째 분기로 빠집니다. 그리고 두 번째 분기에서 비교하는 `commenter_hash` 는 **공개 GET 응답에 그대로 노출되어 있었습니다.** UI 표시 용도라 보호 가치가 낮다고 판단했던 값이 사실 인증 키로 동시에 쓰이고 있었던 셈입니다.\n\n해시 함수도 약점이었습니다. `((hash << 5) - hash + char) | 0` 형태의 단순 누적 해시는 31-bit 키스페이스(약 2 billion) 안에서만 분포하므로, 같은 `target_id` 아래 동일 해시를 만드는 `commenter_id` UUID 를 **단일 코어로 약 30분, 병렬화하면 분 단위** 에 찾아낼 수 있습니다.\n\n결과적으로 \"피해자의 댓글에서 commenter_hash 읽기 → brute-force → 위변조된 commenter_id 로 PATCH/DELETE 요청\" 이라는 공격 경로가 살아 있었고, 정상 사용자는 비번을 안 적으면 폼에서 막히는데 공격자는 비번 없이도 통과할 수 있는 상태였습니다.",
-      en: "The anonymous comment system carries two identifiers side by side.\n\n**① Password (bcrypt-hashed)** — user-entered, the intended auth.\n**② commenter_hash** — `commenter_id` (browser localStorage) + `target_id` compressed into a 31-bit non-cryptographic hash. Originally meant for UI flagging (\"this is my comment\").\n\nThe issue: server PATCH/DELETE auth was **an OR**:\n\n```ts\nif (password && comment.password_hash) {\n  authorized = await bcrypt.compare(password, comment.password_hash);  // password path\n} else if (commenter_id && target_id && comment.commenter_hash) {\n  authorized = comment.commenter_hash === identity.hash;               // hash path — passes without password\n}\n```\n\nForm-driven requests always include the password, so the first branch handles them — the second branch never triggers in UI testing.\n\nBut an attacker who skips the form and sends the request directly with an empty `password` falls straight into the second branch. And the `commenter_hash` compared there was **returned in public GET responses**. A value treated as low-risk UI metadata was simultaneously being used as an auth key.\n\nThe hash itself was also weak. `((hash << 5) - hash + char) | 0` lives within a ~2-billion (31-bit) keyspace; finding a `commenter_id` UUID that hashes to the target value under a fixed `target_id` takes **~30 minutes on a single core, minutes if parallelized**.\n\nNet result: \"read victim's commenter_hash from public GET → brute-force a colliding commenter_id → PATCH/DELETE without a password\" was a viable attack path. Legitimate users were gated by the form, but attackers weren't.",
+      ko: "익명 작성자를 알아보는 `commenter_hash` 는 브라우저의 `commenter_id` 와 글의 `target_id` 를 31비트 해시로 압축한 값이다. 이 값 하나가 **두 가지 역할**을 수행한다.\n1. 나머지 연산으로 아바타 이모지와 닉네임을 선택한다.\n2. 수정·삭제 요청이 오면 요청자가 그 댓글을 쓴 작성자(브라우저)인지 판정한다.\n\n요청에 담겨 온 `commenter_id` 와 `target_id` 로 해시를 다시 계산해 저장된 값과 대조하는 방식으로 사용자를 식별하며, **비밀번호와 별개로 동작한다**. 같은 브라우저에서 방금 쓴 댓글을 수정 및 삭제할 때마다 비밀번호를 입력하게 하면 번거로우므로, 브라우저에 저장된 값으로 작성자를 알아보는 용도로 사용한다.\n\n그리고 클라이언트가 이 값을 알아야 아바타를 표시할 수 있으므로 공개 GET 응답에도 포함된다.\n\n```ts\nif (password && comment.password_hash) {\n  authorized = await bcrypt.compare(password, comment.password_hash);\n} else if (commenter_id && target_id && comment.commenter_hash) {\n  authorized = comment.commenter_hash === identity.hash;  // 비밀번호 없이 통과\n}\n```\n\n폼은 비밀번호를 반드시 받으므로 화면에서 나가는 요청에는 언제나 비밀번호가 들어 있다. 그런 요청은 첫 조건에서 인증이 끝나고 해시 분기까지 내려가지 않는다. 하지만 악의적인 공격자는 폼을 거치지 않고 `curl` 로 비밀번호가 없는 요청을 직접 만들어 보낼 수 있고, 그러면 해시 분기로 넘어가게 된다.\n\n이 분기의 판정은 요청에 담겨 온 값으로 해시를 다시 계산해 저장된 값과 같은지 보는 것이 전부다. 그래서 공격자는 피해자의 `commenter_id` 자체를 **알아낼 필요가 없다**. 계산 결과만 같으면 되므로, 결과가 같아지는 다른 값을 넣어도 통과한다.\n\n맞춰야 할 목표값도 이미 공개돼 있다. 저장된 해시가 공개 GET 응답에 그대로 실려 나오기 때문이다. 남은 일은 그 해시가 나오는 값을 찾는 것뿐인데, 해시가 31비트여서 경우의 수가 **약 20억**이다. 무작위로 대입하면 단일 코어로 약 30분이면 하나가 걸린다.\n\n공격은 총 세 단계에 걸쳐서 이루어진다.\n1. 공개 GET 으로 피해자 댓글의 `commenter_hash` 를 읽는다.\n2. 같은 해시가 나오는 `commenter_id` 를 brute-force 로 찾는다.\n3. 그 값을 담아 비밀번호 없이 `PATCH`·`DELETE` 를 보낸다.\n\n삭제된 댓글은 답글이 없으면 행 자체가 지워져 복구할 수 없고, 수정된 댓글은 작성자 이름과 아바타가 그대로라 읽는 사람에게는 작성자가 직접 고친 것으로 보인다.",
+      en: "`commenter_hash`, the value that identifies an anonymous author, is the browser's `commenter_id` and the post's `target_id` compressed into a 31-bit hash. This single value serves **two roles**.\n1. A modulo selects the avatar emoji and nickname.\n2. When an edit or delete request arrives, it decides whether the caller is the author (the browser) that wrote the comment.\n\nThe user is identified by recomputing the hash from the `commenter_id` and `target_id` carried in the request and comparing it against the stored value, and this **operates independently of the password**. Requiring the password every time a comment written moments ago in the same browser is edited or deleted would be tedious, so the value stored in the browser is used to recognize the author.\n\nAnd since the client has to know this value in order to display the avatar, it is also included in public GET responses.\n\n```ts\nif (password && comment.password_hash) {\n  authorized = await bcrypt.compare(password, comment.password_hash);\n} else if (commenter_id && target_id && comment.commenter_hash) {\n  authorized = comment.commenter_hash === identity.hash;  // passes without a password\n}\n```\n\nThe form always collects a password, so every request leaving the screen carries one. Those finish at the first condition and never reach the hash branch. A malicious actor, however, can bypass the form and build a request with no password directly using `curl`, which drops it into the hash branch.\n\nAll this branch does is recompute the hash from values carried in the request and check it against the stored one. The attacker therefore **never has to recover** the victim's actual `commenter_id`. Only the result has to match, so any other value that produces the same result gets through.\n\nThe target to match is public as well, since the stored hash ships as-is in public GET responses. All that remains is finding a value that yields it, and at 31 bits there are only **about 2 billion** possibilities. Trying them at random turns one up in roughly 30 minutes on a single core.\n\nThe attack takes three steps.\n1. Read the victim comment's `commenter_hash` from a public GET.\n2. Brute-force a `commenter_id` that produces the same hash.\n3. Send `PATCH`·`DELETE` with that value and no password.\n\nA deleted comment with no replies loses its row entirely and cannot be restored, and an edited one keeps the author's name and avatar, so a reader sees it as the author's own revision.",
     },
     solution: {
-      ko: "**서버 측 인증 경로를 비밀번호 단일 경로로 통일** 했습니다. `else if` 의 hash 경로 자체를 제거하고, 비번 미제출이거나 비번 해시가 비어 있으면 무조건 401/403 으로 거절합니다.\n\n```ts\nif (!comment.password_hash) {\n  return jsonError(\"Password required — contact admin to edit this comment\", 403);\n}\n if (!password) return jsonError(\"Password required\", 401);\nconst authorized = await bcrypt.compare(password, comment.password_hash);\n```\n\n동시에 POST 단계의 `validatePassword` 도 빈 값을 거절하도록 조였습니다. 이전에는 `optional for some flows` 라는 이유로 빈 값을 통과시켜, `curl` 로 비번 없이 댓글을 만들면 `password_hash` 가 빈 문자열로 저장되어 본인도 수정 못 하는 상태가 되어 있었습니다.\n\n해시 함수 자체를 HMAC-SHA256 으로 교체하는 옵션도 검토했지만, **서버 인증 경로에서 hash 비교를 제거한 시점에 hash 의 무게는 \"UI 식별자\" 수준으로 떨어졌기 때문에** 교체보다는 경로 통일이 더 비용 대비 이득이 컸습니다. 해시 값은 DB 에 그대로 남아 \"내 댓글\" UI 표시에만 쓰이고, 인증 가치는 0 이 됩니다.",
-      en: "**Collapsed server-side auth into a single password path.** Removed the `else if` hash branch entirely; missing password or empty `password_hash` is now a flat 401/403:\n\n```ts\nif (!comment.password_hash) {\n  return jsonError(\"Password required — contact admin to edit this comment\", 403);\n}\nif (!password) return jsonError(\"Password required\", 401);\nconst authorized = await bcrypt.compare(password, comment.password_hash);\n```\n\nAlso tightened `validatePassword` on POST to reject empty values. Previously \"optional for some flows\" allowed `curl`-created comments with empty `password_hash` — and after this change those comments would be uneditable, so the loophole had to close at creation too.\n\nReplacing the hash with HMAC-SHA256 was on the table, but **once the server stopped using the hash for auth, the hash's threat weight dropped to \"UI identifier\"** — collapsing the path was a bigger win per unit of work than swapping the algorithm. The hash stays in the DB for \"this is my comment\" UI flagging; its auth value is now zero.",
+      ko: "`else if` 를 제거하고 인증 경로를 **비밀번호 하나로** 줄였다. `commenter_id` 와 `target_id` 는 더 이상 읽지 않으므로 위조할 대상이 없다. 해시를 HMAC-SHA256 으로 바꾸는 방안도 검토했지만, 알고리즘을 바꿔도 **인증 경로가 둘로 남는다**. 그래서 **강화가 아니라 제거**를 골랐다.",
+      en: "The `else if` was removed and authentication reduced to the password alone. `commenter_id` and `target_id` are no longer read, so there is nothing left to forge. Replacing the hash with HMAC-SHA256 was considered, but changing the algorithm still **leaves two auth paths**, so the path was **removed rather than hardened**.",
     },
     keyInsight: {
-      ko: "**클라이언트가 강제한다고 해서 서버가 강제하는 것은 아닙니다.**\n\n폼이 \"비번 없이는 제출 불가\" 라고 막아도, 그건 그 UI 한 곳에만 적용된 약속입니다. 동일한 API 가 서버 측에서도 똑같이 강제해야만 보장이 됩니다.\n\n또 하나, **인증 경로를 OR 로 늘리지 말 것.** 강한 경로 (비번 bcrypt) 와 약한 경로 (비암호 해시 비교) 를 OR 로 묶으면, 시스템의 보안 강도는 항상 가장 약한 경로 기준으로 떨어집니다. 가능하면 단일 경로로 통일하고, 부가 식별자는 인증 이외 용도로만 쓰는 게 안전한 기본값입니다.",
-      en: "**Client-side enforcement is not server-side enforcement.**\n\nA form that blocks submission without a password only commits that one UI. The same guarantee has to be enforced server-side on the same API — otherwise it isn't a guarantee.\n\nAlso, **don't OR your auth paths.** A strong path (bcrypt password) and a weak path (non-crypto hash compare) ORed together collapses the system's security floor to the weaker one. Prefer a single path; keep auxiliary identifiers strictly out of the auth boundary.",
+      ko: "클라이언트가 강제한다고 해서 **서버가 강제하는 것은 아니다**. 인증 경로를 OR 로 늘리면 시스템의 강도는 언제나 **약한 쪽으로 내려간다**. 그리고 한 값에 공개돼야 하는 역할과 비밀이어야 하는 역할을 같이 맡기면 **둘 중 하나는 반드시 깨진다**.",
+      en: "**Enforcement by the client is not enforcement by the server.** Widening authentication with an OR pulls the system's floor down to **the weaker path**. And giving one value both a role that must be public and a role that must stay secret **breaks one of the two.**",
     },
-    comparisons: [
-      {
-        label: { ko: "수정 전 / 수정 후 — 익명 댓글 PATCH·DELETE 인증", en: "Before / After — Anonymous Comment PATCH·DELETE Auth" },
-        headers: [
-          { ko: "비교 항목", en: "Aspect" },
-          { ko: "수정 전", en: "Before" },
-          { ko: "수정 후", en: "After" },
-        ],
-        rows: [
-          { cells: [{ ko: "인증 경로", en: "Auth paths" }, { ko: "비번 OR commenter_hash", en: "Password OR commenter_hash" }, { ko: "비번만", en: "Password only" }] },
-          { cells: [{ ko: "비번 없이 폼 우회 호출", en: "curl without password" }, { ko: "hash 경로로 통과 가능", en: "Bypassed via hash path" }, { ko: "401/403 거절", en: "401/403 rejected" }] },
-          { cells: [{ ko: "공개 GET 의 commenter_hash 노출", en: "commenter_hash in public GET" }, { ko: "인증 키 동시 노출", en: "Doubles as auth key" }, { ko: "UI 표시용 metadata 로만 기능", en: "UI marker only — no auth value" }] },
-          { cells: [{ ko: "POST 시 빈 비밀번호", en: "Empty password on POST" }, { ko: "허용 (`password_hash=\"\"` 저장)", en: "Allowed (empty hash stored)" }, { ko: "`PASSWORD_REQUIRED` 거절", en: "Rejected (`PASSWORD_REQUIRED`)" }] },
-          { cells: [{ ko: "brute-force 위협", en: "Brute-force exposure" }, { ko: "31-bit 해시 — 단일 코어 ~30분", en: "31-bit hash — ~30min single core" }, { ko: "bcrypt 만 — 실질적으로 불가", en: "bcrypt only — infeasible" }], highlight: true },
-        ],
-      } satisfies ComparisonTable,
-    ],
   },
-
   {
+    id: "public-api-all-true-leaked-all",
     section: { ko: "Backend / Security", en: "Backend / Security" },
     problem: {
       ko: "공개 API 의 `?all=true` 쿼리로 비공개 글 / 휴지통이 인증 없이 전부 노출",
       en: "Public API `?all=true` Leaked All Drafts and Trash Without Auth",
     },
+    title: { ko: "공개 API 의 권한 경계", en: "Authorization boundaries on a public API" },
+    vizKey: "all-param-leak",
     definition: {
-      ko: "`/api/posts` 와 `/api/works` 목록 API 는 사용자 페이지가 호출하는 공개 엔드포인트입니다. 다만 admin 화면도 같은 라우트를 재활용해 \"비공개 글까지 다 달라\" 라는 의미로 `?all=true`, \"휴지통 목록만 달라\" 의 의미로 `?trash=true` 라는 쿼리를 사용하고 있었습니다.\n\n그런데 보안 검토 중에 코드를 다시 보니, **이 두 쿼리가 들어왔을 때 라우트가 인증 없이 service-role 클라이언트로 곧장 DB 를 조회하고 있었습니다.** 즉 `curl https://your-site/api/posts?all=true` 한 줄이면 누구든 모든 draft 의 내용을 받아 갈 수 있는 상태였습니다.",
-      en: "The `/api/posts` and `/api/works` list endpoints are public — they're what user-facing pages call. The admin UI reused them, passing `?all=true` for \"include unpublished\" and `?trash=true` for \"trashed only\".\n\nReviewing the code for security, I noticed that **with those query flags the route hit the DB through the service-role admin client without any auth check.** `curl https://your-site/api/posts?all=true` was enough for anyone to read every draft.",
+      ko: "글 목록 API 는 발행된 글만 돌려주는 공개 창구다. 관리자 화면은 초안과 휴지통까지 봐야 해서 같은 API 에 `?all=true`·`?trash=true` 를 붙여 썼다. 그런데 이 파라미터가 붙은 요청에도 **서버가 로그인 여부를 확인하지 않았다**.",
+      en: "The posts API is a public endpoint that returns published posts only. The admin screen also needs drafts and trash, so it reused the same API with `?all=true` and `?trash=true`. **The server never checked whether the caller was logged in** when those parameters were present.",
     },
     cause: {
-      ko: "원인은 두 가지가 겹쳤습니다.\n\n**① service-role 클라이언트의 의미 오인.** Supabase 에는 두 종류의 클라이언트가 있습니다. 사용자 쿠키 기반 (`createClient`) 은 RLS 정책의 통제를 받지만, service-role 키 기반 (`createAdminClient`) 은 **RLS 를 통째로 우회** 합니다. admin 화면에서 비공개 글까지 다루려면 RLS 를 우회할 수밖에 없어 service-role 을 쓴 건 맞지만, **\"누가 이 쿼리를 보낸 사람인지\" 를 확인하는 책임은 그대로 라우트 코드에 남아 있어야 했는데** 그 단계가 빠져 있었습니다.\n\n**② 라우트 분리 vs 쿼리 분기의 trade-off 를 잘못 잡음.** \"같은 데이터, 다른 필터\" 라는 이유로 admin·anonymous 가 같은 라우트를 공유하기로 했는데, 그게 곧 \"같은 인증 경로를 공유한다\" 는 의미는 아니었습니다. 쿼리 파라미터 하나 (`?all=true`) 가 service-role 진입을 토글하는 구조가 되어 있어, 결국 **인증 없는 호출이 admin 권한으로 처리되는 경로** 가 만들어진 셈이었습니다.\n\nworks 라우트는 더 나아가, **default 상태에서도 항상 service-role 클라이언트를 쓰고** 있었습니다. anonymous 호출의 경우 `published = true AND deleted_at IS NULL` 필터를 라우트 안에서 명시적으로 추가해 결과적으로는 공개 글만 반환했지만, 이 \"기본 필터\" 는 한 줄 빠지거나 잘못 작성되면 비공개 글이 줄줄 새 나갈 수 있는 구조였습니다. RLS 가 강제하는 default-deny 가 아닌 라우트 코드에 의존하는 default-allow 였던 셈입니다.",
-      en: "Two failures stacked on top of each other.\n\n**① Misreading what the service-role client means.** Supabase has two clients. The cookie-bound one (`createClient`) is governed by RLS; the service-role one (`createAdminClient`) **bypasses RLS entirely**. The admin UI needs that bypass to read unpublished rows — fine. But **the responsibility for \"who is asking this?\" stayed with route code**, and that check was missing.\n\n**② Sharing the route without sharing the auth model.** Admin and anonymous used the same route under the banner of \"same data, different filters\". That conflated routing with authentication. A single query parameter (`?all=true`) toggled service-role entry, so anonymous callers could opt themselves into admin-level access just by adding a string.\n\nThe works route went a step further — it **always used the service-role client**, even for anonymous requests, and merely added `published = true AND deleted_at IS NULL` in the route body. That's a default-allow that depends on a route filter being correct. RLS would have been default-deny. One missing line and unpublished data leaks.",
+      ko: "데이터베이스에 닿는 경로가 둘이다. 하나는 요청자의 세션을 그대로 넘겨 RLS 의 통제를 받는 클라이언트, 다른 하나는 RLS 를 우회해 모든 행에 접근하는 service-role 클라이언트다. 초안까지 다루려면 후자를 쓸 수밖에 없다.\n\nRLS 를 우회하는 순간, 요청자가 관리자인지 확인할 책임이 **데이터베이스에서 API 코드로 넘어온다**. 그 확인이 빠져 있었다. 작품 목록 API 는 파라미터가 없어도 항상 service-role 로 접근하고 공개 조건을 코드가 매번 직접 붙였다. **조건 한 줄이 빠지면** 초안이 그대로 나가는 구조였다.",
+      en: "There are two ways to reach the database. One forwards the caller's session and stays under RLS; the other is the service-role client, which bypasses RLS and can read every row. Handling drafts leaves no option but the second.\n\nThe moment RLS is bypassed, the job of confirming that the caller is an administrator **moves from the database to the API code**, and that check was missing. The works API went further: it always used service-role, even with no parameters, and appended the public-only condition by hand each time. **One missing line would have exposed drafts.**",
     },
     solution: {
-      ko: "**`?all` / `?trash` 가 들어온 경우에만 `requireAuth()` 를 호출** 하도록 라우트 앞단에 가드를 두었습니다. anonymous 경로 (필터 없이 / `published=true` 만) 는 그대로 유지해, 사용자 페이지의 트래픽은 영향을 받지 않습니다.\n\n```ts\nif (showAll || showTrash) {\n  const { error: authError } = await requireAuth();\n  if (authError) return authError;\n}\n```\n\n동시에 `/api/posts/[id]` 와 `/api/works/[id]` 의 단일 row GET 도 admin 만 사용하는 패턴이라는 걸 코드 흐름으로 확인한 뒤 (`fetch(\\`/api/posts/${id}\\`)` 호출처가 admin 전용 페이지였습니다) 일괄 `requireAuth()` 를 적용했습니다. 공개 글 상세 페이지는 slug 기반 (`getPostBySlug`) 으로 DB 에 직접 접근하므로, id 기반 단일 row 엔드포인트를 admin 전용으로 묶어도 사용자 경로에는 영향이 없습니다.\n\n별개의 layer 로, middleware 단에 **fail-closed admin 가드** 도 추가해 두었습니다. layout 의 `redirect` 와 route 의 `requireAuth()` 외에 1개 layer 가 더 생긴 셈입니다. 어떤 admin route 하나에서 `requireAuth()` 를 깜빡하더라도 middleware 가 1차로 막아 줍니다.",
-      en: "**Gated `?all` / `?trash` with `requireAuth()` at the route entry.** Anonymous paths (no flag / `published=true`) stay exactly as before — user-page traffic is unaffected.\n\n```ts\nif (showAll || showTrash) {\n  const { error: authError } = await requireAuth();\n  if (authError) return authError;\n}\n```\n\nAlso traced the consumers of `/api/posts/[id]` and `/api/works/[id]` single-row GETs — every caller turned out to be admin-only (the public detail pages use slug-based reads via `getPostBySlug`). Made those `requireAuth()`-gated as well, since they previously exposed unpublished rows by ID to anyone who knew one.\n\nAs a separate layer added a **fail-closed admin gate in middleware** — so layout's `redirect`, route's `requireAuth()`, and middleware are now three independent layers. Any one of them missing `requireAuth()` in the future is still caught by the middleware first.",
+      ko: "`?all` 이나 `?trash` 가 붙은 요청은 service-role 경로에 **들어가기 전에 로그인을 확인한다**.\n\n```ts\nif (showAll || showTrash) {\n  const { error } = await requireAuth();\n  if (error) return error;              // 401\n}\nconst supabase = showAll || showTrash ? createAdminClient() : await createClient();\n```\n\nid 로 하나씩 읽는 단일 조회 API 도 호출처를 따라가 보니 전부 관리자 화면이었다. 방문자 상세 페이지는 id 가 아니라 slug 로 직접 읽기 때문이다. 여기에도 같은 확인을 붙이고, 모든 요청이 먼저 지나가는 middleware 에 관리자 검문을 한 겹 더 뒀다.",
+      en: "A request carrying `?all` or `?trash` now has its **login checked before it enters** the service-role path.\n\n```ts\nif (showAll || showTrash) {\n  const { error } = await requireAuth();\n  if (error) return error;              // 401\n}\nconst supabase = showAll || showTrash ? createAdminClient() : await createClient();\n```\n\nThe single-resource APIs that fetch one row by id turned out to be called only from admin screens, since a visitor's detail page reads by slug instead. They got the same check, and an admin gate was added to the middleware every request passes through first.",
     },
     keyInsight: {
-      ko: "**RLS 를 우회하는 service-role 클라이언트를 쓰는 순간, 인증의 책임은 라우트 코드로 옮겨집니다.**\n\nadmin 만 쓰던 라우트를 anonymous 와 공유하기로 했다면, \"같은 URL 을 공유한다\" 와 \"같은 인증 모델을 공유한다\" 는 별개의 결정입니다. 후자는 매번 분기마다 다시 확인해야 합니다.\n\n그리고 **default 가 deny 가 되도록 설계할 것.** \"라우트 코드에서 published 필터를 안 빼먹기\" 같은 default-allow 는 한 번의 실수로 무너집니다. RLS 가 default-deny 를 강제할 수 있는 경로면 그쪽을 통과시키고, 어쩔 수 없이 service-role 을 써야 하는 경로면 그 라우트의 앞단을 가장 먼저 가드 하는 게 안전합니다.",
-      en: "**The moment you reach for the service-role client, RLS no longer protects you — auth is now route-code's job.**\n\nSharing a URL between admin and anonymous is not the same decision as sharing an auth model. The latter has to be re-verified at every branch.\n\nAnd **design so the default is deny.** \"Don't forget the `published` filter\" is a default-allow that fails on one missed line. Where RLS can enforce default-deny, route through it; where you must bypass with service-role, gate the route entry first.",
+      ko: "RLS 를 우회하는 순간 신분 확인 책임은 API 코드로 넘어온다. 데이터베이스가 대신 막아 주던 보호가 사라지기 때문이다.\n\n그리고 **기본값은 차단이어야 한다**. service-role 로 전부 열어 두고 코드가 공개 조건을 빠뜨리지 않기를 기대하는 방식은 **한 번의 실수로 무너진다**.",
+      en: "The moment you bypass RLS, verifying identity becomes the API code's job, because the protection the database was providing is gone.\n\n**And the default should be blocked.** Leaving everything open through service-role and trusting the code never to drop the public-only condition **collapses on a single mistake**.",
     },
-    comparisons: [
-      {
-        label: { ko: "수정 전 / 수정 후 — `?all` · `?trash` 가드", en: "Before / After — `?all` · `?trash` gate" },
-        headers: [
-          { ko: "비교 항목", en: "Aspect" },
-          { ko: "수정 전", en: "Before" },
-          { ko: "수정 후", en: "After" },
-        ],
-        rows: [
-          { cells: [{ ko: "`curl /api/posts?all=true`", en: "`curl /api/posts?all=true`" }, { ko: "모든 draft 반환", en: "Returns every draft" }, { ko: "401 거절", en: "401 rejected" }] },
-          { cells: [{ ko: "`curl /api/posts?trash=true`", en: "`curl /api/posts?trash=true`" }, { ko: "휴지통 노출", en: "Trash exposed" }, { ko: "401 거절", en: "401 rejected" }] },
-          { cells: [{ ko: "anonymous 기본 호출", en: "Anonymous default call" }, { ko: "정상", en: "OK" }, { ko: "정상 (영향 없음)", en: "OK (unaffected)" }] },
-          { cells: [{ ko: "단일 row GET `/api/posts/[id]`", en: "Single-row GET `/api/posts/[id]`" }, { ko: "비공개 row 도 ID 알면 노출", en: "Unpublished by ID also exposed" }, { ko: "admin only", en: "Admin only" }] },
-          { cells: [{ ko: "default 보안 모델", en: "Default security posture" }, { ko: "default-allow (filter 누락 시 leak)", en: "default-allow (one missed filter = leak)" }, { ko: "default-deny (route 가드 + middleware)", en: "default-deny (route gate + middleware)" }], highlight: true },
-        ],
-      } satisfies ComparisonTable,
-    ],
-  },
-
-  /* ── Frontend / Component ── */
-  {
-    section: { ko: "Frontend / Component", en: "Frontend / Component" },
-    problem: {
-      ko: "Supabase auth subscription cleanup — `.then()` 안의 `return` 은 useEffect cleanup 이 아니다",
-      en: "Supabase Auth Subscription Cleanup — Returning from `.then()` Is Not a useEffect Cleanup",
-    },
-    definition: {
-      ko: "Footer 와 Navigation 컴포넌트는 admin 로그인 상태를 표시하기 위해 Supabase 의 `onAuthStateChange` 를 구독합니다. 코드를 보면 \"구독했으니 unmount 때 정리한다\" 의 의도가 분명한데, 실제로는 **그 정리가 한 번도 실행되지 않고** subscription 이 영원히 살아 있었습니다. 컴포넌트가 remount 될 때마다 listener 가 한 개씩 쌓이는 leak 입니다.",
-      en: "Footer and Navigation subscribe to Supabase's `onAuthStateChange` to reflect admin login state. The code's intent is obvious — \"we subscribed, so we clean up on unmount\". In reality **the cleanup never ran**, the subscription lived forever, and every remount stacked another listener.",
-    },
-    cause: {
-      ko: "원본 코드는 이런 모양이었습니다.\n\n```ts\nuseEffect(() => {\n  let cancelled = false;\n  loadSupabaseClient().then(async (supabase) => {\n    const { data: { user } } = await supabase.auth.getUser();\n    if (!cancelled) setIsAuthenticated(!!user);\n\n    const { data: { subscription } } = supabase.auth.onAuthStateChange(...);\n    return () => subscription.unsubscribe();   // ← 이게 cleanup 일 것 같지만 아님\n  });\n  return () => { cancelled = true; };          // ← 진짜 useEffect cleanup\n}, [isAdmin]);\n```\n\nReact 의 `useEffect` cleanup 은 **effect 콜백이 직접 return 한 함수** 만 인식합니다. 위 코드의 `() => subscription.unsubscribe()` 는 `.then()` 콜백이 return 하는 함수이고, 그 콜백의 return 값은 **Promise 체인의 다음 then 으로 흘러갈 뿐** React 와는 아무 관계가 없습니다. 실제로 React 가 cleanup 으로 받는 건 두 번째 줄의 `() => { cancelled = true; }` 하나뿐이고, 거기엔 unsubscribe 가 없습니다.\n\n비슷하게 생긴 모양 (\"return 만 하면 정리되겠지\") 때문에 시각적으로는 cleanup 처럼 보이지만, **return 의 \"방향\" 이 잘못된 케이스** 입니다. 게다가 `loadSupabaseClient()` 가 다이나믹 import 라 비동기인데, **promise 가 resolve 되기 전에 컴포넌트가 unmount 되면** `subscription` 변수는 effect 스코프 밖에서 뒤늦게 채워집니다. 그 시점에 cleanup 은 이미 끝나 있어 unsubscribe 가 호출될 기회가 영영 사라집니다.",
-      en: "The original shape:\n\n```ts\nuseEffect(() => {\n  let cancelled = false;\n  loadSupabaseClient().then(async (supabase) => {\n    const { data: { user } } = await supabase.auth.getUser();\n    if (!cancelled) setIsAuthenticated(!!user);\n\n    const { data: { subscription } } = supabase.auth.onAuthStateChange(...);\n    return () => subscription.unsubscribe();   // looks like cleanup, isn't\n  });\n  return () => { cancelled = true; };          // the real useEffect cleanup\n}, [isAdmin]);\n```\n\nReact's `useEffect` cleanup is **only the function the effect callback itself returns**. The `() => subscription.unsubscribe()` above is returned by the `.then()` callback, and that return value just flows into the next then in the promise chain — React never sees it. The cleanup React actually receives is the second one (`cancelled = true`), which doesn't unsubscribe anything.\n\nThe two cleanups look similar enough that the eye reads it as \"yeah, returning a cleanup function\" — but **the direction of the return is wrong**. And because `loadSupabaseClient()` is a dynamic import, the promise can resolve **after the component has already unmounted**: `subscription` gets assigned outside the effect's lifetime, and cleanup has long since fired without ever touching it.",
-    },
-    solution: {
-      ko: "두 가지를 같이 고쳤습니다.\n\n**① `subscription` 변수를 effect 스코프 밖에 선언** 해, `.then()` 내부에서 assign 만 합니다. 그러면 effect 의 cleanup 이 그 변수에 접근해 unsubscribe 할 수 있습니다.\n\n**② `cancelled` flag 로 \"unmount 후 늦게 도착한 promise\" 처리** — `.then()` 안에서 subscription 이 만들어진 시점에 이미 cancelled 면 즉시 unsubscribe 해버립니다.\n\n```ts\nuseEffect(() => {\n  let cancelled = false;\n  let subscription: { unsubscribe: () => void } | undefined;\n  loadSupabaseClient().then(async (supabase) => {\n    const { data: { user } } = await supabase.auth.getUser();\n    if (cancelled) return;\n    setIsAuthenticated(!!user);\n\n    const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(...);\n    if (cancelled) sub.unsubscribe();\n    else subscription = sub;\n  });\n  return () => {\n    cancelled = true;\n    subscription?.unsubscribe();\n  };\n}, [isAdmin]);\n```\n\n같은 패턴이 PostDetailClient / WorkDetailClient / CommentSection / CommentForm 등 4 곳에 또 있었길래, **`useIsAuthenticated({ subscribe?: boolean })` 헬퍼로 추출** 해 한 곳에서 정리 책임을 지게 했습니다. detail page 들은 진입 시점 admin 여부만 필요하니 `subscribe: false` (1회 체크), 댓글 영역은 다른 탭에서 로그인·로그아웃 시 실시간 반영이 필요하니 `subscribe: true` 로 호출합니다.",
-      en: "Two fixes together.\n\n**① Lifted `subscription` to the effect's outer scope** so the cleanup can reach it. The `.then()` only assigns to it.\n\n**② Added a `cancelled` flag for late-arriving promises** — if cancelled has already flipped by the time the subscription is created, unsubscribe immediately.\n\n```ts\nuseEffect(() => {\n  let cancelled = false;\n  let subscription: { unsubscribe: () => void } | undefined;\n  loadSupabaseClient().then(async (supabase) => {\n    const { data: { user } } = await supabase.auth.getUser();\n    if (cancelled) return;\n    setIsAuthenticated(!!user);\n\n    const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(...);\n    if (cancelled) sub.unsubscribe();\n    else subscription = sub;\n  });\n  return () => {\n    cancelled = true;\n    subscription?.unsubscribe();\n  };\n}, [isAdmin]);\n```\n\nFound the same pattern duplicated in PostDetailClient / WorkDetailClient / CommentSection / CommentForm. Extracted **`useIsAuthenticated({ subscribe?: boolean })`** so all four share the same cleanup responsibility. Detail clients use `subscribe: false` (one-shot check at mount); the comment surfaces use `subscribe: true` to reflect cross-tab login changes in real time.",
-    },
-    keyInsight: {
-      ko: "**`useEffect` cleanup 은 effect 콜백이 \"직접\" return 한 함수만 인식합니다.** 그 안의 `.then()` / async / Promise 체인이 return 하는 함수는 React 가 보지 못합니다.\n\nasync effect 에서 cleanup 하려면 보통:\n- 외부 변수 + assign 패턴 (위 예시)\n- AbortController 로 fetch 자체를 취소\n- `cancelled` flag 로 setState 무력화\n\n셋 중 하나는 필요하다고 기억해 두는 게 좋습니다. \"return 만 하면 정리되겠지\" 가 보이지 않는 leak 의 가장 흔한 원인입니다.",
-      en: "**`useEffect` cleanup only sees a function the effect callback returns directly.** Anything returned from a `.then()` / async chain inside doesn't reach React.\n\nFor cleanup in an async effect you typically need one of:\n- Outer-scope variable + assign pattern (above)\n- AbortController to cancel the fetch itself\n- A `cancelled` flag to no-op setState\n\nKeeping that triplet in mind avoids the most common invisible leak — the one where \"returning a function looked like cleanup\".",
-    },
-  },
-
-  /* ── Frontend / Interaction — TagCloud3D pointer ── */
-  {
-    section: { ko: "인터랙션 / 포인터", en: "Interaction / Pointer" },
-    problem: {
-      ko: "TagCloud3D 클릭이 안 먹힘 — `setPointerCapture` 가 자식 Link click 을 가로챔",
-      en: "TagCloud3D Clicks Don't Register — `setPointerCapture` Swallows Child Link Clicks",
-    },
-    definition: {
-      ko: "Posts 사이드바의 3D 태그 구체(TagCloud3D)는 드래그로 빙글빙글 돌릴 수 있고, 각 태그는 클릭하면 해당 태그 페이지로 이동하는 `<Link>` 입니다.\n\n드래그 회전은 의도대로 잘 되는데, **마우스를 가만히 두고 태그를 클릭하면 아무 일도 일어나지 않았습니다.** 같은 태그를 사이드바의 다른 리스트에서 누르면 정상 이동하는데, 3D 구체 안에서만 navigation 이 막힌 상태였습니다.",
-      en: "The 3D tag sphere (TagCloud3D) in the Posts sidebar can be dragged to rotate, and each tag is a `<Link>` that navigates to its tag page.\n\nDrag-to-rotate worked fine, but **clicking a tag while holding the mouse still did nothing** — the same tag clicked from another sidebar list navigated correctly, only the sphere swallowed clicks.",
-    },
-    cause: {
-      ko: "원인은 두 겹으로 쌓여 있었습니다.\n\n**① `setPointerCapture` 가 자식 click 을 통째로 가로챔** — 드래그 시작 시 sphere container 의 `onPointerDown` 에서 `e.currentTarget.setPointerCapture(e.pointerId)` 를 호출해 두었습니다. capture API 는 이후 그 pointer 의 모든 이벤트를 capture 받은 요소로 라우팅하기 때문에, 마우스를 떼는 순간 발생하는 click 도 sphere container 가 받습니다. 그 click 은 자식 `<Link>` 의 onClick (= Next router push) 까지 내려가지 못하고 sphere 에서 끝납니다.\n\n**② drag 임계값이 너무 작음** — \"움직임이 4px (Manhattan 거리) 이상일 때만 drag 로 판정한다\" 는 가드를 두긴 했는데, 4px 은 마우스 자체의 미세한 jitter 만으로도 쉽게 넘는 값입니다. 사용자가 클릭하려고 정지 상태로 누른 순간에도 한두 픽셀씩 흔들리면서 drag flag 가 켜지고, 그게 click 차단 조건과 맞물려 모든 클릭이 \"이건 drag 였어\" 로 분류되었습니다.\n\n같은 함정은 Series Deck (`Series Deck spread`) 과 RelationPicker 의 chip 드래그에서 이미 한 번씩 밟은 적이 있습니다 — capture API + 작은 threshold 조합은 클릭을 죽이는 단골 조합입니다.",
-      en: "Two layers stacked.\n\n**① `setPointerCapture` hijacks child clicks wholesale.** On drag start, the sphere container's `onPointerDown` called `e.currentTarget.setPointerCapture(e.pointerId)`. From that point on, the capture API routes every event for that pointer — including the upcoming `click` on mouse release — to the capturing element. That click never reaches the child `<Link>`'s `onClick` (Next's router push); it terminates on the sphere.\n\n**② The drag threshold was too small.** A \"≥4px Manhattan distance counts as a drag\" guard was in place, but 4px is well within the natural jitter of a held mouse. Even when the user clearly intended to click (mouse stationary), one or two pixels of jitter flipped the `dragging` flag, which in turn told the click handler \"this was a drag, suppress it\" — so every click was misclassified.\n\nThe same trap was hit before in Series Deck (`Series Deck spread`) and the RelationPicker chip drag — `setPointerCapture` + tiny threshold is a recurring click-killer.",
-    },
-    solution: {
-      ko: "두 가지를 함께 고쳤습니다.\n\n**① `setPointerCapture` 제거 + document-level listener 패턴으로 전환** — `onPointerDown` 안에서 sphere 에 capture 를 걸지 않고, 대신 그 핸들러 안에서 `document.addEventListener(\"pointermove\", …)` / `pointerup` 을 등록합니다. pointer 가 sphere 밖으로 나가도 회전은 그대로 추적되고, 동시에 sphere container 는 자식 click 의 propagation 을 막지 않습니다. PostsClient 의 series row 드래그가 이미 같은 패턴을 쓰고 있어서 그 구현을 그대로 따라갔습니다.\n\n**② `DRAG_THRESHOLD` 를 4 → 10px 로 상향** — 일반적인 jitter 범위 (1~3px) 와 의도된 드래그 (보통 15px 이상) 사이의 여유 구간입니다. 마우스를 누른 채로 살짝 흔들려도 click 으로 인식되고, 진짜 회전 의도는 그대로 picked up 됩니다.\n\nclick 차단 조건은 `dragging` flag 단일 기준으로 정리해, \"실제로 drag 가 발동한 경우에만 다음 click 을 무시\" 하도록 단순화했습니다.",
-      en: "Two changes together.\n\n**① Removed `setPointerCapture`, switched to document-level listeners.** Instead of capturing on the sphere, the `onPointerDown` handler registers `document.addEventListener(\"pointermove\", …)` and `pointerup` listeners. Rotation still tracks correctly even when the pointer leaves the sphere, and crucially the sphere no longer intercepts child clicks. PostsClient's series row drag already uses this pattern — I just followed it.\n\n**② Raised `DRAG_THRESHOLD` from 4px to 10px** — the comfortable gap between mouse jitter (~1-3px) and an intentional drag (usually 15px+). Slight tremor during a held click no longer flips the drag flag; intentional rotation still gets picked up immediately.\n\nThe click-suppression check was simplified to a single `dragging` flag — only suppress the next click when a drag actually fired.",
-    },
-    keyInsight: {
-      ko: "**`setPointerCapture` 는 자식 click 을 통째로 가로채는 API 입니다.** 드래그 동작과 자식 click 을 둘 다 살려야 하는 컴포넌트에서는 capture 대신 **document-level `pointermove` / `pointerup` listener + 명확한 drag threshold** 조합이 표준 패턴입니다.\n\n그리고 drag threshold 는 **사용자의 \"가만히 클릭\" 의도를 보호할 수 있을 만큼** 커야 합니다. 4px 은 마우스 jitter 만으로도 넘기 쉬워서 \"클릭한 줄 알았는데 drag 로 분류\" 라는 사용자 보고의 단골 원인이 됩니다. 10px 정도가 jitter 면역과 반응성의 균형점입니다.\n\n같은 패턴이 이 프로젝트에서만 Series Deck → RelationPicker → TagCloud3D 로 세 번 반복되었습니다 — 한 번 발견하면 같은 모양의 코드를 grep 으로 한 번 더 훑는 게 시간을 아낍니다.",
-      en: "**`setPointerCapture` swallows child clicks wholesale.** Components that need both a drag gesture and clickable children should use the standard pattern: **document-level `pointermove` / `pointerup` listeners + a meaningful drag threshold** — not pointer capture.\n\nAnd the threshold needs to be **big enough to protect the user's \"hold-still click\" intent**. 4px is well within mouse jitter, which is why \"I clicked but it was classified as a drag\" is such a common bug report. ~10px is the sweet spot between jitter immunity and responsiveness.\n\nThis project has hit the same pattern three times now — Series Deck → RelationPicker → TagCloud3D. Once you spot it, a quick grep for the same shape pays for itself.",
-    },
-    tags: ["pointer events", "setPointerCapture", "drag threshold", "TagCloud3D"],
   },
 
   /* ── Frontend / Performance — Font display ── */
   {
+    id: "menu-drawer-font-stuck-on-fallback",
     section: { ko: "성능 / 폰트", en: "Performance / Fonts" },
     problem: {
       ko: "Menu drawer 폰트가 fallback 으로 굳음 — `display: optional` + `preload: false` 부작용",
       en: "Menu Drawer Font Stuck on Fallback — `display: optional` + `preload: false` Side Effect",
     },
+    title: { ko: "font-display 전략은 폰트마다 다르다", en: "Font-display is a per-font decision" },
     definition: {
       ko: "사이트가 로드된 뒤 햄버거 메뉴를 눌러 drawer 를 열면, 헤딩에 적용되어 있어야 할 Space Grotesk 가 아니라 **시스템 sans-serif 가 그대로 노출** 되었습니다.\n\n사용자가 \"메뉴 폰트 모양이 다른 페이지랑 다르다 / 장평이 다르게 보인다\" 고 알려와서 확인했고, 실제로 drawer 내부의 텍스트만 fallback 폰트로 굳어 있었습니다. 본문이나 다른 영역의 Space Grotesk 는 정상이었습니다.",
       en: "After the site loaded, opening the hamburger drawer showed **system sans-serif text** where Space Grotesk should have been applied to the menu headings.\n\nA user pointed out \"the menu font looks different from the rest of the site — the letter widths are off\". Only the drawer's text was stuck on the fallback; body text and other Space Grotesk surfaces rendered correctly.",
@@ -2703,112 +2354,66 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["next/font", "font-display", "performance", "LCP"],
   },
 
-  /* ── Frontend / Layout — Tooltip zIndex ── */
-  {
-    section: { ko: "레이아웃 / Z-Index", en: "Layout / Z-Index" },
-    problem: {
-      ko: "Tooltip 이 drawer 위로 튀어나옴 — inline zIndex 가 토큰을 무시",
-      en: "Tooltip Punches Through Drawer — Inline `zIndex` Ignores Design Tokens",
-    },
-    definition: {
-      ko: "모바일에서 메뉴 drawer 를 연 상태에서, 다른 위치에 떠 있던 alert tooltip 이 **drawer 위에 그대로 보이는 현상** 이 발생했습니다.\n\n원래 의도는 drawer 같은 overlay 가 떠 있을 때는 tooltip 이 그 아래에 가려져야 자연스럽습니다 (overlay 가 \"위에 떠 있다\" 는 시각적 약속). 그런데 drawer slide-in 애니메이션이 끝난 뒤에도 hover/closing race condition 으로 살아 있던 tooltip 이 drawer 영역을 뚫고 위로 올라와 보였습니다.",
-      en: "On mobile, opening the menu drawer while an alert tooltip was visible elsewhere caused the tooltip to **render on top of the drawer**.\n\nThe expectation: when overlays like a drawer are open, tooltips should sit beneath them (the overlay is visually \"on top\" — that's its whole job). Instead, tooltips that lingered through a hover/close race condition punched through the drawer's z-stack and stayed visible above it.",
-    },
-    cause: {
-      ko: "Tooltip 컴포넌트가 portal 로 렌더링하는 wrapper `<div>` 에 **`style={{ zIndex: 10001 }}` 라는 inline value** 를 박아 두고 있었습니다.\n\n반면 사이트 z-index 토큰은 `src/styles/tokens/_z-index.css` 에 \"layer 의 의도\" 까지 코멘트로 적어 두면서 정렬해 두었습니다 — `--z-tooltip: 700` (\"툴팁: 일반 콘텐츠보다 위, overlay 보다 아래\") / `--z-overlay: 9000` (drawer / sheet / 큰 modal layer). 의도는 \"tooltip 은 overlay 아래에 깔린다\" 입니다.\n\nInline `10001` 은 이 모든 토큰 위에 자리잡습니다. drawer 가 9000 이든 그보다 더 위든 상관없이 tooltip 이 항상 이깁니다. \"디자인 토큰을 만들어 둔 의도\" 가 inline value 하나로 wholesale 무효화되는 패턴 — 토큰 시스템이 도입된 코드베이스에서 silent regression 의 단골 케이스입니다.\n\nzIndex 만의 문제도 아닙니다. 한 번 inline value 가 코드에 박히면 토큰을 옮기거나 layer 를 재정렬하는 변경이 그 inline 만 정확히 비껴 가게 됩니다. 검색·grep 으로도 의도가 드러나지 않습니다.",
-      en: "The Tooltip component's portal wrapper `<div>` had **`style={{ zIndex: 10001 }}` hardcoded inline**.\n\nMeanwhile, the site's z-index tokens in `src/styles/tokens/_z-index.css` are organized by layer intent, with comments — `--z-tooltip: 700` (\"tooltip: above normal content, below overlays\") and `--z-overlay: 9000` (drawer / sheet / large modal layer). The deliberate ordering: tooltips render *beneath* overlays.\n\nInline `10001` sits above all of them. Whether the drawer was at 9000 or higher, the tooltip always won. The whole point of the design token was wholesale ignored by one inline value — a classic silent-regression pattern in token-driven codebases.\n\nIt's not specific to z-index either. Once an inline value lands in code, future changes that move tokens or reshuffle layers cleanly miss that one inline. Even search and grep don't surface the intent.",
-    },
-    solution: {
-      ko: "Tooltip portal `<div>` 의 inline zIndex 를 **`zIndex: \"var(--z-tooltip)\"`** 로 변경했습니다. 변경 후 drawer (`--z-overlay: 9000`) 가 열려 있는 동안에는 tooltip (700) 이 자연스럽게 가려지고, 일반 콘텐츠 위에서는 평소처럼 위에 뜹니다.\n\n\"modal 안에서 hover 했을 때만 modal 위에 tooltip 이 보여야 한다\" 같은 케이스는 별도 prop (예: `elevate?: boolean`) 으로 다음 단계에서 처리할 예정입니다 — 그 prop 이 들어와도 inline 숫자 대신 `--z-tooltip-elevated` 같은 토큰을 만들어 매핑하는 방향이 일관됩니다.\n\n같은 모양의 inline zIndex 가 다른 컴포넌트에도 남아 있을 가능성이 있어, 후속으로 `zIndex:\\s*\\d` grep 으로 일괄 점검 후 토큰 치환을 계획해 두었습니다.",
-      en: "Changed the Tooltip portal `<div>` to **`zIndex: \"var(--z-tooltip)\"`**. With that, an open drawer (`--z-overlay: 9000`) properly hides tooltips (700), while tooltips still sit above normal content as before.\n\nCases like \"tooltip should appear above a modal when hovered from inside it\" will be handled later with a dedicated prop (e.g. `elevate?: boolean`) — and even that should map to a new token like `--z-tooltip-elevated`, not a raw inline number, to stay consistent.\n\nThere may be similar inline `zIndex` numbers in other components. A follow-up grep for `zIndex:\\s*\\d` is queued to audit and migrate them in one pass.",
-    },
-    keyInsight: {
-      ko: "**디자인 토큰을 만들어 둔 의도(layer 순서, 색 계조, spacing scale) 는 inline value 하나로 wholesale 무효화됩니다.** 토큰 시스템이 존재하는 코드베이스에서 inline value 는 silent regression 의 시작입니다 — \"이건 빠르게 한 줄로 해결\" 이라는 판단이 한 번 통과되면, 토큰이 갱신되어도 그 inline 만 따로 살아남습니다.\n\n특히 z-index 처럼 **layer 관계가 의미를 가지는 값** 은 직접 숫자를 쓰는 순간 다른 layer 와의 관계가 깨집니다. \"이 값보다 더 위\" 같은 결정은 항상 토큰 이름 (`--z-tooltip`, `--z-overlay`, `--z-modal-elevated`) 으로 표현해, 의도가 코드에 그대로 남도록 강제하는 게 안전합니다.\n\n팀 / 솔로 무관하게, 토큰 도입의 진짜 이득은 \"한 번에 바꾸기 쉬워서\" 가 아니라 **\"의도가 코드에 남아 다음 변경이 그 의도를 자동으로 따르게\"** 강제하는 데 있습니다. inline value 는 그 메커니즘을 그 자리에서 끊습니다.",
-      en: "**Design-token intent (layer ordering, color steps, spacing scale) is wholesale invalidated by a single inline value.** In token-driven codebases, inline numbers are where silent regressions start — once a \"quick one-liner\" lands, future token changes flow past it untouched.\n\nThis matters most for values like z-index where **layering relationships carry meaning**. The moment you hardcode a number, its relationship to other layers is broken. Decisions like \"this should sit above X\" should always be expressed in token names (`--z-tooltip`, `--z-overlay`, `--z-modal-elevated`) so the intent stays in the code.\n\nThe real payoff of a token system isn't \"easy to change in one place\" — it's that **intent stays embedded in the code so future changes follow it automatically**. Inline values sever that mechanism at the spot they appear.",
-    },
-    tags: ["z-index", "design tokens", "Tooltip", "portal"],
-  },
-
   /* ── Architecture — 인기글 single source of truth ── */
   {
+    id: "popular-post-defined-in-three-places",
     section: { ko: "Architecture / Domain", en: "Architecture / Domain" },
     problem: {
       ko: "인기글 정의가 3 곳에 분산 — UI 의 HOT 배지와 admin 삭제 보호가 서로 다른 \"인기\"",
       en: "\"Popular post\" defined in three places — the UI HOT badge and the admin delete guard disagreed on what \"popular\" meant",
     },
+    title: { ko: "'인기'의 단일 정의 소스", en: "A single source of truth for \"popular\"" },
+    vizKey: "popular-single-source",
     definition: {
-      ko: "포스트 시스템에는 \"인기\" 라는 개념이 세 곳에서 쓰이고 있었습니다.\n\n**① PostsClient HOT 배지** — 카드 위의 \"HOT\" 라벨. view_count 상위 5 개에 표시.\n**② `/api/posts?sort=popular` 정렬** — 사용자가 정렬 옵션을 \"인기순\" 으로 바꿨을 때 적용되는 score. `view + like × 3 + comment × 5` 가중 합.\n**③ admin 삭제 보호** — 관리자가 인기 글을 실수로 삭제하지 못하게 confirm modal 을 띄우는 임계값. `view ≥ 100 OR like ≥ 10` 절대값.\n\n사용자 시점에서 보면 \"인기\" 는 하나의 개념인데, 코드 시점에서는 세 가지 다른 정의가 살아 있었습니다. 결과적으로 **UI 에 HOT 배지가 붙은 글을 admin 페이지에서 삭제했을 때 \"인기 글입니다\" 경고가 안 뜨는** 모순이 가능한 상태였습니다.",
-      en: "The \"popular post\" concept lived in three places at once.\n\n**① PostsClient HOT badge** — the \"HOT\" label on cards. Applied to the top 5 by `view_count`.\n**② `/api/posts?sort=popular` ordering** — used when the user selects the \"Popular\" sort option. Score: `view + like × 3 + comment × 5`.\n**③ Admin delete guard** — the threshold that triggers a confirm modal when an admin tries to delete a popular post. Absolute: `view ≥ 100 OR like ≥ 10`.\n\nFrom a user's standpoint \"popular\" is a single concept, but in code three different definitions coexisted. The practical contradiction: **a post wearing the HOT badge in the UI could be deleted from admin without ever triggering the \"this is a popular post\" warning.**",
+      ko: "\"인기\" 라는 개념이 세 곳에서 각자 정의돼 있었다.\n1. 카드의 HOT 배지 — `view_count` 상위 5개\n2. 정렬 옵션 — `view + like × 3 + comment × 5` 가중 합\n3. admin 삭제 보호 — `view ≥ 100 OR like ≥ 10` 절대 임계값\n\n사용자에게는 하나의 개념인데 코드에는 세 정의가 살아 있었다. **HOT 배지가 붙은 글을 admin 에서 지워도 인기 글이라는 경고가 뜨지 않는** 모순이 가능했다.",
+      en: "The idea of a \"popular\" post was defined in three separate places.\n1. The HOT badge on cards — top 5 by `view_count`\n2. The sort option — a weighted score of `view + like × 3 + comment × 5`\n3. The admin delete guard — an absolute threshold of `view ≥ 100 OR like ≥ 10`\n\nTo a user it is one idea; in code three definitions coexisted. **A post wearing the HOT badge could be deleted from admin without ever triggering the \"this is popular\" warning.**",
     },
     cause: {
-      ko: "세 정의가 각각 다른 시점에 추가되었고, 그때마다 \"바로 이 자리에서 빠르게 결정할 수 있는 기준\" 으로 즉석에서 인기 정의를 박았습니다.\n\nHOT 배지를 처음 만들 때는 가장 단순한 신호인 `view_count` 만 보고 top 5 를 골랐습니다. 이후 정렬 옵션을 만들 때는 \"댓글이 활발한 글도 인기로 잡고 싶다\" 는 요구가 추가되어 `view + like × 3 + comment × 5` 라는 score 식이 생겼습니다. 마지막으로 admin 삭제 보호를 추가할 때는 \"신생 글 / 낮은 트래픽 글까지 보호하지 않도록\" 절대 임계값이 더 직관적이라 판단해 `view ≥ 100 OR like ≥ 10` 라는 hard threshold 를 박았습니다.\n\n각 결정 자체는 그 시점에서 합리적이었지만, **세 정의가 같은 \"인기\" 라는 단어 아래 분산된다는 사실은 어느 단계에서도 의식되지 않았습니다.** 도메인 개념이 silent 하게 fragment 되는 전형적인 패턴 — 한 기능을 만들 때마다 그 기능 안에서 가장 합리적인 기준이 즉석에서 자라나고, 다른 기능과의 정합성은 나중에 누군가 두 코드를 한 화면에 띄워 보기 전까지 드러나지 않습니다.\n\n이번 케이스에서는 댓글 신고 기능을 만들면서 \"신고 누적된 인기 글은 어떻게 처리하지\" 를 정하려고 세 코드를 같이 펼쳐 본 순간에야 모순이 보였습니다.",
-      en: "The three definitions were each added at different times, and at each point a definition was picked on the spot — whichever criterion was easiest to commit to right there.\n\nThe HOT badge launched first with the simplest signal (`view_count` top 5). Later, when sort options were added, the requirement broadened (\"posts with active discussion should also count as popular\"), producing the `view + like × 3 + comment × 5` score. Finally, the admin delete guard preferred absolute thresholds — \"don't protect tiny posts\" — and landed on `view ≥ 100 OR like ≥ 10`.\n\nEach individual decision was reasonable in its own moment, but **the fact that all three were claiming the same word \"popular\" was never noticed at any of those moments.** This is the classic shape of silent domain fragmentation — every feature grows its own most-reasonable criterion locally, and the inconsistency only surfaces when two of those criteria end up on one screen.\n\nIn this case it took implementing the comment-reporting feature (\"how do we handle reports against popular posts?\") to put the three code paths side by side, and the contradiction was finally visible.",
+      ko: "세 정의는 각각 다른 시점에 추가됐고, 그때마다 그 자리에서 가장 합리적인 기준이 즉석에서 정해졌다. HOT 배지는 가장 단순한 신호인 조회수를, 정렬은 댓글이 활발한 글도 잡으려고 가중 합을, 삭제 보호는 신생 글까지 보호하지 않으려고 절대 임계값을 골랐다.\n\n**각 결정은 그 시점에서 옳았다. 셋이 같은 단어를 쓰고 있다는 사실만 아무도 의식하지 않았다.** 도메인 개념이 조용히 갈라지는 전형적인 형태다. 기능마다 그 안에서 가장 합리적인 기준이 자라고, 정합성은 누군가 두 코드를 한 화면에 띄워 볼 때까지 드러나지 않는다.",
+      en: "The three definitions were added at different times, and each time whichever criterion was easiest to commit to on the spot became the rule. The badge took the simplest signal, views. The sort broadened it to catch posts with active discussion. The delete guard preferred absolute thresholds so tiny posts would not be protected.\n\n**Each decision was reasonable in its own moment. That all three were claiming the same word went unnoticed.** This is the ordinary shape of silent domain fragmentation: every feature grows its own locally sensible criterion, and the inconsistency surfaces only when two of them land on one screen.",
     },
     solution: {
-      ko: "`src/lib/popularity.ts` 라는 단일 모듈을 만들어 두 가지만 export 했습니다.\n\n```ts\n/** posts 인기 점수 — 모든 인기 관련 로직의 단일 소스. */\nexport function scoreOf(args: { view: number; like: number; comments: number }): number {\n  return (args.view ?? 0) + (args.like ?? 0) * 3 + (args.comments ?? 0) * 5;\n}\n\n/** score 내림차순 상위 N 개 post id Set. score === 0 인 post 는 제외. */\nexport async function getPopularPostIds(supabase, limit = 5): Promise<Set<string>> { ... }\n```\n\n그리고 세 호출처를 모두 이 함수 위로 옮겼습니다:\n\n- **PostsClient HOT 배지** → `getPopularPostIds(supabase, 5)` 결과 Set 으로 카드 id 일치 여부 판정.\n- **`/api/posts?sort=popular`** → 정렬 시 `scoreOf` 호출.\n- **admin 삭제 보호** → 절대 임계값 폐기, `getPopularPostIds` 가 반환하는 id Set 에 포함되면 confirm modal.\n\n이제 \"인기\" 는 한 곳에서만 정의되고, 세 기능은 **자동적으로 같은 답을 냅니다.** UI 의 HOT 배지가 붙은 글 = admin 삭제 시 보호되는 글 = 정렬 인기순 상단 글 = (후속으로 도입할) 90 일 캐시 TTL 대상 글.\n\n부가 효과로, score 가중치를 조정하고 싶을 때 (예: \"like 의 비중을 더 높여야겠다\") 한 줄만 수정하면 세 기능이 동시에 새 정의를 따릅니다. 정렬과 삭제 보호가 따로 노는 일이 다시 발생할 수 없습니다.",
-      en: "Built a single module `src/lib/popularity.ts` that exports two things:\n\n```ts\n/** Single source for all \"popular\" logic. */\nexport function scoreOf(args: { view: number; like: number; comments: number }): number {\n  return (args.view ?? 0) + (args.like ?? 0) * 3 + (args.comments ?? 0) * 5;\n}\n\n/** Top-N post ids by score (desc). score === 0 excluded. */\nexport async function getPopularPostIds(supabase, limit = 5): Promise<Set<string>> { ... }\n```\n\nThen routed all three call sites through it:\n\n- **PostsClient HOT badge** → check membership in `getPopularPostIds(supabase, 5)`.\n- **`/api/posts?sort=popular`** → sort by `scoreOf`.\n- **Admin delete guard** → dropped the absolute threshold; if the id is in `getPopularPostIds`, the confirm modal fires.\n\n\"Popular\" is now defined in one place, and the three features **automatically agree.** HOT-badged in UI = guarded against admin delete = top of the popular sort = (planned next) eligible for the 90-day cache TTL.\n\nA bonus: tuning the weights (\"likes should count more\") is a one-line change that all three call sites pick up at once. Sort and delete guard can never drift apart again.",
+      ko: "`src/lib/popularity.ts` 하나를 만들고 `scoreOf` 와 `getPopularPostIds` 만 export 했다. 세 호출처를 전부 그 위로 옮겼다.\n\n이제 HOT 배지가 붙은 글, admin 삭제 시 보호되는 글, 정렬 상단에 오는 글이 **자동으로 같아진다.** 가중치를 바꾸고 싶으면 한 줄만 고치면 세 기능이 동시에 따라온다. 정렬과 삭제 보호가 따로 노는 일이 다시 생길 수 없다.",
+      en: "A single module, `src/lib/popularity.ts`, exports just `scoreOf` and `getPopularPostIds`, and all three call sites were routed through it.\n\nThe post wearing the HOT badge, the post guarded against admin deletion, and the post at the top of the popular sort are now **the same post by construction.** Tuning the weights is a one-line change all three pick up at once. Sort and delete guard can never drift apart again.",
     },
     keyInsight: {
-      ko: "**같은 도메인 개념의 정의는 단일 함수/모듈로 강제하라.** 분산은 silent contradiction 의 시작입니다.\n\n\"인기\", \"인증된 사용자\", \"만료된 세션\", \"활성 회원\" 같은 도메인 개념은 코드 곳곳에서 호출됩니다. 그때마다 그 자리에서 가장 합리적인 정의가 자라나기 쉬운데, 이 자생적 정의들은 **각각의 자리에서는 옳고 합쳐서 보면 틀립니다.**\n\n이런 개념은 만들 때부터 \"한 함수만 import 해서 쓰는\" 구조로 고정하는 게 가장 안전합니다. 이미 분산되어 있다면 호출처 grep → 단일 모듈 추출 → 일괄 치환 순으로 정리합니다. 도메인 개념 하나당 reasoning 비용 (\"여기서 \"인기\" 가 어떤 정의지?\") 이 0 으로 떨어지고, 가중치 조정 같은 정책 변경도 한 줄짜리 작업이 됩니다.\n\n특히 \"단순 정의 (view top 5)\" 와 \"복합 정의 (가중 score)\" 가 같은 단어 아래 공존할 때 가장 위험합니다. 단순 정의 쪽은 \"이건 너무 단순해서 굳이 모듈로 뽑을 필요가 없다\" 는 인상을 주는데, 그 인상이 바로 fragmentation 의 입구입니다.",
-      en: "**For domain concepts, force the definition into a single function or module.** Fragmentation is the start of silent contradiction.\n\nDomain concepts like \"popular\", \"authenticated user\", \"expired session\", \"active member\" get called from many places. It's easy for each call site to grow its own locally reasonable definition, but **those locally-correct definitions are collectively wrong** once you put them on the same screen.\n\nThe safest move is to lock concepts like this behind a single import from day one. If they've already fragmented, grep all call sites → extract a single module → migrate. The payoff is twofold: the reasoning cost (\"what does 'popular' mean *here*?\") drops to zero, and policy changes (\"raise the weight of likes\") become one-line edits.\n\nThe most dangerous case is when a simple definition (\"top 5 by views\") and a compound definition (\"weighted score\") coexist under the same word. The simple one feels \"too small to extract into a module\" — and that feeling is exactly the entrance to fragmentation.",
+      ko: "**같은 도메인 개념의 정의는 단일 함수나 모듈로 강제한다.** 분산은 조용한 모순의 시작이다.\n\n인기, 인증된 사용자, 만료된 세션 같은 개념은 코드 곳곳에서 불린다. 그때마다 그 자리에서 가장 합리적인 정의가 자라기 쉬운데, **그렇게 자란 정의들은 각자의 자리에서는 옳고 합쳐서 보면 틀리다.**\n\n특히 단순한 정의와 복합 정의가 같은 단어 아래 공존할 때 위험하다. 단순한 쪽은 이건 모듈로 뽑을 것도 없다는 인상을 주는데, 그 인상이 분산의 입구다.",
+      en: "**Force the definition of a domain concept into a single function or module.** Fragmentation is where silent contradiction begins.\n\nConcepts like \"popular\", \"authenticated user\", or \"expired session\" get called from many places, and each call site easily grows its own locally reasonable definition. **Those definitions are individually correct and collectively wrong.**\n\nThe risk is highest when a simple definition and a compound one share the same word. The simple one feels too small to extract, and that feeling is the entrance to fragmentation.",
     },
     tags: ["single source of truth", "domain modeling", "popularity", "refactoring"],
   },
 
-  /* ── Component System — SortGroup → SegmentedControl rename ── */
-  {
-    section: { ko: "Frontend / Component", en: "Frontend / Component" },
-    problem: {
-      ko: "컴포넌트 이름이 \"첫 사용처\" 에 묶임 — SortGroup 이 sort 외 8 곳에서 쓰이게 되자 의미가 약해짐",
-      en: "Component name locked to its first use — `SortGroup` ended up in 8 non-sort places and the name started lying",
-    },
-    definition: {
-      ko: "`SortGroup` 이라는 컴포넌트가 있었습니다. 캡슐 모양 pill 들이 가로로 붙어 있고 한 번에 하나만 선택되는, framer-motion 슬라이딩 인디케이터가 활성 pill 위로 이동하는 single-select 그룹입니다.\n\n처음에는 이름 그대로 **포스트 목록의 정렬 옵션** (최신순 / 인기순 / 조회순) 에만 썼습니다. 그런데 같은 모양이 admin 탭 전환, 설정 페이지 필터, 게시물 sub-sort 등 점점 다른 자리에 들어가게 되었고, 최종적으로는 **9 개 사용처** 중 \"실제 sort\" 는 한두 곳에 불과한 상태가 되었습니다.\n\n그 결과 코드를 읽을 때 `<SortGroup>` 이 보이면 \"여기 sort 가 들어가나?\" 라는 일순간의 오독이 매번 발생했고, 새 개발자가 컴포넌트 목록을 훑을 때도 \"이건 정렬 전용이구나\" 라는 잘못된 인상을 받기 쉬웠습니다.",
-      en: "There was a component called `SortGroup`: a horizontal row of capsule pills with a framer-motion sliding indicator over the active one — single-select.\n\nIt started life as the **sort selector on the posts list** (latest / popular / most-viewed). But the same shape kept landing elsewhere: admin tab switching, settings filters, post sub-sort, etc. By the time I counted, **9 use sites** existed and only one or two were \"real sorting\".\n\nSo every time `<SortGroup>` appeared in code, there was a brief misread (\"is there a sort here?\"), and any new contributor scanning the component list would assume \"this is sort-only\".",
-    },
-    cause: {
-      ko: "첫 사용처가 sort 였기 때문에 컴포넌트 이름을 그 사용처에서 따왔습니다. 만들 당시에는 \"이 컴포넌트가 다른 자리에도 들어갈 거다\" 라는 예측이 없었기 때문에, 가장 가까운 도메인 단어 (sort) 가 이름이 되는 것이 자연스러웠습니다.\n\n그런데 이후 admin 탭, 설정 필터 등에서 \"가로 pill single-select\" 패턴이 필요해질 때마다 같은 컴포넌트가 가장 잘 맞아 들어갔습니다. 본질이 \"sort\" 가 아니라 **\"가로 캡슐 pill single-select\"** 이었기 때문에 다른 자리에 그대로 끼워 넣을 수 있었던 것입니다. 즉 컴포넌트 자체는 처음부터 generic 했는데, **이름만 첫 사용처에 묶여 있었던 셈입니다.**\n\n이름과 실제 책임이 어긋난 상태가 계속되면 매번 작은 cognitive overhead 가 누적됩니다. \"여기 SortGroup 이 있는데 sort 가 아니네\" 라는 한 번의 갸웃거림은 한 곳에서는 사소하지만, 9 곳에 깔리면 코드베이스 전반의 신뢰도가 조금씩 떨어집니다.",
-      en: "Because the first use was sort, the component got named after that use site. At the time there was no expectation of broader reuse, so taking the nearest domain word (`Sort`) was the natural choice.\n\nLater, whenever \"horizontal pill single-select\" was needed (admin tabs, settings filters, etc.), this component fit perfectly — because its actual essence was never \"sort\" but **\"horizontal capsule-pill single-select\"**. The component had been generic from day one, **the name alone was pinned to the first use case.**\n\nWhen a name and a responsibility drift apart, small cognitive overhead accumulates. \"There's a SortGroup here but it's not sorting\" is trivial in any single spot, but across 9 sites it slowly erodes trust in the codebase's vocabulary.",
-    },
-    solution: {
-      ko: "iOS 의 표준 컨트롤 명칭인 **`SegmentedControl`** 로 rename 했습니다. iOS 의 `UISegmentedControl` 은 정확히 \"가로 캡슐 pill single-select\" 패턴을 가리키는 표준 용어라, 별도 설명 없이도 의미가 즉시 전달됩니다.\n\n구체적으로는 한 PR 안에서:\n\n1. `git mv` 로 `SortGroup.tsx` → `SegmentedControl.tsx`, `SortGroup.module.css` → `SegmentedControl.module.css` 이동\n2. 컴포넌트 내부 export / type 이름 (`SortGroupItem` → `SegmentedControlItem` 등) 일괄 치환\n3. 9 사용처의 `import SortGroup from ...` 과 `<SortGroup .../>` JSX 도 일괄 치환\n\nrename 자체는 단순 작업이지만, **이름이 본질을 가리키게 된 직후부터** 새 사용처가 들어오는 속도가 다시 자연스러워졌습니다. 이전까지는 \"sort 가 아닌 자리에 SortGroup 을 쓰는 게 맞나\" 를 잠시 고민하다 다른 컴포넌트를 새로 만들지 등을 따지는 silent friction 이 있었는데, 그 friction 이 사라졌기 때문입니다.",
-      en: "Renamed to **`SegmentedControl`** — the standard iOS term (`UISegmentedControl`) for exactly this pattern. The name self-explains: anyone seeing it immediately understands \"horizontal capsule pills, single-select\".\n\nThe rename in one PR:\n\n1. `git mv` `SortGroup.tsx` → `SegmentedControl.tsx`, plus the CSS module\n2. Internal exports / types (`SortGroupItem` → `SegmentedControlItem`, etc.)\n3. The 9 call sites — `import` and `<SortGroup .../>` JSX, batch-replaced\n\nThe rename itself was mechanical, but **once the name pointed at the essence, new use cases came in more naturally.** Before, there was silent friction (\"is it weird to use SortGroup for non-sort?\") that occasionally pushed people toward writing a new component. After, that friction was gone.",
-    },
-    keyInsight: {
-      ko: "**컴포넌트 이름은 \"무엇인지\" 를 가리켜야 하고, \"어디 처음 썼는지\" 가 아니어야 합니다.**\n\n첫 사용처는 시간이 지나면 사용처 N 분의 1 이 됩니다. 그 자리에 묶인 이름은 점점 거짓말이 됩니다. 반대로 \"무엇인지\" — 즉 컴포넌트의 본질적 형태 (single-select pill group, fixed-size grid, capsule chip 등) — 는 사용처가 늘어도 변하지 않습니다.\n\n새 컴포넌트를 만들 때 이름을 지을 때마다 한 번씩 자문해 보면 좋습니다: **\"이걸 다른 자리에서도 쓴다면 그 자리에서도 이 이름이 자연스러울까?\"** 자연스럽지 않으면 그 이름은 이미 첫 사용처에 묶여 있는 신호입니다.\n\n또 하나, **iOS / Material 같은 OS 표준 컨트롤 명칭은 좋은 후보** 입니다. SegmentedControl, Stepper, Switch, Slider, Picker — 모두 \"무엇인지\" 를 가리키는 이름이고, 업계 통용어라 별도 학습 비용도 없습니다. 자체 작명보다 표준 명칭이 잘 맞는 패턴이라면 그쪽을 택하는 것이 안전합니다.",
-      en: "**A component name should point to *what it is*, not *where it was first used*.**\n\nThe first use site eventually becomes 1 of N. A name pinned to that site progressively turns into a lie. The intrinsic shape — \"single-select pill group\", \"fixed-size grid\", \"capsule chip\" — stays true no matter how many sites adopt it.\n\nA useful check when naming a new component: **\"if I use this somewhere else, will the name still feel natural there?\"** If not, the name is already pinned to its origin.\n\nAlso, **OS-standard control names (iOS / Material) are great candidates**: SegmentedControl, Stepper, Switch, Slider, Picker. All of them name *what it is*, and they're industry vocabulary — no extra learning cost. When a standard term fits better than something hand-rolled, take the standard term.",
-    },
-    tags: ["naming", "component design", "refactor", "rename", "iOS UIKit"],
-  },
-
   /* ── Architecture — Lenis cleanup convention ── */
   {
+    id: "lenis-infinite-scroll-silently-sticks-across",
     section: { ko: "Architecture / Convention", en: "Architecture / Convention" },
     problem: {
       ko: "Lenis 무한 스크롤이 페이지 전환 시 의도치 않게 켜지는 문제 — opt-out 가정 cleanup 의 함정",
       en: "Lenis Infinite Scroll Silently Sticks Across Page Transitions — the Opt-Out Cleanup Trap",
     },
+    title: { ko: "공유 상태의 기본값은 한 곳에만", en: "A default belongs in exactly one place" },
     definition: {
-      ko: "이 사이트는 Lenis 라이브러리로 부드러운 스크롤을 구현했고, Lenis 옵션 중 하나인 \"무한 스크롤\" (`infinite: true`) 은 끝까지 스크롤하면 처음으로 다시 이어지는 동작을 만듭니다. **Home / Webflow 같은 일부 페이지에서만 의도적으로** 켜고, 일반 게시물 페이지에서는 끄는 것이 의도였습니다.\n\n그런데 운영 중 **`/posts` → `/posts/tags` 로 이동했을 때 갑자기 페이지가 무한 스크롤로 동작** 하는 현상이 발생했습니다. tags 페이지는 그런 동작을 의도한 적이 없는데, 페이지 끝에 닿으면 콘텐츠가 다시 처음으로 점프해 사용자가 위치를 잃었습니다.\n\n페이지를 새로고침 (F5) 하면 정상으로 돌아왔다가, 다시 다른 경로로 navigate 해서 들어오면 다시 무한 스크롤이 켜지는 — **\"진입 경로에 따라 동작이 달라지는\"** 재현 패턴이었습니다.",
-      en: "The site uses Lenis for smooth scrolling, and one of Lenis's options — \"infinite scroll\" (`infinite: true`) — wraps content back to the top when you reach the bottom. The intent: **enable it deliberately on certain pages** like Home / Webflow, and keep it off on regular post pages.\n\nIn production, **navigating `/posts` → `/posts/tags` would suddenly leave the tags page stuck in infinite-scroll mode**. The tags page had never been meant to behave that way; scrolling to the bottom looped back to the top, leaving users disoriented.\n\nA hard refresh (F5) restored normal behavior, but navigating in from another route again triggered the infinite scroll — a **\"behavior depends on entry route\"** repro pattern.",
+      ko: "`/posts` 에서 `/posts/tags` 로 이동하면 그 페이지가 갑자기 무한 스크롤로 동작했다. 끝에 닿으면 처음으로 점프해 사용자가 위치를 잃는다. 새로고침하면 정상으로 돌아왔다가, 다른 경로로 다시 들어오면 또 켜졌다. **진입 경로에 따라 동작이 달라지는** 형태였다.",
+      en: "Navigating from `/posts` to `/posts/tags` left the tags page in infinite-scroll mode. Reaching the bottom jumped back to the top and the reader lost their place. A refresh restored normal behavior; entering again from another route turned it back on. **The behavior depended on how you arrived.**",
     },
     cause: {
-      ko: "각 페이지는 mount 될 때 Lenis 의 `setInfinite(false)` 를 호출하고, unmount 될 때 cleanup 에서 `setInfinite(true)` 로 \"원복\" 하는 패턴을 거의 모든 페이지가 따르고 있었습니다. 코드 한 곳만 보면 자연스러워 보입니다 — \"내가 끄고 들어왔으니 나갈 때 다시 켜 주는 게 매너\".\n\n문제는 이 convention 이 **\"기본값 = true (무한 켜짐), 페이지는 opt-out 한다\"** 라는 무의식적 가정 위에 서 있었다는 점입니다. 실제 LenisProvider 의 기본값은 `infinite: false` 였고, 어느 페이지도 명시적으로 \"기본을 true 로 둔다\" 고 선언한 적이 없었습니다. **convention 의 가정 ≠ provider 의 실제 default** — 두 층이 silent 하게 어긋나 있었습니다.\n\n결과: A 페이지가 unmount 될 때 cleanup 이 `setInfinite(true)` 를 호출 → B 페이지가 mount 될 때 자체 `setInfinite(false)` 가 없으면 그 true 가 그대로 남음. /posts (cleanup 으로 true 복원) → /posts/tags (자체 false 호출 없음) 순서가 정확히 그 case 였습니다.\n\n이 패턴은 페이지가 **15 개 파일에 동일하게 박혀 있었고**, 어느 한 페이지를 따로 보면 이상한 점이 없습니다. \"내 cleanup 은 내가 들어오기 전 상태로 되돌리는 거다\" 라는 한 사람의 자연스러운 직관이 페이지마다 반복되면서, 전체 시스템에서는 **\"마지막에 unmount 된 페이지의 cleanup 이 다음 페이지의 시작 상태를 결정\"** 하는 silent state leak 으로 굳었습니다.",
-      en: "Almost every page followed the same pattern: call `setInfinite(false)` on mount, and \"restore\" with `setInfinite(true)` in cleanup on unmount. Looked at one page at a time, the pattern reads naturally — \"I turned it off coming in, so I should put it back on the way out.\"\n\nThe trap: the convention rested on an unconscious assumption — **\"default = true (infinite on), pages opt out\"**. But the actual LenisProvider default was `infinite: false`, and no page had ever declared \"the baseline is on\". **The convention's assumption ≠ the provider's actual default** — the two layers were silently disagreeing.\n\nThe result: A's unmount cleanup calls `setInfinite(true)` → if B doesn't call `setInfinite(false)` on mount, that `true` survives. The /posts → /posts/tags sequence was exactly that — /posts restored infinite to `true`, /posts/tags never claimed otherwise, so infinite stayed on.\n\nThis pattern lived **identically in 15 files**. Read one file alone and nothing looks wrong. Each developer's natural instinct (\"my cleanup restores whatever I changed\") repeated across pages compounded into a system-level rule: **\"the last-unmounted page's cleanup decides the next page's starting state\"** — a silent state leak.",
+      ko: "거의 모든 페이지가 같은 패턴을 따르고 있었다. mount 에서 `setInfinite(false)`, unmount cleanup 에서 `setInfinite(true)` 로 원복. 한 파일만 보면 자연스럽다. 내가 끄고 들어왔으니 나갈 때 되돌려 놓는 것이다.\n\n문제는 이 convention 이 **기본값은 켜짐이고 페이지가 끈다** 는 가정 위에 서 있었다는 점이다. 실제 provider 의 기본값은 꺼짐이었다. **convention 의 가정과 provider 의 실제 default 가 어긋나 있었다.**\n\n그래서 A 페이지가 unmount 하며 켜 놓으면, B 페이지가 스스로 끄지 않는 한 그대로 남는다. 이 패턴이 **15개 파일에 동일하게 박혀 있었고**, 어느 하나를 따로 보면 이상한 점이 없다.",
+      en: "Nearly every page followed the same pattern: `setInfinite(false)` on mount, `setInfinite(true)` in the unmount cleanup to put it back. Read one file and it looks natural. I turned it off coming in, so I restore it on the way out.\n\nThe trap is that the convention rested on the assumption that **the default is on and pages opt out.** The provider's actual default was off. **The convention's assumption and the provider's real default disagreed.**\n\nSo when page A turned it on while unmounting, it stayed on unless page B turned it off itself. The pattern sat **identically in 15 files**, and read one at a time nothing looks wrong.",
     },
     solution: {
-      ko: "패턴을 반전시켰습니다.\n\n**Before (opt-out 모델)**\n```ts\n// 거의 모든 페이지\nuseEffect(() => {\n  lenis?.setInfinite(false);\n  return () => lenis?.setInfinite(true); // ← 이 한 줄이 silent leak 의 정체\n}, [lenis]);\n```\n\n**After (opt-in 모델)**\n```ts\n// LenisProvider — 기본값은 그대로 false 유지\n// 일반 페이지 — useEffect / cleanup 자체 제거\n// 의도적으로 무한 스크롤이 필요한 페이지만 명시적 opt-in\nuseEffect(() => {\n  // 진입 애니메이션 등이 끝난 뒤 활성화\n  lenis?.setInfinite(true);\n  return () => lenis?.setInfinite(false); // ← cleanup 은 진짜 default 로 복원\n}, [lenis]);\n```\n\n구체적으로는: 15 개 페이지 파일에서 `setInfinite(true)` cleanup 라인을 제거하고, 무한 스크롤이 실제로 필요한 곳 — 현재로서는 `HomeClient` 하나 — 만 명시적 `setInfinite(true)` 를 유지했습니다 (cleanup 에서는 `false` 로 진짜 default 복원).\n\n변경 후 \"진입 경로에 따라 동작이 달라지는\" 현상은 완전히 사라졌습니다. 가장 큰 이득은 **새 페이지를 만들 때 Lenis 를 의식할 필요가 없어졌다** 는 점입니다. 무한 스크롤이 필요하면 명시적으로 켜고, 아니면 아무것도 안 하면 됩니다. 다음 사람이 이 코드를 읽을 때 \"왜 여기서 lenis 를 만지지?\" 라고 생각할 일 자체가 없어졌습니다.",
-      en: "Inverted the pattern.\n\n**Before (opt-out model)**\n```ts\n// nearly every page\nuseEffect(() => {\n  lenis?.setInfinite(false);\n  return () => lenis?.setInfinite(true); // ← this one line was the silent leak\n}, [lenis]);\n```\n\n**After (opt-in model)**\n```ts\n// LenisProvider — default stays false\n// Regular pages — drop the useEffect / cleanup entirely\n// Only pages that truly want infinite scroll opt in explicitly\nuseEffect(() => {\n  // enable after entry animation, etc.\n  lenis?.setInfinite(true);\n  return () => lenis?.setInfinite(false); // ← cleanup actually restores the real default\n}, [lenis]);\n```\n\nConcretely: removed the `setInfinite(true)` cleanup line from 15 page files, and kept the explicit `setInfinite(true)` only where infinite scroll is genuinely intended — currently just `HomeClient` (whose cleanup now restores `false`, the real default).\n\nThe \"entry-route-dependent\" symptom disappeared completely. The bigger win: **new pages no longer need to think about Lenis at all.** If you want infinite scroll, opt in explicitly. Otherwise, do nothing. The next person reading the code never has to wonder \"why is this page touching lenis?\".",
+      ko: "패턴을 뒤집었다. 15개 파일에서 cleanup 의 `setInfinite(true)` 를 지우고, 무한 스크롤이 실제로 필요한 곳 하나만 명시적으로 켜게 했다. 그 한 곳의 cleanup 은 진짜 default 인 꺼짐으로 되돌린다.\n\n가장 큰 이득은 **새 페이지를 만들 때 이 설정을 의식할 필요가 없어졌다**는 점이다. 필요하면 켜고, 아니면 아무것도 쓰지 않는다. 다음 사람이 이 코드를 읽을 때 왜 여기서 스크롤 설정을 만지는지 의아해할 일도 없다.",
+      en: "The pattern was inverted. The `setInfinite(true)` cleanup line was removed from 15 files, and only the one page that genuinely wants infinite scroll turns it on explicitly. That page's cleanup restores the real default, off.\n\nThe bigger win is that **a new page no longer has to think about this setting at all.** Turn it on if you need it; otherwise write nothing. Nobody reading the code later has to wonder why a page is touching scroll configuration.",
     },
     keyInsight: {
-      ko: "**Cleanup 은 \"원복\" 이 아니라 \"라이브러리의 진짜 default 로 복원\" 이어야 합니다.**\n\n\"내가 들어와서 바꿨으니 나갈 때 원래대로 돌려놓자\" 는 직관은 한 페이지 단위에서는 옳지만, **그 \"원래\" 가 무엇인지 페이지마다 다르게 가정** 하기 시작하면 시스템 차원에서 silent state leak 이 됩니다. 특히 모든 페이지가 같은 패턴을 베껴 쓰면, 한 사람의 잘못된 가정이 N 개 페이지로 즉시 복제됩니다.\n\n공유 state (provider, context, global mutable) 를 다루는 cleanup 은 두 가지 중 하나로만 써야 합니다:\n\n1. **진짜 default 로 복원** — `LenisProvider` 의 default 가 `false` 면 cleanup 도 `false` 로. 한 곳 (provider) 에 정의된 default 만이 truth.\n2. **opt-in 모델** — 페이지가 명시적으로 켤 때만 useEffect 를 쓰고, 그 외에는 손대지 않는다. 아무것도 안 하는 페이지는 코드 자체가 없으므로 잘못된 가정이 끼어들 자리가 없다.\n\nopt-out 모델 (\"기본은 켜져 있고 페이지가 끈다\") 은 \"기본\" 의 정의가 코드 두 곳 (provider default + 페이지 cleanup) 에 분산되어, 두 곳이 어긋나면 어디가 진짜 default 인지 추적이 어려워집니다. **default 정의는 항상 한 곳에서만 살아야 합니다.**\n\n그리고 한 가지 더 — 같은 패턴이 **15 개 파일에 박혀 있을 때, 그게 \"문제 없으니 이대로 쓴다\" 의 증거가 아니라 \"한 사람의 잘못된 직관이 N 배로 복제된\" 패턴일 수 있다** 는 점을 의심해야 합니다. 페이지 단위로는 자연스러워 보이는 코드일수록, 시스템 차원에서 의도와 어긋날 때 발견이 늦습니다.",
-      en: "**Cleanup means \"restore the library's real default\" — not \"restore whatever it was when I arrived\".**\n\n\"I changed it coming in, I should restore it going out\" reads naturally at one page's scope, but **the moment each page assumes a different \"original\"**, the system gets a silent state leak. Worse, if every page copy-pastes the same pattern, one person's wrong assumption replicates instantly to N pages.\n\nFor shared state (provider, context, global mutable), cleanup should only ever do one of two things:\n\n1. **Restore the real default** — if `LenisProvider`'s default is `false`, cleanup restores `false`. Truth lives in one place (the provider).\n2. **Opt-in model** — write the useEffect only on pages that explicitly turn the feature on; everywhere else, leave the state alone. Pages with no code can't carry wrong assumptions.\n\nThe opt-out model (\"default is on, each page turns it off\") splits the definition of \"default\" between provider config and per-page cleanup. When those two disagree, tracing the real default becomes painful. **A default should live in exactly one place.**\n\nAnd one more thing — when the same pattern is **copy-pasted across 15 files, that's not evidence \"it works fine\". It can be evidence that one person's wrong intuition replicated N times.** Code that looks natural per-page is exactly the kind that hides system-level mismatches the longest.",
+      ko: "**cleanup 은 원복이 아니라 진짜 default 로 복원이어야 한다.** 내가 바꿨으니 되돌려 놓자는 직관은 한 페이지 단위에서는 옳지만, 그 원래를 페이지마다 다르게 가정하기 시작하면 시스템 차원의 조용한 상태 누수가 된다.\n\n공유 상태를 다룰 때는 둘 중 하나만 쓴다. 진짜 default 로 복원하거나, 명시적으로 켤 때만 손대고 나머지는 건드리지 않는 opt-in 이다. **기본값의 정의는 한 곳에만 살아야 한다.**\n\n그리고 같은 패턴이 15개 파일에 있는 것은 문제가 없다는 증거가 아니라, **한 사람의 잘못된 직관이 그대로 복제된 결과**일 수 있다. 페이지 단위로 자연스러워 보이는 코드일수록 시스템 차원의 어긋남이 늦게 발견된다.",
+      en: "**Cleanup should restore the real default, not whatever it was when you arrived.** The instinct to put back what you changed is right at one page's scope, but once each page assumes a different \"original\", the system gets a silent state leak.\n\nFor shared state, do one of two things: restore the genuine default, or adopt an opt-in model where only pages that explicitly want the feature touch it. **The definition of a default must live in exactly one place.**\n\nAnd a pattern repeated across 15 files is not evidence that it is fine. It can be **one person's wrong intuition replicated verbatim.** The more natural code looks page by page, the later a system-level mismatch is found.",
     },
     tags: ["lenis", "convention", "cleanup pattern", "provider default", "silent state leak"],
   },
 
   /* ── Layout & CSS — PostCard meta separator on wrap ── */
   {
+    id: "postcard-meta-separator-leaks-to-the",
     section: { ko: "Frontend / Layout", en: "Frontend / Layout" },
     problem: {
       ko: "PostCard meta 가 wrap 될 때 separator 가 새 줄 시작에 어색하게 남는 문제",
@@ -2835,6 +2440,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── Architecture — Admin works sort_order normalize ── */
   {
+    id: "admin-works-sort-order-partial-shift",
     section: { ko: "Architecture / Algorithm", en: "Architecture / Algorithm" },
     problem: {
       ko: "Admin works sort_order 정렬 — 부분 shift 가 DB 의 0·중복 잔재를 못 정리",
@@ -2861,6 +2467,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── Cross-platform / UX — Touch device hover ── */
   {
+    id: "touch-devices-have-no-hover-desktop",
     section: { ko: "Cross-platform / UX", en: "Cross-platform / UX" },
     problem: {
       ko: "터치 디바이스에 hover 가 없어 데스크탑 전용 인터랙션 (hover glow / tooltip) 이 모바일에서 사라짐",
@@ -2887,6 +2494,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── Custom cursor — draggable row child button ── */
   {
+    id: "hovering-a-button-inside-a-draggable",
     section: { ko: "Custom cursor", en: "Custom cursor" },
     problem: {
       ko: "draggable row 안 button hover 시 grab 커서가 박혀 click 으로 돌아가지 않음",
@@ -2913,6 +2521,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── Page transition: morph 와 skeleton 사이의 timing 불일치 ── */
   {
+    id: "after-the-transition-morph-clears-the",
     section: { ko: "Animation & Interaction", en: "Animation & Interaction" },
     problem: { ko: "페이지 트랜지션 morph 가 끝나도 화면이 한참 비어 있어 \"skeleton 이 따로 도는\" 인상", en: "After the transition morph clears, the page sits empty for almost a second — feels like skeleton runs separately" },
     definition: {
@@ -2936,8 +2545,11 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── 색 토큰 OKLCH 전환 — HSL 의 hue-별 밝기 불균형 정리 ── */
   {
+    id: "hsl-color-tokens-look-uneven-across",
     section: { ko: "Layout & CSS", en: "Layout & CSS" },
     problem: { ko: "HSL 기반 색 토큰이 hue 별로 지각 밝기가 달라 같은 lightness 끼리도 톤이 들쭉날쭉", en: "HSL color tokens look uneven across hues — same lightness reads as different brightness" },
+    title: { ko: "지각 밝기와 색 공간 — HSL vs OKLCH", en: "Perceptual lightness and color space" },
+    vizKey: "perceptual-color",
     definition: {
       ko: "디자인 시스템의 모든 색 토큰을 `hsl()` 로 두고 lightness 를 같은 값으로 맞추면 \"이 두 색은 같은 톤이다\" 가 보장될 것 같지만, 실제로 보면 **노랑 (`hsl(50, 80%, 50%)`) 은 눈부시게 밝고 보라 (`hsl(270, 80%, 50%)`) 는 어둑한 보라색** 처럼 같은 50% 가 hue 마다 전혀 다른 밝기로 보입니다.\n\n포트폴리오 카드의 \"seededColor\" 처럼 hue 만 cycle 하면서 안정적인 톤을 유지하고 싶은 경우, HSL 에선 \"이 hue 는 lightness 를 더 낮춰야 같아 보이고, 저 hue 는 chroma 를 줄여야 한다\" 는 식의 hue-별 보정이 필요합니다. 보정 테이블이 늘어날수록 시스템이 깨지기 쉬워지고, 다크/라이트 테마에서는 보정 값이 또 달라지기 때문에 hue 갯수가 늘면 관리 비용이 비선형으로 늡니다.",
       en: "Pinning lightness across every HSL token suggests \"these colors share a tone\" — but in practice **yellow (`hsl(50, 80%, 50%)`) looks glaringly bright while purple (`hsl(270, 80%, 50%)`) looks muddy**. The same 50% reads as completely different brightness depending on hue.\n\nFor things like \"seededColor\" (cycle hue while holding the tone steady) HSL forces hue-by-hue compensation: \"this hue needs lightness dropped, that one needs chroma trimmed\". The patch table grows, dark/light modes need separate corrections, and the system becomes harder to evolve as more hues are added.",
@@ -2981,8 +2593,10 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── pg_cron + Vault + Resend — Vercel cron 의존 제거 ── */
   {
+    id: "scheduled-publish-trash-purge-bound-to",
     section: { ko: "Architecture & Backend", en: "Architecture & Backend" },
     problem: { ko: "예약 발행 / 휴지통 정리가 Vercel cron 에 묶여 호스팅 의존 + 알림 누락", en: "Scheduled publish + trash purge bound to Vercel cron — host lock-in and silent failures" },
+    title: { ko: "정기 작업을 데이터가 있는 곳으로", en: "Moving periodic work to where the data lives" },
     definition: {
       ko: "예약 발행 (`scheduled_at` 도달 시 `published=true` 로 flip) 과 휴지통 자동 영구삭제 (`purge_after` 지난 row hard delete) 는 처음엔 Vercel cron 으로 구현됐습니다.\n\n`/api/cron/publish-scheduled` 5분 주기, `/api/cron/purge-trash` 매일 03:00 KST. 동작 자체는 됐지만 두 가지 약점이 누적되었습니다:\n\n**(1) 호스팅 의존** — Vercel 외 플랫폼 (Cloudflare Pages / Railway / self-hosted) 으로 옮기면 cron 부분만 따로 재구현 필요. \"Next.js 앱은 호스팅과 독립\" 이라는 원칙이 깨집니다.\n\n**(2) 알림 누락** — cron route 가 발행 / 삭제 후 결과를 `admin_notifications` 에 insert 까지는 했는데, 실패하든 성공하든 **그게 일어났다는 사실 자체가 관리자에게 도달하지 않았습니다**. 알림 페이지를 열어 봐야만 알 수 있고, 정작 \"오늘 새벽에 N개 영구삭제됐다\" 같은 중요한 변경은 놓치기 쉬웠습니다.",
       en: "Scheduled publish (flip `published=true` when `scheduled_at` arrives) and auto trash purge (hard-delete `purge_after`-past rows) were first implemented as Vercel cron routes.\n\n`/api/cron/publish-scheduled` every 5 minutes, `/api/cron/purge-trash` daily at KST 03:00. Functionally fine, but two weaknesses piled up:\n\n**(1) Host lock-in** — moving off Vercel (to Cloudflare Pages / Railway / self-hosted) means re-implementing the cron half separately. Breaks the \"app is independent of host\" principle.\n\n**(2) Silent notifications** — cron routes inserted rows into `admin_notifications` after each publish / purge, but **the fact that it happened never reached me**. I had to open the notifications page to discover anything; critical events like \"N items hard-deleted overnight\" were easy to miss.",
@@ -3004,6 +2618,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── CSS Module orphan classes — 렌더링을 layout 으로 옮길 때 ── */
   {
+    id: "after-absorbing-page-boilerplate-into-the",
     section: { ko: "Layout & CSS", en: "Layout & CSS" },
     problem: {
       ko: "페이지 보일러플레이트를 layout 으로 흡수 후, 일부 영역 (footer 링크) 의 스타일이 통째로 사라짐 — 오류는 없음",
@@ -3028,39 +2643,15 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["css-module", "react", "refactor", "shared-component", "silent-failure", "DetailLayout", "tooling"],
   },
 
-  /* ── TSX parser — `!` non-null assertion 이 JSX close tag 로 오해석 ── */
-  {
-    section: { ko: "Component System", en: "Component System" },
-    problem: {
-      ko: "TSX 안에서 `typeof obj!.field[index]` 처럼 non-null assertion 을 인덱스 표현 안에 쓰면 JSX parser 가 닫는 태그로 오해석",
-      en: "TSX parser misreads `typeof obj!.field[index]` — the `!` non-null assertion gets parsed as a JSX close tag",
-    },
-    definition: {
-      ko: "팀원 카드 컴포넌트의 render helper 함수 시그니처에서 멤버 타입을 적기 위해 `typeof project.teamMembers![number]` 라고 작성했습니다 (project.teamMembers 가 optional 이라 `!` 로 non-null 단언, 거기서 `[number]` 인덱스로 element type 추출).\n\nTS 표현으로는 정상이고 .ts 파일에서는 컴파일 에러가 안 납니다. 그런데 **.tsx 파일에서 같은 표현을 쓰면 다음 에러가 떨어졌습니다:**\n\n```\nError: JSX element 'teamMembers' has no corresponding closing tag.\nError: Identifier expected.\n```\n\n분명히 type expression 이지 JSX 가 아닌데도 JSX parser 가 끼어들었습니다.",
-      en: "In a render-helper function signature for a team member card, I wrote `typeof project.teamMembers![number]` (`project.teamMembers` is optional, the `!` asserts non-null, then `[number]` indexes the element type).\n\nThe expression is valid TypeScript and a `.ts` file accepts it without complaint. But in a **`.tsx` file the same expression failed with:**\n\n```\nError: JSX element 'teamMembers' has no corresponding closing tag.\nError: Identifier expected.\n```\n\nNo JSX in sight — it's clearly a type expression — but the JSX parser jumped in anyway.",
-    },
-    cause: {
-      ko: "TSX parser 는 `<` 토큰을 만나면 \"generic type argument\" 와 \"JSX element\" 중 무엇인지를 lookahead 로 결정해야 합니다. `typeof project.teamMembers!` 까지 본 시점에서, 다음 토큰이 `[number]` 의 `[` 가 아니라 ... 잠깐. 이건 다른 문제입니다.\n\n실제 원인은 더 미묘했습니다. 표현 컨텍스트는 generic type instantiation 였고 (`renderCard<typeof project.teamMembers![number]>` 같은 호출), parser 가 generic args 닫는 `>` 를 찾아가는 동안 `!` 의 위치에서 \"이건 JSX 의 fragment closing 일지도 모른다 (`</>`)\" 라고 잠깐 의심하면서 lookahead 에 실패한 사례였습니다.\n\n더 명확하게 reproducing 한 후 발견한 패턴: **TSX 에서 `<` 가 등장한 위치 다음으로 `!` 가 같은 expression chain 안에 있으면 parser 가 종종 헷갈립니다**. 같은 expression 을 `.ts` 로 옮기면 100% 통과하고, `.tsx` 로 옮기면 80% 정도 실패. parser 의 휴리스틱 차이입니다.\n\nTypeScript 측에선 이미 known issue — `<T>` (generic) 와 `<Component>` (JSX) 모호성은 TSX 에서 영원한 함정이고, non-null `!` 가 그 lookahead 를 한 단계 더 꼬는 사례입니다.",
-      en: "When TSX parser sees a `<`, it has to disambiguate between \"generic type argument\" and \"JSX element\" via lookahead. By the time it had parsed `typeof project.teamMembers!`, the next token was `[` of `[number]` — wait, that's not quite it.\n\nThe real cause was subtler. The expression sat in a generic-instantiation context (something like `renderCard<typeof project.teamMembers![number]>`), and while scanning forward for the closing `>` of the generic args, the parser briefly considered \"could this `!` be a JSX fragment close (`</>`)?\" and failed its lookahead.\n\nThe pattern, once I could reproduce cleanly: **in TSX, if `!` appears in the same expression chain after a `<`, the parser gets confused often**. The same expression moves to `.ts` and passes 100% of the time; in `.tsx` it fails ~80% of the time. Parser heuristic difference.\n\nFrom the TypeScript side this is a known disambiguation issue — `<T>` (generic) vs `<Component>` (JSX) is the perennial TSX trap, and non-null `!` is one more variable that perturbs the lookahead.",
-    },
-    solution: {
-      ko: "**Type 표현을 local const 로 분리** 했습니다. 한 줄로 압축된 generic instantiation 안에 모든 게 들어가지 않게, 멤버 변수와 element type 을 미리 풀어 둡니다.\n\n```tsx\n// 변경 전 — TSX parser 가 헷갈림\nfunction renderCard(member: typeof project.teamMembers![number], i: number) { ... }\n\n// 변경 후 — local 변수로 expression 단계 분리\nconst members = project.teamMembers ?? [];\nfunction renderCard(member: typeof members[number], i: number) { ... }\n```\n\nElement type 의 `typeof members[number]` 는 `<` 가 없으므로 parser 가 의심할 여지가 없습니다. 동시에 `!` non-null 단언도 `?? []` fallback 으로 더 명시적인 처리로 바뀌어, runtime 안전성도 같이 올라갔습니다.\n\n검토했던 다른 해결책:\n\n- **`.tsx` → `.ts` 로 파일 분리** — 컴포넌트 코드를 `.tsx`, type-only helper 를 `.ts` 로 나누면 같은 표현이 통과. 단점은 한 컴포넌트의 helper 가 두 파일로 쪼개진다는 점.\n- **`as` 어서션 사용** — `(project.teamMembers as NonNullable<typeof project.teamMembers>)[number]` 처럼 `!` 대신 `as NonNullable<...>` 사용. 표현이 길어지고 TSX 안에서 또 다른 lookahead 함정이 있을 수 있어 별로.\n- **Generic context 회피** — 함수 시그니처에서 element type 을 inline 하지 말고 별도 type alias 로 추출 (`type Member = typeof project.teamMembers[number]`). 사실상 local const 분리와 본질은 같음.\n\nLocal const 분리가 가장 간결하고 runtime 안전성까지 동시 개선되어 채택했습니다.",
-      en: "**Lifted the type expression into a local const.** Don't compress everything into one generic-instantiation line — extract the member array and let the element type be derived from a simple identifier.\n\n```tsx\n// Before — TSX parser confused\nfunction renderCard(member: typeof project.teamMembers![number], i: number) { ... }\n\n// After — local var breaks the expression into two stages\nconst members = project.teamMembers ?? [];\nfunction renderCard(member: typeof members[number], i: number) { ... }\n```\n\n`typeof members[number]` has no `<`, so the parser has nothing to second-guess. As a bonus the `!` non-null assertion turned into an explicit `?? []` fallback, improving runtime safety too.\n\nOther options I considered:\n\n- **Split `.tsx` and `.ts`** — keep components in `.tsx` and type-only helpers in `.ts`; the same expression passes there. Cost: a single component's helper gets split across two files.\n- **Use `as` instead of `!`** — `(project.teamMembers as NonNullable<typeof project.teamMembers>)[number]`. Verbose, and `as` inside TSX has its own lookahead pitfalls.\n- **Hoist the element type into a type alias** — `type Member = typeof project.teamMembers[number]`. Essentially the same idea as the local const split.\n\nThe local-const fix was the smallest one and improved runtime safety at the same time, so I went with it.",
-    },
-    keyInsight: {
-      ko: "**TSX 의 parser 는 `<` 와 `!` / `as` 조합 lookahead 에서 종종 진다.** `<T>` (generic) 와 `<Component>` (JSX) 의 모호성은 TSX 의 영원한 함정이고, non-null `!` 나 `as` 어서션이 그 lookahead 를 한 단계 더 꼬는 경우가 많습니다. 에러 메시지는 \"JSX element X has no closing tag\" 처럼 엉뚱한 곳을 가리켜서 첫 진단이 빗나가기 쉽습니다.\n\n실용적인 회피 패턴:\n\n1. **복잡한 type 표현은 local const / type alias 로 한 단계 분리** — 한 줄 안에 generic + `!` + index + `<` 가 다 들어가지 않게. 진단도 쉽고 가독성도 좋아짐.\n2. **TS 표현 위주의 helper 는 `.ts` 로** — JSX 가 필요 없는 type utilities 는 `.ts` 가 parser 가 더 관대함. 컴포넌트 파일에서는 type-only 코드를 최소로.\n3. **`!` 대신 narrow 한 fallback** — `?? []` / `?? null` 같은 명시적 fallback 은 TSX parser 에도 안전하고 runtime safety 도 같이 가져옴.\n\n근본적으로는 **parser 휴리스틱에 의존하는 코드를 피하는 게 가장 안전** 합니다. \"이게 generic 인지 JSX 인지\" 를 사람이 봐도 살짝 헷갈리는 표현이라면 parser 도 헷갈릴 가능성이 높고, lookahead 가 깊어질수록 컴파일러 버전 / TSX 옵션 변화에 취약해집니다. 단순한 형태로 미리 풀어 두는 것이 결국 가장 cheap 한 안전망입니다.\n\n그리고 한 가지 더 — **에러 메시지가 \"JSX element X has no closing tag\" 처럼 JSX 를 가리키지만 실제 코드에 JSX 가 없을 때** 는 거의 항상 \"non-JSX 표현을 parser 가 JSX 로 오해석\" 입니다. 첫 가설을 \"내가 JSX 를 잘못 썼나?\" 가 아니라 \"parser 가 헷갈렸나?\" 로 두면 디버깅이 한참 빨라집니다.",
-      en: "**TSX's parser sometimes loses the lookahead between `<` and `!` / `as`.** The `<T>` (generic) vs `<Component>` (JSX) ambiguity is a permanent TSX trap, and non-null `!` or `as` assertions perturb that lookahead in unhelpful ways. The error usually points somewhere irrelevant (\"JSX element X has no closing tag\"), which sends the first diagnosis sideways.\n\nPractical patterns to avoid it:\n\n1. **Lift complex type expressions into a local const / type alias** — don't stuff generic + `!` + index + `<` into a single line. Easier to read and easier to debug.\n2. **Put type-heavy helpers in `.ts`, not `.tsx`** — when there's no JSX, the `.ts` parser is more permissive. Keep type-only code out of component files when possible.\n3. **Prefer narrow fallbacks over `!`** — `?? []` / `?? null` are unambiguous for the TSX parser and improve runtime safety too.\n\nThe deeper principle: **avoid code that relies on parser heuristics**. If \"is this generic or JSX?\" is even slightly ambiguous to a human reader, the parser is likely to struggle too, and deeper lookaheads make you more fragile to compiler version / TSX option changes. Decomposing into simpler forms is the cheapest long-term safety net.\n\nOne more — **when an error reads \"JSX element X has no closing tag\" but your code has no JSX at all**, the cause is almost always \"parser mis-categorized a non-JSX expression as JSX\". Starting your hypothesis there (\"did the parser get confused?\") instead of \"did I write bad JSX?\" saves a lot of time.",
-    },
-    tags: ["typescript", "tsx", "parser", "jsx", "non-null-assertion", "type-expression", "refactor"],
-  },
-
   /* ── textarea 글자별 inline highlight — mirror sync 한계 + contenteditable 전환 ── */
   {
+    id: "wanted-per-character-background-highlight-inside",
     section: { ko: "Component System", en: "Component System" },
     problem: {
       ko: "textarea 의 초과 글자만 background highlight 주려는데 어떤 방법으로도 정확히 안 맞음 — 결국 native textarea 포기하고 contenteditable 로 전환",
       en: "Wanted per-character background highlight inside a textarea — no overlay technique aligned perfectly, ended up replacing the native textarea with contenteditable",
     },
+    title: { ko: "동기화가 아니라 요소 교체", en: "Replacing the element instead of syncing it" },
     definition: {
       ko: "editor 의 excerpt / description 필드에 \"권장 글자수 초과 portion 만 빨갛게\" highlight 를 넣고 싶었습니다. 단순한 시각적 cue 인데, 막상 구현해보니 **native `<textarea>` 의 근본 한계 — 글자 일부분만 styling 불가능** 에 부딪쳤습니다. textarea 안의 텍스트는 단일 stream 으로 렌더되고 `::first-letter`, `::selection` 외엔 부분 styling 이 안 됩니다. \"201자부터 빨강\" 같은 건 native 로 표현 자체가 안 됩니다.",
       en: "Wanted to highlight the over-limit portion of an excerpt/description textarea (the chars past the recommended limit, in accent color). Simple cue conceptually — but it hit the **fundamental limitation of native `<textarea>`: you cannot style portions of the text**. Textarea content renders as one uniform stream; aside from `::first-letter` and `::selection`, no partial styling is possible. \"Chars 201+ should be red\" simply cannot be expressed natively.",
@@ -3082,6 +2673,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── Native form element 위 custom cursor — overlay 패턴 ── */
   {
+    id: "on-a-textarea-s-resize-handle",
     section: { ko: "Animation & Interaction", en: "Animation & Interaction" },
     problem: {
       ko: "Textarea resize handle 위에서 시스템 cursor (`ns-resize`) 가 우리 custom cursor (CursorTrail) 를 덮어씀 — html.custom-cursor * { cursor: none !important } 로도 안 잡힘",
@@ -3108,122 +2700,33 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── CSS var() chain — JS 에서 resolve 안 됨, getComputedStyle.color 우회 ── */
   {
+    id: "css-var-chains-don-t-resolve",
     section: { ko: "Layout & CSS", en: "Layout & CSS" },
     problem: {
       ko: "CSS `var()` 체인이 JS `getPropertyValue` 로 resolve 안 됨 — Canvas / Three.js 텍스처 배경색이 토큰과 어긋남",
       en: "CSS `var()` chains don't resolve through JS `getPropertyValue` — Canvas / Three.js texture backgrounds drift from the design token",
     },
+    title: { ko: "getPropertyValue 와 CSS 변수 체인의 경계", en: "getPropertyValue and CSS variable chains" },
     definition: {
-      ko: "Works 페이지의 Cylinder 레이아웃 intro 텍스처를 Canvas 로 그릴 때, 페이지 배경색 (`--bg-primary`) 과 동일하게 맞추려고 했습니다.\n\n```ts\nconst bg = getComputedStyle(document.documentElement)\n  .getPropertyValue(\"--bg-primary\")\n  .trim();\nctx.fillStyle = bg;\nctx.fillRect(0, 0, w, h);\n```\n\n그런데 결과는 배경색 대신 **검은색 (`#000`)** 으로 칠해졌습니다. devtools 에서 `--bg-primary` 는 라이트 모드 `oklch(99% 0.005 90)`, 다크 모드 `oklch(8% 0.005 240)` 로 분명 정의되어 있는데도.",
-      en: "When drawing the Cylinder layout's intro texture on Canvas, we wanted it to match the page background (`--bg-primary`):\n\n```ts\nconst bg = getComputedStyle(document.documentElement)\n  .getPropertyValue(\"--bg-primary\")\n  .trim();\nctx.fillStyle = bg;\nctx.fillRect(0, 0, w, h);\n```\n\nThe result painted **black (`#000`)** instead of the background color. DevTools clearly showed `--bg-primary` defined as `oklch(99% 0.005 90)` (light) / `oklch(8% 0.005 240)` (dark).",
+      ko: "이 사이트의 Works 페이지는 완성한 프로젝트를 보여 주며, 이 페이지의 배경은 CSS로 칠한 단색 면이 아니라 JavaScript가 Canvas 위에 색을 직접 그려 넣는 영역이다. 배경을 그리는 코드는 페이지의 배경색을 읽어 와 그대로 칠하도록 작성했고, 목표는 이 Canvas 영역의 색을 페이지 나머지 배경과 정확히 일치시키는 것이었다.\n\n페이지 배경색은 여러 화면이 같은 값을 공유하도록 디자인 토큰으로 한곳에 정의돼 있다. 코드에서는 `getComputedStyle(...).getPropertyValue(...)` 로 이 토큰 값을 읽어 Canvas 에 전달했다.\n\n기대한 결과는 페이지와 동일한 배경색이었으나, 실제 화면에서는 Canvas 영역이 검은색으로 칠해졌다. 개발자 도구로 해당 토큰을 확인하면 밝은 모드용 색과 어두운 모드용 색이 모두 지정돼 있었는데도 결과는 검은색이었다.",
+      en: "This site's Works page shows finished projects, and its background is not a solid surface filled by CSS but an area where JavaScript draws color directly onto a Canvas. The drawing code was written to read the page's background color and paint it as-is, and the goal was to match this Canvas area's color exactly to the rest of the page background.\n\nThe page background color is defined in one place as a design token so that many screens share the same value. The code read this token with `getComputedStyle(...).getPropertyValue(...)` and passed it to the Canvas.\n\nThe expected result was a background identical to the page, but in practice the Canvas area was painted black. Even though the developer tools showed the token holding both a light-mode and a dark-mode color, the result was black.",
     },
     cause: {
-      ko: "`getPropertyValue(\"--bg-primary\")` 는 **선언된 값의 raw 문자열** 을 그대로 돌려줍니다. resolve 까지 해주지 않습니다.\n\n프로젝트는 4-tier 토큰 구조 (Raw → Semantic → Component → Context) 라 semantic 토큰이 raw 토큰을 참조합니다:\n\n```css\n:root {\n  --color-neutral-50: oklch(99% 0.005 90);\n  --bg-primary: var(--color-neutral-50);  /* 체인 */\n}\n```\n\n그래서 `getPropertyValue(\"--bg-primary\")` 는 `\"var(--color-neutral-50)\"` 라는 **문자열 그대로** 반환합니다. Canvas `fillStyle` 은 이걸 invalid color value 로 판단하고 spec 에 따라 default (검은색) 로 폴백.\n\n핵심 오해는 \"DevTools 의 Computed 탭이 resolve 된 값을 보여주니까 JS API 도 그럴 것\" 이라는 가정입니다. 실제로는 DevTools 가 친절히 보여주는 것이고, `getPropertyValue` 는 declared value 만 돌려줍니다.",
-      en: "`getPropertyValue(\"--bg-primary\")` returns the **declared raw string** — it doesn't follow `var()` references.\n\nThe project uses a 4-tier token structure (Raw → Semantic → Component → Context), so semantic tokens reference raw ones:\n\n```css\n:root {\n  --color-neutral-50: oklch(99% 0.005 90);\n  --bg-primary: var(--color-neutral-50);  /* chain */\n}\n```\n\nSo `getPropertyValue(\"--bg-primary\")` returns the literal string `\"var(--color-neutral-50)\"`. Canvas `fillStyle` treats that as an invalid color and falls back to the default (black) per spec.\n\nThe core misconception: \"DevTools' Computed tab shows the resolved value, so the JS API must too.\" In reality DevTools is being helpful; `getPropertyValue` only returns the declared value.",
+      ko: "원인은 토큰 값을 읽는 방식에 있었다. `getPropertyValue` 는 해당 property 에 적힌 문자열을 그대로 돌려줄 뿐, 그 문자열이 최종적으로 가리키는 색까지 따라가지 않는다.\n\n이 프로젝트의 색 변수는 한 단계로 끝나지 않고 여러 단계로 연결돼 있다. 배경색 토큰은 색 값을 직접 가지지 않고 `var()` 로 다른 토큰을 참조하며, 그 참조를 끝까지 따라가야 실제 색이 나온다. custom property 의 값은 명세상 참조가 풀린 최종 색이 아니라 적힌 토큰 문자열 그대로로 정의돼 있어서, 코드로 배경색 토큰을 조회하면 색이 아니라 다른 토큰을 가리키는 `var(...)` 문자열이 반환된다. Canvas 는 이 문자열을 색으로 해석하지 못하고, 해석할 수 없는 값이 들어오면 기본값인 검은색으로 칠한다.\n\n혼동을 일으키는 지점은 개발자 도구다. 개발자 도구의 computed style 표시는 참조를 끝까지 추적한 최종 색을 보여 주므로, 코드로 읽어도 같은 색이 나올 것이라고 판단하기 쉽다. 그러나 그것은 개발자 도구가 대신 추적해 표시한 결과이고, `getPropertyValue` 로 custom property 를 조회하면 반환되는 것은 `var(...)` 참조 문자열 하나뿐이다.",
+      en: "The cause was in how the token value was read. `getPropertyValue` returns the string written on that property as-is; it does not follow that string through to the color it ultimately points to.\n\nIn this project the color variables are not resolved in a single step but connected across several stages. The background-color token holds no color value directly; it references another token through `var()`, and only by following that reference to the end does the real color appear. By the specification a custom property's value is defined as the written token string itself, not the resolved final color, so querying the background-color token in code returns not a color but a `var(...)` string pointing to another token. The Canvas cannot interpret this string as a color, and when an uninterpretable value arrives it paints its default, black.\n\nThe point that causes confusion is the developer tools. Their computed style display shows the final color traced all the way through the references, so it is easy to assume that reading it in code would yield the same color. But that is only what the developer tools traced and displayed on your behalf; querying a custom property with `getPropertyValue` returns a single `var(...)` reference string.",
     },
     solution: {
-      ko: "**임시 element 에 `color: var(--bg-primary)` 를 적용한 뒤, `getComputedStyle(el).color` 를 읽으면** 브라우저가 chain 을 끝까지 따라가 actual rgb 값을 돌려줍니다.\n\n```ts\nfunction resolveCssVar(varName: string): string {\n  if (typeof document === \"undefined\") return \"#000\";\n  const tmp = document.createElement(\"div\");\n  tmp.style.color = `var(${varName})`;\n  tmp.style.position = \"absolute\";\n  tmp.style.visibility = \"hidden\";\n  document.body.appendChild(tmp);\n  const color = getComputedStyle(tmp).color; // → \"rgb(252, 252, 250)\" 등\n  document.body.removeChild(tmp);\n  return color || \"#000\";\n}\n\n// 사용\nconst bg = resolveCssVar(\"--bg-primary\");\nctx.fillStyle = bg; // 정상 rendering\n```\n\n**왜 동작하는가**: `color` 같은 CSS 속성은 `var()` chain 을 resolve 한 뒤 실제 used value 로 저장됩니다. `getComputedStyle().color` 는 그 used value 를 읽기 때문에 `\"rgb(252, 252, 250)\"` 같은 actual 값을 받습니다. `--bg-primary` 자체 (`getPropertyValue`) 는 declared value 만 반환하지만, `color` 같은 standard 속성을 거치면 resolve 된 값이 나옵니다.\n\nWorks Cylinder intro 텍스처는 이 방식으로 페이지 `--bg-primary` 와 매칭됩니다 — 라이트/다크 모드 전환 시에도 텍스처 자체가 같은 색으로 다시 그려져 seam 없음.",
-      en: "**Apply `color: var(--bg-primary)` to a temporary element, then read `getComputedStyle(el).color`** — the browser follows the chain end-to-end and returns an actual rgb value.\n\n```ts\nfunction resolveCssVar(varName: string): string {\n  if (typeof document === \"undefined\") return \"#000\";\n  const tmp = document.createElement(\"div\");\n  tmp.style.color = `var(${varName})`;\n  tmp.style.position = \"absolute\";\n  tmp.style.visibility = \"hidden\";\n  document.body.appendChild(tmp);\n  const color = getComputedStyle(tmp).color; // → \"rgb(252, 252, 250)\"\n  document.body.removeChild(tmp);\n  return color || \"#000\";\n}\n\n// usage\nconst bg = resolveCssVar(\"--bg-primary\");\nctx.fillStyle = bg; // renders correctly\n```\n\n**Why it works**: standard CSS properties like `color` store the *used value* — the result after `var()` chains are resolved. `getComputedStyle().color` reads that used value, so you get a concrete `\"rgb(252, 252, 250)\"`. `getPropertyValue` on the custom property itself only returns the declared value; piping through a standard property gives you the resolved one.\n\nThe Works Cylinder intro texture uses this to track `--bg-primary` — it also redraws on light/dark toggles, keeping the texture seamless with the page background.",
+      ko: "토큰을 직접 읽는 대신 표준 property 를 한 단계 거치도록 했다. 화면에 보이지 않는 임시 요소를 만들고 그 요소의 `color` 를 이 토큰으로 지정한 다음, `getComputedStyle` 로 그 요소의 `color` 가 최종적으로 무엇으로 계산됐는지 다시 읽었다. 이렇게 하면 브라우저가 연결된 `var()` 참조를 끝까지 풀어 실제 색 값을 반환한다.\n\n이 방법이 동작하는 이유는 `color` 같은 표준 property 가 used value 를 계산하는 단계에서 `var()` 참조를 모두 치환해 최종 색을 실제로 산출하기 때문이다. 따라서 그 property 값을 다시 읽으면 `var(...)` 문자열이 아니라 완전히 해석된 색이 반환된다. custom property 를 직접 조회하면 적힌 문자열만 얻지만, `color` 같은 표준 property 를 한 번 거치면 브라우저가 이미 계산해 둔 색을 받아 올 수 있다.\n\nWorks 페이지의 Canvas 배경도 이 방식으로 페이지 배경색과 맞췄다. 밝은 모드와 어두운 모드를 전환할 때도 같은 방식으로 색을 다시 읽어 다시 칠하므로, 페이지와 Canvas 가 만나는 지점에 색이 어긋나는 경계가 생기지 않는다.",
+      en: "Instead of reading the token directly, the fix routes it through a standard property. It creates an element that is not visible on screen, sets that element's `color` to this token, and then reads back with `getComputedStyle` what that element's `color` was finally computed to be. This makes the browser resolve the connected `var()` references to the end and return a real color value.\n\nThis works because a standard property such as `color` substitutes all `var()` references and actually produces the final color while computing its used value. Reading that property back therefore returns a fully resolved color rather than a `var(...)` string. Querying a custom property directly yields only the written string, but routing it once through a standard property such as `color` returns the color the browser has already computed.\n\nThe Works page's Canvas background was matched to the page background color this same way. When switching between light and dark mode, the color is read again and repainted the same way, so no seam of mismatched color appears where the page and the Canvas meet.",
     },
     keyInsight: {
-      ko: "**`getPropertyValue` 는 declared value 만 돌려준다. `var()` chain 의 final 값이 필요하면 standard CSS property 를 거쳐 `getComputedStyle` 로 읽어야 한다.**\n\nDevTools 의 Computed 탭은 친절하게 resolve 까지 해서 보여주지만, JS API 는 그렇지 않습니다. CSS Custom Properties spec 상 custom property 의 computed value 도 \"the result of substitutions\" 가 아니라 \"the specified value\" 입니다.\n\n이 사실은 CSS 토큰 시스템이 multi-tier 일수록 더 자주 발목 잡습니다. 1-tier (직접 hex) 면 안 보이는 함정이지만, semantic → raw chain 이 있으면 즉시 드러납니다.\n\n비슷한 케이스에 같은 패턴 적용 가능:\n- **Three.js material 색** — `new THREE.Color(bg)` 에 넘기기 전 resolve\n- **SVG `fill`/`stroke` 동적 set** — `element.setAttribute(\"fill\", bg)` 전 resolve (SVG attribute parser 는 `var()` 미지원)\n- **Animation library 의 from/to 색** — Framer / GSAP 등 일부 interpolator 는 raw string 을 못 해석\n\n반대로 CSS 안에서만 쓰는 경우 (`background: var(--bg-primary)`) 는 브라우저가 알아서 resolve 하므로 문제 없음. **\"JS 가 CSS 값을 읽어서 비-CSS 컨텍스트 (Canvas, SVG attribute, library prop) 에 넘기는 순간\"** 이 위험 지점.",
-      en: "**`getPropertyValue` returns only the declared value. If you need the resolved end of a `var()` chain, pipe it through a standard CSS property and read with `getComputedStyle`.**\n\nDevTools' Computed tab helpfully resolves and shows the final value, but the JS API doesn't. Per the CSS Custom Properties spec, a custom property's *computed value* is the specified value, not \"the result of substitutions\".\n\nThis bites harder the more tiers your token system has. With direct hex (1-tier) it's invisible; once you have semantic → raw chains, it surfaces immediately.\n\nSame pattern reaches further:\n- **Three.js material colors** — resolve before `new THREE.Color(bg)`.\n- **SVG `fill`/`stroke` set dynamically** — resolve before `element.setAttribute(\"fill\", bg)` (the SVG attribute parser doesn't support `var()`).\n- **Animation library from/to colors** — some Framer/GSAP interpolators can't parse raw `var()` strings.\n\nWhen the value stays inside CSS (`background: var(--bg-primary)`), the browser resolves it for you — no issue. **The danger window opens the moment JS reads a CSS value and hands it to a non-CSS context** (Canvas, SVG attributes, library props).",
+      ko: "custom property 를 `getPropertyValue` 로 읽으면 적힌 문자열만 반환된다. 여러 단계로 연결된 `var()` 참조의 최종 색이 필요하면, `color` 같은 표준 property 를 한 번 거쳐 브라우저가 이미 계산해 둔 computed style 을 읽어야 한다.\n\n개발자 도구는 최종 색까지 풀어서 표시하지만 코드 조회는 그렇게 하지 않는다. 명세상 custom property 의 값은 계산된 색이 아니라 적힌 토큰 문자열 그대로이기 때문이다.\n\n이 문제는 색을 여러 단계로 참조할수록 더 자주 나타난다. 색을 한곳에 직접 적어 두면 드러나지 않고, 한 토큰이 다른 토큰을 `var()` 로 참조하는 구조가 되면 나타난다.\n\n발생 조건도 정해져 있다. 코드가 색을 읽어 순수한 CSS 바깥으로, 예를 들어 Canvas 그래픽, Three.js 로 그린 3차원 장면, 애니메이션 도구로 전달할 때다. 반대로 색을 CSS 안에서만 사용하면 브라우저가 `var()` 참조를 끝까지 풀어 주므로 이 문제는 발생하지 않는다.",
+      en: "Read a custom property with `getPropertyValue` and only the written string is returned. When you need the final color at the end of several connected `var()` references, you have to route it through a standard property such as `color` and read the computed style the browser has already produced.\n\nThe developer tools resolve and display the final color, but a lookup in code does not, because by the specification a custom property's value is the written token string rather than the computed color.\n\nThis problem appears more often the more stages colors are referenced through. It stays hidden when a color is written directly in one place, and it surfaces once one token references another token through `var()`.\n\nThe condition under which it occurs is fixed: when code reads a color and passes it outside pure CSS, for example to a Canvas graphic, a three-dimensional scene drawn with Three.js, or an animation tool. Conversely, when the color is used only within CSS, the browser resolves the `var()` references to the end, so the problem does not occur.",
     },
     tags: ["css", "custom-properties", "var", "getComputedStyle", "canvas", "three.js", "design-tokens"],
   },
   {
-    problem: {
-      ko: "칩을 다른 그룹으로 drag 하면 일부는 잘 옮겨지고 일부는 기존 항목과 위치가 바뀜(switch)",
-      en: "Dragging a chip to another group works for some, but others swap places with an existing item",
-    },
-    definition: {
-      ko: "Tech Stack 칩 에디터에서 칩을 카테고리 그룹 간 이동할 때, 그룹의 '첫 번째' 칩을 옮기면 그룹 순서 전체가 뒤집혀 다른 칩과 자리가 바뀐 것처럼 보임.",
-      en: "In the Tech Stack chip editor, moving the *first* chip of a group flips the entire group order, making it look like chips swapped places.",
-    },
-    cause: {
-      ko: "그룹(카테고리) 표시 순서를 항목 배열의 '첫 등장' index 에서 파생하고 있었음. 어떤 카테고리의 첫 항목을 다른 그룹으로 옮기면 그 카테고리의 '앵커'가 사라져, 남은 항목의 첫 등장 위치 기준으로 그룹 순서가 재계산되며 통째로 뒤집힘. 중간·끝 항목을 옮길 땐 앵커가 유지돼 멀쩡 → '어떤 건 되고 어떤 건 안 되는' 증상.",
-      en: "Group display order was *derived* from each category's first-appearance index in the items array. Moving a category's first item removed its anchor, so the order recomputed off the remaining items and flipped wholesale. Moving middle/last items kept the anchor — hence the intermittent symptom.",
-    },
-    solution: {
-      ko: "그룹 순서를 항목 위치에서 파생하지 않고 **별도 state 로 소유**. drop 시 옮긴 항목은 타깃 그룹의 끝에 append 하고, 그룹 순서는 이동 전 순서를 유지(빈 그룹도 placeholder 로 유지해 다시 끌어올 수 있게). collision detection 이나 좌표 문제가 아니라 '파생 순서'가 원인이었던 게 핵심.",
-      en: "Stop deriving group order from item positions — **own it in explicit state**. On drop, append the moved item to the end of the target group and keep the prior group order (empty groups stay as drop placeholders). The root cause was the derived order, not collision detection or coordinates.",
-    },
-    keyInsight: {
-      ko: "파생 상태(derived order)가 입력 '순서'에 의존하면, 입력의 부분 변경이 전체 재배열을 유발한다. 순서가 의미를 가지면 파생하지 말고 명시적으로 소유하라.",
-      en: "When derived state depends on input *ordering*, a partial change to the input can trigger a full reshuffle. If order carries meaning, own it explicitly instead of deriving it.",
-    },
-    tags: ["dnd-kit", "drag-and-drop", "react", "state", "derived-state"],
-  },
-  {
-    problem: {
-      ko: "drag&drop 후 위치 이동 애니메이션이 안 먹거나 엉뚱한 칩이 튐",
-      en: "After drag & drop, the position animation doesn't play — or the wrong chip jumps",
-    },
-    definition: {
-      ko: "framer-motion `layout`/`layoutId` 로 칩 재배치를 FLIP 애니메이션하려 했으나, 어떤 칩은 슬라이드 없이 즉시 점프하고 그룹 간 이동은 전혀 보간되지 않음.",
-      en: "Tried to FLIP-animate chip reordering with framer-motion `layout`/`layoutId`, but some chips jumped instantly and cross-group moves weren't interpolated at all.",
-    },
-    cause: {
-      ko: "motion 컴포넌트의 key/layoutId 를 배열 index 로 부여. 항목이 이동하면 index 가 바뀌어 React 가 다른 요소로 보고 unmount/remount → framer 가 '같은 요소'로 추적하지 못해 FLIP 실패. 그룹 간 이동은 부모(컨테이너)가 달라 더더욱 추적 불가.",
-      en: "key/layoutId were derived from the array index. When an item moved, its index changed, so React treated it as a different element and unmounted/remounted it — framer couldn't track it as the same node, so FLIP broke. Cross-group moves change the parent container, breaking it further.",
-    },
-    solution: {
-      ko: "layoutId/key 를 항목 고유값(이름)으로 부여해 이동해도 동일 instance 로 유지하고, 전체를 `<LayoutGroup>` 으로 감싸 그룹(부모)이 달라져도 공유 레이아웃 전환이 일어나게 함. drop 시 DragOverlay 의 dropAnimation 은 비활성해 실제 칩의 FLIP 과 충돌 방지.",
-      en: "Give layoutId/key a stable per-item identity (the name) so the instance survives moves, and wrap everything in `<LayoutGroup>` so shared-layout transitions fire across parents. Disable the DragOverlay drop animation so it doesn't fight the real chip's FLIP.",
-    },
-    keyInsight: {
-      ko: "FLIP·공유 레이아웃 애니메이션은 '이 요소가 그 요소와 같다'를 key 로 증명해야 동작한다. 배열 index 는 안정 키가 아니다.",
-      en: "FLIP / shared-layout animation only works if you *prove* element identity via the key. An array index is not a stable key.",
-    },
-    tags: ["framer-motion", "layout", "layoutId", "flip", "react-key", "animation"],
-  },
-  {
-    problem: {
-      ko: "drag 핸들 위에서만 'Drag' 커서가 떠서 사용자가 끌 수 있다는 걸 못 알아챔",
-      en: "The 'Drag' cursor only showed over the tiny handle, so users couldn't tell a chip was draggable",
-    },
-    definition: {
-      ko: "커스텀 커서(CursorTrail) 환경에서 칩 핸들에만 drag 커서를 줬더니, 작은 grip 위에 정확히 올렸을 때만 잠깐 바뀌어 사실상 표시가 안 되는 것처럼 보임.",
-      en: "With the custom cursor (CursorTrail), the drag affordance was scoped to the chip's handle only — it changed only when hovering the tiny grip, so it effectively read as 'not working'.",
-    },
-    cause: {
-      ko: "① `html.custom-cursor` 가 native 커서를 숨겨 CSS `cursor: grab` 자체가 안 보임. ② 커스텀 커서는 `[data-draggable]`/`[draggable]` 또는 `[data-cursor]` 로 상태를 잡는데, dnd-kit 은 HTML5 `draggable` 속성을 달지 않음 → 자동 감지 안 됨. ③ 그 신호를 좁은 핸들에만 부여.",
-      en: "① `html.custom-cursor` hides the native cursor, so CSS `cursor: grab` is invisible. ② The custom cursor reads `[data-draggable]`/`[draggable]` or `[data-cursor]`, but dnd-kit doesn't set the HTML5 `draggable` attribute, so auto-detection misses it. ③ The signal was attached only to the narrow handle.",
-    },
-    solution: {
-      ko: "`data-cursor=\"grab\"` 를 핸들이 아닌 **칩 전체**에 부여. drag 감지(listeners)는 칩 전체에 그대로 두고, 커서 신호만 넓혀 어디에 올려도 'Drag' 가 보이게 함. (클릭=편집은 그대로 — data-cursor 는 시각 힌트일 뿐 클릭을 막지 않음.)",
-      en: "Put `data-cursor=\"grab\"` on the **whole chip** instead of the handle. Keep drag listeners on the whole chip; just widen the cursor signal so 'Drag' shows anywhere. (Click-to-edit still works — data-cursor is a visual hint, it doesn't block clicks.)",
-    },
-    keyInsight: {
-      ko: "커스텀 커서 환경에선 CSS `cursor` 가 무력하다. 발견성(affordance)은 `data-*` 신호로, 그것도 충분히 넓은 hit 영역에 줘야 한다.",
-      en: "Under a custom cursor, CSS `cursor` is inert. Affordance must come from a `data-*` signal — and over a wide enough hit area to be discoverable.",
-    },
-    tags: ["custom-cursor", "data-attribute", "dnd-kit", "affordance", "ux"],
-  },
-  {
-    problem: {
-      ko: "dashed 테두리를 줬는데 테두리가 아예 안 그려짐",
-      en: "Set a dashed border, but no border renders at all",
-    },
-    definition: {
-      ko: "`border: 1px dashed var(--border-strong)` 처럼 디자인 토큰으로 dashed 테두리를 줬는데 화면에 아무 테두리도 안 나옴.",
-      en: "Wrote `border: 1px dashed var(--border-strong)` with a design token, but no border appears.",
-    },
-    cause: {
-      ko: "`--border-*` 토큰은 색이 아니라 `1px solid <color>` **shorthand**. 그래서 `1px dashed var(--border-strong)` 는 `1px dashed 1px solid <color>` 로 전개돼 invalid → 선언 전체가 무시됨. 침묵 실패라 더 헷갈림.",
-      en: "`--border-*` tokens aren't colors — they're `1px solid <color>` **shorthands**. So `1px dashed var(--border-strong)` expands to `1px dashed 1px solid <color>`, which is invalid and silently dropped.",
-    },
-    solution: {
-      ko: "base shorthand 를 먼저 적용한 뒤 **style 만 override**: `border: var(--border-strong); border-style: dashed;` (한 변이면 `border-top-style`, outline 이면 `outline-style`). width·color 가 base 토큰에 동기화되고 dash 전용 토큰을 새로 만들 필요도 없음. 색 토큰이 필요할 땐 `--border-*-color` 를 직접 쓴다.",
-      en: "Apply the base shorthand, then **override only the style**: `border: var(--border-strong); border-style: dashed;` (per-side `border-top-style`, or `outline-style` for outlines). Width/color stay synced to the base token, and no dashed-specific tokens are needed. When a raw color is required, use `--border-*-color` directly.",
-    },
-    keyInsight: {
-      ko: "shorthand 토큰을 다른 shorthand 속성 안에 끼우면 조용히 깨진다. 토큰이 '값'인지 'shorthand'인지 구분하고, 일부만 바꾸려면 longhand override 로 분리하라.",
-      en: "Nesting a shorthand token inside another shorthand silently breaks. Know whether a token is a *value* or a *shorthand*, and split out partial changes via a longhand override.",
-    },
-    tags: ["css", "design-tokens", "border", "shorthand", "dashed"],
-  },
-  {
+    id: "dragging-selecting-the-text-next-to",
     problem: {
       ko: "float 이미지 옆 텍스트를 드래그·선택하면 이미지가 같이 묶이고, 화살표·클릭 시 빈 줄에 커서가 떨어짐",
       en: "Dragging/selecting the text next to a float image dragged the image with it, and arrows/clicks dropped the caret into an empty line",
@@ -3249,6 +2752,7 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── Editor shell / Layout ── */
   {
+    id: "editor-top-bar-won-t-pin",
     section: { ko: "Admin / Layout", en: "Admin / Layout" },
     problem: {
       ko: "에디터 top bar 가 `position: sticky` 로 안 붙음 — 본문 내부 스크롤이라 페이지가 안 움직여 핀이 안 걸림",
@@ -3273,34 +2777,9 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["css", "position", "sticky", "fixed", "scroll", "capture", "ResizeObserver", "editor"],
   },
 
-  /* ── Interaction ── */
-  {
-    section: { ko: "Interaction", en: "Interaction" },
-    problem: {
-      ko: "HorizontalCarousel 안의 카드 클릭이 안 먹음 — `setPointerCapture` 가 자식 click 을 가로챔",
-      en: "Card clicks inside HorizontalCarousel don't register — `setPointerCapture` steals the child click",
-    },
-    definition: {
-      ko: "가로 캐러셀 안에 든 팀원 폴라로이드(플립) 카드를 클릭해도 토글이 안 됨. 카드 자체엔 `onClick` 이 정상으로 붙어 있는데도 이벤트가 도달하지 않음.",
-      en: "Clicking a team polaroid (flip) card inside the horizontal carousel didn't toggle it. The card had a working `onClick`, yet the event never reached it.",
-    },
-    cause: {
-      ko: "캐러셀이 마우스 드래그 스크롤을 위해 `onPointerDown` 에서 즉시 `el.setPointerCapture()` 를 호출. 포인터가 캡처되면 이후 pointer 이벤트가 전부 캐러셀로 redirect 되고, 그 결과 자식 카드의 `click`(= pointerdown→up 한 쌍) 이 카드까지 전달되지 않음. \"드래그하려고 캡처\" 가 \"탭/클릭\" 까지 같이 삼켜 버린 것.",
-      en: "For mouse drag-scroll, the carousel called `el.setPointerCapture()` immediately on `onPointerDown`. Once captured, all subsequent pointer events redirect to the carousel, so the child card's `click` (a pointerdown→up pair) never reaches the card. \"Capture to drag\" also swallowed the \"tap/click.\"",
-    },
-    solution: {
-      ko: "캡처를 pointerdown 시점이 아니라 실제 드래그가 시작된 시점으로 미룸. ① `onPointerDown` 에선 시작 좌표만 기록(`active: true`) — 캡처 안 함. ② `onPointerMove` 에서 이동량이 4px 을 넘긴 순간 비로소 `setPointerCapture()` + `data-cursor=\"grab\"` → 진짜 드래그로 판정. ③ 4px 미만으로 떼면 캡처가 없어 `click` 이 자식에 정상 전달. `onClickCapture` 는 `moved` 플래그가 섰을 때만 click 을 막아 드래그 끝의 의도치 않은 클릭만 차단.",
-      en: "Defer the capture from pointerdown to when a real drag begins. ① `onPointerDown` records only the start coords (`active: true`) — no capture. ② `onPointerMove` calls `setPointerCapture()` + sets `data-cursor=\"grab\"` only once the move exceeds 4px → judged a real drag. ③ Release under 4px and no capture happens, so `click` propagates to the child. `onClickCapture` swallows the click only when the `moved` flag is set, blocking just the unintended end-of-drag click.",
-    },
-    keyInsight: {
-      ko: "`setPointerCapture` 를 pointerdown 에서 바로 부르면 클릭과 드래그를 구분할 기회 자체가 사라진다 — 캡처가 자식 이벤트를 통째로 가져감. \"이동 임계값(4px)을 넘기 전엔 캡처하지 않는다\" 가 클릭·드래그를 공존시키는 표준 패턴(TagCloud3D·Series Deck 와 동일).",
-      en: "Calling `setPointerCapture` straight on pointerdown removes any chance to tell click from drag — the capture takes the child's events wholesale. \"Don't capture until the move exceeds a threshold (4px)\" is the standard pattern for letting click and drag coexist (same as TagCloud3D and Series Deck).",
-    },
-    tags: ["pointer-events", "setPointerCapture", "drag", "click", "carousel", "interaction"],
-  },
-
   /* ── Architecture / Component ── */
   {
+    id: "editor-preview-drifts-from-the-published",
     section: { ko: "Admin / Architecture", en: "Admin / Architecture" },
     problem: {
       ko: "에디터 미리보기가 게시 상세와 레이아웃이 어긋남 — 단순화 버전이라 계속 drift",
@@ -3324,78 +2803,29 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     },
     tags: ["preview", "detail", "shared-component", "richtext", "refactor", "single-source"],
   },
-
-  /* ── Layout / CSS ── */
   {
-    section: { ko: "Layout / CSS", en: "Layout / CSS" },
-    problem: {
-      ko: "float 이미지가 상세 페이지에서 텍스트와 딱 붙음 (간격 0)",
-      en: "Float images stick to the text on the detail page (zero gap)",
-    },
-    definition: {
-      ko: "본문 옆으로 흘린 float 이미지가 상세 페이지에서 인접 텍스트와 간격 없이 딱 붙어 렌더됨.",
-      en: "A float image wrapped beside the body text rendered flush against the adjacent text with no gap on the detail page.",
-    },
-    cause: {
-      ko: "plateSerializer 가 float figure 를 `style=\"float:left;margin:0\"` 처럼 인라인 style 로 margin:0 을 박아 저장 → 가로 여백이 0이라 텍스트가 이미지에 달라붙음. 게다가 인라인 style 은 우선순위가 높아 `.prose figure` 같은 일반 CSS 규칙으로 덮을 수 없었음.",
-      en: "plateSerializer saved the float figure with inline-style `margin:0`, like `style=\"float:left;margin:0\"` → zero horizontal margin, so the text clung to the image. And inline styles win on specificity, so a generic rule like `.prose figure` couldn't override it.",
-    },
-    solution: {
-      ko: "직렬화 값 자체를 고치고 CSS 로도 `!important` 강제. ① `plateSerializer.ts` 에서 float figure margin 을 `0 24px 24px 0`(left)/`0 0 24px 24px`(right) 로 변경해 직렬화 단계에서 옆·아래 여백 부여. ② `PostDetail.module.css`/`WorkDetail.module.css` 의 `.prose figure[style*=\"float:left\"]`/`.sectionProse figure[style*=\"float:right\"]` 에 `margin: ... !important` 로 옆·아래 간격(`--spacing-lg`)을 강제 — 과거에 `margin:0` 으로 저장된 콘텐츠도 일관되게 간격이 적용되도록(직렬화 값과 무관하게 커버).",
-      en: "Fix the serialized value and also force it via CSS `!important`. ① In `plateSerializer.ts`, change the float figure margin to `0 24px 24px 0` (left) / `0 0 24px 24px` (right), applying side/bottom spacing at the serialization step. ② In `PostDetail.module.css`/`WorkDetail.module.css`, force side/bottom spacing (`--spacing-lg`) with `margin: ... !important` on `.prose figure[style*=\"float:left\"]`/`.sectionProse figure[style*=\"float:right\"]` — so the gap applies consistently even to old content saved with `margin:0` (regardless of the serialized value).",
-    },
-    keyInsight: {
-      ko: "직렬화가 인라인 style 을 박으면 그 값은 외부 CSS 보다 우선순위가 높아 나중에 덮기 어렵다 — 직렬화 단계에서 올바른 값을 넣는 게 1차 방어. 이미 잘못 저장된 과거 데이터까지 책임지려면 attribute selector(`[style*=\"float\"]`) + `!important` 로 인라인 값을 무력화하는 2차 방어를 둔다.",
-      en: "When serialization bakes in an inline style, that value outranks external CSS and is hard to override later — putting the right value in at serialization is the first line of defense. To cover already-broken legacy data, add a second line: an attribute selector (`[style*=\"float\"]`) + `!important` to neutralize the inline value.",
-    },
-    tags: ["css", "float", "inline-style", "specificity", "serializer", "important"],
-  },
-
-  /* ── 댓글 마크다운 — 번들러 / sanitizer ── */
-  {
-    section: { ko: "Architecture & Backend", en: "Architecture & Backend" },
-    problem: {
-      ko: "댓글에 코드 하이라이팅을 붙이자 게시물 페이지 전체가 크래시 — 빌드는 통과",
-      en: "Adding code highlighting to comments crashed the entire post page — while the build passed",
-    },
-    definition: {
-      ko: "댓글 마크다운의 코드블록에 하이라이팅을 붙이려고 `highlight.js` 를 import 했더니, 댓글이 아니라 **게시물 상세 페이지가 통째로** 죽었습니다. dev·prod 양쪽에서 재현됐고, `npm run build` 는 아무 경고 없이 통과했습니다.",
-      en: "I imported `highlight.js` to highlight code blocks inside comment markdown, and **the entire post detail page** died — not just the comment. It reproduced in both dev and prod, and `npm run build` passed without a single warning.",
-    },
-    cause: {
-      ko: "콘솔에 남은 건 코드 한 줄 실행되기도 전에 터진 이 에러였습니다:\n\n```\nSyntaxError: Invalid regular expression: /[A-...]/:\nRange out of order in character class\n```\n\n추적해 보니 highlight.js 의 `xml.js` 가 `/[\\p{L}_]/u` 라는 **유니코드 속성 이스케이프**를 씁니다. 번들러가 이 파일을 구형 브라우저 타겟에 맞춰 downlevel 하면서 `\\p{L}` 을 코드포인트 범위의 나열로 풀어쓰는데, 그 과정에서 **시작이 끝보다 큰(범위가 뒤집힌) 문자 클래스**가 만들어졌습니다.\n\n결정적인 건 터지는 **시점**이었습니다. 정규식 리터럴은 함수가 호출될 때가 아니라 **모듈이 평가되는 순간** 컴파일됩니다. 그래서 하이라이팅 함수를 한 번도 부르지 않아도, 그 모듈이 포함된 청크가 로드되는 순간 throw 가 나고, **그 청크에 함께 묶인 페이지 전체가 죽습니다**. 댓글 하나의 문제가 게시물 페이지 전체로 번진 이유입니다.\n\n원인이 번들 산출물이라는 건 아래로 확인했습니다.\n\n- **원본 파일은 멀쩡합니다** — Node 에서 `xml.js` 를 그대로 로드하면 정상입니다. 즉 라이브러리 소스가 아니라 **번들러가 변환한 결과물만** 깨져 있습니다.\n- `next.config` 의 `optimizePackageImports` 에서 highlight.js 를 빼도 그대로 재현됩니다 — 최적화 옵션이 원인이 아닙니다.\n- `xml` 언어만 등록에서 빼면 정규식 에러는 사라집니다. 하지만 **필요한 언어만 골라 등록한 자체 인스턴스로도** highlight.js 청크가 로드되는 순간 같은 크래시가 납니다.",
-      en: "The console showed an error that fired before a single line of my code ran:\n\n```\nSyntaxError: Invalid regular expression: /[A-...]/:\nRange out of order in character class\n```\n\nTracing it: highlight.js's `xml.js` uses `/[\\p{L}_]/u`, a **Unicode property escape**. When the bundler downlevels that file for older browser targets, it expands `\\p{L}` into a list of codepoint ranges — and in doing so produced a **character class whose range start was greater than its end**.\n\nThe decisive part was *when* it threw. A regex literal is compiled **when its module is evaluated**, not when a function is called. So even without ever invoking the highlighter, the moment the chunk containing that module loaded, it threw — and **every page bundled into that chunk died with it**. That's how one comment feature took down the whole post page.\n\nI confirmed the bundle output was the culprit:\n\n- **The original file is fine** — loading `xml.js` directly in Node works. Only the **bundler's transformed output** is broken, not the library source.\n- Removing highlight.js from `optimizePackageImports` in `next.config` reproduces it identically — the optimization flag isn't the cause.\n- Dropping just the `xml` language makes the regex error go away, but **even a hand-rolled instance registering only the languages I need** crashes the same way the instant the highlight.js chunk loads.",
-    },
-    solution: {
-      ko: "**두 단계로 해결했습니다.**\n\n**1단계 — 우회(Prism).** 우선 리더뷰·댓글의 하이라이터를 Prism 으로 갈아끼웠습니다. Prism 은 유니코드 속성 이스케이프를 안 쓰므로 이 함정이 없고, 이미 의존성에 있어 추가 비용도 없었습니다. `utils/prismHighlight.ts` 를 단일 진입점으로 두고 `highlightCodeBlocks.ts` 의 hljs import 를 전부 걷어냈습니다 (Prism 번들에 없는 bash 는 직접 정의).\n\n**2단계 — 근본(문법 패치).** 에디터는 Prism 으로 못 옮깁니다 — Plate 의 code-block 플러그인이 **lowlight 인스턴스를 API 로 받기** 때문입니다. 그래서 hljs 문법 자체를 고쳤습니다. 등록 시 문법 객체를 훑어 아스트랄 이스케이프를 걷어내고 `u` flag 를 뗍니다. 아스트랄 영역의 \"문자\" 는 태그명에 실질적으로 안 쓰이고 BMP(한글·CJK·라틴 확장)는 그대로 남습니다. Plate 도 python 에 대해 같은 우회(`ensureStablePythonGrammar`)를 갖고 있어, 라이브러리 밖에서 문법을 패치하는 건 이 함정의 표준 대응입니다.\n\n한 번 헛돌았습니다. 처음엔 `RegExp` 인스턴스만 변환했는데 아무것도 안 고쳐졌습니다 — hljs 의 `regex.concat()` 이 **RegExp 가 아니라 소스를 이어붙인 문자열**을 반환해서(`core.js: return joined`), 아스트랄이 문자열 안에 있었기 때문입니다.\n\n**남아 있던 지뢰도 해제됐습니다.** `highlightCodeBlocks.ts` 는 이제 hljs 를 import 하지 않습니다.",
-      en: "**Solved in two stages.**\n\n**Stage 1 — sidestep (Prism).** First I swapped the reader and comment highlighters to Prism. Prism uses no Unicode property escapes, so the trap does not exist there, and it was already a dependency — no added cost. `utils/prismHighlight.ts` became the single entry point and every hljs import was stripped from `highlightCodeBlocks.ts` (bash, missing from the Prism bundle, is defined by hand).\n\n**Stage 2 — root fix (patch the grammar).** The editor could not move to Prism: Plate's code-block plugin **takes a lowlight instance as its API**. So I fixed the hljs grammar itself — at registration we walk the grammar object, strip astral escapes, and drop the `u` flag. Astral-plane \"letters\" are effectively never used in tag names, and the BMP (Korean, CJK, Latin extended) survives untouched. Plate ships the same workaround for python (`ensureStablePythonGrammar`), so patching a grammar from outside the library is the standard answer to this trap.\n\nOne attempt was wasted: transforming only `RegExp` instances fixed nothing. hljs's `regex.concat()` returns **a concatenated source string, not a RegExp** (`core.js: return joined`) — the astral escapes lived inside strings.\n\n**The remaining landmine is defused too.** `highlightCodeBlocks.ts` no longer imports hljs."
-    },
-    keyInsight: {
-      ko: "**빌드 통과는 안전을 보장하지 않습니다.** 번들러는 소스를 타겟 환경에 맞춰 \"고쳐 쓰는\" 단계이고, 그 산출물은 소스와 다르게 동작할 수 있습니다. 타입 체크도 빌드도 원본을 보기 때문에, 이 층의 결함은 **오직 런타임에서만** 드러납니다.\n\n그리고 실패 시점이 곧 폭발 반경입니다. **모듈 평가 시점에 컴파일되는 코드**(정규식 리터럴, 최상위 실행문)는 함수 호출 지점이 아니라 **import 지점에서** 터지므로, 한 컴포넌트의 문제가 그 청크를 공유하는 페이지 전체로 번집니다. 기능 하나를 넣을 때 그 실패가 **어디까지 번지는지**를 같이 봐야 하는 이유입니다.",
-      en: "**A green build doesn't mean it's safe.** The bundler is a step that *rewrites* your source for a target environment, and its output can behave differently from what you wrote. Type-checking and building both inspect the original — so defects at this layer surface **only at runtime**.\n\nAnd the moment of failure defines the blast radius. Code compiled **at module-evaluation time** — regex literals, top-level statements — throws at the **import** site, not the call site, so one component's problem takes down every page sharing that chunk. That's why adding a feature means also asking **how far its failure spreads**.",
-    },
-    tags: ["highlight.js", "bundler", "regex", "unicode-property-escape", "runtime-crash", "chunk"],
-  },
-  {
+    id: "comment-markdown-checkboxes-never-rendered-dompurify",
     section: { ko: "Architecture & Backend", en: "Architecture & Backend" },
     problem: {
       ko: "댓글 마크다운 체크박스가 렌더 안 됨 — DOMPurify 가 허용 목록에 넣은 속성을 조용히 지움",
       en: "Comment markdown checkboxes never rendered — DOMPurify silently stripped an explicitly allowlisted attribute",
     },
+    title: { ko: "HTML sanitizer의 URI 속성 정책", en: "An HTML sanitizer's URI-attribute policy" },
+    vizKey: "dompurify-uri",
     definition: {
-      ko: "댓글에 `- [ ] 할 일` 을 쓰면 체크박스가 아니라 **그냥 불릿**으로 렌더됐습니다. `ALLOWED_TAGS` 에 `input` 도, `ALLOWED_ATTR` 에 `type` 도 분명히 넣어둔 상태였고, 에러는 한 줄도 없었습니다.",
+      ko: "이 블로그의 댓글은 마크다운을 지원한다. 마크다운은 `**굵게**`, `- 목록`, `[링크](url)` 처럼 간단한 기호로 서식을 적는 문법이다. 그중 `- [ ] 할 일` 은 \"할 일 목록(task list)\" 문법으로, 앞의 `[ ]` 는 빈 **체크박스**로, `[x]` 는 체크된 체크박스로 렌더돼야 한다.\n\n그런데 댓글에 `- [ ] 할 일` 을 쓰면 체크박스가 안 뜨고 **그냥 불릿(•)** 으로만 나왔다.\n\n댓글은 사용자가 직접 쓰는 글이라, 화면에 그리기 전에 **보안 검사(sanitize)** 를 한 번 거친다. 누가 `<script>` 같은 악성 코드를 댓글에 심어도 실행되지 않게, 위험한 HTML 을 걸러 내는 것이다. 이 검사는 `DOMPurify` 라는 라이브러리가 맡고, 방식은 **허용 목록(allowlist)** 이다. \"남겨도 되는 것\" 만 목록에 적어 두고 나머지는 전부 지운다. 남길 HTML **태그**는 `ALLOWED_TAGS` 에, 남길 **속성**은 `ALLOWED_ATTR` 에 적는다.\n\n체크박스는 HTML 로 `<input type=\"checkbox\">` 다. 그래서 이게 안 지워지도록 `ALLOWED_TAGS` 에 `input` 태그를, `ALLOWED_ATTR` 에 `type` 속성을 **분명히 넣어 뒀다.** 그런데도 체크박스가 사라졌고, 콘솔에도 빌드에도 **에러는 발생하지 않았다.** 남기라고 목록에 넣어 둔 `input`·`type` 가 아무런 경고 없이 제거된 것이다.",
       en: "Writing `- [ ] todo` in a comment rendered a **plain bullet** instead of a checkbox. `input` was in `ALLOWED_TAGS` and `type` was in `ALLOWED_ATTR` — and there wasn't a single error anywhere.",
     },
     cause: {
-      ko: "marked 는 정상이었습니다. `<input type=\"checkbox\">` 를 제대로 만들어 냈고, 그게 사라지는 건 **DOMPurify 를 통과한 뒤**였습니다.\n\n원인은 DOMPurify 의 규칙 하나였습니다. DOMPurify 는 **\"URI-safe 로 알려진 속성\"이 아니면 그 속성의 *값*을 `ALLOWED_URI_REGEXP` 로 검사**합니다. 값이 URL 일 수 있다고 보고 프로토콜을 확인하는 것입니다. 그런데 기본 URI-safe 목록(`alt`·`class`·`title`·`value` 등)에는 `type` 이 없습니다.\n\n그래서 이런 일이 벌어졌습니다:\n\n```ts\nconst ALLOWED_URI_REGEXP = /^(?:https?:|mailto:)/i;\n// type=\"checkbox\" → 값 \"checkbox\" 를 위 정규식으로 검사 → 불일치 → 속성 제거\n```\n\n`ALLOWED_ATTR` 에 `type` 을 넣은 건 **\"이 속성을 남겨라\"** 라는 뜻이지 **\"이 속성의 값을 URL 로 검사하지 말라\"** 는 뜻이 아니었습니다. 두 설정은 서로 다른 축이고, **URI 검사가 조용히 이깁니다**.\n\n속성이 지워지자 그다음은 제 코드가 마무리했습니다. `afterSanitizeAttributes` 훅이 \"task-list 체크박스만 남기고 나머지 input 은 제거\" 하려고 `type` 을 확인하는데, 그 `type` 이 이미 사라진 뒤라 **훅이 체크박스를 \"체크박스 아님\"으로 판정하고 `<input>` 을 지웠습니다** → 불릿만 남음.\n\n같은 이유로 **표의 `align` 도 죽어 있었습니다.** 마크다운 표 정렬(`|:---|---:|`)이 통째로 무시되고 있었는데, 이것도 에러 없이 조용히 사라지던 터라 체크박스를 파기 전까지 아무도 몰랐습니다.",
+      ko: "먼저 어디서 사라지는지부터 확인했다. 댓글이 화면에 그려지는 과정은 세 단계다.\n\n① 마크다운 텍스트를 `marked` 라는 변환기가 HTML 로 바꾼다.\n\n② 그 HTML 을 `DOMPurify` 가 검사(sanitize)해 안전한 것만 남긴다.\n\n③ 남은 HTML 을 화면에 그린다.\n\n`marked` 는 정상이었다. `- [ ] 할 일` 을 `<input type=\"checkbox\">` 로 제대로 바꿔 냈다. 체크박스가 사라지는 건 ② `DOMPurify` 를 통과한 뒤였다.\n\n원인은 `DOMPurify` 의 규칙 하나였다. `DOMPurify` 는 속성 \"값\" 까지 검사한다. `href`·`src` 같은 속성에는 URL 이 들어간다. 그런데 그 URL 자리에 `javascript:...` 같은 걸 넣으면 클릭하는 순간 코드가 실행되는 공격이 된다. 그래서 `DOMPurify` 는 속성 **값**이 안전한 URL 인지를 정규식(`ALLOWED_URI_REGEXP` — 예: `http:`·`https:`·`mailto:` 로 시작하는 것만 통과)으로 검사하고, 안 맞으면 그 속성을 지운다.\n\n문제는 이 검사의 **대상**이었다. `DOMPurify` 는 \"URL 을 담지 않는다고 스스로 아는 속성(URI-safe 목록: `alt`·`class`·`title` 등)\" 이 아니면, **그 속성 값도 혹시 URL 일까 봐** 위 정규식으로 검사한다. 그런데 기본 URI-safe 목록에는 `type` 이 없다. 그래서 `type=\"checkbox\"` 의 값 `\"checkbox\"` 를 \"URL 인가?\" 하고 검사하고, `http:`·`mailto:` 로 시작하지 않으니 불일치 → `type` 속성을 제거한다.\n\n```ts\nconst ALLOWED_URI_REGEXP = /^(?:https?:|mailto:)/i;\n// type=\"checkbox\" → 값 \"checkbox\" 를 위 정규식으로 검사 → 불일치 → 속성 제거\n```\n\n즉 `ALLOWED_ATTR` 에 `type` 을 넣은 건 **\"이 속성을 남겨라\"** 라는 뜻이지 **\"이 속성의 값을 URL 로 검사하지 말라\"** 는 뜻이 아니었다. 남길지 말지(`ALLOWED_ATTR`)와 값이 URL 로 안전한지(URI 검사)는 **서로 다른 두 축**인데, 이름이 둘 다 \"허용\" 처럼 읽혀 같은 축으로 착각하기 쉽다. 그리고 이 경우 **URI 검사가 조용히 이긴다.**\n\n`type` 이 지워진 뒤, 나머지는 내 코드가 마무리했다. 나는 보안을 위해 sanitize 맨 끝에 검사를 하나 더 붙여 뒀다. `DOMPurify` 가 검사를 끝낸 직후 자동으로 한 번 더 실행되는 `afterSanitizeAttributes` 훅(hook — 정해진 시점에 자동으로 끼어들어 도는 함수)이다. 이 훅에 \"진짜 task-list 체크박스인 `<input>` 만 남기고 나머지 `<input>` 은 전부 지운다\" 는 규칙을 뒀다. 댓글에 아무 입력 폼이나 심어 악용하는 걸 막기 위해서다.\n\n이 훅은 `<input>` 이 체크박스인지를 `type` 으로 판단한다. `type=\"checkbox\"` 면 남기고, 아니면 지운다. 그런데 이 훅이 도는 시점엔 앞 단계에서 `type` 이 이미 사라진 뒤였다. `type` 이 없는 `<input>` 을 본 훅은 \"체크박스가 아니다\" 라고 판단해 `<input>` 을 통째로 지웠다. 그래서 체크박스는 사라지고 불릿만 남았다.\n\n결국 체크박스는 **두 단계에 걸쳐** 죽었다. 먼저 `DOMPurify` 의 URL 검사가 `type` 을 지웠고, 이어서 그 `type` 을 근거로 삼던 내 훅이 `<input>` 자체를 지웠다.\n\n표의 `align` 도 같은 규칙에 조용히 지워지고 있었다. 마크다운으로 표의 열 정렬을 `|:---|---:|` 처럼 적으면 `<td align=\"right\">` 같은 HTML 이 된다. `align` 역시 URI-safe 목록에 없어서, 값 \"right\" 가 URL 인지 검사받다 걸려 제거됐다. 이것도 에러 없이 사라지던 터라, 체크박스를 파고들기 전까지 표 정렬이 안 되는 걸 아무도 몰랐다.",
       en: "marked was fine. It produced `<input type=\"checkbox\">` correctly — the attribute disappeared **after DOMPurify**.\n\nThe cause was one DOMPurify rule: unless an attribute is **known to be URI-safe, DOMPurify tests its *value* against `ALLOWED_URI_REGEXP`**, on the assumption the value might be a URL whose protocol needs checking. And `type` is not in the default URI-safe list (`alt`, `class`, `title`, `value`, …).\n\nSo:\n\n```ts\nconst ALLOWED_URI_REGEXP = /^(?:https?:|mailto:)/i;\n// type=\"checkbox\" → value \"checkbox\" tested against the regex → no match → attribute dropped\n```\n\nPutting `type` in `ALLOWED_ATTR` means **\"keep this attribute\"** — not **\"don't URL-check its value\"**. They're different axes, and **the URI check wins, silently**.\n\nOnce the attribute was gone, my own code finished the job. The `afterSanitizeAttributes` hook checks `type` to keep only task-list checkboxes and remove any other input — but `type` was already stripped, so **the hook judged the checkbox to be \"not a checkbox\" and removed the `<input>`** → bullet only.\n\nThe same rule had quietly killed **table `align`** too. Markdown table alignment (`|:---|---:|`) had been ignored the whole time — also with no error, so nobody noticed until I dug into the checkbox.",
     },
     solution: {
-      ko: "URL 이 아닌 inert 속성들을 URI 검사에서 빼주면 끝이었습니다.\n\n```ts\n// type/checked/disabled/align — 전부 URL 이 아닌 inert 속성\nconst URI_SAFE_ATTR = [\"type\", \"checked\", \"disabled\", \"align\"];\n\nDOMPurify.sanitize(raw, {\n  ALLOWED_TAGS, ALLOWED_ATTR, ALLOWED_URI_REGEXP,\n  ADD_URI_SAFE_ATTR: URI_SAFE_ATTR,\n});\n```\n\n중요한 건 **이게 보안을 낮추지 않는다는 점**입니다. `ADD_URI_SAFE_ATTR` 는 \"이 속성 값은 URL 이 아니니 프로토콜 검사를 건너뛰라\" 는 선언일 뿐, 속성 자체의 허용 여부는 여전히 `ALLOWED_ATTR` 이 결정합니다. `href`·`src` 는 목록에 없으므로 **URL 을 실을 수 있는 속성의 프로토콜 검사는 그대로 유지**됩니다.",
+      ko: "URL 이 아닌(그래서 URL 검사가 애초에 필요 없는) 속성들을 검사 대상에서 빼 주면 끝이었다. `DOMPurify` 에는 `ADD_URI_SAFE_ATTR` 이라는 옵션이 있어서, \"이 속성들의 값은 URL 이 아니니 프로토콜 검사를 건너뛰라\" 고 지정할 수 있다.\n\n```ts\n// type/checked/disabled/align — 전부 URL 이 아닌 inert 속성\nconst URI_SAFE_ATTR = [\"type\", \"checked\", \"disabled\", \"align\"];\n\nDOMPurify.sanitize(raw, {\n  ALLOWED_TAGS, ALLOWED_ATTR, ALLOWED_URI_REGEXP,\n  ADD_URI_SAFE_ATTR: URI_SAFE_ATTR,\n});\n```\n\n중요한 건 **이게 보안을 낮추지 않는다는 점**이다. `ADD_URI_SAFE_ATTR` 는 \"이 속성 값의 URL 검사만 건너뛰라\" 는 선언일 뿐, 그 속성을 남길지 말지는 여전히 `ALLOWED_ATTR` 이 결정한다. 정말 URL 을 담는 `href`·`src` 는 이 목록에 넣지 않았으므로, **공격에 쓰일 수 있는 속성의 프로토콜 검사는 그대로 유지**된다. 위험한 축은 안 건드리고, URL 과 무관한 축만 정확히 열어 준 것이다.",
       en: "The fix was to exempt the non-URL, inert attributes from the URI check:\n\n```ts\n// type/checked/disabled/align — all inert, none are URLs\nconst URI_SAFE_ATTR = [\"type\", \"checked\", \"disabled\", \"align\"];\n\nDOMPurify.sanitize(raw, {\n  ALLOWED_TAGS, ALLOWED_ATTR, ALLOWED_URI_REGEXP,\n  ADD_URI_SAFE_ATTR: URI_SAFE_ATTR,\n});\n```\n\nWhat matters is that **this doesn't weaken sanitization**. `ADD_URI_SAFE_ATTR` only declares \"this attribute's value isn't a URL, skip the protocol check\" — whether the attribute is allowed at all is still `ALLOWED_ATTR`'s call. `href` and `src` aren't on the list, so **protocol checking stays fully intact for the attributes that can actually carry a URL**.",
     },
     keyInsight: {
-      ko: "**허용 목록에 넣었는데도 사라진다면, 다른 설정 키가 그 허용을 덮고 있는지 봐야 합니다.** `ALLOWED_ATTR` 와 `ALLOWED_URI_REGEXP` 는 각각 \"무엇을 남길지\" 와 \"값이 안전한지\" 라는 별개의 축인데, 이름만 보면 둘 다 \"허용\" 이라 같은 축처럼 읽힙니다. 라이브러리 설정은 **키 하나만 보고 판단하면 안 되고, 키들 사이의 상호작용까지** 읽어야 합니다.\n\n그리고 이 버그가 오래 산 진짜 이유는 **조용해서**입니다. sanitizer 는 위험한 걸 지우는 게 일이라 \"지웠다\" 고 알리지 않고, 그래서 정상 동작과 조용한 제거가 겉보기에 똑같습니다. 표의 `align` 은 아무도 신고하지 않은 채로 계속 죽어 있었습니다 — **로그를 남기지 않는 계층에서는 \"에러가 없다\" 가 \"동작한다\" 의 근거가 되지 못합니다.**",
+      ko: "**허용 목록에 넣었는데도 사라진다면, 다른 설정 키가 그 허용을 덮고 있는지 봐야 한다.** `ALLOWED_ATTR`(무엇을 남길지)와 `ALLOWED_URI_REGEXP`(값이 URL 로 안전한지)는 별개의 축인데, 이름만 보면 둘 다 \"허용\" 이라 같은 축처럼 읽힌다. 라이브러리 설정은 키 하나만 보고 판단하면 안 되고, **키들 사이의 상호작용까지** 읽어야 한다.\n\n그리고 이 버그가 오래 산 진짜 이유는 **조용해서**다. sanitizer 는 위험한 걸 지우는 게 일이라 \"지웠다\" 고 알리지 않고, 그래서 정상 동작과 조용한 제거가 겉보기엔 똑같다. 표의 `align` 은 아무도 신고하지 않은 채 계속 죽어 있었다. **로그를 남기지 않는 계층에서는 \"에러가 없다\" 가 \"동작한다\" 의 근거가 되지 못한다.**",
       en: "**When something is allowlisted but still disappears, look for a different config key overruling the allowance.** `ALLOWED_ATTR` and `ALLOWED_URI_REGEXP` are separate axes — \"what to keep\" versus \"is this value safe\" — but both read as \"allow\" by name, which makes them look like one axis. Library config can't be reasoned about one key at a time; **you have to read how the keys interact**.\n\nAnd the reason this bug lived so long is that it was **quiet**. A sanitizer's whole job is removing things, so it doesn't announce removals — which makes correct behavior and silent stripping look identical from the outside. Table `align` had been dead the entire time with nobody reporting it. **In a layer that doesn't log, \"no errors\" is not evidence of \"it works\".**",
     },
     tags: ["dompurify", "sanitize", "allowlist", "silent-failure", "markdown", "gfm"],
@@ -3403,35 +2833,41 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
 
   /* ── Plate 에디터 — normalizer / hook 순서 ── */
   {
+    id: "switching-column-widths-to-froze-the",
     section: { ko: "Plate Editor", en: "Plate Editor" },
     problem: {
       ko: "열블록 너비를 %로 바꾸면 에디터가 멈춤 — normalize 무한루프",
       en: "Switching column widths to % froze the editor — an infinite normalize loop",
     },
+    title: { ko: "부동소수점 합과 수렴 종료조건", en: "Floating-point sums and a convergence guard" },
+    vizKey: "float-normalize",
     definition: {
-      ko: "열블록(column_group)을 3열로 만들거나 열 너비를 %로 조정하면 에디터가 그대로 굳었습니다. 탭이 응답을 멈추고 결국 크래시했습니다.",
-      en: "Creating a 3-column block or adjusting column widths in % froze the editor solid — the tab stopped responding and eventually crashed.",
+      ko: "열블록을 3열로 만들거나 열 너비를 % 로 조정하면 에디터가 그대로 굳었다. 탭이 응답을 멈추고 결국 크래시했다.",
+      en: "Making a column block three columns wide, or adjusting a column width by percentage, froze the editor outright. The tab stopped responding and eventually crashed.",
     },
     cause: {
-      ko: "`@platejs/layout` 의 기본 normalizer 는 열 너비의 합이 100 이 아니면 `(100 - 합) / 열수` 로 차이를 재분배합니다. 열이 추가되거나 빈 열이 자동 제거될 때마다 이 보정이 돕니다.\n\n문제는 **100/3 처럼 딱 떨어지지 않는 값**입니다. `33.333...` 을 세 번 더해도 부동소수점상 합이 정확히 100 이 되지 않습니다. normalizer 는 \"합이 100 이 아니네\" 하고 다시 보정하고, 그 결과가 또 100 이 아니고, 다시 보정하고 — **종료 조건에 영영 도달하지 못합니다.**\n\nnormalize 는 동기 루프라 이 사이에 브라우저가 프레임을 그릴 틈이 없습니다. 그래서 \"느려짐\" 이 아니라 **완전한 정지**로 나타났습니다.",
-      en: "`@platejs/layout`'s default normalizer redistributes the difference as `(100 - sum) / n` whenever column widths don't sum to 100. That correction runs every time a column is added or an empty one is auto-removed.\n\nThe problem is **values that don't divide evenly, like 100/3**. Adding `33.333...` three times never lands exactly on 100 in floating point. So the normalizer sees \"sum isn't 100\", corrects, gets a result that still isn't 100, corrects again — and **never reaches its exit condition**.\n\nNormalization is a synchronous loop, so the browser never gets a frame in between. That's why it presented as a **hard freeze** rather than \"slow\".",
+      ko: "`@platejs/layout` 의 normalizer 는 열 너비의 합이 100 이 아니면 `(100 - 합) / 열수` 로 차이를 재분배한다. 열이 추가되거나 빈 열이 제거될 때마다 이 보정이 돈다.\n\n문제는 **100/3 처럼 딱 떨어지지 않는 값**이다. `33.333...` 을 세 번 더해도 부동소수점상 합이 정확히 100 이 되지 않는다. normalizer 는 합이 100 이 아니라고 판단해 다시 보정하고, 그 결과가 또 100 이 아니고, 다시 보정한다. **종료 조건에 영영 도달하지 못한다.**\n\nnormalize 는 동기 루프라 그 사이에 브라우저가 프레임을 그릴 틈이 없다. 그래서 느려짐이 아니라 완전한 정지로 나타났다.",
+      en: "`@platejs/layout`'s normalizer redistributes the difference as `(100 - sum) / count` whenever column widths do not add up to 100. That correction runs every time a column is added or an empty one is removed.\n\nThe problem is **a value like 100/3 that does not divide evenly.** Adding `33.333...` three times does not land on exactly 100 in floating point. The normalizer sees a sum that is not 100, corrects again, lands off again, and corrects again. **The exit condition is never reached.**\n\nNormalization is a synchronous loop, so the browser never gets a frame in between. The result was not slowness but a complete stop.",
     },
     solution: {
-      ko: "부동소수점으로는 \"합이 정확히 100\" 을 보장할 수 없으니, **너비를 정수로만 다루기로** 했습니다. `ColumnKit` 뒤에 등록한 `ColumnWidthFixKit` 이 원래 `normalizeNode` 를 감싸서, 너비가 \"정수 & 합 100\" 이 아니면 비율을 유지한 채 정수로 재분배하고 **그 pass 를 즉시 종료**합니다.\n\n```ts\n// 비율 유지 정수 재분배 (각 열 최소 1)\nconst ints = widths.map((w) =>\n  Math.max(1, Math.round((sum > 0 ? w / sum : 1 / n) * 100)),\n);\n// 반올림 오차는 가장 큰 열이 흡수 → 합이 정확히 100\nconst s = ints.reduce((a, b) => a + b, 0);\nif (s !== 100) {\n  let maxIdx = 0;\n  for (let i = 1; i < ints.length; i++) if (ints[i] > ints[maxIdx]) maxIdx = i;\n  ints[maxIdx] = Math.max(1, ints[maxIdx] + (100 - s));\n}\n```\n\n반올림하면 합이 99 나 101 이 될 수 있는데, 그 오차를 **가장 큰 열 하나가 흡수**합니다. 가장 큰 열에 몰아주면 1~2% 오차가 시각적으로 가장 덜 드러나고, 무엇보다 합이 **정확히** 100 인 정수 배분이 나옵니다.\n\n루프가 끝나는 근거는 여기 있습니다. 우리 보정은 항상 정확한 정수-100 을 만들기 때문에 **다음 pass 에서는 조건이 풀려** 원래 normalize(빈 열 제거·unwrap 등)가 그대로 통과합니다. 이미 정수-100 이면 아예 개입하지 않습니다.",
-      en: "Since floating point can't guarantee \"sums to exactly 100\", I made widths **integers only**. `ColumnWidthFixKit`, registered after `ColumnKit`, wraps the original `normalizeNode`: if widths aren't \"all integers and summing to 100\", it redistributes them as ratio-preserving integers and **ends that pass immediately**.\n\n```ts\n// ratio-preserving integer redistribution (min 1 per column)\nconst ints = widths.map((w) =>\n  Math.max(1, Math.round((sum > 0 ? w / sum : 1 / n) * 100)),\n);\n// the largest column absorbs the rounding error → sum is exactly 100\nconst s = ints.reduce((a, b) => a + b, 0);\nif (s !== 100) {\n  let maxIdx = 0;\n  for (let i = 1; i < ints.length; i++) if (ints[i] > ints[maxIdx]) maxIdx = i;\n  ints[maxIdx] = Math.max(1, ints[maxIdx] + (100 - s));\n}\n```\n\nRounding can leave the sum at 99 or 101, and **the single largest column absorbs that error** — dumping a 1–2% discrepancy into the widest column is the least visually detectable place for it, and it yields an integer split summing to **exactly** 100.\n\nThat's also why the loop terminates: our correction always produces an exact integer-100, so **the condition is false on the next pass** and the original normalize (empty-column removal, unwrap, etc.) proceeds untouched. If widths are already integer-100, we never intervene at all.",
+      ko: "조건을 느슨하게 만드는 길이 있었다. `Math.abs(sum - 100) < 0.01` 로 오차를 허용하면 루프는 멈춘다. 그 대신 **애초에 오차가 생길 수 없는 값 공간으로 옮겼다.**\n\n`ColumnKit` 뒤에 등록한 `ColumnWidthFixKit` 이 원래 `normalizeNode` 를 감싼다. 너비가 정수이면서 합이 100 인 상태가 아니면 비율을 유지한 채 정수로 재분배하고 그 pass 를 즉시 종료한다. 반올림 오차는 가장 큰 열이 흡수해 합이 정확히 100 이 된다.",
+      en: "One option was to loosen the condition. Allowing a tolerance with `Math.abs(sum - 100) < 0.01` stops the loop. **Instead the widths were moved into a value space where the error cannot arise at all.**\n\n`ColumnWidthFixKit`, registered after `ColumnKit`, wraps the original `normalizeNode`. Unless the widths are integers summing to 100, it redistributes them as integers while preserving their ratio and ends that pass immediately. The rounding remainder is absorbed by the widest column, so the sum is exactly 100.",
     },
     keyInsight: {
-      ko: "**수렴하지 않는 종료 조건은 무한루프와 같은 말입니다.** `합 === 100` 은 정수에서는 도달 가능하지만 부동소수점에서는 도달하지 못할 수 있고, 라이브러리는 그 차이를 검사해 주지 않습니다.\n\n해법은 조건을 느슨하게(`Math.abs(sum - 100) < 0.01`) 만드는 쪽이 아니라 **애초에 도달 가능한 값의 공간으로 옮기는 것**이었습니다. 정수로 좁히면 \"정확히 100\" 이 표현 가능한 값이 되고, 그때부터 종료 조건은 신뢰할 수 있는 명제가 됩니다. **오차를 허용하는 대신 오차가 생길 수 없는 표현을 고르는 편이 더 단단합니다.**",
-      en: "**An exit condition that can't converge is just an infinite loop.** `sum === 100` is reachable in integers and possibly unreachable in floating point — and the library won't check which one you're in.\n\nThe fix wasn't to loosen the condition (`Math.abs(sum - 100) < 0.01`) but to **move into a value space where the target is reachable at all**. Constrain to integers and \"exactly 100\" becomes representable, at which point the exit condition is a proposition you can trust. **Choosing a representation where the error can't exist is sturdier than tolerating the error.**",
+      ko: "**수렴하지 않는 종료 조건은 무한루프와 같은 말이다.** `합 === 100` 은 정수에서는 도달 가능하지만 부동소수점에서는 도달하지 못할 수 있고, 라이브러리는 그 차이를 검사해 주지 않는다.\n\n오차를 허용하는 쪽과 오차가 생길 수 없는 표현을 고르는 쪽 중에서는 후자가 단단하다. 정수로 좁히면 정확히 100 이 표현 가능한 값이 되고, 그때부터 종료 조건은 신뢰할 수 있는 명제가 된다.",
+      en: "**An exit condition that cannot converge is just an infinite loop.** `sum === 100` is reachable in integers and may be unreachable in floating point, and the library does not check which one you are in.\n\nBetween tolerating the error and choosing a representation where the error cannot exist, the second is sturdier. Constrain to integers and \"exactly 100\" becomes a representable value, at which point the exit condition is a proposition you can trust.",
     },
     tags: ["plate", "normalizer", "infinite-loop", "floating-point", "column-group"],
   },
   {
+    id: "formatting-text-inside-a-code-block",
     section: { ko: "Plate Editor", en: "Plate Editor" },
     problem: {
       ko: "코드블록 안 텍스트에 서식을 넣으면 에디터가 크래시 — \"change in the order of Hooks\"",
       en: "Formatting text inside a code block crashed the editor — \"change in the order of Hooks\"",
     },
+    title: { ko: "hook 호출 순서 불변식", en: "The order-of-hooks invariant" },
+    vizKey: "hook-order",
     definition: {
       ko: "코드블록 안의 텍스트를 선택하고 굵게·색상·형광펜 같은 mark 를 적용하면 에디터가 React 에러로 크래시했습니다.\n\n```\nRendered more hooks than during the previous render.\n(change in the order of Hooks)\n```",
       en: "Selecting text inside a code block and applying a mark — bold, color, highlight — crashed the editor with a React error:\n\n```\nRendered more hooks than during the previous render.\n(change in the order of Hooks)\n```",
@@ -3451,119 +2887,59 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
     tags: ["plate", "react-hooks", "decorate", "marks", "code-block", "crash"],
   },
   {
-    section: { ko: "i18n", en: "i18n" },
-    problem: { ko: "필수 이중언어 제목이 한쪽만 채워지면 반대 언어에서 빈칸으로 표시됨", en: "A required bilingual title renders blank in the other language when only one side is filled" },
-    definition: {
-      ko: "작품 제목을 ko/en 이중언어로 바꾼 뒤, **국문 제목만 채운 작품을 영어로 보니 제목이 빈칸**으로 떴습니다. 부제목·설명은 비어도 티가 안 났지만 제목은 항상 보여야 하는 필수 필드라 바로 드러났습니다.",
-      en: "After making the work title bilingual (ko/en), **a work with only the Korean title rendered a blank title in English**. Empty subtitle/description went unnoticed, but the title — a required, always-visible field — exposed it immediately.",
-    },
-    cause: {
-      ko: "표시에 쓰는 `<T ko en>` 컴포넌트가 `en ?? ko` **nullish 병합(`??`)** 으로 fallback 합니다. `??` 는 `null`·`undefined` 만 fallback 하고 **빈 문자열 `\"\"` 은 \"값\" 으로 취급**해 그대로 렌더합니다. 번역 안 된 `title_en` 은 `null` 이 아니라 `\"\"`(DEFAULT '') 이므로, 영어에서 `\"\" ?? 국문` → `\"\"` → 빈칸이 됩니다.",
-      en: "The display component `<T ko en>` falls back with `en ?? ko` — **nullish coalescing (`??`)**. `??` only falls back on `null`/`undefined` and treats an **empty string `\"\"` as a real value**, rendering it as-is. An untranslated `title_en` is not `null` but `\"\"` (DEFAULT ''), so in English `\"\" ?? ko` → `\"\"` → blank.",
-    },
-    solution: {
-      ko: "이중언어를 조립하는 mapper(`workToProject`)에서 **한쪽이 비면 반대 언어로 채우도록** `||` 로 fallback 했습니다: `title: loc(w.title || w.title_en, w.title_en || w.title)`. `||` 는 빈 문자열도 falsy 로 보고 넘어가므로 양쪽이 항상 채워집니다. 문자열 컨텍스트(alt/title 속성)용 `pickLocalized` 도 같은 `||` 기반입니다.",
-      en: "In the mapper that assembles the bilingual value (`workToProject`), I fell back with `||` so **an empty side is filled from the other**: `title: loc(w.title || w.title_en, w.title_en || w.title)`. `||` treats the empty string as falsy, so both sides are always populated. The string-context helper `pickLocalized` (for `alt`/`title` attributes) uses the same `||` fallback.",
-    },
-    keyInsight: {
-      ko: "**`??` 와 `||` 의 차이가 이중언어 fallback 을 가릅니다.** \"번역 안 된 필드는 비어있다(`\"\"`)\" 가 유효한 상태라면 fallback 은 `??` 가 아니라 `||` 여야 합니다 — 특히 항상 표시돼야 하는 필수 필드는. 선택 필드(부제목)에서 안 보이던 버그가 필수 필드(제목)로 옮기자 드러난 것도 같은 이유입니다.",
-      en: "**The choice between `??` and `||` decides bilingual fallback.** If \"an untranslated field is empty (`\"\"`)\" is a valid state, the fallback must be `||`, not `??` — especially for a required, always-shown field. The same bug hiding in an optional field (subtitle) surfaced the moment it moved to a required one (title).",
-    },
-    tags: ["i18n", "LocalizedText", "fallback", "nullish", "번역"],
-  },
-  {
+    id: "on-mobile-the-erd-diagram-collapses",
     problem: {
       ko: "모바일에서 ERD 다이어그램이 높이 0 으로 접혀 아무것도 안 보임",
       en: "On mobile the ERD diagram collapses to height 0 — nothing renders",
     },
+    title: { ko: "percentage height와 definite height", en: "Percentage height needs a definite parent" },
+    vizKey: "percentage-height",
     definition: {
-      ko: "React Flow 캔버스가 담긴 컨테이너는 미디어쿼리에서 `min-height` 로만 높이를 받는데, 그 안의 캔버스는 `height: 100%` 라서 0 으로 계산돼 다이어그램(노드 23개는 DOM 에 다 있음)이 통째로 안 보였습니다. 데스크탑에선 멀쩡했습니다.",
+      ko: "React Flow 캔버스가 담긴 컨테이너는 미디어쿼리에서 `min-height` 로만 높이를 받는데, 그 안의 캔버스는 `height: 100%` 라서 0 으로 계산돼 다이어그램(노드 23개는 DOM 에 다 있음)이 통째로 안 보였다. 데스크탑에선 멀쩡했다.",
       en: "The container holding the React Flow canvas only gets its height from a `min-height` in a media query, while the canvas inside uses `height: 100%` — which resolved to 0, so the whole diagram (all 23 nodes present in the DOM) was invisible. Desktop was fine.",
     },
     cause: {
-      ko: "CSS 에서 `height: 100%` 는 부모의 **definite height (확정된 높이)** 를 기준으로 계산됩니다. 그런데 `min-height` 로만 만들어진 높이는 definite 가 아니라 `auto` 로 취급되어, 자식의 `100%` 가 `auto` 기준 → 0 이 됩니다. 데스크탑에서 우연히 살아있던 건 그쪽은 flex 부모가 실제 높이를 갖고 있었기 때문이고, 문제를 가렸습니다.",
-      en: "In CSS, `height: 100%` resolves against the parent's **definite height**. A height made only from `min-height` is not definite — it's treated as `auto`, so the child's `100%` resolves against `auto` and becomes 0. It happened to work on desktop only because there a flex parent carried a real height, which masked the bug.",
+      ko: "`height: 100%` 는 부모 높이의 100% 라는 뜻이다. 계산하려면 **부모 높이가 먼저 정해져 있어야 한다**. 그런데 `min-height` 만 준 부모는 높이가 정해진 상태가 아니다. 최소 이만큼이라는 하한만 있을 뿐, 실제 높이는 자식이 얼마나 차지하느냐에 따라 정해진다.\n\n여기서 순환이 생긴다. 자식은 부모 높이를 알아야 자기 높이를 정하고, 부모는 자식 높이를 알아야 자기 높이를 정한다. CSS 는 이 순환을 자식 쪽에서 끊는다. **부모 높이가 확정(definite height)되지 않았으면 자식의 percentage height 를 `auto` 로 처리한다.** 그 결과 캔버스 높이가 0 이 됐다. 데스크탑에서는 부모가 실제 높이를 갖고 있어 같은 코드가 정상 동작했다.",
+      en: "`height: 100%` means 100% of the parent's height, so **the parent's height has to be settled before it can be computed**. A parent given only `min-height` is not settled. It has a floor and nothing more; its actual height depends on how much room its children take.\n\nThat creates a loop. The child needs the parent's height to decide its own, and the parent needs the child's height to decide its own. CSS breaks the loop on the child's side. **When the parent's height is not definite, the child's percentage height is treated as `auto`.** The canvas ended up at 0. On desktop the parent did carry a real height, so the same code worked there.",
     },
     solution: {
-      ko: "컨테이너를 flex 컨테이너(`display: flex; flex-direction: column`)로 만들어 자식이 flex stretch 로 늘어나게 했습니다. flex 의 stretch 는 부모 높이가 definite 인지와 무관하게 동작하므로, `min-height` 만으로도 자식이 그 높이를 꽉 채웁니다.",
+      ko: "컨테이너를 flex 컨테이너(`display: flex; flex-direction: column`)로 만들어 자식이 flex stretch 로 늘어나게 했다. flex 의 stretch 는 부모 높이가 definite 인지와 무관하게 동작하므로, `min-height` 만으로도 자식이 그 높이를 꽉 채운다.",
       en: "Make the container a flex container (`display: flex; flex-direction: column`) so the child stretches to fill it. Flex stretch works regardless of whether the parent's height is definite, so the child fills the `min-height`-derived box.",
     },
     keyInsight: {
-      ko: "`height: 100%` 가 0 으로 죽으면 **부모가 `min-height` 로만 높이를 갖는지** 부터 의심하세요. percentage height 는 definite height 를 요구하고, `min-height` 는 그 조건을 만족시키지 못합니다. definite 높이를 만들 수 없는 상황이라면 percentage 대신 **flex/grid 의 stretch** 로 우회하는 게 안전합니다.",
+      ko: "`height: 100%` 가 0 으로 죽으면 **부모가 `min-height` 로만 높이를 갖는지** 부터 의심한다. percentage height 는 definite height 를 요구하고, `min-height` 는 그 조건을 만족시키지 못한다. definite 높이를 만들 수 없는 상황이라면 percentage 대신 **flex/grid 의 stretch** 로 우회하는 편이 안전하다.",
       en: "When `height: 100%` dies to 0, first suspect that **the parent's height comes only from `min-height`**. Percentage heights require a definite height, and `min-height` doesn't satisfy that. When you can't give a definite height, route around it with **flex/grid stretch** instead of percentages.",
     },
     tags: ["css", "height", "min-height", "flexbox", "react-flow", "responsive"],
   },
   {
+    id: "a-frosted-blur-on-the-sticky",
     problem: {
       ko: "스크롤 시 상단 탭바에 frost(blur) 를 깔려는데 blur 가 안 보이거나 잘림",
       en: "A frosted blur on the sticky top bar won't show — or gets clipped",
     },
+    title: { ko: "backdrop-filter 와 stacking context", en: "backdrop-filter and the stacking context" },
+    vizKey: "sticky-frost",
     definition: {
-      ko: "가로 스크롤 탭바(sticky)에 `::before` 로 frost 를 붙였더니 위쪽 nav 영역까지 안 뻗고 잘렸고, 이를 피하려 `position: fixed` 오버레이로 바꿨더니 이번엔 Lenis 스무스 스크롤 위에서 `backdrop-filter` 가 밑을 지나가는 콘텐츠를 전혀 안 흐렸습니다.",
-      en: "Adding a frost via `::before` on the horizontally-scrolling sticky tab bar got clipped and never reached the nav area above; switching to a `position: fixed` overlay to avoid that made `backdrop-filter` stop blurring the content passing underneath, because the page uses Lenis smooth scroll.",
+      ko: "이 블로그의 관리 화면에는 스크롤을 내려도 상단에 계속 고정되는 sticky 바가 있다. 여러 탭을 나란히 담는 도구 모음으로, 화면 어디를 보고 있든 접근할 수 있도록 `position: sticky` 로 상단에 붙여 둔 요소다. 이 바에 `backdrop-filter` 로 서리 낀 유리 같은 흐림 효과를 주려 했다. `backdrop-filter` 는 요소 자신을 흐리는 것이 아니라, 그 요소 뒤로 지나가는 콘텐츠를 읽어 흐리게 그려 주는 CSS 속성이다.\n\n의도한 동작은 단순하다. 바가 유리처럼 자기 뒤를 지나가는 콘텐츠를 흐려 주는 것이다. `backdrop-filter` 를 바 위에 얹은 장식용 의사 요소(pseudo-element) 층에 걸었더니, 효과가 바의 사각형 경계 안에만 적용되어 위쪽 메뉴 영역까지 닿지 못하고 잘렸다. 잘림을 피하려고 이 층을 바에서 떼어 `position: fixed` 로 viewport 에 고정하는 별도 층으로 바꿨다. 그러자 이번에는 흐림이 아래로 지나가는 글에 아무 효과도 내지 못했다. 이 페이지가 Lenis 스무스 스크롤로 스크롤되고 있었기 때문이다.",
+      en: "The management screen of this blog has a sticky bar that stays pinned to the top even as the page scrolls down. It is a toolbar holding several tabs side by side, attached to the top with `position: sticky` so it can be reached from wherever you are on the page. The goal was to give this bar a frosted-glass blur with `backdrop-filter`. `backdrop-filter` is a CSS property that does not blur the element itself; it reads the content passing behind the element and paints it blurred.\n\nThe intended behavior is simple: the bar blurs whatever passes behind it, like glass. When `backdrop-filter` was placed on a decorative pseudo-element layer laid over the bar, the effect applied only inside the bar's rectangular boundary and was clipped before it could reach the menu area above. To avoid the clipping, that layer was detached from the bar and turned into a separate layer fixed to the viewport with `position: fixed`. This time the blur had no effect at all on the text passing beneath it, because the page was scrolling under Lenis smooth scroll.",
     },
     cause: {
-      ko: "두 가지가 겹쳤습니다. (1) 탭바에 가로 스크롤용 `overflow-x: auto` 가 걸려 있으면 명세상 `overflow-y` 도 `auto` 로 승격되어 **양축 모두 클립** 됩니다 — 그래서 박스 밖으로 뻗어야 하는 `::before` 가 잘립니다. (2) `position: fixed` 요소의 `backdrop-filter` 는 뷰포트 기준으로 backdrop 을 샘플링하는데, Lenis 는 콘텐츠를 `transform` 으로 밀어 스크롤하므로 fixed 오버레이가 그 transform 된 콘텐츠를 제대로 못 샘플링합니다.",
-      en: "Two things stacked. (1) `overflow-x: auto` on the tab bar (for horizontal tab scroll) promotes `overflow-y` to `auto` too per spec, so it **clips on both axes** — clipping a `::before` that needs to extend outside the box. (2) `backdrop-filter` on a `position: fixed` element samples the backdrop relative to the viewport, but Lenis scrolls by `transform`-ing the content, so the fixed overlay can't sample that transformed content.",
+      ko: "원인은 두 가지가 겹쳐 있었다.\n\n첫 번째는 바를 가로로 스크롤할 수 있게 만든 데서 비롯됐다. 탭이 많아 바가 옆으로 길어졌기 때문에 넘치는 부분을 `overflow-x: auto` 로 밀어서 볼 수 있게 해 두었다. 그런데 CSS 에는 한 가지 숨은 규칙이 있다. 한 축의 `overflow` 를 `visible` 이 아닌 값으로 지정하면, 나머지 축의 `overflow: visible` 도 자동으로 `auto`(사실상 clip)로 계산된다. 즉 `overflow-x` 만 스크롤로 바꿔도 `overflow-y` 가 함께 잘림 상태가 된다. 상자 밖으로 뻗어야 했던 장식 층이 이 규칙에 걸려 좌우뿐 아니라 위아래로도 잘려 나갔다.\n\n두 번째는 `position: fixed` 층의 성질에서 비롯됐다. `backdrop-filter` 는 현재 viewport 에 렌더된 영역을 기준으로 그 뒤 콘텐츠를 읽어 흐린다. 그런데 Lenis 스무스 스크롤은 페이지를 실제로 아래로 내리는 것이 아니라, 본문 전체를 하나의 덩어리로 묶어 `transform` 으로 통째로 위로 밀어 올리는 방식으로 동작한다. `transform` 이 걸린 이 덩어리는 자체 stacking context 를 만들고, `position: fixed` 층은 제자리에 머무는데 그 뒤에 있던 콘텐츠만 다른 위치로 밀려난다. 그 결과 흐릴 대상을 제자리에서 찾지 못해 흐릴 것이 없어진다.",
+      en: "Two problems overlapped.\n\nThe first came from making the bar scrollable horizontally. With many tabs the bar grew wide, so the overflow was made reachable with `overflow-x: auto`. But CSS carries a hidden rule: when one axis of `overflow` is set to a value other than `visible`, the other axis's `overflow: visible` is automatically computed as `auto` (effectively clip). In other words, changing only `overflow-x` to a scroll value also puts `overflow-y` into a clipping state. The decorative layer, which needed to extend beyond the box, was caught by this rule and clipped at the top and bottom as well as the sides.\n\nThe second came from the nature of the `position: fixed` layer. `backdrop-filter` reads the content behind it based on the region currently rendered in the viewport. But Lenis smooth scroll does not actually move the page down; it bundles the whole body into a single block and pushes it upward with `transform`. An element under `transform` forms its own stacking context, so while the `position: fixed` layer stays in place, the content behind it slides to a different position. As a result it can no longer find its target where it expects, and there is nothing left to blur.",
     },
     solution: {
-      ko: "에디터(topBar) 페이지와 같은 패턴으로 재구성했습니다 — **sticky + frost 는 overflow 가 없는 래퍼**가 맡고, 가로 스크롤은 안쪽 요소가 맡습니다(그러면 `::before` 가 안 잘림). frost 는 `fixed` 가 아니라 **sticky 요소의 `::before`** 로 두고, `top: calc(-1 * var(--header-height))` 로 nav 영역까지 위로 확장 + 마스크로 아래를 페이드했습니다. 배경색 없이 `backdrop-filter` 만으로 blur 를 냅니다.",
-      en: "Rebuilt it with the same pattern as the editor's topBar — a **wrapper with no overflow owns the sticky + frost**, while an inner element owns the horizontal scroll (so the `::before` isn't clipped). The frost is the **sticky element's `::before`** (not `fixed`), extended up over the nav with `top: calc(-1 * var(--header-height))` and faded at the bottom with a mask. Pure `backdrop-filter`, no background fill.",
+      ko: "이 블로그의 글 편집기 상단(topBar)에서는 같은 효과가 이미 정상 동작하고 있었다. 그래서 그 구조를 그대로 가져와 처음부터 다시 구성했다.\n\n먼저 바깥에 가로로도 세로로도 스크롤되지 않는 감싸는 래퍼 층을 하나 두었다. 상단 고정과 `backdrop-filter` 흐림은 이 바깥 층이 담당하게 했다. 잘림의 원인이던 `overflow-x` 스크롤은 그 안에 든 요소 하나에만 따로 부여했다. 이렇게 고정·흐림을 담당하는 층과 가로 스크롤을 담당하는 층으로 역할을 분리하자 장식 층이 더는 경계에 잘리지 않았다.\n\n`backdrop-filter` 는 `position: fixed` 층이 아니라, `position: sticky` 로 스크롤을 따라 상단에 붙어 함께 이동하는 바 자신의 장식 층에 적용했다. 그래야 뒤 콘텐츠가 `transform` 으로 밀려나더라도 흐림이 같은 stacking context 안에서 그 콘텐츠를 따라 이동하며 정상적으로 흐릴 수 있다. 여기에 흐림이 시작되는 위치를 위쪽 메뉴 높이만큼 끌어올려 메뉴 영역까지 덮게 했고, 아래쪽 경계는 흐림이 점차 옅어지며 사라지도록 다듬었다. 별도로 색을 덧칠하지 않고 뒤를 흐리는 것만으로 유리 같은 느낌을 냈다.",
+      en: "The same effect was already working correctly at the top of this blog's post editor (topBar), so that structure was carried over and rebuilt from scratch.\n\nFirst, a wrapping layer that scrolls neither horizontally nor vertically was placed on the outside. Pinning to the top and the `backdrop-filter` blur were both assigned to this outer layer. The `overflow-x` scroll that had caused the clipping was given to a single element inside it. Once the roles were split into a layer for pinning and blur and a layer for horizontal scroll, the decorative layer was no longer clipped at the edge.\n\n`backdrop-filter` was applied to the bar's own decorative layer, which stays at the top and moves with the scroll via `position: sticky`, rather than to the `position: fixed` layer. That way, even when the content behind is pushed away by `transform`, the blur moves with that content inside the same stacking context and blurs it correctly. In addition, the point where the blur begins was raised by the height of the menu above so it also covers the menu area, and the bottom edge was smoothed so the blur fades out gradually. No separate color was painted; the glassy look comes purely from blurring what lies behind.",
     },
     keyInsight: {
-      ko: "**`overflow-x: auto` 는 y 축까지 클립합니다** — 밖으로 나가는 `::before`/그림자를 쓰려면 스크롤과 오버레이의 책임을 다른 요소로 분리하세요. 그리고 **transform 기반 스무스 스크롤(Lenis 등) 위에서는 `backdrop-filter` 를 `fixed` 가 아니라 `sticky` 요소에 걸어야** backdrop 을 제대로 샘플링합니다.",
-      en: "**`overflow-x: auto` clips the y-axis too** — if you need a `::before`/shadow that bleeds outside, split the scroll and the overlay onto different elements. And **on transform-based smooth scroll (Lenis et al.), attach `backdrop-filter` to a `sticky` element, not a `fixed` one**, so it samples the backdrop correctly.",
+      ko: "한 축을 `overflow-x` 로 스크롤할 수 있게 만들면 나머지 축의 `overflow` 도 함께 잘린다는 점을 염두에 두는 것이 좋다. 상자 밖으로 벗어나는 장식이나 그림자가 필요한 자리라면, 가로 스크롤을 담당하는 요소와 밖으로 넘치는 효과를 담당하는 요소를 처음부터 분리해 두는 편이 안전하다. 한 요소에 둘을 함께 맡기면 한쪽이 다른 쪽을 잘라 내기 때문이다.\n\n또한 본문 전체를 `transform` 으로 밀어 올리는 Lenis 스무스 스크롤 위에서는, `backdrop-filter` 처럼 뒤를 흐리는 효과를 `position: fixed` 요소가 아니라 스크롤을 따라 함께 이동하는 `position: sticky` 요소에 적용해야 한다. 그래야 같은 stacking context 안에서 멀리 밀려난 뒤 콘텐츠를 놓치지 않고 계속 흐릴 수 있다.",
+      en: "It helps to keep in mind that making one axis scrollable with `overflow-x` also clips the other axis's `overflow`. Wherever decoration or a shadow needs to spill outside the box, it is safer to separate the element that handles the horizontal scroll from the element that handles the overflowing effect from the start, because assigning both to one element ends with one clipping the other.\n\nAlso, over a Lenis smooth scroll that pushes the whole body upward with `transform`, an effect that blurs what is behind, such as `backdrop-filter`, should be applied to a `position: sticky` element that moves with the scroll rather than a `position: fixed` one. Only then, within the same stacking context, can it keep hold of the content that has slid far away and go on blurring it.",
     },
     tags: ["css", "sticky", "overflow", "backdrop-filter", "lenis", "frost"],
   },
   {
-    problem: {
-      ko: "Lenis 스무스 스크롤 위에서 코드블록 세로 스크롤이 페이지로 안 넘어감",
-      en: "Vertical scroll over a code block didn't pass through to the page under Lenis",
-    },
-    definition: {
-      ko: "코드블록 위에 마우스를 두고 세로로 휠을 굴리면 페이지가 안 움직이고, 코드블록만 스크롤을 삼키는 느낌이었습니다.",
-      en: "Hovering a code block and scrolling vertically moved nothing — the block felt like it was swallowing the scroll.",
-    },
-    cause: {
-      ko: "코드블록 `<pre>` 에 `data-lenis-prevent` 를 통째로 걸어 뒀습니다. 가로 스크롤(넓은 코드)을 살리려는 의도였는데, Lenis 가 그 요소 위 wheel 을 아예 무시하다 보니 블록이 세로로 안 넘칠 때 세로로 굴려도 페이지가 안 움직였습니다 — Lenis 는 body 를 직접 스크롤하지 않아 native 세로 스크롤로도 안 빠집니다.",
-      en: "The `<pre>` had a blanket `data-lenis-prevent` to keep horizontal scroll (wide code) alive. But Lenis ignores wheel over that element entirely, so when the block didn't overflow vertically, scrolling vertically moved nothing — Lenis doesn't scroll the body directly, so native vertical scroll doesn't kick in either.",
-    },
-    solution: {
-      ko: "통짜 prevent 대신 **축(axis) 기반 wheel 라우팅**으로 바꿨습니다. 가로 제스처는 블록이 가로로 넘칠 때 블록을, 세로 제스처는 블록이 세로로 스크롤 가능하고 끝이 아닐 때만 블록을 스크롤하고, 아니면 이벤트를 흘려보냅니다. Lenis 는 window(bubble)에서 wheel 을 듣고 `composedPath` 로 처리하므로, 블록에서 `stopPropagation` 하면 Lenis 가 건너뛰고 안 하면 페이지를 굴립니다. 터치는 `data-lenis-prevent-touch` 로 네이티브 유지.",
-      en: "Replaced the blanket prevent with **axis-based wheel routing**. A horizontal gesture scrolls the block when it overflows horizontally; a vertical gesture scrolls the block only when it can scroll vertically and isn't at the edge, otherwise the event falls through. Lenis listens for wheel on `window` (bubble) and uses `composedPath`, so `stopPropagation` inside the block makes Lenis skip it, while not calling it lets Lenis scroll the page. Touch stays native via `data-lenis-prevent-touch`.",
-    },
-    keyInsight: {
-      ko: "스무스 스크롤 위에서 \"특정 영역만 자기 스크롤\" 을 만들 때 통짜 prevent 는 세로 통과까지 막습니다 — 축·경계를 판단해 필요한 방향만 가로채고 나머지는 라이브러리로 흘려보내야 중첩 스크롤이 자연스럽습니다.",
-      en: "On smooth scroll, a blanket prevent to make \"one region scroll itself\" also blocks vertical pass-through — judge axis/boundary, intercept only the direction you need, and let the rest fall through to the library.",
-    },
-    tags: ["lenis", "wheel", "scroll", "code-block", "nested-scroll"],
-  },
-  {
-    problem: {
-      ko: "테두리 있는 인라인 코드가 여러 줄로 줄바꿈되지 않음",
-      en: "Bordered inline code wouldn't wrap across lines",
-    },
-    definition: {
-      ko: "긴 인라인 코드가 컨테이너 폭을 넘어도 한 줄로 삐져나오거나 잘렸습니다.",
-      en: "Long inline code overflowed as a single line (or got clipped) instead of wrapping.",
-    },
-    cause: {
-      ko: "인라인 코드 칩을 `display: inline-block` 으로 만들었습니다. inline-block 은 세로 padding 이 line box 에 반영돼 위아래 줄과 안 겹치는 장점이 있지만, **원자 박스라 내부에서 줄바꿈이 안 됩니다**.",
-      en: "The chip used `display: inline-block`. inline-block reflects vertical padding into the line box (so it doesn't overlap neighbors), but it's an **atomic box, so its content doesn't wrap**.",
-    },
-    solution: {
-      ko: "`display: inline` + `box-decoration-break` 로 바꾸고, 최종적으로 **배경형(Notion 식)**으로 재설계했습니다. inline 이면 wrap 은 되지만 테두리 캡슐이 줄바꿈 지점에서 조각나거나 열린 채 끊깁니다 — 테두리를 없애고 은은한 배경만 남기니 wrap 돼도 하이라이트가 자연스럽게 흐릅니다. 양끝만 캡슐(`slice`), line-height 는 문맥(1.6) 상속.",
-      en: "Switched to `display: inline` + `box-decoration-break`, then redesigned it as a **background style (Notion-like)**. inline wraps, but a bordered capsule fragments or cuts open at wrap points — dropping the border and keeping only a subtle background makes the highlight flow naturally even wrapped. Capsule caps only at the two ends (`slice`), line-height inherited from context (1.6).",
-    },
-    keyInsight: {
-      ko: "\"칩처럼 보이는 인라인 요소\" 는 inline-block(안 wrap) vs inline(wrap 되나 padding 이 줄을 안 넓힘)의 트레이드오프가 있습니다 — 여러 줄 wrap 이 필요하면 테두리 캡슐보다 배경형이 근본적으로 맞습니다.",
-      en: "A \"chip-like\" inline element trades off inline-block (no wrap) vs inline (wraps, but padding doesn't widen the line) — if multi-line wrapping is needed, a background style fits better than a bordered capsule.",
-    },
-    tags: ["css", "inline-code", "box-decoration-break", "wrap", "display"],
-  },
-  {
+    id: "restoring-a-deleted-comment-but-its",
     problem: {
       ko: "삭제된 댓글을 복구하려는데 내용이 이미 지워져 있었음",
       en: "Restoring a deleted comment, but its content was already wiped",
@@ -3588,105 +2964,67 @@ const rawTroubleShootingItems: TroubleShootingItem[] = [
   },
 ];
 
-// ── 후처리 — 메타 적용 + 섹션 정렬 + 난이도 정렬 + 중복/숨김 필터 ─────────
-
-/** 동일 이슈를 다른 각도에서 한 번 더 다룬 항목 — 영구 제거 */
-const DUPLICATE_PROBLEMS = new Set<string>([
-  "테마 전환 글로벌 transition이 컴포넌트 애니메이션 덮어쓰기", // = "글로벌 transition shorthand"
-]);
+// ── 후처리 — 노출 항목 선별 + 메타 적용 ─────────────────────────
 
 /**
- * 현재 노출 항목을 핵심 13개로 추리기 위해 임시로 숨긴 항목들.
- * 데이터(rawTroubleShootingItems) 는 그대로 유지 — 다시 노출하려면 이 Set 에서 항목만 제거.
+ * 패널에 표시할 대표 항목. 배열 순서가 곧 표시 순서다.
  *
- * 선정 기준 (상위에 남긴 항목):
- *   - 난이도 3 + recommended ★ 우선
- *   - 섹션 다양성 (각 섹션 1~3개)
- *   - 인사이트의 일반화 가능성 (특정 라이브러리/엣지케이스 보다 패턴 학습)
+ * 나머지 항목은 데이터로 그대로 남아 있되 노출하지 않는다 —
+ * 전부 늘어놓으면 읽히지 않아서, 섹션마다 1~3개씩만 골라 둔다.
+ * 노출을 바꾸려면 이 배열만 고치면 된다.
  *
- * 결과: 46 → 13 (Architecture 3, Performance 2, Layout 3, Editor 1, Interaction 3, Component 1)
+ * 선정 기준:
+ *   - 원인이 브라우저/명세/번들러 층위 (내가 심은 실수가 아닌 것)
+ *   - 같은 원인의 항목이 여럿이면 가장 깊은 하나만
+ *   - 섹션 균형 — 프론트 함정만 남지 않도록 보안·백엔드를 반드시 포함
  */
-const HIDDEN_PROBLEMS = new Set<string>([
-  // Architecture & Backend (4 hidden)
-  "API 키 변경마다 재배포가 필요",
-  "비회원 댓글에서 본인 확인이 번거로움",
-  "에디터 자동저장 주기가 너무 잦아 리비전이 의미 없이 누적됨", // ↪ "localStorage → DB" 항목에 사실상 통합
-  "카테고리 자동 보정으로 리비전 프롬프트가 무한 반복",
-
-  // Performance (4 hidden)
-  "mousemove마다 React 리렌더 (60fps 성능 저하)", // 기초적
-  "Three.js LatheGeometry 컵에 Canvas 2D 라떼아트 텍스처 합성 — 두 개 평면이 만나는 부분의 자연스러운 블렌딩",
-  "GSAP ScrollTrigger 수평 무한 스크롤 — 양방향 무한 wrapping",
-  "LoadingScreen이 SSR에 포함되지 않아 콘텐츠 flash 발생",
-
-  // Layout & CSS (7 hidden)
-  "코드 블록 줄바꿈 토글 시 레이아웃이 갑자기 튐",
-  "CSS Module 해시 충돌로 데스크톱 레이아웃 붕괴",
-  "CSS 토큰 미정의 — 11개 파일에서 참조하지만 선언 없음",
-  "Admin 테이블 모바일 가로 스크롤 시 row border가 중간에서 끊김",
-  "sticky filterBar IntersectionObserver — 인기글 사이드바와 1px 어긋남",
-  "Navigation 메뉴가 좁은 viewport 에서 우측 actions 와 겹침 + indicator 가 resize 중 메뉴 위치를 못 따라감",
-  "커버 이미지 팔레트 등 grid 자식이 viewport 밖으로 잘려 나감 — `.row { grid-template-columns: 1fr 1fr }` 의 함정",
-
-  // Plate Editor (13 hidden — 토글/콜아웃 한 항목만 노출)
-  "Richtext 게시물에서 코드 하이라이팅·줄바꿈 버튼이 사라짐",
-  "Plate 에디터에서 컨텍스트 툴바 표시 시 커서가 멋대로 튐",
-  "제목(heading) 안 각주가 마크다운 변환 시 처리 안 됨",
-  "Plate inline void 노드에서 클릭 vs 키보드 구분 불가",
-  "인라인 이미지 양옆에 커서 배치·텍스트 입력 불가",
-  "마크다운 각주 번호 꼬임 — heading renderer 충돌",
-  "열블록 스타일 round-trip 유실", // ↪ "토글/콜아웃/열블록 콘텐츠 사라짐" 과 주제 겹침
-  "YouTube embed URL — watch URL이 iframe에서 로드 실패",
-  "이미지 리사이즈 핸들 클릭 시 이미지가 삭제됨",
-  "에디터 툴바 active 상태 — wrapper 블록 감지 실패",
-  "각주 참조/내용 정합성 — 한쪽 삭제 시 고아 노드 잔존",
-  "링크 클릭 시 즉시 이동 — 에디터에서 링크 편집 불가",
-  "Plate 인라인 코드에서 방향키 커서 점프",
-
-  // Animation & Interaction (4 hidden)
-  "커스텀 커서 리사이즈 모드에서 마우스 방향에 따라 커서 회전",
-  "Series Deck — hover 펼침이 \"사라졌다 나타나는\" 느낌",
-  "Series Deck spread — `setPointerCapture` 가 자식 click 차단 + hit-area 공백으로 flicker", // ↪ HTML5 D&D 항목과 패턴 겹침
-  "HTML5 drag 가 pointermove 를 막아 커스텀 커서가 멈추고 type 도 계속 바뀜", // ↪ HTML5 D&D quirks 항목에 통합
-
-  // Component System (1 hidden)
-  "Admin 리스트(시리즈/휴지통/게시물)의 UI 코드 중복과 스타일 불일치",
-
-  // 메타에 등록되지 않은 기존 항목 — 컨텍스트가 오래되어 현재는 숨김
-  "커스텀 RichTextEditor의 기능 확장 한계",
-  "이미지 원본 무압축 업로드 — 10MB 초과 실패 + 네트워크 낭비",
-]);
+const SHOWN_IDS: readonly string[] = [
+  // 인증 / 인가
+  "role-stored-in-app-metadata",
+  "authorization-moves-to-code-when-rls-is-bypassed",
+  "single-auth-path-for-anonymous-comments",
+  // 데이터 / 정합성
+  "delete-is-a-reversible-state-change",
+  "optimistic-concurrency-with-a-version-counter",
+  "duplicate-prevention-belongs-in-the-database",
+  "revision-history-is-capped-per-entity",
+  // 인프라 / 자동화
+  "scheduled-jobs-run-inside-the-database",
+  "notification-failure-must-not-fail-the-job",
+];
 
 export const troubleShootingItems: TroubleShootingItem[] = (() => {
-  const enriched = rawTroubleShootingItems
-    .filter((item) => !DUPLICATE_PROBLEMS.has(item.problem.ko) && !HIDDEN_PROBLEMS.has(item.problem.ko))
-    .map((item) => {
-      const meta = itemMeta[item.problem.ko];
-      if (!meta) return item;
-      return {
-        ...item,
-        section: SECTION[meta.section],
-        difficulty: meta.difficulty,
-        ...(meta.recommended ? { recommended: true } : {}),
-        ...(meta.featured ? { featured: true } : {}),
-        ...(meta.recommendReason ? { recommendReason: meta.recommendReason } : {}),
-      };
-    });
+  const byId = new Map(rawTroubleShootingItems.map((i) => [i.id, i]));
 
-  /* 대표 항목이 지정돼 있으면 그것만 보여준다.
-     89개를 다 늘어놓으면 읽히지 않는다. 원본은 그대로 두고 여기서 골라낸다. */
-  const featured = enriched.filter((i) => i.featured);
-  const shown = featured.length > 0 ? featured : enriched;
+  /* 존재하지 않는 id 를 참조하면 조용히 빠지는 대신 즉시 터뜨린다.
+     이전 구현은 problem.ko 문자열로 조인해서, 이스케이프 한 겹 차이만으로도
+     항목이 아무 신호 없이 목록에서 사라졌다. 같은 실패를 반복하지 않기 위한 가드. */
+  const orphans = [
+    ...SHOWN_IDS.filter((id) => !byId.has(id)),
+    ...Object.keys(itemMeta).filter((id) => !byId.has(id)),
+  ];
+  if (orphans.length > 0) {
+    throw new Error(`troubleshooting: 존재하지 않는 항목 id — ${orphans.join(", ")}`);
+  }
 
-  const sectionIndex = (sec?: LocalizedText) => {
-    if (!sec) return 99;
-    const found = SECTION_ORDER.findIndex((k) => SECTION[k].ko === sec.ko);
-    return found < 0 ? 99 : found;
-  };
+  const sectionIndex = (key?: keyof typeof SECTION) =>
+    key ? SECTION_ORDER.indexOf(key) : 99;
 
-  return shown.sort((a, b) => {
-    const dSec = sectionIndex(a.section) - sectionIndex(b.section);
-    if (dSec !== 0) return dSec;
-    return (a.difficulty ?? 2) - (b.difficulty ?? 2);
-  });
+  return SHOWN_IDS.map((id) => {
+    const item = byId.get(id)!;
+    const meta = itemMeta[id];
+    if (!meta) return item;
+    return {
+      ...item,
+      section: SECTION[meta.section],
+      difficulty: meta.difficulty,
+      ...(meta.recommended ? { recommended: true } : {}),
+      ...(meta.recommendReason ? { recommendReason: meta.recommendReason } : {}),
+    };
+  }).sort(
+    /* 섹션끼리 붙여 준다 (사이드바가 섹션이 바뀔 때만 라벨을 그리므로 필수).
+       같은 섹션 안에서는 SHOWN_IDS 에 적은 순서를 그대로 둔다 — sort 는 stable. */
+    (a, b) =>
+      sectionIndex(itemMeta[a.id]?.section) - sectionIndex(itemMeta[b.id]?.section),
+  );
 })();

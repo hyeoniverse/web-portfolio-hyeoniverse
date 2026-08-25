@@ -72,6 +72,24 @@
   filter: brightness(0.35) saturate(0.5);
 }
 
+/* 패널 제목("Design System.")이 이 이미지 위에 놓여 대비가 1.88:1 까지 떨어졌다.
+   큰 글씨 기준 최소 3:1 이 필요하다. 이미지는 이 패널의 디자인 의도라 걷어내는 대신
+   제목이 놓이는 위쪽 구간만 어둡게 덮는다. 이미지 레이어 안에 두어 카드 본문
+   오버레이(z-index 1)는 그대로 위에 남는다. */
+.dcCardBg::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 38%;
+  background: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 80%) 0%,
+    rgb(0 0 0 / 66%) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
 /* Compound selector (0,2,0) */
 .dcCard .dcCardBg img {
   transition: filter 0.4s ease;
@@ -439,6 +457,7 @@
 .dcPanel {
   /* placeholder — mobile override below */
 }
+
 
 @media (max-width: 1024px), (max-height: 700px) {
   .dcPanel {
