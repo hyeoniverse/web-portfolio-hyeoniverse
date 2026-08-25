@@ -1,21 +1,14 @@
 "use client";
 
-import { Suspense, useState, useEffect, useMemo, useRef, useCallback, type ReactNode } from "react";
-import { Canvas } from "@react-three/fiber";
-import dynamic from "next/dynamic";
+import { useEffect, useRef, useCallback, type ReactNode } from "react";
 import T from "@/components/ui/T";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { createSafeRenderer } from "@/utils/three";
+import { useProfileSectionStore } from "@/stores/profileSectionStore";
+import { useLanguage } from "@/providers/LanguageProvider";
+import type { BunnyProfile } from "@/types/profile";
 import styles from "./BunnyShowcase.module.css";
-
-const BunnyPreviewScene = dynamic(() => import("./BunnyPreviewScene"), {
-  ssr: false,
-});
 
 type Expression = "normal" | "surprised" | "happy";
 
-const EXPR_CYCLE: Expression[] = ["normal", "surprised", "happy"];
-const CYCLE_INTERVAL = 3000;
 
 /* ── 3D 모델 표정을 본뜬 SVG 아이콘 ── */
 
@@ -56,6 +49,28 @@ function HappyFaceSVG() {
   );
 }
 
+/**
+ * 통통하고 둥근 5각 별 테두리.
+ *
+ * 안쪽 반지름을 바깥의 절반까지 키워 팔을 두껍게 하고(고전적인 별은 0.38 이라 앙상하다),
+ * 꼭짓점과 안쪽 골을 잘라 곡선으로 잇는다. 다만 잘라내는 폭이 변 길이의 절반을 넘으면
+ * 양쪽 곡선이 서로를 먹어 별이 아니라 덩어리가 된다 — 변 32 에 잘라내는 폭 합계 15 로 둬서
+ * 가운데에 직선 구간이 남게 했다.
+ *
+ * 비율은 늘리지 않는다. 버튼 상자에 맞춰 stretch 하면 위아래로 눌린 별이 된다.
+ */
+function StarOutline() {
+  return (
+    <svg
+      className={styles.exprStar}
+      viewBox="0 0 100 100"
+      aria-hidden
+    >
+      <path d="M 46.46 9.17 Q 50.00 2.00 53.54 9.17 L 61.01 24.31 Q 64.11 30.58 71.03 31.59 L 87.73 34.02 Q 95.65 35.17 89.92 40.75 L 77.84 52.53 Q 72.83 57.42 74.01 64.32 L 76.86 80.95 Q 78.21 88.83 71.13 85.11 L 56.20 77.26 Q 50.00 74.00 43.80 77.26 L 28.87 85.11 Q 21.79 88.83 23.14 80.95 L 25.99 64.32 Q 27.17 57.42 22.16 52.53 L 10.08 40.75 Q 4.35 35.17 12.27 34.02 L 28.97 31.59 Q 35.89 30.58 38.99 24.31 Z" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
 const FACE_MAP: Record<Expression, ReactNode> = {
   normal: <NormalFaceSVG />,
   surprised: <SurprisedFaceSVG />,
@@ -64,41 +79,74 @@ const FACE_MAP: Record<Expression, ReactNode> = {
 
 interface Props {
   animateClass?: string;
+  /** 소개 문구 — 설정에서 편집한다. 예전에는 번역 파일에만 있어 손댈 수 없었다. */
+  bunny: BunnyProfile;
 }
 
-export default function BunnyShowcasePanel({ animateClass }: Props) {
-  const { isTouch } = useIsMobile();
-  const [expression, setExpression] = useState<Expression>("normal");
-  const [snapCount, setSnapCount] = useState(0);
-  const cycleIdx = useRef(0);
-  const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
+/** 끌어서 돌릴 수 있다는 걸 알려 주는 최소한의 힌트. */
+const L_DRAG = "드래그해서 돌려보세요 / Drag to rotate";
+
+export default function BunnyShowcasePanel({ animateClass, bunny }: Props) {
+  /* 표정은 스토어 하나에서 관리한다. 무한 스크롤에서 이 패널이 여러 벌 그려지는데
+     각자 상태를 들고 있으면 서로 다른 표정을 몽이에게 밀어 넣어 깜빡인다.
+     자동 로테이션도 여기가 아니라 ProfileMeSection 에서 한 번만 돈다. */
+  const expression = useProfileSectionStore((st) => st.bunnyExpression) ?? "normal";
+  const { language } = useLanguage();
+  const L = (t: { ko: string; en: string }) => (language === "ko" ? t.ko || t.en : t.en || t.ko);
+  /* 떠다니는 몽이가 내려앉을 자리. 여기에 3D 를 하나 더 그리면 화면에 몽이가 둘이 된다. */
+  const dockRef = useRef<HTMLDivElement>(null);
 
   const ac = animateClass ?? "";
 
-  /* ── 자동 로테이션 시작 ── */
-  const startCycle = useCallback(() => {
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      cycleIdx.current = (cycleIdx.current + 1) % EXPR_CYCLE.length;
-      setExpression(EXPR_CYCLE[cycleIdx.current]);
-    }, CYCLE_INTERVAL);
+  useEffect(() => {
+    const el = dockRef.current;
+    if (!el) return;
+    const { addBunnyDockSlot, removeBunnyDockSlot } = useProfileSectionStore.getState();
+    addBunnyDockSlot(el);
+    return () => removeBunnyDockSlot(el);
   }, []);
 
-  useEffect(() => {
-    startCycle();
-    return () => clearInterval(timerRef.current);
-  }, [startCycle]);
+  const handleExpression = useCallback((expr: Expression) => {
+    useProfileSectionStore.getState().setBunnyExpression(expr);
+  }, []);
 
-  /* ── 클릭으로 표정 변경 (자동 로테이션 리셋 + 정면 스냅) ── */
-  const handleExpression = useCallback(
-    (expr: Expression) => {
-      setExpression(expr);
-      setSnapCount((c) => c + 1);
-      cycleIdx.current = EXPR_CYCLE.indexOf(expr);
-      startCycle();
-    },
-    [startCycle],
-  );
+  /* ── 끌어서 돌리기 ──
+     몽이 그림은 위에 뜬 오버레이가 그리고 그 오버레이는 클릭을 받지 않는다. 그래서 입력은
+     자리 상자가 받아 각도만 넘기고, 실제 회전은 FloatingScene 이 그린다.
+     상태가 아니라 객체를 제자리에서 고친다 — 매 프레임 setState 하면 렌더가 계속 돈다. */
+  const lastPointer = useRef<{ x: number; y: number } | null>(null);
+
+  const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = useProfileSectionStore.getState().bunnyDrag;
+    drag.dragging = true;
+    drag.vx = 0;
+    drag.vy = 0;
+    lastPointer.current = { x: e.clientX, y: e.clientY };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    e.currentTarget.dataset.dragging = "true";
+  }, []);
+
+  const onPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const last = lastPointer.current;
+    if (!last) return;
+    const drag = useProfileSectionStore.getState().bunnyDrag;
+    const dx = e.clientX - last.x;
+    const dy = e.clientY - last.y;
+    lastPointer.current = { x: e.clientX, y: e.clientY };
+    /* 화면 폭의 절반쯤 끌면 한 바퀴 — 손맛이 너무 가볍지도 무겁지도 않은 값. */
+    const perPx = (Math.PI * 2) / (window.innerWidth * 0.5);
+    drag.y += dx * perPx;
+    /* 위아래는 자유롭게 두면 뒤집혀서 무슨 자세인지 알 수 없다 — 70도쯤에서 멈춘다. */
+    drag.x = Math.max(-1.2, Math.min(1.2, drag.x + dy * perPx));
+    drag.vx = dy * perPx;
+    drag.vy = dx * perPx;
+  }, []);
+
+  const endDrag = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    useProfileSectionStore.getState().bunnyDrag.dragging = false;
+    lastPointer.current = null;
+    delete e.currentTarget.dataset.dragging;
+  }, []);
 
   const expressions: { key: Expression; labelKey: string; descKey: string }[] = [
     { key: "normal", labelKey: "bunny.exprNormal", descKey: "bunny.exprNormalDesc" },
@@ -106,53 +154,31 @@ export default function BunnyShowcasePanel({ animateClass }: Props) {
     { key: "happy", labelKey: "bunny.exprHappy", descKey: "bunny.exprHappyDesc" },
   ];
 
-  const cameraConfig = useMemo(
-    () => ({
-      position: [0, 0.2, 4.5] as [number, number, number],
-      fov: 50,
-      near: 0.1,
-      far: 50,
-    }),
-    [],
-  );
-
-  const dpr = isTouch
-    ? Math.min(globalThis.devicePixelRatio ?? 1, 1.5)
-    : Math.min(globalThis.devicePixelRatio ?? 1, 2);
-
   return (
     <div className={styles.layout}>
-      {/* 3D Preview */}
-      <div className={`${styles.preview} ${ac}`}>
-        <Canvas
-          camera={cameraConfig}
-          dpr={dpr}
-          gl={(d) =>
-            createSafeRenderer(d, {
-              alpha: true,
-              antialias: !isTouch,
-              powerPreference: "high-performance",
-            })
-          }
-          style={{ background: "transparent" }}
-          frameloop="always"
-        >
-          <Suspense fallback={null}>
-            <BunnyPreviewScene expression={expression} snapToFront={snapCount} />
-          </Suspense>
-        </Canvas>
-      </div>
+      {/* 몽이가 내려앉는 자리 — 그림은 떠다니는 몽이(FloatingObject)가 대신 그린다.
+          비어 있는 상자지만 크기가 곧 몽이의 크기이자 위치다. */}
+      <div
+        ref={dockRef}
+        className={`${styles.dock} ${ac}`}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        role="presentation"
+        title={L_DRAG}
+      />
 
       {/* Info */}
       <div className={`${styles.info} ${ac}`}>
         <span className={styles.nameLabel}>MEET</span>
-        <h3 className={styles.name}><T k="bunny.name" /></h3>
-        <span className={styles.subtitle}><T k="bunny.subtitle" /></span>
+        <h3 className={styles.name}>{L(bunny.name)}</h3>
+        <span className={styles.subtitle}>{L(bunny.subtitle)}</span>
 
         <div className={styles.storyBlock}>
-          <p className={styles.storyText}><T k="bunny.story1" /></p>
-          <p className={styles.storyText}><T k="bunny.story2" /></p>
-          <p className={styles.storyText}><T k="bunny.story3" /></p>
+          {bunny.stories.map((story, i) => (
+            <p key={i} className={styles.storyText}>{L(story)}</p>
+          ))}
         </div>
 
         <div className={styles.exprBar}>
@@ -164,7 +190,12 @@ export default function BunnyShowcasePanel({ animateClass }: Props) {
               data-active={expression === key || undefined}
               onClick={() => handleExpression(key)}
             >
-              <span className={styles.exprFace}>{FACE_MAP[key]}</span>
+              {/* 별은 얼굴만 감싼다. 버튼 전체에 깔면 아래팔의 선이 라벨·설명 위를 가로질러
+                  글자가 읽히지 않는다 — 글자는 별 바깥, 아래에 둔다. */}
+              <span className={styles.exprIcon}>
+                <StarOutline />
+                <span className={styles.exprFace}>{FACE_MAP[key]}</span>
+              </span>
               <span className={styles.exprLabel}><T k={labelKey} /></span>
               <span className={styles.exprDesc}><T k={descKey} /></span>
             </button>

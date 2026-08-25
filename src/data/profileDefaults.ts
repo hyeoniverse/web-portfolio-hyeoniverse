@@ -5,6 +5,8 @@ import {
   approachSteps as staticApproach,
   certifications as staticCerts,
   awards as staticAwards,
+  bunnyProfile as staticBunny,
+  profileInfoBlocks as staticInfoBlocks,
 } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
 
@@ -15,4 +17,6 @@ export const profileDefaults: ProfileData = {
   approachSteps: staticApproach,
   certifications: staticCerts,
   awards: staticAwards,
+  bunny: staticBunny,
+  infoBlocks: staticInfoBlocks,
 };

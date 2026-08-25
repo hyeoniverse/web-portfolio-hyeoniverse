@@ -1,0 +1,261 @@
+/* ── 몽이 패널 배경: 밤하늘 ──────────────────────────────────
+   층마다 z-index · 흐림 · 속도 · 시차를 다르게 줘서 깊이를 만든다.
+   전부 장식이라 클릭을 가로채지 않는다(pointer-events: none). */
+
+.sky {
+  --_px: 0;
+  --_py: 0;
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* 패널 안 콘텐츠(panelInner)보다 뒤 */
+  z-index: 0;
+}
+
+/* 층은 이제 z-index 만 맡는다. 커서 반응은 요소 하나하나가 밀려나는 방식이라
+   층 전체를 미는 transform 은 쓰지 않는다. */
+.starLayer,
+.moonLayer,
+.farCloudLayer,
+.streakLayer,
+.nearCloudLayer,
+.glyphLayer {
+  position: absolute;
+  inset: 0;
+}
+
+.starLayer { z-index: 1; }
+.moonLayer { z-index: 2; }
+.farCloudLayer { z-index: 3; }
+.streakLayer { z-index: 4; }
+.nearCloudLayer { z-index: 5; }
+.glyphLayer { z-index: 6; }
+
+/* 밀려나는 이동을 맡는 바깥 상자. 안쪽 요소는 자기 애니메이션(깜빡임·부유)을 그대로 쓴다 —
+   한 요소에 둘 다 걸면 transform 이 서로를 덮어쓴다. */
+.slot {
+  position: absolute;
+  display: block;
+  will-change: transform;
+}
+
+.moonSlot {
+  position: absolute;
+  top: 12%;
+  right: 9%;
+  display: block;
+  width: clamp(72px, 9vw, 132px);
+  aspect-ratio: 1;
+  will-change: transform;
+}
+
+/* ── 잔별 ───────────────────────────────────────────────── */
+.star {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-circle);
+  background: var(--text-primary);
+  opacity: 0.35;
+  animation-name: twinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.8); }
+  50%      { opacity: 0.75; transform: scale(1.15); }
+}
+
+/* ── 달 ─────────────────────────────────────────────────── */
+.moon {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-circle);
+  background: radial-gradient(
+    circle at 32% 30%,
+    var(--color-white-alpha-100) 0%,
+    var(--color-neutral-100) 55%,
+    var(--color-neutral-300) 100%
+  );
+  /* 무리 — 겹겹이 퍼지게 두 단계로 준다 */
+  box-shadow:
+    0 0 40px 8px var(--color-white-alpha-30),
+    0 0 120px 40px var(--color-accent-alpha-10);
+  animation: moonFloat 14s ease-in-out infinite;
+}
+
+/* 크레이터 — 달을 원이 아니라 표면으로 보이게 하는 최소한의 장치 */
+.crater {
+  position: absolute;
+  border-radius: var(--radius-circle);
+  background: var(--color-neutral-300);
+  opacity: 0.45;
+}
+
+.crater[data-c="1"] { top: 24%; left: 26%; width: 22%; height: 22%; }
+.crater[data-c="2"] { top: 52%; left: 55%; width: 15%; height: 15%; }
+.crater[data-c="3"] { top: 66%; left: 28%; width: 10%; height: 10%; }
+
+@keyframes moonFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+
+/* ── 구름 ───────────────────────────────────────────────── */
+/* 덩어리 세 개를 겹친 radial-gradient 하나로 만든다 — 요소를 여러 개 쓰면 층만 늘어난다. */
+.cloud {
+  position: absolute;
+  background:
+    radial-gradient(closest-side, var(--color-white-alpha-50) 0%, transparent 100%) 0 40% / 55% 70% no-repeat,
+    radial-gradient(closest-side, var(--color-white-alpha-50) 0%, transparent 100%) 35% 0 / 50% 100% no-repeat,
+    radial-gradient(closest-side, var(--color-white-alpha-50) 0%, transparent 100%) 70% 35% / 45% 65% no-repeat;
+  animation-name: drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.cloud[data-cloud="far-a"] {
+  top: 18%;
+  width: 40vw;
+  height: 14vh;
+  opacity: 0.16;
+  filter: blur(10px);
+  animation-duration: 140s;
+}
+
+.cloud[data-cloud="far-b"] {
+  top: 58%;
+  width: 32vw;
+  height: 11vh;
+  opacity: 0.12;
+  filter: blur(12px);
+  animation-duration: 190s;
+  animation-delay: -70s;
+}
+
+.cloud[data-cloud="near-a"] {
+  top: 34%;
+  width: 26vw;
+  height: 10vh;
+  opacity: 0.22;
+  filter: blur(4px);
+  animation-duration: 80s;
+  animation-delay: -20s;
+}
+
+.cloud[data-cloud="near-b"] {
+  top: 76%;
+  width: 22vw;
+  height: 8vh;
+  opacity: 0.18;
+  filter: blur(3px);
+  animation-duration: 62s;
+  animation-delay: -45s;
+}
+
+@keyframes drift {
+  from { transform: translateX(-45vw); }
+  to   { transform: translateX(120vw); }
+}
+
+/* ── 별똥별 ─────────────────────────────────────────────── */
+/* 대부분의 시간은 안 보이고 주기 끝에 잠깐 지나간다 — 계속 흐르면 배경이 시끄럽다. */
+.streak {
+  position: absolute;
+  width: 180px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--text-primary));
+  opacity: 0;
+  animation-name: shoot;
+  animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
+  animation-iteration-count: infinite;
+}
+
+.streak[data-streak="a"] {
+  top: 16%;
+  left: -12%;
+  animation-duration: 17s;
+  animation-delay: 3s;
+}
+
+.streak[data-streak="b"] {
+  top: 44%;
+  left: -8%;
+  animation-duration: 26s;
+  animation-delay: 11s;
+}
+
+@keyframes shoot {
+  0%, 88%  { opacity: 0; transform: translate3d(0, 0, 0) rotate(18deg); }
+  90%      { opacity: 0.8; }
+  100%     { opacity: 0; transform: translate3d(120vw, 38vh, 0) rotate(18deg); }
+}
+
+/* ── 아스키 장식 ────────────────────────────────────────── */
+.glyph {
+  display: block;
+  font-family: var(--font-mono);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text-tertiary);
+  opacity: 0.5;
+  animation-name: glyphFloat;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes glyphFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.35; }
+  50%      { transform: translateY(-8px) rotate(-3deg); opacity: 0.65; }
+}
+
+/* 밝은 테마에서는 흰 구름·별이 배경에 묻힌다 — 어둡게 뒤집는다. */
+:global(html[data-theme="light"]) .star,
+:global(html[data-theme="light"]) .streak {
+  background: var(--color-neutral-700);
+}
+
+:global(html[data-theme="light"]) .cloud {
+  background:
+    radial-gradient(closest-side, var(--color-neutral-400) 0%, transparent 100%) 0 40% / 55% 70% no-repeat,
+    radial-gradient(closest-side, var(--color-neutral-400) 0%, transparent 100%) 35% 0 / 50% 100% no-repeat,
+    radial-gradient(closest-side, var(--color-neutral-400) 0%, transparent 100%) 70% 35% / 45% 65% no-repeat;
+}
+
+/* 좁은 화면에서는 장식이 본문을 덮는다 — 수를 줄이고 달도 작게. */
+@media (max-width: 1024px) {
+  .glyphLayer,
+  .nearCloudLayer {
+    display: none;
+  }
+
+  .moonSlot {
+    top: 6%;
+    right: 6%;
+    width: clamp(56px, 14vw, 84px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star,
+  .cloud,
+  .streak,
+  .glyph,
+  .moon {
+    animation: none;
+  }
+
+  .streak {
+    display: none;
+  }
+
+  .slot,
+  .moonSlot {
+    transform: none;
+  }
+}

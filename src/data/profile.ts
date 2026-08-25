@@ -326,3 +326,74 @@ export const philosophy: Philosophy[] = [
     },
   },
 ];
+
+/* ── MEET 패널(몽이) ──
+   예전에는 번역 파일(bunny.*)에만 있어서 설정에서 손댈 수 없었다. 기본값을 여기로 옮기고
+   설정에서 덮어쓸 수 있게 한다. */
+export const bunnyProfile = {
+  name: { ko: "몽이", en: "Mongi" },
+  subtitle: { ko: "이 마을에 사는 작은 토끼", en: "A little rabbit who lives in this town" },
+  stories: [
+    {
+      ko: "이 마을에 사는 꿈을 닮은 작은 토끼, 몽(夢)이를 소개할게요. 이름에는 밤에 꾸는 꿈도, 낮에 품는 꿈도 모두 담겨 있어요.",
+      en: "Meet Mongi, a little rabbit shaped like a dream. The name holds both the dreams you have at night and the ones you chase by day.",
+    },
+    {
+      ko: "사소한 것도 놓치지 않는 커다란 눈망울, 사람들의 목소리에 귀 기울이는 쫑긋한 귀가 자랑이랍니다.",
+      en: "Big eyes that miss nothing, and perked-up ears that listen closely to what people say.",
+    },
+    {
+      ko: "호기심이 많아 새로운 것에 쉽게 반응하지만, 살짝 겁이 많아서 갑자기 다가가면 깜짝 놀라요.",
+      en: "Curious about anything new, but a little timid — approach too fast and it will jump.",
+    },
+  ],
+};
+
+/* ── Profile 패널의 정보 창 ──
+   자리(x·y·너비)는 레이아웃이라 profileWindowConfig 에 남기고, 읽히는 값만 여기 둔다.
+   key 는 창의 자리와 짝지어지는 식별자다. */
+export const profileInfoBlocks = [
+  {
+    key: "c",
+    lines: [
+      { label: "School", value: "Seoul Women's University" },
+      { label: "GPA", value: "3.9 / 4.5" },
+      { label: "MBTI", value: "ISTP" },
+      { label: "Likes", value: "Coffee, Clean Code, Music" },
+      { label: "Dislikes", value: "Bugs, Slow Internet" },
+      { label: "Hobby", value: "Coding, Gaming, Film" },
+      { label: "Specialty", value: "Frontend, UI/UX" },
+    ],
+  },
+  {
+    key: "e1",
+    lines: [
+      { label: ">_", value: "console.log('Hello World')" },
+      { label: "Mood", value: "if (coffee) code() : sleep()" },
+      { label: "Bug", value: "99 little bugs in the code..." },
+    ],
+  },
+  {
+    key: "e2",
+    lines: [
+      { label: "Stack", value: "React + Next.js + TypeScript" },
+      { label: "Editor", value: "VS Code + Vim Motions" },
+      { label: "OS", value: "macOS" },
+      { label: "Font", value: "JetBrains Mono" },
+    ],
+  },
+  {
+    key: "e3",
+    lines: [
+      { label: "Coffee", value: "2,847 cups and counting" },
+      { label: "Commits", value: "git push --force (just kidding)" },
+    ],
+  },
+  {
+    key: "e4",
+    lines: [
+      { label: "Secret", value: "You found me!" },
+      { label: "Motto", value: "Ship it, then fix it" },
+    ],
+  },
+];
