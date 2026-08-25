@@ -183,11 +183,12 @@ export default function Footer({ className, variant = "full" }: FooterProps) {
                 <Link href="/privacy" className={styles.adminLink}>Privacy</Link>
                 <span className={styles.divider}>✧</span>
                 <Link href="/design-system" target="_blank" className={styles.adminLink}>Design System</Link>
-                {isAuthenticated && (
-                  <>
-                    <span className={styles.divider}>✧</span>
-                    <Link href="/admin" target="_blank" className={styles.adminLink}>Admin</Link>
-                  </>
+                <span className={styles.divider}>✧</span>
+                {/* full variant 와 같게 — 로그아웃 상태에서도 들어갈 자리는 남겨 둔다 */}
+                {isAuthenticated ? (
+                  <Link href="/admin" target="_blank" className={styles.adminLink}>Admin</Link>
+                ) : (
+                  <Link href="/admin/login" target="_blank" className={styles.adminLink}>Login</Link>
                 )}
                 {visits && (
                   <>

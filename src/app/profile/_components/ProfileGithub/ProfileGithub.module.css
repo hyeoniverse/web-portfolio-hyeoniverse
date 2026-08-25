@@ -1,0 +1,665 @@
+/* 가로 트랙의 패널 안에 들어간다 — 최대폭·좌우 여백은 panelInner 가 이미 잡아 준다.
+   여기서 또 잡으면 다른 패널보다 좁아지고 위아래로도 밀린다. */
+.section {
+  /* 언어 막대 색 — accent 를 기준으로 투명도만 낮춰 계단을 만든다.
+     언어마다 브랜드 색을 쓰면 팔레트가 사이트와 따로 논다. */
+  --_lang-0: var(--color-accent);
+  --_lang-1: var(--color-accent-alpha-70);
+  --_lang-2: var(--color-accent-alpha-50);
+  --_lang-3: var(--color-accent-alpha-30);
+  --_lang-4: var(--color-accent-alpha-10);
+
+  display: flex;
+  flex-direction: column;
+  /* 블록 사이(3xl)와 블록 안(xs)의 차이를 크게 벌린다. 둘이 비슷하면(lg vs sm) 라벨이
+     위 블록에 붙은 건지 아래 내용의 머리인지 읽히지 않아 한 덩어리로 뭉쳐 보인다. */
+  gap: var(--spacing-3xl);
+  width: 100%;
+}
+
+/* 지표 아래 묶음 하나 — 라벨 + 내용. 라벨을 내용에 바짝 붙여 한 짝으로 읽히게 한다. */
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* 라벨 위에 얇은 선 하나 — 여백만으로는 100vh 안에서 경계가 흐려진다. */
+.block .blockLabel {
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-light);
+}
+
+.blockLabel {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.blockValue {
+  font-family: var(--font-space-grotesk);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-secondary);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  padding-bottom: var(--spacing-md);
+  border-bottom: var(--border-default);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.title > svg {
+  transition: transform var(--duration-base);
+}
+
+.head:hover .title > svg {
+  transform: rotate(-12deg) scale(1.1);
+}
+
+.profileLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.head .profileLink {
+  transition: color var(--duration-fast), transform var(--duration-fast);
+}
+
+.profileLink:hover {
+  color: var(--text-accent);
+  transform: translateX(2px);
+}
+
+/* ── 활동 지표 ── */
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  /* 항목 사이는 넓게, 줄바꿈됐을 때 위아래는 그보다 좁게 — 가로/세로 간격이 같으면
+     두 줄이 됐을 때 지표들이 흩어져 보인다. */
+  gap: var(--spacing-lg) var(--spacing-3xl);
+  margin: 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.statLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.statValue {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xl);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+/* 숫자가 다 올라간 뒤 한 번 튕긴다 — 카운트업만으로는 끝나는 지점이 밋밋하다. */
+.section[data-in="true"] .statValue {
+  animation: statPop var(--duration-slower) var(--ease-bounce) both;
+  animation-delay: 0.85s;
+}
+
+@keyframes statPop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* 상호작용: 지표에 커서를 올리면 그 값이 살아난다 */
+.stats .stat {
+  transition: transform var(--duration-fast);
+}
+
+.stat:hover {
+  transform: translateY(-2px);
+}
+
+.stats .statValue,
+.stats .statLabel {
+  transition: color var(--duration-fast);
+}
+
+.stat:hover .statValue {
+  color: var(--text-accent);
+}
+
+.stat:hover .statLabel {
+  color: var(--text-secondary);
+}
+
+/* 단위는 숫자보다 작게 — 올라가는 숫자에 시선이 가야 한다 */
+.statSuffix {
+  margin-left: 1px;
+  font-size: var(--font-size-md);
+  color: var(--text-tertiary);
+}
+
+/* ── 주 사용 언어 ── */
+/* 비중을 폭으로 그린다 — 개수만 나열하면 어느 쪽에 치우쳤는지 안 보인다. */
+.langBar {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  height: 10px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+}
+
+/* 다 채워진 뒤 빛이 한 번 훑고 지나간다 — 막대가 "완성됐다"는 신호. */
+.section[data-in="true"] .langBar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 40%,
+    var(--color-white-alpha-50) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  animation: langSheen var(--duration-slowest) var(--ease-out-expo) var(--_sheen-delay, 1.3s) both;
+  pointer-events: none;
+}
+
+@keyframes langSheen {
+  to { transform: translateX(100%); }
+}
+
+.langSlice {
+  flex: 0 0 auto;
+  width: 0;
+  height: 100%;
+}
+
+/* 조각이 한 칸씩 쌓인다. 앞 조각이 자기 폭을 다 채우면 뒤 조각이 이어받아 밀고 들어온다.
+   scaleX 로 하면 각자 제자리에서 부풀 뿐이라 "쌓이는" 느낌이 안 난다 — 폭을 실제로 늘려야
+   뒤 조각들이 밀려나며 줄이 서는 게 보인다. 조각이 다섯 개뿐이라 레이아웃 비용은 무시할 만하다.
+   duration/delay 는 길이에 비례해 컴포넌트가 인라인으로 넣는다(채우는 속도를 일정하게).
+   transition 이 아니라 animation 인 이유는 전역 테마 transition 규칙(shorthand)이
+   컴포넌트 transition 을 통째로 덮어쓰기 때문이다. */
+.section[data-in="true"] .langSlice {
+  animation-name: langStack;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+/* 범례에 커서를 올리면 그 조각만 남는다 */
+.langSlice[data-dim="true"] {
+  opacity: 0.25;
+}
+
+.langBar .langSlice {
+  transition: opacity var(--duration-fast);
+}
+
+@keyframes langStack {
+  from { width: 0; }
+  to { width: var(--_w); }
+}
+
+.langList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-lg);
+  margin: var(--spacing-2xs) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lang {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+.lang {
+  opacity: 0;
+}
+
+.section[data-in="true"] .lang {
+  animation: langLegendIn var(--duration-slow) var(--ease-out-expo) both;
+}
+
+@keyframes langLegendIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.langList .lang {
+  transition: color var(--duration-fast);
+}
+
+.lang:hover {
+  color: var(--text-primary);
+}
+
+.langList .langDot {
+  transition: transform var(--duration-fast);
+}
+
+.lang:hover .langDot {
+  transform: scale(1.5);
+}
+
+.langDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+}
+
+.langPercent {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+/* ── 잔디 (GITHUB_TOKEN 있을 때) ── */
+.grass {
+  display: flex;
+  gap: 3px;
+  overflow-x: auto;
+  /* hover 하면 칸이 1.4배로 커지고 주 전체가 2px 떠오른다. overflow-x 를 auto 로 두면
+     세로 방향도 함께 잘리므로(스펙상 한 축이 visible 이 아니면 다른 축도 visible 이 아니게 된다),
+     커진 만큼의 자리를 안쪽 여백으로 미리 비워 둔다. */
+  padding: var(--spacing-xs) 3px;
+}
+
+.grassWeek {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.grassDay {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--bg-secondary);
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.section[data-in="true"] .grassDay {
+  animation: grassIn var(--duration-slow) var(--ease-bounce) both;
+}
+
+.grass .grassDay {
+  transition: outline-color var(--duration-fast);
+  outline: 1px solid transparent;
+  outline-offset: 1px;
+}
+
+.grassDay:hover {
+  outline-color: var(--text-accent);
+  transform: scale(1.4);
+  z-index: 1;
+}
+
+.grass .grassDay {
+  transition: outline-color var(--duration-fast), transform var(--duration-fast);
+}
+
+/* 한 주 위에 커서를 올리면 그 주가 통째로 살짝 벌어진다 */
+.grassWeek {
+  transition: transform var(--duration-fast);
+}
+
+.grassWeek:hover {
+  transform: translateY(-2px);
+}
+
+@keyframes grassIn {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.grassDay[data-level="1"] { background: var(--color-accent-alpha-30); }
+.grassDay[data-level="2"] { background: var(--color-accent-alpha-50); }
+.grassDay[data-level="3"] { background: var(--color-accent-alpha-70); }
+.grassDay[data-level="4"] { background: var(--color-accent); }
+
+/* ── 연도별 활동 (잔디 대체) ── */
+.activity {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-md);
+  height: 96px;
+}
+
+.activityCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-2xs);
+  flex: 1 1 0;
+  height: 100%;
+  max-width: 64px;
+}
+
+.activityBar {
+  width: 100%;
+  min-height: 2px;
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  background: var(--color-accent-alpha-50);
+  transform: scaleY(0);
+  transform-origin: bottom center;
+}
+
+.section[data-in="true"] .activityBar {
+  animation: barGrow var(--duration-slower) var(--ease-out-expo) both;
+}
+
+.activity .activityBar {
+  transition: background-color var(--duration-fast);
+}
+
+.activityCol:hover .activityBar {
+  background: var(--color-accent);
+}
+
+@keyframes barGrow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+.activityYear {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+/* ── 고른 저장소 ── */
+/* Pinned 전용 패널이라 카드가 화면을 다 쓴다 — 3열 기준으로 넉넉하게. */
+.repos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.repo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  height: 100%;
+  padding: var(--box-lg);
+  border: var(--border-default);
+  border-radius: var(--radius-2xl);
+  text-decoration: none;
+  transition: border-color var(--duration-base), background-color var(--duration-base);
+}
+
+.repos .repo {
+  transition:
+    border-color var(--duration-base),
+    background-color var(--duration-base),
+    transform var(--duration-base);
+}
+
+.repo:hover {
+  border: var(--border-accent);
+  background: var(--bg-secondary);
+  transform: translateY(-4px);
+}
+
+/* 카드가 들어올 때 테두리가 accent 에서 평소 색으로 식는다 — 하나씩 켜지는 느낌 */
+.section[data-in="true"] .repo {
+  animation: repoSettle var(--duration-slowest) var(--ease-out-expo) both;
+}
+
+@keyframes repoSettle {
+  from { border-color: var(--color-accent); }
+  to   { border-color: var(--border-default-color); }
+}
+
+/* 카드 이름은 hover 때 accent 로 — 어디를 누르는지 분명해진다 */
+.repos .repoName {
+  transition: color var(--duration-fast);
+}
+
+.repo:hover .repoName {
+  color: var(--text-accent);
+}
+
+.repos .repoTopic {
+  transition: background-color var(--duration-fast), color var(--duration-fast);
+}
+
+.repo:hover .repoTopic {
+  border: var(--border-accent);
+  color: var(--text-accent);
+}
+
+/* 카드에서 눈이 가장 먼저 닿는 자리 — 설명과 굵기가 비슷하면 어디부터 읽을지 정하지 못한다. */
+.repoName {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  min-width: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+/* 저장소 이름은 길면 줄바꿈되며 카드를 흔든다 — 한 줄로 자른다(전체는 title 로 보인다). */
+.repoNameText {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 클릭하면 나가는 링크임을 hover 때 드러낸다 — 평소에는 이름만 읽히게 숨겨 둔다 */
+.repoName .repoArrow {
+  opacity: 0;
+  transform: translate(-4px, 4px);
+  transition: opacity var(--duration-fast), transform var(--duration-fast);
+  color: var(--text-accent);
+}
+
+.repo:hover .repoArrow {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* 설명은 길이와 무관하게 두 줄 자리를 차지한다 — 길면 자르고, 없으면 비워 둔다.
+   카드마다 높이가 달라지면 그리드에서 아래 줄(토픽·메타)이 어긋난다. */
+.repoDesc {
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: calc(1.6em * 2);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* 언어·별·날짜 줄은 어떤 카드에서든 같은 자리에 온다.
+   margin-top:auto 로 카드 바닥에 붙이면 위 내용(설명 길이·토픽 유무)과 무관해진다 —
+   설명 자리 확보만으로는 토픽이 있는 카드와 없는 카드가 어긋난다. */
+.repoMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: auto;
+  padding-top: var(--spacing-sm);
+  border-top: var(--border-light);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.repoLang,
+.repoStat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+}
+
+/* 언어는 이름, 그 옆은 숫자다 — 점을 붙여 성격이 다르다는 걸 표시한다(GitHub 관습) */
+.repoLang {
+  gap: var(--spacing-2xs);
+  color: var(--text-secondary);
+}
+
+.repoLang::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+  background: var(--text-accent);
+}
+
+.repoDate {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.repoTopics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3xs);
+  min-height: var(--size-2xs);
+}
+
+/* 채운 배경은 설명 바로 아래에서 덩어리로 보여 시선을 뺏는다 — 테두리만 남긴다. */
+.repoTopic {
+  padding: var(--box-3xs-xs);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--text-tertiary);
+}
+
+/* 패널은 100vh 고정이고 넘치면 잘린다 — 화면이 낮으면 밀도를 올려 한 화면에 들어가게 한다. */
+@media (max-height: 860px) {
+  .section {
+    gap: var(--spacing-xl);
+  }
+
+  .head {
+    padding-bottom: var(--spacing-xs);
+  }
+
+  .block .blockLabel {
+    padding-top: var(--spacing-2xs);
+  }
+
+  .stats {
+    gap: var(--spacing-sm) var(--spacing-2xl);
+  }
+
+  .statValue {
+    font-size: var(--font-size-xl);
+  }
+
+  .activity {
+    height: 64px;
+  }
+
+  .grassDay {
+    width: 8px;
+    height: 8px;
+  }
+
+  .repos {
+    gap: var(--spacing-md);
+  }
+
+  .repo {
+    gap: var(--spacing-2xs);
+    padding: var(--box-md);
+  }
+
+}
+
+/* 더 낮으면 저장소 카드가 두 줄을 넘긴다 — 토픽만 접고 설명은 한 줄로 남긴다.
+   이름만 있는 카드는 어떤 저장소인지 알 수 없어 카드로서 의미가 없다. */
+@media (max-height: 720px) {
+  .section {
+    gap: var(--spacing-md);
+  }
+
+  .repoTopics {
+    display: none;
+  }
+
+  .repoDesc {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    min-height: 1.6em;
+  }
+}
+
+/* 움직임을 줄이라는 설정이면 연출 없이 결과만 보여준다. */
+@media (prefers-reduced-motion: reduce) {
+  .section[data-in="true"] .langSlice,
+  .section[data-in="true"] .lang,
+  .section[data-in="true"] .grassDay,
+  .section[data-in="true"] .activityBar,
+  .section[data-in="true"] .statValue,
+  .section[data-in="true"] .langBar::after,
+  .section[data-in="true"] .repo {
+    animation: none;
+  }
+
+  .langSlice { width: var(--_w); }
+  .lang { opacity: 1; }
+  .activityBar { transform: scaleY(1); }
+  .grassDay { opacity: 1; transform: none; }
+
+  .repos .repo,
+  .repoName .repoArrow,
+  .stats .stat,
+  .grass .grassDay,
+  .grassWeek,
+  .title > svg {
+    transition: none;
+  }
+}

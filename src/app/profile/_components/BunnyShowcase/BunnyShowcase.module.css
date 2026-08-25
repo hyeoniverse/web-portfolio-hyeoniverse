@@ -9,11 +9,21 @@
   height: 100%;
 }
 
-/* ── 3D Preview ── */
-.preview {
+/* ── 몽이 자리 ──
+   떠다니는 몽이가 이 상자로 내려앉는다. 여기에는 아무것도 그리지 않는다 —
+   상자의 크기와 위치만이 몽이가 어디에 얼마만 하게 설지를 정한다. */
+.dock {
   flex-shrink: 0;
   width: min(50vh, 380px);
   aspect-ratio: 3 / 4;
+  /* 몽이 그림은 위에 뜬 오버레이가 그리고 그 오버레이는 클릭을 받지 않는다 —
+     끌어서 돌리는 입력은 이 상자가 대신 받는다. */
+  cursor: grab;
+  touch-action: none;
+}
+
+.dock[data-dragging="true"] {
+  cursor: grabbing;
 }
 
 /* ── Info Area ── */
@@ -80,30 +90,91 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-2xs);
   flex: 1;
-  padding: var(--box-md-sm);
-  border: var(--border-default);
-  border-radius: var(--radius-lg);
+  padding: var(--box-sm);
+  border: none;
   background: transparent;
   text-align: center;
 }
 
-/* Active card — accent outline */
-.exprBar .exprCard[data-active] {
-  border-color: var(--text-accent);
+/* 별과 얼굴만 담는 정사각 — 별은 비율을 지켜 그리므로 담는 상자도 정사각이라야
+   위아래로 눌리지 않는다. 라벨·설명은 이 밖에 있어 선이 글자를 가로지르지 않는다. */
+.exprIcon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  max-width: 100%;
+  aspect-ratio: 1;
+}
+
+/* 별 — 버튼의 테두리. 배경은 채우지 않는다.
+   clip-path 로는 선을 그릴 수 없어(면만 잘린다) SVG stroke 로 그린다. */
+.exprStar {
+  position: absolute;
+  inset: 0;
+  /* z-index: -1 로 내리면 이 버튼의 stacking context 를 벗어나 패널 배경(밤하늘) 뒤로 빠진다. */
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--border-default-color);
+  stroke-width: 1px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.exprBar .exprStar {
+  transition: stroke var(--duration-base), transform var(--duration-base);
+}
+
+/* hover 는 움직임으로만 반응한다 — 색까지 바꾸면 지금 고른 표정과 구분이 안 된다. */
+.exprCard:hover .exprStar {
+  transform: scale(1.04) rotate(-4deg);
+}
+
+/* 고른 표정 — 선이 accent 로 바뀌고 조금 굵어진다 */
+.exprBar .exprCard[data-active] .exprStar {
+  stroke: var(--text-accent);
+  stroke-width: 1.6px;
+  transform: scale(1.06);
+}
+
+/* 고른 표정에 커서를 올렸을 때 — 위 규칙이 transform 을 통째로 덮어써서 기울기가 사라진다.
+   확대는 선택 상태를 유지한 채 기울기만 얹는다. */
+.exprBar .exprCard[data-active]:hover .exprStar {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+/* 얼굴은 별 위에 — 별과 같은 상자 안에서 겹친다 */
+.exprIcon .exprFace {
+  position: relative;
+  z-index: 1;
 }
 
 /* Face SVG area — bunny silhouette */
 .exprFace {
   --_bunny-bg: var(--color-neutral-100);
+  --_bunny-line: var(--text-primary);
+
+  /* 외곽선 — 머리와 귀를 각각 border 로 두르면 귀가 머리에 묻히는 지점에 이음선이 보인다.
+     drop-shadow 를 사방으로 겹치면 머리+귀를 합친 실루엣의 바깥 테두리만 그려진다.
+     (::before/::after 까지 함께 필터를 타므로 귀도 포함된다) */
+  filter:
+    drop-shadow(1px 0 0 var(--_bunny-line))
+    drop-shadow(-1px 0 0 var(--_bunny-line))
+    drop-shadow(0 1px 0 var(--_bunny-line))
+    drop-shadow(0 -1px 0 var(--_bunny-line));
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 40px;
-  margin-top: var(--spacing-2xl);
+  width: 40px;
+  height: 28px;
+  /* 귀가 위로 뻗으므로 얼굴을 조금 내려 별 안에 담는다 */
+  margin-top: var(--spacing-lg);
   color: var(--text-primary);
   background: var(--_bunny-bg);
   border-radius: var(--radius-circle);
@@ -115,20 +186,20 @@
 .exprFace::after {
   content: "";
   position: absolute;
-  top: -28px;
-  width: var(--button-h-xs);
-  height: 38px;
+  top: -21px;
+  width: 15px;
+  height: 29px;
   border-radius: 50% 50% 40% 40% / 50% 50% 50% 50%;
   background: var(--_bunny-bg);
   z-index: -1;
 }
 
 .exprFace::before {
-  left: 4px;
+  left: 3px;
 }
 
 .exprFace::after {
-  right: 4px;
+  right: 3px;
 }
 
 /* Label */
@@ -141,6 +212,7 @@
 
 .exprCardActive .exprFace {
   --_bunny-bg: color-mix(in srgb, var(--bg-accent-solid) 10%, var(--bg-secondary));
+  --_bunny-line: var(--text-accent);
   color: var(--text-accent);
 }
 

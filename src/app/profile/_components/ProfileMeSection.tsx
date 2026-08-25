@@ -10,6 +10,8 @@ import {
   philosophy as staticPhilosophy,
   certifications as staticCertifications,
   awards as staticAwards,
+  bunnyProfile as staticBunny,
+  profileInfoBlocks as staticInfoBlocks,
 } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
 import { formatPeriod } from "@/utils/formatPeriod";
@@ -21,25 +23,42 @@ import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import ProfileWindows from "./ProfileWindows";
 import MarqueeDivider from "./MarqueeDivider";
 import BunnyShowcasePanel from "./BunnyShowcase/BunnyShowcasePanel";
+import NightSky from "./BunnyShowcase/NightSky";
+import { useBunnyExpressionCycle } from "./BunnyShowcase/useBunnyExpressionCycle";
+import ProfileGithub from "./ProfileGithub/ProfileGithub";
+import type { GithubShowcase } from "@/lib/githubShowcase";
 import KineticHeroTitle from "@/components/common/KineticHeroTitle";
 import styles from "./ProfileMeSection.module.css";
 
 // 12 panels + 3 break dividers = 15 elements per set
+// GitHub showcase 가 있으면 패널이 하나 늘어난다 — 무한 스크롤의 한 세트 크기와
+// 네비게이션 dot 개수가 실제 개수와 어긋나면 되감기 지점이 틀어진다.
 const PANEL_COUNT = 15;
 const NAV_SECTION_COUNT = 12;
+/** GitHub 패널이 들어가는 자리(구분선 제외 인덱스: Hero 0 · Bunny 1 · Profile 2 · GitHub 3)
+ *  — 말풍선 키가 이 번호에 묶여 있다. */
+const GITHUB_PANEL_INDEX = 3;
+/** 몽이 패널 자리(구분선 제외 인덱스). 여기에 머무는 동안만 표정을 조종한다. */
+const BUNNY_PANEL_INDEX = 1;
+/** GitHub 이 차지할 수 있는 최대 패널 수 — 개요 + Pinned. 말풍선 키는 이 배치를 기준으로 쓰였다. */
+const GITHUB_PANEL_SPAN = 2;
 const REPETITIONS = 3;
 
 interface ProfileMeSectionProps {
   profileData?: ProfileData;
+  /** GitHub 활동 지표·저장소 — 있으면 트랙 끝쪽에 패널 하나로 들어간다. */
+  showcase?: GithubShowcase | null;
 }
 
-export default function ProfileMeSection({ profileData }: ProfileMeSectionProps) {
+export default function ProfileMeSection({ profileData, showcase }: ProfileMeSectionProps) {
   const experiences = profileData?.experiences ?? staticExperiences;
   const skillGroups = profileData?.skillGroups ?? staticSkillGroups;
   const approachSteps = profileData?.approachSteps ?? staticApproachSteps;
   const philosophy = profileData?.philosophy ?? staticPhilosophy;
   const certifications = profileData?.certifications ?? staticCertifications;
   const awards = profileData?.awards ?? staticAwards;
+  const infoBlocks = profileData?.infoBlocks ?? staticInfoBlocks;
+  const bunny = profileData?.bunny ?? staticBunny;
 
   const { language } = useLanguage();
   const siteConfig = useSiteConfig();
@@ -47,16 +66,29 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
   const p = siteConfig.profile;
   const infiniteScroll = siteConfig.profile.infiniteScroll;
   const isMobile = useMobileLayout();
+  /* 실제로 그리는 GitHub 패널 수 — 개요만(1) / 개요+Pinned(2) / 아예 없음(0).
+     무한 스크롤의 한 세트 크기와 네비게이션 dot 개수가 실제 개수와 어긋나면 되감기가 틀어진다. */
+  const githubPanels = showcase ? (showcase.repos.length > 0 ? GITHUB_PANEL_SPAN : 1) : 0;
   const { sectionRef, trackRef, activeSection } = useHorizontalScroll(styles, {
     infinite: infiniteScroll,
-    panelSetSize: PANEL_COUNT,
-    navSectionCount: NAV_SECTION_COUNT,
+    panelSetSize: PANEL_COUNT + githubPanels,
+    navSectionCount: NAV_SECTION_COUNT + githubPanels,
     mobileAnimateVisible: true,
   });
 
+  /* 이 패널에 머무는 동안만 표정을 돌린다 — 사본이 여러 벌이라 여기서 한 번만 부른다. */
+  useBunnyExpressionCycle(activeSection === BUNNY_PANEL_INDEX);
+
   useEffect(() => {
-    useProfileSectionStore.getState().setActiveSection(activeSection);
-  }, [activeSection]);
+    /* 말풍선(profilePage.bubble.N)은 패널 번호에 묶여 있고, 키는 GitHub 이 두 패널을 다
+       차지하는 배치를 기준으로 쓰였다. 실제로 덜 그려지면 그 뒤가 당겨져 엉뚱한 패널에
+       뜨므로, 빠진 만큼 되돌려서 넘긴다. */
+    const bubbleIndex =
+      activeSection < GITHUB_PANEL_INDEX + githubPanels
+        ? activeSection
+        : activeSection + (GITHUB_PANEL_SPAN - githubPanels);
+    useProfileSectionStore.getState().setActiveSection(bubbleIndex);
+  }, [activeSection, githubPanels]);
 
   const panelSet = (key: number) => (
     <Fragment key={key}>
@@ -80,10 +112,11 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
       </div>
 
       {/* Panel 2: Bunny Showcase */}
-      <div className={styles.panel}>
+      <div className={`${styles.panel} ${styles.bunnyPanel}`}>
+        <NightSky />
         <span className={styles.panelWatermark}>mongi</span>
         <div className={styles.panelInner}>
-          <BunnyShowcasePanel animateClass={styles.animate} />
+          <BunnyShowcasePanel animateClass={styles.animate} bunny={bunny} />
         </div>
       </div>
 
@@ -92,7 +125,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
 
       {/* Panel 3: Profile */}
       <div className={`${styles.panel} ${styles.profilePanel}`}>
-        <ProfileWindows className={styles.animate} isMobile={isMobile} />
+        <ProfileWindows className={styles.animate} isMobile={isMobile} infoBlocks={infoBlocks} />
         <div className={`${styles.profileContent} ${styles.animate}`}>
           <h3 className={styles.sectionSubtitle}><T k="profilePage.profile" /></h3>
           <p className={styles.bioHighlight}>
@@ -127,7 +160,40 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         </div>
       </div>
 
-      {/* Panel 3: Experience */}
+      {/* Panel 4: GitHub — 앞의 Profile 이 "누구인가" 라면 여기는 그 사람이 실제로 무엇을
+          굴리고 있는가다. 이력·기술로 넘어가기 전에 근거를 먼저 보여준다. */}
+      {showcase && (
+        <div className={styles.panel}>
+          <span className={styles.panelWatermark}>github</span>
+          <div className={styles.panelInner}>
+            {/* 연출 시작 신호를 직접 준다. 패널이 화면 가운데 왔을 때가 정확히 이 시점이다 —
+                IntersectionObserver 로는 오른쪽에 걸치는 순간 이미 시작돼 다 끝나 버린다. */}
+            <ProfileGithub
+              showcase={showcase}
+              animateClass={styles.animate}
+              active={activeSection === GITHUB_PANEL_INDEX}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Panel 5: Pinned — 지표와 한 패널에 넣으니 빽빽해서 훑기 어려웠다.
+          다른 패널들처럼 한 패널에 한 가지만 둔다. */}
+      {showcase && showcase.repos.length > 0 && (
+        <div className={styles.panel}>
+          <span className={styles.panelWatermark}>pinned</span>
+          <div className={styles.panelInner}>
+            <ProfileGithub
+              showcase={showcase}
+              animateClass={styles.animate}
+              active={activeSection === GITHUB_PANEL_INDEX + 1}
+              part="pinned"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Panel 6: Experience */}
       <div className={styles.panel}>
         <span className={styles.panelWatermark}>experience</span>
         <span className={styles.decorBlob} />
@@ -168,7 +234,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
       {/* Break: Marquee 2 */}
       <MarqueeDivider className={styles.breakPanel} />
 
-      {/* Panel 4–7: Skills (one panel per category) */}
+      {/* Panel 7–10: Skills (one panel per category) */}
       {skillGroups.map((group, gi) => (
         <div key={`skill-${gi}`} className={styles.panel}>
           <span className={styles.panelWatermark}>
@@ -215,7 +281,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
       {/* Break: Marquee 3 */}
       <MarqueeDivider className={styles.breakPanel} />
 
-      {/* Panel 8: Philosophy */}
+      {/* Panel 11: Philosophy */}
       <div className={styles.panel}>
         <span className={styles.panelWatermark}>mindset</span>
         <span className={`${styles.decorBlob} ${styles.decorBlobAlt}`} />
@@ -246,7 +312,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         </div>
       </div>
 
-      {/* Panel 9: My Approach */}
+      {/* Panel 12: My Approach */}
       <div className={styles.panel}>
         <span className={styles.panelWatermark}>process</span>
         <div className={styles.panelInner}>
@@ -272,7 +338,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         </div>
       </div>
 
-      {/* Panel 10: Certifications & Awards */}
+      {/* Panel 13: Certifications & Awards */}
       <div className={styles.panel}>
         <span className={styles.panelWatermark}>credentials</span>
         <div className={styles.panelInner}>
@@ -330,7 +396,7 @@ export default function ProfileMeSection({ profileData }: ProfileMeSectionProps)
         </div>
       </div>
 
-      {/* Panel 12: Credits */}
+      {/* Panel 14: Credits */}
       <CreditsPanel className={`${styles.panel} ${styles.animate}`} />
     </Fragment>
   );

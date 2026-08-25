@@ -8,6 +8,7 @@ import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
 import { ImageViewer } from "@/components/ui/ImageViewer";
 import { WINS, getTextPositions } from "./profileWindowConfig";
+import type { ProfileInfoBlock } from "@/types/profile";
 import styles from "./ProfileMeSection.module.css";
 
 
@@ -16,11 +17,13 @@ const TITLE_BAR_HEIGHT = 34;
 interface Props {
   className?: string;
   isMobile?: boolean;
+  /** 창에 들어갈 내용 — 설정에서 편집한다. 자리는 profileWindowConfig 가 정한다. */
+  infoBlocks?: ProfileInfoBlock[];
 }
 
-export default function ProfileWindows({ className, isMobile }: Props) {
+export default function ProfileWindows({ className, isMobile, infoBlocks }: Props) {
   const siteConfig = useSiteConfig();
-  const TEXT_POSITIONS = getTextPositions(siteConfig);
+  const TEXT_POSITIONS = getTextPositions(siteConfig, infoBlocks);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const winRefs = useRef<Record<string, HTMLDivElement | null>>({});

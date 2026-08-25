@@ -1,4 +1,5 @@
 import type { useSiteConfig } from "@/providers/SiteConfigProvider";
+import type { ProfileInfoBlock } from "@/types/profile";
 
 export interface WindowDef {
   id: string;
@@ -24,80 +25,37 @@ export interface TextBlock {
   lines: { label: string; value: string }[];
 }
 
-export const getTextPositions = (siteConfig: ReturnType<typeof useSiteConfig>): TextBlock[] => [
-  /* ── Window-aligned blocks ── */
-  {
-    key: "a",
-    x: 4,
-    y: 6,
-    w: 28,
-    aspect: "4/3",
-    lines: [
-      { label: "Name", value: siteConfig.personal.name },
-      { label: "Role", value: siteConfig.personal.role },
-      { label: "Location", value: siteConfig.personal.location },
-      { label: "Email", value: siteConfig.contact.email },
-      { label: "Status", value: siteConfig.personal.status },
-    ],
-  },
-  {
-    key: "c",
-    x: 12,
-    y: 52,
-    w: 20,
-    aspect: "1/1",
-    lines: [
-      { label: "School", value: "Seoul Women's University" },
-      { label: "GPA", value: "3.9 / 4.5" },
-      { label: "MBTI", value: "ISTP" },
-      { label: "Likes", value: "Coffee, Clean Code, Music" },
-      { label: "Dislikes", value: "Bugs, Slow Internet" },
-      { label: "Hobby", value: "Coding, Gaming, Film" },
-      { label: "Specialty", value: "Frontend, UI/UX" },
-    ],
-  },
-  /* ── Easter eggs ── */
-  {
-    key: "e1",
-    x: 62,
-    y: 6,
-    w: 24,
-    lines: [
-      { label: ">_", value: "console.log('Hello World')" },
-      { label: "Mood", value: "if (coffee) code() : sleep()" },
-      { label: "Bug", value: "99 little bugs in the code..." },
-    ],
-  },
-  {
-    key: "e2",
-    x: 56,
-    y: 50,
-    w: 26,
-    lines: [
-      { label: "Stack", value: "React + Next.js + TypeScript" },
-      { label: "Editor", value: "VS Code + Vim Motions" },
-      { label: "OS", value: "macOS" },
-      { label: "Font", value: "JetBrains Mono" },
-    ],
-  },
-  {
-    key: "e3",
-    x: 36,
-    y: 72,
-    w: 22,
-    lines: [
-      { label: "Coffee", value: "2,847 cups and counting" },
-      { label: "Commits", value: "git push --force (just kidding)" },
-    ],
-  },
-  {
-    key: "e4",
-    x: 70,
-    y: 78,
-    w: 22,
-    lines: [
-      { label: "Secret", value: "You found me!" },
-      { label: "Motto", value: "Ship it, then fix it" },
-    ],
-  },
+/**
+ * 창의 자리(x·y·너비)와 그 안에 들어갈 내용을 짝지어 준다.
+ *
+ * 자리는 레이아웃이라 여기 남기고 내용은 설정(profileData.infoBlocks)에서 받는다 —
+ * 예전에는 학교·MBTI·취향 같은 값까지 코드에 박혀 있어 고치려면 배포를 해야 했다.
+ * "a" 블록만은 계정 정보(이름·역할·연락처)라 사이트 설정에서 그대로 읽는다.
+ */
+const SLOTS: { key: string; x: number; y: number; w: number; aspect?: string }[] = [
+  { key: "a", x: 4, y: 6, w: 28, aspect: "4/3" },
+  { key: "c", x: 12, y: 52, w: 20, aspect: "1/1" },
+  { key: "e1", x: 62, y: 6, w: 24 },
+  { key: "e2", x: 56, y: 50, w: 26 },
+  { key: "e3", x: 36, y: 72, w: 22 },
+  { key: "e4", x: 70, y: 78, w: 22 },
 ];
+
+export const getTextPositions = (
+  siteConfig: ReturnType<typeof useSiteConfig>,
+  infoBlocks: ProfileInfoBlock[] = [],
+): TextBlock[] => {
+  const byKey = new Map(infoBlocks.map((b) => [b.key, b]));
+  const ownerLines = [
+    { label: "Name", value: siteConfig.personal.name },
+    { label: "Role", value: siteConfig.personal.role },
+    { label: "Location", value: siteConfig.personal.location },
+    { label: "Email", value: siteConfig.contact.email },
+    { label: "Status", value: siteConfig.personal.status },
+  ];
+
+  return SLOTS.map((slot) => ({
+    ...slot,
+    lines: slot.key === "a" ? ownerLines : (byKey.get(slot.key)?.lines ?? []),
+  })).filter((b) => b.lines.length > 0);
+};
