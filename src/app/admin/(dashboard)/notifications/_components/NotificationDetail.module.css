@@ -1,0 +1,110 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: var(--box-md-lg);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--size-md);
+  height: var(--size-md);
+  border-radius: var(--radius-circle);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  min-width: 0;
+}
+
+.type {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+/* 본문은 목록에서 잘린다 — 여기서는 줄바꿈을 살려 전부 보여준다 */
+/* 알림 본문 — 배경 없이 좌상단 인용부호로 인용임을 표시한다.
+   부호는 글자 흐름 밖(absolute)에 두고 padding 으로 자리를 비워, 여러 줄이어도
+   둘째 줄부터 들여쓰기가 어긋나지 않는다. */
+.message {
+  position: relative;
+  margin: 0;
+  padding-left: var(--spacing-xl);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.message::before {
+  content: "\201C";
+  position: absolute;
+  top: -0.15em;
+  left: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-3xl);
+  line-height: 1;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin: 0;
+}
+
+.metaRow {
+  display: grid;
+  grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+}
+
+.metaRow dt {
+  color: var(--text-tertiary);
+}
+
+.metaRow dd {
+  margin: 0;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+/* id 처럼 기계가 만든 값은 등폭으로 — 자릿수 비교가 쉬워진다 */
+.metaValue {
+  font-family: var(--font-mono);
+}
+
+/* 처리 실패 사유 — 모달이 화면을 덮고 있어 페이지 상단 메시지는 보이지 않는다 */
+.error {
+  margin: var(--spacing-sm) 0 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  color: var(--text-error);
+  line-height: var(--line-height-snug);
+}

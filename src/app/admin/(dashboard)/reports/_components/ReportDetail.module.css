@@ -1,0 +1,136 @@
+/* 알림 상세(NotificationDetail)와 같은 뼈대 — 두 화면이 같은 모양이어야 오가며 헷갈리지 않는다. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: var(--box-md-lg);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--size-md);
+  height: var(--size-md);
+  border-radius: var(--radius-circle);
+  background: var(--bg-warning-soft);
+  color: var(--text-warning);
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  min-width: 0;
+}
+
+.type {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.deletedBadge {
+  padding: var(--box-3xs-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-tertiary);
+}
+
+/* 신고된 댓글 전문 — 목록에서는 한 줄로 잘린다. 남의 글이므로 인용부호를 붙이고,
+   부호는 글자 흐름 밖(absolute)에 둬서 여러 줄일 때 들여쓰기가 어긋나지 않게 한다. */
+.comment {
+  position: relative;
+  margin: 0;
+  padding-left: var(--spacing-xl);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.comment::before {
+  content: "\201C";
+  position: absolute;
+  top: -0.15em;
+  left: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-3xl);
+  line-height: 1;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin: 0;
+}
+
+.metaRow {
+  display: grid;
+  grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+}
+
+.metaRow dt {
+  color: var(--text-tertiary);
+}
+
+.metaRow dd {
+  margin: 0;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--box-3xs-xs);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+}
+
+/* 처리 대기는 결정이 필요하다는 뜻이라 알림의 "처리 필요" 와 같은 warning 을 쓴다. */
+.status_pending {
+  background: var(--bg-warning-soft);
+  color: var(--text-warning);
+}
+
+.status_resolved {
+  background: var(--bg-success-soft);
+  color: var(--text-success);
+}
+
+.status_dismissed {
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+}
