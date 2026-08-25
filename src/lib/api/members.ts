@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getUserRole } from "./roles";
+import { getUserRole, toMemberRole, toPermissionLevel } from "./roles";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import type { Author } from "@/types/author";
 import type { Member, MemberRole, PendingMember } from "@/types/member";
@@ -14,7 +14,7 @@ function str(v: unknown): string | null {
 }
 
 const rank = (r: MemberRole) =>
-  r === "owner" ? 3 : r === "editor" ? 2 : r === "author" ? 1 : 0;
+  r === "owner" ? 3 : r === "admin" ? 2 : r === "author" ? 1 : 0;
 
 export async function listMembers(
   admin: SupabaseClient,
@@ -29,13 +29,7 @@ export async function listMembers(
 
   const members: Member[] = (usersRes.data?.users ?? []).map((u) => {
     const role = getUserRole(u);
-    const roleLabel: MemberRole = role.isOwner
-      ? "owner"
-      : role.level >= 2
-        ? "editor"
-        : role.role === "author"
-          ? "author"
-          : "member";
+    const roleLabel = toMemberRole(role);
     const providers = Array.from(new Set((u.identities ?? []).map((i) => i.provider)));
     const author = role.authorId ? authorById.get(role.authorId) : undefined;
     const meta = (u.user_metadata ?? {}) as Record<string, unknown>;
@@ -81,7 +75,7 @@ export async function listMembers(
     .filter((i) => !memberEmails.has(String(i.email).toLowerCase()))
     .map((i) => ({
       email: i.email,
-      level: typeof i.permission_level === "number" ? i.permission_level : 1,
+      level: toPermissionLevel(i.permission_level),
       authorId: i.author_id ?? null,
       createdAt: i.created_at,
     }));
