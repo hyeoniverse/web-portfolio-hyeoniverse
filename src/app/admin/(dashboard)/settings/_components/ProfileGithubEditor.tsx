@@ -66,7 +66,11 @@ export default function ProfileGithubEditor({
     }
   }, [language]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  /* 마운트 직후 한 번. setState 는 fetch 가 끝난 뒤(비동기)에 일어나므로 렌더 연쇄가 아니다. */
+  useEffect(() => {
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /** 고른 순서를 유지한다 — 체크 순서가 곧 화면 순서다. */
   const toggle = (name: string) => {
@@ -164,9 +168,9 @@ export default function ProfileGithubEditor({
       {error && <p className={styles.error}>{error}</p>}
 
       {loading ? (
-        <EmptyState size="xs" pad="sm" align="start">{L("저장소를 불러오는 중…", "Loading repositories…")}</EmptyState>
+        <EmptyState size="xs" pad="sm">{L("저장소를 불러오는 중…", "Loading repositories…")}</EmptyState>
       ) : repos.length === 0 && !error ? (
-        <EmptyState size="xs" pad="sm" align="start">{L("저장소가 없습니다.", "No repositories.")}</EmptyState>
+        <EmptyState size="xs" pad="sm">{L("저장소가 없습니다.", "No repositories.")}</EmptyState>
       ) : (
         <div className={styles.group}>
           <div className={styles.groupHead}>

@@ -150,7 +150,7 @@ export default function ProfilePanelsEditor({
         </div>
 
         {bunny.stories.length === 0 ? (
-          <EmptyState size="xs" pad="sm" align="start">
+          <EmptyState size="xs" pad="sm">
             {L("문단이 없습니다.", "No paragraphs yet.")}
           </EmptyState>
         ) : (
@@ -192,7 +192,7 @@ export default function ProfilePanelsEditor({
         </p>
 
         {blocks.length === 0 ? (
-          <EmptyState size="xs" pad="sm" align="start">
+          <EmptyState size="xs" pad="sm">
             {L("정보 창이 없습니다.", "No info windows yet.")}
           </EmptyState>
         ) : (
@@ -222,7 +222,7 @@ export default function ProfilePanelsEditor({
                 </div>
 
                 {block.lines.length === 0 ? (
-                  <EmptyState size="xs" pad="sm" align="start">
+                  <EmptyState size="xs" pad="sm">
                     {L("줄이 없습니다.", "No lines yet.")}
                   </EmptyState>
                 ) : (

@@ -356,7 +356,10 @@ export default function AdminWorksPage() {
   /* handleMove 는 useCallback 이라 guardWritable 을 의존성에 넣으면 매 렌더 재생성된다.
      ref 로 최신 함수만 참조한다. */
   const guardMoveRef = useRef<(w: Work) => boolean>(() => false);
-  guardMoveRef.current = (w) => guardWritable([w]);
+  /* 쓰기는 렌더가 끝난 뒤에 한다 — 렌더 중에 ref 를 건드리면 동시 렌더에서 값이 엇갈린다. */
+  useEffect(() => {
+    guardMoveRef.current = (w) => guardWritable([w]);
+  });
 
   const handleDragReorder = async (fromIdx: number, toIdx: number) => {
     if (fromIdx === toIdx) return;

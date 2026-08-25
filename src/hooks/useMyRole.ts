@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PERM, canEditPost, canEditWork, type UserRole } from "@/lib/api/roles";
 
 interface MeResponse {
@@ -48,20 +48,25 @@ export function useMyRole(): MyRole {
     return () => { alive = false; };
   }, []);
 
-  const role: UserRole = {
-    role: me?.role ?? null,
-    level: me?.isOwner ? Number.POSITIVE_INFINITY : (me?.level ?? 0),
-    authorId: me?.authorId ?? null,
-    isOwner: !!me?.isOwner,
-  };
+  /* 응답이 그대로면 같은 객체를 돌려준다. 매 렌더마다 새 객체·새 함수를 만들면,
+     이걸 의존성으로 쓰는 쪽의 useCallback·useMemo 가 전부 매 렌더 무효화된다. */
+  return useMemo(() => {
+    const role: UserRole = {
+      role: me?.role ?? null,
+      level: me?.isOwner ? Number.POSITIVE_INFINITY : (me?.level ?? 0),
+      authorId: me?.authorId ?? null,
+      isOwner: !!me?.isOwner,
+    };
 
-  return {
-    loading,
-    isOwner: role.isOwner,
-    level: role.level,
-    authorId: role.authorId,
-    canEditPost: (authorIds) => !loading && canEditPost(role, authorIds),
-    canEditWork: (teamMembers) => !loading && canEditWork(role, teamMembers),
-    canManageWorks: !loading && (role.isOwner || role.level >= PERM.ADMIN),
-  };
+    return {
+      loading,
+      isOwner: role.isOwner,
+      level: role.level,
+      authorId: role.authorId,
+      canEditPost: (authorIds: string[] | null | undefined) => !loading && canEditPost(role, authorIds),
+      canEditWork: (teamMembers: { author_id?: string }[] | null | undefined) =>
+        !loading && canEditWork(role, teamMembers),
+      canManageWorks: !loading && (role.isOwner || role.level >= PERM.ADMIN),
+    };
+  }, [me, loading]);
 }
