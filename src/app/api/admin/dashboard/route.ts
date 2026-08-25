@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { requireAuth } from "@/lib/api/requireAuth";
+import { requireRole } from "@/lib/api/requireRole";
+import { PERM } from "@/lib/api/roles";
 import type { DashboardData } from "@/types";
 
 // GET /api/admin/dashboard — 어드민 대시보드용 집계 데이터
 // posts/works/comments 카운트 + 최근 항목 + 알림 + 인기 게시물 + AI 키 상태를
 // 단일 응답으로 반환. 모든 쿼리는 Promise.all로 병렬 실행.
 export async function GET() {
-  const { error: authError } = await requireAuth();
+  /* 사이트 전체 통계·중재 데이터라 admin 등급 이상만 본다. requireAuth 만 있을 때는
+     레벨 1 저자도 방문 통계·댓글·알림 집계를 볼 수 있었다.
+     집계는 요청자 시야로 좁히면 안 되므로(저자 세션으로 읽으면 자기 글만 잡힌다)
+     조회 자체는 service_role 을 유지하고, 대신 라우트를 등급으로 막는다. */
+  const { error: authError } = await requireRole(PERM.ADMIN);
   if (authError) return authError;
 
   const admin = createAdminClient();

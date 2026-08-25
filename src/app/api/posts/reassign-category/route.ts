@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 
 /**
@@ -12,12 +11,13 @@ import { requireAuth } from "@/lib/api/requireAuth";
  *   { assignments: [{ id: string, category: string }] }
  */
 export async function POST(request: Request) {
-  // 인증 필수 — admin client 로 posts.category 를 대량 변경하므로 (기존 auth 누락 구멍 방지)
-  const { error: authError } = await requireAuth();
+  // 인증 필수 — posts.category 를 대량 변경하므로 (기존 auth 누락 구멍 방지).
+  // 어떤 글이 바뀌는지는 세션 클라이언트 + RLS 가 정한다 — 저자는 자기 글만.
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const body = await request.json();
-  const supabase = createAdminClient();
+
 
   // Mode 2: per-post assignments
   if (Array.isArray(body.assignments)) {

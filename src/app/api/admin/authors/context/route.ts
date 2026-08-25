@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getUserRole } from "@/lib/api/roles";
+import { getUserRole, toMemberRole } from "@/lib/api/roles";
+import type { MemberRole } from "@/types/member";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import type { Author } from "@/types/author";
 
@@ -32,6 +33,10 @@ export async function GET() {
 
   const memberAuthorIds: string[] = [];
   const memberEmails: string[] = [];
+  /* 가입한 멤버의 등급 — 목록에서 각 행에 배지를 달기 위한 최소 정보.
+     전체 멤버 데이터(/members)는 owner 전용이라 비owner 는 배지를 그릴 근거가 없었다.
+     여기서는 식별자와 등급만 내보낸다(로그인 기록·provider 등은 제외). */
+  const memberRoles: { authorId: string | null; email: string | null; role: MemberRole }[] = [];
   let ownerName: string | null = null;
   let ownerAvatar: string | null = null;
   try {
@@ -51,6 +56,9 @@ export async function GET() {
       if (r.authorId) memberAuthorIds.push(r.authorId);
       // author 프로필과 관련된 계정만(연결됨 / 이메일 일치 / owner) 노출 — 무관한 계정 이메일은 숨김
       if (email && (r.authorId || r.isOwner || authorEmails.has(email))) memberEmails.push(email);
+      if (r.authorId || r.isOwner || (email && authorEmails.has(email))) {
+        memberRoles.push({ authorId: r.authorId, email: email || null, role: toMemberRole(r) });
+      }
       // 소유자 이름/아바타 — 프로필이 없어도 "소유자" 행을 만들 수 있게
       if (r.isOwner) {
         const om = (u.user_metadata ?? {}) as Record<string, unknown>;
@@ -78,5 +86,6 @@ export async function GET() {
     ownerAvatar,
     memberAuthorIds,
     memberEmails,
+    memberRoles,
   });
 }

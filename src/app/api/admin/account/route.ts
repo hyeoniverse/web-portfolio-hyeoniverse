@@ -1,4 +1,5 @@
 import { createClient as createStatelessClient } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { MAIL_FROM } from "@/constants";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk } from "@/lib/api/response";
@@ -38,16 +39,31 @@ async function sendSecurityAlert(to: string, action: string, detail?: string) {
   }
 }
 
+/** 이 계정의 로그인 수단. GitHub 만으로 가입한 계정에는 비밀번호가 없다.
+ *  identities 가 정본이고, 비어 오는 경우를 대비해 app_metadata.providers 로 보완한다. */
+function loginProviders(user: User): string[] {
+  const fromIdentities = (user.identities ?? []).map((i) => i.provider);
+  if (fromIdentities.length > 0) return fromIdentities;
+  const fromMeta = (user.app_metadata as { providers?: unknown } | undefined)?.providers;
+  return Array.isArray(fromMeta) ? (fromMeta as string[]) : [];
+}
+
 // GET /api/admin/account — 현재 유저 정보
 export async function GET() {
   const { user, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const meta = user.user_metadata ?? {};
+  const providers = loginProviders(user);
   return jsonOk({
     email: user.email,
     pendingEmail: user.new_email || meta.pending_email || null,
     emailChangeSentAt: user.email_change_sent_at || meta.email_change_sent_at || null,
+    /* 계정 탭이 이메일·비밀번호 변경 폼을 그릴지 정하는 근거. 이 값이 없던 동안 UI 는
+       GitHub 전용 계정에도 폼을 그렸고, 제출하면 있지도 않은 비밀번호를 확인하다
+       "현재 비밀번호가 올바르지 않습니다" 로 실패했다. */
+    providers,
+    hasPassword: providers.includes("email"),
   });
 }
 
@@ -86,6 +102,15 @@ export async function PATCH(request: Request) {
   if (authError) return authError;
 
   const body = await request.json();
+
+  // GitHub 등 OAuth 로만 가입한 계정은 비밀번호가 없다. 아래 재인증이 어차피 실패하지만,
+  // 그 실패는 "비밀번호가 틀렸다" 로 보여 원인을 가린다. 여기서 먼저 사유를 밝히고 끝낸다.
+  if (!loginProviders(user).includes("email")) {
+    return jsonError(
+      "GitHub 로그인 전용 계정이라 이메일과 비밀번호를 여기서 변경할 수 없습니다. GitHub 계정에서 변경해 주세요.",
+      400,
+    );
+  }
 
   // 현재 비밀번호 확인 필수
   if (!body.currentPassword) {

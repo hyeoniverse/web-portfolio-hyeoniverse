@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { requireAuth } from "@/lib/api/requireAuth";
+import { requireRole } from "@/lib/api/requireRole";
+import { PERM } from "@/lib/api/roles";
 import { jsonOk, jsonError } from "@/lib/api/response";
 
 // 댓글 계열 알림 타입 (탭 "댓글" 묶음)
@@ -25,8 +25,7 @@ export async function GET(request: Request) {
   const withMeta = searchParams.get("meta") === "1";
 
   try {
-    const admin = createAdminClient();
-    const { data, error } = await admin
+    const { data, error } = await supabase
       .from("admin_notifications")
       .select("*")
       .order("created_at", { ascending: false })
@@ -37,7 +36,7 @@ export async function GET(request: Request) {
       return jsonOk({ notifications: [], unreadCount: 0 });
     }
 
-    const { count: unread } = await admin
+    const { count: unread } = await supabase
       .from("admin_notifications")
       .select("*", { count: "exact", head: true })
       .eq("read", false);
@@ -48,10 +47,13 @@ export async function GET(request: Request) {
     }
 
     // 알림 페이지용 — 탭 카운트가 로드된 50개가 아니라 실제 총계를 반영하도록 전체·타입별 count 를 함께 반환.
-    const [totalRes, reportRes, commentRes] = await Promise.all([
-      admin.from("admin_notifications").select("*", { count: "exact", head: true }),
-      admin.from("admin_notifications").select("*", { count: "exact", head: true }).eq("type", "report"),
-      admin.from("admin_notifications").select("*", { count: "exact", head: true }).in("type", COMMENT_TYPES),
+    const [totalRes, reportRes, commentRes, pendingReportRes] = await Promise.all([
+      supabase.from("admin_notifications").select("*", { count: "exact", head: true }),
+      supabase.from("admin_notifications").select("*", { count: "exact", head: true }).eq("type", "report"),
+      supabase.from("admin_notifications").select("*", { count: "exact", head: true }).in("type", COMMENT_TYPES),
+      /* 신고 탭이 보여주는 것은 알림이 아니라 comment_reports 다(ReportsList). 배지에 알림 개수를
+         쓰면 다 처리해도 숫자가 그대로 남아, 무엇이 밀려 있는지 알 수 없다. */
+      supabase.from("comment_reports").select("*", { count: "exact", head: true }).eq("status", "pending"),
     ]);
     const total = totalRes.count ?? 0;
     const report = reportRes.count ?? 0;
@@ -61,6 +63,7 @@ export async function GET(request: Request) {
       unreadCount,
       totalCount: total,
       typeCounts: { all: total, comment, report, system: Math.max(total - report - comment, 0) },
+      pendingReportCount: pendingReportRes.count ?? 0,
       hasMore: offset + (data?.length ?? 0) < total,
     });
   } catch (e) {
@@ -78,19 +81,18 @@ function asStringIdArray(v: unknown): string[] | null {
 
 // PATCH /api/admin/notifications — 읽음 처리
 export async function PATCH(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireRole(PERM.ADMIN);
   if (authError) return authError;
 
   const body = await request.json();
   const { ids, markAllRead } = body;
-  const admin = createAdminClient();
 
   if (markAllRead) {
-    await admin.from("admin_notifications").update({ read: true }).eq("read", false);
+    await supabase.from("admin_notifications").update({ read: true }).eq("read", false);
   } else {
     const idArr = asStringIdArray(ids);
     if (idArr) {
-      await admin.from("admin_notifications").update({ read: true }).in("id", idArr);
+      await supabase.from("admin_notifications").update({ read: true }).in("id", idArr);
     }
   }
 
@@ -99,16 +101,15 @@ export async function PATCH(request: Request) {
 
 // DELETE /api/admin/notifications — 알림 삭제
 export async function DELETE(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireRole(PERM.ADMIN);
   if (authError) return authError;
 
   const body = await request.json();
   const { ids, deleteAll } = body;
-  const admin = createAdminClient();
 
   if (deleteAll) {
     // .neq("id", "") 는 일부 PostgREST 환경에서 not-equal 매치 안 잡힘 — created_at >= epoch 로 전체 row 매칭
-    const { error: delErr } = await admin
+    const { error: delErr } = await supabase
       .from("admin_notifications")
       .delete()
       .gte("created_at", "1970-01-01T00:00:00Z");
@@ -116,7 +117,7 @@ export async function DELETE(request: Request) {
   } else {
     const idArr = asStringIdArray(ids);
     if (idArr) {
-      await admin.from("admin_notifications").delete().in("id", idArr);
+      await supabase.from("admin_notifications").delete().in("id", idArr);
     }
   }
 

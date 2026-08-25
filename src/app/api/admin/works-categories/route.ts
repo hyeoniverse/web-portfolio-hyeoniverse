@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { requireAuth } from "@/lib/api/requireAuth";
+import { requireRole } from "@/lib/api/requireRole";
+import { PERM } from "@/lib/api/roles";
 
 /** GET /api/admin/works-categories — works.categories_en 사용 카운트 + 카테고리별 work 목록 (admin 전용).
  *  works 는 multi-category (text[]) 라 한 work 가 여러 카테고리에 매칭됨.
@@ -20,11 +20,11 @@ type WorkRow = {
 };
 
 export async function GET() {
-  const { error: authError } = await requireAuth();
+  /* 작업물 카테고리 집계 — works 자체가 admin 이상 전용이라 같은 등급으로 맞춘다. */
+  const { supabase, error: authError } = await requireRole(PERM.ADMIN);
   if (authError) return authError;
 
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("works")
     .select("id, title, categories_en, slug, published, created_at, updated_at")
     .is("deleted_at", null)
