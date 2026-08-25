@@ -9,7 +9,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Scroll reaches the end and seamlessly loops back to the beginning. A bridge section between the last and first panels keeps the loop seam invisible.",
     },
     tech: ["Lenis", "Infinite Scroll", "Bridge Section"],
-    image: "https://images.unsplash.com/photo-1663856542282-bf5647286f63?w=800&q=80",
+    image: "/images/screenshots/pc/home-dark.png",
   },
   {
     icon: "02",
@@ -19,7 +19,7 @@ export const designFeatures: DesignFeature[] = [
       en: "A bilingual system with instant Korean/English switching via Context API. Admin content supports dual languages, with auto-translation powered by DeepL/Google/Gemini/Claude API.",
     },
     tech: ["Context API", "JSON Locale", "Bilingual Content", "DeepL/Gemini/Claude"],
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80",
+    image: "/images/screenshots/pc/feat-i18n.png",
   },
   {
     icon: "03",
@@ -39,7 +39,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Browse works in a horizontal gallery with GSAP-powered infinite wrapping in both directions and layout branching for Korean/English.",
     },
     tech: ["GSAP", "Infinite Wrapping", "i18n Layout", "Responsive"],
-    image: "https://images.unsplash.com/photo-1762928289094-197055a5d5c3?w=800&q=80",
+    image: "/images/screenshots/pc/feat-works.png",
   },
   {
     icon: "05",
@@ -49,7 +49,7 @@ export const designFeatures: DesignFeature[] = [
       en: "Switch between dark and light modes — every element smoothly transitions. Respects system preferences while remembering user choice.",
     },
     tech: ["CSS Variables", "data-theme", "prefers-color-scheme", "localStorage"],
-    image: "https://images.unsplash.com/photo-1764610144010-6914d3672533?w=800&q=80",
+    image: "/images/screenshots/pc/feat-colors.png",
   },
   {
     icon: "06",
@@ -59,7 +59,7 @@ export const designFeatures: DesignFeature[] = [
       en: "A metallic 3D torus floats along a Lissajous curve path as you scroll, with its texture adapting to the current theme.",
     },
     tech: ["Three.js", "React Three Fiber", "Lissajous Curve", "Environment Map"],
-    image: "https://images.unsplash.com/photo-1639542270103-0e94fc28be38?w=800&q=80",
+    image: "/images/screenshots/pc/feat-torus.png",
   },
   {
     icon: "07",
@@ -69,7 +69,7 @@ export const designFeatures: DesignFeature[] = [
       en: "A full blog system on Supabase. A Notion-style Plate.js editor (per-element floating toolbar, slash menu, block tools) with Markdown/Rich Text switching, series publishing, book-shaped category browsing, search/tag filtering, cover images (presets/Unsplash/AI generation), and Gemini/OpenAI/Claude auto-summary (ko+en) on publish.",
     },
     tech: ["Supabase", "Plate.js", "Series", "Canvas API", "AI Cover", "AI Summary"],
-    image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
+    image: "/images/screenshots/pc/feat-series.png",
   },
   {
     icon: "08",
@@ -79,7 +79,7 @@ export const designFeatures: DesignFeature[] = [
       en: "A guest threaded comment system. Write with nickname + password using a markdown editor (write/preview tabs + formatting toolbar). Each comment takes a fixed giscus-style set of 8 emoji reactions, and the admin gets an email on replies. The admin can also swap the built-in system for giscus (GitHub Discussions).",
     },
     tech: ["Supabase", "Markdown", "DOMPurify", "Emoji Reactions", "giscus"],
-    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+    image: "/images/screenshots/pc/feat-comment.png",
   },
   {
     icon: "09",
@@ -89,7 +89,7 @@ export const designFeatures: DesignFeature[] = [
       en: "A hidden admin accessed via direct URL — no visible login button. Full CRUD for posts, works, and profiles in dual languages, plus real-time theme, font, and site settings. Auto-falls back to static data when DB is unavailable.",
     },
     tech: ["Supabase Auth", "Next.js Middleware", "JSONB", "Static Fallback"],
-    image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80",
+    image: "/images/screenshots/pc/feat-admin.png",
   },
   {
     icon: "10",
@@ -119,6 +119,6 @@ export const designFeatures: DesignFeature[] = [
       en: "Browse posts in six layouts (magazine/grid/list/compact/masonry/featured). Categories form a two-level tree with multi-select, alongside series, tag, and history indexes, plus multi-author attribution.",
     },
     tech: ["6 Layouts", "2-Level Categories", "Multi-Author", "Facets"],
-    image: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&q=80",
+    image: "/images/screenshots/pc/posts-light.png",
   },
 ];

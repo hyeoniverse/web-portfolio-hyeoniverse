@@ -25,14 +25,14 @@ export const projectOverview = {
   ],
   stats: [
     {
-      value: "5 Wks+",
-      label: { ko: "개발 기간\n(2/5 – 3/12)", en: "Dev Period\n(2/5 – 3/12)" },
+      value: "6 Mo+",
+      label: { ko: "개발 기간\n(2/5 – 진행 중)", en: "Dev Period\n(Feb 5 – ongoing)" },
     },
-    { value: "50+", label: { ko: "컴포넌트", en: "Components" } },
-    { value: "15+", label: { ko: "커스텀 훅", en: "Custom Hooks" } },
-    { value: "98", label: { ko: "Lighthouse", en: "Lighthouse" } },
+    { value: "250+", label: { ko: "컴포넌트", en: "Components" } },
+    { value: "50+", label: { ko: "커스텀 훅", en: "Custom Hooks" } },
+    { value: "98", label: { ko: "Lighthouse\n(모바일 Performance)", en: "Lighthouse\n(mobile performance)" } },
     { value: "2", label: { ko: "언어 지원", en: "Languages" } },
-    { value: "15+", label: { ko: "라이브러리", en: "Libraries" } },
+    { value: "70+", label: { ko: "라이브러리", en: "Libraries" } },
   ] as OverviewStat[],
 };
 
@@ -314,8 +314,8 @@ export const userFlows: UserFlow[] = [
         "decision",
         2,
         3,
-        "Selected Works\n발견?",
-        "Found\nSelected Works?",
+        "Works\n발견?",
+        "Found\nWorks?",
       ),
       n("cta", "action", 2, 4, "CTA까지 스크롤", "Scroll to CTA"),
       n("contact_q", "decision", 2, 5, "연락\n할까?", "Want to\ncontact?"),

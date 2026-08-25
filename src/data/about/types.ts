@@ -72,14 +72,21 @@ export interface TroubleshootingImage {
 }
 
 export interface TroubleShootingItem {
+  /** 안정 식별자. 메타 매핑·노출 목록이 전부 이 값으로만 항목을 가리킨다. */
+  id: string;
   section?: LocalizedText;
+  /** 내부 키 겸 증상 요약. 화면 제목은 title 이 있으면 그걸 우선 표시. */
   problem: LocalizedText;
+  /** 화면 표시용 제목 — 증상 부연이 아니라 "해결에 쓰인 핵심 개념". 없으면 problem 사용. */
+  title?: LocalizedText;
   definition: LocalizedText;
   cause: LocalizedText;
   solution: LocalizedText;
   keyInsight: LocalizedText;
   comparisons?: ComparisonTable[];
   diagrams?: TroubleshootingDiagram[];
+  /** 전용 시각화 컴포넌트 키 — 패널이 이 키로 리치 비주얼(예: 교차 기기 로딩)을 렌더. */
+  vizKey?: string;
   /** 첨부 이미지 — 스크린샷, before/after, error 화면 등 */
   images?: TroubleshootingImage[];
   tags?: string[];
@@ -87,9 +94,6 @@ export interface TroubleShootingItem {
   difficulty?: TroubleshootingDifficulty;
   /** 핵심 추천 항목 — 별표 뱃지 표시 */
   recommended?: boolean;
-  /** 대표 항목 — 하나라도 있으면 패널이 이것들만 보여준다.
-   *  89개 전부는 읽히지 않아서, 원본은 남겨두고 표시할 것만 골라내는 용도. */
-  featured?: boolean;
   /** 왜 추천하는지 — IDE 에디터의 @recommended 라인에 표시 */
   recommendReason?: LocalizedText;
 }

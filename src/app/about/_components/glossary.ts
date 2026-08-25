@@ -273,6 +273,295 @@ const glossary: GlossaryEntry[] = [
       en: "Toggle component that switches the content display mode (e.g., list/grid)",
     },
   },
+  {
+    match: ["reCAPTCHA"],
+    tip: {
+      ko: "구글의 봇 판별 서비스. v3 는 사용자 조작 없이 행동 점수로 사람/봇을 추정",
+      en: "Google's bot-detection service. v3 scores traffic as human or bot with no user interaction",
+    },
+  },
+  {
+    match: ["service-role", "service role"],
+    tip: {
+      ko: "Supabase 관리자 키. RLS 같은 권한 검사를 우회하므로 서버에서만 써야 안전",
+      en: "Supabase admin key that bypasses checks like RLS — safe only on the server",
+    },
+  },
+  {
+    match: ["deserializer", "역직렬화"],
+    tip: {
+      ko: "저장된 문자열(HTML 등)을 다시 편집기 노드 구조로 되돌리는 변환기",
+      en: "Converter that turns a stored string (e.g. HTML) back into editor node structures",
+    },
+  },
+  {
+    match: ["stacking context", "쌓임 맥락"],
+    tip: {
+      ko: "z-index 비교가 유효한 독립 계층. position·opacity·transform·filter 등이 새로 만든다",
+      en: "An independent layer where z-index applies, created by position, opacity, transform, filter, etc.",
+    },
+  },
+  {
+    match: ["middleware"],
+    tip: {
+      ko: "요청이 처리되기 전에 가로채 공통 로직(인증·리다이렉트 등)을 실행하는 계층",
+      en: "Layer that intercepts requests before handling to run shared logic (auth, redirects, etc.)",
+    },
+  },
+  {
+    match: ["default-deny", "default-allow"],
+    tip: {
+      ko: "접근을 기본 차단(default-deny)할지 기본 허용(default-allow)할지의 정책. 기본 차단이 빠뜨려도 안전한 쪽으로 실패",
+      en: "Whether access defaults to deny or allow. Default-deny fails safe when a rule is forgotten",
+    },
+  },
+  {
+    match: ["brute-force", "무차별 대입"],
+    tip: {
+      ko: "가능한 값을 전부 대입해 뚫는 공격",
+      en: "Attack that tries every possible value until one works",
+    },
+  },
+  {
+    match: ["throttle"],
+    tip: {
+      ko: "연속 호출을 일정 간격당 한 번으로 제한하는 기법. debounce 와 달리 주기적으로 실행됨",
+      en: "Technique capping calls to once per interval — unlike debounce, it keeps firing periodically",
+    },
+  },
+  {
+    match: ["Lenis"],
+    tip: {
+      ko: "관성·감속을 흉내 내는 부드러운 스크롤 라이브러리",
+      en: "Smooth-scroll library that emulates inertia and easing",
+    },
+  },
+  {
+    match: ["fps"],
+    tip: {
+      ko: "Frames Per Second. 1초에 그려지는 화면 프레임 수 (60fps ≈ 16ms/프레임)",
+      en: "Frames Per Second. Screen frames drawn per second (60fps ≈ 16ms/frame)",
+    },
+  },
+
+  /* ── 노출 항목에 등장하는 용어 보강 ── */
+  {
+    match: ["HMAC-SHA256", "HMAC"],
+    tip: {
+      ko: "비밀 키를 함께 넣어 계산하는 해시. 키를 모르면 같은 값을 만들어 낼 수 없어 위조에 강하다",
+      en: "A hash computed with a secret key — without the key the same value can't be produced, so it resists forgery",
+    },
+  },
+  {
+    match: ["UUID"],
+    tip: {
+      ko: "중복될 확률이 사실상 없는 128비트 무작위 식별자",
+      en: "A 128-bit random identifier with a negligible chance of collision",
+    },
+  },
+  {
+    match: ["localStorage"],
+    tip: {
+      ko: "브라우저가 도메인별로 보관하는 저장 공간. 같은 브라우저에서만 읽히고 서버는 못 본다",
+      en: "Per-domain browser storage — readable only in the same browser, invisible to the server",
+    },
+  },
+  {
+    match: ["curl"],
+    tip: {
+      ko: "터미널에서 서버로 직접 요청을 보내는 도구. 브라우저와 화면 폼을 거치지 않는다",
+      en: "A terminal tool that sends requests straight to a server, bypassing the browser and its forms",
+    },
+  },
+  {
+    match: ["URI"],
+    tip: {
+      ko: "자원을 가리키는 문자열. `https://…` 뿐 아니라 `mailto:`·`data:` 같은 형태도 포함한다",
+      en: "A string identifying a resource — not just `https://…` but forms like `mailto:` and `data:`",
+    },
+  },
+  {
+    match: ["compositing layer", "합성 레이어"],
+    tip: {
+      ko: "브라우저가 따로 떼어 GPU 텍스처로 그리는 층. 경계 밖 픽셀은 그 층에서 보이지 않는다",
+      en: "A layer the browser paints as its own GPU texture — pixels outside its bounds are invisible to it",
+    },
+  },
+  {
+    match: ["will-change"],
+    tip: {
+      ko: "곧 바뀔 속성을 브라우저에 미리 알리는 CSS 속성. 레이어 승격을 유발한다",
+      en: "A CSS hint that a property will change soon — it promotes the element to its own layer",
+    },
+  },
+  {
+    match: ["backdrop-filter"],
+    tip: {
+      ko: "요소 자신이 아니라 뒤에 비치는 콘텐츠를 흐리거나 보정하는 CSS 속성",
+      en: "A CSS property that filters what shows through behind an element, not the element itself",
+    },
+  },
+  {
+    match: ["definite height", "확정 높이"],
+    tip: {
+      ko: "브라우저가 계산 전에 이미 아는 높이. 자식의 `height: 100%` 는 이 값이 있어야 풀린다",
+      en: "A height the browser knows up front — a child's `height: 100%` only resolves against one",
+    },
+  },
+  {
+    match: ["서로게이트 페어", "surrogate pair"],
+    tip: {
+      ko: "16비트 두 칸을 이어 붙여 한 글자를 나타내는 방식. 이모지 등 상위 평면 문자에 쓰인다",
+      en: "Two 16-bit units joined to represent one character — used for emoji and other astral-plane text",
+    },
+  },
+  {
+    match: ["astral plane", "상위 평면"],
+    tip: {
+      ko: "16비트 한 칸에 안 들어가는 유니코드 영역. 이모지와 희귀 문자가 여기 있다",
+      en: "The Unicode range beyond a single 16-bit unit — emoji and rare characters live here",
+    },
+  },
+  {
+    match: ["트랜스파일", "transpile"],
+    tip: {
+      ko: "최신 문법을 옛 브라우저도 읽는 문법으로 바꿔 쓰는 변환",
+      en: "Rewriting modern syntax into a form older browsers can also read",
+    },
+  },
+  {
+    match: ["번들러", "bundler"],
+    tip: {
+      ko: "여러 소스 파일을 브라우저가 받을 수 있는 형태로 묶고 변환하는 빌드 도구",
+      en: "A build tool that packs and transforms source files into what a browser can load",
+    },
+  },
+  {
+    match: ["의사요소", "pseudo-element"],
+    tip: {
+      ko: "HTML 에 없지만 CSS 로 만들어 내는 가상 요소 (`::before`, `::-webkit-resizer` 등)",
+      en: "A virtual element created by CSS rather than HTML (`::before`, `::-webkit-resizer`, …)",
+    },
+  },
+  {
+    match: ["pg_cron"],
+    tip: {
+      ko: "PostgreSQL 안에서 직접 정기 작업을 돌리는 확장. 호스팅의 cron 이 필요 없어진다",
+      en: "A PostgreSQL extension that runs scheduled jobs inside the database, with no host cron needed",
+    },
+  },
+  {
+    match: ["pg_net"],
+    tip: {
+      ko: "PostgreSQL 이 직접 HTTP 요청을 보낼 수 있게 하는 확장",
+      en: "A PostgreSQL extension that lets the database itself make HTTP requests",
+    },
+  },
+  {
+    match: ["Vault"],
+    tip: {
+      ko: "Supabase 가 API 키 같은 비밀 값을 암호화해 보관하는 저장소",
+      en: "Supabase's encrypted store for secrets such as API keys",
+    },
+  },
+  {
+    match: ["cron"],
+    tip: {
+      ko: "정해진 시각·주기로 작업을 자동 실행하는 스케줄러",
+      en: "A scheduler that runs jobs automatically at fixed times or intervals",
+    },
+  },
+  {
+    match: ["idempotent", "멱등"],
+    tip: {
+      ko: "여러 번 실행해도 결과가 한 번 실행한 것과 같은 성질",
+      en: "Running it repeatedly leaves the same result as running it once",
+    },
+  },
+  {
+    match: ["fail-soft"],
+    tip: {
+      ko: "부수 작업이 실패해도 본 작업은 그대로 완료시키는 설계",
+      en: "A design where a side task can fail without taking the main task down",
+    },
+  },
+  {
+    match: ["font-display"],
+    tip: {
+      ko: "웹폰트가 아직 안 왔을 때 무엇을 보여줄지 정하는 CSS 설정 (`swap`, `optional` 등)",
+      en: "The CSS setting for what to show while a web font is still loading (`swap`, `optional`, …)",
+    },
+  },
+  {
+    match: ["부동소수점", "floating point"],
+    tip: {
+      ko: "컴퓨터가 소수를 근삿값으로 다루는 방식. `0.1 + 0.2 !== 0.3` 이 되는 원인이다",
+      en: "How computers store fractions approximately — the reason `0.1 + 0.2 !== 0.3`",
+    },
+  },
+  {
+    match: ["plaintext-only"],
+    tip: {
+      ko: "`contenteditable` 값 중 하나. 붙여넣기에서 서식을 걷어내고 Enter 를 줄바꿈으로 고정한다",
+      en: "A `contenteditable` mode that strips formatting on paste and makes Enter a plain newline",
+    },
+  },
+  {
+    match: ["IME"],
+    tip: {
+      ko: "한글·일본어처럼 여러 입력을 조합해 한 글자를 만드는 입력기",
+      en: "The input system that composes one character from several keystrokes (Korean, Japanese, …)",
+    },
+  },
+  {
+    match: ["caret"],
+    tip: {
+      ko: "입력 위치를 나타내는 깜빡이는 문자 커서",
+      en: "The blinking text cursor marking the insertion point",
+    },
+  },
+  {
+    match: ["TreeWalker"],
+    tip: {
+      ko: "DOM 트리의 노드를 조건에 맞춰 순회하는 브라우저 API",
+      en: "A browser API for walking DOM nodes that match a given filter",
+    },
+  },
+  {
+    match: ["overscroll"],
+    tip: {
+      ko: "스크롤 끝에서 더 당겼을 때 화면이 밀렸다 돌아오는 동작 (macOS 의 rubber band)",
+      en: "The bounce past a scroll boundary — macOS's rubber-band effect",
+    },
+  },
+  {
+    match: ["react-flow"],
+    tip: {
+      ko: "노드와 연결선으로 도표를 그리는 React 라이브러리",
+      en: "A React library for drawing diagrams from nodes and edges",
+    },
+  },
+  {
+    match: ["fitView"],
+    tip: {
+      ko: "도표 전체 또는 지정한 범위가 화면에 들어오도록 확대·이동을 맞추는 동작",
+      en: "Framing the view so the whole diagram, or a given range, fits on screen",
+    },
+  },
+  {
+    match: ["useEffect"],
+    tip: {
+      ko: "렌더가 끝난 뒤 실행되도록 예약하는 React 훅",
+      en: "A React hook that schedules work to run after render",
+    },
+  },
+  {
+    match: ["프레임 예산", "frame budget"],
+    tip: {
+      ko: "한 프레임 안에 끝내야 하는 시간. 60fps 면 약 16ms 다",
+      en: "The time one frame has to finish in — about 16ms at 60fps",
+    },
+  },
 ];
 
 /** 언어별로 match → tip 맵을 한 번만 빌드 */
