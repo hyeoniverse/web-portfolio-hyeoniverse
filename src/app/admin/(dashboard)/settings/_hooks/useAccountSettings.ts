@@ -13,12 +13,15 @@ export function useAccountSettings(t: TFunction) {
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [emailChangeSentAt, setEmailChangeSentAt] = useState<string | null>(null);
+  /* 비밀번호 로그인을 쓰는 계정인지 — GitHub 전용 계정에는 이메일·비밀번호 변경을 보여주지 않는다. */
+  const [hasPassword, setHasPassword] = useState(true);
 
   const setInitialData = useCallback(
-    (email: string, pending: string | null, sentAt: string | null) => {
+    (email: string, pending: string | null, sentAt: string | null, withPassword: boolean) => {
       setAccountEmail(email);
       setPendingEmail(pending);
       setEmailChangeSentAt(sentAt);
+      setHasPassword(withPassword);
     },
     [],
   );
@@ -85,6 +88,7 @@ export function useAccountSettings(t: TFunction) {
     setPendingEmail,
     emailChangeSentAt,
     setEmailChangeSentAt,
+    hasPassword,
     setInitialData,
     handleAccountUpdate,
   };

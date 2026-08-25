@@ -10,7 +10,7 @@ import styles from "./MembersList.module.css";
 
 export const ROLE_META: Record<MemberRole, { ko: string; en: string; icon: typeof Crown; cls: string }> = {
   owner: { ko: "소유자", en: "Owner", icon: Crown, cls: "roleOwner" },
-  editor: { ko: "편집자", en: "Editor", icon: ShieldCheck, cls: "roleEditor" },
+  admin: { ko: "관리자", en: "Admin", icon: ShieldCheck, cls: "roleAdmin" },
   author: { ko: "작성자", en: "Author", icon: PenLine, cls: "roleAuthor" },
   member: { ko: "멤버", en: "Member", icon: UserRound, cls: "roleMember" },
 };

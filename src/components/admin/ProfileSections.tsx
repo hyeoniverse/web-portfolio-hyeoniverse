@@ -13,6 +13,8 @@ import PeriodPicker from "@/components/ui/DatePicker/PeriodPicker";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import ProfileSectionActions from "./ProfileSectionActions";
+import SectionHeader from "@/app/admin/(dashboard)/settings/_components/SectionHeader";
 import SkillList from "./ProfileSkillList";
 import skillStyles from "./ProfileSkill.module.css";
 
@@ -291,7 +293,9 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
       {/* ── Experiences ── */}
       <section className={styles.section}>
         <SortableList
-          title={<h2 className={styles.sectionTitle}><T k="admin.settings.profile.experience" /></h2>}
+          title={<T k="admin.settings.profile.experience" />}
+          titleClassName={styles.sectionTitle}
+          actions={<ProfileSectionActions keys={["experiences"]} />}
           items={data.experiences}
           ids={expIds}
           sensors={sensors}
@@ -340,7 +344,9 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
       {/* ── Skills ── */}
       <section className={styles.section}>
         <SortableList
-          title={<h2 className={styles.sectionTitle}><T k="admin.settings.profile.skills" /></h2>}
+          title={<T k="admin.settings.profile.skills" />}
+          titleClassName={styles.sectionTitle}
+          actions={<ProfileSectionActions keys={["skillGroups"]} />}
           items={data.skillGroups}
           ids={groupIds}
           sensors={sensors}
@@ -395,7 +401,9 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
 
         <div className={styles.subSection}>
         <SortableList
-          title={<h3 className={styles.sectionSubTitle}><T k="admin.settings.profile.philosophy" /></h3>}
+          title={<T k="admin.settings.profile.philosophy" />}
+          titleClassName={styles.sectionSubTitle}
+          actions={<ProfileSectionActions keys={["philosophy"]} />}
           items={data.philosophy}
           ids={philIds}
           sensors={sensors}
@@ -431,7 +439,9 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
 
         <div className={styles.subSection}>
         <SortableList
-          title={<h3 className={styles.sectionSubTitle}><T k="admin.settings.profile.approach" /></h3>}
+          title={<T k="admin.settings.profile.approach" />}
+          titleClassName={styles.sectionSubTitle}
+          actions={<ProfileSectionActions keys={["approachSteps"]} />}
           items={data.approachSteps}
           ids={approachIds}
           sensors={sensors}
@@ -473,7 +483,9 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
 
         <div className={styles.subSection}>
         <SortableList
-          title={<h3 className={styles.sectionSubTitle}><T k="admin.settings.profile.certifications" /></h3>}
+          title={<T k="admin.settings.profile.certifications" />}
+          titleClassName={styles.sectionSubTitle}
+          actions={<ProfileSectionActions keys={["certifications"]} />}
           items={data.certifications}
           ids={certIds}
           sensors={sensors}
@@ -518,7 +530,9 @@ export default function ProfileSections({ data, setData, expanded, setExpanded, 
 
         <div className={styles.subSection}>
         <SortableList
-          title={<h3 className={styles.sectionSubTitle}><T k="admin.settings.profile.awards" /></h3>}
+          title={<T k="admin.settings.profile.awards" />}
+          titleClassName={styles.sectionSubTitle}
+          actions={<ProfileSectionActions keys={["awards"]} />}
           items={data.awards}
           ids={awardIds}
           sensors={sensors}
@@ -580,12 +594,16 @@ type SortableListProps<T> = {
   renderHeader: (item: T, idx: number) => ReactNode;
   renderDetails: (item: T, idx: number) => ReactNode;
   styles: Record<string, string>;
+  /** 제목 줄 우측 — 기본값·되돌리기·섹션 저장. 다른 설정 섹션과 같은 자리에 둔다. */
+  actions?: ReactNode;
+  /** 제목 클래스. 제목 요소(h2)는 SectionHeader 가 그린다 — 여기서 또 감싸면 heading 이 중첩된다. */
+  titleClassName?: string;
 };
 
 function SortableList<T>({
   title, items, ids, sensors, onDragEnd, onAdd, addLabel,
   onRemove, expanded, setExpanded,
-  renderHeader, renderDetails, styles,
+  renderHeader, renderDetails, styles, actions, titleClassName,
 }: SortableListProps<T>) {
   const allOpen = items.length > 0 && items.every((_, i) => expanded[i] === true);
 
@@ -594,14 +612,23 @@ function SortableList<T>({
 
   return (
     <>
-      <div className={styles.sectionTitleRow}>
-        {title}
-        {items.length > 0 && (
-          <Button variant="outline" size="2xs" onClick={toggleAll}>
-            <T k={allOpen ? "admin.settings.profile.collapseAll" : "admin.settings.profile.expandAll"} />
-          </Button>
-        )}
-      </div>
+      {/* 다른 설정 섹션과 같은 헤더 — 제목은 sticky, 버튼은 우측 열에 모인다.
+          직접 줄을 만들면 버튼이 제목 옆에 붙어 위치도 간격도 달라진다. */}
+      <SectionHeader
+        title={title}
+        paths={[]}
+        titleClassName={titleClassName}
+        customActions={
+          <>
+            {items.length > 0 && (
+              <Button variant="outline" size="2xs" onClick={toggleAll}>
+                <T k={allOpen ? "admin.settings.profile.collapseAll" : "admin.settings.profile.expandAll"} />
+              </Button>
+            )}
+            {actions}
+          </>
+        }
+      />
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
           <div className={styles.sortableList}>

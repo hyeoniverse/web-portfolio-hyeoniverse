@@ -1,0 +1,240 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 라벨·설명은 왼쪽, 스위치는 오른쪽 끝. 설명이 길어도 스위치는 첫 줄에 붙어 있는다. */
+.switchRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.switchLabel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  min-width: 0;
+}
+
+/* 크기·색은 .fieldLabel 이 정한다 — 아이콘과 나란히 놓는 것만 여기서 */
+.switchTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+
+/* 크기·색은 .fieldHint 가 정한다 */
+.switchHint {
+  line-height: var(--line-height-snug);
+}
+
+.loginRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.loginRow > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 읽기 전용 계정 — 입력칸이 아니라는 게 보이게 테두리 없이 글자만 */
+.login {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+/* 묶음 하나 — 라벨 + 개수, 그 아래 목록. 두 목록이 라벨 없이 이어지면
+   어디까지가 고른 것이고 어디부터가 후보인지 알 수 없다. */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* 크기·굵기·색은 .sectionSubTitle 이 정한다 — 여기는 배치만 */
+.groupLabel {
+  margin: 0;
+}
+
+.groupCount {
+  padding: 0 var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+/* ── 고른 저장소 — 순서가 곧 화면 순서 ── */
+.picked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: picked;
+}
+
+/* 항목마다 테두리+배경을 주면 알약이 줄줄이 쌓인다 — 평소엔 맨 줄, 올렸을 때만 바탕이 든다. */
+.pickedItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--box-xs-sm);
+}
+
+.picked .pickedItem {
+  transition: background-color var(--duration-fast);
+}
+
+.pickedItem:hover {
+  background: var(--bg-secondary);
+}
+
+.pickedGrip {
+  flex: 0 0 auto;
+  color: var(--text-tertiary);
+}
+
+/* 몇 번째로 보이는지 — 순서가 곧 화면 순서라 번호가 있어야 옮긴 결과가 읽힌다 */
+.pickedOrder {
+  flex: 0 0 auto;
+  min-width: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.pickedName {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.pickedActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+}
+
+/* ── 고를 수 있는 저장소 목록 ── */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  margin: 0;
+  /* 위아래 여백 — 없으면 첫·마지막 줄이 구분선에 딱 붙는다 */
+  padding: var(--spacing-sm) 0;
+  list-style: none;
+  /* 상자로 두르지 않는다 — 위아래 선만으로 스크롤 구간을 표시한다 */
+  border-top: var(--border-light);
+  border-bottom: var(--border-light);
+  max-height: 20rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* hover 배경은 모서리를 굴리지 않는다 — 목록이 좌우로 꽉 찬 줄이라
+   둥근 배경이 줄마다 떠 보인다. */
+.item {
+  /* 제목 한 줄의 높이. 체크박스와 제목이 이 값을 같이 써서 서로 수직 중심이 맞는다. */
+  --_line: 1.5rem;
+
+  display: flex;
+  /* 행 전체를 가운데 정렬하면 설명이 긴 항목에서 체크박스가 한참 아래로 내려간다 —
+     위로 붙이되, 첫 줄(제목)과 높이를 맞춰 그 줄의 중심에 오게 한다. */
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  padding: var(--box-xs-sm);
+}
+
+.item > :first-child {
+  display: flex;
+  align-items: center;
+  min-height: var(--_line);
+}
+
+.item:hover {
+  background: var(--bg-secondary);
+}
+
+/* 행 어디를 눌러도 선택되도록 — 체크박스만 누르게 하면 표적이 너무 작다 */
+.itemBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  border: none;
+  background: none;
+  text-align: start;
+  cursor: pointer;
+}
+
+.itemName {
+  display: flex;
+  align-items: center;
+  min-height: var(--_line);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.itemDesc {
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.itemMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.itemStars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.error {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-error);
+}
+
+/* 빼기 — 목록에서 빨간 아이콘이 줄줄이 서면 그것만 보인다. 올렸을 때만 경고색. */
+.pickedActions .removeBtn {
+  color: var(--text-tertiary);
+}
+
+.pickedActions .removeBtn:hover {
+  color: var(--text-error);
+}

@@ -2047,6 +2047,7 @@ function TroubleshootingBlock({ value, onChange, lang, scale, titleOverride }: {
 
   const add = () => {
     onChange([...value, {
+      id: `custom-${Date.now().toString(36)}`,
       problem: { ko: "", en: "" }, definition: { ko: "", en: "" },
       cause: { ko: "", en: "" }, solution: { ko: "", en: "" }, keyInsight: { ko: "", en: "" },
       difficulty: 2,

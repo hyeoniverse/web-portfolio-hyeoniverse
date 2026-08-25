@@ -552,7 +552,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
             <T k="admin.settings.cancel" />
           </Button>
           <Button variant="outline" size="xs" onClick={submit} disabled={!submitEnabled} icon={<Check size={12} strokeWidth={2.5} />}>
-            <T k="admin.settings.saveEdit" />
+            <T k="admin.settings.applyEdit" />
           </Button>
         </div>
       </div>

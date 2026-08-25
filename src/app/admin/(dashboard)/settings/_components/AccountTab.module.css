@@ -177,7 +177,7 @@
 .confirmTitle {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-md);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin: 0;
 }
@@ -238,3 +238,29 @@
   gap: var(--spacing-xs);
   flex-shrink: 0;
 }
+
+/* 값 + 배지를 한 줄에 — 현재 이메일의 "나" 칩, 권한 배지와 설명 */
+.identityRow {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.identityRow .fieldValue {
+  flex: 0 1 auto;
+}
+
+/* 로그인한 계정이 본인임을 표시 — 목록에서 남의 계정과 섞이지 않도록 */
+.meChip {
+  padding: var(--box-3xs-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  white-space: nowrap;
+}
+

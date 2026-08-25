@@ -12,6 +12,7 @@ import { FAVICON_REFRESH_EVENT } from "@/components/layout/FaviconSync";
 import DiffResolver from "./_components/DiffResolver";
 import SettingsSkeleton from "./_components/SettingsSkeleton";
 import { profileDefaults, isProfileAllOpen, toggleProfileAll, type ProfileExpandState } from "@/components/admin/ProfileSections";
+import { ProfileSectionProvider, type ProfileKey } from "@/components/admin/ProfileSectionActions";
 import type { ProfileData } from "@/types/profile";
 import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, CONTENT_SUBTABS, type ContentSubTab, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
 import GeneralTab from "./_components/GeneralTab";
@@ -32,6 +33,8 @@ import { useModalStore } from "@/stores/modalStore";
 import { useAccountSettings } from "./_hooks/useAccountSettings";
 import shared from "./Settings.module.css";
 import local from "./page.module.css";
+import { OWNER_AUTHOR_ID, withOwnerAuthor } from "@/utils/resolvePostAuthors";
+import type { SaveResult } from "./_types";
 const styles = { ...shared, ...local };
 
 const PROFILE_SECTION_LABELS: Record<string, string> = {
@@ -67,6 +70,8 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingPaths, setSavingPaths] = useState<string[] | null>(null);
+  /** 프로필 blob 의 섹션 저장 — config 와 저장 경로가 달라 별도로 센다. */
+  const [savingProfileKeys, setSavingProfileKeys] = useState<ProfileKey[] | null>(null);
   const [message, setMessage] = useState("");
   const savedConfigRef = useRef<SiteConfigData>(structuredClone(siteConfig) as unknown as SiteConfigData);
   const savedProfileRef = useRef<ProfileData>(structuredClone(profileDefaults));
@@ -155,6 +160,12 @@ export default function SettingsPage() {
       const foundConflicts: ConfigConflict[] = [];
 
       // ── siteConfig 충돌 감지 ──
+      /* 저장된 delta 를 손대지 않은 형태로 들고 있는다. 섹션 저장은 여기에 바뀐 경로만
+         덮어써서 보낸다 — 전체 config 로 delta 를 다시 계산하면 orphan 키 제거·정규화 차이 때문에
+         건드리지 않은 키까지 달라져 보이고, 비소유자 저장이 "사이트 설정은 소유자만" 으로 막힌다. */
+      if (isDeltaFormat(settingsRes?.config)) storedDeltaRef.current = settingsRes.config.delta ?? {};
+      else if (settingsRes?.config) storedDeltaRef.current = settingsRes.config;
+
       if (settingsRes?.config && Object.keys(settingsRes.config).length > 0) {
         const defaults = structuredClone(siteConfig) as unknown as SiteConfigData;
         let dbDelta: Record<string, unknown>;
@@ -189,8 +200,14 @@ export default function SettingsPage() {
         }
 
         setConfig((prev) => {
-          const merged = deepMerge(prev, dbDelta);
-          savedConfigRef.current = structuredClone(merged) as SiteConfigData;
+          const merged = deepMerge(prev, dbDelta) as SiteConfigData;
+          /* 이 화면은 getSiteConfig 가 아니라 여기서 직접 병합한다. 병합은 배열을 교체하므로
+             DB 의 authors 가 소유자 항목을 빠뜨리고 있으면 소유자 행이 통째로 사라진다. */
+          merged.authors = withOwnerAuthor(
+            merged.authors,
+            (siteConfig.authors as SiteConfigData["authors"] | undefined)?.find((a) => a.id === OWNER_AUTHOR_ID),
+          );
+          savedConfigRef.current = structuredClone(merged);
           return merged;
         });
       }
@@ -207,6 +224,10 @@ export default function SettingsPage() {
           approachSteps: c.approachSteps ?? profileDefaults.approachSteps,
           certifications: c.certifications ?? profileDefaults.certifications,
           awards: c.awards ?? profileDefaults.awards,
+          /* GitHub·패널 문구도 이 화면에서 편집한다 — 여기서 빠뜨리면 저장할 때 지워진다. */
+          github: c.github ?? profileDefaults.github,
+          bunny: c.bunny ?? profileDefaults.bunny,
+          infoBlocks: c.infoBlocks ?? profileDefaults.infoBlocks,
         };
         setProfileData(loaded);
         savedProfileRef.current = structuredClone(loaded);
@@ -252,22 +273,47 @@ export default function SettingsPage() {
           accountRes.email,
           accountRes.pendingEmail ?? null,
           accountRes.emailChangeSentAt ?? null,
+          accountRes.hasPassword ?? true,
         );
       }
     }).finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const saveDelta = useCallback(async (fullConfig: SiteConfigData) => {
+  /**
+   * 저장 payload 를 만든다.
+   *
+   * paths 를 주면 **저장돼 있는 delta 위에 그 경로만 덮어쓴다**. 전체 config 로 delta 를
+   * 다시 계산하면 손대지 않은 키까지 값이 달라진다 — 불러올 때 filterOrphanedKeys 로
+   * 없어진 키를 걸러내고, 서버는 normalizeLimits 로 값을 정규화하며, 충돌 해소가 값을
+   * 바꾸기도 하기 때문이다. 그러면 서버의 "authors 외 다른 키가 바뀌었는가" 검사에 걸려
+   * 비소유자가 본인 프로필조차 저장하지 못한다.
+   */
+  const buildDeltaPayload = useCallback((fullConfig: SiteConfigData, paths?: string[]) => {
     const defaults = structuredClone(siteConfig) as unknown as SiteConfigData;
-    const delta = computeDelta(fullConfig, defaults);
-    const savedDefaults = extractDefaults(delta, defaults);
+    let delta: Record<string, unknown>;
+    if (paths?.length) {
+      delta = structuredClone(storedDeltaRef.current);
+      for (const path of paths) {
+        const value = getByPath(fullConfig, path);
+        const def = getByPath(defaults as unknown as Record<string, unknown>, path);
+        // 기본값으로 되돌아온 경로는 delta 에서 뺀다 (undefined 는 직렬화에서 사라진다).
+        delta = setByPath(delta, path, deepEqual(value, def) ? undefined : value) as Record<string, unknown>;
+      }
+      delta = JSON.parse(JSON.stringify(delta));
+    } else {
+      delta = computeDelta(fullConfig, defaults);
+    }
+    return { delta, savedDefaults: extractDefaults(delta, defaults) };
+  }, []);
+
+  const saveDelta = useCallback(async (fullConfig: SiteConfigData, paths?: string[]) => {
     return fetch("/api/admin/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ config: { delta, savedDefaults } }),
+      body: JSON.stringify({ config: buildDeltaPayload(fullConfig, paths) }),
     });
-  }, []);
+  }, [buildDeltaPayload]);
 
   const handleSave = useCallback(async () => {
     setSaving(true);
@@ -316,7 +362,10 @@ export default function SettingsPage() {
       // profile: content 탭이거나, profile 충돌이 체크됐을 때 저장
       const shouldSaveProfile = activeTab === "content" || profileConflicts.length > 0;
 
-      const promises: Promise<Response>[] = [saveDelta(mergedConfig)];
+      /* 이 탭이 다루는 키 + 충돌 해소로 되돌린 경로만 저장한다. 전체 delta 재계산은
+         건드리지 않은 키까지 바뀐 것처럼 보이게 만든다 (buildDeltaPayload 주석 참고). */
+      const savePaths = Array.from(new Set([...keys, ...siteConfigConflicts.map((c) => c.path)]));
+      const promises: Promise<Response>[] = [saveDelta(mergedConfig, savePaths)];
       if (shouldSaveProfile) {
         promises.push(
           fetch("/api/admin/profile", {
@@ -334,11 +383,12 @@ export default function SettingsPage() {
       for (const res of results) {
         if (!res.ok) {
           const body = await res.json().catch(() => null);
-          throw new Error(body?.error ?? `HTTP ${res.status}`);
+          throw new Error(body?.reason ?? body?.error ?? `HTTP ${res.status}`);
         }
       }
 
       savedConfigRef.current = structuredClone(mergedConfig);
+      storedDeltaRef.current = buildDeltaPayload(mergedConfig, savePaths).delta;
       if (shouldSaveProfile) {
         savedProfileRef.current = structuredClone(mergedProfile);
         setProfileData(structuredClone(mergedProfile));
@@ -365,7 +415,65 @@ export default function SettingsPage() {
     } finally {
       setSaving(false);
     }
-  }, [activeTab, config, profileData, allConflicts, checkedConflicts, t, saveDelta]);
+  }, [activeTab, config, profileData, allConflicts, checkedConflicts, t, saveDelta, buildDeltaPayload]);
+
+  /* ── 프로필 섹션(experience·몽이·정보 창 등)의 저장/되돌리기/기본값 ──
+     사이트 설정과 달리 이 값들은 /api/admin/profile 의 blob 하나에 들어 있다. 그래서 섹션
+     저장이라 해도 blob 전체를 보내되, **저장된 값 위에 그 섹션의 키만 얹어서** 보낸다 —
+     화면에서 손댄 다른 섹션까지 같이 넘어가면 "이 섹션만 저장" 이 아니게 된다. */
+  const saveProfileSection = useCallback(async (keys: ProfileKey[]) => {
+    setSavingProfileKeys(keys);
+    setMessage("");
+    try {
+      const merged = structuredClone(savedProfileRef.current);
+      for (const k of keys) {
+        (merged as unknown as Record<string, unknown>)[k] = structuredClone(profileData[k]);
+      }
+      const res = await fetch("/api/admin/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: merged, savedDefaults: profileDefaults }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.reason ?? body?.error ?? `HTTP ${res.status}`);
+      }
+      savedProfileRef.current = structuredClone(merged);
+      setProfileData((prev) => {
+        const next = structuredClone(prev);
+        for (const k of keys) (next as unknown as Record<string, unknown>)[k] = structuredClone(merged[k]);
+        return next;
+      });
+      setMessage(t("admin.settings.saveSuccess"));
+      return { ok: true };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      setMessage(`${t("admin.settings.saveError")}${msg ? ` (${msg})` : ""}`);
+      return { ok: false, reason: msg };
+    } finally {
+      setSavingProfileKeys(null);
+    }
+  }, [profileData, t]);
+
+  const revertProfileSection = useCallback((keys: ProfileKey[]) => {
+    setProfileData((prev) => {
+      const next = structuredClone(prev);
+      for (const k of keys) {
+        (next as unknown as Record<string, unknown>)[k] = structuredClone(savedProfileRef.current[k]);
+      }
+      return next;
+    });
+  }, []);
+
+  const resetProfileSection = useCallback((keys: ProfileKey[]) => {
+    setProfileData((prev) => {
+      const next = structuredClone(prev);
+      for (const k of keys) {
+        (next as unknown as Record<string, unknown>)[k] = structuredClone(profileDefaults[k]);
+      }
+      return next;
+    });
+  }, []);
 
   /** 특정 dot-path 들만 savedConfig 로 되돌리기 — 섹션 헤더의 되돌리기 버튼이 호출 */
   const revertSection = useCallback((paths: string[]) => {
@@ -423,24 +531,52 @@ export default function SettingsPage() {
   }, [activeTab, config, t]);
 
   /** 특정 dot-path 들만 부분 저장 — 섹션 헤더의 저장 버튼이 호출 */
-  const saveSection = useCallback(async (paths: string[]) => {
-    if (paths.length === 0) return;
+  /**
+   * 저장해도 이 화면을 다시 받을 필요가 없는 최상위 키.
+   *
+   * 저장 뒤의 전체 새로고침은 루트 레이아웃이 서버에서 넘겨준 설정(네비·푸터·테마·글꼴 등)을
+   * 새로 받기 위한 것이다. 아래 키들은 **다른 페이지의 내용**이라 지금 화면에 나타나지 않는다.
+   * 그런데도 새로고침하면, 같은 탭에서 저장하지 않은 다른 편집이 조용히 사라진다
+   * (이 화면에는 이탈 경고가 없다).
+   */
+  const NO_RELOAD_KEYS = useMemo(() => new Set(["authors", "posts", "works", "about"]), []);
+
+  /** 서버에 저장돼 있는 delta 원본. 부분 저장의 기준이다. */
+  const storedDeltaRef = useRef<Record<string, unknown>>({});
+
+  /**
+   * @param source 저장할 값의 출처. 방금 만든 값을 바로 저장할 때 넘긴다 —
+   *   setConfig 직후에는 config state 가 아직 이전 값이라, 생략하면 낡은 값이 저장된다.
+   */
+  const saveSection = useCallback(async (paths: string[], source?: SiteConfigData): Promise<SaveResult> => {
+    if (paths.length === 0) return { ok: false, reason: "empty-paths" };
     // 빈 필수값이면 섹션 저장도 막는다 (전역 저장 버튼과 동일 규칙 — 섹션 저장이 검증을 우회하던 버그 차단).
-    // validationError 메시지는 이미 화면에 표시 중이라 여기선 조용히 중단만 한다.
-    if (validationError) return;
+    /* 검증 실패는 화면 상단에 메시지가 떠 있지만, 모달 안에서 저장을 누른 경우엔 그게 가려진다.
+       조용히 반환하면 "저장했는데 새로고침하면 되돌아간다" 로 나타난다 — 이유를 돌려준다. */
+    if (validationError) return { ok: false, reason: validationError };
     setSavingPaths(paths);
     setMessage("");
     try {
       let merged = structuredClone(savedConfigRef.current);
       for (const p of paths) {
-        merged = setByPath(merged, p, getByPath(config, p));
+        merged = setByPath(merged, p, getByPath(source ?? config, p));
       }
-      const res = await saveDelta(merged);
+
+      // 저장된 delta 에 이 섹션의 경로만 얹어 보낸다 (buildDeltaPayload 주석 참고).
+      const payload = buildDeltaPayload(merged, paths);
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ config: payload }),
+      });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        throw new Error(body?.error ?? `HTTP ${res.status}`);
+        /* 서버는 "왜" 를 reason 에 담는다(예: 본인 프로필만 수정할 수 있습니다).
+           error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
+        throw new Error(body?.reason ?? body?.error ?? `HTTP ${res.status}`);
       }
       savedConfigRef.current = structuredClone(merged);
+      storedDeltaRef.current = payload.delta;
       setConfig(structuredClone(merged));
       setMessage(t("admin.settings.saveSuccess"));
       try {
@@ -448,14 +584,19 @@ export default function SettingsPage() {
         bc.postMessage({ type: "settings-updated", timestamp: Date.now() });
         bc.close();
       } catch {}
-      setTimeout(() => window.location.reload(), 600);
+      /* 저장한 키가 전부 "이 화면에 안 보이는 것" 이면 새로고침하지 않는다.
+         화면은 위의 setConfig 로 이미 갱신됐고, 다른 탭에는 BroadcastChannel 이 알린다. */
+      const needsReload = paths.some((p) => !NO_RELOAD_KEYS.has(p.split(".")[0]));
+      if (needsReload) setTimeout(() => window.location.reload(), 600);
+      return { ok: true };
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
       setMessage(`${t("admin.settings.saveError")}${msg ? ` (${msg})` : ""}`);
+      return { ok: false, reason: msg || t("admin.settings.saveError") };
     } finally {
       setSavingPaths(null);
     }
-  }, [config, saveDelta, t, validationError]);
+  }, [config, buildDeltaPayload, t, validationError, NO_RELOAD_KEYS]);
 
   // 단일 충돌 resolve (머지 결과 적용)
   const resolveConflict = useCallback(async (c: ConfigConflict, mergedValue: unknown) => {
@@ -570,6 +711,15 @@ export default function SettingsPage() {
         <div className={styles.headerRight}>
           {activeTab === "account" ? (
             <>
+              {/* 이 탭의 저자 섹션도 saveSection 을 쓴다 — message 를 여기서도 보여주지 않으면
+                  모달 밖에서 저장했을 때 성공·실패가 아무데도 안 뜬다. */}
+              {message && (
+                <span
+                  className={`${styles.message} ${message.startsWith(t("admin.settings.saveError")) ? styles.messageError : styles.messageSuccess}`}
+                >
+                  {message}
+                </span>
+              )}
               {account.accountMessage && (
                 <span className={`${styles.message} ${account.accountMessage.startsWith("Error") ? styles.messageError : styles.messageSuccess}`}>
                   {account.accountMessage}
@@ -859,6 +1009,20 @@ export default function SettingsPage() {
               {activeTab === "content" && (
                 <>
                 <div className={`${styles.tabGrid} ${contentSubTab === "home" ? styles.tabGridSingle : ""}`}>
+                  {/* 프로필 섹션의 기본값·되돌리기·섹션 저장. config 와 저장 경로가 달라
+                      SectionHeader 를 못 쓰고, ContentTab 을 지나 세 컴포넌트로 갈라지므로
+                      값을 일일이 내려보내는 대신 context 로 묶는다. */}
+                  <ProfileSectionProvider
+                    value={{
+                      data: profileData,
+                      savedData: savedProfileRef.current,
+                      defaults: profileDefaults,
+                      save: saveProfileSection,
+                      revert: revertProfileSection,
+                      reset: resetProfileSection,
+                      savingKeys: savingProfileKeys,
+                    }}
+                  >
                   <ContentTab
                     config={config}
                     savedConfig={savedConfigRef.current}
@@ -874,6 +1038,7 @@ export default function SettingsPage() {
                     setProfileExpanded={setProfileExpanded}
                     contentSubTab={contentSubTab}
                   />
+                  </ProfileSectionProvider>
                 </div>
                 </>
               )}
@@ -910,6 +1075,9 @@ export default function SettingsPage() {
                   <AuthorsEditor
                     authors={config.authors ?? []}
                     onChange={(authors) => setConfig((prev) => ({ ...prev, authors }))}
+                    /* 모달에서 저장하면 그대로 저장되게 한다 — 섹션 저장을 한 번 더 누르지 않는다.
+                       방금 만든 목록을 넘겨야 한다: config state 는 아직 갱신 전이다. */
+                    onPersist={(authors) => saveSection(["authors"], { ...config, authors } as SiteConfigData)}
                   />
                 </section>
                 <AccountTab
@@ -931,6 +1099,8 @@ export default function SettingsPage() {
                   pendingEmail={account.pendingEmail}
                   emailChangeSentAt={account.emailChangeSentAt}
                   onCancelPendingEmail={() => { account.setPendingEmail(null); account.setEmailChangeSentAt(null); }}
+                  hasPassword={account.hasPassword}
+                  isOwner={isOwnerUser === true}
                   passwordPolicy={config.passwordPolicy ?? "secure"}
                   onPasswordPolicyChange={async (v: string) => {
                     const next = { ...config, passwordPolicy: v as "secure" | "default" };

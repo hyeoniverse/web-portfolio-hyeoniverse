@@ -832,7 +832,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
          외부에서 actions 를 직접 렌더할 때(hideBottomActions)는 양쪽 모두 숨김 */}
       {(!isStandalone || hideStandaloneHeader) && !hideBottomActions && (
         <div className={styles.seriesCardActions}>
-          <div style={{ flex: 1 }} />
+          <div className="spacer" />
           <Button variant="outline" size="sm" onClick={handleRevert} disabled={!isDirty || saving}>
             <T k="admin.posts.seriesModal.revert" />
           </Button>

@@ -10,6 +10,9 @@ import { useTheme } from "@/providers/ThemeProvider";
 import T from "@/components/ui/T";
 import { type SiteConfigData } from "@/config/site.config";
 import type { ProfileData } from "@/types/profile";
+import ProfileGithubEditor from "./ProfileGithubEditor";
+import ProfilePanelsEditor from "./ProfilePanelsEditor";
+import ProfileSectionActions from "@/components/admin/ProfileSectionActions";
 import ProfileSections, { type ProfileExpandState } from "@/components/admin/ProfileSections";
 import type { SettingsTabProps } from "../_types";
 import Select from "@/components/ui/Select";
@@ -346,11 +349,14 @@ export default function ContentTab({
       )}
 
       {contentSubTab === "profile" && (
+        /* 순서는 실제 페이지의 패널 순서를 그대로 따른다 —
+           몽이 → Profile 정보 창 → GitHub/Pinned → 경력 → 스킬 → 철학 → 프로세스 → 자격증·수상.
+           화면에서 보이는 차례와 설정의 차례가 다르면 어디를 고쳐야 할지 매번 찾아야 한다. */
         <>
           {/* Profile 페이지 동작 — 토글 하나뿐이라 전폭 얇은 바(헤더에 인라인) */}
           <section className={`${styles.section} ${shared.sectionWide}`}>
             <SectionHeader
-              title="Profile"
+              title="SCROLL"
               paths={["profile.infiniteScroll"]}
               extra={
                 <Switch
@@ -363,6 +369,23 @@ export default function ContentTab({
               {...sh}
             />
           </section>
+
+          {/* MEET(몽이)·Profile 패널 문구 — 예전에는 번역 파일과 컴포넌트 상수에만 있어
+              설정에서 손댈 수 없었다. */}
+          <ProfilePanelsEditor data={profileData} setData={setProfileData} styles={styles} shared={shared} />
+
+          {/* GitHub — 활동 지표는 자동 집계, 카드로 보여줄 저장소(Pinned)만 고른다.
+              PROFILE 과 나란히 2열로 앉는다. */}
+          <section className={styles.section}>
+            <SectionHeader
+              title="GitHub"
+              paths={[]}
+              titleClassName={styles.sectionTitle}
+              customActions={<ProfileSectionActions keys={["github"]} />}
+            />
+            <ProfileGithubEditor data={profileData} setData={setProfileData} styles={styles} />
+          </section>
+
           <ProfileSections data={profileData} setData={setProfileData} expanded={profileExpanded} setExpanded={setProfileExpanded} styles={styles} />
         </>
       )}
