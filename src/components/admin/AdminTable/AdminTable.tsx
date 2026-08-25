@@ -9,7 +9,7 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 function ConditionalLayoutGroup({ enabled, children }: { enabled: boolean; children: ReactNode }) {
   return enabled ? <LayoutGroup>{children}</LayoutGroup> : <>{children}</>;
 }
-import { GripVertical } from "@/components/icons";
+import { GripVertical, Lock } from "@/components/icons";
 import { useModalStore } from "@/stores/modalStore";
 import Checkbox from "@/components/ui/Checkbox";
 import CloseButton from "@/components/ui/CloseButton";
@@ -47,6 +47,8 @@ interface AdminTableLabels {
   moveToBottom?: string;
   apply?: string;
   exportItem?: string;
+  /** rowDisabled 인 행의 체크박스 자리에 붙는 설명 (자물쇠 아이콘의 title/aria-label). */
+  noPermission?: string;
 }
 
 export interface AdminTableProps<T extends { id: string; published: boolean }> {
@@ -77,6 +79,17 @@ export interface AdminTableProps<T extends { id: string; published: boolean }> {
   onRowHover?: (item: T, e: React.MouseEvent) => void;
   onRowLeave?: () => void;
   onRowClick?: (item: T, e: React.MouseEvent) => void;
+  /**
+   * 이 행을 다룰 수 없는가 — 권한이 없는 항목을 흐리게 표시한다.
+   * 클릭 처리는 막지 않는다. 이유를 알리는 것은 onRowClick 을 가진 호출부의 몫이다.
+   * 인가 자체는 서버와 RLS 정책이 한다.
+   */
+  rowDisabled?: (item: T) => boolean;
+  /**
+   * rowDisabled 인 행에서 조작을 시도했을 때. 이유를 알리는 것은 호출부의 몫이다.
+   * 지정하지 않으면 그 행의 수정·삭제 버튼은 아무 일도 하지 않는다.
+   */
+  onDenied?: (item: T) => void;
   onReorder?: (fromIdx: number, toIdx: number) => void;
   /** 항목 위치 이동 — popover 에서 선택한 newOrder 로 직접 호출 */
   onMove?: (item: T, newOrder: number) => void | Promise<void>;
@@ -118,6 +131,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   rowLabelMax,
   showRowNumbers = false,
   getRowLabel,
+  rowDisabled,
+  onDenied,
   highlightId,
   children,
 }: AdminTableProps<T>) {
@@ -145,8 +160,11 @@ export default function AdminTable<T extends { id: string; published: boolean }>
   const effectiveGrid = `max-content ${hasNumCol ? "2.5rem " : ""}${gridTemplate}`;
 
   /* ── Selection ── */
-  const allSelected = items.length > 0 && items.every((item) => selected.has(item.id));
-  const someSelected = items.some((item) => selected.has(item.id)) && !allSelected;
+  /* 권한이 없는 행은 애초에 선택 대상이 아니다 — 전체선택이 그것까지 집으면
+     일괄 작업이 매번 "권한 없음" 으로 막힌다. */
+  const selectableItems = items.filter((item) => !rowDisabled?.(item));
+  const allSelected = selectableItems.length > 0 && selectableItems.every((item) => selected.has(item.id));
+  const someSelected = selectableItems.some((item) => selected.has(item.id)) && !allSelected;
 
   // 드래그 선택
   const dragSelectStart = useRef<number | null>(null);
@@ -200,8 +218,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
   const toggleSelectAll = useCallback(() => {
     if (allSelected) setSelected(new Set());
-    else setSelected(new Set(items.map((item) => item.id)));
-  }, [items, allSelected]);
+    else setSelected(new Set(selectableItems.map((item) => item.id)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, allSelected, rowDisabled]);
 
   const handleBulkDelete = useCallback(() => {
     if (!onBulkDelete || selected.size === 0) return;
@@ -230,6 +249,9 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
   const handleDeleteClick = (item: T, e: React.MouseEvent) => {
     e.stopPropagation();
+    /* 권한 확인이 확인 모달보다 먼저다. 뒤에 두면 "정말 삭제할까요" 를 거친 뒤에야
+       권한이 없다고 알리게 된다. */
+    if (rowDisabled?.(item)) { onDenied?.(item); return; }
     const title = getTitle(item);
     openModal(
       <ModalPrompt
@@ -303,39 +325,43 @@ export default function AdminTable<T extends { id: string; published: boolean }>
 
   return (
     <>
+      {/* 일괄 선택 바는 .table 바깥에 둔다.
+          1024px 이하에서 .table 이 overflow-x:auto 가 되며 스크롤 컨테이너가 되는데,
+          그 안의 position:sticky 는 뷰포트가 아니라 그 컨테이너를 기준으로 붙는다.
+          안에 두면 화면 상단에 고정되지 않고 테이블과 같이 움직인다. */}
+      {selected.size > 0 && (
+        <div className={styles.bulkBar}>
+        <span>{selected.size}개 선택</span>
+        {onBulkPublish && (
+          <>
+            <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(true)}>{labels.publishedTooltip}</button>
+            <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</button>
+          </>
+        )}
+        {onBulkExport && (
+          <button className={styles.bulkActionBtn} onClick={() => onBulkExport([...selected])}>.md 내보내기</button>
+        )}
+        {extraBulkActions?.map((a, i) => (
+          <button
+            key={i}
+            className={`${styles.bulkActionBtn} ${a.danger ? styles.bulkActionDanger : ""}`}
+            disabled={a.disabled}
+            onClick={async () => {
+              await a.onClick([...selected]);
+              setSelected(new Set());
+            }}
+          >
+            {a.label}
+          </button>
+        ))}
+        {onBulkDelete && (
+          <button className={`${styles.bulkActionBtn} ${styles.bulkActionDanger}`} onClick={handleBulkDelete}>{labels.delete}</button>
+        )}
+        <CloseButton onClick={() => setSelected(new Set())} ariaLabel="선택 해제" size="sm" className={styles.bulkCancelBtn} />
+        </div>
+      )}
       <div className={styles.table} style={gridStyle}>
         <div className={styles.tableInner}>
-        {selected.size > 0 && (
-          <div className={styles.bulkBar}>
-          <span>{selected.size}개 선택</span>
-          {onBulkPublish && (
-            <>
-              <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(true)}>{labels.publishedTooltip}</button>
-              <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</button>
-            </>
-          )}
-          {onBulkExport && (
-            <button className={styles.bulkActionBtn} onClick={() => onBulkExport([...selected])}>.md 내보내기</button>
-          )}
-          {extraBulkActions?.map((a, i) => (
-            <button
-              key={i}
-              className={`${styles.bulkActionBtn} ${a.danger ? styles.bulkActionDanger : ""}`}
-              disabled={a.disabled}
-              onClick={async () => {
-                await a.onClick([...selected]);
-                setSelected(new Set());
-              }}
-            >
-              {a.label}
-            </button>
-          ))}
-          {onBulkDelete && (
-            <button className={`${styles.bulkActionBtn} ${styles.bulkActionDanger}`} onClick={handleBulkDelete}>{labels.delete}</button>
-          )}
-          <CloseButton onClick={() => setSelected(new Set())} ariaLabel="선택 해제" size="sm" className={styles.bulkCancelBtn} />
-          </div>
-        )}
         <div className={styles.tableHeader}>
           <span className={styles.colCheck} onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={allSelected} indeterminate={someSelected} onChange={toggleSelectAll} shape="square" />
@@ -361,7 +387,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               layout={!!onReorder}
               transition={{ type: "spring", damping: 28, stiffness: 320, mass: 0.8 }}
               ref={highlightId === item.id ? highlightRef : undefined}
-              className={`${styles.row} ${selected.has(item.id) ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""} ${highlightId === item.id ? styles.rowHighlight : ""}`}
+              className={`${styles.row} ${selected.has(item.id) ? styles.rowChanged : ""} ${isDragging ? styles.rowDragging : ""} ${isOver && dropPos === "above" ? styles.dropAbove : ""} ${isOver && dropPos === "below" ? styles.dropBelow : ""} ${highlightId === item.id ? styles.rowHighlight : ""} ${rowDisabled?.(item) ? styles.rowDisabled : ""}`}
               data-clickable="true"
               draggable={!!onReorder}
               onMouseDown={(e) => {
@@ -370,17 +396,29 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                 dragOriginRef.current = target;
                 const inCheck = !!target.closest(`.${styles.colCheck}`);
                 // onReorder OFF → 행 전체에서 다중 선택. ON → 체크박스 영역만 다중 선택.
+                if (rowDisabled?.(item)) return;
                 if (!onReorder || inCheck) {
                   if (!onReorder) e.preventDefault();
                   handleSelectMouseDown(i);
                 }
               }}
-              onClick={(e) => { if (dragSelected.current) return; if (onRowClick) onRowClick(item, e); else handleRowClick(item); }}
+              aria-disabled={rowDisabled?.(item) || undefined}
+              /* rowDisabled 는 표시만 담당한다. 클릭을 여기서 삼키면 아무 반응이 없어
+                 왜 안 되는지 알 수 없다 — 이유를 알릴 수 있는 호출부가 판단한다. */
+              onClick={(e) => {
+                if (dragSelected.current) return;
+                if (onRowClick) onRowClick(item, e); else if (!rowDisabled?.(item)) handleRowClick(item);
+              }}
               onDragStart={
                 onReorder
                   ? (e) => {
                       // 체크박스 영역에서 시작된 drag → reorder 가 아니라 다중 선택. abort.
                       if (dragOriginRef.current?.closest(`.${styles.colCheck}`)) {
+                        (e as unknown as React.DragEvent).preventDefault();
+                        return;
+                      }
+                      // 권한이 없는 행은 끌어서 순서를 바꿀 수 없다
+                      if (rowDisabled?.(item)) {
                         (e as unknown as React.DragEvent).preventDefault();
                         return;
                       }
@@ -461,15 +499,30 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                   />
                 </span>
               )}
-              <span
-                className={styles.colCheck}
-                onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}
-              >
-                <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
-              </span>
+              {rowDisabled?.(item) ? (
+                /* 권한이 없는 행은 체크박스 자리를 자물쇠로 바꾼다. 행 전체를 흐리게 하면
+                   내용까지 읽기 어려워지고, 왜 흐린지도 드러나지 않는다. */
+                <span
+                  className={`${styles.colCheck} ${styles.colCheckLocked}`}
+                  onClick={(e) => e.stopPropagation()}
+                  title={labels.noPermission}
+                  aria-label={labels.noPermission}
+                >
+                  <Lock size={13} strokeWidth={2} aria-hidden />
+                </span>
+              ) : (
+                <span
+                  className={styles.colCheck}
+                  onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}
+                >
+                  <Checkbox checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)} shape="square" />
+                </span>
+              )}
               {hasNumCol && (
                 <span className={styles.rowNum}>
-                  {onRowLabelEdit && getRowLabel ? (
+                  {/* 순서 변경도 그 행에 대한 쓰기다. 권한이 없으면 편집 가능한 입력으로 두지 않는다 —
+                      서버가 막더라도 값이 바뀐 것처럼 보였다가 되돌아가면 무엇이 실패했는지 알 수 없다. */}
+                  {onRowLabelEdit && getRowLabel && !rowDisabled?.(item) ? (
                     <EditableRowNumber
                       value={getRowLabel(item, i)}
                       max={rowLabelMax}
@@ -487,14 +540,29 @@ export default function AdminTable<T extends { id: string; published: boolean }>
               ))}
               <span
                 className={styles.colActions}
+                /* 미리보기 훅이 "이 탭은 관리 버튼을 향한 것" 을 알아볼 표식.
+                   CSS 모듈 클래스명은 해시되므로 선택자로 쓸 수 없다. */
+                data-row-actions
                 onClick={(e) => e.stopPropagation()}
               >
-                <Link
-                  href={`${editBasePath}/${item.id}/edit`}
-                  className={styles.actionBtn}
-                >
-                  {labels.edit}
-                </Link>
+                {rowDisabled?.(item) ? (
+                  /* 열 수 없는 글이라 링크로 두지 않는다 — 이동한 뒤 403 화면을 보여 주는 것보다
+                     여기서 바로 이유를 알리는 편이 짧다. */
+                  <button
+                    type="button"
+                    className={styles.actionBtn}
+                    onClick={(e) => { e.stopPropagation(); onDenied?.(item); }}
+                  >
+                    {labels.edit}
+                  </button>
+                ) : (
+                  <Link
+                    href={`${editBasePath}/${item.id}/edit`}
+                    className={styles.actionBtn}
+                  >
+                    {labels.edit}
+                  </Link>
+                )}
                 <button
                   className={styles.deleteBtn}
                   onClick={(e) => handleDeleteClick(item, e)}
@@ -502,7 +570,8 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                   {labels.delete}
                 </button>
                 <RowActionsMenu
-                  onMove={onMove && getRowLabel ? (newOrder) => onMove(item, newOrder) : undefined}
+                  /* 이동도 쓰기라 권한이 없으면 메뉴에서 아예 뺀다 */
+                  onMove={onMove && getRowLabel && !rowDisabled?.(item) ? (newOrder) => onMove(item, newOrder) : undefined}
                   currentOrder={getRowLabel ? Number(getRowLabel(item, i)) || 0 : 0}
                   totalCount={rowLabelMax ?? items.length}
                   onExport={onBulkExport ? () => onBulkExport([item.id]) : undefined}
