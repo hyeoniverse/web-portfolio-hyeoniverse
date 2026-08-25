@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonServerError } from "@/lib/api/response";
 
 // GET /api/calendars — 공유 달력 목록 (admin). ?trash=true 면 휴지통(삭제된 것)만.
 export async function GET(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
   const showTrash = new URL(request.url).searchParams.get("trash") === "true";
   try {
-    const admin = createAdminClient();
-    let query = admin
+    let query = supabase
       .from("calendars")
       .select("id, title, data, updated_at, deleted_at, purge_after")
       .order("updated_at", { ascending: false });
@@ -35,7 +33,7 @@ export async function GET(request: Request) {
 
 // POST /api/calendars — 새 공유 달력 생성 (admin). body: { title?, data? } → { id }
 export async function POST(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
   let body: { title?: unknown; data?: unknown };
   try {
@@ -44,8 +42,7 @@ export async function POST(request: Request) {
     return jsonError("Invalid body");
   }
   try {
-    const admin = createAdminClient();
-    const { data, error } = await admin
+    const { data, error } = await supabase
       .from("calendars")
       .insert({
         title: typeof body.title === "string" ? body.title : "",

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireOwner } from "@/lib/api/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { applyInviteToExistingUser, type AuthorInvite } from "@/lib/api/authorInvites";
-import { PERM } from "@/lib/api/roles";
+import { PERM, parsePermissionLevelInput } from "@/lib/api/roles";
 
 /** 초대 메일 발송 (Resend). API key 없으면 skip(초대 기록은 남으므로 링크 수동 전달 가능). */
 async function sendInviteEmail(email: string, loginUrl: string): Promise<{ sent: boolean; reason?: string }> {
@@ -45,9 +45,15 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
   const authorId = typeof body?.author_id === "string" ? body.author_id : "";
-  const level = typeof body?.permission_level === "number" ? body.permission_level : PERM.AUTHOR;
   if (!email || !authorId) {
     return NextResponse.json({ error: "email and author_id required" }, { status: 400 });
+  }
+  /* 생략하면 기본 저자. 값을 보냈는데 PERM 에 없는 값이면 조용히 낮추지 않고 거절한다. */
+  const level = body?.permission_level === undefined
+    ? PERM.AUTHOR
+    : parsePermissionLevelInput(body.permission_level);
+  if (level === null) {
+    return NextResponse.json({ error: "권한 레벨이 올바르지 않습니다." }, { status: 400 });
   }
 
   const admin = createAdminClient();

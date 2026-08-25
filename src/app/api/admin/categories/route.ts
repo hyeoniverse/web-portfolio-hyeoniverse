@@ -23,6 +23,8 @@ type PostRow = {
 };
 
 export async function GET() {
+  /* 카테고리도 사이트 전체의 어휘다. 글 수 집계가 요청자 시야로 좁혀지면 카테고리 관리
+     화면의 숫자가 실제와 달라진다. 여기도 의도적으로 service_role 을 유지한다. */
   const { error: authError } = await requireAuth();
   if (authError) return authError;
 

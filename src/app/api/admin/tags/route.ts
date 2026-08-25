@@ -22,6 +22,9 @@ type PostRow = {
 };
 
 export async function GET() {
+  /* 태그는 사이트 전체의 어휘지 개인 데이터가 아니다. 편집기(PostEditor)의 태그 추천이
+     이 목록을 쓰므로 요청자 시야로 좁히면 사람마다 다른 후보가 뜬다.
+     그래서 여기는 의도적으로 service_role 을 유지한다(4단계 정리 대상 아님). */
   const { error: authError } = await requireAuth();
   if (authError) return authError;
 

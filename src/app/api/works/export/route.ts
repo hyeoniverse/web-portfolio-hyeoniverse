@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { requireAuth } from "@/lib/api/requireAuth";
+import { requireRole } from "@/lib/api/requireRole";
+import { policyBlocked } from "@/lib/api/requirePostAccess";
+import { PERM } from "@/lib/api/roles";
 
 function toFrontmatter(work: Record<string, unknown>): string {
   const lines: string[] = ["---"];
@@ -33,24 +34,24 @@ function slugify(title: string): string {
 // GET /api/works/export?id=xxx — 단일 작업물 .md 다운로드
 // GET /api/works/export?all=true — 전체 작업물 JSON 반환
 export async function GET(request: Request) {
-  const { error: authError } = await requireAuth();
+  /* 작업물 전량 내보내기 — 미발행분까지 나가므로 admin 이상만. */
+  const { supabase, error: authError } = await requireRole(PERM.ADMIN);
   if (authError) return authError;
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   const all = searchParams.get("all") === "true";
-  const admin = createAdminClient();
 
   if (id) {
-    const { data: work, error } = await admin
+    const { data: work, error } = await supabase
       .from("works")
       .select("*")
       .eq("id", id)
       .is("deleted_at", null)
       .single();
 
-    if (error || !work)
-      return NextResponse.json({ error: "Work not found" }, { status: 404 });
+    /* admin 등급은 이미 확인했다. 그런데도 0행이면 세션 토큰의 권한 정보가 낡은 것이다. */
+    if (error || !work) return policyBlocked();
 
     const md = `${toFrontmatter(work)}\n\n${work.content_ko}`;
     const fileName = `${slugify(work.title)}.md`;
@@ -64,7 +65,7 @@ export async function GET(request: Request) {
   }
 
   if (all) {
-    const { data: works, error } = await admin
+    const { data: works, error } = await supabase
       .from("works")
       .select("*")
       .is("deleted_at", null)

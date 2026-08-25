@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
+import { getUserRole, PERM } from "@/lib/api/roles";
+import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 
 function toFrontmatter(post: Record<string, unknown>): string {
   const lines: string[] = ["---"];
@@ -21,25 +22,29 @@ function toFrontmatter(post: Record<string, unknown>): string {
 // GET /api/posts/export?all=true        — 전체 포스트 JSON 반환
 // GET /api/posts/export?series_id=xxx   — 시리즈 내 포스트 JSON 반환
 export async function GET(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, user, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   const all = searchParams.get("all") === "true";
   const seriesId = searchParams.get("series_id");
-  const admin = createAdminClient();
+
 
   if (id) {
-    const { data: post, error } = await admin
+    /* 단건 내보내기는 대상이 정해져 있다. 세션 클라이언트로만 읽으면 권한 없는 글과
+       없는 글이 똑같이 0행이라 있는 글에도 "없음" 이라고 답하게 된다. */
+    const access = await requirePostAccess("posts", id);
+    if (access.error) return access.error;
+
+    const { data: post, error } = await access.supabase
       .from("posts")
       .select("*")
       .eq("id", id)
       .is("deleted_at", null)
       .single();
 
-    if (error || !post)
-      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    if (error || !post) return policyBlocked();
 
     const md = `${toFrontmatter(post)}\n\n${post.content}`;
     const fileName = `${post.slug}.md`;
@@ -53,10 +58,19 @@ export async function GET(request: Request) {
   }
 
   if (all || seriesId) {
-    let query = admin
+    let query = supabase
       .from("posts")
       .select("*")
       .is("deleted_at", null);
+
+    /* 볼 수 있는 것과 다룰 수 있는 것은 다르다. RLS 만 믿으면 남이 쓴 **발행된** 글까지
+       내려간다(공개 읽기 정책). 내보내기는 관리 작업이므로 편집 권한 기준으로 좁힌다.
+       owner/admin 은 전부, 저자는 자기 글만. */
+    const role = getUserRole(user);
+    if (!role.isOwner && role.level < PERM.ADMIN) {
+      if (!role.authorId) return NextResponse.json({ files: [] });
+      query = query.contains("author_ids", [role.authorId]);
+    }
 
     if (seriesId) query = query.eq("series_id", seriesId).order("series_order", { ascending: true });
     else query = query.order("created_at", { ascending: true });

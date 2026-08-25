@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 
 // GET /api/custom-emojis — 에디터 이모지 picker 의 업로드(커스텀) 아이콘 기록 (admin 전용)
 export async function GET() {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
-
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("custom_emojis")
     .select("id, name, src, created_at")
     .order("created_at", { ascending: false })
@@ -20,7 +17,7 @@ export async function GET() {
 
 // POST /api/custom-emojis — 기록 추가 { name, src }
 export async function POST(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   let body: { name?: unknown; src?: unknown };
@@ -29,9 +26,7 @@ export async function POST(request: Request) {
   const src = typeof body.src === "string" ? body.src.trim() : "";
   const name = typeof body.name === "string" ? body.name.slice(0, 120) : "";
   if (!src) return NextResponse.json({ error: "src required" }, { status: 400 });
-
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("custom_emojis")
     .insert({ name, src })
     .select("id, name, src, created_at")

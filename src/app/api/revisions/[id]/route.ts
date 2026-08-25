@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 
 // GET /api/revisions/[id] — snapshot 포함 단건 조회
@@ -7,13 +6,12 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const { id } = await params;
-  const admin = createAdminClient();
 
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("revisions")
     .select("*")
     .eq("id", id)
@@ -31,14 +29,13 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const { id } = await params;
   const body = await request.json();
-  const admin = createAdminClient();
 
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("revisions")
     .update({ dismissed: !!body.dismissed })
     .eq("id", id)
@@ -54,13 +51,12 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const { id } = await params;
-  const admin = createAdminClient();
 
-  const { error } = await admin.from("revisions").delete().eq("id", id);
+  const { error } = await supabase.from("revisions").delete().eq("id", id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

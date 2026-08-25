@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { generateSummary, AiSummaryError } from "@/lib/api/aiSummaryProviders";
 
 interface RouteContext {
@@ -13,16 +13,19 @@ export async function POST(request: Request, context: RouteContext) {
   const body = await request.json().catch(() => ({}));
   const force = body.force === true;
 
-  const admin = createAdminClient();
+  /* 편집기에서만 부르는 경로인데 인증이 없었다. 누구나 임의의 id 로 유료 AI 호출을 돌리고
+     (force:true 는 캐시 단축도 우회한다) 요약을 남의 글에 덮어쓸 수 있었다. */
+  const { supabase, error: accessError } = await requirePostAccess("posts", id);
+  if (accessError) return accessError;
 
-  const { data: post } = await admin
+  const { data: post } = await supabase
     .from("posts")
     .select("title, content, content_en, summary_ko, summary_en")
     .eq("id", id)
     .single();
 
   if (!post) {
-    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    return policyBlocked();   // 존재·권한은 requirePostAccess 가 확인했다
   }
 
   if (!force && post.summary_ko) {
@@ -50,7 +53,7 @@ ${contentEn}`;
 
   try {
     const { ko, en } = await generateSummary(promptText, "posts/ai-summary");
-    await admin.from("posts").update({ summary_ko: ko, summary_en: en }).eq("id", id);
+    await supabase.from("posts").update({ summary_ko: ko, summary_en: en }).eq("id", id);
     return NextResponse.json({ summary_ko: ko, summary_en: en });
   } catch (e) {
     if (e instanceof AiSummaryError) {

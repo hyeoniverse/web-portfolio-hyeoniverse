@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/api/requireAuth";
+import { requireOwner } from "@/lib/api/requireRole";
 import { getSecret } from "@/lib/getSecret";
 
 /**
@@ -8,10 +8,13 @@ import { getSecret } from "@/lib/getSecret";
  * (카테고리·categoryId 는 저장소마다 다르고 opaque 라 GitHub API 로만 확정 가능)
  *
  * 필요 env: GITHUB_TOKEN (공개 저장소 읽기용 PAT — GraphQL 은 인증 토큰 필수)
- * admin 전용(requireAuth).
+ * owner 전용 — 사이트 PAT 를 쓰는 경로다.
  */
 export async function GET(request: Request) {
-  const { error: authError } = await requireAuth();
+  /* 사이트의 GITHUB_TOKEN 으로 임의 저장소를 조회한다. 토큰을 응답에 싣지는 않지만,
+     PAT 의 스코프만큼 남의 저장소 정보를 긁을 수 있다. 호출부(설정 › 서비스)가 소유자
+     전용 화면이므로 라우트도 같은 등급으로 맞춘다. */
+  const { error: authError } = await requireOwner();
   if (authError) return authError;
 
   const { searchParams } = new URL(request.url);

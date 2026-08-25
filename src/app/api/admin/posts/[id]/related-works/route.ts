@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { requireAuth } from "@/lib/api/requireAuth";
+import { requirePostAccess } from "@/lib/api/requirePostAccess";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -12,11 +11,11 @@ interface RouteContext {
  */
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const { error: authError } = await requireAuth();
+  /* 어떤 글에 어떤 작업물을 붙일지는 그 글에 대한 쓰기다 — 자기 글만. */
+  const { supabase, error: authError } = await requirePostAccess("posts", id);
   if (authError) return authError;
 
-  const admin = createAdminClient();
-  const { data: rels, error: relErr } = await admin
+  const { data: rels, error: relErr } = await supabase
     .from("post_work_relations")
     .select("work_id")
     .eq("post_id", id);
@@ -26,7 +25,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const workIds = (rels ?? []).map((r) => r.work_id as string);
   if (workIds.length === 0) return NextResponse.json({ items: [] });
 
-  const { data: works } = await admin
+  const { data: works } = await supabase
     .from("works")
     .select("id, title, year, image, published, deleted_at")
     .in("id", workIds)
@@ -50,7 +49,8 @@ export async function GET(_request: Request, context: RouteContext) {
  */
 export async function PUT(request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const { error: authError } = await requireAuth();
+  /* 어떤 글에 어떤 작업물을 붙일지는 그 글에 대한 쓰기다 — 자기 글만. */
+  const { supabase, error: authError } = await requirePostAccess("posts", id);
   if (authError) return authError;
 
   const body = await request.json();
@@ -58,15 +58,14 @@ export async function PUT(request: Request, context: RouteContext) {
     ? body.workIds.filter((x: unknown) => typeof x === "string")
     : [];
 
-  const admin = createAdminClient();
 
   // 1) 기존 관계 모두 삭제
-  await admin.from("post_work_relations").delete().eq("post_id", id);
+  await supabase.from("post_work_relations").delete().eq("post_id", id);
 
   // 2) 새 관계 일괄 insert
   if (workIds.length > 0) {
     const rows = workIds.map((workId) => ({ post_id: id, work_id: workId }));
-    const { error } = await admin.from("post_work_relations").insert(rows);
+    const { error } = await supabase.from("post_work_relations").insert(rows);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

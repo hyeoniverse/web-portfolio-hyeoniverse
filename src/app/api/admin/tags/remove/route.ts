@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 
-/** POST /api/admin/tags/remove — 모든 게시물의 tags[] 에서 특정 tag 제거 (admin 전용).
+/** POST /api/admin/tags/remove — 게시물의 tags[] 에서 특정 tag 제거.
+ *  범위는 정책이 정한다 — owner/admin 은 전체, 저자는 자기 글만.
  *  body: { tag: string }
  *  return: { affected: number }  // 영향 받은 post 수 */
 export async function POST(req: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const body = (await req.json().catch(() => ({}))) as { tag?: string };
@@ -15,9 +15,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "tag required" }, { status: 400 });
   }
 
-  const admin = createAdminClient();
-  /* 해당 tag 를 포함한 모든 post fetch (admin so includes private/unpublished) */
-  const { data, error } = await admin
+  /* 세션 클라이언트로 읽고 쓴다 — 정책이 등급별 범위를 정한다.
+     owner/admin 은 전체, 저자는 자기 글에서만 태그가 빠진다. */
+  const { data, error } = await supabase
     .from("posts")
     .select("id, tags")
     .contains("tags", [tag]);
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
   let affected = 0;
   for (const u of updates) {
-    const { error: updateErr } = await admin
+    const { error: updateErr } = await supabase
       .from("posts")
       .update({ tags: u.tags })
       .eq("id", u.id);

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonServerError } from "@/lib/api/response";
 
@@ -12,8 +12,9 @@ export async function GET(_request: Request, context: RouteContext) {
   const { calendarId } = await context.params;
   if (!calendarId) return jsonError("Invalid calendar id");
   try {
-    const admin = createAdminClient();
-    const { data, error } = await admin
+    /* 공개 경로(리더의 달력 블록)라 세션이 없을 수 있다. calendars_public_read 가 읽기를 허용한다. */
+    const supabase = await createClient();
+    const { data, error } = await supabase
       .from("calendars")
       .select("id, title, data, deleted_at")
       .eq("id", calendarId)
@@ -30,7 +31,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
 // PUT /api/calendars/[calendarId] — 달력 저장 (admin). body: { data?, title? }
 export async function PUT(request: Request, context: RouteContext) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
   const { calendarId } = await context.params;
   if (!calendarId) return jsonError("Invalid calendar id");
@@ -41,11 +42,10 @@ export async function PUT(request: Request, context: RouteContext) {
     return jsonError("Invalid body");
   }
   try {
-    const admin = createAdminClient();
     const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (body.data && typeof body.data === "object") patch.data = body.data;
     if (typeof body.title === "string") patch.title = body.title;
-    const { error } = await admin.from("calendars").update(patch).eq("id", calendarId);
+    const { error } = await supabase.from("calendars").update(patch).eq("id", calendarId);
     if (error) throw error;
     return NextResponse.json({ ok: true });
   } catch (e) {
@@ -57,14 +57,13 @@ export async function PUT(request: Request, context: RouteContext) {
 // deleted_at + purge_after(30일) 세팅. 참조 블록은 GET 의 deleted 플래그로 "연결 끊김" 표시.
 // 복구는 /restore, 영구삭제는 /purge, 30일 후 cron 이 hard delete.
 export async function DELETE(_request: Request, context: RouteContext) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
   const { calendarId } = await context.params;
   if (!calendarId) return jsonError("Invalid calendar id");
   try {
-    const admin = createAdminClient();
     const purgeAfter = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    const { error } = await admin
+    const { error } = await supabase
       .from("calendars")
       .update({ deleted_at: new Date().toISOString(), purge_after: purgeAfter })
       .eq("id", calendarId);

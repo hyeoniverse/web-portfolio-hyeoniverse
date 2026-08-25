@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireOwner } from "@/lib/api/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { listMembers } from "@/lib/api/members";
-import { getUserRole } from "@/lib/api/roles";
+import { getUserRole, parsePermissionLevelInput } from "@/lib/api/roles";
 
 /** 관리자 멤버 목록 (인증된 사용자 + 대기중 초대). owner 전용. (이슈 #334) */
 export async function GET() {
@@ -21,7 +21,7 @@ export async function PATCH(request: Request) {
 
   const body = await request.json().catch(() => null);
   const id = typeof body?.id === "string" ? body.id : "";
-  const level = typeof body?.permission_level === "number" ? body.permission_level : null;
+  const level = parsePermissionLevelInput(body?.permission_level);
   const authorId = typeof body?.author_id === "string" && body.author_id ? body.author_id : undefined;
   if (!id || level == null) {
     return NextResponse.json({ error: "id and permission_level required" }, { status: 400 });
@@ -41,6 +41,20 @@ export async function PATCH(request: Request) {
     app_metadata: { ...meta, role: "author", permission_level: level, ...(authorId ? { author_id: authorId } : {}) },
   });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  /* 권한이 바뀐 계정에 알린다. 그 계정의 브라우저 세션에는 아직 예전 권한이 담겨 있어
+     화면이 뒤처진다(서버 판정은 요청마다 getUser() 로 하므로 영향 없음).
+     권한을 바꾼 사람과 영향을 받는 사람이 달라 응답으로는 전달할 수 없어 broadcast 를 쓴다.
+     실패해도 권한 변경 자체는 끝났으므로 요청을 실패시키지 않는다. */
+  try {
+    const ch = admin.channel(`perm:${id}`);
+    await ch.subscribe();
+    await ch.send({ type: "broadcast", event: "changed", payload: {} });
+    await admin.removeChannel(ch);
+  } catch {
+    /* 알림 실패는 무시 — 대상 화면은 다음 새로고침이나 로그인 때 갱신된다 */
+  }
+
   return NextResponse.json({ ok: true });
 }
 
