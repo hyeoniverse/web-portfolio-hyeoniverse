@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { SiGithub } from "react-icons/si";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { Star, GitFork, ExternalLink, ArrowUpRight } from "@/components/icons";
 import type { GithubShowcase } from "@/lib/githubShowcase";
-import { useInViewOnce, useCountUp } from "./useGithubPanelMotion";
+import { useGithubPanelMotion } from "./useGithubPanelMotion";
 import styles from "./ProfileGithub.module.css";
 
 /** 표시할 주 사용 언어 개수 — 꼬리 언어까지 늘어놓으면 지표가 아니라 목록이 된다. */
@@ -35,16 +35,22 @@ function yearsSince(iso: string): number {
   return Math.max(0, Math.floor((Date.now() - d.getTime()) / (365.25 * 24 * 3600 * 1000)));
 }
 
-/** 보일 때 0 에서 올라가는 지표 한 칸. 훅을 쓰므로 항목마다 컴포넌트로 나눈다. */
+/** 지표 한 칸. 숫자는 훅이 ref 로 직접 채운다 — 프레임마다 렌더하지 않는다. */
 function CountedStat({
-  label, target, suffix, run, className = "",
-}: { label: string; target: number; suffix?: string; run: boolean; className?: string }) {
-  const value = useCountUp(target, run);
+  label, target, suffix, className = "", registerCount,
+}: {
+  label: string;
+  target: number;
+  suffix?: string;
+  className?: string;
+  registerCount: (target: number) => (el: HTMLElement | null) => void;
+}) {
   return (
     <div className={`${styles.stat} ${className}`}>
       <dt className={styles.statLabel}>{label}</dt>
       <dd className={styles.statValue}>
-        {value.toLocaleString()}
+        {/* 초기값 0 — 연출이 시작되면 훅이 여기에 숫자를 써 넣는다. */}
+        <span ref={registerCount(target)}>0</span>
         {suffix && <span className={styles.statSuffix}>{suffix}</span>}
       </dd>
     </div>
@@ -82,11 +88,7 @@ export default function ProfileGithub({
   /* 막대가 자라고 숫자가 올라가는 연출은 한 번만 돈다.
      신호는 두 갈래다 — 데스크톱 가로 스크롤은 부모가 주는 active, 모바일 세로 스크롤은
      화면에 들어왔는지(IntersectionObserver). 둘 중 먼저 오는 쪽으로 시작하고 되돌리지 않는다. */
-  const { ref: rootRef, inView } = useInViewOnce<HTMLDivElement>();
-  const [entered, setEntered] = useState(false);
-  useEffect(() => {
-    if (active || inView) setEntered(true);
-  }, [active, inView]);
+  const { rootRef, registerCount } = useGithubPanelMotion<HTMLDivElement>(active);
   /* 범례에 커서를 올리면 그 언어의 막대 구간만 남기고 나머지를 죽인다 — 어느 조각인지 잇는다. */
   const [hoveredLang, setHoveredLang] = useState<string | null>(null);
 
@@ -98,13 +100,12 @@ export default function ProfileGithub({
      짧은 조각은 기어가고 긴 조각은 튀어서 "쌓인다" 는 느낌이 깨진다. */
   const langTimings = (() => {
     const sum = languages.reduce((acc, l) => acc + l.percent, 0) || 1;
-    let acc = 0;
-    return languages.map((l) => {
-      const duration = (l.percent / sum) * LANG_FILL_MS;
-      const delay = acc;
-      acc += duration;
-      return { delay, duration };
-    });
+    /* 앞 조각들의 길이 합이 곧 이 조각의 시작 시각이다. 누적 변수를 두고 더해 가면
+       렌더 밖에서 값이 바뀌는 꼴이 돼 컴파일러가 최적화를 포기한다 — 매번 앞을 다시 센다. */
+    return languages.map((l, i) => ({
+      delay: languages.slice(0, i).reduce((acc, prev) => acc + (prev.percent / sum) * LANG_FILL_MS, 0),
+      duration: (l.percent / sum) * LANG_FILL_MS,
+    }));
   })();
   const langFillEndMs = langTimings.length
     ? langTimings[langTimings.length - 1].delay + langTimings[langTimings.length - 1].duration
@@ -128,7 +129,6 @@ export default function ProfileGithub({
     <div
       ref={rootRef}
       className={styles.section}
-      data-in={entered ? "true" : undefined}
       aria-labelledby="profile-github-heading"
     >
       {/* 제목과 링크에 각각 animate 를 건다. 묶음(.head)에 한 번만 걸면 둘이 한 덩어리로
@@ -154,7 +154,7 @@ export default function ProfileGithub({
       {!isPinned && (
       <dl className={styles.stats}>
         {counted.map((c) => (
-          <CountedStat key={c.label} label={c.label} target={c.target} suffix={c.suffix} run={entered} className={animateClass} />
+          <CountedStat key={c.label} label={c.label} target={c.target} suffix={c.suffix} className={animateClass} registerCount={registerCount} />
         ))}
         {lastPushed && (
           <div className={`${styles.stat} ${animateClass}`}>

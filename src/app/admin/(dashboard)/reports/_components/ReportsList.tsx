@@ -12,6 +12,7 @@ import { SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import AdminListShell from "@/components/admin/AdminListShell";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
+import ReportDetail from "./ReportDetail";
 import styles from "../Reports.module.css";
 import type { Report, StatusFilter } from "../_types";
 
@@ -47,12 +48,28 @@ function ReportsSkeleton() {
  * showTitle=true  → 독립 페이지: 제목 헤더(Flag + pending 배지) + 필터를 한 줄에.
  * showTitle=false → 임베드(탭 안): 제목 없이 필터 행만. 페이지 title/container 는 부모가 책임.
  */
-export default function ReportsList({ showTitle = false }: { showTitle?: boolean }) {
+export default function ReportsList({
+  showTitle = false,
+  filter: controlledFilter,
+  onFilterChange,
+}: {
+  showTitle?: boolean;
+  /** 상태 필터를 부모가 쥘 때 — 알림 페이지는 탭의 하위 세그먼트로 이 필터를 그린다.
+   *  주면 여기서는 필터 UI 를 그리지 않는다. 같은 필터가 두 벌 보이면 안 된다. */
+  filter?: StatusFilter;
+  onFilterChange?: (v: StatusFilter) => void;
+}) {
   const { language, t } = useLanguage();
   const { openModal } = useModalStore();
   const [reports, setReports] = useState<Report[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
-  const [filter, setFilter] = useState<StatusFilter>("pending");
+  const [statusCounts, setStatusCounts] = useState<Record<StatusFilter, number>>({
+    pending: 0, resolved: 0, dismissed: 0, all: 0,
+  });
+  const [ownFilter, setOwnFilter] = useState<StatusFilter>("pending");
+  const controlled = controlledFilter !== undefined;
+  const filter = controlled ? controlledFilter : ownFilter;
+  const setFilter = controlled ? (onFilterChange ?? (() => {})) : setOwnFilter;
   const [loading, setLoading] = useState(true);
 
   const fetchReports = useCallback(async () => {
@@ -63,6 +80,7 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
         const data = await res.json();
         setReports(data.reports ?? []);
         setPendingCount(data.pendingCount ?? 0);
+        setStatusCounts(data.statusCounts ?? { pending: 0, resolved: 0, dismissed: 0, all: 0 });
       }
     } catch {
       setReports([]);
@@ -129,13 +147,28 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
     return `${base}/${r.comment.parentSlug}#comment-${r.comment_id}`;
   };
 
+  /** 행 클릭 → 상세. 목록에서는 본문이 잘리고 사유·처리 이력은 보이지 않는다. */
+  const openDetail = (r: Report) => {
+    openModal(
+      <ReportDetail
+        report={r}
+        icon={<Flag size={18} strokeWidth={1.6} aria-hidden />}
+        url={commentUrl(r)}
+        onResolve={() => updateStatus(r.id, "resolved")}
+        onDismiss={() => updateStatus(r.id, "dismissed")}
+        onDeleteComment={() => confirmDeleteComment(r)}
+      />,
+      { id: "report-detail", header: { title: t("admin.reports.detailTitle") }, closeButton: true, width: "520px" },
+    );
+  };
+
   const filterControl = (
     <SegmentedControl<StatusFilter>
       items={[
-        { value: "pending", label: <T k="admin.reports.filter.pending" /> },
-        { value: "resolved", label: <T k="admin.reports.filter.resolved" /> },
-        { value: "dismissed", label: <T k="admin.reports.filter.dismissed" /> },
-        { value: "all", label: <T k="admin.reports.filter.all" /> },
+        { value: "pending", label: <><T k="admin.reports.filter.pending" /> <span className={styles.tabCount}>{statusCounts.pending}</span></> },
+        { value: "resolved", label: <><T k="admin.reports.filter.resolved" /> <span className={styles.tabCount}>{statusCounts.resolved}</span></> },
+        { value: "dismissed", label: <><T k="admin.reports.filter.dismissed" /> <span className={styles.tabCount}>{statusCounts.dismissed}</span></> },
+        { value: "all", label: <><T k="admin.reports.filter.all" /> <span className={styles.tabCount}>{statusCounts.all}</span></> },
       ]}
       value={filter}
       onChange={setFilter}
@@ -152,7 +185,18 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
         const url = commentUrl(r);
         return (
           <li key={r.id} className={`${styles.item} ${styles[`status_${r.status}`] ?? ""}`}>
-            <div className={styles.itemMain}>
+            {/* 본문 쪽만 클릭 대상 — 우측 조작 버튼까지 상세로 열리면 처리하려다 모달이 뜬다 */}
+            <div
+              className={`${styles.itemMain} ${styles.itemMainClickable}`}
+              role="button"
+              tabIndex={0}
+              data-clickable="true"
+              title={t("admin.reports.tipItemDetail")}
+              onClick={() => openDetail(r)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(r); }
+              }}
+            >
               <div className={styles.itemHeader}>
                 <span className={styles.itemType}>
                   {r.comment_type === "post" ? <T k="admin.reports.fromPost" /> : <T k="admin.reports.fromWork" />}
@@ -212,7 +256,7 @@ export default function ReportsList({ showTitle = false }: { showTitle?: boolean
   if (!showTitle) {
     return (
       <>
-        <div className={styles.reportsFilterRow}>{filterControl}</div>
+        {!controlled && <div className={styles.reportsFilterRow}>{filterControl}</div>}
         {body}
       </>
     );

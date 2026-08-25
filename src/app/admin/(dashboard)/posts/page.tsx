@@ -134,7 +134,10 @@ export default function AdminPostsPage() {
   /* handleTogglePublished 는 useCallback 이라 guardWritable 을 의존성에 넣으면 매 렌더 재생성된다.
      ref 로 최신 함수만 참조한다. */
   const guardWritableRef = useRef<(post: Post) => boolean>(() => false);
-  guardWritableRef.current = (post) => guardWritable([post]);
+  /* 쓰기는 렌더가 끝난 뒤에 한다 — 렌더 중에 ref 를 건드리면 동시 렌더에서 값이 엇갈린다. */
+  useEffect(() => {
+    guardWritableRef.current = (post) => guardWritable([post]);
+  });
 
   /** id 목록을 현재 목록/휴지통에서 Post 로 되돌린다 — 일괄 작업이 id 만 넘기기 때문. */
   const postsByIds = (ids: string[]): Post[] => {

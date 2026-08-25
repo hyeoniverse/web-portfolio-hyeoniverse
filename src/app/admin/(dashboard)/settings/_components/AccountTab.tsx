@@ -373,9 +373,9 @@ export default function AccountTab({
             <span className={styles.devicesCount}>{devices.length}</span>
           </div>
           {devicesLoading ? (
-            <EmptyState size="xs" pad="none" align="start"><T k="admin.settings.devicesLoading" /></EmptyState>
+            <EmptyState size="xs" pad="none"><T k="admin.settings.devicesLoading" /></EmptyState>
           ) : devices.length === 0 ? (
-            <EmptyState size="xs" pad="none" align="start"><T k="admin.settings.devicesEmpty" /></EmptyState>
+            <EmptyState size="xs" pad="none"><T k="admin.settings.devicesEmpty" /></EmptyState>
           ) : (
             <ul className={styles.devicesList}>
               {devices.map((d) => {
