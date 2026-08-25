@@ -77,11 +77,13 @@ function WorkEditorSkeleton() {
   );
 }
 
+type LoadFailure = { status: number; reason: string };
+
 export default function EditWorkPage() {
   const params = useParams();
   const [work, setWork] = useState<Work | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [failure, setFailure] = useState<LoadFailure | null>(null);
   const { setInfinite } = useLenis();
 
   useEffect(() => {
@@ -90,9 +92,11 @@ export default function EditWorkPage() {
 
   useEffect(() => {
     async function load() {
+      /* 응답 코드를 구분한다 — 권한이 없어 403 이 온 경우를 "없는 작품" 으로 그리면 안 된다. */
       const res = await fetch(`/api/works/${params.id}`);
       if (!res.ok) {
-        setError("Work not found");
+        const body = await res.json().catch(() => ({}));
+        setFailure({ status: res.status, reason: body?.reason || body?.error || "" });
         setLoading(false);
         return;
       }
@@ -107,10 +111,13 @@ export default function EditWorkPage() {
     return <WorkEditorSkeleton />;
   }
 
-  if (error || !work) {
+  if (failure || !work) {
+    const denied = failure?.status === 403;
     return (
       <AdminNotFound
-        title={error || "작품을 찾을 수 없습니다"}
+        variant={denied ? "denied" : "notFound"}
+        title={denied ? "이 작품에 접근할 권한이 없습니다" : "작품을 찾을 수 없습니다"}
+        description={failure?.reason || undefined}
         backHref="/admin/works"
         backLabel="작품 목록으로"
       />

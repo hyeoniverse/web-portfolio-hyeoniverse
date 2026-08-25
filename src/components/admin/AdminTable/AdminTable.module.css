@@ -41,9 +41,11 @@
   padding-inline: var(--page-px);
   padding-block: var(--spacing-sm);
   margin-bottom: var(--spacing-xs);
-  /* filter 바(StickyGlassBar, 56px) '아래'에 stack. */
+  /* filter 바(StickyGlassBar) '아래'에 stack.
+     높이는 StickyGlassBar 가 --sticky-bar-h 로 실측해 알려 준다. 고정값(56px)을 쓰면
+     좁은 화면에서 필터 바가 두 줄로 늘어날 때 이 바가 그 뒤로 깔린다. */
   position: sticky;
-  top: calc(var(--header-height) + 56px);
+  top: calc(var(--header-height) + var(--sticky-bar-h, 56px));
   z-index: calc(var(--z-nav) - 1);
   /* frost 는 요소에 직접 backdrop-filter — ::before + z-index:-1 로 두면 z-index 스택 컨텍스트(z:99)
      안에 격리돼 형제인 테이블 '행'을 backdrop 으로 못 잡아 blur 가 안 걸린다(오른쪽 셀만 선명해지는 원인).
@@ -547,6 +549,11 @@
     justify-content: center;
     background: var(--bg-primary);
     z-index: 1;
+    /* hover 외곽선(1.5px + offset 2px)이 들어갈 자리.
+       이 열은 left:0 에 붙어 있고 .table 이 overflow-x:auto 라, 셀 밖으로 나간 외곽선은
+       스크롤 컨테이너가 잘라 낸다. 열 너비가 max-content 라 패딩만큼 열이 넓어질 뿐
+       체크박스가 눌리지는 않는다. */
+    padding-inline: var(--spacing-xs);
   }
 
   .row .colCheck {
@@ -590,4 +597,17 @@
   .deleteBtn {
     padding: var(--box-sm);
   }
+}
+
+/* 권한이 없어 다룰 수 없는 행.
+   행 전체를 흐리게 하지 않는다 — 내용까지 읽기 어려워지고 왜 흐린지도 드러나지 않는다.
+   대신 체크박스 자리를 자물쇠로 바꿔(colCheckLocked) 무엇이 막혔는지 한 곳에서 보이게 한다. */
+.rowDisabled {
+  cursor: not-allowed;
+}
+
+/* 체크박스 자리의 자물쇠 — 선택 열의 정렬·너비를 그대로 유지한다 */
+.colCheckLocked {
+  color: var(--text-tertiary);
+  cursor: not-allowed;
 }

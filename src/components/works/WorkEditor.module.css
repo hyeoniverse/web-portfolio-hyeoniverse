@@ -1505,3 +1505,70 @@
     flex-wrap: wrap;
   }
 }
+
+/* ── 팀원 ↔ 사이트 멤버 연결 ─────────────────────────────── */
+/* 연결한 계정은 이 작업물의 편집자가 된다 — 권한을 다루는 자리라 눈에 띄게 둔다. */
+.memberLinkRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.memberLinkLabel {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.memberLinkChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}
+
+.memberLinkChipAvatar {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-circle);
+  object-fit: cover;
+  font-size: var(--font-size-2xs);
+}
+
+/* 다른 팀원이 이미 쓰고 있는 계정 — 눌러도 되지만 왜 안 되는지 먼저 보이게 */
+.memberLinkChipTaken {
+  opacity: 0.45;
+}
+
+.memberLinkHint {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  color: var(--text-accent);
+  line-height: var(--line-height-snug);
+}
+
+/* 이름 + 연결 배지 한 줄 */
+.memberNameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  flex-wrap: wrap;
+}
+
+.memberLinkedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: var(--box-3xs-xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  white-space: nowrap;
+}

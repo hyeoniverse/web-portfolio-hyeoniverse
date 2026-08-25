@@ -20,6 +20,8 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import Button from "@/components/ui/Button";
 import ButtonGroup from "@/components/ui/ButtonGroup";
 import HelpButton from "@/components/ui/HelpButton";
+import AccessRequestModal from "@/components/admin/AccessRequestModal";
+import { useMyRole } from "@/hooks/useMyRole";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
@@ -104,6 +106,36 @@ function PreviewTooltip({
 }
 
 export default function AdminWorksPage() {
+  /* 목록은 로그인한 멤버 누구나 본다. 편집만 막는다 — 관리자이거나 그 작업물의 팀원이어야 한다.
+     서버의 requirePostAccess 와 works_admin_update 정책이 같은 규칙(can_edit_work)을 쓴다.
+     여기서 막는 것은 표시용이고, 인가 자체는 서버와 정책이 한다. */
+  const myRole = useMyRole();
+  const canEdit = (w: Work) => myRole.canEditWork(w.team_members);
+
+  /** 편집할 수 없는 작업물 — 이유를 알리고 팀원 등록을 요청할 수 있게 한다. */
+  const openDeniedModal = (blocked: Work[]) => {
+    openModal(
+      <AccessRequestModal
+        endpoint="works"
+        desc={t("admin.works.noPermissionDesc")}
+        targets={blocked.map((w) => ({ id: w.id, title: w.title || t("admin.works.untitled") }))}
+      />,
+      { id: "no-permission", header: { title: t("admin.works.noPermissionTitle") }, closeButton: true, width: "440px" },
+    );
+  };
+  /** id 목록을 현재 목록/휴지통에서 Work 로 되돌린다 — 일괄 작업이 id 만 넘기기 때문. */
+  const worksByIds = (ids: string[]): Work[] => {
+    const all = [...works, ...trashWorks];
+    return ids.map((id) => all.find((w) => w.id === id)).filter((w): w is Work => Boolean(w));
+  };
+
+  const guardWritable = (targets: Work[]): boolean => {
+    if (myRole.loading) return false;
+    const blocked = targets.filter((w) => !canEdit(w));
+    if (blocked.length === 0) return true;
+    openDeniedModal(blocked);
+    return false;
+  };
   const { t, language } = useLanguage();
   const siteConf = useSiteConfig();
   const router = useRouter();
@@ -321,8 +353,18 @@ export default function AdminWorksPage() {
     fetchTrash();
   };
 
+  /* handleMove 는 useCallback 이라 guardWritable 을 의존성에 넣으면 매 렌더 재생성된다.
+     ref 로 최신 함수만 참조한다. */
+  const guardMoveRef = useRef<(w: Work) => boolean>(() => false);
+  guardMoveRef.current = (w) => guardWritable([w]);
+
   const handleDragReorder = async (fromIdx: number, toIdx: number) => {
     if (fromIdx === toIdx) return;
+
+    /* 끌어 놓기는 옮긴 항목만이 아니라 그 사이 구간 전체의 sort_order 를 다시 매긴다.
+       구간에 편집할 수 없는 작업물이 하나라도 있으면 그 행의 쓰기가 서버에서 막혀
+       순서가 어긋난 채로 남는다. 구간 전체가 가능할 때만 진행한다. */
+    if (!guardWritable(works.slice(Math.min(fromIdx, toIdx), Math.max(fromIdx, toIdx) + 1))) return;
 
     // page-position 기반 dense sort_order 재할당 — 기존 값에 0/duplicate 가 있어도 자동 정리.
     // 페이지 N (1-indexed) 의 row idx 의 global sort_order = (N-1)*perPage + idx + 1
@@ -363,6 +405,7 @@ export default function AdminWorksPage() {
       서버가 다른 work 들 shift 처리 (skipShift=false) */
   const handleMove = useCallback(async (target: Work, newOrder: number) => {
     if (newOrder === target.sort_order) return;
+    if (!guardMoveRef.current(target)) return;
     await fetch(`/api/works/${target.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -475,6 +518,7 @@ export default function AdminWorksPage() {
       moveToBottom: t("admin.common.moveToBottom"),
       apply: t("admin.common.apply"),
       exportItem: t("admin.works.exportMd"),
+      noPermission: t("admin.works.noPermissionRow"),
     }),
     [t],
   );
@@ -775,8 +819,12 @@ icon: 🎨
         columns={columns}
         editBasePath="/admin/works"
         getTitle={(w) => w.title || t("admin.works.untitled")}
-        onDelete={handleDelete}
+        onDelete={async (id) => {
+          if (!guardWritable(worksByIds([id]))) return;
+          await handleDelete(id);
+        }}
         onBulkExport={async (ids) => {
+          if (!guardWritable(worksByIds(ids))) return;
           for (const id of ids) {
             const res = await fetch(`/api/works/export?id=${id}`);
             if (!res.ok) continue;
@@ -789,6 +837,7 @@ icon: 🎨
           }
         }}
         onBulkPublish={async (ids, published) => {
+          if (!guardWritable(worksByIds(ids))) return;
           await Promise.all(ids.map((id) =>
             fetch(`/api/works/${id}`, {
               method: "PATCH",
@@ -802,6 +851,7 @@ icon: 🎨
           {
             label: t("admin.common.changeCategory"),
             onClick: (ids) => {
+              if (!guardWritable(worksByIds(ids))) return;
               openModal(
                 <BulkCategoryModal
                   count={ids.length}
@@ -850,7 +900,9 @@ icon: 🎨
         onPageChange={setPage}
         onRowHover={handleRowHover}
         onRowLeave={handleRowLeave}
-        onRowClick={handleRowClick}
+        onRowClick={(w: Work, e) => { if (guardWritable([w])) handleRowClick(w, e); }}
+        rowDisabled={(w: Work) => !canEdit(w)}
+        onDenied={(w: Work) => openDeniedModal([w])}
         footerExtra={
           <Button variant="ghost" size="xs" title={t("admin.works.exportMdAll")} onClick={handleExportAll} disabled={exporting} soundDisabled icon={<Download size={14} />}>
             {exporting ? "..." : t("admin.works.exportMdAll")}
