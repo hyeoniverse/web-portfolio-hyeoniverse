@@ -52,6 +52,8 @@ export default function AccountTab({
   onCancelPendingEmail,
   passwordPolicy,
   onPasswordPolicyChange,
+  hasPassword,
+  isOwner,
 }: AccountTabProps) {
   const { t, language } = useLanguage();
   const router = useRouter();
@@ -242,10 +244,12 @@ export default function AccountTab({
 
       <section className={shared.section}>
         <h2 className={shared.sectionTitle}><T k="admin.settings.email" /></h2>
-        <ul className={shared.sectionHintList}>
-          <li><T k="admin.settings.secureEmailChangeHint1" /></li>
-          <li><T k="admin.settings.secureEmailChangeHint2" /></li>
-        </ul>
+        {hasPassword && (
+          <ul className={shared.sectionHintList}>
+            <li><T k="admin.settings.secureEmailChangeHint1" /></li>
+            <li><T k="admin.settings.secureEmailChangeHint2" /></li>
+          </ul>
+        )}
 
         {pendingEmail && (
           <div className={styles.pendingEmailBanner}>
@@ -278,61 +282,80 @@ export default function AccountTab({
 
         <div className={shared.fields}>
           <FieldRow label={<T k="admin.settings.currentEmail" />}>
-            <span className={styles.fieldValue}>{accountEmail}</span>
+            <span className={styles.identityRow}>
+              <span className={styles.fieldValue}>{accountEmail}</span>
+              <span className={styles.meChip}><T k="admin.settings.meChip" /></span>
+            </span>
           </FieldRow>
-          <Field
-            label={t("admin.settings.newEmail")}
-            value={accountNewEmail}
-            onChange={setAccountNewEmail}
-            placeholder={t("admin.settings.newEmailPlaceholder")}
-          />
+          {hasPassword ? (
+            <Field
+              label={t("admin.settings.newEmail")}
+              value={accountNewEmail}
+              onChange={setAccountNewEmail}
+              placeholder={t("admin.settings.newEmailPlaceholder")}
+            />
+          ) : (
+            <p className={shared.sectionHint}><T k="admin.settings.oauthOnlyEmailHint" /></p>
+          )}
         </div>
       </section>
 
-      <section className={shared.section}>
-        <h2 className={shared.sectionTitle}><T k="admin.settings.password" /></h2>
-        <ul className={shared.sectionHintList}>
-          <li><T k="admin.settings.securePasswordChangeHint" /></li>
-          <li>
-            {passwordPolicy === "secure"
-              ? <T k="admin.settings.passwordRuleSecure" />
-              : <T k="admin.settings.passwordRuleDefault" />
-            }
-          </li>
-        </ul>
-        <div className={shared.fields}>
-          <div className={shared.fieldPair}>
-            <FieldRow label={<T k="admin.settings.passwordPolicyLabel" />}>
-              <Select
-                value={passwordPolicy}
-                options={[
-                  { value: "secure", label: t("admin.settings.passwordPolicySecure") },
-                  { value: "default", label: t("admin.settings.passwordPolicyDefault") },
-                ]}
-                onChange={onPasswordPolicyChange}
-              />
-            </FieldRow>
+      {/* 비밀번호 없는 계정(GitHub 전용)에는 변경 폼을 그리지 않는다. 정책 셀렉트는 개인 설정이
+          아니라 사이트 전역 설정이라 소유자에게만 보인다 — 서버도 비소유자 쓰기를 403 으로 막는다. */}
+      {(hasPassword || isOwner) && (
+        <section className={shared.section}>
+          <h2 className={shared.sectionTitle}><T k="admin.settings.password" /></h2>
+          {hasPassword && (
+            <ul className={shared.sectionHintList}>
+              <li><T k="admin.settings.securePasswordChangeHint" /></li>
+              <li>
+                {passwordPolicy === "secure"
+                  ? <T k="admin.settings.passwordRuleSecure" />
+                  : <T k="admin.settings.passwordRuleDefault" />
+                }
+              </li>
+            </ul>
+          )}
+          <div className={shared.fields}>
+            {isOwner && (
+              <div className={shared.fieldPair}>
+                <FieldRow label={<T k="admin.settings.passwordPolicyLabel" />}>
+                  <Select
+                    value={passwordPolicy}
+                    options={[
+                      { value: "secure", label: t("admin.settings.passwordPolicySecure") },
+                      { value: "default", label: t("admin.settings.passwordPolicyDefault") },
+                    ]}
+                    onChange={onPasswordPolicyChange}
+                  />
+                </FieldRow>
+              </div>
+            )}
+            {hasPassword ? (
+              <div className={shared.fieldPair}>
+                <FieldRow label={<T k="admin.settings.newPassword" />}>
+                  <Input
+                    type="password"
+                    value={accountPassword}
+                    onChange={setAccountPassword}
+                    placeholder={t("admin.settings.leaveBlank")}
+                  />
+                </FieldRow>
+                <FieldRow label={<T k="admin.settings.confirmPassword" />}>
+                  <Input
+                    type="password"
+                    value={accountConfirm}
+                    onChange={setAccountConfirm}
+                    placeholder={t("admin.settings.confirmPlaceholder")}
+                  />
+                </FieldRow>
+              </div>
+            ) : (
+              <p className={shared.sectionHint}><T k="admin.settings.oauthOnlyPasswordHint" /></p>
+            )}
           </div>
-          <div className={shared.fieldPair}>
-            <FieldRow label={<T k="admin.settings.newPassword" />}>
-              <Input
-                type="password"
-                value={accountPassword}
-                onChange={setAccountPassword}
-                placeholder={t("admin.settings.leaveBlank")}
-              />
-            </FieldRow>
-            <FieldRow label={<T k="admin.settings.confirmPassword" />}>
-              <Input
-                type="password"
-                value={accountConfirm}
-                onChange={setAccountConfirm}
-                placeholder={t("admin.settings.confirmPlaceholder")}
-              />
-            </FieldRow>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Security — sessions / devices */}
       <section className={`${shared.section} ${shared.sectionWide}`}>
@@ -350,9 +373,9 @@ export default function AccountTab({
             <span className={styles.devicesCount}>{devices.length}</span>
           </div>
           {devicesLoading ? (
-            <EmptyState size="xs" pad="none"><T k="admin.settings.devicesLoading" /></EmptyState>
+            <EmptyState size="xs" pad="none" align="start"><T k="admin.settings.devicesLoading" /></EmptyState>
           ) : devices.length === 0 ? (
-            <EmptyState size="xs" pad="none"><T k="admin.settings.devicesEmpty" /></EmptyState>
+            <EmptyState size="xs" pad="none" align="start"><T k="admin.settings.devicesEmpty" /></EmptyState>
           ) : (
             <ul className={styles.devicesList}>
               {devices.map((d) => {

@@ -1,31 +1,42 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import type { Outcome } from "../_types";
-import { Plus, Trash2, Pencil, Clock, UserPlus } from "@/components/icons";
+import { Check, Clock, Pencil, Plus, Trash2, UserPlus } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { RoleBadge, ProviderChips } from "@/components/admin/MemberBadges";
 import type { Author } from "@/types/author";
-import type { Member, MembersResponse, PendingMember } from "@/types/member";
+import type { SaveResult } from "../_types";
+import { ModalAlert } from "@/components/ui/ModalTemplates";
+import type { Member, MemberRole, MembersResponse, PendingMember } from "@/types/member";
 import MemberEditModal from "./MemberEditModal";
 import MemberDetailModal from "./MemberDetailModal";
 import shared from "../Settings.module.css";
 import local from "./AuthorsEditor.module.css";
 const styles = { ...shared, ...local };
 import mStyles from "@/components/admin/MembersList.module.css";
+import AuthorAvatar from "@/components/ui/AuthorAvatar";
 
 interface Props {
   authors: Author[];
   onChange: (authors: Author[]) => void;
+  /**
+   * 저자 목록을 그 자리에서 저장한다.
+   *
+   * 이 화면의 다른 설정은 값을 고친 뒤 섹션 저장을 누르는 흐름이다. 그런데 멤버는 모달에서
+   * "저장" 을 이미 누른 상태라, 밖에서 한 번 더 눌러야 실제로 저장되는 게 드러나지 않는다.
+   * 모달의 저장이 곧 저장이 되도록 여기서 바로 넘긴다.
+   */
+  onPersist?: (authors: Author[]) => Promise<SaveResult>;
 }
 
 /** 멤버 관리 (이슈 #334) — 작성자 프로필 + 로그인 접근을 리스트로 표시.
  *  owner = 전체 관리(추가/초대/권한/삭제). 비owner = 목록 열람 + 본인 프로필만 수정.
  *  작성자 프로필과 연결 안 된 로그인 계정도 별도 그룹 없이 같은 멤버 리스트에 통합 표시(등록/삭제 인라인). */
-export default function AuthorsEditor({ authors, onChange }: Props) {
+export default function AuthorsEditor({ authors, onChange, onPersist }: Props) {
   const { language } = useLanguage();
   const L = (ko: string, en: string) => (language === "ko" ? ko : en);
   const { openModal } = useModalStore();
@@ -42,6 +53,8 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
     ownerAvatar: string | null;
     memberAuthorIds: string[];
     memberEmails: string[]; // 소문자
+    /** 가입한 멤버의 등급 — 비owner 도 각 행에 배지를 그릴 수 있게. (email 은 소문자) */
+    memberRoles?: { authorId: string | null; email: string | null; role: MemberRole }[];
   }
   const [ctx, setCtx] = useState<Ctx | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
@@ -111,6 +124,11 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
   const isMineMember = (m: Member) =>
     !!ctx?.email && !!m.email && m.email.toLowerCase() === ctx.email.toLowerCase();
 
+  /* 등급 조회용 fallback — /members 는 owner 전용이라 비owner 의 members 는 비어 있다.
+     context 가 주는 최소 정보(식별자 + 등급)로 배지를 그린다. */
+  const roleByAuthorId = new Map((ctx?.memberRoles ?? []).filter((r) => r.authorId).map((r) => [r.authorId as string, r.role]));
+  const roleByEmail = new Map((ctx?.memberRoles ?? []).filter((r) => r.email).map((r) => [r.email as string, r.role]));
+
   const memberByAuthorId = new Map(members.filter((m) => m.authorId).map((m) => [m.authorId as string, m]));
   const memberByEmail = new Map(members.filter((m) => m.email).map((m) => [m.email.toLowerCase(), m]));
   const pendingByEmail = new Map(pending.map((p) => [p.email.toLowerCase(), p]));
@@ -142,8 +160,34 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
   };
 
   /** 프로필 draft 를 config 에 upsert (id 기준). */
-  const saveAuthor = (author: Author) =>
-    onChange(authors.some((x) => x.id === author.id) ? authors.map((x) => (x.id === author.id ? author : x)) : [...authors, author]);
+  const saveAuthor = async (author: Author): Promise<SaveResult> => {
+    const next = authors.some((x) => x.id === author.id)
+      ? authors.map((x) => (x.id === author.id ? author : x))
+      : [...authors, author];
+    onChange(next);
+    /* 화면 반영과 저장을 함께 한다. onChange 는 state 갱신이라 즉시 반영되지 않으므로
+       저장할 값을 직접 넘긴다 — 안 넘기면 이전 목록이 저장된다.
+       결과를 그대로 올려보낸다: 실패했는데 모달이 닫히면 "저장했는데 되돌아간다" 가 된다. */
+    return (await onPersist?.(next)) ?? { ok: true };
+  };
+
+  /** 목록을 바꾸고 저장까지 한다. 실패하면 이유를 알린다 — 모달 없이 도는 경로라
+   *  조용히 넘어가면 화면에서는 지워졌는데 서버에는 남아 있는 상태가 된다. */
+  const applyAuthors = async (next: Author[]) => {
+    onChange(next);
+    const r = await onPersist?.(next);
+    if (r && !r.ok) {
+      openModal(
+        <ModalAlert
+          desc={r.reason
+            ? `${L("저장하지 못했습니다.", "Could not save.")} ${r.reason}`
+            : L("저장하지 못했습니다.", "Could not save.")}
+          confirmText={L("확인", "OK")}
+        />,
+        { id: "authors-save-failed", header: { title: L("저장 실패", "Save failed") }, closeButton: true, width: "420px" },
+      );
+    }
+  };
 
   /** 초대(또는 재전송) — 결과 메시지 반환. */
   const inviteAuthor = async (a: Author, level: number): Promise<Outcome> => {
@@ -209,26 +253,16 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
     if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || L("삭제하지 못했습니다.", "Delete failed.")); }
   };
 
-  const pickAvatar = (): Promise<string | null> =>
-    new Promise((resolve) => {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-      input.onchange = async () => {
-        const file = input.files?.[0];
-        if (!file) return resolve(null);
-        const fd = new FormData();
-        fd.append("file", file);
-        try {
-          const res = await fetch("/api/upload", { method: "POST", body: fd });
-          const data: { url?: string } = await res.json().catch(() => ({}));
-          resolve(res.ok && data.url ? data.url : null);
-        } catch {
-          resolve(null);
-        }
-      };
-      input.click();
-    });
+  /* EmojiPicker 의 커스텀 이미지 탭이 쓰는 규약 — File 을 받아 URL 을 돌려준다.
+     파일 선택 UI 는 picker 가 이미 갖고 있어서 업로드만 맡는다. */
+  const uploadAvatarFile = async (file: File): Promise<string> => {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const data: { url?: string } = await res.json().catch(() => ({}));
+    if (!res.ok || !data.url) throw new Error("upload failed");
+    return data.url;
+  };
 
   const openEditor = (
     a: Author,
@@ -254,13 +288,16 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
         onInvite={inviteAuthor}
         onChangeLevel={changeMemberLevel}
         onLink={linkMember}
-        uploadAvatar={pickAvatar}
+        uploadAvatarFile={uploadAvatarFile}
+        suggestions={suggestions}
         canManageAccess={isOwner}
         githubInfo={githubInfo}
       />,
       {
         id: "member-edit",
-        header: { title: opts?.title ?? (opts?.isNew ? L("멤버 추가", "Add member") : (a.name || L("멤버 편집", "Edit member"))) },
+        /* 이름은 모달 안에 이미 크게 적힌다. 제목까지 이름으로 두면 같은 말이 두 번 나오고,
+           멤버마다 제목이 달라져서 무슨 화면인지가 흐려진다. */
+        header: { title: opts?.title ?? (opts?.isNew ? L("멤버 추가", "Add member") : L("상세 정보", "Details")) },
         closeButton: true,
         width: "560px",
       },
@@ -296,7 +333,16 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
         isOwnerProfile={isOwnerAuthor(a)}
         showAccess={isOwner}
         canEdit={isOwner || (isMine(a) && !isOwnerAuthor(a))}
-        onEdit={() => openEditor(a)}
+        /* 본인 프로필이면 "GitHub 정보 불러오기" 를 쓸 수 있게 컨텍스트를 넘긴다.
+           예전에는 신규 등록 경로에만 넘겨서, 이미 만들어 둔 자기 프로필을 열면 버튼이 없었다. */
+        onEdit={() =>
+          openEditor(
+            a,
+            isMine(a)
+              ? { githubInfo: { name: ctx?.myName ?? null, avatar: ctx?.myAvatar ?? null, url: ctx?.myGithubUrl ?? null } }
+              : undefined,
+          )
+        }
       />,
       { id: "member-detail", header: { title: L("멤버 상세", "Member") }, closeButton: true, width: "480px" },
     );
@@ -333,11 +379,11 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
     const invited = a.email ? pendingByEmail.get(a.email.toLowerCase()) : undefined;
     // owner 계정은 삭제 불가 — 프로필만 제거
     if (member?.role === "owner") {
-      onChange(authors.filter((x) => x.id !== a.id));
+      void applyAuthors(authors.filter((x) => x.id !== a.id));
       return;
     }
     if (!member && !invited) {
-      onChange(authors.filter((x) => x.id !== a.id));
+      void applyAuthors(authors.filter((x) => x.id !== a.id));
       return;
     }
     openModal(
@@ -384,10 +430,22 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
     );
   };
 
+  /** 이 프로필에 연결된 로그인 계정의 등급. owner 는 /members, 그 외는 context 를 쓴다. */
+  const roleForAuthor = (a: Author, member?: Member): MemberRole | null => {
+    if (member) return member.role;
+    return (
+      roleByAuthorId.get(a.id) ??
+      (a.email ? roleByEmail.get(a.email.toLowerCase()) : undefined) ??
+      null
+    );
+  };
+
   const statusBadge = (a: Author, member?: Member, invited?: PendingMember) => {
     if (isOwnerAuthor(a)) return <RoleBadge role="owner" />; // 소유자는 누구에게나 최우선 표시
-    if (!isOwner) return null; // 그 외 상태(역할/초대)는 owner 만
-    if (member) return <RoleBadge role={member.role} />;
+    // 가입한 멤버의 등급은 누구에게나 보인다 — 목록에서 각자 무엇을 할 수 있는지 드러나야 한다.
+    const memberRole = roleForAuthor(a, member);
+    if (memberRole) return <RoleBadge role={memberRole} />;
+    if (!isOwner) return null; // 초대 상태(초대됨·미초대)는 관리 정보라 owner 만
     return (
       <span className={`${mStyles.role} ${mStyles.rolePendingBadge}`}>
         {invited ? L("초대됨 · 미가입", "Invited · pending") : L("미초대", "Not invited")}
@@ -412,6 +470,24 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
   const ownerProfile = visibleAuthors.find(isOwnerAuthor);
   const restAuthors = visibleAuthors.filter((a) => !isOwnerAuthor(a));
 
+  /* 목록에 여러 계정이 섞여 있으면 어느 것이 내 것인지 이름만으로는 알 수 없다. */
+  /* 이미 쓰인 값을 자동완성 후보로 — 중복 제거 후 정렬. 자유 입력은 그대로 두고 제안만 한다.
+     역할과 지역은 같은 뜻을 다르게 적기 쉬워서(“프론트엔드” / “Frontend”) 여기에만 붙인다. */
+  const suggestions = useMemo(() => {
+    const uniq = (pick: (a: Author) => string | undefined) =>
+      [...new Set(authors.map((a) => pick(a)?.trim()).filter((v): v is string => !!v))].sort();
+    return { role: uniq((a) => a.role), location: uniq((a) => a.location) };
+  }, [authors]);
+
+  const meBadge = (
+    /* 역할 배지(왕관·방패 등)와 나란히 놓이므로 아이콘 유무도 맞춘다.
+       역할 아이콘과 겹치지 않는 Check 를 쓴다 — UserRound 는 "멤버" 역할이 이미 쓴다. */
+    <span className={mStyles.meBadge}>
+      <Check size={11} strokeWidth={2.4} aria-hidden />
+      {L("나", "You")}
+    </span>
+  );
+
   const renderAuthorRow = (a: Author) => {
     const member = memberForAuthor(a);
     const invited = a.email ? pendingByEmail.get(a.email.toLowerCase()) : undefined;
@@ -426,18 +502,18 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
         title={L("상세 보기", "View details")}
       >
         <span className={mStyles.avatar}>
-          {a.avatar ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={a.avatar} alt="" className={mStyles.avatarImg} />
-          ) : (
-            <span className={mStyles.avatarInitial} aria-hidden>
-              {(a.name || a.email || "?").charAt(0).toUpperCase()}
-            </span>
-          )}
+          <AuthorAvatar
+            value={a.avatar}
+            name={a.name || a.email}
+            size={22}
+            imgClassName={mStyles.avatarImg}
+            initialClassName={mStyles.avatarInitial}
+          />
         </span>
         <div className={mStyles.info}>
           <div className={mStyles.nameRow}>
             <span className={mStyles.name}>{a.name || L("(이름 없음)", "(unnamed)")}</span>
+            {isMine(a) && meBadge}
             {statusBadge(a, member, invited)}
           </div>
           <div className={mStyles.meta}>
@@ -503,6 +579,7 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
       <div className={mStyles.info}>
         <div className={mStyles.nameRow}>
           <span className={mStyles.name}>{m.name || m.email}</span>
+          {isMineMember(m) && meBadge}
           <RoleBadge role={m.role} />
         </div>
         <div className={mStyles.meta}>
@@ -544,18 +621,20 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
               title={L("상세 보기", "View details")}
             >
               <span className={mStyles.avatar}>
-                {ctx?.ownerAvatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={ctx.ownerAvatar} alt="" className={mStyles.avatarImg} />
-                ) : (
-                  <span className={mStyles.avatarInitial} aria-hidden>
-                    {(ctx?.ownerName || ctx?.ownerEmail || "?").charAt(0).toUpperCase()}
-                  </span>
-                )}
+                <AuthorAvatar
+                  value={ctx?.ownerAvatar}
+                  name={ctx?.ownerName || ctx?.ownerEmail}
+                  size={22}
+                  imgClassName={mStyles.avatarImg}
+                  initialClassName={mStyles.avatarInitial}
+                />
               </span>
               <div className={mStyles.info}>
                 <div className={mStyles.nameRow}>
                   <span className={mStyles.name}>{ctx?.ownerName || ctx?.ownerEmail}</span>
+                  {/* 프로필이 아직 없어 합성한 행이라 renderAuthorRow 를 타지 않는다 —
+                      "나" 표시를 여기에도 붙여야 목록 전체에서 일관된다. */}
+                  {iAmOwner && meBadge}
                   <RoleBadge role="owner" />
                 </div>
                 <div className={mStyles.meta}>
@@ -582,18 +661,19 @@ export default function AuthorsEditor({ authors, onChange }: Props) {
               title={L("상세 보기", "View details")}
             >
               <span className={mStyles.avatar}>
-                {ctx?.myAvatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={ctx.myAvatar} alt="" className={mStyles.avatarImg} />
-                ) : (
-                  <span className={mStyles.avatarInitial} aria-hidden>
-                    {(ctx?.myName || ctx?.email || "?").charAt(0).toUpperCase()}
-                  </span>
-                )}
+                <AuthorAvatar
+                  value={ctx?.myAvatar}
+                  name={ctx?.myName || ctx?.email}
+                  size={22}
+                  imgClassName={mStyles.avatarImg}
+                  initialClassName={mStyles.avatarInitial}
+                />
               </span>
               <div className={mStyles.info}>
                 <div className={mStyles.nameRow}>
                   <span className={mStyles.name}>{ctx?.myName || ctx?.email}</span>
+                  {/* 이 행은 정의상 본인 것이다 */}
+                  {meBadge}
                 </div>
                 <div className={mStyles.meta}>
                   <span className={mStyles.email}>{ctx?.email}</span>

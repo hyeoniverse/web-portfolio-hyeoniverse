@@ -72,26 +72,24 @@
 }
 .memberDetailBio {
   margin: 0;
+  min-width: 0;
   font-size: var(--font-size-sm);
   line-height: 1.6;
   color: var(--text-secondary);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .memberDetailLinks {
   composes: uWrapXs from "../Settings.module.css";
 }
-.memberDetailLink {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  border-radius: var(--radius-capsule);
-  border: var(--border-light);
-  background: var(--bg-secondary);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
+/* GitHub 사용자명 — 이름 옆에 붙는 보조 식별자라 이름보다 약하게 둔다 */
+.memberDetailHandle {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
   text-decoration: none;
 }
-.memberDetailLink:hover {
-  color: var(--text-primary);
+
+.memberDetailHandle:hover {
+  color: var(--text-accent);
 }

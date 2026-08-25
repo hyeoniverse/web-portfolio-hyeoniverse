@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useId } from "react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -53,6 +53,12 @@ interface FieldProps {
   hint?: string;
   labelInline?: boolean;
   required?: boolean;
+  /**
+   * 자동완성 후보. 자유 입력은 그대로 두되 이미 쓰인 값을 제안한다 —
+   * 같은 뜻을 서로 다르게 적는 것("서울" / "Seoul" / "서울특별시")을 줄이는 용도다.
+   * 목록에 없는 값도 그대로 입력된다(datalist 는 강제하지 않는다).
+   */
+  suggestions?: string[];
   /** 언어 배지 — label 옆에 capsule 형태로 표시 (예: "KO" / "EN") */
   langBadge?: "ko" | "en";
   /** Soft 글자수 권장 한도 — 카운터 표시, 80% 부터 warning, 100% 초과 시 over.
@@ -79,7 +85,9 @@ function resolveMaxHint(v: number | MaxHintPreset | undefined | null, multiline:
   return typeof v === "string" ? MAX_HINT_PRESETS[v] : v;
 }
 
-export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint, maxLength, help }: FieldProps) {
+export default function Field({ label, value, onChange, multiline, placeholder, hint, labelInline, required, langBadge, maxHint, maxLength, help, suggestions }: FieldProps) {
+  const listId = useId();
+  const options = suggestions?.filter(Boolean) ?? [];
   const badgeStr = langBadge ? langBadge.toUpperCase() : undefined;
   const hintNum = resolveMaxHint(maxHint, !!multiline);
   /* langBadge 위치:
@@ -91,7 +99,7 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
         <span className={styles.fieldLabelText}>
           {label}
           {multiline && badgeStr && <span className={styles.fieldLangBadge}>{badgeStr}</span>}
-          {required && <span className={styles.fieldRequiredDot} aria-label="필수">•</span>}
+          {required && <span className={styles.fieldRequiredDot} role="img" aria-label="필수" />}
           {help && <FieldHelp content={help} />}
         </span>
         {hint && <span className={styles.fieldLabelHint}>{hint}</span>}
@@ -109,7 +117,20 @@ export default function Field({ label, value, onChange, multiline, placeholder, 
           maxLength={maxLength}
         />
       ) : (
-        <Input value={value} onChange={onChange} placeholder={placeholder} inlineLabel={badgeStr} />
+        <>
+          <Input
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            inlineLabel={badgeStr}
+            list={options.length > 0 ? listId : undefined}
+          />
+          {options.length > 0 && (
+            <datalist id={listId}>
+              {options.map((o) => <option key={o} value={o} />)}
+            </datalist>
+          )}
+        </>
       )}
     </div>
   );
