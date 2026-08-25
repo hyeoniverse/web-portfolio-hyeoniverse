@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.50.2](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.50.1...v1.50.2) (2026-08-25)
+
+
+### Bug Fixes
+
+* **admin:** notifications 로딩 UX + reports 스켈레톤 개수 통일 ([933de21](https://github.com/hyeoniverse/web-portfolio-oval/commit/933de2139a7a480591dfef7d83f618d5f0418537))
+
 ## [1.50.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.50.0...v1.50.1) (2026-08-09)
 
 
