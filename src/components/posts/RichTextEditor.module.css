@@ -326,10 +326,6 @@
   white-space: nowrap;
 }
 /* popover row 안 우측 정렬용 스페이서 */
-.flexSpacer {
-  flex: 1;
-}
-
 /* popover 안 버튼 hover — 배경 + 텍스트색 (active 버튼의 밝은 텍스트가 밝은 hover bg 에 묻히는 것 방지) */
 .tableMenu .toolbarBtn:hover {
   background: var(--bg-tertiary-alt);

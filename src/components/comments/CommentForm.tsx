@@ -4,11 +4,13 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Shuffle, Bell, CircleX, Check, Pencil, ChevronRight } from "@/components/icons";
 import { getCommenterId, getIdentity, getRandomIdentity, FALLBACK_AVATAR_EMOJI } from "@/utils/commenterIdentity";
+import type { CommenterIdentity } from "@/utils/commenterIdentity";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import Tooltip from "@/components/ui/Tooltip";
 import CommentEditor from "./CommentEditor";
 import styles from "./CommentForm.module.css";
 
@@ -20,6 +22,9 @@ interface CommentFormProps {
   commentType: "post" | "work";
   targetId: string;
   parentId?: string;
+  /** 글 단위 아바타 배정 맵. 거터는 "등록하면 이렇게 보인다" 의 미리보기라
+   *  실제로 그려질 아바타와 달라지면 안 된다. */
+  identities?: Map<string, CommenterIdentity>;
   onSubmit: (newId?: string) => void;
   onCancel?: () => void;
   /** 해당 게시물/작품의 첫 댓글 여부 — true면 제출 성공 시 폭죽 터뜨림 */
@@ -42,6 +47,7 @@ export default function CommentForm({
   commentType,
   targetId,
   parentId,
+  identities,
   onSubmit,
   onCancel,
   isFirstOnTarget = false,
@@ -59,6 +65,8 @@ export default function CommentForm({
   const emailChanged = notifyEmail !== confirmedEmail;
   const [submitting, setSubmitting] = useState(false);
   const [formHint, setFormHint] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const passwordRef = useRef<HTMLInputElement>(null);
   // content 변경 공용 핸들러 — 입력/툴바 서식 적용 모두 여기로
   const handleContentChange = useCallback((v: string) => { setContent(v); setFormHint(""); }, []);
   const isAdmin = useIsAuthenticated({ subscribe: true });
@@ -72,13 +80,16 @@ export default function CommentForm({
   }, [emailNotify]);
 
   const [commenterId, setCommenterId] = useState("");
-  const [identity, setIdentity] = useState<{ emoji: string; name: string } | null>(null);
+  const [identity, setIdentity] = useState<CommenterIdentity | null>(null);
 
   useEffect(() => {
     const id = getCommenterId();
     setCommenterId(id);
-    setIdentity(getIdentity(id, targetId));
-  }, [targetId]);
+    /* 배정 맵에 내 hash 가 있으면 그 값을 쓴다 — 목록에서 실제로 그려질 아바타와 같아야 한다.
+       맵이 아직 없으면(첫 로드 등) hash 단독 복원으로 미리 보여 준다. */
+    const own = getIdentity(id, targetId);
+    setIdentity(identities?.get(own.hash) ?? own);
+  }, [targetId, identities]);
 
   const apiBase = commentType === "work" ? "/api/work-comments" : "/api/comments";
 
@@ -87,7 +98,13 @@ export default function CommentForm({
       e.preventDefault();
       setFormHint("");
       if (!content.trim()) { setFormHint(t("comments.hintContent")); return; }
-      if (!isAdmin && !password.trim()) { setFormHint(t("comments.hintPassword")); return; }
+      if (!isAdmin && !password.trim()) {
+        setFormHint(t("comments.hintPassword"));
+        // 힌트만이 아니라 입력란을 accent 테두리 + shake + focus 로 명확히 지목
+        setPasswordError(false);
+        requestAnimationFrame(() => { setPasswordError(true); passwordRef.current?.focus(); });
+        return;
+      }
 
       setSubmitting(true);
       setFormHint("");
@@ -170,25 +187,28 @@ export default function CommentForm({
             </span>
             <span className={styles.identityName}>{identity.name}</span>
             <span><T k="comments.asYou" /></span>
-            <Button
-              variant="subtle"
-              shape="circle"
-              size="sm"
-              icon={<Shuffle size={12} strokeWidth={2.5} />}
-              onClick={() => setIdentity(getRandomIdentity(identity ?? undefined))}
-              data-clickable="true"
-              title={t("comments.shuffle")}
-              aria-label={t("comments.shuffle")}
-            />
+            <Tooltip content={t("comments.shuffle")} placement="top" delay={200}>
+              <Button
+                variant="subtle"
+                shape="circle"
+                size="sm"
+                icon={<Shuffle size={12} strokeWidth={2.5} />}
+                onClick={() => setIdentity(getRandomIdentity(identity ?? undefined))}
+                data-clickable="true"
+                aria-label={t("comments.shuffle")}
+              />
+            </Tooltip>
           </div>
           {/* 폭 고정은 래퍼가 담당 — 공통 Input 자체엔 스타일 클래스를 붙이지 않는다 */}
-          <div className={styles.passwordField}>
+          <div className={`${styles.passwordField} ${passwordError ? styles.pwShake : ""}`}>
             <Input
               size="sm"
               type="password"
               clearable={false}
+              inputRef={passwordRef}
+              error={passwordError}
               value={password}
-              onChange={(v) => { setPassword(v); setFormHint(""); }}
+              onChange={(v) => { setPassword(v); setFormHint(""); setPasswordError(false); }}
               placeholder={t("comments.passwordPlaceholder")}
               maxLength={72}
             />
@@ -204,11 +224,14 @@ export default function CommentForm({
 
       {!isAdmin && (
         <div className={styles.notifyWrap}>
+          {/* "이게 무슨 버튼인지" 설명 — 항상 활성으로 감싼다. 열림/확정에 따라 disabled 를 토글하면
+              감싸개(span↔fragment)가 바뀌며 캡슐이 remount 돼 펼침 애니메이션이 끊긴다.
+              열려서 입력 중엔 살짝 중복이지만 무해. */}
+          <Tooltip content={t("comments.emailNotifyTip")} placement="top" delay={200}>
           <div
             className={`${styles.notifyCapsule} ${emailNotify ? styles.notifyCapsuleOpen : ""} ${emailConfirmed ? styles.notifyCapsuleConfirmed : ""}`}
             onClick={() => { if (!emailNotify) { emailJustOpened.current = true; setEmailNotify(true); } }}
             data-clickable="true"
-            title={!emailNotify ? t("comments.emailNotifyTip") : undefined}
           >
             <Bell className={styles.notifyIcon} size={12} />
             <span className={styles.notifyConfirmedLabel}>
@@ -254,6 +277,8 @@ export default function CommentForm({
                   className={styles.notifyCheck}
                   onClick={(e) => { e.stopPropagation(); setEmailConfirmed(true); setConfirmedEmail(notifyEmail); }}
                   tabIndex={0}
+                  aria-label={t("comments.emailConfirm")}
+                  title={t("comments.emailConfirm")}
                 >
                   <Check size={12} strokeWidth={3} />
                 </button>
@@ -269,6 +294,8 @@ export default function CommentForm({
                   requestAnimationFrame(() => emailInputRef.current?.focus());
                 }}
                 tabIndex={0}
+                aria-label={t("comments.emailEdit")}
+                title={t("comments.emailEdit")}
               >
                 <Pencil size={14} />
               </button>
@@ -291,6 +318,8 @@ export default function CommentForm({
                     }
                   }}
                   tabIndex={emailNotify ? 0 : -1}
+                  aria-label={t("comments.emailCollapse")}
+                  title={t("comments.emailCollapse")}
                 >
                   {/* 캡슐이 오른쪽으로 접히는 방향을 암시하는 chevron */}
                   <ChevronRight size={12} strokeWidth={2.5} />
@@ -298,6 +327,7 @@ export default function CommentForm({
               </>
             )}
           </div>
+          </Tooltip>
           {emailNotify && notifyEmail.trim() && !isValidEmail && (
             <span className={styles.notifyHint}>{t("comments.invalidEmail")}</span>
           )}

@@ -1,0 +1,14 @@
+/* 모달 본문 — 좌우 패딩이 없어 내용이 모달 가장자리에 붙던 것을 공통 box 토큰으로 맞춘다. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--box-md);
+}
+
+.desc {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}

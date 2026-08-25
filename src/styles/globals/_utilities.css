@@ -24,6 +24,13 @@
   flex-direction: column;
 }
 
+/* flex 스페이서 — 형제 사이/끝에 넣어 남는 공간을 밀어낸다(툴바 양끝 정렬 등).
+   끝으로 미는 edge push 는 대상에 margin-*: auto 가 더 간결하니, 이 요소는
+   "중간을 벌리거나" "밀 대상에 직접 스타일을 못 줄 때" 쓴다. */
+.spacer {
+  flex: 1;
+}
+
 .line-break {
   width: 1px;
   height: 100%;

@@ -76,3 +76,56 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* ── list variant — 구분선으로 나뉜 목록 row. 테두리 박스 대신 얇은 divider 라 가볍고,
+   호버·선택 시에만 캡슐 배경 하이라이트가 뜬다 ── */
+.groupList {
+  display: flex;
+  width: 100%;
+  gap: 0;
+}
+
+.groupList .option {
+  width: 100%;
+  gap: var(--spacing-sm);
+  padding: var(--box-sm-md);
+  border-bottom: var(--border-light);
+  transition: background var(--duration-base) ease;
+}
+
+.groupList .option:last-child {
+  border-bottom: none;
+}
+
+/* 라벨이 길면(음란물/부적절한 내용 등) 줄바꿈 허용 + 남는 폭 차지 */
+.groupList .label {
+  flex: 1;
+  white-space: normal;
+}
+
+/* 호버 — 미선택 행만 은은한 전폭 배경(구분선은 그대로 둔다) */
+.groupList .option:hover:not(.disabled):not(.optionActive) {
+  background: var(--bg-tertiary);
+}
+
+.groupList .option:hover:not(.disabled) .dot {
+  outline: none;
+}
+
+/* 선택됨 — accent 전폭 배경(구분선 유지, 캡슐 아님) + dot·label accent */
+.groupList .optionActive {
+  background: var(--bg-accent-light);
+}
+
+.groupList .optionActive .label {
+  color: var(--text-accent);
+  font-weight: var(--font-weight-medium);
+}
+
+.groupList .optionActive .dot {
+  border-color: var(--text-accent);
+}
+
+.groupList .optionActive .dot::after {
+  background: var(--text-accent);
+}

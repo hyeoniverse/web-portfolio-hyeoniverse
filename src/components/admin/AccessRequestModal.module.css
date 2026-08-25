@@ -1,0 +1,56 @@
+/* 요청 결과 화면 — 문단 한 줄로는 "보냈다" 는 사실이 잘 읽히지 않는다.
+   아이콘 + 제목 + 다음에 무슨 일이 생기는지까지 한 덩어리로 보여준다. */
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--box-2xl);
+  text-align: center;
+}
+
+.resultIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-xl);
+  height: var(--size-xl);
+  margin-bottom: var(--spacing-2xs);
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+.resultIconFail {
+  background: var(--bg-error-soft);
+  color: var(--text-error);
+}
+
+.resultTitle {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.resultDesc {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* 무엇을 요청했는지 — 여러 건이면 목록으로 되짚어 준다 */
+.resultTargets {
+  margin: var(--spacing-sm) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}

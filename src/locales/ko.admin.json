@@ -124,7 +124,13 @@
       "refresh": "새로고침",
       "tipRefresh": "알림 다시 불러오기",
       "reportsPage": "신고 페이지",
-      "tipReportsPage": "신고 관리 페이지 열기"
+      "tipReportsPage": "신고 관리 페이지 열기",
+      "detailTitle": "알림 상세",
+      "tipItemDetail": "클릭하면 자세히 볼 수 있습니다",
+      "typeAccessRequest": "권한 요청",
+      "typeDeviceLogin": "새 기기 로그인",
+      "groupPending": "처리 필요",
+      "groupRest": "그 외"
     },
     "reports": {
       "title": "댓글 신고",
@@ -148,7 +154,14 @@
         "resolved": "처리됨",
         "dismissed": "반려",
         "all": "전체"
-      }
+      },
+      "detailTitle": "신고 상세",
+      "searchPlaceholder": "닉네임·본문·사유 검색",
+      "searchEmpty": "검색 결과가 없습니다",
+      "emptyHint": "댓글이 신고되면 여기에 표시됩니다",
+      "refresh": "새로고침",
+      "tipRefresh": "신고 목록 다시 불러오기",
+      "tipItemDetail": "클릭하면 자세히 볼 수 있습니다"
     },
     "login": {
       "title": "Admin",
@@ -185,7 +198,8 @@
       "bulkDeletePrompt": "{{count}}개 로그를 삭제하려면 \"{{count}}\"을(를) 입력하세요.",
       "changeCategory": "카테고리 변경",
       "bulkCategoryDesc": "선택한 {{count}}개 항목의 카테고리를 변경합니다.",
-      "unset": "미설정"
+      "unset": "미설정",
+      "confirm": "확인"
     },
     "settings": {
       "title": "설정",
@@ -284,8 +298,8 @@
       "resumeButtonText": "이력서 버튼 텍스트",
       "loadingDisplayNameHint": "로딩 화면에 표시",
       "loadingDisplayName": "로딩 화면 표시 이름",
-      "worksInfiniteScroll": "Works — 무한 스크롤",
-      "profileInfiniteScroll": "Profile — 무한 스크롤",
+      "worksInfiniteScroll": "무한 스크롤",
+      "profileInfiniteScroll": "무한 스크롤",
       "aboutInfiniteScroll": "무한 스크롤",
       "aboutInfiniteScrollHint": "켜면 끝에서 처음으로 이어져 무한 반복되고, 끄면 마지막에서 멈춥니다.",
       "accentColor": "강조 색상",
@@ -388,7 +402,6 @@
       "removeCategory": "카테고리 제거",
       "cancel": "취소",
       "edit": "편집",
-      "saveEdit": "저장",
       "logoDifference": "Difference",
       "logoEffects": "로고 효과",
       "savePreset": "프리셋으로 저장",
@@ -774,7 +787,18 @@
       "faviconImageBgPlaceholder": "투명",
       "uploadedLogoOptions": "업로드 로고 옵션",
       "uploadedLogoOptionsHint": "배경은 favicon(브라우저 탭)에만 적용됩니다. 그림자는 nav·로딩 로고와 favicon 을 따로 설정할 수 있습니다.",
-      "wcagHelp": "WCAG는 웹 콘텐츠 접근성 지침입니다. 이 값은 로고 색과 배경의 대비율이며, 높을수록 잘 읽힙니다. 7:1 이상은 AAA, 4.5:1 이상은 AA, 3:1 이상은 그래픽 최소 기준을 만족하고, 3:1 미만은 미달입니다."
+      "wcagHelp": "WCAG는 웹 콘텐츠 접근성 지침입니다. 이 값은 로고 색과 배경의 대비율이며, 높을수록 잘 읽힙니다. 7:1 이상은 AAA, 4.5:1 이상은 AA, 3:1 이상은 그래픽 최소 기준을 만족하고, 3:1 미만은 미달입니다.",
+      "oauthOnlyEmailHint": "GitHub 계정으로 로그인하는 계정입니다. 이메일은 GitHub 계정에서 관리합니다.",
+      "oauthOnlyPasswordHint": "GitHub 계정으로 로그인하는 계정이라 비밀번호가 없습니다. 로그인 정보는 GitHub 계정에서 변경합니다.",
+      "meChip": "나",
+      "permission": "권한",
+      "roleScope": {
+        "owner": "사이트 설정과 저자 관리까지 포함한 전권입니다.",
+        "admin": "모든 글을 관리하고 댓글·신고를 중재합니다. 사이트 설정과 저자 관리는 제외입니다.",
+        "author": "본인이 작성한 글만 수정하고 삭제할 수 있습니다.",
+        "member": "아직 역할이 부여되지 않았습니다. 소유자에게 권한을 요청해 주세요."
+      },
+      "applyEdit": "적용"
     },
     "posts": {
       "title": "POSTS",
@@ -1060,7 +1084,16 @@
         "addPostHint": "이미 불러왔습니다. 아래에서 선택하세요 ↓",
         "noAvailablePosts": "추가할 수 있는 게시물이 없습니다",
         "titleTooLong": "제목은 {{max}}자 이내로 입력해주세요"
-      }
+      },
+      "publish": "발행",
+      "unpublish": "발행 취소",
+      "editAction": "수정",
+      "noPermissionTitle": "권한이 없습니다",
+      "noPermissionMore": "외 {{count}}개",
+      "noPermissionRow": "본인이 작성한 글이 아니라 선택할 수 없습니다",
+      "noPermissionDesc": "해당 글에 대한 권한이 없습니다. 소유자에게 권한을 요청해 주세요.",
+      "allAuthors": "모든 작성자",
+      "myPosts": "내 글"
     },
     "works": {
       "title": "WORKS",
@@ -1263,7 +1296,10 @@
         "generateSummary": "AI 요약 생성",
         "generateSummaryDone": "AI 요약 생성 완료",
         "generateSummaryDisabled": "API 키 미설정으로 AI 요약 기능을 사용할 수 없습니다"
-      }
+      },
+      "noPermissionTitle": "권한이 없습니다",
+      "noPermissionDesc": "해당 작업물에 대한 권한이 없습니다. 소유자에게 팀원 등록을 요청해 주세요.",
+      "noPermissionRow": "이 작업물의 팀원이 아니라 선택할 수 없습니다"
     }
   }
 }

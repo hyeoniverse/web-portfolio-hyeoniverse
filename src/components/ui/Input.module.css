@@ -49,6 +49,13 @@
   border-color: var(--text-primary);
 }
 
+/* error — accent 테두리 강조. compound(.input.error)로 :focus 보다 우선 */
+.input.error,
+.input.error:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-alpha-10);
+}
+
 .input:disabled {
   opacity: 0.5;
 }

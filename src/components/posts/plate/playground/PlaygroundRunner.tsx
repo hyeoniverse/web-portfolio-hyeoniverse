@@ -415,7 +415,7 @@ export default function PlaygroundRunner({ data, onChange, readOnly, height = 46
           <TB on={vertical} tip={ko ? "레이아웃 — 상하/좌우" : "Layout — split direction"} onClick={toggleLayout}>{vertical ? <Rows2 size={16} /> : <Columns2 size={16} />}</TB>
         </span>
 
-        <span className={styles.spViewBarSpacer} />
+        <span className="spacer" />
 
         {/* ── 오른쪽: 폰트 · 배율 · 액션 — 각 기능을 흰 pill 로 구분 ── */}
         <span className={styles.spGroup}>

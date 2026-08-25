@@ -1,6 +1,6 @@
 /** 관리자 멤버(인증된 사용자) 표현 — API(members)와 UI(MembersList) 공용. (이슈 #334) */
 
-export type MemberRole = "owner" | "editor" | "author" | "member";
+export type MemberRole = "owner" | "admin" | "author" | "member";
 
 export interface Member {
   id: string;

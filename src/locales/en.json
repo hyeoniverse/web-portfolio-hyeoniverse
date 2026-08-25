@@ -79,11 +79,11 @@
       "worksGallery": "Works Horizontal Gallery Implementation"
     },
     "troubleshooting": {
-      "definition": "Definition",
-      "cause": "Background",
-      "solution": "Solution",
+      "definition": "Context",
+      "cause": "Considerations",
+      "solution": "Decision",
       "flow": "Flow",
-      "keyInsight": "Wrap-up"
+      "keyInsight": "Key Insight"
     },
     "credits": "Designed & Developed with ❤ by",
     "panels": {
@@ -93,7 +93,7 @@
       "designProcess": "Design Process.",
       "designSystem": "Design System.",
       "userFlow": "User Flow.",
-      "troubleShooting": "Trouble Shooting.",
+      "troubleShooting": "Design Decisions.",
       "security": "Security."
     },
     "backend": {
@@ -200,6 +200,9 @@
     "restore": "Restore",
     "firstCommentCelebration": "🎉 You left the first comment on this post!",
     "emailClear": "Clear input",
+    "emailConfirm": "Confirm email",
+    "emailEdit": "Edit email",
+    "emailCollapse": "Collapse",
     "disclaimer": "Inappropriate comments may be removed without notice.",
     "report": "Report",
     "reportPlaceholder": "Reason (optional)",
@@ -286,15 +289,17 @@
       "0": "Hi there! ٩( ᐢᗜᐢ)ㅅ(ᐢᗜᐢ )و Scroll down to get to know me!",
       "1": "That's me! Call me Mongi! ˙ᵕ˙",
       "2": "This is who I am! ( ⸝⸝⸝˃֊˂)",
-      "3": "Here's what I've been up to!",
-      "4": "Frontend is what I enjoy and know best!",
-      "5": "What I'm most into these days!",
-      "6": "I can handle some backend work too!",
-      "7": "I can work with all sorts of tools!",
-      "8": "My coding philosophy — Just do it!",
-      "9": "This is how I think when I work!",
-      "10": "Here are my certifications & awards! (✌ -͈᷅‎ ⌄ -͈᷄)",
-      "11": "Thanks for reading all the way! 💕",
+      "3": "Here's my GitHub activity — you can see what I mostly write in ദ്ദി ˃ ᴗ ˂ )",
+      "4": "These are the repos I picked — click one to open it on GitHub ദ്ദി ˃ ᴗ ˂ )",
+      "5": "Here's what I've been up to!",
+      "6": "Frontend is what I enjoy and know best!",
+      "7": "What I'm most into these days!",
+      "8": "I can handle some backend work too!",
+      "9": "I can work with all sorts of tools!",
+      "10": "My coding philosophy — Just do it!",
+      "11": "This is how I think when I work!",
+      "12": "Here are my certifications & awards! (✌ -͈᷅‎ ⌄ -͈᷄)",
+      "13": "Thanks for reading all the way! 💕",
       "2_desktop": "This is who I am! ( ⸝⸝⸝˃֊˂) Try dragging the window — there might be a hidden message!?!?"
     }
   },
@@ -362,11 +367,6 @@
     "seriesManage": "Manage series"
   },
   "bunny": {
-    "name": "Mongi",
-    "subtitle": "A little bunny who lives in this village",
-    "story1": "Meet Mongi (夢), a dream-like little bunny who lives in this village. Her name carries both the dreams you have at night and the dreams you hold during the day.",
-    "story2": "She's proud of her big, round eyes that never miss a detail, and her perky ears always tuned to people's voices. Mongi drifts leisurely through this space, sometimes swaying gently to the music before you even notice.",
-    "story3": "Curious by nature, she reacts quickly to new things — but she's a bit timid, so she'll jump if you approach too suddenly. She loves challenges, yet never loses her sense of caution. Shall we look around with Mongi? She'll warmly welcome everyone who visits here.",
     "exprNormal": "Default",
     "exprNormalDesc": "Just vibing.",
     "exprSurprised": "Surprised",
@@ -708,7 +708,6 @@
     "findInSelection": "Find in selection",
     "preserveCase": "Preserve case",
     "replaceOne": "Replace",
-    "replaceAll": "Replace All",
     "deleteColumnLayout": "Delete column layout",
     "cover": {
       "label": "Cover",

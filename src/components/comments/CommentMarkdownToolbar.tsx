@@ -30,7 +30,6 @@ import Tooltip from "@/components/ui/Tooltip";
 import EmojiPicker from "@/components/ui/EmojiPicker";
 import ColorPicker from "@/components/ui/ColorPicker";
 import CommentPostLinkPicker from "./CommentPostLinkPicker";
-import MarkdownHelp from "./MarkdownHelp";
 import styles from "./CommentEditor.module.css";
 
 /* 댓글 에디터용 경량 마크다운 툴바.
@@ -358,8 +357,6 @@ export default function CommentMarkdownToolbar({ containerRef, content, onChange
         }}
         getAnchorRect={() => emojiAnchorRef.current?.getBoundingClientRect() ?? null}
       />
-      {/* 도움말 — 서식 버튼이 아니라 툴바 맨 오른쪽 끝(margin-left: auto)에 따로 떨어져 앉는다 */}
-      <MarkdownHelp />
     </div>
   );
 }

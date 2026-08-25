@@ -66,7 +66,9 @@
 --   2026_07_23  about_erd_valid 확장 — 컬럼 제약·테이블 kind 검증
 --   2026_08_02  settings_required — 설정 필수값 CHECK (제목·이름·테마색·giscus·멤버이름)
 --   2026_08_03  site_visits — 트래픽 메타 (referrer/user_agent/device_kind/os/browser/device_model) + 인덱스
---   2026_08_05  revisions.entity_id uuid→text — 저장 전 새 글 draft sentinel 허용 (autosave 500 방지)
+--   2026_08_05  revisions.entity_id uuid→text
+--   2026_08_22  RLS 관리자 정책 — app_metadata(JWT) 기반 is_admin/can_edit_post
+--   2026_08_22  RLS 관리자 정책 확장(콘텐츠·중재·통계 15개 + owner 전용 2개) — 저장 전 새 글 draft sentinel 허용 (autosave 500 방지)
 --
 -- 마이그레이션 파일이 없는 것 (setup.sql 에만 존재):
 --   custom_emojis — 에디터 이모지 picker 의 커스텀 아이콘 기록
@@ -104,16 +106,10 @@ ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 
 -- 누구나 설정 읽기 가능
 DROP POLICY IF EXISTS "site_settings_public_read" ON site_settings;
-CREATE POLICY "site_settings_public_read"
-  ON site_settings FOR SELECT
-  USING (true);
+/* site_settings 공개 SELECT 제거 — 개인정보/설정이 담겨 있고, 조회는 모두 서버에서 한다. */
 
--- service_role만 쓰기 가능 (API에서 service role key 사용)
-DROP POLICY IF EXISTS "site_settings_service_write" ON site_settings;
-CREATE POLICY "site_settings_service_write"
-  ON site_settings FOR ALL
-  USING (true)
-  WITH CHECK (true);
+-- service_role 은 BYPASSRLS 라 정책 없이 통과한다 — 별도 정책을 두지 않는다.
+-- (authenticated 용 규칙은 아래 등급별 정책 블록의 site_settings_owner_all 이 담당)
 
 
 -- ────────────────────────────────────────────────────────────
@@ -162,11 +158,6 @@ CREATE POLICY "series_public_read"
   USING (published = true);
 
 -- service_role 전체 접근
-DROP POLICY IF EXISTS "series_service_all" ON series;
-CREATE POLICY "series_service_all"
-  ON series FOR ALL
-  USING (true)
-  WITH CHECK (true);
 
 
 -- ────────────────────────────────────────────────────────────
@@ -251,6 +242,81 @@ CREATE INDEX IF NOT EXISTS idx_posts_series_id ON posts (series_id);
 -- 고유 번호 유니크 인덱스
 CREATE UNIQUE INDEX IF NOT EXISTS idx_posts_post_number ON posts (post_number);
 
+-- ────────────────────────────────────────────────────────────
+-- JWT(app_metadata) 기반 권한 헬퍼 — RLS 정책이 요청자의 역할을 직접 판정한다.
+--   지금까지 관리자 접근은 service_role 로 RLS 를 우회하고 API 코드가 검문했다.
+--   코드가 검문을 빠뜨리면 그대로 새므로(실제로 ?all=true 로 비공개 글이 노출된 적 있음),
+--   데이터베이스가 마지막 방어선이 되도록 정책에 판정을 옮긴다.
+--   주의: 정책은 JWT 클레임만 본다 → 권한 변경은 토큰이 갱신되어야 반영된다
+--         (권한 변경 시 Realtime broadcast 로 대상 세션을 새로 고친다).
+--   주의: SQL 은 OWNER_EMAIL env 를 못 읽는다. 최초 로그인의 ensureOwnerRole 이
+--         app_metadata.role='owner' 를 박은 뒤부터 정책도 owner 를 인식한다.
+-- ────────────────────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION app_role() RETURNS text LANGUAGE sql STABLE AS $$
+  SELECT coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '');
+$$;
+CREATE OR REPLACE FUNCTION app_level() RETURNS int LANGUAGE sql STABLE AS $$
+  SELECT CASE jsonb_typeof(claim)
+           WHEN 'number' THEN
+             /* 여기까지 왔으면 숫자가 확실하다 — 중첩 CASE 라야 타입 가드가 먼저 평가된다.
+                한 WHEN 안에서 AND 로 늘어놓으면 Postgres 가 순서를 바꿀 수 있고,
+                그러면 문자열 클레임에 ::numeric 이 먼저 걸려 캐스트 에러가 난다. */
+             CASE WHEN n = trunc(n) AND n BETWEEN 1 AND 2 THEN n::int ELSE 0 END
+           ELSE 0
+         END
+  FROM (SELECT auth.jwt() -> 'app_metadata' -> 'permission_level' AS claim) s,
+  LATERAL (SELECT CASE WHEN jsonb_typeof(claim) = 'number'
+                       THEN (claim #>> '{}')::numeric END AS n) t;
+$$;
+CREATE OR REPLACE FUNCTION app_author_id() RETURNS text LANGUAGE sql STABLE AS $$
+  SELECT CASE WHEN jsonb_typeof(claim) = 'string' THEN claim #>> '{}' END
+  FROM (SELECT auth.jwt() -> 'app_metadata' -> 'author_id' AS claim) s;
+$$;
+/* 권한 4단계 — owner / admin(level>=2) / author(level 1) / visitor(로그인 없음).
+   is_admin 을 role IN ('owner','author') 로 두면 자기 글만 쓰는 저자까지 관리자가 된다. */
+CREATE OR REPLACE FUNCTION is_admin() RETURNS boolean LANGUAGE sql STABLE AS $$
+  SELECT app_role() = 'owner' OR app_level() >= 2;
+$$;
+/* 로그인한 구성원 전부 — 자기 글 작업에 필요한 테이블용. */
+CREATE OR REPLACE FUNCTION is_member() RETURNS boolean LANGUAGE sql STABLE AS $$
+  SELECT app_role() IN ('owner', 'author');
+$$;
+CREATE OR REPLACE FUNCTION is_owner() RETURNS boolean LANGUAGE sql STABLE AS $$
+  SELECT app_role() = 'owner';
+$$;
+/* TS 의 canEditPost 와 같은 규칙 — owner/editor 는 전부, author 는 자기 글만. */
+CREATE OR REPLACE FUNCTION can_edit_post(target_author_ids text[])
+RETURNS boolean LANGUAGE sql STABLE AS $$
+  SELECT is_owner()
+      OR app_level() >= 2
+      OR (app_role() = 'author'
+          AND app_author_id() IS NOT NULL
+          AND app_author_id() = ANY (coalesce(target_author_ids, '{}')));
+$$;
+
+/* 이 작업물을 수정할 수 있는가 — TS 의 canEditWork 와 같은 규칙.
+   works 에는 author_ids 가 없어 팀원 목록으로 소유권을 표현한다.
+   관리자는 전부, 그 밖에는 team_members 에 자신의 저자 프로필이 들어 있을 때만.
+   중첩 CASE 라야 타입 확인이 먼저 평가된다 — AND 는 평가 순서를 보장하지 않아
+   배열이 아닌 값에 jsonb_array_elements 가 걸리면 statement 가 죽는다. */
+CREATE OR REPLACE FUNCTION can_edit_work(target_team_members jsonb)
+RETURNS boolean
+LANGUAGE sql STABLE
+AS $$
+  SELECT CASE
+           WHEN is_admin() THEN true
+           WHEN app_author_id() IS NULL THEN false
+           ELSE CASE jsonb_typeof(target_team_members)
+                  WHEN 'array' THEN EXISTS (
+                    SELECT 1
+                    FROM jsonb_array_elements(target_team_members) AS m
+                    WHERE m ->> 'author_id' = app_author_id()
+                  )
+                  ELSE false
+                END
+         END;
+$$;
+
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 
 -- 공개된 포스트만 읽기
@@ -260,11 +326,21 @@ CREATE POLICY "posts_public_read"
   USING (published = true);
 
 -- service_role 전체 접근
-DROP POLICY IF EXISTS "posts_service_all" ON posts;
-CREATE POLICY "posts_service_all"
-  ON posts FOR ALL
-  USING (true)
-  WITH CHECK (true);
+
+-- 관리자 정책 — 세션 클라이언트로도 초안·휴지통을 다룰 수 있게 한다.
+-- 편집·삭제는 소유권까지 확인한다(author 는 자기 글만).
+DROP POLICY IF EXISTS "posts_admin_select" ON posts;
+CREATE POLICY "posts_admin_select" ON posts FOR SELECT TO authenticated USING (can_edit_post(author_ids));
+
+DROP POLICY IF EXISTS "posts_admin_insert" ON posts;
+CREATE POLICY "posts_admin_insert" ON posts FOR INSERT TO authenticated WITH CHECK (is_member());
+
+DROP POLICY IF EXISTS "posts_admin_update" ON posts;
+CREATE POLICY "posts_admin_update" ON posts FOR UPDATE TO authenticated
+  USING (can_edit_post(author_ids)) WITH CHECK (can_edit_post(author_ids));
+
+DROP POLICY IF EXISTS "posts_admin_delete" ON posts;
+CREATE POLICY "posts_admin_delete" ON posts FOR DELETE TO authenticated USING (can_edit_post(author_ids));
 
 
 -- ────────────────────────────────────────────────────────────
@@ -360,22 +436,12 @@ ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 
 -- 누구나 댓글 읽기 가능
 DROP POLICY IF EXISTS "comments_public_read" ON comments;
-CREATE POLICY "comments_public_read"
-  ON comments FOR SELECT
-  USING (true);
+/* comments 공개 SELECT 제거 — 테이블 직접 조회는 API 의 tombstone 처리를 건너뛰어
+   삭제된 본문·password_hash·notify_email 이 그대로 노출된다. 댓글 조회는 서버에서만 한다. */
 
 -- 누구나 댓글 작성 가능 (비회원 댓글 지원)
-DROP POLICY IF EXISTS "comments_public_insert" ON comments;
-CREATE POLICY "comments_public_insert"
-  ON comments FOR INSERT
-  WITH CHECK (true);
 
 -- service_role 전체 접근 (관리자 삭제 등)
-DROP POLICY IF EXISTS "comments_service_all" ON comments;
-CREATE POLICY "comments_service_all"
-  ON comments FOR ALL
-  USING (true)
-  WITH CHECK (true);
 
 
 -- ────────────────────────────────────────────────────────────
@@ -399,16 +465,9 @@ ALTER TABLE likes ENABLE ROW LEVEL SECURITY;
 
 -- 누구나 좋아요 수 조회 가능
 DROP POLICY IF EXISTS "likes_public_read" ON likes;
-CREATE POLICY "likes_public_read"
-  ON likes FOR SELECT
-  USING (true);
+/* likes 공개 SELECT 제거 — 개인정보/설정이 담겨 있고, 조회는 모두 서버에서 한다. */
 
 -- service_role 전체 접근
-DROP POLICY IF EXISTS "likes_service_all" ON likes;
-CREATE POLICY "likes_service_all"
-  ON likes FOR ALL
-  USING (true)
-  WITH CHECK (true);
 
 
 -- ────────────────────────────────────────────────────────────
@@ -432,15 +491,7 @@ CREATE INDEX IF NOT EXISTS idx_poll_votes_poll
 ALTER TABLE poll_votes ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "poll_votes_public_read" ON poll_votes;
-CREATE POLICY "poll_votes_public_read"
-  ON poll_votes FOR SELECT
-  USING (true);
-
-DROP POLICY IF EXISTS "poll_votes_service_all" ON poll_votes;
-CREATE POLICY "poll_votes_service_all"
-  ON poll_votes FOR ALL
-  USING (true)
-  WITH CHECK (true);
+/* poll_votes 공개 SELECT 제거 — 개인정보/설정이 담겨 있고, 조회는 모두 서버에서 한다. */
 
 
 -- ────────────────────────────────────────────────────────────
@@ -470,16 +521,9 @@ ALTER TABLE comment_reactions ENABLE ROW LEVEL SECURITY;
 
 -- 누구나 반응 수 조회 가능
 DROP POLICY IF EXISTS "comment_reactions_public_read" ON comment_reactions;
-CREATE POLICY "comment_reactions_public_read"
-  ON comment_reactions FOR SELECT
-  USING (true);
+/* comment_reactions 공개 SELECT 제거 — 개인정보/설정이 담겨 있고, 조회는 모두 서버에서 한다. */
 
 -- service_role 전체 접근 (반응 토글은 admin client 로 처리)
-DROP POLICY IF EXISTS "comment_reactions_service_all" ON comment_reactions;
-CREATE POLICY "comment_reactions_service_all"
-  ON comment_reactions FOR ALL
-  USING (true)
-  WITH CHECK (true);
 
 
 -- ────────────────────────────────────────────────────────────
@@ -509,12 +553,6 @@ CREATE POLICY "calendars_public_read"
   ON calendars FOR SELECT
   USING (true);
 
-DROP POLICY IF EXISTS "calendars_service_all" ON calendars;
-CREATE POLICY "calendars_service_all"
-  ON calendars FOR ALL
-  USING (true)
-  WITH CHECK (true);
-
 
 -- ────────────────────────────────────────────────────────────
 -- 5c. custom_emojis — 에디터 이모지 picker 의 업로드(커스텀) 아이콘 기록
@@ -534,11 +572,6 @@ CREATE INDEX IF NOT EXISTS idx_custom_emojis_created
 ALTER TABLE custom_emojis ENABLE ROW LEVEL SECURITY;
 
 -- service_role 전체 접근 (anon/public 접근 없음 — admin 전용)
-DROP POLICY IF EXISTS "custom_emojis_service_all" ON custom_emojis;
-CREATE POLICY "custom_emojis_service_all"
-  ON custom_emojis FOR ALL
-  USING (true)
-  WITH CHECK (true);
 
 
 -- ────────────────────────────────────────────────────────────
@@ -634,11 +667,25 @@ CREATE POLICY "works_public_read"
   USING (published = true AND deleted_at IS NULL);
 
 -- service_role 전체 접근
-DROP POLICY IF EXISTS "works_service_all" ON works;
-CREATE POLICY "works_service_all"
-  ON works FOR ALL
-  USING (true)
-  WITH CHECK (true);
+
+-- 관리자 정책 — works 에는 author_ids 가 없다. 대신 팀원 목록(team_members)에 연결된
+-- 저자 프로필로 소유권을 표현한다: 프로젝트 팀원이면 그 작업물의 편집자다.
+-- 조회는 멤버 전체, 수정은 관리자 또는 팀원, 생성·삭제는 관리자.
+-- (TS 의 canEditWork 가 같은 규칙을 쓴다)
+DROP POLICY IF EXISTS "works_admin_select" ON works;
+CREATE POLICY "works_admin_select" ON works FOR SELECT TO authenticated USING (is_member());
+
+DROP POLICY IF EXISTS "works_admin_write" ON works;
+
+DROP POLICY IF EXISTS "works_admin_insert" ON works;
+CREATE POLICY "works_admin_insert" ON works FOR INSERT TO authenticated WITH CHECK (is_admin());
+
+DROP POLICY IF EXISTS "works_admin_update" ON works;
+CREATE POLICY "works_admin_update" ON works FOR UPDATE TO authenticated
+  USING (can_edit_work(team_members)) WITH CHECK (can_edit_work(team_members));
+
+DROP POLICY IF EXISTS "works_admin_delete" ON works;
+CREATE POLICY "works_admin_delete" ON works FOR DELETE TO authenticated USING (is_admin());
 
 
 -- ────────────────────────────────────────────────────────────
@@ -670,16 +717,9 @@ ALTER TABLE site_visits ENABLE ROW LEVEL SECURITY;
 
 -- 누구나 방문자 수 조회 가능
 DROP POLICY IF EXISTS "site_visits_public_read" ON site_visits;
-CREATE POLICY "site_visits_public_read"
-  ON site_visits FOR SELECT
-  USING (true);
+/* site_visits 공개 SELECT 제거 — 개인정보/설정이 담겨 있고, 조회는 모두 서버에서 한다. */
 
 -- service_role 전체 접근
-DROP POLICY IF EXISTS "site_visits_service_all" ON site_visits;
-CREATE POLICY "site_visits_service_all"
-  ON site_visits FOR ALL
-  USING (true)
-  WITH CHECK (true);
 
 
 -- ────────────────────────────────────────────────────────────
@@ -707,17 +747,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS uniq_post_views_post_ip_date
   ON post_views (post_id, ip, viewed_date);
 
 ALTER TABLE post_views ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "post_views_public_insert" ON post_views;
-CREATE POLICY "post_views_public_insert"
-  ON post_views FOR INSERT
-  WITH CHECK (true);
-
-DROP POLICY IF EXISTS "post_views_service_all" ON post_views;
-CREATE POLICY "post_views_service_all"
-  ON post_views FOR ALL
-  USING (true)
-  WITH CHECK (true);
 
 
 -- ────────────────────────────────────────────────────────────
@@ -748,20 +777,7 @@ CREATE INDEX IF NOT EXISTS idx_work_comments_work_id ON work_comments (work_id);
 ALTER TABLE work_comments ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "work_comments_public_read" ON work_comments;
-CREATE POLICY "work_comments_public_read"
-  ON work_comments FOR SELECT
-  USING (true);
-
-DROP POLICY IF EXISTS "work_comments_public_insert" ON work_comments;
-CREATE POLICY "work_comments_public_insert"
-  ON work_comments FOR INSERT
-  WITH CHECK (true);
-
-DROP POLICY IF EXISTS "work_comments_service_all" ON work_comments;
-CREATE POLICY "work_comments_service_all"
-  ON work_comments FOR ALL
-  USING (true)
-  WITH CHECK (true);
+/* work_comments 공개 SELECT 제거 — comments 와 같은 이유. */
 
 
 -- ────────────────────────────────────────────────────────────
@@ -783,12 +799,6 @@ CREATE INDEX IF NOT EXISTS idx_admin_notifications_created
 
 ALTER TABLE admin_notifications ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "admin_notifications_service_all" ON admin_notifications;
-CREATE POLICY "admin_notifications_service_all"
-  ON admin_notifications FOR ALL
-  USING (true)
-  WITH CHECK (true);
-
 
 -- ────────────────────────────────────────────────────────────
 -- 9-a2. author_invites — 저자 초대 (이슈 #334). email→author_id+권한레벨.
@@ -807,17 +817,47 @@ CREATE TABLE IF NOT EXISTS author_invites (
 
 ALTER TABLE author_invites ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "author_invites_service_all" ON author_invites;
-CREATE POLICY "author_invites_service_all"
-  ON author_invites FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
-
 
 -- ────────────────────────────────────────────────────────────
 -- 9-b. applied_migrations — schema migration 적용 추적 + 알림
---      각 migration 파일 마지막에 SELECT log_migration_applied('name', 'desc');
+--      각 migration 파일 마지막에 -- ────────────────────────────────────────────────────────────
+-- 관리자 RLS 정책 (일괄) — 세션 클라이언트로도 관리 화면이 동작하도록.
+--   admin  = owner + author  · owner = 소유자만(코드의 requireOwner 와 짝)
+--   service_role 정책은 별도로 남아 있다(BYPASSRLS 라 정책과 무관하게 통과).
+-- ────────────────────────────────────────────────────────────
+DO $$
+DECLARE t text;
+BEGIN
+  -- owner 전용
+  FOREACH t IN ARRAY ARRAY['site_settings', 'author_invites'] LOOP
+    IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_owner_all', t);
+    EXECUTE format('CREATE POLICY %I ON public.%I FOR ALL TO authenticated USING (is_owner()) WITH CHECK (is_owner())', t || '_owner_all', t);
+  END LOOP;
+
+  -- admin 이상 (중재 · 운영 지표)
+  FOREACH t IN ARRAY ARRAY[
+    'comments', 'work_comments', 'comment_reports', 'comment_reactions',
+    'admin_notifications', 'site_visits', 'post_views', 'poll_votes'
+  ] LOOP
+    IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_admin_all', t);
+    EXECUTE format('CREATE POLICY %I ON public.%I FOR ALL TO authenticated USING (is_admin()) WITH CHECK (is_admin())', t || '_admin_all', t);
+  END LOOP;
+
+  -- member 이상 (자기 글 작업)
+  FOREACH t IN ARRAY ARRAY[
+    'series', 'calendars', 'revisions', 'post_work_relations', 'series_work_relations',
+    'custom_emojis', 'cover_image_history'   -- 에디터 기능 (커버 picker · 이모지 picker)
+  ] LOOP
+    IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_member_all', t);
+    EXECUTE format('CREATE POLICY %I ON public.%I FOR ALL TO authenticated USING (is_member()) WITH CHECK (is_member())', t || '_member_all', t);
+  END LOOP;
+END $$;
+
+
+SELECT log_migration_applied('name', 'desc');
 --      재실행 안전 (ON CONFLICT DO NOTHING). 처음 적용 시에만 admin_notifications insert.
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS applied_migrations (
@@ -828,11 +868,6 @@ CREATE TABLE IF NOT EXISTS applied_migrations (
 
 ALTER TABLE applied_migrations ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "applied_migrations_service_all" ON applied_migrations;
-CREATE POLICY "applied_migrations_service_all"
-  ON applied_migrations FOR ALL
-  USING (true)
-  WITH CHECK (true);
 
 CREATE OR REPLACE FUNCTION log_migration_applied(p_name text, p_description text DEFAULT '')
 RETURNS void
@@ -887,12 +922,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS uniq_comment_reports_pending
 
 ALTER TABLE comment_reports ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "comment_reports_service_all" ON comment_reports;
-CREATE POLICY "comment_reports_service_all"
-  ON comment_reports FOR ALL
-  USING (true)
-  WITH CHECK (true);
-
 
 -- ────────────────────────────────────────────────────────────
 -- 11. revisions — 에디터 리비전 히스토리 (posts + works 공용)
@@ -915,15 +944,6 @@ CREATE INDEX IF NOT EXISTS idx_revisions_entity
   ON revisions (entity_type, entity_id, created_at DESC);
 
 ALTER TABLE revisions ENABLE ROW LEVEL SECURITY;
-
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'revisions' AND policyname = 'revisions_service_all'
-  ) THEN
-    CREATE POLICY "revisions_service_all" ON revisions FOR ALL USING (true) WITH CHECK (true);
-  END IF;
-END $$;
 
 
 -- ────────────────────────────────────────────────────────────
@@ -949,12 +969,6 @@ CREATE POLICY "post_work_relations_public_read"
   ON post_work_relations FOR SELECT
   USING (true);
 
-DROP POLICY IF EXISTS "post_work_relations_service_all" ON post_work_relations;
-CREATE POLICY "post_work_relations_service_all"
-  ON post_work_relations FOR ALL
-  USING (true)
-  WITH CHECK (true);
-
 
 -- ────────────────────────────────────────────────────────────
 -- series_work_relations — series ↔ works 다대다 (프로젝트에 관련 시리즈 연결)
@@ -975,12 +989,6 @@ DROP POLICY IF EXISTS "series_work_relations_public_read" ON series_work_relatio
 CREATE POLICY "series_work_relations_public_read"
   ON series_work_relations FOR SELECT
   USING (true);
-
-DROP POLICY IF EXISTS "series_work_relations_service_all" ON series_work_relations;
-CREATE POLICY "series_work_relations_service_all"
-  ON series_work_relations FOR ALL
-  USING (true)
-  WITH CHECK (true);
 
 
 -- ────────────────────────────────────────────────────────────
@@ -1366,18 +1374,6 @@ CREATE TABLE IF NOT EXISTS admin_login_attempts (
 
 ALTER TABLE admin_login_attempts ENABLE ROW LEVEL SECURITY;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'admin_login_attempts' AND policyname = 'admin_login_attempts_service_only'
-  ) THEN
-    CREATE POLICY "admin_login_attempts_service_only"
-      ON admin_login_attempts FOR ALL
-      USING (true)
-      WITH CHECK (true);
-  END IF;
-END $$;
-
 
 -- ────────────────────────────────────────────────────────────
 -- admin_known_devices — 새 기기 로그인 이메일 인증
@@ -1403,18 +1399,6 @@ CREATE INDEX IF NOT EXISTS admin_known_devices_token_idx
 
 ALTER TABLE admin_known_devices ENABLE ROW LEVEL SECURITY;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'admin_known_devices' AND policyname = 'admin_known_devices_service_only'
-  ) THEN
-    CREATE POLICY "admin_known_devices_service_only"
-      ON admin_known_devices FOR ALL
-      USING (true)
-      WITH CHECK (true);
-  END IF;
-END $$;
-
 
 -- 버킷 자동 생성
 --   - uploads : admin/upload 라우트 (일반 첨부)
@@ -1426,31 +1410,18 @@ VALUES
   ('posts',   'posts',   true)
 ON CONFLICT (id) DO NOTHING;
 
--- 인증된 사용자만 업로드 / 누구나 조회 — uploads + posts 두 버킷 모두
+-- 조회만 공개. 업로드 정책은 두지 않는다 —
+--   브라우저 업로드는 서버가 발급한 서명 URL(uploadToSignedUrl)로만 이뤄지고,
+--   그 방식은 RLS 정책을 요구하지 않는다. 서버 업로드는 service_role(BYPASSRLS).
+--   authenticated INSERT 를 열어 두면 멤버가 서버의 확장자·크기 검증을 건너뛸 수 있다.
 DO $$
 BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Authenticated users can upload'
-  ) THEN
-    CREATE POLICY "Authenticated users can upload"
-      ON storage.objects FOR INSERT
-      WITH CHECK (bucket_id = 'uploads' AND auth.role() = 'authenticated');
-  END IF;
-
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Anyone can view uploads'
   ) THEN
     CREATE POLICY "Anyone can view uploads"
       ON storage.objects FOR SELECT
       USING (bucket_id = 'uploads');
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Authenticated users can upload to posts'
-  ) THEN
-    CREATE POLICY "Authenticated users can upload to posts"
-      ON storage.objects FOR INSERT
-      WITH CHECK (bucket_id = 'posts' AND auth.role() = 'authenticated');
   END IF;
 
   IF NOT EXISTS (
@@ -1781,3 +1752,14 @@ ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.
 -- ============================================================
+
+-- ────────────────────────────────────────────────────────────
+-- 익명 역할의 쓰기 권한 회수 (심층 방어)
+--   Supabase 기본값은 public 스키마 전 테이블에 anon 앞으로 GRANT ALL 이다.
+--   브라우저는 테이블에 직접 쓰지 않으므로(auth · Realtime · storage 만 사용) 회수한다.
+--   SELECT 는 남긴다 — 공개 목록/상세가 anon 클라이언트로 읽고 *_public_read 가 범위를 정한다.
+--   정책을 한 번 잘못 써도(TO 절 누락 등) 익명이 쓰기를 시도조차 못 하게 하는 층이다.
+-- ────────────────────────────────────────────────────────────
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON ALL TABLES IN SCHEMA public FROM anon;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON TABLES FROM anon;
