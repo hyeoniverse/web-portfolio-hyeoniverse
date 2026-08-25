@@ -1667,3 +1667,19 @@
     height: 1.5px;
   }
 }
+
+/* 처리 필요 알림 배지 — 팝업 목록에서 결정이 필요한 항목을 정보성과 구분한다 */
+.notifDropdownItemAction {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: var(--box-3xs-xs);
+  border-radius: var(--radius-capsule);
+  /* accent 는 읽지 않음 dot 이 이미 쓴다 — 결정이 필요한 항목은 다른 색이라야 구분된다 */
+  background: var(--bg-warning-soft);
+  color: var(--text-warning);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  white-space: nowrap;
+}

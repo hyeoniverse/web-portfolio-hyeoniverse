@@ -163,3 +163,28 @@
   margin-bottom: var(--spacing-md);
 }
 
+
+/* 필터 칩의 건수 — 어디에 몇 건 밀려 있는지 목록을 열지 않고 안다 */
+.tabCount {
+  margin-left: var(--spacing-2xs);
+  padding: 0 4px;
+  border-radius: var(--radius-capsule);
+  background: color-mix(in oklch, currentColor 15%, transparent);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  font-variant-numeric: tabular-nums;
+  color: currentColor;
+}
+
+/* 본문 쪽만 눌러 상세를 연다 — 우측 조작 버튼까지 열리면 처리하려다 모달이 뜬다 */
+.itemMainClickable {
+  cursor: pointer;
+}
+
+.list .itemMainClickable {
+  transition: opacity var(--duration-fast);
+}
+
+.itemMainClickable:hover {
+  opacity: 0.75;
+}
