@@ -826,6 +826,11 @@
   font-size: calc(clamp(0.85rem, 3vw, 0.95rem) * var(--ide-font-scale, 1));
   color: var(--text-secondary);
   word-break: break-word;
+  /* 본문이 한 문단 안에서 줄바꿈(\n)으로 항목을 나열한다 (①/② 나열, - 목록 등).
+     문단 분리는 \n\n 이 담당하고 renderParagraphs 가 블록으로 쪼개므로, 남은 단일 \n 은
+     여기서 시각적 줄바꿈이 되어야 한다. 없으면 나열이 한 줄로 이어붙어 읽히지 않는다.
+     .troubleEntry p (모바일/카드 뷰) 가 같은 이유로 이미 pre-line 이다. */
+  white-space: pre-line;
 }
 
 /* 빈 라인 — 줄번호만 카운트되도록 padding 유지, 최소 한 줄 높이 보장 */
@@ -833,12 +838,16 @@
   content: "\00a0"; /* &nbsp; */
 }
 
-/* Divider — 섹션 사이 구분선. 줄번호 위치는 비우고 content 영역에만 dashed line */
+/* 인라인 코드는 전역 <code> 칩(사이트 공통), 펜스 코드블록은 리더/댓글/에디터와 동일한
+   .code-block-wrap 파이프라인(CanonicalCodeBlock)이 렌더 — 여기 로컬 코드 클래스 없음. */
+
+/* Divider — 섹션 사이 구분선. 줄번호 위치는 비우고 content 영역에만 dashed line.
+   위아래 여백을 넉넉히 줘서 섹션 구분이 분명하게 */
 .ideDivider {
   display: flex;
   gap: var(--spacing-md);
   align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-md);
   line-height: 1.7;
 }
 

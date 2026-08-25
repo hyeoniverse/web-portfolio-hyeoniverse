@@ -16,7 +16,7 @@ interface SectionNavProps {
 }
 
 // 그룹 boundary — 이 index 의 항목 *뒤* 에 divider 표시 (이후 항목은 다른 그룹)
-// 0: Hello | 1-4: About (Overview/Arch/Flow/Features) | 5-12: Build (System/Process/Tech/Backend/ERD/Code/TS/Security) | 13: Credits
+// 0: Hello | 1-4: About (Overview/Arch/Flow/Features) | 5-12: Build (System/Process/Tech/Backend/ERD/Code/Decisions/Security) | 13: Credits
 const GROUP_BOUNDARIES_AFTER = new Set([0, 4, 12]);
 
 export default function SectionNav({

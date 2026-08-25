@@ -44,8 +44,8 @@ export default async function PostDetailPage({ params }) {
   return <PostDetailClient post={post} />;
 }
 // → 클라이언트는 이미 렌더된 HTML을 받아 즉시 표시`,
-    demoMode: "sandbox",
-    demoFiles: codeDemoFiles.magnetic,
+    /* 서버 렌더링은 클라이언트 샌드박스로 시연할 수 없다. 무관한 데모를 붙이는 대신
+       데모 칸을 비워 코드가 전체 폭을 쓰게 한다. */
   },
   {
     title: "Infinite Scroll Wrapping",

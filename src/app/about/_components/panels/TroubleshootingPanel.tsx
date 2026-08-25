@@ -11,6 +11,9 @@ import { troubleShootingItems } from "@/data/about/troubleshooting";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { TroubleshootingDifficulty, TroubleshootingDiagram, TroubleshootingImage, TroubleShootingItem } from "@/data/about/types";
 import { renderHighlight } from "../renderHighlight";
+import { highlightCodeBlocks, attachCodeWrapToggle } from "@/components/posts/highlightCodeBlocks";
+import { getVizParts } from "../TroubleViz";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
@@ -23,6 +26,85 @@ import { ImageViewer } from "@/components/ui/ImageViewer";
 import shared from "../AboutSection.module.css";
 import local from "./TroubleshootingPanel.module.css";
 const styles = { ...shared, ...local };
+
+/** 리더/댓글/에디터와 동일한 코드블록 — highlightCodeBlocks + attachCodeWrapToggle 를 그대로 돌린다.
+ *
+ *  <pre> 를 JSX 나 dangerouslySetInnerHTML 로 렌더하면 안 된다. 그러면 그 subtree 의 소유자가
+ *  React 라, 하이라이팅과 프레임(.code-block-wrap)을 주입해 둔 DOM 을 이후 렌더가 원본으로
+ *  되돌린다 — 화면엔 스타일 없는 맨 <pre> 만 남고 에러는 안 난다. 실제로 About 패널이 여러 번
+ *  마운트되는 환경에서 일부 인스턴스만 프레임을 잃는 형태로 재현됐다.
+ *
+ *  그래서 React 에는 빈 div 만 맡기고, 노드 생성부터 정리까지 이 effect 가 전부 소유한다. */
+function CanonicalCodeBlock({ code, lang }: { code: string; lang: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
+  const safeLang = lang.replace(/[^a-zA-Z0-9+#._-]/g, "").slice(0, 20);
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+
+    const pre = document.createElement("pre");
+    const codeEl = document.createElement("code");
+    if (safeLang) codeEl.className = `language-${safeLang}`;
+    codeEl.textContent = code; // textContent 라 별도 이스케이프 불필요
+    pre.appendChild(codeEl);
+    root.appendChild(pre);
+
+    highlightCodeBlocks(root);
+    attachCodeWrapToggle(root, {
+      wrap: t("common.codeWrap"),
+      scroll: t("common.codeScroll"),
+      wrapTitle: t("common.codeWrapTitle"),
+      scrollTitle: t("common.codeScrollTitle"),
+      copy: t("common.codeCopy"),
+      copied: t("common.codeCopied"),
+    });
+
+    /* 이 패널에서는 코드블록을 줄바꿈 고정으로 둔다.
+       About 은 Lenis + GSAP 가로 스크롤 위에 올라가 있어 휠이 페이지로 라우팅된다.
+       그래서 코드블록의 가로 스크롤은 프로그램적으로만 움직이고 휠로는 끝까지 못 간다
+       (scrollLeft 는 41px 까지 이동하지만 wheel 은 0 에서 변하지 않는 것을 확인).
+       스크롤이 실제로 안 되는데 스크롤/줄바꿈 토글만 남으면 잘린 코드를 볼 방법이 없다. */
+    root.querySelectorAll("pre").forEach((el) => {
+      (el as HTMLElement).style.whiteSpace = "pre-wrap";
+    });
+    root.querySelectorAll("button[data-wrap-btn]").forEach((btn) => btn.remove());
+
+    // attachCodeWrapToggle 이 pre 를 wrap/outer 로 감싸므로 root 를 통째로 비운다
+    return () => root.replaceChildren();
+  }, [code, safeLang, t]);
+  return <div ref={ref} />;
+}
+
+
+/** 한 섹션의 도형을 본문 마커(`[[viz]]`)와 섹션 끝에 나눠 그리기 위한 소비자.
+ *  본문에 마커가 있으면 그 자리에서 하나씩 꺼내 쓰고, 남은 도형은 종전처럼 섹션 끝에 붙는다. */
+function makeVizFeeder(
+  vizKey: string | undefined,
+  position: "definition" | "cause" | "solution" | "insight",
+  language: Language,
+) {
+  const parts = vizKey ? getVizParts(vizKey, position, language) : [];
+  let i = 0;
+  return {
+    /* 도형을 본문 줄과 같은 구조(.ideLine + 빈 줄번호 칸)로 감싼다. 그래야 글자 열과
+       왼쪽이 정확히 맞는다. .ideIndent 는 코드블록용 padding 이라 11px 더 들어간다. */
+    take: () =>
+      i < parts.length ? (
+        <div key={`v${i}`} className={styles.ideLine}>
+          <span className={styles.ideLineNum} />
+          <div className={styles.ideLineText}>{parts[i++]}</div>
+        </div>
+      ) : null,
+    rest: () =>
+      i < parts.length ? (
+        <div className={styles.ideLine}>
+          <span className={styles.ideLineNum} />
+          <div className={styles.ideLineText}>{parts.slice(i)}</div>
+        </div>
+      ) : null,
+  };
+}
 
 /** 난이도별 라벨 + 색상 톤 + 한 줄 설명. tooltip 은 hover 한 등급 하나만 표시 */
 const DIFFICULTY_META: Record<
@@ -62,6 +144,11 @@ const DIFFICULTY_META: Record<
 interface TroubleshootingPanelProps {
   language: Language;
   scrollBy?: (deltaX: number) => void;
+}
+
+/** 화면 표시용 제목 — title(핵심 개념)이 있으면 우선, 없으면 problem(증상). */
+function displayTitle(item: TroubleShootingItem): LocalizedText {
+  return item.title ?? item.problem;
 }
 
 /** 난이도 뱃지 — "쉬움 / 보통 / 어려움" 라벨 + 색상 톤. 자체 tooltip 없음 — 부모 file row tooltip 에 통합됨. */
@@ -349,29 +436,108 @@ function TroubleshootingPanel({
   const openImageViewer = useCallback((item: TroubleShootingItem, clickedImg: TroubleshootingImage) => {
     const srcs = (item.images ?? []).filter((i): i is TroubleshootingImage & { src: string } => !!i.src).map((i) => i.src);
     const idx = clickedImg.src ? srcs.indexOf(clickedImg.src) : 0;
-    setViewerState({ images: srcs, index: Math.max(0, idx), title: item.problem[language] });
+    setViewerState({ images: srcs, index: Math.max(0, idx), title: displayTitle(item)[language] });
   }, [language]);
 
-  /** \n\n 로 구분된 문단을 각각 별도 ideLine 으로 렌더 + 사이에 빈 줄 — 가독성 위해 */
+  /** \n\n 로 구분된 문단을 각각 별도 ideLine 으로 렌더 + 사이에 빈 줄. ``` 펜스는 코드블록으로.
+   *  인라인 `code`·**bold**·*italic*·용어 툴팁은 renderHighlight 가 처리. */
   const renderParagraphs = useCallback(
-    (text: string, opts?: { insightStyle?: boolean }) => {
-      const paragraphs = text.split(/\n\n+/);
-      return paragraphs.map((para, pi) => (
-        <React.Fragment key={pi}>
-          {pi > 0 && (
+    (
+      text: string,
+      opts?: { insightStyle?: boolean; takeViz?: () => React.ReactNode | null },
+    ) => {
+      // 펜스 코드블록(``` … ```)을 먼저 통째로 분리 — 블록 내부에 빈 줄(\n\n)이 있어도
+      // \n\n 문단 분리에 두 동강 나지 않게 한다.
+      type Block =
+        | { type: "code"; code: string; lang: string }
+        | { type: "prose"; text: string }
+        | { type: "viz" };
+      const blocks: Block[] = [];
+      const pushProse = (chunk: string) => {
+        for (const p of chunk.split(/\n\n+/)) {
+          const t = p.replace(/^\n+|\n+$/g, "");
+          if (!t.trim()) continue;
+          /* `[[viz]]` 한 줄은 그 자리에 도형을 넣으라는 표시다. 도형을 섹션 끝에 몰지 않고
+             설명이 필요한 문단 사이에 끼우기 위한 마커. */
+          if (t.trim() === "[[viz]]") blocks.push({ type: "viz" });
+          else blocks.push({ type: "prose", text: t });
+        }
+      };
+      const fenceRe = /```[^\n]*\n[\s\S]*?```/g;
+      let last = 0;
+      let m: RegExpExecArray | null;
+      while ((m = fenceRe.exec(text)) !== null) {
+        if (m.index > last) pushProse(text.slice(last, m.index));
+        const fence = m[0];
+        const lang = fence.match(/^```([^\n]*)/)?.[1]?.trim() ?? "";
+        const code = fence.replace(/^```[^\n]*\n?/, "").replace(/\n?```\s*$/, "");
+        blocks.push({ type: "code", code, lang });
+        last = m.index + fence.length;
+      }
+      if (last < text.length) pushProse(text.slice(last));
+
+      return blocks.map((blk, bi) => {
+        const gap =
+          bi > 0 ? (
             <div className={`${styles.ideLine} ${styles.ideLineEmpty}`}>
               <span className={styles.ideLineNum} />
               <span className={styles.ideLineText} />
             </div>
-          )}
-          <div className={styles.ideLine}>
-            <span className={styles.ideLineNum} />
-            <span className={`${styles.ideLineText} ${opts?.insightStyle ? styles.ideInsight : ""}`}>
-              {renderHighlight(para, language)}
-            </span>
-          </div>
-        </React.Fragment>
-      ));
+          ) : null;
+
+        /* 본문 안의 `### 소제목` — 긴 항목에서 검토 대상을 나눠 준다.
+           섹션 제목(##)은 패널이 그리고, 이건 섹션 안쪽 단계 구분용이다. */
+        if (blk.type === "prose" && /^###\s+/.test(blk.text)) {
+          return (
+            <React.Fragment key={bi}>
+              {gap}
+              <div className={styles.ideLine}>
+                <span className={styles.ideLineNum} />
+                <span className={styles.ideLineText}>
+                  <span className={styles.ideHashH2}>###</span>{" "}
+                  <span className={styles.ideHeading}>
+                    {blk.text.replace(/^###\s+/, "")}
+                  </span>
+                </span>
+              </div>
+            </React.Fragment>
+          );
+        }
+
+        if (blk.type === "viz") {
+          const node = opts?.takeViz?.() ?? null;
+          if (!node) return null;
+          return (
+            <React.Fragment key={bi}>
+              {gap}
+              {node}
+            </React.Fragment>
+          );
+        }
+
+        if (blk.type === "code") {
+          return (
+            <React.Fragment key={bi}>
+              {gap}
+              <div className={styles.ideIndent}>
+                <CanonicalCodeBlock code={blk.code} lang={blk.lang} />
+              </div>
+            </React.Fragment>
+          );
+        }
+
+        return (
+          <React.Fragment key={bi}>
+            {gap}
+            <div className={styles.ideLine}>
+              <span className={styles.ideLineNum} />
+              <span className={`${styles.ideLineText} ${opts?.insightStyle ? styles.ideInsight : ""}`}>
+                {renderHighlight(blk.text, language)}
+              </span>
+            </div>
+          </React.Fragment>
+        );
+      });
     },
     [language],
   );
@@ -381,7 +547,7 @@ function TroubleshootingPanel({
     (item: TroubleShootingItem, position: "definition" | "cause" | "solution" | "insight") => {
       const images = item.images;
       if (!images || images.length === 0) return null;
-      const filtered = images.filter((img) => (img.position ?? "solution") === position);
+      const filtered = images.filter((img) => img.src && (img.position ?? "solution") === position);
       if (filtered.length === 0) return null;
       return (
         <div className={styles.ideIndent}>
@@ -569,9 +735,9 @@ function TroubleshootingPanel({
     if (!editor) return;
     const ACTIVE_DELTA = 15; // 이상 = 적극 스크롤
     const QUIET_MS = 100; // active wheel 사이 이 시간 이상 비면 = release 후 재스크롤
-    const PUSH_THRESHOLD = 250; // edge 위 active 누적 = 손 안 떼고 계속 push 의 신호
+    const PUSH_THRESHOLD = 520; // edge 위 active 누적 = 손 안 떼고 "명백하게" 계속 세게 push 의 신호
     const COOLDOWN_MS = 250; // 전환 직후 잠금
-    const EDGE_GRACE_MS = 300; // edge 도달 직후 이 시간 동안은 전환 X (fling 흡수)
+    const EDGE_GRACE_MS = 420; // edge 도달 직후 이 시간 동안은 전환 X (fling 흡수)
     const SWIPE_THRESHOLD = 50;
     const TOUCH_LOCK_RATIO = 1.2;
 
@@ -835,10 +1001,16 @@ function TroubleshootingPanel({
     if (isMobile) return;
     const QUIET_MS = 100; // 이 이상 active wheel 없으면 누적 reset
     const ACTIVE_DELTA = 5;
-    const ITEM_THRESHOLD = 120; // 누적 delta px — 1 항목 advance 트리거
-    const PANEL_THRESHOLD = 200;
+    // 콘텐츠 끝에서 "명백하게 다음으로 넘어가려는" 세고 연속된 스크롤일 때만 전환.
+    // 값이 낮으면 본문 끝에 닿자마자 살짝만 굴려도 넘어가 읽기를 방해한다.
+    const ITEM_THRESHOLD = 450; // 누적 delta px — 1 항목 advance 트리거
+    const PANEL_THRESHOLD = 500;
     const EDGE_TOLERANCE = 5;
-    const COOLDOWN_MS = 400; // advance 후 이 시간 동안은 추가 advance 차단 → 연속 swipe 가 너무 빠르게 안 넘어감
+    const COOLDOWN_MS = 400; // advance 후 이 시간 동안은 추가 advance 차단
+    const EDGE_GRACE_MS = 400; // 본문 끝에 막 닿은 직후 이 시간 동안은 전환 X (fling 흡수)
+
+    // 본문 끝(edge)에 진입한 시각. 0 = 아직 edge 아님. "멈췄다 다시 스크롤" 판정용.
+    let atEdgeSince = 0;
 
     const handleWheel = (e: WheelEvent) => {
       const panel = panelRef.current;
@@ -868,80 +1040,80 @@ function TroubleshootingPanel({
         return;
       }
 
-      // weak delta (momentum tail) — 차단 (Lenis 가 가로로 슬쩍 advance 시키지 못하도록)
-      if (Math.abs(e.deltaY) < ACTIVE_DELTA) {
-        e.stopPropagation();
-        e.preventDefault();
-        return;
-      }
-
-      const now = performance.now();
-      // quiet 후 새 burst — 누적 reset
-      if (now - lastActiveTimeRef.current > QUIET_MS) {
-        scrollAccumRef.current = 0;
-      }
-      lastActiveTimeRef.current = now;
-
-      // cooldown 중 — 추가 advance 차단 (editor scroll 도 차단해서 새 content 의 scrollTop 보호).
-      if (now - lastAdvanceRef.current < COOLDOWN_MS) {
-        e.stopPropagation();
-        e.preventDefault();
-        return;
-      }
-
-      // editor 내부 스크롤 — 본문이 길어 자체 스크롤 가능 + edge 아닐 때
+      // 본문(editor content)이 스크롤 방향으로 더 갈 수 있으면 — 본문을 직접 스크롤(Lenis 가로 이동 차단).
       const content = editor?.querySelector(`.${styles.ideEditorContent}`) as HTMLElement | null;
       if (content && content.scrollHeight > content.clientHeight + EDGE_TOLERANCE) {
         const atTop = content.scrollTop <= EDGE_TOLERANCE;
         const atBottom = content.scrollTop + content.clientHeight >= content.scrollHeight - EDGE_TOLERANCE;
         const goingDown = e.deltaY > 0;
-        const goingUp = e.deltaY < 0;
-        if ((goingDown && !atBottom) || (goingUp && !atTop)) {
+        if ((goingDown && !atBottom) || (!goingDown && !atTop)) {
           e.stopPropagation();
           e.preventDefault();
           content.scrollBy({ top: e.deltaY });
           scrollAccumRef.current = 0;
+          atEdgeSince = 0;
           return;
         }
       }
 
-      // 누적
-      scrollAccumRef.current += e.deltaY;
+      // 여기부터는 본문 끝(또는 스크롤 불가 항목). Lenis 가로 이동을 막고, "명백한 재스크롤" 일 때만 전환.
+      e.stopPropagation();
+      e.preventDefault();
+
+      const now = performance.now();
+
+      // momentum tail(약한 delta) — 무시. lastActive 를 갱신하지 않아 "손 뗌(release)" 을 감지할 수 있게 둔다.
+      if (Math.abs(e.deltaY) < ACTIVE_DELTA) return;
+      // 전환 직후 잠금
+      if (now - lastAdvanceRef.current < COOLDOWN_MS) return;
+
+      if (atEdgeSince === 0) atEdgeSince = now;
+      const wasQuiet = now - lastActiveTimeRef.current > QUIET_MS;
+      lastActiveTimeRef.current = now;
+
+      // 끝에 막 닿은 직후 — 강한 fling 잔여 스크롤을 흡수(전환 X)
+      if (now - atEdgeSince < EDGE_GRACE_MS) {
+        scrollAccumRef.current = 0;
+        return;
+      }
 
       const cur = detailIndexRef.current;
       const curVisIdx = visibleItems.findIndex((v) => v.idx === cur);
-      const dir = scrollAccumRef.current > 0 ? 1 : -1;
+      const dir = e.deltaY > 0 ? 1 : -1;
       const nextVisIdx = dir > 0
         ? Math.min(visibleItems.length - 1, curVisIdx + 1)
         : Math.max(0, curVisIdx - 1);
       const nextOriginalIdx = visibleItems[nextVisIdx]?.idx ?? cur;
       const atBoundary = nextOriginalIdx === cur;
 
-      // boundary — 마지막 항목 + 아래 방향 (dir > 0) 일 때만 panel advance (scrollBy 로 직접).
-      if (atBoundary) {
-        e.stopPropagation();
-        e.preventDefault();
-        if (dir > 0 && Math.abs(scrollAccumRef.current) >= PANEL_THRESHOLD && scrollBy) {
-          scrollAccumRef.current = 0;
-          lastAdvanceRef.current = now;
-          scrollBy(window.innerWidth);
+      const doAdvance = () => {
+        if (atBoundary) {
+          // 마지막 항목 + 아래 방향일 때만 다음 패널로
+          if (dir > 0 && scrollBy) {
+            lastAdvanceRef.current = now;
+            atEdgeSince = 0;
+            scrollAccumRef.current = 0;
+            scrollBy(window.innerWidth);
+          }
+          return;
         }
+        setDetailIndex(nextOriginalIdx);
+        lastAdvanceRef.current = now;
+        atEdgeSince = 0;
+        scrollAccumRef.current = 0;
+      };
+
+      // (a) 끝에서 멈췄다(quiet) 다시 스크롤 = 명백한 의도 → 즉시 전환
+      if (wasQuiet) {
+        doAdvance();
         return;
       }
 
-      // item advance 임계치 미달 — 누적 중 (Lenis 차단)
-      if (Math.abs(scrollAccumRef.current) < ITEM_THRESHOLD) {
-        e.stopPropagation();
-        e.preventDefault();
-        return;
+      // (b) 손 안 떼고 계속 세게 밀 때만 — 높은 누적 임계 넘으면 전환
+      scrollAccumRef.current += e.deltaY;
+      if (Math.abs(scrollAccumRef.current) >= (atBoundary ? PANEL_THRESHOLD : ITEM_THRESHOLD)) {
+        doAdvance();
       }
-
-      // advance 1 step + cooldown 설정 → 이후 COOLDOWN_MS 동안 추가 advance 차단 (계속 스크롤해도 throttle)
-      e.stopPropagation();
-      e.preventDefault();
-      setDetailIndex(nextOriginalIdx);
-      scrollAccumRef.current = 0;
-      lastAdvanceRef.current = now;
     };
     window.addEventListener("wheel", handleWheel, { capture: true, passive: false });
     return () => window.removeEventListener("wheel", handleWheel, { capture: true });
@@ -1036,10 +1208,10 @@ function TroubleshootingPanel({
                       wrapperStyle={{ display: "block", width: "100%", minWidth: 0 }}
                       content={
                         <div className={styles.ideExplorerFileTooltip}>
-                          <div className={styles.ideExplorerFileTooltipMain}>{item.problem[language]}</div>
-                          {item.problem[language === "ko" ? "en" : "ko"] !== item.problem[language] && (
+                          <div className={styles.ideExplorerFileTooltipMain}>{displayTitle(item)[language]}</div>
+                          {displayTitle(item)[language === "ko" ? "en" : "ko"] !== displayTitle(item)[language] && (
                             <div className={styles.ideExplorerFileTooltipSub}>
-                              {item.problem[language === "ko" ? "en" : "ko"]}
+                              {displayTitle(item)[language === "ko" ? "en" : "ko"]}
                             </div>
                           )}
                           {item.difficulty && (
@@ -1067,7 +1239,7 @@ function TroubleshootingPanel({
                           {String(index + 1).padStart(2, "0")}
                         </span>
                         <span className={styles.troubleListTitle}>
-                          {item.problem[language]}
+                          {displayTitle(item)[language]}
                         </span>
                         <span className={styles.troubleListBadges}>
                           {item.difficulty && <DifficultyBadge level={item.difficulty} language={language} />}
@@ -1120,7 +1292,7 @@ function TroubleshootingPanel({
                 return (
                   <Tooltip
                     key={index}
-                    content={item.problem[language]}
+                    content={displayTitle(item)[language]}
                     placement="bottom"
                     delay={150}
                   >
@@ -1183,7 +1355,7 @@ function TroubleshootingPanel({
                       <span className={styles.ideLineText}>
                         <span className={styles.ideHash}>#</span>{" "}
                         <span className={styles.ideTitle}>
-                          {item.problem[language]}
+                          {displayTitle(item)[language]}
                           <span className={styles.ideCursor} aria-hidden>▊</span>
                         </span>
                       </span>
@@ -1208,18 +1380,25 @@ function TroubleshootingPanel({
                         </span>
                       </div>
                     )}
-                    {item.recommended && (
-                      <div className={styles.ideLine}>
-                        <span className={styles.ideLineNum} />
-                        <span className={styles.ideLineText}>
-                          <span className={styles.ideComment}>
-                            {"// "}@recommended{item.recommendReason ? `: ${item.recommendReason[language]}` : ""}
-                          </span>
-                        </span>
-                      </div>
-                    )}
-
                     <div className={styles.ideDivider} aria-hidden />
+
+                    {/* Symptom (definition) — 무슨 일이 있었나. 증상→원인→해결→교훈 4단의 첫 단 */}
+                    {item.definition && (
+                      <>
+                        <div className={styles.ideLine}>
+                          <span className={styles.ideLineNum} />
+                          <span className={styles.ideLineText}>
+                            <span className={styles.ideHashH2}>##</span>{" "}
+                            <span className={styles.ideHeading}>
+                              <T k="aboutPage.troubleshooting.definition" />
+                            </span>
+                          </span>
+                        </div>
+                        {(() => { const f = makeVizFeeder(item.vizKey, "definition", language); return (<>{renderParagraphs(item.definition![language], { takeViz: f.take })}{renderImagesAt(item, "definition")}{f.rest()}</>); })()}
+
+                        <div className={styles.ideDivider} aria-hidden />
+                      </>
+                    )}
 
                     {/* Cause */}
                     <div className={styles.ideLine}>
@@ -1231,8 +1410,7 @@ function TroubleshootingPanel({
                         </span>
                       </span>
                     </div>
-                    {renderParagraphs(item.cause[language])}
-                    {renderImagesAt(item, "cause")}
+                    {(() => { const f = makeVizFeeder(item.vizKey, "cause", language); return (<>{renderParagraphs(item.cause[language], { takeViz: f.take })}{renderImagesAt(item, "cause")}{f.rest()}</>); })()}
 
                     <div className={styles.ideDivider} aria-hidden />
 
@@ -1246,8 +1424,7 @@ function TroubleshootingPanel({
                         </span>
                       </span>
                     </div>
-                    {renderParagraphs(item.solution[language])}
-                    {renderImagesAt(item, "solution")}
+                    {(() => { const f = makeVizFeeder(item.vizKey, "solution", language); return (<>{renderParagraphs(item.solution[language], { takeViz: f.take })}{renderImagesAt(item, "solution")}{f.rest()}</>); })()}
 
                     {item.comparisons && item.comparisons.length > 0 && (
                       <>
@@ -1328,17 +1505,17 @@ function TroubleshootingPanel({
 
                     <div className={styles.ideDivider} aria-hidden />
 
-                    {/* Key insight */}
+                    {/* Key insight — 나머지 섹션과 동일한 ## 헤딩 */}
                     <div className={styles.ideLine}>
                       <span className={styles.ideLineNum} />
                       <span className={styles.ideLineText}>
-                        <span className={styles.ideComment}>
-                          {"/* "}<T k="aboutPage.troubleshooting.keyInsight" />{" */"}
+                        <span className={styles.ideHashH2}>##</span>{" "}
+                        <span className={styles.ideHeading}>
+                          <T k="aboutPage.troubleshooting.keyInsight" />
                         </span>
                       </span>
                     </div>
-                    {renderParagraphs(item.keyInsight[language], { insightStyle: true })}
-                    {renderImagesAt(item, "insight")}
+                    {(() => { const f = makeVizFeeder(item.vizKey, "insight", language); return (<>{renderParagraphs(item.keyInsight[language], { insightStyle: true, takeViz: f.take })}{renderImagesAt(item, "insight")}{f.rest()}</>); })()}
                   </motion.div>
                 );
               })()}
