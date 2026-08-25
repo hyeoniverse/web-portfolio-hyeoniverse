@@ -37,6 +37,7 @@ import {
   navDescs, navItems, menuItems,
   adminNavItems, adminMenuItems, SKIP_LOADING_PAGES,
 } from "./navigationData";
+import { isPending } from "@/lib/notificationTypes";
 import styles from "./Navigation.module.css";
 
 // 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
@@ -59,13 +60,21 @@ function renderNotifItem(n: NotifItemData, language: "ko" | "en", onClick: () =>
     return d.toLocaleDateString(language === "ko" ? "ko-KR" : "en-US", { month: "short", day: "numeric" });
   };
   return (
+    /* 알림 목록의 그 항목으로 보낸다 — 페이지가 ?id 로 찾아 스크롤하고 활성 표시를 건다.
+       대상 글·댓글로 바로 가는 것은 거기서 열리는 상세의 "바로가기" 가 맡는다. */
     <Link
-      href={n.metadata?.url || "/admin/notifications"}
+      href={`/admin/notifications?id=${encodeURIComponent(n.id)}`}
       className={styles.notifDropdownItemLink}
       onClick={onClick}
     >
       <div className={styles.notifDropdownItemTop}>
         <span className={styles.notifDropdownItemTitle}>{n.title}</span>
+        {/* 결정을 내려야 하는 알림 — 정보성 알림 사이에서 지나치지 않게 표시한다 */}
+        {isPending(n) && (
+          <span className={styles.notifDropdownItemAction}>
+            {language === "ko" ? "처리 필요" : "Action"}
+          </span>
+        )}
         <span className={styles.notifDropdownItemTime}>{formatTime(n.created_at)}</span>
       </div>
       <span className={styles.notifDropdownItemMessage}>{n.message}</span>

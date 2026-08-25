@@ -142,6 +142,15 @@
   color: var(--text-secondary);
 }
 
+/* 결정을 내려야 하는 알림 — accent 는 읽지 않음 dot·활성 표시에 이미 쓰여서 묻힌다.
+   warning 계열이라야 정보성 알림 사이에서 먼저 눈에 들어온다.
+   (클래스 이름은 type 문자열에서 만들어진다: access_request → iconAccess_request) */
+.iconAccess_request,
+.iconDevice_login {
+  background: var(--bg-warning-soft);
+  color: var(--text-warning);
+}
+
 .body {
   flex: 1;
   min-width: 0;
@@ -253,4 +262,79 @@
   font-size: var(--font-size-2xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
+}
+
+/* 알림 팝업에서 넘어온 항목 — 다음 조작이 있을 때까지 천천히 깜빡인다(해제는 페이지가 한다).
+   .item:hover 와 특정도를 맞춰야(.item.itemActive) hover 배경에 밀리지 않는다.
+   transition 이 아니라 animation 이라 전역 테마 transition 규칙과 부딪히지 않는다. */
+.item.itemActive {
+  animation: notifActiveFlash var(--duration-slowest) var(--ease-in-out) infinite;
+}
+
+.item.itemActive .dot {
+  animation: notifActiveDot var(--duration-slowest) var(--ease-in-out) infinite;
+}
+
+@keyframes notifActiveFlash {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: var(--bg-accent-light);
+  }
+}
+
+@keyframes notifActiveDot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(1.5);
+  }
+}
+
+/* ── 처리 필요 묶음 ───────────────────────────────────────── */
+/* 정보성 알림은 계속 쌓여서, 결정을 내려야 하는 알림이 며칠이면 아래로 밀린다.
+   미처리 항목을 목록 맨 위로 모으고 여기서 어디까지가 그 묶음인지 밝힌다. */
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  padding: var(--box-sm-md);
+  border-bottom: var(--border-light);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.groupHeadPending {
+  color: var(--text-warning);
+}
+
+.groupCount {
+  padding: 0 4px;
+  border-radius: var(--radius-capsule);
+  background: color-mix(in oklch, currentColor 15%, transparent);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 미처리 항목 — 아이콘만 강조한다. 행 전체에 배경을 깔면 활성 표시(itemActive)와 겹쳐
+   어느 것이 방금 찾아온 알림인지 구분이 안 된다. */
+.item.itemPending .icon {
+  background: var(--bg-warning-soft);
+  color: var(--text-warning);
+  box-shadow: 0 0 0 1px var(--text-warning);
+}
+
+.item.itemPending .itemTitle {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
 }
