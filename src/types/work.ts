@@ -3,6 +3,14 @@ import { formatProjectNumber } from "@/utils/formatProjectNumber";
 import { getCardSize } from "@/utils/getCardSize";
 
 export interface TeamMember {
+  /**
+   * 연결된 사이트 저자 프로필 id (site.config 의 authors).
+   *
+   * 이 값이 있으면 그 계정은 **이 작업물의 편집자**가 된다 — 작업물에는 author_ids 가 없어
+   * 소유권을 팀원 목록으로 표현한다. 서버의 canEditWork · RLS 의 can_edit_work 가 같은 규칙을 쓴다.
+   * 외부 협업자처럼 사이트 계정이 없는 사람은 이 값 없이 이름만 적는다.
+   */
+  author_id?: string;
   /** ko display name (필수) */
   name: string;
   /** en display name (선택 — 없으면 name 으로 fallback) */

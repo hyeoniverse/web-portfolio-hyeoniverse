@@ -1,10 +1,16 @@
+/* 화면 가운데에 놓는다.
+   60vh 만 잡으면 그 블록 안에서만 가운데라 실제로는 위쪽에 뜬다. 네비는 fixed 오버레이라
+   높이를 차지하지 않고, 아래에는 전역 푸터가 있으므로 그 높이만 뺀다.
+   위아래 여백을 같게 둬야 가운데가 유지된다. */
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-lg);
-  min-height: 60vh;
+  box-sizing: border-box;
+  min-height: calc(100dvh - var(--footer-height));
+  padding: var(--spacing-6xl) var(--page-px);
   text-align: center;
   color: var(--text-tertiary);
 }
@@ -31,4 +37,12 @@
 .backBtn:hover {
   background-color: var(--bg-inverse);
   color: var(--text-inverse);
+}
+
+/* 서버가 돌려준 사유 — 제목만으로는 왜 막혔는지 알 수 없다 */
+.description {
+  max-width: 42ch;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-tertiary);
 }

@@ -6,7 +6,7 @@ import { PREVIEW_KEY } from "@/constants";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { mdToRichHtml } from "@/components/posts/mdToRichHtml";
-import { ChevronRight, Plus, Star, Check, X, User, Pencil } from "@/components/icons";
+import { ChevronRight, Plus, Star, Check, X, User, Pencil, Link2 as LinkIcon } from "@/components/icons";
 import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import CloseButton from "@/components/ui/CloseButton";
@@ -54,6 +54,8 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { List, ListItem } from "@/app/admin/(dashboard)/components";
 import { deriveTeamMemberAvatar, getMemberInitial } from "@/utils/teamMemberAvatar";
+import { useMyRole } from "@/hooks/useMyRole";
+import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import styles from "./WorkEditor.module.css";
 import type { PlateEditorHandle, EditorImageInfo } from "@/components/posts/PlateEditor";
 
@@ -187,6 +189,7 @@ function useRoleMultiPicker({
 function TeamMemberCard({
   member,
   editorLang,
+  linkedAuthorName,
   onChange,
   onRemove,
   onEdit,
@@ -194,6 +197,8 @@ function TeamMemberCard({
 }: {
   member: TeamMember;
   editorLang: "ko" | "en";
+  /** 연결된 사이트 저자 이름 — 이 팀원이 작업물을 편집할 수 있음을 목록에서 드러낸다 */
+  linkedAuthorName?: string;
   onChange: (next: TeamMember) => void;
   onRemove: () => void;
   /** 전체 편집 모드 진입 (KO/EN 분리·역할·작업 내용 등 add-card form 으로) */
@@ -401,13 +406,29 @@ function TeamMemberCard({
             {editingFields.has("name") ? (
               <input type="text" defaultValue={member.name} {...inlineEditProps("name", styles.memberItemName)} />
             ) : (
-              <span
-                className={styles.memberItemName}
-                onMouseDown={dblClickGuard}
-                onDoubleClick={() => startEdit("name")}
-                title="더블클릭으로 편집"
-              >
-                {member.name}
+              <span className={styles.memberNameRow}>
+                <span
+                  className={styles.memberItemName}
+                  onMouseDown={dblClickGuard}
+                  onDoubleClick={() => startEdit("name")}
+                  title="더블클릭으로 편집"
+                >
+                  {member.name}
+                </span>
+                {/* 연결된 계정이 있으면 드러낸다 — 이 목록이 곧 이 작업물의 편집자 명단이다 */}
+                {linkedAuthorName && (
+                  <span
+                    className={styles.memberLinkedBadge}
+                    title={
+                      editorLang === "ko"
+                        ? `${linkedAuthorName} 계정이 이 작업물을 편집할 수 있습니다.`
+                        : `${linkedAuthorName} can edit this project.`
+                    }
+                  >
+                    <LinkIcon size={10} strokeWidth={2} />
+                    {linkedAuthorName}
+                  </span>
+                )}
               </span>
             )}
             {/* role — 두번째 줄 (subtitle). contribs 있으면 각 contrib group label 이 role 표시 담당 → 중복 숨김 */}
@@ -982,10 +1003,20 @@ export default function WorkEditor({ work }: WorkEditorProps) {
     [form],
   );
 
-  const { revisions: dbRevisions, loaded: revisionsLoaded, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions<WorkFormData>({
+  const { revisions: dbRevisions, loaded: revisionsLoaded, latestSnapshot, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions<WorkFormData>({
     entityType: "work",
     entityId: work?.id,
   });
+
+  // 교차 기기 최신 로딩 — 서버 최신 리비전이 마지막 저장본(updated_at)보다 실제로 더 나중일 때만 복원.
+  // updated_at 은 저장 시 명시 갱신되고 저장 시 옛 revision 은 dismiss 되므로, 저장본보다 오래된
+  // stale 리비전이 내용을 되돌리는 사고를 이 가드가 막는다. (편집 중이면 useEditorDraft 가 추가로 차단.)
+  const serverDraft = useMemo(() => {
+    if (!latestSnapshot) return null;
+    const savedContentAt = work?.updated_at ? new Date(work.updated_at).getTime() : 0;
+    if (latestSnapshot.savedAt <= savedContentAt) return null;
+    return latestSnapshot;
+  }, [latestSnapshot, work?.updated_at]);
 
   // draft 복원 모달 제거 — autosave background 동작.
   // 복원은 revision history 패널에서 명시적으로 (markBaseline 으로 baseline 정합화).
@@ -1138,9 +1169,10 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       requestAnimationFrame(markBaseline);
     },
     ignoredKeys: ["scheduled_at"],
-    // 서버(cross-device) 자동복원 비활성 — posts 와 동일 이유(기존 글 stale updated_at → 옛 revision 되돌림).
-    // localStorage 복원(같은 기기)만 사용. 재활성화는 revision 정리 후.
-    serverDraft: null,
+    // 서버(cross-device) 자동복원 — 다른 기기/브라우저에서 이어 쓰기. serverDraft 는 위에서
+    // savedAt>updated_at 가드를 통과한 리비전만(= 저장본보다 실제로 더 나중). 로드 후 미편집(pristine)일
+    // 때만 적용되므로 지금 작업분을 덮지 않는다. localStorage(같은 기기 백업)는 그대로 유지.
+    serverDraft,
   });
 
   const updateField = useCallback(
@@ -1234,6 +1266,27 @@ export default function WorkEditor({ work }: WorkEditorProps) {
   );
 
   const team = useTeamMembers(form.team_members, (members) => updateField("team_members", members));
+
+  /* 팀원에 사이트 저자 프로필을 연결하면 그 계정이 이 작업물의 편집자가 된다
+     (canEditWork · RLS 의 can_edit_work). 연결을 바꾸는 것은 권한을 주고 뺏는 일이라
+     관리자만 할 수 있다 — 서버도 같은 규칙으로 막는다. */
+  const myRole = useMyRole();
+  const siteAuthors = (useSiteConfig().authors ?? []) as Array<{ id: string; name: string; avatar?: string; email?: string; role?: string }>;
+  const linkedAuthorIds = new Set(
+    form.team_members.map((m) => m.author_id).filter((v): v is string => !!v),
+  );
+  /** 연결 토글 — 이미 다른 팀원이 쓰고 있는 계정은 고를 수 없다(한 사람이 두 줄이 되면 안 된다). */
+  const toggleLinkedAuthor = (a: { id: string; name: string; avatar?: string; email?: string }) => {
+    if (team.memberAuthorId === a.id) {
+      team.setMemberAuthorId(undefined);
+      return;
+    }
+    team.setMemberAuthorId(a.id);
+    // 비어 있는 칸만 채운다 — 이미 적어 둔 표시 이름·아바타를 덮지 않는다.
+    if (!team.memberName.trim()) team.setMemberName(a.name);
+    if (!team.memberAvatarUrl.trim() && a.avatar) team.setMemberAvatarUrl(a.avatar);
+    if (!team.memberEmail.trim() && a.email) team.setMemberEmail(a.email);
+  };
 
   // 팀원 역할 multi-picker — select 와 chip 을 분리 배치 (chip 은 URL row 아래) */
   const teamRole = useRoleMultiPicker({
@@ -1457,7 +1510,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         const data = await res.json();
 
         if (!res.ok) {
-          setError(data.error ?? tw("saveFailed"));
+          /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
+          setError(data.reason ?? data.error ?? tw("saveFailed"));
           return;
         }
 
@@ -1586,7 +1640,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? tw("saveError"));
+        /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
+        setError(data.reason ?? data.error ?? tw("saveError"));
         return;
       }
       setStatus(tw("generateSummaryDone"));
@@ -2318,6 +2373,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                   key={i}
                   member={m}
                   editorLang={editorLang}
+                  linkedAuthorName={m.author_id ? siteAuthors.find((a) => a.id === m.author_id)?.name ?? m.author_id : undefined}
                   onChange={(next) => {
                     const newMembers = form.team_members.map((mm, idx) => (idx === i ? next : mm));
                     updateField("team_members", newMembers);
@@ -2440,6 +2496,56 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 placeholder={tw("memberUrl")}
               />
             </div>
+            {/* 사이트 멤버 연결 — 이 작업물의 편집 권한을 주는 것이라 관리자에게만 보인다 */}
+            {myRole.canManageWorks && siteAuthors.length > 0 && (
+              <div className={styles.memberLinkRow}>
+                <span className={styles.memberLinkLabel}>
+                  {editorLang === "ko" ? "사이트 멤버 연결" : "Link site member"}
+                </span>
+                <div className={styles.memberLinkChips}>
+                  {siteAuthors.map((a) => {
+                    const selected = team.memberAuthorId === a.id;
+                    // 다른 팀원이 이미 쓰고 있는 계정 — 편집 중인 본인 것은 제외
+                    const takenByOther = !selected && linkedAuthorIds.has(a.id);
+                    return (
+                      <Chip
+                        key={a.id}
+                        active={selected}
+                        className={takenByOther ? styles.memberLinkChipTaken : undefined}
+                        leftIcon={
+                          <AuthorAvatar
+                            value={a.avatar}
+                            name={a.name}
+                            size={16}
+                            imgClassName={styles.memberLinkChipAvatar}
+                            initialClassName={styles.memberLinkChipAvatar}
+                          />
+                        }
+                        onClick={() => {
+                          if (takenByOther) {
+                            showToast(
+                              editorLang === "ko"
+                                ? `${a.name} 은(는) 이미 다른 팀원에 연결돼 있습니다.`
+                                : `${a.name} is already linked to another member.`,
+                              "info",
+                            );
+                            return;
+                          }
+                          toggleLinkedAuthor(a);
+                        }}
+                      >
+                        {a.name}
+                      </Chip>
+                    );
+                  })}
+                </div>
+                <p className={styles.memberLinkHint}>
+                  {editorLang === "ko"
+                    ? "연결한 계정은 이 작업물을 편집할 수 있습니다. 사이트 계정이 없는 외부 협업자는 연결하지 않습니다."
+                    : "A linked account can edit this project. Leave it unlinked for outside collaborators without a site account."}
+                </p>
+              </div>
+            )}
             {/* role select — 별도 row (full width) */}
             <div className={styles.memberRoleRow}>
               {teamRole.selectNode}

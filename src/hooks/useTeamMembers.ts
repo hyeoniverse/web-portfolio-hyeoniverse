@@ -12,6 +12,10 @@ export function useTeamMembers(
   const [memberUrl, setMemberUrl] = useState("");
   const [memberEmail, setMemberEmail] = useState("");
   const [memberAvatarUrl, setMemberAvatarUrl] = useState("");
+  /* 연결된 사이트 저자 프로필 id — 이 값이 있으면 그 계정이 이 작업물의 편집자가 된다.
+     form 이 이 값을 들고 있지 않으면 팀원을 편집해 저장하는 순간 연결이 사라진다
+     (buildMember 가 form state 로 객체를 새로 만들기 때문). */
+  const [memberAuthorId, setMemberAuthorId] = useState<string | undefined>(undefined);
   const [memberContribsKo, setMemberContribsKo] = useState<Record<string, string[]>>({});
   const [memberContribsEn, setMemberContribsEn] = useState<Record<string, string[]>>({});
   // null = add 모드, number = 해당 index 의 멤버 편집 모드
@@ -25,6 +29,7 @@ export function useTeamMembers(
     setMemberUrl("");
     setMemberEmail("");
     setMemberAvatarUrl("");
+    setMemberAuthorId(undefined);
     setMemberContribsKo({});
     setMemberContribsEn({});
   }, []);
@@ -41,6 +46,7 @@ export function useTeamMembers(
       Object.entries(memberContribsEn).filter(([k, v]) => enRoles.includes(k) && v.length > 0),
     );
     return {
+      author_id: memberAuthorId || undefined,
       name: memberName.trim(),
       name_en: memberNameEn.trim() || undefined,
       role_ko: memberRoleKo.trim(),
@@ -51,7 +57,7 @@ export function useTeamMembers(
       contributions_ko: Object.keys(prunedKo).length > 0 ? prunedKo : undefined,
       contributions_en: Object.keys(prunedEn).length > 0 ? prunedEn : undefined,
     };
-  }, [memberName, memberNameEn, memberRoleKo, memberRoleEn, memberUrl, memberEmail, memberAvatarUrl, memberContribsKo, memberContribsEn]);
+  }, [memberName, memberNameEn, memberRoleKo, memberRoleEn, memberUrl, memberEmail, memberAvatarUrl, memberAuthorId, memberContribsKo, memberContribsEn]);
 
   const addMember = useCallback(() => {
     const member = buildMember();
@@ -82,6 +88,7 @@ export function useTeamMembers(
     setMemberUrl(m.url ?? "");
     setMemberEmail(m.email ?? "");
     setMemberAvatarUrl(m.avatar_url ?? "");
+    setMemberAuthorId(m.author_id);
     setMemberContribsKo(m.contributions_ko ?? {});
     setMemberContribsEn(m.contributions_en ?? {});
     setEditingIdx(index);
@@ -117,6 +124,8 @@ export function useTeamMembers(
     setMemberEmail,
     memberAvatarUrl,
     setMemberAvatarUrl,
+    memberAuthorId,
+    setMemberAuthorId,
     memberContribsKo,
     setMemberContribsKo,
     memberContribsEn,
