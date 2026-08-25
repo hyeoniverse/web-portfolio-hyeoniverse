@@ -388,7 +388,7 @@ export default function SettingsPage() {
       }
 
       savedConfigRef.current = structuredClone(mergedConfig);
-      storedDeltaRef.current = buildDeltaPayload(mergedConfig, savePaths).delta;
+      storedDeltaRef.current = structuredClone(buildDeltaPayload(mergedConfig, savePaths).delta);
       if (shouldSaveProfile) {
         savedProfileRef.current = structuredClone(mergedProfile);
         setProfileData(structuredClone(mergedProfile));
@@ -576,7 +576,7 @@ export default function SettingsPage() {
         throw new Error(body?.reason ?? body?.error ?? `HTTP ${res.status}`);
       }
       savedConfigRef.current = structuredClone(merged);
-      storedDeltaRef.current = payload.delta;
+      storedDeltaRef.current = structuredClone(payload.delta);
       setConfig(structuredClone(merged));
       setMessage(t("admin.settings.saveSuccess"));
       try {
