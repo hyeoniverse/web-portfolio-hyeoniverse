@@ -1,4 +1,5 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { getUserRole } from "./roles";
 
 /**
  * 저자 초대 로직 (이슈 #334 P1-c) — API(초대 시)와 /auth/callback(로그인 시 매칭) 공용.
@@ -25,11 +26,19 @@ export async function getPendingInvite(admin: SupabaseClient, email: string): Pr
   return (data as AuthorInvite | null) ?? null;
 }
 
-/** 초대를 계정에 적용 — app_metadata(role/author_id/level) 부여 + 초대 소비 처리. */
+/** 초대를 계정에 적용 — app_metadata(role/author_id/level) 부여 + 초대 소비 처리.
+ *
+ *  소유자의 role 은 덮어쓰지 않는다. /auth/callback 은 ensureOwnerRole 로 owner 를 못박은 **뒤에**
+ *  초대를 소비하므로, 여기서 role 을 무조건 "author" 로 쓰면 방금 부여한 소유권이 바로 지워진다.
+ *  isOwner 판정에 getUserRole 을 쓰는 이유는 두 가지다 — 콜백이 넘겨주는 user 객체는
+ *  ensureOwnerRole 이 쓰기 전에 읽은 것이라 app_metadata.role 이 아직 갱신돼 있지 않고,
+ *  OWNER_EMAIL 로만 소유자인 계정(아직 못박히기 전)도 같이 걸러야 한다. */
 export async function consumeInvite(admin: SupabaseClient, user: User, invite: AuthorInvite): Promise<void> {
+  const meta = (user.app_metadata ?? {}) as Record<string, unknown>;
   await admin.auth.admin.updateUserById(user.id, {
     app_metadata: {
-      role: "author",
+      ...meta,
+      role: getUserRole(user).isOwner ? "owner" : "author",
       author_id: invite.author_id,
       permission_level: invite.permission_level,
     },

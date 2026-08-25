@@ -75,12 +75,17 @@
   position: relative;
 }
 
-/* bottomRow — EditableTextarea (maxHint) clear + counter 묶음.
-   textarea 안쪽 우하단 오버레이 (리사이즈 grip 18px 피해 right offset). */
+/* bottomRow — 지우개(+ maxLength 있으면 카운터) 묶음.
+   textarea 안쪽 우하단 오버레이.
+
+   테두리가 radius 24px 로 말려 있어 모서리에 바싹 붙이면 유리 chip 이 그 곡선을 덮는다.
+   피하는 방법은 좌우로 물러나는 게 아니라 **위로** 올라가는 것이다 — 아래에서 16px 올리면
+   그 높이에서 곡선이 안쪽으로 파고드는 정도가 1.4px 까지 줄어, 우측을 4px 까지 당겨도
+   테두리와 겹치지 않는다. 우측을 벌리는 건 겹침에 도움이 안 되고 chip 만 가운데로 밀려 보인다. */
 .bottomRow {
   position: absolute;
-  bottom: var(--spacing-xs);
-  right: var(--spacing-xs);
+  bottom: var(--spacing-md);
+  right: var(--spacing-2xs);
   z-index: 3;
   display: flex;
   align-items: center;
@@ -95,11 +100,9 @@
   pointer-events: none;
 }
 
-/* clear (Eraser) — PlainTextarea: editableWrap 우측 상단 absolute / EditableTextarea: bottomRow flex child */
+/* clear (Eraser) — 두 모드 모두 bottomRow 안의 flex child.
+   maxLength 유무로 자리와 크기가 달라 보이면 안 된다. */
 .clearBtn {
-  position: absolute;
-  top: var(--spacing-2xs);
-  right: var(--spacing-2xs);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -118,11 +121,9 @@
   z-index: 1;
 }
 
-/* bottomRow 안에서는 absolute 해제 + flex child 동작. 오버레이는 pointer-events:none 이라 버튼만 되살림 */
+/* 오버레이(bottomRow)는 pointer-events:none 이라 버튼만 되살린다 —
+   그래야 chip 뒤의 텍스트 선택과 리사이즈가 그대로 통한다. */
 .bottomRow .clearBtn {
-  position: static;
-  top: auto;
-  right: auto;
   flex-shrink: 0;
   pointer-events: auto;
 }

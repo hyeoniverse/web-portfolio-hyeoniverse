@@ -3,6 +3,10 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./StickyGlassBar.module.css";
 
+/* 화면에 떠 있는 인스턴스 수. 마지막 하나가 사라질 때만 --sticky-bar-h 를 지운다 —
+   하나가 unmount 될 때 무조건 지우면 아직 떠 있는 다른 바의 높이까지 없어진다. */
+let liveBars = 0;
+
 /**
  * 공통 sticky glass 헤더 바 — 에디터 topBar 와 동일 패턴을 공통화.
  *
@@ -25,6 +29,28 @@ export default function StickyGlassBar({
 }) {
   const [pinned, setPinned] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+
+  /* 이 바의 실제 높이를 --sticky-bar-h 로 알린다.
+     아래에 겹쳐 붙는 sticky 요소(일괄 선택 바 등)가 top 을 계산하는 데 쓴다.
+     고정값을 쓰면 안 된다 — 이 바는 flex-wrap 이라 좁은 화면에서 두 줄 이상으로 늘어나고,
+     그때 아래 바가 이 바 뒤로 깔려 버린다. */
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const publish = () => {
+      document.documentElement.style.setProperty("--sticky-bar-h", `${Math.round(bar.getBoundingClientRect().height)}px`);
+    };
+    liveBars += 1;
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(bar);
+    return () => {
+      ro.disconnect();
+      liveBars -= 1;
+      if (liveBars === 0) document.documentElement.style.removeProperty("--sticky-bar-h");
+    };
+  }, []);
 
   useEffect(() => {
     const update = () => {
@@ -48,7 +74,7 @@ export default function StickyGlassBar({
   return (
     <>
       <div ref={sentinelRef} className={styles.sentinel} aria-hidden />
-      <div className={`${styles.bar}${pinned ? ` ${styles.pinned}` : ""}${className ? ` ${className}` : ""}`}>
+      <div ref={barRef} className={`${styles.bar}${pinned ? ` ${styles.pinned}` : ""}${className ? ` ${className}` : ""}`}>
         {children}
       </div>
     </>

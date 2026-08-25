@@ -16,12 +16,15 @@ interface ModalAlertProps {
   desc: string;
   confirmText?: string;
   onConfirm?: () => void;
+  /** desc 아래에 덧붙일 상세 — 대상 목록 등. (ModalConfirm 과 같은 규약) */
+  children?: ReactNode;
 }
 
 export function ModalAlert({
   desc,
   confirmText = "OK",
   onConfirm,
+  children,
 }: ModalAlertProps) {
   const { closeModal } = useModalStore();
   const footerEl = useContext(ModalFooterContext);
@@ -29,6 +32,7 @@ export function ModalAlert({
   return (
     <div className={`${styles.body} ${styles.alertBody}`}>
       <p className={styles.desc}>{desc}</p>
+      {children}
       {footerEl && createPortal(
         <Button
           variant="primary"

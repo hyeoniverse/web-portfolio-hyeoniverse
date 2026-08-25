@@ -13,6 +13,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import type { PostFormData } from "@/types/post";
 import styles from "@/app/posts/[slug]/PostDetail.module.css";
+import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
 
 export default function PostPreviewPage() {
   const { t } = useLanguage();
@@ -132,14 +133,11 @@ export default function PostPreviewPage() {
     return extractHeadings(content, isMarkdown);
   }, [content, isMarkdown]);
 
-  // author_ids → Author[] 해석. 미할당(빈 배열)이면 기본 작성자(첫 항목) fallback.
-  const previewAuthors = useMemo(() => {
-    const all = siteConfig?.authors ?? [];
-    const resolved = (form?.author_ids ?? [])
-      .map((id) => all.find((a) => a.id === id))
-      .filter((a): a is (typeof all)[number] => Boolean(a));
-    return resolved.length > 0 ? resolved : all.slice(0, 1);
-  }, [siteConfig, form?.author_ids]);
+  // author_ids → Author[] 해석. 미할당(빈 배열)이면 소유자로 돌아간다.
+  const previewAuthors = useMemo(
+    () => resolvePostAuthors(siteConfig?.authors, form?.author_ids),
+    [siteConfig, form?.author_ids],
+  );
 
   // richtext 코드블록 — Shiki 는 서버(/api/highlight)에서 처리(detail 과 동일 util/결과).
   const [highlightedContent, setHighlightedContent] = useState(content);

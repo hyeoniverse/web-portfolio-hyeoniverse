@@ -1,0 +1,71 @@
+/* modalScroll 이 top 패딩(md)만 주므로, 좌우·하단 여백은 여기서 — modalBody 관례와 맞춤 */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+}
+
+/* 상세 입력 — 사유 카드 아래로 부드럽게 등장 */
+.detail {
+  animation: detailIn var(--duration-base) ease;
+}
+
+@keyframes detailIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-2xs);
+}
+
+/* ── 완료 상태 — 체크 배지 + 메시지 세로 중앙 ── */
+.thanks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.thanksIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+  animation: thanksPop var(--duration-slow) var(--ease-bounce) both;
+}
+
+@keyframes thanksPop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.thanksText {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}

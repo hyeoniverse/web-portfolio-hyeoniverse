@@ -50,7 +50,9 @@
   gap: var(--spacing-md);
   flex-wrap: wrap;
   min-height: calc(var(--spacing-xs) + var(--control-h-sm));
-  padding: var(--spacing-xs) var(--spacing-xs) 0;
+  /* 우측은 우상단에 떠 있는 알림 캡슐(.notifyWrap: right 8px, 28px) 자리 확보 —
+     비밀번호 입력이 그 아래로 파고들어 겹치지 않도록 벨 폭 + 간격만큼 비운다. */
+  padding: var(--spacing-xs) calc(var(--control-h-sm) + var(--spacing-xs) + var(--spacing-sm)) 0 var(--spacing-xs);
 }
 
 /* 현재 사용자 identity 표시 */
@@ -58,6 +60,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  flex-shrink: 0;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
@@ -92,9 +95,20 @@
    CommentForm / CommentItem 수정 폼이 공유한다. */
 
 /* 비밀번호 입력(공통 Input) 래퍼 — 폭만 고정. 시각 스타일은 Input size="sm" 이 전부 담당. */
+/* placeholder 가 보일 만큼(≈200px)만, 우측으로 무한정 늘어나 벨과 겹치지 않게 grow 0.
+   좁으면 shrink 후 다음 줄로 wrap. */
 .passwordField {
-  width: 160px;
-  flex-shrink: 0;
+  flex: 0 1 200px;
+  min-width: 0;
+}
+/* 비번 없이 제출 시 흔들림 */
+.pwShake {
+  animation: pwShake 0.38s ease;
+}
+@keyframes pwShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
 }
 
 /* footer (등록 버튼 줄) — giscus `.gsc-comment-box-bottom` 미러:
@@ -239,6 +253,17 @@
 .notifyIcon {
   flex-shrink: 0;
   margin: 0 var(--spacing-xs);
+}
+
+/* 닫힘(원) 상태 — 뒤에 숨은 input/divider/action 이 폭을 차지해 아이콘이 좌측으로 밀리므로
+   Bell 만 캡슐 정중앙에 절대배치. 열림 상태의 glyph 중심(좌측 margin 8 + 6)과 같은 지점이라
+   펼칠 때 위치 튐이 없다. (:not 두 개라 열림/확정 상태에선 자동 해제) */
+.notifyCapsule:not(.notifyCapsuleOpen):not(.notifyCapsuleConfirmed) .notifyIcon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
 }
 
 .notifyInput {

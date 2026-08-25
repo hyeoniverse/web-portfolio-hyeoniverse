@@ -9,6 +9,7 @@ import {
   type CSSProperties,
 } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { DashboardData } from "@/types";
 import type { Report } from "./reports/_types";
 import {
@@ -63,6 +64,7 @@ import styles from "./Dashboard.module.css";
 
 export default function AdminDashboard() {
   const { t, language } = useLanguage();
+  const router = useRouter();
   useStaticPageScroll();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -90,6 +92,12 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       const res = await fetch("/api/admin/dashboard");
+      /* 대시보드는 사이트 전체 통계·중재 데이터라 admin 등급 이상만 볼 수 있다.
+         저자 계정이 /admin 으로 들어오면 에러 화면 대신 자기 작업 공간으로 보낸다. */
+      if (res.status === 403) {
+        router.replace("/admin/posts");
+        return;
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || `HTTP ${res.status}`);
@@ -102,7 +110,7 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     fetchData();

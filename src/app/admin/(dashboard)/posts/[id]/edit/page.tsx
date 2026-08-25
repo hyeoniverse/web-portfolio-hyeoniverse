@@ -10,10 +10,13 @@ import { useLenis } from "@/providers/LenisProvider";
 import type { Post } from "@/types/post";
 import styles from "@/components/posts/PostEditor.module.css";
 
+type LoadFailure = { status: number; reason: string };
+
 export default function EditPostPage() {
   const params = useParams();
   const id = params.id as string;
   const [post, setPost] = useState<Post | null>(null);
+  const [failure, setFailure] = useState<LoadFailure | null>(null);
   const [loading, setLoading] = useState(true);
   const { setInfinite } = useLenis();
 
@@ -22,20 +25,34 @@ export default function EditPostPage() {
   }, [setInfinite]);
 
   useEffect(() => {
-    fetch(`/api/posts/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setPost(data);
+    /* 응답 코드를 구분해야 한다. 예전에는 본문만 보고 id 가 없으면 전부 "찾을 수 없습니다" 로
+       그렸는데, 권한이 없어 403 이 온 경우까지 없는 글처럼 보였다. */
+    (async () => {
+      try {
+        const res = await fetch(`/api/posts/${id}`);
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok || !body?.id) {
+          setFailure({ status: res.status, reason: body?.reason || body?.error || "" });
+        } else {
+          setPost(body as Post);
+        }
+      } catch {
+        setFailure({ status: 0, reason: "" });
+      } finally {
         setLoading(false);
-      });
+      }
+    })();
   }, [id]);
 
   if (loading) return <EditorSkeleton />;
 
   if (!post || !post.id) {
+    const denied = failure?.status === 403;
     return (
       <AdminNotFound
-        title="글을 찾을 수 없습니다"
+        variant={denied ? "denied" : "notFound"}
+        title={denied ? "이 글에 접근할 권한이 없습니다" : "글을 찾을 수 없습니다"}
+        description={failure?.reason || undefined}
         backHref="/admin/posts"
         backLabel="글 목록으로"
       />

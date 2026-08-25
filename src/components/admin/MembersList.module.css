@@ -161,7 +161,7 @@
   color: var(--text-accent);
 }
 
-.roleEditor {
+.roleAdmin {
   background: var(--bg-tertiary);
   color: var(--text-primary);
 }
@@ -240,4 +240,20 @@
 
 .more:hover {
   text-decoration: underline;
+}
+
+/* 지금 로그인한 계정 표시 — 여러 계정이 섞인 목록에서 내 것을 구분한다.
+   역할 배지 옆에 놓이므로 같은 크기·모양을 쓰되 accent 로 구분한다. */
+.meBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px;
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: inherit;
+  white-space: nowrap;
 }

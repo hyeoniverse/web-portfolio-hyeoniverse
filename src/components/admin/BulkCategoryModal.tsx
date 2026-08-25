@@ -9,6 +9,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useModalStore } from "@/stores/modalStore";
 import type { BilingualCategory } from "@/hooks/useCategories";
 import { toCategoryOptions, findCategoryNode } from "@/lib/categoryTree";
+import styles from "./BulkCategoryModal.module.css";
 
 /**
  * 일괄 카테고리 변경 모달
@@ -46,8 +47,8 @@ export default function BulkCategoryModal({ count, categories, onConfirm }: Bulk
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)", padding: "var(--spacing-md) 0" }}>
-      <p style={{ margin: 0, fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-sm)", color: "var(--text-secondary)" }}>
+    <div className={styles.body}>
+      <p className={styles.desc}>
         {t("admin.common.bulkCategoryDesc").replace("{{count}}", String(count))}
       </p>
       <Select value={value} options={options} onChange={setValue} />

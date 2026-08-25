@@ -150,18 +150,23 @@ function PlainTextarea({
             aria-hidden
           />
         )}
+        {/* 지우개 — 글자수 카운터가 있는 쪽과 같은 자리(우하단)·같은 chip 을 쓴다.
+            예전에는 이쪽만 우상단에 맨몸으로 떠 있어서, 같은 컴포넌트인데 maxLength 유무로
+            버튼 위치와 크기가 달라 보였다. 카운터가 없으니 chip 은 값이 있을 때만 그린다. */}
         {!!value && !rest.disabled && !rest.readOnly && (
-          <button
-            type="button"
-            className={styles.clearBtn}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => onChange("")}
-            aria-label="clear"
-            tabIndex={-1}
-            title="지우기"
-          >
-            <Eraser size={11} strokeWidth={2} />
-          </button>
+          <div className={styles.bottomRow}>
+            <button
+              type="button"
+              className={styles.clearBtn}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => onChange("")}
+              aria-label="clear"
+              tabIndex={-1}
+              title="지우기"
+            >
+              <Eraser size={11} strokeWidth={2} />
+            </button>
+          </div>
         )}
       </div>
     </div>

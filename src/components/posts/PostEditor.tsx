@@ -387,10 +387,20 @@ export default function PostEditor({ post }: PostEditorProps) {
 
   // 새 글도 DB revision 저장을 위해 임시 ID 사용
   const draftEntityId = post?.id ?? "draft-new-post";
-  const { revisions: dbRevisions, loaded: revisionsLoaded, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions<PostFormData>({
+  const { revisions: dbRevisions, loaded: revisionsLoaded, latestSnapshot, saveRevision, loadRevisionSnapshot, deleteRevision } = useRevisions<PostFormData>({
     entityType: "post",
     entityId: draftEntityId,
   });
+
+  // 교차 기기 최신 로딩 — 서버 최신 리비전이 마지막 저장본(updated_at)보다 실제로 더 나중일 때만 복원.
+  // updated_at 은 저장 시 명시 갱신되고 저장 시 옛 revision 은 dismiss 되므로, 저장본보다 오래된
+  // stale 리비전이 내용을 되돌리는 사고를 이 가드가 막는다. (편집 중이면 useEditorDraft 가 추가로 차단.)
+  const serverDraft = useMemo(() => {
+    if (!latestSnapshot) return null;
+    const savedContentAt = post?.updated_at ? new Date(post.updated_at).getTime() : 0;
+    if (latestSnapshot.savedAt <= savedContentAt) return null;
+    return latestSnapshot;
+  }, [latestSnapshot, post?.updated_at]);
 
   // draft 복원 모달은 제거 — autosave 가 background 에서 조용히 동작.
   // 사용자가 복원하고 싶으면 revision history 패널에서 명시적으로 비교/복원.
@@ -449,12 +459,10 @@ export default function PostEditor({ post }: PostEditorProps) {
       requestAnimationFrame(markBaseline);
     },
     ignoredKeys: ["scheduled_at"],
-    // 서버(cross-device) 자동복원은 현재 비활성 — 기존 글은 과거 저장이 updated_at 을 안 올려(=stale)
-    // "저장본보다 오래된 dismiss 안 된 revision"이 로드 시 복원돼 내용을 옛 버전으로 되돌리는 사고 발생.
-    // localStorage 복원(같은 기기)만 사용 → posts.content 가 진실, 되돌림 없음.
-    // 재활성화 조건: 각 글을 새 코드로 1회 저장(→ 옛 revision dismiss + updated_at 갱신)하거나
-    // 기존 revision 일괄 dismiss 후, latestSnapshot(savedAt>updated_at) 가드로 안전하게 켤 수 있음.
-    serverDraft: null,
+    // 서버(cross-device) 자동복원 — 다른 기기/브라우저에서 이어 쓰기. serverDraft 는 위에서
+    // savedAt>updated_at 가드를 통과한 리비전만(= 저장본보다 실제로 더 나중). 로드 후 미편집(pristine)일
+    // 때만 적용되므로 지금 작업분을 덮지 않는다. localStorage(같은 기기 백업)는 그대로 유지.
+    serverDraft,
   });
 
   // related_work_ids fetch 완료 시 baseline 정합화 + draft restore 활성화
@@ -801,7 +809,8 @@ export default function PostEditor({ post }: PostEditorProps) {
         }
 
         if (!res.ok) {
-          setError(data.error ?? "Failed to save");
+          /* 서버는 "왜" 를 reason 에 담는다 — error 만 쓰면 "Forbidden" 밖에 안 남아 원인을 알 수 없다. */
+          setError(data.reason ?? data.error ?? "Failed to save");
           return;
         }
 

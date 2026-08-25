@@ -6,12 +6,13 @@ import { Globe, SmilePlus, Trash2 } from "@/components/icons";
 import Popover from "@/components/ui/Popover";
 import type { Comment } from "@/types/post";
 import { getCommenterId, identityFromHash, FALLBACK_AVATAR_EMOJI } from "@/utils/commenterIdentity";
+import type { CommenterIdentity } from "@/utils/commenterIdentity";
 import { REACTION_EMOJIS } from "@/utils/commentReactions";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import RadioGroup from "@/components/ui/RadioGroup";
+import CommentReportModal from "./CommentReportModal";
 import Checkbox from "@/components/ui/Checkbox";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import { useModalStore } from "@/stores/modalStore";
@@ -58,21 +59,14 @@ const COLLAPSE_HEIGHT = 320;
 const INTERACTIVE_SELECTOR =
   'label, button, a, input, textarea, select, img, [role="button"], [contenteditable], [data-no-drag-select]';
 
-/** 신고 사유 프리셋 — 선택 후 상세 입력 가능. "other" 는 직접 입력. */
-const REPORT_REASONS: { value: string; labelKey: string }[] = [
-  { value: "spam", labelKey: "comments.reportReasonSpam" },
-  { value: "abuse", labelKey: "comments.reportReasonAbuse" },
-  { value: "inappropriate", labelKey: "comments.reportReasonInappropriate" },
-  { value: "privacy", labelKey: "comments.reportReasonPrivacy" },
-  { value: "other", labelKey: "comments.reportReasonOther" },
-];
-
 interface CommentItemProps {
   comment: Comment;
   commentType: "post" | "work";
   targetId: string;
   reactionCounts?: Record<string, Record<string, number>>;
   myReactions?: Record<string, string[]>;
+  /** 글 단위로 중복 없이 배정된 아바타. CommentSection 이 만들어 내려보낸다. */
+  identities?: Map<string, CommenterIdentity>;
   isAdmin?: boolean;
   translationEnabled?: boolean;
   isFirstComment?: boolean;
@@ -91,6 +85,7 @@ function CommentItem({
   targetId,
   reactionCounts,
   myReactions,
+  identities,
   isAdmin = false,
   translationEnabled = true,
   isFirstComment = false,
@@ -189,21 +184,18 @@ function CommentItem({
   const [editError, setEditError] = useState("");
 
   // Report state
-  const [showReport, setShowReport] = useState(false);
-  const [reportPreset, setReportPreset] = useState("");
-  const [reportReason, setReportReason] = useState("");
-  const [reporting, setReporting] = useState(false);
-  const [reportSubmitted, setReportSubmitted] = useState(false);
 
   const commenterId = useMemo(() => getCommenterId(), []);
 
   const commenterHash = comment.commenter_hash;
   const identity = useMemo(() => {
+    /* 배정 맵이 있으면 그것이 정답 — 같은 글의 다른 댓글과 겹치지 않게 이미 조정돼 있다.
+       맵이 없는 경로(단독 렌더)에서만 hash 단독 복원으로 되돌아간다. */
     if (commenterHash) {
-      return identityFromHash(commenterHash);
+      return identities?.get(commenterHash) ?? identityFromHash(commenterHash);
     }
     return { emoji: FALLBACK_AVATAR_EMOJI, name: comment.nickname };
-  }, [commenterHash, comment.nickname]);
+  }, [commenterHash, comment.nickname, identities]);
 
   const dateStr = formatDateTime(comment.created_at);
 
@@ -270,7 +262,9 @@ function CommentItem({
       const res = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: comment.content, targetLang }),
+        /* 본문 대신 댓글 id 를 보낸다 — 서버가 DB 에서 읽는다.
+           예전처럼 텍스트를 받으면 로그인 없이 유료 번역 API 를 임의 문자열로 부를 수 있다. */
+        body: JSON.stringify({ commentId: comment.id, source: commentType === "work" ? "works" : "posts", targetLang }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -285,7 +279,7 @@ function CommentItem({
     } finally {
       setTranslating(false);
     }
-  }, [comment.content, targetLang, translatedText]);
+  }, [comment.id, commentType, targetLang, translatedText]);
 
   const handleDelete = useCallback(async () => {
     if (!isAdmin && !deletePassword.trim()) {
@@ -321,36 +315,12 @@ function CommentItem({
     }
   }, [apiBase, comment.id, commenterId, targetId, deletePassword, isAdmin, onRefresh, t]);
 
-  const handleReport = useCallback(async () => {
-    if (reporting || !reportPreset) return;
-    const detail = reportReason.trim();
-    const presetLabel = t(REPORT_REASONS.find((x) => x.value === reportPreset)?.labelKey ?? "");
-    // "기타" 는 직접 입력만 저장, 프리셋은 라벨(+상세)을 합성해 저장
-    const reason = reportPreset === "other" ? detail : detail ? `${presetLabel} · ${detail}` : presetLabel;
-    if (!reason) return;
-    setReporting(true);
-    try {
-      const res = await fetch(`${apiBase}/${comment.id}/report`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason }),
-      });
-      if (res.ok) {
-        setReportSubmitted(true);
-        // 잠시 thank-you 메시지 보여주고 닫음
-        setTimeout(() => {
-          setShowReport(false);
-          setReportReason("");
-          setReportPreset("");
-          setReportSubmitted(false);
-        }, 1800);
-      }
-    } catch {
-      // silent fail — 신고 실패해도 사용자에겐 굳이 알리지 않음
-    } finally {
-      setReporting(false);
-    }
-  }, [apiBase, comment.id, reportReason, reportPreset, reporting, t]);
+  const openReport = useCallback(() => {
+    openModal(
+      <CommentReportModal apiBase={apiBase} commentId={comment.id} />,
+      { header: { title: t("comments.report") }, width: "min(90vw, 420px)" },
+    );
+  }, [openModal, apiBase, comment.id, t]);
 
   const handleEdit = useCallback(async () => {
     if (!editContent.trim()) return;
@@ -461,6 +431,7 @@ function CommentItem({
                 targetId={targetId}
                 reactionCounts={reactionCounts}
                 myReactions={myReactions}
+                identities={identities}
                 isAdmin={isAdmin}
                 selectMode={selectMode}
                 selected={selected}
@@ -734,7 +705,6 @@ function CommentItem({
                 setShowDelete(!showDelete);
                 setShowReply(false);
                 setEditing(false);
-                setShowReport(false);
               }}
             >
               <T k="comments.delete" />
@@ -745,12 +715,7 @@ function CommentItem({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => {
-                setShowReport((v) => !v);
-                setShowDelete(false);
-                setShowReply(false);
-                setEditing(false);
-              }}
+              onClick={openReport}
             >
               <T k="comments.report" />
             </Button>
@@ -815,74 +780,6 @@ function CommentItem({
       </AnimatePresence>
 
       <AnimatePresence>
-        {showReport && (
-          <motion.div
-            className={styles.reportModal}
-            data-no-drag-select
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {reportSubmitted ? (
-              <p className={styles.reportThanks}>
-                <T k="comments.reportThanks" />
-              </p>
-            ) : (
-              <div className={styles.reportForm}>
-                {/* 사유 선택(기본) — 프리셋 라디오. "기타" 는 직접 입력. */}
-                <RadioGroup
-                  direction="vertical"
-                  value={reportPreset}
-                  onChange={setReportPreset}
-                  options={REPORT_REASONS.map((x) => ({ value: x.value, label: t(x.labelKey) }))}
-                />
-                {/* 프리셋 선택 시 상세 입력 — 프리셋이면 선택, "기타" 면 필수 사유 */}
-                {reportPreset && (
-                  <Input
-                    size="sm"
-                    type="text"
-                    value={reportReason}
-                    onChange={setReportReason}
-                    placeholder={t(reportPreset === "other" ? "comments.reportOtherPlaceholder" : "comments.reportDetailPlaceholder")}
-                    maxLength={500}
-                    onKeyDown={(e) => {
-                      // isComposing: 한글 조합 확정 Enter 가 제출로도 처리되는 것 방지
-                      if (e.key === "Enter" && !e.nativeEvent.isComposing) handleReport();
-                    }}
-                  />
-                )}
-                <div className={styles.reportActions}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setShowReport(false);
-                      setReportReason("");
-                      setReportPreset("");
-                    }}
-                  >
-                    <T k="comments.cancel" />
-                  </Button>
-                  {/* loading 이 disabled 처리 + 프리셋 미선택/기타 사유 미입력 시 비활성 */}
-                  <Button
-                    variant="outline"
-                    tone="danger"
-                    size="sm"
-                    loading={reporting}
-                    disabled={!reportPreset || (reportPreset === "other" && !reportReason.trim())}
-                    onClick={handleReport}
-                  >
-                    <T k="comments.confirmReport" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
         {showReply && (
           <motion.div
             className={styles.replyForm}
@@ -895,6 +792,7 @@ function CommentItem({
             <CommentForm
               commentType={commentType}
               targetId={targetId}
+              identities={identities}
               parentId={comment.id}
               onSubmit={() => {
                 setShowReply(false);
@@ -916,6 +814,7 @@ function CommentItem({
               targetId={targetId}
               reactionCounts={reactionCounts}
               myReactions={myReactions}
+              identities={identities}
               isAdmin={isAdmin}
               selectMode={selectMode}
               selected={selected}
