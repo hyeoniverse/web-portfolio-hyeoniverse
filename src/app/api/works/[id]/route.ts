@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
-import { requireAuth } from "@/lib/api/requireAuth";
+import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
+import { PERM } from "@/lib/api/roles";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -10,11 +11,11 @@ interface RouteContext {
 // GET /api/works/[id] — 단일 work (admin 전용 — 비공개/휴지통 포함 raw 조회).
 // 공개 페이지는 getWorks() 로 정적 데이터에서 조회. id 기반 직접 접근은 admin editor 에서만 사용.
 export async function GET(_request: Request, context: RouteContext) {
-  const { error: authError } = await requireAuth();
-  if (authError) return authError;
-
   const { id } = await context.params;
-  const admin = createAdminClient();
+  /* 작업물은 admin 이상만 다룬다(소유권 개념 없음). 인증만 있던 동안에는
+     레벨 1 저자도 미발행 작업물을 그대로 볼 수 있었다. */
+  const { supabase: admin, error: authError } = await requirePostAccess("works", id);
+  if (authError) return authError;
 
   const { data, error } = await admin
     .from("works")
@@ -22,9 +23,8 @@ export async function GET(_request: Request, context: RouteContext) {
     .eq("id", id)
     .single();
 
-  if (error || !data) {
-    return NextResponse.json({ error: "Work not found" }, { status: 404 });
-  }
+  /* requirePostAccess 가 존재와 권한을 이미 확인했다 — 여기서 0행이면 정책이 막은 것이다. */
+  if (error || !data) return policyBlocked();
 
   return NextResponse.json(data);
 }
@@ -52,7 +52,7 @@ const ALLOWED_FIELDS = new Set([
 
 export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const { error: authError } = await requireAuth();
+  const { supabase: admin, role, error: authError } = await requirePostAccess("works", id);
   if (authError) return authError;
 
   // ?skipShift=true 면 sort_order auto-shift 건너뜀 (drag 의 batch 호출이 자체 정렬을 관리하므로)
@@ -73,9 +73,36 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (ko || en) await ensureWorksCategory(ko, en);
   }
 
+  /* 팀원 목록의 "연결된 계정"(author_id)은 곧 이 작업물의 편집 권한이다 — canEditWork 와
+     RLS 의 can_edit_work 가 이 값을 본다. 팀원 자격으로 편집하는 사람이 그 명단을 바꿀 수
+     있으면 스스로 권한을 넓힐 수 있으므로, 연결의 변경은 관리자만 할 수 있다.
+     이름·역할·작업 내용 같은 나머지 항목은 팀원도 그대로 고칠 수 있다. */
+  if (filtered.team_members !== undefined && !(role.isOwner || role.level >= PERM.ADMIN)) {
+    const linkedIds = (v: unknown) =>
+      new Set(
+        (Array.isArray(v) ? v : [])
+          .map((m) => (m as { author_id?: unknown })?.author_id)
+          .filter((x): x is string => typeof x === "string" && !!x),
+      );
+    /* 현재 값은 service_role 로 읽는다 — 정책이 행을 거르면 "안 바뀌었다" 로 오판한다. */
+    const { data: current } = await createAdminClient()
+      .from("works").select("team_members").eq("id", id).maybeSingle();
+    const before = linkedIds(current?.team_members);
+    const after = linkedIds(filtered.team_members);
+    const same = before.size === after.size && [...after].every((x) => before.has(x));
+    if (!same) {
+      return NextResponse.json(
+        {
+          error: "Forbidden",
+          reason: "팀원에 연결된 계정을 바꾸려면 관리자 등급이 필요합니다. 소유자에게 요청해 주세요.",
+        },
+        { status: 403 },
+      );
+    }
+  }
+
   filtered.updated_at = new Date().toISOString();
 
-  const admin = createAdminClient();
 
   // sort_order 변경 시 — 전체 dense 1..N normalize (skipShift=true 인 batch 모드 제외)
   // 기존 0/duplicate 도 자동 정리. 단일 PATCH 마다 호출돼도 OK (N=수십개 수준).
@@ -149,10 +176,9 @@ export async function PATCH(request: Request, context: RouteContext) {
 // works 는 view/like 카운터 없음 → 일률 30일 후 자동 영구삭제
 export async function DELETE(_request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const { error: authError } = await requireAuth();
+  const { supabase: admin, error: authError } = await requirePostAccess("works", id);
   if (authError) return authError;
 
-  const admin = createAdminClient();
   const purgeAfter = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
   const { error } = await admin

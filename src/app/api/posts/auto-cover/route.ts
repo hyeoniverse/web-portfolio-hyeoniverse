@@ -6,17 +6,16 @@
  */
 
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { fetchAutoCoverImage, extractKeywordsFromPost } from "@/lib/autoCoverImage";
 
 export async function POST() {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
-  const admin = createAdminClient();
 
-  const { data: posts, error } = await admin
+
+  const { data: posts, error } = await supabase
     .from("posts")
     .select("id, tags, category, title, title_en, cover_image, published, deleted_at")
     .eq("published", true)
@@ -40,7 +39,7 @@ export async function POST() {
       const kws = extractKeywordsFromPost(post);
       const url = await fetchAutoCoverImage({ keywords: kws });
       if (url) {
-        await admin.from("posts").update({ cover_image: url }).eq("id", post.id);
+        await supabase.from("posts").update({ cover_image: url }).eq("id", post.id);
         succeeded++;
         items.push({ id: post.id, title: post.title ?? "", url });
       } else {

@@ -1,5 +1,5 @@
-import { createAdminClient } from "@/lib/supabase/admin";
 import { QUERY_PARAM } from "@/constants";
+import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { jsonError, jsonOk, jsonServerError } from "@/lib/api/response";
 import { expandPostCategoryFilters } from "@/lib/api/validateCategory";
@@ -24,7 +24,15 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const showAll = searchParams.get("all") === "true";
 
-  const admin = createAdminClient();
+  /* ?all=true 는 비공개 시리즈까지 돌려주는데 인증이 없었다 — 누구나 호출할 수 있었고,
+     posts 의 ?all=true 노출과 같은 형태다. 인증을 요구하고 세션 클라이언트로 읽어
+     무엇이 보이는지를 series 정책이 정하게 한다. */
+  let supabase = await createClient();
+  if (showAll) {
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
+    supabase = auth.supabase;
+  }
 
   const category = searchParams.get(QUERY_PARAM.category);
   const q = (searchParams.get(QUERY_PARAM.q) || "").trim();
@@ -41,7 +49,7 @@ export async function GET(request: Request) {
 
   // findPage 모드 — sort_order 기준
   if (findPageId) {
-    const { data: ids } = await admin
+    const { data: ids } = await supabase
       .from("series")
       .select("id")
       .order("sort_order", { ascending: true })
@@ -55,7 +63,7 @@ export async function GET(request: Request) {
   const sortDir = (searchParams.get("sortDir") || "asc") as "asc" | "desc";
   const ascending = sortDir === "asc";
 
-  let query = admin.from("series").select("*", { count: "exact" });
+  let query = supabase.from("series").select("*", { count: "exact" });
 
   if (sortBy === "newest") {
     // newest=desc 이 직관적이므로 dir 의 의미를 그대로 사용 (asc=오래된순)
@@ -73,7 +81,7 @@ export async function GET(request: Request) {
     // 멀티 카테고리(CSV) OR — 각 확장값 union.
     const categoryList = category.split(",").map((c) => c.trim()).filter(Boolean);
     const values = await expandPostCategoryFilters(categoryList);
-    let catQ = admin
+    let catQ = supabase
       .from("posts")
       .select("series_id")
       .in("category", values)
@@ -89,7 +97,7 @@ export async function GET(request: Request) {
 
   // tags 필터 — posts 테이블에서 tags 하나라도 포함한 글의 series_id (OR/합집합, posts 필터와 동일)
   if (tags.length > 0) {
-    const { data: taggedPosts } = await admin
+    const { data: taggedPosts } = await supabase
       .from("posts")
       .select("series_id")
       .eq("published", true)
@@ -136,8 +144,8 @@ export async function GET(request: Request) {
 
   if (ids.length > 0) {
     const [{ data: counts }, { data: previewPosts }] = await Promise.all([
-      admin.from("posts").select("series_id").in("series_id", ids).eq("published", true),
-      admin
+      supabase.from("posts").select("series_id").in("series_id", ids).eq("published", true),
+      supabase
         .from("posts")
         .select("id, slug, series_id, title, title_en, cover_image, series_order, created_at, excerpt, excerpt_en")
         .eq("published", true)
@@ -183,7 +191,7 @@ export async function GET(request: Request) {
 
 // POST /api/series — 시리즈 생성 (admin only)
 export async function POST(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const body = await request.json();
@@ -201,11 +209,10 @@ export async function POST(request: Request) {
 
   // 시리즈는 자기 카테고리를 갖지 않음 — 카테고리는 멤버 글들에서 도출한다.
   // (series.category 컬럼은 legacy 로 남되 '' 기본값으로 둔다.)
-  const admin = createAdminClient();
 
   // sort_order 미지정 시 — 현재 max + 1 (맨 뒤)
   if (body.sort_order === undefined || body.sort_order === null) {
-    const { data: maxRow } = await admin
+    const { data: maxRow } = await supabase
       .from("series")
       .select("sort_order")
       .order("sort_order", { ascending: false })
@@ -214,7 +221,7 @@ export async function POST(request: Request) {
     body.sort_order = (maxRow?.sort_order ?? 0) + 1;
   }
 
-  const { data, error } = await admin.from("series").insert(body).select().single();
+  const { data, error } = await supabase.from("series").insert(body).select().single();
 
   if (error) return jsonServerError(error);
 

@@ -50,7 +50,15 @@ function checkNonOwnerConfig(
   const defaults = ((siteConfig as { authors?: Author[] }).authors ?? []);
   const oldAuthors = (Array.isArray(oldDelta.authors) ? oldDelta.authors : defaults) as Author[];
   const newAuthors = (Array.isArray(newDelta.authors) ? newDelta.authors : defaults) as Author[];
-  const oldById = new Map(oldAuthors.map((a) => [a.id, a]));
+
+  /* 기준(old)에는 저장된 delta 뿐 아니라 site.config 의 기본 저자도 포함시킨다.
+     기본 저자(소유자 프로필)는 delta 에 없어도 화면에는 항상 존재한다 — getSiteConfig 가
+     보장한다. 그걸 빼고 비교하면, 비소유자가 자기 프로필만 고쳐 저장해도 소유자 항목이
+     "새로 추가된 것" 으로 보여 "본인 프로필만 추가할 수 있습니다" 로 막힌다.
+     저장된 값이 우선이므로 delta 쪽을 나중에 덮어쓴다. */
+  const oldById = new Map<string, Author>();
+  for (const a of defaults) oldById.set(a.id, a);
+  for (const a of oldAuthors) oldById.set(a.id, a);
   const newById = new Map(newAuthors.map((a) => [a.id, a]));
 
   for (const [id, oldA] of oldById) {
@@ -111,6 +119,11 @@ export async function PATCH(request: Request) {
     .eq("id", "default")
     .single<{ config: Record<string, unknown> }>();
 
+  /* 여기는 세션 클라이언트로 옮기지 않는다.
+     site_settings 는 config(jsonb) 한 행짜리 테이블이고, 비소유자에게 허용되는 범위가
+     "그 행의 authors 배열 중 자기 항목" 이다. RLS 는 행 단위라 jsonb 내부의 일부만
+     허용하도록 표현할 수 없다. 그래서 이 검사는 코드(checkNonOwnerConfig)가 맡고
+     접근은 service_role 로 한다. admin/profile · admin/secrets 도 같은 이유다. */
   // 비owner 는 사이트 설정 변경 불가 — 본인 프로필(authors)만 허용
   const role = getUserRole(auth.user);
   if (!role.isOwner) {

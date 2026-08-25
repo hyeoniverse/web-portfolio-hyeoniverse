@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { requirePostAccess, policyBlocked } from "@/lib/api/requirePostAccess";
 import { generateSummary, AiSummaryError } from "@/lib/api/aiSummaryProviders";
 
 interface RouteContext {
@@ -13,7 +13,9 @@ export async function POST(request: Request, context: RouteContext) {
   const body = await request.json().catch(() => ({}));
   const force = body.force === true;
 
-  const admin = createAdminClient();
+  /* posts 쪽과 같은 문제 — 편집기 전용인데 인증이 없어 유료 AI 호출이 열려 있었다. */
+  const { supabase: admin, error: accessError } = await requirePostAccess("works", id);
+  if (accessError) return accessError;
 
   const { data: work } = await admin
     .from("works")
@@ -22,7 +24,7 @@ export async function POST(request: Request, context: RouteContext) {
     .single();
 
   if (!work) {
-    return NextResponse.json({ error: "Work not found" }, { status: 404 });
+    return policyBlocked();   // 존재·권한은 requirePostAccess 가 확인했다
   }
 
   if (!force && work.summary_ko) {

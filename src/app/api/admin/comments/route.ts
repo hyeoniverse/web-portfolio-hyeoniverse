@@ -1,6 +1,6 @@
-import { createAdminClient } from "@/lib/supabase/admin";
 import { QUERY_PARAM } from "@/constants";
-import { requireAuth } from "@/lib/api/requireAuth";
+import { requireRole } from "@/lib/api/requireRole";
+import { PERM } from "@/lib/api/roles";
 import { jsonOk } from "@/lib/api/response";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
@@ -19,8 +19,10 @@ import type { SyntaxMode } from "@/lib/searchQuery";
  */
 
 export async function GET(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireRole(PERM.ADMIN);
   if (authError) return authError;
+  /* 아래 queryTable 은 중첩 함수라 구조분해된 supabase 의 narrowing 이 안 넘어간다. 좁혀진 값을 고정. */
+  const db = supabase;
 
   const { searchParams } = new URL(request.url);
   const source = (searchParams.get("source") ?? "all") as "posts" | "works" | "all";
@@ -30,8 +32,6 @@ export async function GET(request: Request) {
   const page = Math.max(1, Number(searchParams.get(QUERY_PARAM.page)) || 1);
   const limit = Math.min(100, Math.max(1, Number(searchParams.get(QUERY_PARAM.limit)) || 20));
   const offset = (page - 1) * limit;
-
-  const admin = createAdminClient();
 
   type Row = {
     id: string;
@@ -58,7 +58,7 @@ export async function GET(request: Request) {
     fkey: "post_id" | "work_id",
     fetchLimit: number,
   ) {
-    let q = admin
+    let q = db
       .from(table)
       .select(
         "id, " + fkey + ", parent_id, nickname, content, is_admin, is_deleted, deleted_by, created_at",
@@ -76,7 +76,7 @@ export async function GET(request: Request) {
     const rows = (data ?? []) as unknown as Array<Record<string, unknown>>;
     const targetIds = [...new Set(rows.map((r) => r[fkey] as string))];
     const targetTable = fkey === "post_id" ? "posts" : "works";
-    const { data: targets } = await admin
+    const { data: targets } = await db
       .from(targetTable)
       .select("id, title, slug")
       .in("id", targetIds);

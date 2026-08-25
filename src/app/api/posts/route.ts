@@ -3,7 +3,6 @@ import { QUERY_PARAM } from "@/constants";
 import { revalidatePath } from "next/cache";
 import { titleTooLong, POST_TITLE_MAX } from "@/lib/postConstants";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { ensurePostCategory, expandPostCategoryFilters } from "@/lib/api/validateCategory";
 import { requireAuth } from "@/lib/api/requireAuth";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
@@ -25,13 +24,15 @@ export async function GET(request: Request) {
   const showAll = searchParams.get("all") === "true"; // admin용
   const showTrash = searchParams.get("trash") === "true"; // 휴지통
 
-  // 비공개 / 휴지통 조회는 service role 로 RLS 우회 — 반드시 admin 인증 필요
+  /* 비공개 / 휴지통 조회도 세션 클라이언트로 한다. 무엇이 보이는지는 posts_admin_select
+     정책이 정한다 — owner/admin 은 전부, 저자는 자기 글. 예전에는 여기서 service_role 로
+     RLS 를 우회하고 "인증만 통과하면 전부" 였다(?all=true 노출 사고의 형태). */
+  let supabase = await createClient();
   if (showAll || showTrash) {
-    const { error: authError } = await requireAuth();
-    if (authError) return authError;
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
+    supabase = auth.supabase;
   }
-
-  const supabase = showAll || showTrash ? createAdminClient() : await createClient();
 
   const sort = searchParams.get(QUERY_PARAM.sort) ?? "newest";
   // popular 정렬의 역방향 지원 — sortDir=asc 면 score 작은 순(비인기순)
@@ -228,7 +229,7 @@ export async function GET(request: Request) {
 
 // POST /api/posts — 새 포스트 생성 (admin only)
 export async function POST(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const body: PostFormData = await request.json();
@@ -260,8 +261,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `title exceeds ${POST_TITLE_MAX} characters` }, { status: 400 });
   }
 
-  const admin = createAdminClient();
-  const { data, error } = await admin.from("posts").insert(body).select().single();
+  /* 생성도 세션 클라이언트로 — posts_admin_insert(is_member) 를 통과해야 들어간다. */
+  const { data, error } = await supabase.from("posts").insert(body).select().single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

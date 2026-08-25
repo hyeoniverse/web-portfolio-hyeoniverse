@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { QUERY_PARAM } from "@/constants";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureWorksCategory } from "@/lib/api/validateCategory";
+import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/api/requireAuth";
+import { requireRole } from "@/lib/api/requireRole";
+import { PERM } from "@/lib/api/roles";
 import { applySearchQuery } from "@/lib/api/applySearchQuery";
 import type { SyntaxMode } from "@/lib/searchQuery";
 // GET /api/works — 목록 조회
@@ -19,13 +21,15 @@ export async function GET(request: Request) {
   const search = searchParams.get("search") ?? "";
   const searchType = searchParams.get("searchType") ?? "title";
 
-  // ?all / ?trash 는 비공개 / 휴지통 — admin 인증 필요
+  /* ?all / ?trash 는 비공개 / 휴지통. 세션 클라이언트로 읽어 무엇이 보이는지를
+     works_admin_select(is_admin) 정책이 정하게 한다. 공개 경로는 anon 으로 가고
+     works_public_read(published AND deleted_at IS NULL)가 거른다. */
+  let supabase = await createClient();
   if (showAll || showTrash) {
-    const { error: authError } = await requireAuth();
-    if (authError) return authError;
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
+    supabase = auth.supabase;
   }
-
-  const supabase = createAdminClient();
 
   let query = supabase.from("works").select("*", { count: "exact" });
 
@@ -136,7 +140,9 @@ const ALLOWED_FIELDS = new Set([
 ]);
 
 export async function POST(request: Request) {
-  const { error: authError } = await requireAuth();
+  /* 작업물에는 author_ids 가 없어 소유권 개념이 없다 — admin 이상만 만든다.
+     정책(works_admin_write)도 같은 규칙이라 등급을 못 넘으면 여기서 명확한 403 이 난다. */
+  const { supabase, error: authError } = await requireRole(PERM.ADMIN);
   if (authError) return authError;
 
   const body = await request.json();
@@ -154,11 +160,10 @@ export async function POST(request: Request) {
     if (ko || en) await ensureWorksCategory(ko, en);
   }
 
-  const admin = createAdminClient();
 
   // 새 work 의 sort_order 가 명시되지 않았거나 기본값(1) 이면, 현재 max + 1 로 자동 설정 (맨 뒤)
   if (filtered.sort_order === undefined || filtered.sort_order === 1) {
-    const { data: maxRow } = await admin
+    const { data: maxRow } = await supabase
       .from("works")
       .select("sort_order")
       .order("sort_order", { ascending: false })
@@ -167,7 +172,7 @@ export async function POST(request: Request) {
     filtered.sort_order = (maxRow?.sort_order ?? 0) + 1;
   }
 
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("works")
     .insert(filtered)
     .select()

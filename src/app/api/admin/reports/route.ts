@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireRole } from "@/lib/api/requireRole";
+import { PERM } from "@/lib/api/roles";
 import { jsonOk } from "@/lib/api/response";
 
 interface ReportRow {
@@ -15,6 +17,11 @@ interface ReportRow {
 /** GET /api/admin/reports?status=pending|resolved|dismissed|all
  *  목록 + 신고된 댓글 본문 join. 비인증 시에도 200 + 빈 리스트 (info leak 방지). */
 export async function GET(request: Request) {
+  /* 신고 목록은 중재 데이터다(신고자 해시·신고된 본문). 가드가 아예 없어서
+     /api/admin 프록시가 요구하는 "로그인" 만 통과하면 레벨 1 저자도 전부 읽을 수 있었다.
+     같은 테이블을 다루는 reports/[id] 는 이미 admin 등급이라 앞뒤도 맞지 않았다. */
+  const { error: authError } = await requireRole(PERM.ADMIN);
+  if (authError) return authError;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return jsonOk({ reports: [], pendingCount: 0 });
@@ -90,12 +97,26 @@ export async function GET(request: Request) {
       };
     });
 
-    const { count } = await admin
-      .from("comment_reports")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "pending");
+    /* 상태별 실제 총계 — 필터 칩이 "지금 보고 있는 목록의 길이" 가 아니라 각 상태에 몇 건이
+       밀려 있는지를 보여줘야 어디를 열어야 할지 알 수 있다. */
+    const countBy = (status?: "pending" | "resolved" | "dismissed") => {
+      const q = admin.from("comment_reports").select("*", { count: "exact", head: true });
+      return status ? q.eq("status", status) : q;
+    };
+    const [pendingRes, resolvedRes, dismissedRes, allRes] = await Promise.all([
+      countBy("pending"), countBy("resolved"), countBy("dismissed"), countBy(),
+    ]);
 
-    return jsonOk({ reports: enriched, pendingCount: count ?? 0 });
+    return jsonOk({
+      reports: enriched,
+      pendingCount: pendingRes.count ?? 0,
+      statusCounts: {
+        pending: pendingRes.count ?? 0,
+        resolved: resolvedRes.count ?? 0,
+        dismissed: dismissedRes.count ?? 0,
+        all: allRes.count ?? 0,
+      },
+    });
   } catch (e) {
     console.warn("[admin/reports] unexpected error:", e);
     return jsonOk({ reports: [], pendingCount: 0 });

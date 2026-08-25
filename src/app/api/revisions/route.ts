@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import { QUERY_PARAM } from "@/constants";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAuth } from "@/lib/api/requireAuth";
 
 const MAX_REVISIONS = 50;
 
 // GET /api/revisions?entity_type=post&entity_id=xxx&limit=50
 export async function GET(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const { searchParams } = new URL(request.url);
@@ -24,18 +23,16 @@ export async function GET(request: Request) {
     );
   }
 
-  const admin = createAdminClient();
-
   if (withLatestSnapshot) {
     const [listResult, latestResult] = await Promise.all([
-      admin
+      supabase
         .from("revisions")
         .select("id, entity_type, entity_id, title, dismissed, created_at")
         .eq("entity_type", entityType)
         .eq("entity_id", entityId)
         .order("created_at", { ascending: false })
         .limit(limit),
-      admin
+      supabase
         .from("revisions")
         .select("id, snapshot, created_at")
         .eq("entity_type", entityType)
@@ -54,7 +51,7 @@ export async function GET(request: Request) {
     });
   }
 
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("revisions")
     .select("id, entity_type, entity_id, title, dismissed, created_at")
     .eq("entity_type", entityType)
@@ -71,7 +68,7 @@ export async function GET(request: Request) {
 
 // POST /api/revisions — 리비전 저장 + 오래된 항목 정리
 export async function POST(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const body = await request.json();
@@ -84,10 +81,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const admin = createAdminClient();
-
   // 직전 리비전과 snapshot이 같으면 새로 생성하지 않음 (첫 저장이면 0 rows 이므로 maybeSingle)
-  const { data: latest } = await admin
+  const { data: latest } = await supabase
     .from("revisions")
     .select("id, snapshot, created_at")
     .eq("entity_type", entity_type)
@@ -103,7 +98,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("revisions")
     .insert({ entity_type, entity_id, snapshot, title: title || "" })
     .select("id, created_at")
@@ -114,7 +109,7 @@ export async function POST(request: Request) {
   }
 
   // 엔티티당 MAX_REVISIONS 초과분 정리
-  const { data: overflow } = await admin
+  const { data: overflow } = await supabase
     .from("revisions")
     .select("id")
     .eq("entity_type", entity_type)
@@ -123,7 +118,7 @@ export async function POST(request: Request) {
     .range(MAX_REVISIONS, MAX_REVISIONS + 1000);
 
   if (overflow && overflow.length > 0) {
-    await admin
+    await supabase
       .from("revisions")
       .delete()
       .in(
@@ -140,7 +135,7 @@ export async function POST(request: Request) {
 //   주 use case: 실제 save (publish / draft 저장) 후 모든 autosave revision 을 dismiss
 //   → 다음 편집 진입 시 "draft 복원" 모달 안 뜸 (DB 가 진실의 원천)
 export async function PATCH(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const body = await request.json();
@@ -152,9 +147,7 @@ export async function PATCH(request: Request) {
       { status: 400 },
     );
   }
-
-  const admin = createAdminClient();
-  const { error } = await admin
+  const { error } = await supabase
     .from("revisions")
     .update({ dismissed: !!dismissed })
     .eq("entity_type", entity_type)
@@ -169,7 +162,7 @@ export async function PATCH(request: Request) {
 
 // DELETE /api/revisions?entity_type=post&entity_id=xxx — 엔티티의 전체 리비전 삭제
 export async function DELETE(request: Request) {
-  const { error: authError } = await requireAuth();
+  const { supabase, error: authError } = await requireAuth();
   if (authError) return authError;
 
   const { searchParams } = new URL(request.url);
@@ -182,9 +175,7 @@ export async function DELETE(request: Request) {
       { status: 400 },
     );
   }
-
-  const admin = createAdminClient();
-  const { error } = await admin
+  const { error } = await supabase
     .from("revisions")
     .delete()
     .eq("entity_type", entityType)
