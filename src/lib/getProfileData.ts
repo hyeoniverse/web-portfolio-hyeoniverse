@@ -5,6 +5,8 @@ import {
   approachSteps,
   certifications,
   awards,
+  bunnyProfile,
+  profileInfoBlocks,
 } from "@/data/profile";
 import type { DatePeriod, Experience, Certification, Award } from "@/data/profile";
 import type { ProfileData } from "@/types/profile";
@@ -16,6 +18,8 @@ const staticProfileData: ProfileData = {
   approachSteps,
   certifications,
   awards,
+  bunny: bunnyProfile,
+  infoBlocks: profileInfoBlocks,
 };
 
 /* ── Migration helpers (old → new DatePeriod) ── */
@@ -130,6 +134,7 @@ export async function getProfileData(): Promise<ProfileData> {
         ? migrateExperiences(config.experiences)
         : staticProfileData.experiences,
       skillGroups: (config.skillGroups as ProfileData["skillGroups"]) ?? staticProfileData.skillGroups,
+      github: (config.github as unknown as ProfileData["github"]) ?? staticProfileData.github,
       philosophy: (config.philosophy as ProfileData["philosophy"]) ?? staticProfileData.philosophy,
       approachSteps: (config.approachSteps as ProfileData["approachSteps"]) ?? staticProfileData.approachSteps,
       certifications: config.certifications
@@ -138,6 +143,9 @@ export async function getProfileData(): Promise<ProfileData> {
       awards: config.awards
         ? migrateAwards(config.awards)
         : staticProfileData.awards,
+      bunny: (config.bunny as unknown as ProfileData["bunny"]) ?? staticProfileData.bunny,
+      infoBlocks:
+        (config.infoBlocks as unknown as ProfileData["infoBlocks"]) ?? staticProfileData.infoBlocks,
     };
   } catch {
     return staticProfileData;

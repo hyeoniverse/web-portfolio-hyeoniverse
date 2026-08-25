@@ -519,9 +519,17 @@
 
 /* ── Panel: Experience (timeline) ── */
 .panelInner {
+  position: relative;
+  z-index: 1;
   margin: 0 auto;
   width: 100%;
   max-width: var(--page-max-width);
+}
+
+/* 밤하늘 장식이 깔리는 패널 — 배경 층이 자기 안에서만 놀도록 여기서 자른다. */
+.bunnyPanel {
+  isolation: isolate;
+  overflow: hidden;
 }
 
 .expTimeline {

@@ -219,8 +219,30 @@ export function useHorizontalScroll(
       });
     }
 
+    /* 가로 스크롤이 끝에 닿으면 세로 스크롤로 넘긴다.
+       예전에는 wheel 을 무조건 preventDefault 해서, 이 섹션 위에서는 페이지가 아예 움직이지
+       않았다. 섹션이 100vh 라 화면을 가득 채우므로 아래에 있는 다른 섹션(프로필의 GitHub
+       레포지토리 등)에 닿을 방법이 없고, 어쩌다 페이지가 조금 내려간 상태가 되면
+       (새로고침 시 브라우저 스크롤 복원 · 키보드 스크롤 · 해시 이동) 패널이 잘린 채로
+       빠져나오지도 못했다. */
+    const atHorizontalEdge = (deltaY: number) => {
+      if (infinite) return false;                  // 무한 모드는 끝이 없다
+      const maxScroll = Math.max(0, totalWidth - window.innerWidth);
+      if (deltaY > 0) return state.targetScrollX >= maxScroll - 1;
+      if (deltaY < 0) return state.targetScrollX <= 1;
+      return false;
+    };
+
+    /* 섹션이 뷰포트에 딱 맞아 있을 때만 가로로 가로챈다.
+       어긋나 있으면(=페이지가 조금 내려가 패널이 잘린 상태) 세로 스크롤을 그대로 흘려보내
+       제자리로 되돌릴 수 있게 한다. 여기서 가로챘다가는 잘린 채로 좌우로만 움직인다. */
+    const ALIGN_TOLERANCE_PX = 4;
+
     // wheel 이벤트 핸들러
     const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(section.getBoundingClientRect().top) > ALIGN_TOLERANCE_PX) return;
+      /* 끝에 닿았고 그 방향으로 더 굴리면 막지 않는다 — 브라우저(=Lenis)가 세로로 이어받는다. */
+      if (atHorizontalEdge(e.deltaY)) return;
       e.preventDefault();
       const clamped = Math.max(-MAX_WHEEL_DELTA, Math.min(MAX_WHEEL_DELTA, e.deltaY));
       state.targetScrollX += clamped;
