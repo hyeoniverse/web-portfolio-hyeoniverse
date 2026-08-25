@@ -13,6 +13,8 @@ export interface Author {
   email: string;
   /** 소개 (길이 제한 없음, optional) */
   bio: string;
+  /** 활동 지역 — GitHub 프로필의 location 에서 채워진다. 없으면 표시하지 않는다. */
+  location?: string;
   /** 소셜/외부 링크 — SocialLinksEditor 로 편집 */
   links: SocialLink[];
 }

@@ -16,6 +16,8 @@ interface InputProps
   variant?: Variant;
   size?: Size;
   className?: string;
+  /** 에러 상태 — accent 테두리로 강조 (필수 입력 누락 등) */
+  error?: boolean;
   /** 내부 <input> 에 연결할 ref — 포커스 제어 등 (예: 링크 툴바 열릴 때 URL 자동 포커스) */
   inputRef?: Ref<HTMLInputElement>;
   /** 입력값 지우기 (Eraser) 버튼 — value 있을 때 우측 표시. 기본 true.
@@ -46,6 +48,7 @@ export default function Input({
   variant = "capsule",
   size = "md",
   className,
+  error = false,
   inputRef,
   id,
   clearable = true,
@@ -82,6 +85,7 @@ export default function Input({
     variant === "underline" ? styles.underline : "",
     size === "sm" ? styles.sm : "",
     size === "xs" ? styles.xs : "",
+    error ? styles.error : "",
     inlineLabel ? styles.hasInlineLabel : "",
     showClear && showReveal ? styles.hasClear2 : (showClear || showReveal) ? styles.hasClear : "",
     isGrouped ? styles.inputGrouped : "",

@@ -20,6 +20,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import type { Author } from "@/types/author";
 import { SOCIAL_ICONS } from "@/data/socialIcons";
 import styles from "@/app/posts/[slug]/PostDetail.module.css";
+import AuthorAvatar from "@/components/ui/AuthorAvatar";
 
 /** URL 에서 표시용 도메인 추출 (www. 제거). 실패하면 원본 반환. */
 function hostFromUrl(url: string): string {
@@ -161,14 +162,14 @@ export function PostArticleHeader({
         <div className={styles.authorsCompact}>
           {data.authors.map((a) => (
             <a key={a.id} href="#post-authors" className={styles.authorChip}>
-              {a.avatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={a.avatar} alt="" className={styles.authorChipAvatar} loading="lazy" />
-              ) : (
-                <span className={styles.authorChipAvatarFallback} aria-hidden>
-                  {(a.name || "?").charAt(0).toUpperCase()}
-                </span>
-              )}
+              <AuthorAvatar
+                value={a.avatar}
+                name={a.name}
+                size={18}
+                imgClassName={styles.authorChipAvatar}
+                initialClassName={styles.authorChipAvatarFallback}
+                className={styles.authorChipAvatarFallback}
+              />
               <span className={styles.authorChipMeta}>
                 <span className={styles.authorChipName}>{a.name}</span>
                 {a.role && <span className={styles.authorChipRole}>{a.role}</span>}
@@ -324,14 +325,14 @@ export function PostArticleAuthors({ authors }: { authors?: Author[] }) {
       </h2>
       {authors.map((a) => (
         <article key={a.id} className={styles.authorFooterCard}>
-          {a.avatar ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={a.avatar} alt="" className={styles.authorFooterAvatar} loading="lazy" />
-          ) : (
-            <span className={styles.authorFooterAvatarFallback} aria-hidden>
-              {(a.name || "?").charAt(0).toUpperCase()}
-            </span>
-          )}
+          <AuthorAvatar
+            value={a.avatar}
+            name={a.name}
+            size={36}
+            imgClassName={styles.authorFooterAvatar}
+            initialClassName={styles.authorFooterAvatarFallback}
+            className={styles.authorFooterAvatarFallback}
+          />
           <div className={styles.authorFooterBody}>
             <div className={styles.authorFooterNameRow}>
               <span className={styles.authorFooterName}>{a.name}</span>

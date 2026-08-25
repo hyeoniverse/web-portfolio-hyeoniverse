@@ -316,9 +316,6 @@
   padding-left: var(--spacing-md);
   padding-right: var(--spacing-md);
 }
-.spViewBarSpacer {
-  flex: 1;
-}
 .spViewBarDiv {
   width: 1px;
   align-self: stretch;

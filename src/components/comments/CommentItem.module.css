@@ -520,37 +520,6 @@
   color: var(--text-accent);
 }
 
-.reportModal {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-xs);
-  overflow: hidden;
-}
-
-/* 확인 버튼 오른쪽 정렬 — .deleteRow 와 동일 규칙. 사유 입력은 flex:1 이라 왼쪽을 채운다 */
-/* 신고 폼 — 사유 프리셋(라디오) + 상세 입력 + 액션, 세로 스택 */
-.reportForm {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-.reportActions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-xs);
-}
-
-.reportThanks {
-  text-align: right;
-  margin: 0;
-  padding: var(--box-2xs-md) 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-}
-
 /* Edit mode */
 .editArea {
   display: flex;

@@ -569,6 +569,12 @@ code .token.italic {
   border-radius: 0 var(--radius-capsule) var(--radius-capsule) 0;
   box-shadow: var(--btn-raise), inset 2px 0 2px -2px var(--btn-seam), var(--btn-lift);
 }
+/* 버튼이 하나뿐일 때(줄바꿈 토글 없이 복사만 있는 경우) — first/last 규칙이 둘 다 걸려
+   한쪽만 둥근 반쪽 캡슐이 된다. 맞닿는 버튼이 없으므로 네 모서리를 모두 굴리고 seam 도 뺀다. */
+.code-block-controls > :only-child {
+  border-radius: var(--radius-capsule);
+  box-shadow: var(--btn-raise), var(--btn-lift);
+}
 [data-theme="dark"] .code-block-controls > * {
   --btn-raise: inset 0 1px 0.5px -0.5px oklch(100% 0 0 / 0.16), inset 0 -1.5px 2px -1.5px oklch(0% 0 0 / 0.45);
   --btn-seam: oklch(0% 0 0 / 0.4);

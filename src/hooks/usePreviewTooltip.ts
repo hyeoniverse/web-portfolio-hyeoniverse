@@ -56,8 +56,19 @@ export function usePreviewTooltip<T extends HasId>(editBasePath: string, options
     setTooltipKey((k) => k + 1);
   }, []);
 
+  /**
+   * 관리 열(수정·삭제 등)을 향한 상호작용인가.
+   *
+   * 태블릿·모바일에서 미리보기는 화면 가운데에 전체 backdrop 과 함께 뜬다. 열려 있는 동안
+   * 관리 버튼이 그 아래 깔려서 탭이 backdrop 의 닫기로 먹힌다. 관리 열에서 시작한 탭으로는
+   * 아예 열지 않아야 버튼이 첫 탭에 눌린다.
+   */
+  const fromRowActions = (e: React.MouseEvent): boolean =>
+    !!(e.target as HTMLElement | null)?.closest?.("[data-row-actions]");
+
   const handleRowHover = useCallback((item: T, e: React.MouseEvent) => {
     if (!canHover.current) return;
+    if (fromRowActions(e)) return;
     show(item, e.currentTarget as HTMLElement);
   }, [show]);
 
@@ -67,6 +78,7 @@ export function usePreviewTooltip<T extends HasId>(editBasePath: string, options
   }, [hide]);
 
   const handleRowClick = useCallback((item: T, e: React.MouseEvent) => {
+    if (fromRowActions(e)) return;
     if (canHover.current) {
       router.push(`${editBasePath}/${item.id}/edit`);
       return;

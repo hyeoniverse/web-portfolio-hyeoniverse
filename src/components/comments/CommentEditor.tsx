@@ -6,6 +6,7 @@ import Textarea from "@/components/ui/Textarea";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import CommentMarkdown from "./CommentMarkdown";
 import CommentMarkdownToolbar from "./CommentMarkdownToolbar";
+import MarkdownHelp from "./MarkdownHelp";
 import styles from "./CommentEditor.module.css";
 
 /* 댓글 입력 에디터 공용 컴포넌트 — 새 댓글/답글(CommentForm) + 수정 폼(CommentItem) 공유.
@@ -51,7 +52,9 @@ export default function CommentEditor({
   return (
     <div ref={containerRef} className={styles.editor}>
       {/* 탭 + 서식 툴바가 한 행 — 둘 다 "입력 도구" 라 행을 나눌 이유가 없고,
-          나누면 입력창이 그만큼 아래로 밀린다. 툴바는 write 모드에서만 나타난다. */}
+          나누면 입력창이 그만큼 아래로 밀린다. 툴바는 write 모드에서만 나타난다.
+          [작성|미리보기] → 서식 버튼 → 마크다운 도움말(M↓) 순으로 하나의 응집된 묶음.
+          M↓ 는 서식 버튼 묶음의 오른쪽 끝(마지막 항목)이라, 컨테이너가 넓어도 저 멀리 떨어지지 않는다. */}
       <div className={styles.editorHeader}>
         <SegmentedControl<"write" | "preview">
           size="sm"
@@ -63,11 +66,14 @@ export default function CommentEditor({
           onChange={setMode}
         />
         {mode === "write" && (
-          <CommentMarkdownToolbar
-            containerRef={containerRef}
-            content={value}
-            onChange={onChange}
-          />
+          <>
+            <CommentMarkdownToolbar
+              containerRef={containerRef}
+              content={value}
+              onChange={onChange}
+            />
+            <MarkdownHelp />
+          </>
         )}
       </div>
 

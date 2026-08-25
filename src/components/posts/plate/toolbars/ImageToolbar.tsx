@@ -178,7 +178,7 @@ export default React.memo(function ImageToolbar({
               <TBtn active={lock} onClick={() => setImageAttr("lockAspect", !lock)} tooltip={lock ? t("editor.lockAspect") : t("editor.unlockAspect")}>
                 <span className={styles.tblBarLabel}>{lock ? <LockIcon /> : <UnlockIcon />}{lock ? L("고정", "Locked") : L("해제", "Free")}</span>
               </TBtn>
-              <span className={styles.flexSpacer} />
+              <span className="spacer" />
               <TBtn square onClick={() => { setImageAttr("width", 0); setImageAttr("height", 0); }} tooltip={t("editor.restoreOriginal")}><RxReset size={15} /></TBtn>
             </div>
             {wVal > 0 && (

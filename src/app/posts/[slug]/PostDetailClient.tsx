@@ -24,6 +24,7 @@ import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
 import { ImageIcon, ChevronRight, ArrowLeft, ArrowRight, Languages } from "@/components/icons";
 import styles from "./PostDetail.module.css";
+import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
 
 interface AdjacentPost {
   id: string;
@@ -47,14 +48,11 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
 
   const [post, setPost] = useState<Post>(initialPost);
 
-  // author_ids → Author[] 해석 (site config authors). 미할당(빈 배열)이면 기본 작성자(첫 항목) fallback.
-  const postAuthors = useMemo(() => {
-    const all = siteConfig?.authors ?? [];
-    const resolved = (post.author_ids ?? [])
-      .map((id) => all.find((a) => a.id === id))
-      .filter((a): a is (typeof all)[number] => Boolean(a));
-    return resolved.length > 0 ? resolved : all.slice(0, 1);
-  }, [siteConfig, post.author_ids]);
+  // author_ids → Author[] 해석 (site config authors). 미할당(빈 배열)이면 소유자로 돌아간다.
+  const postAuthors = useMemo(
+    () => resolvePostAuthors(siteConfig?.authors, post.author_ids),
+    [siteConfig, post.author_ids],
+  );
 
   const [heroImgError, setHeroImgError] = useState(false);
   const [viewLang, setViewLang] = useState<"ko" | "en">(

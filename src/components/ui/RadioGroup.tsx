@@ -18,6 +18,8 @@ interface RadioGroupProps<T extends string> {
   name?: string;
   /** 가로 / 세로 정렬. 기본 horizontal */
   direction?: "horizontal" | "vertical";
+  /** plain = dot+label 만 / list = 전폭 선택 row(구분선 목록 + 호버·선택 캡슐 배경 하이라이트) */
+  variant?: "plain" | "list";
   className?: string;
 }
 
@@ -29,6 +31,7 @@ export default function RadioGroup<T extends string>({
   options,
   name,
   direction = "horizontal",
+  variant = "plain",
   className,
 }: RadioGroupProps<T>) {
   const autoName = useId();
@@ -36,7 +39,7 @@ export default function RadioGroup<T extends string>({
 
   return (
     <div
-      className={`${styles.group} ${direction === "vertical" ? styles.vertical : ""} ${className ?? ""}`}
+      className={`${styles.group} ${direction === "vertical" ? styles.vertical : ""} ${variant === "list" ? styles.groupList : ""} ${className ?? ""}`}
       role="radiogroup"
     >
       {options.map((opt) => {

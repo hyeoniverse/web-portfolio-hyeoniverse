@@ -22,6 +22,8 @@ import { flattenCategories, toCategoryOptions } from "@/lib/categoryTree";
 import { usePreviewTooltip } from "@/hooks/usePreviewTooltip";
 import Select from "@/components/ui/Select";
 import SegmentedControl from "@/components/ui/SegmentedControl";
+import { useMyRole } from "@/hooks/useMyRole";
+import AccessRequestModal from "@/components/admin/AccessRequestModal";
 import AdminListShell, {
   adminShellStyles as shell,
 } from "@/components/admin/AdminListShell";
@@ -66,8 +68,17 @@ export default function AdminPostsPage() {
   const [sort, setSort] = useState("newest");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSeries, setFilterSeries] = useState("");
+  /* 작성자 필터. "__mine" 은 내 저자 프로필로 치환한다 — 자기 id 를 몰라도 고를 수 있게. */
+  const [filterAuthor, setFilterAuthor] = useState("");
+  /* 저자 목록은 이미 병합된 설정에서 읽는다.
+     /api/admin/settings 는 저장된 원본({delta, savedDefaults})을 그대로 돌려줘서
+     site.config 의 기본 저자(소유자)가 들어 있지 않다 — 그걸로 채우면 소유자가 빠진다. */
+  const authors = useMemo(
+    () => (siteConf.authors ?? []).map((a) => ({ id: a.id, name: a.name || a.id })),
+    [siteConf.authors],
+  );
   const [perPage, setPerPage] = useState(siteConf.posts.adminPerPage ?? 20);
-  const hasFilters = sort !== "newest" || filterCategory !== "" || filterSeries !== "" || search;
+  const hasFilters = sort !== "newest" || filterCategory !== "" || filterSeries !== "" || filterAuthor !== "" || search;
 
 
   /* Preview tooltip */
@@ -82,6 +93,54 @@ export default function AdminPostsPage() {
     handleImgError,
     hideTooltip,
   } = usePreviewTooltip<Post>("/admin/posts");
+
+  /* 저자 등급은 자기 글만 다룰 수 있다 — 서버의 canEditPost·posts_admin_* 정책과 같은 규칙이다.
+     여기서 거르는 것은 표시용이고, 인가 자체는 서버와 정책이 한다. */
+  const myRole = useMyRole();
+  const canEdit = (p: Post) => myRole.canEditPost(p.author_ids);
+
+  /* 편집할 수 없는 글로 들어가면 편집기가 403 화면을 띄운다. 들어가기 전에 이유를 알린다. */
+  const guardedRowClick = (p: Post, e: React.MouseEvent) => {
+    if (guardWritable([p])) handleRowClick(p, e);
+  };
+
+  /**
+   * 권한이 없는 글이 대상에 섞여 있으면 작업을 멈추고 이유를 알린다.
+   *
+   * 서버가 막고 있으므로 그냥 보내도 데이터는 안전하다. 다만 일괄 작업은 항목마다 따로 요청이
+   * 나가서, 막힌 것만 조용히 빠지고 화면은 성공한 것처럼 보인다. 무엇이 왜 안 됐는지
+   * 알 수 없는 상태가 되므로 보내기 전에 세운다.
+   *
+   * @returns 진행해도 되면 true
+   */
+  const guardWritable = (targets: Post[]): boolean => {
+    if (myRole.loading) return false;
+    const blocked = targets.filter((p) => !canEdit(p));
+    if (blocked.length === 0) return true;
+    openDeniedModal(blocked);
+    return false;
+  };
+
+  /** 권한 없음 안내 — 소유자에게 요청까지 여기서 보낼 수 있다. */
+  const openDeniedModal = (blocked: Post[]) => {
+    openModal(
+      <AccessRequestModal
+        targets={blocked.map((p) => ({ id: p.id, title: formatPostTitle(p) || t("admin.posts.untitled") }))}
+      />,
+      { id: "no-permission", header: { title: t("admin.posts.noPermissionTitle") }, closeButton: true, width: "440px" },
+    );
+  };
+
+  /* handleTogglePublished 는 useCallback 이라 guardWritable 을 의존성에 넣으면 매 렌더 재생성된다.
+     ref 로 최신 함수만 참조한다. */
+  const guardWritableRef = useRef<(post: Post) => boolean>(() => false);
+  guardWritableRef.current = (post) => guardWritable([post]);
+
+  /** id 목록을 현재 목록/휴지통에서 Post 로 되돌린다 — 일괄 작업이 id 만 넘기기 때문. */
+  const postsByIds = (ids: string[]): Post[] => {
+    const all = [...posts, ...trashPosts];
+    return ids.map((id) => all.find((p) => p.id === id)).filter((p): p is Post => Boolean(p));
+  };
 
   /* Series */
   const [seriesList, setSeriesList] = useState<Series[]>([]);
@@ -116,6 +175,8 @@ export default function AdminPostsPage() {
     });
     if (filterCategory) params.set(QUERY_PARAM.category, filterCategory);
     if (filterSeries) params.set("series_id", filterSeries);
+    const authorId = filterAuthor === "__mine" ? myRole.authorId : filterAuthor;
+    if (authorId) params.set("author", authorId);
     if (search) {
       params.set("search", search);
       params.set("searchType", searchType);
@@ -126,7 +187,7 @@ export default function AdminPostsPage() {
     setPosts(data.posts ?? []);
     setTotalPages(data.totalPages ?? 1);
     setLoading(false);
-  }, [page, perPage, sort, filterCategory, filterSeries, search, searchType, syntaxMode]);
+  }, [page, perPage, sort, filterCategory, filterSeries, filterAuthor, myRole.authorId, search, searchType, syntaxMode]);
 
   const fetchSeries = useCallback(async () => {
     setSeriesLoading(true);
@@ -217,6 +278,7 @@ export default function AdminPostsPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categories, fetchPosts, openModal, closeAll, addNewCategories, createPosts, t]);
 
+  /* 전체 내보내기는 막지 않는다 — 서버가 세션 클라이언트로 조회하므로 볼 수 있는 글만 나간다. */
   const handleExportAll = useCallback(async () => {
     setExporting(true);
     try {
@@ -368,6 +430,7 @@ export default function AdminPostsPage() {
   // 상태 배지 클릭 → 발행/미발행 토글 (낙관적 업데이트, 실패 시 롤백)
   const handleTogglePublished = useCallback(async (post: Post) => {
     const next = !post.published;
+    if (!guardWritableRef.current(post)) return;
     setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, published: next } : p)));
     try {
       const res = await fetch(`/api/posts/${post.id}`, {
@@ -395,6 +458,7 @@ export default function AdminPostsPage() {
       publishedTooltip: t("admin.posts.publishedTooltip"),
       unpublishedTooltip: t("admin.posts.unpublishedTooltip"),
       exportItem: t("admin.posts.exportMd"),
+      noPermission: t("admin.posts.noPermissionRow"),
     }),
     [t],
   );
@@ -778,6 +842,16 @@ tags: React`}</code></pre>
           onChange={(v) => { setFilterCategory(v); setPage(1); }}
           className={shell.filterItem}
         />
+        <Select
+          value={filterAuthor}
+          options={[
+            { value: "", label: t("admin.posts.allAuthors") },
+            { value: "__mine", label: t("admin.posts.myPosts") },
+            ...authors.map((a) => ({ value: a.id, label: a.name })),
+          ]}
+          onChange={(v) => { setFilterAuthor(v); setPage(1); }}
+          className={shell.filterItem}
+        />
         <div className={shell.filterItem}>
           <Select
             value={filterSeries}
@@ -795,7 +869,7 @@ tags: React`}</code></pre>
         {hasFilters && (
           <button
             className={shell.filterReset}
-            onClick={() => { setSearch(""); setSearchType("all"); setSort("newest"); setFilterCategory(""); setFilterSeries(""); setPage(1); }}
+            onClick={() => { setSearch(""); setSearchType("all"); setSort("newest"); setFilterCategory(""); setFilterSeries(""); setFilterAuthor(""); setPage(1); }}
           >
             {t("admin.posts.resetFilters")}
           </button>
@@ -830,8 +904,12 @@ tags: React`}</code></pre>
         columns={columns}
         editBasePath="/admin/posts"
         getTitle={(p) => formatPostTitle(p) || t("admin.posts.untitled")}
-        onDelete={handleDelete}
+        onDelete={async (id) => {
+          if (!guardWritable(postsByIds([id]))) return;
+          await handleDelete(id);
+        }}
         onBulkExport={async (ids) => {
+          if (!guardWritable(postsByIds(ids))) return;
           for (const id of ids) {
             const res = await fetch(`/api/posts/export?id=${id}`);
             if (!res.ok) continue;
@@ -844,6 +922,7 @@ tags: React`}</code></pre>
           }
         }}
         onBulkDelete={async (ids) => {
+          if (!guardWritable(postsByIds(ids))) return;
           setBusy(true);
           await Promise.all(ids.map((id) => fetch(`/api/posts/${id}`, { method: "DELETE" })));
           await fetchPosts();
@@ -851,6 +930,7 @@ tags: React`}</code></pre>
           setBusy(false);
         }}
         onBulkPublish={async (ids, published) => {
+          if (!guardWritable(postsByIds(ids))) return;
           setBusy(true);
           await Promise.all(ids.map((id) =>
             fetch(`/api/posts/${id}`, {
@@ -867,6 +947,7 @@ tags: React`}</code></pre>
             label: t("admin.common.changeCategory"),
             disabled: busy,
             onClick: (ids) => {
+              if (!guardWritable(postsByIds(ids))) return;
               openModal(
                 <BulkCategoryModal
                   count={ids.length}
@@ -901,7 +982,9 @@ tags: React`}</code></pre>
         onPageChange={setPage}
         onRowHover={handleRowHover}
         onRowLeave={handleRowLeave}
-        onRowClick={handleRowClick}
+        onRowClick={guardedRowClick}
+        rowDisabled={(p: Post) => !canEdit(p)}
+        onDenied={(p: Post) => openDeniedModal([p])}
         highlightId={restoredId}
         footerExtra={
           <Button variant="ghost" size="xs" title={t("admin.posts.exportMdAll")} onClick={handleExportAll} disabled={exporting} soundDisabled icon={<Download size={14} />}>

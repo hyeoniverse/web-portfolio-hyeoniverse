@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import type { Comment } from "@/types/post";
+import { getCommenterId, getIdentity, resolveIdentities } from "@/utils/commenterIdentity";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
@@ -196,6 +197,19 @@ export default function CommentSection({ commentType, targetId, translationEnabl
     fetchComments();
   }, [selected, apiBase, fetchComments]);
 
+  /* 아바타 배정 — 한 글 전체를 한 번에 보고 중복 없이 나눈다.
+     작성 시각 오름차순으로 넘겨야 먼저 온 사람이 슬롯을 먼저 잡아, 새 댓글이 달려도
+     기존 아바타가 안 흔들린다(정렬 옵션과 무관하게 원본 comments 를 쓰는 이유).
+     내 hash 를 맨 뒤에 붙여, 아직 안 쓴 내 댓글의 폼 미리보기도 실제 배정과 일치시킨다. */
+  const identities = useMemo(() => {
+    const ordered = [...comments]
+      .sort((a, b) => a.created_at.localeCompare(b.created_at))
+      .map((c) => c.commenter_hash);
+    const myId = getCommenterId();
+    if (myId) ordered.push(getIdentity(myId, targetId).hash);
+    return resolveIdentities(ordered);
+  }, [comments, targetId]);
+
   const tree = sortRoots(buildTree(comments), sortBy, reactionCounts, reversed);
   const visibleTree = tree.slice(0, visibleCount);
   const remaining = tree.length - visibleCount;
@@ -209,6 +223,7 @@ export default function CommentSection({ commentType, targetId, translationEnabl
     <CommentForm
       commentType={commentType}
       targetId={targetId}
+      identities={identities}
       onSubmit={(newId?: string) => {
         if (comments.length === 0 && newId) setFirstCommentId(newId);
         fetchComments();
@@ -305,6 +320,7 @@ export default function CommentSection({ commentType, targetId, translationEnabl
               targetId={targetId}
               reactionCounts={reactionCounts}
               myReactions={myReactions}
+              identities={identities}
               isAdmin={isAdmin}
               translationEnabled={translationEnabled}
               isFirstComment={comment.id === firstCommentId}

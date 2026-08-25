@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPendingInvite, consumeInvite } from "@/lib/api/authorInvites";
 import { ensureOwnerRole } from "@/lib/api/ownerBootstrap";
+import { ensureAuthorProfile } from "@/lib/api/ensureAuthorProfile";
 import { getUserRole } from "@/lib/api/roles";
 
 /**
@@ -76,6 +77,13 @@ export async function GET(request: Request) {
         await supabase.auth.refreshSession();
       }
     } catch { /* 초대 적용 실패해도 로그인 자체는 진행 */ }
+
+    // 자기 저자 프로필 보장 — 없으면 GitHub 정보로 생성, 남의 프로필을 가리키면 옮긴다.
+    // 초대가 기존 프로필 id 를 실어 오면 서로 다른 계정이 한 프로필을 공유하게 되고,
+    // 그러면 canEditPost 가 그 프로필 명의의 글을 전부 열어 준다.
+    try {
+      if (await ensureAuthorProfile(admin, user)) await supabase.auth.refreshSession();
+    } catch { /* 프로필 생성 실패해도 로그인 자체는 진행 */ }
   }
 
   return NextResponse.redirect(`${origin}${next}`);

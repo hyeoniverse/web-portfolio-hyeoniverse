@@ -235,7 +235,7 @@ function MathFloatingEdit({
             }}>
               ⚠ {texError}
             </span>
-          ) : <span style={{ flex: 1 }} />}
+          ) : <span className="spacer" />}
           <div className={styles.mathFloatingCapsule} style={{ position: "static" }}>
             <button type="button" className={styles.mathCapsuleCancel} onClick={onCancel}>{t("editor.mathCancel")}</button>
             <button type="button" className={styles.mathCapsuleConfirm} onClick={onConfirm} disabled={!draft.trim()}>{t("editor.mathConfirm")}</button>

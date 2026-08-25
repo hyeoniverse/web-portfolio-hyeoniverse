@@ -527,7 +527,7 @@ export function DiagramElement(props: PlateElementProps) {
                   </TBtn>
                 </>
               )}
-              <span className={styles.diagramToolbarSpacer} />
+              <span className="spacer" />
               <span onMouseDown={(e) => e.stopPropagation()} style={{ display: "inline-flex" }}>
                 <SegmentedControl<"canvas" | "form">
                   items={[{ value: "canvas", label: t("캔버스", "Canvas") }, { value: "form", label: t("폼", "Form") }]}

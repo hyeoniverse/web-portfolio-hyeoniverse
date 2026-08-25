@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
+import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { Post } from "@/types/post";
 import { formatPostTitle, getPostExcerpt } from "@/utils/post";
@@ -15,8 +16,9 @@ import HighlightedText from "@/components/ui/HighlightedText";
 import T from "@/components/ui/T";
 import { Flame, Pin, Eye, Heart, PinIcon } from "@/components/icons";
 import { getFallbackCoverGradient } from "@/lib/coverFallback";
-import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 import styles from "./PostCard.module.css";
+import { isImageAvatar } from "@/components/ui/AuthorAvatar";
+import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
 
 interface PostCardProps {
   post: Post;
@@ -100,20 +102,24 @@ export default function PostCard({
     return () => ro.disconnect();
   }, []);
   const category = post.category || null;
-  // 작성자 — author_ids 첫 항목을 site.config authors 로 해석(미할당이면 기본 작성자 fallback).
+  // 작성자 — author_ids 를 site.config authors 로 해석. 미할당이면 소유자로 돌아간다.
   const siteConf = useSiteConfig();
-  const author = (() => {
-    const all = siteConf?.authors ?? [];
-    const resolved = (post.author_ids ?? []).map((id) => all.find((a) => a.id === id)).find(Boolean);
-    return resolved ?? all[0] ?? null;
-  })();
+  const author = resolvePostAuthors(siteConf?.authors, post.author_ids)[0] ?? null;
   const authorEl = author ? (
     <span className={styles.metaAuthor} title={author.name}>
+      {/* 아바타는 이미지 URL 일 수도, 이모지·아이콘일 수도 있다. 배경 이미지로 그리면
+          이모지가 깨진 URL 이 되므로 판별을 AuthorAvatar 와 같은 규칙으로 맞춘다. */}
       <span
         className={styles.metaAuthorAvatar}
-        style={author.avatar ? { backgroundImage: `url(${author.avatar})` } : undefined}
+        style={isImageAvatar(author.avatar) ? { backgroundImage: `url(${author.avatar})` } : undefined}
         aria-hidden
-      >{!author.avatar && author.name.charAt(0)}</span>
+      >
+        {!isImageAvatar(author.avatar) && (
+          author.avatar
+            ? <EmojiIcon value={author.avatar} size={14} />
+            : author.name.charAt(0)
+        )}
+      </span>
       <span className={styles.metaAuthorName}>{author.name}</span>
     </span>
   ) : null;

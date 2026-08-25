@@ -360,7 +360,7 @@ function Layout({ height, readOnly, explorer, ko, fs, toggleFs, resizable }: { h
     <div className={styles.spWrap} style={{ height: fs ? "100%" : (resizable ? boxH : height), ["--pg-view-zoom" as string]: viewZoom } as React.CSSProperties}>
       {/* 뷰 토글 바 */}
       <div className={styles.spViewBar}>
-        <span className={styles.spViewBarSpacer} />
+        <span className="spacer" />
         <TB on={showExplorer} tip={ko ? "파일 탐색기 표시/숨기기" : "Toggle file explorer"} onClick={() => setShowExplorer((v) => !v)}><PanelLeft size={14} /></TB>
         <TB on={showEditor} tip={ko ? "코드 에디터 표시/숨기기" : "Toggle code editor"} onClick={() => setShowEditor((v) => (showPreview ? !v : v))}><Code2 size={14} /></TB>
         <TB on={wrap} tip={ko ? "코드 줄 바꿈" : "Word wrap"} onClick={() => setWrap((v) => !v)}><WrapText size={14} /></TB>

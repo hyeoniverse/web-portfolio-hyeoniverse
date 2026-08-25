@@ -12,13 +12,15 @@ import { getSiteConfig } from "@/lib/getSiteConfig";
  *  - 보안:   device_login (새 기기 시도) / device_approved (승인 완료) / login_lockout (5회 실패)
  *            / signout_all (전체 로그아웃 실행)
  *  - 운영:   ai_failure (AI fallback chain 전부 실패) / email_failure (Resend 발송 실패)
- *            / cron_error (cron job exception). UI 시스템 탭 (= 댓글/신고 외 모든 type) 에 자동 표시. */
+ *            / cron_error (cron job exception). UI 시스템 탭 (= 댓글/신고 외 모든 type) 에 자동 표시.
+ *  - 권한:   access_request (저자가 남의 글에 대한 권한을 요청) */
 interface NotifyOptions {
   type:
     | "comment" | "reply" | "like" | "report"
     | "device_login" | "device_approved" | "login_lockout" | "signout_all"
     | "ai_failure" | "email_failure" | "cron_error"
-    | "config_changed" | "migration_applied";
+    | "config_changed" | "migration_applied"
+    | "access_request";
   title: string;
   message: string;
   metadata?: Record<string, unknown>;

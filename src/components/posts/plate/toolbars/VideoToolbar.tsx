@@ -189,7 +189,7 @@ export default React.memo(function VideoToolbar({ editor, visible, selectedMedia
                       {lock ? <LockIcon /> : <UnlockIcon />}{lock ? L("고정", "Locked") : L("해제", "Free")}
                     </span>
                   </TBtn>
-                  <span className={styles.flexSpacer} />
+                  <span className="spacer" />
                   <TBtn square onClick={() => setAttr({ width: 0, height: 0 })} tooltip={t("editor.restoreOriginal")}><RxReset size={15} /></TBtn>
                 </div>
                 {wVal > 0 && (

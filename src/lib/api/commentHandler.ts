@@ -90,6 +90,9 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
             [foreignKey]: targetId,
             parent_id: parent_id || null,
             nickname: "Admin",
+            /* admin 댓글만 빈 해시가 정상이다 — 인증을 Supabase 세션이 하므로 비밀번호가 없다.
+               PATCH·DELETE 도 세션 분기에서 먼저 처리하고 빠지니 빈 해시 검사에 걸리지 않는다.
+               익명 댓글은 아래 validatePassword 가 빈 값을 막아 이 상태로 저장될 수 없다. */
             password_hash: "",
             content: contentResult.value,
             is_admin: true,
@@ -121,12 +124,16 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
         return jsonOk(data, 201);
       }
 
+      /* validatePassword 가 빈 값을 거절하므로, 여기를 통과한 pwResult.value 는 항상 채워져 있다.
+         예전엔 빈 값을 valid 로 통과시켰고 저장부가 `value ? hash : ""` 로 받아, 비밀번호 없이
+         만들어진 댓글이 빈 문자열 해시로 남았다. 대조할 비밀번호가 없으니 작성자도 고칠 수 없다.
+         빈 값 분기를 남겨 두면 validatePassword 가 다시 느슨해질 때 그 상태가 조용히 부활한다. */
       const pwResult = validatePassword(password);
       if (!pwResult.valid) return jsonError(pwResult.error!);
 
       if (commenter_id) {
         const identity = getIdentity(commenter_id, targetId);
-        const passwordHash = pwResult.value ? await bcrypt.hash(pwResult.value, 10) : "";
+        const passwordHash = await bcrypt.hash(pwResult.value, 10);
         const displayNickname = nickname || `${identity.emoji} ${identity.name}`;
 
         const insertData: Record<string, unknown> = {
@@ -178,7 +185,7 @@ export function createCommentHandlers(opts: CommentHandlerOptions) {
       if (supportLegacyAuth) {
         if (!nickname || !password) return jsonError("Missing required fields");
 
-        const passwordHash = await bcrypt.hash(pwResult.value || password, 10);
+        const passwordHash = await bcrypt.hash(pwResult.value, 10);
 
         const { data, error } = await adminDb
           .from(table)

@@ -122,7 +122,13 @@
       "refresh": "Refresh",
       "tipRefresh": "Reload notifications",
       "reportsPage": "Reports page",
-      "tipReportsPage": "Open the reports management page"
+      "tipReportsPage": "Open the reports management page",
+      "detailTitle": "Notification",
+      "tipItemDetail": "Click to see the details",
+      "typeAccessRequest": "Access request",
+      "typeDeviceLogin": "New device sign-in",
+      "groupPending": "Needs action",
+      "groupRest": "Everything else"
     },
     "reports": {
       "title": "Comment Reports",
@@ -146,7 +152,14 @@
         "resolved": "Resolved",
         "dismissed": "Dismissed",
         "all": "All"
-      }
+      },
+      "detailTitle": "Report",
+      "searchPlaceholder": "Search nickname / content / reason",
+      "searchEmpty": "No matching reports",
+      "emptyHint": "Reported comments will appear here",
+      "refresh": "Refresh",
+      "tipRefresh": "Reload reports",
+      "tipItemDetail": "Click to see the details"
     },
     "login": {
       "title": "Admin",
@@ -183,7 +196,8 @@
       "bulkDeletePrompt": "Type \"{{count}}\" to delete {{count}} logs.",
       "changeCategory": "Change category",
       "bulkCategoryDesc": "Change category for {{count}} selected items.",
-      "unset": "Unset"
+      "unset": "Unset",
+      "confirm": "OK"
     },
     "settings": {
       "title": "Settings",
@@ -282,8 +296,8 @@
       "resumeButtonText": "Resume Button Text",
       "loadingDisplayNameHint": "Shown on loading screen",
       "loadingDisplayName": "Loading Screen Name",
-      "worksInfiniteScroll": "Works — Infinite Scroll",
-      "profileInfiniteScroll": "Profile — Infinite Scroll",
+      "worksInfiniteScroll": "Infinite Scroll",
+      "profileInfiniteScroll": "Infinite Scroll",
       "aboutInfiniteScroll": "Infinite Scroll",
       "aboutInfiniteScrollHint": "On: loops seamlessly from end to start. Off: stops at the last section.",
       "accentColor": "Accent Color",
@@ -386,7 +400,6 @@
       "removeCategory": "Remove category",
       "cancel": "Cancel",
       "edit": "Edit",
-      "saveEdit": "Save",
       "logoDifference": "Difference",
       "logoEffects": "Logo effects",
       "savePreset": "Save as preset",
@@ -772,7 +785,18 @@
       "faviconImageBgPlaceholder": "Transparent",
       "uploadedLogoOptions": "Uploaded logo options",
       "uploadedLogoOptionsHint": "Background applies to the favicon (browser tab) only. Shadows can be set separately for the nav/loading logo and the favicon.",
-      "wcagHelp": "WCAG is the Web Content Accessibility Guidelines. This value is the contrast ratio between the logo color and its background; the higher it is, the more legible it reads. 7:1 or above is AAA, 4.5:1 or above is AA, 3:1 or above meets the minimum for graphics, and below 3:1 fails."
+      "wcagHelp": "WCAG is the Web Content Accessibility Guidelines. This value is the contrast ratio between the logo color and its background; the higher it is, the more legible it reads. 7:1 or above is AAA, 4.5:1 or above is AA, 3:1 or above meets the minimum for graphics, and below 3:1 fails.",
+      "oauthOnlyEmailHint": "This account signs in with GitHub. Its email is managed in your GitHub account.",
+      "oauthOnlyPasswordHint": "This account signs in with GitHub and has no password. Sign-in details are managed in your GitHub account.",
+      "meChip": "You",
+      "permission": "Permission",
+      "roleScope": {
+        "owner": "Full access, including site settings and author management.",
+        "admin": "Manages every post and moderates comments and reports. Site settings and author management are excluded.",
+        "author": "Can edit and delete only their own posts.",
+        "member": "No role has been granted yet. Ask the owner for access."
+      },
+      "applyEdit": "Apply"
     },
     "posts": {
       "title": "Posts",
@@ -1058,7 +1082,16 @@
         "addPostHint": "Already loaded. Select below ↓",
         "noAvailablePosts": "No available posts to add",
         "titleTooLong": "Title must be {{max}} characters or fewer"
-      }
+      },
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "editAction": "Edit",
+      "noPermissionTitle": "No permission",
+      "noPermissionMore": "and {{count}} more",
+      "noPermissionRow": "Not your post — cannot be selected",
+      "noPermissionDesc": "You don't have access to this post. Ask the owner for permission.",
+      "allAuthors": "All authors",
+      "myPosts": "My posts"
     },
     "works": {
       "title": "Works",
@@ -1261,7 +1294,10 @@
         "generateSummary": "Generate AI Summary",
         "generateSummaryDone": "AI summary generated",
         "generateSummaryDisabled": "AI summary unavailable: API key not configured"
-      }
+      },
+      "noPermissionTitle": "No permission",
+      "noPermissionDesc": "You don't have access to this work. Ask the owner to add you to the team.",
+      "noPermissionRow": "Not a team member of this work — cannot be selected"
     }
   }
 }
