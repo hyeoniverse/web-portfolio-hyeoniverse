@@ -1,3 +1,9 @@
+/** 저장 시도의 결과 — 실패하면 이유를 함께 돌려준다(호출부가 그대로 보여줄 수 있게). */
+export interface SaveResult {
+  ok: boolean;
+  reason?: string;
+}
+
 import type { SiteConfigData } from "@/config/site.config";
 
 /** SiteConfigData 안의 임의 nested key 를 안전하게 업데이트하기 위한 generic 함수 시그니처.
@@ -14,7 +20,7 @@ export interface SettingsTabProps {
   savedConfig: SiteConfigData;
   update: UpdateSettingFn;
   /** 지정된 dot-path 만 부분 저장. 섹션 헤더의 저장 버튼이 호출 */
-  saveSection: (paths: string[]) => Promise<void>;
+  saveSection: (paths: string[]) => Promise<unknown>;
   /** 지정된 dot-path 만 savedConfig 로 되돌리기. 섹션 헤더의 되돌리기 버튼이 호출 */
   revertSection: (paths: string[]) => void;
   /** 지정된 dot-path 만 siteConfig 기본값으로 재설정 */
@@ -74,4 +80,8 @@ export interface AccountTabProps {
   onCancelPendingEmail: () => void;
   passwordPolicy: string;
   onPasswordPolicyChange: (v: string) => void;
+  /** 비밀번호 로그인을 쓰는 계정인가. false 면 이메일·비밀번호 변경을 그리지 않는다. */
+  hasPassword: boolean;
+  /** passwordPolicy 는 개인 설정이 아니라 사이트 전역 설정이라 소유자에게만 보인다. */
+  isOwner: boolean;
 }

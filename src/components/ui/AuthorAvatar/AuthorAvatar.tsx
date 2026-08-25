@@ -1,0 +1,52 @@
+import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
+
+/**
+ * 저자 아바타 — 이미지 URL · 이모지 · 아이콘을 한 자리에서 그린다.
+ *
+ * `Author.avatar` 에는 원래 이미지 URL 만 들어갔다. 프리셋·이모지를 고를 수 있게 되면서
+ * EmojiPicker 가 돌려주는 값(`img:URL` · `icon:ID` · 네이티브 이모지)도 같은 필드에 들어온다.
+ * 기존 데이터(평문 URL)와 새 값이 섞이므로 판별을 한 곳에 모은다 —
+ * 호출부마다 나눠 쓰면 어딘가는 이모지를 URL 로 알고 깨진 이미지를 그린다.
+ *
+ * 값이 없으면 이름 첫 글자로 대체한다.
+ */
+export function isImageAvatar(value: string | null | undefined): boolean {
+  if (!value) return false;
+  return /^https?:\/\//i.test(value) || value.startsWith("/") || value.startsWith("data:");
+}
+
+export default function AuthorAvatar({
+  value, name, size = 20, className, imgClassName, initialClassName,
+}: {
+  value: string | null | undefined;
+  /** 값이 없을 때 쓸 이름 — 첫 글자를 대문자로 보여준다. */
+  name?: string | null;
+  size?: number;
+  className?: string;
+  /** 이미지로 그릴 때의 클래스 — 기존 원형 마스크 등을 그대로 쓰기 위한 것. */
+  imgClassName?: string;
+  initialClassName?: string;
+}) {
+  const v = value ?? "";
+
+  if (isImageAvatar(v)) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={v} alt="" className={imgClassName ?? className} />
+    );
+  }
+
+  if (v) {
+    return (
+      <span className={className} aria-hidden>
+        <EmojiIcon value={v} size={size} />
+      </span>
+    );
+  }
+
+  return (
+    <span className={initialClassName ?? className} aria-hidden>
+      {(name || "?").charAt(0).toUpperCase()}
+    </span>
+  );
+}

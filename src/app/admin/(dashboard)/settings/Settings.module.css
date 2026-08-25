@@ -881,17 +881,23 @@
 .fieldLabelText { composes: uRow2xs;
 }
 
-/* 필수 입력 표시 dot — 텍스트 글리프 대신 실제 원형 element 로 그려서
-   라벨 텍스트의 수직 중앙선과 정확히 정렬됨 */
+/* 필수 입력 표시 dot.
+   글리프(•)를 쓰지 않는다 — 폰트 baseline 을 타면 라벨 아래로 처진다.
+   내용 없는 원형 element 로 그리고, 부모가 flex 가 아닌 자리에 놓여도 흔들리지 않게
+   align-self 와 vertical-align 을 함께 준다. 간격도 gap 에 기대지 않고 직접 준다. */
 .fieldRequiredDot {
   display: inline-block;
+  align-self: center;
+  vertical-align: middle;
   width: 4px;
   height: 4px;
-  border-radius: 50%;
+  margin-inline-start: var(--spacing-3xs);
+  border-radius: var(--radius-circle);
   background: var(--bg-accent-solid);
-  flex-shrink: 0;
+  flex: 0 0 auto;
   font-size: 0;
   line-height: 0;
+  overflow: hidden;
 }
 
 /* 라벨 옆 ? 도움말 아이콘 — 값·옵션 설명 tooltip trigger */

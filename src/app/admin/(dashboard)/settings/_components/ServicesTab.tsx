@@ -133,7 +133,7 @@ type ProviderFallback<P extends string> = {
 type SectionShared = {
   config: SiteConfigData;
   savedConfig: SiteConfigData;
-  saveSection: (paths: string[]) => Promise<void>;
+  saveSection: (paths: string[]) => Promise<unknown>;
   revertSection?: (paths: string[]) => void;
   resetSection?: (paths: string[]) => void;
   savingPaths: string[] | null;

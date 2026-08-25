@@ -274,7 +274,7 @@ export function PresetNameAddRow({ open, value, onChange, onSave, onCancel, save
               autoFocus
             />
             <Button variant="outline" size="md" onClick={onSave} disabled={saveDisabled}>
-              {t("admin.settings.saveEdit")}
+              {t("admin.settings.applyEdit")}
             </Button>
             <Button variant="outline" size="md" onClick={onCancel}>
               {t("admin.settings.cancel")}

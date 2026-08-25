@@ -66,7 +66,7 @@ interface EnvVarFieldsProps {
     title: React.ReactNode;
     config: SiteConfigData;
     savedConfig: SiteConfigData;
-    saveSection: (paths: string[]) => Promise<void>;
+    saveSection: (paths: string[]) => Promise<unknown>;
     savingPaths: string[] | null;
     titleClassName?: string;
   };
