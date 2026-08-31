@@ -10,6 +10,7 @@ import { isVideoUrl } from "@/lib/isVideoUrl";
 import { downloadFile } from "./downloadFile";
 import type { HistoryItem } from "./useHistory";
 import styles from "./CoverImagePicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface HistoryTabProps {
   items: HistoryItem[];
@@ -61,8 +62,7 @@ export default function HistoryTab({ items, onPick, onRemove, currentUrl }: Hist
             key={item.url}
             className={`${styles.presetItem} ${styles.historyGridItem} ${isActive ? styles.historyGridItemActive : ""}`}
           >
-            <button
-              type="button"
+            <Pressable noTapScale
               className={styles.historyThumbBtn}
               onClick={() => onPick(item.url)}
               title={item.meta}
@@ -81,7 +81,7 @@ export default function HistoryTab({ items, onPick, onRemove, currentUrl }: Hist
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img src={item.url} alt={item.meta} className={styles.historyThumbImg} />
               )}
-            </button>
+            </Pressable>
             {/* 우상단 — active 체크 (항상 visible 일 때만) */}
             {isActive && (
               <span className={styles.historyActiveBadge} aria-hidden>

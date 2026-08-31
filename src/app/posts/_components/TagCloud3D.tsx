@@ -6,6 +6,7 @@ import { Tags, ChevronRight } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
 import styles from "./TagCloud3D.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface TagItem {
   tag: string;
@@ -182,16 +183,15 @@ export default function TagCloud3D({ tags, activeTags, onTagClick, size = 90, as
         /* 필터링 중 — 결과 태그를 chip + 명시적 개수로. 클릭 시 토글(OR) 필터. */
         <div className={styles.chips}>
           {tags.map((tg) => (
-            <button
+            <Pressable
               key={tg.tag}
-              type="button"
               className={`${styles.chip} ${activeTags?.has(tg.tag) ? styles.chipActive : ""}`}
               onClick={() => onTagClick?.(tg.tag)}
               data-clickable="true"
             >
               <span>#{tg.tag}</span>
               <span className={styles.chipCount}>{tg.count}</span>
-            </button>
+            </Pressable>
           ))}
         </div>
       ) : (

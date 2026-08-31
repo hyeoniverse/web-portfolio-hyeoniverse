@@ -5,6 +5,7 @@ import Link from "next/link";
 import { GripVertical } from "@/components/icons";
 import CloseButton from "../CloseButton";
 import styles from "./Chip.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type Variant = "capsule" | "bare";
 
@@ -105,7 +106,7 @@ export default function Chip({
     }
     if (onClick) {
       return (
-        <button
+        <Pressable
           type="button"
           className={styles.labelBtn}
           /* drag wrapper (부모) 의 drag 시작을 막기 위해 mousedown / pointerdown 에서 propagation 차단.
@@ -115,7 +116,7 @@ export default function Chip({
           onClick={(e) => { e.stopPropagation(); onClick(e); }}
         >
           {innerContent}
-        </button>
+        </Pressable>
       );
     }
     return <span className={styles.labelStatic}>{innerContent}</span>;

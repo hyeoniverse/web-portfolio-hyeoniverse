@@ -15,6 +15,7 @@ import type { Post, Series } from "@/types/post";
 import type { BilingualCategory } from "@/hooks/useCategories";
 import { translateCategory } from "@/hooks/useCategories";
 import styles from "./AdminPosts.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 
 export function createPostColumns(t: TFunction, onTogglePublished?: (post: Post) => void): AdminTableColumn<Post>[] {
@@ -173,15 +174,15 @@ export function createTrashColumns(
       className: st.colActions,
       render: (post) => (
         <>
-          <button type="button" className={st.actionBtn} onClick={() => handleRestore(post.id)}>
+          <Pressable className={st.actionBtn} onClick={() => handleRestore(post.id)}>
             <T k="admin.posts.trashRestore" />
-          </button>
-          <button type="button" className={st.actionBtn} onClick={() => handleExtend(post.id)} title={t("admin.posts.trashExtendTip")}>
+          </Pressable>
+          <Pressable className={st.actionBtn} onClick={() => handleExtend(post.id)} title={t("admin.posts.trashExtendTip")}>
             <T k="admin.posts.trashExtend" />
-          </button>
-          <button type="button" className={st.dangerBtn} onClick={() => handlePurge(post.id, formatPostTitle(post) || t("admin.posts.untitled"))}>
+          </Pressable>
+          <Pressable className={st.dangerBtn} onClick={() => handlePurge(post.id, formatPostTitle(post) || t("admin.posts.untitled"))}>
             <T k="admin.posts.trashPurge" />
-          </button>
+          </Pressable>
         </>
       ),
     },
@@ -208,7 +209,7 @@ export function createSeriesColumns(
         onReorder ? (
           <EditableRowNumber value={s.sort_order} min={1} max={rowMax} onSave={(n) => onReorder(s, n)} />
         ) : (
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>{index + 1}</span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>{index + 1}</span>
         ),
       skeletonWidth: "20px",
     },
@@ -281,13 +282,13 @@ export function createSeriesColumns(
           >
             <T k="admin.posts.edit" />
           </a>
-          <button type="button" className={st.dangerBtn} onClick={() => handleDeleteSeries(s)}>
+          <Pressable className={st.dangerBtn} onClick={() => handleDeleteSeries(s)}>
             <T k="admin.posts.delete" />
-          </button>
+          </Pressable>
           {handleExportSeries && (
-            <button type="button" className={st.exportIconBtn} title={t("admin.posts.exportMd")} onClick={() => handleExportSeries(s.id)}>
+            <Pressable className={st.exportIconBtn} title={t("admin.posts.exportMd")} onClick={() => handleExportSeries(s.id)}>
               <Download size={14} />
-            </button>
+            </Pressable>
           )}
         </>
       ),

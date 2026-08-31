@@ -41,6 +41,7 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import { diagramToMermaid, normalizeDiagram, type DiagramData, type DiagramNode, type DiagramEdge, type DiagramNodeShape, type DiagramArrow, type DiagramLine, type DiagramCurve } from "./diagram/model";
 import styles from "./DiagramElement.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 function genId(): string {
   try { if (typeof crypto !== "undefined" && crypto.randomUUID) return "n" + crypto.randomUUID().slice(0, 8); } catch { /* noop */ }
@@ -441,17 +442,17 @@ export function DiagramElement(props: PlateElementProps) {
                   <span className={styles.diagramToolbarDiv} />
                   <div className={styles.diagramShapes}>
                     {SHAPES.map((s) => (
-                      <button key={s.v} type="button" className={styles.diagramShapeBtn} data-on={curShape === s.v ? "" : undefined}
+                      <Pressable noTapScale key={s.v} className={styles.diagramShapeBtn} data-on={curShape === s.v ? "" : undefined}
                         title={t(s.label, s.en)} onMouseDown={(e) => { e.preventDefault(); patchSelected({ shape: s.v }); }}>
                         {shapeIcon(s.v)}
-                      </button>
+                      </Pressable>
                     ))}
                   </div>
                   {/* 채우기 색 (텍스트 노드는 배경 없어 생략) */}
                   {curShape !== "text" && (
                     <div className={styles.diagramColors}>
                       {COLORS.map((c) => (
-                        <button key={c || "none"} type="button" className={styles.diagramColorBtn} data-none={c ? undefined : ""} data-on={curFillColor === c ? "" : undefined}
+                        <Pressable noTapScale key={c || "none"} className={styles.diagramColorBtn} data-none={c ? undefined : ""} data-on={curFillColor === c ? "" : undefined}
                           title={c || t("색 없음", "No color")} style={c ? { background: c } : undefined}
                           onMouseDown={(e) => { e.preventDefault(); patchSelected({ color: c }); }} />
                       ))}
@@ -462,15 +463,15 @@ export function DiagramElement(props: PlateElementProps) {
                   <span className={styles.diagramTextCue} title={t("텍스트", "Text")}><Type size={13} /></span>
                   <div className={styles.diagramShapes}>
                     {FONT_SIZES.map((f, i) => (
-                      <button key={f.v} type="button" className={styles.diagramShapeBtn} data-on={curFontSize === f.v ? "" : undefined}
+                      <Pressable noTapScale key={f.v} className={styles.diagramShapeBtn} data-on={curFontSize === f.v ? "" : undefined}
                         title={`${f.label} · ${f.v}px`} onMouseDown={(e) => { e.preventDefault(); patchSelected({ fontSize: f.v }); }}>
                         <span style={{ fontSize: `${10 + i * 2}px`, fontWeight: 600, lineHeight: 1 }}>A</span>
-                      </button>
+                      </Pressable>
                     ))}
                   </div>
                   <div className={styles.diagramColors}>
                     {COLORS.map((c) => (
-                      <button key={c || "none"} type="button" className={styles.diagramColorBtn} data-none={c ? undefined : ""} data-on={curTextColor === c ? "" : undefined}
+                      <Pressable noTapScale key={c || "none"} className={styles.diagramColorBtn} data-none={c ? undefined : ""} data-on={curTextColor === c ? "" : undefined}
                         title={c ? t("글자색", "Text color") : t("기본색", "Default")} style={c ? { background: c } : undefined}
                         onMouseDown={(e) => { e.preventDefault(); patchSelected({ textColor: c }); }} />
                     ))}
@@ -487,39 +488,39 @@ export function DiagramElement(props: PlateElementProps) {
                   {/* 방향 */}
                   <div className={styles.diagramShapes}>
                     {DIRS.map((d) => (
-                      <button key={d.v} type="button" className={styles.diagramShapeBtn} data-on={curDir === d.v ? "" : undefined}
+                      <Pressable noTapScale key={d.v} className={styles.diagramShapeBtn} data-on={curDir === d.v ? "" : undefined}
                         title={t(d.label, d.en)} onMouseDown={(e) => { e.preventDefault(); setEdgeDir(d.v); }}>
                         {d.icon}
-                      </button>
+                      </Pressable>
                     ))}
                   </div>
                   {/* 화살촉 모양 (화살표 있을 때만) */}
                   {curDir !== "none" && (
                     <div className={styles.diagramShapes}>
                       {HEADS.map((h) => (
-                        <button key={h.v} type="button" className={styles.diagramShapeBtn} data-on={curHead === h.v ? "" : undefined}
+                        <Pressable noTapScale key={h.v} className={styles.diagramShapeBtn} data-on={curHead === h.v ? "" : undefined}
                           title={t(h.label, h.en)} onMouseDown={(e) => { e.preventDefault(); setEdgeHead(h.v); }}>
                           {h.icon}
-                        </button>
+                        </Pressable>
                       ))}
                     </div>
                   )}
                   {/* 선 스타일 */}
                   <div className={styles.diagramShapes}>
                     {LINES.map((l) => (
-                      <button key={l.v} type="button" className={styles.diagramShapeBtn} data-on={curLine === l.v ? "" : undefined}
+                      <Pressable noTapScale key={l.v} className={styles.diagramShapeBtn} data-on={curLine === l.v ? "" : undefined}
                         title={t(l.label, l.en)} onMouseDown={(e) => { e.preventDefault(); setEdgeLine(l.v); }}>
                         <span className={styles.diagramLinePreview} style={{ borderTopStyle: l.v === "solid" ? "solid" : l.v }} />
-                      </button>
+                      </Pressable>
                     ))}
                   </div>
                   {/* 선 모양 — 곡선/꺾은선/직선 */}
                   <div className={styles.diagramShapes}>
                     {CURVES.map((c) => (
-                      <button key={c.v} type="button" className={styles.diagramShapeBtn} data-on={curCurve === c.v ? "" : undefined}
+                      <Pressable noTapScale key={c.v} className={styles.diagramShapeBtn} data-on={curCurve === c.v ? "" : undefined}
                         title={t(c.label, c.en)} onMouseDown={(e) => { e.preventDefault(); setEdgeCurve(c.v); }}>
                         {c.icon}
-                      </button>
+                      </Pressable>
                     ))}
                   </div>
                   <TBtn onMouseDown={(e) => { e.preventDefault(); deleteSelectedEdges(); }} tooltip={t("연결 삭제", "Delete edge")} square>
@@ -590,7 +591,7 @@ export function DiagramElement(props: PlateElementProps) {
                         options={SHAPES.map((s) => ({ value: s.v, label: t(s.label, s.en) }))} />
                       <div className={styles.diagramFormColors}>
                         {COLORS.map((c) => (
-                          <button key={c || "none"} type="button" className={styles.diagramColorBtn} data-none={c ? undefined : ""} data-on={(dd.color || "") === c ? "" : undefined}
+                          <Pressable noTapScale key={c || "none"} className={styles.diagramColorBtn} data-none={c ? undefined : ""} data-on={(dd.color || "") === c ? "" : undefined}
                             title={c || t("색 없음", "No color")} style={c ? { background: c } : undefined} onClick={() => patchNode(n.id, { color: c })} />
                         ))}
                       </div>

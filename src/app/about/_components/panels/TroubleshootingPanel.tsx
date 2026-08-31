@@ -5,9 +5,12 @@ import type { LocalizedText } from "@/types/common";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import Image from "next/image";
-import { Star, Maximize2, ImageIcon, ZoomIn, ZoomOut, RotateCcw, X, ChevronDown, Folder, FileText, Filter, Check } from "@/components/icons";
+import { Star, Maximize2, ImageIcon, ZoomIn, ZoomOut, RotateCcw, X, ChevronDown, Folder, FileText, Filter, Check, Copy, Download } from "@/components/icons";
+import { COPY_FEEDBACK_MS } from "@/constants";
+import { showToast } from "@/stores/toastStore";
+import { itemToMarkdown, itemFileName, CANONICAL_HEADINGS } from "@/lib/about/decisionsMarkdown";
 import type { Language } from "@/providers/LanguageProvider";
-import { troubleShootingItems } from "@/data/about/troubleshooting";
+import { aboutDecisions } from "@/data/generated/aboutContent";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import type { TroubleshootingDifficulty, TroubleshootingDiagram, TroubleshootingImage, TroubleShootingItem } from "@/data/about/types";
 import { renderHighlight } from "../renderHighlight";
@@ -25,6 +28,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import { ImageViewer } from "@/components/ui/ImageViewer";
 import shared from "../AboutSection.module.css";
 import local from "./TroubleshootingPanel.module.css";
+import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
 
 /** 리더/댓글/에디터와 동일한 코드블록 — highlightCodeBlocks + attachCodeWrapToggle 를 그대로 돌린다.
@@ -299,15 +303,14 @@ function DiagramFullscreenViewer({
         <span className={styles.diagramViewerTitle}>
           {diagram.title ? diagram.title[language] : "Flow chart"}
         </span>
-        <button
-          type="button"
+        <Pressable noTapScale
           data-clickable="true"
           className={styles.diagramViewerIconBtn}
           onClick={onClose}
           aria-label="Close"
         >
           <X size={18} />
-        </button>
+        </Pressable>
       </div>
 
       {/* Stage — zoom/pan 적용되는 영역 */}
@@ -333,34 +336,31 @@ function DiagramFullscreenViewer({
 
       {/* Controls — 우하단 zoom in/out/reset */}
       <div className={styles.diagramViewerControls}>
-        <button
-          type="button"
+        <Pressable noTapScale
           data-clickable="true"
           className={styles.diagramViewerIconBtn}
           onClick={() => setZoom((z) => Math.min(8, z * 1.2))}
           aria-label="Zoom in"
         >
           <ZoomIn size={18} />
-        </button>
+        </Pressable>
         <span className={styles.diagramViewerZoomLabel}>{Math.round(zoom * 100)}%</span>
-        <button
-          type="button"
+        <Pressable noTapScale
           data-clickable="true"
           className={styles.diagramViewerIconBtn}
           onClick={() => setZoom((z) => Math.max(0.2, z / 1.2))}
           aria-label="Zoom out"
         >
           <ZoomOut size={18} />
-        </button>
-        <button
-          type="button"
+        </Pressable>
+        <Pressable noTapScale
           data-clickable="true"
           className={styles.diagramViewerIconBtn}
           onClick={reset}
           aria-label="Reset"
         >
           <RotateCcw size={16} />
-        </button>
+        </Pressable>
       </div>
     </div>,
     document.body,
@@ -374,7 +374,7 @@ function TroubleshootingPanel({
   /* admin(about.troubleshooting) override — 비어있으면 정적 데이터 */
   const cfg = useSiteConfig();
   const cfgItems = cfg.about.troubleshooting;
-  const items = cfgItems && cfgItems.length > 0 ? cfgItems : troubleShootingItems;
+  const items = cfgItems && cfgItems.length > 0 ? cfgItems : aboutDecisions;
   const isMobile = useMobileLayout();
   const listRef = useRef<HTMLDivElement>(null);
   const [detailIndex, setDetailIndex] = useState(0);
@@ -557,8 +557,7 @@ function TroubleshootingPanel({
                 <figure key={ii} className={styles.troubleImage}>
                   {/* wrap (relative) > 이미지 button (clip + radius) + hint button (overflow 밖, 잘림 없음) */}
                   <div className={styles.troubleImageWrap}>
-                    <button
-                      type="button"
+                    <Pressable noTapScale
                       data-clickable="true"
                       className={styles.troubleImageBtn}
                       onClick={(e) => {
@@ -575,9 +574,8 @@ function TroubleshootingPanel({
                         sizes="(max-width: 1024px) 100vw, 800px"
                         className={styles.troubleImageImg}
                       />
-                    </button>
-                    <button
-                      type="button"
+                    </Pressable>
+                    <Pressable noTapScale
                       data-clickable="true"
                       className={styles.ideDiagramHint}
                       onClick={(e) => {
@@ -588,7 +586,7 @@ function TroubleshootingPanel({
                     >
                       <Maximize2 strokeWidth={2} className={styles.ideDiagramHintIcon} />
                       크게 보기
-                    </button>
+                    </Pressable>
                   </div>
                   {img.caption && (
                     <figcaption className={styles.troubleImageCaption}>
@@ -900,6 +898,46 @@ function TroubleshootingPanel({
 
   const displayIndex = isMobile ? mobileActiveIdx : detailIndex;
 
+  /* 열려 있는 항목을 markdown 으로 — 화면이 항목을 `01.md` 로 보여 주면서 정작 파일을
+     꺼내 갈 방법이 없었다. 소제목 라벨은 화면과 같은 번역을 그대로 쓴다. */
+  const buildMarkdown = useCallback(() => {
+    const item = items[displayIndex];
+    if (!item) return null;
+    /* 소제목은 화면 번역이 아니라 파서가 찾는 고정 라벨(CANONICAL_HEADINGS)을 쓴다.
+       이 파일이 content/about/decisions/ 로 들어가 되읽히므로 형식이 흔들리면 안 된다. */
+    const md = itemToMarkdown(item, language, CANONICAL_HEADINGS);
+    return { md, filename: itemFileName(item, displayIndex, language) };
+  }, [items, displayIndex, language]);
+
+  const [copiedMd, setCopiedMd] = useState(false);
+  const handleCopyMarkdown = useCallback(async () => {
+    const built = buildMarkdown();
+    if (!built) return;
+    try {
+      await navigator.clipboard.writeText(built.md);
+      setCopiedMd(true);
+      showToast(language === "ko" ? "markdown 을 복사했습니다." : "Copied as markdown.", "success");
+      setTimeout(() => setCopiedMd(false), COPY_FEEDBACK_MS);
+    } catch {
+      showToast(
+        language === "ko" ? "클립보드를 쓸 수 없습니다." : "Clipboard is unavailable.",
+        "error",
+      );
+    }
+  }, [buildMarkdown, language]);
+
+  const handleDownloadMarkdown = useCallback(() => {
+    const built = buildMarkdown();
+    if (!built) return;
+    const url = URL.createObjectURL(new Blob([built.md], { type: "text/markdown;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = built.filename;
+    a.click();
+    /* revoke 를 같은 tick 에 하면 다운로드가 시작되기 전에 blob 이 사라진다. */
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }, [buildMarkdown]);
+
   // 클릭 핸들러 — 데스크톱: detailIndex 만 set (sidebar 가 선택, IDE editor 가 해당 item 렌더) / 모바일: 즉시 점프 + index sync
   const handleItemClick = useCallback(
     (index: number) => {
@@ -1139,21 +1177,19 @@ function TroubleshootingPanel({
             <div className={styles.ideExplorerHeader}>
               <span>{language === "ko" ? "탐색기" : "Explorer"}</span>
               <div ref={filterWrapRef} className={styles.ideExplorerFilterWrap}>
-                <button
-                  type="button"
+                <Pressable noTapScale
                   data-clickable="true"
                   className={`${styles.ideExplorerFilterBtn} ${filterMode !== "all" ? styles.ideExplorerFilterBtnActive : ""}`}
                   onClick={() => setFilterMenuOpen((o) => !o)}
                   aria-label={language === "ko" ? "필터" : "Filter"}
                 >
-                  <Filter size={12} strokeWidth={2} />
-                </button>
+                  <Filter size={14} strokeWidth={2} />
+                </Pressable>
                 {filterMenuOpen && (
                   <div className={styles.ideExplorerFilterMenu} role="menu">
                     {FILTER_OPTIONS.map((opt) => (
-                      <button
+                      <Pressable noTapScale
                         key={String(opt.key)}
-                        type="button"
                         data-clickable="true"
                         className={`${styles.ideExplorerFilterMenuItem} ${filterMode === opt.key ? styles.ideExplorerFilterMenuItemActive : ""}`}
                         onClick={() => {
@@ -1162,10 +1198,10 @@ function TroubleshootingPanel({
                         }}
                       >
                         <span className={styles.ideExplorerFilterCheck}>
-                          {filterMode === opt.key && <Check size={11} strokeWidth={2.5} />}
+                          {filterMode === opt.key && <Check size={13} strokeWidth={2.5} />}
                         </span>
                         <span>{opt.label[language]}</span>
-                      </button>
+                      </Pressable>
                     ))}
                   </div>
                 )}
@@ -1190,12 +1226,12 @@ function TroubleshootingPanel({
                       >
                         <span className={styles.troubleSectionFolder}>
                           <ChevronDown
-                            size={12}
+                            size={14}
                             strokeWidth={2}
                             className={`${styles.ideExplorerChevron} ${isCollapsed ? styles.ideExplorerChevronCollapsed : ""}`}
                             aria-hidden
                           />
-                          <Folder size={12} strokeWidth={2} className={styles.ideExplorerFolderIcon} aria-hidden />
+                          <Folder size={14} strokeWidth={2} className={styles.ideExplorerFolderIcon} aria-hidden />
                           {item.section[language]}
                         </span>
                         <span className={styles.troubleSectionCount}>{sectionItems.length}</span>
@@ -1234,7 +1270,7 @@ function TroubleshootingPanel({
                         }`}
                         onClick={() => handleItemClick(index)}
                       >
-                        <FileText size={12} strokeWidth={1.75} className={styles.ideExplorerFileIcon} aria-hidden />
+                        <FileText size={14} strokeWidth={1.75} className={styles.ideExplorerFileIcon} aria-hidden />
                         <span className={styles.troubleNumber}>
                           {String(index + 1).padStart(2, "0")}
                         </span>
@@ -1245,7 +1281,7 @@ function TroubleshootingPanel({
                           {item.difficulty && <DifficultyBadge level={item.difficulty} language={language} />}
                           {/* 별표 영역은 항상 자리 차지 (item 마다 같은 레이아웃 유지) */}
                           <span className={styles.troubleRecommendedBadge} title={item.recommended ? "추천" : undefined} aria-hidden={!item.recommended}>
-                            {item.recommended && <Star size={11} fill="currentColor" strokeWidth={1.5} />}
+                            {item.recommended && <Star size={13} fill="currentColor" strokeWidth={1.5} />}
                           </span>
                         </span>
                       </div>
@@ -1296,8 +1332,7 @@ function TroubleshootingPanel({
                     placement="bottom"
                     delay={150}
                   >
-                    <button
-                      type="button"
+                    <Pressable noTapScale
                       data-clickable="true"
                       className={`${styles.ideTab} ${isActive ? styles.ideTabActive : ""}`}
                       onClick={() => {
@@ -1325,7 +1360,7 @@ function TroubleshootingPanel({
                           transition={{ type: "spring", stiffness: 380, damping: 32 }}
                         />
                       )}
-                    </button>
+                    </Pressable>
                   </Tooltip>
                 );
               })}
@@ -1483,8 +1518,7 @@ function TroubleshootingPanel({
                                   )}
                                   <FlowDiagram nodes={d.nodes} edges={d.edges} language={language} />
                                 </div>
-                                <button
-                                  type="button"
+                                <Pressable noTapScale
                                   data-clickable="true"
                                   className={styles.ideDiagramHint}
                                   onClick={(e) => {
@@ -1495,7 +1529,7 @@ function TroubleshootingPanel({
                                 >
                                   <Maximize2 strokeWidth={2} className={styles.ideDiagramHintIcon} />
                                   크게 보기
-                                </button>
+                                </Pressable>
                               </div>
                             ))}
                           </div>
@@ -1522,16 +1556,49 @@ function TroubleshootingPanel({
             </AnimatePresence>
           </div>
 
-          {/* Status bar — 우측에 폰트 크기 조절 버튼 */}
+          {/* Status bar — 우측에 내보내기 + 폰트 크기 조절 버튼.
+              좁은 화면에서는 바가 가로로 밀려 우측 버튼이 화면 밖으로 나간다. 그래서
+              breadcrumb 에 이미 있는 정보(섹션 · 파일 형식)는 모바일에서 접는다. */}
           <div className={styles.ideStatusBar}>
-            <span className={styles.ideStatusGroup}>
+            <span className={`${styles.ideStatusGroup} ${styles.ideStatusGroupOptional}`}>
               <span className={styles.ideStatusDot} aria-hidden />
               {items[displayIndex]?.section?.[language] ?? "-"}
             </span>
             <span className={styles.ideStatusGroup}>
               {String(displayIndex + 1).padStart(2, "0")}/{String(items.length).padStart(2, "0")}
             </span>
-            <span className={styles.ideStatusGroup}>MARKDOWN</span>
+            <span className={`${styles.ideStatusGroup} ${styles.ideStatusGroupOptional}`}>MARKDOWN</span>
+            <span className={styles.ideStatusActions}>
+              {/* 이 항목을 .md 로 — 복사 / 파일 저장 */}
+              <Tooltip
+                content={language === "ko" ? "markdown 으로 복사" : "Copy as markdown"}
+                placement="top"
+                delay={150}
+              >
+                <Pressable noTapScale
+                  data-clickable="true"
+                  className={styles.ideStatusActionBtn}
+                  onClick={handleCopyMarkdown}
+                  aria-label={language === "ko" ? "markdown 으로 복사" : "Copy as markdown"}
+                >
+                  {copiedMd ? <Check size={15} strokeWidth={2} /> : <Copy size={15} strokeWidth={1.8} />}
+                </Pressable>
+              </Tooltip>
+              <Tooltip
+                content={language === "ko" ? ".md 파일로 내보내기" : "Export as .md"}
+                placement="top"
+                delay={150}
+              >
+                <Pressable noTapScale
+                  data-clickable="true"
+                  className={styles.ideStatusActionBtn}
+                  onClick={handleDownloadMarkdown}
+                  aria-label={language === "ko" ? ".md 파일로 내보내기" : "Export as .md"}
+                >
+                  <Download size={15} strokeWidth={1.8} />
+                </Pressable>
+              </Tooltip>
+            </span>
             <span className={styles.ideStatusFontControls} style={{ position: "relative" }}>
               <AnimatePresence>
                 {showFontTooltip && (
@@ -1547,8 +1614,7 @@ function TroubleshootingPanel({
                   </motion.span>
                 )}
               </AnimatePresence>
-              <button
-                type="button"
+              <Pressable noTapScale
                 data-clickable="true"
                 className={styles.ideStatusFontBtn}
                 onClick={() => {
@@ -1559,12 +1625,11 @@ function TroubleshootingPanel({
                 aria-label="Decrease font size"
               >
                 A−
-              </button>
+              </Pressable>
               <span className={styles.ideStatusFontValue}>
                 {Math.round(ideFontScale * 100)}%
               </span>
-              <button
-                type="button"
+              <Pressable noTapScale
                 data-clickable="true"
                 className={styles.ideStatusFontBtn}
                 onClick={() => {
@@ -1575,7 +1640,7 @@ function TroubleshootingPanel({
                 aria-label="Increase font size"
               >
                 A+
-              </button>
+              </Pressable>
             </span>
           </div>
         </div>

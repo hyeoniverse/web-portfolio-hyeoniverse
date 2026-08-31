@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { type CalEvent, monthGrid, monthTitle, weekdayLabels, shiftMonth, eventDates } from "./model";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export default function MiniCalendar({
   date, onSelect, language, events = [],
@@ -55,15 +56,14 @@ export default function MiniCalendar({
         {cells.map((c) => {
           const n = countByDate.get(c.date) || 0;
           return (
-            <button
+            <Pressable
               key={c.date}
-              type="button"
               className={`${styles.miniCalCell}${!c.inMonth ? ` ${styles.miniCalOut}` : ""}${c.date === date ? ` ${styles.miniCalSel}` : ""}${c.isToday && c.date !== date ? ` ${styles.miniCalToday}` : ""}`}
               onClick={() => onSelect(c.date)}
             >
               <span className={styles.miniCalNum}>{c.day}</span>
               {n > 0 && <span className={styles.miniCalCount}>{n}</span>}
-            </button>
+            </Pressable>
           );
         })}
       </div>

@@ -7,6 +7,7 @@ import { COPY_FEEDBACK_MS } from "@/constants";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import MermaidPreview from "./MermaidPreview";
 import styles from "../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type View = "diagram" | "code" | "split";
 
@@ -62,9 +63,9 @@ export default function ReaderMermaid({ code, labels }: {
           onChange={setView}
           size="sm"
         />
-        <button type="button" className={styles.readerMermaidCopy} onClick={copy}>
+        <Pressable className={styles.readerMermaidCopy} onClick={copy}>
           {copied ? labels.copied : labels.copyCode}
-        </button>
+        </Pressable>
       </div>
       <div
         className={isSplit ? styles.graphSplit : undefined}

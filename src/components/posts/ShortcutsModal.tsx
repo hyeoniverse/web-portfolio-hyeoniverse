@@ -3,6 +3,7 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./PostEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 // OS 별 표시 — combo 문자열은 Mac 기호(⌘⇧⌥⌃)로 통일해두고, 렌더 시 OS 에 맞게 매핑.
 // (기능은 에디터 mod=Cmd/Ctrl, altKey=Option/Alt 로 이미 크로스플랫폼 — 표시만 다름)
@@ -73,9 +74,9 @@ export default function ShortcutsModalContent() {
   return (
     <MacCtx.Provider value={isMac}>
       <div className={styles.helpTabs}>
-        <button type="button" className={`${styles.helpTab} ${tab === "block" ? styles.helpTabActive : ""}`} onClick={() => setTab("block")}>{L("블록", "Blocks")}</button>
-        <button type="button" className={`${styles.helpTab} ${tab === "rich" ? styles.helpTabActive : ""}`} onClick={() => setTab("rich")}>Rich Text</button>
-        <button type="button" className={`${styles.helpTab} ${tab === "md" ? styles.helpTabActive : ""}`} onClick={() => setTab("md")}>Markdown</button>
+        <Pressable className={`${styles.helpTab} ${tab === "block" ? styles.helpTabActive : ""}`} onClick={() => setTab("block")}>{L("블록", "Blocks")}</Pressable>
+        <Pressable className={`${styles.helpTab} ${tab === "rich" ? styles.helpTabActive : ""}`} onClick={() => setTab("rich")}>Rich Text</Pressable>
+        <Pressable className={`${styles.helpTab} ${tab === "md" ? styles.helpTabActive : ""}`} onClick={() => setTab("md")}>Markdown</Pressable>
       </div>
 
       <div className={styles.helpPanels}>

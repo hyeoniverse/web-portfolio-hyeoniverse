@@ -12,6 +12,7 @@ import { useAutoSlide } from "./useAutoSlide";
 import { ChevronLeft, ChevronRight, Play, Pause } from "@/components/icons";
 import type { Post } from "@/types/post";
 import styles from "./PostsBanner.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface TickerBannerProps {
   posts: Post[];
@@ -108,12 +109,12 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
       </div>
 
       <div className={styles.splitControls}>
-        <button className={styles.splitArrowBtn} onClick={prev} aria-label="Previous slide" data-cursor="prev">
+        <Pressable noTapScale className={styles.splitArrowBtn} onClick={prev} aria-label="Previous slide" data-cursor="prev">
           <ChevronLeft size={14} />
-        </button>
+        </Pressable>
         <div className={styles.splitDots}>
           {posts.map((p, i) => (
-            <button
+            <Pressable noTapScale
               key={p.id}
               className={`${styles.splitDot} ${i === index ? styles.splitDotActive : ""}`}
               onClick={() => go(i)}
@@ -121,16 +122,16 @@ export default function TickerBanner({ posts, imgErrors, onImgError }: TickerBan
             />
           ))}
         </div>
-        <button className={styles.splitArrowBtn} onClick={next} aria-label="Next slide" data-cursor="next">
+        <Pressable noTapScale className={styles.splitArrowBtn} onClick={next} aria-label="Next slide" data-cursor="next">
           <ChevronRight size={14} />
-        </button>
-        <button className={styles.splitPlayBtn} onClick={togglePause} aria-label={isPaused ? "Play" : "Pause"}>
+        </Pressable>
+        <Pressable noTapScale className={styles.splitPlayBtn} onClick={togglePause} aria-label={isPaused ? "Play" : "Pause"}>
           {isPaused ? (
             <Play size={12} fill="currentColor" />
           ) : (
             <Pause size={12} fill="currentColor" />
           )}
-        </button>
+        </Pressable>
       </div>
     </div>
   );

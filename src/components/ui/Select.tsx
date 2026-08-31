@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { ChevronRight, X } from "@/components/icons";
 import { usePortalContainer } from "./portalContainer";
 import styles from "./Select.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface SelectOption {
   value: string;
@@ -318,7 +319,7 @@ export default function Select({
     const isActive = opt.value === value;
     const isHovered = combobox && i === activeIdx;
     return (
-      <button
+      <Pressable
         key={opt.value}
         type="button"
         className={`${styles.option} ${isActive ? styles.optionActive : ""} ${isHovered ? styles.optionActive : ""} ${opt.selected ? styles.optionSelected : ""}`}
@@ -342,7 +343,7 @@ export default function Select({
             {opt.trailing && <span className={styles.optionTrailing}>{opt.trailing}</span>}
           </span>
         )}
-      </button>
+      </Pressable>
     );
   };
 
@@ -381,7 +382,7 @@ export default function Select({
   // 클릭하면 트리거가 입력 모드로 바뀌어 프리셋 밖 값을 타이핑. (트리거 더블클릭으로도 동일.)
   const dropdownContent = editable && !hasChildren ? (
     <>
-      <button
+      <Pressable
         type="button"
         className={styles.option}
         onMouseDown={preserveFocus ? (e) => e.preventDefault() : undefined}
@@ -391,7 +392,7 @@ export default function Select({
         <span className={styles.optionContent}>
           <span className={styles.optionLabel}>직접 입력</span>
         </span>
-      </button>
+      </Pressable>
       {optionsContent}
     </>
   ) : optionsContent;
@@ -452,7 +453,7 @@ export default function Select({
           />
           {/* 지우개 — input 값 있을 때만. 입력 버퍼 clear + focus */}
           {inputValue && !disabled && (
-            <button
+            <Pressable
               type="button"
               className={styles.comboClear}
               tabIndex={-1}
@@ -461,7 +462,7 @@ export default function Select({
               onClick={() => { onInputChange?.(""); inputRef.current?.focus(); setOpen(true); }}
             >
               <X size={12} strokeWidth={2.5} />
-            </button>
+            </Pressable>
           )}
           {/* combobox chevron — button mode 와 시각적 일관성. pointer-events: none 이라 input click 방해 안함 */}
           <ChevronRight className={`${styles.arrow} ${styles.arrowCombobox} ${open ? styles.arrowOpen : ""}`} size={12} strokeWidth={2.5} />
@@ -495,7 +496,7 @@ export default function Select({
           }}
         />
       ) : (
-        <button
+        <Pressable
           type="button"
           className={`${styles.trigger} ${size === "sm" ? styles.triggerSm : ""} ${triggerClassName ?? ""}`}
           /* triggerWidth (probe-measured) 제거 — trigger 가 자기 자연 너비 (.root width: max-content) 유지.
@@ -538,7 +539,7 @@ export default function Select({
               : <span className={styles.sizer} aria-hidden>{placeholder || ""}</span>}
           </span>
           <ChevronRight className={`${styles.arrow} ${open ? styles.arrowOpen : ""}`} size={12} strokeWidth={2.5} />
-        </button>
+        </Pressable>
       )}
       {visible && createPortal(
         <div

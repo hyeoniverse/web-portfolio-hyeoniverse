@@ -13,6 +13,7 @@ import emojiData from "@emoji-mart/data";
 import EmojiPicker from "@/components/ui/EmojiPicker";
 import { _emojiPickerTrigger, _imageUploadFn } from "../utils";
 import styles from "../../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -159,9 +160,8 @@ export default function EmojiMenu() {
         // eslint-disable-next-line react-hooks/refs
         <div ref={refs.setFloating} className={styles.slashMenu} style={style} onMouseDown={(e) => e.preventDefault()}>
           {items.map((hit, i) => (
-            <button
+            <Pressable noTapScale
               key={hit.id}
-              type="button"
               data-emoji-nav={i}
               className={`${styles.slashItem} ${i === activeIdx ? styles.slashItemActive : ""}`}
               onMouseEnter={() => setActiveIdx(i)}
@@ -169,7 +169,7 @@ export default function EmojiMenu() {
             >
               <span className={styles.emojiNative}>{hit.native}</span>
               <span className={styles.emojiName}>{hit.name}</span>
-            </button>
+            </Pressable>
           ))}
         </div>,
         document.body,

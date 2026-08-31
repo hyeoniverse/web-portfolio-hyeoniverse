@@ -60,6 +60,7 @@ import {
 } from "./components";
 import MembersList from "@/components/admin/MembersList";
 import styles from "./Dashboard.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 
 export default function AdminDashboard() {
@@ -390,7 +391,7 @@ export default function AdminDashboard() {
               gridColumn: "1 / -1",
               gap: "var(--spacing-xl)",
               alignItems: "center",
-              padding: "var(--box-lg-md)",
+              padding: "var(--spacing-lg) var(--spacing-md)",
               position: "relative",
               overflow: "hidden",
               background: "var(--bg-primary)",
@@ -982,7 +983,7 @@ export default function AdminDashboard() {
         <Item
           style={{
             fontFamily: "var(--font-space-grotesk)",
-            fontSize: "var(--font-size-2xs)",
+            fontSize: "var(--font-size-hint)",
             color: "var(--text-tertiary)",
           }}
         >
@@ -1154,15 +1155,14 @@ function DevicesBreakdown({
                 placement="top"
                 delay={300}
               >
-                <button
-                  type="button"
+                <Pressable
                   role="tab"
                   aria-selected={activeTab === tab.id}
                   className={`${styles.deviceTab} ${activeTab === tab.id ? styles.deviceTabActive : ""}`}
                   onClick={() => setActiveTab(tab.id)}
                 >
                   {tab.label}
-                </button>
+                </Pressable>
               </Tooltip>
             );
           })}
@@ -1246,8 +1246,7 @@ function DevicesBreakdown({
                 className={styles.deviceLegendItem}
               >
                 {drillable ? (
-                  <button
-                    type="button"
+                  <Pressable
                     className={`${styles.deviceLegendBtn} ${isOpen ? styles.deviceLegendBtnActive : ""}`}
                     onClick={() =>
                       onDrillChange(isOpen ? null : (arc.kind as DeviceKind))
@@ -1255,7 +1254,7 @@ function DevicesBreakdown({
                     aria-expanded={isOpen}
                   >
                     {content}
-                  </button>
+                  </Pressable>
                 ) : (
                   <div className={styles.deviceLegendBtn}>{content}</div>
                 )}
@@ -1825,9 +1824,8 @@ function DailyViewsChart({
               const showAsSelected = isSelected && !isHoveringElsewhere;
               const isEmphasized = showAsToday || showAsSelected || isHovered;
               return (
-                <button
+                <Pressable
                   key={i}
-                  type="button"
                   className={styles.dotColumn}
                   style={{
                     left: `${(p.x / W) * 100}%`,
@@ -1848,7 +1846,7 @@ function DailyViewsChart({
                     className={`${styles.dotCircle} ${showAsToday ? styles.dotToday : ""} ${showAsSelected ? styles.dotSelected : ""} ${isHovered ? styles.dotHovered : ""}`}
                     style={{ top: `${(p.y / H) * 100}%` }}
                   />
-                </button>
+                </Pressable>
               );
             })}
           </div>
@@ -1883,9 +1881,8 @@ function DailyViewsChart({
               const isSelected = selectedIdx === i;
               const leftPct = (points[i].x / W) * 100;
               return (
-                <button
+                <Pressable
                   key={d.day}
-                  type="button"
                   className={`${styles.areaDay} ${isToday ? styles.areaDayToday : ""} ${isSelected ? styles.areaDaySelected : ""}`}
                   style={{ left: `${leftPct}%` }}
                   title={`${d.day} · ${d.views.toLocaleString()}`}
@@ -1894,7 +1891,7 @@ function DailyViewsChart({
                 >
                   {dn}
                   <span className={styles.areaDayDow}>{dow}</span>
-                </button>
+                </Pressable>
               );
             })}
           </div>
@@ -1953,15 +1950,18 @@ function DateRangeTrigger({
   return (
     <div className={styles.periodTrigger}>
       <Tooltip content={tooltipText} placement="bottom" delay={300}>
-        <button
+        <Button
           type="button"
-          className={`${styles.periodTriggerBtn} ${isOpen ? styles.periodTriggerBtnActive : ""}`}
+          variant="outline"
+          size="2xs"
+          active={isOpen}
+          className={styles.periodTriggerBtn}
           onClick={onOpen}
           aria-label={`${label}: ${formatted}`}
         >
           <span className={styles.periodTriggerLabel}>{label}</span>
           <span className={styles.periodTriggerDate}>{formatted}</span>
-        </button>
+        </Button>
       </Tooltip>
       {isOpen && (
         <DatePickerPopover
@@ -2162,7 +2162,7 @@ function DayDetailPanel({
             <ListItem
               key={row.id}
               layout="grid"
-              style={{ gridTemplateColumns: "1fr auto", height: "var(--button-h-md)", flexShrink: 0 }}
+              style={{ gridTemplateColumns: "1fr auto", height: "var(--control-h-xl)", flexShrink: 0 }}
             >
               <span className={styles.dayDetailLabel}>{row.label}</span>
               <DiffBadge diff={row.diff} />
@@ -2218,7 +2218,7 @@ function DayDetailPanel({
                   style={{
                     gridTemplateColumns:
                       "auto minmax(0, 1.4fr) minmax(60px, 1fr) auto",
-                    height: "var(--button-h-md)",
+                    height: "var(--control-h-xl)",
                     flexShrink: 0,
                   }}
                 >
@@ -2492,9 +2492,8 @@ function CalendarHeatmap({
 
       <div className={styles.calendarGrid}>
         {cells.map((cell, i) => (
-          <button
+          <Pressable
             key={i}
-            type="button"
             className={`${styles.calendarCell} ${!cell ? styles.calendarCellEmpty : ""}`}
             style={cell ? { background: colorFor(cell.views) } : undefined}
             onClick={cell ? () => onSelectDay?.(cell.iso) : undefined}
@@ -2510,7 +2509,7 @@ function CalendarHeatmap({
                 </span>
               </>
             )}
-          </button>
+          </Pressable>
         ))}
       </div>
 

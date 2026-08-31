@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useVirtualFloating, offset, flip, shift } from "@platejs/floating";
 import { GripVertical } from "@/components/icons";
 import styles from "../../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /** 전역 Find 바의 현재 화면 rect. Find 바(FloatingBar)가 매 프레임 스스로 측정해 onRect 로 올리고,
  *  PlateEditor 가 이 context 로 다시 내려준다. 컨텍스트 바들은 자기 "자연 위치"가 이 rect 와 2D 로
@@ -198,8 +199,7 @@ export default function FloatingBar({
         className={`${styles.floatingBarFrame}${inline ? ` ${styles.floatingBarFrameInline}` : ""}`}
         style={drag.dx || drag.dy ? { transform: `translate(${drag.dx}px, ${drag.dy}px)` } : undefined}
       >
-        <button
-          type="button"
+        <Pressable noTapScale
           className={styles.floatingBarHandle}
           data-cursor="grab"
           aria-label="move toolbar"
@@ -210,7 +210,7 @@ export default function FloatingBar({
           onPointerCancel={onUp}
         >
           <GripVertical size={13} />
-        </button>
+        </Pressable>
         <div
           className={`${styles.floatingBar}${inline ? ` ${styles.floatingBarInline}` : ""}`}
           onFocusCapture={onFocusCapture}

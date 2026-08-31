@@ -17,6 +17,7 @@ import { SkeletonLine } from "@/components/ui/Skeleton";
 import styles from "./AdminEditorShell.module.css";
 import type { AdminEditorShellProps, RevisionMetaGroup } from "./types";
 import { formatTime, formatStatusTime, lineDiff, wordDiff, isImageUrl, isUrl } from "./utils";
+import Pressable from "@/components/ui/Pressable";
 
 export { default as adminEditorStyles } from "./AdminEditorShell.module.css";
 
@@ -87,8 +88,7 @@ export default function AdminEditorShell({
         inline
       />
       {hasSchedule && (
-        <button
-          type="button"
+        <Pressable noTapScale
           className={styles.scheduleClearBtn}
           onClick={() => {
             onScheduledChange?.(null);
@@ -97,7 +97,7 @@ export default function AdminEditorShell({
         >
           <CalendarX size={12} />
           {labels.scheduledClear ?? "Clear"}
-        </button>
+        </Pressable>
       )}
     </div>
   );
@@ -554,8 +554,7 @@ export default function AdminEditorShell({
               >
                 {({ close }) => (
                   <>
-                    <button
-                      type="button"
+                    <Pressable noTapScale
                       className={styles.retranslateItem}
                       onClick={() => {
                         onRetranslate?.();
@@ -563,11 +562,10 @@ export default function AdminEditorShell({
                       }}
                     >
                       {labels.retranslateAll ?? "All"}
-                    </button>
+                    </Pressable>
                     {retranslateOptions.map((opt) => (
-                      <button
+                      <Pressable noTapScale
                         key={opt.key}
-                        type="button"
                         className={styles.retranslateItem}
                         onClick={() => {
                           onRetranslate?.([opt.key]);
@@ -575,7 +573,7 @@ export default function AdminEditorShell({
                         }}
                       >
                         {opt.label}
-                      </button>
+                      </Pressable>
                     ))}
                   </>
                 )}
@@ -664,22 +662,20 @@ export default function AdminEditorShell({
                           {/* Row 1 (sticky) — back + timestamp | restore/delete */}
                           <div className={`${styles.revisionDetailHeaderRow} ${styles.revisionDetailHeaderRowSticky}`}>
                             <div className={styles.revisionDetailHeaderLeft}>
-                              <button
-                                type="button"
+                              <Pressable noTapScale
                                 className={styles.revisionBackBtn}
                                 onClick={() => setViewingRevision(null)}
                               >
                                 <ChevronLeft size={14} />
                                 {labels.revisionHistory ?? "History"}
-                              </button>
+                              </Pressable>
                               <span className={styles.revisionTime}>
                                 {formatTime(revisions[viewingRevision].timestamp)}
                               </span>
                             </div>
                             <div className={styles.revisionDetailActions}>
                               <Tooltip content={labels.restore ?? "Restore"} placement="bottom">
-                                <button
-                                  type="button"
+                                <Pressable noTapScale
                                   className={styles.revisionIconBtn}
                                   onClick={() => {
                                     onRestoreRevision?.(viewingRevision);
@@ -689,12 +685,11 @@ export default function AdminEditorShell({
                                   aria-label={labels.restore ?? "Restore"}
                                 >
                                   <Undo2 size={12} />
-                                </button>
+                                </Pressable>
                               </Tooltip>
                               {onDeleteRevision && (
                                 <Tooltip content={labels.delete} placement="bottom">
-                                  <button
-                                    type="button"
+                                  <Pressable noTapScale
                                     className={styles.revisionIconBtn}
                                     aria-label={labels.delete}
                                     onClick={async () => {
@@ -718,7 +713,7 @@ export default function AdminEditorShell({
                                     }}
                                   >
                                     <Trash2 size={12} />
-                                  </button>
+                                  </Pressable>
                                 </Tooltip>
                               )}
                             </div>
@@ -872,8 +867,7 @@ export default function AdminEditorShell({
                               />
                               <div className={styles.revisionSelectActions}>
                                 {selectedRevisions.size > 0 && (
-                                  <button
-                                    type="button"
+                                  <Pressable noTapScale
                                     className={styles.revisionDeleteSelectedBtn}
                                     onClick={async () => {
                                       if (!onDeleteRevision) return;
@@ -898,10 +892,9 @@ export default function AdminEditorShell({
                                     }}
                                   >
                                     삭제
-                                  </button>
+                                  </Pressable>
                                 )}
-                                <button
-                                  type="button"
+                                <Pressable noTapScale
                                   className={styles.revisionSelectCancel}
                                   onClick={() => {
                                     setIsSelectMode(false);
@@ -909,20 +902,19 @@ export default function AdminEditorShell({
                                   }}
                                 >
                                   취소
-                                </button>
+                                </Pressable>
                               </div>
                             </>
                           ) : (
                             <>
                               <span>{labels.revisionHistory ?? "History"}</span>
                               {onDeleteRevision && (
-                                <button
-                                  type="button"
+                                <Pressable noTapScale
                                   className={styles.revisionSelectToggle}
                                   onClick={() => setIsSelectMode(true)}
                                 >
                                   선택
-                                </button>
+                                </Pressable>
                               )}
                             </>
                           )}

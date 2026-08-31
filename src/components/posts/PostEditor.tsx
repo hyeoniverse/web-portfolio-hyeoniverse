@@ -86,6 +86,7 @@ interface PostEditorProps {
 
 import { POST_TEMPLATES } from "@/data/postTemplates";
 import type { PostTemplate } from "@/data/postTemplates";
+import Pressable from "@/components/ui/Pressable";
 
 /** Revision detail panel — lang 별 라벨/필드 로컬라이즈 + 해당 lang KO|EN 값만 노출. */
 function postSnapshotMeta(s: PostFormData, seriesList: { id: string; title: string }[], authorNames: Map<string, string>, lang: "ko" | "en"): import("@/components/admin/AdminEditorShell/types").RevisionMetaGroup[] {
@@ -1030,9 +1031,8 @@ export default function PostEditor({ post }: PostEditorProps) {
         <p className={styles.templateModalDesc}>{te("templateDesc")}</p>
         <div className={styles.templateList}>
           {POST_TEMPLATES.map((tmpl) => (
-            <button
+            <Pressable
               key={tmpl.id}
-              type="button"
               className={styles.templateItem}
               onClick={() => {
                 if (current.trim()) {
@@ -1052,7 +1052,7 @@ export default function PostEditor({ post }: PostEditorProps) {
             >
               <span className={styles.templateItemLabel}>{lang === "ko" ? tmpl.label.ko : tmpl.label.en}</span>
               <span className={styles.templateItemDesc}>{lang === "ko" ? tmpl.desc.ko : tmpl.desc.en}</span>
-            </button>
+            </Pressable>
           ))}
         </div>
       </div>,
@@ -1184,7 +1184,7 @@ export default function PostEditor({ post }: PostEditorProps) {
           <div className={es.field} data-seo="title" data-required="title">
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--spacing-xs)" }}>
               <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${titleFieldError ? ` ${es.fieldLabelError}` : ""}`}>{te("title")}</label>
-              <span style={{ fontSize: "var(--font-size-2xs)", fontVariantNumeric: "tabular-nums", color: form[titleKey].length >= POST_TITLE_MAX ? "var(--text-accent)" : "var(--text-muted)" }}>
+              <span style={{ fontSize: "var(--font-size-hint)", fontVariantNumeric: "tabular-nums", color: form[titleKey].length >= POST_TITLE_MAX ? "var(--text-accent)" : "var(--text-muted)" }}>
                 {form[titleKey].length}/{POST_TITLE_MAX}
               </span>
             </div>
@@ -1280,9 +1280,8 @@ export default function PostEditor({ post }: PostEditorProps) {
                     // 미할당(빈 배열)이면 기본 작성자(첫 항목)를 선택된 것처럼 표시 — 리더뷰 fallback 과 일치
                     const showSelected = actualSelected || (ids.length === 0 && i === 0);
                     return (
-                      <button
+                      <Pressable
                         key={a.id}
-                        type="button"
                         className={`${styles.authorChip}${showSelected ? ` ${styles.authorChipSelected}` : ""}`}
                         onClick={() => {
                           const atLeastOne = language === "en"
@@ -1311,7 +1310,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                           <span className={styles.authorChipAvatar} aria-hidden>{(a.name || "?").charAt(0)}</span>
                         )}
                         <span>{a.name}</span>
-                      </button>
+                      </Pressable>
                     );
                   })
                 ) : (
@@ -1327,8 +1326,7 @@ export default function PostEditor({ post }: PostEditorProps) {
 
         {/* ── 선택 입력 (접기/펼치기) ── */}
         <div className={styles.optionalSection}>
-          <button
-            type="button"
+          <Pressable
             className={styles.optionalToggle}
             onClick={() => setOptionalOpen((v) => !v)}
           >
@@ -1338,7 +1336,7 @@ export default function PostEditor({ post }: PostEditorProps) {
               strokeWidth={2.5}
               style={{ transform: optionalOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
             />
-          </button>
+          </Pressable>
 
           {/* 시리즈 — 항상 표시 (optionalContent 바깥이라 직접 padding 부여) */}
           <div style={{ padding: "0 var(--spacing-md) var(--spacing-md)" }}>
@@ -1508,7 +1506,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                           .map((t) => ({ value: t, label: t }))}
                         placeholder={te("tagsPlaceholder")}
                       />
-                      <button type="button" className={styles.tagAddBtn} onClick={() => addTagWithPreset()} disabled={!tag.input.trim()}>+</button>
+                      <Pressable className={styles.tagAddBtn} onClick={() => addTagWithPreset()} disabled={!tag.input.trim()}>+</Pressable>
                     </div>
                     {/* 태그별 설명 — 공통 TagNotesEditor (drag-reorder + ko/en + add/cancel 애니메이션) */}
                     <TagNotesEditor
@@ -1596,21 +1594,19 @@ export default function PostEditor({ post }: PostEditorProps) {
         <div className={es.editorHeader}>
           <div className={styles.editorHeaderLeft}>
             <span className={`${styles.editorLabel}${contentFieldError ? ` ${styles.editorLabelError}` : ""}`}>{te("content")}</span>
-            <button
-              type="button"
+            <Pressable
               className={styles.templateBtn}
               onClick={handleInsertTemplate}
             >
               {te("insertTemplate")}
-            </button>
+            </Pressable>
             <Tooltip content="단축키 및 기능 안내" placement="top">
-              <button
-                type="button"
+              <Pressable
                 className={styles.editorHelpBtn}
                 onClick={() => openModal(<ShortcutsModalContent />, { id: "shortcuts-help", header: { title: "단축키 및 기능 안내" }, closeButton: true })}
               >
                 ?
-              </button>
+              </Pressable>
             </Tooltip>
           </div>
           <Checkbox

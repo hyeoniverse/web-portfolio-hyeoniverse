@@ -24,6 +24,7 @@ import {
   CLICK_MOVE_TOLERANCE,
 } from "./constants";
 import styles from "./ImageViewer.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type ThumbMode = "hidden" | "strip" | "list" | "gallery";
 
@@ -470,9 +471,9 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
   /* ── Action buttons ── */
   const ActionBtn = ({ onClick, label, children, className }: { onClick: () => void; label: string; children: React.ReactNode; className?: string }) => (
     <Tooltip content={label} placement="bottom">
-      <button type="button" className={`${styles.actionBtn} ${className ?? ""}`} onClick={(e) => { e.stopPropagation(); onClick(); }} aria-label={label}>
+      <Pressable noTapScale className={`${styles.actionBtn} ${className ?? ""}`} onClick={(e) => { e.stopPropagation(); onClick(); }} aria-label={label}>
         {children}
-      </button>
+      </Pressable>
     </Tooltip>
   );
 
@@ -666,8 +667,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                       </ActionBtn>
                       <span className={styles.toolbarCollapsible}>
                         <Tooltip content="Autoplay settings" placement="bottom">
-                          <button
-                            type="button"
+                          <Pressable noTapScale
                             className={styles.actionBtn}
                             onClick={(e) => { e.stopPropagation(); setShowAutoSettings((v) => !v); }}
                             aria-label="Autoplay settings"
@@ -679,7 +679,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                             >
                               <path d="M2 4L6 8L10 4" />
                             </motion.svg>
-                          </button>
+                          </Pressable>
                         </Tooltip>
                       </span>
                       <AnimatePresence>
@@ -705,7 +705,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                                   transition={{ type: "spring", stiffness: 300, damping: 25, mass: 0.8 }}
                                 />
                                 {AUTOPLAY_INTERVALS.map((ms) => (
-                                  <button
+                                  <Pressable noTapScale
                                     key={ms}
                                     type="button"
                                     className={`${styles.intervalBtn} ${(hoveredInterval ?? autoInterval) === ms ? styles.intervalBtnActive : ""}`}
@@ -713,7 +713,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                                     onMouseEnter={() => setHoveredInterval(ms)}
                                   >
                                     {ms / 1000}s
-                                  </button>
+                                  </Pressable>
                                 ))}
                               </div>
                               <div className={styles.loopRow}>
@@ -746,14 +746,13 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                 <span className={styles.toolbarDivider} />
                 {/* ── More menu (mobile only) ── */}
                 <span ref={moreMenuRef} className={styles.moreMenuWrap}>
-                  <button
-                    type="button"
+                  <Pressable noTapScale
                     className={`${styles.actionBtn} ${styles.moreBtn}`}
                     onClick={(e) => { e.stopPropagation(); setShowMoreMenu((v) => !v); }}
                     aria-label="More options"
                   >
                     <MoreVertical size={16} />
-                  </button>
+                  </Pressable>
                   <AnimatePresence>
                     {showMoreMenu && (
                       <motion.div
@@ -765,16 +764,16 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                         style={{ transformOrigin: "top right" }}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <button type="button" className={styles.moreMenuItem} onClick={() => { zoomOut(); }}>
+                        <Pressable noTapScale className={styles.moreMenuItem} onClick={() => { zoomOut(); }}>
                           <ZoomOutIcon /><span>Zoom out</span>
-                        </button>
-                        <button type="button" className={styles.moreMenuItem} onClick={() => { zoomIn(); }}>
+                        </Pressable>
+                        <Pressable noTapScale className={styles.moreMenuItem} onClick={() => { zoomIn(); }}>
                           <ZoomInIcon /><span>Zoom in</span>
-                        </button>
-                        <button type="button" className={styles.moreMenuItem} onClick={() => { setZoom(1); setPanOffset({ x: 0, y: 0 }); }}>
+                        </Pressable>
+                        <Pressable noTapScale className={styles.moreMenuItem} onClick={() => { setZoom(1); setPanOffset({ x: 0, y: 0 }); }}>
                           <RotateCcw size={16} />
                           <span>Reset zoom</span>
-                        </button>
+                        </Pressable>
                         {hasMultiple && (
                           <>
                             <div className={styles.moreMenuDivider} />
@@ -791,14 +790,14 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                                   transition={{ type: "spring", stiffness: 300, damping: 25, mass: 0.8 }}
                                 />
                                 {AUTOPLAY_INTERVALS.map((ms) => (
-                                  <button
+                                  <Pressable noTapScale
                                     key={ms}
                                     type="button"
                                     className={`${styles.intervalBtn} ${autoInterval === ms ? styles.intervalBtnActive : ""}`}
                                     onClick={() => setAutoInterval(ms)}
                                   >
                                     {ms / 1000}s
-                                  </button>
+                                  </Pressable>
                                 ))}
                               </div>
                               <div className={styles.loopRow}>
@@ -836,16 +835,16 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
               >
                 <div className={`${styles.navZone} ${styles.navZonePrev}`}>
                   <Tooltip content="Previous  ←" placement="right">
-                    <button type="button" className={`${styles.navBtn} ${styles.navBtnPrev}`} onClick={(e) => { e.stopPropagation(); handlePrev(); }} aria-label="Previous">
+                    <Pressable noTapScale className={`${styles.navBtn} ${styles.navBtnPrev}`} onClick={(e) => { e.stopPropagation(); handlePrev(); }} aria-label="Previous">
                       <ChevronLeftIcon />
-                    </button>
+                    </Pressable>
                   </Tooltip>
                 </div>
                 <div className={`${styles.navZone} ${styles.navZoneNext}`}>
                   <Tooltip content="Next  →" placement="left">
-                    <button type="button" className={`${styles.navBtn} ${styles.navBtnNext}`} onClick={(e) => { e.stopPropagation(); handleNext(); }} aria-label="Next">
+                    <Pressable noTapScale className={`${styles.navBtn} ${styles.navBtnNext}`} onClick={(e) => { e.stopPropagation(); handleNext(); }} aria-label="Next">
                       <ChevronRightIcon />
-                    </button>
+                    </Pressable>
                   </Tooltip>
                 </div>
               </motion.div>
@@ -937,7 +936,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                 >
                   <div className={styles.galleryGrid} ref={thumbListRef} onWheel={(e) => e.stopPropagation()}>
                     {images.map((src, i) => (
-                      <button
+                      <Pressable noTapScale
                         key={i}
                         type="button"
                         data-idx={i}
@@ -951,7 +950,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                           <img src={resolveSrc(src)} alt="" className={styles.galleryImg} draggable={false} onError={() => markError(src)} />
                         )}
                         <span className={styles.galleryLabel}>{i + 1}</span>
-                      </button>
+                      </Pressable>
                     ))}
                   </div>
                 </motion.div>
@@ -977,9 +976,9 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                   exit={{ opacity: 0, transition: { duration: 0.12 } }}
                   transition={closing ? { duration: 0.12, delay: 0.68 } : { duration: 0.2, delay: 0.65, ease: [0.25, 0.1, 0.25, 1] }}
                 >
-                  <button type="button" className={`${styles.navBtn} ${styles.stripNavBtn}`} onClick={(e) => { e.stopPropagation(); handlePrev(); }} aria-label="Previous">
+                  <Pressable noTapScale className={`${styles.navBtn} ${styles.stripNavBtn}`} onClick={(e) => { e.stopPropagation(); handlePrev(); }} aria-label="Previous">
                     <ChevronLeftIcon />
-                  </button>
+                  </Pressable>
                   <div
                     className={styles.thumbStripInner}
                     ref={thumbListRef}
@@ -991,7 +990,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                     }}
                   >
                     {images.map((src, i) => (
-                      <button
+                      <Pressable noTapScale
                         key={i}
                         type="button"
                         data-idx={i}
@@ -1020,12 +1019,12 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                             transition={closing ? { duration: 0.10, delay: 0.56 } : { type: "spring", stiffness: 300, damping: 25, mass: 0.8 }}
                           />
                         )}
-                      </button>
+                      </Pressable>
                     ))}
                   </div>
-                  <button type="button" className={`${styles.navBtn} ${styles.stripNavBtn}`} onClick={(e) => { e.stopPropagation(); handleNext(); }} aria-label="Next">
+                  <Pressable noTapScale className={`${styles.navBtn} ${styles.stripNavBtn}`} onClick={(e) => { e.stopPropagation(); handleNext(); }} aria-label="Next">
                     <ChevronRightIcon />
-                  </button>
+                  </Pressable>
                 </motion.div>
               </motion.div>
             )}
@@ -1045,7 +1044,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
               >
                 <div className={styles.thumbListInner} ref={thumbListRef} onWheel={(e) => e.stopPropagation()}>
                   {images.map((src, i) => (
-                    <button
+                    <Pressable noTapScale
                       key={i}
                       type="button"
                       data-idx={i}
@@ -1066,7 +1065,7 @@ export default function ImageViewer({ images, index, open, onClose, title }: Ima
                         <img src={resolveSrc(src)} alt="" className={styles.thumbListImg} draggable={false} onError={() => markError(src)} />
                       )}
                       <span className={styles.thumbListLabel}>{i + 1}</span>
-                    </button>
+                    </Pressable>
                   ))}
                 </div>
               </motion.div>

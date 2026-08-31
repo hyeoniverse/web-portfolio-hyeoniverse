@@ -66,6 +66,7 @@ import { ListTodo, Check, ChevronUp, ChevronDown, ChevronRight, Replace, Replace
 import Popover, { MenuItem, MenuDivider } from "@/components/ui/Popover";
 import Select from "@/components/ui/Select";
 import CloseButton from "@/components/ui/CloseButton";
+import Pressable from "@/components/ui/Pressable";
 
 // Re-export ImagePanel for backward compatibility
 export { ImagePanel } from "./plate/ImagePanel";
@@ -2850,15 +2851,15 @@ export default function PlateEditor({
                     else if (e.key === "Escape") { setFindOpen(false); editor.tf.focus(); }
                   }}
                 />
-                <button type="button" className={`${styles.findToggle}${findCase ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setFindCase(!findCase)} title={t("editor.matchCase")} aria-pressed={findCase}>
+                <Pressable className={`${styles.findToggle}${findCase ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setFindCase(!findCase)} title={t("editor.matchCase")} aria-pressed={findCase}>
                   <CaseSensitive size={14} strokeWidth={1.75} />
-                </button>
-                <button type="button" className={`${styles.findToggle}${findWord ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setFindWord(!findWord)} title={t("editor.wholeWord")} aria-pressed={findWord}>
+                </Pressable>
+                <Pressable className={`${styles.findToggle}${findWord ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setFindWord(!findWord)} title={t("editor.wholeWord")} aria-pressed={findWord}>
                   <WholeWord size={14} strokeWidth={1.75} />
-                </button>
-                <button type="button" className={`${styles.findToggle}${findRegex ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setFindRegex(!findRegex)} title={t("editor.useRegex")} aria-pressed={findRegex}>
+                </Pressable>
+                <Pressable className={`${styles.findToggle}${findRegex ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setFindRegex(!findRegex)} title={t("editor.useRegex")} aria-pressed={findRegex}>
                   <Regex size={14} strokeWidth={1.75} />
-                </button>
+                </Pressable>
               </div>
               <span className={styles.findCount}>
                 {findQuery ? (matches.length > 0 ? `${Math.min(findIdx + 1, matches.length)}/${matches.length}` : t("editor.noResults")) : ""}
@@ -2889,9 +2890,9 @@ export default function PlateEditor({
                       if (e.key === "Escape") { setFindOpen(false); editor.tf.focus(); }
                     }}
                   />
-                  <button type="button" className={`${styles.findToggle}${preserveCase ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setPreserveCase(!preserveCase)} title={t("editor.preserveCase")} aria-pressed={preserveCase}>
+                  <Pressable className={`${styles.findToggle}${preserveCase ? ` ${styles.findToggleOn}` : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => setPreserveCase(!preserveCase)} title={t("editor.preserveCase")} aria-pressed={preserveCase}>
                     <CaseUpper size={15} strokeWidth={1.75} />
-                  </button>
+                  </Pressable>
                 </div>
                 <div className={styles.tableGroup}>
                   <TBtn square onClick={doReplace} tooltip={t("editor.replaceOne")}><Replace size={15} strokeWidth={1.75} /></TBtn>

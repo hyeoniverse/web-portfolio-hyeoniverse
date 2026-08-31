@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, AlertTriangle, ChevronRight, Sparkles } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./SeoChecklist.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /** 게시물·작품 편집 시 SEO/메타 필드 누락 점검을 위한 floating 위젯.
  *  화면 우하단 fixed pill — 클릭 시 expand panel.
@@ -175,13 +176,12 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
                     return (
                       <li key={c.id}>
                         {onItemClick ? (
-                          <button
-                            type="button"
+                          <Pressable
                             className={`${styles.panelItem} ${styles.panelItemActive}`}
                             onClick={() => { onItemClick(c.id); setOpen(false); }}
                           >
                             {inner}
-                          </button>
+                          </Pressable>
                         ) : (
                           <div className={styles.panelItem}>{inner}</div>
                         )}
@@ -208,13 +208,12 @@ export default function SeoChecklist({ data, onItemClick, className }: SeoCheckl
                       return (
                         <li key={c.id} className={styles.panelPassedLi}>
                           {onItemClick ? (
-                            <button
-                              type="button"
+                            <Pressable
                               className={`${styles.panelPassedItem} ${styles.panelPassedBtn}`}
                               onClick={() => { onItemClick(c.id); setOpen(false); }}
                             >
                               {inner}
-                            </button>
+                            </Pressable>
                           ) : (
                             <span className={styles.panelPassedItem}>{inner}</span>
                           )}

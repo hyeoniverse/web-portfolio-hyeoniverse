@@ -13,6 +13,7 @@ import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import { normalizePlayground, RUNNER_TEMPLATES, type PlaygroundData } from "./playground/model";
 import { starterFiles } from "./playground/starters";
 import styles from "./PlaygroundElement.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 // HTML/CSS/JS = 자체 srcdoc 러너(외부 의존 0), 나머지 = Sandpack (하이브리드)
 const PlaygroundSandpack = React.lazy(() => import("./playground/PlaygroundSandpack"));
@@ -123,10 +124,10 @@ export function PlaygroundElement(props: PlateElementProps) {
           <div className={styles.pgPickerTitle}>{t("어떤 스택으로 시작할까요?", "Pick a stack to start")}</div>
           <div className={styles.pgPickerGrid}>
             {PLAYGROUND_STACKS.map((s) => (
-              <button key={s.value} type="button" className={styles.pgPickerBtn} onClick={() => setTemplate(s.value)}>
+              <Pressable key={s.value} className={styles.pgPickerBtn} onClick={() => setTemplate(s.value)}>
                 <span className={styles.pgPickerLabel}>{s.label}</span>
                 <span className={styles.pgPickerDesc}>{language === "ko" ? s.ko : s.en}</span>
-              </button>
+              </Pressable>
             ))}
           </div>
         </div>

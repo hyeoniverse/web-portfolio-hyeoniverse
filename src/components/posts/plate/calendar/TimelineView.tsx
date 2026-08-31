@@ -8,6 +8,7 @@ import { toDateStr, parseDate, formatDateValue } from "../dateUtils";
 import EventPreview from "./EventPreview";
 import { useHoverPreview } from "./useHoverPreview";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const COL_W = 48;      // 하루 컬럼 폭(px)
 const ROW_H = 40;      // 이벤트 행 높이(px)
@@ -212,11 +213,11 @@ function TimelineViewInner({
   }, [today]);
 
   const dayCells = React.useMemo(() => days.map((d) => (
-    <button key={d.date} type="button"
+    <Pressable key={d.date}
       className={[styles.tlDay, d.dow === 0 ? styles.sun : "", d.dow === 6 ? styles.sat : "", d.date === todayStr ? styles.tlDayToday : "", d.date === highlightDate ? styles.tlDayHi : ""].filter(Boolean).join(" ")}
       style={{ width: COL_W }} onClick={onDateDetail ? () => onDateDetail(d.date) : (readOnly ? undefined : () => onAdd?.(d.date))} title={onDateDetail ? t("이 날짜 일정 보기", "View this day") : (readOnly ? undefined : t("이 날짜에 이벤트 추가", "Add event on this day"))}>
       <span className={styles.tlDayNum}>{d.day}</span>
-    </button>
+    </Pressable>
   )), [days, todayStr, readOnly, onAdd, onDateDetail, highlightDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const monthLabels = React.useMemo(() => days.map((d, i) => d.monthStart && (
@@ -491,7 +492,7 @@ function TimelineViewInner({
     const leftConn = canUnlink && (ev.deps?.length ?? 0) > 0;   // 선행 연결 보유(좌측 포트 = 해제)
     const rightConn = canUnlink && predSet.has(ev.id);          // 후속 연결 보유(우측 포트 = 해제)
     return (
-      <button key={ev.id} type="button" data-event-id={ev.id}
+      <Pressable key={ev.id} data-event-id={ev.id}
         className={`${styles.tlBar}${ev.status === "done" ? ` ${styles.tlBarDone}` : ""}${rz ? ` ${styles.tlBarResizing}` : ""}${mv ? ` ${styles.tlBarMoveSrc}` : ""}${highlightId === ev.id ? ` ${styles.tlBarHighlight}` : ""}${linkHi?.has(ev.id) ? ` ${styles.tlBarLinkHi}` : ""}${linkDrag && linkDrag.fromId !== ev.id ? ` ${styles.tlBarLinkTarget}` : ""}${(canMove || canReorder) ? ` ${styles.tlBarDraggable}` : ""}`}
         style={{ left: i * COL_W + 4, top: row * ROW_H + 9, height: ROW_H - 10, width: span * COL_W - 8, ["--_c" as string]: eventColorVar(ev, labels) }}
         onPointerDown={(canMove || canReorder) ? (e) => onBarDown(e, ev) : undefined}
@@ -514,7 +515,7 @@ function TimelineViewInner({
             {rightConn && <X className={styles.tlBarPortX} size={8} />}
           </span>
         )}
-      </button>
+      </Pressable>
     );
   }), [sorted, rowMap, dayIndex, labels, readOnly, onEventClick, resizing, canResize, onHandleDown, highlightId, canLink, canUnlink, predSet, linkDrag, canMove, canReorder, movePreview, linkHi]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -525,9 +526,9 @@ function TimelineViewInner({
         <span className={styles.tlHeadRight}>
           {todayButton}
           {!readOnly && onAdd && (
-            <button type="button" className={styles.tlAdd} onClick={() => onAdd(todayStr)}>
+            <Pressable className={styles.tlAdd} onClick={() => onAdd(todayStr)}>
               <Plus size={13} />{t("이벤트 추가", "Add event")}
-            </button>
+            </Pressable>
           )}
           {viewToggle}
         </span>

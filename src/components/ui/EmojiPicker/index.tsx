@@ -12,6 +12,7 @@ import { resizeEmojiImage } from "./resizeEmojiImage";
 import { UploadTab } from "./UploadTab";
 import { EmojiIcon } from "./EmojiIcon";
 import styles from "./EmojiPicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export { EmojiIcon } from "./EmojiIcon";
 
@@ -330,14 +331,13 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
 
   const EmojiBtn = ({ val, onDelete }: { val: string; onDelete?: () => void }) => {
     const btn = (
-      <button
-        type="button"
+      <Pressable
         className={`${styles.cell} ${styles.emojiCell}`}
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => handleSelect(val)}
       >
         <EmojiIcon value={val} size={22} />
-      </button>
+      </Pressable>
     );
     // 커스텀 이미지(img:)는 이름 없음 → 그대로. 이모지는 이름 툴팁.
     const name = val.startsWith("img:") ? "" : emojiName(val);
@@ -347,14 +347,13 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
     return (
       <span className={styles.emojiCellWrap}>
         {inner}
-        <button
-          type="button"
+        <Pressable
           className={styles.emojiDelBtn}
           aria-label={t("삭제", "Delete")}
           title={t("기록에서 삭제", "Remove from history")}
           onMouseDown={(e) => e.preventDefault()}
           onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        >×</button>
+        >×</Pressable>
       </span>
     );
   };
@@ -382,7 +381,7 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
           { id: "icon" as const, label: t("아이콘", "Icon") },
           { id: "upload" as const, label: t("업로드", "Upload") },
         ]).map((tb) => (
-          <button
+          <Pressable
             key={tb.id}
             type="button"
             data-tab={tb.id}
@@ -408,18 +407,17 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
             onClick={() => setTab(tb.id)}
           >
             {tb.label}
-          </button>
+          </Pressable>
         ))}
         {/* 제거 — 우상단 */}
         {currentValue && (
-          <button
-            type="button"
+          <Pressable
             className={styles.removeBtn}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => { onSelect(""); onClose(); }}
           >
             {t("제거", "Remove")}
-          </button>
+          </Pressable>
         )}
         {/* 슬라이딩 indicator */}
         <div data-indicator ref={indicatorRef} className={styles.indicator} />
@@ -440,20 +438,19 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
                 placeholder={t("필터", "Filter")}
               />
               {query && (
-                <button type="button" className={styles.clearBtn}
-                  onMouseDown={(e) => e.preventDefault()} onClick={() => setQuery("")}>×</button>
+                <Pressable className={styles.clearBtn}
+                  onMouseDown={(e) => e.preventDefault()} onClick={() => setQuery("")}>×</Pressable>
               )}
             </div>
             {/* 셔플 버튼 (랜덤 1개 바로 적용) */}
-            <button
-              type="button"
+            <Pressable
               className={styles.shuffleBtn}
               onMouseDown={(e) => e.preventDefault()}
               onClick={doShuffle}
               title={t("랜덤", "Random")}
             >
               <Shuffle size={14} />
-            </button>
+            </Pressable>
           </div>
 
           {/* 그리드 */}
@@ -498,15 +495,14 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
                     <div className={styles.itemRow}>
                       {cat.icons.map((ic) => (
                         <Tooltip key={ic.id} content={ic.label} placement="top" delay={300}>
-                          <button
-                            type="button"
+                          <Pressable
                             className={`${styles.cell} ${styles.iconCell}`}
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => handleSelect(`icon:${ic.id}`)}
                           >
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                               dangerouslySetInnerHTML={{ __html: iconSvgInner(ic) }} />
-                          </button>
+                          </Pressable>
                         </Tooltip>
                       ))}
                     </div>
@@ -523,14 +519,13 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
                 const active = activeEmojiCats.has(cat.id);
                 return (
                   <Tooltip key={cat.id} content={language === "ko" ? cat.label.ko : cat.label.en} placement="top" delay={200}>
-                    <button
-                      type="button"
+                    <Pressable
                       className={`${styles.catBtn} ${active ? "" : styles.inactive}`}
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => { if (active) scrollToCategory(cat.id); }}
                     >
                       {cat.emojis[0]}
-                    </button>
+                    </Pressable>
                   </Tooltip>
                 );
               })}
@@ -545,36 +540,33 @@ export default function EmojiPicker({ open, onClose, onSelect, currentValue, onI
             };
             return (
               <div className={styles.catBarScroll}>
-                <button
-                  type="button"
+                <Pressable
                   className={styles.scrollBtn}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => scroll(-1)}
-                ><ChevronLeft size={12} /></button>
+                ><ChevronLeft size={12} /></Pressable>
                 <div ref={iconBarRef} className={styles.catScrollInner}>
                   {ICON_CATEGORIES.map((cat) => {
                     const active = activeIconCats.has(cat.id);
                     return (
                     <Tooltip key={cat.id} content={language === "ko" ? cat.label.ko : cat.label.en} placement="top" delay={200}>
-                      <button
-                        type="button"
+                      <Pressable
                         className={`${styles.catBtn} ${styles.catBtnIcon} ${active ? "" : styles.inactive}`}
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => { if (active) scrollToCategory(cat.id, "icon"); }}
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                           dangerouslySetInnerHTML={{ __html: iconSvgInner(cat.icons[0]) }} />
-                      </button>
+                      </Pressable>
                     </Tooltip>
                     );
                   })}
                 </div>
-                <button
-                  type="button"
+                <Pressable
                   className={styles.scrollBtn}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => scroll(1)}
-                ><ChevronRight size={12} /></button>
+                ><ChevronRight size={12} /></Pressable>
               </div>
             );
           })()}

@@ -10,6 +10,7 @@ import OptimizedImage from "@/components/ui/OptimizedImage";
 import CloseButton from "@/components/ui/CloseButton";
 import Logo from "@/components/common/Logo";
 import styles from "./ContactDrawer.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface ContactInfoCardsProps {
   copied: boolean;
@@ -41,7 +42,7 @@ export default function ContactInfoCards({
 
         <div>
           <h3 className={styles.emailTitle}><T k={isMobile ? "contact.drawer.emailTitleMobile" : "contact.drawer.emailTitle"} /></h3>
-          <button
+          <Pressable noTapScale
             className={`${styles.emailAddress} ${copied ? styles.emailAddressCopied : ""}`}
             aria-label={copied ? "Email copied" : "Copy email to clipboard"}
             onClick={() => {
@@ -64,7 +65,7 @@ export default function ContactInfoCards({
               <T k="contact.drawer.copied" />
               <Check className={styles.checkIcon} />
             </span>
-          </button>
+          </Pressable>
         </div>
       </div>
 

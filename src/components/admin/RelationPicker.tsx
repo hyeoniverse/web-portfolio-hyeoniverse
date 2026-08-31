@@ -5,6 +5,7 @@ import { ChevronRight, GripVertical, ImageIcon, Search } from "@/components/icon
 import { motion, LayoutGroup, AnimatePresence } from "framer-motion";
 import CloseButton from "@/components/ui/CloseButton";
 import styles from "./RelationPicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface RelationPickerProps<T> {
   /** 선택 가능한 전체 항목 */
@@ -146,8 +147,7 @@ export default function RelationPicker<T>({
               aria-haspopup="listbox"
               readOnly={!open && candidates.length === 0 && selected.length > 0}
             />
-            <button
-              type="button"
+            <Pressable
               className={`${styles.triggerArrow} ${open ? styles.triggerArrowOpen : ""}`}
               onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
               aria-label={open ? "Close" : "Open"}
@@ -155,7 +155,7 @@ export default function RelationPicker<T>({
               tabIndex={-1}
             >
               <ChevronRight size={14} strokeWidth={2} />
-            </button>
+            </Pressable>
           </div>
         </div>
 
@@ -171,9 +171,8 @@ export default function RelationPicker<T>({
                 const thumb = getThumb?.(it);
                 const thumbBroken = !!thumb && thumbErrors.has(`opt:${id}`);
                 return (
-                  <button
+                  <Pressable
                     key={id}
-                    type="button"
                     role="option"
                     aria-selected="false"
                     className={styles.option}
@@ -203,7 +202,7 @@ export default function RelationPicker<T>({
                     {getMeta && (
                       <span className={styles.optionMeta}>{getMeta(it)}</span>
                     )}
-                  </button>
+                  </Pressable>
                 );
               })
             )}

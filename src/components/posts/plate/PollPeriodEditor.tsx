@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import TimePickerPopover from "@/components/ui/DatePicker/TimePickerPopover";
+import Pressable from "@/components/ui/Pressable";
 
 interface Props {
   startAt: string | null;
@@ -66,13 +67,12 @@ export default function PollPeriodEditor({ startAt, endAt, update, language }: P
       : (p ? `${pad(p.h)}:${pad(p.mi)}` : t("시간", "Time"));
     const on = editing?.field === field && editing?.part === part;
     return (
-      <button
-        type="button"
+      <Pressable
         className={`poll-period-trigger${has ? " poll-period-trigger-text" : ""}${on ? " poll-period-trigger-on" : ""}`}
         onClick={() => toggle(field, part)}
       >
         {label}
-      </button>
+      </Pressable>
     );
   };
 

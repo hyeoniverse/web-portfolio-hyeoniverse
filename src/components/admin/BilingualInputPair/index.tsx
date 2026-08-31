@@ -3,6 +3,7 @@
 import { Eraser } from "@/components/icons";
 import type { LocalizedText } from "@/types/common";
 import styles from "./BilingualInputPair.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export interface BilingualInputPairProps {
   value: LocalizedText;
@@ -60,8 +61,7 @@ export default function BilingualInputPair({
           onKeyDown={handleKeyDown}
         />
         {value.ko && (
-          <button
-            type="button"
+          <Pressable
             className={styles.clearBtn}
             data-cursor="big"
             onMouseDown={(e) => e.stopPropagation()}
@@ -75,7 +75,7 @@ export default function BilingualInputPair({
             title="지우기"
           >
             <Eraser size={11} strokeWidth={2} />
-          </button>
+          </Pressable>
         )}
       </label>
       <label className={`${styles.wrap} ${size === "sm" ? styles.wrapSm : ""}`} data-cursor="text">
@@ -89,8 +89,7 @@ export default function BilingualInputPair({
           onKeyDown={handleKeyDown}
         />
         {value.en && (
-          <button
-            type="button"
+          <Pressable
             className={styles.clearBtn}
             data-cursor="big"
             onMouseDown={(e) => e.stopPropagation()}
@@ -104,7 +103,7 @@ export default function BilingualInputPair({
             title="지우기"
           >
             <Eraser size={11} strokeWidth={2} />
-          </button>
+          </Pressable>
         )}
       </label>
     </div>

@@ -13,6 +13,7 @@ import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import TimePickerPopover from "@/components/ui/DatePicker/TimePickerPopover";
 import { formatDateValue, parseDate, toDateStr, _pendingDateMentionOpen } from "./dateUtils";
 import styles from "./DateMention.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -96,14 +97,14 @@ export function DateMentionElement(props: PlateElementProps) {
               onClose={() => { /* inline — 닫힘은 popover 가 관리 */ }}
             />
             <div className={styles.timeRow}>
-              <button type="button" className={`${styles.timeToggle}${time ? ` ${styles.timeToggleOn}` : ""}`} onClick={toggleTime}>
+              <Pressable className={`${styles.timeToggle}${time ? ` ${styles.timeToggleOn}` : ""}`} onClick={toggleTime}>
                 <Clock size={13} aria-hidden />
                 {time ? t("시간 포함", "Include time") : t("시간 추가", "Add time")}
-              </button>
-              <button type="button" className={styles.removeBtn} onClick={() => { removeNode(); setOpen(false); }}>
+              </Pressable>
+              <Pressable className={styles.removeBtn} onClick={() => { removeNode(); setOpen(false); }}>
                 <Trash2 size={13} aria-hidden />
                 {t("삭제", "Remove")}
-              </button>
+              </Pressable>
             </div>
             {time && (
               <TimePickerPopover

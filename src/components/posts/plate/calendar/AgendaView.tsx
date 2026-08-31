@@ -13,6 +13,7 @@ import MiniCalendar from "./MiniCalendar";
 import DayDetailPanel from "./DayDetailPanel";
 import { useWheelPager } from "./useWheelPager";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const shiftDate = (date: string, days: number) => {
   const d = parseDate(date);
@@ -212,9 +213,8 @@ export default function AgendaView({
   };
 
   const eventBtn = (ev: CalEvent, cls: string, extraStyle?: React.CSSProperties, children?: React.ReactNode) => (
-    <button
+    <Pressable
       key={ev.id}
-      type="button"
       className={`${cls}${inChain(ev) ? ` ${styles.agendaChainHi}` : ""}`}
       style={{ ["--_c" as string]: eventColorVar(ev, labels), ...extraStyle }}
       onClick={() => { hideNow(); if (mode === "day") setSelectedId(ev.id); else onEventClick?.(ev); }}
@@ -223,7 +223,7 @@ export default function AgendaView({
       tabIndex={0}
     >
       {children}
-    </button>
+    </Pressable>
   );
 
   // ── 주 뷰: 날짜별 컬럼(박스 없음) ──
@@ -234,11 +234,11 @@ export default function AgendaView({
         const evs = eventsOn(day);
         return (
           <div key={day} className={`${styles.agendaCol}${day === todayStr ? ` ${styles.agendaToday}` : ""}`}>
-            <button type="button" className={styles.agendaColHead} onClick={() => onDateDetail?.(day)}>
+            <Pressable className={styles.agendaColHead} onClick={() => onDateDetail?.(day)}>
               <span className={`${styles.agendaDow}${dow === 0 ? ` ${styles.sun}` : ""}${dow === 6 ? ` ${styles.sat}` : ""}`}>{wd[dow]}</span>
               <span className={styles.agendaDate}>{new Date(day + "T00:00:00").getDate()}</span>
               {evs.length > 0 && <span className={styles.agendaCount}>{evs.length}</span>}
-            </button>
+            </Pressable>
             <div className={styles.agendaList} data-agenda-scroll>
               {evs.length === 0 ? (
                 <div className={styles.agendaEmpty}>{t("일정 없음", "No events")}</div>
@@ -258,7 +258,7 @@ export default function AgendaView({
               )}
             </div>
             {!readOnly && onAdd && (
-              <button type="button" className={styles.agendaAdd} onClick={() => onAdd(day)}><Plus size={12} />{t("추가", "Add")}</button>
+              <Pressable className={styles.agendaAdd} onClick={() => onAdd(day)}><Plus size={12} />{t("추가", "Add")}</Pressable>
             )}
           </div>
         );
@@ -284,7 +284,7 @@ export default function AgendaView({
               undefined,
               <><span className={styles.agendaDot} /><span className={styles.agendaItemTitle}>{ev.title || t("(제목 없음)", "(Untitled)")}</span></>,
             ))}
-            {!readOnly && onAdd && <button type="button" className={styles.dayAllDayAdd} onClick={() => onAdd(date)} aria-label={t("추가", "Add")}><Plus size={12} /></button>}
+            {!readOnly && onAdd && <Pressable className={styles.dayAllDayAdd} onClick={() => onAdd(date)} aria-label={t("추가", "Add")}><Plus size={12} /></Pressable>}
           </div>
         )}
         <div className={styles.dayGridScroll} data-agenda-scroll ref={dayScrollRef}>
@@ -305,9 +305,8 @@ export default function AgendaView({
               const top = PAD_TOP + (td ? td.y0 : y0);
               const hh = td ? td.h : h;
               return (
-                <button
+                <Pressable
                   key={e.id}
-                  type="button"
                   data-day-event
                   className={`${styles.dayEvent}${e.status === "done" ? ` ${styles.agendaItemDone}` : ""}${hh < 34 ? ` ${styles.dayEventShort}` : ""}${td ? ` ${styles.dayEventDragging}` : ""}${canEditTime ? ` ${styles.dayEventDraggable}` : ""}${inChain(e) ? ` ${styles.agendaChainHi}` : ""}${selectedId === e.id ? ` ${styles.dayEventSelected}` : ""}`}
                   style={{ ["--_c" as string]: eventColorVar(e, labels), top, height: hh - 2, left: `calc(var(--_axis) + (100% - var(--_axis)) * ${col / cols} + 2px)`, width: `calc((100% - var(--_axis)) / ${cols} - 4px)` }}
@@ -326,7 +325,7 @@ export default function AgendaView({
                   {td && <span className={`${styles.dayEventDragTime}${td.edge === "bottom" ? ` ${styles.dayEventDragTimeBottom}` : ""}`}>{td.label}</span>}
                   {canEditTime && <span className={`${styles.dayEventResize} ${styles.dayEventResizeTop}`} data-cursor="resizeV" onPointerDown={(ev) => onBlockDown(ev, e, "resizeStart")} onClick={(ev) => ev.stopPropagation()} />}
                   {canEditTime && <span className={styles.dayEventResize} data-cursor="resizeV" onPointerDown={(ev) => onBlockDown(ev, e, "resize")} onClick={(ev) => ev.stopPropagation()} />}
-                </button>
+                </Pressable>
               );
             })}
           </div>
@@ -340,19 +339,19 @@ export default function AgendaView({
       <div className={`${styles.header} ${styles.agendaHeader}`}>
         <div className={styles.navGroup}>
           <Tooltip content={mode === "week" ? t("이전 주", "Previous week") : t("이전 날", "Previous day")} placement="top">
-            <button type="button" className={styles.navBtn} onClick={() => nav(-1)} aria-label="prev"><ChevronLeft size={16} /></button>
+            <Pressable className={styles.navBtn} onClick={() => nav(-1)} aria-label="prev"><ChevronLeft size={16} /></Pressable>
           </Tooltip>
           <span className={styles.agendaTitle}>{title}</span>
           <Tooltip content={mode === "week" ? t("다음 주", "Next week") : t("다음 날", "Next day")} placement="top">
-            <button type="button" className={styles.navBtn} onClick={() => nav(1)} aria-label="next"><ChevronRight size={16} /></button>
+            <Pressable className={styles.navBtn} onClick={() => nav(1)} aria-label="next"><ChevronRight size={16} /></Pressable>
           </Tooltip>
           {todayButton}
         </div>
         <div className={styles.agendaHeadRight}>
           {!readOnly && onAdd && (
-            <button type="button" className={styles.agendaHeadAdd} onClick={() => onAdd(date)}>
+            <Pressable className={styles.agendaHeadAdd} onClick={() => onAdd(date)}>
               <Plus size={14} />{t("이벤트 추가", "Add event")}
-            </button>
+            </Pressable>
           )}
           {viewToggle}
         </div>

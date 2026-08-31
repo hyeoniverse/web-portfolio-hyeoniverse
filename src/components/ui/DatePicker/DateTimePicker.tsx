@@ -6,6 +6,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import DatePickerPopover from "./DatePickerPopover";
 import TimePickerPopover from "./TimePickerPopover";
 import styles from "./DatePicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface DateTimePickerProps {
   /** ISO timestamp 또는 null */
@@ -106,16 +107,16 @@ export default function DateTimePicker({ value, onChange, disabled, minDate, max
     <div className={`${styles.dateRow}${inline ? ` ${styles.dateRowInline}` : ""}`}>
       <div className={styles.dateInputs}>
         <div className={styles.pickerAnchor} style={{ position: "relative" }}>
-          <button
+          <Pressable
             type="button"
             onClick={asText ? undefined : toggleDate}
             onDoubleClick={asText ? toggleDate : undefined}
             disabled={disabled}
             className={asText ? styles.pickerText : styles.yearInput}
-            style={{ width: "auto", minWidth: asText ? 0 : 110, textAlign: "left", padding: "var(--box-xs)" }}
+            style={{ width: "auto", minWidth: asText ? 0 : 110, textAlign: "left", padding: "var(--spacing-2xs) var(--spacing-xs)" }}
           >
             {dateLabel}
-          </button>
+          </Pressable>
           {pickerOpen && !inline && (
             <DatePickerPopover
               year={year || String(new Date().getFullYear())}
@@ -131,16 +132,16 @@ export default function DateTimePicker({ value, onChange, disabled, minDate, max
         </div>
         <span className={styles.dateSep}>·</span>
         <div className={styles.pickerAnchor} style={{ position: "relative" }}>
-          <button
+          <Pressable
             type="button"
             onClick={asText ? undefined : toggleTime}
             onDoubleClick={asText ? toggleTime : undefined}
             disabled={disabled}
             className={asText ? styles.pickerText : styles.yearInput}
-            style={{ width: "auto", minWidth: asText ? 0 : 90, textAlign: "left", padding: "var(--box-xs)" }}
+            style={{ width: "auto", minWidth: asText ? 0 : 90, textAlign: "left", padding: "var(--spacing-2xs) var(--spacing-xs)" }}
           >
             {validLocal ? time : (language === "ko" ? "시간" : "Time")}
-          </button>
+          </Pressable>
           {timeOpen && !inline && (
             <TimePickerPopover
               hour={hourPart || "09"}

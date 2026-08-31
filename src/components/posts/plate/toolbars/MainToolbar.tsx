@@ -38,6 +38,7 @@ import {
 } from "../hooks";
 import { _imageUploadFn, _uploadErrorFn, _postLinkTrigger, _emojiPickerTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface MainToolbarProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -246,7 +247,7 @@ export default React.memo(function MainToolbar({
           const isLight = (c: string) => c === "#ffffff" || c === "#d1d5db" || PASTEL_COLORS.includes(c);
           const dot = (c: string) => (
             <Tooltip key={c} content={c} delay={200} placement="top">
-              <button type="button" className={`${styles.presetDot} ${activeColor === c ? styles.presetDotActive : ""}`} style={{ background: c, border: isLight(c) ? "1px solid var(--border-light-color)" : undefined }} onClick={() => apply(c)} />
+              <Pressable noTapScale className={`${styles.presetDot} ${activeColor === c ? styles.presetDotActive : ""}`} style={{ background: c, border: isLight(c) ? "1px solid var(--border-color-light)" : undefined }} onClick={() => apply(c)} />
             </Tooltip>
           );
           return (
@@ -265,13 +266,13 @@ export default React.memo(function MainToolbar({
               {/* 컬러피커 */}
               <div className={styles.divider} />
               <div className={styles.colorGroup}>
-                <div className={styles.colorIndicator} style={{ width: 14, height: 14, borderRadius: "50%", background: activeColor || "var(--bg-primary)", border: "1px solid var(--border-light-color)" }} />
+                <div className={styles.colorIndicator} style={{ width: 14, height: 14, borderRadius: "50%", background: activeColor || "var(--bg-primary)", border: "1px solid var(--border-color-light)" }} />
                 <ColorPicker value={activeColor || "#000000"} onChange={(c) => apply(c.oklch)} onChangeComplete={(c) => { apply(c.oklch); saveRecent(c.oklch); }} triggerClassName={styles.colorInput} />
               </div>
               {/* 제거 */}
               {activeColor && (
                 <Tooltip content={colorMode === "text" ? t("editor.removeColor") : t("editor.removeBgColor")} delay={200} placement="top">
-                  <button type="button" className={styles.presetDotClear} onClick={() => { if (colorMode === "text") editor.tf.removeMarks(["color"]); else editor.tf.removeMarks(["backgroundColor"]); }}>×</button>
+                  <Pressable noTapScale className={styles.presetDotClear} onClick={() => { if (colorMode === "text") editor.tf.removeMarks(["color"]); else editor.tf.removeMarks(["backgroundColor"]); }}>×</Pressable>
                 </Tooltip>
               )}
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, type ReactNode } from "react";
+import Pressable from "@/components/ui/Pressable";
 
 /**
  * 버튼을 누르고 있으면(long-press) action 을 가속 반복 실행.
@@ -53,7 +54,7 @@ export default function SpinButton({ onStep, className, children, ariaLabel }: {
 }) {
   const handlers = useRepeatOnHold(onStep);
   return (
-    <button
+    <Pressable soundDisabled noTapScale
       type="button"
       className={className}
       tabIndex={-1}
@@ -62,6 +63,6 @@ export default function SpinButton({ onStep, className, children, ariaLabel }: {
       {...handlers}
     >
       {children}
-    </button>
+    </Pressable>
   );
 }

@@ -11,6 +11,7 @@ import { showToast } from "@/stores/toastStore";
 import DatePickerPopover from "@/components/ui/DatePicker/DatePickerPopover";
 import { formatDateValue } from "../dateUtils";
 import styles from "./RichMemo.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type MentionItem = { id: string; title: string };
 type MentionStage = "type" | "event" | "date";
@@ -200,19 +201,19 @@ export default function RichMemo({ value, onChange, placeholder, language = "ko"
   return (
     <div className={styles.memo}>
       <div className={styles.toolbar} onMouseDown={(e) => e.preventDefault()}>
-        <button type="button" className={`${styles.tbBtn}${active.bold ? ` ${styles.tbBtnOn}` : ""}`} aria-pressed={active.bold} onClick={() => cmd("bold")} aria-label={t("굵게", "Bold")}><Bold size={14} /></button>
-        <button type="button" className={`${styles.tbBtn}${active.italic ? ` ${styles.tbBtnOn}` : ""}`} aria-pressed={active.italic} onClick={() => cmd("italic")} aria-label={t("기울임", "Italic")}><Italic size={14} /></button>
-        <button type="button" className={`${styles.tbBtn}${active.underline ? ` ${styles.tbBtnOn}` : ""}`} aria-pressed={active.underline} onClick={() => cmd("underline")} aria-label={t("밑줄", "Underline")}><Underline size={14} /></button>
-        <button type="button" className={`${styles.tbBtn}${active.strike ? ` ${styles.tbBtnOn}` : ""}`} aria-pressed={active.strike} onClick={() => cmd("strikeThrough")} aria-label={t("취소선", "Strikethrough")}><Strikethrough size={14} /></button>
-        <button type="button" className={`${styles.tbBtn}${active.heading ? ` ${styles.tbBtnOn}` : ""}`} aria-pressed={active.heading} onClick={heading} aria-label={t("제목", "Heading")}><Heading3 size={14} /></button>
+        <Pressable className={`${styles.tbBtn}${active.bold ? ` ${styles.tbBtnOn}` : ""}`} aria-pressed={active.bold} onClick={() => cmd("bold")} aria-label={t("굵게", "Bold")}><Bold size={14} /></Pressable>
+        <Pressable className={`${styles.tbBtn}${active.italic ? ` ${styles.tbBtnOn}` : ""}`} aria-pressed={active.italic} onClick={() => cmd("italic")} aria-label={t("기울임", "Italic")}><Italic size={14} /></Pressable>
+        <Pressable className={`${styles.tbBtn}${active.underline ? ` ${styles.tbBtnOn}` : ""}`} aria-pressed={active.underline} onClick={() => cmd("underline")} aria-label={t("밑줄", "Underline")}><Underline size={14} /></Pressable>
+        <Pressable className={`${styles.tbBtn}${active.strike ? ` ${styles.tbBtnOn}` : ""}`} aria-pressed={active.strike} onClick={() => cmd("strikeThrough")} aria-label={t("취소선", "Strikethrough")}><Strikethrough size={14} /></Pressable>
+        <Pressable className={`${styles.tbBtn}${active.heading ? ` ${styles.tbBtnOn}` : ""}`} aria-pressed={active.heading} onClick={heading} aria-label={t("제목", "Heading")}><Heading3 size={14} /></Pressable>
         <span className={styles.sep} />
-        <button type="button" className={styles.tbBtn} onClick={() => cmd("insertUnorderedList")} aria-label={t("글머리 목록", "Bullet list")}><List size={14} /></button>
-        <button type="button" className={styles.tbBtn} onClick={() => cmd("insertOrderedList")} aria-label={t("번호 목록", "Numbered list")}><ListOrdered size={14} /></button>
+        <Pressable className={styles.tbBtn} onClick={() => cmd("insertUnorderedList")} aria-label={t("글머리 목록", "Bullet list")}><List size={14} /></Pressable>
+        <Pressable className={styles.tbBtn} onClick={() => cmd("insertOrderedList")} aria-label={t("번호 목록", "Numbered list")}><ListOrdered size={14} /></Pressable>
         {onImageUpload && <>
           <span className={styles.sep} />
-          <button type="button" className={styles.tbBtn} disabled={uploading} onClick={() => fileRef.current?.click()} aria-label={t("이미지", "Image")}>
+          <Pressable className={styles.tbBtn} disabled={uploading} onClick={() => fileRef.current?.click()} aria-label={t("이미지", "Image")}>
             {uploading ? <Loader2 size={14} className={styles.spin} /> : <ImageIcon size={14} />}
-          </button>
+          </Pressable>
         </>}
       </div>
       <div
@@ -231,12 +232,12 @@ export default function RichMemo({ value, onChange, placeholder, language = "ko"
         <div className={styles.mentionMenu} style={{ position: "fixed", top: menu.top + 4, left: menu.left }} onMouseDown={(e) => e.preventDefault()}>
           {menu.stage === "type" ? (
             <>
-              <button type="button" className={styles.mentionItem} onClick={() => setMenu((m) => (m ? { ...m, stage: "date" } : m))}>
+              <Pressable className={styles.mentionItem} onClick={() => setMenu((m) => (m ? { ...m, stage: "date" } : m))}>
                 <CalendarDays size={14} className={styles.mentionIcon} />{t("날짜(시간)", "Date (time)")}
-              </button>
-              <button type="button" className={styles.mentionItem} onClick={() => setMenu((m) => (m ? { ...m, stage: "event" } : m))}>
+              </Pressable>
+              <Pressable className={styles.mentionItem} onClick={() => setMenu((m) => (m ? { ...m, stage: "event" } : m))}>
                 <Bookmark size={14} className={styles.mentionIcon} />{t("이벤트", "Event")}
-              </button>
+              </Pressable>
             </>
           ) : menu.stage === "date" ? (
             <div className={styles.mentionDate}>
@@ -253,15 +254,14 @@ export default function RichMemo({ value, onChange, placeholder, language = "ko"
             </div>
           ) : filtered.length > 0 ? (
             filtered.map((ev, i) => (
-              <button
+              <Pressable
                 key={ev.id}
-                type="button"
                 className={`${styles.mentionItem}${i === menuIdx ? ` ${styles.mentionItemOn}` : ""}`}
                 onMouseEnter={() => setMenuIdx(i)}
                 onClick={() => insertMention(ev)}
               >
                 @{ev.title || t("제목 없음", "Untitled")}
-              </button>
+              </Pressable>
             ))
           ) : (
             <div className={styles.mentionEmpty}>{t("이벤트 없음", "No events")}</div>

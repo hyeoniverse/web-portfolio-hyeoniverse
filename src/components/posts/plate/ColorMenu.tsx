@@ -6,6 +6,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import { Pipette, Dices, Check } from "@/components/icons";
 import { CHECKER_BG } from "./presets";
 import styles from "../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export interface ColorSwatchDef { hex: string; label?: string; }
 
@@ -56,32 +57,32 @@ export function ColorMenu({
         {/* 현재색 = 스포이드 캡슐 (클릭 시 피커 펼침) */}
         <ColorPicker inline value={pickerVal} onChange={(c) => onPick(c.alpha < 1 ? c.hexa : c.oklch)} onChangeComplete={(c) => onCommit?.(c.alpha < 1 ? c.hexa : c.oklch)}>
           {({ open, toggle }: { open: boolean; toggle: () => void }) => (
-            <button type="button" aria-label="pick" className={`${styles.pickerCapsule} ${open ? styles.pickerCapsuleOpen : ""}`} onClick={toggle}>
+            <Pressable noTapScale aria-label="pick" className={`${styles.pickerCapsule} ${open ? styles.pickerCapsuleOpen : ""}`} onClick={toggle}>
               <span className={styles.pickerCapsuleIcon}><Pipette size={11} strokeWidth={2} /></span>
               <span className={styles.pickerCapsuleColor} style={{ background: preview }} />
-            </button>
+            </Pressable>
           )}
         </ColorPicker>
         {onRandom && (
           <Tooltip content="랜덤" placement="top" delay={150}>
-            <button type="button" aria-label="random" className={`${styles.swatch} ${styles.swatchRandom}`} onClick={() => { const v = onRandom(); onPick(v); onCommit?.(v); }}><Dices size={12} strokeWidth={2} /></button>
+            <Pressable noTapScale aria-label="random" className={`${styles.swatch} ${styles.swatchRandom}`} onClick={() => { const v = onRandom(); onPick(v); onCommit?.(v); }}><Dices size={12} strokeWidth={2} /></Pressable>
           </Tooltip>
         )}
         <span className={styles.swatchSep} />
         {presets.map((p) => (
           <Tooltip key={p.hex} content={p.label || p.hex} placement="top" delay={150}>
-            <button type="button" className={`${styles.swatch} ${value === p.hex ? styles.swatchActive : ""}`} style={{ background: p.hex }} onClick={() => onPick(p.hex)}>{value === p.hex && swatchCheck}</button>
+            <Pressable noTapScale className={`${styles.swatch} ${value === p.hex ? styles.swatchActive : ""}`} style={{ background: p.hex }} onClick={() => onPick(p.hex)}>{value === p.hex && swatchCheck}</Pressable>
           </Tooltip>
         ))}
         <span className={styles.swatchSep} />
         {!hideDefault && (
           <Tooltip content={defaultLabel} placement="top" delay={150}>
-            <button type="button" aria-label="default" className={`${styles.swatch} ${isDefault ? styles.swatchActive : ""}`} style={{ background: defaultColor }} onClick={() => onPick(undefined)}>{isDefault && swatchCheck}</button>
+            <Pressable noTapScale aria-label="default" className={`${styles.swatch} ${isDefault ? styles.swatchActive : ""}`} style={{ background: defaultColor }} onClick={() => onPick(undefined)}>{isDefault && swatchCheck}</Pressable>
           </Tooltip>
         )}
         {removeValue !== undefined && (
           <Tooltip content={removeLabel} placement="top" delay={150}>
-            <button type="button" aria-label="remove" className={`${styles.swatch} ${isRemove ? styles.swatchActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => onPick(removeValue)}>{isRemove && swatchCheck}</button>
+            <Pressable noTapScale aria-label="remove" className={`${styles.swatch} ${isRemove ? styles.swatchActive : ""}`} style={{ background: CHECKER_BG }} onClick={() => onPick(removeValue)}>{isRemove && swatchCheck}</Pressable>
           </Tooltip>
         )}
       </div>
@@ -96,7 +97,7 @@ export function ColorMenu({
             ).map((c, i) => (c
               ? (
                 <Tooltip key={i} content={c} placement="top" delay={150}>
-                  <button type="button" className={`${styles.swatch} ${value === c ? styles.swatchActive : ""}`} style={{ background: c }} onClick={() => onPick(c)}>{value === c && swatchCheck}</button>
+                  <Pressable noTapScale className={`${styles.swatch} ${value === c ? styles.swatchActive : ""}`} style={{ background: c }} onClick={() => onPick(c)}>{value === c && swatchCheck}</Pressable>
                 </Tooltip>
               )
               : <span key={i} className={`${styles.swatch} ${styles.swatchEmpty}`} aria-hidden />

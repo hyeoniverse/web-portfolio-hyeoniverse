@@ -8,6 +8,7 @@ import { useServiceStatus } from "@/hooks/useServiceStatus";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLenis } from "@/providers/LenisProvider";
 import PresetTab from "./PresetTab";
+import ProjectTab from "./ProjectTab";
 import UnsplashTab from "./UnsplashTab";
 import PexelsTab from "./PexelsTab";
 import AIGenerateTab from "./AIGenerateTab";
@@ -16,8 +17,9 @@ import { useHistory, type HistorySource } from "./useHistory";
 import CloseButton from "@/components/ui/CloseButton";
 import Tooltip from "@/components/ui/Tooltip";
 import styles from "./CoverImagePicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
-type Tab = "presets" | "unsplash" | "pexels" | "ai" | "history";
+type Tab = "presets" | "project" | "unsplash" | "pexels" | "ai" | "history";
 
 export interface PostContext {
   title: string;
@@ -74,6 +76,8 @@ export default function CoverImagePicker({
   const tabs = useMemo(
     () => [
       { key: "presets" as Tab, label: tc("presets") },
+      /* 저장소에 이미 있는 이미지 — 밖에서 가져오는 탭들보다 앞에 둔다. */
+      { key: "project" as Tab, label: tc("projectImages") },
       { key: "unsplash" as Tab, label: tc("unsplash") },
       { key: "pexels" as Tab, label: "Pexels" },
       ...(aiCover ? [{ key: "ai" as Tab, label: tc("aiGenerate") }] : []),
@@ -103,24 +107,22 @@ export default function CoverImagePicker({
         {/* preset / unsplash / ai 만 capsule 그룹 — history 는 독립 버튼 */}
         <div className={styles.tabs}>
           {tabs.filter((t) => t.key !== "history").map((tab) => (
-            <button
+            <Pressable noTapScale
               key={tab.key}
-              type="button"
               className={`${styles.tab} ${activeTab === tab.key ? styles.tabActive : ""}`}
               onClick={() => setActiveTab(tab.key)}
             >
               {tab.label}
-            </button>
+            </Pressable>
           ))}
         </div>
-        <button
-          type="button"
+        <Pressable noTapScale
           className={`${styles.historyTab} ${activeTab === "history" ? styles.historyTabActive : ""}`}
           onClick={() => setActiveTab("history")}
         >
           {tc("history")}
           {history.length > 0 && <span className={styles.tabCount}>{history.length}</span>}
-        </button>
+        </Pressable>
         {/* 모바일은 bottom sheet — 위 grabber + backdrop 탭으로 닫는 게 기본 제스처라 X 는 군더더기다.
             (Modal / Popover 의 bottom sheet 와 같은 규칙) */}
         {!isMobile && (
@@ -139,6 +141,12 @@ export default function CoverImagePicker({
             currentUrl={currentUrl}
             localFilesEndpoint={localFilesEndpoint}
             localFilesHint={localFilesHint}
+          />
+        )}
+        {activeTab === "project" && (
+          <ProjectTab
+            onSelect={(url, name) => handlePicked(url, "preset", name)}
+            currentUrl={currentUrl}
           />
         )}
         {activeTab === "unsplash" && (

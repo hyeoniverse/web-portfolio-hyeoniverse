@@ -8,6 +8,7 @@ import Input from "@/components/ui/Input";
 import { FileText, Search, Loader2 } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./CommentEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* 댓글용 게시물 링크 피커 — 게시물을 검색해 `[제목](/posts/slug)` 상대경로 마크다운을 삽입한다.
    에디터의 `[[` post_link(리치 pill)와 달리 댓글은 경량 마크다운이라, GitHub 상대링크처럼
@@ -116,9 +117,8 @@ export default function CommentPostLinkPicker({ onInsert, onArm }: Props) {
       <div className={styles.postPickerList}>
         {items.length ? (
           items.map((hit) => (
-            <button
+            <Pressable
               key={hit.id || hit.slug}
-              type="button"
               className={styles.postPickerRow}
               // 행 클릭 시 input blur → 선택 저장값(onArm)으로 삽입되므로 preventDefault 불필요.
               onClick={() => pick(hit)}
@@ -128,7 +128,7 @@ export default function CommentPostLinkPicker({ onInsert, onArm }: Props) {
               </span>
               <span className={styles.postPickerTitle}>{hit.title}</span>
               {hit.category && <span className={styles.postPickerCat}>{hit.category}</span>}
-            </button>
+            </Pressable>
           ))
         ) : (
           !loading && (

@@ -37,11 +37,11 @@ const theme = EditorView.theme({
   ".cm-activeLine": { backgroundColor: "var(--color-neutral-alpha-5)" },
   ".cm-activeLineGutter": { backgroundColor: "transparent", color: "var(--text-secondary)" },
   ".cm-matchingBracket, &.cm-focused .cm-matchingBracket": {
-    backgroundColor: "var(--bg-accent-subtle)", outline: "1px solid var(--border-default-color)",
+    backgroundColor: "var(--bg-accent-subtle)", outline: "1px solid var(--border-color-default)",
   },
   ".cm-tooltip": {
-    backgroundColor: "var(--bg-primary)", border: "1px solid var(--border-light-color)",
-    borderRadius: "var(--radius-md)", color: "var(--text-primary)",
+    backgroundColor: "var(--bg-primary)", border: "1px solid var(--border-color-light)",
+    borderRadius: "var(--radius-2xl)", color: "var(--text-primary)",
   },
   ".cm-tooltip-autocomplete ul li[aria-selected]": {
     backgroundColor: "var(--bg-accent-subtle)", color: "var(--text-primary)",

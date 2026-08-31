@@ -6,6 +6,7 @@ import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { BunnyProfile } from "@/types/profile";
 import styles from "./BunnyShowcase.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type Expression = "normal" | "surprised" | "happy";
 
@@ -183,9 +184,8 @@ export default function BunnyShowcasePanel({ animateClass, bunny }: Props) {
 
         <div className={styles.exprBar}>
           {expressions.map(({ key, labelKey, descKey }) => (
-            <button
+            <Pressable
               key={key}
-              type="button"
               className={`${styles.exprCard} ${expression === key ? styles.exprCardActive : ""}`}
               data-active={expression === key || undefined}
               onClick={() => handleExpression(key)}
@@ -198,7 +198,7 @@ export default function BunnyShowcasePanel({ animateClass, bunny }: Props) {
               </span>
               <span className={styles.exprLabel}><T k={labelKey} /></span>
               <span className={styles.exprDesc}><T k={descKey} /></span>
-            </button>
+            </Pressable>
           ))}
         </div>
       </div>

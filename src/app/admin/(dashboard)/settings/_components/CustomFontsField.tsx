@@ -9,6 +9,7 @@ import { uploadFile } from "@/lib/adminUpload";
 import { fontFormatFromExt, injectFontFace, type CustomFont } from "@/lib/customFonts";
 import { LOCAL_FONTS } from "@/config/localFonts.generated";
 import styles from "./AppearanceTab.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /** 파일명 → 표시/패밀리 이름 (scan-fonts.mjs 와 동일 규칙) */
 function prettyName(file: string): string {
@@ -96,14 +97,13 @@ export default function CustomFontsField({ fonts, onChange }: Props) {
               <span className={styles.customFontPreview} style={{ fontFamily: `"${f.name}"` }}>
                 Ag 가나다 123
               </span>
-              <button
-                type="button"
+              <Pressable
                 className={styles.customFontRemove}
                 onClick={() => remove(f.name)}
                 aria-label={t("admin.settings.fontRemove")}
               >
                 <X size={14} strokeWidth={2} />
-              </button>
+              </Pressable>
             </li>
           ))}
         </ul>
