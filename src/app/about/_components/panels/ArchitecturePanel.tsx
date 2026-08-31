@@ -17,7 +17,6 @@ import {
 } from "./_utils/architectureLayout";
 import { useForceGraph } from "./_utils/useForceGraph";
 import ArchDiagram from "./ArchDiagram";
-import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./ArchitecturePanel.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -39,7 +38,7 @@ const VIEW_MODES: { key: ViewMode; label: string }[] = [
 function ArchitecturePanel({ language }: ArchitecturePanelProps) {
   /* admin 에서 architectureItems 수정 가능 — 비어있으면 정적 fallback 사용 */
   const cfg = useSiteConfig();
-  const titleOverride = usePanelTitle("architecture");
+  const panelTitle = usePanelTitle("architecture");
   const cfgItems = cfg.about.architectureItems;
   const structure: StructureItem[] = useMemo(() => {
     if (!cfgItems || cfgItems.length === 0) return projectStructure;
@@ -231,7 +230,7 @@ function ArchitecturePanel({ language }: ArchitecturePanelProps) {
   return (
     <div className={`${styles.panel} ${styles.panelFlush}`}>
       <div className={styles.titleRowCompact}>
-        <h3 className={`${styles.panelTitle} ${styles.archTitle} ${styles.animate}`}>{titleOverride ?? <T k="aboutPage.panels.architecture" />}</h3>
+        <h3 className={`${styles.panelTitle} ${styles.archTitle} ${styles.animate}`}>{panelTitle}</h3>
       </div>
 
       {/* ── 데스크톱: 인터랙티브 맵 ── */}

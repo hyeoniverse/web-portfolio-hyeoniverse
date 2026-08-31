@@ -86,16 +86,6 @@
       "keyInsight": "Key Insight"
     },
     "credits": "Designed & Developed with ❤ by",
-    "panels": {
-      "architecture": "Architecture.",
-      "backend": "Backend.",
-      "keyFeatures": "Key Features.",
-      "designProcess": "Design Process.",
-      "designSystem": "Design System.",
-      "userFlow": "User Flow.",
-      "troubleShooting": "Design Decisions.",
-      "security": "Security."
-    },
     "backend": {
       "endpoints": "Endpoints",
       "designDecision": "Design Decision",

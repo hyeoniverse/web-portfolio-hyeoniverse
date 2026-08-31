@@ -8,7 +8,6 @@ import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import { renderHighlight } from "../renderHighlight";
 import PinnedTitleRow from "../PinnedTitleRow";
-import T from "@/components/ui/T";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { adaptProcess } from "@/app/about/_config/adaptAbout";
 import shared from "../AboutSection.module.css";
@@ -118,7 +117,7 @@ function ProcessPanel({ language, process, scrollBy }: ProcessPanelProps) {
         className={`${styles.pinnedContent} ${styles.mobilePinViewport}`}
       >
         {/* 타이틀 행 */}
-        <PinnedTitleRow panelKey="process" className={isMobile ? styles.procTitleRow : undefined} title={<T k="aboutPage.panels.designProcess" />} />
+        <PinnedTitleRow panelKey="process" className={isMobile ? styles.procTitleRow : undefined} />
 
         {/* 타임라인 + 콘텐츠 본문 (모바일은 행, 데스크톱은 열) */}
         <div className={styles.processBody}>
