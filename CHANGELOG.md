@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.51.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.51.0...v1.51.1) (2026-08-31)
+
+
+### Bug Fixes
+
+* **styles:** Button className override 를 번들 순서에 기대지 않게 ([1a1715f](https://github.com/hyeoniverse/web-portfolio-oval/commit/1a1715ff3c0ab1306d43a26f5e3f3bc0b6a323d5)), closes [#615](https://github.com/hyeoniverse/web-portfolio-oval/issues/615)
+
 ## [1.51.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.50.2...v1.51.0) (2026-08-31)
 
 
