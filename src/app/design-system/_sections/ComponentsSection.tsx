@@ -47,6 +47,7 @@ import EmojiPicker, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import RelatedChips from "@/components/ui/RelatedChips/RelatedChips";
 import { staggerContainer, staggerItemX } from "../_data/animations";
 import styles from "../DesignSystem.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const DatePicker = dynamic(
   () => import("@/components/ui/DatePicker/DatePicker"),
@@ -308,6 +309,39 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         </div>
       </motion.div>
 
+      {/* Pressable */}
+      <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
+        <div className={styles.componentGroupTitle}>Pressable</div>
+        <p className={styles.componentDesc}>
+          {md(language === "ko"
+            ? "눌리는 것의 **동작만** 담는 기반입니다 — `type=\"button\"` · 클릭/호버 사운드 · disabled · 누를 때 축소. 생김새는 주지 않으므로 `className` 으로 쓰는 쪽이 정합니다. MUI 의 `ButtonBase`, React Aria 의 `useButton` 과 같은 구조입니다.\n\n버튼처럼 생긴 것은 `Button` 을, 절대위치로 깔린 클릭 영역·부모 글꼴을 물려받는 페이지 번호·`::after` 로 밑줄을 그리는 칩처럼 **생김새를 통일하면 안 되는 자리**는 `Pressable` 을 씁니다. raw `<button>` 은 쓰지 않습니다 — 사운드가 빠지고 `type` 누락 시 폼이 제출됩니다."
+            : "The behavior-only base for anything pressable — `type=\"button\"`, click/hover sound, disabled, tap scale. It gives no appearance, so the caller supplies `className`. Same structure as MUI's `ButtonBase` or React Aria's `useButton`.\n\nUse `Button` for things that look like buttons; use `Pressable` where the appearance must NOT be unified — absolutely positioned hit areas, page numbers that inherit the parent font, chips that draw an underline with `::after`. Never a raw `<button>`: it loses the sound, and a missing `type` submits the form.")}
+        </p>
+        <div className={styles.componentRow}>
+          <motion.div variants={staggerItemX} {...scrollChildX(0, 3)}>
+            <Tooltip content="Pressable — 생김새는 자기 CSS, 동작만 공유">
+              <Pressable style={{ padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-default)", borderRadius: "var(--radius-capsule)", fontSize: "var(--font-size-label)" }}>
+                {language === "ko" ? "직접 만든 모양" : "Own look"}
+              </Pressable>
+            </Tooltip>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 3)}>
+            <Tooltip content="soundDisabled — 연타되는 자리(스텝퍼 등)">
+              <Pressable soundDisabled style={{ padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-default)", borderRadius: "var(--radius-capsule)", fontSize: "var(--font-size-label)" }}>
+                soundDisabled
+              </Pressable>
+            </Tooltip>
+          </motion.div>
+          <motion.div variants={staggerItemX} {...scrollChildX(2, 3)}>
+            <Tooltip content="noTapScale — transform 이 자리를 흔들면 안 되는 절대위치 오버레이">
+              <Pressable noTapScale style={{ padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-default)", borderRadius: "var(--radius-capsule)", fontSize: "var(--font-size-label)" }}>
+                noTapScale
+              </Pressable>
+            </Tooltip>
+          </motion.div>
+        </div>
+      </motion.div>
+
       {/* HelpButton */}
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div className={styles.componentGroupTitle}>HelpButton</div>
@@ -320,7 +354,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           {(["2xs", "xs", "sm", "md", "lg", "xl"] as const).map((s, i, arr) => (
             <motion.div key={s} variants={staggerItemX} {...scrollChildX(i, arr.length + 1)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
               <HelpButton size={s} aria-label={`help ${s}`} />
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>{s}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", color: "var(--text-muted)" }}>{s}</span>
             </motion.div>
           ))}
           <motion.div variants={staggerItemX} {...scrollChildX(6, 7)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
@@ -335,7 +369,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                   : "Used as a Popover trigger — HelpButton forwards ref/onClick untouched."}
               </div>
             </Popover>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>+ Popover</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", color: "var(--text-muted)" }}>+ Popover</span>
           </motion.div>
         </div>
       </motion.div>
@@ -365,7 +399,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <SpinButton className={styles.spinBtn} ariaLabel="증가" onStep={() => setSpinCount((n) => n + 1)}>
             <Plus size={14} strokeWidth={2.5} />
           </SpinButton>
-          <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)", marginLeft: "var(--spacing-sm)" }}>
+          <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-label)", marginLeft: "var(--spacing-sm)" }}>
             {language === "ko" ? "꾹 눌러보세요" : "Press and hold"}
           </span>
         </motion.div>
@@ -383,7 +417,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           {([["xs", "20px"], ["sm", "24px"], ["md", "32px"], ["lg", "38px"]] as const).map(([size, px], i) => (
             <motion.div key={size} variants={staggerItemX} {...scrollChildX(i, 4)} style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
               <CloseButton size={size} onClick={() => showToast("Closed!", "info")} ariaLabel="close" />
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>{size} · {px}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", color: "var(--text-muted)" }}>{size} · {px}</span>
             </motion.div>
           ))}
         </div>
@@ -467,7 +501,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               onChange={setSegDemo}
               size="sm"
             />
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>default</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", color: "var(--text-muted)" }}>default</span>
           </motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--spacing-2xs)" }}>
             <SegmentedControl<string>
@@ -481,7 +515,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               onChange={setSegSubtleDemo}
               size="sm"
             />
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)", color: "var(--text-muted)" }}>subtle</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-hint)", color: "var(--text-muted)" }}>subtle</span>
           </motion.div>
         </div>
       </motion.div>
@@ -503,19 +537,19 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <div className={styles.componentRow}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
             <Switch checked={switchOn} onCheckedChange={setSwitchOn} />
-            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Default (sm)</span>
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Default (sm)</span>
           </motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
             <Switch checked={switchAccent} onCheckedChange={setSwitchAccent} variant="accent" />
-            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Accent</span>
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Accent</span>
           </motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(2, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
             <Switch disabled />
-            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Disabled</span>
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Disabled</span>
           </motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(3, 4)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
             <Switch disabled defaultChecked />
-            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Disabled On</span>
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Disabled On</span>
           </motion.div>
         </div>
         {/* label(옆 form-row 라벨) vs showStateText(토글 안 ON/OFF 텍스트) */}
@@ -525,7 +559,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           </motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "inline-flex", alignItems: "center", gap: "var(--spacing-xs)" }}>
             <Switch size="md" showStateText checked={switchStateText} onCheckedChange={setSwitchStateText} />
-            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>showStateText (ON/OFF)</span>
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>showStateText (ON/OFF)</span>
           </motion.div>
         </div>
       </motion.div>
@@ -536,11 +570,11 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <div className={styles.componentRow}>
           <motion.div variants={staggerItemX} {...scrollChildX(0, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
             <LanguageToggle lang={langMd} onLangChange={setLangMd} />
-            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>Default (md, 28px)</span>
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>Default (md, 28px)</span>
           </motion.div>
           <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
             <LanguageToggle lang={langSm} onLangChange={setLangSm} size="sm" />
-            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-xs)", color: "var(--text-secondary)" }}>size=&quot;sm&quot; (22px)</span>
+            <span style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "var(--font-size-label)", color: "var(--text-secondary)" }}>size=&quot;sm&quot; (22px)</span>
           </motion.div>
         </div>
       </motion.div>
@@ -954,8 +988,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <Tooltip content="render-prop trigger + portal popover">
             <ColorPicker value={pickerColor} onChange={(c) => setPickerColor(c.hex)}>
               {({ toggle }) => (
-                <button
-                  type="button"
+                <Pressable
                   onClick={toggle}
                   style={{
                     width: 32,
@@ -971,7 +1004,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               )}
             </ColorPicker>
           </Tooltip>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-sm)", color: "var(--text-secondary)" }}>{pickerColor}</span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-body)", color: "var(--text-secondary)" }}>{pickerColor}</span>
         </motion.div>
       </motion.div>
 
@@ -980,12 +1013,11 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <div className={styles.componentGroupTitle}>DatePicker</div>
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
-            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>Format</span>
+            <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>Format</span>
             <div style={{ display: "flex", border: "var(--border-light)", borderRadius: "var(--radius-capsule)", overflow: "hidden" }}>
               {(["year", "yearMonth", "date"] as const).map((f, i, arr) => (
-                <button
+                <Pressable
                   key={f}
-                  type="button"
                   onClick={() => setDpFormat(f)}
                   style={{
                     padding: "var(--spacing-2xs) var(--spacing-sm)",
@@ -994,22 +1026,22 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                     borderRadius: 0,
                     background: dpFormat === f ? "var(--text-primary)" : "transparent",
                     color: dpFormat === f ? "var(--bg-primary)" : "var(--text-secondary)",
-                    fontSize: "var(--font-size-xs)",
+                    fontSize: "var(--font-size-label)",
                     fontFamily: "var(--font-space-grotesk)",
                     cursor: "pointer",
                   }}
                 >
                   {f === "year" ? (language === "ko" ? "연도" : "Year") : f === "yearMonth" ? (language === "ko" ? "연.월" : "Y.M") : (language === "ko" ? "연.월.일" : "Y.M.D")}
-                </button>
+                </Pressable>
               ))}
             </div>
-            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-primary)", marginLeft: "var(--spacing-xs)", fontFamily: "var(--font-space-grotesk)", fontWeight: 600 }}>
+            <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-primary)", marginLeft: "var(--spacing-xs)", fontFamily: "var(--font-space-grotesk)", fontWeight: 600 }}>
               {dpFormat === "year" ? dpDate.year : dpFormat === "yearMonth" ? `${dpDate.year}.${dpDate.month}` : `${dpDate.year}.${dpDate.month}.${dpDate.day}`}
             </span>
           </div>
           <div style={{ display: "flex", gap: "var(--spacing-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ minWidth: 230 }}>
-              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Spinner</div>
+              <div style={{ display: "inline-block", fontSize: "var(--font-size-label)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Spinner</div>
               <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
                 <DatePicker
                   year={dpDate.year}
@@ -1023,7 +1055,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
               </div>
             </div>
             <div style={{ minWidth: 230 }}>
-              <div style={{ display: "inline-block", fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Calendar</div>
+              <div style={{ display: "inline-block", fontSize: "var(--font-size-label)", color: "var(--text-tertiary)", marginBottom: "var(--spacing-xs)", padding: "var(--spacing-2xs) var(--spacing-sm)", border: "var(--border-light)", borderRadius: "var(--radius-capsule)" }}>Calendar</div>
               <div style={{ border: "var(--border-light)", borderRadius: "var(--radius-2xl)", overflow: "hidden" }}>
                 <DatePicker
                   year={dpDate.year}
@@ -1335,8 +1367,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           {ivImages.map((src, i) => (
             <motion.div key={i} variants={staggerItemX} {...scrollChildX(i, ivImages.length)}>
               <Tooltip content={`Sample image ${i + 1} — Click to open ImageViewer`}>
-                <button
-                  type="button"
+                <Pressable
                   style={{
                     width: 120,
                     height: 68,
@@ -1351,7 +1382,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                </button>
+                </Pressable>
               </Tooltip>
             </motion.div>
           ))}
@@ -1497,9 +1528,9 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
       <motion.div className={styles.componentGroup} initial="hidden" {...vpGroup(nd())} variants={staggerContainer}>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)", marginBottom: "var(--spacing-sm)" }}>
           <div className={styles.componentGroupTitle} style={{ marginBottom: 0 }}>TypeWriter</div>
-          <button className={styles.replayBtn} onClick={() => setTwReplay((n) => n + 1)} aria-label="Replay">
+          <Pressable className={styles.replayBtn} onClick={() => setTwReplay((n) => n + 1)} aria-label="Replay">
             <RotateCcw size={14} />
-          </button>
+          </Pressable>
         </div>
         <motion.div className={styles.typewriterDemo} variants={staggerItemX} {...scrollChildX(0, 1)}>
           <TypeWriter text="Design tokens bring consistency." typingSpeed={80} caption="— Design System" fontSize="var(--font-size-xl)" align="center" replayTrigger={twReplay} />
@@ -1513,15 +1544,15 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
         <motion.div variants={staggerItemX} {...scrollChildX(0, 1)} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-2xl)", cursor: "pointer", color: iconLiked ? "var(--text-accent)" : "var(--text-secondary)" }} onClick={toggleIcon}>
           <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
             <HeartIcon liked={iconLiked} busy={iconBusy} size={14} />
-            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>size 14</span>
+            <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>size 14</span>
           </span>
           <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
             <HeartIcon liked={iconLiked} busy={iconBusy} size={20} />
-            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>size 20</span>
+            <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>size 20</span>
           </span>
           <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
             <HeartIcon liked={iconLiked} busy={iconBusy} size={32} />
-            <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>size 32</span>
+            <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>size 32</span>
           </span>
         </motion.div>
       </motion.div>
@@ -1538,7 +1569,7 @@ function ComponentsSection({ language, setSectionRef, vpGroup, scrollChildX, nd 
           <motion.div variants={staggerItemX} {...scrollChildX(0, 2)}>
             <HighlightedText text={language === "ko" ? "검색어가 들어간 문장입니다" : "A sentence containing the search term"} query={language === "ko" ? "검색어" : "search"} />
           </motion.div>
-          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ color: "var(--text-muted)", fontSize: "var(--font-size-xs)" }}>
+          <motion.div variants={staggerItemX} {...scrollChildX(1, 2)} style={{ color: "var(--text-muted)", fontSize: "var(--font-size-label)" }}>
             {language === "ko" ? "query 없음 → 평문" : "no query → plain text"}: <HighlightedText text={language === "ko" ? "강조 없음" : "no highlight"} query="" />
           </motion.div>
         </div>
