@@ -177,8 +177,13 @@
 
 /* 메인 SortGroup 과 sub 사이 화살표 — "이 옵션의 세부 선택" 의미 */
 
-/* 셔플(랜덤) 버튼 — Button shape="circle" size="sm" + border light override + active 회전 */
-.shuffleBtn {
+/* 셔플(랜덤) 버튼 — Button shape="circle" size="sm" + active 회전.
+   옆 SegmentedControl 과 같은 굵기로 보이도록 border 를 light 로 낮춘다.
+
+   클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 `.variant-outline`(border-strong)과
+   특이도가 같으면 어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. 순서가 뒤집히면
+   이 버튼만 진한 테두리로 튄다. 같은 파일의 .seriesSegmented 가 쓰는 방법과 같다. */
+.shuffleBtn.shuffleBtn {
   border: var(--border-light);
 }
 

@@ -92,7 +92,9 @@
 
 /* 크기·정렬·배경은 Button(ghost·square·2xs)이 준다. 여기서는 색만 맞춘다 —
    펼침 화살표라 ghost 기본색(secondary→accent)보다 조용해야 한다. */
-.skillExpandBtn {
+/* 클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 variant 규칙과 특이도가 같으면
+   어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. */
+.skillExpandBtn.skillExpandBtn {
   color: var(--text-tertiary);
 }
 

@@ -306,7 +306,9 @@
 
 /* 모양·크기·hover 는 Button(outline·xs)이 준다. 여기서는 색만 —
    푸터 보조 컨트롤이라 기본 outline 보다 조용해야 한다. */
-.viewModeBtn {
+/* 클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 variant 규칙과 특이도가 같으면
+   어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. */
+.viewModeBtn.viewModeBtn {
   color: var(--text-tertiary);
 }
 /* footer 맨 아래 별도 줄 — 모든 화면 크기에서 우측 정렬 (.content 는 항상 세로 컬럼) */
