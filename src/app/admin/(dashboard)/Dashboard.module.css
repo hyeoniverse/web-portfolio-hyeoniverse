@@ -800,7 +800,9 @@ a.statCard:hover .statValue {
 
 /* 모양·크기·hover 는 Button(outline·2xs)이 준다. 여기서는 두 가지만 —
    날짜라 자릿수가 흔들리지 않게 tabular-nums, 팝오버 위라 배경을 불투명하게. */
-.periodTriggerBtn {
+/* 클래스를 두 번 적어 (0,2,0) 으로 올린다 — Button 의 variant 규칙과 특이도가 같으면
+   어느 쪽이 이길지가 두 CSS 모듈의 번들 순서에 달린다. */
+.periodTriggerBtn.periodTriggerBtn {
   background: var(--bg-primary);
   font-variant-numeric: tabular-nums;
 }
