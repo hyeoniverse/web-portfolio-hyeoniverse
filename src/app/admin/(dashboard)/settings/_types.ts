@@ -20,7 +20,9 @@ export interface SettingsTabProps {
   savedConfig: SiteConfigData;
   update: UpdateSettingFn;
   /** 지정된 dot-path 만 부분 저장. 섹션 헤더의 저장 버튼이 호출 */
-  saveSection: (paths: string[]) => Promise<unknown>;
+  /** 두 번째 인자는 읽어 갈 config — setConfig 직후라 state 가 아직 낡았을 때 넘긴다.
+   *  구현(page.tsx)은 처음부터 받고 있었는데 타입에만 빠져 있었다. */
+  saveSection: (paths: string[], source?: SiteConfigData) => Promise<unknown>;
   /** 지정된 dot-path 만 savedConfig 로 되돌리기. 섹션 헤더의 되돌리기 버튼이 호출 */
   revertSection: (paths: string[]) => void;
   /** 지정된 dot-path 만 siteConfig 기본값으로 재설정 */
