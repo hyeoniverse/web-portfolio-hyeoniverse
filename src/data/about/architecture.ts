@@ -133,8 +133,8 @@ export const projectStructure: StructureItem[] = [
   {
     path: "ui/",
     description: {
-      ko: "Button, Modal, Typography, OptimizedImage, Chip, HighlightInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
-      en: "Button, Modal, Typography, OptimizedImage, Chip, HighlightInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
+      ko: "Pressable(동작만) → Button(동작+생김새), Modal, Typography, OptimizedImage, Chip, HighlightInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
+      en: "Pressable (behavior only) → Button (behavior + appearance), Modal, Typography, OptimizedImage, Chip, HighlightInput, FontPicker, HighlightedText, LetterFilter, MediaThumb, SearchCapsule, ColorPicker (mobile sheet)",
     },
     indent: 2,
   },
@@ -237,18 +237,42 @@ export const projectStructure: StructureItem[] = [
   {
     path: "data/",
     description: {
-      ko: "정적 데이터 — projects, services, profile, about",
-      en: "Static data — projects, services, profile, about",
+      ko: "정적 데이터 — 기술 아이콘, 작업물 템플릿, 화면 프리셋. generated/ 는 빌드가 content/ 에서 만들어 넣는 폴백",
+      en: "Static data — tech icons, work templates, screen presets. generated/ holds the fallback the build bakes from content/",
     },
     indent: 1,
   },
   {
     path: "locales/",
     description: {
-      ko: "i18n 번역 파일 — ko.json, en.json",
-      en: "i18n translation files — ko.json, en.json",
+      ko: "i18n 번역 파일 — ko.json, en.json (admin 번역은 *.admin.json 으로 분리해 방문자에게 안 보냄)",
+      en: "i18n translation files — ko.json, en.json (admin strings split into *.admin.json so visitors never download them)",
     },
     indent: 1,
+  },
+  {
+    path: "content/",
+    description: {
+      ko: "마크다운 원본 — posts / works / about. 동기화 명령이 DB 로 단방향 반영한다",
+      en: "Markdown sources — posts / works / about, applied one-way to the DB by the sync command",
+    },
+    indent: 0,
+  },
+  {
+    path: "scripts/",
+    description: {
+      ko: "동기화·생성 스크립트 — sync-posts / sync-works / sync-about / gen-about-fallback / sync-content-assets",
+      en: "Sync and codegen scripts — sync-posts / sync-works / sync-about / gen-about-fallback / sync-content-assets",
+    },
+    indent: 0,
+  },
+  {
+    path: "supabase/",
+    description: {
+      ko: "DB 정의 — setup.sql 하나로 신규 설치가 끝나고, migrations/ 는 기존 DB 를 옮길 때 쓴다",
+      en: "Database definitions — setup.sql alone completes a fresh install; migrations/ is for moving an existing DB",
+    },
+    indent: 0,
   },
 ];
 

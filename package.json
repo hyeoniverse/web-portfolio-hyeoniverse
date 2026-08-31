@@ -3,9 +3,9 @@
   "version": "1.50.2",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "tsx scripts/sync-content-assets.ts && tsx scripts/gen-about-fallback.ts && next dev --turbopack",
     "fonts:scan": "node scripts/scan-fonts.mjs",
-    "prebuild": "node scripts/scan-fonts.mjs",
+    "prebuild": "node scripts/scan-fonts.mjs && tsx scripts/sync-content-assets.ts && tsx scripts/gen-about-fallback.ts",
     "build": "next build",
     "analyze": "ANALYZE=true next build",
     "start": "next start",
@@ -19,13 +19,18 @@
     "sync-posts:dry": "tsx scripts/sync-posts.ts --dry",
     "sync-works": "tsx scripts/sync-works.ts",
     "sync-works:dry": "tsx scripts/sync-works.ts --dry",
-    "sync-all": "tsx scripts/sync-posts.ts && tsx scripts/sync-works.ts",
+    "sync-all": "tsx scripts/sync-posts.ts && tsx scripts/sync-works.ts && tsx scripts/sync-about.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepare": "husky",
     "test:visual": "playwright test --project=desktop --project=mobile",
     "test:visual:update": "playwright test --project=desktop --project=mobile --update-snapshots",
-    "test:visual:admin": "playwright test --project=admin"
+    "test:visual:admin": "playwright test --project=admin",
+    "sync-content-assets": "tsx scripts/sync-content-assets.ts",
+    "sync-about": "tsx scripts/sync-about.ts",
+    "sync-about:dry": "tsx scripts/sync-about.ts --dry",
+    "sync-about:eject": "tsx scripts/sync-about.ts --eject",
+    "gen-about-fallback": "tsx scripts/gen-about-fallback.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "6.20.3",

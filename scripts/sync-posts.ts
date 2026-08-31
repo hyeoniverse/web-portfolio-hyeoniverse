@@ -22,6 +22,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
+import { parseFrontmatter, asArray, asBool } from "@/lib/frontmatter";
 
 config({ path: ".env.local" });
 
@@ -59,25 +60,7 @@ interface ParsedPost {
 }
 
 function parseMdPost(raw: string, fileName: string): ParsedPost {
-  let text = raw;
-  const meta: Record<string, string | string[]> = {};
-  const fmMatch = text.match(/^---\n([\s\S]*?)\n---\n?/);
-  if (fmMatch) {
-    text = text.slice(fmMatch[0].length);
-    for (const line of fmMatch[1].split("\n")) {
-      const kv = line.match(/^(\w+)\s*:\s*(.+)$/);
-      if (!kv) continue;
-      const [, key, val] = kv;
-      if (val.startsWith("[") && val.endsWith("]")) {
-        meta[key] = val
-          .slice(1, -1)
-          .split(",")
-          .map((s) => s.trim().replace(/^["']|["']$/g, ""));
-      } else {
-        meta[key] = val.trim().replace(/^["']|["']$/g, "");
-      }
-    }
-  }
+  const { meta, body: text } = parseFrontmatter(raw);
 
   const title = (meta.title as string) || fileName.replace(/\.md$/, "");
   const slug = ((meta.slug as string) || title)
@@ -94,8 +77,7 @@ function parseMdPost(raw: string, fileName: string): ParsedPost {
     published: false,
   };
 
-  if (meta.tags)
-    post.tags = Array.isArray(meta.tags) ? meta.tags : [meta.tags as string];
+  if (meta.tags) post.tags = asArray(meta.tags);
   if (meta.excerpt) post.excerpt = meta.excerpt as string;
   if (meta.excerpt_en) post.excerpt_en = meta.excerpt_en as string;
   if (meta.cover_image) post.cover_image = meta.cover_image as string;
@@ -103,9 +85,8 @@ function parseMdPost(raw: string, fileName: string): ParsedPost {
   if (meta.icon) post.icon = meta.icon as string;
   if (meta.github_url) post.github_url = meta.github_url as string;
   if (meta.language === "ko" || meta.language === "en") post.language = meta.language;
-  const pinnedRaw = String((meta.pinned ?? meta.is_pinned) ?? "").trim().toLowerCase();
-  if (["true", "yes", "on", "1"].includes(pinnedRaw)) post.is_pinned = true;
-  else if (["false", "no", "off", "0"].includes(pinnedRaw)) post.is_pinned = false;
+  const pinned = asBool(meta.pinned ?? meta.is_pinned);
+  if (pinned !== undefined) post.is_pinned = pinned;
   const cp = Number(meta.cover_position);
   if (meta.cover_position != null && !Number.isNaN(cp)) post.cover_position = cp;
   const cz = Number(meta.cover_zoom);
