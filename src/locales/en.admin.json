@@ -993,6 +993,7 @@
       },
       "coverPicker": {
         "presets": "Presets",
+        "projectImages": "Project",
         "unsplash": "Unsplash",
         "aiGenerate": "AI Generate",
         "aiPlaceholder": "Describe the cover image you want...",

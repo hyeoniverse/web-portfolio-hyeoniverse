@@ -1,28 +1,22 @@
 import type { SiteConfigData } from "@/config/site.config";
+import { deepEqual } from "@/lib/settingsDelta";
 
-/** 키 순서 무관 deep 비교 (JSON.stringify는 키 순서에 의존하므로 대체) */
-export function deepEqual(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (a == null || b == null) return a === b;
-  if (typeof a !== typeof b) return false;
-  if (Array.isArray(a)) {
-    if (!Array.isArray(b) || a.length !== b.length) return false;
-    return a.every((v, i) => deepEqual(v, b[i]));
-  }
-  if (typeof a === "object") {
-    const ka = Object.keys(a as Record<string, unknown>);
-    const kb = Object.keys(b as Record<string, unknown>);
-    if (ka.length !== kb.length) return false;
-    return ka.every((k) =>
-      deepEqual((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k])
-    );
-  }
-  return false;
-}
-
-export type DeepPartial<T> = {
-  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
-};
+/* delta 저장 형식을 다루는 순수 헬퍼는 `@/lib/settingsDelta` 로 옮겼다 —
+   동기화 스크립트(scripts/sync-about.ts)와 API 도 같은 규칙으로 조립해야 해서다.
+   설정 화면 쪽 import 경로를 바꾸지 않도록 여기서 그대로 재수출한다. */
+export {
+  deepEqual,
+  getByPath,
+  setByPath,
+  deepMerge,
+  computeDelta,
+  filterOrphanedKeys,
+  extractDefaults,
+  isDeltaFormat,
+  unwrapDelta,
+  buildDeltaPayload,
+} from "@/lib/settingsDelta";
+export type { DeepPartial } from "@/lib/settingsDelta";
 
 export const TAB_IDS = ["general", "content", "appearance", "services", "account"] as const;
 
@@ -119,121 +113,6 @@ export function getTabForConfigPath(path: string): TabId {
   return "general";
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/** dot-notation path 로 nested 값 읽기 ("personal.name", "contact.email") */
-export function getByPath(obj: any, path: string): unknown {
-  return path.split(".").reduce((acc, key) => (acc == null ? undefined : acc[key]), obj);
-}
-
-/** dot-notation path 로 nested 값 설정 (immutable copy 반환) */
-export function setByPath<T>(obj: T, path: string, value: unknown): T {
-  const parts = path.split(".");
-  const next: any = Array.isArray(obj) ? [...(obj as any[])] : { ...(obj as any) };
-  let cur = next;
-  for (let i = 0; i < parts.length - 1; i++) {
-    const k = parts[i];
-    cur[k] = cur[k] != null && typeof cur[k] === "object" ? (Array.isArray(cur[k]) ? [...cur[k]] : { ...cur[k] }) : {};
-    cur = cur[k];
-  }
-  cur[parts[parts.length - 1]] = value;
-  return next as T;
-}
-/* eslint-enable @typescript-eslint/no-explicit-any */
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export function deepMerge<T extends Record<string, any>>(
-  target: T,
-  source: DeepPartial<T>
-): T {
-  const result = { ...target } as any;
-  for (const key of Object.keys(source)) {
-    const val = (source as any)[key];
-    if (val === undefined || val === null) continue;
-    if (
-      typeof val === "object" &&
-      !Array.isArray(val) &&
-      typeof result[key] === "object" &&
-      !Array.isArray(result[key])
-    ) {
-      result[key] = deepMerge(result[key], val);
-    } else {
-      result[key] = val;
-    }
-  }
-  return result;
-}
-
-/**
- * siteConfig 기본값과 현재 config를 비교하여 변경된 키만 추출 (delta)
- */
-export function computeDelta(current: any, defaults: any): any {
-  const delta: any = {};
-  for (const key of Object.keys(current)) {
-    if (!(key in (defaults ?? {}))) continue; // skip orphaned keys removed from siteConfig
-    const cur = current[key];
-    const def = defaults[key];
-    if (
-      cur !== null &&
-      typeof cur === "object" &&
-      !Array.isArray(cur) &&
-      def !== null &&
-      typeof def === "object" &&
-      !Array.isArray(def)
-    ) {
-      const sub = computeDelta(cur, def);
-      if (Object.keys(sub).length > 0) delta[key] = sub;
-    } else if (!deepEqual(cur, def)) {
-      delta[key] = cur;
-    }
-  }
-  return delta;
-}
-
-/**
- * DB에서 불러온 delta에서 현재 siteConfig에 없는 키를 제거
- */
-export function filterOrphanedKeys(delta: any, defaults: any): any {
-  if (!delta || typeof delta !== "object" || Array.isArray(delta)) return delta;
-  const filtered: any = {};
-  for (const key of Object.keys(delta)) {
-    if (!(key in (defaults ?? {}))) continue;
-    const val = delta[key];
-    const def = defaults[key];
-    if (val !== null && typeof val === "object" && !Array.isArray(val) &&
-        def !== null && typeof def === "object" && !Array.isArray(def)) {
-      filtered[key] = filterOrphanedKeys(val, def);
-    } else {
-      filtered[key] = val;
-    }
-  }
-  return filtered;
-}
-
-/**
- * delta 키에 대해 siteConfig 기본값의 스냅샷 추출
- */
-export function extractDefaults(delta: any, defaults: any): any {
-  const snapshot: any = {};
-  for (const key of Object.keys(delta)) {
-    const d = delta[key];
-    const def = defaults[key];
-    if (
-      d !== null &&
-      typeof d === "object" &&
-      !Array.isArray(d) &&
-      def !== null &&
-      typeof def === "object" &&
-      !Array.isArray(def)
-    ) {
-      snapshot[key] = extractDefaults(d, def);
-    } else {
-      snapshot[key] = def;
-    }
-  }
-  return snapshot;
-}
-
-/** content 탭 서브탭 순서 — 사이드 nav / 모바일 nav / URL 동기화에서 공용 */
 export const CONTENT_SUBTABS = ["home", "profile", "about", "works", "posts", "calendars"] as const;
 export type ContentSubTab = (typeof CONTENT_SUBTABS)[number];
 
@@ -255,6 +134,7 @@ export function getContentSubTabForKey(topKey: string): ContentSubTab {
   return "home";
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ConfigConflict {
   path: string;
   dbValue: any;
@@ -302,10 +182,4 @@ export function detectConflicts(
   return conflicts;
 }
 
-/**
- * DB config가 새 delta 형식인지 확인
- */
-export function isDeltaFormat(config: any): config is { delta: any; savedDefaults: any } {
-  return config && typeof config.delta === "object" && config.delta !== null;
-}
 /* eslint-enable @typescript-eslint/no-explicit-any */
