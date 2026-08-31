@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.51.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.50.2...v1.51.0) (2026-08-31)
+
+
+### Features
+
+* **about:** About 콘텐츠를 마크다운으로도 작성 가능하게 ([32de962](https://github.com/hyeoniverse/web-portfolio-oval/commit/32de962301a70ca32dbd7a45fd7dc5f455a92593)), closes [#609](https://github.com/hyeoniverse/web-portfolio-oval/issues/609)
+* **about:** md 동기화가 쓰는 설정 경로와 검증 추가 ([2286502](https://github.com/hyeoniverse/web-portfolio-oval/commit/22865023ebdcd09b8680d3a1ffc881a6811e3af0)), closes [#609](https://github.com/hyeoniverse/web-portfolio-oval/issues/609)
+
+
+### Bug Fixes
+
+* **profile:** 불필요한 Suspense 가 만들던 hydration mismatch 제거 ([be6345c](https://github.com/hyeoniverse/web-portfolio-oval/commit/be6345c61da6281c904a25c80f12ec2cb2e5d219)), closes [#374](https://github.com/hyeoniverse/web-portfolio-oval/issues/374)
+
 ## [1.50.2](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.50.1...v1.50.2) (2026-08-25)
 
 
