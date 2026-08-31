@@ -86,6 +86,7 @@ import ch from "@/app/about/_components/panels/CodeHighlightsPanel.module.css";
 import CodeDemoSlot, { type CodeDemoMode } from "@/app/about/_components/panels/CodeDemoSlot";
 import { securityIcons } from "@/app/about/_components/panels/SecurityPanel";
 import Pressable from "@/components/ui/Pressable";
+import { aboutPanelLabel, aboutPanelTitle } from "@/data/about/panels";
 
 /* ═══════════ 타입 ═══════════ */
 type ThemeBg = { primary: string; secondary: string; accent: string };
@@ -430,7 +431,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
       <PanelManager about={about} setAny={setAny} t={t} lang={lang} />
 
       {/* ── Hero 라이브 프리뷰 — 실제 About Hero CSS 를 데스크톱 비율로 그려 scale 다운 ── */}
-      <PanelSaveHeader label={panelTitleOf("hero") ?? "Intro"} paths={savePathsFor("hero")} panelKey="hero" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("hero") ?? aboutPanelLabel("hero")} paths={savePathsFor("hero")} panelKey="hero" {...saveHdr} />
       <div className={css.stageWrap} ref={wrapRef} style={{ height: DESIGN_H * scale }}>
         <div
           className={`${sec.section} ${sec.panel} ${hero.heroPanelBg} ${hero.heroReady} ${bgLight ? hero.heroBgLight : ""} ${bgDark ? hero.heroBgDark : ""} ${media ? hero.heroMediaMode : ""}`}
@@ -571,36 +572,36 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
       </div>
 
       {/* ── Overview ── */}
-      <PanelSaveHeader label={panelTitleOf("overview") ?? "Overview"} paths={savePathsFor("overview")} panelKey="overview" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("overview") ?? aboutPanelLabel("overview")} paths={savePathsFor("overview")} panelKey="overview" {...saveHdr} />
       <OverviewBlock about={about} lang={lang} setAny={setAny} t={t} titleOverride={panelTitleOf("overview")} />
 
       {/* ── Architecture ── */}
-      <PanelSaveHeader label={panelTitleOf("architecture") ?? "Architecture"} paths={savePathsFor("architecture")} panelKey="architecture" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("architecture") ?? aboutPanelLabel("architecture")} paths={savePathsFor("architecture")} panelKey="architecture" {...saveHdr} />
       <ArchitectureBlock value={(about.architectureItems) ?? []} onChange={setArch}
         diagram={(about.archDiagram) ?? { nodes: [], edges: [] }}
         onDiagramChange={(v) => setAny("archDiagram", v)} t={t} lang={lang} />
 
       {/* ── User Flow ── */}
-      <PanelSaveHeader label={panelTitleOf("userflow") ?? "User Flow"} paths={savePathsFor("userflow")} panelKey="userflow" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("userflow") ?? aboutPanelLabel("userflow")} paths={savePathsFor("userflow")} panelKey="userflow" {...saveHdr} />
       <UserFlowBlock lang={lang} t={t} titleOverride={panelTitleOf("userflow")}
         onChange={(v) => setAny("userFlows", v)}
         value={(about.userFlows as UserFlow[] | undefined)?.length ? (about.userFlows as UserFlow[]) : userFlows} />
 
       {/* ── Features ── */}
-      <PanelSaveHeader label={panelTitleOf("features") ?? "Features"} paths={savePathsFor("features")} panelKey="features" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("features") ?? aboutPanelLabel("features")} paths={savePathsFor("features")} panelKey="features" {...saveHdr} />
       <FeaturesBlock value={about.features ?? []} onChange={(v) => setAny("features", v)} lang={lang} t={t} titleOverride={panelTitleOf("features")} />
 
       {/* ── Design System ── */}
-      <PanelSaveHeader label={panelTitleOf("designSystem") ?? "Design System"} paths={savePathsFor("designSystem")} panelKey="designSystem" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("designSystem") ?? aboutPanelLabel("designSystem")} paths={savePathsFor("designSystem")} panelKey="designSystem" {...saveHdr} />
       <DesignSystemBlock lang={lang} t={t} onChange={(v) => setAny("designSystem", v)}
         value={(about.designSystem as ConceptItem[] | undefined)?.length ? (about.designSystem as ConceptItem[]) : seedConcepts()} />
 
       {/* ── Process ── */}
-      <PanelSaveHeader label={panelTitleOf("process") ?? "Process"} paths={savePathsFor("process")} panelKey="process" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("process") ?? aboutPanelLabel("process")} paths={savePathsFor("process")} panelKey="process" {...saveHdr} />
       <ProcessBlock value={about.process ?? []} onChange={(v) => setAny("process", v)} lang={lang} t={t} titleOverride={panelTitleOf("process")} />
 
       {/* ── Security ── */}
-      <PanelSaveHeader label={panelTitleOf("security") ?? "Security"} paths={savePathsFor("security")} panelKey="security" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("security") ?? aboutPanelLabel("security")} paths={savePathsFor("security")} panelKey="security" {...saveHdr} />
       <SecurityBlock value={about.security ?? []} onChange={(v) => setAny("security", v)} lang={lang} t={t} titleOverride={panelTitleOf("security")} />
 
       {/* ── Break image ── */}
@@ -609,39 +610,39 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
         onSet={(u) => setConfig((prev) => ({ ...prev, about: { ...prev.about, visualBreakImage: u } }))} />
 
       {/* ── Tech stack ── */}
-      <PanelSaveHeader label={panelTitleOf("techStack") ?? "Tech Stack"} paths={savePathsFor("techStack")} panelKey="techStack" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("techStack") ?? aboutPanelLabel("techStack")} paths={savePathsFor("techStack")} panelKey="techStack" {...saveHdr} />
       <section className={css.block}>
         {techStackSlot}
       </section>
 
       {/* ── Backend ── */}
-      <PanelSaveHeader label={panelTitleOf("backend") ?? "Backend"} paths={savePathsFor("backend")} panelKey="backend" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("backend") ?? aboutPanelLabel("backend")} paths={savePathsFor("backend")} panelKey="backend" {...saveHdr} />
       <BackendBlock lang={lang} t={t} titleOverride={panelTitleOf("backend")}
         onChange={(v) => setAny("backend", v)}
         value={(about.backend as BackendItem[] | undefined)?.length ? (about.backend as BackendItem[]) : backendItems} />
 
       {/* ── ERD ── */}
-      <PanelSaveHeader label={panelTitleOf("erd") ?? "ERD"} paths={savePathsFor("erd")} panelKey="erd" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("erd") ?? aboutPanelLabel("erd")} paths={savePathsFor("erd")} panelKey="erd" {...saveHdr} />
       <ErdBlock lang={lang}
         tables={(about.erdTables as ErdTable[] | undefined)?.length ? (about.erdTables as ErdTable[]) : staticErdTables}
         relations={(about.erdRelations as ErdRelation[] | undefined)?.length ? (about.erdRelations as ErdRelation[]) : staticErdRelations}
         onChange={(tb, rl) => { setAny("erdTables", tb); setAny("erdRelations", rl); }} />
 
       {/* ── Code Highlights ── */}
-      <PanelSaveHeader label={panelTitleOf("codeHighlights") ?? "Code Highlights"} paths={savePathsFor("codeHighlights")} panelKey="codeHighlights" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("codeHighlights") ?? aboutPanelLabel("codeHighlights")} paths={savePathsFor("codeHighlights")} panelKey="codeHighlights" {...saveHdr} />
       <CodeHighlightsBlock lang={lang} t={t} titleOverride={panelTitleOf("codeHighlights")}
         onChange={(v) => setAny("codeHighlights", v)}
         value={(about.codeHighlights as CodeItem[] | undefined)?.length ? (about.codeHighlights as CodeItem[]) : seedCode()} />
 
       {/* ── Troubleshooting ── */}
-      <PanelSaveHeader label={panelTitleOf("troubleshooting") ?? "Troubleshooting"} paths={savePathsFor("troubleshooting")} panelKey="troubleshooting" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("troubleshooting") ?? aboutPanelLabel("troubleshooting")} paths={savePathsFor("troubleshooting")} panelKey="troubleshooting" {...saveHdr} />
       <TroubleshootingBlock lang={lang} titleOverride={panelTitleOf("troubleshooting")}
           onChange={(v) => setAny("troubleshooting", v)}
           value={(about.troubleshooting as TroubleShootingItem[] | undefined)?.length
             ? (about.troubleshooting as TroubleShootingItem[]) : aboutDecisions} />
 
       {/* ── Credits ── */}
-      <PanelSaveHeader label={panelTitleOf("credits") ?? "Credits"} paths={savePathsFor("credits")} panelKey="credits" {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("credits") ?? aboutPanelLabel("credits")} paths={savePathsFor("credits")} panelKey="credits" {...saveHdr} />
       <CreditsBlock about={about} setAny={setAny} lang={lang} t={t}
           nickname={config.personal?.nickname ?? ""} />
     </div>
@@ -926,7 +927,7 @@ function OverviewBlock({ about, lang, setAny, t, titleOverride }: {
   const setHighlights = (arr: string[]) => setAny("overview_highlights", arr.filter(Boolean).join(", "));
   return (
     <PanelStage>
-        <h3 className={sec.panelTitle}>{titleOverride ?? "Overview."}</h3>
+        <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("overview")}</h3>
         <div className={ov.overviewLayout}>
           <div className={ov.overviewTop}>
             <EditableText multiline className={ov.overviewDesc} value={rec[descKey] ?? ""} onChange={(v) => setAny(descKey, v)}
@@ -977,7 +978,7 @@ function FeaturesBlock({ value, onChange, lang, t, titleOverride }: {
   return (
     <>
       <PanelStage>
-        <h3 className={sec.panelTitle}>{titleOverride ?? t("aboutPage.panels.keyFeatures")}</h3>
+        <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("features")}</h3>
         <div className={css.featGrid}
           style={{ gridTemplateColumns: tpl(cols, hovered?.col ?? null), gridTemplateRows: tpl(rows, hovered?.row ?? null) }}
           onMouseLeave={() => setHovered(null)}>
@@ -1025,7 +1026,7 @@ function ProcessBlock({ value, onChange, lang, t, titleOverride }: {
   const atMax = value.length >= MAX;
   return (
     <PanelStage>
-      <h3 className={sec.panelTitle}>{titleOverride ?? t("aboutPage.panels.designProcess")}</h3>
+      <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("process")}</h3>
       <p className={css.procHint}>{lang === "ko" ? "** 로 감싼 텍스트는 강조 색으로 표시됩니다." : "Text wrapped in ** appears as an accent highlight."}</p>
       {/* 타임라인 (실제 렌더 그대로) */}
       <div className={proc.processTimeline}>
@@ -1072,7 +1073,7 @@ function SecurityBlock({ value, onChange, lang, t, titleOverride }: {
   return (
     <PanelStage>
       <div className={css.secStage}>
-      <h3 className={sec.panelTitle}>{titleOverride ?? "Security."}</h3>
+      <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("security")}</h3>
       <div className={secu.secGrid}>
         {value.map((it, i) => (
           <div key={i} className={`${secu.secItem} ${css.editSecItem}`}>
@@ -1322,7 +1323,7 @@ function CodeHighlightsBlock({ value, onChange, lang, t, titleOverride }: {
                 <X size={14} />
               </Button>
             </div>
-            <h3 className={sec.panelTitle}>{titleOverride ?? "Code Highlights."}</h3>
+            <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("codeHighlights")}</h3>
             <div className={css.chPane}>
               <div className={ch.codeSingleHeader}>
                 <span className={ch.codeSingleNumber}>{String(cur + 1).padStart(2, "0")}</span>
@@ -1554,7 +1555,7 @@ function UserFlowBlock({ value, onChange, lang, t, titleOverride }: {
                 <X size={14} />
               </Button>
             </div>
-            <h3 className={sec.panelTitle}>{titleOverride ?? "User Flow."}</h3>
+            <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("userflow")}</h3>
 
             <div className={uf.ufFlowLayout}>
               {/* 좌측 — 실제와 같은 페르소나 카드 */}
@@ -2001,7 +2002,7 @@ function BackendBlock({ value, onChange, lang, t, titleOverride }: {
                 <X size={14} />
               </Button>
             </div>
-            <h3 className={sec.panelTitle}>{titleOverride ?? "Backend."}</h3>
+            <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("backend")}</h3>
 
             <div className={css.bkBody}>
               <div className={bk.dbList}>
@@ -2172,7 +2173,7 @@ function TroubleshootingBlock({ value, onChange, lang, titleOverride }: {
                 <X size={14} />
               </Button>
             </div>
-            <h3 className={sec.panelTitle}>{titleOverride ?? "Troubleshooting."}</h3>
+            <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("troubleshooting")}</h3>
 
             <div className={css.tsBody}>
               {TS_FIELDS.map((k) => (

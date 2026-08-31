@@ -1165,7 +1165,6 @@ function TroubleshootingPanel({
         <PinnedTitleRow
           panelKey="troubleshooting"
           className={`${styles.titleRowCompact} ${local.troublePinTitleRow}`}
-          title={<T k="aboutPage.panels.troubleShooting" />}
           compact
           animate
         />

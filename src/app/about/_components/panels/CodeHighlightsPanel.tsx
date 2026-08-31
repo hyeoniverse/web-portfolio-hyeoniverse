@@ -177,7 +177,6 @@ function CodeHighlightsPanel({
         <PinnedTitleRow
           panelKey="codeHighlights"
           className={`${styles.titleRowCompact} ${local.codePinTitleRow}`}
-          title="Code Highlights."
           compact
           animate
           dotNav={{

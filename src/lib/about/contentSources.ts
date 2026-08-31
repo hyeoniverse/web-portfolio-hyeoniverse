@@ -11,6 +11,8 @@
  * 데이터라 md 로 표현하면 지금 편집기보다 나빠진다. UI 전용으로 둔다.
  */
 
+import { aboutPanelLabel } from "@/data/about/panels";
+
 export interface MarkdownPanelDef {
   /** content/about/ 아래 폴더 이름, 또는 파일 하나짜리면 파일 이름(확장자 제외). */
   dir: string;
@@ -20,14 +22,21 @@ export interface MarkdownPanelDef {
   single?: boolean;
 }
 
-export const MARKDOWN_PANELS: Record<string, MarkdownPanelDef> = {
-  troubleshooting: { dir: "decisions", label: "Design Decisions" },
-  security: { dir: "security", label: "Security" },
-  features: { dir: "features", label: "Features" },
-  process: { dir: "process", label: "Process" },
-  overview: { dir: "overview", label: "Overview", single: true },
-  credits: { dir: "credits", label: "Credits", single: true },
+const DIRS: Record<string, { dir: string; single?: boolean }> = {
+  troubleshooting: { dir: "decisions" },
+  security: { dir: "security" },
+  features: { dir: "features" },
+  process: { dir: "process" },
+  overview: { dir: "overview", single: true },
+  credits: { dir: "credits", single: true },
 };
+
+/* 이름은 여기서 정하지 않는다 — @/data/about/panels 하나가 정하고 그것을 읽는다.
+   전에는 여기에 "Design Decisions" 를, 관리자 목록에는 "Troubleshooting" 을 따로 적어
+   같은 패널이 화면마다 다른 이름으로 나왔다. */
+export const MARKDOWN_PANELS: Record<string, MarkdownPanelDef> = Object.fromEntries(
+  Object.entries(DIRS).map(([key, v]) => [key, { ...v, label: aboutPanelLabel(key) }]),
+);
 
 /** 이 패널을 md 로 관리할 수 있는가. */
 export function canUseMarkdown(panelKey: string): boolean {

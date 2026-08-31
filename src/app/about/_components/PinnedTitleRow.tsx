@@ -17,8 +17,9 @@ interface DotNavConfig {
 }
 
 interface PinnedTitleRowProps {
-  title: React.ReactNode;
-  /** admin 패널 제목 override 를 읽을 panel key (있으면 panelTitles[key] 우선, 없으면 title 사용) */
+  /** 제목을 직접 넘길 때만. 보통은 panelKey 만 주고 레지스트리가 정하게 둔다. */
+  title?: React.ReactNode;
+  /** 패널 키 — 관리자 override → @/data/about/panels 기본값 순으로 제목이 정해진다. */
   panelKey?: string;
   /** panelTitleCompact 클래스 적용 여부 */
   compact?: boolean;
@@ -42,7 +43,8 @@ export default function PinnedTitleRow({
   rightContent,
   className,
 }: PinnedTitleRowProps) {
-  const titleOverride = usePanelTitle(panelKey ?? "");
+  /* 제목을 직접 받은 경우에만 그것을 쓴다. 아니면 키로 정해진 제목. */
+  const resolved = usePanelTitle(panelKey ?? "");
   const animateClass = animate ? ` ${styles.animate}` : "";
   const titleClasses = `${styles.panelTitle}${compact ? ` ${styles.panelTitleCompact}` : ""}${animateClass}`;
 
@@ -87,7 +89,7 @@ export default function PinnedTitleRow({
   return (
     <div className={`${styles.pinnedTitleRow}${className ? ` ${className}` : ""}`}>
       <div className={styles.titleRowLeft}>
-        <h3 className={titleClasses}>{titleOverride ?? title}</h3>
+        <h3 className={titleClasses}>{title ?? resolved}</h3>
         {rightContent}
       </div>
       {dotNav && (

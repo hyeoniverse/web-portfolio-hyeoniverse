@@ -11,7 +11,6 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import { useMobilePinScroll } from "../../_hooks/useMobilePinScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
-import T from "@/components/ui/T";
 import Button from "@/components/ui/Button";
 import TypographyDemo from "./demos/TypographyDemo";
 import ColorSystemDemo from "./demos/ColorSystemDemo";
@@ -262,7 +261,6 @@ function DesignSystemPanel({
         <PinnedTitleRow
           panelKey="designSystem"
           className={isMobile ? styles.dcTitleRow : undefined}
-          title={<T k="aboutPage.panels.designSystem" />}
           rightContent={
             <Button variant="link" href="/design-system" external className={styles.externalLink} icon={<span>↗</span>} iconPosition="right" soundDisabled>
               Open

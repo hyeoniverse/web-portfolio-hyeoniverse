@@ -25,7 +25,7 @@ type CfgOverview = {
 
 export default function OverviewPanel({ language, overview }: OverviewPanelProps) {
   const cfg = useSiteConfig();
-  const titleOverride = usePanelTitle("overview");
+  const panelTitle = usePanelTitle("overview");
   const a = (cfg.about as CfgOverview);
   const desc_ko = a.overview_description_ko;
   const desc_en = a.overview_description_en;
@@ -40,7 +40,7 @@ export default function OverviewPanel({ language, overview }: OverviewPanelProps
   }
   return (
     <div className={styles.panel}>
-      <h3 className={`${styles.panelTitle} ${styles.animate}`}>{titleOverride ?? "Overview."}</h3>
+      <h3 className={`${styles.panelTitle} ${styles.animate}`}>{panelTitle}</h3>
       <div className={styles.overviewLayout}>
         <div className={styles.overviewTop}>
           <p className={`${styles.overviewDesc} ${styles.animate}`}>

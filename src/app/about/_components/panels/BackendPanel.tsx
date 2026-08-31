@@ -8,7 +8,6 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { renderDetail } from "./BackendDetail";
 import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
-import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./BackendPanel.module.css";
 import Pressable from "@/components/ui/Pressable";
@@ -182,7 +181,6 @@ function BackendPanel({
         <PinnedTitleRow
           panelKey="backend"
          
-          title={<T k="aboutPage.panels.backend" />}
           compact
           animate
           dotNav={{

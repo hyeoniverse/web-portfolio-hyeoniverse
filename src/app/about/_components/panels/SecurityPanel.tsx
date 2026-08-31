@@ -31,13 +31,13 @@ interface SecurityPanelProps {
 
 function SecurityPanel({ language, items }: SecurityPanelProps) {
   const cfg = useSiteConfig();
-  const titleOverride = usePanelTitle("security");
+  const panelTitle = usePanelTitle("security");
   const cfgList = cfg.about.security;
   if (cfgList && cfgList.length > 0) items = adaptSecurity(cfgList);
   return (
     <div className={styles.panel}>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>
-        {titleOverride ?? "Security."}
+        {panelTitle}
       </h3>
       <div className={styles.secGrid}>
         {items.map((item, index) => (
