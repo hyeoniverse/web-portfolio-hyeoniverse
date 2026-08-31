@@ -6,13 +6,6 @@
 
 :root {
   /* Breakpoints */
-  --breakpoint-2xs: 320px;
-  --breakpoint-xs: 480px;
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-  --breakpoint-2xl: 1440px;
 
   /* Device Breakpoints */
   --pc: 1025px;
@@ -59,20 +52,12 @@
   --scroll-indicator-width: 36px;
 
   /* Icon Sizes */
-  --icon-xs: 12px;
-  --icon-sm: 16px;
-  --icon-md: 24px;
-  --icon-lg: 32px;
-  --icon-xl: 48px;
-  --icon-2xl: 64px;
 
   /* Component Sizes — control(button/select/input/등) 높이 통일에 사용.
-     계층:
-       xs (24px) — icon-only btn, dense chip
-       sm (32px) — 기본 input / select / 일반 button
-       md (38px) — primary action button
-       lg (46px) — hero CTA
-     같은 계층의 컨트롤은 같은 높이 사용. */
+     **컨트롤 높이는 여기서 정하지 않는다** — `--control-h-*`(_semantic.css)가 유일한 권위다.
+     예전에 이 주석이 "xs 24 / sm 32 / md 38 / lg 46" 을 컨트롤 계층이라고 선언했는데,
+     실제 Button·Input 은 다른 값을 쓰고 있어 세 번째 정의가 되어 있었다.
+     여기는 아이콘·아바타·썸네일처럼 컨트롤이 아닌 사각형 크기에 쓴다. */
   --size-6xs: 4px;
   --size-5xs: 8px;
   --size-4xs: 12px;

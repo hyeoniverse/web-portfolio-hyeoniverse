@@ -21,7 +21,7 @@
   width: var(--close-size, 14px);
   height: var(--close-weight, 1.5px);
   background: currentColor;
-  border-radius: var(--radius-2xs);
+  border-radius: var(--radius-capsule);
 }
 
 /* compound (0,2,0) to beat global theme transition (0,1,1) */

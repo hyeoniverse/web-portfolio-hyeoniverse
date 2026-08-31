@@ -77,6 +77,9 @@
   position: absolute;
   top: 50%;
   font-family: var(--font-space-grotesk), sans-serif;
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list --
+     스위치 트랙 안 ON/OFF 는 읽는 글이 아니라 그래픽의 일부다. 트랙 높이가 고정이라
+     12px 하한을 적용하면 넘친다. 상태는 노브 위치와 색으로 이미 읽힌다. */
   font-size: 7px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -117,6 +120,7 @@
   transition: left var(--duration-fast) ease, background var(--duration-fast) ease;
 }
 .sizeLg.withText[data-state="checked"] .thumb { transform: none; left: 31px; }
+/* stylelint-disable-next-line declaration-property-value-disallowed-list -- 위와 같은 이유 */
 .sizeLg .stateText { font-size: 9px; }
 .sizeLg .stateOn { left: 16px; }
 .sizeLg .stateOff { left: 40px; }
@@ -142,7 +146,7 @@
 /* ── Variant: accent ── */
 .accent[data-state="unchecked"] {
   background: var(--bg-accent);
-  border-color: var(--border-default-color);
+  border-color: var(--border-color-default);
 }
 
 .accent[data-state="checked"] {
@@ -172,7 +176,7 @@
 
 .label {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;

@@ -4,7 +4,7 @@
   display: flex;
   gap: var(--spacing-2xs);
   align-items: center;
-  padding: var(--box-xs);
+  padding: var(--spacing-2xs) var(--spacing-xs);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: var(--bg-primary);
@@ -14,14 +14,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   border: var(--border-default);
   border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -31,9 +31,9 @@
 }
 
 .level {
-  min-width: var(--button-h-md);
+  min-width: var(--control-h-xl);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   text-align: center;
 }

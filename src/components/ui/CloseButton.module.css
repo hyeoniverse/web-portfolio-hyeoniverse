@@ -21,15 +21,15 @@
 }
 
 .xs {
-  width: var(--button-h-xs);     /* 20 */
-  height: var(--button-h-xs);
+  width: var(--control-h-2xs);     /* 20 */
+  height: var(--control-h-2xs);
   --close-size: 10px;
   --close-weight: 1px;
 }
 
 .sm {
-  width: var(--button-h-sm);     /* 24 */
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);     /* 24 */
+  height: var(--control-h-xs);
   --close-size: 12px;
   --close-weight: 1px;
 }
@@ -42,8 +42,8 @@
 }
 
 .lg {
-  width: var(--button-h-md);     /* 38 */
-  height: var(--button-h-md);
+  width: var(--control-h-xl);     /* 38 */
+  height: var(--control-h-xl);
   --close-size: 16px;
   --close-weight: 1.5px;
 }

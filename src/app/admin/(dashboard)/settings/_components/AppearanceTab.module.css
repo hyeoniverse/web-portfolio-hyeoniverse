@@ -12,7 +12,7 @@
 }
 .dsHint {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   line-height: var(--line-height-snug);
 }
@@ -20,7 +20,7 @@
   width: 1px;
   height: 0.9em;
   flex-shrink: 0;
-  background: var(--border-strong-color);
+  background: var(--border-color-strong);
 }
 .presetCardAddBtn {
   display: flex;
@@ -82,7 +82,7 @@
   width: 16px;
   height: 16px;
   padding: 0;
-  border: 1px solid var(--border-strong-color);
+  border: 1px solid var(--border-color-strong);
   border-radius: var(--radius-circle);
   background: var(--bg-primary);
   color: var(--text-tertiary);
@@ -105,7 +105,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-md);
+  width: var(--control-h-xl);
   height: 20px;
   border: var(--border-light);
   border-style: dashed;
@@ -176,7 +176,7 @@
   padding-bottom: var(--spacing-2xs);
   border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -197,7 +197,7 @@
 }
 /* 그림자 대상 라벨 — favicon / nav·로딩 을 구분. single 모드 내부 라벨과 같은 톤. */
 .faviconShadowSubLabel {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -216,7 +216,7 @@
 
 .faviconPreviewLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -249,8 +249,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   padding: 0;
   border: none;
   border-radius: var(--radius-capsule);
@@ -265,7 +265,7 @@
 }
 .faviconColorCaption {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -301,7 +301,7 @@
   border-bottom: 2px solid transparent;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -318,7 +318,7 @@
 .brandTabHint {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   line-height: var(--line-height-snug);
 }
@@ -340,14 +340,14 @@
   flex-wrap: wrap;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 .brandPartTitleHint {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 400;
   color: var(--text-tertiary);
   text-transform: none;
@@ -372,7 +372,7 @@
 }
 
 .logoEffectsLabel {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
 }
@@ -398,7 +398,7 @@
   align-items: center;
   justify-content: center;
   min-height: 72px;
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-2xl);
   overflow: hidden;
 }
@@ -412,7 +412,7 @@
 }
 .fullLogoPreviewCap {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -441,7 +441,7 @@
   gap: var(--spacing-sm);
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -452,12 +452,12 @@
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
 }
 .faviconImageOptionsHint {
-  margin: 0 0 var(--spacing-2xs);
+  margin: 0 0 var(--spacing-2xs) 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   line-height: var(--line-height-snug);
 }
@@ -469,7 +469,7 @@
 }
 .faviconImageBgLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-secondary);
   min-width: 3rem;
@@ -481,7 +481,7 @@
 }
 .faviconImageBgCap {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -489,8 +489,8 @@
 .checkerBg {
   background-color: var(--bg-primary);
   background-image:
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
+    linear-gradient(45deg, var(--border-color-light) 25%, transparent 25%, transparent 75%, var(--border-color-light) 75%),
+    linear-gradient(45deg, var(--border-color-light) 25%, transparent 25%, transparent 75%, var(--border-color-light) 75%);
   background-size: 6px 6px;
   background-position: 0 0, 3px 3px;
 }
@@ -512,7 +512,7 @@
 
 /* single 모드 — 세그먼트 대신 그림자 대상 라벨 하나만 */
 .faviconShadowSingleLabel {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -588,7 +588,7 @@
 .shadowDragHint {
   margin-top: auto;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   line-height: var(--line-height-snug);
 }
@@ -616,7 +616,7 @@
   min-width: 3ch;
   text-align: right;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -626,7 +626,7 @@
   justify-content: center;
   gap: var(--spacing-3xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   line-height: var(--line-height-fit);
   white-space: nowrap;
   max-width: 100%;
@@ -663,7 +663,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   cursor: pointer;
 }
@@ -680,7 +680,7 @@
 }
 .customFontsHint {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   line-height: var(--line-height-snug);
 }
@@ -696,14 +696,14 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--box-y-sm);
+  padding: var(--spacing-2xs) 0;
   border-bottom: var(--border-light);
 }
 .customFontName {
   flex: 0 0 auto;
   min-width: 8rem;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -720,11 +720,11 @@
 }
 .customFontBadge {
   flex: 0 0 auto;
-  padding: var(--spacing-3xs) var(--spacing-2xs);
+  padding: var(--badge-p-sm);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 .customFontRemove {
@@ -732,8 +732,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   padding: 0;
   border: none;
   border-radius: var(--radius-capsule);

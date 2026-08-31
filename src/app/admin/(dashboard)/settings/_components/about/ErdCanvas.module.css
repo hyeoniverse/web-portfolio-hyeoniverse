@@ -12,7 +12,7 @@
   margin-left: auto;
   color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 /* 그리드 — 카드는 한 줄 요약만. 편집은 모달에서 하므로 높이가 일정하다 */
@@ -49,7 +49,7 @@
    링과 그림자 대신 테두리 굵기와 배경으로 단계를 만든다. */
 .cardOn,
 .cardOn:hover {
-  border-color: var(--border-accent-strong-color);
+  border-color: var(--border-color-accent-strong);
   background: var(--bg-accent-subtle);
 }
 .cardOn .cardName {
@@ -58,8 +58,8 @@
 /* 연결된 테이블 — 흐림의 반대편이 아니라 그 자체로 표시가 있어야 읽힌다.
    1px 테두리는 색만 바꾸면 약해서 같은 색을 한 겹 덧댄다(레이아웃은 그대로). */
 .cardRel {
-  border-color: var(--border-accent-color);
-  box-shadow: inset 0 0 0 1px var(--border-accent-color);
+  border-color: var(--border-color-accent);
+  box-shadow: inset 0 0 0 1px var(--border-color-accent);
 }
 
 /* 관계없는 것들은 확실히 뒤로 물린다 — 0.35 로는 구분이 약했다 */
@@ -84,19 +84,19 @@
   display: flex;
   gap: var(--spacing-2xs);
   align-items: center;
-  padding: var(--box-3xs-sm);
+  padding: var(--card-p-sm);
   border-bottom: var(--border-light);
   background: var(--bg-tertiary);
 }
 .cardOn .cardHead {
-  border-bottom-color: var(--border-accent-color);
+  border-bottom-color: var(--border-color-accent);
   background: transparent;
 }
 .cardName {
   overflow: hidden;
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -106,7 +106,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: var(--box-3xs-sm);
+  padding: var(--card-p-sm);
 }
 .col {
   display: grid;
@@ -115,12 +115,12 @@
   gap: var(--spacing-2xs);
   align-items: baseline;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   line-height: 1.7;
 }
 .colKey {
   color: transparent;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.02em;
 }
@@ -147,11 +147,11 @@
   gap: var(--spacing-3xs) var(--spacing-xs);
   align-items: center;
   min-width: 0;
-  padding: var(--box-3xs-sm);
+  padding: var(--card-p-sm);
   border-top: var(--border-light);
 }
 .cardOn .cardSub {
-  border-top-color: var(--border-accent-color);
+  border-top-color: var(--border-color-accent);
 }
 
 /* 방향 배지 — 아이콘 + 짧은 말. 화살표만으로는 어느 쪽이 참조하는지 안 읽힌다 */
@@ -161,12 +161,12 @@
   align-items: center;
   flex-shrink: 0;
   margin-left: auto;
-  padding: var(--spacing-4xs) var(--spacing-2xs);
+  padding: var(--badge-p-sm);
   border-radius: 0;
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   white-space: nowrap;
 }
 /* 선택된 카드는 바탕이 이미 강조색이라 배지가 묻힌다 — 바탕을 비워 글자로만 읽히게 */
@@ -183,7 +183,7 @@
   flex-shrink: 0;
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
 }
 /* 나머지 컬럼 수는 맨 오른쪽으로 — 미리보기가 잘렸다는 신호다 */
@@ -201,8 +201,8 @@
   justify-content: center;
   gap: var(--spacing-xs);
   min-height: 220px;
-  padding: var(--box-xl);
-  border: 1px dashed var(--border-light-color);
+  padding: var(--spacing-md) var(--spacing-2xl);
+  border: 1px dashed var(--border-color-light);
   border-radius: var(--radius-2xl);
   text-align: center;
 }
@@ -210,15 +210,15 @@
 .emptyTitle {
   margin: 0;
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
 }
 
 .emptyHint {
-  margin: 0 0 var(--spacing-2xs);
+  margin: 0 0 var(--spacing-2xs) 0;
   max-width: 42ch;
   color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   line-height: 1.6;
 }
 
@@ -234,12 +234,12 @@
   display: inline-flex;
   gap: var(--spacing-3xs);
   align-items: center;
-  padding: var(--box-xs);
+  padding: var(--button-p-xs);
   border: 0;
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-tertiary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   cursor: pointer;
 }
 .viewBtn:hover {
@@ -268,13 +268,13 @@
 
 /* 관계선 — 컬럼 행에 붙는다 */
 .linkLine {
-  stroke: var(--border-default-color);
+  stroke: var(--border-color-default);
   stroke-width: 1.5;
   fill: none;
 }
 /* crow's foot / 막대 — 선과 같은 굵기로 그려야 한 기호로 읽힌다 */
 .linkSymbol {
-  stroke: var(--border-default-color);
+  stroke: var(--border-color-default);
   stroke-width: 1.5;
   fill: none;
 }
@@ -297,25 +297,25 @@
 .nodeName {
   fill: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-bold);
 }
 .col {
   fill: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 .colType {
   fill: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 /* PK / FK 뱃지 — ERD 에서 컬럼 이름만큼 중요한 정보 */
 .keyPk,
 .keyFk {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-bold);
 }
 .keyPk {
@@ -339,11 +339,11 @@
   gap: var(--spacing-2xs);
   align-items: center;
   flex-shrink: 0;
-  padding: var(--spacing-4xs) var(--spacing-2xs);
+  padding: var(--badge-p-sm);
   border-radius: 0;
   background: var(--bg-warning-soft);
   color: var(--text-warning);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   white-space: nowrap;
 }
 
@@ -353,5 +353,5 @@
   gap: var(--spacing-2xs);
   align-items: center;
   color: var(--text-warning);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }

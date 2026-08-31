@@ -59,7 +59,7 @@
 
 .subtitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   max-width: 500px;
 }
@@ -89,7 +89,7 @@
   z-index: 51;
   /* 콘텐츠와 border-bottom (divider) 사이 breathing — 이전엔 .btn 의 border-bottom 2px 가 암묵적 여백
      역할했는데 제거 후 콘텐츠가 divider 에 딱 붙음. */
-  padding: 0 0 var(--spacing-sm);
+  padding: 0 0 var(--spacing-sm) 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -113,10 +113,10 @@
   --border-light: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
   --border-strong: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
   --border-ghost-light: 1px solid color-mix(in srgb, var(--text-white) 28%, transparent);
-  --border-default-color: color-mix(in srgb, var(--text-white) 28%, transparent);
-  --border-light-color: color-mix(in srgb, var(--text-white) 28%, transparent);
-  --border-strong-color: color-mix(in srgb, var(--text-white) 28%, transparent);
-  --border-ghost-light-color: color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-color-default: color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-color-light: color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-color-strong: color-mix(in srgb, var(--text-white) 28%, transparent);
+  --border-color-ghost-light: color-mix(in srgb, var(--text-white) 28%, transparent);
   --bg-tertiary: color-mix(in srgb, var(--text-white) 16%, transparent);
 }
 
@@ -202,7 +202,7 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-primary);
 }
 
@@ -294,17 +294,17 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--box-2xs-md);
+  padding: var(--badge-p-lg);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
 }
 
 .tagCount {
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
   font-weight: var(--font-weight-medium);
 }
@@ -343,7 +343,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: 0 0 var(--spacing-sm);
+  padding: 0 0 var(--spacing-sm) 0;
   border-bottom: var(--border-light);
   margin-bottom: var(--spacing-sm);
 }
@@ -370,9 +370,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: var(--box-2xs-md);
+  padding: var(--badge-p-lg);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-decoration: none;
   transition: color 0.15s ease, transform 0.15s ease;
@@ -387,10 +387,10 @@
 .tagAllLoaded {
   flex-basis: 100%;
   text-align: center;
-  margin: var(--spacing-sm) 0 0;
+  margin: var(--spacing-sm) 0 0 0;
   padding: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
 }
@@ -454,7 +454,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: var(--button-h-sm);
+  height: var(--control-h-xs);
   color: var(--text-tertiary);
   pointer-events: none;
 }
@@ -490,12 +490,12 @@
 .sidebarFadeTop .sidebarScrollBtn {
   top: 0;
   align-items: flex-start;
-  padding-top: calc((var(--button-h-sm) - 14px) / 2);
+  padding-top: calc((var(--control-h-xs) - 14px) / 2);
 }
 .sidebarFadeBottom .sidebarScrollBtn {
   bottom: 0;
   align-items: flex-end;
-  padding-bottom: calc((var(--button-h-sm) - 14px) / 2);
+  padding-bottom: calc((var(--control-h-xs) - 14px) / 2);
 }
 
 .sidebarScrollBtn:hover {
@@ -536,12 +536,12 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
 }
@@ -598,7 +598,7 @@
 
 .seriesSortAlignEnd button {
   padding: 0 var(--spacing-sm);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 /* series 검색 — seriesLabel 행 우측 끝으로. width 는 filter bar 의 SearchCapsule 과 동일 */
@@ -612,7 +612,7 @@
    focus-within 시엔 강조 border 를 유지하려고 resting 상태에만 적용. */
 .seriesSearchCapsule:not(:focus-within),
 .postsSearchCapsule:not(:focus-within) {
-  border-color: var(--border-light-color) !important;
+  border-color: var(--border-color-light) !important;
 }
 
 /* 책 표지를 가로로 나열 — 좌우 끝에 mask gradient 로 스크롤 가능 표시.
@@ -703,7 +703,7 @@
   margin: 0;
   font-family: var(--font-instrument);
   /* 2xl → xl 로 축소 — filter bar 컨텍스트 내에서 적절한 크기 */
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-title-lg);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   line-height: var(--line-height-tight);
@@ -714,7 +714,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -733,7 +733,7 @@
 .activeSeriesMetaDesc {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
   /* 가독성 한계 — 너무 긴 줄 방지 */
@@ -803,7 +803,7 @@
   border-radius: 4px;
   background: color-mix(in srgb, var(--text-primary) 3%, transparent);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-decoration: none;
@@ -831,7 +831,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   font-style: italic;
   pointer-events: none;
@@ -845,7 +845,7 @@
   flex-wrap: wrap;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -869,7 +869,7 @@
 /* 시리즈 관리 버튼(outline) — 기본 border-strong 대신 주변 정렬 컨트롤과 같은 light 로.
    hover 시엔 outline 기본 채움 동작 유지 위해 :not(:hover) 로 resting 만 오버라이드. */
 .seriesManageBtn:not(:hover) {
-  border-color: var(--border-light-color) !important;
+  border-color: var(--border-color-light) !important;
 }
 
 /* postsLabelMain — LayoutGrid + 글목록text + shuffleBtn + Select 묶음. mobile 에서 width 100% 차지 → sortWrap 만 다음 줄로 자연 wrap */
@@ -895,13 +895,13 @@
 /* 시리즈 SegmentedControl — 기본 border-default 대신 light 로 (영역 약화).
    SegmentedControl 의 .group 이 box-shadow inset 로 border line 처리하므로 동일 방식으로 override. */
 .seriesSegmented.seriesSegmented {
-  box-shadow: inset 0 0 0 1px var(--border-light-color);
+  box-shadow: inset 0 0 0 1px var(--border-color-light);
 }
 
 /* SegmentedControl 안 button 만 컴팩트 padding — circle shuffleBtn 은 제외 (가로 padding 이 들어가면 원형 깨짐) */
 .sortWrap button:not(.shuffleBtn) {
   padding: 0 var(--spacing-md);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 /* shuffle 이 sortWrap 안으로 들어가 sectionHeaderMain 과 visual 분리 — 별도 margin 불필요 */
@@ -923,7 +923,7 @@
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
 }
 
@@ -939,7 +939,7 @@
 
 .emptyTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   color: var(--text-secondary);
 }
 
@@ -1016,7 +1016,7 @@
 .comingSoonSub {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   text-align: center;
   max-width: 36ch;
@@ -1101,7 +1101,7 @@
   top: calc(var(--spacing-md) + 1.6em);
   height: calc(100% - var(--spacing-md) - 1.6em + var(--spacing-xl));
   width: 1px;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   transform: translateX(-50%);
 }
 
@@ -1249,7 +1249,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--row-p-lg);
   border-bottom: var(--border-light);
 }
 
@@ -1327,7 +1327,7 @@
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--text-secondary);
@@ -1425,7 +1425,7 @@
     --tl-justify: flex-start;
     --tl-reveal-x: 0; /* 단일 컬럼 — 리빌은 아래로만(좌우 번갈아 X) */
     margin-left: 0;
-    padding-left: 26px;
+    padding-left: var(--spacing-xl);
     padding-right: 0;
   }
   .gridItemTlLeft::before,
@@ -1485,7 +1485,7 @@
 /* 연도 헤더 — 월 그룹 상단 */
 .timelineIndexYear {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.1em;
   color: var(--text-tertiary);
@@ -1509,7 +1509,7 @@
   top: 7px;
   bottom: 7px;
   width: 1px;
-  background: var(--border-default-color);
+  background: var(--border-color-default);
   transform-origin: top;
   animation: tlAxisDraw 0.6s var(--ease-material) 0.1s both;
 }
@@ -1529,7 +1529,7 @@
   background: transparent;
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   white-space: nowrap;
@@ -1550,7 +1550,7 @@
   width: 4px;
   height: 4px;
   border-radius: var(--radius-circle);
-  background: var(--border-strong-color);
+  background: var(--border-color-strong);
   transform: translate(-50%, -50%);
   transition: background var(--duration-fast) var(--ease-material), transform var(--duration-fast) var(--ease-material);
 }
@@ -1571,7 +1571,7 @@
 }
 /* 년/월 한자 접미 — 작고 은은하게 */
 .timelineIndexHanja {
-  margin-left: 1px;
+  margin-left: var(--spacing-4xs);
   font-size: 0.82em;
   font-weight: var(--font-weight-regular);
   opacity: 0.55;
@@ -1684,7 +1684,7 @@
   border-radius: var(--radius-circle);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 
@@ -1706,13 +1706,13 @@
 
 .pageBtn:disabled {
   color: var(--text-tertiary);
-  border-color: var(--border-light-color);
+  border-color: var(--border-color-light);
   opacity: 0.65;
 }
 
 .ellipsis {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   padding: 0 var(--spacing-2xs);
 }
@@ -1725,7 +1725,7 @@
   /* sortGroup / shuffleBtn 과 동일 통일 높이 */
   min-height: var(--filter-row-h);
   padding: 0 var(--spacing-sm);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 /* ── Skeleton: Card ── */
@@ -1763,7 +1763,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--spacing-md) 0 0;
+  padding: var(--spacing-md) 0 0 0;
 }
 
 /* tags row — pill 들 가로 배치 */

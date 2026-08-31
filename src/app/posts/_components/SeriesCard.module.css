@@ -26,9 +26,9 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
-  padding: 0 2px;
+  padding: 0 var(--spacing-3xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
 }
@@ -113,9 +113,9 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-xs);
-  padding: 0 2px var(--spacing-xs);
+  padding: 0 var(--spacing-3xs) var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
   pointer-events: none;
@@ -158,7 +158,7 @@
 /* 정보 영역 — 카드 하단 footer. 제목 2줄만 (이미지 영역 최대화) */
 .deckLayerInfo {
   flex: 0 0 auto;
-  padding: var(--box-xs);
+  padding: var(--spacing-2xs) var(--spacing-xs);
   background: var(--bg-primary);
   border-top: var(--border-light);
 }
@@ -167,11 +167,11 @@
 .deckLayerTitle {
   display: -webkit-box;
   font-family: var(--font-instrument);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   line-height: 1.25;
-  height: calc(var(--font-size-sm) * 1.25 * 2);
+  height: calc(var(--font-size-body) * 1.25 * 2);
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -248,14 +248,14 @@
 .mosaic2 {
   display: grid;
   grid-template-columns: var(--grid-cols-2);
-  gap: 1px;
+  gap: var(--spacing-4xs);
 }
 
 .mosaic3 {
   display: grid;
   grid-template-columns: 2fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 1px;
+  gap: var(--spacing-4xs);
 }
 .mosaic3 .tile:first-child {
   grid-row: 1 / 3;
@@ -265,7 +265,7 @@
   display: grid;
   grid-template-columns: var(--grid-cols-2);
   grid-template-rows: 1fr 1fr;
-  gap: 1px;
+  gap: var(--spacing-4xs);
 }
 
 .tile {
@@ -301,7 +301,7 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
-  padding: var(--box-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
   /* color 는 부모(여기) 에서 통일하고 자식은 opacity 차등으로 강조 단계 표현 */
   color: var(--text-white);
   opacity: 0.95;
@@ -340,7 +340,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   padding: var(--spacing-md) var(--spacing-sm) var(--spacing-sm);
   background: transparent;
   /* 이미지 위 텍스트는 항상 흰색 — 자식 .title / .meta 는 inherit */
@@ -360,7 +360,7 @@
 /* overlay 안의 title/meta 는 부모(.overlay) 에서 color: var(--text-white) inherit */
 .title {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: var(--font-weight-medium);
   color: inherit;
   line-height: 1.2;
@@ -374,7 +374,7 @@
 
 .meta {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: inherit;
   opacity: 0.85;
   font-variant-numeric: tabular-nums;

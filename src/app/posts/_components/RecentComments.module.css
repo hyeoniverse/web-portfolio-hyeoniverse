@@ -7,7 +7,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -67,29 +67,29 @@
   align-items: center;
   gap: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
 
 .adminBadge {
-  padding: var(--spacing-4xs) var(--spacing-2xs);
-  border-radius: var(--radius-sm);
+  padding: var(--badge-p-sm);
+  border-radius: var(--radius-capsule);
   background: var(--bg-accent-light);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 500;
   color: var(--text-accent);
 }
 
 .time {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
 }
 
 .content {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: 1.5;
   display: -webkit-box;
@@ -100,7 +100,7 @@
 
 .postTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
 }
 
@@ -110,7 +110,7 @@
 
 .empty {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   padding: var(--spacing-sm) 0;
   font-style: italic;

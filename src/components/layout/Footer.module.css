@@ -17,7 +17,7 @@
   margin: 0 auto;
   max-width: var(--page-max-width);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 /* Center: Links + Privacy */
@@ -179,14 +179,14 @@
 }
 
 .visitLabel {
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .visitCount {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
@@ -203,7 +203,7 @@
   flex: 1;
   min-width: var(--spacing-lg);
   height: 1px;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
 }
 
 .copyright {
@@ -215,7 +215,7 @@
   color: var(--text-tertiary);
   text-align: right;
   letter-spacing: 0.05em;
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
 }
 
 .musicCredit a {
@@ -230,7 +230,7 @@
 
 .footerMinimal {
   margin-top: 0;
-  padding: var(--spacing-2xl) 4rem var(--spacing-xl);
+  padding: var(--spacing-2xl) var(--spacing-4xl) var(--spacing-xl);
 }
 
 .bottomMinimal {
@@ -266,7 +266,7 @@
 
   .links {
     flex-wrap: wrap;
-    gap: var(--box-sm-md);
+    gap: var(--spacing-sm) var(--spacing-md);
   }
 
   .footerIndicator {
@@ -304,26 +304,10 @@
   }
 }
 
-/* PC/모바일 모드 전환 버튼 */
+/* 모양·크기·hover 는 Button(outline·xs)이 준다. 여기서는 색만 —
+   푸터 보조 컨트롤이라 기본 outline 보다 조용해야 한다. */
 .viewModeBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
   color: var(--text-tertiary);
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-}
-.viewModeBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--border-strong-color);
-  background: var(--bg-tertiary);
 }
 /* footer 맨 아래 별도 줄 — 모든 화면 크기에서 우측 정렬 (.content 는 항상 세로 컬럼) */
 .content > .viewModeBtn {

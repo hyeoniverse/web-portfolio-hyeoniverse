@@ -3,7 +3,7 @@
   display: inline-flex;
   align-items: center;
   /* dot 위로 튀는 공간 확보 — overflow visible (default) 라 잘림 없음 */
-  gap: 4px;
+  gap: var(--spacing-2xs);
   vertical-align: middle;
 }
 

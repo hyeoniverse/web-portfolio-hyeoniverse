@@ -20,11 +20,11 @@
   left: 0;
   will-change: transform;
   white-space: nowrap;
-  padding: var(--box-xs-lg);
+  padding: var(--spacing-xs) var(--spacing-lg);
   border-radius: var(--radius-capsule);
   backdrop-filter: blur(4px);
   border: var(--border-strong);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   pointer-events: none;
   opacity: 0;

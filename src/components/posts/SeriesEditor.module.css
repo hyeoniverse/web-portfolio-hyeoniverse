@@ -18,7 +18,7 @@
 
 .label {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -26,24 +26,24 @@
 
 .input {
   width: 100%;
-  padding: var(--box-xs-sm);
+  padding: var(--field-p-lg);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
 }
 
 .textarea {
   width: 100%;
-  padding: var(--box-xs-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
   resize: vertical;
@@ -68,7 +68,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   padding: var(--spacing-xs) 0;
 }
@@ -85,7 +85,7 @@
 }
 
 .coverThumb {
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-2xl);
   object-fit: cover;
 }
 
@@ -93,7 +93,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-accent);
 }
 
@@ -102,12 +102,12 @@
 }
 
 .uploadBtn {
-  padding: var(--box-md);
+  padding: var(--button-p-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   align-self: flex-start;
 }
@@ -133,7 +133,7 @@
 
 .postsEmpty {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   padding: var(--spacing-sm) 0;
 }
@@ -148,8 +148,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--box-xs-sm);
-  border-radius: var(--radius-sm);
+  padding: var(--row-p-md);
+  border-radius: var(--radius-capsule);
 }
 
 .postItem:hover {
@@ -186,7 +186,7 @@
 
 .orderNum {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   line-height: 1;
 }
@@ -195,7 +195,7 @@
   flex: 1;
   min-width: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;

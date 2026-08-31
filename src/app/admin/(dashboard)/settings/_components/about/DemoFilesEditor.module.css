@@ -2,14 +2,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   width: 40rem;
   max-width: 84vw;
 }
 .hint {
   margin: 0;
   color: var(--text-accent);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 
 .editor {
@@ -64,7 +64,7 @@
   background: transparent;
   color: inherit;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -101,7 +101,7 @@
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   outline: none;
 }
 /* + 파일 = 탭과 같은 박스. 별도 버튼 모양이면 탭 줄에서 혼자 떠 보인다 */
@@ -117,7 +117,7 @@
   background: transparent;
   color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   cursor: pointer;
 }
 .addTab:hover {

@@ -40,7 +40,7 @@
 /* 메시지 줄 — 비어있어도 min-height 유지해서 button 위치 변동 없게.
    3줄 텍스트 (한국어 안내문 길이) 정도 확보. */
 .messageRow {
-  min-height: calc(var(--line-height-snug) * var(--font-size-sm) * 3);
+  min-height: calc(var(--line-height-snug) * var(--font-size-body) * 3);
   display: flex;
   align-items: flex-start;
 }
@@ -48,7 +48,7 @@
 .error {
   margin: 0;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-accent);
   line-height: var(--line-height-snug);
 }
@@ -57,7 +57,7 @@
 .info {
   margin: 0;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: var(--line-height-snug);
 }
@@ -89,7 +89,7 @@
   gap: var(--spacing-sm);
   margin: var(--spacing-md) 0;
   color: var(--text-muted);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -98,7 +98,7 @@
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
 }
 .oauthBtnInner {
   display: inline-flex;

@@ -28,7 +28,7 @@
   border-radius: var(--radius-capsule);
   background: var(--bg-primary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   text-decoration: line-through;
   text-decoration-color: var(--text-muted);

@@ -131,7 +131,7 @@
 }
 
 .highlighted-text {
-  padding: 0.2rem 0.4rem;
+  padding: var(--spacing-2xs) var(--spacing-xs);
   background: linear-gradient(
     120deg,
     transparent 0%,
@@ -151,7 +151,7 @@
 }
 
 .highlighted-text-light {
-  padding: 0.2rem 0.4rem;
+  padding: var(--spacing-2xs) var(--spacing-xs);
   background: linear-gradient(
     120deg,
     transparent 0%,
@@ -162,7 +162,7 @@
 }
 
 .highlighted-text-accent {
-  padding: 0.2rem 0.4rem;
+  padding: var(--spacing-2xs) var(--spacing-xs);
   background: linear-gradient(
     120deg,
     transparent 0%,

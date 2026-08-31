@@ -10,12 +10,12 @@
   width: max-content;
   max-width: min(90vw, var(--_max-w, 360px));
   min-width: 0;
-  padding: var(--box-xs);
-  border-radius: var(--radius-sm);
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border-radius: var(--radius-capsule);
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   line-height: var(--line-height-tight);
   white-space: pre-line;
 }

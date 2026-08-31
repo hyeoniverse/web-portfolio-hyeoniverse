@@ -9,10 +9,10 @@
 }
 
 .item {
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--row-p-sm);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
   text-decoration: none;

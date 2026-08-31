@@ -27,14 +27,14 @@
 .inlineBtn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   height: var(--size-2xs);
   padding: 0 var(--spacing-xs);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
@@ -81,7 +81,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--spacing-2xs);
-  padding: var(--box-xs);
+  padding: var(--spacing-2xs) var(--spacing-xs);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   max-width: 100%;
@@ -104,7 +104,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   cursor: pointer;
   flex-shrink: 0;
   transition: background 0.15s ease, color 0.15s ease;
@@ -127,7 +127,7 @@
   color: var(--text-tertiary);
   background: var(--bg-primary);
   border-radius: var(--radius-circle);
-  padding: 1px;
+  padding: var(--spacing-4xs);
   transition: color 0.15s ease;
 }
 
@@ -139,7 +139,7 @@
   width: 16px;
   height: 16px;
   padding: 0;
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-circle);
   cursor: pointer;
   transition: transform 0.15s ease;
@@ -151,7 +151,7 @@
 
 .paletteLoading {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 
@@ -187,7 +187,7 @@
 
 /* 버튼 안 아이콘 + 텍스트 가로 정렬 */
 .actions > button {
-  gap: 6px;
+  gap: var(--spacing-xs);
 }
 
 /* 버튼 안 텍스트 swap 애니메이션 wrapper */
@@ -204,7 +204,7 @@
 /* 보조 hint */
 .hint {
   margin-top: var(--spacing-xs);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
 }

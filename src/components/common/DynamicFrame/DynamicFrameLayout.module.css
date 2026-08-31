@@ -5,7 +5,7 @@
 
 /* Tailwind space-y-4 대체 — 자식 사이 세로 간격 1rem */
 .root > * + * {
-  margin-top: 1rem;
+  margin-top: var(--spacing-md);
 }
 
 .grid {

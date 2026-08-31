@@ -31,11 +31,11 @@
 /* settings 페이지 한정 — Button outline 톤을 light 로 낮춤.
    Button CSS module 의 hashed class 명을 attribute selector 로 매칭. */
 .container :global([class*="variant-outline"]):not([class*="tone-danger"]) {
-  border-color: var(--border-light-color);
+  border-color: var(--border-color-light);
 }
 
 .container :global([class*="variant-outline"][class*="tone-danger"]) {
-  border-color: var(--border-accent-light-color);
+  border-color: var(--border-color-accent-light);
 }
 
 .header {
@@ -64,8 +64,8 @@
 
 .message {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  padding: var(--box-2xs-md);
+  font-size: var(--font-size-label);
+  padding: var(--spacing-2xs) var(--spacing-md);
   border-radius: var(--radius-capsule);
 }
 
@@ -81,7 +81,7 @@
 
 .loading {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   text-align: center;
   padding: var(--spacing-3xl) 0;
@@ -241,7 +241,7 @@
 
 .sectionTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
@@ -384,7 +384,7 @@
   translate: 0 -50%;
   font-family: var(--font-space-grotesk);
   /* counter 는 작게 — input text 보다 한 단계 down */
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
@@ -429,7 +429,7 @@
   composes: uCol3xs;
   width: auto;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -440,12 +440,12 @@
 .fieldTextarea {
   flex: 1;
   min-width: 0;
-  padding: var(--box-xs-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
   resize: vertical;
@@ -467,8 +467,8 @@
 }
 
 .colorPicker {
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   padding: 0;
   border: var(--border-light);
   border-radius: var(--radius-circle);
@@ -544,7 +544,7 @@
   right: -4px;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: none;
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -567,7 +567,7 @@
 
 .presetName {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -580,7 +580,7 @@
 
 .logoColorPresetBtn {
   display: flex;
-  width: var(--button-h-md);
+  width: var(--control-h-xl);
   height: 20px;
   border-radius: var(--radius-capsule);
   border: var(--border-light);
@@ -689,7 +689,7 @@
   border-bottom: 2px solid transparent;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   cursor: pointer;
   transition: color var(--duration-base) ease, border-color var(--duration-base) ease;
@@ -710,7 +710,7 @@
   border: none;
   cursor: pointer;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 
@@ -767,7 +767,7 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   text-decoration: none;
   width: 280px;
@@ -799,7 +799,7 @@
 /* ── Section hint ── */
 .sectionHint {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-md);
   margin-top: 0;
@@ -825,7 +825,7 @@
 .sectionHintList {
   composes: uCol3xs;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-md);
   margin-top: 0;
@@ -835,7 +835,7 @@
 
 .fieldHint {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin: 0;
 }
@@ -846,11 +846,11 @@
   flex-wrap: wrap;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
   letter-spacing: 0;
-  margin: 0 0 var(--spacing-sm);
+  margin: 0 0 var(--spacing-sm) 0;
 }
 
 .fieldGroupTitle {
@@ -859,17 +859,17 @@
   flex-wrap: wrap;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin: 0 0 var(--spacing-xs);
+  margin: 0 0 var(--spacing-xs) 0;
 }
 
 .fieldLabelHint {
   font-weight: 400;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 
@@ -923,7 +923,7 @@
   border-radius: 0;
   background: transparent;
   color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   padding: 0;
   line-height: var(--line-height-fit);
 }
@@ -972,9 +972,9 @@
 
 .profileCard {
   composes: uColSm;
-  padding: var(--spacing-md);
+  padding: var(--card-p-md);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   margin-bottom: var(--spacing-md);
 }
 
@@ -1026,7 +1026,7 @@
   width: 210px;
   aspect-ratio: 16 / 9;
   border: var(--border-light);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
 }
 
@@ -1044,7 +1044,7 @@
 
 .seriesDeleteHint {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   margin: 0;
 }
@@ -1052,7 +1052,7 @@
 .seriesDeleteCheck {
   composes: uRowXs;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 
@@ -1063,7 +1063,7 @@
 
 .publishLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   min-width: 3em;
   display: inline-block;
@@ -1143,7 +1143,7 @@
 
 .newSeriesShellOpen .newSeriesShellHead {
   grid-template-columns: 1fr auto;
-  border-bottom-color: var(--border-light-color);
+  border-bottom-color: var(--border-color-light);
   /* 열림 방향 — radius(0~0.25s) 끝난 뒤 column 확장 시작 */
   transition:
     grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
@@ -1154,11 +1154,11 @@
 .newSeriesShellTitle {
   composes: uCenter;
   width: 100%;
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-fit);
   color: var(--text-tertiary);
@@ -1174,7 +1174,7 @@
 
 .newSeriesShellOpen .newSeriesShellTitle {
   justify-content: flex-start;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   text-align: left;
@@ -1304,7 +1304,7 @@
 
 .fieldGroupLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 700;
   color: var(--text-tertiary);
   padding-bottom: var(--spacing-2xs);
@@ -1376,8 +1376,8 @@
     flex-shrink: 0;
     width: auto;
     border-bottom: 2px solid transparent;
-    padding: var(--box-sm-md);
-    font-size: var(--font-size-xs);
+    padding: var(--row-p-lg);
+    font-size: var(--font-size-label);
     text-align: center;
   }
 
@@ -1521,11 +1521,11 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--badge-p-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
   background: var(--bg-secondary);
 }
@@ -1581,7 +1581,7 @@
 }
 
 .mimeRow .fieldRow > .fieldLabel {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   flex: 1 1 auto;
   min-width: 0;
@@ -1613,12 +1613,12 @@
 .sizeChip {
   display: inline-flex;
   align-items: center;
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--badge-p-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
   cursor: grab;
   user-select: none;
@@ -1653,7 +1653,7 @@
 
 .section .mimeChipBtn:hover {
   background: var(--bg-inverse);
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
   color: var(--text-inverse);
 }
 
@@ -1681,7 +1681,7 @@
   border-radius: var(--radius-capsule);
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 700;
   line-height: var(--line-height-fit);
   font-variant-numeric: tabular-nums;
@@ -1700,7 +1700,7 @@
 
 .tagDescFilterGroupLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -1711,7 +1711,7 @@
    다른 toolbar control (SegmentedControl btn 등) 과 통일. */
 .tagDescFilterRow button,
 .tagDescFilterDrawer button {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 .tagDescFilterGroup + .tagDescFilterGroup {
@@ -1762,7 +1762,7 @@
 
 .tagDescCount {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -1772,7 +1772,7 @@
   text-align: center;
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 
 /* Pagination 컴포넌트의 .paginationWrap 이 margin-top: spacing-md 를 default 로 둠.
@@ -1786,7 +1786,7 @@
 .tagCountBadge {
   margin-left: var(--spacing-2xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -1823,7 +1823,7 @@
 .tagRelatedEmpty {
   justify-content: center;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -1834,7 +1834,7 @@
   align-items: center;
   gap: var(--spacing-md);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   text-decoration: none;
   transition:
@@ -1861,17 +1861,17 @@ a.tagRelatedItem:hover {
   gap: var(--spacing-sm);
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
 
 .tagRelatedMetaDraft {
-  padding: var(--spacing-4xs) var(--spacing-2xs);
+  padding: var(--badge-p-sm);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -1961,7 +1961,7 @@ a.tagRelatedItem:hover {
   justify-content: space-between;
   gap: var(--spacing-sm);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -1991,7 +1991,7 @@ a.tagRelatedItem:hover {
 
 .worksCatAddRowLabel {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -2082,7 +2082,7 @@ a.tagRelatedItem:hover {
 .authorInviteOk,
 .authorInviteErr {
   color: var(--text-accent);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 /* 라벨 아래 설명 — secondary */
 .authorInvite .fieldHint {

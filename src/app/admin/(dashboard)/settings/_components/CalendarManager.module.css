@@ -7,7 +7,7 @@
   composes: uRowWrapSm from "../Settings.module.css";
 }
 .headCount {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -24,7 +24,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-sm);
+  padding: var(--row-p-lg);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   background: var(--bg-primary);
@@ -53,14 +53,14 @@
   color: var(--text-secondary);
   line-height: 1.05;
 }
-.rowMon { font-size: var(--font-size-xs); font-weight: 600; }
-.rowYear { font-size: var(--font-size-3xs); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.rowMon { font-size: var(--font-size-label); font-weight: 600; }
+.rowYear { font-size: var(--font-size-micro); color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
 
 .rowMain { display: flex; flex-direction: column; gap: var(--spacing-3xs); min-width: 0; flex: 1; cursor: pointer; }
 .rowMain:hover .rowTitle { color: var(--text-accent); }
 .previewWrap { padding: var(--spacing-md); }
 .rowTitle {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -68,7 +68,7 @@
 }
 .rowTitleMuted { color: var(--text-tertiary); font-weight: 400; }
 .rowMeta {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -108,25 +108,25 @@
   width: 100%;
   padding: var(--spacing-2xs) var(--spacing-xs);
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 .trashHead:hover { background: var(--bg-secondary); color: var(--text-primary); }
-.trashTitle { font-size: var(--font-size-sm); font-weight: 500; }
+.trashTitle { font-size: var(--font-size-body); font-weight: 500; }
 .trashCount {
   min-width: 18px;
   padding: 0 var(--spacing-3xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.trashHint { font-size: var(--font-size-2xs); color: var(--text-tertiary); }
+.trashHint { font-size: var(--font-size-hint); color: var(--text-tertiary); }
 .trashChev { margin-left: auto; color: var(--text-tertiary); }
 .trashChevOpen { transform: rotate(180deg); }
 /* (0,2,0) — 전역 theme transition shorthand(transform 미포함) override */

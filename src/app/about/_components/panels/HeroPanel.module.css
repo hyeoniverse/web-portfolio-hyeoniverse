@@ -79,10 +79,10 @@ html[data-theme="dark"] .heroBgDark {
 .label {
   display: inline-block;
   margin-bottom: var(--_space-block);
-  padding: var(--box-xs-xl);
+  padding: var(--spacing-xs) var(--spacing-xl);
   border: var(--border-accent);
   width: fit-content;
-  font-size: var(--_fs-label);
+  font-size: var(--font-size-prose-label);
   font-weight: var(--font-weight-regular);
   color: var(--text-accent);
   text-transform: uppercase;
@@ -92,14 +92,14 @@ html[data-theme="dark"] .heroBgDark {
 .heroTitle {
   margin-bottom: var(--_space-divide);
   font-family: var(--_font-display);
-  font-size: var(--_fs-hero);
+  font-size: var(--font-size-hero);
   line-height: var(--_lh-title);
   letter-spacing: var(--_ls-title);
 }
 
 .heroSubtitle {
   margin: 0;
-  font-size: var(--_hero-subtitle-font-size, var(--_fs-subhead));
+  font-size: var(--_hero-subtitle-font-size, var(--font-size-subhead));
   font-weight: var(--_hero-subtitle-font-weight, inherit);
   font-family: var(--_hero-subtitle-font-family, inherit);
   line-height: var(--line-height-loose);

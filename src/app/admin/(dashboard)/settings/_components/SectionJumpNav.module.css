@@ -52,7 +52,7 @@
    max-width 는 항상 확보하고 opacity 만 토글 → 폭이 안 변해 경계에서 깜빡이지 않는다. */
 .label {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
   white-space: nowrap;
   max-width: 12rem;

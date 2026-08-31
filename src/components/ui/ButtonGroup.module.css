@@ -33,7 +33,7 @@
 }
 
 .group > *:not(:last-child):hover + * {
-  border-left-color: var(--border-white-color) !important;
+  border-left-color: var(--border-color-white) !important;
 }
 
 /* 마지막: primary filled → hover 시 invert */

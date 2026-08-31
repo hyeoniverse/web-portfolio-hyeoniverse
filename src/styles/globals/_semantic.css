@@ -8,7 +8,7 @@
    -------------------------------------------------------------------------- */
 :root {
   --text-white: var(--color-white-alpha-100);
-  /* 항상 dark 한 surface 위 dimmed 흰 텍스트 (--border-white-muted-color 와 pair) */
+  /* 항상 dark 한 surface 위 dimmed 흰 텍스트 (--border-color-white-muted 와 pair) */
   --text-white-muted: var(--color-white-alpha-50);
   --text-black: var(--color-gray-alpha-100);
   --text-primary: var(--color-neutral-900);
@@ -116,7 +116,7 @@
   --bg-gradient-accent-fade: linear-gradient(
     to right,
     transparent,
-    var(--border-accent-strong-color),
+    var(--border-color-accent-strong),
     transparent
   );
 
@@ -143,21 +143,27 @@
    -------------------------------------------------------------------------- */
 :root {
   /* Border colors */
-  --border-strong-color: var(--color-neutral-alpha-100);
-  --border-default-color: var(--color-neutral-alpha-50);
-  --border-light-color: var(--color-neutral-alpha-30);
-  --border-white-color: var(--color-white-alpha-100);
-  --border-black-color: var(--color-gray-alpha-100);
-  --border-accent-light-color: var(--color-accent-alpha-20);
-  --border-accent-color: var(--color-accent-alpha-30);
-  --border-accent-strong-color: var(--color-accent);
-  --border-ghost-light-color: var(--color-white-alpha-10);
-  --border-ghost-color: var(--color-white-alpha-20);
-  --border-white-muted-color: var(--color-white-alpha-50);
-  --border-success-color: var(--color-success);
-  --border-neutral-light-color: var(--color-neutral-alpha-20);
+  --border-color-strong: var(--color-neutral-alpha-100);
+  --border-color-default: var(--color-neutral-alpha-50);
+  --border-color-light: var(--color-neutral-alpha-30);
+  --border-color-white: var(--color-white-alpha-100);
+  --border-color-black: var(--color-gray-alpha-100);
+  --border-color-accent-light: var(--color-accent-alpha-20);
+  --border-color-accent: var(--color-accent-alpha-30);
+  --border-color-accent-strong: var(--color-accent);
+  --border-color-ghost-light: var(--color-white-alpha-10);
+  --border-color-ghost: var(--color-white-alpha-20);
+  --border-color-white-muted: var(--color-white-alpha-50);
+  --border-color-success: var(--color-success);
+  --border-color-neutral-light: var(--color-neutral-alpha-20);
 
   /* Border width */
+  /* 테두리 토큰은 세 종류다. **종류를 이름 앞에 둬서** 무엇인지 바로 읽히게 한다.
+   *   --border-width-*  두께만        border-width 에
+   *   --border-color-*  색만          border-color 에
+   *   --border-*        1px solid 색  border 축약에
+   * 예전에는 색이 `--border-default-color`, 축약이 `--border-default` 로 접두사가 같아
+   * 이름만 보고 어느 쪽인지 알 수 없었다. border 에 색을 넣으면 조용히 안 먹는다. */
   --border-width-thin: 1px;
   --border-width-default: 1.5px;
   --border-width-thick: 2px;
@@ -165,31 +171,31 @@
   --border-width-thickest: 4px;
 
   /* Neutral borders */
-  --border-light: 1px solid var(--border-light-color);
-  --border-light-2: 2px solid var(--border-light-color);
-  --border-default: 1px solid var(--border-default-color);
-  --border-strong: 1px solid var(--border-strong-color);
-  --border-strong-2: 2px solid var(--border-strong-color);
-  --border-white: 1px solid var(--border-white-color);
-  --border-inverse: 1px solid var(--border-white-color);
-  --border-neutral-light: 1px solid var(--border-neutral-light-color);
+  --border-light: 1px solid var(--border-color-light);
+  --border-light-2: 2px solid var(--border-color-light);
+  --border-default: 1px solid var(--border-color-default);
+  --border-strong: 1px solid var(--border-color-strong);
+  --border-strong-2: 2px solid var(--border-color-strong);
+  --border-white: 1px solid var(--border-color-white);
+  --border-inverse: 1px solid var(--border-color-white);
+  --border-neutral-light: 1px solid var(--border-color-neutral-light);
 
   /* Accent borders (light → default → strong) */
-  --border-accent-light: 1px solid var(--border-accent-light-color);
-  --border-accent: 1px solid var(--border-accent-color);
-  --border-accent-2: 2px solid var(--border-accent-color);
-  --border-accent-strong: 1px solid var(--border-accent-strong-color);
-  --border-accent-strong-2: 2px solid var(--border-accent-strong-color);
+  --border-accent-light: 1px solid var(--border-color-accent-light);
+  --border-accent: 1px solid var(--border-color-accent);
+  --border-accent-2: 2px solid var(--border-color-accent);
+  --border-accent-strong: 1px solid var(--border-color-accent-strong);
+  --border-accent-strong-2: 2px solid var(--border-color-accent-strong);
 
   /* Ghost borders — on-dark (light → default → strong) */
-  --border-ghost-light: 1px solid var(--border-ghost-light-color);
-  --border-ghost: 1px solid var(--border-ghost-color);
-  --border-white-muted: 1px solid var(--border-white-muted-color);
+  --border-ghost-light: 1px solid var(--border-color-ghost-light);
+  --border-ghost: 1px solid var(--border-color-ghost);
+  --border-white-muted: 1px solid var(--border-color-white-muted);
 
   /* (removed: border-primary/secondary/tertiary → use strong/default/light) */
 
   /* Utility borders */
-  --border-success: 1px solid var(--border-success-color);
+  --border-success: 1px solid var(--border-color-success);
 }
 
 /* --------------------------------------------------------------------------
@@ -216,24 +222,52 @@
    -------------------------------------------------------------------------- */
 :root {
   /* Panel Padding */
-  --editorial-panel-py: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
-  --editorial-panel-px: var(--page-px);
+  --panel-py: clamp(1rem, min(4.5vh, 2.5vw), 4.5rem);
 
   /* Typography Scale */
-  --editorial-fs-hero: clamp(2rem, min(9vw, 18vh), 10rem);
-  --editorial-fs-lead: clamp(2rem, min(4vw, 12vh), 6rem);
-  --editorial-fs-subhead: clamp(1rem, min(2vw, 3vh), 3.5rem);
-  --editorial-fs-body: clamp(0.75rem, min(1.5vw, 2.5vh), 1.5rem);
-  --editorial-fs-label: clamp(0.75rem, min(1vw, 1.75vh), 1.25rem);
-  --editorial-fs-small: clamp(0.65rem, min(0.85vw, 1.55vh), 1.15rem);
-  --editorial-fs-caption: clamp(0.65rem, min(0.65vw, 1.45vh), 1rem);
+
+  /* ── 글자 크기 — 역할로 고른다 ───────────────────────────────
+   * 눈금(`--font-size-sm` 같은 단계)과 같은 접두사를 쓴다. 속성이 이름에 있어야
+   * 무엇을 정하는 토큰인지 오해가 없고, R3 「종류 → 역할」 에도 맞는다
+   * (`--border-color-strong` 과 같은 모양). `fs` 같은 축약은 쓰지 않는다.
+   *
+   * 컴포넌트 CSS 는 여기 역할 이름만 쓴다. 단계 이름은 이 파일 안에서만 참조한다.
+   *
+   * 두 갈래인 이유 — 지면 글자는 뷰포트를 따라 커져야 하고(About 본문은 1600px 화면에서
+   * 24px), 크롬 글자는 그렇게 흔들리면 안 된다.
+   *
+   * 전부 12px 하한 위에 있다(micro 11px 만 예외 — 카운터·도형 라벨 전용). */
+
+  /* 지면 — 뷰포트를 따라 늘고 준다 (About 같은 편집 화면) */
+  --font-size-hero: clamp(2rem, min(9vw, 18vh), 10rem);
+  --font-size-lead: clamp(2rem, min(4vw, 12vh), 6rem);
+  --font-size-subhead: clamp(1rem, min(2vw, 3vh), 3.5rem);
+  --font-size-prose: clamp(0.75rem, min(1.5vw, 2.5vh), 1.5rem);
+  --font-size-prose-label: clamp(0.75rem, min(1vw, 1.75vh), 1.25rem);
+  --font-size-prose-small: clamp(0.75rem, min(0.85vw, 1.55vh), 1.15rem);
+  --font-size-prose-caption: clamp(0.75rem, min(0.65vw, 1.45vh), 1rem);
+
+  /* 크롬 — 고정. 관리 화면·공통 컴포넌트 */
+  --font-size-body: var(--font-size-sm); /* 14px — 본문·입력값·목록 항목 */
+  --font-size-label: var(--font-size-xs); /* 13px — 필드 라벨·버튼 */
+  --font-size-hint: var(--font-size-2xs); /* 12px — 보조 설명·메타·뱃지. 하한 */
+  --font-size-micro: var(--font-size-3xs); /* 11px — 카운터처럼 못 읽어도 되는 것만 */
+
+  /* 16·18·20px — 이 구간만 이름이 필요하다. 같은 16px 을 카드 제목도 쓰고 긴 글 본문도
+     써서 어느 쪽인지 이름이 말해 주지 않았다. 24px 부터는 전부 제목·디스플레이라
+     단계 이름(2xl·3xl…)이 곧 역할이라 그대로 둔다. */
+  --font-size-title-sm: var(--font-size-md); /* 16px — 카드·패널 제목 */
+  --font-size-title-md: var(--font-size-lg); /* 18px — 섹션 제목 */
+  --font-size-title-lg: var(--font-size-xl); /* 20px — 화면 안 가장 큰 제목 */
+  --font-size-body-lg: var(--font-size-md); /* 16px — 긴 글 본문 (기본 14px 보다 큰 지면) */
+  --font-size-body-xl: var(--font-size-lg); /* 18px — 리드 문단·인용 */
+
+  /* 글자가 아니라 도형 — 구분자 `·` 글리프의 크기다. 읽는 값이 아니라 하한 밖에 있고,
+     단계가 아니라 역할이라 눈금(_typography.css)이 아닌 여기 둔다. */
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 구분자 점 글리프, 읽는 글자가 아니다 */
+  --font-size-dot: 5px;
 
   /* Line Heights */
-  --editorial-lh-title: var(--line-height-dense);
-  --editorial-lh-reading: var(--line-height-relaxed);
-  --editorial-lh-body: var(--line-height-relaxed);
-  --editorial-lh-prose: var(--line-height-loose);
-  --editorial-lh-code: var(--line-height-normal);
 
   /* 제목(h1~h6) 공통 줄간격 — 전역 heading base 단일 소스. 조정은 여기 한 줄. */
   --heading-lh: var(--line-height-tight);
@@ -243,15 +277,18 @@
   --prose-block-gap: var(--spacing-md);
 
   /* Spacing */
-  --editorial-space-section: clamp(1rem, min(3.5vh, 2vw), 3.5rem);
-  --editorial-space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
-  --editorial-space-divide: calc(var(--editorial-space-block) * 2);
-  --editorial-space-line: calc(var(--editorial-space-block) / 2);
+
+  /* 지면 리듬 — 섹션·블록 사이 간격. 뷰포트를 따라 늘고 준다.
+   * 예전 이름은 `--editorial-space-*` 였는데, 접두사가 "About 전용" 처럼 읽혀서
+   * 다른 화면이 같은 리듬을 쓸 때 이름이 걸림돌이 됐다.
+   * 간격에는 아직 역할 층이 없다(--spacing-* 를 4,100여 곳이 직접 부른다).
+   * 이 넷이 그 층의 시작점이다 — 값이 아니라 자리로 고르는 이름. */
+  --space-section: clamp(1rem, min(3.5vh, 2vw), 3.5rem);
+  --space-block: clamp(0.75rem, min(3vh, 1.5vw), 2.5rem);
+  --space-divide: calc(var(--space-block) * 2);
+  --space-line: calc(var(--space-block) / 2);
 
   /* Details */
-  --editorial-ls-title: var(--letter-spacing-tight);
-  --editorial-line-primary: var(--border-strong);
-  --editorial-line-secondary: var(--border-default);
 }
 
 /* ==========================================================================
@@ -261,37 +298,71 @@
    고르는 실수 방지. 더 깊은 변형은 module 내 --_* (Layer 4 Context) 로.
    ========================================================================== */
 :root {
-  /* Control padding — capsule 모양 컨트롤의 사이즈는 padding 으로 결정 (--box-* shorthand 참조).
-     원 / 사각 아이콘 버튼은 padding 으로 못 잡으므로 --button-h-* 별도 유지. */
-  --button-p-xs: var(--box-3xs-sm); /* 2 12 → 약 20px */
-  --button-p-sm: var(--box-2xs-md); /* 4 16 → 약 26px (일반 button) */
-  --button-p-md: var(--box-xs-lg); /* 8 20 → 약 36px (primary CTA) */
-  --button-p-lg: var(--box-sm-xl); /* 12 24 → 약 44px (hero CTA) */
+  /* Control padding — capsule 모양 컨트롤의 사이즈는 padding 으로 결정.
+     원 / 사각 아이콘 버튼은 padding 으로 못 잡으므로 아래 --control-h-* 로 높이를 직접 준다. */
+  --button-p-xs: var(--spacing-3xs) var(--spacing-sm); /* 2 12 → 약 20px */
+  --button-p-sm: var(--spacing-2xs) var(--spacing-md); /* 4 16 → 약 26px (일반 button) */
+  --button-p-md: var(--spacing-xs) var(--spacing-lg); /* 8 20 → 약 36px (primary CTA) */
+  --button-p-lg: var(--spacing-sm) var(--spacing-xl); /* 12 24 → 약 44px (hero CTA) */
 
-  --input-p: var(--box-2xs-md); /* 4 16 → 약 26px — input / select 기본 */
-  --textarea-p: var(
-    --box-sm-md
-  ); /* 12 16 — multi-line 이라 vertical 여유 더 필요 */
+  /* 뱃지·칩·태그 — 글자 크기가 곧 등급이다. 높이를 직접 정하는 뱃지(--control-h-* 를 쓰는 것)는
+     세로 padding 이 필요 없으므로 여기 해당하지 않는다.
+     이 셋을 만든 이유: 같은 성격의 뱃지 118곳이 29가지 여백을 쓰고 있었다. */
+  --badge-p-sm: var(--spacing-4xs) var(--spacing-2xs); /* 1 4  — --font-size-micro(11px) */
+  --badge-p-md: var(--spacing-3xs) var(--spacing-xs); /* 2 8  — --font-size-hint(12px). 기본 */
+  --badge-p-lg: var(--spacing-2xs) var(--spacing-sm); /* 4 12 — --font-size-label(13px) */
 
-  /* Icon-only btn (circle/square) — padding 으로 사이즈 못 잡으니 명시 width/height 용.
-     capsule 컨트롤의 natural height 와 같은 시각 라인 유지. */
-  --button-h-xs: var(--size-2xs); /* 20 — icon-only xs */
-  --button-h-sm: var(--size-xs); /* 24 — icon-only sm */
-  --button-h-md: var(--size-md); /* 38 — icon-only md */
-  --button-h-lg: var(--size-lg); /* 46 — icon-only lg */
+  /* 목록 행 — 세로 여백이 곧 밀도다. 부모가 좌우 여백을 주는 행(가로 0)은 여기 해당하지
+     않는다. 그건 세로 값 하나만 적는다.
+     이 셋을 만든 이유: 같은 성격의 행 117곳이 33가지 여백을 쓰고 있었다. */
+  --row-p-sm: var(--spacing-2xs) var(--spacing-sm); /* 4 12 — 조밀한 목록 */
+  --row-p-md: var(--spacing-xs) var(--spacing-sm); /* 8 12 — 기본 */
+  --row-p-lg: var(--spacing-sm) var(--spacing-md); /* 12 16 — 넉넉한 카드형 행 */
 
-  /* Control height (button/input/select capsule) — 4-pt grid, md 가 default.
-     기존 --button-h-* / --size-* 는 icon-only 등 기존 용도 유지, 이건 capsule controls 전용. */
+  /* 모달·시트 — 겉면과 머리/본문/바닥이 같은 여백을 쓴다. */
+  --modal-p-sm: var(--spacing-xs) var(--spacing-sm); /* 8 12 — 인라인 폼·작은 시트 */
+  --modal-p-md: var(--spacing-md) var(--spacing-lg); /* 16 20 — 기본 */
+  --modal-p-lg: var(--spacing-xl) var(--spacing-xl); /* 24 24 — 확인 대화상자처럼 큰 것 */
+
+  /* 카드 */
+  --card-p-sm: var(--spacing-2xs) var(--spacing-sm); /* 4 12 — 카드 머리·꼬리 */
+  --card-p-md: var(--spacing-md) var(--spacing-md); /* 16 16 — 기본 */
+  --card-p-lg: var(--spacing-xl) var(--spacing-2xl); /* 24 32 — 매거진형 큰 카드 */
+
+  --input-p: var(--spacing-2xs) var(--spacing-md); /* 4 16 → 약 26px — input / select 기본 */
+
+  /* 컴포넌트를 안 쓰고 직접 만든 입력 필드 — 위 --input-p 와 달리 높이를 여백이 정한다. */
+  --field-p-sm: var(--spacing-2xs) var(--spacing-xs); /* 4 8 */
+  --field-p-md: var(--spacing-2xs) var(--spacing-sm); /* 4 12 */
+  --field-p-lg: var(--spacing-xs) var(--spacing-sm); /* 8 12 */
+
+  /* 표 셀 — 글 안의 표와 관리 화면의 표 두 덩어리로 갈린다. */
+  --cell-p-sm: var(--spacing-2xs) var(--spacing-xs); /* 4 8 — 글 안·도움말처럼 조밀한 표 */
+  --cell-p-md: var(--spacing-xs) var(--spacing-sm); /* 8 12 — 기본 */
+  --textarea-p: var(--spacing-sm) var(--spacing-md); /* 12 16 — 여러 줄이라 세로 여유 더 */
+  /* 컨트롤 높이 — 버튼·인풋·셀렉트·칩이 공유하는 **유일한** 높이 눈금.
+   *
+   * 예전에는 세 가지가 같은 걸 서로 다르게 말했다.
+   *   --control-h-*  24/28/32/36  ← 공통 Button·Input 이 실제로 쓰던 값
+   *   --button-h-*   20/24/38/46  ← 다른 컴포넌트 154곳이 쓰던 값
+   *   _sizing.css 주석의 "계층"  24/32/38/46
+   * 그래서 같은 size="md" 가 자리에 따라 32px 이기도 38px 이기도 했다.
+   *
+   * 공통 컴포넌트가 실제로 쓰던 값을 남기고 나머지 단계를 흡수했다 — 렌더는 그대로다.
+   * 2xs·xl·2xl 은 흡수 과정에서 들어온 단계라 xs~lg 와 간격이 고르지 않다. */
+  --control-h-2xs: 20px;
   --control-h-xs: 24px;
   --control-h-sm: 28px;
   --control-h-md: 32px;
   --control-h-lg: 36px;
+  --control-h-xl: 38px;
+  --control-h-2xl: 46px;
 
   /* Skeleton 라인/필 높이 — 텍스트 한 줄·캡슐 컨트롤 흉내. raw px 하드코딩 방지 */
-  --skeleton-h-line: var(--font-size-sm); /* 14px — 텍스트 한 줄 */
-  --skeleton-h-line-sm: var(--font-size-xs); /* 12px — 작은 메타 텍스트 */
+  --skeleton-h-line: var(--font-size-body); /* 14px — 텍스트 한 줄 */
+  --skeleton-h-line-sm: var(--font-size-label); /* 13px — 작은 메타 텍스트 */
   --skeleton-h-line-lg: var(--font-size-lg); /* 18px — 헤더 텍스트 */
-  --skeleton-h-pill: var(--button-h-sm); /* 24 — 태그/뱃지 */
+  --skeleton-h-pill: var(--control-h-xs); /* 24 — 태그/뱃지 */
 }
 
 /* --------------------------------------------------------------------------
@@ -301,7 +372,7 @@
   --bg-primary: var(--color-neutral-50);
   --bg-surface: var(--color-white-alpha-5);
   --bg-tertiary: var(--color-inverse-alpha-5);
-  --border-inverse: 1px solid var(--border-black-color);
+  --border-inverse: 1px solid var(--border-color-black);
 }
 
 /* --------------------------------------------------------------------------
@@ -309,6 +380,6 @@
    -------------------------------------------------------------------------- */
 @media (max-width: 480px) {
   :root {
-    --editorial-panel-py: var(--m-lg);
+    --panel-py: var(--m-lg);
   }
 }

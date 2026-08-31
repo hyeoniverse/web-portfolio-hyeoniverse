@@ -31,12 +31,12 @@
   display: inline-block;
   width: 1px;
   height: 12px;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
 }
 
 .projectNumber {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
   letter-spacing: 0.05em;
@@ -45,11 +45,11 @@
 .category {
   display: inline-flex;
   align-items: center;
-  height: var(--button-h-sm);
+  height: var(--control-h-xs);
   padding: 0 var(--spacing-md);
   border: var(--border-default);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   border-radius: var(--radius-capsule);
@@ -60,11 +60,11 @@
 .tag {
   display: inline-flex;
   align-items: center;
-  height: var(--button-h-sm);
+  height: var(--control-h-xs);
   padding: 0 var(--spacing-md);
   border: var(--border-default);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   border-radius: var(--radius-capsule);
@@ -86,12 +86,12 @@
 /* 팀/개인 배지 — 아이콘 + 라벨 inline. 다른 tag 보다 약간 흐린 톤 */
 .tagSolo,
 .tagTeam {
-  gap: 4px;
+  gap: var(--spacing-2xs);
   color: var(--text-secondary);
 }
 
 .tagTeam {
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 
 /* ── Title ── */
@@ -108,7 +108,7 @@
 .description {
   margin-bottom: var(--spacing-lg);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-body-xl);
   line-height: 1.7;
   color: var(--text-secondary);
 }
@@ -137,7 +137,7 @@
 
 .infoLabel {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--text-muted);
@@ -145,7 +145,7 @@
 
 .infoValue {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-primary);
 }
@@ -175,7 +175,7 @@
 }
 
 .ownContribsRoleChip {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.06em;
@@ -216,7 +216,7 @@
   align-items: flex-start;
   gap: var(--spacing-sm);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -225,11 +225,11 @@
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  height: var(--button-h-sm);
+  height: var(--control-h-xs);
   padding: 0 var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -239,7 +239,7 @@
   flex: 1;
   min-width: 0;
   /* tag (28px) 와 첫 line center 맞추기 위한 vertical offset */
-  padding-top: 3px;
+  padding-top: var(--spacing-2xs);
   color: var(--text-primary);
   white-space: pre-line;
   word-break: break-word;
@@ -254,7 +254,7 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   color: var(--text-tertiary);
   transition: color 0.18s ease, background 0.18s ease;
 }
@@ -309,7 +309,7 @@
   flex-direction: column;
   padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-md);
   background: var(--bg-primary);
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.18);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -356,13 +356,13 @@
 
 .polaroidName {
   font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   color: var(--text-primary);
   line-height: 1.2;
 }
 
 .polaroidRole {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -381,7 +381,7 @@
 
 .polaroidBackName {
   font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   color: var(--text-primary);
   line-height: 1.2;
   min-width: 0;
@@ -390,7 +390,7 @@
 .polaroidBackLinks {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   flex-shrink: 0;
 }
 
@@ -407,7 +407,7 @@
 }
 
 .polaroidBackContribRole {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.08em;
@@ -420,8 +420,8 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  font-size: var(--font-size-xs);
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   line-height: 1.55;
 }
@@ -439,7 +439,7 @@
   width: 3px;
   height: 3px;
   background: var(--text-muted);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 /* 본인 contributions (ownContribsGroups) 안에서 공유. 팀원 카드는 .teamCardContrib* 별도 사용 */
@@ -451,7 +451,7 @@
 
 .teamContribsRoleLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.08em;
@@ -464,8 +464,8 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  font-size: var(--font-size-sm);
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
 }
 
@@ -483,7 +483,7 @@
   width: 3px;
   height: 3px;
   background: var(--text-muted);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
 }
 
 /* Sections (Overview, Challenge, Solution) */
@@ -494,7 +494,7 @@
 .sectionTitle {
   margin-bottom: var(--spacing-xl);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-tertiary);
@@ -503,7 +503,7 @@
 /* Prose (markdown-rendered content) */
 .sectionProse {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-body-lg);
   line-height: var(--line-height-normal);
   color: var(--text-secondary);
 }
@@ -578,7 +578,7 @@
 }
 
 .sectionProse figcaption {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-align: center;
   margin-top: var(--spacing-sm);
@@ -671,9 +671,9 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--box-md-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
   border: var(--border-light);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
   margin-bottom: var(--spacing-xl);
 }
@@ -681,13 +681,13 @@
 .translateMessage {
   flex: 1;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   margin: 0;
 }
 
 .commentWrap {
-  padding: 0 0 var(--spacing-3xl);
+  padding: 0 0 var(--spacing-3xl) 0;
 }
 
 /* AdjacentNav 위에 team / related 둘 다 없을 때 — 윗부분과 분리되도록 border-top 추가 */
@@ -712,7 +712,7 @@
 
 .teamCreditsLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -723,7 +723,7 @@
 .relatedSection {
   max-width: var(--page-max-width);
   margin: 0 auto;
-  padding: var(--spacing-2xl) 0 0;
+  padding: var(--spacing-2xl) 0 0 0;
   border-top: var(--border-light);
 }
 
@@ -736,7 +736,7 @@
 
 .relatedLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -800,7 +800,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-md);
+  padding: var(--card-p-md);
 }
 
 /* Minimal Library — 모두 mono + 흑백 톤. accent 색 없음, divider 없음, 단순 stack */
@@ -812,7 +812,7 @@
 
 .relatedCardOrder {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-regular);
   color: var(--text-secondary);
   letter-spacing: 0.04em;
@@ -827,7 +827,7 @@
 
 .relatedCardCategory {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -836,7 +836,7 @@
 
 .relatedCardTitle {
   font-family: var(--font-instrument);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   line-height: var(--line-height-tight);
@@ -848,7 +848,7 @@
 
 .relatedCardExcerpt {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   line-height: var(--line-height-relaxed);
   display: -webkit-box;
@@ -887,7 +887,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   text-decoration: none;
 }
@@ -954,7 +954,7 @@
   }
 
   .description {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-body-lg);
     margin-bottom: var(--spacing-2xl);
   }
 
@@ -990,7 +990,7 @@
   display: flex;
   justify-content: center;
   margin: var(--spacing-lg) 0;
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
@@ -1008,16 +1008,16 @@
   flex-direction: column;
   gap: var(--spacing-4xs);
   margin: var(--spacing-lg) 0;
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
 }
 
 .sectionProse :global(.reader-toc) a {
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 
 .sectionProse :global(.reader-toc) a:hover { color: var(--text-accent); }

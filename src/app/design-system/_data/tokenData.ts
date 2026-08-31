@@ -43,19 +43,14 @@ export const spacingScale = [
 
 // ─── Radius Data ───
 export const radiusScale = [
-  { name: "2xs", var: "--radius-2xs", value: "2px" },
-  { name: "xs", var: "--radius-xs", value: "4px" },
-  { name: "sm", var: "--radius-sm", value: "6px" },
-  { name: "md", var: "--radius-md", value: "8px" },
-  { name: "lg", var: "--radius-lg", value: "12px" },
-  { name: "xl", var: "--radius-xl", value: "16px" },
-  { name: "2xl", var: "--radius-2xl", value: "24px" },
-  { name: "3xl", var: "--radius-3xl", value: "28px" },
-  { name: "4xl", var: "--radius-4xl", value: "32px" },
-  { name: "5xl", var: "--radius-5xl", value: "36px" },
-  { name: "6xl", var: "--radius-6xl", value: "42px" },
-  { name: "capsule", var: "--radius-capsule", value: "9999px" },
-  { name: "circle", var: "--radius-circle", value: "50%" },
+  /* 고르는 것은 셋뿐 — 나머지는 "각진 것 자체가 의미"인 자리(체크박스 등) 전용. R6 */
+  { name: "capsule", var: "--radius-capsule", value: "9999px", note: "알약·칩·행 하이라이트" },
+  { name: "circle", var: "--radius-circle", value: "50%", note: "정원" },
+  { name: "2xl", var: "--radius-2xl", value: "24px", note: "면 있는 것" },
+  { name: "md", var: "--radius-md", value: "8px", note: "예외 전용" },
+  { name: "sm", var: "--radius-sm", value: "6px", note: "예외 전용" },
+  { name: "xs", var: "--radius-xs", value: "4px", note: "예외 전용" },
+  { name: "2xs", var: "--radius-2xs", value: "2px", note: "예외 전용" },
 ];
 
 // ─── Grid Templates Data ───

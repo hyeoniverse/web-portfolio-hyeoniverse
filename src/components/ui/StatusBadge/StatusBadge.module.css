@@ -2,11 +2,11 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: var(--box-3xs-xs);
+  gap: var(--spacing-xs);
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -15,7 +15,7 @@
   display: block;
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   flex-shrink: 0;
 }
 

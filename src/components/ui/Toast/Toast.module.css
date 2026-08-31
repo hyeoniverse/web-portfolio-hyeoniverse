@@ -18,7 +18,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-capsule);
   /* 글래스 패널 — Select/Popover/DatePicker 와 동일 표면 */
   background: var(--bg-glass-panel);
@@ -26,7 +26,7 @@
   color: var(--text-primary);
   border: var(--border-light);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   box-shadow: var(--shadow-md);
   pointer-events: auto;

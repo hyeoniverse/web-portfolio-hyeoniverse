@@ -21,7 +21,7 @@
 }
 
 .title {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -31,7 +31,7 @@
 
 .skipLink {
   display: block;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-decoration: none;
   margin-bottom: var(--spacing-sm);
@@ -53,8 +53,8 @@
 
 .link {
   display: block;
-  padding: var(--box-2xs-md);
-  font-size: var(--font-size-xs);
+  padding: var(--spacing-2xs) var(--spacing-md);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-decoration: none;
   line-height: var(--line-height-normal);
@@ -76,7 +76,7 @@
 
 .active {
   color: var(--text-accent);
-  border-left-color: var(--border-accent-strong-color);
+  border-left-color: var(--border-color-accent-strong);
 }
 
 /* heading level indent */
@@ -86,7 +86,7 @@
 
 .level3 {
   padding-left: var(--spacing-2xl);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 /* ── Responsive ── */

@@ -39,7 +39,7 @@
 .meta {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
 }
 
@@ -118,10 +118,10 @@
 
 .endNote,
 .empty {
-  margin: var(--spacing-2xl) 0 0;
+  margin: var(--spacing-2xl) 0 0 0;
   text-align: center;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -145,7 +145,7 @@
   gap: var(--spacing-md);
   max-height: 85vh;
   padding: var(--spacing-xl) var(--spacing-lg) calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0));
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   background: var(--bg-primary);
   box-shadow: 0 -8px 24px oklch(0.00% 0.0000 0.00 / 0.18);
   overflow-y: auto;
@@ -188,14 +188,14 @@
 
 .sheetCount {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
 }
 
 .sheetDesc {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
 }
@@ -208,7 +208,7 @@
 
 .sheetSectionLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -226,13 +226,13 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--modal-p-sm);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
   transition: gap 0.15s ease;

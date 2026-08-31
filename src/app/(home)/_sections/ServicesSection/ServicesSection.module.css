@@ -19,7 +19,7 @@
 
 .label {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -30,7 +30,7 @@
 .headerLine {
   flex: 1;
   height: 1px;
-  background: var(--border-strong-color);
+  background: var(--border-color-strong);
   transform-origin: left center;
 }
 
@@ -45,7 +45,7 @@
 .itemLine {
   width: 100%;
   height: 1px;
-  background: var(--border-strong-color);
+  background: var(--border-color-strong);
   transform-origin: left center;
 }
 
@@ -67,7 +67,7 @@
 
 .itemNumber {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-accent-alt);
   letter-spacing: 0.1em;
 }
@@ -86,7 +86,7 @@
 
 .itemDescription {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-accent-alt);
 }
 
@@ -102,7 +102,7 @@
 }
 
 .item:hover .itemOval {
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 
 /* ---------------------------------------------------------------------------

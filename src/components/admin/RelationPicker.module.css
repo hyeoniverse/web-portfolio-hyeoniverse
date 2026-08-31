@@ -70,7 +70,7 @@
   /* 펼친 영역 자체에서 세로 스크롤 — 내부 list 가 아니라 wrapper 가 스크롤 컨테이너 */
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-top-color: var(--border-light-color);
+  border-top-color: var(--border-color-light);
   /* 열림 시: radius transition (0.2s) 끝난 뒤 reveal */
   transition: max-height 0.28s ease 0.2s, opacity 0.2s ease 0.22s, border-top-color 0.15s ease 0.2s;
 }
@@ -93,14 +93,14 @@
 .triggerInput {
   flex: 1;
   min-width: 0;
-  padding: 4px 0;
+  padding: var(--spacing-2xs) 0;
   padding-inline-start: 0 !important;
   padding-inline-end: 0 !important;
   margin: 0;
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
   appearance: none;
@@ -124,7 +124,7 @@
   color: var(--text-tertiary);
   flex-shrink: 0;
   cursor: pointer;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   transition: transform 0.2s ease, background 0.15s ease, color 0.15s ease;
 }
 
@@ -152,14 +152,14 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: 0 6px;
+  padding: 0 var(--spacing-xs);
   height: 28px;
   box-sizing: border-box;
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   border: none;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   max-width: 240px;
   user-select: none;
@@ -228,7 +228,7 @@
 .chipThumb {
   width: 16px;
   height: 16px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -240,7 +240,7 @@
   justify-content: center;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
   flex-shrink: 0;
@@ -268,12 +268,12 @@
   justify-content: center;
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: none;
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   flex-shrink: 0;
 }
 
@@ -293,13 +293,13 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--spacing-xs);
+  padding: var(--row-p-md);
   border: none;
   background: transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-capsule);
   cursor: pointer;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   text-align: left;
 }
 
@@ -308,9 +308,9 @@
 }
 
 .optionThumb {
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  border-radius: var(--radius-md);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
+  border-radius: var(--radius-2xl);
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -320,9 +320,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
-  border-radius: var(--radius-md);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
+  border-radius: var(--radius-2xl);
   background: var(--bg-tertiary-alt);
   color: var(--text-tertiary);
   flex-shrink: 0;
@@ -347,7 +347,7 @@
 }
 
 .optionMeta {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -355,11 +355,11 @@
 .statusDraft {
   display: inline-flex;
   align-items: center;
-  padding: 2px 6px;
+  padding: var(--spacing-3xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-warning-soft);
   color: var(--text-warning);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -372,7 +372,7 @@
   justify-content: center;
   min-width: 24px;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -388,6 +388,6 @@
   padding: var(--spacing-md);
   text-align: center;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }

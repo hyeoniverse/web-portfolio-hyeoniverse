@@ -17,7 +17,7 @@
   width: 100%;
   border: none;
   outline: none;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-family: inherit;
   background: transparent;
   color: var(--text-primary);
@@ -35,7 +35,7 @@
 /* 실제 content wrapper — 상하 spacing-sm (12px), 좌우 spacing-xs (8px).
    gap(md) 은 그룹 사이 간격 — 그룹 내 항목 간격(2xs)보다 크게 줘 구분감 확보. */
 .listInner {
-  padding: var(--box-sm-xs);
+  padding: var(--spacing-sm) var(--spacing-xs);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
@@ -55,7 +55,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-2xs);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-muted);
   flex-shrink: 0;
@@ -66,14 +66,14 @@
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
 }
 
 .item {
-  padding: var(--box-xs);
+  padding: var(--row-p-sm);
   margin: 0;
   border-radius: var(--radius-capsule);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -99,9 +99,9 @@
 .itemKr {
   flex-shrink: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   line-height: 1;
-  padding: 3px 6px;
+  padding: var(--row-p-sm);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
@@ -124,8 +124,8 @@
 }
 
 .hint {
-  padding: var(--box-3xs-sm);
-  font-size: var(--font-size-2xs);
+  padding: var(--spacing-3xs) var(--spacing-sm);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
 }
 
@@ -137,7 +137,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-muted);
   text-decoration: none;
 }
@@ -151,6 +151,6 @@
   margin: 0;
   padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-2xs);
   color: var(--text-tertiary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   line-height: 1.4;
 }
