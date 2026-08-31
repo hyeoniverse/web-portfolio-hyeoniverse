@@ -39,7 +39,7 @@
 .meta {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
 }
 
@@ -86,7 +86,7 @@
 }
 .perPageSelect > button {
   padding: 0 var(--spacing-sm);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 .pagination {
@@ -95,11 +95,11 @@
 
 /* 정렬/검색창 border 를 페이징 select(--border-light) 등 주변 컨트롤과 light 로 통일 */
 .sortControl.sortControl {
-  box-shadow: inset 0 0 0 1px var(--border-light-color);
+  box-shadow: inset 0 0 0 1px var(--border-color-light);
 }
 
 .searchBar:not(:focus-within) {
-  border-color: var(--border-light-color) !important;
+  border-color: var(--border-color-light) !important;
 }
 
 /* ── 카테고리 필터 ── */
@@ -110,42 +110,13 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.categoryBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-3xs) var(--spacing-sm);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.categoryBtn:hover {
-  color: var(--text-primary);
-  border-color: var(--border-strong-color);
-}
-
-.categoryBtnActive,
-.categoryBtnActive:hover {
-  background: var(--bg-inverse);
-  border-color: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
+/* 색을 고정하지 않고 버튼에서 물려받는다 — 선택되면 버튼 글자색이 반전되는데,
+   여기서 색을 박아 두면 카운트만 안 따라간다. */
 .categoryCount {
-  font-size: var(--font-size-2xs);
-  color: var(--text-tertiary);
+  font-size: var(--font-size-hint);
+  color: inherit;
+  opacity: 0.6;
   font-variant-numeric: tabular-nums;
-}
-
-.categoryBtnActive .categoryCount {
-  color: var(--text-inverse);
-  opacity: 0.7;
 }
 
 /* ── Grid 카드 ── */
@@ -221,7 +192,7 @@
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-solid);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   color: var(--text-white);
   text-transform: uppercase;
@@ -241,7 +212,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -254,7 +225,7 @@
 .cardTitle {
   /* /posts 본문 카드·history 와 동일한 editorial instrument serif 로 통일 */
   font-family: var(--font-instrument);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-regular);
   letter-spacing: -0.01em;
   color: var(--text-primary);
@@ -267,7 +238,7 @@
 
 .cardDesc {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   line-height: var(--line-height-relaxed);
   display: -webkit-box;
@@ -278,10 +249,10 @@
 
 .empty,
 .endNote {
-  margin: var(--spacing-2xl) 0 0;
+  margin: var(--spacing-2xl) 0 0 0;
   text-align: center;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -305,7 +276,7 @@
   gap: var(--spacing-md);
   max-height: 85vh;
   padding: var(--spacing-xl) var(--spacing-lg) calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0));
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   background: var(--bg-primary);
   box-shadow: 0 -8px 24px oklch(0.00% 0.0000 0.00 / 0.18);
   overflow-y: auto;
@@ -348,14 +319,14 @@
 
 .sheetCount {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
 }
 
 .sheetDesc {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
 }
@@ -365,13 +336,13 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--modal-p-sm);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
   transition: gap 0.15s ease;

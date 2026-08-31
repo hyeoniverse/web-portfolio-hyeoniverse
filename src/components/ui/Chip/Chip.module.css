@@ -5,14 +5,14 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   user-select: none;
 }
 
 /* capsule — bg + border + 캡슐 radius */
 .capsule {
-  padding: var(--box-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
   background: var(--bg-secondary);
   border-radius: var(--radius-capsule);
 }
@@ -138,7 +138,7 @@
 /* count 배지 — capsule 안 우측 (TagPill 패턴) */
 .count {
   font-family: var(--font-mono);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }

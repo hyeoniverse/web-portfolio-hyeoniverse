@@ -11,7 +11,7 @@
 
 .title {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -19,11 +19,11 @@
 }
 
 .count {
-  padding: 0 6px;
+  padding: 0 var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -31,7 +31,7 @@
 .empty {
   padding: var(--spacing-md) 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -86,7 +86,7 @@
 
 .avatarInitial {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
 }
@@ -106,7 +106,7 @@
 
 .name {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   overflow: hidden;
@@ -120,12 +120,12 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--spacing-sm);
-  margin-top: 2px;
+  margin-top: var(--spacing-3xs);
 }
 
 .email {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -136,9 +136,9 @@
 .since {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 
@@ -146,10 +146,10 @@
 .role {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 1px 7px;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -191,13 +191,13 @@
 .provider {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   border: var(--border-light);
   background: var(--bg-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
 }
@@ -222,7 +222,7 @@
   text-decoration: underline;
 }
 .rowClickable:focus-visible {
-  outline: 2px solid var(--border-strong-color, var(--text-accent));
+  outline: 2px solid var(--border-color-strong);
   outline-offset: 2px;
   border-radius: var(--radius-2xl);
 }
@@ -232,7 +232,7 @@
   display: inline-block;
   margin-top: var(--spacing-sm);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent);
   text-decoration: none;
@@ -247,12 +247,12 @@
 .meBadge {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 1px 7px;
+  gap: var(--spacing-2xs);
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-light);
   color: var(--text-accent);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);
   line-height: inherit;
   white-space: nowrap;

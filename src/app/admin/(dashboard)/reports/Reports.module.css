@@ -10,13 +10,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: var(--button-h-xs);
-  height: var(--button-h-xs);
-  padding: 0 6px;
+  min-width: var(--control-h-2xs);
+  height: var(--control-h-2xs);
+  padding: 0 var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-solid);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-white);
 }
@@ -58,7 +58,7 @@
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-md);
-  padding: var(--box-md-sm);
+  padding: var(--row-p-lg);
   border-bottom: var(--border-light);
 }
 
@@ -85,7 +85,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -95,7 +95,7 @@
   flex-shrink: 0;
   white-space: nowrap;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -104,17 +104,17 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-secondary);
   margin-bottom: var(--spacing-3xs);
 }
 
 .deletedBadge {
-  padding: var(--box-3xs-xs);
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 400;
   color: var(--text-tertiary);
 }
@@ -122,7 +122,7 @@
 .commentBody {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   white-space: pre-wrap;
   word-break: break-word;
@@ -133,9 +133,9 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  margin: var(--spacing-xs) 0 0;
+  margin: var(--spacing-xs) 0 0 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 .reason > svg {
@@ -167,11 +167,11 @@
 /* 필터 칩의 건수 — 어디에 몇 건 밀려 있는지 목록을 열지 않고 안다 */
 .tabCount {
   margin-left: var(--spacing-2xs);
-  padding: 0 4px;
+  padding: 0 var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: color-mix(in oklch, currentColor 15%, transparent);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: currentColor;
 }

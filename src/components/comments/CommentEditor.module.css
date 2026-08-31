@@ -50,7 +50,7 @@
   flex-shrink: 0;
   margin-right: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -99,7 +99,7 @@
 
 .helpTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -117,10 +117,10 @@
 /* 표 헤더 — bold + 배경 band 로 본문 행과 확실히 갈라놓는다.
    구분선만으론 아래 행들의 구분선과 굵기가 같아 헤더가 그냥 첫 행처럼 읽혔다. */
 .helpTable th {
-  padding: var(--box-xs);
+  padding: var(--cell-p-sm);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   white-space: nowrap;
@@ -129,7 +129,7 @@
 /* 셀 — 세로 가운데 대신 위 정렬. 코드 블록/표처럼 3줄짜리 문법 옆의 한 줄 설명이
    가운데로 뜨면 어느 문법에 대한 설명인지 눈으로 잇기 어렵다. */
 .helpTable td {
-  padding: var(--box-xs);
+  padding: var(--cell-p-sm);
   border-bottom: var(--border-light);
   vertical-align: top;
 }
@@ -150,7 +150,7 @@
 .helpCode {
   display: block;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   line-height: 1.6;
   color: var(--text-primary);
   white-space: pre;
@@ -159,15 +159,15 @@
      캡슐은 코드블록·표 같은 멀티라인 문법에서 늘어져 어색해서, 좌우로 트인
      "코드 예시 박스" 결(작은 라운드 + 옅은 배경)로 통일한다. */
   margin: 0;
-  padding: var(--box-3xs-sm);
+  padding: var(--spacing-3xs) var(--spacing-sm);
   border: none;
-  border-radius: var(--radius-2xs);
+  border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
 }
 
 .helpDesc {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
 }
 
@@ -186,7 +186,7 @@
 /* 포커스 = textarea 에만 옅은 accent 보더 (giscus `.gsc-comment-box-textarea:focus` → --color-accent-light).
    공통 Textarea 기본 포커스는 --text-primary(중립) 라 여기서 accent 로 교체. */
 .editor .textarea:focus {
-  border-color: var(--border-accent-color);
+  border-color: var(--border-color-accent);
 }
 
 /* Preview — giscus `.gsc-comment-box-preview { border-bottom: 0; padding: 14px }` 미러:
@@ -204,7 +204,7 @@
 
 .previewEmpty {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   font-style: italic;
 }
@@ -263,7 +263,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   width: 100%;
-  padding: var(--box-3xs-xs);
+  padding: var(--row-p-sm);
   border-radius: var(--radius-capsule);
   color: var(--text-primary);
   text-align: left;
@@ -283,17 +283,17 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  border-radius: var(--radius-2xs);
+  border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 
 .postPickerTitle {
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -301,18 +301,18 @@
 /* 카테고리 태그 — 약한 위계 */
 .postPickerCat {
   flex-shrink: 0;
-  padding: var(--box-3xs-xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   white-space: nowrap;
 }
 
 .postPickerEmpty {
   padding: var(--spacing-sm);
   color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   text-align: center;
 }

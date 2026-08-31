@@ -18,7 +18,7 @@
   padding: 0 var(--spacing-lg) var(--spacing-md);
   border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   line-height: 1.5;
   margin: 0;
@@ -26,11 +26,11 @@
 
 .catBadge {
   display: inline-block;
-  padding: var(--spacing-4xs) var(--spacing-xs);
+  padding: var(--badge-p-md);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   border-radius: var(--radius-capsule);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   margin-right: var(--spacing-2xs);
 }
@@ -45,7 +45,7 @@
 .bulkLabel {
   display: block;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-secondary);
   margin-bottom: var(--spacing-2xs);
@@ -75,7 +75,7 @@
 
 .newCatFormLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -108,7 +108,7 @@
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--border-strong-color) transparent;
+  scrollbar-color: var(--border-color-strong) transparent;
   /* ListItem 인라인 패딩 cascade var — 좌측은 modal 본문 padding 과 align */
   --_item-inline-start: var(--spacing-lg);
   --_item-inline-end: var(--spacing-lg);
@@ -141,7 +141,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-primary);
   min-width: 0;
@@ -152,7 +152,7 @@
 
 .postCount {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   flex-shrink: 0;
 }
@@ -182,7 +182,7 @@
   flex: 1;
   min-width: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -190,9 +190,9 @@
 }
 
 .warningText {
-  margin: var(--spacing-2xs) 0 0;
+  margin: var(--spacing-2xs) 0 0 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-accent);
 }
 
@@ -208,6 +208,6 @@
   padding: var(--spacing-xl) var(--spacing-lg);
   text-align: center;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
 }

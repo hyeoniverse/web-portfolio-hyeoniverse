@@ -18,20 +18,20 @@
   height: 0;
 }
 .marker {
-  stroke: var(--border-strong-color);
+  stroke: var(--border-color-strong);
   stroke-width: 1.4;
   fill: none;
 }
 
 .bg {
-  color: var(--border-light-color);
+  color: var(--border-color-light);
 }
 
 /* ── 테이블 노드 ── */
 .node {
   width: var(--erd-col-w);
   padding-bottom: var(--erd-pad-y);
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: 10px;
   background: var(--bg-primary);
   box-shadow: var(--shadow-sm);
@@ -47,7 +47,7 @@
   box-shadow: 0 0 0 3px var(--bg-accent-subtle), var(--shadow-md);
 }
 .nodeRel {
-  border-color: var(--border-accent-color);
+  border-color: var(--border-color-accent);
   box-shadow: var(--shadow-md);
 }
 .nodeDim {
@@ -59,7 +59,7 @@
   display: flex;
   align-items: center;
   padding: 0 var(--spacing-xs);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: 1px solid var(--border-color-light);
   background: var(--bg-tertiary);
   color: var(--text-primary);
   font-family: var(--font-mono);
@@ -86,11 +86,11 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  padding: 1px 6px;
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
-  font-size: 8px;
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   line-height: 1.7;
   letter-spacing: 0.02em;
@@ -99,9 +99,9 @@
 /* 컬럼 표기 — Chen 의 이중 타원(다중값) / 점선 타원(파생)에 해당 */
 .kindMulti,
 .kindDerived {
-  padding: 0 4px;
+  padding: 0 var(--spacing-2xs);
   border-radius: var(--radius-capsule);
-  font-size: 8px;
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   white-space: nowrap;
 }
@@ -138,7 +138,7 @@
 }
 
 .key {
-  font-size: 10px;
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.02em;
 }
@@ -156,14 +156,14 @@
 }
 .colType {
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: var(--font-size-micro);
   white-space: nowrap;
 }
 
 /* NOT NULL — 기호 하나. 행 너비를 늘리지 않으면서 필수임을 보여준다 */
 .req {
   color: var(--text-accent);
-  font-size: 11px;
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   line-height: 1;
 }
@@ -171,8 +171,8 @@
 .flag,
 .flagSoft {
   border-radius: var(--radius-capsule);
-  padding: 1px 4px;
-  font-size: 9px;
+  padding: var(--spacing-4xs) var(--spacing-2xs);
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.02em;
 }
@@ -186,7 +186,7 @@
 }
 .colDefault {
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: var(--font-size-micro);
   white-space: nowrap;
   opacity: 0.75;
 }
@@ -196,9 +196,9 @@
   flex: none;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
-  padding: 1px 6px;
+  padding: var(--spacing-4xs) var(--spacing-xs);
   color: var(--text-info);
-  font-size: 9px;
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.04em;
 }
@@ -246,19 +246,19 @@
    선 위에 그대로 얹으면 글자가 선에 묻히므로 캡슐 배경을 깐다. */
 .wrap :global(.react-flow__edge-textbg) {
   fill: var(--bg-primary);
-  stroke: var(--border-accent-color);
+  stroke: var(--border-color-accent);
   stroke-width: 1;
 }
 .wrap :global(.react-flow__edge-text) {
   fill: var(--text-accent);
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-medium);
 }
 
 /* ── 관계선 ── */
 .edge :global(.react-flow__edge-path) {
-  stroke: var(--border-strong-color);
+  stroke: var(--border-color-strong);
   stroke-width: 1.4;
 }
 .edgeOn :global(.react-flow__edge-path) {

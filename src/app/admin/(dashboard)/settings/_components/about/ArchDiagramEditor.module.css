@@ -7,7 +7,7 @@
 }
 .hint {
   margin: 0;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -19,7 +19,7 @@
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   background:
-    radial-gradient(var(--border-light-color) 0.6px, transparent 0.6px) 0 0 / 22px 22px;
+    radial-gradient(var(--border-color-light) 0.6px, transparent 0.6px) 0 0 / 22px 22px;
 }
 .canvas {
   width: 100%;
@@ -52,7 +52,7 @@
 }
 .panelTitle {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -65,7 +65,7 @@
   min-width: 0;
 }
 .fieldLabel {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 .panelActions {
@@ -78,11 +78,11 @@
   align-items: center;
   gap: var(--spacing-2xs);
   padding: var(--spacing-xs) var(--spacing-md);
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   cursor: pointer;
 }
 .add:hover {

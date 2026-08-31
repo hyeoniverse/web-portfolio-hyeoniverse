@@ -41,7 +41,7 @@
 
 .featureDfTitle {
   margin: 0;
-  font-size: calc(var(--_fs-subhead) * 0.85);
+  font-size: calc(var(--font-size-subhead) * 0.85);
   font-weight: var(--font-weight-semibold);
   color: var(--text-white);
   text-shadow: 0 1px 4px var(--color-gray-alpha-50);
@@ -59,7 +59,7 @@
 
 .featureDfDesc {
   margin: 0;
-  font-size: calc(var(--_fs-body) * 0.9);
+  font-size: calc(var(--font-size-prose) * 0.9);
   line-height: var(--_lh-reading);
   color: var(--text-white);
   text-shadow: 0 1px 3px var(--color-gray-alpha-40);
@@ -67,7 +67,7 @@
 
 .featureDfTech {
   margin: 0;
-  font-size: var(--_fs-label);
+  font-size: var(--font-size-prose-label);
   color: var(--text-white-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -111,12 +111,12 @@
   position: relative;
   z-index: 1;
   background: var(--bg-primary);
-  font-size: var(--_fs-small);
+  font-size: var(--font-size-prose-small);
   font-weight: var(--font-weight-semibold);
   transition:
     color var(--duration-moderate) ease,
     border-color var(--duration-moderate) ease;
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
 }
 
 .featureFolderTab::after {
@@ -128,8 +128,8 @@
   background: radial-gradient(
     circle at top right,
     transparent 13px,
-    var(--border-strong-color) 13.5px,
-    var(--border-strong-color) 14px,
+    var(--border-color-strong) 13.5px,
+    var(--border-color-strong) 14px,
     var(--bg-primary) 14.5px
   );
   content: "";
@@ -163,7 +163,7 @@
 
 .featureFolderDesc {
   margin: 0;
-  font-size: var(--_fs-subhead);
+  font-size: var(--font-size-subhead);
   line-height: var(--_lh-body);
   color: var(--text-secondary);
   transition: color var(--duration-moderate) ease;
@@ -171,7 +171,7 @@
 
 .featureFolderTech {
   margin: 0;
-  font-size: var(--_fs-label);
+  font-size: var(--font-size-prose-label);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -212,11 +212,11 @@
     flex-shrink: 0;
     align-self: flex-start;
     margin-bottom: -2px;
-    padding: 0.55rem 1.2rem;
+    padding: var(--spacing-xs) var(--spacing-lg);
     position: relative;
     z-index: 1;
-    font-size: var(--_fs-subhead);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    font-size: var(--font-size-subhead);
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   }
 
   .featureFolderWrap .featureFolderTab::after {
@@ -226,8 +226,8 @@
     background: radial-gradient(
       circle at top right,
       transparent 13px,
-      var(--border-strong-color) 13.5px,
-      var(--border-strong-color) 14px,
+      var(--border-color-strong) 13.5px,
+      var(--border-color-strong) 14px,
       var(--bg-primary) 14.5px
     );
   }

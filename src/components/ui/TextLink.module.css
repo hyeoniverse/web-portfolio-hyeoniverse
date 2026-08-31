@@ -1,7 +1,7 @@
 .textLink {
   position: relative;
   display: inline;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-decoration: none;
 }
@@ -29,7 +29,7 @@
 .external {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-2xs);
 }
 
 .externalIcon {

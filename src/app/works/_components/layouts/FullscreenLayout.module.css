@@ -125,7 +125,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--text-primary);
@@ -190,9 +190,9 @@
   position: absolute;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-primary);
   z-index: 1;
   pointer-events: none;
@@ -206,14 +206,14 @@
 .hudBR { bottom: var(--spacing-xl); right: var(--spacing-xl); align-items: flex-end; text-align: right; }
 
 .hudKey {
-  font-size: 9px;
+  font-size: var(--font-size-hint);
   letter-spacing: 0.25em;
   opacity: 0.4;
   text-transform: uppercase;
 }
 
 .hudVal {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.04em;
   opacity: 0.8;
@@ -221,7 +221,7 @@
 }
 
 .hudMeta {
-  font-size: 9px;
+  font-size: var(--font-size-hint);
   letter-spacing: 0.1em;
   opacity: 0.4;
   font-variant-numeric: tabular-nums;
@@ -245,9 +245,9 @@
   .hudBL { display: none; }
   .hudTL { top: var(--spacing-4xl); left: var(--spacing-md); }
   .hudBR { bottom: var(--spacing-md); right: var(--spacing-md); }
-  .hudKey { font-size: 8px; }
+  .hudKey { font-size: var(--font-size-hint); }
   .hudVal,
-  .hudMeta { font-size: 9px; }
+  .hudMeta { font-size: var(--font-size-hint); }
 }
 
 /* ── Inner content ── */
@@ -299,7 +299,7 @@
 /* ── Category ── */
 .category {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -325,7 +325,7 @@
 
 /* ── Subtitle ── */
 .subtitle {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: var(--font-weight-regular);
   color: var(--text-white);
   opacity: 0.45;
@@ -393,7 +393,7 @@
   left: 5vw;
   bottom: 8vh;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   letter-spacing: 0.2em;
   color: var(--text-white);
   opacity: 0.2;
@@ -411,7 +411,7 @@
 
 .tech span {
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   letter-spacing: 0.06em;
   color: var(--text-white);
   opacity: 0.45;
@@ -425,7 +425,7 @@
   transform: translateY(-50%);
   z-index: 5;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-white);
   opacity: 0.2;
   letter-spacing: 0.15em;
@@ -447,7 +447,7 @@
   color: var(--text-white);
   opacity: 0.15;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   letter-spacing: 0.2em;
   pointer-events: none;
   animation: scrollBounce 2.5s ease-in-out infinite;
@@ -474,7 +474,7 @@
   .bgImageActive { opacity: 0.5; }
 
   .inner { padding: 0 var(--spacing-lg); gap: var(--spacing-md); }
-  .subtitle { font-size: var(--font-size-sm); }
+  .subtitle { font-size: var(--font-size-body); }
   .number { display: none; }
   .tech { display: none; }
   .counter { display: none; }

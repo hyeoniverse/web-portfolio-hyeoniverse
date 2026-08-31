@@ -1,6 +1,6 @@
 .overviewDesc {
   margin: 0;
-  font-size: var(--_fs-body);
+  font-size: var(--font-size-prose);
   line-height: var(--_lh-prose);
   color: var(--text-secondary);
 }
@@ -12,9 +12,9 @@
 }
 
 .overviewTag {
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: var(--border-default);
-  font-size: var(--_fs-label);
+  font-size: var(--font-size-prose-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   letter-spacing: 0.05em;
@@ -31,14 +31,14 @@
 
 .statValue {
   font-family: var(--_font-display);
-  font-size: var(--_fs-lead);
+  font-size: var(--font-size-lead);
   font-weight: var(--font-weight-regular);
   line-height: var(--_lh-title);
   color: var(--text-accent);
 }
 
 .statLabel {
-  font-size: var(--_fs-small);
+  font-size: var(--font-size-prose-small);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
   text-align: right;

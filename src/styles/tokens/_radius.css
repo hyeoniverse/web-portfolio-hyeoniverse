@@ -1,5 +1,11 @@
 /* ==========================================================================
   Border Radius Tokens
+
+  고르는 것은 셋뿐이다 — capsule(알약·칩·행 하이라이트) · circle(정원) · 2xl(면 있는 것).
+  docs/design-system.md R6. stylelint 와 eslint 가 나머지를 막는다.
+
+  2xs~md 는 "각진 것 자체가 의미"인 자리(체크박스·다중선택 마커·컬러피커 SV 사각형)만
+  쓴다. 그 8곳은 전부 disable 주석에 이유가 적혀 있다.
   ========================================================================== */
 
 :root {
@@ -7,13 +13,7 @@
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
   --radius-2xl: 24px;
-  --radius-3xl: 28px;
-  --radius-4xl: 32px;
-  --radius-5xl: 36px;
-  --radius-6xl: 42px;
   --radius-circle: 50%;
   --radius-capsule: 9999px;
 }

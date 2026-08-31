@@ -25,7 +25,7 @@
 .archPath {
   flex-shrink: 0;
   font-family: var(--font-mono), monospace;
-  font-size: var(--_fs-body);
+  font-size: var(--font-size-prose);
   font-weight: var(--font-weight-medium);
   transition: color var(--duration-base) ease;
 }
@@ -43,7 +43,7 @@
 }
 
 .archDesc {
-  font-size: var(--_fs-small);
+  font-size: var(--font-size-prose-small);
   line-height: var(--_lh-reading);
   color: var(--text-tertiary);
   text-align: right;
@@ -69,10 +69,10 @@
 }
 
 .archMap .archModeBtn {
-  padding: var(--box-md);
+  padding: var(--button-p-md);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--_fs-label);
+  font-size: var(--font-size-prose-label);
   color: var(--text-tertiary);
   transition:
     border-color var(--duration-base) ease,
@@ -191,7 +191,7 @@
 
 .archNodePath {
   font-family: var(--font-mono), monospace;
-  font-size: var(--_fs-small);
+  font-size: var(--font-size-prose-small);
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
 }
@@ -221,7 +221,7 @@
   padding: clamp(0.15rem, 0.25vh, 0.25rem) clamp(0.25rem, 0.35vw, 0.4rem);
   border: none;
   border-radius: 0;
-  outline: 1px solid var(--border-default-color);
+  outline: 1px solid var(--border-color-default);
   outline-offset: -1px;
   overflow: hidden;
   position: absolute;
@@ -237,7 +237,7 @@
 }
 
 .archMap .archTmParent {
-  outline-color: var(--border-strong-color);
+  outline-color: var(--border-color-strong);
   z-index: 0;
 }
 
@@ -246,7 +246,7 @@
 }
 
 .archMap .archTmLeaf {
-  outline-color: var(--border-light-color);
+  outline-color: var(--border-color-light);
   z-index: 0;
 }
 
@@ -264,7 +264,7 @@
 .archTmLabel {
   overflow: hidden;
   font-family: var(--font-mono), monospace;
-  font-size: clamp(9px, 0.7vw, 13px);
+  font-size: clamp(var(--font-size-micro), 0.7vw, 13px);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   white-space: nowrap;
@@ -315,7 +315,7 @@
 
 .archSunburst .archSbLabel {
   font-family: var(--font-mono), monospace;
-  font-size: clamp(8px, 0.65vw, 12px);
+  font-size: clamp(var(--font-size-micro), 0.65vw, 12px);
   font-weight: var(--font-weight-medium);
   pointer-events: none;
   fill: var(--text-secondary);
@@ -324,7 +324,7 @@
 }
 
 .archSunburst .archSbLabelLg {
-  font-size: clamp(10px, 0.8vw, 14px);
+  font-size: clamp(var(--font-size-micro), 0.8vw, 14px);
 }
 
 /* ── Shared tooltip ── */
@@ -336,7 +336,7 @@
   background: var(--bg-secondary);
   border: var(--border-default);
   border-left: 3px solid var(--text-accent);
-  font-size: var(--_fs-small);
+  font-size: var(--font-size-prose-small);
   line-height: var(--_lh-reading);
   color: var(--text-primary);
   pointer-events: none;
@@ -379,7 +379,7 @@
     top: calc(var(--spacing-xs) + 0.55em);
     width: var(--spacing-sm);
     height: 1px;
-    background: var(--border-default-color);
+    background: var(--border-color-default);
   }
 
   /* indent 0: 루트 — 연결선 없음, 굵은 스타일 */
@@ -422,7 +422,7 @@
 
   .archDesc {
     text-align: left;
-    font-size: clamp(0.7rem, 2.2vw, 0.82rem);
+    font-size: clamp(var(--font-size-micro), 2.2vw, 0.82rem);
     color: var(--text-tertiary);
     padding-left: 0;
     line-height: 1.5;

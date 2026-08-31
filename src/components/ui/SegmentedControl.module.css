@@ -8,17 +8,17 @@
      flex 부모(FieldRow 등)는 align-self, grid 부모(.section 등)는 justify-self 로 각각 가로축을 막는다. */
   align-self: flex-start;
   justify-self: start;
-  padding: 2px;
+  padding: var(--spacing-3xs);
   border-radius: var(--radius-capsule);
-  box-shadow: inset 0 0 0 1px var(--border-default-color);
+  box-shadow: inset 0 0 0 1px var(--border-color-default);
 }
 
-/* variant="subtle" — 테두리만 한 단계 옅게(--border-light-color).
+/* variant="subtle" — 테두리만 한 단계 옅게(--border-color-light).
    주변이 전부 border-light 결인 자리(달력 블록 등)에서 기본 default 가 혼자 진하게 튄다.
    테두리를 border 가 아니라 inset box-shadow 로 그리므로(위 .group 주석 참고) 여기서도 같은 모양으로 덮는다.
    compound (0,2,0) — .group 과 같은 (0,1,0) 이면 선언 순서에 기대게 된다. */
 .groupSubtle.groupSubtle {
-  box-shadow: inset 0 0 0 1px var(--border-light-color);
+  box-shadow: inset 0 0 0 1px var(--border-color-light);
 }
 
 .btn {
@@ -32,7 +32,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   white-space: nowrap;
   cursor: pointer;
@@ -49,7 +49,7 @@
 .btnXs {
   height: calc(var(--control-h-xs) - 4px);
   padding: 0 var(--spacing-xs);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   gap: 0;
 }
 
@@ -82,7 +82,7 @@
    버튼을 control-h-8 로 줄여(--nested-btn-h) 전체 높이는 padding 4*2 + (control-h-8) = control-h 로
    main 모드와 동일하게 유지 (전환 시 높이 안 변함). */
 .nestedGroup {
-  padding: 4px;
+  padding: var(--spacing-2xs);
   align-items: center;
   gap: var(--spacing-2xs);
 }

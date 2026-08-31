@@ -6,7 +6,7 @@
   width: 120px;
   height: 100vh;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-light);
   color: var(--text-primary);
   user-select: none;

@@ -48,12 +48,12 @@
   align-items: center;
   gap: var(--spacing-2xs);
   width: 100%;
-  padding: 6px 10px 6px 12px;
+  padding: var(--badge-p-lg);
   border: none;
   background: transparent;
   color: inherit;
   font-family: inherit;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   cursor: pointer;
   white-space: nowrap;
   transition: color 0.15s ease;
@@ -76,20 +76,20 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  font-size: 10px;
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
 }
 
 .pillScore {
   display: inline-flex;
   align-items: baseline;
-  gap: 1px;
+  gap: var(--spacing-4xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  margin-left: 4px;
-  margin-right: 6px;
+  margin-left: var(--spacing-2xs);
+  margin-right: var(--spacing-xs);
 }
 
 .pillScoreCount {
@@ -113,7 +113,7 @@
   width: var(--size);
   height: var(--size);
   aspect-ratio: 1 / 1;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: conic-gradient(
     currentColor calc(var(--p) * 1%),
     var(--bg-tertiary) 0
@@ -188,7 +188,7 @@
 .panelScoreSepBig {
   font-size: 1.25rem;
   color: var(--text-muted);
-  margin: 0 2px;
+  margin: 0 var(--spacing-3xs);
 }
 
 .panelScoreTotalBig {
@@ -199,12 +199,12 @@
 .panelHeaderRight {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 
 .panelHeaderLabel {
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-hint);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -213,7 +213,7 @@
 
 .panelHeaderStatus {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -230,11 +230,11 @@
   align-items: center;
   gap: var(--spacing-xs);
   width: 100%;
-  padding: var(--box-md);
+  padding: var(--row-p-md);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   text-align: left;
   color: var(--text-primary);
   cursor: pointer;
@@ -251,7 +251,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   flex-shrink: 0;
 }
 
@@ -268,7 +268,7 @@
 .iconDot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: currentColor;
   opacity: 0.6;
 }
@@ -283,7 +283,7 @@
 }
 
 .panelHint {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-accent);
   font-weight: 500;
   white-space: nowrap;
@@ -321,18 +321,18 @@
 .panelPassedLabel {
   display: block;
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
+  font-size: var(--font-size-hint);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-tertiary);
-  margin-bottom: 6px;
+  margin-bottom: var(--spacing-xs);
 }
 
 .panelPassedList {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--spacing-xs);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -346,12 +346,12 @@
 .panelPassedItem {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
+  gap: var(--spacing-2xs);
+  padding: var(--row-p-sm);
   border-radius: var(--radius-capsule);
   border: var(--border-light);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
 }
 

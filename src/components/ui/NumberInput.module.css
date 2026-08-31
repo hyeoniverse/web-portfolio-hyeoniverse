@@ -20,16 +20,16 @@
 .zoneMid { color: var(--color-success); }
 .zoneHigh { color: var(--color-warning); }
 .root.focused {
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 
 .label {
   display: inline-flex;
   align-items: center;
   height: 100%;
-  padding: 0 4px 0 8px;
+  padding: 0 var(--spacing-2xs) 0 var(--spacing-xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-muted);
   user-select: none;
@@ -43,10 +43,10 @@
   background: transparent;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   outline: none;
-  padding: 0 2px;
+  padding: 0 var(--spacing-3xs);
   -moz-appearance: textfield;
   appearance: textfield;
 }
@@ -66,9 +66,9 @@
   flex-shrink: 1;
   max-width: var(--_unit-max, 4.5ch);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-muted);
-  padding-right: 4px;
+  padding-right: var(--spacing-2xs);
   user-select: none;
 }
 .unitText {

@@ -44,7 +44,7 @@
 .focusTitle {
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   white-space: nowrap;
 }
 .focusTitle strong {
@@ -61,7 +61,7 @@
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   cursor: pointer;
 }
 .focusBtn:hover {
@@ -80,7 +80,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3xs);
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   background: var(--bg-primary);
@@ -88,24 +88,24 @@
 }
 .noteTitle {
   color: var(--text-primary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-snug);
 }
 .noteTag {
   align-self: flex-start;
-  padding: var(--box-xs);
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-subtle);
   color: var(--text-accent);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   word-break: break-all;
 }
 .noteDesc {
   margin: 0;
   color: var(--text-secondary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   line-height: var(--line-height-relaxed);
 }
 
@@ -123,13 +123,13 @@
   display: inline-flex;
   gap: var(--spacing-3xs);
   align-items: center;
-  padding: var(--box-xs);
+  padding: var(--button-p-xs);
   border: 0;
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -145,12 +145,12 @@
 /* 편집 경로 안내 — admin 에서만 뜬다(공개 패널은 onEdit 이 없어 렌더 안 됨).
    포커스 중엔 칩이 그 자리를 대신하므로 감춘다. */
 .editHint {
-  padding: 3px 8px;
+  padding: var(--spacing-2xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
   color: var(--text-tertiary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   letter-spacing: 0.01em;
   pointer-events: none;
 }

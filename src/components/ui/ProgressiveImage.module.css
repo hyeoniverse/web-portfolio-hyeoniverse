@@ -63,7 +63,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-tertiary, var(--bg-secondary));
+  background: var(--bg-tertiary);
 }
 
 .fallbackIcon {

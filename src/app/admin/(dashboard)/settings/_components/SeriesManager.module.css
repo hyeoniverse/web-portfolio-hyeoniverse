@@ -8,7 +8,7 @@
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-md);
-  padding: var(--box-sm-md);
+  padding: var(--card-p-md);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   background: transparent;
@@ -22,7 +22,7 @@
 }
 
 .seriesList .seriesCardHead:hover {
-  border-color: var(--border-light-color);
+  border-color: var(--border-color-light);
 }
 
 .seriesCard {
@@ -172,7 +172,7 @@
   flex: 1;
   min-width: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
   overflow: hidden;
@@ -186,15 +186,15 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin-top: var(--spacing-sm);
 }
 
 .seriesBadgeCat {
-  padding: var(--spacing-4xs) var(--spacing-xs);
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   background: var(--bg-secondary);
   color: var(--text-secondary);
 }
@@ -238,6 +238,6 @@
   display: inline-block;
   width: 1px;
   height: 1.25em;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   margin: 0 var(--spacing-2xs);
 }

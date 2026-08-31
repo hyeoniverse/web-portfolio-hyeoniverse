@@ -15,7 +15,7 @@
   background: transparent;
   text-decoration: none;
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   transition:
     background var(--duration-base) var(--ease-material),
     border-color var(--duration-base) var(--ease-material),
@@ -23,7 +23,7 @@
 }
 .chip:hover {
   background: var(--bg-tertiary);
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
   color: var(--text-primary);
 }
 .thumb {
@@ -52,7 +52,7 @@
   padding: 0 var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 .chip:hover .cat {
@@ -73,7 +73,7 @@
   background: var(--bg-tertiary);
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   cursor: pointer;
   transition:
     background var(--duration-base) var(--ease-material),
@@ -110,7 +110,7 @@
 }
 .previewTitle {
   margin: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   overflow: hidden;
@@ -120,7 +120,7 @@
 }
 .previewDesc {
   margin: 0;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   overflow: hidden;
   display: -webkit-box;
@@ -133,6 +133,6 @@
   padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }

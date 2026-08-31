@@ -31,7 +31,7 @@
   flex-direction: column;
   background: var(--color-neutral-0);
   border-top: var(--border-light);
-  border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;

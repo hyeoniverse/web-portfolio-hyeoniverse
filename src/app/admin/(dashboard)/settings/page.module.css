@@ -8,7 +8,7 @@
 }
 .conflictDesc {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-md);
 }
@@ -20,8 +20,8 @@
   border-radius: var(--radius-capsule);
   color: var(--text-primary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  padding: var(--box-xs-sm);
+  font-size: var(--font-size-label);
+  padding: var(--spacing-xs) var(--spacing-sm);
   font-weight: var(--font-weight-medium);
 }
 .conflictList {
@@ -35,7 +35,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-xs) 0;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   border-bottom: var(--border-light);
   border-radius: 0;
 }
@@ -50,19 +50,19 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-xs) 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
 .conflictSelectAllLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
 }
 
 .conflictPath {
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
   min-width: 160px;
@@ -79,7 +79,7 @@
 .conflictValueDB,
 .conflictValueCode {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   white-space: nowrap;
   overflow: hidden;
@@ -132,7 +132,7 @@
   border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-secondary);
   text-align: left;
@@ -234,12 +234,12 @@
 
   .mobileSubItem {
     flex-shrink: 0;
-    padding: var(--box-md);
+    padding: var(--row-p-md);
     border: none;
     border-bottom: 2px solid transparent;
     background: transparent;
     font-family: var(--font-space-grotesk);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-label);
     font-weight: var(--font-weight-medium);
     color: var(--text-secondary);
     white-space: nowrap;

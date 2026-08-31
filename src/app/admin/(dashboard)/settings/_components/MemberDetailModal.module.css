@@ -41,12 +41,12 @@
 }
 .memberDetailName {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 .memberDetailRole {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
 }
 .memberDetailMeta {
@@ -56,12 +56,12 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
 }
 .memberDetailMetaLabel {
   color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 .memberDetailMetaLink {
   color: var(--text-secondary);
@@ -73,7 +73,7 @@
 .memberDetailBio {
   margin: 0;
   min-width: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-secondary);
   white-space: pre-wrap;
@@ -85,7 +85,7 @@
 /* GitHub 사용자명 — 이름 옆에 붙는 보조 식별자라 이름보다 약하게 둔다 */
 .memberDetailHandle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   text-decoration: none;
 }

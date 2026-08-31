@@ -12,18 +12,18 @@
 }
 
 .desc {
-  margin: 0 0 var(--spacing-3xl);
+  margin: 0 0 var(--spacing-3xl) 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: 1.5;
   white-space: pre-line;
 }
 
 .hint {
-  margin: 0 0 var(--spacing-md);
+  margin: 0 0 var(--spacing-md) 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
 }
 
@@ -33,21 +33,21 @@
 
 .body .input input {
   width: 100%;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 
 .body .input input {
-  border-color: var(--border-default-color);
+  border-color: var(--border-color-default);
 }
 
 .body .input input:focus {
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 
 .error {
   margin: calc(-1 * var(--spacing-sm)) 0 var(--spacing-lg);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-accent);
 }
 
@@ -62,8 +62,8 @@
 /* 대상 목록 — 이름을 쉼표로 이어 붙이면 어디서 끊기는지 알 수 없다. 한 줄에 하나씩.
    항목마다 칩을 두면 개수가 많을 때 시선이 흩어져서, 한 덩어리 박스 안에 줄로 쌓는다. */
 .itemList {
-  margin: 0 0 var(--spacing-3xl);
-  padding: var(--box-md-lg);
+  margin: 0 0 var(--spacing-3xl) 0;
+  padding: var(--row-p-lg);
   border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
   list-style: none;
@@ -74,7 +74,7 @@
 
 .itemList li {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.5;
   color: var(--text-secondary);
   overflow-wrap: anywhere;
@@ -83,7 +83,7 @@
 /* 목록에 다 담지 못한 나머지 — 항목이 아니라 각주로 읽히게 한 칸 띄우고 약하게 */
 .itemListMore {
   margin-top: var(--spacing-2xs);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 

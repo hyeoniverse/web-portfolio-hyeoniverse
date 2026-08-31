@@ -14,7 +14,7 @@
 }
 .techGroupLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -32,7 +32,7 @@
 }
 .techGroupEmpty {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
   font-style: italic;
 }
@@ -47,7 +47,7 @@
   outline: var(--border-accent);
   outline-style: dashed;
   outline-offset: 3px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: var(--bg-accent-light);
 }
 .techDragOverlay {
@@ -60,7 +60,7 @@
   background: var(--bg-secondary);
   box-shadow: var(--shadow-md);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-primary);
   cursor: grabbing;
@@ -83,7 +83,7 @@
 }
 .techIconInitial {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 700;
   color: var(--text-tertiary);
 }
@@ -101,7 +101,7 @@
 }
 .techPanelTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -122,7 +122,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--row-p-md);
   border: none;
   border-bottom: var(--border-light);
   background: transparent;
@@ -137,14 +137,14 @@
   background: var(--bg-tertiary);
 }
 .techPresetRowName {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .techPresetRowCat {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -186,7 +186,7 @@
     color 0.15s;
 }
 .techIconCircleBtn:hover {
-  border-color: var(--border-accent-color);
+  border-color: var(--border-color-accent);
   color: var(--text-accent);
 }
 .techIconCircleBtn:disabled {
@@ -200,12 +200,12 @@
 }
 .techIconCircleWrap:has(img) .techIconCircleBtn {
   border-style: solid;
-  border-color: var(--border-light-color);
+  border-color: var(--border-color-light);
 }
 .techIconSpinner {
   width: 14px;
   height: 14px;
-  border: 2px solid var(--border-strong-color);
+  border: 2px solid var(--border-color-strong);
   border-top-color: var(--text-accent);
   border-radius: var(--radius-circle);
   animation: techSpin 0.7s linear infinite;
@@ -231,13 +231,13 @@
   color: var(--text-accent);
 }
 .techAddDupHint {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-accent);
   margin: 0;
 }
 .techNameDup input,
 .techNameDup input:focus {
-  border-color: var(--border-accent-strong-color);
+  border-color: var(--border-color-accent-strong);
 }
 .techNameShake {
   animation: techNameShake 0.45s ease;

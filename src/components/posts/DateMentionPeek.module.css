@@ -3,7 +3,7 @@
   z-index: var(--z-tooltip);
   padding: var(--spacing-2xs);
   border: var(--border-light);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
   background: var(--bg-primary);
   box-shadow: var(--shadow-md);
 }

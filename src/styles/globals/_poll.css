@@ -4,8 +4,8 @@
   margin: var(--spacing-lg) 0;
   padding: var(--spacing-lg);
   background: transparent;
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--radius-2xl);
 }
 
 /* ── 에디터 상단 바 — 블록 정체성(eyebrow) + 편집|결과 토글. 하단 구분선으로 본문과 분리 ── */
@@ -16,7 +16,7 @@
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
   padding-bottom: var(--spacing-2xs);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: 1px solid var(--border-color-light);
 }
 /* 블록 정체성 라벨 — 작지 않게(제목급). 아이콘 + "투표" */
 .poll-eyebrow {
@@ -24,7 +24,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: var(--font-weight-bold);
   letter-spacing: -0.01em;
   color: var(--text-secondary);
@@ -44,13 +44,13 @@
 .poll-tb-panel {
   margin-top: var(--spacing-2xs);
   padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--border-light-color);
+  border-top: 1px solid var(--border-color-light);
   min-width: 18rem;
 }
 .poll-tb-panel-label {
   margin-bottom: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -61,7 +61,7 @@
   width: 1px;
   align-self: stretch;
   margin: var(--spacing-3xs) var(--spacing-3xs);
-  background: var(--border-light-color);
+  background: var(--border-color-light);
 }
 
 /* 기간 설정(popover 안) */
@@ -84,19 +84,19 @@
 }
 .poll-period-field-label {
   min-width: 2.5rem;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-secondary);
   flex-shrink: 0;
 }
 /* 날짜·시간 trigger — 선택 전 (테두리 있는 버튼) */
 .poll-period-trigger {
-  padding: var(--box-xs);
-  border: 1px solid var(--border-light-color);
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   cursor: pointer;
   font-variant-numeric: tabular-nums;
@@ -124,7 +124,7 @@
   justify-content: center;
   padding-top: var(--spacing-sm);
   margin-top: var(--spacing-2xs);
-  border-top: 1px solid var(--border-light-color);
+  border-top: 1px solid var(--border-color-light);
 }
 
 /* ── 옵션 행 (드래그 핸들로 순서 변경) ── */
@@ -206,12 +206,12 @@ body.poll-grabbing * {
   max-width: 18rem;
   padding: var(--spacing-2xs) var(--spacing-sm);
   background: var(--bg-primary);
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-lg);
   opacity: 0.85;
   pointer-events: none;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
 }
 .poll-drag-ghost-label {
@@ -226,11 +226,12 @@ body.poll-grabbing * {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid var(--border-strong-color);
+  border: 1.5px solid var(--border-color-strong);
   border-radius: var(--radius-circle);
   color: var(--text-tertiary);
 }
 .poll-option-marker-multi {
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 다중선택 마커 — 단일(원)과 구분하는 게 네모다 */
   border-radius: var(--radius-xs);
 }
 .poll-option-input {
@@ -240,7 +241,7 @@ body.poll-grabbing * {
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
 }
@@ -287,7 +288,7 @@ body.poll-grabbing * {
 .poll-add-marker {
   border-style: dashed;
   border-width: 1.5px;
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
   color: var(--text-muted);
   opacity: 0.7;
   transition: opacity 0.15s ease, color 0.15s ease;
@@ -304,7 +305,7 @@ body.poll-grabbing * {
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
 }
@@ -314,7 +315,7 @@ body.poll-grabbing * {
 /* 최대 항목 도달 시 안내 (add-row 대신) */
 .poll-add-limit {
   padding: var(--spacing-2xs) 0;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-muted);
 }
 
@@ -340,7 +341,7 @@ body.poll-grabbing * {
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-primary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   text-align: left;
   cursor: pointer;
@@ -380,7 +381,7 @@ body.poll-grabbing * {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  border: 1.5px solid var(--border-strong-color);
+  border: 1.5px solid var(--border-color-strong);
   border-radius: var(--radius-circle);
   transition: border-color 0.15s ease, background 0.15s ease;
 }
@@ -388,6 +389,7 @@ body.poll-grabbing * {
   border-color: var(--text-secondary);
 }
 .poll-marker-multi {
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 다중선택 마커 — 단일(원)과 구분하는 게 네모다 */
   border-radius: var(--radius-xs);
 }
 .poll-marker-on {
@@ -401,7 +403,7 @@ body.poll-grabbing * {
 .poll-pct {
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -412,7 +414,7 @@ body.poll-grabbing * {
 .poll-head-label,
 .poll-edit-head .poll-field > label {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -447,7 +449,7 @@ body.poll-grabbing * {
 /* 설명 textarea — pill 대신 rounded 모서리 + 높이·resize */
 .poll-edit-head .poll-desc-input {
   min-height: 4rem;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   resize: vertical;
 }
 .poll-title-input::placeholder,
@@ -472,7 +474,7 @@ body.poll-grabbing * {
   padding: 0 var(--spacing-3xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary-alt);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
@@ -481,7 +483,7 @@ body.poll-grabbing * {
 .poll-options {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--spacing-4xs);
 }
 /* ── 결과 헤더: 제목 > 부제목 > (설명 라벨) 설명 > 기간. 크기·색·간격으로 계층 구분 ── */
 .poll-header {
@@ -497,26 +499,26 @@ body.poll-grabbing * {
   margin-top: 0;
 }
 .poll-title {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-title-lg);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   line-height: 1.25;
   letter-spacing: -0.01em;
 }
 .poll-subtitle {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   line-height: 1.4;
 }
 .poll-desc {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: 1.6;
   white-space: pre-wrap;
 }
 .poll-period {
   margin-top: var(--spacing-sm);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
 }
 .poll-foot {
@@ -531,7 +533,7 @@ body.poll-grabbing * {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 /* 공통 Button(size sm/xs)과 동일한 control-h 토큰·패딩으로 맞춤 — reader 는 vanilla DOM 이라 React Button 직접 사용 불가 */
@@ -545,7 +547,7 @@ body.poll-grabbing * {
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   cursor: pointer;
   transition: opacity 0.15s ease;
@@ -562,18 +564,18 @@ body.poll-grabbing * {
   align-items: center;
   height: var(--control-h-xs);
   padding: 0 var(--spacing-md);
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   cursor: pointer;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 .poll-revote:hover:not(:disabled) {
   color: var(--text-primary);
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 
 /* ── 결과: 도넛(원형) + 항목별 막대 범례 + 정렬 ── */
@@ -590,9 +592,9 @@ body.poll-grabbing * {
 .poll-sort-seg {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px;
-  border: 1px solid var(--border-light-color);
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-capsule);
 }
 .poll-sort-seg-btn {
@@ -605,7 +607,7 @@ body.poll-grabbing * {
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   cursor: pointer;
   transition: color 0.15s ease, background 0.15s ease;
@@ -620,7 +622,7 @@ body.poll-grabbing * {
 /* 방향 화살표 — 활성 세그먼트에만. desc 면 180° 회전 */
 .poll-sort-dir {
   display: inline-flex;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   line-height: 1;
   transition: transform 0.15s ease;
 }
@@ -630,7 +632,7 @@ body.poll-grabbing * {
 .poll-result-empty {
   padding: var(--spacing-lg) 0;
   text-align: center;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-muted);
 }
 .poll-pie-wrap {
@@ -668,13 +670,13 @@ body.poll-grabbing * {
 .poll-pie-num {
   fill: var(--text-primary);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 8px;
+  font-size: var(--font-size-micro);
   font-weight: 700;
 }
 .poll-pie-sub {
   fill: var(--text-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 3.4px;
+  font-size: var(--font-size-micro);
   font-weight: 500;
   letter-spacing: 0.04em;
 }
@@ -689,7 +691,7 @@ body.poll-grabbing * {
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   padding: var(--spacing-3xs) var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   cursor: pointer;
@@ -734,7 +736,7 @@ body.poll-grabbing * {
   overflow: hidden;
   text-overflow: ellipsis;
   font-variant-numeric: tabular-nums;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-secondary);
 }

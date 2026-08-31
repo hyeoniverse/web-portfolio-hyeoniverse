@@ -6,7 +6,7 @@
 
 .label {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   letter-spacing: 0.03em;
 }
@@ -18,7 +18,7 @@
   border-radius: var(--radius-2xl);
   background: transparent;
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.5;
   color: var(--text-primary);
   outline: none;
@@ -53,7 +53,7 @@
 }
 
 .wrapperSm .label {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 400;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -61,8 +61,8 @@
 
 .sm {
   padding: var(--textarea-p);
-  border-color: var(--border-light-color);
-  font-size: var(--font-size-sm);
+  border-color: var(--border-color-light);
+  font-size: var(--font-size-body);
 }
 
 .sm:focus {
@@ -92,7 +92,7 @@
   justify-content: flex-end;
   gap: var(--spacing-2xs);
   /* glass chip — 뒤 텍스트 위에서도 읽히도록 반투명 배경 + blur */
-  padding: var(--spacing-3xs) var(--spacing-xs);
+  padding: var(--row-p-sm);
   border-radius: var(--radius-capsule);
   background: var(--bg-glass-panel);
   backdrop-filter: var(--blur-glass);
@@ -155,14 +155,14 @@
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--text-tertiary);
   text-transform: uppercase;
   user-select: none;
   /* textarea 첫 줄과 vertical 중심 맞춤 — textarea 의 padding-top 만큼 */
-  margin-top: 6px;
+  margin-top: var(--spacing-xs);
 }
 
 /* flex row 안 textarea — width:0 + flex: 1 로 남은 폭 차지. base .textarea width:100% 강제 override.
@@ -229,7 +229,7 @@
    bottomRow flex 안 child 라 align-self 불필요 (parent 의 align-items:center 가 처리). */
 .wrapper .counter {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;

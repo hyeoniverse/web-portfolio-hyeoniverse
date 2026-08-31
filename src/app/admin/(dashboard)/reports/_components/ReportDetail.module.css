@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
-  padding: var(--box-md-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
 }
 
 .head {
@@ -32,7 +32,7 @@
 }
 
 .type {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   overflow-wrap: anywhere;
 }
@@ -44,17 +44,17 @@
   flex-wrap: wrap;
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   overflow-wrap: anywhere;
 }
 
 .deletedBadge {
-  padding: var(--box-3xs-xs);
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
 }
@@ -65,7 +65,7 @@
   position: relative;
   margin: 0;
   padding-left: var(--spacing-xl);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-secondary);
   white-space: pre-wrap;
@@ -95,7 +95,7 @@
   display: grid;
   grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
   gap: var(--spacing-sm);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 .metaRow dt {
@@ -111,10 +111,10 @@
 .statusChip {
   display: inline-flex;
   align-items: center;
-  padding: var(--box-3xs-xs);
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);
   line-height: 1;
 }

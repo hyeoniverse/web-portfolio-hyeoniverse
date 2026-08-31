@@ -15,7 +15,7 @@
 .label {
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -53,15 +53,15 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--cell-p-md);
   /* border-collapse: collapse 는 sticky th 의 border 를 셀에서 분리해 같이 안 따라온다
      → box-shadow 로 그린다. 스크롤해도 헤더 아래 선이 유지된다.
-     색은 행 구분선(--border-light-color)과 동일하게 — 헤더만 진하면 튄다. */
-  box-shadow: inset 0 -1px 0 var(--border-light-color);
+     색은 행 구분선(--border-color-light)과 동일하게 — 헤더만 진하면 튄다. */
+  box-shadow: inset 0 -1px 0 var(--border-color-light);
   background: var(--bg-primary);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-align: left;
@@ -90,7 +90,7 @@
   height: var(--control-h-md);
   padding: 0 var(--spacing-sm);
   border: 0;
-  border-radius: var(--radius-2xs);
+  border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-primary);
   font-family: var(--font-mono);
@@ -127,7 +127,7 @@
 .fk {
   color: var(--text-info);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   white-space: nowrap;
 }
 /* 스크린리더 전용 */
@@ -152,7 +152,7 @@
 }
 .relLabel {
   color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 /* 공통 Chip — 배경 대신 그림자로 구분한다 */
@@ -171,7 +171,7 @@
 }
 /* 그림자가 검정 기반이라 어두운 배경 위에서는 chip 형태가 사라진다 → 옅은 테두리로 윤곽만 살린다 */
 html[data-theme="dark"] .relGroup .rel {
-  border-color: var(--border-light-color);
+  border-color: var(--border-color-light);
 }
 .relCol {
   color: var(--text-secondary);
@@ -232,12 +232,12 @@ html[data-theme="dark"] .relGroup .rel {
   border-color: transparent;
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 .typeSelect input:hover,
 .typeSelect button:hover,
 .fkSelect button:hover {
-  border-color: var(--border-light-color);
+  border-color: var(--border-color-light);
 }
 .typeSelect input:focus {
   border-color: var(--color-accent);
@@ -281,7 +281,7 @@ html[data-theme="dark"] .relGroup .rel {
   flex-direction: column;
   gap: var(--spacing-3xs);
   color: var(--text-accent);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: var(--line-height-normal);
 }
 
@@ -371,13 +371,13 @@ html[data-theme="dark"] .relGroup .rel {
 .detailField > span {
   flex: none;
   color: var(--text-muted);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 .detailFlag {
   border-radius: var(--radius-capsule);
-  padding: var(--box-3xs-xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
   background: var(--bg-tertiary);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }

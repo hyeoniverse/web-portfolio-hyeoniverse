@@ -1,7 +1,7 @@
 .mark {
-  padding: 0 2px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-accent-soft, color-mix(in srgb, var(--text-accent) 18%, transparent));
+  padding: 0 var(--spacing-3xs);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-accent);
   color: inherit;
   font-weight: inherit;
 }

@@ -26,24 +26,24 @@
 .pos {
   display: inline-flex;
   align-items: baseline;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
 
 .posInput {
-  width: var(--button-h-lg);
+  width: var(--control-h-2xl);
   /* 맨앞/맨뒤 button group(.jumps) 과 같은 높이 — 컴팩트 (--size-2xs = 20px) */
   height: var(--size-2xs);
   box-sizing: border-box;
   border: var(--border-light);
   border-radius: var(--radius-capsule);
-  padding: 0 8px;
+  padding: 0 var(--spacing-xs);
   background: transparent;
   font-family: inherit;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-primary);
   text-align: center;
@@ -82,7 +82,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 500;
   color: var(--text-secondary);
   white-space: nowrap;
@@ -117,10 +117,10 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) 2px;
+  gap: var(--spacing-2xs);
+  padding: var(--row-p-md);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -210,11 +210,11 @@
 .currentTag {
   display: inline-flex;
   align-items: center;
-  padding: 1px 6px;
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   background: var(--text-accent);
   color: var(--bg-primary);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   font-weight: 600;
   letter-spacing: 0.04em;
 }
@@ -233,11 +233,11 @@
 
 /* Pagination 의 button 클래스가 hashed 라 attribute selector 로 매칭. width/height 만 override */
 .pagination [class*="pageBtn"] {
-  width: var(--button-h-xs);
-  height: var(--button-h-xs);
-  font-size: var(--font-size-2xs);
+  width: var(--control-h-2xs);
+  height: var(--control-h-2xs);
+  font-size: var(--font-size-hint);
 }
 
 .pagination [class*="ellipsis"] {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }

@@ -282,7 +282,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: 1px var(--spacing-xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
@@ -299,8 +299,8 @@
 /* 게시물 링크 pill (리더) — 에디터는 PostLink.module.css 의 .pill 사용 */
 .post-link {
   display: inline;
-  padding: 1px 2px;
-  border-radius: var(--radius-xs);
+  padding: var(--spacing-4xs) var(--spacing-3xs);
+  border-radius: var(--radius-capsule);
   color: var(--text-accent);
   text-decoration: underline;
   text-decoration-color: var(--color-accent-alpha-50);
@@ -406,7 +406,7 @@ code .token.italic {
   backdrop-filter: var(--blur-glass);
   /* 라벨·버튼이 공유하는 규격 — 에디터 코드블록(.codeBarCtrl: 26px/xs/9~10px)과 크기까지 통일 */
   --_bar-ctl-h: 26px;
-  --_bar-ctl-fs: var(--font-size-xs);
+  --_bar-ctl-fs: var(--font-size-label);
   --_bar-ctl-px: 10px;
 }
 
@@ -475,7 +475,7 @@ code .token.italic {
   border: none;
   color: inherit;
   border-radius: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.7;
   /* 인라인 코드(.prose code)의 box-shadow + box-decoration-break:clone 이 새면
      여러 줄로 쪼개질 때 "줄마다 그림자"가 생긴다 → 블록 코드에선 제거 */
@@ -616,7 +616,7 @@ code .token.italic {
 .code-block-wrap .code-copy-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   height: var(--_bar-ctl-h);
   padding: 0 var(--_bar-ctl-px);
   border: none;
@@ -659,7 +659,7 @@ code .token.italic {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   height: var(--_bar-ctl-h);
   padding: 0 var(--_bar-ctl-px);
   border: none;
@@ -780,13 +780,13 @@ span.math-element-wrap .math-katex-content {
   position: relative;
   display: inline-flex;
   align-items: center;
-  padding: 4px 12px;
+  padding: var(--spacing-2xs) var(--spacing-sm);
   border: none;
   border-radius: var(--radius-capsule);
   background: var(--bg-inverse);
   color: var(--text-inverse);
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
+  font-size: var(--font-size-hint);
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -870,14 +870,14 @@ span.math-element-wrap .math-katex-content {
 }
 .reader-diagram-node {
   fill: var(--bg-secondary);
-  stroke: var(--border-strong-color);
+  stroke: var(--border-color-strong);
   stroke-width: 1.5;
   stroke-linejoin: round;
 }
 /* 서브루틴 내부 세로선 — 채우기 없음 */
 .reader-diagram-node-line {
   fill: none;
-  stroke: var(--border-strong-color);
+  stroke: var(--border-color-strong);
   stroke-width: 1.5;
 }
 .reader-diagram-label {
@@ -886,13 +886,13 @@ span.math-element-wrap .math-katex-content {
   font-size: 13px;
 }
 .reader-diagram-edge {
-  stroke: var(--border-strong-color);
+  stroke: var(--border-color-strong);
   stroke-width: 1.5;
 }
 .reader-diagram-edge-label {
   fill: var(--text-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 11px;
+  font-size: var(--font-size-hint);
 }
 
 /* Sandpack 미리보기 iframe — 전역 .editorContent iframe(margin·radius) 규칙 무효화 */
@@ -904,7 +904,7 @@ span.math-element-wrap .math-katex-content {
 /* ── reader 코드 플레이그라운드 — 미리보기(iframe) + 코드 탭 ── */
 .reader-playground {
   margin: var(--spacing-xl) 0;
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-2xl);
   overflow: hidden;
   background: var(--bg-primary);
@@ -933,7 +933,7 @@ span.math-element-wrap .math-katex-content {
   align-items: center;
   gap: var(--spacing-3xs);
   padding: var(--spacing-2xs);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: 1px solid var(--border-color-light);
   background: var(--bg-secondary);
 }
 .reader-playground-tab {
@@ -943,7 +943,7 @@ span.math-element-wrap .math-katex-content {
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: 11px;
+  font-size: var(--font-size-hint);
   cursor: pointer;
   transition: color 0.12s ease, background 0.12s ease;
 }
@@ -971,7 +971,7 @@ span.math-element-wrap .math-katex-content {
   background: var(--bg-secondary);
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
   white-space: pre;
 }
@@ -979,17 +979,17 @@ span.math-element-wrap .math-katex-content {
   max-height: 8rem;
   overflow: auto;
   padding: var(--spacing-2xs) var(--spacing-md);
-  border-top: 1px solid var(--border-light-color);
+  border-top: 1px solid var(--border-color-light);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   line-height: 1.6;
   color: var(--text-secondary);
 }
 .reader-playground-log {
   white-space: pre-wrap;
   word-break: break-word;
-  padding: 1px 0;
+  padding: var(--spacing-4xs) 0;
 }
 .reader-playground-log-error { color: var(--text-accent); }
 .reader-playground-log-warn { color: var(--text-warning); }

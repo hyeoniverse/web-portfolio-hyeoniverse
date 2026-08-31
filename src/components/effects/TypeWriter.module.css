@@ -15,7 +15,7 @@
 }
 
 .caption {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-body-lg);
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-relaxed);
   color: var(--text-tertiary);
@@ -29,8 +29,8 @@
 
 .cursor {
   display: inline-block;
-  margin-left: 0.25rem;
-  padding-bottom: 0.25rem;
+  margin-left: var(--spacing-2xs);
+  padding-bottom: var(--spacing-2xs);
   width: 0; /* Adjust cursor width as needed */
   vertical-align: middle;
   background-color: currentColor; /* Use text color for cursor */

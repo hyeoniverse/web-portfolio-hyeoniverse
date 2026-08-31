@@ -46,12 +46,12 @@
   align-items: center;
   justify-content: center;
   height: 20px;
-  padding: 0 6px;
+  padding: 0 var(--spacing-xs);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.05em;
   flex-shrink: 0;
@@ -64,7 +64,7 @@
   outline: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   padding-inline: 0 !important;
   padding-block: 0;
@@ -85,7 +85,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  margin-right: 4px;
+  margin-right: var(--spacing-2xs);
   border: none;
   background: transparent;
   color: var(--text-tertiary);

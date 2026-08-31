@@ -31,7 +31,7 @@
 .editor :global(.cm-line),
 .editor :global(.cm-gutters) {
   font-family: var(--font-mono), monospace;
-  font-size: var(--_fs-body);
+  font-size: var(--font-size-prose);
   line-height: var(--_lh-code);
 }
 .editor :global(.cm-gutters) {

@@ -12,7 +12,7 @@
 }
 
 .bg {
-  color: var(--border-light-color);
+  color: var(--border-color-light);
 }
 
 /* handle 은 연결 지점일 뿐 — 보이면 점만 잔뜩 찍힌다 */
@@ -61,13 +61,13 @@
   width: 116px;
   height: 46px;
   padding: 0 var(--spacing-xs);
-  border: 1px solid var(--border-strong-color);
+  border: 1px solid var(--border-color-strong);
   /* Chen 표기의 속성은 타원 — 캡슐(알약)이 아니라 진짜 ellipse */
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--bg-primary);
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-size-micro);
   text-align: center;
 }
 .attrLabel {
@@ -81,8 +81,8 @@
 .attrMulti .attrInner {
   position: absolute;
   inset: 4px;
-  border: 1px solid var(--border-strong-color);
-  border-radius: 50%;
+  border: 1px solid var(--border-color-strong);
+  border-radius: var(--radius-circle);
 }
 
 /* 파생 속성 — 점선 타원 (원본에서 계산되는 캐시 값) */
@@ -126,7 +126,7 @@
 
 /* 연결선 */
 .edge :global(.react-flow__edge-path) {
-  stroke: var(--border-strong-color);
+  stroke: var(--border-color-strong);
   stroke-width: 1.2;
 }
 .edge :global(.react-flow__edge-text) {

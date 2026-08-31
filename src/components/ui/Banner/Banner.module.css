@@ -91,8 +91,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-lg);
-  height: var(--button-h-lg);
+  width: var(--control-h-2xl);
+  height: var(--control-h-2xl);
   border: var(--border-white);
   border-radius: var(--radius-circle);
   background: var(--color-white-alpha-10);
@@ -131,7 +131,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--box-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
   background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   border-radius: var(--radius-capsule);
@@ -139,9 +139,9 @@
 
 .viewportWrap .dot {
   position: relative;
-  width: var(--button-h-sm);
+  width: var(--control-h-xs);
   height: 4px;
-  border-radius: var(--radius-2xs);
+  border-radius: var(--radius-capsule);
   background: var(--bg-glass-strong);
   border: none;
   padding: 0;
@@ -172,8 +172,8 @@
   }
 
   .viewportWrap .arrow {
-    width: var(--button-h-md);
-    height: var(--button-h-md);
+    width: var(--control-h-xl);
+    height: var(--control-h-xl);
   }
 
   .arrowPrev {

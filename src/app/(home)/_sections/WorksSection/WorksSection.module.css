@@ -141,7 +141,7 @@
 
 .overlayCategory {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: clamp(11px, 1vw, var(--font-size-sm));
+  font-size: clamp(var(--font-size-micro), 1vw, var(--font-size-body));
   font-weight: var(--font-weight-medium);
   color: var(--text-inverse);
   opacity: 0.75;

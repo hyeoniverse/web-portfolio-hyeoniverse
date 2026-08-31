@@ -33,11 +33,11 @@
   position: sticky;
   bottom: 0;
   z-index: 2;
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border-top: var(--_line-secondary);
   background: var(--bg-primary);
   font-family: var(--font-mono);
-  font-size: var(--_fs-label);
+  font-size: var(--font-size-prose-label);
   color: var(--text-primary);
 }
 
@@ -106,7 +106,7 @@
 .dbNumber {
   flex-shrink: 0;
   font-family: var(--_font-display);
-  font-size: var(--_fs-body);
+  font-size: var(--font-size-prose);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
 }
@@ -122,13 +122,13 @@
 .dbListMeta {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: var(--spacing-2xs);
   min-width: 0;
 }
 
 .dbListTitle {
   font-family: var(--font-mono);
-  font-size: var(--_fs-body);
+  font-size: var(--font-size-prose);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
 }
@@ -139,7 +139,7 @@
 
 .dbListDesc {
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-small);
+  font-size: var(--font-size-prose-small);
   line-height: var(--line-height-snug);
   color: var(--text-tertiary);
   display: -webkit-box;
@@ -188,7 +188,7 @@
 .dbEntry p {
   margin: 0;
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-body);
+  font-size: var(--font-size-prose);
   line-height: var(--_lh-body);
   color: var(--text-secondary);
 }
@@ -198,7 +198,7 @@
   display: flex;
   flex-direction: column;
   border-top: var(--_line-primary);
-  font-size: var(--_fs-small);
+  font-size: var(--font-size-prose-small);
 }
 
 .dbSchemaHeader {
@@ -208,7 +208,7 @@
   padding: clamp(0.6rem, 1vh, 1rem) 0;
   border-bottom: var(--_line-primary);
   font-weight: var(--font-weight-semibold);
-  font-size: var(--_fs-caption);
+  font-size: var(--font-size-prose-caption);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-secondary);
@@ -226,14 +226,14 @@
 .dbColName {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: var(--spacing-3xs);
   font-family: var(--font-mono);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
 
 .dbColConstraint {
-  font-size: var(--_fs-caption);
+  font-size: var(--font-size-prose-caption);
   font-weight: var(--font-weight-regular);
   color: var(--text-tertiary);
   opacity: 0.8;
@@ -250,24 +250,24 @@
 }
 
 .dbQuery {
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
 }
 
 /* Kind badge (API / TABLE) */
 .dbKindBadge {
   flex-shrink: 0;
-  padding: 0.1rem 0.45rem;
+  padding: var(--spacing-3xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
-  font-size: var(--_fs-caption);
+  font-size: var(--font-size-prose-caption);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.08em;
   line-height: 1.6;
 }
 
 .dbKindBadgeSm {
-  margin-left: 0.4rem;
+  margin-left: var(--spacing-xs);
   vertical-align: middle;
 }
 
@@ -286,13 +286,13 @@
   display: flex;
   flex-direction: column;
   border-top: var(--_line-primary);
-  font-size: var(--_fs-small);
+  font-size: var(--font-size-prose-small);
 }
 
 .dbEndpoint {
   display: grid;
   grid-template-columns: auto 1fr 1.5fr;
-  gap: var(--box-sm-md);
+  gap: var(--spacing-sm) var(--spacing-md);
   align-items: baseline;
   padding: clamp(0.6rem, 1vh, 1rem) 0;
   border-bottom: var(--_line-secondary);
@@ -300,10 +300,10 @@
 
 .dbMethodBadge {
   flex-shrink: 0;
-  padding: 0.15rem 0.6rem;
+  padding: var(--spacing-3xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
-  font-size: var(--_fs-caption);
+  font-size: var(--font-size-prose-caption);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.05em;
   line-height: 1.6;
@@ -386,7 +386,7 @@
   }
 
   .dbKindBadge {
-    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+    font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
   }
 
   /* dbEntry mobile → shared .entryBlock mobile */
@@ -398,23 +398,23 @@
   }
 
   .dbSchema {
-    font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+    font-size: clamp(var(--font-size-micro), 2.2vw, 0.85rem);
   }
 
   .dbSchemaHeader {
     grid-template-columns: 1fr 0.5fr 1fr;
     padding: var(--spacing-sm) 0;
-    font-size: clamp(0.6rem, 1.8vw, 0.7rem);
+    font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
   }
 
   .dbSchemaRow {
     grid-template-columns: 1fr 0.5fr 1fr;
     padding: var(--spacing-sm) 0;
-    font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+    font-size: clamp(var(--font-size-micro), 2.2vw, 0.85rem);
   }
 
   .dbEndpointList {
-    font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+    font-size: clamp(var(--font-size-micro), 2.2vw, 0.85rem);
   }
 
   .dbEndpoint {
@@ -424,13 +424,13 @@
   }
 
   .dbMethodBadge {
-    font-size: clamp(0.55rem, 1.6vw, 0.65rem);
-    padding: 0.1rem 0.4rem;
+    font-size: clamp(var(--font-size-micro), 1.6vw, 0.65rem);
+    padding: var(--spacing-3xs) var(--spacing-xs);
     min-width: 2.5rem;
   }
 
   .dbEndpointPath {
-    font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+    font-size: clamp(var(--font-size-micro), 2.2vw, 0.85rem);
     word-break: break-all;
   }
 
@@ -441,6 +441,6 @@
   }
 
   .dbQuery {
-    font-size: clamp(0.7rem, 2vw, 0.8rem);
+    font-size: clamp(var(--font-size-micro), 2vw, 0.8rem);
   }
 }

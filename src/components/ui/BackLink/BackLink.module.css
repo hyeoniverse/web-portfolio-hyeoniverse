@@ -4,7 +4,7 @@
   gap: var(--spacing-2xs);
   flex-shrink: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   text-decoration: none;
   white-space: nowrap;

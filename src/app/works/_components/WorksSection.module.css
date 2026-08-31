@@ -51,7 +51,7 @@
 }
 
 .introLabel {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-accent-alt);
   text-transform: uppercase;
@@ -82,13 +82,13 @@
   margin-left: calc(-1 * var(--_intro-pad));
   margin-right: calc(-1 * var(--_intro-pad));
   height: 1px;
-  background: var(--border-strong-color);
+  background: var(--border-color-strong);
 }
 
 .introDesc {
   margin: 0;
   min-height: 4.95em; /* 3 lines × 1.65 line-height — prevents layout shift on lang change */
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-body-lg);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-relaxed);
   color: var(--text-primary);
@@ -97,7 +97,7 @@
 .introDetail {
   margin: 0;
   min-height: 6.6em; /* 4 lines × 1.65 line-height */
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-relaxed);
   color: var(--text-secondary);
@@ -132,7 +132,7 @@
 }
 
 .introStatLabel {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -144,7 +144,7 @@
   margin-top: calc(-1 * var(--spacing-md));
   margin-bottom: calc(-1 * var(--spacing-md));
   width: 1px;
-  background: var(--border-strong-color);
+  background: var(--border-color-strong);
 }
 
 .introScope {
@@ -153,7 +153,7 @@
   margin-right: calc(-1 * var(--_intro-pad));
   padding: 0 var(--_intro-pad) var(--spacing-sm);
   border-bottom: var(--border-strong);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent-alt);
   letter-spacing: 0.1em;
@@ -163,7 +163,7 @@
   margin: 0;
   min-height: 3.3em; /* 2 lines × 1.65 line-height */
   font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-body-lg);
   font-style: italic;
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-relaxed);
@@ -214,7 +214,7 @@
 
 .activeNumber {
   font-family: var(--font-instrument), serif;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0.2em;
   color: var(--text-tertiary);
@@ -270,7 +270,7 @@
 .project {
   --_meta-z: 50;
   --_meta-accent: var(--text-accent-alt);
-  --_card-radius: var(--radius-4xl);
+  --_card-radius: var(--radius-2xl);
   --_card-w: 520px;
   --_card-h: 340px;
   --_number-size: var(--fluid-font-size-5xl);
@@ -298,7 +298,7 @@
   right: calc(-0.5 * var(--_gallery-gap));
   width: 1px;
   height: 300vh;
-  background: var(--border-strong-color);
+  background: var(--border-color-strong);
   content: "";
   transform: translateY(-50%);
 }
@@ -442,7 +442,7 @@
   top: 40px;
   right: 0;
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   letter-spacing: 0.35em;
   writing-mode: vertical-rl;
 }
@@ -470,10 +470,10 @@
 }
 
 .metaTech span {
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: 1px solid var(--text-accent-alt);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   letter-spacing: 0.1em;
   border-radius: var(--radius-capsule);
 }
@@ -482,7 +482,7 @@
   top: 50%;
   left: 0;
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   letter-spacing: 0.3em;
   white-space: nowrap;
   transform: translateY(-50%) rotate(-90deg);
@@ -497,7 +497,7 @@
 }
 
 .metaDesc {
-  margin: var(--spacing-md) 0 0;
+  margin: var(--spacing-md) 0 0 0;
   margin-left: auto;
   position: relative;
   z-index: var(--_meta-z);
@@ -566,7 +566,7 @@
 }
 
 .project[data-layout="1"] .metaTech span {
-  padding: var(--box-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
 }
 
 .project[data-layout="1"] .metaRole {
@@ -820,17 +820,17 @@
   }
 
   .introTagline {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-body-xl);
   }
 
   .introDesc {
     min-height: auto;
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-body-xl);
   }
 
   .introDetail {
     min-height: auto;
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-body-lg);
   }
 
   .introStats {
@@ -851,7 +851,7 @@
 
   .introQuote {
     min-height: auto;
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-body-xl);
   }
 
   .gallery {
@@ -937,7 +937,7 @@
     right: 0;
     width: 100%;
     height: 1px;
-    background: var(--border-strong-color);
+    background: var(--border-color-strong);
     transform: none;
   }
 
@@ -999,7 +999,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
-    padding: var(--spacing-xs) 0 0;
+    padding: var(--spacing-xs) 0 0 0;
   }
 
   /* 읽기 순서 — category → role → tech → desc. year 는 카드 오버레이에만 표시 */
@@ -1011,7 +1011,7 @@
 
   .project[data-layout] .metaCategory {
     margin-bottom: 0;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-label);
     font-weight: var(--font-weight-semibold);
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -1074,7 +1074,7 @@
 
   .project .metaSubtitle {
     font-family: var(--font-space-grotesk), sans-serif;
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-title-lg);
     font-weight: var(--font-weight-regular);
     letter-spacing: 0.01em;
     opacity: 0.9;
@@ -1089,8 +1089,8 @@
     right: auto;
     bottom: auto;
     left: auto;
-    margin: 0 0 var(--spacing-2xs);
-    font-size: var(--font-size-xs);
+    margin: 0 0 var(--spacing-2xs) 0;
+    font-size: var(--font-size-label);
     font-weight: var(--font-weight-semibold);
     letter-spacing: 0.35em;
     text-transform: uppercase;
@@ -1111,7 +1111,7 @@
   .project[data-layout] .metaTech span {
     padding: var(--spacing-2xs) var(--spacing-md);
     font-family: var(--font-mono);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-label);
     font-weight: var(--font-weight-medium);
     letter-spacing: 0.08em;
     border: 1px solid var(--text-accent-alt);
@@ -1121,7 +1121,7 @@
 
   .project[data-layout] .metaRole {
     display: block;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-label);
     font-weight: var(--font-weight-medium);
     letter-spacing: 0.12em;
     white-space: normal;
@@ -1154,11 +1154,11 @@
   }
 
   .introDesc {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-body-lg);
   }
 
   .introDetail {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-body);
   }
 
   .introStatNumber {
@@ -1166,7 +1166,7 @@
   }
 
   .introQuote {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-body-lg);
   }
 
   .project {
@@ -1197,11 +1197,11 @@
   }
 
   .project .metaSubtitle {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-title-md);
   }
 
   .project[data-layout] .cardOverlay .metaYear {
-    font-size: var(--font-size-2xs);
+    font-size: var(--font-size-hint);
     letter-spacing: 0.3em;
   }
 
@@ -1210,20 +1210,20 @@
   }
 
   .project[data-layout] .metaCategory {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-label);
   }
 
   .project[data-layout] .metaDesc {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-body-xl);
   }
 
   .project[data-layout] .metaTech span {
     padding: var(--spacing-3xs) var(--spacing-sm);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-label);
   }
 
   .project[data-layout] .metaRole {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-label);
   }
 }
 
@@ -1252,7 +1252,7 @@
   .project {
     --_card-w: 45%;
     --_card-h: auto;
-    --_card-radius: var(--radius-xl);
+    --_card-radius: var(--radius-2xl);
 
     display: flex !important;
     flex-direction: row !important;
@@ -1330,8 +1330,8 @@
   }
 
   .project[data-layout] .metaTech span {
-    padding: var(--box-xs) !important;
-    font-size: var(--font-size-xs);
+    padding: var(--spacing-2xs) var(--spacing-xs) !important;
+    font-size: var(--font-size-label);
   }
 
   .project[data-layout] .metaRole {
@@ -1344,7 +1344,7 @@
     position: relative !important;
     margin: var(--spacing-xs) 0 0 !important;
     max-width: none;
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-body-lg);
     text-align: left;
   }
 
@@ -1386,7 +1386,7 @@
   right: -200px;
   width: 1px;
   height: 300vh;
-  background: var(--border-strong-color);
+  background: var(--border-color-strong);
   content: "";
   transform: translateY(-50%);
 }
@@ -1404,7 +1404,7 @@
   .creditsPanel {
     width: 100%;
     height: auto;
-    padding: var(--spacing-3xl) 24px var(--spacing-2xl);
+    padding: var(--spacing-3xl) var(--spacing-xl) var(--spacing-2xl);
     border-top: var(--border-strong);
   }
 

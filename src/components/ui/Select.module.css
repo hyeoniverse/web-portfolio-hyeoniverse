@@ -43,7 +43,7 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   text-align: left;
 }
@@ -63,7 +63,7 @@
 .trigger.triggerSm {
   height: var(--control-h-sm);
   padding: 0 var(--spacing-md);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 /* valueStack — value 와 sizer 를 같은 grid cell 에 stack.
@@ -236,12 +236,12 @@
 }
 
 .option {
-  padding: var(--box-sm);
+  padding: var(--row-p-sm);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   /* 투명 글래스라 difference 블렌딩 면이 약해 텍스트가 연해짐 → solid text-primary(테마 적응, 진함) */
   color: var(--text-primary);
   text-align: left;
@@ -324,9 +324,9 @@
 
 /* combobox 필터 결과 0개일 때 안내 */
 .optionEmpty {
-  padding: var(--box-sm);
+  padding: var(--row-p-sm);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-align: center;
 }
@@ -340,7 +340,7 @@
 .optionDivider {
   height: 1px;
   margin: var(--spacing-3xs) 0;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   flex-shrink: 0;
 }
 
@@ -351,9 +351,9 @@
 }
 
 .optionGroupLabel {
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--row-p-sm);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;

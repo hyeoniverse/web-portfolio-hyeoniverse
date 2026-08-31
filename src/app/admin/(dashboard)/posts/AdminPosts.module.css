@@ -34,32 +34,21 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: 0 var(--spacing-sm);
+  padding: var(--row-p-sm);
   text-decoration: none;
   color: inherit;
 }
 
 .seriesRowCat {
-  padding: var(--spacing-4xs) var(--spacing-xs);
+  padding: var(--row-p-sm);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
+/* 배경·글꼴·hover 는 Button(link)이 준다. 여기서는 자리만 잡는다. */
 .seriesNewBtn {
-  display: inline-block;
   margin-top: var(--spacing-xs);
-  padding: var(--spacing-2xs) 0;
-  border: none;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  text-decoration: none;
-}
-
-.seriesNewBtn:hover {
-  color: var(--text-primary);
 }
 
 @media (max-width: 768px) {
@@ -87,13 +76,13 @@
 .uploadGuide {
   padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: 1.6;
 }
 
 .uploadGuide ul {
-  margin: 0 0 var(--spacing-xs);
+  margin: 0 0 var(--spacing-xs) 0;
   padding-left: var(--spacing-lg);
   list-style: disc;
 }
@@ -103,26 +92,26 @@
 }
 
 .uploadGuide h4 {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
   margin: var(--spacing-md) 0 var(--spacing-xs);
 }
 
 .uploadGuide p {
-  margin: 0 0 var(--spacing-xs);
+  margin: 0 0 var(--spacing-xs) 0;
 }
 
 .uploadGuide table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   margin: var(--spacing-xs) 0;
 }
 
 .uploadGuide th,
 .uploadGuide td {
-  padding: var(--box-3xs-xs);
+  padding: var(--cell-p-sm);
   border-bottom: var(--border-light);
   text-align: left;
 }
@@ -134,7 +123,7 @@
 
 .uploadGuide pre {
   background: var(--bg-tertiary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   padding: var(--spacing-sm);
   overflow-x: auto;
   margin: var(--spacing-xs) 0;
@@ -142,12 +131,12 @@
 
 .uploadGuide code {
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
 }
 
 .uploadGuideNote {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-muted);
   font-style: italic;
 }
@@ -162,7 +151,7 @@
 
 .seriesDeleteHint {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   margin: 0;
 }
@@ -172,7 +161,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 

@@ -118,7 +118,7 @@
 
 .processNodeLabel {
   font-family: var(--font-mono);
-  font-size: var(--_fs-caption);
+  font-size: var(--font-size-prose-caption);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
   opacity: 0.4;
@@ -368,7 +368,7 @@
 
   .processStepNum {
     font-family: var(--_font-display);
-    font-size: var(--_fs-hero);
+    font-size: var(--font-size-hero);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-fit);
     color: var(--text-accent);
@@ -377,7 +377,7 @@
 
   .processStepContentTitle {
     font-family: var(--font-instrument);
-    font-size: var(--_fs-subhead);
+    font-size: var(--font-size-subhead);
     font-style: italic;
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-snug);
@@ -387,7 +387,7 @@
 
   .processStepContentDesc {
     margin: 0;
-    font-size: var(--_fs-body);
+    font-size: var(--font-size-prose);
     line-height: var(--_lh-reading);
     color: var(--text-secondary);
     min-height: 8.25em;
@@ -400,11 +400,11 @@
 
   .processStepTitle {
     margin-bottom: var(--_space-line);
-    font-size: var(--_fs-subhead);
+    font-size: var(--font-size-subhead);
   }
 
   .processStepDesc {
     max-width: none;
-    font-size: var(--_fs-body);
+    font-size: var(--font-size-prose);
   }
 }

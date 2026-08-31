@@ -34,7 +34,7 @@
   /* 배경은 에디터 현재 줄(.cm-activeLine = neutral-alpha-5 = --bg-tertiary)과 동일 톤.
      코드(위)와 구분은 위쪽 경계선 + 안쪽 그림자(파인 느낌)로. */
   background: var(--bg-tertiary);
-  border-top: 1px solid var(--border-default-color);
+  border-top: 1px solid var(--border-color-default);
   box-shadow: var(--shadow-inner);
 }
 /* 필터바 — 레벨 칩 + 텍스트 필터 + 지우기 (브라우저 devtools 콘솔 상단바 식) */
@@ -44,21 +44,21 @@
   gap: var(--spacing-2xs);
   flex-shrink: 0;
   padding: var(--spacing-3xs) var(--spacing-2xs);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: 1px solid var(--border-color-light);
 }
 .rnFilterChips {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
 }
 .rnChip {
-  padding: 2px var(--spacing-2xs);
+  padding: var(--spacing-3xs) var(--spacing-2xs);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   cursor: pointer;
   transition: background 0.12s ease, color 0.12s ease;
 }
@@ -75,13 +75,13 @@
   min-width: 0;
   height: 24px;
   padding: 0 var(--spacing-2xs);
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-capsule);
   outline: none;
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 .rnFilterInput:focus {
   border-color: var(--text-accent);
@@ -92,7 +92,7 @@
   overflow: auto;
   padding: var(--spacing-2xs) 0;
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.7;
   color: var(--text-secondary);
 }
@@ -105,11 +105,11 @@
   color: var(--text-accent);
 }
 .rnLog {
-  padding: 3px var(--spacing-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
   white-space: pre-wrap;
   word-break: break-word;
   /* devtools 처럼 항목마다 옅은 구분선 */
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: 1px solid var(--border-color-light);
 }
 /* 기본 로그 = 터미널 출력 프롬프트 마커 */
 .rnLog::before {
@@ -135,7 +135,7 @@
 .pgInner {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-2xl);
   overflow: hidden;
   /* 코드블록 wrap 과 동일한 유리 프레임 — 반투명 + blur. blur 는 클리핑 요소(여기)에만 걸어야
@@ -181,13 +181,13 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: 5px 14px;
+  padding: var(--spacing-2xs) var(--spacing-md);
   background: var(--bg-primary);
   border-radius: var(--radius-capsule);
   box-shadow: var(--shadow-sm);
   color: var(--text-primary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   white-space: nowrap;
   pointer-events: none;
@@ -205,7 +205,7 @@
 .pgPickerTitle {
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: 600;
 }
 .pgPickerGrid {
@@ -218,10 +218,10 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   min-width: 150px;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--border-light-color);
+  padding: var(--button-p-md);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-2xl);
   background: var(--bg-primary);
   cursor: pointer;
@@ -234,12 +234,12 @@
 .pgPickerLabel {
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
 }
 .pgPickerDesc {
   color: var(--text-muted);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 /* 비활성 아이콘 버튼(되돌리기/다시하기 등) */
 .spIconBtn:disabled {
@@ -266,7 +266,7 @@
   height: 8px;
   flex-shrink: 0;
   cursor: row-resize;
-  border-top: 1px solid var(--border-light-color);
+  border-top: 1px solid var(--border-color-light);
   background: var(--bg-glass-panel);
 }
 .pgResize::before {
@@ -278,7 +278,7 @@
   height: 2px;
   transform: translate(-50%, -50%);
   border-radius: var(--radius-capsule);
-  background: var(--border-default-color);
+  background: var(--border-color-default);
   transition: background 0.12s ease;
 }
 .pgResize:hover::before {
@@ -291,7 +291,7 @@
   height: 100%;
   color: var(--text-muted);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 
 /* Sandpack 커스텀 레이아웃 — 뷰바 + (탐색기 | 탭+에디터 | 핸들 | 미리보기+콘솔) */
@@ -308,7 +308,7 @@
   flex-shrink: 0;
   min-height: 40px;
   padding: var(--spacing-xs) var(--spacing-sm);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: 1px solid var(--border-color-light);
   background: var(--bg-glass-panel);
 }
 /* 리더뷰에서는 상단바 좌우 여백을 더 넉넉히 */
@@ -320,14 +320,14 @@
   width: 1px;
   align-self: stretch;
   margin: var(--spacing-2xs) var(--spacing-3xs);
-  background: var(--border-light-color);
+  background: var(--border-color-light);
 }
 /* 툴바 도구 묶음 = label 처럼 흰 pill(배경 + 그림자)로 영역 구분 — 구분선 대신. */
 .spGroup {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: 3px;
+  padding: var(--spacing-2xs);
   background: var(--bg-primary);
   border-radius: var(--radius-capsule);
   box-shadow: var(--shadow-xs);
@@ -345,7 +345,7 @@
   padding: 0 var(--spacing-3xs);
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-variant-numeric: tabular-nums;
   text-align: center;
   white-space: nowrap;
@@ -387,7 +387,7 @@
   flex-shrink: 0;
   overflow-x: auto;
   overflow-y: hidden;
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: 1px solid var(--border-color-light);
   background: var(--bg-glass-panel);
   scrollbar-width: none;
 }
@@ -401,10 +401,10 @@
   flex-shrink: 0;
   min-height: 34px;
   padding: var(--spacing-2xs) var(--spacing-sm);
-  border-right: 1px solid var(--border-light-color);
+  border-right: 1px solid var(--border-color-light);
   color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
@@ -425,7 +425,7 @@
 .spTabInd {
   flex: 0 0 2px;
   align-self: stretch;
-  margin: 3px 0;
+  margin: var(--spacing-2xs) 0;
   border-radius: var(--radius-circle);
   background: var(--text-accent);
 }
@@ -474,7 +474,7 @@
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
@@ -500,7 +500,7 @@
 .spTreeActions {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   margin-left: auto;
   padding-left: var(--spacing-2xs);
   opacity: 0;
@@ -541,7 +541,7 @@
   width: 184px;
   flex-shrink: 0;
   min-height: 0;
-  border-right: 1px solid var(--border-light-color);
+  border-right: 1px solid var(--border-color-light);
 }
 .spExplorerBar {
   display: flex;
@@ -549,17 +549,17 @@
   justify-content: space-between;
   min-height: 34px;
   padding: 0 var(--spacing-sm);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: 1px solid var(--border-color-light);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   letter-spacing: 0.04em;
 }
 .spExplorerActions {
   display: inline-flex;
   align-items: center;
-  gap: 1px;
+  gap: var(--spacing-4xs);
 }
 /* VSCode 식 인라인 파일/폴더 이름 입력 — 트리 행 안에서 인라인 */
 .spTreeInput {
@@ -567,13 +567,13 @@
   min-width: 0;
   height: 28px;
   padding: 0 var(--spacing-2xs);
-  border: 1px solid var(--border-default-color);
+  border: 1px solid var(--border-color-default);
   border-radius: var(--radius-2xl);
   outline: none;
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 .spTreeInput::placeholder {
   color: var(--text-muted);
@@ -627,7 +627,7 @@
   left: 50%;
   width: 1px;
   transform: translateX(-50%);
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   transition: background 0.12s ease, width 0.12s ease;
 }
 .spSplit:hover::before {
@@ -648,7 +648,7 @@
   top: 50%;
   height: 1px;
   transform: translateY(-50%);
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   transition: background 0.12s ease, height 0.12s ease;
 }
 .spSplitV:hover::before {
@@ -673,7 +673,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-3xs);
-  padding: 3px;
+  padding: var(--spacing-2xs);
   background: var(--bg-primary);
   border-radius: var(--radius-capsule);
   box-shadow: var(--shadow-sm);
@@ -694,7 +694,7 @@
   height: 2.5rem;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   padding: 0 var(--spacing-2xs);
   z-index: 3;
 }

@@ -15,7 +15,7 @@
   --_gap-lg: 1.6vw;
 
   /* Sizes */
-  --_radius-card: var(--radius-4xl);
+  --_radius-card: var(--radius-2xl);
   --_size-close-btn: 3vw;
   --_size-close-icon: 1.5vw;
   --_size-copy-icon: 1.25vw;
@@ -340,6 +340,7 @@
   width: var(--_size-checkbox);
   height: var(--_size-checkbox);
   transition: all var(--duration-fast) ease;
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 동의 체크박스 — 네모가 곧 의미 */
   border-radius: var(--radius-xs);
   appearance: none;
   -webkit-appearance: none;
@@ -818,7 +819,7 @@
     --_gap-sm: clamp(5px, 1vw, 8px);
     --_gap-md: clamp(10px, 1.8vw, 14px);
     --_gap-lg: clamp(16px, 3.1vw, 24px);
-    --_radius-card: var(--radius-3xl);
+    --_radius-card: var(--radius-2xl);
     --_size-close-btn: clamp(36px, 6.25vw, 48px);
     --_size-close-icon: clamp(16px, 2.9vw, 22px);
     --_size-copy-icon: clamp(14px, 2.6vw, 20px);

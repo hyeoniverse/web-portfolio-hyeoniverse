@@ -1,0 +1,18 @@
+/* ==========================================================================
+   Pressable — 눌리는 것의 기반. 생김새는 주지 않는다.
+   ========================================================================== */
+
+/* 브라우저 기본 버튼 스타일 리셋은 여기서 하지 않는다.
+   `globals/_base.css` 의 `button, input, textarea, select` 규칙이 이미
+   margin·padding·border·background·color·font 를 지우고 있다. 여기서 또 적으면
+   중복이고, 두 파일의 적용 순서에 기대게 된다.
+   `text-align` 은 전역에도 없다 — 버튼은 UA 기본값(center)을 그대로 쓴다.
+   여기서 `inherit` 로 바꾸면 지금 가운데 정렬된 버튼들이 왼쪽으로 밀린다. */
+.pressable {
+  cursor: pointer;
+}
+
+.pressable:disabled,
+.pressable[aria-disabled="true"] {
+  cursor: not-allowed;
+}

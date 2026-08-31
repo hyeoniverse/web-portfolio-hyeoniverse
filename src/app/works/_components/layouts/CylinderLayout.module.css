@@ -14,7 +14,8 @@
 }
 
 [data-theme="dark"] .wrap {
-  background-color: #000000;
+  /* 3D 실린더 뒤 배경 — 다크에서 순수 검정이어야 오브젝트가 떠 보인다. */
+  background-color: var(--color-gray-alpha-100);
 }
 
 /* ── Canvas (fixed, full-screen) ── */
@@ -78,7 +79,7 @@
 
 .metaCategory {
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.25em;
   text-transform: uppercase;
@@ -108,7 +109,7 @@
 
 .metaDesc {
   max-width: 480px;
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-body-lg);
   line-height: var(--line-height-relaxed);
   color: var(--text-white);
   margin: 0;
@@ -199,7 +200,7 @@
   gap: var(--spacing-2xs);
   max-width: 420px;
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   letter-spacing: 0.08em;
   color: var(--text-white);
   margin-top: var(--spacing-xs);
@@ -317,7 +318,7 @@
   width: 420px;
   height: 260px;
   transform: translate(-50%, -50%) rotate(-12deg);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: var(--_border-accent-mid);
   pointer-events: none;
   animation: introOvalSpin 25s linear infinite;
@@ -330,7 +331,7 @@
   width: 320px;
   height: 180px;
   transform: translate(-50%, -50%) rotate(8deg);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: var(--border-accent);
   pointer-events: none;
   animation: introOvalSpin 20s linear infinite reverse;
@@ -379,7 +380,7 @@
 
 .introLabel {
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -398,7 +399,7 @@
 }
 
 .introTagline {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-body-xl);
   color: var(--text-white);
   max-width: 480px;
   line-height: var(--line-height-relaxed);
@@ -406,7 +407,7 @@
 }
 
 .introDesc {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-white);
   opacity: 0.4;
   max-width: 400px;
@@ -416,7 +417,7 @@
 .introScroll {
   margin-top: var(--spacing-xl);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   letter-spacing: 0.2em;
   color: var(--text-white);
   animation: introScrollBounce 2.5s ease-in-out infinite;
@@ -449,12 +450,12 @@
   top: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   max-width: 180px;
   padding: var(--spacing-xs) var(--spacing-sm);
   background: var(--color-white-alpha-10);
   border: 1px solid var(--color-white-alpha-20);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   backdrop-filter: blur(8px);
   opacity: 0.7;
   pointer-events: auto;
@@ -471,7 +472,7 @@
 
 .bubbleNick {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-bold);
   color: var(--text-white);
   opacity: 0.6;
@@ -479,7 +480,7 @@
 
 .bubbleText {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 11px;
+  font-size: var(--font-size-hint);
   color: var(--text-white);
   line-height: 1.4;
   word-break: break-word;
@@ -502,12 +503,12 @@
 }
 
 .fixedAvailable {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-muted);
 }
 
 .fixedDate {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-muted);
 }
 

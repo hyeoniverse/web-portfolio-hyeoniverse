@@ -23,10 +23,25 @@
   --font-grotesk: var(--font-space-grotesk), sans-serif;
 
   /* Font Sizes - Fixed */
-  --font-size-dot: 5px;
-  --font-size-3xs: 0.5rem;
-  --font-size-2xs: 0.625rem;
-  --font-size-xs: 0.75rem;
+  /* ── 하한 규칙 ───────────────────────────────────────────────
+   * **읽어야 하는 UI 글자는 12px 밑으로 내려가지 않는다.**
+   * 예전 스케일은 2xs 가 10px, 3xs 가 8px 이었는데 그 둘이 라벨·힌트·뱃지에
+   * 424 + 55 곳에서 쓰이고 있었다. 관리 화면 전체가 읽기 힘든 원인이었다.
+   * 그래서 아래 세 칸을 끌어올렸다 — 10→12, 8→11, 12→13.
+   *
+   *   3xs 11px  →  --font-size-micro   카운터·도형 안 라벨처럼 못 읽어도 되는 것
+   *   2xs 12px  →  --font-size-hint    **하한.** 힌트·뱃지·메타
+   *   xs  13px  →  --font-size-label   필드 라벨·버튼
+   *   sm  14px  →  --font-size-body    본문·입력값·목록 항목
+   *
+   * **컴포넌트 CSS 는 왼쪽(단계)을 쓰지 않고 오른쪽(역할)을 쓴다.** 위 네 칸은 오로지 저
+   * 역할들을 위해 있는 값이라 1:1 이다 — stylelint 와 eslint 가 왼쪽 사용을 막는다.
+   * md 이상(제목·디스플레이)은 아직 역할 이름이 없어서 단계 이름을 그대로 쓴다.
+   *
+   * 장식용 5px 은 `--font-size-dot` 으로 `_semantic.css` 에 있다 — 단계가 아니라 역할이다. */
+  --font-size-3xs: 0.6875rem;
+  --font-size-2xs: 0.75rem;
+  --font-size-xs: 0.8125rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
   --font-size-lg: 1.125rem;
@@ -38,22 +53,25 @@
   --font-size-5xl: 3rem;
   --font-size-6xl: 4rem;
 
-  /* Font Sizes - Fluid */
-  --fluid-font-size-2xs: clamp(0.5rem, 0.6rem + 0.15vw, 0.75rem);
-  --fluid-font-size-xs: clamp(0.5rem, 0.7rem + 0.2vw, 0.9rem);
-  --fluid-font-size-sm: clamp(0.5rem, 0.83rem + 0.25vw, 1rem);
-  --fluid-font-size-md: clamp(0.5rem, 0.95rem + 0.3vw, 1.125rem);
-  --fluid-font-size-lg: clamp(0.5rem, 1.05rem + 0.35vw, 1.375rem);
-  --fluid-font-size-xl: clamp(0.5rem, 1.15rem + 0.5vw, 1.5rem);
-  --fluid-font-size-2xl: clamp(0.5rem, 1.4rem + 0.75vw, 2rem);
-  --fluid-font-size-3xl: clamp(0.5rem, 1.8rem + 1vw, 2.5rem);
-  --fluid-font-size-4xl: clamp(0.5rem, 3rem + 1.5vw, 5rem);
-  --fluid-font-size-5xl: clamp(0.5rem, 4.5rem + 2vw, 8rem);
-  --fluid-font-size-6xl: clamp(0.5rem, 6rem + 2.5vw, 10rem);
-  --fluid-font-size-7xl: clamp(0.5rem, 7.5rem + 3vw, 12rem);
-  --fluid-font-size-8xl: clamp(0.5rem, 9rem + 3.5vw, 14rem);
-  --fluid-font-size-9xl: clamp(0.5rem, 10.5rem + 4vw, 16rem);
-  --fluid-font-size-10xl: clamp(0.5rem, 12rem + 4.5vw, 18rem);
+  /* Font Sizes - Fluid
+   * 하한이 전부 0.5rem(8px) 로 복붙돼 있었다 — 10xl 같은 디스플레이 크기까지 8px 로
+   * 주저앉는 값이라 의도한 설계가 아니다. 하한을 12px(0.75rem)로 올려 하한 규칙을 지킨다.
+   * 실제 렌더는 가운데 항이 지배하므로 큰 단계에서는 눈에 띄는 변화가 없다. */
+  --fluid-font-size-2xs: clamp(0.75rem, 0.6rem + 0.15vw, 0.75rem);
+  --fluid-font-size-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.9rem);
+  --fluid-font-size-sm: clamp(0.75rem, 0.83rem + 0.25vw, 1rem);
+  --fluid-font-size-md: clamp(0.75rem, 0.95rem + 0.3vw, 1.125rem);
+  --fluid-font-size-lg: clamp(0.75rem, 1.05rem + 0.35vw, 1.375rem);
+  --fluid-font-size-xl: clamp(0.75rem, 1.15rem + 0.5vw, 1.5rem);
+  --fluid-font-size-2xl: clamp(0.75rem, 1.4rem + 0.75vw, 2rem);
+  --fluid-font-size-3xl: clamp(0.75rem, 1.8rem + 1vw, 2.5rem);
+  --fluid-font-size-4xl: clamp(0.75rem, 3rem + 1.5vw, 5rem);
+  --fluid-font-size-5xl: clamp(0.75rem, 4.5rem + 2vw, 8rem);
+  --fluid-font-size-6xl: clamp(0.75rem, 6rem + 2.5vw, 10rem);
+  --fluid-font-size-7xl: clamp(0.75rem, 7.5rem + 3vw, 12rem);
+  --fluid-font-size-8xl: clamp(0.75rem, 9rem + 3.5vw, 14rem);
+  --fluid-font-size-9xl: clamp(0.75rem, 10.5rem + 4vw, 16rem);
+  --fluid-font-size-10xl: clamp(0.75rem, 12rem + 4.5vw, 18rem);
 
   /* Line Heights */
   --line-height-dense: 0.9;

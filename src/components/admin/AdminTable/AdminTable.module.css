@@ -7,7 +7,7 @@
   justify-content: center;
   gap: var(--spacing-md);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   text-align: center;
   padding: var(--spacing-4xl) var(--spacing-md);
@@ -18,7 +18,7 @@
   display: block;
   width: 64px;
   height: 64px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--bg-secondary);
   border: var(--border-light);
   background-image: linear-gradient(
@@ -34,7 +34,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   /* full-bleed 유리(양옆 뷰포트 끝까지) — margin 으로 빼고 padding 으로 콘텐츠는 본문 폭 유지. */
   margin-inline: calc(-1 * var(--page-px));
@@ -63,11 +63,12 @@
   left: var(--page-px);
   right: var(--page-px);
   height: 1px;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   pointer-events: none;
 }
 .bulkBar::before { top: 0; }
 .bulkBar::after { bottom: 0; }
+
 
 /* opacity 만 — transform 을 쓰면 남은 translateY 가 backdrop-filter(blur)를 깬다. */
 @keyframes bulkBarIn {
@@ -75,32 +76,12 @@
   to { opacity: 1; }
 }
 
-.bulkActionBtn {
-  padding: var(--box-3xs-sm);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-}
-
-.bulkActionBtn:hover {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
-.bulkActionDanger:hover {
-  background: var(--bg-inverse);
-  border-color: var(--border-strong-color);
-}
-
 .bulkCancelBtn {
   margin-left: auto;
   border: none;
   background: transparent;
   color: var(--text-muted);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 /* ── Table ── */
@@ -111,7 +92,7 @@
   padding: var(--spacing-sm) 0;
   border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -123,7 +104,7 @@
 /* 헤더 셀 통일 — 컬럼별 className(colTitle/colMeta 등)을 무효화 위해 specificity 높임 (0,2,0) */
 .tableHeader.tableHeader > * {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -152,7 +133,7 @@
 /* Title column — accent on row hover */
 .colTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -189,13 +170,13 @@
 /* ── Meta columns ── */
 .colMeta {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
 .colMono {
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -248,7 +229,7 @@
   justify-content: center;
   background: var(--bg-tertiary);
   color: var(--text-muted);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 /* 상태 배지(발행/미발행/예약)는 공통 <StatusBadge> 컴포넌트로 이관됨 */
@@ -265,36 +246,13 @@
   margin-left: auto;
 }
 
-.actionBtn {
-  padding: var(--box-2xs-md);
-  border: var(--border-strong);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-  text-decoration: none;
-}
-
-.colActions .actionBtn {
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.colActions .actionBtn:hover {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
 /* 상세 보기 아이콘 버튼 — RowActionsMenu trigger 와 동일 사이즈/스타일 */
 .viewBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   border: none;
   border-radius: var(--radius-circle);
   background: transparent;
@@ -305,28 +263,6 @@
 
 .viewBtn:hover {
   color: var(--text-accent);
-}
-
-.deleteBtn {
-  padding: var(--box-2xs-md);
-  border: var(--border-accent-strong);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-accent);
-}
-
-.colActions .deleteBtn {
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.colActions .deleteBtn:hover {
-  background: var(--bg-accent-solid);
-  color: var(--text-white);
 }
 
 /* ── Drag & Drop — 표 바깥(왼쪽)에 absolute 로 배치, 체크박스 더 왼쪽 ── */
@@ -376,7 +312,7 @@
   min-width: 0;
   height: 22px;
   line-height: 20px; /* content area = height - border(2) - padding-block(0) = 20 */
-  padding: 0 2px;
+  padding: 0 var(--spacing-3xs);
   white-space: nowrap;
   overflow: hidden;
   border: 1px solid transparent;
@@ -385,7 +321,7 @@
   border-radius: 0;
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-white);
   /* mix-blend-mode: difference + white — 어두운 배경엔 white, 밝은 배경엔 dark 로 자동 반전 */
@@ -417,13 +353,13 @@
   width: 100%;
   height: 22px;
   line-height: 20px;
-  padding: 0 2px;
+  padding: 0 var(--spacing-3xs);
   white-space: nowrap;
   border: var(--border-default);
   border-radius: 0;
   background: var(--bg-primary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-primary);
   text-align: center;
@@ -444,6 +380,7 @@
 .rowHighlight {
   animation: rowFlash 2s ease;
 }
+
 
 @keyframes rowFlash {
   0%,
@@ -493,7 +430,19 @@
   margin-top: var(--spacing-sm);
 }
 
-/* ── Responsive — 태블릿 이하: 가로 스크롤 + 제목 열 충분한 너비 확보 ── */
+/* 권한이 없어 다룰 수 없는 행.
+   행 전체를 흐리게 하지 않는다 — 내용까지 읽기 어려워지고 왜 흐린지도 드러나지 않는다.
+   대신 체크박스 자리를 자물쇠로 바꿔(colCheckLocked) 무엇이 막혔는지 한 곳에서 보이게 한다. */
+.rowDisabled {
+  cursor: not-allowed;
+}
+
+/* 체크박스 자리의 자물쇠 — 선택 열의 정렬·너비를 그대로 유지한다 */
+.colCheckLocked {
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
 @media (max-width: 1024px) {
   .table {
     position: relative;
@@ -592,22 +541,4 @@
   .colActions {
     gap: var(--spacing-2xs);
   }
-
-  .actionBtn,
-  .deleteBtn {
-    padding: var(--box-sm);
-  }
-}
-
-/* 권한이 없어 다룰 수 없는 행.
-   행 전체를 흐리게 하지 않는다 — 내용까지 읽기 어려워지고 왜 흐린지도 드러나지 않는다.
-   대신 체크박스 자리를 자물쇠로 바꿔(colCheckLocked) 무엇이 막혔는지 한 곳에서 보이게 한다. */
-.rowDisabled {
-  cursor: not-allowed;
-}
-
-/* 체크박스 자리의 자물쇠 — 선택 열의 정렬·너비를 그대로 유지한다 */
-.colCheckLocked {
-  color: var(--text-tertiary);
-  cursor: not-allowed;
 }

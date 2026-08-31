@@ -41,7 +41,7 @@
   border-right: var(--border-light);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
   flex-shrink: 0;
@@ -49,9 +49,9 @@
 
 .priorityLabel {
   flex: 1;
-  padding: var(--box-xs-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   min-width: 0;
 }

@@ -35,7 +35,7 @@
   align-items: baseline;
   gap: var(--spacing-sm);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -81,7 +81,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   text-decoration: none;
 }
@@ -112,7 +112,7 @@
 }
 
 .statLabel {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -160,7 +160,7 @@
 
 /* 단위는 숫자보다 작게 — 올라가는 숫자에 시선이 가야 한다 */
 .statSuffix {
-  margin-left: 1px;
+  margin-left: var(--spacing-4xs);
   font-size: var(--font-size-md);
   color: var(--text-tertiary);
 }
@@ -233,7 +233,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs) var(--spacing-lg);
-  margin: var(--spacing-2xs) 0 0;
+  margin: var(--spacing-2xs) 0 0 0;
   padding: 0;
   list-style: none;
 }
@@ -242,7 +242,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   cursor: default;
 }
@@ -291,18 +291,18 @@
 /* ── 잔디 (GITHUB_TOKEN 있을 때) ── */
 .grass {
   display: flex;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   overflow-x: auto;
   /* hover 하면 칸이 1.4배로 커지고 주 전체가 2px 떠오른다. overflow-x 를 auto 로 두면
      세로 방향도 함께 잘리므로(스펙상 한 축이 visible 이 아니면 다른 축도 visible 이 아니게 된다),
      커진 만큼의 자리를 안쪽 여백으로 미리 비워 둔다. */
-  padding: var(--spacing-xs) 3px;
+  padding: var(--spacing-xs) var(--spacing-2xs);
 }
 
 .grassWeek {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   flex-shrink: 0;
 }
 
@@ -401,7 +401,7 @@
 
 .activityYear {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -422,7 +422,7 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   height: 100%;
-  padding: var(--box-lg);
+  padding: var(--spacing-sm) var(--spacing-lg);
   border: var(--border-default);
   border-radius: var(--radius-2xl);
   text-decoration: none;
@@ -449,7 +449,7 @@
 
 @keyframes repoSettle {
   from { border-color: var(--color-accent); }
-  to   { border-color: var(--border-default-color); }
+  to   { border-color: var(--border-color-default); }
 }
 
 /* 카드 이름은 hover 때 accent 로 — 어디를 누르는지 분명해진다 */
@@ -477,7 +477,7 @@
   gap: var(--spacing-2xs);
   min-width: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: var(--font-weight-semibold);
   letter-spacing: -0.01em;
   color: var(--text-primary);
@@ -513,7 +513,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: calc(1.6em * 2);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -529,7 +529,7 @@
   padding-top: var(--spacing-sm);
   border-top: var(--border-light);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -569,11 +569,11 @@
 
 /* 채운 배경은 설명 바로 아래에서 덩어리로 보여 시선을 뺏는다 — 테두리만 남긴다. */
 .repoTopic {
-  padding: var(--box-3xs-xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 
@@ -614,7 +614,7 @@
 
   .repo {
     gap: var(--spacing-2xs);
-    padding: var(--box-md);
+    padding: var(--spacing-xs) var(--spacing-md);
   }
 
 }

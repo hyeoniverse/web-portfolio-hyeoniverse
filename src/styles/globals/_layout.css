@@ -72,7 +72,7 @@ nav#side-navigation::after {
 .section#experience,
 .section#projects,
 .section#blog {
-  padding-left: var(--active-side-nav-width, 0px);
+  padding-left: var(--active-side-nav-width);
   transition: padding-left var(--duration-moderate) var(--ease-material);
 }
 
@@ -99,7 +99,7 @@ nav#side-navigation::after {
   display: flex;
   flex-direction: column;
   margin: 0 auto;
-  padding: var(--box-x-xl);
+  padding: 0 var(--spacing-2xl);
   padding-bottom: var(--spacing-6xl);
   position: relative;
   max-width: var(--width-6xl);
@@ -135,7 +135,7 @@ nav#side-navigation::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-lg);
+  padding: var(--modal-p-lg);
   position: fixed;
   top: 0;
   right: 0;
@@ -163,7 +163,7 @@ nav#side-navigation::after {
   overflow: hidden;
   background: var(--color-neutral-0);
   border: var(--border-light);
-  border-radius: var(--radius-4xl);
+  border-radius: var(--radius-2xl);
 }
 
 /* ==========================================================================
@@ -196,7 +196,7 @@ nav#side-navigation::after {
     max-width: none !important;
     min-height: 0;
     max-height: 85vh;
-    border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
     translate: 0 var(--sheet-y, 0px);
     transition:
       min-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),

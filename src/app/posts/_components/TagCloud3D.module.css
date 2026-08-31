@@ -8,7 +8,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -95,12 +95,12 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--badge-p-lg);
   border: none;
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   cursor: pointer;
 }
@@ -115,6 +115,6 @@
 }
 .chipCount {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   opacity: 0.7;
 }
