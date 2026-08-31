@@ -162,7 +162,7 @@ export function useBorderPopover(
   const [open, setOpen] = useState(false);
   const [style, setStyleRaw] = useState("solid");
   const [width, setWidthRaw] = useState("1px");
-  const [color, setColorRaw] = useState("var(--border-light-color)");
+  const [color, setColorRaw] = useState("var(--border-color-light)");
   const [selectedPosition, setSelectedPositionState] = useState<BorderMode | null>(null);
   // 선택된 위치의 현재 값이 셀마다 다르면 true → UI 에서 "다중" 표시
   const [mixed, setMixed] = useState<{ style: boolean; width: boolean; color: boolean }>({

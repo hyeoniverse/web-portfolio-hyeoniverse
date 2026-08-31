@@ -557,7 +557,7 @@ export function enhanceReaderExtras(
   // ── 표 행/열 고정 — 리더 (에디터와 동일 모델, 세로 스크롤바 없음) ──
   //   열 고정: .tbl-freeze 가로 스크롤 기준 CSS sticky-left. 행 고정: 페이지 스크롤에 맞춰 첫 N행을
   //   transform:translateY 로 네비 아래에 pin. 불투명 배경·구분선(stuck 시 바깥 모서리 box-shadow).
-  const TBL_LINE = "var(--tbl-border-color, var(--border-light-color))"; // 바깥 모서리(위/좌) — 일반 테두리색
+  const TBL_LINE = "var(--tbl-border-color, var(--border-color-light))"; // 바깥 모서리(위/좌) — 일반 테두리색
   const TBL_ACCENT = "var(--color-accent-alpha-50)";                     // 스크롤 경계(아래/우) — 옅은 accent
   const FREEZE_MAX_RATIO = 0.6; // 고정 열 합이 이 비율 넘으면 왼쪽부터 sticky 해제(스크롤 영역 확보)
   const COL_NOT_FROZEN = 1e9;   // 비고정 sentinel(음수 negative sticky offset 과 구분)

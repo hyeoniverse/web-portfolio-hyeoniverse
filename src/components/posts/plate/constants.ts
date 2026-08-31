@@ -96,7 +96,7 @@ export const TABLE_BORDER_STYLES = [
 export const TABLE_BORDER_WIDTHS = ["1px", "2px", "3px", "4px"] as const;
 
 export const TABLE_BORDER_COLORS = [
-  "var(--border-light-color)", "#000000", "#374151", "#6b7280",
+  "var(--border-color-light)", "#000000", "#374151", "#6b7280",
   "#ef4444", "#3b82f6", "#22c55e", "#eab308", "#8b5cf6",
 ];
 
