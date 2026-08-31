@@ -13,7 +13,6 @@ import DynamicFrameLayout, {
   defaultFrames,
 } from "@/components/common/DynamicFrame/DynamicFrameLayout";
 import { useMobileLayout } from "@/hooks/useMobileLayout";
-import T from "@/components/ui/T";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
 import { adaptFeatures } from "@/app/about/_config/adaptAbout";
@@ -43,7 +42,7 @@ function FeaturesPanel({
   features,
 }: FeaturesPanelProps) {
   const cfg = useSiteConfig();
-  const titleOverride = usePanelTitle("features");
+  const panelTitle = usePanelTitle("features");
   const cfgList = cfg.about.features;
   const effectiveFeatures = cfgList && cfgList.length > 0 ? adaptFeatures(cfgList) : features;
   /* effectiveFeatures 를 이후 모든 사용처에서 features 대신 사용 */
@@ -320,7 +319,7 @@ function FeaturesPanel({
   return (
     <div className={`${styles.panel} ${styles.panelWide}`}>
       <h3 className={`${styles.panelTitle} ${styles.animate}`}>
-        {titleOverride ?? <T k="aboutPage.panels.keyFeatures" />}
+        {panelTitle}
       </h3>
 
       {/* 데스크톱: DynamicFrameLayout */}

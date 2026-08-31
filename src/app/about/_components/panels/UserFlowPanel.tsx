@@ -114,7 +114,6 @@ function UserFlowPanel({
         <PinnedTitleRow
           panelKey="userflow"
           className={isMobile ? styles.ufTitleRow : undefined}
-          title={<T k="aboutPage.panels.userFlow" />}
           dotNav={{
             count: flowCount,
             activeIndex: currentIdx,

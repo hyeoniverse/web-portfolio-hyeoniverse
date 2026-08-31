@@ -47,13 +47,13 @@ interface TechStackPanelProps {
 
 export default function TechStackPanel({ techStack }: TechStackPanelProps) {
   const cfg = useSiteConfig();
-  const titleOverride = usePanelTitle("techStack");
+  const panelTitle = usePanelTitle("techStack");
   /* admin 편집 가능한 siteConfig.about.techStack 우선. 없으면(legacy) prop 으로 fallback. */
   const cfgStack = cfg.about.techStack;
   const list = cfgStack ?? techStack;
   return (
     <div className={`${styles.panel} ${styles.panelCompact}`}>
-      <h3 className={`${styles.panelTitle} ${styles.animate}`}>{titleOverride ?? "Tech Stack."}</h3>
+      <h3 className={`${styles.panelTitle} ${styles.animate}`}>{panelTitle}</h3>
       <div className={styles.techGrid}>
         {list.map((tech, index) => (
           <div key={index} className={`${styles.techItem} ${styles.animate}`}>

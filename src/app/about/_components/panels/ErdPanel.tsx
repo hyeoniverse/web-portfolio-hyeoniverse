@@ -47,7 +47,7 @@ function ErdPanel({ language }: ErdPanelProps) {
   return (
     <div className={styles.panel}>
       <div className={styles.erdViewport}>
-        <PinnedTitleRow panelKey="erd" className={isMobile ? styles.erdTitleRow : undefined} title="Database Design." />
+        <PinnedTitleRow panelKey="erd" className={isMobile ? styles.erdTitleRow : undefined} />
 
         <div className={styles.erdZoomViewport} ref={boxRef}>
           {/* 조작 안내는 입력 방식마다 다르다 — 터치에는 scroll/drag 가 아니라
