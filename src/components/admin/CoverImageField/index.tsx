@@ -11,6 +11,7 @@ import Input from "@/components/ui/Input";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import { extractPalette } from "./extractPalette";
 import styles from "./CoverImageField.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface CoverImageFieldProps {
   /** 현재 이미지 URL */
@@ -172,8 +173,7 @@ export default function CoverImageField({
       </div>
       {value && (
         <div className={styles.previewRow}>
-          <button
-            type="button"
+          <Pressable noTapScale
             className={styles.previewBtn}
             style={{ height: thumbHeight }}
             onClick={onPickerToggle}
@@ -199,12 +199,11 @@ export default function CoverImageField({
                 onError={() => setImgErrored(true)}
               />
             )}
-          </button>
+          </Pressable>
           {/* 추출된 테마 색상 — palette 아이콘 = 전체 복사, swatch 개별 = hex 복사 */}
           {palette.length > 0 && (
             <div className={styles.palette}>
-              <button
-                type="button"
+              <Pressable noTapScale
                 className={styles.paletteCopyAll}
                 onClick={copyAllPalette}
                 title={t("common.copyAllPalette") || "Copy all"}
@@ -212,11 +211,10 @@ export default function CoverImageField({
               >
                 <Palette size={11} strokeWidth={2} className={styles.paletteIcon} aria-hidden />
                 <Copy size={9} strokeWidth={2.4} className={styles.paletteCopyAllIcon} aria-hidden />
-              </button>
+              </Pressable>
               {palette.map((hex) => (
-                <button
+                <Pressable noTapScale
                   key={hex}
-                  type="button"
                   className={styles.paletteSwatch}
                   style={{ background: hex }}
                   onClick={() => copyToClipboard(hex, `${t("common.copied") || "Copied"} ${hex}`)}

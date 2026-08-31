@@ -17,6 +17,7 @@ import Textarea from "@/components/ui/Textarea";
 import ContactSuccessView from "./ContactSuccessView";
 import ContactInfoCards from "./ContactInfoCards";
 import styles from "./ContactDrawer.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface SubmittedData {
   name: string;
@@ -361,16 +362,14 @@ export default function ContactDrawer({
                               setFileName(file?.name || "");
                             }}
                           />
-                          <button
-                            type="button"
+                          <Pressable noTapScale
                             className={`${styles.fileBtn} ${fileName ? styles.fileBtnActive : ""}`}
                             onClick={() => fileInputRef.current?.click()}
                           >
                             {fileName || <T k="contact.drawer.fileUpload" />}
-                          </button>
+                          </Pressable>
                           {fileName && (
-                            <button
-                              type="button"
+                            <Pressable noTapScale
                               className={styles.fileCancelBtn}
                               onClick={() => {
                                 setFileName("");
@@ -381,7 +380,7 @@ export default function ContactDrawer({
                               aria-label="Remove file"
                             >
                               <X />
-                            </button>
+                            </Pressable>
                           )}
                         </div>
                       )}
@@ -464,7 +463,7 @@ export default function ContactDrawer({
                         </div>
                       )}
 
-                      <button
+                      <Pressable noTapScale
                         type={formState.succeeded ? "button" : "submit"}
                         className={`${styles.submitBtn} ${formState.succeeded ? styles.submitBtnSuccess : ""}`}
                         disabled={formState.submitting}
@@ -486,7 +485,7 @@ export default function ContactDrawer({
                         ) : (
                           "Submit"
                         )}
-                      </button>
+                      </Pressable>
                     </motion.form>
                   )}
                 </AnimatePresence>

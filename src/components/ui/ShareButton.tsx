@@ -8,6 +8,7 @@ import { showToast } from "@/stores/toastStore";
 import DetailActionButton from "./DetailActionButton";
 import ShareIcon from "./ShareIcon/ShareIcon";
 import styles from "./ShareButton.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* 공유 버튼 — 두 자리에 놓이고 자리마다 이웃이 달라서 규격이 갈린다.
 
@@ -72,7 +73,7 @@ export default function ShareButton({ className, variant = "compact" }: ShareBut
   }
 
   return (
-    <button
+    <Pressable
       type="button"
       className={`${styles.compact}${copied ? ` ${styles.compactCopied}` : ""}${className ? ` ${className}` : ""}`}
       onClick={handleShare}
@@ -80,6 +81,6 @@ export default function ShareButton({ className, variant = "compact" }: ShareBut
       data-clickable="true"
     >
       {content}
-    </button>
+    </Pressable>
   );
 }

@@ -3,6 +3,7 @@
 import { Fragment } from "react";
 import { motion, type MotionValue } from "framer-motion";
 import styles from "./AboutSection.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface SectionNavProps {
   navRef: React.RefObject<HTMLElement | null>;
@@ -46,7 +47,7 @@ export default function SectionNav({
         const showDividerAfter = GROUP_BOUNDARIES_AFTER.has(i) && i < navSections.length - 1;
         return (
           <Fragment key={sec.id}>
-            <button
+            <Pressable
               ref={(el) => {
                 navItemRefs.current[i] = el;
               }}
@@ -58,7 +59,7 @@ export default function SectionNav({
             >
               <span className={styles.navDot} />
               <span className={styles.navLabel}>{sec.label}</span>
-            </button>
+            </Pressable>
             {showDividerAfter && <span className={styles.navGroupDivider} aria-hidden />}
           </Fragment>
         );

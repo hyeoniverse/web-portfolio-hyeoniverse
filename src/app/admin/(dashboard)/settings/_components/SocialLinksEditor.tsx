@@ -15,6 +15,7 @@ import Select from "@/components/ui/Select";
 import { uploadFile } from "@/lib/adminUpload";
 import styles from "./SocialLinksEditor.module.css";
 import shared from "../Settings.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const DEFAULT_MAX = 6;
 
@@ -101,15 +102,14 @@ export default function SocialLinksEditor({ links, onChange, max = DEFAULT_MAX }
                   onChange={(v) => updateItem(idx, "url", v)}
                 />
               </div>
-              <button
-                type="button"
+              <Pressable
                 className={styles.socialRemoveBtn}
                 onClick={() => removeLink(idx)}
                 aria-label="Remove"
               >
                 <span className={styles.socialRemoveLine} />
                 <span className={styles.socialRemoveLine} />
-              </button>
+              </Pressable>
             </SortableSocialItem>
           ))}
           <Button
@@ -144,9 +144,9 @@ function SortableSocialItem({ id, children }: { id: string; children: React.Reac
       className={`${styles.socialItem} ${isDragging ? styles.socialItemDragging : ""}`}
       {...attributes}
     >
-      <button type="button" className={styles.socialDragHandle} {...listeners} aria-label="Drag to reorder">
+      <Pressable className={styles.socialDragHandle} {...listeners} aria-label="Drag to reorder">
         <GripDotsIcon />
-      </button>
+      </Pressable>
       {children}
     </div>
   );

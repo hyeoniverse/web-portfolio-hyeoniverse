@@ -11,6 +11,7 @@ import {
   DEFAULT_ARCH_NODES, DEFAULT_ARCH_EDGES, archEdgePoints,
 } from "@/app/about/_components/panels/archDiagramData";
 import css from "./ArchDiagramEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const ICON_OPTIONS = Object.keys(ARCH_ICONS).map((k) => ({ value: k, label: k }));
 
@@ -98,7 +99,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
   return (
     <div className={css.editor}>
       <div className={css.toolbar}>
-        <button type="button" className={css.add} onClick={addNode}><Plus size={14} /> 노드 추가</button>
+        <Pressable noTapScale className={css.add} onClick={addNode}><Plus size={14} /> 노드 추가</Pressable>
         <p className={css.hint}>노드를 드래그해 배치, 클릭해 편집. 엣지는 선을 클릭해 선택.</p>
       </div>
 
@@ -122,7 +123,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
               <g key={i} className={css.edge} onClick={() => { setSelEdge(i); setSelNode(null); }}>
                 <line x1={pts.x1} y1={pts.y1} x2={pts.x2} y2={pts.y2} stroke="transparent" strokeWidth={12} />
                 <line x1={pts.x1} y1={pts.y1} x2={pts.x2} y2={pts.y2}
-                  stroke={on ? "var(--text-accent)" : "var(--border-default-color)"} strokeWidth={on ? 2 : 1}
+                  stroke={on ? "var(--text-accent)" : "var(--border-color-default)"} strokeWidth={on ? 2 : 1}
                   strokeDasharray={edge.dashed ? "4 3" : undefined} markerEnd="url(#aeArrow)" />
               </g>
             );
@@ -131,7 +132,7 @@ export default function ArchDiagramEditor({ value, onChange }: {
           {nodes.map((node) => {
             const ic = ARCH_ICONS[node.icon] ?? ARCH_ICONS.user;
             const on = selNode === node.id;
-            const gc = node.group ? (ARCH_GROUP_COLORS[node.group] ?? "var(--border-default-color)") : "var(--border-default-color)";
+            const gc = node.group ? (ARCH_GROUP_COLORS[node.group] ?? "var(--border-color-default)") : "var(--border-color-default)";
             return (
               <g key={node.id} className={css.node} onPointerDown={(e) => onNodeDown(node.id, e)}>
                 <rect x={node.x} y={node.y} width={node.w} height={node.h} rx={node.h / 2}
@@ -163,10 +164,10 @@ export default function ArchDiagramEditor({ value, onChange }: {
           <div className={css.field}><span className={css.fieldLabel}>그룹</span>
             <Select value={sel.group ?? ""} onChange={(v) => setNodeField(sel.id, { group: v || undefined })} options={groupOptions} /></div>
           <div className={css.panelActions}>
-            <button type="button" className={`${css.add} ${connectFrom === sel.id ? css.connectOn : ""}`}
+            <Pressable noTapScale className={`${css.add} ${connectFrom === sel.id ? css.connectOn : ""}`}
               onClick={() => setConnectFrom(connectFrom === sel.id ? null : sel.id)}>
               <Link2 size={13} /> {connectFrom === sel.id ? "연결할 노드 클릭…" : "엣지 연결"}
-            </button>
+            </Pressable>
             <Button variant="outline" size="sm" tone="danger" onClick={() => deleteNode(sel.id)} icon={<Trash2 size={13} />}>노드 삭제</Button>
           </div>
         </div>

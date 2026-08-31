@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { type CalEvent, type EventLabel, type TimeFormat, eventColorVar, formatClock } from "./model";
 import { formatDateValue } from "../dateUtils";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export type DayPopState = { date: string; events: CalEvent[]; rect: DOMRect } | null;
 
@@ -58,9 +59,8 @@ export default function DayEventsPopover({
       <div className={styles.dayPopHead}>{formatDateValue(state.date, null, language)}</div>
       <div className={styles.dayPopList}>
         {events.map((ev) => (
-          <button
+          <Pressable
             key={ev.id}
-            type="button"
             className={`${styles.chip}${ev.status === "done" ? ` ${styles.chipDone}` : ""}`}
             style={{ ["--_chip" as string]: eventColorVar(ev, labels) }}
             onClick={() => { onHover(null); onEventClick?.(ev); onClose(); }}
@@ -70,7 +70,7 @@ export default function DayEventsPopover({
           >
             <span className={styles.chipDot} />
             <span className={styles.chipLabel}>{ev.time ? `${formatClock(ev.time, timeFormat)} ` : ""}{ev.title || " "}</span>
-          </button>
+          </Pressable>
         ))}
       </div>
     </div>,

@@ -58,6 +58,7 @@ import { useMyRole } from "@/hooks/useMyRole";
 import AuthorAvatar from "@/components/ui/AuthorAvatar";
 import styles from "./WorkEditor.module.css";
 import type { PlateEditorHandle, EditorImageInfo } from "@/components/posts/PlateEditor";
+import Pressable from "@/components/ui/Pressable";
 
 const Editor = dynamic(() => import("@/components/posts/PlateEditor"), {
   ssr: false,
@@ -388,8 +389,7 @@ function TeamMemberCard({
             ) : (
               <User size={20} strokeWidth={1.5} className={styles.memberAvatarPlaceholder} />
             )}
-            <button
-              type="button"
+            <Pressable
               className={styles.memberAvatarAddBadge}
               onClick={(e) => {
                 e.stopPropagation();
@@ -399,7 +399,7 @@ function TeamMemberCard({
               tabIndex={-1}
             >
               <Plus size={10} strokeWidth={2.5} />
-            </button>
+            </Pressable>
           </span>
           <div className={styles.memberInfo}>
             {/* name — 첫 줄 */}
@@ -480,8 +480,7 @@ function TeamMemberCard({
           </div>
           <div className={styles.memberHeaderActions}>
             {onEdit && (
-              <button
-                type="button"
+              <Pressable
                 className={styles.memberHeaderEditBtn}
                 onClick={onEdit}
                 aria-label={isEditingFull ? "Cancel edit" : "Edit member"}
@@ -489,7 +488,7 @@ function TeamMemberCard({
                 data-cursor="big"
               >
                 {isEditingFull ? <X size={14} strokeWidth={2.4} /> : <Pencil size={14} strokeWidth={2.2} />}
-              </button>
+              </Pressable>
             )}
             <CloseButton
               size="md"
@@ -506,8 +505,7 @@ function TeamMemberCard({
               const open = expandedRoles.has(role);
               return (
                 <div key={role} className={styles.memberContribsGroup}>
-                  <button
-                    type="button"
+                  <Pressable
                     className={`${styles.memberContribsToggle} ${open ? styles.memberContribsToggleOpen : ""}`}
                     onClick={editingContribRole === role ? (e) => e.preventDefault() : delayedClick(() => toggleRole(role))}
                     aria-expanded={open}
@@ -548,7 +546,7 @@ function TeamMemberCard({
                         {role}
                       </span>
                     )}
-                  </button>
+                  </Pressable>
                   {open && (
                     <ul className={styles.memberContribsList}>
                       {items.map((c, ci) => {
@@ -1353,9 +1351,8 @@ export default function WorkEditor({ work }: WorkEditorProps) {
         <p className={styles.templateModalDesc}>{tw("templateDesc") || (lang === "ko" ? "삽입할 템플릿을 선택하세요. 기존 내용이 있으면 아래에 추가됩니다." : "Choose a template. If content exists, it will be appended below.")}</p>
         <div className={styles.templateList}>
           {WORK_TEMPLATES.map((tmpl) => (
-            <button
+            <Pressable
               key={tmpl.id}
-              type="button"
               className={styles.templateItem}
               onClick={() => {
                 if (current.trim()) {
@@ -1375,7 +1372,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             >
               <span className={styles.templateItemLabel}>{lang === "ko" ? tmpl.label.ko : tmpl.label.en}</span>
               <span className={styles.templateItemDesc}>{lang === "ko" ? tmpl.desc.ko : tmpl.desc.en}</span>
-            </button>
+            </Pressable>
           ))}
         </div>
       </div>,
@@ -1791,7 +1788,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
           <div style={{ display: "flex", alignItems: "baseline", gap: "var(--spacing-xs)" }}>
             <label className={`${es.fieldLabel} ${es.fieldLabelRequired}${showErrors && (!form.slug.trim() || validateSlug(form.slug)) ? ` ${es.fieldLabelError}` : ""}`}>{tw("slug") || "Slug"}</label>
             {form.slug.trim() && validateSlug(form.slug) && (
-              <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-accent)" }}>{tw(`slugError.${validateSlug(form.slug)}`) || validateSlug(form.slug)}</span>
+              <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-accent)" }}>{tw(`slugError.${validateSlug(form.slug)}`) || validateSlug(form.slug)}</span>
             )}
           </div>
           <input
@@ -1924,8 +1921,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
         {/* ── 선택 (collapsible) ── */}
         <div className={styles.optionalSection}>
-          <button
-            type="button"
+          <Pressable
             className={styles.optionalToggle}
             onClick={() => setOptionalOpen((v) => !v)}
           >
@@ -1935,7 +1931,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
               strokeWidth={2.5}
               style={{ transform: optionalOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
             />
-          </button>
+          </Pressable>
 
           <div className={`${styles.optionalContent}${optionalOpen ? ` ${styles.optionalContentOpen}` : ""}`}>
             {/* 좌: 정렬순서 (세로 1열 전체)  |  우: subtitle / role (세로 stack) */}
@@ -2028,13 +2024,12 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             <h2 className={`${styles.sectionTitle}${showErrors && !form.content_ko.trim() && !form.content_en.trim() ? ` ${styles.sectionTitleError}` : ""}`} style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>
               {tw("content")}
             </h2>
-            <button
-              type="button"
+            <Pressable
               className={styles.templateBtn}
               onClick={handleInsertTemplate}
             >
               {tw("insertTemplate")}
-            </button>
+            </Pressable>
           </div>
           <Checkbox
             checked={editorHtmlMode}
@@ -2164,14 +2159,13 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             </Button>
           </div>
           {form.gallery.length === 0 ? (
-            <button
-              type="button"
+            <Pressable
               className={styles.galleryAddTile}
               onClick={() => handleImageUpload("gallery")}
             >
               <Plus size={20} strokeWidth={1.5} />
               <span>{tw("addGallery")}</span>
-            </button>
+            </Pressable>
           ) : (
             <HorizontalCarousel className={styles.galleryCarousel}>
               {form.gallery.map((src, i) => {
@@ -2266,8 +2260,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
 
       {/* ── 추가 정보 (Tech + Team + Links + RelatedPosts) — 선택 입력 통합 collapsible ── */}
       <div className={styles.extraSections}>
-        <button
-          type="button"
+        <Pressable
           className={styles.optionalToggle}
           onClick={() => setExtraOpen((v) => !v)}
         >
@@ -2277,7 +2270,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
             strokeWidth={2.5}
             style={{ transform: extraOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
           />
-        </button>
+        </Pressable>
         <div className={`${styles.extraSectionsContent}${extraOpen ? ` ${styles.extraSectionsContentOpen}` : ""}`}>
 
       {/* Tech Stack */}
@@ -2460,8 +2453,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                 ) : (
                   <User size={20} strokeWidth={1.5} className={styles.memberAvatarPlaceholder} />
                 )}
-                <button
-                  type="button"
+                <Pressable
                   className={styles.memberAvatarAddBadge}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -2471,7 +2463,7 @@ export default function WorkEditor({ work }: WorkEditorProps) {
                   tabIndex={-1}
                 >
                   <Plus size={10} strokeWidth={2.5} />
-                </button>
+                </Pressable>
               </span>
               <BilingualInputPair
                 value={{ ko: team.memberName, en: team.memberNameEn }}

@@ -5,6 +5,7 @@ import { HelpCircle, ExternalLink } from "@/components/icons";
 import Popover from "@/components/ui/Popover";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./GiscusHelp.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /** giscus 설정 방법(단계) Popover — 핵심 단어 highlight + kbd 칩 + 외부 링크. 값·옵션 설명은 필드 ? 툴팁. */
 export default function GiscusHelp() {
@@ -24,10 +25,10 @@ export default function GiscusHelp() {
       placement="bottom-start"
       contentClassName={styles.popover}
       trigger={
-        <button type="button" className={styles.trigger}>
+        <Pressable className={styles.trigger}>
           <HelpCircle size={13} />
           {L("설정 방법", "Setup guide")}
-        </button>
+        </Pressable>
       }
     >
       <div className={styles.panel}>

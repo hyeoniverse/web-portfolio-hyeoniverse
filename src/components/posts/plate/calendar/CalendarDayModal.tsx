@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import { useModalStore } from "@/stores/modalStore";
 import { type CalEvent, type EventLabel, type TimeFormat, eventColorVar, eventTimeLabel, statusOf, statusName, priorityOf, priorityName, findLabel } from "./model";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export default function CalendarDayModal({
   modalId, date, events, labels, language, readOnly, onOpenEvent, onAdd, timeFormat = "12h", onClose,
@@ -47,9 +48,8 @@ export default function CalendarDayModal({
               const spanning = ev.endDate && ev.endDate > ev.date;
               const sub = [label?.name, st && statusName(ev.status, language), pr && priorityName(ev.priority, language)].filter(Boolean).join("  ·  ");
               return (
-                <button
+                <Pressable
                   key={ev.id}
-                  type="button"
                   className={`${styles.dayRow}${ev.status === "done" ? ` ${styles.dayRowDone}` : ""}`}
                   style={{ ["--_c" as string]: eventColorVar(ev, labels) }}
                   onClick={() => { close(); onOpenEvent?.(ev); }}
@@ -65,7 +65,7 @@ export default function CalendarDayModal({
                     </span>
                     {sub && <span className={styles.dayRowSub}>{sub}</span>}
                   </span>
-                </button>
+                </Pressable>
               );
             })}
           </div>

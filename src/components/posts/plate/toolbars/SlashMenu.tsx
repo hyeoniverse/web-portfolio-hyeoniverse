@@ -27,6 +27,7 @@ import { genPollId } from "../PollElements";
 import { CALLOUT_TYPES, type CalloutType } from "../calloutTypes";
 import { _imageUploadFn, _uploadErrorFn, _slashOpenTrigger, _emojiPickerTrigger, _postLinkTrigger } from "../utils";
 import styles from "../../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -390,9 +391,8 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
           {g.items.map((c) => {
             const i = items.indexOf(c);
             return (
-              <button
+              <Pressable noTapScale
                 key={c.key}
-                type="button"
                 data-slash-nav={i}
                 className={`${styles.slashItem} ${i === activeIdx ? styles.slashItemActive : ""}`}
                 onMouseEnter={() => setActiveIdx(i)}
@@ -400,7 +400,7 @@ export default function SlashMenu({ onOpenChange }: { onOpenChange?: (open: bool
               >
                 <span className={styles.menuIcon}>{c.icon}</span>
                 <span>{t(`editor.${c.labelKey}`)}</span>
-              </button>
+              </Pressable>
             );
           })}
         </div>

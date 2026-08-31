@@ -9,6 +9,7 @@ import { PlateElement, useEditorRef, type PlateElementProps } from "platejs/reac
 import { TocPlugin, useTocElementState } from "@platejs/toc/react";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "../../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 // headingList 항목 타입 — @platejs/toc 의 useTocElementState 반환에서 파생(내부 타입 직접 import 회피).
 type TocHeading = ReturnType<typeof useTocElementState>["headingList"][number];
@@ -40,15 +41,14 @@ function TocElement(props: PlateElementProps) {
           <div className={styles.tocEmpty}>{t("editor.tocEmpty")}</div>
         ) : (
           headingList.map((h) => (
-            <button
+            <Pressable
               key={h.id}
-              type="button"
               className={styles.tocItem}
               data-depth={h.depth}
               onClick={() => scrollToHeading(h)}
             >
               {h.title}
-            </button>
+            </Pressable>
           ))
         )}
       </div>

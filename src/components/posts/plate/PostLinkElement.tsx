@@ -11,6 +11,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import Popover from "@/components/ui/Popover";
 import { cachedPostIcon, fetchPostIcon, primePostIcon, isImageIcon, isVideoIcon } from "./postLinkIcon";
 import styles from "./PostLink.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /** 문서 멘션 앞 아이콘 — 게시물 이모지/이미지, 없으면 FileText */
 function PostLinkIcon({ slug, icon }: { slug: string; icon?: string }) {
@@ -90,12 +91,12 @@ export function PostLinkElement(props: PlateElementProps) {
             <a className={styles.menuItem} href={href} target="_blank" rel="noopener noreferrer">
               <ExternalLink size={15} aria-hidden />{t("게시물 열기", "Open post")}
             </a>
-            <button type="button" className={styles.menuItem} onClick={replaceNode}>
+            <Pressable className={styles.menuItem} onClick={replaceNode}>
               <Replace size={15} aria-hidden />{t("게시물 교체", "Replace post")}
-            </button>
-            <button type="button" className={`${styles.menuItem} ${styles.menuItemDanger}`} onClick={() => { removeNode(); setOpen(false); }}>
+            </Pressable>
+            <Pressable className={`${styles.menuItem} ${styles.menuItemDanger}`} onClick={() => { removeNode(); setOpen(false); }}>
               <Trash2 size={15} aria-hidden />{t("삭제", "Remove")}
-            </button>
+            </Pressable>
           </div>
         </Popover>
       </span>

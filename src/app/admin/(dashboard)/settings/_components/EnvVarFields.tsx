@@ -15,6 +15,7 @@ import SectionHeader from "./SectionHeader";
 import type { SiteConfigData } from "@/config/site.config";
 import styles from "./EnvVarFields.module.css";
 import shared from "../Settings.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* env var 메타 — description / 발급 docs URL / value prefix (typo 감지용).
    prefix 가 정의된 키만 prefix mismatch 경고. 없는 키는 검증 skip. */
@@ -558,15 +559,14 @@ export default function EnvVarFields({
           {/* 개별 row 저장 — 편집 중일 때만 노출 */}
           {isEditing && (
             <Tooltip content={t("admin.settings.envSaveOne")} placement="top">
-              <button
-                type="button"
+              <Pressable
                 className={styles.envRowSaveBtn}
                 onClick={() => handleSaveOne(key)}
                 disabled={savingKey === key}
                 aria-label={t("admin.settings.envSaveOne")}
               >
                 <Check size={14} strokeWidth={2.5} />
-              </button>
+              </Pressable>
             </Tooltip>
           )}
           {/* 삭제 버튼 — read-only 키는 삭제 불가라 미렌더. 나머지는 항상 렌더하되
@@ -576,8 +576,7 @@ export default function EnvVarFields({
             const tooltipContent = source === "env" ? t("admin.settings.envVarEnvHint") : undefined;
             return (
               <Tooltip content={tooltipContent} disabled={!tooltipContent} placement="top">
-                <button
-                  type="button"
+                <Pressable
                   className={`${styles.envDeleteBtn}${deleteDisabled ? ` ${styles.envDeleteBtnDisabled}` : ""}`}
                   onClick={deleteDisabled ? undefined : () => handleDelete(key)}
                   disabled={deleteDisabled}
@@ -585,21 +584,20 @@ export default function EnvVarFields({
                   aria-disabled={deleteDisabled}
                 >
                   <Trash2 size={14} />
-                </button>
+                </Pressable>
               </Tooltip>
             );
           })()}
           {/* reveal (눈) 버튼 — read-only 키는 값 확인 불가라 미렌더. 편집 중엔 어차피 비활성이라 숨김 */}
           {!isReadOnly && !isEditing && (
-            <button
-              type="button"
+            <Pressable
               className={styles.envRevealBtn}
               onClick={() => handleReveal(key)}
               disabled={source === "none"}
               title={isRevealed ? "Hide" : "Reveal"}
             >
               {isRevealed ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
+            </Pressable>
           )}
         </div>
       </div>

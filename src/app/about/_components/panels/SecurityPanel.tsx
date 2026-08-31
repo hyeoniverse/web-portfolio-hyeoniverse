@@ -5,21 +5,11 @@ import type { SecurityItem } from "@/data/about";
 import { renderHighlight } from "../renderHighlight";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
+import { adaptSecurity } from "@/app/about/_config/adaptAbout";
 import shared from "../AboutSection.module.css";
 import local from "./SecurityPanel.module.css";
 const styles = { ...shared, ...local };
 
-/* admin (siteConfig.about.security) flat shape → SecurityItem nested shape 변환 */
-type CfgSecurity = { layer: string; icon: string; title_ko: string; title_en: string; description_ko: string; description_en: string; scope_ko: string; scope_en: string };
-function adaptSecurity(cfgList: CfgSecurity[]): SecurityItem[] {
-  return cfgList.map((s) => ({
-    layer: s.layer,
-    icon: s.icon,
-    title: { ko: s.title_ko, en: s.title_en },
-    description: { ko: s.description_ko, en: s.description_en },
-    scope: { ko: s.scope_ko, en: s.scope_en },
-  }));
-}
 
 /* Inline lucide-style SVG icons — admin 스튜디오 프리뷰에서도 재사용 */
 export const securityIcons: Record<string, React.ReactNode> = {

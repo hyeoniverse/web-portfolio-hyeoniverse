@@ -11,6 +11,7 @@ import { buildSrcdoc, parseConsoleMessage, type ConsoleMsg } from "./buildSrcdoc
 import { buildTree, fileLang, fileIcon, isGitkeep, type TreeNode } from "./fileTree";
 import type { PlaygroundData } from "./model";
 import styles from "../PlaygroundElement.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const base = (p: string) => p.split("/").pop() || p;
 const dirOf = (p: string) => p.slice(0, p.lastIndexOf("/")); // "/lib/u.js" → "/lib", "/a.js" → ""
@@ -42,14 +43,14 @@ function removeInMap(files: Record<string, string>, path: string, isDir: boolean
 function TB({ on, tip, onClick, disabled, children }: { on?: boolean; tip: React.ReactNode; onClick: () => void; disabled?: boolean; children: React.ReactNode }) {
   return (
     <Tooltip content={tip} placement="top" delay={400}>
-      <button type="button" className={styles.spIconBtn} data-on={on ? "" : undefined} disabled={disabled} onClick={onClick}>{children}</button>
+      <Pressable noTapScale className={styles.spIconBtn} data-on={on ? "" : undefined} disabled={disabled} onClick={onClick}>{children}</Pressable>
     </Tooltip>
   );
 }
 function RowAction({ tip, onClick, children }: { tip: React.ReactNode; onClick: (e: React.MouseEvent) => void; children: React.ReactNode }) {
   return (
     <Tooltip content={tip} placement="top" delay={400}>
-      <button type="button" className={styles.spTreeAction} onClick={onClick}>{children}</button>
+      <Pressable noTapScale className={styles.spTreeAction} onClick={onClick}>{children}</Pressable>
     </Tooltip>
   );
 }
@@ -491,7 +492,7 @@ export default function PlaygroundRunner({ data, onChange, readOnly, height = 46
                       <Icon size={15} color={color} />
                       <span className={styles.spTabName}>{base(p)}</span>
                       {!readOnly && tabs.length > 1 && (
-                        <button type="button" className={styles.spTabClose} aria-label={ko ? "탭 닫기" : "Close tab"} onClick={(e) => { e.stopPropagation(); closeTab(p); }}><X size={13} /></button>
+                        <Pressable noTapScale className={styles.spTabClose} aria-label={ko ? "탭 닫기" : "Close tab"} onClick={(e) => { e.stopPropagation(); closeTab(p); }}><X size={13} /></Pressable>
                       )}
                     </div>
                   );
@@ -505,9 +506,9 @@ export default function PlaygroundRunner({ data, onChange, readOnly, height = 46
                     <div className={styles.rnConsoleWrap}>
                       <div className={styles.rnConsoleBar}>
                         <div className={styles.rnFilterChips}>
-                          <button type="button" className={styles.rnChip} data-on={logFilter === "all" ? "" : undefined} onClick={() => setLogFilter("all")}>{ko ? "전체" : "All"}</button>
-                          <button type="button" className={styles.rnChip} data-on={logFilter === "warn" ? "" : undefined} onClick={() => setLogFilter("warn")}>{ko ? "경고" : "Warn"}</button>
-                          <button type="button" className={styles.rnChip} data-on={logFilter === "error" ? "" : undefined} onClick={() => setLogFilter("error")}>{ko ? "에러" : "Error"}</button>
+                          <Pressable noTapScale className={styles.rnChip} data-on={logFilter === "all" ? "" : undefined} onClick={() => setLogFilter("all")}>{ko ? "전체" : "All"}</Pressable>
+                          <Pressable noTapScale className={styles.rnChip} data-on={logFilter === "warn" ? "" : undefined} onClick={() => setLogFilter("warn")}>{ko ? "경고" : "Warn"}</Pressable>
+                          <Pressable noTapScale className={styles.rnChip} data-on={logFilter === "error" ? "" : undefined} onClick={() => setLogFilter("error")}>{ko ? "에러" : "Error"}</Pressable>
                         </div>
                         <input className={styles.rnFilterInput} placeholder={ko ? "필터" : "Filter"} value={logQuery} onChange={(e) => setLogQuery(e.target.value)} onKeyDown={(e) => e.stopPropagation()} />
                         <TB tip={ko ? "콘솔 지우기" : "Clear console"} onClick={() => setLogs([])}><Ban size={15} /></TB>

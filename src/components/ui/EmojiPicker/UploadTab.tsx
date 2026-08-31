@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { ImageIcon, Upload } from "@/components/icons";
 import { EMOJI_MIN, EMOJI_MAX, EMOJI_RECOMMENDED } from "./resizeEmojiImage";
 import styles from "./EmojiPicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface UploadTabProps {
   uploading: boolean;
@@ -30,7 +31,7 @@ export function UploadTab({
   return (
     <div className={styles.uploadTab}>
       {/* 드롭존 겸 클릭 업로드 — drag indicator 는 이 버튼에만 표시 */}
-      <button
+      <Pressable noTapScale
         type="button"
         disabled={disabled}
         className={`${styles.dropzone} ${dragOver ? styles.dragOver : ""}`}
@@ -54,7 +55,7 @@ export function UploadTab({
           : dragOver
             ? t("여기에 놓기", "Drop here")
             : t("이미지를 끌어다 놓거나 클릭", "Drag & drop or click")}
-      </button>
+      </Pressable>
       <input
         ref={fileRef}
         type="file"

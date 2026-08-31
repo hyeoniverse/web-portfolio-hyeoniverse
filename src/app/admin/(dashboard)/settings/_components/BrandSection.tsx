@@ -39,6 +39,7 @@ import SectionHeader from "./SectionHeader";
 import { ColorDuoTools, FaviconShadowControls, PresetNameAddRow } from "./FaviconControls";
 import styles from "./AppearanceTab.module.css";
 import shared from "../Settings.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type LogoColorPreset = { name: string; light: string; dark: string };
 
@@ -111,7 +112,7 @@ function FaviconPreviewSvg({ render, textShadowId, bgShadowId }: {
       width="48"
       height="48"
       aria-hidden
-      style={render.shape === "none" ? { overflow: "visible", border: "1px dashed var(--border-light-color)", borderRadius: 4 } : { overflow: "visible" }}
+      style={render.shape === "none" ? { overflow: "visible", border: "1px dashed var(--border-color-light)", borderRadius: 4 } : { overflow: "visible" }}
     >
       {(render.textShadow || render.bgShadow) && (
         <defs>
@@ -198,24 +199,22 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
 
         {/* 그룹 탭 — 언더라인 탭(세그먼트 pill 과 구분). 업로드 로고 / 시스템 로고(텍스트) */}
         <div className={styles.brandTabs} role="tablist">
-          <button
-            type="button"
+          <Pressable
             role="tab"
             aria-selected={brandTab === "uploaded"}
             className={`${styles.brandTab}${brandTab === "uploaded" ? ` ${styles.brandTabActive}` : ""}`}
             onClick={() => setBrandTab("uploaded")}
           >
             {t("admin.settings.uploadedLogoSection")}
-          </button>
-          <button
-            type="button"
+          </Pressable>
+          <Pressable
             role="tab"
             aria-selected={brandTab === "system"}
             className={`${styles.brandTab}${brandTab === "system" ? ` ${styles.brandTabActive}` : ""}`}
             onClick={() => setBrandTab("system")}
           >
             {t("admin.settings.systemLogoSection")}
-          </button>
+          </Pressable>
         </div>
         <p className={styles.brandTabHint}>
           {brandTab === "uploaded" ? t("admin.settings.uploadedLogoHint") : t("admin.settings.systemLogoHint")}
@@ -303,7 +302,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                     <div className={shared.colorField}>
                       <ColorPicker value={config.brand.faviconImageBgLight || "#ffffff"} onChange={(c) => update("brand", "faviconImageBgLight", c.hex)}>
                         {({ toggle }) => (
-                          <button type="button" className={`${shared.colorPicker}${config.brand.faviconImageBgLight ? "" : ` ${styles.checkerBg}`}`} style={config.brand.faviconImageBgLight ? { background: config.brand.faviconImageBgLight } : undefined} onClick={toggle} aria-label={t("admin.settings.faviconBg")} />
+                          <Pressable className={`${shared.colorPicker}${config.brand.faviconImageBgLight ? "" : ` ${styles.checkerBg}`}`} style={config.brand.faviconImageBgLight ? { background: config.brand.faviconImageBgLight } : undefined} onClick={toggle} aria-label={t("admin.settings.faviconBg")} />
                         )}
                       </ColorPicker>
                       <Input className={shared.colorInput} value={config.brand.faviconImageBgLight} onChange={(v) => update("brand", "faviconImageBgLight", v)} placeholder={t("admin.settings.faviconImageBgPlaceholder")} maxLength={7} />
@@ -314,7 +313,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                     <div className={shared.colorField}>
                       <ColorPicker value={config.brand.faviconImageBgDark || "#0a0a0a"} onChange={(c) => update("brand", "faviconImageBgDark", c.hex)}>
                         {({ toggle }) => (
-                          <button type="button" className={`${shared.colorPicker}${config.brand.faviconImageBgDark ? "" : ` ${styles.checkerBg}`}`} style={config.brand.faviconImageBgDark ? { background: config.brand.faviconImageBgDark } : undefined} onClick={toggle} aria-label={t("admin.settings.faviconBg")} />
+                          <Pressable className={`${shared.colorPicker}${config.brand.faviconImageBgDark ? "" : ` ${styles.checkerBg}`}`} style={config.brand.faviconImageBgDark ? { background: config.brand.faviconImageBgDark } : undefined} onClick={toggle} aria-label={t("admin.settings.faviconBg")} />
                         )}
                       </ColorPicker>
                       <Input className={shared.colorInput} value={config.brand.faviconImageBgDark} onChange={(v) => update("brand", "faviconImageBgDark", v)} placeholder={t("admin.settings.faviconImageBgPlaceholder")} maxLength={7} />
@@ -710,8 +709,7 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
             <div className={styles.logoColorPresets}>
               {presets.map((p, i) => (
                 <div key={`${p.name}-${i}`} className={styles.logoColorPresetWrap}>
-                  <button
-                    type="button"
+                  <Pressable
                     title={p.name}
                     className={`${shared.logoColorPresetBtn} ${
                       config.brand.logoColor === p.light && config.brand.logoColorDark === p.dark
@@ -724,30 +722,28 @@ export default function BrandSection({ config, savedConfig, update, saveSection,
                   >
                     <span className={styles.logoColorPresetHalf} style={{ background: p.light || "#1a1a1a" }} />
                     <span className={styles.logoColorPresetHalf} style={{ background: p.dark || "#f5f5f0" }} />
-                  </button>
+                  </Pressable>
                   {presets.length > 1 && (
-                    <button
-                      type="button"
+                    <Pressable
                       className={styles.logoColorPresetRemove}
                       onClick={() => removePreset(i)}
                       aria-label={`Remove ${p.name}`}
                       title="프리셋 제거"
                     >
                       <X size={10} strokeWidth={2.5} />
-                    </button>
+                    </Pressable>
                   )}
                 </div>
               ))}
               {canAddPreset && (
-                <button
-                  type="button"
+                <Pressable
                   className={styles.logoColorPresetAddBtn}
                   onClick={() => { setAddingPresetName(true); showToast(t("admin.settings.enterPresetName"), "info"); }}
                   title={t("admin.settings.savePreset")}
                   aria-label={t("admin.settings.savePreset")}
                 >
                   <Plus size={14} strokeWidth={2} />
-                </button>
+                </Pressable>
               )}
             </div>
           </FieldRow>

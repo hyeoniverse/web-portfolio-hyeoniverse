@@ -1,5 +1,6 @@
 import type { ReactNode, MouseEvent } from "react";
 import styles from "./StatusBadge.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export type StatusVariant = "published" | "draft" | "scheduled";
 
@@ -21,9 +22,9 @@ export default function StatusBadge({ variant, children, onClick, title, classNa
   const cls = `${styles.badge} ${styles[variant]}${onClick ? ` ${styles.btn}` : ""}${className ? ` ${className}` : ""}`;
   if (onClick) {
     return (
-      <button type="button" className={cls} onClick={onClick} title={title}>
+      <Pressable className={cls} onClick={onClick} title={title}>
         {children}
-      </button>
+      </Pressable>
     );
   }
   return (

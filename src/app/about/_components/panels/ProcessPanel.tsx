@@ -10,6 +10,7 @@ import { renderHighlight } from "../renderHighlight";
 import PinnedTitleRow from "../PinnedTitleRow";
 import T from "@/components/ui/T";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
+import { adaptProcess } from "@/app/about/_config/adaptAbout";
 import shared from "../AboutSection.module.css";
 import local from "./ProcessPanel.module.css";
 const styles = { ...shared, ...local };
@@ -23,15 +24,6 @@ interface ProcessPanelProps {
   scrollBy?: (deltaX: number) => void;
 }
 
-/* admin (siteConfig.about.process) flat shape → ProcessStep nested shape 변환 */
-type CfgProcess = { step: string; title_ko: string; title_en: string; description_ko: string; description_en: string };
-function adaptProcess(cfgList: CfgProcess[]): ProcessStep[] {
-  return cfgList.map((p) => ({
-    step: p.step,
-    title: { ko: p.title_ko, en: p.title_en },
-    description: { ko: p.description_ko, en: p.description_en },
-  }));
-}
 
 function ProcessPanel({ language, process, scrollBy }: ProcessPanelProps) {
   const cfg = useSiteConfig();

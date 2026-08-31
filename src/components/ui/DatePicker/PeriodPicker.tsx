@@ -11,6 +11,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import Select from "@/components/ui/Select";
 import DatePickerPopover from "./DatePickerPopover";
 import styles from "./DatePicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface PeriodPickerProps {
   value: DatePeriod;
@@ -74,14 +75,14 @@ export function PeriodFormatBar({
       )}
       <div className={styles.formatSegment}>
         {FORMAT_OPTIONS.map((opt) => (
-          <button
+          <Pressable
             key={opt.value}
             type="button"
             className={`${styles.formatBtn} ${safeValue.format === opt.value ? styles.formatBtnActive : ""}`}
             onClick={() => setFormat(opt.value)}
           >
             {opt.label[language]}
-          </button>
+          </Pressable>
         ))}
       </div>
       <div className={styles.formatChecks}>
@@ -288,7 +289,7 @@ function DateInputRow({
         )}
         {/* Picker trigger */}
         <div className={styles.pickerAnchor}>
-          <button
+          <Pressable
             type="button"
             className={styles.pickerBtn}
             onClick={() => setPickerOpen(!pickerOpen)}
@@ -296,7 +297,7 @@ function DateInputRow({
             aria-label="Open date picker"
           >
             <Calendar size={14} strokeWidth={1.5} />
-          </button>
+          </Pressable>
           {pickerOpen && (
             <DatePickerPopover
               year={year}
@@ -382,14 +383,14 @@ export default function PeriodPicker({
           <span className={styles.formatLabel}>{t("admin.settings.profile.displayFormat")}</span>
           <div className={styles.formatSegment}>
             {FORMAT_OPTIONS.map((opt) => (
-              <button
+              <Pressable
                 key={opt.value}
                 type="button"
                 className={`${styles.formatBtn} ${safeValue.format === opt.value ? styles.formatBtnActive : ""}`}
                 onClick={() => setFormat(opt.value)}
               >
                 {opt.label[language]}
-              </button>
+              </Pressable>
             ))}
           </div>
           <div className={styles.formatChecks}>

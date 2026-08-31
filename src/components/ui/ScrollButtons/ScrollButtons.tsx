@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ChevronUp, ChevronDown } from "@/components/icons";
 import { useLenis } from "@/providers/LenisProvider";
 import styles from "./ScrollButtons.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface ScrollButtonsProps {
   threshold?: number;
@@ -43,12 +44,12 @@ export default function ScrollButtons({ threshold = 300 }: ScrollButtonsProps) {
 
   return (
     <>
-      <button type="button" className={`${styles.btn} ${styles.btnTop} ${visCls}`} onClick={scrollToTop} aria-label="Scroll to top" data-clickable="true">
+      <Pressable noTapScale className={`${styles.btn} ${styles.btnTop} ${visCls}`} onClick={scrollToTop} aria-label="Scroll to top" data-clickable="true">
         <ChevronUp size={16} />
-      </button>
-      <button type="button" className={`${styles.btn} ${styles.btnBottom} ${visCls}`} onClick={scrollToBottom} aria-label="Scroll to bottom" data-clickable="true">
+      </Pressable>
+      <Pressable noTapScale className={`${styles.btn} ${styles.btnBottom} ${visCls}`} onClick={scrollToBottom} aria-label="Scroll to bottom" data-clickable="true">
         <ChevronDown size={16} />
-      </button>
+      </Pressable>
     </>
   );
 }

@@ -13,6 +13,7 @@ import EventPreview from "./EventPreview";
 import { useHoverPreview } from "./useHoverPreview";
 import DayEventsPopover, { type DayPopState } from "./DayEventsPopover";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -104,13 +105,13 @@ export default function MonthCalendar({
       <div className={styles.header}>
         <div className={styles.navGroup}>
           <Tooltip content={t("이전 달", "Previous month")} placement="top">
-            <button type="button" className={styles.navBtn} onClick={() => navMonth(-1)} aria-label="prev">
+            <Pressable className={styles.navBtn} onClick={() => navMonth(-1)} aria-label="prev">
               <ChevronLeft size={16} />
-            </button>
+            </Pressable>
           </Tooltip>
           <span className={styles.monthNavWrap}>
             <Tooltip content={t("연·월 선택", "Pick year/month")} placement="top">
-              <button type="button" className={styles.title} onClick={() => setMonthPickerOpen(true)}>{monthTitle(month, language)}</button>
+              <Pressable className={styles.title} onClick={() => setMonthPickerOpen(true)}>{monthTitle(month, language)}</Pressable>
             </Tooltip>
             {monthPickerOpen && (
               <DatePickerPopover
@@ -125,9 +126,9 @@ export default function MonthCalendar({
               />
             )}
           </span>
-          <button type="button" className={styles.navBtn} onClick={() => navMonth(1)} aria-label="next">
+          <Pressable className={styles.navBtn} onClick={() => navMonth(1)} aria-label="next">
             <ChevronRight size={16} />
-          </button>
+          </Pressable>
           {todayButton}
         </div>
         {viewToggle}
@@ -209,10 +210,9 @@ export default function MonthCalendar({
               })}
               <div className={styles.weekBars}>
                 {segments.map(({ ev, lane, startCol, span, contLeft, contRight }) => (
-                  <button
+                  <Pressable
                     key={ev.id}
                     ref={ev.id === focusEventId ? focusChipRef : undefined}
-                    type="button"
                     className={`${styles.chip} ${styles.spanBar}${ev.status === "done" ? ` ${styles.chipDone}` : ""}${contLeft ? ` ${styles.spanL}` : ""}${contRight ? ` ${styles.spanR}` : ""}${hover?.ev.id === ev.id ? ` ${styles.chipHover}` : ""}${chainHi && chainHi.size > 1 && chainHi.has(ev.master ?? ev.id) ? ` ${styles.chipChainHi}` : ""}${ev.id === focusEventId ? ` ${styles.chipHi}` : ""}`}
                     style={{ gridColumn: `${startCol + 1} / span ${span}`, gridRow: lane + 1, ["--_chip" as string]: eventColorVar(ev, labels) }}
                     draggable={canDrag}
@@ -232,18 +232,17 @@ export default function MonthCalendar({
                         {relatedIds?.has(ev.master ?? ev.id) && <Link2 size={9} aria-label="linked" />}
                       </span>
                     )}
-                  </button>
+                  </Pressable>
                 ))}
                 {overflowByCol.map((n, ci) => n > 0 ? (
-                  <button
+                  <Pressable
                     key={`o${ci}`}
-                    type="button"
                     className={styles.moreChip}
                     style={{ gridColumn: ci + 1, gridRow: MAX_CHIPS + 1 }}
                     onClick={(e) => { e.stopPropagation(); hideNow(); setDayPop({ date: week[ci].date, events: byDate.get(week[ci].date) || [], rect: e.currentTarget.getBoundingClientRect() }); }}
                   >
                     +{n}
-                  </button>
+                  </Pressable>
                 ) : null)}
               </div>
             </div>

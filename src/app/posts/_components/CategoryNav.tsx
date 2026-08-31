@@ -6,6 +6,7 @@ import { useCategories, type BilingualCategory } from "@/hooks/useCategories";
 import { flattenCategories } from "@/lib/categoryTree";
 import T from "@/components/ui/T";
 import styles from "./CategoryNav.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface CategoryNavProps {
   extraCategories?: string[];
@@ -199,15 +200,15 @@ export default function CategoryNav({
     <div className={styles.wrapper}>
       <div className={styles.navRow}>
         <div className={navCls} ref={navRef} onTransitionEnd={handleTransitionEnd}>
-          <button
+          <Pressable
             className={`${styles.btn} ${activeCategories.length === 0 ? styles.btnActive : ""}`}
             onClick={() => onCategoriesChange([])}
             data-clickable="true"
           >
             All
-          </button>
+          </Pressable>
           {parentCategories.map((cat) => (
-            <button
+            <Pressable
               key={cat.ko}
               className={`${styles.btn} ${isActiveParent(cat) ? styles.btnActive : ""}`}
               onClick={() => toggleParent(cat)}
@@ -216,17 +217,17 @@ export default function CategoryNav({
               data-clickable="true"
             >
               <T ko={cat.ko} en={cat.en} delay={0} alwaysTooltip />
-            </button>
+            </Pressable>
           ))}
         </div>
         {(overflowCount > 0 || expanded) && (
-          <button
+          <Pressable
             className={`${styles.moreBtn} ${expanded ? styles.moreBtnOpen : ""}`}
             onClick={() => onExpandChange(!expanded)}
             data-clickable="true"
           >
             {expanded ? "Close" : `+${overflowCount}`}
-          </button>
+          </Pressable>
         )}
       </div>
 
@@ -245,7 +246,7 @@ export default function CategoryNav({
           >
             <div className={styles.childRowInner}>
               {(parent.children ?? []).map((ch) => (
-                <button
+                <Pressable
                   key={ch.ko}
                   /* 시각적 active — 자식 직접 선택 OR 부모 선택(자식 전부 필터링 상태) */
                   className={`${styles.childBtn} ${(isChildSelected(ch) || isSelfSelected(parent)) ? styles.childBtnActive : ""}`}
@@ -253,7 +254,7 @@ export default function CategoryNav({
                   data-clickable="true"
                 >
                   <T ko={ch.ko} en={ch.en} delay={0} alwaysTooltip />
-                </button>
+                </Pressable>
               ))}
             </div>
           </motion.div>

@@ -6,6 +6,8 @@ import Checkbox from "@/components/ui/Checkbox";
 import { SkeletonLine } from "@/components/ui/Skeleton";
 import Pagination from "@/components/ui/Pagination";
 import styles from "./SubTable.module.css";
+import Button from "@/components/ui/Button";
+import Pressable from "@/components/ui/Pressable";
 
 /* ── Types ── */
 export interface SubTableColumn<T> {
@@ -152,7 +154,7 @@ export default function SubTable<T extends { id: string }>({
     <div className={styles.section}>
       {/* Toggle header */}
       <div className={styles.headerRow}>
-        <button type="button" className={styles.toggle} onClick={onToggle}>
+        <Pressable className={styles.toggle} onClick={onToggle}>
           {icon}
           <span>
             {title}
@@ -162,7 +164,7 @@ export default function SubTable<T extends { id: string }>({
             <ChevronIcon />
           </span>
           {hint && <span className={styles.hint}>{hint}</span>}
-        </button>
+        </Pressable>
         {headerExtra}
       </div>
 
@@ -199,18 +201,19 @@ export default function SubTable<T extends { id: string }>({
               <div className={`${styles.bulkBar} ${selected.size > 0 ? styles.bulkBarOpen : ""}`}>
                 <span>{selected.size}개 선택</span>
                 {bulkActions?.map((action, i) => (
-                  <button
+                  <Button
                     key={i}
-                    className={styles.bulkBtn}
+                    variant="outline"
+                    size="xs"
                     disabled={action.disabled}
                     onClick={action.onClick}
                   >
                     {action.label}
-                  </button>
+                  </Button>
                 ))}
-                <button className={styles.bulkCancel} onClick={() => onSelectChange(new Set())}>
+                <Pressable className={styles.bulkCancel} onClick={() => onSelectChange(new Set())}>
                   ✕
-                </button>
+                </Pressable>
               </div>
 
               {/* Table header */}

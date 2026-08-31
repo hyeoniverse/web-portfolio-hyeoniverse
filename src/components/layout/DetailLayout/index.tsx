@@ -21,6 +21,7 @@ import T from "@/components/ui/T";
 import { formatCount } from "@/utils/format";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./DetailLayout.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const CommentSection = dynamic(() => import("@/components/comments/CommentSection"), { ssr: false });
 const Giscus = dynamic(() => import("@/components/comments/Giscus"), { ssr: false });
@@ -199,14 +200,13 @@ export default function DetailLayout({
         transition={{ delay: 0.3, duration: 0.5 }}
       >
         {onBack ? (
-          <button
-            type="button"
+          <Pressable
             onClick={onBack}
             className={`${styles.backBtn} ${backHidden ? styles.backBtnHidden : ""}`}
           >
             <ArrowLeft size={24} />
             <span className={styles.backBtnLabel}>{backLabel}</span>
-          </button>
+          </Pressable>
         ) : (
           <a
             href={backHref}

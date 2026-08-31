@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "./LetterFilter.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* 쌍자음 → 기본형 묶음 (예: ㄲ → ㄱ). 한글 syllable code → CHOSUNG index → 기본 letter. */
 const CHOSUNG_GROUPED = [
@@ -52,20 +53,20 @@ export default function LetterFilter({
   return (
     <div className={`${styles.row} ${className ?? ""}`.trim()}>
       {onClear && (
-        <button
+        <Pressable
           type="button"
           className={`${styles.btn} ${active.size === 0 ? styles.btnActive : ""}`}
           onClick={onClear}
           data-clickable="true"
         >
           전체
-        </button>
+        </Pressable>
       )}
       {letters.map((l) => {
         const has = hasLetter ? hasLetter(l) : true;
         const isActive = active.has(l);
         return (
-          <button
+          <Pressable
             key={l}
             type="button"
             className={`${styles.btn} ${isActive ? styles.btnActive : ""} ${!has ? styles.btnDisabled : ""}`}
@@ -74,7 +75,7 @@ export default function LetterFilter({
             data-clickable={has ? "true" : undefined}
           >
             {l}
-          </button>
+          </Pressable>
         );
       })}
     </div>

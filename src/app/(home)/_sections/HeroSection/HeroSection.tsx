@@ -12,6 +12,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { useLenis } from "@/providers/LenisProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import styles from "./HeroSection.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface HeroSectionProps {
   floatX: MotionValue<number>;
@@ -123,11 +124,10 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
         </div>
 
         {/* Scroll Indicator */}
-        <button
+        <Pressable
           className={styles.scrollIndicator}
           onClick={onScrollDown}
           aria-label="Scroll down"
-          type="button"
         >
           <div className={styles.scrollLineWrapper}>
             <motion.div
@@ -143,7 +143,7 @@ const HeroSection = forwardRef<HTMLElement, HeroSectionProps>(
           <span className={styles.scrollText}>
             <T ko={cfg.hero.scrollLabel_ko} en={cfg.hero.scrollLabel} />
           </span>
-        </button>
+        </Pressable>
       </Section>
     );
   },

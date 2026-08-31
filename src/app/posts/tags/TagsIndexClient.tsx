@@ -17,6 +17,7 @@ import LetterFilter, { KOREAN_LETTERS, ENGLISH_LETTERS, LETTER_ETC, getLetterIni
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./TagsIndex.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface TagEntry {
   tag: string;
@@ -312,14 +313,13 @@ export default function TagsIndexClient({ tags }: Props) {
               role="dialog"
               aria-modal="true"
             >
-              <button
-                type="button"
+              <Pressable
                 className={styles.sheetClose}
                 onClick={() => setSheetTag(null)}
                 aria-label="닫기"
               >
                 <X size={18} aria-hidden />
-              </button>
+              </Pressable>
               <div className={styles.sheetHeader}>
                 <h2 className={styles.sheetTitle}>#{sheetTag.tag}</h2>
                 <span className={styles.sheetCount}>{sheetTag.count}개의 글</span>

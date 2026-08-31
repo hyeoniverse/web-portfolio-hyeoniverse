@@ -8,6 +8,7 @@ import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SortControl from "@/components/ui/SortControl";
 import { type EventLabel, type SearchScope, type SortField, type SortDir, EVENT_PRIORITIES, colorVar } from "./model";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export default function CalendarToolbar({
   labels, tags, language,
@@ -67,17 +68,17 @@ export default function CalendarToolbar({
       {/* 필터 (라벨/태그) */}
       <Popover placement="bottom-start" offset={6} maxHeight={false} responsive={false} contentClassName={styles.filterMenu}
         trigger={
-          <button type="button" className={`${styles.tbBtn}${filterCount ? ` ${styles.tbBtnOn}` : ""}`}>
+          <Pressable className={`${styles.tbBtn}${filterCount ? ` ${styles.tbBtnOn}` : ""}`}>
             <SlidersHorizontal size={13} />{t("필터", "Filter")}{filterCount > 0 && <span className={styles.tbBadge}>{filterCount}</span>}
-          </button>
+          </Pressable>
         }>
         {labels.length > 0 && <>
           <div className={styles.filterGroupLabel}>{t("라벨", "Label")}</div>
           <div className={styles.filterChips}>
             {labels.map((l) => (
-              <button key={l.id} type="button" className={`${styles.filterChip}${activeLabels.has(l.id) ? ` ${styles.filterChipOn}` : ""}`} style={{ ["--_lc" as string]: colorVar(l.color) }} onClick={() => onToggleLabel(l.id)}>
+              <Pressable key={l.id} className={`${styles.filterChip}${activeLabels.has(l.id) ? ` ${styles.filterChipOn}` : ""}`} style={{ ["--_lc" as string]: colorVar(l.color) }} onClick={() => onToggleLabel(l.id)}>
                 <span className={styles.filterDot} />{l.name}
-              </button>
+              </Pressable>
             ))}
           </div>
         </>}
@@ -85,16 +86,16 @@ export default function CalendarToolbar({
           <div className={styles.filterGroupLabel}>{t("태그", "Tags")}</div>
           <div className={styles.filterChips}>
             {tags.map((tg) => (
-              <button key={tg} type="button" className={`${styles.filterTag}${activeTags.has(tg) ? ` ${styles.filterTagOn}` : ""}`} onClick={() => onToggleTag(tg)}>#{tg}</button>
+              <Pressable key={tg} className={`${styles.filterTag}${activeTags.has(tg) ? ` ${styles.filterTagOn}` : ""}`} onClick={() => onToggleTag(tg)}>#{tg}</Pressable>
             ))}
           </div>
         </>}
         <div className={styles.filterGroupLabel}>{t("중요도", "Priority")}</div>
         <div className={styles.filterChips}>
           {EVENT_PRIORITIES.map((p) => (
-            <button key={p.key} type="button" className={`${styles.filterChip}${activePriorities.has(p.key) ? ` ${styles.filterChipOn}` : ""}`} style={{ ["--_lc" as string]: p.color }} onClick={() => onTogglePriority(p.key)}>
+            <Pressable key={p.key} className={`${styles.filterChip}${activePriorities.has(p.key) ? ` ${styles.filterChipOn}` : ""}`} style={{ ["--_lc" as string]: p.color }} onClick={() => onTogglePriority(p.key)}>
               <span className={styles.filterDot} />{language === "ko" ? p.name[0] : p.name[1]}
-            </button>
+            </Pressable>
           ))}
         </div>
       </Popover>

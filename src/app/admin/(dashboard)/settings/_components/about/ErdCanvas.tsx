@@ -21,6 +21,7 @@ import { erdDesignNotes } from "@/data/about/erd";
 import type { ErdTable, ErdRelation } from "@/data/about/types";
 import Tooltip from "@/components/ui/Tooltip";
 import css from "./ErdCanvas.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 
 /* 카드에 보여줄 컬럼 수 — 더 늘리면 카드가 다이어그램 노드와 다를 게 없어진다 */
@@ -183,16 +184,16 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
         )}
         {/* 목록/다이어그램 전환 — 편집은 목록이 빠르고, 관계 파악은 다이어그램이 낫다 */}
         <div className={css.viewSwitch} role="tablist">
-          <button type="button" role="tab" aria-selected={view === "list"}
+          <Pressable noTapScale role="tab" aria-selected={view === "list"}
             className={`${css.viewBtn} ${view === "list" ? css.viewBtnOn : ""}`}
             onClick={() => setView("list")}>
             <List size={13} />{lang === "ko" ? "목록" : "List"}
-          </button>
-          <button type="button" role="tab" aria-selected={view === "diagram"}
+          </Pressable>
+          <Pressable noTapScale role="tab" aria-selected={view === "diagram"}
             className={`${css.viewBtn} ${view === "diagram" ? css.viewBtnOn : ""}`}
             onClick={() => setView("diagram")}>
             <Network size={13} />{lang === "ko" ? "다이어그램" : "Diagram"}
-          </button>
+          </Pressable>
         </div>
       </div>
 
@@ -262,7 +263,7 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
               className={`${css.card} ${on ? css.cardOn : ""} ${dir ? css.cardRel : ""} ${dim ? css.cardDim : ""}`}
               onMouseEnter={() => setSel(t.name)}
               onMouseLeave={() => setSel(null)}>
-              <button type="button" className={css.cardMain} onClick={() => openEditor(t)}>
+              <Pressable noTapScale className={css.cardMain} onClick={() => openEditor(t)}>
                 {/* 머리글 띠 — 다이어그램 노드와 같은 생김새라 두 뷰가 같은 물건으로 읽힌다 */}
                 <span className={css.cardHead}>
                   <span className={css.cardName}>{t.name}</span>
@@ -311,7 +312,7 @@ export default function ErdCanvas({ tables, relations, onChange, lang }: {
                     </span>
                   )}
                 </span>
-              </button>
+              </Pressable>
             </div>
           );
         })}

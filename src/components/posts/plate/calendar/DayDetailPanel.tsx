@@ -11,6 +11,7 @@ import Button from "@/components/ui/Button";
 import { type CalEvent, type EventLabel, type TimeFormat, colorVar, eventTimeLabel, findLabel, isRecurring, EVENT_STATUSES, EVENT_PRIORITIES, statusName, priorityName } from "./model";
 import { formatDateValue } from "../dateUtils";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export default function DayDetailPanel({
   event, labels, language, timeFormat = "12h", readOnly, date,
@@ -100,14 +101,14 @@ export default function DayDetailPanel({
         {editable ? (
           <div className={styles.dayPanelChips}>
             {labels.map((l) => (
-              <button
-                key={l.id} type="button"
+              <Pressable
+                key={l.id}
                 className={`${styles.labelChip}${event.labelId === l.id ? ` ${styles.labelChipOn}` : ""}`}
                 style={{ ["--_lc" as string]: colorVar(l.color) }}
                 onClick={() => onPatch!(event.id, { labelId: event.labelId === l.id ? undefined : l.id })}
               >
                 <span className={styles.labelChipSelect}><span className={styles.labelDot} />{l.name}</span>
-              </button>
+              </Pressable>
             ))}
           </div>
         ) : label ? (

@@ -17,6 +17,7 @@ import { FAVICON_SHADOW_PRESETS, FAVICON_SIZE_BLUR } from "../_data/faviconPrese
 import { resolveFaviconShadow, type FaviconShadow } from "@/lib/favicon";
 import styles from "./AppearanceTab.module.css";
 import shared from "../Settings.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /** 라이트/다크 색 쌍 편의 버튼 — 맞추기(다크=라이트) / 서로 바꾸기 / 지우기 */
 export function ColorDuoTools({
@@ -34,15 +35,15 @@ export function ColorDuoTools({
 }) {
   return (
     <div className={styles.faviconColorTools}>
-      <button type="button" className={styles.faviconColorTool} title={labels.match} aria-label={labels.match} onClick={() => onDark(light)}>
+      <Pressable className={styles.faviconColorTool} title={labels.match} aria-label={labels.match} onClick={() => onDark(light)}>
         <Equal size={13} strokeWidth={2} />
-      </button>
-      <button type="button" className={styles.faviconColorTool} title={labels.swap} aria-label={labels.swap} onClick={() => { const l = light; onLight(dark); onDark(l); }}>
+      </Pressable>
+      <Pressable className={styles.faviconColorTool} title={labels.swap} aria-label={labels.swap} onClick={() => { const l = light; onLight(dark); onDark(l); }}>
         <ArrowLeftRight size={13} strokeWidth={2} />
-      </button>
-      <button type="button" className={styles.faviconColorTool} title={labels.clear} aria-label={labels.clear} onClick={() => { onLight(""); onDark(""); }}>
+      </Pressable>
+      <Pressable className={styles.faviconColorTool} title={labels.clear} aria-label={labels.clear} onClick={() => { onLight(""); onDark(""); }}>
         <X size={13} strokeWidth={2} />
-      </button>
+      </Pressable>
     </div>
   );
 }

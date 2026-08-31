@@ -8,6 +8,7 @@ import { BookOpen, ImageIcon } from "@/components/icons";
 import T from "@/components/ui/T";
 import type { RecommendedPost } from "./types";
 import styles from "../PostDetail.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface RecommendedToastProps {
   post: RecommendedPost;
@@ -42,12 +43,12 @@ export default function RecommendedToast({ post, viewLang, onDismiss }: Recommen
       <div className={styles.toastHeader}>
         <BookOpen size={14} />
         <span className={styles.toastLabel}><T k="postDetail.recommended" /></span>
-        <button type="button" className={styles.toastClose} onClick={onDismiss} data-clickable="true" aria-label="Close">
+        <Pressable className={styles.toastClose} onClick={onDismiss} data-clickable="true" aria-label="Close">
           <span className={styles.toastCloseIcon}>
             <span className={styles.toastCloseLine} />
             <span className={styles.toastCloseLine} />
           </span>
-        </button>
+        </Pressable>
       </div>
       <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${post.slug}`, post.cover_image || "", rect); }} style={{ cursor: "pointer" }} className={styles.toastItem} data-clickable="true">
         <div className={styles.toastThumb}>

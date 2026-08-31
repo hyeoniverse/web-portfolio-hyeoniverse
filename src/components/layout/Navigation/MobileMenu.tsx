@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import Logo from "@/components/common/Logo";
 import styles from "./Navigation.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface MenuChild {
   key: string;
@@ -81,7 +82,7 @@ export default function MobileMenu({
           {menuItems.map((item) => {
             if (!item.href) {
               return (
-                <button
+                <Pressable noTapScale
                   key={item.key}
                   className={`${styles.menuLink} glith-on-hover`}
                   onClick={() => {
@@ -94,7 +95,7 @@ export default function MobileMenu({
                   }}
                 >
                   {item.label ?? item.key}
-                </button>
+                </Pressable>
               );
             }
             if (item.children?.length) {

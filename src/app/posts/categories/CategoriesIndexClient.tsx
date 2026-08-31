@@ -9,6 +9,7 @@ import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "../series/SeriesIndex.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface CategoryEntry {
   name: string;
@@ -168,14 +169,13 @@ export default function CategoriesIndexClient({ categories }: Props) {
               role="dialog"
               aria-modal="true"
             >
-              <button
-                type="button"
+              <Pressable
                 className={styles.sheetClose}
                 onClick={() => setSheetCat(null)}
                 aria-label="닫기"
               >
                 <X size={18} aria-hidden />
-              </button>
+              </Pressable>
               <div className={styles.sheetHeader}>
                 <h2 className={styles.sheetTitle}>{sheetCat.name}</h2>
                 <span className={styles.sheetCount}>{sheetCat.count}개의 글</span>

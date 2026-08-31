@@ -7,6 +7,8 @@ import T from "@/components/ui/T";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import { ExpandablePanel } from "./ProfileSections";
+import Button from "@/components/ui/Button";
+import Pressable from "@/components/ui/Pressable";
 
 export default function SkillItemContent({ skill, gi, si, updateSkill, removeSkill, styles }: {
   skill: { name: string; description: LocalizedText };
@@ -22,9 +24,9 @@ export default function SkillItemContent({ skill, gi, si, updateSkill, removeSki
     <>
       <div className={styles.skillFields}>
         <div className={styles.skillGroupHeader}>
-          <button type="button" className={styles.skillExpandBtn} onClick={() => setExpanded(!expanded)} aria-label={expanded ? "Collapse" : "Expand"}>
+          <Button type="button" variant="ghost" shape="square" size="2xs" className={styles.skillExpandBtn} onClick={() => setExpanded(!expanded)} aria-label={expanded ? "Collapse" : "Expand"}>
             <ChevronRight style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }} />
-          </button>
+          </Button>
           <Input
             variant="underline"
             size="md"
@@ -45,15 +47,14 @@ export default function SkillItemContent({ skill, gi, si, updateSkill, removeSki
           </div>
         </ExpandablePanel>
       </div>
-      <button
-        type="button"
+      <Pressable
         className={styles.skillRemoveBtn}
         onClick={() => removeSkill(gi, si)}
         aria-label="Remove"
       >
         <span className={styles.skillRemoveLine} />
         <span className={styles.skillRemoveLine} />
-      </button>
+      </Pressable>
     </>
   );
 }

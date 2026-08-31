@@ -8,6 +8,7 @@ import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import { formatCount } from "@/utils/format";
 import styles from "./PopularPosts.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /** 랜덤 게시글 — sidebar 보조. mount 시 1회 fetch + 사용자가 shuffle 버튼 누르면 새 seed 로 재요청. */
 export default function RandomPosts() {
@@ -32,14 +33,13 @@ export default function RandomPosts() {
         <Shuffle size={14} />
         <T k="postsPage.random" />
         <Tooltip content="다시 섞기" placement="top" delay={300}>
-          <button
-            type="button"
+          <Pressable
             className={styles.shuffleBtn}
             onClick={(e) => { e.stopPropagation(); setSeed(Math.floor(Math.random() * 1e9)); }}
             aria-label="Refresh"
           >
             <RefreshCw size={11} strokeWidth={2} />
-          </button>
+          </Pressable>
         </Tooltip>
       </div>
       <div className={styles.list} data-more="true" data-clickable="true">

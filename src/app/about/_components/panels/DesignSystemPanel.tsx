@@ -21,6 +21,7 @@ import GridSystemDemo from "./demos/GridSystemDemo";
 import IconographyDemo from "./demos/IconographyDemo";
 import shared from "../AboutSection.module.css";
 import local from "./DesignSystemPanel.module.css";
+import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
 
 interface DesignSystemPanelProps {
@@ -183,25 +184,25 @@ function DesignSystemPanel({
   const tabActions = tabSlot && isMobile && inView
     ? createPortal(
         <>
-          <button
+          <Pressable noTapScale
             data-clickable="true"
             className={styles.tabNavBtn}
             onClick={() => handleDotClick(Math.max(0, activeIndex - 1))}
             disabled={activeIndex === 0}
           >
             ‹
-          </button>
+          </Pressable>
           <span className={styles.tabNavCounter}>
             {activeIndex + 1}/{concepts.length}
           </span>
-          <button
+          <Pressable noTapScale
             data-clickable="true"
             className={styles.tabNavBtn}
             onClick={() => handleDotClick(Math.min(concepts.length - 1, activeIndex + 1))}
             disabled={activeIndex === concepts.length - 1}
           >
             ›
-          </button>
+          </Pressable>
         </>,
         tabSlot,
       )

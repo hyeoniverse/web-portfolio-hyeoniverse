@@ -25,6 +25,7 @@ import { Switch } from "@/components/ui/Switch";
 import SeriesDeleteModal from "./SeriesDeleteModal";
 import styles from "./SeriesManager.module.css";
 import shared from "../Settings.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* ── SeriesManager ── */
 
@@ -492,8 +493,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
         className={`${shared.newSeriesShell} ${creatingNew ? shared.newSeriesShellOpen : ""}`}
       >
         <div className={shared.newSeriesShellHead}>
-          <button
-            type="button"
+          <Pressable
             className={shared.newSeriesShellTitle}
             onClick={!creatingNew ? () => {
               setCreatingNew(true);
@@ -506,7 +506,7 @@ export default function SeriesManager({ categories, title }: SeriesManagerProps)
           >
             <span className={shared.newSeriesShellPlus} aria-hidden="true"><Plus size={14} strokeWidth={2.2} /></span>
             <T k="admin.posts.seriesModal.newTitle" />
-          </button>
+          </Pressable>
           <div className={shared.newSeriesShellActions}>
             <Button variant="outline" size="sm" onClick={() => setCreatingNew(false)} soundDisabled>
               <T k="admin.posts.seriesModal.cancel" />

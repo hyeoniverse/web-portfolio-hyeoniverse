@@ -19,6 +19,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import { THEME_PRESETS } from "../_data/settingsConstants";
 import styles from "./AppearanceTab.module.css";
 import shared from "../Settings.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface AppearanceTabProps extends SettingsTabProps {
   setConfig: Dispatch<SetStateAction<SiteConfigData>>;
@@ -75,8 +76,7 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
               <>
                 {allPresets.map((preset, idx) => (
                   <div key={`${preset.name}-${idx}`} className={shared.presetCardWrap}>
-                    <button
-                      type="button"
+                    <Pressable
                       className={`${shared.presetCard} ${matchesCurrent(preset) ? shared.presetCardActive : ""}`}
                       onClick={() =>
                         setConfig((prev) => ({
@@ -96,10 +96,9 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                         <span className={styles.presetSwatch} style={{ background: preset.theme.lightBg }} />
                       </div>
                       <span className={shared.presetName}>{preset.name}</span>
-                    </button>
+                    </Pressable>
                     {preset.removable && (
-                      <button
-                        type="button"
+                      <Pressable
                         className={shared.presetCardRemove}
                         onClick={() => {
                           const next = userPresets.filter((_, i) => i !== idx - THEME_PRESETS.length);
@@ -109,21 +108,20 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
                         title={t("admin.settings.removeThemePreset")}
                       >
                         <X size={10} strokeWidth={2.5} />
-                      </button>
+                      </Pressable>
                     )}
                   </div>
                 ))}
                 {/* 현재 테마가 어떤 preset 과도 다르면 "+" 버튼 → 이름 input 펼침 */}
                 {canAdd && (
-                  <button
-                    type="button"
+                  <Pressable
                     className={styles.presetCardAddBtn}
                     onClick={() => { setAddingThemePreset(true); showToast(t("admin.settings.enterPresetName"), "info"); }}
                     title={t("admin.settings.saveThemePreset")}
                     aria-label={t("admin.settings.saveThemePreset")}
                   >
                     <Plus size={16} strokeWidth={2} />
-                  </button>
+                  </Pressable>
                 )}
               </>
             );

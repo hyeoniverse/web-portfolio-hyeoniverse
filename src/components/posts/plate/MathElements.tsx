@@ -13,6 +13,7 @@ import { _mathSymbolInsert, _mathEditingSet, _mathDeleteNode, _mathToggleMode } 
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
 import { BlockTailClickZone } from "./elements";
 import styles from "../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 // ── 수식 편집 floating 패널 (블록/인라인 공통) ──
 // Portal로 body에 렌더 → anchorRef 기준 아래에 띄움
@@ -237,8 +238,8 @@ function MathFloatingEdit({
             </span>
           ) : <span className="spacer" />}
           <div className={styles.mathFloatingCapsule} style={{ position: "static" }}>
-            <button type="button" className={styles.mathCapsuleCancel} onClick={onCancel}>{t("editor.mathCancel")}</button>
-            <button type="button" className={styles.mathCapsuleConfirm} onClick={onConfirm} disabled={!draft.trim()}>{t("editor.mathConfirm")}</button>
+            <Pressable noTapScale className={styles.mathCapsuleCancel} onClick={onCancel}>{t("editor.mathCancel")}</Pressable>
+            <Pressable noTapScale className={styles.mathCapsuleConfirm} onClick={onConfirm} disabled={!draft.trim()}>{t("editor.mathConfirm")}</Pressable>
           </div>
         </div>
         <textarea
@@ -276,8 +277,7 @@ function MathToggleButton({ isBlock, onToggle }: { isBlock: boolean; onToggle: (
   const current = isBlock ? t("editor.mathBlock") : t("editor.mathInline");
   const alt = isBlock ? t("editor.mathInline") : t("editor.mathBlock");
   return (
-    <button
-      type="button"
+    <Pressable noTapScale
       contentEditable={false}
       onClick={(e) => {
         e.preventDefault(); e.stopPropagation();
@@ -290,7 +290,7 @@ function MathToggleButton({ isBlock, onToggle }: { isBlock: boolean; onToggle: (
     >
       <span className="toggle-label-default">{current}</span>
       <span className="toggle-label-hover">{alt}</span>
-    </button>
+    </Pressable>
   );
 }
 

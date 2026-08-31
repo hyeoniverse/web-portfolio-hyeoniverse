@@ -5,6 +5,7 @@ import { GripVertical } from "@/components/icons";
 import Pagination from "@/components/ui/Pagination";
 import { adminEditorStyles as es } from "@/components/admin/AdminEditorShell";
 import styles from "./SortOrderDragList.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface SortOrderItem {
   id: string;
@@ -196,22 +197,20 @@ export default function SortOrderDragList({
             <span className={styles.posTotal}>{total}</span>
           </span>
           <div className={styles.jumps}>
-            <button
-              type="button"
+            <Pressable noTapScale
               className={styles.jumpBtn}
               onClick={() => moveTo(1)}
               disabled={cur <= 1}
             >
               ↑ 맨 앞
-            </button>
-            <button
-              type="button"
+            </Pressable>
+            <Pressable noTapScale
               className={styles.jumpBtn}
               onClick={() => moveTo(total)}
               disabled={cur >= total}
             >
               ↓ 맨 뒤
-            </button>
+            </Pressable>
           </div>
         </div>
       </div>

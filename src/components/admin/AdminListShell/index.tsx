@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { useLenis } from "@/providers/LenisProvider";
 import Button from "@/components/ui/Button";
 import styles from "./AdminListShell.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export { default as adminShellStyles } from "./AdminListShell.module.css";
 
@@ -58,13 +59,13 @@ export default function AdminListShell({
         <h1 className={styles.title}>{title}</h1>
         <div className={styles.headerActions}>
           {onSave && (
-            <button
+            <Pressable
               className={`${styles.saveBtn} ${hasChanges ? styles.saveBtnVisible : ""}`}
               onClick={onSave}
               disabled={saving || !hasChanges}
             >
               {saving ? "..." : `${saveLabel} (${saveCount})`}
-            </button>
+            </Pressable>
           )}
           {headerExtra}
           {!headerExtra && newHref && (

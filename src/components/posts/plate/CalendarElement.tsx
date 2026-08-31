@@ -37,6 +37,7 @@ import {
 } from "./calendar/model";
 import { showToast } from "@/stores/toastStore";
 import styles from "./calendar/Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /** 캘린더 제목 최대 글자수 — 상단 한 줄에 들어가도록 짧게 제한 */
 const CAL_TITLE_MAX = 40;
@@ -578,10 +579,10 @@ export function CalendarElement(props: PlateElementProps) {
         subButtons: (
           <span className={styles.navBtns}>
             <Tooltip content={t("뒤로", "Back")} placement="bottom">
-              <button type="button" className={styles.navBtn} disabled={nav.back.length === 0} onClick={navBack} aria-label={t("뒤로", "Back")}><ChevronLeft size={15} /></button>
+              <Pressable noTapScale className={styles.navBtn} disabled={nav.back.length === 0} onClick={navBack} aria-label={t("뒤로", "Back")}><ChevronLeft size={15} /></Pressable>
             </Tooltip>
             <Tooltip content={t("앞으로", "Forward")} placement="bottom">
-              <button type="button" className={styles.navBtn} disabled={nav.forward.length === 0} onClick={navForward} aria-label={t("앞으로", "Forward")}><ChevronRight size={15} /></button>
+              <Pressable noTapScale className={styles.navBtn} disabled={nav.forward.length === 0} onClick={navForward} aria-label={t("앞으로", "Forward")}><ChevronRight size={15} /></Pressable>
             </Tooltip>
           </span>
         ),
@@ -835,7 +836,7 @@ export function CalendarElement(props: PlateElementProps) {
             <Switch size="lg" showStateText stateLabels={{ on: "24h", off: "12h" }} checked={timeFormat === "24h"} onCheckedChange={toggleTimeFormat} />
           </Tooltip>
           <Tooltip content={sidebarOpen ? t("이벤트 목록 닫기", "Close event list") : t("이벤트 목록", "Event list")} placement="bottom">
-            <button type="button" className={`${styles.blockBarIconBtn}${sidebarOpen ? ` ${styles.blockBarIconOn}` : ""}`} onClick={() => setSidebarOpen((v) => !v)} aria-label={t("이벤트 목록", "Event list")}><PanelLeft size={13} /></button>
+            <Pressable noTapScale className={`${styles.blockBarIconBtn}${sidebarOpen ? ` ${styles.blockBarIconOn}` : ""}`} onClick={() => setSidebarOpen((v) => !v)} aria-label={t("이벤트 목록", "Event list")}><PanelLeft size={13} /></Pressable>
           </Tooltip>
           <Tooltip
             placement="bottom"
@@ -848,10 +849,10 @@ export function CalendarElement(props: PlateElementProps) {
               </div>
             }
           >
-            <button type="button" className={styles.blockBarIconBtn} aria-label={t("키보드 단축키", "Keyboard shortcuts")}><Keyboard size={13} /></button>
+            <Pressable noTapScale className={styles.blockBarIconBtn} aria-label={t("키보드 단축키", "Keyboard shortcuts")}><Keyboard size={13} /></Pressable>
           </Tooltip>
           <Tooltip content={t("다른 공유 달력 불러오기", "Load a shared calendar")} placement="top">
-            <button type="button" className={styles.blockBarIconBtn} onClick={openPicker} aria-label={t("불러오기", "Load")}><Download size={13} /></button>
+            <Pressable noTapScale className={styles.blockBarIconBtn} onClick={openPicker} aria-label={t("불러오기", "Load")}><Download size={13} /></Pressable>
           </Tooltip>
           <Popover
             placement="bottom-end"
@@ -861,9 +862,9 @@ export function CalendarElement(props: PlateElementProps) {
             contentClassName={styles.exportMenu}
             trigger={
               <Tooltip content={t("내보내기 (.ics/CSV/JSON/MD)", "Export (.ics/CSV/JSON/MD)")} placement="top">
-                <button type="button" className={styles.blockBarIconBtn}>
+                <Pressable noTapScale className={styles.blockBarIconBtn}>
                   <Upload size={13} />
-                </button>
+                </Pressable>
               </Tooltip>
             }
           >
@@ -875,26 +876,24 @@ export function CalendarElement(props: PlateElementProps) {
                   ["json", "JSON (.json)"],
                   ["md", "Markdown (.md)"],
                 ] as [ExportFormat, string][]).map(([fmt, label]) => (
-                  <button
+                  <Pressable noTapScale
                     key={fmt}
-                    type="button"
                     className={styles.exportItem}
                     onClick={() => { if (cal) downloadCalendar(cal, title.trim() || t("달력", "calendar"), fmt); close(); }}
                   >
                     {label}
-                  </button>
+                  </Pressable>
                 ))}
               </>
             )}
           </Popover>
           <Tooltip content={fullscreen ? t("전체화면 종료", "Exit fullscreen") : t("전체화면", "Fullscreen")} placement="top">
-            <button
-              type="button"
+            <Pressable noTapScale
               className={styles.blockBarIconBtn}
               onClick={() => { setFullscreen((v) => !v); setPeek(null); }}
             >
               {fullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
-            </button>
+            </Pressable>
           </Tooltip>
         </span>
       </div>
@@ -1013,7 +1012,7 @@ export function CalendarElement(props: PlateElementProps) {
                     <div className={styles.peekHeader}>
                       {peek.icon}
                       <span className={styles.peekTitle}>{peek.title}</span>
-                      <button type="button" className={styles.peekClose} onClick={() => setPeek(null)} aria-label={t("닫기", "Close")}><X size={16} /></button>
+                      <Pressable noTapScale className={styles.peekClose} onClick={() => setPeek(null)} aria-label={t("닫기", "Close")}><X size={16} /></Pressable>
                     </div>
                     <div className={styles.peekBody}>
                       <ModalFooterContext.Provider value={peekFooterEl}>

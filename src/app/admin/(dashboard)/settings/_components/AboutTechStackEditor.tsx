@@ -18,6 +18,7 @@ import { normalizeTechName } from "@/data/techIcons";
 import { matchesSearch } from "@/lib/koSearch";
 import { uploadFile } from "@/lib/adminUpload";
 import styles from "./AboutTechStackEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export type TechItem = { name: string; category: string; icon?: string };
 
@@ -285,9 +286,8 @@ function TechPresetGrid({ query, onPick, isAdded, t }: {
         {list.map((p) => {
           const added = isAdded?.(p) ?? false;
           return (
-            <button
+            <Pressable
               key={p.name}
-              type="button"
               className={`${styles.techPresetRow} ${added ? styles.techPresetRowAdded : ""}`}
               onClick={() => { if (!added) onPick(p); }}
               disabled={added}
@@ -300,7 +300,7 @@ function TechPresetGrid({ query, onPick, isAdded, t }: {
               {added
                 ? <Check size={13} strokeWidth={2.5} className={styles.techPresetCheck} />
                 : <span className={styles.techPresetRowCat}>{p.category}</span>}
-            </button>
+            </Pressable>
           );
         })}
       </div>
@@ -333,8 +333,7 @@ function TechIconEditor({ icon, onIconChange, t, showSearch = true }: {
     <>
       <div className={styles.techIconRow}>
         <div className={styles.techIconCircleWrap}>
-          <button
-            type="button"
+          <Pressable
             className={styles.techIconCircleBtn}
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
@@ -347,16 +346,15 @@ function TechIconEditor({ icon, onIconChange, t, showSearch = true }: {
                 // eslint-disable-next-line @next/next/no-img-element
                 ? <img src={src} alt="" />
                 : <Plus size={16} strokeWidth={2} />}
-          </button>
+          </Pressable>
           {icon && !uploading && (
-            <button
-              type="button"
+            <Pressable
               className={styles.techIconClear}
               onClick={() => onIconChange("")}
               aria-label={t("admin.settings.aboutTechStackRemove")}
             >
               <X size={9} strokeWidth={3} />
-            </button>
+            </Pressable>
           )}
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }} />
         </div>
