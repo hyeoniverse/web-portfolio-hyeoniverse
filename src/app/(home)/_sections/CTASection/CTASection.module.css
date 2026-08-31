@@ -47,7 +47,7 @@
 .label {
   margin-bottom: var(--spacing-2xl);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-accent-alt);
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -107,19 +107,19 @@
 
 .cta .ctaBtn.ctaBtn:hover {
   color: var(--text-primary);
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
   background: transparent;
 }
 
 .resumeBtn.resumeBtn {
   gap: var(--spacing-md);
   overflow: hidden;
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 
 .cta .resumeBtn.resumeBtn:hover {
   color: var(--text-primary);
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
   background: transparent;
 }
 
@@ -202,7 +202,7 @@
   bottom: var(--spacing-4xl);
   left: var(--page-px);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-accent-alt);
   letter-spacing: 0.05em;
 }
@@ -228,6 +228,6 @@
 
   .ctaBtn.ctaBtn,
   .resumeBtn.resumeBtn {
-    padding: var(--box-2xl);
+    padding: var(--spacing-lg) var(--spacing-2xl-plus);
   }
 }

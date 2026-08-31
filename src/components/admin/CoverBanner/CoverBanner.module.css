@@ -25,7 +25,7 @@
 
 /* 비어있을 때 — 낮은 채도의 점선 영역 */
 .bannerEmpty {
-  border: 1px dashed var(--border-light-color);
+  border: 1px dashed var(--border-color-light);
   background: var(--bg-tertiary);
 }
 
@@ -89,7 +89,7 @@
   mix-blend-mode: difference;
   color: var(--color-white-alpha-100);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   pointer-events: none;
   white-space: nowrap;
@@ -121,7 +121,7 @@
 
 .menuDivider {
   height: 1px;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   margin: var(--spacing-2xs) 0;
 }
 
@@ -184,7 +184,7 @@
 .emojiBtnOverlay.emojiBtnActive {
   background: transparent;
   backdrop-filter: blur(8px);
-  border-color: var(--border-light-color);
+  border-color: var(--border-color-light);
 }
 
 /* 이모지 없을 때 — 이모지 슬롯(72px) 크기의 '추가' 플레이스홀더. 항상 표시.

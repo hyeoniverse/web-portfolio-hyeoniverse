@@ -55,7 +55,7 @@
   border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   /* difference 블렌드 — 흰색이라야 배경 위에서 깔끔히 반전. 비활성도 충분히 진하게(구분은 밑줄/굵기로) */
   color: var(--text-white);
   opacity: 0.78;
@@ -106,7 +106,7 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: nowrap;
   flex-shrink: 0;
@@ -145,8 +145,8 @@
 
 @media (max-width: 768px) {
   .btn {
-    padding: var(--box-md);
-    font-size: var(--font-size-xs);
+    padding: var(--button-p-md);
+    font-size: var(--font-size-label);
   }
 
   .indicator {
@@ -167,7 +167,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   /* 대분류 탭 텍스트와 시작선 맞춤 + 상위 행과 여백 확보(상단 넉넉히) */
-  padding: var(--spacing-md) var(--spacing-md) var(--spacing-xs);
+  padding: var(--row-p-lg);
 }
 
 /* 소분류 칩 — difference 하에선 solid 배경이 어색하므로 흰색 텍스트 + opacity 로 구분 */
@@ -175,12 +175,12 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  padding: var(--spacing-3xs) var(--spacing-sm);
+  padding: var(--button-p-xs);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-white);
   opacity: 0.72;
   white-space: nowrap;

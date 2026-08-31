@@ -7,13 +7,13 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   cursor: pointer;
   white-space: nowrap;
 }
 .trigger:hover {
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
   color: var(--text-primary);
 }
 
@@ -39,7 +39,7 @@
 }
 
 .title {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
@@ -49,28 +49,28 @@
 }
 
 .secTitle {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 
 /* 방법 A/B 소제목 — 섹션 제목보다 한 단계 작게 */
 .subTitle {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 
 /* 상단 안내문 */
 .intro {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.65;
   color: var(--text-secondary);
 }
 
 /* 하단 커스텀 CSS 주의 */
 .caution {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-tertiary);
 }
@@ -84,7 +84,7 @@
   list-style: decimal;
 }
 .steps li {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.65;
   color: var(--text-secondary);
   padding-left: var(--spacing-2xs);
@@ -100,7 +100,7 @@
   gap: var(--spacing-3xs);
   flex-shrink: 0;
   white-space: nowrap;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent);
   text-decoration: none;
@@ -131,7 +131,7 @@
   border-radius: var(--radius-2xl);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   white-space: nowrap;
   line-height: var(--line-height-normal);

@@ -49,12 +49,12 @@ export function Counter({ initialCount = 0 }: { initialCount?: number }) {
 }</code></pre></div>`,
 
   `<div class="code-block-wrap"><pre><code class="language-css">:root {
-  --color-primary: #3b82f6;
-  --radius-md: 8px;
+  --brand: #3b82f6;
+  --card-radius: 8px;
 }
 
 .card {
-  border-radius: var(--radius-md);
+  border-radius: var(--card-radius);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease;
 }

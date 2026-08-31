@@ -19,7 +19,7 @@
   padding-bottom: var(--spacing-2xs);
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -27,7 +27,7 @@
 
 .mediaCategoryCount {
   font-family: var(--font-mono);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -48,7 +48,7 @@
   flex: 1;
   min-width: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -62,13 +62,13 @@
   align-items: center;
   justify-content: flex-end;
   width: 3.5rem;
-  height: var(--button-h-sm);
+  height: var(--control-h-xs);
 }
 
 /* built-in 형식 — 제거 불가. 옅은 "기본" 텍스트 배지 (× 자리 대체) */
 .mediaFormatBuiltin {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -95,7 +95,7 @@
 
 .customMimeLabel {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--text-tertiary);
@@ -116,7 +116,7 @@
 
 .customMimeError {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-accent);
   margin: 0;
 }

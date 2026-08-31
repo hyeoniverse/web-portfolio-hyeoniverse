@@ -19,7 +19,7 @@
 /* 몇 개 중 몇 개를 썼는지 — 추가 버튼이 언제 잠기는지 미리 보인다 */
 .listCount {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
@@ -57,7 +57,7 @@
   justify-content: center;
   min-width: 1.25rem;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }

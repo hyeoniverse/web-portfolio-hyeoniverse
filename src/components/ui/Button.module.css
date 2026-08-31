@@ -58,35 +58,35 @@
   height: 20px;
   box-sizing: border-box;
   padding: 0 var(--spacing-sm);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 .size-xs {
   height: var(--control-h-xs);
   box-sizing: border-box;
   padding: 0 var(--spacing-md);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 .size-sm {
   height: var(--control-h-sm);
   box-sizing: border-box;
   padding: 0 var(--spacing-md);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 
 .size-md {
   height: var(--control-h-md);
   box-sizing: border-box;
   padding: 0 var(--spacing-lg);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 
 .size-lg {
   height: var(--control-h-lg);
   box-sizing: border-box;
   padding: 0 var(--spacing-lg);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   letter-spacing: 0.05em;
 }
 
@@ -94,7 +94,7 @@
   height: 40px;
   box-sizing: border-box;
   padding: 0 var(--spacing-xl);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   letter-spacing: 0.05em;
 }
 
@@ -117,6 +117,7 @@
 }
 
 .shape-square {
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- shape=square 는 capsule 을 벗어나려고 있는 변형이라 각져야 한다 */
   border-radius: var(--radius-sm);
   padding: 0;
   aspect-ratio: 1;
@@ -126,9 +127,9 @@
 /* circle / square — height = width. capsule .size-* 의 height (control-h-*) 와 동일하게 매핑 */
 .shape-circle.size-2xs,
 .shape-square.size-2xs {
-  width: var(--button-h-xs);
-  height: var(--button-h-xs);
-  min-width: var(--button-h-xs);
+  width: var(--control-h-2xs);
+  height: var(--control-h-2xs);
+  min-width: var(--control-h-2xs);
 }
 
 .shape-circle.size-xs,
@@ -300,7 +301,7 @@
   padding: 0;
   height: auto;
   text-decoration: none;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   gap: var(--spacing-2xs);
   position: relative;
 }
@@ -349,7 +350,7 @@
    outline default 의 border weight 와 균형 맞추기 위해 strong accent 사용. */
 .variant-outline.tone-danger {
   color: var(--text-accent);
-  border-color: var(--border-accent-strong-color);
+  border-color: var(--border-color-accent-strong);
 }
 
 .variant-outline.tone-danger.btn:hover:not(:disabled) {
@@ -374,7 +375,7 @@
 .variant-primary.tone-danger.btn:hover:not(:disabled) {
   background: transparent;
   color: var(--text-accent);
-  border-color: var(--border-accent-light-color);
+  border-color: var(--border-color-accent-light);
 }
 
 .variant-primary.tone-danger.btn:active:not(:disabled) {

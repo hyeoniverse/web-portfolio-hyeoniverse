@@ -21,11 +21,11 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-xs);
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   min-height: var(--_ide-top-row-h);
   box-sizing: border-box;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -33,7 +33,7 @@
   border-bottom: 1px solid
     color-mix(in srgb, var(--text-secondary) 12%, transparent);
   white-space: nowrap;
-  --_ide-top-row-h: calc(var(--font-size-2xs) * 1.5 + var(--spacing-2xs) * 2);
+  --_ide-top-row-h: calc(var(--font-size-label) * 1.6 + var(--spacing-xs) * 2);
 }
 
 /* Filter 버튼 + dropdown menu */
@@ -46,14 +46,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: none;
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   transition:
     background-color 0.15s ease,
     color 0.15s ease;
@@ -83,7 +83,7 @@
   border-radius: var(--radius-2xl);
   box-shadow: 0 4px 16px oklch(0.00% 0.0000 0.00 / 0.18);
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   text-transform: none;
   letter-spacing: normal;
   color: var(--text-primary);
@@ -93,7 +93,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--row-p-sm);
   border: none;
   background: transparent;
   /* hover bg = capsule */
@@ -166,10 +166,10 @@
 .troubleListItem {
   display: flex;
   flex: none;
-  gap: var(--spacing-2xs);
+  gap: var(--spacing-xs);
   align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-sm);
-  font-size: var(--font-size-2xs);
+  padding: var(--row-p-md);
+  font-size: var(--font-size-label);
   border: none;
   cursor: pointer;
   min-width: 0;
@@ -182,13 +182,13 @@
 .ideExplorerFileTooltip {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   max-width: 280px;
 }
 
 .ideExplorerFileTooltipMain {
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: inherit;
   line-height: var(--line-height-snug);
@@ -196,7 +196,7 @@
 
 .ideExplorerFileTooltipSub {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   color: color-mix(in srgb, currentColor 65%, transparent);
   line-height: var(--line-height-snug);
 }
@@ -205,15 +205,15 @@
 .ideExplorerFileTooltipDifficulty {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 6px;
-  padding-top: 6px;
+  gap: var(--spacing-2xs);
+  margin-top: var(--spacing-xs);
+  padding-top: var(--spacing-xs);
   border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
 }
 
 .ideExplorerFileTooltipDifficultyDesc {
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   color: color-mix(in srgb, currentColor 70%, transparent);
   line-height: var(--line-height-snug);
 }
@@ -273,7 +273,7 @@
 .troubleNumber {
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
 }
@@ -290,7 +290,7 @@
   overflow: hidden;
   min-width: 0;
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-label);
+  font-size: var(--font-size-prose-label);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-snug);
   color: var(--text-secondary);
@@ -311,7 +311,7 @@
 .troubleListBadges {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   margin-left: auto;
   flex-shrink: 0;
 }
@@ -331,11 +331,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 1px 6px;
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: 10px;
-  font-weight: 500;
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
   letter-spacing: 0;
   white-space: nowrap;
   /* 단계 텍스트 길이 차이 (쉬움/보통/어려움) 와 무관하게 동일 너비 → 제목 열 정렬 보장 */
@@ -349,10 +349,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 2px 10px;
+  padding: var(--badge-p-lg);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 500;
   letter-spacing: 0;
   white-space: nowrap;
@@ -422,7 +422,7 @@
 .troubleEntry p {
   margin: 0;
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-body);
+  font-size: var(--font-size-prose);
   line-height: var(--_lh-body);
   color: var(--text-secondary);
   white-space: pre-line;
@@ -438,7 +438,7 @@
   justify-content: space-between;
   gap: var(--spacing-xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   letter-spacing: 0.04em;
@@ -476,7 +476,7 @@
 .ideExplorerFolderIcon {
   flex: none;
   color: var(--text-accent);
-  margin-right: 2px;
+  margin-right: var(--spacing-3xs);
 }
 
 /* 첫 섹션 위 추가 padding 제거 */
@@ -496,12 +496,12 @@
   justify-content: center;
   min-width: 20px;
   height: 18px;
-  padding: 0 6px;
+  padding: 0 var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
@@ -531,7 +531,7 @@
 
 .troubleComparisonLabel {
   font-family: var(--font-mono);
-  font-size: var(--_fs-label);
+  font-size: var(--font-size-prose-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -541,11 +541,11 @@
   width: 100%;
   border-collapse: collapse;
   font-family: var(--font-mono);
-  font-size: var(--_fs-label);
+  font-size: var(--font-size-prose-label);
 }
 
 .troubleTable th {
-  padding: var(--box-xs-sm);
+  padding: var(--cell-p-md);
   text-align: left;
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
@@ -554,7 +554,7 @@
 }
 
 .troubleTable td {
-  padding: var(--box-xs-sm);
+  padding: var(--cell-p-md);
   color: var(--text-secondary);
   border-bottom: var(--_line-secondary);
   line-height: var(--line-height-snug);
@@ -585,7 +585,7 @@
 
 .troubleDiagramTitle {
   font-family: var(--font-mono);
-  font-size: var(--_fs-label);
+  font-size: var(--font-size-prose-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -593,7 +593,7 @@
 
 /* ── Highlighted text (inline accent) ── */
 .highlightedText {
-  padding: 0.1rem 0.3rem;
+  padding: var(--spacing-3xs) var(--spacing-2xs);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent);
 }
@@ -633,15 +633,15 @@
 .ideBreadcrumb {
   display: flex;
   flex: none;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-md);
-  min-height: calc(var(--font-size-2xs) * 1.5 + var(--spacing-2xs) * 2);
+  padding: var(--spacing-xs) var(--spacing-md);
+  min-height: calc(var(--font-size-label) * 1.6 + var(--spacing-xs) * 2);
   box-sizing: border-box;
   background: var(--bg-secondary);
   border-bottom: 1px solid
     color-mix(in srgb, var(--text-secondary) 12%, transparent);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   overflow-x: auto;
   scrollbar-width: none;
@@ -703,13 +703,13 @@
   flex: none;
   gap: var(--spacing-xs);
   align-items: center;
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   border: none;
   border-right: 1px solid
     color-mix(in srgb, var(--text-secondary) 12%, transparent);
   background: transparent;
   font-family: inherit;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   cursor: pointer;
   white-space: nowrap;
@@ -809,7 +809,7 @@
   text-align: right;
   color: var(--text-tertiary);
   opacity: 0.5;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   user-select: none;
   line-height: inherit;
   padding-top: 0.1em;
@@ -867,7 +867,7 @@
 
 /* Table/diagram 인덴트 — gutter(3ch) + 선행 padding 만큼 들여쓰기 → 본문 텍스트 시작 X 와 정확히 정렬 */
 .ideIndent {
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   padding-left: calc(3ch + var(--spacing-md) * 2);
 }
 
@@ -894,13 +894,13 @@
   right: var(--spacing-sm);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px var(--spacing-sm);
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-sm);
   background: var(--bg-secondary);
   border: 1px solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
   border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
   cursor: pointer;
@@ -977,7 +977,7 @@
 
 .troubleImageCaption {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-align: center;
   font-style: italic;
@@ -990,7 +990,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-xs);
-  padding: var(--box-ve-xl);
+  padding: var(--spacing-2xl) var(--spacing-md);
   border: 1.5px dashed color-mix(in srgb, var(--text-tertiary) 35%, transparent);
   border-radius: var(--radius-2xl);
   background: color-mix(in srgb, var(--text-secondary) 4%, transparent);
@@ -1005,14 +1005,14 @@
 
 .troubleImagePlaceholderTitle {
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
 }
 
 .troubleImagePlaceholderAlt {
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   max-width: 300px;
   line-height: 1.4;
@@ -1063,7 +1063,7 @@
 /* 깜빡이는 커서 */
 .ideCursor {
   display: inline-block;
-  margin-left: 2px;
+  margin-left: var(--spacing-3xs);
   color: var(--text-accent);
   animation: ideCursorBlink 1s steps(2, start) infinite;
 }
@@ -1082,10 +1082,10 @@
   flex: none;
   gap: var(--spacing-md);
   align-items: center;
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   background: var(--text-accent);
   color: var(--bg-primary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   overflow-x: auto;
   scrollbar-width: none;
@@ -1099,7 +1099,7 @@
 .ideStatusGroup {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-2xs);
 }
 
 .ideStatusDot {
@@ -1110,20 +1110,47 @@
   opacity: 0.7;
 }
 
+/* 내보내기 버튼 — status bar 우측 끝, 폰트 조절 앞. margin-left:auto 를 여기가 가져가고
+   뒤따르는 폰트 조절은 바로 옆에 붙는다 (양쪽에 auto 를 주면 둘 사이가 벌어진다). */
+.ideStatusActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3xs);
+  margin-left: auto;
+}
+
+.ideStatusActionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 1.8em;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.ideStatusActionBtn:hover {
+  background: color-mix(in srgb, var(--bg-primary) 25%, transparent);
+}
+
 /* 폰트 크기 조절 — status bar 우측 끝 */
 .ideStatusFontControls {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-left: auto;
+  gap: var(--spacing-2xs);
 }
 
 .ideStatusFontBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.5em;
-  height: 1.4em;
+  width: 1.9em;
+  height: 1.7em;
   padding: 0;
   border: none;
   background: transparent;
@@ -1132,7 +1159,7 @@
   font-size: inherit;
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   transition: background-color 0.15s ease;
 }
 
@@ -1220,7 +1247,7 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-2xl);
-  padding: var(--spacing-lg);
+  padding: var(--card-p-md);
   box-shadow: 0 16px 40px oklch(0.00% 0.0000 0.00 / 0.18);
   transform-origin: top center;
   will-change: transform, opacity;
@@ -1313,7 +1340,7 @@
   min-width: 0;
   margin: 0;
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-body);
+  font-size: var(--font-size-prose);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-snug);
   color: var(--text-secondary);
@@ -1370,16 +1397,16 @@
 }
 
 .troubleEntry {
-  gap: 0.4rem;
+  gap: var(--spacing-xs);
 }
 
 .troubleEntry p {
-  font-size: var(--_fs-body);
+  font-size: var(--font-size-prose);
   line-height: var(--line-height-relaxed);
 }
 
 .highlightedText {
-  padding: var(--box-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
 }
 
 /* ===== Diagram Fullscreen Viewer (interactive — zoom/pan) ===== */
@@ -1405,7 +1432,7 @@
 
 .diagramViewerTitle {
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   letter-spacing: 0.04em;
@@ -1463,7 +1490,7 @@
   min-width: 4em;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
@@ -1473,8 +1500,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   padding: 0;
   border: none;
   background: transparent;
@@ -1499,9 +1526,9 @@
   padding: var(--spacing-xs) var(--spacing-sm);
   background: var(--text-primary);
   color: var(--bg-primary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-label);
   white-space: nowrap;
   pointer-events: none;
   z-index: 10;
@@ -1563,5 +1590,10 @@
   }
   .troublePinTitleRow h3 {
     margin: 0;
+  }
+  /* 상태바가 좁은 화면에서 가로로 밀리면 우측의 내보내기·폰트 버튼이 화면 밖에 남는다.
+     breadcrumb 이 이미 보여 주는 섹션·파일 형식을 접어 버튼을 화면 안으로 들인다. */
+  .ideStatusGroupOptional {
+    display: none;
   }
 }

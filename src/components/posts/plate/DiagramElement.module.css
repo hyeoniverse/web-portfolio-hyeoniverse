@@ -3,14 +3,14 @@
   margin: var(--spacing-lg) 0;
 }
 .diagramInner {
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
   background: var(--bg-primary);
   transition: border-color 0.15s ease;
 }
 .diagramInner[data-selected] {
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 /* 전체화면 — 뷰포트 덮기. 에디터 블록 전체화면 레이어(이미지 패널 등 portal 요소 위) */
 .diagramFullscreen {
@@ -37,14 +37,14 @@
   border-radius: var(--radius-capsule);
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
 }
 .diagramCanvas :global(.react-flow__controls-button) {
   width: 26px;
   height: 26px;
   background: var(--bg-primary);
   border: none;
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: 1px solid var(--border-color-light);
   color: var(--text-secondary);
 }
 .diagramCanvas :global(.react-flow__controls-button:last-child) {
@@ -66,19 +66,19 @@
   flex-wrap: wrap; /* 도형이 많아 좁은 폭에선 줄바꿈 */
   gap: var(--spacing-3xs);
   padding: var(--spacing-2xs);
-  border-bottom: 1px solid var(--border-light-color);
+  border-bottom: 1px solid var(--border-color-light);
 }
 .diagramToolbarDiv {
   width: 1px;
   align-self: stretch;
   margin: var(--spacing-3xs);
-  background: var(--border-light-color);
+  background: var(--border-color-light);
 }
 /* 선택 노드 도형 선택 */
 .diagramShapes {
   display: inline-flex;
   align-items: center;
-  gap: 1px;
+  gap: var(--spacing-4xs);
 }
 .diagramShapeBtn {
   display: inline-flex;
@@ -112,13 +112,13 @@
 .diagramColors {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   margin-left: var(--spacing-3xs);
 }
 .diagramColorBtn {
   width: 16px;
   height: 16px;
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-circle);
   cursor: pointer;
   padding: 0;
@@ -148,11 +148,11 @@
   padding: var(--spacing-2xs) var(--spacing-sm);
   /* 색은 --dnode-bg(노드별 인라인 변수) → 없으면 bg-primary. 캔버스(bg-secondary)와 구분됨 */
   background: var(--dnode-bg, var(--bg-primary));
-  border: 1.5px solid var(--border-strong-color);
+  border: 1.5px solid var(--border-color-strong);
   border-radius: 6px; /* 사각 (capsule 아님) */
   color: var(--text-primary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   text-align: center;
 }
 .dnode[data-selected] {
@@ -161,8 +161,8 @@
 }
 /* 둥근 계열 — CSS 로 크리스프하게 (SVG stretch 코너 왜곡 방지) */
 .dnode_round { border-radius: 14px; }
-.dnode_stadium { border-radius: 999px; }
-.dnode_circle { border-radius: 50%; } /* 정사각 기본, 리사이즈하면 타원처럼 */
+.dnode_stadium { border-radius: var(--radius-capsule); }
+.dnode_circle { border-radius: var(--radius-circle); } /* 정사각 기본, 리사이즈하면 타원처럼 */
 
 /* SVG 로 그리는 도형 — .dnode 자체는 무테/투명, 배경 SVG(.dnodeShape)가 채움/테두리 담당.
    .dnode 에 clip-path 를 안 써서 핸들이 안 잘림 */
@@ -205,13 +205,13 @@
 }
 /* 선택 외곽선은 accent 대신 회색~검정 계열(중립) */
 .dnode_text[data-selected] {
-  box-shadow: 0 0 0 1.5px var(--border-strong-color);
+  box-shadow: 0 0 0 1.5px var(--border-color-strong);
   border-radius: 6px;
 }
 
 /* NodeResizer — 리사이즈 프레임/핸들을 중립 색으로 */
 .dresizeLine {
-  border-color: var(--border-strong-color) !important;
+  border-color: var(--border-color-strong) !important;
   border-width: 1px !important;
 }
 .dresizeHandle {
@@ -243,14 +243,14 @@
 .dnodeShape ellipse,
 .dnodeShape path {
   fill: var(--dnode-bg, var(--bg-primary));
-  stroke: var(--border-strong-color);
+  stroke: var(--border-color-strong);
   stroke-width: 1.5;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
 .dnodeShape line {
   fill: none;
-  stroke: var(--border-strong-color);
+  stroke: var(--border-color-strong);
   stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
 }
@@ -300,7 +300,7 @@
   margin: 0;
   color: var(--text-primary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   text-align: center;
 }
 .dhandle {
@@ -328,7 +328,7 @@
 }
 .diagramFormLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -340,18 +340,18 @@
   gap: var(--spacing-3xs);
   height: var(--control-h-xs);
   padding: 0 var(--spacing-sm);
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   cursor: pointer;
   transition: color 0.12s ease, border-color 0.12s ease;
 }
 .diagramFormAdd:hover {
   color: var(--text-primary);
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 .diagramFormRow {
   display: flex;
@@ -370,8 +370,8 @@
   flex-direction: column;
   gap: var(--spacing-2xs);
   padding: var(--spacing-2xs);
-  border: 1px solid var(--border-light-color);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--radius-2xl);
 }
 .diagramFormArrow {
   color: var(--text-muted);
@@ -380,7 +380,7 @@
 .diagramFormColors {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   flex-shrink: 0;
 }
 .diagramColorBtn[data-on] {
@@ -395,7 +395,7 @@
   height: 28px;
   flex-shrink: 0;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
@@ -409,7 +409,7 @@
   padding: var(--spacing-lg);
   text-align: center;
   color: var(--text-muted);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 
 /* React Flow 캔버스 — 높이 고정(세로 리사이즈) */
@@ -466,6 +466,6 @@
   padding: var(--spacing-lg);
   text-align: center;
   color: var(--text-muted);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   pointer-events: none;
 }

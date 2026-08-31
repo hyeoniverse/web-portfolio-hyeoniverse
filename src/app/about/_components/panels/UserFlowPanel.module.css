@@ -57,7 +57,7 @@
 
 .ufFlowTitle {
   font-family: var(--font-mono);
-  font-size: var(--_fs-body);
+  font-size: var(--font-size-prose);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   text-transform: uppercase;
@@ -67,7 +67,7 @@
 
 .ufFlowPersona {
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-small);
+  font-size: var(--font-size-prose-small);
   color: var(--text-secondary);
   line-height: 1.4;
 }
@@ -76,7 +76,7 @@
   margin: 0;
   flex: 1;
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-body);
+  font-size: var(--font-size-prose);
   color: var(--text-secondary);
   line-height: 1.7;
 }
@@ -95,7 +95,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 .ufLegendItem svg {
@@ -128,7 +128,7 @@
 
 .ufTerminalText {
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   fill: var(--bg-primary);
   text-transform: uppercase;
@@ -144,7 +144,7 @@
 
 .ufActionText {
   font-family: var(--_font-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   fill: var(--text-primary);
 }
@@ -158,7 +158,7 @@
 
 .ufDiamondText {
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   fill: var(--color-accent);
 }
@@ -184,7 +184,7 @@
 
 .ufEdgeLabel {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   fill: var(--color-accent);
   opacity: 0;
@@ -199,7 +199,7 @@
 .ufMobileFlowGroup {
   padding: var(--spacing-md);
   border: var(--border-default);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
 }
 
 .ufMobileFlowActive {
@@ -219,7 +219,7 @@
 
 .ufMobileFlowTitle {
   font-family: var(--font-mono);
-  font-size: var(--_fs-label);
+  font-size: var(--font-size-prose-label);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   text-transform: uppercase;
@@ -229,14 +229,14 @@
 .ufMobileFlowCount {
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: var(--_fs-caption);
+  font-size: var(--font-size-prose-caption);
   color: var(--text-tertiary);
 }
 
 .ufMobileFlowDesc {
-  margin: var(--spacing-sm) 0 0;
+  margin: var(--spacing-sm) 0 0 0;
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-caption);
+  font-size: var(--font-size-prose-caption);
   color: var(--text-secondary);
   line-height: 1.5;
 }
@@ -252,7 +252,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   position: relative;
-  padding: var(--box-y-sm);
+  padding: var(--spacing-2xs) 0;
 }
 
 .ufMobileDot {
@@ -287,7 +287,7 @@
 
 .ufMobileNodeLabel {
   font-family: var(--_font-grotesk);
-  font-size: var(--_fs-small);
+  font-size: var(--font-size-prose-small);
   color: var(--text-primary);
 }
 

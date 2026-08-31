@@ -1,12 +1,11 @@
 {
-  "plugins": ["stylelint-declaration-strict-value"],
+  "plugins": [
+    "stylelint-declaration-strict-value"
+  ],
   "ignoreFiles": [
     "node_modules/**",
     ".next/**",
-    "src/styles/tokens/**",
-    "src/styles/globals/**",
-    "src/app/works/_components/layouts/CylinderLayout.module.css",
-    "src/components/posts/RichTextEditor.module.css"
+    "src/styles/tokens/**"
   ],
   "rules": {
     "scale-unlimited/declaration-strict-value": [
@@ -36,6 +35,38 @@
           "/^rgb\\(/"
         ],
         "disableFix": true
+      }
+    ],
+    "declaration-property-value-disallowed-list": [
+      {
+        "font-size": [
+          "/^([0-9]|1[01])(\\.\\d+)?px$/",
+          "/^0\\.([0-6]\\d*|7([0-4]\\d*)?)rem$/",
+          "/clamp\\(\\s*(([0-9]|1[01])(\\.\\d+)?px|0\\.([0-6]\\d*|7([0-4]\\d*)?)rem)/",
+          "/var\\(\\s*--font-size-(3xs|2xs|xs|sm)\\s*\\)/"
+        ],
+        "/.+/": [
+          "/var\\(\\s*--(color|spacing|box|font|fluid-font|size|radius|shadow|blur|z|duration|ease|delay|text|bg|border|button|control|input|textarea|page|prose|heading|skeleton|editorial)-[a-z0-9-]*\\s*,/",
+          "/var\\(\\s*--radius-(2xs|xs|sm|md|lg|xl|3xl|4xl|5xl|6xl)\\s*\\)/"
+        ],
+        "border-radius": [
+          "/^50%$/",
+          "/^9?999px$/"
+        ],
+        "/^--(font-size|fluid-font-size)-/": [
+          "/^([0-9]|1[01])(\\.\\d+)?px$/",
+          "/^0\\.([0-6]\\d*|7([0-4]\\d*)?)rem$/",
+          "/clamp\\(\\s*(([0-9]|1[01])(\\.\\d+)?px|0\\.([0-6]\\d*|7([0-4]\\d*)?)rem)/"
+        ],
+        "/^(padding|margin)(-(top|right|bottom|left|inline|block)(-(start|end))?)?$/": [
+          "/^(?!var\\([^)]*\\)$)(?!.*(?:calc|clamp|min|max)\\()(?!.*(?:(?<!r)em|vw|vh|%))(?:.*\\s)?\\d+(?:\\.\\d+)?(?:px|rem)/"
+        ],
+        "/^(row-gap|column-gap|gap)$/": [
+          "/^(?!var\\([^)]*\\)$)(?!.*(?:calc|clamp|min|max)\\()(?!.*(?:(?<!r)em|vw|vh|%))(?:.*\\s)?\\d+(?:\\.\\d+)?(?:px|rem)/"
+        ]
+      },
+      {
+        "message": "토큰 규칙 위반입니다. ① 글자 크기는 눈금이 아니라 역할로 — --font-size-body(14) / -label(13) / -hint(12, 하한) / -micro(11). 12px 미만은 쓰지 않습니다. ② 모서리는 --radius-capsule / --radius-circle / --radius-2xl 셋만. ③ 간격은 --spacing-* / --box-* 로 (눈금: 1·2·4·8·12·16·20·24·32·40·48·64·80·96·112·128px). em·vw·vh·%·calc·음수는 의도적 상대값이라 그대로 둡니다. ④ 디자인 토큰에 var() fallback 금지. 예외는 stylelint-disable-next-line 에 이유를 적으세요."
       }
     ]
   }

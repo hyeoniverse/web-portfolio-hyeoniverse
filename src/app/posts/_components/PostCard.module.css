@@ -162,8 +162,8 @@
 
 .placeholderTitle {
   margin: 0;
-  font-family: var(--font-serif, serif);
-  font-size: var(--font-size-xl);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-title-lg);
   font-weight: 600;
   line-height: 1.25;
   word-break: break-word;
@@ -179,7 +179,7 @@
 .placeholderExcerpt {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.5;
   opacity: 0.9;
   word-break: break-word;
@@ -197,7 +197,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--spacing-sm) 0 0;
+  padding: var(--spacing-sm) 0 0 0;
   flex: 1;
 }
 
@@ -215,12 +215,12 @@
   align-items: center;
   width: fit-content;
   white-space: nowrap;
-  padding: var(--box-2xs-md);
+  padding: var(--spacing-2xs) var(--spacing-md);
   border: var(--border-accent-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-accent);
   text-transform: uppercase;
@@ -253,10 +253,10 @@
 .excerpt {
   font-family: var(--font-space-grotesk);
   /* meta 와 동일한 크기로 통일 */
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   line-height: var(--line-height-relaxed);
-  min-height: calc(var(--font-size-xs) * var(--line-height-relaxed) * 2);
+  min-height: calc(var(--font-size-label) * var(--line-height-relaxed) * 2);
   word-break: break-word;
   overflow-wrap: anywhere;
   display: -webkit-box;
@@ -273,7 +273,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin-top: auto;
   padding-top: var(--spacing-xs);
@@ -292,7 +292,7 @@
 .metaGroup:not(:last-child)::after {
   content: "";
   display: inline-block;
-  height: var(--font-size-sm);
+  height: var(--font-size-body);
   margin-left: var(--spacing-xs);
   border-left: var(--border-default);
 }
@@ -318,11 +318,11 @@
   align-items: center;
   white-space: nowrap;
   margin-left: auto;
-  padding: var(--box-2xs-md);
+  padding: var(--spacing-2xs) var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   font-style: italic;
@@ -371,11 +371,11 @@
   gap: var(--spacing-xs);
   /* 이미지와 본문 사이 여백은 유지하되 전체 본문 padding 만 축소.
      원래 너무 빡빡해서 살짝 늘림 (sm→md) — 작은 카드에서 호흡 확보 */
-  padding: var(--spacing-md) 0 0;
+  padding: var(--spacing-md) 0 0 0;
 }
 
 .compact .title {
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   min-height: 0;
   -webkit-line-clamp: 1;
   white-space: nowrap;
@@ -490,11 +490,11 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: var(--box-sm);
+  padding: var(--badge-p-lg);
   border: var(--border-ghost);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;
@@ -529,7 +529,7 @@
 /* 발췌 */
 .heroExcerpt {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-white-muted);
   line-height: var(--line-height-relaxed);
   display: -webkit-box;
@@ -545,7 +545,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-white-muted);
 }
 
@@ -557,11 +557,11 @@
 .heroLangHint {
   display: inline-flex;
   align-items: center;
-  padding: var(--box-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
   border: var(--border-ghost);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-white-muted);
   font-style: italic;
@@ -596,7 +596,7 @@
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-solid);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-bold);
   color: var(--text-white);
   text-transform: uppercase;
@@ -615,7 +615,7 @@
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;
@@ -637,7 +637,7 @@
   backdrop-filter: blur(8px);
   border: var(--border-ghost-light);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;
@@ -658,7 +658,7 @@
   }
 
   .featured .body {
-    padding: var(--spacing-md) 0 0;
+    padding: var(--spacing-md) 0 0 0;
   }
 
   .featured .title {
@@ -697,18 +697,18 @@
 
 @media (max-width: 640px) {
   .body {
-    padding: var(--spacing-sm) 0 0;
+    padding: var(--spacing-sm) 0 0 0;
   }
 
   /* 모바일 — title 축소, excerpt 는 meta(xs) 와 동일 크기 */
   .title {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-title-sm);
     min-height: calc(var(--font-size-md) * var(--line-height-tight) * 2);
   }
 
   .excerpt {
-    font-size: var(--font-size-xs);
-    min-height: calc(var(--font-size-xs) * var(--line-height-relaxed) * 2);
+    font-size: var(--font-size-label);
+    min-height: calc(var(--font-size-label) * var(--line-height-relaxed) * 2);
   }
 
   /* 모바일 — 모든 bento variant(banner/square/portrait/compact) 의 이미지 비율 통일 (16:10) */
@@ -731,12 +731,12 @@
   }
 
   .featured .body {
-    padding: var(--spacing-sm) 0 0;
+    padding: var(--spacing-sm) 0 0 0;
     gap: var(--spacing-xs);
   }
 
   .featured .title {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-title-sm);
     -webkit-line-clamp: 2;
   }
 
@@ -763,11 +763,11 @@
 .tagPill {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
   text-decoration: none;
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -882,7 +882,7 @@
   gap: var(--spacing-2xs);
   margin-bottom: var(--spacing-xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -994,7 +994,7 @@
   margin: 0;
   min-width: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: var(--line-height-relaxed);
   display: -webkit-box;
@@ -1010,7 +1010,7 @@
   gap: var(--spacing-sm);
   margin-top: var(--spacing-sm);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   letter-spacing: 0.03em;
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
@@ -1019,7 +1019,7 @@
 .timelineMeta .compactStat {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-2xs);
 }
 .timelineSep {
   opacity: 0.4;
@@ -1048,7 +1048,7 @@
   flex: 1; /* 남는 공간 채워 마커 우측 정렬. lang 클립은 lead 의 padding-right 버퍼로 방지. */
   min-width: 0;
   font-family: var(--font-instrument);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: var(--font-weight-regular);
   color: var(--text-primary);
   white-space: nowrap;
@@ -1059,7 +1059,7 @@
 .compactCat {
   flex-shrink: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -1088,7 +1088,7 @@
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   font-weight: var(--font-weight-medium);
   font-style: italic;
   color: var(--text-tertiary);
@@ -1104,7 +1104,7 @@
   gap: var(--spacing-2xs);
   flex-shrink: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -1143,7 +1143,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }

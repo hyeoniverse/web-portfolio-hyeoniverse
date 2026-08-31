@@ -59,7 +59,7 @@
 
 .introLabel {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   letter-spacing: 0.35em;
   text-transform: uppercase;
   opacity: 0.55;
@@ -91,7 +91,7 @@
   justify-content: space-between;
   align-items: center;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   opacity: 0.5;
@@ -144,7 +144,7 @@
   right: var(--spacing-lg);
   z-index: 2;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-white);
   opacity: 0;
   letter-spacing: 0.1em;
@@ -189,7 +189,7 @@
 
 .projectNumber {
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   letter-spacing: 0.3em;
 }
 
@@ -205,7 +205,7 @@
   font-weight: var(--font-weight-light);
   letter-spacing: -0.02em;
   line-height: var(--line-height-tight);
-  margin: 0 0 var(--spacing-2xs);
+  margin: 0 0 var(--spacing-2xs) 0;
   transition: font-size 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -246,9 +246,9 @@
 }
 
 .projectTech span {
-  padding: var(--box-3xs-xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
   border: var(--border-ghost);
   border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }

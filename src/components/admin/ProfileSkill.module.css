@@ -10,7 +10,7 @@
 
 .subSection {
   padding-left: var(--spacing-md);
-  border-left: 2px solid var(--border-light-color);
+  border-left: 2px solid var(--border-color-light);
   margin-bottom: var(--spacing-xl);
 }
 
@@ -90,17 +90,10 @@
   min-height: var(--_skill-row-h);
 }
 
+/* 크기·정렬·배경은 Button(ghost·square·2xs)이 준다. 여기서는 색만 맞춘다 —
+   펼침 화살표라 ghost 기본색(secondary→accent)보다 조용해야 한다. */
 .skillExpandBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: transparent;
   color: var(--text-tertiary);
-  flex-shrink: 0;
-  padding: 0;
 }
 
 .skillExpandBtn svg {
@@ -124,14 +117,14 @@
 }
 
 .skillFieldInline input:hover {
-  border-bottom-color: var(--border-default-color);
+  border-bottom-color: var(--border-color-default);
 }
 
 .skillCount,
 .periodBadge {
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
   white-space: nowrap;

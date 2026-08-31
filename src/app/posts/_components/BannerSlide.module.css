@@ -36,7 +36,7 @@
 /* ── Shared typography ── */
 .category {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;
@@ -61,7 +61,7 @@
 .excerpt {
   margin-top: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-white);
   max-width: 480px;
   display: -webkit-box;
@@ -112,7 +112,7 @@
   display: flex;
   align-items: flex-end;
   gap: var(--spacing-xl);
-  padding: var(--box-3xl-4xl);
+  padding: var(--spacing-3xl) var(--spacing-4xl);
   z-index: 1;
 }
 
@@ -136,18 +136,18 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: var(--box-3xl-4xl);
+  padding: var(--spacing-3xl) var(--spacing-4xl);
   z-index: 1;
 }
 
 .categoryBadge {
   display: inline-block;
   margin-bottom: var(--spacing-sm);
-  padding: var(--box-2xs-md);
+  padding: var(--spacing-2xs) var(--spacing-md);
   border: var(--border-ghost);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;
@@ -203,7 +203,7 @@
 .categoryCinematic {
   margin-bottom: var(--spacing-md);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   text-transform: uppercase;
@@ -229,7 +229,7 @@
 .excerptCinematic {
   margin-top: var(--spacing-lg);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-white);
   max-width: 500px;
   line-height: var(--line-height-relaxed);
@@ -258,7 +258,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--box-xl-2xl);
+  padding: var(--card-p-lg);
   background: var(--bg-overlay);
   backdrop-filter: blur(16px);
   border: var(--border-ghost-light);
@@ -278,12 +278,12 @@
 
 .badgeSep {
   color: var(--text-white);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 .langHint {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   font-style: italic;
   color: var(--text-white);
@@ -294,7 +294,7 @@
 .readMore {
   margin-top: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   color: var(--text-white);
   letter-spacing: 0.04em;

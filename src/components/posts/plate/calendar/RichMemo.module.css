@@ -20,7 +20,7 @@
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
@@ -29,7 +29,7 @@
 .tbBtn:hover { color: var(--text-primary); background: var(--bg-secondary); }
 .tbBtn:disabled { opacity: 0.5; cursor: default; }
 .tbBtnOn, .tbBtnOn:hover { color: var(--text-accent); background: var(--bg-accent-subtle); }
-.sep { width: 1px; align-self: stretch; margin: 4px 2px; background: var(--border-light-color); }
+.sep { width: 1px; align-self: stretch; margin: var(--spacing-2xs) var(--spacing-3xs); background: var(--border-color-light); }
 .spin { animation: rmSpin 0.8s linear infinite; }
 @keyframes rmSpin { to { transform: rotate(360deg); } }
 
@@ -39,7 +39,7 @@
   resize: vertical;
   overflow-y: auto;
   padding: var(--spacing-sm) var(--spacing-md);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   line-height: 1.6;
   white-space: pre-wrap;
@@ -51,9 +51,9 @@
   color: var(--text-tertiary);
   pointer-events: none;
 }
-.editable :is(h1, h2, h3) { font-size: var(--font-size-md); font-weight: 700; margin: 0.4em 0 0.2em; }
+.editable :is(h1, h2, h3) { font-size: var(--font-size-title-sm); font-weight: 700; margin: 0.4em 0 0.2em; }
 .editable ul, .editable ol { margin: 0.2em 0; padding-left: 1.4em; }
-.editable img { max-width: 100%; border-radius: var(--radius-lg); margin: var(--spacing-2xs) 0; }
+.editable img { max-width: 100%; border-radius: var(--radius-2xl); margin: var(--spacing-2xs) 0; }
 .editable a { color: var(--text-accent); text-decoration: underline; }
 
 /* @ 멘션 드롭다운 메뉴 */
@@ -63,24 +63,24 @@
   max-width: 280px;
   padding: var(--spacing-3xs);
   border: var(--border-light);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
   background: var(--bg-primary);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--spacing-4xs);
 }
 .mentionItem {
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
   width: 100%;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--row-p-sm);
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-primary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
@@ -90,8 +90,8 @@
 .mentionItem:hover { background: var(--bg-secondary); }
 .mentionItemOn { background: var(--bg-accent-subtle); color: var(--text-accent); }
 .mentionIcon { flex-shrink: 0; color: var(--text-tertiary); }
-.mentionEmpty { padding: var(--spacing-2xs) var(--spacing-sm); font-size: var(--font-size-xs); color: var(--text-tertiary); }
-.mentionDate { padding: 2px; }
+.mentionEmpty { padding: var(--spacing-2xs) var(--spacing-sm); font-size: var(--font-size-label); color: var(--text-tertiary); }
+.mentionDate { padding: var(--spacing-3xs); }
 
 /* 멘션 칩 — 에디터/뷰 공통 (전역: 저장된 HTML 이 다른 CSS 모듈에서 렌더돼도 적용) */
 :global(.cal-event-mention) {

@@ -39,7 +39,7 @@
 .dropdown.dropdownDifference {
   background: transparent;
   backdrop-filter: blur(20px);
-  border-color: var(--border-light-color);
+  border-color: var(--border-color-light);
   box-shadow: none;
   mix-blend-mode: difference;
 }
@@ -66,7 +66,7 @@
   width: 11px;
   height: 11px;
   background: var(--bg-primary);
-  border: 0 solid var(--border-light-color);
+  border: 0 solid var(--border-color-light);
   transform: rotate(45deg);
   pointer-events: none;
 }
@@ -125,7 +125,7 @@
 .sheetTitle {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }

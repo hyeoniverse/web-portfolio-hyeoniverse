@@ -1,9 +1,9 @@
 .title {
-  margin-bottom: var(--editorial-space-divide);
+  margin-bottom: var(--space-divide);
   font-family: var(--font-display);
-  font-size: var(--editorial-fs-hero);
-  line-height: var(--editorial-lh-title);
-  letter-spacing: var(--editorial-ls-title);
+  font-size: var(--font-size-hero);
+  line-height: var(--line-height-dense);
+  letter-spacing: var(--letter-spacing-tight);
   perspective: 600px;
 }
 

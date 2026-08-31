@@ -3,7 +3,7 @@
    설정 가능, List.item 과 동일 패턴) */
 .title {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-tertiary);
   margin: 0;

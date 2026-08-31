@@ -15,11 +15,11 @@
 }
 
 .line {
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
 }
 
 .circle {
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   flex-shrink: 0;
 }
 
@@ -28,5 +28,5 @@
 }
 
 .block {
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
 }

@@ -60,7 +60,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   text-decoration: underline;
-  text-decoration-color: var(--border-strong-color);
+  text-decoration-color: var(--border-color-strong);
   text-underline-offset: 2px;
 }
 .pillSelected {
@@ -84,12 +84,12 @@
   align-items: center;
   gap: var(--spacing-sm);
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: var(--row-p-md);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   text-align: left;
   text-decoration: none;
   cursor: pointer;

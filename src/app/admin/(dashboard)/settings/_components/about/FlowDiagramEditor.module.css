@@ -11,7 +11,7 @@
 .hint {
   margin: 0;
   color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 .canvasWrap {
   border: var(--border-light);
@@ -40,7 +40,7 @@
   display: flex;
   gap: var(--spacing-xs);
   align-items: center;
-  padding: var(--box-xs);
+  padding: var(--spacing-2xs) var(--spacing-xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
 }
@@ -48,7 +48,7 @@
   flex-shrink: 0;
   color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 .inspectField {
   flex-shrink: 0;
@@ -57,7 +57,7 @@
 .inspectInput {
   flex: 1;
   min-width: 0;
-  padding: var(--box-xs);
+  padding: var(--field-p-sm);
   border: 0;
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -82,7 +82,7 @@
   align-items: center;
   color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 .legendDot {
   width: 8px;

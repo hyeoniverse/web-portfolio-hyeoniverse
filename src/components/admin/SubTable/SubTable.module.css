@@ -11,7 +11,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
@@ -33,7 +33,7 @@
 .hint {
   margin-left: auto;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-muted);
 }
 
@@ -73,7 +73,7 @@
   gap: var(--spacing-sm);
   padding: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   border-top: var(--border-light);
   border-bottom: var(--border-light);
@@ -91,27 +91,12 @@
   margin-bottom: var(--spacing-xs);
 }
 
-.bulkBtn {
-  padding: var(--box-3xs-sm);
-  border: var(--border-default);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
-  color: var(--text-primary);
-}
-
-.bulkBtn:hover {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-}
-
 .bulkCancel {
   margin-left: auto;
   border: none;
   background: transparent;
   color: var(--text-muted);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 /* ── Table header — AdminTable 과 동일한 padding/border 패턴으로 통일 ── */
@@ -121,7 +106,7 @@
   padding: var(--spacing-sm) 0;
   border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -133,7 +118,7 @@
 /* 헤더 셀 통일 — 컬럼별 className(colTitle/colMeta 등)을 무효화 위해 specificity 높임 (0,2,0) */
 .tableHeader.tableHeader > * {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -212,12 +197,12 @@
   justify-content: center;
   background: var(--bg-tertiary);
   color: var(--text-muted);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 .colTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -227,7 +212,7 @@
 
 .colMeta {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -239,12 +224,12 @@
 
 .actionBtn {
   flex-shrink: 0;
-  padding: var(--box-2xs-md);
+  padding: var(--button-p-sm);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   text-decoration: none;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
@@ -257,12 +242,12 @@
 
 .dangerBtn {
   flex-shrink: 0;
-  padding: var(--box-2xs-md);
+  padding: var(--button-p-sm);
   border: var(--border-accent-strong);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-accent);
 }
 
@@ -275,8 +260,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   flex-shrink: 0;
   border: none;
   border-radius: var(--radius-circle);
@@ -301,7 +286,7 @@
 }
 
 .colDaysSub {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
 }
 
@@ -315,7 +300,7 @@
 .empty {
   padding: var(--spacing-md) 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-muted);
 }
 

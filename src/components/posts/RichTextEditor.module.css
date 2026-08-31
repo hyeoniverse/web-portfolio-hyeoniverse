@@ -8,19 +8,19 @@
 }
 .mediaUploadName {
   margin: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   font-weight: 600;
   word-break: break-all;
 }
 .mediaUploadStage {
   margin: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
 }
 .mediaUploadHint {
   margin: 0;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-muted);
 }
 .mediaUploadBar {
@@ -141,7 +141,7 @@
   content: "";
   width: 4px;
   height: 100%;
-  border-radius: var(--radius-2xs);
+  border-radius: var(--radius-capsule);
   background: transparent;
   transition: background-color 0.15s;
 }
@@ -163,7 +163,7 @@
   content: "";
   width: 100%;
   height: 4px;
-  border-radius: var(--radius-2xs);
+  border-radius: var(--radius-capsule);
   background: transparent;
   transition: background-color 0.15s;
 }
@@ -210,12 +210,12 @@
   justify-content: center;
   height: 28px;
   min-width: 28px;
-  padding: var(--box-x-sm);
+  padding: 0 var(--spacing-sm);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-primary);
   line-height: 1;
@@ -249,7 +249,7 @@
   height: 14px;
   align-self: center;
   margin: 0 var(--spacing-2xs);
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   flex-shrink: 0;
 }
 
@@ -298,16 +298,16 @@
   overflow: visible;
   flex-wrap: wrap;
   gap: var(--spacing-3xs);
-  padding: var(--spacing-2xs) 2px;
+  padding: var(--spacing-2xs) var(--spacing-3xs);
 }
 .tableMenu .tableGroup + .tableGroup {
-  border-top: 1px solid var(--border-light-color);
+  border-top: 1px solid var(--border-color-light);
 }
 /* popover 버튼 — 세그먼트(사각형 radius:0 + border-left 구분선) 무효화 → 기본 캡슐 버튼으로 통일 */
 .tableMenu .tableGroup .toolbarBtn {
   border-left: none;
   border-radius: var(--radius-capsule);
-  padding: var(--box-x-sm);
+  padding: 0 var(--spacing-sm);
 }
 .tableMenu .tableGroup .toolbarBtn.toolbarBtnSquare {
   padding: 0;
@@ -315,7 +315,7 @@
 .tableMenu .tableGroupLabel {
   min-width: 3.5rem;
   padding-left: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
 }
 /* floating bar/popover — 아이콘 + 라벨 병기용 (아이콘만이면 뭔지 알기 어려워서) */
@@ -340,7 +340,7 @@
   min-width: 15rem;
 }
 .tableMenu .tableStyleSection + .tableStyleSection {
-  border-top: 1px solid var(--border-light-color);
+  border-top: 1px solid var(--border-color-light);
 }
 .tableMenu .tableStyleHead {
   display: flex;
@@ -354,8 +354,8 @@
 .tableMenu .colorSwatch {
   width: 18px;
   height: 18px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light-color);
+  border-radius: var(--radius-capsule);
+  border: 1px solid var(--border-color-light);
   flex-shrink: 0;
 }
 /* 최근색 행 */
@@ -367,7 +367,7 @@
 }
 .tableMenu .tableRecentLabel {
   flex-shrink: 0;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
 }
 /* 프리셋 dot — 자체 margin 제거하고 그룹 gap(3xs)에 위임 → 간격 일관 */
@@ -382,17 +382,17 @@
   background-image:
     linear-gradient(
       45deg,
-      var(--border-light-color) 25%,
+      var(--border-color-light) 25%,
       transparent 25%,
       transparent 75%,
-      var(--border-light-color) 75%
+      var(--border-color-light) 75%
     ),
     linear-gradient(
       45deg,
-      var(--border-light-color) 25%,
+      var(--border-color-light) 25%,
       transparent 25%,
       transparent 75%,
-      var(--border-light-color) 75%
+      var(--border-color-light) 75%
     );
   background-size: 6px 6px;
   background-position:
@@ -406,7 +406,7 @@
   justify-content: center;
   min-width: 18px;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
 }
 
@@ -414,7 +414,7 @@
 .slashMenu {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--spacing-4xs);
   min-width: 200px;
   max-height: 320px;
   overflow-y: auto;
@@ -440,15 +440,15 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-4xs);
-  padding: 3px var(--spacing-2xs);
+  padding: var(--spacing-2xs) var(--spacing-2xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   cursor: pointer;
 }
-.postLinkSort:hover { color: var(--text-primary); border-color: var(--border-strong-color); }
+.postLinkSort:hover { color: var(--text-primary); border-color: var(--border-color-strong); }
 .postLinkCats {
   display: flex;
   gap: var(--spacing-4xs);
@@ -458,12 +458,12 @@
 .postLinkCats::-webkit-scrollbar { display: none; }
 .postLinkCat {
   flex-shrink: 0;
-  padding: 2px var(--spacing-2xs);
+  padding: var(--spacing-3xs) var(--spacing-2xs);
   border: none;
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.12s ease, background-color 0.12s ease;
@@ -472,7 +472,7 @@
 .postLinkList {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--spacing-4xs);
   max-height: 300px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -501,11 +501,11 @@
   border-bottom: var(--border-light);
   color: var(--text-tertiary);
 }
-.postLinkSearchVal { flex: 1; min-width: 0; color: var(--text-primary); font-size: var(--font-size-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.postLinkSearchPh { flex: 1; color: var(--text-tertiary); font-size: var(--font-size-sm); }
+.postLinkSearchVal { flex: 1; min-width: 0; color: var(--text-primary); font-size: var(--font-size-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.postLinkSearchPh { flex: 1; color: var(--text-tertiary); font-size: var(--font-size-body); }
 .postLinkSectionLabel {
   padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-3xs);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
 }
@@ -528,15 +528,15 @@
 }
 .postLinkCatTag {
   flex-shrink: 0;
-  padding: 0 var(--spacing-2xs);
+  padding: var(--badge-p-sm);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   color: var(--text-tertiary);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
 }
 .postLinkEmpty {
   padding: var(--spacing-sm) var(--spacing-sm);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
   text-align: center;
 }
@@ -551,7 +551,7 @@
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
   cursor: pointer;
   transition: color 0.15s ease, background-color 0.15s ease;
@@ -567,14 +567,14 @@
 .slashGroup {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--spacing-4xs);
 }
 .slashGroup + .slashGroup {
   margin-top: var(--spacing-2xs);
 }
 .slashGroupLabel {
   padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-3xs);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -629,7 +629,7 @@
   content: "";
   position: absolute;
   background: var(--bg-accent-subtle);
-  border-radius: var(--radius-md); /* 블록 컨테이너 radius(md)와 일치 */
+  border-radius: var(--radius-2xl); /* 블록 컨테이너 radius(md)와 일치 */
   z-index: -1;
   pointer-events: none;
 }
@@ -731,7 +731,7 @@
   margin-left: auto;
   padding-left: var(--spacing-sm);
   color: var(--text-tertiary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -745,7 +745,7 @@
   margin: var(--prose-block-gap) 0;
 }
 .tocEmpty {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
 }
 
@@ -753,8 +753,8 @@
 .tocItem {
   border: none;
   background: transparent;
-  padding: var(--box-y-sm);
-  font-size: var(--font-size-sm);
+  padding: var(--spacing-2xs) 0;
+  font-size: var(--font-size-body);
   color: var(--text-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -776,11 +776,11 @@
 .mermaidPreview {
   display: flex;
   justify-content: center;
-  padding: var(--box-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   margin-top: var(--spacing-2xs);
   margin-bottom: var(--spacing-lg);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   background: var(--bg-primary);
   overflow-x: auto;
 }
@@ -812,14 +812,14 @@
   background: var(--bg-primary);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 .readerMermaidCopy:hover {
   color: var(--text-primary);
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 .readerMermaid .mermaidPreview {
   margin: 0;
@@ -832,7 +832,7 @@
   border-radius: var(--radius-2xl);
   overflow-x: auto;
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
 }
 .readerMermaidCode code {
@@ -886,7 +886,7 @@
   height: 32px;
   max-height: 50%;
   border-radius: var(--radius-capsule);
-  background: var(--border-strong-color);
+  background: var(--border-color-strong);
   transition: background-color 0.15s ease, height 0.15s ease;
 }
 .graphSplitHandle:hover .graphSplitHandleBar {
@@ -915,7 +915,7 @@
 }
 .mermaidHelpIntro {
   margin: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -943,7 +943,7 @@
 }
 .mermaidHelpLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--text-primary);
@@ -961,18 +961,18 @@
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   cursor: pointer;
   transition: color 0.12s ease, border-color 0.12s ease;
 }
 .mermaidHelpCopy:hover {
   color: var(--text-primary);
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 /* 기본 문법 설명 */
 .mermaidHelpBasicsIntro {
   margin: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-secondary);
 }
@@ -999,15 +999,15 @@
   align-items: baseline;
   padding: var(--spacing-sm) var(--spacing-3xs);
   border-bottom: var(--border-light);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 .mermaidHelpRule code {
   justify-self: start;
-  padding: 2px var(--spacing-2xs);
+  padding: var(--spacing-3xs) var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   white-space: nowrap;
 }
@@ -1034,7 +1034,7 @@
   border-radius: var(--radius-2xl);
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-secondary);
   white-space: pre;
@@ -1061,8 +1061,8 @@
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: var(--bg-primary);
@@ -1087,14 +1087,14 @@
 /* 스크롤바 항상 보이게 (macOS overlay 스크롤바도 강제 표시) */
 .mermaidHelpDiagram {
   scrollbar-width: thin;
-  scrollbar-color: var(--border-strong-color) transparent;
+  scrollbar-color: var(--border-color-strong) transparent;
 }
 .mermaidHelpDiagram::-webkit-scrollbar {
   height: 9px;
   width: 9px;
 }
 .mermaidHelpDiagram::-webkit-scrollbar-thumb {
-  background: var(--border-strong-color);
+  background: var(--border-color-strong);
   border-radius: var(--radius-capsule);
 }
 .mermaidHelpDiagram::-webkit-scrollbar-track {
@@ -1164,7 +1164,7 @@
 .mermaidHelpZoomVal {
   min-width: 38px;
   text-align: center;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
 }
@@ -1192,7 +1192,7 @@
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--text-secondary);
@@ -1222,8 +1222,8 @@
 .mermaidHelpFsCtrls {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-3xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
@@ -1241,7 +1241,7 @@
   align-items: center;
   align-self: flex-start;
   gap: var(--spacing-3xs);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-accent);
   text-decoration: none;
@@ -1261,7 +1261,7 @@
 
 .mermaidError {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: pre-wrap;
 }
@@ -1291,7 +1291,7 @@
 /* ── 공통 캡슐 드롭다운 스타일 ── */
 .fontSelect {
   height: 24px;
-  padding: 0 22px 0 var(--spacing-sm);
+  padding: 0 var(--spacing-xl) 0 var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background-color: transparent;
@@ -1299,7 +1299,7 @@
   -webkit-appearance: none;
   appearance: none;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
   outline: none;
   max-width: 140px;
@@ -1340,7 +1340,7 @@
   padding: 0;
   gap: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   border-radius: var(--radius-2xl);
   max-height: none;
   overflow: visible;
@@ -1351,10 +1351,10 @@
 /* ── Font picker dropdown ── */
 
 .fontDropItem {
-  padding: var(--box-xs);
-  border-radius: var(--radius-sm);
+  padding: var(--row-p-sm);
+  border-radius: var(--radius-capsule);
   margin: var(--spacing-4xs) var(--spacing-3xs);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1369,7 +1369,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-muted);
   text-decoration: none;
 }
@@ -1391,7 +1391,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 1px;
+  gap: var(--spacing-4xs);
   cursor: text;
   color: var(--text-primary);
   border-color: var(--text-primary);
@@ -1433,7 +1433,7 @@
   border-radius: 0;
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: inherit;
   text-align: center;
   outline: none;
@@ -1460,9 +1460,9 @@
   display: flex;
   align-items: center;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-primary);
-  padding: 0 3px 0 6px;
+  padding: 0 var(--spacing-2xs) 0 var(--spacing-xs);
   user-select: none;
   line-height: 1;
 }
@@ -1470,7 +1470,7 @@
 .tableGroup .toolbarBtn {
   border-radius: 0;
   border-left: var(--border-light);
-  padding: var(--box-2xs-md);
+  padding: var(--button-p-sm);
 }
 
 .tableGroup > :first-child .toolbarBtn,
@@ -1520,7 +1520,7 @@
   display: flex;
   align-items: stretch;
   max-width: 90vw;
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-2xl);
   /* 테마 표면색(bg-primary) 기반 반투명 — 흰색 틴트(bg-glass-strong)는 다크모드/밝은 배경 위에서
      밝은 글자가 묻혀 안 보였음. 85% 불투명 + blur 로 대비 보장하면서 프로스티드 글래스 유지. */
@@ -1571,7 +1571,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: var(--spacing-2xs);
-  padding: var(--spacing-2xs) var(--spacing-xs);
+  padding: var(--row-p-sm);
 }
 .floatingBarRow + .floatingBarRow {
   padding-top: 0;
@@ -1609,7 +1609,7 @@
   width: 1px;
   align-self: stretch;
   margin: var(--spacing-3xs);
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   flex-shrink: 0;
 }
 
@@ -1619,7 +1619,7 @@
   align-items: center;
   gap: var(--spacing-2xs);
   padding: var(--spacing-3xs) var(--spacing-xs);
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
   border-radius: var(--radius-2xl);
   background: transparent;
   cursor: pointer;
@@ -1647,12 +1647,12 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--spacing-sm);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);
-  padding: 0 2px;
+  padding: 0 var(--spacing-3xs);
 }
 
 /* label 라인 오른쪽 끝의 수치(열 레이아웃의 총 너비 등).
@@ -1665,7 +1665,7 @@
 }
 /* field label — 필드(컨트롤) 왼쪽에 나란히 배치, 큰 폰트 + 진한 색 */
 .fieldLabel {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
   white-space: nowrap;
@@ -1674,7 +1674,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 7px;
+  gap: var(--spacing-xs);
 }
 /* 라벨 + 토글 버튼을 한 줄에 (예: 줄무늬 on/off) */
 .colorMenuHeadRow {
@@ -1687,11 +1687,11 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: var(--spacing-xs);
 }
 /* 빈 최근색 슬롯 — 아직 채워지지 않은 자리 표시(비클릭) */
 .swatchEmpty {
-  border: 1px dashed var(--border-light-color);
+  border: 1px dashed var(--border-color-light);
   background: transparent;
   opacity: 0.5;
   cursor: default;
@@ -1707,8 +1707,8 @@
   width: 1px;
   align-self: stretch;
   min-height: 18px;
-  background: var(--border-light-color);
-  margin: 0 1px;
+  background: var(--border-color-light);
+  margin: 0 var(--spacing-4xs);
 }
 .swatch {
   position: relative;
@@ -1771,13 +1771,13 @@
 /* 색상 popover 내부 가로 구분선 (행 ↔ 최근색) */
 .colorMenuDivider {
   height: 1px;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   margin: var(--spacing-2xs) 0;
 }
 .colorMenuMiniLabel {
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
-  margin-right: 2px;
+  margin-right: var(--spacing-3xs);
   align-self: center;
 }
 /* 열 레이아웃 통합 popover (개수 + 비율) */
@@ -1823,7 +1823,7 @@
   width: 16px;
   flex-shrink: 0;
   text-align: center;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
 }
@@ -1840,8 +1840,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm, 28px);
-  height: var(--button-h-sm, 28px);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   border-radius: var(--radius-circle);
   border: var(--border-light);
   background: var(--bg-secondary);
@@ -1854,8 +1854,9 @@
   background: var(--bg-tertiary);
   color: var(--text-primary);
 }
-.swatchCheckDark { color: #1a1a1a; }
-.swatchCheckLight { color: #fff; }
+/* 색 견본 위에 그리는 체크 — 테마가 아니라 견본 색에 맞춰 고르므로 고정 흑백을 쓴다. */
+.swatchCheckDark { color: var(--color-gray-alpha-100); }
+.swatchCheckLight { color: var(--color-white-alpha-100); }
 /* tooltip 내용 — 이름 + HEX 두 줄 */
 
 
@@ -1877,9 +1878,9 @@
   border: none;
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
-  padding: 0 6px;
+  padding: 0 var(--spacing-xs);
   outline: none;
 }
 
@@ -1911,9 +1912,9 @@
   border-right: var(--border-light);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
-  padding: 0 4px;
+  padding: 0 var(--spacing-2xs);
   outline: none;
   -webkit-appearance: none;
   appearance: none;
@@ -1926,9 +1927,9 @@
   border: none;
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
-  padding: 0 6px;
+  padding: 0 var(--spacing-xs);
   outline: none;
 }
 
@@ -1950,7 +1951,7 @@
   align-self: center;
   width: 1px;
   height: 16px;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   margin: 0 var(--spacing-2xs) 0 var(--spacing-3xs);
 }
 /* 주 액션(적용) 강조 — accent */
@@ -1993,9 +1994,9 @@
   border: none;
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
-  padding: 0 8px;
+  padding: 0 var(--spacing-xs);
   outline: none;
 }
 .linkPillInput::placeholder {
@@ -2005,10 +2006,10 @@
   display: flex;
   align-items: center;
   height: 100%;
-  padding: 0 4px 0 8px;
+  padding: 0 var(--spacing-2xs) 0 var(--spacing-xs);
   border-right: var(--border-light);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -2024,7 +2025,7 @@
   border: none;
   border-left: var(--border-light);
   border-radius: 0;
-  padding: var(--box-xs);
+  padding: var(--button-p-xs);
 }
 
 /* Color picker inline cell */
@@ -2037,7 +2038,7 @@
   border: var(--border-light);
   padding: 0;
   align-self: center;
-  margin: 0 4px;
+  margin: 0 var(--spacing-2xs);
   flex-shrink: 0;
 }
 
@@ -2060,9 +2061,9 @@
   border-radius: 0;
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
-  padding: var(--box-xs);
+  padding: var(--field-p-sm);
   width: 120px;
   outline: none;
   /* 내용에 맞춰 높이 자동 — 입력 길이만큼만 공간 차지(미리 큰 공간 확보 X) */
@@ -2101,16 +2102,16 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-xs);
-  min-height: var(--button-h-xs);
+  min-height: var(--control-h-2xs);
 }
 
 .borderClearBtn {
-  padding: 3px 8px;
+  padding: var(--button-p-xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
   cursor: pointer;
   transition:
@@ -2128,7 +2129,7 @@
   align-items: center;
   padding: 0 var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-style: italic;
 }
@@ -2149,7 +2150,7 @@
 
 .borderPopLabel {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
   text-transform: uppercase;
@@ -2162,7 +2163,7 @@
   gap: var(--spacing-3xs);
   padding: var(--spacing-3xs);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   justify-content: start;
 }
 
@@ -2170,10 +2171,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-primary);
   padding: 0;
@@ -2193,7 +2194,7 @@
 
 .borderGridBtnActive {
   background: var(--bg-tertiary-alt);
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
   color: var(--text-primary);
 }
 
@@ -2210,13 +2211,13 @@
 /* Select inside border popover */
 .borderPopSelect {
   width: 100%;
-  height: var(--button-h-xs);
-  padding: 0 6px;
+  height: var(--control-h-2xs);
+  padding: 0 var(--spacing-xs);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-primary);
   outline: none;
 }
@@ -2231,13 +2232,13 @@
 }
 
 .borderWidthBtn {
-  padding: 0 10px;
+  padding: 0 var(--spacing-sm);
   height: 24px;
   border: none;
   border-left: var(--border-light);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
   transition: background 0.1s;
 }
@@ -2294,7 +2295,7 @@
 
 .colorLabel {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
   line-height: 1;
@@ -2351,7 +2352,7 @@
   border: var(--border-light);
   background: transparent;
   padding: 0;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   line-height: 1;
   color: var(--text-tertiary);
   display: flex;
@@ -2393,7 +2394,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: var(--border-strong-color) transparent;
+  scrollbar-color: var(--border-color-strong) transparent;
 }
 
 .editor::-webkit-scrollbar {
@@ -2406,8 +2407,8 @@
 }
 
 .editor::-webkit-scrollbar-thumb {
-  background: var(--border-strong-color);
-  border-radius: var(--radius-2xs);
+  background: var(--border-color-strong);
+  border-radius: var(--radius-capsule);
 }
 
 .editor::-webkit-scrollbar-thumb:hover {
@@ -2420,7 +2421,7 @@
   outline: none;
   min-height: 400px;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: var(--line-height-normal);
   color: var(--text-primary);
   font-synthesis: style; /* 글로벌 font-synthesis: none 우회 — italic 합성 허용 */
@@ -2439,7 +2440,7 @@
 }
 
 .editor :global(.tiptap) h2 {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-title-md);
 }
 
 .editor :global(.tiptap) p {
@@ -2449,15 +2450,15 @@
 .editor :global(.tiptap) code {
   font-family: var(--font-mono);
   font-size: 0.9em;
-  padding: var(--box-xs);
+  padding: var(--spacing-2xs) var(--spacing-xs);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-capsule);
 }
 
 .editor :global(.tiptap) pre {
   padding: var(--spacing-md);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   overflow-x: auto;
   margin-bottom: var(--spacing-md);
 }
@@ -2469,7 +2470,7 @@
 
 .editor :global(.tiptap) img {
   max-width: 100%;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   display: block;
 }
 
@@ -2514,7 +2515,7 @@
 
 .editor :global(.tiptap) figcaption {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   text-align: center;
   padding: var(--spacing-xs) 0;
@@ -2530,7 +2531,7 @@
 
 .figCaption {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   text-align: center;
   padding: var(--spacing-xs) 0;
@@ -2590,7 +2591,7 @@
   border-spacing: 0;
   width: 100%;
   margin: var(--spacing-md) 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   border-right: var(--border-light);
   border-bottom: var(--border-light);
   table-layout: fixed;
@@ -2602,7 +2603,7 @@
   border-left: var(--border-light);
   border-right: none;
   border-bottom: none;
-  padding: var(--box-xs);
+  padding: var(--cell-p-sm);
   vertical-align: top;
   min-width: 60px;
   position: relative;
@@ -2677,8 +2678,8 @@
 }
 
 .editor :global(.tiptap) mark {
-  border-radius: var(--radius-2xs);
-  padding: 0 2px;
+  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-3xs);
 }
 
 .editor :global(.tiptap) ul,
@@ -2710,7 +2711,7 @@
 .editor :global(.tiptap) div[data-youtube-video],
 .editor :global(.tiptap) iframe {
   max-width: 100%;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   margin: var(--spacing-md) 0;
 }
 
@@ -2737,17 +2738,17 @@
   padding: var(--spacing-2xs);
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-md);
 }
 
 .imageBubbleBtn {
-  padding: var(--box-xs);
+  padding: var(--button-p-xs);
   border: none;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
   line-height: 1;
@@ -2774,13 +2775,13 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--spacing-xs);
-  padding: var(--box-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
   border: none;
   border-top: var(--border-light);
   border-radius: 0;
   background: var(--bg-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
 }
 
@@ -2803,14 +2804,14 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--box-xs-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
   background: var(--bg-secondary);
   border-bottom: var(--border-light);
 }
 
 .imagePanelLabel {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -2843,7 +2844,7 @@
   padding: var(--spacing-sm);
   background: var(--bg-primary);
   scrollbar-width: thin;
-  scrollbar-color: var(--border-strong-color) transparent;
+  scrollbar-color: var(--border-color-strong) transparent;
 }
 
 .imagePanelItem {
@@ -2855,7 +2856,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-3xs);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-2xl);
   padding: var(--spacing-3xs);
   transition: background-color 0.15s;
 }
@@ -2880,7 +2881,7 @@
 }
 
 .imagePanelEmpty {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-muted);
   padding: var(--spacing-xs) 0;
 }
@@ -2911,7 +2912,7 @@
 
 .imagePanelDividerLabel {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -2928,7 +2929,7 @@
   width: 66px;
   height: 50px;
   object-fit: cover;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   border: var(--border-light);
 }
 
@@ -2951,6 +2952,7 @@
   justify-content: center;
   width: 14px;
   height: 14px;
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 이미지 다중선택 체크박스 — 네모가 곧 의미 */
   border-radius: var(--radius-2xs);
   border: 1.5px solid var(--text-tertiary);
   background: var(--bg-primary);
@@ -2968,7 +2970,7 @@
 
 .imagePanelName {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   width: 100%;
   text-align: center;
@@ -2981,7 +2983,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--box-xs-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-top: var(--border-light);
   background: var(--bg-secondary);
 }
@@ -2993,7 +2995,7 @@
 }
 
 .imagePanelInfoText {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   line-height: 1.3;
 }
@@ -3011,7 +3013,7 @@
   justify-content: center;
   color: var(--text-tertiary);
   opacity: 0;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-capsule);
   transition:
     opacity 0.15s,
     color 0.15s,
@@ -3057,7 +3059,7 @@
   /* 첫 줄에 핸들 정렬 (멀티라인 블록에서 중앙으로 내려가지 않게) — 첫 줄 중앙 보정 */
   align-items: flex-start;
   justify-content: flex-end;
-  gap: 1px;
+  gap: var(--spacing-4xs);
   padding-top: calc((var(--font-size-md) * var(--line-height-relaxed) - 22px) / 2);
   opacity: 0;
   user-select: none;
@@ -3088,7 +3090,7 @@
 }
 .blockToolsLabel {
   padding: var(--spacing-2xs) var(--spacing-xs) var(--spacing-3xs);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -3096,7 +3098,7 @@
 }
 .blockToolsTurn {
   display: flex;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   padding: 0 var(--spacing-3xs) var(--spacing-3xs);
 }
 .blockToolsTurnBtn {
@@ -3106,7 +3108,7 @@
   width: 30px;
   height: 30px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
@@ -3134,7 +3136,7 @@
   height: 22px;
   border-radius: var(--radius-capsule);
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
 }
 .blockToolsSwatch:hover {
@@ -3150,19 +3152,19 @@
   /* '없음' = 금지선(빨간 슬래시) 대신 투명 체커 스와치 (.checkerBg 와 동일 격자, ColorMenu 와 통일) */
   background-color: var(--bg-primary);
   background-image:
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%),
-    linear-gradient(45deg, var(--border-light-color) 25%, transparent 25%, transparent 75%, var(--border-light-color) 75%);
+    linear-gradient(45deg, var(--border-color-light) 25%, transparent 25%, transparent 75%, var(--border-color-light) 75%),
+    linear-gradient(45deg, var(--border-color-light) 25%, transparent 25%, transparent 75%, var(--border-color-light) 75%);
   background-size: 6px 6px;
   background-position: 0 0, 3px 3px;
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
 }
 /* 글자색 '기본' — 투명이 아니라 기본 텍스트색이므로 체커 대신 기본색(--text-primary) 스와치로 구분 */
 .blockToolsSwatchDefault {
   background: var(--text-primary);
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
 }
 .blockToolsDanger {
-  color: var(--color-danger, #ef4444);
+  color: var(--color-error);
 }
 
 .blockAddBtn {
@@ -3207,7 +3209,7 @@
   /* 불투명 배경 — backdrop-filter blur 는 고정 헤더가 transform 될 때 매 프레임 백드롭 재샘플링(버벅임)이라 제거 */
   background: var(--bg-secondary);
   border: var(--border-light);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.12s ease, background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
@@ -3284,10 +3286,10 @@
 .tblScroll {
   overflow-x: auto;
   overflow-y: hidden;
-  padding-right: 36px; /* 열추가 버튼(옆 28px + gap) 자리 — 부족하면 버튼이 삐져나가 가로 스크롤 생김 */
+  padding-right: var(--spacing-2xl-plus); /* 열추가 버튼(옆 28px + gap) 자리 — 부족하면 버튼이 삐져나가 가로 스크롤 생김 */
   padding-bottom: var(--spacing-md); /* 가로 스크롤바를 표 아래로 충분히 내림 */
   scrollbar-width: thin;
-  scrollbar-color: var(--border-strong-color) transparent;
+  scrollbar-color: var(--border-color-strong) transparent;
 }
 /* 전역 _overrides.css 가 ::-webkit-scrollbar { display:none } 로 숨기므로 display:block 으로 커스텀
    스크롤바를 되살린다(안 그러면 OS 오버레이 스크롤바 → hover 시 두꺼워짐/표 가림). 두께 고정. */
@@ -3308,8 +3310,8 @@
 .tblScroll::-webkit-scrollbar-thumb,
 .tblScroll::-webkit-scrollbar-thumb:hover,
 .tblScroll::-webkit-scrollbar-thumb:active {
-  background-color: var(--border-strong-color);
-  border-radius: 999px;
+  background-color: var(--border-color-strong);
+  border-radius: var(--radius-capsule);
   border: 3px solid transparent;
   background-clip: padding-box;
 }
@@ -3335,9 +3337,9 @@
   align-items: center;
   justify-content: center;
   height: 18px;
-  padding: 0 3px;
+  padding: 0 var(--spacing-2xs);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-capsule);
   background: var(--bg-glass-strong);
   backdrop-filter: blur(6px);
   color: var(--text-muted);
@@ -3430,7 +3432,7 @@
 .blockDragLayerGroup {
   background: var(--bg-accent-subtle);
   border-radius: var(--radius-2xl);
-  padding: 2px 8px;
+  padding: var(--spacing-3xs) var(--spacing-xs);
 }
 /* 열블록 ghost — 컬럼은 불투명 배경이라 컨테이너 배경이 안 보임 → accent 오버레이를 컬럼 위(z-index)에 얹는다.
    단 컬럼그룹은 ghost 폭보다 넓어 그룹 기준 ::after 는 오른쪽에서 하드클립됨 → "보이는 ghost 영역"(컨테이너)
@@ -3450,12 +3452,12 @@
 
 .embedModalInput {
   width: 100%;
-  padding: var(--box-xs-sm);
+  padding: var(--modal-p-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
   margin-top: var(--spacing-2xs);
@@ -3470,12 +3472,12 @@
 }
 
 .embedModalCancel {
-  padding: var(--box-xs-sm);
+  padding: var(--modal-p-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 
@@ -3485,12 +3487,12 @@
 }
 
 .embedModalConfirm {
-  padding: var(--box-xs-sm);
+  padding: var(--modal-p-sm);
   border: var(--border-strong);
   border-radius: var(--radius-capsule);
   background: var(--text-primary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--bg-primary);
 }
 
@@ -3506,8 +3508,8 @@
 .mathInline {
   display: inline-block;
   vertical-align: middle;
-  border-radius: var(--radius-xs);
-  padding: 0 3px;
+  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-2xs);
   transition: background-color 0.15s;
 }
 
@@ -3519,7 +3521,7 @@
   display: block;
   text-align: center;
   padding: var(--spacing-sm) 0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-2xl);
   transition: background-color 0.15s;
   overflow-x: auto;
 }
@@ -3537,7 +3539,7 @@
   padding: var(--spacing-2xs);
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-md);
 }
 
@@ -3551,7 +3553,7 @@
   padding: var(--spacing-sm);
   background: var(--bg-secondary);
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-lg);
 }
 
@@ -3587,13 +3589,13 @@
   padding: var(--spacing-sm);
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-2xl);
   color: var(--text-primary);
 }
 .mathFloatingPreviewEmpty {
   color: var(--text-muted);
   font-style: italic;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
 }
 
 .mathFloatingToolGroup {
@@ -3606,8 +3608,8 @@
   content: "";
   width: 1px;
   align-self: stretch;
-  background: var(--border-light-color);
-  margin: 0 2px;
+  background: var(--border-color-light);
+  margin: 0 var(--spacing-3xs);
 }
 
 .mathFloatingToolGroup:last-child::after {
@@ -3616,9 +3618,9 @@
 
 .mathFloatingInput {
   width: 100%;
-  padding: var(--box-xs);
+  padding: var(--field-p-sm);
   border: var(--border-light);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-mono), monospace;
@@ -3652,9 +3654,9 @@
 .mathCapsuleConfirm {
   border: none;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
-  padding: var(--box-xs);
+  padding: var(--modal-p-sm);
   line-height: 1;
 }
 
@@ -3678,13 +3680,13 @@
 .mathPanelInput {
   flex: 1;
   min-width: 0;
-  padding: var(--box-xs);
+  padding: var(--field-p-sm);
   border: var(--border-light);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-primary);
   font-family: var(--font-mono), monospace;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   line-height: 1.6;
   resize: none;
   outline: none;
@@ -3696,13 +3698,13 @@
 }
 
 .mathPanelModeBtn {
-  padding: var(--box-xs);
+  padding: var(--button-p-xs);
   border: var(--border-light);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   transition:
     background-color 0.15s,
     border-color 0.15s,
@@ -3727,13 +3729,13 @@
 }
 
 .mathPanelInsert {
-  padding: var(--box-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: var(--text-primary);
   color: var(--bg-primary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   white-space: nowrap;
   transition: opacity 0.15s;
@@ -3748,12 +3750,12 @@
 }
 
 .mathToolBtn {
-  padding: var(--box-xs);
+  padding: var(--button-p-xs);
   border: none;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-tertiary);
   line-height: 1;
@@ -3767,13 +3769,13 @@
 .mathModalInput {
   width: 100%;
   min-height: 76px;
-  padding: var(--box-xs-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
   color: var(--text-primary);
   font-family: var(--font-mono), monospace;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.6;
   resize: vertical;
   box-sizing: border-box;
@@ -3811,13 +3813,13 @@
   background: var(--bg-secondary);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   cursor: pointer;
   transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
 .codeLangTrigger:hover {
   color: var(--text-primary);
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 .codeLangCaret {
   color: inherit;
@@ -3847,12 +3849,12 @@
   align-items: center;
   gap: var(--spacing-xs);
   width: 100%;
-  padding: var(--spacing-2xs) var(--spacing-sm);
+  padding: var(--row-p-sm);
   border: none;
   background: transparent;
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
@@ -3867,7 +3869,7 @@
 .codeMenuTrailing {
   margin-left: auto;
   color: var(--text-tertiary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 .codeMenuSearch {
@@ -3887,7 +3889,7 @@
   background: transparent;
   outline: none;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
 }
 
@@ -3910,6 +3912,7 @@
   flex: 1;
   min-width: 0;
   /* 하단 여백 — 마지막 글자(Z 등) 섹션이 위로 충분히 스크롤돼 rail 이 끝까지 따라오게 */
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 에디터 하단 여백 — 마지막 블록 아래에서도 스크롤 여유가 남게 하려는 값. 간격 눈금(최대 128px) 밖이다 */
   padding-bottom: 9rem;
 }
 /* 알파벳 인덱스 — 룰렛(time picker) 스타일. 위아래 그라데이션 마스크 + 현재 글자 중앙, 스크롤 시 회전.
@@ -3923,7 +3926,7 @@
   width: 0;
   height: 240px;
   /* 한 글자를 세로 중앙에 놓을 수 있도록 위아래 여백 (=(240 - 22)/2) */
-  padding-block: 109px;
+  padding-block: var(--spacing-5xl-plus);
   overflow: hidden;
   overscroll-behavior: contain;
   scrollbar-width: none;
@@ -3938,7 +3941,7 @@
 .codeAzRail[data-visible] {
   width: 26px;
   overflow-y: auto;
-  border-right-color: var(--border-light-color);
+  border-right-color: var(--border-color-light);
   opacity: 1;
   pointer-events: auto;
 }
@@ -3960,13 +3963,13 @@
   justify-content: center;
   width: 18px;
   height: 18px;
-  margin: 2px 0;
+  margin: var(--spacing-3xs) 0;
   flex-shrink: 0;
   border: none;
   background: transparent;
   border-radius: var(--radius-circle); /* indicator 원형 */
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--font-size-hint);
   font-weight: 600;
   line-height: 1;
   color: var(--text-tertiary);
@@ -3985,7 +3988,7 @@
 /* 검색 결과 정확도순 hint */
 .codeMenuHint {
   padding: var(--spacing-3xs) var(--spacing-sm);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-style: italic;
   color: var(--text-muted);
 }
@@ -3996,7 +3999,7 @@
 
 .codeMenuEmpty {
   padding: var(--spacing-sm);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-align: center;
 }
@@ -4011,7 +4014,7 @@
   flex-shrink: 0;
   border-radius: var(--radius-circle);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--font-size-hint);
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -4019,7 +4022,7 @@
 .codeLangIconPlain {
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  border: 1px solid var(--border-light-color);
+  border: 1px solid var(--border-color-light);
 }
 .codeLangName {
   flex: 1;
@@ -4039,7 +4042,7 @@
   position: sticky;
   top: 0;
   padding: var(--spacing-2xs) var(--spacing-sm) var(--spacing-3xs);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -4077,7 +4080,7 @@
   outline: none;
   min-height: 400px;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-body-lg);
   line-height: var(--line-height-normal);
   color: var(--text-primary);
   font-synthesis: style;
@@ -4087,7 +4090,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: var(--border-strong-color) transparent;
+  scrollbar-color: var(--border-color-strong) transparent;
 }
 
 /* inline 이미지가 든 문단은 글자 단위 줄바꿈 — 영문이 이미지 옆 공간을 채우게.
@@ -4118,8 +4121,8 @@
   background: transparent;
 }
 .editorContent::-webkit-scrollbar-thumb {
-  background: var(--border-strong-color);
-  border-radius: var(--radius-2xs);
+  background: var(--border-color-strong);
+  border-radius: var(--radius-capsule);
 }
 .editorContent::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
@@ -4223,8 +4226,8 @@
   color: var(--text-accent);
 }
 .editorContent mark {
-  border-radius: var(--radius-2xs);
-  padding: 0 2px;
+  border-radius: var(--radius-capsule);
+  padding: 0 var(--spacing-3xs);
 }
 .editorContent u {
   text-decoration: underline;
@@ -4242,7 +4245,7 @@
   border-collapse: separate;
   border-spacing: 0;
   margin: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   table-layout: fixed;
 }
 .editorContent table th,
@@ -4251,7 +4254,7 @@
   border-left: var(--border-light);
   border-right: none;
   border-bottom: none;
-  padding: var(--box-xs);
+  padding: var(--cell-p-sm);
   vertical-align: top;
   min-width: 60px;
   position: relative;
@@ -4273,7 +4276,7 @@
 
 .editorContent iframe {
   max-width: 100%;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   margin: var(--spacing-md) 0;
 }
 
@@ -4314,7 +4317,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   outline: none;
 }
@@ -4324,8 +4327,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   padding: 0;
   border: none;
   border-radius: var(--radius-capsule);
@@ -4346,7 +4349,7 @@
 
 .findCount {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
   padding: 0 var(--spacing-2xs);
   flex-shrink: 0;
@@ -4365,7 +4368,7 @@
   bottom: calc(-1 * var(--spacing-2xs));
   left: calc(40px - var(--spacing-2xs));
   z-index: -1;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   background: var(--bg-tertiary);
   opacity: 0;
   transition: opacity 0.15s ease;
@@ -4416,7 +4419,7 @@
   left: -12px;
   right: 0;
   z-index: 2;
-  border-radius: var(--radius-md); /* 블록 컨테이너 radius(md)와 일치 */
+  border-radius: var(--radius-2xl); /* 블록 컨테이너 radius(md)와 일치 */
   background: var(--bg-accent-subtle);
   pointer-events: none;
 }
@@ -4431,7 +4434,7 @@
   top: var(--tbl-t);
   width: var(--tbl-w);
   height: var(--tbl-h);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
 }
 
 .colElement::after {
@@ -4471,7 +4474,7 @@
 .footnoteRef {
   color: var(--text-accent);
   font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-family: var(--font-mono);
   user-select: none;
   text-decoration: none;
@@ -4544,7 +4547,7 @@
 .footnoteContentBody {
   flex: 1;
   min-width: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
   line-height: var(--line-height-relaxed);
 }
@@ -4601,11 +4604,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--spacing-xs);
+  padding: var(--modal-p-sm);
   min-width: 180px;
 }
 .imgConfirmMsg {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   text-align: center;
 }
@@ -4617,11 +4620,11 @@
 
 .imgCaptionInput {
   height: 26px;
-  padding: var(--box-x-sm);
+  padding: 0 var(--spacing-sm);
   border: var(--border-light);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   background: var(--bg-primary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
 }
 
@@ -4641,7 +4644,7 @@
   position: relative;
   max-height: 20rem;
   border: var(--border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
   /* 창 전체가 세로 리사이즈 — resize 는 창이 가진다(자기 radius 는 자기 그립을 안 자르므로 그립이 보인다).
      오버레이(.codeResizeHandle)는 창의 **형제**(.codeShell 안)라 창의 네이티브 resizer 위에 얹혀 시스템 커서를 가린다. */
@@ -4716,14 +4719,14 @@
 .codeBarCtrl {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   height: 26px;
-  padding: 0 9px;
+  padding: 0 var(--spacing-xs);
   border: none;
   background: transparent;
   color: var(--text-tertiary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -4771,14 +4774,14 @@
 .codeBarLang .codeLangTrigger {
   height: 26px;
   /* 좌측 padding = 아이콘(18px) 세로 여백 (26-18)/2 = 4px → 아이콘이 pill 왼쪽 반원과 동심원(곡률 일치)·상하좌우 4px 균등 */
-  padding: 0 10px 0 4px;
+  padding: 0 var(--spacing-sm) 0 var(--spacing-2xs);
   border: none;
   border-radius: var(--radius-capsule);
   background: var(--bg-primary);
   box-shadow: var(--shadow-xs);
   color: var(--text-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 .codeBarLang .codeLangTrigger:hover {
   color: var(--text-primary);

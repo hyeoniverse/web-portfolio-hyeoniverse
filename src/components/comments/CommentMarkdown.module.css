@@ -3,7 +3,7 @@
    내부 heading 들은 em 기반이라 이 값에 비례해 같이 커진다. */
 .commentMarkdown {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-body-lg);
   color: var(--text-primary);
   line-height: var(--line-height-normal);
   overflow-wrap: anywhere;
@@ -19,7 +19,7 @@
 }
 
 .commentMarkdown p {
-  margin: var(--box-y-md);
+  margin: var(--spacing-xs) 0;
 }
 
 .commentMarkdown strong,
@@ -50,8 +50,8 @@
 }
 
 .commentMarkdown mark {
-  padding: 0 2px;
-  border-radius: var(--radius-2xs);
+  padding: 0 var(--spacing-3xs);
+  border-radius: var(--radius-capsule);
 }
 
 .commentMarkdown a {
@@ -71,7 +71,7 @@
 .commentMarkdown h4,
 .commentMarkdown h5,
 .commentMarkdown h6 {
-  margin: var(--box-y-lg);
+  margin: var(--spacing-sm) 0;
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-normal);
   color: var(--text-primary);
@@ -105,7 +105,7 @@
 /* ── 목록 ── */
 .commentMarkdown ul,
 .commentMarkdown ol {
-  margin: var(--box-y-md);
+  margin: var(--spacing-xs) 0;
   padding-left: var(--spacing-xl);
 }
 
@@ -164,6 +164,7 @@
   margin-right: var(--spacing-2xs);
   vertical-align: -0.1em;
   border: 1.5px solid var(--text-accent);
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 체크리스트 체크박스 — 네모가 곧 의미 */
   border-radius: var(--radius-xs);
   background: transparent;
   cursor: default;
@@ -210,8 +211,8 @@
    최소한의 프레임을 갖게 한다. 감싸진 뒤엔 pre 가 .code-block-wrap 안이라 직계(>)가 아니게 되어
    이 규칙은 매치 안 됨 → 전역 프레임(바+복사 버튼)이 그대로 담당한다(공유 안 깨짐). */
 .commentMarkdown > pre {
-  margin: var(--box-y-md);
-  padding: var(--box-md);
+  margin: var(--spacing-xs) 0;
+  padding: var(--spacing-xs) var(--spacing-md);
   background: var(--bg-tertiary);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
@@ -228,7 +229,7 @@
 
 /* ── blockquote — accent 바 + 들여쓰기 ── */
 .commentMarkdown blockquote {
-  margin: var(--box-y-md);
+  margin: var(--spacing-xs) 0;
   /* 텍스트 시작점을 리스트(padding-left xl)와 정렬 — bar+padding(md) 만큼 빼서 들여쓴다 */
   margin-left: calc(var(--spacing-xl) - var(--spacing-md));
   padding-left: var(--spacing-md);
@@ -238,7 +239,7 @@
 
 /* ── hr ── */
 .commentMarkdown hr {
-  margin: var(--box-y-lg);
+  margin: var(--spacing-sm) 0;
   border: none;
   border-top: var(--border-light);
 }
@@ -252,7 +253,7 @@
   max-height: 420px;
   width: auto;
   height: auto;
-  margin: var(--box-y-md);
+  margin: var(--spacing-xs) 0;
   border-radius: var(--radius-2xl);
   cursor: zoom-in;
 }
@@ -265,11 +266,11 @@
   display: block;
   width: max-content;
   max-width: 100%;
-  margin: var(--box-y-md);
+  margin: var(--spacing-xs) 0;
   border: none;
   border-collapse: collapse;
   overflow-x: auto;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 /* 행 배경 없음 — giscus `table tr { background: transparent; border-top: 0 }` */
@@ -280,7 +281,7 @@
 /* 가로 규칙만 — 세로선/외곽선 없음 (giscus `th, td { border: 0; border-bottom: 1px }`) */
 .commentMarkdown th,
 .commentMarkdown td {
-  padding: var(--box-xs-sm);
+  padding: var(--cell-p-md);
   border: none;
   border-bottom: var(--border-light);
   text-align: left;
@@ -302,10 +303,10 @@
 /* ── GitHub 알림(Alerts) — > [!NOTE/TIP/IMPORTANT/WARNING/CAUTION] ──
    variant 마다 --_alert-color 만 바꾸고 좌측 바·제목색·옅은 배경(color-mix)을 파생. */
 .commentMarkdown .markdown-alert {
-  margin: var(--box-y-md);
-  padding: var(--box-xs-sm);
+  margin: var(--spacing-xs) 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
   border-left: 3px solid var(--_alert-color);
-  border-radius: var(--radius-2xs);
+  border-radius: var(--radius-2xl);
   background: color-mix(in srgb, var(--_alert-color) 10%, transparent);
   color: var(--text-secondary);
 }
@@ -349,7 +350,7 @@
 
 /* ── GitHub 각주(Footnotes) — 본문 [^1] 참조 + 하단 목록 ── */
 .commentMarkdown sup a[data-footnote-ref] {
-  padding: 0 1px;
+  padding: 0 var(--spacing-4xs);
   text-decoration: none;
   color: var(--text-accent);
 }
@@ -358,7 +359,7 @@
   margin-top: var(--spacing-lg);
   padding-top: var(--spacing-sm);
   border-top: var(--border-light);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 

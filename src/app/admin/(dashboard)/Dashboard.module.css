@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
-  padding: var(--box-b-xl);
+  padding: 0 0 var(--spacing-md) 0;
 }
 
 .title {
@@ -81,7 +81,7 @@
 .muted {
   composes: item from "./components/List.module.css";
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   margin: 0;
   border-bottom: none;
@@ -89,7 +89,7 @@
 
 .error {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-accent);
   margin: 0;
 }
@@ -118,7 +118,7 @@
   background: var(--bg-primary); /* 셀 불투명 → grid gap(1px)이 hairline 으로 노출 */
   justify-content: flex-start;
   height: auto;
-  padding: var(--box-md-md);
+  padding: var(--spacing-md) var(--spacing-md);
   color: var(--text-primary);
   letter-spacing: normal;
   transition: background-color 0.15s ease;
@@ -147,9 +147,9 @@
 .badge {
   background: var(--text-accent);
   color: var(--bg-primary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 700;
-  padding: 2px 6px;
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   min-width: 18px;
   text-align: center;
@@ -166,7 +166,7 @@
 
 .heroLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -210,7 +210,7 @@
 
 .heroMeta {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -247,7 +247,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--box-lg-md);
+  padding: var(--spacing-lg) var(--spacing-md);
   border: none;
   border-radius: 0;
   background: var(--bg-primary);
@@ -276,7 +276,7 @@ a.statCard:hover .statValue {
 
 .statLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -293,7 +293,7 @@ a.statCard:hover .statValue {
 
 .statMeta {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 
@@ -359,7 +359,7 @@ a.statCard:hover .statValue {
 /* ── 시각화: 일별 조회수 sparkline (SVG) ── */
 .sparkline {
   width: 100%;
-  height: var(--button-h-sm);
+  height: var(--control-h-xs);
   margin-top: var(--spacing-2xs);
   display: block;
 }
@@ -441,11 +441,11 @@ a.statCard:hover .statValue {
    --_item-inline-* CSS var 가 그 안 list item 의 padding 으로 cascade */
 @media (min-width: 769px) {
   .twoCol {
-    column-gap: 1px;
+    column-gap: var(--spacing-4xs);
     /* background-color 롱핸드 사용 — background 단축속성은 background-clip 을 border-box 로
        리셋해서 base 의 padding-box 가 풀리고, 그럼 이 bg(alpha-30)가 섹션 divider border(alpha-30)
        와 합성돼 그 구분선만 진해진다(통계/최근활동/인기 등). 롱핸드로 padding-box 유지. */
-    background-color: var(--border-light-color);
+    background-color: var(--border-color-light);
   }
   .twoCol > .panelCell {
     background: var(--bg-primary);
@@ -499,7 +499,7 @@ a.statCard:hover .statValue {
 
 .rank {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 700;
   color: var(--text-tertiary);
   min-width: 24px;
@@ -519,7 +519,7 @@ a.statCard:hover .statValue {
 .itemTitle {
   flex: 1;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   text-decoration: none;
   overflow: hidden;
@@ -533,7 +533,7 @@ a.statCard:hover .statValue {
 
 .itemMeta {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -545,11 +545,11 @@ a.statCard:hover .statValue {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
+  gap: var(--spacing-2xs);
   flex-shrink: 0;
   min-width: 72px;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -562,10 +562,10 @@ a.statCard:hover .statValue {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 1px 7px;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-4xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.02em;
   flex-shrink: 0;
@@ -577,7 +577,7 @@ a.statCard:hover .statValue {
   display: block;
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   flex-shrink: 0;
 }
 
@@ -619,7 +619,7 @@ a.statCard:hover .statValue {
   display: inline-block;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   flex-shrink: 0;
 }
 
@@ -634,7 +634,7 @@ a.statCard:hover .statValue {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--text-success);
   animation: dotOkPulse 1.8s ease-out infinite;
   pointer-events: none;
@@ -664,7 +664,7 @@ a.statCard:hover .statValue {
   flex: 1;
   min-width: 0;
   font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -673,7 +673,7 @@ a.statCard:hover .statValue {
 
 .serviceStatus {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -686,11 +686,11 @@ a.statCard:hover .statValue {
 .trendBadge {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px var(--spacing-2xs);
+  gap: var(--spacing-3xs);
+  padding: var(--badge-p-sm);
   border-radius: var(--radius-capsule);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -708,9 +708,9 @@ a.statCard:hover .statValue {
 
 /* Hero 옆에 붙는 큰 사이즈 변형 — padding/font-size up + 지연 등장 */
 .trendBadgeLg {
-  padding: 4px var(--spacing-xs);
-  font-size: var(--font-size-xs);
-  gap: 4px;
+  padding: var(--badge-p-md);
+  font-size: var(--font-size-label);
+  gap: var(--spacing-2xs);
   animation: trendBadgeIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
 }
 
@@ -765,13 +765,13 @@ a.statCard:hover .statValue {
   top: 50%;
   width: 1px;
   height: 14px;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   transform: translateY(-50%);
 }
 
 .dailyChartStatLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -798,37 +798,18 @@ a.statCard:hover .statValue {
   position: relative; /* DatePickerPopover (absolute) 가 이 trigger 기준 anchor */
 }
 
+/* 모양·크기·hover 는 Button(outline·2xs)이 준다. 여기서는 두 가지만 —
+   날짜라 자릿수가 흔들리지 않게 tabular-nums, 팝오버 위라 배경을 불투명하게. */
 .periodTriggerBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: 4px 10px;
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
   background: var(--bg-primary);
-  color: var(--text-primary);
-  cursor: pointer;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
   font-variant-numeric: tabular-nums;
-  transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease;
-}
-
-.periodTriggerBtn:hover {
-  border-color: var(--text-primary);
-}
-
-.periodTriggerBtnActive {
-  border-color: var(--border-strong-color);
 }
 
 .periodTriggerLabel {
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 10px;
+  font-size: var(--font-size-hint);
   font-weight: 600;
 }
 
@@ -838,7 +819,7 @@ a.statCard:hover .statValue {
 
 .periodRangeSep {
   color: var(--text-muted);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 /* ── 월별 캘린더 — 좌우 트인 표 스타일 (gap+bg trick 으로 cell 사이 hairline).
@@ -852,13 +833,13 @@ a.statCard:hover .statValue {
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-sm);
-  padding: var(--box-y-md) var(--spacing-md);
+  padding: var(--spacing-xs) 0 var(--spacing-md);
   border-bottom: var(--border-light);
 }
 
 .calendarMonth {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
   text-align: center;
@@ -875,7 +856,7 @@ a.statCard:hover .statValue {
 
 .calendarDow {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-align: center;
   text-transform: uppercase;
@@ -888,9 +869,9 @@ a.statCard:hover .statValue {
 .calendarGrid {
   composes: panelGrid from "./components/Panel.module.css";
   grid-template-columns: var(--grid-cols-7);
-  gap: 1px;
-  background: var(--border-light-color);
-  padding-block: 1px;
+  gap: var(--spacing-4xs);
+  background: var(--border-color-light);
+  padding-block: var(--spacing-4xs);
 }
 
 .calendarCell {
@@ -935,7 +916,7 @@ a.statCard:hover .statValue {
   top: 4px;
   left: 6px;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -957,7 +938,7 @@ a.statCard:hover .statValue {
     min-height: 56px;
   }
   .calendarCellViews {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-body);
   }
 }
 
@@ -967,7 +948,7 @@ a.statCard:hover .statValue {
   gap: var(--spacing-3xs);
   align-self: flex-end;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
   padding: var(--spacing-xs) var(--spacing-md);
 }
@@ -975,7 +956,7 @@ a.statCard:hover .statValue {
 .calendarLegendCell {
   width: 12px;
   height: 12px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
   /* 0 단계 cell 이 bg-primary 라 section bg 와 같아져 안 보이는 문제 방지용 hairline */
   border: var(--border-light);
   box-sizing: border-box;
@@ -1059,7 +1040,7 @@ a.statCard:hover .statValue {
   left: 50%;
   transform: translate(-50%, calc(-100% - 10px));
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
@@ -1080,7 +1061,7 @@ a.statCard:hover .statValue {
   transform: translate(-50%, -50%);
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--bg-accent-solid);
   opacity: 0;
   transition:
@@ -1153,7 +1134,7 @@ a.statCard:hover .statValue {
    height 는 button-h-md (38) — 날짜 숫자 + dow 라벨 둘 다 안 잘리도록 */
 .areaDays {
   position: relative;
-  height: var(--button-h-md);
+  height: var(--control-h-xl);
   margin-block: var(--spacing-sm);
   overflow: visible;
 }
@@ -1166,7 +1147,7 @@ a.statCard:hover .statValue {
   flex-direction: column;
   align-items: center;
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
@@ -1175,9 +1156,9 @@ a.statCard:hover .statValue {
 }
 
 .areaDayDow {
-  font-size: 9px;
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: var(--spacing-3xs);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -1207,7 +1188,7 @@ a.statCard:hover .statValue {
 
 .donutCenterLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   fill: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1221,10 +1202,10 @@ a.statCard:hover .statValue {
   justify-content: space-between;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--box-y-sm);
+  padding: var(--spacing-2xs) 0;
   border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   transition: background-color 0.15s ease;
   cursor: default;
 }
@@ -1259,7 +1240,7 @@ a.statCard:hover .statValue {
   align-items: baseline;
   gap: var(--spacing-2xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1275,15 +1256,15 @@ a.statCard:hover .statValue {
 .tagPill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: var(--spacing-xs);
+  padding: var(--badge-p-lg);
   /* gap 대체 — 모든 pill 동일 spacing. 마지막 줄 아래 튀어나옴은 container 의 negative margin 으로 상쇄 */
   margin-right: var(--spacing-2xs);
   margin-bottom: var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   transition:
     background-color 0.15s ease,
@@ -1298,7 +1279,7 @@ a.statCard:hover .statValue {
 
 .tagPillCount {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 700;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
@@ -1380,7 +1361,7 @@ a.statCard:hover .statValue {
 .areaDay {
   background: transparent;
   border: none;
-  padding: 4px 2px;
+  padding: var(--spacing-2xs) var(--spacing-3xs);
   cursor: pointer;
   transition: color 0.15s ease;
   z-index: 1; /* indicator 위에 텍스트 */
@@ -1405,9 +1386,9 @@ a.statCard:hover .statValue {
   position: absolute;
   top: 50%;
   /* areaDays height (button-h-md) 에 맞춰 — 날짜 + dow 두 줄 텍스트 다 덮음 */
-  width: var(--button-h-md);
-  height: var(--button-h-md);
-  border-radius: 50%;
+  width: var(--control-h-xl);
+  height: var(--control-h-xl);
+  border-radius: var(--radius-circle);
   background: var(--bg-tertiary);
   transform: translate(-50%, -50%);
   transition:
@@ -1443,11 +1424,11 @@ a.statCard:hover .statValue {
 
 .dayDetailRank {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 2px 8px;
+  padding: var(--spacing-3xs) var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
 }
@@ -1457,8 +1438,8 @@ a.statCard:hover .statValue {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   background: transparent;
   border: none;
   border-radius: var(--radius-capsule);
@@ -1497,7 +1478,7 @@ a.statCard:hover .statValue {
 
 .dayDetailUnit {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -1519,7 +1500,7 @@ a.statCard:hover .statValue {
 
 .dayDetailLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 
@@ -1542,7 +1523,7 @@ a.statCard:hover .statValue {
 /* ── Range position — min~max 안에서 선택된 값의 위치 시각화 ── */
 .rangePosLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1585,7 +1566,7 @@ a.statCard:hover .statValue {
   left: calc(6px + (100% - 12px) * var(--_pct, 0) / 100);
   width: 12px;
   height: 12px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--bg-accent-solid);
   border: 2px solid var(--bg-primary);
   transform: translate(-50%, -50%);
@@ -1607,7 +1588,7 @@ a.statCard:hover .statValue {
   justify-content: space-between;
   margin-block: var(--spacing-xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -1622,7 +1603,7 @@ a.statCard:hover .statValue {
   justify-content: space-between;
   gap: var(--spacing-xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   line-height: 16px;
   min-height: 16px;
@@ -1631,7 +1612,7 @@ a.statCard:hover .statValue {
 .popularRank,
 .commentAuthor {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 700;
   color: var(--text-secondary);
 }
@@ -1641,7 +1622,7 @@ a.statCard:hover .statValue {
   color: var(--text-accent);
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--spacing-2xs);
 }
 
 .commentAuthorAdmin::before {
@@ -1649,7 +1630,7 @@ a.statCard:hover .statValue {
   display: inline-block;
   width: 5px;
   height: 5px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--bg-accent-solid);
 }
 
@@ -1657,7 +1638,7 @@ a.statCard:hover .statValue {
 .popularTitle,
 .commentBody {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   text-decoration: none;
   margin: 0;
@@ -1681,7 +1662,7 @@ a.commentBody:hover {
   align-items: center;
   gap: var(--spacing-2xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   line-height: 16px;
   min-height: 16px;
@@ -1701,7 +1682,7 @@ a.commentSource:hover {
   align-items: center;
   gap: var(--spacing-3xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-accent);
   line-height: 16px;
   margin: 0;
@@ -1720,7 +1701,7 @@ a.commentSource:hover {
   border-radius: var(--radius-capsule);
   background: var(--text-accent);
   color: var(--bg-primary);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -1729,9 +1710,9 @@ a.commentSource:hover {
   align-items: center;
   gap: var(--spacing-3xs);
   margin-top: var(--spacing-sm);
-  padding: var(--box-xs-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   text-decoration: none;
   border-radius: var(--radius-capsule);
@@ -1748,7 +1729,7 @@ a.commentSource:hover {
 .popularCat {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--spacing-2xs);
   color: var(--text-secondary);
   font-weight: 600;
   text-transform: uppercase;
@@ -1760,7 +1741,7 @@ a.commentSource:hover {
   display: inline-block;
   width: 5px;
   height: 5px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--bg-accent-solid);
 }
 
@@ -1786,9 +1767,9 @@ a.commentSource:hover {
 .popularStat {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--spacing-2xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
@@ -1798,7 +1779,7 @@ a.commentSource:hover {
 /* 행: rank | title | bar track | views — 가로 막대 그래프 한 줄 */
 .dayDetailTopRank {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 700;
   color: var(--text-muted);
   min-width: 18px;
@@ -1821,11 +1802,11 @@ a.commentSource:hover {
 
 .dayDetailTopViews {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  min-width: var(--button-h-md);
+  min-width: var(--control-h-xl);
   text-align: right;
 }
 
@@ -1838,9 +1819,9 @@ a.commentSource:hover {
 .referrerSource {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--spacing-xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   white-space: nowrap;
 }
@@ -1859,7 +1840,7 @@ a.commentSource:hover {
   align-items: baseline;
   gap: var(--spacing-2xs);
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1874,7 +1855,7 @@ a.commentSource:hover {
 
 .referrerCount::before {
   content: "·";
-  margin-right: 3px;
+  margin-right: var(--spacing-2xs);
   color: var(--text-muted);
 }
 
@@ -1895,7 +1876,7 @@ a.commentSource:hover {
 
 .deviceLegendItem {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
 }
 
 .deviceLegendBtn {
@@ -1904,7 +1885,7 @@ a.commentSource:hover {
   align-items: center;
   gap: var(--spacing-2xs);
   width: 100%;
-  padding: 4px 12px;
+  padding: var(--button-p-xs);
   border: none;
   background: transparent;
   border-radius: var(--radius-capsule);
@@ -1958,7 +1939,7 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 
 .deviceLegendPct {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-secondary);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -1968,20 +1949,20 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 .deviceTabs {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 3px;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-2xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   align-self: flex-start;
 }
 
 .deviceTab {
-  padding: 4px 12px;
+  padding: var(--spacing-2xs) var(--spacing-sm);
   border: none;
   background: transparent;
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -2044,7 +2025,7 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 
 .deviceDrillTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -2053,7 +2034,7 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 
 .deviceDrillEmpty {
   margin: 0;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -2068,7 +2049,7 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
   align-items: center;
   gap: var(--spacing-sm);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   opacity: 0;
   animation: deviceDrillRowIn 0.3s ease both;
 }
@@ -2093,7 +2074,7 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 
 .deviceDrillCount {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
   font-weight: 600;
@@ -2101,11 +2082,11 @@ button.deviceLegendBtn:hover .deviceLegendChevron {
 
 .deviceDrillPct {
   font-family: var(--font-mono);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
   color: var(--text-accent);
   font-weight: 700;
-  min-width: var(--button-h-sm);
+  min-width: var(--control-h-xs);
   text-align: right;
 }
 

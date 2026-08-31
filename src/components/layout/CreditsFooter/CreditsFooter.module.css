@@ -21,7 +21,7 @@
 .designSystemLink {
   margin-top: var(--spacing-lg);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-decoration: none;
   letter-spacing: 0.05em;
@@ -47,7 +47,7 @@
   bottom: 0;
   left: 0;
   z-index: var(--z-float);
-  padding: var(--box-lg-xl);
+  padding: var(--spacing-lg) var(--spacing-xl);
   pointer-events: none;
 }
 
@@ -56,7 +56,7 @@
 @media (max-width: 1024px), (max-height: 700px) {
   .section {
     position: relative;
-    padding: var(--spacing-3xl) 24px var(--spacing-2xl);
+    padding: var(--spacing-3xl) var(--spacing-xl) var(--spacing-2xl);
     border-top: 1px solid var(--border-strong);
     pointer-events: auto;
   }
@@ -70,8 +70,8 @@
 
 /* 저작자 표시 아래 덧붙이는 한 줄 — 표시 문구보다 약하게 */
 .note {
-  margin: var(--spacing-xs) 0 0;
-  font-size: var(--font-size-sm);
+  margin: var(--spacing-xs) 0 0 0;
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   opacity: 0.75;
 }

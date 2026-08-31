@@ -18,7 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: var(--spacing-2xl);
   box-sizing: border-box;
 }
 
@@ -51,7 +51,7 @@
 @media (max-width: 768px) {
   .item {
     width: 90vw;
-    padding: 1rem;
+    padding: var(--row-p-lg);
   }
 
   .progress {

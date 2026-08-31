@@ -197,7 +197,7 @@
 }
 
 .dcToggleBtnActive {
-  border-color: var(--border-white-muted-color);
+  border-color: var(--border-color-white-muted);
   background: var(--bg-glass-subtle);
   color: var(--text-white);
 }
@@ -299,7 +299,7 @@
 .dcSpacingBar {
   height: clamp(12px, min(1.8vh, 1vw), 22px);
   background: var(--bg-glass);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
 }
 
 /* Compound selector (0,2,0) */
@@ -331,7 +331,7 @@
   position: relative;
   min-width: 0;
   background: var(--bg-glass);
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-radius: var(--radius-capsule) var(--radius-capsule) 0 0;
 }
 
 /* Compound selector (0,2,0) */
@@ -425,7 +425,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--box-xs);
+  padding: var(--button-p-xs);
   border: none;
   background: transparent;
   color: var(--text-white);
@@ -439,7 +439,7 @@
 
 .tabNavCounter {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: var(--font-size-hint);
   color: var(--text-white-muted);
   white-space: nowrap;
 }
@@ -571,7 +571,7 @@
 
   .dcCardTitle {
     margin-bottom: var(--spacing-3xs);
-    font-size: clamp(0.65rem, 2vw, 0.85rem);
+    font-size: clamp(var(--font-size-micro), 2vw, 0.85rem);
     letter-spacing: 0.25em;
   }
 
@@ -582,7 +582,7 @@
 
   .dcCardDesc {
     margin-bottom: var(--spacing-sm);
-    font-size: clamp(0.7rem, 2.2vw, 0.9rem);
+    font-size: clamp(var(--font-size-micro), 2.2vw, 0.9rem);
   }
 
   .dcDemo {
@@ -599,8 +599,8 @@
   }
 
   .dcToggleBtn {
-    padding: var(--box-xs-sm);
-    font-size: clamp(0.65rem, 2vw, 0.85rem);
+    padding: var(--button-p-sm);
+    font-size: clamp(var(--font-size-micro), 2vw, 0.85rem);
   }
 
   .dcThemeToggle {
@@ -615,7 +615,7 @@
   .dcSwatch {
     width: clamp(36px, 10vw, 52px);
     height: clamp(36px, 10vw, 52px);
-    font-size: clamp(0.5rem, 1.5vw, 0.7rem);
+    font-size: clamp(var(--font-size-micro), 1.5vw, 0.7rem);
   }
 
   .dcSpringTrack {
@@ -630,7 +630,7 @@
   .dcMotionLabels {
     gap: clamp(6px, 2vw, 12px);
     margin-top: clamp(8px, 2.5vw, 14px);
-    font-size: clamp(0.6rem, 2vw, 0.8rem);
+    font-size: clamp(var(--font-size-micro), 2vw, 0.8rem);
   }
 
   .dcSpacingList {
@@ -639,7 +639,7 @@
 
   .dcSpacingLabel {
     width: clamp(30px, 8vw, 44px);
-    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+    font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
   }
 
   .dcSpacingBar {
@@ -647,7 +647,7 @@
   }
 
   .dcSpacingPx {
-    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+    font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
   }
 
   .dcBreakpoints {
@@ -656,11 +656,11 @@
   }
 
   .dcBpName {
-    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+    font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
   }
 
   .dcBpLabel {
-    font-size: clamp(0.5rem, 1.5vw, 0.65rem);
+    font-size: clamp(var(--font-size-micro), 1.5vw, 0.65rem);
   }
 
   .dcIconGrid {
@@ -678,7 +678,7 @@
   }
 
   .dcIconCellLabel {
-    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+    font-size: clamp(var(--font-size-micro), 1.8vw, 0.7rem);
   }
 }
 

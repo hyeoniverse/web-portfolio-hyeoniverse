@@ -28,12 +28,12 @@
 
 .saveBtn {
   min-width: 110px;
-  padding: var(--box-xs-lg);
+  padding: var(--button-p-md);
   border: var(--border-success);
   border-radius: var(--radius-capsule);
   background: var(--bg-success-solid);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 500;
   color: var(--text-white);
   letter-spacing: 0.02em;
@@ -85,9 +85,9 @@
 }
 
 .filterItem button {
-  padding: var(--spacing-2xs) var(--spacing-md);
-  font-size: var(--font-size-xs);
-  border-color: var(--border-default-color);
+  padding: var(--button-p-sm);
+  font-size: var(--font-size-label);
+  border-color: var(--border-color-default);
 }
 
 .filterPageSize {
@@ -97,18 +97,18 @@
 }
 
 .filterPageSize button {
-  padding: var(--spacing-2xs) var(--spacing-md);
-  font-size: var(--font-size-xs);
-  border-color: var(--border-default-color);
+  padding: var(--button-p-sm);
+  font-size: var(--font-size-label);
+  border-color: var(--border-color-default);
 }
 
 .filterReset {
-  padding: var(--box-sm);
+  padding: var(--spacing-2xs) var(--spacing-sm);
   border: none;
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -134,7 +134,7 @@
   width: 280px;
   background: var(--bg-primary);
   border: var(--border-light);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   pointer-events: none;
@@ -169,12 +169,12 @@
 }
 
 .previewBody {
-  padding: var(--box-sm-md);
+  padding: var(--spacing-sm) var(--spacing-md);
 }
 
 .previewTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: var(--spacing-2xs);
@@ -186,7 +186,7 @@
 
 .previewExcerpt {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   line-height: 1.4;
   display: -webkit-box;
@@ -203,11 +203,11 @@
 }
 
 .previewTag {
-  padding: var(--spacing-4xs) var(--spacing-xs);
+  padding: var(--badge-p-md);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
 
@@ -231,8 +231,8 @@
   }
 
   .saveBtn {
-    font-size: var(--font-size-xs);
-    padding: var(--box-md);
+    font-size: var(--font-size-label);
+    padding: var(--button-p-md);
   }
 
   .previewTooltip {

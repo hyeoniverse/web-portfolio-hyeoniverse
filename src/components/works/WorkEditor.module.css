@@ -4,7 +4,7 @@
 /* ── Inline hint (label 옆에 표시) ── */
 .slugHint {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-accent);
 }
 
@@ -29,7 +29,7 @@
 
 .sectionTitle {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: 600;
   color: var(--text-primary);
   text-transform: uppercase;
@@ -56,7 +56,7 @@
 
 .sectionTitleHint {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-tertiary);
   letter-spacing: 0;
   text-transform: none;
@@ -87,7 +87,7 @@
   border-radius: var(--radius-2xl);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
   resize: vertical;
@@ -110,7 +110,7 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
   appearance: none;
@@ -169,7 +169,7 @@
 /* 기술별 메모 list — tech tag 아래, 각 기술마다 [라벨 + input] row */
 .techNotesList {
   list-style: none;
-  margin: var(--spacing-md) 0 0;
+  margin: var(--spacing-md) 0 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -196,12 +196,12 @@
 }
 
 .templateBtn {
-  padding: var(--box-2xs-md);
+  padding: var(--button-p-sm);
   border: var(--border-default);
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 
@@ -223,11 +223,11 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--row-p-lg);
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -245,7 +245,7 @@
   overflow: hidden;
   max-height: 0;
   clip-path: inset(0 0 100% 0);
-  padding: 0 var(--spacing-md);
+  padding: var(--row-p-sm);
   transition:
     max-height 0.3s ease,
     clip-path 0.3s ease;
@@ -362,9 +362,9 @@
 
 .templateModalDesc {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-secondary);
-  margin: 0 0 var(--spacing-md);
+  margin: 0 0 var(--spacing-md) 0;
 }
 
 .templateList {
@@ -377,7 +377,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3xs);
-  padding: var(--box-sm-md);
+  padding: var(--row-p-lg);
   border: var(--border-light);
   border-radius: var(--radius-2xl);
   background: transparent;
@@ -391,13 +391,13 @@
 }
 
 .templateItemLabel {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .templateItemDesc {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -419,11 +419,11 @@
   display: inline-flex;
   align-items: center;
   height: 16px;
-  padding: 0 6px;
+  padding: 0 var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--text-tertiary);
@@ -441,7 +441,7 @@
 /* padding 은 부모 wrap 컨텍스트로 specificity (0,2,0) 올려서 .fieldInput shorthand 를 확실히 이김.
    42px = badge (left 8px + width ~26px) 클리어 위해 필요한 좌측 여백 */
 .customCategoryInputWrap .customCategoryInput {
-  padding: 0 var(--spacing-md) 0 42px;
+  padding: 0 var(--spacing-md) 0 var(--spacing-2xl-plus);
 }
 
 /* 직접 입력 + Button override — common Button shape=circle 의 38px 대신 28x28 정사각.
@@ -508,13 +508,13 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: 5px 8px 5px 12px;
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   background: transparent;
   border: var(--border-default);
   color: var(--text-primary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   line-height: 1.4;
   cursor: pointer;
@@ -559,7 +559,7 @@
   min-height: var(--control-h-md);
   display: flex;
   align-items: center;
-  padding: 3px var(--spacing-md);
+  padding: var(--spacing-2xs) var(--spacing-md);
   border: var(--border-light);
   border-radius: var(--radius-capsule);
   background: transparent;
@@ -577,10 +577,10 @@
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
-  padding: 2px 0;
+  padding: var(--spacing-3xs) 0;
 }
 
 .roleMSInput::placeholder {
@@ -613,12 +613,12 @@
   align-items: center;
   gap: var(--spacing-xs);
   width: 100%;
-  padding: 6px var(--spacing-sm);
+  padding: var(--row-p-md);
   border: none;
   background: transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
@@ -653,12 +653,12 @@
   min-width: 18px;
   height: 18px;
   margin-left: var(--spacing-xs);
-  padding: 0 6px;
+  padding: 0 var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   line-height: 1;
 }
@@ -716,14 +716,14 @@
   left: var(--spacing-xs);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  height: var(--button-h-xs);
+  gap: var(--spacing-2xs);
+  height: var(--control-h-2xs);
   padding: 0 var(--spacing-xs);
   border-radius: var(--radius-capsule);
   background: var(--text-accent);
   color: var(--text-inverse);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 600;
   letter-spacing: 0.02em;
   pointer-events: none;
@@ -759,7 +759,7 @@
 .galleryMeta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--spacing-3xs);
   padding: var(--spacing-2xs) var(--spacing-sm);
   margin: 0 calc(-1 * var(--spacing-xs)) calc(-1 * var(--spacing-xs));
   max-width: none;
@@ -767,7 +767,7 @@
 
 .galleryMetaIndex {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   font-weight: 600;
   letter-spacing: 0.04em;
   color: oklch(1 0 0 / 0.9);
@@ -776,7 +776,7 @@
 
 .galleryMetaName {
   font-family: var(--font-mono);
-  font-size: var(--font-size-3xs);
+  font-size: var(--font-size-micro);
   color: oklch(1 0 0 / 0.78);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -798,7 +798,7 @@
   background: transparent;
   color: var(--text-tertiary);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   cursor: pointer;
   transition:
     color 0.15s ease,
@@ -814,7 +814,7 @@
 /* form / list 위의 작은 sub label — section 안 sub-section 구분용 */
 .memberSubLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -860,7 +860,7 @@
   position: absolute;
   inset: 0;
   background: oklch(0% 0 0 / 0.3);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   pointer-events: none;
 }
 
@@ -881,7 +881,7 @@
   justify-content: center;
   padding: 0;
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--bg-accent-solid);
   color: var(--text-white);
   cursor: pointer;
@@ -927,7 +927,7 @@
 .memberCard.memberCard.memberCardEditing {
   background: color-mix(in oklch, var(--text-accent) 8%, transparent);
   border: none;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--card-p-md);
 }
 
 /* 편집 + close 묶음 — 우측 cluster, 위쪽 정렬 */
@@ -946,10 +946,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--button-h-sm);
-  height: var(--button-h-sm);
+  width: var(--control-h-xs);
+  height: var(--control-h-xs);
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: transparent;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -1031,7 +1031,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   overflow: hidden;
   background: var(--bg-tertiary);
 }
@@ -1084,9 +1084,9 @@
   padding: 0;
   margin: 0;
   background: var(--bg-accent-subtle);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   line-height: 1.3;
   width: auto;
@@ -1103,7 +1103,7 @@
 /* Instagram-style: name 강조 (md, weight 600) */
 .memberItemName {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-weight: 600;
   color: var(--text-primary);
   line-height: 1.3;
@@ -1112,14 +1112,14 @@
 /* role — subtitle 같은 톤 (작고 muted) */
 .memberItemRole {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   line-height: 1.3;
 }
 
 .memberItemUrl {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   text-decoration: none;
   overflow: hidden;
@@ -1134,7 +1134,7 @@
   height: 28px;
   min-height: 28px;
   padding: 0 var(--spacing-md);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   border: var(--border-light);
 }
 
@@ -1144,7 +1144,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--card-p-md);
   border: none;
   border-radius: 0;
   box-sizing: border-box;
@@ -1173,7 +1173,7 @@
   flex-direction: column;
   gap: var(--spacing-4xs);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   line-height: 1.5;
 }
@@ -1284,11 +1284,11 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
-  padding: var(--box-xs);
+  padding: var(--spacing-2xs) var(--spacing-xs);
   background: var(--bg-tertiary);
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 
@@ -1363,7 +1363,7 @@
   padding: 0;
   border-radius: var(--radius-capsule);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
 }
 
@@ -1373,7 +1373,7 @@
   flex-shrink: 0;
   width: 4px;
   height: 4px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--text-tertiary);
   order: 1;
 }
@@ -1476,7 +1476,7 @@
   border-radius: 0;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   outline: none;
   line-height: 1;
@@ -1516,7 +1516,7 @@
 
 .memberLinkLabel {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--text-tertiary);
   letter-spacing: 0.05em;
@@ -1534,7 +1534,7 @@
   height: 16px;
   border-radius: var(--radius-circle);
   object-fit: cover;
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
 }
 
 /* 다른 팀원이 이미 쓰고 있는 계정 — 눌러도 되지만 왜 안 되는지 먼저 보이게 */
@@ -1545,7 +1545,7 @@
 .memberLinkHint {
   margin: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-accent);
   line-height: var(--line-height-snug);
 }
@@ -1561,13 +1561,13 @@
 .memberLinkedBadge {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: var(--box-3xs-xs);
+  gap: var(--spacing-2xs);
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   background: var(--bg-accent-light);
   color: var(--text-accent);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: var(--font-weight-semibold);
   line-height: 1;
   white-space: nowrap;

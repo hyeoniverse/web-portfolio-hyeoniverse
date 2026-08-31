@@ -62,7 +62,7 @@
   gap: var(--spacing-xs);
   flex-shrink: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
 }
 
@@ -82,11 +82,11 @@
 }
 
 .adminBadge {
-  padding: var(--box-3xs-sm);
+  padding: var(--badge-p-lg);
   border-radius: var(--radius-capsule);
   background: var(--bg-accent);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--text-accent);
 }
@@ -113,7 +113,7 @@
 
 /* footer (등록 버튼 줄) — giscus `.gsc-comment-box-bottom` 미러:
    위 border 구분선 + radius 0 + margin 0(구분선이 박스 폭 전체).
-   좌우 패딩 --box-sm-md 의 X 축(= --spacing-md) 이 textarea 좌우 패딩(--textarea-p = --box-sm-md)과 같아
+   좌우 패딩의 X 축(= --spacing-md) 이 textarea 좌우 패딩(--textarea-p)과 같아
    등록 버튼이 본문 글 시작선과 세로 정렬됨 (giscus 의 "좌우 14 = textarea/preview 와 동일 정렬"). */
 .actions {
   display: flex;
@@ -121,7 +121,7 @@
   justify-content: flex-end;
   gap: var(--spacing-sm);
   margin: 0;
-  padding: var(--box-sm-md);
+  padding: var(--spacing-sm) var(--spacing-md);
   border-top: var(--border-light);
   border-radius: 0;
 }
@@ -167,19 +167,19 @@
 }
 
 .notifyCapsuleOpen:focus-within {
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 
 /* Confirmed: 캡슐이 수정 버튼 크기 원형, 아이콘+이메일은 왼쪽에 absolute */
 .notifyCapsuleConfirmed {
   width: var(--control-h-sm);
   border-radius: var(--radius-circle);
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
   overflow: visible;
 }
 
 .notifyCapsuleConfirmed:focus-within {
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
 }
 
 /* confirmed: [종] [이메일] [●수정●] */
@@ -197,7 +197,7 @@
   transform: translateY(-50%);
   white-space: nowrap;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
   /* 캡슐이 240px → 28px로 줄어든 후(0.25s) 오른쪽에서 오버슈트하며 등장 */
@@ -273,7 +273,7 @@
   border: none;
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-primary);
   outline: none;
   padding: 0;
@@ -333,7 +333,7 @@
   width: 1px;
   align-self: stretch;
   margin: 0;
-  background: var(--border-light-color);
+  background: var(--border-color-light);
   flex-shrink: 0;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -404,7 +404,7 @@
   top: calc(100% + var(--spacing-3xs));
   right: var(--spacing-md);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   color: var(--text-accent);
   white-space: nowrap;
 }
@@ -412,6 +412,6 @@
 .formHint {
   margin-right: auto;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-accent);
 }

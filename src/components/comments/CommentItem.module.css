@@ -183,7 +183,7 @@
   margin: 0;
   min-width: 0;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   font-style: italic;
 }
@@ -233,30 +233,30 @@
 
 .nickname {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--text-primary);
 }
 
 .adminBadge {
-  padding: var(--spacing-4xs) var(--spacing-xs);
+  padding: var(--badge-p-md);
   border-radius: var(--radius-capsule);
   background: var(--bg-accent);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-2xs);
+  font-size: var(--font-size-hint);
   font-weight: 500;
   color: var(--text-accent);
 }
 
 .date {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 
 .editedBadge {
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-tertiary);
   font-style: italic;
 }
@@ -266,7 +266,7 @@
 .translatedContent {
   margin-top: var(--spacing-lg);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   color: var(--text-tertiary);
   line-height: var(--line-height-relaxed);
   white-space: pre-wrap;
@@ -282,7 +282,7 @@
   align-items: center;
   gap: var(--spacing-3xs);
   margin-bottom: var(--spacing-2xs);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-title-sm);
   font-style: normal;
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
@@ -318,14 +318,14 @@
   border-radius: var(--radius-capsule);
   background: transparent;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
   line-height: 1;
 }
 
 /* hover — 보더가 칩으로 옮겨왔으므로 strong 도 칩에 */
 .comment .reactionChip:hover {
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
   color: var(--text-primary);
 }
 
@@ -346,7 +346,7 @@
   border: none;
   border-radius: var(--radius-circle);
   background: transparent;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1;
 }
 
@@ -360,7 +360,7 @@
   height: 100%;
   aspect-ratio: 1;
   padding: 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   font-variant-numeric: tabular-nums;
 }
 
@@ -381,7 +381,7 @@
 }
 
 .comment .reactionAddBtn:hover {
-  border-color: var(--border-strong-color);
+  border-color: var(--border-color-strong);
   color: var(--text-primary);
 }
 
@@ -516,7 +516,7 @@
 .deleteError {
   text-align: right;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-accent);
 }
 
@@ -544,6 +544,6 @@
 .editError {
   text-align: right;
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   color: var(--text-accent);
 }

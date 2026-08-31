@@ -32,7 +32,7 @@
 .editor :global(.cm-line),
 .editor :global(.cm-gutters) {
   font-family: var(--font-mono), monospace;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-body);
   line-height: 1.7;
 }
 .editor :global(.cm-gutters) {
@@ -49,7 +49,7 @@
    inset box-shadow 라 border 와 달리 글자를 밀지 않고, 줄 번호도 같이 진해진다. */
 .editor :global(.cm-activeLine) {
   background: transparent;
-  box-shadow: inset var(--border-width-thick) 0 0 var(--border-accent-color);
+  box-shadow: inset var(--border-width-thick) 0 0 var(--border-color-accent);
 }
 .editor :global(.cm-activeLineGutter) {
   background: transparent;
@@ -59,7 +59,7 @@
 /* 선택한 낱말과 같은 것들 — 배경 대신 밑줄로 짚는다 */
 .editor :global(.cm-selectionMatch) {
   background: transparent;
-  box-shadow: inset 0 -1px 0 var(--border-accent-color);
+  box-shadow: inset 0 -1px 0 var(--border-color-accent);
 }
 
 /* 진단 밑줄 — CodeMirror 기본은 물결 이미지를 깔아 테마를 안 탄다 */
@@ -79,12 +79,12 @@
   background: var(--bg-surface);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   box-shadow: var(--shadow-md);
   overflow: hidden;
 }
 .editor :global(.cm-tooltip-autocomplete > ul > li) {
-  padding: var(--box-3xs-sm);
+  padding: var(--spacing-3xs) var(--spacing-sm);
   font-family: var(--font-mono), monospace;
 }
 .editor :global(.cm-tooltip-autocomplete > ul > li[aria-selected]) {
@@ -97,17 +97,17 @@
   font-style: normal;
 }
 .editor :global(.cm-diagnostic) {
-  border-left-color: var(--border-accent-color);
-  padding: var(--box-3xs-sm);
+  border-left-color: var(--border-color-accent);
+  padding: var(--spacing-3xs) var(--spacing-sm);
 }
 .editor :global(.cm-panels) {
-  padding: var(--box-3xs-xs);
+  padding: var(--spacing-3xs) var(--spacing-xs);
 }
 .editor :global(.cm-panel.cm-search input),
 .editor :global(.cm-panel.cm-search button) {
   border: var(--border-light);
   border-radius: var(--radius-capsule);
-  padding: var(--box-3xs-sm);
+  padding: var(--button-p-xs);
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: inherit;
