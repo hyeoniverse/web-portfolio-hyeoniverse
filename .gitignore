@@ -54,3 +54,7 @@ src/config/hyeon.config.ts
 /e2e/.report/
 # admin 로그인 세션 — 인증 토큰이 들어 있다. 절대 커밋 금지
 /e2e/.auth/
+
+# content/ 의 이미지를 빌드 앞에서 복사해 넣는 자리 (scripts/sync-content-assets.ts).
+# 원본은 content/ 하나뿐이라 생성물은 추적하지 않는다.
+/public/content
