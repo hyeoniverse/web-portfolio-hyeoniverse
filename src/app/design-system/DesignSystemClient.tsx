@@ -157,7 +157,7 @@ export default function DesignSystemClient() {
           </motion.div>
           <h1 className={styles.title}>Design System</h1>
           <motion.p className={styles.subtitle} initial="hidden" {...vp(nd())} variants={staggerItem}>
-            Raw → Semantic → Component → Context
+            Raw → Semantic → Component
           </motion.p>
 
           {/* ─── Principles ─── */}
@@ -167,10 +167,10 @@ export default function DesignSystemClient() {
             {/* Principle items — SVG + text rows */}
             {[
               {
-                title: "4-Tier Abstraction",
+                title: "3-Tier Abstraction",
                 desc: language === "ko"
-                  ? "원시 값을 직접 쓰지 않고 Raw → Semantic → Component → Context 네 단계로 감싸기 때문에, 어디를 바꿔도 영향 범위가 그 계층 안에서 통제됩니다. Component 토큰은 button·input 처럼 컴포넌트마다 타입이 정해져 있어서, 엉뚱한 값을 골라 일관성이 깨지는 실수를 막아 줍니다."
-                  : "Raw → Semantic → Component → Context. Four layers control the blast radius of any change. Component tokens (typed by button/input/etc.) act as guardrails against inconsistency.",
+                  ? "원시 값을 직접 쓰지 않고 Raw → Semantic → Component 세 단계로 감싸기 때문에, 어디를 바꿔도 영향 범위가 그 계층 안에서 통제됩니다. Component 토큰은 button·badge·row 처럼 컴포넌트마다 타입이 정해져 있어서, 엉뚱한 값을 골라 일관성이 깨지는 실수를 막아 줍니다."
+                  : "Raw → Semantic → Component. Three layers control the blast radius of any change. Component tokens (typed by button/badge/row/etc.) act as guardrails against inconsistency.",
                 icon: (
                   <svg viewBox="0 0 160 80" fill="none" className={styles.pIcon}>
                     {/* Raw */}
@@ -186,16 +186,10 @@ export default function DesignSystemClient() {
                     {/* Component */}
                     <rect x="92" y="26" width="28" height="28" rx="13" fill="color-mix(in srgb, var(--color-info) 25%, transparent)" />
                     <text x="106" y="44" textAnchor="middle" fontSize="7" fontWeight="600" fill="var(--color-info)">CMP</text>
-                    <line x1="122" y1="40" x2="130" y2="40" stroke="var(--text-primary)" strokeWidth="1.5" opacity="0.4" />
-                    <polygon points="130,37 136,40 130,43" fill="var(--text-primary)" opacity="0.4" />
-                    {/* Context */}
-                    <rect x="138" y="28" width="22" height="24" rx="11" fill="color-mix(in srgb, var(--color-success) 20%, transparent)" />
-                    <text x="149" y="44" textAnchor="middle" fontSize="6" fontWeight="600" fill="var(--color-success)">CTX</text>
                     {/* Codes */}
                     <text x="14" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--size-sm</text>
                     <text x="60" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--text-primary</text>
-                    <text x="106" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--button-h-sm</text>
-                    <text x="149" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--_h</text>
+                    <text x="106" y="64" textAnchor="middle" fontSize="5" fill="var(--text-muted)">--control-h-xs</text>
                   </svg>
                 ),
               },
@@ -273,7 +267,7 @@ export default function DesignSystemClient() {
                 {[
                   { file: "_color.css", desc: language === "ko" ? "브랜드·중립·알파" : "brand, neutral, alpha" },
                   { file: "_typography.css", desc: language === "ko" ? "폰트·크기·굵기" : "font, size, weight" },
-                  { file: "_spacing.css", desc: "--spacing-*, --box-*" },
+                  { file: "_spacing.css", desc: "--spacing-*" },
                   { file: "_radius.css", desc: "xs → capsule → circle" },
                   { file: "_shadow.css", desc: "xs → 2xl" },
                   { file: "_motion.css", desc: "duration, easing, delay" },
@@ -445,7 +439,7 @@ export default function DesignSystemClient() {
                 return (
                   <motion.div key={r.name} className={styles.radiusItem} variants={staggerItemX} {...scrollChildX(i, radiusScale.length)}>
                     <div className={styles.radiusBox} style={{ borderRadius: `var(${r.var})`, width: w, height: h }} />
-                    <span className={styles.radiusLabel}>{r.name}<br />{r.value}</span>
+                    <span className={styles.radiusLabel}>{r.name}<br />{r.value}<br />{r.note}</span>
                   </motion.div>
                 );
               })}
@@ -461,7 +455,7 @@ export default function DesignSystemClient() {
                   <span className={styles.spacingLabel}>{g.name.replace("--grid-cols-", "")} cols · repeat({g.cols}, minmax(0, 1fr))</span>
                   <div className={styles.gridDemoRow} style={{ gridTemplateColumns: `var(${g.name})` }}>
                     {Array.from({ length: g.cols }).map((_, c) => (
-                      <div key={c} style={{ height: "1.75rem", background: "var(--bg-accent-solid)", borderRadius: "var(--radius-sm)" }} />
+                      <div key={c} style={{ height: "1.75rem", background: "var(--bg-accent-solid)", borderRadius: "var(--radius-capsule)" }} />
                     ))}
                   </div>
                 </motion.div>
@@ -558,7 +552,7 @@ export default function DesignSystemClient() {
             </motion.div>
 
             {/* ── Divider ── */}
-            <div style={{ height: 1, background: "var(--border-light-color)", margin: "var(--spacing-3xl) 0" }} />
+            <div style={{ height: 1, background: "var(--border-color-light)", margin: "var(--spacing-3xl) 0" }} />
 
             {/* ── Scroll Torus ── */}
             <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", flexDirection: "row-reverse", alignItems: "center", gap: "var(--spacing-3xl)" }}>
@@ -586,7 +580,7 @@ export default function DesignSystemClient() {
             </motion.div>
 
             {/* ── Divider ── */}
-            <div style={{ height: 1, background: "var(--border-light-color)", margin: "var(--spacing-3xl) 0" }} />
+            <div style={{ height: 1, background: "var(--border-color-light)", margin: "var(--spacing-3xl) 0" }} />
 
             {/* ── Bunny Character ── */}
             <motion.div initial="hidden" {...vp(nd())} variants={staggerItem} style={{ display: "flex", alignItems: "center", gap: "var(--spacing-3xl)" }}>

@@ -1,5 +1,33 @@
 # 주요 컴포넌트
 
+### Pressable · Button
+
+눌리는 것은 둘로 나뉩니다.
+
+| | 무엇을 주나 | 언제 |
+| --- | --- | --- |
+| `Pressable` | 동작만 — `type="button"` · 클릭/호버 사운드 · disabled · 누를 때 축소 | 생김새가 그 자리 사정을 따르는 것 |
+| `Button` | 동작 + 생김새 (`variant` `size` `tone` `shape`) | 버튼처럼 생긴 버튼 |
+
+```tsx
+<Button variant="outline" size="xs">저장</Button>
+<Pressable className={styles.sidebarScrollBtn}>…</Pressable>
+```
+
+**raw `<button>` 은 쓰지 않습니다.** 사운드가 빠지고, `type` 을 빠뜨리면 폼 안에서 제출됩니다
+(실제로 63곳이 그랬습니다). eslint 의 `react/button-has-type` 이 후자를 막습니다.
+
+`Pressable` 은 브라우저 기본 스타일 리셋을 하지 않습니다 — `globals/_base.css` 가 모든
+`<button>` 에 이미 하고 있어서, 여기서 또 적으면 클래스 특이도로 컴포넌트 CSS 를 덮습니다.
+
+prop 두 개가 있습니다. `soundDisabled` 는 길게 눌러 반복되는 자리(스텝퍼·드래그 핸들),
+`noTapScale` 은 `transform` 이 자리를 흔들면 안 되는 절대위치 오버레이에 씁니다.
+
+생김새를 통일하면 **안 되는** 자리가 실제로 많습니다 — 절대위치로 깔린 클릭 영역,
+부모 글꼴을 물려받는 페이지 번호, 필터 행 높이에 맞춘 탭, `::after` 로 밑줄을 그리는 칩.
+이런 것을 `Button` 에 담으려고 prop 을 늘리면 `Button` 이 무너집니다. MUI 의 `ButtonBase`,
+React Aria 의 `useButton` 과 같은 이유로 담당을 나눴습니다.
+
 ### StaggerText
 
 텍스트를 개별 문자로 분리하여 호버 시 순차적으로 외곽선 애니메이션을 적용하는 컴포넌트입니다.

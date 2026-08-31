@@ -1,5 +1,33 @@
 # Key Components
 
+### Pressable · Button
+
+Pressable things are split in two.
+
+| | What it provides | When |
+| --- | --- | --- |
+| `Pressable` | Behavior only — `type="button"`, click/hover sound, disabled, tap scale | The appearance follows its own context |
+| `Button` | Behavior + appearance (`variant` `size` `tone` `shape`) | Things that look like buttons |
+
+```tsx
+<Button variant="outline" size="xs">Save</Button>
+<Pressable className={styles.sidebarScrollBtn}>…</Pressable>
+```
+
+**Never a raw `<button>`.** It loses the sound, and a missing `type` submits the surrounding
+form (63 places did). eslint's `react/button-has-type` blocks the latter.
+
+`Pressable` does not reset UA button styles — `globals/_base.css` already does that for every
+`<button>`, and repeating it here would override component CSS by class specificity.
+
+Two props: `soundDisabled` for press-and-hold controls (steppers, drag handles), `noTapScale`
+for absolutely positioned overlays where a `transform` would shift the layout.
+
+Many places genuinely must **not** share an appearance — absolutely positioned hit areas, page
+numbers that inherit the parent font, tabs sized to a filter row, chips drawing an underline with
+`::after`. Widening `Button` with props to hold those would break it. Same reasoning as MUI's
+`ButtonBase` and React Aria's `useButton`.
+
 ### StaggerText
 
 A component that splits text into individual characters and applies sequential outline animation on hover.
