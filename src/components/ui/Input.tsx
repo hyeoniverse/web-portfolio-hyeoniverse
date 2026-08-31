@@ -3,6 +3,7 @@
 import { useState, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type Ref } from "react";
 import { Eraser, Eye, EyeOff, Plus } from "@/components/icons";
 import styles from "./Input.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type Variant = "capsule" | "underline";
 type Size = "xs" | "sm" | "md";
@@ -113,7 +114,7 @@ export default function Input({
           {...rest}
         />
         {showClear && (
-          <button
+          <Pressable noTapScale
             type="button"
             className={`${styles.clearBtn}${showReveal ? ` ${styles.clearBtnShift}` : ""}`}
             data-cursor="big"
@@ -127,10 +128,10 @@ export default function Input({
             title="지우기"
           >
             <Eraser size={11} strokeWidth={2} />
-          </button>
+          </Pressable>
         )}
         {showReveal && (
-          <button
+          <Pressable noTapScale
             type="button"
             className={styles.clearBtn}
             data-cursor="big"
@@ -140,10 +141,10 @@ export default function Input({
             title={showPassword ? "숨기기" : "표시"}
           >
             {showPassword ? <EyeOff size={13} strokeWidth={2} /> : <Eye size={13} strokeWidth={2} />}
-          </button>
+          </Pressable>
         )}
         {hasAdd && (
-          <button
+          <Pressable noTapScale
             type="button"
             className={styles.addBtn}
             onMouseDown={(e) => e.preventDefault()}
@@ -152,10 +153,10 @@ export default function Input({
             aria-label={addAriaLabel}
           >
             <Plus size={14} strokeWidth={2} />
-          </button>
+          </Pressable>
         )}
         {trailingAction && (
-          <button
+          <Pressable noTapScale
             type="button"
             className={styles.addBtn}
             onMouseDown={(e) => e.preventDefault()}
@@ -164,7 +165,7 @@ export default function Input({
             aria-label={trailingAction.ariaLabel}
           >
             {trailingAction.icon}
-          </button>
+          </Pressable>
         )}
       </div>
     </div>

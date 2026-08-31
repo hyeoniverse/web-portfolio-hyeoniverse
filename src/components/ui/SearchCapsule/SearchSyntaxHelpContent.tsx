@@ -2,6 +2,7 @@
 
 import type { SearchOptions, SyntaxMode } from "@/lib/searchQuery";
 import styles from "./SearchCapsule.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /** 검색 syntax 도움말 본문 — 공통 문법 + 매칭 강도(prefix/regex) 표.
  *  패널(배경·보더·radius·그림자·위치·애니메이션)은 공통 Popover 가 담당하고, 여기선 내용만.
@@ -50,14 +51,14 @@ export default function SearchSyntaxHelpContent({
           <div className={styles.helpSectionLabel}>매칭 강도</div>
           <div className={styles.helpModeToggle}>
             {(["prefix", "regex"] as SyntaxMode[]).map((m) => (
-              <button
+              <Pressable
                 key={m}
                 type="button"
                 className={`${styles.helpModeBtn} ${options.syntaxMode === m ? styles.helpModeBtnActive : ""}`}
                 onClick={() => update({ syntaxMode: m })}
               >
                 {m === "prefix" ? "Prefix" : "Regex"}
-              </button>
+              </Pressable>
             ))}
           </div>
         </div>

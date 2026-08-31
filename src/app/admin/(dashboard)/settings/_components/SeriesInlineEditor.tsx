@@ -21,6 +21,7 @@ import { matchesSearch } from "@/lib/koSearch";
 import styles from "./SeriesInlineEditor.module.css";
 import EmptyState from "@/components/ui/EmptyState";
 import shared from "../Settings.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* ── SeriesInlineEditor ── */
 
@@ -581,7 +582,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                     {addSelected.size}개 추가
                   </Button>
                 )}
-                <button type="button" className={styles.addPostClose} onClick={closeAddPost}>✕</button>
+                <Pressable className={styles.addPostClose} onClick={closeAddPost}>✕</Pressable>
               </div>
               <div
                 ref={addListRef}
@@ -696,8 +697,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                     draggable={false}
                     onDragStart={(e) => e.preventDefault()}
                   >
-                    <button
-                      type="button"
+                    <Pressable
                       className={styles.seriesPostOrderBtn}
                       disabled={idx === 0}
                       onClick={(e) => { e.stopPropagation(); handleReorder(idx, -1); }}
@@ -705,7 +705,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                       onDragStart={(e) => e.preventDefault()}
                     >
                       <ChevronUp size={10} strokeWidth={1.5} />
-                    </button>
+                    </Pressable>
                     {editingOrderIdx === idx ? (
                       <input
                         className={styles.seriesPostOrderInput}
@@ -740,8 +740,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                         {idx + 1}
                       </span>
                     )}
-                    <button
-                      type="button"
+                    <Pressable
                       className={styles.seriesPostOrderBtn}
                       disabled={idx === posts.length - 1}
                       onClick={(e) => { e.stopPropagation(); handleReorder(idx, 1); }}
@@ -749,7 +748,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                       onDragStart={(e) => e.preventDefault()}
                     >
                       <ChevronDown size={10} strokeWidth={1.5} />
-                    </button>
+                    </Pressable>
                   </div>
                   <a
                     href={`/admin/posts/${post.id}/edit`}
@@ -779,17 +778,15 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                     >
                       <ExternalLink size={12} />
                     </a>
-                    <button
-                      type="button"
+                    <Pressable
                       className={`${styles.seriesPostOrderBtn} ${styles.seriesPostRemoveBtn}`}
                       onClick={(e) => { e.stopPropagation(); handleRemovePost(post.id); }}
                       onMouseDown={(e) => e.stopPropagation()}
                       title={t("admin.posts.seriesModal.removeFromSeries")}
                     >
                       <Unlink size={10} />
-                    </button>
-                    <button
-                      type="button"
+                    </Pressable>
+                    <Pressable
                       className={`${styles.seriesPostOrderBtn} ${styles.seriesPostDeleteBtn}`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -801,7 +798,7 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
                       title={t("admin.posts.delete")}
                     >
                       <Trash2 size={10} />
-                    </button>
+                    </Pressable>
                   </div>
                 </motion.div>
                 );
@@ -809,14 +806,13 @@ const SeriesInlineEditor = forwardRef<SeriesInlineEditorHandle, SeriesInlineEdit
               {Math.ceil(posts.length / POSTS_PAGE_SIZE) > 1 && (
                 <div className={styles.seriesPostsPaging}>
                   {Array.from({ length: Math.ceil(posts.length / POSTS_PAGE_SIZE) }, (_, i) => (
-                    <button
+                    <Pressable
                       key={i}
-                      type="button"
                       className={`${styles.seriesPostsPageBtn} ${i === postsPage ? styles.seriesPostsPageBtnActive : ""}`}
                       onClick={() => setPostsPage(i)}
                     >
                       {i + 1}
-                    </button>
+                    </Pressable>
                   ))}
                 </div>
               )}

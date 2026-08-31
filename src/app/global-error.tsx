@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Pressable from "@/components/ui/Pressable";
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -87,7 +88,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
 
             {/* Actions */}
             <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-              <button
+              <Pressable
                 onClick={reset}
                 style={{
                   padding: "0.75rem 2rem",
@@ -102,7 +103,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 }}
               >
                 Try Again
-              </button>
+              </Pressable>
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a
                 href="/"

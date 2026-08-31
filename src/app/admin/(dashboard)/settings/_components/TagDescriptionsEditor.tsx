@@ -25,6 +25,7 @@ import type { AdminPostUsageInfo, PostMetaInfo } from "../_types";
 import { formatAdminShortDate } from "@/utils/format";
 import shared from "../Settings.module.css";
 import own from "./TagDescriptionsEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const styles = { ...shared, ...own };
 
@@ -110,21 +111,20 @@ function TagResetConfirmBody({ inUse, tagCounts, tagPosts, affectedCount, onConf
       <p className={styles.tagDeleteConfirmDesc}>
         기본 세트에 없는 태그 <strong>{inUse.length}개</strong>가 게시물 <strong>{affectedCount}건</strong>에서 사용 중입니다. 정말 기본값으로 초기화할까요?
         <br />
-        <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>
+        <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>
           이 태그들은 삭제 대기열에 추가됩니다. 섹션 저장 시 모든 게시물의 tags 에서 제거됩니다. 되돌리기로 취소할 수 있습니다.
         </span>
       </p>
       <div className={styles.tagResetChipRow}>
         {inUse.map((t) => (
-          <button
+          <Pressable
             key={t}
-            type="button"
             className={`${styles.tagResetChip} ${selectedTag === t ? styles.tagResetChipActive : ""}`}
             onClick={() => setSelectedTag((cur) => (cur === t ? null : t))}
           >
             #{t}
             <span className={styles.tagResetChipCount}>{tagCounts[t] ?? 0}</span>
-          </button>
+          </Pressable>
         ))}
       </div>
       {selectedTag && (
@@ -355,7 +355,7 @@ export default function TagDescriptionsEditor({ value, onChange, pendingDeletes,
         <p className={styles.tagDeleteConfirmDesc}>
           이 태그를 사용 중인 게시물 <strong>{inUse.length}건</strong>이 있습니다. 정말 삭제할까요?
           <br />
-          <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-tertiary)" }}>
+          <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-tertiary)" }}>
             삭제 대기열에 추가됩니다. 섹션 저장 시 모든 게시물의 tags 에서 함께 제거됩니다. 되돌리기로 취소할 수 있습니다.
           </span>
         </p>

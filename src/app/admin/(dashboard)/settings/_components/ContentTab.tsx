@@ -34,6 +34,7 @@ import AboutTechStackEditor, { type TechItem } from "./AboutTechStackEditor";
 import TagDescriptionsEditor from "./TagDescriptionsEditor";
 import shared from "../Settings.module.css";
 import local from "./ContentTab.module.css";
+import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
 
 interface ContentTabProps extends SettingsTabProps {
@@ -528,15 +529,14 @@ export default function ContentTab({
                         {Array.from(tagPendingDeletes).map((tag) => (
                           <span key={tag} className={styles.tagPendingDeleteChip}>
                             <span>{tag}</span>
-                            <button
-                              type="button"
+                            <Pressable
                               className={styles.tagPendingDeleteUndo}
                               onClick={() => undoTagPendingDelete(tag)}
                               title="삭제 취소 (다시 표시)"
                               aria-label={`${tag} 삭제 취소`}
                             >
                               <X size={10} strokeWidth={2.2} />
-                            </button>
+                            </Pressable>
                           </span>
                         ))}
                       </div>

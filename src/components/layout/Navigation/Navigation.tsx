@@ -39,6 +39,7 @@ import {
 } from "./navigationData";
 import { isPending } from "@/lib/notificationTypes";
 import styles from "./Navigation.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 // 서브메뉴 항목 링크 — active 항목의 bold/indent 를 접힘 시 순차 애니로 풀려면 motion 링크가 필요.
 const MotionLink = motion.create(Link);
@@ -873,7 +874,7 @@ export default function Navigation() {
       <div className={styles.navActions}>
         {/* 언어 토글 — admin에서도 표시 */}
         <Tooltip content={language === "ko" ? "언어 전환" : "Switch language"} delay={600} placement="bottom">
-          <button
+          <Pressable noTapScale
             className={styles.actionBtn}
             onClick={() => {
               if (isLangClicking) return;
@@ -914,14 +915,14 @@ export default function Navigation() {
             <span className={`${styles.langText} ${isLangAnimating && !isLangClicking ? styles.animating : ""} ${isLangClicking ? styles.clicking : ""}`}>
               {displayLang === "ko" ? "KO" : "EN"}
             </span>
-          </button>
+          </Pressable>
         </Tooltip>
 
         {/* 사운드 토글 — admin에서 숨김 */}
         {!isAdminPage && (
           <div className={styles.soundBtnWrap}>
             <Tooltip content={language === "ko" ? "배경 음악" : "Background music"} delay={600} placement="bottom">
-              <button
+              <Pressable noTapScale
                 className={styles.actionBtn}
                 onClick={handleSoundToggle}
                 onMouseEnter={() => { setIsSoundHovered(true); setShowSoundTip(false); }}
@@ -944,7 +945,7 @@ export default function Navigation() {
                   <line className={styles.xLine} x1="17" y1="9" x2="23" y2="15" />
                 </svg>
               </span>
-              </button>
+              </Pressable>
             </Tooltip>
             {showSoundTip && (
               <span className={styles.soundTip} onClick={() => setShowSoundTip(false)}>
@@ -956,7 +957,7 @@ export default function Navigation() {
 
         {/* 테마 토글 */}
         <Tooltip content={language === "ko" ? "테마 전환" : "Toggle theme"} delay={600} placement="bottom">
-          <button
+          <Pressable noTapScale
             className={styles.actionBtn}
             onClick={handleThemeToggle}
             onMouseEnter={handleThemeMouseEnter}
@@ -971,7 +972,7 @@ export default function Navigation() {
               <Sun className={styles.themeIcon} strokeWidth={1.5} />
             )}
             </span>
-          </button>
+          </Pressable>
         </Tooltip>
 
         {/* 액션 항목들 (email + Bell + Logout/GetInTouch) — navActions 직속 자식 */}
@@ -987,9 +988,8 @@ export default function Navigation() {
             delay={200}
             disabled={notifOpen}
           >
-            <button
+            <Pressable noTapScale
               ref={notifWrapRef}
-              type="button"
               className={`${styles.actionBtn} ${styles.notifBtn}`}
               aria-label="Notifications"
               aria-expanded={notifOpen}
@@ -998,7 +998,7 @@ export default function Navigation() {
             >
               <Bell size={16} strokeWidth={1.8} />
               {unreadCount > 0 && <span className={styles.notifDot} aria-hidden />}
-            </button>
+            </Pressable>
           </Tooltip>
         )}
 
@@ -1071,15 +1071,14 @@ export default function Navigation() {
                     </ul>
                   )}
                   {notifs.length > 5 && (
-                    <button
-                      type="button"
+                    <Pressable noTapScale
                       className={styles.notifDropdownMore}
                       onClick={() => setNotifExpanded((v) => !v)}
                     >
                       {notifExpanded
                         ? (language === "ko" ? "접기" : "Collapse")
                         : (language === "ko" ? "더 보기 +5" : "Load more +5")}
-                    </button>
+                    </Pressable>
                   )}
                 </div>
               </motion.div>
@@ -1117,7 +1116,7 @@ export default function Navigation() {
 
         {/* 메뉴 버튼 (≤1024px) — 2×2 dot grid + magnetic */}
         <MagneticWrapper strength={0.5} radius={50} className={styles.menuBtnWrapper}>
-          <button
+          <Pressable noTapScale
             className={`${styles.actionBtn} ${styles.menuBtn}`}
             onClick={() => setIsMenuOpen((v) => !v)}
             aria-label="Menu"
@@ -1141,7 +1140,7 @@ export default function Navigation() {
               <circle className={styles.menuDot} cx="4" cy="7" r="1" />
               <circle className={styles.menuDot} cx="7" cy="7" r="1" />
             </svg>
-          </button>
+          </Pressable>
         </MagneticWrapper>
       </div>
 

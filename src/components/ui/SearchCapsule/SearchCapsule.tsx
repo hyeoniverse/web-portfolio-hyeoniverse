@@ -16,6 +16,7 @@ import { useSearchOptions } from "./useSearchOptions";
 import SearchSyntaxHelpButton from "./SearchSyntaxHelpButton";
 import SearchSyntaxHelpContent from "./SearchSyntaxHelpContent";
 import styles from "./SearchCapsule.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export interface SearchCapsuleProps {
   search: string;
@@ -245,7 +246,7 @@ export default function SearchCapsule({
         className={styles.input}
       />
       {/* X 버튼 — 항상 layout 차지 (capsule 너비 변동 방지). search 없을 때 visibility hidden + pointer-events none. */}
-      <button
+      <Pressable noTapScale
         type="button"
         className={`${styles.clearBtn} ${!search ? styles.clearBtnHidden : ""}`}
         onMouseDown={(e) => e.preventDefault()}
@@ -260,7 +261,7 @@ export default function SearchCapsule({
         aria-hidden={!search}
       >
         <Eraser size={11} strokeWidth={2} />
-      </button>
+      </Pressable>
       {showHelp && (
         // 문법 도움말 — 공통 Popover 의 말풍선(arrow) variant. ? 버튼을 beak 으로 가리킨다.
         // (예전엔 helpDropdown 을 손으로 portal + 위치계산했는데 공통 Popover 재구현이라 제거)
@@ -271,14 +272,14 @@ export default function SearchCapsule({
           openOnHover
           contentClassName={styles.searchHelpPopover}
           trigger={
-            <button
+            <Pressable noTapScale
               type="button"
               className={styles.helpBtn}
               aria-label="검색 문법 도움말"
               title="검색 문법 + 옵션"
             >
               <HelpCircle size={12} strokeWidth={2} />
-            </button>
+            </Pressable>
           }
         >
           <SearchSyntaxHelpContent options={searchOptions} update={updateSearchOptions} />
@@ -309,19 +310,19 @@ export default function SearchCapsule({
                 <History size={11} strokeWidth={2} />
                 <span>최근 검색</span>
               </span>
-              <button
+              <Pressable noTapScale
                 type="button"
                 className={styles.historyClearAll}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={(e) => { e.stopPropagation(); clearHistory(); }}
               >
                 전체 삭제
-              </button>
+              </Pressable>
             </div>
             <ul className={styles.historyList}>
               {history.map((q) => (
                 <li key={q} className={styles.historyItem}>
-                  <button
+                  <Pressable noTapScale
                     type="button"
                     className={styles.historyText}
                     onMouseDown={(e) => e.preventDefault()}
@@ -333,7 +334,7 @@ export default function SearchCapsule({
                     }}
                   >
                     {q}
-                  </button>
+                  </Pressable>
                   <span className={styles.historyRemoveWrap} onMouseDown={(e) => e.preventDefault()}>
                     <CloseButton
                       size="xs"

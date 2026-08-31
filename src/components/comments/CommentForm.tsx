@@ -13,6 +13,7 @@ import Input from "@/components/ui/Input";
 import Tooltip from "@/components/ui/Tooltip";
 import CommentEditor from "./CommentEditor";
 import styles from "./CommentForm.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const Fireworks = dynamic(() => import("@/components/effects/Fireworks"), {
   ssr: false,
@@ -254,8 +255,7 @@ export default function CommentForm({
             />
             {/* 입력값 비우기(삭제) 버튼 — 편집 모드에서 텍스트가 있을 때만 */}
             {emailNotify && !emailConfirmed && notifyEmail.length > 0 && (
-              <button
-                type="button"
+              <Pressable
                 className={styles.notifyClear}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -267,13 +267,12 @@ export default function CommentForm({
                 title={t("comments.emailClear")}
               >
                 <CircleX size={12} fill="currentColor" stroke="none" />
-              </button>
+              </Pressable>
             )}
             {emailNotify && isValidEmail && !emailConfirmed && emailChanged && (
               <>
                 <span className={styles.notifyDivider} />
-                <button
-                  type="button"
+                <Pressable
                   className={styles.notifyCheck}
                   onClick={(e) => { e.stopPropagation(); setEmailConfirmed(true); setConfirmedEmail(notifyEmail); }}
                   tabIndex={0}
@@ -281,12 +280,11 @@ export default function CommentForm({
                   title={t("comments.emailConfirm")}
                 >
                   <Check size={12} strokeWidth={3} />
-                </button>
+                </Pressable>
               </>
             )}
             {emailConfirmed ? (
-              <button
-                type="button"
+              <Pressable
                 className={styles.notifyAction}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -298,12 +296,11 @@ export default function CommentForm({
                 title={t("comments.emailEdit")}
               >
                 <Pencil size={14} />
-              </button>
+              </Pressable>
             ) : (
               <>
                 <span className={styles.notifyDivider} />
-                <button
-                  type="button"
+                <Pressable
                   className={styles.notifyAction}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -323,7 +320,7 @@ export default function CommentForm({
                 >
                   {/* 캡슐이 오른쪽으로 접히는 방향을 암시하는 chevron */}
                   <ChevronRight size={12} strokeWidth={2.5} />
-                </button>
+                </Pressable>
               </>
             )}
           </div>

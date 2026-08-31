@@ -11,6 +11,34 @@ const eslintConfig = [
   ...typescript,
   {
     rules: {
+      // 모서리는 capsule / circle / 2xl 셋만 (docs/design-system.md R6).
+      // stylelint 가 .css 를 막지만 인라인 style·직렬화 문자열은 못 본다 — 여기서 같은 규칙을 건다.
+      /* <button> 은 type 을 반드시 적는다. HTML 기본값이 submit 이라, 폼 안에서
+         type 을 빠뜨린 버튼은 클릭 시 폼을 제출한다. */
+      "react/button-has-type": "error",
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: String.raw`Literal[value=/var\(--font-size-(3xs|2xs|xs|sm)\)/]`,
+          message:
+            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body(14) / -label(13) / -hint(12) / -micro(11).",
+        },
+        {
+          selector: String.raw`TemplateElement[value.raw=/var\(--font-size-(3xs|2xs|xs|sm)\)/]`,
+          message:
+            "글자 크기는 눈금이 아니라 역할로 고릅니다 — --font-size-body(14) / -label(13) / -hint(12) / -micro(11).",
+        },
+        {
+          selector: String.raw`Literal[value=/var\(--radius-(2xs|xs|sm|md|lg|xl|3xl|4xl|5xl|6xl)\)/]`,
+          message:
+            "모서리는 --radius-capsule / --radius-circle / --radius-2xl 셋만 씁니다 (알약·칩·행 하이라이트=capsule, 정원=circle, 면 있는 것=2xl).",
+        },
+        {
+          selector: String.raw`TemplateElement[value.raw=/var\(--radius-(2xs|xs|sm|md|lg|xl|3xl|4xl|5xl|6xl)\)/]`,
+          message:
+            "모서리는 --radius-capsule / --radius-circle / --radius-2xl 셋만 씁니다 (알약·칩·행 하이라이트=capsule, 정원=circle, 면 있는 것=2xl).",
+        },
+      ],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },

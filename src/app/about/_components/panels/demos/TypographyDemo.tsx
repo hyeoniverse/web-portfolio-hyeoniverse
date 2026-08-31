@@ -3,6 +3,7 @@
 import { useState } from "react";
 import shared from "../../AboutSection.module.css";
 import local from "../DesignSystemPanel.module.css";
+import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
 
 const fonts = [
@@ -19,13 +20,13 @@ export default function TypographyDemo() {
     <div className={styles.dcDemo}>
       <div className={styles.dcFontTabs}>
         {fonts.map((f, i) => (
-          <button
+          <Pressable
             key={f.label}
             className={`${styles.dcToggleBtn} ${i === activeFont ? styles.dcToggleBtnActive : ""}`}
             onClick={() => setActiveFont(i)}
           >
             {f.label}
-          </button>
+          </Pressable>
         ))}
       </div>
       <div

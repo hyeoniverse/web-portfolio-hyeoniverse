@@ -11,6 +11,7 @@ import PinnedTitleRow from "../PinnedTitleRow";
 import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./BackendPanel.module.css";
+import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
 
 interface BackendPanelProps {
@@ -224,9 +225,9 @@ function BackendPanel({
             ))}
             {listPage.total > 1 && (
               <div className={styles.dbPageNav}>
-                <button className={styles.dbPageBtn} disabled={listPage.page <= 1} onClick={() => scrollListPage(-1)}>↑</button>
+                <Pressable className={styles.dbPageBtn} disabled={listPage.page <= 1} onClick={() => scrollListPage(-1)}>↑</Pressable>
                 <span>{listPage.page}/{listPage.total}</span>
-                <button className={styles.dbPageBtn} disabled={listPage.page >= listPage.total} onClick={() => scrollListPage(1)}>↓</button>
+                <Pressable className={styles.dbPageBtn} disabled={listPage.page >= listPage.total} onClick={() => scrollListPage(1)}>↓</Pressable>
               </div>
             )}
           </div>

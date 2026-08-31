@@ -17,6 +17,7 @@ import {
 } from "../_config/panelConfig";
 import SectionNav from "./SectionNav";
 import styles from "./AboutSection.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const REPETITIONS = 3;
 
@@ -102,7 +103,7 @@ export default function AboutSection() {
             }`}
           >
             {MOBILE_TABS.map((tab) => (
-              <button
+              <Pressable noTapScale
                 key={tab.key}
                 className={`${styles.mobileTabBtn} ${
                   mobileTab === tab.key ? styles.mobileTabBtnActive : ""
@@ -117,7 +118,7 @@ export default function AboutSection() {
                     transition={{ type: "spring", stiffness: 500, damping: 32 }}
                   />
                 )}
-              </button>
+              </Pressable>
             ))}
             <div id="about-tab-actions" className={styles.mobileTabActions} />
           </nav>
@@ -157,7 +158,7 @@ export default function AboutSection() {
           />
           {!isMobile && (
             <>
-              <button
+              <Pressable noTapScale
                 data-clickable="true"
                 className={styles.slideArrow}
                 onClick={() => {
@@ -168,8 +169,8 @@ export default function AboutSection() {
                 aria-label="Previous section"
               >
                 ‹
-              </button>
-              <button
+              </Pressable>
+              <Pressable noTapScale
                 data-clickable="true"
                 className={`${styles.slideArrow} ${styles.slideArrowRight}`}
                 onClick={() => {
@@ -180,7 +181,7 @@ export default function AboutSection() {
                 aria-label="Next section"
               >
                 ›
-              </button>
+              </Pressable>
             </>
           )}
       </div>

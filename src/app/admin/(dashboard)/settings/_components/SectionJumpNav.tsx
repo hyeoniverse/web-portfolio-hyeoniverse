@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { useLenis } from "@/providers/LenisProvider";
 import css from "./SectionJumpNav.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface Section {
   el: HTMLElement;
@@ -87,16 +88,15 @@ export default function SectionJumpNav({
     <div className={`${css.jumpWrap} ${pinned ? css.jumpPinned : ""}`}>
       <div ref={navRef} className={css.jumpNav} role="navigation" aria-label="섹션 바로가기">
         {sections.map((s, i) => (
-          <button
+          <Pressable
             key={`${s.label}-${i}`}
-            type="button"
             className={`${css.item} ${i === activeIdx ? css.itemActive : ""}`}
             onClick={() => jump(s, i)}
             title={s.label}
           >
             <span className={css.label}>{s.label}</span>
             <span className={css.dot} aria-hidden />
-          </button>
+          </Pressable>
         ))}
       </div>
     </div>

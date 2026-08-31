@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "@/components/icons";
 import { cn } from "@/utils/cn";
 import styles from "./BackLink.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface BackLinkProps {
   href?: string;
@@ -28,8 +29,8 @@ export default function BackLink({ href, onClick, label, className, size = 14 }:
   }
 
   return (
-    <button type="button" className={cn(styles.link, className)} onClick={onClick}>
+    <Pressable className={cn(styles.link, className)} onClick={onClick}>
       {content}
-    </button>
+    </Pressable>
   );
 }

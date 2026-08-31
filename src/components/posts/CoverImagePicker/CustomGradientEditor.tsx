@@ -11,6 +11,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import { extractPalette } from "@/components/admin/CoverImageField/extractPalette";
 import { renderGradient, type Stop, type GradientType, type PresetConfig } from "./gradientUtils";
 import styles from "./CoverImagePicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface CustomGradientEditorProps {
   /** 부모가 controlled state — preset 클릭 시 여기를 update 해 editor 가 즉시 반영 */
@@ -452,51 +453,47 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
           <ColorPicker value={baseColor} onChange={(c) => onBaseColorChange(c.hex)}>
             {({ toggle }) => (
               <Tooltip content={tc("baseColor")} placement="top">
-                <button
-                  type="button"
+                <Pressable noTapScale
                   className={styles.schemeBaseLabel}
                   onClick={toggle}
                   aria-label={tc("baseColor")}
                 >
                   <span className={styles.schemeBaseSwatch} style={{ background: baseColor }} aria-hidden />
-                </button>
+                </Pressable>
               </Tooltip>
             )}
           </ColorPicker>
           <div className={styles.schemeChips}>
             {(["analogous", "monochromatic", "triad", "complementary", "split-complementary", "square", "compound", "shades"] as SchemeKind[]).map((k) => (
-              <button
+              <Pressable noTapScale
                 key={k}
-                type="button"
                 className={`${styles.schemeChip} ${scheme === k ? styles.schemeChipActive : ""}`}
                 onClick={() => applyScheme(k)}
               >
                 {tc(`scheme_${k}`)}
-              </button>
+              </Pressable>
             ))}
           </div>
           {/* 색상표 붙여넣기 — clipboard 또는 prompt 로 hex 입력 받아 stop 변환 */}
           <Tooltip content={tc("pastePalette")} placement="top">
-            <button
-              type="button"
+            <Pressable noTapScale
               className={styles.schemeImageBtn}
               onClick={handlePastePalette}
               aria-label={tc("pastePalette")}
             >
               <ClipboardPaste size={12} strokeWidth={2} />
-            </button>
+            </Pressable>
           </Tooltip>
           {/* 이미지 업로드 → 색 추출 (scheme row 우측 끝) */}
           <Tooltip content={tc("extractFromImage")} placement="top">
-            <button
-              type="button"
+            <Pressable noTapScale
               className={styles.schemeImageBtn}
               onClick={() => fileInputRef.current?.click()}
               disabled={extracting}
               aria-label={tc("extractFromImage")}
             >
               <ImagePlus size={12} strokeWidth={2} />
-            </button>
+            </Pressable>
           </Tooltip>
           <input
             ref={fileInputRef}
@@ -520,9 +517,8 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
               <LoadingDots />
             ) : (
               extractedPalette.map((hex) => (
-                <button
+                <Pressable noTapScale
                   key={hex}
-                  type="button"
                   className={styles.extractedSwatch}
                   style={{ background: hex }}
                   onClick={() => applyPaletteColor(hex)}
@@ -558,15 +554,14 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
                       <span className={styles.stopHandleGrip} aria-hidden />
                     </span>
                     {stops.length > 2 && (
-                      <button
-                        type="button"
+                      <Pressable noTapScale
                         className={styles.stopHandleRemove}
                         onPointerDown={(e) => e.stopPropagation()}
                         onClick={(e) => { e.stopPropagation(); removeColor(i); }}
                         aria-label="Remove stop"
                       >
                         ×
-                      </button>
+                      </Pressable>
                     )}
                   </span>
                 )}
@@ -574,15 +569,14 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
             ))}
           </div>
           <Tooltip content={tc("addStop")} placement="top" disabled={stops.length >= 4}>
-            <button
-              type="button"
+            <Pressable noTapScale
               className={styles.stopAddBtn}
               onClick={addColor}
               aria-label={tc("addStop")}
               disabled={stops.length >= 4}
             >
               +
-            </button>
+            </Pressable>
           </Tooltip>
         </div>
         {/* customRow + customSliders 를 하나의 그룹으로 묶음 — 모바일 layout 분기/정렬 단위 */}
@@ -590,33 +584,29 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
         {/* 줄1: 타입 토글 + 사용 버튼 */}
         <div className={styles.customRow}>
           <div className={styles.customTypeToggle}>
-            <button
-              type="button"
+            <Pressable noTapScale
               className={`${styles.customTypeBtn} ${type === "linear" ? styles.customTypeBtnActive : ""}`}
               onClick={() => setType("linear")}
             >
               Linear
-            </button>
-            <button
-              type="button"
+            </Pressable>
+            <Pressable noTapScale
               className={`${styles.customTypeBtn} ${type === "radial" ? styles.customTypeBtnActive : ""}`}
               onClick={() => setType("radial")}
             >
               Radial
-            </button>
+            </Pressable>
           </div>
           <Tooltip content={tc("randomGradient")} placement="top">
-            <button
-              type="button"
+            <Pressable noTapScale
               className={styles.customRandomBtn}
               onClick={randomize}
               aria-label={tc("randomGradient")}
             >
               <Shuffle size={12} strokeWidth={2} />
-            </button>
+            </Pressable>
           </Tooltip>
-          <button
-            type="button"
+          <Pressable noTapScale
             className={styles.customApplyBtn}
             onClick={handleApply}
             disabled={uploading}
@@ -632,7 +622,7 @@ export default function CustomGradientEditor({ config, onConfigChange, onSelect,
                 <span>{tc("useThis")}</span>
               </>
             )}
-          </button>
+          </Pressable>
         </div>
         {/* 줄2: 각도(radial 일 때 비활성화) / 크기 / 속도 slider — 항상 동일 row 수 유지해 높이 변하지 않게 */}
         <div className={styles.customSliders}>

@@ -40,6 +40,7 @@ import { PurgeModal, SeriesDeleteModal } from "./_components/PostModals";
 import PreviewTooltip from "./_components/PreviewTooltip";
 import { createPostColumns, createTrashColumns, createSeriesColumns } from "./_columns";
 import styles from "./AdminPosts.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const PAGE_SIZE_OPTIONS = [
   { value: "10", label: "10" },
@@ -614,9 +615,9 @@ export default function AdminPostsPage() {
         open={seriesOpen}
         onToggle={() => setSeriesOpen((v) => !v)}
         headerExtra={
-          <a href="/admin/settings?tab=content&sub=posts" target="_blank" rel="noopener noreferrer" className={styles.seriesNewBtn}>
+          <Button href="/admin/settings?tab=content&sub=posts" external variant="link" size="xs" className={styles.seriesNewBtn}>
             <T k="admin.posts.newSeries" />
-          </a>
+          </Button>
         }
         allItems={filteredSeries}
         columns={seriesColumns}
@@ -870,12 +871,12 @@ tags: React`}</code></pre>
           />
         </div>
         {hasFilters && (
-          <button
+          <Pressable
             className={shell.filterReset}
             onClick={() => { setSearch(""); setSearchType("all"); setSort("newest"); setFilterCategory(""); setFilterSeries(""); setFilterAuthor(""); setPage(1); }}
           >
             {t("admin.posts.resetFilters")}
-          </button>
+          </Pressable>
         )}
         <SearchCapsule
           typeSelector={{

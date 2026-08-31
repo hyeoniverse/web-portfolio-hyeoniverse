@@ -2,6 +2,7 @@ import { type MouseEvent } from "react";
 import CloseIcon from "./CloseIcon";
 import { cn } from "@/utils/cn";
 import styles from "./CloseButton.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type Size = "xs" | "sm" | "md" | "lg";
 
@@ -19,7 +20,7 @@ interface Props {
  */
 export default function CloseButton({ onClick, ariaLabel = "close", title, size = "sm", className }: Props) {
   return (
-    <button
+    <Pressable
       type="button"
       className={cn(styles.btn, styles[size], className)}
       onClick={onClick}
@@ -28,6 +29,6 @@ export default function CloseButton({ onClick, ariaLabel = "close", title, size 
       data-close-trigger
     >
       <CloseIcon />
-    </button>
+    </Pressable>
   );
 }

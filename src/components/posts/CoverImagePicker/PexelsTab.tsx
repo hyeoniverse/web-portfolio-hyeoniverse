@@ -10,6 +10,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import { downloadFile } from "./downloadFile";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type MediaType = "image" | "video";
 
@@ -194,20 +195,18 @@ export default function PexelsTab({
       {/* image / video 토글 */}
       {!fixedMediaType && (
         <div className={styles.pexelsTypeToggle}>
-          <button
-            type="button"
+          <Pressable noTapScale
             className={`${styles.pexelsTypeBtn} ${mediaType === "image" ? styles.pexelsTypeBtnActive : ""}`}
             onClick={() => handleTypeChange("image")}
           >
             <ImageIcon size={12} strokeWidth={2} /> 이미지
-          </button>
-          <button
-            type="button"
+          </Pressable>
+          <Pressable noTapScale
             className={`${styles.pexelsTypeBtn} ${mediaType === "video" ? styles.pexelsTypeBtnActive : ""}`}
             onClick={() => handleTypeChange("video")}
           >
             <Film size={12} strokeWidth={2} /> 영상
-          </button>
+          </Pressable>
         </div>
       )}
 
@@ -224,14 +223,13 @@ export default function PexelsTab({
         {!hasResults && !loading && (
           <div className={styles.suggestions}>
             {suggestions.map((kw) => (
-              <button
+              <Pressable noTapScale
                 key={kw}
-                type="button"
                 className={styles.suggestionChip}
                 onClick={() => handleSuggestion(kw)}
               >
                 {kw}
-              </button>
+              </Pressable>
             ))}
           </div>
         )}

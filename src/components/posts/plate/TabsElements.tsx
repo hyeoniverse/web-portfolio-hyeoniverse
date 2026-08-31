@@ -10,6 +10,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import EmojiPickerPopup, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import { _imageUploadFn } from "./utils";
 import { BlockDropZone, useBlockDrag } from "./BlockDragHandle";
+import Pressable from "@/components/ui/Pressable";
 
 type Popup = { tab: number; mode: "tools" | "emoji" };
 type Pos = { left: number; top: number; up: boolean };
@@ -107,19 +108,19 @@ export function TabsElement(props: PlateElementProps) {
                       ? (language === "ko" ? "다시 클릭하면 이름·아이콘 편집" : "Click again to edit name & icon")
                       : (language === "ko" ? "클릭하여 전환" : "Click to switch")}
                     delay={400} placement="top" wrapperStyle={{ display: "inline-flex" }}>
-                    <button type="button"
+                    <Pressable
                       className={`tabs-tab${i === activeTab ? " tabs-tab-active" : ""}`}
                       onMouseDown={(e) => onTab(i, e)}>
                       {icon && <span className="tabs-tab-icon"><EmojiIcon value={icon} /></span>}
                       <span>{labelOf(p, i)}</span>
-                    </button>
+                    </Pressable>
                   </Tooltip>
                 );
               })}
-              <button type="button" className="tabs-add" aria-label="add tab"
+              <Pressable className="tabs-add" aria-label="add tab"
                 onMouseDown={(e) => { e.preventDefault(); addTab(); }}>
                 <Plus size={14} />
-              </button>
+              </Pressable>
             </div>
 
             {popup && pos && popup.mode === "tools" && (
@@ -141,10 +142,10 @@ export function TabsElement(props: PlateElementProps) {
                       onChange={(v) => setLabel(popup.tab, v)} />
                   </div>
                   {panels.length > 1 && (
-                    <button type="button" className="tabs-tools-delete"
+                    <Pressable className="tabs-tools-delete"
                       onMouseDown={(e) => { e.preventDefault(); removeTab(popup.tab); setPopup(null); }}>
                       <Trash2 size={14} /> {language === "ko" ? "삭제" : "Delete"}
-                    </button>
+                    </Pressable>
                   )}
                 </div>
               </div>

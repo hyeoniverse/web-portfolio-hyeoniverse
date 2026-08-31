@@ -9,6 +9,7 @@ import CategoryLabel from "@/components/ui/CategoryLabel";
 import { BookOpen, ImageIcon, ChevronRight } from "@/components/icons";
 import type { RecommendedPost } from "./types";
 import styles from "../PostDetail.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface RecommendedSectionProps {
   posts: RecommendedPost[];
@@ -56,7 +57,7 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
         <BookOpen size={16} />
         <span className={styles.recommendedLabel}><T k="postDetail.recommended" /></span>
         {rest.length > 0 && (
-          <button
+          <Pressable
             className={styles.recommendedMoreBtn}
             onClick={() => setExpanded(!expanded)}
             data-clickable="true"
@@ -68,7 +69,7 @@ export default function RecommendedSection({ posts, viewLang }: RecommendedSecti
               strokeWidth={1.5}
               aria-hidden="true"
             />
-          </button>
+          </Pressable>
         )}
       </div>
       <div className={styles.recommendedList}>

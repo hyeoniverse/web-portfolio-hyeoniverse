@@ -268,7 +268,7 @@ const addBtnBase: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   background: "var(--bg-secondary)",
-  border: "1px solid var(--border-light-color)",
+  border: "1px solid var(--border-color-light)",
   color: "var(--text-muted)",
   cursor: "pointer",
   opacity: 0,
@@ -484,7 +484,7 @@ function TableElementInner({ children, attributes, style, element }: PlateElemen
 
   const el = element as Record<string, unknown>;
   const caption = (el.caption as string) || "";
-  const borderColor = (el.borderColor as string) || "var(--border-light-color)";
+  const borderColor = (el.borderColor as string) || "var(--border-color-light)";
   const borderStyle = (el.borderStyle as string) || "solid";
   const borderWidth = (el.borderWidth as string) || "1px";
   const [captionEditing, setCaptionEditing] = useState(false);
@@ -896,7 +896,7 @@ function borderStr(side: CellBorderVal, fallback: string): string {
   if (!side) return fallback;
   const w = side.width || "1px";
   const s = side.style || "solid";
-  const c = side.color || "var(--border-light-color)";
+  const c = side.color || "var(--border-color-light)";
   return `${w} ${s} ${c}`;
 }
 
@@ -916,7 +916,7 @@ function buildCellStyle(
   const bg = rawBg;
   const cb = (el.cellBorders as CellBordersMap) || {};
 
-  const tblFallback = "var(--tbl-border-width, 1px) var(--tbl-border-style, solid) var(--tbl-border-color, var(--border-light-color))";
+  const tblFallback = "var(--tbl-border-width, 1px) var(--tbl-border-style, solid) var(--tbl-border-color, var(--border-color-light))";
 
   const result: React.CSSProperties = {
     backgroundColor: bg,

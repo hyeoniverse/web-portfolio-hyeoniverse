@@ -8,6 +8,7 @@ import { renderGradient, type PresetConfig } from "./gradientUtils";
 import { extractPalette } from "@/components/admin/CoverImageField/extractPalette";
 import { isVideoUrl } from "@/lib/isVideoUrl";
 import styles from "./CoverImagePicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface LocalFile {
   url: string;
@@ -39,8 +40,7 @@ function LocalFileCard({
 }) {
   const video = isVideoUrl(file.url);
   return (
-    <button
-      type="button"
+    <Pressable noTapScale
       className={`${styles.presetItem} ${active ? styles.presetItemActive : ""}`}
       onClick={() => onSelect(file.url, file.name)}
       title={file.name}
@@ -69,7 +69,7 @@ function LocalFileCard({
         </span>
       )}
       <span className={styles.presetName}>{file.name}</span>
-    </button>
+    </Pressable>
   );
 }
 
@@ -96,15 +96,14 @@ function PresetCard({
   }, [preset]);
 
   return (
-    <button
-      type="button"
+    <Pressable noTapScale
       className={`${styles.presetItem} ${active ? styles.presetItemActive : ""}`}
       onClick={() => onLoad(preset.config, preset.name)}
       title={preset.name}
     >
       <canvas ref={canvasRef} />
       <span className={styles.presetName}>{preset.name}</span>
-    </button>
+    </Pressable>
   );
 }
 

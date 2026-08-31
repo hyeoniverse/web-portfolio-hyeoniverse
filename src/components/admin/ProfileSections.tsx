@@ -17,6 +17,7 @@ import ProfileSectionActions from "./ProfileSectionActions";
 import SectionHeader from "@/app/admin/(dashboard)/settings/_components/SectionHeader";
 import SkillList from "./ProfileSkillList";
 import skillStyles from "./ProfileSkill.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export { profileDefaults };
 
@@ -638,17 +639,17 @@ function SortableList<T>({
                 <SortableRow key={ids[i]} id={ids[i]} styles={styles}>
                   {(listeners) => (<>
                     <div className={styles.skillGroupHeader}>
-                      <button type="button" className={styles.skillDragHandle} {...listeners} aria-label="Drag to reorder">
+                      <Pressable className={styles.skillDragHandle} {...listeners} aria-label="Drag to reorder">
                         <GripVertical fill="currentColor" />
-                      </button>
-                      <button type="button" className={styles.skillExpandBtn} onClick={() => toggleOne(i)} aria-label={isOpen ? "Collapse" : "Expand"}>
+                      </Pressable>
+                      <Button type="button" variant="ghost" shape="square" size="2xs" className={styles.skillExpandBtn} onClick={() => toggleOne(i)} aria-label={isOpen ? "Collapse" : "Expand"}>
                         <ChevronRight style={{ transform: isOpen ? "rotate(90deg)" : "rotate(0deg)" }} />
-                      </button>
+                      </Button>
                       {renderHeader(item, i)}
-                      <button type="button" className={styles.skillRemoveBtn} onClick={() => onRemove(i)} aria-label="Remove">
+                      <Pressable className={styles.skillRemoveBtn} onClick={() => onRemove(i)} aria-label="Remove">
                         <span className={styles.skillRemoveLine} />
                         <span className={styles.skillRemoveLine} />
-                      </button>
+                      </Pressable>
                     </div>
                     <ExpandablePanel open={isOpen} className={styles.skillExpandable}>
                       <div className={styles.profileExpandableInner}>{renderDetails(item, i)}</div>
@@ -743,9 +744,9 @@ export function SortableSkillItem({ id, children, styles }: { id: string; childr
       className={`${styles.skillNestedRow} ${isDragging ? styles.sortableItemDragging : ""}`}
       {...attributes}
     >
-      <button type="button" className={`${styles.skillDragHandle} ${styles.skillDragHandleSm}`} {...listeners} aria-label="Drag to reorder">
+      <Pressable className={`${styles.skillDragHandle} ${styles.skillDragHandleSm}`} {...listeners} aria-label="Drag to reorder">
         <GripVertical fill="currentColor" />
-      </button>
+      </Pressable>
       {children}
     </div>
   );

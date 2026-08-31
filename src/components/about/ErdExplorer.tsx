@@ -18,6 +18,7 @@ import { buildConceptOverlay } from "@/data/about/erdConceptual";
 import ErdControls from "./ErdControls";
 import type { ErdTable, ErdRelation, ErdDesignNote } from "@/data/about/types";
 import css from "./ErdExplorer.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export default function ErdExplorer({
   tables, relations, notes, lang,
@@ -149,15 +150,15 @@ export default function ErdExplorer({
             {lang === "ko" ? ` +${sub.tables.length - 1}` : ` +${sub.tables.length - 1}`}
           </span>
           {onEdit && (
-            <button type="button" className={css.focusBtn} data-clickable="true"
+            <Pressable noTapScale className={css.focusBtn} data-clickable="true"
               onClick={() => { const t = tables.find((x) => x.name === focus); if (t) onEdit(t); }}>
               {lang === "ko" ? "편집" : "Edit"}
-            </button>
+            </Pressable>
           )}
-          <button type="button" className={css.focusBtn} data-clickable="true"
+          <Pressable noTapScale className={css.focusBtn} data-clickable="true"
             aria-label={lang === "ko" ? "전체 보기" : "Show all"} onClick={clearFocus}>
             <X size={13} />
-          </button>
+          </Pressable>
         </>
       )}
     </Panel>
@@ -174,11 +175,11 @@ export default function ErdExplorer({
   const viewToggle = (
     <Panel position="top-right" className={css.viewSwitch}>
       {VIEWS.map((v) => (
-        <button key={v.id} type="button" data-clickable="true"
+        <Pressable noTapScale key={v.id} data-clickable="true"
           className={`${css.viewBtn} ${view === v.id ? css.viewBtnOn : ""}`}
           onClick={() => setView(v.id)}>
           {v.icon}{lang === "ko" ? v.ko : v.en}
-        </button>
+        </Pressable>
       ))}
     </Panel>
   );
@@ -196,13 +197,13 @@ export default function ErdExplorer({
       {focus && (
         <Panel position="top-left" className={css.focusChip}>
           <span className={css.focusTitle}><strong>{focus}</strong></span>
-          <button type="button" className={css.focusBtn} data-clickable="true" onClick={jumpToSchema}>
+          <Pressable noTapScale className={css.focusBtn} data-clickable="true" onClick={jumpToSchema}>
             {lang === "ko" ? "스키마에서 보기" : "View in schema"}
-          </button>
-          <button type="button" className={css.focusBtn} data-clickable="true"
+          </Pressable>
+          <Pressable noTapScale className={css.focusBtn} data-clickable="true"
             aria-label={lang === "ko" ? "전체 보기" : "Show all"} onClick={clearFocus}>
             <X size={13} />
-          </button>
+          </Pressable>
         </Panel>
       )}
       {extra}

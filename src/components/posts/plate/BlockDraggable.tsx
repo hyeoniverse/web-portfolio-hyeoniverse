@@ -23,6 +23,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import { showToast } from "@/stores/toastStore";
 import { _slashOpenTrigger } from "./utils";
 import styles from "../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -639,8 +640,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
     >
       {!isColumnGroup && (
       <div className={styles.blockDragGutter} contentEditable={false}>
-        <button
-          type="button"
+        <Pressable soundDisabled noTapScale
           className={styles.blockAddBtn}
           aria-label={t("editor.addBlock")}
           title={IS_MAC ? `${t("editor.addBlockBelow")} · ⌥+${t("editor.addBlockAbove")}` : `${t("editor.addBlockBelow")} · Alt+${t("editor.addBlockAbove")}`}
@@ -649,14 +649,13 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
           onClick={(e) => addBlock(e.altKey)}
         >
           <Plus size={14} />
-        </button>
+        </Pressable>
         <Popover
           placement="bottom-start"
           contentClassName={styles.blockToolsMenu}
           onOpenChange={setToolsOpen}
           trigger={
-            <button
-              type="button"
+            <Pressable soundDisabled noTapScale
               ref={handleRef as unknown as React.Ref<HTMLButtonElement>}
               className={styles.blockDragHandleBtn}
               aria-label={t("editor.blockTools")}
@@ -664,7 +663,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
               data-no-drag
             >
               <GripVertical size={14} />
-            </button>
+            </Pressable>
           }
         >
           {({ close }) => (
@@ -692,9 +691,9 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
                     <div className={styles.blockToolsTurn}>
                       {opts.map((o) => (
                         <Tooltip key={o.v} content={o.tip} placement="top" delay={200}>
-                          <button type="button" className={`${styles.blockToolsTurnBtn}${cur === o.v ? ` ${styles.blockToolsTurnBtnActive}` : ""}`} onClick={() => setNodeProps({ layout: o.v }, close)}>
+                          <Pressable soundDisabled noTapScale className={`${styles.blockToolsTurnBtn}${cur === o.v ? ` ${styles.blockToolsTurnBtnActive}` : ""}`} onClick={() => setNodeProps({ layout: o.v }, close)}>
                             {o.icon}
-                          </button>
+                          </Pressable>
                         </Tooltip>
                       ))}
                     </div>
@@ -709,14 +708,14 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
                     <div className={styles.blockToolsLabel}>{L("토글", "Toggle")}</div>
                     <div className={styles.blockToolsTurn}>
                       <Tooltip content={L("펼침", "Expanded")} placement="top" delay={200}>
-                        <button type="button" className={`${styles.blockToolsTurnBtn}${open ? ` ${styles.blockToolsTurnBtnActive}` : ""}`} onClick={() => setNodeProps({ open: true }, close)}>
+                        <Pressable soundDisabled noTapScale className={`${styles.blockToolsTurnBtn}${open ? ` ${styles.blockToolsTurnBtnActive}` : ""}`} onClick={() => setNodeProps({ open: true }, close)}>
                           <ChevronDown size={15} />
-                        </button>
+                        </Pressable>
                       </Tooltip>
                       <Tooltip content={L("접힘", "Collapsed")} placement="top" delay={200}>
-                        <button type="button" className={`${styles.blockToolsTurnBtn}${!open ? ` ${styles.blockToolsTurnBtnActive}` : ""}`} onClick={() => setNodeProps({ open: false }, close)}>
+                        <Pressable soundDisabled noTapScale className={`${styles.blockToolsTurnBtn}${!open ? ` ${styles.blockToolsTurnBtnActive}` : ""}`} onClick={() => setNodeProps({ open: false }, close)}>
                           <ChevronRight size={15} />
-                        </button>
+                        </Pressable>
                       </Tooltip>
                     </div>
                     <MenuDivider />
@@ -732,7 +731,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
                     <div className={styles.blockToolsSwatches}>
                       {CALLOUT_BG_PRESETS.slice(0, 7).map((pr, i) => (
                         <Tooltip key={i} content={pr.color} placement="top" delay={200}>
-                          <button type="button" className={`${styles.blockToolsSwatch}${curBg === pr.color ? ` ${styles.blockToolsSwatchActive}` : ""}`} style={{ background: pr.color }} onClick={() => setNodeProps({ bg: pr.color }, close)} />
+                          <Pressable soundDisabled noTapScale className={`${styles.blockToolsSwatch}${curBg === pr.color ? ` ${styles.blockToolsSwatchActive}` : ""}`} style={{ background: pr.color }} onClick={() => setNodeProps({ bg: pr.color }, close)} />
                         </Tooltip>
                       ))}
                     </div>
@@ -748,9 +747,9 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
                   <div className={styles.blockToolsTurn}>
                     {TURN_INTO.map((o) => (
                       <Tooltip key={o.value} content={t(`editor.${o.labelKey}`)} placement="top" delay={200}>
-                        <button type="button" className={`${styles.blockToolsTurnBtn}${isCode && o.value === "code_block" ? ` ${styles.blockToolsTurnBtnActive}` : ""}`} onClick={() => turnInto(o.value, close)}>
+                        <Pressable soundDisabled noTapScale className={`${styles.blockToolsTurnBtn}${isCode && o.value === "code_block" ? ` ${styles.blockToolsTurnBtnActive}` : ""}`} onClick={() => turnInto(o.value, close)}>
                           {o.icon}
-                        </button>
+                        </Pressable>
                       </Tooltip>
                     ))}
                   </div>
@@ -771,14 +770,14 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
                       { dir: "left" as const, icon: <ArrowLeft size={15} />, tip: L("왼쪽 열로", "To left column"), on: moveInfo.left },
                       { dir: "right" as const, icon: <ArrowRight size={15} />, tip: L("오른쪽 열로", "To right column"), on: moveInfo.right },
                     ]).map((m) => (
-                      // 비활성 방향엔 tooltip 을 붙이지 않음 — disabled <button> 은 mouseleave 를 삼켜
+                      // 비활성 방향엔 tooltip 을 붙이지 않음 — disabled <Pressable soundDisabled noTapScale> 은 mouseleave 를 삼켜
                       // tooltip 이 안 꺼지고(stuck) 인접 버튼 사이에서 깜빡임. pointer-events:none 으로 이벤트도 통과.
                       <Tooltip key={m.dir} content={m.tip} placement="top" delay={200} disabled={!m.on}>
-                        <button type="button" className={styles.blockToolsTurnBtn}
+                        <Pressable soundDisabled noTapScale className={styles.blockToolsTurnBtn}
                           disabled={!m.on} style={!m.on ? { opacity: 0.35, cursor: "default", pointerEvents: "none" } : undefined}
                           onClick={() => moveBlock(m.dir, close)}>
                           {m.icon}
-                        </button>
+                        </Pressable>
                       </Tooltip>
                     ))}
                   </div>
@@ -804,8 +803,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
                   <div className={styles.blockToolsSwatches}>
                     {BLOCK_COLORS.map((c) => (
                       <Tooltip key={c.key} content={t(`editor.color_${c.key}`)} placement="top" delay={200}>
-                        <button
-                          type="button"
+                        <Pressable soundDisabled noTapScale
                           className={`${styles.blockToolsSwatch}${c.value ? "" : ` ${styles.blockToolsSwatchDefault}`}`}
                           style={c.value ? { background: c.value } : undefined}
                           onClick={() => setBlockColor(c.value, close)}
@@ -817,8 +815,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
                   <div className={styles.blockToolsSwatches}>
                     {BLOCK_HIGHLIGHTS.map((c) => (
                       <Tooltip key={c.key} content={t(`editor.color_${c.key}`)} placement="top" delay={200}>
-                        <button
-                          type="button"
+                        <Pressable soundDisabled noTapScale
                           className={`${styles.blockToolsSwatch}${c.value ? "" : ` ${styles.blockToolsSwatchNone}`}`}
                           style={c.value ? { background: c.value } : undefined}
                           onClick={() => setBlockBg(c.value, close)}
@@ -843,8 +840,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
             contentClassName={styles.blockToolsMenu}
             onOpenChange={setToolsOpen}
             trigger={
-              <button
-                type="button"
+              <Pressable soundDisabled noTapScale
                 ref={handleRef as unknown as React.Ref<HTMLButtonElement>}
                 className={styles.blockGroupHandle}
                 aria-label={L("열 레이아웃 이동", "Move columns")}
@@ -852,7 +848,7 @@ function DraggableBlock({ element, children }: { element: TElement; children: Re
                 data-no-drag
               >
                 <GripVertical size={13} />
-              </button>
+              </Pressable>
             }
           >
             {({ close }) => (

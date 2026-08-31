@@ -20,6 +20,7 @@ import Field from "./SettingsFormFields";
 import styles from "./AccountTab.module.css";
 import EmptyState from "@/components/ui/EmptyState";
 import shared from "../Settings.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface DeviceRow {
   id: string;
@@ -406,14 +407,14 @@ export default function AccountTab({
                         <span>{formatRelative(d.last_seen_at)}</span>
                       </div>
                     </div>
-                    <button
+                    <Pressable
                       className={styles.deviceRevokeBtn}
                       onClick={() => handleRevokeDevice(d)}
                       aria-label={t("admin.settings.revokeDevice")}
                       title={t("admin.settings.revokeDevice")}
                     >
                       <Trash2 size={13} strokeWidth={1.6} />
-                    </button>
+                    </Pressable>
                   </li>
                 );
               })}

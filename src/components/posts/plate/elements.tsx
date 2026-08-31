@@ -32,6 +32,7 @@ import { Check, FileText, File, Music, Paperclip, Eye, Download, GripVertical, C
 import { createPortal } from "react-dom";
 import Popover from "@/components/ui/Popover";
 import styles from "../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /** 블록 void 요소 아래 클릭 가능 영역 — 클릭 시 다음 줄에 커서 배치 */
 export function BlockTailClickZone({ path }: { path: number[] | null }) {
@@ -140,7 +141,7 @@ export function InlineCaption({ caption, onCommit, onEditingChange, autoEdit, ov
         resize: "none",
         overflow: "hidden",
         textAlign: "center",
-        fontSize: overlayMode ? 11 : "var(--font-size-sm)",
+        fontSize: overlayMode ? 11 : "var(--font-size-body)",
         lineHeight: 1.5,
         padding: overlayMode ? "0" : "var(--spacing-2xs) var(--spacing-3xs) 0",
         fontFamily: "var(--font-space-grotesk)",
@@ -695,13 +696,13 @@ function MermaidExample({ label, code, wide, ko, onCopy }: { label: string; code
   // 컨트롤 버튼(축소/배율/확대/포커스/전체화면 토글) — 인라인·전체화면 공용. fs 면 전체화면 버튼→축소.
   const ctrlButtons = (fs: boolean) => (
     <>
-      <button type="button" className={styles.mermaidHelpIconBtn} title={ko ? "축소 (길게 눌러 연속)" : "Zoom out (hold)"}
-        onPointerDown={() => startRepeat(() => setZoom((z) => clamp(z - 0.2)))} onPointerUp={stopRepeat} onPointerLeave={stopRepeat} onPointerCancel={stopRepeat}><ZoomOut size={14} /></button>
+      <Pressable noTapScale className={styles.mermaidHelpIconBtn} title={ko ? "축소 (길게 눌러 연속)" : "Zoom out (hold)"}
+        onPointerDown={() => startRepeat(() => setZoom((z) => clamp(z - 0.2)))} onPointerUp={stopRepeat} onPointerLeave={stopRepeat} onPointerCancel={stopRepeat}><ZoomOut size={14} /></Pressable>
       <span className={styles.mermaidHelpZoomVal}>{Math.round(zoom * 100)}%</span>
-      <button type="button" className={styles.mermaidHelpIconBtn} title={ko ? "확대 (길게 눌러 연속)" : "Zoom in (hold)"}
-        onPointerDown={() => startRepeat(() => setZoom((z) => clamp(z + 0.2)))} onPointerUp={stopRepeat} onPointerLeave={stopRepeat} onPointerCancel={stopRepeat}><ZoomIn size={14} /></button>
-      <button type="button" className={styles.mermaidHelpIconBtn} title={ko ? "포커스(초기화)" : "Focus (reset)"} onClick={focus}><Maximize size={14} /></button>
-      <button type="button" className={styles.mermaidHelpIconBtn} title={fs ? (ko ? "전체화면 종료 (Esc)" : "Exit fullscreen (Esc)") : (ko ? "전체화면" : "Fullscreen")} onClick={() => setFull(!fs)}>{fs ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
+      <Pressable noTapScale className={styles.mermaidHelpIconBtn} title={ko ? "확대 (길게 눌러 연속)" : "Zoom in (hold)"}
+        onPointerDown={() => startRepeat(() => setZoom((z) => clamp(z + 0.2)))} onPointerUp={stopRepeat} onPointerLeave={stopRepeat} onPointerCancel={stopRepeat}><ZoomIn size={14} /></Pressable>
+      <Pressable noTapScale className={styles.mermaidHelpIconBtn} title={ko ? "포커스(초기화)" : "Focus (reset)"} onClick={focus}><Maximize size={14} /></Pressable>
+      <Pressable noTapScale className={styles.mermaidHelpIconBtn} title={fs ? (ko ? "전체화면 종료 (Esc)" : "Exit fullscreen (Esc)") : (ko ? "전체화면" : "Fullscreen")} onClick={() => setFull(!fs)}>{fs ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</Pressable>
     </>
   );
   useEffect(() => {
@@ -714,7 +715,7 @@ function MermaidExample({ label, code, wide, ko, onCopy }: { label: string; code
     <div className={`${styles.mermaidHelpExample}${wide ? ` ${styles.mermaidHelpExampleWide}` : ""}`}>
       <div className={styles.mermaidHelpLabelRow}>
         <div className={styles.mermaidHelpLabel}>{label}</div>
-        <button type="button" className={styles.mermaidHelpCopy} onClick={() => onCopy(code)}><Copy size={13} />{ko ? "코드 복사" : "Copy code"}</button>
+        <Pressable noTapScale className={styles.mermaidHelpCopy} onClick={() => onCopy(code)}><Copy size={13} />{ko ? "코드 복사" : "Copy code"}</Pressable>
       </div>
       <div className={styles.mermaidHelpExampleBody}>
         <MermaidCode code={code} className={styles.mermaidHelpCode} />
@@ -1472,8 +1473,7 @@ function CodeLangPicker({ value, onChange, language }: { value: string; onChange
   return (
     <Popover open={open} onOpenChange={setOpen} placement="bottom-start" contentClassName={styles.codeMenuPopover}
       trigger={
-        <button
-          type="button"
+        <Pressable noTapScale
           className={styles.codeLangTrigger}
           onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
           aria-label={language === "ko" ? "언어 선택" : "Select language"}
@@ -1482,7 +1482,7 @@ function CodeLangPicker({ value, onChange, language }: { value: string; onChange
           <span className={styles.codeLangName}>{curLabel}</span>
           {/* 초기 > (오른쪽), 펼치면 90° 시계방향 회전 → 아래 */}
           <ChevronRight size={12} className={`${styles.codeLangCaret}${open ? ` ${styles.codeLangCaretOpen}` : ""}`} />
-        </button>
+        </Pressable>
       }
     >
       {({ close }) => <CodeLangPickerBody value={value} onChange={onChange} language={language} close={close} />}
@@ -1541,12 +1541,12 @@ function CodeLangPickerBody({ value, onChange, language, close }: { value: strin
   }, [active, ql]);
   // idx: 화살표 네비게이션용 플랫 인덱스, dataLetter: A–Z 그룹 첫 항목 앵커(rail 점프용)
   const renderItem = (l: CodeLang, idx: number, dataLetter?: string) => (
-    <button key={l.value} type="button" className={styles.codeMenuItem} data-idx={idx} data-letter={dataLetter}
+    <Pressable noTapScale key={l.value} className={styles.codeMenuItem} data-idx={idx} data-letter={dataLetter}
       data-active={idx === active ? "" : undefined} onMouseMove={() => setActive(idx)} onClick={() => pick(l.value)}>
       <LangIcon value={l.value} label={l.label} />
       <span className={styles.codeLangName}>{l.label}</span>
       {value === l.value && <Check size={13} className={styles.codeMenuTrailing} />}
-    </button>
+    </Pressable>
   );
 
   let body: React.ReactNode;
@@ -1634,9 +1634,9 @@ function CodeLangPickerBody({ value, onChange, language, close }: { value: strin
           {azLetters.length > 1 && (
             <div className={styles.codeAzRail} ref={railRef} data-visible={railVisible ? "" : undefined} aria-hidden={!railVisible}>
               {azLetters.map((lt) => (
-                <button key={lt} type="button" data-rail-letter={lt} data-active={lt === activeLetter ? "" : undefined}
+                <Pressable noTapScale key={lt} data-rail-letter={lt} data-active={lt === activeLetter ? "" : undefined}
                   className={styles.codeAzLetter} tabIndex={railVisible ? 0 : -1}
-                  onMouseDown={(e) => e.preventDefault()} onClick={() => jumpTo(lt)}>{lt}</button>
+                  onMouseDown={(e) => e.preventDefault()} onClick={() => jumpTo(lt)}>{lt}</Pressable>
               ))}
             </div>
           )}
@@ -1983,22 +1983,20 @@ export function CodeBlockElement(props: PlateElementProps) {
             <CodeLangPicker value={lang ?? "plaintext"} onChange={setLang} language={language} />
           </span>
           <div className={styles.codeBarControls}>
-            <button
-              type="button"
+            <Pressable noTapScale
               className={styles.codeBarCtrl}
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleCopy(); }}
               aria-label={language === "ko" ? "코드 복사" : "Copy code"}
             >
               <Copy size={12} />{language === "ko" ? "복사" : "Copy"}
-            </button>
-            <button
-              type="button"
+            </Pressable>
+            <Pressable noTapScale
               className={styles.codeBarCtrl}
               data-on={wrap ? "" : undefined}
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); toggleWrap(); }}
             >
               <WrapText size={12} />{language === "ko" ? "줄바꿈" : "Wrap"}
-            </button>
+            </Pressable>
           </div>
         </div>
         {/* placeholder 는 DOM 노드가 아니라 ::before 로 그린다(globals/_hljs.css) — Slate 경로 매핑이 어긋나지 않게. */}
@@ -2513,7 +2511,7 @@ export function MediaEmbedElement(props: PlateElementProps) {
               draggable={false}
             />
             {resizeSize && (
-              <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", padding: "3px 8px", background: "var(--bg-overlay)", color: "#fff", borderRadius: "var(--radius-xs)", fontSize: 13, fontWeight: 600, fontFamily: "var(--font-mono)", pointerEvents: "none", zIndex: 3 }}>
+              <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", padding: "3px 8px", background: "var(--bg-overlay)", color: "#fff", borderRadius: "var(--radius-capsule)", fontSize: 13, fontWeight: 600, fontFamily: "var(--font-mono)", pointerEvents: "none", zIndex: 3 }}>
                 {resizeSize.w}×{resizeSize.h}px
               </div>
             )}
@@ -2673,7 +2671,7 @@ function FilePreviewContent({ url, fileName, isPdf, isOffice, isText }: {
     return (
       <pre style={{
         margin: 0, padding: "12px 16px",
-        borderRadius: "var(--radius-md)", background: "var(--bg-primary)",
+        borderRadius: "var(--radius-2xl)", background: "var(--bg-primary)",
         fontSize: 12, color: "var(--text-secondary)", overflow: "auto",
         maxHeight: 400, whiteSpace: "pre-wrap", wordBreak: "break-all",
         fontFamily: "var(--font-mono)",
@@ -2715,7 +2713,7 @@ export function FileElement(props: PlateElementProps) {
       <BlockDropZone path={elPath}>
         <div {...blockDragProps} contentEditable={false} style={{
           maxWidth: hasPreview ? 640 : 480, cursor: "default",
-          border: "1px solid var(--border-light-color)",
+          border: "1px solid var(--border-color-light)",
           borderRadius: previewOpen ? "var(--radius-2xl)" : "var(--radius-capsule, 999px)",
           background: "var(--bg-secondary)", overflow: "hidden",
           display: "flex", flexDirection: "column" as const,
@@ -2741,33 +2739,32 @@ export function FileElement(props: PlateElementProps) {
             </div>
             {hasPreview && (
               <Tooltip content={previewOpen ? "Close preview" : "Preview"} placement="top">
-                <button
-                  type="button"
+                <Pressable noTapScale
                   onClick={() => setPreviewOpen(!previewOpen)}
                   style={{
                     width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "1px solid var(--border-light-color)",
+                    border: "1px solid var(--border-color-light)",
                     background: previewOpen ? "var(--bg-inverse)" : "var(--bg-primary)",
                     color: previewOpen ? "var(--text-inverse)" : "var(--text-primary)", cursor: "pointer",
                     transition: "background 0.2s, color 0.2s",
                   }}
                 >
                   <Eye size={16} />
-                </button>
+                </Pressable>
               </Tooltip>
             )}
             <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} style={{
               width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
               display: "flex", alignItems: "center", justifyContent: "center",
-              border: "1px solid var(--border-light-color)", background: "var(--bg-primary)",
+              border: "1px solid var(--border-color-light)", background: "var(--bg-primary)",
               color: "var(--text-primary)", textDecoration: "none", cursor: "pointer",
             }}>
               <Download size={16} />
             </a>
           </div>
           {isAudio && (
-            <audio src={url} controls preload="metadata" style={{ width: "100%", padding: "0 12px 8px", borderRadius: "var(--radius-sm)" }} />
+            <audio src={url} controls preload="metadata" style={{ width: "100%", padding: "0 12px 8px", borderRadius: "var(--radius-2xl)" }} />
           )}
           {hasPreview && (
             <div style={{
@@ -2865,7 +2862,7 @@ export function HrElement(props: PlateElementProps) {
   return (
     <BlockDropZone path={elPath}>
       <PlateElement {...props} style={{ margin: "var(--prose-block-gap) 0", ...props.style }}>
-        <hr contentEditable={false} style={{ border: "none", borderTop: "1px solid var(--border-light-color)", margin: 0, borderRadius: 1, outline: selected && focused ? "2px solid var(--color-accent)" : "none", outlineOffset: 4 }} />
+        <hr contentEditable={false} style={{ border: "none", borderTop: "1px solid var(--border-color-light)", margin: 0, borderRadius: 1, outline: selected && focused ? "2px solid var(--color-accent)" : "none", outlineOffset: 4 }} />
         <BlockTailClickZone path={elPath} />
         {props.children}
       </PlateElement>
@@ -2888,7 +2885,7 @@ export function ColumnGroupElement(props: PlateElementProps) {
   const groupRef = useRef<HTMLDivElement>(null);
 
   // 기본은 열 사이 가운데에 subtle 구분선 — "transparent" 로 명시하면 숨김
-  const dividerColor = colDivider === "transparent" ? "transparent" : colDivider || "var(--border-light-color)";
+  const dividerColor = colDivider === "transparent" ? "transparent" : colDivider || "var(--border-color-light)";
   const colBgVal = colBg === "transparent" ? "transparent" : colBg || COLUMN_DEFAULT_BG;
 
   const colChildren = (el.children as unknown[]) || [];
@@ -3152,7 +3149,7 @@ export function ColumnElement(props: PlateElementProps) {
       ...props.style,
       ...(px != null ? { flex: `0 var(--_col-shrink, 0) ${px}px` } : { flex: `${weight} 1 0` }),
       minWidth: COLUMN_MIN_PX,
-      borderRadius: "var(--radius-md)",
+      borderRadius: "var(--radius-2xl)",
       background: `var(--_col-bg, ${COLUMN_DEFAULT_BG})`,
       padding: "var(--spacing-sm)",
     }}>
@@ -3194,7 +3191,7 @@ export function ToggleElement(props: PlateElementProps) {
             if (i === 0) {
               return (
                 <div className="toggle-title-wrap" style={{ display: "flex", alignItems: "flex-start", gap: 4, ...titleStyle }}>
-                  <button type="button" contentEditable={false} style={{
+                  <Pressable noTapScale contentEditable={false} style={{
                     border: "none", background: "transparent", cursor: "pointer",
                     padding: 0, color: "var(--text-muted)",
                     transition: "transform 0.15s", transform: open ? "rotate(90deg)" : "rotate(0deg)",
@@ -3202,7 +3199,7 @@ export function ToggleElement(props: PlateElementProps) {
                     height: "1.4em",
                   }} onMouseDown={(e) => e.preventDefault()} onClick={toggleOpen}>
                     <CaretRightIcon />
-                  </button>
+                  </Pressable>
                   <div style={{ flex: 1, minWidth: 0 }}>{child}</div>
                 </div>
               );
@@ -3256,8 +3253,8 @@ export function CalloutElement(props: PlateElementProps) {
         <PlateElement {...props} style={{
           ...props.style,
           padding: hasIcon ? "var(--spacing-md) var(--spacing-md) var(--spacing-md) 44px" : "var(--spacing-md)",
-          borderRadius: "var(--radius-md)", background: bg,
-          border: (bg === "var(--bg-primary)" || bg === "transparent") ? "1px solid var(--border-light-color)" : "1px solid transparent",
+          borderRadius: "var(--radius-2xl)", background: bg,
+          border: (bg === "var(--bg-primary)" || bg === "transparent") ? "1px solid var(--border-color-light)" : "1px solid transparent",
         }}>
           {props.children}
         </PlateElement>

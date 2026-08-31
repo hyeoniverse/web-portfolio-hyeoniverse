@@ -15,6 +15,7 @@ import { Eraser } from "@/components/icons";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./HighlightInput.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /** maxLength 하드컷 발생 시 built-in toast 문구 (onOverflow 미제공 시) */
 const LIMIT_TOAST = { ko: "글자수 제한에 도달했습니다.", en: "Character limit reached." };
@@ -252,7 +253,7 @@ export default function HighlightInput({
           onBlur={onBlur}
         />
         {showClear && (
-          <button
+          <Pressable noTapScale
             type="button"
             className={styles.clearBtn}
             data-cursor="big"
@@ -262,7 +263,7 @@ export default function HighlightInput({
             title="지우기"
           >
             <Eraser size={11} strokeWidth={2} />
-          </button>
+          </Pressable>
         )}
         {hasCounter && (
           <span

@@ -2,9 +2,10 @@ import dynamic from "next/dynamic";
 import type { Language } from "@/providers/LanguageProvider";
 import { projectOverview } from "@/data/about/architecture";
 import { designConcepts } from "@/data/about/concepts";
-import { designFeatures } from "@/data/about/features";
-import { designProcess } from "@/data/about/process";
-import { securityItems } from "@/data/about/security";
+/* 폴백은 content/about/ 의 md 에서 구워진다 (scripts/gen-about-fallback.ts).
+   손으로 고치는 원본은 md 하나뿐이다. */
+import { aboutFeatures, aboutProcess, aboutSecurity } from "@/data/generated/aboutContent";
+import { adaptFeatures, adaptProcess, adaptSecurity } from "@/app/about/_config/adaptAbout";
 import { techStack } from "@/data/about/stack";
 import {
   HeroPanel,
@@ -97,7 +98,7 @@ export const desktopPanels: PanelConfig[] = [
   {
     key: "features",
     Component: FeaturesPanel,
-    props: (ctx) => ({ language: ctx.language, features: designFeatures }),
+    props: (ctx) => ({ language: ctx.language, features: adaptFeatures(aboutFeatures) }),
   },
   {
     key: "designSystem",
@@ -114,7 +115,7 @@ export const desktopPanels: PanelConfig[] = [
     Component: ProcessPanel,
     props: (ctx) => ({
       language: ctx.language,
-      process: designProcess,
+      process: adaptProcess(aboutProcess),
       scrollBy: ctx.scrollBy,
     }),
   },
@@ -151,7 +152,7 @@ export const desktopPanels: PanelConfig[] = [
   {
     key: "security",
     Component: SecurityPanel,
-    props: (ctx) => ({ language: ctx.language, items: securityItems }),
+    props: (ctx) => ({ language: ctx.language, items: adaptSecurity(aboutSecurity) }),
   },
   {
     key: "credits",
@@ -177,7 +178,7 @@ export const mobileTabPanels: Record<string, PanelConfig[]> = {
     {
       key: "features",
       Component: FeaturesPanel,
-      props: (ctx) => ({ language: ctx.language, features: designFeatures }),
+      props: (ctx) => ({ language: ctx.language, features: adaptFeatures(aboutFeatures) }),
     },
   ],
   design: [
@@ -196,7 +197,7 @@ export const mobileTabPanels: Record<string, PanelConfig[]> = {
       Component: ProcessPanel,
       props: (ctx) => ({
         language: ctx.language,
-        process: designProcess,
+        process: adaptProcess(aboutProcess),
         scrollBy: ctx.scrollBy,
       }),
     },
@@ -242,7 +243,7 @@ export const mobileTabPanels: Record<string, PanelConfig[]> = {
     {
       key: "security",
       Component: SecurityPanel,
-      props: (ctx) => ({ language: ctx.language, items: securityItems }),
+      props: (ctx) => ({ language: ctx.language, items: adaptSecurity(aboutSecurity) }),
     },
     {
       key: "credits",

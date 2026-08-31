@@ -12,6 +12,7 @@ import { CalendarDays } from "@/components/icons";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { relativeDateStr, genShortId, _pendingDateMentionOpen } from "../dateUtils";
 import styles from "../../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -135,9 +136,8 @@ export default function DateMentionMenu() {
     // eslint-disable-next-line react-hooks/refs
     <div ref={refs.setFloating} className={styles.slashMenu} style={style} onMouseDown={(e) => e.preventDefault()}>
       {items.map((it, i) => (
-        <button
+        <Pressable noTapScale
           key={it.key}
-          type="button"
           data-date-nav={i}
           className={`${styles.slashItem} ${i === activeIdx ? styles.slashItemActive : ""}`}
           onMouseEnter={() => setActiveIdx(i)}
@@ -146,7 +146,7 @@ export default function DateMentionMenu() {
           <span className={styles.menuIcon}><CalendarDays size={16} /></span>
           <span>{it.label}</span>
           {it.hint && <span className={styles.dateMentionHint}>{it.hint}</span>}
-        </button>
+        </Pressable>
       ))}
     </div>,
     document.body,

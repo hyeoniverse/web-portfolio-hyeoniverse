@@ -24,6 +24,7 @@ import FieldRow from "@/components/ui/FieldRow";
 import { showToast } from "@/stores/toastStore";
 import styles from "./ServicesTab.module.css";
 import shared from "../Settings.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 
 /* 발행 글 자동 cover 일괄 배정 — 기존 published + cover-less 글에 키워드 기반 Unsplash/Pexels 이미지 자동 배정.
@@ -353,8 +354,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
               return (
                 <>
                   {parts[0]}
-                  <button
-                    type="button"
+                  <Pressable
                     className={styles.envKeyLink}
                     onClick={() => {
                       const el = document.getElementById("env-RESEND_API_KEY");
@@ -375,7 +375,7 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                     }}
                   >
                     RESEND_API_KEY
-                  </button>
+                  </Pressable>
                   {parts[1]}
                 </>
               );
@@ -441,9 +441,9 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
                         {t("admin.settings.giscusNeedsToken")}
                       </Button>
                     : giscusErr
-                      ? <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-error)" }}>{giscusErr}</span>
+                      ? <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-error)" }}>{giscusErr}</span>
                       : giscusCats.length > 0
-                        ? <span style={{ fontSize: "var(--font-size-xs)", color: "var(--text-success)" }}>{t("admin.settings.giscusLoaded")}</span>
+                        ? <span style={{ fontSize: "var(--font-size-label)", color: "var(--text-success)" }}>{t("admin.settings.giscusLoaded")}</span>
                         : null}
                 </div>
               </div>

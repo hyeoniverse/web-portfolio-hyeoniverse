@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface AIGenerateTabProps {
   onSelect: (url: string) => void;
@@ -156,28 +157,26 @@ export default function AIGenerateTab({ onSelect, onGenerated, postContext }: AI
       {!prompt && !previewUrl && (
         <div className={styles.suggestions}>
           {promptSuggestions.map((s) => (
-            <button
+            <Pressable noTapScale
               key={s}
-              type="button"
               className={styles.suggestionChip}
               onClick={() => setPrompt(s)}
             >
               {s}
-            </button>
+            </Pressable>
           ))}
         </div>
       )}
 
       <div className={styles.styleRow}>
         {COVER_STYLE_OPTIONS.map((opt) => (
-          <button
+          <Pressable noTapScale
             key={opt.key}
-            type="button"
             className={`${styles.styleChip} ${style === opt.key ? styles.styleChipActive : ""}`}
             onClick={() => setStyle(opt.key)}
           >
             {opt.label}
-          </button>
+          </Pressable>
         ))}
       </div>
 

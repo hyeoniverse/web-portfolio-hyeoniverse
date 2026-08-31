@@ -9,6 +9,7 @@ import Popover from "@/components/ui/Popover";
 import BilingualInputPair from "@/components/admin/BilingualInputPair";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./TagNotesEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 
 /** 3-state toggle 버튼 — header 우측 */
@@ -31,8 +32,7 @@ function GroupToggleButton({
         : <Pencil size={10} strokeWidth={2.5} />;
   const label = state === "add" ? addLabel : state === "cancel" ? cancelLabel : editLabel;
   return (
-    <button
-      type="button"
+    <Pressable
       className={styles.toggleBtn}
       data-cursor="big"
       onMouseDown={(e) => e.stopPropagation()}
@@ -68,7 +68,7 @@ function GroupToggleButton({
           </motion.span>
         </AnimatePresence>
       </span>
-    </button>
+    </Pressable>
   );
 }
 
@@ -564,8 +564,7 @@ export default function TagNotesEditor({
                   ) : (
                     <div className={styles.capsuleGroup} data-cursor="big">
                       {multiLine && editingItem === item && selectedIdxs.size > 0 && (
-                        <button
-                          type="button"
+                        <Pressable
                           className={styles.capsuleAddBtn}
                           data-cursor="big"
                           onMouseDown={(e) => e.stopPropagation()}
@@ -585,7 +584,7 @@ export default function TagNotesEditor({
                         >
                           <X size={10} strokeWidth={2.5} />
                           삭제 ({selectedIdxs.size})
-                        </button>
+                        </Pressable>
                       )}
                       {entryEditToggle}
                     </div>

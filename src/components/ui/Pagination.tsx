@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "@/components/icons";
 import styles from "./Pagination.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface PaginationProps {
   page: number;
@@ -44,32 +45,32 @@ export default function Pagination({ page, totalPages, onChange, className, show
   return (
     <div className={`${styles.paginationWrap} ${size === "sm" ? styles.paginationWrapSm : ""} ${className ?? ""}`}>
       <div className={styles.pagination}>
-        <button type="button" disabled={page <= 1} onClick={() => onChange(1)} className={styles.pageBtn} title="First">
+        <Pressable disabled={page <= 1} onClick={() => onChange(1)} className={styles.pageBtn} title="First">
           <ChevronsLeft size={14} />
-        </button>
-        <button type="button" disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn}>
+        </Pressable>
+        <Pressable disabled={page <= 1} onClick={() => onChange(page - 1)} className={styles.pageBtn}>
           <ChevronLeft size={14} />
-        </button>
+        </Pressable>
         {pageNumbers.map((p, i) =>
           p === -1 ? (
             <span key={`ellipsis-${i}`} className={styles.ellipsis}>&hellip;</span>
           ) : (
-            <button
+            <Pressable
               type="button"
               key={p}
               onClick={() => onChange(p)}
               className={`${styles.pageBtn} ${page === p ? styles.pageBtnActive : ""}`}
             >
               {p}
-            </button>
+            </Pressable>
           ),
         )}
-        <button type="button" disabled={page >= totalPages} onClick={() => onChange(page + 1)} className={styles.pageBtn}>
+        <Pressable disabled={page >= totalPages} onClick={() => onChange(page + 1)} className={styles.pageBtn}>
           <ChevronRight size={14} />
-        </button>
-        <button type="button" disabled={page >= totalPages} onClick={() => onChange(totalPages)} className={styles.pageBtn} title="Last">
+        </Pressable>
+        <Pressable disabled={page >= totalPages} onClick={() => onChange(totalPages)} className={styles.pageBtn} title="Last">
           <ChevronsRight size={14} />
-        </button>
+        </Pressable>
       </div>
 
       {renderJump && (

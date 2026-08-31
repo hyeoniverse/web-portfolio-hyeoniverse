@@ -19,6 +19,7 @@ import { getTrashDaysLeft } from "@/utils/trash";
 import settings from "../Settings.module.css";
 import styles from "./CalendarManager.module.css";
 import EmptyState from "@/components/ui/EmptyState";
+import Pressable from "@/components/ui/Pressable";
 
 // 무거운 캘린더 뷰 스택 — 클릭 시 모달 미리보기에서만 필요하므로 지연 로드.
 // (settings 초기 번들에서 제외 → Turbopack chunk 안정화 + 초기 로드 경량화)
@@ -245,13 +246,13 @@ export default function CalendarManager() {
 
         {/* ── 휴지통 (soft delete · 30일 후 자동 영구삭제) ── */}
         <div className={styles.trashSection}>
-          <button type="button" className={styles.trashHead} onClick={toggleTrash} aria-expanded={trashOpen}>
+          <Pressable className={styles.trashHead} onClick={toggleTrash} aria-expanded={trashOpen}>
             <Trash2 size={14} />
             <span className={styles.trashTitle}>{t("휴지통", "Trash")}</span>
             {trash && trash.length > 0 && <span className={styles.trashCount}>{trash.length}</span>}
             <span className={styles.trashHint}>{t("30일 후 자동 삭제", "auto-deleted after 30 days")}</span>
             <ChevronDown size={15} className={`${styles.trashChev}${trashOpen ? ` ${styles.trashChevOpen}` : ""}`} />
-          </button>
+          </Pressable>
           {trashOpen && (
             <div className={styles.trashBody}>
               {trash === null ? (

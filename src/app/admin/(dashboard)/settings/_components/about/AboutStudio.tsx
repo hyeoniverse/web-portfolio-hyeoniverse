@@ -11,11 +11,11 @@ import dynamic from "next/dynamic";
 import { ABOUT_PANELS } from "./aboutPanels";
 import type { TFunction } from "@/providers/LanguageProvider";
 import type { Language } from "@/types";
-import { useState, useEffect, useMemo, useRef, useDeferredValue, type CSSProperties, type Dispatch, type FocusEvent, type ReactNode, type SetStateAction } from "react";
+import { useState, useEffect, useMemo, useRef, useDeferredValue, type CSSProperties, type Dispatch, type FocusEvent, type ReactNode, type SetStateAction, type ChangeEvent } from "react";
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import {
   Plus, X, Trash2, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Image as ImageIcon, Lock, LayoutTemplate,
-  Folder, FolderOpen, FileCode, Code2,
+  Folder, FolderOpen, FileCode, Code2, Upload,
 } from "@/components/icons";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, rectSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
@@ -66,7 +66,10 @@ import secu from "@/app/about/_components/panels/SecurityPanel.module.css";
 import bk from "@/app/about/_components/panels/BackendPanel.module.css";
 import uf from "@/app/about/_components/panels/UserFlowPanel.module.css";
 import { erdTables as staticErdTables, erdRelations as staticErdRelations } from "@/data/about/erd";
-import { troubleShootingItems } from "@/data/about/troubleshooting";
+import { aboutDecisions } from "@/data/generated/aboutContent";
+import { canUseMarkdown, contentPathOf } from "@/lib/about/contentSources";
+import { showToast } from "@/stores/toastStore";
+import { loadPanelFiles } from "@/lib/about/loadPanelFiles";
 import type { TroubleShootingItem } from "@/data/about/types";
 import type { ErdTable, ErdRelation } from "@/data/about/types";
 import { parseSqlErd, type ParsedErd } from "./parseSqlErd";
@@ -82,6 +85,7 @@ import dc from "@/app/about/_components/panels/DesignSystemPanel.module.css";
 import ch from "@/app/about/_components/panels/CodeHighlightsPanel.module.css";
 import CodeDemoSlot, { type CodeDemoMode } from "@/app/about/_components/panels/CodeDemoSlot";
 import { securityIcons } from "@/app/about/_components/panels/SecurityPanel";
+import Pressable from "@/components/ui/Pressable";
 
 /* ═══════════ 타입 ═══════════ */
 type ThemeBg = { primary: string; secondary: string; accent: string };
@@ -153,11 +157,12 @@ function EditableText({ value, onChange, placeholder, multiline, className, styl
   );
 }
 
-/* 패널 라이브 프리뷰 스테이지 — 실제 뷰포트 폭으로 그린 뒤 scale 다운(미니어처).
-   높이는 콘텐츠에 맞춰 grow(min DESIGN_H) → 넘쳐도 안 잘림. 실제 높이 측정해 stage 높이 = 실제높이×scale. */
-function PanelStage({ scale, children }: { scale: number; children: ReactNode }) {
+/* 패널 라이브 프리뷰 스테이지 — 실제 뷰포트 폭(DESIGN_W)으로 그대로 그린다.
+   높이는 콘텐츠에 맞춰 grow(min DESIGN_H) → 넘쳐도 안 잘림. */
+function PanelStage({ children }: { children: ReactNode }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [h, setH] = useState(DESIGN_H);
+
   useEffect(() => {
     const el = panelRef.current;
     if (!el) return;
@@ -167,11 +172,16 @@ function PanelStage({ scale, children }: { scale: number; children: ReactNode })
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  /* --tool-scale = 1/scale → 패널 안 편집 버튼이 이걸로 counter-scale 하면 스케일 무관 동일 크기 */
-  const panelStyle: CSSProperties = { position: "absolute", top: 0, left: 0, width: DESIGN_W, height: "auto", minHeight: DESIGN_H, padding: "clamp(24px, 2.4vw, 48px)", transform: `scale(${scale})`, transformOrigin: "top left" };
-  (panelStyle as Record<string, string | number>)["--tool-scale"] = scale > 0 ? 1 / scale : 1;
+
+  /* 줄이지 않고 실제 크기로 그린다. 열 폭에 맞춰 축소하던 때는 0.72 배가 걸려 16px 본문이
+     11.5px 로 나왔고, 글이 많은 패널(Troubleshooting·Backend)은 읽을 수가 없었다.
+     1440px 이 열 폭을 넘는 만큼은 가로 스크롤로 넘긴다.
+     --tool-scale 은 패널 안 편집 버튼의 counter-scale 용이라 1 로 고정된다. */
+  const panelStyle: CSSProperties = { position: "absolute", top: 0, left: 0, width: DESIGN_W, height: "auto", minHeight: DESIGN_H, padding: "clamp(24px, 2.4vw, 48px)" };
+  (panelStyle as Record<string, string | number>)["--tool-scale"] = 1;
+
   return (
-    <div className={css.panelStage} style={{ height: h * scale }}>
+    <div className={css.panelStage} style={{ height: h }} data-lenis-prevent>
       <div ref={panelRef} className={`${sec.section} ${sec.panel}`} style={panelStyle}>
         {children}
       </div>
@@ -193,11 +203,11 @@ function StageTabs({ count, active, onSelect, labelOf, addLabel, onAdd, canAdd }
       </Button>
       <div className={css.stageDots}>
         {Array.from({ length: count }, (_, i) => (
-          <button key={i} type="button" title={labelOf(i)}
+          <Pressable key={i} title={labelOf(i)}
             className={`${css.stageDot} ${i === active ? css.stageDotOn : ""}`}
             onClick={() => onSelect(i)}>
             {String(i + 1).padStart(2, "0")}
-          </button>
+          </Pressable>
         ))}
       </div>
       <Button variant="subtle" shape="circle" size="xs" aria-label="next"
@@ -289,7 +299,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
       default: return [];
     }
   };
-  const saveHdr = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, t };
+  const saveHdr = { config, savedConfig, saveSection, revertSection, resetSection, savingPaths, setAny, lang, t };
 
   /* Hero 텍스트 (언어별) */
   type HeroBase = "heroLine1" | "heroLine2" | "heroWatermark" | "heroLabel" | "heroSubtitle";
@@ -367,7 +377,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
         <>
           <span className={css.ttLabel}>밑줄</span>
           <ColorPicker value={av || themeBg.accent} onChange={(c) => setAny("heroAccentColor", c.hex)}>
-            {({ toggle }) => <button type="button" className={css.ttSwatch} style={{ background: av || themeBg.accent }} onClick={toggle} aria-label="색상" />}
+            {({ toggle }) => <Pressable className={css.ttSwatch} style={{ background: av || themeBg.accent }} onClick={toggle} aria-label="색상" />}
           </ColorPicker>
         </>
       );
@@ -382,7 +392,7 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
       <>
         <span className={css.ttLabel}>{label}</span>
         <ColorPicker value={colorVal || fb} onChange={(c) => setAny(`${k}Color`, c.hex)}>
-          {({ toggle }) => <button type="button" className={css.ttSwatch} style={{ background: colorVal || fb }} onClick={toggle} aria-label="색상" />}
+          {({ toggle }) => <Pressable className={css.ttSwatch} style={{ background: colorVal || fb }} onClick={toggle} aria-label="색상" />}
         </ColorPicker>
         <NumberInput value={px} unit="px" width={46} ariaLabel="글자 크기"
           min={Math.round(cfg.min * 16)} max={Math.round(cfg.max * 16)} step={Math.max(1, Math.round(cfg.step * 16))}
@@ -414,8 +424,13 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
         {active && typeToolbar(active)}
       </FloatingBar>
 
+      {/* ── 패널 관리 (순서 DnD + 표시) ── 어느 패널을 어떤 순서로 낼지 먼저 정하고
+           개별 내용으로 들어가는 흐름이라 맨 위에 둔다. ── */}
+      <PanelSaveHeader label={lang === "ko" ? "패널 순서·표시" : "Panel order & visibility"} paths={savePathsFor("panels")} panelKey="panels" {...saveHdr} />
+      <PanelManager about={about} setAny={setAny} t={t} lang={lang} />
+
       {/* ── Hero 라이브 프리뷰 — 실제 About Hero CSS 를 데스크톱 비율로 그려 scale 다운 ── */}
-      <PanelSaveHeader label={panelTitleOf("hero") ?? "Intro"} paths={savePathsFor("hero")} {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("hero") ?? "Intro"} paths={savePathsFor("hero")} panelKey="hero" {...saveHdr} />
       <div className={css.stageWrap} ref={wrapRef} style={{ height: DESIGN_H * scale }}>
         <div
           className={`${sec.section} ${sec.panel} ${hero.heroPanelBg} ${hero.heroReady} ${bgLight ? hero.heroBgLight : ""} ${bgDark ? hero.heroBgDark : ""} ${media ? hero.heroMediaMode : ""}`}
@@ -463,10 +478,10 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
                   ariaLabel="subtitle" onFocus={(e) => openBar("heroSubtitle", e)} style={{ minWidth: "22ch", width: "100%" }} />
               </p>
             )}
-            <button type="button" className={css.accentHit} title="밑줄 색" aria-label="밑줄 색"
+            <Pressable className={css.accentHit} title="밑줄 색" aria-label="밑줄 색"
               onClick={(e) => { setActive("heroAccent"); activeElRef.current = e.currentTarget; }}>
               <span className={hero.heroAccentLine} />
-            </button>
+            </Pressable>
           </div>
         </div>
 
@@ -490,9 +505,9 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
                   {HERO_ELEMENTS.map((el) => {
                     const on = !heroHidden.has(el.key);
                     return (
-                      <button key={el.key} type="button" className={`${css.chip} ${on ? css.chipOn : css.chipOff}`} onClick={() => toggleHeroHidden(el.key)}>
+                      <Pressable key={el.key} className={`${css.chip} ${on ? css.chipOn : css.chipOff}`} onClick={() => toggleHeroHidden(el.key)}>
                         <span className={css.chipDot} />{el.label}
-                      </button>
+                      </Pressable>
                     );
                   })}
                 </div>
@@ -555,84 +570,80 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
         </div>
       </div>
 
-      {/* ── 패널 관리 (순서 DnD + 표시) ── */}
-      <PanelSaveHeader label={lang === "ko" ? "패널 순서·표시" : "Panel order & visibility"} paths={savePathsFor("panels")} {...saveHdr} />
-      <PanelManager about={about} setAny={setAny} t={t} lang={lang} />
-
       {/* ── Overview ── */}
-      <PanelSaveHeader label={panelTitleOf("overview") ?? "Overview"} paths={savePathsFor("overview")} {...saveHdr} />
-      <OverviewBlock about={about} lang={lang} setAny={setAny} t={t} scale={scale} titleOverride={panelTitleOf("overview")} />
+      <PanelSaveHeader label={panelTitleOf("overview") ?? "Overview"} paths={savePathsFor("overview")} panelKey="overview" {...saveHdr} />
+      <OverviewBlock about={about} lang={lang} setAny={setAny} t={t} titleOverride={panelTitleOf("overview")} />
 
       {/* ── Architecture ── */}
-      <PanelSaveHeader label={panelTitleOf("architecture") ?? "Architecture"} paths={savePathsFor("architecture")} {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("architecture") ?? "Architecture"} paths={savePathsFor("architecture")} panelKey="architecture" {...saveHdr} />
       <ArchitectureBlock value={(about.architectureItems) ?? []} onChange={setArch}
         diagram={(about.archDiagram) ?? { nodes: [], edges: [] }}
         onDiagramChange={(v) => setAny("archDiagram", v)} t={t} lang={lang} />
 
       {/* ── User Flow ── */}
-      <PanelSaveHeader label={panelTitleOf("userflow") ?? "User Flow"} paths={savePathsFor("userflow")} {...saveHdr} />
-      <UserFlowBlock lang={lang} t={t} scale={scale} titleOverride={panelTitleOf("userflow")}
+      <PanelSaveHeader label={panelTitleOf("userflow") ?? "User Flow"} paths={savePathsFor("userflow")} panelKey="userflow" {...saveHdr} />
+      <UserFlowBlock lang={lang} t={t} titleOverride={panelTitleOf("userflow")}
         onChange={(v) => setAny("userFlows", v)}
         value={(about.userFlows as UserFlow[] | undefined)?.length ? (about.userFlows as UserFlow[]) : userFlows} />
 
       {/* ── Features ── */}
-      <PanelSaveHeader label={panelTitleOf("features") ?? "Features"} paths={savePathsFor("features")} {...saveHdr} />
-      <FeaturesBlock value={about.features ?? []} onChange={(v) => setAny("features", v)} lang={lang} t={t} scale={scale} titleOverride={panelTitleOf("features")} />
+      <PanelSaveHeader label={panelTitleOf("features") ?? "Features"} paths={savePathsFor("features")} panelKey="features" {...saveHdr} />
+      <FeaturesBlock value={about.features ?? []} onChange={(v) => setAny("features", v)} lang={lang} t={t} titleOverride={panelTitleOf("features")} />
 
       {/* ── Design System ── */}
-      <PanelSaveHeader label={panelTitleOf("designSystem") ?? "Design System"} paths={savePathsFor("designSystem")} {...saveHdr} />
-      <DesignSystemBlock lang={lang} t={t} scale={scale} onChange={(v) => setAny("designSystem", v)}
+      <PanelSaveHeader label={panelTitleOf("designSystem") ?? "Design System"} paths={savePathsFor("designSystem")} panelKey="designSystem" {...saveHdr} />
+      <DesignSystemBlock lang={lang} t={t} onChange={(v) => setAny("designSystem", v)}
         value={(about.designSystem as ConceptItem[] | undefined)?.length ? (about.designSystem as ConceptItem[]) : seedConcepts()} />
 
       {/* ── Process ── */}
-      <PanelSaveHeader label={panelTitleOf("process") ?? "Process"} paths={savePathsFor("process")} {...saveHdr} />
-      <ProcessBlock value={about.process ?? []} onChange={(v) => setAny("process", v)} lang={lang} t={t} scale={scale} titleOverride={panelTitleOf("process")} />
+      <PanelSaveHeader label={panelTitleOf("process") ?? "Process"} paths={savePathsFor("process")} panelKey="process" {...saveHdr} />
+      <ProcessBlock value={about.process ?? []} onChange={(v) => setAny("process", v)} lang={lang} t={t} titleOverride={panelTitleOf("process")} />
 
       {/* ── Security ── */}
-      <PanelSaveHeader label={panelTitleOf("security") ?? "Security"} paths={savePathsFor("security")} {...saveHdr} />
-      <SecurityBlock value={about.security ?? []} onChange={(v) => setAny("security", v)} lang={lang} t={t} scale={scale} titleOverride={panelTitleOf("security")} />
+      <PanelSaveHeader label={panelTitleOf("security") ?? "Security"} paths={savePathsFor("security")} panelKey="security" {...saveHdr} />
+      <SecurityBlock value={about.security ?? []} onChange={(v) => setAny("security", v)} lang={lang} t={t} titleOverride={panelTitleOf("security")} />
 
       {/* ── Break image ── */}
-      <PanelSaveHeader label={lang === "ko" ? "브레이크 이미지" : "Break image"} paths={savePathsFor("visualBreak")} {...saveHdr} />
+      <PanelSaveHeader label={lang === "ko" ? "브레이크 이미지" : "Break image"} paths={savePathsFor("visualBreak")} panelKey="visualBreak" {...saveHdr} />
       <BreakBlock url={about.visualBreakImage ?? ""} t={t}
         onSet={(u) => setConfig((prev) => ({ ...prev, about: { ...prev.about, visualBreakImage: u } }))} />
 
       {/* ── Tech stack ── */}
-      <PanelSaveHeader label={panelTitleOf("techStack") ?? "Tech Stack"} paths={savePathsFor("techStack")} {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("techStack") ?? "Tech Stack"} paths={savePathsFor("techStack")} panelKey="techStack" {...saveHdr} />
       <section className={css.block}>
         {techStackSlot}
       </section>
 
       {/* ── Backend ── */}
-      <PanelSaveHeader label={panelTitleOf("backend") ?? "Backend"} paths={savePathsFor("backend")} {...saveHdr} />
-      <BackendBlock lang={lang} t={t} scale={scale} titleOverride={panelTitleOf("backend")}
+      <PanelSaveHeader label={panelTitleOf("backend") ?? "Backend"} paths={savePathsFor("backend")} panelKey="backend" {...saveHdr} />
+      <BackendBlock lang={lang} t={t} titleOverride={panelTitleOf("backend")}
         onChange={(v) => setAny("backend", v)}
         value={(about.backend as BackendItem[] | undefined)?.length ? (about.backend as BackendItem[]) : backendItems} />
 
       {/* ── ERD ── */}
-      <PanelSaveHeader label={panelTitleOf("erd") ?? "ERD"} paths={savePathsFor("erd")} {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("erd") ?? "ERD"} paths={savePathsFor("erd")} panelKey="erd" {...saveHdr} />
       <ErdBlock lang={lang}
         tables={(about.erdTables as ErdTable[] | undefined)?.length ? (about.erdTables as ErdTable[]) : staticErdTables}
         relations={(about.erdRelations as ErdRelation[] | undefined)?.length ? (about.erdRelations as ErdRelation[]) : staticErdRelations}
         onChange={(tb, rl) => { setAny("erdTables", tb); setAny("erdRelations", rl); }} />
 
       {/* ── Code Highlights ── */}
-      <PanelSaveHeader label={panelTitleOf("codeHighlights") ?? "Code Highlights"} paths={savePathsFor("codeHighlights")} {...saveHdr} />
-      <CodeHighlightsBlock lang={lang} t={t} scale={scale} titleOverride={panelTitleOf("codeHighlights")}
+      <PanelSaveHeader label={panelTitleOf("codeHighlights") ?? "Code Highlights"} paths={savePathsFor("codeHighlights")} panelKey="codeHighlights" {...saveHdr} />
+      <CodeHighlightsBlock lang={lang} t={t} titleOverride={panelTitleOf("codeHighlights")}
         onChange={(v) => setAny("codeHighlights", v)}
         value={(about.codeHighlights as CodeItem[] | undefined)?.length ? (about.codeHighlights as CodeItem[]) : seedCode()} />
 
       {/* ── Troubleshooting ── */}
-      <PanelSaveHeader label={panelTitleOf("troubleshooting") ?? "Troubleshooting"} paths={savePathsFor("troubleshooting")} {...saveHdr} />
-      <TroubleshootingBlock lang={lang} scale={scale} titleOverride={panelTitleOf("troubleshooting")}
-        onChange={(v) => setAny("troubleshooting", v)}
-        value={(about.troubleshooting as TroubleShootingItem[] | undefined)?.length
-          ? (about.troubleshooting as TroubleShootingItem[]) : troubleShootingItems} />
+      <PanelSaveHeader label={panelTitleOf("troubleshooting") ?? "Troubleshooting"} paths={savePathsFor("troubleshooting")} panelKey="troubleshooting" {...saveHdr} />
+      <TroubleshootingBlock lang={lang} titleOverride={panelTitleOf("troubleshooting")}
+          onChange={(v) => setAny("troubleshooting", v)}
+          value={(about.troubleshooting as TroubleShootingItem[] | undefined)?.length
+            ? (about.troubleshooting as TroubleShootingItem[]) : aboutDecisions} />
 
       {/* ── Credits ── */}
-      <PanelSaveHeader label={panelTitleOf("credits") ?? "Credits"} paths={savePathsFor("credits")} {...saveHdr} />
+      <PanelSaveHeader label={panelTitleOf("credits") ?? "Credits"} paths={savePathsFor("credits")} panelKey="credits" {...saveHdr} />
       <CreditsBlock about={about} setAny={setAny} lang={lang} t={t}
-        nickname={config.personal?.nickname ?? ""} />
+          nickname={config.personal?.nickname ?? ""} />
     </div>
   );
 }
@@ -668,7 +679,7 @@ function ColorRow({ label, value, onChange }: { label: string; value: string; on
     <div className={css.bgSliderRow}>
       <span>{label}</span>
       <ColorPicker value={value} onChange={(c) => onChange(c.hex)}>
-        {({ toggle }) => <button type="button" className={css.ttSwatch} style={{ background: value }} onClick={toggle} aria-label={label} />}
+        {({ toggle }) => <Pressable className={css.ttSwatch} style={{ background: value }} onClick={toggle} aria-label={label} />}
       </ColorPicker>
     </div>
   );
@@ -678,11 +689,11 @@ function SwatchField({ label, value, onChange }: { label: string; value: string;
   return (
     <ColorPicker value={value} onChange={(c) => onChange(c.hex)}>
       {({ toggle }) => (
-        <button type="button" className={css.swatchField} onClick={toggle}>
+        <Pressable className={css.swatchField} onClick={toggle}>
           <span className={css.swatchChip} style={{ background: value }} />
           <span className={css.swatchLabel}>{label}</span>
           <span className={css.swatchVal}>{value}</span>
-        </button>
+        </Pressable>
       )}
     </ColorPicker>
   );
@@ -770,9 +781,9 @@ function PanelManager({ about, setAny, t, lang }: {
   );
   /* intro/credits — 순서·표시 모두 잠금(항상 표시). 이름만 더블클릭으로 수정 가능. */
   const lockedChip = (k: string) => (
-    <button type="button" className={`${css.chip} ${css.chipOn} ${css.chipLocked}`} onDoubleClick={() => setEditKey(k)} title={lang === "ko" ? "고정됨 · 더블클릭으로 이름만 수정" : "Locked · Double-click to rename"}>
+    <Pressable className={`${css.chip} ${css.chipOn} ${css.chipLocked}`} onDoubleClick={() => setEditKey(k)} title={lang === "ko" ? "고정됨 · 더블클릭으로 이름만 수정" : "Locked · Double-click to rename"}>
       <Lock className={css.chipLock} size={11} />{labelOf(k)}
-    </button>
+    </Pressable>
   );
 
   return (
@@ -803,24 +814,69 @@ function PanelSortChip({ id, className, label, onToggle, onEdit }: { id: string;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style: CSSProperties = { transform: DndCSS.Transform.toString(transform), transition, zIndex: isDragging ? 2 : undefined, position: isDragging ? "relative" : undefined };
   return (
-    <button ref={setNodeRef} style={style} type="button"
+    <Pressable ref={setNodeRef} style={style}
       className={`${className} ${css.chipDrag} ${isDragging ? css.chipDragging : ""}`}
       onClick={onToggle} onDoubleClick={onEdit} {...attributes} {...listeners}>
       <span className={css.chipDot} />{label}
-    </button>
+    </Pressable>
   );
 }
 
 /* ═══════════ 패널별 저장 헤더 — 해당 패널 config 경로만 저장/dirty 판정 ═══════════ */
-function PanelSaveHeader({ label, hint, paths, config, savedConfig, saveSection, revertSection, resetSection, savingPaths, t }: {
-  label: string; hint?: ReactNode; paths: string[]; config: SiteConfigData; savedConfig: SiteConfigData;
+function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, saveSection, revertSection, resetSection, savingPaths, setAny, lang, t }: {
+  label: string; hint?: ReactNode; paths: string[]; panelKey?: string;
+  config: SiteConfigData; savedConfig: SiteConfigData;
   saveSection: SettingsTabProps["saveSection"]; revertSection: SettingsTabProps["revertSection"];
-  resetSection: SettingsTabProps["resetSection"]; savingPaths: SettingsTabProps["savingPaths"]; t: TFunction;
+  resetSection: SettingsTabProps["resetSection"]; savingPaths: SettingsTabProps["savingPaths"];
+  setAny: (k: string, v: unknown) => void; lang: Language; t: TFunction;
 }) {
   const dirty = paths.some((p) => !deepEqual(getByPath(config, p), getByPath(savedConfig, p)));
   /* 이미 기본값이면 "기본값" 버튼은 할 일이 없다 */
   const atDefault = paths.every((p) => deepEqual(getByPath(config, p), getByPath(siteConfig as unknown as SiteConfigData, p)));
   const saving = savingPaths != null && savingPaths.length === paths.length && savingPaths.every((p) => paths.includes(p));
+
+  const about = config.about as unknown as Record<string, unknown>;
+  const mdCapable = !!panelKey && canUseMarkdown(panelKey);
+  const syncedAt = ((about.contentSyncedAt ?? {}) as Record<string, string>)[panelKey ?? ""];
+
+  /* 저장 시각을 같이 남긴다. 동기화가 이 값과 파일 수정 시각을 견줘 더 최근 쪽을 남기므로,
+     이걸 안 찍으면 화면에서 방금 고친 내용을 오래된 파일이 덮는다. */
+  const saveWithStamp = () => {
+    if (!mdCapable) { void saveSection(paths); return; }
+    const stamps = { ...((about.contentEditedAt ?? {}) as Record<string, string>), [panelKey!]: new Date().toISOString() };
+    setAny("contentEditedAt", stamps);
+    const next = { ...config, about: { ...config.about, contentEditedAt: stamps } } as SiteConfigData;
+    void saveSection([...paths, "about.contentEditedAt"], next);
+  };
+
+  /* 고른 .md 를 읽어 편집 상태에 채운다. 저장은 하지 않는다 — 눈으로 보고 섹션저장을
+     누르는 흐름이라, 파일을 잘못 골라도 되돌리기로 물릴 수 있다. */
+  const onPickFiles = async (e: ChangeEvent<HTMLInputElement>) => {
+    const picked = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    if (picked.length === 0) return;
+    const files = await Promise.all(picked.map(async (f) => ({ name: f.name, text: await f.text() })));
+    const result = loadPanelFiles(panelKey!, files);
+    if (!result || result.count === 0) {
+      showToast(result?.warnings[0] ?? (lang === "ko" ? "읽지 못했습니다." : "Could not read the files."), "error");
+      return;
+    }
+    for (const [path, value] of Object.entries(result.values)) {
+      setAny(path.slice("about.".length), value);
+    }
+    if (result.warnings.length > 0) {
+      showToast(
+        `${result.count}${lang === "ko" ? "개를 불러왔지만 경고가 있습니다 — " : " loaded with warnings — "}${result.warnings[0]}`,
+        "error",
+      );
+    } else {
+      showToast(
+        lang === "ko" ? `${result.count}개를 불러왔습니다. 확인 후 저장하세요.` : `Loaded ${result.count}. Review, then save.`,
+        "success",
+      );
+    }
+  };
+
   return (
     /* data-settings-section — SectionJumpNav 가 About 패널도 섹션으로 스캔·점프.
        라벨이 h2 가 아니라 span 이라, 점프바가 읽을 값을 data-section-label 로 넘긴다. */
@@ -828,6 +884,21 @@ function PanelSaveHeader({ label, hint, paths, config, savedConfig, saveSection,
       <span className={css.psLabel}>{label}</span>
       <span className={`${css.psDot} ${dirty ? css.psDotOn : ""}`} aria-hidden />
       {hint && <span className={css.psHint}>{hint}</span>}
+      {mdCapable && (
+        <label className={css.psUpload} title={lang === "ko" ? ".md 파일을 읽어 채웁니다" : "Fill from .md files"}>
+          <Upload size={12} strokeWidth={1.8} aria-hidden />
+          {lang === "ko" ? "md 불러오기" : "Load .md"}
+          <input type="file" accept=".md" multiple hidden onChange={onPickFiles} />
+        </label>
+      )}
+      {mdCapable && syncedAt && (
+        <span className={css.psSyncNote} title={contentPathOf(panelKey!)}>
+          {lang === "ko" ? "파일에서 " : "from files "}
+          {new Date(syncedAt).toLocaleString(lang === "ko" ? "ko-KR" : "en-US", {
+            month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+          })}
+        </span>
+      )}
       <Button variant="outline" size="xs" disabled={atDefault || saving} onClick={() => resetSection(paths)}
         title={t("admin.settings.resetSection")}>
         {t("admin.settings.resetSection")}
@@ -836,7 +907,7 @@ function PanelSaveHeader({ label, hint, paths, config, savedConfig, saveSection,
         title={t("admin.settings.revertSection")}>
         {t("admin.settings.revertSection")}
       </Button>
-      <Button variant="subtle" size="xs" disabled={!dirty || saving} onClick={() => saveSection(paths)}>
+      <Button variant="subtle" size="xs" disabled={!dirty || saving} onClick={saveWithStamp}>
         {t("admin.settings.saveSection")}
       </Button>
     </div>
@@ -844,8 +915,8 @@ function PanelSaveHeader({ label, hint, paths, config, savedConfig, saveSection,
 }
 
 /* ═══════════ Overview ═══════════ */
-function OverviewBlock({ about, lang, setAny, t, scale, titleOverride }: {
-  about: SiteConfigData["about"]; lang: Language; setAny: (k: string, v: unknown) => void; t: TFunction; scale: number; titleOverride?: string;
+function OverviewBlock({ about, lang, setAny, t, titleOverride }: {
+  about: SiteConfigData["about"]; lang: Language; setAny: (k: string, v: unknown) => void; t: TFunction; titleOverride?: string;
 }) {
   const stats = (about.overview_stats ?? []) as OverviewStat[];
   const setStats = (v: OverviewStat[]) => setAny("overview_stats", v);
@@ -854,7 +925,7 @@ function OverviewBlock({ about, lang, setAny, t, scale, titleOverride }: {
   const highlights = (about.overview_highlights ?? "").split(",").map((s) => s.trim()).filter(Boolean);
   const setHighlights = (arr: string[]) => setAny("overview_highlights", arr.filter(Boolean).join(", "));
   return (
-    <PanelStage scale={scale}>
+    <PanelStage>
         <h3 className={sec.panelTitle}>{titleOverride ?? "Overview."}</h3>
         <div className={ov.overviewLayout}>
           <div className={ov.overviewTop}>
@@ -867,7 +938,7 @@ function OverviewBlock({ about, lang, setAny, t, scale, titleOverride }: {
                   <span className={css.editTagX}><Button variant="subtle" shape="circle" size="2xs" onClick={() => setHighlights(highlights.filter((_, x) => x !== i))} aria-label="remove"><X size={11} /></Button></span>
                 </span>
               ))}
-              <button type="button" className={css.addTagBtn} onClick={() => setHighlights([...highlights, lang === "ko" ? "새 항목" : "New"])} aria-label="add"><Plus size={13} /></button>
+              <Pressable className={css.addTagBtn} onClick={() => setHighlights([...highlights, lang === "ko" ? "새 항목" : "New"])} aria-label="add"><Plus size={13} /></Pressable>
             </div>
           </div>
           <div className={ov.overviewStats}>
@@ -881,9 +952,9 @@ function OverviewBlock({ about, lang, setAny, t, scale, titleOverride }: {
               </div>
             ))}
             {stats.length < 8 && (
-              <button type="button" className={css.addStatCell} onClick={() => setStats([...stats, { value: "0", label_ko: "라벨", label_en: "Label" }])}>
+              <Pressable className={css.addStatCell} onClick={() => setStats([...stats, { value: "0", label_ko: "라벨", label_en: "Label" }])}>
                 <Plus size={18} /> {lang === "ko" ? "지표 추가" : "Add metric"}
-              </button>
+              </Pressable>
             )}
           </div>
         </div>
@@ -892,8 +963,8 @@ function OverviewBlock({ about, lang, setAny, t, scale, titleOverride }: {
 }
 
 /* ═══════════ Features ═══════════ */
-function FeaturesBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: FeatureItem[]; onChange: (v: FeatureItem[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
+function FeaturesBlock({ value, onChange, lang, t, titleOverride }: {
+  value: FeatureItem[]; onChange: (v: FeatureItem[]) => void; lang: Language; t: TFunction; titleOverride?: string;
 }) {
   const set = (i: number, p: Partial<FeatureItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const [hovered, setHovered] = useState<{ row: number; col: number } | null>(null);
@@ -905,7 +976,7 @@ function FeaturesBlock({ value, onChange, lang, t, scale, titleOverride }: {
   const tpl = (n: number, active: number | null) => Array.from({ length: n }, (_, x) => (active == null ? "4fr" : x === active ? "6fr" : "3fr")).join(" ");
   return (
     <>
-      <PanelStage scale={scale}>
+      <PanelStage>
         <h3 className={sec.panelTitle}>{titleOverride ?? t("aboutPage.panels.keyFeatures")}</h3>
         <div className={css.featGrid}
           style={{ gridTemplateColumns: tpl(cols, hovered?.col ?? null), gridTemplateRows: tpl(rows, hovered?.row ?? null) }}
@@ -935,9 +1006,9 @@ function FeaturesBlock({ value, onChange, lang, t, scale, titleOverride }: {
             </div>
           ))}
           {!atMax && (
-            <button type="button" className={`${css.featCell} ${css.featAdd}`} onClick={() => onChange([...value, { icon: "", title: lang === "ko" ? "새 기능" : "New", description_ko: "", description_en: "", tech: "", image: "" }])}>
+            <Pressable className={`${css.featCell} ${css.featAdd}`} onClick={() => onChange([...value, { icon: "", title: lang === "ko" ? "새 기능" : "New", description_ko: "", description_en: "", tech: "", image: "" }])}>
               <Plus size={22} />
-            </button>
+            </Pressable>
           )}
         </div>
       </PanelStage>
@@ -946,14 +1017,14 @@ function FeaturesBlock({ value, onChange, lang, t, scale, titleOverride }: {
 }
 
 /* ═══════════ Process ═══════════ */
-function ProcessBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: ProcessItem[]; onChange: (v: ProcessItem[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
+function ProcessBlock({ value, onChange, lang, t, titleOverride }: {
+  value: ProcessItem[]; onChange: (v: ProcessItem[]) => void; lang: Language; t: TFunction; titleOverride?: string;
 }) {
   const set = (i: number, p: Partial<ProcessItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const MAX = 8;
   const atMax = value.length >= MAX;
   return (
-    <PanelStage scale={scale}>
+    <PanelStage>
       <h3 className={sec.panelTitle}>{titleOverride ?? t("aboutPage.panels.designProcess")}</h3>
       <p className={css.procHint}>{lang === "ko" ? "** 로 감싼 텍스트는 강조 색으로 표시됩니다." : "Text wrapped in ** appears as an accent highlight."}</p>
       {/* 타임라인 (실제 렌더 그대로) */}
@@ -983,9 +1054,9 @@ function ProcessBlock({ value, onChange, lang, t, scale, titleOverride }: {
           </div>
         ))}
         {!atMax && (
-          <button type="button" className={css.addStepBtn} onClick={() => onChange([...value, { step: String(value.length + 1).padStart(2, "0"), title_ko: "새 단계", title_en: "New", description_ko: "", description_en: "" }])}>
+          <Pressable className={css.addStepBtn} onClick={() => onChange([...value, { step: String(value.length + 1).padStart(2, "0"), title_ko: "새 단계", title_en: "New", description_ko: "", description_en: "" }])}>
             <Plus size={18} /> {lang === "ko" ? "단계 추가" : "Add step"}
-          </button>
+          </Pressable>
         )}
       </div>
     </PanelStage>
@@ -993,13 +1064,13 @@ function ProcessBlock({ value, onChange, lang, t, scale, titleOverride }: {
 }
 
 /* ═══════════ Security ═══════════ */
-function SecurityBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: SecurityItem[]; onChange: (v: SecurityItem[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
+function SecurityBlock({ value, onChange, lang, t, titleOverride }: {
+  value: SecurityItem[]; onChange: (v: SecurityItem[]) => void; lang: Language; t: TFunction; titleOverride?: string;
 }) {
   const set = (i: number, p: Partial<SecurityItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const MAX = 10;
   return (
-    <PanelStage scale={scale}>
+    <PanelStage>
       <div className={css.secStage}>
       <h3 className={sec.panelTitle}>{titleOverride ?? "Security."}</h3>
       <div className={secu.secGrid}>
@@ -1007,16 +1078,16 @@ function SecurityBlock({ value, onChange, lang, t, scale, titleOverride }: {
           <div key={i} className={`${secu.secItem} ${css.editSecItem}`}>
             <div className={secu.secHeader}>
               <Popover placement="bottom-start" trigger={
-                <button type="button" className={secu.secIcon} style={{ border: 0, background: "transparent", padding: 0, cursor: "pointer" }} title={it.layer || "아이콘 · 분류"}>
+                <Pressable className={secu.secIcon} style={{ border: 0, background: "transparent", padding: 0, cursor: "pointer" }} title={it.layer || "아이콘 · 분류"}>
                   {securityIcons[it.icon] ?? securityIcons.shield}
-                </button>
+                </Pressable>
               }>
                 <div className={css.iconPickPanel}>
                   <div className={css.iconPickGrid}>
                     {Object.keys(securityIcons).map((k) => (
-                      <button key={k} type="button" className={`${css.iconPickBtn} ${it.icon === k ? css.iconPickOn : ""}`} onClick={() => set(i, { icon: k })} aria-label={k}>
+                      <Pressable key={k} className={`${css.iconPickBtn} ${it.icon === k ? css.iconPickOn : ""}`} onClick={() => set(i, { icon: k })} aria-label={k}>
                         {securityIcons[k]}
-                      </button>
+                      </Pressable>
                     ))}
                   </div>
                   <label className={css.iconPickLabel}>분류(내부용)
@@ -1035,10 +1106,10 @@ function SecurityBlock({ value, onChange, lang, t, scale, titleOverride }: {
           </div>
         ))}
         {value.length < MAX && (
-          <button type="button" className={css.addSecCell}
+          <Pressable className={css.addSecCell}
             onClick={() => onChange([...value, { layer: "", icon: "shield", title_ko: "새 항목", title_en: "New", description_ko: "", description_en: "", scope_ko: "", scope_en: "" }])}>
             <Plus size={18} /> {lang === "ko" ? "항목 추가" : "Add item"}
-          </button>
+          </Pressable>
         )}
       </div>
       </div>
@@ -1057,8 +1128,8 @@ const seedConcepts = (): ConceptItem[] => designConcepts.map((c) => ({
 }));
 /* 실제 패널과 동일 — 컨셉 1개 = 배경 이미지 풀블리드 슬라이드 + 흰 오버레이 텍스트.
    실제도 strip 으로 한 장씩 넘겨 보므로 스튜디오도 탭으로 전환하며 한 장씩 편집. */
-function DesignSystemBlock({ value, onChange, lang, t, scale }: {
-  value: ConceptItem[]; onChange: (v: ConceptItem[]) => void; lang: Language; t: TFunction; scale: number;
+function DesignSystemBlock({ value, onChange, lang, t }: {
+  value: ConceptItem[]; onChange: (v: ConceptItem[]) => void; lang: Language; t: TFunction;
 }) {
   const [tab, setTab] = useState(0);
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -1096,7 +1167,7 @@ function DesignSystemBlock({ value, onChange, lang, t, scale }: {
           labelOf={(i) => value[i]?.title || (lang === "ko" ? "새 컨셉" : "Untitled")} />
       </div>
       {it && (
-        <PanelStage scale={scale}>
+        <PanelStage>
           {/* key = 컨셉별 remount — 탭을 바꿔도 같은 input 을 재사용하면 autoFocus 가 안 걸린다 */}
           <div key={it.id} className={css.dsSlide}
             onBlur={(e) => {
@@ -1184,8 +1255,8 @@ const seedCode = (): CodeItem[] => codeExamples.map((c) => ({
 }));
 /* 실제 패널과 동일 — 번호 + 제목/설명 헤더, 본문은 데모 + 코드 2단.
    실제도 스크롤로 한 패인씩 넘겨 보므로 스튜디오도 탭으로 전환하며 하나씩 편집. */
-function CodeHighlightsBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: CodeItem[]; onChange: (v: CodeItem[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
+function CodeHighlightsBlock({ value, onChange, lang, t, titleOverride }: {
+  value: CodeItem[]; onChange: (v: CodeItem[]) => void; lang: Language; t: TFunction; titleOverride?: string;
 }) {
   const [dropOver, setDropOver] = useState(false);
 
@@ -1237,7 +1308,7 @@ function CodeHighlightsBlock({ value, onChange, lang, t, scale, titleOverride }:
           labelOf={(i) => value[i]?.title || (lang === "ko" ? "새 스니펫" : "Untitled")} />
       </div>
       {it && (
-        <PanelStage scale={scale}>
+        <PanelStage>
           {/* key = 스니펫별 remount — 같은 input 을 재사용하면 autoFocus 가 안 걸린다 */}
           <div key={cur} className={css.chStage}
             onBlur={(e) => {
@@ -1298,7 +1369,7 @@ function CodeHighlightsBlock({ value, onChange, lang, t, scale, titleOverride }:
                       {/* 미설정(투명)일 때 피커 초기값 — 저장 전까진 demoBg 가 undefined 라 투명 유지 */}
                       <ColorPicker value={it.demoBg || "#ffffff"} onChange={(c) => set({ demoBg: c.hex })}>
                         {({ toggle }) => (
-                          <button type="button" className={css.demoBgSwatch}
+                          <Pressable className={css.demoBgSwatch}
                             style={it.demoBg ? { background: it.demoBg } : undefined}
                             onClick={toggle} title={lang === "ko" ? "데모 배경색" : "Demo background"}
                             aria-label={lang === "ko" ? "데모 배경색" : "Demo background"} />
@@ -1332,9 +1403,9 @@ function CodeHighlightsBlock({ value, onChange, lang, t, scale, titleOverride }:
                             {lang === "ko" ? "실행 화면 녹화물을 올립니다" : "Upload a recording"}
                           </span>
                           <DemoMediaUpload lang={lang} url={it.demoMedia} onChange={(u) => set({ demoMedia: u })} />
-                          <button type="button" className={css.demoSwitch} onClick={() => setDemoMode("sandbox")}>
+                          <Pressable className={css.demoSwitch} onClick={() => setDemoMode("sandbox")}>
                             {lang === "ko" ? "직접 코드로 만들기" : "Write code instead"}
-                          </button>
+                          </Pressable>
                         </>
                       ) : (
                         <>
@@ -1439,8 +1510,8 @@ const UF_MAX = 8;
 
 /* 실제 패널과 동일 — 좌측 페르소나 정보 + 우측 플로우 다이어그램.
    다이어그램 좌표(row/col)는 flowLayout 이 계산하므로 여기선 값만 편집한다. */
-function UserFlowBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: UserFlow[]; onChange: (v: UserFlow[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
+function UserFlowBlock({ value, onChange, lang, t, titleOverride }: {
+  value: UserFlow[]; onChange: (v: UserFlow[]) => void; lang: Language; t: TFunction; titleOverride?: string;
 }) {
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
@@ -1476,7 +1547,7 @@ function UserFlowBlock({ value, onChange, lang, t, scale, titleOverride }: {
           labelOf={(i) => value[i]?.title || (lang === "ko" ? "새 플로우" : "Untitled")} />
       </div>
       {it && (
-        <PanelStage scale={scale}>
+        <PanelStage>
           <div key={cur} className={css.ufStage}>
             <div className={css.chTools}>
               <Button variant="subtle" shape="circle" size="xs" onClick={() => removeAt(cur)} aria-label="remove">
@@ -1879,8 +1950,8 @@ function ErdBlock({ tables, relations, onChange, lang }: {
 /* ═══════════ Backend ═══════════ */
 const BK_MAX = 12;
 /* 실제 패널과 동일 — 좌측 목록 + 우측 상세. 실제도 한 항목씩 보므로 탭으로 전환. */
-function BackendBlock({ value, onChange, lang, t, scale, titleOverride }: {
-  value: BackendItem[]; onChange: (v: BackendItem[]) => void; lang: Language; t: TFunction; scale: number; titleOverride?: string;
+function BackendBlock({ value, onChange, lang, t, titleOverride }: {
+  value: BackendItem[]; onChange: (v: BackendItem[]) => void; lang: Language; t: TFunction; titleOverride?: string;
 }) {
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
@@ -1920,7 +1991,7 @@ function BackendBlock({ value, onChange, lang, t, scale, titleOverride }: {
           labelOf={(i) => value[i]?.name || (lang === "ko" ? "새 항목" : "Untitled")} />
       </div>
       {it && (
-        <PanelStage scale={scale}>
+        <PanelStage>
           <div key={cur} className={css.bkStage}>
             <div className={css.chTools}>
               <SegmentedControl<"api" | "table"> size="sm" value={it.kind}
@@ -2034,9 +2105,9 @@ const TS_FIELDS = ["problem", "definition", "cause", "solution", "keyInsight"] a
 
 /* 항목이 길고 서술형이라 한 번에 하나씩 편집한다.
    비교표·다이어그램·이미지는 구조가 깊어 개수만 보여주고 본문 편집에 집중. */
-function TroubleshootingBlock({ value, onChange, lang, scale, titleOverride }: {
+function TroubleshootingBlock({ value, onChange, lang, titleOverride }: {
   value: TroubleShootingItem[]; onChange: (v: TroubleShootingItem[]) => void;
-  lang: Language; scale: number; titleOverride?: string;
+  lang: Language; titleOverride?: string;
 }) {
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
@@ -2086,7 +2157,7 @@ function TroubleshootingBlock({ value, onChange, lang, scale, titleOverride }: {
           labelOf={(i) => value[i]?.problem[lang] || value[i]?.problem.ko || (lang === "ko" ? "새 항목" : "Untitled")} />
       </div>
       {it && (
-        <PanelStage scale={scale}>
+        <PanelStage>
           <div key={cur} className={css.tsStage}>
             <div className={css.chTools}>
               <SegmentedControl<"1" | "2" | "3"> size="sm" value={String(it.difficulty ?? 2) as "1" | "2" | "3"}
@@ -2275,10 +2346,10 @@ function CreditsBlock({ about, setAny, lang, nickname, t }: {
                       if (e.key === "Escape") setAdding(false);
                     }} />
                 ) : (
-                  <button type="button" className={css.creditsNameAddBtn} onClick={() => setAdding(true)}
+                  <Pressable className={css.creditsNameAddBtn} onClick={() => setAdding(true)}
                     title={lang === "ko" ? "이름 추가" : "Add name"} aria-label={lang === "ko" ? "이름 추가" : "Add name"}>
                     <Plus size={13} />
-                  </button>
+                  </Pressable>
                 )}
               </span>
             )}
@@ -2422,14 +2493,14 @@ function ArchitectureBlock({ value, onChange, diagram, onDiagramChange, t, lang 
       <div key={index} className={sub.nodeWrap}>
         <div className={`${sub.node} ${isSel ? sub.nodeSel : ""}`}>
           {hasChildren
-            ? <button type="button" className={sub.nodeToggle} onClick={() => toggleCollapse(fullPath)} aria-label={isCollapsed ? "펼치기" : "접기"} aria-expanded={!isCollapsed}><ChevronRight size={13} className={isCollapsed ? undefined : sub.nodeToggleOpen} /></button>
+            ? <Pressable className={sub.nodeToggle} onClick={() => toggleCollapse(fullPath)} aria-label={isCollapsed ? "펼치기" : "접기"} aria-expanded={!isCollapsed}><ChevronRight size={13} className={isCollapsed ? undefined : sub.nodeToggleOpen} /></Pressable>
             : <span className={sub.nodeToggleSpacer} aria-hidden />}
-          <button type="button" className={sub.nodeLabel} onClick={() => selectNode(isSel ? null : index)}>
+          <Pressable className={sub.nodeLabel} onClick={() => selectNode(isSel ? null : index)}>
             <span className={sub.nodeIcon} data-folder={isFolder} data-empty={!item.path}><Icon size={15} /></span>
             {item.path ? <span className={sub.nodePath}>{item.path}</span> : <span className={sub.nodeEmpty}>이름 없음</span>}
             {(lang === "ko" ? item.description_ko : item.description_en) && <span className={sub.nodeDesc}>{lang === "ko" ? item.description_ko : item.description_en}</span>}
             {hasChildren && isCollapsed && <span className={sub.nodeCount}>{children.length}</span>}
-          </button>
+          </Pressable>
           {item.indent < 2 && <Button className={sub.nodeAdd} shape="circle" size="xs" variant="ghost" icon={<Plus size={13} />} onClick={() => addChild(index)} aria-label="하위 추가" />}
         </div>
         {hasChildren && !isCollapsed && <div className={sub.children}>{children.map(render)}</div>}

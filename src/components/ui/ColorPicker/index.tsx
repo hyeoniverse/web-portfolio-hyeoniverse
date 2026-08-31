@@ -44,6 +44,7 @@ import Tooltip from "../Tooltip";
 import { Info, Copy, ClipboardPaste, Check } from "@/components/icons";
 import { showToast } from "@/stores/toastStore";
 import styles from "./ColorPicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type InputFormat = "hex" | "rgb" | "hsl" | "hsv" | "oklch";
 const FORMAT_OPTIONS = [
@@ -717,8 +718,7 @@ export default function ColorPicker({
   const trigger = children ? (
     children({ open, toggle: () => setOpen((v) => !v) })
   ) : (
-    <button
-      type="button"
+    <Pressable
       className={`${triggerClassName ?? ""}${alpha < 1 ? ` ${styles.triggerAlpha}` : ""}`}
       style={alpha < 1
         ? ({ ...triggerStyle, "--_preview-color": hexDisplay } as CSSProperties)
@@ -816,37 +816,34 @@ export default function ColorPicker({
             />
             <div className={styles.inputActions}>
             <Tooltip content={FORMAT_INFO[format]} placement="top">
-              <button
-                type="button"
+              <Pressable
                 className={styles.infoButton}
                 aria-label={`${format.toUpperCase()} 형식 설명`}
               >
                 <Info size={14} strokeWidth={2} />
-              </button>
+              </Pressable>
             </Tooltip>
             <Tooltip content={copied ? "복사됨" : `현재 색을 ${format.toUpperCase()} 형식으로 클립보드에 복사`} placement="top">
-              <button
-                type="button"
+              <Pressable
                 className={styles.infoButton}
                 onClick={handleCopy}
                 aria-label="색 복사"
               >
                 {copied ? <Check size={14} strokeWidth={2} /> : <Copy size={14} strokeWidth={2} />}
-              </button>
+              </Pressable>
             </Tooltip>
             <Tooltip
               content={pasteFlash === "ok" ? "붙여넣기 완료" : pasteFlash === "fail" ? "인식 못함" : "클립보드 색을 자동 인식해 적용 (HEX / RGB / HSL / HSV / OKLCH)"}
               placement="top"
             >
-              <button
-                type="button"
+              <Pressable
                 className={styles.infoButton}
                 onClick={handlePaste}
                 aria-label="색 붙여넣기"
                 data-flash={pasteFlash ?? undefined}
               >
                 {pasteFlash === "ok" ? <Check size={14} strokeWidth={2} /> : <ClipboardPaste size={14} strokeWidth={2} />}
-              </button>
+              </Pressable>
             </Tooltip>
             </div>
           </div>

@@ -11,6 +11,7 @@ import { useModalStore } from "@/stores/modalStore";
 import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import { workFormToProject } from "@/types/work";
 import type { WorkFormData } from "@/types/work";
+import Pressable from "@/components/ui/Pressable";
 
 type RawPost = { id: string; title?: string; title_en?: string; slug?: string; cover_image?: string; excerpt?: string; category?: string; created_at?: string };
 type RawSeries = { id: string; title?: string; title_en?: string; cover_image?: string; category?: string; description?: string; description_en?: string };
@@ -234,15 +235,15 @@ export default function WorkPreviewPage() {
         <>
           {trashId && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, marginBottom: 12 }}>
-              <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-xs)" }}>
+              <span style={{ color: "var(--text-tertiary)", fontSize: "var(--font-size-label)" }}>
                 {t("admin.works.trashPreviewNotice")}
               </span>
-              <button type="button" disabled={busy} onClick={handleRestore} style={{ cursor: "pointer" }}>
+              <Pressable disabled={busy} onClick={handleRestore} style={{ cursor: "pointer" }}>
                 {t("admin.works.trashRestore")}
-              </button>
-              <button type="button" disabled={busy} onClick={handlePurge} style={{ cursor: "pointer", color: "var(--text-accent)" }}>
+              </Pressable>
+              <Pressable disabled={busy} onClick={handlePurge} style={{ cursor: "pointer", color: "var(--text-accent)" }}>
                 {t("admin.works.trashPurge")}
-              </button>
+              </Pressable>
             </div>
           )}
           <WorkArticleHeader

@@ -20,6 +20,7 @@ import ArchDiagram from "./ArchDiagram";
 import T from "@/components/ui/T";
 import shared from "../AboutSection.module.css";
 import local from "./ArchitecturePanel.module.css";
+import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
 
 type ViewMode = "diagram" | "tree" | "treemap" | "force";
@@ -237,13 +238,13 @@ function ArchitecturePanel({ language }: ArchitecturePanelProps) {
       <div ref={mapRef} className={styles.archMap}>
         <div className={styles.archModeBar}>
           {VIEW_MODES.map((m) => (
-            <button
+            <Pressable
               key={m.key}
               className={`${styles.archModeBtn} ${viewMode === m.key ? styles.archModeBtnActive : ""}`}
               onClick={() => handleModeChange(m.key)}
             >
               {m.label}
-            </button>
+            </Pressable>
           ))}
         </div>
 

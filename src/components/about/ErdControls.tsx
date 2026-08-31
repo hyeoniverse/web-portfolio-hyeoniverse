@@ -10,6 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Panel, useReactFlow, useStore } from "@xyflow/react";
 import { Plus, Minus, Frame, Fullscreen, Minimize2 } from "@/components/icons";
 import css from "./ErdControls.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export default function ErdControls({ lang }: { lang: "ko" | "en" }) {
   const rf = useReactFlow();
@@ -38,22 +39,22 @@ export default function ErdControls({ lang }: { lang: "ko" | "en" }) {
 
   return (
     <Panel position="bottom-right" className={css.controls}>
-      <button type="button" data-clickable="true" className={css.btn}
+      <Pressable noTapScale data-clickable="true" className={css.btn}
         aria-label={lang === "ko" ? "확대" : "Zoom in"}
-        onClick={() => rf.zoomIn({ duration: 200 })}><Plus size={13} /></button>
+        onClick={() => rf.zoomIn({ duration: 200 })}><Plus size={13} /></Pressable>
       <span className={css.level}>{Math.round(zoom * 100)}%</span>
-      <button type="button" data-clickable="true" className={css.btn}
+      <Pressable noTapScale data-clickable="true" className={css.btn}
         aria-label={lang === "ko" ? "축소" : "Zoom out"}
-        onClick={() => rf.zoomOut({ duration: 200 })}><Minus size={13} /></button>
-      <button type="button" data-clickable="true" className={css.btn}
+        onClick={() => rf.zoomOut({ duration: 200 })}><Minus size={13} /></Pressable>
+      <Pressable noTapScale data-clickable="true" className={css.btn}
         aria-label={lang === "ko" ? "전체 맞춤" : "Fit view"}
-        onClick={() => rf.fitView({ padding: 0.1, duration: 400 })}><Frame size={13} /></button>
-      <button type="button" data-clickable="true" className={css.btn}
+        onClick={() => rf.fitView({ padding: 0.1, duration: 400 })}><Frame size={13} /></Pressable>
+      <Pressable noTapScale data-clickable="true" className={css.btn}
         aria-label={full ? (lang === "ko" ? "전체 화면 종료" : "Exit fullscreen")
                          : (lang === "ko" ? "전체 화면" : "Fullscreen")}
         onClick={toggleFull}>
         {full ? <Minimize2 size={13} /> : <Fullscreen size={13} />}
-      </button>
+      </Pressable>
     </Panel>
   );
 }

@@ -40,6 +40,7 @@ import type { BilingualCategory } from "@/types/common";
 import { parseMdWork } from "@/utils/mdParser";
 import { uploadRandomCover } from "@/utils/uploadRandomCover";
 import styles from "./AdminWorks.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const PAGE_SIZE_OPTIONS = [
   { value: "10", label: "10" },
@@ -580,15 +581,15 @@ export default function AdminWorksPage() {
       className: st.colActions,
       render: (work) => (
         <>
-          <button type="button" className={st.actionBtn} onClick={() => handleRestore(work.id)}>
+          <Pressable className={st.actionBtn} onClick={() => handleRestore(work.id)}>
             <T k="admin.works.trashRestore" />
-          </button>
-          <button type="button" className={st.actionBtn} onClick={() => handleExtend(work.id)} title={t("admin.works.trashExtendTip")}>
+          </Pressable>
+          <Pressable className={st.actionBtn} onClick={() => handleExtend(work.id)} title={t("admin.works.trashExtendTip")}>
             <T k="admin.works.trashExtend" />
-          </button>
-          <button type="button" className={st.dangerBtn} onClick={() => handlePurge(work.id, work.title || t("admin.works.untitled"))}>
+          </Pressable>
+          <Pressable className={st.dangerBtn} onClick={() => handlePurge(work.id, work.title || t("admin.works.untitled"))}>
             <T k="admin.works.trashPurge" />
-          </button>
+          </Pressable>
         </>
       ),
     },
@@ -785,12 +786,12 @@ icon: 🎨
           />
         )}
         {hasFilters && (
-          <button
+          <Pressable
             className={shell.filterReset}
             onClick={() => { setSearch(""); setSearchType("all"); setSort("order"); setFilterYear(""); setFilterCategory(""); setPage(1); }}
           >
             {t("admin.works.resetFilters")}
-          </button>
+          </Pressable>
         )}
         <SearchCapsule
           typeSelector={{

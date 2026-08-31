@@ -17,6 +17,7 @@ import { uploadFile } from "@/lib/adminUpload";
 import { useLanguage } from "@/providers/LanguageProvider";
 import shared from "../Settings.module.css";
 import local from "./SettingsFormFields.module.css";
+import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
 
 /* ── FieldHelp — 라벨 옆 ? 아이콘 + Tooltip. 필드 값·옵션 설명용 (raw label/Switch 케이스도 재사용). ── */
@@ -151,8 +152,7 @@ export function ColorField({ label, value, onChange }: ColorFieldProps) {
       <ColorPicker value={value} onChange={(c) => onChange(c.hex)}>
         {({ open, toggle }) => (
           <span className={styles.colorField}>
-            <button
-              type="button"
+            <Pressable
               className={styles.colorPicker}
               style={{ background: value }}
               onClick={toggle}
@@ -294,9 +294,9 @@ export function UploadField({ kind, label, url, uploadLabel, removeLabel, onUplo
                       <ColorPicker value={tint || defaultTint || "#000000"} onChange={(c) => onTintChange(c.hex)} triggerClassName={styles.logoPreviewColorBtn} />
                     </span>
                     {tint && (
-                      <button type="button" className={styles.logoTintReset} onClick={() => onTintChange("")}>
+                      <Pressable className={styles.logoTintReset} onClick={() => onTintChange("")}>
                         {originalLabel}
-                      </button>
+                      </Pressable>
                     )}
                   </div>
                 )}
@@ -424,9 +424,9 @@ function SortableServiceItem({ id, children }: { id: string; children: React.Rea
       className={`${styles.serviceItem} ${isDragging ? styles.serviceItemDragging : ""}`}
       {...attributes}
     >
-      <button type="button" className={styles.serviceItemDrag} {...listeners} aria-label="Drag">
+      <Pressable className={styles.serviceItemDrag} {...listeners} aria-label="Drag">
         <GripDotsIcon />
-      </button>
+      </Pressable>
       {children}
     </div>
   );

@@ -11,6 +11,7 @@ import {
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "@/components/icons";
 import styles from "./Banner.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export interface BannerProps {
   children: ReactNode;
@@ -174,7 +175,7 @@ export default function Banner({
         {/* Arrows */}
         {showArrows && (
           <>
-            <button
+            <Pressable
               className={`${styles.arrow} ${styles.arrowPrev}`}
               onClick={goPrev}
               aria-label="Previous slide"
@@ -182,8 +183,8 @@ export default function Banner({
               data-cursor="prev"
             >
               <ChevronLeft size={16} />
-            </button>
-            <button
+            </Pressable>
+            <Pressable
               className={`${styles.arrow} ${styles.arrowNext}`}
               onClick={goNext}
               aria-label="Next slide"
@@ -191,7 +192,7 @@ export default function Banner({
               data-cursor="next"
             >
               <ChevronRight size={16} />
-            </button>
+            </Pressable>
           </>
         )}
 
@@ -199,7 +200,7 @@ export default function Banner({
         {showDots && (
           <div className={styles.dots}>
             {slides.map((_, i) => (
-              <button
+              <Pressable
                 key={i}
                 className={`${styles.dot} ${i === current ? styles.dotActive : ""}`}
                 onClick={() => goTo(i)}
@@ -218,7 +219,7 @@ export default function Banner({
                     }}
                   />
                 )}
-              </button>
+              </Pressable>
             ))}
           </div>
         )}

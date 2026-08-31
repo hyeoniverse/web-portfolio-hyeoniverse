@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import styles from "./Switch.module.css";
 import { cn } from "@/utils";
+import Pressable from "@/components/ui/Pressable";
 
 interface SwitchProps {
   checked?: boolean;
@@ -51,7 +52,7 @@ function Switch({
   const sizeClass = size === "lg" ? styles.sizeLg : size === "md" ? styles.sizeMd : styles.sizeSm;
 
   const button = (
-    <button
+    <Pressable noTapScale
       type="button"
       role="switch"
       aria-checked={isChecked}
@@ -68,7 +69,7 @@ function Switch({
         data-state={isChecked ? "checked" : "unchecked"}
       />
       {showStateText && <span className={cn(styles.stateText, styles.stateOff)}>{stateLabels?.off ?? "OFF"}</span>}
-    </button>
+    </Pressable>
   );
 
   if (label) {

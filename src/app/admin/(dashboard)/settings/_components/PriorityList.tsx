@@ -6,6 +6,7 @@ import { ChevronUp, ChevronDown, GripDotsIcon } from "@/components/icons";
 import Checkbox from "@/components/ui/Checkbox";
 import styles from "./PriorityList.module.css";
 import shared from "../Settings.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface PriorityListProps<T extends string> {
   primary: T;
@@ -123,20 +124,18 @@ export function PriorityList<T extends string>({ primary, priority, excluded, op
               <span className={styles.priorityBadge}>{idx + 1}</span>
               <span className={`${styles.priorityLabel} ${isEnabled ? "" : styles.priorityLabelDisabled}`}>{label}</span>
               <div className={styles.priorityBtns}>
-                <button
-                  type="button"
+                <Pressable
                   className={shared.priorityBtn}
                   disabled={idx === 0}
                   onClick={() => move(idx, -1)}
                   aria-label="Move up"
-                ><ChevronUp size={12} strokeWidth={2.5} /></button>
-                <button
-                  type="button"
+                ><ChevronUp size={12} strokeWidth={2.5} /></Pressable>
+                <Pressable
                   className={shared.priorityBtn}
                   disabled={idx === ordered.length - 1}
                   onClick={() => move(idx, 1)}
                   aria-label="Move down"
-                ><ChevronDown size={12} strokeWidth={2.5} /></button>
+                ><ChevronDown size={12} strokeWidth={2.5} /></Pressable>
               </div>
             </div>
           </div>

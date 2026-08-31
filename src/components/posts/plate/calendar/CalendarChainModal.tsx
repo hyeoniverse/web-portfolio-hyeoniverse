@@ -6,6 +6,7 @@ import { Check, CalendarDays, Clock } from "@/components/icons";
 import { type CalEvent, type EventLabel, type TimeFormat, eventColorVar, eventTimeLabel, findLabel, statusOf, statusName, priorityOf, priorityName } from "./model";
 import { formatDateValue } from "../dateUtils";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export default function CalendarChainModal({
   events, labels, language, onOpenEvent, timeFormat = "12h",
@@ -31,9 +32,8 @@ export default function CalendarChainModal({
         const pr = priorityOf(ev.priority);
         const done = ev.status === "done";
         return (
-          <button
+          <Pressable
             key={ev.id}
-            type="button"
             className={`${styles.chainStep}${done ? ` ${styles.chainStepDone}` : ""}`}
             style={{ ["--_c" as string]: eventColorVar(ev, labels) }}
             onClick={() => onOpenEvent?.(ev.id)}
@@ -53,7 +53,7 @@ export default function CalendarChainModal({
                 {label && <span className={styles.chainMetaItem}><span className={styles.chainLabelDot} style={{ background: eventColorVar(ev, labels) }} />{label.name}</span>}
               </span>
             </span>
-          </button>
+          </Pressable>
         );
       })}
     </div>

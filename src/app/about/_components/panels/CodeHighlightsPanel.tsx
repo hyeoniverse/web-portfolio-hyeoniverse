@@ -15,6 +15,7 @@ import { usePinnedScroll } from "../../_hooks/usePinnedScroll";
 import PinnedTitleRow from "../PinnedTitleRow";
 import shared from "../AboutSection.module.css";
 import local from "./CodeHighlightsPanel.module.css";
+import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
 
 interface CodeHighlightsPanelProps {
@@ -223,25 +224,25 @@ function CodeHighlightsPanel({
                   />
                   {codePage.total > 1 && index === activeIndex && (
                     <div className={styles.codePageNav}>
-                      <button
+                      <Pressable
                         data-clickable="true"
                         className={styles.codePageBtn}
                         disabled={codePage.page <= 1}
                         onClick={() => scrollCodePage(-1)}
                       >
                         ↑
-                      </button>
+                      </Pressable>
                       <span>
                         {codePage.page}/{codePage.total}
                       </span>
-                      <button
+                      <Pressable
                         data-clickable="true"
                         className={styles.codePageBtn}
                         disabled={codePage.page >= codePage.total}
                         onClick={() => scrollCodePage(1)}
                       >
                         ↓
-                      </button>
+                      </Pressable>
                     </div>
                   )}
                 </div>

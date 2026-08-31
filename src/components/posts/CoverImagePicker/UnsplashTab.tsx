@@ -10,6 +10,7 @@ import Tooltip from "@/components/ui/Tooltip";
 import { downloadFile } from "./downloadFile";
 import type { PostContext } from "./index";
 import styles from "./CoverImagePicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface UnsplashPhoto {
   id: string;
@@ -193,14 +194,13 @@ export default function UnsplashTab({ onSelect, postContext }: UnsplashTabProps)
         {photos.length === 0 && !loading && (
           <div className={styles.suggestions}>
             {suggestions.map((kw) => (
-              <button
+              <Pressable noTapScale
                 key={kw}
-                type="button"
                 className={styles.suggestionChip}
                 onClick={() => handleSuggestion(kw)}
               >
                 {kw}
-              </button>
+              </Pressable>
             ))}
           </div>
         )}

@@ -5,6 +5,7 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import shared from "../../AboutSection.module.css";
 import local from "../DesignSystemPanel.module.css";
+import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
 
 function hexLuminance(hex: string) {
@@ -54,18 +55,18 @@ export default function ColorSystemDemo() {
   return (
     <div className={styles.dcDemo}>
       <div className={styles.dcThemeToggle}>
-        <button
+        <Pressable
           className={`${styles.dcToggleBtn} ${demoTheme === "light" ? styles.dcToggleBtnActive : ""}`}
           onClick={() => setDemoTheme("light")}
         >
           Light
-        </button>
-        <button
+        </Pressable>
+        <Pressable
           className={`${styles.dcToggleBtn} ${demoTheme === "dark" ? styles.dcToggleBtnActive : ""}`}
           onClick={() => setDemoTheme("dark")}
         >
           Dark
-        </button>
+        </Pressable>
       </div>
       <div className={styles.dcSwatchRow}>
         {swatches.map((s) => (

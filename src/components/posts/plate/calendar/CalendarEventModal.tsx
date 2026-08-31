@@ -28,6 +28,7 @@ import { type CalEvent, type EventLabel, type RecurFreq, type RecurRule, type Ti
 import { parseDate, formatDateValue } from "../dateUtils";
 import { genShortId } from "../dateUtils";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -398,14 +399,14 @@ export default function CalendarEventModal({
         <div className={styles.labelRow}>
           {labels.map((l) => (
             <span key={l.id} className={`${styles.labelChip}${labelId === l.id ? ` ${styles.labelChipOn}` : ""}`} style={{ ["--_lc" as string]: colorVar(l.color) }}>
-              <button type="button" className={styles.labelChipSelect} onClick={() => setLabelId(labelId === l.id ? null : l.id)}>
+              <Pressable className={styles.labelChipSelect} onClick={() => setLabelId(labelId === l.id ? null : l.id)}>
                 <span className={styles.labelDot} />{l.name}
-              </button>
-              <Tooltip content={t("수정", "Edit")} placement="top"><button type="button" className={styles.labelChipEdit} onClick={() => startEdit(l)}><Pencil size={11} /></button></Tooltip>
+              </Pressable>
+              <Tooltip content={t("수정", "Edit")} placement="top"><Pressable className={styles.labelChipEdit} onClick={() => startEdit(l)}><Pencil size={11} /></Pressable></Tooltip>
             </span>
           ))}
           {!labelEdit && labels.length < EVENT_LABEL_COUNT_MAX && (
-            <button type="button" className={styles.labelAdd} onClick={startCreate}><Plus size={12} />{t("라벨", "Label")}</button>
+            <Pressable className={styles.labelAdd} onClick={startCreate}><Plus size={12} />{t("라벨", "Label")}</Pressable>
           )}
         </div>
         {labelEdit && (
@@ -421,10 +422,10 @@ export default function CalendarEventModal({
             />
             <div className={styles.colorRow}>
               {EVENT_COLORS.map((c) => (
-                <button key={c.key} type="button" className={`${styles.swatch}${lColor === c.key ? ` ${styles.swatchOn}` : ""}`} style={{ ["--_sw" as string]: c.var }} onClick={() => setLColor(c.key)} aria-label={c.key} />
+                <Pressable key={c.key} className={`${styles.swatch}${lColor === c.key ? ` ${styles.swatchOn}` : ""}`} style={{ ["--_sw" as string]: c.var }} onClick={() => setLColor(c.key)} aria-label={c.key} />
               ))}
               {customColors.map((hex) => (
-                <button key={hex} type="button" className={`${styles.swatch}${lColor === hex ? ` ${styles.swatchOn}` : ""}`} style={{ ["--_sw" as string]: hex }} onClick={() => setLColor(hex)} aria-label={hex} />
+                <Pressable key={hex} className={`${styles.swatch}${lColor === hex ? ` ${styles.swatchOn}` : ""}`} style={{ ["--_sw" as string]: hex }} onClick={() => setLColor(hex)} aria-label={hex} />
               ))}
               <ColorPicker
                 inline
@@ -433,7 +434,7 @@ export default function CalendarEventModal({
                 onChangeComplete={(c) => addCustomColor(c.hex)}
               >
                 {({ toggle }) => (
-                  <button type="button" className={styles.swatchAdd} onClick={toggle} aria-label={t("색 추가", "Add color")}><Plus size={12} /></button>
+                  <Pressable className={styles.swatchAdd} onClick={toggle} aria-label={t("색 추가", "Add color")}><Plus size={12} /></Pressable>
                 )}
               </ColorPicker>
               {labelEdit.mode === "edit" && (
@@ -456,9 +457,9 @@ export default function CalendarEventModal({
         </div>
         <div className={styles.dateRow}>
           <span className={styles.monthNavWrap}>
-            <button type="button" className={styles.dateTrigger} onClick={() => { setStartOpen((o) => !o); setEndOpen(false); }}>
+            <Pressable className={styles.dateTrigger} onClick={() => { setStartOpen((o) => !o); setEndOpen(false); }}>
               <CalendarDays size={14} />{formatDateValue(date, null, language)}
-            </button>
+            </Pressable>
             {startOpen && (
               <DatePickerPopover
               portal
@@ -473,9 +474,9 @@ export default function CalendarEventModal({
             <>
               <span className={styles.dateTilde}>~</span>
               <span className={styles.monthNavWrap}>
-                <button type="button" className={styles.dateTrigger} onClick={() => { setEndOpen((o) => !o); setStartOpen(false); }}>
+                <Pressable className={styles.dateTrigger} onClick={() => { setEndOpen((o) => !o); setStartOpen(false); }}>
                   <CalendarDays size={14} />{formatDateValue(endDate, null, language)}
-                </button>
+                </Pressable>
                 {endOpen && (
                   <DatePickerPopover
               portal
@@ -501,15 +502,15 @@ export default function CalendarEventModal({
           )}
         </div>
         {!time ? (
-          <button type="button" className={styles.timeToggle} onClick={() => { setTime("09:00"); setEndTime(addHour("09:00")); }}>
+          <Pressable className={styles.timeToggle} onClick={() => { setTime("09:00"); setEndTime(addHour("09:00")); }}>
             <Clock size={13} />{t("시간 추가", "Add time")}
-          </button>
+          </Pressable>
         ) : (
           <div className={styles.dateRow}>
             <span className={styles.monthNavWrap}>
-              <button type="button" className={`${styles.dateTrigger} ${styles.timeToggleOn}`} onClick={() => { setStartTimeOpen((o) => !o); setEndTimeOpen(false); }}>
+              <Pressable className={`${styles.dateTrigger} ${styles.timeToggleOn}`} onClick={() => { setStartTimeOpen((o) => !o); setEndTimeOpen(false); }}>
                 <Clock size={14} />{formatClock(time, timeFormat)}
-              </button>
+              </Pressable>
               {startTimeOpen && (
                 <TimePickerPopover
                   portal
@@ -522,9 +523,9 @@ export default function CalendarEventModal({
             </span>
             <span className={styles.dateTilde}>~</span>
             <span className={styles.monthNavWrap}>
-              <button type="button" className={`${styles.dateTrigger}${endTime ? ` ${styles.timeToggleOn}` : ""}`} onClick={() => { if (!endTime) setEndTime(addHour(time)); setEndTimeOpen((o) => !o); setStartTimeOpen(false); }}>
+              <Pressable className={`${styles.dateTrigger}${endTime ? ` ${styles.timeToggleOn}` : ""}`} onClick={() => { if (!endTime) setEndTime(addHour(time)); setEndTimeOpen((o) => !o); setStartTimeOpen(false); }}>
                 <Clock size={14} />{endTime ? formatClock(endTime, timeFormat) : t("종료", "End")}
-              </button>
+              </Pressable>
               {endTimeOpen && endTime && (
                 <TimePickerPopover
                   portal
@@ -579,10 +580,10 @@ export default function CalendarEventModal({
               responsive={false}
               contentClassName={styles.recurPop}
               trigger={
-                <button type="button" className={styles.dateTrigger} onClick={() => setRecurPopOpen((o) => !o)}>
+                <Pressable className={styles.dateTrigger} onClick={() => setRecurPopOpen((o) => !o)}>
                   <SlidersHorizontal size={14} />
                   <span className={styles.dateTriggerText}>{recurSummary(buildRepeatCore() ?? { freq: repeatFreq as RecurFreq }, language, false)}</span>
-                </button>
+                </Pressable>
               }
             >
               <div className={styles.recurPopBody}>
@@ -620,11 +621,11 @@ export default function CalendarEventModal({
                     {repeatFreq === "weekly" && (
                       <div className={styles.recurWeekdays}>
                         {[t("일", "S"), t("월", "M"), t("화", "T"), t("수", "W"), t("목", "T"), t("금", "F"), t("토", "S")].map((w, i) => (
-                          <button
-                            key={i} type="button"
+                          <Pressable
+                            key={i}
                             className={`${styles.recurWd}${repeatByweekday.includes(i) ? ` ${styles.recurWdOn}` : ""}`}
                             onClick={() => setRepeatByweekday((prev) => (prev.includes(i) ? (prev.length > 1 ? prev.filter((x) => x !== i) : prev) : [...prev, i]))}
-                          >{w}</button>
+                          >{w}</Pressable>
                         ))}
                       </div>
                     )}
@@ -645,10 +646,10 @@ export default function CalendarEventModal({
                         {repeatBysetpos == null ? (
                           <div className={styles.recurDayGrid}>
                             {Array.from({ length: 31 }, (_, i) => i + 1).map((n) => (
-                              <button key={n} type="button"
+                              <Pressable key={n}
                                 className={`${styles.recurDay}${repeatBymonthday.includes(n) ? ` ${styles.recurDayOn}` : ""}`}
                                 onClick={() => setRepeatBymonthday((prev) => (prev.includes(n) ? (prev.length > 1 ? prev.filter((x) => x !== n) : prev) : [...prev, n]))}
-                              >{n}</button>
+                              >{n}</Pressable>
                             ))}
                           </div>
                         ) : ordCondRow}
@@ -660,10 +661,10 @@ export default function CalendarEventModal({
                         <div className={styles.recurYearCols}>
                           <div className={styles.recurMonthGrid}>
                             {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                              <button key={m} type="button"
+                              <Pressable key={m}
                                 className={`${styles.recurMonth}${repeatBymonth.includes(m) ? ` ${styles.recurMonthOn}` : ""}`}
                                 onClick={() => setRepeatBymonth((prev) => (prev.includes(m) ? (prev.length > 1 ? prev.filter((x) => x !== m) : prev) : [...prev, m]))}
-                              >{language === "ko" ? `${m}월` : monthShort[m - 1]}</button>
+                              >{language === "ko" ? `${m}월` : monthShort[m - 1]}</Pressable>
                             ))}
                           </div>
                           <div className={styles.recurYearCond}>
@@ -705,9 +706,9 @@ export default function CalendarEventModal({
                   )}
                   {repeatEnd === "until" && (
                     <span className={styles.monthNavWrap}>
-                      <button type="button" className={`${styles.dateTrigger} ${styles.recurDateBtn}`} onClick={() => setRepeatUntilOpen((o) => !o)}>
+                      <Pressable className={`${styles.dateTrigger} ${styles.recurDateBtn}`} onClick={() => setRepeatUntilOpen((o) => !o)}>
                         <CalendarDays size={14} />{repeatUntil ? formatDateValue(repeatUntil, null, language) : t("날짜 선택", "Pick date")}
-                      </button>
+                      </Pressable>
                       {repeatUntilOpen && (
                         <DatePickerPopover
               portal

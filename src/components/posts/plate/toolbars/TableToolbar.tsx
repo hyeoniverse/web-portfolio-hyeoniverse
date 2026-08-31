@@ -45,6 +45,7 @@ import type { BorderMode } from "../hooks";
 import { recomputeTableIndices, fixZeroColSizes } from "../TableElements";
 import { useRecentColors } from "../useRecentColors";
 import styles from "../../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface TableToolbarProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -513,8 +514,7 @@ export default React.memo(function TableToolbar({
                     const disabled = isDisabled(item.mode);
                     return (
                       <Tooltip key={item.mode} content={item.tip} delay={200} placement="top">
-                        <button
-                          type="button"
+                        <Pressable noTapScale
                           className={`${styles.borderGridBtn} ${bp.selectedPosition === item.mode ? styles.borderGridBtnActive : ""} ${disabled ? styles.borderGridBtnDisabled : ""}`}
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => { if (!disabled) bp.setSelectedPosition(bp.selectedPosition === item.mode ? null : item.mode); }}
@@ -522,7 +522,7 @@ export default React.memo(function TableToolbar({
                           tabIndex={disabled ? -1 : 0}
                         >
                           {item.icon}
-                        </button>
+                        </Pressable>
                       </Tooltip>
                     );
                   })}
@@ -533,14 +533,13 @@ export default React.memo(function TableToolbar({
                     <div className={styles.borderPopSectionHeader}>
                       <span className={styles.borderPopLabel}>{t("editor.borderStyle")}</span>
                       <Tooltip content={t("editor.borderClear")} placement="top">
-                        <button
-                          type="button"
+                        <Pressable noTapScale
                           className={styles.borderClearBtn}
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => bp.applyBorders("none")}
                         >
                           {t("editor.borderClear")}
-                        </button>
+                        </Pressable>
                       </Tooltip>
                     </div>
                     <Select
@@ -564,7 +563,7 @@ export default React.memo(function TableToolbar({
                     <div className={styles.borderWidthCapsule}>
                       {bp.mixed.width && <span className={styles.borderMixedLabel}>{t("editor.borderMixed")}</span>}
                       {TABLE_BORDER_WIDTHS.map((w) => (
-                        <button key={w} type="button" className={`${styles.borderWidthBtn} ${!bp.mixed.width && bp.width === w ? styles.borderWidthBtnActive : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => bp.setWidth(w)}>{w}</button>
+                        <Pressable noTapScale key={w} className={`${styles.borderWidthBtn} ${!bp.mixed.width && bp.width === w ? styles.borderWidthBtnActive : ""}`} onMouseDown={(e) => e.preventDefault()} onClick={() => bp.setWidth(w)}>{w}</Pressable>
                       ))}
                     </div>
                   </div>
@@ -575,11 +574,11 @@ export default React.memo(function TableToolbar({
               <div className={styles.colorMenu}>
                 <ColorMenu
                   label={t("editor.borderColor")}
-                  value={bp.color === "var(--border-light-color)" ? undefined : bp.color}
-                  onPick={(v) => bp.setColor(v ?? "var(--border-light-color)")}
+                  value={bp.color === "var(--border-color-light)" ? undefined : bp.color}
+                  onPick={(v) => bp.setColor(v ?? "var(--border-color-light)")}
                   onCommit={(v) => { bp.setColor(v); recentBorderColors.addColor(v); }}
                   presets={TABLE_BORDER_COLORS.map((c) => ({ hex: c }))}
-                  defaultColor="var(--border-light-color)"
+                  defaultColor="var(--border-color-light)"
                   defaultLabel={language === "ko" ? "기본" : "Default"}
                   recent={recentBorderColors.colors}
                   recentSlots={RECENT_SLOTS}
@@ -643,7 +642,7 @@ export default React.memo(function TableToolbar({
             <div className={styles.colorMenuFooter}>
               <span className={styles.colorMenuMiniLabel}>{language === "ko" ? "굵게" : "Bold"}</span>
               <Tooltip content={language === "ko" ? "헤더 굵게" : "Bold header"} placement="top" delay={150}>
-                <button type="button" className={`${styles.swatch} ${styles.swatchRandom} ${headerBold ? styles.swatchActive : ""}`} onClick={() => setHeaderStyle({ headerBold: headerBold ? false : null })}><span style={{ fontWeight: 700, fontSize: 11 }}>B</span></button>
+                <Pressable noTapScale className={`${styles.swatch} ${styles.swatchRandom} ${headerBold ? styles.swatchActive : ""}`} onClick={() => setHeaderStyle({ headerBold: headerBold ? false : null })}><span style={{ fontWeight: 700, fontSize: 11 }}>B</span></Pressable>
               </Tooltip>
             </div>
           </div>

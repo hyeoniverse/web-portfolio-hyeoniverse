@@ -7,6 +7,7 @@ import { buildDiffOps, groupIntoBlocks } from "../_data/diffUtils";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import styles from "./DiffResolver.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export default function DiffResolver({
   conflict,
@@ -73,12 +74,12 @@ export default function DiffResolver({
             title="적용"
             icon={<Check size={14} strokeWidth={1.8} />}
           />
-          <button type="button" className={styles.conflictCloseBtn} onClick={onDismiss} title="닫기">
+          <Pressable className={styles.conflictCloseBtn} onClick={onDismiss} title="닫기">
             <span className={styles.conflictCloseIcon}>
               <span className={styles.conflictCloseLine} />
               <span className={styles.conflictCloseLine} />
             </span>
-          </button>
+          </Pressable>
         </div>
       </div>
       <div className={styles.conflictDiffPre}>
@@ -105,13 +106,12 @@ export default function DiffResolver({
               <div key={`hunk-${hunk.id}`} className={styles.diffHunk}>
                 <div className={styles.diffHunkOverlay}>
                   <Tooltip content={`되돌리기: ${tooltipLabel}`} placement="right">
-                    <button
-                      type="button"
+                    <Pressable
                       className={`${styles.diffHunkFloatBtn} ${styles.diffHunkFloatRevert}`}
                       onClick={() => toggle(hunk.id)}
                     >
                       ↺
-                    </button>
+                    </Pressable>
                   </Tooltip>
                 </div>
                 {hunk.added.map((op) => (
@@ -130,13 +130,12 @@ export default function DiffResolver({
             <div key={`hunk-${hunk.id}`} className={styles.diffHunk}>
               <div className={styles.diffHunkOverlay}>
                 <Tooltip content={`Code 적용: ${tooltipLabel}`} placement="right">
-                  <button
-                    type="button"
+                  <Pressable
                     className={`${styles.diffHunkFloatBtn} ${styles.diffHunkFloatAccept}`}
                     onClick={() => toggle(hunk.id)}
                   >
                     +
-                  </button>
+                  </Pressable>
                 </Tooltip>
               </div>
               {hunk.removed.map((op) => (

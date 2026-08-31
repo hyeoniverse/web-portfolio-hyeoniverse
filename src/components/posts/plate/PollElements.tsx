@@ -13,6 +13,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import TBtn from "./TBtn";
 import { buildPollResult, POLL_SORT_LABELS, type PollSortKey } from "../pollResultView";
 import { showToast } from "@/stores/toastStore";
+import Pressable from "@/components/ui/Pressable";
 
 export type PollOption = { optionId: string; label: string };
 
@@ -341,10 +342,10 @@ export function PollElement(props: PlateElementProps) {
                 <EditorTextInput className="poll-option-input" value={opt.label} placeholder={t("항목", "Option")}
                   maxLength={OPTION_MAX_LEN} clearable={false} onOverflow={() => overflowToast(OPTION_MAX_LEN)} onCommit={(v) => updateOption(i, v)} />
                 {options.length > 2 && (
-                  <button type="button" className="poll-option-remove" aria-label="remove"
+                  <Pressable className="poll-option-remove" aria-label="remove"
                     onMouseDown={(e) => { e.preventDefault(); removeOption(i); }}>
                     <X size={14} />
-                  </button>
+                  </Pressable>
                 )}
               </div>
             ))}

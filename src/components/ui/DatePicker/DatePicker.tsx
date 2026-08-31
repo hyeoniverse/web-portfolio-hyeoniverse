@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import type { SelectOption } from "@/types";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "@/components/icons";
 import styles from "./DatePicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export type Format = "year" | "yearMonth" | "date";
 
@@ -236,17 +237,17 @@ function CalendarView({
     return (
       <div className={styles.calView}>
         <div className={styles.calNav}>
-          <button type="button" onClick={() => setViewYear(viewYear - 12)} aria-label="Previous"><ChevronLeft size={14} strokeWidth={2} /></button>
+          <Pressable onClick={() => setViewYear(viewYear - 12)} aria-label="Previous"><ChevronLeft size={14} strokeWidth={2} /></Pressable>
           <span>{years[0]}–{years[11]}</span>
-          <button type="button" onClick={() => setViewYear(viewYear + 12)} aria-label="Next"><ChevronRight size={14} strokeWidth={2} /></button>
+          <Pressable onClick={() => setViewYear(viewYear + 12)} aria-label="Next"><ChevronRight size={14} strokeWidth={2} /></Pressable>
         </div>
         <div className={styles.calYearGrid}>
           {years.map((y) => (
-            <button
+            <Pressable
               key={y} type="button"
               className={`${styles.calCell} ${String(y) === year ? styles.calCellActive : ""}`}
               onClick={() => onSelect(String(y), month, day)}
-            >{y}</button>
+            >{y}</Pressable>
           ))}
         </div>
       </div>
@@ -258,20 +259,20 @@ function CalendarView({
     return (
       <div className={styles.calView}>
         <div className={styles.calNav}>
-          <button type="button" onClick={() => setViewYear(viewYear - 1)} aria-label="Previous year"><ChevronLeft size={14} strokeWidth={2} /></button>
+          <Pressable onClick={() => setViewYear(viewYear - 1)} aria-label="Previous year"><ChevronLeft size={14} strokeWidth={2} /></Pressable>
           <span>{viewYear}</span>
-          <button type="button" onClick={() => setViewYear(viewYear + 1)} aria-label="Next year"><ChevronRight size={14} strokeWidth={2} /></button>
+          <Pressable onClick={() => setViewYear(viewYear + 1)} aria-label="Next year"><ChevronRight size={14} strokeWidth={2} /></Pressable>
         </div>
         <div className={styles.calMonthGrid}>
           {mLabels.map((label, i) => {
             const mv = String(i + 1).padStart(2, "0");
             const active = String(viewYear) === year && mv === month;
             return (
-              <button
+              <Pressable
                 key={mv} type="button"
                 className={`${styles.calCell} ${active ? styles.calCellActive : ""}`}
                 onClick={() => onSelect(String(viewYear), mv, day)}
-              >{label}</button>
+              >{label}</Pressable>
             );
           })}
         </div>
@@ -303,11 +304,11 @@ function CalendarView({
   return (
     <div className={styles.calView}>
       <div className={styles.calNav}>
-        <button type="button" onClick={() => setViewYear(viewYear - 1)} aria-label="Previous year"><ChevronsLeft size={14} strokeWidth={2} /></button>
-        <button type="button" onClick={prevMonth} aria-label="Previous month"><ChevronLeft size={14} strokeWidth={2} /></button>
+        <Pressable onClick={() => setViewYear(viewYear - 1)} aria-label="Previous year"><ChevronsLeft size={14} strokeWidth={2} /></Pressable>
+        <Pressable onClick={prevMonth} aria-label="Previous month"><ChevronLeft size={14} strokeWidth={2} /></Pressable>
         <span>{monthLabel}</span>
-        <button type="button" onClick={nextMonth} aria-label="Next month"><ChevronRight size={14} strokeWidth={2} /></button>
-        <button type="button" onClick={() => setViewYear(viewYear + 1)} aria-label="Next year"><ChevronsRight size={14} strokeWidth={2} /></button>
+        <Pressable onClick={nextMonth} aria-label="Next month"><ChevronRight size={14} strokeWidth={2} /></Pressable>
+        <Pressable onClick={() => setViewYear(viewYear + 1)} aria-label="Next year"><ChevronsRight size={14} strokeWidth={2} /></Pressable>
       </div>
       <div className={styles.calDayGrid}>
         {weekdays.map((wd) => (
@@ -321,12 +322,12 @@ function CalendarView({
           const cellTime = new Date(viewYear, viewMonth - 1, d).getTime();
           const outOfRange = (minDay !== null && cellTime < minDay) || (maxDay !== null && cellTime > maxDay);
           return (
-            <button
+            <Pressable
               key={d} type="button"
               className={`${styles.calDayCell} ${active ? styles.calCellActive : ""} ${outOfRange ? styles.calCellDisabled : ""}`}
               onClick={() => { if (!outOfRange) onSelect(String(viewYear), mv, dv); }}
               disabled={outOfRange}
-            >{d}</button>
+            >{d}</Pressable>
           );
         })}
       </div>

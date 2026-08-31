@@ -25,6 +25,8 @@ import { useLikeToggle } from "@/hooks/useLikeToggle";
 import { ImageIcon, ChevronRight, ArrowLeft, ArrowRight, Languages } from "@/components/icons";
 import styles from "./PostDetail.module.css";
 import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
+import Button from "@/components/ui/Button";
+import Pressable from "@/components/ui/Pressable";
 
 interface AdjacentPost {
   id: string;
@@ -278,8 +280,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.25 }}
         >
-          <button
-            type="button"
+          <Pressable
             className={styles.seriesHeader}
             onClick={() => setSeriesOpen((v) => !v)}
           >
@@ -295,7 +296,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
             <span className={`${styles.seriesChevron} ${seriesOpen ? styles.seriesChevronOpen : ""}`}>
               <ChevronRight size={14} strokeWidth={1.5} />
             </span>
-          </button>
+          </Pressable>
 
           <div className={`${styles.seriesListWrap} ${seriesOpen ? styles.seriesListWrapOpen : ""}`}>
             <div className={styles.seriesListInner}>
@@ -357,16 +358,17 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
               <T k="postDetail.translateFailed" />
             </p>
           ) : (
-            <button
+            <Button
               type="button"
-              className={styles.translateBtn}
+              variant="outline"
+              size="2xs"
               onClick={handleAutoTranslate}
               disabled={autoTranslating}
             >
               {autoTranslating
                 ? <T k="postDetail.translating" />
                 : <T k="postDetail.autoTranslate" />}
-            </button>
+            </Button>
           )}
         </div>
       )}

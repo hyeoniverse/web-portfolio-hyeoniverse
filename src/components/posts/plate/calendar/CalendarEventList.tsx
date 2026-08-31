@@ -12,6 +12,7 @@ import SegmentedControl from "@/components/ui/SegmentedControl";
 import { type CalEvent, type EventLabel, type TimeFormat, eventColorVar, eventEndDate, eventTimeLabel, statusName, priorityOf, priorityName, connectedComponent } from "./model";
 import { formatDateValue, toDateStr } from "../dateUtils";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type Filter = "all" | "past" | "current" | "upcoming";
 
@@ -74,8 +75,7 @@ export default function CalendarEventList({
   const eventBtn = (ev: CalEvent, withDot = true) => {
     const pr = priorityOf(ev.priority);
     return (
-      <button
-        type="button"
+      <Pressable
         className={`${styles.evItem}${ev.status === "done" ? ` ${styles.evItemDone}` : ""}`}
         style={{ ["--_c" as string]: eventColorVar(ev, labels) }}
         onClick={() => onEventGoto?.(ev)}
@@ -104,7 +104,7 @@ export default function CalendarEventList({
             </span>
           </Tooltip>
         )}
-      </button>
+      </Pressable>
     );
   };
 
@@ -196,8 +196,7 @@ export default function CalendarEventList({
                       {eventBtn(ev)}
                       {chain && (
                         <Tooltip content={t("연결된 작업", "Connected tasks")} placement="top">
-                          <button
-                            type="button"
+                          <Pressable
                             className={`${styles.evLinkToggle}${expanded ? ` ${styles.evLinkToggleOn}` : ""}`}
                             onClick={() => setExpandedId((x) => (x === ev.id ? null : ev.id))}
                             aria-label={t("연결된 작업 펼치기", "Expand connected tasks")}
@@ -205,7 +204,7 @@ export default function CalendarEventList({
                             <Link2 size={12} />
                             <span className={styles.evLinkCount}>{chain.length}</span>
                             <ChevronDown size={12} className={`${styles.evLinkChevron}${expanded ? ` ${styles.evLinkChevronOn}` : ""}`} />
-                          </button>
+                          </Pressable>
                         </Tooltip>
                       )}
                     </div>

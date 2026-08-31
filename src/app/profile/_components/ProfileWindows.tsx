@@ -67,7 +67,12 @@ export default function ProfileWindows({ className, isMobile, infoBlocks }: Prop
 
       const right = containerSize.w - bodyLeft - bodyWidth;
       const bottom = containerSize.h - bodyTop - bodyHeight;
-      const clip = `inset(${bodyTop}px ${right}px ${bottom}px ${bodyLeft}px)`;
+
+      /* 창은 모서리가 둥근데 이 clip 은 직사각형이라, 아래 두 모서리에서 사진이 창 밖으로
+         비어져 나온다. 창의 실제 radius 를 읽어서 같이 깎는다 — 상수로 적으면 펼친 창
+         (radius 0)·모바일에서 어긋난다. 위 두 모서리는 타이틀바와 맞닿아 각져 있다. */
+      const r = getComputedStyle(win).borderBottomLeftRadius;
+      const clip = `inset(${bodyTop}px ${right}px ${bottom}px ${bodyLeft}px round 0 0 ${r} ${r})`;
 
       const peek = peekRefs.current[id];
       if (peek) peek.style.clipPath = clip;

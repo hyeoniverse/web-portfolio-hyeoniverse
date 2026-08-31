@@ -4,6 +4,7 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import { motion, useSpring, useMotionValue } from "framer-motion";
 import { usePanelTitle } from "../_hooks/usePanelTitle";
 import styles from "./AboutSection.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface DotNavConfig {
   count: number;
@@ -91,7 +92,7 @@ export default function PinnedTitleRow({
       </div>
       {dotNav && (
         <div className={`${styles.dotNavWrap}${dotNav.className ? ` ${dotNav.className}` : ""}${animateClass}`}>
-          <button
+          <Pressable noTapScale
             data-clickable="true"
             className={styles.dotArrow}
             onClick={() => dotNav.onDotClick(0)}
@@ -99,8 +100,8 @@ export default function PinnedTitleRow({
             aria-label="First"
           >
             «
-          </button>
-          <button
+          </Pressable>
+          <Pressable noTapScale
             data-clickable="true"
             className={styles.dotArrow}
             onClick={() => dotNav.onDotClick(Math.max(0, dotNav.activeIndex - 1))}
@@ -108,7 +109,7 @@ export default function PinnedTitleRow({
             aria-label="Previous"
           >
             ‹
-          </button>
+          </Pressable>
 
           <div
             ref={dotNavRef}
@@ -120,7 +121,7 @@ export default function PinnedTitleRow({
               style={{ x: springX, y: "-50%", width: springW, height: springH }}
             />
             {Array.from({ length: dotNav.count }, (_, i) => (
-              <button
+              <Pressable noTapScale
                 data-clickable="true"
                 key={i}
                 ref={(el) => {
@@ -136,11 +137,11 @@ export default function PinnedTitleRow({
                 {dotNav.labels?.[i] && (
                   <span className={styles.dotText}>{dotNav.labels[i]}</span>
                 )}
-              </button>
+              </Pressable>
             ))}
           </div>
 
-          <button
+          <Pressable noTapScale
             data-clickable="true"
             className={styles.dotArrow}
             onClick={() => dotNav.onDotClick(Math.min(dotNav.count - 1, dotNav.activeIndex + 1))}
@@ -148,8 +149,8 @@ export default function PinnedTitleRow({
             aria-label="Next"
           >
             ›
-          </button>
-          <button
+          </Pressable>
+          <Pressable noTapScale
             data-clickable="true"
             className={styles.dotArrow}
             onClick={() => dotNav.onDotClick(dotNav.count - 1)}
@@ -157,7 +158,7 @@ export default function PinnedTitleRow({
             aria-label="Last"
           >
             »
-          </button>
+          </Pressable>
         </div>
       )}
     </div>

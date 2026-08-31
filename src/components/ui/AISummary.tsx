@@ -6,6 +6,7 @@ import { Sparkles, ChevronDown } from "@/components/icons";
 import T from "@/components/ui/T";
 import LoadingDots from "@/components/ui/LoadingDots";
 import styles from "./AISummary.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface AISummaryProps {
   summaryKo: string;
@@ -25,7 +26,7 @@ export default function AISummary({ summaryKo, summaryEn, lang, generating = fal
 
   return (
     <div className={styles.container}>
-      <button
+      <Pressable
         type="button"
         className={styles.header}
         onClick={() => setOpen((v) => !v)}
@@ -40,7 +41,7 @@ export default function AISummary({ summaryKo, summaryEn, lang, generating = fal
           size={16}
           strokeWidth={1.5}
         />
-      </button>
+      </Pressable>
 
       <AnimatePresence initial={false}>
         {open && (

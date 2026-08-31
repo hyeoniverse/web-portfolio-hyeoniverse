@@ -16,6 +16,7 @@ import {
 } from "@codesandbox/sandpack-react";
 import { Plus, X } from "@/components/icons";
 import css from "./DemoFilesEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const SP_EDITOR_THEME: SandpackTheme = {
   colors: {
@@ -122,13 +123,13 @@ function Body({ onChange, lang }: { onChange: (f: Files) => void; lang: "ko" | "
           const active = path === sandpack.activeFile;
           return (
             <div key={path} className={`${css.tab} ${active ? css.tabActive : ""}`}>
-              <button type="button" className={css.tabName} onClick={() => sandpack.setActiveFile(path)}>
+              <Pressable className={css.tabName} onClick={() => sandpack.setActiveFile(path)}>
                 {path.replace(/^\//, "")}
-              </button>
+              </Pressable>
               {sandpack.visibleFiles.length > 1 && (
-                <button type="button" className={css.tabClose} onClick={() => closeFile(path)} aria-label={`close ${path}`}>
+                <Pressable className={css.tabClose} onClick={() => closeFile(path)} aria-label={`close ${path}`}>
                   <X size={11} />
-                </button>
+                </Pressable>
               )}
             </div>
           );
@@ -141,9 +142,9 @@ function Body({ onChange, lang }: { onChange: (f: Files) => void; lang: "ko" | "
               if (e.key === "Escape") setAdding(false);
             }} />
         ) : (
-          <button type="button" className={css.addTab} onClick={() => setAdding(true)}>
+          <Pressable className={css.addTab} onClick={() => setAdding(true)}>
             <Plus size={12} /> {lang === "ko" ? "파일" : "File"}
-          </button>
+          </Pressable>
         )}
       </div>
       <SandpackCodeEditor

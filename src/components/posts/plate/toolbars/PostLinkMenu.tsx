@@ -15,6 +15,7 @@ import Popover from "@/components/ui/Popover";
 import { genShortId } from "../dateUtils";
 import { _postLinkTrigger, _postLinkCategory, _postLinkTags, _postLinkExcludeId } from "../utils";
 import styles from "../../RichTextEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -78,12 +79,12 @@ function PostThumb({ hit }: { hit: PostHit }) {
 
 function PostRow({ hit, active, onPick, onHover }: { hit: PostHit; active?: boolean; onPick: () => void; onHover?: () => void }) {
   return (
-    <button type="button" className={`${styles.slashItem} ${active ? styles.slashItemActive : ""}`}
+    <Pressable noTapScale className={`${styles.slashItem} ${active ? styles.slashItemActive : ""}`}
       onMouseEnter={onHover} onMouseDown={(e) => e.preventDefault()} onClick={onPick}>
       <PostThumb hit={hit} />
       <span className={styles.postLinkTitle}>{hit.title}</span>
       {hit.category && <span className={styles.postLinkCatTag}>{hit.category}</span>}
-    </button>
+    </Pressable>
   );
 }
 
@@ -113,10 +114,10 @@ function CategoryFlyout({ cat, language, onPick }: { cat: string; language: stri
       onOpenChange={setOpen}
       contentClassName={styles.postLinkSub}
       trigger={
-        <button type="button" className={`${styles.slashItem} ${styles.postLinkCatRow}${open ? ` ${styles.slashItemActive}` : ""}`}>
+        <Pressable noTapScale className={`${styles.slashItem} ${styles.postLinkCatRow}${open ? ` ${styles.slashItemActive}` : ""}`}>
           <span className={styles.postLinkCatName}>{cat}</span>
           <ChevronRight size={14} className={styles.postLinkCatChev} />
-        </button>
+        </Pressable>
       }
     >
       <div className={styles.postLinkSectionLabel}>{cat}</div>

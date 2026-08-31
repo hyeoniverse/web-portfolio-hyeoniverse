@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@/utils/cn";
 import styles from "./Menu.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface MenuItemProps {
   icon?: ReactNode;
@@ -26,7 +27,7 @@ export function MenuItem({
   className,
 }: MenuItemProps) {
   return (
-    <button
+    <Pressable
       type="button"
       className={cn(styles.item, active && styles.itemActive, className)}
       onClick={onClick}
@@ -35,7 +36,7 @@ export function MenuItem({
       {icon && <span className={styles.itemIcon}>{icon}</span>}
       <span className={styles.itemLabel}>{label}</span>
       {trailing}
-    </button>
+    </Pressable>
   );
 }
 

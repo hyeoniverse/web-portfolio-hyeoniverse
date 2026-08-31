@@ -21,6 +21,7 @@ import Input from "@/components/ui/Input";
 import Popover from "@/components/ui/Popover";
 import EmojiPicker, { EmojiIcon } from "@/components/ui/EmojiPicker";
 import styles from "./CoverBanner.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface CoverBannerProps {
   /** 현재 커버 이미지/비디오 URL ("" 면 비어있음) */
@@ -335,8 +336,7 @@ export default function CoverBanner({
         <div className={styles.emojiAnchor}>
           {/* 단일 버튼 — emoji 유무에 따라 내용만 바뀌도록(엘리먼트 유지) 해서
               active→normal frost transition 이 끊기지 않게 */}
-          <button
-            type="button"
+          <Pressable noTapScale
             className={`${styles.emojiBtn}${emoji ? "" : ` ${styles.addEmojiBtn}`}${
               hasCover ? ` ${styles.emojiBtnOverlay}` : ""
             }${emojiOpen ? ` ${styles.emojiBtnActive}` : ""}`}
@@ -353,7 +353,7 @@ export default function CoverBanner({
                 </span>
               </>
             )}
-          </button>
+          </Pressable>
 
           {/* EmojiPicker — anchor 기준 absolute 팝업 */}
           <EmojiPicker

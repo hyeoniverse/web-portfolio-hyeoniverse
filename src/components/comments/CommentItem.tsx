@@ -21,6 +21,7 @@ import CommentForm from "./CommentForm";
 import CommentMarkdown from "./CommentMarkdown";
 import Collapsible from "@/components/ui/Collapsible";
 import styles from "./CommentItem.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 function hasKorean(text: string): boolean {
   return /[\uac00-\ud7af]/.test(text);
@@ -618,26 +619,24 @@ function CommentItem({
             maxHeight={false}
             contentClassName={styles.reactionPopover}
             trigger={
-              <button
-                type="button"
+              <Pressable
                 className={styles.reactionAddBtn}
                 aria-label={t("comments.addReaction")}
               >
                 <SmilePlus size={14} />
-              </button>
+              </Pressable>
             }
           >
             {({ close }) => (
               <div className={styles.reactionPicker}>
                 {REACTION_EMOJIS.map((emoji) => (
-                  <button
+                  <Pressable
                     key={emoji}
-                    type="button"
                     className={`${styles.reactionPickerBtn} ${mine.includes(emoji) ? styles.reactionPickerBtnActive : ""}`}
                     onClick={() => { handleReact(emoji); close(); }}
                   >
                     {emoji}
-                  </button>
+                  </Pressable>
                 ))}
               </div>
             )}
@@ -646,15 +645,14 @@ function CommentItem({
           <div className={styles.reactionChips}>
             {/* REACTION_EMOJIS 의 지정된 순서대로 삽입 (반응한 시각과 무관하게 항상 같은 자리) */}
             {REACTION_EMOJIS.filter((emoji) => (reactions[emoji] ?? 0) > 0).map((emoji) => (
-              <button
+              <Pressable
                 key={emoji}
-                type="button"
                 className={`${styles.reactionChip} ${mine.includes(emoji) ? styles.reactionChipActive : ""}`}
                 onClick={() => handleReact(emoji)}
               >
                 <span className={styles.reactionEmoji}>{emoji}</span>
                 <span className={styles.reactionCount}>{reactions[emoji]}</span>
-              </button>
+              </Pressable>
             ))}
           </div>
         </div>

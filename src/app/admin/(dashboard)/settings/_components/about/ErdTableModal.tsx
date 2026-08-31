@@ -21,6 +21,7 @@ import { useModalStore } from "@/stores/modalStore";
 import type { ErdTable, ErdRelation } from "@/data/about/types";
 import Tooltip from "@/components/ui/Tooltip";
 import css from "./ErdTableModal.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 
 /* Postgres 에서 흔히 쓰는 타입들. 목록에 없는 값도 직접 입력할 수 있으므로
@@ -296,30 +297,30 @@ export default function ErdTableModal({
                   </td>
                   <td className={css.tdPk}>
                     <Tooltip content={lang === "ko" ? "기본키" : "Primary key"} delay={200}>
-                      <button type="button" className={`${css.pk} ${c.pk ? css.pkOn : ""}`}
+                      <Pressable className={`${css.pk} ${c.pk ? css.pkOn : ""}`}
                         aria-label={lang === "ko" ? "기본키" : "Primary key"} aria-pressed={!!c.pk}
                         onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, pk: !x.pk } : x)))}>
                         <KeyRound size={13} />
-                      </button>
+                      </Pressable>
                     </Tooltip>
                     {/* PK 는 정의상 NOT NULL 이라 따로 끌 수 없다 — 왜 잠겼는지 툴팁으로 말한다 */}
                     <Tooltip delay={200}
                       content={c.pk
                         ? (lang === "ko" ? "기본키라 항상 필수입니다" : "Always required — it's the primary key")
                         : (lang === "ko" ? "필수 (NOT NULL)" : "Required (NOT NULL)")}>
-                      <button type="button" className={`${css.pk} ${c.required || c.pk ? css.pkOn : ""}`}
+                      <Pressable className={`${css.pk} ${c.required || c.pk ? css.pkOn : ""}`}
                         aria-label={lang === "ko" ? "필수" : "Required"} aria-pressed={!!(c.required || c.pk)}
                         disabled={!!c.pk}
                         onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, required: !x.required || undefined } : x)))}>
                         <Asterisk size={13} />
-                      </button>
+                      </Pressable>
                     </Tooltip>
                     <Tooltip content={lang === "ko" ? "고유 (UNIQUE)" : "Unique"} delay={200}>
-                      <button type="button" className={`${css.pk} ${c.unique ? css.pkOn : ""}`}
+                      <Pressable className={`${css.pk} ${c.unique ? css.pkOn : ""}`}
                         aria-label={lang === "ko" ? "고유" : "Unique"} aria-pressed={!!c.unique}
                         onClick={() => setCols(draft.columns.map((x, j) => (j === i ? { ...x, unique: !x.unique || undefined } : x)))}>
                         <Fingerprint size={13} />
-                      </button>
+                      </Pressable>
                     </Tooltip>
                   </td>
                   <td>
@@ -355,7 +356,7 @@ export default function ErdTableModal({
                   </td>
                   <td className={css.tdMore}>
                     <Tooltip content={lang === "ko" ? "기본값·설명" : "Default & description"} delay={200}>
-                    <button type="button"
+                    <Pressable
                       className={`${css.more} ${detailOpen(c, i) ? css.moreOn : ""}`}
                       aria-label={lang === "ko" ? "기본값·설명" : "Default & description"}
                       aria-expanded={detailOpen(c, i)}
@@ -365,7 +366,7 @@ export default function ErdTableModal({
                         return next;
                       })}>
                       <ChevronDown size={13} />
-                    </button>
+                    </Pressable>
                     </Tooltip>
                   </td>
                   <td className={css.tdX}>

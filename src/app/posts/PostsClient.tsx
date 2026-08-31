@@ -52,6 +52,7 @@ import Select from "@/components/ui/Select";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import LetterFilter, { KOREAN_LETTERS, ENGLISH_LETTERS, LETTER_ETC, getLetterInitial } from "@/components/ui/LetterFilter";
 import styles from "./Posts.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 function SidebarWrap({
   barHidden,
@@ -133,15 +134,15 @@ function SidebarWrap({
     >
       {canUp && (
         <div className={styles.sidebarFadeTop}>
-          <button
-            type="button"
+          <Pressable
+            noTapScale
             className={styles.sidebarScrollBtn}
             {...btnHandlers(-1)}
             aria-label="위로 스크롤"
             data-clickable="true"
           >
             <ChevronUp size={14} />
-          </button>
+          </Pressable>
         </div>
       )}
       <aside
@@ -153,15 +154,15 @@ function SidebarWrap({
       </aside>
       {canDown && (
         <div className={styles.sidebarFadeBottom}>
-          <button
-            type="button"
+          <Pressable
+            noTapScale
             className={styles.sidebarScrollBtn}
             {...btnHandlers(1)}
             aria-label="아래로 스크롤"
             data-clickable="true"
           >
             <ChevronDown size={14} />
-          </button>
+          </Pressable>
         </div>
       )}
     </div>
@@ -1130,7 +1131,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                 style={{ overflow: "hidden" }}
               >
                 {allTags.length > 0 && (
-                  <button
+                  <Pressable
                     className={`${styles.tagToggleBtn} ${showTags ? styles.tagToggleBtnOpen : ""}`}
                     onClick={() => setShowTags((v) => !v)}
                     data-clickable="true"
@@ -1140,7 +1141,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                       tooltip={t("postsPage.tagsTooltip")}
                     />
                     <ChevronDown size={10} />
-                  </button>
+                  </Pressable>
                 )}
 
               </motion.div>
@@ -1208,15 +1209,15 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                 className={`${styles.tagRow} ${tagScrolled ? styles.tagRowScrolled : ""} ${tagAtBottom ? styles.tagRowAtBottom : ""}`}
                 data-lenis-prevent
               >
-                <button
+                <Pressable
                   className={`${styles.tagBtn} ${activeTags.size === 0 ? styles.tagBtnActive : ""}`}
                   onClick={clearActiveTags}
                   data-clickable="true"
                 >
                   <T k="postsPage.allTags" />
-                </button>
+                </Pressable>
                 {filteredTags.map(({ tag, count }) => (
-                  <button
+                  <Pressable
                     key={tag}
                     className={`${styles.tagBtn} ${activeTags.has(tag) ? styles.tagBtnActive : ""}`}
                     onClick={() => toggleActiveTag(tag)}
@@ -1224,7 +1225,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                   >
                     {tag}
                     <span className={styles.tagCount}>{count}</span>
-                  </button>
+                  </Pressable>
                 ))}
                 {filteredTags.length === 0 && (
                   <p className={styles.tagAllLoaded}>
@@ -1357,8 +1358,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                   : baseFiltered;
               return (
                 <div className={styles.seriesRowWrap}>
-                  <button
-                    type="button"
+                  <Pressable
                     className={`${styles.seriesScrollBtn} ${styles.seriesScrollBtnLeft}`}
                     onMouseDown={(e) => { e.preventDefault(); startSeriesScroll(-1); }}
                     onMouseUp={stopSeriesScroll}
@@ -1372,7 +1372,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                     <span className={styles.seriesScrollBadge}>
                       <ChevronLeft size={16} />
                     </span>
-                  </button>
+                  </Pressable>
                 <div
                   ref={seriesRowRef}
                   className={styles.seriesRow}
@@ -1420,8 +1420,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                     </motion.p>
                   )}
                 </AnimatePresence>
-                  <button
-                    type="button"
+                  <Pressable
                     className={`${styles.seriesScrollBtn} ${styles.seriesScrollBtnRight}`}
                     onMouseDown={(e) => { e.preventDefault(); startSeriesScroll(1); }}
                     onMouseUp={stopSeriesScroll}
@@ -1435,7 +1434,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                     <span className={styles.seriesScrollBadge}>
                       <ChevronRight size={16} />
                     </span>
-                  </button>
+                  </Pressable>
                 </div>
               );
             })()}
@@ -1818,38 +1817,38 @@ export default function PostsClient({ initialData, history = false, archiveMonth
               {/* Pagination — 타임라인(무한스크롤) 제외 */}
               {postsLayout !== "timeline" && totalPages > 1 && (
                 <div className={styles.pagination}>
-                  <button
+                  <Pressable
                     disabled={page <= 1}
                     onClick={() => setPage((p) => p - 1)}
                     className={styles.pageBtn}
                     data-clickable="true"
                   >
                     &larr;
-                  </button>
+                  </Pressable>
                   {pageNumbers.map((p, i) =>
                     p === -1 ? (
                       <span key={`ellipsis-${i}`} className={styles.ellipsis}>
                         &hellip;
                       </span>
                     ) : (
-                      <button
+                      <Pressable
                         key={p}
                         onClick={() => setPage(p)}
                         className={`${styles.pageBtn} ${page === p ? styles.pageBtnActive : ""}`}
                         data-clickable="true"
                       >
                         {p}
-                      </button>
+                      </Pressable>
                     ),
                   )}
-                  <button
+                  <Pressable
                     disabled={page >= totalPages}
                     onClick={() => setPage((p) => p + 1)}
                     className={styles.pageBtn}
                     data-clickable="true"
                   >
                     &rarr;
-                  </button>
+                  </Pressable>
                 </div>
               )}
                 </>

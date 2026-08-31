@@ -15,6 +15,7 @@ import { profileDefaults, isProfileAllOpen, toggleProfileAll, type ProfileExpand
 import { ProfileSectionProvider, type ProfileKey } from "@/components/admin/ProfileSectionActions";
 import type { ProfileData } from "@/types/profile";
 import { TAB_IDS, TAB_CONFIG_KEYS, type TabId, CONTENT_SUBTABS, type ContentSubTab, deepMerge, deepEqual, computeDelta, extractDefaults, detectConflicts, isDeltaFormat, filterOrphanedKeys, getTabForConfigPath, getContentSubTabForKey, getByPath, setByPath, type ConfigConflict } from "./_data/settingsConstants";
+import { buildDeltaPayload as sharedBuildDeltaPayload } from "@/lib/settingsDelta";
 import GeneralTab from "./_components/GeneralTab";
 import ContentTab from "./_components/ContentTab";
 import AppearanceTab from "./_components/AppearanceTab";
@@ -35,6 +36,7 @@ import shared from "./Settings.module.css";
 import local from "./page.module.css";
 import { OWNER_AUTHOR_ID, withOwnerAuthor } from "@/utils/resolvePostAuthors";
 import type { SaveResult } from "./_types";
+import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
 
 const PROFILE_SECTION_LABELS: Record<string, string> = {
@@ -291,19 +293,10 @@ export default function SettingsPage() {
    */
   const buildDeltaPayload = useCallback((fullConfig: SiteConfigData, paths?: string[]) => {
     const defaults = structuredClone(siteConfig) as unknown as SiteConfigData;
-    let delta: Record<string, unknown>;
     if (paths?.length) {
-      delta = structuredClone(storedDeltaRef.current);
-      for (const path of paths) {
-        const value = getByPath(fullConfig, path);
-        const def = getByPath(defaults as unknown as Record<string, unknown>, path);
-        // 기본값으로 되돌아온 경로는 delta 에서 뺀다 (undefined 는 직렬화에서 사라진다).
-        delta = setByPath(delta, path, deepEqual(value, def) ? undefined : value) as Record<string, unknown>;
-      }
-      delta = JSON.parse(JSON.stringify(delta));
-    } else {
-      delta = computeDelta(fullConfig, defaults);
+      return sharedBuildDeltaPayload(storedDeltaRef.current, fullConfig, defaults, paths);
     }
+    const delta = computeDelta(fullConfig, defaults);
     return { delta, savedDefaults: extractDefaults(delta, defaults) };
   }, []);
 
@@ -825,8 +818,7 @@ export default function SettingsPage() {
             const tabCount = allConflicts.filter((c) => c.tab === id).length;
             return (
               <div key={id}>
-                <button
-                  type="button"
+                <Pressable
                   className={`${styles.navItem} ${activeTab === id ? styles.navItemActive : ""}`}
                   onClick={() => {
                     setActiveTab(id);
@@ -839,15 +831,14 @@ export default function SettingsPage() {
                 >
                   {t(`admin.settings.tabs.${id}`)}
                   {tabCount > 0 && <span className={styles.navConflictBadge} />}
-                </button>
+                </Pressable>
                 {id === "content" && (
                   <div className={styles.navSub}>
                     {CONTENT_SUBTABS.map((sub) => {
                       const subCount = allConflicts.filter((c) => c.tab === "content" && c.subTab === sub).length;
                       return (
-                        <button
+                        <Pressable
                           key={sub}
-                          type="button"
                           className={`${styles.navSubItem} ${activeTab === "content" && contentSubTab === sub ? styles.navSubItemActive : ""}`}
                           onClick={() => {
                             setActiveTab("content");
@@ -860,7 +851,7 @@ export default function SettingsPage() {
                         >
                           {t(`admin.settings.contentSub.${sub}`)}
                           {subCount > 0 && <span className={styles.navConflictBadge} />}
-                        </button>
+                        </Pressable>
                       );
                     })}
                   </div>
@@ -880,9 +871,8 @@ export default function SettingsPage() {
               {CONTENT_SUBTABS.map((sub) => {
                 const subCount = allConflicts.filter((c) => c.tab === "content" && c.subTab === sub).length;
                 return (
-                  <button
+                  <Pressable
                     key={sub}
-                    type="button"
                     className={`${styles.mobileSubItem} ${contentSubTab === sub ? styles.mobileSubItemActive : ""}`}
                     onClick={() => {
                       setContentSubTab(sub);
@@ -892,7 +882,7 @@ export default function SettingsPage() {
                   >
                     {t(`admin.settings.contentSub.${sub}`)}
                     {subCount > 0 && <span className={styles.navConflictBadge} />}
-                  </button>
+                  </Pressable>
                 );
               })}
             </div>
@@ -976,21 +966,19 @@ export default function SettingsPage() {
                 </div>
                 <div className={styles.conflictFooter}>
                   {!conflictExpanded && tabConflicts.length > PREVIEW_COUNT ? (
-                    <button
-                      type="button"
+                    <Pressable
                       className={styles.conflictToggle}
                       onClick={() => setConflictExpanded(true)}
                     >
                       + {tabConflicts.length - PREVIEW_COUNT}건 더 보기
-                    </button>
+                    </Pressable>
                   ) : conflictExpanded ? (
-                    <button
-                      type="button"
+                    <Pressable
                       className={styles.conflictToggle}
                       onClick={() => setConflictExpanded(false)}
                     >
                       <T k="admin.settings.conflictCollapse" />
-                    </button>
+                    </Pressable>
                   ) : null}
                 </div>
               </section>

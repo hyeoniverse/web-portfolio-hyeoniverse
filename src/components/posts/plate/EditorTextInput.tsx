@@ -5,6 +5,7 @@ import { Eraser } from "@/components/icons";
 import styles from "@/components/ui/Input.module.css";
 // 단일 줄 input 의 "카운터/지우개를 캡슐 안 flex child 로" 레이아웃은 공통 HighlightInput 과 동일 모듈 재사용
 import ei from "@/components/ui/HighlightInput/HighlightInput.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /**
  * EditorTextInput — Slate 에디터 *안*에 두는 격리된 텍스트 입력 프리미티브(에디터 전용 공통 컴포넌트).
@@ -212,11 +213,11 @@ export function EditorTextInput({
         {inlineLabel && <span className={ei.inlineLabel}>{inlineLabel}</span>}
         <input ref={setRef as React.Ref<HTMLInputElement>} className={`${ei.input} ${className ?? ""}`.trim()} {...common} />
         {showClear && (
-          <button type="button" className={ei.clearBtn} aria-label="clear" title="지우기"
+          <Pressable className={ei.clearBtn} aria-label="clear" title="지우기"
             onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); clear(); }}>
             <Eraser size={11} strokeWidth={2} />
-          </button>
+          </Pressable>
         )}
         {wantCount && (
           <span className={`${ei.counter} ${overLimit ? ei.counterOver : nearLimit ? ei.counterWarn : ""}`.trim()} aria-live="polite">

@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MoreHorizontal, ArrowUpDown, Download, ChevronRight, ArrowUpToLine, ArrowDownToLine } from "@/components/icons";
 import Popover, { MenuItem, MenuItemTrailing, MenuDivider } from "@/components/ui/Popover";
 import styles from "./RowActionsMenu.module.css";
+import Button from "@/components/ui/Button";
+import Pressable from "@/components/ui/Pressable";
 
 interface RowActionsMenuLabels {
   menuTitle?: string;
@@ -48,14 +50,14 @@ function MovePanelBody({
         {labels.moveCurrent ?? "현재 위치"}: <strong>{currentOrder}</strong>{" / "}{totalCount}
       </div>
       <div className={styles.quickRow}>
-        <button type="button" className={styles.quickBtn} onClick={() => apply(1)}>
+        <Pressable className={styles.quickBtn} onClick={() => apply(1)}>
           <ArrowUpToLine size={12} />
           {labels.moveToTop ?? "맨 앞"}
-        </button>
-        <button type="button" className={styles.quickBtn} onClick={() => apply(totalCount || 1)}>
+        </Pressable>
+        <Pressable className={styles.quickBtn} onClick={() => apply(totalCount || 1)}>
           <ArrowDownToLine size={12} />
           {labels.moveToBottom ?? "맨 뒤"}
-        </button>
+        </Pressable>
       </div>
       <div className={styles.posRow}>
         <input
@@ -73,16 +75,17 @@ function MovePanelBody({
           className={styles.posInput}
           autoFocus
         />
-        <button
+        <Button
           type="button"
-          className={styles.applyBtn}
+          variant="primary"
+          size="sm"
           onClick={() => {
             const n = parseInt(pos, 10);
             if (!Number.isNaN(n)) apply(n);
           }}
         >
           {labels.apply ?? "적용"}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -101,15 +104,14 @@ function IconTriggerButton({
   onClick?: () => void;
 }) {
   return (
-    <button
-      type="button"
+    <Pressable
       className={`${styles.trigger} ${active ? styles.triggerOpen : ""}`}
       title={title}
       aria-label={title}
       onClick={onClick}
     >
       {icon}
-    </button>
+    </Pressable>
   );
 }
 

@@ -14,6 +14,7 @@ import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import T from "@/components/ui/T";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import styles from "./SeriesEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface SeriesForm {
   title: string;
@@ -297,32 +298,29 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
                   height={75}
                   className={styles.coverThumb}
                 />
-                <button
-                  type="button"
+                <Pressable
                   className={styles.coverRemove}
                   onClick={() => updateField("cover_image", "")}
                 >
                   <T k="admin.posts.seriesModal.remove" />
-                </button>
+                </Pressable>
               </div>
             ) : (
               <>
                 <div className={styles.coverActions}>
-                  <button
-                    type="button"
+                  <Pressable
                     className={styles.uploadBtn}
                     onClick={handleImageUpload}
                     disabled={uploading}
                   >
                     {uploading ? <T k="admin.posts.seriesModal.uploading" /> : <T k="admin.posts.seriesModal.uploadCover" />}
-                  </button>
-                  <button
-                    type="button"
+                  </Pressable>
+                  <Pressable
                     className={styles.uploadBtn}
                     onClick={() => setShowCoverPicker((v) => !v)}
                   >
                     {showCoverPicker ? <T k="admin.posts.seriesModal.closePicker" /> : <T k="admin.posts.seriesModal.chooseCover" />}
-                  </button>
+                  </Pressable>
                 </div>
                 {showCoverPicker && (
                   <CoverImagePicker
@@ -349,25 +347,23 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
                   {posts.map((post, idx) => (
                     <div key={post.id} className={styles.postItem}>
                       <div className={styles.postOrder}>
-                        <button
-                          type="button"
+                        <Pressable
                           className={styles.orderBtn}
                           disabled={idx === 0}
                           onClick={() => handleReorder(idx, -1)}
                           aria-label="Move up"
                         >
                           <ChevronUp size={10} strokeWidth={1.5} />
-                        </button>
+                        </Pressable>
                         <span className={styles.orderNum}>{idx + 1}</span>
-                        <button
-                          type="button"
+                        <Pressable
                           className={styles.orderBtn}
                           disabled={idx === posts.length - 1}
                           onClick={() => handleReorder(idx, 1)}
                           aria-label="Move down"
                         >
                           <ChevronDown size={10} strokeWidth={1.5} />
-                        </button>
+                        </Pressable>
                       </div>
                       <span className={styles.postTitle}>
                         {post.title || <T k="admin.posts.seriesModal.untitled" />}
@@ -375,14 +371,13 @@ export default function SeriesEditor({ series }: SeriesEditorProps) {
                       <StatusBadge variant={post.published ? "published" : "draft"}>
                         {post.published ? <T k="admin.posts.published" /> : <T k="admin.posts.draft" />}
                       </StatusBadge>
-                      <button
-                        type="button"
+                      <Pressable
                         className={styles.postRemoveBtn}
                         onClick={() => handleRemovePost(post.id)}
                         aria-label="Remove from series"
                       >
                         &times;
-                      </button>
+                      </Pressable>
                     </div>
                   ))}
                 </div>

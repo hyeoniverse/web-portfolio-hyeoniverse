@@ -84,27 +84,27 @@ function EditorSkeleton() {
         <div className={es.row}>
           <div className={es.field}>
             <SkeletonLine width={40} height={10} />
-            <Skeleton height={34} borderRadius="var(--radius-md)" />
+            <Skeleton height={34} borderRadius="var(--radius-capsule)" />
           </div>
         </div>
 
         {/* Excerpt */}
         <div className={es.field}>
           <SkeletonLine width={50} height={10} />
-          <Skeleton height={60} borderRadius="var(--radius-md)" />
+          <Skeleton height={60} borderRadius="var(--radius-2xl)" />
         </div>
 
         {/* Tags + Cover row */}
         <div className={es.row}>
           <div className={es.field}>
             <SkeletonLine width={30} height={10} />
-            <Skeleton height={34} borderRadius="var(--radius-md)" />
+            <Skeleton height={34} borderRadius="var(--radius-capsule)" />
           </div>
           <div className={es.field}>
             <SkeletonLine width={80} height={10} />
             <div style={{ display: "flex", gap: "var(--spacing-sm)" }}>
-              <Skeleton width={70} height={34} borderRadius="var(--radius-md)" />
-              <Skeleton width={100} height={34} borderRadius="var(--radius-md)" />
+              <Skeleton width={70} height={34} borderRadius="var(--radius-capsule)" />
+              <Skeleton width={100} height={34} borderRadius="var(--radius-capsule)" />
             </div>
           </div>
         </div>
@@ -116,7 +116,7 @@ function EditorSkeleton() {
           <SkeletonLine width={60} height={14} />
           <Skeleton width={160} height={30} borderRadius="var(--radius-capsule)" />
         </div>
-        <Skeleton height={400} borderRadius="var(--radius-md)" />
+        <Skeleton height={400} borderRadius="var(--radius-2xl)" />
       </div>
     </div>
   );

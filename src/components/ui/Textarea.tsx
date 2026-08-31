@@ -15,6 +15,7 @@ import { Eraser } from "@/components/icons";
 import { showToast } from "@/stores/toastStore";
 import { useLanguage } from "@/providers/LanguageProvider";
 import styles from "./Textarea.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type Variant = "capsule" | "underline";
 type Size = "sm" | "md";
@@ -155,7 +156,7 @@ function PlainTextarea({
             버튼 위치와 크기가 달라 보였다. 카운터가 없으니 chip 은 값이 있을 때만 그린다. */}
         {!!value && !rest.disabled && !rest.readOnly && (
           <div className={styles.bottomRow}>
-            <button
+            <Pressable noTapScale
               type="button"
               className={styles.clearBtn}
               onMouseDown={(e) => e.preventDefault()}
@@ -165,7 +166,7 @@ function PlainTextarea({
               title="지우기"
             >
               <Eraser size={11} strokeWidth={2} />
-            </button>
+            </Pressable>
           </div>
         )}
       </div>
@@ -436,7 +437,7 @@ function EditableTextarea({
         <div className={styles.bottomRow}>
           {/* 지우개 — 빈 값이면 visibility 로만 숨겨 공간을 유지(카운터 위치 고정, 움찔 방지) */}
           {!disabled && (
-            <button
+            <Pressable noTapScale
               type="button"
               className={styles.clearBtn}
               data-hidden={isEmpty || undefined}
@@ -448,7 +449,7 @@ function EditableTextarea({
               title="지우기"
             >
               <Eraser size={11} strokeWidth={2} />
-            </button>
+            </Pressable>
           )}
           <span
             className={[

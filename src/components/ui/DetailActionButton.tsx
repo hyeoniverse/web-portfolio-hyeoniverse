@@ -2,6 +2,7 @@
 
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import styles from "./DetailActionButton.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /* 상세 페이지 하단 액션 버튼 껍데기 — 좋아요 · 공유가 같이 쓴다.
    안쪽 내용은 서로 다르고(하트+카운트 / 공유아이콘+라벨), 캡슐 껍데기와 active(accent) 상태만 공통이라
@@ -21,13 +22,13 @@ export default function DetailActionButton({
   ...rest
 }: DetailActionButtonProps) {
   return (
-    <button
+    <Pressable
       type="button"
       className={`${styles.btn}${active ? ` ${styles.active}` : ""}${className ? ` ${className}` : ""}`}
       data-clickable="true"
       {...rest}
     >
       {children}
-    </button>
+    </Pressable>
   );
 }

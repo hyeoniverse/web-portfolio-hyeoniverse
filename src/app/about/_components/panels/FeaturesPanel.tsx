@@ -16,6 +16,7 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import T from "@/components/ui/T";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import { usePanelTitle } from "../../_hooks/usePanelTitle";
+import { adaptFeatures } from "@/app/about/_config/adaptAbout";
 import shared from "../AboutSection.module.css";
 import local from "./FeaturesPanel.module.css";
 const styles = { ...shared, ...local };
@@ -25,17 +26,6 @@ interface FeaturesPanelProps {
   features: DesignFeature[];
 }
 
-/* admin (siteConfig.about.features) 의 flat shape → DesignFeature 의 nested shape 로 변환. */
-type CfgFeature = { icon: string; title: string; description_ko: string; description_en: string; tech: string; image: string };
-function adaptFeatures(cfgList: CfgFeature[]): DesignFeature[] {
-  return cfgList.map((f) => ({
-    icon: f.icon,
-    title: f.title,
-    description: { ko: f.description_ko, en: f.description_en },
-    tech: (f.tech || "").split(",").map((s) => s.trim()).filter(Boolean),
-    image: f.image,
-  }));
-}
 
 /* 기능 → 3×3 그리드, 기능별 이미지 사용 */
 function buildFrames(features: DesignFeature[]): Frame[] {

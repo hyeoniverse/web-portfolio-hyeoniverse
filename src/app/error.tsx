@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useLenis } from "@/providers/LenisProvider";
 import T from "@/components/ui/T";
 import styles from "./error.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -78,9 +79,9 @@ export default function Error({ error, reset }: ErrorProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
         >
-          <button onClick={reset} className={styles.primaryButton}>
+          <Pressable onClick={reset} className={styles.primaryButton}>
             <T k="errorPage.tryAgain" />
-          </button>
+          </Pressable>
           <Link href="/" className={styles.secondaryButton}>
             <T k="errorPage.goHome" />
           </Link>

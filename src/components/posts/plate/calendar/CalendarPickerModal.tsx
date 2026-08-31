@@ -9,6 +9,7 @@ import { type CalendarListItem, listCalendars, deleteCalendar, restoreCalendar }
 import { monthTitle, relTimeLabel } from "./model";
 import { getTrashDaysLeft } from "@/utils/trash";
 import styles from "./Calendar.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export default function CalendarPickerModal({
   modalId, currentId, language, onPick, onRestore, onCreateNew, onManage,
@@ -68,12 +69,12 @@ export default function CalendarPickerModal({
   return (
     <div className={styles.pickerModal}>
       <div className={styles.pickerActions}>
-        <button type="button" className={styles.pickerNew} onClick={() => { onCreateNew(); close(); }}>
+        <Pressable className={styles.pickerNew} onClick={() => { onCreateNew(); close(); }}>
           <CalendarPlus size={15} />{t("새 달력 만들기", "New calendar")}
-        </button>
-        <button type="button" className={styles.pickerManage} onClick={() => { onManage(); close(); }}>
+        </Pressable>
+        <Pressable className={styles.pickerManage} onClick={() => { onManage(); close(); }}>
           <Settings size={14} />{t("달력 관리", "Manage")}
-        </button>
+        </Pressable>
       </div>
 
       <div className={styles.pickerList}>
@@ -107,30 +108,28 @@ export default function CalendarPickerModal({
               {confirming ? (
                 <span className={styles.pickerConfirm}>
                   <span className={styles.pickerConfirmText}>{t("삭제할까요?", "Delete?")}</span>
-                  <button
-                    type="button"
+                  <Pressable
                     className={styles.pickerConfirmYes}
                     disabled={deletingId === it.id}
                     onClick={(e) => { e.stopPropagation(); doDelete(it.id); }}
                   >
                     {deletingId === it.id ? <Loader2 size={13} className={styles.pickerSpin} /> : t("삭제", "Delete")}
-                  </button>
-                  <button type="button" className={styles.pickerConfirmNo} onClick={(e) => { e.stopPropagation(); setConfirmId(null); }}>
+                  </Pressable>
+                  <Pressable className={styles.pickerConfirmNo} onClick={(e) => { e.stopPropagation(); setConfirmId(null); }}>
                     {t("취소", "Cancel")}
-                  </button>
+                  </Pressable>
                 </span>
               ) : (
                 <span className={styles.pickerItemEnd}>
                   {on && <Check size={15} className={styles.pickerItemCheck} />}
-                  <button
-                    type="button"
+                  <Pressable
                     className={styles.pickerItemDel}
                     aria-label={t("삭제", "Delete")}
                     title={t("삭제", "Delete")}
                     onClick={(e) => { e.stopPropagation(); setConfirmId(it.id); }}
                   >
                     <Trash2 size={14} />
-                  </button>
+                  </Pressable>
                 </span>
               )}
             </div>
@@ -141,8 +140,7 @@ export default function CalendarPickerModal({
       {/* 휴지통 — 접힘. 복구는 명시적 버튼(클릭=연결 아님). 남은 일수 표시. */}
       {trash && trash.length > 0 && (
         <div className={styles.pickerTrash}>
-          <button
-            type="button"
+          <Pressable
             className={styles.pickerTrashHead}
             aria-expanded={trashOpen}
             onClick={() => setTrashOpen((o) => !o)}
@@ -151,7 +149,7 @@ export default function CalendarPickerModal({
             <span>{t("휴지통", "Trash")}</span>
             <span className={styles.pickerTrashCount}>{trash.length}</span>
             <ChevronDown size={14} className={`${styles.pickerTrashChev}${trashOpen ? ` ${styles.pickerTrashChevOpen}` : ""}`} />
-          </button>
+          </Pressable>
           {trashOpen && (
             <div className={styles.pickerTrashBody}>
               {trash.map((it) => {

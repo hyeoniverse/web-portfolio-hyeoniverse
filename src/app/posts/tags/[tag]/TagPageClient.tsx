@@ -21,6 +21,7 @@ import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { parseSearchQuery, matchesQuery, type SyntaxMode } from "@/lib/searchQuery";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import styles from "./TagPage.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 type Sort = "newest" | "popular" | "title";
 
@@ -295,14 +296,13 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
             </div>
             <div className={styles.relatedTags}>
               {selectMode && (
-                <button
-                  type="button"
+                <Pressable
                   className={`${styles.relatedPill} ${styles.relatedPillSelectable} ${extraTags.size === 0 ? styles.relatedPillActive : ""}`}
                   onClick={() => setExtraTags(new Set())}
                   title="추가 필터 해제 — 이 태그 전체 보기"
                 >
                   <span>전체</span>
-                </button>
+                </Pressable>
               )}
               {initialData.relatedTags.map(({ tag: rt, count }) => {
                 const active = extraTags.has(rt);
@@ -314,14 +314,13 @@ export default function TagPageClient({ tag, initialData, allTags }: Props) {
                 );
                 if (selectMode) {
                   return (
-                    <button
+                    <Pressable
                       key={rt}
-                      type="button"
                       className={`${styles.relatedPill} ${styles.relatedPillSelectable} ${active ? styles.relatedPillActive : ""}`}
                       onClick={() => toggleExtraTag(rt)}
                     >
                       {inner}
-                    </button>
+                    </Pressable>
                   );
                 }
                 return (

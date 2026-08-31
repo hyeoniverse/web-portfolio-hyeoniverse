@@ -25,7 +25,7 @@ const NODE_TYPES = ["start", "action", "decision", "end"] as const;
 /* 타입별 테두리 색 — 모양만으로는 start/end 구분이 안 된다 */
 const TYPE_TONE: Record<FlowNode["type"], string> = {
   start: "var(--text-success)",
-  action: "var(--border-default-color)",
+  action: "var(--border-color-default)",
   decision: "var(--text-warning)",
   end: "var(--text-accent)",
 };
@@ -213,13 +213,13 @@ export default function FlowDiagramEditor({ flow, onChange, lang }: {
               <g key={i} className={css.edge} onClick={(e) => { e.stopPropagation(); setSelEdge(i); setSel(null); }}>
                 <line x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2} stroke="transparent" strokeWidth={16} />
                 <line x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2}
-                  stroke={on ? "var(--text-accent)" : "var(--border-default-color)"}
+                  stroke={on ? "var(--text-accent)" : "var(--border-color-default)"}
                   strokeWidth={on ? 2 : 1} markerEnd="url(#fdArrow)" />
                 {edge.label && (
                   <g>
                     {/* 라벨 뒤 배경 — 선 위에 얹혀도 읽히게 */}
                     <rect x={mx - labelW / 2} y={my - 9} width={labelW} height={16} rx={8}
-                      fill="var(--bg-primary)" stroke={on ? "var(--text-accent)" : "var(--border-light-color)"} />
+                      fill="var(--bg-primary)" stroke={on ? "var(--text-accent)" : "var(--border-color-light)"} />
                     <text x={mx} y={my} textAnchor="middle" dominantBaseline="central"
                       fontSize={10} fill={on ? "var(--text-accent)" : "var(--text-tertiary)"}
                       fontFamily="var(--font-mono)">{edge.label}</text>

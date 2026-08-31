@@ -10,6 +10,7 @@ import { pickLocalized } from "@/types/common";
 import T from "@/components/ui/T";
 import type { WorksLayoutProps } from "./shared";
 import styles from "./SplitLayout.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 export default function SplitLayout({ projects, onProjectClick }: WorksLayoutProps) {
   const [active, setActive] = useState(-1);
@@ -258,7 +259,7 @@ export default function SplitLayout({ projects, onProjectClick }: WorksLayoutPro
       {/* Navigation dots */}
       <div className={styles.dots}>
         {projects.map((_, i) => (
-          <button
+          <Pressable noTapScale
             key={i}
             className={`${styles.dot} ${i === active ? styles.dotActive : ""}`}
             onClick={() => scrollTo(i)}

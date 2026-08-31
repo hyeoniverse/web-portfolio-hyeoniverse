@@ -20,6 +20,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { Series } from "@/types/post";
 import styles from "./SeriesIndex.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 const loadSupabaseClient = () =>
   import("@/lib/supabase/client").then((m) => m.createClient());
@@ -215,30 +216,34 @@ export default function SeriesIndexClient({ series }: Props) {
       {/* 카테고리 필터 */}
       {categoryBuckets.size > 0 && (
         <div className={styles.categoryRow}>
-          <button
+          <Button
             type="button"
-            className={`${styles.categoryBtn} ${activeCategory === null ? styles.categoryBtnActive : ""}`}
+            variant="outline"
+            size="xs"
+            active={activeCategory === null}
             onClick={() => setActiveCategory(null)}
             data-clickable="true"
           >
             전체
             <span className={styles.categoryCount}>{series.length}</span>
-          </button>
+          </Button>
           {Array.from(categoryBuckets.entries())
             .sort((a, b) => b[1] - a[1])
             .map(([cat, count]) => {
               const active = activeCategory === cat;
               return (
-                <button
+                <Button
                   key={cat}
                   type="button"
-                  className={`${styles.categoryBtn} ${active ? styles.categoryBtnActive : ""}`}
+                  variant="outline"
+                  size="xs"
+                  active={active}
                   onClick={() => setActiveCategory(active ? null : cat)}
                   data-clickable="true"
                 >
                   {cat}
                   <span className={styles.categoryCount}>{count}</span>
-                </button>
+                </Button>
               );
             })}
         </div>
@@ -327,14 +332,13 @@ export default function SeriesIndexClient({ series }: Props) {
               role="dialog"
               aria-modal="true"
             >
-              <button
-                type="button"
+              <Pressable
                 className={styles.sheetClose}
                 onClick={() => setSheetSeries(null)}
                 aria-label="닫기"
               >
                 <X size={18} aria-hidden />
-              </button>
+              </Pressable>
               <div className={styles.sheetHeader}>
                 <h2 className={styles.sheetTitle}>
                   {language === "en" ? (sheetSeries.title_en || sheetSeries.title) : sheetSeries.title}

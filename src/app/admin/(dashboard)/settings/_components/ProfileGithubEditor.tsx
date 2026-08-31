@@ -13,6 +13,7 @@ import { useLanguage } from "@/providers/LanguageProvider";
 import type { ProfileData } from "@/types/profile";
 import type { GithubRepoCard } from "@/lib/githubShowcase";
 import styles from "./ProfileGithubEditor.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 /**
  * 프로필 페이지의 GitHub 영역 설정.
@@ -187,14 +188,14 @@ export default function ProfileGithubEditor({
                 onChange={() => toggle(r.name)}
                 shape="square"
               />
-              <button type="button" className={styles.itemBody} onClick={() => toggle(r.name)}>
+              <Pressable className={styles.itemBody} onClick={() => toggle(r.name)}>
                 <span className={styles.itemName}>{r.name}</span>
                 {r.description && <span className={styles.itemDesc}>{r.description}</span>}
                 <span className={styles.itemMeta}>
                   {r.language && <span>{r.language}</span>}
                   {r.stars > 0 && <span className={styles.itemStars}><Star size={11} strokeWidth={1.8} aria-hidden />{r.stars}</span>}
                 </span>
-              </button>
+              </Pressable>
             </li>
           ))}
           </ul>

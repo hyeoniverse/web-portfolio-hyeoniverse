@@ -164,7 +164,7 @@ export default function ArchDiagram() {
           <line
             key={i}
             x1={pts.x1} y1={pts.y1} x2={pts.x2} y2={pts.y2}
-            stroke={isHl ? "var(--text-accent)" : "var(--border-default-color)"}
+            stroke={isHl ? "var(--text-accent)" : "var(--border-color-default)"}
             strokeWidth={isHl ? 1.5 : 0.8}
             strokeDasharray={edge.dashed ? "4 3" : undefined}
             markerEnd={isHl ? "url(#archArrowAccent)" : "url(#archArrow)"}
@@ -178,7 +178,7 @@ export default function ArchDiagram() {
       {nodes.map((node) => {
         const isHl = !activeId || connectedNodes.has(node.id);
         const isActive = activeId === node.id;
-        const groupColor = node.group ? (ARCH_GROUP_COLORS[node.group] ?? "var(--border-default-color)") : "var(--border-default-color)";
+        const groupColor = node.group ? (ARCH_GROUP_COLORS[node.group] ?? "var(--border-color-default)") : "var(--border-color-default)";
         const ic = ARCH_ICONS[node.icon] ?? ARCH_ICONS.user;
         return (
           <g

@@ -28,6 +28,7 @@ import {
 import Tooltip from "@/components/ui/Tooltip";
 import type { PlaygroundData } from "./model";
 import styles from "../PlaygroundElement.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 // 앱 CSS 토큰 기반 테마 — 자동 라이트/다크 + 기본 흰색보다 톤 다운
 const SP_THEME: SandpackTheme = {
@@ -170,19 +171,18 @@ function TreeRows({ nodes, depth, activeFile, collapsed, toggle, onOpen }: {
           const open = !collapsed.has(n.path);
           return (
             <React.Fragment key={n.path}>
-              <button type="button" className={styles.spTreeRow} style={{ paddingLeft: 6 + depth * 12 }} onClick={() => toggle(n.path)}>
+              <Pressable noTapScale className={styles.spTreeRow} style={{ paddingLeft: 6 + depth * 12 }} onClick={() => toggle(n.path)}>
                 {open ? <ChevronDown size={13} className={styles.spTreeChevron} /> : <ChevronRight size={13} className={styles.spTreeChevron} />}
                 <span className={styles.spTreeName}>{n.name}</span>
-              </button>
+              </Pressable>
               {open && <TreeRows nodes={n.children} depth={depth + 1} activeFile={activeFile} collapsed={collapsed} toggle={toggle} onOpen={onOpen} />}
             </React.Fragment>
           );
         }
         const { Icon, color } = fileMeta(n.path);
         return (
-          <button
+          <Pressable noTapScale
             key={n.path}
-            type="button"
             className={styles.spTreeRow}
             data-active={n.path === activeFile ? "" : undefined}
             style={{ paddingLeft: 6 + depth * 12 + 13 }}
@@ -190,7 +190,7 @@ function TreeRows({ nodes, depth, activeFile, collapsed, toggle, onOpen }: {
           >
             <Icon size={13} color={color} />
             <span className={styles.spTreeName}>{n.name}</span>
-          </button>
+          </Pressable>
         );
       })}
     </>
@@ -384,10 +384,10 @@ function Layout({ height, readOnly, explorer, ko, fs, toggleFs, resizable }: { h
               {!readOnly && (
                 <span className={styles.spExplorerActions}>
                   <Tooltip content={ko ? "새 파일" : "New file"} placement="top" delay={400}>
-                    <button type="button" className={styles.spIconBtn} onClick={() => startCreate("file")}><FilePlus size={13} /></button>
+                    <Pressable noTapScale className={styles.spIconBtn} onClick={() => startCreate("file")}><FilePlus size={13} /></Pressable>
                   </Tooltip>
                   <Tooltip content={ko ? "새 폴더" : "New folder"} placement="top" delay={400}>
-                    <button type="button" className={styles.spIconBtn} onClick={() => startCreate("folder")}><FolderPlus size={13} /></button>
+                    <Pressable noTapScale className={styles.spIconBtn} onClick={() => startCreate("folder")}><FolderPlus size={13} /></Pressable>
                   </Tooltip>
                 </span>
               )}
@@ -446,11 +446,10 @@ function Layout({ height, readOnly, explorer, ko, fs, toggleFs, resizable }: { h
                       <Icon size={13} color={color} />
                       <span className={styles.spTabName}>{name}</span>
                       <Tooltip content={ko ? "닫기" : "Close"} placement="top" delay={400}>
-                        <button
-                          type="button"
+                        <Pressable noTapScale
                           className={styles.spTabClose}
                           onClick={(e) => { e.stopPropagation(); sandpack.closeFile(p); }}
-                        ><X size={12} /></button>
+                        ><X size={12} /></Pressable>
                       </Tooltip>
                     </div>
                   </React.Fragment>
@@ -484,13 +483,13 @@ function Layout({ height, readOnly, explorer, ko, fs, toggleFs, resizable }: { h
             {/* 주소창 바 우측 오버레이 — 미리보기 확대/축소 + 전체화면 */}
             <div className={styles.spPreviewNav}>
               <Tooltip content={ko ? "미리보기 축소" : "Zoom out preview"} placement="bottom" delay={400}>
-                <button type="button" className={styles.spIconBtn} onClick={() => setPreviewZoom((z) => clamp(Math.round((z - 0.1) * 10) / 10, 0.4, 2))}><ZoomOut size={13} /></button>
+                <Pressable noTapScale className={styles.spIconBtn} onClick={() => setPreviewZoom((z) => clamp(Math.round((z - 0.1) * 10) / 10, 0.4, 2))}><ZoomOut size={13} /></Pressable>
               </Tooltip>
               <Tooltip content={ko ? "미리보기 확대" : "Zoom in preview"} placement="bottom" delay={400}>
-                <button type="button" className={styles.spIconBtn} onClick={() => setPreviewZoom((z) => clamp(Math.round((z + 0.1) * 10) / 10, 0.4, 2))}><ZoomIn size={13} /></button>
+                <Pressable noTapScale className={styles.spIconBtn} onClick={() => setPreviewZoom((z) => clamp(Math.round((z + 0.1) * 10) / 10, 0.4, 2))}><ZoomIn size={13} /></Pressable>
               </Tooltip>
               <Tooltip content={fs ? (ko ? "전체화면 종료" : "Exit fullscreen") : (ko ? "전체화면" : "Fullscreen")} placement="bottom" delay={400}>
-                <button type="button" className={styles.spIconBtn} data-on={fs ? "" : undefined} onClick={toggleFs}>{fs ? <Minimize2 size={13} /> : <Maximize2 size={13} />}</button>
+                <Pressable noTapScale className={styles.spIconBtn} data-on={fs ? "" : undefined} onClick={toggleFs}>{fs ? <Minimize2 size={13} /> : <Maximize2 size={13} />}</Pressable>
               </Tooltip>
             </div>
             {/* 빌드/번들러 에러는 오버레이로 표시(원인 파악용), 런타임 console 은 하단 패널로 */}
@@ -510,9 +509,9 @@ function Layout({ height, readOnly, explorer, ko, fs, toggleFs, resizable }: { h
 function TB({ on, tip, onClick, children }: { on?: boolean; tip: React.ReactNode; onClick: () => void; children: React.ReactNode }) {
   return (
     <Tooltip content={tip} placement="top" delay={400}>
-      <button type="button" className={styles.spIconBtn} data-on={on ? "" : undefined} onClick={onClick}>
+      <Pressable noTapScale className={styles.spIconBtn} data-on={on ? "" : undefined} onClick={onClick}>
         {children}
-      </button>
+      </Pressable>
     </Tooltip>
   );
 }

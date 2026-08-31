@@ -15,6 +15,7 @@ import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import Checkbox from "@/components/ui/Checkbox";
 import { Skeleton, SkeletonLine, SkeletonPill } from "@/components/ui/Skeleton";
 import styles from "./Comments.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface CommentRow {
   id: string;
@@ -213,10 +214,10 @@ export default function CommentsModerationPage() {
       {selected.size > 0 && (
         <div className={styles.bulkBar}>
           <span>{t("admin.comments.selectedCount").replace("{{count}}", String(selected.size))}</span>
-          <button className={`${styles.bulkBtn} ${styles.bulkBtnDanger}`} onClick={handleBulkDelete}>
+          <Button variant="outline" size="xs" tone="danger" onClick={handleBulkDelete}>
             <T k="admin.posts.delete" />
-          </button>
-          <button className={styles.bulkCancelBtn} onClick={() => setSelected(new Set())} aria-label="Clear">✕</button>
+          </Button>
+          <Pressable className={styles.bulkCancelBtn} onClick={() => setSelected(new Set())} aria-label="Clear">✕</Pressable>
         </div>
       )}
 
@@ -237,7 +238,7 @@ export default function CommentsModerationPage() {
         <div className={styles.list} aria-busy="true">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className={styles.row}>
-              <Skeleton width={16} height={16} borderRadius="var(--radius-sm)" />
+              <Skeleton width={16} height={16} borderRadius="var(--radius-capsule)" />
               <SkeletonPill width={48} height={20} />
               <SkeletonLine width={80} />
               <SkeletonLine width={`${85 - (i % 3) * 8}%`} />
@@ -289,13 +290,13 @@ export default function CommentsModerationPage() {
               <span className={styles.date}>{fmtDate(c.created_at)}</span>
               <span className={styles.actions}>
                 {c.is_deleted ? (
-                  <button className={styles.restoreBtn} onClick={() => handleRestore(c.id, c.source)} aria-label={t("admin.comments.restore")} title={t("admin.comments.restore")}>
+                  <Pressable className={styles.restoreBtn} onClick={() => handleRestore(c.id, c.source)} aria-label={t("admin.comments.restore")} title={t("admin.comments.restore")}>
                     <RotateCcw size={14} strokeWidth={1.6} />
-                  </button>
+                  </Pressable>
                 ) : (
-                  <button className={styles.deleteBtn} onClick={() => handleDelete(c.id, c.source)} aria-label="Delete">
+                  <Pressable className={styles.deleteBtn} onClick={() => handleDelete(c.id, c.source)} aria-label="Delete">
                     <Trash2 size={14} strokeWidth={1.6} />
-                  </button>
+                  </Pressable>
                 )}
               </span>
             </div>

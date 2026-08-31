@@ -14,6 +14,7 @@ import { ModalPrompt } from "@/components/ui/ModalTemplates";
 import type { PostFormData } from "@/types/post";
 import styles from "@/app/posts/[slug]/PostDetail.module.css";
 import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
+import Pressable from "@/components/ui/Pressable";
 
 export default function PostPreviewPage() {
   const { t } = useLanguage();
@@ -197,22 +198,20 @@ export default function PostPreviewPage() {
               trashId ? (
                 <>
                   <span className={styles.trashBarLabel}>{t("admin.posts.trashPreviewNotice")}</span>
-                  <button
-                    type="button"
+                  <Pressable
                     className={styles.trashBarRestore}
                     disabled={busy}
                     onClick={handleRestore}
                   >
                     {t("admin.posts.trashRestore")}
-                  </button>
-                  <button
-                    type="button"
+                  </Pressable>
+                  <Pressable
                     className={styles.trashBarPurge}
                     disabled={busy}
                     onClick={handlePurge}
                   >
                     {t("admin.posts.trashPurge")}
-                  </button>
+                  </Pressable>
                 </>
               ) : null
             }

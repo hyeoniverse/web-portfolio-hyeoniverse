@@ -19,6 +19,7 @@ import { getFallbackCoverGradient } from "@/lib/coverFallback";
 import styles from "./PostCard.module.css";
 import { isImageAvatar } from "@/components/ui/AuthorAvatar";
 import { EmojiIcon } from "@/components/ui/EmojiPicker/EmojiIcon";
+import Pressable from "@/components/ui/Pressable";
 
 interface PostCardProps {
   post: Post;
@@ -482,14 +483,13 @@ export default function PostCard({
               </Link>
             ))}
             {(tagsOverflow || tagsExpanded) && (
-              <button
-                type="button"
+              <Pressable
                 className={styles.tagsToggle}
                 onClick={(e) => { e.stopPropagation(); setTagsExpanded((v) => !v); }}
                 aria-label={tagsExpanded ? "접기" : "더보기"}
               >
                 {tagsExpanded ? "<" : ">"}
-              </button>
+              </Pressable>
             )}
           </div>
         )}

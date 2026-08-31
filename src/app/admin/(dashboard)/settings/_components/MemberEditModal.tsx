@@ -22,6 +22,7 @@ import SocialLinksEditor from "./SocialLinksEditor";
 import styles from "./MemberEditModal.module.css";
 import shared from "../Settings.module.css";
 import mStyles from "@/components/admin/MembersList.module.css";
+import Pressable from "@/components/ui/Pressable";
 
 interface Props {
   initial: Author;
@@ -191,9 +192,8 @@ export default function MemberEditModal({
         {/* 아바타(선택)와 모서리 배지(추가/제거)는 각각 버튼이다 — 버튼 안에 버튼을 넣을 수 없고,
             설정된 이미지가 있을 때 "+" 를 두면 무엇이 일어나는지 어긋난다. */}
         <span className={styles.authorAvatarWrap}>
-          <button
+          <Pressable
             ref={avatarBtnRef}
-            type="button"
             className={styles.authorAvatarUpload}
             onClick={() => setEmojiOpen((v) => !v)}
             title={L("프로필 이미지 선택", "Choose profile image")}
@@ -206,27 +206,25 @@ export default function MemberEditModal({
               imgClassName={styles.authorAvatarImg}
               initialClassName={styles.authorAvatarInitial}
             />
-          </button>
+          </Pressable>
           {draft.avatar ? (
-            <button
-              type="button"
+            <Pressable
               className={`${styles.authorAvatarBadge} ${styles.authorAvatarBadgeRemove}`}
               onClick={() => set({ avatar: "" })}
               title={L("프로필 이미지 제거", "Remove profile image")}
               aria-label={L("프로필 이미지 제거", "Remove profile image")}
             >
               <Trash2 size={11} strokeWidth={2.2} aria-hidden />
-            </button>
+            </Pressable>
           ) : (
-            <button
-              type="button"
+            <Pressable
               className={styles.authorAvatarBadge}
               onClick={() => setEmojiOpen((v) => !v)}
               tabIndex={-1}
               aria-hidden
             >
               <Plus size={12} strokeWidth={2.5} />
-            </button>
+            </Pressable>
           )}
         </span>
         <EmojiPicker

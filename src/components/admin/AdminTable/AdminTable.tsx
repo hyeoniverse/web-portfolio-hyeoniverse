@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, type ReactNode } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
@@ -11,6 +10,7 @@ function ConditionalLayoutGroup({ enabled, children }: { enabled: boolean; child
 }
 import { GripVertical, Lock } from "@/components/icons";
 import { useModalStore } from "@/stores/modalStore";
+import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import CloseButton from "@/components/ui/CloseButton";
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
@@ -301,7 +301,7 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                     <Skeleton
                       width={col.skeletonWidth ?? "48px"}
                       height="48px"
-                      borderRadius="var(--radius-sm)"
+                      borderRadius="var(--radius-2xl)"
                     />
                   ) : (
                     <SkeletonLine width={col.skeletonWidth ?? "60%"} />
@@ -334,17 +334,19 @@ export default function AdminTable<T extends { id: string; published: boolean }>
         <span>{selected.size}개 선택</span>
         {onBulkPublish && (
           <>
-            <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(true)}>{labels.publishedTooltip}</button>
-            <button className={styles.bulkActionBtn} onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</button>
+            <Button variant="outline" size="xs" onClick={() => handleBulkPublish(true)}>{labels.publishedTooltip}</Button>
+            <Button variant="outline" size="xs" onClick={() => handleBulkPublish(false)}>{labels.unpublishedTooltip}</Button>
           </>
         )}
         {onBulkExport && (
-          <button className={styles.bulkActionBtn} onClick={() => onBulkExport([...selected])}>.md 내보내기</button>
+          <Button variant="outline" size="xs" onClick={() => onBulkExport([...selected])}>.md 내보내기</Button>
         )}
         {extraBulkActions?.map((a, i) => (
-          <button
+          <Button
             key={i}
-            className={`${styles.bulkActionBtn} ${a.danger ? styles.bulkActionDanger : ""}`}
+            variant="outline"
+            size="xs"
+            tone={a.danger ? "danger" : "default"}
             disabled={a.disabled}
             onClick={async () => {
               await a.onClick([...selected]);
@@ -352,10 +354,10 @@ export default function AdminTable<T extends { id: string; published: boolean }>
             }}
           >
             {a.label}
-          </button>
+          </Button>
         ))}
         {onBulkDelete && (
-          <button className={`${styles.bulkActionBtn} ${styles.bulkActionDanger}`} onClick={handleBulkDelete}>{labels.delete}</button>
+          <Button variant="outline" size="xs" tone="danger" onClick={handleBulkDelete}>{labels.delete}</Button>
         )}
         <CloseButton onClick={() => setSelected(new Set())} ariaLabel="선택 해제" size="sm" className={styles.bulkCancelBtn} />
         </div>
@@ -548,27 +550,31 @@ export default function AdminTable<T extends { id: string; published: boolean }>
                 {rowDisabled?.(item) ? (
                   /* 열 수 없는 글이라 링크로 두지 않는다 — 이동한 뒤 403 화면을 보여 주는 것보다
                      여기서 바로 이유를 알리는 편이 짧다. */
-                  <button
+                  <Button
                     type="button"
-                    className={styles.actionBtn}
+                    variant="outline"
+                    size="xs"
                     onClick={(e) => { e.stopPropagation(); onDenied?.(item); }}
                   >
                     {labels.edit}
-                  </button>
+                  </Button>
                 ) : (
-                  <Link
+                  <Button
                     href={`${editBasePath}/${item.id}/edit`}
-                    className={styles.actionBtn}
+                    variant="outline"
+                    size="xs"
                   >
                     {labels.edit}
-                  </Link>
+                  </Button>
                 )}
-                <button
-                  className={styles.deleteBtn}
+                <Button
+                  variant="outline"
+                  size="xs"
+                  tone="danger"
                   onClick={(e) => handleDeleteClick(item, e)}
                 >
                   {labels.delete}
-                </button>
+                </Button>
                 <RowActionsMenu
                   /* 이동도 쓰기라 권한이 없으면 메뉴에서 아예 뺀다 */
                   onMove={onMove && getRowLabel && !rowDisabled?.(item) ? (newOrder) => onMove(item, newOrder) : undefined}

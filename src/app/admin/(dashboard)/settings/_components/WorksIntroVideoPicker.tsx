@@ -13,6 +13,7 @@ import CompressVideoModal from "./CompressVideoModal";
 import CoverImagePicker from "@/components/posts/CoverImagePicker";
 import shared from "../Settings.module.css";
 import local from "./WorksIntroVideoPicker.module.css";
+import Pressable from "@/components/ui/Pressable";
 const styles = { ...shared, ...local };
 
 /* 기본 업로드 제한 (api/upload 의 DEFAULT_LIMIT_MB 와 맞춤). */
@@ -105,8 +106,7 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
     <div className={styles.worksIntroVideoPicker}>
       {/* 선택된 커버 미리보기 — 클릭하면 ImageViewer 로 크게 */}
       {value && (
-        <button
-          type="button"
+        <Pressable
           className={styles.worksIntroPreview}
           onClick={() => setViewerOpen(true)}
           title="크게 보기"
@@ -128,7 +128,7 @@ export default function WorksIntroVideoPicker({ value, onChange }: Props) {
           <span className={styles.worksIntroPreviewExpand}>
             <Expand size={14} strokeWidth={2} />
           </span>
-        </button>
+        </Pressable>
       )}
 
       <div className={styles.worksIntroVideoActions}>

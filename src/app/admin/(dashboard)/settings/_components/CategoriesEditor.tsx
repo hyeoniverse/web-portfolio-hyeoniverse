@@ -486,7 +486,7 @@ export default function CategoriesEditor({ categories: categoriesTree, onChange:
           disabled={editingHasChildren}
         />
         {editingHasChildren && (
-          <span style={{ fontSize: "var(--font-size-2xs)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>
+          <span style={{ fontSize: "var(--font-size-hint)", color: "var(--text-tertiary)", fontFamily: "var(--font-space-grotesk)" }}>
             소분류를 가진 대분류는 최상위 고정
           </span>
         )}
