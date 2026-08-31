@@ -215,7 +215,7 @@
   align-items: center;
   width: fit-content;
   white-space: nowrap;
-  padding: var(--spacing-2xs) var(--spacing-md);
+  padding: var(--badge-p-md);
   border: var(--border-accent-light);
   border-radius: var(--radius-capsule);
   background: transparent;
