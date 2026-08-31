@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { getProfileData } from "@/lib/getProfileData";
 import { getSiteConfig } from "@/lib/getSiteConfig";
 import { getGithubShowcase, loginFromLinks } from "@/lib/githubShowcase";
@@ -23,12 +22,19 @@ export default async function ProfilePage() {
     ? null
     : await getGithubShowcase(ghLogin, gh?.repos ?? []);
 
+  /* ProfileMeSection 을 <Suspense> 로 감싸지 않는다.
+   *
+   * suspend 하는 게 없어서(useSearchParams 도 lazy 도 없고 데이터는 위에서 이미 await 했다)
+   * 경계가 하는 일이 없는데, React 는 Suspense 경계를 본체와 분리해 나중에 hydration 한다.
+   * 그 늦은 패스에서는 클라이언트 값을 읽는다 — 언어는 서버가 `ko` 로 그리고 클라이언트가
+   * 브라우저 언어로 바꾸는 값이라, 경계 안의 번역 텍스트가 전부 어긋나서 React 가 이 트리를
+   * 통째로 다시 그렸다. 24회 중 13회. 경계를 빼면 0회.
+   *
+   * 다른 페이지의 <Suspense> 는 useSearchParams 때문에 필요한 것이라 그대로 둔다. */
   return (
     <BreakpointGuard>
       <div className="content">
-        <Suspense fallback={<div className="min-h-screen" />}>
-          <ProfileMeSection profileData={profileData} showcase={showcase} />
-        </Suspense>
+        <ProfileMeSection profileData={profileData} showcase={showcase} />
         <FloatingObject />
       </div>
     </BreakpointGuard>
