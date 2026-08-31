@@ -179,7 +179,7 @@ function serializeNode(node: SlateNode): string {
       } else {
         iconHtml = esc(cIcon);
       }
-      const borderStyle = cBg === "var(--bg-primary)" ? ";border:1px solid var(--border-light-color)" : "";
+      const borderStyle = cBg === "var(--bg-primary)" ? ";border:1px solid var(--border-color-light)" : "";
       const iconSpan = cIcon ? `<span data-callout-icon-visual style="font-size:20px;line-height:1;flex-shrink:0">${iconHtml}</span>` : "";
       return `<div data-callout data-callout-bg="${cBg}"${cIcon ? ` data-callout-icon="${esc(cIcon)}"` : ""} style="display:flex;gap:${cIcon ? "12px" : "0"};padding:16px;border-radius:8px;background:${cBg};margin:16px 0${borderStyle}">${iconSpan}<div style="flex:1;min-width:0">${calloutChildren}</div></div>`;
     }
@@ -266,8 +266,8 @@ function serializeNode(node: SlateNode): string {
       // 에디터와 동일: 열 사이 항상 8px(=--spacing-xs), 구분선은 열 pseudo(.prose [data-column]::after)가 gap 중앙에 그림.
       // 배경/패딩/라디우스는 그룹이 아니라 열 개별(콘텐츠 폭·줄바꿈이 에디터와 일치). 그룹은 --_col-bg / --_col-divider 변수만 지정.
       const colBgVal = colBg === "transparent" ? "transparent" : (colBg || COLUMN_BG_FALLBACK);
-      // 에디터(elements.tsx)와 동일: 미지정=기본 subtle 선(--border-light-color), transparent=선 없음, 그 외=지정색. 항상 출력.
-      const dividerColor = colDiv === "transparent" ? "transparent" : (colDiv || "var(--border-light-color)");
+      // 에디터(elements.tsx)와 동일: 미지정=기본 subtle 선(--border-color-light), transparent=선 없음, 그 외=지정색. 항상 출력.
+      const dividerColor = colDiv === "transparent" ? "transparent" : (colDiv || "var(--border-color-light)");
       const divVar = `;--_col-divider:${dividerColor}`;
       const colBox = `flex:1;min-width:40px;background:var(--_col-bg,${COLUMN_BG_FALLBACK});padding:var(--spacing-sm);border-radius:var(--radius-2xl)`;
       // text leaf 방어
@@ -428,7 +428,7 @@ function serializeNode(node: SlateNode): string {
           } else if (v && typeof v === "object") {
             const w = v.width || "1px";
             const s = v.style || "solid";
-            const c = v.color || "var(--border-light-color)";
+            const c = v.color || "var(--border-color-light)";
             cellStyles.push(`border-${side}: ${w} ${s} ${c}`);
           }
         }
@@ -568,33 +568,33 @@ function serializeNode(node: SlateNode): string {
           + `${fSize < 1024 * 1024 ? (fSize / 1024).toFixed(1) + " KB" : (fSize / (1024 * 1024)).toFixed(1) + " MB"}</div>`
         : "";
       const audioHtml = isAudio
-        ? `<audio src="${fileUrl}" controls preload="metadata" style="width:100%;margin-top:6px;border-radius:var(--radius-sm)"></audio>`
+        ? `<audio src="${fileUrl}" controls preload="metadata" style="width:100%;margin-top:6px;border-radius:var(--radius-2xl)"></audio>`
         : "";
       let previewHtml = "";
       if (isPdf) {
         previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
-          + `<iframe src="${fileUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-light-color);border-radius:var(--radius-md)"></iframe></details>`;
+          + `<iframe src="${fileUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-color-light);border-radius:var(--radius-2xl)"></iframe></details>`;
       } else if (isOffice) {
         const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
         previewHtml = `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
-          + `<iframe src="${viewerUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-light-color);border-radius:var(--radius-md)"></iframe></details>`;
+          + `<iframe src="${viewerUrl}" title="${fName}" style="width:100%;height:500px;border:1px solid var(--border-color-light);border-radius:var(--radius-2xl)"></iframe></details>`;
       } else if (isText) {
         previewHtml = `<details style="margin-top:6px" data-text-preview="${fileUrl}"><summary style="cursor:pointer;font-size:12px;color:var(--text-secondary);font-family:var(--font-space-grotesk);margin-bottom:6px">Preview</summary>`
-          + `<pre style="padding:12px 16px;border:1px solid var(--border-light-color);border-radius:var(--radius-md);background:var(--bg-secondary);font-size:12px;color:var(--text-secondary);overflow:auto;max-height:400px;white-space:pre-wrap;word-break:break-all;font-family:var(--font-mono)">Loading...</pre></details>`;
+          + `<pre style="padding:12px 16px;border:1px solid var(--border-color-light);border-radius:var(--radius-2xl);background:var(--bg-secondary);font-size:12px;color:var(--text-secondary);overflow:auto;max-height:400px;white-space:pre-wrap;word-break:break-all;font-family:var(--font-mono)">Loading...</pre></details>`;
       }
       const maxW = hasPreview ? "640px" : "480px";
       return [
         `<div data-file-embed data-url="${fileUrl}" data-filename="${fName}"${fSize ? ` data-filesize="${fSize}"` : ""}`,
         ` style="max-width:${maxW};margin:var(--spacing-sm) 0">`,
         `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;`,
-        `border-radius:var(--radius-capsule,999px);border:1px solid var(--border-light-color);background:var(--bg-secondary)">`,
+        `border-radius:var(--radius-capsule,999px);border:1px solid var(--border-color-light);background:var(--bg-secondary)">`,
         `<div style="width:32px;height:32px;border-radius:50%;background:var(--color-neutral-alpha-5);`,
         `display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-secondary)">${iconSvg}</div>`,
         `<div style="flex:1;min-width:0">`,
         `<div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fName}</div>`,
         `${sizeHtml}</div>`,
         `<a href="${fileUrl}" download="${fName}" style="width:34px;height:34px;border-radius:50%;flex-shrink:0;`,
-        `display:flex;align-items:center;justify-content:center;border:1px solid var(--border-light-color);`,
+        `display:flex;align-items:center;justify-content:center;border:1px solid var(--border-color-light);`,
         `background:var(--bg-primary);color:var(--text-primary);text-decoration:none">${dlSvg}</a>`,
         `</div>${audioHtml}${previewHtml}</div>`,
       ].join("");
