@@ -77,7 +77,7 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 | **Admin** | Plate.js editor (calendar · diagram · code playground blocks, scope-grouped toolbar, color-chip insertion, direct-input font size/line height/letter spacing), `.md` sync + export, AI translation/summary, revision history, optimistic concurrency control, publish-status chip + unified publishing, GitHub OAuth login + member management (email invites · owner/editor/author roles) |
 | **Performance** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic counters + AbortController + bulk Promise.all |
 | **Security** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin check (production fail-closed), middleware admin multi-layer gate, 5-fails lockout + new-device email approval + sign-out all devices, role-based access control (app_metadata) + OAuth callback authorization gate + cross-tab logout |
-| **Design System** | 4-tier tokens (Raw → Semantic → Component → Context) + live preview, **all color tokens migrated to OKLCH** (precise culori conversion, perceptually uniform brightness across hues) |
+| **Design System** | 3-tier tokens (Raw → Semantic → Component) + role tokens · live preview, **all color tokens migrated to OKLCH** (precise culori conversion, perceptually uniform brightness across hues) |
 
 ---
 
@@ -260,7 +260,8 @@ Switchable via `?layout=` query (or Admin settings) — Flow (default) · Fullsc
 - **Social links editor split out**: `SocialLinksEditor` + `types/social.ts`, with 12 new icons in `socialIcons.ts`
 - **EmojiPicker overhaul**: 476 icons (extracted from lucide, `IconEntry.svg` inner-SVG field + `iconSvgInner` helper) + new categories (weather / devices / food / health / tools / education / faces / maps / shapes, etc.), Korean search (`emojiKo.ts`) + emoji-mart metadata (English names/keywords, `emojiMeta.ts`) + emoji-name tooltip (shared Tooltip), image drag-and-drop upload, inline styles → CSS module (`EmojiPicker.module.css`). Value format: native emoji / `img:url` (custom upload) / `icon:id` (SVG icon). **Custom uploads sync from `localStorage` to the `custom_emojis` table** (`GET/POST /api/custom-emojis`, `DELETE /api/custom-emojis/[id]`) — localStorage stays as an offline cache and first-paint source, and local entries missing server-side are back-filled via POST and merged with dedup by `src` (replacing wholesale with the server list would leave failed back-fills undeletable)
 - **SEO Checklist**: Editor footer widget — 6-item check (title/slug/excerpt 30+/cover/category/tags), score progress bar, click an item to scroll to the field + label accent highlight (persists until next interaction)
-- **`.md` Sync**: `content/posts/` · `content/works/` folder → DB unidirectional sync (Jekyll-style, `pnpm sync-all`)
+- **`.md` Sync**: `content/posts/` · `content/works/` · `content/about/` folders → DB unidirectional sync (Jekyll-style, `pnpm sync-all`)
+- **Two sources for About content**: six About panels (Design Decisions, Security, Features, Process, Overview, Credits) can be authored either as `.md` under `content/about/` or through the admin About Studio. Nobody picks a source — the sync keeps **whichever was touched more recently**, applying a file only when its mtime is newer than that panel's last in-app edit (`pnpm sync-about`, `--dry` to preview). If the DB is empty it falls back to `.md`; with neither, the panel renders empty. ERD, User Flow and Architecture diagrams stay UI-only — they are coordinate/graph data that markdown would express worse than the current editor
 - **`.md` Export**: Bulk/individual/series frontmatter-included `.md` download
 - **PlateEditor per-element floating toolbar overhaul**: Redesigned around a Notion-style inline editing experience. ① **Image floating bar** — layout (Inline / Block / Float) · alignment (block left/center/right, float left/right) · caption · replace · delete (confirm popover) · ⋯ (aspect lock / size / filter) condensed into a single compact bar. W/H use the shared `NumberInput` (capsule, commit on blur/Enter + stepper), filter uses the shared `Select`. Caption supports line breaks + 200-char limit (toast on overflow); resize/move handle positions and flicker cleaned up; float images (inline voids) are selected via a capture-phase click handler. ② **Notion-style `+` button + block-tools popover** — clicking `+` left of the move handle reuses an empty block in place, or inserts a new empty block below (⌥/Alt+click = above) then opens the slash menu (auto-removed on cancel). Clicking the move handle opens a popover: turn into / duplicate / copy block link / text color / delete. ③ **Grouped slash menu** — Basic / Lists / Media / Advanced groups + lucide icons + more items (image · video · 2/3-column · toggle) + Lenis-compatible scroll. ④ **Per-level auto list markers** (`•→◦→▪`, `1.→a.→i.`) + zero indent at first level, sentence-style placeholder on empty blocks, block background instead of text highlight on multi-block drag (float image area split via `::before`/`::after`). The floating format bar only appears on selection (drag)
 - **Plate.js Editor**: Markdown ↔ Rich Text bidirectional conversion (including file/audio attachments), custom footnotes, 5 templates, editor switch skeleton, custom input font size/line height
@@ -864,19 +865,24 @@ Any platform that supports Next.js can be used. See the [Next.js deployment docu
 
 ## Design System
 
-CSS token 4-layer architecture, class naming conventions, specificity guidelines, and all styling rules are documented in **[docs/design-system.md](./docs/design-system.md)**.
+CSS token 3-layer architecture, rules R1–R7, class naming, specificity guidelines, and all styling rules are documented in **[docs/design-system.md](./docs/design-system.md)**.
 
 ### Overview
 
-| Layer | Location | Prefix | Role |
-|-------|----------|--------|------|
-| Raw Tokens | `src/styles/tokens/` | `--color-*`, `--spacing-*`, etc. | Primitive values |
-| Semantic Tokens | `src/styles/globals/_semantic.css` (Layer 2) | `--text-*`, `--bg-*`, `--border-*` | Meaning-based mapping (component-agnostic) |
-| Component Tokens | `src/styles/globals/_semantic.css` (Layer 3) | `--button-h-*`, `--control-h-*`, `--button-p-*` | Component typing (a rail for consistency) |
-| Context Tokens | Inside CSS Module | `--_*` | Component-scoped local variables |
+| Layer | Location | Example | Role |
+|-------|----------|---------|------|
+| Raw | `src/styles/tokens/` | `--color-accent`, `--spacing-md`, `--size-sm` | Primitive values (the scale) |
+| Semantic | `src/styles/globals/_semantic.css` | `--text-primary`, `--border-color-default`, `--font-size-body` | Meaning-based (component-agnostic) |
+| Component | `src/styles/globals/_semantic.css` | `--control-h-md`, `--card-p-md`, `--badge-p-sm` | Per-component spec (a rail for consistency) |
+
+A fourth "Context" layer (`--_*` inside CSS Modules) was documented but had zero users, so it was dropped. Material (ref→sys→comp) and Spectrum (global→alias→component) are three layers too.
+
+**Spacing role tokens** are given only to component kinds that actually repeat: `--button-p-*`, `--input-p`, `--textarea-p`, `--badge-p-*`, `--row-p-*`, `--modal-p-*`, `--card-p-*`, `--field-p-*`, `--cell-p-*`. Everywhere else uses the scale directly (`padding: var(--spacing-xs) var(--spacing-md)`) — the Carbon/Atlassian approach. There are no combination tokens.
 
 **Class naming**: CSS Modules + camelCase (no BEM)
-**Key rules**: Context tokens must reference global tokens / No var() fallbacks / No direct hex values
+
+**What lint enforces** — stylelint: hardcoded colors, sub-12px text, font sizes picked by scale name, radii outside `capsule`/`circle`/`2xl`, spacing literals, `var()` fallbacks on design tokens. eslint: the same violations inside inline `style` and serialized strings, plus a missing `type` on `<button>`.
+
 **Design system preview**: `/design-system` route
 
 ---

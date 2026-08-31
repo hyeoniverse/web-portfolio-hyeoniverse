@@ -23,7 +23,7 @@
 | 최대 파일 | PlateEditor 3,561 · admin page 3,035 · WorkEditor 2,610 |
 | 최대 CSS | Settings.module.css 6,633 |
 
-구조 규약(4-tier 토큰, `components/ui`, `_components` 콜로케이션)은 이미 서 있다.
+구조 규약(3-tier 토큰, `components/ui`, `_components` 콜로케이션)은 이미 서 있다.
 반복해서 문제가 되는 것은 **규약을 못 따라간 거대 파일들과 client 경계**다.
 
 ---
@@ -118,7 +118,7 @@ Phase 4에서 파일을 분해할 때 목표치. 절대 규칙이 아니라 **�
 
 ### 스타일 규칙
 
-기존 [design-system.md](design-system.md)의 4-tier 토큰 규약을 따른다. 추가로:
+기존 [design-system.md](design-system.md)의 3-tier 토큰 규약을 따른다. 추가로:
 
 - CSS 모듈은 담당 컴포넌트와 1:1. 컴포넌트를 쪼개면 CSS도 함께 쪼갠다
 - 셀렉터 중첩 3단계 이하

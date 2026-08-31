@@ -67,8 +67,25 @@
 --   2026_08_02  settings_required — 설정 필수값 CHECK (제목·이름·테마색·giscus·멤버이름)
 --   2026_08_03  site_visits — 트래픽 메타 (referrer/user_agent/device_kind/os/browser/device_model) + 인덱스
 --   2026_08_05  revisions.entity_id uuid→text
---   2026_08_22  RLS 관리자 정책 — app_metadata(JWT) 기반 is_admin/can_edit_post
---   2026_08_22  RLS 관리자 정책 확장(콘텐츠·중재·통계 15개 + owner 전용 2개) — 저장 전 새 글 draft sentinel 허용 (autosave 500 방지)
+--   2026_08_22  RLS 관리자 정책 — app_metadata(JWT) 기반 is_admin/is_owner/can_edit_post
+--   2026_08_22  RLS 관리자 정책 확장(콘텐츠·중재·통계 15개 + owner 전용 2개)
+--   2026_08_22  익명 직접 읽기 범위 축소 (댓글 민감 컬럼·좋아요 임의 삭제)
+--   2026_08_22  "Authenticated users have full access" 포괄 정책 제거
+--   2026_08_22  service 전용 정책을 service_role 로 한정
+--   2026_08_25  service_role 전용 정책 제거 — service_role 은 RLS 를 우회하므로 무의미
+--   2026_08_25  스토리지 직접 업로드 정책 제거 (서버 검증 우회 차단)
+--   2026_08_25  posts/works 정책을 4단계 권한 모델에 맞춤
+--   2026_08_25  app_level/app_author_id 클레임 파싱 강화 — TS 와 SQL 이 같은 값을 같게 읽도록
+--   2026_08_25  anon 역할 쓰기 권한 회수 (심층 방어)
+--   2026_08_25  can_edit_work — 팀원으로 등록된 멤버에게 그 작업물만 개방
+--
+-- 권한 모델 요약 (owner / admin / author / visitor):
+--   owner   app_role() = 'owner'                 전부
+--   admin   app_level() >= 2                     콘텐츠·중재·통계 전부 (설정 일부는 owner 전용)
+--   author  app_role() = 'author'                자기 글(author_ids) · 자기 작업물(team_members)
+--   visitor 로그인 없음                            공개된 것만 읽기
+--   판정 함수: app_role / app_level / app_author_id → is_owner / is_admin / is_member
+--             / can_edit_post(author_ids) / can_edit_work(team_members)
 --
 -- 마이그레이션 파일이 없는 것 (setup.sql 에만 존재):
 --   custom_emojis — 에디터 이모지 picker 의 커스텀 아이콘 기록
@@ -1704,12 +1721,12 @@ END $$;
 -- ────────────────────────────────────────────────────────────
 -- Applied migrations log — setup.sql 이 흡수한 마이그레이션 마킹
 -- ────────────────────────────────────────────────────────────
--- 위 파일의 모든 구조는 아래 마이그레이션 37건을 통합한 결과입니다.
+-- 위 파일의 모든 구조는 아래 마이그레이션 48건을 통합한 결과입니다.
 -- fresh install 환경에서 setup.sql 실행 직후, supabase/migrations/ 의 .sql 을
 -- 단일 실행해도 was_new = false 로 skip 되도록 record 만 미리 남깁니다.
 --
 -- log_migration_applied 대신 직접 INSERT — fresh install 시점엔 admin 이 아직
--- 없어서 알림이 의미 없고, 36건 알림이 한꺼번에 쌓이는 노이즈도 회피.
+-- 없어서 알림이 의미 없고, 48건 알림이 한꺼번에 쌓이는 노이즈도 회피.
 INSERT INTO applied_migrations (name, description) VALUES
   ('2026_05_14_post_views_kst',                'post_views — KST timezone + atomic dedup + race-free counter'),
   ('2026_05_18_admin_known_devices',           '새 기기 인증 (admin_known_devices) — UA fingerprint + approve token'),
@@ -1747,7 +1764,19 @@ INSERT INTO applied_migrations (name, description) VALUES
   ('2026_07_23_about_erd_fields',              'about_erd_valid 확장 — 컬럼 제약(required/unique/indexed/defaultValue/comment/enumValues)·테이블 kind 타입 검증'),
   ('2026_08_02_settings_required',             'site_settings.config 필수값 CHECK (제목·이름·테마색·giscus·멤버이름)'),
   ('2026_08_03_site_visits_traffic_meta',      'site_visits 트래픽 메타 컬럼(referrer/user_agent/device_kind/os/browser/device_model) + 인덱스 — 옛 DB 누락분'),
-  ('2026_08_05_revisions_entity_id_text',      'revisions.entity_id uuid→text — 저장 전 새 글 draft sentinel 허용 (autosave 500 방지)')
+  ('2026_08_05_revisions_entity_id_text',      'revisions.entity_id uuid→text — 저장 전 새 글 draft sentinel 허용 (autosave 500 방지)'),
+  -- 권한을 service-role 우회에서 RLS 정책으로 옮긴 전환 (2026_08_22 ~ 08_25)
+  ('2026_08_22_close_public_table_reads',      '익명 직접 읽기 범위 축소 — 댓글 민감 컬럼 노출·좋아요 임의 삭제 차단'),
+  ('2026_08_22_drop_blanket_authenticated',    '"Authenticated users have full access" 포괄 정책 제거'),
+  ('2026_08_22_rls_admin_policies',            'RLS 관리자 정책 1단계 — app_metadata(JWT) 기반 is_admin/is_owner/can_edit_post'),
+  ('2026_08_22_rls_admin_policies_rest',       'RLS 권한 등급 정정 + 나머지 테이블 정책 (1단계 마무리)'),
+  ('2026_08_22_scope_service_policies',        'service 전용 정책을 service_role 로 한정 — 익명 전체 접근 차단'),
+  ('2026_08_25_drop_redundant_service_policies','service_role 전용 정책 제거 (service_role 은 RLS 를 우회하므로 무의미)'),
+  ('2026_08_25_drop_storage_authenticated_insert','스토리지 직접 업로드 정책 제거 — 서버 검증 우회 차단'),
+  ('2026_08_25_fix_posts_tier_policies',       'posts/works 정책을 4단계 권한 모델에 맞춤'),
+  ('2026_08_25_harden_permission_level',       'app_level/app_author_id 클레임 파싱 강화 — 코드(TS)와 정책(SQL)이 같은 값을 같게 읽도록'),
+  ('2026_08_25_revoke_anon_writes',            'anon 역할의 INSERT/UPDATE/DELETE 회수 (심층 방어)'),
+  ('2026_08_25_work_team_member_access',       'can_edit_work — 팀원으로 등록된 멤버에게 그 작업물만 개방')
 ON CONFLICT (name) DO NOTHING;
 -- 참고: 2026_07_13_category_reset / 2026_07_13_tag_descriptions_reset 은 기존 데이터를 손보는
 -- 수동 데이터 마이그레이션이라 fresh install 과 무관 → 여기서 record 하지 않는다.

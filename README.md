@@ -77,7 +77,7 @@
 | **Admin** | Plate.js 에디터 (캘린더 · 다이어그램 · 코드 플레이그라운드 블록, 작용범위별 그룹 툴바, 색상 칩 삽입, 폰트 크기·줄간격·자간 직접입력), `.md` 동기화 + 내보내기, AI 번역/요약, 리비전 히스토리, 낙관적 동시성 제어, 발행 상태 chip + 발행 일원화, GitHub OAuth 로그인 + 멤버 관리 (이메일 초대 · 소유자/편집자/저자 역할) |
 | **성능** | Lighthouse 98 — LCP 1.9s, 449KB (-70%), atomic 카운터 + AbortController + bulk Promise.all |
 | **보안** | RLS + service-role gate, PostgREST `.or()` injection escape, view IP·date dedup, CSRF Origin 체크 (production fail-closed), middleware admin 다층 가드, 5회 실패 잠금 + 새 기기 이메일 승인 + 전기기 로그아웃, 역할 기반 접근 제어 (app_metadata) + OAuth 콜백 인가 게이트 + 크로스탭 로그아웃 |
-| **디자인 시스템** | 4-tier 토큰 (Raw → Semantic → Component → Context) + 라이브 프리뷰, **전체 색 토큰 OKLCH 전환** (culori 정확 변환, hue 무관 균일한 지각 밝기) |
+| **디자인 시스템** | 3-tier 토큰 (Raw → Semantic → Component) + 역할 토큰 · 라이브 프리뷰, **전체 색 토큰 OKLCH 전환** (culori 정확 변환, hue 무관 균일한 지각 밝기) |
 
 ---
 
@@ -258,7 +258,8 @@
 - **소셜 링크 편집 분리**: `SocialLinksEditor` + `types/social.ts`, `socialIcons.ts` 에 아이콘 12종 추가
 - **이모지 picker 개편**: 아이콘 476개(lucide 추출, `IconEntry.svg` inner-SVG 필드 + `iconSvgInner` 헬퍼) + 신규 카테고리(날씨/기기/음식/건강/도구/교육/표정/지도/도형 등), 한국어 검색(`emojiKo.ts`) + emoji-mart 메타(영문 이름/키워드, `emojiMeta.ts`) + 이모지 이름 툴팁(공용 Tooltip), 이미지 드래그앤드롭 업로드, inline 스타일 → CSS 모듈(`EmojiPicker.module.css`). 값 형식: native 이모지 / `img:url`(커스텀 업로드) / `icon:id`(SVG 아이콘). **커스텀 업로드는 `localStorage` → `custom_emojis` 테이블 동기화** (`GET/POST /api/custom-emojis`, `DELETE /api/custom-emojis/[id]`) — localStorage 는 오프라인 캐시 + 첫 페인트용으로 남기고, 서버에 없는 로컬 항목은 POST 로 백필 후 `src` 기준 dedup 병합 (서버 목록으로 통째 replace 하면 백필 실패 항목이 삭제 불가 상태가 됨)
 - **SEO 체크리스트**: 에디터 하단 위젯 — title/slug/excerpt(30자+)/cover/category/tags 6항목 점검, score 진행 바, 항목 클릭 시 해당 필드로 스크롤 + label accent 강조 (다음 인터랙션 전까지 유지)
-- **`.md` 동기화**: `content/posts/` · `content/works/` 폴더 → DB 단방향 싱크 (Jekyll-style, `pnpm sync-all`)
+- **`.md` 동기화**: `content/posts/` · `content/works/` · `content/about/` 폴더 → DB 단방향 싱크 (Jekyll-style, `pnpm sync-all`)
+- **About 콘텐츠의 두 원본**: About 패널 6종(Design Decisions · Security · Features · Process · Overview · Credits)은 `content/about/` 의 `.md` 로도, 관리자 About Studio 로도 쓸 수 있습니다. 사람이 원본을 고르지 않고 동기화가 **더 최근에 손댄 쪽**을 남깁니다 — 파일 수정 시각이 그 패널의 마지막 화면 편집보다 나중일 때만 반영(`pnpm sync-about`, `--dry` 로 미리보기). DB 가 비면 `.md` 를, 그것도 없으면 빈 값을 보여줍니다. ERD · User Flow · Architecture 다이어그램은 좌표·그래프 데이터라 md 로 표현하면 지금 편집기보다 나빠져 UI 전용으로 둡니다
 - **`.md` 내보내기**: 전체/선택/개별/시리즈 단위로 frontmatter 포함 `.md` 다운로드
 - **PlateEditor 요소별 floating toolbar 개편**: 노션식 인라인 편집 경험으로 재설계. ① **이미지 floating bar** — 레이아웃(Inline / Block / Float) · 정렬(block 좌·중·우, float 좌·우) · 캡션 · 교체 · 삭제(확인 팝오버) · ⋯(비율 잠금 / 크기 / 필터)을 한 줄 컴팩트 바로. W/H 입력은 공통 `NumberInput`(캡슐형, blur·Enter 확정 + 스텝퍼), 필터는 공통 `Select`. 캡션 줄바꿈 + 200자 제한(초과 시 toast), 리사이즈·이동 핸들 위치/깜빡임 정리, float 이미지는 인라인 void 클릭 선택을 capture 단계에서 처리. ② **노션식 `+` 버튼 + 블록 도구 popover** — 이동 핸들 왼쪽 `+` 클릭 시 빈 블록은 그 자리, 내용 있으면 아래(⌥/Alt+클릭=위)에 빈 블록 추가 후 슬래시 메뉴 오픈(취소 시 자동 제거). 이동 핸들 클릭 → 전환 / 복제 / 블록 링크 복사 / 글자색 / 삭제 popover. ③ **슬래시 메뉴 그룹화** — 기본 / 목록 / 미디어 / 고급 그룹 + lucide 아이콘 + 항목 확장(이미지·비디오·2·3단 컬럼·토글) + Lenis 호환 스크롤. ④ **리스트 단계별 자동 마커**(`•→◦→▪`, `1.→a.→i.`) + 첫 단계 들여쓰기 0, 빈 블록 문장형 placeholder, 다중 블록 드래그 시 텍스트 하이라이트 대신 블록 배경(float 이미지 영역은 `::before`/`::after` 로 분리). floating 포맷 바는 선택(드래그) 시에만 표시
 - **Plate.js 에디터**: Markdown ↔ Rich Text 양방향 변환 (파일/오디오 첨부 포함), 커스텀 각주, 5종 템플릿, 에디터 전환 skeleton, 직접입력 font size/line height
@@ -865,19 +866,24 @@ Next.js를 지원하는 플랫폼이면 배포 가능합니다. 자세한 내용
 
 ## 디자인 시스템
 
-CSS 토큰 4-레이어 구조, 클래스 네이밍 규칙, 특이도 가이드라인 등 스타일 관련 모든 규칙은 **[docs/design-system.md](./docs/design-system.md)** 에 문서화되어 있습니다.
+CSS 토큰 3-레이어 구조, 규칙 R1~R7, 클래스 네이밍, 특이도 가이드라인 등 스타일 관련 모든 규칙은 **[docs/design-system.md](./docs/design-system.md)** 에 문서화되어 있습니다.
 
 ### 개요
 
-| 레이어 | 위치 | 접두사 | 역할 |
+| 레이어 | 위치 | 예시 | 역할 |
 |--------|------|--------|------|
-| Raw Tokens | `src/styles/tokens/` | `--color-*`, `--spacing-*`, `--size-*` 등 | 원시 값 |
-| Semantic Tokens | `src/styles/globals/_semantic.css` (Layer 2) | `--text-*`, `--bg-*`, `--border-*` | 역할 기반 (컴포넌트 무관) |
-| Component Tokens | `src/styles/globals/_semantic.css` (Layer 3) | `--button-h-*`, `--control-h-*`, `--button-p-*` | 컴포넌트 typing (일관성 레일) |
-| Context Tokens | CSS Module 내 | `--_*` | 컴포넌트 스코프 local 변수 |
+| Raw | `src/styles/tokens/` | `--color-accent`, `--spacing-md`, `--size-sm` | 원시 값 (눈금) |
+| Semantic | `src/styles/globals/_semantic.css` | `--text-primary`, `--border-color-default`, `--font-size-body` | 역할 기반 (컴포넌트 무관) |
+| Component | `src/styles/globals/_semantic.css` | `--control-h-md`, `--card-p-md`, `--badge-p-sm` | 컴포넌트별 spec (일관성 레일) |
+
+CSS Module 안의 `--_*` 를 4번째 층으로 두었으나, 실제로 쓰는 컴포넌트가 0곳이라 뺐습니다. Material(ref→sys→comp) · Spectrum(global→alias→component) 도 세 층입니다.
+
+**여백의 역할 토큰** — 반복이 확인된 컴포넌트 종류에만 줍니다. `--button-p-*` · `--input-p` · `--textarea-p` · `--badge-p-*` · `--row-p-*` · `--modal-p-*` · `--card-p-*` · `--field-p-*` · `--cell-p-*`. 그 밖의 자리는 눈금을 그대로 씁니다(`padding: var(--spacing-xs) var(--spacing-md)`) — Carbon · Atlassian 방식이고, 조합 토큰은 두지 않습니다.
 
 **클래스 네이밍**: CSS Modules + camelCase (BEM 미사용)
-**핵심 규칙**: context 토큰은 반드시 글로벌 토큰 참조 / var() fallback 금지 / hex 직접 사용 금지 / 컨트롤 (button/input/select) 은 raw `--size-*` 직접 X, Component 토큰 사용
+
+**lint 가 집행하는 것** — stylelint: 하드코딩 색 · 12px 미만 글자 · 눈금 이름으로 고른 글자 크기 · `capsule`/`circle`/`2xl` 밖의 모서리 · 간격 리터럴 · 디자인 토큰의 `var()` fallback. eslint: 인라인 `style` 과 직렬화 문자열의 같은 위반 + `<button>` 의 `type` 누락.
+
 **디자인 시스템 미리보기**: `/design-system` 라우트
 
 ---
