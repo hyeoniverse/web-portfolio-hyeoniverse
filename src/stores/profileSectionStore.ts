@@ -27,6 +27,37 @@ interface ProfileSectionStore {
    * 자리 상자(입력)와 FloatingScene(그리기)이 같은 것을 제자리에서 고친다.
    */
   bunnyDrag: { x: number; y: number; vx: number; vy: number; dragging: boolean };
+  /**
+   * 만졌을 때의 반응. `bunnyDrag` 와 같은 이유로 상태가 아니라 제자리에서 고치는 객체다.
+   *
+   * 자리는 **화면 좌표(NDC)** 로만 넘긴다. 몽이가 지금 어떤 자세로 어디에 있는지는
+   * FloatingScene 만 알기 때문이다 — 입력 쪽이 정면을 가정하고 로컬 좌표를 만들면
+   * 몽이를 돌렸을 때 만지는 자리가 어긋난다.
+   *
+   * `spot` 은 그 반대 방향으로 흐르는 값이다. FloatingScene 이 광선을 쏴서 몽이의 어디를
+   * 가리키는지 풀어 적어 두면, 입력 쪽이 그걸 읽어 커서와 동작을 정한다.
+   */
+  bunnyTouch: {
+    /** 커서(-1~1). 화면 왼쪽·아래가 -1. */
+    ndcX: number;
+    ndcY: number;
+    /** 커서가 자리 상자 안에 있는지. 밖이면 몽이를 가리키는 게 아니다. */
+    over: boolean;
+    /** 누른 순간의 NDC 와 그 뒤로 끌린 양. */
+    grabX: number;
+    grabY: number;
+    pullX: number;
+    pullY: number;
+    /** 잡고 있는 볼(-1 왼쪽 / 0 안 잡음 / 1 오른쪽) · 쓰다듬는 중인지. */
+    cheek: number;
+    petting: boolean;
+    /** 한 번 찌른 세기. FloatingScene 이 읽고 0 으로 되돌린다. */
+    poke: number;
+    /** FloatingScene 이 풀어 적는 값 — 지금 커서가 몽이의 어디에 있는가. */
+    spot: "" | "pinch" | "pet" | "poke" | "grab";
+    /** 커서 자리에 세울 손 모양. 빈 문자열이면 손을 안 그린다. */
+    hand: "" | "pet" | "pinch" | "pinching" | "poke" | "grab";
+  };
   addBunnyDockSlot: (el: HTMLElement) => void;
   removeBunnyDockSlot: (el: HTMLElement) => void;
 }
@@ -37,6 +68,11 @@ export const useProfileSectionStore = create<ProfileSectionStore>((set) => ({
   bunnyExpression: null,
   setBunnyExpression: (e) => set({ bunnyExpression: e }),
   bunnyDrag: { x: 0, y: 0, vx: 0, vy: 0, dragging: false },
+  bunnyTouch: {
+    ndcX: 0, ndcY: 0, over: false,
+    grabX: 0, grabY: 0, pullX: 0, pullY: 0,
+    cheek: 0, petting: false, poke: 0, spot: "", hand: "",
+  },
   bunnyDockSlots: new Set(),
   addBunnyDockSlot: (el) =>
     set((st) => {
