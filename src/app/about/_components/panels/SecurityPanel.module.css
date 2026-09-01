@@ -26,8 +26,14 @@
   align-items: center;
 }
 
+/* 20px 상자를 잡아 두지만 안의 아이콘은 1em(16px)이라, 가운데로 모아 주지 않으면
+   좌상단에 붙고 오른쪽·아래로 4px 씩 빈다. 테두리가 없는 공개 페이지에선 안 보였고
+   편집기에서 상자를 그리자 치우친 게 드러났다. */
 .secIcon {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 20px;
   height: 20px;
   color: var(--text-accent);
