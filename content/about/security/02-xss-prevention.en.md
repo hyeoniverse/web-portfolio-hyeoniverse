@@ -1,5 +1,4 @@
 ---
-layer: XSS
 icon: shield
 scope: All user input rendering
 ---

@@ -1,5 +1,4 @@
 ---
-layer: Authentication
 icon: lock
 scope: 댓글 수정/삭제, 관리자
 ---

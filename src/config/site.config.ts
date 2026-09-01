@@ -838,8 +838,8 @@ export const siteConfig = {
     features: [] as Array<{ icon: string; title: string; description_ko: string; description_en: string; tech: string; image: string }>,
     /* ── Process panel — 단계/제목(ko,en)/설명(ko,en) ── */
     process: [] as Array<{ step: string; title_ko: string; title_en: string; description_ko: string; description_en: string }>,
-    /* ── Security panel — layer/icon/title(ko,en)/description(ko,en)/scope(ko,en) ── */
-    security: [] as Array<{ layer: string; icon: string; title_ko: string; title_en: string; description_ko: string; description_en: string; scope_ko: string; scope_en: string }>,
+    /* ── Security panel — icon/title(ko,en)/description(ko,en)/scope(ko,en) ── */
+    security: [] as Array<{ icon: string; title_ko: string; title_en: string; description_ko: string; description_en: string; scope_ko: string; scope_en: string }>,
     /* ── Design System 패널 — 컨셉 항목. 비어있으면 기본 정적 데이터(designConcepts) 사용 ── */
     designSystem: [] as Array<{ id: string; title: string; subtitle_ko: string; subtitle_en: string; description_ko: string; description_en: string; image: string }>,
     /* ── Code Highlights 패널 — 코드 예시. 비어있으면 기본 정적 데이터(codeExamples) 사용 ── */

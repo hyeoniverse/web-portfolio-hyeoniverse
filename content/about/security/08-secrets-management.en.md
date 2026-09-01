@@ -1,5 +1,4 @@
 ---
-layer: Secrets
 icon: key
 scope: Env vars, API keys
 ---

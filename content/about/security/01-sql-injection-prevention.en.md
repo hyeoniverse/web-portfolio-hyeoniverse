@@ -1,5 +1,4 @@
 ---
-layer: SQL Injection
 icon: db
 scope: All DB queries
 ---

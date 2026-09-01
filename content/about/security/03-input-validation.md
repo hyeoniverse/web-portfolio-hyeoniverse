@@ -1,5 +1,4 @@
 ---
-layer: Input Validation
 icon: check
 scope: 모든 공개 API
 ---
