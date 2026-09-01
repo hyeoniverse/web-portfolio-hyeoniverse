@@ -42,15 +42,32 @@ export const ABOUT_PANELS: AboutPanelDef[] = [
 
 const BY_KEY = new Map(ABOUT_PANELS.map((p) => [p.key, p]));
 
-/** 패널의 기본 제목. 모르는 키는 키를 그대로 돌려준다 — 화면이 비는 것보다 낫다. */
-export function aboutPanelTitle(key: string): string {
-  return BY_KEY.get(key)?.title ?? key;
+/* 이미 문장부호로 끝나면 마침표를 덧붙이지 않는다 — "왜?" 가 "왜?." 가 되면 안 된다. */
+const ENDS_SENTENCE = /[.!?…]$/;
+
+/**
+ * 화면에 찍을 패널 제목. `override` 는 관리자가 지정한 제목(`about.panelTitles[key][lang]`).
+ * 모르는 키는 키를 그대로 돌려준다 — 화면이 비는 것보다 낫다.
+ *
+ * override 에는 이 사이트의 제목 표기를 입혀서 돌려준다. 관리자 화면은 마침표를 뗀
+ * 이름(`aboutPanelLabel`)을 칩에 보여 주고 거기서 고치게 하므로, 저장된 값을 날것으로
+ * 쓰면 이름을 바꾼 패널만 마침표 없이 나온다.
+ * 마침표를 붙일지는 패널마다 다르다 — 큰 제목으로 찍히는 패널만 기본 제목이 마침표로
+ * 끝난다(Overview. / Design Decisions.). Intro·Break Image·Credits 는 아니라서,
+ * 기본 제목이 어떻게 끝나는지를 그대로 따라간다.
+ */
+export function aboutPanelTitle(key: string, override?: string): string {
+  const base = BY_KEY.get(key)?.title ?? key;
+  const custom = override?.trim();
+  if (!custom) return base;
+  if (!base.endsWith(".") || ENDS_SENTENCE.test(custom)) return custom;
+  return `${custom}.`;
 }
 
 /**
  * 관리자 목록·마크다운 로그처럼 마침표가 어색한 자리에서 쓰는 이름.
  * 제목 표기의 마침표만 뗀다.
  */
-export function aboutPanelLabel(key: string): string {
-  return aboutPanelTitle(key).replace(/\.$/, "");
+export function aboutPanelLabel(key: string, override?: string): string {
+  return aboutPanelTitle(key, override).replace(/\.$/, "");
 }
