@@ -63,6 +63,7 @@
 
 .groupHead {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-xs);
 }
@@ -80,6 +81,38 @@
   font-size: var(--font-size-label);
   font-variant-numeric: tabular-nums;
   color: var(--text-tertiary);
+}
+
+/* 예전 설정 때문에 상한을 넘겨 저장돼 있는 경우 — 조용히 넘어가지 않게 눈에 띄어야 한다 */
+.groupCountOver {
+  background: var(--bg-accent-light);
+  color: var(--text-accent);
+}
+
+/* 상한 안내 — 제목 옆에 끼우면 좁은 설정 열에서 두 줄로 접히며 제목을 밀어낸다.
+   줄을 통째로 차지해 아래로 내린다. */
+.groupHint {
+  flex-basis: 100%;
+}
+
+/* 상한 밖이라 화면에 안 나오는 항목 */
+.pickedOver {
+  opacity: 0.5;
+}
+
+.pickedOverNote {
+  flex: 0 0 auto;
+  padding: var(--badge-p-sm);
+  border-radius: var(--radius-capsule);
+  background: var(--bg-secondary);
+  font-size: var(--font-size-micro);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* 상한에 닿아 더 고를 수 없는 줄 — 이미 고른 것은 그대로 둔다(빼야 하니까) */
+.itemBlocked {
+  opacity: 0.4;
 }
 
 /* ── 고른 저장소 — 순서가 곧 화면 순서 ── */

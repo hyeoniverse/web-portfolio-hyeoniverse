@@ -1,0 +1,61 @@
+/* 가로 스크롤 전체에 걸쳐 이어지는 배경 연출 — 빛이 지나간 자리에 별가루가 핀다. */
+
+/* 트랙 밖에 깔린다 — 가로로 미끄러지는 콘텐츠와 무관하게 화면에 고정되어,
+   첫 패널부터 끝까지 계속 보인다. 화면 아래 띠에만 둔다: 전면에 깔면 글자와 겹쳐서 못 읽는다. */
+.wrap {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  /* 컴포넌트의 BAND_H 와 같아야 한다 — viewBox 높이를 여기에 맞춰 잡는다.
+     선로는 아래쪽에 붙고 위쪽은 연기가 오를 자리다. */
+  height: 230px;
+  pointer-events: none;
+}
+
+.scene {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 길 — 있는 듯 없는 듯. 별이 주인공이라 여기가 도드라지면 안 된다. */
+.route {
+  fill: none;
+  stroke: var(--border-color-light);
+  stroke-width: 1;
+}
+
+/* 별가루 — 갓 핀 것(--_age 0)은 accent, 멀어질수록(1) 가라앉는다.
+   컴포넌트가 매 프레임 --_age 를 넣는다. */
+.spark {
+  fill: color-mix(in oklch, var(--color-accent), var(--border-color-default) calc(var(--_age, 1) * 100%));
+  opacity: 0;
+}
+
+/* 기차 — 회색 덩어리. accent 는 별가루 몫이라 앞등에만 쓴다.
+   둘 다 분홍이면 지나간 자리와 지금 자리가 구분이 안 된다. */
+.train {
+  fill: var(--text-tertiary);
+}
+
+.trainWindow {
+  fill: var(--bg-primary);
+}
+
+.trainLamp {
+  fill: var(--color-accent);
+}
+
+/* 연기 — 캔버스. color 는 알갱이 얼룩을 구울 때 읽는 색이라 여기서 정한다.
+   살짝 흐려 알갱이 경계를 지운다. */
+.smoke {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--text-tertiary);
+  filter: blur(2px);
+  pointer-events: none;
+}

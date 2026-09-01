@@ -293,10 +293,12 @@
   display: flex;
   gap: var(--spacing-2xs);
   overflow-x: auto;
-  /* hover 하면 칸이 1.4배로 커지고 주 전체가 2px 떠오른다. overflow-x 를 auto 로 두면
+  /* 커서를 올린 자리의 칸이 2배 남짓으로 커지면서 바깥으로 밀려난다. overflow-x 를 auto 로 두면
      세로 방향도 함께 잘리므로(스펙상 한 축이 visible 이 아니면 다른 축도 visible 이 아니게 된다),
-     커진 만큼의 자리를 안쪽 여백으로 미리 비워 둔다. */
-  padding: var(--spacing-xs) var(--spacing-2xs);
+     부푸는 만큼의 자리를 위아래 여백으로 미리 비워 둔다. 가장 크게 밀려나는 건 커서에서
+     반지름의 1/√3 만큼 떨어진 칸이고(약 22px), 여백은 그보다 커야 한다.
+     좌우는 여백을 늘리면 위 라벨과 어긋나므로 GrassLens 가 끝에서 미는 힘을 줄여 해결한다. */
+  padding: var(--spacing-xl) var(--spacing-2xs);
 }
 
 .grassWeek {
@@ -315,33 +317,14 @@
   transform: scale(0.4);
 }
 
+/* both 로 두면 안 된다. 다 끝난 뒤에도 마지막 프레임(transform: scale(1))을 붙잡고 있는데,
+   애니메이션이 붙잡은 값은 인라인 style 까지 이긴다 — 칸을 움직이려 해도 꿈쩍하지 않는다.
+   backwards 면 시작을 기다리는 동안만 첫 프레임을 쓰고, 끝나면 손을 뗀다. 끝난 뒤의 모습은
+   여기서 따로 적어 둔다. */
 .section[data-in="true"] .grassDay {
-  animation: grassIn var(--duration-slow) var(--ease-bounce) both;
-}
-
-.grass .grassDay {
-  transition: outline-color var(--duration-fast);
-  outline: 1px solid transparent;
-  outline-offset: 1px;
-}
-
-.grassDay:hover {
-  outline-color: var(--text-accent);
-  transform: scale(1.4);
-  z-index: 1;
-}
-
-.grass .grassDay {
-  transition: outline-color var(--duration-fast), transform var(--duration-fast);
-}
-
-/* 한 주 위에 커서를 올리면 그 주가 통째로 살짝 벌어진다 */
-.grassWeek {
-  transition: transform var(--duration-fast);
-}
-
-.grassWeek:hover {
-  transform: translateY(-2px);
+  animation: grassIn var(--duration-slow) var(--ease-bounce) backwards;
+  opacity: 1;
+  transform: none;
 }
 
 @keyframes grassIn {
@@ -408,51 +391,98 @@
 
 /* ── 고른 저장소 ── */
 /* Pinned 전용 패널이라 카드가 화면을 다 쓴다 — 3열 기준으로 넉넉하게. */
+/* 상자를 두르지 않는다. 이 사이트의 목록은 전부 얇은 선으로 나뉜다 —
+   About 의 지표 행, Security 격자, Backend 엔드포인트가 모두 그렇다. 둥근 테두리 카드는
+   여기서만 쓰던 어법이라 어디서나 볼 수 있는 카드 그리드처럼 보였다.
+   항목마다 위에 선을 하나 긋는다. 세로 구분선과 달리 몇 열로 접히든(최대 6개) 그대로 맞는다. */
 .repos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
+  gap: var(--spacing-2xl);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .repo {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
   height: 100%;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border: var(--border-default);
-  border-radius: var(--radius-2xl);
+  padding-top: var(--spacing-md);
   text-decoration: none;
-  transition: border-color var(--duration-base), background-color var(--duration-base);
 }
 
+/* 머리 선 두 겹 — 아래는 늘 있는 회색 선, 위는 hover 때 왼쪽에서 그어지는 accent 선.
+   border 가 아니라 흐름 밖(absolute) 막대다. border 로 두께를 바꾸면 그만큼 아래가
+   밀려 글자가 흔들린다. */
+.repo::before,
+.repo::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transform-origin: left center;
+}
+
+.repo::before {
+  height: 1px;
+  background: var(--border-color-default);
+  /* 등장 전에는 안 그려져 있다. 예전엔 여기서 이미 그어진 채로 보였다가, 패널이 자리를
+     잡는 순간 사라졌다 다시 그어졌다 — 애니메이션이 눈에 처음 들어온 뒤에 시작하니까. */
+  transform: scaleX(0);
+}
+
+.repo::after {
+  height: 2px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+}
+
+/* transform·opacity 는 전역 테마 전환 규칙(_base.css)의 목록에 없다. 그 규칙이 shorthand 라
+   컴포넌트 transition 을 통째로 덮으므로, 클래스를 겹쳐 (0,2,0) 으로 다시 적는다. */
+.repos .repo::after {
+  transition: transform var(--duration-base) var(--ease-out-expo);
+}
+
+.repo:hover::after {
+  transform: scaleX(1);
+}
+
+/* 링크는 눌리는 게 아니라 나가는 것이다 — 살짝 오른쪽으로 밀어 방향을 준다. */
 .repos .repo {
-  transition:
-    border-color var(--duration-base),
-    background-color var(--duration-base),
-    transform var(--duration-base);
+  transition: transform var(--duration-base) var(--ease-out-expo);
 }
 
 .repo:hover {
-  border: var(--border-accent);
-  background: var(--bg-secondary);
-  transform: translateY(-4px);
+  transform: translateX(4px);
 }
 
-/* 카드가 들어올 때 테두리가 accent 에서 평소 색으로 식는다 — 하나씩 켜지는 느낌 */
-.section[data-in="true"] .repo {
-  animation: repoSettle var(--duration-slowest) var(--ease-out-expo) both;
+/* 패널이 자리를 잡으면 선이 왼쪽에서 오른쪽으로 그어진다. 항목마다 조금씩 늦춰 차례로.
+   fill-mode 는 forwards — 끝난 상태(다 그어진 선)를 유지해야 한다. 이 가상요소의
+   transform 은 이 애니메이션만 건드리므로 붙잡아 둬도 부딪히는 규칙이 없다
+   (hover 로 훑는 accent 선은 별도 ::after 다). */
+.section[data-in="true"] .repo::before {
+  animation: repoRule var(--duration-slow) var(--ease-out-expo) forwards;
 }
 
-@keyframes repoSettle {
-  from { border-color: var(--color-accent); }
-  to   { border-color: var(--border-color-default); }
+.repos li:nth-child(1) .repo::before { animation-delay: 0ms; }
+.repos li:nth-child(2) .repo::before { animation-delay: 70ms; }
+.repos li:nth-child(3) .repo::before { animation-delay: 140ms; }
+.repos li:nth-child(4) .repo::before { animation-delay: 210ms; }
+.repos li:nth-child(5) .repo::before { animation-delay: 280ms; }
+.repos li:nth-child(6) .repo::before { animation-delay: 350ms; }
+
+/* to 를 반드시 적는다 — 생략하면 애니메이션 없는 상태의 값(=scaleX(0))이 끝 프레임이 돼
+   0 에서 0 으로 움직인다. */
+@keyframes repoRule {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 
-/* 카드 이름은 hover 때 accent 로 — 어디를 누르는지 분명해진다 */
+/* 이름은 hover 때 accent 로 — 어디를 누르는지 분명해진다 */
 .repos .repoName {
   transition: color var(--duration-fast);
 }
@@ -470,17 +500,42 @@
   color: var(--text-accent);
 }
 
-/* 카드에서 눈이 가장 먼저 닿는 자리 — 설명과 굵기가 비슷하면 어디부터 읽을지 정하지 못한다. */
+/* 카드에서 눈이 가장 먼저 닿는 자리 — 설명과 굵기가 비슷하면 어디부터 읽을지 정하지 못한다.
+   이름(18) · 설명(14) · 메타(12) 로 세 단계를 벌린다. 예전 16/14/13 은 간격이 좁아
+   전부 같은 무게로 보였다.
+   글꼴은 mono — 저장소 이름은 문장이 아니라 식별자다. 바로 위의 @계정 링크,
+   About 의 경로·엔드포인트도 같은 글꼴을 쓴다. */
 .repoName {
   display: flex;
   align-items: center;
   gap: var(--spacing-2xs);
   min-width: 0;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-title-sm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-title-md);
   font-weight: var(--font-weight-semibold);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
+}
+
+/* 고른 순서. Instrument Serif 이탤릭 — About 의 Design Process·Backend 가 쓰는 번호 표기와 같다.
+   평소엔 물러나 있다가 가리키면 또렷해진다. */
+.repoIndex {
+  flex-shrink: 0;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-title-lg);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  line-height: 1;
+  color: var(--text-accent);
+  opacity: 0.45;
+}
+
+.repos .repoIndex {
+  transition: opacity var(--duration-base);
+}
+
+.repo:hover .repoIndex {
+  opacity: 1;
 }
 
 /* 저장소 이름은 길면 줄바꿈되며 카드를 흔든다 — 한 줄로 자른다(전체는 title 로 보인다). */
@@ -490,8 +545,12 @@
   text-overflow: ellipsis;
 }
 
-/* 클릭하면 나가는 링크임을 hover 때 드러낸다 — 평소에는 이름만 읽히게 숨겨 둔다 */
+/* 클릭하면 나가는 링크임을 hover 때 드러낸다 — 평소에는 이름만 읽히게 숨겨 둔다.
+   이름 바로 뒤가 아니라 오른쪽 끝에 세운다 — 이름 길이에 따라 자리가 들쭉날쭉하면
+   항목 세 개가 나란히 놓였을 때 윗줄이 정렬돼 보이지 않는다. */
 .repoName .repoArrow {
+  margin-left: auto;
+  flex-shrink: 0;
   opacity: 0;
   transform: translate(-4px, 4px);
   transition: opacity var(--duration-fast), transform var(--duration-fast);
@@ -503,34 +562,33 @@
   transform: translate(0, 0);
 }
 
-/* 설명은 길이와 무관하게 두 줄 자리를 차지한다 — 길면 자르고, 없으면 비워 둔다.
-   카드마다 높이가 달라지면 그리드에서 아래 줄(토픽·메타)이 어긋난다. */
+/* 두 줄까지 보여 주고 넘치면 자른다. 없으면 자리를 남기지 않는다 —
+   예전엔 두 줄을 늘 예약했는데, 설명 없는 저장소가 가운데가 텅 빈 채로 남았다.
+   그래도 아래 메타 줄은 항목끼리 맞는다. 항목이 그리드 칸 높이만큼 늘어나고(height:100%)
+   메타가 margin-top:auto 로 바닥에 붙으므로, 예약 없이도 같은 줄에 선다. */
 .repoDesc {
-  flex: 1;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: calc(1.6em * 2);
   font-size: var(--font-size-body);
   line-height: 1.6;
   color: var(--text-secondary);
 }
 
-/* 언어·별·날짜 줄은 어떤 카드에서든 같은 자리에 온다.
-   margin-top:auto 로 카드 바닥에 붙이면 위 내용(설명 길이·토픽 유무)과 무관해진다 —
-   설명 자리 확보만으로는 토픽이 있는 카드와 없는 카드가 어긋난다. */
+/* 바닥의 각주. 대문자와 자간은 이 사이트의 작은 라벨(패널 머리말·스택 분류) 표기를 따른다. */
 .repoMeta {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   margin-top: auto;
-  padding-top: var(--spacing-sm);
-  border-top: var(--border-light);
+  padding-top: var(--spacing-md);
   font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-hint);
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--text-tertiary);
 }
 
@@ -543,16 +601,22 @@
 
 /* 언어는 이름, 그 옆은 숫자다 — 점을 붙여 성격이 다르다는 걸 표시한다(GitHub 관습) */
 .repoLang {
+  /* 컴포넌트가 언어 순위에 맞는 슬롯을 인라인으로 덮어쓴다. 목록에 없는 언어는 이 값. */
+  --_dot: var(--color-accent);
+
   gap: var(--spacing-2xs);
   color: var(--text-secondary);
 }
 
+/* 점 색은 위 GitHub 패널의 언어 막대와 같은 슬롯을 쓴다(--_lang-*, 컴포넌트가 순위로 고름).
+   많이 쓰는 언어일수록 진하다. 브랜드 색을 쓰지 않는 건 그 막대와 같은 이유 —
+   언어마다 브랜드 색을 쓰면 팔레트가 사이트와 따로 논다. */
 .repoLang::before {
   content: "";
   width: 8px;
   height: 8px;
   border-radius: var(--radius-circle);
-  background: var(--text-accent);
+  background: var(--_dot);
 }
 
 .repoDate {
@@ -633,7 +697,6 @@
   .repoDesc {
     -webkit-line-clamp: 1;
     line-clamp: 1;
-    min-height: 1.6em;
   }
 }
 
@@ -645,11 +708,12 @@
   .section[data-in="true"] .activityBar,
   .section[data-in="true"] .statValue,
   .section[data-in="true"] .langBar::after,
-  .section[data-in="true"] .repo {
+  .section[data-in="true"] .repo::before {
     animation: none;
   }
 
   .langSlice { width: var(--_w); }
+  .repo::before { transform: none; }
   .lang { opacity: 1; }
   .activityBar { transform: scaleY(1); }
   .grassDay { opacity: 1; transform: none; }
