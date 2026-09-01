@@ -10,8 +10,8 @@ import {
   ARM_PROFILE,
   FOOT_PROFILE,
   EYE_COLOR,
-  MAT_PROPS,
 } from "./bunnyPreviewGeometry";
+import BunnySkin from "../FloatingObject/BunnySkin";
 
 /* ── Component ── */
 
@@ -129,25 +129,25 @@ export default function BunnyPreviewScene({
         {/* Body */}
         <mesh position={[0, -0.15, 0]} scale={[0.75, 0.78, 0.7]}>
           <latheGeometry args={[BODY_PROFILE, 24]} />
-          <meshStandardMaterial {...MAT_PROPS} />
+          <BunnySkin />
         </mesh>
 
         {/* Head */}
         <mesh position={[0, 0.42, 0.06]} scale={[1.15, 1, 0.95]}>
           <sphereGeometry args={[0.48, 24, 18]} />
-          <meshStandardMaterial {...MAT_PROPS} />
+          <BunnySkin />
         </mesh>
 
         {/* Left Ear */}
         <mesh position={[-0.2, 0.82, -0.04]} rotation={[0.12, 0, 0.18]} scale={[1.3, 1.3, 1]}>
           <latheGeometry args={[EAR_PROFILE, 16]} />
-          <meshStandardMaterial {...MAT_PROPS} />
+          <BunnySkin />
         </mesh>
 
         {/* Right Ear */}
         <mesh position={[0.2, 0.82, -0.04]} rotation={[0.12, 0, -0.18]} scale={[1.3, 1.3, 1]}>
           <latheGeometry args={[EAR_PROFILE, 16]} />
-          <meshStandardMaterial {...MAT_PROPS} />
+          <BunnySkin />
         </mesh>
 
         {/* Left Eye (normal) */}
@@ -221,31 +221,31 @@ export default function BunnyPreviewScene({
         {/* Tail */}
         <mesh position={[0, -0.25, -0.38]}>
           <sphereGeometry args={[0.14, 16, 12]} />
-          <meshStandardMaterial {...MAT_PROPS} />
+          <BunnySkin />
         </mesh>
 
         {/* Left Arm */}
         <mesh position={[-0.3, -0.1, 0]} rotation={[0, 0, 2]} scale={[1, 1.6, 1]}>
           <latheGeometry args={[ARM_PROFILE, 16]} />
-          <meshStandardMaterial {...MAT_PROPS} />
+          <BunnySkin />
         </mesh>
 
         {/* Right Arm */}
         <mesh position={[0.3, -0.1, 0]} rotation={[0, 0, -2]} scale={[1, 1.6, 1]}>
           <latheGeometry args={[ARM_PROFILE, 16]} />
-          <meshStandardMaterial {...MAT_PROPS} />
+          <BunnySkin />
         </mesh>
 
         {/* Left Leg */}
         <mesh position={[-0.15, -0.35, 0.25]} rotation={[1.4, 0, 0.1]} scale={[0.7, 1.8, 0.7]}>
           <latheGeometry args={[FOOT_PROFILE, 16]} />
-          <meshStandardMaterial {...MAT_PROPS} />
+          <BunnySkin />
         </mesh>
 
         {/* Right Leg */}
         <mesh position={[0.15, -0.35, 0.25]} rotation={[1.4, 0, -0.1]} scale={[0.7, 1.8, 0.7]}>
           <latheGeometry args={[FOOT_PROFILE, 16]} />
-          <meshStandardMaterial {...MAT_PROPS} />
+          <BunnySkin />
         </mesh>
       </group>
     </>
