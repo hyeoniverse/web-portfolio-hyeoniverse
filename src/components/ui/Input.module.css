@@ -203,7 +203,7 @@
 /* clearBtn — value 있을 때 우측 absolute, eraser 아이콘. input padding-right 와 정합 */
 .clearBtn {
   position: absolute;
-  right: var(--spacing-2xs);
+  right: var(--spacing-xs);
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
@@ -304,7 +304,7 @@
 /* clearBtn — value 있을 때 우측 absolute, eraser 아이콘. input padding-right 와 정합 */
 .clearBtn {
   position: absolute;
-  right: var(--spacing-2xs);
+  right: var(--spacing-xs);
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
@@ -333,7 +333,7 @@
 
 /* 지우개 + 눈 토글 공존 — 눈은 맨 우측(clearBtn 기본), 지우개는 그 왼쪽으로 shift */
 .clearBtnShift {
-  right: calc(var(--spacing-2xs) + 22px);
+  right: calc(var(--spacing-xs) + 22px);
 }
 
 .hasClear2 {
