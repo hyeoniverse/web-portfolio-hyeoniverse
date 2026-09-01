@@ -23,7 +23,9 @@
   height: var(--control-h-md);
   padding: 0 var(--spacing-md);
   border: var(--border-light);
-  border-radius: var(--radius-capsule);
+
+  /* stylelint-disable-next-line declaration-property-value-disallowed-list -- 편집 폼의 입력 칸(R6 예외). AboutStudio .edit 주석 참고 */
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-primary);
   font-family: var(--font-mono);

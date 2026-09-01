@@ -15,10 +15,10 @@ import { useState, useEffect, useMemo, useRef, useDeferredValue, type CSSPropert
 import { ModalConfirm } from "@/components/ui/ModalTemplates";
 import {
   Plus, X, Trash2, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Image as ImageIcon, Lock, LayoutTemplate,
-  Folder, FolderOpen, FileCode, Code2, Upload,
+  Folder, FolderOpen, FileCode, Code2, Download, GripVertical,
 } from "@/components/icons";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
-import { SortableContext, rectSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
+import { SortableContext, rectSortingStrategy, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS as DndCSS } from "@dnd-kit/utilities";
 import { type SiteConfigData, siteConfig } from "@/config/site.config";
 import type { SettingsTabProps } from "../../_types";
@@ -86,6 +86,7 @@ import ch from "@/app/about/_components/panels/CodeHighlightsPanel.module.css";
 import CodeDemoSlot, { type CodeDemoMode } from "@/app/about/_components/panels/CodeDemoSlot";
 import { securityIcons } from "@/app/about/_components/panels/SecurityPanel";
 import Pressable from "@/components/ui/Pressable";
+import StickyGlassBar from "@/components/admin/StickyGlassBar/StickyGlassBar";
 import { aboutPanelLabel, aboutPanelTitle } from "@/data/about/panels";
 
 /* ═══════════ 타입 ═══════════ */
@@ -158,32 +159,37 @@ function EditableText({ value, onChange, placeholder, multiline, className, styl
   );
 }
 
-/* 패널 라이브 프리뷰 스테이지 — 실제 뷰포트 폭(DESIGN_W)으로 그대로 그린다.
-   높이는 콘텐츠에 맞춰 grow(min DESIGN_H) → 넘쳐도 안 잘림. */
+/* 한 패널 = 헤더 + 편집 블록. 둘을 한 <section> 으로 묶는다.
+   헤더가 sticky 라서 필요하다 — 형제로 늘어놓으면 지나간 헤더들이 전부 같은 자리에
+   붙어 남고, glass 가 서로 겹쳐 blur 가 곱해진다. 묶으면 sticky 가 자기 구역 안에서만
+   살아 있어서 화면 위에는 지금 고치고 있는 패널의 헤더 하나만 남는다.
+   data-settings-section 도 여기로 온다 — 점프바가 붙어 있는 헤더가 아니라 구역의
+   시작으로 스크롤해야 한다. */
+function PanelGroup({ children, ...head }: PanelSaveHeaderProps & { children: ReactNode }) {
+  return (
+    <section className={css.panelGroup} data-settings-section data-section-label={head.label}>
+      <PanelSaveHeader {...head} />
+      {children}
+    </section>
+  );
+}
+
+/* 패널 편집 스테이지 — 편집 열 폭에 맞춰 그린다.
+   글자를 줄이지도, 잘라내지도 않는다. 두 방법 모두 한 번씩 써 보고 물렀다.
+   - 실제 뷰포트 폭(1440px)으로 그리고 넘치는 만큼 가로 스크롤: 열이 990px 이라 450px 이
+     늘 화면 밖이었다. 글이 많은 패널(Backend·Design Decisions)은 한 줄을 읽으려고
+     좌우로 밀어야 했고, 편집 중에 커서가 보이지 않는 자리로 넘어갔다.
+   - transform 으로 축소: 0.72 배가 걸려 16px 본문이 11.5px 이 됐다.
+   패널 CSS 는 원래 반응형이라 폭만 넘겨주면 그 폭에 맞춰 다시 흐른다. 편집기에서 보는
+   줄바꿈은 실제 페이지와 다르지만, 고치는 동안 글이 다 보이는 쪽이 맞다.
+   --tool-scale 은 패널 안 편집 버튼의 counter-scale 용이라 1 로 고정된다. */
 function PanelStage({ children }: { children: ReactNode }) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [h, setH] = useState(DESIGN_H);
-
-  useEffect(() => {
-    const el = panelRef.current;
-    if (!el) return;
-    const measure = () => setH(Math.max(DESIGN_H, el.offsetHeight));
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  /* 줄이지 않고 실제 크기로 그린다. 열 폭에 맞춰 축소하던 때는 0.72 배가 걸려 16px 본문이
-     11.5px 로 나왔고, 글이 많은 패널(Troubleshooting·Backend)은 읽을 수가 없었다.
-     1440px 이 열 폭을 넘는 만큼은 가로 스크롤로 넘긴다.
-     --tool-scale 은 패널 안 편집 버튼의 counter-scale 용이라 1 로 고정된다. */
-  const panelStyle: CSSProperties = { position: "absolute", top: 0, left: 0, width: DESIGN_W, height: "auto", minHeight: DESIGN_H, padding: "clamp(24px, 2.4vw, 48px)" };
+  const panelStyle: CSSProperties = { width: "100%", height: "auto", minHeight: DESIGN_H, padding: "clamp(24px, 2.4vw, 48px)" };
   (panelStyle as Record<string, string | number>)["--tool-scale"] = 1;
 
   return (
-    <div className={css.panelStage} style={{ height: h }} data-lenis-prevent>
-      <div ref={panelRef} className={`${sec.section} ${sec.panel}`} style={panelStyle}>
+    <div className={css.panelStage}>
+      <div className={`${sec.section} ${sec.panel}`} style={panelStyle}>
         {children}
       </div>
     </div>
@@ -273,8 +279,14 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
   const setAny = (key: string, value: unknown) =>
     update("about", key as keyof SiteConfigData["about"], value as SiteConfigData["about"][keyof SiteConfigData["about"]]);
   const setArch = (v: ArchitectureItem[]) => setAny("architectureItems", v);
-  /* 패널 제목 override (admin panelTitles) — 스튜디오 프리뷰에서도 즉시 반영 */
-  const panelTitleOf = (k: string) => (about.panelTitles as Record<string, { ko?: string; en?: string }> | undefined)?.[k]?.[lang];
+  /* 패널 제목 — 관리자가 지정한 값(admin panelTitles)을 스튜디오 프리뷰에도 즉시 반영.
+     날것으로 쓰지 않고 레지스트리를 거친다. 아래 패널 칩은 마침표를 뗀 이름을 보여 주고
+     거기서 고치게 하므로, 저장된 값을 그대로 찍으면 이름을 바꾼 패널만 마침표가 없다. */
+  const panelOverride = (k: string) => (about.panelTitles as Record<string, { ko?: string; en?: string }> | undefined)?.[k]?.[lang];
+  /** 패널 안에 큰 제목으로 찍히는 형태 (마침표 포함) */
+  const panelTitleOf = (k: string) => aboutPanelTitle(k, panelOverride(k));
+  /** 저장 헤더·목록에 쓰는 형태 (마침표 없음) */
+  const panelLabelOf = (k: string) => aboutPanelLabel(k, panelOverride(k));
   /* 패널별 저장 — 각 패널이 책임지는 about.* config 경로. hero/overview 는 prefix 로 자동 수집(키 추가돼도 유지). */
   const aboutKeys = Object.keys(config.about);
   const savePathsFor = (key: string): string[] => {
@@ -427,224 +439,240 @@ export default function AboutStudio({ config, setConfig, update, savedConfig, sa
 
       {/* ── 패널 관리 (순서 DnD + 표시) ── 어느 패널을 어떤 순서로 낼지 먼저 정하고
            개별 내용으로 들어가는 흐름이라 맨 위에 둔다. ── */}
-      <PanelSaveHeader label={lang === "ko" ? "패널 순서·표시" : "Panel order & visibility"} paths={savePathsFor("panels")} panelKey="panels" {...saveHdr} />
-      <PanelManager about={about} setAny={setAny} t={t} lang={lang} />
+      <PanelGroup label={lang === "ko" ? "패널 순서·표시" : "Panel order & visibility"} paths={savePathsFor("panels")} panelKey="panels" {...saveHdr}>
+        <PanelManager about={about} setAny={setAny} t={t} lang={lang} />
+      </PanelGroup>
 
       {/* ── Hero 라이브 프리뷰 — 실제 About Hero CSS 를 데스크톱 비율로 그려 scale 다운 ── */}
-      <PanelSaveHeader label={panelTitleOf("hero") ?? aboutPanelLabel("hero")} paths={savePathsFor("hero")} panelKey="hero" {...saveHdr} />
-      <div className={css.stageWrap} ref={wrapRef} style={{ height: DESIGN_H * scale }}>
-        <div
-          className={`${sec.section} ${sec.panel} ${hero.heroPanelBg} ${hero.heroReady} ${bgLight ? hero.heroBgLight : ""} ${bgDark ? hero.heroBgDark : ""} ${media ? hero.heroMediaMode : ""}`}
-          style={panelStyle}
-          onClick={(e) => { if (e.target === e.currentTarget) closeBar(); }}
-        >
-          {media && (isVideo
-            ? <video className={hero.heroBgMedia} src={media} autoPlay muted loop playsInline aria-hidden />
-            // eslint-disable-next-line @next/next/no-img-element
-            : <img className={hero.heroBgMedia} src={media} alt="" aria-hidden />)}
-          {media && <div className={hero.heroBgOverlay} aria-hidden />}
+      <PanelGroup label={panelLabelOf("hero")} paths={savePathsFor("hero")} panelKey="hero" {...saveHdr}>
+        <div className={css.stageWrap} ref={wrapRef} style={{ height: DESIGN_H * scale }}>
+          <div
+            className={`${sec.section} ${sec.panel} ${hero.heroPanelBg} ${hero.heroReady} ${bgLight ? hero.heroBgLight : ""} ${bgDark ? hero.heroBgDark : ""} ${media ? hero.heroMediaMode : ""}`}
+            style={panelStyle}
+            onClick={(e) => { if (e.target === e.currentTarget) closeBar(); }}
+          >
+            {media && (isVideo
+              ? <video className={hero.heroBgMedia} src={media} autoPlay muted loop playsInline aria-hidden />
+              // eslint-disable-next-line @next/next/no-img-element
+              : <img className={hero.heroBgMedia} src={media} alt="" aria-hidden />)}
+            {media && <div className={hero.heroBgOverlay} aria-hidden />}
 
-          <div className={hero.heroContent} style={heroContentStyle}>
-            {/* 워터마크 — 콘텐츠보다 먼저 그려 겹침 영역은 텍스트가 클릭 우선, 빈 영역에선 편집 가능 */}
-            {!heroHidden.has("watermark") && (
-              <span className={hero.heroWatermark} style={{ pointerEvents: "auto", opacity: 0.09, userSelect: "auto" }} title="워터마크">
-                <EditableText value={heroText("heroWatermark")} onChange={(v) => setHeroText("heroWatermark", v)}
-                  placeholder="watermark" ariaLabel="watermark" onFocus={(e) => openBar("heroWatermark", e)} />
-              </span>
-            )}
-            {!heroHidden.has("label") && (
-              <span className={hero.label} style={{ pointerEvents: "auto" }}>
-                <EditableText value={heroText("heroLabel") || t("aboutPage.title")} onChange={(v) => setHeroText("heroLabel", v)}
-                  placeholder={t("aboutPage.title")} ariaLabel="label" />
-              </span>
-            )}
-            <h2 className={kin.title}>
-              {!heroHidden.has("line1") && (
-                <span className={kin.line}>
-                  <EditableText value={heroText("heroLine1")} onChange={(v) => setHeroText("heroLine1", v)}
-                    placeholder={lang === "ko" ? "1번째 줄" : "Line 1"} ariaLabel="line1" onFocus={(e) => openBar("heroLine1", e)} />
+            <div className={hero.heroContent} style={heroContentStyle}>
+              {/* 워터마크 — 콘텐츠보다 먼저 그려 겹침 영역은 텍스트가 클릭 우선, 빈 영역에선 편집 가능 */}
+              {!heroHidden.has("watermark") && (
+                <span className={hero.heroWatermark} style={{ pointerEvents: "auto", opacity: 0.09, userSelect: "auto" }} title="워터마크">
+                  <EditableText value={heroText("heroWatermark")} onChange={(v) => setHeroText("heroWatermark", v)}
+                    placeholder="watermark" ariaLabel="watermark" onFocus={(e) => openBar("heroWatermark", e)} />
                 </span>
               )}
-              {!heroHidden.has("line2") && (
-                <span className={kin.line}>
-                  <EditableText value={heroText("heroLine2")} onChange={(v) => setHeroText("heroLine2", v)}
-                    placeholder={lang === "ko" ? "2번째 줄" : "Line 2"} ariaLabel="line2" onFocus={(e) => openBar("heroLine2", e)} />
+              {!heroHidden.has("label") && (
+                <span className={hero.label} style={{ pointerEvents: "auto" }}>
+                  <EditableText value={heroText("heroLabel") || t("aboutPage.title")} onChange={(v) => setHeroText("heroLabel", v)}
+                    placeholder={t("aboutPage.title")} ariaLabel="label" />
                 </span>
               )}
-            </h2>
-            {!heroHidden.has("subtitle") && (
-              <p className={hero.heroSubtitle}>
-                <EditableText multiline value={heroText("heroSubtitle") || t("aboutPage.description")}
-                  onChange={(v) => setHeroText("heroSubtitle", v)} placeholder={t("aboutPage.description")}
-                  ariaLabel="subtitle" onFocus={(e) => openBar("heroSubtitle", e)} style={{ minWidth: "22ch", width: "100%" }} />
-              </p>
-            )}
-            <Pressable className={css.accentHit} title="밑줄 색" aria-label="밑줄 색"
-              onClick={(e) => { setActive("heroAccent"); activeElRef.current = e.currentTarget; }}>
-              <span className={hero.heroAccentLine} />
-            </Pressable>
-          </div>
-        </div>
-
-        {/* 우상단 컨트롤 — 레이아웃(정렬·요소) + 배경 */}
-        <div className={css.stageBgBtn}>
-          <Popover placement="bottom-end" trigger={<Button variant="difference" size="md" icon={<LayoutTemplate size={16} />}>{t("admin.settings.aboutHeroLayout")}</Button>}>
-            <div className={css.layoutPanel}>
-              <div className={css.field}>
-                <span className={css.fieldLabel}>{lang === "ko" ? "가로 정렬" : "Horizontal"}</span>
-                <SegmentedControl<"left" | "center" | "right"> size="sm" value={alignH} onChange={(v) => setAny("heroAlignH", v)} className={css.segFit}
-                  items={[{ value: "left", label: lang === "ko" ? "좌" : "L" }, { value: "center", label: lang === "ko" ? "중" : "C" }, { value: "right", label: lang === "ko" ? "우" : "R" }]} />
-              </div>
-              <div className={css.field}>
-                <span className={css.fieldLabel}>{lang === "ko" ? "세로 정렬" : "Vertical"}</span>
-                <SegmentedControl<"top" | "center" | "bottom"> size="sm" value={alignV} onChange={(v) => setAny("heroAlignV", v)} className={css.segFit}
-                  items={[{ value: "top", label: lang === "ko" ? "상" : "T" }, { value: "center", label: lang === "ko" ? "중" : "M" }, { value: "bottom", label: lang === "ko" ? "하" : "B" }]} />
-              </div>
-              <div className={css.field}>
-                <span className={css.fieldLabel}>{lang === "ko" ? "표시 요소" : "Elements"}</span>
-                <div className={css.stripChips}>
-                  {HERO_ELEMENTS.map((el) => {
-                    const on = !heroHidden.has(el.key);
-                    return (
-                      <Pressable key={el.key} className={`${css.chip} ${on ? css.chipOn : css.chipOff}`} onClick={() => toggleHeroHidden(el.key)}>
-                        <span className={css.chipDot} />{el.label}
-                      </Pressable>
-                    );
-                  })}
-                </div>
-              </div>
+              <h2 className={kin.title}>
+                {!heroHidden.has("line1") && (
+                  <span className={kin.line}>
+                    <EditableText value={heroText("heroLine1")} onChange={(v) => setHeroText("heroLine1", v)}
+                      placeholder={lang === "ko" ? "1번째 줄" : "Line 1"} ariaLabel="line1" onFocus={(e) => openBar("heroLine1", e)} />
+                  </span>
+                )}
+                {!heroHidden.has("line2") && (
+                  <span className={kin.line}>
+                    <EditableText value={heroText("heroLine2")} onChange={(v) => setHeroText("heroLine2", v)}
+                      placeholder={lang === "ko" ? "2번째 줄" : "Line 2"} ariaLabel="line2" onFocus={(e) => openBar("heroLine2", e)} />
+                  </span>
+                )}
+              </h2>
+              {!heroHidden.has("subtitle") && (
+                <p className={hero.heroSubtitle}>
+                  <EditableText multiline value={heroText("heroSubtitle") || t("aboutPage.description")}
+                    onChange={(v) => setHeroText("heroSubtitle", v)} placeholder={t("aboutPage.description")}
+                    ariaLabel="subtitle" onFocus={(e) => openBar("heroSubtitle", e)} style={{ minWidth: "22ch", width: "100%" }} />
+                </p>
+              )}
+              <Pressable className={css.accentHit} title="밑줄 색" aria-label="밑줄 색"
+                onClick={(e) => { setActive("heroAccent"); activeElRef.current = e.currentTarget; }}>
+                <span className={hero.heroAccentLine} />
+              </Pressable>
             </div>
-          </Popover>
-          <Popover placement="bottom-end" trigger={<Button variant="difference" size="md" icon={<ImageIcon size={16} />}>{t("admin.settings.aboutHeroBackground")}</Button>}>
-            <div className={css.bgPanel}>
-              <SegmentedControl<"media" | "color" | "gradient"> size="sm" value={bgTab} onChange={setBgTab} className={css.segFit}
-                items={[
-                  { value: "media", label: t("admin.settings.aboutHeroBgTypeMedia") },
-                  { value: "color", label: t("admin.settings.aboutHeroBgTypeColor") },
-                  { value: "gradient", label: t("admin.settings.aboutHeroBgTypeGradient") },
-                ]} />
-              {bgTab === "media" && <BgMedia media={media} t={t} onSet={(u) => setAny("heroBackground", u)}
-                opacity={mediaOpacity} onOpacity={(n) => setAny("heroBgOpacity", n)}
-                overlay={overlayColor || themeBg.accent} onOverlay={(c) => setAny("heroVideoOverlayColor", c)}
-                strength={overlayStrength} onStrength={(n) => setAny("heroVideoOverlayStrength", n)} />}
-              {bgTab === "color" && (
-                <div className={css.bgThemeRow}>
-                  <div className={css.bgThemeCol}>
-                    <span className={css.bgThemeLabel}>{t("admin.settings.aboutHeroThemeLight")}</span>
-                    <div className={css.bgPreview} style={{ background: about.heroBgColor || themeBg.primary }} />
-                    <SwatchField label={t("admin.settings.aboutHeroBgColor")} value={about.heroBgColor || themeBg.primary} onChange={(c) => setAny("heroBgColor", c)} />
-                  </div>
-                  <div className={css.bgThemeCol}>
-                    <span className={css.bgThemeLabel}>{t("admin.settings.aboutHeroThemeDark")}</span>
-                    <div className={css.bgPreview} style={{ background: about.heroBgColor_dark || themeBg.primary }} />
-                    <SwatchField label={t("admin.settings.aboutHeroBgColor")} value={about.heroBgColor_dark || themeBg.primary} onChange={(c) => setAny("heroBgColor_dark", c)} />
+          </div>
+
+          {/* 우상단 컨트롤 — 레이아웃(정렬·요소) + 배경 */}
+          <div className={css.stageBgBtn}>
+            <Popover placement="bottom-end" trigger={<Button variant="difference" size="md" icon={<LayoutTemplate size={16} />}>{t("admin.settings.aboutHeroLayout")}</Button>}>
+              <div className={css.layoutPanel}>
+                <div className={css.field}>
+                  <span className={css.fieldLabel}>{lang === "ko" ? "가로 정렬" : "Horizontal"}</span>
+                  <SegmentedControl<"left" | "center" | "right"> size="sm" value={alignH} onChange={(v) => setAny("heroAlignH", v)} className={css.segFit}
+                    items={[{ value: "left", label: lang === "ko" ? "좌" : "L" }, { value: "center", label: lang === "ko" ? "중" : "C" }, { value: "right", label: lang === "ko" ? "우" : "R" }]} />
+                </div>
+                <div className={css.field}>
+                  <span className={css.fieldLabel}>{lang === "ko" ? "세로 정렬" : "Vertical"}</span>
+                  <SegmentedControl<"top" | "center" | "bottom"> size="sm" value={alignV} onChange={(v) => setAny("heroAlignV", v)} className={css.segFit}
+                    items={[{ value: "top", label: lang === "ko" ? "상" : "T" }, { value: "center", label: lang === "ko" ? "중" : "M" }, { value: "bottom", label: lang === "ko" ? "하" : "B" }]} />
+                </div>
+                <div className={css.field}>
+                  <span className={css.fieldLabel}>{lang === "ko" ? "표시 요소" : "Elements"}</span>
+                  <div className={css.stripChips}>
+                    {HERO_ELEMENTS.map((el) => {
+                      const on = !heroHidden.has(el.key);
+                      return (
+                        <Pressable key={el.key} className={`${css.chip} ${on ? css.chipOn : css.chipOff}`} onClick={() => toggleHeroHidden(el.key)}>
+                          <span className={css.chipDot} />{el.label}
+                        </Pressable>
+                      );
+                    })}
                   </div>
                 </div>
-              )}
-              {bgTab === "gradient" && (
-                <>
+              </div>
+            </Popover>
+            <Popover placement="bottom-end" trigger={<Button variant="difference" size="md" icon={<ImageIcon size={16} />}>{t("admin.settings.aboutHeroBackground")}</Button>}>
+              <div className={css.bgPanel}>
+                <SegmentedControl<"media" | "color" | "gradient"> size="sm" value={bgTab} onChange={setBgTab} className={css.segFit}
+                  items={[
+                    { value: "media", label: t("admin.settings.aboutHeroBgTypeMedia") },
+                    { value: "color", label: t("admin.settings.aboutHeroBgTypeColor") },
+                    { value: "gradient", label: t("admin.settings.aboutHeroBgTypeGradient") },
+                  ]} />
+                {bgTab === "media" && <BgMedia media={media} t={t} onSet={(u) => setAny("heroBackground", u)}
+                  opacity={mediaOpacity} onOpacity={(n) => setAny("heroBgOpacity", n)}
+                  overlay={overlayColor || themeBg.accent} onOverlay={(c) => setAny("heroVideoOverlayColor", c)}
+                  strength={overlayStrength} onStrength={(n) => setAny("heroVideoOverlayStrength", n)} />}
+                {bgTab === "color" && (
                   <div className={css.bgThemeRow}>
                     <div className={css.bgThemeCol}>
                       <span className={css.bgThemeLabel}>{t("admin.settings.aboutHeroThemeLight")}</span>
-                      <div className={css.bgPreview} style={{ background: `linear-gradient(${grA}deg, ${about.heroBgGradientFrom || themeBg.primary}, ${about.heroBgGradientTo || themeBg.secondary})` }} />
-                      <SwatchField label={t("admin.settings.aboutHeroBgGradientFrom")} value={about.heroBgGradientFrom || themeBg.primary} onChange={(c) => setAny("heroBgGradientFrom", c)} />
-                      <SwatchField label={t("admin.settings.aboutHeroBgGradientTo")} value={about.heroBgGradientTo || themeBg.secondary} onChange={(c) => setAny("heroBgGradientTo", c)} />
+                      <div className={css.bgPreview} style={{ background: about.heroBgColor || themeBg.primary }} />
+                      <SwatchField label={t("admin.settings.aboutHeroBgColor")} value={about.heroBgColor || themeBg.primary} onChange={(c) => setAny("heroBgColor", c)} />
                     </div>
                     <div className={css.bgThemeCol}>
                       <span className={css.bgThemeLabel}>{t("admin.settings.aboutHeroThemeDark")}</span>
-                      <div className={css.bgPreview} style={{ background: `linear-gradient(${grA}deg, ${about.heroBgGradientFrom_dark || themeBg.primary}, ${about.heroBgGradientTo_dark || themeBg.secondary})` }} />
-                      <SwatchField label={t("admin.settings.aboutHeroBgGradientFrom")} value={about.heroBgGradientFrom_dark || themeBg.primary} onChange={(c) => setAny("heroBgGradientFrom_dark", c)} />
-                      <SwatchField label={t("admin.settings.aboutHeroBgGradientTo")} value={about.heroBgGradientTo_dark || themeBg.secondary} onChange={(c) => setAny("heroBgGradientTo_dark", c)} />
+                      <div className={css.bgPreview} style={{ background: about.heroBgColor_dark || themeBg.primary }} />
+                      <SwatchField label={t("admin.settings.aboutHeroBgColor")} value={about.heroBgColor_dark || themeBg.primary} onChange={(c) => setAny("heroBgColor_dark", c)} />
                     </div>
                   </div>
-                  <div className={css.field}>
-                    <div className={css.sliderLabelRow}>
-                      <span className={css.fieldLabel}>{t("admin.settings.aboutHeroBgGradientAngle")}</span>
-                      <span className={css.sliderValue}>{grA}°</span>
+                )}
+                {bgTab === "gradient" && (
+                  <>
+                    <div className={css.bgThemeRow}>
+                      <div className={css.bgThemeCol}>
+                        <span className={css.bgThemeLabel}>{t("admin.settings.aboutHeroThemeLight")}</span>
+                        <div className={css.bgPreview} style={{ background: `linear-gradient(${grA}deg, ${about.heroBgGradientFrom || themeBg.primary}, ${about.heroBgGradientTo || themeBg.secondary})` }} />
+                        <SwatchField label={t("admin.settings.aboutHeroBgGradientFrom")} value={about.heroBgGradientFrom || themeBg.primary} onChange={(c) => setAny("heroBgGradientFrom", c)} />
+                        <SwatchField label={t("admin.settings.aboutHeroBgGradientTo")} value={about.heroBgGradientTo || themeBg.secondary} onChange={(c) => setAny("heroBgGradientTo", c)} />
+                      </div>
+                      <div className={css.bgThemeCol}>
+                        <span className={css.bgThemeLabel}>{t("admin.settings.aboutHeroThemeDark")}</span>
+                        <div className={css.bgPreview} style={{ background: `linear-gradient(${grA}deg, ${about.heroBgGradientFrom_dark || themeBg.primary}, ${about.heroBgGradientTo_dark || themeBg.secondary})` }} />
+                        <SwatchField label={t("admin.settings.aboutHeroBgGradientFrom")} value={about.heroBgGradientFrom_dark || themeBg.primary} onChange={(c) => setAny("heroBgGradientFrom_dark", c)} />
+                        <SwatchField label={t("admin.settings.aboutHeroBgGradientTo")} value={about.heroBgGradientTo_dark || themeBg.secondary} onChange={(c) => setAny("heroBgGradientTo_dark", c)} />
+                      </div>
                     </div>
-                    <Slider min={0} max={360} step={1} value={[grA]} onValueChange={([n]) => setAny("heroBgGradientAngle", n)} />
-                  </div>
-                </>
-              )}
-            </div>
-          </Popover>
+                    <div className={css.field}>
+                      <div className={css.sliderLabelRow}>
+                        <span className={css.fieldLabel}>{t("admin.settings.aboutHeroBgGradientAngle")}</span>
+                        <span className={css.sliderValue}>{grA}°</span>
+                      </div>
+                      <Slider min={0} max={360} step={1} value={[grA]} onValueChange={([n]) => setAny("heroBgGradientAngle", n)} />
+                    </div>
+                  </>
+                )}
+              </div>
+            </Popover>
+          </div>
         </div>
-      </div>
+      </PanelGroup>
 
       {/* ── Overview ── */}
-      <PanelSaveHeader label={panelTitleOf("overview") ?? aboutPanelLabel("overview")} paths={savePathsFor("overview")} panelKey="overview" {...saveHdr} />
-      <OverviewBlock about={about} lang={lang} setAny={setAny} t={t} titleOverride={panelTitleOf("overview")} />
+      <PanelGroup label={panelLabelOf("overview")} paths={savePathsFor("overview")} panelKey="overview" {...saveHdr}>
+        <OverviewBlock about={about} lang={lang} setAny={setAny} t={t} title={panelTitleOf("overview")} />
+      </PanelGroup>
 
       {/* ── Architecture ── */}
-      <PanelSaveHeader label={panelTitleOf("architecture") ?? aboutPanelLabel("architecture")} paths={savePathsFor("architecture")} panelKey="architecture" {...saveHdr} />
-      <ArchitectureBlock value={(about.architectureItems) ?? []} onChange={setArch}
-        diagram={(about.archDiagram) ?? { nodes: [], edges: [] }}
-        onDiagramChange={(v) => setAny("archDiagram", v)} t={t} lang={lang} />
+      <PanelGroup label={panelLabelOf("architecture")} paths={savePathsFor("architecture")} panelKey="architecture" {...saveHdr}>
+        <ArchitectureBlock value={(about.architectureItems) ?? []} onChange={setArch}
+          diagram={(about.archDiagram) ?? { nodes: [], edges: [] }}
+          onDiagramChange={(v) => setAny("archDiagram", v)} t={t} lang={lang} />
+      </PanelGroup>
 
       {/* ── User Flow ── */}
-      <PanelSaveHeader label={panelTitleOf("userflow") ?? aboutPanelLabel("userflow")} paths={savePathsFor("userflow")} panelKey="userflow" {...saveHdr} />
-      <UserFlowBlock lang={lang} t={t} titleOverride={panelTitleOf("userflow")}
-        onChange={(v) => setAny("userFlows", v)}
-        value={(about.userFlows as UserFlow[] | undefined)?.length ? (about.userFlows as UserFlow[]) : userFlows} />
+      <PanelGroup label={panelLabelOf("userflow")} paths={savePathsFor("userflow")} panelKey="userflow" {...saveHdr}>
+        <UserFlowBlock lang={lang} t={t} title={panelTitleOf("userflow")}
+          onChange={(v) => setAny("userFlows", v)}
+          value={(about.userFlows as UserFlow[] | undefined)?.length ? (about.userFlows as UserFlow[]) : userFlows} />
+      </PanelGroup>
 
       {/* ── Features ── */}
-      <PanelSaveHeader label={panelTitleOf("features") ?? aboutPanelLabel("features")} paths={savePathsFor("features")} panelKey="features" {...saveHdr} />
-      <FeaturesBlock value={about.features ?? []} onChange={(v) => setAny("features", v)} lang={lang} t={t} titleOverride={panelTitleOf("features")} />
+      <PanelGroup label={panelLabelOf("features")} paths={savePathsFor("features")} panelKey="features" {...saveHdr}>
+        <FeaturesBlock value={about.features ?? []} onChange={(v) => setAny("features", v)} lang={lang} t={t} title={panelTitleOf("features")} />
+      </PanelGroup>
 
       {/* ── Design System ── */}
-      <PanelSaveHeader label={panelTitleOf("designSystem") ?? aboutPanelLabel("designSystem")} paths={savePathsFor("designSystem")} panelKey="designSystem" {...saveHdr} />
-      <DesignSystemBlock lang={lang} t={t} onChange={(v) => setAny("designSystem", v)}
-        value={(about.designSystem as ConceptItem[] | undefined)?.length ? (about.designSystem as ConceptItem[]) : seedConcepts()} />
+      <PanelGroup label={panelLabelOf("designSystem")} paths={savePathsFor("designSystem")} panelKey="designSystem" {...saveHdr}>
+        <DesignSystemBlock lang={lang} t={t} onChange={(v) => setAny("designSystem", v)}
+          value={(about.designSystem as ConceptItem[] | undefined)?.length ? (about.designSystem as ConceptItem[]) : seedConcepts()} />
+      </PanelGroup>
 
       {/* ── Process ── */}
-      <PanelSaveHeader label={panelTitleOf("process") ?? aboutPanelLabel("process")} paths={savePathsFor("process")} panelKey="process" {...saveHdr} />
-      <ProcessBlock value={about.process ?? []} onChange={(v) => setAny("process", v)} lang={lang} t={t} titleOverride={panelTitleOf("process")} />
+      <PanelGroup label={panelLabelOf("process")} paths={savePathsFor("process")} panelKey="process" {...saveHdr}>
+        <ProcessBlock value={about.process ?? []} onChange={(v) => setAny("process", v)} lang={lang} t={t} title={panelTitleOf("process")} />
+      </PanelGroup>
 
       {/* ── Security ── */}
-      <PanelSaveHeader label={panelTitleOf("security") ?? aboutPanelLabel("security")} paths={savePathsFor("security")} panelKey="security" {...saveHdr} />
-      <SecurityBlock value={about.security ?? []} onChange={(v) => setAny("security", v)} lang={lang} t={t} titleOverride={panelTitleOf("security")} />
+      <PanelGroup label={panelLabelOf("security")} paths={savePathsFor("security")} panelKey="security" {...saveHdr}>
+        <SecurityBlock value={about.security ?? []} onChange={(v) => setAny("security", v)} lang={lang} t={t} title={panelTitleOf("security")} />
+      </PanelGroup>
 
       {/* ── Break image ── */}
-      <PanelSaveHeader label={lang === "ko" ? "브레이크 이미지" : "Break image"} paths={savePathsFor("visualBreak")} panelKey="visualBreak" {...saveHdr} />
-      <BreakBlock url={about.visualBreakImage ?? ""} t={t}
-        onSet={(u) => setConfig((prev) => ({ ...prev, about: { ...prev.about, visualBreakImage: u } }))} />
+      <PanelGroup label={lang === "ko" ? "브레이크 이미지" : "Break image"} paths={savePathsFor("visualBreak")} panelKey="visualBreak" {...saveHdr}>
+        <BreakBlock url={about.visualBreakImage ?? ""} t={t}
+          onSet={(u) => setConfig((prev) => ({ ...prev, about: { ...prev.about, visualBreakImage: u } }))} />
+      </PanelGroup>
 
       {/* ── Tech stack ── */}
-      <PanelSaveHeader label={panelTitleOf("techStack") ?? aboutPanelLabel("techStack")} paths={savePathsFor("techStack")} panelKey="techStack" {...saveHdr} />
-      <section className={css.block}>
-        {techStackSlot}
-      </section>
+      <PanelGroup label={panelLabelOf("techStack")} paths={savePathsFor("techStack")} panelKey="techStack" {...saveHdr}>
+        <div className={css.block}>
+          {techStackSlot}
+        </div>
+      </PanelGroup>
 
       {/* ── Backend ── */}
-      <PanelSaveHeader label={panelTitleOf("backend") ?? aboutPanelLabel("backend")} paths={savePathsFor("backend")} panelKey="backend" {...saveHdr} />
-      <BackendBlock lang={lang} t={t} titleOverride={panelTitleOf("backend")}
-        onChange={(v) => setAny("backend", v)}
-        value={(about.backend as BackendItem[] | undefined)?.length ? (about.backend as BackendItem[]) : backendItems} />
+      <PanelGroup label={panelLabelOf("backend")} paths={savePathsFor("backend")} panelKey="backend" {...saveHdr}>
+        <BackendBlock lang={lang} t={t} title={panelTitleOf("backend")}
+          onChange={(v) => setAny("backend", v)}
+          value={(about.backend as BackendItem[] | undefined)?.length ? (about.backend as BackendItem[]) : backendItems} />
+      </PanelGroup>
 
       {/* ── ERD ── */}
-      <PanelSaveHeader label={panelTitleOf("erd") ?? aboutPanelLabel("erd")} paths={savePathsFor("erd")} panelKey="erd" {...saveHdr} />
-      <ErdBlock lang={lang}
-        tables={(about.erdTables as ErdTable[] | undefined)?.length ? (about.erdTables as ErdTable[]) : staticErdTables}
-        relations={(about.erdRelations as ErdRelation[] | undefined)?.length ? (about.erdRelations as ErdRelation[]) : staticErdRelations}
-        onChange={(tb, rl) => { setAny("erdTables", tb); setAny("erdRelations", rl); }} />
+      <PanelGroup label={panelLabelOf("erd")} paths={savePathsFor("erd")} panelKey="erd" {...saveHdr}>
+        <ErdBlock lang={lang}
+          tables={(about.erdTables as ErdTable[] | undefined)?.length ? (about.erdTables as ErdTable[]) : staticErdTables}
+          relations={(about.erdRelations as ErdRelation[] | undefined)?.length ? (about.erdRelations as ErdRelation[]) : staticErdRelations}
+          onChange={(tb, rl) => { setAny("erdTables", tb); setAny("erdRelations", rl); }} />
+      </PanelGroup>
 
       {/* ── Code Highlights ── */}
-      <PanelSaveHeader label={panelTitleOf("codeHighlights") ?? aboutPanelLabel("codeHighlights")} paths={savePathsFor("codeHighlights")} panelKey="codeHighlights" {...saveHdr} />
-      <CodeHighlightsBlock lang={lang} t={t} titleOverride={panelTitleOf("codeHighlights")}
-        onChange={(v) => setAny("codeHighlights", v)}
-        value={(about.codeHighlights as CodeItem[] | undefined)?.length ? (about.codeHighlights as CodeItem[]) : seedCode()} />
+      <PanelGroup label={panelLabelOf("codeHighlights")} paths={savePathsFor("codeHighlights")} panelKey="codeHighlights" {...saveHdr}>
+        <CodeHighlightsBlock lang={lang} t={t} title={panelTitleOf("codeHighlights")}
+          onChange={(v) => setAny("codeHighlights", v)}
+          value={(about.codeHighlights as CodeItem[] | undefined)?.length ? (about.codeHighlights as CodeItem[]) : seedCode()} />
+      </PanelGroup>
 
       {/* ── Troubleshooting ── */}
-      <PanelSaveHeader label={panelTitleOf("troubleshooting") ?? aboutPanelLabel("troubleshooting")} paths={savePathsFor("troubleshooting")} panelKey="troubleshooting" {...saveHdr} />
-      <TroubleshootingBlock lang={lang} titleOverride={panelTitleOf("troubleshooting")}
+      <PanelGroup label={panelLabelOf("troubleshooting")} paths={savePathsFor("troubleshooting")} panelKey="troubleshooting" {...saveHdr}>
+        <TroubleshootingBlock lang={lang} title={panelTitleOf("troubleshooting")}
           onChange={(v) => setAny("troubleshooting", v)}
           value={(about.troubleshooting as TroubleShootingItem[] | undefined)?.length
             ? (about.troubleshooting as TroubleShootingItem[]) : aboutDecisions} />
+      </PanelGroup>
 
       {/* ── Credits ── */}
-      <PanelSaveHeader label={panelTitleOf("credits") ?? aboutPanelLabel("credits")} paths={savePathsFor("credits")} panelKey="credits" {...saveHdr} />
-      <CreditsBlock about={about} setAny={setAny} lang={lang} t={t}
+      <PanelGroup label={panelLabelOf("credits")} paths={savePathsFor("credits")} panelKey="credits" {...saveHdr}>
+        <CreditsBlock about={about} setAny={setAny} lang={lang} t={t}
           nickname={config.personal?.nickname ?? ""} />
+      </PanelGroup>
     </div>
   );
 }
@@ -743,7 +771,9 @@ function PanelManager({ about, setAny, t, lang }: {
   const ordered = [...savedOrder, ...allKeys.filter((k) => !savedOrder.includes(k))];
   const middle = ordered.filter((k) => !LOCKED_PANELS.has(k));
   const defaultLabel = (k: string) => ABOUT_PANELS.find((p) => p.key === k)?.label ?? k;
-  const labelOf = (k: string) => titles[k]?.[lang] || defaultLabel(k);
+  /* 칩에는 마침표를 뗀 이름을 보인다. 지정한 제목도 같은 형태로 — 여기서 보이는 그대로를
+     다시 저장하게 되므로, 마침표가 붙은 채 보이면 고칠 때마다 하나씩 더 붙는다. */
+  const labelOf = (k: string) => aboutPanelLabel(k, titles[k]?.[lang]);
   const shownCount = allKeys.length - hidden.filter((k) => allKeys.includes(k) && !LOCKED_PANELS.has(k)).length;
   const [editKey, setEditKey] = useState<string | null>(null);
 
@@ -824,13 +854,15 @@ function PanelSortChip({ id, className, label, onToggle, onEdit }: { id: string;
 }
 
 /* ═══════════ 패널별 저장 헤더 — 해당 패널 config 경로만 저장/dirty 판정 ═══════════ */
-function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, saveSection, revertSection, resetSection, savingPaths, setAny, lang, t }: {
+interface PanelSaveHeaderProps {
   label: string; hint?: ReactNode; paths: string[]; panelKey?: string;
   config: SiteConfigData; savedConfig: SiteConfigData;
   saveSection: SettingsTabProps["saveSection"]; revertSection: SettingsTabProps["revertSection"];
   resetSection: SettingsTabProps["resetSection"]; savingPaths: SettingsTabProps["savingPaths"];
   setAny: (k: string, v: unknown) => void; lang: Language; t: TFunction;
-}) {
+}
+
+function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, saveSection, revertSection, resetSection, savingPaths, setAny, lang, t }: PanelSaveHeaderProps) {
   const dirty = paths.some((p) => !deepEqual(getByPath(config, p), getByPath(savedConfig, p)));
   /* 이미 기본값이면 "기본값" 버튼은 할 일이 없다 */
   const atDefault = paths.every((p) => deepEqual(getByPath(config, p), getByPath(siteConfig as unknown as SiteConfigData, p)));
@@ -838,6 +870,7 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
 
   const about = config.about as unknown as Record<string, unknown>;
   const mdCapable = !!panelKey && canUseMarkdown(panelKey);
+  const fileRef = useRef<HTMLInputElement>(null);
   const syncedAt = ((about.contentSyncedAt ?? {}) as Record<string, string>)[panelKey ?? ""];
 
   /* 저장 시각을 같이 남긴다. 동기화가 이 값과 파일 수정 시각을 견줘 더 최근 쪽을 남기므로,
@@ -879,18 +912,26 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
   };
 
   return (
-    /* data-settings-section — SectionJumpNav 가 About 패널도 섹션으로 스캔·점프.
-       라벨이 h2 가 아니라 span 이라, 점프바가 읽을 값을 data-section-label 로 넘긴다. */
-    <div className={css.psHeader} data-settings-section data-section-label={label}>
+    /* 편집 중에도 위에 붙어 있는 툴바. 패널 하나가 4,000px 을 넘기도 해서, 예전엔
+       한 글자 고치고 저장하려고 화면 몇 개를 거슬러 올라가야 했다.
+       --page-px 를 여기서만 좁힌다 — 공통 바는 뷰포트 양끝까지 frost 를 펴는데,
+       설정 화면은 왼쪽에 사이드바가 있는 2열이라 그대로 두면 사이드바 일부가 같이 흐려진다. */
+    <StickyGlassBar className={css.psHeader}>
       <span className={css.psLabel}>{label}</span>
       <span className={`${css.psDot} ${dirty ? css.psDotOn : ""}`} aria-hidden />
       {hint && <span className={css.psHint}>{hint}</span>}
+      {/* 옆 세 버튼과 같은 공통 Button 을 쓴다. 예전엔 <label> 에 직접 스타일을 붙여
+          파일 입력을 감쌌는데, 높이(30.8 vs 24)도 글꼴(Inter vs Space Grotesk)도 달라
+          한 줄에서 이것만 커 보였다. 파일 선택창은 숨긴 input 을 눌러서 연다. */}
       {mdCapable && (
-        <label className={css.psUpload} title={lang === "ko" ? ".md 파일을 읽어 채웁니다" : "Fill from .md files"}>
-          <Upload size={12} strokeWidth={1.8} aria-hidden />
-          {lang === "ko" ? "md 불러오기" : "Load .md"}
-          <input type="file" accept=".md" multiple hidden onChange={onPickFiles} />
-        </label>
+        <>
+          <Button variant="outline" size="xs" icon={<Download size={12} strokeWidth={1.8} />}
+            onClick={() => fileRef.current?.click()}
+            title={lang === "ko" ? ".md 파일을 읽어 채웁니다" : "Fill from .md files"}>
+            {lang === "ko" ? "md 불러오기" : "Load .md"}
+          </Button>
+          <input ref={fileRef} type="file" accept=".md" multiple hidden onChange={onPickFiles} />
+        </>
       )}
       {mdCapable && syncedAt && (
         <span className={css.psSyncNote} title={contentPathOf(panelKey!)}>
@@ -911,13 +952,13 @@ function PanelSaveHeader({ label, hint, paths, panelKey, config, savedConfig, sa
       <Button variant="subtle" size="xs" disabled={!dirty || saving} onClick={saveWithStamp}>
         {t("admin.settings.saveSection")}
       </Button>
-    </div>
+    </StickyGlassBar>
   );
 }
 
 /* ═══════════ Overview ═══════════ */
-function OverviewBlock({ about, lang, setAny, t, titleOverride }: {
-  about: SiteConfigData["about"]; lang: Language; setAny: (k: string, v: unknown) => void; t: TFunction; titleOverride?: string;
+function OverviewBlock({ about, lang, setAny, t, title }: {
+  about: SiteConfigData["about"]; lang: Language; setAny: (k: string, v: unknown) => void; t: TFunction; title: string;
 }) {
   const stats = (about.overview_stats ?? []) as OverviewStat[];
   const setStats = (v: OverviewStat[]) => setAny("overview_stats", v);
@@ -927,7 +968,7 @@ function OverviewBlock({ about, lang, setAny, t, titleOverride }: {
   const setHighlights = (arr: string[]) => setAny("overview_highlights", arr.filter(Boolean).join(", "));
   return (
     <PanelStage>
-        <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("overview")}</h3>
+        <h3 className={sec.panelTitle}>{title}</h3>
         <div className={ov.overviewLayout}>
           <div className={ov.overviewTop}>
             <EditableText multiline className={ov.overviewDesc} value={rec[descKey] ?? ""} onChange={(v) => setAny(descKey, v)}
@@ -964,8 +1005,8 @@ function OverviewBlock({ about, lang, setAny, t, titleOverride }: {
 }
 
 /* ═══════════ Features ═══════════ */
-function FeaturesBlock({ value, onChange, lang, t, titleOverride }: {
-  value: FeatureItem[]; onChange: (v: FeatureItem[]) => void; lang: Language; t: TFunction; titleOverride?: string;
+function FeaturesBlock({ value, onChange, lang, t, title }: {
+  value: FeatureItem[]; onChange: (v: FeatureItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
   const set = (i: number, p: Partial<FeatureItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const [hovered, setHovered] = useState<{ row: number; col: number } | null>(null);
@@ -978,7 +1019,7 @@ function FeaturesBlock({ value, onChange, lang, t, titleOverride }: {
   return (
     <>
       <PanelStage>
-        <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("features")}</h3>
+        <h3 className={sec.panelTitle}>{title}</h3>
         <div className={css.featGrid}
           style={{ gridTemplateColumns: tpl(cols, hovered?.col ?? null), gridTemplateRows: tpl(rows, hovered?.row ?? null) }}
           onMouseLeave={() => setHovered(null)}>
@@ -1018,44 +1059,61 @@ function FeaturesBlock({ value, onChange, lang, t, titleOverride }: {
 }
 
 /* ═══════════ Process ═══════════ */
-function ProcessBlock({ value, onChange, lang, t, titleOverride }: {
-  value: ProcessItem[]; onChange: (v: ProcessItem[]) => void; lang: Language; t: TFunction; titleOverride?: string;
+/* 단계 번호는 자리에서 나온다. 저장된 step 값도 자리에 맞춰 다시 매긴다 —
+   공개 페이지와 마크다운 frontmatter 가 이 값을 읽으므로 화면과 어긋나면 안 된다.
+   불러올 때는 손대지 않는다. 열기만 해도 "저장 안 됨" 이 켜지면 안 되니까. */
+const stepNo = (i: number) => String(i + 1).padStart(2, "0");
+const renumberSteps = (list: ProcessItem[]) => list.map((it, i) => ({ ...it, step: stepNo(i) }));
+
+function ProcessBlock({ value, onChange, lang, t, title }: {
+  value: ProcessItem[]; onChange: (v: ProcessItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
   const set = (i: number, p: Partial<ProcessItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const MAX = 8;
   const atMax = value.length >= MAX;
+
+  /* 자리가 곧 id — 목록이 짧고 끌어 놓는 순간에만 쓰이므로 인덱스로 충분하다. */
+  const ids = value.map((_, i) => String(i));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor),
+  );
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
+    const from = ids.indexOf(String(active.id));
+    const to = ids.indexOf(String(over.id));
+    if (from === -1 || to === -1) return;
+    onChange(renumberSteps(arrayMove(value, from, to)));
+  };
+
   return (
     <PanelStage>
-      <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("process")}</h3>
+      <h3 className={sec.panelTitle}>{title}</h3>
       <p className={css.procHint}>{lang === "ko" ? "** 로 감싼 텍스트는 강조 색으로 표시됩니다." : "Text wrapped in ** appears as an accent highlight."}</p>
       {/* 타임라인 (실제 렌더 그대로) */}
       <div className={proc.processTimeline}>
         <div className={`${proc.processTimelineTrack} ${css.procTrack}`}><div className={proc.processTimelineProgress} style={{ width: "100%" }} /></div>
         <div className={proc.processTimelineNodes}>
-          {value.map((it, i) => (
+          {value.map((_, i) => (
             <div key={i} className={proc.processTimelineNode}>
               <div className={`${proc.processNodeDotWrap} ${css.procDotWrap}`}><div className={`${proc.processNodeDot} ${proc.processNodeDotDone} ${css.procDot}`} /></div>
-              <span className={`${proc.processNodeLabel} ${css.procNodeLabel}`}>{it.step || String(i + 1).padStart(2, "0")}</span>
+              <span className={`${proc.processNodeLabel} ${css.procNodeLabel}`}>{stepNo(i)}</span>
             </div>
           ))}
         </div>
       </div>
       {/* 스텝 리스트 (스크롤 단일뷰 대신 전체 편집) */}
       <div className={css.procList}>
-        {value.map((it, i) => (
-          <div key={i} className={css.procRow}>
-            <EditableText className={css.procNum} value={it.step} onChange={(v) => set(i, { step: v })} placeholder="01" ariaLabel="step" />
-            <div className={css.procBody}>
-              <EditableText className={css.procTitle} value={lang === "ko" ? it.title_ko : it.title_en}
-                onChange={(v) => set(i, lang === "ko" ? { title_ko: v } : { title_en: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel="title" style={{ maxWidth: "100%" }} />
-              <EditableText multiline className={css.procDesc} value={lang === "ko" ? it.description_ko : it.description_en}
-                onChange={(v) => set(i, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="description" style={{ width: "100%" }} />
-            </div>
-            <span className={css.editStatX}><Button variant="subtle" shape="circle" size="xs" onClick={() => onChange(value.filter((_, x) => x !== i))} aria-label="remove"><X size={13} /></Button></span>
-          </div>
-        ))}
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+            {value.map((it, i) => (
+              <ProcessRow key={i} id={String(i)} index={i} item={it} lang={lang} t={t} set={set}
+                onRemove={() => onChange(renumberSteps(value.filter((_, x) => x !== i)))} />
+            ))}
+          </SortableContext>
+        </DndContext>
         {!atMax && (
-          <Pressable className={css.addStepBtn} onClick={() => onChange([...value, { step: String(value.length + 1).padStart(2, "0"), title_ko: "새 단계", title_en: "New", description_ko: "", description_en: "" }])}>
+          <Pressable className={css.addStepBtn} onClick={() => onChange(renumberSteps([...value, { step: "", title_ko: "새 단계", title_en: "New", description_ko: "", description_en: "" }]))}>
             <Plus size={18} /> {lang === "ko" ? "단계 추가" : "Add step"}
           </Pressable>
         )}
@@ -1064,23 +1122,62 @@ function ProcessBlock({ value, onChange, lang, t, titleOverride }: {
   );
 }
 
+/* 번호가 곧 손잡이다. 끌어서 자리를 옮기면 번호가 따라 바뀐다 — 번호를 고쳐 적어서
+   순서를 바꾸려던 예전 방식은 실제로는 순서를 안 바꿔서 01·03·02 같은 목록이 나왔다. */
+function ProcessRow({ id, index, item, lang, t, set, onRemove }: {
+  id: string; index: number; item: ProcessItem; lang: Language; t: TFunction;
+  set: (i: number, p: Partial<ProcessItem>) => void; onRemove: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style: CSSProperties = {
+    transform: DndCSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 2 : undefined,
+  };
+  return (
+    <div ref={setNodeRef} style={style} className={`${css.procRow} ${isDragging ? css.procRowDragging : ""}`}>
+      <span className={css.procNum} data-cursor="grab"
+        title={lang === "ko" ? "끌어서 순서 변경" : "Drag to reorder"}
+        aria-label={lang === "ko" ? "끌어서 순서 변경" : "Drag to reorder"}
+        {...attributes} {...listeners}>
+        <GripVertical className={css.procGrip} size={16} strokeWidth={1.8} aria-hidden />
+        {stepNo(index)}
+      </span>
+      <div className={css.procBody}>
+        <EditableText className={css.procTitle} value={lang === "ko" ? item.title_ko : item.title_en}
+          onChange={(v) => set(index, lang === "ko" ? { title_ko: v } : { title_en: v })} placeholder={t("admin.settings.aboutItemTitle")} ariaLabel="title" style={{ maxWidth: "100%" }} />
+        <EditableText multiline className={css.procDesc} value={lang === "ko" ? item.description_ko : item.description_en}
+          onChange={(v) => set(index, lang === "ko" ? { description_ko: v } : { description_en: v })} placeholder={t("admin.settings.aboutItemDesc")} ariaLabel="description" style={{ width: "100%" }} />
+      </div>
+      <span className={css.editStatX}><Button variant="subtle" shape="circle" size="xs" onClick={onRemove} aria-label="remove"><X size={13} /></Button></span>
+    </div>
+  );
+}
+
 /* ═══════════ Security ═══════════ */
-function SecurityBlock({ value, onChange, lang, t, titleOverride }: {
-  value: SecurityItem[]; onChange: (v: SecurityItem[]) => void; lang: Language; t: TFunction; titleOverride?: string;
+function SecurityBlock({ value, onChange, lang, t, title }: {
+  value: SecurityItem[]; onChange: (v: SecurityItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
   const set = (i: number, p: Partial<SecurityItem>) => onChange(value.map((it, x) => (x === i ? { ...it, ...p } : it)));
   const MAX = 10;
   return (
     <PanelStage>
       <div className={css.secStage}>
-      <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("security")}</h3>
+      <h3 className={sec.panelTitle}>{title}</h3>
       <div className={secu.secGrid}>
         {value.map((it, i) => (
           <div key={i} className={`${secu.secItem} ${css.editSecItem}`}>
             <div className={secu.secHeader}>
-              <Popover placement="bottom-start" trigger={
-                <Pressable className={secu.secIcon} style={{ border: 0, background: "transparent", padding: 0, cursor: "pointer" }} title={it.layer || "아이콘 · 분류"}>
-                  {securityIcons[it.icon] ?? securityIcons.shield}
+              {/* className 은 Popover 가 trigger 를 감싸는 span 에 붙는다. 버튼이 그 안에 있어서
+                  줄 높이를 받으려면(align-self: stretch) 이 래퍼부터 늘어나야 한다. */}
+              <Popover placement="bottom-start" className={css.secIconTrigger} trigger={
+                /* 이 패널에서 글자가 아닌 유일한 편집 지점이다. 결과물과 똑같이 아이콘만
+                   놓여 있어서 눌러서 바꿀 수 있다는 걸 알 수 없었다 — 옆 입력 칸들과 같은
+                   테두리를 줘서 같은 편집 면으로 읽히게 한다. */
+                <Pressable className={css.secIconBtn}
+                  title={lang === "ko" ? "아이콘 바꾸기" : "Change icon"}
+                  aria-label={lang === "ko" ? "아이콘 바꾸기" : "Change icon"}>
+                  <span className={secu.secIcon}>{securityIcons[it.icon] ?? securityIcons.shield}</span>
                 </Pressable>
               }>
                 <div className={css.iconPickPanel}>
@@ -1091,9 +1188,6 @@ function SecurityBlock({ value, onChange, lang, t, titleOverride }: {
                       </Pressable>
                     ))}
                   </div>
-                  <label className={css.iconPickLabel}>분류(내부용)
-                    <EditableText className={css.iconPickInput} value={it.layer} onChange={(v) => set(i, { layer: v })} placeholder="SQL Injection" ariaLabel="layer" />
-                  </label>
                 </div>
               </Popover>
               <EditableText className={secu.secTitle} value={lang === "ko" ? it.title_ko : it.title_en}
@@ -1108,7 +1202,7 @@ function SecurityBlock({ value, onChange, lang, t, titleOverride }: {
         ))}
         {value.length < MAX && (
           <Pressable className={css.addSecCell}
-            onClick={() => onChange([...value, { layer: "", icon: "shield", title_ko: "새 항목", title_en: "New", description_ko: "", description_en: "", scope_ko: "", scope_en: "" }])}>
+            onClick={() => onChange([...value, { icon: "shield", title_ko: "새 항목", title_en: "New", description_ko: "", description_en: "", scope_ko: "", scope_en: "" }])}>
             <Plus size={18} /> {lang === "ko" ? "항목 추가" : "Add item"}
           </Pressable>
         )}
@@ -1256,8 +1350,8 @@ const seedCode = (): CodeItem[] => codeExamples.map((c) => ({
 }));
 /* 실제 패널과 동일 — 번호 + 제목/설명 헤더, 본문은 데모 + 코드 2단.
    실제도 스크롤로 한 패인씩 넘겨 보므로 스튜디오도 탭으로 전환하며 하나씩 편집. */
-function CodeHighlightsBlock({ value, onChange, lang, t, titleOverride }: {
-  value: CodeItem[]; onChange: (v: CodeItem[]) => void; lang: Language; t: TFunction; titleOverride?: string;
+function CodeHighlightsBlock({ value, onChange, lang, t, title }: {
+  value: CodeItem[]; onChange: (v: CodeItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
   const [dropOver, setDropOver] = useState(false);
 
@@ -1323,7 +1417,7 @@ function CodeHighlightsBlock({ value, onChange, lang, t, titleOverride }: {
                 <X size={14} />
               </Button>
             </div>
-            <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("codeHighlights")}</h3>
+            <h3 className={sec.panelTitle}>{title}</h3>
             <div className={css.chPane}>
               <div className={ch.codeSingleHeader}>
                 <span className={ch.codeSingleNumber}>{String(cur + 1).padStart(2, "0")}</span>
@@ -1511,8 +1605,8 @@ const UF_MAX = 8;
 
 /* 실제 패널과 동일 — 좌측 페르소나 정보 + 우측 플로우 다이어그램.
    다이어그램 좌표(row/col)는 flowLayout 이 계산하므로 여기선 값만 편집한다. */
-function UserFlowBlock({ value, onChange, lang, t, titleOverride }: {
-  value: UserFlow[]; onChange: (v: UserFlow[]) => void; lang: Language; t: TFunction; titleOverride?: string;
+function UserFlowBlock({ value, onChange, lang, t, title }: {
+  value: UserFlow[]; onChange: (v: UserFlow[]) => void; lang: Language; t: TFunction; title: string;
 }) {
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
@@ -1555,7 +1649,7 @@ function UserFlowBlock({ value, onChange, lang, t, titleOverride }: {
                 <X size={14} />
               </Button>
             </div>
-            <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("userflow")}</h3>
+            <h3 className={sec.panelTitle}>{title}</h3>
 
             <div className={uf.ufFlowLayout}>
               {/* 좌측 — 실제와 같은 페르소나 카드 */}
@@ -1951,8 +2045,8 @@ function ErdBlock({ tables, relations, onChange, lang }: {
 /* ═══════════ Backend ═══════════ */
 const BK_MAX = 12;
 /* 실제 패널과 동일 — 좌측 목록 + 우측 상세. 실제도 한 항목씩 보므로 탭으로 전환. */
-function BackendBlock({ value, onChange, lang, t, titleOverride }: {
-  value: BackendItem[]; onChange: (v: BackendItem[]) => void; lang: Language; t: TFunction; titleOverride?: string;
+function BackendBlock({ value, onChange, lang, t, title }: {
+  value: BackendItem[]; onChange: (v: BackendItem[]) => void; lang: Language; t: TFunction; title: string;
 }) {
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
@@ -2002,7 +2096,7 @@ function BackendBlock({ value, onChange, lang, t, titleOverride }: {
                 <X size={14} />
               </Button>
             </div>
-            <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("backend")}</h3>
+            <h3 className={sec.panelTitle}>{title}</h3>
 
             <div className={css.bkBody}>
               <div className={bk.dbList}>
@@ -2106,9 +2200,9 @@ const TS_FIELDS = ["problem", "definition", "cause", "solution", "keyInsight"] a
 
 /* 항목이 길고 서술형이라 한 번에 하나씩 편집한다.
    비교표·다이어그램·이미지는 구조가 깊어 개수만 보여주고 본문 편집에 집중. */
-function TroubleshootingBlock({ value, onChange, lang, titleOverride }: {
+function TroubleshootingBlock({ value, onChange, lang, title }: {
   value: TroubleShootingItem[]; onChange: (v: TroubleShootingItem[]) => void;
-  lang: Language; titleOverride?: string;
+  lang: Language; title: string;
 }) {
   const [tab, setTab] = useState(0);
   const cur = Math.min(tab, Math.max(0, value.length - 1));
@@ -2173,7 +2267,7 @@ function TroubleshootingBlock({ value, onChange, lang, titleOverride }: {
                 <X size={14} />
               </Button>
             </div>
-            <h3 className={sec.panelTitle}>{titleOverride ?? aboutPanelTitle("troubleshooting")}</h3>
+            <h3 className={sec.panelTitle}>{title}</h3>
 
             <div className={css.tsBody}>
               {TS_FIELDS.map((k) => (
