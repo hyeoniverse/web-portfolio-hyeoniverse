@@ -212,6 +212,7 @@ export default function NightSky() {
       {/* 달 — 무리(halo)까지 함께 뜬다. */}
       <div className={styles.moonLayer}>
         <span ref={register("moon")} className={styles.moonSlot}>
+          <span className={styles.moonGlow} />
           <span className={styles.moon}>
             <span className={styles.crater} data-c="1" />
             <span className={styles.crater} data-c="2" />
