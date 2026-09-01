@@ -12,6 +12,15 @@
   pointer-events: none;
   /* 패널 안 콘텐츠(panelInner)보다 뒤 */
   z-index: 0;
+  /* 가장자리를 흐리게 지운다. 여기 있는 것들은 상자보다 크게 뻗는다 — 달 무리는 box-shadow
+     로 사방 172px, 구름은 화면을 가로질러 흘러가며 절반이 밖에 있다. overflow 로 자르면
+     그 자리에 곧은 선이 생긴다. 지워 두면 다다르기 전에 옅어져서 자른 자리가 안 보인다.
+     달 몸통(위에서 12% 지점)은 지우는 폭 밖이라 그대로다. 무리만 옅어진다.
+     가로를 더 넓게 잡는 건 구름이 가로로만 지나가기 때문이다. */
+  mask-image:
+    linear-gradient(to right, transparent 0, black 128px, black calc(100% - 128px), transparent 100%),
+    linear-gradient(to bottom, transparent 0, black 96px, black calc(100% - 96px), transparent 100%);
+  mask-composite: intersect;
 }
 
 /* 층은 이제 z-index 만 맡는다. 커서 반응은 요소 하나하나가 밀려나는 방식이라
@@ -82,11 +91,27 @@
     var(--color-neutral-100) 55%,
     var(--color-neutral-300) 100%
   );
-  /* 무리 — 겹겹이 퍼지게 두 단계로 준다 */
-  box-shadow:
-    0 0 40px 8px var(--color-white-alpha-30),
-    0 0 120px 40px var(--color-accent-alpha-10);
+  /* 달에 바싹 붙는 흰 테. 넓게 퍼지는 분홍 무리는 .moonGlow 가 따로 그린다. */
+  box-shadow: 0 0 40px 8px var(--color-white-alpha-30);
   animation: moonFloat 14s ease-in-out infinite;
+}
+
+/* 무리 — box-shadow 가 아니라 그라데이션 한 겹이다.
+   120px 짜리 그림자 흐림은 넓은 면적에서 타일로 나눠 그려지고, 그 이음매가 곧은 선으로
+   드러난다. 바깥 상자가 will-change 로 합성 레이어가 되어 있어 더 도드라졌다.
+   그라데이션은 흐림 연산이 없어 그럴 일이 없다.
+   달과 같은 박자로 떠야 해서 애니메이션을 같이 건다 — 부모에 걸면 시차 이동과 겹친다. */
+.moonGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  translate: -50% -50%;
+  border-radius: var(--radius-circle);
+  background: radial-gradient(closest-side, var(--color-accent-alpha-10) 0%, transparent 100%);
+  animation: moonFloat 14s ease-in-out infinite;
+  pointer-events: none;
 }
 
 /* 크레이터 — 달을 원이 아니라 표면으로 보이게 하는 최소한의 장치 */
@@ -108,54 +133,94 @@
 
 /* ── 구름 ───────────────────────────────────────────────── */
 /* 덩어리 세 개를 겹친 radial-gradient 하나로 만든다 — 요소를 여러 개 쓰면 층만 늘어난다. */
+/*
+ * 구름.
+ *
+ * 예전에는 반투명 동그라미 셋을 배경으로 겹쳐 놨는데, 그러면 겹친 자리만 진해져서 구름이
+ * 아니라 얼룩 세 개로 보인다. 그리고 셋 다 가장자리로 곧장 옅어지는 그라데이션이라
+ * 덩어리감이 없었다.
+ *
+ * 지금은 **몸통과 모양을 나눈다** — 몸통은 위아래 한 장의 그라데이션(위가 달빛을 받아 밝고
+ * 아래로 갈수록 옅어진다), 모양은 마스크가 낸다. 마스크는 겹쳐도 한 덩어리라 얼룩이 안 생긴다.
+ *
+ * 봉우리는 **거의 단단한 원**이다(0~86% 까지 불투명). 가장자리를 살살 흐리면 겹친 자리마다
+ * 알파가 더해져 테두리가 능선처럼 도드라진다 — 공 네 개를 늘어놓은 것으로 보이던 이유다.
+ * 실루엣은 단단하게 오리고, 부드러움은 바깥에서 filter: blur 한 번으로 준다.
+ *
+ * 크기를 다르게 넷 얹고 서로 깊게 물리게 둔다(폭 합이 150% 넘는다). 밑동은 납작한 타원이다 —
+ * 아래가 평평해야 떠 있는 구름이지, 사방이 둥글면 솜사탕이 된다. 다만 밑동을 봉우리보다
+ * 넓게 깔면 안 된다. 타원 끝이 얇게 빠져나와 구름 옆구리에 선반이 하나 붙는다.
+ */
 .cloud {
   position: absolute;
-  background:
-    radial-gradient(closest-side, var(--color-white-alpha-50) 0%, transparent 100%) 0 40% / 55% 70% no-repeat,
-    radial-gradient(closest-side, var(--color-white-alpha-50) 0%, transparent 100%) 35% 0 / 50% 100% no-repeat,
-    radial-gradient(closest-side, var(--color-white-alpha-50) 0%, transparent 100%) 70% 35% / 45% 65% no-repeat;
+  background: linear-gradient(
+    to bottom,
+    var(--color-white-alpha-90) 0%,
+    var(--color-white-alpha-70) 46%,
+    var(--color-white-alpha-40) 100%
+  );
+  mask-image:
+    radial-gradient(circle closest-side, #000 0 86%, transparent 100%),
+    radial-gradient(circle closest-side, #000 0 86%, transparent 100%),
+    radial-gradient(circle closest-side, #000 0 86%, transparent 100%),
+    radial-gradient(circle closest-side, #000 0 86%, transparent 100%),
+    radial-gradient(ellipse closest-side, #000 0 74%, transparent 100%);
+  mask-size: 34% 60%, 50% 96%, 42% 76%, 30% 52%, 74% 48%;
+  mask-position: 2% 96%, 26% 0%, 58% 30%, 96% 92%, 50% 100%;
+  mask-repeat: no-repeat;
+  mask-composite: add;
   animation-name: drift;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
 
+/* 넷이 같은 실루엣이면 같은 구름이 네 번 지나가는 것으로 보인다. 봉우리 자리만 바꿔 둔다. */
+.cloud[data-cloud="far-b"],
+.cloud[data-cloud="near-b"] {
+  mask-size: 30% 52%, 44% 84%, 50% 96%, 34% 60%, 72% 46%;
+  mask-position: 3% 94%, 30% 22%, 64% 0%, 98% 90%, 50% 100%;
+}
+
+/* 흐르는 게 보여야 구름이다. 예전 값(62~190s)은 한 번 지나가는 데 몇 분이 걸려서
+   화면을 오래 봐도 멈춰 있는 얼룩으로만 보였다. 앞뒤 층의 빠르기 차이는 그대로 둔다 —
+   먼 것이 느려야 깊이가 생긴다. */
 .cloud[data-cloud="far-a"] {
   top: 18%;
   width: 40vw;
   height: 14vh;
-  opacity: 0.16;
-  filter: blur(10px);
-  animation-duration: 140s;
+  opacity: 0.3;
+  filter: blur(9px);
+  animation-duration: 66s;
 }
 
 .cloud[data-cloud="far-b"] {
   top: 58%;
   width: 32vw;
   height: 11vh;
-  opacity: 0.12;
-  filter: blur(12px);
-  animation-duration: 190s;
-  animation-delay: -70s;
+  opacity: 0.24;
+  filter: blur(10px);
+  animation-duration: 88s;
+  animation-delay: -33s;
 }
 
 .cloud[data-cloud="near-a"] {
   top: 34%;
   width: 26vw;
   height: 10vh;
-  opacity: 0.22;
-  filter: blur(4px);
-  animation-duration: 80s;
-  animation-delay: -20s;
+  opacity: 0.42;
+  filter: blur(5px);
+  animation-duration: 42s;
+  animation-delay: -11s;
 }
 
 .cloud[data-cloud="near-b"] {
   top: 76%;
   width: 22vw;
   height: 8vh;
-  opacity: 0.18;
-  filter: blur(3px);
-  animation-duration: 62s;
-  animation-delay: -45s;
+  opacity: 0.36;
+  filter: blur(4px);
+  animation-duration: 34s;
+  animation-delay: -25s;
 }
 
 @keyframes drift {
