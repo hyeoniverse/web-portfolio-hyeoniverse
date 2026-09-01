@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.53.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.52.0...v1.53.0) (2026-09-01)
+
+
+### Features
+
+* **profile:** 몽이 만지기 — 볼·코·머리 상호작용, 3D 손 커서, 껍질 털 ([dfb3cac](https://github.com/hyeoniverse/web-portfolio-oval/commit/dfb3cac62c1e225e493d13f9382293ee3186f8a1)), closes [#628](https://github.com/hyeoniverse/web-portfolio-oval/issues/628)
+
+
+### Bug Fixes
+
+* **profile:** 말풍선 몸통과 꼬리가 한 면으로 보이게 ([a882b3b](https://github.com/hyeoniverse/web-portfolio-oval/commit/a882b3b1daf3668f195efcf5f784c378caeb3168))
+
 ## [1.52.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.51.1...v1.52.0) (2026-09-01)
 
 
