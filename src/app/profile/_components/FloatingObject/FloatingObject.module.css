@@ -20,34 +20,96 @@
    형제로 두면 글자 층이 루트 위에서 섞이므로 아래 껍데기와 페이지를 모두 본다.
    두 층은 글·여백·글꼴이 같고 같은 좌표를 받아 정확히 겹친다. */
 .speechBubble,
+.speechBubbleFill,
 .speechBubbleText {
+  /* 세 층 + 흐림판 마스크가 **같은 치수를 알아야** 캡슐이 어긋나지 않는다.
+     그래서 여백·글자 크기까지 변수로 빼고 높이를 거기서 계산한다. */
+  --bubble-blur: 4px;
+  --bubble-lh: 1.6;
+  --bubble-fs: var(--font-size-label);
+  --bubble-py: var(--spacing-xs);
+  --bubble-px: var(--spacing-lg);
+  --bubble-h: calc(var(--bubble-fs) * var(--bubble-lh) + var(--bubble-py) * 2 + 2px);
+  --tail-side: 10px;
+  /* 45° 돌린 네모라 밑변이 10·√2, 내민 높이는 그 절반이다. */
+  --tail-w: calc(var(--tail-side) * 1.414);
+  --tail-h: calc(var(--tail-side) * 0.707);
+  /* 꼬리가 말풍선 한가운데에서 얼마나 비켜났는지. 화면 끝에서 껍데기만 밀릴 때 쓴다. */
+  --tail-dx: 0px;
+
   position: fixed;
   top: 0;
   left: 0;
   display: inline-block;
   white-space: nowrap;
-  padding: var(--spacing-xs) var(--spacing-lg);
+  height: var(--bubble-h);
+  padding: var(--bubble-py) var(--bubble-px);
   border: 1px solid transparent;
-  font-size: var(--font-size-label);
+  font-size: var(--bubble-fs);
+  line-height: var(--bubble-lh);
   pointer-events: none;
   visibility: hidden;
 }
 
-/* 껍데기 — 글자는 자리만 잡고 안 보인다(위 층이 그린다). */
+/*
+ * 흐림판 — 말풍선과 꼬리의 흐림을 **한 요소가 한꺼번에** 그린다.
+ *
+ * 둘로 나누면 절대 같은 색이 안 나온다. backdrop-filter 는 제 상자 밖을 못 읽고 가장자리
+ * 색을 늘여 쓰는데(edge clamp), 말풍선은 아래 끝이 곧 상자 끝이라 그 밑에 있는 것(몽이 눈)이
+ * 흐림에 **하나도 안 섞이고**, 경계에 걸터앉은 꼬리는 그걸 다 읽는다. 같은 blur(4px) 인데
+ * 꼬리만 시커멓게 뜬 게 이것 때문이다 — 재현해 보면 0 대 134 까지 벌어진다.
+ *
+ * 그래서 상자를 꼬리 아래로 흐림 반지름의 여섯 배만큼 더 늘여 두고, 보이는 모양은 마스크로
+ * 오려 낸다. 마스크는 제 요소의 흐림을 건드리지 않는다(자르는 건 결과뿐이다).
+ * 반대로 **조상**에 mask 를 걸면 그 안쪽 backdrop-filter 는 아예 죽는다 — 그래서 도려내기는
+ * 테두리 층이 맡고 흐림은 여기가 맡는다.
+ *
+ * 모양은 넷을 더해 만든다: 가운데 네모 + 좌우 반원(캡슐) + 아래 삼각형(꼬리).
+ * 반원은 지름이 말풍선 높이라 가운데 네모와 절반씩 겹친다 — 겹쳐야 이음매에 실금이 안 생긴다.
+ */
+.speechBubbleFill {
+  /* 3D 캔버스 오버레이와 **같은** 층이어야 한다. 한 칸 아래(+2)로 내려 두면 캔버스가 흐림판
+     위에 그려져서, 몽이가 있는 자리에서만 흐림이 통째로 사라진다.
+     같은 z-index 끼리는 DOM 차례로 그려지므로 캔버스 → 흐림판 → 꼬리 → 테두리가 된다. */
+  z-index: calc(var(--z-nav) + 3);
+  height: calc(var(--bubble-h) + var(--tail-h) + var(--bubble-blur) * 6);
+  backdrop-filter: blur(var(--bubble-blur));
+  color: transparent;
+  mask-image:
+    conic-gradient(from 315deg at 50% 100%, #000 0 90deg, transparent 0),
+    radial-gradient(circle closest-side, #000 99%, transparent 100%),
+    radial-gradient(circle closest-side, #000 99%, transparent 100%),
+    linear-gradient(#000, #000);
+  mask-size:
+    var(--tail-w) var(--tail-h),
+    var(--bubble-h) var(--bubble-h),
+    var(--bubble-h) var(--bubble-h),
+    calc(100% - var(--bubble-h)) var(--bubble-h);
+  mask-position: calc(50% + var(--tail-dx)) var(--bubble-h), 0 0, 100% 0, 50% 0;
+  mask-repeat: no-repeat;
+  mask-composite: add;
+}
+
+/* 테두리 — 글자는 자리만 잡고 안 보인다(위 층이 그린다). */
 .speechBubble {
   z-index: calc(var(--z-nav) + 3);
   border-radius: var(--radius-capsule);
-  backdrop-filter: blur(4px);
   border-color: var(--border-color-strong);
   color: transparent;
 
-  /* 꼬리가 붙는 자리의 아래 테두리를 도려낸다. 안 도려내면 꼬리 입구를 가로지르는 선이
-     남아, 몸통과 꼬리 사이에 없는 경계가 하나 생긴다.
-     mask 라서 테두리와 흐림만 없어지고 — 이 층은 글자를 안 그린다(윗층이 그린다) —
-     그 자리는 꼬리가 자기 흐림으로 메운다. */
+  /* 꼬리 입구를 가로지르는 테두리 선을 도려낸다. 안 도려내면 몸통과 꼬리 사이에 없는 경계가
+     하나 생긴다. 도려내는 모양은 꼬리의 윗절반과 같은 삼각형 — 밑변이 아래선에 붙고 꼭짓점이
+     위를 본다. 그러니 부채꼴 꼭짓점을 칸의 **위 가운데**에 두고 아래로 벌려야 한다.
+     반대로 두면(아래 가운데에서 위로) 아래선에서 폭이 0 이라 테두리가 그대로 남는다 —
+     구멍이 3px 짜리 뾰족한 자국으로만 뚫려서, 꼬리 입구를 가로지르는 선이 계속 보였다.
+     반지름 7px 짜리 동그라미로 파던 때는 위로 갈수록 구멍이 꼬리보다 훨씬 넓어서(3px 높이에서
+     12.7px 대 7.7px) 꼬리 양옆에 아무것도 없는 초승달이 남았다. */
   mask-image:
-    radial-gradient(circle 7px at 50% 100%, #000 100%, transparent 0),
+    conic-gradient(from 135deg at 50% 0%, #000 0 90deg, transparent 0),
     linear-gradient(#000, #000);
+  mask-size: calc(var(--tail-w) - 0.2px) calc(var(--tail-h) - 0.1px), auto;
+  mask-position: calc(50% + var(--tail-dx)) 100%, 0 0;
+  mask-repeat: no-repeat, repeat;
   mask-composite: exclude;
 }
 
@@ -88,35 +150,36 @@
   }
 }
 
-/* 꼬리 — 45° 돌린 네모의 두 변. 예전엔 삼각형 두 장(테두리색 + 배경색)을 겹쳐 만들었는데,
-   안쪽을 --bg-primary 로 덮어 가려야 해서 몸통은 투명한데 꼬리만 불투명한 조각으로 남았다
-   — 몽이나 사진 위로 지나갈 때 그 조각이 그대로 보였다.
-   껍데기와 형제로 띄운다. 껍데기 안에 두면 껍데기에 건 mask 에 같이 잘린다. */
+/* 꼬리의 두 변 — 45° 돌린 네모의 오른쪽·아래 테두리. 흐림은 흐림판이 이미 그려 놨다.
+   삼각형 두 장(테두리색 + 배경색)을 겹쳐 만들던 때는 안쪽을 --bg-primary 로 덮어야 해서,
+   몸통은 투명한데 꼬리만 불투명한 조각으로 남아 몽이 위를 지날 때 그게 그대로 보였다. */
 .speechBubbleTail {
+  --tail-side: 10px;
+
   position: fixed;
   z-index: calc(var(--z-nav) + 3);
-  width: 10px;
-  height: 10px;
+  width: var(--tail-side);
+  height: var(--tail-side);
   transform: rotate(45deg);
   border-right: var(--border-strong);
   border-bottom: var(--border-strong);
-  background: transparent;
-  backdrop-filter: blur(4px);
   pointer-events: none;
   visibility: hidden;
 }
 
 /* ── Mobile vw ── */
 @media (max-width: 480px) {
-  .speechBubble {
-    padding: 1.7vw 4.2vw;
-    font-size: 2.6vw;
-    backdrop-filter: blur(5vw);
+  .speechBubble,
+  .speechBubbleFill,
+  .speechBubbleText {
+    --bubble-blur: 5vw;
+    --bubble-fs: 2.6vw;
+    --bubble-py: 1.7vw;
+    --bubble-px: 4.2vw;
+    --tail-side: 2.2vw;
   }
 
   .speechBubbleTail {
-    width: 2.2vw;
-    height: 2.2vw;
-    backdrop-filter: blur(5vw);
+    --tail-side: 2.2vw;
   }
 }

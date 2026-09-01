@@ -44,6 +44,9 @@ export default function FloatingObject() {
   const bubbleSizeRef = useRef({ w: 0, h: 0 });
   const bubbleTextRef = useRef<HTMLDivElement>(null);
   const bubbleTailRef = useRef<HTMLDivElement>(null);
+  const bubbleFillRef = useRef<HTMLDivElement>(null);
+  /** 마지막으로 넘긴 꼬리 어긋남. 매 프레임 같은 값을 다시 쓰면 스타일 재계산만 늘어난다. */
+  const tailDxRef = useRef("");
   const rafId = useRef(0);
 
   const [bubbleText, setBubbleText] = useState("");
@@ -155,17 +158,33 @@ export default function FloatingObject() {
          몽이를 화면 안쪽으로 몰아 두긴 했지만, 자리에 앉아 있는 동안이나 앉았다 풀리는
          1초 사이에는 그 범위 밖에 있을 수 있다. */
       const rawLeft = screenPosRef.current.x - w / 2;
-      const left = `${Math.max(BUBBLE_EDGE_PAD, Math.min(window.innerWidth - w - BUBBLE_EDGE_PAD, rawLeft))}px`;
+      const boxLeft = Math.max(BUBBLE_EDGE_PAD, Math.min(window.innerWidth - w - BUBBLE_EDGE_PAD, rawLeft));
+      const left = `${boxLeft}px`;
       const top = `${screenPosRef.current.y + BUBBLE_OFFSET_Y - h}px`;
       el.style.left = left;
       el.style.top = top;
-      const txt = bubbleTextRef.current;
-      if (txt) { txt.style.left = left; txt.style.top = top; }
-      /* 꼬리는 껍데기 크기와 무관하다 — 말풍선 아래 끝이 곧 몽이 쪽을 가리키는 지점이다. */
+      /* 흐림판·글자 층은 껍데기와 같은 자리·같은 크기다. 셋이 정확히 겹쳐야 한 덩어리로 보인다. */
+      for (const layer of [bubbleFillRef.current, bubbleTextRef.current]) {
+        if (layer) { layer.style.left = left; layer.style.top = top; }
+      }
+      /* 꼬리는 몽이를 가리키되 **말풍선 아래선을 벗어나면 안 된다**.
+         화면 끝에서 껍데기만 안쪽으로 밀리는데 꼬리를 몽이 자리에 그대로 두면, 패널을
+         넘어가느라 몽이가 밖으로 빠질 때 몸통과 꼬리가 뚝 떨어져 보인다.
+         캡슐 양 끝은 둥그니까 반지름(h/2)에 꼬리 반폭만큼 더 안쪽에서 멈춘다 — 거기까지가
+         밑변이 평평한 구간이라, 꼬리가 늘 몸통에 붙어 있는다. */
+      const tailInset = Math.min(h / 2 + TAIL_SIZE, w / 2);
+      const tailX = Math.max(boxLeft + tailInset, Math.min(boxLeft + w - tailInset, screenPosRef.current.x));
       const tail = bubbleTailRef.current;
       if (tail) {
-        tail.style.left = `${screenPosRef.current.x - TAIL_SIZE / 2}px`;
+        tail.style.left = `${tailX - TAIL_SIZE / 2}px`;
         tail.style.top = `${screenPosRef.current.y + BUBBLE_OFFSET_Y - TAIL_SIZE / 2}px`;
+      }
+      /* 흐림판의 꼬리 삼각형과 테두리의 구멍도 같은 만큼 옮긴다. 셋이 한 값을 봐야 어긋나지 않는다. */
+      const dx = `${Math.round(tailX - (boxLeft + w / 2))}px`;
+      if (dx !== tailDxRef.current) {
+        tailDxRef.current = dx;
+        el.style.setProperty("--tail-dx", dx);
+        bubbleFillRef.current?.style.setProperty("--tail-dx", dx);
       }
     }
     rafId.current = requestAnimationFrame(syncBubble);
@@ -255,9 +274,11 @@ export default function FloatingObject() {
           그 요소 안에서 계산되기 때문이다(backdrop-filter·transform 도 마찬가지).
           형제로 두면 글자 층이 루트 위에서 섞이므로 아래에 깔린 껍데기와 페이지를 모두 본다.
           둘은 같은 rAF 에서 같은 left/top 을 받고 글·여백·글꼴이 같아 정확히 겹친다. */}
+      {/* 흐림판이 맨 아래. 테두리보다 먼저 그려야 꼬리 흐림이 흰 테두리를 빨아들이지 않는다.
+          글자를 그대로 담는 건 크기를 껍데기와 똑같이 맞추기 위해서다(보이지는 않는다). */}
       <div
-        ref={bubbleRef}
-        className={`${styles.speechBubble} ${showBubble ? styles.speechBubbleVisible : ""}`}
+        ref={bubbleFillRef}
+        className={`${styles.speechBubbleFill} ${showBubble ? styles.speechBubbleVisible : ""}`}
         aria-hidden
       >
         {bubbleText}
@@ -269,6 +290,13 @@ export default function FloatingObject() {
         className={`${styles.speechBubbleTail} ${showBubble ? styles.speechBubbleVisible : ""}`}
         aria-hidden
       />
+      <div
+        ref={bubbleRef}
+        className={`${styles.speechBubble} ${showBubble ? styles.speechBubbleVisible : ""}`}
+        aria-hidden
+      >
+        {bubbleText}
+      </div>
       <div
         ref={bubbleTextRef}
         className={`${styles.speechBubbleText} ${showBubble ? styles.speechBubbleVisible : ""}`}
