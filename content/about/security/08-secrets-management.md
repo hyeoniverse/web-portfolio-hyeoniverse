@@ -1,5 +1,4 @@
 ---
-layer: Secrets
 icon: key
 scope: 환경변수, API 키
 ---

@@ -1,5 +1,4 @@
 ---
-layer: XSS
 icon: shield
 scope: 모든 사용자 입력 렌더링
 ---

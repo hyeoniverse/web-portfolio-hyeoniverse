@@ -1,5 +1,4 @@
 ---
-layer: Route Protection
 icon: route
 scope: All /admin/* routes
 ---

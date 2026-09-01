@@ -1,5 +1,4 @@
 ---
-layer: RLS
 icon: rows
 scope: 모든 테이블
 ---

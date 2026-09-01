@@ -12,7 +12,7 @@ import { parseFrontmatter, asArray, type Frontmatter } from "@/lib/frontmatter";
  * 화면이 `adaptSecurity` 같은 함수로 둘을 잇는다. 동기화가 쓰는 자리는 후자다.
  *
  * 언어는 파일 두 개로 가른다 — `<이름>.md`(ko), `<이름>.en.md`(en).
- * 언어와 무관한 값(icon · layer · step · image · tech)은 ko 파일 것을 쓴다.
+ * 언어와 무관한 값(icon · step · image · tech)은 ko 파일 것을 쓴다.
  */
 
 export interface SimpleDoc {
@@ -79,22 +79,21 @@ const str = (v: Frontmatter[string] | undefined): string =>
 // ── Security ───────────────────────────────────────────────────
 
 export interface CfgSecurity {
-  layer: string; icon: string;
+  icon: string;
   title_ko: string; title_en: string;
   description_ko: string; description_en: string;
   scope_ko: string; scope_en: string;
 }
 
 export const securityPanel = {
-  fileName: (item: CfgSecurity, i: number) => `${pad(i)}-${slugify(item.layer)}`,
+  fileName: (item: CfgSecurity, i: number) => `${pad(i)}-${slugify(item.title_en || item.title_ko)}`,
   write: (item: CfgSecurity, lang: "ko" | "en") =>
     writeSimpleMarkdown(
-      [["layer", item.layer], ["icon", item.icon], ["scope", lang === "ko" ? item.scope_ko : item.scope_en]],
+      [["icon", item.icon], ["scope", lang === "ko" ? item.scope_ko : item.scope_en]],
       lang === "ko" ? item.title_ko : item.title_en,
       lang === "ko" ? item.description_ko : item.description_en,
     ),
   read: (ko: SimpleDoc, en: SimpleDoc | undefined): CfgSecurity => ({
-    layer: str(ko.meta.layer),
     icon: str(ko.meta.icon),
     title_ko: ko.title,
     title_en: en?.title || ko.title,

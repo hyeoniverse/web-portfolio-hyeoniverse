@@ -1,5 +1,4 @@
 ---
-layer: Duplication
 icon: fingerprint
 scope: Likes, visit stats
 ---

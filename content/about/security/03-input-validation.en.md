@@ -1,5 +1,4 @@
 ---
-layer: Input Validation
 icon: check
 scope: All public APIs
 ---

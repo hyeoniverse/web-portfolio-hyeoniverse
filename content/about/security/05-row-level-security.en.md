@@ -1,5 +1,4 @@
 ---
-layer: RLS
 icon: rows
 scope: All tables
 ---

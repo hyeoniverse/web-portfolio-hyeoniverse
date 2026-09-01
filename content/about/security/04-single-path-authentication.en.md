@@ -1,5 +1,4 @@
 ---
-layer: Authentication
 icon: lock
 scope: Comment edit/delete, Admin
 ---

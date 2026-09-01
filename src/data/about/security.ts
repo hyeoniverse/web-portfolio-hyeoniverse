@@ -1,7 +1,6 @@
 import type { LocalizedText } from "./types";
 
 export interface SecurityItem {
-  layer: string;
   title: LocalizedText;
   description: LocalizedText;
   scope: LocalizedText;
@@ -10,7 +9,6 @@ export interface SecurityItem {
 
 export const securityItems: SecurityItem[] = [
   {
-    layer: "SQL Injection",
     title: {
       ko: "SQL Injection 방지",
       en: "SQL Injection Prevention",
@@ -26,7 +24,6 @@ export const securityItems: SecurityItem[] = [
     icon: "db",
   },
   {
-    layer: "XSS",
     title: {
       ko: "XSS 방지",
       en: "XSS Prevention",
@@ -42,7 +39,6 @@ export const securityItems: SecurityItem[] = [
     icon: "shield",
   },
   {
-    layer: "Input Validation",
     title: {
       ko: "입력 검증",
       en: "Input Validation",
@@ -58,7 +54,6 @@ export const securityItems: SecurityItem[] = [
     icon: "check",
   },
   {
-    layer: "Authentication",
     title: {
       ko: "단일 경로 인증",
       en: "Single-path Authentication",
@@ -74,7 +69,6 @@ export const securityItems: SecurityItem[] = [
     icon: "lock",
   },
   {
-    layer: "Authorization",
     title: {
       ko: "역할 기반 인가 + 소유자 부트스트랩",
       en: "Role-based Authorization + Owner Bootstrap",
@@ -90,7 +84,6 @@ export const securityItems: SecurityItem[] = [
     icon: "crown",
   },
   {
-    layer: "RLS",
     title: {
       ko: "Row Level Security",
       en: "Row Level Security",
@@ -106,7 +99,6 @@ export const securityItems: SecurityItem[] = [
     icon: "rows",
   },
   {
-    layer: "Route Protection",
     title: {
       ko: "경로 보호",
       en: "Route Protection",
@@ -122,7 +114,6 @@ export const securityItems: SecurityItem[] = [
     icon: "route",
   },
   {
-    layer: "Duplication",
     title: {
       ko: "중복 방지",
       en: "Duplication Prevention",
@@ -138,7 +129,6 @@ export const securityItems: SecurityItem[] = [
     icon: "fingerprint",
   },
   {
-    layer: "Secrets",
     title: {
       ko: "시크릿 관리",
       en: "Secrets Management",

@@ -47,7 +47,7 @@ describe("업로드한 md 를 패널 값으로", () => {
       { name: "01-a.md", text: securityPanel.write(aboutSecurity[0], "ko") },
     ];
     const r = loadPanelFiles("security", files)!;
-    expect((r.values["about.security"] as typeof aboutSecurity)[0].layer).toBe(aboutSecurity[0].layer);
+    expect((r.values["about.security"] as typeof aboutSecurity)[0].title_ko).toBe(aboutSecurity[0].title_ko);
   });
 
   it("en 파일만 있으면 그 항목은 버린다 (ko 가 기준)", () => {

@@ -38,7 +38,7 @@ function trip<T>(
 }
 
 describe("Security 왕복", () => {
-  it.each(about.security.map((s, i) => [s.layer, s, i] as const))("%s", (_l, item) => {
+  it.each(about.security.map((s, i) => [s.title_en, s, i] as const))("%s", (_t, item) => {
     expect(trip(item, securityPanel)).toEqual(item);
   });
 });
