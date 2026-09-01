@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.52.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.51.1...v1.52.0) (2026-09-01)
+
+
+### Features
+
+* **profile:** 스크롤 연출·hover 해독 강조·잔디 렌즈 추가 ([57c22a3](https://github.com/hyeoniverse/web-portfolio-oval/commit/57c22a3379934688daebcc0536785149cf18795f))
+
+
+### Bug Fixes
+
+* **about:** 이름을 바꾼 패널만 제목 끝 마침표가 빠지던 것 ([d372736](https://github.com/hyeoniverse/web-portfolio-oval/commit/d372736e1937452457120b5e922a14947eba1499))
+
 ## [1.51.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.51.0...v1.51.1) (2026-08-31)
 
 
