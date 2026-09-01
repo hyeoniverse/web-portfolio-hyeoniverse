@@ -15,6 +15,5 @@ import { aboutPanelTitle } from "@/data/about/panels";
 export function usePanelTitle(key: string): string {
   const cfg = useSiteConfig();
   const { language } = useLanguage();
-  const v = cfg.about.panelTitles?.[key]?.[language];
-  return v && v.trim() ? v : aboutPanelTitle(key);
+  return aboutPanelTitle(key, cfg.about.panelTitles?.[key]?.[language]);
 }
