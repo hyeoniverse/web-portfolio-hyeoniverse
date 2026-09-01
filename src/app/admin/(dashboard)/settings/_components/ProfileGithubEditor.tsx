@@ -11,7 +11,7 @@ import FieldRow from "@/components/ui/FieldRow";
 import EmptyState from "@/components/ui/EmptyState";
 import { useLanguage } from "@/providers/LanguageProvider";
 import type { ProfileData } from "@/types/profile";
-import type { GithubRepoCard } from "@/lib/githubShowcase";
+import { PINNED_REPO_LIMIT, type GithubRepoCard } from "@/lib/githubShowcase";
 import styles from "./ProfileGithubEditor.module.css";
 import Pressable from "@/components/ui/Pressable";
 
@@ -73,9 +73,19 @@ export default function ProfileGithubEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /* 화면에는 PINNED_REPO_LIMIT 개까지만 그려진다. 예전엔 여기서 몇 개든 고를 수 있고
+     화면에서만 잘라내서, 일곱 개째부터는 골라도 아무 말 없이 사라졌다.
+     상한에 닿으면 더 못 고르게 막는다 — 빼는 건 언제나 된다. */
+  const atLimit = selected.length >= PINNED_REPO_LIMIT;
+
   /** 고른 순서를 유지한다 — 체크 순서가 곧 화면 순서다. */
   const toggle = (name: string) => {
-    patch({ repos: selected.includes(name) ? selected.filter((r) => r !== name) : [...selected, name] });
+    if (selected.includes(name)) {
+      patch({ repos: selected.filter((r) => r !== name) });
+      return;
+    }
+    if (atLimit) return;
+    patch({ repos: [...selected, name] });
   };
 
   const move = (from: number, to: number) => {
@@ -131,14 +141,21 @@ export default function ProfileGithubEditor({
         <div className={styles.group}>
           <div className={styles.groupHead}>
             <span className={`${outer.sectionSubTitle} ${styles.groupLabel}`}>Pinned</span>
-            <span className={styles.groupCount}>{selected.length}</span>
+            <span className={`${styles.groupCount} ${selected.length > PINNED_REPO_LIMIT ? styles.groupCountOver : ""}`}>
+              {selected.length} / {PINNED_REPO_LIMIT}
+            </span>
           </div>
           <ol className={styles.picked}>
             {selected.map((name, i) => (
-              <li key={name} className={styles.pickedItem}>
+              /* 이미 상한을 넘겨 저장돼 있는 경우(예전 설정)엔 조용히 버리지 않는다 —
+                 화면에 안 나온다는 걸 여기서 말하고, 빼거나 위로 올릴 수 있게 남겨 둔다. */
+              <li key={name} className={`${styles.pickedItem} ${i >= PINNED_REPO_LIMIT ? styles.pickedOver : ""}`}>
                 <GripVertical size={13} aria-hidden className={styles.pickedGrip} />
                 <span className={styles.pickedOrder}>{i + 1}</span>
                 <span className={styles.pickedName}>{name}</span>
+                {i >= PINNED_REPO_LIMIT && (
+                  <span className={styles.pickedOverNote}>{L("표시 안 됨", "Not shown")}</span>
+                )}
                 <span className={styles.pickedActions}>
                   {/* 화살표 문자 대신 아이콘 — 다른 목록의 조작 버튼과 크기·색이 맞는다 */}
                   <Button
@@ -177,18 +194,33 @@ export default function ProfileGithubEditor({
           <div className={styles.groupHead}>
             <span className={`${outer.sectionSubTitle} ${styles.groupLabel}`}>{L("저장소", "Repositories")}</span>
             <span className={styles.groupCount}>{repos.length}</span>
+            <span className={`${outer.fieldHint} ${styles.groupHint}`}>
+              {selected.length > PINNED_REPO_LIMIT
+                ? L(`${PINNED_REPO_LIMIT}개까지만 표시됩니다. 위에서 "표시 안 됨" 인 것을 빼 주세요.`,
+                    `Only ${PINNED_REPO_LIMIT} are shown — remove the ones marked "Not shown" above.`)
+                : atLimit
+                  ? L(`${PINNED_REPO_LIMIT}개까지 표시할 수 있습니다.`,
+                      `You can show up to ${PINNED_REPO_LIMIT}.`)
+                  : L(`프로필에는 ${PINNED_REPO_LIMIT}개까지 표시됩니다.`,
+                      `Up to ${PINNED_REPO_LIMIT} appear on the profile.`)}
+            </span>
           </div>
           {/* data-lenis-prevent — 사이트 전역 Lenis 가 휠을 가로채서, 없으면 이 안이 스크롤되지
               않고 페이지만 움직인다(목록 뒷부분에 닿을 방법이 없어진다). */}
           <ul className={styles.list} data-lenis-prevent>
           {repos.map((r) => (
-            <li key={r.name} className={styles.item}>
+            <li key={r.name} className={`${styles.item} ${atLimit && !selected.includes(r.name) ? styles.itemBlocked : ""}`}>
               <Checkbox
                 checked={selected.includes(r.name)}
                 onChange={() => toggle(r.name)}
+                disabled={atLimit && !selected.includes(r.name)}
                 shape="square"
               />
-              <Pressable className={styles.itemBody} onClick={() => toggle(r.name)}>
+              <Pressable
+                className={styles.itemBody}
+                onClick={() => toggle(r.name)}
+                disabled={atLimit && !selected.includes(r.name)}
+              >
                 <span className={styles.itemName}>{r.name}</span>
                 {r.description && <span className={styles.itemDesc}>{r.description}</span>}
                 <span className={styles.itemMeta}>

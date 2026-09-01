@@ -4,7 +4,8 @@ import { useState, type CSSProperties } from "react";
 import { SiGithub } from "react-icons/si";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { Star, GitFork, ExternalLink, ArrowUpRight } from "@/components/icons";
-import type { GithubShowcase } from "@/lib/githubShowcase";
+import { PINNED_REPO_LIMIT, type GithubShowcase } from "@/lib/githubShowcase";
+import GrassLens from "../GrassLens/GrassLens";
 import { useGithubPanelMotion } from "./useGithubPanelMotion";
 import styles from "./ProfileGithub.module.css";
 
@@ -15,7 +16,6 @@ const TOP_LANGUAGES = 5;
 const LANG_SLOTS = 5;
 
 /** 카드 개수 상한 — 패널은 100vh 고정이라 넘치면 잘린다. 두 줄(3열 기준)까지가 한계다. */
-const MAX_REPOS = 6;
 
 /** 언어 막대를 끝까지 채우는 데 걸리는 시간. 조각마다 나눠 이어 붙인다. */
 const LANG_FILL_MS = 1300;
@@ -94,6 +94,11 @@ export default function ProfileGithub({
 
   const isPinned = part === "pinned";
   const languages = showcase.languages.slice(0, TOP_LANGUAGES);
+  /* 언어 이름 → 막대에서 쓰는 색 슬롯. 순위를 그대로 슬롯 번호로 쓴다. */
+  const langSlot = (name: string): CSSProperties | undefined => {
+    const i = languages.findIndex((l) => l.name === name);
+    return i < 0 ? undefined : ({ "--_dot": `var(--_lang-${i % LANG_SLOTS})` } as CSSProperties);
+  };
 
   /* 조각이 한 칸씩 쌓여 보이게, 앞 조각이 끝나는 지점에서 다음 조각이 시작한다.
      길이에 비례해 시간을 나눠 채우는 속도를 일정하게 유지한다 — 시간을 똑같이 나누면
@@ -217,22 +222,26 @@ export default function ProfileGithub({
               {L(`${contributions.total.toLocaleString(locale)}회`, `${contributions.total.toLocaleString(locale)} contributions`)}
             </span>
           </span>
-          <div className={`${styles.grass} ${animateClass}`} role="img" aria-label={L("최근 1년 커밋 잔디", "Contribution graph for the last 12 months")}>
-            {contributions.weeks.map((week, wi) => (
-              <div key={wi} className={styles.grassWeek}>
-                {week.map((day, di) => (
-                  <span
-                    key={day.date}
-                    className={styles.grassDay}
-                    data-level={day.level}
-                    /* 왼쪽 위에서 오른쪽 아래로 번지게 — 한꺼번에 뜨면 그냥 이미지가 된다 */
-                    style={{ animationDelay: `${wi * 12 + di * 8}ms` }}
-                    title={`${day.date} · ${day.count}`}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
+          {/* 커서를 올린 자리의 칸들이 부풀어 오른다. 1년치를 한 화면에 넣느라 한 칸이
+              10px 밖에 안 되는데, 그 자리만 키워서 읽게 해 준다. */}
+          <GrassLens>
+            <div className={`${styles.grass} ${animateClass}`} role="img" aria-label={L("최근 1년 커밋 잔디", "Contribution graph for the last 12 months")}>
+              {contributions.weeks.map((week, wi) => (
+                <div key={wi} className={styles.grassWeek}>
+                  {week.map((day, di) => (
+                    <span
+                      key={day.date}
+                      className={styles.grassDay}
+                      data-level={day.level}
+                      /* 왼쪽 위에서 오른쪽 아래로 번지게 — 한꺼번에 뜨면 그냥 이미지가 된다 */
+                      style={{ animationDelay: `${wi * 12 + di * 8}ms` }}
+                      title={`${day.date} · ${day.count}`}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </GrassLens>
         </div>
       ) : (
         <div className={styles.block}>
@@ -254,10 +263,12 @@ export default function ProfileGithub({
       {isPinned && showcase.repos.length > 0 && (
         <div className={styles.block}>
           <ul className={styles.repos}>
-            {showcase.repos.slice(0, MAX_REPOS).map((r) => (
+            {showcase.repos.slice(0, PINNED_REPO_LIMIT).map((r, i) => (
               <li key={r.name} className={animateClass}>
                 <a className={styles.repo} href={r.url} target="_blank" rel="noreferrer noopener">
                   <span className={styles.repoName}>
+                    {/* 고른 순서. Backend 엔드포인트·Design Process 와 같은 번호 표기다. */}
+                    <span className={styles.repoIndex} aria-hidden>{String(i + 1).padStart(2, "0")}</span>
                     <span className={styles.repoNameText} title={r.name}>{r.name}</span>
                     <ArrowUpRight size={14} strokeWidth={1.8} className={styles.repoArrow} aria-hidden />
                   </span>
@@ -272,7 +283,11 @@ export default function ProfileGithub({
                     </span>
                   )}
                   <span className={styles.repoMeta}>
-                    {r.language && <span className={styles.repoLang}>{r.language}</span>}
+                    {r.language && (
+                      /* 점 색은 위 GitHub 패널의 언어 막대와 같은 슬롯 — 많이 쓰는 언어일수록 진하다.
+                         목록(상위 5개)에 없는 언어면 슬롯을 지정하지 않고 CSS 기본값을 쓴다. */
+                      <span className={styles.repoLang} style={langSlot(r.language)}>{r.language}</span>
+                    )}
                     {r.stars > 0 && (
                       <span className={styles.repoStat}><Star size={12} strokeWidth={1.8} aria-hidden />{r.stars}</span>
                     )}

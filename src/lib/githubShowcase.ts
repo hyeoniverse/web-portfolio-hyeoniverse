@@ -10,6 +10,14 @@ import { getSecret } from "@/lib/getSecret";
  * 한 시간에 한 번만 실제 호출이 나가므로 토큰 없이도 여유가 있다.
  */
 
+/**
+ * 프로필의 Pinned 영역에 실제로 그려지는 개수.
+ *
+ * 화면(ProfileGithub)과 고르는 화면(ProfileGithubEditor)이 같은 값을 봐야 한다 —
+ * 예전엔 화면에서만 잘라내서, 관리자에서 일곱 개째를 골라도 아무 말 없이 사라졌다.
+ */
+export const PINNED_REPO_LIMIT = 6;
+
 export interface GithubRepoCard {
   name: string;
   url: string;

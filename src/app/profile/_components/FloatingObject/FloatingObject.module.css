@@ -14,58 +14,96 @@
 }
 
 /* ── Speech Bubble ── */
-.speechBubble {
-  position: absolute;
+/* 말풍선은 두 층이다 — 아래는 껍데기(흐림+테두리+꼬리), 위는 글자.
+   나눈 이유는 반전 때문이다. position: fixed 는 그 자체로 stacking context 를 만들어서,
+   한 요소 안에 글자를 넣으면 mix-blend-mode 가 페이지가 아니라 그 요소 안에서 계산된다.
+   형제로 두면 글자 층이 루트 위에서 섞이므로 아래 껍데기와 페이지를 모두 본다.
+   두 층은 글·여백·글꼴이 같고 같은 좌표를 받아 정확히 겹친다. */
+.speechBubble,
+.speechBubbleText {
+  position: fixed;
   top: 0;
   left: 0;
-  will-change: transform;
+  display: inline-block;
   white-space: nowrap;
   padding: var(--spacing-xs) var(--spacing-lg);
+  border: 1px solid transparent;
+  font-size: var(--font-size-label);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* 껍데기 — 글자는 자리만 잡고 안 보인다(위 층이 그린다). */
+.speechBubble {
+  z-index: calc(var(--z-nav) + 3);
   border-radius: var(--radius-capsule);
   backdrop-filter: blur(4px);
-  border: var(--border-strong);
-  font-size: var(--font-size-label);
-  color: var(--text-primary);
+  border-color: var(--border-color-strong);
+  color: transparent;
+
+  /* 꼬리가 붙는 자리의 아래 테두리를 도려낸다. 안 도려내면 꼬리 입구를 가로지르는 선이
+     남아, 몸통과 꼬리 사이에 없는 경계가 하나 생긴다.
+     mask 라서 테두리와 흐림만 없어지고 — 이 층은 글자를 안 그린다(윗층이 그린다) —
+     그 자리는 꼬리가 자기 흐림으로 메운다. */
+  mask-image:
+    radial-gradient(circle 7px at 50% 100%, #000 100%, transparent 0),
+    linear-gradient(#000, #000);
+  mask-composite: exclude;
+}
+
+/* 글자 — 흰색으로 두고 뒤와 반전시킨다. 밝은 지면에서는 검게, 어두운 데서는 희게 읽힌다.
+   몽이 몸이나 큰 글자 위를 지나도 뒤집히며 계속 읽힌다. */
+.speechBubbleText {
+  z-index: calc(var(--z-nav) + 4);
+  color: var(--bg-white);
+  mix-blend-mode: difference;
+}
+
+/* 클래스를 두 번 적어 (0,2,0) — 아래 .speechBubbleTail 의 visibility: hidden 과 같은 층이면
+   어느 쪽이 이길지 파일 순서가 정한다. 실제로 꼬리가 계속 숨어 있었다. */
+.speechBubbleVisible.speechBubbleVisible {
+  visibility: visible;
+}
+
+/* 찍는 중임을 알리는 커서. 다 찍으면 사라진다.
+   글자 층 안이라 말풍선과 함께 반전된다 — 따로 색을 고르지 않는다. */
+.caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 0.12em;
+  background: currentcolor;
+  vertical-align: -0.12em;
+  animation: caretBlink 0.9s steps(1, end) infinite;
+}
+
+@keyframes caretBlink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret {
+    animation: none;
+  }
+}
+
+/* 꼬리 — 45° 돌린 네모의 두 변. 예전엔 삼각형 두 장(테두리색 + 배경색)을 겹쳐 만들었는데,
+   안쪽을 --bg-primary 로 덮어 가려야 해서 몸통은 투명한데 꼬리만 불투명한 조각으로 남았다
+   — 몽이나 사진 위로 지나갈 때 그 조각이 그대로 보였다.
+   껍데기와 형제로 띄운다. 껍데기 안에 두면 껍데기에 건 mask 에 같이 잘린다. */
+.speechBubbleTail {
+  position: fixed;
+  z-index: calc(var(--z-nav) + 3);
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
+  border-right: var(--border-strong);
+  border-bottom: var(--border-strong);
+  background: transparent;
+  backdrop-filter: blur(4px);
   pointer-events: none;
-  opacity: 0;
-  transition: none;
-}
-
-/* compound selector (0,2,0) beats global theme transition (0,1,1) */
-.overlay .speechBubble {
-  transition: opacity 0.3s ease;
-}
-
-.speechBubbleVisible {
-  opacity: 1;
-}
-
-/* tail triangle */
-.speechBubble::after {
-  content: "";
-  position: absolute;
-  bottom: -7px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 7px solid var(--text-primary);
-}
-
-.speechBubble::before {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 6px solid var(--bg-primary);
-  z-index: 1;
+  visibility: hidden;
 }
 
 /* ── Mobile vw ── */
@@ -76,17 +114,9 @@
     backdrop-filter: blur(5vw);
   }
 
-  .speechBubble::after {
-    bottom: -1.5vw;
-    border-left: 1.25vw solid transparent;
-    border-right: 1.25vw solid transparent;
-    border-top: 1.5vw solid var(--text-primary);
-  }
-
-  .speechBubble::before {
-    bottom: -1vw;
-    border-left: 1vw solid transparent;
-    border-right: 1vw solid transparent;
-    border-top: 1.25vw solid var(--bg-primary);
+  .speechBubbleTail {
+    width: 2.2vw;
+    height: 2.2vw;
+    backdrop-filter: blur(5vw);
   }
 }

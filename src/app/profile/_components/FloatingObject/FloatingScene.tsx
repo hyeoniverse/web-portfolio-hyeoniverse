@@ -212,12 +212,21 @@ export default function FloatingScene({
 
     const sv = spinVel.current;
 
-    if (p.x < -halfW + m) {
-      p.x = -halfW + m;
+    /* 좌우 벽은 말풍선 몫을 빼고 세운다.
+       말풍선은 몽이 머리 위에 가운데 정렬로 뜨는데, 몽이가 화면 가장자리까지 가면 그 절반이
+       화면 밖으로 잘린다 — 자리에 앉았다 풀린 직후가 특히 그랬다(앉는 자리가 패널 왼쪽에
+       치우쳐 있어서 풀리자마자 왼쪽 끝이었다).
+       앉아 있는 동안에도 이 좌표는 계속 굴러가므로, 여기서 막아 두면 풀렸을 때 안쪽에서 시작한다. */
+    const worldPerPx = (halfH * 2) / window.innerHeight;
+    const bubbleGuard = Math.min(250, window.innerWidth * 0.22) * worldPerPx;
+    const wallX = Math.max(halfW - m - bubbleGuard, halfW * 0.15);
+
+    if (p.x < -wallX) {
+      p.x = -wallX;
       v.x = Math.abs(v.x) * BUNNY.wallRestitution;
       sv.set(sv.x, sv.y + v.x * 3, sv.z - v.y * 2);
-    } else if (p.x > halfW - m) {
-      p.x = halfW - m;
+    } else if (p.x > wallX) {
+      p.x = wallX;
       v.x = -Math.abs(v.x) * BUNNY.wallRestitution;
       sv.set(sv.x, sv.y + v.x * 3, sv.z - v.y * 2);
     }

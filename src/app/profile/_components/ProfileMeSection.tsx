@@ -22,6 +22,8 @@ import { useMobileLayout } from "@/hooks/useMobileLayout";
 import { useProfileSectionStore } from "@/stores/profileSectionStore";
 import ProfileWindows from "./ProfileWindows";
 import MarqueeDivider from "./MarqueeDivider";
+import HoverEmphasis from "./HoverEmphasis/HoverEmphasis";
+import ScrollDrawScene from "./ScrollDrawScene/ScrollDrawScene";
 import BunnyShowcasePanel from "./BunnyShowcase/BunnyShowcasePanel";
 import NightSky from "./BunnyShowcase/NightSky";
 import { useBunnyExpressionCycle } from "./BunnyShowcase/useBunnyExpressionCycle";
@@ -92,8 +94,10 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
 
   const panelSet = (key: number) => (
     <Fragment key={key}>
-      {/* Panel 1: Hero */}
-      <div className={styles.panel}>
+      {/* Panel 1: Hero — data-set-anchor 는 한 세트의 시작점.
+          배경의 ScrollDrawScene 이 여기서부터 얼마나 왔는지로 진행도를 잰다.
+          무한 스크롤이면 세트가 여러 벌이라, 기준점 사이 거리가 곧 한 바퀴 길이다. */}
+      <div className={styles.panel} data-set-anchor>
         <div className={styles.heroContent}>
           <span className={`${styles.label} ${styles.animate}`}>
             <T ko={p.title_ko} en={p.title} />
@@ -124,39 +128,41 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
       <MarqueeDivider className={styles.breakPanel} />
 
       {/* Panel 3: Profile */}
-      <div className={`${styles.panel} ${styles.profilePanel}`}>
+      <div className={`${styles.panel} ${styles.profilePanel}`} data-emph-panel>
         <ProfileWindows className={styles.animate} isMobile={isMobile} infoBlocks={infoBlocks} />
         <div className={`${styles.profileContent} ${styles.animate}`}>
+          <HoverEmphasis>
           <h3 className={styles.sectionSubtitle}><T k="profilePage.profile" /></h3>
-          <p className={styles.bioHighlight}>
+          <p className={styles.bioHighlight} data-emph-row>
             <T ko={p.bioHighlight_ko} en={p.bioHighlight} />
           </p>
-          <p className={styles.bioText}><T ko={p.bioText1_ko} en={p.bioText1} /></p>
-          <p className={styles.bioText}><T ko={p.bioText2_ko} en={p.bioText2} /></p>
+          <p className={styles.bioText} data-emph-row><T ko={p.bioText1_ko} en={p.bioText1} /></p>
+          <p className={styles.bioText} data-emph-row><T ko={p.bioText2_ko} en={p.bioText2} /></p>
           {(ko ? p.bioText3_ko : p.bioText3) && (
-            <p className={styles.bioText}><T ko={p.bioText3_ko} en={p.bioText3} /></p>
+            <p className={styles.bioText} data-emph-row><T ko={p.bioText3_ko} en={p.bioText3} /></p>
           )}
 
           <div className={styles.stats}>
-            <div className={styles.stat}>
-              <span className={styles.statNumber}>{p.statsYearsValue}</span>
+            <div className={styles.stat} data-emph-row>
+              <span className={styles.statNumber} data-emph>{p.statsYearsValue}</span>
               <span className={styles.statLabel}>
                 <T ko={p.statsYears_ko} en={p.statsYears} />
               </span>
             </div>
-            <div className={styles.stat}>
-              <span className={styles.statNumber}>{p.statsProjectsValue}</span>
+            <div className={styles.stat} data-emph-row>
+              <span className={styles.statNumber} data-emph>{p.statsProjectsValue}</span>
               <span className={styles.statLabel}>
                 <T ko={p.statsProjects_ko} en={p.statsProjects} />
               </span>
             </div>
-            <div className={styles.stat}>
-              <span className={styles.statNumber}>{p.statsClientsValue}</span>
+            <div className={styles.stat} data-emph-row>
+              <span className={styles.statNumber} data-emph>{p.statsClientsValue}</span>
               <span className={styles.statLabel}>
                 <T ko={p.statsClients_ko} en={p.statsClients} />
               </span>
             </div>
           </div>
+          </HoverEmphasis>
         </div>
       </div>
 
@@ -194,41 +200,43 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
       )}
 
       {/* Panel 6: Experience */}
-      <div className={styles.panel}>
+      <div className={`${styles.panel} ${styles.panelIndent}`} data-emph-panel>
         <span className={styles.panelWatermark}>experience</span>
-        <span className={styles.decorBlob} />
         <div className={styles.panelInner}>
-          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            <T k="profilePage.experience" />
-          </h3>
-          <div className={styles.expTimeline}>
-            {experiences.map((exp, index) => (
-              <div
-                key={index}
-                className={`${styles.expRow} ${styles.animate}`}
-              >
-                <span className={styles.expPeriod}>
-                  {formatPeriod(exp.period, language)}
-                </span>
-
-                <div className={styles.expMarker}>
-                  <span className={styles.expDot} />
-                  {index < experiences.length - 1 && (
-                    <span className={styles.expLine} />
-                  )}
+            <HoverEmphasis>
+            <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+              <T k="profilePage.experience" />
+            </h3>
+            <div className={styles.expTimeline}>
+              {experiences.map((exp, index) => (
+                <div
+                  key={index}
+                  className={`${styles.expRow} ${styles.animate}`}
+                  data-emph-row
+                >
+                  <span className={styles.expPeriod}>
+                    {formatPeriod(exp.period, language)}
+                  </span>
+  
+                  <div className={styles.expMarker}>
+                    <span className={styles.expDot} />
+                    {index < experiences.length - 1 && (
+                      <span className={styles.expLine} />
+                    )}
+                  </div>
+  
+                  <div className={styles.expContent}>
+                    <h4 className={styles.expRole} data-emph>{exp.role[language]}</h4>
+                    <span className={styles.expCompany} data-emph>{exp.company}</span>
+                    <p className={styles.expDesc}>
+                      {exp.description[language]}
+                    </p>
+                  </div>
                 </div>
-
-                <div className={styles.expContent}>
-                  <h4 className={styles.expRole}>{exp.role[language]}</h4>
-                  <span className={styles.expCompany}>{exp.company}</span>
-                  <p className={styles.expDesc}>
-                    {exp.description[language]}
-                  </p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            </HoverEmphasis>
           </div>
-        </div>
       </div>
 
       {/* Break: Marquee 2 */}
@@ -236,44 +244,47 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
 
       {/* Panel 7–10: Skills (one panel per category) */}
       {skillGroups.map((group, gi) => (
-        <div key={`skill-${gi}`} className={styles.panel}>
+        <div key={`skill-${gi}`} className={`${styles.panel} ${gi % 2 === 1 ? styles.panelIndent : ""}`} data-emph-panel>
           <span className={styles.panelWatermark}>
             {group.category.split(" ")[0].toLowerCase()}
           </span>
           <div className={styles.panelInner}>
-            <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-              <T k="profilePage.skills" />
-            </h3>
-            <div className={styles.skillPanelLayout}>
-              <div className={`${styles.skillPanelHeader} ${styles.animate}`}>
-                <span className={styles.skillPanelNumber}>
-                  0{gi + 1}
-                </span>
-                <h3 className={styles.skillPanelCategory}>
-                  {group.category}
-                </h3>
-                <span className={styles.skillPanelAccent} />
-                <p className={styles.skillPanelDesc}>
-                  {group.description[language]}
-                </p>
+            <HoverEmphasis>
+              <h3 className={`${styles.sectionKicker} ${styles.animate}`}>
+                <T k="profilePage.skills" />
+              </h3>
+              <div className={styles.skillPanelLayout}>
+                <div className={`${styles.skillPanelHeader} ${styles.animate}`} data-emph-row>
+                  <span className={styles.skillPanelNumber}>
+                    0{gi + 1}
+                  </span>
+                  <h3 className={styles.skillPanelCategory} data-emph>
+                    {group.category}
+                  </h3>
+                  <span className={styles.skillPanelAccent} />
+                  <p className={styles.skillPanelDesc}>
+                    {group.description[language]}
+                  </p>
+                </div>
+  
+                <div className={styles.skillPanelList}>
+                  {group.skills.map((skill, si) => (
+                    <div
+                      key={si}
+                      className={`${styles.skillPanelItem} ${styles.animate}`}
+                      data-emph-row
+                    >
+                      <h4 className={styles.skillPanelItemName} data-emph>
+                        {skill.name}
+                      </h4>
+                      <p className={styles.skillPanelItemDesc}>
+                        {skill.description[language]}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
-
-              <div className={styles.skillPanelList}>
-                {group.skills.map((skill, si) => (
-                  <div
-                    key={si}
-                    className={`${styles.skillPanelItem} ${styles.animate}`}
-                  >
-                    <h4 className={styles.skillPanelItemName}>
-                      {skill.name}
-                    </h4>
-                    <p className={styles.skillPanelItemDesc}>
-                      {skill.description[language]}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            </HoverEmphasis>
           </div>
         </div>
       ))}
@@ -282,118 +293,127 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
       <MarqueeDivider className={styles.breakPanel} />
 
       {/* Panel 11: Philosophy */}
-      <div className={styles.panel}>
+      <div className={styles.panel} data-emph-panel>
         <span className={styles.panelWatermark}>mindset</span>
-        <span className={`${styles.decorBlob} ${styles.decorBlobAlt}`} />
         <div className={styles.panelInner}>
-          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            <T k="profilePage.principles" />
-          </h3>
-          <div className={styles.philosophyStack}>
-            {philosophy.map((item, index) => (
-              <div
-                key={index}
-                className={`${styles.philosophyRow} ${styles.animate}`}
-              >
-                <div className={styles.philosophyLeft}>
-                  <span className={styles.philosophyIndex}>
-                    0{index + 1}
-                  </span>
-                  <h3 className={styles.philosophyHeadline}>
-                    {item.title}
-                  </h3>
+            <HoverEmphasis>
+            <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+              <T k="profilePage.principles" />
+            </h3>
+            <div className={styles.philosophyStack}>
+              {philosophy.map((item, index) => (
+                <div
+                  key={index}
+                  className={`${styles.philosophyRow} ${styles.animate}`}
+                  data-emph-row
+                >
+                  <div className={styles.philosophyLeft}>
+                    <span className={styles.philosophyIndex}>
+                      0{index + 1}
+                    </span>
+                    <h3 className={styles.philosophyHeadline} data-emph>
+                      {item.title}
+                    </h3>
+                  </div>
+                  <p className={styles.philosophyBody}>
+                    {item.description[language]}
+                  </p>
                 </div>
-                <p className={styles.philosophyBody}>
-                  {item.description[language]}
-                </p>
-              </div>
-            ))}
+              ))}
+            </div>
+            </HoverEmphasis>
           </div>
-        </div>
       </div>
 
       {/* Panel 12: My Approach */}
-      <div className={styles.panel}>
+      <div className={styles.panel} data-emph-panel>
         <span className={styles.panelWatermark}>process</span>
         <div className={styles.panelInner}>
-          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            <T k="profilePage.workflow" />
-          </h3>
-          <div className={styles.approachStack}>
-            {approachSteps.map((step, index) => (
-              <div
-                key={index}
-                className={`${styles.approachRow} ${styles.animate}`}
-              >
-                <div className={styles.approachLeft}>
-                  <span className={styles.approachNum}>{step.number}</span>
-                  <h3 className={styles.approachName}>{step.title}</h3>
+            <HoverEmphasis>
+            <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+              <T k="profilePage.workflow" />
+            </h3>
+            <div className={styles.approachStack}>
+              {approachSteps.map((step, index) => (
+                <div
+                  key={index}
+                  className={`${styles.approachRow} ${styles.animate}`}
+                  data-emph-row
+                >
+                  <div className={styles.approachLeft}>
+                    <span className={styles.approachNum}>{step.number}</span>
+                    <h3 className={styles.approachName} data-emph>{step.title}</h3>
+                  </div>
+                  <p className={styles.approachBody}>
+                    {step.description[language]}
+                  </p>
                 </div>
-                <p className={styles.approachBody}>
-                  {step.description[language]}
-                </p>
-              </div>
-            ))}
+              ))}
+            </div>
+            </HoverEmphasis>
           </div>
-        </div>
       </div>
 
       {/* Panel 13: Certifications & Awards */}
-      <div className={styles.panel}>
+      <div className={`${styles.panel} ${styles.panelIndent}`} data-emph-panel>
         <span className={styles.panelWatermark}>credentials</span>
         <div className={styles.panelInner}>
-          <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
-            <T k="profilePage.certsAndAwards" />
-          </h3>
-          <div className={styles.credentialColumns}>
-            <div className={styles.credentialColumn}>
-              <h4 className={`${styles.credentialHeading} ${styles.animate}`}>
-                <T k="profilePage.certifications" />
-              </h4>
-              <div className={styles.credentialList}>
-                {certifications.map((cert, index) => (
-                  <div
-                    key={index}
-                    className={`${styles.credentialItem} ${styles.animate}`}
-                  >
-                    <span className={styles.credentialYear}>{formatPeriod(cert.period, language)}</span>
-                    <div className={styles.credentialInfo}>
-                      <h5 className={styles.credentialName}>
-                        {cert.name[language]}
-                      </h5>
-                      <span className={styles.credentialOrg}>
-                        {cert.issuer[language]}
-                      </span>
+            <HoverEmphasis>
+            <h3 className={`${styles.sectionSubtitle} ${styles.animate}`}>
+              <T k="profilePage.certsAndAwards" />
+            </h3>
+            <div className={styles.credentialColumns}>
+              <div className={styles.credentialColumn}>
+                <h4 className={`${styles.credentialHeading} ${styles.animate}`}>
+                  <T k="profilePage.certifications" />
+                </h4>
+                <div className={styles.credentialList}>
+                  {certifications.map((cert, index) => (
+                    <div
+                      key={index}
+                      className={`${styles.credentialItem} ${styles.animate}`}
+                      data-emph-row
+                    >
+                      <span className={styles.credentialYear}>{formatPeriod(cert.period, language)}</span>
+                      <div className={styles.credentialInfo}>
+                        <h5 className={styles.credentialName} data-emph>
+                          {cert.name[language]}
+                        </h5>
+                        <span className={styles.credentialOrg}>
+                          {cert.issuer[language]}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+              <div className={styles.credentialColumn}>
+                <h4 className={`${styles.credentialHeading} ${styles.animate}`}>
+                  <T k="profilePage.awards" />
+                </h4>
+                <div className={styles.credentialList}>
+                  {awards.map((award, index) => (
+                    <div
+                      key={index}
+                      className={`${styles.credentialItem} ${styles.animate}`}
+                      data-emph-row
+                    >
+                      <span className={styles.credentialYear}>{formatPeriod(award.period, language)}</span>
+                      <div className={styles.credentialInfo}>
+                        <h5 className={styles.credentialName} data-emph>
+                          {award.name[language]}
+                        </h5>
+                        <span className={styles.credentialOrg}>
+                          {award.organization[language]}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-            <div className={styles.credentialColumn}>
-              <h4 className={`${styles.credentialHeading} ${styles.animate}`}>
-                <T k="profilePage.awards" />
-              </h4>
-              <div className={styles.credentialList}>
-                {awards.map((award, index) => (
-                  <div
-                    key={index}
-                    className={`${styles.credentialItem} ${styles.animate}`}
-                  >
-                    <span className={styles.credentialYear}>{formatPeriod(award.period, language)}</span>
-                    <div className={styles.credentialInfo}>
-                      <h5 className={styles.credentialName}>
-                        {award.name[language]}
-                      </h5>
-                      <span className={styles.credentialOrg}>
-                        {award.organization[language]}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            </HoverEmphasis>
           </div>
-        </div>
       </div>
 
       {/* Panel 14: Credits */}
@@ -403,6 +423,9 @@ export default function ProfileMeSection({ profileData, showcase }: ProfileMeSec
 
   return (
     <section ref={sectionRef} className={styles.section}>
+      {/* 가로 스크롤 전체에 걸쳐 그려지는 배경 장면. 트랙 밖(화면 고정)이라
+          첫 패널부터 끝까지 계속 보이고, 스크롤한 만큼 그려진다. */}
+      <ScrollDrawScene trackRef={trackRef} infinite={!isMobile && infiniteScroll} />
       <div ref={trackRef} className={styles.track}>
         {isMobile || !infiniteScroll
           ? panelSet(0)
