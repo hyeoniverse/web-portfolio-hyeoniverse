@@ -372,7 +372,6 @@ export const aboutDecisions: TroubleShootingItem[] = [
 
 export const aboutSecurity: CfgSecurity[] = [
   {
-    "layer": "SQL Injection",
     "icon": "db",
     "title_ko": "SQL Injection 방지",
     "title_en": "SQL Injection Prevention",
@@ -382,7 +381,6 @@ export const aboutSecurity: CfgSecurity[] = [
     "scope_en": "All DB queries"
   },
   {
-    "layer": "XSS",
     "icon": "shield",
     "title_ko": "XSS 방지",
     "title_en": "XSS Prevention",
@@ -392,7 +390,6 @@ export const aboutSecurity: CfgSecurity[] = [
     "scope_en": "All user input rendering"
   },
   {
-    "layer": "Input Validation",
     "icon": "check",
     "title_ko": "입력 검증",
     "title_en": "Input Validation",
@@ -402,7 +399,6 @@ export const aboutSecurity: CfgSecurity[] = [
     "scope_en": "All public APIs"
   },
   {
-    "layer": "Authentication",
     "icon": "lock",
     "title_ko": "단일 경로 인증",
     "title_en": "Single-path Authentication",
@@ -412,7 +408,6 @@ export const aboutSecurity: CfgSecurity[] = [
     "scope_en": "Comment edit/delete, Admin"
   },
   {
-    "layer": "RLS",
     "icon": "rows",
     "title_ko": "Row Level Security",
     "title_en": "Row Level Security",
@@ -422,7 +417,6 @@ export const aboutSecurity: CfgSecurity[] = [
     "scope_en": "All tables"
   },
   {
-    "layer": "Route Protection",
     "icon": "route",
     "title_ko": "경로 보호",
     "title_en": "Route Protection",
@@ -432,7 +426,6 @@ export const aboutSecurity: CfgSecurity[] = [
     "scope_en": "All /admin/* routes"
   },
   {
-    "layer": "Duplication",
     "icon": "fingerprint",
     "title_ko": "중복 방지",
     "title_en": "Duplication Prevention",
@@ -442,7 +435,6 @@ export const aboutSecurity: CfgSecurity[] = [
     "scope_en": "Likes, visit stats"
   },
   {
-    "layer": "Secrets",
     "icon": "key",
     "title_ko": "시크릿 관리",
     "title_en": "Secrets Management",

@@ -68,7 +68,7 @@ describe("화면을 죽이는 값을 막는다", () => {
 /* 없어도 빈 칸으로 끝나는 값까지 막으면 정상적인 편집이 걸린다. */
 describe("죽지 않는 값은 막지 않는다", () => {
   it("security 항목의 문자열이 비어도 통과", () => {
-    expect(checkAboutContent(wrap({ security: [{ layer: "", icon: "", title_ko: "" }] }))).toBeNull();
+    expect(checkAboutContent(wrap({ security: [{ icon: "", title_ko: "", scope_ko: "" }] }))).toBeNull();
   });
 
   it("Design Decisions 의 선택 필드가 없어도 통과", () => {

@@ -100,7 +100,6 @@ export interface TroubleShootingItem {
 
 /** Security 패널 항목. 값은 md(content/about/security/)에서 구워진다. */
 export interface SecurityItem {
-  layer: string;
   title: LocalizedText;
   description: LocalizedText;
   scope: LocalizedText;

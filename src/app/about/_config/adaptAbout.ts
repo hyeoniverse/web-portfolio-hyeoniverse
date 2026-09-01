@@ -11,7 +11,6 @@ import type { SecurityItem, DesignFeature, ProcessStep } from "@/data/about/type
 
 export function adaptSecurity(list: CfgSecurity[]): SecurityItem[] {
   return list.map((s) => ({
-    layer: s.layer,
     icon: s.icon,
     title: { ko: s.title_ko, en: s.title_en },
     description: { ko: s.description_ko, en: s.description_en },

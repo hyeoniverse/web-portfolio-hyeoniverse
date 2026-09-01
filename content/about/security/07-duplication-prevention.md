@@ -1,5 +1,4 @@
 ---
-layer: Duplication
 icon: fingerprint
 scope: 좋아요, 방문자 통계
 ---
