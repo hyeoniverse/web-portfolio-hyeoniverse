@@ -84,14 +84,6 @@ export const FOOT_PROFILE = (() => {
   return pts;
 })();
 
-const BODY_COLOR = "#f0e6dc";
-const BODY_EMISSIVE = "#c8b8a8";
 export const EYE_COLOR = "#1a1a2e";
 
-export const MAT_PROPS = {
-  color: BODY_COLOR,
-  emissive: BODY_EMISSIVE,
-  emissiveIntensity: 0.05,
-  metalness: 0,
-  roughness: 0.92,
-} as const;
+/* 살 재질은 BunnySkin 이 한 곳에서 정한다 — 여기 있던 사본은 털 질감이 붙으면서 갈렸다. */

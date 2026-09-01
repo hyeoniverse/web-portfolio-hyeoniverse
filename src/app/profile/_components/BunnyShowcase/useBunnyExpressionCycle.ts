@@ -24,6 +24,10 @@ export function useBunnyExpressionCycle(active: boolean) {
     }
     setBunnyExpression(useProfileSectionStore.getState().bunnyExpression ?? "normal");
     const id = setInterval(() => {
+      /* 만지고 있는 동안에는 넘기지 않는다. 볼을 잡히면 놀란 표정, 쓰다듬으면 좋아하는 표정이
+         그 손짓에 붙은 반응인데, 3초마다 다음 표정으로 넘어가면 만진 것과 무관해 보인다. */
+      const touch = useProfileSectionStore.getState().bunnyTouch;
+      if (touch.cheek !== 0 || touch.petting) return;
       /* 매번 지금 값에서 이어간다 — 버튼으로 표정을 바꿔도 그 자리에서 자연스럽게 이어진다. */
       const cur = useProfileSectionStore.getState().bunnyExpression ?? "normal";
       const idx = EXPR_CYCLE.indexOf(cur as (typeof EXPR_CYCLE)[number]);

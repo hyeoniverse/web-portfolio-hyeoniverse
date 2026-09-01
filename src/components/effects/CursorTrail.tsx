@@ -6,7 +6,8 @@ import clsx from "clsx";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import styles from "./CursorTrail.module.css";
 
-type CursorType = "big" | "text" | "grab" | "resize" | "resizeH" | "resizeV" | "resizeDiag" | "disabled" | "stop" | "zoom" | "next" | "prev" | "";
+type CursorType = "big" | "text" | "grab" | "resize" | "resizeH" | "resizeV" | "resizeDiag" | "disabled" | "stop" | "zoom" | "next" | "prev" | "blank" | "";
+
 
 /* ---------------- 헬퍼 함수 ---------------- */
 
@@ -188,8 +189,12 @@ export default function CursorTrail() {
         !!target.closest('[contenteditable="true"]')
       );
 
+      /* body 의 data-cursor 는 "지금은 커서를 그리지 말라" 는 전역 신호다(몽이를 만지는 동안
+         장면 안의 3D 손이 커서 노릇을 한다). 이걸 가장 먼저 본다 — activeDateCursor 는
+         mouseover 캡처 때 잡아 둔 값이라 한 박자 늦고, 그동안 손과 트레일이 같이 보인다. */
       // data-cursor: mouseover 이벤트 결과 + elementsFromPoint 폴백 둘 다 체크
-      const dataCursor = activeDateCursor
+      const dataCursor = (document.body.dataset.cursor as CursorType | undefined)
+        || activeDateCursor
         || target?.closest("[data-cursor]")?.getAttribute("data-cursor") as CursorType | null;
 
       // 네이티브 resize 그립 감지 — resize CSS 가 걸린 요소(코드블록 등)의 우하단 grip 코너 영역이면
@@ -219,6 +224,14 @@ export default function CursorTrail() {
       if (next === "resize" || next === "resizeH" || next === "resizeV" || next === "resizeDiag") {
         angleRef.current = 0;
         scaleRef.current = 0;
+      }
+      /* 클래스는 상태를 거치므로 한 프레임 늦는다. 그 한 프레임 동안 여기 커서와 몽이를 만지는
+         3D 손이 같이 보인다 — 감추라는 신호일 때만 그 프레임에 바로 지운다. */
+      if (cursorRef.current) {
+        const blank = next === "blank";
+        /* 전환도 같이 꺼야 한다. opacity 만 0 으로 두면 0.3 초에 걸쳐 사라져서 그동안 겹친다. */
+        cursorRef.current.style.transition = blank ? "none" : "";
+        cursorRef.current.style.opacity = blank ? "0" : "";
       }
       setCursorType(next);
     };
@@ -331,6 +344,7 @@ export default function CursorTrail() {
   }, [isTouch]);
 
   /* 현재 cursor 상태에 맞는 라벨. 상태가 없으면 빈 문자열. */
+  /* 손 모양 커서는 글자를 안 붙인다 — 손 그림 자체가 무엇을 할 수 있는지 말한다. */
   const computedLabel = cursorType === "grab" ? "Drag"
     : cursorType === "stop" ? "Stop"
     : cursorType === "zoom" ? "View"
@@ -379,6 +393,7 @@ export default function CursorTrail() {
         {cursorType === "zoom" && (
           <ZoomInIcon className={styles.zoomIcon} />
         )}
+
       </div>
     </div>
   );

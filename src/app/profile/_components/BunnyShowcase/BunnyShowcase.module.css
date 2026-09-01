@@ -26,6 +26,13 @@
   cursor: grabbing;
 }
 
+/* 만질 수 있는 자리에서는 장면 안의 3D 손이 커서 노릇을 한다. 네이티브 커서를 끄지 않으면
+   화살표와 손이 같이 떠서 손이 둘이 된다.
+   위 dragging 규칙과 클래스 수가 같아 순서로 이기려 들면 위태롭다 — 속성을 한 번 더 적는다. */
+.dock[data-cursor="blank"][data-cursor] {
+  cursor: none;
+}
+
 /* ── Info Area ── */
 .info {
   display: flex;

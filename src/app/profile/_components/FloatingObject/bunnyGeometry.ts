@@ -106,3 +106,14 @@ export const FOOT_PROFILE = (() => {
 export const BODY_COLOR = "#f0e6dc";
 export const BODY_EMISSIVE = "#c8b8a8";
 export const EYE_COLOR = "#1a1a2e";
+
+/* ── 털을 쌓을 부위의 도형 ────────────────────────────────────
+   셸 렌더링은 같은 도형을 여러 겹 겹쳐 그린다. JSX 안에서 매번 만들면 겹마다 사본이
+   생기고, 무엇보다 머리는 매 프레임 꼭짓점을 밀어 변형하므로 **같은 것**을 봐야 한다 —
+   그래야 털이 눌린 살을 따라간다. */
+export const BODY_GEO = new THREE.LatheGeometry(BODY_PROFILE, 24);
+export const HEAD_GEO = new THREE.SphereGeometry(0.48, 40, 28);
+export const EAR_GEO = new THREE.LatheGeometry(EAR_PROFILE, 16);
+export const ARM_GEO = new THREE.LatheGeometry(ARM_PROFILE, 16);
+export const FOOT_GEO = new THREE.LatheGeometry(FOOT_PROFILE, 16);
+export const TAIL_GEO = new THREE.SphereGeometry(0.14, 16, 12);
