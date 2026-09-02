@@ -85,7 +85,7 @@ Next 16의 빌드는 Turbopack이 기본이고 bundle-analyzer는 webpack 플러
 | 종류 | 대상 | 시점 |
 | --- | --- | --- |
 | `npm run audit:full` | typecheck · eslint · stylelint · knip | 매 커밋 (husky) |
-| `npm run test:smoke` | 공개 라우트 12개 × 2 viewport | PR마다 |
+| `npm run test:smoke` | 공개 라우트 13개 × 2 viewport | PR마다 |
 | 유닛 테스트 | 손댈 `lib`/`utils`/`hooks`의 순수 로직 | 슬라이스 착수 전 보강 |
 | 수동 QA 체크리스트 | 스모크가 못 덮는 영역 | 머지 전 |
 

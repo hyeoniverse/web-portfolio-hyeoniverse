@@ -243,7 +243,7 @@ document.body.innerText.match(/\b(admin|editor)\.[a-zA-Z0-9_.]+/g)
 > 원래 픽셀 단위 시각 회귀였으나, '변경 OK·깨짐만 방지' 방침과 안 맞고(baseline 갱신을 안 해 stale 이 됨) 노이즈가 커서 **스모크 e2e 로 교체**했다. 픽셀 비교 없이 로드·런타임 에러·에러 바운더리·빈 화면만 잡는다.
 
 - 설정: [playwright.config.ts](../playwright.config.ts) · 스펙: [e2e/smoke.spec.ts](../e2e/smoke.spec.ts) · 대상: [e2e/routes.ts](../e2e/routes.ts)
-- 공개 라우트 12개 × desktop(1440×900) / mobile(Pixel 7) = **24 검증**, ~22초
+- 공개 라우트 13개 × desktop(1440×900) / mobile(Pixel 7) = **26 검증**, ~22초
 
 ```bash
 npm run test:smoke          # 공개 라우트

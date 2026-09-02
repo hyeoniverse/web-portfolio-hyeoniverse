@@ -41,10 +41,16 @@ export async function settle(page: Page, skipScroll = false) {
 }
 
 /**
+ * app/not-found.tsx 제목(locales `errorPage.notFoundTitle`). 동적 라우트는 loading.tsx 가 먼저
+ * 스트리밍돼 notFound() 여도 HTTP 200 이라, 상태 코드만으로는 404 화면을 못 거른다.
+ */
+const NOT_FOUND_TITLE = /Page Not Found|페이지를 찾을 수 없습니다/;
+
+/**
  * 한 라우트를 열고 안정화한 뒤 "깨지지 않았는지"만 스모크 검증한다.
  * 픽셀 비교가 아니라 breakage 감시 — UI 변경은 허용하고 아래만 잡는다:
  *
- *   1. 페이지 로드         (HTTP status < 400)
+ *   1. 페이지 로드         (HTTP status < 400, 404 화면 미노출)
  *   2. 런타임 에러 0        (uncaught exception)
  *   3. 에러 바운더리 미노출  (app/error.tsx 가 뜨면 console 에 "Application Error:")
  *   4. 실질 콘텐츠 렌더      (빈/깨진 화면 아님)
@@ -69,6 +75,7 @@ export async function smokeRoute(page: Page, route: Route) {
 
   const bodyText = (await page.locator("body").innerText()).trim();
   expect(bodyText.length, `${route.path} 빈/깨진 화면`).toBeGreaterThan(20);
+  expect(bodyText, `${route.path} 404 화면 (slug 가 DB 에 없음)`).not.toMatch(NOT_FOUND_TITLE);
 
   // 착수 전부터 있던 결함(knownPageErrors)은 걸러내 새 회귀만 남긴다.
   const newErrors = pageErrors.filter(
