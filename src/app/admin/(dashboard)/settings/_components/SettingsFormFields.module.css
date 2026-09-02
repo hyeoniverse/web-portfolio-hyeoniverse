@@ -120,7 +120,9 @@
 }
 /* 업로드된 로고 리컬러 — 카드에서 로고 자체 색을 골라 확인 (로컬, 저장 안 함) */
 .logoPreviewGroup {
-  composes: uRowSm from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   min-width: 0;
 }
 .logoTintControl {
@@ -206,7 +208,8 @@
 }
 /* ── Service Items Editor ── */
 .serviceItems {
-  composes: uCol from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
 }
 
 .serviceItemDragging {

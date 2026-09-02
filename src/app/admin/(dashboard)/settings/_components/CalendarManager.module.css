@@ -1,10 +1,15 @@
 /* ── 달력 관리 (settings > 달력 관리 탭) ── */
 .wrap {
-  composes: uColMd from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .headRow {
-  composes: uRowWrapSm from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 .headCount {
   font-size: var(--font-size-label);
@@ -17,7 +22,9 @@
 }
 
 .list {
-  composes: uCol2xs from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 
 .row {
@@ -95,7 +102,9 @@
 /* 인라인 rename */
 .renameForm { display: flex; align-items: center; gap: var(--spacing-2xs); flex: 1; min-width: 0; }
 .renameInput {
-  composes: uFill from "../Settings.module.css"; }
+  flex: 1;
+  min-width: 0;
+}
 .spin { animation: calMgrSpin 0.7s linear infinite; }
 @keyframes calMgrSpin { to { transform: rotate(360deg); } }
 

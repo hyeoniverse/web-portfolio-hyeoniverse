@@ -42,11 +42,15 @@
 }
 
 .seriesStandaloneActions {
-  composes: uRowXs from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .seriesCardActions {
-  composes: uRowSm from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 /* ── Series Posts List (inline) ── */
 .seriesPostsSection {
@@ -253,7 +257,8 @@
 }
 
 .seriesPostsList {
-  composes: uCol from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
 }
 /* section 의 `> * + *` margin-top override — (0,2,0) compound 로 specificity 일치/우선 */
 .seriesPostsSection > .seriesPostsList {

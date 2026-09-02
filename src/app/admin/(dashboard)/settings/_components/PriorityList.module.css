@@ -1,7 +1,9 @@
 /* PriorityList 전용 스타일 (ServicesTab.module.css 에서 분리) */
 
 .priorityList {
-  composes: uCol2xs from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 
 .priorityList :is(input, .priorityItem) {
@@ -9,7 +11,9 @@
 }
 
 .priorityRow {
-  composes: uRowXs from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .priorityItem {

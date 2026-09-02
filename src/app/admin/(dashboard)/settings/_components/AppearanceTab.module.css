@@ -10,7 +10,9 @@
 }
 /* Design System 섹션 제목 우측(customActions): [hint] | [열기 링크] 한 줄, 우측 정렬. */
 .dsActions {
-  composes: uRowSm from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   min-width: 0;
 }
 /* DS 액션은 이제 blend 밖(정상 색) — 테마 적응 토큰 그대로 쓴다. */
@@ -62,7 +64,9 @@
   flex: 1;
 }
 .logoColorPresets {
-  composes: uWrapXs from "../Settings.module.css";
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 
 .logoColorPresetBtnActive.logoColorPresetBtnActive {
@@ -171,7 +175,9 @@
   width: 100%;
 }
 .faviconPanel {
-  composes: uColMd from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
   min-width: 0;
 }
 /* 두 컬럼 사이 세로 구분선 (넓은 뷰에서만) — 카드 대신 얇은 rule 로 분리 */
@@ -200,10 +206,14 @@
 }
 /* 그림자 — favicon(탭 아이콘) + 네비게이션 로고. 풀로고 아래 별도 brandPart 섹션. */
 .faviconShadowGroup {
-  composes: uColLg from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
 }
 .faviconShadowItem {
-  composes: uColXs from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 /* 그림자 대상 라벨 — favicon / nav·로딩 을 구분. single 모드 내부 라벨과 같은 톤. */
 .faviconShadowSubLabel {
@@ -247,7 +257,9 @@
   width: 100%;
 }
 .faviconColorItem {
-  composes: uCol3xs from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
   min-width: 0;
 }
 /* 라이트/다크 색 편의 버튼 (맞추기·서로 바꾸기·지우기) — duo 두 칼럼 아래 우측 툴바 */
@@ -298,7 +310,9 @@
    ═══════════════════════════════════════════════════════════════════════ */
 /* 그룹 (업로드 / 시스템) — 그룹 사이 구분선으로 분리 */
 .brandGroup {
-  composes: uColLg from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
 }
 .brandGroup + .brandGroup {
   margin-top: var(--spacing-xl);
@@ -307,7 +321,9 @@
 }
 /* 파트 (Favicon / 풀로고) — 탭 안 top-level 서브섹션 */
 .brandPart {
-  composes: uColSm from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 /* 그룹 탭 — 언더라인 스타일 (세그먼트 pill 과 다른 결로 계층 구분) */
 .brandTabs {
@@ -416,7 +432,9 @@
   width: 100%;
 }
 .fullLogoPreviewCell {
-  composes: uCol3xs from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
   min-width: 0;
 }
 .fullLogoPreviewBox {
@@ -444,11 +462,15 @@
   letter-spacing: 0.05em;
 }
 .fullLogoPreviewMeta {
-  composes: uRowXs from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 /* 드롭존 2열 — 라이트/다크. 각 UploadField 는 라벨 1줄 + 고정높이 박스라 나란히 정렬 */
 .brandDrops {
-  composes: uGrid2Md from "../Settings.module.css";
+  display: grid;
+  gap: var(--spacing-md);
+  grid-template-columns: var(--grid-cols-2);
 }
 
 @media (max-width: 640px) {
@@ -642,7 +664,10 @@
 }
 /* 폰트 크기 — Select + (커스텀 모드) stepper 가로 배치 */
 .faviconFontSizeControl {
-  composes: uRowWrapSm from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 /* ── Favicon 배경 반경/크기 슬라이더 (슬라이더 + 값 라벨) ── */
 .faviconSliderControl {
@@ -653,7 +678,8 @@
 }
 
 .faviconSlider {
-  composes: uFill from "../Settings.module.css";
+  flex: 1;
+  min-width: 0;
 }
 
 .faviconSliderValue {
@@ -716,7 +742,9 @@
 
 /* ── 커스텀 폰트 업로드·목록 ── */
 .customFonts {
-  composes: uColSm from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 .customFontsHead {
   display: flex;

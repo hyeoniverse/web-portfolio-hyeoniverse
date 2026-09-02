@@ -10,7 +10,9 @@
   box-sizing: border-box;
 }
 .field {
-  composes: uCol2xs from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 .label {
   color: var(--text-tertiary);
@@ -143,11 +145,16 @@
 }
 
 .rels {
-  composes: uRowWrap2xs from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
 }
 /* 방향별 그룹 — 라벨이 화살표의 의미를 대신한다 */
 .relGroup {
-  composes: uCol2xs from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 .relGroup + .relGroup {
   margin-top: var(--spacing-sm);
@@ -195,7 +202,10 @@ html[data-theme="dark"] .relGroup .rel {
   min-width: 0;
 }
 .footer {
-  composes: uRowSmBetween from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  justify-content: space-between;
 }
 .footerRight {
   display: inline-flex;
@@ -222,7 +232,9 @@ html[data-theme="dark"] .relGroup .rel {
   background: var(--bg-accent-subtle);
 }
 .colActions {
-  composes: uRow2xs from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
 }
 
 /* 표 안 Select — 셀처럼 보이게. width="full" 로 폭은 Select 가 맞추고,

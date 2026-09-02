@@ -6,7 +6,10 @@
   min-width: 0;
 }
 .toolbar {
-  composes: uRowWrapXs from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 .hint {
   margin: 0;

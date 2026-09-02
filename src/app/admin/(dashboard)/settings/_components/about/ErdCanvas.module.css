@@ -1,8 +1,13 @@
 .wrap {
-  composes: uColSm from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 .toolbar {
-  composes: uRowWrapXs from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 /* 공통 SearchCapsule — 폭만 잡는다 */
 .search {

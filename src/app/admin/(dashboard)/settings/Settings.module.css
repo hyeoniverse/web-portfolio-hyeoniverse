@@ -1,27 +1,3 @@
-/* ── 레이아웃 공유 유틸 (중복 flex/grid 패턴 통합) ── */
-.uCenter { display: flex; align-items: center; justify-content: center; }
-.uRow { display: flex; align-items: center; }
-.uRowXs { composes: uRow; gap: var(--spacing-xs); }
-.uRowSm { composes: uRow; gap: var(--spacing-sm); }
-.uRow2xs { composes: uRow; gap: var(--spacing-2xs); }
-.uRowSmBetween { composes: uRowSm; justify-content: space-between; }
-.uRowWrapSm { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
-.uRowWrapXs { composes: uRow; flex-wrap: wrap; gap: var(--spacing-xs); }
-.uRowWrap2xs { composes: uRow; flex-wrap: wrap; gap: var(--spacing-2xs); }
-.uWrapXs { display: flex; flex-wrap: wrap; gap: var(--spacing-xs); }
-.uInlineRow2xs { display: inline-flex; align-items: center; gap: var(--spacing-2xs); }
-.uFill { flex: 1; min-width: 0; }
-.uCol { display: flex; flex-direction: column; }
-.uColXs { composes: uCol; gap: var(--spacing-xs); }
-.uColSm { composes: uCol; gap: var(--spacing-sm); }
-.uColMd { composes: uCol; gap: var(--spacing-md); }
-.uColLg { composes: uCol; gap: var(--spacing-lg); }
-.uColXl { composes: uCol; gap: var(--spacing-xl); }
-.uCol2xs { composes: uCol; gap: var(--spacing-2xs); }
-.uCol3xs { composes: uCol; gap: var(--spacing-3xs); }
-.uGrid2Sm { display: grid; gap: var(--spacing-sm); grid-template-columns: var(--grid-cols-2); }
-.uGrid2Md { display: grid; gap: var(--spacing-md); grid-template-columns: var(--grid-cols-2); }
-
 .message {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -153,7 +129,9 @@
   width: 100%;
 }
 
-.fieldGroup { composes: uCol;
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
 }
 
 .fieldGroup > .fieldRow {
@@ -231,7 +209,9 @@
 }
 
 .fieldLabel {
-  composes: uCol3xs;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
   width: auto;
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -242,7 +222,9 @@
 
 /* ── Color Field ── */
 .colorField {
-  composes: uRowXs;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   flex: 1;
   min-width: 0;
 }
@@ -268,7 +250,9 @@
 
 /* ColorField / 로고 색상 hex Input — flex 1 로 ColorPicker 옆에서 stretch.
    공통 Input 컴포넌트 사용 (height 등 control 시스템 따라감) */
-.colorInput { composes: uFill;
+.colorInput {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ── Theme Presets ── */
@@ -287,7 +271,9 @@
 }
 
 .presetCard {
-  composes: uRowSm;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   height: 52px;
   padding: 0 var(--spacing-md) 0 0;
   border: var(--border-light);
@@ -319,7 +305,9 @@
 }
 
 .presetCardRemove {
-  composes: uCenter;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: absolute;
   top: -4px;
   right: -4px;
@@ -377,7 +365,10 @@
    각 FieldRow 를 display:contents 로 풀어 라벨/컨트롤을 이 그리드의 셀로 편입 →
    라벨은 max-content 공통열에 정렬되고 컨트롤은 우측 1fr(최대 30rem)을 채워 좌우 라인이 맞는다. */
 /* 배경색 — 라이트/다크 컴팩트 인라인 (좁은 hex 입력) */
-.faviconImageBgField { composes: uRow2xs;
+.faviconImageBgField {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
 }
 .faviconImageBgField .colorField {
   flex: 0 0 auto;
@@ -390,7 +381,10 @@
 
 /* ── Logo Upload ── */
 .logoUpload {
-  composes: uRowWrapSm;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
   flex: 1;
   min-width: 0;
 }
@@ -418,7 +412,9 @@
 }
 
 .sectionHintList {
-  composes: uCol3xs;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
@@ -450,7 +446,10 @@
 }
 
 /* 라벨 텍스트와 dot 을 가로 한 줄로 묶는 컨테이너 (.fieldLabel 이 column 이라 필요) */
-.fieldLabelText { composes: uRow2xs;
+.fieldLabelText {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
 }
 
 /* 필수 입력 표시 dot.
@@ -475,7 +474,9 @@
 /* ── Fallback Priority List ── */
 
 .priorityBtn {
-  composes: uCenter;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 100%;
   aspect-ratio: 1;
   border: none;
@@ -502,7 +503,10 @@
 
 /* ── Profile Sections (embedded in Content tab) ── */
 
-.profileGrid { composes: uGrid2Sm;
+.profileGrid {
+  display: grid;
+  gap: var(--spacing-sm);
+  grid-template-columns: var(--grid-cols-2);
 }
 
 .profileAddBtn {
@@ -527,7 +531,9 @@
 }
 
 .seriesCoverPreview {
-  composes: uCenter;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 210px;
   aspect-ratio: 16 / 9;
   border: var(--border-light);
@@ -541,7 +547,10 @@
   object-fit: cover;
 }
 
-.publishToggle { composes: uRowXs;
+.publishToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .publishLabel {
@@ -628,7 +637,9 @@
 
 /* 제목 — 버튼 ↔ 헤더 사이에서 styling 만 변하면서 morph */
 .newSeriesShellTitle {
-  composes: uCenter;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   padding: var(--spacing-xs) var(--spacing-md);
   border: none;
@@ -699,7 +710,9 @@
 /* actions(토글/취소/만들기) — 닫힘 상태에서는 column 0fr 로 안 보임,
    열림 상태에서 fade in */
 .newSeriesShellActions {
-  composes: uRowXs;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   padding-right: var(--spacing-md);
   white-space: nowrap;
   overflow: hidden;
@@ -728,7 +741,10 @@
 }
 
 /* ── Field group (label + inputs) ── */
-.fieldGroup { composes: uColXs;
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
 .fieldGroupLabel {
@@ -761,7 +777,9 @@
 }
 
 /* ── Font Picker — editor 의 FontPicker 패턴 (Select + dropdown 내부 search + 필터링 목록) ── */
-.fontPickerSelect { composes: uFill;
+.fontPickerSelect {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Typography 등 .fields 안 FontSelect — Select 기본 width:max-content 를 눌러 열 폭을
@@ -835,7 +853,11 @@
 /* ── Tag descriptions editor — bilingual + search/sort/pagination ── */
 
 /* 필터 row — 정렬/검색 row 와 분리된 별도 줄. 그룹 사이 divider. */
-.tagDescFilterRow { composes: uRowWrapSm;
+.tagDescFilterRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 
 /* 필터 버튼 안 활성 개수 배지 — primary 버튼 위에 밝은 pill + 중립 숫자 (accent 미사용) */
@@ -863,7 +885,10 @@
   transform: rotate(180deg);
 }
 
-.tagDescFilterGroup { composes: uInlineRow2xs;
+.tagDescFilterGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
 }
 
 .tagDescFilterGroupLabel {
@@ -897,7 +922,9 @@
 }
 
 /* filterRow + filterDrawer 묶음 컨테이너 */
-.tagDescToolbarWrap { composes: uCol;
+.tagDescToolbarWrap {
+  display: flex;
+  flex-direction: column;
 }
 
 /* 필터 펼침 wrap — height 애니메이션 (overflow: hidden 으로 child clip) */
@@ -907,7 +934,10 @@
 
 /* 필터 펼침 영역 — toolbar 아래에 inline 노출 (배경/radius/border 없이 깔끔) */
 .tagDescFilterDrawer {
-  composes: uRowWrapSm;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
   margin-top: var(--spacing-xs);
 }
 
@@ -917,7 +947,10 @@
 }
 
 /* chip 영역 + count 묶음 — count 는 chip block 끝에 중앙 정렬 */
-.tagDescChipsBlock { composes: uColMd;
+.tagDescChipsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 /* toolbar 내 count — SegmentedControl 오른쪽, search (margin-left:auto) 앞 자연 배치. */
@@ -1038,7 +1071,10 @@ a.tagRelatedItem:hover {
 }
 
 /* section fields 내부 grid utility — 2-col / 3-col */
-.fieldsGrid2 { composes: uGrid2Md;
+.fieldsGrid2 {
+  display: grid;
+  gap: var(--spacing-md);
+  grid-template-columns: var(--grid-cols-2);
 }
 
 @media (max-width: 768px) {
@@ -1056,7 +1092,10 @@ a.tagRelatedItem:hover {
 }
 
 /* chip 라벨 — KO 이름 + separator + EN 이름 둘 다 표시 */
-.worksCatChipLabel { composes: uInlineRow2xs;
+.worksCatChipLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
 }
 
 .worksCatChipSep {
@@ -1108,7 +1147,10 @@ a.tagRelatedItem:hover {
 }
 
 /* 우측 actions — edit 모드는 Cancel + Save 2개 */
-.worksCatAddActions { composes: uInlineRow2xs;
+.worksCatAddActions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
 }
 
 /* form row — 라벨 좌측 고정 너비 + 입력 우측 stretch */
