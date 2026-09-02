@@ -1,4 +1,4 @@
-/** 시각 회귀 대상 라우트. 리팩토링 슬라이스를 시작할 때 해당 도메인 라우트가 여기 있는지 먼저 확인한다. */
+/** 스모크 e2e 대상 라우트. 리팩토링 슬라이스를 시작할 때 해당 도메인 라우트가 여기 있는지 먼저 확인한다. */
 export type Route = {
   path: string;
   /** 테스트 이름 (슬래시 대신 사용) */
@@ -25,8 +25,13 @@ export const PUBLIC_ROUTES: Route[] = [
   { path: "/posts/series", name: "posts-series" },
   { path: "/posts/tags", name: "posts-tags" },
   { path: "/posts/history", name: "posts-history" },
-  // 본문 lazy 이미지·코드 하이라이트가 모바일에서 늦게 붙어 하단이 흔들린다.
-  { path: "/posts/accessibility-checklist", name: "post-detail" },
+  // 글 상세는 DB 에 있는 slug 여야 한다. 없으면 notFound 인데 loading.tsx 스트리밍 때문에 HTTP 는 200 이라
+  // 스모크가 404 화면을 보고도 통과한다 (accessibility-checklist 가 그랬다 — 시드 재작성 9678cf42 때 사라진 글).
+  // nar-1 은 scripts/seed-series-posts.ts 로 다시 만들 수 있고 시리즈 패널까지 렌더된다.
+  { path: "/posts/nar-1", name: "post-detail" },
+  // 태그별 목록(TagPageClient · TagPage.module.css)은 이 라우트로만 렌더된다. Phase 4-2(posts 슬라이스) 안전망.
+  // 글이 0개면 notFound 라 실제 글이 달린 태그를 고정한다.
+  { path: "/posts/tags/TypeScript", name: "post-tag" },
   {
     path: "/profile",
     name: "profile",
