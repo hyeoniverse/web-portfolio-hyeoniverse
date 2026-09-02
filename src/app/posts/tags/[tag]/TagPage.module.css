@@ -213,44 +213,6 @@
   margin-top: var(--spacing-2xl);
 }
 
-.pageBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  height: 36px;
-  padding: 0 var(--spacing-xs);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.pageBtn:hover:not(:disabled) {
-  color: var(--text-primary);
-  border-color: var(--border-color-strong);
-}
-
-.pageBtn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.pageBtnActive {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-  border-color: var(--bg-inverse);
-}
-
-.ellipsis {
-  padding: 0 var(--spacing-xs);
-  color: var(--text-tertiary);
-}
-
 /* ── Related tags — "관련 태그" label + pills 한 row ── */
 .relatedRow {
   width: 100%;
@@ -318,25 +280,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2xs);
-}
-
-.relatedTag {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  padding: var(--badge-p-lg);
-  border-radius: var(--radius-capsule);
-  background: var(--bg-tertiary);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.relatedTag:hover {
-  background: var(--bg-accent-light);
-  color: var(--text-accent);
 }
 
 /* relatedPill — selectMode off: Link (페이지 이동) / on: button (필터 토글) — 같은 외형 */
