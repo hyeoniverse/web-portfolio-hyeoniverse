@@ -219,10 +219,12 @@
   letter-spacing: 0.04em;
 }
 
-/* 공통 Pagination 컴포넌트 wrapper — 위쪽 여백 + 버튼 사이즈 축소 (정렬 list 컴팩트 버전) */
-.pagination {
+/* 공통 Pagination 컴포넌트 wrapper — 위쪽 여백 + 버튼 사이즈 축소 (정렬 list 컴팩트 버전).
+   .paginationWrap(margin-top: md, gap: sm) 과 같은 (0,1,0) 이면 번들 순서가 승자를 정한다 —
+   클래스를 두 번 적어 (0,2,0). 전엔 margin-top 만 !important 로 버티고 gap 은 순서에 맡겨져 있었다. */
+.pagination.pagination {
   padding-top: var(--spacing-xs);
-  margin-top: 0 !important;
+  margin-top: 0;
   gap: var(--spacing-xs);
 }
 
