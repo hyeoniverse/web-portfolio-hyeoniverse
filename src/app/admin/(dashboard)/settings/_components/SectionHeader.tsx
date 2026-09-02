@@ -28,10 +28,6 @@ interface SectionHeaderProps {
   spacerExtra?: ReactNode;
   /** row 바로 아래에 SectionHeader 안에 함께 묶어 렌더할 element. drawer / 추가 컨트롤 등. */
   below?: ReactNode;
-  /** 섹션 타이틀 row 의 className — 기존 sectionTitleRow 와 호환 */
-  rowClassName?: string;
-  /** wrap(sticky+difference) 의 className — 특정 섹션에서 blend 를 끄는 등 override 용 */
-  wrapClassName?: string;
   /** 타이틀 className */
   titleClassName?: string;
   /** paths 외 추가 dirty 신호 — pending list 등 client-side side-effect 가 있을 때 활성화. */
@@ -63,8 +59,6 @@ export default function SectionHeader({
   extra,
   spacerExtra,
   below,
-  rowClassName,
-  wrapClassName,
   titleClassName,
   extraDirty = false,
   beforeSave,
@@ -94,11 +88,11 @@ export default function SectionHeader({
        액션(버튼/링크)·hint 는 blend 밖 형제라 정상 색으로 렌더된다.
        data-settings-section — SectionJumpNav 스캔·점프 앵커(+scroll-margin-top). */
     <>
-      <h2 className={`${localStyles.title} ${wrapClassName ?? ""} ${titleClassName ?? ""}`.trim()} data-settings-section>
+      <h2 className={`${localStyles.title} ${titleClassName ?? ""}`.trim()} data-settings-section>
         {title}
       </h2>
       {customActions ? (
-        <div className={`${localStyles.spacer} ${rowClassName ?? ""}`.trim()}>
+        <div className={localStyles.spacer}>
           {spacerExtra}
           {customActions}
         </div>

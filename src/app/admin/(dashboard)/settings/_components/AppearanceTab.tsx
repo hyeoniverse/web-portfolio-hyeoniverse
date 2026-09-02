@@ -40,7 +40,6 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
         <SectionHeader
           title={t("admin.settings.designSystem")}
           paths={[]}
-          rowClassName={shared.sectionTitleRow}
           customActions={
             <div className={styles.dsActions}>
               <span className={styles.dsHint}><T k="admin.settings.designSystemPreview" /></span>
@@ -203,7 +202,6 @@ export default function AppearanceTab({ config, savedConfig, update, saveSection
         <SectionHeader
           title={t("admin.settings.typography")}
           paths={["typography"]}
-          rowClassName={shared.sectionTitleRow}
           extra={<TextLink href="https://fonts.google.com" external>Google Fonts</TextLink>}
           {...sh}
         />

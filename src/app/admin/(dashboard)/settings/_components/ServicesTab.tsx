@@ -168,7 +168,6 @@ function ProviderFallbackSection<P extends string>({
       <SectionHeader
         title={title}
         paths={paths}
-        rowClassName={shared.sectionTitleRow}
         extra={
           <Switch
             size="sm"
@@ -336,7 +335,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         <SectionHeader
           title={t("admin.settings.commentNotifications")}
           paths={["commentEmailNotify"]}
-          rowClassName={shared.sectionTitleRow}
           extra={
             <Switch
               size="sm"
@@ -597,7 +595,6 @@ export default function ServicesTab({ config, savedConfig, update, saveSection, 
         <SectionHeader
           title={t("admin.settings.securitySettings")}
           paths={["recaptcha"]}
-          rowClassName={shared.sectionTitleRow}
           extra={
             <Switch
               size="sm"
