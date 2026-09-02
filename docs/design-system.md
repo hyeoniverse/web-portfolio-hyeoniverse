@@ -13,7 +13,7 @@
 
 1. **한 시스템 — CSS Modules + 디자인 토큰.** 유틸리티 프레임워크(Tailwind)·런타임 CSS-in-JS(styled-components/Emotion) 안 씀. **두 시스템 반반 혼용이 안티패턴** — Tailwind 를 한 번 도입했다가 같은 flex row 인데 어디는 `tw:flex`, 어디는 `styles.row` 인 split-brain 이 돼서 되돌렸다.
 2. **토큰이 값의 유일한 출처.** 색·간격·크기·모션 전부 토큰(§1). 하드코딩 금지(§9).
-3. **반복은 CSS 가 아니라 React 컴포넌트로.** 공유 CSS 유틸/레이아웃 프리미티브를 만들지 않는다 — 관용구(`flex` 등)는 각 module 에 인라인이 낫다. 3곳+ 반복이 확인되면 `components/ui/` 로 컴포넌트 추출.
+3. **반복은 CSS 가 아니라 React 컴포넌트로.** 공유 CSS 유틸/레이아웃 프리미티브를 만들지 않는다 — 관용구(`flex` 등)는 각 module 에 인라인이 낫다. 다른 파일의 클래스를 `composes` 로 가져오는 것도 같은 범주다(§3). 3곳+ 반복이 확인되면 `components/ui/` 로 컴포넌트 추출.
 4. **co-location.** 한 컴포넌트 ↔ 한 `.module.css`, 같은 폴더.
 5. **모던 네이티브 CSS 적극.** nesting·`:has()`·container query·cascade layer 로 JS·프레임워크 의존을 줄인다(§11).
 
@@ -354,6 +354,36 @@ html[data-theme-ready] *::before,
 ```
 
 전역 테마 트랜지션이 커버하는 속성: `background-color`, `border-color`, `color`, `fill`, `stroke`, `box-shadow`.
+
+### 파일 간 동점과 번들 순서
+
+두 CSS Module 의 단일 클래스 규칙이 같은 요소에 걸리면 특이도가 `(0,1,0)` 으로 같다. 이때 승자는 소스 순서인데, 그 순서가 개발과 배포에서 다르다. 개발 서버는 페이지의 CSS 를 import 순서대로 한 청크에 담고, 프로덕션 빌드는 Turbopack 이 청크를 나눈 뒤 `experimental.inlineCss` 가 `<style>` 로 다시 싣는다. 그래서 같은 코드가 개발에서는 의도대로, 배포에서는 뒤집혀 보이고, CSS 파일을 나누거나 옮기기만 해도 승자가 바뀐다(#632).
+
+동점이 생기는 자리는 둘이다.
+
+- `composes: x from "다른파일"` — 가져온 클래스와 자기 클래스가 한 요소에서 겨룬다
+- `className` 으로 넘긴 클래스 — 공통 컴포넌트 자신의 클래스와 겨룬다
+
+```css
+/* Panel.module.css */
+.item { padding-block: var(--spacing-xs); }                 /* (0,1,0) */
+
+/* Dashboard.module.css — 배포에서 Panel .item 의 padding 에 밀렸다 */
+.statCard { composes: item from "./components/Panel.module.css"; }
+
+/* ✓ 이겨야 하는 쪽은 클래스를 두 번 적어 (0,2,0) */
+.statCard.statCard { padding: var(--spacing-lg) var(--spacing-md); }
+
+/* ✓ 져야 하는 쪽은 :where 로 (0,0,0). 전역 리셋(0,0,1)은 이겨야 하는 속성만 (0,0,2) */
+:where(.edit) { text-align: inherit; }
+:where(.edit):is(input, textarea):is(input, textarea) { padding: var(--spacing-3xs) var(--spacing-2xs); }
+```
+
+규칙:
+
+- 다른 파일의 규칙은 `composes` 로 가져오지 않는다. 필요한 선언은 그 module 에 쓴다(§0-3).
+- 같은 파일 안 `composes` 는 한 단계까지. 두 단계(`.a → .b → .c`)는 Turbopack 이 끝 클래스 `.c` 를 안 붙인다. 필요하면 `composes: b c` 로 둘 다 나열한다.
+- `className` 을 받는 공통 컴포넌트는 어느 쪽이 이겨야 하는지 정하고 `.x.x` / `:where(.x)` 로 특이도를 벌려 둔다. 순서에 맡기지 않는다.
 
 ---
 
