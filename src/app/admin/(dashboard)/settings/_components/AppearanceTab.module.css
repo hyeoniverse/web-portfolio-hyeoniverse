@@ -1,8 +1,10 @@
 /*  AppearanceTab 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
    공유·경계 클래스(section·fields·colorField·preset·dsLink 등)는 Settings 에 남아 shared 로 import  */
 
+/* .section 의 밑선을 지우는 modifier — 같은 (0,1,0) 이면 번들 순서에 따라 밑선이 남는다.
+   클래스를 두 번 적어 (0,2,0). 아래 .logoColorPresetBtnActive 도 같다. */
 @media (min-width: 1025px) {
-  .sectionFlushDesktop {
+  .sectionFlushDesktop.sectionFlushDesktop {
     border-bottom: none;
   }
 }
@@ -59,7 +61,7 @@
   composes: uWrapXs from "../Settings.module.css";
 }
 
-.logoColorPresetBtnActive {
+.logoColorPresetBtnActive.logoColorPresetBtnActive {
   border-color: var(--text-accent);
   box-shadow: 0 0 0 1px var(--color-accent);
 }
