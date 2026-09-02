@@ -1,0 +1,55 @@
+/* ── 글 목록 skeleton (PostsSkeletonCards) — PostCard variants 와 같은 aspect-ratio 로 fetch 전후 높이 매칭 ── */
+
+.skeletonCompactRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--row-p-lg);
+  border-bottom: var(--border-light);
+}
+
+/* ── Skeleton: Card ── */
+.skeletonCard {
+  border-bottom: var(--border-light);
+  overflow: hidden;
+  padding-bottom: var(--spacing-lg);
+}
+
+/* image area — SkeletonBlock 의 radius-md 를 0 으로, height 는 aspect-ratio 가 결정.
+   SkeletonBlock 이 inline style 로 width:100% 만 주고 height 미지정 → CSS aspect-ratio 가 height 계산 */
+.skeletonImage.skeletonImage {
+  border-radius: 0;
+}
+
+/* PostCard variants 와 동일한 aspect-ratio — height 매칭 */
+.skeletonAspectDefault {
+  aspect-ratio: 16 / 10;
+}
+
+.skeletonAspectBanner {
+  aspect-ratio: 21 / 9;
+}
+
+.skeletonAspectSquare {
+  aspect-ratio: 1 / 1;
+}
+
+.skeletonAspectPortrait {
+  aspect-ratio: 3 / 4;
+}
+
+/* body — PostCard .body 와 동일 (gap-xs, padding-md top, flex column) */
+.skeletonCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md) 0 0 0;
+}
+
+/* tags row — pill 들 가로 배치 */
+.skeletonTagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+}

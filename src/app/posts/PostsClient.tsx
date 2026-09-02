@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef, Fragment, type ReactNode } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, Fragment } from "react";
 import { type CardType, getCardType } from "@/data/postsBentoTemplates";
-import { BREAKPOINT, SEARCH_DEBOUNCE_MS, QUERY_PARAM } from "@/constants";
+import { SEARCH_DEBOUNCE_MS, QUERY_PARAM } from "@/constants";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
@@ -21,15 +21,12 @@ import TagCloud3D from "./_components/TagCloud3D";
 import PopularPosts from "./_components/PopularPosts";
 import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
-import {
-  SkeletonLine,
-  SkeletonPill,
-  SkeletonBlock,
-} from "@/components/ui/Skeleton";
+import PostsSidebar from "./_components/PostsSidebar";
+import PostsSkeletonCards from "./_components/PostsSkeletonCards";
+import TimelineMotionItem from "./_components/TimelineMotionItem";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import {
   ChevronDown,
-  ChevronUp,
   ChevronRight,
   ChevronLeft,
   BookOpen,
@@ -54,121 +51,6 @@ import LetterFilter, { KOREAN_LETTERS, ENGLISH_LETTERS, LETTER_ETC, getLetterIni
 import styles from "./Posts.module.css";
 import Pressable from "@/components/ui/Pressable";
 
-function SidebarWrap({
-  barHidden,
-  children,
-}: {
-  barHidden: boolean;
-  children: React.ReactNode;
-}) {
-  const { isMobile: isCollapsed } = useIsMobile(BREAKPOINT.tablet);
-  const ref = useRef<HTMLElement>(null);
-  const [canUp, setCanUp] = useState(false);
-  const [canDown, setCanDown] = useState(false);
-
-  const check = useCallback(() => {
-    const el = ref.current;
-    if (!el) return;
-    setCanUp(el.scrollTop > 4);
-    setCanDown(el.scrollTop + el.clientHeight < el.scrollHeight - 4);
-  }, []);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    check();
-    el.addEventListener("scroll", check, { passive: true });
-    const ro = new ResizeObserver(check);
-    ro.observe(el);
-    return () => {
-      el.removeEventListener("scroll", check);
-      ro.disconnect();
-    };
-  }, [check]);
-
-  // fade 의 chevron: 짧게 클릭 → 한 화면(약 70%) 스크롤, 롱프레스(꾹) → 누르는 동안 연속 스크롤.
-  const holdTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const holdRaf = useRef<number | undefined>(undefined);
-  const longPressed = useRef(false);
-
-  const stopHold = useCallback(() => {
-    if (holdTimer.current) { clearTimeout(holdTimer.current); holdTimer.current = undefined; }
-    if (holdRaf.current) { cancelAnimationFrame(holdRaf.current); holdRaf.current = undefined; }
-  }, []);
-
-  // 누르기 시작 — 300ms 넘게 유지되면 연속 스크롤 시작(그 전에 떼면 일반 클릭으로 처리)
-  const pressStart = useCallback((dir: 1 | -1) => {
-    longPressed.current = false;
-    holdTimer.current = setTimeout(() => {
-      longPressed.current = true;
-      const step = () => {
-        const el = ref.current;
-        if (!el) return;
-        el.scrollTop += dir * 12; // 프레임당 연속 이동
-        holdRaf.current = requestAnimationFrame(step);
-      };
-      holdRaf.current = requestAnimationFrame(step);
-    }, 300);
-  }, []);
-
-  const handleClick = useCallback((dir: 1 | -1) => {
-    if (longPressed.current) { longPressed.current = false; return; } // 롱프레스였으면 클릭 스크롤 스킵
-    const el = ref.current;
-    if (!el) return;
-    el.scrollBy({ top: dir * el.clientHeight * 0.7, behavior: "smooth" });
-  }, []);
-
-  useEffect(() => stopHold, [stopHold]); // 언마운트 시 타이머/rAF 정리
-
-  const btnHandlers = (dir: 1 | -1) => ({
-    onPointerDown: () => pressStart(dir),
-    onPointerUp: stopHold,
-    onPointerLeave: stopHold,
-    onPointerCancel: stopHold,
-    onClick: () => handleClick(dir),
-  });
-
-  return (
-    <div
-      className={`${styles.sidebarWrap} ${barHidden ? styles.sidebarUp : ""}`}
-    >
-      {canUp && (
-        <div className={styles.sidebarFadeTop}>
-          <Pressable
-            noTapScale
-            className={styles.sidebarScrollBtn}
-            {...btnHandlers(-1)}
-            aria-label="위로 스크롤"
-            data-clickable="true"
-          >
-            <ChevronUp size={14} />
-          </Pressable>
-        </div>
-      )}
-      <aside
-        ref={ref}
-        className={styles.sidebar}
-        {...(!isCollapsed && { "data-lenis-prevent": true })}
-      >
-        {children}
-      </aside>
-      {canDown && (
-        <div className={styles.sidebarFadeBottom}>
-          <Pressable
-            noTapScale
-            className={styles.sidebarScrollBtn}
-            {...btnHandlers(1)}
-            aria-label="아래로 스크롤"
-            data-clickable="true"
-          >
-            <ChevronDown size={14} />
-          </Pressable>
-        </div>
-      )}
-    </div>
-  );
-}
-
 const PAGE_SIZE_OPTIONS = [
   { value: "10", label: "10개씩" },
   { value: "20", label: "20개씩" },
@@ -180,45 +62,6 @@ const PAGE_SIZE_OPTIONS = [
 
 /* 태그 dropdown letter filter — 공통 LetterFilter 컴포넌트 사용 (constants/util import). */
 const TAG_LETTERS = [...KOREAN_LETTERS, ...ENGLISH_LETTERS, LETTER_ETC];
-
-/* 타임라인 카드 — framer useScroll 로 스크롤 진행에 비례한 리빌(페이드 + 자기 쪽 슬라이드 + 살짝 scale).
-   카드가 뷰 하단→60% 로 올라오는 동안 값이 매핑되고, 지나면 유지. 모바일 단일컬럼선 x 이동 없음. */
-function TimelineMotionItem({
-  side,
-  disableX,
-  className,
-  assignRef,
-  children,
-}: {
-  side: "left" | "right";
-  disableX: boolean;
-  className: string;
-  assignRef: (el: HTMLDivElement | null) => void;
-  children: ReactNode;
-}) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "start 60%"],
-  });
-  const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  const y = useTransform(scrollYProgress, [0, 1], [44, 0]);
-  const xFrom = disableX ? 0 : side === "left" ? -44 : 44;
-  const x = useTransform(scrollYProgress, [0, 1], [xFrom, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [0.965, 1]);
-  return (
-    <motion.div
-      ref={(el) => {
-        ref.current = el;
-        assignRef(el);
-      }}
-      className={className}
-      style={{ opacity, y, x, scale }}
-    >
-      {children}
-    </motion.div>
-  );
-}
 
 interface PostsClientProps {
   initialData: InitialPostsData;
@@ -1856,117 +1699,26 @@ export default function PostsClient({ initialData, history = false, archiveMonth
           </>
         </div>
 
-        {/* ── Sidebar ── */}
-        <SidebarWrap barHidden={barHidden}>
-          {/* 태그 — label 헤더는 그대로, 필터링 중일 땐 sphere 대신 chip(개수 명시)로.
-              tags 는 필터 중이면 facet(결과 반영)로 전달. 클릭 시 태그 토글(OR) 필터. */}
-          <TagCloud3D
-            tags={hasActiveFilter ? facetTags : allTags}
-            activeTags={activeTags}
-            // 평소 sphere 는 태그 페이지로 이동(기존), 필터 중 chip 은 토글(OR)로 필터 조정
-            onTagClick={hasActiveFilter ? toggleActiveTag : undefined}
-            asChips={hasActiveFilter}
-          />
-          <PopularPosts />
-          <RandomPosts />
-          <RecentComments />
-        </SidebarWrap>
+        {/* ── Sidebar ── history 모드는 렌더하지 않음 (필터바·배너와 같은 방식. 예전엔 CSS 로 숨겨
+            사이드바 위젯 3개가 안 보이는 채로 fetch 했다) */}
+        {!history && (
+          <PostsSidebar barHidden={barHidden}>
+            {/* 태그 — label 헤더는 그대로, 필터링 중일 땐 sphere 대신 chip(개수 명시)로.
+                tags 는 필터 중이면 facet(결과 반영)로 전달. 클릭 시 태그 토글(OR) 필터. */}
+            <TagCloud3D
+              tags={hasActiveFilter ? facetTags : allTags}
+              activeTags={activeTags}
+              // 평소 sphere 는 태그 페이지로 이동(기존), 필터 중 chip 은 토글(OR)로 필터 조정
+              onTagClick={hasActiveFilter ? toggleActiveTag : undefined}
+              asChips={hasActiveFilter}
+            />
+            <PopularPosts />
+            <RandomPosts />
+            <RecentComments />
+          </PostsSidebar>
+        )}
       </div>
     </div>
     </SearchHighlightProvider>
-  );
-}
-
-/* ── Skeleton ──
- * bento 카드와 동일한 variants (banner/wide/portrait/square/standard) 를 적용해
- * fetch 전후 레이아웃 height 가 같아지도록 한다. count = perPage.
- * ghost=true: visibility hidden 로 layout 공간만 차지 (마지막 페이지 underfill 패딩용). */
-function PostsSkeletonCards({
-  count,
-  activeSeries,
-  startIdx = 0,
-  ghost = false,
-  bento = true,
-  compactLayout = false,
-}: {
-  count: number;
-  activeSeries: boolean;
-  startIdx?: number;
-  ghost?: boolean;
-  bento?: boolean;
-  compactLayout?: boolean;
-}) {
-  // compact 레이아웃 — 이미지 없이 텍스트 행 skeleton
-  if (compactLayout) {
-    return (
-      <>
-        {Array.from({ length: count }, (_, i) => (
-          <div
-            key={i}
-            className={`${styles.gridItem} ${ghost ? styles.gridItemGhost : ""}`}
-            aria-hidden={ghost || undefined}
-          >
-            <div className={styles.skeletonCompactRow}>
-              <SkeletonLine width="42%" height={18} />
-              <SkeletonPill width={110} height={14} />
-            </div>
-          </div>
-        ))}
-      </>
-    );
-  }
-  const variants: CardType[] = Array.from({ length: count }, (_, i) =>
-    activeSeries || !bento ? "standard" : getCardType(startIdx + i),
-  );
-  return (
-    <>
-      {variants.map((type, i) => {
-        const cls =
-          !activeSeries && (type === "wide" || type === "banner")
-            ? styles.gridWide
-            : "";
-        const aspectClass =
-          type === "banner"
-            ? styles.skeletonAspectBanner
-            : type === "square"
-              ? styles.skeletonAspectSquare
-              : type === "portrait"
-                ? styles.skeletonAspectPortrait
-                : styles.skeletonAspectDefault;
-        return (
-          <div
-            key={i}
-            className={`${styles.gridItem} ${cls} ${activeSeries ? styles.seriesStep : ""} ${ghost ? styles.gridItemGhost : ""}`}
-            aria-hidden={ghost || undefined}
-          >
-            <div
-              className={`${styles.skeletonCard} ${activeSeries ? styles.seriesStepBody : ""}`}
-            >
-              <SkeletonBlock
-                className={`${styles.skeletonImage} ${aspectClass}`}
-              />
-              <div className={styles.skeletonCardBody}>
-                {/* badge row */}
-                <SkeletonPill width={60} height={20} />
-                {/* title — 2 lines */}
-                <SkeletonLine width="92%" height={26} />
-                <SkeletonLine width="64%" height={26} />
-                {/* excerpt — 2 lines */}
-                <SkeletonLine width="100%" height={14} />
-                <SkeletonLine width="84%" height={14} />
-                {/* tags row */}
-                <div className={styles.skeletonTagsRow}>
-                  <SkeletonPill width={50} height={20} />
-                  <SkeletonPill width={66} height={20} />
-                  <SkeletonPill width={44} height={20} />
-                </div>
-                {/* meta row */}
-                <SkeletonLine width="80%" height={14} />
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </>
   );
 }
