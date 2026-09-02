@@ -2,7 +2,7 @@
 
 > **상태: 종결.** 반복되는 flex/grid 패턴을 어떻게 공통화할지 탐색하며 (1) React 레이아웃 프리미티브,
 > (2) Tailwind v4, (3) CSS Modules `composes` 공유 유틸을 시도했다가 **모두 되돌리고 CSS Modules
-> 단일 시스템(관용구는 각 module 에 인라인)으로 확정**했다. (3)은 코드에 남아 있어 #384 후속으로 되돌린다.
+> 단일 시스템(관용구는 각 module 에 인라인)으로 확정**했다. (3)도 #384 3단계에서 인라인으로 되돌렸다.
 > 현재 규칙은 [design-system.md](./design-system.md) §0·§3. 이 문서는 그 결정 과정 기록용.
 
 관련: [design-system.md](./design-system.md) · [refactoring-guide.md](./refactoring-guide.md)
@@ -34,8 +34,8 @@ Tailwind 와 같은 PR(#433, 2026-07-31)에서 admin 설정의 `Settings.module.
 같은 flex/grid 유틸 12종을 두고, 시그니처가 같은 클래스 64개를 `composes: uRow` 로 묶었다. JSX 는 그대로 두고
 CSS 안에서만 재사용하는 방식이라 Tailwind 취소(#435) 때 되돌리지 않았다. 컴포넌트별 CSS 분리(#437)가 옮기는
 규칙의 composes 를 인라인으로 풀어 한때 26곳으로 줄었다가, #541·#543(8/4)이 분리된 컴포넌트 모듈 쪽에서
-`composes: uColSm from "../Settings.module.css"` 로 다시 가져다 쓰며 22종·102규칙으로 늘렸다. 현재 Settings 안
-26곳, 다른 모듈 25개에서 98곳이 쓴다.
+`composes: uColSm from "../Settings.module.css"` 로 다시 가져다 쓰며 22종·102규칙으로 늘렸다. 되돌리기 직전에는
+Settings 안 26곳, 다른 모듈 25개에서 98곳이 썼다.
 
 **폐기 이유**: 파일을 나누는 리팩토링(#384)의 배포 빌드를 대조하다 세 가지가 드러났다.
 
@@ -43,10 +43,12 @@ CSS 안에서만 재사용하는 방식이라 Tailwind 취소(#435) 때 되돌�
   정한다. `page.module.css` `.navSub` 의 `display: none` 이 composes 한 `.uCol` 의 `flex` 에 져서 태블릿 폭에서
   하위 내비가 새어 나왔다(#632). 개발 서버에서는 정상이라 배포 전에는 안 보인다.
 - 같은 파일 안 두 단계 `composes`(`.title → .uRowSm → .uRow`)는 Turbopack 이 끝 클래스를 안 붙여 `display: flex`
-  를 못 받는다.
+  를 못 받는다. 개발·배포 모두 그렇다. Settings 안에서 이 형태였던 `.fieldLabel`·`.fieldGroup`·`.presetCard`·
+  `.colorField`·`.publishToggle` 등 9개 셀렉터는 #433 이후 줄곧 block 으로 렌더됐다(프리셋 카드 이름이 안 보이고,
+  레이블 옆에 힌트가 붙는 식). 인라인하면서 CSS 에 쓰인 대로 돌아왔다.
 - 모듈 25개가 거대 공유 파일 하나에 묶여, 파일을 다 나눠도 의존이 남는다.
 
-얻는 것은 선언 몇 줄의 중복 제거뿐이고 값은 이미 토큰이 통일한다. 인라인으로 되돌린다(tsx 변경 0, #384 후속).
+얻는 것은 선언 몇 줄의 중복 제거뿐이고 값은 이미 토큰이 통일한다. #384 3단계에서 인라인으로 되돌렸다(tsx 변경 0).
 
 ## 확정 — CSS Modules 단일 시스템
 
