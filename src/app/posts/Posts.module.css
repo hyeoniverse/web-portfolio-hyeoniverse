@@ -1407,12 +1407,6 @@
   }
 }
 
-/* ghost — 마지막 페이지 underfill 패딩용. layout 공간만 차지 (shimmer 등 invisible) */
-.gridItemGhost {
-  visibility: hidden;
-  animation: none !important;
-}
-
 .gridItem:nth-child(1) { animation-delay: 0s; }
 .gridItem:nth-child(2) { animation-delay: 0.06s; }
 .gridItem:nth-child(3) { animation-delay: 0.12s; }
