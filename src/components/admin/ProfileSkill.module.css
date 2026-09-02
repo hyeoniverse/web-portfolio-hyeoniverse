@@ -3,11 +3,13 @@
    Settings.module.css 에서 분리 — 다른 탭과 공유하지 않는 클래스.
    원래 composes 하던 u* 유틸 선언은 self-contained 하게 인라인. */
 
+/* profile expandable panel 안 fieldGroup 들 사이 간격 */
 .profileExpandableInner { display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
 }
 
+/* sub-section 시각적 중첩 — section h2 아래 h3 그룹을 들여쓰기 + 좌측 라인 */
 .subSection {
   padding-left: var(--spacing-md);
   border-left: 2px solid var(--border-color-light);
@@ -18,11 +20,18 @@
   margin-bottom: 0;
 }
 
+/* ── Skills Editor (table / line layout) ──
+   섹션 내부 간격 일관성: sortableList gap + profileAddBtn margin-top
+   = 모두 spacing-md(16px). title row → first item, item ↔ item, last item →
+   add button 모두 동일하게 적용. */
 .sortableList { display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
 }
 
+/* ── Expand/collapse animation ──
+   ExpandablePanel(JS)이 height 를 직접 측정·설정해 transition.
+   여기서는 transition 속성과 기본 height/overflow 만 정의. */
 .sortableList .skillExpandable {
   height: 0;
   overflow: hidden;
@@ -108,6 +117,9 @@
   color: var(--text-primary);
 }
 
+/* row 헤더 inline title editor — 공통 Input variant="underline" 사용.
+   wrapper 에만 flex 적용 (row 참여), 내부 input 의 underline 스타일은 Input.module.css 가 담당.
+   기존 font-weight 600 + 더 가벼운 border-default 는 유지 (callsite 차별성). */
 .skillFieldInline {
   flex: 1;
   min-width: 0;
@@ -122,6 +134,7 @@
   border-bottom-color: var(--border-color-default);
 }
 
+/* 헤더 우측 meta 표시 — 기술 스택 개수, 연도 등. 작고 깔끔한 mono caption. */
 .skillCount,
 .periodBadge {
   flex-shrink: 0;
@@ -133,6 +146,8 @@
   letter-spacing: 0.04em;
 }
 
+/* 연도 표기 — "nnnn", "nnnn -", "nnnn - nnnn" 모두 같은 width 로 정렬.
+   border-box + 좌우 padding 포함해 "nnnn - nnnn" (11자) 까지 안 잘리게 충분히 확보. */
 .periodBadge {
   display: inline-block;
   width: 9em;
@@ -155,6 +170,7 @@
   border-top: var(--border-light);
 }
 
+/* — → × rotate animation (skill remove) */
 .skillRemoveBtn {
   display: flex;
   align-items: center;

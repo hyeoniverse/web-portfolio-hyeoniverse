@@ -1,10 +1,12 @@
 /*  ServicesTab 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
    공유·경계 클래스(section·fields·priorityBtn·sizeChip 등)는 Settings 에 남아 shared 로 import  */
+/* Switch + ? 도움말 나란히 배치 (Switch 공통 컴포넌트 미변경, 감싸서 처리) */
 .switchHelpRow {
   composes: uRowXs from "../Settings.module.css";
 }
 
 
+/* fieldHint 안에서 env var key 클릭 시 해당 입력 필드로 스크롤. underline + monospace 로 link 임을 명확히 */
 .envKeyLink {
   display: inline;
   padding: 0;

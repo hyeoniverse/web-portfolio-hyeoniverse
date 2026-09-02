@@ -8,22 +8,26 @@
     border-bottom: none;
   }
 }
+/* Design System 섹션 제목 우측(customActions): [hint] | [열기 링크] 한 줄, 우측 정렬. */
 .dsActions {
   composes: uRowSm from "../Settings.module.css";
   min-width: 0;
 }
+/* DS 액션은 이제 blend 밖(정상 색) — 테마 적응 토큰 그대로 쓴다. */
 .dsHint {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   color: var(--text-tertiary);
   line-height: var(--line-height-snug);
 }
+/* 세로 구분선 — hint 와 링크 사이 */
 .dsDivider {
   width: 1px;
   height: 0.9em;
   flex-shrink: 0;
   background: var(--border-color-strong);
 }
+/* 현재 색상이 어떤 preset 과도 다를 때만 노출되는 + 버튼 */
 .presetCardAddBtn {
   display: flex;
   align-items: center;
@@ -69,6 +73,7 @@
 .logoColorPresetHalf {
   flex: 1;
 }
+/* preset chip wrap — hover 시 remove 버튼 노출 */
 .logoColorPresetWrap {
   position: relative;
   display: inline-flex;
@@ -103,6 +108,7 @@
   color: var(--text-accent);
   border-color: var(--color-accent);
 }
+/* + 점선 버튼 — preset 그리드 끝에 추가 (canAddPreset 일 때만 노출) */
 .logoColorPresetAddBtn {
   display: inline-flex;
   align-items: center;
@@ -124,6 +130,8 @@
   color: var(--text-primary);
   border-color: var(--text-primary);
 }
+/* + 버튼 클릭 시 펼쳐지는 이름 input 인라인 row.
+   AnimatePresence motion wrapper 가 height/opacity 애니메이션 — 이 inner 는 위 구분선 + padding 만 담당 */
 .logoColorPresetAddRow {
   display: flex;
   align-items: center;
@@ -212,6 +220,7 @@
   /* 대비 배지 텍스트 폭 변화가 셀·슬롯 레이아웃을 흔들지 않게 고정 폭 확보 */
   min-width: 8rem;
 }
+/* SVG inline 렌더 — /api/favicon 출력과 동일 구조라 픽셀 일치. width/height 는 attr 로 set. */
 .faviconPreview {
   display: block;
 }
@@ -230,6 +239,7 @@
   gap: var(--spacing-md);
   width: 100%;
 }
+/* 라이트/다크 색을 한 행에 — 각 색 위에 작은 캡션 */
 .faviconColorDuo {
   display: grid;
   grid-template-columns: var(--grid-cols-2);
@@ -240,6 +250,7 @@
   composes: uCol3xs from "../Settings.module.css";
   min-width: 0;
 }
+/* 라이트/다크 색 편의 버튼 (맞추기·서로 바꾸기·지우기) — duo 두 칼럼 아래 우측 툴바 */
 .faviconColorTools {
   grid-column: 1 / -1;
   display: flex;
@@ -272,6 +283,7 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+/* 숏 텍스트처럼 짧은 입력은 폭 제한 (풀폭이면 4자 필드가 휑함) */
 .faviconTextInputWrap {
   width: 100%;
   max-width: 14rem;
@@ -280,6 +292,11 @@
   width: 100%;
   max-width: 22rem;
 }
+/* ═══════════════════════════════════════════════════════════════════════
+   Brand 로고 설정 — 일관 레이아웃 (그룹 → 파트 → 컨트롤).
+   간격·정렬·높이를 한 규칙으로 통일해 섹션 전체가 정돈돼 보이도록.
+   ═══════════════════════════════════════════════════════════════════════ */
+/* 그룹 (업로드 / 시스템) — 그룹 사이 구분선으로 분리 */
 .brandGroup {
   composes: uColLg from "../Settings.module.css";
 }
@@ -288,9 +305,11 @@
   padding-top: var(--spacing-xl);
   border-top: var(--border-light);
 }
+/* 파트 (Favicon / 풀로고) — 탭 안 top-level 서브섹션 */
 .brandPart {
   composes: uColSm from "../Settings.module.css";
 }
+/* 그룹 탭 — 언더라인 스타일 (세그먼트 pill 과 다른 결로 계층 구분) */
 .brandTabs {
   display: flex;
   gap: var(--spacing-lg);
@@ -317,6 +336,7 @@
   font-weight: 700;
   border-bottom-color: var(--text-primary);
 }
+/* 그룹 탭 아래 활성 그룹 설명 */
 .brandTabHint {
   margin: 0;
   font-family: var(--font-space-grotesk);
@@ -324,10 +344,12 @@
   color: var(--text-tertiary);
   line-height: var(--line-height-snug);
 }
+/* 파트 사이 구분선 — 그룹 안에서 Favicon/풀로고 구획 (그룹 구분선보다 약하게) */
 .brandPart + .brandPart {
   padding-top: var(--spacing-md);
   border-top: var(--border-light);
 }
+/* 파트 헤더 — 라벨(좌) + 액션/토글(우). min-height 로 액션 유무와 무관하게 높이 일정 */
 .brandPartHead {
   display: flex;
   align-items: center;
@@ -362,6 +384,7 @@
   flex-wrap: wrap;
   gap: var(--spacing-sm) var(--spacing-md);
 }
+/* 로고 효과(글리치·Difference) — 탭 밖 섹션 레벨(브랜드 상단). nav 로고 전체(숏 배지·풀 텍스트)에 적용됨을 나타냄 */
 .logoEffectsRow {
   display: flex;
   align-items: center;
@@ -385,6 +408,7 @@
   flex-wrap: wrap;
   gap: var(--spacing-sm) var(--spacing-lg);
 }
+/* 풀로고(텍스트) 미리보기 — 라이트/다크 배경 박스에 폰트·색·장평 적용한 로고 텍스트 + 아래 캡션 */
 .fullLogoPreview {
   display: grid;
   grid-template-columns: var(--grid-cols-2);
@@ -422,6 +446,7 @@
 .fullLogoPreviewMeta {
   composes: uRowXs from "../Settings.module.css";
 }
+/* 드롭존 2열 — 라이트/다크. 각 UploadField 는 라벨 1줄 + 고정높이 박스라 나란히 정렬 */
 .brandDrops {
   composes: uGrid2Md from "../Settings.module.css";
 }
@@ -431,6 +456,8 @@
     grid-template-columns: 1fr;
   }
 }
+/* 업로드 favicon 전용 옵션 — 박스(테두리/배경) 안 쓰고, accent eyebrow 헤더(라벨 + 라인)
+   와 여백만으로 새 구분. 카드가 아니라 '섹션 표제' 결. */
 .faviconImageOptions {
   display: flex;
   flex-direction: column;
@@ -497,6 +524,8 @@
   background-position: 0 0, 3px 3px;
 }
 
+/* ── Favicon 그림자 컨트롤 — 세그먼트 탭 전환, 플랫(카드/그리드 아님). 세그먼트 pill 이 앵커.
+   .fields(align-items:flex-start) 안에서 shrink 되지 않게 .faviconShadowCard 가 width:100%. ── */
 .faviconShadowCard {
   width: 100%;
   display: flex;
@@ -528,6 +557,7 @@
   /* 구분선 없이 head 와 gap 으로만 분리 (카드 gap: sm) */
   padding-top: var(--spacing-2xs);
 }
+/* 우측 컨트롤 — 2열로 채워 넓은 카드에서 빈 공간 최소화. 프리셋은 상단 풀폭. */
 .shadowControls {
   flex: 1;
   min-width: 0;
@@ -548,6 +578,9 @@
     grid-template-columns: 1fr;
   }
 }
+/* 카드 안 각 컨트롤 행 — 라벨 좌측 고정폭 + 컨트롤 우측 (FieldRow 세로 배치 override).
+   FieldRow 는 자체 module 의 .fieldRow(flex column)라 className 으로 전달된 .faviconShadowRow
+   를 compound (0,2,0)로 눌러 grid 로 바꾼다. 4개 행 라벨 열 폭 고정 → 컨트롤 시작점 정렬. */
 .faviconShadowBody .faviconShadowRow {
   display: grid;
   grid-template-columns: 5.5rem 1fr;
@@ -555,9 +588,14 @@
   gap: var(--spacing-sm) var(--spacing-md);
   width: 100%;
 }
+/* blur stepper — grid 셀에서 stretch 되지 않게 fit-content 유지 */
 .shadowBlurInput {
   justify-self: start;
 }
+/* ── 실시간 그림자 미리보기 ──
+   그림자 색은 보통 검정 rgba 라, 캔버스가 테마 따라 어두워지면 그림자가 안 보인다.
+   favicon 은 light/dark 배경이 고정이므로 미리보기도 favicon light 톤으로 고정한다.
+   (테마 반전되는 --color-* 토큰을 못 쓰는 자리 — 그림자 에디터의 라이트 캔버스 예외) */
 .shadowPreview {
   position: relative;
   flex: 0 0 auto;
@@ -572,6 +610,7 @@
   touch-action: none;
   user-select: none;
 }
+/* 그림자 방향 핸들 — 커서를 따라오는 점. glow 로 만질 수 있는 점임을 표시 */
 .shadowLight {
   position: absolute;
   width: 16px;
@@ -587,6 +626,7 @@
 .shadowLight:active {
   cursor: grabbing;
 }
+/* 드래그 안내 문구 */
 .shadowDragHint {
   margin-top: auto;
   font-family: var(--font-space-grotesk);
@@ -594,14 +634,17 @@
   color: var(--text-tertiary);
   line-height: var(--line-height-snug);
 }
+/* 흰 원 — 그림자(box-shadow)가 적용되는 미리보기 대상. flat + 그림자로 떠 보이게 */
 .shadowPreviewCircle {
   width: 4rem;
   height: 4rem;
   border-radius: var(--radius-circle);
 }
+/* 폰트 크기 — Select + (커스텀 모드) stepper 가로 배치 */
 .faviconFontSizeControl {
   composes: uRowWrapSm from "../Settings.module.css";
 }
+/* ── Favicon 배경 반경/크기 슬라이더 (슬라이더 + 값 라벨) ── */
 .faviconSliderControl {
   display: flex;
   align-items: center;
@@ -622,6 +665,7 @@
   color: var(--text-tertiary);
   font-variant-numeric: tabular-nums;
 }
+/* ── Favicon 대비율 / WCAG 배지 (미리보기 셀 하단) ── */
 .faviconContrast {
   display: inline-flex;
   align-items: center;

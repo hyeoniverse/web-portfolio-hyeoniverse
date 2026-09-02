@@ -74,6 +74,7 @@
 .socialIconClickable:hover {
   border-color: var(--text-primary);
 }
+/* 업로드 trigger 임을 알리는 우상단 + 배지 */
 .socialIconPlus {
   position: absolute;
   top: -3px;
@@ -101,6 +102,7 @@
   color: var(--text-muted);
 }
 
+/* — → × rotate animation */
 .socialRemoveBtn {
   width: 32px;
   height: 32px;

@@ -3,6 +3,7 @@
 .authorCardHead {
   composes: uRowSm from "../Settings.module.css";
 }
+/* 아바타 = 이미지 업로드 trigger (클릭 시 파일 선택). 우상단 + 배지로 버튼임을 표시 */
 .authorAvatarUpload {
   position: relative;
   width: 64px;
@@ -72,6 +73,7 @@
   font-size: var(--font-size-body);
   color: var(--text-primary);
 }
+/* 삭제 버튼 — 카드 상단(start)에 붙임 (아바타가 커서 center 면 중앙에 뜸) */
 .authorCardFields {
   composes: uGrid2Sm from "../Settings.module.css";
 }
@@ -85,9 +87,11 @@
 .authorInviteRow {
   composes: uRowWrapSm from "../Settings.module.css";
 }
+/* 가입된 멤버의 로그인 상태 줄 (역할·provider·최근 로그인) */
 .authorMemberStatus {
   composes: uRowWrap2xs from "../Settings.module.css";
 }
+/* 멤버 편집 모달 내부 레이아웃 — 좌우/하단 패딩(모달 header 좌측 정렬), 버튼은 모달 footer 슬롯 사용 */
 .memberModal {
   display: flex;
   flex-direction: column;
