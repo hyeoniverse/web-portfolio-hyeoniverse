@@ -247,7 +247,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-  padding: var(--spacing-lg) var(--spacing-md);
   border: none;
   border-radius: 0;
   background: var(--bg-primary);
@@ -260,6 +259,11 @@
   /* Tooltip wrapper 의 grid cell stretch 높이 까지 채워서 hover bg 가 cell 전체 덮도록 */
   height: 100%;
   box-sizing: border-box;
+}
+/* composes 한 Panel .item 의 padding(xs / 0) 과 같은 (0,1,0) 이라 번들 순서에 따라 카드 여백이
+   그쪽으로 뒤집혔다. 클래스를 두 번 적어 (0,2,0). */
+.statCard.statCard {
+  padding: var(--spacing-lg) var(--spacing-md);
 }
 
 a.statCard {
@@ -441,11 +445,15 @@ a.statCard:hover .statValue {
    --_item-inline-* CSS var 가 그 안 list item 의 padding 으로 cascade */
 @media (min-width: 769px) {
   .twoCol {
-    column-gap: var(--spacing-4xs);
     /* background-color 롱핸드 사용 — background 단축속성은 background-clip 을 border-box 로
        리셋해서 base 의 padding-box 가 풀리고, 그럼 이 bg(alpha-30)가 섹션 divider border(alpha-30)
        와 합성돼 그 구분선만 진해진다(통계/최근활동/인기 등). 롱핸드로 padding-box 유지. */
     background-color: var(--border-color-light);
+  }
+  /* composes 한 Panel .panelGrid 의 gap: 0 과 같은 (0,1,0) 이라 번들 순서에 따라 hairline 용
+     column-gap 이 0 으로 뒤집혀 셀 사이 구분선이 사라졌다. 클래스를 두 번 적어 (0,2,0). */
+  .twoCol.twoCol {
+    column-gap: var(--spacing-4xs);
   }
   .twoCol > .panelCell {
     background: var(--bg-primary);
@@ -1204,12 +1212,16 @@ a.statCard:hover .statValue {
   justify-content: space-between;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-2xs) 0;
   border-bottom: var(--border-light);
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
   transition: background-color 0.15s ease;
   cursor: default;
+}
+/* composes 한 Panel .item 과 ListItem 이 붙이는 List .item 둘 다 padding-block: xs 를 같은
+   (0,1,0) 으로 정해서, 번들 순서에 따라 이 2xs 가 뒤집혔다. 클래스를 두 번 적어 (0,2,0). */
+.donutLegendItem.donutLegendItem {
+  padding: var(--spacing-2xs) 0;
 }
 
 /* 왼쪽 그룹 — 컬러 swatch + 카테고리 이름 */
@@ -1873,6 +1885,10 @@ a.commentSource:hover {
   composes: list from "./components/List.module.css";
   flex: 1;
   min-width: 140px;
+}
+/* composes 한 List .list 의 gap: 0 과 같은 (0,1,0) 이라 번들 순서에 따라 항목 사이 간격이
+   0 으로 뒤집혔다. 클래스를 두 번 적어 (0,2,0). */
+.deviceLegend.deviceLegend {
   gap: var(--spacing-xs);
 }
 
