@@ -10,7 +10,9 @@
   align-items: start;
 }
 .techGroup {
-  composes: uColXs from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
   min-width: 0;
 }
 .techGroupLabel {
@@ -127,7 +129,8 @@
 }
 /* preset — 좌우 트인 표(row 리스트). circle 아이콘 + 이름 + 카테고리. 가로 구분선만. */
 .techPresetList {
-  composes: uCol from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
 }
 .techPresetRow {
   display: grid;
@@ -176,7 +179,9 @@
 }
 /* 아이콘 편집 — circle 미리보기(클릭=업로드/교체) + 링크 입력 한 줄 */
 .techIconRow {
-  composes: uRowSm from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 .techIconCircleWrap {
   position: relative;

@@ -30,7 +30,9 @@
 /* uRow 를 따로 적는다 — Turbopack 은 두 단계 composes(.title→.uRowSm→.uRow)의 끝 클래스를
    안 붙여서, uRowSm 만 적으면 gap 은 받고 display:flex 는 못 받아 아이콘이 제목 위에 세로로 쌓였다. */
 .title {
-  composes: uRow uRowSm from "./Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   margin: 0;
   font-family: var(--font-instrument);
   font-size: var(--font-size-3xl);
@@ -51,7 +53,8 @@
 /* 데스크탑(>1024): 세로 sticky 사이드바. 태블릿·모바일(≤1024)에서는 아래
    미디어쿼리에서 가로 스크롤 탭바로 바뀐다. */
 .sideNav {
-  composes: uCol from "./Settings.module.css";
+  display: flex;
+  flex-direction: column;
   width: 200px;
   flex-shrink: 0;
   position: sticky;
@@ -96,7 +99,8 @@
 }
 
 .panel {
-  composes: uFill from "./Settings.module.css";
+  flex: 1;
+  min-width: 0;
 }
 
 @media (max-width: 1024px) {
@@ -276,7 +280,8 @@
 }
 /* ── Nav Sub-items (Content → Home / Profile / About) ── */
 .navSub {
-  composes: uCol from "./Settings.module.css";
+  display: flex;
+  flex-direction: column;
 }
 
 .navSubItem {
@@ -336,7 +341,9 @@
 }
 /* ── Skeleton (tab layout) ── */
 .skeletonNav {
-  composes: uColXs from "./Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
 .skeletonSection {

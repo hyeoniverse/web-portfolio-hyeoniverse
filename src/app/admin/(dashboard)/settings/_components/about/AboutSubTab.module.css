@@ -43,7 +43,8 @@
 /* SectionHeader 를 헤더 우측 폭 전체로 늘려 spacer(margin-left:auto)가 버튼을 끝으로 밀게 함.
    내부 wrap 의 margin-bottom 은 헤더 세로 정렬을 깨므로 0 으로 눌러줌. */
 .cardHeadMain {
-  composes: uFill from "../../Settings.module.css";
+  flex: 1;
+  min-width: 0;
 }
 .cardHeadMain > div {
   margin-bottom: 0;
@@ -87,7 +88,9 @@
 
 /* ── 필드 ── */
 .group {
-  composes: uColSm from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 .groupLabel {
   font-family: var(--font-mono);
@@ -97,7 +100,9 @@
   color: var(--text-tertiary);
 }
 .field {
-  composes: uCol2xs from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
   min-width: 0;
 }
 .fieldLabel {
@@ -158,17 +163,22 @@
   object-fit: cover;
 }
 .mediaActions {
-  composes: uColXs from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
 /* 세그먼트(배경 종류) */
 .sliderRow {
-  composes: uRowSm from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 /* ── 패널 관리자 리스트 ── */
 .panelList {
-  composes: uCol from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
 }
 .panelRow {
   display: flex;
@@ -263,7 +273,9 @@
   gap: var(--spacing-2xs);
 }
 .node {
-  composes: uRow2xs from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
   min-width: 0;
 }
 .nodeLabel {
@@ -430,7 +442,10 @@
 /* 설명 EN/KO — 좁은 편집 패널이라 세로 스택 */
 /* 툴바 — [이동·들여쓰기] [추가] … [삭제] */
 .nodeEditBar {
-  composes: uRowWrapSm from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 .nodeMoveGroup,
 .nodeAddGroup {
@@ -524,7 +539,10 @@
 
 /* 슬라이더 값 라벨 행 (오버레이 세기 등) */
 .sliderLabelRow {
-  composes: uRowSmBetween from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  justify-content: space-between;
 }
 .sliderValue {
   font-family: var(--font-mono);

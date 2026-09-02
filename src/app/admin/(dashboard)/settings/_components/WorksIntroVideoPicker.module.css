@@ -56,7 +56,10 @@
 }
 
 .worksIntroVideoActions {
-  composes: uRowWrapSm from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 /* CoverImagePicker drawer 가 grid 두 컬럼 모두 차지하도록 */
 .worksIntroPickerWrap {
