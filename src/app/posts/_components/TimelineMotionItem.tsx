@@ -9,13 +9,11 @@ export default function TimelineMotionItem({
   side,
   disableX,
   className,
-  assignRef,
   children,
 }: {
   side: "left" | "right";
   disableX: boolean;
   className: string;
-  assignRef: (el: HTMLDivElement | null) => void;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -30,10 +28,7 @@ export default function TimelineMotionItem({
   const scale = useTransform(scrollYProgress, [0, 1], [0.965, 1]);
   return (
     <motion.div
-      ref={(el) => {
-        ref.current = el;
-        assignRef(el);
-      }}
+      ref={ref}
       className={className}
       style={{ opacity, y, x, scale }}
     >
