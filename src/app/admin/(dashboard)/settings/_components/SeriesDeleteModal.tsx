@@ -8,7 +8,7 @@ import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import Input from "@/components/ui/Input";
 import { ModalFooterContext } from "@/components/ui/Modal";
-import styles from "../Settings.module.css";
+import styles from "./SeriesDeleteModal.module.css";
 
 export default function SeriesDeleteModal({ series, onConfirm, onCancel }: {
   series: Series;
