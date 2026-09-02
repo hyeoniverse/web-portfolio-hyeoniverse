@@ -384,127 +384,6 @@
   min-width: 0;
 }
 
-.sidebarWrap {
-  position: sticky;
-  /* filterBar 가 검색줄(filterBarSearchRow) + 메인줄로 2줄이라 콘텐츠 높이 ≈ 80px */
-  top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl) + var(--spacing-sm) * 2 + 80px + 1px + var(--spacing-xl));
-  align-self: start;
-  z-index: 1;
-  max-height: calc(100vh - var(--spacing-2xl) * 2 - var(--font-size-3xl) - var(--spacing-sm) * 2 - 80px - 1px - var(--spacing-xl) - var(--spacing-xl));
-  display: flex;
-  flex-direction: column;
-}
-
-/* compound (0,2,0) — override global theme transition */
-.sidebarWrap.sidebarUp {
-  top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl) + var(--spacing-md));
-  max-height: calc(100vh - var(--spacing-2xl) * 2 - var(--font-size-3xl) - var(--spacing-md) - var(--spacing-xl));
-  transition: top 0.3s ease, max-height 0.3s ease;
-}
-
-.sidebarWrap:not(.sidebarUp) {
-  transition: top 0.3s ease, max-height 0.3s ease;
-}
-
-.sidebar {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: none;
-}
-
-.sidebar::-webkit-scrollbar {
-  display: none;
-}
-
-/* ── Sidebar scroll indicators ── */
-.sidebarFadeTop,
-.sidebarFadeBottom {
-  position: absolute;
-  left: 0;
-  right: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: var(--control-h-xs);
-  color: var(--text-tertiary);
-  pointer-events: none;
-}
-
-.sidebarFadeTop svg,
-.sidebarFadeBottom svg {
-  position: relative;
-  z-index: 1;
-}
-
-/* fade 안의 스크롤 버튼 — fade 자체는 pointer-events:none 이라 그라디언트 영역 클릭은
-   뒤 링크로 통과하지만, 이 버튼만 pointer-events:auto 로 클릭을 받아 사이드바를 스크롤한다.
-   (예전엔 chevron 클릭이 뒤 게시물 링크로 새던 버그) */
-.sidebarScrollBtn {
-  pointer-events: auto;
-  cursor: pointer;
-  /* 클릭 영역을 fade 그라디언트 높이(48px)만큼 가로 full + 세로로 크게. chevron 자체는
-     원래 strip 위치(가장자리)에 유지. (예전엔 chevron 32px 만 클릭돼 뒤 링크로 새던 버그) */
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 48px;
-  z-index: 1;
-  display: flex;
-  justify-content: center;
-  padding: 0;
-  border: none;
-  background: none;
-  color: inherit;
-  transition: color var(--duration-fast) ease;
-}
-
-.sidebarFadeTop .sidebarScrollBtn {
-  top: 0;
-  align-items: flex-start;
-  padding-top: calc((var(--control-h-xs) - 14px) / 2);
-}
-.sidebarFadeBottom .sidebarScrollBtn {
-  bottom: 0;
-  align-items: flex-end;
-  padding-bottom: calc((var(--control-h-xs) - 14px) / 2);
-}
-
-.sidebarScrollBtn:hover {
-  color: var(--text-primary);
-}
-
-.sidebarFadeTop {
-  top: 0;
-}
-
-.sidebarFadeBottom {
-  bottom: 0;
-}
-
-.sidebarFadeTop::before,
-.sidebarFadeBottom::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  pointer-events: none;
-}
-
-.sidebarFadeTop::before {
-  top: 0;
-  height: 48px;
-  background: linear-gradient(to bottom, var(--bg-primary) 30%, transparent);
-}
-
-.sidebarFadeBottom::before {
-  bottom: 0;
-  height: 48px;
-  background: linear-gradient(to top, var(--bg-primary) 30%, transparent);
-}
-
 /* ── Series Section ── */
 .seriesSection {
   margin-bottom: var(--spacing-2xl);
@@ -1133,14 +1012,6 @@
   grid-auto-rows: auto !important;
   /* main column 을 꽉 채움 (좌우 여백 최소화) */
 }
-.skeletonCompactRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-  padding: var(--row-p-lg);
-  border-bottom: var(--border-light);
-}
 
 /* ══ masonry — CSS multi-column. 가변 높이 카드가 열에 촘촘히 packing (row-span JS 미사용). ══ */
 .gridMasonry {
@@ -1492,11 +1363,9 @@
   }
 }
 
-/* /posts/history (history 모드) — 시리즈·사이드바 숨기고 본문 단일 컬럼 (타임라인만) */
+/* /posts/history (history 모드) — 시리즈 숨기고 본문 단일 컬럼 (타임라인만).
+   사이드바(PostsSidebar)는 history 에선 PostsClient 가 렌더하지 않는다. */
 .historyMode .seriesSection {
-  display: none;
-}
-.historyMode .sidebarWrap {
   display: none;
 }
 .historyMode .contentArea {
@@ -1617,87 +1486,11 @@
   font-size: var(--font-size-hint);
 }
 
-/* ── Skeleton: Card ── */
-.skeletonCard {
-  border-bottom: var(--border-light);
-  overflow: hidden;
-  padding-bottom: var(--spacing-lg);
-}
-
-/* image area — SkeletonBlock 의 radius-md 를 0 으로, height 는 aspect-ratio 가 결정.
-   SkeletonBlock 이 inline style 로 width:100% 만 주고 height 미지정 → CSS aspect-ratio 가 height 계산 */
-.skeletonImage.skeletonImage {
-  border-radius: 0;
-}
-
-/* PostCard variants 와 동일한 aspect-ratio — height 매칭 */
-.skeletonAspectDefault {
-  aspect-ratio: 16 / 10;
-}
-
-.skeletonAspectBanner {
-  aspect-ratio: 21 / 9;
-}
-
-.skeletonAspectSquare {
-  aspect-ratio: 1 / 1;
-}
-
-.skeletonAspectPortrait {
-  aspect-ratio: 3 / 4;
-}
-
-/* body — PostCard .body 와 동일 (gap-xs, padding-md top, flex column) */
-.skeletonCardBody {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-md) 0 0 0;
-}
-
-/* tags row — pill 들 가로 배치 */
-.skeletonTagsRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs);
-}
-
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .contentArea {
     grid-template-columns: 1fr;
     gap: var(--spacing-2xl);
-  }
-
-  /* sidebarUp 컴파운드 (0,2,0) 가 자체 max-height 를 갖고 있어 media 의 단일 .sidebarWrap (0,1,0)
-     선언만으론 cascade 에서 못 이김 → 두 변종 모두 명시적으로 해제. */
-  .sidebarWrap,
-  .sidebarWrap.sidebarUp {
-    position: static;
-    max-height: none;
-    overflow: visible;
-  }
-
-  /* 2-col grid 는 row 가 가장 큰 자식 높이로 stretch 돼 위젯마다 빈 공간이 생김
-     (TagCloud3D 스피어가 ~200px 인데 옆 PopularPosts 가 400px 이라 sphere 아래 200px 빈공간).
-     CSS multi-column 으로 변경 — 신문 칼럼처럼 위젯이 자연스럽게 packing, equal-row 제약 없음. */
-  .sidebar {
-    display: block;
-    columns: 2;
-    column-gap: var(--spacing-2xl);
-    overflow: visible;
-    overscroll-behavior: auto;
-  }
-
-  .sidebar > * {
-    /* 칼럼 중간에 위젯이 잘리지 않게 */
-    break-inside: avoid;
-    margin-bottom: var(--spacing-2xl);
-  }
-
-  .sidebarFadeTop,
-  .sidebarFadeBottom {
-    display: none;
   }
 
   /* 태블릿 — 3 col 고정 (auto-fit 이 좁은 폭에서 4 col 잡는 거 방지) */
@@ -1730,15 +1523,6 @@
 
   .seriesRow {
     gap: var(--spacing-sm);
-  }
-
-  .sidebar {
-    /* small mobile — 1 칼럼으로 자연 stack (column gap 은 의미 없으니 마진으로 처리) */
-    columns: 1;
-  }
-
-  .sidebar > * {
-    margin-bottom: var(--spacing-xl);
   }
 
 }
