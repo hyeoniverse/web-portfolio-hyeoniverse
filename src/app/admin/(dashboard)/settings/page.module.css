@@ -27,8 +27,6 @@
   margin-bottom: var(--spacing-2xl);
 }
 
-/* uRow 를 따로 적는다 — Turbopack 은 두 단계 composes(.title→.uRowSm→.uRow)의 끝 클래스를
-   안 붙여서, uRowSm 만 적으면 gap 은 받고 display:flex 는 못 받아 아이콘이 제목 위에 세로로 쌓였다. */
 .title {
   display: flex;
   align-items: center;
@@ -386,9 +384,8 @@
     opacity: 1;
   }
 
-  /* composes 한 .uCol(display:flex) 과 같은 (0,1,0) 이라 번들 순서에 따라 이 숨김이 뒤집혀
-     데스크톱용 하위내비가 탭바 옆에 새어 나왔다. 클래스를 두 번 적어 (0,2,0). */
-  .navSub.navSub {
+  /* 위 .navSub 의 display:flex 와 같은 파일 뒤에 와서 이긴다. */
+  .navSub {
     display: none;
   }
 

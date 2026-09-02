@@ -20,10 +20,11 @@
 }
 
 /* 크기·색은 .fieldLabel 이 정한다 — 아이콘과 나란히 놓는 것만 여기서.
-   gap 은 .fieldLabel 도 갖고 있어서 같은 (0,1,0) 이면 번들 순서가 승자를 정한다.
+   .fieldLabel 은 flex column 이라 방향·gap 을 같은 (0,1,0) 으로 두면 번들 순서가 승자를 정한다.
    클래스를 두 번 적어 (0,2,0). .groupLabel 의 margin 도 같다. */
 .switchTitle.switchTitle {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: var(--spacing-2xs);
 }

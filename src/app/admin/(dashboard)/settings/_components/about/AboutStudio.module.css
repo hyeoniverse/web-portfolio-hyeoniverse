@@ -1566,7 +1566,7 @@ textarea.edit {
 }
 /* 엔드포인트/컬럼 한 줄 — 삭제 버튼은 hover 시에만.
    레이아웃은 같이 달리는 패널 클래스(.dbEndpoint/.dbSchemaRow 의 grid)가 정한다. 예전엔 여기서
-   uRowXs 를 composes 해서 display·gap 이 패널과 같은 (0,1,0) 으로 겨뤘고, 번들 순서가 승자를
+   Settings.module.css 의 행 유틸을 composes 해서 display·gap 이 패널과 같은 (0,1,0) 으로 겨뤘고, 번들 순서가 승자를
    정했다. 패널이 안 정하는 align-items 만 :where 로 남긴다 — (0,0,0) 이라 패널이 정하면
    언제나 진다. */
 :where(.bkRow) {

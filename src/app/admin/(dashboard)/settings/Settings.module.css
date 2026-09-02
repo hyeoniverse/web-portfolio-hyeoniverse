@@ -129,11 +129,6 @@
   width: 100%;
 }
 
-.fieldGroup {
-  display: flex;
-  flex-direction: column;
-}
-
 .fieldGroup > .fieldRow {
   padding: var(--spacing-xs) 0;
 }
