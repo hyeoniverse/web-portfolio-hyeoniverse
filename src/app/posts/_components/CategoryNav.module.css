@@ -132,26 +132,10 @@
   opacity: 0.85;
 }
 
-/* Animated indicator */
-.indicator {
-  position: absolute;
-  left: var(--spacing-sm);
-  right: var(--spacing-sm);
-  bottom: 0;
-  height: 2px;
-  background: var(--text-primary);
-  border-radius: var(--spacing-4xs);
-}
-
 @media (max-width: 768px) {
   .btn {
     padding: var(--button-p-md);
     font-size: var(--font-size-label);
-  }
-
-  .indicator {
-    left: var(--spacing-xs);
-    right: var(--spacing-xs);
   }
 }
 
