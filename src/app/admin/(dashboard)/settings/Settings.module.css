@@ -106,15 +106,6 @@
   max-height: var(--_list-height, 1000px);
 }
 
-/* 양옆이 트인 flat list — 좌우 border 없음, 위/각 row 아래에만 border.
-   notifications 페이지의 list 와 같은 패턴. */
-
-/* ── Conflict diff modal ── */
-
-/* compound (0,2,0) to beat global theme transition */
-
-/* ── Diff hunk with hover float button ── */
-
 /* ──────────────────────────────────────────────────────────────────────────
    패널 z-index 사다리 — 전부 글로벌 nav(--z-nav) "아래". 하드코딩 정수 대신
    --z-nav 기준 오프셋으로 상대 순서를 명시한다(탭바가 이미 쓰던 방식으로 통일).
@@ -131,10 +122,6 @@
   display: flex;
   gap: var(--spacing-lg);
 }
-
-/* 탭바 sticky 래퍼 — edit 페이지 topBar 와 같은 방식.
-   데스크탑에선 래퍼를 없는 셈 치고(sideNav 가 직접 세로 사이드바), 태블릿 이하에서만
-   이 래퍼가 sticky + frost 를 맡는다. 스크롤(overflow)은 안쪽 sideNav 라 ::before 가 안 잘린다. */
 
 /* 데스크탑(>1024): 세로 sticky 사이드바. 태블릿·모바일(≤1024)에서는 아래
    미디어쿼리에서 가로 스크롤 탭바로 바뀐다. */
@@ -188,13 +175,6 @@
 .panel { composes: uFill;
 }
 
-/* ── Tab grid — auto-fit: 컬럼 폭이 minmax min 이하로 좁아지면 자동으로 1열 wrap.
-   max-width 1040px 안에서 2 col 폭이 ~440px 미만이면 1열. */
-
-/* Content home 은 짧은 섹션(3D·Footer)과 긴 섹션이 섞여 2단이면 빈 공간이 생긴다.
-   섹션 높이가 제각각이라 grid(row 기반)로는 못 메우므로 1컬럼 세로로 배치한다. */
-/* Content 탭 — WYSIWYG 스튜디오라 콘텐츠 폭 전체 사용(우측 여백을 nav 와 동일한 page-px 로 정렬) */
-
 /* ── Section ── */
 /* 섹션을 grid(1fr auto)로 — 헤더의 제목/액션이 각각 섹션 직속 sticky 요소라야
    섹션 높이만큼 함께 붙는다(둘 다 sticky, 제목만 difference). 나머지 자식은 전폭 span. */
@@ -217,15 +197,9 @@
   grid-column: 1 / -1;
 }
 
-/* ── 작성자(Authors) 에디터 ── */
-/* 아바타 = 이미지 업로드 trigger (클릭 시 파일 선택). 우상단 + 배지로 버튼임을 표시 */
-/* 삭제 버튼 — 카드 상단(start)에 붙임 (아바타가 커서 center 면 중앙에 뜸) */
-
 .sectionWide {
   grid-column: 1 / -1;
 }
-
-/* 노트북/PC(2열) 마지막 행 좌측 섹션 — 하단 border 제거(우측 섹션은 last-child 라 이미 없음) */
 
 .section:last-child {
   border-bottom: none;
@@ -265,12 +239,6 @@
   margin-bottom: 0;
 }
 
-/* Design System 섹션 제목 우측(customActions): [hint] | [열기 링크] 한 줄, 우측 정렬. */
-
-/* DS 액션은 이제 blend 밖(정상 색) — 테마 적응 토큰 그대로 쓴다. */
-
-/* 세로 구분선 — hint 와 링크 사이 */
-
 /* external link — rest 는 읽히는 기본색, hover 는 accent. (0,2,0)/(0,3,0) 로 TextLink 규칙을 이긴다. */
 .section .dsLink {
   color: var(--text-primary);
@@ -301,8 +269,6 @@
 .fieldGroup > .fieldRow {
   padding: var(--spacing-xs) 0;
 }
-
-/* profile expandable panel 안 fieldGroup 들 사이 간격 */
 
 /* ── Field Pair (EN/KO group — 2열 나란히).
    minmax(0, 1fr) — 자식 (긴 input value) 따라 column grow 방지. */
@@ -356,10 +322,6 @@
   margin-bottom: 0;
 }
 
-/* 시스템 로고 그룹 내 풀로고 파트 — 위 Favicon 파트(그림자 카드)와 붙지 않게 구분선+여백 */
-
-/* ── Devices list — 보안 section, admin_known_devices 표시 ── */
-
 /* ── Field Row (label / input — label 위, input 아래) ── */
 .fieldRow {
   display: flex;
@@ -372,13 +334,6 @@
   /* flex/grid 부모 안에서 content (긴 input value) 따라 grow 방지 */
   min-width: 0;
 }
-
-/* single-line Field counter — Input 박스 안 우측. clear 버튼이 right edge 점유 (20px),
-   counter 는 그 좌측에 작은 글자로 부드럽게 표시 (clearable 유지).
-   클래스 이름이 fieldInputWrap (TagField 등 다른 컴포넌트에서 flex container 로 이미 사용됨) 과 충돌하지 않도록 fieldCounterWrap 으로 분리. */
-
-/* counter + (선택) clearBtn 모두 우측 차지 — EditableInput 은 자체 padding-right 80px 이라 override 불필요.
-   native Input fallback 만 위해 input 셀렉터로 유지. */
 
 .fieldCounter {
   position: absolute;
@@ -399,10 +354,6 @@
   /* clearBtn (20px) + 2px gap — counter 와 clear 간격 타이트하게 */
   right: calc(var(--spacing-sm) + 18px);
 }
-
-/* count 숫자만 상태별 색상 — "/ max" 는 항상 tertiary. */
-
-/* overflow 시 시각 indicator 는 EditableInput 의 inline <mark> highlight + counter accent 색 — 별도 border rule 불필요. */
 
 .fieldRow .fieldCounter {
   /* (0,2,0) — global theme transition 오버라이드 */
@@ -566,8 +517,6 @@
   color: var(--text-white);
 }
 
-/* 현재 색상이 어떤 preset 과도 다를 때만 노출되는 + 버튼 */
-
 .presetName {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -597,55 +546,9 @@
   border-color: var(--text-primary);
 }
 
-/* preset chip wrap — hover 시 remove 버튼 노출 */
-
-/* + 점선 버튼 — preset 그리드 끝에 추가 (canAddPreset 일 때만 노출) */
-
-/* + 버튼 클릭 시 펼쳐지는 이름 input 인라인 row.
-   AnimatePresence motion wrapper 가 height/opacity 애니메이션 — 이 inner 는 위 구분선 + padding 만 담당 */
-
-/* Favicon — 미리보기(light/dark)를 상단 스트립으로, 아래 컨트롤을 풀폭 2열로.
-   기존엔 미리보기 좌 + 컨트롤 우(~500px)라 minmax(280) 이 1열로 붕괴 → 좌측 큰 빈 공간.
-   세로로 쌓아 컨트롤이 풀폭을 받게 해 2열로 채운다. */
-
-/* 상단 미리보기 스트립 — light/dark 가로, 아래 컨트롤과 구분선으로 분리 */
-
-/* SVG inline 렌더 — /api/favicon 출력과 동일 구조라 픽셀 일치. width/height 는 attr 로 set. */
-
-/* 풀폭 auto-fit grid — 상단 스트립 아래. 각 열 min 260px → 보통 2열로 채움 */
-
 /* ── Favicon 정렬 폼 — 모든 컨트롤을 '라벨 │ 컨트롤' 행으로 통일.
    각 FieldRow 를 display:contents 로 풀어 라벨/컨트롤을 이 그리드의 셀로 편입 →
    라벨은 max-content 공통열에 정렬되고 컨트롤은 우측 1fr(최대 30rem)을 채워 좌우 라인이 맞는다. */
-/* 라벨 셀 — 위로 쌓던 기본(FieldRow) margin 제거, 컨트롤과 수직 가운데 */
-
-/* 라이트/다크 색을 한 행에 — 각 색 위에 작은 캡션 */
-
-/* 라이트/다크 색 편의 버튼 (맞추기·서로 바꾸기·지우기) — duo 두 칼럼 아래 우측 툴바 */
-
-/* 숏 텍스트처럼 짧은 입력은 폭 제한 (풀폭이면 4자 필드가 휑함) */
-
-/* ═══════════════════════════════════════════════════════════════════════
-   Brand 로고 설정 — 일관 레이아웃 (그룹 → 파트 → 컨트롤).
-   간격·정렬·높이를 한 규칙으로 통일해 섹션 전체가 정돈돼 보이도록.
-   ═══════════════════════════════════════════════════════════════════════ */
-
-/* 그룹 (업로드 / 시스템) — 그룹 사이 구분선으로 분리 */
-
-/* 파트 (Favicon / 풀로고) — 탭 안 top-level 서브섹션 */
-/* 그룹 탭 — 언더라인 스타일 (세그먼트 pill 과 다른 결로 계층 구분) */
-/* 그룹 탭 아래 활성 그룹 설명 */
-/* 파트 사이 구분선 — 그룹 안에서 Favicon/풀로고 구획 (그룹 구분선보다 약하게) */
-/* 파트 헤더 — 라벨(좌) + 액션/토글(우). min-height 로 액션 유무와 무관하게 높이 일정 */
-
-/* 로고 효과(글리치·Difference) — 탭 밖 섹션 레벨(브랜드 상단). nav 로고 전체(숏 배지·풀 텍스트)에 적용됨을 나타냄 */
-
-/* 풀로고(텍스트) 미리보기 — 라이트/다크 배경 박스에 폰트·색·장평 적용한 로고 텍스트 + 아래 캡션 */
-
-/* 드롭존 2열 — 라이트/다크. 각 UploadField 는 라벨 1줄 + 고정높이 박스라 나란히 정렬 */
-
-/* 업로드 favicon 전용 옵션 — 박스(테두리/배경) 안 쓰고, accent eyebrow 헤더(라벨 + 라인)
-   와 여백만으로 새 구분. 카드가 아니라 '섹션 표제' 결. */
 /* 배경색 — 라이트/다크 컴팩트 인라인 (좁은 hex 입력) */
 .faviconImageBgField { composes: uRow2xs;
 }
@@ -657,32 +560,6 @@
   width: 8rem;
   flex: 0 0 auto;
 }
-
-/* faviconBg light/dark — 항상 한 줄 (외부 grid 와 무관). grid 셀 하나가 sub-grid 2열 */
-
-/* ── Favicon 그림자 컨트롤 — 세그먼트 탭 전환, 플랫(카드/그리드 아님). 세그먼트 pill 이 앵커.
-   .fields(align-items:flex-start) 안에서 shrink 되지 않게 .faviconShadowCard 가 width:100%. ── */
-
-/* 우측 컨트롤 — 2열로 채워 넓은 카드에서 빈 공간 최소화. 프리셋은 상단 풀폭. */
-
-/* 좁으면 미리보기/컨트롤 세로 스택 + 컨트롤 1열 */
-
-/* 카드 안 각 컨트롤 행 — 라벨 좌측 고정폭 + 컨트롤 우측 (FieldRow 세로 배치 override).
-   FieldRow 는 자체 module 의 .fieldRow(flex column)라 className 으로 전달된 .faviconShadowRow
-   를 compound (0,2,0)로 눌러 grid 로 바꾼다. 4개 행 라벨 열 폭 고정 → 컨트롤 시작점 정렬. */
-
-/* blur stepper — grid 셀에서 stretch 되지 않게 fit-content 유지 */
-
-/* ── 실시간 그림자 미리보기 ──
-   그림자 색은 보통 검정 rgba 라, 캔버스가 테마 따라 어두워지면 그림자가 안 보인다.
-   favicon 은 light/dark 배경이 고정이므로 미리보기도 favicon light 톤으로 고정한다.
-   (테마 반전되는 --color-* 토큰을 못 쓰는 자리 — 그림자 에디터의 라이트 캔버스 예외) */
-
-/* 그림자 방향 핸들 — 커서를 따라오는 점. glow 로 만질 수 있는 점임을 표시 */
-
-/* 드래그 안내 문구 */
-
-/* 흰 원 — 그림자(box-shadow)가 적용되는 미리보기 대상. flat + 그림자로 떠 보이게 */
 
 /* ── 그림자 프리셋 — 밑줄형 텍스트 토글(미니멀). 선택 시 accent 밑줄 ── */
 
@@ -721,18 +598,6 @@
   color: var(--text-primary);
 }
 
-/* 그림자 컨트롤 inline row — FieldRow 오른쪽에 컨트롤+보조요소(커스텀 blur/각도값/inset)를 가로 배치 */
-
-/* 방향 화살표 — 각도 변경 시 부드럽게 회전 */
-
-/* 폰트 크기 — Select + (커스텀 모드) stepper 가로 배치 */
-
-/* ── Favicon 배경 반경/크기 슬라이더 (슬라이더 + 값 라벨) ── */
-
-/* ── Favicon 대비율 / WCAG 배지 (미리보기 셀 하단) ── */
-
-/* 토글 그룹 — sectionTitleRow 우측 여러 toggle 같이 묶음 */
-
 /* ── Logo Upload ── */
 .logoUpload {
   composes: uRowWrapSm;
@@ -740,23 +605,12 @@
   min-width: 0;
 }
 
-/* 업로드된 로고 미리보기 — 박스 스타일(배경·border·radius) 없이 로고만. 배경 투명 그대로 노출. */
-
 .logoPreviewImage {
   width: auto;
   max-width: 100%;
   height: 100%;
   object-fit: contain;
 }
-
-/* 로고 리컬러 — 업로드 이미지를 마스크로 써서 고른 색으로 채워 표시 (모노 로고용) */
-
-/* 업로드된 로고 리컬러 — 카드에서 로고 자체 색을 골라 확인 (로컬, 저장 안 함) */
-
-/* ── 로고 dropzone — 넓은 박스 클릭/드래그 업로드 (실선 border, 배경 없음).
-   height 고정: 빈/채워진(미리보기+버튼) 상태가 같은 높이여야 나란한 드롭존이 어긋나지 않는다. ── */
-
-/* 파일 있을 때 — 미리보기 좌 + 액션 우, 카드 클릭 비활성(버튼만) */
 
 /* 고정 너비 280px — 텍스트 줄바꿈 안 되고 길면 ellipsis */
 .resumeFile {
@@ -815,11 +669,6 @@
   min-height: 2.8em; /* line-height 1.4 × 2줄 */
 }
 
-/* SectionHeader row 에 inline 으로 들어갈 때 — margin 모두 제거, line-height 1.
-   title 과의 간격은 SectionHeader 의 row gap 이 담당. 모바일에선 flex-basis 100% 로 줄바꿈. */
-
-/* ── 태그 삭제 대기 표시 ── */
-
 .sectionTitle + .sectionHint,
 .sectionTitle + .sectionHintList {
   margin-top: var(--spacing-2xs);
@@ -843,6 +692,7 @@
   margin: 0;
 }
 
+/* ── Sub title · Field label ── */
 .sectionSubTitle {
   display: flex;
   align-items: baseline;
@@ -875,10 +725,6 @@
   font-size: var(--font-size-hint);
   color: var(--text-tertiary);
 }
-
-/* 언어 배지 — Field label 옆 KO/EN 표시 */
-
-/* textarea 의 lang 배지 — textarea 좌측 외부에 배치 (textarea 첫 줄과 안 겹침) */
 
 /* 라벨 텍스트와 dot 을 가로 한 줄로 묶는 컨테이너 (.fieldLabel 이 column 이라 필요) */
 .fieldLabelText { composes: uRow2xs;
@@ -913,8 +759,6 @@
 .fieldHelp:hover {
   color: var(--text-secondary);
 }
-
-/* Switch + ? 도움말 나란히 배치 (Switch 공통 컴포넌트 미변경, 감싸서 처리) */
 
 /* ── Fallback Priority List ── */
 
@@ -966,8 +810,6 @@
   border-top: var(--border-light);
 }
 
-/* ── Categories Editor ── */
-
 /* ── Profile Sections (embedded in Content tab) ── */
 
 /* sub-section 시각적 중첩 — section h2 아래 h3 그룹을 들여쓰기 + 좌측 라인 */
@@ -993,21 +835,7 @@
   color: var(--text-primary);
 }
 
-/* ── Account ── */
-
-/* ── Password Confirm Dialog ── */
-
-/* position 만 — size/style 은 CloseButton md 가 책임 */
-
-/* ── Skeleton (tab layout) ── */
-
 /* ── Series Manager (Content > Posts) ── */
-
-/* head 와 collapse 는 grid 의 우측 컬럼(2)에 위치 — 둘 다 같은 컬럼이라 자연스럽게 세로 stack */
-
-/* 액션 버튼은 head 위에 absolute — head 의 우측 영역에 자리 (right offset 은 기존 그대로) */
-
-/* grip 핸들 — grid 의 좌측 컬럼(1) 첫 row 에만 위치 (head 영역 높이만 잡음) */
 
 /* seriesCardName 안 정렬 순서 prefix (#1_) — mix-blend-mode: difference + white 로
    어두운 cover 배경에서도 자동 반전되어 가독성 유지. 내부 EditableRowNumber 도 함께 효과. */
@@ -1018,11 +846,6 @@
   margin-right: var(--spacing-3xs);
   font-variant-numeric: tabular-nums;
 }
-
-/* drop indicator — 카드 사이 gap(spacing-sm=12px) 의 정중앙에 위치.
-   gap 절반(6px) + indicator height 절반(1px) = 7px 카드 외부로. */
-
-/* 펼친 시리즈 카드 헤더 — 삭제 버튼. parent flex 의 align-items:center 로 자연 정렬 (chevron 과 수직 중심 일치). */
 
 .seriesCoverPreview {
   composes: uCenter;
@@ -1059,8 +882,6 @@
   color: var(--text-secondary);
 }
 
-/* 타이틀 + 발행 배지 한 줄 — 타이틀 truncate(min-width:0), 배지는 우측 끝 (flex 정렬). */
-
 .publishToggle { composes: uRowXs;
 }
 
@@ -1084,13 +905,6 @@
     transform: translateY(0);
   }
 }
-
-/* 발행 배지 — 공통 Button (variant=primary tone=success / variant=subtle) 로 통합됨.
-   기존 .seriesBadge / .seriesBadgeBtn / Published / Draft CSS 제거. */
-
-/* 새 시리즈 생성 시 — head 가 없어 단독으로 렌더, 상단 border + 풀 radius 필요 */
-
-/* shell 내부에서 사용될 때 — 자체 border / radius 없이 padding+layout 만 */
 
 /* 새 시리즈 추가 — 버튼이 카드로 morph 되는 단일 shell
    grid-template-rows 로 두 행(버튼/에디터)을 0fr↔1fr 로 swap 하면서
@@ -1236,8 +1050,6 @@
   transition: opacity 0.2s 0.35s;
 }
 
-/* 취소·만들기와 발행 토글 사이의 세로 구분선 */
-
 /* shell actions 안의 발행 토글 — 라벨↔토글 간격 좁게 */
 .newSeriesShellActions .publishToggle {
   gap: var(--spacing-2xs);
@@ -1256,51 +1068,6 @@
   color: var(--text-primary);
 }
 
-/* standalone 모드 — 새 시리즈 생성 시 상단 제목 + 버튼 라인
-   border-bottom 을 카드 좌우 끝까지 붙이기 위해 negative margin + padding 사용 */
-
-/* ── Series Posts List (inline) ── */
-
-/* ── Add Post Modal ── */
-
-/* section 의 `> * + *` margin-top override — (0,2,0) compound 로 specificity 일치/우선 */
-
-/* handle 과 order 묶음 — 부모 gap 상쇄 (gap 0 으로 붙임) */
-
-/* drag handle — 가장 앞 (숫자보다 좌측). mousedown 시점에만 부모 .seriesPostItem 의 draggable 이 armed */
-
-/* unlink + 삭제 버튼 — 캡슐로 묶지 않고 각자 ghost 스타일 (border/배경 없음) */
-
-/* order ↑↓ 묶음 안에서만 sibling border (캡슐 그룹 유지).
-   seriesPostActions(unlink+delete) 는 ghost — border 없음 (별도 selector 안 함). */
-
-/* 발행/미발행 배지 — 헤더의 seriesBadge 와 동일 크기/폰트 통일.
-   capsule, 줄바꿈 X (발행/미발행 텍스트라 P/D 보다 길어짐) */
-
-/* 헤더의 seriesBadgePublished/Draft 와 동일 색 — 시각적 일관성 */
-
-/* ── Social Links Editor ── */
-
-/* 업로드 trigger 임을 알리는 우상단 + 배지 */
-
-/* 아이콘 URL input + 업로드 버튼 캡슐 그룹 */
-
-/* 내부 input — 외곽 캡슐이 border 담당하므로 자체 border 제거 */
-
-/* 업로드 버튼 — 32×32 정사각형, 아이콘 가운데 */
-
-/* — → × rotate animation */
-
-/* ── Skills Editor (table / line layout) ──
-   섹션 내부 간격 일관성: sortableList gap + profileAddBtn margin-top
-   = 모두 spacing-md(16px). title row → first item, item ↔ item, last item →
-   add button 모두 동일하게 적용. */
-
-/* ── Expand/collapse animation ──
-   ExpandablePanel(JS)이 height 를 직접 측정·설정해 transition.
-   여기서는 transition 속성과 기본 height/overflow 만 정의. */
-
-
 /* ── Field group (label + inputs) ── */
 .fieldGroup { composes: uColXs;
 }
@@ -1312,21 +1079,6 @@
   color: var(--text-tertiary);
   padding-bottom: var(--spacing-2xs);
 }
-
-
-/* row 헤더 inline title editor — 공통 Input variant="underline" 사용.
-   wrapper 에만 flex 적용 (row 참여), 내부 input 의 underline 스타일은 Input.module.css 가 담당.
-   기존 font-weight 600 + 더 가벼운 border-default 는 유지 (callsite 차별성). */
-
-
-/* 헤더 우측 meta 표시 — 기술 스택 개수, 연도 등. 작고 깔끔한 mono caption. */
-
-/* 연도 표기 — "nnnn", "nnnn -", "nnnn - nnnn" 모두 같은 width 로 정렬.
-   border-box + 좌우 padding 포함해 "nnnn - nnnn" (11자) 까지 안 잘리게 충분히 확보. */
-
-
-/* — → × rotate animation (skill remove) */
-
 
 /* tablet (769~1024px): sideNav 는 아래에서 가로 탭바로 바뀌고, panel 은 전체 폭을
    쓴다. 여기서는 2열 grid 만 1열로 정리한다(좁은 폭에서 잘림 방지). */
@@ -1389,11 +1141,6 @@
     color: var(--text-accent);
   }
 
-  /* sub 탭이 없는 탭(General·Appearance·Services·Account)은 탭바와 첫 섹션 사이
-     여백이 없어 딱 붙었다. tabGrid 에 상단 여백을 준다. Content 는 위 mobileSubNav
-     의 margin-bottom 이 이미 그 여백을 주므로, subNav 바로 뒤 tabGrid 는 예외로 둬
-     2단 탭(메인 + 하위)이 붙어 보이게 유지한다. */
-
   /* 모바일 미세 조정 — font / padding */
   .header {
     gap: var(--spacing-sm);
@@ -1407,8 +1154,6 @@
     grid-template-columns: 1fr;
   }
 }
-
-/* ── Font Preview (inside Select renderOption) ── */
 
 /* ── Font Picker — editor 의 FontPicker 패턴 (Select + dropdown 내부 search + 필터링 목록) ── */
 .fontPickerSelect { composes: uFill;
@@ -1439,31 +1184,7 @@
     transform 0.18s ease;
 }
 
-/* (legacy) unused fontSelectGroup/fontSuggestions — removed after FontPicker rewrite */
-
-/* ── Env Var Editor — 단일 column 의 table-like layout. 라벨 좌측 fixed, input flex, actions 우측. ── */
-/* 그룹을 2열 그리드로 (JS 가 균형 분배). 각 열은 container 라, 열 폭이 좁아지면
-   필드 행이 컨테이너 쿼리로 스스로 접혀(라벨 위로) 넘치지 않는다 — 스크롤바·마진과 무관. */
-
-/* 태블릿 이하는 1열 (열이 전체폭이라 입력이 넓음) */
-
-/* 그룹별 set/total — 라벨 옆 작은 mono 카운터. 모두 set 이면 accent 색 ✓ */
-
-/* env 액션 바 — section 저장 / 기본값 (SectionHeader 의 spacer 와 같은 스타일) */
-
-/* ── 상단 status overview ── */
-
-/* row 개별 저장 버튼 — Check 아이콘, 편집 중 노출 */
-
-/* 누락 row 강조 — left accent 보더 + 들여쓰기 */
-
-/* progress 바 — set ratio */
-
-/* info icon + warn icon — label 옆 작게 */
-
-/* .env paste 모달 */
-
-/* fieldHint 안에서 env var key 클릭 시 해당 입력 필드로 스크롤. underline + monospace 로 link 임을 명확히 */
+/* ── Env var 필드 행 — .section/.fieldLabel 과 결합하는 경계 규칙 (EnvVarFields 가 shared 로 사용) ── */
 
 /* env var 필드 클릭 후 라벨 text 만 accent — 다음 인터랙션 까지 지속.
    (0,2,0) — .envFieldRow .fieldLabel 등 기존 색상 override */
@@ -1472,16 +1193,6 @@
   color: var(--text-accent);
   transition: color var(--duration-base) ease;
 }
-
-/* 입력 셀 — grid 2번째 열. Input + 모바일 힌트. min-width:0 로 grid 가 줄일 수 있게 */
-
-/* Input wrapper(첫 자식 div) — 셀 폭 전체 차지 */
-
-/* 액션 셀 — grid 3번째 열. 버튼 우측 정렬. 열 폭은 .envFieldRow 에서 고정 → 버튼 시작 위치 일정 */
-
-/* 소스/경고 배지 슬롯 — 라벨 텍스트 뒤 우측 정렬로 몰아 입력 앞에서 세로선 정렬 */
-
-/* 소스별 텍스트 색 차별화 — env(녹색), db(기본), edit(액센트). Read-only 는 data-source 없어 기본 tertiary 유지 */
 
 /* env row — 가로 grid: 라벨 좌측 fixed, input + actions 우측 flex (전체 폭 활용) */
 .envFieldRow {
@@ -1515,8 +1226,6 @@
     grid-column: 1 / -1;
   }
 }
-
-/* ── Pending Email Banner ── */
 
 /* ── Tag Input (media settings) ── */
 
@@ -1597,21 +1306,6 @@
   min-width: 96px;
 }
 
-/* 카드 제거 후 chip grid 도 indent 통일 */
-
-/* MediaLimits 컨테이너 — 카테고리별 단순 stacked 리스트. */
-
-/* ── Drag-and-Drop size bucket 레이아웃 ──
-   카드 X, 카테고리 헤더 + top border 구분선만. drop hover 는 배경색으로 표시. */
-/* 크기 버킷 8개+INACTIVE 를 세로로만 쌓으면 매우 길어진다. 2열 grid 로 나란히 배치해
-   세로 길이를 줄인다(버킷 사이 구분선 대신 gap 으로 분리). */
-
-/* INACTIVE 풀 버킷은 전체 폭(전 크기 공통이라 나란히 두지 않음) */
-
-/* drop hover — 옅은 accent 배경만 (radius-md 안에서) */
-
-/* 버킷 안 카테고리별 row — icon 좌측 + chip wrap 우측 */
-
 /* draggable format chip — radius-capsule, 보더 only */
 .sizeChip {
   display: inline-flex;
@@ -1640,11 +1334,6 @@
   cursor: grabbing;
   transform: scale(0.96);
 }
-
-/* built-in chip 이 비활성 풀로 drop 됐을 때 잠깐 흔들림 — 비활성화 불가 시각 피드백 */
-
-
-/* 미디어 group — 카드 없음. 첫 group 제외 top border 로 시각적 분리. */
 
 /* group header — icon + uppercase label, rows 위에 작게 위치 */
 
@@ -1722,8 +1411,6 @@
   border-left: var(--border-light);
 }
 
-/* 우측 끝 정렬 — 정렬 group 같은 거 (margin-left:auto 로 row 의 남는 공간 차지). */
-
 /* 검색창 — filter row 의 마지막 item. wrap 안 됐을 땐 margin-left:auto 로 우측 끝.
    wrap 됐을 땐 새 줄의 끝쪽 (justify-content: flex-end 효과는 width 100% 로). */
 .tagDescSearchEnd {
@@ -1758,11 +1445,6 @@
 }
 
 /* toolbar 내 count — SegmentedControl 오른쪽, search (margin-left:auto) 앞 자연 배치. */
-
-/* tag row 안 — 이름 / 설명 BilingualInputPair 두 줄 stacked */
-
-/* 새 태그 추가 행 — toolbar 아래, 구분선 */
-
 .tagDescCount {
   font-family: var(--font-mono);
   font-size: var(--font-size-hint);
@@ -1879,10 +1561,6 @@ a.tagRelatedItem:hover {
   letter-spacing: 0.05em;
 }
 
-/* 태그 삭제 confirm 모달 — 질문 + 관련 게시물 chip 목록 + 삭제 버튼 */
-
-/* 기본값 초기화 모달 chip — 클릭 시 해당 태그 사용 게시물 노출. 취소선 없음(삭제 대기 chip 과 구분). */
-
 /* section fields 내부 grid utility — 2-col / 3-col */
 .fieldsGrid2 { composes: uGrid2Md;
 }
@@ -1893,18 +1571,12 @@ a.tagRelatedItem:hover {
   gap: var(--spacing-md);
 }
 
-/* n-col auto-fit — 폭에 따라 1~n 컬럼 자동 reflow. 각 cell min 220px */
-
 @media (max-width: 768px) {
   .fieldsGrid2,
   .fieldsGrid3 {
     grid-template-columns: 1fr;
   }
 }
-
-/* 카테고리 설명 편집 list */
-
-/* Select width fit-content — pagination 처럼 짧은 값만 선택하는 경우 */
 
 /* ── Works Categories Editor (TagNotesEditor 그대로 사용) ── */
 .worksCatEditor {
@@ -2007,33 +1679,6 @@ a.tagRelatedItem:hover {
   }
 }
 
-/* ── Works Intro Video Picker — 2 column grid: preview | actions, 그 아래 picker drawer full width ── */
-
-/* 선택된 커버 미리보기 — 클릭 가능. grid 첫 컬럼. */
-
-/* CoverImagePicker drawer 가 grid 두 컬럼 모두 차지하도록 */
-
-/* ── Compress Video Modal ── */
-
-/* ─────────────────────────────────────────────────────────────────────────
-   About 패널 — 인라인 스타일 추출 (간격·정렬을 토큰으로 일관화)
-   ───────────────────────────────────────────────────────────────────────── */
-/* 미디어 프리뷰 + 액션 (VisualBreak / Hero 배경 공용) */
-
-/* Hero 텍스트 필드 (입력 + ⚙ 스타일 버튼) */
-/* 서브타이틀처럼 단일 라인이면 가운데 정렬 */
-
-/* Hero 배경 그룹 */
-
-/* 체크박스 row (무한 스크롤) */
-
-/* 패널 표시여부 그리드 */
-
-/* ── Hero 텍스트 + 타이포 매트릭스 ── */
-/* 텍스트 입력 3줄(line1/line2/watermark) — 라벨 위, 이중언어 인풋 아래 */
-/* 매트릭스 — 요소×속성 표. popover 4개 대신 한눈에 비교·편집. 좁으면 가로 스크롤. */
-/* 색 스와치 셀 — 스와치를 셀 안에서 좌측 정렬(헤더와 라인 맞춤) */
-
 /* ── Architecture 비주얼 트리 에디터 ── */
 /* 노드 행 — 클릭으로 선택, hover 시 + 하위추가 노출 */
 .archNodePath {
@@ -2042,38 +1687,6 @@ a.tagRelatedItem:hover {
   font-weight: 600;
   white-space: nowrap;
 }
-/* 중첩 — 좌측 가이드선으로 계층 표현 */
-/* 선택 노드 인라인 편집 패널 */
-
-/* Tech stack row (legacy) */
-
-/* ── Tech stack — chip editor ── */
-/* 카테고리별 그룹 — 그룹들을 n열 그리드로 배치 (압축). 라벨 밑줄로 구분감. */
-/* 그룹 내 chip 들 — wrap. min-height 로 빈 그룹도 drop 영역 확보 */
-/* 빈 그룹 placeholder — "여기로 드래그" */
-/* ── 칩 drag&drop (그룹 이동) ── */
-/* 드래그가 위에 올라온 그룹 — 하이라이트 */
-/* 드래그 중 따라다니는 칩 오버레이 */
-/* 아이콘 타일 — circle, 브랜드 컬러가 양쪽 테마에서 보이도록 밝은 중립 타일 위에 */
-/* 아이콘 없을 때 이니셜 */
-/* + 추가 chip (점선) — 그룹 그리드 전체 너비 차지 */
-/* + 추가 — 공통 Button(ghost) 사용 (외곽선 없음) */
-
-/* ── 추가 / 편집 popover 내부 ── */
-/* preset 스크롤 영역 — 좌우 트임(full-bleed) + 높이 제한(내부 스크롤). Lenis 는 dropdown 의 data-lenis-prevent 로 무시됨 */
-/* preset — 좌우 트인 표(row 리스트). circle 아이콘 + 이름 + 카테고리. 가로 구분선만. */
-/* 직접 추가 — sticky footer. 프리셋 스크롤해도 popover 하단에 항상 고정 */
-/* 아이콘 편집 — circle 미리보기(클릭=업로드/교체) + 링크 입력 한 줄 */
-/* 아이콘 있을 때 테두리 실선 */
-
-/* × 제거 — circle 우상단 */
-/* 직접 추가 — 중복 이름 힌트 */
-/* 중복 이름 입력 — 단일 accent 테두리. focus(.input:focus → text-primary)까지
-   이기도록 :focus 도 명시(0,2,1 > 0,1,1). box-shadow 안 씀(검정 보더와 겹쳐 탁해짐 방지) */
-/* 중복 추가 시도 — shake (transform 은 글로벌 transition 영향 없음) */
-
-/* 이미 추가된 preset row — 비활성 + 체크 */
-
 /* ── Author 초대 (이슈 #334 P1-c) ── */
 .authorInvite {
   display: flex;
@@ -2091,9 +1704,6 @@ a.tagRelatedItem:hover {
 .authorInvite .fieldHint {
   color: var(--text-secondary);
 }
-/* 가입된 멤버의 로그인 상태 줄 (역할·provider·최근 로그인) */
-/* 작성자와 연결 안 된 로그인 계정 그룹 */
-/* 멤버 편집 모달 내부 레이아웃 — 좌우/하단 패딩(모달 header 좌측 정렬), 버튼은 모달 footer 슬롯 사용 */
 /* GitHub 정보 불러오기 버튼 + 안내 */
 .memberGithubLoad {
   display: flex;
@@ -2105,10 +1715,7 @@ a.tagRelatedItem:hover {
   color: var(--text-tertiary);
 }
 
-/* ── 멤버 상세 모달 (읽기 전용) ── */
-
-
-/* 태그·카테고리 추가 popover — 툴바 트리거(우측 정렬) + popover 안 폼 */
+/* ── 추가 popover (태그·카테고리 에디터 공용) ── */
 /* posts subtab 태그/카테고리 에디터 공용 — toolbar 우측 끝 add 트리거 + popover 폼 */
 .addPopoverTrigger {
   margin-left: auto;

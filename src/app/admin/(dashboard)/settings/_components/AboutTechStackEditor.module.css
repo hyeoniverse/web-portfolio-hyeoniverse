@@ -2,6 +2,7 @@
    기술스택 편집기(칩 그룹 · 프리셋 표 · 아이콘 편집) 전용 클래스 + 애니메이션.
    ContentTab.module.css 에서 분리 (다른 컴포넌트와 공유하지 않음). */
 
+/* 카테고리별 그룹 — 그룹들을 n열 그리드로 배치 (압축). 라벨 밑줄로 구분감. */
 .techGroups {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -22,6 +23,7 @@
   padding-bottom: var(--spacing-2xs);
   border-bottom: var(--border-light);
 }
+/* 그룹 내 chip 들 — wrap. min-height 로 빈 그룹도 drop 영역 확보 */
 .techChips {
   display: flex;
   flex-wrap: wrap;
@@ -30,12 +32,14 @@
   min-width: 0;
   min-height: var(--control-h-sm);
 }
+/* 빈 그룹 placeholder — "여기로 드래그" */
 .techGroupEmpty {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   color: var(--text-muted);
   font-style: italic;
 }
+/* ── 칩 drag&drop (그룹 이동) ── */
 .techDragWrap {
   display: inline-flex;
   touch-action: none; /* dnd-kit pointer drag — 스크롤 간섭 방지(칩 전체 draggable) */
@@ -43,6 +47,7 @@
 .techDragSource {
   opacity: 0.4;
 }
+/* 드래그가 위에 올라온 그룹 — 하이라이트 */
 .techGroupOver {
   outline: var(--border-accent);
   outline-style: dashed;
@@ -50,6 +55,7 @@
   border-radius: var(--radius-2xl);
   background: var(--bg-accent-light);
 }
+/* 드래그 중 따라다니는 칩 오버레이 */
 .techDragOverlay {
   display: inline-flex;
   align-items: center;
@@ -65,6 +71,7 @@
   color: var(--text-primary);
   cursor: grabbing;
 }
+/* 아이콘 타일 — circle, 브랜드 컬러가 양쪽 테마에서 보이도록 밝은 중립 타일 위에 */
 .techIconTile {
   width: 20px;
   height: 20px;
@@ -81,16 +88,20 @@
   height: 13px;
   object-fit: contain;
 }
+/* 아이콘 없을 때 이니셜 */
 .techIconInitial {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-hint);
   font-weight: 700;
   color: var(--text-tertiary);
 }
+/* + 추가 chip (점선) — 그룹 그리드 전체 너비 차지 */
+/* + 추가 — 공통 Button(ghost) 사용 (외곽선 없음) */
 .techAddRow {
   grid-column: 1 / -1;
   padding-top: var(--spacing-xs);
 }
+/* ── 추가 / 편집 popover 내부 ── */
 .techPanel {
   display: flex;
   flex-direction: column;
@@ -107,12 +118,14 @@
   letter-spacing: 0.04em;
   color: var(--text-secondary);
 }
+/* preset 스크롤 영역 — 좌우 트임(full-bleed) + 높이 제한(내부 스크롤). Lenis 는 dropdown 의 data-lenis-prevent 로 무시됨 */
 .techPresetScroll {
   margin: 0 calc(-1 * var(--spacing-md));
   max-height: 200px;
   overflow-y: auto;
   overflow-x: hidden;
 }
+/* preset — 좌우 트인 표(row 리스트). circle 아이콘 + 이름 + 카테고리. 가로 구분선만. */
 .techPresetList {
   composes: uCol from "../Settings.module.css";
 }
@@ -148,6 +161,7 @@
   color: var(--text-tertiary);
   white-space: nowrap;
 }
+/* 직접 추가 — sticky footer. 프리셋 스크롤해도 popover 하단에 항상 고정 */
 .techCustomFooter {
   display: flex;
   flex-direction: column;
@@ -160,6 +174,7 @@
   background: var(--bg-primary);
   border-top: var(--border-light);
 }
+/* 아이콘 편집 — circle 미리보기(클릭=업로드/교체) + 링크 입력 한 줄 */
 .techIconRow {
   composes: uRowSm from "../Settings.module.css";
 }
@@ -210,6 +225,7 @@
   border-radius: var(--radius-circle);
   animation: techSpin 0.7s linear infinite;
 }
+/* × 제거 — circle 우상단 */
 .techIconClear {
   position: absolute;
   top: -4px;
@@ -230,11 +246,14 @@
   background: var(--bg-accent-light);
   color: var(--text-accent);
 }
+/* 직접 추가 — 중복 이름 힌트 */
 .techAddDupHint {
   font-size: var(--font-size-hint);
   color: var(--text-accent);
   margin: 0;
 }
+/* 중복 이름 입력 — 단일 accent 테두리. focus(.input:focus → text-primary)까지
+   이기도록 :focus 도 명시(0,2,1 > 0,1,1). box-shadow 안 씀(검정 보더와 겹쳐 탁해짐 방지) */
 .techNameDup input,
 .techNameDup input:focus {
   border-color: var(--border-color-accent-strong);
@@ -242,6 +261,7 @@
 .techNameShake {
   animation: techNameShake 0.45s ease;
 }
+/* 이미 추가된 preset row — 비활성 + 체크 */
 .techPresetRowAdded {
   cursor: default;
   opacity: 0.55;

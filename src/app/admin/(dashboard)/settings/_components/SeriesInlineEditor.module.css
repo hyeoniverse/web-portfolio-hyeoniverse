@@ -10,16 +10,20 @@
   flex-direction: column;
   gap: var(--spacing-sm);
 }
+/* 새 시리즈 생성 시 — head 가 없어 단독으로 렌더, 상단 border + 풀 radius 필요 */
 .seriesCardBodyStandalone {
   border-top: var(--border-light);
   border-radius: var(--radius-2xl);
 }
+/* shell 내부에서 사용될 때 — 자체 border / radius 없이 padding+layout 만 */
 .seriesCardBodyBare {
   padding: var(--card-p-md);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
 }
+/* standalone 모드 — 새 시리즈 생성 시 상단 제목 + 버튼 라인
+   border-bottom 을 카드 좌우 끝까지 붙이기 위해 negative margin + padding 사용 */
 .seriesStandaloneHeader {
   display: flex;
   align-items: center;
@@ -44,6 +48,7 @@
 .seriesCardActions {
   composes: uRowSm from "../Settings.module.css";
 }
+/* ── Series Posts List (inline) ── */
 .seriesPostsSection {
   display: flex;
   flex-direction: column;
@@ -75,6 +80,7 @@
   gap: var(--spacing-xs);
   padding-block: var(--spacing-xs);
 }
+/* ── Add Post Modal ── */
 .addPostModal {
   display: grid;
   grid-template-rows: 0fr;
@@ -249,6 +255,7 @@
 .seriesPostsList {
   composes: uCol from "../Settings.module.css";
 }
+/* section 의 `> * + *` margin-top override — (0,2,0) compound 로 specificity 일치/우선 */
 .seriesPostsSection > .seriesPostsList {
   margin-top: 0;
 }
@@ -268,6 +275,7 @@
   padding: var(--spacing-xs) 0;
   border-radius: 0;
 }
+/* handle 과 order 묶음 — 부모 gap 상쇄 (gap 0 으로 붙임) */
 .seriesPostHandle + .seriesPostOrder {
   margin-left: calc(-1 * var(--spacing-sm));
 }
@@ -305,6 +313,7 @@
   background: var(--bg-accent-solid);
   z-index: 1;
 }
+/* drag handle — 가장 앞 (숫자보다 좌측). mousedown 시점에만 부모 .seriesPostItem 의 draggable 이 armed */
 .seriesPostHandle {
   display: flex;
   align-items: center;
@@ -326,6 +335,7 @@
   gap: var(--spacing-4xs);
   flex-shrink: 0;
 }
+/* unlink + 삭제 버튼 — 캡슐로 묶지 않고 각자 ghost 스타일 (border/배경 없음) */
 .seriesPostActions {
   display: flex;
   align-items: center;
@@ -344,6 +354,8 @@
   color: var(--text-muted);
   padding: 0;
 }
+/* order ↑↓ 묶음 안에서만 sibling border (캡슐 그룹 유지).
+   seriesPostActions(unlink+delete) 는 ghost — border 없음 (별도 selector 안 함). */
 .seriesPostOrder .seriesPostOrderBtn + .seriesPostOrderBtn {
   border-left: var(--border-default);
 }
