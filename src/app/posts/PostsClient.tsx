@@ -24,6 +24,7 @@ import RecentComments from "./_components/RecentComments";
 import PostsSidebar from "./_components/PostsSidebar";
 import PostsSkeletonCards from "./_components/PostsSkeletonCards";
 import TimelineMotionItem from "./_components/TimelineMotionItem";
+import { useMasonryRowSpans } from "./_hooks/useMasonryRowSpans";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import {
   ChevronDown,
@@ -333,7 +334,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const contentRef = useRef<HTMLDivElement>(null);
   const seriesRowRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const scrollCooldown = useRef(false);
 
   // Sticky filter bar — 공통 hook. cooldownRef 로 expand 직후 layout shift scroll 흡수
@@ -674,53 +674,8 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     setImgErrors((prev) => new Set(prev).add(id));
   }, []);
 
-  /* ── Bento masonry row-span 계산 ──
-     CSS grid-auto-rows: 1px 위에서 각 카드의 natural height 를 측정해
-     grid-row: span N 을 inline style 로 부여 → 너비 변주(span 2) + 세로 packing 동시 지원 */
-  const recomputeRowSpans = useCallback(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
-    if (activeSeries || !usesRowSpan) return; // 시리즈 timeline 모드는 flex 레이아웃이라 패스
-    const cs = window.getComputedStyle(grid);
-    const rowGap = parseFloat(cs.rowGap) || 0;
-    const baseUnit = 1; // grid-auto-rows: 1px
-    // gridRef 의 모든 자식 (real post + skeleton) 에 대해 span 적용 — 로딩 중에도 height 매칭
-    Array.from(grid.children).forEach((node) => {
-      const el = node as HTMLElement;
-      const inner = el.firstElementChild as HTMLElement | null;
-      const h = inner?.scrollHeight ?? el.scrollHeight;
-      if (!h) return;
-      const span = Math.ceil((h + rowGap) / (baseUnit + rowGap));
-      el.style.gridRow = `span ${span}`;
-    });
-  }, [activeSeries, usesRowSpan]);
-
-  useEffect(() => {
-    if (activeSeries || !usesRowSpan) return;
-    recomputeRowSpans();
-    const grid = gridRef.current;
-    if (!grid) return;
-    const imgs = grid.querySelectorAll("img");
-    const onLoad = () => recomputeRowSpans();
-    imgs.forEach((img) => img.addEventListener("load", onLoad));
-
-    // 모든 자식 (real post + skeleton) 의 size 변화 감지
-    const ro = new ResizeObserver(recomputeRowSpans);
-    Array.from(grid.children).forEach((el) => ro.observe(el as Element));
-
-    return () => {
-      imgs.forEach((img) => img.removeEventListener("load", onLoad));
-      ro.disconnect();
-    };
-  }, [posts, loading, activeSeries, usesRowSpan, recomputeRowSpans]);
-
-  // window resize 시에도 재측정 (column 폭 변하면 카드 height 도 변함)
-  useEffect(() => {
-    if (activeSeries || !usesRowSpan) return;
-    const onResize = () => recomputeRowSpans();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [activeSeries, usesRowSpan, recomputeRowSpans]);
+  // Bento masonry row-span — 시리즈 timeline 모드는 flex 레이아웃이라 패스
+  useMasonryRowSpans(gridRef, !activeSeries && usesRowSpan, [posts, loading]);
 
   const handleSeriesClick = useCallback((seriesId: string) => {
     setActiveSeries((prev) => (prev === seriesId ? null : seriesId));
@@ -1578,10 +1533,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                           ? styles.gridItemTlLeft
                           : styles.gridItemTlRight
                         : "";
-                      const setItemRef = (el: HTMLDivElement | null) => {
-                        if (el) itemRefs.current.set(post.id, el);
-                        else itemRefs.current.delete(post.id);
-                      };
                       const itemClassName = `${styles.gridItem} ${cls} ${isFeaturedHero ? styles.gridFeaturedHero : ""} ${activeSeries ? styles.seriesStep : ""} ${tlSideClass}`;
                       const cardInner = (
                         <>
@@ -1620,12 +1571,11 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                           side={tlSide}
                           disableX={tlSingleCol}
                           className={itemClassName}
-                          assignRef={setItemRef}
                         >
                           {cardInner}
                         </TimelineMotionItem>
                       ) : (
-                        <div key={post.id} ref={setItemRef} className={itemClassName}>
+                        <div key={post.id} className={itemClassName}>
                           {cardInner}
                         </div>
                       );
