@@ -1,5 +1,158 @@
 /*  page 전용 스타일 — Settings.module.css 에서 분리(#384)  */
 
+.container {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
+}
+
+/* settings 페이지 한정 — Button outline 톤을 light 로 낮춤.
+   Button CSS module 의 hashed class 명을 attribute selector 로 매칭. */
+.container :global([class*="variant-outline"]):not([class*="tone-danger"]) {
+  border-color: var(--border-color-light);
+}
+
+.container :global([class*="variant-outline"][class*="tone-danger"]) {
+  border-color: var(--border-color-accent-light);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* 좁은 폭에서 타이틀·토글·액션 버튼이 한 줄에 못 들어가면 접힌다 —
+     nowrap 이면 서로 겹쳐버린다 */
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-2xl);
+}
+
+/* uRow 를 따로 적는다 — Turbopack 은 두 단계 composes(.title→.uRowSm→.uRow)의 끝 클래스를
+   안 붙여서, uRowSm 만 적으면 gap 은 받고 display:flex 는 못 받아 아이콘이 제목 위에 세로로 쌓였다. */
+.title {
+  composes: uRow uRowSm from "./Settings.module.css";
+  margin: 0;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+}
+
+.titleIcon {
+  color: var(--text-secondary);
+}
+
+/* ── Layout: Side Nav + Panel ── */
+.layout {
+  display: flex;
+  gap: var(--spacing-lg);
+}
+
+/* 데스크탑(>1024): 세로 sticky 사이드바. 태블릿·모바일(≤1024)에서는 아래
+   미디어쿼리에서 가로 스크롤 탭바로 바뀐다. */
+.sideNav {
+  composes: uCol from "./Settings.module.css";
+  width: 200px;
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(var(--header-height) + var(--spacing-2xl));
+  align-self: flex-start;
+  border-top: var(--border-light);
+}
+
+/* layout gap 변화 부드럽게 — (0,2,0) compound 로 global theme transition shorthand 이기기 */
+.container .layout {
+  transition: gap 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+  /* min-height 로 모든 nav row 동일 — padding 상하 0 이라 텍스트는 자동 정중앙 */
+  min-height: calc(var(--control-h-md) + var(--spacing-sm));
+  padding: 0 var(--spacing-xs);
+  border: none;
+  border-bottom: var(--border-light);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: left;
+  letter-spacing: 0.02em;
+  width: 100%;
+}
+
+.sideNav .navItem:hover {
+  color: var(--text-accent);
+}
+
+.navItemActive {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+
+.panel {
+  composes: uFill from "./Settings.module.css";
+}
+
+@media (max-width: 1024px) {
+  .layout {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sideNav {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* sticky/frost 는 래퍼(.tabBarSticky)가 맡는다 — 여기선 스크롤만 */
+    position: static;
+    gap: 0;
+    padding: 0;
+    border-top: none;
+    border-bottom: var(--border-light);
+  }
+
+  .sideNav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sideNav > div {
+    display: contents;
+  }
+
+  .navItem {
+    white-space: nowrap;
+    flex-shrink: 0;
+    width: auto;
+    border-bottom: 2px solid transparent;
+    padding: var(--row-p-lg);
+    font-size: var(--font-size-label);
+    text-align: center;
+  }
+
+  .navItemActive {
+    border-bottom-color: var(--text-accent);
+    color: var(--text-accent);
+  }
+
+  /* 모바일 미세 조정 — font / padding */
+  .header {
+    gap: var(--spacing-sm);
+  }
+
+  .title {
+    font-size: var(--font-size-2xl);
+  }
+}
+
 
 .headerRight {
   display: flex;

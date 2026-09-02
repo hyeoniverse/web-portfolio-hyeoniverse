@@ -1,0 +1,21 @@
+/*  SeriesDeleteModal 전용 스타일 — Settings.module.css 에서 분리(#384)  */
+
+/* ── Series Delete Modal ── */
+.seriesDeleteModal {
+  composes: uColMd from "../Settings.module.css";
+  padding: 0 var(--spacing-xl) var(--spacing-xl);
+}
+
+.seriesDeleteHint {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.seriesDeleteCheck {
+  composes: uRowXs from "../Settings.module.css";
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-secondary);
+}

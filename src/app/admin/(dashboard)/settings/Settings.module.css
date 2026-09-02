@@ -22,49 +22,6 @@
 .uGrid2Sm { display: grid; gap: var(--spacing-sm); grid-template-columns: var(--grid-cols-2); }
 .uGrid2Md { display: grid; gap: var(--spacing-md); grid-template-columns: var(--grid-cols-2); }
 
-.container {
-  max-width: var(--page-max-width);
-  margin: 0 auto;
-  padding: var(--spacing-6xl) var(--page-px) var(--spacing-3xl);
-}
-
-/* settings 페이지 한정 — Button outline 톤을 light 로 낮춤.
-   Button CSS module 의 hashed class 명을 attribute selector 로 매칭. */
-.container :global([class*="variant-outline"]):not([class*="tone-danger"]) {
-  border-color: var(--border-color-light);
-}
-
-.container :global([class*="variant-outline"][class*="tone-danger"]) {
-  border-color: var(--border-color-accent-light);
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  /* 좁은 폭에서 타이틀·토글·액션 버튼이 한 줄에 못 들어가면 접힌다 —
-     nowrap 이면 서로 겹쳐버린다 */
-  flex-wrap: wrap;
-  gap: var(--spacing-sm) var(--spacing-md);
-  margin-bottom: var(--spacing-2xl);
-}
-
-/* uRow 를 따로 적는다 — Turbopack 은 같은 파일 안에서 두 단계 composes(.title→.uRowSm→.uRow)의
-   끝 클래스를 안 붙여서, uRowSm 만 적으면 gap 은 받고 display:flex 는 못 받아 아이콘이 제목 위에
-   세로로 쌓였다. */
-.title {
-  composes: uRow uRowSm;
-  margin: 0;
-  font-family: var(--font-instrument);
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-primary);
-}
-
-.titleIcon {
-  color: var(--text-secondary);
-}
-
 .message {
   font-family: var(--font-space-grotesk);
   font-size: var(--font-size-label);
@@ -108,64 +65,6 @@
    - 드래그 중 항목은 제목보다 위(들려 보임), 단 탭바/nav 아래.
    - SectionJumpNav(자, fixed)·tabBarSticky 는 각 모듈에서 같은 오프셋을 참조.
    ────────────────────────────────────────────────────────────────────────── */
-
-/* ── Layout: Side Nav + Panel ── */
-.layout {
-  display: flex;
-  gap: var(--spacing-lg);
-}
-
-/* 데스크탑(>1024): 세로 sticky 사이드바. 태블릿·모바일(≤1024)에서는 아래
-   미디어쿼리에서 가로 스크롤 탭바로 바뀐다. */
-.sideNav {
-  composes: uCol;
-  width: 200px;
-  flex-shrink: 0;
-  position: sticky;
-  top: calc(var(--header-height) + var(--spacing-2xl));
-  align-self: flex-start;
-  border-top: var(--border-light);
-}
-
-/* layout gap 변화 부드럽게 — (0,2,0) compound 로 global theme transition shorthand 이기기 */
-.container .layout {
-  transition: gap 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.navItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-xs);
-  /* min-height 로 모든 nav row 동일 — padding 상하 0 이라 텍스트는 자동 정중앙 */
-  min-height: calc(var(--control-h-md) + var(--spacing-sm));
-  padding: 0 var(--spacing-xs);
-  border: none;
-  border-bottom: var(--border-light);
-  border-radius: 0;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
-  font-weight: 500;
-  color: var(--text-primary);
-  text-align: left;
-  letter-spacing: 0.02em;
-  width: 100%;
-}
-
-.sideNav .navItem:hover {
-  color: var(--text-accent);
-}
-
-.navItemActive {
-  color: var(--text-accent);
-  font-weight: 600;
-}
-
-/* ── Nav Sub-items (Content → Home / Profile / About) ── */
-
-.panel { composes: uFill;
-}
 
 /* ── Section ── */
 /* 섹션을 grid(1fr auto)로 — 헤더의 제목/액션이 각각 섹션 직속 sticky 요소라야
@@ -503,47 +402,6 @@
   object-fit: contain;
 }
 
-/* 고정 너비 280px — 텍스트 줄바꿈 안 되고 길면 ellipsis */
-.resumeFile {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2xs);
-  height: var(--control-h-md);
-  box-sizing: border-box;
-  padding: 0 var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-tertiary);
-  text-decoration: none;
-  width: 280px;
-  max-width: 100%;
-  line-height: var(--line-height-fit);
-  overflow: hidden;
-  white-space: nowrap;
-  flex-shrink: 1;
-}
-
-/* 파일명 span — ellipsis 위해 min-width: 0 + nowrap 필수 (inline-flex 자식은 기본 min-content) */
-.resumeFile > span {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.resumeFile > svg {
-  flex-shrink: 0;
-}
-
-.resumeFile:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
 /* ── Section hint ── */
 .sectionHint {
   font-family: var(--font-space-grotesk);
@@ -552,12 +410,6 @@
   margin-bottom: var(--spacing-md);
   margin-top: 0;
   line-height: var(--line-height-snug);
-}
-
-/* 태그·카테고리(2열) hint — 두 열의 에디터 툴바가 같은 Y 에서 시작하도록 2줄 높이를 예약.
-   (한쪽 hint 가 1줄이어도 최소 2줄 공간을 차지 → 옆 열과 수직 정렬) */
-.taxonomyHint { composes: sectionHint;
-  min-height: 2.8em; /* line-height 1.4 × 2줄 */
 }
 
 .sectionTitle + .sectionHint,
@@ -597,12 +449,6 @@
   margin: 0 0 var(--spacing-sm) 0;
 }
 
-.fieldLabelHint {
-  font-weight: 400;
-  font-size: var(--font-size-hint);
-  color: var(--text-tertiary);
-}
-
 /* 라벨 텍스트와 dot 을 가로 한 줄로 묶는 컨테이너 (.fieldLabel 이 column 이라 필요) */
 .fieldLabelText { composes: uRow2xs;
 }
@@ -624,17 +470,6 @@
   font-size: 0;
   line-height: 0;
   overflow: hidden;
-}
-
-/* 라벨 옆 ? 도움말 아이콘 — 값·옵션 설명 tooltip trigger */
-.fieldHelp {
-  display: inline-flex;
-  align-items: center;
-  color: var(--text-tertiary);
-  cursor: help;
-}
-.fieldHelp:hover {
-  color: var(--text-secondary);
 }
 
 /* ── Fallback Priority List ── */
@@ -663,28 +498,6 @@
 .fields .priorityBtn:not(:disabled):hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
-}
-
-/* ── Service Items Editor ── */
-
-.serviceItem {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: flex-start;
-  padding: var(--spacing-sm) 0;
-  transition: background-color 0.2s ease;
-}
-
-.serviceItem:first-child {
-  padding-top: 0;
-}
-
-.serviceItem:last-child {
-  padding-bottom: 0;
-}
-
-.serviceItem + .serviceItem {
-  border-top: var(--border-light);
 }
 
 /* ── Profile Sections (embedded in Content tab) ── */
@@ -726,26 +539,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-/* ── Series Delete Modal ── */
-.seriesDeleteModal {
-  composes: uColMd;
-  padding: 0 var(--spacing-xl) var(--spacing-xl);
-}
-
-.seriesDeleteHint {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.seriesDeleteCheck {
-  composes: uRowXs;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-secondary);
 }
 
 .publishToggle { composes: uRowXs;
@@ -959,62 +752,8 @@
    전체화면 드로어는 설정 섹션을 바꾸는 데 과했다 — 밑줄 탭이 가볍고 익숙하다.
    콘텐츠 하위탭은 아래 .mobileSubNav 가 별도 탭 줄로 보여준다. */
 @media (max-width: 1024px) {
-  .layout {
-    flex-direction: column;
-    gap: 0;
-  }
 
   /* ── 탭바 래퍼: sticky + frost (edit 페이지 topBar 와 동일) ── */
-  /* 고정(pin) 시 nav 영역까지 위로 확장해 blur — 배경색 없이 backdrop-filter 만.
-     overflow 는 안쪽 sideNav 라 이 ::before 는 안 잘린다. */
-
-  .sideNav {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    /* sticky/frost 는 래퍼(.tabBarSticky)가 맡는다 — 여기선 스크롤만 */
-    position: static;
-    gap: 0;
-    padding: 0;
-    border-top: none;
-    border-bottom: var(--border-light);
-  }
-
-
-  .sideNav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .sideNav > div {
-    display: contents;
-  }
-
-  .navItem {
-    white-space: nowrap;
-    flex-shrink: 0;
-    width: auto;
-    border-bottom: 2px solid transparent;
-    padding: var(--row-p-lg);
-    font-size: var(--font-size-label);
-    text-align: center;
-  }
-
-  .navItemActive {
-    border-bottom-color: var(--text-accent);
-    color: var(--text-accent);
-  }
-
-  /* 모바일 미세 조정 — font / padding */
-  .header {
-    gap: var(--spacing-sm);
-  }
-
-  .title {
-    font-size: var(--font-size-2xl);
-  }
 
   .profileGrid {
     grid-template-columns: 1fr;
@@ -1302,15 +1041,8 @@ a.tagRelatedItem:hover {
 .fieldsGrid2 { composes: uGrid2Md;
 }
 
-.fieldsGrid3 {
-  display: grid;
-  grid-template-columns: var(--grid-cols-3);
-  gap: var(--spacing-md);
-}
-
 @media (max-width: 768px) {
-  .fieldsGrid2,
-  .fieldsGrid3 {
+  .fieldsGrid2 {
     grid-template-columns: 1fr;
   }
 }
@@ -1410,7 +1142,6 @@ a.tagRelatedItem:hover {
   margin-top: var(--spacing-sm);
 }
 /* 상태 메시지 — 행 아래. 성공/실패 모두 accent 로 강조 */
-.authorInviteOk,
 .authorInviteErr {
   color: var(--text-accent);
   font-size: var(--font-size-label);
