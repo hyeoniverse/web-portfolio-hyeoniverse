@@ -7,20 +7,15 @@ import styles from "./PostsSkeletonCards.module.css";
 
 /* ── Skeleton ──
  * bento 카드와 동일한 variants (banner/wide/portrait/square/standard) 를 적용해
- * fetch 전후 레이아웃 height 가 같아지도록 한다. count = perPage.
- * ghost=true: visibility hidden 로 layout 공간만 차지 (마지막 페이지 underfill 패딩용). */
+ * fetch 전후 레이아웃 height 가 같아지도록 한다. count = perPage. */
 export default function PostsSkeletonCards({
   count,
   activeSeries,
-  startIdx = 0,
-  ghost = false,
   bento = true,
   compactLayout = false,
 }: {
   count: number;
   activeSeries: boolean;
-  startIdx?: number;
-  ghost?: boolean;
   bento?: boolean;
   compactLayout?: boolean;
 }) {
@@ -29,11 +24,7 @@ export default function PostsSkeletonCards({
     return (
       <>
         {Array.from({ length: count }, (_, i) => (
-          <div
-            key={i}
-            className={`${grid.gridItem} ${ghost ? grid.gridItemGhost : ""}`}
-            aria-hidden={ghost || undefined}
-          >
+          <div key={i} className={grid.gridItem}>
             <div className={styles.skeletonCompactRow}>
               <SkeletonLine width="42%" height={18} />
               <SkeletonPill width={110} height={14} />
@@ -44,7 +35,7 @@ export default function PostsSkeletonCards({
     );
   }
   const variants: CardType[] = Array.from({ length: count }, (_, i) =>
-    activeSeries || !bento ? "standard" : getCardType(startIdx + i),
+    activeSeries || !bento ? "standard" : getCardType(i),
   );
   return (
     <>
@@ -64,8 +55,7 @@ export default function PostsSkeletonCards({
         return (
           <div
             key={i}
-            className={`${grid.gridItem} ${cls} ${activeSeries ? grid.seriesStep : ""} ${ghost ? grid.gridItemGhost : ""}`}
-            aria-hidden={ghost || undefined}
+            className={`${grid.gridItem} ${cls} ${activeSeries ? grid.seriesStep : ""}`}
           >
             <div
               className={`${styles.skeletonCard} ${activeSeries ? grid.seriesStepBody : ""}`}
