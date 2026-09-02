@@ -82,14 +82,6 @@
   color: var(--text-accent);
 }
 
-.loading {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-tertiary);
-  text-align: center;
-  padding: var(--spacing-3xl) 0;
-}
-
 /* ── Conflict Banner ── */
 
 .conflictListClip {
@@ -212,8 +204,7 @@
    ─────────────────────────────────────────────────────────────────────────
    L1 — .sectionTitle (h2): UPPERCASE, primary, large bottom margin
    L2 — .sectionSubTitle (h3): no-caps, primary, medium weight
-   L3 — .fieldGroupTitle (h4): UPPERCASE small caption — sub-sub group
-   L4 — .fieldGroupLabel: tiny field group label inside list items
+   L3 — .fieldGroupLabel: tiny field group label inside list items
    ───────────────────────────────────────────────────────────────────────── */
 
 .sectionTitle {
@@ -292,36 +283,6 @@
   }
 }
 
-/* 로고 Light/Dark 모드 그룹 — .fields(align-items:flex-start) 안에서 shrink 되지 않게.
-   없으면 그룹 div 가 content 폭(~200px)으로 줄어 안쪽 fieldPair·Upload 가 쪼그라든다. */
-.logoModeGroup {
-  width: 100%;
-}
-
-/* 로고 dropzone(Short/Full) — 공용 fieldPair(768↓ 1열)와 달리 항상 2열 유지(모바일 포함).
-   compound (0,2,0) 로 공용 미디어쿼리를 이긴다. */
-.logoModeGroup .fieldPair {
-  grid-template-columns: var(--grid-cols-2);
-}
-
-/* Light/Dark 라벨 높이 통일 — Dark 에만 hint("미설정 시 라이트 버전")가 있어 라벨이 더 높으면
-   두 드롭존의 top 이 어긋난다. hint 1줄 높이를 항상 예약해 드롭존이 같은 선에서 시작하게. */
-.logoModeGroup .fieldLabel {
-  min-height: 2.6em;
-}
-
-/* 브랜드 로고 파트 (Favicon/풀) — head + 컨트롤을 한 덩어리로 묶어, 파트 안은 좁게(xs)
-   파트 사이는 .fields gap(sm) 으로 벌린다. head 라벨과 그 컨트롤이 시각적으로 붙도록. */
-.logoPartHead {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-2xs) var(--spacing-md);
-}
-.logoPartHead .fieldGroupTitle {
-  margin-bottom: 0;
-}
-
 /* ── Field Row (label / input — label 위, input 아래) ── */
 .fieldRow {
   display: flex;
@@ -350,11 +311,6 @@
   pointer-events: none;
 }
 
-.fieldCounterWrapHasClear .fieldCounter {
-  /* clearBtn (20px) + 2px gap — counter 와 clear 간격 타이트하게 */
-  right: calc(var(--spacing-sm) + 18px);
-}
-
 .fieldRow .fieldCounter {
   /* (0,2,0) — global theme transition 오버라이드 */
   transition: color var(--duration-base) ease;
@@ -375,10 +331,6 @@
   opacity: 0.5;
 }
 
-.fieldRowInline .fieldInput {
-  padding-left: calc(var(--spacing-sm) + 60px);
-}
-
 .fieldLabel {
   composes: uCol3xs;
   width: auto;
@@ -387,30 +339,6 @@
   font-weight: 500;
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
-}
-
-/* Field input + Eraser clearBtn wrapper — input flex 차지, clearBtn 우측 absolute */
-
-.fieldTextarea {
-  flex: 1;
-  min-width: 0;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-primary);
-  outline: none;
-  resize: vertical;
-  min-height: 60px;
-  max-height: 200px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-.fieldTextarea:focus {
-  border-color: var(--text-primary);
 }
 
 /* ── Color Field ── */
@@ -561,43 +489,6 @@
   flex: 0 0 auto;
 }
 
-/* ── 그림자 프리셋 — 밑줄형 텍스트 토글(미니멀). 선택 시 accent 밑줄 ── */
-
-.shadowPresetChip {
-  padding: var(--spacing-3xs) 0;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: color var(--duration-base) ease, border-color var(--duration-base) ease;
-}
-
-.shadowPresetChip:hover {
-  color: var(--text-primary);
-}
-
-/* 세부 조정 토글 */
-.shadowCustomToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  align-self: flex-start;
-  padding: var(--spacing-2xs) 0;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-secondary);
-}
-
-.shadowCustomToggle:hover {
-  color: var(--text-primary);
-}
-
 /* ── Logo Upload ── */
 .logoUpload {
   composes: uRowWrapSm;
@@ -706,20 +597,6 @@
   margin: 0 0 var(--spacing-sm) 0;
 }
 
-.fieldGroupTitle {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin: 0 0 var(--spacing-xs) 0;
-}
-
 .fieldLabelHint {
   font-weight: 400;
   font-size: var(--font-size-hint);
@@ -811,17 +688,6 @@
 }
 
 /* ── Profile Sections (embedded in Content tab) ── */
-
-/* sub-section 시각적 중첩 — section h2 아래 h3 그룹을 들여쓰기 + 좌측 라인 */
-
-
-.profileCard {
-  composes: uColSm;
-  padding: var(--card-p-md);
-  border: var(--border-light);
-  border-radius: var(--radius-2xl);
-  margin-bottom: var(--spacing-md);
-}
 
 .profileGrid { composes: uGrid2Sm;
 }
@@ -1227,135 +1093,6 @@
   }
 }
 
-/* ── Tag Input (media settings) ── */
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3xs);
-  padding: var(--badge-p-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  color: var(--text-secondary);
-  background: var(--bg-secondary);
-}
-
-.section .tagRemove:hover {
-  color: var(--text-accent);
-}
-
-.tagInputRow { composes: uRowXs;
-}
-
-.tagAddBtn {
-  width: 34px;
-  height: 34px;
-  min-width: 34px;
-  border: var(--border-default);
-  border-radius: var(--radius-circle);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-md);
-  line-height: var(--line-height-fit);
-  color: var(--text-secondary);
-  cursor: pointer;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.section .tagAddBtn:hover:not(:disabled) {
-  color: var(--text-primary);
-  border-color: var(--text-secondary);
-}
-
-.tagAddBtn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.section .tagRemoveBtn:hover {
-  color: var(--text-accent);
-}
-
-/* ── MIME row — horizontal layout (label 좌 / Select 우). 카드 제거 후엔 살짝 indent. */
-
-.mimeRow .fieldRow {
-  padding: 0;
-  border-bottom: none;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-}
-
-.mimeRow .fieldRow > .fieldLabel {
-  font-size: var(--font-size-label);
-  color: var(--text-secondary);
-  flex: 1 1 auto;
-  min-width: 0;
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-.mimeRow .fieldRow > :last-child {
-  flex: 0 0 auto;
-  min-width: 96px;
-}
-
-/* draggable format chip — radius-capsule, 보더 only */
-.sizeChip {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--badge-p-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-hint);
-  color: var(--text-secondary);
-  cursor: grab;
-  user-select: none;
-  transition:
-    border-color var(--duration-base) ease,
-    color var(--duration-base) ease,
-    transform var(--duration-fast) ease;
-}
-
-.section .sizeChip:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
-.sizeChip:active {
-  cursor: grabbing;
-  transform: scale(0.96);
-}
-
-/* group header — icon + uppercase label, rows 위에 작게 위치 */
-
-.section .mimeAddedChipRemove:hover {
-  color: var(--text-accent);
-}
-
-/* ── MIME add chip grid ── */
-
-.section .mimeChipBtn:hover {
-  background: var(--bg-inverse);
-  border-color: var(--border-color-strong);
-  color: var(--text-inverse);
-}
-
-/* ── Limits Grid (media settings) ── */
-
-.section .limitInput:focus {
-  border-color: var(--text-primary);
-  outline: none;
-}
-
 /* ── Tag descriptions editor — bilingual + search/sort/pagination ── */
 
 /* 필터 row — 정렬/검색 row 와 분리된 별도 줄. 그룹 사이 divider. */
@@ -1595,10 +1332,6 @@ a.tagRelatedItem:hover {
   opacity: 0.6;
 }
 
-/* 새 카테고리 추가 영역 — 헤더 (label + Add 버튼) + label | input form-style row */
-.worksCatAddBox { composes: uColSm;
-}
-
 /* 중복 등 잘못된 입력 시 시각 알림 — 가로 흔들림 */
 .shakeAlert {
   animation: shakeAlert 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
@@ -1646,16 +1379,6 @@ a.tagRelatedItem:hover {
 .worksCatAddActions { composes: uInlineRow2xs;
 }
 
-/* edit 모드 — 박스가 카테고리 편집 중임을 시각적으로 강조 (좌 accent 보더) */
-.worksCatAddBoxEdit {
-  border-left: 2px solid var(--color-accent);
-  padding-left: var(--spacing-md);
-}
-
-.worksCatAddBoxEdit .worksCatAddLabel {
-  color: var(--text-accent);
-}
-
 /* form row — 라벨 좌측 고정 너비 + 입력 우측 stretch */
 .worksCatAddRow {
   display: grid;
@@ -1679,14 +1402,6 @@ a.tagRelatedItem:hover {
   }
 }
 
-/* ── Architecture 비주얼 트리 에디터 ── */
-/* 노드 행 — 클릭으로 선택, hover 시 + 하위추가 노출 */
-.archNodePath {
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-weight: 600;
-  white-space: nowrap;
-}
 /* ── Author 초대 (이슈 #334 P1-c) ── */
 .authorInvite {
   display: flex;
