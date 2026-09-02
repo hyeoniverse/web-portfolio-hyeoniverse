@@ -1,5 +1,7 @@
 /*  EnvVarFields 전용 스타일 — Settings.module.css 에서 분리(#411).
    공유(fieldLabel·fieldRow·fields)·경계(envFieldRow·envFieldHighlight·envKeyLink)는 Settings 에 남아 shared 로 import  */
+/* 그룹을 2열 그리드로 (JS 가 균형 분배). 각 열은 container 라, 열 폭이 좁아지면
+   필드 행이 컨테이너 쿼리로 스스로 접혀(라벨 위로) 넘치지 않는다 — 스크롤바·마진과 무관. */
 .envGroupCols {
   display: grid;
   grid-template-columns: var(--grid-cols-2);
@@ -9,6 +11,7 @@
   width: 100%;
 }
 
+/* 태블릿 이하는 1열 (열이 전체폭이라 입력이 넓음) */
 @media (max-width: 992px) {
   .envGroupCols {
     grid-template-columns: 1fr;
@@ -43,6 +46,7 @@
   flex-shrink: 0;
   color: var(--text-tertiary);
 }
+/* 그룹별 set/total — 라벨 옆 작은 mono 카운터. 모두 set 이면 accent 색 ✓ */
 .envGroupCount {
   font-family: var(--font-mono);
   font-size: var(--font-size-micro);
@@ -64,6 +68,7 @@
   gap: var(--spacing-xs);
   margin-bottom: var(--spacing-2xs);
 }
+/* row 개별 저장 버튼 — Check 아이콘, 편집 중 노출 */
 .envRowSaveBtn {
   display: inline-flex;
   align-items: center;
@@ -146,11 +151,13 @@
 .envFieldLabelText {
   font-weight: 500;
 }
+/* 누락 row 강조 — left accent 보더 + 들여쓰기 */
 .envFieldRowMissing {
   border-left: 2px solid var(--text-accent);
   padding-left: var(--spacing-sm);
   margin-left: calc(var(--spacing-sm) * -1 - var(--spacing-3xs));
 }
+/* progress 바 — set ratio */
 .envProgressBar {
   height: 3px;
   background: var(--border-color-light);
@@ -166,6 +173,7 @@
     width var(--duration-base) ease,
     background var(--duration-base) ease;
 }
+/* info icon + warn icon — label 옆 작게 */
 .envMetaIcon,
 .envMetaWarn {
   display: inline-flex;
@@ -193,6 +201,7 @@
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+/* .env paste 모달 */
 .envPasteModal {
   display: flex;
   flex-direction: column;
@@ -237,20 +246,24 @@
 .envLabelMissing.envLabelMissing {
   color: var(--text-accent);
 }
+/* 입력 셀 — grid 2번째 열. Input + 모바일 힌트. min-width:0 로 grid 가 줄일 수 있게 */
 .envInputCell {
   composes: uCol2xs from "../Settings.module.css";
   min-width: 0;
 }
+/* Input wrapper(첫 자식 div) — 셀 폭 전체 차지 */
 .envInputCell > div:first-child {
   width: 100%;
   min-width: 0;
 }
+/* 액션 셀 — grid 3번째 열. 버튼 우측 정렬. 열 폭은 .envFieldRow 에서 고정 → 버튼 시작 위치 일정 */
 .envActionCol {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--spacing-2xs);
 }
+/* 소스/경고 배지 슬롯 — 라벨 텍스트 뒤 우측 정렬로 몰아 입력 앞에서 세로선 정렬 */
 .envBadgeSlot {
   margin-left: auto;
   display: inline-flex;
@@ -316,6 +329,7 @@
   color: var(--text-tertiary);
   flex-shrink: 0;
 }
+/* 소스별 텍스트 색 차별화 — env(녹색), db(기본), edit(액센트). Read-only 는 data-source 없어 기본 tertiary 유지 */
 .envSourceBadge[data-source="env"] {
   color: var(--bg-success-solid);
 }

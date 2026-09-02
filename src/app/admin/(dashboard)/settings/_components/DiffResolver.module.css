@@ -131,6 +131,7 @@
   padding: 0 var(--spacing-md);
   background: var(--bg-success);
 }
+/* ── Diff hunk with hover float button ── */
 .diffHunk {
   position: relative;
   margin: var(--spacing-2xs) calc(-1 * var(--spacing-md));

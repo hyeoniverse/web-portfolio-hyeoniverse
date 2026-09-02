@@ -1,5 +1,6 @@
 /*  AccountTab 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
    공유 클래스(section·fields·message 등)는 Settings 에 남아 shared 로 import  */
+/* ── Devices list — 보안 section, admin_known_devices 표시 ── */
 .devicesWrap {
   margin-top: var(--spacing-md);
   margin-bottom: var(--spacing-md);
@@ -145,6 +146,7 @@
   font-size: var(--font-size-body);
   color: var(--text-secondary);
 }
+/* ── Password Confirm Dialog ── */
 .confirmOverlay {
   position: fixed;
   inset: 0;
@@ -168,6 +170,7 @@
   gap: var(--spacing-md);
   box-shadow: var(--shadow-xl);
 }
+/* position 만 — size/style 은 CloseButton md 가 책임 */
 .confirmClose {
   position: absolute;
   top: var(--spacing-sm);
@@ -196,6 +199,7 @@
   gap: var(--spacing-sm);
   margin-top: var(--spacing-xs);
 }
+/* ── Pending Email Banner ── */
 .pendingEmailBanner {
   display: flex;
   align-items: center;

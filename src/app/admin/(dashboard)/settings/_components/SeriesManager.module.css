@@ -34,10 +34,13 @@
   grid-template-columns: var(--spacing-xl) minmax(0, 1fr);
   align-items: stretch;
 }
+/* head 와 collapse 는 grid 의 우측 컬럼(2)에 위치 — 둘 다 같은 컬럼이라 자연스럽게 세로 stack */
 .seriesCard > .seriesCardHead,
 .seriesCard > .seriesCardCollapse {
   grid-column: 2;
 }
+/* 액션 버튼은 head 위에 absolute — head 의 우측 영역에 자리 (right offset 은 기존 그대로) */
+/* grip 핸들 — grid 의 좌측 컬럼(1) 첫 row 에만 위치 (head 영역 높이만 잡음) */
 .seriesCardHandle {
   grid-column: 1;
   grid-row: 1;
@@ -64,6 +67,8 @@
 .seriesCardDragging {
   opacity: 0.5;
 }
+/* drop indicator — 카드 사이 gap(spacing-sm=12px) 의 정중앙에 위치.
+   gap 절반(6px) + indicator height 절반(1px) = 7px 카드 외부로. */
 .seriesCardDropAbove::before,
 .seriesCardDropBelow::after {
   content: "";
@@ -163,6 +168,7 @@
 .seriesCardInfo {
   composes: uFill from "../Settings.module.css";
 }
+/* 타이틀 + 발행 배지 한 줄 — 타이틀 truncate(min-width:0), 배지는 우측 끝 (flex 정렬). */
 .seriesCardNameRow {
   composes: uRowSm from "../Settings.module.css";
   min-width: 0;
@@ -234,6 +240,7 @@
 .seriesCardCollapseOpen > * {
   overflow: visible;
 }
+/* 취소·만들기와 발행 토글 사이의 세로 구분선 */
 .newSeriesShellDivider {
   display: inline-block;
   width: 1px;

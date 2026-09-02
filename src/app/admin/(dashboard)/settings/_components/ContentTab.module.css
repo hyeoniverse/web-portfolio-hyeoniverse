@@ -5,7 +5,9 @@
   border-top: var(--border-light);
   margin: var(--spacing-md) 0;
 }
-/* .sectionHint 위에 얹는 modifier. 같은 (0,1,0) 이면 base 의 margin-bottom(md) 이 번들 순서에
+/* SectionHeader row 에 inline 으로 들어갈 때 — margin 모두 제거, line-height 1.
+   title 과의 간격은 SectionHeader 의 row gap 이 담당. 모바일에선 flex-basis 100% 로 줄바꿈.
+   .sectionHint 위에 얹는 modifier 라 같은 (0,1,0) 이면 base 의 margin-bottom(md) 이 번들 순서에
    따라 살아남아 제목 옆 hint 가 아래로 처졌다. 클래스를 두 번 적어 (0,2,0). */
 .sectionHintInline.sectionHintInline {
   margin: 0;
@@ -59,6 +61,7 @@
 }
 
 
+/* Select width fit-content — pagination 처럼 짧은 값만 선택하는 경우 */
 .fitSelect {
   flex: 0 0 auto;
   width: auto;

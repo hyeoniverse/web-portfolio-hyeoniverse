@@ -1,4 +1,5 @@
 /*  WorksIntroVideoPicker 전용 — Settings.module.css 에서 분리(#384)  */
+/* ── Works Intro Video Picker — 2 column grid: preview | actions, 그 아래 picker drawer full width ── */
 .worksIntroVideoPicker {
   display: grid;
   grid-template-columns: max-content 1fr;
@@ -7,6 +8,7 @@
   align-items: start;
   width: 100%;
 }
+/* 선택된 커버 미리보기 — 클릭 가능. grid 첫 컬럼. */
 .worksIntroPreview {
   position: relative;
   display: block;
@@ -56,6 +58,7 @@
 .worksIntroVideoActions {
   composes: uRowWrapSm from "../Settings.module.css";
 }
+/* CoverImagePicker drawer 가 grid 두 컬럼 모두 차지하도록 */
 .worksIntroPickerWrap {
   grid-column: 1 / -1;
 }
