@@ -17,12 +17,12 @@ import path from "node:path";
  *   1. .env.local 에 E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD 추가
  *      → 소유자(OWNER_EMAIL) 계정을 쓰는 것을 권한다. 새로 만든 계정은 app_metadata 가
  *        비어 있어 role 이 없고(getUserRole → level 0) admin 접근이 거부된다.
- *   2. npm run test:visual:admin  → 첫 실행은 "승인 대기" 로 실패한다
+ *   2. npm run test:smoke:admin  → 첫 실행은 "승인 대기" 로 실패한다
  *   3. 기기 승인 — 둘 중 아무거나
  *      a. Supabase Table Editor → admin_known_devices → 방금 생긴 row 의 approved 를 true 로
  *         (승인 링크가 하는 일이 정확히 이것이다. 메일 수신은 필요 없다)
  *      b. 메일함의 승인 링크 클릭
- *   4. npm run test:visual:admin  → 통과, 세션이 저장된다
+ *   4. npm run test:smoke:admin  → 통과, 세션이 저장된다
  *
  * 저장 파일에는 인증 토큰이 들어 있다. .gitignore 에 있으며 절대 커밋하지 않는다.
  */
