@@ -1391,8 +1391,10 @@
   transform: translateY(-50%);
 }
 
-/* intro가 바로 뒤에 올 때: 세로선 위치 보정 + 콘텐츠 중앙 정렬 */
-.creditsPanel:has(+ .intro) {
+/* intro가 바로 뒤에 올 때: 세로선 위치 보정 + 콘텐츠 중앙 정렬.
+   CreditsPanel 자체의 .wrapper.wrapper(padding: 0)가 (0,2,0) 이고 :has(+ .intro) 도 (0,2,0) 이라
+   번들 순서에 따라 이 여백이 0 으로 뒤집힌다(CSS 파일만 나눈 빌드에서 실제로 뒤집혔다). 클래스를 두 번 적어 (0,3,0). */
+.creditsPanel.creditsPanel:has(+ .intro) {
   padding-right: calc(var(--_gallery-gap) / 2);
 }
 
