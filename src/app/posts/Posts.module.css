@@ -33,16 +33,6 @@
   animation: fadeSlideUp 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) both;
 }
 
-.title {
-  font-family: var(--font-instrument);
-  font-size: clamp(3rem, 8vw, 5rem);
-  font-weight: var(--font-weight-light);
-  font-style: italic;
-  color: var(--text-primary);
-  line-height: 1;
-  letter-spacing: -0.03em;
-}
-
 /* History 페이지(page.tsx) 전용 뒤로가기 바 — PostsClient 밖에서 렌더되므로
    .page 와 동일한 max-width/좌우 padding 으로 정렬하고, 상단 여백은 .page(padding-top: var(--spacing-6xl))
    와 맞춘 뒤 음수 margin-bottom 으로 서브네비 사이 간격만 남긴다. */
@@ -144,14 +134,6 @@
   gap: var(--spacing-md);
 }
 
-.filterBarRight {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
 /* 검색 전용 윗줄 — 우상단 정렬. 검색창↔도움말 간격 (다른 페이지도 이 값 참고) */
 .filterBarSearchRow {
   display: flex;
@@ -163,19 +145,6 @@
 .filterBarSearchRow > * {
   min-height: var(--filter-row-h);
 }
-
-/* Sort capsule group */
-.sortGroup {
-  display: flex;
-  /* 통일 높이 — filter-row-h */
-  min-height: var(--filter-row-h);
-  border-radius: var(--radius-capsule);
-  border: var(--border-default);
-}
-
-/* popular sub-options — variant="outline" 이 색/외형 처리. 여기는 size 만 줄임. */
-
-/* 메인 SortGroup 과 sub 사이 화살표 — "이 옵션의 세부 선택" 의미 */
 
 /* 셔플(랜덤) 버튼 — Button shape="circle" size="sm" + active 회전.
    옆 SegmentedControl 과 같은 굵기로 보이도록 border 를 light 로 낮춘다.
@@ -536,40 +505,6 @@
   background: linear-gradient(to top, var(--bg-primary) 30%, transparent);
 }
 
-/* ── Series filter chip ── */
-.seriesChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-lg);
-}
-
-.seriesChipClose {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border: none;
-  border-radius: var(--radius-circle);
-  background: transparent;
-  font-size: var(--font-size-md);
-  color: var(--text-tertiary);
-  line-height: 1;
-}
-
-.seriesChip .seriesChipClose:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
 /* ── Series Section ── */
 .seriesSection {
   margin-bottom: var(--spacing-2xl);
@@ -594,19 +529,6 @@
 .sectionHeaderTitleLink:hover .sectionHeaderChevron {
   transform: translateX(3px);
 }
-
-/* series sort — label 바로 오른쪽 옆에 배치 (gap 으로 자연스럽게 떨어짐).
-   size 는 filter bar 의 sortGroup 과 동일 (font-2xs + filter-row-h 통일 높이). */
-.seriesSortAlignEnd {
-  min-height: var(--filter-row-h);
-}
-
-.seriesSortAlignEnd button {
-  padding: 0 var(--spacing-sm);
-  font-size: var(--font-size-hint);
-}
-
-/* series 검색 — seriesLabel 행 우측 끝으로. width 는 filter bar 의 SearchCapsule 과 동일 */
 
 /* 시리즈 검색 — 공통 SearchCapsule collapsible(morph). 헤더 우측 정렬만. */
 .seriesSearchCapsule {
@@ -794,35 +716,6 @@
   cursor: grabbing;
 }
 
-/* + N more → /series 로 이동 */
-.seriesMoreBtn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-2xs);
-  width: 80px;
-  height: 192px;
-  flex-shrink: 0;
-  border: 1px dashed color-mix(in srgb, var(--text-primary) 25%, transparent);
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--text-primary) 3%, transparent);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-  text-decoration: none;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.2s;
-}
-
-.seriesRow .seriesMoreBtn:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
-  transform: translateY(-4px);
-}
-
 /* Empty state — .seriesRow 의 sibling 으로 .seriesRowWrap 안에 absolute.
    .seriesRow 의 mask-image / overflow-x 영향을 받지 않도록 밖으로 빼냄.
    .seriesRow padding (md md 2xl) 을 inset 으로 그대로 적용해 카드 영역의 시각 center 와 일치. */
@@ -920,15 +813,6 @@
 }
 .pageSizeIcon {
   flex-shrink: 0;
-  color: var(--text-tertiary);
-}
-
-.postsCount {
-  padding: var(--spacing-4xs) var(--spacing-xs);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  background: transparent;
-  font-size: var(--font-size-micro);
   color: var(--text-tertiary);
 }
 
@@ -1827,10 +1711,6 @@
     padding-top: var(--spacing-5xl);
   }
 
-  .title {
-    font-size: clamp(2rem, 10vw, 3rem);
-  }
-
   /* mobile 에서도 row 레이아웃 유지 + 폭 부족할 때만 wrap.
      column 으로 강제하면 CategoryNav 가 전체 너비 → Tags 버튼만 있는 row 가 또 따로 노출돼 어색. */
   .filterBarTop {
@@ -1838,16 +1718,6 @@
     /* multi-row 시 첫 row 기준 정렬 — 데스크탑과 동일 패턴 */
     align-items: flex-start;
     gap: var(--spacing-sm);
-  }
-
-  .filterBarRight {
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-    margin-left: auto;
-  }
-
-  .sortGroup {
-    margin-left: auto;
   }
 
   /* 모바일 — title 만 있는 sectionHeaderMain 이 width 100% 차지 → sortWrap / Select 다음 줄 */

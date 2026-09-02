@@ -313,21 +313,6 @@
   color: var(--text-tertiary);
 }
 
-.langHint {
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-  margin-left: auto;
-  padding: var(--spacing-2xs) var(--spacing-md);
-  border: var(--border-light);
-  border-radius: var(--radius-capsule);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-hint);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-primary);
-  font-style: italic;
-}
-
 /* ═══════════════════════════════════════════
    Featured variant — 그리드 첫 번째 아이템
    ═══════════════════════════════════════════ */
@@ -904,10 +889,6 @@
 }
 .timelineCat {
   letter-spacing: 0.08em;
-}
-.timelineEyebrow .timelinePin {
-  display: inline-flex;
-  color: var(--text-accent);
 }
 .timelineEyebrow .hotBadge {
   flex-shrink: 0;

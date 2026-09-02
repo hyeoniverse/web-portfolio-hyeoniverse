@@ -992,12 +992,6 @@
   letter-spacing: 0.06em;
 }
 
-.relatedSeriesName {
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-muted);
-}
-
 /* 가로 캐러셀 (HorizontalCarousel 공통 컴포넌트) — 위아래 border + 카드 사이 vertical separator. gap 없음 */
 .relatedGrid {
   border-top: var(--border-light);
@@ -1360,45 +1354,6 @@
   font-size: var(--font-size-label);
   color: var(--text-error);
   margin: 0;
-}
-
-/* ── Comments section ── */
-
-/* ── Footer nav ── */
-.footerNav {
-  padding: var(--spacing-xl) 0 var(--spacing-3xl);
-  border-top: var(--border-light);
-}
-
-.footerLink {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-body);
-  color: var(--text-tertiary);
-  text-decoration: none;
-}
-
-.footerArrow {
-  display: inline-block;
-}
-
-/* Compound selector — beats global theme transition */
-.footerNav .footerLink {
-  transition: color var(--duration-base) var(--ease-material);
-}
-
-.footerNav .footerArrow {
-  transition: transform var(--duration-base) var(--ease-material);
-}
-
-.footerNav .footerLink:hover {
-  color: var(--text-accent);
-}
-
-.footerNav .footerLink:hover .footerArrow {
-  transform: translateX(-4px);
 }
 
 /* ── Recommended toast ── */

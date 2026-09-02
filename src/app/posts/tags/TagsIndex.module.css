@@ -25,17 +25,6 @@
   gap: var(--spacing-md);
 }
 
-.title {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin: 0;
-  font-family: var(--font-instrument);
-  font-size: clamp(2.25rem, 5vw, 3.25rem);
-  font-weight: var(--font-weight-regular);
-  color: var(--text-primary);
-}
-
 .meta {
   margin: 0;
   font-family: var(--font-space-grotesk);
