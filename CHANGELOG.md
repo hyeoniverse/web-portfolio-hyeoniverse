@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.53.1](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.53.0...v1.53.1) (2026-09-02)
+
+
+### Bug Fixes
+
+* **about-studio:** 편집 필드가 패널 클래스에 지도록 특이도를 내림 ([d9708c6](https://github.com/hyeoniverse/web-portfolio-oval/commit/d9708c685e770f89cf84af6f7c202f6429e46edf)), closes [#632](https://github.com/hyeoniverse/web-portfolio-oval/issues/632)
+* **admin:** Dashboard 카드 여백·hairline 과 페이지네이션 간격이 공통 컴포넌트에 밀리지 않게 ([63b247a](https://github.com/hyeoniverse/web-portfolio-oval/commit/63b247ad316f8b2d99fd8fa7ea83206af2c3872b)), closes [#632](https://github.com/hyeoniverse/web-portfolio-oval/issues/632)
+* **settings:** 공유 클래스 위에 얹는 수식 클래스가 번들 순서에 따라 지지 않게 ([04f4ed5](https://github.com/hyeoniverse/web-portfolio-oval/commit/04f4ed55447aa4c69a5608eb34265db3aa53a862)), closes [#632](https://github.com/hyeoniverse/web-portfolio-oval/issues/632)
+* **works:** creditsPanel 의 intro 인접 padding 이 CreditsPanel 과 동점이지 않게 ([f22366b](https://github.com/hyeoniverse/web-portfolio-oval/commit/f22366bd2a2d6b873198c63460b03a4671ea586c)), closes [#632](https://github.com/hyeoniverse/web-portfolio-oval/issues/632)
+
 ## [1.53.0](https://github.com/hyeoniverse/web-portfolio-oval/compare/v1.52.0...v1.53.0) (2026-09-01)
 
 
