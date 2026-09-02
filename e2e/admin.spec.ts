@@ -5,8 +5,7 @@ import { smokeRoute } from "./capture";
 /**
  * admin 스모크 e2e — Phase 4-1(admin 슬라이스) 의 안전망.
  *
- *    npm run test:smoke:admin          # 비교
- *   npm run test:visual:admin -- -u     # baseline 갱신
+ *   npm run test:smoke:admin
  *
  * 로그인 세션이 필요하다. 최초 1회 셋업 절차는 e2e/auth.setup.ts 참고.
  */
