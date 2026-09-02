@@ -89,7 +89,9 @@
   font-size: var(--font-size-hint);
 }
 
-.pagination {
+/* 공통 Pagination 의 .paginationWrap(margin-top: md) 을 덮는다 — 같은 (0,1,0) 이면 번들 순서가
+   승자를 정하므로 클래스를 두 번 적어 (0,2,0). */
+.pagination.pagination {
   margin-top: var(--spacing-xl);
 }
 
