@@ -5,19 +5,24 @@
 .title {
   grid-column: 1;
   grid-row: 1;
-  margin: 0;
-  padding: 0;
   position: sticky;
   top: calc(var(--header-height) + var(--spacing-lg));
   /* 프리셋 카드 등 positioned 콘텐츠 위로 (Settings 패널 z 사다리 참조) */
   z-index: calc(var(--z-nav) - 3);
   mix-blend-mode: difference;
-  color: var(--text-white);
-  line-height: var(--line-height-fit);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+/* titleClassName 으로 받는 .sectionTitle/.sectionSubTitle 도 color·margin 을 정한다. 반전에 쓰는
+   white 와 grid 배치의 margin 0 은 여기가 이겨야 하는데, 같은 (0,1,0) 이면 번들 순서가 승자를
+   정한다. 클래스를 두 번 적어 (0,2,0). */
+.title.title {
+  margin: 0;
+  padding: 0;
+  color: var(--text-white);
+  line-height: var(--line-height-fit);
 }
 
 /* 액션(버튼/링크) — 우측 열, 제목과 같이 sticky. blend 밖이라 정상 색. */

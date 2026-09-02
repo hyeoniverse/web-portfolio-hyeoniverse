@@ -232,7 +232,9 @@
   gap: var(--spacing-xs);
 }
 
-.envLabelMissing {
+/* .fieldLabel 의 색을 덮는 modifier — 같은 (0,1,0) 이면 번들 순서에 따라 base 색이 남는다.
+   클래스를 두 번 적어 (0,2,0). */
+.envLabelMissing.envLabelMissing {
   color: var(--text-accent);
 }
 .envInputCell {

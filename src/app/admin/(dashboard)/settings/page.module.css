@@ -213,7 +213,9 @@
     opacity: 1;
   }
 
-  .navSub {
+  /* composes 한 .uCol(display:flex) 과 같은 (0,1,0) 이라 번들 순서에 따라 이 숨김이 뒤집혀
+     데스크톱용 하위내비가 탭바 옆에 새어 나왔다. 클래스를 두 번 적어 (0,2,0). */
+  .navSub.navSub {
     display: none;
   }
 

@@ -5,7 +5,9 @@
   border-top: var(--border-light);
   margin: var(--spacing-md) 0;
 }
-.sectionHintInline {
+/* .sectionHint 위에 얹는 modifier. 같은 (0,1,0) 이면 base 의 margin-bottom(md) 이 번들 순서에
+   따라 살아남아 제목 옆 hint 가 아래로 처졌다. 클래스를 두 번 적어 (0,2,0). */
+.sectionHintInline.sectionHintInline {
   margin: 0;
   line-height: var(--line-height-fit);
 }
@@ -65,7 +67,7 @@
   width: auto;
 }
 @media (max-width: 768px) {
-  .sectionHintInline {
+  .sectionHintInline.sectionHintInline {
     flex-basis: 100%;
     order: 99;
   }
