@@ -1,4 +1,86 @@
 /*  SettingsFormFields 전용 스타일 — Settings.module.css 에서 분리(#384)  */
+
+/* 고정 너비 280px — 텍스트 줄바꿈 안 되고 길면 ellipsis */
+.resumeFile {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  height: var(--control-h-md);
+  box-sizing: border-box;
+  padding: 0 var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  width: 280px;
+  max-width: 100%;
+  line-height: var(--line-height-fit);
+  overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 1;
+}
+
+/* 파일명 span — ellipsis 위해 min-width: 0 + nowrap 필수 (inline-flex 자식은 기본 min-content) */
+.resumeFile > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resumeFile > svg {
+  flex-shrink: 0;
+}
+
+.resumeFile:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.fieldLabelHint {
+  font-weight: 400;
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+}
+
+/* 라벨 옆 ? 도움말 아이콘 — 값·옵션 설명 tooltip trigger */
+.fieldHelp {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-tertiary);
+  cursor: help;
+}
+
+.fieldHelp:hover {
+  color: var(--text-secondary);
+}
+
+.serviceItem {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+  padding: var(--spacing-sm) 0;
+  transition: background-color 0.2s ease;
+}
+
+.serviceItem:first-child {
+  padding-top: 0;
+}
+
+.serviceItem:last-child {
+  padding-bottom: 0;
+}
+
+.serviceItem + .serviceItem {
+  border-top: var(--border-light);
+}
+
+/* count 숫자만 상태별 색상 — "/ max" 는 항상 tertiary. */
+/* overflow 시 시각 indicator 는 EditableInput 의 inline <mark> highlight + counter accent 색 — 별도 border rule 불필요. */
 .fieldCounterWarn {
   color: var(--text-warning);
 }

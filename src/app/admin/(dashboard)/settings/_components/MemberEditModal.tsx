@@ -325,7 +325,7 @@ export default function MemberEditModal({
       {/* 저장·초대 결과. 권한 블록(owner 전용) 안에 있으면 비owner 에게는 실패 이유가
           나올 자리가 없다 — 본인 프로필 저장이 막혀도 아무 반응이 없어 보인다. */}
       {status && (
-        <span className={status.ok ? shared.authorInviteOk : shared.authorInviteErr}>{status.msg}</span>
+        <span className={status.ok ? styles.authorInviteOk : shared.authorInviteErr}>{status.msg}</span>
       )}
 
       {footerEl && createPortal(
