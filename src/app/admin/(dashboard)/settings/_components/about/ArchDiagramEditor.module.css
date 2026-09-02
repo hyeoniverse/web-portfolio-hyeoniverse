@@ -1,9 +1,14 @@
 /* Architecture 다이어그램 비주얼 캔버스 에디터 */
 .editor {
-  composes: uColMd from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 .toolbar {
-  composes: uRowWrapSm from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 .hint {
   margin: 0;
@@ -48,7 +53,10 @@
   border-radius: var(--radius-2xl);
 }
 .panelHead {
-  composes: uRowSmBetween from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  justify-content: space-between;
 }
 .panelTitle {
   font-family: var(--font-mono);
@@ -58,10 +66,14 @@
   color: var(--text-tertiary);
 }
 .row {
-  composes: uGrid2Sm from "../../Settings.module.css";
+  display: grid;
+  gap: var(--spacing-sm);
+  grid-template-columns: var(--grid-cols-2);
 }
 .field {
-  composes: uCol2xs from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
   min-width: 0;
 }
 .fieldLabel {
@@ -69,7 +81,9 @@
   color: var(--text-tertiary);
 }
 .panelActions {
-  composes: uWrapXs from "../../Settings.module.css";
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 
 /* add 버튼 */

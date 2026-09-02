@@ -1,4 +1,6 @@
 /*  AuthorsEditor 전용 — Settings.module.css 에서 분리(#384)  */
 .authorsEditor {
-  composes: uColMd from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }

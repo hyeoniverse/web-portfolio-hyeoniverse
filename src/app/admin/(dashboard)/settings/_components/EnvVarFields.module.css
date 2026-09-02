@@ -27,7 +27,9 @@
 }
 
 .envGroup {
-  composes: uColXs from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
 .envGroupLabel {
@@ -97,7 +99,10 @@
 }
 
 .envStatusSummary {
-  composes: uRowWrapSm from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 
 .envStatusCount {
@@ -248,7 +253,9 @@
 }
 /* 입력 셀 — grid 2번째 열. Input + 모바일 힌트. min-width:0 로 grid 가 줄일 수 있게 */
 .envInputCell {
-  composes: uCol2xs from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
   min-width: 0;
 }
 /* Input wrapper(첫 자식 div) — 셀 폭 전체 차지 */

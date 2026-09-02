@@ -1,7 +1,9 @@
 /*  SeriesManager 전용 스타일 — Settings.module.css 에서 분리(#384 Phase 4-1).
    공유·경계 클래스는 Settings 에 남아 shared 로 import  */
 .seriesList {
-  composes: uColSm from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
 .seriesCardHead {
@@ -166,11 +168,14 @@
 }
 
 .seriesCardInfo {
-  composes: uFill from "../Settings.module.css";
+  flex: 1;
+  min-width: 0;
 }
 /* 타이틀 + 발행 배지 한 줄 — 타이틀 truncate(min-width:0), 배지는 우측 끝 (flex 정렬). */
 .seriesCardNameRow {
-  composes: uRowSm from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   min-width: 0;
 }
 

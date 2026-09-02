@@ -2,7 +2,9 @@
    공유·경계 클래스(section·fields·priorityBtn·sizeChip 등)는 Settings 에 남아 shared 로 import  */
 /* Switch + ? 도움말 나란히 배치 (Switch 공통 컴포넌트 미변경, 감싸서 처리) */
 .switchHelpRow {
-  composes: uRowXs from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 

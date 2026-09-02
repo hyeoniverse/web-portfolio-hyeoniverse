@@ -33,11 +33,16 @@
   object-fit: cover;
 }
 .memberDetailHeadInfo {
-  composes: uCol2xs from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
   min-width: 0;
 }
 .memberDetailNameRow {
-  composes: uRowWrapXs from "../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 .memberDetailName {
   font-family: var(--font-space-grotesk);
@@ -50,7 +55,9 @@
   color: var(--text-secondary);
 }
 .memberDetailMeta {
-  composes: uColXs from "../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 .memberDetailMetaRow {
   display: flex;
@@ -80,7 +87,9 @@
   overflow-wrap: anywhere;
 }
 .memberDetailLinks {
-  composes: uWrapXs from "../Settings.module.css";
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 /* GitHub 사용자명 — 이름 옆에 붙는 보조 식별자라 이름보다 약하게 둔다 */
 .memberDetailHandle {

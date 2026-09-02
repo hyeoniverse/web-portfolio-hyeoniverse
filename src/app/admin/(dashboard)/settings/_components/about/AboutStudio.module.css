@@ -5,7 +5,9 @@
    ───────────────────────────────────────────────────────────── */
 
 .studio {
-  composes: uColXl from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
   position: relative;
 }
 
@@ -281,10 +283,14 @@ textarea.edit {
 }
 /* 배경 색·그라디언트 라이트/다크 2열 편집 */
 .bgThemeRow {
-  composes: uGrid2Md from "../../Settings.module.css";
+  display: grid;
+  gap: var(--spacing-md);
+  grid-template-columns: var(--grid-cols-2);
 }
 .bgThemeCol {
-  composes: uColSm from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
   min-width: 0;
 }
 .bgThemeLabel {
@@ -338,7 +344,9 @@ textarea.edit {
 
 /* ── 패널 스트립 (표시/숨김 + 편집 이동) ── */
 .strip {
-  composes: uColSm from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 .stripHead {
   display: flex;
@@ -354,7 +362,9 @@ textarea.edit {
   color: var(--text-tertiary);
 }
 .stripChips {
-  composes: uWrapXs from "../../Settings.module.css";
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 
 /* 패널 칩 — 드래그로 순서 변경(중간 패널) + 클릭으로 표시 토글 */
@@ -1165,7 +1175,10 @@ textarea.edit {
 
 /* Design System — 컨셉 전환 탭 스트립(실제도 한 장씩 넘겨 보는 strip 이라 나열 대신 탭) */
 .slideTabs {
-  composes: uRowWrapSm from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 
 /* ── Code Highlights 데모 칸 편집 컨트롤 ── */
@@ -1526,7 +1539,9 @@ textarea.edit {
 
 /* ── Backend ── */
 .bkStage {
-  composes: uColXl from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
   position: relative;
 }
 .bkBody {
@@ -1574,16 +1589,22 @@ textarea.edit {
 
 /* ── User Flow ── */
 .ufStage {
-  composes: uColXl from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
   position: relative;
 }
 
 /* ── ERD ── */
 .erdImport {
-  composes: uColSm from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 .erdPanel {
-  composes: uColSm from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
 /* 펼침/접힘 — height:auto 는 트랜지션이 안 되므로 grid-template-rows 0fr↔1fr 을 쓴다.
@@ -1605,7 +1626,9 @@ textarea.edit {
 
 /* 안내 문구 · textarea · 버튼 사이 간격. 설명과 입력은 한 묶음으로 읽혀야 하므로 촘촘하게. */
 .erdCollapseInner {
-  composes: uCol2xs from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 /* 파일을 끌어다 놓는 중 — outline 이라 레이아웃이 밀리지 않는다 */
 .erdImportOver {
@@ -1649,7 +1672,10 @@ textarea.edit {
   color: var(--text-secondary);
 }
 .erdActions {
-  composes: uRowWrapXs from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
 }
 .erdResult {
   margin-left: auto;
@@ -1675,21 +1701,30 @@ textarea.edit {
 
 /* ── Troubleshooting ── */
 .tsStage {
-  composes: uColXl from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
   position: relative;
 }
 .tsBody {
-  composes: uColLg from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
 }
 .tsField {
-  composes: uCol2xs from "../../Settings.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
 }
 .tsText {
   color: var(--text-secondary);
   line-height: var(--line-height-relaxed);
 }
 .tsTags {
-  composes: uRowWrap2xs from "../../Settings.module.css";
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
 }
 .tsTag {
   font-size: var(--font-size-body);
