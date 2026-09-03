@@ -15,9 +15,8 @@ import { BookOpen, ChevronLeft, ChevronRight, Settings, Shuffle } from "@/compon
 import SeriesCard from "../SeriesCard";
 import { useSeriesFeed } from "./useSeriesFeed";
 import { useSeriesRowScroll } from "./useSeriesRowScroll";
-// 섹션 헤더 골격(sectionHeader · sectionHeaderMain · sectionHeaderTitle · sectionHeaderText · sortWrap · shuffleBtn · seriesSegmented)은
-// 글 목록 헤더와 같은 규칙이라 아직 Posts.module.css 에 있다. 3단계 마지막(PostsToolbar 분리)에서 자리를 정하면 이 import 는 사라진다.
-import shared from "../../Posts.module.css";
+// 섹션 헤더 골격(sectionHeader · sortWrap · shuffleBtn · seriesSegmented)은 글 목록 툴바(PostsToolbar)와 공유
+import header from "../SectionHeader.module.css";
 import styles from "./SeriesSection.module.css";
 
 /* /posts 상단 시리즈 섹션 — 헤더(관리 버튼 · 정렬 · 셔플 · 검색) + 책 표지 가로 row + 선택된 시리즈 메타.
@@ -92,11 +91,11 @@ export default function SeriesSection({
 
   return (
     <div className={styles.seriesSection}>
-      <div className={shared.sectionHeader}>
-        <div className={shared.sectionHeaderMain}>
-          <Link href="/posts/series" className={`${shared.sectionHeaderTitle} ${styles.sectionHeaderTitleLink}`}>
+      <div className={header.sectionHeader}>
+        <div className={header.sectionHeaderMain}>
+          <Link href="/posts/series" className={`${header.sectionHeaderTitle} ${styles.sectionHeaderTitleLink}`}>
             <BookOpen size={14} />
-            <span className={shared.sectionHeaderText}>
+            <span className={header.sectionHeaderText}>
               <T
                 k="postsPage.series"
                 tooltip={t("postsPage.seriesTooltip")}
@@ -118,10 +117,10 @@ export default function SeriesSection({
             </Button>
           )}
         </div>
-        <div className={shared.sortWrap}>
+        <div className={header.sortWrap}>
           <SegmentedControl
             size="sm"
-            className={shared.seriesSegmented}
+            className={header.seriesSegmented}
             items={[
               { value: "default", label: t("postsPage.seriesSortDefault") },
               { value: "newest", label: t("postsPage.seriesSortNewest") },
@@ -155,7 +154,7 @@ export default function SeriesSection({
                 }
               }}
               aria-label={t("postsPage.sortRandom")}
-              className={shared.shuffleBtn}
+              className={header.shuffleBtn}
             />
           </Tooltip>
         </div>

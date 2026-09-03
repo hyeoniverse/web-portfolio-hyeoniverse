@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type RefObject } from "react";
+import type { PostsQuery } from "../../_hooks/usePostsQuery";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import T from "@/components/ui/T";
@@ -14,7 +15,7 @@ import styles from "./PostsFilterBar.module.css";
 /* /posts 필터바 — 검색 capsule 줄 + [전체태그 토글 | CategoryNav] 줄 + 태그 패널.
    sticky 판정(useStickyFilterBar)·백드롭·본문 blur 는 부모가 가진다: barHidden 은 사이드바도 쓰고 blur 는 본문 영역에 건다.
    그래서 ref(sticky 훅의 filterBarRef)와 isStuck · barHidden 을 받고, showTags · catExpanded 는 부모가 제어한다(백드롭이 닫는다).
-   검색·카테고리·태그 값과 setter 는 글 목록 fetch 축의 것 — 그 축이 훅으로 묶이면 props 도 그 반환값으로 줄어든다. */
+   검색·카테고리·태그 값과 setter 는 글 목록 쿼리(usePostsQuery)의 것이라 query 하나로 받는다. */
 export default function PostsFilterBar({
   ref,
   isStuck,
@@ -23,19 +24,9 @@ export default function PostsFilterBar({
   onShowTagsChange,
   catExpanded,
   onCatExpandedChange,
-  search,
-  onSearchChange,
-  searchType,
-  onSearchTypeChange,
-  onSyntaxModeChange,
-  hasResults,
   extraCategories,
-  activeCategories,
-  onCategoriesChange,
   allTags,
-  activeTags,
-  onToggleTag,
-  onClearTags,
+  query,
 }: {
   ref: RefObject<HTMLDivElement | null>;
   isStuck: boolean;
@@ -44,21 +35,15 @@ export default function PostsFilterBar({
   onShowTagsChange: (v: boolean) => void;
   catExpanded: boolean;
   onCatExpandedChange: (v: boolean) => void;
-  search: string;
-  onSearchChange: (v: string) => void;
-  searchType: "all" | "title" | "content";
-  onSearchTypeChange: (v: "all" | "title" | "content") => void;
-  onSyntaxModeChange: (v: "prefix" | "regex") => void;
-  hasResults: boolean;
   extraCategories: string[];
-  activeCategories: string[];
-  onCategoriesChange: (next: string[]) => void;
   allTags: { tag: string; count: number }[];
-  activeTags: Set<string>;
-  onToggleTag: (tag: string) => void;
-  onClearTags: () => void;
+  query: PostsQuery;
 }) {
   const { t } = useLanguage();
+  const {
+    posts, search, setSearch, searchType, setSearchType, setSyntaxMode,
+    activeCategories, setActiveCategories, activeTags, toggleActiveTag, clearActiveTags,
+  } = query;
 
   // (close-on-scroll 제거) 명시적으로 펼친 태그/카테고리를 스크롤만으로 닫지 않음 —
   // 바깥 클릭(아래) / 토글 버튼 재클릭으로만 닫힘. 펼친 상태에선 filter bar 도 스크롤에 안 숨음.
@@ -92,13 +77,13 @@ export default function PostsFilterBar({
       <div className={styles.filterBarSearchRow}>
         <SearchCapsule
           search={search}
-          onSearchChange={onSearchChange}
+          onSearchChange={setSearch}
           placeholder={t("postsPage.searchPlaceholder")}
           routeParam="q"
           className={styles.postsSearchCapsule}
-          hasResults={hasResults}
+          hasResults={posts.length > 0}
           size="sm"
-          onSearchOptionsChange={(opts) => onSyntaxModeChange(opts.syntaxMode)}
+          onSearchOptionsChange={(opts) => setSyntaxMode(opts.syntaxMode)}
           typeSelector={{
             value: searchType,
             options: [
@@ -106,7 +91,7 @@ export default function PostsFilterBar({
               { value: "title", label: t("postsPage.searchTitle") },
               { value: "content", label: t("postsPage.searchContent") },
             ],
-            onChange: (v) => onSearchTypeChange(v as "all" | "title" | "content"),
+            onChange: (v) => setSearchType(v as "all" | "title" | "content"),
           }}
           syntaxHelp
         />
@@ -146,7 +131,7 @@ export default function PostsFilterBar({
           extraCategories={extraCategories}
           activeCategories={activeCategories}
           // 카테고리 선택 시 자동으로 닫지 않음 — close 버튼 / filter bar 바깥 클릭 / 스크롤로만 닫힘
-          onCategoriesChange={onCategoriesChange}
+          onCategoriesChange={setActiveCategories}
           expanded={catExpanded}
           onExpandChange={(v) => {
             onCatExpandedChange(v);
@@ -160,8 +145,8 @@ export default function PostsFilterBar({
         isStuck={isStuck}
         allTags={allTags}
         activeTags={activeTags}
-        onToggleTag={onToggleTag}
-        onClearTags={onClearTags}
+        onToggleTag={toggleActiveTag}
+        onClearTags={clearActiveTags}
       />
     </div>
   );

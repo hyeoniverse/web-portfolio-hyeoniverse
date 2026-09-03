@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
@@ -18,33 +18,20 @@ import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
 import PostsSidebar from "./_components/PostsSidebar";
 import PostsGrid, { type PostsLayout } from "./_components/PostsGrid/PostsGrid";
+import PostsToolbar from "./_components/PostsToolbar/PostsToolbar";
+import PostsEmptyState from "./_components/PostsEmptyState/PostsEmptyState";
+import PostsPagination from "./_components/PostsPagination/PostsPagination";
 import TimelineIndex from "./_components/TimelineIndex";
 import { useTimeline } from "./_hooks/useTimeline";
 import { usePostsQuery } from "./_hooks/usePostsQuery";
-import SegmentedControl from "@/components/ui/SegmentedControl";
 import {
   LayoutGrid,
-  Shuffle,
-  Sparkles,
-  List,
   History as HistoryIcon,
-  SearchEmptyIcon,
 } from "@/components/icons";
 import PageTitle from "@/components/ui/PageTitle";
-import Button from "@/components/ui/Button";
-import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
-import Tooltip from "@/components/ui/Tooltip";
-import Select from "@/components/ui/Select";
 import styles from "./Posts.module.css";
-import Pressable from "@/components/ui/Pressable";
-
-const PAGE_SIZE_OPTIONS = [
-  { value: "10", label: "10개씩" },
-  { value: "20", label: "20개씩" },
-  { value: "50", label: "50개씩" },
-];
 
 interface PostsClientProps {
   initialData: InitialPostsData;
@@ -56,7 +43,6 @@ interface PostsClientProps {
 
 export default function PostsClient({ initialData, history = false, archiveMonths }: PostsClientProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
-  const { t, language } = useLanguage();
   const siteConf = useSiteConfig();
   // 목록 카드 레이아웃 (설정) — magazine(기본)/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
   const configLayout = (["magazine", "grid", "list", "compact", "masonry", "featured"].includes(siteConf.posts.layout)
@@ -64,20 +50,14 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     : "magazine");
   const postsLayout = (history ? "timeline" : configLayout) as PostsLayout;
   // 글 목록 쿼리 — 필터(검색·카테고리·태그·저자·시리즈) · 정렬 · 페이지 · fetch · URL 동기화
+  const query = usePostsQuery({ initialData, postsLayout, defaultPerPage: siteConf.posts.perPage ?? 10 });
   const {
-    posts, loading, facetTags, perPage, setPerPage, page, setPage, totalPages,
-    search, setSearch, searchType, setSearchType, syntaxMode, setSyntaxMode,
-    activeCategories, setActiveCategories, activeCategoryKey,
-    activeTags, activeTagsKey, toggleActiveTag, clearActiveTags,
-    activeAuthor, setActiveAuthor, activeSeries, setActiveSeries, toggleActiveSeries, hasActiveFilter,
-    sortBy, sortDir, popularSort, setPopularSort, handleSortChange, shuffle, resetSort,
-  } = usePostsQuery({ initialData, postsLayout, defaultPerPage: siteConf.posts.perPage ?? 10 });
+    posts, loading, facetTags, perPage, page, setPage, totalPages, search, syntaxMode,
+    activeCategoryKey, activeTagsKey, activeTags, toggleActiveTag, activeSeries, toggleActiveSeries, hasActiveFilter,
+  } = query;
   const [pinnedPosts] = useState<Post[]>(initialData.pinnedPosts);
   const [allTags] = useState(initialData.allTags);
   const [extraCategories] = useState(initialData.extraCategories);
-  // 작성자 — 2명 이상일 때만 필터/정렬 노출(1명이면 옵션이 무의미). 카드 표시는 무조건.
-  const authors = siteConf.authors ?? [];
-  const multiAuthor = authors.length >= 2;
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const [popularIds] = useState<Set<string>>(new Set(initialData.popularIds));
   const [showTags, setShowTags] = useState(false);
@@ -160,23 +140,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   // banner 는 pinned 글 있으면 항상 표시 (필터/검색/페이지네이션 무관)
   const showBanner = pinnedPosts.length >= 1;
 
-  const pageNumbers = useMemo(() => {
-    if (totalPages <= 7)
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    if (page <= 3) return [1, 2, 3, 4, 5, -1, totalPages];
-    if (page >= totalPages - 2)
-      return [
-        1,
-        -1,
-        totalPages - 4,
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages,
-      ];
-    return [1, -1, page - 1, page, page + 1, -1, totalPages];
-  }, [page, totalPages]);
-
   return (
     <SearchHighlightProvider query={search} mode={syntaxMode}>
     <div className={`${styles.page} ${history ? styles.historyMode : ""}`}>
@@ -248,19 +211,9 @@ export default function PostsClient({ initialData, history = false, archiveMonth
           onShowTagsChange={setShowTags}
           catExpanded={catExpanded}
           onCatExpandedChange={setCatExpanded}
-          search={search}
-          onSearchChange={setSearch}
-          searchType={searchType}
-          onSearchTypeChange={setSearchType}
-          onSyntaxModeChange={setSyntaxMode}
-          hasResults={posts.length > 0}
           extraCategories={extraCategories}
-          activeCategories={activeCategories}
-          onCategoriesChange={setActiveCategories}
           allTags={allTags}
-          activeTags={activeTags}
-          onToggleTag={toggleActiveTag}
-          onClearTags={clearActiveTags}
+          query={query}
         />
       )}
 
@@ -283,144 +236,9 @@ export default function PostsClient({ initialData, history = false, archiveMonth
 
           {/* Posts — sectionHeader 는 빈 상태에서도 항상 노출 (sort / perPage 등 컨트롤 접근 유지) */}
           <>
-            <div className={styles.sectionHeader}>
-              <div className={styles.sectionHeaderMain}>
-                <span className={styles.sectionHeaderTitle}>
-                  <LayoutGrid size={14} />
-                  <span className={styles.sectionHeaderText}>
-                    <T k="postsPage.posts" tooltip={t("postsPage.postsTooltip")} />
-                  </span>
-                </span>
-              </div>
-                <div className={styles.sortWrap}>
-                  {/* 작성자 필터 — 저자 2명 이상일 때만. 레이아웃 무관하게 필터로 동작. */}
-                  {multiAuthor && (
-                    <Select
-                      value={activeAuthor ?? ""}
-                      options={[{ value: "", label: language === "ko" ? "작성자 전체" : "All authors" }, ...authors.map((a) => ({ value: a.id, label: a.name }))]}
-                      size="sm"
-                      onChange={(v) => { setActiveAuthor(v || null); setPage(1); }}
-                    />
-                  )}
-                  {/* sort + shuffle 한 묶음 — shuffle 은 sort 의 random 변형 (오른쪽 인접). */}
-                  <SegmentedControl<"date" | "popular" | "title" | "author", "score" | "views" | "comments" | "likes">
-                    size="sm"
-                    className={styles.seriesSegmented}
-                    items={
-                      /* 타임라인은 월 그룹이라 날짜순만 유효 → date(newest/oldest 토글)만 노출 */
-                      postsLayout === "timeline"
-                        ? [{ value: "date", label: <T k="postsPage.sortDate" tooltip={t("postsPage.sortDateTooltip")} /> }]
-                        : [
-                            { value: "date", label: <T k="postsPage.sortDate" tooltip={t("postsPage.sortDateTooltip")} /> },
-                            {
-                              value: "popular",
-                              label: <T k="postsPage.sortPopular" tooltip={t("postsPage.sortPopularTooltip")} />,
-                              subItems: [
-                                { value: "score", label: <T k="postsPage.popularScore" /> },
-                                { value: "views", label: <T k="postsPage.popularViews" /> },
-                                { value: "comments", label: <T k="postsPage.popularComments" /> },
-                                { value: "likes", label: <T k="postsPage.popularLikes" /> },
-                              ],
-                            },
-                            { value: "title", label: <T k="postsPage.sortTitle" tooltip={t("postsPage.sortTitleTooltip")} /> },
-                            // 저자 정렬 — 2명 이상일 때만
-                            ...(multiAuthor ? [{ value: "author" as const, label: language === "ko" ? "저자" : "Author" }] : []),
-                          ]
-                    }
-                    value={(postsLayout === "timeline" || sortBy === "random" ? "date" : sortBy) as "date" | "popular" | "title" | "author"}
-                    onChange={handleSortChange}
-                    sortDir={sortBy !== "popular" && sortBy !== "random" ? sortDir : undefined}
-                    subValue={popularSort}
-                    onSubChange={setPopularSort}
-                    subVariant="nested"
-                    onBack={resetSort}
-                  />
-                  {/* 타임라인에선 랜덤 정렬도 무의미 → shuffle 숨김 */}
-                  {postsLayout !== "timeline" && (
-                    <Tooltip
-                      content={
-                        <>
-                          <div>{t("postsPage.sortRandom")}</div>
-                          <div>{t("postsPage.sortRandomTooltip")}</div>
-                        </>
-                      }
-                    >
-                      <Button
-                        variant={sortBy === "random" ? "primary" : "outline"}
-                        shape="circle"
-                        size="sm"
-                        icon={<Shuffle size={12} />}
-                        onClick={shuffle}
-                        aria-label={t("postsPage.sortRandom")}
-                        className={styles.shuffleBtn}
-                      />
-                    </Tooltip>
-                  )}
-                </div>
-                {/* 페이지당 개수 select — 가장 오른쪽 (margin-left: auto). shuffle/sort 와 분리.
-                   history(timeline)는 무한스크롤이라 페이지 개념이 없어 숨김. */}
-                {postsLayout !== "timeline" && (
-                  <div className={styles.pageSizeGroup}>
-                    <List size={14} strokeWidth={1.8} className={styles.pageSizeIcon} aria-hidden />
-                    <Select
-                      value={String(perPage)}
-                      options={PAGE_SIZE_OPTIONS}
-                      size="sm"
-                      onChange={(v) => {
-                        setPerPage(Number(v));
-                        setPage(1);
-                      }}
-                      className={styles.pageSizeSelect}
-                    />
-                  </div>
-                )}
-              </div>
+            <PostsToolbar query={query} timeline={postsLayout === "timeline"} />
               {!loading && posts.length === 0 ? (
-                activeSeries ? (
-                  /* 시리즈 선택 + posts 0개 — "Coming Soon" 톤. 시리즈가 존재하지만 콘텐츠 준비중인 케이스. */
-                  <div className={`${styles.emptyState} ${styles.emptyStateComingSoon}`}>
-                    <span className={styles.comingSoonIconWrap} aria-hidden>
-                      <Sparkles size={28} className={styles.comingSoonIconA} />
-                      <Sparkles size={16} className={styles.comingSoonIconB} />
-                      <Sparkles size={12} className={styles.comingSoonIconC} />
-                    </span>
-                    <p className={styles.comingSoonTitle}>{t("postsPage.comingSoon")}</p>
-                    <p className={styles.comingSoonSub}>
-                      {t("postsPage.noPostsInSeriesYet")} {t("postsPage.comingSoonSub")}
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="xs"
-                      onClick={() => setActiveSeries(null)}
-                    >
-                      <T k="postsPage.clearSeries" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className={styles.emptyState}>
-                    <SearchEmptyIcon />
-                    <p className={styles.emptyTitle}>{t("postsPage.noPostsYet")}</p>
-                    {(search ||
-                      activeTags.size > 0 ||
-                      activeCategories.length > 0) && (
-                      <Button
-                        variant="outline"
-                        size="xs"
-                        onClick={() => {
-                          setSearch("");
-                          setSearchType("all");
-                          clearActiveTags();
-                          setActiveCategories([]);
-                        }}
-                      >
-                        <T
-                          k="postsPage.clearFilters"
-                          tooltip={t("postsPage.clearFiltersTooltip")}
-                        />
-                      </Button>
-                    )}
-                  </div>
-                )
+                <PostsEmptyState query={query} />
               ) : (
                 <>
               <PostsGrid
@@ -448,40 +266,7 @@ export default function PostsClient({ initialData, history = false, archiveMonth
 
               {/* Pagination — 타임라인(무한스크롤) 제외 */}
               {postsLayout !== "timeline" && totalPages > 1 && (
-                <div className={styles.pagination}>
-                  <Pressable
-                    disabled={page <= 1}
-                    onClick={() => setPage((p) => p - 1)}
-                    className={styles.pageBtn}
-                    data-clickable="true"
-                  >
-                    &larr;
-                  </Pressable>
-                  {pageNumbers.map((p, i) =>
-                    p === -1 ? (
-                      <span key={`ellipsis-${i}`} className={styles.ellipsis}>
-                        &hellip;
-                      </span>
-                    ) : (
-                      <Pressable
-                        key={p}
-                        onClick={() => setPage(p)}
-                        className={`${styles.pageBtn} ${page === p ? styles.pageBtnActive : ""}`}
-                        data-clickable="true"
-                      >
-                        {p}
-                      </Pressable>
-                    ),
-                  )}
-                  <Pressable
-                    disabled={page >= totalPages}
-                    onClick={() => setPage((p) => p + 1)}
-                    className={styles.pageBtn}
-                    data-clickable="true"
-                  >
-                    &rarr;
-                  </Pressable>
-                </div>
+                <PostsPagination page={page} totalPages={totalPages} onPageChange={setPage} />
               )}
                 </>
               )}
