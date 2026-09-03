@@ -1,8 +1,7 @@
 import { type CardType, getCardType } from "@/data/postsBentoTemplates";
 import { SkeletonLine, SkeletonPill, SkeletonBlock } from "@/components/ui/Skeleton";
-// 그리드 아이템 클래스(gridItem · gridWide · seriesStep*)는 부모 grid 의 것이라 Posts.module.css 에서 가져온다.
-// 3단계 마지막(PostsGrid 분리)에서 아이템 래퍼가 grid 쪽으로 넘어가면 이 import 는 사라진다.
-import grid from "../Posts.module.css";
+// 그리드 아이템 래퍼 클래스(gridItem · gridWide · seriesStep*)는 PostsGrid 의 것 — 실제 아이템과 같은 자리를 차지해야 해서
+import grid from "./PostsGrid.module.css";
 import styles from "./PostsSkeletonCards.module.css";
 
 /* ── Skeleton ──
