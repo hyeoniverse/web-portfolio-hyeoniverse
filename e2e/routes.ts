@@ -25,6 +25,47 @@ export const PUBLIC_ROUTES: Route[] = [
   // GSAP 스크롤 시퀀스가 모바일에서 라우팅까지 트리거해 캡처 중 페이지가 바뀐다.
   // 스크롤 없이 첫 화면만 — 하단 회귀는 수동 QA 로 커버한다.
   { path: "/works", name: "works", skipScroll: true },
+  // 작품 상세는 DB(works 테이블)의 slug 여야 한다. 없으면 posts 상세와 같은 함정 —
+  // notFound() 가 loading.tsx 스트리밍 뒤에 실행돼 HTTP 는 200 이고, 404 제목 검사만 걸러낸다.
+  {
+    path: "/works/prism-ui",
+    name: "work-detail",
+    expectVisible: { selector: '[class*="infoGrid"]', label: "작품 정보 그리드 (WorkArticleView 본문)" },
+  },
+  // 대체 레이아웃 5종. 설정 works.layout 기본값이 flow 라 쿼리로만 닿고, 합쳐서 코드 1,600줄 · CSS 2,000줄인데
+  // 여기 없으면 검사되지 않는다 (#662). 셀렉터는 각 레이아웃 모듈에만 있는 클래스로 고른다.
+  {
+    path: "/works?layout=fullscreen",
+    name: "works-fullscreen",
+    skipScroll: true,
+    expectVisible: { selector: '[class*="bgLayer"]', label: "FullscreenLayout 배경 레이어" },
+  },
+  {
+    path: "/works?layout=cinematic",
+    name: "works-cinematic",
+    skipScroll: true,
+    // yearBig 은 480px 이하에서 display:none 이라 모바일에서 못 쓴다.
+    expectVisible: { selector: '[class*="metaTitle"]', label: "CinematicLayout 작품 제목" },
+  },
+  {
+    path: "/works?layout=grid",
+    name: "works-grid",
+    skipScroll: true,
+    expectVisible: { selector: '[class*="projectCell"]', label: "GridLayout 작품 셀" },
+  },
+  {
+    path: "/works?layout=split",
+    name: "works-split",
+    skipScroll: true,
+    expectVisible: { selector: '[class*="bgVideo"]', label: "SplitLayout 배경 영상" },
+  },
+  // three.js 씬은 ssr:false 동적 로드라 canvas 가 붙는 것까지만 본다.
+  {
+    path: "/works?layout=cylinder",
+    name: "works-cylinder",
+    skipScroll: true,
+    expectVisible: { selector: "canvas", label: "CylinderLayout WebGL 캔버스" },
+  },
   { path: "/posts", name: "posts" },
   { path: "/posts/categories", name: "posts-categories" },
   { path: "/posts/series", name: "posts-series" },
