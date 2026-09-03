@@ -5,7 +5,7 @@ import { Monitor, Image as ImageIcon } from "@/components/icons";
 import HorizontalCarousel from "@/components/ui/HorizontalCarousel";
 import { useHoverPreview } from "@/components/ui/RelatedChips/useHoverPreview";
 import { isVideoUrl } from "@/lib/isVideoUrl";
-import styles from "../PostDetail.module.css";
+import styles from "./RelatedWorksCarousel.module.css";
 
 export type RelatedWork = {
   id: string;

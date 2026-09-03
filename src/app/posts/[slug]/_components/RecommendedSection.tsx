@@ -8,7 +8,7 @@ import T from "@/components/ui/T";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import { BookOpen, ImageIcon, ChevronRight } from "@/components/icons";
 import type { RecommendedPost } from "./types";
-import styles from "../PostDetail.module.css";
+import styles from "./RecommendedSection.module.css";
 import Pressable from "@/components/ui/Pressable";
 
 interface RecommendedSectionProps {

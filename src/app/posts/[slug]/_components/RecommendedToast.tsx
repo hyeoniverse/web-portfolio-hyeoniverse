@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { BookOpen, ImageIcon } from "@/components/icons";
 import T from "@/components/ui/T";
 import type { RecommendedPost } from "./types";
-import styles from "../PostDetail.module.css";
+import styles from "./RecommendedToast.module.css";
 import Pressable from "@/components/ui/Pressable";
 
 interface RecommendedToastProps {
