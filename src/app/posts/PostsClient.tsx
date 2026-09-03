@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef, Fragment } from "react";
-import { type CardType, getCardType } from "@/data/postsBentoTemplates";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "@/providers/LenisProvider";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
 import { useStickyFilterBar } from "@/hooks/useStickyFilterBar";
 import type { Post } from "@/types/post";
 import type { InitialPostsData } from "@/lib/posts";
-import PostCard from "./_components/PostCard";
 import PostsSubnav from "./_components/PostsSubnav";
 import ScrollButtons from "@/components/ui/ScrollButtons/ScrollButtons";
 import PostsFilterBar from "./_components/PostsFilterBar/PostsFilterBar";
@@ -19,10 +17,8 @@ import PopularPosts from "./_components/PopularPosts";
 import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
 import PostsSidebar from "./_components/PostsSidebar";
-import PostsSkeletonCards from "./_components/PostsSkeletonCards";
+import PostsGrid, { type PostsLayout } from "./_components/PostsGrid/PostsGrid";
 import TimelineIndex from "./_components/TimelineIndex";
-import TimelineMotionItem from "./_components/TimelineMotionItem";
-import { useMasonryRowSpans } from "./_hooks/useMasonryRowSpans";
 import { useTimeline } from "./_hooks/useTimeline";
 import { usePostsQuery } from "./_hooks/usePostsQuery";
 import SegmentedControl from "@/components/ui/SegmentedControl";
@@ -38,7 +34,6 @@ import PageTitle from "@/components/ui/PageTitle";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import { useIsMobile } from "@/hooks/useIsMobile";
 import T from "@/components/ui/T";
 import Tooltip from "@/components/ui/Tooltip";
 import Select from "@/components/ui/Select";
@@ -51,11 +46,6 @@ const PAGE_SIZE_OPTIONS = [
   { value: "50", label: "50개씩" },
 ];
 
-// Bento variants — 1-col (square/portrait/standard) + 2-col span (wide/banner).
-// 그리드는 auto-fit 으로 col 수가 viewport 따라 변동 (각 col 약 220-300px 고정) → wide 도 절대 폭이 일정.
-
-/* 태그 dropdown letter filter — 공통 LetterFilter 컴포넌트 사용 (constants/util import). */
-
 interface PostsClientProps {
   initialData: InitialPostsData;
   /** history 모드 — /posts/history 전용. timeline 레이아웃 강제 + 필터/배너/시리즈/사이드바 숨김. */
@@ -66,25 +56,13 @@ interface PostsClientProps {
 
 export default function PostsClient({ initialData, history = false, archiveMonths }: PostsClientProps) {
   const { setInfinite, lenis, stop, start } = useLenis();
-  // 타임라인 지그재그 단일컬럼 전환(640px) — 리빌 x 이동 on/off 판단용
-  const { isMobile: tlSingleCol } = useIsMobile(640);
   const { t, language } = useLanguage();
   const siteConf = useSiteConfig();
   // 목록 카드 레이아웃 (설정) — magazine(기본)/grid/list/compact/masonry/featured. timeline 은 /posts/history 전용.
   const configLayout = (["magazine", "grid", "list", "compact", "masonry", "featured"].includes(siteConf.posts.layout)
     ? siteConf.posts.layout
     : "magazine");
-  const postsLayout = (history ? "timeline" : configLayout) as "magazine" | "grid" | "list" | "compact" | "masonry" | "timeline" | "featured";
-  // magazine 만 grid-auto-rows:1px 위 JS row-span(사이즈 변주 packing) 사용, 나머지는 미사용
-  const usesRowSpan = postsLayout === "magazine";
-  const layoutClass =
-    postsLayout === "grid" ? styles.gridUniform
-      : postsLayout === "list" ? styles.gridList
-        : postsLayout === "compact" ? styles.gridCompact
-          : postsLayout === "masonry" ? styles.gridMasonry
-            : postsLayout === "timeline" ? styles.gridTimeline
-              : postsLayout === "featured" ? styles.gridFeatured
-                : ""; // magazine = base .grid
+  const postsLayout = (history ? "timeline" : configLayout) as PostsLayout;
   // 글 목록 쿼리 — 필터(검색·카테고리·태그·저자·시리즈) · 정렬 · 페이지 · fetch · URL 동기화
   const {
     posts, loading, facetTags, perPage, setPerPage, page, setPage, totalPages,
@@ -105,7 +83,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const [showTags, setShowTags] = useState(false);
   const [catExpanded, setCatExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
   const scrollCooldown = useRef(false);
 
   // Sticky filter bar — 공통 hook. cooldownRef 로 expand 직후 layout shift scroll 흡수
@@ -179,9 +156,6 @@ export default function PostsClient({ initialData, history = false, archiveMonth
   const handleImgError = useCallback((id: string) => {
     setImgErrors((prev) => new Set(prev).add(id));
   }, []);
-
-  // Bento masonry row-span — 시리즈 timeline 모드는 flex 레이아웃이라 패스
-  useMasonryRowSpans(gridRef, !activeSeries && usesRowSpan, [posts, loading]);
 
   // banner 는 pinned 글 있으면 항상 표시 (필터/검색/페이지네이션 무관)
   const showBanner = pinnedPosts.length >= 1;
@@ -449,123 +423,23 @@ export default function PostsClient({ initialData, history = false, archiveMonth
                 )
               ) : (
                 <>
-              <div className={`${styles.gridWrap} ${postsLayout === "timeline" ? styles.gridWrapTimeline : ""}`}>
-              {postsLayout === "timeline" && (
-                <TimelineIndex groups={timelineIndexGroups} activeMonthKey={activeMonthKey} onJump={scrollToMonth} />
-              )}
-              <div
-                ref={gridRef}
-                className={`${styles.grid} ${activeSeries ? styles.gridSeries : layoutClass} ${loading ? styles.gridLoading : ""}`}
-              >
-                {posts.length === 0 ? (
-                  <PostsSkeletonCards
-                    count={perPage}
-                    activeSeries={!!activeSeries}
-                    bento={postsLayout === "magazine"}
-                    compactLayout={postsLayout === "compact"}
-                  />
-                ) : (
-                  (() => {
-                    // magazine 만 사이즈 변주(wide/banner/square/portrait). grid·list·compact 는 균일 카드.
-                    const variants: CardType[] = posts.map((_, i) =>
-                      activeSeries || postsLayout !== "magazine" ? "standard" : getCardType(i),
-                    );
-                    return posts.map((post, idx) => {
-                      const type: CardType = variants[idx];
-                      // featured — 첫 카드만 대형 hero. masonry/timeline 은 균일 표준 카드.
-                      const isFeaturedHero =
-                        !activeSeries && postsLayout === "featured" && idx === 0;
-                      const cls =
-                        !activeSeries && (type === "wide" || type === "banner")
-                          ? styles.gridWide
-                          : "";
-                      // timeline — 월(연-월) 이 이전 카드와 다르면 앞에 날짜 마커 삽입
-                      const timelineMarker =
-                        !activeSeries &&
-                        postsLayout === "timeline" &&
-                        monthKey(post) !== (idx > 0 ? monthKey(posts[idx - 1]) : "")
-                          ? monthLabel(post)
-                          : null;
-                      // 시리즈 필터링 시 — DB 의 series_order 값이 비연속/중복일 수 있어 sort 후 idx+1 로 1-based 일관 표시
-                      const stepNumber = activeSeries
-                        ? String(idx + 1).padStart(2, "0")
-                        : null;
-                      const isTimeline = !activeSeries && postsLayout === "timeline";
-                      // 지그재그 — 인덱스로 좌/우 교차 (마커가 껴도 idx 기준이라 일관)
-                      const tlSide: "left" | "right" = idx % 2 === 0 ? "left" : "right";
-                      const tlSideClass = isTimeline
-                        ? tlSide === "left"
-                          ? styles.gridItemTlLeft
-                          : styles.gridItemTlRight
-                        : "";
-                      const itemClassName = `${styles.gridItem} ${cls} ${isFeaturedHero ? styles.gridFeaturedHero : ""} ${activeSeries ? styles.seriesStep : ""} ${tlSideClass}`;
-                      const cardInner = (
-                        <>
-                          {stepNumber && (
-                            <div
-                              className={styles.seriesStepNumber}
-                              aria-hidden="true"
-                            >
-                              {stepNumber}
-                            </div>
-                          )}
-                          <div
-                            className={
-                              activeSeries ? styles.seriesStepBody : ""
-                            }
-                          >
-                            <PostCard
-                              post={post}
-                              variant={isFeaturedHero ? "featured" : "standard"}
-                              layout={activeSeries ? undefined : postsLayout}
-                              banner={!activeSeries && type === "banner"}
-                              square={!activeSeries && type === "square"}
-                              portrait={!activeSeries && type === "portrait"}
-                              compact={!!activeSeries}
-                              isHot={popularIds.has(post.id)}
-                              onImgError={handleImgError}
-                              imgError={imgErrors.has(post.id)}
-                            />
-                          </div>
-                        </>
-                      );
-                      // 타임라인 리빌은 framer useScroll 로 스크롤 진행에 비례(TimelineMotionItem). 그 외는 plain div.
-                      const cardEl = isTimeline ? (
-                        <TimelineMotionItem
-                          key={post.id}
-                          side={tlSide}
-                          disableX={tlSingleCol}
-                          className={itemClassName}
-                        >
-                          {cardInner}
-                        </TimelineMotionItem>
-                      ) : (
-                        <div key={post.id} className={itemClassName}>
-                          {cardInner}
-                        </div>
-                      );
-                      return timelineMarker ? (
-                        <Fragment key={post.id}>
-                          <motion.div
-                            id={`tl-m-${monthKey(post)}`}
-                            className={styles.timelineMarker}
-                            initial={{ opacity: 0, y: 12 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "0px 0px -6% 0px" }}
-                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                          >
-                            <span className={styles.timelineMarkerLabel}>{timelineMarker}</span>
-                          </motion.div>
-                          {cardEl}
-                        </Fragment>
-                      ) : (
-                        cardEl
-                      );
-                    });
-                  })()
-                )}
-              </div>
-              </div>{/* /gridWrap */}
+              <PostsGrid
+                posts={posts}
+                loading={loading}
+                perPage={perPage}
+                activeSeries={activeSeries}
+                postsLayout={postsLayout}
+                popularIds={popularIds}
+                imgErrors={imgErrors}
+                onImgError={handleImgError}
+                monthKey={monthKey}
+                monthLabel={monthLabel}
+                aside={
+                  postsLayout === "timeline" ? (
+                    <TimelineIndex groups={timelineIndexGroups} activeMonthKey={activeMonthKey} onJump={scrollToMonth} />
+                  ) : null
+                }
+              />
 
               {/* 타임라인 무한 스크롤 sentinel — 다음 page 자동 로드 */}
               {postsLayout === "timeline" && page < totalPages && (

@@ -1,0 +1,474 @@
+/* ── 글 목록 그리드 (PostsGrid) — base .grid(magazine masonry) + 레이아웃 변형(grid·list·compact·masonry·timeline·featured) + 시리즈 step + 아이템 래퍼 ── */
+
+/* ── Grid masonry ── grid-auto-rows: 1px + JS 가 각 아이템의 height 를 측정해
+   grid-row: span N 을 inline style 로 부여. 너비 변주(wide span 2) + 세로 packing 둘 다 된다.
+   GAP 은 --bento-gap 변수로 통일 (JS 도 동일 값 참조).
+   columns 는 auto-fit + minmax 로 viewport 따라 fluid — col 폭이 220-300px 범위 유지 →
+   wide 가 2-col span 해도 절대 폭이 절대 폭이 일정. */
+.grid {
+  --bento-gap: var(--spacing-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-auto-rows: 1px;
+  grid-auto-flow: dense;
+  gap: var(--bento-gap);
+}
+
+/* fetch 중 — 기존 카드 그대로 두고 dim 만. height 변화 없음 → 완전 고정 레이아웃 */
+.grid.gridLoading {
+  opacity: 0.55;
+  transition: opacity var(--duration-base) var(--ease-material);
+  pointer-events: none;
+}
+
+/* 시리즈 필터링 중 — 단일 컬럼 timeline 레이아웃. 큰 step 번호 + 연결선 + 좌측 작은 썸네일 */
+.gridSeries {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--spacing-xl) !important;
+  grid-template-columns: none !important;
+  /* main column 을 꽉 채움 — 800px 로 가운데 정렬하면 좌우 여백이 과함 */
+  width: 100%;
+}
+
+/* 각 step — 좌측 큰 번호 + 우측 카드 콘텐츠. 다음 step 까지 세로 연결선 */
+.seriesStep {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--spacing-md);
+  align-items: stretch;
+  /* PostCard 의 .card { height: 100% } 가 자연스럽게 작동하도록 */
+}
+
+/* 마지막을 제외한 모든 step 의 번호 영역 아래에 세로 연결선 */
+.seriesStep:not(:last-child) .seriesStepNumber::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(var(--spacing-md) + 1.6em);
+  height: calc(100% - var(--spacing-md) - 1.6em + var(--spacing-xl));
+  width: 1px;
+  background: var(--border-color-light);
+  transform: translateX(-50%);
+}
+
+.seriesStepNumber {
+  position: relative;
+  align-self: start;
+  padding-top: var(--spacing-xs);
+  font-family: var(--font-instrument);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: var(--font-weight-light);
+  font-style: italic;
+  color: var(--text-tertiary);
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.seriesStepBody {
+  min-width: 0;
+}
+
+/* PostCard 를 좌-우 horizontal 로 — 시리즈 timeline 안에서만. 이미지 좌측 작게 */
+.seriesStepBody > * {
+  display: grid !important;
+  grid-template-columns: 140px 1fr !important;
+  gap: var(--spacing-md);
+  align-items: start;
+  border-bottom: var(--border-light);
+  padding-bottom: var(--spacing-md);
+}
+
+/* PostCard 안의 imageWrap 는 첫 column. 정사각에 가깝게 (140 × 100) */
+.seriesStepBody [class*="imageWrap"] {
+  aspect-ratio: 7 / 5 !important;
+  width: 140px !important;
+}
+
+.seriesStepBody [class*="body"] {
+  padding-top: 0 !important;
+}
+
+.gridItem {
+  animation: cardFadeIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  /* grid-row: span N 은 JS 에서 inline style 로 동적 부여 */
+}
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* wide / banner — 가로 2 col span. auto-fit 으로 col 폭이 ~220-300px 라 wide 도 항상 적당한 크기 (440-600px). */
+.gridWide {
+  grid-column: span 2;
+}
+
+/* gridSeries 안의 .gridItem 은 flex 자식이라 기존 grid-column/row 룰 무시 */
+.gridSeries .gridWide {
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+
+/* grid — 균일 격자 + "이미지 우선"(발췌·태그 숨겨 커버 중심). 같은 행 카드는 높이 stretch. row-span 미사용. */
+.gridUniform {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-auto-rows: auto;
+  grid-auto-flow: row;
+  align-items: stretch;
+}
+.gridUniform .gridItem,
+.gridUniform .gridItem > div,
+.gridUniform .gridItem > div > * {
+  height: 100%;
+}
+.gridUniform [class*="excerpt"],
+.gridUniform [class*="placeholderExcerpt"],
+.gridUniform [class*="tagsRow"] {
+  display: none !important;
+}
+
+/* list — 수평 카드 1열(이미지 좌측). 시리즈 timeline 과 동일 패턴, 스텝 번호만 없음. */
+.gridList {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--spacing-lg) !important;
+  grid-template-columns: none !important;
+  grid-auto-rows: auto !important;
+  /* main column 을 꽉 채움 — 별도 max-width 로 가운데 정렬하면 좌우 여백이 과함 */
+}
+.gridList .gridItem > div > * {
+  display: grid !important;
+  grid-template-columns: 220px 1fr !important;
+  gap: var(--spacing-lg);
+  align-items: start;
+  border-bottom: var(--border-light);
+  padding-bottom: var(--spacing-lg);
+}
+.gridList .gridItem:last-child > div > * {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.gridList [class*="imageWrap"] {
+  aspect-ratio: 16 / 10 !important;
+  width: 220px !important;
+}
+.gridList [class*="body"] {
+  padding-top: 0 !important;
+}
+/* list — 썸네일 안의 placeholder 텍스트(제목·발췌) 숨김. 제목은 아래 body 로 이동(작은 썸네일에
+   제목·칩 겹침 방지, 제목 길이도 자유). 썸네일은 gradient + 칩만. body 의 제목/발췌 표시. */
+.gridList [class*="placeholderText"] {
+  display: none !important;
+}
+.gridList [class*="body"] [class*="excerpt"] {
+  display: -webkit-box !important;
+}
+
+@media (max-width: 640px) {
+  .gridList .gridItem > div > * {
+    grid-template-columns: 120px 1fr !important;
+    gap: var(--spacing-md);
+  }
+  .gridList [class*="imageWrap"] {
+    width: 120px !important;
+  }
+  /* 좁은 썸네일 — lang 칩을 우하단으로 내려 좌상단 hot/pinned 와 다른 모서리에(겹침 방지, 리스트 형태 유지) */
+  .gridList [class*="langOverlay"] {
+    top: auto !important;
+    bottom: var(--spacing-2xs) !important;
+    right: var(--spacing-2xs) !important;
+  }
+  .gridList [class*="imageBadgesLeft"] {
+    top: var(--spacing-2xs) !important;
+    left: var(--spacing-2xs) !important;
+  }
+}
+
+/* compact — 이미지 없는 텍스트 행 1열(초고밀도). 카드 스타일은 PostCard.module.css(.compactCard). */
+.gridCompact {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  grid-template-columns: none !important;
+  grid-auto-rows: auto !important;
+  /* main column 을 꽉 채움 (좌우 여백 최소화) */
+}
+
+/* ══ masonry — CSS multi-column. 가변 높이 카드가 열에 촘촘히 packing (row-span JS 미사용). ══ */
+.gridMasonry {
+  display: block !important;
+  grid-template-columns: none !important;
+  grid-auto-rows: auto !important;
+  columns: 260px;
+  column-gap: var(--bento-gap);
+}
+.gridMasonry .gridItem {
+  break-inside: avoid;
+  margin-bottom: var(--bento-gap);
+}
+/* 이미지 비율을 소스 순서로 변주 → 카드 높이가 달라져 masonry 느낌 (표준 카드는 fill 이라 aspect 로 제어) */
+.gridMasonry .gridItem:nth-child(3n) [class*="imageWrap"] { aspect-ratio: 3 / 4 !important; }
+.gridMasonry .gridItem:nth-child(3n + 1) [class*="imageWrap"] { aspect-ratio: 4 / 3 !important; }
+.gridMasonry .gridItem:nth-child(3n + 2) [class*="imageWrap"] { aspect-ratio: 1 / 1 !important; }
+
+/* ══ timeline — [날짜 | 축(점·선) | 본문] 블로그 히스토리. 월(연-월) 마커로 그룹. ══ */
+.gridTimeline {
+  /* 중앙 축 + 카드가 좌/우 반폭 교차 (지그재그 타임라인) */
+  --tl-gap: var(--spacing-xl);
+  display: block !important;
+  grid-template-columns: none !important;
+  grid-auto-rows: auto !important;
+  position: relative;
+}
+/* 중앙 축선 (faint track) */
+.gridTimeline::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: var(--spacing-sm);
+  bottom: var(--spacing-sm);
+  width: 2px;
+  transform: translateX(-1px);
+  background: color-mix(in srgb, var(--text-primary) 13%, transparent);
+  border-radius: var(--radius-capsule);
+}
+
+/* 스크롤 진행 fill — accent 선이 스크롤 따라 위→아래로 차오름 (scroll-driven, 미지원 시 생략) */
+@supports (animation-timeline: scroll()) {
+  .gridTimeline::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: var(--spacing-sm);
+    bottom: var(--spacing-sm);
+    width: 2px;
+    transform-origin: top;
+    transform: translateX(-1px) scaleY(0);
+    background: linear-gradient(to bottom, var(--color-accent), color-mix(in srgb, var(--color-accent) 55%, transparent));
+    border-radius: var(--radius-capsule);
+    animation: tlAxisProgress linear both;
+    animation-timeline: scroll(root block);
+  }
+  @keyframes tlAxisProgress {
+    from { transform: translateX(-1px) scaleY(0); }
+    to { transform: translateX(-1px) scaleY(1); }
+}
+}
+/* 월 마커 — 중앙 축 위 pill (라벨이 축선을 끊음) */
+.timelineMarker {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin: var(--spacing-2xl) 0;
+  z-index: 2;
+}
+.timelineMarker:first-child { margin-top: var(--spacing-xs); }
+.timelineMarkerLabel {
+  background: var(--bg-primary);
+  padding: var(--spacing-2xs) var(--spacing-md);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 카드 — 좌/우 반폭 교차. (margin 은 side 클래스가 좌우 배치하므로 여기서 설정하지 않음 —
+   .gridTimeline .gridItem 의 margin 이 side 클래스보다 특이도가 높아 우측 카드 밀림을 덮어버리는 것 방지) */
+.gridTimeline .gridItem {
+  position: relative;
+  width: 50%;
+  box-sizing: border-box;
+  border-bottom: var(--border-light); /* 항목 사이 구분선 */
+  animation: none; /* base .gridItem cardFadeIn 제거 — 리빌은 framer useScroll(TimelineMotionItem) 담당 */
+}
+/* 마지막 항목 아래엔 구분선 없음 */
+.gridTimeline .gridItem:last-child {
+  border-bottom: none;
+}
+.gridItemTlLeft {
+  --tl-align: right;
+  --tl-justify: flex-end;
+  /* 프리뷰는 오른쪽(빈) 반쪽에 */
+  --tl-preview-left: 100%;
+  --tl-preview-right: auto;
+  --tl-preview-align: left;
+  --tl-preview-dir: row;
+  --tl-preview-x: -14px;
+  /* 리빌은 왼쪽에서 슬라이드-인 */
+  --tl-reveal-x: -28px;
+  margin-left: 0;
+  padding-right: var(--tl-gap);
+}
+.gridItemTlRight {
+  --tl-align: left;
+  --tl-justify: flex-start;
+  /* 프리뷰는 왼쪽(빈) 반쪽에 */
+  --tl-preview-left: auto;
+  --tl-preview-right: 100%;
+  --tl-preview-align: right;
+  --tl-preview-dir: row-reverse;
+  --tl-preview-x: 14px;
+  /* 리빌은 오른쪽에서 슬라이드-인 */
+  --tl-reveal-x: 28px;
+  margin-left: 50%;
+  padding-left: var(--tl-gap);
+}
+/* hover 시 카드를 위로 올려 프리뷰가 이웃 카드에 안 가리게 */
+.gridTimeline .gridItem:hover {
+  z-index: 4;
+}
+
+/* 엔트리 dot — 중앙 축(카드 안쪽 가장자리), 첫 줄(eyebrow) 높이 */
+.gridTimeline .gridItem::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--spacing-lg) + 6px);
+  width: 11px;
+  height: 11px;
+  border-radius: var(--radius-circle);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text-primary) 42%, transparent);
+  z-index: 3;
+  transition:
+    background var(--duration-fast) var(--ease-material),
+    box-shadow var(--duration-fast) var(--ease-material);
+}
+.gridItemTlLeft::before { right: -5.5px; }
+.gridItemTlRight::before { left: -5.5px; }
+/* connector — dot 에서 카드 쪽으로 짧은 가로선 */
+.gridTimeline .gridItem::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--spacing-lg) + 11px);
+  width: calc(var(--tl-gap) - 16px);
+  height: 1px;
+  background: color-mix(in srgb, var(--text-primary) 16%, transparent);
+}
+.gridItemTlLeft::after { right: 6px; }
+.gridItemTlRight::after { left: 6px; }
+/* hover — dot accent */
+.gridTimeline .gridItem:hover::before {
+  background: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent), 0 0 0 6px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+/* 모바일 — 단일 컬럼(축 왼쪽)으로 collapse */
+@media (max-width: 640px) {
+  .gridTimeline::before,
+  .gridTimeline::after { left: 6px; }
+  .gridTimeline .gridItem { width: 100%; }
+  .gridItemTlLeft,
+  .gridItemTlRight {
+    --tl-align: left;
+    --tl-justify: flex-start;
+    --tl-reveal-x: 0; /* 단일 컬럼 — 리빌은 아래로만(좌우 번갈아 X) */
+    margin-left: 0;
+    padding-left: var(--spacing-xl);
+    padding-right: 0;
+  }
+  .gridItemTlLeft::before,
+  .gridItemTlRight::before { left: 0.5px; right: auto; }
+  /* 특이도를 데스크톱 .gridTimeline .gridItem::after (0,2,1) 보다 높여야 width 가 먹음 */
+  .gridTimeline .gridItemTlLeft::after,
+  .gridTimeline .gridItemTlRight::after { left: 12px; right: auto; width: 12px; }
+  .timelineMarker { justify-content: flex-start; }
+}
+
+/* grid wrapper — 기본은 layout 무영향(contents), timeline 일 때만 [연월 인덱스 | 타임라인] 2단 */
+.gridWrap {
+  display: contents;
+}
+.gridWrapTimeline {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xl);
+}
+.gridWrapTimeline .grid {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ══ featured — 첫 카드 대형 hero(전폭 2-col) + 나머지 균일 그리드. ══ */
+.gridFeatured {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+  grid-auto-rows: auto !important;
+}
+.gridFeaturedHero {
+  grid-column: 1 / -1;
+}
+.gridFeaturedHero > div > * {
+  display: grid !important;
+  grid-template-columns: 1.4fr 1fr !important;
+  gap: clamp(var(--spacing-lg), 4vw, var(--spacing-2xl));
+  align-items: center;
+}
+.gridFeaturedHero [class*="imageWrap"] {
+  aspect-ratio: 16 / 10 !important;
+  width: 100% !important;
+}
+.gridFeaturedHero [class*="body"] {
+  padding-top: 0 !important;
+}
+.gridFeaturedHero [class*="title"] {
+  font-size: clamp(1.4rem, 3vw, 2.2rem) !important;
+  line-height: 1.15 !important;
+}
+.gridFeaturedHero [class*="placeholderTitle"] {
+  font-size: clamp(1.2rem, 2.4vw, 1.8rem) !important;
+  -webkit-line-clamp: 3 !important;
+}
+
+@media (max-width: 640px) {
+  .gridFeaturedHero > div > * {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.gridItem:nth-child(1) { animation-delay: 0s; }
+.gridItem:nth-child(2) { animation-delay: 0.06s; }
+.gridItem:nth-child(3) { animation-delay: 0.12s; }
+.gridItem:nth-child(4) { animation-delay: 0.18s; }
+.gridItem:nth-child(5) { animation-delay: 0.24s; }
+.gridItem:nth-child(6) { animation-delay: 0.3s; }
+.gridItem:nth-child(n+7) { animation-delay: 0.36s; }
+
+@media (max-width: 1024px) {
+  /* 태블릿 — 3 col 고정 (auto-fit 이 좁은 폭에서 4 col 잡는 거 방지) */
+  .grid {
+    grid-template-columns: var(--grid-cols-3);
+  }
+}
+
+@media (max-width: 640px) {
+  /* 모바일 — 2 col, 좁은 gap */
+  .grid {
+    grid-template-columns: var(--grid-cols-2);
+    gap: var(--spacing-sm);
+  }
+
+  /* 시리즈 timeline — 모바일에선 번호 영역 좁게 + 썸네일도 더 작게 */
+  .seriesStep {
+    grid-template-columns: 40px 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .seriesStepNumber {
+    font-size: 1.5rem;
+  }
+
+  .seriesStepBody > * {
+    grid-template-columns: 100px 1fr !important;
+    gap: var(--spacing-sm);
+  }
+
+  .seriesStepBody [class*="imageWrap"] {
+    width: 100px !important;
+  }
+}
