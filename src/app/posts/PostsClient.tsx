@@ -25,6 +25,7 @@ import PostsSidebar from "./_components/PostsSidebar";
 import PostsSkeletonCards from "./_components/PostsSkeletonCards";
 import TimelineMotionItem from "./_components/TimelineMotionItem";
 import { useMasonryRowSpans } from "./_hooks/useMasonryRowSpans";
+import { useTimeline } from "./_hooks/useTimeline";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import {
   ChevronDown,
@@ -93,70 +94,8 @@ export default function PostsClient({ initialData, history = false, archiveMonth
             : postsLayout === "timeline" ? styles.gridTimeline
               : postsLayout === "featured" ? styles.gridFeatured
                 : ""; // magazine = base .grid
-  // timeline 레이아웃 — 발행(예약)/생성 월 기준으로 그룹 마커 삽입.
-  // 월 key/label 은 브라우저 로컬 타임존 기준 (marker id 와 index 가 반드시 일치해야 하므로 서버 버킷팅 금지)
-  const dateOf = (p: Post) => p.scheduled_at ?? p.created_at ?? null;
-  const monthKeyFromDate = (d: string | null) => {
-    if (!d) return "";
-    const t = new Date(d);
-    return `${t.getFullYear()}-${t.getMonth()}`;
-  };
-  const monthLabelFromDate = (d: string | null) => {
-    if (!d) return "";
-    const t = new Date(d);
-    return `${t.getFullYear()}. ${String(t.getMonth() + 1).padStart(2, "0")}`;
-  };
-  const monthKey = (p: Post) => monthKeyFromDate(dateOf(p));
-  const monthLabel = (p: Post) => monthLabelFromDate(dateOf(p));
   const [posts, setPosts] = useState<Post[]>(initialData.posts);
   const [pinnedPosts] = useState<Post[]>(initialData.pinnedPosts);
-  // 타임라인 왼쪽 인덱스 — history 는 전체 아카이브 월(로드 여부 무관), 그 외엔 로드된 posts 기준. 최신순.
-  const timelineMonths = useMemo(() => {
-    if (postsLayout !== "timeline") return [] as { key: string; label: string; year: string; mm: string }[];
-    const source: string[] =
-      history && archiveMonths && archiveMonths.length
-        ? archiveMonths
-        : posts.map((p) => dateOf(p)).filter((d): d is string => !!d);
-    const seen = new Map<string, { key: string; label: string; ord: number }>();
-    for (const d of source) {
-      const k = monthKeyFromDate(d);
-      if (!k || seen.has(k)) continue;
-      const t = new Date(d);
-      seen.set(k, { key: k, label: monthLabelFromDate(d), ord: t.getFullYear() * 12 + t.getMonth() });
-    }
-    return Array.from(seen.values())
-      .sort((a, b) => b.ord - a.ord)
-      .map(({ key, label }) => {
-        const [year, mm] = label.split(". ");
-        return { key, label, year, mm };
-      });
-  }, [posts, postsLayout, history, archiveMonths]);
-
-  // 인덱스용 — 연도별 그룹 (헤더 + 월). timelineMonths 가 최신순이라 같은 연도끼리 연속.
-  const timelineIndexGroups = useMemo(() => {
-    const groups: { year: string; months: { key: string; mm: string }[] }[] = [];
-    for (const m of timelineMonths) {
-      let g = groups[groups.length - 1];
-      if (!g || g.year !== m.year) { g = { year: m.year, months: [] }; groups.push(g); }
-      g.months.push({ key: m.key, mm: m.mm });
-    }
-    return groups;
-  }, [timelineMonths]);
-
-  // 아직 로드 안 된(무한스크롤) 과거 월 클릭 시 — 그 지점까지 순차 로드 후 스크롤 (아래 effect 가 구동)
-  const [pendingMonthJump, setPendingMonthJump] = useState<string | null>(null);
-  // 현재 뷰포트 상단에 걸린 월(scroll-spy) — 인덱스에서 강조
-  const [activeMonthKey, setActiveMonthKey] = useState<string | null>(null);
-  const doScrollToMonth = useCallback((key: string) => {
-    const el = document.getElementById(`tl-m-${key}`);
-    if (!el) return false;
-    if (lenis) lenis.scrollTo(el, { offset: -96 });
-    else el.scrollIntoView({ behavior: "smooth", block: "start" });
-    return true;
-  }, [lenis]);
-  const scrollToMonth = useCallback((key: string) => {
-    if (!doScrollToMonth(key)) setPendingMonthJump(key);
-  }, [doScrollToMonth]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [searchType, setSearchType] = useState<"all" | "title" | "content">(
@@ -502,65 +441,24 @@ export default function PostsClient({ initialData, history = false, archiveMonth
     postsLayout,
   ]);
 
-  // 타임라인(히스토리) 무한 스크롤 — sentinel 이 뷰에 들어오면 다음 page 로드(append). 그 외 레이아웃은 페이지네이션.
-  const timelineSentinelRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (postsLayout !== "timeline") return;
-    const el = timelineSentinelRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && !loading && page < totalPages) {
-          setPage((p) => p + 1);
-        }
-      },
-      { rootMargin: "400px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [postsLayout, loading, page, totalPages]);
-
-  // scroll-spy — 현재 뷰포트 상단(sticky nav 아래)에 걸린 월 마커를 활성으로. 인덱스 강조용.
-  useEffect(() => {
-    if (postsLayout !== "timeline") return;
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const markers = document.querySelectorAll<HTMLElement>('[id^="tl-m-"]');
-        let current: string | null = null;
-        for (const m of markers) {
-          if (m.getBoundingClientRect().top <= 140) current = m.id.slice("tl-m-".length);
-          else break;
-        }
-        setActiveMonthKey(current);
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, [postsLayout, posts]);
-
-  // 월 인덱스 점프 — 대상 월이 아직 로드 안 됐으면 마커가 나타날 때까지 다음 page 순차 로드 후 스크롤.
-  // posts.length 로 게이팅(로드 완료 = posts 증가). loading 플래그만 쓰면 effect 실행 순서상 lag 때문에
-  // page 를 2씩 건너뛰어(짝수 page 미로드) 영구 gap 이 생기던 버그 방지.
-  const jumpReqLenRef = useRef(-1);
-  useEffect(() => {
-    if (!pendingMonthJump) return;
-    if (doScrollToMonth(pendingMonthJump)) { setPendingMonthJump(null); jumpReqLenRef.current = -1; return; }
-    if (loading) return;
-    if (jumpReqLenRef.current === posts.length) return; // 이 길이에서 이미 로드 요청함 — posts 늘 때까지 대기
-    if (page < totalPages) {
-      jumpReqLenRef.current = posts.length;
-      setPage((p) => p + 1);
-    } else {
-      setPendingMonthJump(null); // 끝까지 갔는데 못 찾음 → 포기
-      jumpReqLenRef.current = -1;
-    }
-  }, [pendingMonthJump, posts, page, totalPages, loading, doScrollToMonth]);
+  // 타임라인(history) — 월 인덱스 · 월 점프 · 무한 스크롤 sentinel · scroll-spy. monthKey/monthLabel 은 그리드 월 마커용.
+  const {
+    indexGroups: timelineIndexGroups,
+    activeMonthKey,
+    scrollToMonth,
+    sentinelRef: timelineSentinelRef,
+    monthKey,
+    monthLabel,
+  } = useTimeline({
+    enabled: postsLayout === "timeline",
+    history,
+    archiveMonths,
+    posts,
+    page,
+    totalPages,
+    loading,
+    setPage,
+  });
 
   // 시리즈 fetch 공통 파라미터 빌더
   const buildSeriesParams = useCallback(
