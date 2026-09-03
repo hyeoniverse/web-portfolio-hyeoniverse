@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { isVideoUrl } from "@/lib/isVideoUrl";
 import { usePageTransition } from "@/providers/PageTransitionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
-import type { Post, Series } from "@/types/post";
+import type { Post } from "@/types/post";
 import DetailLayout from "@/components/layout/DetailLayout";
 import { PostArticleHeader, PostArticleBody, PostArticleAuthors } from "@/components/posts/PostArticleView";
 import { extractHeadings } from "@/utils/headingUtils";
@@ -19,15 +16,17 @@ import RecommendedToast from "./_components/RecommendedToast";
 import RecommendedSection from "./_components/RecommendedSection";
 import type { RecommendedPost } from "./_components/types";
 import RelatedWorksCarousel from "./_components/RelatedWorksCarousel";
+import SeriesPanel from "./_components/SeriesPanel/SeriesPanel";
+import SeriesPreviewTooltip from "./_components/SeriesPanel/SeriesPreviewTooltip";
+import { useSeriesPanel } from "./_components/SeriesPanel/useSeriesPanel";
 import { ImageViewer, useProseImageViewer } from "@/components/ui/ImageViewer";
 import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import { useLikeToggle } from "@/hooks/useLikeToggle";
-import { ImageIcon, ChevronRight, ArrowLeft, ArrowRight, Languages } from "@/components/icons";
+import { ImageIcon, Languages } from "@/components/icons";
 import styles from "./PostDetail.module.css";
 import header from "@/components/posts/PostArticleHeader.module.css";
 import { resolvePostAuthors } from "@/utils/resolvePostAuthors";
 import Button from "@/components/ui/Button";
-import Pressable from "@/components/ui/Pressable";
 
 interface AdjacentPost {
   id: string;
@@ -64,9 +63,8 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
   const { count: likeCount, liked, busy: likeBusy, toggle: handleLikeToggle } = useLikeToggle({
     endpoint: `/api/posts/${post.id}/like`,
   });
-  const [seriesData, setSeriesData] = useState<(Series & { posts: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at" | "excerpt" | "excerpt_en" | "tags" | "category">[] }) | null>(null);
-  const [seriesOpen, setSeriesOpen] = useState(false);
-  const [seriesPreview, setSeriesPreview] = useState<{ post: Pick<Post, "id" | "title" | "slug" | "series_order" | "title_en" | "cover_image" | "created_at" | "excerpt" | "excerpt_en" | "tags">; top: number; left: number } | null>(null);
+  // 시리즈 패널 — fetch · 펼침 · hover 미리보기 좌표 · 이전/다음. 미리보기 툴팁은 fixed 라 레이아웃 밖에서 렌더
+  const series = useSeriesPanel({ postId: post.id, seriesId: post.series_id });
   const [adjacentPosts, setAdjacentPosts] = useState<{ prev: AdjacentPost | null; next: AdjacentPost | null }>({ prev: null, next: null });
   const [recommendedPosts, setRecommendedPosts] = useState<RecommendedPost[]>([]);
   const [relatedWorks, setRelatedWorks] = useState<{ id: string; slug?: string; title: string; title_en: string; subtitle_ko: string; subtitle_en: string; image: string; year: string; categories_ko?: string[]; categories_en?: string[] }[]>([]);
@@ -115,19 +113,12 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
 
-    if (post.series_id) {
-      fetch(`/api/series/${post.series_id}`, { signal })
-        .then((r) => r.json())
-        .then((d) => setSeriesData(d))
-        .catch(() => {});
-    }
-
     return () => {
       ac.abort();
       cancelAnimationFrame(rafId);
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [post.id, post.series_id, isAdmin]);
+  }, [post.id, isAdmin]);
 
   const needsTranslation =
     (viewLang === "en" && !post?.content_en) ||
@@ -170,31 +161,6 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
     if (!displayContent) return [];
     return extractHeadings(displayContent, post?.content_type === "markdown");
   }, [displayContent, post?.content_type]);
-
-  const seriesPosts = seriesData?.posts ?? [];
-  const currentSeriesIdx = seriesPosts.findIndex((p) => p.id === post.id);
-  const prevSeriesPost = currentSeriesIdx > 0 ? seriesPosts[currentSeriesIdx - 1] : null;
-  const nextSeriesPost = currentSeriesIdx < seriesPosts.length - 1 ? seriesPosts[currentSeriesIdx + 1] : null;
-
-  const handleSeriesHover = useCallback((sp: typeof seriesPosts[number], e: React.MouseEvent) => {
-    if (sp.id === post.id) return;
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const tooltipW = 240;
-    const tooltipH = 200;
-    const gap = 8;
-    // 가로: 항목 중앙 기준, 뷰포트 안에 clamp
-    const rawLeft = rect.left + rect.width / 2 - tooltipW / 2;
-    const left = Math.max(gap, Math.min(rawLeft, window.innerWidth - tooltipW - gap));
-    // 세로: 위에 공간 있으면 위, 없으면 아래
-    const top = rect.top > tooltipH + gap
-      ? rect.top - tooltipH - gap
-      : rect.bottom + gap;
-    setSeriesPreview({ post: sp, top, left });
-  }, [post.id]);
-
-  const handleSeriesLeave = useCallback(() => {
-    setSeriesPreview(null);
-  }, []);
 
   const showHero = post.cover_image && !heroImgError;
   const heroErrorFallback = post.cover_image && heroImgError ? (
@@ -274,79 +240,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
         </>
       }
     >
-      {seriesData && seriesPosts.length > 0 && (
-        <motion.div
-          className={styles.seriesBox}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.25 }}
-        >
-          <Pressable
-            className={styles.seriesHeader}
-            onClick={() => setSeriesOpen((v) => !v)}
-          >
-            <span className={styles.seriesLabel}><T k="postDetail.series" /></span>
-            <span className={styles.seriesTitle}>
-              {viewLang === "en" && seriesData.title_en
-                ? seriesData.title_en
-                : seriesData.title}
-            </span>
-            <span className={styles.seriesCount}>
-              {currentSeriesIdx + 1} / {seriesPosts.length}
-            </span>
-            <span className={`${styles.seriesChevron} ${seriesOpen ? styles.seriesChevronOpen : ""}`}>
-              <ChevronRight size={14} strokeWidth={1.5} />
-            </span>
-          </Pressable>
-
-          <div className={`${styles.seriesListWrap} ${seriesOpen ? styles.seriesListWrapOpen : ""}`}>
-            <div className={styles.seriesListInner}>
-              <ol className={styles.seriesList}>
-                {seriesPosts.map((sp, idx) => (
-                  <li
-                    key={sp.id}
-                    className={`${styles.seriesItem} ${sp.id === post.id ? styles.seriesItemCurrent : ""}`}
-                    onMouseEnter={(e) => handleSeriesHover(sp, e)}
-                    onMouseLeave={handleSeriesLeave}
-                  >
-                    <span className={`${styles.seriesIndicator} ${sp.id === post.id ? styles.seriesIndicatorActive : ""}`}><ChevronRight size={16} strokeWidth={2.5} /></span>
-                    <span className={styles.seriesNum}>#{idx + 1}</span>
-                    {sp.id === post.id ? (
-                      <span>{viewLang === "en" && sp.title_en ? sp.title_en : sp.title}</span>
-                    ) : (
-                      <Link href={`/posts/${sp.slug}`}>
-                        {viewLang === "en" && sp.title_en ? sp.title_en : sp.title}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-
-          <div className={styles.seriesNav}>
-            {prevSeriesPost ? (
-              <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${prevSeriesPost.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={styles.seriesNavLink}>
-                <span className={styles.seriesNavBadge}><ArrowLeft className={styles.seriesNavArrow} size={14} /> <T k="postDetail.previous" /></span>
-                <span className={styles.seriesNavSep}>|</span>
-                <span className={styles.seriesNavTitle}>{viewLang === "en" && prevSeriesPost.title_en ? prevSeriesPost.title_en : prevSeriesPost.title}</span>
-              </div>
-            ) : (
-              <span />
-            )}
-            {prevSeriesPost && nextSeriesPost && <span className={styles.seriesNavDivider} />}
-            {nextSeriesPost ? (
-              <div onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); navigateWithTransition(`/posts/${nextSeriesPost.slug}`, "", rect); }} style={{ cursor: "pointer" }} className={`${styles.seriesNavLink} ${styles.seriesNavRight}`}>
-                <span className={styles.seriesNavTitle}>{viewLang === "en" && nextSeriesPost.title_en ? nextSeriesPost.title_en : nextSeriesPost.title}</span>
-                <span className={styles.seriesNavSep}>|</span>
-                <span className={styles.seriesNavBadge}><T k="postDetail.next" /> <ArrowRight className={styles.seriesNavArrow} size={14} /></span>
-              </div>
-            ) : (
-              <span />
-            )}
-          </div>
-        </motion.div>
-      )}
+      <SeriesPanel panel={series} postId={post.id} viewLang={viewLang} onNavigate={navigateWithTransition} />
 
       {needsTranslation && translationEnabled && (
         <div className={styles.translateBanner}>
@@ -418,57 +312,7 @@ export default function PostDetailClient({ post: initialPost }: PostDetailClient
       )}
     </AnimatePresence>
 
-    {seriesPreview && (
-      <div
-        className={styles.seriesPreview}
-        style={{ top: seriesPreview.top, left: seriesPreview.left }}
-      >
-        <div className={styles.seriesPreviewImg}>
-          {seriesPreview.post.cover_image ? (
-            isVideoUrl(seriesPreview.post.cover_image) ? (
-              <video
-                src={seriesPreview.post.cover_image}
-                style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                muted
-                playsInline
-                preload="metadata"
-              />
-            ) : (
-              <Image
-                src={seriesPreview.post.cover_image}
-                alt={seriesPreview.post.title}
-                width={240}
-                height={135}
-                style={{ objectFit: "cover", width: "100%", height: "100%" }}
-              />
-            )
-          ) : (
-            <div className={styles.seriesPreviewPlaceholder}>
-              <ImageIcon size={32} strokeWidth={1} />
-            </div>
-          )}
-        </div>
-        <div className={styles.seriesPreviewBody}>
-          <span className={styles.seriesPreviewTitle}>
-            {viewLang === "en" && seriesPreview.post.title_en ? seriesPreview.post.title_en : seriesPreview.post.title}
-          </span>
-          {(() => {
-            const excerpt = viewLang === "en" && seriesPreview.post.excerpt_en ? seriesPreview.post.excerpt_en : seriesPreview.post.excerpt;
-            return excerpt ? <p className={styles.seriesPreviewExcerpt}>{excerpt}</p> : null;
-          })()}
-          {seriesPreview.post.tags && seriesPreview.post.tags.length > 0 && (
-            <div className={styles.seriesPreviewTags}>
-              {seriesPreview.post.tags.slice(0, 4).map((tag) => (
-                <span key={tag} className={styles.seriesPreviewTag}>{tag}</span>
-              ))}
-            </div>
-          )}
-          <span className={styles.seriesPreviewDate}>
-            {new Date(seriesPreview.post.created_at).toLocaleDateString(viewLang === "en" ? "en-US" : "ko-KR", { year: "numeric", month: "short", day: "numeric" })}
-          </span>
-        </div>
-      </div>
-    )}
+    <SeriesPreviewTooltip preview={series.preview} viewLang={viewLang} />
     </>
   );
 }
