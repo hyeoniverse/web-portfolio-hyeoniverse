@@ -1,12 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { PER_PAGE_OPTIONS } from "@/constants";
+import { useSearchControls } from "@/hooks/useSearchControls";
+import { usePageControls } from "@/hooks/usePageControls";
+import { useSheet } from "@/hooks/useSheet";
+import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import Link from "next/link";
 import MediaThumb from "@/components/ui/MediaThumb";
 import PostsSubnav from "../_components/PostsSubnav";
 import HighlightedText from "@/components/ui/HighlightedText";
 import { SearchHighlightProvider } from "@/providers/SearchHighlightProvider";
-import { parseSearchQuery, matchesQuery, type SyntaxMode } from "@/lib/searchQuery";
+import { parseSearchQuery, matchesQuery } from "@/lib/searchQuery";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, Flame, X, ArrowRight, Settings, List } from "@/components/icons";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
@@ -22,8 +27,6 @@ import type { Series } from "@/types/post";
 import styles from "./SeriesIndex.module.css";
 import Pressable from "@/components/ui/Pressable";
 
-const loadSupabaseClient = () =>
-  import("@/lib/supabase/client").then((m) => m.createClient());
 
 type SeriesEntry = Series & { post_count: number; first_cover: string | null };
 
@@ -33,48 +36,20 @@ interface Props {
 
 type SortBy = "popular" | "alphabetical" | "newest";
 const FEATURED_COUNT = 3;
-const PER_PAGE_OPTIONS = [
-  { value: "10", label: "10개씩" },
-  { value: "20", label: "20개씩" },
-  { value: "50", label: "50개씩" },
-];
-
 export default function SeriesIndexClient({ series }: Props) {
   const { language } = useLanguage();
-  const [search, setSearch] = useState("");
-  const [searchType, setSearchType] = useState<"all" | "title" | "desc">("all");
-  const [syntaxMode, setSyntaxMode] = useState<SyntaxMode>("prefix");
+  const { search, setSearch, searchType, setSearchType, syntaxMode, setSyntaxMode } =
+    useSearchControls<"all" | "title" | "desc">("all");
   const [sortBy, setSortBy] = useState<SortBy>("popular");
-  const [perPage, setPerPage] = useState(20);
-  const [page, setPage] = useState(1);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [sheetSeries, setSheetSeries] = useState<SeriesEntry | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  // 필터/정렬/perPage 변경 시 1페이지로
+  const { page, setPage, perPage, setPerPage } = usePageControls({ defaultPerPage: 20, resetOn: [search, searchType, syntaxMode, activeCategory, sortBy] });
+  // 시트 — ESC 닫기 + body 스크롤 잠금
+  const [sheetSeries, setSheetSeries] = useSheet<SeriesEntry>();
+  // 로그인 사용자 = admin (단일 운영자 가정)
+  const isAdmin = useIsAuthenticated();
   const { isTouch } = useIsMobile();
 
-  // 로그인 사용자 = admin (단일 운영자 가정)
-  useEffect(() => {
-    let cancelled = false;
-    loadSupabaseClient().then((supabase) => {
-      supabase.auth.getUser().then(({ data }) => {
-        if (!cancelled) setIsAdmin(!!data.user);
-      });
-    });
-    return () => { cancelled = true; };
-  }, []);
-
-  // 시트 ESC + body scroll lock
-  useEffect(() => {
-    if (!sheetSeries) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSheetSeries(null); };
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [sheetSeries]);
 
   // 카테고리 bucket — 카운트 표시 + 비활성 처리
   const categoryBuckets = useMemo(() => {
@@ -121,11 +96,6 @@ export default function SeriesIndexClient({ series }: Props) {
     }
     return list;
   }, [series, search, searchType, syntaxMode, activeCategory, sortBy]);
-
-  // 필터/정렬/페이지당개수 변경 시 1페이지로
-  useEffect(() => {
-    setPage(1);
-  }, [search, searchType, syntaxMode, activeCategory, sortBy, perPage]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   // page 가 범위를 벗어난 프레임(perPage 증가·검색 축소 등, reset effect 반영 전)에 빈 그리드 방지

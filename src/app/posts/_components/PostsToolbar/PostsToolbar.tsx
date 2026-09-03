@@ -1,5 +1,6 @@
 "use client";
 
+import { PER_PAGE_OPTIONS } from "@/constants";
 import { useLanguage } from "@/providers/LanguageProvider";
 import { useSiteConfig } from "@/providers/SiteConfigProvider";
 import T from "@/components/ui/T";
@@ -11,12 +12,6 @@ import { LayoutGrid, Shuffle, List } from "@/components/icons";
 import type { PostsQuery } from "../../_hooks/usePostsQuery";
 import header from "../SectionHeader.module.css";
 import styles from "./PostsToolbar.module.css";
-
-const PAGE_SIZE_OPTIONS = [
-  { value: "10", label: "10개씩" },
-  { value: "20", label: "20개씩" },
-  { value: "50", label: "50개씩" },
-];
 
 /* 글 목록 섹션 헤더 — 제목 + [저자 필터 | 정렬 SegmentedControl(popular 세부) | 셔플] + perPage select.
    타임라인(history)은 월 그룹이라 날짜순만 유효 — 정렬은 date 하나, 셔플과 perPage 는 숨긴다.
@@ -115,7 +110,7 @@ export default function PostsToolbar({ query, timeline }: { query: PostsQuery; t
           <List size={14} strokeWidth={1.8} className={styles.pageSizeIcon} aria-hidden />
           <Select
             value={String(perPage)}
-            options={PAGE_SIZE_OPTIONS}
+            options={PER_PAGE_OPTIONS}
             size="sm"
             onChange={(v) => {
               setPerPage(Number(v));

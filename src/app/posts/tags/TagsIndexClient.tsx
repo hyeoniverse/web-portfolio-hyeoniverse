@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchControls } from "@/hooks/useSearchControls";
+import { useSheet } from "@/hooks/useSheet";
+import { useIsAuthenticated } from "@/hooks/useIsAuthenticated";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Tags, X, ArrowRight } from "@/components/icons";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
-import { parseSearchQuery, matchesQuery, type SyntaxMode } from "@/lib/searchQuery";
+import { parseSearchQuery, matchesQuery } from "@/lib/searchQuery";
 import Button from "@/components/ui/Button";
 import BackLink from "@/components/ui/BackLink";
 import PageTitle from "@/components/ui/PageTitle";
@@ -36,14 +39,10 @@ const FEATURED_COUNT = 8;
 /* letter 상수 + getLetterInitial 은 공통 LetterFilter 모듈에서 import.
    ALL_LETTERS 는 ko/en 통합 (사용처 없음 — nameLang 별 분기로 대체). */
 
-const loadSupabaseClient = () =>
-  import("@/lib/supabase/client").then((m) => m.createClient());
-
 export default function TagsIndexClient({ tags }: Props) {
   const { language } = useLanguage();
-  const [search, setSearch] = useState("");
-  const [searchType, setSearchType] = useState<"all" | "title" | "desc">("all");
-  const [syntaxMode, setSyntaxMode] = useState<SyntaxMode>("prefix");
+  const { search, setSearch, searchType, setSearchType, syntaxMode, setSyntaxMode } =
+    useSearchControls<"all" | "title" | "desc">("all");
   const [sortBy, setSortBy] = useState<"popular" | "alphabetical">("popular");
   const [nameLang, setNameLang] = useState<"ko" | "en">("ko");
   const [activeLetters, setActiveLetters] = useState<Set<string>>(new Set());
@@ -55,24 +54,13 @@ export default function TagsIndexClient({ tags }: Props) {
   });
   /* nameLang 변경 시 letter 초기화 (한글/영어 letter set 다름) */
   useEffect(() => { setActiveLetters(new Set()); }, [nameLang]);
-  const [isAdmin, setIsAdmin] = useState(false);
+  // 로그인 사용자 = admin (단일 운영자 가정)
+  const isAdmin = useIsAuthenticated();
   const [hoveredTag, setHoveredTag] = useState<string | null>(null);
-  const [sheetTag, setSheetTag] = useState<TagEntry | null>(null);
+  // 시트 — ESC 닫기 + body 스크롤 잠금
+  const [sheetTag, setSheetTag] = useSheet<TagEntry>();
   const { isTouch } = useIsMobile();
   const sentinelRef = useRef<HTMLDivElement>(null);
-
-  // 시트 열려 있을 때 ESC 닫기 + body scroll 잠금
-  useEffect(() => {
-    if (!sheetTag) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSheetTag(null); };
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [sheetTag]);
 
   // hover 한 태그의 related Set — 연관 pill 들 + hover 한 태그 자신도 glow 강조
   const relatedToHovered = useMemo(() => {
@@ -81,16 +69,6 @@ export default function TagsIndexClient({ tags }: Props) {
     return new Set([hoveredTag, ...(t?.related ?? [])]);
   }, [hoveredTag, tags]);
 
-  // 로그인 사용자 = admin (단일 운영자 가정)
-  useEffect(() => {
-    let cancelled = false;
-    loadSupabaseClient().then((supabase) => {
-      supabase.auth.getUser().then(({ data }) => {
-        if (!cancelled) setIsAdmin(!!data.user);
-      });
-    });
-    return () => { cancelled = true; };
-  }, []);
 
   // count 기반 font-size scale — tag cloud 효과. linear 보간 12px ~ 22px.
   const fontFor = useMemo(() => {
