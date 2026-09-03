@@ -23,6 +23,7 @@ import RandomPosts from "./_components/RandomPosts";
 import RecentComments from "./_components/RecentComments";
 import PostsSidebar from "./_components/PostsSidebar";
 import PostsSkeletonCards from "./_components/PostsSkeletonCards";
+import TimelineIndex from "./_components/TimelineIndex";
 import TimelineMotionItem from "./_components/TimelineMotionItem";
 import { useMasonryRowSpans } from "./_hooks/useMasonryRowSpans";
 import { useTimeline } from "./_hooks/useTimeline";
@@ -1327,64 +1328,8 @@ export default function PostsClient({ initialData, history = false, archiveMonth
               ) : (
                 <>
               <div className={`${styles.gridWrap} ${postsLayout === "timeline" ? styles.gridWrapTimeline : ""}`}>
-              {postsLayout === "timeline" && timelineIndexGroups.length > 0 && (
-                <motion.nav
-                  className={styles.timelineIndex}
-                  aria-label="월별 이동"
-                  data-lenis-prevent
-                  initial="hidden"
-                  animate="show"
-                  variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05, delayChildren: 0.08 } } }}
-                >
-                  {timelineIndexGroups.map((group) => {
-                    const yearActive = group.months.some((m) => m.key === activeMonthKey);
-                    return (
-                      <motion.div
-                        key={group.year}
-                        className={styles.timelineIndexGroup}
-                        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.02 } } }}
-                      >
-                        <motion.div
-                          className={`${styles.timelineIndexYear} ${yearActive ? styles.timelineIndexYearActive : ""}`}
-                          variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0 } }}
-                        >
-                          {group.year}<span className={styles.timelineIndexHanja}>年</span>
-                        </motion.div>
-                        <motion.div
-                          className={styles.timelineIndexMonths}
-                          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.02 } } }}
-                        >
-                          {group.months.map((m) => {
-                            const isActive = activeMonthKey === m.key;
-                            return (
-                              <motion.button
-                                key={m.key}
-                                type="button"
-                                variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0 } }}
-                                whileHover={{ x: 3 }}
-                                transition={{ type: "spring", stiffness: 480, damping: 30 }}
-                                className={`${styles.timelineIndexItem} ${isActive ? styles.timelineIndexItemActive : ""}`}
-                                onClick={() => scrollToMonth(m.key)}
-                                data-clickable="true"
-                              >
-                                <span className={styles.timelineIndexTick} aria-hidden="true">
-                                  {isActive && (
-                                    <motion.span
-                                      layoutId="tlIndexActiveDot"
-                                      className={styles.timelineIndexDot}
-                                      transition={{ type: "spring", stiffness: 520, damping: 34 }}
-                                    />
-                                  )}
-                                </span>
-                                <span className={styles.timelineIndexMm}>{m.mm}<span className={styles.timelineIndexHanja}>月</span></span>
-                              </motion.button>
-                            );
-                          })}
-                        </motion.div>
-                      </motion.div>
-                    );
-                  })}
-                </motion.nav>
+              {postsLayout === "timeline" && (
+                <TimelineIndex groups={timelineIndexGroups} activeMonthKey={activeMonthKey} onJump={scrollToMonth} />
               )}
               <div
                 ref={gridRef}
