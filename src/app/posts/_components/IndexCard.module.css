@@ -1,0 +1,93 @@
+/* ── 인덱스 카드 (IndexCard) — 시리즈 · 카테고리 인덱스가 같이 쓰는 커버 + 본문 카드 그리드. 컴포넌트 없이 CSS 만 공유 ── */
+
+/* ── Grid 카드 ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--spacing-xl);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+
+.cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--bg-tertiary);
+  overflow: hidden;
+  /* card hover 시 살짝 떠오름 */
+  transition: transform 0.35s var(--ease-material), box-shadow 0.35s ease;
+}
+
+.card:hover .cover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.coverImg {
+  object-fit: cover;
+  transition: transform 0.5s var(--ease-material);
+}
+
+.card:hover .coverImg {
+  transform: scale(1.06);
+}
+
+.coverPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-instrument);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  color: var(--text-tertiary);
+}
+
+/* featured (인기 시리즈) — accent 살짝 강조 */
+.cardFeatured .cover {
+  outline: 1px solid color-mix(in srgb, var(--text-accent) 50%, transparent);
+  outline-offset: -1px;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-2xs) 0;
+}
+
+.meta2 {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-hint);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cardTitle {
+  /* /posts 본문 카드·history 와 동일한 editorial instrument serif 로 통일 */
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-title-md);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+  transition: color var(--duration-fast) var(--ease-material);
+}
+.card:hover .cardTitle {
+  color: var(--text-accent);
+}

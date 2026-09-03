@@ -1,0 +1,26 @@
+/* ── 시리즈 인덱스 컨트롤 (SeriesIndexControls) — 정렬 · perPage · 검색 ── */
+
+/* 페이징 + 검색 + 도움말 묶음 — 우측 정렬, 작은 gap */.searchTools {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: auto;
+  min-width: 0;
+}/* perPage 그룹(아이콘 + select) */.perPageGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}.perPageIcon {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}.perPageSelect {
+  flex: 0 0 auto;
+}.perPageSelect > button {
+  padding: 0 var(--spacing-sm);
+  font-size: var(--font-size-hint);
+}
+
+/* 정렬/검색창 border 를 페이징 select(--border-light) 등 주변 컨트롤과 light 로 통일 */
+.sortControl.sortControl {
+  box-shadow: inset 0 0 0 1px var(--border-color-light);
+}
