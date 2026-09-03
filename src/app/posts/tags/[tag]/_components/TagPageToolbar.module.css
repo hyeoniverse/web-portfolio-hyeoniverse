@@ -1,0 +1,149 @@
+/* ── 태그 페이지 sticky 툴바 (TagPageToolbar) — 뒤로 · TAG 배지 · 정렬 · perPage · 검색. stuck 시 full-bleed blur, 스크롤 다운 시 숨김 ── */
+
+/* 뒤로가기(태그 목록) 버튼 — 좌우 패딩 제거해 좌측 끝에 flush */
+.backBtn {
+  padding-inline: 0 !important;
+}
+
+/* hover — 화살표 왼쪽으로 슬라이드(뒤로가기 방향).
+   compound (0,2,1) 로 전역 transition rule(0,1,1)을 이겨 transform transition 이 유지됨. */
+.backBtn.backBtn svg {
+  transition: transform var(--duration-fast) var(--ease-material);
+}
+.backBtn:hover svg {
+  transform: translateX(-3px);
+}
+
+/* Top row — TAG badge · 검색 · toolbar 한 줄. sticky 로 스크롤 시 filter bar 효과.
+   posts 페이지 filterBar 와 동일 — top, z-index 가 nav 보다 낮아 nav 가 위로 오게 됨. */
+.heroTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: var(--spacing-sm);
+  position: sticky;
+  top: calc(var(--spacing-2xl) * 2 + var(--font-size-3xl));
+  z-index: 51;
+  padding-bottom: var(--spacing-md);
+  background: transparent;
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* stuck 상태 — 콘텐츠 영역만 backdrop blur 면 좁아 보이니까 ::before pseudo 로
+   viewport 좌우 끝 + nav 영역까지 확장. heroTopRow 가 sticky 라 stick 시
+   pseudo 도 viewport top 으로 같이 따라감. */
+.heroTopRowStuck {
+  border-bottom: var(--border-light);
+}
+
+.heroTopRowStuck::before {
+  content: "";
+  position: absolute;
+  /* 위로 stickyTop 만큼 확장 → nav 영역 포함 */
+  top: calc(-1 * (var(--spacing-2xl) * 2 + var(--font-size-3xl)));
+  /* viewport 좌우 끝까지 */
+  left: calc(50% - 50vw);
+  right: calc(50% - 50vw);
+  bottom: 0;
+  backdrop-filter: blur(12px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* scroll-down 시 위로 숨김 — 클래스를 두 번 적어 (0,2,0) 으로 global theme transition 우회
+   (원래는 .container 접두였는데 툴바 모듈로 옮기며 자기 클래스 compound 로 — 특이도 같음) */
+.heroTopRow.heroTopRowHidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+.heroTopRow.heroTopRow:not(.heroTopRowHidden) {
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+/* 검색창 + 뒤의 perPage select 를 우측으로 — 검색창이 margin-left:auto 로 그룹을 오른쪽에 밀착 */
+.heroSearch {
+  flex: 0 0 auto;
+  max-width: 360px;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.heroBadge:hover {
+  color: var(--text-accent);
+}
+
+/* ── Toolbar — sort 왼쪽, 검색 + perPage 오른쪽 끝 ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 1;
+  min-width: 0;
+}
+
+
+/* sort 묶음 — toolbar 왼쪽 */
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* SegmentedControl 의 기본 height (font-xs + padding-2xs/md) 가 search/select 보다 큼 →
+   filter bar size 와 통일 (font-2xs + box-sm) */
+.toolbarLeft button {
+  padding: var(--button-p-xs);
+  font-size: var(--font-size-hint);
+}
+
+/* 정렬/검색창 border 를 페이징 select(--border-light) 등 주변 컨트롤과 light 로 통일 */
+.sortControl.sortControl {
+  box-shadow: inset 0 0 0 1px var(--border-color-light);
+}
+
+.heroSearch:not(:focus-within) {
+  border-color: var(--border-color-light) !important;
+}
+/* perPage + 검색창 묶음 — 우측 정렬, 둘 사이 약간의 gap */
+.searchPerPageGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: auto;
+  min-width: 0;
+}
+
+/* perPage 그룹(아이콘 + select) — 검색창 왼쪽에 위치 */
+.perPageGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+}
+.perPageIcon {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+.perPageSelect {
+  flex: 0 0 auto;
+}
+.perPageSelect > button {
+  padding: 0 var(--spacing-sm);
+  font-size: var(--font-size-hint);
+}

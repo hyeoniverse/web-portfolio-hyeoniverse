@@ -1,0 +1,178 @@
+/* ── 이 태그를 쓴 프로젝트 (TagWorksSection) — 작업물 행 목록, hover 시 배경 이미지 ── */
+
+/* ══ 통합 태그 — 같은 tech 를 쓴 작업물 섹션 (tags↔tech 공유) ══ */
+.worksSection {
+  margin-top: var(--spacing-5xl);
+  padding-top: var(--spacing-2xl);
+  border-top: var(--border-light);
+}
+.worksHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0 0 var(--spacing-xl) 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-title-md);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+.worksCount {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  border: var(--border-light);
+  border-radius: var(--radius-capsule);
+  padding: var(--spacing-4xs) var(--spacing-sm);
+  font-variant-numeric: tabular-nums;
+}
+/* 프로젝트 목록 — 간격 없이 border 로만 구분하는 라인 테이블. 큰 타이포 제목. */
+.worksTable {
+  display: flex;
+  flex-direction: column;
+  border-top: var(--border-light);
+}
+.workRow {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-2xs);
+  border-bottom: var(--border-light);
+  text-decoration: none;
+  color: inherit;
+}
+/* 텍스트는 배경 위로 (화살표는 absolute 라 별도 처리) */
+.workRow > *:not(.workRowBg):not(.workRowArrow) {
+  position: relative;
+  z-index: 1;
+}
+
+/* hover 들여쓰기 — padding-left 증가로 좌측 콘텐츠만 밀림(우측 정렬 year 는 고정),
+   열린 공간에 좌측 화살표가 나타남. compound (0,2,0) 로 전역 transition rule 이김.
+   OUT(un-hover): 화살표가 먼저 사라진 뒤 title 이 되돌아오도록 delay. */
+.worksTable .workRow {
+  transition: padding var(--duration-base) var(--ease-out-expo) var(--duration-fast);
+}
+/* IN(hover): 즉시 들여쓰기 (delay 없음, 0,2,1 로 위 규칙 이김) */
+.worksTable .workRow:hover {
+  transition: padding var(--duration-base) var(--ease-out-expo);
+}
+.workRow:hover {
+  padding-left: var(--spacing-2xl);
+}
+
+/* hover 시 우측에 썸네일 ghost.
+   wrapper: 왼쪽으로 갈수록 mask 로 투명 + opacity fade.
+   안쪽 이미지: clip-path 로 오른쪽→왼쪽 펼침. (mask 와 clip-path 를 분리해 합성 이슈 회피) */
+.workRowBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to left, #000 0%, transparent 72%);
+  mask-image: linear-gradient(to left, #000 0%, transparent 72%);
+  opacity: 0;
+  pointer-events: none;
+}
+.workRowBgImg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: right center;
+  /* 오른쪽 끝에서 시작 → hover 시 왼쪽으로 펼쳐짐 */
+  clip-path: inset(0 0 0 100%);
+}
+/* transition — compound (0,2,0) 로 전역 transition rule(0,1,1) 이김. 접힘/펼침 더 천천히. */
+.workRow .workRowBg {
+  transition: opacity var(--duration-moderate) var(--ease-material);
+}
+.workRow .workRowBgImg {
+  transition: clip-path var(--duration-slower) var(--ease-out-expo);
+}
+.workRow:hover .workRowBg {
+  opacity: 1;
+}
+.workRow:hover .workRowBgImg {
+  clip-path: inset(0 0 0 0);
+}
+
+.workRowTitle {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.workRow .workRowTitle {
+  transition: color var(--duration-fast) var(--ease-material);
+}
+.workRow:hover .workRowTitle {
+  color: var(--text-accent);
+}
+.workRowSubtitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--font-size-body);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.workRowYear {
+  flex: 0 0 auto;
+  margin-left: auto;
+  margin-right: var(--spacing-md);
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-xl);
+  font-style: italic;
+  font-weight: var(--font-weight-light);
+  /* white + difference — 뒤 이미지/배경과 반전 blend 되어 항상 대비 확보 */
+  color: var(--text-white);
+  mix-blend-mode: difference;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+/* 화살표 — 좌측 absolute. hover 들여쓰기로 열린 공간에 나타남 */
+.workRowArrow {
+  position: absolute;
+  left: var(--spacing-2xs);
+  top: 50%;
+  z-index: 1;
+  color: var(--text-accent);
+  opacity: 0;
+  transform: translate(-8px, -50%);
+}
+/* OUT(un-hover): 빠르게 먼저 왼쪽으로 fade out (delay 없음).
+   compound (0,2,0) 로 전역 rule(0,1,1) 이김. */
+.workRow .workRowArrow {
+  transition:
+    opacity var(--duration-fast) var(--ease-material),
+    transform var(--duration-fast) var(--ease-material);
+}
+/* IN(hover): title 들여쓰기 뒤 나타나도록 delay (0,2,1 로 위 규칙 이김) */
+.workRow:hover .workRowArrow {
+  opacity: 1;
+  transform: translate(0, -50%);
+  transition:
+    opacity var(--duration-base) var(--ease-material) var(--duration-fast),
+    transform var(--duration-base) var(--ease-out-expo) var(--duration-fast);
+}
+
+@media (max-width: 640px) {
+  .workRowSubtitle {
+    display: none;
+  }
+  .workRowTitle {
+    font-size: var(--font-size-2xl);
+    white-space: normal;
+  }
+}
