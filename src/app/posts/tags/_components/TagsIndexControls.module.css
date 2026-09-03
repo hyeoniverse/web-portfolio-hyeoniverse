@@ -1,0 +1,8 @@
+/* ── 태그 인덱스 컨트롤 (TagsIndexControls) — 정렬 + 검색. 검색창은 IndexPage 의 것과 달리 margin-left:auto 로 오른쪽 정렬이라 자체 규칙 ── */
+
+.searchBar {
+  flex: 0 0 auto;
+  width: 320px;
+  max-width: 100%;
+  margin-left: auto;
+}
