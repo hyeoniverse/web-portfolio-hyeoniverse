@@ -1,0 +1,62 @@
+/* ── 인덱스 페이지 골격 (IndexPage) — 시리즈 · 카테고리 인덱스가 같이 쓰는 컨테이너 · 헤더 · 메타 · 검색/정렬 줄 · 빈 상태. 컴포넌트 없이 CSS 만 공유 ── */
+
+.container {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-5xl) var(--page-px) var(--spacing-3xl);
+}/* 뒤로가기(글 목록) — 서브네비와 제목 헤더 사이 */.backRow {
+  margin-bottom: var(--spacing-md);
+}.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding-bottom: var(--spacing-md);
+  border-bottom: var(--border-light);
+  margin-bottom: var(--spacing-md);
+}.headerTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}.title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
+  font-family: var(--font-instrument);
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+}.meta {
+  margin: 0;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body);
+  color: var(--text-tertiary);
+}.meta strong {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}/* 검색 + 정렬 같은 줄 */.searchSortRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.searchBar {
+  flex: 0 0 auto;
+  width: 320px;
+  max-width: 100%;
+}
+
+.searchBar:not(:focus-within) {
+  border-color: var(--border-color-light) !important;
+}
+
+.empty,
+.endNote {
+  margin: var(--spacing-2xl) 0 0 0;
+  text-align: center;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}

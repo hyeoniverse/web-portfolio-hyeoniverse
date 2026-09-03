@@ -4,13 +4,13 @@ import { useMemo, useState } from "react";
 import { useSheet } from "@/hooks/useSheet";
 import Link from "next/link";
 import MediaThumb from "@/components/ui/MediaThumb";
-import { motion, AnimatePresence } from "framer-motion";
-import { LayoutGrid, Sparkles, X, ArrowRight } from "@/components/icons";
+import { LayoutGrid, Sparkles } from "@/components/icons";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import styles from "../series/SeriesIndex.module.css";
-import Pressable from "@/components/ui/Pressable";
+import page from "../_components/IndexPage.module.css";
+import card from "../_components/IndexCard.module.css";
+import IndexSheet from "../_components/IndexSheet/IndexSheet";
 
 interface CategoryEntry {
   name: string;
@@ -53,20 +53,20 @@ export default function CategoriesIndexClient({ categories }: Props) {
   );
 
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.headerTitleRow}>
-          <h1 className={styles.title}>
+    <div className={page.container}>
+      <header className={page.header}>
+        <div className={page.headerTitleRow}>
+          <h1 className={page.title}>
             <LayoutGrid size={22} strokeWidth={1.8} aria-hidden />
             카테고리 모음
           </h1>
         </div>
-        <p className={styles.meta}>
+        <p className={page.meta}>
           <strong>{filtered.length.toLocaleString()}</strong>개의 카테고리
           {" · "}
           총 <strong>{totalPosts.toLocaleString()}</strong>개의 글
         </p>
-        <div className={styles.searchSortRow}>
+        <div className={page.searchSortRow}>
           <SegmentedControl<SortBy>
             items={[
               { value: "popular", label: "인기순" },
@@ -81,52 +81,52 @@ export default function CategoriesIndexClient({ categories }: Props) {
             placeholder="카테고리 검색…"
             align="left"
             size="sm"
-            className={styles.searchBar}
+            className={page.searchBar}
             routeParam="q"
           />
         </div>
       </header>
 
       {filtered.length === 0 ? (
-        <p className={styles.empty}>일치하는 카테고리가 없습니다.</p>
+        <p className={page.empty}>일치하는 카테고리가 없습니다.</p>
       ) : (
-        <ul className={styles.grid}>
+        <ul className={card.grid}>
           {filtered.map((c) => {
             const isFeatured = featuredSet.has(c.name);
             return (
               <li key={c.name}>
                 <Link
                   href={`/posts?category=${encodeURIComponent(c.name)}`}
-                  className={`${styles.card} ${isFeatured ? styles.cardFeatured : ""}`}
+                  className={`${card.card} ${isFeatured ? card.cardFeatured : ""}`}
                   onClick={isTouch ? (e) => {
                     e.preventDefault();
                     setSheetCat(c);
                   } : undefined}
                 >
                   {isFeatured && (
-                    <span className={styles.cardFeaturedBadge}>
+                    <span className={card.cardFeaturedBadge}>
                       <Sparkles size={10} strokeWidth={2} aria-hidden />
                       인기
                     </span>
                   )}
-                  <div className={styles.cover}>
+                  <div className={card.cover}>
                     {c.first_cover ? (
                       <MediaThumb
                         src={c.first_cover}
                         fill
                         sizes="(max-width: 768px) 50vw, 240px"
-                        className={styles.coverImg}
+                        className={card.coverImg}
                         unoptimized
                       />
                     ) : (
-                      <span className={styles.coverPlaceholder}>{c.name.charAt(0).toUpperCase()}</span>
+                      <span className={card.coverPlaceholder}>{c.name.charAt(0).toUpperCase()}</span>
                     )}
                   </div>
-                  <div className={styles.body}>
-                    <span className={styles.meta2}>
+                  <div className={card.body}>
+                    <span className={card.meta2}>
                       <span>{c.count}개의 글</span>
                     </span>
-                    <span className={styles.cardTitle}>{c.name}</span>
+                    <span className={card.cardTitle}>{c.name}</span>
                   </div>
                 </Link>
               </li>
@@ -136,52 +136,16 @@ export default function CategoriesIndexClient({ categories }: Props) {
       )}
 
       {filtered.length > 0 && (
-        <p className={styles.endNote}>— 모든 카테고리를 다 표시했습니다. ({filtered.length}개) —</p>
+        <p className={page.endNote}>— 모든 카테고리를 다 표시했습니다. ({filtered.length}개) —</p>
       )}
 
-      <AnimatePresence>
-        {sheetCat && (
-          <>
-            <motion.div
-              className={styles.sheetBackdrop}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setSheetCat(null)}
-            />
-            <motion.div
-              className={styles.sheet}
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 280 }}
-              role="dialog"
-              aria-modal="true"
-            >
-              <Pressable
-                className={styles.sheetClose}
-                onClick={() => setSheetCat(null)}
-                aria-label="닫기"
-              >
-                <X size={18} aria-hidden />
-              </Pressable>
-              <div className={styles.sheetHeader}>
-                <h2 className={styles.sheetTitle}>{sheetCat.name}</h2>
-                <span className={styles.sheetCount}>{sheetCat.count}개의 글</span>
-              </div>
-              <Link
-                href={`/posts?category=${encodeURIComponent(sheetCat.name)}`}
-                className={styles.sheetCta}
-                onClick={() => setSheetCat(null)}
-              >
-                이 카테고리의 글 보기
-                <ArrowRight size={14} aria-hidden />
-              </Link>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <IndexSheet
+        show={!!sheetCat}
+        onClose={() => setSheetCat(null)}
+        title={sheetCat?.name}
+        count={sheetCat ? `${sheetCat.count}개의 글` : null}
+        cta={{ href: `/posts?category=${encodeURIComponent(sheetCat?.name ?? "")}`, label: "이 카테고리의 글 보기" }}
+      />
     </div>
   );
 }
