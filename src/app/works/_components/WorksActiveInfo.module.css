@@ -1,0 +1,51 @@
+/* 현재 보고 있는 작품 정보 — 갤러리 하단 고정 표시. WorksSection.module.css 에서 분리 (#662). */
+.activeInfo {
+  position: fixed;
+  bottom: 80px;
+  left: 60px;
+  z-index: var(--z-float);
+  font-family: var(--font-space-grotesk), sans-serif;
+  color: var(--text-primary);
+  pointer-events: none;
+}
+
+.activeInfoInner {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-direction: column;
+}
+
+.activeNumber {
+  font-family: var(--font-instrument), serif;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0.2em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.activeTitle {
+  margin: 0;
+  font-family: var(--font-instrument), serif;
+  font-size: var(--fluid-font-size-5xl);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-dense);
+  color: inherit;
+  letter-spacing: -0.03em;
+  pointer-events: auto;
+}
+
+.activeSubtitle {
+  margin: 0;
+  font-size: clamp(14px, 1.5vw, 20px);
+  font-weight: var(--font-weight-regular);
+  color: inherit;
+  letter-spacing: 0.02em;
+  pointer-events: auto;
+}
+
+@media (max-width: 1024px), (max-height: 700px) {
+  .activeInfo {
+    display: none;
+  }
+}

@@ -1,0 +1,19 @@
+/* 작품 상세로 넘어갈 때 이미지 확대 전환 오버레이. WorksSection.module.css 에서 분리 (#662). */
+.transition {
+  position: fixed;
+  z-index: var(--z-top);
+  background: var(--bg-primary);
+  pointer-events: none;
+  inset: 0;
+}
+
+.transitionImage {
+  overflow: hidden;
+  position: fixed;
+}
+
+.transitionImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
