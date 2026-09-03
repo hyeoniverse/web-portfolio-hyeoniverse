@@ -1,6 +1,6 @@
 import { Skeleton, SkeletonLine } from "@/components/ui/Skeleton";
 import layoutStyles from "@/components/layout/DetailLayout/DetailLayout.module.css";
-import styles from "./WorkDetail.module.css";
+import styles from "@/components/works/WorkArticleView.module.css";
 
 export default function WorkDetailLoading() {
   return (
@@ -28,7 +28,7 @@ export default function WorkDetailLoading() {
         <div style={{ height: "var(--spacing-4xl)" }} />
 
         {/* Info row: Role + Tech */}
-        <div className={styles.infoRow}>
+        <div className={styles.infoGrid}>
           <div className={styles.infoBlock}>
             <SkeletonLine width={40} height={10} />
             <SkeletonLine width={120} height={14} />
