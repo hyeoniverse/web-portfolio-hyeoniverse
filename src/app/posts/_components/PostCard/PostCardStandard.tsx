@@ -4,7 +4,6 @@ import { useState, useRef, useLayoutEffect } from "react";
 import Link from "next/link";
 import ProgressiveImage from "@/components/ui/ProgressiveImage";
 import type { Post } from "@/types/post";
-import { formatCount } from "@/utils/format";
 import CategoryLabel from "@/components/ui/CategoryLabel";
 import HighlightedText from "@/components/ui/HighlightedText";
 import T from "@/components/ui/T";
@@ -19,7 +18,7 @@ import Pressable from "@/components/ui/Pressable";
 
 export interface PostCardVariantProps {
   post: Post;
-  variant?: "featured" | "standard" | "hero";
+  variant?: "featured" | "standard";
   /** 시리즈 필터링 등 — 카드 높이를 축소 (이미지 16:9 + body 슬림) */
   compact?: boolean;
   /** 목록 레이아웃 (설정) — compact 는 전용 렌더, 나머지는 표준 카드 + CSS */
@@ -52,7 +51,6 @@ export default function PostCardStandard({
     displayTitle, displayExcerpt, icon, handleClick, handlePrefetch,
   } = usePostCard({ post, imgError });
   const isFeatured = variant === "featured";
-  const isHero = variant === "hero";
   const [tagsExpanded, setTagsExpanded] = useState(false);
   const [tagsOverflow, setTagsOverflow] = useState(false);
   const tagsRef = useRef<HTMLDivElement>(null);
@@ -96,81 +94,11 @@ export default function PostCardStandard({
     styles.card,
     !showImage && styles.placeholderCard,
     isFeatured && styles.featured,
-    isHero && styles.hero,
     compact && styles.compact,
     banner && styles.banner,
     square && styles.square,
     portrait && styles.portrait,
   ].filter(Boolean).join(" ");
-
-  /* ── Hero variant: 풀 블리드 이미지 + 하단 오버레이 ── */
-  if (isHero) {
-    return (
-      <div ref={cardRef} className={cardClass} onClick={handleClick} onMouseEnter={handlePrefetch} onFocus={handlePrefetch} role="link" data-more="true" data-clickable="true">
-        {/* 풀 배경 이미지 */}
-        {showImage ? (
-          <ProgressiveImage
-            src={post.cover_image}
-            alt={post.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 55vw"
-            className={`${styles.image} ${styles.heroBgImg}`}
-            priority
-            onError={() => onImgError?.(post.id)}
-          />
-        ) : (
-          <div
-            className={styles.heroPlaceholder}
-            style={{ background: getFallbackCoverGradient(post.slug || post.id) }}
-          />
-        )}
-
-        {/* 하단 그라데이션 */}
-        <div className={styles.heroOverlay} />
-
-        {/* HOT 뱃지 */}
-        {isHot && (
-          <HotBadge />
-        )}
-
-        {/* 하단 콘텐츠 */}
-        <div className={styles.heroContent}>
-          {icon && (
-            <span className={`${styles.cardIcon} ${styles.cardIconInline}`}><EmojiIcon value={icon} size={34} /></span>
-          )}
-          <div className={styles.badgeRow}>
-            {category && (
-              <span className={styles.heroBadge}><CategoryLabel category={category} /></span>
-            )}
-            {langBadge && (
-              <span className={styles.heroLangHint}><T k={`postDetail.${langBadge}`} /></span>
-            )}
-          </div>
-          <h2 className={styles.heroTitle}><HighlightedText text={displayTitle} /></h2>
-          {displayExcerpt && <p className={styles.heroExcerpt}><HighlightedText text={displayExcerpt} /></p>}
-          <div className={styles.heroMeta}>
-            {author && <span className={styles.metaGroup}><PostCardAuthor author={author} /></span>}
-            <span className={styles.metaGroup}>
-              <span>{date}</span>
-              <span className={styles.heroDot}>&middot;</span>
-              <span>{readTime} {t("postDetail.minRead")}</span>
-            </span>
-            <span className={styles.metaGroup}>
-              <span className={styles.metaItem}>
-                <Eye size={11} strokeWidth={1.75} />
-                {formatCount(post.view_count ?? 0)} {t("postDetail.views")}
-              </span>
-              <span className={styles.heroDot}>&middot;</span>
-              <span className={styles.metaItem}>
-                <Heart size={11} strokeWidth={1.75} />
-                {formatCount(post.like_count ?? 0)} {t("postDetail.likes")}
-              </span>
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   /* ── Standard / Featured ── */
   return (
