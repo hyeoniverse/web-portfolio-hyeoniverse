@@ -1,0 +1,32 @@
+/* ── 번역 안내 배너 (TranslateBanner) — 보는 언어의 본문이 없을 때, 자동 번역 버튼 / 실패 메시지 ── */
+
+/* ── Translation banner ── */
+.translateBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-left: 2px solid var(--text-muted);
+  background: transparent;
+  margin-bottom: var(--spacing-xl);
+}
+
+.translateIcon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.translateMessage {
+  flex: 1;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.translateErrorMsg {
+  flex-shrink: 0;
+  font-size: var(--font-size-label);
+  color: var(--text-error);
+  margin: 0;
+}

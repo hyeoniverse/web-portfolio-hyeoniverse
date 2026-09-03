@@ -57,34 +57,3 @@
 .trashBarPurge:hover {
   background: var(--bg-accent-light);
 }
-
-/* ── Translation banner ── */
-.translateBanner {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-left: 2px solid var(--text-muted);
-  background: transparent;
-  margin-bottom: var(--spacing-xl);
-}
-
-.translateIcon {
-  flex-shrink: 0;
-  color: var(--text-muted);
-}
-
-.translateMessage {
-  flex: 1;
-  font-family: var(--font-space-grotesk);
-  font-size: var(--font-size-label);
-  color: var(--text-tertiary);
-  margin: 0;
-}
-
-.translateErrorMsg {
-  flex-shrink: 0;
-  font-size: var(--font-size-label);
-  color: var(--text-error);
-  margin: 0;
-}
