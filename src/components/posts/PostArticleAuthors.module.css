@@ -1,0 +1,111 @@
+/* ── 글 끝 저자 상세 (PostArticleAuthors) — 카드 · 아바타 · 소개 · 링크 ── */
+
+/* ── 작성자: 게시물 끝 상세 섹션 ── */
+.authorsFooter {
+  margin-top: var(--spacing-3xl);
+  padding-top: var(--spacing-xl);
+  border-top: var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  scroll-margin-top: var(--spacing-3xl);
+}
+.authorsFooterHeading {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.authorFooterCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+}
+.authorFooterAvatar,
+.authorFooterAvatarFallback {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-circle);
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px var(--border-color-light);
+}
+.authorFooterAvatar {
+  object-fit: cover;
+}
+.authorFooterAvatarFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg);
+}
+.authorFooterBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  min-width: 0;
+}
+.authorFooterNameRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+.authorFooterName {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-title-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+.authorFooterRole {
+  font-size: var(--font-size-body);
+  color: var(--text-tertiary);
+}
+.authorFooterBio {
+  font-size: var(--font-size-body);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.authorFooterLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-2xs);
+}
+/* 링크는 공통 TextLink(external) 사용 — 색만 accent 로 override (하위 a 셀렉터로 단일 클래스 이김) */
+.authorFooterLinks a,
+.authorFooterLinks a:hover {
+  color: var(--text-accent);
+}
+.authorFooterLinks a::after {
+  background: var(--text-accent);
+}
+/* 선행 브랜드 아이콘 크기만 지정 (색은 currentColor → accent 상속) */
+.authorFooterLinkIcon {
+  width: 1.1em;
+  height: 1.1em;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .authorsFooter {
+    margin-top: var(--spacing-2xl);
+  }
+  .authorFooterCard {
+    gap: var(--spacing-md);
+  }
+  .authorFooterAvatar,
+  .authorFooterAvatarFallback {
+    width: 48px;
+    height: 48px;
+  }
+  .authorFooterName {
+    font-size: var(--font-size-title-sm);
+  }
+}

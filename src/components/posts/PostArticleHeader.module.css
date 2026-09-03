@@ -1,0 +1,173 @@
+/* ── 글 상세 헤더 (PostArticleHeader) — articleHeader 래퍼(상세·loading·admin preview 가 공유) + 메타 줄 · 제목 · 발췌 · 태그 · 저자 칩 ── */
+
+/* ── Article header ── */
+.articleHeader {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.tagsShareRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-secondary);
+}
+
+.dot {
+  color: var(--text-tertiary);
+}
+
+.metaDivider {
+  display: inline-block;
+  width: 1px;
+  height: 12px;
+  background: var(--border-color-light);
+}
+
+.articleTitle {
+  font-family: var(--font-instrument);
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--spacing-md);
+}
+
+.excerpt {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-body-xl);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--spacing-md);
+}
+
+/* ── 작성자: 헤더 간결 칩 (태그 아래, 클릭 시 하단 상세로 이동) ── */
+.authorsCompact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+}
+.authorChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-2xs) var(--spacing-md) var(--spacing-2xs) var(--spacing-2xs);
+  border-radius: var(--radius-capsule);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.authorChip:hover {
+  background: var(--bg-secondary);
+}
+.authorChipAvatar,
+.authorChipAvatarFallback {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-circle);
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px var(--border-color-light);
+}
+.authorChipAvatar {
+  object-fit: cover;
+}
+.authorChipAvatarFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: var(--font-space-grotesk);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
+}
+.authorChip:hover .authorChipAvatarFallback {
+  background: var(--bg-tertiary);
+}
+.authorChipMeta {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+.authorChipName {
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-title-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+.authorChipRole {
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.tag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+/* hover 밑줄 애니메이션 — 전역 *::after(0,0,1) 를 .tag::after(0,1,1) 로 이겨 width transition 유지 */
+.tag::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background: var(--text-primary);
+  transition: width 0.3s ease;
+}
+.tag:hover {
+  color: var(--text-primary);
+}
+.tag:hover::after {
+  width: 100%;
+}
+.tagHash {
+  opacity: 0.5;
+  margin-right: var(--spacing-4xs);
+}
+
+.headerDivider {
+  height: 1px;
+  background: var(--border-color-light);
+  margin-top: var(--spacing-2xl);
+}
+
+@media (max-width: 768px) {
+  .articleTitle {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+
+  .excerpt {
+    font-size: var(--font-size-body-lg);
+  }
+}
