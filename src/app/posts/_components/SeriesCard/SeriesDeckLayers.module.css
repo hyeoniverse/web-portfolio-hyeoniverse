@@ -1,0 +1,124 @@
+/* ── 시리즈 카드 deck 레이어 (SeriesDeckLayers) — 카드 뒤에 겹친 글 레이어, hover 펼침(open) 시 stagger 로 전개 ── */
+
+/* 게시물 수만큼 뒤로 쌓이는 레이어 (--deck-i: 1 부터 MAX) — 우상단으로 더 분명하게 어긋나서
+   종이 더미처럼 여러 장이 겹쳐 있는 게 명확히 보임 */
+.deckLayer {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-primary);
+  border: var(--border-light);
+  /* 라벨이 박스 위쪽으로 빠져나가도록 visible (이미지는 deckLayerMedia 가 자체적으로 hidden) */
+  overflow: visible;
+  z-index: 0;
+  /* deckOpen 시 클릭으로 글 이동 — 부모(card button) onClick 과 분리되도록 직계 child 가 stopPropagation 처리 */
+  cursor: pointer;
+  /* i 가 클수록 더 깊이(우하단) — 3px 우측 + 2px 하단 per layer (촘촘한 stack) */
+  transform: translate(calc(var(--deck-i, 1) * 3px), calc(var(--deck-i, 1) * 2px));
+  /* 각 layer 의 좌상단 모서리에 살짝 그림자 — 겹침 가시성 ↑ */
+  box-shadow: var(--shadow-xs);
+  /* 기본(접힘 방향) 은 overshoot 없는 standard ease — 좌측으로 튀는 현상 방지 */
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+/* deck layer — 메인 카드와 동일한 구조: 이미지 + footer info. 라벨은 카드 박스 밖 위쪽 */
+.deckLayer {
+  display: flex;
+  flex-direction: column;
+  /* 라벨이 layer 박스 위로 빠져나갈 수 있도록 overflow visible */
+  overflow: visible;
+}
+
+/* 라벨 — layer 박스 위쪽 외부에 absolute 배치 (메인 카드의 .label 과 동일 위치감)
+   접힘 상태에서는 숨김, hover 펼침 시 layer 마다 순차적으로 페이드인 */
+.deckLayerLabel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+  padding: 0 var(--spacing-3xs) var(--spacing-xs);
+  font-family: var(--font-space-grotesk);
+  font-size: var(--font-size-label);
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.deckLayerNumber {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-medium);
+}
+
+.deckLayerTag {
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 이미지/색 영역 — flex:1 로 가운데 차지 */
+.deckLayerMedia {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  /* 메인 카드 thumb 와 같은 bg (cover 없을 때 layer 의 background 가 이미 seeded color) */
+}
+
+.deckLayerImage {
+  object-fit: cover;
+}
+
+/* 정보 영역 — 카드 하단 footer. 제목 2줄만 (이미지 영역 최대화) */
+.deckLayerInfo {
+  flex: 0 0 auto;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  background: var(--bg-primary);
+  border-top: var(--border-light);
+}
+
+/* 제목 2줄 고정 — line-height × 2 로 높이 항상 일정 */
+.deckLayerTitle {
+  display: -webkit-box;
+  font-family: var(--font-instrument);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  line-height: 1.25;
+  height: calc(var(--font-size-body) * 1.25 * 2);
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  letter-spacing: -0.005em;
+}
+
+/* 펼침(open) 은 JS 가 hover 시간을 재서 토글한다 — layer 가 stagger 로 펼쳐짐.
+   transition-delay 는 stagger 만 — 펼침 trigger 자체는 JS 가 담당하므로 base delay 불필요.
+   z-index 끌어올림 — 펼쳐진 deck 가 thumb (z:1) 보다 위에 hit-test 되도록.
+   원래는 `.card.deckOpen .deckLayer` 였는데 카드 CSS 가 다른 모듈이라 레이어에 클래스를 붙여 받는다. */
+.deckLayer.deckLayerOpen {
+  z-index: 2;
+  transform: translateX(calc(var(--deck-i, 1) * 176px));
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) calc((var(--deck-i, 1) - 1) * 0.18s),
+    box-shadow 0.4s ease calc((var(--deck-i, 1) - 1) * 0.18s);
+}
+
+.deckLayerNoCover.deckLayerNoCoverOpen {
+  background: var(--_layer-bg, var(--bg-secondary));
+  transition: background 0.4s ease calc((var(--deck-i, 1) - 1) * 0.18s);
+}
+
+.deckLayerLabel.deckLayerLabelOpen {
+  opacity: 1;
+  /* layer 펼침과 같은 stagger 로 라벨도 순차 페이드인 (JS 가 trigger 시점 제어) */
+  transition: opacity 0.3s ease calc((var(--deck-i, 1) - 1) * 0.18s);
+}

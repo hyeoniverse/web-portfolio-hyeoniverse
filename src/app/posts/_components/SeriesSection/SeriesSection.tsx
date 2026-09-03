@@ -13,7 +13,7 @@ import Pressable from "@/components/ui/Pressable";
 import SegmentedControl from "@/components/ui/SegmentedControl";
 import SearchCapsule from "@/components/ui/SearchCapsule/SearchCapsule";
 import { BookOpen, ChevronLeft, ChevronRight, Settings, Shuffle } from "@/components/icons";
-import SeriesCard from "../SeriesCard";
+import SeriesCard from "../SeriesCard/SeriesCard";
 import { useSeriesFeed } from "./useSeriesFeed";
 import { useSeriesRowScroll } from "./useSeriesRowScroll";
 // 섹션 헤더 골격(sectionHeader · sortWrap · shuffleBtn · seriesSegmented)은 글 목록 툴바(PostsToolbar)와 공유
