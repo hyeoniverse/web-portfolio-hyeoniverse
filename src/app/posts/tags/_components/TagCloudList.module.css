@@ -1,0 +1,37 @@
+/* ── 태그 클라우드 (TagCloudList) — pill 나열, 인기 강조, hover 연관 glow ── */
+
+/* 인기 태그 — 별도 섹션 대신 inline accent. top N 에 light accent 배경.
+   compound (0,2,0) 로 TagPill 의 .pill 기본 background 를 override */
+.tagItemPopular.tagItemPopular {
+  background: var(--bg-accent-light);
+}
+
+/* hover 한 태그의 연관 태그 glow — accent 톤 부드러운 halo (color-mix 로 투명도 조절) */
+.tagItemRelated.tagItemRelated {
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    0 0 6px color-mix(in srgb, var(--text-accent) 60%, transparent),
+    0 0 14px color-mix(in srgb, var(--text-accent) 30%, transparent);
+  transition: box-shadow 0.18s ease;
+}
+
+/* 일반 태그 나열 — pill flex-wrap, font-size 는 inline (count 기반 scale) */
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tagItem {
+  display: inline-flex;
+}
+
+.tagItemPill {
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  /* font-size 는 inline style 로 부여 (tag cloud scale) */
+}
